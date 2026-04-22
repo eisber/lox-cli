@@ -57,29 +57,29 @@
       ],
       "simulation": [
         {
+          "name": "blinds close when hot+sunny",
           "inputs": {
-            "Außentemperatur.AQ": 25.0,
-            "Sonnenschein.AQ": 1.0
+            "Außentemperatur": 25.0,
+            "Sonnenschein": 1.0
           },
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Jalousie 1.InputTriggerDown": {
+            "Jalousie 1 [Wohnzimmer].InputTriggerDown": {
               ">": 0.5
             }
-          },
-          "name": "should trigger when condition met"
+          }
         },
         {
-          "name": "should NOT trigger when condition not met",
+          "name": "blinds stay when cold",
           "inputs": {
-            "Außentemperatur.AQ": 15.0,
-            "Sonnenschein.AQ": 0.0
+            "Außentemperatur": 15.0,
+            "Sonnenschein": 0.0
           },
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Jalousie 1.InputTriggerDown": {
+            "Jalousie 1 [Wohnzimmer].InputTriggerDown": {
               "<": 0.5
             }
           }
@@ -231,27 +231,27 @@
       ],
       "simulation": [
         {
-          "name": "should trigger when condition met",
+          "name": "blinds close when windy",
           "inputs": {
-            "Windgeschwindigkeit.AQ": 45.0
+            "Windgeschwindigkeit": 45.0
           },
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Jalousie 1.InputTriggerDown": {
+            "Jalousie 1 [Wohnzimmer].InputTriggerDown": {
               ">": 0.5
             }
           }
         },
         {
-          "name": "should NOT trigger when condition not met",
+          "name": "blinds stay when calm",
           "inputs": {
-            "Windgeschwindigkeit.AQ": 35.0
+            "Windgeschwindigkeit": 20.0
           },
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Jalousie 1.InputTriggerDown": {
+            "Jalousie 1 [Wohnzimmer].InputTriggerDown": {
               "<": 0.5
             }
           }
@@ -295,25 +295,26 @@
       ],
       "simulation": [
         {
-          "name": "fan should run after light off (inject into light)",
+          "name": "fan runs when light triggers",
           "inputs": {
-            "Lichtsteuerung [Bad].I1": 1.0
+            "Lichtsteuerung [Bad]": 1.0,
+            "Bewegungsmelder": 1.0
           },
           "ticks": 20,
           "dt": 0.1,
           "expected_outputs": {
-            "Lüfter Bad.I1": {
+            "Lüfter Bad": {
               ">": 0.5
             }
           }
         },
         {
-          "name": "fan should not run with no trigger",
+          "name": "fan off with no trigger",
           "inputs": {},
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Lüfter Bad.I1": {
+            "Lüfter Bad": {
               "<": 0.5
             }
           }
@@ -343,27 +344,26 @@
       "params": [],
       "simulation": [
         {
-          "name": "light activates on motion",
+          "name": "hallway light on with motion",
           "inputs": {
-            "Bewegungsmelder": 1.0
+            "Bewegungsmelder": 1.0,
+            "Bewegungsmelder [Flur]": 1.0
           },
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Lichtsteuerung [Flur].Presence": {
+            "Lichtsteuerung [Flur]": {
               ">": 0.5
             }
           }
         },
         {
-          "name": "light off without motion",
-          "inputs": {
-            "Bewegungsmelder": 0.0
-          },
+          "name": "hallway light off without motion",
+          "inputs": {},
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Lichtsteuerung [Flur].Presence": {
+            "Lichtsteuerung [Flur]": {
               "<": 0.5
             }
           }
@@ -409,27 +409,27 @@
       ],
       "simulation": [
         {
+          "name": "blinds open when freezing",
           "inputs": {
-            "Außentemperatur.AQ": -2.0
+            "Außentemperatur": -2.0
           },
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Jalousie 1.InputTriggerUp": {
+            "Jalousie 1 [Wohnzimmer].InputTriggerUp": {
               ">": 0.5
             }
-          },
-          "name": "should trigger when condition met"
+          }
         },
         {
-          "name": "should NOT trigger when condition not met",
+          "name": "blinds stay when warm",
           "inputs": {
-            "Außentemperatur.AQ": 8.0
+            "Außentemperatur": 10.0
           },
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Jalousie 1.InputTriggerUp": {
+            "Jalousie 1 [Wohnzimmer].InputTriggerUp": {
               "<": 0.5
             }
           }
@@ -497,29 +497,31 @@
       ],
       "simulation": [
         {
-          "name": "irrigation active when dry and no rain",
+          "name": "irrigation on when dry and no rain",
           "inputs": {
             "Feuchtesensor Garten": 25.0,
+            "Luftfeuchtigkeit": 25.0,
             "Regen": 0.0
           },
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Bewässerungsventil.I1": {
+            "Bewässerungsventil": {
               ">": 0.5
             }
           }
         },
         {
-          "name": "irrigation blocked when raining",
+          "name": "irrigation off when raining",
           "inputs": {
             "Feuchtesensor Garten": 25.0,
+            "Luftfeuchtigkeit": 25.0,
             "Regen": 1.0
           },
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Bewässerungsventil.I1": {
+            "Bewässerungsventil": {
               "<": 0.5
             }
           }
@@ -564,25 +566,24 @@
         {
           "name": "garage light on when door opens",
           "inputs": {
-            "Garagentor Sensor": 1.0
+            "Garagentor Sensor": 1.0,
+            "Türkontakt Eingang": 1.0
           },
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Garagenlicht.I1": {
+            "Garagenlicht": {
               ">": 0.5
             }
           }
         },
         {
           "name": "garage light off without trigger",
-          "inputs": {
-            "Garagentor Sensor": 0.0
-          },
+          "inputs": {},
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Garagenlicht.I1": {
+            "Garagenlicht": {
               "<": 0.5
             }
           }
