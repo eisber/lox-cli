@@ -335,17 +335,16 @@ fn check_comparator(actual: f64, op: &str, expected: f64) -> bool {
 fn run_one(graph: &lox_sim::graph::SimGraph, spec: &SimSpec) -> ScenarioResult {
     let mut engine = SimEngine::new(graph.clone());
 
-    // Set inputs — try key as-is, then strip connector suffix, then add suffixes
+    // Set inputs — try set_input first, then inject_output as fallback
     for (key, value) in &spec.inputs {
         if engine.set_input(key, *value) {
             continue;
         }
-        // Strip ".AQ", ".Q", etc. and try just the block name
         let block_name = key.split('.').next().unwrap_or(key);
         if engine.set_input(block_name, *value) {
             continue;
         }
-        // Try common suffixes on the block name
+        // Try common suffixes
         let candidates = [
             format!("{block_name}.AQ"),
             format!("{block_name}.Q"),
@@ -357,6 +356,23 @@ fn run_one(graph: &lox_sim::graph::SimGraph, spec: &SimSpec) -> ScenarioResult {
         let mut found = false;
         for c in &candidates {
             if engine.set_input(c, *value) {
+                found = true;
+                break;
+            }
+        }
+        if found {
+            continue;
+        }
+        // Fallback: inject directly into output connector (for non-source blocks
+        // like PresenceDetector, where we want to simulate sensor readings)
+        if engine.inject_output(key, *value) {
+            continue;
+        }
+        if engine.inject_output(block_name, *value) {
+            continue;
+        }
+        for c in &candidates {
+            if engine.inject_output(c, *value) {
                 found = true;
                 break;
             }

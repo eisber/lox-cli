@@ -129,7 +129,9 @@ impl SimEngine {
                     named_outputs.entry(rkey).or_default().push(cid);
                 }
             }
-            // Bare block name
+            // Bare block name + outputs as settable inputs
+            // Register "Block.OutputConnector" as settable (for simulation injection)
+            // but do NOT override bare block name mapping for non-source blocks
             if is_source {
                 for &cid in &info.inputs {
                     named_inputs.entry(info.name.clone()).or_default().push(cid);
@@ -199,6 +201,28 @@ impl SimEngine {
                     for &ds in &self.downstream[block_id] {
                         self.dirty[ds] = true;
                     }
+                }
+            }
+            true
+        } else {
+            false
+        }
+    }
+
+    /// Inject a value directly into a named output connector.
+    ///
+    /// Unlike `set_input`, this targets output connectors — useful for
+    /// simulating sensor readings on blocks like PresenceDetector where
+    /// the output (e.g. `OutputPresence`) is what downstream blocks read.
+    pub fn inject_output(&mut self, name: &str, value: f64) -> bool {
+        if let Some(cids) = self.named_outputs.get(name) {
+            let cids = cids.clone();
+            for &cid in &cids {
+                self.signals[cid] = value;
+                let block_id = self.graph.connector(cid).block_id;
+                self.dirty[block_id] = true;
+                for &ds in &self.downstream[block_id] {
+                    self.dirty[ds] = true;
                 }
             }
             true
