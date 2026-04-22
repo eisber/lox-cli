@@ -178,15 +178,12 @@ def _load_skill(name: str) -> str:
 def build_llm_prompt(case, config_path: str) -> str:
     config_skill = _load_skill("loxone-config")
     sim_skill = _load_skill("loxone-sim")
-    patterns_skill = _load_skill("loxone-patterns")
     fixture_desc = _describe_fixture(config_path)
 
     return f"""\
 {config_skill}
 
 {sim_skill}
-
-{patterns_skill}
 
 ## Current Config
 File: {config_path}
@@ -196,7 +193,7 @@ File: {config_path}
 ## Task
 {case['utterance']}
 
-Respond ONLY with `lox config` commands, one per line. No explanations.
+Respond ONLY with `lox` commands, one per line. No explanations.
 End with: lox config check {config_path}
 """
 
