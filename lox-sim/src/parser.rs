@@ -23,6 +23,7 @@ struct ParsedConnector {
 struct ParsedBlock {
     name: String,
     block_type: String,
+    room: Option<String>,
     connectors: Vec<ParsedConnector>,
     daytimer_entries: Vec<DayTimerEntry>,
 }
@@ -85,6 +86,11 @@ pub fn parse_element(root: &Element) -> Result<SimGraph, String> {
             &param_keys,
         );
 
+        // Set room info for name disambiguation
+        if let Some(ref room) = parsed.room {
+            graph.blocks[block_id].room = Some(room.clone());
+        }
+
         for connector in &parsed.connectors {
             let cid = graph
                 .find_connector(block_id, &connector.key)
@@ -95,33 +101,33 @@ pub fn parse_element(root: &Element) -> Result<SimGraph, String> {
                     )
                 })?;
             graph.connectors[cid].default_value = connector.default_value;
-            uuid_to_connector.insert(connector.uuid.clone(), cid);
+            // Track first occurrence for explicit wire resolution
+            uuid_to_connector.entry(connector.uuid.clone()).or_insert(cid);
+            // Also track per-block for shared-UUID wiring
+            // If this connector has an explicit source, record the wire with THIS cid
+            if let Some(source_ref) = &connector.explicit_source_uuid {
+                explicit_wires.push((source_ref.clone(), cid));
+            }
             shared_uuid_map
                 .entry(connector.uuid.clone())
                 .or_default()
                 .push((connector.dir, cid));
-            if let Some(source_uuid) = &connector.explicit_source_uuid {
-                explicit_wires.push((source_uuid.clone(), connector.uuid.clone()));
-            }
         }
     }
 
     let mut wired_inputs = HashSet::new();
-    for (source_uuid, dest_uuid) in &explicit_wires {
-        if let (Some(&from), Some(&to)) = (
-            uuid_to_connector.get(source_uuid),
-            uuid_to_connector.get(dest_uuid),
-        ) {
-            if wired_inputs.insert(to) {
+    // First pass: resolve UUID-based wires (source is a UUID)
+    for (source_ref, dest_cid) in &explicit_wires {
+        if let Some(&from) = uuid_to_connector.get(source_ref) {
+            if wired_inputs.insert(*dest_cid) {
                 graph
-                    .add_wire(from, to)
+                    .add_wire(from, *dest_cid)
                     .map_err(|error| error.to_string())?;
             }
         }
     }
 
     // Second pass: resolve name-based wiring ("Title.Connector" format, FLG="2")
-    // Build a name→connector lookup: "BlockTitle.ConnectorKey" → ConnectorId
     let mut name_to_output: HashMap<String, usize> = HashMap::new();
     for bid in 0..graph.block_count() {
         let info = graph.block_info(bid);
@@ -129,27 +135,21 @@ pub fn parse_element(root: &Element) -> Result<SimGraph, String> {
             let key = format!("{}.{}", info.name, graph.connector(cid).key);
             name_to_output.insert(key, cid);
         }
-        // Also register bare block name → first output
         if let Some(&cid) = info.outputs.first() {
             name_to_output.entry(info.name.clone()).or_insert(cid);
         }
     }
 
-    for (source_ref, dest_uuid) in &explicit_wires {
+    for (source_ref, dest_cid) in &explicit_wires {
         // Already resolved by UUID above?
         if uuid_to_connector.contains_key(source_ref) {
             continue;
         }
         // Try name-based resolution
         if let Some(&from) = name_to_output.get(source_ref) {
-            if let Some(&to) = uuid_to_connector.get(dest_uuid) {
-                if wired_inputs.insert(to) {
-                    let _ = graph.add_wire(from, to);
-                }
+            if wired_inputs.insert(*dest_cid) {
+                let _ = graph.add_wire(from, *dest_cid);
             }
-        } else {
-            eprintln!("warning: unresolved name-based wire source '{source_ref}' (available: {:?})", 
-                name_to_output.keys().take(5).collect::<Vec<_>>());
         }
     }
 
@@ -176,8 +176,18 @@ pub fn parse_element(root: &Element) -> Result<SimGraph, String> {
 }
 
 fn walk_blocks(elem: &Element, out: &mut Vec<ParsedBlock>) {
+    walk_blocks_with_room(elem, out, None);
+}
+
+fn walk_blocks_with_room(elem: &Element, out: &mut Vec<ParsedBlock>, current_room: Option<&str>) {
+    let mut room = current_room;
+
     if elem.name == "C" {
         if let Some(block_type) = elem.attributes.get("Type") {
+            // Track room/page context for name disambiguation
+            if block_type == "Place" || block_type == "Page" {
+                room = elem.attributes.get("Title").map(|s| s.as_str());
+            }
             if !is_structural_type(block_type) {
                 let name = elem
                     .attributes
@@ -189,6 +199,7 @@ fn walk_blocks(elem: &Element, out: &mut Vec<ParsedBlock>) {
                 out.push(ParsedBlock {
                     name,
                     block_type: block_type.clone(),
+                    room: room.map(|s| s.to_string()),
                     connectors: parse_connectors(block_type, elem),
                     daytimer_entries: parse_daytimer_entries(elem),
                 });
@@ -198,7 +209,7 @@ fn walk_blocks(elem: &Element, out: &mut Vec<ParsedBlock>) {
 
     for child in &elem.children {
         if let Some(child) = child.as_element() {
-            walk_blocks(child, out);
+            walk_blocks_with_room(child, out, room);
         }
     }
 }

@@ -46,6 +46,7 @@ impl std::error::Error for GraphError {}
 pub struct BlockInfo {
     pub id: BlockId,
     pub name: String,
+    pub room: Option<String>,
     pub inputs: Vec<ConnectorId>,
     pub outputs: Vec<ConnectorId>,
     pub params: Vec<ConnectorId>,
@@ -122,6 +123,7 @@ impl SimGraph {
         self.blocks.push(BlockInfo {
             id: block_id,
             name,
+            room: None,
             inputs,
             outputs,
             params,

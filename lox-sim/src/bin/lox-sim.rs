@@ -37,6 +37,66 @@ fn main() {
             });
             println!("{output}");
         }
+        "dump" => {
+            // Dump graph structure: blocks, connectors, wires
+            let mut engine = SimEngine::new(graph.clone());
+
+            // Apply inputs from --sim if provided
+            if let Some(pos) = args.iter().position(|a| a == "--sim") {
+                if let Some(sim_json) = args.get(pos + 1) {
+                    if let Ok(spec) = serde_json::from_str::<SimSpec>(sim_json) {
+                        for (key, value) in &spec.inputs {
+                            let block_name = key.split('.').next().unwrap_or(key);
+                            if !engine.set_input(key, *value) {
+                                let _ = engine.set_input(block_name, *value);
+                            }
+                        }
+                        for _ in 0..spec.ticks {
+                            engine.tick(spec.dt);
+                        }
+                    }
+                }
+            }
+
+            println!("=== BLOCKS ({}) ===", graph.block_count());
+            for bid in 0..graph.block_count() {
+                let info = graph.block_info(bid);
+                let room = info.room.as_deref().unwrap_or("-");
+                println!("  [{bid:3}] {name:30} ({room:15}) ins={ni} outs={no}",
+                    name=info.name, ni=info.inputs.len(), no=info.outputs.len());
+                for &cid in &info.inputs {
+                    let c = graph.connector(cid);
+                    let src = graph.input_source_of(cid);
+                    let val = engine.signal(cid);
+                    let wire_info = if let Some(src_cid) = src {
+                        let sc = graph.connector(src_cid);
+                        let sb = graph.block_info(sc.block_id);
+                        format!("← {}.{} (={:.2})", sb.name, sc.key, engine.signal(src_cid))
+                    } else {
+                        String::from("(unwired)")
+                    };
+                    println!("    IN  {key:20} cid={cid:3} val={val:8.2}  {wire_info}", key=c.key);
+                }
+                for &cid in &info.outputs {
+                    let c = graph.connector(cid);
+                    let val = engine.signal(cid);
+                    println!("    OUT {key:20} cid={cid:3} val={val:8.2}", key=c.key);
+                }
+            }
+
+            println!("\n=== WIRES ===");
+            for cid in 0..graph.connector_count() {
+                if let Some(src) = graph.input_source_of(cid) {
+                    let dc = graph.connector(cid);
+                    let db = graph.block_info(dc.block_id);
+                    let sc = graph.connector(src);
+                    let sb = graph.block_info(sc.block_id);
+                    println!("  {sn}.{sk} → {dn}.{dk}  (val={sv:.2} → {dv:.2})",
+                        sn=sb.name, sk=sc.key, dn=db.name, dk=dc.key,
+                        sv=engine.signal(src), dv=engine.signal(cid));
+                }
+            }
+        }
         "run" => {
             let sim_json = if let Some(pos) = args.iter().position(|a| a == "--sim") {
                 args.get(pos + 1)
@@ -170,23 +230,31 @@ fn run_one(graph: &lox_sim::graph::SimGraph, spec: &SimSpec) -> ScenarioResult {
     let mut all_pass = true;
 
     for (output_key, comparators) in &spec.expected_outputs {
-        // Try as output first, then as input (for checking signals arriving at actuators)
         let mut actual = engine.get_output(output_key);
-        if actual == 0.0 {
-            // Try as named input (actuator inputs like "Jalousie 1.InputTriggerDown")
-            if let Some(cids) = engine.named_input_cids(output_key) {
-                actual = cids.iter().map(|&cid| engine.signal(cid)).fold(0.0_f64, |a, b| if b.abs() > a.abs() { b } else { a });
-            }
-        }
-        // Try stripping to block.connector and resolving manually  
+
+        // If 0, try reading the input connector's wire source (engine reads
+        // from source directly during eval, doesn't copy to input cid)
         if actual == 0.0 && output_key.contains('.') {
             let parts: Vec<&str> = output_key.splitn(2, '.').collect();
             let block_name = parts[0];
             let conn_name = parts.get(1).unwrap_or(&"");
             for bid in 0..graph.block_count() {
                 let info = graph.block_info(bid);
-                if info.name == block_name {
-                    if let Some(cid) = graph.find_connector(bid, conn_name) {
+                let name_matches = info.name == block_name
+                    || info.room.as_ref().map_or(false, |r| {
+                        format!("{} [{}]", info.name, r) == block_name
+                    });
+                if !name_matches {
+                    continue;
+                }
+                if let Some(cid) = graph.find_connector(bid, conn_name) {
+                    // Read from wire source if wired
+                    if let Some(src) = graph.input_source_of(cid) {
+                        let sig = engine.signal(src);
+                        if sig.abs() > actual.abs() {
+                            actual = sig;
+                        }
+                    } else {
                         let sig = engine.signal(cid);
                         if sig.abs() > actual.abs() {
                             actual = sig;

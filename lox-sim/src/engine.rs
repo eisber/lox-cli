@@ -114,14 +114,22 @@ impl SimEngine {
             let is_source = source_types.contains(&blocks[bid].block_type());
             for &cid in &info.inputs {
                 let key = format!("{}.{}", info.name, graph.connector(cid).key);
-                named_inputs.entry(key).or_default().push(cid);
+                named_inputs.entry(key.clone()).or_default().push(cid);
+                // Room-qualified: "Name [Room].Connector"
+                if let Some(ref room) = info.room {
+                    let rkey = format!("{} [{}].{}", info.name, room, graph.connector(cid).key);
+                    named_inputs.entry(rkey).or_default().push(cid);
+                }
             }
             for &cid in &info.outputs {
                 let key = format!("{}.{}", info.name, graph.connector(cid).key);
-                named_outputs.entry(key).or_default().push(cid);
+                named_outputs.entry(key.clone()).or_default().push(cid);
+                if let Some(ref room) = info.room {
+                    let rkey = format!("{} [{}].{}", info.name, room, graph.connector(cid).key);
+                    named_outputs.entry(rkey).or_default().push(cid);
+                }
             }
-            // Bare block name: source blocks → both input AND output connectors,
-            // so the value is immediately visible and consistent after eval.
+            // Bare block name
             if is_source {
                 for &cid in &info.inputs {
                     named_inputs.entry(info.name.clone()).or_default().push(cid);
@@ -137,6 +145,23 @@ impl SimEngine {
                     .entry(info.name.clone())
                     .or_default()
                     .push(cid);
+            }
+            // Room-qualified bare name: "Name [Room]"
+            if let Some(ref room) = info.room {
+                let rname = format!("{} [{}]", info.name, room);
+                if is_source {
+                    for &cid in &info.inputs {
+                        named_inputs.entry(rname.clone()).or_default().push(cid);
+                    }
+                    for &cid in &info.outputs {
+                        named_inputs.entry(rname.clone()).or_default().push(cid);
+                    }
+                } else if let Some(&cid) = info.inputs.first() {
+                    named_inputs.entry(rname.clone()).or_default().push(cid);
+                }
+                if let Some(&cid) = info.outputs.first() {
+                    named_outputs.entry(rname).or_default().push(cid);
+                }
             }
         }
 
