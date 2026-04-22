@@ -110,23 +110,93 @@ def _describe_fixture(config_path: str) -> str:
 
 
 def build_llm_prompt(case, config_path: str) -> str:
-    commands_ref = _truncate_commands_md()
     fixture_desc = _describe_fixture(config_path)
 
     return f"""\
 You are a Loxone home automation expert. You configure Miniservers using the `lox` CLI.
 
-## Available Commands
-```
-lox config add --type TYPE --title TITLE --room ROOM --page PAGE FILE
-lox config wire-connector FILE "Block.Connector" UUID_OR_TITLE
-lox config set-param FILE "Block" PARAM VALUE
-lox config control describe FILE SELECTOR   (get connector UUIDs before wiring)
-lox config validate FILE                     (run to verify your work)
-```
+## Commands
 
-### Detailed Reference
-{commands_ref}
+### Add a block
+lox config add --type TYPE --title TITLE --room ROOM --page PAGE FILE
+
+### Set a parameter on a block
+lox config set-param FILE "BlockTitle" ParamName Value
+
+### Wire two connectors together
+lox config wire-connector FILE "SourceBlock.OutputConnector" "TargetBlock.InputConnector"
+  - Connects a source output to a target input
+  - Use exact connector names (see reference below)
+
+### Verify your work
+lox config check FILE
+
+## Block Type Reference (connectors)
+
+| Type | Inputs | Outputs | Params |
+|------|--------|---------|--------|
+| GreaterEqual | Input1 (analog) | Q (1 if Input1 ≥ Input2) | Input2=threshold |
+| Less | Input1 (analog) | Q (1 if Input1 < Input2) | Input2=threshold |
+| Greater | Input1 (analog) | Q (1 if Input1 > Input2) | Input2=threshold |
+| And | I1, I2 (digital) | Q (1 if all inputs >0.5) | |
+| Or | I1, I2 (digital) | Q (1 if any input >0.5) | |
+| Not | I (digital) | Q (inverted) | |
+| Mult | Input1, Input2 | AQ (product) | Input2=factor |
+| Add | Input1, Input2 | AQ (sum) | |
+| Sub | Input1, Input2 | AQ (difference) | |
+| Memory | S (set), R (reset) | Q (stored value) | |
+| FlipFlop | InputS (set), InputR (reset) | Q (toggle) | |
+| Monoflop | InputTrigger | Q (pulse for Time seconds) | Time |
+| OnPulseDelay | InputTrigger | Q (delayed pulse) | Time |
+| StairwayLS | InputTrigger, On | Q (timed switch) | TimeHigh |
+| OffDelay | InputTrigger | Q (stays on for Time after off) | Time |
+| DayTimer | InputTrigger | AQ, Qon, Qoff | (schedule in UI) |
+| PulseGen | InputEnable | Q (periodic pulse) | Period |
+| State | I1..I20 | AQ, TQ (selected state) | |
+
+## Fixture Sensors (wire FROM these .AQ/.Q outputs)
+
+| Sensor | Output | Signal |
+|--------|--------|--------|
+| Außentemperatur | .AQ | Temperature °C |
+| Sonnenschein | .AQ | Sunshine 0/1 |
+| Windgeschwindigkeit | .AQ | Wind speed km/h |
+| Regen | .AQ | Rain 0/1 |
+| Luftfeuchtigkeit | .AQ | Humidity % |
+| Helligkeit | .AQ | Brightness lux |
+| CO2 Sensor | .AQ | CO2 ppm |
+| Bewegungsmelder | .OutputPresence | Motion 0/1 |
+| Türkontakt Eingang | .Q | Door contact 0/1 |
+| Türklingel | .Q | Doorbell pulse |
+| Pool Temperatur | .AQ | Pool temp °C |
+| Raumtemperatur Wohnzimmer | .AQ | Room temp °C |
+| Schalter 1 | .Q | Switch 0/1 |
+
+## Fixture Actuators (wire TO these inputs)
+
+| Actuator | Room | Key Inputs |
+|----------|------|------------|
+| Jalousie 1, Jalousie 2 | each room | .InputTriggerDown, .InputTriggerUp, .InputDisable |
+| Lichtsteuerung | each room | .I1 (on/off), .Presence, .Brightness |
+| Klimaanlage | Wohnzimmer | .toggle |
+| Poolpumpe | Garten | .I1 |
+| Lüfter Bad | Bad | .I1 |
+| Raumregler | Wohnzimmer | .Temp |
+
+## Worked Example
+
+Task: "Close blinds when it's sunny and above 25°C"
+
+```
+lox config add --type GreaterEqual --title "Temp über 25" --room Wohnzimmer --page Wohnzimmer config.Loxone
+lox config set-param config.Loxone "Temp über 25" Input2 25
+lox config add --type And --title "Sonne und Warm" --room Wohnzimmer --page Wohnzimmer config.Loxone
+lox config wire-connector config.Loxone "Außentemperatur.AQ" "Temp über 25.Input1"
+lox config wire-connector config.Loxone "Sonnenschein.AQ" "Sonne und Warm.I1"
+lox config wire-connector config.Loxone "Temp über 25.Q" "Sonne und Warm.I2"
+lox config wire-connector config.Loxone "Sonne und Warm.Q" "Jalousie 1 [Wohnzimmer].InputTriggerDown"
+lox config check config.Loxone
+```
 
 ## Current Config
 File: {config_path}
@@ -136,17 +206,8 @@ File: {config_path}
 ## Task
 {case['utterance']}
 
-## Instructions
-1. First, use `lox config control describe` to discover connector UUIDs for existing controls you need to wire FROM.
-2. Add new blocks with `lox config add`, always specifying --room and --page.
-3. Set parameters with `lox config set-param`.
-4. Wire connectors with `lox config wire-connector`.
-5. Run `lox config validate {config_path}` after all changes to verify.
-
-Respond ONLY with the CLI commands to execute, one per line.
-Each command must start with `lox config`.
-After all commands, include: lox config validate {config_path}
-Do NOT include any other text, explanations, or markdown fences.
+Respond ONLY with `lox config` commands, one per line. No explanations.
+End with: lox config check {config_path}
 """
 
 
@@ -175,7 +236,9 @@ _CMD_RE = re.compile(r"^\s*(lox\s+config\s+.+)$", re.MULTILINE)
 
 def parse_commands(llm_text: str) -> list[str]:
     """Extract `lox config …` commands from LLM output."""
-    return _CMD_RE.findall(llm_text)
+    # Strip markdown fences and normalize escaped quotes
+    clean = llm_text.replace('\\"', '"').replace("\\'", "'")
+    return _CMD_RE.findall(clean)
 
 
 def execute_commands(commands: list[str], tracker: CLITracker, cwd=None):
