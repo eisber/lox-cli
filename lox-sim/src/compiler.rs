@@ -249,6 +249,79 @@ pub enum EvalStep {
         outputs: [usize; 5],
         state_idx: usize,
     },
+
+    // -- Nand (negated And) --
+    Nand {
+        inputs: SmallVec<[usize; 4]>,
+        output: usize,
+    },
+    // -- Nor (negated Or) --
+    Nor {
+        inputs: SmallVec<[usize; 4]>,
+        output: usize,
+    },
+    // -- Equal --
+    Equal {
+        input1: usize,
+        input2: usize,
+        output: usize,
+    },
+    // -- NotEqual --
+    NotEqual {
+        input1: usize,
+        input2: usize,
+        output: usize,
+    },
+    // -- DewPoint --
+    DewPoint {
+        temp: usize,
+        humidity: usize,
+        output: usize,
+    },
+    // -- Heatcurve / Heatmixer --
+    Heatcurve {
+        outdoor: usize,
+        setpoint: usize,
+        param_base: usize,
+        param_slope: usize,
+        output: usize,
+    },
+    // -- Heatmixer2 (3-way mixing valve) --
+    Heatmixer2 {
+        supply: usize,
+        return_temp: usize,
+        setpoint: usize,
+        output_position: usize,
+        output_flow: usize,
+    },
+    // -- Power (base^exp) --
+    Power {
+        base: usize,
+        exponent: usize,
+        output: usize,
+    },
+    // -- LoadShed --
+    LoadShed {
+        inputs: SmallVec<[usize; 4]>,
+        param_limit: usize,
+        outputs: SmallVec<[usize; 4]>,
+    },
+    // -- Validator (value in [min, max]) --
+    Validator {
+        input: usize,
+        param_min: usize,
+        param_max: usize,
+        output: usize,
+    },
+    // -- Sequencer (edge-triggered step through params) --
+    Sequencer {
+        trigger: usize,
+        prev_trigger: usize,
+        reset: usize,
+        params: SmallVec<[usize; 8]>,
+        output: usize,
+        state_idx: usize,
+    },
 }
 
 // ---------------------------------------------------------------------------
@@ -613,6 +686,91 @@ impl CompiledGraph {
                             *outputs.get(3).unwrap_or(&0),
                             *outputs.get(4).unwrap_or(&0),
                         ],
+                        state_idx: si,
+                    }
+                }
+                "Nand" => EvalStep::Nand {
+                    inputs: resolved_inputs.iter().copied().collect(),
+                    output: outputs[0],
+                },
+                "Nor" => EvalStep::Nor {
+                    inputs: resolved_inputs.iter().copied().collect(),
+                    output: outputs[0],
+                },
+                "Equal" => {
+                    let i1 = resolved_inputs.first().copied().unwrap_or(0);
+                    let i2 = resolved_inputs
+                        .get(1)
+                        .copied()
+                        .or_else(|| params.first().copied())
+                        .unwrap_or(0);
+                    EvalStep::Equal {
+                        input1: i1,
+                        input2: i2,
+                        output: outputs[0],
+                    }
+                }
+                "NotEqual" => {
+                    let i1 = resolved_inputs.first().copied().unwrap_or(0);
+                    let i2 = resolved_inputs
+                        .get(1)
+                        .copied()
+                        .or_else(|| params.first().copied())
+                        .unwrap_or(0);
+                    EvalStep::NotEqual {
+                        input1: i1,
+                        input2: i2,
+                        output: outputs[0],
+                    }
+                }
+                "DewPoint" => EvalStep::DewPoint {
+                    temp: resolved_inputs.first().copied().unwrap_or(0),
+                    humidity: resolved_inputs.get(1).copied().unwrap_or(0),
+                    output: outputs[0],
+                },
+                "Heatcurve" | "Heatmixer" => EvalStep::Heatcurve {
+                    outdoor: resolved_inputs.first().copied().unwrap_or(0),
+                    setpoint: resolved_inputs.get(1).copied().unwrap_or(0),
+                    param_base: params.first().copied().unwrap_or(0),
+                    param_slope: params.get(1).copied().unwrap_or(0),
+                    output: outputs[0],
+                },
+                "Heatmixer2" => EvalStep::Heatmixer2 {
+                    supply: resolved_inputs.first().copied().unwrap_or(0),
+                    return_temp: resolved_inputs.get(1).copied().unwrap_or(0),
+                    setpoint: resolved_inputs.get(2).copied().unwrap_or(0),
+                    output_position: outputs.first().copied().unwrap_or(0),
+                    output_flow: outputs.get(1).copied().unwrap_or(0),
+                },
+                "Power" => EvalStep::Power {
+                    base: resolved_inputs.first().copied().unwrap_or(0),
+                    exponent: resolved_inputs
+                        .get(1)
+                        .copied()
+                        .or_else(|| params.first().copied())
+                        .unwrap_or(0),
+                    output: outputs[0],
+                },
+                "LoadShed" => EvalStep::LoadShed {
+                    inputs: resolved_inputs.iter().copied().collect(),
+                    param_limit: params.first().copied().unwrap_or(0),
+                    outputs: outputs.iter().copied().collect(),
+                },
+                "Validator" => EvalStep::Validator {
+                    input: resolved_inputs.first().copied().unwrap_or(0),
+                    param_min: params.first().copied().unwrap_or(0),
+                    param_max: params.get(1).copied().unwrap_or(0),
+                    output: outputs[0],
+                },
+                "Sequencer" => {
+                    let si = state.len();
+                    state.push(BlockState::Counter { count: 0.0 });
+                    EvalStep::Sequencer {
+                        trigger: resolved_inputs.first().copied().unwrap_or(0),
+                        prev_trigger: prev_inputs.first().copied().unwrap_or(0),
+                        reset: resolved_inputs.get(1).copied().unwrap_or(0),
+                        params: params.iter().copied().collect(),
+                        output: outputs[0],
                         state_idx: si,
                     }
                 }
@@ -1189,6 +1347,183 @@ impl CompiledGraph {
                         self.signals[outs[2]] = bool_f64(qon);
                         self.signals[outs[3]] = bool_f64(qoff);
                         self.signals[outs[4]] = remaining_secs;
+                    }
+                }
+
+                // -- Nand --
+                EvalStep::Nand { inputs, output } => {
+                    let all_high =
+                        !inputs.is_empty() && inputs.iter().all(|&i| self.signals[i] >= 0.5);
+                    self.signals[*output] = bool_f64(!all_high);
+                }
+
+                // -- Nor --
+                EvalStep::Nor { inputs, output } => {
+                    let any_high = inputs.iter().any(|&i| self.signals[i] >= 0.5);
+                    self.signals[*output] = bool_f64(!any_high);
+                }
+
+                // -- Equal --
+                EvalStep::Equal {
+                    input1,
+                    input2,
+                    output,
+                } => {
+                    let left = self.signals[*input1];
+                    let right = self.signals[*input2];
+                    self.signals[*output] = bool_f64((left - right).abs() <= f64::EPSILON);
+                }
+
+                // -- NotEqual --
+                EvalStep::NotEqual {
+                    input1,
+                    input2,
+                    output,
+                } => {
+                    let left = self.signals[*input1];
+                    let right = self.signals[*input2];
+                    self.signals[*output] = bool_f64((left - right).abs() > f64::EPSILON);
+                }
+
+                // -- DewPoint --
+                EvalStep::DewPoint {
+                    temp,
+                    humidity,
+                    output,
+                } => {
+                    let t = self.signals[*temp];
+                    let rh = self.signals[*humidity].clamp(0.01, 100.0);
+                    let denom_temp = 237.3 + t;
+                    if denom_temp.abs() < 0.1 {
+                        self.signals[*output] = t;
+                    } else {
+                        let alpha = (17.27 * t) / denom_temp + (rh / 100.0).ln();
+                        let denom_alpha = 17.27 - alpha;
+                        if denom_alpha.abs() < 1e-10 {
+                            self.signals[*output] = t;
+                        } else {
+                            self.signals[*output] = (237.3 * alpha) / denom_alpha;
+                        }
+                    }
+                }
+
+                // -- Heatcurve / Heatmixer --
+                EvalStep::Heatcurve {
+                    outdoor,
+                    setpoint,
+                    param_base,
+                    param_slope,
+                    output,
+                } => {
+                    let out_temp = self.signals[*outdoor];
+                    let sp = self.signals[*setpoint];
+                    let base = self.signals[*param_base];
+                    let slope = self.signals[*param_slope];
+                    self.signals[*output] = base + slope * (sp - out_temp);
+                }
+
+                // -- Heatmixer2 --
+                EvalStep::Heatmixer2 {
+                    supply,
+                    return_temp,
+                    setpoint,
+                    output_position,
+                    output_flow,
+                } => {
+                    let sup = self.signals[*supply];
+                    let ret = self.signals[*return_temp];
+                    let sp = self.signals[*setpoint];
+                    let range = sup - ret;
+                    let position = if range.abs() < 0.01 {
+                        0.0
+                    } else {
+                        ((sp - ret) / range).clamp(0.0, 1.0)
+                    };
+                    let flow = ret + position * range;
+                    self.signals[*output_position] = position;
+                    self.signals[*output_flow] = flow;
+                }
+
+                // -- Power --
+                EvalStep::Power {
+                    base,
+                    exponent,
+                    output,
+                } => {
+                    let b = self.signals[*base];
+                    let e = self.signals[*exponent];
+                    self.signals[*output] = b.powf(e);
+                }
+
+                // -- LoadShed --
+                EvalStep::LoadShed {
+                    inputs,
+                    param_limit,
+                    outputs,
+                } => {
+                    let limit = self.signals[*param_limit];
+                    let limit = if limit == 0.0 { 10000.0 } else { limit };
+                    let mut running = 0.0;
+                    for (i, &inp_idx) in inputs.iter().enumerate() {
+                        if i < outputs.len() {
+                            let load = self.signals[inp_idx];
+                            if running + load <= limit {
+                                running += load;
+                                self.signals[outputs[i]] = 1.0;
+                            } else {
+                                self.signals[outputs[i]] = 0.0;
+                            }
+                        }
+                    }
+                    // If more outputs than inputs, fill with 0.
+                    for i in inputs.len()..outputs.len() {
+                        self.signals[outputs[i]] = 0.0;
+                    }
+                }
+
+                // -- Validator --
+                EvalStep::Validator {
+                    input,
+                    param_min,
+                    param_max,
+                    output,
+                } => {
+                    let val = self.signals[*input];
+                    let min = self.signals[*param_min];
+                    let max = self.signals[*param_max];
+                    self.signals[*output] = bool_f64(val >= min && val <= max);
+                }
+
+                // -- Sequencer --
+                EvalStep::Sequencer {
+                    trigger,
+                    prev_trigger,
+                    reset,
+                    params,
+                    output,
+                    state_idx,
+                } => {
+                    let trig = self.signals[*trigger];
+                    let prev_trig = self.prev_signals[*prev_trigger];
+                    let rst = self.signals[*reset];
+                    let out = *output;
+                    let si = *state_idx;
+                    let n_params = params.len();
+
+                    if let BlockState::Counter { count } = &mut self.state[si] {
+                        let mut step = *count as usize;
+                        if rst >= 0.5 {
+                            step = 0;
+                        } else if prev_trig < 0.5 && trig >= 0.5 && n_params > 0 {
+                            step = (step + 1) % n_params;
+                        }
+                        *count = step as f64;
+                        let value = if n_params == 0 {
+                            0.0
+                        } else {
+                            self.signals[params[step % n_params]]
+                        };
+                        self.signals[out] = value;
                     }
                 }
             }
