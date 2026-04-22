@@ -677,9 +677,75 @@ fn blocks_info(ctx: &RunContext, block_type: &str) -> Result<()> {
             "    lox config add <file> --type {} --title \"My {}\"",
             block.xml_type, block.name
         );
+
+        // Related scenarios from eval cases
+        let scenarios = load_scenarios_for_type(&block.xml_type);
+        if !scenarios.is_empty() {
+            println!();
+            println!("  Scenarios:");
+            for (i, (difficulty, utterance)) in scenarios.iter().take(5).enumerate() {
+                println!("    {}. [{}] {}", i + 1, difficulty, utterance);
+            }
+            if scenarios.len() > 5 {
+                println!("    ... and {} more", scenarios.len() - 5);
+            }
+        }
     }
 
     Ok(())
+}
+
+/// Load eval case scenarios that use a given block type.
+fn load_scenarios_for_type(xml_type: &str) -> Vec<(String, String)> {
+    let eval_dir = std::path::Path::new("tests/eval/cases");
+    if !eval_dir.exists() {
+        return Vec::new();
+    }
+    let mut scenarios = Vec::new();
+    let Ok(entries) = std::fs::read_dir(eval_dir) else {
+        return Vec::new();
+    };
+    for entry in entries.flatten() {
+        let path = entry.path();
+        if path.extension().and_then(|e| e.to_str()) != Some("json") {
+            continue;
+        }
+        let Ok(data) = std::fs::read_to_string(&path) else {
+            continue;
+        };
+        let Ok(cases) = serde_json::from_str::<Vec<serde_json::Value>>(&data) else {
+            continue;
+        };
+        for case in &cases {
+            let blocks = case
+                .get("expected")
+                .and_then(|e| e.get("new_blocks"))
+                .and_then(|b| b.as_array());
+            if let Some(blocks) = blocks {
+                let uses_type = blocks.iter().any(|b| {
+                    b.get("type").and_then(|t| t.as_str()) == Some(xml_type)
+                });
+                if uses_type {
+                    let difficulty = case
+                        .get("difficulty")
+                        .and_then(|d| d.as_str())
+                        .unwrap_or("?")
+                        .to_string();
+                    let utterance = case
+                        .get("utterance")
+                        .and_then(|u| u.as_str())
+                        .unwrap_or("")
+                        .chars()
+                        .take(90)
+                        .collect::<String>();
+                    if !utterance.is_empty() {
+                        scenarios.push((difficulty, utterance));
+                    }
+                }
+            }
+        }
+    }
+    scenarios
 }
 
 fn format_connector_detail(c: &ConnectorEntry) -> String {
