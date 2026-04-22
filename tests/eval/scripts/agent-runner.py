@@ -805,6 +805,9 @@ def print_report(report):
     print(f"{'═' * 70}\n")
 
     print(f"  Cases:          {s['total']}")
+    if s['total'] == 0:
+        print("  No cases were evaluated.")
+        return
     print(f"  Pass Rate:      {s['passed']}/{s['total']} ({s['pass_rate']:.0%})")
     print(f"  Overall Score:  {s['avg_overall_score']:.1%}")
     print(f"  Weighted Score: {s['avg_weighted_score']:.2f}")

@@ -67,7 +67,7 @@ jobs:
           python3 tests/eval/scripts/llm-agent.py \
             --all \
             --model "${{ inputs.model || 'gpt-4o' }}" \
-            --filter "${{ inputs.filter || 'synthetic' }}" \
+            --section "${{ inputs.filter || 'synthetic' }}" \
             --max-cases "${{ inputs.max_cases || '20' }}" \
             --output tests/eval/reports/ci-eval-report.json
 
