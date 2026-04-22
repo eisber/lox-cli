@@ -715,9 +715,20 @@ def generate_report(results):
     if total == 0:
         return {"summary": {"total": 0}, "cases": []}
 
-    passed = sum(1 for r in results if r["pass"])
+    # Primary metric: sim_pass
+    sim_results = [r for r in results if r.get("sim_pass") is not None]
+    sim_passed = sum(1 for r in sim_results if r.get("sim_pass"))
+    sim_total = len(sim_results)
+
+    # Secondary metric: validation_pass
     valid_xml = sum(1 for r in results if r.get("xml_valid", True))
     valid_config = sum(1 for r in results if r.get("validation_pass", False))
+
+    # Overall pass: sim_pass if sim specs exist, else validation_pass
+    passed = sum(
+        1 for r in results
+        if (r.get("sim_pass") if r.get("sim_pass") is not None else r.get("validation_pass", False))
+    )
 
     # Averages
     avg = lambda key: sum(r.get(key, 0) for r in results) / total
@@ -734,12 +745,19 @@ def generate_report(results):
     for diff in ["easy", "medium", "hard", "expert"]:
         group = diff_groups.get(diff, [])
         if group:
+            g_sim = [r for r in group if r.get("sim_pass") is not None]
+            g_sim_passed = sum(1 for r in g_sim if r.get("sim_pass"))
+            g_passed = sum(
+                1 for r in group
+                if (r.get("sim_pass") if r.get("sim_pass") is not None else r.get("validation_pass", False))
+            )
             by_difficulty[diff] = {
                 "count": len(group),
-                "passed": sum(1 for r in group if r["pass"]),
+                "passed": g_passed,
+                "sim_passed": g_sim_passed,
+                "sim_total": len(g_sim),
                 "avg_score": round(sum(r["overall_score"] for r in group) / len(group), 3),
                 "avg_block_f1": round(sum(r["metrics"]["blocks"]["f1"] for r in group) / len(group), 3),
-                "avg_wiring": round(sum(r["metrics"]["wiring"]["accuracy"] for r in group) / len(group), 3),
                 "avg_params": round(sum(r["metrics"]["params"]["accuracy"] for r in group) / len(group), 3),
                 "avg_cli_invocations": round(sum(r.get("cli_invocations", 0) for r in group) / len(group), 1),
                 "avg_tokens": round(sum(r.get("tokens", {}).get("output_tokens_est", 0) for r in group) / len(group), 0),
@@ -753,9 +771,16 @@ def generate_report(results):
 
     by_pattern = {}
     for pat, group in sorted(pat_groups.items(), key=lambda x: -len(x[1])):
+        g_sim = [r for r in group if r.get("sim_pass") is not None]
+        g_sim_passed = sum(1 for r in g_sim if r.get("sim_pass"))
         by_pattern[pat] = {
             "count": len(group),
-            "passed": sum(1 for r in group if r["pass"]),
+            "passed": sum(
+                1 for r in group
+                if (r.get("sim_pass") if r.get("sim_pass") is not None else r.get("validation_pass", False))
+            ),
+            "sim_passed": g_sim_passed,
+            "sim_total": len(g_sim),
             "avg_score": round(sum(r["overall_score"] for r in group) / len(group), 3),
         }
 
@@ -771,6 +796,9 @@ def generate_report(results):
             "passed": passed,
             "failed": total - passed,
             "pass_rate": round(passed / total, 3),
+            "sim_passed": sim_passed,
+            "sim_total": sim_total,
+            "sim_rate": round(sim_passed / sim_total, 3) if sim_total else None,
             "xml_valid": valid_xml,
             "validation_pass": valid_config,
             "avg_overall_score": round(avg("overall_score"), 3),
@@ -808,20 +836,26 @@ def print_report(report):
     if s['total'] == 0:
         print("  No cases were evaluated.")
         return
+
+    # Primary: sim pass rate
+    if s.get("sim_total"):
+        print(f"  Sim Pass Rate:  {s['sim_passed']}/{s['sim_total']} ({s['sim_rate']:.0%})")
     print(f"  Pass Rate:      {s['passed']}/{s['total']} ({s['pass_rate']:.0%})")
-    print(f"  Overall Score:  {s['avg_overall_score']:.1%}")
-    print(f"  Weighted Score: {s['avg_weighted_score']:.2f}")
     print()
-    print(f"  ── Correctness ──")
-    print(f"  Block F1:          {s['avg_block_f1']:.1%}")
-    print(f"  Wiring Accuracy:   {s['avg_wiring_accuracy']:.1%}")
-    print(f"  Wiring Precision:  {s['avg_wiring_precision']:.1%}")
-    print(f"  Param Accuracy:    {s['avg_param_accuracy']:.1%}")
-    print(f"  UX Score:          {s['avg_ux_score']:.1%}")
+    print(f"  ── Primary: Simulation ──")
+    if s.get("sim_total"):
+        print(f"  Sim Passed:        {s['sim_passed']}/{s['sim_total']}")
+    else:
+        print(f"  Sim Passed:        (no sim specs)")
     print()
-    print(f"  ── Validity ──")
+    print(f"  ── Secondary: Validation ──")
     print(f"  XML Valid:         {s['xml_valid']}/{s['total']}")
     print(f"  Validation Pass:   {s['validation_pass']}/{s['total']}")
+    print()
+    print(f"  ── Info: Structural Scores ──")
+    print(f"  Block F1:          {s['avg_block_f1']:.1%}")
+    print(f"  Param Accuracy:    {s['avg_param_accuracy']:.1%}")
+    print(f"  UX Score:          {s['avg_ux_score']:.1%}")
     print()
     print(f"  ── Efficiency ──")
     print(f"  CLI Invocations:   {s['total_cli_invocations']} total, {s['avg_cli_per_case']:.1f}/case")
@@ -834,25 +868,37 @@ def print_report(report):
     for diff in ["easy", "medium", "hard", "expert"]:
         d = report.get("by_difficulty", {}).get(diff, {})
         if d:
+            sim_info = f"sim={d.get('sim_passed', 0)}/{d.get('sim_total', 0)}" if d.get('sim_total') else "no-sim"
             bar = "█" * int(d['avg_score'] * 20)
             print(f"    {diff:8s}: {d['passed']:3d}/{d['count']:3d} passed  "
-                  f"score={d['avg_score']:.0%}  F1={d['avg_block_f1']:.0%}  "
-                  f"wire={d['avg_wiring']:.0%}  param={d['avg_params']:.0%}  "
+                  f"{sim_info}  F1={d['avg_block_f1']:.0%}  "
+                  f"param={d['avg_params']:.0%}  "
                   f"cli={d['avg_cli_invocations']:.0f}  tok={d['avg_tokens']:.0f}  {bar}")
 
     print(f"\n  ── By Pattern ──")
     for pat, p in sorted(report.get("by_pattern", {}).items(), key=lambda x: -x[1]["count"]):
+        sim_info = f"sim={p.get('sim_passed', 0)}/{p.get('sim_total', 0)}" if p.get('sim_total') else "no-sim"
         bar = "█" * int(p["avg_score"] * 20)
         print(f"    {str(pat):25s}: {p['passed']:3d}/{p['count']:3d} passed  "
-              f"avg={p['avg_score']:.0%}  {bar}")
+              f"{sim_info}  avg={p['avg_score']:.0%}  {bar}")
 
     # Worst 10
     cases = report.get("cases", [])
-    worst = sorted(cases, key=lambda c: c.get("overall_score", 0))[:10]
+    worst = sorted(cases, key=lambda c: (
+        0 if c.get("sim_pass") else 1,
+        0 if c.get("validation_pass") else 1,
+        c.get("overall_score", 0),
+    ))[:10]
     if worst:
         print(f"\n  ── Worst 10 Cases ──")
         for c in worst:
-            status = "✓" if c.get("pass") else "✗"
+            sim = c.get("sim_pass")
+            if sim is True:
+                status = "✓"
+            elif sim is False:
+                status = "✗"
+            else:
+                status = "✓" if c.get("validation_pass") else "✗"
             print(f"    {status} {c['case_id']:40s} {c.get('overall_score',0):.0%}  "
                   f"({c.get('difficulty','?')})  {c.get('utterance','')[:50]}")
 

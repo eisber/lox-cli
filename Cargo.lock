@@ -1805,6 +1805,7 @@ dependencies = [
  "hex",
  "hmac",
  "httpmock",
+ "lox-sim",
  "lz4_flex",
  "openssl",
  "predicates",

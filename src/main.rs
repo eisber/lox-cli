@@ -232,6 +232,11 @@ pub(crate) enum Cmd {
         /// Show schema for a specific command (e.g. "config", "setup")
         command: Option<String>,
     },
+    /// Run Loxone SPS simulator against config files
+    Sim {
+        #[command(subcommand)]
+        action: commands::sim_cmd::SimCmd,
+    },
     /// Browse Loxone KB articles, datasheets, and technical documentation
     Docs {
         /// Search term or article slug (e.g. "lighting-controller", "mqtt", "nano")
@@ -972,6 +977,7 @@ fn command_name(cmd: &Cmd) -> String {
         Cmd::Ctx { .. } => "ctx".into(),
         Cmd::Completions { .. } => "completions".into(),
         Cmd::Schema { .. } => "schema".into(),
+        Cmd::Sim { .. } => "sim".into(),
         Cmd::Docs { .. } => "docs".into(),
     }
 }
@@ -1053,6 +1059,7 @@ fn run(cli: Cli) -> Result<()> {
             commands::config_cmd::cmd_completions(&ctx, shell, install)
         }
         Cmd::Schema { command } => commands::config_cmd::cmd_schema(&ctx, command),
+        Cmd::Sim { action } => commands::sim_cmd::cmd_sim(action),
         Cmd::Docs {
             query,
             datasheet,

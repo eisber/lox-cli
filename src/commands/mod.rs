@@ -1,5 +1,6 @@
 pub mod config_cmd;
 pub mod ctx;
+pub mod sim_cmd;
 
 pub struct RunContext {
     pub json: bool,

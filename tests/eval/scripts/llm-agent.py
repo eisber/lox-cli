@@ -47,14 +47,22 @@ MAX_RETRIES = 3
 
 
 def _find_lox_sim():
-    """Find the lox-sim binary."""
+    """Find the lox sim binary (prefers main lox binary with sim subcommand)."""
+    # Prefer the unified binary
+    for candidate in ["lox", "./target/release/lox", str(EVAL_DIR.parent.parent / "target" / "release" / "lox")]:
+        if shutil.which(candidate):
+            return [candidate, "sim"]
+        p = Path(candidate)
+        if p.exists():
+            return [str(p), "sim"]
+    # Fall back to standalone lox-sim
     for candidate in ["lox-sim", "./target/release/lox-sim", str(EVAL_DIR.parent.parent / "target" / "release" / "lox-sim")]:
         if shutil.which(candidate):
             return [candidate]
         p = Path(candidate)
         if p.exists():
             return [str(p)]
-    return ["lox-sim"]  # hope it's on PATH
+    return ["lox", "sim"]  # hope lox is on PATH
 
 
 def run_simulation(case_id: str, case: dict, config_path: str) -> dict:
@@ -177,6 +185,12 @@ lox config timer-schedule FILE "DayTimerTitle" "HH:MM-HH:MM" --value VALUE
 ### Verify your work
 lox config check FILE
 
+### Test your circuit with the simulator
+lox sim run FILE --sim '{{"inputs":{{"Sensor.AQ":value}},"ticks":10,"dt":0.1,"expected_outputs":{{"Target.Conn":{{">":0.5}}}}}}'
+  - Runs signal propagation and checks expected outputs
+  - Use AFTER wiring to verify the circuit works
+  - Outputs JSON with pass/fail and actual values
+
 ## Block Type Reference (connectors)
 
 | Type | Inputs | Outputs | Params |
@@ -241,8 +255,16 @@ lox config wire-connector config.Loxone "Temp über 25.Input1" "Außentemperatur
 lox config wire-connector config.Loxone "Sonne und Warm.I1" "Sonnenschein.AQ"
 lox config wire-connector config.Loxone "Sonne und Warm.I2" "Temp über 25.Q"
 lox config wire-connector config.Loxone "Jalousie 1 [Wohnzimmer].InputTriggerDown" "Sonne und Warm.Q"
+lox sim run config.Loxone --sim '{{"inputs":{{"Außentemperatur.AQ":30,"Sonnenschein.AQ":1}},"ticks":10,"dt":0.1,"expected_outputs":{{"Jalousie 1 [Wohnzimmer].InputTriggerDown":{{">":0.5}}}}}}'
 lox config check config.Loxone
 ```
+
+## Steps
+1. Add new blocks with `lox config add`
+2. Set parameters with `lox config set-param`
+3. Wire connectors with `lox config wire-connector`
+4. **Test with simulator**: `lox sim run FILE --sim '...'` to verify signals propagate
+5. Run `lox config check FILE` to validate
 
 ## Current Config
 File: {config_path}
@@ -277,11 +299,11 @@ Respond ONLY with the CLI commands, one per line.
 
 # ── Command Parsing & Execution ─────────────────────────────
 
-_CMD_RE = re.compile(r"^\s*(lox\s+config\s+.+)$", re.MULTILINE)
+_CMD_RE = re.compile(r"^\s*(lox\s+(?:config|sim)\s+.+)$", re.MULTILINE)
 
 
 def parse_commands(llm_text: str) -> list[str]:
-    """Extract `lox config …` commands from LLM output."""
+    """Extract `lox config …` and `lox sim …` commands from LLM output."""
     # Strip markdown fences and normalize escaped quotes
     clean = llm_text.replace('\\"', '"').replace("\\'", "'")
     return _CMD_RE.findall(clean)
@@ -515,27 +537,33 @@ def main():
 
             if eval_result.get("sim_pass"):
                 passed += 1
+                m = eval_result["metrics"]
+                chk = "clean" if eval_result.get("validation_pass") else "dirty"
                 print(
-                    f"\033[32m✓ PASS\033[0m  sim={sim_passed}/{sim_total}  struct={eval_result['overall_score']:.0%}"
+                    f"\033[32m✓ PASS\033[0m  sim={sim_passed}/{sim_total}  check={chk}  "
+                    f"(struct: B={m['blocks']['f1']:.0%} P={m['params']['accuracy']:.0%})"
                 )
             elif sim_total > 0:
                 failed += 1
                 m = eval_result["metrics"]
+                chk = "clean" if eval_result.get("validation_pass") else "dirty"
                 print(
-                    f"\033[31m✗ FAIL\033[0m  sim={sim_passed}/{sim_total}  struct={eval_result['overall_score']:.0%}  "
-                    f"B={m['blocks']['f1']:.0%} W={m['wiring']['accuracy']:.0%} P={m['params']['accuracy']:.0%}"
+                    f"\033[31m✗ FAIL\033[0m  sim={sim_passed}/{sim_total}  check={chk}  "
+                    f"(struct: B={m['blocks']['f1']:.0%} P={m['params']['accuracy']:.0%})"
                 )
-            elif eval_result["pass"]:
+            elif eval_result.get("validation_pass"):
                 passed += 1
+                m = eval_result["metrics"]
                 print(
-                    f"\033[32m✓ PASS\033[0m  {eval_result['overall_score']:.0%} (no sim spec)"
+                    f"\033[32m✓ PASS\033[0m  check=clean  "
+                    f"(struct: B={m['blocks']['f1']:.0%} P={m['params']['accuracy']:.0%})  (no sim spec)"
                 )
             else:
                 failed += 1
                 m = eval_result["metrics"]
                 print(
-                    f"\033[31m✗ FAIL\033[0m  {eval_result['overall_score']:.0%}  "
-                    f"B={m['blocks']['f1']:.0%} W={m['wiring']['accuracy']:.0%} P={m['params']['accuracy']:.0%}"
+                    f"\033[31m✗ FAIL\033[0m  check=dirty  "
+                    f"(struct: B={m['blocks']['f1']:.0%} P={m['params']['accuracy']:.0%})"
                 )
 
         except Exception as e:
