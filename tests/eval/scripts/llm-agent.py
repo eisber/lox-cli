@@ -124,9 +124,9 @@ lox config add --type TYPE --title TITLE --room ROOM --page PAGE FILE
 lox config set-param FILE "BlockTitle" ParamName Value
 
 ### Wire two connectors together
-lox config wire-connector FILE "SourceBlock.OutputConnector" "TargetBlock.InputConnector"
-  - Connects a source output to a target input
-  - Use exact connector names (see reference below)
+lox config wire-connector FILE "TargetBlock.InputConnector" "SourceBlock.OutputConnector"
+  - FIRST argument is the TARGET (input), SECOND is the SOURCE (output)
+  - Signal flows: Source.Output → Target.Input
 
 ### Verify your work
 lox config check FILE
@@ -191,10 +191,10 @@ Task: "Close blinds when it's sunny and above 25°C"
 lox config add --type GreaterEqual --title "Temp über 25" --room Wohnzimmer --page Wohnzimmer config.Loxone
 lox config set-param config.Loxone "Temp über 25" Input2 25
 lox config add --type And --title "Sonne und Warm" --room Wohnzimmer --page Wohnzimmer config.Loxone
-lox config wire-connector config.Loxone "Außentemperatur.AQ" "Temp über 25.Input1"
-lox config wire-connector config.Loxone "Sonnenschein.AQ" "Sonne und Warm.I1"
-lox config wire-connector config.Loxone "Temp über 25.Q" "Sonne und Warm.I2"
-lox config wire-connector config.Loxone "Sonne und Warm.Q" "Jalousie 1 [Wohnzimmer].InputTriggerDown"
+lox config wire-connector config.Loxone "Temp über 25.Input1" "Außentemperatur.AQ"
+lox config wire-connector config.Loxone "Sonne und Warm.I1" "Sonnenschein.AQ"
+lox config wire-connector config.Loxone "Sonne und Warm.I2" "Temp über 25.Q"
+lox config wire-connector config.Loxone "Jalousie 1 [Wohnzimmer].InputTriggerDown" "Sonne und Warm.Q"
 lox config check config.Loxone
 ```
 
