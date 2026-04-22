@@ -108,7 +108,8 @@ def run_copilot(utterance: str, config_path: str, work_dir: str) -> int:
     instructions = _build_instructions(utterance, config_path)
 
     result = subprocess.run(
-        ["copilot-cli", "-p", instructions],
+        ["npx", "@github/copilot", "-p", instructions,
+         "--add-dir", work_dir, "--allow-all"],
         capture_output=True, text=True, timeout=AGENT_TIMEOUT,
         cwd=work_dir,
     )
@@ -126,11 +127,6 @@ def run_claude(utterance: str, config_path: str, work_dir: str) -> int:
     )
     return result.returncode
 
-
-def run_builtin(utterance: str, config_path: str, work_dir: str,
-                model: str = "gpt-4o", verbose: bool = False) -> int:
-    """Our built-in LLM loop (fallback via llm-agent.py)."""
-    case = {"id": Path(config_path).stem, "utterance": utterance, "expected": {}}
 
     client = _llm_agent._create_client()
     work_path = Path(work_dir)
@@ -156,7 +152,7 @@ AGENTS = {
     "opencode": run_opencode,
     "copilot": run_copilot,
     "claude": run_claude,
-    "builtin": run_builtin,
+    
 }
 
 
@@ -260,7 +256,7 @@ def main():
     parser.add_argument("--section", help="Only run a specific case section")
     parser.add_argument("--max-cases", type=int, help="Max cases to run")
     parser.add_argument(
-        "--agent", default="opencode",
+        "--agent", default="copilot",
         choices=list(AGENTS.keys()),
         help="Agent backend (default: opencode)",
     )
