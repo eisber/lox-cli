@@ -368,8 +368,53 @@ def _build_sim_feedback(sim_result: dict, commands_run: list[str], config_path: 
                         f" (expected {check['comparator']} {check['expected']})"
                     )
 
+    # Run lox blocks search to suggest better block types based on the task
+    block_suggestions = ""
+    # Extract key intent words from the commands (block types used)
+    used_types = set()
+    for cmd in commands_run:
+        if "--type" in cmd:
+            parts = cmd.split("--type")
+            if len(parts) > 1:
+                type_word = parts[1].strip().split()[0].strip('"').strip("'")
+                used_types.add(type_word)
+
+    if used_types:
+        lox = _find_lox()
+        suggestions = []
+        for btype in used_types:
+            try:
+                r = subprocess.run(
+                    lox + ["blocks", "info", btype],
+                    capture_output=True, text=True, timeout=10
+                )
+                if r.stdout and "Don't confuse with" in r.stdout:
+                    # Extract the confusion warning
+                    for line in r.stdout.split("\n"):
+                        if "Don't confuse" in line or ("—" in line and any(t in line for t in ["OnPulseDelay", "StairwayLS", "OffDelay", "Monoflop", "Memory", "FlipFlop"])):
+                            suggestions.append(line.strip())
+            except Exception:
+                pass
+
+        if suggestions:
+            block_suggestions = "\n## Block Type Warnings\n" + "\n".join(suggestions)
+
+    # Also run a search for common timer patterns if OnPulseDelay/OffDelay was used
+    timer_hint = ""
+    if used_types & {"OnPulseDelay", "OffDelay", "OnDelay"}:
+        lox = _find_lox()
+        try:
+            r = subprocess.run(
+                lox + ["blocks", "search", "timed light"],
+                capture_output=True, text=True, timeout=10
+            )
+            if r.stdout:
+                timer_hint = f"\n## Better Block Types for Timed Switches\n{r.stdout[:500]}"
+        except Exception:
+            pass
+
     return f"""\
-Your circuit was built but the simulation test FAILED. The signals don't produce the expected output.
+Your circuit was built but the simulation test FAILED.
 
 ## Simulation Failures
 {chr(10).join(failures)}
@@ -378,17 +423,20 @@ Your circuit was built but the simulation test FAILED. The signals don't produce
 The blocks exist but the signal doesn't flow correctly from sensor to actuator.
 Common issues:
 - Missing wire between a logic block output and the actuator
-- Wrong block type (e.g. OnPulseDelay has a delay BEFORE the pulse; use StairwayLS for immediate timed switch)
+- Wrong block type: OnPulseDelay WAITS before pulsing (use StairwayLS for immediate timed switch)
+- OffDelay keeps output on AFTER input drops (use StairwayLS for "on for N seconds on trigger")
 - Sensor wired to wrong input connector
-
+{block_suggestions}
+{timer_hint}
 ## Commands Already Run
 {chr(10).join(commands_run[-10:])}
 
-## Debug Tip
-Run `lox sim dump {config_path}` to see all wires and signal values.
-
 ## Instructions
-Fix the wiring or block issues. Output additional `lox config` commands.
+1. Consider replacing OnPulseDelay/OffDelay with StairwayLS if the task is "turn on for X minutes"
+2. Check if all outputs are wired to actuators
+3. Run `lox sim dump {config_path}` to inspect wire values
+4. Fix the wiring or block issues
+
 The config file is: {config_path}
 End with: lox config check {config_path}
 Respond ONLY with the CLI commands, one per line.
