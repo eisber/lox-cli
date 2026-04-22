@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 use std::path::PathBuf;
 
-use anyhow::{bail, Context, Result};
+use anyhow::{Context, Result, bail};
 use clap::Subcommand;
 use lox_sim::{engine::SimEngine, graph::SimGraph, parser};
 use serde::Deserialize;

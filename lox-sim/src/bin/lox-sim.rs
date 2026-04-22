@@ -62,8 +62,12 @@ fn main() {
             for bid in 0..graph.block_count() {
                 let info = graph.block_info(bid);
                 let room = info.room.as_deref().unwrap_or("-");
-                println!("  [{bid:3}] {name:30} ({room:15}) ins={ni} outs={no}",
-                    name=info.name, ni=info.inputs.len(), no=info.outputs.len());
+                println!(
+                    "  [{bid:3}] {name:30} ({room:15}) ins={ni} outs={no}",
+                    name = info.name,
+                    ni = info.inputs.len(),
+                    no = info.outputs.len()
+                );
                 for &cid in &info.inputs {
                     let c = graph.connector(cid);
                     let src = graph.input_source_of(cid);
@@ -75,12 +79,15 @@ fn main() {
                     } else {
                         String::from("(unwired)")
                     };
-                    println!("    IN  {key:20} cid={cid:3} val={val:8.2}  {wire_info}", key=c.key);
+                    println!(
+                        "    IN  {key:20} cid={cid:3} val={val:8.2}  {wire_info}",
+                        key = c.key
+                    );
                 }
                 for &cid in &info.outputs {
                     let c = graph.connector(cid);
                     let val = engine.signal(cid);
-                    println!("    OUT {key:20} cid={cid:3} val={val:8.2}", key=c.key);
+                    println!("    OUT {key:20} cid={cid:3} val={val:8.2}", key = c.key);
                 }
             }
 
@@ -91,15 +98,23 @@ fn main() {
                     let db = graph.block_info(dc.block_id);
                     let sc = graph.connector(src);
                     let sb = graph.block_info(sc.block_id);
-                    println!("  {sn}.{sk} → {dn}.{dk}  (val={sv:.2} → {dv:.2})",
-                        sn=sb.name, sk=sc.key, dn=db.name, dk=dc.key,
-                        sv=engine.signal(src), dv=engine.signal(cid));
+                    println!(
+                        "  {sn}.{sk} → {dn}.{dk}  (val={sv:.2} → {dv:.2})",
+                        sn = sb.name,
+                        sk = sc.key,
+                        dn = db.name,
+                        dk = dc.key,
+                        sv = engine.signal(src),
+                        dv = engine.signal(cid)
+                    );
                 }
             }
         }
         "step" => {
             // Step-by-step simulation: show signal changes each tick
-            let sim_json = args.iter().position(|a| a == "--sim")
+            let sim_json = args
+                .iter()
+                .position(|a| a == "--sim")
                 .and_then(|p| args.get(p + 1).cloned())
                 .or_else(|| {
                     let mut buf = String::new();
@@ -131,7 +146,12 @@ fn main() {
             for bid in 0..graph.block_count() {
                 let info = graph.block_info(bid);
                 for &cid in &info.outputs {
-                    if graph.input_source_of(cid).is_some() || !info.inputs.iter().all(|&ic| graph.input_source_of(ic).is_none()) {
+                    if graph.input_source_of(cid).is_some()
+                        || !info
+                            .inputs
+                            .iter()
+                            .all(|&ic| graph.input_source_of(ic).is_none())
+                    {
                         let key = graph.connector(cid).key.clone();
                         let room = info.room.as_deref().unwrap_or("");
                         let display = if room.is_empty() {
@@ -151,13 +171,19 @@ fn main() {
             }
 
             // Tick and show changes
-            let mut prev_values: Vec<f64> = watch.iter().map(|(_, bid, key)| {
-                if *bid < graph.block_count() {
-                    graph.find_connector(*bid, key)
-                        .map(|cid| engine.signal(cid))
-                        .unwrap_or(0.0)
-                } else { 0.0 }
-            }).collect();
+            let mut prev_values: Vec<f64> = watch
+                .iter()
+                .map(|(_, bid, key)| {
+                    if *bid < graph.block_count() {
+                        graph
+                            .find_connector(*bid, key)
+                            .map(|cid| engine.signal(cid))
+                            .unwrap_or(0.0)
+                    } else {
+                        0.0
+                    }
+                })
+                .collect();
 
             for tick in 0..spec.ticks {
                 engine.tick(spec.dt);
@@ -166,15 +192,19 @@ fn main() {
                 let mut changes = Vec::new();
                 for (i, (display, bid, key)) in watch.iter().enumerate() {
                     let val = if *bid < graph.block_count() {
-                        graph.find_connector(*bid, key)
+                        graph
+                            .find_connector(*bid, key)
                             .map(|cid| {
                                 // Read from wire source for input connectors
-                                graph.input_source_of(cid)
+                                graph
+                                    .input_source_of(cid)
                                     .map(|src| engine.signal(src))
                                     .unwrap_or(engine.signal(cid))
                             })
                             .unwrap_or(0.0)
-                    } else { 0.0 };
+                    } else {
+                        0.0
+                    };
 
                     if (val - prev_values[i]).abs() > 1e-9 {
                         changes.push(format!("{display}={val:.2}"));
@@ -296,9 +326,10 @@ fn resolve_output(engine: &SimEngine, graph: &lox_sim::graph::SimGraph, output_k
         for bid in 0..graph.block_count() {
             let info = graph.block_info(bid);
             let name_matches = info.name == block_name
-                || info.room.as_ref().map_or(false, |r| {
-                    format!("{} [{}]", info.name, r) == block_name
-                });
+                || info
+                    .room
+                    .as_ref()
+                    .map_or(false, |r| format!("{} [{}]", info.name, r) == block_name);
             if !name_matches {
                 continue;
             }

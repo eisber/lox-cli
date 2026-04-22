@@ -235,19 +235,9 @@ fn all_block_types() -> Vec<&'static str> {
 ///
 /// Mirrors `block_signature` from parser.rs — extended with schemas for all
 /// block types that have specific connector layouts.
-fn block_connectors(
-    block_type: &str,
-) -> (
-    Vec<&'static str>,
-    Vec<&'static str>,
-    Vec<&'static str>,
-) {
+fn block_connectors(block_type: &str) -> (Vec<&'static str>, Vec<&'static str>, Vec<&'static str>) {
     match block_type {
-        "AMemory" => (
-            vec!["Input", "Trigger", "Reset"],
-            vec!["AQ"],
-            vec![],
-        ),
+        "AMemory" => (vec!["Input", "Trigger", "Reset"], vec!["AQ"], vec![]),
         "Add" | "Add4" => (
             vec!["Input1", "Input2", "Input3", "Input4"],
             vec!["AQ", "Q"],
@@ -258,26 +248,14 @@ fn block_connectors(
             vec!["Q", "RisingEdge", "FallingEdge"],
             vec!["On", "Off", "PulseTime"],
         ),
-        "AnalogComparator" => (
-            vec!["Input1", "Input2"],
-            vec!["Q"],
-            vec!["Hysteresis"],
-        ),
+        "AnalogComparator" => (vec!["Input1", "Input2"], vec!["Q"], vec!["Hysteresis"]),
         "AnalogDiffTrigger" => (
             vec!["Input1", "Input2"],
             vec!["Q"],
             vec!["OnDiff", "OffDiff"],
         ),
-        "AnalogMultiplexer" => (
-            vec!["I1", "I2", "I3", "I4", "Select"],
-            vec!["AQ"],
-            vec![],
-        ),
-        "AnalogMultiplexer2" => (
-            vec!["I1", "I2", "I3", "I4", "Select"],
-            vec!["AQ"],
-            vec![],
-        ),
+        "AnalogMultiplexer" => (vec!["I1", "I2", "I3", "I4", "Select"], vec!["AQ"], vec![]),
+        "AnalogMultiplexer2" => (vec!["I1", "I2", "I3", "I4", "Select"], vec!["AQ"], vec![]),
         "AnalogScaler" => (
             vec!["Input"],
             vec!["AQ"],
@@ -288,11 +266,7 @@ fn block_connectors(
             vec!["AQ"],
             vec!["Step", "Min", "Max"],
         ),
-        "AnalogWatchdog" => (
-            vec!["Input"],
-            vec!["Q"],
-            vec!["Min", "Max", "Timeout"],
-        ),
+        "AnalogWatchdog" => (vec!["Input"], vec!["Q"], vec!["Min", "Max", "Timeout"]),
         "And" => (vec!["I1", "I2"], vec!["Q"], vec![]),
         "Constant" => (vec![], vec!["Q"], vec!["Value"]),
         "Counter" => (
@@ -311,39 +285,23 @@ fn block_connectors(
             vec!["Edge", "RisingEdge", "FallingEdge"],
             vec!["PulseTime"],
         ),
-        "FlipFlop" | "RSFlipFlop" | "SRFlipFlop" => (
-            vec!["InputS", "InputR", "InputTrigger"],
-            vec!["Q"],
-            vec![],
-        ),
+        "FlipFlop" | "RSFlipFlop" | "SRFlipFlop" => {
+            (vec!["InputS", "InputR", "InputTrigger"], vec!["Q"], vec![])
+        }
         "Formula" => (vec!["I1", "I2", "I3", "I4"], vec!["Q"], vec![]),
         "Gain" => (vec!["I1"], vec!["Q"], vec!["Factor"]),
-        "Greater" | "GreaterEqual" | "Less" | "LessEqual" | "Equal" | "NotEqual" => (
-            vec!["Input1", "Input2"],
-            vec!["Q"],
-            vec![],
-        ),
+        "Greater" | "GreaterEqual" | "Less" | "LessEqual" | "Equal" | "NotEqual" => {
+            (vec!["Input1", "Input2"], vec!["Q"], vec![])
+        }
         "Monoflop" => (vec!["InputTrigger"], vec!["Q"], vec!["Time"]),
         "Mult" => (vec!["Input1", "Input2"], vec!["AQ", "Q"], vec![]),
         "Not" => (vec!["I", "I1"], vec!["Q"], vec![]),
         "OffDelay" => (vec!["InputTrigger"], vec!["Q"], vec!["Time"]),
         "OnDelay" => (vec!["InputTrigger"], vec!["Q"], vec!["Time"]),
-        "OnOffDelay" => (
-            vec!["InputTrigger"],
-            vec!["Q"],
-            vec!["OnDelay", "OffDelay"],
-        ),
-        "OnPulseDelay" => (
-            vec!["InputTrigger"],
-            vec!["Q"],
-            vec!["Delay", "Time"],
-        ),
+        "OnOffDelay" => (vec!["InputTrigger"], vec!["Q"], vec!["OnDelay", "OffDelay"]),
+        "OnPulseDelay" => (vec!["InputTrigger"], vec!["Q"], vec!["Delay", "Time"]),
         "Or" => (vec!["I1", "I2"], vec!["Q"], vec![]),
-        "PassThrough" | "TrackingPassThrough" => (
-            vec!["I1", "Input"],
-            vec!["Q", "AQ"],
-            vec![],
-        ),
+        "PassThrough" | "TrackingPassThrough" => (vec!["I1", "Input"], vec!["Q", "AQ"], vec![]),
         "PulseGen" => (
             vec!["InputEnable", "InputInvert"],
             vec!["Q"],
@@ -354,13 +312,24 @@ fn block_connectors(
             vec!["Q", "Qoff", "Qon", "AQ"],
             vec!["Min", "Max"],
         ),
-        "RisingEdge" => (
-            vec!["I1", "Input"],
-            vec!["Q", "RisingEdge"],
-            vec![],
-        ),
+        "RisingEdge" => (vec!["I1", "Input"], vec!["Q", "RisingEdge"], vec![]),
         "LightController2" => (
-            vec!["I1", "Presence", "Brightness", "Move", "Sel1", "Sel2", "Sel3", "Sel4", "Sel5", "Sel6", "Sel7", "Sel8", "Reset", "InputDisable"],
+            vec![
+                "I1",
+                "Presence",
+                "Brightness",
+                "Move",
+                "Sel1",
+                "Sel2",
+                "Sel3",
+                "Sel4",
+                "Sel5",
+                "Sel6",
+                "Sel7",
+                "Sel8",
+                "Reset",
+                "InputDisable",
+            ],
             vec!["AQ1", "AQ2", "Scene", "PresenceActive"],
             vec!["FadingTime", "SceneMixTime"],
         ),
@@ -369,9 +338,14 @@ fn block_connectors(
             vec!["AQ1", "Scene", "PresenceActive"],
             vec!["FadingTime"],
         ),
-        "JalousieUpDown2" | "Jalousiemotor" | "EIBJalousie" | "Pergola"
-        | "RoofWindow" | "ShadeRoof" | "Skylight" => (
-            vec!["InputTriggerUp", "InputTriggerDown", "InputPos", "InputDisable"],
+        "JalousieUpDown2" | "Jalousiemotor" | "EIBJalousie" | "Pergola" | "RoofWindow"
+        | "ShadeRoof" | "Skylight" => (
+            vec![
+                "InputTriggerUp",
+                "InputTriggerDown",
+                "InputPos",
+                "InputDisable",
+            ],
             vec!["Pos", "Dir", "Moving"],
             vec!["TimeEnd"],
         ),
@@ -387,17 +361,11 @@ fn block_connectors(
         ),
         "Sub" => (vec!["Input1", "Input2"], vec!["AQ", "Q"], vec![]),
         "SysVar" => (vec!["I1"], vec!["AQ"], vec![]),
-        "VirtualIn" | "VirtualOut" | "VirtualState" => (
-            vec!["I1", "Input"],
-            vec!["Q", "AQ"],
-            vec![],
-        ),
+        "VirtualIn" | "VirtualOut" | "VirtualState" => {
+            (vec!["I1", "Input"], vec!["Q", "AQ"], vec![])
+        }
         "Xor" | "Nand" | "Nor" => (vec!["I1", "I2"], vec!["Q"], vec![]),
-        "PresenceDetector" => (
-            vec!["InputTrigger"],
-            vec!["OutputPresence"],
-            vec![],
-        ),
+        "PresenceDetector" => (vec!["InputTrigger"], vec!["OutputPresence"], vec![]),
         "Calendar" => (
             vec!["minutes_since_midnight", "day_of_week"],
             vec!["Q"],
@@ -413,109 +381,43 @@ fn block_connectors(
             vec!["Q"],
             vec![],
         ),
-        "EdgeWipingRelay" => (
-            vec!["InputTrigger"],
-            vec!["Q"],
-            vec!["Time"],
-        ),
-        "PWM" => (
-            vec!["Input"],
-            vec!["Q"],
-            vec!["Period"],
-        ),
-        "RetOnDelay" => (
-            vec!["InputTrigger"],
-            vec!["Q"],
-            vec!["Time"],
-        ),
+        "EdgeWipingRelay" => (vec!["InputTrigger"], vec!["Q"], vec!["Time"]),
+        "PWM" => (vec!["Input"], vec!["Q"], vec!["Period"]),
+        "RetOnDelay" => (vec!["InputTrigger"], vec!["Q"], vec!["Time"]),
         "SwitchingTimer" => (
             vec!["InputTrigger", "On", "Off"],
             vec!["Q"],
             vec!["OnTime", "OffTime"],
         ),
-        "Memory" => (
-            vec!["Input", "Trigger", "Reset"],
-            vec!["Q"],
-            vec![],
-        ),
-        "SampleHold" => (
-            vec!["Input", "Trigger"],
-            vec!["AQ"],
-            vec![],
-        ),
-        "Shift" => (
-            vec!["Input", "Trigger", "Reset"],
-            vec!["Q1", "Q2"],
-            vec![],
-        ),
-        "State" => (
-            vec!["InputTrigger"],
-            vec!["Q", "AQ"],
-            vec!["NumStates"],
-        ),
-        "StateV" => (
-            vec!["InputTrigger"],
-            vec!["Q", "AQ"],
-            vec![],
-        ),
-        "HourCounter" => (
-            vec!["Input", "Reset"],
-            vec!["AQ"],
-            vec![],
-        ),
+        "Memory" => (vec!["Input", "Trigger", "Reset"], vec!["Q"], vec![]),
+        "SampleHold" => (vec!["Input", "Trigger"], vec!["AQ"], vec![]),
+        "Shift" => (vec!["Input", "Trigger", "Reset"], vec!["Q1", "Q2"], vec![]),
+        "State" => (vec!["InputTrigger"], vec!["Q", "AQ"], vec!["NumStates"]),
+        "StateV" => (vec!["InputTrigger"], vec!["Q", "AQ"], vec![]),
+        "HourCounter" => (vec!["Input", "Reset"], vec!["AQ"], vec![]),
         "UpDownCounter" => (
             vec!["Up", "Down", "Reset"],
             vec!["AQ", "Q"],
             vec!["Min", "Max"],
         ),
-        "AMinmax" => (
-            vec!["Input", "Reset"],
-            vec!["Min", "Max"],
-            vec![],
-        ),
+        "AMinmax" => (vec!["Input", "Reset"], vec!["Min", "Max"], vec![]),
         "Int" => (vec!["I1"], vec!["Q"], vec![]),
-        "Minmax" => (
-            vec!["Input1", "Input2"],
-            vec!["Min", "Max"],
-            vec![],
-        ),
+        "Minmax" => (vec!["Input1", "Input2"], vec!["Min", "Max"], vec![]),
         "Mod" => (vec!["Input1", "Input2"], vec!["AQ"], vec![]),
         "Alarm" => (
             vec!["InputTrigger", "InputArm", "InputDisable", "InputReset"],
             vec!["Q", "QArmed"],
             vec![],
         ),
-        "Presence" => (
-            vec!["InputTrigger", "InputDisable"],
-            vec!["Q"],
-            vec![],
-        ),
-        "PresenceController" => (
-            vec!["InputTrigger", "InputDisable"],
-            vec!["Q"],
-            vec![],
-        ),
-        "AutoJalousie" => (
-            vec!["Input", "InputDisable"],
-            vec!["Q"],
-            vec![],
-        ),
-        "Energy" | "EnergyManager" | "EnergyManager2" => (
-            vec!["Input"],
-            vec!["AQ"],
-            vec![],
-        ),
-        "MeterAbsUni" | "MeterAbsBi" | "MeterPUni" | "MeterPBi" | "MeterDig"
-        | "MeterAbsSt" | "MeterPSt" => (
-            vec!["Input"],
-            vec!["AQ"],
-            vec![],
-        ),
-        "AcControl" | "OvertempShutdown" => (
-            vec!["Temp", "Setpoint", "InputDisable"],
-            vec!["AQ"],
-            vec![],
-        ),
+        "Presence" => (vec!["InputTrigger", "InputDisable"], vec!["Q"], vec![]),
+        "PresenceController" => (vec!["InputTrigger", "InputDisable"], vec!["Q"], vec![]),
+        "AutoJalousie" => (vec!["Input", "InputDisable"], vec!["Q"], vec![]),
+        "Energy" | "EnergyManager" | "EnergyManager2" => (vec!["Input"], vec!["AQ"], vec![]),
+        "MeterAbsUni" | "MeterAbsBi" | "MeterPUni" | "MeterPBi" | "MeterDig" | "MeterAbsSt"
+        | "MeterPSt" => (vec!["Input"], vec!["AQ"], vec![]),
+        "AcControl" | "OvertempShutdown" => {
+            (vec!["Temp", "Setpoint", "InputDisable"], vec!["AQ"], vec![])
+        }
         "Heatcurve" => (
             vec!["Input", "Setpoint"],
             vec!["AQ"],
@@ -531,26 +433,10 @@ fn block_connectors(
             vec!["Position", "FlowTemp"],
             vec![],
         ),
-        "Solarpumpcontrol" => (
-            vec!["Input1", "Input2"],
-            vec!["Q"],
-            vec![],
-        ),
-        "PoolController" => (
-            vec!["Temp", "InputDisable"],
-            vec!["Q"],
-            vec![],
-        ),
-        "Sauna" | "SaunaVapor" => (
-            vec!["Temp", "InputTrigger"],
-            vec!["Q"],
-            vec![],
-        ),
-        "2Point" => (
-            vec!["Input", "Setpoint"],
-            vec!["Q"],
-            vec!["Hysteresis"],
-        ),
+        "Solarpumpcontrol" => (vec!["Input1", "Input2"], vec!["Q"], vec![]),
+        "PoolController" => (vec!["Temp", "InputDisable"], vec!["Q"], vec![]),
+        "Sauna" | "SaunaVapor" => (vec!["Temp", "InputTrigger"], vec!["Q"], vec![]),
+        "2Point" => (vec!["Input", "Setpoint"], vec!["Q"], vec!["Hysteresis"]),
         "3Point" => (
             vec!["Input", "Setpoint"],
             vec!["QUp", "QDown"],
@@ -561,106 +447,28 @@ fn block_connectors(
             vec!["AQ"],
             vec!["Kp", "Ki", "Kd"],
         ),
-        "Wallbox" => (
-            vec!["Input"],
-            vec!["AQ"],
-            vec![],
-        ),
-        "InputRef" | "OutputRef" | "OutputRefLM" => (
-            vec!["I1"],
-            vec!["Q"],
-            vec![],
-        ),
-        "EIBPush" | "EIBsensor" | "EIBactor" | "EIBextactor" | "EibDimmer" => (
-            vec!["I1"],
-            vec!["Q"],
-            vec![],
-        ),
-        "Average" | "Avg" => (
-            vec!["I1", "I2", "I3", "I4"],
-            vec!["AQ"],
-            vec![],
-        ),
-        "BinEncoder" => (
-            vec!["I1", "I2", "I3", "I4"],
-            vec!["AQ"],
-            vec![],
-        ),
-        "BinDecoder" => (
-            vec!["Input"],
-            vec!["Q1", "Q2", "Q3", "Q4"],
-            vec![],
-        ),
-        "DewPoint" => (
-            vec!["Temp", "Humidity"],
-            vec!["AQ"],
-            vec![],
-        ),
-        "Power" => (
-            vec!["Input", "Exponent"],
-            vec!["AQ"],
-            vec![],
-        ),
-        "Validator" => (
-            vec!["Input"],
-            vec!["AQ"],
-            vec!["Min", "Max"],
-        ),
-        "TimeMinmax" => (
-            vec!["Input", "Reset"],
-            vec!["Min", "Max"],
-            vec!["Period"],
-        ),
-        "Ramp" => (
-            vec!["Input"],
-            vec!["AQ"],
-            vec!["Rate"],
-        ),
-        "Rand" | "RandomGen" => (
-            vec!["InputTrigger"],
-            vec!["AQ"],
-            vec!["Min", "Max"],
-        ),
-        "PulseBy" => (
-            vec!["InputTrigger"],
-            vec!["Q"],
-            vec!["Count"],
-        ),
-        "LongClick" => (
-            vec!["InputTrigger"],
-            vec!["Q", "QLong"],
-            vec!["Time"],
-        ),
-        "MultiClick" => (
-            vec!["InputTrigger"],
-            vec!["Q1", "Q2", "Q3"],
-            vec!["Time"],
-        ),
-        "PushDimmer" => (
-            vec!["InputTrigger"],
-            vec!["AQ"],
-            vec!["Min", "Max"],
-        ),
-        "StepSel" => (
-            vec!["InputTrigger", "Reset"],
-            vec!["AQ"],
-            vec!["Steps"],
-        ),
-        "Sequencer" => (
-            vec!["InputTrigger", "Reset"],
-            vec!["AQ"],
-            vec!["Steps"],
-        ),
-        "LoadShed" => (
-            vec!["I1"],
-            vec!["Q"],
-            vec!["Limit"],
-        ),
-        "Fronius" | "PVProductionForecast" => (
-            vec!["Input"],
-            vec!["AQ"],
-            vec![],
-        ),
+        "Wallbox" => (vec!["Input"], vec!["AQ"], vec![]),
+        "InputRef" | "OutputRef" | "OutputRefLM" => (vec!["I1"], vec!["Q"], vec![]),
+        "EIBPush" | "EIBsensor" | "EIBactor" | "EIBextactor" | "EibDimmer" => {
+            (vec!["I1"], vec!["Q"], vec![])
+        }
+        "Average" | "Avg" => (vec!["I1", "I2", "I3", "I4"], vec!["AQ"], vec![]),
+        "BinEncoder" => (vec!["I1", "I2", "I3", "I4"], vec!["AQ"], vec![]),
+        "BinDecoder" => (vec!["Input"], vec!["Q1", "Q2", "Q3", "Q4"], vec![]),
+        "DewPoint" => (vec!["Temp", "Humidity"], vec!["AQ"], vec![]),
+        "Power" => (vec!["Input", "Exponent"], vec!["AQ"], vec![]),
+        "Validator" => (vec!["Input"], vec!["AQ"], vec!["Min", "Max"]),
+        "TimeMinmax" => (vec!["Input", "Reset"], vec!["Min", "Max"], vec!["Period"]),
+        "Ramp" => (vec!["Input"], vec!["AQ"], vec!["Rate"]),
+        "Rand" | "RandomGen" => (vec!["InputTrigger"], vec!["AQ"], vec!["Min", "Max"]),
+        "PulseBy" => (vec!["InputTrigger"], vec!["Q"], vec!["Count"]),
+        "LongClick" => (vec!["InputTrigger"], vec!["Q", "QLong"], vec!["Time"]),
+        "MultiClick" => (vec!["InputTrigger"], vec!["Q1", "Q2", "Q3"], vec!["Time"]),
+        "PushDimmer" => (vec!["InputTrigger"], vec!["AQ"], vec!["Min", "Max"]),
+        "StepSel" => (vec!["InputTrigger", "Reset"], vec!["AQ"], vec!["Steps"]),
+        "Sequencer" => (vec!["InputTrigger", "Reset"], vec!["AQ"], vec!["Steps"]),
+        "LoadShed" => (vec!["I1"], vec!["Q"], vec!["Limit"]),
+        "Fronius" | "PVProductionForecast" => (vec!["Input"], vec!["AQ"], vec![]),
         // All remaining types get a minimal I1 → Q passthrough schema.
         _ => (vec!["I1"], vec!["Q"], vec![]),
     }
@@ -703,13 +511,7 @@ fn build_test_graph(
     );
 
     // Target block under test.
-    let target_id = graph.add_block(
-        "Target",
-        create_block(block_type),
-        inputs,
-        outputs,
-        params,
-    );
+    let target_id = graph.add_block("Target", create_block(block_type), inputs, outputs, params);
 
     // Wire each source output → target input.
     let source_outs = graph.block_info(source_id).outputs.clone();
@@ -726,8 +528,9 @@ fn build_test_graph(
 fn default_param_value(pkey: &str) -> f64 {
     match pkey {
         "Time" | "TimeHigh" | "TimeLow" | "OnDelay" | "OffDelay" | "Delay" | "OnTime"
-        | "OffTime" | "PulseTime" | "TimeEnd" | "Timeout" | "TimeWarn" | "WarnTime"
-        | "Period" => 2.0,
+        | "OffTime" | "PulseTime" | "TimeEnd" | "Timeout" | "TimeWarn" | "WarnTime" | "Period" => {
+            2.0
+        }
         "Kp" => 1.0,
         "Ki" | "Kd" => 0.0,
         "Value" => 42.0,
@@ -756,11 +559,7 @@ fn default_param_value(pkey: &str) -> f64 {
 }
 
 /// Apply parameter defaults to both engines.
-fn apply_params(
-    engine: &mut SimEngine,
-    compiled: &mut CompiledGraph,
-    param_refs: &[&str],
-) {
+fn apply_params(engine: &mut SimEngine, compiled: &mut CompiledGraph, param_refs: &[&str]) {
     for pkey in param_refs {
         let pval = default_param_value(pkey);
         engine.set_param("Target", pkey, pval);

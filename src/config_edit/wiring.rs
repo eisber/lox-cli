@@ -656,13 +656,15 @@ impl ConfigEditor {
 
             // 00:00 → end: active
             let mut e1 = Element::new("Entry");
-            e1.attributes.insert("To".to_string(), end_minutes.to_string());
+            e1.attributes
+                .insert("To".to_string(), end_minutes.to_string());
             e1.attributes.insert("V".to_string(), value.to_string());
             elem.children.push(xmltree::XMLNode::Element(e1));
 
             // end → start: off
             let mut e2 = Element::new("Entry");
-            e2.attributes.insert("To".to_string(), start_minutes.to_string());
+            e2.attributes
+                .insert("To".to_string(), start_minutes.to_string());
             e2.attributes.insert("V".to_string(), "0".to_string());
             elem.children.push(xmltree::XMLNode::Element(e2));
 

@@ -102,7 +102,9 @@ pub fn parse_element(root: &Element) -> Result<SimGraph, String> {
                 })?;
             graph.connectors[cid].default_value = connector.default_value;
             // Track first occurrence for explicit wire resolution
-            uuid_to_connector.entry(connector.uuid.clone()).or_insert(cid);
+            uuid_to_connector
+                .entry(connector.uuid.clone())
+                .or_insert(cid);
             // Also track per-block for shared-UUID wiring
             // If this connector has an explicit source, record the wire with THIS cid
             if let Some(source_ref) = &connector.explicit_source_uuid {
@@ -143,7 +145,9 @@ pub fn parse_element(root: &Element) -> Result<SimGraph, String> {
         if let Some(&cid) = info.outputs.first() {
             name_to_output.entry(info.name.clone()).or_insert(cid);
             if let Some(ref room) = info.room {
-                name_to_output.entry(format!("{} [{}]", info.name, room)).or_insert(cid);
+                name_to_output
+                    .entry(format!("{} [{}]", info.name, room))
+                    .or_insert(cid);
             }
         }
     }
