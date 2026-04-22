@@ -197,6 +197,11 @@ impl SimEngine {
             .unwrap_or(0.0)
     }
 
+    /// Look up connector IDs for a named input (for reading signals arriving at actuators).
+    pub fn named_input_cids(&self, name: &str) -> Option<&Vec<ConnectorId>> {
+        self.named_inputs.get(name)
+    }
+
     /// Force all blocks to be evaluated on the next tick.
     pub fn mark_all_dirty(&mut self) {
         self.dirty.fill(true);

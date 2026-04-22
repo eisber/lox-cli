@@ -107,16 +107,49 @@ pub fn parse_element(root: &Element) -> Result<SimGraph, String> {
     }
 
     let mut wired_inputs = HashSet::new();
-    for (source_uuid, dest_uuid) in explicit_wires {
+    for (source_uuid, dest_uuid) in &explicit_wires {
         if let (Some(&from), Some(&to)) = (
-            uuid_to_connector.get(&source_uuid),
-            uuid_to_connector.get(&dest_uuid),
+            uuid_to_connector.get(source_uuid),
+            uuid_to_connector.get(dest_uuid),
         ) {
             if wired_inputs.insert(to) {
                 graph
                     .add_wire(from, to)
                     .map_err(|error| error.to_string())?;
             }
+        }
+    }
+
+    // Second pass: resolve name-based wiring ("Title.Connector" format, FLG="2")
+    // Build a name→connector lookup: "BlockTitle.ConnectorKey" → ConnectorId
+    let mut name_to_output: HashMap<String, usize> = HashMap::new();
+    for bid in 0..graph.block_count() {
+        let info = graph.block_info(bid);
+        for &cid in &info.outputs {
+            let key = format!("{}.{}", info.name, graph.connector(cid).key);
+            name_to_output.insert(key, cid);
+        }
+        // Also register bare block name → first output
+        if let Some(&cid) = info.outputs.first() {
+            name_to_output.entry(info.name.clone()).or_insert(cid);
+        }
+    }
+
+    for (source_ref, dest_uuid) in &explicit_wires {
+        // Already resolved by UUID above?
+        if uuid_to_connector.contains_key(source_ref) {
+            continue;
+        }
+        // Try name-based resolution
+        if let Some(&from) = name_to_output.get(source_ref) {
+            if let Some(&to) = uuid_to_connector.get(dest_uuid) {
+                if wired_inputs.insert(to) {
+                    let _ = graph.add_wire(from, to);
+                }
+            }
+        } else {
+            eprintln!("warning: unresolved name-based wire source '{source_ref}' (available: {:?})", 
+                name_to_output.keys().take(5).collect::<Vec<_>>());
         }
     }
 
