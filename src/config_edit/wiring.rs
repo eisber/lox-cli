@@ -640,6 +640,41 @@ impl ConfigEditor {
     ) -> Result<()> {
         use anyhow::bail;
 
+        if start_minutes >= end_minutes && start_minutes < 1440 && end_minutes > 0 {
+            // Overnight schedule (e.g. 22:00-06:00): split into two windows
+            // Window 1: 00:00 → end_minutes (active)
+            // Window 2: end_minutes → start_minutes (off)
+            // Window 3: start_minutes → 24:00 (active)
+            let path = self.require_one(selector)?;
+            let elem = self.get_element_mut(&path);
+            let block_type = elem.attributes.get("Type").cloned().unwrap_or_default();
+            if block_type != "DayTimer" {
+                bail!("'{}' is a {}, not a DayTimer", selector, block_type);
+            }
+            elem.children
+                .retain(|c| !c.as_element().map(|e| e.name == "Entry").unwrap_or(false));
+
+            // 00:00 → end: active
+            let mut e1 = Element::new("Entry");
+            e1.attributes.insert("To".to_string(), end_minutes.to_string());
+            e1.attributes.insert("V".to_string(), value.to_string());
+            elem.children.push(xmltree::XMLNode::Element(e1));
+
+            // end → start: off
+            let mut e2 = Element::new("Entry");
+            e2.attributes.insert("To".to_string(), start_minutes.to_string());
+            e2.attributes.insert("V".to_string(), "0".to_string());
+            elem.children.push(xmltree::XMLNode::Element(e2));
+
+            // start → 24:00: active
+            let mut e3 = Element::new("Entry");
+            e3.attributes.insert("To".to_string(), "1440".to_string());
+            e3.attributes.insert("V".to_string(), value.to_string());
+            elem.children.push(xmltree::XMLNode::Element(e3));
+
+            return Ok(());
+        }
+
         if start_minutes >= end_minutes {
             bail!("Start time must be before end time");
         }
