@@ -45,6 +45,8 @@ pub struct SimEngine {
     downstream: Vec<Vec<BlockId>>,
     named_inputs: HashMap<String, Vec<ConnectorId>>,
     named_outputs: HashMap<String, Vec<ConnectorId>>,
+    /// Persistent output overrides: after block eval, these replace computed values.
+    output_overrides: HashMap<ConnectorId, f64>,
     profiler: Option<SimProfiler>,
 }
 
@@ -178,6 +180,7 @@ impl SimEngine {
             downstream,
             named_inputs,
             named_outputs,
+            output_overrides: HashMap::new(),
             profiler: None,
         }
     }
@@ -218,9 +221,9 @@ impl SimEngine {
         if let Some(cids) = self.named_outputs.get(name) {
             let cids = cids.clone();
             for &cid in &cids {
+                self.output_overrides.insert(cid, value);
                 self.signals[cid] = value;
                 let block_id = self.graph.connector(cid).block_id;
-                self.dirty[block_id] = true;
                 for &ds in &self.downstream[block_id] {
                     self.dirty[ds] = true;
                 }
@@ -229,6 +232,32 @@ impl SimEngine {
         } else {
             false
         }
+    }
+
+    /// Remove a persistent output override for a named output connector.
+    ///
+    /// Returns `true` if the name was found (regardless of whether an override existed).
+    pub fn clear_override(&mut self, name: &str) -> bool {
+        if let Some(cids) = self.named_outputs.get(name) {
+            let cids = cids.clone();
+            for &cid in &cids {
+                self.output_overrides.remove(&cid);
+                let block_id = self.graph.connector(cid).block_id;
+                self.dirty[block_id] = true;
+            }
+            true
+        } else {
+            false
+        }
+    }
+
+    /// Remove all persistent output overrides.
+    pub fn clear_all_overrides(&mut self) {
+        for &cid in self.output_overrides.keys().collect::<Vec<_>>() {
+            let block_id = self.graph.connector(cid).block_id;
+            self.dirty[block_id] = true;
+        }
+        self.output_overrides.clear();
     }
 
     /// Read a named output connector value.
@@ -330,15 +359,19 @@ impl SimEngine {
             self.eval_info[block_id].last_prev_inputs = prev_inputs;
 
             // Write outputs, propagate dirty if any output changed.
+            // Persistent overrides take precedence over computed values.
             let mut any_changed = false;
             for (i, &cid) in output_cids.iter().enumerate() {
-                if let Some(&val) = outputs.get(i) {
-                    if (self.signals[cid] - val).abs() > f64::EPSILON {
-                        any_changed = true;
-                        signal_changes += 1;
-                    }
-                    self.signals[cid] = val;
+                let val = if let Some(&ov) = self.output_overrides.get(&cid) {
+                    ov
+                } else {
+                    outputs.get(i).copied().unwrap_or(self.signals[cid])
+                };
+                if (self.signals[cid] - val).abs() > f64::EPSILON {
+                    any_changed = true;
+                    signal_changes += 1;
                 }
+                self.signals[cid] = val;
             }
             if any_changed {
                 for &ds in &self.downstream[block_id] {
@@ -1373,5 +1406,72 @@ mod tests {
         let out = outputs.get("Sum").or_else(|| outputs.get("Sum.Q")).unwrap();
         assert!((out.val - 14.0).abs() < f64::EPSILON);
         assert!((out.dot - 2.0).abs() < f64::EPSILON); // d(2x)/dx = 2
+    }
+
+    // -- output override persistence -----------------------------------------
+
+    #[test]
+    fn inject_output_persists_across_ticks() {
+        // A → B → C. Inject A's output, verify B and C see it after multiple ticks.
+        let (mut e, _a, _b, _c) = simple_chain();
+        e.inject_output("A", 99.0);
+        e.tick(0.1);
+        assert!((e.get_output("A") - 99.0).abs() < f64::EPSILON);
+        assert!((e.get_output("C") - 99.0).abs() < f64::EPSILON);
+
+        // Second tick — override must persist even though block re-evaluates.
+        e.set_input("A", 0.0);
+        e.tick(0.1);
+        assert!((e.get_output("A") - 99.0).abs() < f64::EPSILON);
+        assert!((e.get_output("C") - 99.0).abs() < f64::EPSILON);
+
+        // Third tick — still persists.
+        e.tick(0.1);
+        assert!((e.get_output("A") - 99.0).abs() < f64::EPSILON);
+    }
+
+    #[test]
+    fn clear_override_restores_natural_output() {
+        let (mut e, _a, _b, _c) = simple_chain();
+        e.set_input("A", 5.0);
+        e.inject_output("A", 99.0);
+        e.tick(0.1);
+        assert!((e.get_output("A") - 99.0).abs() < f64::EPSILON);
+
+        // Clear override, tick again — natural value should flow.
+        e.clear_override("A");
+        e.tick(0.1);
+        assert!((e.get_output("A") - 5.0).abs() < f64::EPSILON);
+        assert!((e.get_output("C") - 5.0).abs() < f64::EPSILON);
+    }
+
+    #[test]
+    fn inject_propagates_to_downstream() {
+        // A → B → C. Inject B's output, verify C sees it.
+        let (mut e, _a, _b, _c) = simple_chain();
+        e.set_input("A", 1.0);
+        e.tick(0.1);
+        assert!((e.get_output("C") - 1.0).abs() < f64::EPSILON);
+
+        e.inject_output("B", 42.0);
+        e.tick(0.1);
+        assert!((e.get_output("B") - 42.0).abs() < f64::EPSILON);
+        assert!((e.get_output("C") - 42.0).abs() < f64::EPSILON);
+    }
+
+    #[test]
+    fn clear_all_overrides() {
+        let (mut e, _a, _b, _c) = simple_chain();
+        e.set_input("A", 3.0);
+        e.inject_output("A", 10.0);
+        e.inject_output("B", 20.0);
+        e.tick(0.1);
+        assert!((e.get_output("A") - 10.0).abs() < f64::EPSILON);
+        assert!((e.get_output("B") - 20.0).abs() < f64::EPSILON);
+
+        e.clear_all_overrides();
+        e.tick(0.1);
+        // A's natural output: passthrough of input 3.0
+        assert!((e.get_output("A") - 3.0).abs() < f64::EPSILON);
     }
 }
