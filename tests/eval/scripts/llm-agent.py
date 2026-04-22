@@ -32,7 +32,7 @@ EVAL_DIR = SCRIPT_DIR.parent
 FIXTURE = EVAL_DIR / "fixture.Loxone"
 COMMANDS_MD = EVAL_DIR.parent.parent / "COMMANDS.md"
 
-# Import helpers from sibling agent-runner.py
+# Import helpers from sibling scripts
 sys.path.insert(0, str(SCRIPT_DIR))
 from importlib import import_module as _imp
 
@@ -42,6 +42,9 @@ evaluate_correctness = _agent_runner.evaluate_correctness
 generate_report = _agent_runner.generate_report
 print_report = _agent_runner.print_report
 CLITracker = _agent_runner.CLITracker
+
+_sim_validator = _imp("run-sim-validation")
+run_simulation = _sim_validator.run_simulation
 
 MAX_RETRIES = 3
 
@@ -440,6 +443,21 @@ def main():
 
             eval_result = evaluate_correctness(FIXTURE, result_path, case)
 
+            # Run simulation (behavioral test — the real metric)
+            sim_result = run_simulation(case_id, case, str(result_path))
+            eval_result["simulation"] = sim_result
+            sim_pass = sim_result.get("pass", False)
+            sim_total = sim_result.get("total_count", 0)
+            sim_passed = sim_result.get("passed_count", 0)
+
+            # Override pass/fail: simulation is the primary metric
+            if sim_total > 0:
+                eval_result["sim_pass"] = sim_pass
+                eval_result["sim_score"] = sim_passed / sim_total if sim_total else 0
+            else:
+                eval_result["sim_pass"] = None
+                eval_result["sim_score"] = None
+
             eval_result["case_id"] = case_id
             eval_result["difficulty"] = case.get("difficulty", "medium")
             eval_result["patterns"] = case.get("pattern", [])
@@ -452,10 +470,22 @@ def main():
 
             results.append(eval_result)
 
-            if eval_result["pass"]:
+            if eval_result.get("sim_pass"):
                 passed += 1
                 print(
-                    f"\033[32m✓ PASS\033[0m  {eval_result['overall_score']:.0%}"
+                    f"\033[32m✓ PASS\033[0m  sim={sim_passed}/{sim_total}  struct={eval_result['overall_score']:.0%}"
+                )
+            elif sim_total > 0:
+                failed += 1
+                m = eval_result["metrics"]
+                print(
+                    f"\033[31m✗ FAIL\033[0m  sim={sim_passed}/{sim_total}  struct={eval_result['overall_score']:.0%}  "
+                    f"B={m['blocks']['f1']:.0%} W={m['wiring']['accuracy']:.0%} P={m['params']['accuracy']:.0%}"
+                )
+            elif eval_result["pass"]:
+                passed += 1
+                print(
+                    f"\033[32m✓ PASS\033[0m  {eval_result['overall_score']:.0%} (no sim spec)"
                 )
             else:
                 failed += 1
