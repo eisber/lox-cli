@@ -29,8 +29,10 @@ from pathlib import Path
 
 SCRIPT_DIR = Path(__file__).parent
 EVAL_DIR = SCRIPT_DIR.parent
+REPO_ROOT = EVAL_DIR.parent.parent
 FIXTURE = EVAL_DIR / "fixture.Loxone"
-COMMANDS_MD = EVAL_DIR.parent.parent / "COMMANDS.md"
+COMMANDS_MD = REPO_ROOT / "COMMANDS.md"
+SKILL_DIR = REPO_ROOT / ".github" / "skills"
 
 # Import helpers from sibling scripts
 sys.path.insert(0, str(SCRIPT_DIR))
@@ -159,112 +161,32 @@ def _describe_fixture(config_path: str) -> str:
     return "\n\n".join(parts)
 
 
+def _load_skill(name: str) -> str:
+    """Load a skill SKILL.md file, stripping YAML frontmatter."""
+    path = SKILL_DIR / name / "SKILL.md"
+    if not path.exists():
+        return f"(skill {name} not found at {path})"
+    text = path.read_text()
+    # Strip YAML frontmatter (--- ... ---)
+    if text.startswith("---"):
+        end = text.find("---", 3)
+        if end != -1:
+            text = text[end + 3:].lstrip("\n")
+    return text
+
+
 def build_llm_prompt(case, config_path: str) -> str:
+    config_skill = _load_skill("loxone-config")
+    sim_skill = _load_skill("loxone-sim")
+    patterns_skill = _load_skill("loxone-patterns")
     fixture_desc = _describe_fixture(config_path)
 
     return f"""\
-You are a Loxone home automation expert. You configure Miniservers using the `lox` CLI.
+{config_skill}
 
-## Commands
+{sim_skill}
 
-### Add a block
-lox config add --type TYPE --title TITLE --room ROOM --page PAGE FILE
-
-### Set a parameter on a block
-lox config set-param FILE "BlockTitle" ParamName Value
-
-### Wire two connectors together
-lox config wire-connector FILE "TargetBlock.InputConnector" "SourceBlock.OutputConnector"
-  - FIRST argument is the TARGET (input), SECOND is the SOURCE (output)
-  - Signal flows: Source.Output → Target.Input
-
-### Add a schedule to a DayTimer block
-lox config timer-schedule FILE "DayTimerTitle" "HH:MM-HH:MM" --value VALUE
-  - Example: lox config timer-schedule config.Loxone "Nachtzeit" "22:00-06:00" --value 30
-
-### Verify your work
-lox config check FILE
-
-### Test your circuit with the simulator
-lox sim run FILE --sim '{{"inputs":{{"Sensor.AQ":value}},"ticks":10,"dt":0.1,"expected_outputs":{{"Target.Conn":{{">":0.5}}}}}}'
-  - Runs signal propagation and checks expected outputs
-  - Use AFTER wiring to verify the circuit works
-  - Outputs JSON with pass/fail and actual values
-
-## Block Type Reference (connectors)
-
-| Type | Inputs | Outputs | Params |
-|------|--------|---------|--------|
-| GreaterEqual | Input1 (analog) | Q (1 if Input1 ≥ Input2) | Input2=threshold |
-| Less | Input1 (analog) | Q (1 if Input1 < Input2) | Input2=threshold |
-| Greater | Input1 (analog) | Q (1 if Input1 > Input2) | Input2=threshold |
-| And | I1, I2 (digital) | Q (1 if all inputs >0.5) | |
-| Or | I1, I2 (digital) | Q (1 if any input >0.5) | |
-| Not | I (digital) | Q (inverted) | |
-| Mult | Input1, Input2 | AQ (product) | Input2=factor |
-| Add | Input1, Input2 | AQ (sum) | |
-| Sub | Input1, Input2 | AQ (difference) | |
-| Memory | S (set), R (reset) | Q (stored value) | |
-| FlipFlop | InputS (set), InputR (reset) | Q (toggle) | |
-| Monoflop | InputTrigger | Q (pulse for Time seconds) | Time |
-| OnPulseDelay | InputTrigger | Q (delayed pulse) | Time |
-| StairwayLS | InputTrigger, On | Q (timed switch) | TimeHigh |
-| OffDelay | InputTrigger | Q (stays on for Time after off) | Time |
-| DayTimer | InputTrigger | AQ, Qon, Qoff | (schedule in UI) |
-| PulseGen | InputEnable | Q (periodic pulse) | Period |
-| State | I1..I20 | AQ, TQ (selected state) | |
-
-## Fixture Sensors (wire FROM these .AQ/.Q outputs)
-
-| Sensor | Output | Signal |
-|--------|--------|--------|
-| Außentemperatur | .AQ | Temperature °C |
-| Sonnenschein | .AQ | Sunshine 0/1 |
-| Windgeschwindigkeit | .AQ | Wind speed km/h |
-| Regen | .AQ | Rain 0/1 |
-| Luftfeuchtigkeit | .AQ | Humidity % |
-| Helligkeit | .AQ | Brightness lux |
-| CO2 Sensor | .AQ | CO2 ppm |
-| Bewegungsmelder | .OutputPresence | Motion 0/1 |
-| Türkontakt Eingang | .Q | Door contact 0/1 |
-| Türklingel | .Q | Doorbell pulse |
-| Pool Temperatur | .AQ | Pool temp °C |
-| Raumtemperatur Wohnzimmer | .AQ | Room temp °C |
-| Schalter 1 | .Q | Switch 0/1 |
-
-## Fixture Actuators (wire TO these inputs)
-
-| Actuator | Room | Key Inputs |
-|----------|------|------------|
-| Jalousie 1, Jalousie 2 | each room | .InputTriggerDown, .InputTriggerUp, .InputDisable |
-| Lichtsteuerung | each room | .I1 (on/off), .Presence, .Brightness |
-| Klimaanlage | Wohnzimmer | .toggle |
-| Poolpumpe | Garten | .I1 |
-| Lüfter Bad | Bad | .I1 |
-| Raumregler | Wohnzimmer | .Temp |
-
-## Worked Example
-
-Task: "Close blinds when it's sunny and above 25°C"
-
-```
-lox config add --type GreaterEqual --title "Temp über 25" --room Wohnzimmer --page Wohnzimmer config.Loxone
-lox config set-param config.Loxone "Temp über 25" Input2 25
-lox config add --type And --title "Sonne und Warm" --room Wohnzimmer --page Wohnzimmer config.Loxone
-lox config wire-connector config.Loxone "Temp über 25.Input1" "Außentemperatur.AQ"
-lox config wire-connector config.Loxone "Sonne und Warm.I1" "Sonnenschein.AQ"
-lox config wire-connector config.Loxone "Sonne und Warm.I2" "Temp über 25.Q"
-lox config wire-connector config.Loxone "Jalousie 1 [Wohnzimmer].InputTriggerDown" "Sonne und Warm.Q"
-lox sim run config.Loxone --sim '{{"inputs":{{"Außentemperatur.AQ":30,"Sonnenschein.AQ":1}},"ticks":10,"dt":0.1,"expected_outputs":{{"Jalousie 1 [Wohnzimmer].InputTriggerDown":{{">":0.5}}}}}}'
-lox config check config.Loxone
-```
-
-## Steps
-1. Add new blocks with `lox config add`
-2. Set parameters with `lox config set-param`
-3. Wire connectors with `lox config wire-connector`
-4. **Test with simulator**: `lox sim run FILE --sim '...'` to verify signals propagate
-5. Run `lox config check FILE` to validate
+{patterns_skill}
 
 ## Current Config
 File: {config_path}

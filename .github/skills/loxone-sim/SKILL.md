@@ -1,0 +1,205 @@
+---
+name: loxone-sim
+description: Test Loxone automation circuits with the SPS simulator. Verify signal propagation, check behavioral correctness. Use after building a circuit to validate it works.
+license: AGPL-3.0
+metadata:
+  author: eisber
+  version: "1.0"
+allowed-tools: Bash
+---
+
+# Loxone SPS Simulator
+
+Test automation circuits by injecting sensor values and checking that expected outputs appear. Use after wiring a circuit to validate correctness.
+
+## Commands
+
+### Run simulation (pass/fail)
+
+```
+lox sim run FILE --sim 'JSON_SPEC'
+```
+
+Executes the simulation spec, runs signal propagation, and checks expected outputs. Returns JSON:
+
+```json
+{
+  "pass": true,
+  "total": 1,
+  "passed": 1,
+  "scenarios": [
+    {
+      "name": "test name",
+      "pass": true,
+      "assertions": [
+        {"output": "Block.Conn", "comparator": ">", "expected": 0.5, "actual": 1.0, "pass": true}
+      ]
+    }
+  ]
+}
+```
+
+Exit code 0 on pass, non-zero on failure.
+
+### Step-by-step debugging
+
+```
+lox sim step FILE --sim 'JSON_SPEC'
+```
+
+Shows tick-by-tick signal changes in human-readable format. Use when `sim run` fails to understand which signal didn't propagate.
+
+Output:
+
+```
+Tick 0 (t=0.0s):
+  Außentemperatur.AQ = 30.0
+  Sonnenschein.AQ = 1.0
+Tick 1 (t=0.1s):
+  Temp über 25.Q = 1.0 (was 0.0)
+  Sonne und Warm.Q = 1.0 (was 0.0)
+...
+✅ Jalousie 1 [Wohnzimmer].InputTriggerDown > 0.5 → actual: 1.0 PASS
+```
+
+### Dump graph structure
+
+```
+lox sim dump FILE [--sim 'JSON_SPEC']
+```
+
+Dumps the full simulation graph: all blocks, connectors, wires, and current signal values. Use to inspect connectivity and debug missing wires.
+
+### Check block/connector counts
+
+```
+lox sim check FILE
+```
+
+Quick structural check: reports number of blocks and connectors in the config.
+
+## Simulation Spec Format
+
+```json
+{
+  "name": "scenario name (optional)",
+  "inputs": {
+    "SensorName.ConnectorKey": 1.0,
+    "SensorName": 0.5
+  },
+  "ticks": 10,
+  "dt": 0.1,
+  "expected_outputs": {
+    "BlockName.OutputKey": {">": 0.5}
+  }
+}
+```
+
+### Fields
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `name` | string | Optional label for the scenario |
+| `inputs` | object | Map of sensor/block connector → value to inject |
+| `ticks` | integer | Number of simulation ticks to run (typically 10) |
+| `dt` | float | Time step in seconds per tick (typically 0.1) |
+| `expected_outputs` | object | Map of output connector → comparator assertion |
+
+### Comparators
+
+| Comparator | Meaning | Example |
+|------------|---------|---------|
+| `>` | Greater than | `{">": 0.5}` — output must be > 0.5 |
+| `>=` | Greater than or equal | `{">=": 1.0}` |
+| `<` | Less than | `{"<": 0.1}` — output must be < 0.1 |
+| `<=` | Less than or equal | `{"<=": 0.0}` |
+| `==` | Equal (±1e-9 tolerance) | `{"==": 1.0}` — output must equal 1.0 |
+| `~=` | Approximately equal (±5%) | `{"~=": 25.0}` — output within 5% of 25.0 |
+
+Multiple comparators can be combined in one assertion:
+
+```json
+{"Block.AQ": {">=": 20.0, "<=": 30.0}}
+```
+
+### Sensor Name Resolution
+
+The simulator resolves sensor/block names in this order:
+
+1. **Bare name**: `"Außentemperatur"` — matches the block title directly (uses default output, typically `.AQ` or `.Q`)
+2. **Block.Connector**: `"Außentemperatur.AQ"` — explicit connector on the block
+3. **Block [Room].Connector**: `"Jalousie 1 [Wohnzimmer].InputTriggerDown"` — room-qualified for ambiguous names
+
+Always use room qualification when a block name exists in multiple rooms (e.g. "Jalousie 1", "Lichtsteuerung").
+
+### Multiple Scenarios
+
+Pass an array for multiple test scenarios in one run:
+
+```json
+[
+  {
+    "name": "sunny and warm → blinds close",
+    "inputs": {"Außentemperatur.AQ": 30, "Sonnenschein.AQ": 1},
+    "ticks": 10, "dt": 0.1,
+    "expected_outputs": {"Jalousie 1 [Wohnzimmer].InputTriggerDown": {">": 0.5}}
+  },
+  {
+    "name": "cold → blinds stay open",
+    "inputs": {"Außentemperatur.AQ": 15, "Sonnenschein.AQ": 1},
+    "ticks": 10, "dt": 0.1,
+    "expected_outputs": {"Jalousie 1 [Wohnzimmer].InputTriggerDown": {"==": 0}}
+  }
+]
+```
+
+### Using --sim-file for complex specs
+
+For large or multi-scenario specs, write to a file:
+
+```bash
+cat > /tmp/test.json << 'EOF'
+[
+  {"name": "test1", "inputs": {"Sensor.AQ": 30}, "ticks": 10, "dt": 0.1,
+   "expected_outputs": {"Output.Q": {">": 0.5}}},
+  {"name": "test2", "inputs": {"Sensor.AQ": 10}, "ticks": 10, "dt": 0.1,
+   "expected_outputs": {"Output.Q": {"==": 0}}}
+]
+EOF
+lox sim run config.Loxone --sim-file /tmp/test.json
+```
+
+## Example: Testing a Threshold Circuit
+
+After building a "close blinds when temp ≥ 25°C" circuit:
+
+```bash
+# Positive test: 30°C should trigger
+lox sim run config.Loxone --sim '{"name":"hot day","inputs":{"Außentemperatur.AQ":30,"Sonnenschein.AQ":1},"ticks":10,"dt":0.1,"expected_outputs":{"Jalousie 1 [Wohnzimmer].InputTriggerDown":{">":0.5}}}'
+
+# Negative test: 20°C should NOT trigger
+lox sim run config.Loxone --sim '{"name":"cool day","inputs":{"Außentemperatur.AQ":20,"Sonnenschein.AQ":1},"ticks":10,"dt":0.1,"expected_outputs":{"Jalousie 1 [Wohnzimmer].InputTriggerDown":{"==":0}}}'
+
+# Boundary test: exactly 25°C should trigger (GreaterEqual)
+lox sim run config.Loxone --sim '{"name":"boundary","inputs":{"Außentemperatur.AQ":25,"Sonnenschein.AQ":1},"ticks":10,"dt":0.1,"expected_outputs":{"Jalousie 1 [Wohnzimmer].InputTriggerDown":{">":0.5}}}'
+```
+
+## Example: Testing a Timer Circuit
+
+After building a StairwayLS (5-minute light):
+
+```bash
+# Trigger: motion should turn light on
+lox sim run config.Loxone --sim '{"name":"motion triggers light","inputs":{"Bewegungsmelder.OutputPresence":1},"ticks":10,"dt":0.1,"expected_outputs":{"Treppenlicht.Q":{">":0.5}}}'
+
+# No trigger: no motion should leave light off
+lox sim run config.Loxone --sim '{"name":"no motion","inputs":{"Bewegungsmelder.OutputPresence":0},"ticks":10,"dt":0.1,"expected_outputs":{"Treppenlicht.Q":{"==":0}}}'
+```
+
+## Debugging Workflow
+
+1. **Run sim** → if it fails:
+2. **Run step** → inspect tick-by-tick to find where signal stops
+3. **Run dump** → check wiring graph for missing connections
+4. **Fix wiring** with `lox config wire-connector`
+5. **Re-run sim** to confirm fix
