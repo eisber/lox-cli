@@ -1,0 +1,92 @@
+{
+  "title": "RGB Lighting Controller",
+  "xml_type": "",
+  "kb_slug": "rgb-scene-controller",
+  "description": "RGB lighting controller with one- or two-button control. The scenes can be cycled through with the \"+\" input.\nAt the outputs AQr, AQg, and AQb, the colors are then split into RGB, or output together at the output AQa.\nBy double-clicking on the block, the light scenes can be defined and edited.",
+  "inputs": [
+    {
+      "abbreviation": "+",
+      "summary": "Trigger next scene",
+      "description": "Next RGB lighting scene",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "-",
+      "summary": "Trigger previous scene",
+      "description": "Previous RGB lighting scene",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "AIs",
+      "summary": "Scene",
+      "description": "Input for selecting RGB lighting scene(0-x)",
+      "value_range": "\u221e"
+    },
+    {
+      "abbreviation": "Dis",
+      "summary": "Disable",
+      "description": "Disables all inputs (child lock)",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "R",
+      "summary": "Reset",
+      "description": "Resets the lighting scene The name of the connected sensor is used in the user interface.",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "O",
+      "summary": "On",
+      "description": "All ON Sets all outputs to maximum (white)",
+      "value_range": "0/1"
+    }
+  ],
+  "outputs": [
+    {
+      "abbreviation": "AQr",
+      "description": "Analogue output for the red LED",
+      "value_range": "\u221e"
+    },
+    {
+      "abbreviation": "AQg",
+      "description": "Analogue output for the green LED",
+      "value_range": "\u221e"
+    },
+    {
+      "abbreviation": "AQb",
+      "description": "Analogue output for the blue LED",
+      "value_range": "\u221e"
+    },
+    {
+      "abbreviation": "AQs",
+      "description": "Analogue Output - Value indicating currently active scene",
+      "value_range": "\u221e"
+    },
+    {
+      "abbreviation": "AQa",
+      "description": "Analog output RGB %-value red + %-value green * 1000 + %-value blue * 1000000",
+      "value_range": "\u221e"
+    }
+  ],
+  "parameters": [
+    {
+      "abbreviation": "Rem",
+      "summary": "Remanence input",
+      "description": "Remanence input: If active, the function block retains its previous state after a Miniserver reboot. The state of the function block is saved: \u2013 When saving to the Miniserver \u2013 At a planned reboot \u2013 Before a backup \u2013 Once per hour The data is saved on the SD card.",
+      "value_range": "0/1",
+      "default_value": "0"
+    }
+  ],
+  "properties": [
+    {
+      "summary": "Lighting scenes",
+      "description": "Lighting scene management",
+      "default_value": "-"
+    }
+  ],
+  "source_url": "https://www.loxone.com/enen/kb/rgb-scene-controller/",
+  "input_count": 6,
+  "output_count": 5,
+  "parameter_count": 1,
+  "property_count": 1
+}

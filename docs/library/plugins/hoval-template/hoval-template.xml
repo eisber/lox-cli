@@ -1,0 +1,16 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Modbus Title="Hoval Lüftung Vers. 3.0.0" Comment="" HintText="" Baudrate="19200" Parity="1" Channel="1">
+	<Info templateType="7" minVersion="16011106"/>
+	<ModbusCmd Title="Temperatur Abluft" Comment="" HintText="" ModbusAddress="23633" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="40" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="Luftmenge Soll" Comment="Lüftungsmodulation Sollwert" HintText="" ModbusAddress="23625" ModbusCmd="3" ModbusPollingCycle="35" Unit="&lt;v&gt; %" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Status ventilation regulation" Comment="" HintText="" ModbusAddress="23631" ModbusCmd="3" ModbusPollingCycle="30" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Temperatur Zuluft" Comment="" HintText="" ModbusAddress="23632" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="40" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="VOC Abluft" Comment="" HintText="" ModbusAddress="23628" ModbusCmd="3" ModbusPollingCycle="45" Unit="&lt;v&gt; %" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Feuchtigkeit Abluft" Comment="Lüftung Feuchtigkeit Istwert" HintText="" ModbusAddress="23627" ModbusCmd="3" ModbusPollingCycle="45" Unit="&lt;v&gt; %" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="VOC Außenluft" Comment="" HintText="" ModbusAddress="23629" ModbusCmd="3" ModbusPollingCycle="45" Unit="&lt;v&gt; %" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Luftmenge Ist" Comment="Lüftungsmodulation Istwert" HintText="ergibt sich aus &quot;Luftmenge soll&quot;, &quot;Feuchte soll&quot;, &quot;Feuchte ist&quot;, &quot;VOC Abluft&quot;, &quot;VOC Aussenluft&quot;, &quot;Temperatur Aussenluft&quot;" ModbusAddress="23634" ModbusCmd="3" ModbusPollingCycle="35" Unit="&lt;v&gt; %" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Feuchtigkeitssollwert" Comment="" HintText="" ModbusAddress="23626" ModbusCmd="6" Unit="&lt;v&gt; %" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100" RepeatRate="190"/>
+	<ModbusCmd Title="Betriebsart Lüftung" Comment="" HintText="" ModbusAddress="23622" ModbusCmd="6" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100" RepeatRate="200"/>
+	<ModbusCmd Title="Lüftungsmodulation Normal Betrieb" Comment="" HintText="" ModbusAddress="23623" ModbusCmd="6" Unit="&lt;v&gt; %" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100" RepeatRate="220"/>
+	<ModbusCmd Title="Lüftungsmodulation Eco Betrieb" Comment="" HintText="" ModbusAddress="23624" ModbusCmd="6" Unit="&lt;v&gt; %" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100" RepeatRate="210"/>
+</Modbus>

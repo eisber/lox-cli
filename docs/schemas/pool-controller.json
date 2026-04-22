@@ -1,0 +1,332 @@
+{
+  "title": "Pool Controller",
+  "xml_type": "PoolController",
+  "kb_slug": "pool-controller",
+  "description": "The Pool Controller provides the ability to control the various cycles of Filter, Circulate, Back & Rinse, Drain, and Out of Service.\nThese cycles can be activated via operating modes, inputs of the block but also in the User Interface.\nIn addition, the block also allows the ability to give pool temperature control.",
+  "inputs": [
+    {
+      "abbreviation": "Om",
+      "summary": "Set operating mode",
+      "description": "1 = Automatic 2 = Service",
+      "unit": "-",
+      "value_range": "0...2"
+    },
+    {
+      "abbreviation": "\u03d1m",
+      "summary": "Set temperature mode",
+      "description": "0 = Off 1 = Automatic heating or cooling using the set point. Input (Eco) is taken into account. 2 = Automatic heating using the set point. Input (Eco) is taken into account. 3 = Automatic cooling using the set point. Input (Eco) is taken into account. 4 = Heating permanently on 5 = Cooling permanently on",
+      "unit": "-",
+      "value_range": "0...5"
+    },
+    {
+      "abbreviation": "Eco",
+      "summary": "Eco",
+      "description": "Output (H) and output (C) are switched off when 1.",
+      "unit": "-",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "Cpos",
+      "summary": "Cover position",
+      "description": "Position of the cover (0.0 = open, 1.0 = closed)",
+      "unit": "-",
+      "value_range": "0...1"
+    },
+    {
+      "abbreviation": "Sm",
+      "summary": "Swimming machine",
+      "description": "Digital or analog input depending on output (Wm).",
+      "unit": "-",
+      "value_range": "\u221e"
+    },
+    {
+      "abbreviation": "I1",
+      "summary": "Custom input 1",
+      "description": "Input value is displayed in the user interface.",
+      "unit": "-",
+      "value_range": "\u221e"
+    },
+    {
+      "abbreviation": "I2",
+      "summary": "Custom input 2",
+      "description": "Input value is displayed in the user interface.",
+      "unit": "-",
+      "value_range": "\u221e"
+    },
+    {
+      "abbreviation": "Fi",
+      "summary": "Activate Filter cycle",
+      "description": "This input is only visible in certain configurations.",
+      "unit": "-",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "Bw",
+      "summary": "Activate Backwash & rinse cycle",
+      "description": "This input is only visible in certain configurations.",
+      "unit": "-",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "Ci",
+      "summary": "Activate Circulation cycle",
+      "description": "This input is only visible in certain configurations.",
+      "unit": "-",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "Dr",
+      "summary": "Activate Drain cycle",
+      "description": "This input is only visible in certain configurations.",
+      "unit": "-",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "Vp",
+      "summary": "Set valve position",
+      "description": "Valve postion can only be set when in service mode! (Note: No Cycle is started!) Valve positions: 0 = Filtration 1 = Backwash 2 = Rinse 3 = Circulate 4 = Closed 5 = Draining This input is only visible in certain configurations.",
+      "unit": "-",
+      "value_range": "\u221e"
+    },
+    {
+      "abbreviation": "Fp",
+      "summary": "Filtration pump",
+      "description": "For manual control of the filtration pump. Can only be activated in service mode! This input is only visible in certain configurations.",
+      "unit": "-",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "Dv",
+      "summary": "Drain valve",
+      "description": "For manual control of the drain valve. Can only be activated in service mode! This input is only visible in certain configurations.",
+      "unit": "-",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "Error",
+      "summary": "Error Input",
+      "description": "Can be used as error input. Pulse disables the valve until a reset via input (Off) or an acknowledgment via the user interface.",
+      "unit": "-",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "Off",
+      "summary": "Off",
+      "description": "Pulse = Resets the function block to its initial state: - Operating mode: automatic - Temperature control mode: automatic - Jets: off or 0 - Active cycle will be stopped - Valve is set to filtration position - Pump: off - Drain valve: closed 1 = Locks the funcktion block - All Off - Aquastar in winter position The name of the connected sensor is used in the user interface.",
+      "unit": "-",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "DisPc",
+      "summary": "Disable periphery control",
+      "description": "Disables inputs (Om), (\u03d1m), (\u03d1t), (Fi), (Bw), (Ci), (Dr), (Vp), (Fp), (Dv) when On. (e.g Child lock, cleaning) Control via user interface is still possible.",
+      "unit": "-",
+      "value_range": "0/1"
+    }
+  ],
+  "outputs": [
+    {
+      "abbreviation": "H",
+      "summary": "Heating demand",
+      "description": "Only activated when the filter pump is active and something is connected to the output. If there is a heating demand while in temperature mode \"automatic\" and no cycle is active, the circulation cycle is started.",
+      "unit": "-",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "C",
+      "summary": "Cooling demand",
+      "description": "Only activated when the filter pump is active and something is connected to the output. If there is a cooling demand while in temperature mode \"automatic\" and no cycle is active, the circulation cycle is started.",
+      "unit": "-",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "Om",
+      "summary": "Current operating mode",
+      "description": "0 = Not in Use 1 = Automatic 2 = Service",
+      "unit": "-",
+      "value_range": "0...2"
+    },
+    {
+      "abbreviation": "\u03d1m",
+      "summary": "Current temperature control mode",
+      "description": "0 = Off 1 = Automatic heating or cooling using the set point. Input (Eco) is taken into account. 2 = Automatic heating using the set point. Input (Eco) is taken into account. 3 = Automatic cooling using the set point. Input (Eco) is taken into account. 4 = Heating permanently on 5 = Cooling permanently on",
+      "unit": "-",
+      "value_range": "0...5"
+    },
+    {
+      "abbreviation": "C\u03d1m",
+      "summary": "Cycle started via (\u03d1m)",
+      "description": "On if the current cycle was started by a temperature control mode.",
+      "unit": "-",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "Op",
+      "summary": "Open pool cover",
+      "description": "Pulses when the button is pressed in the user interface.",
+      "unit": "-",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "Cl",
+      "summary": "Close pool cover",
+      "description": "Pulses when the button is pressed in the user interface.",
+      "unit": "-",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "Wm",
+      "summary": "Water machine",
+      "description": "Output for a water machine or jets. Output is analog or digital depending on the connection.",
+      "unit": "-",
+      "value_range": "\u221e"
+    },
+    {
+      "abbreviation": "Fi",
+      "summary": "Filtration cycle state",
+      "description": "This output is only visible in certain configurations.",
+      "unit": "-",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "Bw",
+      "summary": "Backwash cycle state",
+      "description": "This output is only visible in certain configurations.",
+      "unit": "-",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "Ci",
+      "summary": "Circulation cycle state",
+      "description": "This output is only visible in certain configurations.",
+      "unit": "-",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "Dr",
+      "summary": "Draining cycle state",
+      "description": "This output is only visible in certain configurations.",
+      "unit": "-",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "Rtc",
+      "summary": "Remaining duration of the active cycle",
+      "description": "This output is only visible in certain configurations.",
+      "unit": "s",
+      "value_range": "\u221e"
+    },
+    {
+      "abbreviation": "Fpet",
+      "summary": "Filtration pump extend time",
+      "description": "Indicating whether the filtration pump is still running due to the parameter (Fpet). This output is only visible in certain configurations.",
+      "unit": "-",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "Vpos",
+      "summary": "Current valve position",
+      "description": "-1 = Valve is moving / unknown position 0 = Filtration 1 = Backwash 2 = Rinse 3 = Circulate 4 = Closed 5 = Draining 6 = Release This output is only visible in certain configurations.",
+      "unit": "-",
+      "value_range": "\u221e"
+    },
+    {
+      "abbreviation": "Fp",
+      "summary": "Filtration pump",
+      "description": "Output for filtration pump control. This output is only visible in certain configurations.",
+      "unit": "-",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "Dv",
+      "summary": "Drain valve",
+      "description": "Output for drain valve control. This output is only visible in certain configurations.",
+      "unit": "-",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "Error",
+      "summary": "Error code",
+      "description": "Is activated by input (Error). Is active until a reset via input (Off) or acknowledgment via the user interface.",
+      "unit": "-",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "API",
+      "summary": "API Connector",
+      "description": "Intelligent API based connector. API Commands",
+      "unit": "-",
+      "value_range": "-"
+    }
+  ],
+  "parameters": [
+    {
+      "abbreviation": "\u03d1h",
+      "summary": "Hysteresis temperature",
+      "description": "When in temperature mode \"automatic\", the decision whether to heat or cool is made at midnight: If the water temperature is lower than the target temperature minus the hysteresis, heating will be activated. If the water temperature is lower than the target temperature plus the hysteresis, cooling will be activated.",
+      "unit": "-",
+      "value_range": "\u221e",
+      "default_value": "0,5"
+    },
+    {
+      "abbreviation": "Fpet",
+      "summary": "Filtration pump extend time",
+      "description": "Filtration pump extend time after a cycle with heating or cooling demand. To prevent heat build-up, the water is kept in motion. This parameter is only visible in certain configurations.",
+      "unit": "s",
+      "value_range": "0...1800",
+      "default_value": "0"
+    },
+    {
+      "abbreviation": "Fid",
+      "summary": "Filtration cycle duration",
+      "description": "This parameter is only visible in certain configurations.",
+      "unit": "s",
+      "value_range": "0...\u221e",
+      "default_value": "18000"
+    },
+    {
+      "abbreviation": "Bwd",
+      "summary": "Backwash cycle duration",
+      "description": "This parameter is only visible in certain configurations.",
+      "unit": "s",
+      "value_range": "20...600",
+      "default_value": "120"
+    },
+    {
+      "abbreviation": "Rid",
+      "summary": "Rinsing cycle duration",
+      "description": "This parameter is only visible in certain configurations.",
+      "unit": "s",
+      "value_range": "20...300",
+      "default_value": "30"
+    },
+    {
+      "abbreviation": "Cid",
+      "summary": "Circulation cycle duration",
+      "description": "This parameter is only visible in certain configurations.",
+      "unit": "s",
+      "value_range": "0...\u221e",
+      "default_value": "43200"
+    },
+    {
+      "abbreviation": "Drd",
+      "summary": "Draining cycle duration",
+      "description": "This parameter is only visible in certain configurations.",
+      "unit": "s",
+      "value_range": "0...\u221e",
+      "default_value": "3600"
+    }
+  ],
+  "properties": [
+    {
+      "summary": "Aquastar Air",
+      "description": "Aquastar Air linked to this function block. Devices that can be assigned: Aquastar Air",
+      "default_value": "-"
+    }
+  ],
+  "source_url": "https://www.loxone.com/enen/kb/pool-controller/",
+  "input_count": 17,
+  "output_count": 19,
+  "parameter_count": 7,
+  "property_count": 1
+}

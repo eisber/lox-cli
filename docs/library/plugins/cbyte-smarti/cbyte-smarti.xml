@@ -1,0 +1,48 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Modbus Title="CByte SMARTI" Comment="" HintText="" Channel="1">
+	<Info templateType="7" minVersion="14040925"/>
+	<ModbusCmd Title="Grid voltage L1" Comment="1.0.32.7" HintText="SmartMeter 
+Spannung L1
+OBIS: 1.0.32.7" ModbusAddress="1001" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.2&gt;V" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="1"/>
+	<ModbusCmd Title="Grid voltage L2" Comment="1.0.52.7" HintText="SmartMeter 
+Spannung L2
+OBIS: 1.0.52.7" ModbusAddress="1002" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.2&gt;V" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="1"/>
+	<ModbusCmd Title="Grid voltage L3" Comment="1.0.72.7" HintText="SmartMeter 
+Spannung L3
+OBIS: 1.0.72.7" ModbusAddress="1003" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.2&gt;V" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="1"/>
+	<ModbusCmd Title="Grid current L1" Comment="1.0.31.7" HintText="SmartMeter 
+Strom L1
+OBIS: 1.0.31.7" ModbusAddress="1004" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.2&gt;A" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="1"/>
+	<ModbusCmd Title="Grid current L2" Comment="1.0.51.7" HintText="SmartMeter 
+Strom L2
+OBIS: 1.0.51.7" ModbusAddress="1005" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.2&gt;A" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="1"/>
+	<ModbusCmd Title="Grid current L3" Comment="1.0.72.7" HintText="SmartMeter 
+Strom L3
+OBIS: 1.0.72.7" ModbusAddress="1006" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.2&gt;A" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="1"/>
+	<ModbusCmd Title="Grid power import" Comment="1.0.1.7" HintText="SmartMeter 
+Wirkleistung Bezug
+OBIS: 1.0.1.7" ModbusAddress="1007" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.2&gt;kW" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="1"/>
+	<ModbusCmd Title="Grid power export" Comment="1.0.2.7" HintText="SmartMeter 
+Wirkleistung Lieferung
+OBIS: 1.0.2.7" ModbusAddress="1008" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.2&gt;kW" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="1"/>
+	<ModbusCmd Title="Grid active energy import" Comment="1.0.1.8" HintText="SmartMeter
+Zählerstand Bezug
+OBIS: 1.0.1.8" ModbusAddress="1009" ModbusCmd="3" ModbusDataType="34" ModbusPollingCycle="5" Unit="&lt;v.2&gt;kWh" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="1"/>
+	<ModbusCmd Title="Grid active energy export" Comment="1.0.2.8" HintText="SmartMeter
+Zählerstand Lieferung
+OBIS: 1.0.2.8" ModbusAddress="1011" ModbusCmd="3" ModbusDataType="34" ModbusPollingCycle="5" Unit="&lt;v.2&gt;kWh" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="1"/>
+	<ModbusCmd Title="Grid reactive energy import" Comment="1.0.3.8" HintText="SmartMeter 
+Zählerstand Blindleistung Bezug
+OBIS:1.0.3.8" ModbusAddress="1013" ModbusCmd="3" ModbusDataType="34" ModbusPollingCycle="5" Unit="&lt;v.2&gt;kWh" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="1"/>
+	<ModbusCmd Title="Grid reactive energy export" Comment="1.0.4.8" HintText="SmartMeter 
+Zählerstand Blindleistung Lieferung
+OBIS: 1.0.4.8" ModbusAddress="1015" ModbusCmd="3" ModbusDataType="34" ModbusPollingCycle="5" Unit="&lt;v.2&gt;kWh" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="1"/>
+	<ModbusCmd Title="TimeStamp" Comment="0.0.1.0" HintText="Zeitstempel
+OBIS: 0.0.1.0
+Konvertierung Unix timestamp zu lokaler Zeit 24h mit Formel:
+(I1-1230768000)+0
+" ModbusAddress="1017" ModbusCmd="3" ModbusDataType="34" ModbusPollingCycle="5" Unit="&lt;v.2&gt;" Analog="true" Sensor="true" SourceValHigh="1" DestValHigh="1"/>
+	<ModbusCmd Title="Grid powerfactor" Comment="0.1.13.7" HintText="SmartMeter
+Powerfaktor
+OBIS: 0.1.13.7" ModbusAddress="1019" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.2&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="1"/>
+</Modbus>

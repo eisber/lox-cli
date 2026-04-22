@@ -1,0 +1,9 @@
+{
+                                "type": "template",
+                                "name": "sonos-speakers",
+                                "uuid": "cfe7519c-1167-11ec-9a744cd98f3deb8a",
+                                "version":"1.0.1",
+                                "id": "sonos-speakers-28",
+                                "file": "sonos-speakers.xml",
+                                "templateType": "3",
+                            }

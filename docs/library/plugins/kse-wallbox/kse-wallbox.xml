@@ -1,0 +1,28 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Modbus Title="KSE" Comment="KSE_wBX16_11kW" Baudrate="9600" Parity="1" Channel="100">
+	<Info templateType="7" minVersion="12021201"/>
+	<ModbusCmd Title="voltageP1" Comment="" ModbusAddress="17" ModbusCmd="4" ModbusDataType="1" ModbusPollingCycle="5" Unit="&lt;v.1&gt;V" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="voltageP2" Comment="" ModbusAddress="18" ModbusCmd="4" ModbusDataType="1" ModbusPollingCycle="5" Unit="&lt;v.1&gt;V" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="currentP1" Comment="" ModbusAddress="20" ModbusCmd="4" ModbusDataType="1" ModbusPollingCycle="5" Unit="&lt;v&gt;mA" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="voltageP3" Comment="" ModbusAddress="19" ModbusCmd="4" ModbusDataType="1" ModbusPollingCycle="5" Unit="&lt;v.1&gt;V" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="currentP2" Comment="" ModbusAddress="21" ModbusCmd="4" ModbusDataType="1" ModbusPollingCycle="5" Unit="&lt;v&gt;mA" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="currentP3" Comment="" ModbusAddress="22" ModbusCmd="4" ModbusDataType="1" ModbusPollingCycle="5" Unit="&lt;v&gt;mA" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="currentLoadedEnergy" Comment="" ModbusAddress="23" ModbusCmd="4" ModbusDataType="1" ModbusPollingCycle="5" Unit="&lt;v.1&gt;Wh" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="actualPower" Comment="" ModbusAddress="24" ModbusCmd="4" ModbusDataType="1" ModbusPollingCycle="5" Unit="&lt;v&gt;W" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="maxCurrent" Comment="" ModbusAddress="1" ModbusCmd="4" ModbusDataType="1" ModbusPollingCycle="5" Unit="&lt;v&gt;A" Analog="true" Sensor="true" SourceValLow="1" SourceValHigh="10" DestValLow="1" DestValHigh="10"/>
+	<ModbusCmd Title="vehicleState" Comment="" ModbusAddress="16" ModbusCmd="4" ModbusDataType="1" ModbusPollingCycle="5" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="absoluteMaxCurrent" Comment="" ModbusAddress="2" ModbusCmd="4" ModbusDataType="1" ModbusPollingCycle="10" Unit="&lt;v&gt;A" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="firmwareVersion" Comment="" ModbusAddress="48" ModbusCmd="4" ModbusDataType="1" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="TouchError" Comment="" ModbusAddress="87" ModbusCmd="2" ModbusPollingCycle="10" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="overtemperature" Comment="" ModbusAddress="86" ModbusCmd="2" ModbusPollingCycle="10" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="RCD AC Error" Comment="" ModbusAddress="85" ModbusCmd="2" ModbusPollingCycle="10" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="RCD DC Error" Comment="" ModbusAddress="84" ModbusCmd="2" ModbusPollingCycle="10" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="Relais 1 Drive Error" Comment="" ModbusAddress="82" ModbusCmd="2" ModbusPollingCycle="10" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="Relais 2 Drive Error" Comment="" ModbusAddress="83" ModbusCmd="2" ModbusPollingCycle="10" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="Relais 1 Welding Detection" Comment="" ModbusAddress="80" ModbusCmd="2" ModbusPollingCycle="10" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="Relais 2 Welding Detection" Comment="" ModbusAddress="81" ModbusCmd="2" ModbusPollingCycle="10" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="modbusChargeMode" Comment="" ModbusAddress="14" ModbusCmd="4" ModbusDataType="1" ModbusPollingCycle="10" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="setMaxCurrent" Comment="" ModbusAddress="3" ModbusCmd="6" ModbusDataType="1" Unit="&lt;v&gt;A" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="ledBrightness" Comment="" ModbusAddress="50" ModbusCmd="6" ModbusDataType="1" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="modbusRelayMode" Comment="" ModbusAddress="53" ModbusCmd="6" ModbusDataType="1" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10"/>
+</Modbus>

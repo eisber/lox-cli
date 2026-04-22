@@ -1,0 +1,103 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Modbus Title="WAFE350-smarteon.cz" Comment="" Channel="1">
+	<Info templateType="7" minVersion="12021105"/>
+	<ModbusCmd Title="Sleep mode" Comment="Standbz (servis)" ModbusCmd="1" ModbusPollingCycle="5" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="Boost short" Comment="Krátké nárazové větrání" ModbusAddress="1" ModbusCmd="1" ModbusPollingCycle="5" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="Boost long" Comment="Dlouhé nárazové větrání" ModbusAddress="2" ModbusCmd="1" ModbusPollingCycle="5" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="Holiday mode" Comment="Dovolená" ModbusAddress="3" ModbusCmd="1" ModbusPollingCycle="5" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="Circulation" Comment="Cirkulace" ModbusAddress="4" ModbusCmd="1" ModbusPollingCycle="5" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="Fireplace option" Comment="Krbový režim" ModbusAddress="5" ModbusCmd="1" ModbusPollingCycle="5" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="Silent option" Comment="Tichý provoz" ModbusAddress="6" ModbusCmd="1" ModbusPollingCycle="5" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="Inteligent mode" Comment="Inteligentní mód" ModbusAddress="7" ModbusCmd="1" ModbusPollingCycle="5" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="Scheduler mode" Comment="" ModbusAddress="8" ModbusCmd="1" ModbusPollingCycle="5" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="Manual mode" Comment="Manuální mód" ModbusAddress="9" ModbusCmd="1" ModbusPollingCycle="5" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="Dehum mode" Comment="Odvlhčování" ModbusAddress="10" ModbusCmd="1" ModbusPollingCycle="5" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="Safe dehum" Comment="" ModbusAddress="11" ModbusCmd="1" ModbusPollingCycle="5" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="PID drive" Comment="Odvlhčování dle vlhkosti nebo CO2" ModbusAddress="12" ModbusCmd="1" ModbusPollingCycle="5" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="Bypass regime" Comment="Bypass v inteligentním režimu" ModbusAddress="13" ModbusCmd="1" ModbusPollingCycle="5" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="Week noact regime" Comment="" ModbusAddress="15" ModbusCmd="1" ModbusPollingCycle="5" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="Week active regime" Comment="" ModbusAddress="16" ModbusCmd="1" ModbusPollingCycle="5" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="Bypass mode" Comment="Bypass mód" ModbusAddress="17" ModbusCmd="1" ModbusPollingCycle="5" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="Week mode active" Comment="" ModbusAddress="18" ModbusCmd="1" ModbusPollingCycle="5" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="Sensor temperature outside in" Comment="Stav sensoru vnější nasávané teploty" ModbusAddress="19" ModbusCmd="1" ModbusPollingCycle="5" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="Sensor temperature inside in" Comment="Stav sensoru vnitřní nasávané teploty" ModbusAddress="20" ModbusCmd="1" ModbusPollingCycle="5" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="Sensor temperarure inside out" Comment="Stav sensoru vnitřní vpouštěné teploty" ModbusAddress="21" ModbusCmd="1" ModbusPollingCycle="5" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="Sensor temperature outside out" Comment="Stav sensoru vnější vypouštěné teploty" ModbusAddress="21" ModbusCmd="1" ModbusPollingCycle="5" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="Sensor humidity outside in" Comment="Stav sensoru vnější nasávané vlhkosti" ModbusAddress="23" ModbusCmd="1" ModbusPollingCycle="5" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="Sensor humidity inside in" Comment="Stav sensoru vnitřní nasávané vlhkosti" ModbusAddress="24" ModbusCmd="1" ModbusPollingCycle="5" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="Sensor humidity inside out" Comment="Stav sensoru vnitřní vpouštěné vlhkosti" ModbusAddress="25" ModbusCmd="1" ModbusPollingCycle="5" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="Sensor humidity outside out" Comment="Stav sensoru vnější vypouštěné vlhkosti" ModbusAddress="26" ModbusCmd="1" ModbusPollingCycle="5" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="Sensor fresh filter pressure" Comment="" ModbusAddress="27" ModbusCmd="1" ModbusPollingCycle="5" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="Sensor exhaust filter pressure" Comment="Stav sensoru odpadního filtru" ModbusAddress="28" ModbusCmd="1" ModbusPollingCycle="5" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="Sensor CO2" Comment="Stav sensoru C02" ModbusAddress="29" ModbusCmd="1" ModbusPollingCycle="5" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="Flaps status" Comment="Klapky" ModbusAddress="30" ModbusCmd="1" ModbusPollingCycle="5" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="Filter fresh warning" Comment="Filtr čerstvého vzduchu" ModbusAddress="31" ModbusCmd="1" ModbusPollingCycle="3600" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="Filter exhaust warning" Comment="Odpadní filtr" ModbusAddress="32" ModbusCmd="1" ModbusPollingCycle="3600" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="Filter fresh clogged" Comment="Filtr čerstvého vzduchu" ModbusAddress="33" ModbusCmd="1" ModbusPollingCycle="3600" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="Filter exhaust clogged" Comment="Odpadní filtr" ModbusAddress="34" ModbusCmd="1" ModbusPollingCycle="3600" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="Low temperature of fresh air - frost" Comment="Zamrznutí" ModbusAddress="35" ModbusCmd="1" ModbusPollingCycle="5" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="Machine stopped on error" Comment="Chyba přístroje - zastaven" ModbusAddress="36" ModbusCmd="1" ModbusPollingCycle="5" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="Temperature outside in" Comment="Teplota vnějšího nasávaného vzduchu" ModbusCmd="4" ModbusPollingCycle="60" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Temperature inside in" Comment="Teplota vnitřního nasávaného vzduchu" ModbusAddress="1" ModbusCmd="4" ModbusPollingCycle="60" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Temperature inside out" Comment="Teplota vnitřního vpouštěného vzduchu" ModbusAddress="2" ModbusCmd="4" ModbusPollingCycle="60" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Temperature outside out" Comment="Teplota vnějšího vypouštěného vzduchu" ModbusAddress="3" ModbusCmd="4" ModbusPollingCycle="60" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Humidity outside in" Comment="Vlhkost vnějšího nasávaného vzduchu" ModbusAddress="4" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v&gt; %" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Humidity inside in" Comment="Vlhkost vnitřního nasávaného vzduchu" ModbusAddress="5" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v&gt; %" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Humidity inside out" Comment="Vlhkost vnitřního vpouštěného vzduchu" ModbusAddress="6" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v&gt; %" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Humidity outside out" Comment="Vlhkost vnějšího vypouštěného vzduchu" ModbusAddress="7" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v&gt; %" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="CO2 value" Comment="Hodnota C02" ModbusAddress="8" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v&gt; ppm" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Fresh air fan percentage" Comment="Rychlost ventilátoru čerstvého vzduchu" ModbusAddress="9" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v&gt; %" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Fresh air fan flow" Comment="Průtok čerstvého vzduchu" ModbusAddress="10" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v&gt; m3/h" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Freshair fan rpm" Comment="Otáčky ventilátoru čerstvého vzduchu" ModbusAddress="11" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v&gt; rpm" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Exhaustair fan percentage" Comment="Rychlost odpadního ventilátoru" ModbusAddress="12" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v.1&gt; %" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Exhaust air fan flow" Comment="Průtok odpadního vzduchu" ModbusAddress="13" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v&gt; m3/h" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Exhaust fan rpm" Comment="Otáčky odpadního ventilátoru" ModbusAddress="14" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v&gt; rpm" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Nominal Flow" Comment="Nominální průtok" ModbusAddress="15" ModbusCmd="4" ModbusPollingCycle="60" Unit="&lt;v&gt; m3/h" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Minimal Flow" Comment="Minimální průtok" ModbusAddress="16" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v&gt; m3/h" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Maximal Flow" Comment="Maximální průtok" ModbusAddress="17" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v&gt; m3/h" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Manual Flow" Comment="Průtok manuálního módu" ModbusAddress="18" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v&gt; m3/h" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Sillent Flow Max" Comment="Maximální průtok v tichém provozu" ModbusAddress="19" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v&gt; m3/h" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Bypass Month Start" Comment="Měsíc počátku bypassu" ModbusAddress="21" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Bypass Month End" Comment="Měsíc ukončení bypassu" ModbusAddress="22" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Bypass Out Temp Min" Comment="Minimální vnější teplota pro bypass" ModbusAddress="23" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Bypass Inside Temp Min" Comment="Minimální vnitřní teplota pro bypass" ModbusAddress="24" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="CO2 setpoint" Comment="" ModbusAddress="28" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v&gt; ppm" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="RH inside out setpoint" Comment="Relativní vlhkost setpoint" ModbusAddress="29" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v.1&gt; %" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Bypass remove" Comment="Bypass potlačen" ModbusAddress="14" ModbusCmd="1" ModbusPollingCycle="5" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="Bypass flow" Comment="Průtok bypassu v manuálním režimu" ModbusAddress="20" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v&gt; m3/h" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Boost short duration" Comment="Trvání krátkého nárazového větrání" ModbusAddress="25" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v&gt; min" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Boost long duration" Comment="Trvání dlouhého nárazového větrání" ModbusAddress="26" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v&gt; min" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Circulation duration" Comment="Trvání cirkulace" ModbusAddress="27" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v&gt; min" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Sleep mode" Comment="Standby (servis)" ModbusCmd="5" Unit="" Analog="false" Sensor="false"/>
+	<ModbusCmd Title="Boost short" Comment="Krátké nárazové větrání" ModbusAddress="1" ModbusCmd="5" Unit="" Analog="false" Sensor="false"/>
+	<ModbusCmd Title="Boost long" Comment="Dlouhé nárazové větrání" ModbusAddress="2" ModbusCmd="5" Unit="" Analog="false" Sensor="false"/>
+	<ModbusCmd Title="Holiday mode" Comment="Dovolená" ModbusAddress="3" ModbusCmd="5" Unit="" Analog="false" Sensor="false"/>
+	<ModbusCmd Title="Circulation" Comment="Cirkulace" ModbusAddress="4" ModbusCmd="5" Unit="" Analog="false" Sensor="false"/>
+	<ModbusCmd Title="Fireplace option" Comment="Krbový režim" ModbusAddress="5" ModbusCmd="5" Unit="" Analog="false" Sensor="false"/>
+	<ModbusCmd Title="Silent option" Comment="Tichý provoz" ModbusAddress="6" ModbusCmd="5" Unit="" Analog="false" Sensor="false"/>
+	<ModbusCmd Title="Inteligent mode" Comment="Inteligentní mód" ModbusAddress="7" ModbusCmd="5" Unit="" Analog="false" Sensor="false"/>
+	<ModbusCmd Title="Scheduler mode" Comment="" ModbusAddress="8" ModbusCmd="5" Unit="" Analog="false" Sensor="false"/>
+	<ModbusCmd Title="Manual mode" Comment="Manuální mód" ModbusAddress="9" ModbusCmd="5" Unit="" Analog="false" Sensor="false"/>
+	<ModbusCmd Title="Dehum mode" Comment="Odvlhčování" ModbusAddress="10" ModbusCmd="5" Unit="" Analog="false" Sensor="false"/>
+	<ModbusCmd Title="Safe dehum" Comment="" ModbusAddress="11" ModbusCmd="5" Unit="" Analog="false" Sensor="false"/>
+	<ModbusCmd Title="PID drive" Comment="Odvlhčování dle vlhkosti nebo CO2" ModbusAddress="12" ModbusCmd="5" Unit="" Analog="false" Sensor="false"/>
+	<ModbusCmd Title="Nominal Flow" Comment="Nenastavovat" ModbusAddress="15" ModbusCmd="6" Unit="&lt;v&gt; m3/h" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Minimal Flow" Comment="Nenastavovat" ModbusAddress="16" ModbusCmd="6" Unit="&lt;v&gt; m3/h" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Maximal Flow" Comment="Nenastavovat" ModbusAddress="17" ModbusCmd="6" Unit="&lt;v&gt; m3/h" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Manual Flow" Comment="Průtok manuálního módu" ModbusAddress="18" ModbusCmd="6" Unit="&lt;v&gt; m3/h" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Sillent Flow Max" Comment="Limit průtoku v tichém provozu" ModbusAddress="19" ModbusCmd="6" Unit="&lt;v&gt; m3/h" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Bypass Month Start" Comment="Měsíc počátku bypassu" ModbusAddress="21" ModbusCmd="6" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Bypass Month End" Comment="Měsíc ukončení bypassu" ModbusAddress="22" ModbusCmd="6" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Bypass Out Temp Min" Comment="Minimální vnější teplota pro bypass" ModbusAddress="23" ModbusCmd="6" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Bypass Inside Temp Min" Comment="Minimální vnitřní teplota pro bypass" ModbusAddress="24" ModbusCmd="6" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="CO2 setpoint" Comment="" ModbusAddress="28" ModbusCmd="6" Unit="&lt;v&gt; ppm" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="RH inside out setpoint" Comment="Relativní vlhkost setpoint" ModbusAddress="29" ModbusCmd="6" Unit="&lt;v.1&gt; %" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Bypass regime" Comment="Bypass v inteligentním režimu" ModbusAddress="13" ModbusCmd="5" Unit="" Analog="false" Sensor="false"/>
+	<ModbusCmd Title="Bypass remove" Comment="Potlačit bypass" ModbusAddress="14" ModbusCmd="5" Unit="" Analog="false" Sensor="false"/>
+	<ModbusCmd Title="Week noact regime" Comment="" ModbusAddress="15" ModbusCmd="5" Unit="" Analog="false" Sensor="false"/>
+	<ModbusCmd Title="Week active regime" Comment="" ModbusAddress="16" ModbusCmd="5" Unit="" Analog="false" Sensor="false"/>
+	<ModbusCmd Title="Bypass flow" Comment="Průtok bypassu v manuálním režimu" ModbusAddress="20" ModbusCmd="6" Unit="&lt;v&gt; m3/h" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Boost short duration" Comment="Délka krátkého nárazového větrání" ModbusAddress="25" ModbusCmd="6" Unit="&lt;v&gt; min" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Boost long duration" Comment="Délka dlouhého nárazového větrání" ModbusAddress="26" ModbusCmd="6" Unit="&lt;v&gt; min" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Circulation duration" Comment="Trvání cirkulace" ModbusAddress="27" ModbusCmd="6" Unit="&lt;v&gt; min" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+</Modbus>

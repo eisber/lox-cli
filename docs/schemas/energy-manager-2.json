@@ -1,0 +1,125 @@
+{
+  "title": "Energy Manager",
+  "xml_type": "",
+  "kb_slug": "energy-manager-2",
+  "description": "This block can be used to determine the surplus energy and to switch loads on or off according to priority. Loads can be controlled digitally or analog.\nAnalog controlled loads are limited in their power between the switch-on power and their maximum rated power.\nIf an energy storage is used and its state of charge is below the minimum state of charge, the necessary power for the storage is given the highest priority.",
+  "inputs": [
+    {
+      "abbreviation": "Gpwr",
+      "summary": "Grid power",
+      "description": "Negative value when delivering power to the grid.",
+      "unit": "kW",
+      "value_range": "\u221e"
+    },
+    {
+      "abbreviation": "Ppwr",
+      "summary": "Production power",
+      "description": "Only used for the user interface.",
+      "unit": "kW",
+      "value_range": "\u221e"
+    },
+    {
+      "abbreviation": "Spwr",
+      "summary": "Energy storage power",
+      "description": "Negative value when charging the storage.",
+      "unit": "kW",
+      "value_range": "\u221e"
+    },
+    {
+      "abbreviation": "Prio",
+      "summary": "Priority selection",
+      "description": "Starts the selected load immediately.",
+      "unit": "-",
+      "value_range": "0...12"
+    },
+    {
+      "abbreviation": "Recalc",
+      "summary": "Recalculate",
+      "description": "Triggers a recalculation immediately.",
+      "unit": "-",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "L1-12",
+      "summary": "Load 1-12 status",
+      "description": "Current status (digital) or consumption power (analog) of the load.",
+      "unit": "-",
+      "value_range": "\u221e"
+    },
+    {
+      "abbreviation": "Off",
+      "summary": "Off",
+      "description": "Pulse: Outputs are reset / switched off. On: Block is locked. Dominating input. The name of the connected sensor is used in the user interface.",
+      "unit": "-",
+      "value_range": "0/1"
+    }
+  ],
+  "outputs": [
+    {
+      "abbreviation": "Next",
+      "summary": "Next Calculation",
+      "description": "Seconds until next recalculation.",
+      "unit": "s",
+      "value_range": "\u221e"
+    },
+    {
+      "abbreviation": "L1-12",
+      "summary": "Load 1-12",
+      "description": "Output for load 1-12. Digital = 0/1. Analog = kW",
+      "unit": "-",
+      "value_range": "\u221e"
+    },
+    {
+      "abbreviation": "MinSoc",
+      "summary": "Minimum state of charge",
+      "description": "Current set MinSoc.",
+      "unit": "%",
+      "value_range": "0...\u221e"
+    },
+    {
+      "abbreviation": "API",
+      "summary": "API Connector",
+      "description": "Intelligent API based connector. API Commands",
+      "unit": "-",
+      "value_range": "-"
+    }
+  ],
+  "parameters": [
+    {
+      "abbreviation": "O",
+      "summary": "Offset grid power",
+      "description": "Offset the target power value of the Energy Management. 0: The Energy Manager tries to maintain that there is no Energy imported/exported from/to the grid and the energy storage. Positive value: It is allowed to import energy from the grid or draw it from the storage. Negative value: Makes sure there is always this much produced power available for export to the grid or charging the storage.",
+      "unit": "kW",
+      "value_range": "\u221e",
+      "default_value": "0"
+    },
+    {
+      "abbreviation": "MinSoc",
+      "summary": "Minimum state of charge",
+      "description": "If value is greater than 0, charging the energy storage has the highest priority until the minimum state of charge (SoC) is reached. After that, the energy storage is only charged if there is surplus energy.",
+      "unit": "%",
+      "value_range": "0...100",
+      "default_value": "0"
+    },
+    {
+      "abbreviation": "MaxSpwr",
+      "summary": "Maximum energy storage power",
+      "description": "Defines the maximum charging power of the energy storage.",
+      "unit": "kW",
+      "value_range": "0...\u221e",
+      "default_value": "0"
+    }
+  ],
+  "properties": [
+    {
+      "summary": "Properties",
+      "description": "Edit energy manager",
+      "default_value": "-"
+    }
+  ],
+  "source_url": "https://www.loxone.com/enen/kb/energy-manager-2/",
+  "input_count": 7,
+  "output_count": 4,
+  "parameter_count": 3,
+  "property_count": 1
+}

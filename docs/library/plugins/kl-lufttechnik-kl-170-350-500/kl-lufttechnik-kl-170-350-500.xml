@@ -1,0 +1,39 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Modbus Title="KL-Lufttechnik - KL170-350-500 2024" Comment="KL-Lufttechnik - KL170-350-500" HintText="" Channel="10">
+	<Info templateType="7" minVersion="14051207"/>
+	<ModbusCmd Title="Temperatur Zuluft" Comment="Temperatur Zuluft" HintText="" ModbusAddress="701" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="Temperatur Abluft" Comment="" HintText="" ModbusAddress="702" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="Temperatur Lufteintritt vor Wärmetauscher" Comment="" HintText="" ModbusAddress="703" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="Aktuelle Luftstufe" Comment="" HintText="" ModbusAddress="301" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Aktuelle Drehzahl Ventilator Zuluft" Comment="" HintText="" ModbusAddress="705" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v&gt; rpm" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Aktuelle Drehzahl Ventilator Abluft" Comment="" HintText="" ModbusAddress="706" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v&gt;rpm" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Restlaufzeit Gerätefilter" Comment="" HintText="" ModbusAddress="650" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v&gt; Tage" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Filtermeldung Gerätefilter" Comment="" HintText="" ModbusAddress="652" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Luftstufe im Manuellbetrieb" Comment="" HintText="" ModbusAddress="300" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Grundlüftung" Comment="" HintText="" ModbusAddress="309" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="5" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Intensivlüftung" Comment="" HintText="" ModbusAddress="304" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Betriebsart" Comment="" HintText="" ModbusAddress="302" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="VOC Wert" Comment="" HintText="" ModbusAddress="700" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v&gt; ppm" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Relative Feuchte" Comment="" HintText="" ModbusAddress="707" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.1&gt; %" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="FehlerID" Comment="" HintText="" ModbusAddress="801" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="FehlerSubID" Comment="" HintText="" ModbusAddress="802" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="FehlerFlag" Comment="" HintText="" ModbusAddress="800" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Restdauer Intensivlüftung" Comment="" HintText="" ModbusAddress="305" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v&gt; min." Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Sensorempfindlichkeit" Comment="" HintText="" ModbusAddress="306" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Solltemperatur Raum" Comment="" HintText="" ModbusAddress="303" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Luftstufenverschiebung LS1" Comment="" HintText="" ModbusAddress="307" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Luftstufenverschiebung LS2" Comment="" HintText="" ModbusAddress="308" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Restlaufzeit Außenfilter" Comment="" HintText="" ModbusAddress="651" ModbusCmd="3" ModbusPollingCycle="300" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Filtermeldung Außenfilter" Comment="" HintText="" ModbusAddress="653" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Aktuelle Temperatur Raum" Comment="" HintText="" ModbusAddress="704" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Intensivlüftung" Comment="" HintText="" ModbusAddress="304" ModbusCmd="6" Unit="" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Filterwechsel Gerätefilter" Comment="" HintText="" ModbusAddress="654" ModbusCmd="6" Unit="" Analog="false" Sensor="false"/>
+	<ModbusCmd Title="Luftstufe im Manuellbetrieb" Comment="" HintText="" ModbusAddress="300" ModbusCmd="6" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Betriebsart" Comment="" HintText="" ModbusAddress="302" ModbusCmd="6" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Sensorempfindlichkeit" Comment="" HintText="" ModbusAddress="306" ModbusCmd="6" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Filterwechsel Außenfilter" Comment="" HintText="" ModbusAddress="653" ModbusCmd="6" Unit="" Analog="false" Sensor="false"/>
+	<ModbusCmd Title="Solltemperatur Raum" Comment="" HintText="" ModbusAddress="303" ModbusCmd="6" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Grundlüftung" Comment="" HintText="" ModbusAddress="309" ModbusCmd="6" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Luftstufenverschiebung LS1" Comment="" HintText="" ModbusAddress="307" ModbusCmd="6" ModbusDataType="1" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Luftstufenverschiebung LS2" Comment="" HintText="" ModbusAddress="308" ModbusCmd="6" ModbusDataType="1" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10"/>
+</Modbus>

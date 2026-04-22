@@ -1,0 +1,9 @@
+{
+                                "type": "template",
+                                "name": "weatherflow-tempest-weather-station",
+                                "uuid": "f51d43de-8d69-11ec-a23c4cd98f3deb8a",
+                                "version":"1.0.0",
+                                "id": "weatherflow-tempest-weather-station-788",
+                                "file": "weatherflow-tempest-weather-station.xml",
+                                "templateType": "1",
+                            }

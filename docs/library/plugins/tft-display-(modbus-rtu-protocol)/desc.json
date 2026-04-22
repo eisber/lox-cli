@@ -1,0 +1,9 @@
+{
+                                "type": "template",
+                                "name": "tft-display-(modbus-rtu-protocol)",
+                                "uuid": "9cd40c48-461f-11ec-a3784cd98f3deb8a",
+                                "version":"1.0.0",
+                                "id": "tft-display-(modbus-rtu-protocol)-514",
+                                "file": "tft-display-(modbus-rtu-protocol).xml",
+                                "templateType": "7",
+                            }

@@ -1,0 +1,130 @@
+{
+  "title": "Load Manager",
+  "xml_type": "",
+  "kb_slug": "load-manager",
+  "description": "This function block monitors the current load in a building and protects against overload. If the maximum permissible power (MaxP) is exceeded, loads assigned to the function block are shed and blocked based on priority.",
+  "inputs": [
+    {
+      "abbreviation": "Gpwr",
+      "summary": "Grid power",
+      "description": "Total current power. Input is only available in \"Overload protection\" or \"Peak load manager & overload protection\" mode. This input is only visible in certain configurations.",
+      "unit": "kW",
+      "value_range": "\u221e"
+    },
+    {
+      "abbreviation": "Gi",
+      "summary": "Grid energy import",
+      "description": "Total grid energy import. Input is only available in Peak load manager modes. This input is only visible in certain configurations.",
+      "unit": "kWh",
+      "value_range": "0...\u221e"
+    },
+    {
+      "abbreviation": "Tr",
+      "summary": "Trigger new averaging interval",
+      "description": "Triggers a new averaging interval used for average power calculation. When used, the setting \"Averaging Interval\" must be correctly specified. Input is only available in Peak load manager modes. This input is only visible in certain configurations.",
+      "unit": "-",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "S1-12",
+      "summary": "Status load 1-12",
+      "description": "Digital input of the load's current status. When this input is used, you will be notified when the load is shed due to overload.",
+      "unit": "-",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "Off",
+      "summary": "Off",
+      "description": "Resets all outputs. As long as this input is active, the function block is disabled. The name of the connected sensor is used in the user interface.",
+      "unit": "-",
+      "value_range": "0/1"
+    }
+  ],
+  "outputs": [
+    {
+      "abbreviation": "L1-12",
+      "summary": "Lock load 1-12",
+      "description": "If the function block's maximum power capacity (MaxP) is exceeded, power is made available by locking loads with higher priority.",
+      "unit": "-",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "Ap",
+      "summary": "Available power",
+      "description": "Current available power until the maximum power capacity is reached in Overload protection mode. In Peak load manager modes, this value is the power that can be used for the remaining time in the interval to reach the average consumption specified in (MaxP).",
+      "unit": "kW",
+      "value_range": "\u221e"
+    },
+    {
+      "abbreviation": "AvgP",
+      "summary": "Average power",
+      "description": "Current average power since averaging interval pulse or the beginning of a new quarter-hour. Output is only available in Peak load manager modes. This output is only visible in certain configurations.",
+      "unit": "kW",
+      "value_range": "\u221e"
+    },
+    {
+      "abbreviation": "TsU",
+      "summary": "Time since update averaging interval",
+      "description": "Time that has passed since a new averaging interval was triggered for average power calculation or the start of a new quarter-hour. Output is only available in Peak load manager modes. This output is only visible in certain configurations.",
+      "unit": "s",
+      "value_range": "\u221e"
+    },
+    {
+      "abbreviation": "MaxPe",
+      "summary": "Maximum power exceeded",
+      "description": "Overload protection: ON when the maximum power capacity (MaxP) is exceeded for 30 seconds. Peak load manager: ON when the average power exceeds the maximum technical power (MaxTp) for 30 seconds. Peak load manager & overload protection: ON when the current grid power (Gpwr) exceeds (MaxTp) for 30 seconds.",
+      "unit": "-",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "API",
+      "summary": "API Connector",
+      "description": "Intelligent API based connector. API Commands",
+      "unit": "-",
+      "value_range": "-"
+    }
+  ],
+  "parameters": [
+    {
+      "abbreviation": "MaxP",
+      "summary": "Maximum power",
+      "description": "Specifies the maximum power capacity in Overload protection mode. In Peak load manager modes this value specifies the average power limit within a quarter-hour interval or last averaging pulse on input (Tr).",
+      "unit": "kW",
+      "value_range": "0...\u221e",
+      "default_value": "20"
+    },
+    {
+      "abbreviation": "Hys",
+      "summary": "Hysteresis",
+      "description": "Specifies the value when loads can be turned on again after (AvgP) falls below (MaxP). Parameter is only available in peak load manager modes. This parameter is only visible in certain configurations.",
+      "unit": "kW",
+      "value_range": "0...\u221e",
+      "default_value": "1"
+    },
+    {
+      "abbreviation": "MaxTp",
+      "summary": "Maximum technical power",
+      "description": "0 = use (MaxP) instead. Specifies the maximum power capacity in Peak load manager modes. This value limits the maximum available power of output (Ap) for the remaining interval. Additionally, loads are immediately dropped when this value is exceeded in Peak load manager & overload protection mode. This value is also used for output (MaxPe). This parameter is only visible in certain configurations.",
+      "unit": "kW",
+      "value_range": "0...\u221e",
+      "default_value": "40"
+    }
+  ],
+  "properties": [
+    {
+      "summary": "Configuration",
+      "description": "Configure the individual loads of the Load Manager.",
+      "default_value": "-"
+    },
+    {
+      "summary": "Working mode",
+      "description": "Configure the mode in which the load manager should be working",
+      "default_value": "-"
+    }
+  ],
+  "source_url": "https://www.loxone.com/enen/kb/load-manager/",
+  "input_count": 5,
+  "output_count": 6,
+  "parameter_count": 3,
+  "property_count": 2
+}

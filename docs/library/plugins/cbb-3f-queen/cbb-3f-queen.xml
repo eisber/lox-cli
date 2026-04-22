@@ -1,0 +1,24 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Modbus Title="CBB 3F QUEEN" Comment="ČEZ BatteryBox 3f QUEEN" Baudrate="9600" Parity="1" Channel="5">
+	<Info templateType="7" minVersion="14010509"/>
+	<ModbusCmd Title="Battery SoC" Comment="Kapacita Baterie" ModbusAddress="40088" ModbusCmd="3" ModbusDataType="32" ModbusPollingCycle="5" Unit="&lt;v.1&gt;%" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="FV Power MPP1" Comment="" ModbusAddress="40003" ModbusCmd="3" ModbusDataType="35" ModbusPollingCycle="5" Unit="&lt;v&gt;Wp" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="FV Power MPP2" Comment="" ModbusAddress="40007" ModbusCmd="3" ModbusDataType="35" ModbusPollingCycle="5" Unit="&lt;v&gt;Wp" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Power L1 Grid" Comment="" ModbusAddress="40022" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="5" Unit="&lt;v&gt;W" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Power L2 Grid" Comment="" ModbusAddress="40023" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="5" Unit="&lt;v&gt;W" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Power L3 Grid" Comment="" ModbusAddress="40024" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="5" Unit="&lt;v&gt;W" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Load Grid L1" Comment="" ModbusAddress="40050" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="5" Unit="&lt;v&gt;W" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Load Grid L2" Comment="" ModbusAddress="40051" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="5" Unit="&lt;v&gt;W" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Load Grid L3" Comment="" ModbusAddress="40052" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="5" Unit="&lt;v&gt;W" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Load Backup L1" Comment="" ModbusAddress="40065" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="5" Unit="&lt;v&gt;W" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Load Backup L2" Comment="" ModbusAddress="40066" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="5" Unit="&lt;v&gt;W" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Load Backup L3" Comment="" ModbusAddress="40067" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="5" Unit="&lt;v&gt;W" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Battery Power" Comment="" ModbusAddress="40084" ModbusCmd="3" ModbusDataType="33" ModbusPollingCycle="5" Unit="&lt;v&gt;W" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Combined Fault" Comment="" ModbusAddress="40100" ModbusCmd="3" ModbusDataType="33" ModbusPollingCycle="10" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Voltage L1" Comment="" ModbusAddress="40016" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="5" Unit="&lt;v.1&gt;V" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="100"/>
+	<ModbusCmd Title="Voltage L2" Comment="" ModbusAddress="40017" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="5" Unit="&lt;v.1&gt;V" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="100"/>
+	<ModbusCmd Title="Voltage L3" Comment="" ModbusAddress="40018" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="5" Unit="&lt;v.1&gt;V" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="100"/>
+	<ModbusCmd Title="Baterie Grid Minimum" Comment="" ModbusAddress="40082" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v&gt;%" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Battery Backup Minimum" Comment="" ModbusAddress="40083" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Battery Grid Minimum" Comment="" ModbusAddress="40082" ModbusCmd="6" Unit="&lt;v&gt;%" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+</Modbus>

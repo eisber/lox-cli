@@ -1,0 +1,59 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Modbus Title="IQntrol DOS-MODBUS" Comment="" Channel="1">
+	<Info templateType="7" minVersion="13000726"/>
+	<ModbusCmd Title="16 - Temperature" Comment="" ModbusAddress="16" ModbusCmd="4" ModbusDataType="100" ModbusPollingCycle="15" Unit="&lt;v.2&gt;°C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="38- pH - p-range" Comment="" ModbusAddress="38" ModbusCmd="3" ModbusDataType="100" ModbusPollingCycle="15" Unit="&lt;v.2&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="B02 - disinfection empty" Comment="" ModbusAddress="2" ModbusCmd="2" ModbusPollingCycle="10" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="B03 - pH regulation empty" Comment="" ModbusAddress="3" ModbusCmd="2" ModbusPollingCycle="10" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="B32 - pH min Alarm" Comment="" ModbusAddress="32" ModbusCmd="2" ModbusPollingCycle="10" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="B33 - pH max Alarm" Comment="" ModbusAddress="33" ModbusCmd="2" ModbusPollingCycle="10" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="B13 - no flow" Comment="" ModbusAddress="13" ModbusCmd="2" ModbusPollingCycle="10" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="B16 - pH regulation leak" Comment="" ModbusAddress="16" ModbusCmd="2" ModbusPollingCycle="10" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="B17 - disinfection leak" Comment="" ModbusAddress="17" ModbusCmd="2" ModbusPollingCycle="10" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="B36 - mV min Alarm" Comment="" ModbusAddress="36" ModbusCmd="2" ModbusPollingCycle="10" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="B37 - mV max. Alarm" Comment="" ModbusAddress="37" ModbusCmd="2" ModbusPollingCycle="10" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="B41 - IO-Board F1 fuse fault (24V Desinfektion)" Comment="" ModbusAddress="41" ModbusCmd="2" ModbusPollingCycle="10" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="B44 - IO-Board F2 fuse fault (24V pH)" Comment="" ModbusAddress="44" ModbusCmd="2" ModbusPollingCycle="10" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="B45 - NT-Board F1 fuse fault (24V Sensoren)" Comment="" ModbusAddress="45" ModbusCmd="2" ModbusPollingCycle="10" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="B48 - pH regulation dynamic dosing exceeded" Comment="" ModbusAddress="48" ModbusCmd="2" ModbusPollingCycle="10" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="B50 - disinfection dynamic dosing exceeded" Comment="" ModbusAddress="50" ModbusCmd="2" ModbusPollingCycle="10" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="B51 - dosing OFF" Comment="" ModbusAddress="51" ModbusCmd="2" ModbusPollingCycle="10" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="B64 - disinfection dosing 24V" Comment="" ModbusAddress="64" ModbusCmd="2" ModbusPollingCycle="10" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="B65 - pH regulation dosing 24V" Comment="" ModbusAddress="65" ModbusCmd="2" ModbusPollingCycle="10" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="B66 - flocculation dosing" Comment="" ModbusAddress="66" ModbusCmd="2" ModbusPollingCycle="10" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="B18 - flocculation emty" Comment="" ModbusAddress="18" ModbusCmd="2" ModbusPollingCycle="10" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="B19 - flocculant leak" Comment="" ModbusAddress="19" ModbusCmd="2" ModbusPollingCycle="10" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="B68 - alarm" Comment="" ModbusAddress="68" ModbusCmd="2" ModbusPollingCycle="10" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="B70 - pH regulation dosing 230V" Comment="" ModbusAddress="70" ModbusCmd="2" ModbusPollingCycle="10" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="B71 - disinfection dosing 230V" Comment="" ModbusAddress="71" ModbusCmd="2" ModbusPollingCycle="10" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="C00 - pH control direction" Comment="" ModbusCmd="1" ModbusPollingCycle="10" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="C02 - flocculation ON_OFF" Comment="" ModbusAddress="2" ModbusCmd="1" ModbusPollingCycle="10" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="C03 - mutual locking ON_OFF" Comment="" ModbusAddress="3" ModbusCmd="1" ModbusPollingCycle="10" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="C16 - Modus Automatic_Menu" Comment="" ModbusAddress="16" ModbusCmd="1" ModbusPollingCycle="10" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="22 - pH" Comment="" ModbusAddress="22" ModbusCmd="4" ModbusDataType="100" ModbusPollingCycle="15" Unit="&lt;v.2&gt;pH" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="24 - Redox" Comment="" ModbusAddress="24" ModbusCmd="4" ModbusDataType="100" ModbusPollingCycle="15" Unit="&lt;v.2&gt;mV" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="36 - pH - setpoint" Comment="" ModbusAddress="36" ModbusCmd="3" ModbusDataType="100" ModbusPollingCycle="15" Unit="&lt;v.2&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="40 - pH - alarm low" Comment="" ModbusAddress="40" ModbusCmd="3" ModbusDataType="100" ModbusPollingCycle="15" Unit="&lt;v.2&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="42 - pH - alarm high" Comment="" ModbusAddress="42" ModbusCmd="3" ModbusDataType="100" ModbusPollingCycle="15" Unit="&lt;v.2&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="44 - pH - time watch" Comment="" ModbusAddress="44" ModbusCmd="3" ModbusDataType="100" ModbusPollingCycle="15" Unit="&lt;v.2&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="46 - pH - Control types" Comment="" ModbusAddress="46" ModbusCmd="3" ModbusDataType="100" ModbusPollingCycle="15" Unit="&lt;v.2&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="48 - mV - setpoint" Comment="" ModbusAddress="48" ModbusCmd="3" ModbusDataType="100" ModbusPollingCycle="15" Unit="&lt;v.2&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="50 - mV - p-range" Comment="" ModbusAddress="50" ModbusCmd="3" ModbusDataType="100" ModbusPollingCycle="15" Unit="&lt;v.2&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="52 - mV - alarm low" Comment="" ModbusAddress="52" ModbusCmd="3" ModbusDataType="100" ModbusPollingCycle="15" Unit="&lt;v.2&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="54 - mV - alarm high" Comment="" ModbusAddress="54" ModbusCmd="3" ModbusDataType="100" ModbusPollingCycle="15" Unit="&lt;v.2&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="56 - mV - time watch" Comment="" ModbusAddress="56" ModbusCmd="3" ModbusDataType="100" ModbusPollingCycle="15" Unit="&lt;v.2&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="58 - mV_ml - Control types" Comment="" ModbusAddress="58" ModbusCmd="3" ModbusDataType="100" ModbusPollingCycle="15" Unit="&lt;v.2&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="114 - Dosing delay" Comment="" ModbusAddress="114" ModbusCmd="3" ModbusDataType="100" ModbusPollingCycle="15" Unit="&lt;v.2&gt;s" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="36 - pH - setpoint" Comment="" ModbusAddress="36" ModbusCmd="16" ModbusDataType="100" Unit="&lt;v.2&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="C16 - Modus Automatic_Menu" Comment="" ModbusAddress="16" ModbusCmd="5" Unit="" Analog="false" Sensor="false" RepeatRate="30"/>
+	<ModbusCmd Title="38- pH - p-range" Comment="" ModbusAddress="38" ModbusCmd="16" ModbusDataType="100" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="40 - pH - alarm low" Comment="" ModbusAddress="40" ModbusCmd="16" ModbusDataType="100" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="42 - pH - alarm high" Comment="" ModbusAddress="42" ModbusCmd="16" ModbusDataType="100" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="44 - pH - time watch" Comment="" ModbusAddress="44" ModbusCmd="16" ModbusDataType="100" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="48 - mV - setpoint" Comment="" ModbusAddress="48" ModbusCmd="16" ModbusDataType="100" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="50 - mV - p-range" Comment="" ModbusAddress="50" ModbusCmd="16" ModbusDataType="100" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="52 - mV - alarm low" Comment="" ModbusAddress="52" ModbusCmd="16" ModbusDataType="100" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="54 - mV - alarm high" Comment="" ModbusAddress="54" ModbusCmd="16" ModbusDataType="100" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="56 - mV - time watch" Comment="" ModbusAddress="56" ModbusCmd="16" ModbusDataType="100" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="114 - Dosing delay" Comment="" ModbusAddress="114" ModbusCmd="16" ModbusDataType="100" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10"/>
+</Modbus>

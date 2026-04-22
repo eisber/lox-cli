@@ -1,0 +1,15 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Modbus Title="HAGER ECR310D e" Comment="" Channel="2">
+	<Info templateType="7" minVersion="12021027"/>
+	<ModbusCmd Title="Active Power" Comment="Suma potència activa L1 + L2 + L3" ModbusAddress="45073" ModbusCmd="3" ModbusDataType="35" ModbusPollingCycle="5" Unit="&lt;v.2&gt; KW" Analog="true" Sensor="true" SourceValLow="100" SourceValHigh="1000" DestValLow="1" DestValHigh="10"/>
+	<ModbusCmd Title="Active energy consumed" Comment="Energia activa importada de la xarxa" ModbusAddress="45152" ModbusCmd="3" ModbusDataType="34" ModbusPollingCycle="5" Unit="&lt;v&gt; kWh" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Active energy produced" Comment="Energia activa exportada a la xarxa" ModbusAddress="45156" ModbusCmd="3" ModbusDataType="34" ModbusPollingCycle="5" Unit="&lt;v&gt; kWh" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Reactive Power" Comment="Suma potència reactiva L1 + L2 + L3" ModbusAddress="45075" ModbusCmd="3" ModbusDataType="35" ModbusPollingCycle="5" Unit="&lt;v.2&gt; kvar" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Reactive energy consumed" Comment="Energia reactiva importada de la xarxa" ModbusAddress="45154" ModbusCmd="3" ModbusDataType="35" ModbusPollingCycle="5" Unit="&lt;v&gt; kvarh" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Reactive energy produced" Comment="Energia reactiva exportada a la xarxa" ModbusAddress="45158" ModbusCmd="3" ModbusDataType="34" ModbusPollingCycle="5" Unit="&lt;v&gt; kvarh" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Active Power L1" Comment="" ModbusAddress="45081" ModbusCmd="3" ModbusDataType="35" ModbusPollingCycle="5" Unit="&lt;v.2&gt; kW" Analog="true" Sensor="true" SourceValLow="100" SourceValHigh="1000" DestValLow="1" DestValHigh="10"/>
+	<ModbusCmd Title="Active Power L2" Comment="" ModbusAddress="45083" ModbusCmd="3" ModbusDataType="35" ModbusPollingCycle="5" Unit="&lt;v.2&gt; kW" Analog="true" Sensor="true" SourceValLow="100" SourceValHigh="1000" DestValLow="1" DestValHigh="10"/>
+	<ModbusCmd Title="Active Power L3" Comment="" ModbusAddress="45085" ModbusCmd="3" ModbusDataType="35" ModbusPollingCycle="5" Unit="&lt;v.2&gt; kW" Analog="true" Sensor="true" SourceValLow="100" SourceValHigh="1000" DestValLow="1" DestValHigh="10"/>
+	<ModbusCmd Title="Apparent power" Comment="" ModbusAddress="45077" ModbusCmd="3" ModbusDataType="34" ModbusPollingCycle="5" Unit="&lt;v.2&gt; KvA" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Power factor" Comment="" ModbusAddress="45079" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="5" Unit="&lt;v.3&gt;" Analog="true" Sensor="true" SourceValLow="1000" SourceValHigh="10000" DestValLow="1" DestValHigh="10"/>
+</Modbus>

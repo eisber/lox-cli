@@ -1,0 +1,134 @@
+{
+  "version": "2.0",
+  "fixture": "fixture.Loxone",
+  "metrics": {
+    "block_precision": "correct_blocks / total_blocks_added (penalizes extra blocks)",
+    "block_recall": "correct_blocks / expected_blocks (penalizes missing blocks)",
+    "wiring_accuracy": "correct_wires / expected_wires",
+    "param_accuracy": "correct_params / expected_params",
+    "overall_score": "(0.20 * block_f1) + (0.30 * wiring_accuracy) + (0.20 * param_accuracy) + (0.15 * check_score) + (0.15 * trace_score)",
+    "pass_threshold": 0.8,
+    "difficulty_weights": {
+      "easy": 1.0,
+      "medium": 1.5,
+      "hard": 2.0,
+      "expert": 3.0
+    },
+    "wiring_precision": "correct_new_wires / total_new_wires (penalizes extra wires)",
+    "ux_score": "blocks_with_page_and_position / total_new_blocks",
+    "xml_valid": "result parses as valid XML",
+    "validation_pass": "lox config validate returns 0 errors",
+    "cli_invocations": "number of lox CLI commands executed",
+    "retries": "number of failed attempts before success",
+    "token_estimate": "estimated input+output tokens (chars/4)",
+    "trace_score": "BFS reachability through wiring graph: reachable_paths / expected_wiring_count",
+    "simulation_score": "lox-sim signal evaluation: assertion_passes / total_assertions (optional, only when simulation spec exists)",
+    "check_score": "lox config check pass rate: ok_checks / total_checks"
+  },
+  "categories": {
+    "synthetic": {
+      "file": "cases/synthetic.json",
+      "count": 20,
+      "difficulties": {
+        "medium": 6,
+        "hard": 5,
+        "easy": 7,
+        "expert": 2
+      }
+    },
+    "reference": {
+      "file": "cases/reference.json",
+      "count": 24,
+      "difficulties": {
+        "easy": 10,
+        "medium": 8,
+        "hard": 4,
+        "expert": 2
+      }
+    },
+    "generated": {
+      "file": "cases/generated.json",
+      "count": 50,
+      "difficulties": {
+        "hard": 2,
+        "expert": 27,
+        "easy": 13,
+        "medium": 8
+      }
+    },
+    "patterns": {
+      "file": "cases/patterns.json",
+      "count": 25,
+      "difficulties": {
+        "medium": 10,
+        "hard": 10,
+        "expert": 5
+      }
+    },
+    "rooms": {
+      "file": "cases/rooms.json",
+      "count": 15,
+      "difficulties": {
+        "medium": 6,
+        "expert": 2,
+        "easy": 1,
+        "hard": 6
+      }
+    },
+    "extended": {
+      "file": "cases/extended.json",
+      "count": 15,
+      "difficulties": {
+        "easy": 2,
+        "hard": 4,
+        "medium": 8,
+        "expert": 1
+      }
+    },
+    "advanced": {
+      "file": "cases/advanced.json",
+      "count": 29,
+      "difficulties": {
+        "hard": 10,
+        "medium": 5,
+        "easy": 1,
+        "expert": 13
+      }
+    },
+    "hvac": {
+      "file": "cases/hvac.json",
+      "count": 18,
+      "difficulties": {
+        "medium": 5,
+        "hard": 7,
+        "expert": 6
+      }
+    },
+    "hvac-extracted": {
+      "file": "cases/hvac-extracted.json",
+      "count": 32,
+      "difficulties": {
+        "medium": 11,
+        "hard": 9,
+        "expert": 12
+      }
+    },
+    "tier1-gaps": {
+      "file": "cases/tier1-gaps.json",
+      "count": 17,
+      "difficulties": {
+        "easy": 6,
+        "medium": 7,
+        "hard": 4
+      }
+    },
+    "use-cases": {
+      "file": "cases/use-cases.json",
+      "count": 40,
+      "difficulties": {
+        "medium": 18,
+        "hard": 22
+      }
+    }
+  }
+}

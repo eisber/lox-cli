@@ -1,0 +1,9 @@
+{
+                                "type": "template",
+                                "name": "sony-bravia",
+                                "uuid": "25b0eaf2-f380-11ef-8ac44cd98f3deb8a",
+                                "version":"1.0.0",
+                                "id": "sony-bravia-1805",
+                                "file": "sony-bravia.xml",
+                                "templateType": "4",
+                            }

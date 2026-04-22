@@ -1,0 +1,20 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Modbus Title="Alfen Wallbox" Comment="" Channel="1">
+	<Info templateType="7" minVersion="12010617"/>
+	<ModbusCmd Title="Voltage Phase V (L1-N)" Comment="" ModbusAddress="306" ModbusCmd="3" ModbusDataType="100" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Voltage Phase V (L3-N)" Comment="" ModbusAddress="310" ModbusCmd="3" ModbusDataType="100" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Voltage Phase V (L2-N)" Comment="" ModbusAddress="308" ModbusCmd="3" ModbusDataType="100" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Reactive Power Phase L1" Comment="" ModbusAddress="320" ModbusCmd="3" ModbusDataType="100" ModbusPollingCycle="5" Unit="&lt;v.3&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Reactive Power Phase  L2" Comment="" ModbusAddress="322" ModbusCmd="3" ModbusDataType="100" ModbusPollingCycle="5" Unit="&lt;v.3&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Reactive Power Phase  L3" Comment="" ModbusAddress="324" ModbusCmd="3" ModbusDataType="100" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Availability" Comment="" ModbusAddress="1200" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Modbus Slave Max Current valid time" Comment="" ModbusAddress="1208" ModbusCmd="3" ModbusDataType="98" ModbusPollingCycle="20" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Active Load Balancing Safe Current" Comment="" ModbusAddress="1212" ModbusCmd="3" ModbusDataType="100" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Charge using 1 or 3 phases" Comment="" ModbusAddress="1215" ModbusCmd="3" ModbusPollingCycle="10" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Real Power Phase L1" Comment="" ModbusAddress="338" ModbusCmd="3" ModbusDataType="100" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Real Power Phase  L2" Comment="" ModbusAddress="340" ModbusCmd="3" ModbusDataType="100" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Real Power Phase  L3" Comment="" ModbusAddress="342" ModbusCmd="3" ModbusDataType="100" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Real Power Sum" Comment="" ModbusAddress="344" ModbusCmd="3" ModbusDataType="100" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Modbus Slave Max Current" Comment="" ModbusAddress="1210" ModbusCmd="16" ModbusDataType="100" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100" RepeatRate="30"/>
+	<ModbusCmd Title="Charge using 1 or 3 phases" Comment="" ModbusAddress="1215" ModbusCmd="16" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100" RepeatRate="30"/>
+</Modbus>

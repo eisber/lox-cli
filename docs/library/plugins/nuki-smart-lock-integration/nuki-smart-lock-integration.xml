@@ -1,0 +1,8 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<VirtualOut Title="NUKI Smart Lock" Comment="" Address="https://api.nuki.io" CmdInit="" HintText="" CloseAfterSend="true" CmdSep="">
+	<Info templateType="3" minVersion="15031111"/>
+	<VirtualOutCmd Title="lock" Comment="" CmdOnMethod="POST" CmdOffMethod="GET" CmdOn="/smartlock/&lt;YourLockID&gt;/action" CmdOnHTTP="accept: application/json \r\nContent-Type: application/json \r\nauthorization:Bearer &lt;YourAPIToken&gt;" CmdOnPost="{&apos;action&apos;:2}{}" CmdOff="" CmdOffHTTP="" CmdOffPost="" CmdAnswer="" HintText="" Analog="false" Repeat="0" RepeatRate="0"/>
+	<VirtualOutCmd Title="unlatch" Comment="" CmdOnMethod="POST" CmdOffMethod="GET" CmdOn="/smartlock/&lt;YourLockID&gt;/action" CmdOnHTTP="accept: application/json \r\nContent-Type: application/json \r\nauthorization:Bearer &lt;YourAPIToken&gt;" CmdOnPost="{&apos;action&apos;:3}" CmdOff="" CmdOffHTTP="" CmdOffPost="" CmdAnswer="" HintText="" Analog="false" Repeat="0" RepeatRate="0"/>
+	<VirtualOutCmd Title="unlock" Comment="" CmdOnMethod="POST" CmdOffMethod="GET" CmdOn="/smartlock/&lt;YourLockID&gt;/action" CmdOnHTTP="accept: application/json \r\nContent-Type: application/json \r\nauthorization:Bearer &lt;YourAPIToken&gt;" CmdOnPost="{&apos;action&apos;:1}" CmdOff="" CmdOffHTTP="" CmdOffPost="" CmdAnswer="" HintText="" Analog="false" Repeat="0" RepeatRate="0"/>
+	<VirtualOutCmd Title="getdata" Comment="" CmdOnMethod="GET" CmdOffMethod="GET" CmdOn="/smartlock/&lt;YourLockID&gt;" CmdOnHTTP="accept: application/json \r\nContent-Type: application/json \r\nauthorization:Bearer &lt;YourAPIToken&gt;" CmdOnPost="" CmdOff="" CmdOffHTTP="" CmdOffPost="" CmdAnswer="/user/common/NUKI_state.html" HintText="" Analog="false" Repeat="0" RepeatRate="0"/>
+</VirtualOut>

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<VirtualOut Title="LOQED" Comment="" Address="https://gateway.production.loqed.com" CmdInit="" CloseAfterSend="true" CmdSep="">
+	<Info templateType="3" minVersion="12031213"/>
+	<VirtualOutCmd Title="Latch" Comment="" CmdOnMethod="GET" CmdOffMethod="GET" CmdOn="/v1/locks/YOUR_DAY_LOCK_URL" CmdOnHTTP="" CmdOnPost="" CmdOff="" CmdOffHTTP="" CmdOffPost="" Analog="false" Repeat="0" RepeatRate="0"/>
+	<VirtualOutCmd Title="Night Lock" Comment="" CmdOnMethod="GET" CmdOffMethod="GET" CmdOn="/v1/locks/YOUR_NIGHT_LOCK_URL" CmdOnHTTP="" CmdOnPost="" CmdOff="" CmdOffHTTP="" CmdOffPost="" Analog="false" Repeat="0" RepeatRate="0"/>
+	<VirtualOutCmd Title="Open" Comment="" CmdOnMethod="GET" CmdOffMethod="GET" CmdOn="/v1/locks/YOUR_OPEN_URL" CmdOnHTTP="" CmdOnPost="" CmdOff="" CmdOffHTTP="" CmdOffPost="" Analog="false" Repeat="0" RepeatRate="0"/>
+</VirtualOut>

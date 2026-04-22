@@ -1,0 +1,98 @@
+{
+  "title": "PI Controller",
+  "xml_type": "",
+  "kb_slug": "pi-controller",
+  "description": "Proportional Integral Controller\nThe I share is responsible for an exact adjustment to this value.",
+  "inputs": [
+    {
+      "abbreviation": "PV",
+      "summary": "Process value",
+      "description": "Actual value of the controlled variable.",
+      "value_range": "\u221e"
+    },
+    {
+      "abbreviation": "Auto",
+      "summary": "Automatic",
+      "description": "0 = Manual 1 = Automatic",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "Off",
+      "summary": "Off",
+      "description": "Pulse: Outputs are reset / switched off. On: Block is locked. Dominating input.",
+      "value_range": "0/1"
+    }
+  ],
+  "outputs": [
+    {
+      "abbreviation": "CO",
+      "summary": "Controller output",
+      "description": "Output of the controller for manipulating the controlled variable.",
+      "value_range": "\u221e"
+    }
+  ],
+  "parameters": [
+    {
+      "abbreviation": "Rem",
+      "summary": "Remanence input",
+      "description": "Remanence input: If active, the function block retains its previous state after a Miniserver reboot. The state of the function block is saved: \u2013 When saving to the Miniserver \u2013 At a planned reboot \u2013 Before a backup \u2013 Once per hour The data is saved on the SD card.",
+      "unit": "-",
+      "value_range": "0/1",
+      "default_value": "0"
+    },
+    {
+      "abbreviation": "SP",
+      "summary": "Setpoint",
+      "description": "Setpoint of the controlled variable.",
+      "unit": "-",
+      "value_range": "\u221e",
+      "default_value": "5"
+    },
+    {
+      "abbreviation": "St",
+      "summary": "Sampling time",
+      "description": "At this interval, the controller calculates new values for (CO).",
+      "unit": "s",
+      "value_range": "0...\u221e",
+      "default_value": "1"
+    },
+    {
+      "abbreviation": "Th",
+      "summary": "Threshold",
+      "description": "Used to suppress small control differences between (PV) and (SP). If the difference is less than the threshold, no new value is calculated for (CO). This helps avoid any unnecessary load on the actuator.",
+      "unit": "-",
+      "value_range": "\u221e",
+      "default_value": "1"
+    },
+    {
+      "abbreviation": "Mv",
+      "summary": "Manual value",
+      "description": "When (Auto) is 0, this value is output at (CO).",
+      "unit": "-",
+      "value_range": "\u221e",
+      "default_value": "5"
+    },
+    {
+      "abbreviation": "Min",
+      "summary": "Minimum",
+      "description": "Specifies the minimum output value for (CO).",
+      "unit": "-",
+      "value_range": "\u221e",
+      "default_value": "0"
+    },
+    {
+      "abbreviation": "Max",
+      "summary": "Maximum",
+      "description": "Specifies the maximum output value for (CO).",
+      "unit": "-",
+      "value_range": "\u221e",
+      "default_value": "10"
+    }
+  ],
+  "properties": [],
+  "source_url": "https://www.loxone.com/enen/kb/pi-controller/",
+  "input_count": 3,
+  "output_count": 1,
+  "parameter_count": 7,
+  "property_count": 0
+}

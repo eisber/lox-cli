@@ -1,0 +1,24 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Modbus Title="U-Match" Comment="" Baudrate="9600" Channel="1">
+	<Info templateType="7" minVersion="13011117"/>
+	<ModbusCmd Title="Unit On_Off" Comment="" ModbusAddress="2" ModbusCmd="3" ModbusPollingCycle="10" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Ambient temp" Comment="" ModbusAddress="4" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="15" Unit="&lt;v.1&gt;℃ " Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="10"/>
+	<ModbusCmd Title="Set mode" Comment="" ModbusAddress="17" ModbusCmd="3" ModbusPollingCycle="10" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Set fan speed" Comment="" ModbusAddress="19" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Set temp" Comment="" ModbusAddress="20" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v&gt;℃ " Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Up &amp; down swing" Comment="" ModbusAddress="22" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Left &amp; right swing" Comment="" ModbusAddress="23" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Sleep mode" Comment="" ModbusAddress="25" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Temp lower limit for energy saving under cooling" Comment="" ModbusAddress="35" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v&gt;℃" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Temp upper limit for energy saving under heating" Comment="" ModbusAddress="36" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v&gt;℃" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Outdoor ambient temp" Comment="" ModbusAddress="49" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="60" Unit="&lt;v&gt;℃" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Unit On_Off" Comment="" ModbusAddress="2" ModbusCmd="16" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Set mode" Comment="" ModbusAddress="17" ModbusCmd="16" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Set fan speed" Comment="" ModbusAddress="19" ModbusCmd="16" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Set temp" Comment="" ModbusAddress="20" ModbusCmd="16" Unit="&lt;v&gt;℃" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Up &amp; down swing" Comment="" ModbusAddress="22" ModbusCmd="16" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Left &amp; right swing" Comment="" ModbusAddress="23" ModbusCmd="16" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Sleep mode" Comment="" ModbusAddress="25" ModbusCmd="16" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Temp lower limit for energy saving under cooling" Comment="" ModbusAddress="35" ModbusCmd="16" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Temp upper limit for energy saving under heating" Comment="" ModbusAddress="36" ModbusCmd="16" Unit="&lt;v&gt;℃" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10"/>
+</Modbus>

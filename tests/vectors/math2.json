@@ -1,0 +1,24 @@
+{
+  "category": "B3: Math (Formula + MovingAverage)",
+  "blocks": {
+    "Formula": {
+      "inputs": {"I": "analog"},
+      "outputs": {"AQ": "analog"},
+      "tests": [
+        {"desc": "passthrough", "set": {"I": 42.0}, "expect": {"AQ": 42.0}},
+        {"desc": "zero", "set": {"I": 0.0}, "expect": {"AQ": 0.0}},
+        {"desc": "negative", "set": {"I": -10.0}, "expect": {"AQ": -10.0}}
+      ]
+    },
+    "MovingAverage": {
+      "inputs": {"I": "analog", "R": "digital"},
+      "outputs": {"AQ": "analog"},
+      "tests": [
+        {"desc": "reset", "set": {"R": 1, "I": 0.0}, "expect": {"AQ": 0.0}},
+        {"desc": "first value", "set": {"R": 0, "I": 100.0}, "expect": {"AQ": 100.0}, "wait": 1.0},
+        {"desc": "second value", "set": {"I": 50.0}, "wait": 1.0}
+      ]
+    }
+  },
+  "wiring": {}
+}

@@ -1,0 +1,9 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Modbus Title="Orno OR-WE-504" Comment="" HintText="" Baudrate="9600" Channel="1">
+	<Info templateType="7" minVersion="14051207"/>
+	<ModbusCmd Title="Voltage" Comment="" HintText="" ModbusCmd="3" ModbusPollingCycle="10" Unit="&lt;v.2&gt; V" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="Active Power" Comment="" HintText="" ModbusAddress="3" ModbusCmd="3" ModbusPollingCycle="10" Unit="&lt;v.3&gt; kW" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="1"/>
+	<ModbusCmd Title="Total Active Energy" Comment="" HintText="" ModbusAddress="7" ModbusCmd="3" ModbusDataType="34" ModbusPollingCycle="10" Unit="&lt;v.1&gt; kWh" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="1"/>
+	<ModbusCmd Title="Current" Comment="" HintText="" ModbusAddress="1" ModbusCmd="3" ModbusPollingCycle="10" Unit="&lt;v.2&gt; A" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="Power Factor" Comment="" HintText="" ModbusAddress="6" ModbusCmd="3" ModbusPollingCycle="10" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="1"/>
+</Modbus>

@@ -1,0 +1,347 @@
+{
+  "version": "1.0",
+  "description": "HVAC training exercises — progressive build from sensor fundamentals through full heating systems. Based on official Loxone HVAC training guide.",
+  "source": "Loxone HVAC Training Guide (official training material)",
+  "stages": [
+    {
+      "id": "hvac-1-sensor-fundamentals",
+      "name": "Temperature sensors and validation",
+      "progress": 10,
+      "description": "Add analog temperature sensor, configure correction values, set up validation with error detection",
+      "steps": [
+        {
+          "id": "hvac-1-01",
+          "utterance": "Start a new project. Add an Analog Input Voltage 1 to the programming page. The input is connected to a Loxone Temperature & Humidity sensor with range -20°C to +80°C. Configure the correction values so the input matches this sensor range.",
+          "checkpoint": {
+            "min_items": 1,
+            "notes": "Correction values: Input Value 1 = 0V → Target Value 1 = -20°C, Input Value 2 = 10V → Target Value 2 = 80°C"
+          }
+        },
+        {
+          "id": "hvac-1-02",
+          "utterance": "Configure validation on the analog input: set a Receive Timeout so that if no new value arrives within the timeout period, the input shows an error. Create a Memory Flag called 'Temp. sensor error' and connect it to the error output of the analog input.",
+          "checkpoint": {
+            "new_blocks_min": 1,
+            "wiring_min": 1,
+            "notes": "Error output activates when Receive Timeout is reached"
+          }
+        },
+        {
+          "id": "hvac-1-03",
+          "utterance": "Add a Value Range Validator to monitor the sensor value with limits -20 to +50°C. This separates sensor failure detection (Receive Timeout on the input) from out-of-range detection (Value Validator). Disable the Value Range validation directly on the analog input and use the external Value Validator block instead.",
+          "checkpoint": {
+            "new_blocks_min": 1,
+            "notes": "Tmc=0, Min=-20, Max=50, D=3. Two separate error outputs: AI error = sensor failure, Validator error = out of range"
+          }
+        },
+        {
+          "id": "hvac-1-04",
+          "utterance": "Add a 1-Wire Extension and a DS18B20 temperature sensor as a placeholder. Set the polling cycle so it is 3-4 times shorter than the Receive Timeout. Configure validation and error output the same way as the analog input.",
+          "checkpoint": {
+            "min_items": 2,
+            "notes": "Polling cycle must always be smaller than Receive Timeout (e.g., 3x-4x)"
+          }
+        }
+      ]
+    },
+    {
+      "id": "hvac-2-analog-processing",
+      "name": "Analog processing blocks",
+      "progress": 20,
+      "description": "Use Scaler, MinMax, Average, Threshold, and Virtual Status blocks to process sensor values",
+      "steps": [
+        {
+          "id": "hvac-2-01",
+          "utterance": "Add a MinMax block to select the highest CO2 concentration from multiple sensors in the house. Connect three Virtual Inputs simulating CO2 sensors to the MinMax inputs. The maximum output will be used as the reference value for ventilation control.",
+          "checkpoint": {
+            "controls_by_type": {
+              "MinMax": 1
+            },
+            "wiring_min": 3
+          }
+        },
+        {
+          "id": "hvac-2-02",
+          "utterance": "Add a MinMax Since Reset block to store the hourly maximum and minimum temperature from a 1-Wire sensor. Add a Virtual Status block to display the values in the Loxone App — use Virtual Status instead of visualizing the sensor directly, so statistics survive sensor replacement.",
+          "checkpoint": {
+            "new_blocks_min": 2,
+            "notes": "Virtual Status preserves statistics when sensors are replaced"
+          }
+        },
+        {
+          "id": "hvac-2-03",
+          "utterance": "Add a Threshold Switch to control a cooling fan. When the temperature exceeds 35°C the fan should turn on, and turn off when it drops below 33°C. Connect the threshold output to a relay.",
+          "checkpoint": {
+            "controls_by_type": {
+              "AnalogThresholdTrigger": 1
+            },
+            "wiring_min": 2
+          }
+        },
+        {
+          "id": "hvac-2-04",
+          "utterance": "Create a Status block to visualize temperatures in a DHW tank. Configure comparison functions between four inputs to display specific states with custom status texts.",
+          "checkpoint": {
+            "controls_by_type": {
+              "StatusController": 1
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "hvac-3-humidity-dewpoint",
+      "name": "Absolute humidity, dew point, and basement ventilation",
+      "progress": 30,
+      "description": "Calculate absolute humidity, dew point, and build basement ventilation logic",
+      "steps": [
+        {
+          "id": "hvac-3-01",
+          "utterance": "Calculate the absolute humidity for both outdoor and indoor air using the formula: 216.7*((RH/100)*(6.1078*10^(7.5*T/(237.3+T))))/(T+273.15). Use Virtual Inputs for indoor temperature, indoor humidity, and use the weather service for outdoor values. We need the absolute humidity for both indoor and outdoor air.",
+          "checkpoint": {
+            "new_blocks_min": 2,
+            "notes": "Formula uses I1=temperature, I2=humidity. Result is in g/m³"
+          }
+        },
+        {
+          "id": "hvac-3-02",
+          "utterance": "Build basement ventilation logic: ventilate only when the outdoor absolute humidity is lower than the indoor absolute humidity by at least 1 g/m³. Add comparison logic that enables a ventilation fan only when conditions are favorable.",
+          "checkpoint": {
+            "new_blocks_min": 2,
+            "wiring_min": 2,
+            "notes": "Principle: ventilate only when abs. humidity outside < inside. Minimum threshold difference = 1 g/m³"
+          }
+        },
+        {
+          "id": "hvac-3-03",
+          "utterance": "Add a Dew Point block to calculate the temperature at which condensation occurs, based on indoor temperature and relative humidity. Add comparison logic so the outdoor dew point must be lower than the basement temperature — otherwise condensation could form around the fan.",
+          "checkpoint": {
+            "controls_by_type": {
+              "DewPoint": 1
+            },
+            "wiring_min": 2,
+            "notes": "If basement is 12°C and outdoor dew point is 14°C, warm outdoor air could condense around the fan"
+          }
+        }
+      ]
+    },
+    {
+      "id": "hvac-4-garage-co-monitoring",
+      "name": "Garage CO monitoring with Status Monitor",
+      "progress": 40,
+      "description": "Build a multi-floor garage CO monitoring system with Status Monitors, ventilation requests, and system schematic",
+      "steps": [
+        {
+          "id": "hvac-4-01",
+          "utterance": "Add Virtual Inputs as CO sensors for a multi-floor garage. For each sensor, create a Status block that evaluates CO levels in 3 levels (green/orange/red) using emojis 🟢 🟠 🔴 in the status text.",
+          "checkpoint": {
+            "controls_by_type": {
+              "StatusController": 3
+            },
+            "notes": "Status block cannot display colored symbols in system schematic — use emojis instead"
+          }
+        },
+        {
+          "id": "hvac-4-02",
+          "utterance": "Create Status Monitor blocks for each floor of the garage. Connect the Val outputs from the sensor Status blocks to the respective Status Monitors. Then create a Central Status Monitor for the overview and assign the floor-level monitors to it.",
+          "checkpoint": {
+            "controls_by_type": {
+              "StatusMonitor": 3
+            },
+            "notes": "When assigning Status Monitors to Central, all assigned ones take over configuration from the central one"
+          }
+        },
+        {
+          "id": "hvac-4-03",
+          "utterance": "Create Memory Flags for ventilation requests on each floor. When the CO level rises to dangerous values, the ventilation request for that floor should activate.",
+          "checkpoint": {
+            "new_blocks_min": 2,
+            "wiring_min": 2
+          }
+        }
+      ]
+    },
+    {
+      "id": "hvac-5-irc-setup",
+      "name": "Intelligent Room Controller setup",
+      "progress": 55,
+      "description": "Configure IRC with Touch Tree, valve actuators, window contacts, and operating modes",
+      "steps": [
+        {
+          "id": "hvac-5-01",
+          "utterance": "Set up heating for a house: add a Touch Tree to the Living Room. Add Valve Actuator Tree and LED Ceiling Light Tree to Bedroom, Bathroom, Living Room, and Mud Room as placeholders. Run Autoconfig to create the Intelligent Room Controllers.",
+          "checkpoint": {
+            "controls_by_type": {
+              "HeatIRoomController2": 4
+            },
+            "notes": "Autoconfig creates IRC, schedule, and comfort functions"
+          }
+        },
+        {
+          "id": "hvac-5-02",
+          "utterance": "For the Living Room IRC, connect the presence detector (P input) from the Touch Tree. Explain: if P is active for more than 30 minutes, IRC auto-switches from Eco to Comfort. Use Mo input instead of P if you want to avoid accidental comfort activation from noise in adjacent rooms.",
+          "checkpoint": {
+            "wiring_min": 1,
+            "notes": "P input: 30min continuous → Eco→Comfort switch. Mo: very unlikely to stay active 1800s, prevents false triggers. P default overrun=900s, Mo default overrun=60s"
+          }
+        },
+        {
+          "id": "hvac-5-03",
+          "utterance": "Add a window contact to the Living Room with proper naming and room assignment. The IRC block adjusts heating behavior when a window is open based on the outdoor temperature.",
+          "checkpoint": {
+            "new_blocks_min": 1,
+            "wiring_min": 1,
+            "notes": "IRC considers outdoor temperature when window is open — may reduce or stop heating"
+          }
+        },
+        {
+          "id": "hvac-5-04",
+          "utterance": "Enable PWM outputs on the IRC for electric radiator control. Set the Valve standstill parameter Vs so valves perform a full open/close cycle periodically to prevent sticking. Add inputs C and E for manual comfort/eco switching — useful for a guard booth scenario where the guard leaves for patrols.",
+          "checkpoint": {
+            "params": {
+              "notes": "Vs: days before valve exercise cycle. PWM: H/C/HC outputs switch from analog to PWM. Cet and EBpet parameters control comfort/eco extend times"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "hvac-6-cco-itc",
+      "name": "Heating and Cooling Controller with Flow Temperature",
+      "progress": 70,
+      "description": "Configure CCo and ITC blocks for central heating system",
+      "steps": [
+        {
+          "id": "hvac-6-01",
+          "utterance": "Run Autoconfig for Heating and Cooling Controller (CCo). Create a new programming page called 'Central Heating'. Rename the Heating and Cooling Controller as 'Heat Pump'. Connect a relay to the H output. Use Analog Input 1 (Outdoor Temperature) for the outside temperature.",
+          "checkpoint": {
+            "controls_by_type": {
+              "Heatmixer2": 1
+            },
+            "wiring_min": 1,
+            "notes": "API Connector internally connects IRC to CCo"
+          }
+        },
+        {
+          "id": "hvac-6-02",
+          "utterance": "Reconnect all Valve Actuators to the H1 outputs of the CCo, explaining the difference between H and H1 outputs. Set the heating source in each IRC to 'Heating' only. Configure Sot (Start of Operation Threshold) and explain Otm (outdoor temperature mean) and ϑLimH/ϑLimC parameters.",
+          "checkpoint": {
+            "wiring_min": 4,
+            "notes": "Sot must be exceeded before mode evaluation. Otm = 48h average outdoor temp. ϑLimH/ϑLimC = temperature limits for heating/cooling"
+          }
+        },
+        {
+          "id": "hvac-6-03",
+          "utterance": "Run Autoconfig for the Flow Temperature Calculator (ITC). Connect it to the IRC and CCo blocks. Set Min/Max water temperature parameters appropriate for underfloor heating. The minimum cooling temperature should be variable, defined by a Dew Point block to prevent condensation.",
+          "checkpoint": {
+            "controls_by_type": {
+              "FlowTempCalc": 1
+            },
+            "wiring_min": 2,
+            "notes": "ITC calculates flow temperature from heating curve. For underfloor: cap max temp to avoid floor damage. Min cooling temp from DewPoint block prevents condensation"
+          }
+        },
+        {
+          "id": "hvac-6-04",
+          "utterance": "Integrate an iDM heat pump via Modbus TCP. Download the iDM template from the Loxone Library. Connect 'Request Heatpump Heating Operation Mode' (IO1710) to the H output of CCo. Connect 'External Request Supply Flow Temperature Heating HC1' (IO1694) to the AQf output of ITC. Define the Outdoor Temperature System Variable using 'Actual Outdoor Temperature' (IO1000).",
+          "checkpoint": {
+            "new_blocks_min": 3,
+            "wiring_min": 3,
+            "notes": "AQf = actual flow temperature output from ITC. System variable internally connects to ϑo input on all blocks"
+          }
+        }
+      ]
+    },
+    {
+      "id": "hvac-7-typical-applications",
+      "name": "Typical heating applications",
+      "progress": 85,
+      "description": "Two-storey house with radiators, underfloor heating, DHW, and solar thermal",
+      "steps": [
+        {
+          "id": "hvac-7-01",
+          "utterance": "Application 1: Two-storey house — radiators on the first floor, underfloor heating on the ground floor. Create separate CCo + ITC for each. The upper temperature sensor measures radiator water temperature, the lower one measures underfloor water temperature. Add a Mixing Valve block for the underfloor heating with Travel Duration Td=15s and Sampling Time St=5s.",
+          "checkpoint": {
+            "controls_by_type": {
+              "FlowTempCalc": 2,
+              "MixingValve": 1
+            },
+            "notes": "Water stratification: lower temp naturally cooler. Mixing valve hot position when pump off = dangerous. Td and St must match real valve properties"
+          }
+        },
+        {
+          "id": "hvac-7-02",
+          "utterance": "Application 2: Add DHW (domestic hot water) preparation. Use a Threshold Switch to monitor tank temperature. When temperature drops below the setpoint, activate the CCo Manual Heating input (Mh) and switch a 3-way valve to redirect hot water from heating to the DHW tank. DHW always has priority over heating.",
+          "checkpoint": {
+            "controls_by_type": {
+              "AnalogThresholdTrigger": 1
+            },
+            "wiring_min": 3,
+            "notes": "Mh activates H output even without IRC heating request. 3-way valve redirects flow. Use Analog Multiplexer to switch between heating temp and DHW temp"
+          }
+        },
+        {
+          "id": "hvac-7-03",
+          "utterance": "Add anti-Legionella thermal disinfection: once a week, heat the DHW tank above 60°C for at least 10 minutes. If a circulation system is installed, run the circulation pump during disinfection. Use an Up Counter to count days since the last time the tank reached 65°C for 10 minutes. After 10 days without reaching temperature, force disinfection.",
+          "checkpoint": {
+            "new_blocks_min": 2,
+            "notes": "Legionella: 60°C for 10min minimum. Circulation must run during disinfection. Counter resets when temp ≥ 65°C for 10min. Thermostatic mixing valve needed on outlet for safety"
+          }
+        },
+        {
+          "id": "hvac-7-04",
+          "utterance": "Add DHW circulation pump logic: the pump timing should match household routines. Turn off circulation in absence mode and activate when the door is unlocked. Turn off in night mode and activate only when movement is detected in bedrooms. Set the circulation interval based on pipe insulation quality (60-90 min for insulated, 20 min for uninsulated).",
+          "checkpoint": {
+            "new_blocks_min": 2,
+            "wiring_min": 3,
+            "notes": "Energy efficiency: match pump timing to household routine. First measure time for cold water to drain at furthest outlet, then measure cooldown time"
+          }
+        }
+      ]
+    },
+    {
+      "id": "hvac-8-ventilation",
+      "name": "Heat recovery ventilation",
+      "progress": 100,
+      "description": "Central and zonal heat recovery ventilation with Room Ventilation Controller",
+      "steps": [
+        {
+          "id": "hvac-8-01",
+          "utterance": "Add a Room Ventilation Controller for the living room. Connect CO2 and humidity sensors from a Loxone Touch. Configure intensive and basic ventilation parameters for presence (Ivp, Bvp) and absence (Iva, Bva). The block uses PI control for CO2 regulation on outputs F, Fea, and Fsa.",
+          "checkpoint": {
+            "controls_by_type": {
+              "RoomVentilationController": 1
+            },
+            "wiring_min": 2,
+            "notes": "CO2: PI controller on F/Fea/Fsa. Humidity: two-point controller between Ivp and Bvp. Reason for ventilation on output S. Reaction time ~30s"
+          }
+        },
+        {
+          "id": "hvac-8-02",
+          "utterance": "Create bypass control logic for the central ventilation unit: compare exhaust air temperature with outdoor air temperature. The bypass should only activate when outdoor air is at least 2°C cooler than exhaust air. Without zoning, the automatic He output cannot be used — bypass must be controlled by custom logic.",
+          "checkpoint": {
+            "new_blocks_min": 2,
+            "wiring_min": 2,
+            "notes": "Bypass: outdoor air must be ≥2°C cooler than exhaust. Central unit without zoning = manual bypass logic"
+          }
+        },
+        {
+          "id": "hvac-8-03",
+          "utterance": "Configure the Room Ventilation Controller as a heating/cooling source for IRC. The He output controls the bypass, and the SAT (Supply Air Temperature) parameter increases fan speed when supply air can support heating or cooling. Connect Sleep Mode (Sm) to the Good Night memory flag. Add a Boost button for the bathroom for manual quick ventilation.",
+          "checkpoint": {
+            "wiring_min": 3,
+            "notes": "RVCo as IRC source: uses He for bypass control. SAT: if supply air temp > room temp and heating demand, fan speed increases. Sm: turns off unit for Smt duration. Boost: F/Fea/Fsa go to 100%. DWC: window open → ventilation off immediately"
+          }
+        },
+        {
+          "id": "hvac-8-04",
+          "utterance": "For zonal heat recovery ventilation: send CO2 levels to the ventilation unit via Modbus. Set up operating modes: Auto (based on CO2 and humidity), Comfort (calculated by project), Away (reduced in absence), and Boost (activated by button, returns to previous mode after timeout). Add a user notification if Boost is left active or HRV is manually turned off and forgotten.",
+          "checkpoint": {
+            "new_blocks_min": 3,
+            "notes": "Zonal HRV: unit adjusts individual fan speeds based on zone CO2/humidity. Boost must auto-revert. Notification prevents forgotten manual overrides"
+          }
+        }
+      ]
+    }
+  ]
+}

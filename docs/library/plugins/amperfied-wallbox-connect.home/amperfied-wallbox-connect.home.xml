@@ -1,0 +1,28 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Modbus Title="AMPERFIED Wallbox connect.home" Comment="" Channel="1">
+	<Info templateType="7" minVersion="12021105"/>
+	<ModbusCmd Title="5 Charging State" Comment="" ModbusAddress="5" ModbusCmd="4" ModbusPollingCycle="10" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="6 L1 - Current RMS" Comment="" ModbusAddress="6" ModbusCmd="4" ModbusPollingCycle="10" Unit="&lt;v.1&gt;A" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="14 Power (L1+L2+L3)" Comment="" ModbusAddress="14" ModbusCmd="4" ModbusPollingCycle="60" Unit="&lt;v.1&gt;kW" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="1"/>
+	<ModbusCmd Title="12 Voltage L3 - N rms" Comment="" ModbusAddress="12" ModbusCmd="4" ModbusPollingCycle="10" Unit="&lt;v.1&gt;V" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="11 Voltage L2 - N rms" Comment="" ModbusAddress="11" ModbusCmd="4" ModbusPollingCycle="10" Unit="&lt;v.1&gt;V" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="10 Voltage L1 - N rms" Comment="" ModbusAddress="10" ModbusCmd="4" ModbusPollingCycle="10" Unit="&lt;v.1&gt;V" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="8 L3 - Current RMS" Comment="" ModbusAddress="8" ModbusCmd="4" ModbusPollingCycle="10" Unit="&lt;v.1&gt;A" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="7 L2 - Current RMS" Comment="" ModbusAddress="7" ModbusCmd="4" ModbusPollingCycle="10" Unit="&lt;v.1&gt;A" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="257 Modbus-Master Watchdog Timeout" Comment="" ModbusAddress="257" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v.1&gt;s" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="1"/>
+	<ModbusCmd Title="4 Modbus Register-Layouts Version" Comment="" ModbusAddress="4" ModbusCmd="4" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="9 PCB-Temperatur" Comment="" ModbusAddress="9" ModbusCmd="4" ModbusPollingCycle="60" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="13 Extern lock state" Comment="" ModbusAddress="13" ModbusCmd="4" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="15 Energy since PowerOn (High byte)" Comment="" ModbusAddress="15" ModbusCmd="4" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="16 Energy since PowerOn (Low byte)" Comment="" ModbusAddress="16" ModbusCmd="4" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="17 Energy since Installation (High byte)" Comment="" ModbusAddress="17" ModbusCmd="4" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="18 Energy since Installation (Low byte)" Comment="" ModbusAddress="18" ModbusCmd="4" ModbusPollingCycle="60" Unit="&lt;v.1&gt;W" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="100 Hardware configuration maximal current" Comment="" ModbusAddress="100" ModbusCmd="4" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="101 Hardware configuration minimal current" Comment="" ModbusAddress="101" ModbusCmd="4" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="261 Maximal current command" Comment="" ModbusAddress="261" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v.1&gt;A" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="262 Failsafe Current configuration" Comment="" ModbusAddress="262" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v.1&gt;A" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="261 Maximal current command" Comment="" ModbusAddress="261" ModbusCmd="6" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="1" DestValHigh="10"/>
+	<ModbusCmd Title="257 ModBus-Master WatchDog Timeout" Comment="" ModbusAddress="257" ModbusCmd="6" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="259 Remote lock" Comment="" ModbusAddress="259" ModbusCmd="6" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="262 FailSafe Current configuration" Comment="" ModbusAddress="262" ModbusCmd="6" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+</Modbus>

@@ -1,0 +1,56 @@
+{
+  "title": "2 Position Controller",
+  "xml_type": "",
+  "kb_slug": "2-position-controller",
+  "description": "The 2 Position Controller manipulates a controlled variable by switching an output, using a setpoint and a hysteresis.",
+  "inputs": [
+    {
+      "abbreviation": "PV",
+      "summary": "Process value",
+      "description": "Actual value of the controlled variable.",
+      "value_range": "\u221e"
+    },
+    {
+      "abbreviation": "Off",
+      "summary": "Off",
+      "description": "Pulse: Outputs are reset / switched off. On: Block is locked. Dominating input.",
+      "value_range": "0/1"
+    }
+  ],
+  "outputs": [
+    {
+      "abbreviation": "O",
+      "summary": "Output",
+      "value_range": "0/1"
+    }
+  ],
+  "parameters": [
+    {
+      "abbreviation": "SP",
+      "summary": "Setpoint",
+      "description": "Setpoint of the controlled variable.",
+      "value_range": "\u221e",
+      "default_value": "5"
+    },
+    {
+      "abbreviation": "Hys",
+      "summary": "Hysteresis",
+      "description": "Hysteresis of the two position controller (prevents constant switching on/off of the output)",
+      "value_range": "\u221e",
+      "default_value": "0,5"
+    },
+    {
+      "abbreviation": "Inv",
+      "summary": "Inverted",
+      "description": "Inverts the behavior of the controller.",
+      "value_range": "0/1",
+      "default_value": "0"
+    }
+  ],
+  "properties": [],
+  "source_url": "https://www.loxone.com/enen/kb/2-position-controller/",
+  "input_count": 2,
+  "output_count": 1,
+  "parameter_count": 3,
+  "property_count": 0
+}

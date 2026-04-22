@@ -1,0 +1,9 @@
+{
+                                "type": "template",
+                                "name": "schrack-mgx20400-3-phase-energymeter",
+                                "uuid": "387b1fda-92d4-11ee-b6c64cd98f3deb8a",
+                                "version":"1.1.0",
+                                "id": "schrack-mgx20400-3-phase-energymeter-1385",
+                                "file": "schrack-mgx20400-3-phase-energymeter.xml",
+                                "templateType": "7",
+                            }

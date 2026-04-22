@@ -1,0 +1,87 @@
+{
+  "title": "Pulse Meter & Storage",
+  "xml_type": "",
+  "kb_slug": "pulse-meter-storage",
+  "description": "This meter is used to integrate a storage and records its level, charging and discharging.",
+  "inputs": [
+    {
+      "abbreviation": "Pd",
+      "summary": "Pulse discharge",
+      "description": "For meters with pulse output (S0), connected to digital inputs.",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "Pc",
+      "summary": "Pulse charge",
+      "description": "For meters with pulse output (S0), connected to digital inputs.",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "Fd",
+      "summary": "Frequency discharge",
+      "description": "For meters with pulse output (S0), connected to digital inputs used as frequency counter.",
+      "value_range": "0...\u221e"
+    },
+    {
+      "abbreviation": "Fc",
+      "summary": "Frequency charge",
+      "description": "For meters with pulse output (S0), connected to digital inputs used as frequency counter.",
+      "value_range": "0...\u221e"
+    },
+    {
+      "abbreviation": "R",
+      "summary": "Reset",
+      "description": "Pulse: Meter reading outputs are reset. On: Block is locked.",
+      "value_range": "0/1"
+    }
+  ],
+  "outputs": [
+    {
+      "abbreviation": "Pf",
+      "summary": "Power or flow",
+      "description": "Current power/flow calculated using inputs (Pd) and (Fd) is output as a positive value. Current power/flow calculated using inputs (Pc) and (Fc) is output as a negative value.",
+      "value_range": "\u221e"
+    },
+    {
+      "abbreviation": "API",
+      "summary": "API Connector",
+      "description": "Intelligent API based connector. API Commands",
+      "value_range": "-"
+    }
+  ],
+  "parameters": [
+    {
+      "abbreviation": "Mrod",
+      "summary": "Meter reading offset discharge",
+      "description": "Value is added to output (Mrc).",
+      "value_range": "\u221e",
+      "default_value": "0"
+    },
+    {
+      "abbreviation": "Mroc",
+      "summary": "Meter reading offset charge",
+      "description": "Value is added to output (Mrd).",
+      "value_range": "\u221e",
+      "default_value": "0"
+    }
+  ],
+  "properties": [
+    {
+      "summary": "Maximum storage level",
+      "description": "Maximum storage level used for the user interface",
+      "value_range": "0...\u221e",
+      "default_value": "100"
+    },
+    {
+      "summary": "Report invalid Meter Reading",
+      "description": "If checked, you will be notified if invalid Meter Reading values have been detected. For instance, when a physical counter sends unrealistic values due to transmission errors.",
+      "value_range": "-",
+      "default_value": "-"
+    }
+  ],
+  "source_url": "https://www.loxone.com/enen/kb/pulse-meter-storage/",
+  "input_count": 5,
+  "output_count": 2,
+  "parameter_count": 2,
+  "property_count": 2
+}

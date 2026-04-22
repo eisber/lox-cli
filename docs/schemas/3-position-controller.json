@@ -1,0 +1,52 @@
+{
+  "title": "3 Position Controller",
+  "xml_type": "",
+  "kb_slug": "3-position-controller",
+  "description": "The 3 Position Controller manipulates a controlled variable by switching two outputs with opposite effect, using two setpoints.",
+  "inputs": [
+    {
+      "abbreviation": "PV",
+      "summary": "Process value",
+      "description": "Actual value of the controlled variable.",
+      "value_range": "\u221e"
+    },
+    {
+      "abbreviation": "Off",
+      "summary": "Off",
+      "description": "Pulse: Outputs are reset / switched off. On: Block is locked. Dominating input.",
+      "value_range": "0/1"
+    }
+  ],
+  "outputs": [
+    {
+      "abbreviation": "O1",
+      "summary": "Output 1",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "O2",
+      "summary": "Output 2",
+      "value_range": "0/1"
+    }
+  ],
+  "parameters": [
+    {
+      "abbreviation": "SP1",
+      "summary": "Setpoint 1",
+      "value_range": "\u221e",
+      "default_value": "3"
+    },
+    {
+      "abbreviation": "SP2",
+      "summary": "Setpoint 2",
+      "value_range": "\u221e",
+      "default_value": "7"
+    }
+  ],
+  "properties": [],
+  "source_url": "https://www.loxone.com/enen/kb/3-position-controller/",
+  "input_count": 2,
+  "output_count": 2,
+  "parameter_count": 2,
+  "property_count": 0
+}

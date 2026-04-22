@@ -1,0 +1,574 @@
+{
+  "title": "Lighting Controller",
+  "xml_type": "LightController2",
+  "kb_slug": "lighting-controller",
+  "description": "The Lighting Controller function block enables the control and operation of lighting in a room or an area.\nIt supports switched and dimmed lighting as well as coloured light and luminaires with different interfaces.",
+  "inputs": [
+    {
+      "abbreviation": "Lc1",
+      "summary": "Light circuit 1",
+      "description": "Activates output (Lc1-4). Long-click for dimming.",
+      "unit": "-",
+      "value_range": "0/1",
+      "xml_key": "I1"
+    },
+    {
+      "abbreviation": "Lc2",
+      "summary": "Light circuit 2",
+      "description": "Activates output (Lc1-4). Long-click for dimming.",
+      "unit": "-",
+      "value_range": "0/1",
+      "xml_key": "I2"
+    },
+    {
+      "abbreviation": "Lc3",
+      "summary": "Light circuit 3",
+      "description": "Activates output (Lc1-4). Long-click for dimming.",
+      "unit": "-",
+      "value_range": "0/1",
+      "xml_key": "I3"
+    },
+    {
+      "abbreviation": "Lc4",
+      "summary": "Light circuit 4",
+      "description": "Activates output (Lc1-4). Long-click for dimming.",
+      "unit": "-",
+      "value_range": "0/1",
+      "xml_key": "I4"
+    },
+    {
+      "abbreviation": "M+",
+      "summary": "Next mood",
+      "description": "Pulse: Selects next mood. Double-click: Turns off lights and sends pulse to output (2C). Triple-click: Turns off lights and sends pulse to outputs (3C) and (2C).",
+      "unit": "-",
+      "value_range": "0/1",
+      "xml_key": "Step"
+    },
+    {
+      "abbreviation": "M-",
+      "summary": "Previous mood",
+      "description": "Pulse: Selects previous mood. Double-click: Turns off lights and sends pulse to output (2C). Triple-click: Turns off lights and sends pulse to outputs (3C) and (2C).",
+      "unit": "-",
+      "value_range": "0/1",
+      "xml_key": "Move"
+    },
+    {
+      "abbreviation": "Off",
+      "summary": "Off",
+      "description": "Pulse: Outputs are reset / switched off. On: Block is locked. Dominating input. An alarm can still be triggered via the input (Alarm). The name of the connected sensor is used in the user interface.",
+      "unit": "-",
+      "value_range": "0/1",
+      "xml_key": "On"
+    },
+    {
+      "abbreviation": "T5/1",
+      "summary": "Trigger Mood selection 1",
+      "description": "Pulse: First pulse selects the assigned mood, every subsequent pulse switches to the next mood. If there is no additional pulse for 30 seconds, a pulse selects the assigned mood again. Long-click: Either mixes in the mood (Mmd) or switches to the next mood. Double-click: Turns off lights and sends pulse to output (2C). Triple-click: Turns off lights and sends pulse to outputs (3C) and (2C).",
+      "unit": "-",
+      "value_range": "∞",
+      "xml_key": "Sel1"
+    },
+    {
+      "abbreviation": "T5/2",
+      "summary": "Trigger Mood selection 2",
+      "description": "Pulse: First pulse selects the assigned mood, every subsequent pulse switches to the next mood. If there is no additional pulse for 30 seconds, a pulse selects the assigned mood again. Long-click: Either mixes in the mood (Mmd) or switches to the next mood. Double-click: Turns off lights and sends pulse to output (2C). Triple-click: Turns off lights and sends pulse to outputs (3C) and (2C).",
+      "unit": "-",
+      "value_range": "∞",
+      "xml_key": "Sel2"
+    },
+    {
+      "abbreviation": "T5/3",
+      "summary": "Trigger Mood selection 3",
+      "description": "Pulse: First pulse selects the assigned mood, every subsequent pulse switches to the next mood. If there is no additional pulse for 30 seconds, a pulse selects the assigned mood again. Long-click: Either mixes in the mood (Mmd) or switches to the next mood. Double-click: Turns off lights and sends pulse to output (2C). Triple-click: Turns off lights and sends pulse to outputs (3C) and (2C).",
+      "unit": "-",
+      "value_range": "∞",
+      "xml_key": "Sel3"
+    },
+    {
+      "abbreviation": "T5/4",
+      "summary": "Trigger Mood selection 4",
+      "description": "Pulse: First pulse selects the assigned mood, every subsequent pulse switches to the next mood. If there is no additional pulse for 30 seconds, a pulse selects the assigned mood again. Long-click: Either mixes in the mood (Mmd) or switches to the next mood. Double-click: Turns off lights and sends pulse to output (2C). Triple-click: Turns off lights and sends pulse to outputs (3C) and (2C).",
+      "unit": "-",
+      "value_range": "∞",
+      "xml_key": "Sel4"
+    },
+    {
+      "abbreviation": "T5/5",
+      "summary": "Trigger Mood selection 5",
+      "description": "Pulse: First pulse selects the assigned mood, every subsequent pulse switches to the next mood. If there is no additional pulse for 30 seconds, a pulse selects the assigned mood again. Long-click: Either mixes in the mood (Mmd) or switches to the next mood. Double-click: Turns off lights and sends pulse to output (2C). Triple-click: Turns off lights and sends pulse to outputs (3C) and (2C).",
+      "unit": "-",
+      "value_range": "∞",
+      "xml_key": "Sel5"
+    },
+    {
+      "abbreviation": "T5/6",
+      "summary": "Trigger Mood selection 6",
+      "description": "Pulse: First pulse selects the assigned mood, every subsequent pulse switches to the next mood. If there is no additional pulse for 30 seconds, a pulse selects the assigned mood again. Long-click: Either mixes in the mood (Mmd) or switches to the next mood. Double-click: Turns off lights and sends pulse to output (2C). Triple-click: Turns off lights and sends pulse to outputs (3C) and (2C).",
+      "unit": "-",
+      "value_range": "∞",
+      "xml_key": "Sel6"
+    },
+    {
+      "abbreviation": "T5/7",
+      "summary": "Trigger Mood selection 7",
+      "description": "Pulse: First pulse selects the assigned mood, every subsequent pulse switches to the next mood. If there is no additional pulse for 30 seconds, a pulse selects the assigned mood again. Long-click: Either mixes in the mood (Mmd) or switches to the next mood. Double-click: Turns off lights and sends pulse to output (2C). Triple-click: Turns off lights and sends pulse to outputs (3C) and (2C).",
+      "unit": "-",
+      "value_range": "∞",
+      "xml_key": "Sel7"
+    },
+    {
+      "abbreviation": "T5/8",
+      "summary": "Trigger Mood selection 8",
+      "description": "Pulse: First pulse selects the assigned mood, every subsequent pulse switches to the next mood. If there is no additional pulse for 30 seconds, a pulse selects the assigned mood again. Long-click: Either mixes in the mood (Mmd) or switches to the next mood. Double-click: Turns off lights and sends pulse to output (2C). Triple-click: Turns off lights and sends pulse to outputs (3C) and (2C).",
+      "unit": "-",
+      "value_range": "∞",
+      "xml_key": "Sel8"
+    },
+    {
+      "abbreviation": "DisP",
+      "summary": "Disable presence / motion",
+      "description": "Disables inputs (P) and (Mo) when 1. Lights activated by presence (P) are switched off immediately. If lights were activated by motion (Mo), (Moet) timer is started on rising edge at (DisP) and lights are switched off after expiration. If the extend time of (Met) is shorter than (Moet), (Met) is used instead.",
+      "unit": "-",
+      "value_range": "0/1",
+      "xml_key": "InputDisable"
+    },
+    {
+      "abbreviation": "Mo",
+      "summary": "Motion",
+      "description": "Activates the lighting mood configured for motion / presence when 1. By falling edge, the lighting is switched off after expiration of parameter (Moet). If the lighting is operated manually, the lighting is only switched off after parameter (Met) has expired.",
+      "unit": "-",
+      "value_range": "0/1",
+      "xml_key": "EnMove"
+    },
+    {
+      "abbreviation": "Mood",
+      "summary": "Select mood by ID",
+      "description": "Select a specific mood by its ID number.",
+      "unit": "-",
+      "value_range": "0...∞",
+      "xml_key": "Select"
+    }
+  ],
+  "outputs": [
+    {
+      "abbreviation": "AQ1",
+      "summary": "Analog output 1",
+      "description": "Output for light circuit 1-18 Usage based on actuator type.",
+      "unit": "-",
+      "value_range": "0...100",
+      "xml_key": "AQ1"
+    },
+    {
+      "abbreviation": "AQ2",
+      "summary": "Analog output 2",
+      "description": "Output for light circuit 1-18 Usage based on actuator type.",
+      "unit": "-",
+      "value_range": "0...100",
+      "xml_key": "AQ2"
+    },
+    {
+      "abbreviation": "AQ3",
+      "summary": "Analog output 3",
+      "description": "Output for light circuit 1-18 Usage based on actuator type.",
+      "unit": "-",
+      "value_range": "0...100",
+      "xml_key": "AQ3"
+    },
+    {
+      "abbreviation": "AQ4",
+      "summary": "Analog output 4",
+      "description": "Output for light circuit 1-18 Usage based on actuator type.",
+      "unit": "-",
+      "value_range": "0...100",
+      "xml_key": "AQ4"
+    },
+    {
+      "abbreviation": "AQ5",
+      "summary": "Analog output 5",
+      "description": "Output for light circuit 1-18 Usage based on actuator type.",
+      "unit": "-",
+      "value_range": "0...100",
+      "xml_key": "AQ5"
+    },
+    {
+      "abbreviation": "AQ6",
+      "summary": "Analog output 6",
+      "description": "Output for light circuit 1-18 Usage based on actuator type.",
+      "unit": "-",
+      "value_range": "0...100",
+      "xml_key": "AQ6"
+    },
+    {
+      "abbreviation": "AQ7",
+      "summary": "Analog output 7",
+      "description": "Output for light circuit 1-18 Usage based on actuator type.",
+      "unit": "-",
+      "value_range": "0...100",
+      "xml_key": "AQ7"
+    },
+    {
+      "abbreviation": "AQ8",
+      "summary": "Analog output 8",
+      "description": "Output for light circuit 1-18 Usage based on actuator type.",
+      "unit": "-",
+      "value_range": "0...100",
+      "xml_key": "AQ8"
+    },
+    {
+      "abbreviation": "AQ9",
+      "summary": "Analog output 9",
+      "description": "Output for light circuit 1-18 Usage based on actuator type.",
+      "unit": "-",
+      "value_range": "0...100",
+      "xml_key": "AQ9"
+    },
+    {
+      "abbreviation": "AQ10",
+      "summary": "Analog output 10",
+      "description": "Output for light circuit 1-18 Usage based on actuator type.",
+      "unit": "-",
+      "value_range": "0...100",
+      "xml_key": "AQ10"
+    },
+    {
+      "abbreviation": "AQ11",
+      "summary": "Analog output 11",
+      "description": "Output for light circuit 1-18 Usage based on actuator type.",
+      "unit": "-",
+      "value_range": "0...100",
+      "xml_key": "AQ11"
+    },
+    {
+      "abbreviation": "AQ12",
+      "summary": "Analog output 12",
+      "description": "Output for light circuit 1-18 Usage based on actuator type.",
+      "unit": "-",
+      "value_range": "0...100",
+      "xml_key": "AQ12"
+    },
+    {
+      "abbreviation": "AQ13",
+      "summary": "Analog output 13",
+      "description": "Output for light circuit 1-18 Usage based on actuator type.",
+      "unit": "-",
+      "value_range": "0...100",
+      "xml_key": "AQ13"
+    },
+    {
+      "abbreviation": "AQ14",
+      "summary": "Analog output 14",
+      "description": "Output for light circuit 1-18 Usage based on actuator type.",
+      "unit": "-",
+      "value_range": "0...100",
+      "xml_key": "AQ14"
+    },
+    {
+      "abbreviation": "AQ15",
+      "summary": "Analog output 15",
+      "description": "Output for light circuit 1-18 Usage based on actuator type.",
+      "unit": "-",
+      "value_range": "0...100",
+      "xml_key": "AQ15"
+    },
+    {
+      "abbreviation": "AQ16",
+      "summary": "Analog output 16",
+      "description": "Output for light circuit 1-18 Usage based on actuator type.",
+      "unit": "-",
+      "value_range": "0...100",
+      "xml_key": "AQ16"
+    },
+    {
+      "abbreviation": "AQ17",
+      "summary": "Analog output 17",
+      "description": "Output for light circuit 1-18 Usage based on actuator type.",
+      "unit": "-",
+      "value_range": "0...100",
+      "xml_key": "AQ17"
+    },
+    {
+      "abbreviation": "AQ18",
+      "summary": "Analog output 18",
+      "description": "Output for light circuit 1-18 Usage based on actuator type.",
+      "unit": "-",
+      "value_range": "0...100",
+      "xml_key": "AQ18"
+    },
+    {
+      "abbreviation": "M",
+      "summary": "Current mood",
+      "description": "Predefined mood IDs: 0: Off 98: Buzzer (Alarm clock) 99: All on -1: User defined mood -3: Multiple moods mixed",
+      "value_range": "-3...99",
+      "xml_key": "Scene"
+    },
+    {
+      "abbreviation": "2C",
+      "summary": "Pulse on double-click",
+      "description": "Pulse on a double- or triple-click or pulse on input (Off).",
+      "value_range": "0/1",
+      "xml_key": "OutputReset"
+    },
+    {
+      "abbreviation": "3C",
+      "summary": "Pulse on triple-click",
+      "description": "Pulse on a triple-click.",
+      "value_range": "0/1",
+      "xml_key": "OutputResetAll"
+    },
+    {
+      "abbreviation": "API",
+      "summary": "API Connector",
+      "description": "Intelligent API based connector. API Commands",
+      "value_range": "-",
+      "xml_key": "OutputAPI"
+    },
+    {
+      "abbreviation": "On",
+      "summary": "All on",
+      "description": "Activates mood with ID 99. If no mood with ID 99 is configured, all used outputs (Lc1-18) will be activated with brightness set in parameter (MaxAbr).",
+      "unit": "-",
+      "value_range": "0/1",
+      "xml_key": "MoveOn"
+    },
+    {
+      "abbreviation": "Alarm",
+      "summary": "Alarm",
+      "description": "All used outputs (Lc1-18) start flashing when 1. Parameter (MaxAbr) defines the brightness, parameter (Afi) defines the flashing interval. ID 99 is displayed at the output (M). If the input (Off) is 1, an alarm can still be triggered.",
+      "unit": "-",
+      "value_range": "0/1",
+      "xml_key": "Alarm"
+    },
+    {
+      "abbreviation": "Buzzer",
+      "summary": "Buzzer",
+      "description": "Activates alarm clock mood (ID 98) when 1. Parameter (Fbu) defines the fading time. Fading is only supported by Smart actuators. If no alarm clock mood is configured, the mood with ID 99 is used instead. Lighting is switched off after the time set in parameter (Met) has expired.",
+      "unit": "-",
+      "value_range": "0/1",
+      "xml_key": "AlarmClock"
+    },
+    {
+      "abbreviation": "Br",
+      "summary": "Current brightness",
+      "description": "If the current brightness exceeds the threshold (Brt), presence / motion is ignored.",
+      "unit": "lux",
+      "value_range": "0...∞",
+      "xml_key": "Brightness"
+    },
+    {
+      "abbreviation": "DisPc",
+      "summary": "Disable periphery control",
+      "description": "Disables inputs (Lc1-4, M+, M-, Mood, Off, T5/1-8, On, Buzzer, MBr) when On. (e.g Child lock, cleaning) Control via user interface is still possible.",
+      "unit": "-",
+      "value_range": "0/1",
+      "xml_key": "InputTriggerDown"
+    },
+    {
+      "abbreviation": "P",
+      "summary": "Presence",
+      "description": "Activates the lighting mood configured for motion / presence when 1. If the lighting is operated manually, lighting is switched off only after the time set in parameter (Met) has expired.",
+      "unit": "-",
+      "value_range": "0/1",
+      "xml_key": "Presence"
+    },
+    {
+      "abbreviation": "Rtd",
+      "summary": "Reset to default",
+      "description": "Resets parameters and settings of the block to the default values as specified in the block preset.",
+      "unit": "-",
+      "value_range": "0/1",
+      "xml_key": "RtD"
+    },
+    {
+      "abbreviation": "MBr",
+      "summary": "Master Brightness",
+      "description": "Sets the brightness of outputs (Lc1-18) to a value relative to the input (MBr). E.g. Input (MBr) = 20%, output (Lc1) = 40% : The brightness of output (Lc1) is always twice the master brightness (MBr).",
+      "unit": "-",
+      "value_range": "∞",
+      "xml_key": "MasterBr"
+    }
+  ],
+  "parameters": [
+    {
+      "abbreviation": "Rem",
+      "summary": "Remanence input",
+      "description": "Remanence input: If active, the function block retains its previous state after a Miniserver reboot. The state of the function block is saved: – When saving to the Miniserver – At a planned reboot – Before a backup – Once per hour The data is saved on the SD card.",
+      "unit": "-",
+      "value_range": "0/1",
+      "default_value": "0",
+      "xml_key": "Remanence"
+    },
+    {
+      "abbreviation": "Str",
+      "summary": "Step rate brightness",
+      "description": "Brightness is in-/decreased by (Sts) every (Str) seconds on long-click.",
+      "unit": "s",
+      "value_range": "0...∞",
+      "default_value": "0,2",
+      "xml_key": "Steptime"
+    },
+    {
+      "abbreviation": "MinBr",
+      "summary": "Minimum brightness (0 to 50%)",
+      "description": "Minimum Brightness when Lc outputs are dimmed directly with Lc Inputs.",
+      "unit": "%",
+      "value_range": "0...50",
+      "default_value": "0",
+      "xml_key": "Min"
+    },
+    {
+      "abbreviation": "MaxBr",
+      "summary": "Maximum brightness (50 to 100%)",
+      "description": "Maximum Brightness when Lc outputs are dimmed directly with Lc Inputs.",
+      "unit": "%",
+      "value_range": "50...100",
+      "default_value": "100",
+      "xml_key": "Max"
+    },
+    {
+      "abbreviation": "Dm",
+      "summary": "Dim mode",
+      "description": "If checked, dimming transitions between parameters (MinBr) and (MaxBr) on long-click. If unchecked, dimming stops when reaching parameter (MinBr) or parameter (MaxBr) on long-click.",
+      "unit": "-",
+      "value_range": "0/1",
+      "default_value": "0"
+    },
+    {
+      "abbreviation": "Lv",
+      "summary": "Last value output Lc1-4",
+      "description": "If checked, brightness is set to (MaxBr) when switching on output (Lc1-4) via input (Lc1-4). If unchecked, last brightness value is set when switching on output (Lc1-4) via input (Lc1-4).",
+      "unit": "-",
+      "value_range": "0/1",
+      "default_value": "0"
+    },
+    {
+      "abbreviation": "Moet",
+      "summary": "Motion extend time",
+      "description": "Starts with the falling edge of (Mo) and extends motion by set time. If the extend time of (Met) is shorter than (Moet), (Met) will be used instead. 0 = Deactivates automatic switch-off. Parameter does not apply to presence input (P)!",
+      "unit": "s",
+      "value_range": "0...∞",
+      "default_value": "900",
+      "xml_key": "MoveTimeout"
+    },
+    {
+      "abbreviation": "Pto",
+      "summary": "Presence automatic timeout",
+      "description": "Disables the presence / motion automatic after manually switching off lights. Input (Mo): Pulse on input (Mo) restarts the timeout. Re-enables presence / motion automatic when there was no motion for set time. 0 = Deactivates this function. Input (P): Parameter value automatically set to 0.01 when input (P) is used. Re-enables presence / motion automatic immediately after presence has ended.",
+      "unit": "s",
+      "value_range": "0...∞",
+      "default_value": "300"
+    },
+    {
+      "abbreviation": "Pm",
+      "summary": "Presence mood",
+      "description": ">0 = Sets a specified mood (ID) which will be started with input (P) or (Mo). 0 = Mood set in the motion / presence automatic will apply. If the specified mood (ID) does not exist, the mood set in the presence / motion automatic will apply!",
+      "unit": "-",
+      "value_range": "∞",
+      "default_value": "0"
+    },
+    {
+      "abbreviation": "Met",
+      "summary": "Manual operation extend time",
+      "description": "Lights will automatically switch off after this time, even if manually operated. Input DisP does not prevent lights from switching off. Timer starts after the end of motion / presence or with a falling edge at the input (Buzzer). 0 = Deactivates automatic switch-off.",
+      "unit": "s",
+      "value_range": "0...∞",
+      "default_value": "3600"
+    },
+    {
+      "abbreviation": "Ao",
+      "summary": "Alternative operation Lc1-4",
+      "description": "If checked, a pulse will cycle through the primary colors of the RGB output. Long-click for dimming.",
+      "unit": "-",
+      "value_range": "0/1",
+      "default_value": "0"
+    },
+    {
+      "abbreviation": "Afi",
+      "summary": "Alarm flashing interval",
+      "description": "Defines the flashing interval of the lights during alarm. E.g. 2s = 1s On, 1s Off",
+      "unit": "s",
+      "value_range": "0.1...∞",
+      "default_value": "4",
+      "xml_key": "AlarmPeriod"
+    },
+    {
+      "abbreviation": "Fbu",
+      "summary": "Fading time buzzer",
+      "description": "Fading time of the alarm clock mood, when input (Buzzer) is triggered. Only applies to supported Smart Actuator devices.",
+      "unit": "min",
+      "value_range": "0...60",
+      "default_value": "3",
+      "xml_key": "AlarmClockPeriod"
+    },
+    {
+      "abbreviation": "Brt",
+      "summary": "Brightness threshold",
+      "description": "If the input (Br) exceeds the threshold of parameter (Brt), inputs (Mo), (P), (P/1-8) are disabled.",
+      "unit": "lux",
+      "value_range": "0...∞",
+      "default_value": "30",
+      "xml_key": "BrightnessLimit"
+    },
+    {
+      "abbreviation": "Mmd",
+      "summary": "Mixing moods duration",
+      "description": "Long click duration required to mix in an additional mood via the inputs (T5/1-8). 0 = No mixing of assigned mood.",
+      "unit": "s",
+      "value_range": "0...∞",
+      "default_value": "1",
+      "xml_key": "SceneMixTime"
+    },
+    {
+      "abbreviation": "Ft",
+      "summary": "Fading time",
+      "description": "Duration of fading when changing moods. Applies to regular mood changes on Smart Actuator devices. The color picker has a fixed fading time of 0.2s, while sequences have their own individual fading times.",
+      "unit": "s",
+      "value_range": "0...1800",
+      "default_value": "1",
+      "xml_key": "FadingTime"
+    },
+    {
+      "abbreviation": "MaxAbr",
+      "summary": "Maximum alarm brightness",
+      "description": "When input (Alarm) is 1, used outputs (Lc1-18) start flashing between value 0 and parameter (MaxAbr). When input (On) is 1, used outputs are set to parameter (MaxAbr) if no mood with ID 99 is configured.",
+      "unit": "%",
+      "value_range": "10...100",
+      "default_value": "50"
+    },
+    {
+      "abbreviation": "MinCt",
+      "summary": "Minimum color temperature",
+      "description": "Minimum color temperature (warm) for daylight control.",
+      "unit": "K",
+      "value_range": "2000...4000",
+      "default_value": "2700"
+    },
+    {
+      "abbreviation": "MaxCt",
+      "summary": "Maximum color temperature",
+      "description": "Maximum color temperature (cool) for daylight control.",
+      "unit": "K",
+      "value_range": "4000...12000",
+      "default_value": "6500"
+    }
+  ],
+  "properties": [
+    {
+      "summary": "Moods",
+      "description": "Manage Moods and Operating Modes",
+      "value_range": "-",
+      "default_value": "-"
+    },
+    {
+      "summary": "Activity Log Entries",
+      "description": "Number of entries in the activity log. 0: log is disabled The activity log tracks relevant changes since program start.",
+      "value_range": "0...100",
+      "default_value": "20"
+    }
+  ],
+  "source_url": "https://www.loxone.com/enen/kb/lighting-controller/",
+  "input_count": 18,
+  "output_count": 30,
+  "parameter_count": 19,
+  "property_count": 2,
+  "ux_validated": true
+}

@@ -1,0 +1,47 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Modbus Title="KNV Greenline Heat pump" Comment="" HintText="" Channel="241">
+	<Info templateType="7" minVersion="15000424"/>
+	<ModbusCmd Title="Outside temperature" Comment="" HintText="" ModbusCmd="4" ModbusDataType="1" ModbusPollingCycle="15" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="10"/>
+	<ModbusCmd Title="Heat generator return sensor" Comment="" HintText="" ModbusAddress="3" ModbusCmd="4" ModbusDataType="1" ModbusPollingCycle="15" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="10"/>
+	<ModbusCmd Title="Heat generator flow sensor" Comment="" HintText="" ModbusAddress="2" ModbusCmd="4" ModbusDataType="1" ModbusPollingCycle="15" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="10"/>
+	<ModbusCmd Title="HC1 - flow temperature" Comment="" HintText="" ModbusAddress="15" ModbusCmd="4" ModbusDataType="1" ModbusPollingCycle="15" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="10"/>
+	<ModbusCmd Title="HC1 - room temperature" Comment="" HintText="" ModbusAddress="14" ModbusCmd="4" ModbusDataType="1" ModbusPollingCycle="15" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="10"/>
+	<ModbusCmd Title="Heat pump - status" Comment="" HintText="" ModbusAddress="34" ModbusCmd="4" ModbusDataType="1" ModbusPollingCycle="15" Unit="&lt;v.0&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Alarm" Comment="" HintText="" ModbusAddress="35" ModbusCmd="4" ModbusDataType="1" ModbusPollingCycle="15" Unit="&lt;v.0&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Operating hours compressor" Comment="" HintText="" ModbusAddress="40" ModbusCmd="4" ModbusDataType="1" ModbusPollingCycle="15" Unit="&lt;v.0&gt;h" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Operating hours additional heating" Comment="" HintText="" ModbusAddress="42" ModbusCmd="4" ModbusDataType="1" ModbusPollingCycle="15" Unit="&lt;v.0&gt;h" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Operating hours cooling generator" Comment="" HintText="" ModbusAddress="44" ModbusCmd="4" ModbusDataType="1" ModbusPollingCycle="15" Unit="&lt;v.0&gt;h" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Current heat quantity value" Comment="" HintText="" ModbusAddress="52" ModbusCmd="4" ModbusDataType="34" ModbusPollingCycle="15" Unit="&lt;v.1&gt;W" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Total heat quantity" Comment="" HintText="" ModbusAddress="46" ModbusCmd="4" ModbusDataType="34" ModbusPollingCycle="15" Unit="&lt;v.1&gt;kWh" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="HC1 - room temperature normal" Comment="" HintText="" ModbusAddress="101" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="15" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="10"/>
+	<ModbusCmd Title="HC1 - room temperature lower" Comment="" HintText="" ModbusAddress="102" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="15" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="10"/>
+	<ModbusCmd Title="HC2 - room temperature" Comment="" HintText="" ModbusAddress="16" ModbusCmd="4" ModbusDataType="1" ModbusPollingCycle="15" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="10"/>
+	<ModbusCmd Title="HC2 - flow temperature" Comment="" HintText="" ModbusAddress="17" ModbusCmd="4" ModbusDataType="1" ModbusPollingCycle="15" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="10"/>
+	<ModbusCmd Title="HC2 - room temperature normal" Comment="" HintText="" ModbusAddress="105" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="15" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="10"/>
+	<ModbusCmd Title="HC2 - room temperature lower" Comment="" HintText="" ModbusAddress="106" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="15" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="10"/>
+	<ModbusCmd Title="Hot water temperature" Comment="" HintText="" ModbusAddress="12" ModbusCmd="4" ModbusDataType="1" ModbusPollingCycle="15" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="10"/>
+	<ModbusCmd Title="Hot water target point" Comment="" HintText="" ModbusAddress="125" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="15" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="10"/>
+	<ModbusCmd Title="Lower hot water" Comment="" HintText="" ModbusAddress="126" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="15" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="10"/>
+	<ModbusCmd Title="Buffer temperature" Comment="" HintText="" ModbusAddress="4" ModbusCmd="4" ModbusDataType="1" ModbusPollingCycle="15" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="10"/>
+	<ModbusCmd Title="Suction gas temperature" Comment="" HintText="" ModbusAddress="8" ModbusCmd="4" ModbusDataType="1" ModbusPollingCycle="15" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="10"/>
+	<ModbusCmd Title="Evaporation temperature" Comment="" HintText="" ModbusAddress="10" ModbusCmd="4" ModbusDataType="1" ModbusPollingCycle="15" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="10"/>
+	<ModbusCmd Title="Grundfos - flow rate" Comment="" HintText="" ModbusAddress="38" ModbusCmd="4" ModbusDataType="1" ModbusPollingCycle="15" Unit="&lt;v.1&gt;l/min" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="10"/>
+	<ModbusCmd Title="HC1 - heating" Comment="" HintText="" ModbusAddress="100" ModbusCmd="3" ModbusPollingCycle="15" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="HC1 - cooling" Comment="" HintText="" ModbusAddress="103" ModbusCmd="3" ModbusPollingCycle="15" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="HC2 - heating" Comment="" HintText="" ModbusAddress="104" ModbusCmd="3" ModbusPollingCycle="15" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="HC2 - cooling" Comment="" HintText="" ModbusAddress="107" ModbusCmd="3" ModbusPollingCycle="15" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="Hot water" Comment="" HintText="" ModbusAddress="124" ModbusCmd="3" ModbusPollingCycle="15" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="Heating requirement" Comment="" HintText="" ModbusAddress="36" ModbusCmd="4" ModbusPollingCycle="15" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="Cooling requirement" Comment="" HintText="" ModbusAddress="37" ModbusCmd="4" ModbusPollingCycle="15" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="HC1 - heating" Comment="" HintText="" ModbusAddress="100" ModbusCmd="16" Unit="&lt;v.0&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="HC1 - cooling" Comment="" HintText="" ModbusAddress="103" ModbusCmd="16" Unit="&lt;v.0&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="HC1 - room temperature normal" Comment="" HintText="" ModbusAddress="101" ModbusCmd="16" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="false" SourceValHigh="1" DestValHigh="10"/>
+	<ModbusCmd Title="HC1 - room temperature lower" Comment="" HintText="" ModbusAddress="102" ModbusCmd="16" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="false" SourceValHigh="1" DestValHigh="10"/>
+	<ModbusCmd Title="Lower hot water" Comment="" HintText="" ModbusAddress="126" ModbusCmd="16" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="1" DestValHigh="10"/>
+	<ModbusCmd Title="Hot water target point" Comment="" HintText="" ModbusAddress="125" ModbusCmd="16" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="1" DestValHigh="10"/>
+	<ModbusCmd Title="HC2 - heating" Comment="" HintText="" ModbusAddress="104" ModbusCmd="16" Unit="&lt;v.0&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="HC2 - cooling" Comment="" HintText="" ModbusAddress="107" ModbusCmd="16" Unit="&lt;v.0&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="HC2 - room temperature lower" Comment="" HintText="" ModbusAddress="106" ModbusCmd="16" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="false" SourceValHigh="1" DestValHigh="10"/>
+	<ModbusCmd Title="HC2 - room temperature normal" Comment="" HintText="" ModbusAddress="105" ModbusCmd="16" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="false" SourceValHigh="1" DestValHigh="10"/>
+	<ModbusCmd Title="Hot water" Comment="" HintText="" ModbusAddress="124" ModbusCmd="16" Unit="&lt;v.0&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+</Modbus>

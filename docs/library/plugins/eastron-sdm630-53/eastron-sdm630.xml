@@ -1,0 +1,19 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Modbus HintText="" Title="Eastron SDM630" Comment="" Baudrate="9600" Channel="1">
+	<Info templateType="7" minVersion="16021114"/>
+	<ModbusCmd Title="Voltage L1" Comment="" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt;V" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100" HintText=""/>
+	<ModbusCmd Title="Voltage L2" Comment="" ModbusAddress="2" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt;V" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100" HintText=""/>
+	<ModbusCmd Title="Voltage L3" Comment="" ModbusAddress="4" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt;V" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100" HintText=""/>
+	<ModbusCmd Title="Current L1" Comment="" ModbusAddress="6" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="15" Unit="&lt;v.1&gt;A" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100" HintText=""/>
+	<ModbusCmd Title="Current L2" Comment="" ModbusAddress="8" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="15" Unit="&lt;v.1&gt;A" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100" HintText=""/>
+	<ModbusCmd Title="Current L3" Comment="" ModbusAddress="10" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="15" Unit="&lt;v.1&gt;A" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100" HintText=""/>
+	<ModbusCmd Title="Power L1" Comment="" ModbusAddress="12" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="15" Unit="&lt;v.1&gt;W" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100" HintText=""/>
+	<ModbusCmd Title="Power L2" Comment="" ModbusAddress="14" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="15" Unit="&lt;v.1&gt;W" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100" HintText=""/>
+	<ModbusCmd Title="Power L3" Comment="" ModbusAddress="16" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="15" Unit="&lt;v.1&gt;W" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100" HintText=""/>
+	<ModbusCmd Title="Total active Power" Comment="" ModbusAddress="52" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="5" Unit="&lt;v.1&gt;W" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100" HintText=""/>
+	<ModbusCmd Title="Frequency" Comment="" ModbusAddress="70" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.2&gt;Hz" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100" HintText=""/>
+	<ModbusCmd Title="Total Energy Import" Comment="" ModbusAddress="72" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt;kWh" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100" HintText=""/>
+	<ModbusCmd Title="Total Energy Export" Comment="" ModbusAddress="74" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt;kWh" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100" HintText=""/>
+	<ModbusCmd Title="Total apparent Power" Comment="" ModbusAddress="56" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="15" Unit="&lt;v.1&gt;VA" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100" HintText=""/>
+	<ModbusCmd Title="Total reactive Power" Comment="" ModbusAddress="60" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="15" Unit="&lt;v.1&gt;VAr" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100" HintText=""/>
+</Modbus>

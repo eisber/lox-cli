@@ -1,0 +1,36 @@
+{
+  "title": "Integer",
+  "xml_type": "",
+  "kb_slug": "integer",
+  "description": "This block converts a decimal number to an integer.",
+  "inputs": [],
+  "outputs": [
+    {
+      "abbreviation": "R",
+      "summary": "Result",
+      "value_range": "\u221e"
+    }
+  ],
+  "parameters": [
+    {
+      "abbreviation": "V",
+      "summary": "Value",
+      "description": "Analogue Input - Value to be rounded up or down.",
+      "value_range": "\u221e",
+      "default_value": "0"
+    },
+    {
+      "abbreviation": "Ro",
+      "summary": "Round",
+      "description": "R=0: always round down R=1: Commercial rounding, if the first decimal place is below 5 it is rounded down, otherwise up",
+      "value_range": "0/1",
+      "default_value": "0"
+    }
+  ],
+  "properties": [],
+  "source_url": "https://www.loxone.com/enen/kb/integer/",
+  "input_count": 0,
+  "output_count": 1,
+  "parameter_count": 2,
+  "property_count": 0
+}

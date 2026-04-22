@@ -1,0 +1,8 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<VirtualInHttp Title="api.swisshomeguard" Comment="" Address="https://dev-api.swisshomeguard.com/v1/system?token=&lt;v&gt;&amp;cast=integer" PollingTime="10">
+	<Info templateType="2" minVersion="13000726"/>
+	<VirtualInHttpCmd Title="recording" Comment="" Check="&quot;recording&quot;:\v" Signed="true" Analog="true" SourceValLow="0" DestValLow="0" SourceValHigh="1" DestValHigh="1" DefVal="0" MinVal="-10000" MaxVal="10000"/>
+	<VirtualInHttpCmd Title="siren" Comment="" Check="&quot;siren&quot;:\v" Signed="true" Analog="true" SourceValLow="0" DestValLow="0" SourceValHigh="1" DestValHigh="1" DefVal="0" MinVal="-10000" MaxVal="10000"/>
+	<VirtualInHttpCmd Title="schedule" Comment="" Check="&quot;schedule&quot;:\v" Signed="true" Analog="true" SourceValLow="0" DestValLow="0" SourceValHigh="1" DestValHigh="1" DefVal="0" MinVal="-10000" MaxVal="10000"/>
+	<VirtualInHttpCmd Title="alarm-central" Comment="" Check="&quot;alarm-central&quot;:\v" Signed="true" Analog="true" SourceValLow="0" DestValLow="0" SourceValHigh="1" DestValHigh="1" DefVal="0" MinVal="-10000" MaxVal="10000"/>
+</VirtualInHttp>

@@ -1,0 +1,14 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Modbus Title="Power Walker 3000 ICT IoT" Comment="" Channel="1">
+	<Info templateType="7" minVersion="12021201"/>
+	<ModbusCmd Title="Input Voltage" Comment="" ModbusAddress="132" ModbusCmd="3" ModbusPollingCycle="10" Unit="&lt;v1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Output Voltage" Comment="" ModbusAddress="147" ModbusCmd="3" ModbusPollingCycle="10" Unit="&lt;v1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Input Frequency" Comment="" ModbusAddress="129" ModbusCmd="3" ModbusPollingCycle="10" Unit="&lt;v1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Output Frequency" Comment="" ModbusAddress="144" ModbusCmd="3" ModbusPollingCycle="10" Unit="&lt;v1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Ups Temperature" Comment="" ModbusAddress="128" ModbusCmd="3" ModbusPollingCycle="10" Unit="&lt;v1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Load Ampere" Comment="" ModbusAddress="153" ModbusCmd="3" ModbusPollingCycle="10" Unit="&lt;v1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Load KWatts" Comment="" ModbusAddress="156" ModbusCmd="3" ModbusPollingCycle="10" Unit="&lt;v1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Load Percent" Comment="" ModbusAddress="162" ModbusCmd="3" ModbusPollingCycle="10" Unit="&lt;v1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Remaining Minutes" Comment="" ModbusAddress="165" ModbusCmd="3" ModbusPollingCycle="10" Unit="&lt;v1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Battery Percent" Comment="" ModbusAddress="169" ModbusCmd="3" ModbusPollingCycle="10" Unit="&lt;v1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+</Modbus>

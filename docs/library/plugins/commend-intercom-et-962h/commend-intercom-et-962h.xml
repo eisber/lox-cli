@@ -1,0 +1,4 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<VirtualInHttp Title="ET 962H" Comment="" Address="192.168.1.10" PollingTime="10">
+	<Info templateType="2" minVersion="12021201"/>
+</VirtualInHttp>

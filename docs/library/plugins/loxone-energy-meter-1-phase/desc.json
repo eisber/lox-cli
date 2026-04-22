@@ -1,0 +1,9 @@
+{
+                                "type": "template",
+                                "name": "loxone-energy-meter-1-phase",
+                                "uuid": "cfe77f51-1167-11ec-9a744cd98f3deb8a",
+                                "version":"1.0.0",
+                                "id": "loxone-energy-meter-1-phase-89",
+                                "file": "loxone-energy-meter-1-phase.xml",
+                                "templateType": "7",
+                            }

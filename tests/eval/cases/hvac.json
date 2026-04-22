@@ -1,0 +1,848 @@
+[
+  {
+    "id": "hv01-room-heating-setpoint",
+    "pattern": [
+      "hvac",
+      "room-control",
+      "thermostat"
+    ],
+    "utterance": "Set the living room heating to 22.5°C during the day and 18°C at night for energy saving",
+    "difficulty": "medium",
+    "expected": {
+      "new_blocks": [
+        {
+          "type": "HeatIRoomController2"
+        }
+      ],
+      "wiring": [],
+      "params": [],
+      "simulation": [
+        {
+          "name": "heating valve opens when room is cold",
+          "inputs": {
+            "Raumtemperatur Wohnzimmer.AQ": 18.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Raumregler.AQh": {
+              ">": 0
+            }
+          }
+        },
+        {
+          "name": "heating valve stays closed when room is warm",
+          "inputs": {
+            "Raumtemperatur Wohnzimmer.AQ": 25.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Raumregler.AQh": {
+              "==": 0
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "hv02-room-cooling-setpoint",
+    "pattern": [
+      "hvac",
+      "room-control",
+      "cooling"
+    ],
+    "utterance": "The bedroom should cool to 24°C in summer, but never start the AC if it's below 20 outside",
+    "difficulty": "hard",
+    "expected": {
+      "new_blocks": [
+        {
+          "type": "GreaterEqual"
+        },
+        {
+          "type": "And"
+        }
+      ],
+      "wiring": [],
+      "params": [],
+      "simulation": [
+        {
+          "name": "AC activates when hot outside and room needs cooling",
+          "inputs": {
+            "Außentemperatur.AQ": 30.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Klimaanlage.I1": {
+              ">": 0.5
+            }
+          }
+        },
+        {
+          "name": "AC blocked when outside temp below 20",
+          "inputs": {
+            "Außentemperatur.AQ": 15.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Klimaanlage.I1": {
+              "<": 0.5
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "hv03-multizone-heating",
+    "pattern": [
+      "hvac",
+      "multizone",
+      "fan-out"
+    ],
+    "utterance": "Set up heating for 5 rooms: living room at 22°C, bedroom at 20°C, kitchen at 21°C, bathroom at 24°C, and nursery at 22°C",
+    "difficulty": "expert",
+    "expected": {
+      "new_blocks": [
+        {
+          "type": "HeatIRoomController2"
+        }
+      ],
+      "wiring": [],
+      "params": [],
+      "simulation": [
+        {
+          "name": "heating demand when room temp below setpoint",
+          "inputs": {
+            "Raumtemperatur Wohnzimmer.AQ": 15.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Raumregler.AQh": {
+              ">": 0
+            }
+          }
+        },
+        {
+          "name": "no heating demand when room temp above setpoint",
+          "inputs": {
+            "Raumtemperatur Wohnzimmer.AQ": 26.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Raumregler.AQh": {
+              "==": 0
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "hv04-heating-night-setback",
+    "pattern": [
+      "hvac",
+      "schedule",
+      "energy"
+    ],
+    "utterance": "Reduce all room temperatures by 3 degrees between 11 PM and 6 AM to save energy",
+    "difficulty": "hard",
+    "expected": {
+      "new_blocks": [
+        {
+          "type": "DayTimer"
+        }
+      ],
+      "wiring": [],
+      "params": [],
+      "simulation": [
+        {
+          "name": "night setback timer active during night hours",
+          "inputs": {
+            "Außentemperatur.AQ": 18.0
+          },
+          "ticks": 100,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Raumregler.AQh": {
+              ">": 0
+            }
+          }
+        },
+        {
+          "name": "normal heating during daytime",
+          "inputs": {
+            "Außentemperatur.AQ": 25.0
+          },
+          "ticks": 100,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Raumregler.AQh": {
+              "==": 0
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "hv05-weather-compensated-heating",
+    "pattern": [
+      "hvac",
+      "heatcurve",
+      "weather"
+    ],
+    "utterance": "Adjust the radiator water temperature based on the outside weather — hotter water when it's colder outside",
+    "difficulty": "hard",
+    "expected": {
+      "new_blocks": [],
+      "wiring": [
+        {
+          "from_title": "Außentemperatur"
+        }
+      ],
+      "params": [],
+      "simulation": [
+        {
+          "name": "higher flow temp demanded when cold outside",
+          "inputs": {
+            "Außentemperatur.AQ": -5.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Raumregler.AQh": {
+              ">": 0
+            }
+          }
+        },
+        {
+          "name": "lower flow temp when warm outside",
+          "inputs": {
+            "Außentemperatur.AQ": 20.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Raumregler.AQh": {
+              "==": 0
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "hv06-underfloor-temp-limit",
+    "pattern": [
+      "hvac",
+      "safety",
+      "temperature"
+    ],
+    "utterance": "Make sure the underfloor heating water never exceeds 40°C to protect the floor",
+    "difficulty": "medium",
+    "expected": {
+      "new_blocks": [
+        {
+          "type": "Less"
+        }
+      ],
+      "wiring": [],
+      "params": [],
+      "simulation": [
+        {
+          "name": "heating allowed when water temp below 40",
+          "inputs": {
+            "Außentemperatur.AQ": 35.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Raumregler.AQh": {
+              ">": 0.5
+            }
+          }
+        },
+        {
+          "name": "heating blocked when water temp exceeds 40",
+          "inputs": {
+            "Außentemperatur.AQ": 45.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Raumregler.AQh": {
+              "<": 0.5
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "hv07-boiler-overtemp-protection",
+    "pattern": [
+      "hvac",
+      "safety",
+      "shutdown"
+    ],
+    "utterance": "If the boiler temperature exceeds 85°C, shut down the circulation pump immediately",
+    "difficulty": "medium",
+    "expected": {
+      "new_blocks": [
+        {
+          "type": "GreaterEqual"
+        }
+      ],
+      "wiring": [],
+      "params": [],
+      "simulation": [
+        {
+          "name": "pump shuts down when boiler exceeds 85C",
+          "inputs": {
+            "Außentemperatur.AQ": 90.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Poolpumpe.I1": {
+              "<": 0.5
+            }
+          }
+        },
+        {
+          "name": "pump runs normally when boiler below 85C",
+          "inputs": {
+            "Außentemperatur.AQ": 80.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Poolpumpe.I1": {
+              ">": 0.5
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "hv08-co2-ventilation",
+    "pattern": [
+      "hvac",
+      "ventilation",
+      "co2"
+    ],
+    "utterance": "Increase ventilation fan speed when CO2 in any room exceeds 800 ppm, maximum speed above 1200 ppm",
+    "difficulty": "hard",
+    "expected": {
+      "new_blocks": [
+        {
+          "type": "GreaterEqual"
+        }
+      ],
+      "wiring": [],
+      "params": [],
+      "simulation": [
+        {
+          "name": "fan activates when CO2 exceeds 800 ppm",
+          "inputs": {
+            "CO2 Sensor.AQ": 850.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Lüfter Bad.I1": {
+              ">": 0.5
+            }
+          }
+        },
+        {
+          "name": "fan stays off when CO2 below 800 ppm",
+          "inputs": {
+            "CO2 Sensor.AQ": 600.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Lüfter Bad.I1": {
+              "<": 0.5
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "hv09-humidity-ventilation",
+    "pattern": [
+      "hvac",
+      "ventilation",
+      "humidity"
+    ],
+    "utterance": "Boost the bathroom exhaust fan when humidity goes above 65% and keep it running 10 minutes after it drops",
+    "difficulty": "medium",
+    "expected": {
+      "new_blocks": [
+        {
+          "type": "GreaterEqual"
+        },
+        {
+          "type": "OffDelay"
+        }
+      ],
+      "wiring": [],
+      "params": [],
+      "simulation": [
+        {
+          "name": "fan activates when humidity above 65%",
+          "inputs": {
+            "Luftfeuchtigkeit.AQ": 70.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Lüfter Bad.I1": {
+              ">": 0.5
+            }
+          }
+        },
+        {
+          "name": "fan stays off when humidity below 65%",
+          "inputs": {
+            "Luftfeuchtigkeit.AQ": 55.0
+          },
+          "ticks": 6100,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Lüfter Bad.I1": {
+              "<": 0.5
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "hv10-dewpoint-prevention",
+    "pattern": [
+      "hvac",
+      "dewpoint",
+      "condensation"
+    ],
+    "utterance": "Monitor the dew point in each room and increase heating if the wall temperature gets close to condensation",
+    "difficulty": "expert",
+    "expected": {
+      "new_blocks": [],
+      "wiring": [],
+      "params": [],
+      "simulation": [
+        {
+          "name": "heating increases when wall near dew point",
+          "inputs": {
+            "Außentemperatur.AQ": 18.0,
+            "Luftfeuchtigkeit.AQ": 80.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Raumregler.AQh": {
+              ">": 0
+            }
+          }
+        },
+        {
+          "name": "no extra heating when wall well above dew point",
+          "inputs": {
+            "Außentemperatur.AQ": 22.0,
+            "Luftfeuchtigkeit.AQ": 40.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Raumregler.AQh": {
+              "==": 0
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "hv11-dhw-boost",
+    "pattern": [
+      "hvac",
+      "hot-water",
+      "boost"
+    ],
+    "utterance": "If the hot water tank drops below 45°C, run the boiler at full power until it reaches 55°C",
+    "difficulty": "medium",
+    "expected": {
+      "new_blocks": [
+        {
+          "type": "Less"
+        },
+        {
+          "type": "GreaterEqual"
+        }
+      ],
+      "wiring": [],
+      "params": [],
+      "simulation": [
+        {
+          "name": "boiler fires when tank below 45C",
+          "inputs": {
+            "Außentemperatur.AQ": 40.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Poolpumpe.I1": {
+              ">": 0.5
+            }
+          },
+          "_note": "Außentemperatur.AQ used as proxy for hot water tank sensor (not in fixture)"
+        },
+        {
+          "name": "boiler off when tank above 55C",
+          "inputs": {
+            "Außentemperatur.AQ": 58.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Poolpumpe.I1": {
+              "<": 0.5
+            }
+          },
+          "_note": "Außentemperatur.AQ used as proxy for hot water tank sensor (not in fixture)"
+        }
+      ]
+    }
+  },
+  {
+    "id": "hv12-legionella-prevention",
+    "pattern": [
+      "hvac",
+      "hot-water",
+      "safety"
+    ],
+    "utterance": "Once a week, heat the hot water tank to 60°C for legionella prevention",
+    "difficulty": "hard",
+    "expected": {
+      "new_blocks": [
+        {
+          "type": "DayTimer"
+        }
+      ],
+      "wiring": [],
+      "params": [],
+      "simulation": [
+        {
+          "name": "weekly legionella cycle heats to 60C",
+          "inputs": {
+            "Außentemperatur.AQ": 55.0
+          },
+          "ticks": 100,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Raumregler.AQh": {
+              ">": 0
+            }
+          }
+        },
+        {
+          "name": "no heating when tank already at 60C",
+          "inputs": {
+            "Außentemperatur.AQ": 65.0
+          },
+          "ticks": 100,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Raumregler.AQh": {
+              "==": 0
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "hv13-preheat-arrival",
+    "pattern": [
+      "hvac",
+      "presence",
+      "comfort"
+    ],
+    "utterance": "Start warming the house 30 minutes before we usually arrive home at 5:30 PM on weekdays",
+    "difficulty": "hard",
+    "expected": {
+      "new_blocks": [
+        {
+          "type": "DayTimer"
+        }
+      ],
+      "wiring": [],
+      "params": [],
+      "simulation": [
+        {
+          "name": "preheat starts 30 min before arrival",
+          "inputs": {
+            "Außentemperatur.AQ": 5.0
+          },
+          "ticks": 100,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Raumregler.AQh": {
+              ">": 0
+            }
+          }
+        },
+        {
+          "name": "no preheat when house already warm",
+          "inputs": {
+            "Außentemperatur.AQ": 23.0
+          },
+          "ticks": 100,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Raumregler.AQh": {
+              "==": 0
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "hv14-vacation-mode",
+    "pattern": [
+      "hvac",
+      "vacation",
+      "energy"
+    ],
+    "utterance": "Wenn wir im Urlaub sind, alle Heizungen auf 15 Grad runterfahren und die Warmwasserbereitung nur einmal pro Tag laufen lassen",
+    "difficulty": "expert",
+    "expected": {
+      "new_blocks": [],
+      "wiring": [],
+      "params": [],
+      "simulation": [
+        {
+          "name": "all zones drop to 15C in vacation mode",
+          "inputs": {
+            "Außentemperatur.AQ": 10.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Raumregler.AQh": {
+              ">": 0
+            }
+          }
+        },
+        {
+          "name": "no heating when already above 15C in vacation",
+          "inputs": {
+            "Außentemperatur.AQ": 20.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Raumregler.AQh": {
+              "==": 0
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "hv15-ac-anticycle",
+    "pattern": [
+      "hvac",
+      "ac",
+      "protection"
+    ],
+    "utterance": "Don't let the AC turn back on within 2 hours of shutting off to protect the compressor",
+    "difficulty": "hard",
+    "expected": {
+      "new_blocks": [
+        {
+          "type": "OnPulseDelay"
+        }
+      ],
+      "wiring": [],
+      "params": [],
+      "simulation": [
+        {
+          "name": "AC blocked within 2h of shutoff",
+          "inputs": {
+            "Außentemperatur.AQ": 30.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Klimaanlage.I1": {
+              "<": 0.5
+            }
+          }
+        },
+        {
+          "name": "AC allowed after 2h cooldown",
+          "inputs": {
+            "Außentemperatur.AQ": 30.0
+          },
+          "ticks": 72100,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Klimaanlage.I1": {
+              ">": 0.5
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "hv16-heating-cooling-changeover",
+    "pattern": [
+      "hvac",
+      "changeover",
+      "seasonal"
+    ],
+    "utterance": "Automatically switch between heating and cooling mode based on the outside temperature — heat below 15°C, cool above 22°C, nothing in between",
+    "difficulty": "expert",
+    "expected": {
+      "new_blocks": [
+        {
+          "type": "Less"
+        },
+        {
+          "type": "GreaterEqual"
+        }
+      ],
+      "wiring": [],
+      "params": [],
+      "simulation": [
+        {
+          "name": "heating mode active when below 15C",
+          "inputs": {
+            "Außentemperatur.AQ": 10.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Raumregler.AQh": {
+              ">": 0
+            }
+          }
+        },
+        {
+          "name": "deadband — no heating or cooling between 15-22C",
+          "inputs": {
+            "Außentemperatur.AQ": 18.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Raumregler.AQh": {
+              "==": 0
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "hv17-heat-pump-cop",
+    "pattern": [
+      "hvac",
+      "energy",
+      "monitoring"
+    ],
+    "utterance": "Track the heating energy consumption and compare it to the heat delivered to calculate the system efficiency",
+    "difficulty": "expert",
+    "expected": {
+      "new_blocks": [],
+      "wiring": [],
+      "params": [],
+      "simulation": [
+        {
+          "name": "efficiency calculated when heat pump running",
+          "inputs": {
+            "Außentemperatur.AQ": 5.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Effizienz.AQ": {
+              ">": 0
+            }
+          }
+        },
+        {
+          "name": "no efficiency data when heat pump idle",
+          "inputs": {
+            "Außentemperatur.AQ": 22.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Effizienz.AQ": {
+              "==": 0
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "hv18-floor-vs-radiator",
+    "pattern": [
+      "hvac",
+      "multizone",
+      "circuit"
+    ],
+    "utterance": "The ground floor has underfloor heating limited to 40°C, the upper floor has radiators that can go up to 55°C — set up both circuits",
+    "difficulty": "expert",
+    "expected": {
+      "new_blocks": [],
+      "wiring": [],
+      "params": [],
+      "simulation": [
+        {
+          "name": "underfloor limited to 40C flow temp",
+          "inputs": {
+            "Außentemperatur.AQ": -10.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Raumregler.AQh": {
+              ">": 0
+            }
+          }
+        },
+        {
+          "name": "no heating demand when warm outside",
+          "inputs": {
+            "Außentemperatur.AQ": 22.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Raumregler.AQh": {
+              "==": 0
+            }
+          }
+        }
+      ]
+    }
+  }
+]

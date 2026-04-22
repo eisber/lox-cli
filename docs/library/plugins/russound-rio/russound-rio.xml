@@ -1,0 +1,109 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<VirtualOut Title="Russound - RIO" Address="tcp://192.168.100.16:9621" CmdInit="" CloseAfterSend="false" CmdSep="">
+  <Info templateType="3" minVersion="12010617"/>  
+  <VirtualOutCmd ID="1" Title="AllZones Power" CmdOn="EVENT C[1].Z[1]!AllOn\r" CmdOff="EVENT C[1].Z[1]!AllOff\r" Repeat="0,000" RepeatRate="0,000" Analog="false"/>
+  <VirtualOutCmd ID="2" Title="Zone1 Power" CmdOn="EVENT C[1].Z[1]!ZoneOn\r" CmdOff="EVENT C[1].Z[1]!ZoneOff\r" Repeat="0,000" RepeatRate="0,000" Analog="false"/>
+  <VirtualOutCmd ID="3" Title="Zone1 Source 1" CmdOn="EVENT C[1].Z[1]!SelectSource 1\r" CmdOff="" Repeat="0,000" RepeatRate="0,000" Analog="false"/>
+  <VirtualOutCmd ID="4" Title="Zone1 Source 2" CmdOn="EVENT C[1].Z[1]!SelectSource 2\r" CmdOff="" Repeat="0,000" RepeatRate="0,000" Analog="false"/>
+  <VirtualOutCmd ID="5" Title="Zone1 Source 3" CmdOn="EVENT C[1].Z[1]!SelectSource 3\r" CmdOff="" Repeat="0,000" RepeatRate="0,000" Analog="false"/>
+  <VirtualOutCmd ID="6" Title="Zone1 Source 4" CmdOn="EVENT C[1].Z[1]!SelectSource 4\r" CmdOff="" Repeat="0,000" RepeatRate="0,000" Analog="false"/>
+  <VirtualOutCmd ID="7" Title="Zone1 Source 5" CmdOn="EVENT C[1].Z[1]!SelectSource 5\r" CmdOff="" Repeat="0,000" RepeatRate="0,000" Analog="false"/>
+  <VirtualOutCmd ID="8" Title="Zone1 Source 6" CmdOn="EVENT C[1].Z[1]!SelectSource 6\r" CmdOff="" Repeat="0,000" RepeatRate="0,000" Analog="false"/>
+  <VirtualOutCmd ID="9" Title="Zone1 Source 7" CmdOn="EVENT C[1].Z[1]!SelectSource 7\r" CmdOff="" Repeat="0,000" RepeatRate="0,000" Analog="false"/>
+  <VirtualOutCmd ID="10" Title="Zone1 Source 8" CmdOn="EVENT C[1].Z[1]!SelectSource 8\r" CmdOff="" Repeat="0,000" RepeatRate="0,000" Analog="false"/>
+  <VirtualOutCmd ID="11" Title="Zone1 VolumeUp" CmdOn="EVENT C[1].Z[1]!KeyPress VolumeUp\r" CmdOff="" Repeat="0,000" RepeatRate="0,000" Analog="false"/>
+  <VirtualOutCmd ID="12" Title="Zone1 VolumeDown" CmdOn="EVENT C[1].Z[1]!KeyPress VolumeDown\r" CmdOff="" Repeat="0,000" RepeatRate="0,000" Analog="false"/>
+  <VirtualOutCmd ID="13" Title="Zone1 NextSource" CmdOn="EVENT C[1].Z[1]!KeyRelease NextSource\r" CmdOff="" Repeat="0,000" RepeatRate="0,000" Analog="false"/>
+  <VirtualOutCmd ID="14" Title="Zone1 Mute" CmdOn="EVENT C[1].Z[1]!KeyRelease Mute\r" CmdOff="EVENT C[1].Z[1]!KeyPress VolumeUp\r" Repeat="0,000" RepeatRate="0,000" Analog="false"/>
+  <VirtualOutCmd ID="15" Title="Zone2 Power" CmdOn="EVENT C[1].Z[2]!ZoneOn\r" CmdOff="EVENT C[1].Z[2]!ZoneOff\r" Repeat="0,000" RepeatRate="0,000" Analog="false"/>
+  <VirtualOutCmd ID="16" Title="Zone2 Source 1" CmdOn="EVENT C[1].Z[2]!SelectSource 1\r" CmdOff="" Repeat="0,000" RepeatRate="0,000" Analog="false"/>
+  <VirtualOutCmd ID="17" Title="Zone2 Source 2" CmdOn="EVENT C[1].Z[2]!SelectSource 2\r" CmdOff="" Repeat="0,000" RepeatRate="0,000" Analog="false"/>
+  <VirtualOutCmd ID="18" Title="Zone2 Source 3" CmdOn="EVENT C[1].Z[2]!SelectSource 3\r" CmdOff="" Repeat="0,000" RepeatRate="0,000" Analog="false"/>
+  <VirtualOutCmd ID="19" Title="Zone2 Source 4" CmdOn="EVENT C[1].Z[2]!SelectSource 4\r" CmdOff="" Repeat="0,000" RepeatRate="0,000" Analog="false"/>
+  <VirtualOutCmd ID="20" Title="Zone2 Source 5" CmdOn="EVENT C[1].Z[2]!SelectSource 5\r" CmdOff="" Repeat="0,000" RepeatRate="0,000" Analog="false"/>
+  <VirtualOutCmd ID="21" Title="Zone2 Source 6" CmdOn="EVENT C[1].Z[2]!SelectSource 6\r" CmdOff="" Repeat="0,000" RepeatRate="0,000" Analog="false"/>
+  <VirtualOutCmd ID="22" Title="Zone2 Source 7" CmdOn="EVENT C[1].Z[2]!SelectSource 7\r" CmdOff="" Repeat="0,000" RepeatRate="0,000" Analog="false"/>
+  <VirtualOutCmd ID="23" Title="Zone2 Source 8" CmdOn="EVENT C[1].Z[2]!SelectSource 8\r" CmdOff="" Repeat="0,000" RepeatRate="0,000" Analog="false"/>
+  <VirtualOutCmd ID="24" Title="Zone2 VolumeUp" CmdOn="EVENT C[1].Z[2]!KeyPress VolumeUp\r" CmdOff="" Repeat="0,000" RepeatRate="0,000" Analog="false"/>
+  <VirtualOutCmd ID="25" Title="Zone2 VolumeDown" CmdOn="EVENT C[1].Z[2]!KeyPress VolumeDown\r" CmdOff="" Repeat="0,000" RepeatRate="0,000" Analog="false"/>
+  <VirtualOutCmd ID="26" Title="Zone2 NextSource" CmdOn="EVENT C[1].Z[2]!KeyRelease NextSource\r" CmdOff="" Repeat="0,000" RepeatRate="0,000" Analog="false"/>
+  <VirtualOutCmd ID="27" Title="Zone2 Mute" CmdOn="EVENT C[1].Z[2]!KeyRelease Mute\r" CmdOff="EVENT C[1].Z[2]!KeyPress VolumeUp\r" Repeat="0,000" RepeatRate="0,000" Analog="false"/>
+  <VirtualOutCmd ID="28" Title="Zone3 Power" CmdOn="EVENT C[1].Z[3]!ZoneOn\r" CmdOff="EVENT C[1].Z[3]!ZoneOff\r" Repeat="0,000" RepeatRate="0,000" Analog="false"/>
+  <VirtualOutCmd ID="29" Title="Zone3 Source 1" CmdOn="EVENT C[1].Z[3]!SelectSource 1\r" CmdOff="" Repeat="0,000" RepeatRate="0,000" Analog="false"/>
+  <VirtualOutCmd ID="30" Title="Zone3 Source 2" CmdOn="EVENT C[1].Z[3]!SelectSource 2\r" CmdOff="" Repeat="0,000" RepeatRate="0,000" Analog="false"/>
+  <VirtualOutCmd ID="31" Title="Zone3 Source 3" CmdOn="EVENT C[1].Z[3]!SelectSource 3\r" CmdOff="" Repeat="0,000" RepeatRate="0,000" Analog="false"/>
+  <VirtualOutCmd ID="32" Title="Zone3 Source 4" CmdOn="EVENT C[1].Z[3]!SelectSource 4\r" CmdOff="" Repeat="0,000" RepeatRate="0,000" Analog="false"/>
+  <VirtualOutCmd ID="33" Title="Zone3 Source 5" CmdOn="EVENT C[1].Z[3]!SelectSource 5\r" CmdOff="" Repeat="0,000" RepeatRate="0,000" Analog="false"/>
+  <VirtualOutCmd ID="34" Title="Zone3 Source 6" CmdOn="EVENT C[1].Z[3]!SelectSource 6\r" CmdOff="" Repeat="0,000" RepeatRate="0,000" Analog="false"/>
+  <VirtualOutCmd ID="35" Title="Zone3 Source 7" CmdOn="EVENT C[1].Z[3]!SelectSource 7\r" CmdOff="" Repeat="0,000" RepeatRate="0,000" Analog="false"/>
+  <VirtualOutCmd ID="36" Title="Zone3 Source 8" CmdOn="EVENT C[1].Z[3]!SelectSource 8\r" CmdOff="" Repeat="0,000" RepeatRate="0,000" Analog="false"/>
+  <VirtualOutCmd ID="37" Title="Zone3 VolumeUp" CmdOn="EVENT C[1].Z[3]!KeyPress VolumeUp\r" CmdOff="" Repeat="0,000" RepeatRate="0,000" Analog="false"/>
+  <VirtualOutCmd ID="38" Title="Zone3 VolumeDown" CmdOn="EVENT C[1].Z[3]!KeyPress VolumeDown\r" CmdOff="" Repeat="0,000" RepeatRate="0,000" Analog="false"/>
+  <VirtualOutCmd ID="39" Title="Zone3 NextSource" CmdOn="EVENT C[1].Z[3]!KeyRelease NextSource\r" CmdOff="" Repeat="0,000" RepeatRate="0,000" Analog="false"/>
+  <VirtualOutCmd ID="40" Title="Zone3 Mute" CmdOn="EVENT C[1].Z[3]!KeyRelease Mute\r" CmdOff="EVENT C[1].Z[3]!KeyPress VolumeUp\r" Repeat="0,000" RepeatRate="0,000" Analog="false"/>
+  <VirtualOutCmd ID="41" Title="Zone4 Power" CmdOn="EVENT C[1].Z[4]!ZoneOn\r" CmdOff="EVENT C[1].Z[4]!ZoneOff\r" Repeat="0,000" RepeatRate="0,000" Analog="false"/>
+  <VirtualOutCmd ID="42" Title="Zone4 Source 1" CmdOn="EVENT C[1].Z[4]!SelectSource 1\r" CmdOff="" Repeat="0,000" RepeatRate="0,000" Analog="false"/>
+  <VirtualOutCmd ID="43" Title="Zone4 Source 2" CmdOn="EVENT C[1].Z[4]!SelectSource 2\r" CmdOff="" Repeat="0,000" RepeatRate="0,000" Analog="false"/>
+  <VirtualOutCmd ID="44" Title="Zone4 Source 3" CmdOn="EVENT C[1].Z[4]!SelectSource 3\r" CmdOff="" Repeat="0,000" RepeatRate="0,000" Analog="false"/>
+  <VirtualOutCmd ID="45" Title="Zone4 Source 4" CmdOn="EVENT C[1].Z[4]!SelectSource 4\r" CmdOff="" Repeat="0,000" RepeatRate="0,000" Analog="false"/>
+  <VirtualOutCmd ID="46" Title="Zone4 Source 5" CmdOn="EVENT C[1].Z[4]!SelectSource 5\r" CmdOff="" Repeat="0,000" RepeatRate="0,000" Analog="false"/>
+  <VirtualOutCmd ID="47" Title="Zone4 Source 6" CmdOn="EVENT C[1].Z[4]!SelectSource 6\r" CmdOff="" Repeat="0,000" RepeatRate="0,000" Analog="false"/>
+  <VirtualOutCmd ID="48" Title="Zone4 Source 7" CmdOn="EVENT C[1].Z[4]!SelectSource 7\r" CmdOff="" Repeat="0,000" RepeatRate="0,000" Analog="false"/>
+  <VirtualOutCmd ID="49" Title="Zone4 Source 8" CmdOn="EVENT C[1].Z[4]!SelectSource 8\r" CmdOff="" Repeat="0,000" RepeatRate="0,000" Analog="false"/>
+  <VirtualOutCmd ID="50" Title="Zone4 VolumeUp" CmdOn="EVENT C[1].Z[4]!KeyPress VolumeUp\r" CmdOff="" Repeat="0,000" RepeatRate="0,000" Analog="false"/>
+  <VirtualOutCmd ID="51" Title="Zone4 VolumeDown" CmdOn="EVENT C[1].Z[4]!KeyPress VolumeDown\r" CmdOff="" Repeat="0,000" RepeatRate="0,000" Analog="false"/>
+  <VirtualOutCmd ID="52" Title="Zone4 NextSource" CmdOn="EVENT C[1].Z[4]!KeyRelease NextSource\r" CmdOff="" Repeat="0,000" RepeatRate="0,000" Analog="false"/>
+  <VirtualOutCmd ID="53" Title="Zone4 Mute" CmdOn="EVENT C[1].Z[4]!KeyRelease Mute\r" CmdOff="EVENT C[1].Z[4]!KeyPress VolumeUp\r" Repeat="0,000" RepeatRate="0,000" Analog="false"/>
+  <VirtualOutCmd ID="54" Title="Zone5 Power" CmdOn="EVENT C[1].Z[5]!ZoneOn\r" CmdOff="EVENT C[1].Z[5]!ZoneOff\r" Repeat="0,000" RepeatRate="0,000" Analog="false"/>
+  <VirtualOutCmd ID="55" Title="Zone5 Source 1" CmdOn="EVENT C[1].Z[5]!SelectSource 1\r" CmdOff="" Repeat="0,000" RepeatRate="0,000" Analog="false"/>
+  <VirtualOutCmd ID="56" Title="Zone5 Source 2" CmdOn="EVENT C[1].Z[5]!SelectSource 2\r" CmdOff="" Repeat="0,000" RepeatRate="0,000" Analog="false"/>
+  <VirtualOutCmd ID="57" Title="Zone5 Source 3" CmdOn="EVENT C[1].Z[5]!SelectSource 3\r" CmdOff="" Repeat="0,000" RepeatRate="0,000" Analog="false"/>
+  <VirtualOutCmd ID="58" Title="Zone5 Source 4" CmdOn="EVENT C[1].Z[5]!SelectSource 4\r" CmdOff="" Repeat="0,000" RepeatRate="0,000" Analog="false"/>
+  <VirtualOutCmd ID="59" Title="Zone5 Source 5" CmdOn="EVENT C[1].Z[5]!SelectSource 5\r" CmdOff="" Repeat="0,000" RepeatRate="0,000" Analog="false"/>
+  <VirtualOutCmd ID="60" Title="Zone5 Source 6" CmdOn="EVENT C[1].Z[5]!SelectSource 6\r" CmdOff="" Repeat="0,000" RepeatRate="0,000" Analog="false"/>
+  <VirtualOutCmd ID="61" Title="Zone5 Source 7" CmdOn="EVENT C[1].Z[5]!SelectSource 7\r" CmdOff="" Repeat="0,000" RepeatRate="0,000" Analog="false"/>
+  <VirtualOutCmd ID="62" Title="Zone5 Source 8" CmdOn="EVENT C[1].Z[5]!SelectSource 8\r" CmdOff="" Repeat="0,000" RepeatRate="0,000" Analog="false"/>
+  <VirtualOutCmd ID="63" Title="Zone5 VolumeUp" CmdOn="EVENT C[1].Z[5]!KeyPress VolumeUp\r" CmdOff="" Repeat="0,000" RepeatRate="0,000" Analog="false"/>
+  <VirtualOutCmd ID="64" Title="Zone5 VolumeDown" CmdOn="EVENT C[1].Z[5]!KeyPress VolumeDown\r" CmdOff="" Repeat="0,000" RepeatRate="0,000" Analog="false"/>
+  <VirtualOutCmd ID="65" Title="Zone5 NextSource" CmdOn="EVENT C[1].Z[5]!KeyRelease NextSource\r" CmdOff="" Repeat="0,000" RepeatRate="0,000" Analog="false"/>
+  <VirtualOutCmd ID="66" Title="Zone5 Mute" CmdOn="EVENT C[1].Z[5]!KeyRelease Mute\r" CmdOff="EVENT C[1].Z[5]!KeyPress VolumeUp\r" Repeat="0,000" RepeatRate="0,000" Analog="false"/>
+  <VirtualOutCmd ID="67" Title="Zone6 Power" CmdOn="EVENT C[1].Z[6]!ZoneOn\r" CmdOff="EVENT C[1].Z[6]!ZoneOff\r" Repeat="0,000" RepeatRate="0,000" Analog="false"/>
+  <VirtualOutCmd ID="68" Title="Zone6 Source 1" CmdOn="EVENT C[1].Z[6]!SelectSource 1\r" CmdOff="" Repeat="0,000" RepeatRate="0,000" Analog="false"/>
+  <VirtualOutCmd ID="69" Title="Zone6 Source 2" CmdOn="EVENT C[1].Z[6]!SelectSource 2\r" CmdOff="" Repeat="0,000" RepeatRate="0,000" Analog="false"/>
+  <VirtualOutCmd ID="70" Title="Zone6 Source 3" CmdOn="EVENT C[1].Z[6]!SelectSource 3\r" CmdOff="" Repeat="0,000" RepeatRate="0,000" Analog="false"/>
+  <VirtualOutCmd ID="71" Title="Zone6 Source 4" CmdOn="EVENT C[1].Z[6]!SelectSource 4\r" CmdOff="" Repeat="0,000" RepeatRate="0,000" Analog="false"/>
+  <VirtualOutCmd ID="72" Title="Zone6 Source 5" CmdOn="EVENT C[1].Z[6]!SelectSource 5\r" CmdOff="" Repeat="0,000" RepeatRate="0,000" Analog="false"/>
+  <VirtualOutCmd ID="73" Title="Zone6 Source 6" CmdOn="EVENT C[1].Z[6]!SelectSource 6\r" CmdOff="" Repeat="0,000" RepeatRate="0,000" Analog="false"/>
+  <VirtualOutCmd ID="74" Title="Zone6 Source 7" CmdOn="EVENT C[1].Z[6]!SelectSource 7\r" CmdOff="" Repeat="0,000" RepeatRate="0,000" Analog="false"/>
+  <VirtualOutCmd ID="75" Title="Zone6 Source 8" CmdOn="EVENT C[1].Z[6]!SelectSource 8\r" CmdOff="" Repeat="0,000" RepeatRate="0,000" Analog="false"/>
+  <VirtualOutCmd ID="76" Title="Zone6 VolumeUp" CmdOn="EVENT C[1].Z[6]!KeyPress VolumeUp\r" CmdOff="" Repeat="0,000" RepeatRate="0,000" Analog="false"/>
+  <VirtualOutCmd ID="77" Title="Zone6 VolumeDown" CmdOn="EVENT C[1].Z[6]!KeyPress VolumeDown\r" CmdOff="" Repeat="0,000" RepeatRate="0,000" Analog="false"/>
+  <VirtualOutCmd ID="78" Title="Zone6 NextSource" CmdOn="EVENT C[1].Z[6]!KeyRelease NextSource\r" CmdOff="" Repeat="0,000" RepeatRate="0,000" Analog="false"/>
+  <VirtualOutCmd ID="79" Title="Zone6 Mute" CmdOn="EVENT C[1].Z[6]!KeyRelease Mute\r" CmdOff="EVENT C[1].Z[6]!KeyPress VolumeUp\r" Repeat="0,000" RepeatRate="0,000" Analog="false"/>
+  <VirtualOutCmd ID="80" Title="Zone7 Power" CmdOn="EVENT C[1].Z[7]!ZoneOn\r" CmdOff="EVENT C[1].Z[7]!ZoneOff\r" Repeat="0,000" RepeatRate="0,000" Analog="false"/>
+  <VirtualOutCmd ID="81" Title="Zone7 Source 1" CmdOn="EVENT C[1].Z[7]!SelectSource 1\r" CmdOff="" Repeat="0,000" RepeatRate="0,000" Analog="false"/>
+  <VirtualOutCmd ID="82" Title="Zone7 Source 2" CmdOn="EVENT C[1].Z[7]!SelectSource 2\r" CmdOff="" Repeat="0,000" RepeatRate="0,000" Analog="false"/>
+  <VirtualOutCmd ID="83" Title="Zone7 Source 3" CmdOn="EVENT C[1].Z[7]!SelectSource 3\r" CmdOff="" Repeat="0,000" RepeatRate="0,000" Analog="false"/>
+  <VirtualOutCmd ID="84" Title="Zone7 Source 4" CmdOn="EVENT C[1].Z[7]!SelectSource 4\r" CmdOff="" Repeat="0,000" RepeatRate="0,000" Analog="false"/>
+  <VirtualOutCmd ID="85" Title="Zone7 Source 5" CmdOn="EVENT C[1].Z[7]!SelectSource 5\r" CmdOff="" Repeat="0,000" RepeatRate="0,000" Analog="false"/>
+  <VirtualOutCmd ID="86" Title="Zone7 Source 6" CmdOn="EVENT C[1].Z[7]!SelectSource 6\r" CmdOff="" Repeat="0,000" RepeatRate="0,000" Analog="false"/>
+  <VirtualOutCmd ID="87" Title="Zone7 Source 7" CmdOn="EVENT C[1].Z[7]!SelectSource 7\r" CmdOff="" Repeat="0,000" RepeatRate="0,000" Analog="false"/>
+  <VirtualOutCmd ID="88" Title="Zone7 Source 8" CmdOn="EVENT C[1].Z[7]!SelectSource 8\r" CmdOff="" Repeat="0,000" RepeatRate="0,000" Analog="false"/>
+  <VirtualOutCmd ID="89" Title="Zone7 VolumeUp" CmdOn="EVENT C[1].Z[7]!KeyPress VolumeUp\r" CmdOff="" Repeat="0,000" RepeatRate="0,000" Analog="false"/>
+	<VirtualOutCmd ID="90" Title="Zone7 VolumeDown" CmdOn="EVENT C[1].Z[7]!KeyPress VolumeDown\r" CmdOff="" Repeat="0,000" RepeatRate="0,000" Analog="false"/>
+  <VirtualOutCmd ID="91" Title="Zone7 NextSource" CmdOn="EVENT C[1].Z[7]!KeyRelease NextSource\r" CmdOff="" Repeat="0,000" RepeatRate="0,000" Analog="false"/>
+  <VirtualOutCmd ID="92" Title="Zone7 Mute" CmdOn="EVENT C[1].Z[7]!KeyRelease Mute\r" CmdOff="EVENT C[1].Z[7]!KeyPress VolumeUp\r" Repeat="0,000" RepeatRate="0,000" Analog="false"/>
+  <VirtualOutCmd ID="93" Title="Zone8 Power" CmdOn="EVENT C[1].Z[8]!ZoneOn\r" CmdOff="EVENT C[1].Z[8]!ZoneOff\r" Repeat="0,000" RepeatRate="0,000" Analog="false"/>
+  <VirtualOutCmd ID="94" Title="Zone8 Source 1" CmdOn="EVENT C[1].Z[8]!SelectSource 1\r" CmdOff="" Repeat="0,000" RepeatRate="0,000" Analog="false"/>
+  <VirtualOutCmd ID="95" Title="Zone8 Source 2" CmdOn="EVENT C[1].Z[8]!SelectSource 2\r" CmdOff="" Repeat="0,000" RepeatRate="0,000" Analog="false"/>
+  <VirtualOutCmd ID="96" Title="Zone8 Source 3" CmdOn="EVENT C[1].Z[8]!SelectSource 3\r" CmdOff="" Repeat="0,000" RepeatRate="0,000" Analog="false"/>
+  <VirtualOutCmd ID="97" Title="Zone8 Source 4" CmdOn="EVENT C[1].Z[8]!SelectSource 4\r" CmdOff="" Repeat="0,000" RepeatRate="0,000" Analog="false"/>
+  <VirtualOutCmd ID="98" Title="Zone8 Source 5" CmdOn="EVENT C[1].Z[8]!SelectSource 5\r" CmdOff="" Repeat="0,000" RepeatRate="0,000" Analog="false"/>
+  <VirtualOutCmd ID="99" Title="Zone8 Source 6" CmdOn="EVENT C[1].Z[8]!SelectSource 6\r" CmdOff="" Repeat="0,000" RepeatRate="0,000" Analog="false"/>
+  <VirtualOutCmd ID="100" Title="Zone8 Source 7" CmdOn="EVENT C[1].Z[8]!SelectSource 7\r" CmdOff="" Repeat="0,000" RepeatRate="0,000" Analog="false"/>
+  <VirtualOutCmd ID="101" Title="Zone8 Source 8" CmdOn="EVENT C[1].Z[8]!SelectSource 8\r" CmdOff="" Repeat="0,000" RepeatRate="0,000" Analog="false"/>
+	<VirtualOutCmd ID="102" Title="Zone8 VolumeUp" CmdOn="EVENT C[1].Z[8]!KeyPress VolumeUp\r" CmdOff="" Repeat="0,000" RepeatRate="0,000" Analog="false"/>
+	<VirtualOutCmd ID="103" Title="Zone8 VolumeDown" CmdOn="EVENT C[1].Z[8]!KeyPress VolumeDown\r" CmdOff="" Repeat="0,000" RepeatRate="0,000" Analog="false"/>
+	<VirtualOutCmd ID="104" Title="Zone8 NextSource" CmdOn="EVENT C[1].Z[8]!KeyRelease NextSource\r" CmdOff="" Repeat="0,000" RepeatRate="0,000" Analog="false"/>
+  <VirtualOutCmd ID="105" Title="Zone8 Mute" CmdOn="EVENT C[1].Z[8]!KeyRelease Mute\r" CmdOff="EVENT C[1].Z[8]!KeyPress VolumeUp\r" Repeat="0,000" RepeatRate="0,000" Analog="false"/>
+</VirtualOut>

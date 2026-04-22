@@ -1,0 +1,25 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Modbus Title="SolPlanet 3 phase Inverter reduced 2 strings string V1.1" Comment="" Channel="3">
+	<Info templateType="7" minVersion="13011117"/>
+	<ModbusCmd Title="Device State" Comment="" ModbusAddress="1308" ModbusCmd="4" ModbusPollingCycle="15" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Power factor" Comment="" ModbusAddress="1374" ModbusCmd="4" ModbusPollingCycle="15" Unit="&lt;v.2&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="1"/>
+	<ModbusCmd Title="Error message" Comment="" ModbusAddress="1377" ModbusCmd="4" ModbusPollingCycle="15" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Warning message" Comment="" ModbusAddress="1378" ModbusCmd="4" ModbusPollingCycle="15" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="PV1 current" Comment="" ModbusAddress="1319" ModbusCmd="4" ModbusPollingCycle="15" Unit="&lt;v.2&gt; A" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="10"/>
+	<ModbusCmd Title="PV2 current" Comment="" ModbusAddress="1321" ModbusCmd="4" ModbusPollingCycle="15" Unit="&lt;v.2&gt; A" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="10"/>
+	<ModbusCmd Title="L1 Phase current" Comment="" ModbusAddress="1359" ModbusCmd="4" ModbusPollingCycle="15" Unit="&lt;v.2&gt; A" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="10"/>
+	<ModbusCmd Title="L2 Phase current" Comment="" ModbusAddress="1361" ModbusCmd="4" ModbusPollingCycle="15" Unit="&lt;v.2&gt; A" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="10"/>
+	<ModbusCmd Title="L3 Phase current" Comment="" ModbusAddress="1363" ModbusCmd="4" ModbusPollingCycle="15" Unit="&lt;v.2&gt; A" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="10"/>
+	<ModbusCmd Title="Air temperature" Comment="" ModbusAddress="1310" ModbusCmd="4" ModbusPollingCycle="15" Unit="&lt;v.2&gt; °C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="10"/>
+	<ModbusCmd Title="Inverter U phase temperature" Comment="" ModbusAddress="1311" ModbusCmd="4" ModbusPollingCycle="15" Unit="&lt;v.2&gt; °C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="10"/>
+	<ModbusCmd Title="Inverter V phase temperature" Comment="" ModbusAddress="1312" ModbusCmd="4" ModbusPollingCycle="15" Unit="&lt;v.2&gt; °C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="10"/>
+	<ModbusCmd Title="Inverter W phase temperature" Comment="" ModbusAddress="1313" ModbusCmd="4" ModbusPollingCycle="15" Unit="&lt;v.2&gt; °C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="10"/>
+	<ModbusCmd Title="Grid frequency" Comment="" ModbusAddress="1367" ModbusCmd="4" ModbusPollingCycle="15" Unit="&lt;v.2&gt; Hz" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="10"/>
+	<ModbusCmd Title="Bus voltage" Comment="" ModbusAddress="1316" ModbusCmd="4" ModbusPollingCycle="15" Unit="&lt;v.2&gt; V" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="10"/>
+	<ModbusCmd Title="PV1 voltage" Comment="" ModbusAddress="1318" ModbusCmd="4" ModbusPollingCycle="15" Unit="&lt;v.2&gt; V" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="10"/>
+	<ModbusCmd Title="PV2 voltage" Comment="" ModbusAddress="1320" ModbusCmd="4" ModbusPollingCycle="15" Unit="&lt;v.2&gt; V" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="10"/>
+	<ModbusCmd Title="L1 Phase voltage" Comment="" ModbusAddress="1358" ModbusCmd="4" ModbusPollingCycle="15" Unit="&lt;v.2&gt; V" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="10"/>
+	<ModbusCmd Title="L2 Phase voltage" Comment="" ModbusAddress="1360" ModbusCmd="4" ModbusPollingCycle="15" Unit="&lt;v.2&gt; V" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="10"/>
+	<ModbusCmd Title="L3 Phase voltage" Comment="" ModbusAddress="1362" ModbusCmd="4" ModbusPollingCycle="15" Unit="&lt;v.2&gt; V" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="10"/>
+	<ModbusCmd Title="Power remote switch command" Comment="" ModbusAddress="200" ModbusCmd="6" ModbusDataType="1" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100" RepeatRate="15"/>
+</Modbus>

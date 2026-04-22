@@ -1,0 +1,43 @@
+{
+  "title": "Pulse Generator",
+  "xml_type": "",
+  "kb_slug": "pulse-generator",
+  "description": "Creates pulses at the output with adjustable On/Off (Mark/Space) durations",
+  "inputs": [
+    {
+      "abbreviation": "Off",
+      "summary": "Off",
+      "description": "Pulse: Outputs are reset / switched off. On: Block is locked. Dominating input.",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "Inv",
+      "summary": "Invert",
+      "description": "Invert input of the pulse generator, inverts output (P)",
+      "value_range": "0/1"
+    }
+  ],
+  "outputs": [
+    {
+      "abbreviation": "P",
+      "summary": "Pulse",
+      "value_range": "0/1"
+    }
+  ],
+  "parameters": [
+    {
+      "abbreviation": "Rem",
+      "summary": "Remanence input",
+      "description": "Remanence input: If active, the function block retains its previous state after a Miniserver reboot. The state of the function block is saved: \u2013 When saving to the Miniserver \u2013 At a planned reboot \u2013 Before a backup \u2013 Once per hour The data is saved on the SD card.",
+      "unit": "-",
+      "value_range": "0/1",
+      "default_value": "0"
+    }
+  ],
+  "properties": [],
+  "source_url": "https://www.loxone.com/enen/kb/pulse-generator/",
+  "input_count": 2,
+  "output_count": 1,
+  "parameter_count": 1,
+  "property_count": 0
+}

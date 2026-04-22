@@ -1,0 +1,38 @@
+{
+  "title": "Command Recognition",
+  "xml_type": "",
+  "kb_slug": "command-recognition",
+  "description": "This block can be used to extract values from any text. The search pattern is defined in the properties.",
+  "inputs": [
+    {
+      "abbreviation": "T",
+      "summary": "Text Input",
+      "description": "Command text."
+    }
+  ],
+  "outputs": [
+    {
+      "abbreviation": "Lv",
+      "summary": "Last extracted value",
+      "value_range": "\u221e"
+    }
+  ],
+  "parameters": [],
+  "properties": [
+    {
+      "summary": "Command recognition",
+      "description": "Characters used to extract a value: \\v = value, \\1 = Byte interpreted as 1st byte of the output value (\\2, \\3, ...), \\h = value interpreted as hexadecimal number Characters to navigate through the text: \\. = any character, \\w = any word, \\# = any number, \\d = digits 0-9, \\m = character A-Z/a-z/0-9, \\a = character A-Z/a-z, \\s12 = skip 12 characters, \\iText\\i = jump to 'Text' Special characters: \\x = Hexadecimal number (e.g. 0x09), \\\\ = Slash, \\t = Tab (0x09), \\b = Space (0x02) or Tab (0x09), \\r = Return (0x0d), \\n = Newline (0x0a)",
+      "default_value": "-"
+    },
+    {
+      "summary": "Signed values",
+      "description": "If checked, the values \\1, \\2, \\3, etc. are used with algebraic sign in command recognition (Signed Integer).",
+      "default_value": "-"
+    }
+  ],
+  "source_url": "https://www.loxone.com/enen/kb/command-recognition/",
+  "input_count": 1,
+  "output_count": 1,
+  "parameter_count": 0,
+  "property_count": 2
+}

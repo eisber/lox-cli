@@ -1,0 +1,90 @@
+{
+  "title": "Utility Meter",
+  "xml_type": "",
+  "kb_slug": "utility-meter",
+  "description": "The Utility Meter function block has been replaced by new meter blocks in Loxone Config 13.1.",
+  "inputs": [
+    {
+      "abbreviation": "Cp",
+      "summary": "Consumption pulse",
+      "description": "For meters with pulse output connected to digital inputs.",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "Cf",
+      "summary": "Consumption frequency",
+      "description": "For meters with pulse output connected to digital inputs used as frequency counter. Number of pulses since last reading.",
+      "value_range": "\u221e"
+    },
+    {
+      "abbreviation": "C",
+      "summary": "Consumption",
+      "description": "For meters that send consumption directly as analog value. Parameter (Abs) defines wether the value is added or used as an absolute value.",
+      "value_range": "0...\u221e"
+    },
+    {
+      "abbreviation": "Pf",
+      "summary": "Power or flow",
+      "description": "If this input for the current power or flow is used alone, the consumption is also calculated from it. Otherwise used only for output (Pf) and user interface.",
+      "value_range": "\u221e"
+    },
+    {
+      "abbreviation": "R",
+      "summary": "Reset",
+      "description": "Pulse: Consumption values on outputs are reset. On: Block is locked.",
+      "value_range": "0/1"
+    }
+  ],
+  "outputs": [
+    {
+      "abbreviation": "Pf",
+      "summary": "Power or flow",
+      "description": "Current power/flow calculated using parameter (At) when using (Cp) or (Cf). Value taken directly from input (Pf) if connected.",
+      "value_range": "\u221e"
+    },
+    {
+      "abbreviation": "Pfp",
+      "summary": "Power or Flow by pulses",
+      "description": "Current power/flow calculated from one pulse to the next. Only available if input (Cp) is used.",
+      "value_range": "\u221e"
+    },
+    {
+      "abbreviation": "API",
+      "summary": "API Connector",
+      "description": "Intelligent API based connector. API Commands",
+      "value_range": "-"
+    }
+  ],
+  "parameters": [
+    {
+      "abbreviation": "Np",
+      "summary": "Number of pulses per unit",
+      "description": "Used to calculate the consumption using (Cp) or (Cf).",
+      "unit": "Puls/unit",
+      "value_range": "\u221e",
+      "default_value": "800"
+    },
+    {
+      "abbreviation": "Mro",
+      "summary": "Meter reading offset",
+      "description": "Value is added to output (Ct).",
+      "unit": "-",
+      "value_range": "\u221e",
+      "default_value": "0"
+    },
+    {
+      "abbreviation": "Abs",
+      "summary": "Absolute value",
+      "description": "Handling of consumption input (C): 0 = Each new value is added incrementally to the total consumption. 1 = Value is used absolute and equals the reading of the meter.",
+      "unit": "-",
+      "value_range": "0/1",
+      "default_value": "0"
+    }
+  ],
+  "properties": [],
+  "source_url": "https://www.loxone.com/enen/kb/utility-meter/",
+  "input_count": 5,
+  "output_count": 3,
+  "parameter_count": 3,
+  "property_count": 0
+}

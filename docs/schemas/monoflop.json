@@ -1,0 +1,45 @@
+{
+  "title": "Monoflop",
+  "xml_type": "",
+  "kb_slug": "monoflop",
+  "description": "Provides an output pulse of duration (D) for any length of input pulse",
+  "inputs": [
+    {
+      "abbreviation": "Off",
+      "summary": "Off",
+      "description": "Pulse: Outputs are reset / switched off. On: Block is locked. Dominating input.",
+      "value_range": "0/1"
+    }
+  ],
+  "outputs": [
+    {
+      "abbreviation": "O",
+      "summary": "Output",
+      "value_range": "0/1"
+    }
+  ],
+  "parameters": [
+    {
+      "abbreviation": "Rem",
+      "summary": "Remanence input",
+      "description": "Remanence input: If active, the function block retains its previous state after a Miniserver reboot. The state of the function block is saved: \u2013 When saving to the Miniserver \u2013 At a planned reboot \u2013 Before a backup \u2013 Once per hour The data is saved on the SD card.",
+      "unit": "-",
+      "value_range": "0/1",
+      "default_value": "0"
+    },
+    {
+      "abbreviation": "D",
+      "summary": "Duration output pulse",
+      "description": "Input parameter - duration of output pulse",
+      "unit": "s",
+      "value_range": "0...\u221e",
+      "default_value": "2"
+    }
+  ],
+  "properties": [],
+  "source_url": "https://www.loxone.com/enen/kb/monoflop/",
+  "input_count": 1,
+  "output_count": 1,
+  "parameter_count": 2,
+  "property_count": 0
+}

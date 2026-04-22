@@ -1,0 +1,1920 @@
+[
+  {
+    "id": "kp01-doorbell-unlock",
+    "pattern": [
+      "door-access",
+      "monoflop"
+    ],
+    "utterance": "When the doorbell rings, unlock the front door for 3 seconds",
+    "difficulty": "medium",
+    "expected": {
+      "new_blocks": [
+        {
+          "type": "Monoflop"
+        }
+      ],
+      "wiring": [
+        {
+          "from_title": "Türklingel",
+          "from_connector": "Q",
+          "to_type": "Monoflop",
+          "to_connector": "InputTrigger"
+        },
+        {
+          "from_type": "Monoflop",
+          "from_connector": "Q",
+          "to_title": "Türöffner",
+          "to_connector": "I1"
+        }
+      ],
+      "params": [
+        {
+          "block_type": "Monoflop",
+          "param": "Time",
+          "value": "3"
+        }
+      ],
+      "simulation": [
+        {
+          "inputs": {
+            "Türklingel.Q": 1.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Türöffner.I1": {
+              ">": 0.5
+            }
+          },
+          "name": "should trigger when condition met"
+        },
+        {
+          "name": "should NOT trigger when condition not met",
+          "inputs": {
+            "Türklingel.Q": 0.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Türöffner.I1": {
+              "<": 0.5
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "kp02-doorbell-or-manual-unlock",
+    "pattern": [
+      "door-access",
+      "monoflop"
+    ],
+    "utterance": "Unlock the front door for 3 seconds when either the doorbell rings or switch 1 is pressed",
+    "difficulty": "hard",
+    "expected": {
+      "new_blocks": [
+        {
+          "type": "Or"
+        },
+        {
+          "type": "Monoflop"
+        }
+      ],
+      "wiring": [
+        {
+          "from_title": "Türklingel",
+          "from_connector": "Q",
+          "to_type": "Or",
+          "to_connector": "I1"
+        },
+        {
+          "from_title": "Schalter 1",
+          "from_connector": "Q",
+          "to_type": "Or",
+          "to_connector": "I2"
+        },
+        {
+          "from_type": "Or",
+          "to_type": "Monoflop",
+          "to_connector": "InputTrigger",
+          "from_connector": "Q"
+        },
+        {
+          "from_type": "Monoflop",
+          "from_connector": "Q",
+          "to_title": "Türöffner",
+          "to_connector": "I1"
+        }
+      ],
+      "params": [
+        {
+          "block_type": "Monoflop",
+          "param": "Time",
+          "value": "3"
+        }
+      ],
+      "simulation": [
+        {
+          "name": "should trigger when all conditions met",
+          "inputs": {
+            "Türklingel.Q": 1.0,
+            "Schalter 1.Q": 1.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Türöffner.I1": {
+              ">": 0.5
+            }
+          }
+        },
+        {
+          "name": "should NOT trigger when condition not met",
+          "inputs": {
+            "Türklingel.Q": 0.0,
+            "Schalter 1.Q": 0.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Türöffner.I1": {
+              "<": 0.5
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "kp03-verzoegerter-tueroeffner",
+    "pattern": [
+      "door-access",
+      "monoflop"
+    ],
+    "utterance": "Wenn die Türklingel klingelt, öffne die Tür nach 1 Sekunde für 3 Sekunden",
+    "difficulty": "hard",
+    "expected": {
+      "new_blocks": [
+        {
+          "type": "OnPulseDelay"
+        },
+        {
+          "type": "Monoflop"
+        }
+      ],
+      "wiring": [
+        {
+          "from_title": "Türklingel",
+          "from_connector": "Q",
+          "to_type": "OnPulseDelay",
+          "to_connector": "InputTrigger"
+        },
+        {
+          "from_type": "OnPulseDelay",
+          "to_type": "Monoflop",
+          "to_connector": "InputTrigger",
+          "from_connector": "Q"
+        },
+        {
+          "from_type": "Monoflop",
+          "from_connector": "Q",
+          "to_title": "Türöffner",
+          "to_connector": "I1"
+        }
+      ],
+      "params": [
+        {
+          "block_type": "OnPulseDelay",
+          "param": "Time",
+          "value": "1"
+        },
+        {
+          "block_type": "Monoflop",
+          "param": "Time",
+          "value": "3"
+        }
+      ],
+      "simulation": [
+        {
+          "name": "should activate on trigger",
+          "inputs": {
+            "Türklingel.Q": 1.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Türöffner.I1": {
+              ">": 0.5
+            }
+          }
+        },
+        {
+          "name": "should NOT activate without trigger",
+          "inputs": {
+            "Türklingel.Q": 0.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Türöffner.I1": {
+              "<": 0.5
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "kp04-memory-living-room-21c",
+    "pattern": [
+      "temperature-setpoint",
+      "memory"
+    ],
+    "utterance": "Remember the living room temperature setting as 21°C",
+    "difficulty": "medium",
+    "expected": {
+      "new_blocks": [
+        {
+          "type": "Memory",
+          "type_alt": "AMemory"
+        }
+      ],
+      "wiring": [
+        {
+          "from_type": "Memory",
+          "to_title": "Raumregler",
+          "to_connector": "Temp"
+        }
+      ],
+      "params": [
+        {
+          "block_type": "Memory",
+          "param": "Value",
+          "value": "21"
+        }
+      ],
+      "simulation": [
+        {
+          "name": "should latch on when set",
+          "inputs": {
+            "Außentemperatur.AQ": 26.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Raumregler.Temp": {
+              ">": 0.5
+            }
+          }
+        },
+        {
+          "name": "should NOT latch without trigger",
+          "inputs": {
+            "Außentemperatur.AQ": 16.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Raumregler.Temp": {
+              "<": 0.5
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "kp05-memory-living-room-eco",
+    "pattern": [
+      "temperature-setpoint",
+      "memory"
+    ],
+    "utterance": "Save an eco temperature setting of 18°C for the living room thermostat",
+    "difficulty": "medium",
+    "expected": {
+      "new_blocks": [
+        {
+          "type": "Memory",
+          "type_alt": "AMemory"
+        }
+      ],
+      "wiring": [
+        {
+          "from_type": "Memory",
+          "to_title": "Raumregler",
+          "to_connector": "Temp"
+        }
+      ],
+      "params": [
+        {
+          "block_type": "Memory",
+          "param": "Value",
+          "value": "18"
+        }
+      ],
+      "simulation": [
+        {
+          "name": "should latch on when set",
+          "inputs": {
+            "Außentemperatur.AQ": 23.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Raumregler.Temp": {
+              ">": 0.5
+            }
+          }
+        },
+        {
+          "name": "should NOT latch without trigger",
+          "inputs": {
+            "Außentemperatur.AQ": 13.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Raumregler.Temp": {
+              "<": 0.5
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "kp06-reset-heating-and-ac",
+    "pattern": [
+      "temperature-setpoint",
+      "heating-reset",
+      "memory"
+    ],
+    "utterance": "When switch 1 is pressed, reset the living room climate back to the saved 21°C setting and switch the AC on if it is off or off if it is on",
+    "difficulty": "expert",
+    "expected": {
+      "new_blocks": [
+        {
+          "type": "Memory",
+          "type_alt": "AMemory"
+        }
+      ],
+      "wiring": [
+        {
+          "from_title": "Schalter 1",
+          "to_type": "Memory"
+        },
+        {
+          "from_type": "Memory",
+          "to_title": "Raumregler",
+          "to_connector": "Temp"
+        },
+        {
+          "from_title": "Schalter 1",
+          "to_title": "Klimaanlage",
+          "to_connector": "toggle"
+        }
+      ],
+      "params": [
+        {
+          "block_type": "Memory",
+          "param": "Value",
+          "value": "21"
+        }
+      ],
+      "simulation": [
+        {
+          "name": "should latch on when set",
+          "inputs": {
+            "Schalter 1.Q": 1.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Raumregler.Temp": {
+              ">": 0.5
+            }
+          }
+        },
+        {
+          "name": "should NOT latch without trigger",
+          "inputs": {
+            "Schalter 1.Q": 0.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Raumregler.Temp": {
+              "<": 0.5
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "kp07-bath-radiator-boost-30m",
+    "pattern": [
+      "radiator-boost",
+      "stairway"
+    ],
+    "utterance": "Turn on the bathroom radiator for 30 minutes when I press switch 1",
+    "difficulty": "medium",
+    "expected": {
+      "new_blocks": [
+        {
+          "type": "StairwayLS"
+        }
+      ],
+      "wiring": [
+        {
+          "from_title": "Schalter 1",
+          "to_type": "StairwayLS",
+          "to_connector": "InputTrigger"
+        },
+        {
+          "from_type": "StairwayLS",
+          "to_title": "Heizkörper Bad",
+          "to_connector": "I1",
+          "from_connector": "Q"
+        }
+      ],
+      "params": [
+        {
+          "block_type": "StairwayLS",
+          "param": "TimeHigh",
+          "value": "1800"
+        }
+      ],
+      "simulation": [
+        {
+          "name": "should activate on trigger",
+          "inputs": {
+            "Schalter 1.Q": 1.0
+          },
+          "ticks": 50,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Heizkörper Bad.I1": {
+              ">": 0.5
+            }
+          }
+        },
+        {
+          "name": "should NOT activate without trigger",
+          "inputs": {
+            "Schalter 1.Q": 0.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Heizkörper Bad.I1": {
+              "<": 0.5
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "kp08-bad-heizkoerper-kurzboost",
+    "pattern": [
+      "radiator-boost",
+      "stairway"
+    ],
+    "utterance": "Wenn ich Schalter 1 drücke, aktiviere den Badheizkörper für 15 Minuten",
+    "difficulty": "medium",
+    "expected": {
+      "new_blocks": [
+        {
+          "type": "StairwayLS"
+        }
+      ],
+      "wiring": [
+        {
+          "from_title": "Schalter 1",
+          "to_type": "StairwayLS",
+          "to_connector": "InputTrigger"
+        },
+        {
+          "from_type": "StairwayLS",
+          "to_title": "Heizkörper Bad",
+          "to_connector": "I1",
+          "from_connector": "Q"
+        }
+      ],
+      "params": [
+        {
+          "block_type": "StairwayLS",
+          "param": "TimeHigh",
+          "value": "900"
+        }
+      ],
+      "simulation": [
+        {
+          "name": "should activate on trigger",
+          "inputs": {
+            "Schalter 1.Q": 1.0
+          },
+          "ticks": 50,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Heizkörper Bad.I1": {
+              ">": 0.5
+            }
+          }
+        },
+        {
+          "name": "should NOT activate without trigger",
+          "inputs": {
+            "Schalter 1.Q": 0.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Heizkörper Bad.I1": {
+              "<": 0.5
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "kp09-bath-radiator-and-fan-boost",
+    "pattern": [
+      "radiator-boost",
+      "stairway"
+    ],
+    "utterance": "Pressing switch 1 should run the bathroom radiator and bathroom fan together for 30 minutes",
+    "difficulty": "hard",
+    "expected": {
+      "new_blocks": [
+        {
+          "type": "StairwayLS"
+        }
+      ],
+      "wiring": [
+        {
+          "from_title": "Schalter 1",
+          "to_type": "StairwayLS",
+          "to_connector": "InputTrigger"
+        },
+        {
+          "from_type": "StairwayLS",
+          "to_title": "Heizkörper Bad",
+          "to_connector": "I1",
+          "from_connector": "Q"
+        },
+        {
+          "from_type": "StairwayLS",
+          "to_title": "Lüfter Bad",
+          "to_connector": "I1",
+          "from_connector": "Q"
+        }
+      ],
+      "params": [
+        {
+          "block_type": "StairwayLS",
+          "param": "TimeHigh",
+          "value": "1200"
+        }
+      ],
+      "simulation": [
+        {
+          "name": "should activate on trigger",
+          "inputs": {
+            "Schalter 1.Q": 1.0
+          },
+          "ticks": 50,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Heizkörper Bad.I1": {
+              ">": 0.5
+            }
+          }
+        },
+        {
+          "name": "should NOT activate without trigger",
+          "inputs": {
+            "Schalter 1.Q": 0.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Heizkörper Bad.I1": {
+              "<": 0.5
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "kp10-pool-pump-cold-water",
+    "pattern": [
+      "pool-automation",
+      "thresholds"
+    ],
+    "utterance": "Turn on the pool pump when the pool temperature drops below 15°C",
+    "difficulty": "medium",
+    "expected": {
+      "new_blocks": [
+        {
+          "type": "Less"
+        }
+      ],
+      "wiring": [
+        {
+          "from_title": "Pool Temperatur",
+          "to_type": "Less",
+          "to_connector": "Input1"
+        },
+        {
+          "from_type": "Less",
+          "to_title": "Poolpumpe",
+          "to_connector": "I1",
+          "from_connector": "Q"
+        }
+      ],
+      "params": [
+        {
+          "block_type": "Less",
+          "param": "Input2",
+          "value": "15"
+        }
+      ],
+      "simulation": [
+        {
+          "name": "should trigger when condition met",
+          "inputs": {
+            "Pool Temperatur.AQ": 10.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Poolpumpe.I1": {
+              ">": 0.5
+            }
+          }
+        },
+        {
+          "name": "should NOT trigger when condition not met",
+          "inputs": {
+            "Pool Temperatur.AQ": 20.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Poolpumpe.I1": {
+              "<": 0.5
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "kp11-pool-pump-until-warm",
+    "pattern": [
+      "pool-automation",
+      "thresholds"
+    ],
+    "utterance": "Keep the pool pump on until the pool reaches 24°C",
+    "difficulty": "hard",
+    "expected": {
+      "new_blocks": [
+        {
+          "type": "GreaterEqual"
+        },
+        {
+          "type": "Not"
+        }
+      ],
+      "wiring": [
+        {
+          "from_title": "Pool Temperatur",
+          "to_type": "Less"
+        },
+        {
+          "from_type": "Less",
+          "to_title": "Poolpumpe",
+          "to_connector": "I1"
+        }
+      ],
+      "params": [
+        {
+          "block_type": "GreaterEqual",
+          "param": "Input2",
+          "value": "24"
+        }
+      ],
+      "simulation": [
+        {
+          "name": "should output low when input high (NOT)",
+          "inputs": {
+            "Pool Temperatur.AQ": 29.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Poolpumpe.I1": {
+              "<": 0.5
+            }
+          }
+        },
+        {
+          "name": "should output high when input low (NOT)",
+          "inputs": {
+            "Pool Temperatur.AQ": 19.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Poolpumpe.I1": {
+              ">": 0.5
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "kp12-pool-pump-cold-but-not-freezing",
+    "pattern": [
+      "pool-automation",
+      "thresholds"
+    ],
+    "utterance": "Run the pool pump only if pool temperature is below 15°C and outside temperature is at least 5°C",
+    "difficulty": "hard",
+    "expected": {
+      "new_blocks": [
+        {
+          "type": "Less"
+        },
+        {
+          "type": "GreaterEqual"
+        },
+        {
+          "type": "And"
+        }
+      ],
+      "wiring": [
+        {
+          "from_title": "Pool Temperatur",
+          "to_type": "Less",
+          "to_connector": "Input1"
+        },
+        {
+          "from_title": "Außentemperatur",
+          "to_type": "GreaterEqual",
+          "to_connector": "Input1"
+        },
+        {
+          "from_type": "Less",
+          "to_type": "And",
+          "from_connector": "Q",
+          "to_connector": "I1"
+        },
+        {
+          "from_type": "GreaterEqual",
+          "to_type": "And",
+          "from_connector": "Q",
+          "to_connector": "I2"
+        },
+        {
+          "from_type": "And",
+          "to_title": "Poolpumpe",
+          "to_connector": "I1",
+          "from_connector": "Q"
+        }
+      ],
+      "params": [
+        {
+          "block_type": "Less",
+          "param": "Input2",
+          "value": "15"
+        },
+        {
+          "block_type": "GreaterEqual",
+          "param": "Input2",
+          "value": "5"
+        }
+      ],
+      "simulation": [
+        {
+          "name": "should trigger when all conditions met",
+          "inputs": {
+            "Pool Temperatur.AQ": 10.0,
+            "Außentemperatur.AQ": 10.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Poolpumpe.I1": {
+              ">": 0.5
+            }
+          }
+        },
+        {
+          "name": "should NOT trigger when only partial conditions met",
+          "inputs": {
+            "Pool Temperatur.AQ": 20.0,
+            "Außentemperatur.AQ": 10.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Poolpumpe.I1": {
+              "<": 0.5
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "kp13-movie-mode-basic",
+    "pattern": [
+      "projection-screen",
+      "lighting-scene"
+    ],
+    "utterance": "Lower the projection screen and dim the living room lights to 10% when I press switch 2",
+    "difficulty": "medium",
+    "expected": {
+      "new_blocks": [
+        {
+          "type": "Mult"
+        }
+      ],
+      "wiring": [
+        {
+          "from_title": "Schalter 2",
+          "to_title": "Leinwand",
+          "to_connector": "InputTriggerDown"
+        },
+        {
+          "from_title": "Schalter 2",
+          "to_type": "Mult",
+          "to_connector": "Input1"
+        },
+        {
+          "from_type": "Mult",
+          "to_title": "Lichtsteuerung",
+          "to_room": "Wohnzimmer",
+          "to_connector": "Brightness",
+          "from_connector": "AQ"
+        }
+      ],
+      "params": [
+        {
+          "block_type": "Mult",
+          "param": "Input2",
+          "value": "10"
+        }
+      ],
+      "simulation": [
+        {
+          "name": "should produce scaled output when input active",
+          "inputs": {
+            "Schalter 2.Q": 1.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Lichtsteuerung.Brightness": {
+              ">": 0.0
+            }
+          }
+        },
+        {
+          "name": "should produce no output with zero input",
+          "inputs": {
+            "Schalter 2.Q": 0.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Lichtsteuerung.Brightness": {
+              "<": 0.5
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "kp14-kinomodus-mit-komforttemperatur",
+    "pattern": [
+      "projection-screen",
+      "temperature-setpoint",
+      "memory"
+    ],
+    "utterance": "Schalter 2 soll den Kinomodus starten: Leinwand runter, Licht auf 10 Prozent und den Raumregler auf 21 Grad setzen",
+    "difficulty": "expert",
+    "expected": {
+      "new_blocks": [
+        {
+          "type": "Mult"
+        },
+        {
+          "type": "Memory",
+          "type_alt": "AMemory"
+        }
+      ],
+      "wiring": [
+        {
+          "from_title": "Schalter 2",
+          "to_title": "Leinwand",
+          "to_connector": "InputTriggerDown"
+        },
+        {
+          "from_type": "Mult",
+          "to_title": "Lichtsteuerung",
+          "to_room": "Wohnzimmer",
+          "to_connector": "Brightness",
+          "from_connector": "AQ"
+        },
+        {
+          "from_type": "Memory",
+          "to_title": "Raumregler",
+          "to_connector": "Temp"
+        }
+      ],
+      "params": [
+        {
+          "block_type": "Mult",
+          "param": "Input2",
+          "value": "10"
+        },
+        {
+          "block_type": "Memory",
+          "param": "Value",
+          "value": "21"
+        }
+      ],
+      "simulation": [
+        {
+          "name": "should latch on when set",
+          "inputs": {
+            "Schalter 2.Q": 1.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Lichtsteuerung.Brightness": {
+              ">": 0.5
+            }
+          }
+        },
+        {
+          "name": "should NOT latch without trigger",
+          "inputs": {
+            "Schalter 2.Q": 0.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Lichtsteuerung.Brightness": {
+              "<": 0.5
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "kp15-movie-mode-delayed-dim",
+    "pattern": [
+      "projection-screen",
+      "lighting-scene"
+    ],
+    "utterance": "When switch 2 is pressed, lower the screen immediately and dim the living room lights to 10% after 2 seconds",
+    "difficulty": "hard",
+    "expected": {
+      "new_blocks": [
+        {
+          "type": "OnPulseDelay"
+        },
+        {
+          "type": "Mult"
+        }
+      ],
+      "wiring": [
+        {
+          "from_title": "Schalter 2",
+          "to_title": "Leinwand",
+          "to_connector": "InputTriggerDown"
+        },
+        {
+          "from_title": "Schalter 2",
+          "to_type": "OnPulseDelay",
+          "to_connector": "InputTrigger"
+        },
+        {
+          "from_type": "OnPulseDelay",
+          "to_type": "Mult",
+          "from_connector": "Q",
+          "to_connector": "Input1"
+        },
+        {
+          "from_type": "Mult",
+          "to_title": "Lichtsteuerung",
+          "to_room": "Wohnzimmer",
+          "to_connector": "Brightness",
+          "from_connector": "AQ"
+        }
+      ],
+      "params": [
+        {
+          "block_type": "OnPulseDelay",
+          "param": "Time",
+          "value": "2"
+        },
+        {
+          "block_type": "Mult",
+          "param": "Input2",
+          "value": "10"
+        }
+      ],
+      "simulation": [
+        {
+          "name": "should activate on trigger",
+          "inputs": {
+            "Schalter 2.Q": 1.0
+          },
+          "ticks": 30,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Lichtsteuerung.Brightness": {
+              ">": 0.5
+            }
+          }
+        },
+        {
+          "name": "should NOT activate without trigger",
+          "inputs": {
+            "Schalter 2.Q": 0.0
+          },
+          "ticks": 30,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Lichtsteuerung.Brightness": {
+              "<": 0.5
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "kp16-master-heating-reset",
+    "pattern": [
+      "heating-reset",
+      "memory"
+    ],
+    "utterance": "Add a master heating reset so pressing switch 1 restores the living room thermostat to 21°C",
+    "difficulty": "medium",
+    "expected": {
+      "new_blocks": [],
+      "wiring": [
+        {
+          "from_title": "Schalter 1",
+          "to_title": "Raumregler",
+          "to_connector": "Temp"
+        }
+      ],
+      "params": [],
+      "simulation": [
+        {
+          "name": "should activate during scheduled period",
+          "inputs": {},
+          "ticks": 0,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Raumregler.Temp": {
+              ">": 0.5
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "kp17-heizung-reset-und-klima-aus",
+    "pattern": [
+      "heating-reset",
+      "memory"
+    ],
+    "utterance": "Wenn Schalter 1 gedrückt wird, setze den Raumregler im Wohnzimmer auf 21 Grad zurück und schalte die Klimaanlage um",
+    "difficulty": "hard",
+    "expected": {
+      "new_blocks": [
+        {
+          "type": "Memory",
+          "type_alt": "AMemory"
+        }
+      ],
+      "wiring": [
+        {
+          "from_title": "Schalter 1",
+          "to_title": "Raumregler",
+          "to_connector": "Temp"
+        },
+        {
+          "from_title": "Schalter 1",
+          "to_title": "Klimaanlage",
+          "to_connector": "toggle"
+        }
+      ],
+      "params": [
+        {
+          "block_type": "Memory",
+          "param": "Value",
+          "value": "21"
+        }
+      ],
+      "simulation": [
+        {
+          "name": "should latch on when set",
+          "inputs": {
+            "Schalter 1.Q": 1.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Raumregler.Temp": {
+              ">": 0.5
+            }
+          }
+        },
+        {
+          "name": "should NOT latch without trigger",
+          "inputs": {
+            "Schalter 1.Q": 0.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Raumregler.Temp": {
+              "<": 0.5
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "kp18-cold-weather-master-reset-plus-bath-boost",
+    "pattern": [
+      "heating-reset",
+      "radiator-boost",
+      "memory"
+    ],
+    "utterance": "When switch 1 is pressed, reset the living room thermostat to 21°C and, if it's colder than 5°C outside, boost the bathroom radiator for 30 minutes",
+    "difficulty": "expert",
+    "expected": {
+      "new_blocks": [
+        {
+          "type": "Memory",
+          "type_alt": "AMemory"
+        },
+        {
+          "type": "Less"
+        },
+        {
+          "type": "And"
+        },
+        {
+          "type": "StairwayLS"
+        }
+      ],
+      "wiring": [
+        {
+          "from_type": "Memory",
+          "to_title": "Raumregler",
+          "to_connector": "Temp"
+        },
+        {
+          "from_title": "Schalter 1",
+          "to_type": "StairwayLS",
+          "to_connector": "InputTrigger"
+        },
+        {
+          "from_type": "StairwayLS",
+          "to_title": "Heizkörper Bad",
+          "to_connector": "I1",
+          "from_connector": "Q"
+        }
+      ],
+      "params": [
+        {
+          "block_type": "Memory",
+          "param": "Value",
+          "value": "21"
+        },
+        {
+          "block_type": "Less",
+          "param": "Input2",
+          "value": "5"
+        },
+        {
+          "block_type": "StairwayLS",
+          "param": "TimeHigh",
+          "value": "1800"
+        }
+      ],
+      "simulation": [
+        {
+          "name": "should trigger when all conditions met",
+          "inputs": {
+            "Schalter 1.Q": 1.0,
+            "Außentemperatur.AQ": 16.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Raumregler.Temp": {
+              ">": 0.5
+            }
+          }
+        },
+        {
+          "name": "should NOT trigger when only partial conditions met",
+          "inputs": {
+            "Schalter 1.Q": 0.0,
+            "Außentemperatur.AQ": 16.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Raumregler.Temp": {
+              "<": 0.5
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "kp19-garage-open-reminder-garage-light",
+    "pattern": [
+      "latching-state",
+      "daytimer",
+      "pulsegen"
+    ],
+    "utterance": "Remember if the garage door was opened today and flash the garage light at 10pm if it is still open",
+    "difficulty": "hard",
+    "expected": {
+      "new_blocks": [
+        {
+          "type": "Memory",
+          "type_alt": "AMemory"
+        },
+        {
+          "type": "DayTimer"
+        },
+        {
+          "type": "And"
+        },
+        {
+          "type": "PulseGen"
+        }
+      ],
+      "wiring": [
+        {
+          "from_title": "Garagentor Sensor",
+          "to_type": "Memory"
+        },
+        {
+          "from_type": "Memory",
+          "to_type": "And",
+          "to_connector": "I1"
+        },
+        {
+          "from_type": "GreaterEqual",
+          "to_type": "And",
+          "to_connector": "I2"
+        },
+        {
+          "from_type": "And",
+          "to_title": "Garagenlicht",
+          "to_connector": "I1",
+          "from_connector": "Q"
+        }
+      ],
+      "entries": [
+        {
+          "block_type": "DayTimer",
+          "alias": "ten_pm_window",
+          "days": [
+            "Mon",
+            "Tue",
+            "Wed",
+            "Thu",
+            "Fri",
+            "Sat",
+            "Sun"
+          ],
+          "start": "22:00",
+          "end": "22:05"
+        }
+      ],
+      "simulation": [
+        {
+          "name": "should trigger when all conditions met",
+          "inputs": {
+            "Garagentor Sensor.Q": 1.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Garagenlicht.I1": {
+              ">": 0.5
+            }
+          }
+        },
+        {
+          "name": "should NOT trigger when condition not met",
+          "inputs": {
+            "Garagentor Sensor.Q": 0.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Garagenlicht.I1": {
+              "<": 0.5
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "kp20-garage-open-reminder-garden-light",
+    "pattern": [
+      "latching-state",
+      "daytimer",
+      "pulsegen"
+    ],
+    "utterance": "Remember that the garage door was opened today and flash the garden lights at 10pm when the garage is still open",
+    "difficulty": "hard",
+    "expected": {
+      "new_blocks": [
+        {
+          "type": "Memory",
+          "type_alt": "AMemory"
+        },
+        {
+          "type": "DayTimer"
+        },
+        {
+          "type": "And"
+        },
+        {
+          "type": "PulseGen"
+        }
+      ],
+      "wiring": [
+        {
+          "from_title": "Garagentor Sensor",
+          "to_type": "Memory"
+        },
+        {
+          "from_type": "Memory",
+          "to_type": "And",
+          "to_connector": "I1"
+        },
+        {
+          "from_type": "GreaterEqual",
+          "to_type": "And",
+          "to_connector": "I2"
+        },
+        {
+          "from_type": "And",
+          "to_title": "Gartenbeleuchtung",
+          "to_connector": "I1",
+          "from_connector": "Q"
+        }
+      ],
+      "entries": [
+        {
+          "block_type": "DayTimer",
+          "alias": "ten_pm_window",
+          "days": [
+            "Mon",
+            "Tue",
+            "Wed",
+            "Thu",
+            "Fri",
+            "Sat",
+            "Sun"
+          ],
+          "start": "22:00",
+          "end": "22:05"
+        }
+      ],
+      "simulation": [
+        {
+          "name": "should trigger when all conditions met",
+          "inputs": {
+            "Garagentor Sensor.Q": 1.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Gartenbeleuchtung.I1": {
+              ">": 0.5
+            }
+          }
+        },
+        {
+          "name": "should NOT trigger when condition not met",
+          "inputs": {
+            "Garagentor Sensor.Q": 0.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Gartenbeleuchtung.I1": {
+              "<": 0.5
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "kp21-garage-open-night-auto-close",
+    "pattern": [
+      "latching-state",
+      "daytimer",
+      "monoflop"
+    ],
+    "utterance": "If the garage door has been opened today, trigger it to close for 3 seconds at 10pm",
+    "difficulty": "expert",
+    "expected": {
+      "new_blocks": [
+        {
+          "type": "Memory",
+          "type_alt": "AMemory"
+        },
+        {
+          "type": "DayTimer"
+        },
+        {
+          "type": "And"
+        },
+        {
+          "type": "Monoflop"
+        }
+      ],
+      "wiring": [
+        {
+          "from_title": "Garagentor Sensor",
+          "to_type": "Memory"
+        },
+        {
+          "from_type": "Memory",
+          "to_type": "And",
+          "to_connector": "I1"
+        },
+        {
+          "from_type": "GreaterEqual",
+          "to_type": "And",
+          "to_connector": "I2"
+        },
+        {
+          "from_type": "And",
+          "to_type": "Monoflop",
+          "from_connector": "Q",
+          "to_connector": "InputTrigger"
+        },
+        {
+          "from_type": "Monoflop",
+          "to_title": "Garagentor",
+          "to_connector": "I1",
+          "from_connector": "Q"
+        },
+        {
+          "from_type": "And",
+          "to_title": "Gartenbeleuchtung",
+          "to_connector": "I1",
+          "from_connector": "Q"
+        }
+      ],
+      "params": [
+        {
+          "block_type": "Monoflop",
+          "param": "Time",
+          "value": "3"
+        }
+      ],
+      "entries": [
+        {
+          "block_type": "DayTimer",
+          "alias": "ten_pm_window",
+          "days": [
+            "Mon",
+            "Tue",
+            "Wed",
+            "Thu",
+            "Fri",
+            "Sat",
+            "Sun"
+          ],
+          "start": "22:00",
+          "end": "22:01"
+        }
+      ],
+      "simulation": [
+        {
+          "name": "should trigger when all conditions met",
+          "inputs": {
+            "Garagentor Sensor.Q": 1.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Garagentor.I1": {
+              ">": 0.5
+            }
+          }
+        },
+        {
+          "name": "should NOT trigger when condition not met",
+          "inputs": {
+            "Garagentor Sensor.Q": 0.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Garagentor.I1": {
+              "<": 0.5
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "kp22-irrigation-daily-630",
+    "pattern": [
+      "scheduled-irrigation",
+      "daytimer"
+    ],
+    "utterance": "Create an irrigation schedule that waters the garden every day from 6:00 to 6:30",
+    "difficulty": "medium",
+    "expected": {
+      "new_blocks": [
+        {
+          "type": "DayTimer"
+        }
+      ],
+      "wiring": [
+        {
+          "from_type": "DayTimer",
+          "to_title": "Bewässerungsventil",
+          "to_connector": "I1",
+          "from_connector": "AQ"
+        }
+      ],
+      "entries": [
+        {
+          "block_type": "DayTimer",
+          "alias": "morning_irrigation",
+          "days": [
+            "Mon",
+            "Tue",
+            "Wed",
+            "Thu",
+            "Fri",
+            "Sat",
+            "Sun"
+          ],
+          "start": "06:00",
+          "end": "06:30"
+        }
+      ],
+      "simulation": [
+        {
+          "name": "should activate during scheduled period",
+          "inputs": {},
+          "ticks": 0,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Bewässerungsventil.I1": {
+              ">": 0.5
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "kp23-irrigation-schedule-or-manual",
+    "pattern": [
+      "scheduled-irrigation",
+      "daytimer"
+    ],
+    "utterance": "Water the garden every day from 6:00 to 6:30, but also allow manual watering with the manual irrigation switch",
+    "difficulty": "medium",
+    "expected": {
+      "new_blocks": [
+        {
+          "type": "DayTimer"
+        },
+        {
+          "type": "Or"
+        }
+      ],
+      "wiring": [
+        {
+          "from_type": "DayTimer",
+          "to_type": "Or",
+          "to_connector": "I1",
+          "from_connector": "AQ"
+        },
+        {
+          "from_title": "Bewässerung Manuell",
+          "to_type": "Or",
+          "to_connector": "I2"
+        },
+        {
+          "from_type": "Or",
+          "to_title": "Bewässerungsventil",
+          "to_connector": "I1",
+          "from_connector": "Q"
+        }
+      ],
+      "entries": [
+        {
+          "block_type": "DayTimer",
+          "alias": "morning_irrigation",
+          "days": [
+            "Mon",
+            "Tue",
+            "Wed",
+            "Thu",
+            "Fri",
+            "Sat",
+            "Sun"
+          ],
+          "start": "06:00",
+          "end": "06:30"
+        }
+      ],
+      "simulation": [
+        {
+          "name": "should trigger when all conditions met",
+          "inputs": {
+            "Bewässerung Manuell.Q": 1.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Bewässerungsventil.I1": {
+              ">": 0.5
+            }
+          }
+        },
+        {
+          "name": "should NOT trigger when condition not met",
+          "inputs": {
+            "Bewässerung Manuell.Q": 0.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Bewässerungsventil.I1": {
+              "<": 0.5
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "kp24-irrigation-only-when-dry-and-no-rain",
+    "pattern": [
+      "scheduled-irrigation",
+      "daytimer"
+    ],
+    "utterance": "Run irrigation every day from 6:00 to 6:30 only if the garden moisture sensor is below 40 and it is not raining",
+    "difficulty": "hard",
+    "expected": {
+      "new_blocks": [
+        {
+          "type": "DayTimer"
+        },
+        {
+          "type": "Less"
+        },
+        {
+          "type": "Not"
+        },
+        {
+          "type": "And"
+        },
+        {
+          "type": "And"
+        }
+      ],
+      "wiring": [
+        {
+          "from_type": "DayTimer",
+          "to_type": "And",
+          "to_connector": "I1",
+          "from_connector": "AQ"
+        },
+        {
+          "from_title": "Feuchtesensor Garten",
+          "to_type": "Less",
+          "to_connector": "Input1"
+        },
+        {
+          "from_type": "Less",
+          "to_type": "And",
+          "from_connector": "Q",
+          "to_connector": "I2"
+        },
+        {
+          "from_title": "Regen",
+          "to_type": "Not",
+          "to_connector": "I"
+        },
+        {
+          "from_type": "Not",
+          "to_type": "And",
+          "from_connector": "Q"
+        },
+        {
+          "from_type": "And",
+          "to_title": "Bewässerungsventil",
+          "to_connector": "I1",
+          "from_connector": "Q"
+        }
+      ],
+      "params": [
+        {
+          "block_type": "Less",
+          "param": "Input2",
+          "value": "40"
+        }
+      ],
+      "entries": [
+        {
+          "block_type": "DayTimer",
+          "alias": "morning_irrigation",
+          "days": [
+            "Mon",
+            "Tue",
+            "Wed",
+            "Thu",
+            "Fri",
+            "Sat",
+            "Sun"
+          ],
+          "start": "06:00",
+          "end": "06:30"
+        }
+      ],
+      "simulation": [
+        {
+          "name": "should trigger when all conditions met",
+          "inputs": {
+            "Regen.AQ": 1.0,
+            "Feuchtesensor Garten.AQ": 35.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Bewässerungsventil.I1": {
+              ">": 0.5
+            }
+          }
+        },
+        {
+          "name": "should NOT trigger when only partial conditions met",
+          "inputs": {
+            "Regen.AQ": 0.0,
+            "Feuchtesensor Garten.AQ": 35.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Bewässerungsventil.I1": {
+              "<": 0.5
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "kp25-irrigation-and-cold-pool-morning-routine",
+    "pattern": [
+      "scheduled-irrigation",
+      "pool-automation",
+      "daytimer"
+    ],
+    "utterance": "At 6:00 every morning, run irrigation until 6:30 and also start the pool pump if the pool temperature is below 15°C",
+    "difficulty": "expert",
+    "expected": {
+      "new_blocks": [
+        {
+          "type": "DayTimer"
+        },
+        {
+          "type": "Less"
+        },
+        {
+          "type": "And"
+        }
+      ],
+      "wiring": [
+        {
+          "from_type": "DayTimer",
+          "to_title": "Bewässerungsventil",
+          "to_connector": "I1",
+          "from_connector": "AQ"
+        },
+        {
+          "from_title": "Pool Temperatur",
+          "to_type": "Less",
+          "to_connector": "Input1"
+        },
+        {
+          "from_type": "DayTimer",
+          "to_type": "And",
+          "to_connector": "I1",
+          "from_connector": "AQ"
+        },
+        {
+          "from_type": "Less",
+          "to_type": "And",
+          "from_connector": "Q",
+          "to_connector": "I2"
+        },
+        {
+          "from_type": "And",
+          "to_title": "Poolpumpe",
+          "to_connector": "I1",
+          "from_connector": "Q"
+        }
+      ],
+      "params": [
+        {
+          "block_type": "Less",
+          "param": "Input2",
+          "value": "15"
+        }
+      ],
+      "entries": [
+        {
+          "block_type": "DayTimer",
+          "alias": "morning_irrigation",
+          "days": [
+            "Mon",
+            "Tue",
+            "Wed",
+            "Thu",
+            "Fri",
+            "Sat",
+            "Sun"
+          ],
+          "start": "06:00",
+          "end": "06:30"
+        }
+      ],
+      "simulation": [
+        {
+          "name": "should trigger when all conditions met",
+          "inputs": {
+            "Pool Temperatur.AQ": 10.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Bewässerungsventil.I1": {
+              ">": 0.5
+            }
+          }
+        },
+        {
+          "name": "should NOT trigger when only partial conditions met",
+          "inputs": {
+            "Pool Temperatur.AQ": 20.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Bewässerungsventil.I1": {
+              "<": 0.5
+            }
+          }
+        }
+      ]
+    }
+  }
+]

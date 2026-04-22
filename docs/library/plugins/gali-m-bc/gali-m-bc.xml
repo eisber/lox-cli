@@ -1,0 +1,25 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Modbus Title="GALI M" Comment="GALI EVR" Channel="1">
+	<Info templateType="7" minVersion="13000726"/>
+	<ModbusCmd Title="Power" Comment="Charge Power (SP)" ModbusAddress="1271" ModbusCmd="3" ModbusDataType="32" ModbusPollingCycle="5" Unit="&lt;v.2&gt; kW" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="1"/>
+	<ModbusCmd Title="Energy Limit" Comment="" ModbusAddress="1272" ModbusCmd="3" ModbusDataType="32" ModbusPollingCycle="30" Unit="&lt;v.1&gt; kWh" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="State" Comment="" ModbusAddress="1273" ModbusCmd="3" ModbusDataType="32" ModbusPollingCycle="10" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Error" Comment="" ModbusAddress="1274" ModbusCmd="3" ModbusDataType="32" ModbusPollingCycle="10" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Power Car" Comment="" ModbusAddress="1275" ModbusCmd="3" ModbusDataType="32" ModbusPollingCycle="10" Unit="&lt;v&gt; W" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Charge Energy" Comment="" ModbusAddress="1276" ModbusCmd="3" ModbusDataType="34" ModbusPollingCycle="15" Unit="&lt;v.3&gt; Wh" Analog="true" Sensor="true" SourceValHigh="1" DestValHigh="1"/>
+	<ModbusCmd Title="Charge Time" Comment="" ModbusAddress="1278" ModbusCmd="3" ModbusDataType="34" ModbusPollingCycle="10" Unit="&lt;v&gt; s" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Voltage Phase 1" Comment="" ModbusAddress="1280" ModbusCmd="3" ModbusDataType="32" ModbusPollingCycle="30" Unit="&lt;v&gt; V" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Voltage Phase 2" Comment="" ModbusAddress="1281" ModbusCmd="3" ModbusDataType="32" ModbusPollingCycle="30" Unit="&lt;v&gt; V" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Voltage Phase 3" Comment="" ModbusAddress="1282" ModbusCmd="3" ModbusDataType="32" ModbusPollingCycle="30" Unit="&lt;v&gt; V" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Plug Temperature" Comment="" ModbusAddress="1283" ModbusCmd="3" ModbusDataType="33" ModbusPollingCycle="60" Unit="&lt;v&gt; °C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Phases number" Comment="" ModbusAddress="1284" ModbusCmd="3" ModbusDataType="32" ModbusPollingCycle="120" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Power Min" Comment="" ModbusAddress="1285" ModbusCmd="3" ModbusDataType="32" ModbusPollingCycle="30" Unit="&lt;v.3&gt; kW" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="1"/>
+	<ModbusCmd Title="Power Max" Comment="" ModbusAddress="1286" ModbusCmd="3" ModbusDataType="32" ModbusPollingCycle="30" Unit="&lt;v.3&gt; kW" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="1"/>
+	<ModbusCmd Title="Version" Comment="" ModbusAddress="1287" ModbusCmd="3" ModbusDataType="32" ModbusPollingCycle="120" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Serial Number" Comment="" ModbusAddress="1288" ModbusCmd="3" ModbusDataType="32" ModbusPollingCycle="120" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Board Temperature" Comment="" ModbusAddress="1290" ModbusCmd="3" ModbusDataType="33" ModbusPollingCycle="60" Unit="&lt;v&gt; °C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="WiFi RSSI" Comment="" ModbusAddress="1289" ModbusCmd="3" ModbusDataType="33" ModbusPollingCycle="30" Unit="&lt;v.2&gt; -dBm" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="POWER" Comment="Charging Power" ModbusAddress="1271" ModbusCmd="6" Unit="&lt;v&gt; W" Analog="true" Sensor="false" SourceValHigh="1" DestValHigh="1000"/>
+	<ModbusCmd Title="ENERGY LIMIT" Comment="" ModbusAddress="1272" ModbusCmd="6" ModbusDataType="32" Unit="&lt;v&gt; kWh" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="ON-OFF COMMAND" Comment="" ModbusAddress="1270" ModbusCmd="6" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10"/>
+</Modbus>

@@ -1,0 +1,5 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<VirtualOut Title="Telegram" Comment="" Address="https://api.telegram.org" CmdInit="" CloseAfterSend="true" CmdSep=";">
+	<Info templateType="3" minVersion="14030710"/>
+	<VirtualOutCmd Title="Test" Comment="" CmdOnMethod="GET" CmdOffMethod="GET" CmdOn="/botXXXXXXXXXX:XXXXXXXXXXX-XXXXXXXXXXXXXXXXXXXXXXX/sendMessage?chat_id=YYYYYYYYY&amp;text=&lt;v&gt;" CmdOnHTTP="" CmdOnPost="" CmdOff="bot6308490579:AAG00nC0G4v-Tto5RAPHXr0FYZqrz9VT1GM/sendmessage?chat_id=770630408&amp;text=&lt;v&gt;" CmdOffHTTP="" CmdOffPost="" CmdAnswer="" Analog="true" Repeat="0" RepeatRate="0" SourceValHigh="10" DestValHigh="10"/>
+</VirtualOut>

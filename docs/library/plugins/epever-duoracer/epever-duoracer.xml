@@ -1,0 +1,19 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Modbus Title="EPEVER DuoRacer" Comment="" Channel="1">
+	<Info templateType="7" minVersion="12021105"/>
+	<ModbusCmd Title="Battery temperature" Comment="" ModbusAddress="12560" ModbusCmd="4" ModbusDataType="32" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="10"/>
+	<ModbusCmd Title="Device temperature" Comment="" ModbusAddress="12561" ModbusCmd="4" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="10"/>
+	<ModbusCmd Title="Battery voltage" Comment="" ModbusAddress="13082" ModbusCmd="4" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="10"/>
+	<ModbusCmd Title="Battery&apos;s real rated voltage" Comment="" ModbusAddress="12573" ModbusCmd="4" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="10"/>
+	<ModbusCmd Title="Battery SOC" Comment="" ModbusAddress="12570" ModbusCmd="4" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Consumed energy today" Comment="" ModbusAddress="13060" ModbusCmd="4" ModbusDataType="2" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="PV array input power" Comment="" ModbusAddress="12546" ModbusCmd="4" ModbusDataType="2" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="10"/>
+	<ModbusCmd Title="PV array input voltage" Comment="" ModbusAddress="12544" ModbusCmd="4" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="10"/>
+	<ModbusCmd Title="PV array input current" Comment="" ModbusAddress="12545" ModbusCmd="4" ModbusDataType="32" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="10"/>
+	<ModbusCmd Title="Load voltage" Comment="" ModbusAddress="12556" ModbusCmd="4" ModbusDataType="32" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Load current" Comment="" ModbusAddress="12557" ModbusCmd="4" ModbusDataType="32" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Load power" Comment="" ModbusAddress="12558" ModbusCmd="4" ModbusDataType="2" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="10"/>
+	<ModbusCmd Title="Battery current" Comment="" ModbusAddress="13083" ModbusCmd="4" ModbusDataType="2" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="10"/>
+	<ModbusCmd Title="Maximum battery voltage today" Comment="" ModbusAddress="13058" ModbusCmd="4" ModbusDataType="32" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="10"/>
+	<ModbusCmd Title="Minimum battery voltage today" Comment="" ModbusAddress="13059" ModbusCmd="4" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="10"/>
+</Modbus>

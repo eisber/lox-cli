@@ -1,0 +1,16 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Modbus Title="SOLARFOCUS Pelletelegance, Octoplus, Ecotop, Pellettop" Comment="eco manager-touch V21.040" HintText="" Channel="1">
+	<Info templateType="7" minVersion="15000511"/>
+	<ModbusCmd Title="2400 - Actual Boiler temperature" Comment="Actual Boiler temperature" HintText="" ModbusAddress="2400" ModbusCmd="4" ModbusDataType="1" ModbusPollingCycle="30" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="10"/>
+	<ModbusCmd Title="2401 - State Boiler status line" Comment="State Boiler status line" HintText="See operating instructions" ModbusAddress="2401" ModbusCmd="4" ModbusPollingCycle="30" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="2404 - State Message number" Comment="State Message number" HintText="See operating instructions" ModbusAddress="2404" ModbusCmd="4" ModbusDataType="1" ModbusPollingCycle="30" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="2405 - State Door contact" Comment="State Door contact" HintText="0=Door closed, 1=Door open" ModbusAddress="2405" ModbusCmd="4" ModbusPollingCycle="30" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="2406 - State boiler cleaning level" Comment="State boiler cleaning level" HintText=" Boiler cleaning is recommended at 100% at the latest" ModbusAddress="2406" ModbusCmd="4" ModbusDataType="1" ModbusPollingCycle="30" Unit="&lt;v&gt;%" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="2407 - State ash box fill level" Comment="State ash box fill level" HintText="" ModbusAddress="2407" ModbusCmd="4" ModbusDataType="1" ModbusPollingCycle="30" Unit="&lt;v&gt;%" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="2408 - Actual Outside temperature" Comment="Actual Outside temperature" HintText="" ModbusAddress="2408" ModbusCmd="4" ModbusDataType="1" ModbusPollingCycle="30" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="10"/>
+	<ModbusCmd Title="2410 - Actual Octoplus storagetemperature bottom" Comment="Actual Octoplus storagetemperature bottom" HintText="" ModbusAddress="2410" ModbusCmd="4" ModbusDataType="1" ModbusPollingCycle="30" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="10"/>
+	<ModbusCmd Title="2411 - Actual Octoplus storagetemperature top" Comment="Actual Octoplus storagetemperature top" HintText="" ModbusAddress="2411" ModbusCmd="4" ModbusDataType="1" ModbusPollingCycle="30" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="10"/>
+	<ModbusCmd Title="2307 - State Hot Water Operation mode" Comment="State Hot Water Operation mode" HintText="0…DHW tank charging not active,
+1…DHW tank charging active" ModbusAddress="2307" ModbusCmd="4" ModbusPollingCycle="30" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="33406 - External outside temperature" Comment="" HintText="" ModbusAddress="33406" ModbusCmd="16" ModbusDataType="1" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="100" RepeatRate="60"/>
+</Modbus>

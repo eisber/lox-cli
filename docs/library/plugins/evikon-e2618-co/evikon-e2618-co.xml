@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Modbus Title="Evikon_E2618_CO" Comment="" Baudrate="9600" Stopbits="1" Channel="1">
+	<Info templateType="7" minVersion="14010509"/>
+	<ModbusCmd Title="HW_ver" Comment="" ModbusAddress="1" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Gas concentration" Comment="" ModbusAddress="259" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v&gt; ppm" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Slave ID" Comment="" ModbusAddress="4" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Serial number" Comment="" ModbusAddress="3" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Sensor status" Comment="" ModbusAddress="255" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Temperature" Comment="" ModbusAddress="258" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v.2&gt; °C" Analog="true" Sensor="true" SourceValLow="100" SourceValHigh="1000" DestValLow="1" DestValHigh="10"/>
+	<ModbusCmd Title="Output units code" Comment="" ModbusAddress="152" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Slave ID" Comment="" ModbusAddress="4" ModbusCmd="6" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Restarts counter" Comment="" ModbusAddress="17" ModbusCmd="6" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10"/>
+</Modbus>

@@ -1,0 +1,101 @@
+{
+  "title": "Lighting Central",
+  "xml_type": "",
+  "kb_slug": "lighting-overview",
+  "description": "With this function block, all Lighting Controller blocks can be controlled together. Double-click on the block to open the dialog for selecting the linked blocks.",
+  "inputs": [
+    {
+      "abbreviation": "Lc1-4",
+      "summary": "Light circuit 1-4",
+      "description": "Activates output (Lc1-4). Long-click for dimming.",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "M+",
+      "summary": "Next mood",
+      "description": "Pulse: Selects next mood. Double-click: Turns off lights and sends pulse to output (2C). Triple-click: Turns off lights and sends pulse to outputs (3C) and (2C).",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "M-",
+      "summary": "Previous mood",
+      "description": "Pulse: Selects previous mood. Double-click: Turns off lights and sends pulse to output (2C). Triple-click: Turns off lights and sends pulse to outputs (3C) and (2C).",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "Off",
+      "summary": "Off",
+      "description": "Pulse: Outputs are reset / switched off. On: Block is locked. Dominating input. An alarm can still be triggered via the input (Alarm). The name of the connected sensor is used in the user interface.",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "T5/1-8",
+      "summary": "T5 control",
+      "description": "Pulse: First pulse selects the assigned mood, every subsequent pulse switches to the next mood. If there is no additional pulse for 30 seconds, a pulse selects the assigned mood again. Long-click: Either mixes in the mood (Mmd) or switches to the next mood. Double-click: Turns off lights and sends pulse to output (2C). Triple-click: Turns off lights and sends pulse to outputs (3C) and (2C).",
+      "value_range": "\u221e"
+    },
+    {
+      "abbreviation": "DisP",
+      "summary": "Disable presence / motion",
+      "description": "Disables inputs (P) and (Mo) when 1. Lights activated by presence (P) are switched off immediately. If lights were activated by motion (Mo), (Moet) timer is started on rising edge at (DisP) and lights are switched off after expiration. If the extend time of (Met) is shorter than (Moet), (Met) is used instead.",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "On",
+      "summary": "All on",
+      "description": "Activates mood with ID 99. If no mood with ID 99 is configured, all used outputs (Lc1-18) will be activated with brightness set in parameter (MaxAbr).",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "Alarm",
+      "summary": "Alarm",
+      "description": "All used outputs (Lc1-18) start flashing when 1. Parameter (MaxAbr) defines the brightness, parameter (Afi) defines the flashing interval. ID 99 is displayed at the output (M). If the input (Off) is 1, an alarm can still be triggered.",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "Buzzer",
+      "summary": "Buzzer",
+      "description": "Activates alarm clock mood (ID 98) when 1. Parameter (Fbu) defines the fading time. Fading is only supported by Smart actuators. If no alarm clock mood is configured, the mood with ID 99 is used instead. Lighting is switched off after the time set in parameter (Met) has expired.",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "DisPc",
+      "summary": "Disable periphery control",
+      "description": "Disables inputs (Lc1-4, M+, M-, Mood, Off, T5/1-8, On, Buzzer, MBr) when On. (e.g Child lock, cleaning) Control via user interface is still possible.",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "Rtd",
+      "summary": "Reset to default",
+      "description": "Resets parameters and settings of the block to the default values as specified in the block preset.",
+      "value_range": "0/1"
+    }
+  ],
+  "outputs": [
+    {
+      "abbreviation": "API",
+      "summary": "API Connector",
+      "description": "Intelligent API based connector. API Commands",
+      "value_range": "-"
+    },
+    {
+      "abbreviation": "Na",
+      "summary": "Active Lights",
+      "description": "Number of active lights",
+      "value_range": "\u221e"
+    }
+  ],
+  "parameters": [],
+  "properties": [
+    {
+      "summary": "Selection",
+      "description": "All selected Lighting Controller can be controlled together.",
+      "default_value": "-"
+    }
+  ],
+  "source_url": "https://www.loxone.com/enen/kb/lighting-overview/",
+  "input_count": 11,
+  "output_count": 2,
+  "parameter_count": 0,
+  "property_count": 1
+}

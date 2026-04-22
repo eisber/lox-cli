@@ -1,0 +1,9 @@
+{
+                                "type": "template",
+                                "name": "kostal-modbus-tcp-and-battery",
+                                "uuid": "755f5eef-2749-11ec-9a744cd98f3deb8a",
+                                "version":"1.0.0",
+                                "id": "kostal-modbus-tcp-and-battery-344",
+                                "file": "kostal-modbus-tcp-and-battery.xml",
+                                "templateType": "7",
+                            }

@@ -1,0 +1,115 @@
+{
+  "category": "J: Large Controllers",
+  "description": "Complex control blocks tested via VirtualIn replacing physical T5/Tree sensors",
+  "blocks": {
+    "LightController2": {
+      "inputs": {
+        "Sel1": "digital", "Sel2": "digital", "Sel3": "digital", "Sel4": "digital",
+        "On": "digital", "Step": "digital",
+        "I1": "analog"
+      },
+      "outputs": {
+        "Scene": "analog",
+        "AQ1": "analog",
+        "MoveOn": "digital"
+      },
+      "vi_prefix": "VI_LC2",
+      "tests": [
+        {"desc": "select mood 1 (Entspannen)", "set": {"Sel1": 1}, "wait": 1.0},
+        {"desc": "release Sel1", "set": {"Sel1": 0}, "wait": 0.5},
+        {"desc": "select mood 2 (Viel Licht)", "set": {"Sel2": 1}, "wait": 1.0},
+        {"desc": "release Sel2", "set": {"Sel2": 0}, "wait": 0.5},
+        {"desc": "select mood 3 (Wecker)", "set": {"Sel3": 1}, "wait": 1.0},
+        {"desc": "release Sel3", "set": {"Sel3": 0}, "wait": 0.5},
+        {"desc": "select mood 4 (Aus/Off)", "set": {"Sel4": 1}, "expect": {"MoveOn": 0}, "wait": 1.0},
+        {"desc": "release Sel4", "set": {"Sel4": 0}, "wait": 0.5},
+        {"desc": "toggle on", "set": {"On": 1}, "expect": {"MoveOn": 1}, "wait": 1.0},
+        {"desc": "release on", "set": {"On": 0}, "wait": 0.5},
+        {"desc": "toggle off", "set": {"On": 1}, "expect": {"MoveOn": 0}, "wait": 1.0},
+        {"desc": "release on", "set": {"On": 0}, "wait": 0.5},
+        {"desc": "set brightness 50%", "set": {"I1": 50.0}, "wait": 1.0},
+        {"desc": "set brightness 100%", "set": {"I1": 100.0}, "wait": 1.0},
+        {"desc": "set brightness 0%", "set": {"I1": 0.0}, "wait": 1.0},
+        {"desc": "step to next mood", "set": {"Step": 1}, "wait": 1.0},
+        {"desc": "release step", "set": {"Step": 0}, "wait": 0.5}
+      ],
+      "notes": "LightController2 uses moods (scenes). Sel1-Sel8 are pulse triggers for moods. AQ1-AQ20 are circuit brightness outputs. Scene output reports active mood ID."
+    },
+    "Dimmer": {
+      "inputs": {
+        "On": "digital",
+        "Up": "digital",
+        "Down": "digital",
+        "Value": "analog"
+      },
+      "outputs": {
+        "AQ": "analog",
+        "Q": "digital"
+      },
+      "vi_prefix": "VI_Dim",
+      "tests": [
+        {"desc": "off initially", "set": {"On": 0, "Value": 0}, "expect": {"Q": 0, "AQ": 0.0}, "wait": 0.5},
+        {"desc": "turn on", "set": {"On": 1}, "expect": {"Q": 1}, "wait": 0.5},
+        {"desc": "set value 50%", "set": {"Value": 50.0}, "expect": {"AQ": 50.0}, "wait": 0.5},
+        {"desc": "set value 100%", "set": {"Value": 100.0}, "expect": {"AQ": 100.0}, "wait": 0.5},
+        {"desc": "turn off", "set": {"On": 0}, "expect": {"Q": 0, "AQ": 0.0}, "wait": 0.5}
+      ]
+    },
+    "PresenceDetector": {
+      "inputs": {
+        "Motion": "digital",
+        "DisableMotion": "digital",
+        "Reset": "digital"
+      },
+      "outputs": {
+        "Q": "digital",
+        "AQ": "analog"
+      },
+      "vi_prefix": "VI_Pres",
+      "tests": [
+        {"desc": "no motion", "set": {"Motion": 0, "DisableMotion": 0}, "expect": {"Q": 0}, "wait": 0.5},
+        {"desc": "motion detected", "set": {"Motion": 1}, "expect": {"Q": 1}, "wait": 0.5},
+        {"desc": "motion stops", "set": {"Motion": 0}, "expect": {"Q": 1}, "wait": 0.5},
+        {"desc": "timeout (presence off)", "set": {"Motion": 0}, "wait": 5.0},
+        {"desc": "disable motion", "set": {"DisableMotion": 1, "Motion": 1}, "expect": {"Q": 0}, "wait": 0.5},
+        {"desc": "re-enable", "set": {"DisableMotion": 0}, "wait": 0.5}
+      ]
+    },
+    "PIController": {
+      "inputs": {
+        "Setpoint": "analog",
+        "Actual": "analog",
+        "Enable": "digital",
+        "Reset": "digital"
+      },
+      "outputs": {
+        "AQ": "analog"
+      },
+      "vi_prefix": "VI_PI",
+      "tests": [
+        {"desc": "disabled", "set": {"Enable": 0, "Setpoint": 50, "Actual": 30}, "expect": {"AQ": 0}, "wait": 0.5},
+        {"desc": "enable with error", "set": {"Enable": 1, "Setpoint": 50, "Actual": 30}, "wait": 2.0},
+        {"desc": "at setpoint", "set": {"Setpoint": 50, "Actual": 50}, "wait": 2.0},
+        {"desc": "reset", "set": {"Reset": 1}, "expect": {"AQ": 0}, "wait": 0.5}
+      ]
+    },
+    "SecurityCentral": {
+      "inputs": {
+        "Arm": "digital",
+        "Disarm": "digital",
+        "ArmDelay": "digital"
+      },
+      "outputs": {
+        "Q": "digital",
+        "AQ": "analog"
+      },
+      "vi_prefix": "VI_Sec",
+      "tests": [
+        {"desc": "disarmed", "set": {"Disarm": 1, "Arm": 0}, "expect": {"Q": 0}, "wait": 1.0},
+        {"desc": "arm", "set": {"Arm": 1, "Disarm": 0}, "expect": {"Q": 1}, "wait": 1.0},
+        {"desc": "disarm", "set": {"Disarm": 1, "Arm": 0}, "expect": {"Q": 0}, "wait": 1.0}
+      ]
+    }
+  },
+  "wiring": {}
+}

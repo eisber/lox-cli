@@ -1,0 +1,6 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<VirtualOut Title="smart-me Request Pico" Comment="" Address="https://api.smart-me.com" CmdInit="" HintText="" CloseAfterSend="true" CmdSep="">
+	<Info templateType="3" minVersion="16000610"/>
+	<VirtualOutCmd Title="Pico History Info Request" Comment="" CmdOnMethod="GET" CmdOffMethod="GET" CmdOn="/api/pico/charging/&lt;DeviceID&gt;" CmdOnHTTP="Authorization: ApiKey &lt;ApiKey&gt;" CmdOnPost="" CmdOff="" CmdOffHTTP="" CmdOffPost="" CmdAnswer="user/common/smartmePicoHistory.html" HintText="" Analog="false" Repeat="0" RepeatRate="0"/>
+	<VirtualOutCmd Title="Pico Charging Status" Comment="" CmdOnMethod="GET" CmdOffMethod="GET" CmdOn="/api/pico/charging/&lt;DeviceID&gt;" CmdOnHTTP="Authorization: ApiKey &lt;ApiKey&gt;" CmdOnPost="" CmdOff="" CmdOffHTTP="" CmdOffPost="" CmdAnswer="user/common/smartmeChargingStatus.html" HintText="" Analog="false" Repeat="0" RepeatRate="0"/>
+</VirtualOut>

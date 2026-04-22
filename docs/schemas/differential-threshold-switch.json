@@ -1,0 +1,45 @@
+{
+  "title": "Differential Threshold Switch",
+  "xml_type": "",
+  "kb_slug": "differential-threshold-switch",
+  "description": "The Differential Threshold Switch analyses an analogue input value using two threshold values, and switches a digital output accordingly.",
+  "inputs": [
+    {
+      "abbreviation": "V",
+      "summary": "Value",
+      "value_range": "\u221e"
+    }
+  ],
+  "outputs": [
+    {
+      "abbreviation": "T",
+      "summary": "1 depending on the set threshold values.",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "Teon",
+      "summary": "Pulse on rising edge",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "Teoff",
+      "summary": "Pulse on falling edge",
+      "value_range": "0/1"
+    }
+  ],
+  "parameters": [
+    {
+      "abbreviation": "Rem",
+      "summary": "Remanence input",
+      "description": "Remanence input: If active, the function block retains its previous state after a Miniserver reboot. The state of the function block is saved: \u2013 When saving to the Miniserver \u2013 At a planned reboot \u2013 Before a backup \u2013 Once per hour The data is saved on the SD card.",
+      "value_range": "0/1",
+      "default_value": "0"
+    }
+  ],
+  "properties": [],
+  "source_url": "https://www.loxone.com/enen/kb/differential-threshold-switch/",
+  "input_count": 1,
+  "output_count": 3,
+  "parameter_count": 1,
+  "property_count": 0
+}

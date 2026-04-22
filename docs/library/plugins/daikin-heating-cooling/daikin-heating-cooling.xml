@@ -1,0 +1,79 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Modbus Title="Daikin Heating&amp;Cooling" Comment="" HintText="" Channel="1">
+	<Info templateType="7" minVersion="15000227"/>
+	<ModbusCmd Title="38 State Heatpump Operation Mode" Comment="" HintText="1: Heating
+2: Cooling" ModbusAddress="37" ModbusCmd="4" ModbusDataType="33" ModbusPollingCycle="15" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="21 State Heatpump Error" Comment="" HintText="0: No error
+1: Fault
+2: Warning" ModbusAddress="20" ModbusCmd="4" ModbusDataType="33" ModbusPollingCycle="15" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="32 State Heatpump Electrical heater" Comment="" HintText="0: OFF, 1: ON" ModbusAddress="31" ModbusCmd="4" ModbusDataType="33" ModbusPollingCycle="15" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="23 State Heatpump Error Sub Code" Comment="" HintText="If No error 32766
+If Unit error 0 .. 99" ModbusAddress="22" ModbusCmd="4" ModbusDataType="32" ModbusPollingCycle="15" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="30 State Hot Water Circulationpump [PZ]" Comment="" HintText="0: OFF, 1: ON" ModbusAddress="29" ModbusCmd="4" ModbusDataType="33" ModbusPollingCycle="15" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="31 State Heatpump Compressor [C]" Comment="" HintText="0: OFF, 1: ON" ModbusAddress="30" ModbusCmd="4" ModbusDataType="33" ModbusPollingCycle="15" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="33 State Disinfection Operation mode" Comment="" HintText="0: OFF, 1: ON" ModbusAddress="32" ModbusCmd="4" ModbusDataType="33" ModbusPollingCycle="15" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="35 State Defrost/Starting Operation mode" Comment="" HintText="0: OFF, 1: ON" ModbusAddress="34" ModbusCmd="4" ModbusDataType="33" ModbusPollingCycle="15" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="36 State &quot;Hot&quot; Start" Comment="" HintText="0: OFF, 1: ON" ModbusAddress="35" ModbusCmd="4" ModbusDataType="33" ModbusPollingCycle="15" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="37 State 3-Way Valve Heat+Cool/ Hot Water [3UV1]" Comment="" HintText="0: Heating/Cooling
+1: Hot Water preparation" ModbusAddress="36" ModbusCmd="4" ModbusDataType="33" ModbusPollingCycle="15" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="40 Actual Heatpump Flowtemperature after PlateHeatExchanger [PHE]" Comment="" HintText="-100.00 .. 100.00°C" ModbusAddress="39" ModbusCmd="4" ModbusDataType="33" ModbusPollingCycle="15" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="1"/>
+	<ModbusCmd Title="41 Actual Heatpump Flowtemperature after Backupheater [BUH]" Comment="" HintText="-100.00 .. 100.00°C" ModbusAddress="40" ModbusCmd="4" ModbusDataType="33" ModbusPollingCycle="15" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="1"/>
+	<ModbusCmd Title="42 Actual Heatpump Return Flowtemperature" Comment="" HintText="-100.00 .. 100.00°C" ModbusAddress="41" ModbusCmd="4" ModbusDataType="33" ModbusPollingCycle="15" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="1"/>
+	<ModbusCmd Title="43 Actual Hot Water Storage Temperature [tWW]" Comment="" HintText="-100.00 .. 100.00°C" ModbusAddress="42" ModbusCmd="4" ModbusDataType="33" ModbusPollingCycle="15" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="1"/>
+	<ModbusCmd Title="44 Actual Outsidetemperature [tAU]" Comment="" HintText="-100.00 .. 100.00°C" ModbusAddress="43" ModbusCmd="4" ModbusDataType="33" ModbusPollingCycle="15" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="1"/>
+	<ModbusCmd Title="49 Actual Heatpump Flow Rate [E]" Comment="" HintText="Litres/minutes x 100" ModbusAddress="48" ModbusCmd="4" ModbusDataType="33" ModbusPollingCycle="15" Unit="&lt;v&gt;l/h" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="1"/>
+	<ModbusCmd Title="50 Actual External Roomtemperature" Comment="" HintText="-100.00 .. 100.00°C" ModbusAddress="49" ModbusCmd="4" ModbusDataType="33" ModbusPollingCycle="15" Unit="&lt;v.2&gt;°C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="51 Actual Heatpump Electrical Power" Comment="" HintText="0 .. 20kW" ModbusAddress="50" ModbusCmd="4" ModbusDataType="33" ModbusPollingCycle="15" Unit="&lt;v&gt;kW" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="1"/>
+	<ModbusCmd Title="52 State Hot Water Operation mode" Comment="" HintText="0: idle/buffering
+1: operating" ModbusAddress="51" ModbusCmd="4" ModbusDataType="33" ModbusPollingCycle="15" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="53 State Heating/Cooling Operation mode" Comment="" HintText="0: idle/buffering
+1: operating
+" ModbusAddress="52" ModbusCmd="4" ModbusDataType="33" ModbusPollingCycle="15" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="54 State Target Mainheating Flowtemperature Lower limit" Comment="" HintText="Field setting range" ModbusAddress="53" ModbusCmd="4" ModbusDataType="33" ModbusPollingCycle="15" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="1"/>
+	<ModbusCmd Title="55 State Target Mainheating Flowtemperature Upper limit" Comment="" HintText="Field setting range" ModbusAddress="54" ModbusCmd="4" ModbusDataType="33" ModbusPollingCycle="15" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="1"/>
+	<ModbusCmd Title="57 State Target Maincooling Flowtemperature Upper limit" Comment="" HintText="Field setting range" ModbusAddress="56" ModbusCmd="4" ModbusDataType="33" ModbusPollingCycle="15" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="1"/>
+	<ModbusCmd Title="56 State Target Maincooling Flowtemperature Lower limit" Comment="" HintText="Field setting range" ModbusAddress="55" ModbusCmd="4" ModbusDataType="33" ModbusPollingCycle="15" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="1"/>
+	<ModbusCmd Title="58 State Target Addheating Flowtemperature Lower limit" Comment="" HintText="Field setting range" ModbusAddress="57" ModbusCmd="4" ModbusDataType="33" ModbusPollingCycle="15" Unit="&lt;v.2&gt;°C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="59 State Target Addheating Flowtemperature Upper limit" Comment="" HintText="Field setting range" ModbusAddress="58" ModbusCmd="4" ModbusDataType="33" ModbusPollingCycle="15" Unit="&lt;v.2&gt;°C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="60 State Target Addcooling Flowtemperature Lower limit" Comment="" HintText="Field setting range" ModbusAddress="59" ModbusCmd="4" ModbusDataType="33" ModbusPollingCycle="15" Unit="&lt;v.2&gt;°C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="61 State Target Addcooling Flowtemperature Upper limit" Comment="" HintText="Field setting range" ModbusAddress="60" ModbusCmd="4" ModbusDataType="33" ModbusPollingCycle="15" Unit="&lt;v.2&gt;°C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="10 State Hot Water Storage Targettemperature" Comment="" HintText="MIN=30°C
+MAX=60°C" ModbusAddress="9" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="15" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="2 State Cooling Target Supply Flowtemperature" Comment="" HintText="Depending on field settings" ModbusAddress="1" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="15" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="1 State Heating Target Supply Flowtemperature" Comment="" HintText="Depending on field settings" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="15" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="3 Heatpump Operation Mode" Comment="" HintText="0=Auto, 1=Heating, 2=Cooling" ModbusAddress="2" ModbusCmd="6" ModbusDataType="33" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100" RepeatRate="5"/>
+	<ModbusCmd Title="1 Heatpump Heating  Target Supply Flowtemperature" Comment="" HintText="Depending on field settings" ModbusCmd="6" ModbusDataType="33" Unit="&lt;v.2&gt;°C" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100" RepeatRate="5"/>
+	<ModbusCmd Title="2 Heatpump Cooling Target Supply Flowtemperature" Comment="" HintText="Depending on field settings" ModbusAddress="1" ModbusCmd="6" ModbusDataType="33" Unit="&lt;v.2&gt;°C" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100" RepeatRate="5"/>
+	<ModbusCmd Title="6 Heating Room Targettemperature" Comment="" HintText="12 .. 30°C" ModbusAddress="5" ModbusCmd="6" ModbusDataType="33" Unit="&lt;v&gt;°C" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100" RepeatRate="5"/>
+	<ModbusCmd Title="7 Cooling Room Targettemperature" Comment="" HintText="15 .. 35°C" ModbusAddress="6" ModbusCmd="6" ModbusDataType="33" Unit="&lt;v&gt;°C" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100" RepeatRate="5"/>
+	<ModbusCmd Title="10 Hot Water Storage Targettemperature" Comment="" HintText="MIN=30°C
+MAX=60°C" ModbusAddress="9" ModbusCmd="6" ModbusDataType="33" Unit="&lt;v&gt;°C" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100" RepeatRate="5"/>
+	<ModbusCmd Title="4 Space Heating/Cooling Operation Mode" Comment="" HintText="0: OFF, 1: ON
+" ModbusAddress="3" ModbusCmd="6" ModbusDataType="33" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100" RepeatRate="5"/>
+	<ModbusCmd Title="9 Heatpump Quiet Mode Operation mode" Comment="" HintText="0: OFF, 1: ON
+" ModbusAddress="8" ModbusCmd="6" ModbusDataType="33" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100" RepeatRate="5"/>
+	<ModbusCmd Title="12 Hot Water Storage Operation mode" Comment="" HintText="0: OFF, 1: ON
+" ModbusAddress="11" ModbusCmd="6" ModbusDataType="33" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100" RepeatRate="5"/>
+	<ModbusCmd Title="13 Hot Water Storage Electrical Heater Operation mode" Comment="" HintText="0: OFF, 1: ON" ModbusAddress="12" ModbusCmd="6" ModbusDataType="33" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100" RepeatRate="5"/>
+	<ModbusCmd Title="53 Weather Operation mode" Comment="" HintText="0: Fixed
+1: Weather Dependent
+2: Fixed + Scheduled
+3: Weather Dependent + Scheduled" ModbusAddress="52" ModbusCmd="6" ModbusDataType="33" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100" RepeatRate="5"/>
+	<ModbusCmd Title="54 Offset Weather Operation Mode Heating Supply Flow Targettemperature" Comment="" HintText="-10 .. 10°C" ModbusAddress="53" ModbusCmd="6" ModbusDataType="33" Unit="&lt;v&gt;°C" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100" RepeatRate="5"/>
+	<ModbusCmd Title="55 Offset Weather Operation Mode Cooling Supply Flow Targettemperature" Comment="" HintText="-10 .. 10°C" ModbusAddress="54" ModbusCmd="6" ModbusDataType="33" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100" RepeatRate="5"/>
+	<ModbusCmd Title="56 Smart Grid Operation mode" Comment="" HintText="Not used in the example because PV Surplus goes over the Target temperatures
+0: Free
+1: Forced Off (only Compressor goes off, not the additional heater)
+2: Recommended On
+3: Forced On" ModbusAddress="55" ModbusCmd="6" ModbusDataType="33" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100" RepeatRate="5"/>
+	<ModbusCmd Title="57 Smart Grid Power Limitation Buffer" Comment="" HintText="0 .. 20kW- Not used because PV Surplus goes over the Target temperatures" ModbusAddress="56" ModbusCmd="6" ModbusDataType="33" Unit="&lt;v&gt;kW" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100" RepeatRate="5"/>
+	<ModbusCmd Title="58 Smart Grid Power Limitation General" Comment="" HintText="0 .. 20kW - Using for as example §14a" ModbusAddress="57" ModbusCmd="6" ModbusDataType="33" Unit="&lt;v&gt;kW" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100" RepeatRate="5"/>
+	<ModbusCmd Title="63 Offset Weather Operation Mode Heating Supply Flow Targettemperature" Comment="" HintText="Depending on field settings" ModbusAddress="63" ModbusCmd="6" ModbusDataType="33" Unit="&lt;v.2&gt;°C" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100" RepeatRate="5"/>
+	<ModbusCmd Title="64 Offset Weather Operation Mode Cooling Supply Flow Targettemperature" Comment="" HintText="Depending on field settings" ModbusAddress="63" ModbusCmd="6" ModbusDataType="33" Unit="&lt;v.2&gt;°C" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100" RepeatRate="5"/>
+	<ModbusCmd Title="65 Weather Operation mode HC2" Comment="" HintText="0: Fixed
+1: Weather Dependent
+2: Fixed + Scheduled
+3: Weather Dependent + Scheduled" ModbusAddress="64" ModbusCmd="6" ModbusDataType="33" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100" RepeatRate="5"/>
+	<ModbusCmd Title="66 Offset Weather Operation Mode Heating Supply Flow Targettemperature HC2" Comment="" HintText="-10 .. 10°C" ModbusAddress="65" ModbusCmd="6" ModbusDataType="33" Unit="&lt;v&gt;°C" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100" RepeatRate="5"/>
+	<ModbusCmd Title="67 Offset Weather Operation Mode Cooling Supply Flow Targettemperature HC2" Comment="" HintText="-10 .. 10°C" ModbusAddress="66" ModbusCmd="6" ModbusDataType="33" Unit="&lt;v&gt;°C" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100" RepeatRate="5"/>
+</Modbus>

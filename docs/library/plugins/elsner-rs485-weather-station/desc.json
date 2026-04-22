@@ -1,0 +1,9 @@
+{
+                                "type": "template",
+                                "name": "elsner-rs485-weather-station",
+                                "uuid": "cfe767d1-1167-11ec-9a744cd98f3deb8a",
+                                "version":"1.0.0",
+                                "id": "elsner-rs485-weather-station-44",
+                                "file": "elsner-rs485-weather-station.xml",
+                                "templateType": "7",
+                            }

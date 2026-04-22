@@ -1,0 +1,17 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Modbus Title="3-Phasen Energiezähler DTS353F-2" Comment="" HintText="" Baudrate="9600" Parity="1" Channel="1">
+	<Info templateType="7" minVersion="14070306"/>
+	<ModbusCmd Title="L2 Voltage" Comment="" HintText="" ModbusAddress="16" ModbusCmd="3" ModbusDataType="36" ModbusPollingCycle="300" Unit="&lt;v.2&gt; V" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="L1 Current" Comment="" HintText="" ModbusAddress="22" ModbusCmd="3" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.2&gt; A" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="L3 Voltage" Comment="" HintText="" ModbusAddress="18" ModbusCmd="3" ModbusDataType="36" ModbusPollingCycle="300" Unit="&lt;v.2&gt; V" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="L1 Voltage" Comment="" HintText="" ModbusAddress="14" ModbusCmd="3" ModbusDataType="36" ModbusPollingCycle="300" Unit="&lt;v.2&gt; V" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="L2 Current" Comment="" HintText="" ModbusAddress="24" ModbusCmd="3" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.2&gt; A" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="L3 Current" Comment="" HintText="" ModbusAddress="26" ModbusCmd="3" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.2&gt; A" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Grid Frequency" Comment="" HintText="" ModbusAddress="20" ModbusCmd="3" ModbusDataType="36" ModbusPollingCycle="300" Unit="&lt;v.2&gt; Hz" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="L1 Active Power" Comment="" HintText="" ModbusAddress="30" ModbusCmd="3" ModbusDataType="36" ModbusPollingCycle="300" Unit="&lt;v.2&gt; kW" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="L2 Active Power" Comment="" HintText="" ModbusAddress="32" ModbusCmd="3" ModbusDataType="36" ModbusPollingCycle="300" Unit="&lt;v.2&gt; kW" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="L3 Active Power" Comment="" HintText="" ModbusAddress="34" ModbusCmd="3" ModbusDataType="36" ModbusPollingCycle="300" Unit="&lt;v.2&gt; kW" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Total Active Power" Comment="" HintText="" ModbusAddress="28" ModbusCmd="3" ModbusDataType="36" ModbusPollingCycle="10" Unit="&lt;v.3&gt; kW" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Total active energy" Comment="" HintText="" ModbusAddress="256" ModbusCmd="3" ModbusDataType="36" ModbusPollingCycle="300" Unit="&lt;v.2&gt; KWh" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Analogsensor 1" Comment="" HintText="" ModbusAddress="258" ModbusCmd="1" ModbusDataType="36" ModbusPollingCycle="300" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+</Modbus>

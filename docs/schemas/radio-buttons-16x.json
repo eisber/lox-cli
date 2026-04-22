@@ -1,0 +1,75 @@
+{
+  "title": "Radio Buttons (16x)",
+  "xml_type": "",
+  "kb_slug": "radio-buttons-16x",
+  "description": "Up to 16 radio buttons, only one output can be active at a time. For example, pulse at input (I3) activates (O3).",
+  "inputs": [
+    {
+      "abbreviation": "I1-16",
+      "summary": "Input 1-16",
+      "description": "Switches the respective output 1-16 On.",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "Sel",
+      "summary": "Select output",
+      "description": "Switches to specific output.",
+      "value_range": "0...16"
+    },
+    {
+      "abbreviation": "Off",
+      "summary": "Off",
+      "description": "Pulse: Outputs are reset / switched off. On: Block is locked. Dominating input. The name of the connected sensor is used in the user interface.",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "DisPc",
+      "summary": "Disable periphery control",
+      "description": "Disables all inputs when On. (e.g Child lock, cleaning) Control via user interface is still possible.",
+      "value_range": "0/1"
+    }
+  ],
+  "outputs": [
+    {
+      "abbreviation": "API",
+      "summary": "API Connector",
+      "description": "Intelligent API based connector. API Commands",
+      "value_range": "-"
+    }
+  ],
+  "parameters": [
+    {
+      "abbreviation": "Rem",
+      "summary": "Remanence input",
+      "description": "Remanence input: If active, the function block retains its previous state after a Miniserver reboot. The state of the function block is saved: \u2013 When saving to the Miniserver \u2013 At a planned reboot \u2013 Before a backup \u2013 Once per hour The data is saved on the SD card.",
+      "value_range": "0/1",
+      "default_value": "0"
+    },
+    {
+      "abbreviation": "Max",
+      "summary": "Max. outputs",
+      "description": "Maximum number of selectable outputs. Example: Max=4 -> only outputs 1-4 can be activated via block inputs. In the user interface, all labeled outputs can be activated regardless of this setting.",
+      "value_range": "1...16",
+      "default_value": "16"
+    },
+    {
+      "abbreviation": "Sk0",
+      "summary": "Skip 0",
+      "description": "'All-off' (0) is skipped when switching with +/- when On. Applies only to object inputs, not to the buttons in the user interface.",
+      "value_range": "0/1",
+      "default_value": "0"
+    }
+  ],
+  "properties": [
+    {
+      "summary": "Edit outputs",
+      "description": "Edit output names",
+      "default_value": "-"
+    }
+  ],
+  "source_url": "https://www.loxone.com/enen/kb/radio-buttons-16x/",
+  "input_count": 4,
+  "output_count": 1,
+  "parameter_count": 3,
+  "property_count": 1
+}

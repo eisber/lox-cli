@@ -1,0 +1,154 @@
+{
+  "title": "Thermal Solar Controller",
+  "xml_type": "",
+  "kb_slug": "solar-pump-controller",
+  "description": "This function block is used to control a solar thermal system. The solar pump is activated based on collector and storage tank temperatures. Up to 5 hot water or buffer storage tanks can be integrated, one output per storage tank is available to control the storage tank valve. By means of efficient storage tank selection, the block ensures that a maximum of thermal power is stored. Depending on the system design, additional programming may be required.",
+  "inputs": [
+    {
+      "abbreviation": "Sel",
+      "summary": "Select storage",
+      "description": "Defines which buffer storage should be heated when in manual mode (M). 0 = Solar pump stays Off.",
+      "unit": "-",
+      "value_range": "0...5"
+    },
+    {
+      "abbreviation": "M",
+      "summary": "Manual mode",
+      "description": "Activates manual mode and heats up buffer storage specified at input (Sel). Manual mode is disabled when the collector is overheating.",
+      "unit": "-",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "Off",
+      "summary": "Off",
+      "description": "Pulse: Outputs are reset / switched off. On: Block is locked. Dominating input. The name of the connected sensor is used in the user interface.",
+      "unit": "-",
+      "value_range": "0/1"
+    }
+  ],
+  "outputs": [
+    {
+      "abbreviation": "Sp",
+      "summary": "Solar pump",
+      "description": "Digital output for controlling the solar pump.",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "Spa",
+      "summary": "Solar pump analog (0-10V)",
+      "description": "Analog output (0-10V) for controlling the solar pump.",
+      "value_range": "0...10"
+    },
+    {
+      "abbreviation": "S1-5",
+      "summary": "Storage 1-5 state",
+      "description": "Outputs are active when the respective buffer is allowed to heat up.",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "S",
+      "summary": "Current storage",
+      "description": ">0 = Current storage that is being heated up. 0 = Solar pump is Off. -1 = Maximum temperature of all storages is reached.",
+      "value_range": "-1...5"
+    },
+    {
+      "abbreviation": "Min\u03d1s",
+      "summary": "Min. storage temperature exceeded",
+      "description": "Active when all buffer storages have exceeded their target temperature.",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "Max\u03d1s",
+      "summary": "Max. storage temperature exceeded",
+      "description": "Active when all buffer storages have reached their maximum temperature. Pump is switched off.",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "Co",
+      "summary": "Collector overheating",
+      "description": "Active when the collector is overheating.",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "Hs",
+      "summary": "Heating surplus",
+      "description": "Active before the last buffer storage reaches it's maximum temperature. Time of activation depends on parameter (\u03d1Hs).",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "API",
+      "summary": "API Connector",
+      "description": "Intelligent API based connector. API Commands",
+      "value_range": "-"
+    }
+  ],
+  "parameters": [
+    {
+      "abbreviation": "Pon",
+      "summary": "Pump switch-on threshold",
+      "description": "This value determines how much higher the collector temperature must be compared to the storage temperature in order to start the solar pump.",
+      "unit": "\u00b0",
+      "value_range": "\u221e",
+      "default_value": "8"
+    },
+    {
+      "abbreviation": "Poff",
+      "summary": "Pump switch-off threshold",
+      "description": "This value determines how much higher the collector temperature must be compared to the storage tank temperature before the pump is switched off.",
+      "unit": "\u00b0",
+      "value_range": "\u221e",
+      "default_value": "4"
+    },
+    {
+      "abbreviation": "Max\u03d1c",
+      "summary": "Max. temperature collector",
+      "description": "The pump is disabled when the collector temperature exceeds this value.",
+      "unit": "\u00b0",
+      "value_range": "\u221e",
+      "default_value": "120"
+    },
+    {
+      "abbreviation": "Min\u03d1s1-5",
+      "summary": "Min. temperature storage",
+      "description": "When a buffer storages reaches set temperature the next storage is heated up is loaded until all storages have reached at least their minimum temperature.",
+      "unit": "\u00b0",
+      "value_range": "\u221e",
+      "default_value": "60"
+    },
+    {
+      "abbreviation": "Max\u03d1s1-5",
+      "summary": "Max. temperature storage",
+      "description": "When all buffer storages have reached their maximum temperature, the pump is switched off.",
+      "unit": "\u00b0",
+      "value_range": "\u221e",
+      "default_value": "70"
+    },
+    {
+      "abbreviation": "\u03d1Hs",
+      "summary": "Temperature heating surplus",
+      "description": "This value determines how many degrees the last memory must be away from its maximum temperature before output (Hs) is activated.",
+      "unit": "\u00b0",
+      "value_range": "\u221e",
+      "default_value": "5"
+    }
+  ],
+  "properties": [
+    {
+      "summary": "Configuration",
+      "description": "Configure the numbers and names for all thermal stores.",
+      "value_range": "-",
+      "default_value": "-"
+    },
+    {
+      "summary": "Number of Thermal Stores",
+      "description": "Number of buffers that can be independently heated up from the solar panels. (Maximum: 5 buffers)",
+      "value_range": "1...5",
+      "default_value": "1"
+    }
+  ],
+  "source_url": "https://www.loxone.com/enen/kb/solar-pump-controller/",
+  "input_count": 3,
+  "output_count": 9,
+  "parameter_count": 6,
+  "property_count": 2
+}

@@ -1,0 +1,12 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Modbus Title="EPC-23110" Comment="" HintText="" Baudrate="19200" Channel="16">
+	<Info templateType="7" minVersion="14051207"/>
+	<ModbusCmd Title="battery voltage" Comment="" HintText="" ModbusAddress="4097" ModbusCmd="3" ModbusDataType="32" ModbusPollingCycle="5" Unit="&lt;v.1&gt;V" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="maintenance countdown" Comment="" HintText="" ModbusAddress="4141" ModbusCmd="3" ModbusDataType="32" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="running time" Comment="" HintText="" ModbusAddress="4148" ModbusCmd="3" ModbusDataType="32" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="oil pressure value" Comment="" HintText="" ModbusAddress="4179" ModbusCmd="3" ModbusDataType="32" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="fuel level value" Comment="" HintText="" ModbusAddress="4184" ModbusCmd="3" ModbusDataType="32" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="running status" Comment="" HintText="" ModbusAddress="4161" ModbusCmd="3" ModbusDataType="32" ModbusPollingCycle="1" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="total running time" Comment="" HintText="" ModbusAddress="4150" ModbusCmd="3" ModbusDataType="34" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="start command" Comment="" HintText="" ModbusAddress="8193" ModbusCmd="6" ModbusDataType="32" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10"/>
+</Modbus>

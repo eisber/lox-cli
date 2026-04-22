@@ -1,0 +1,236 @@
+{
+  "title": "Burglar Alarm",
+  "xml_type": "Alarm",
+  "kb_slug": "burglar-alarm",
+  "description": "The burglar alarm block can be used to easily set up an alarm system with the existing sensors (motion detectors, window contacts, etc.).",
+  "inputs": [
+    {
+      "abbreviation": "P",
+      "summary": "Presence",
+      "description": "Alarm input for presence detection. The name of the connected sensor is used in the user interface.",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "Gb",
+      "summary": "Glass breakage",
+      "description": "Alarm input for broken glass detection. The name of the connected sensor is used in the user interface.",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "Wc",
+      "summary": "Window contacts",
+      "description": "Alarm input for window contacts (0 = closed, 1 = open). The name of the connected sensor is used in the user interface.",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "Dc",
+      "summary": "Door contacts",
+      "description": "Alarm input for door contacts (0 = closed, 1 = open). The name of the connected sensor is used in the user interface.",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "Ot",
+      "summary": "Other",
+      "description": "Alarm input for additional sensors and detectors. The name of the connected sensor is used in the user interface.",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "Tg",
+      "summary": "Toggle with presence detection",
+      "description": "Toggles between arm / disarm. Presence sensors are used to trigger an alarm. The name of the connected sensor is used in the user interface.",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "Tgnp",
+      "summary": "Toggle without presence detection",
+      "description": "Toggles between arm / disarm. Presence sensors are not used to trigger an alarm.",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "A",
+      "summary": "Arm with presence detection",
+      "description": "Arms the alarm system. Presence sensors are used to trigger an alarm. The name of the connected sensor is used in the user interface.",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "Anp",
+      "summary": "Arm without presence detection",
+      "description": "Arms the alarm system. Presence sensors are not used to trigger an alarm. The name of the connected sensor is used in the user interface.",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "Ad",
+      "summary": "Arm delayed with presence detection",
+      "description": "Arms the alarm system with a delay (Ard). Presence sensors are used to trigger an alarm. The name of the connected sensor is used in the user interface.",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "Adnp",
+      "summary": "Arm delayed without presence detection",
+      "description": "Arms the alarm system with a delay (Ard). Presence sensors are not used to trigger an alarm. The name of the connected sensor is used in the user interface.",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "Off",
+      "summary": "Off",
+      "description": "Pulse: Outputs are reset / switched off. On: Block is locked. Dominating input. The name of the connected sensor is used in the user interface.",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "Ca",
+      "summary": "Confirm alarm",
+      "description": "Confirms the current alarm and resets all alarm outputs. The alarm system remains armed. The name of the connected sensor is used in the user interface.",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "DisPc",
+      "summary": "Disable periphery control",
+      "description": "Disables inputs (Tg), (Tgnp), (A), (Anp), (Ad), (Adnp) when On. (e.g Child lock, cleaning) Control via user interface is still possible.",
+      "value_range": "0/1"
+    }
+  ],
+  "outputs": [
+    {
+      "abbreviation": "S",
+      "summary": "Status",
+      "description": "0 = Disarmed 1 = Armed with motion sensors 2 = Armed without motion sensors",
+      "unit": "-",
+      "value_range": "0...2"
+    },
+    {
+      "abbreviation": "At",
+      "summary": "Alarm test",
+      "description": "Only used if parameter Atm = 1.",
+      "unit": "-",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "Ca",
+      "summary": "Cause of alarm",
+      "description": "Reports cause of the last alarm.",
+      "unit": "-",
+      "value_range": "-"
+    },
+    {
+      "abbreviation": "Ta",
+      "summary": "Time and date of alarm",
+      "description": "Reports date and time of the last alarm.",
+      "unit": "-",
+      "value_range": "-"
+    },
+    {
+      "abbreviation": "WDs",
+      "summary": "Window / door state",
+      "description": "On when any windows or doors are open. If parameter (Aoc) is 1: Any open window / door is ignored and inputs (Wc & Dc) is set to 0 while arming.",
+      "unit": "-",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "WDot",
+      "summary": "Text output for open windows / doors",
+      "description": "Outputs the names of windows and doors that were open while arming. (Output can be connected to a TTS input.)",
+      "unit": "-",
+      "value_range": "-"
+    },
+    {
+      "abbreviation": "API",
+      "summary": "API Connector",
+      "description": "Intelligent API based connector. API Commands",
+      "unit": "-",
+      "value_range": "-"
+    }
+  ],
+  "parameters": [
+    {
+      "abbreviation": "Rem",
+      "summary": "Remanence input",
+      "description": "Remanence input: If active, the function block retains its previous state after a Miniserver reboot. The state of the function block is saved: \u2013 When saving to the Miniserver \u2013 At a planned reboot \u2013 Before a backup \u2013 Once per hour \u2013 When activating/deactivating an alarm system (max. every 10s) The data is saved on the SD card.",
+      "unit": "-",
+      "value_range": "0/1",
+      "default_value": "0"
+    },
+    {
+      "abbreviation": "Eip",
+      "summary": "Extension of alarm input pulses",
+      "description": "Defines the minimum duration of how long alarm input pulses remain active. Used for calculating the number of active sensors at output (N). 0 = Each pulse increases the value at output (N), only as long as it is active.",
+      "unit": "s",
+      "value_range": "0...\u221e",
+      "default_value": "0"
+    },
+    {
+      "abbreviation": "Spt",
+      "summary": "Second presence sensor time window",
+      "description": "Defines the time window until a second presence sensor must be triggered in order for the alarm to be activated. If only one presence sensor is used, this parameter has no effect and the alarm is triggered immediately. 0 = Function is not used",
+      "unit": "s",
+      "value_range": "0...\u221e",
+      "default_value": "900"
+    },
+    {
+      "abbreviation": "Atm",
+      "summary": "Alarm test mode",
+      "description": "1 = Only output (At) is triggered when alarm is active.",
+      "unit": "-",
+      "value_range": "0/1",
+      "default_value": "0"
+    },
+    {
+      "abbreviation": "MaxA",
+      "summary": "Maximum alarm duration",
+      "description": "The alarm is reset to a silent alarm at the end of set duration. 0 = No duration limit The Maxium alarm duration should be longer than the longest alarm delay, otherwise, certain alarm levels will never be activated!",
+      "unit": "s",
+      "value_range": "0...\u221e",
+      "default_value": "900"
+    },
+    {
+      "abbreviation": "Sac",
+      "summary": "Silent alarm confirmation",
+      "description": "1 = The silent alarm is confirmed when the maximum alarm duration (MaxA) is reached.",
+      "unit": "-",
+      "value_range": "0/1",
+      "default_value": "0"
+    },
+    {
+      "abbreviation": "Aoc",
+      "summary": "Arm open contact",
+      "description": "0 = Alarm triggers when a window or door is open while arming. 1 = Alarm only triggers when the open/closed state of a door or window changes when armed.",
+      "unit": "-",
+      "value_range": "0/1",
+      "default_value": "0"
+    }
+  ],
+  "properties": [
+    {
+      "summary": "Suppressed outputs",
+      "description": "Suppression of all none connected outputs Aa - Ra. The silent alarm can't be suppressed!",
+      "unit": "-",
+      "value_range": "-",
+      "default_value": "-"
+    },
+    {
+      "summary": "Delay after start",
+      "description": "Delay of the activation and arming of the alarm following a restart of the Miniserver in seconds. A value below 10 may lead to false alarms on a reboot! Only has an effect if remanence is enabled and the alarm is armed before restart!",
+      "unit": "s",
+      "value_range": "0...3600",
+      "default_value": "-"
+    },
+    {
+      "summary": "Number of Entries",
+      "description": "Maximum number of saved messages.",
+      "unit": "-",
+      "value_range": "2...100",
+      "default_value": "-"
+    },
+    {
+      "summary": "Configuration",
+      "description": "Configuration of the available inputs and outputs.",
+      "unit": "-",
+      "value_range": "-",
+      "default_value": "-"
+    }
+  ],
+  "source_url": "https://www.loxone.com/enen/kb/burglar-alarm/",
+  "input_count": 14,
+  "output_count": 7,
+  "parameter_count": 7,
+  "property_count": 4
+}

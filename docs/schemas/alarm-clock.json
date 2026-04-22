@@ -1,0 +1,212 @@
+{
+  "title": "Alarm Clock",
+  "xml_type": "AlarmClock",
+  "kb_slug": "alarm-clock",
+  "description": "Creates a pulse on output (Aon) at a preset time.\nA snooze function is also integrated.\nIn addition to individual days of the week, you can define your own alarm times for the operating modes \"Public Holiday\", \"Vacation\", and \"School Holidays/Day off\".\nFor the operating modes either corresponding operating times must be created or the output of the respective operating mode must be activated via a program logic.",
+  "inputs": [
+    {
+      "abbreviation": "Ca",
+      "summary": "Confirm alarm",
+      "description": "Confirms the alarm. When 'Acknowledgement required' is enabled, the alarm must be confirmed to stop.",
+      "unit": "-",
+      "value_range": "0/1",
+      "xml_key": "Acknowledge"
+    },
+    {
+      "abbreviation": "S",
+      "summary": "Start snooze timer",
+      "description": "Pulse sets output (Buzzer) to 0 and starts snooze timer for the duration of parameter (Sd). Another pulse during an active snooze timer restarts the timer.",
+      "unit": "-",
+      "value_range": "0/1",
+      "xml_key": "Snooze"
+    },
+    {
+      "abbreviation": "DisA",
+      "summary": "Disable alarm entries",
+      "description": "Disables all alarm entries.",
+      "unit": "-",
+      "value_range": "0/1",
+      "xml_key": "Deactivate"
+    },
+    {
+      "abbreviation": "Tg",
+      "summary": "Toggle",
+      "description": "Enables / disables the alarm entry 'Default alarm'. A pulse during an active alarm ends the alarm.",
+      "unit": "-",
+      "value_range": "0/1",
+      "xml_key": "TgMe"
+    },
+    {
+      "abbreviation": "Set",
+      "summary": "Set alarm time for default alarm",
+      "description": "Defined by minutes past midnight (E.g. 360 min = 06:00am)",
+      "unit": "min",
+      "value_range": "0...1439",
+      "xml_key": "TMe"
+    },
+    {
+      "abbreviation": "Rtd",
+      "summary": "Reset to default",
+      "description": "Resets parameters and settings of the block to the default values as specified in the block preset.",
+      "unit": "-",
+      "value_range": "0/1",
+      "xml_key": "RtD"
+    },
+    {
+      "abbreviation": "Off",
+      "summary": "Off",
+      "description": "Pulse: Outputs are reset / switched off. On: Block is locked. Dominating input. The name of the connected sensor is used in the user interface.",
+      "unit": "-",
+      "value_range": "0/1",
+      "xml_key": "Reset"
+    }
+  ],
+  "outputs": [
+    {
+      "abbreviation": "Buzzer",
+      "summary": "Buzzer",
+      "description": "ON when alarm sound is active. OFF during snooze time.",
+      "unit": "-",
+      "value_range": "0/1",
+      "xml_key": "Qa"
+    },
+    {
+      "abbreviation": "A",
+      "summary": "Alarm",
+      "description": "ON when alarm is active.",
+      "unit": "-",
+      "value_range": "0/1",
+      "xml_key": "QTa"
+    },
+    {
+      "abbreviation": "Pa",
+      "summary": "Pre-alarm",
+      "description": "Outputs a pulse before the alarm. Start time set via parameter (Pat).",
+      "unit": "-",
+      "value_range": "0/1",
+      "xml_key": "Qat"
+    },
+    {
+      "abbreviation": "Da",
+      "summary": "Default alarm state",
+      "description": "On, when alarm entry 'Default alarm' is enabled.",
+      "unit": "-",
+      "value_range": "0/1",
+      "xml_key": "QTe"
+    },
+    {
+      "abbreviation": "Tna",
+      "summary": "Time of next alarm",
+      "description": "Outputs date and time of the next alarm",
+      "unit": "-",
+      "value_range": "-",
+      "xml_key": "QTp"
+    },
+    {
+      "abbreviation": "API",
+      "summary": "API Connector",
+      "description": "Intelligent API based connector. API Commands",
+      "unit": "-",
+      "value_range": "-",
+      "xml_key": "OutputAPI"
+    }
+  ],
+  "parameters": [
+    {
+      "abbreviation": "Rem",
+      "summary": "Remanence input",
+      "description": "Remanence input: If active, the function block retains its previous state after a Miniserver reboot. The state of the function block is saved: – When saving to the Miniserver – At a planned reboot – Before a backup – Once per hour The data is saved on the SD card.",
+      "unit": "-",
+      "value_range": "0/1",
+      "default_value": "0"
+    },
+    {
+      "abbreviation": "MaxA",
+      "summary": "Maximum alarm duration",
+      "description": "Ends alarm after set time. If setting \"Confirmation required\" is activated, the snooze timer starts after the alarm duration has expired.",
+      "unit": "s",
+      "value_range": "0...∞",
+      "default_value": "120",
+      "xml_key": "AlarmTime"
+    },
+    {
+      "abbreviation": "Pat",
+      "summary": "Pre-alarm time",
+      "description": "Time that the pre-alarm is started before the alarm.",
+      "unit": "s",
+      "value_range": "0...∞",
+      "default_value": "180",
+      "xml_key": "PrepTime"
+    },
+    {
+      "abbreviation": "Sd",
+      "summary": "Snooze duration",
+      "description": "Snooze duration until the alarm sound is restarted.",
+      "unit": "s",
+      "value_range": "60...1800",
+      "default_value": "300",
+      "xml_key": "SnoozeTime"
+    },
+    {
+      "abbreviation": "Bri",
+      "summary": "Touch Nightlight display brightness inactive",
+      "description": "This parameter is only visible in certain configurations.",
+      "unit": "%",
+      "value_range": "0...100",
+      "default_value": "0"
+    },
+    {
+      "abbreviation": "Bra",
+      "summary": "Touch Nightlight display brightness active",
+      "description": "This parameter is only visible in certain configurations.",
+      "unit": "%",
+      "value_range": "0...100",
+      "default_value": "50"
+    },
+    {
+      "abbreviation": "As",
+      "summary": "Alarm sound (Touch Nightlight)",
+      "description": "1: Deep 4-way beep 2: High 4-way beep 3: Deep 2-way beep 4: High 2-fold beep 5: Siren This parameter is only visible in certain configurations.",
+      "unit": "-",
+      "value_range": "1...5",
+      "default_value": "1",
+      "xml_key": "ParWakeAlarmSound"
+    },
+    {
+      "abbreviation": "Asv",
+      "summary": "Alarm sound volume (Touch Nightlight)",
+      "description": "This parameter is only visible in certain configurations.",
+      "unit": "%",
+      "value_range": "5...100",
+      "default_value": "100",
+      "xml_key": "ParWakeAlarmVolume"
+    },
+    {
+      "abbreviation": "Asf",
+      "summary": "Alarm sound fade-in (Touch Nightlight)",
+      "description": "1 = Alarm sound fades in for the duration of 60 seconds. 0 = No fade-in This parameter is only visible in certain configurations.",
+      "unit": "-",
+      "value_range": "0/1",
+      "default_value": "0",
+      "xml_key": "ParWakeAlarmSloping"
+    }
+  ],
+  "properties": [
+    {
+      "summary": "Alarm settings",
+      "description": "Edit Alarms",
+      "default_value": "-"
+    },
+    {
+      "summary": "Acknowledgement required",
+      "description": "After the alarm the snooze timer starts automatically until it is acknowledged",
+      "default_value": "-"
+    }
+  ],
+  "source_url": "https://www.loxone.com/enen/kb/alarm-clock/",
+  "input_count": 7,
+  "output_count": 6,
+  "parameter_count": 9,
+  "property_count": 2,
+  "ux_validated": true
+}

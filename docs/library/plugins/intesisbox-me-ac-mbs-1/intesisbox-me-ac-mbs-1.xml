@@ -1,0 +1,28 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Modbus Title="IntesisBox ME-AC-MBS-1" Comment="" Baudrate="9600" Channel="3">
+    <Info templateType="7" minVersion="12010617"/>
+	<ModbusCmd Title="FanSpeed" Comment="" ModbusAddress="2" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v.1&gt;°" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Mode" Comment="" ModbusAddress="1" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v.1&gt;°" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="TemperatureSetpoint" Comment="" ModbusAddress="4" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v.1&gt;°" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="OnOff" Comment="" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v.1&gt;°" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="WindowContact" Comment="" ModbusAddress="6" ModbusCmd="4" ModbusPollingCycle="10" Unit="&lt;v.1&gt;°" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="ControlDisablement" Comment="" ModbusAddress="7" ModbusCmd="4" ModbusPollingCycle="10" Unit="&lt;v.1&gt;°" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="RemoteControlDisablement" Comment="" ModbusAddress="8" ModbusCmd="4" ModbusPollingCycle="10" Unit="&lt;v.1&gt;°" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="OperationTime" Comment="" ModbusAddress="9" ModbusCmd="4" ModbusPollingCycle="10" Unit="&lt;v.1&gt;°" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="AlarmStatus" Comment="" ModbusAddress="10" ModbusCmd="4" ModbusPollingCycle="10" Unit="&lt;v.1&gt;°" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="ErrorCode" Comment="" ModbusAddress="11" ModbusCmd="4" ModbusPollingCycle="10" Unit="&lt;v.1&gt;°" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="VanePosition" Comment="" ModbusAddress="3" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v.1&gt;°" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="TemperatureAmbientExt" Comment="" ModbusAddress="22" ModbusCmd="4" ModbusPollingCycle="10" Unit="&lt;v.1&gt;°" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="TemperatureAmbientAC" Comment="" ModbusAddress="5" ModbusCmd="4" ModbusPollingCycle="10" Unit="&lt;v.1&gt;º" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="TemperatureSetpointAC" Comment="" ModbusAddress="23" ModbusCmd="4" ModbusPollingCycle="10" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="OnOff" Comment="" ModbusCmd="6" Unit="&lt;v.1&gt;V" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Mode" Comment="" ModbusAddress="1" ModbusCmd="6" Unit="&lt;v.1&gt;V" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="FanSpeed" Comment="" ModbusAddress="2" ModbusCmd="6" Unit="&lt;v.1&gt;V" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="VanePosition" Comment="" ModbusAddress="3" ModbusCmd="6" Unit="&lt;v.1&gt;V" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="TemperatureSetpoint" Comment="" ModbusAddress="4" ModbusCmd="6" Unit="&lt;v.1&gt;V" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="WindowContact" Comment="" ModbusAddress="6" ModbusCmd="6" Unit="&lt;v.1&gt;V" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="ControlDisablement" Comment="" ModbusAddress="7" ModbusCmd="6" Unit="&lt;v.1&gt;V" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="RemoteControlDisablement" Comment="" ModbusAddress="8" ModbusCmd="6" Unit="&lt;v.1&gt;V" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="OperationTime" Comment="" ModbusAddress="9" ModbusCmd="6" Unit="&lt;v.1&gt;V" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="TemperatureAmbientExt" Comment="" ModbusAddress="22" ModbusCmd="6" Unit="&lt;v.1&gt;V" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+</Modbus>

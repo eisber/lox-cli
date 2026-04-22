@@ -1,0 +1,24 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Modbus Title="DULCO-Pool SplashControl Pro" Comment="" Baudrate="19200" Parity="1" Channel="1">
+    <Info templateType="7" minVersion="12010617"/>
+	<ModbusCmd Title="pH Value" Comment="" ModbusAddress="2" ModbusCmd="3" ModbusDataType="100" ModbusPollingCycle="30" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Temperature Value" Comment="" ModbusAddress="4" ModbusCmd="3" ModbusDataType="100" ModbusPollingCycle="30" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Flow Value" Comment="" ModbusAddress="10" ModbusCmd="3" ModbusDataType="100" ModbusPollingCycle="30" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="ORP Value" Comment="" ModbusAddress="6" ModbusCmd="3" ModbusDataType="100" ModbusPollingCycle="30" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Chlorine Value" Comment="" ModbusAddress="8" ModbusCmd="3" ModbusDataType="100" ModbusPollingCycle="30" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="State Flags" Comment="" ModbusAddress="1" ModbusCmd="3" ModbusPollingCycle="30" Unit="&lt;v.0&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="pH Setpoint" Comment="" ModbusAddress="12" ModbusCmd="3" ModbusPollingCycle="30" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="1"/>
+	<ModbusCmd Title="Flow High Alarm" Comment="" ModbusAddress="24" ModbusCmd="3" ModbusPollingCycle="30" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="1"/>
+	<ModbusCmd Title="Chlorine Setpoint" Comment="" ModbusAddress="15" ModbusCmd="3" ModbusPollingCycle="30" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="1"/>
+	<ModbusCmd Title="ORP Setpoint" Comment="" ModbusAddress="14" ModbusCmd="3" ModbusPollingCycle="30" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="1" DestValHigh="1"/>
+	<ModbusCmd Title="Temperature Setpoint" Comment="" ModbusAddress="13" ModbusCmd="3" ModbusPollingCycle="30" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="Flow Low Alarm" Comment="" ModbusAddress="25" ModbusCmd="3" ModbusPollingCycle="30" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="1"/>
+	<ModbusCmd Title="Chlorine Low Alarm" Comment="" ModbusAddress="23" ModbusCmd="3" ModbusPollingCycle="30" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="1"/>
+	<ModbusCmd Title="Chlorine High Alarm" Comment="" ModbusAddress="22" ModbusCmd="3" ModbusPollingCycle="30" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="1"/>
+	<ModbusCmd Title="ORP Low Alarm" Comment="" ModbusAddress="21" ModbusCmd="3" ModbusPollingCycle="30" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="1" DestValHigh="1"/>
+	<ModbusCmd Title="Temperature Low Alarm" Comment="" ModbusAddress="19" ModbusCmd="3" ModbusPollingCycle="30" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="ORP High Alarm" Comment="" ModbusAddress="20" ModbusCmd="3" ModbusPollingCycle="30" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="1" DestValHigh="1"/>
+	<ModbusCmd Title="Temperature High Alarm" Comment="" ModbusAddress="18" ModbusCmd="3" ModbusPollingCycle="30" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="pH Low Alarm" Comment="" ModbusAddress="17" ModbusCmd="3" ModbusPollingCycle="30" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="1"/>
+	<ModbusCmd Title="pH High Alarm" Comment="" ModbusAddress="16" ModbusCmd="3" ModbusPollingCycle="30" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="1"/>
+</Modbus>

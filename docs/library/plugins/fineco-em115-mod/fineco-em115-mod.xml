@@ -1,0 +1,18 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Modbus Title="Fineco - EM115-MOD" Comment="" Baudrate="9600" Channel="1">
+	<Info templateType="7" minVersion="12040325"/>
+	<ModbusCmd Title="1_Voltage" Comment="" ModbusAddress="2" ModbusCmd="3" ModbusDataType="68" ModbusPollingCycle="5" Unit="&lt;v.1&gt;V" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="9_Import_Reactive_Energy" Comment="" ModbusAddress="354" ModbusCmd="4" ModbusDataType="68" ModbusPollingCycle="5" Unit="&lt;v.1&gt;varh" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="10_Reserve(default 0)" Comment="" ModbusAddress="356" ModbusCmd="4" ModbusDataType="68" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="11_Export_Active_Energy" Comment="" ModbusAddress="358" ModbusCmd="4" ModbusDataType="68" ModbusPollingCycle="5" Unit="&lt;v.1&gt;kWh" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="12_Export_Reactive_Energy" Comment="" ModbusAddress="360" ModbusCmd="4" ModbusDataType="68" ModbusPollingCycle="5" Unit="&lt;v.1&gt;varh" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="13_Total_Active_Energy" Comment="" ModbusAddress="362" ModbusCmd="4" ModbusDataType="68" ModbusPollingCycle="5" Unit="&lt;v.1&gt;kWh" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="2_Frequency" Comment="" ModbusAddress="4" ModbusCmd="4" ModbusDataType="68" ModbusPollingCycle="5" Unit="&lt;v.1&gt;Hz" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="3_Current" Comment="" ModbusAddress="6" ModbusCmd="4" ModbusDataType="68" ModbusPollingCycle="5" Unit="&lt;v.1&gt;A" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="4_Active_Power" Comment="" ModbusAddress="8" ModbusCmd="4" ModbusDataType="68" ModbusPollingCycle="5" Unit="&lt;v.1&gt;W" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="5_Apparent_Power" Comment="" ModbusAddress="10" ModbusCmd="4" ModbusDataType="68" ModbusPollingCycle="5" Unit="&lt;v.1&gt;va" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="6_Reactive_Power" Comment="" ModbusAddress="12" ModbusCmd="4" ModbusDataType="68" ModbusPollingCycle="5" Unit="&lt;v.1&gt;var" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="7_Power_Factor" Comment="" ModbusAddress="14" ModbusCmd="4" ModbusDataType="68" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="8_Import_Active_Energy" Comment="" ModbusAddress="352" ModbusCmd="4" ModbusDataType="68" ModbusPollingCycle="5" Unit="&lt;v.1&gt;kWh" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Clear_Energy" Comment="" ModbusAddress="1381" ModbusCmd="5" Unit="" Analog="false" Sensor="false"/>
+</Modbus>

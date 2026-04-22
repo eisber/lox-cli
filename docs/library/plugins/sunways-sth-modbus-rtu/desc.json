@@ -1,0 +1,9 @@
+{
+                                "type": "template",
+                                "name": "sunways-sth-modbus-rtu",
+                                "uuid": "aa2761ef-e40e-11ef-8ac44cd98f3deb8a",
+                                "version":"1.0.0",
+                                "id": "sunways-sth-modbus-rtu-1777",
+                                "file": "sunways-sth-modbus-rtu.xml",
+                                "templateType": "7",
+                            }

@@ -1,0 +1,55 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Modbus Title="Belimo Room Operating Unit Modbus RTU" Comment="" Baudrate="38400" Stopbits="1" Channel="1">
+	<Info templateType="7" minVersion="14000328"/>
+	<ModbusCmd Title="Room Temperature in Celcius" Comment="" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="10"/>
+	<ModbusCmd Title="Room Temperature in Selected Unit" Comment="" ModbusAddress="1" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="10"/>
+	<ModbusCmd Title="Relative Humidity" Comment="" ModbusAddress="2" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v.1&gt;%" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="10"/>
+	<ModbusCmd Title="CO2 Value of the Room" Comment="" ModbusAddress="3" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v&gt;ppm" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Dew Point Temperature in Celcius" Comment="" ModbusAddress="4" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="10"/>
+	<ModbusCmd Title="Dew Point Temperature in Selected Unit" Comment="" ModbusAddress="5" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="10"/>
+	<ModbusCmd Title="Air Quality Status" Comment="" ModbusAddress="6" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Digital Input" Comment="" ModbusAddress="7" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Bus Termination" Comment="" ModbusAddress="99" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Serial Number Device – 1st part" Comment="" ModbusAddress="100" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Serial Number Device – 2nd part" Comment="" ModbusAddress="101" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Serial Number Device – 4th part" Comment="" ModbusAddress="102" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Firmware Version" Comment="" ModbusAddress="103" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Display Warning Icon" Comment="" ModbusAddress="10" ModbusCmd="6" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Display Window Icon" Comment="" ModbusAddress="11" ModbusCmd="6" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Room/Zone Temperature Setpoint in Celcius" Comment="" ModbusAddress="21" ModbusCmd="6" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="1000"/>
+	<ModbusCmd Title="Set Ventilation Stage" Comment="" ModbusAddress="22" ModbusCmd="6" Unit="&lt;v.1&gt;%" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="1000"/>
+	<ModbusCmd Title="System Operation Mode" Comment="" ModbusAddress="30" ModbusCmd="6" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Ventilation Stage Control Mode" Comment="" ModbusAddress="31" ModbusCmd="6" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Heating and Cooling Application Status" Comment="" ModbusAddress="32" ModbusCmd="6" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Enable Local Adjustment" Comment="" ModbusAddress="33" ModbusCmd="6" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Room/Zone Temperature Setpoint in Selected Unit" Comment="" ModbusAddress="34" ModbusCmd="6" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="1000"/>
+	<ModbusCmd Title="Relative Room/Zone Temperature Setpoint in Celcius" Comment="" ModbusAddress="35" ModbusCmd="6" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="1000"/>
+	<ModbusCmd Title="Relative Room/Zone Temperature Setpoint in Selected Unit" Comment="" ModbusAddress="36" ModbusCmd="6" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="1000"/>
+	<ModbusCmd Title="Room Temperature Offset" Comment="" ModbusAddress="110" ModbusCmd="6" Unit="&lt;v.1&gt;K" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="1000"/>
+	<ModbusCmd Title="Relative Humidity Offset" Comment="" ModbusAddress="111" ModbusCmd="6" Unit="&lt;v.1&gt;%" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="1000"/>
+	<ModbusCmd Title="CO2 Value Offset" Comment="" ModbusAddress="112" ModbusCmd="6" Unit="&lt;v&gt;ppm" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="CO2 Limit for Good Air Quality" Comment="" ModbusAddress="115" ModbusCmd="6" Unit="&lt;v&gt;ppm" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="CO2 Limit for Medium Air Quality" Comment="" ModbusAddress="116" ModbusCmd="6" Unit="&lt;v&gt;ppm" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Air Quality Indication" Comment="" ModbusAddress="117" ModbusCmd="6" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Window Icon Function" Comment="" ModbusAddress="136" ModbusCmd="6" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Mode Temperature on Display" Comment="" ModbusAddress="137" ModbusCmd="6" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Display Ventilation Stages" Comment="" ModbusAddress="138" ModbusCmd="6" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Select the preferable temperature unit" Comment="" ModbusAddress="120" ModbusCmd="6" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Unit for temperature shown on display" Comment="" ModbusAddress="121" ModbusCmd="6" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Select the preferable differential temperature unit" Comment="" ModbusAddress="122" ModbusCmd="6" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Light/Dark Color Scheme" Comment="" ModbusAddress="130" ModbusCmd="6" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Display Room/Zone Temperature" Comment="" ModbusAddress="131" ModbusCmd="6" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Display Relative Humidity" Comment="" ModbusAddress="132" ModbusCmd="6" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Display CO2 Value" Comment="" ModbusAddress="133" ModbusCmd="6" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Display Heating/Cooling Icon" Comment="" ModbusAddress="134" ModbusCmd="6" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Warning Icon Function" Comment="" ModbusAddress="135" ModbusCmd="6" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Eco Button Mode" Comment="" ModbusAddress="139" ModbusCmd="6" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Display Boost Button" Comment="" ModbusAddress="140" ModbusCmd="6" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Mode On/Off Button" Comment="" ModbusAddress="141" ModbusCmd="6" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Boost Mode Duration" Comment="" ModbusAddress="142" ModbusCmd="6" Unit="&lt;v&gt;s" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Temperature Setpoint Type" Comment="" ModbusAddress="145" ModbusCmd="6" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Default Room Temperature Setpoint" Comment="" ModbusAddress="146" ModbusCmd="6" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="1000"/>
+	<ModbusCmd Title="Adjustment range temperature setpoint" Comment="" ModbusAddress="147" ModbusCmd="6" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Ventilation Stage Configuration" Comment="" ModbusAddress="148" ModbusCmd="6" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Ventilation Control Mode" Comment="" ModbusAddress="149" ModbusCmd="6" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+</Modbus>

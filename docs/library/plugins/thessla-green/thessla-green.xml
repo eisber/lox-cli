@@ -1,0 +1,22 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Modbus Title="Thessla Green Ventilation v1.0.3" Comment="Ventilation Unit" Baudrate="9600" Stopbits="1" Channel="10">
+	<Info templateType="7" minVersion="13011117"/>
+	<ModbusCmd Title="Bypass status" Comment="" ModbusAddress="4320" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Vent.Unit On_Off status" Comment="" ModbusAddress="4387" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Temp. Outside" Comment="" ModbusAddress="16" ModbusCmd="4" ModbusDataType="1" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="Temp. Intake air" Comment="" ModbusAddress="17" ModbusCmd="4" ModbusDataType="1" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="Summer_winter mode status" Comment="" ModbusAddress="4209" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Auto_manual mode status" Comment="" ModbusAddress="4208" ModbusCmd="3" ModbusPollingCycle="30" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Temp. After pre-heating" Comment="" ModbusAddress="19" ModbusCmd="4" ModbusDataType="1" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="Temp. Extract air" Comment="" ModbusAddress="18" ModbusCmd="4" ModbusDataType="1" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="Temp. Unit surroundings" Comment="" ModbusAddress="22" ModbusCmd="4" ModbusDataType="1" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="Special functions status" Comment="" ModbusAddress="4224" ModbusCmd="3" ModbusPollingCycle="30" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Intake air flow status" Comment="" ModbusAddress="272" ModbusCmd="4" ModbusPollingCycle="10" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Extract air flow status" Comment="" ModbusAddress="273" ModbusCmd="4" ModbusPollingCycle="10" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Bypass active_passive" Comment="" ModbusAddress="4320" ModbusCmd="6" Unit="" Analog="false" Sensor="false"/>
+	<ModbusCmd Title="Vent.Unit On_Off" Comment="" ModbusAddress="4387" ModbusCmd="6" Unit="" Analog="false" Sensor="false"/>
+	<ModbusCmd Title="Air flow" Comment="" ModbusAddress="4210" ModbusCmd="6" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Summer_winter mode" Comment="" ModbusAddress="4209" ModbusCmd="6" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Auto_manual mode" Comment="" ModbusAddress="4208" ModbusCmd="6" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Special functions" Comment="" ModbusAddress="4224" ModbusCmd="6" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+</Modbus>

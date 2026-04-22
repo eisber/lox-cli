@@ -1,0 +1,9 @@
+{
+                                "type": "template",
+                                "name": "metz-connect-mr-ai8-modbus-rtu",
+                                "uuid": "ef98ea3c-bfbf-11ef-8ac44cd98f3deb8a",
+                                "version":"1.0.0",
+                                "id": "metz-connect-mr-ai8-modbus-rtu-1751",
+                                "file": "metz-connect-mr-ai8-modbus-rtu.xml",
+                                "templateType": "7",
+                            }

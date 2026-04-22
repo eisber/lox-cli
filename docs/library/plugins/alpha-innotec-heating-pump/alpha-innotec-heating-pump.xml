@@ -1,0 +1,45 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Modbus Title="Alpha Innotec Heating &amp; Cooling" Comment="" HintText="" Channel="1">
+	<Info templateType="7" minVersion="15000227"/>
+	<ModbusCmd Title="Actual Heatpump Flow temperature [TVL]" Comment="" HintText="" ModbusAddress="1" ModbusCmd="4" ModbusDataType="1" ModbusPollingCycle="60" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="Actual Heatpump Return temperature [TRL]" Comment="" HintText="" ModbusAddress="2" ModbusCmd="4" ModbusDataType="1" ModbusPollingCycle="60" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="Acutal Buffer temperature sensor bottom [TRLext]" Comment="" HintText="" ModbusAddress="3" ModbusCmd="4" ModbusDataType="1" ModbusPollingCycle="60" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="Actual Warm Water tank temperature [TBW]" Comment="" HintText="" ModbusAddress="4" ModbusCmd="4" ModbusDataType="1" ModbusPollingCycle="60" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="Actual Buffer temperature sensor top [TB2]" Comment="" HintText="" ModbusAddress="6" ModbusCmd="4" ModbusDataType="1" ModbusPollingCycle="60" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="Actual Heatpump Source temperature [TWE]" Comment="" HintText="" ModbusAddress="9" ModbusCmd="4" ModbusDataType="1" ModbusPollingCycle="60" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="State Heatpump Operating Hours" Comment="" HintText="" ModbusAddress="33" ModbusCmd="4" ModbusDataType="1" ModbusPollingCycle="60" Unit="&lt;v.1&gt; h" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="State Heatpump System" Comment="" HintText="0=Heating mode
+1=Domestic hot water
+2=Swimming pool
+3=EVU off
+4=Defrost
+5=Off
+6=External energy source
+7=Cooling mode" ModbusAddress="37" ModbusCmd="4" ModbusDataType="1" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Actual Outdoor temperature [TA]" Comment="" HintText="" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="60" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="State Warm Water tank Target temperature" Comment="" HintText="" ModbusAddress="5" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="60" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="State Buffer temperature Target temperature" Comment="" HintText="" ModbusAddress="1" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="60" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="State Heating Operation mode" Comment="" HintText="0=Off
+1=Automatic" ModbusAddress="7" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="State Cooling Operation mode" Comment="" HintText="0=Off
+1=Automatic" ModbusAddress="11" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Actual Flow temperature HC2 [TB1]" Comment="" HintText="" ModbusAddress="5" ModbusCmd="4" ModbusDataType="1" ModbusPollingCycle="60" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="Buffer Target temperature setpoint" Comment="" HintText="MIN=15°C
+MAX=65°C" ModbusAddress="1" ModbusCmd="6" ModbusDataType="1" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="false" SourceValHigh="1" DestValHigh="10" RepeatRate="10"/>
+	<ModbusCmd Title="Warm water Target temperature setpoint" Comment="" HintText="Min=30°C
+Max=65°C" ModbusAddress="5" ModbusCmd="6" ModbusDataType="1" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="false" SourceValHigh="1" DestValHigh="10" RepeatRate="10"/>
+	<ModbusCmd Title="Warm water operation mode" Comment="" HintText="0=Automatic
+1=Additional heat pump
+2=Party
+3=Holiday
+4=Off" ModbusAddress="8" ModbusCmd="6" ModbusDataType="1" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100" RepeatRate="10"/>
+	<ModbusCmd Title="Heatpump Heating operation mode" Comment="" HintText="0=Automatic
+1=Additional heat pump
+2=Party
+3=Holiday
+4=Off" ModbusAddress="7" ModbusCmd="6" ModbusDataType="1" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100" RepeatRate="10"/>
+	<ModbusCmd Title="Flow Target temperature HC2" Comment="" HintText="MIN=15°C
+MAX=65°C" ModbusAddress="3" ModbusCmd="6" ModbusDataType="1" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="false" SourceValHigh="1" DestValHigh="10" RepeatRate="10"/>
+	<ModbusCmd Title="Heatpump Cooling operation mode" Comment="" HintText="0=Off
+1=Automatic" ModbusAddress="11" ModbusCmd="6" ModbusDataType="1" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100" RepeatRate="10"/>
+</Modbus>

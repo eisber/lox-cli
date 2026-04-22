@@ -1,0 +1,36 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Comm Title="WyreStorm MX-0408 Matrix Switcher" Comment="" RS485="true" Baudrate="9600" Databits="8">
+    <Info templateType="5" minVersion="12010617"/>
+	<CommCmd Title="Input 4 on Output 3" Comment="" CmdOn="\x63\x69\x72\x20\x30\x38\x0D\x0A" CmdOff="" Unit="" Analog="false" Text="false" Sensor="false"/>
+	<CommCmd Title="Input 1 on Output 1" Comment="" CmdOn="\x63\x69\x72\x20\x30\x39\x0D\x0A " CmdOff="" Unit="" Analog="false" Text="false" Sensor="false"/>
+	<CommCmd Title="Input 1 on Output 2" Comment="" CmdOn="\x63\x69\x72\x20\x31\x39\x0D\x0A " CmdOff="" Unit="" Analog="false" Text="false" Sensor="false"/>
+	<CommCmd Title="Input 1 on Output 3" Comment="" CmdOn="\x63\x69\x72\x20\x31\x37\x0D\x0A " CmdOff="" Unit="" Analog="false" Text="false" Sensor="false"/>
+	<CommCmd Title="Input 1 on Output 4" Comment="" CmdOn="\x63\x69\x72\x20\x35\x30\x0D\x0A " CmdOff="" Unit="" Analog="false" Text="false" Sensor="false"/>
+	<CommCmd Title="Input 1 on Output 5" Comment="" CmdOn="\x63\x69\x72\x20\x35\x45\x0D\x0A" CmdOff="" Unit="" Analog="false" Text="false" Sensor="false"/>
+	<CommCmd Title="Input 1 on Output 6" Comment="" CmdOn="\x63\x69\x72\x20\x34\x37\x0D\x0A" CmdOff="" Unit="" Analog="false" Text="false" Sensor="false"/>
+	<CommCmd Title="Input 1 on Output 7" Comment="" CmdOn="\x63\x69\x72\x20\x31\x38\x0D\x0A" CmdOff="" Unit="" Analog="false" Text="false" Sensor="false"/>
+	<CommCmd Title="Input 1 on Output 8" Comment="" CmdOn="\x63\x69\x72\x20\x30\x41\x0D\x0A" CmdOff="" Unit="" Analog="false" Text="false" Sensor="false"/>
+	<CommCmd Title="Input 2 on Output 1" Comment="" CmdOn="\x63\x69\x72\x20\x31\x44\x0D\x0A" CmdOff="" Unit="" Analog="false" Text="false" Sensor="false"/>
+	<CommCmd Title="Input 2 on Output 2" Comment="" CmdOn="\x63\x69\x72\x20\x31\x42\x0D\x0A" CmdOff="" Unit="" Analog="false" Text="false" Sensor="false"/>
+	<CommCmd Title="Input 2 on Output 3" Comment="" CmdOn="\x63\x69\x72\x20\x31\x32\x0D\x0A" CmdOff="" Unit="" Analog="false" Text="false" Sensor="false"/>
+	<CommCmd Title="Input 2 on Output 4" Comment="" CmdOn="\x63\x69\x72\x20\x35\x35\x0D\x0A" CmdOff="" Unit="" Analog="false" Text="false" Sensor="false"/>
+	<CommCmd Title="Input 2 on Output 5" Comment="" CmdOn="\x63\x69\x72\x20\x30\x36\x0D\x0A" CmdOff="" Unit="" Analog="false" Text="false" Sensor="false"/>
+	<CommCmd Title="Input 2 on Output 6" Comment="" CmdOn="\x63\x69\x72\x20\x30\x37\x0D\x0A" CmdOff="" Unit="" Analog="false" Text="false" Sensor="false"/>
+	<CommCmd Title="Input 2 on Output 7" Comment="" CmdOn="\x63\x69\x72\x20\x34\x34\x0D\x0A" CmdOff="" Unit="" Analog="false" Text="false" Sensor="false"/>
+	<CommCmd Title="Input 2 on Output 8" Comment="" CmdOn="\x63\x69\x72\x20\x31\x45\x0D\x0A" CmdOff="" Unit="" Analog="false" Text="false" Sensor="false"/>
+	<CommCmd Title="Input 3 on Output 1" Comment="" CmdOn="\x63\x69\x72\x20\x31\x46\x0D\x0A" CmdOff="" Unit="" Analog="false" Text="false" Sensor="false"/>
+	<CommCmd Title="Input 3 on Output 2" Comment="" CmdOn="\x63\x69\x72\x20\x31\x31\x0D\x0A" CmdOff="" Unit="" Analog="false" Text="false" Sensor="false"/>
+	<CommCmd Title="Input 3 on Output 3" Comment="" CmdOn="\x63\x69\x72\x20\x35\x39\x0D\x0A" CmdOff="" Unit="" Analog="false" Text="false" Sensor="false"/>
+	<CommCmd Title="Input 3 on Output 4" Comment="" CmdOn="\x63\x69\x72\x20\x34\x38\x0D\x0A" CmdOff="" Unit="" Analog="false" Text="false" Sensor="false"/>
+	<CommCmd Title="Input 3 on Output 5" Comment="" CmdOn="\x63\x69\x72\x20\x30\x35\x0D\x0A" CmdOff="" Unit="" Analog="false" Text="false" Sensor="false"/>
+	<CommCmd Title="Input 3 on Output 6" Comment="" CmdOn="\x63\x69\x72\x20\x34\x30\x0D\x0A" CmdOff="" Unit="" Analog="false" Text="false" Sensor="false"/>
+	<CommCmd Title="Input 3 on Output 7" Comment="" CmdOn="\x63\x69\x72\x20\x30\x46\x0D\x0A" CmdOff="" Unit="" Analog="false" Text="false" Sensor="false"/>
+	<CommCmd Title="Input 3 on Output 8" Comment="" CmdOn="\x63\x69\x72\x20\x30\x45\x0D\x0A" CmdOff="" Unit="" Analog="false" Text="false" Sensor="false"/>
+	<CommCmd Title="Input 4 on Output 1" Comment="" CmdOn="\x63\x69\x72\x20\x30\x44\x0D\x0A" CmdOff="" Unit="" Analog="false" Text="false" Sensor="false"/>
+	<CommCmd Title="Input 4 on Output 2" Comment="" CmdOn="\x63\x69\x72\x20\x31\x35\x0D\x0A" CmdOff="" Unit="" Analog="false" Text="false" Sensor="false"/>
+	<CommCmd Title="Input 4 on Output 4" Comment="" CmdOn="\x63\x69\x72\x20\x34\x41\x0D\x0A" CmdOff="" Unit="" Analog="false" Text="false" Sensor="false"/>
+	<CommCmd Title="Input 4 on Output 5" Comment="" CmdOn="\x63\x69\x72\x20\x30\x33\x0D\x0A" CmdOff="" Unit="" Analog="false" Text="false" Sensor="false"/>
+	<CommCmd Title="Input 4 on Output 6" Comment="" CmdOn="\x63\x69\x72\x20\x30\x32\x0D\x0A" CmdOff="" Unit="" Analog="false" Text="false" Sensor="false"/>
+	<CommCmd Title="Input 4 on Output 7" Comment="" CmdOn="\x63\x69\x72\x20\x35\x31\x0D\x0A" CmdOff="" Unit="" Analog="false" Text="false" Sensor="false"/>
+	<CommCmd Title="Input 4 on Output 8" Comment="" CmdOn="\x63\x69\x72\x20\x31\x41\x0D\x0A" CmdOff="" Unit="" Analog="false" Text="false" Sensor="false"/>
+</Comm>

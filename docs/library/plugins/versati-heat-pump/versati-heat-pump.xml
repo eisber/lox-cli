@@ -1,0 +1,55 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Modbus Title="Versati Heat Pump" Comment="" Baudrate="9600" Stopbits="1" Channel="1">
+	<Info templateType="7" minVersion="14010419"/>
+	<ModbusCmd Title="Mode" Comment="" ModbusAddress="2" ModbusCmd="3" ModbusPollingCycle="10" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Optional E-Heater" Comment="" ModbusAddress="3" ModbusCmd="3" ModbusPollingCycle="10" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="WOT-Cool" Comment="" ModbusAddress="9" ModbusCmd="3" ModbusPollingCycle="10" Unit="&lt;v&gt;℃" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="WOT-Heat" Comment="" ModbusAddress="10" ModbusCmd="3" ModbusPollingCycle="10" Unit="&lt;v&gt;℃" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="RT-Cool" Comment="" ModbusAddress="11" ModbusCmd="3" ModbusPollingCycle="10" Unit="&lt;v&gt;℃" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="RT-Heat" Comment="" ModbusAddress="12" ModbusCmd="3" ModbusPollingCycle="10" Unit="&lt;v&gt;℃" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="T-water tank" Comment="" ModbusAddress="13" ModbusCmd="3" ModbusPollingCycle="10" Unit="&lt;v&gt;℃" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="T-Eheater" Comment="" ModbusAddress="14" ModbusCmd="3" ModbusPollingCycle="10" Unit="&lt;v&gt;℃" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="T-Other switch on" Comment="" ModbusAddress="15" ModbusCmd="3" ModbusPollingCycle="10" Unit="&lt;v&gt;℃" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Upper AT-Heat" Comment="" ModbusAddress="17" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v&gt;℃" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Lower AT-Heat" Comment="" ModbusAddress="18" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v&gt;℃" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Upper RT-Heat" Comment="" ModbusAddress="19" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v&gt;℃" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Lower RT-Heat" Comment="" ModbusAddress="20" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v&gt;℃" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Upper WT-Heat" Comment="" ModbusAddress="21" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v&gt;℃" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Lower WT-Heat" Comment="" ModbusAddress="22" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v&gt;℃" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="△T-Cool" Comment="" ModbusAddress="29" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v&gt;℃" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="△T-Heat" Comment="" ModbusAddress="30" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v&gt;℃" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="△T-hot water" Comment="" ModbusAddress="31" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v&gt;℃" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="△T-Room temp" Comment="" ModbusAddress="32" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v&gt;℃" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="On_Off" Comment="" ModbusAddress="42" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Error reset" Comment="" ModbusAddress="44" ModbusCmd="3" ModbusPollingCycle="15" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Unit status" Comment="" ModbusAddress="117" ModbusCmd="3" ModbusPollingCycle="15" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="T-outdoor" Comment="" ModbusAddress="118" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="15" Unit="&lt;v.1&gt;℃" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="10"/>
+	<ModbusCmd Title="T-water out PE" Comment="" ModbusAddress="125" ModbusCmd="3" ModbusPollingCycle="15" Unit="&lt;v.1&gt;℃" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="10"/>
+	<ModbusCmd Title="T-optional water sen." Comment="" ModbusAddress="126" ModbusCmd="3" ModbusPollingCycle="15" Unit="&lt;v.1&gt;℃" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="10"/>
+	<ModbusCmd Title="T-water in PE" Comment="" ModbusAddress="127" ModbusCmd="3" ModbusPollingCycle="15" Unit="&lt;v.1&gt;℃" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="10"/>
+	<ModbusCmd Title="T-tank ctrl." Comment="" ModbusAddress="128" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v&gt;℃" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="T-remote room" Comment="" ModbusAddress="129" ModbusCmd="3" ModbusPollingCycle="15" Unit="&lt;v&gt;℃" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Thermostat" Comment="" ModbusAddress="132" ModbusCmd="3" ModbusPollingCycle="15" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="T-weather depend" Comment="" ModbusAddress="137" ModbusCmd="3" ModbusPollingCycle="15" Unit="&lt;v&gt;℃" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Mode" Comment="" ModbusAddress="2" ModbusCmd="6" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Optional E-Heater" Comment="" ModbusAddress="3" ModbusCmd="6" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="WOT-Cool" Comment="" ModbusAddress="9" ModbusCmd="6" Unit="&lt;v&gt;℃" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="WOT-Heat" Comment="" ModbusAddress="10" ModbusCmd="6" Unit="&lt;v&gt;℃" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="RT-Cool" Comment="" ModbusAddress="11" ModbusCmd="6" Unit="&lt;v&gt;℃" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="RT-Heat" Comment="" ModbusAddress="12" ModbusCmd="6" Unit="&lt;v&gt;℃" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="T-water tank" Comment="" ModbusAddress="13" ModbusCmd="6" Unit="&lt;v&gt;℃" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="T-Eheater" Comment="" ModbusAddress="14" ModbusCmd="6" Unit="&lt;v&gt;℃" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="T-Other switch on" Comment="" ModbusAddress="15" ModbusCmd="6" Unit="&lt;v&gt;℃" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Upper AT-Heat" Comment="" ModbusAddress="17" ModbusCmd="6" Unit="&lt;v&gt;℃" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Lower AT-Heat" Comment="" ModbusAddress="18" ModbusCmd="6" Unit="&lt;v&gt;℃" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Upper RT-Heat" Comment="" ModbusAddress="19" ModbusCmd="6" Unit="&lt;v&gt;℃" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Lower RT-Heat" Comment="" ModbusAddress="20" ModbusCmd="6" Unit="&lt;v&gt;℃" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Upper WT-Heat" Comment="" ModbusAddress="21" ModbusCmd="6" Unit="&lt;v&gt;℃" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Lower WT-Heat" Comment="" ModbusAddress="22" ModbusCmd="6" Unit="&lt;v&gt;℃" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="△T-Cool" Comment="" ModbusAddress="29" ModbusCmd="6" Unit="&lt;v&gt;℃" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="△T-Heat" Comment="" ModbusAddress="30" ModbusCmd="6" Unit="&lt;v&gt;℃" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="△T-hot water" Comment="" ModbusAddress="31" ModbusCmd="6" Unit="&lt;v&gt;℃" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="△T-Room temp" Comment="" ModbusAddress="32" ModbusCmd="6" Unit="&lt;v&gt;℃" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="On_Off" Comment="" ModbusAddress="42" ModbusCmd="6" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Error reset" Comment="" ModbusAddress="44" ModbusCmd="6" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+</Modbus>

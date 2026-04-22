@@ -1,0 +1,9 @@
+{
+                                "type": "template",
+                                "name": "janitza-umg-96-modbus-tcp",
+                                "uuid": "456e6186-5684-11ec-8aa04cd98f3deb8a",
+                                "version":"1.0.1",
+                                "id": "janitza-umg-96-modbus-tcp-628",
+                                "file": "janitza-umg-96-modbus-tcp.xml",
+                                "templateType": "7",
+                            }

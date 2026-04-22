@@ -1,0 +1,38 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Modbus Title="KNV NIBE F-Serial 1145" Comment="" HintText="" Channel="1">
+	<Info templateType="7" minVersion="15000416"/>
+	<ModbusCmd Title="40004 Actual Outdoortemperature" Comment="" HintText="" ModbusAddress="40004" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="60" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="40014 Actual Hot Water Temperature" Comment="" HintText="" ModbusAddress="40014" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="60" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="45001 State Alarm Code" Comment="" HintText="" ModbusAddress="45001" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="15" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="47041 State Hot Water Operationmode" Comment="" HintText="" ModbusAddress="47041" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="60" Unit="&lt;v.0&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="40008 Actual Supply Flow Temperature" Comment="" HintText="" ModbusAddress="40008" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="60" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="40033 Actual Roomtemperature" Comment="" HintText="" ModbusAddress="40033" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="60" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="47011 State Roomtemperature Offset" Comment="" HintText="" ModbusAddress="47011" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="47007 State Heatingcurve" Comment="" HintText="" ModbusAddress="47007" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="60" Unit="&lt;v.0&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="40012 Actual Back Flow Temperature" Comment="" HintText="" ModbusAddress="40012" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="60" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="40016 Actual Brine Out Temperature" Comment="" HintText="" ModbusAddress="40016" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="60" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="10"/>
+	<ModbusCmd Title="40015 Actual Brine In Temperature" Comment="" HintText="" ModbusAddress="40015" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="60" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="10"/>
+	<ModbusCmd Title="43427 State Compressor" Comment="" HintText="" ModbusAddress="43427" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v.0&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="43005 Degree Minutes" Comment="" HintText="" ModbusAddress="43005" ModbusCmd="3" ModbusPollingCycle="15" Unit="&lt;v&gt; Min" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="43086 Actual Heatpump Operationmode" Comment="" HintText="" ModbusAddress="43086" ModbusCmd="3" ModbusPollingCycle="15" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="42100 Actual Outdoortemperature average (24h)" Comment="" HintText="" ModbusAddress="42100" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="60" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="47398 State Roomsensor Setpoint" Comment="" HintText="Wert 50 - 300
+Korrektur 10 = 1
+Anzeige 5°C - 30°C" ModbusAddress="47398" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="60" Unit="&lt;v.2&gt;°C" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="47402 State Roomsensor Factor Setpoint" Comment="" HintText="Wert 0-60
+Faktor wie stark sich die Differenz zwischen Soll- und Ist-Raumtemperatur auf die Vorlauftemperatur auswirken soll (Raumfühlereinfluss)" ModbusAddress="47402" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="15" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="47371 State Heating Release" Comment="" HintText="" ModbusAddress="47371" ModbusCmd="3" ModbusPollingCycle="15" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="47394 State Roomsensor" Comment="" HintText="" ModbusAddress="47394" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="15" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="47041 Hot Water Operation mode" Comment="" HintText="" ModbusAddress="47041" ModbusCmd="16" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="47011 Heating Curve Offset" Comment="" HintText="" ModbusAddress="47011" ModbusCmd="16" ModbusDataType="1" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="47007 Heating Curve" Comment="" HintText="" ModbusAddress="47007" ModbusCmd="16" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="44243 Operation Mode" Comment="" HintText="" ModbusAddress="44243" ModbusCmd="16" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="47398 Roomtemperature Setpoint" Comment="" HintText="Wert 50 - 300
+Korrektur 1 = 10
+Eingabe 5°C - 30°C" ModbusAddress="47398" ModbusCmd="16" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="1" DestValHigh="10"/>
+	<ModbusCmd Title="47402 Room Sensor Factor Setpoint" Comment="" HintText="Faktor 1-6
+Faktor wie stark sich die Differenz zwischen Soll- und Ist-Raumtemperatur auf die Vorlauftemperatur auswirken soll (Raumfühlereinfluss)
+Wert 0-60 --&gt; Korrektur 1 = 10" ModbusAddress="47402" ModbusCmd="16" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="1" DestValHigh="10"/>
+	<ModbusCmd Title="47371 Release Heating" Comment="" HintText="" ModbusAddress="47371" ModbusCmd="16" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="47394 Room Sensor Operation mode" Comment="" HintText="" ModbusAddress="47394" ModbusCmd="16" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+</Modbus>

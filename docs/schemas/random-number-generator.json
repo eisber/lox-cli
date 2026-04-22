@@ -1,0 +1,41 @@
+{
+  "title": "Random Number Generator",
+  "xml_type": "",
+  "kb_slug": "random-number-generator",
+  "description": "The Random Generator block generates random values in the specified value range.",
+  "inputs": [
+    {
+      "abbreviation": "DisPc",
+      "summary": "Disable periphery control",
+      "description": "Locks (C)",
+      "value_range": "0/1"
+    }
+  ],
+  "outputs": [
+    {
+      "abbreviation": "Ran",
+      "description": "Random value",
+      "value_range": "\u221e"
+    }
+  ],
+  "parameters": [
+    {
+      "abbreviation": "Min",
+      "summary": "Minimum value",
+      "value_range": "\u221e",
+      "default_value": "0"
+    },
+    {
+      "abbreviation": "Max",
+      "summary": "Maximum value",
+      "value_range": "\u221e",
+      "default_value": "10"
+    }
+  ],
+  "properties": [],
+  "source_url": "https://www.loxone.com/enen/kb/random-number-generator/",
+  "input_count": 1,
+  "output_count": 1,
+  "parameter_count": 2,
+  "property_count": 0
+}

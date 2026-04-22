@@ -1,0 +1,19 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Modbus Title="Thermia Calibra" Comment="" Channel="1">
+	<Info templateType="7" minVersion="12021027"/>
+	<ModbusCmd Title="Outdoor temperature" Comment="" ModbusAddress="14" ModbusCmd="4" ModbusDataType="1" ModbusPollingCycle="300" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="1"/>
+	<ModbusCmd Title="Tap water weighted temperature" Comment="" ModbusAddress="17" ModbusCmd="4" ModbusPollingCycle="120" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="1"/>
+	<ModbusCmd Title="First priority demand" Comment="" ModbusAddress="1" ModbusCmd="4" ModbusPollingCycle="10" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Tap water top temperature" Comment="" ModbusAddress="15" ModbusCmd="4" ModbusPollingCycle="120" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="1"/>
+	<ModbusCmd Title="Tap water lower temperature" Comment="" ModbusAddress="16" ModbusCmd="4" ModbusPollingCycle="120" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="1"/>
+	<ModbusCmd Title="Brine in temperature" Comment="" ModbusAddress="10" ModbusCmd="4" ModbusDataType="1" ModbusPollingCycle="60" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="1"/>
+	<ModbusCmd Title="Brine out temperature" Comment="" ModbusAddress="11" ModbusCmd="4" ModbusDataType="1" ModbusPollingCycle="60" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="1"/>
+	<ModbusCmd Title="Comfort wheel temperature" Comment="" ModbusAddress="5" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="1"/>
+	<ModbusCmd Title="Supply line temperature" Comment="" ModbusAddress="9" ModbusCmd="4" ModbusPollingCycle="60" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="1"/>
+	<ModbusCmd Title="Return line temperature" Comment="" ModbusAddress="8" ModbusCmd="4" ModbusPollingCycle="60" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="1"/>
+	<ModbusCmd Title="Comfort mode" Comment="" ModbusAddress="82" ModbusCmd="4" ModbusPollingCycle="10" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Compressor speed RPM" Comment="" ModbusAddress="5" ModbusCmd="4" ModbusPollingCycle="60" Unit="&lt;v.1&gt; RPM" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Compressor available gears" Comment="" ModbusAddress="4" ModbusCmd="4" ModbusPollingCycle="60" Unit="&lt;v&gt; / 9" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="1"/>
+	<ModbusCmd Title="External additional heater: Current demand_" Comment="" ModbusAddress="6" ModbusCmd="4" ModbusPollingCycle="60" Unit="&lt;v.1&gt; %" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="1"/>
+	<ModbusCmd Title="Compressor speed percent" Comment="" ModbusAddress="54" ModbusCmd="4" ModbusPollingCycle="60" Unit="&lt;v&gt; %" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="1"/>
+</Modbus>

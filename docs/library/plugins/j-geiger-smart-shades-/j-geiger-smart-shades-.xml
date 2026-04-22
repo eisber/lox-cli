@@ -1,0 +1,10 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<VirtualOut Title="J Geiger Smart" Comment="" Address="http://IP" CmdInit="" CloseAfterSend="true" CmdSep=";">
+	<Info templateType="3" minVersion="13030119"/>
+	<VirtualOutCmd Title="Motor Up" Comment="" CmdOnMethod="GET" CmdOffMethod="GET" CmdOn="/cgi/devcmd.xml?adr=1&amp;ept=1&amp;cmd=3" CmdOnHTTP="" CmdOnPost="" CmdOff="/cgi/devcmd.xml?adr=1&amp;ept=1&amp;cmd=2" CmdOffHTTP="" CmdOffPost="" CmdAnswer="" Analog="false" Repeat="0" RepeatRate="0"/>
+	<VirtualOutCmd Title="Motor Down" Comment="" CmdOnMethod="GET" CmdOffMethod="GET" CmdOn="/cgi/devcmd.xml?adr=1&amp;ept=1&amp;cmd=4" CmdOnHTTP="" CmdOnPost="" CmdOff="/cgi/devcmd.xml?adr=1&amp;ept=1&amp;cmd=2" CmdOffHTTP="" CmdOffPost="" CmdAnswer="" Analog="false" Repeat="0" RepeatRate="0"/>
+	<VirtualOutCmd Title="Motor Stop" Comment="" CmdOnMethod="GET" CmdOffMethod="GET" CmdOn="/cgi/devcmd.xml?adr=1&amp;ept=1&amp;cmd=2" CmdOnHTTP="" CmdOnPost="" CmdOff="" CmdOffHTTP="" CmdOffPost="" CmdAnswer="" Analog="false" Repeat="0" RepeatRate="0"/>
+	<VirtualOutCmd Title="Group Down" Comment="" CmdOnMethod="GET" CmdOffMethod="GET" CmdOn="/cgi/devevt.xml?adr=01&amp;ept=FF&amp;evt=C2&amp;dat=0400000002000000000000000000000000000000" CmdOnHTTP="" CmdOnPost="" CmdOff="/cgi/devevt.xml?adr=01&amp;ept=FF&amp;evt=C2&amp;dat=0300000002000000000000000000000000000000" CmdOffHTTP="" CmdOffPost="" CmdAnswer="" Analog="false" Repeat="0" RepeatRate="0"/>
+	<VirtualOutCmd Title="Group Stop" Comment="" CmdOnMethod="GET" CmdOffMethod="GET" CmdOn="/cgi/devevt.xml?adr=01&amp;ept=FF&amp;evt=C2&amp;dat=0200000002000000000000000000000000000000" CmdOnHTTP="" CmdOnPost="" CmdOff="" CmdOffHTTP="" CmdOffPost="" CmdAnswer="" Analog="false" Repeat="0" RepeatRate="0"/>
+	<VirtualOutCmd Title="Group Up" Comment="" CmdOnMethod="GET" CmdOffMethod="GET" CmdOn="/cgi/devevt.xml?adr=01&amp;ept=FF&amp;evt=C2&amp;dat=0300000002000000000000000000000000000000" CmdOnHTTP="" CmdOnPost="" CmdOff="/cgi/devevt.xml?adr=01&amp;ept=FF&amp;evt=C2&amp;dat=0300000002000000000000000000000000000000" CmdOffHTTP="" CmdOffPost="" CmdAnswer="" Analog="false" Repeat="0" RepeatRate="0"/>
+</VirtualOut>

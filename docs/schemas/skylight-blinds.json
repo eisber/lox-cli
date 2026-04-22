@@ -1,0 +1,276 @@
+{
+  "title": "Roof Window Shading",
+  "xml_type": "",
+  "kb_slug": "skylight-blinds",
+  "description": "Controls the shading for a roof window.",
+  "inputs": [
+    {
+      "abbreviation": "Tg",
+      "summary": "Toggle",
+      "description": "Toggles between open, stop, close. For single button control.",
+      "unit": "-",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "Co",
+      "summary": "Complete open",
+      "description": "If in motion, stops.",
+      "unit": "-",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "Cc",
+      "summary": "Complete close",
+      "description": "If in motion, stops.",
+      "unit": "-",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "Dwc",
+      "summary": "Door/window contact",
+      "description": "Opens shading completely and locks the block when On. Manual operation via user interface is still possible. (0 = closed, 1 = open).",
+      "unit": "-",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "Wa",
+      "summary": "Wind alarm",
+      "description": "Moves shading to the wind alarm position set in parameter (Wap) and locks the block(can still be operated through the App/Webinterface). Used for storm protection. Active Automatic is only suspended instead of cancelled. After Wa end, automatic is restarted with a positive edge on Sps or of the sunshine-systemvariable. Automatic conditions are not re-evaluated on end on windalarm. If both conditions are permanently active during windalarm, automatic can be restarted via pulse on Spr. The name of the connected sensor is used in the user interface.",
+      "unit": "-",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "Off",
+      "summary": "Off",
+      "description": "Pulse stops movement. On locks the block. Dominating input. The name of the connected sensor is used in the user interface.",
+      "unit": "-",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "Pos",
+      "summary": "Position of shading",
+      "description": "Move the shading to the specified position.",
+      "unit": "%",
+      "value_range": "0...100"
+    },
+    {
+      "abbreviation": "T5",
+      "summary": "T5 control",
+      "description": "Button 1: Complete open Button 4: Complete close",
+      "unit": "-",
+      "value_range": "\u221e"
+    },
+    {
+      "abbreviation": "DisPc",
+      "summary": "Disable periphery control",
+      "description": "Disables inputs Tg, Po, Pc, Co, Cc, So, T5 when On. (e.g Child lock, cleaning) Control via user interface is still possible.",
+      "unit": "-",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "So",
+      "summary": "Slightly open",
+      "description": "Venetian blinds close completely and move slats in horizontal position according to parameter (Rd). Roller blinds, curtains and awnings move into position according to parameter (Rd).",
+      "unit": "-",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "Sps",
+      "summary": "Sun position automatic start",
+      "description": "Activates the sun position automatic when On at the beginning of the shading period, or also with a pulse during the shading period. The sun position automatic is deactivated for the rest of the day, if block is operated manually. Pulse on (Spr) followed by a rising edge on (Sps) or pulse on (Spr) while (Sps) is active, restarts the sun position automatic.",
+      "unit": "-",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "DisSp",
+      "summary": "Disable sun position automatic",
+      "description": "Disables the sun position automatic when On.",
+      "unit": "-",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "Spr",
+      "summary": "Sun position automatic restart",
+      "description": "Pulse followed by a rising edge at input (Sps) or pulse while input (Sps) is active, restarts the sun position automatic.",
+      "unit": "-",
+      "value_range": "0/1"
+    }
+  ],
+  "outputs": [
+    {
+      "abbreviation": "Op",
+      "summary": "Open",
+      "description": "This output is only visible in certain configurations.",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "Cl",
+      "summary": "Close",
+      "description": "This output is only visible in certain configurations.",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "Pos",
+      "summary": "Position of shading",
+      "description": "Position of the shading (0.0 = open, 1.0 = closed)",
+      "value_range": "0...1"
+    },
+    {
+      "abbreviation": "Wds",
+      "summary": "Wind, door/window contact state",
+      "description": "On when Input (Wa) of the block or of a linked central block is active or when input (Dwc) is active.",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "Off",
+      "summary": "Off",
+      "description": "Active when input (Off) is 1.",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "Sp",
+      "summary": "Sun position automatic",
+      "description": "On, if input (Sps) = 1 and input (DisSp) = 0 ...and if the setting \u201cUse sunshine variable\u201d is checked and the sun is shining, or if the Automation based on sun position is switched on in the App.",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "API",
+      "summary": "API Connector",
+      "description": "Intelligent API based connector. API Commands",
+      "value_range": "-"
+    }
+  ],
+  "parameters": [
+    {
+      "abbreviation": "Wap",
+      "summary": "Wind alarm position",
+      "description": "0 = Completely open 1 = Completely closed",
+      "unit": "-",
+      "value_range": "0/1",
+      "default_value": "0"
+    },
+    {
+      "abbreviation": "Mld",
+      "summary": "Motor lock duration",
+      "description": "Duration of motor lock between direction changes.",
+      "unit": "s",
+      "value_range": "0...\u221e",
+      "default_value": "0,5"
+    },
+    {
+      "abbreviation": "Tdc",
+      "summary": "Time double-click",
+      "description": "Double click duration on inputs (Po), (Pc) for complete open / close. 0 = Not used",
+      "unit": "s",
+      "value_range": "0...\u221e",
+      "default_value": "0,3"
+    },
+    {
+      "abbreviation": "Tlc",
+      "summary": "Time long-click",
+      "description": "Long-click duration on inputs (Po), (Pc) for complete open / close. If you prefer a double-click, then set the value > (Opd) or (Cld). 0 = Always start complete travel.",
+      "unit": "s",
+      "value_range": "0...\u221e",
+      "default_value": "3"
+    },
+    {
+      "abbreviation": "minTd",
+      "summary": "Minimum travel duration",
+      "description": "Minimum travel time at pulse on input (Po) or (Pc).",
+      "unit": "s",
+      "value_range": "0...\u221e",
+      "default_value": "0,4"
+    },
+    {
+      "abbreviation": "Spm",
+      "summary": "Sun position automatic mode",
+      "description": "0 = Automatic stays Off if shading is closed. If the input (Sps) is active, a pulse on (Spr) restarts the sun position automatic. 1 = Automatic always allowed.",
+      "unit": "-",
+      "value_range": "0...1",
+      "default_value": "1"
+    },
+    {
+      "abbreviation": "Spe",
+      "summary": "Sun position automatic end action",
+      "description": "0 = No action 1 = Complete open 2 = Complete close",
+      "unit": "-",
+      "value_range": "0...2",
+      "default_value": "1"
+    },
+    {
+      "abbreviation": "Dir",
+      "summary": "Compass direction",
+      "description": "Compass direction of the window: 0 = north 90 = east 180 = south 270 = west -1 = not configured",
+      "unit": "\u00b0",
+      "value_range": "-1...359",
+      "default_value": "-1"
+    },
+    {
+      "abbreviation": "Dts",
+      "summary": "Direction tolerance start",
+      "description": "Direction tolerance for the sun position automatic when the sun enters the shading area.",
+      "unit": "\u00b0",
+      "value_range": "0...90",
+      "default_value": "85"
+    },
+    {
+      "abbreviation": "Dte",
+      "summary": "Direction tolerance end",
+      "description": "Direction tolerance for the sun position automatic when the sun exits the shading area.",
+      "unit": "\u00b0",
+      "value_range": "0...90",
+      "default_value": "85"
+    },
+    {
+      "abbreviation": "Pi",
+      "summary": "Pitch",
+      "description": "Roof or window pitch. 0 = horizontal 90 = vertical",
+      "unit": "\u00b0",
+      "value_range": "0...90",
+      "default_value": "30"
+    },
+    {
+      "abbreviation": "Spos",
+      "summary": "Sun position automatic start offset",
+      "description": "Start offset of the sun position automatic relative to Sunrise.",
+      "unit": "min",
+      "value_range": "-90...90",
+      "default_value": "30"
+    },
+    {
+      "abbreviation": "Spoe",
+      "summary": "Sun position automatic end offset",
+      "description": "End offset of the sun position automatic relative to Sunset.",
+      "unit": "min",
+      "value_range": "-90...90",
+      "default_value": "-30"
+    },
+    {
+      "abbreviation": "Sop",
+      "summary": "Slightly open position",
+      "description": "Position used for input (So) and (Sps).",
+      "unit": "%",
+      "value_range": "0...100",
+      "default_value": "80"
+    }
+  ],
+  "properties": [
+    {
+      "summary": "Use sunshine variable",
+      "description": "Sun position automatic is only activated if the system variable Sunshine and the input Sps are active.",
+      "value_range": "-",
+      "default_value": "-"
+    },
+    {
+      "summary": "Activity Log Entries",
+      "description": "Number of entries in the activity log. 0: log is disabled The activity log tracks relevant changes since program start.",
+      "value_range": "0...100",
+      "default_value": "20"
+    }
+  ],
+  "source_url": "https://www.loxone.com/enen/kb/skylight-blinds/",
+  "input_count": 13,
+  "output_count": 7,
+  "parameter_count": 14,
+  "property_count": 2
+}

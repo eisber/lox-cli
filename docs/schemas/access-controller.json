@@ -1,0 +1,68 @@
+{
+  "title": "Access Controller",
+  "xml_type": "",
+  "kb_slug": "access-controller",
+  "description": "In the properties of the access control block the 1-wire Extension that has got the iButton reader connected must be selected. Select which user groups have got access permissions and also set the times for each group. (Periphery tree > user groups)\n(Sel) input to identify the iButton reader if multiple are connected to the same 1-Wire Extension. Following a pulse on (Sel) the permissions for this block are used to verify the identity of the iButton for the duration of (Dsel)",
+  "inputs": [
+    {
+      "abbreviation": "Sel",
+      "summary": "Select access controller",
+      "description": "Pulse to select access controller (when using multiple access controllers)",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "Eid",
+      "summary": "External Authentication ID",
+      "description": "This External Authentication ID can be provided e.g. by a fingerprint through a virtual input. This ID must be present in the user authentication.",
+      "value_range": "-"
+    },
+    {
+      "abbreviation": "Off",
+      "summary": "Off",
+      "description": "Pulse: Outputs are reset / switched off. On: Block is locked. Dominating input.",
+      "value_range": "0/1"
+    }
+  ],
+  "outputs": [
+    {
+      "abbreviation": "P",
+      "summary": "Permission given",
+      "description": "Activates output for the duration set in parameter (Pd) when permission is given.",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "Pd",
+      "summary": "Permission denied",
+      "description": "Activates output for the duration set in parameter (Pd) when permission is denied.",
+      "value_range": "0/1"
+    }
+  ],
+  "parameters": [
+    {
+      "abbreviation": "Dsel",
+      "summary": "Duration Access Controller selected",
+      "description": "If (Dsel) = 0 the authentication check is carried out immediately, (Sel) is not used.",
+      "value_range": "\u221e",
+      "default_value": "0"
+    },
+    {
+      "abbreviation": "Pd",
+      "summary": "Pulse duration",
+      "description": "Pulse duration of outputs (P), (Pd).",
+      "value_range": "\u221e",
+      "default_value": "3"
+    }
+  ],
+  "properties": [
+    {
+      "summary": "Assigned Device",
+      "description": "The following devices are supported: Loxone Intercom 1-wire extension Devices with 1-wire interface",
+      "default_value": "-"
+    }
+  ],
+  "source_url": "https://www.loxone.com/enen/kb/access-controller/",
+  "input_count": 3,
+  "output_count": 2,
+  "parameter_count": 2,
+  "property_count": 1
+}

@@ -1,0 +1,141 @@
+{
+  "title": "Spot Price Optimizer",
+  "xml_type": "",
+  "kb_slug": "spot-price-optimizer",
+  "description": "> \u2139\ufe0f Note: Loxone provides direct integration with leading European spot markets, including EPEX, OTE, and ESIOS. This enables a reliable, efficient, and seamless setup without the need for additional configuration.",
+  "inputs": [
+    {
+      "abbreviation": "Off",
+      "summary": "Off",
+      "description": "Pulse: Outputs are reset / switched off. On: Block is locked. Dominating input.",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "Tr",
+      "summary": "Trigger",
+      "description": "Starts the automatic. The output O will be activated as often as defined by 'demand' within 'period'.",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "+0 to +23",
+      "summary": "Relative Mode: Price in the hour now +0 to +23",
+      "description": "Price forecast for the hour now + offset. This inputs are not available when using the Spot market mode.",
+      "value_range": "\u221e"
+    }
+  ],
+  "outputs": [
+    {
+      "abbreviation": "O",
+      "summary": "Active Output",
+      "description": "Output will be activated at the hours with the lowest price after a trigger.",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "vHigh",
+      "summary": "Very High",
+      "description": "The current price is Very High compared to the other hours or above the Max parameter. Limits will be recalculated after a Trigger based on the forecast values available at that moment.",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "High",
+      "summary": "High",
+      "description": "The current price is High compared to the other hours. Limits will be recalculated after a Trigger based on the forecast values available at that moment.",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "Low",
+      "summary": "Low",
+      "description": "The current price is Low compared to the other hours. Limits will be recalculated after a Trigger based on the forecast values available at that moment.",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "vLow",
+      "summary": "Very Low",
+      "description": "The current price is Very Low compared to the other hours. Limits will be recalculated after a Trigger based on the forecast values available at that moment.",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "Max",
+      "summary": "Highest Price",
+      "description": "The maximum price will be recalculated after a Trigger based on the forecast values available at that moment.",
+      "value_range": "\u221e"
+    },
+    {
+      "abbreviation": "Min",
+      "summary": "Lowest Price",
+      "description": "The minimum price will be recalculated after a Trigger based on the forecast values available at that moment.",
+      "value_range": "\u221e"
+    },
+    {
+      "abbreviation": "Avg",
+      "summary": "Average Price",
+      "description": "The average price will be recalculated after a Trigger based on the forecast values available at that moment.",
+      "value_range": "\u221e"
+    },
+    {
+      "abbreviation": "Nv",
+      "summary": "Next Price",
+      "description": "The price of the next period.",
+      "value_range": "\u221e"
+    },
+    {
+      "abbreviation": "API",
+      "summary": "API Connector",
+      "description": "Intelligent API based connector. API Commands",
+      "value_range": "-"
+    }
+  ],
+  "parameters": [
+    {
+      "abbreviation": "Max",
+      "summary": "Fixed very high price",
+      "description": "If the current price is above this value, the very High output will always activate.",
+      "unit": "Currency",
+      "value_range": "\u221e",
+      "default_value": "1"
+    },
+    {
+      "abbreviation": "I2",
+      "summary": "Variable Input 2",
+      "description": "Value which can be used in the formula with I2.",
+      "unit": "-",
+      "value_range": "\u221e",
+      "default_value": "0"
+    },
+    {
+      "abbreviation": "I3",
+      "summary": "Variable Input 3",
+      "description": "Value which can be used in the formula with I3.",
+      "unit": "-",
+      "value_range": "\u221e",
+      "default_value": "0"
+    }
+  ],
+  "properties": [
+    {
+      "summary": "Price Calculation",
+      "description": "Use a formula to calculate the actual price you are paying. Ask your energy supplier for the formula. I1 = price from the inputs or the spot market price (without tax). I2 = I2 parameter. I3 = I3 parameter. I4 = Minutes since midnight for which the price is calculated.",
+      "default_value": "-"
+    },
+    {
+      "summary": "Mode",
+      "description": "Relative: Inputs provide the price relative to the current hour. Absolute: Inputs provide the price for each hour of the day (00:00 to 23:00). Spot market: Data is obtained from european energy spot markets, Inputs for hourly prices are hidden.",
+      "default_value": "-"
+    },
+    {
+      "summary": "Market Area",
+      "description": "Spot market area for which to fetch the prices.",
+      "default_value": "-"
+    },
+    {
+      "summary": "Market Interval",
+      "description": "Interval at which Spot Market prices will be retrieved.",
+      "default_value": "-"
+    }
+  ],
+  "source_url": "https://www.loxone.com/enen/kb/spot-price-optimizer/",
+  "input_count": 3,
+  "output_count": 10,
+  "parameter_count": 3,
+  "property_count": 4
+}

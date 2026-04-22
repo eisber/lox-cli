@@ -1,0 +1,46 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Modbus Title="Acond" Comment="" Channel="1">
+	<Info templateType="7" minVersion="14030728"/>
+	<ModbusCmd Title="T_set_indoor1" Comment="" ModbusCmd="4" ModbusDataType="1" ModbusPollingCycle="5" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="T_act_indoor1" Comment="" ModbusAddress="1" ModbusCmd="4" ModbusDataType="1" ModbusPollingCycle="5" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="T_set_indoor2" Comment="" ModbusAddress="2" ModbusCmd="4" ModbusDataType="1" ModbusPollingCycle="5" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="T_act_indoor2" Comment="" ModbusAddress="3" ModbusCmd="4" ModbusDataType="1" ModbusPollingCycle="5" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="T_set_TUV" Comment="" ModbusAddress="4" ModbusCmd="4" ModbusDataType="1" ModbusPollingCycle="5" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="T_act_TUV" Comment="" ModbusAddress="5" ModbusCmd="4" ModbusDataType="1" ModbusPollingCycle="300" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="TC_status" Comment="" ModbusAddress="6" ModbusCmd="4" ModbusDataType="1" ModbusPollingCycle="5" Unit="&lt;v.0&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="T_set_water_back" Comment="" ModbusAddress="7" ModbusCmd="4" ModbusDataType="1" ModbusPollingCycle="5" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="T_act_water_back" Comment="" ModbusAddress="8" ModbusCmd="4" ModbusDataType="1" ModbusPollingCycle="5" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="T_act_air" Comment="" ModbusAddress="9" ModbusCmd="4" ModbusDataType="33" ModbusPollingCycle="5" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="T_act_solar" Comment="" ModbusAddress="10" ModbusCmd="4" ModbusDataType="1" ModbusPollingCycle="5" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="T_act_pool" Comment="" ModbusAddress="11" ModbusCmd="4" ModbusDataType="1" ModbusPollingCycle="5" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="T_set_pool" Comment="" ModbusAddress="12" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="rezim_pan" Comment="" ModbusAddress="13" ModbusCmd="4" ModbusDataType="1" ModbusPollingCycle="5" Unit="&lt;v.0&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="typ_reg_pan" Comment="" ModbusAddress="14" ModbusCmd="4" ModbusDataType="1" ModbusPollingCycle="5" Unit="&lt;v.0&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="T_solanka" Comment="" ModbusAddress="15" ModbusCmd="4" ModbusDataType="1" ModbusPollingCycle="5" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="HeartBeat" Comment="" ModbusAddress="16" ModbusCmd="4" ModbusDataType="1" ModbusPollingCycle="5" Unit="&lt;v.0&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="T_act_water_outlet" Comment="" ModbusAddress="17" ModbusCmd="4" ModbusDataType="1" ModbusPollingCycle="5" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="T_set_water_outlet" Comment="" ModbusAddress="18" ModbusCmd="4" ModbusDataType="1" ModbusPollingCycle="5" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="Comp_max" Comment="" ModbusAddress="19" ModbusCmd="4" ModbusDataType="1" ModbusPollingCycle="300" Unit="&lt;v.0&gt; RPM or W" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="err_number" Comment="" ModbusAddress="20" ModbusCmd="4" ModbusDataType="1" ModbusPollingCycle="5" Unit="&lt;v.0&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="err_number_SECMono" Comment="" ModbusAddress="21" ModbusCmd="4" ModbusDataType="1" ModbusPollingCycle="5" Unit="&lt;v.0&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="err_number_driver" Comment="" ModbusAddress="22" ModbusCmd="4" ModbusDataType="1" ModbusPollingCycle="5" Unit="&lt;v.0&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="comp_actual" Comment="" ModbusAddress="23" ModbusCmd="4" ModbusDataType="1" ModbusPollingCycle="300" Unit="&lt;v.0&gt; RPM or W" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="actual PWM" Comment="" ModbusAddress="24" ModbusCmd="4" ModbusDataType="1" ModbusPollingCycle="300" Unit="&lt;v.0&gt; %" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="manual PWM" Comment="" ModbusAddress="25" ModbusCmd="4" ModbusDataType="1" ModbusPollingCycle="300" Unit="&lt;v.0&gt; " Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="T_set_indoor1" Comment="" ModbusCmd="6" ModbusDataType="1" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="100"/>
+	<ModbusCmd Title="T_act_indoor1" Comment="" ModbusAddress="1" ModbusCmd="6" ModbusDataType="1" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="100"/>
+	<ModbusCmd Title="T_set_indoor2" Comment="" ModbusAddress="2" ModbusCmd="6" ModbusDataType="1" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="100"/>
+	<ModbusCmd Title="T_act_indoor2" Comment="" ModbusAddress="3" ModbusCmd="6" ModbusDataType="1" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="100"/>
+	<ModbusCmd Title="T_set_TUV" Comment="" ModbusAddress="4" ModbusCmd="6" ModbusDataType="1" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="100"/>
+	<ModbusCmd Title="TC_set" Comment="" ModbusAddress="5" ModbusCmd="6" ModbusDataType="1" Unit="&lt;v.0&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="TC_set_reg" Comment="" ModbusAddress="6" ModbusCmd="6" ModbusDataType="1" Unit="&lt;v.0&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="T_set_water_back" Comment="" ModbusAddress="7" ModbusCmd="6" ModbusDataType="1" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="100"/>
+	<ModbusCmd Title="T_air" Comment="" ModbusAddress="8" ModbusCmd="6" ModbusDataType="1" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="100"/>
+	<ModbusCmd Title="T_act_solar" Comment="" ModbusAddress="9" ModbusCmd="6" ModbusDataType="1" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="100"/>
+	<ModbusCmd Title="T_act_pool" Comment="" ModbusAddress="10" ModbusCmd="6" ModbusDataType="1" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="100"/>
+	<ModbusCmd Title="T_set_pool" Comment="" ModbusAddress="11" ModbusCmd="6" ModbusDataType="1" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="100"/>
+	<ModbusCmd Title="T_set_water_cool" Comment="" ModbusAddress="12" ModbusCmd="6" ModbusDataType="1" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="100"/>
+	<ModbusCmd Title="Comp_max" Comment="" ModbusAddress="13" ModbusCmd="6" ModbusDataType="1" Unit="&lt;v.0&gt; RPM or W" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="PWM" Comment="" ModbusAddress="14" ModbusCmd="6" ModbusDataType="1" Unit="&lt;v.0&gt; %" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="manual PWM" Comment="" ModbusAddress="15" ModbusCmd="6" ModbusDataType="1" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10"/>
+</Modbus>

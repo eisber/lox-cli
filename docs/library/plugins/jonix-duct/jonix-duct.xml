@@ -1,0 +1,30 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Modbus Title="Jonix_NTP_Ventilation" Comment="Non Thermal Plasma Air Sanitization" Channel="1">
+	<Info templateType="7" minVersion="12021105"/>
+	<ModbusCmd Title="FW Version" Comment="" ModbusAddress="1" ModbusCmd="3" ModbusPollingCycle="1800" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Generators Actual Voltage" Comment="" ModbusAddress="6" ModbusCmd="3" ModbusPollingCycle="600" Unit="&lt;v&gt; cV" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Vmin generators Threshold" Comment="" ModbusAddress="7" ModbusCmd="3" ModbusPollingCycle="3600" Unit="&lt;v&gt; cV" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Vmax generators Threshold" Comment="" ModbusAddress="9" ModbusCmd="3" ModbusPollingCycle="3600" Unit="&lt;v&gt; cV" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Maintenance Counter -Hours-" Comment="" ModbusAddress="11" ModbusCmd="3" ModbusPollingCycle="1800" Unit="&lt;v&gt; h" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Alarm Threshold Maintenance Counter" Comment="" ModbusAddress="12" ModbusCmd="3" ModbusPollingCycle="3600" Unit="&lt;v&gt; h" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Replacement Counter" Comment="" ModbusAddress="14" ModbusCmd="3" ModbusPollingCycle="1800" Unit="&lt;v&gt; h" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Alarm Threshold Replacement Counter" Comment="" ModbusAddress="15" ModbusCmd="3" ModbusPollingCycle="3600" Unit="&lt;v&gt; h" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Alarm Maintenance Counter" Comment="" ModbusAddress="13" ModbusCmd="3" ModbusPollingCycle="1800" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="Alarm Replacement Counter" Comment="" ModbusAddress="16" ModbusCmd="3" ModbusPollingCycle="1800" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="Alarm Vmax generators_" Comment="" ModbusAddress="10" ModbusCmd="3" ModbusPollingCycle="300" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="Alarm Vmin generators" Comment="" ModbusAddress="8" ModbusCmd="3" ModbusPollingCycle="300" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="Modbus ON-OFF Command Enabling Status" Comment="" ModbusAddress="17" ModbusCmd="3" ModbusPollingCycle="15" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="Modbus ON-OFF Status" Comment="" ModbusAddress="18" ModbusCmd="3" ModbusPollingCycle="15" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="Vmin Alarm Enabling Status" Comment="" ModbusAddress="29" ModbusCmd="3" ModbusPollingCycle="1800" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="Vmax Alarm Enabling Status" Comment="" ModbusAddress="30" ModbusCmd="3" ModbusPollingCycle="1800" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="Generators Actual Status" Comment="" ModbusAddress="24" ModbusCmd="3" ModbusPollingCycle="15" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="ON-OFF Command" Comment="Ionization Activation_Deactivation" ModbusAddress="18" ModbusCmd="6" Unit="" Analog="false" Sensor="false"/>
+	<ModbusCmd Title="ON-OFF Command Enable" Comment="" ModbusAddress="17" ModbusCmd="6" Unit="" Analog="false" Sensor="false" RepeatRate="5"/>
+	<ModbusCmd Title="RESET Maintenance Counter Alert" Comment="" ModbusAddress="13" ModbusCmd="6" Unit="" Analog="false" Sensor="false"/>
+	<ModbusCmd Title="RESET Replacement Maintenance Counter" Comment="" ModbusAddress="16" ModbusCmd="6" Unit="" Analog="false" Sensor="false"/>
+	<ModbusCmd Title="RESET Vmax Alarm" Comment="" ModbusAddress="10" ModbusCmd="6" Unit="" Analog="false" Sensor="false"/>
+	<ModbusCmd Title="RESET Vmin Alarm" Comment="" ModbusAddress="8" ModbusCmd="6" Unit="" Analog="false" Sensor="false"/>
+	<ModbusCmd Title="Alarm Threshold Replacement" Comment="" ModbusAddress="15" ModbusCmd="6" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="RESET Maintenance Counter" Comment="" ModbusAddress="27" ModbusCmd="6" Unit="" Analog="false" Sensor="false"/>
+	<ModbusCmd Title="RESET Replacement Counter" Comment="" ModbusAddress="28" ModbusCmd="6" Unit="" Analog="false" Sensor="false"/>
+</Modbus>

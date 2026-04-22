@@ -1,0 +1,306 @@
+{
+  "title": "Sauna Controller with Evaporator",
+  "xml_type": "",
+  "kb_slug": "sauna-controller-evaporator",
+  "description": "Sauna controller with Evaporator\nUsing this Function Block, a Sauna with an Evaporator can be intelligently automated\nAll standard Sauna heaters can be controlled (switching of the heating elements, as well as analog control via 0-10 V signal).\nAn Evaporator can be switched On / Off, but also controlled via an analog 0-10 V signal.",
+  "inputs": [
+    {
+      "abbreviation": "Mode",
+      "summary": "Select sauna mode",
+      "description": "0 = Off / Manual 1 = Finnish manual 2 = Humidity manual 3 = Finnish sauna 4 = Herbal sauna 5 = Soft steam bath 6 = Hot-air bath",
+      "unit": "-",
+      "value_range": "0...6"
+    },
+    {
+      "abbreviation": "Fim",
+      "summary": "Finnish manual",
+      "description": "Switches to this mode. (Temperature: manual, Humidity: Off)",
+      "unit": "-",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "Hum",
+      "summary": "Humidity manual",
+      "description": "Switches to this mode. (Temperature: manual, Humidity: manual)",
+      "unit": "-",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "Fin",
+      "summary": "Finnish sauna",
+      "description": "Switches to this mode. (Temperature: 80\u00b0C, Humidity: Off)",
+      "unit": "-",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "Her",
+      "summary": "Herbal sauna",
+      "description": "Switches to this mode. (Temperature: 45\u00b0C, Humidity: 50%)",
+      "unit": "-",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "Sof",
+      "summary": "Soft Steam bath",
+      "description": "Switches to this mode. (Temperature: 50\u00b0C, Humidity: 50%)",
+      "unit": "-",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "Hot",
+      "summary": "Hot-air bath",
+      "description": "Switches to this mode. (Temperature: 45\u00b0C, Humidity: 45%)",
+      "unit": "-",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "Tg",
+      "summary": "Toggle",
+      "description": "Toggles between Sauna On, Heating, Drying, Fan, Sauna Off.",
+      "unit": "-",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "\u03d1t",
+      "summary": "Target temperature",
+      "description": "Min: 30\u00b0C Max: 110\u00b0C (Finnish manual) Max: 70\u00b0C (Humidity manual)",
+      "unit": "\u00b0",
+      "value_range": "\u221e"
+    },
+    {
+      "abbreviation": "Fan",
+      "summary": "Toggle fan",
+      "description": "Switches fan on / off. The fan can only be switched on when the sauna is On.",
+      "unit": "-",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "St",
+      "summary": "Activate sand timer",
+      "description": "Activates the sand timer for the duration set in parameter (Std). Each subsequent pulse on the input restarts the timer.",
+      "unit": "-",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "Dc",
+      "summary": "Door contact",
+      "description": "The door state is only used for display in the user interface! 0 = opened, 1 = closed.",
+      "unit": "-",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "\u03d1b",
+      "summary": "Current temperature bench",
+      "description": "If connected, the bench temperature is used as current temperature.",
+      "unit": "\u00b0",
+      "value_range": "\u221e"
+    },
+    {
+      "abbreviation": "P",
+      "summary": "Presence",
+      "description": "Used for safety shutdown. If no presence is detected, the sauna will shutdown automatically after the duration set in parameter (Ssdt).",
+      "unit": "-",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "Ws",
+      "summary": "Water shortage",
+      "description": "If the water supply is low, the Evaporator is switched off.",
+      "unit": "-",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "Off",
+      "summary": "Off",
+      "description": "Pulse: Outputs are reset / switched off. On: Block is locked. Dominating input. The name of the connected sensor is used in the user interface.",
+      "unit": "-",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "DisPc",
+      "summary": "Disable periphery control",
+      "description": "Disables inputs (Tg), (Fan), (St) when On. (e.g Child lock, cleaning) Control via user interface is still possible.",
+      "unit": "-",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "On",
+      "summary": "On",
+      "description": "Activate Sauna",
+      "unit": "-",
+      "value_range": "0/1"
+    }
+  ],
+  "outputs": [
+    {
+      "abbreviation": "So",
+      "summary": "Sauna output (0-10V)",
+      "description": "Analog output 0-10V for sauna control.",
+      "unit": "-",
+      "value_range": "\u221e"
+    },
+    {
+      "abbreviation": "L1-3",
+      "summary": "Sauna phase output (1-3)",
+      "description": "Phase output (L1-3) for sauna control.",
+      "unit": "-",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "Ev",
+      "summary": "Evaporator output (0-10V)",
+      "description": "Analog output 0-10V for Evaporator control.",
+      "unit": "-",
+      "value_range": "\u221e"
+    },
+    {
+      "abbreviation": "Evd",
+      "summary": "Evaporator digital output",
+      "description": "Digital output for Evaporator control.",
+      "unit": "-",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "On",
+      "summary": "Sauna state",
+      "description": "On as long as sauna and drying phase are active.",
+      "unit": "-",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "Fan",
+      "summary": "Fan",
+      "description": "Output for fan control.",
+      "unit": "-",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "Mode",
+      "summary": "Current sauna mode",
+      "description": "0 = Off / Manual 1 = Finnish manual 2 = Humidity manual 3 = Finnish sauna 4 = Herbal sauna 5 = Soft steam bath 6 = Hot-air bath",
+      "unit": "-",
+      "value_range": "\u221e"
+    },
+    {
+      "abbreviation": "Ssd",
+      "summary": "Safety shutdown",
+      "description": "Pulse when the temperature exceeds the value set in parameter (Ssd\u03d1).",
+      "unit": "-",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "\u03d1t",
+      "summary": "Target temperature",
+      "description": "Outputs the target temperature.",
+      "unit": "\u00b0",
+      "value_range": "\u221e"
+    },
+    {
+      "abbreviation": "Ht",
+      "summary": "Target humidity",
+      "description": "Outputs the target humidity.",
+      "unit": "%",
+      "value_range": "15...65"
+    },
+    {
+      "abbreviation": "Stoff",
+      "summary": "Sand timer end",
+      "description": "Pulse when the sand timer ends.",
+      "unit": "-",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "St",
+      "summary": "Sand timer state",
+      "description": "On when sand timer is active.",
+      "unit": "-",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "Ready",
+      "summary": "Sauna ready",
+      "description": "Pulse when target temperature is reached.",
+      "unit": "-",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "API",
+      "summary": "API Connector",
+      "description": "Intelligent API based connector. API Commands",
+      "unit": "-",
+      "value_range": "-"
+    }
+  ],
+  "parameters": [
+    {
+      "abbreviation": "\u03d1d",
+      "summary": "Temperature deviation",
+      "description": "Deviation current temperature to seat temperature (if the input current bench temperature (\u03d1b) is not used).",
+      "unit": "\u00b0",
+      "value_range": "\u221e",
+      "default_value": "0"
+    },
+    {
+      "abbreviation": "Dry\u03d1",
+      "summary": "Drying phase temperature",
+      "description": "The temperature required to start the fan when in drying phase.",
+      "unit": "\u00b0",
+      "value_range": "\u221e",
+      "default_value": "70"
+    },
+    {
+      "abbreviation": "Dryd",
+      "summary": "Drying phase duration",
+      "description": "Fan duration after reaching the drying phase temperature (Dry\u03d1).",
+      "unit": "s",
+      "value_range": "0...\u221e",
+      "default_value": "1800"
+    },
+    {
+      "abbreviation": "Ssd\u03d1",
+      "summary": "Safety shutdown temperature",
+      "description": "If exceeded, all outputs are switched off, except for the output (Ssd).",
+      "unit": "\u00b0",
+      "value_range": "\u221e",
+      "default_value": "139"
+    },
+    {
+      "abbreviation": "Ssdt",
+      "summary": "Safety shutdown time",
+      "description": "The sauna is automatically switched off at the set time. If input (P) is used, the time starts to run when presence is no longer detected.",
+      "unit": "s",
+      "value_range": "0...\u221e",
+      "default_value": "7200"
+    },
+    {
+      "abbreviation": "PWMp",
+      "summary": "PWM period",
+      "description": "Specifies the PWM period for the phase outputs (L1-3).",
+      "unit": "s",
+      "value_range": "0...\u221e",
+      "default_value": "180"
+    },
+    {
+      "abbreviation": "G",
+      "summary": "Gain",
+      "description": "Controller gain for the PWM modulated output. If the value is decreased, the temperature control responds slower, if it is increased, it responds faster. If necessary, change the value in small steps to adapt the control to the sauna.",
+      "unit": "-",
+      "value_range": "0...\u221e",
+      "default_value": "1"
+    },
+    {
+      "abbreviation": "Pm",
+      "summary": "Phase mode",
+      "description": "Number of phases used: 0 = 3 phases 1 = 1 phase 2 = 2 phases in Evaporator mode or 3 phases in mode without Evaporator. Parameter is only displayed if phase outputs (L2) and (L3) are used.",
+      "unit": "-",
+      "value_range": "0...2",
+      "default_value": "2"
+    }
+  ],
+  "properties": [],
+  "source_url": "https://www.loxone.com/enen/kb/sauna-controller-evaporator/",
+  "input_count": 18,
+  "output_count": 14,
+  "parameter_count": 8,
+  "property_count": 0
+}

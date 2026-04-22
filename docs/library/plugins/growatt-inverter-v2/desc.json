@@ -1,0 +1,9 @@
+{
+                                "type": "template",
+                                "name": "growatt-inverter-v2",
+                                "uuid": "77aa94ba-d716-11ed-ade64cd98f3deb8a",
+                                "version":"1.0.0",
+                                "id": "growatt-inverter-v2-1200",
+                                "file": "growatt-inverter-v2.xml",
+                                "templateType": "7",
+                            }

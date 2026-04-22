@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<VirtualInHttp Title="VoltoPlus" Comment="" Address="http://IP-Adress Volto Plus/api/v1/values" PollingTime="10">
+	<Info templateType="2" minVersion="13030223"/>
+	<VirtualInHttpCmd Title="Voltage L1" Comment="" Check="&quot;U1&quot;,&quot;value&quot;:&quot;\v" Signed="true" Analog="true" SourceValLow="0" DestValLow="0" SourceValHigh="100" DestValHigh="1" DefVal="0" MinVal="-10000" MaxVal="10000" Unit="&lt;v.1&gt;Volt"/>
+	<VirtualInHttpCmd Title="Voltage L2" Comment="" Check="&quot;U2&quot;,&quot;value&quot;:&quot;\v" Signed="true" Analog="true" SourceValLow="0" DestValLow="0" SourceValHigh="100" DestValHigh="1" DefVal="0" MinVal="-10000" MaxVal="10000" Unit="&lt;v.1&gt; Volt"/>
+	<VirtualInHttpCmd Title="Voltage L3" Comment="" Check="&quot;U3&quot;,&quot;value&quot;:&quot;\v" Signed="true" Analog="true" SourceValLow="0" DestValLow="0" SourceValHigh="100" DestValHigh="1" DefVal="0" MinVal="-10000" MaxVal="10000" Unit="&lt;v.1&gt; Volt"/>
+	<VirtualInHttpCmd Title="Current L1" Comment="" Check="&quot;I1&quot;,&quot;value&quot;:&quot;\v" Signed="true" Analog="true" SourceValLow="0" DestValLow="0" SourceValHigh="1000" DestValHigh="1" DefVal="0" MinVal="-10000" MaxVal="10000" Unit="&lt;v.1&gt; A"/>
+	<VirtualInHttpCmd Title="Current L2" Comment="" Check="&quot;I2&quot;,&quot;value&quot;:&quot;\v" Signed="true" Analog="true" SourceValLow="0" DestValLow="0" SourceValHigh="1000" DestValHigh="1" DefVal="0" MinVal="-10000" MaxVal="10000" Unit="&lt;v.1&gt; A"/>
+	<VirtualInHttpCmd Title="Current L3" Comment="" Check="&quot;I3&quot;,&quot;value&quot;:&quot;\v" Signed="true" Analog="true" SourceValLow="0" DestValLow="0" SourceValHigh="1000" DestValHigh="1" DefVal="0" MinVal="-10000" MaxVal="10000" Unit="&lt;v.1&gt; A"/>
+	<VirtualInHttpCmd Title="Current power" Comment="" Check="&quot;P&quot;,&quot;value&quot;:&quot;\v" Signed="true" Analog="true" SourceValLow="0" DestValLow="0" SourceValHigh="1000" DestValHigh="1" DefVal="0" MinVal="-10000" MaxVal="10000" Unit="&lt;v.2&gt; kWh"/>
+	<VirtualInHttpCmd Title="Related energy" Comment="" Check=":&quot;fwdEn&quot;,&quot;value&quot;:&quot;\v" Signed="true" Analog="true" SourceValLow="0" DestValLow="0" SourceValHigh="10" DestValHigh="1" DefVal="0" MinVal="-10000" MaxVal="10000" Unit="&lt;v.1&gt;kWh"/>
+	<VirtualInHttpCmd Title="Delivered energy" Comment="" Check="&quot;rvsEn&quot;,&quot;value&quot;:&quot;\v" Signed="true" Analog="true" SourceValLow="0" DestValLow="0" SourceValHigh="10" DestValHigh="1" DefVal="0" MinVal="-10000" MaxVal="10000" Unit="&lt;v.1&gt;kWh"/>
+</VirtualInHttp>

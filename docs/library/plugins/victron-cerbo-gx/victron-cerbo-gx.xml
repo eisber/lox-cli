@@ -1,0 +1,26 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Modbus Title="Cerbo GX" Comment="" HintText="" Channel="100">
+	<Info templateType="7" minVersion="15031213"/>
+	<ModbusCmd Title="Grid L1" Comment="" HintText="" ModbusAddress="820" ModbusCmd="4" ModbusDataType="1" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Grid L2" Comment="" HintText="" ModbusAddress="821" ModbusCmd="4" ModbusDataType="1" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Grid L3" Comment="" HintText="" ModbusAddress="822" ModbusCmd="4" ModbusDataType="1" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="PV - AC-coupled on output L1" Comment="" HintText="" ModbusAddress="808" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="AC Consumption L1" Comment="" HintText="" ModbusAddress="817" ModbusCmd="4" ModbusDataType="1" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Battery State of Charge (System)" Comment="" HintText="" ModbusAddress="843" ModbusCmd="4" ModbusDataType="32" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="PV - AC-coupled on output L2" Comment="" HintText="" ModbusAddress="809" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="PV - AC-coupled on output L3" Comment="" HintText="" ModbusAddress="810" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="AC Consumption L1" Comment="" HintText="" ModbusAddress="817" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="AC Consumption L2" Comment="" HintText="" ModbusAddress="818" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="AC Consumption L3" Comment="" HintText="" ModbusAddress="819" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Genset L1" Comment="" HintText="" ModbusAddress="823" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Battery Voltage (System)" Comment="" HintText="" ModbusAddress="840" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Charger power" Comment="" HintText="" ModbusAddress="842" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="DC System Power" Comment="" HintText="" ModbusAddress="860" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Power between meter and inverter/charger, L1" Comment="" HintText="" ModbusAddress="872" ModbusCmd="4" ModbusDataType="35" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Power between meter and inverter/charger, L2" Comment="" HintText="" ModbusAddress="874" ModbusCmd="4" ModbusDataType="35" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Power between meter and inverter/charger, L3" Comment="" HintText="" ModbusAddress="876" ModbusCmd="4" ModbusDataType="35" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="L1 Power" Comment="" HintText="" ModbusAddress="2600" ModbusCmd="4" ModbusDataType="33" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Battery Power" Comment="" HintText="" ModbusAddress="842" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Relay 1 status" Comment="" HintText="" ModbusAddress="806" ModbusCmd="6" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Relay 2 status" Comment="" HintText="" ModbusAddress="807" ModbusCmd="6" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10"/>
+</Modbus>

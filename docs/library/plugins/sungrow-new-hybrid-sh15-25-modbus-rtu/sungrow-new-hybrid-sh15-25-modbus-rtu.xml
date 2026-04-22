@@ -1,0 +1,27 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Modbus Title="Sungrow Hybrid inverter RTU" Comment="" HintText="" Baudrate="9600" Stopbits="1" Channel="1">
+	<Info templateType="7" minVersion="15010805"/>
+	<ModbusCmd Title="Total Output Energy" Comment="" HintText="" ModbusAddress="5003" ModbusCmd="4" ModbusDataType="34" ModbusPollingCycle="10" Unit="&lt;v.1&gt;kWh" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="Gesamt DC power" Comment="PV Power" HintText="" ModbusAddress="5016" ModbusCmd="4" ModbusDataType="98" ModbusPollingCycle="1" Unit="&lt;v.3&gt;kW" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="1"/>
+	<ModbusCmd Title="Total PV Generation" Comment="" HintText="" ModbusAddress="13002" ModbusCmd="4" ModbusDataType="34" ModbusPollingCycle="10" Unit="&lt;v.1&gt;kWh" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="Total Export Energy from PV" Comment="" HintText="" ModbusAddress="13005" ModbusCmd="4" ModbusDataType="34" ModbusPollingCycle="10" Unit="&lt;v.1&gt;kWh" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="Total direct energy consumption" Comment="" HintText="" ModbusAddress="13017" ModbusCmd="4" ModbusDataType="34" ModbusPollingCycle="10" Unit="&lt;v.1&gt;kWh" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="Batterie Leistung" Comment="" HintText="" ModbusAddress="13021" ModbusCmd="4" ModbusDataType="1" ModbusPollingCycle="1" Unit="&lt;v.3&gt;kW" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="1"/>
+	<ModbusCmd Title="Akku Qualität" Comment="" HintText="" ModbusAddress="13023" ModbusCmd="4" ModbusPollingCycle="10" Unit="&lt;v&gt;%" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="Selbstverbrauch" Comment="" HintText="" ModbusAddress="13028" ModbusCmd="4" ModbusPollingCycle="10" Unit="&lt;v.1&gt;%" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="Total Import Energy" Comment="" HintText="" ModbusAddress="13036" ModbusCmd="4" ModbusDataType="34" ModbusPollingCycle="10" Unit="&lt;v.1&gt;kWh" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="10"/>
+	<ModbusCmd Title="Total Export Energy" Comment="" HintText="" ModbusAddress="13045" ModbusCmd="4" ModbusDataType="34" ModbusPollingCycle="10" Unit="&lt;v.1&gt;kWh" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="Battery SOC" Comment="" HintText="" ModbusAddress="13022" ModbusCmd="4" ModbusPollingCycle="30" Unit="&lt;v.1&gt;%" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="Running state" Comment="" HintText="" ModbusAddress="13000" ModbusCmd="4" ModbusPollingCycle="1" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Leistung Netz" Comment="" HintText="" ModbusAddress="13009" ModbusCmd="4" ModbusDataType="99" ModbusPollingCycle="0.1" Unit="&lt;v.3&gt;kW" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="-1"/>
+	<ModbusCmd Title="Temperatur WR" Comment="" HintText="" ModbusAddress="5007" ModbusCmd="4" ModbusDataType="1" ModbusPollingCycle="20" Unit="&lt;v.2&gt;°C" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="MPPT 1 Spannung" Comment="" HintText="" ModbusAddress="5010" ModbusCmd="4" ModbusDataType="1" ModbusPollingCycle="1" Unit="&lt;v.2&gt;V" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="MPPT 2 Spannung" Comment="" HintText="" ModbusAddress="5012" ModbusCmd="4" ModbusDataType="1" ModbusPollingCycle="1" Unit="&lt;v.2&gt;V" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="MPPT 1 Strom" Comment="" HintText="" ModbusAddress="5011" ModbusCmd="4" ModbusDataType="1" ModbusPollingCycle="1" Unit="&lt;v.2&gt;A" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="MPPT 2 Strom" Comment="" HintText="" ModbusAddress="5013" ModbusCmd="4" ModbusDataType="1" ModbusPollingCycle="1" Unit="&lt;v.2&gt;A" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="Batterie Strom" Comment="" HintText="" ModbusAddress="13020" ModbusCmd="4" ModbusPollingCycle="1" Unit="&lt;v.2&gt;A" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="Batterie Spannung" Comment="" HintText="" ModbusAddress="13019" ModbusCmd="4" ModbusPollingCycle="1" Unit="&lt;v.2&gt;V" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="Batterie Temperatur" Comment="" HintText="" ModbusAddress="13024" ModbusCmd="4" ModbusDataType="1" ModbusPollingCycle="60" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="MPPT 3 Spannung" Comment="" HintText="" ModbusAddress="5014" ModbusCmd="4" ModbusDataType="1" ModbusPollingCycle="1" Unit="&lt;v.2&gt;V" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="MPPT 3 Strom" Comment="" HintText="" ModbusAddress="5015" ModbusCmd="4" ModbusDataType="1" ModbusPollingCycle="1" Unit="&lt;v.2&gt;A" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+</Modbus>

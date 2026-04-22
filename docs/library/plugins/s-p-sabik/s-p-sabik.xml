@@ -1,0 +1,115 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Modbus Title="S&amp;P Sabik" Comment="" HintText="" Baudrate="9600" Parity="1" Channel="8">
+	<Info templateType="7" minVersion="15031213"/>
+	<ModbusCmd Title="Buadrate" Comment="" HintText="48 = 4800
+96 = 9600
+192 = 19200
+384 = 38400" ModbusAddress="1" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Actual Working Mode" Comment="" HintText="0 = Snooze mode
+1 = Low speed
+2 = Medium speed
+3 = High speed
+4 = Boost
+5 = Auto mode (humidity sensor)
+6 = Auto mode (VOC sensor)
+7 = Auto mode (0-10V control)
+8 = Boost in auto mode
+9 = Weekly Program 1
+10 = Weekly Program 2
+11 = Weekly Program 3
+12 = Weekly Program 4" ModbusAddress="90" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Modbus Slave Adress" Comment="" HintText="" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Outdoor Air Temperature" Comment="" HintText="" ModbusAddress="27" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="Communication Error" Comment="" HintText="0 = No Error
+1 = Remote Controller
+4 = Modbus RTU" ModbusAddress="4" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Defrost Status" Comment="" HintText="0 = Not Active
+1 = Active (fireplace defrost)
+2 = Active (with pre-heater)
+3 = Active (unbalanced airflows)" ModbusAddress="5" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Extract Air Temperature" Comment="" HintText="" ModbusAddress="25" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="Exhaust Air Temperature" Comment="" HintText="" ModbusAddress="26" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="Supply Air Temperature" Comment="" HintText="" ModbusAddress="28" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="Relative Humidity Extract Air" Comment="" HintText="" ModbusAddress="29" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v&gt;%" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Relative Humidity  Exhaust Air" Comment="" HintText="" ModbusAddress="30" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v&gt;%" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Relative Humidity Outdoor Air" Comment="" HintText="" ModbusAddress="31" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v&gt;%" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Relative Humidity Supply Air" Comment="" HintText="" ModbusAddress="32" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v&gt;%" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Control Voltage Extract Motor" Comment="" HintText="" ModbusAddress="59" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v.1&gt;dV" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Control Voltage Supply Motor" Comment="" HintText="" ModbusAddress="60" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v.1&gt;dV" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="RPM Extract Motor" Comment="" HintText="" ModbusAddress="61" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v&gt;rpm" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="RPM Supply Motor" Comment="" HintText="" ModbusAddress="62" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v&gt;rpm" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Bypass Damper Position" Comment="" HintText="0 = Closed
+1 = Open
+2 = Error" ModbusAddress="63" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Active Alarms" Comment="" HintText="" ModbusCmd="2" ModbusPollingCycle="30" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="Filter Alarm" Comment="" HintText="" ModbusAddress="2" ModbusCmd="2" ModbusPollingCycle="300" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="Temperature Sensor (Extract Air) Status" Comment="" HintText="" ModbusAddress="6" ModbusCmd="2" ModbusPollingCycle="5" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="Temperature Sensor (Exhaust Air) Status" Comment="" HintText="" ModbusAddress="7" ModbusCmd="2" ModbusPollingCycle="5" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="Temperature Sensor (Outdoor Air) Status" Comment="" HintText="" ModbusAddress="8" ModbusCmd="2" ModbusPollingCycle="5" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="Temperature Sensor (Supply Air) Status" Comment="" HintText="" ModbusAddress="9" ModbusCmd="2" ModbusPollingCycle="5" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="Extract Air Fan Status" Comment="" HintText="" ModbusAddress="10" ModbusCmd="2" ModbusPollingCycle="5" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="Supply Air Fan Status" Comment="" HintText="" ModbusAddress="11" ModbusCmd="2" ModbusPollingCycle="5" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="Automatic By-pass" Comment="" HintText="" ModbusAddress="15" ModbusCmd="2" ModbusPollingCycle="5" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="Boost Contact Status" Comment="" HintText="" ModbusAddress="28" ModbusCmd="2" ModbusPollingCycle="5" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="Boost Status" Comment="" HintText="" ModbusAddress="29" ModbusCmd="2" ModbusPollingCycle="5" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="Reset Filter Alarm" Comment="" HintText="" ModbusCmd="1" ModbusPollingCycle="2" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="Manual By-pass" Comment="" HintText="" ModbusAddress="7" ModbusCmd="1" ModbusPollingCycle="5" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="Allow Automatic By-pass" Comment="" HintText="" ModbusAddress="8" ModbusCmd="1" ModbusPollingCycle="30" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="Summer Mode Status" Comment="" HintText="" ModbusAddress="9" ModbusCmd="1" ModbusPollingCycle="5" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="Manual Boost" Comment="" HintText="" ModbusAddress="16" ModbusCmd="1" ModbusPollingCycle="5" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="Snooze Mode (unit stops for 1h)" Comment="" HintText="" ModbusAddress="17" ModbusCmd="1" ModbusPollingCycle="5" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="Working Mode" Comment="" HintText="0 = Manual
+1 = Automatic" ModbusAddress="25" ModbusCmd="1" ModbusPollingCycle="5" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="Modbus Parity" Comment="" HintText="0 = Even
+1 = Odd
+2 = No Parity" ModbusAddress="2" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Day" Comment="" HintText="" ModbusAddress="48" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Month" Comment="" HintText="" ModbusAddress="49" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Year" Comment="" HintText="" ModbusAddress="50" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Hour" Comment="" HintText="" ModbusAddress="51" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Minutes" Comment="" HintText="" ModbusAddress="52" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Seconds" Comment="" HintText="" ModbusAddress="53" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Manual By-pass Timer" Comment="" HintText="" ModbusAddress="56" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v&gt;h" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Min ODA For By-pass" Comment="" HintText="" ModbusAddress="63" ModbusCmd="3" ModbusPollingCycle="300" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="Min ETA For By-pass" Comment="" HintText="" ModbusAddress="65" ModbusCmd="3" ModbusPollingCycle="300" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="Min ETA-ODA for By-pass" Comment="" HintText="" ModbusAddress="67" ModbusCmd="3" ModbusPollingCycle="300" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="Selected Airflow" Comment="" HintText="0 = Manual (low airflow
+1 = Manual (medium airflow)
+2 = Manual (nominal airflow)
+3 = Auto
+4 = Snooze" ModbusAddress="132" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Manual Boost" Comment="" HintText="" ModbusAddress="16" ModbusCmd="5" Unit="" Analog="false" Sensor="false"/>
+	<ModbusCmd Title="Reset Filter Alarm" Comment="" HintText="" ModbusCmd="5" Unit="" Analog="false" Sensor="false"/>
+	<ModbusCmd Title="Manual By-pass" Comment="" HintText="" ModbusAddress="7" ModbusCmd="5" Unit="" Analog="false" Sensor="false"/>
+	<ModbusCmd Title="Allow Automatic By-Pass" Comment="" HintText="" ModbusAddress="9" ModbusCmd="5" Unit="" Analog="false" Sensor="false"/>
+	<ModbusCmd Title="Summer Mode Status" Comment="" HintText="" ModbusAddress="9" ModbusCmd="5" Unit="" Analog="false" Sensor="false"/>
+	<ModbusCmd Title="Snooze Mode (unit stops for 1h)" Comment="" HintText="" ModbusAddress="17" ModbusCmd="5" Unit="" Analog="false" Sensor="false"/>
+	<ModbusCmd Title="Working Mode" Comment="" HintText="0 = Manual
+1 = Automatic" ModbusAddress="25" ModbusCmd="5" Unit="" Analog="false" Sensor="false"/>
+	<ModbusCmd Title="Modbus Slave Adress" Comment="" HintText="" ModbusCmd="6" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Baudrate" Comment="" HintText="48 = 4800
+96 = 9600
+192 = 19200
+384 = 38400" ModbusAddress="1" ModbusCmd="6" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Modbus parity" Comment="" HintText="0 = Even
+1 = Odd
+2 = No Parity" ModbusAddress="2" ModbusCmd="6" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Day" Comment="" HintText="" ModbusAddress="48" ModbusCmd="6" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Month" Comment="" HintText="" ModbusAddress="49" ModbusCmd="6" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Year" Comment="" HintText="" ModbusAddress="50" ModbusCmd="6" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Hour" Comment="" HintText="" ModbusAddress="51" ModbusCmd="6" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Minutes" Comment="" HintText="" ModbusAddress="52" ModbusCmd="6" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Seconds" Comment="" HintText="" ModbusAddress="53" ModbusCmd="6" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Manual By-pass Timer" Comment="" HintText="1 - 8h" ModbusAddress="56" ModbusCmd="6" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Min ODA for By-pass" Comment="" HintText="Minimum outdoor temperature for by-pass activation
+120 - 200 d°C" ModbusAddress="63" ModbusCmd="6" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Min ETA for By-pass" Comment="" HintText="Minimum extract temperature for by-pass activation
+210 - 300 d°C" ModbusAddress="65" ModbusCmd="6" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Min ETA-ODA for By-pass" Comment="" HintText="Minimum difference between ETA-ODA for by-pass
+30 - 60 d°C" ModbusAddress="67" ModbusCmd="6" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Selected Airflow" Comment="" HintText="0 = Manual (low airflow
+1 = Manual (medium airflow)
+2 = Manual (nominal airflow)
+3 = Auto
+4 = Snooze" ModbusAddress="132" ModbusCmd="6" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10"/>
+</Modbus>

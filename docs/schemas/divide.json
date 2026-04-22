@@ -1,0 +1,34 @@
+{
+  "title": "Divide",
+  "xml_type": "",
+  "kb_slug": "divide",
+  "description": "Divides analog values (V1 / V2) and makes the result available at output (O)",
+  "inputs": [],
+  "outputs": [
+    {
+      "abbreviation": "O",
+      "description": "(O) = (V1) / (V2)",
+      "value_range": "\u221e"
+    }
+  ],
+  "parameters": [
+    {
+      "abbreviation": "V1",
+      "summary": "Value 1",
+      "value_range": "\u221e",
+      "default_value": "0"
+    },
+    {
+      "abbreviation": "V2",
+      "summary": "Value 2",
+      "value_range": "\u221e",
+      "default_value": "0"
+    }
+  ],
+  "properties": [],
+  "source_url": "https://www.loxone.com/enen/kb/divide/",
+  "input_count": 0,
+  "output_count": 1,
+  "parameter_count": 2,
+  "property_count": 0
+}

@@ -1,0 +1,40 @@
+{
+  "title": "Analogue Limiter (Min/Max)",
+  "xml_type": "",
+  "kb_slug": "analogue-min-max-limiter",
+  "description": "The Analogue MinMax Limiter can be used to limit analogue values to the set range.",
+  "inputs": [
+    {
+      "abbreviation": "V",
+      "summary": "Value",
+      "value_range": "\u221e"
+    }
+  ],
+  "outputs": [
+    {
+      "abbreviation": "V",
+      "summary": "Value",
+      "value_range": "\u221e"
+    }
+  ],
+  "parameters": [
+    {
+      "abbreviation": "Min",
+      "summary": "Minimum",
+      "value_range": "\u221e",
+      "default_value": "0"
+    },
+    {
+      "abbreviation": "Max",
+      "summary": "Maximum",
+      "value_range": "\u221e",
+      "default_value": "10"
+    }
+  ],
+  "properties": [],
+  "source_url": "https://www.loxone.com/enen/kb/analogue-min-max-limiter/",
+  "input_count": 1,
+  "output_count": 1,
+  "parameter_count": 2,
+  "property_count": 0
+}

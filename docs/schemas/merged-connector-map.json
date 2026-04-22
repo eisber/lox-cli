@@ -1,0 +1,3707 @@
+{
+  "LoxLIVE": {
+    "connectors": [],
+    "defaults": {},
+    "name": "Miniserver"
+  },
+  "LoxMORE": {
+    "connectors": [],
+    "defaults": {},
+    "name": "Extension"
+  },
+  "LoxDIMM": {
+    "connectors": [],
+    "defaults": {},
+    "name": "Dimmer Extension"
+  },
+  "LoxOCEAN": {
+    "connectors": [],
+    "defaults": {},
+    "name": "EnOcean Extension"
+  },
+  "Comm1wire": {
+    "connectors": [],
+    "defaults": {},
+    "name": "1-Wire Extension"
+  },
+  "Comm485": {
+    "connectors": [],
+    "defaults": {},
+    "name": "RS485 Extension"
+  },
+  "Comm232": {
+    "connectors": [],
+    "defaults": {},
+    "name": "RS232 Extension"
+  },
+  "CommDMX": {
+    "connectors": [],
+    "defaults": {},
+    "name": "DMX Extension"
+  },
+  "WeatherServer": {
+    "connectors": [],
+    "defaults": {},
+    "name": "Weather Server"
+  },
+  "ModbusServer": {
+    "connectors": [],
+    "defaults": {},
+    "name": "Modbus Server"
+  },
+  "AudioServer": {
+    "connectors": [],
+    "defaults": {},
+    "name": "Audioserver"
+  },
+  "CarChargerDevice": {
+    "connectors": [],
+    "defaults": {},
+    "name": "Wallbox"
+  },
+  "IntercomDevice": {
+    "connectors": [],
+    "defaults": {},
+    "name": "Intercom"
+  },
+  "SonnenBatteryDevice": {
+    "connectors": [],
+    "defaults": {},
+    "name": "Sonnen Battery Storage"
+  },
+  "Tracker": {
+    "connectors": [],
+    "defaults": {},
+    "name": "Tracker"
+  },
+  "MessageCenter": {
+    "connectors": [],
+    "defaults": {},
+    "name": "System status"
+  },
+  "LoxDigin": {
+    "connectors": [],
+    "defaults": {},
+    "name": "DI Extension"
+  },
+  "LoxKnx": {
+    "connectors": [],
+    "defaults": {},
+    "name": "KNX Extension"
+  },
+  "LoxAin": {
+    "connectors": [],
+    "defaults": {},
+    "name": "AI Extension Gen. 1"
+  },
+  "LoxAout": {
+    "connectors": [],
+    "defaults": {},
+    "name": "AO Extension"
+  },
+  "MBusExtension": {
+    "connectors": [],
+    "defaults": {},
+    "name": "M-Bus Extension"
+  },
+  "SchuecoExtension": {
+    "connectors": [],
+    "defaults": {},
+    "name": "Sch\u00fcco Extension"
+  },
+  "Plugin": {
+    "connectors": [],
+    "defaults": {},
+    "name": "Plugin (In Development)"
+  },
+  "Devicemonitor": {
+    "connectors": [],
+    "defaults": {},
+    "name": "Device Monitor"
+  },
+  "GlobalStates": {
+    "connectors": [],
+    "defaults": {},
+    "name": "System Variables"
+  },
+  "SystemScheme": {
+    "connectors": [],
+    "defaults": {},
+    "name": "System Schematic"
+  },
+  "Text": {
+    "connectors": [],
+    "defaults": {},
+    "name": "Note"
+  },
+  "State": {
+    "connectors": [
+      "I1",
+      "I2",
+      "TQ",
+      "AQ"
+    ],
+    "defaults": {},
+    "name": "Status"
+  },
+  "StateV": {
+    "connectors": [
+      "I",
+      "AQ"
+    ],
+    "defaults": {},
+    "name": "Virtual Status"
+  },
+  "Code1": {
+    "connectors": [
+      "AI",
+      "AQ",
+      "TeQ"
+    ],
+    "defaults": {},
+    "name": "Program"
+  },
+  "Code4": {
+    "connectors": [
+      "TI",
+      "AI1",
+      "AI2",
+      "TQ",
+      "AQ1",
+      "AQ2",
+      "TeQ"
+    ],
+    "defaults": {},
+    "name": "Program"
+  },
+  "Code8": {
+    "connectors": [
+      "TI1",
+      "TI2",
+      "AI1",
+      "AI2",
+      "TQ1",
+      "TQ2",
+      "AQ1",
+      "AQ2",
+      "TeQ"
+    ],
+    "defaults": {},
+    "name": "Program"
+  },
+  "Code16": {
+    "connectors": [
+      "TI1",
+      "TI2",
+      "AI1",
+      "AI2",
+      "TQ1",
+      "TQ2",
+      "AQ1",
+      "AQ2",
+      "TeQ"
+    ],
+    "defaults": {},
+    "name": "Program"
+  },
+  "Webpage": {
+    "connectors": [],
+    "defaults": {},
+    "name": "Webpage"
+  },
+  "Not": {
+    "connectors": [
+      "I",
+      "Q"
+    ],
+    "defaults": {},
+    "name": "NOT"
+  },
+  "And": {
+    "connectors": [
+      "I1",
+      "I2",
+      "Q"
+    ],
+    "defaults": {},
+    "name": "AND"
+  },
+  "Or": {
+    "connectors": [
+      "I1",
+      "I2",
+      "Q"
+    ],
+    "defaults": {},
+    "name": "OR"
+  },
+  "Xor": {
+    "connectors": [
+      "I1",
+      "I2",
+      "Q"
+    ],
+    "defaults": {},
+    "name": "Exclusive OR"
+  },
+  "FlipFlop": {
+    "connectors": [
+      "InputS",
+      "InputR",
+      "Q"
+    ],
+    "defaults": {},
+    "name": "Flipflop"
+  },
+  "RSFlipFlop": {
+    "connectors": [
+      "InputS",
+      "InputTrigger",
+      "InputR",
+      "Q"
+    ],
+    "defaults": {},
+    "name": "RS Flipflop"
+  },
+  "SRFlipFlop": {
+    "connectors": [
+      "InputS",
+      "InputTrigger",
+      "InputR",
+      "Q"
+    ],
+    "defaults": {},
+    "name": "SR Flipflop"
+  },
+  "Sequencer": {
+    "connectors": [
+      "InputTrigger",
+      "InputPos",
+      "Reset",
+      "InputDisable",
+      "Q1",
+      "Q2",
+      "AQ",
+      "Max",
+      "Def"
+    ],
+    "defaults": {},
+    "name": "Sequencer"
+  },
+  "BinDecoder": {
+    "connectors": [
+      "Input",
+      "Q1",
+      "Q2"
+    ],
+    "defaults": {},
+    "name": "Binary Decoder"
+  },
+  "StairwayLS": {
+    "connectors": [
+      "InputTrigger",
+      "On",
+      "Q",
+      "TimeHigh",
+      "TimeWarn",
+      "WarnTime"
+    ],
+    "defaults": {},
+    "name": "Stairwell Light Switch"
+  },
+  "MultiFuncSW": {
+    "connectors": [
+      "InputTrigger",
+      "On",
+      "Q",
+      "TimeHigh",
+      "TimeTrigger",
+      "TimeWarn",
+      "WarnTime"
+    ],
+    "defaults": {},
+    "name": "Comfort Switch"
+  },
+  "PushButton": {
+    "connectors": [
+      "InputTrigger",
+      "On",
+      "Q",
+      "Qoff",
+      "Qon"
+    ],
+    "defaults": {},
+    "name": "Switch"
+  },
+  "PushButtonSel": {
+    "connectors": [
+      "InputTrigger",
+      "InputPos",
+      "Reset",
+      "AQ",
+      "Min",
+      "Max",
+      "Step",
+      "Repeat",
+      "Def"
+    ],
+    "defaults": {},
+    "name": "Selection Switch (+)"
+  },
+  "PushButton2": {
+    "connectors": [
+      "InputTriggerOn",
+      "InputTriggerOff",
+      "Q"
+    ],
+    "defaults": {},
+    "name": "Switch (On/Off)"
+  },
+  "PushButton2Sel": {
+    "connectors": [
+      "InputTrigger 1",
+      "InputTrigger 2",
+      "InputPos",
+      "Reset",
+      "AQ",
+      "Min",
+      "Max",
+      "Step",
+      "Repeat",
+      "Def"
+    ],
+    "defaults": {},
+    "name": "Selection Switch (+/-)"
+  },
+  "PushDimmer": {
+    "connectors": [
+      "InputTrigger 1",
+      "InputTriggerP",
+      "InputTriggerM",
+      "InputDisable",
+      "Pos",
+      "AQ",
+      "Q",
+      "Switchtime",
+      "Step",
+      "Steptime",
+      "Min",
+      "Max",
+      "Wrap",
+      "NoLast"
+    ],
+    "defaults": {},
+    "name": "Dimmer"
+  },
+  "Radio": {
+    "connectors": [
+      "InputTrigger 1",
+      "InputTrigger 2",
+      "InputTriggerP",
+      "InputTriggerM",
+      "InputSel",
+      "Q1",
+      "Q2",
+      "AQ",
+      "Mode"
+    ],
+    "defaults": {},
+    "name": "Radio Buttons (8x)"
+  },
+  "AutoJalousie": {
+    "connectors": [
+      "OutputUp",
+      "OutputDown",
+      "OutputPos",
+      "OutputLPos",
+      "OutputAutoShade",
+      "OutputSafety",
+      "OutputLock",
+      "OutputCombined",
+      "TargetPos",
+      "Type",
+      "SO",
+      "AutoShadeEnd",
+      "MinPulse",
+      "TimeEnd",
+      "TimeEndDown",
+      "TimeBlock",
+      "DblClk",
+      "Back",
+      "TurnOffset",
+      "Deadtime",
+      "MinMove",
+      "Dir",
+      "DirTol",
+      "DirTol2",
+      "Width",
+      "Space",
+      "AutMode",
+      "AutoShadeTime",
+      "SRoff",
+      "SSoff",
+      "Rdd"
+    ],
+    "defaults": {},
+    "name": "Automatic Shading"
+  },
+  "JalousieUpDown2": {
+    "connectors": [
+      "InputTriggerUp",
+      "InputTriggerDown",
+      "EndUp",
+      "EndDown",
+      "Shade",
+      "Stop",
+      "ManualPosition",
+      "ManualLamelle",
+      "InputDisable",
+      "OutputUp",
+      "OutputDown",
+      "OutputPos",
+      "OutputLPos",
+      "MinPulse",
+      "TimeEnd",
+      "TimeEndDown",
+      "TimeBlock",
+      "DblClk",
+      "Back",
+      "MinMove",
+      "Type"
+    ],
+    "defaults": {},
+    "name": "Blinds"
+  },
+  "LightControllerH": {
+    "connectors": [
+      "I1",
+      "I2",
+      "Sel10",
+      "Sel11",
+      "Sel12",
+      "Sel13",
+      "Reset",
+      "Card",
+      "Service",
+      "RoomState",
+      "Door",
+      "EnMove",
+      "Move",
+      "InputDisable",
+      "AQ1",
+      "AQ2",
+      "Scene",
+      "Present",
+      "PresentService",
+      "ServiceDone",
+      "AQRoomMate",
+      "Mode",
+      "DurMode",
+      "LongTime",
+      "TimeLeave",
+      "MaxP",
+      "Step",
+      "Steptime",
+      "Min",
+      "Max",
+      "NoLast",
+      "MoveOn"
+    ],
+    "defaults": {},
+    "name": "Hotel Lighting Controller"
+  },
+  "Door": {
+    "connectors": [
+      "Trigger",
+      "Open",
+      "Close",
+      "T5",
+      "InputStop",
+      "InputDisable",
+      "InputPo",
+      "OutputTrigger",
+      "OutputOpen",
+      "OutputClose",
+      "OutputActive",
+      "OutputPos",
+      "Light",
+      "PulseOpen",
+      "PulseClose",
+      "PulseHigh",
+      "PulseLow",
+      "TimeBlock",
+      "TimeHigh",
+      "TimeLow",
+      "Type",
+      "PoPos"
+    ],
+    "defaults": {},
+    "name": "Garage / Gate"
+  },
+  "Lightscene": {
+    "connectors": [
+      "InputTriggerUp",
+      "InputTriggerDown",
+      "Select",
+      "InputDisable",
+      "Reset",
+      "AQ1",
+      "AQ2",
+      "AQ3",
+      "AQ4",
+      "AQ5",
+      "AQ6",
+      "AQ7",
+      "AQ8",
+      "AQs"
+    ],
+    "defaults": {},
+    "name": "Scene"
+  },
+  "LightsceneLearn": {
+    "connectors": [
+      "AI1",
+      "AI2",
+      "AI3",
+      "AI4",
+      "AI5",
+      "AI6",
+      "AI7",
+      "AI8",
+      "Select",
+      "Reset",
+      "Sel1",
+      "Sel2",
+      "InputDisable",
+      "AQ1",
+      "AQ2",
+      "Scene",
+      "RQ",
+      "RaQ",
+      "Max"
+    ],
+    "defaults": {},
+    "name": "Lighting scene"
+  },
+  "LightsceneRGB": {
+    "connectors": [
+      "AI",
+      "InputTriggerUp",
+      "InputTriggerDown",
+      "Select",
+      "InputDisable",
+      "Reset",
+      "On",
+      "AQr",
+      "AQg",
+      "AQb",
+      "Scene",
+      "AQa"
+    ],
+    "defaults": {},
+    "name": "RGB Lighting Controller"
+  },
+  "LightController": {
+    "connectors": [
+      "I1",
+      "I2",
+      "InputTriggerUp",
+      "InputTriggerDown",
+      "Select",
+      "Reset",
+      "Sel1",
+      "Sel2",
+      "EnMove",
+      "Move",
+      "On",
+      "Gesture",
+      "Alarm",
+      "Brightness",
+      "InputDisable",
+      "AQ1",
+      "AQ2",
+      "Scene",
+      "OutputReset",
+      "OutputResetAll",
+      "MaxP",
+      "Step",
+      "Steptime",
+      "Min",
+      "Max",
+      "Wrap",
+      "NoLast",
+      "MoveOn",
+      "MoveIgnore",
+      "Learntime",
+      "MoveScene",
+      "MoveTimeout",
+      "RGBalt",
+      "AlarmPeriod",
+      "BrightnessLimit",
+      "AlarmBrightness"
+    ],
+    "defaults": {},
+    "name": "Lighting Controller V1"
+  },
+  "EIBPush": {
+    "connectors": [
+      "InputTrigger",
+      "Reset",
+      "On",
+      "InputDisable",
+      "InputState",
+      "Q"
+    ],
+    "defaults": {},
+    "name": "EIB push-button"
+  },
+  "EIBJalousie": {
+    "connectors": [
+      "InputPos",
+      "InputDisable",
+      "OutputLong",
+      "OutputShort",
+      "OutputPos",
+      "Time"
+    ],
+    "defaults": {},
+    "name": "EIB Shading"
+  },
+  "EibDimmer": {
+    "connectors": [
+      "InputTrigger 1",
+      "InputTrigger 2",
+      "InputDisable",
+      "InputTrigger On",
+      "InputTrigger Off",
+      "Position",
+      "InputStateD",
+      "InputStateA",
+      "AQ",
+      "Q",
+      "AQp",
+      "Step",
+      "Repeat"
+    ],
+    "defaults": {},
+    "name": "EIB Dimmer"
+  },
+  "PulseGen": {
+    "connectors": [
+      "InputEnable",
+      "InputInvert",
+      "Q",
+      "TimeHigh",
+      "TimeLow"
+    ],
+    "defaults": {},
+    "name": "Pulse Generator"
+  },
+  "OnDelay": {
+    "connectors": [
+      "InputTrigger",
+      "Q",
+      "Time"
+    ],
+    "defaults": {},
+    "name": "Switch-On Delay"
+  },
+  "RetOnDelay": {
+    "connectors": [
+      "InputTrigger",
+      "Q",
+      "Time"
+    ],
+    "defaults": {},
+    "name": "Saving Switch-On Delay"
+  },
+  "OffDelay": {
+    "connectors": [
+      "InputTrigger",
+      "Q",
+      "Time"
+    ],
+    "defaults": {},
+    "name": "Switch-Off Delay"
+  },
+  "OnOffDelay": {
+    "connectors": [
+      "InputTrigger",
+      "Q",
+      "TimeOn",
+      "TimeOff"
+    ],
+    "defaults": {},
+    "name": "Switch-On and -Off Delay"
+  },
+  "EdgeWipingRelay": {
+    "connectors": [
+      "InputTrigger",
+      "Q",
+      "TimeHigh",
+      "TimeLow",
+      "Cycles"
+    ],
+    "defaults": {},
+    "name": "Edge-Triggered Wiping Relay"
+  },
+  "RandomGen": {
+    "connectors": [
+      "InputEnable",
+      "Q",
+      "TimeOn",
+      "TimeOff"
+    ],
+    "defaults": {},
+    "name": "Random Controller"
+  },
+  "DayTimer": {
+    "connectors": [
+      "InputTrigger",
+      "AQ",
+      "AQm",
+      "Qon",
+      "Qoff",
+      "AQmt",
+      "Manual",
+      "Mode",
+      "PulseTime"
+    ],
+    "defaults": {},
+    "name": "Schedule"
+  },
+  "Monoflop": {
+    "connectors": [
+      "InputTrigger",
+      "Q",
+      "Time"
+    ],
+    "defaults": {},
+    "name": "Monoflop"
+  },
+  "MultiClick": {
+    "connectors": [
+      "InputTrigger",
+      "Q1",
+      "Q2",
+      "Q3",
+      "Q4",
+      "AQ",
+      "Max",
+      "Time",
+      "V1",
+      "V2",
+      "V3",
+      "V4"
+    ],
+    "defaults": {},
+    "name": "Multi-Click"
+  },
+  "OnPulseDelay": {
+    "connectors": [
+      "InputTrigger",
+      "Q",
+      "Delay",
+      "Time"
+    ],
+    "defaults": {},
+    "name": "Delayed Pulse"
+  },
+  "Alarm": {
+    "connectors": [
+      "Inactive",
+      "Q",
+      "Q1",
+      "Q2",
+      "Q3",
+      "Q4",
+      "Q5",
+      "Q6",
+      "AQ",
+      "QT",
+      "AQr",
+      "TQ",
+      "OutTime",
+      "Qo",
+      "TTS",
+      "Delay",
+      "TQ1",
+      "TQ2",
+      "TQ3",
+      "TQ4",
+      "TQ5",
+      "TQ6",
+      "TI",
+      "WI2",
+      "TM",
+      "MaxDurOut",
+      "AutoConfirm",
+      "IInit"
+    ],
+    "defaults": {},
+    "name": "Burglar Alarm"
+  },
+  "LongClick": {
+    "connectors": [
+      "InputTrigger",
+      "Reset",
+      "Q1",
+      "Q2",
+      "Q3",
+      "Q4",
+      "AQ",
+      "Max",
+      "Time",
+      "V1",
+      "V2",
+      "V3",
+      "V4"
+    ],
+    "defaults": {},
+    "name": "Long Click"
+  },
+  "Presence": {
+    "connectors": [
+      "InputTrigger",
+      "Reset",
+      "Q",
+      "Time"
+    ],
+    "defaults": {},
+    "name": "User Interface Presence"
+  },
+  "PulseAt": {
+    "connectors": [
+      "InputDisable",
+      "Q",
+      "Time"
+    ],
+    "defaults": {},
+    "name": "Pulse at"
+  },
+  "TimeMinmax": {
+    "connectors": [
+      "Input",
+      "Reset",
+      "AQmin",
+      "AQmax"
+    ],
+    "defaults": {},
+    "name": "MinMax since Reset"
+  },
+  "HourCounter": {
+    "connectors": [
+      "InputEnable",
+      "Reset",
+      "InputResetAll",
+      "Q",
+      "AQ",
+      "AQl",
+      "AQr",
+      "Unit",
+      "Maintenance"
+    ],
+    "defaults": {},
+    "name": "Runtime Counter"
+  },
+  "UpDownCounter": {
+    "connectors": [
+      "Trigger",
+      "InputDir",
+      "Reset",
+      "Q",
+      "AQ",
+      "StartValue",
+      "OnValue",
+      "OffValue"
+    ],
+    "defaults": {},
+    "name": "Up/Down Counter"
+  },
+  "Counter": {
+    "connectors": [
+      "Trigger",
+      "Q",
+      "AQ",
+      "EndValue",
+      "Mode"
+    ],
+    "defaults": {},
+    "name": "Up Counter"
+  },
+  "Shift": {
+    "connectors": [
+      "Trigger",
+      "InputData",
+      "InputDir",
+      "Q",
+      "Bit"
+    ],
+    "defaults": {},
+    "name": "Shift Register"
+  },
+  "Wind": {
+    "connectors": [
+      "In",
+      "AQ",
+      "AQg",
+      "AQm",
+      "Q",
+      "Time",
+      "Factor",
+      "Warn"
+    ],
+    "defaults": {},
+    "name": "Wind Gauge"
+  },
+  "Energy": {
+    "connectors": [
+      "Tr",
+      "F",
+      "V",
+      "P",
+      "Reset",
+      "AQ",
+      "AQp",
+      "AQa",
+      "AQ1",
+      "AQ2",
+      "AQ3",
+      "AQ4",
+      "AQ5",
+      "AQ6",
+      "AQ7",
+      "AQ8",
+      "AQ9",
+      "Factor",
+      "Time",
+      "Offset",
+      "Abs"
+    ],
+    "defaults": {},
+    "name": "Utility Meter"
+  },
+  "AnalogScaler": {
+    "connectors": [
+      "Input",
+      "AQ",
+      "Src1",
+      "Dst1",
+      "Src2",
+      "Dst2"
+    ],
+    "defaults": {},
+    "name": "Scaler"
+  },
+  "AnalogThresholdTrigger": {
+    "connectors": [
+      "Input",
+      "Q",
+      "RisingEdge",
+      "FallingEdge",
+      "On",
+      "Off",
+      "PulseTime"
+    ],
+    "defaults": {},
+    "name": "Threshold Switch"
+  },
+  "AnalogDiffTrigger": {
+    "connectors": [
+      "Input",
+      "Q",
+      "Qon",
+      "Qoff",
+      "On",
+      "Delta"
+    ],
+    "defaults": {},
+    "name": "Differential Threshold Switch"
+  },
+  "AnalogComparator": {
+    "connectors": [
+      "Input1",
+      "Input2",
+      "Q",
+      "On",
+      "Off"
+    ],
+    "defaults": {},
+    "name": "Comparator"
+  },
+  "AnalogStepper": {
+    "connectors": [
+      "Trigger",
+      "AQ",
+      "Dir",
+      "Step",
+      "Max"
+    ],
+    "defaults": {},
+    "name": "Stepper"
+  },
+  "AnalogWatchdog": {
+    "connectors": [
+      "Input",
+      "InputDisable",
+      "Q",
+      "Threshold",
+      "Threshold2"
+    ],
+    "defaults": {},
+    "name": "Analogue Value Monitor"
+  },
+  "AnalogMultiplexer2": {
+    "connectors": [
+      "Input1",
+      "Input2",
+      "InputDisable",
+      "AQ",
+      "Select"
+    ],
+    "defaults": {},
+    "name": "Analogue Multiplexer (2-way)"
+  },
+  "AnalogMultiplexer": {
+    "connectors": [
+      "Input1",
+      "Input2",
+      "InputDisable",
+      "AQ",
+      "Select"
+    ],
+    "defaults": {},
+    "name": "Analogue Multiplexer (4-way)"
+  },
+  "PWM": {
+    "connectors": [
+      "Input",
+      "InputEnable",
+      "Q",
+      "PT"
+    ],
+    "defaults": {},
+    "name": "Pulse Width Modulation"
+  },
+  "PI": {
+    "connectors": [
+      "Input",
+      "InputAuto",
+      "InputReset",
+      "AQ",
+      "Target",
+      "SampleTime",
+      "Trigger",
+      "P",
+      "I",
+      "MV",
+      "Min",
+      "Max"
+    ],
+    "defaults": {},
+    "name": "PI-Controller"
+  },
+  "PID": {
+    "connectors": [
+      "Input",
+      "InputAuto",
+      "InputReset",
+      "AQ",
+      "Target",
+      "SampleTime",
+      "Trigger",
+      "P",
+      "I",
+      "D",
+      "MV",
+      "Min",
+      "Max"
+    ],
+    "defaults": {},
+    "name": "PID-Controller"
+  },
+  "Ramp": {
+    "connectors": [
+      "InputEnable",
+      "InputSelect",
+      "InputStop",
+      "AQ",
+      "StartValue",
+      "Rate",
+      "Level1",
+      "Level2"
+    ],
+    "defaults": {},
+    "name": "Ramp Controller"
+  },
+  "2Point": {
+    "connectors": [
+      "Input",
+      "Disable",
+      "Q",
+      "Target",
+      "Hysteresis",
+      "Inv"
+    ],
+    "defaults": {},
+    "name": "2 Position Controller"
+  },
+  "AMemory": {
+    "connectors": [
+      "Input",
+      "Trigger",
+      "Reset",
+      "AQ"
+    ],
+    "defaults": {},
+    "name": "Analogue Memory"
+  },
+  "3Point": {
+    "connectors": [
+      "Input",
+      "Disable",
+      "Q1",
+      "Q2",
+      "Target1",
+      "Target2"
+    ],
+    "defaults": {},
+    "name": "3 Position Controller"
+  },
+  "AMinmax": {
+    "connectors": [
+      "Input",
+      "AQ",
+      "Min",
+      "Max"
+    ],
+    "defaults": {},
+    "name": "Analogue Limiter (Min/Max)"
+  },
+  "Avg": {
+    "connectors": [
+      "Input",
+      "Reset",
+      "AQ",
+      "Time",
+      "Max"
+    ],
+    "defaults": {},
+    "name": "Moving Average"
+  },
+  "Add": {
+    "connectors": [
+      "AQ",
+      "Input1",
+      "Input2"
+    ],
+    "defaults": {},
+    "name": "Add (2-way)"
+  },
+  "Sub": {
+    "connectors": [
+      "AQ",
+      "Input1",
+      "Input2"
+    ],
+    "defaults": {},
+    "name": "Subtract"
+  },
+  "Mult": {
+    "connectors": [
+      "AQ",
+      "Input1",
+      "Input2"
+    ],
+    "defaults": {},
+    "name": "Multiply"
+  },
+  "Div": {
+    "connectors": [
+      "AQ",
+      "Input1",
+      "Input2"
+    ],
+    "defaults": {},
+    "name": "Divide"
+  },
+  "Mod": {
+    "connectors": [
+      "AQ",
+      "AQ2",
+      "Input1",
+      "Input2"
+    ],
+    "defaults": {},
+    "name": "Modulo"
+  },
+  "Rand": {
+    "connectors": [
+      "Input",
+      "InputEnable",
+      "AQ",
+      "Minimum",
+      "Maximum"
+    ],
+    "defaults": {},
+    "name": "Random Number Generator"
+  },
+  "Add4": {
+    "connectors": [
+      "AQ",
+      "Input1",
+      "Input2"
+    ],
+    "defaults": {},
+    "name": "Add (4-way)"
+  },
+  "Int": {
+    "connectors": [
+      "AQ",
+      "Input",
+      "Mode"
+    ],
+    "defaults": {},
+    "name": "Integer"
+  },
+  "Minmax": {
+    "connectors": [
+      "AQmin",
+      "AQmax",
+      "Input1",
+      "Input2"
+    ],
+    "defaults": {},
+    "name": "MinMax"
+  },
+  "Formula": {
+    "connectors": [
+      "AQ",
+      "TQ",
+      "Input1",
+      "Input2"
+    ],
+    "defaults": {},
+    "name": "Formula"
+  },
+  "Equal": {
+    "connectors": [
+      "Q",
+      "Input1",
+      "Input2"
+    ],
+    "defaults": {},
+    "name": "Equal"
+  },
+  "NotEqual": {
+    "connectors": [
+      "Q",
+      "Input1",
+      "Input2"
+    ],
+    "defaults": {},
+    "name": "Unequal"
+  },
+  "Greater": {
+    "connectors": [
+      "Q",
+      "Input1",
+      "Input2"
+    ],
+    "defaults": {},
+    "name": "Greater"
+  },
+  "GreaterEqual": {
+    "connectors": [
+      "Q",
+      "Input1",
+      "Input2"
+    ],
+    "defaults": {},
+    "name": "Greater or Equal"
+  },
+  "Less": {
+    "connectors": [
+      "Q",
+      "Input1",
+      "Input2"
+    ],
+    "defaults": {},
+    "name": "Less"
+  },
+  "LessEqual": {
+    "connectors": [
+      "Q",
+      "Input1",
+      "Input2"
+    ],
+    "defaults": {},
+    "name": "Less or Equal"
+  },
+  "Radio2": {
+    "connectors": [
+      "InputTrigger 1",
+      "InputTrigger 2",
+      "InputTriggerP",
+      "InputTriggerM",
+      "InputSel",
+      "Q1",
+      "Q2",
+      "AQ",
+      "Mode"
+    ],
+    "defaults": {},
+    "name": "Radio Buttons (16x)"
+  },
+  "StepSel": {
+    "connectors": [
+      "InputTrigger 1",
+      "InputTrigger 2",
+      "InputTriggerP",
+      "InputTriggerM",
+      "InputSel",
+      "Q1",
+      "Q2",
+      "AQ",
+      "Mode"
+    ],
+    "defaults": {},
+    "name": "Step Selector"
+  },
+  "Roomcontrol": {
+    "connectors": [
+      "Input",
+      "Temp",
+      "On",
+      "Off",
+      "Stop",
+      "InputDisable",
+      "AQ",
+      "Q",
+      "Qe",
+      "Mode",
+      "PwmPeriod",
+      "Amplifier"
+    ],
+    "defaults": {},
+    "name": "Room Controller"
+  },
+  "Sauna": {
+    "connectors": [
+      "Trigger",
+      "Input",
+      "Temp",
+      "TriggerFan",
+      "TriggerTimer",
+      "DoorSensor",
+      "BenchSensor",
+      "PresenceSensor",
+      "InputDisable",
+      "On",
+      "AQ",
+      "Q1",
+      "Q2",
+      "Qa",
+      "Qf",
+      "AQt",
+      "Qd",
+      "Qe",
+      "AQs",
+      "Qte",
+      "Qta",
+      "Qr",
+      "TempCorr",
+      "DryTemp",
+      "DryTime",
+      "Time",
+      "SafeTemp",
+      "SafeTime",
+      "PwmPeriod",
+      "Amplifier",
+      "Mode"
+    ],
+    "defaults": {},
+    "name": "Sauna Controller"
+  },
+  "SaunaVapor": {
+    "connectors": [
+      "Opmode",
+      "OpmodeFm",
+      "OpmodeHm",
+      "OpmodeF",
+      "OpmodeH1",
+      "OpmodeH2",
+      "OpmodeH3",
+      "Trigger",
+      "Input",
+      "Temp",
+      "InputH",
+      "Humidity",
+      "TriggerFan",
+      "TriggerTimer",
+      "DoorSensor",
+      "BenchSensor",
+      "PresenceSensor",
+      "Lesswater",
+      "InputDisable",
+      "On",
+      "AQ",
+      "Q1",
+      "Q2",
+      "AQv",
+      "Qv",
+      "Qa",
+      "Qf",
+      "AQt",
+      "Qd",
+      "AQm",
+      "Qe",
+      "AQs",
+      "AQh",
+      "Qte",
+      "Qta",
+      "Qr",
+      "TempCorr",
+      "DryTemp",
+      "DryTime",
+      "Time",
+      "SafeTemp",
+      "SafeTime",
+      "PwmPeriod",
+      "Amplifier",
+      "Mode"
+    ],
+    "defaults": {},
+    "name": "Sauna Controller With Evaporator"
+  },
+  "Heatcurve": {
+    "connectors": [
+      "Input",
+      "Outer",
+      "InputDisable",
+      "AQ",
+      "Qe",
+      "Transconductance",
+      "Translate",
+      "Min",
+      "Max"
+    ],
+    "defaults": {},
+    "name": "Heating Curve"
+  },
+  "Heatmixer": {
+    "connectors": [
+      "Input",
+      "Temp",
+      "Stop",
+      "InputDisable",
+      "AQ",
+      "Q1",
+      "Q2",
+      "Qe",
+      "Time",
+      "Sample",
+      "Kp",
+      "Ki",
+      "StopMode",
+      "Mode",
+      "Min",
+      "Max",
+      "Inv",
+      "TimeMove"
+    ],
+    "defaults": {},
+    "name": "Mixing Valve Controller"
+  },
+  "Solarpumpcontrol": {
+    "connectors": [
+      "TCol",
+      "AI1",
+      "AI2",
+      "AIs",
+      "Start",
+      "St",
+      "AIm",
+      "Q",
+      "AQ",
+      "Qv1",
+      "Qv2",
+      "AQs",
+      "Qc",
+      "Qf",
+      "Qs",
+      "Qe",
+      "Qhf",
+      "DOn",
+      "DOf",
+      "TColMax",
+      "TComf1",
+      "TComf2",
+      "TMax1",
+      "TMax2",
+      "IT",
+      "ST",
+      "Thf"
+    ],
+    "defaults": {},
+    "name": "Thermal Solar Controller"
+  },
+  "IRoomcontrol": {
+    "connectors": [
+      "AMode",
+      "SMode",
+      "Input",
+      "Temp",
+      "Window",
+      "Comfort",
+      "Save",
+      "Move",
+      "Reset",
+      "InputDisable",
+      "DisMv",
+      "Stop",
+      "AQ",
+      "Q",
+      "AQ2",
+      "Q2",
+      "AQc",
+      "Qc",
+      "AQc2",
+      "Qc2",
+      "Qs",
+      "AQs",
+      "AQss",
+      "Qe",
+      "Qa",
+      "AQt",
+      "AQhm",
+      "AQcm",
+      "AQtr",
+      "Qp",
+      "TSave",
+      "TComfort",
+      "TComfortC",
+      "TParty",
+      "TMore",
+      "TDeepSleep",
+      "TMax",
+      "TimeMove",
+      "TimeMoveC",
+      "TimeC",
+      "TimeS",
+      "TimeMv",
+      "THCelvin",
+      "TCCelvin"
+    ],
+    "defaults": {},
+    "name": "Intelligent Room Controller V1"
+  },
+  "IRcontroller": {
+    "connectors": [
+      "AI1",
+      "AI2",
+      "TQ"
+    ],
+    "defaults": {},
+    "name": "IR Controller"
+  },
+  "Doorcontroller": {
+    "connectors": [
+      "TriggerFan",
+      "Qb",
+      "Q1",
+      "Q2",
+      "Q3",
+      "Timeout"
+    ],
+    "defaults": {},
+    "name": "Door Controller"
+  },
+  "Access": {
+    "connectors": [
+      "Trigger",
+      "ExternalID",
+      "Disable",
+      "Q",
+      "TQ",
+      "Qd",
+      "TrTime",
+      "PulseTime"
+    ],
+    "defaults": {},
+    "name": "Access Controller"
+  },
+  "Heatmixer2": {
+    "connectors": [
+      "Outer",
+      "Boost",
+      "Stop",
+      "InBuffer",
+      "AQt",
+      "TxQr",
+      "AQf",
+      "AQb",
+      "Qp",
+      "AQr",
+      "AQl",
+      "AQi",
+      "Qe",
+      "OutputAPI",
+      "Min",
+      "Max",
+      "BufferInc",
+      "Transconductance",
+      "Translate",
+      "Treshold",
+      "Gain",
+      "PrevInc",
+      "TimeActive"
+    ],
+    "defaults": {},
+    "name": "Flow Temperature Calculator"
+  },
+  "MailBox": {
+    "connectors": [
+      "IDisNot",
+      "ITrp",
+      "ITrm",
+      "ICp",
+      "ICm",
+      "Qp",
+      "Qm",
+      "Qpon",
+      "Qpoff",
+      "Qmon",
+      "Qmoff",
+      "TQ"
+    ],
+    "defaults": {},
+    "name": "Mail and Parcel Box"
+  },
+  "Application": {
+    "connectors": [],
+    "defaults": {},
+    "name": "App"
+  },
+  "Intercom": {
+    "connectors": [
+      "Ib",
+      "Mute",
+      "TTS",
+      "Qb",
+      "Qmute",
+      "Q1",
+      "Q2",
+      "Q3",
+      "API",
+      "Timeout",
+      "Lbr",
+      "Lon",
+      "Tp"
+    ],
+    "defaults": {},
+    "name": "Intercom"
+  },
+  "LoadShed": {
+    "connectors": [
+      "cP",
+      "EV",
+      "Tr",
+      "Sl1",
+      "Sl2",
+      "Reset",
+      "AQl1",
+      "AQl2",
+      "aP",
+      "AvgP",
+      "TsU",
+      "maxPe",
+      "maxP",
+      "Hysteresis",
+      "maxTp"
+    ],
+    "defaults": {},
+    "name": "Load Manager"
+  },
+  "Irrigation": {
+    "connectors": [
+      "A",
+      "AIv",
+      "Rf",
+      "Ra",
+      "Qp",
+      "Qv1",
+      "Qv2",
+      "AQv",
+      "MaxP",
+      "MaxR",
+      "Tv1",
+      "Tv2"
+    ],
+    "defaults": {},
+    "name": "Irrigation"
+  },
+  "Media": {
+    "connectors": [
+      "Power",
+      "PowerOff",
+      "PowerOn",
+      "VolPlus",
+      "VolMinus",
+      "Volume",
+      "PrgPlus",
+      "PrgMinus",
+      "Program",
+      "Mode",
+      "Modus1",
+      "Modus2",
+      "Gesture",
+      "Disable",
+      "AQm",
+      "AQp",
+      "Output1",
+      "Output2",
+      "TimeNum",
+      "DblClk"
+    ],
+    "defaults": {},
+    "name": "Media Controller"
+  },
+  "MediaClient": {
+    "connectors": [
+      "SvPower",
+      "Trigger",
+      "PowerOn",
+      "PowerOff",
+      "VolPlus",
+      "VolPlus",
+      "VolMinus",
+      "Volume",
+      "NextSource",
+      "NextSource",
+      "Source",
+      "Source",
+      "Play",
+      "Pause",
+      "Stop",
+      "NextSong",
+      "PrevSong",
+      "Mute",
+      "Shuffle",
+      "Repeat",
+      "Move",
+      "Gesture",
+      "Reset",
+      "InputDisable",
+      "DisMv",
+      "Progress",
+      "Alarm",
+      "Firealarm",
+      "Bell",
+      "Buzzer",
+      "Sleeptimer",
+      "TTS",
+      "Power",
+      "Vol",
+      "Src",
+      "Src",
+      "RemSleep",
+      "OPowerOn",
+      "OPowerOff",
+      "RQ",
+      "RaQ",
+      "DblClk",
+      "VolumeStep",
+      "RepeatFirst",
+      "RepeatRate",
+      "MoveTimeout",
+      "MoveOn",
+      "MoveIgnore",
+      "MaxVol",
+      "DefVol",
+      "AlarmVol",
+      "AlarmVol",
+      "BellVol",
+      "BellVol",
+      "BuzzVol",
+      "BuzzVol",
+      "TTSVol",
+      "TTSVol",
+      "TimeSleep",
+      "TimeEvent",
+      "TimeOutOff",
+      "FRoomOff"
+    ],
+    "defaults": {},
+    "name": "Music Server Zone"
+  },
+  "Ping": {
+    "connectors": [
+      "InputDisable",
+      "Online",
+      "PingTime",
+      "TimeoutTime",
+      "Timeouts"
+    ],
+    "defaults": {},
+    "name": "Ping"
+  },
+  "Fronius": {
+    "connectors": [
+      "InEnergyGenerated",
+      "InPowerGenerated",
+      "InEnergyConsumed",
+      "InPowerConsumed",
+      "InEnergyDelivered",
+      "InPowerStorage",
+      "InStateStorage",
+      "InErrorNum",
+      "InErrorText",
+      "Reset",
+      "PowerProduced",
+      "DayEnergyProduced",
+      "MonEnergyProduced",
+      "YearEnergyProduced",
+      "TotalEnergyProduced",
+      "PowerConsumed",
+      "DayEnergyConsumed",
+      "MonEnergyConsumed",
+      "YearEnergyConsumed",
+      "TotalEnergyConsumed",
+      "DayEnergyDelivered",
+      "MonEnergyDelivered",
+      "YearEnergyDelivered",
+      "TotalEnergyDelivered",
+      "DayIncome",
+      "MonIncome",
+      "YearIncome",
+      "TotalIncome",
+      "StatusCodeProd",
+      "ErrorCodeProd",
+      "GridPower",
+      "StoragePower",
+      "StorageState",
+      "ImpEng",
+      "PriceDelivery",
+      "PriceConsume",
+      "CO2Factor",
+      "Abs"
+    ],
+    "defaults": {},
+    "name": "Energy Monitor"
+  },
+  "Average": {
+    "connectors": [
+      "AQ",
+      "Input1",
+      "Input2"
+    ],
+    "defaults": {},
+    "name": "Average"
+  },
+  "EnergyManager": {
+    "connectors": [
+      "AIp",
+      "AIb",
+      "AIt",
+      "Tr1",
+      "Tr2",
+      "Q1",
+      "Q2",
+      "AQr",
+      "Offset"
+    ],
+    "defaults": {},
+    "name": "Energy Manager Gen. 1"
+  },
+  "EnergyManager2": {
+    "connectors": [
+      "Gpwr",
+      "Ppwr",
+      "Spwr",
+      "Soc",
+      "Prio",
+      "Recalc",
+      "IL1",
+      "IL2",
+      "ONext",
+      "OL1",
+      "OL2",
+      "OMinSoc",
+      "API",
+      "O",
+      "MinSoc",
+      "MaxSpwr"
+    ],
+    "defaults": {},
+    "name": "Energy Manager"
+  },
+  "StatusMonitor": {
+    "connectors": [
+      "Stat",
+      "Txlc",
+      "Csr",
+      "Cs1",
+      "Cs2",
+      "API"
+    ],
+    "defaults": {},
+    "name": "Status Monitor"
+  },
+  "HeatIRoomController2": {
+    "connectors": [
+      "AMode",
+      "Input",
+      "Temp",
+      "Window",
+      "Comfort",
+      "Save",
+      "Save2",
+      "Move",
+      "Reset",
+      "DisMv",
+      "TempO",
+      "InCo2",
+      "InHumid",
+      "inFan",
+      "inAirDir",
+      "AQh",
+      "AQc",
+      "AQhc",
+      "AQh1",
+      "AQh2",
+      "AQc1",
+      "AQc2",
+      "AQhc1",
+      "AQhc2",
+      "Qs",
+      "AQs",
+      "Qe",
+      "Qa",
+      "AQt",
+      "AQhm",
+      "Qb",
+      "AQtm",
+      "TComfort",
+      "TComfortC",
+      "TComfortHC",
+      "TDiff",
+      "TSaveL",
+      "TSaveU",
+      "TSave",
+      "TShadeHeat",
+      "TShadeCool",
+      "TDeepSleep",
+      "TMax",
+      "TimeMove",
+      "TimeC",
+      "TimeS",
+      "TimeMv",
+      "THCelvin",
+      "TCCelvin",
+      "TPWM",
+      "TWin",
+      "TExcess"
+    ],
+    "defaults": {},
+    "name": "Intelligent Room Controller"
+  },
+  "PoolController": {
+    "connectors": [
+      "OperatingMode",
+      "TempControl",
+      "EcoTempControl",
+      "TargetTemp",
+      "ActualTemp",
+      "WaterLevel",
+      "CoverPos",
+      "SwimmingMachine",
+      "Custom1",
+      "Custom2",
+      "ValveFilter",
+      "ValveBackwash",
+      "ValveCirculate",
+      "ValveDrain",
+      "SelectValvePos",
+      "Pump",
+      "DrainValve",
+      "ErrorInput",
+      "Reset",
+      "Disable",
+      "OutHeating",
+      "OutCooling",
+      "OutOperatingMode",
+      "OutTempControl",
+      "OutTempControlCycleActive",
+      "OutTargetTemp",
+      "OutWaterLevel",
+      "OutCoverOpen",
+      "OutCoverClose",
+      "OutSwimmingMachine",
+      "OutValveFilter",
+      "OutValveBackwash",
+      "OutValveCirculate",
+      "OutValveDrain",
+      "OutValveCycleTime",
+      "OutValveDelayActive",
+      "OutValvePos",
+      "OutPump",
+      "OutDrainValve",
+      "OutError",
+      "Hysteresis",
+      "ValveDelay",
+      "FilterTime",
+      "BackwashTime",
+      "RinseTime",
+      "CirculateTime",
+      "DrainTime"
+    ],
+    "defaults": {},
+    "name": "Pool Controller"
+  },
+  "ToiletFan": {
+    "connectors": [
+      "Trigger",
+      "Move",
+      "Disable",
+      "OutputActive",
+      "OutputFan",
+      "AiringDelay",
+      "MaxAiringDuration"
+    ],
+    "defaults": {},
+    "name": "Toilet Ventilation Controller"
+  },
+  "AlarmClock": {
+    "connectors": [
+      "Acknowledge",
+      "Snooze",
+      "Deactivate",
+      "TgMe",
+      "TMe",
+      "VIN1",
+      "RtD",
+      "Reset",
+      "Remanence",
+      "AlarmTime",
+      "PrepTime",
+      "SnoozeTime",
+      "BrightInact",
+      "BrightAct",
+      "ParWakeAlarmSound",
+      "ParWakeAlarmVolume",
+      "ParWakeAlarmSloping",
+      "QTa",
+      "QTe",
+      "Qa",
+      "Qat",
+      "QTp",
+      "QMe",
+      "AQs",
+      "QTna",
+      "OutputAPI"
+    ],
+    "defaults": {
+      "AlarmTime": "120",
+      "PrepTime": "180",
+      "SnoozeTime": "300",
+      "BrightAct": "50",
+      "ParWakeAlarmSound": "1",
+      "ParWakeAlarmVolume": "100"
+    },
+    "name": "Alarm Clock"
+  },
+  "CarCharger": {
+    "connectors": [
+      "Enable",
+      "Connected",
+      "Power",
+      "Energy",
+      "Limit",
+      "Reset",
+      "OCharging",
+      "OConnected",
+      "OPower",
+      "OEnergySession",
+      "OEnergyTotal",
+      "OEnergyTotal1",
+      "OLimit",
+      "OError",
+      "LimitMode",
+      "LimitReset",
+      "AutoStart",
+      "Profile"
+    ],
+    "defaults": {},
+    "name": "Wallbox Gen. 1"
+  },
+  "BrightnessControl": {
+    "connectors": [
+      "InputBrightness",
+      "InputValue",
+      "Enable",
+      "AQ",
+      "Target",
+      "Hysteresis",
+      "StepMax"
+    ],
+    "defaults": {},
+    "name": "Daylight Responsive Lighting"
+  },
+  "SmokeAlarm": {
+    "connectors": [
+      "Confirm",
+      "Mute",
+      "InputAlarm",
+      "InputAlarmW",
+      "InputAlarmS",
+      "InputTemp",
+      "OutAlarm1",
+      "OutAlarm2",
+      "OutSilent",
+      "OutHorn",
+      "OutNumAlarms",
+      "OutAlarmTest",
+      "OutText",
+      "OutTime",
+      "AlarmDelay",
+      "MaxTemp",
+      "MaxDuration",
+      "Autoconfirm",
+      "Servicemode"
+    ],
+    "defaults": {},
+    "name": "Fire and Water Alarm"
+  },
+  "Jalousiemotor": {
+    "connectors": [
+      "OutputPos",
+      "OutputLPos",
+      "OutputMoving",
+      "OutputBlock",
+      "OutputObstacle",
+      "OutputAutoShade",
+      "OutputSafety",
+      "OutputLock",
+      "SO",
+      "AutoShadeEnd",
+      "AutMode",
+      "MinPulse",
+      "DblClk",
+      "Dir",
+      "DirTol",
+      "DirTol2",
+      "AutoShadeTime",
+      "SRoff",
+      "SSoff",
+      "ShadePos",
+      "Width",
+      "Space",
+      "MovePosition"
+    ],
+    "defaults": {},
+    "name": "Automatic Shading integrated"
+  },
+  "PresenceController": {
+    "connectors": [
+      "Mv",
+      "W",
+      "C",
+      "Li",
+      "Mu",
+      "P",
+      "CO2",
+      "Gesture",
+      "Reset",
+      "PA",
+      "AQ",
+      "TQ",
+      "TVi",
+      "TMv",
+      "TW",
+      "TC",
+      "TL",
+      "TM",
+      "TP",
+      "TCO",
+      "TT",
+      "dP",
+      "dC"
+    ],
+    "defaults": {},
+    "name": "Presence Sensor (obsolete)"
+  },
+  "AutopilotRule": {
+    "connectors": [
+      "InputTrigger",
+      "Reset",
+      "On",
+      "Run",
+      "Q",
+      "A"
+    ],
+    "defaults": {},
+    "name": "Automatic Rule"
+  },
+  "AutomaticScene": {
+    "connectors": [
+      "InputTrigger",
+      "Reset"
+    ],
+    "defaults": {},
+    "name": "Scene"
+  },
+  "Fan": {
+    "connectors": [
+      "TSoll",
+      "AIt1",
+      "AIt2",
+      "VOC",
+      "AIh1",
+      "AIh2",
+      "Ip",
+      "FMode",
+      "NMode",
+      "Inactive",
+      "Noise",
+      "Mv",
+      "DisMv",
+      "T5",
+      "If",
+      "AIm",
+      "AQfs",
+      "AQim",
+      "AQfs1",
+      "AQfs2",
+      "AQhp",
+      "Qp",
+      "AQs",
+      "AQh",
+      "AQmm",
+      "Qm",
+      "Ti",
+      "Fsn",
+      "FanManu",
+      "Tq",
+      "HV",
+      "MoveTimeout",
+      "MoveMaxSpeed",
+      "MinSpeed",
+      "TWet",
+      "DtT5"
+    ],
+    "defaults": {},
+    "name": "Ventilation Controller (in development)"
+  },
+  "NfcCodeTouch": {
+    "connectors": [
+      "Disable",
+      "Lr",
+      "Lg",
+      "Lb",
+      "Lw",
+      "Q1",
+      "Q2",
+      "TQ",
+      "TQU",
+      "TQo",
+      "TQt",
+      "Qd",
+      "Qa",
+      "Qn",
+      "Be",
+      "BeSel",
+      "TQU2",
+      "TQU3",
+      "PUDel",
+      "Bg",
+      "Lbr",
+      "PulseTime",
+      "La",
+      "Lon",
+      "Au"
+    ],
+    "defaults": {},
+    "name": "Authentication NFC Code Touch"
+  },
+  "HeatCentral": {
+    "connectors": [
+      "IK1",
+      "IK2",
+      "SB",
+      "IB",
+      "SP1",
+      "SP2",
+      "SP3",
+      "SP4",
+      "IP1",
+      "IP2",
+      "IP3",
+      "IP4",
+      "SV1",
+      "SV2",
+      "SV3",
+      "SV4",
+      "IV1",
+      "IV2",
+      "IV3",
+      "IV4",
+      "IE",
+      "Qh1",
+      "Qh2",
+      "Qh3",
+      "Qh4",
+      "AQb",
+      "AQp1",
+      "AQp2",
+      "AQp3",
+      "AQp4",
+      "AQv1",
+      "AQv2",
+      "AQv3",
+      "AQv4",
+      "RH1",
+      "RH2"
+    ],
+    "defaults": {},
+    "name": "Central Heating (BETA)"
+  },
+  "WindowsMonitor": {
+    "connectors": [
+      "Wh",
+      "W",
+      "Wt",
+      "Wl",
+      "AQo",
+      "AQt",
+      "AQc",
+      "AQof",
+      "AQl",
+      "AQu",
+      "TQ",
+      "TQo"
+    ],
+    "defaults": {},
+    "name": "Door and Window Monitor"
+  },
+  "JoinWindowSensor": {
+    "connectors": [
+      "W",
+      "Wt",
+      "Wl",
+      "AQ",
+      "Q"
+    ],
+    "defaults": {},
+    "name": "Combined Window Contact"
+  },
+  "LightController2": {
+    "connectors": [
+      "I1",
+      "I2",
+      "I3",
+      "I4",
+      "InputTriggerUp",
+      "InputTriggerDown",
+      "Select",
+      "Reset",
+      "Sel1",
+      "Sel2",
+      "Sel3",
+      "Sel4",
+      "Sel5",
+      "Sel6",
+      "Sel7",
+      "Sel8",
+      "EnMove",
+      "Move",
+      "On",
+      "Alarm",
+      "AlarmClock",
+      "Brightness",
+      "InputDisable",
+      "Presence",
+      "RtD",
+      "MasterBr",
+      "BrightnessLimit",
+      "Remanence",
+      "MoveOn",
+      "MoveIgnore",
+      "Step",
+      "Steptime",
+      "Min",
+      "Max",
+      "Wrap",
+      "NoLast",
+      "MoveScene",
+      "MaxP",
+      "MoveTimeout",
+      "RGBalt",
+      "SceneMixTime",
+      "FadingTime",
+      "AlarmClockPeriod",
+      "DayMinTemp",
+      "DayMaxTemp",
+      "AlarmPeriod",
+      "AlarmBrightness",
+      "AQ1",
+      "AQ2",
+      "AQ3",
+      "AQ4",
+      "AQ5",
+      "AQ6",
+      "AQ7",
+      "AQ8",
+      "AQ9",
+      "AQ10",
+      "AQ11",
+      "AQ12",
+      "AQ13",
+      "AQ14",
+      "AQ15",
+      "AQ16",
+      "AQ17",
+      "AQ18",
+      "AQ19",
+      "AQ20",
+      "Scene",
+      "OutputReset",
+      "OutputResetAll",
+      "OutputAPI"
+    ],
+    "defaults": {
+      "BrightnessLimit": "30",
+      "MoveOn": "300",
+      "MoveIgnore": "300",
+      "Step": "2",
+      "Steptime": "0.2",
+      "Max": "100",
+      "MaxP": "0.35",
+      "MoveTimeout": "3600",
+      "SceneMixTime": "1",
+      "FadingTime": "1",
+      "AlarmClockPeriod": "3",
+      "DayMinTemp": "2700",
+      "DayMaxTemp": "6500",
+      "AlarmPeriod": "4",
+      "AlarmBrightness": "50"
+    },
+    "name": "Lighting Controller"
+  },
+  "SteakThermo": {
+    "connectors": [
+      "InAck",
+      "InSetActive",
+      "InTouchProtect",
+      "OutAlarmY",
+      "OutAlarmG",
+      "OutAlarmTimer",
+      "OutTempY",
+      "OutTempG",
+      "OutTargetY",
+      "OutTargetG",
+      "OutTimerRemain",
+      "OutActive",
+      "TTS",
+      "ParDurAlarm",
+      "ParDisplayBrightness"
+    ],
+    "defaults": {},
+    "name": "Touch & Grill"
+  },
+  "Weed": {
+    "connectors": [
+      "InStart",
+      "InPause",
+      "InStop",
+      "InMove",
+      "InDisMove",
+      "InDis",
+      "OutDock",
+      "OutAuto",
+      "OutPause",
+      "OutTransit",
+      "OutLoad",
+      "OutRain",
+      "OutError",
+      "OutABatt",
+      "OutAState",
+      "PauseTimeout",
+      "MvOffDelay"
+    ],
+    "defaults": {},
+    "name": "Viking iMow"
+  },
+  "HVACController": {
+    "connectors": [
+      "Temp",
+      "TempAvg",
+      "Boost",
+      "Stop",
+      "Error",
+      "SecHeat",
+      "Fan",
+      "FilterAck",
+      "CoolAvailable",
+      "HeatAvailable",
+      "ManualHeat",
+      "ServiceMode",
+      "OutHeat1",
+      "OutHeat2",
+      "OutCool1",
+      "OutCool2",
+      "OutSecHeat",
+      "OutValve",
+      "OutFan",
+      "OutFilter",
+      "OutAverageTemp",
+      "Mode",
+      "TimePump",
+      "OnThreshold",
+      "ValveDelay",
+      "FanDelay",
+      "TimePulseOn",
+      "TimePulseOff",
+      "PulseThreshold",
+      "TimeFilter",
+      "TimeAddional",
+      "TempAdditional",
+      "TempMin",
+      "Average",
+      "TempLimitC",
+      "TempLimitH"
+    ],
+    "defaults": {},
+    "name": "Heating and Cooling Controller"
+  },
+  "ClimateControllerUS": {
+    "connectors": [
+      "Mode",
+      "Temp",
+      "Boost",
+      "Stop",
+      "Emergency",
+      "Fan",
+      "InHumid",
+      "CoolAvailable",
+      "HeatAvailable",
+      "OutHeat1",
+      "OutHeat2",
+      "OutCompressor",
+      "OutCool2",
+      "OutEmergency",
+      "OutValve",
+      "OutFan",
+      "OutHumid",
+      "TimeOffPump",
+      "OnThreshold",
+      "FanDelay",
+      "TimeAddional",
+      "TempDelta",
+      "TempLimitC",
+      "TempLimitH",
+      "TPMin",
+      "TPMinH",
+      "TPMax",
+      "HTarget",
+      "DirV"
+    ],
+    "defaults": {},
+    "name": "HVAC Controller"
+  },
+  "HvacAC": {
+    "connectors": [
+      "Temp",
+      "Stop",
+      "MaintenanceAck",
+      "CoolAvailable",
+      "HeatAvailable",
+      "OutHeat1",
+      "OutCool1",
+      "OutMaintenance",
+      "Mode",
+      "TimeMaintenance",
+      "TempLimitC",
+      "TempLimitH"
+    ],
+    "defaults": {},
+    "name": "AC Central Controller"
+  },
+  "CentralLight": {
+    "connectors": [
+      "OutActive"
+    ],
+    "defaults": {},
+    "name": "Lighting Central"
+  },
+  "CentralShade": {
+    "connectors": [
+      "OutOpen",
+      "OutClose"
+    ],
+    "defaults": {},
+    "name": "Automatic Shading Central"
+  },
+  "CentralGate": {
+    "connectors": [
+      "Trigger",
+      "Open",
+      "Close",
+      "T5",
+      "InputStop",
+      "InputDisable",
+      "InputPo",
+      "OutOpenGate",
+      "OutCloseGate"
+    ],
+    "defaults": {},
+    "name": "Garage / Gate Central"
+  },
+  "CentralMusic": {
+    "connectors": [
+      "VolPlus",
+      "VolMinus",
+      "Reset",
+      "NextSong",
+      "PrevSong",
+      "Gesture",
+      "InputDisable",
+      "DisMv",
+      "Firealarm",
+      "DblClk",
+      "IgnoreROff",
+      "OutActive"
+    ],
+    "defaults": {},
+    "name": "Audio Central"
+  },
+  "CentralAlarm": {
+    "connectors": [
+      "Inactive",
+      "OutActiveAlarm"
+    ],
+    "defaults": {},
+    "name": "Burglar Alarm Central"
+  },
+  "PButtonT": {
+    "connectors": [
+      "InputTrigger",
+      "InputDisable",
+      "Q",
+      "Time"
+    ],
+    "defaults": {},
+    "name": "Push Button"
+  },
+  "Ventilation": {
+    "connectors": [
+      "IN_H_I",
+      "IN_A_I",
+      "IN_T_O",
+      "IN_W_C",
+      "IN_P",
+      "IN_S",
+      "IN_SL",
+      "IN_T",
+      "IN_E",
+      "OUT_V",
+      "OUT_VE",
+      "OUT_VI",
+      "OUT_HE",
+      "OUT_R",
+      "IN_H_MAX",
+      "IN_H_MIN",
+      "IN_A_MAX",
+      "IN_P_H",
+      "IN_S_H",
+      "IN_V_MAX",
+      "IN_V_MIN",
+      "IN_V_P_MAX",
+      "IN_V_P_MIN",
+      "IN_T_F"
+    ],
+    "defaults": {},
+    "name": "Room Ventilation Controller"
+  },
+  "Leaf": {
+    "connectors": [
+      "IN_H_I",
+      "IN_A_I",
+      "IN_T_O",
+      "IN_W_C",
+      "IN_P",
+      "IN_S",
+      "IN_SL",
+      "IN_T",
+      "IN_E",
+      "IN_FC_A",
+      "OUT_R",
+      "OUT_FC",
+      "OUT_E",
+      "IN_H_MAX",
+      "IN_A_MAX",
+      "IN_P_H",
+      "IN_S_H",
+      "IN_V_MAX",
+      "IN_V_MIN",
+      "IN_V_P_MAX",
+      "IN_V_P_MIN"
+    ],
+    "defaults": {},
+    "name": "Leaf Ventilation"
+  },
+  "VentInternorm": {
+    "connectors": [
+      "IN_H_I",
+      "IN_A_I",
+      "IN_T_O",
+      "IN_W_C",
+      "IN_P",
+      "IN_S",
+      "IN_SL",
+      "IN_T",
+      "IN_E",
+      "OUT_R",
+      "OUT_FC",
+      "OUT_E",
+      "IN_H_MAX",
+      "IN_H_MIN",
+      "IN_A_MAX",
+      "IN_P_H",
+      "IN_S_H",
+      "IN_V_MAX",
+      "IN_V_MIN",
+      "IN_V_P_MAX",
+      "IN_V_P_MIN"
+    ],
+    "defaults": {},
+    "name": "Internorm Fan"
+  },
+  "Power": {
+    "connectors": [
+      "InBattPower",
+      "OutPowerFailure",
+      "OutTimeRemaining",
+      "OutSoc",
+      "OutOutPower"
+    ],
+    "defaults": {},
+    "name": "Power"
+  },
+  "DaylightController": {
+    "connectors": [
+      "Deactivate",
+      "Brightness",
+      "AQ",
+      "NightColorTemperature",
+      "DayColorTemperature"
+    ],
+    "defaults": {},
+    "name": "Daylight control (BETA)"
+  },
+  "AlarmChain": {
+    "connectors": [
+      "Alarm",
+      "Urgent",
+      "InEmgService",
+      "Text1",
+      "Text2",
+      "Confirm",
+      "Level1",
+      "Level2",
+      "OutEmgService",
+      "ActiveLevel",
+      "LastStart",
+      "LastStop",
+      "ConfirmCause",
+      "ConfirmTime",
+      "Time",
+      "MaxRuns"
+    ],
+    "defaults": {},
+    "name": "Alarm Chain"
+  },
+  "PulseBy": {
+    "connectors": [
+      "Text",
+      "Pulse",
+      "Time"
+    ],
+    "defaults": {},
+    "name": "Pulse by"
+  },
+  "RoofWindow": {
+    "connectors": [
+      "FullOpen",
+      "FullClose",
+      "Toggle",
+      "Open",
+      "Close",
+      "Reset",
+      "CurrentPos",
+      "So",
+      "OpenOut",
+      "CloseOut",
+      "Position",
+      "TargetPos",
+      "DurationOpen",
+      "DurationClose",
+      "MinMove",
+      "Block",
+      "SoPos"
+    ],
+    "defaults": {},
+    "name": "Window"
+  },
+  "ShadeRoof": {
+    "connectors": [
+      "FullUp",
+      "FullDown",
+      "Protection",
+      "T5",
+      "Disable",
+      "AutoEnable",
+      "AutoDisable",
+      "AutoReacivate",
+      "OutputUp",
+      "OutputDown",
+      "OutputPos",
+      "OutputSafety",
+      "OutputLock",
+      "AutoState",
+      "SO",
+      "TimeFullUp",
+      "TimeFullDown",
+      "TimeBlock",
+      "TDoubleClick",
+      "TMinPulse",
+      "TMinMove",
+      "AutoMode",
+      "AutoEndState",
+      "Dir",
+      "DirTol1",
+      "DirTol2",
+      "Tilt",
+      "AutoOffset1",
+      "AutoOffset2",
+      "Shadepos"
+    ],
+    "defaults": {},
+    "name": "Roof Window Shading"
+  },
+  "AalSmartAlarm": {
+    "connectors": [
+      "Alarm",
+      "Movement Throughfare",
+      "Movement Recreational Room",
+      "Movement Bedroom",
+      "Confirm",
+      "Leave",
+      "Alarm Level 1",
+      "Alarm Level 2",
+      "Cause",
+      "Time",
+      "Time Throughfare Alarm",
+      "Time Recreational Room Alarm",
+      "Time Bedroom Alarm",
+      "Delay Alarm Level 2"
+    ],
+    "defaults": {},
+    "name": "AAL Smart Alarm"
+  },
+  "CmdRecognition": {
+    "connectors": [
+      "Text",
+      "AnalogOutput"
+    ],
+    "defaults": {},
+    "name": "Command Recognition"
+  },
+  "EdgeDetection": {
+    "connectors": [
+      "Input",
+      "Edge",
+      "RisingEdge",
+      "FallingEdge",
+      "PulseTime"
+    ],
+    "defaults": {},
+    "name": "Edge Detection"
+  },
+  "AalEmergency": {
+    "connectors": [
+      "InTrigger",
+      "InAlarm",
+      "InConfirm",
+      "InReset",
+      "OutAlarm",
+      "OutAlarmStart",
+      "OutAlarmStop",
+      "OutAlarmSource",
+      "OutConfirmSource",
+      "ParTimeAlarm",
+      "ParTimeConfirm"
+    ],
+    "defaults": {},
+    "name": "Emergency Alarm"
+  },
+  "MusicPlayer": {
+    "connectors": [
+      "DefVol",
+      "MaxVol",
+      "Step",
+      "AlarmVol",
+      "BellVol",
+      "BuzzVol",
+      "TTSVol",
+      "DblClk",
+      "IgnoreROff",
+      "BuzzerFav",
+      "volFading",
+      "OutAudio",
+      "OutActive",
+      "OutVolume",
+      "OutZoneFav",
+      "RoomOff",
+      "HouseOff",
+      "OutAudioL",
+      "OutAudioR",
+      "OutVolUpExternal",
+      "OutVolDownExternal",
+      "OutAudioSub",
+      "OutBluetooth"
+    ],
+    "defaults": {},
+    "name": "Audio Player"
+  },
+  "MPGroup": {
+    "connectors": [
+      "DblClk",
+      "IgnoreROff",
+      "EnBT"
+    ],
+    "defaults": {},
+    "name": "Audio Player Fixed Group"
+  },
+  "PresenceDetector": {
+    "connectors": [
+      "InputActivate",
+      "InputExtend",
+      "InputTrigger",
+      "InputReset",
+      "DeviceActivate",
+      "DeviceExtend",
+      "DeviceTrigger",
+      "ControlInput",
+      "ParamTOn",
+      "ParamTWarn",
+      "OutputPresence",
+      "OutputActive",
+      "OutputOn",
+      "OutputOff",
+      "OutputOnTime",
+      "OutputWarn",
+      "OutputDevOnTime",
+      "OutputDevActiveTime",
+      "OutputAPI"
+    ],
+    "defaults": {
+      "ParamTOn": "300",
+      "ParamTWarn": "15"
+    },
+    "name": "Presence"
+  },
+  "CentralPresence": {
+    "connectors": [
+      "InputReset",
+      "ParamTAbsence",
+      "OutputActive",
+      "OutputPOn",
+      "OutputPOff",
+      "OutputOnTime",
+      "OutputPAbsent"
+    ],
+    "defaults": {},
+    "name": "Presence Central"
+  },
+  "CentralRoofwindow": {
+    "connectors": [
+      "FullOpen",
+      "FullClose",
+      "Toggle",
+      "Open",
+      "Close",
+      "So",
+      "Reset",
+      "OutOpenWindow",
+      "OutCloseWindow"
+    ],
+    "defaults": {},
+    "name": "Window Central"
+  },
+  "SequenceController": {
+    "connectors": [
+      "Trigger1",
+      "Trigger2",
+      "AI1",
+      "AI2",
+      "ATrigger",
+      "AQ1",
+      "AQ2",
+      "OutputCurrSequence",
+      "OutputCurrLine",
+      "TQ"
+    ],
+    "defaults": {},
+    "name": "Sequence Controller"
+  },
+  "PowerUnit": {
+    "connectors": [
+      "OutPower",
+      "OutBackup",
+      "Power1",
+      "Power2",
+      "OutRemaining",
+      "OutSOC",
+      "OutOverCurrent"
+    ],
+    "defaults": {},
+    "name": "Power Supply & Backup"
+  },
+  "TextGenerator": {
+    "connectors": [
+      "Trigger",
+      "I1",
+      "I2",
+      "UserID",
+      "Td",
+      "Tu",
+      "TQ",
+      "TQ1",
+      "TQ2"
+    ],
+    "defaults": {},
+    "name": "Text Generator"
+  },
+  "MailGen": {
+    "connectors": [
+      "Trigger",
+      "I1",
+      "I2",
+      "UserID",
+      "Td",
+      "Tu"
+    ],
+    "defaults": {},
+    "name": "Mail Generator"
+  },
+  "CallGen": {
+    "connectors": [
+      "Trigger",
+      "I1",
+      "I2",
+      "UserID",
+      "Td",
+      "Tu",
+      "Q1",
+      "Q2"
+    ],
+    "defaults": {},
+    "name": "Call Generator"
+  },
+  "PVProductionForecast": {
+    "connectors": [
+      "Off",
+      "Period",
+      "Ppwr",
+      "Pp",
+      "Ptd",
+      "Pnd",
+      "Ready"
+    ],
+    "defaults": {},
+    "name": "PV Production Forecast"
+  },
+  "MeterPUni": {
+    "connectors": [
+      "P",
+      "F",
+      "OPf"
+    ],
+    "defaults": {},
+    "name": "Pulse Meter"
+  },
+  "MeterPBi": {
+    "connectors": [
+      "P1",
+      "P2",
+      "F1",
+      "F2",
+      "Np1",
+      "Np2",
+      "OPf",
+      "OMr1",
+      "ORd1",
+      "ORld1",
+      "ORw1",
+      "ORlw1",
+      "ORm1",
+      "ORlm1",
+      "ORy1",
+      "ORly1",
+      "OMr2",
+      "ORd2",
+      "ORld2",
+      "ORw2",
+      "ORlw2",
+      "ORm2",
+      "ORlm2",
+      "ORy2",
+      "ORly2"
+    ],
+    "defaults": {},
+    "name": "Pulse Meter Bidirectional"
+  },
+  "MeterPSt": {
+    "connectors": [
+      "P1",
+      "P2",
+      "F1",
+      "F2",
+      "Np1",
+      "Np2",
+      "OPf",
+      "OMr1",
+      "ORd1",
+      "ORld1",
+      "ORw1",
+      "ORlw1",
+      "ORm1",
+      "ORlm1",
+      "ORy1",
+      "ORly1",
+      "OMr2",
+      "ORd2",
+      "ORld2",
+      "ORw2",
+      "ORlw2",
+      "ORm2",
+      "ORlm2",
+      "ORy2",
+      "ORly2",
+      "OSlvl"
+    ],
+    "defaults": {},
+    "name": "Pulse Meter for Storage"
+  },
+  "MeterAbsUni": {
+    "connectors": [
+      "Pf",
+      "Mr",
+      "Mro",
+      "OPf",
+      "OMr",
+      "ORd",
+      "ORld",
+      "ORw",
+      "ORlw",
+      "ORm",
+      "ORlm",
+      "ORy",
+      "ORly"
+    ],
+    "defaults": {},
+    "name": "Meter"
+  },
+  "MeterAbsBi": {
+    "connectors": [
+      "Mr1",
+      "Mr2",
+      "OPf",
+      "OMr1",
+      "ORd1",
+      "ORld1",
+      "ORw1",
+      "ORlw1",
+      "ORm1",
+      "ORlm1",
+      "ORy1",
+      "ORly1",
+      "OMr2",
+      "ORd2",
+      "ORld2",
+      "ORw2",
+      "ORlw2",
+      "ORm2",
+      "ORlm2",
+      "ORy2",
+      "ORly2"
+    ],
+    "defaults": {},
+    "name": "Meter Bidirectional"
+  },
+  "MeterAbsSt": {
+    "connectors": [
+      "Mr1",
+      "Mr2",
+      "OPf",
+      "OMr1",
+      "ORd1",
+      "ORld1",
+      "ORw1",
+      "ORlw1",
+      "ORm1",
+      "ORlm1",
+      "ORy1",
+      "ORly1",
+      "OMr2",
+      "ORd2",
+      "ORld2",
+      "ORw2",
+      "ORlw2",
+      "ORm2",
+      "ORlm2",
+      "ORy2",
+      "ORly2",
+      "OSlvl"
+    ],
+    "defaults": {},
+    "name": "Meter for Storage"
+  },
+  "MeterDig": {
+    "connectors": [
+      "A",
+      "Mro",
+      "Ppwr",
+      "OPf",
+      "OMr",
+      "ORd",
+      "ORld",
+      "ORw",
+      "ORlw",
+      "ORm",
+      "ORlm",
+      "ORy",
+      "ORly"
+    ],
+    "defaults": {},
+    "name": "Fixed Value Meter"
+  },
+  "EFM": {
+    "connectors": [
+      "R",
+      "Pre",
+      "Pri",
+      "CO2",
+      "OGpwr",
+      "OPpwr",
+      "OSpwr",
+      "OEd",
+      "OId",
+      "OPd",
+      "OCd",
+      "OScd",
+      "OCo2d",
+      "OYd",
+      "OSc",
+      "OYT",
+      "Rest"
+    ],
+    "defaults": {},
+    "name": "Energy Flow Monitor"
+  },
+  "Wallbox": {
+    "connectors": [
+      "allow",
+      "prio",
+      "connected",
+      "power",
+      "energy",
+      "active",
+      "setmode1",
+      "setmode2",
+      "valmode1",
+      "valmode2",
+      "pricemode1",
+      "pricemode2",
+      "pricemode6",
+      "user",
+      "loadshed",
+      "off",
+      "resetM",
+      "modeUnplug",
+      "priceHour",
+      "offset",
+      "outAllow",
+      "outConnected",
+      "outPower",
+      "outMode",
+      "outMode",
+      "outLimit",
+      "outLoadshed",
+      "outMeterReading",
+      "outConsCurr",
+      "outConsLast",
+      "outConsDay",
+      "outConsWeek",
+      "outConsMonth",
+      "outConsYear",
+      "outLog",
+      "outActive",
+      "outConsLastDay",
+      "outConsLastWeek",
+      "outConsLastMonth",
+      "outConsLastYear",
+      "outPrice",
+      "outUserId",
+      "outSesE",
+      "outSesS"
+    ],
+    "defaults": {},
+    "name": "Wallbox"
+  },
+  "SpotOpt": {
+    "connectors": [
+      "R",
+      "Tr",
+      "U1",
+      "U2",
+      "U1",
+      "U2",
+      "Tn",
+      "Ta",
+      "Mrt",
+      "Mvh",
+      "Var1",
+      "Var2",
+      "Act",
+      "Uc",
+      "vHigh",
+      "High",
+      "Low",
+      "vLow",
+      "Max",
+      "Min",
+      "Avg",
+      "Nv"
+    ],
+    "defaults": {},
+    "name": "Spot Price Optimizer"
+  },
+  "AcControl": {
+    "connectors": [
+      "toggle",
+      "on",
+      "off",
+      "inTempTarget",
+      "inTempCurr",
+      "inMode",
+      "inFan",
+      "inAirDir",
+      "RtD",
+      "inWin",
+      "inPause",
+      "inLoadS",
+      "SilentMode",
+      "parPause",
+      "parHyst",
+      "parOff",
+      "minTemp",
+      "maxTemp",
+      "status",
+      "mode",
+      "fan",
+      "airDir",
+      "tempTarget",
+      "tempCurr"
+    ],
+    "defaults": {},
+    "name": "AC Unit Controller"
+  },
+  "WBEM": {
+    "connectors": [
+      "Pmax",
+      "Peco",
+      "Off",
+      "PrEco",
+      "PrPrio",
+      "PrHour",
+      "Cp",
+      "Ap"
+    ],
+    "defaults": {},
+    "name": "Wallbox Manager"
+  },
+  "Tablet": {
+    "connectors": [
+      "Ds",
+      "P",
+      "Dnd",
+      "DBr",
+      "SBr",
+      "ODBr",
+      "OCac",
+      "OBat",
+      "OUi",
+      "API"
+    ],
+    "defaults": {},
+    "name": "Tablet"
+  },
+  "Device Tablet": {
+    "connectors": [
+      "Ds",
+      "P",
+      "Dnd",
+      "Sleep",
+      "DBr",
+      "SBr",
+      "V",
+      "Va",
+      "Vbell",
+      "Vbuzzer",
+      "ODBr",
+      "OUi",
+      "API"
+    ],
+    "defaults": {},
+    "name": "Device Tablet"
+  },
+  "MsShortcut": {
+    "connectors": [],
+    "defaults": {},
+    "name": "Miniserver Shortcut"
+  },
+  "BinEncoder": {
+    "connectors": [
+      "Input1",
+      "Input2",
+      "Value"
+    ],
+    "defaults": {},
+    "name": "Binary Encoder"
+  },
+  "DewPoint": {
+    "connectors": [
+      "Temp",
+      "Humid",
+      "Baro",
+      "Off",
+      "DewP"
+    ],
+    "defaults": {},
+    "name": "Dewpoint Calculator"
+  },
+  "Validator": {
+    "connectors": [
+      "inval",
+      "enable",
+      "mintime",
+      "minval",
+      "maxval",
+      "delay",
+      "outval",
+      "error"
+    ],
+    "defaults": {},
+    "name": "Value Validator"
+  },
+  "TpfController": {
+    "connectors": [
+      "inpres",
+      "indnd",
+      "inlbt",
+      "inroomlight",
+      "indaylight",
+      "inbrightness",
+      "insetpoint",
+      "inoff",
+      "indis",
+      "indisplay",
+      "inbacklight",
+      "inText",
+      "parsetpoint1",
+      "parsetpoint2",
+      "parsetpoint3",
+      "parsetpoint4",
+      "parsetpoint5",
+      "parsetpoint6",
+      "parsetpointFB",
+      "maxbrightness",
+      "outsetpoint",
+      "outpresence",
+      "outroomlight",
+      "outdaylight",
+      "outbrightness",
+      "outsetpointdisplay"
+    ],
+    "defaults": {},
+    "name": "Touch Pure Flex Controller"
+  },
+  "DbConS": {
+    "connectors": [
+      "IN_SStart",
+      "IN_SEnd",
+      "IN_Uid",
+      "IN_CI1",
+      "IN_CI2",
+      "IN_CI3",
+      "IN_CI4",
+      "IN_CI5",
+      "IN_CI6",
+      "IN_CI7",
+      "IN_CI8",
+      "IN_CI9",
+      "IN_CI10",
+      "IN_CI11",
+      "IN_CI12",
+      "IN_CI13",
+      "IN_CI14",
+      "IN_CI15",
+      "IN_CI16",
+      "PAR_Td",
+      "OUT_Log",
+      "OUT_Sa"
+    ],
+    "defaults": {},
+    "name": "Session Database Connector"
+  },
+  "DbConE": {
+    "connectors": [
+      "IN_ETr",
+      "IN_Uid",
+      "IN_CI1",
+      "IN_CI2",
+      "IN_CI3",
+      "IN_CI4",
+      "IN_CI5",
+      "IN_CI6",
+      "IN_CI7",
+      "IN_CI8",
+      "IN_CI9",
+      "IN_CI10",
+      "IN_CI11",
+      "IN_CI12",
+      "IN_CI13",
+      "IN_CI14",
+      "IN_CI15",
+      "IN_CI16",
+      "PAR_Td",
+      "OUT_Log"
+    ],
+    "defaults": {},
+    "name": "Event Database Connector"
+  },
+  "DbConT": {
+    "connectors": [],
+    "defaults": {},
+    "name": "Database"
+  },
+  "Nevo": {
+    "connectors": [
+      "P",
+      "Don",
+      "DnD",
+      "Nm"
+    ],
+    "defaults": {},
+    "name": "Nevo Controller"
+  },
+  "Fancoil": {
+    "connectors": [
+      "Tc",
+      "Tt",
+      "Ha",
+      "Ca",
+      "Dwc",
+      "Rtd",
+      "Off",
+      "Sm",
+      "Bm",
+      "Pt",
+      "Fan",
+      "Fmax",
+      "Mode",
+      "Ptd",
+      "FTKP",
+      "FTKI",
+      "FTSt",
+      "OH",
+      "OC",
+      "OHC",
+      "OFan",
+      "OFanS",
+      "OTc",
+      "OTt",
+      "OMode",
+      "OS"
+    ],
+    "defaults": {},
+    "name": "Fan Coil Unit Controller"
+  },
+  "FancoilFreshAir": {
+    "connectors": [
+      "Tc",
+      "Tt",
+      "Ha",
+      "Ca",
+      "CO2",
+      "Dwc",
+      "Rtd",
+      "Off",
+      "Sm",
+      "Bm",
+      "Pt",
+      "Fan",
+      "CO2t",
+      "Fmax",
+      "Mode",
+      "Ptd",
+      "FTKP",
+      "FTKI",
+      "FTSt",
+      "Fco2KP",
+      "Fco2KI",
+      "Fco2St",
+      "VKP",
+      "VKI",
+      "VSt",
+      "OH",
+      "OC",
+      "OHC",
+      "OFan",
+      "OFanS",
+      "OTc",
+      "OTt",
+      "OMode",
+      "OS"
+    ],
+    "defaults": {},
+    "name": "Fan Coil Fresh Air Unit Controller"
+  },
+  "CentralFancoil": {
+    "connectors": [
+      "To",
+      "Off",
+      "Eh",
+      "Ec",
+      "Ha",
+      "Ca",
+      "Mode",
+      "SotH",
+      "SotC",
+      "MinHrt",
+      "MinCrt",
+      "TLimH",
+      "TLimC",
+      "Vd",
+      "OH",
+      "OC",
+      "OToa",
+      "OAvMode",
+      "OSv"
+    ],
+    "defaults": {},
+    "name": "Fan Coil Central Controller"
+  }
+}

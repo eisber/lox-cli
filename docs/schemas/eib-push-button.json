@@ -1,0 +1,67 @@
+{
+  "title": "EIB push-button",
+  "xml_type": "",
+  "kb_slug": "eib-push-button",
+  "description": "On/Off push-button with trigger, central On/Off function",
+  "inputs": [
+    {
+      "abbreviation": "Tg",
+      "summary": "Toggle",
+      "description": "Toggles between on and off.",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "Off",
+      "summary": "Off",
+      "description": "Switches output (O) off. Permanent 1 = Locks function block. The name of the connected sensor is used in the user interface.",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "On",
+      "summary": "On",
+      "description": "Switches output (O) on.",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "DisPc",
+      "summary": "Disable periphery control",
+      "description": "Disables inputs (Tg), (Off), (On) when On. (e.g Child lock, cleaning)",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "S",
+      "summary": "State",
+      "description": "This input can forward the status of a EIB-actuator to the output without triggering an action on the output.",
+      "value_range": "0/1"
+    }
+  ],
+  "outputs": [
+    {
+      "abbreviation": "O",
+      "summary": "Output",
+      "description": "Connect this output to an EIB-switching actuator (group address switching)",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "API",
+      "summary": "API Connector",
+      "description": "Intelligent API based connector. API Commands",
+      "value_range": "-"
+    }
+  ],
+  "parameters": [
+    {
+      "abbreviation": "Rem",
+      "summary": "Remanence input",
+      "description": "Remanence input: If active, the function block retains its previous state after a Miniserver reboot. The state of the function block is saved: \u2013 When saving to the Miniserver \u2013 At a planned reboot \u2013 Before a backup \u2013 Once per hour The data is saved on the SD card.",
+      "value_range": "0/1",
+      "default_value": "0"
+    }
+  ],
+  "properties": [],
+  "source_url": "https://www.loxone.com/enen/kb/eib-push-button/",
+  "input_count": 5,
+  "output_count": 2,
+  "parameter_count": 1,
+  "property_count": 0
+}

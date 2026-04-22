@@ -1,0 +1,10 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<VirtualOut Title="Dreambox / Enigma2" Comment="" Address="http://192.168.1.11" CmdInit="" CloseAfterSend="false" CmdSep="">
+    <Info templateType="3" minVersion="12010617"/>
+	<VirtualOutCmd Title="Text message" Comment="" CmdOnMethod="GET" CmdOffMethod="GET" CmdOn="/web/message?text=Jemand läutet an der Tür&amp;type=1&amp;timeout=30" CmdOnHTTP="" CmdOnPost="" CmdOff="" CmdOffHTTP="" CmdOffPost="" Analog="false" Repeat="0.000" RepeatRate="0.000"/>
+	<VirtualOutCmd Title="Power On" Comment="" CmdOnMethod="GET" CmdOffMethod="GET" CmdOn="/web/powerstate?newstate=4" CmdOnHTTP="" CmdOnPost="" CmdOff="" CmdOffHTTP="" CmdOffPost="" Analog="false" Repeat="0.000" RepeatRate="0.000"/>
+	<VirtualOutCmd Title="Power Off" Comment="" CmdOnMethod="GET" CmdOffMethod="GET" CmdOn="/web/powerstate?newstate=5" CmdOnHTTP="" CmdOnPost="" CmdOff="" CmdOffHTTP="" CmdOffPost="" Analog="false" Repeat="0.000" RepeatRate="0.000"/>
+	<VirtualOutCmd Title="Volume Up" Comment="" CmdOnMethod="GET" CmdOffMethod="GET" CmdOn="/web/vol?set=up" CmdOnHTTP="" CmdOnPost="" CmdOff="" CmdOffHTTP="" CmdOffPost="" Analog="false" Repeat="0.000" RepeatRate="0.000"/>
+	<VirtualOutCmd Title="Volume Down" Comment="" CmdOnMethod="GET" CmdOffMethod="GET" CmdOn="/web/vol?set=down" CmdOnHTTP="" CmdOnPost="" CmdOff="" CmdOffHTTP="" CmdOffPost="" Analog="false" Repeat="0.000" RepeatRate="0.000"/>
+	<VirtualOutCmd Title="Mute" Comment="" CmdOnMethod="GET" CmdOffMethod="GET" CmdOn="/web/vol?set=mute" CmdOnHTTP="" CmdOnPost="" CmdOff="" CmdOffHTTP="" CmdOffPost="" Analog="false" Repeat="0.000" RepeatRate="0.000"/>
+</VirtualOut>

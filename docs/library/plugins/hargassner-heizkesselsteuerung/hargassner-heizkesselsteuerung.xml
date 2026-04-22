@@ -1,0 +1,32 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Modbus Title="Hargassner Heizkesselsteuerung" Comment="" Channel="1">
+    <Info templateType="7" minVersion="12010617"/>
+	<ModbusCmd Title="Outside Temperature " Comment="" ModbusAddress="6201" ModbusCmd="3" ModbusDataType="100" ModbusPollingCycle="30" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Boiler Temperature A" Comment="" ModbusAddress="6019" ModbusCmd="3" ModbusDataType="100" ModbusPollingCycle="30" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Boiler Temperature" Comment="" ModbusAddress="6099" ModbusCmd="3" ModbusDataType="100" ModbusPollingCycle="5" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Actual Flow Temperature HK1" Comment="" ModbusAddress="5999" ModbusCmd="3" ModbusDataType="100" ModbusPollingCycle="30" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+    <ModbusCmd Title="Actual Flow Temperature HK2" Comment="" ModbusAddress="6001" ModbusCmd="3" ModbusDataType="100" ModbusPollingCycle="30" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+    <ModbusCmd Title="Actual Flow Temperature HKA" Comment="" ModbusAddress="6011" ModbusCmd="3" ModbusDataType="100" ModbusPollingCycle="30" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Status HK1" Comment="" ModbusAddress="6525" ModbusCmd="3" ModbusDataType="100" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+    <ModbusCmd Title="Status HK2" Comment="" ModbusAddress="6527" ModbusCmd="3" ModbusDataType="100" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+    <ModbusCmd Title="Status HKA" Comment="" ModbusAddress="6537" ModbusCmd="3" ModbusDataType="100" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Status Boiler" Comment="" ModbusAddress="6511" ModbusCmd="3" ModbusDataType="100" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Buffer Temperature Middle" Comment="" ModbusAddress="6151" ModbusCmd="3" ModbusDataType="100" ModbusPollingCycle="30" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Status Boiler A" Comment="" ModbusAddress="6545" ModbusCmd="3" ModbusDataType="100" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Status Buffer" Comment="" ModbusAddress="6519" ModbusCmd="3" ModbusDataType="100" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Fault Number" Comment="" ModbusAddress="6519" ModbusCmd="3" ModbusDataType="100" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Control Status" Comment="" ModbusAddress="6499" ModbusCmd="3" ModbusDataType="100" ModbusPollingCycle="10" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Boiler Temperature 1" Comment="" ModbusAddress="6013" ModbusCmd="3" ModbusDataType="100" ModbusPollingCycle="30" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Buffer Temperatur Bottom" Comment="" ModbusAddress="6153" ModbusCmd="3" ModbusDataType="100" ModbusPollingCycle="30" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Buffer Temperatur Top" Comment="" ModbusAddress="6149" ModbusCmd="3" ModbusDataType="100" ModbusPollingCycle="30" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Boiler Output" Comment="" ModbusAddress="6513" ModbusCmd="3" ModbusDataType="100" ModbusPollingCycle="5" Unit="&lt;v.1&gt;%" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Consumption" Comment="" ModbusAddress="6515" ModbusCmd="3" ModbusDataType="100" ModbusPollingCycle="30" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Storage Volume" Comment="" ModbusAddress="6517" ModbusCmd="3" ModbusDataType="100" ModbusPollingCycle="30" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Status Boiler 1" Comment="" ModbusAddress="6539" ModbusCmd="3" ModbusDataType="100" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Target Temperature Boiler A" Comment="" ModbusAddress="7012" ModbusCmd="16" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100" RepeatRate="60"/>
+	<ModbusCmd Title="Target Flow HK1" Comment="" ModbusAddress="6999" ModbusCmd="16" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100" RepeatRate="60"/>
+  <ModbusCmd Title="Target Flow  HK2" Comment="" ModbusAddress="7000" ModbusCmd="16" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100" RepeatRate="60"/>
+	<ModbusCmd Title="Target Flow HKA" Comment="" ModbusAddress="7005" ModbusCmd="16" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100" RepeatRate="60"/>
+	<ModbusCmd Title="Target Temperature Boiler 1" Comment="" ModbusAddress="7009" ModbusCmd="16" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100" RepeatRate="60"/>
+	<ModbusCmd Title="Target Temperature Puffer" Comment="" ModbusAddress="7019" ModbusCmd="16" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100" RepeatRate="60"/>
+</Modbus>

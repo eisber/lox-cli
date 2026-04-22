@@ -1,0 +1,38 @@
+title: lox
+description: Loxone Miniserver Config-as-Code CLI
+remote_theme: just-the-docs/just-the-docs@v0.10.0
+url: https://eisber.github.io
+baseurl: /lox-cli
+
+aux_links:
+  GitHub: https://github.com/eisber/lox-cli
+
+nav_enabled: true
+
+heading_anchors: true
+
+back_to_top: true
+back_to_top_text: "Back to top"
+
+footer_content: "AGPL-3.0. <a href=\"https://github.com/eisber/lox-cli\">View on GitHub</a>."
+
+color_scheme: lox
+
+exclude:
+  - api-research.md
+  - autopilot-design.md
+  - design-backup.md
+  - design-backup-inspect.md
+  - loxone-config-research.md
+  - plan.md
+
+callouts:
+  warning:
+    title: Warning
+    color: red
+  note:
+    title: Note
+    color: blue
+  tip:
+    title: Tip
+    color: green

@@ -1,0 +1,15 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Modbus Title="Wallbox KPB Intra EN" Comment="" Channel="1">
+	<Info templateType="7" minVersion="14030803"/>
+	<ModbusCmd Title="ABCE" Comment="" ModbusAddress="100" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Current phase 1" Comment="" ModbusAddress="114" ModbusCmd="4" ModbusDataType="34" ModbusPollingCycle="5" Unit="&lt;v.1&gt;A" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="1"/>
+	<ModbusCmd Title="Current phase 2" Comment="" ModbusAddress="116" ModbusCmd="4" ModbusDataType="34" ModbusPollingCycle="5" Unit="&lt;v.1&gt;A" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="1"/>
+	<ModbusCmd Title="Current phase 3" Comment="" ModbusAddress="118" ModbusCmd="4" ModbusDataType="34" ModbusPollingCycle="5" Unit="&lt;v.1&gt;A" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="1"/>
+	<ModbusCmd Title="Energy consumption" Comment="" ModbusAddress="120" ModbusCmd="4" ModbusDataType="34" ModbusPollingCycle="30" Unit="&lt;v.1&gt; kWh" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="10"/>
+	<ModbusCmd Title="Total energy" Comment="" ModbusAddress="128" ModbusCmd="4" ModbusDataType="34" ModbusPollingCycle="300" Unit="&lt;v.1&gt; kWh" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="10"/>
+	<ModbusCmd Title="Voltage" Comment="" ModbusAddress="138" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v&gt; V" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="1"/>
+	<ModbusCmd Title="Actual charging energy" Comment="" ModbusAddress="144" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v.1&gt; kW" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="1"/>
+	<ModbusCmd Title="Error state" Comment="" ModbusAddress="102" ModbusCmd="4" ModbusPollingCycle="300" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Max. charging current" Comment="" ModbusAddress="130" ModbusCmd="16" ModbusDataType="34" Unit="&lt;v.1&gt;A" Analog="true" Sensor="false" SourceValHigh="1" DestValHigh="1"/>
+	<ModbusCmd Title="Enable charging" Comment="" ModbusAddress="400" ModbusCmd="5" Unit="" Analog="false" Sensor="false"/>
+</Modbus>

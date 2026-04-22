@@ -1,0 +1,31 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Modbus Title="Gree VRF" Comment="" HintText="" Baudrate="9600" Stopbits="1" Channel="1">
+	<Info templateType="7" minVersion="14040925"/>
+	<ModbusCmd Title="Power on_Power off" Comment="" HintText="" ModbusAddress="102" ModbusCmd="3" ModbusPollingCycle="10" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Operation mode" Comment="" HintText="" ModbusAddress="103" ModbusCmd="3" ModbusPollingCycle="10" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Setpoint Temperature" Comment="" HintText="" ModbusAddress="104" ModbusCmd="3" ModbusPollingCycle="10" Unit="&lt;v&gt;℃ " Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="Fan speed" Comment="" HintText="" ModbusAddress="105" ModbusCmd="3" ModbusPollingCycle="10" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Indoor ambient temperature" Comment="" HintText="" ModbusAddress="116" ModbusCmd="3" ModbusPollingCycle="10" Unit="&lt;v.1&gt;℃" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="Outdoor ambient temperature" Comment="" HintText="" ModbusAddress="6507" ModbusCmd="3" ModbusPollingCycle="10" Unit="&lt;v.1&gt;℃" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="Power on_Power off" Comment="" HintText="" ModbusAddress="102" ModbusCmd="16" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Operation mode" Comment="" HintText="" ModbusAddress="103" ModbusCmd="16" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Setpoint Temperature" Comment="" HintText="" ModbusAddress="104" ModbusCmd="16" Unit="&lt;v&gt;℃" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="100"/>
+	<ModbusCmd Title="Fan speed" Comment="" HintText="" ModbusAddress="105" ModbusCmd="16" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Up&amp;down swing" Comment="" HintText="" ModbusAddress="109" ModbusCmd="16" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Left&amp;right swing" Comment="" HintText="" ModbusAddress="110" ModbusCmd="16" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Quiet" Comment="" HintText="" ModbusAddress="111" ModbusCmd="16" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Sleep" Comment="" HintText="" ModbusAddress="112" ModbusCmd="16" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Mode setting of all indoor units" Comment="" HintText="" ModbusAddress="6666" ModbusCmd="16" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Fan speed setting of all indoor units" Comment="" HintText="" ModbusAddress="6668" ModbusCmd="16" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Remote shielding of temperature setting function" Comment="" HintText="" ModbusAddress="441" ModbusCmd="15" Unit="" Analog="false" Sensor="false"/>
+	<ModbusCmd Title="Remote shielding of mode function" Comment="" HintText="" ModbusAddress="442" ModbusCmd="15" Unit="" Analog="false" Sensor="false"/>
+	<ModbusCmd Title="Remote shielding of power on_off function" Comment="" HintText="" ModbusAddress="443" ModbusCmd="15" Unit="" Analog="false" Sensor="false"/>
+	<ModbusCmd Title="Remote locking function" Comment="" HintText="" ModbusAddress="444" ModbusCmd="15" Unit="" Analog="false" Sensor="false"/>
+	<ModbusCmd Title="Energy-saving setting" Comment="" HintText="" ModbusAddress="448" ModbusCmd="15" Unit="" Analog="false" Sensor="false"/>
+	<ModbusCmd Title="Dry" Comment="" HintText="" ModbusAddress="452" ModbusCmd="15" Unit="" Analog="false" Sensor="false"/>
+	<ModbusCmd Title="Ventilation" Comment="" HintText="" ModbusAddress="455" ModbusCmd="15" Unit="" Analog="false" Sensor="false"/>
+	<ModbusCmd Title="Shielding on" Comment="" HintText="" ModbusAddress="457" ModbusCmd="15" Unit="" Analog="false" Sensor="false"/>
+	<ModbusCmd Title="Shielding off" Comment="" HintText="" ModbusAddress="458" ModbusCmd="15" Unit="" Analog="false" Sensor="false"/>
+	<ModbusCmd Title="Shielding timer" Comment="" HintText="" ModbusAddress="459" ModbusCmd="15" Unit="" Analog="false" Sensor="false"/>
+	<ModbusCmd Title="Setting 8℃ heating function" Comment="" HintText="" ModbusAddress="460" ModbusCmd="15" Unit="" Analog="false" Sensor="false"/>
+</Modbus>

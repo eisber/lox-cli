@@ -1,0 +1,12 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<VirtualOut Title="InFocus IN3118HD DLP Projector" Comment="" Address="http://192.168.1.232" CmdInit="" CloseAfterSend="true" CmdSep="">
+    <Info templateType="3" minVersion="12010617"/>
+	<VirtualOutCmd Title="Source: No Input" Comment="" CmdOnMethod="GET" CmdOffMethod="GET" CmdOn="/dpjset.cgi?PJ_SRCINPUT=0" CmdOnHTTP="" CmdOnPost="" CmdOff="" CmdOffHTTP="" CmdOffPost="" Analog="false" Repeat="0.0" RepeatRate="0.0"/>
+	<VirtualOutCmd Title="Source: VGA" Comment="" CmdOnMethod="GET" CmdOffMethod="GET" CmdOn="/dpjset.cgi?PJ_SRCINPUT=1" CmdOnHTTP="" CmdOnPost="" CmdOff="" CmdOffHTTP="" CmdOffPost="" Analog="false" Repeat="0.0" RepeatRate="0.0"/>
+	<VirtualOutCmd Title="Source: HDMI 1" Comment="" CmdOnMethod="GET" CmdOffMethod="GET" CmdOn="/dpjset.cgi?PJ_SRCINPUT=2" CmdOnHTTP="" CmdOnPost="" CmdOff="" CmdOffHTTP="" CmdOffPost="" Analog="false" Repeat="0.0" RepeatRate="0.0"/>
+	<VirtualOutCmd Title="Source: HDMI 2" Comment="" CmdOnMethod="GET" CmdOffMethod="GET" CmdOn="/dpjset.cgi?PJ_SRCINPUT=3" CmdOnHTTP="" CmdOnPost="" CmdOff="" CmdOffHTTP="" CmdOffPost="" Analog="false" Repeat="0.0" RepeatRate="0.0"/>
+	<VirtualOutCmd Title="Source: S-Video" Comment="" CmdOnMethod="GET" CmdOffMethod="GET" CmdOn="/dpjset.cgi?PJ_SRCINPUT=4" CmdOnHTTP="" CmdOnPost="" CmdOff="" CmdOffHTTP="" CmdOffPost="" Analog="false" Repeat="0.0" RepeatRate="0.0"/>
+	<VirtualOutCmd Title="Source: Composite" Comment="" CmdOnMethod="GET" CmdOffMethod="GET" CmdOn="/dpjset.cgi?PJ_SRCINPUT=5" CmdOnHTTP="" CmdOnPost="" CmdOff="" CmdOffHTTP="" CmdOffPost="" Analog="false" Repeat="0.0" RepeatRate="0.0"/>
+	<VirtualOutCmd Title="Power Off" Comment="" CmdOnMethod="GET" CmdOffMethod="GET" CmdOn="/dpjset.cgi?PJ_PowerMode=0" CmdOnHTTP="" CmdOnPost="" CmdOff="" CmdOffHTTP="" CmdOffPost="" Analog="false" Repeat="0.0" RepeatRate="0.0"/>
+	<VirtualOutCmd Title="Power On" Comment="" CmdOnMethod="GET" CmdOffMethod="GET" CmdOn="/dpjset.cgi?PJ_PowerMode=1" CmdOnHTTP="" CmdOnPost="" CmdOff="" CmdOffHTTP="" CmdOffPost="" Analog="false" Repeat="0.0" RepeatRate="0.0"/>
+</VirtualOut>

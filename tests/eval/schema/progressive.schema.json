@@ -1,0 +1,91 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Progressive Eval Challenge",
+  "description": "Schema for multi-step progressive evaluation challenges",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "required": ["id", "title", "steps"],
+    "properties": {
+      "id": {
+        "type": "string",
+        "pattern": "^[a-z0-9-]+$",
+        "description": "Unique challenge identifier"
+      },
+      "title": {
+        "type": "string",
+        "description": "Human-readable challenge title"
+      },
+      "description": {
+        "type": "string",
+        "description": "Detailed challenge description"
+      },
+      "difficulty": {
+        "type": "string",
+        "enum": ["easy", "medium", "hard", "expert"]
+      },
+      "scenario": {
+        "type": "string",
+        "description": "Use case scenario (e.g., 'homeowner', 'expert', 'office')"
+      },
+      "steps": {
+        "type": "array",
+        "description": "Ordered list of configuration steps",
+        "minItems": 2,
+        "items": {
+          "type": "object",
+          "required": ["step", "utterance", "expected"],
+          "properties": {
+            "step": {
+              "type": "integer",
+              "minimum": 1,
+              "description": "Step number in sequence"
+            },
+            "utterance": {
+              "type": "string",
+              "minLength": 10,
+              "description": "User request for this step"
+            },
+            "context": {
+              "type": "string",
+              "description": "Additional context from previous steps"
+            },
+            "expected": {
+              "type": "object",
+              "description": "Expected outcome (same schema as eval-case)"
+            },
+            "state_check": {
+              "type": "object",
+              "description": "Verify config state before next step",
+              "properties": {
+                "blocks_exist": {
+                  "type": "array",
+                  "items": {"type": "string"}
+                },
+                "wires_exist": {
+                  "type": "array",
+                  "items": {"type": "object"}
+                }
+              }
+            }
+          }
+        }
+      },
+      "final_validation": {
+        "type": "object",
+        "description": "Final validation after all steps complete",
+        "properties": {
+          "simulation": {
+            "type": "object",
+            "description": "End-to-end simulation test"
+          },
+          "integration_check": {
+            "type": "array",
+            "description": "Cross-step integration checks",
+            "items": {"type": "string"}
+          }
+        }
+      }
+    }
+  }
+}

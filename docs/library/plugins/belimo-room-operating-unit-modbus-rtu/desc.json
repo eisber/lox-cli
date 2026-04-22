@@ -1,0 +1,9 @@
+{
+                                "type": "template",
+                                "name": "belimo-room-operating-unit-modbus-rtu",
+                                "uuid": "ae0455ff-e5d5-11ed-ac304cd98f3deb8a",
+                                "version":"1.0.0",
+                                "id": "belimo-room-operating-unit-modbus-rtu-1216",
+                                "file": "belimo-room-operating-unit-modbus-rtu.xml",
+                                "templateType": "7",
+                            }

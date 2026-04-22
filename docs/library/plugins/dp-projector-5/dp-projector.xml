@@ -1,0 +1,17 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<VirtualOut Title="DP Projector" Comment="" Address="tcp://192.168.1.223:23" CmdInit="" CloseAfterSend="true" CmdSep="">
+    <Info templateType="3" minVersion="12010617"/>
+	<VirtualOutCmd Title="Power On" Comment="" CmdOnMethod="GET" CmdOffMethod="GET" CmdOn="V99S0001\r" CmdOnHTTP="" CmdOnPost="" CmdOff="" CmdOffHTTP="" CmdOffPost="" Analog="false" Repeat="0" RepeatRate="0"/>
+	<VirtualOutCmd Title="Power Off" Comment="" CmdOnMethod="GET" CmdOffMethod="GET" CmdOn="V99S0002\r" CmdOnHTTP="" CmdOnPost="" CmdOff="" CmdOffHTTP="" CmdOffPost="" Analog="false" Repeat="0" RepeatRate="0"/>
+	<VirtualOutCmd Title="Source: HDMI 2" Comment="" CmdOnMethod="GET" CmdOffMethod="GET" CmdOn="V99S0209\r" CmdOnHTTP="" CmdOnPost="" CmdOff="" CmdOffHTTP="" CmdOffPost="" Analog="false" Repeat="0" RepeatRate="0"/>
+	<VirtualOutCmd Title="Source: HDMI 1" Comment="" CmdOnMethod="GET" CmdOffMethod="GET" CmdOn="V99S0206\r" CmdOnHTTP="" CmdOnPost="" CmdOff="" CmdOffHTTP="" CmdOffPost="" Analog="false" Repeat="0" RepeatRate="0"/>
+	<VirtualOutCmd Title="Source: RGB 1" Comment="" CmdOnMethod="GET" CmdOffMethod="GET" CmdOn="V99S0201\r" CmdOnHTTP="" CmdOnPost="" CmdOff="" CmdOffHTTP="" CmdOffPost="" Analog="false" Repeat="0" RepeatRate="0"/>
+	<VirtualOutCmd Title="Source: RGB 2" Comment="" CmdOnMethod="GET" CmdOffMethod="GET" CmdOn="V99S0202\r" CmdOnHTTP="" CmdOnPost="" CmdOff="" CmdOffHTTP="" CmdOffPost="" Analog="false" Repeat="0" RepeatRate="0"/>
+	<VirtualOutCmd Title="Source: DVI" Comment="" CmdOnMethod="GET" CmdOffMethod="GET" CmdOn="V99S0203\r" CmdOnHTTP="" CmdOnPost="" CmdOff="" CmdOffHTTP="" CmdOffPost="" Analog="false" Repeat="0" RepeatRate="0"/>
+	<VirtualOutCmd Title="Source: Video" Comment="" CmdOnMethod="GET" CmdOffMethod="GET" CmdOn="V99S0204\r" CmdOnHTTP="" CmdOnPost="" CmdOff="" CmdOffHTTP="" CmdOffPost="" Analog="false" Repeat="0" RepeatRate="0"/>
+	<VirtualOutCmd Title="Source: S Video" Comment="" CmdOnMethod="GET" CmdOffMethod="GET" CmdOn="V99S0205\r" CmdOnHTTP="" CmdOnPost="" CmdOff="" CmdOffHTTP="" CmdOffPost="" Analog="false" Repeat="0" RepeatRate="0"/>
+	<VirtualOutCmd Title="Source: BNC" Comment="" CmdOnMethod="GET" CmdOffMethod="GET" CmdOn="V99S0207\r" CmdOnHTTP="" CmdOnPost="" CmdOff="" CmdOffHTTP="" CmdOffPost="" Analog="false" Repeat="0" RepeatRate="0"/>
+	<VirtualOutCmd Title="Source: Component" Comment="" CmdOnMethod="GET" CmdOffMethod="GET" CmdOn="V99S0208\r" CmdOnHTTP="" CmdOnPost="" CmdOff="" CmdOffHTTP="" CmdOffPost="" Analog="false" Repeat="0" RepeatRate="0"/>
+	<VirtualOutCmd Title="Source: Display Port" Comment="" CmdOnMethod="GET" CmdOffMethod="GET" CmdOn="V99S0210\r" CmdOnHTTP="" CmdOnPost="" CmdOff="" CmdOffHTTP="" CmdOffPost="" Analog="false" Repeat="0" RepeatRate="0"/>
+	<VirtualOutCmd Title="Source: Multimedia" Comment="" CmdOnMethod="GET" CmdOffMethod="GET" CmdOn="V99S0211\r" CmdOnHTTP="" CmdOnPost="" CmdOff="" CmdOffHTTP="" CmdOffPost="" Analog="false" Repeat="0" RepeatRate="0"/>
+</VirtualOut>

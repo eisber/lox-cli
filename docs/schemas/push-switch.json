@@ -1,0 +1,73 @@
+{
+  "title": "Push Switch",
+  "xml_type": "PushSwitch",
+  "kb_slug": "push-switch",
+  "description": "Converts a switch to a push button and generates a pulse on each edge (switch operation).",
+  "inputs": [
+    {
+      "abbreviation": "Tr",
+      "summary": "Trigger",
+      "description": "Pulse at input switches output (O) on for the duration set in parameter (Don).",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "Off",
+      "summary": "Off",
+      "description": "Switches output (O) off. Permanent 1 = Locks function block.",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "On",
+      "summary": "On",
+      "description": "Switches output (O) on.",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "DisPc",
+      "summary": "Disable periphery control",
+      "description": "Disables inputs (Tr), (Off), (On) when On. (e.g Child lock, cleaning)",
+      "value_range": "0/1"
+    }
+  ],
+  "outputs": [
+    {
+      "abbreviation": "O",
+      "summary": "Output",
+      "description": "Pulse on each edge at input (Tr) for the duration set in parameter (Don).",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "Off",
+      "summary": "Falling edge input (Tr)",
+      "description": "Pulse on falling edge at input (Tr) for parameter (Don).",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "On",
+      "summary": "Rising edge input (Tr)",
+      "description": "Pulse on rising edge at input (Tr) for parameter (Don).",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "API",
+      "summary": "API Connector",
+      "description": "Intelligent API based connector. API Commands",
+      "value_range": "-"
+    }
+  ],
+  "parameters": [
+    {
+      "abbreviation": "Don",
+      "summary": "On-duration of outputs (O), (Off), (On)",
+      "unit": "s",
+      "value_range": "0...\u221e",
+      "default_value": "0,02"
+    }
+  ],
+  "properties": [],
+  "source_url": "https://www.loxone.com/enen/kb/push-switch/",
+  "input_count": 4,
+  "output_count": 4,
+  "parameter_count": 1,
+  "property_count": 0
+}

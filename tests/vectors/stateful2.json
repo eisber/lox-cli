@@ -1,0 +1,56 @@
+{
+  "category": "D2: Stateful (remaining)",
+  "blocks": {
+    "FlipFlopRS": {
+      "inputs": {"R": "digital", "S": "digital"},
+      "outputs": {"Q": "digital", "QN": "digital"},
+      "tests": [
+        {"desc": "set", "set": {"R": 0, "S": 1}, "expect": {"Q": 1, "QN": 0}},
+        {"desc": "hold", "set": {"R": 0, "S": 0}, "expect": {"Q": 1, "QN": 0}},
+        {"desc": "reset", "set": {"R": 1, "S": 0}, "expect": {"Q": 0, "QN": 1}},
+        {"desc": "hold after reset", "set": {"R": 0, "S": 0}, "expect": {"Q": 0, "QN": 1}}
+      ]
+    },
+    "FlipFlopSR": {
+      "inputs": {"S": "digital", "R": "digital"},
+      "outputs": {"Q": "digital", "QN": "digital"},
+      "tests": [
+        {"desc": "set", "set": {"S": 1, "R": 0}, "expect": {"Q": 1, "QN": 0}},
+        {"desc": "hold", "set": {"S": 0, "R": 0}, "expect": {"Q": 1, "QN": 0}},
+        {"desc": "reset", "set": {"S": 0, "R": 1}, "expect": {"Q": 0, "QN": 1}},
+        {"desc": "hold after reset", "set": {"S": 0, "R": 0}, "expect": {"Q": 0, "QN": 1}}
+      ]
+    },
+    "ShiftRegister": {
+      "inputs": {"I": "digital", "Clk": "digital", "R": "digital"},
+      "outputs": {"Q1": "digital", "Q2": "digital"},
+      "tests": [
+        {"desc": "reset", "set": {"R": 1, "I": 0, "Clk": 0}, "expect": {"Q1": 0, "Q2": 0}},
+        {"desc": "load 1", "set": {"R": 0, "I": 1, "Clk": 1}, "expect": {"Q1": 1, "Q2": 0}},
+        {"desc": "shift", "set": {"I": 0, "Clk": 0}, "expect": {"Q1": 1, "Q2": 0}, "wait": 0.3},
+        {"desc": "clock again", "set": {"I": 0, "Clk": 1}, "expect": {"Q1": 0, "Q2": 1}}
+      ]
+    },
+    "Stepper": {
+      "inputs": {"Up": "digital", "Down": "digital", "R": "digital"},
+      "outputs": {"AQ": "analog"},
+      "tests": [
+        {"desc": "reset", "set": {"R": 1, "Up": 0, "Down": 0}, "expect": {"AQ": 0}},
+        {"desc": "step up", "set": {"R": 0, "Up": 1, "Down": 0}, "expect": {"AQ": 1}},
+        {"desc": "release", "set": {"Up": 0, "Down": 0}, "expect": {"AQ": 1}},
+        {"desc": "step up 2", "set": {"Up": 1, "Down": 0}, "expect": {"AQ": 2}},
+        {"desc": "step down", "set": {"Up": 0, "Down": 1}, "expect": {"AQ": 1}}
+      ]
+    },
+    "StatusMonitor": {
+      "inputs": {"I": "analog", "R": "digital"},
+      "outputs": {"Q": "digital", "AQ": "analog"},
+      "tests": [
+        {"desc": "zero input", "set": {"I": 0.0, "R": 0}, "expect": {"Q": 0, "AQ": 0.0}},
+        {"desc": "nonzero", "set": {"I": 75.0, "R": 0}, "expect": {"Q": 1, "AQ": 75.0}},
+        {"desc": "reset", "set": {"I": 75.0, "R": 1}, "expect": {"Q": 0, "AQ": 0.0}}
+      ]
+    }
+  },
+  "wiring": {}
+}

@@ -1,0 +1,7 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Modbus Title="Kostal Smart Energy Meter" Comment="" HintText="" Channel="1">
+	<Info templateType="7" minVersion="15031202"/>
+	<ModbusCmd Title="Grid power Total" Comment="" HintText="" ModbusAddress="40972" ModbusCmd="3" ModbusDataType="99" ModbusPollingCycle="300" Unit="&lt;v.3&gt;kW" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="1"/>
+	<ModbusCmd Title="Home consumption" Comment="" HintText="" ModbusAddress="40982" ModbusCmd="3" ModbusDataType="99" ModbusPollingCycle="300" Unit="&lt;v.3&gt;kW" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="1"/>
+	<ModbusCmd Title="Sum output inverter AC" Comment="" HintText="" ModbusAddress="40974" ModbusCmd="3" ModbusDataType="99" ModbusPollingCycle="300" Unit="&lt;v.3&gt;kW" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="1"/>
+</Modbus>

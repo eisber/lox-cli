@@ -1,0 +1,20 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Modbus Title="Metz Connect MR-AI8 Modbus RTU" Comment="" HintText="" Baudrate="9600" Channel="1">
+	<Info templateType="7" minVersion="15031213"/>
+	<ModbusCmd Title="Input 1" Comment="" HintText="" ModbusCmd="4" ModbusDataType="1" ModbusPollingCycle="5" Unit="&lt;v.1&gt;°" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="10"/>
+	<ModbusCmd Title="Input 2" Comment="" HintText="" ModbusAddress="2" ModbusCmd="4" ModbusDataType="1" ModbusPollingCycle="5" Unit="&lt;v.1&gt;°" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="10"/>
+	<ModbusCmd Title="Input 3" Comment="" HintText="" ModbusAddress="4" ModbusCmd="4" ModbusDataType="1" ModbusPollingCycle="5" Unit="&lt;v.1&gt;°" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="10"/>
+	<ModbusCmd Title="Input 4" Comment="" HintText="" ModbusAddress="6" ModbusCmd="4" ModbusDataType="1" ModbusPollingCycle="5" Unit="&lt;v.1&gt;°" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="10"/>
+	<ModbusCmd Title="Input 5" Comment="" HintText="" ModbusAddress="8" ModbusCmd="4" ModbusDataType="1" ModbusPollingCycle="5" Unit="&lt;v.1&gt;°" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="10"/>
+	<ModbusCmd Title="Input 6" Comment="" HintText="" ModbusAddress="10" ModbusCmd="4" ModbusDataType="1" ModbusPollingCycle="5" Unit="&lt;v.1&gt;°" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="10"/>
+	<ModbusCmd Title="Input 7" Comment="" HintText="" ModbusAddress="12" ModbusCmd="4" ModbusDataType="1" ModbusPollingCycle="5" Unit="&lt;v.1&gt;°" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="10"/>
+	<ModbusCmd Title="Input 8" Comment="" HintText="" ModbusAddress="14" ModbusCmd="4" ModbusDataType="1" ModbusPollingCycle="5" Unit="&lt;v.1&gt;°" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="10"/>
+	<ModbusCmd Title="Configuration Input 1" Comment="" HintText="" ModbusAddress="16" ModbusCmd="6" Unit="&lt;v.1&gt;V" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Configuration Input 2" Comment="" HintText="" ModbusAddress="17" ModbusCmd="6" Unit="&lt;v.1&gt;V" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Configuration Input 3" Comment="" HintText="" ModbusAddress="18" ModbusCmd="6" Unit="&lt;v.1&gt;V" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Configuration Input 4" Comment="" HintText="" ModbusAddress="19" ModbusCmd="6" Unit="&lt;v.1&gt;V" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Configuration Input 5" Comment="" HintText="" ModbusAddress="20" ModbusCmd="6" Unit="&lt;v.1&gt;V" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Configuration Input 6" Comment="" HintText="" ModbusAddress="21" ModbusCmd="6" Unit="&lt;v.1&gt;V" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Configuration Input 7" Comment="" HintText="" ModbusAddress="22" ModbusCmd="6" Unit="&lt;v.1&gt;V" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Configuration Input 8" Comment="" HintText="" ModbusAddress="23" ModbusCmd="6" Unit="&lt;v.1&gt;V" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+</Modbus>

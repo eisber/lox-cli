@@ -1,0 +1,368 @@
+{
+  "title": "Music Server Zone",
+  "xml_type": "",
+  "kb_slug": "music-server-zone",
+  "description": "In order to use the \"Music Server Zone\" function block, a Music Server must first be commissioned and created in Loxone Config.",
+  "inputs": [
+    {
+      "abbreviation": "TgZ",
+      "summary": "Toggle Zone",
+      "description": "Toggles zone on and off",
+      "unit": "-",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "Zon",
+      "summary": "Zone On",
+      "description": "Digital Input - Single pulse turns zone on This input is only visible in certain configurations.",
+      "unit": "-",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "Zoff",
+      "summary": "Zone Off",
+      "description": "Digital Input - Single pulse turns zone off When playing a playlist, pressing Play will restart playback at the beginning of the title. This input is only visible in certain configurations.",
+      "unit": "-",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "V+",
+      "summary": "Casatunes Music Server: Volume",
+      "description": "Trigger volume up Double click selects the next source",
+      "unit": "-",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "V-",
+      "summary": "Volume",
+      "description": "Trigger volume down Double click turns zone off",
+      "unit": "-",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "AIv",
+      "summary": "Volume level",
+      "description": "Analogue Input - Value for volume level",
+      "unit": "%",
+      "value_range": "0...100"
+    },
+    {
+      "abbreviation": "S+",
+      "summary": "Casatunes Music Server: Next Source",
+      "description": "Trigger next source",
+      "unit": "-",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "AIs",
+      "summary": "Casatunes Music Server: Source",
+      "description": "Analogue Input Source",
+      "unit": "-",
+      "value_range": "\u221e"
+    },
+    {
+      "abbreviation": "Play",
+      "summary": "Start playback",
+      "description": "Trigger start playback",
+      "unit": "-",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "Pause",
+      "summary": "Pause playback",
+      "description": "Trigger pause playback When playing a playlist, pressing Play will resume playback at the current position of the title.",
+      "unit": "-",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "Stop",
+      "summary": "Stop playback",
+      "description": "Trigger stop playback When playing a playlist, pressing Play will restart playback at the beginning of the title. This input is only visible in certain configurations.",
+      "unit": "-",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "Song+",
+      "summary": "Next track",
+      "description": "Trigger next track",
+      "unit": "-",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "Song-",
+      "summary": "Previous track",
+      "description": "Trigger previous track",
+      "unit": "-",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "Mute",
+      "summary": "Mute",
+      "description": "Trigger mute This input is only visible in certain configurations.",
+      "unit": "-",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "Shuffle",
+      "summary": "Shuffle",
+      "description": "Trigger shuffle",
+      "unit": "-",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "Repeat",
+      "summary": "Repeat",
+      "description": "Analogue Input - Value to indicate repeat state 0 = Off, 1 = Repeat Continuously, 2 = Repeat Once",
+      "unit": "-",
+      "value_range": "0...2"
+    },
+    {
+      "abbreviation": "Mo",
+      "summary": "Motion sensor",
+      "description": "Motion sensor, starts playback of currently selected playlist",
+      "unit": "-",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "T5",
+      "summary": "Combined button input",
+      "description": "V+ and V- buttons are used. Double click on key 3 switches the zone off (see parameter Roff).",
+      "unit": "-",
+      "value_range": "\u221e"
+    },
+    {
+      "abbreviation": "R",
+      "summary": "Reset",
+      "description": "Reset, turns zone off. When playing a playlist, pressing Play will restart playback at the beginning of the title. The name of the connected sensor is used in the user interface.",
+      "unit": "-",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "Dis",
+      "summary": "Disable",
+      "description": "Child lock - disables all inputs, but not user interface",
+      "unit": "-",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "DisMo",
+      "summary": "Disable motion sensor",
+      "description": "Prevents the music from coming on via Mo. Does not affect the automatic switch-off with parameter MT.",
+      "unit": "-",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "A",
+      "summary": "Alarm input",
+      "description": "Activates playback of burglar alarm with the volume set in parameter Va Whilst the alarm input is active, all other inputs are disabled This input is only visible in certain configurations.",
+      "unit": "-",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "FA",
+      "summary": "Fire Alarm",
+      "description": "Activates playback of fire alarm with the volume set in parameter Va This input is only visible in certain configurations.",
+      "unit": "-",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "Be",
+      "summary": "Doorbell input",
+      "description": "Activates playback of doorbell with the volume set in parameter Vbe This input is only visible in certain configurations.",
+      "unit": "-",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "Buzzer",
+      "summary": "Alarm clock input",
+      "description": "Activates playback of alarm clock with the volume set in parameter Vbu This input is only visible in certain configurations.",
+      "unit": "-",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "Sleep",
+      "summary": "Sleep timer input",
+      "description": "Zone is muted and switched off after duration specified in Ts The sleep timer is reset when switching off the zone (Off, Pause, Stop, R). This input is only visible in certain configurations.",
+      "unit": "-",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "TTS",
+      "summary": "Text to Speech input",
+      "description": "Text to Speech input Maximum length 400 characters This input is only visible in certain configurations.",
+      "unit": "-",
+      "value_range": "-"
+    }
+  ],
+  "outputs": [
+    {
+      "abbreviation": "AQr",
+      "summary": "Remaining time of sleep timer",
+      "description": "Analogue Output - Value indicating remaining duration on sleep timer This output is only visible in certain configurations.",
+      "unit": "-",
+      "value_range": "\u221e"
+    },
+    {
+      "abbreviation": "API",
+      "summary": "API Connector",
+      "description": "Intelligent API based connector. Music Server Zone is not supported by the Touch Pure Flex. API Commands",
+      "unit": "-",
+      "value_range": "-"
+    }
+  ],
+  "parameters": [
+    {
+      "abbreviation": "Tdc",
+      "summary": "Double click interval",
+      "description": "Time between 2 clicks to turn off zone If you do not want to use a double click enter 0 in this field.",
+      "unit": "s",
+      "value_range": "0...\u221e",
+      "default_value": "0,35"
+    },
+    {
+      "abbreviation": "Sv",
+      "summary": "Volume step size",
+      "description": "Volume step size when adjusting using Vol +/-",
+      "unit": "-",
+      "value_range": "\u221e",
+      "default_value": "3"
+    },
+    {
+      "abbreviation": "Rf",
+      "summary": "First recurrence",
+      "description": "If an input is ON longer than this time in seconds the command is repeated. This applies to V+ and V- (also T5)",
+      "unit": "-",
+      "value_range": "\u221e",
+      "default_value": "0,5"
+    },
+    {
+      "abbreviation": "Rr",
+      "summary": "Repeat interval",
+      "description": "When the input remains ON, the command is repeated at this interval (in seconds). The inputs V+ and V- (incl. T5) are affected",
+      "unit": "-",
+      "value_range": "\u221e",
+      "default_value": "0,2"
+    },
+    {
+      "abbreviation": "MT",
+      "summary": "Automatic switch off motion",
+      "description": "Automatic shutdown of the zone after the end of the last movement If this value is not equal to 0, the motion detector is used to turn off the zone independent of (TH). If you are using this to turn off music that was accidentally left on, the recommended value is 30 minutes (1800)",
+      "unit": "s",
+      "value_range": "0...\u221e",
+      "default_value": "3600"
+    },
+    {
+      "abbreviation": "TH",
+      "summary": "Duration On",
+      "description": "Activates the zone on motion and starts the timer (TH) on the falling edge of the motion detector input If this value is 0, automatic shutdown will be disabled",
+      "unit": "s",
+      "value_range": "0...\u221e",
+      "default_value": "900"
+    },
+    {
+      "abbreviation": "Ti",
+      "summary": "Delay of the Motion Sensor",
+      "description": "Deactivates Mo input after turning the zone off. If this value is set to 0 then the state of DisMo will be used",
+      "unit": "s",
+      "value_range": "0...\u221e",
+      "default_value": "300"
+    },
+    {
+      "abbreviation": "Vm",
+      "summary": "Maximum volume level",
+      "description": "Maximum volume level via App and block inputs This parameter is only visible in certain configurations.",
+      "unit": "-",
+      "value_range": "0...100",
+      "default_value": "100"
+    },
+    {
+      "abbreviation": "Vd",
+      "summary": "Startup volume",
+      "description": "Default volume level at power up Volume when switching the zone on. If set to -1 the zone's last volume is used when switching on. This parameter is only visible in certain configurations.",
+      "unit": "-",
+      "value_range": "-1...100",
+      "default_value": "10"
+    },
+    {
+      "abbreviation": "Va",
+      "summary": "Loxone Music Server: Alarm volume",
+      "description": "Volume level for alarm sound (burglar or fire alarm). This parameter is only visible in certain configurations.",
+      "unit": "-",
+      "value_range": "0...100",
+      "default_value": "75"
+    },
+    {
+      "abbreviation": "Vbe",
+      "summary": "Loxone Music Server: Doorbell volume",
+      "description": "Volume level for doorbell sound This parameter is only visible in certain configurations.",
+      "unit": "-",
+      "value_range": "0...100",
+      "default_value": "20"
+    },
+    {
+      "abbreviation": "Vbu",
+      "summary": "Loxone Music Server: Alarm clock volume",
+      "description": "Volume for alarm clock sound. This parameter is only visible in certain configurations.",
+      "unit": "-",
+      "value_range": "0...100",
+      "default_value": "10"
+    },
+    {
+      "abbreviation": "Vt",
+      "summary": "Loxone Music Server: TTS volume",
+      "description": "This parameter is only visible in certain configurations.",
+      "unit": "-",
+      "value_range": "0...100",
+      "default_value": "20"
+    },
+    {
+      "abbreviation": "Ts",
+      "summary": "Sleep timer duration [s]",
+      "description": "Duration of the sleep timer in seconds This parameter is only visible in certain configurations.",
+      "unit": "-",
+      "value_range": "\u221e",
+      "default_value": "300"
+    },
+    {
+      "abbreviation": "Te",
+      "summary": "Event playback duration [s]",
+      "description": "Minimum playback time of event sounds in seconds. If the value is too low, the event playback may be cut off. This parameter is only visible in certain configurations.",
+      "unit": "-",
+      "value_range": "\u221e",
+      "default_value": "8"
+    },
+    {
+      "abbreviation": "Tqo",
+      "summary": "Delay of Qoff [s]",
+      "description": "Delay of the pulse on Qoff after the zone has been switched off / paused This parameter is only visible in certain configurations.",
+      "unit": "-",
+      "value_range": "\u221e",
+      "default_value": "30"
+    },
+    {
+      "abbreviation": "ROff",
+      "summary": "Ignore room off command",
+      "description": "If the room-off function (input T5, double click on button 3) is detected, the music will also be switched off.",
+      "unit": "-",
+      "value_range": "0/1",
+      "default_value": "0"
+    }
+  ],
+  "properties": [
+    {
+      "summary": "Music Server",
+      "description": "Reference to the Music Server. To use this block, the corresponding Music Server must be selected here.",
+      "default_value": "-"
+    },
+    {
+      "summary": "Assigned Music Zone",
+      "description": "Defines the assigned Music Zone.",
+      "default_value": "-"
+    }
+  ],
+  "source_url": "https://www.loxone.com/enen/kb/music-server-zone/",
+  "input_count": 27,
+  "output_count": 2,
+  "parameter_count": 17,
+  "property_count": 2
+}

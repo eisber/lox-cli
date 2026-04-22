@@ -1,0 +1,36 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Comm Title="RS232 Extension" Comment="" Baudrate="57600" Databits="8" CycleUserProt="60">
+	<Info templateType="5" minVersion="12020917"/>
+	<CommCmd Title="Vorlauf" Comment="" CmdOn="1100;12;\v" CmdOff="" Unit="&lt;v&gt;" Analog="true" Text="false" Sensor="true" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="BW-Ist" Comment="" CmdOn="1100;12;\#;\#;\#;\#;\#;\v" CmdOff="" Unit="&lt;v&gt;" Analog="true" Text="false" Sensor="true" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="Rücklauf" Comment="" CmdOn="1100;12;\#;\v" CmdOff="" Unit="&lt;v&gt;" Analog="true" Text="false" Sensor="true" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="Rücklauf Soll" Comment="" CmdOn="1100;12;\#;\#;\v" CmdOff="" Unit="&lt;v&gt;" Analog="true" Text="false" Sensor="true" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="Heissgas" Comment="" CmdOn="1100;12;\#;\#;\#;\v" CmdOff="" Unit="&lt;v&gt;" Analog="true" Text="false" Sensor="true" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="Aussentemperatur" Comment="" CmdOn="1100;12;\#;\#;\#;\#;\v" CmdOff="" Unit="&lt;v&gt;" Analog="true" Text="false" Sensor="true" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="Betriebsmodus Heizung" Comment="" CmdOn="3405;1;\v" CmdOff="" Unit="&lt;v&gt;" Analog="true" Text="false" Sensor="true" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="WQ-Ein" Comment="" CmdOn="1100;12;\#;\#;\#;\#;\#;\#;\#;\v" CmdOff="" Unit="&lt;v&gt;" Analog="true" Text="false" Sensor="true" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="WQ-Aus" Comment="" CmdOn="1100;12;\#;\#;\#;\#;\#;\#;\#;\#;\v" CmdOff="" Unit="&lt;v&gt;" Analog="true" Text="false" Sensor="true" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="MK1-Vorlauf" Comment="" CmdOn="1100;12;\#;\#;\#;\#;\#;\#;\#;\#;\#;\v" CmdOff="" Unit="&lt;v&gt;" Analog="true" Text="false" Sensor="true" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="Betriebsstunden BStd" Comment="" CmdOn="1450;9;\v" CmdOff="" Unit="&lt;v&gt;" Analog="true" Text="false" Sensor="true" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="Impulse Verdichter" Comment="" CmdOn="1450;9;\#;\v" CmdOff="" Unit="&lt;v.1&gt;" Analog="true" Text="false" Sensor="true" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="Letzter Fehler" Comment="" CmdOn="1500;1504;\#;\v" CmdOff="" Unit="&lt;v&gt;" Analog="true" Text="false" Sensor="true" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="Letzte Abschaltung" Comment="" CmdOn="1600;1604;\#;\v" CmdOff="" Unit="&lt;v&gt;" Analog="true" Text="false" Sensor="true" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="Letzter Fehler Monat" Comment="" CmdOn="1500;1504;6;\#\#\v" CmdOff="" Unit="&lt;v&gt;" Analog="true" Text="false" Sensor="true" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="Letzter Fehler Jahr" Comment="" CmdOn="1500;1504;6;\#\#\#\v" CmdOff="" Unit="&lt;v&gt;" Analog="true" Text="false" Sensor="true" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="Betriebsmodus Warmwasser" Comment="" CmdOn="3505;1;\v" CmdOff="" Unit="&lt;v&gt;" Analog="true" Text="false" Sensor="true" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="BW Soll Temperatur" Comment="" CmdOn="1100;12;\#;\#;\#;\#;\#;\#;\v" CmdOff="" Unit="&lt;v&gt;" Analog="true" Text="false" Sensor="true" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="Betriebsstunden Zweiter Wärmeerzeuger 1" Comment="" CmdOn="1450;9;\#;\#;\#;\#;\#;\#;\v" CmdOff="" Unit="&lt;v&gt;" Analog="true" Text="false" Sensor="true" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="Betriebsstunden Zweiter Wärmeerzeuger 2" Comment="" CmdOn="1450;9;\#;\#;\#;\#;\#;\#;\#;\v" CmdOff="" Unit="&lt;v&gt;" Analog="true" Text="false" Sensor="true" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="Bivalenzstufe" Comment="" CmdOn="1700;12;12;\#;\v" CmdOff="" Unit="&lt;v&gt;" Analog="true" Text="false" Sensor="true" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="Betriebszustand Test" Comment="" CmdOn="1700;12;12;\#;\#;\v" CmdOff="" Unit="&lt;v&gt;" Analog="true" Text="false" Sensor="true" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="Befehl Ein" Comment="" CmdOn="1800\r" CmdOff="" Unit="" Analog="false" Text="false" Sensor="false" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="Aktor 2" Comment="" CmdOn="\r\n" CmdOff="" Unit="" Analog="false" Text="false" Sensor="false" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="Zeige Softwareversion" Comment="" CmdOn="" CmdOff="" Unit="" Analog="false" Text="false" Sensor="false" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="Temperaturen" Comment="" CmdOn="1100\r" CmdOff="" Unit="" Analog="false" Text="false" Sensor="false" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="Betriebsmodus Heizung" Comment="" CmdOn="3405\r" CmdOff="" Unit="" Analog="false" Text="false" Sensor="false" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="Wassertemperatur Abfrage" Comment="" CmdOn="3500\r" CmdOff="" Unit="" Analog="false" Text="false" Sensor="false" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="Betriebsmodus Warmwasser" Comment="" CmdOn="3505\r" CmdOff="" Unit="" Analog="false" Text="false" Sensor="false" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="Heizung Automatik" Comment="" CmdOn="3406;1;0\r" CmdOff="" Unit="" Analog="false" Text="false" Sensor="false" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="Bestätigung Abschliessen" Comment="" CmdOn="999/r/n" CmdOff="" Unit="" Analog="false" Text="false" Sensor="false" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="Heizung Aus" Comment="" CmdOn="3406;1;4\r" CmdOff="" Unit="" Analog="false" Text="false" Sensor="false" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+</Comm>

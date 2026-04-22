@@ -1,0 +1,23 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Modbus Title="SIBER MODBUS CONNECT" Comment="" Baudrate="9600" Parity="1" Channel="11">
+	<Info templateType="7" minVersion="12020927"/>
+	<ModbusCmd Title="4013 Preset air flow (m3_h)" Comment="" ModbusAddress="4012" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.3&gt; m3/h" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="4029 Current extraction flow" Comment="" ModbusAddress="4028" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.1&gt; m3/h" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="4012 Pressure in extraction duct (Pa)" Comment="" ModbusAddress="4011" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.1&gt; Pa" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="4011 Insufflation line pressure (Pa)" Comment="" ModbusAddress="4010" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.1&gt; Pa" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="4010 Temperature of Home (ºC)" Comment="" ModbusAddress="4009" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.1&gt; ºC" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="4009 Atmosferic Temperature (ºC)" Comment="" ModbusAddress="4008" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.1&gt; ºC" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="4030 Bypass State" Comment="" ModbusAddress="4029" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="4039 Error Code" Comment="" ModbusAddress="4038" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="4027 Preset unbalance parameter" Comment="" ModbusAddress="4026" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.1&gt;m3/h" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="4028 Tidal insufflation flow (m3_h)" Comment="" ModbusAddress="4027" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.1&gt;m3/h" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="4036 Parameter of Bypass" Comment="" ModbusAddress="4035" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="4037 Estado del precalentador_" Comment="" ModbusAddress="4036" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="4040 Filter message" Comment="" ModbusAddress="4039" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="4999 Error Message" Comment="" ModbusAddress="4998" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="6001 Preset flow value" Comment="" ModbusAddress="6000" ModbusCmd="6" Unit="&lt;v&gt; m3/h" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="6013 Command: control module configuration" Comment="" ModbusAddress="6012" ModbusCmd="6" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="6006 Operation bypass valve" Comment="" ModbusAddress="6005" ModbusCmd="6" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="6012 Command: Reset Siber application" Comment="" ModbusAddress="6011" ModbusCmd="6" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="4013 Preset air flow (m3_h)" Comment="" ModbusAddress="4012" ModbusCmd="6" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+</Modbus>

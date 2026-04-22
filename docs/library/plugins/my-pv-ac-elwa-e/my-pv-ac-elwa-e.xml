@@ -1,0 +1,31 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Modbus Title="my-PV AC ELWA-E" Comment="" Channel="1">
+    <Info templateType="7" minVersion="12010617"/>
+	<ModbusCmd Title="Read Power" Comment="" ModbusAddress="1000" ModbusCmd="3" ModbusPollingCycle="10" Unit="&lt;v&gt;W" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100" />
+	<ModbusCmd Title="Read Water Temp" Comment="" ModbusAddress="1001" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="10" />
+	<ModbusCmd Title="Read Target Temp" Comment="" ModbusAddress="1002" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="10" />
+	<ModbusCmd Title="Read Status" Comment="" ModbusAddress="1003" ModbusCmd="3" ModbusPollingCycle="10" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100" />
+	<ModbusCmd Title="Read Power Timeout" Comment="" ModbusAddress="1004" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v&gt;s" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100" />
+	<ModbusCmd Title="Read Boost Mode" Comment="" ModbusAddress="1005" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100" />
+	<ModbusCmd Title="Read Boost Temp" Comment="" ModbusAddress="1006" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v&gt;°C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100" />
+	<ModbusCmd Title="Read Boost Start Hour" Comment="" ModbusAddress="1007" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v&gt;hr" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100" />
+	<ModbusCmd Title="Read Boost Stop Hour" Comment="" ModbusAddress="1008" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v&gt;hr" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100" />
+	<ModbusCmd Title="Read Time Hour" Comment="" ModbusAddress="1009" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v&gt;hr" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100" />
+	<ModbusCmd Title="Read Time Minute" Comment="" ModbusAddress="1010" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v&gt;min" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100" />
+	<ModbusCmd Title="Read Time Second" Comment="" ModbusAddress="1011" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v&gt;s" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100" />
+	<ModbusCmd Title="Read ELWA Number" Comment="" ModbusAddress="1013" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100" />
+	<ModbusCmd Title="Read Fuse Type" Comment="" ModbusAddress="1014" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100" />
+	<ModbusCmd Title="Read Hardware Temp" Comment="" ModbusAddress="1015" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v&gt;°C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100" />
+	<ModbusCmd Title="Set Power" Comment="" ModbusAddress="1000" ModbusCmd="16" Unit="&lt;v&gt;W" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100" RepeatRate="8"/>
+	<ModbusCmd Title="Set Power Timeout" Comment="" ModbusAddress="1004" ModbusCmd="16" Unit="&lt;v&gt;s" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100" />
+	<ModbusCmd Title="Set Boost Mode" Comment="" ModbusAddress="1005" ModbusCmd="16" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100" />
+	<ModbusCmd Title="Set Boost Temp" Comment="" ModbusAddress="1006" ModbusCmd="16" Unit="&lt;v&gt;°C" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100" />
+	<ModbusCmd Title="Set Boost Start Hour" Comment="" ModbusAddress="1007" ModbusCmd="16" Unit="&lt;v&gt;hr" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100" />
+	<ModbusCmd Title="Set Boost Stop Hour" Comment="" ModbusAddress="1008" ModbusCmd="16" Unit="&lt;v&gt;hr" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100" />
+	<ModbusCmd Title="Set Time Hour" Comment="" ModbusAddress="1009" ModbusCmd="16" Unit="&lt;v&gt;hr" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100" />
+	<ModbusCmd Title="Set Time Minute" Comment="" ModbusAddress="1010" ModbusCmd="16" Unit="&lt;v&gt;min" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100" />
+	<ModbusCmd Title="Set Time Second" Comment="" ModbusAddress="1011" ModbusCmd="16" Unit="&lt;v&gt;s" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100" />
+	<ModbusCmd Title="Boost activate" Comment="" ModbusAddress="1012" ModbusCmd="16" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100" />
+	<ModbusCmd Title="Set ELWA Number" Comment="" ModbusAddress="1013" ModbusCmd="16" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100" />
+	<ModbusCmd Title="Set Fuse Type" Comment="" ModbusAddress="1014" ModbusCmd="16" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100" />
+</Modbus>

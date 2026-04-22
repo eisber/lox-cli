@@ -1,0 +1,2146 @@
+{
+  "vectors": [
+    {
+      "id": "tv01-and-both-high",
+      "description": "And gate: both inputs high -> output high",
+      "blocks": [
+        {
+          "type": "And",
+          "title": "Test And",
+          "connectors": [
+            "I1",
+            "I2",
+            "Q"
+          ]
+        }
+      ],
+      "wiring": [
+        {
+          "from": "input:0",
+          "to": "Test And.I1"
+        },
+        {
+          "from": "input:1",
+          "to": "Test And.I2"
+        }
+      ],
+      "steps": [
+        {
+          "inputs": [
+            0.0,
+            0.0
+          ],
+          "ticks": 1,
+          "expected": {
+            "Test And.Q": 0.0
+          }
+        },
+        {
+          "inputs": [
+            1.0,
+            0.0
+          ],
+          "ticks": 1,
+          "expected": {
+            "Test And.Q": 0.0
+          }
+        },
+        {
+          "inputs": [
+            1.0,
+            1.0
+          ],
+          "ticks": 1,
+          "expected": {
+            "Test And.Q": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "tv02-and-drop-low",
+      "description": "And gate: dropping either input low clears the output",
+      "blocks": [
+        {
+          "type": "And",
+          "title": "Latch And",
+          "connectors": [
+            "I1",
+            "I2",
+            "Q"
+          ]
+        }
+      ],
+      "wiring": [
+        {
+          "from": "input:0",
+          "to": "Latch And.I1"
+        },
+        {
+          "from": "input:1",
+          "to": "Latch And.I2"
+        }
+      ],
+      "steps": [
+        {
+          "inputs": [
+            1.0,
+            1.0
+          ],
+          "ticks": 1,
+          "expected": {
+            "Latch And.Q": 1.0
+          }
+        },
+        {
+          "inputs": [
+            0.0,
+            1.0
+          ],
+          "ticks": 1,
+          "expected": {
+            "Latch And.Q": 0.0
+          }
+        },
+        {
+          "inputs": [
+            1.0,
+            0.0
+          ],
+          "ticks": 1,
+          "expected": {
+            "Latch And.Q": 0.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "tv03-or-any-high",
+      "description": "Or gate: any high input drives the output high",
+      "blocks": [
+        {
+          "type": "Or",
+          "title": "Test Or",
+          "connectors": [
+            "I1",
+            "I2",
+            "Q"
+          ]
+        }
+      ],
+      "wiring": [
+        {
+          "from": "input:0",
+          "to": "Test Or.I1"
+        },
+        {
+          "from": "input:1",
+          "to": "Test Or.I2"
+        }
+      ],
+      "steps": [
+        {
+          "inputs": [
+            0.0,
+            0.0
+          ],
+          "ticks": 1,
+          "expected": {
+            "Test Or.Q": 0.0
+          }
+        },
+        {
+          "inputs": [
+            0.0,
+            1.0
+          ],
+          "ticks": 1,
+          "expected": {
+            "Test Or.Q": 1.0
+          }
+        },
+        {
+          "inputs": [
+            1.0,
+            0.0
+          ],
+          "ticks": 1,
+          "expected": {
+            "Test Or.Q": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "tv04-or-both-low",
+      "description": "Or gate: only all-low inputs produce low output",
+      "blocks": [
+        {
+          "type": "Or",
+          "title": "Quiet Or",
+          "connectors": [
+            "I1",
+            "I2",
+            "Q"
+          ]
+        }
+      ],
+      "wiring": [
+        {
+          "from": "input:0",
+          "to": "Quiet Or.I1"
+        },
+        {
+          "from": "input:1",
+          "to": "Quiet Or.I2"
+        }
+      ],
+      "steps": [
+        {
+          "inputs": [
+            1.0,
+            1.0
+          ],
+          "ticks": 1,
+          "expected": {
+            "Quiet Or.Q": 1.0
+          }
+        },
+        {
+          "inputs": [
+            0.0,
+            0.0
+          ],
+          "ticks": 1,
+          "expected": {
+            "Quiet Or.Q": 0.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "tv05-not-inverts",
+      "description": "Not gate: low becomes high and high becomes low",
+      "blocks": [
+        {
+          "type": "Not",
+          "title": "Test Not",
+          "connectors": [
+            "I",
+            "Q"
+          ]
+        }
+      ],
+      "wiring": [
+        {
+          "from": "input:0",
+          "to": "Test Not.I"
+        }
+      ],
+      "steps": [
+        {
+          "inputs": [
+            0.0
+          ],
+          "ticks": 1,
+          "expected": {
+            "Test Not.Q": 1.0
+          }
+        },
+        {
+          "inputs": [
+            1.0
+          ],
+          "ticks": 1,
+          "expected": {
+            "Test Not.Q": 0.0
+          }
+        },
+        {
+          "inputs": [
+            0.0
+          ],
+          "ticks": 1,
+          "expected": {
+            "Test Not.Q": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "tv06-greater-equal-threshold",
+      "description": "GreaterEqual: exact threshold counts as high",
+      "blocks": [
+        {
+          "type": "GreaterEqual",
+          "title": "GE Temp",
+          "connectors": [
+            "Input1",
+            "Input2",
+            "Q"
+          ]
+        }
+      ],
+      "wiring": [
+        {
+          "from": "input:0",
+          "to": "GE Temp.Input1"
+        },
+        {
+          "from": "input:1",
+          "to": "GE Temp.Input2"
+        }
+      ],
+      "steps": [
+        {
+          "inputs": [
+            19.0,
+            20.0
+          ],
+          "ticks": 1,
+          "expected": {
+            "GE Temp.Q": 0.0
+          }
+        },
+        {
+          "inputs": [
+            20.0,
+            20.0
+          ],
+          "ticks": 1,
+          "expected": {
+            "GE Temp.Q": 1.0
+          }
+        },
+        {
+          "inputs": [
+            21.5,
+            20.0
+          ],
+          "ticks": 1,
+          "expected": {
+            "GE Temp.Q": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "tv07-greater-equal-dynamic-threshold",
+      "description": "GreaterEqual: changing threshold changes the result immediately",
+      "blocks": [
+        {
+          "type": "GreaterEqual",
+          "title": "GE Dynamic",
+          "connectors": [
+            "Input1",
+            "Input2",
+            "Q"
+          ]
+        }
+      ],
+      "wiring": [
+        {
+          "from": "input:0",
+          "to": "GE Dynamic.Input1"
+        },
+        {
+          "from": "input:1",
+          "to": "GE Dynamic.Input2"
+        }
+      ],
+      "steps": [
+        {
+          "inputs": [
+            5.0,
+            5.0
+          ],
+          "ticks": 1,
+          "expected": {
+            "GE Dynamic.Q": 1.0
+          }
+        },
+        {
+          "inputs": [
+            5.0,
+            5.5
+          ],
+          "ticks": 1,
+          "expected": {
+            "GE Dynamic.Q": 0.0
+          }
+        },
+        {
+          "inputs": [
+            6.0,
+            5.5
+          ],
+          "ticks": 1,
+          "expected": {
+            "GE Dynamic.Q": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "tv08-less-threshold",
+      "description": "Less comparator: values below threshold produce high",
+      "blocks": [
+        {
+          "type": "Less",
+          "title": "Less Temp",
+          "connectors": [
+            "Input1",
+            "Input2",
+            "Q"
+          ]
+        }
+      ],
+      "wiring": [
+        {
+          "from": "input:0",
+          "to": "Less Temp.Input1"
+        },
+        {
+          "from": "input:1",
+          "to": "Less Temp.Input2"
+        }
+      ],
+      "steps": [
+        {
+          "inputs": [
+            29.0,
+            30.0
+          ],
+          "ticks": 1,
+          "expected": {
+            "Less Temp.Q": 1.0
+          }
+        },
+        {
+          "inputs": [
+            30.0,
+            30.0
+          ],
+          "ticks": 1,
+          "expected": {
+            "Less Temp.Q": 0.0
+          }
+        },
+        {
+          "inputs": [
+            31.0,
+            30.0
+          ],
+          "ticks": 1,
+          "expected": {
+            "Less Temp.Q": 0.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "tv09-threshold-hysteresis-rising-falling",
+      "description": "AnalogThresholdTrigger: rises at On and falls at Off",
+      "blocks": [
+        {
+          "type": "AnalogThresholdTrigger",
+          "title": "Tank Level",
+          "connectors": [
+            "Input",
+            "Q",
+            "RisingEdge",
+            "FallingEdge",
+            "On",
+            "Off"
+          ],
+          "params": {
+            "On": 10.0,
+            "Off": 8.0
+          }
+        }
+      ],
+      "wiring": [
+        {
+          "from": "input:0",
+          "to": "Tank Level.Input"
+        }
+      ],
+      "steps": [
+        {
+          "inputs": [
+            7.0
+          ],
+          "ticks": 1,
+          "expected": {
+            "Tank Level.Q": 0.0,
+            "Tank Level.RisingEdge": 0.0,
+            "Tank Level.FallingEdge": 0.0
+          }
+        },
+        {
+          "inputs": [
+            10.0
+          ],
+          "ticks": 1,
+          "expected": {
+            "Tank Level.Q": 1.0,
+            "Tank Level.RisingEdge": 1.0,
+            "Tank Level.FallingEdge": 0.0
+          }
+        },
+        {
+          "inputs": [
+            9.0
+          ],
+          "ticks": 1,
+          "expected": {
+            "Tank Level.Q": 1.0,
+            "Tank Level.RisingEdge": 0.0,
+            "Tank Level.FallingEdge": 0.0
+          }
+        },
+        {
+          "inputs": [
+            8.0
+          ],
+          "ticks": 1,
+          "expected": {
+            "Tank Level.Q": 0.0,
+            "Tank Level.RisingEdge": 0.0,
+            "Tank Level.FallingEdge": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "tv10-threshold-hysteresis-noise-band",
+      "description": "AnalogThresholdTrigger: values between On and Off keep prior state",
+      "blocks": [
+        {
+          "type": "AnalogThresholdTrigger",
+          "title": "Noisy Sensor",
+          "connectors": [
+            "Input",
+            "Q",
+            "RisingEdge",
+            "FallingEdge",
+            "On",
+            "Off"
+          ],
+          "params": {
+            "On": 10.0,
+            "Off": 8.0
+          }
+        }
+      ],
+      "wiring": [
+        {
+          "from": "input:0",
+          "to": "Noisy Sensor.Input"
+        }
+      ],
+      "steps": [
+        {
+          "inputs": [
+            11.0
+          ],
+          "ticks": 1,
+          "expected": {
+            "Noisy Sensor.Q": 1.0,
+            "Noisy Sensor.RisingEdge": 1.0
+          }
+        },
+        {
+          "inputs": [
+            9.5
+          ],
+          "ticks": 1,
+          "expected": {
+            "Noisy Sensor.Q": 1.0,
+            "Noisy Sensor.RisingEdge": 0.0,
+            "Noisy Sensor.FallingEdge": 0.0
+          }
+        },
+        {
+          "inputs": [
+            8.5
+          ],
+          "ticks": 1,
+          "expected": {
+            "Noisy Sensor.Q": 1.0,
+            "Noisy Sensor.FallingEdge": 0.0
+          }
+        },
+        {
+          "inputs": [
+            7.5
+          ],
+          "ticks": 1,
+          "expected": {
+            "Noisy Sensor.Q": 0.0,
+            "Noisy Sensor.FallingEdge": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "tv11-mult-dimming-x20",
+      "description": "Mult: dimming factor scaled by 20",
+      "blocks": [
+        {
+          "type": "Mult",
+          "title": "Scale 20",
+          "connectors": [
+            "Input1",
+            "Input2",
+            "AQ"
+          ]
+        }
+      ],
+      "wiring": [
+        {
+          "from": "input:0",
+          "to": "Scale 20.Input1"
+        },
+        {
+          "from": "input:1",
+          "to": "Scale 20.Input2"
+        }
+      ],
+      "steps": [
+        {
+          "inputs": [
+            0.5,
+            20.0
+          ],
+          "ticks": 1,
+          "expected": {
+            "Scale 20.AQ": 10.0
+          }
+        },
+        {
+          "inputs": [
+            1.0,
+            20.0
+          ],
+          "ticks": 1,
+          "expected": {
+            "Scale 20.AQ": 20.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "tv12-mult-dimming-x50",
+      "description": "Mult: dimming factor scaled by 50",
+      "blocks": [
+        {
+          "type": "Mult",
+          "title": "Scale 50",
+          "connectors": [
+            "Input1",
+            "Input2",
+            "AQ"
+          ]
+        }
+      ],
+      "wiring": [
+        {
+          "from": "input:0",
+          "to": "Scale 50.Input1"
+        },
+        {
+          "from": "input:1",
+          "to": "Scale 50.Input2"
+        }
+      ],
+      "steps": [
+        {
+          "inputs": [
+            0.6,
+            50.0
+          ],
+          "ticks": 1,
+          "expected": {
+            "Scale 50.AQ": 30.0
+          }
+        },
+        {
+          "inputs": [
+            0.2,
+            50.0
+          ],
+          "ticks": 1,
+          "expected": {
+            "Scale 50.AQ": 10.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "tv13-add-offset",
+      "description": "Add: sensor value plus offset",
+      "blocks": [
+        {
+          "type": "Add",
+          "title": "Offset Add",
+          "connectors": [
+            "Input1",
+            "Input2",
+            "AQ"
+          ]
+        }
+      ],
+      "wiring": [
+        {
+          "from": "input:0",
+          "to": "Offset Add.Input1"
+        },
+        {
+          "from": "input:1",
+          "to": "Offset Add.Input2"
+        }
+      ],
+      "steps": [
+        {
+          "inputs": [
+            18.0,
+            2.0
+          ],
+          "ticks": 1,
+          "expected": {
+            "Offset Add.AQ": 20.0
+          }
+        },
+        {
+          "inputs": [
+            21.0,
+            2.0
+          ],
+          "ticks": 1,
+          "expected": {
+            "Offset Add.AQ": 23.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "tv14-monoflop-3s",
+      "description": "Monoflop: rising edge generates a 3 second pulse",
+      "blocks": [
+        {
+          "type": "Monoflop",
+          "title": "Pulse 3s",
+          "connectors": [
+            "InputTrigger",
+            "Q",
+            "Time"
+          ],
+          "params": {
+            "Time": 3.0
+          }
+        }
+      ],
+      "wiring": [
+        {
+          "from": "input:0",
+          "to": "Pulse 3s.InputTrigger"
+        }
+      ],
+      "steps": [
+        {
+          "inputs": [
+            0.0
+          ],
+          "ticks": 1,
+          "expected": {
+            "Pulse 3s.Q": 0.0
+          }
+        },
+        {
+          "inputs": [
+            1.0
+          ],
+          "ticks": 1,
+          "expected": {
+            "Pulse 3s.Q": 1.0
+          }
+        },
+        {
+          "inputs": [
+            0.0
+          ],
+          "ticks": 2,
+          "expected": {
+            "Pulse 3s.Q": 1.0
+          }
+        },
+        {
+          "inputs": [
+            0.0
+          ],
+          "ticks": 1,
+          "expected": {
+            "Pulse 3s.Q": 0.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "tv15-offdelay-5min",
+      "description": "OffDelay: output stays high for 5 minutes after input drops",
+      "dt": 60.0,
+      "blocks": [
+        {
+          "type": "OffDelay",
+          "title": "Fan Hold",
+          "connectors": [
+            "InputTrigger",
+            "Q",
+            "Time"
+          ],
+          "params": {
+            "Time": 300.0
+          }
+        }
+      ],
+      "wiring": [
+        {
+          "from": "input:0",
+          "to": "Fan Hold.InputTrigger"
+        }
+      ],
+      "steps": [
+        {
+          "inputs": [
+            0.0
+          ],
+          "ticks": 1,
+          "expected": {
+            "Fan Hold.Q": 0.0
+          }
+        },
+        {
+          "inputs": [
+            1.0
+          ],
+          "ticks": 1,
+          "expected": {
+            "Fan Hold.Q": 1.0
+          }
+        },
+        {
+          "inputs": [
+            0.0
+          ],
+          "ticks": 4,
+          "expected": {
+            "Fan Hold.Q": 1.0
+          }
+        },
+        {
+          "inputs": [
+            0.0
+          ],
+          "ticks": 3,
+          "expected": {
+            "Fan Hold.Q": 0.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "tv16-stairwayls-300s",
+      "description": "StairwayLS: trigger keeps output high for 300 seconds",
+      "dt": 60.0,
+      "blocks": [
+        {
+          "type": "StairwayLS",
+          "title": "Stair Light",
+          "connectors": [
+            "InputTrigger",
+            "On",
+            "Q",
+            "TimeHigh",
+            "TimeWarn",
+            "WarnTime"
+          ],
+          "params": {
+            "TimeHigh": 300.0,
+            "TimeWarn": 0.0,
+            "WarnTime": 0.0
+          }
+        }
+      ],
+      "wiring": [
+        {
+          "from": "input:0",
+          "to": "Stair Light.InputTrigger"
+        }
+      ],
+      "steps": [
+        {
+          "inputs": [
+            0.0
+          ],
+          "ticks": 1,
+          "expected": {
+            "Stair Light.Q": 0.0
+          }
+        },
+        {
+          "inputs": [
+            1.0
+          ],
+          "ticks": 1,
+          "expected": {
+            "Stair Light.Q": 1.0
+          }
+        },
+        {
+          "inputs": [
+            0.0
+          ],
+          "ticks": 4,
+          "expected": {
+            "Stair Light.Q": 1.0
+          }
+        },
+        {
+          "inputs": [
+            0.0
+          ],
+          "ticks": 3,
+          "expected": {
+            "Stair Light.Q": 0.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "tv17-on-pulse-delay",
+      "description": "OnPulseDelay: waits 2 seconds, then pulses for 3 seconds",
+      "blocks": [
+        {
+          "type": "OnPulseDelay",
+          "title": "Delayed Pulse",
+          "connectors": [
+            "InputTrigger",
+            "Q",
+            "Delay",
+            "Time"
+          ],
+          "params": {
+            "Delay": 2.0,
+            "Time": 3.0
+          }
+        }
+      ],
+      "wiring": [
+        {
+          "from": "input:0",
+          "to": "Delayed Pulse.InputTrigger"
+        }
+      ],
+      "steps": [
+        {
+          "inputs": [
+            0.0
+          ],
+          "ticks": 1,
+          "expected": {
+            "Delayed Pulse.Q": 0.0
+          }
+        },
+        {
+          "inputs": [
+            1.0
+          ],
+          "ticks": 1,
+          "expected": {
+            "Delayed Pulse.Q": 0.0
+          }
+        },
+        {
+          "inputs": [
+            0.0
+          ],
+          "ticks": 1,
+          "expected": {
+            "Delayed Pulse.Q": 1.0
+          }
+        },
+        {
+          "inputs": [
+            0.0
+          ],
+          "ticks": 2,
+          "expected": {
+            "Delayed Pulse.Q": 1.0
+          }
+        },
+        {
+          "inputs": [
+            0.0
+          ],
+          "ticks": 3,
+          "expected": {
+            "Delayed Pulse.Q": 0.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "tv18-edge-detection-pulse",
+      "description": "EdgeDetection: rising and falling edges create one-tick pulses",
+      "blocks": [
+        {
+          "type": "EdgeDetection",
+          "title": "Edge Pulse",
+          "connectors": [
+            "Input",
+            "Edge",
+            "RisingEdge",
+            "FallingEdge",
+            "PulseTime"
+          ],
+          "params": {
+            "PulseTime": 1.0
+          }
+        }
+      ],
+      "wiring": [
+        {
+          "from": "input:0",
+          "to": "Edge Pulse.Input"
+        }
+      ],
+      "steps": [
+        {
+          "inputs": [
+            0.0
+          ],
+          "ticks": 1,
+          "expected": {
+            "Edge Pulse.Edge": 0.0,
+            "Edge Pulse.RisingEdge": 0.0,
+            "Edge Pulse.FallingEdge": 0.0
+          }
+        },
+        {
+          "inputs": [
+            1.0
+          ],
+          "ticks": 1,
+          "expected": {
+            "Edge Pulse.Edge": 1.0,
+            "Edge Pulse.RisingEdge": 1.0,
+            "Edge Pulse.FallingEdge": 0.0
+          }
+        },
+        {
+          "inputs": [
+            1.0
+          ],
+          "ticks": 1,
+          "expected": {
+            "Edge Pulse.Edge": 0.0,
+            "Edge Pulse.RisingEdge": 0.0,
+            "Edge Pulse.FallingEdge": 0.0
+          }
+        },
+        {
+          "inputs": [
+            0.0
+          ],
+          "ticks": 1,
+          "expected": {
+            "Edge Pulse.Edge": 1.0,
+            "Edge Pulse.RisingEdge": 0.0,
+            "Edge Pulse.FallingEdge": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "tv19-temp-sunny-blind-close",
+      "description": "Temp > 25 and sunny triggers blind closing",
+      "blocks": [
+        {
+          "type": "GreaterEqual",
+          "title": "Temp Hot",
+          "connectors": [
+            "Input1",
+            "Input2",
+            "Q"
+          ]
+        },
+        {
+          "type": "And",
+          "title": "Close Signal",
+          "connectors": [
+            "I1",
+            "I2",
+            "Q"
+          ]
+        },
+        {
+          "type": "JalousieUpDown2",
+          "title": "Blind",
+          "connectors": [
+            "InputTriggerUp",
+            "InputTriggerDown",
+            "InputPos",
+            "InputDisable",
+            "Pos",
+            "Dir",
+            "Moving",
+            "TimeEnd"
+          ],
+          "params": {
+            "TimeEnd": 10.0
+          }
+        }
+      ],
+      "wiring": [
+        {
+          "from": "input:0",
+          "to": "Temp Hot.Input1"
+        },
+        {
+          "from": "input:2",
+          "to": "Temp Hot.Input2"
+        },
+        {
+          "from": "Temp Hot.Q",
+          "to": "Close Signal.I1"
+        },
+        {
+          "from": "input:1",
+          "to": "Close Signal.I2"
+        },
+        {
+          "from": "Close Signal.Q",
+          "to": "Blind.InputPos"
+        }
+      ],
+      "steps": [
+        {
+          "inputs": [
+            24.0,
+            1.0,
+            25.0
+          ],
+          "ticks": 1,
+          "expected": {
+            "Close Signal.Q": 0.0,
+            "Blind.Pos": 0.0
+          }
+        },
+        {
+          "inputs": [
+            26.0,
+            1.0,
+            25.0
+          ],
+          "ticks": 10,
+          "expected": {
+            "Close Signal.Q": 1.0,
+            "Blind.Pos": 1.0,
+            "Blind.Moving": 1.0
+          }
+        },
+        {
+          "inputs": [
+            26.0,
+            0.0,
+            25.0
+          ],
+          "ticks": 1,
+          "expected": {
+            "Close Signal.Q": 0.0,
+            "Blind.Pos": 0.9
+          }
+        }
+      ]
+    },
+    {
+      "id": "tv20-humidity-fan-offdelay-chain",
+      "description": "Humidity > 70 keeps the fan running with a 5 minute off-delay",
+      "dt": 60.0,
+      "blocks": [
+        {
+          "type": "GreaterEqual",
+          "title": "Humidity High",
+          "connectors": [
+            "Input1",
+            "Input2",
+            "Q"
+          ]
+        },
+        {
+          "type": "OffDelay",
+          "title": "Fan Delay",
+          "connectors": [
+            "InputTrigger",
+            "Q",
+            "Time"
+          ],
+          "params": {
+            "Time": 300.0
+          }
+        }
+      ],
+      "wiring": [
+        {
+          "from": "input:0",
+          "to": "Humidity High.Input1"
+        },
+        {
+          "from": "input:1",
+          "to": "Humidity High.Input2"
+        },
+        {
+          "from": "Humidity High.Q",
+          "to": "Fan Delay.InputTrigger"
+        }
+      ],
+      "steps": [
+        {
+          "inputs": [
+            65.0,
+            70.0
+          ],
+          "ticks": 1,
+          "expected": {
+            "Humidity High.Q": 0.0,
+            "Fan Delay.Q": 0.0
+          }
+        },
+        {
+          "inputs": [
+            75.0,
+            70.0
+          ],
+          "ticks": 1,
+          "expected": {
+            "Humidity High.Q": 1.0,
+            "Fan Delay.Q": 1.0
+          }
+        },
+        {
+          "inputs": [
+            65.0,
+            70.0
+          ],
+          "ticks": 4,
+          "expected": {
+            "Humidity High.Q": 0.0,
+            "Fan Delay.Q": 1.0
+          }
+        },
+        {
+          "inputs": [
+            65.0,
+            70.0
+          ],
+          "ticks": 3,
+          "expected": {
+            "Fan Delay.Q": 0.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "tv21-motion-dark-light-30",
+      "description": "Motion and darkness drive a 30 percent light level",
+      "blocks": [
+        {
+          "type": "Less",
+          "title": "Dark Enough",
+          "connectors": [
+            "Input1",
+            "Input2",
+            "Q"
+          ]
+        },
+        {
+          "type": "And",
+          "title": "Light Enable",
+          "connectors": [
+            "I1",
+            "I2",
+            "Q"
+          ]
+        },
+        {
+          "type": "Mult",
+          "title": "Dim 30",
+          "connectors": [
+            "Input1",
+            "Input2",
+            "AQ"
+          ]
+        }
+      ],
+      "wiring": [
+        {
+          "from": "input:1",
+          "to": "Dark Enough.Input1"
+        },
+        {
+          "from": "input:2",
+          "to": "Dark Enough.Input2"
+        },
+        {
+          "from": "input:0",
+          "to": "Light Enable.I1"
+        },
+        {
+          "from": "Dark Enough.Q",
+          "to": "Light Enable.I2"
+        },
+        {
+          "from": "Light Enable.Q",
+          "to": "Dim 30.Input1"
+        },
+        {
+          "from": "input:3",
+          "to": "Dim 30.Input2"
+        }
+      ],
+      "steps": [
+        {
+          "inputs": [
+            0.0,
+            50.0,
+            20.0,
+            30.0
+          ],
+          "ticks": 1,
+          "expected": {
+            "Light Enable.Q": 0.0,
+            "Dim 30.AQ": 0.0
+          }
+        },
+        {
+          "inputs": [
+            1.0,
+            10.0,
+            20.0,
+            30.0
+          ],
+          "ticks": 1,
+          "expected": {
+            "Dark Enough.Q": 1.0,
+            "Light Enable.Q": 1.0,
+            "Dim 30.AQ": 30.0
+          }
+        },
+        {
+          "inputs": [
+            1.0,
+            25.0,
+            20.0,
+            30.0
+          ],
+          "ticks": 1,
+          "expected": {
+            "Dark Enough.Q": 0.0,
+            "Dim 30.AQ": 0.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "tv22-time-window-dim-20",
+      "description": "22:00-06:00 time window enables 20 percent dim level",
+      "blocks": [
+        {
+          "type": "GreaterEqual",
+          "title": "After 22",
+          "connectors": [
+            "Input1",
+            "Input2",
+            "Q"
+          ]
+        },
+        {
+          "type": "Less",
+          "title": "Before 06",
+          "connectors": [
+            "Input1",
+            "Input2",
+            "Q"
+          ]
+        },
+        {
+          "type": "Or",
+          "title": "Night Window",
+          "connectors": [
+            "I1",
+            "I2",
+            "Q"
+          ]
+        },
+        {
+          "type": "Mult",
+          "title": "Dim 20",
+          "connectors": [
+            "Input1",
+            "Input2",
+            "AQ"
+          ]
+        }
+      ],
+      "wiring": [
+        {
+          "from": "input:0",
+          "to": "After 22.Input1"
+        },
+        {
+          "from": "input:1",
+          "to": "After 22.Input2"
+        },
+        {
+          "from": "input:0",
+          "to": "Before 06.Input1"
+        },
+        {
+          "from": "input:2",
+          "to": "Before 06.Input2"
+        },
+        {
+          "from": "After 22.Q",
+          "to": "Night Window.I1"
+        },
+        {
+          "from": "Before 06.Q",
+          "to": "Night Window.I2"
+        },
+        {
+          "from": "Night Window.Q",
+          "to": "Dim 20.Input1"
+        },
+        {
+          "from": "input:3",
+          "to": "Dim 20.Input2"
+        }
+      ],
+      "steps": [
+        {
+          "inputs": [
+            1260.0,
+            1320.0,
+            360.0,
+            20.0
+          ],
+          "ticks": 1,
+          "expected": {
+            "Night Window.Q": 0.0,
+            "Dim 20.AQ": 0.0
+          }
+        },
+        {
+          "inputs": [
+            1350.0,
+            1320.0,
+            360.0,
+            20.0
+          ],
+          "ticks": 1,
+          "expected": {
+            "Night Window.Q": 1.0,
+            "Dim 20.AQ": 20.0
+          }
+        },
+        {
+          "inputs": [
+            120.0,
+            1320.0,
+            360.0,
+            20.0
+          ],
+          "ticks": 1,
+          "expected": {
+            "Night Window.Q": 1.0,
+            "Dim 20.AQ": 20.0
+          }
+        },
+        {
+          "inputs": [
+            360.0,
+            1320.0,
+            360.0,
+            20.0
+          ],
+          "ticks": 1,
+          "expected": {
+            "Night Window.Q": 0.0,
+            "Dim 20.AQ": 0.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "tv23-doorbell-unlock-light",
+      "description": "Doorbell triggers 3 second unlock and 2 minute light",
+      "blocks": [
+        {
+          "type": "Monoflop",
+          "title": "Unlock Pulse",
+          "connectors": [
+            "InputTrigger",
+            "Q",
+            "Time"
+          ],
+          "params": {
+            "Time": 3.0
+          }
+        },
+        {
+          "type": "StairwayLS",
+          "title": "Door Light",
+          "connectors": [
+            "InputTrigger",
+            "On",
+            "Q",
+            "TimeHigh",
+            "TimeWarn",
+            "WarnTime"
+          ],
+          "params": {
+            "TimeHigh": 120.0,
+            "TimeWarn": 0.0,
+            "WarnTime": 0.0
+          }
+        }
+      ],
+      "wiring": [
+        {
+          "from": "input:0",
+          "to": "Unlock Pulse.InputTrigger"
+        },
+        {
+          "from": "input:0",
+          "to": "Door Light.InputTrigger"
+        }
+      ],
+      "steps": [
+        {
+          "inputs": [
+            0.0
+          ],
+          "ticks": 1,
+          "expected": {
+            "Unlock Pulse.Q": 0.0,
+            "Door Light.Q": 0.0
+          }
+        },
+        {
+          "inputs": [
+            1.0
+          ],
+          "ticks": 1,
+          "expected": {
+            "Unlock Pulse.Q": 1.0,
+            "Door Light.Q": 1.0
+          }
+        },
+        {
+          "inputs": [
+            0.0
+          ],
+          "ticks": 2,
+          "expected": {
+            "Unlock Pulse.Q": 1.0,
+            "Door Light.Q": 1.0
+          }
+        },
+        {
+          "inputs": [
+            0.0
+          ],
+          "ticks": 1,
+          "expected": {
+            "Unlock Pulse.Q": 0.0,
+            "Door Light.Q": 1.0
+          }
+        },
+        {
+          "inputs": [
+            0.0
+          ],
+          "dt": 60.0,
+          "ticks": 1,
+          "expected": {
+            "Door Light.Q": 1.0
+          }
+        },
+        {
+          "inputs": [
+            0.0
+          ],
+          "dt": 60.0,
+          "ticks": 3,
+          "expected": {
+            "Door Light.Q": 0.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "tv24-room-temp-heating-valve",
+      "description": "Room temp below setpoint opens the heating valve",
+      "blocks": [
+        {
+          "type": "HeatIRoomController2",
+          "title": "Room Heat",
+          "connectors": [
+            "Temp",
+            "Setpoint",
+            "Reset",
+            "InputDisable",
+            "AQh",
+            "Kp",
+            "Ki"
+          ],
+          "params": {
+            "Kp": 20.0,
+            "Ki": 0.0
+          }
+        }
+      ],
+      "wiring": [
+        {
+          "from": "input:0",
+          "to": "Room Heat.Temp"
+        },
+        {
+          "from": "input:1",
+          "to": "Room Heat.Setpoint"
+        }
+      ],
+      "steps": [
+        {
+          "inputs": [
+            22.0,
+            21.0
+          ],
+          "ticks": 1,
+          "expected": {
+            "Room Heat.AQh": 0.0
+          }
+        },
+        {
+          "inputs": [
+            19.0,
+            21.0
+          ],
+          "ticks": 1,
+          "expected": {
+            "Room Heat.AQh": 40.0
+          }
+        },
+        {
+          "inputs": [
+            20.5,
+            21.0
+          ],
+          "ticks": 1,
+          "expected": {
+            "Room Heat.AQh": 10.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "tv25-boiler-overtemp-shutdown",
+      "description": "Boiler temperature above 80 degrees triggers safety shutdown",
+      "blocks": [
+        {
+          "type": "GreaterEqual",
+          "title": "Safety Shutdown",
+          "connectors": [
+            "Input1",
+            "Input2",
+            "Q"
+          ]
+        }
+      ],
+      "wiring": [
+        {
+          "from": "input:0",
+          "to": "Safety Shutdown.Input1"
+        },
+        {
+          "from": "input:1",
+          "to": "Safety Shutdown.Input2"
+        }
+      ],
+      "steps": [
+        {
+          "inputs": [
+            79.0,
+            80.0
+          ],
+          "ticks": 1,
+          "expected": {
+            "Safety Shutdown.Q": 0.0
+          }
+        },
+        {
+          "inputs": [
+            80.0,
+            80.0
+          ],
+          "ticks": 1,
+          "expected": {
+            "Safety Shutdown.Q": 1.0
+          }
+        },
+        {
+          "inputs": [
+            85.0,
+            80.0
+          ],
+          "ticks": 1,
+          "expected": {
+            "Safety Shutdown.Q": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "tv26-weather-minus5-flow-temp",
+      "description": "Cold weather raises the flow temperature via heat curve",
+      "blocks": [
+        {
+          "type": "Heatcurve",
+          "title": "Flow Curve",
+          "connectors": [
+            "OutdoorTemp",
+            "Setpoint",
+            "SupplyTemp",
+            "BaseTemp",
+            "Slope"
+          ],
+          "params": {
+            "BaseTemp": 20.0,
+            "Slope": 1.5
+          }
+        }
+      ],
+      "wiring": [
+        {
+          "from": "input:0",
+          "to": "Flow Curve.OutdoorTemp"
+        },
+        {
+          "from": "input:1",
+          "to": "Flow Curve.Setpoint"
+        }
+      ],
+      "steps": [
+        {
+          "inputs": [
+            10.0,
+            21.0
+          ],
+          "ticks": 1,
+          "expected": {
+            "Flow Curve.SupplyTemp": 36.5
+          }
+        },
+        {
+          "inputs": [
+            -5.0,
+            21.0
+          ],
+          "ticks": 1,
+          "expected": {
+            "Flow Curve.SupplyTemp": 59.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "tv27-night-setback-minus3",
+      "description": "Night setback reduces setpoint by 3 degrees",
+      "blocks": [
+        {
+          "type": "Mult",
+          "title": "Night Reduction",
+          "connectors": [
+            "Input1",
+            "Input2",
+            "AQ"
+          ]
+        },
+        {
+          "type": "Sub",
+          "title": "Adjusted Setpoint",
+          "connectors": [
+            "Input1",
+            "Input2",
+            "AQ"
+          ]
+        }
+      ],
+      "wiring": [
+        {
+          "from": "input:1",
+          "to": "Night Reduction.Input1"
+        },
+        {
+          "from": "input:2",
+          "to": "Night Reduction.Input2"
+        },
+        {
+          "from": "input:0",
+          "to": "Adjusted Setpoint.Input1"
+        },
+        {
+          "from": "Night Reduction.AQ",
+          "to": "Adjusted Setpoint.Input2"
+        }
+      ],
+      "steps": [
+        {
+          "inputs": [
+            21.0,
+            0.0,
+            3.0
+          ],
+          "ticks": 1,
+          "expected": {
+            "Night Reduction.AQ": 0.0,
+            "Adjusted Setpoint.AQ": 21.0
+          }
+        },
+        {
+          "inputs": [
+            21.0,
+            1.0,
+            3.0
+          ],
+          "ticks": 1,
+          "expected": {
+            "Night Reduction.AQ": 3.0,
+            "Adjusted Setpoint.AQ": 18.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "tv28-co2-ventilation-boost",
+      "description": "CO2 above 1000 ppm boosts Ventilation2 to maximum level",
+      "blocks": [
+        {
+          "type": "GreaterEqual",
+          "title": "CO2 High",
+          "connectors": [
+            "Input1",
+            "Input2",
+            "Q"
+          ]
+        },
+        {
+          "type": "Mult",
+          "title": "Boost Scale",
+          "connectors": [
+            "Input1",
+            "Input2",
+            "AQ"
+          ]
+        },
+        {
+          "type": "Ventilation2",
+          "title": "Vent Boost",
+          "connectors": [
+            "Speed",
+            "Level",
+            "SpeedNorm",
+            "MaxLevels"
+          ],
+          "params": {
+            "MaxLevels": 3.0
+          }
+        }
+      ],
+      "wiring": [
+        {
+          "from": "input:0",
+          "to": "CO2 High.Input1"
+        },
+        {
+          "from": "input:1",
+          "to": "CO2 High.Input2"
+        },
+        {
+          "from": "CO2 High.Q",
+          "to": "Boost Scale.Input1"
+        },
+        {
+          "from": "input:2",
+          "to": "Boost Scale.Input2"
+        },
+        {
+          "from": "Boost Scale.AQ",
+          "to": "Vent Boost.Speed"
+        }
+      ],
+      "steps": [
+        {
+          "inputs": [
+            900.0,
+            1000.0,
+            3.0
+          ],
+          "ticks": 1,
+          "expected": {
+            "CO2 High.Q": 0.0,
+            "Boost Scale.AQ": 0.0,
+            "Vent Boost.Level": 0.0,
+            "Vent Boost.SpeedNorm": 0.0
+          }
+        },
+        {
+          "inputs": [
+            1000.0,
+            1000.0,
+            3.0
+          ],
+          "ticks": 1,
+          "expected": {
+            "CO2 High.Q": 1.0,
+            "Boost Scale.AQ": 3.0,
+            "Vent Boost.Level": 3.0,
+            "Vent Boost.SpeedNorm": 1.0
+          }
+        },
+        {
+          "inputs": [
+            1400.0,
+            1000.0,
+            3.0
+          ],
+          "ticks": 1,
+          "expected": {
+            "Vent Boost.Level": 3.0,
+            "Vent Boost.SpeedNorm": 1.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "tv29-division-by-zero",
+      "description": "Div: division by zero returns 0.0 instead of NaN or infinity",
+      "blocks": [
+        {
+          "type": "Div",
+          "title": "Safe Div",
+          "connectors": [
+            "Input1",
+            "Input2",
+            "AQ"
+          ]
+        }
+      ],
+      "wiring": [
+        {
+          "from": "input:0",
+          "to": "Safe Div.Input1"
+        },
+        {
+          "from": "input:1",
+          "to": "Safe Div.Input2"
+        }
+      ],
+      "steps": [
+        {
+          "inputs": [
+            10.0,
+            2.0
+          ],
+          "ticks": 1,
+          "expected": {
+            "Safe Div.AQ": 5.0
+          }
+        },
+        {
+          "inputs": [
+            10.0,
+            0.0
+          ],
+          "ticks": 1,
+          "expected": {
+            "Safe Div.AQ": 0.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "tv30-rapid-toggle-edge-detection",
+      "description": "Rapid 1->0->1 toggles emit the correct rising and falling pulses",
+      "blocks": [
+        {
+          "type": "EdgeDetection",
+          "title": "Rapid Edge",
+          "connectors": [
+            "Input",
+            "Edge",
+            "RisingEdge",
+            "FallingEdge",
+            "PulseTime"
+          ],
+          "params": {
+            "PulseTime": 1.0
+          }
+        }
+      ],
+      "wiring": [
+        {
+          "from": "input:0",
+          "to": "Rapid Edge.Input"
+        }
+      ],
+      "steps": [
+        {
+          "inputs": [
+            0.0
+          ],
+          "ticks": 1,
+          "expected": {
+            "Rapid Edge.Edge": 0.0,
+            "Rapid Edge.RisingEdge": 0.0,
+            "Rapid Edge.FallingEdge": 0.0
+          }
+        },
+        {
+          "inputs": [
+            1.0
+          ],
+          "ticks": 1,
+          "expected": {
+            "Rapid Edge.Edge": 1.0,
+            "Rapid Edge.RisingEdge": 1.0,
+            "Rapid Edge.FallingEdge": 0.0
+          }
+        },
+        {
+          "inputs": [
+            0.0
+          ],
+          "ticks": 1,
+          "expected": {
+            "Rapid Edge.Edge": 1.0,
+            "Rapid Edge.RisingEdge": 0.0,
+            "Rapid Edge.FallingEdge": 1.0
+          }
+        },
+        {
+          "inputs": [
+            1.0
+          ],
+          "ticks": 1,
+          "expected": {
+            "Rapid Edge.Edge": 1.0,
+            "Rapid Edge.RisingEdge": 1.0,
+            "Rapid Edge.FallingEdge": 0.0
+          }
+        },
+        {
+          "inputs": [
+            1.0
+          ],
+          "ticks": 1,
+          "expected": {
+            "Rapid Edge.Edge": 0.0,
+            "Rapid Edge.RisingEdge": 0.0,
+            "Rapid Edge.FallingEdge": 0.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "tv31-feedback-loop-stable",
+      "description": "Feedback loop stabilizes after a trigger and remains latched",
+      "blocks": [
+        {
+          "type": "Or",
+          "title": "Loop Or",
+          "connectors": [
+            "I1",
+            "I2",
+            "Q"
+          ]
+        },
+        {
+          "type": "PassThrough",
+          "title": "Loop Memory",
+          "connectors": [
+            "Input",
+            "Q"
+          ]
+        }
+      ],
+      "wiring": [
+        {
+          "from": "input:0",
+          "to": "Loop Or.I1"
+        },
+        {
+          "from": "Loop Memory.Q",
+          "to": "Loop Or.I2"
+        },
+        {
+          "from": "Loop Or.Q",
+          "to": "Loop Memory.Input"
+        }
+      ],
+      "steps": [
+        {
+          "inputs": [
+            0.0
+          ],
+          "ticks": 1,
+          "expected": {
+            "Loop Or.Q": 0.0,
+            "Loop Memory.Q": 0.0
+          }
+        },
+        {
+          "inputs": [
+            1.0
+          ],
+          "ticks": 1,
+          "expected": {
+            "Loop Or.Q": 1.0,
+            "Loop Memory.Q": 1.0
+          }
+        },
+        {
+          "inputs": [
+            0.0
+          ],
+          "ticks": 1,
+          "expected": {
+            "Loop Or.Q": 1.0,
+            "Loop Memory.Q": 1.0
+          }
+        },
+        {
+          "inputs": [
+            0.0
+          ],
+          "ticks": 5,
+          "expected": {
+            "Loop Or.Q": 1.0,
+            "Loop Memory.Q": 1.0
+          }
+        }
+      ]
+    }
+  ]
+}

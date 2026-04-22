@@ -1,0 +1,85 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Modbus Title="Samsung Heating&amp;Cooling" Comment="" HintText="" Baudrate="9600" Parity="1" Channel="1">
+	<Info templateType="7" minVersion="15000227"/>
+	<ModbusCmd Title="State Heatpump" Comment="" HintText="0=OFF
+1=ON" ModbusAddress="52" ModbusCmd="4" ModbusPollingCycle="10" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="State Supply flow target temperature HC1" Comment="" HintText="" ModbusAddress="68" ModbusCmd="4" ModbusPollingCycle="10" Unit="&lt;v.1&gt;ºC" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="State Room target temperature HC1" Comment="" HintText="" ModbusAddress="59" ModbusCmd="3" ModbusPollingCycle="10" Unit="&lt;v.1&gt;º C" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="State Heatpump mode" Comment="" HintText="0=Auto
+1=Cool
+2=Dry
+3=Fan
+4=Heat
+21=Cool Storage
+24=Heat Storage" ModbusAddress="53" ModbusCmd="3" ModbusPollingCycle="10" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Actual Hot water temperature" Comment="" HintText="(50 + (IU[0..47]
+*50)) + 26
+(50 + (IU[0..47]
+*50)) + 25
+Hot water
+temperature Celsius value x 10" ModbusAddress="75" ModbusCmd="3" ModbusDataType="33" ModbusPollingCycle="10" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="State Hot water target temperature" Comment="" HintText="" ModbusAddress="74" ModbusCmd="4" ModbusPollingCycle="10" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="Actual Outside temperature" Comment="" HintText="" ModbusAddress="5" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="10" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="State Hot water operation mode" Comment="" HintText="0=Eco
+1=Standard
+2=Power
+3=Force (For the EHS only)" ModbusAddress="73" ModbusCmd="3" ModbusPollingCycle="10" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="1" DestValHigh="1"/>
+	<ModbusCmd Title="State Hot water operation" Comment="" HintText="0=OFF
+1=ON" ModbusAddress="72" ModbusCmd="3" ModbusPollingCycle="10" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="1" DestValHigh="1"/>
+	<ModbusCmd Title="Actual Back flow temperature" Comment="" HintText="" ModbusAddress="65" ModbusCmd="3" ModbusPollingCycle="10" Unit="&lt;v.1&gt;° C" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="Actual Supply flow temperature HC1" Comment="" HintText="" ModbusAddress="66" ModbusCmd="3" ModbusPollingCycle="10" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="State Switching valve" Comment="" HintText="0=Room heating or cooling
+1=Hot water preparation" ModbusAddress="89" ModbusCmd="3" ModbusPollingCycle="10" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="State Backup Heater" Comment="" HintText="0=Backup Heater operation OFF
+1=Backup Heater step 1 operation ON
+2=Backup Heater step 2 operation ON" ModbusAddress="86" ModbusCmd="3" ModbusPollingCycle="10" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="State Booster Heater" Comment="" HintText="0=Booster Heater operation OFF
+1=Booster Heater operation ON" ModbusAddress="85" ModbusCmd="3" ModbusPollingCycle="10" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Actual Water flow l/m" Comment="" HintText="" ModbusAddress="87" ModbusCmd="3" ModbusDataType="32" ModbusPollingCycle="10" Unit="&lt;v.2&gt;l/m" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="State Supply flow target temperature HC2" Comment="" HintText="" ModbusAddress="83" ModbusCmd="4" ModbusPollingCycle="10" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="State operation HC2" Comment="" HintText="0=OFF
+1=ON" ModbusAddress="82" ModbusCmd="3" ModbusPollingCycle="10" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="1" DestValHigh="1"/>
+	<ModbusCmd Title="State Room target temperature HC2" Comment="" HintText="" ModbusAddress="84" ModbusCmd="4" ModbusPollingCycle="10" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="Set State Heatpump" Comment="" HintText="0=OFF
+1=ON" ModbusAddress="52" ModbusCmd="6" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100" RepeatRate="10"/>
+	<ModbusCmd Title="Set Heatpump mode" Comment="" HintText="0=Auto
+1=Cool
+2=Dry
+3=Fan
+4=Heat
+21=Cool Storage
+24=Heat Storage" ModbusAddress="53" ModbusCmd="6" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100" RepeatRate="10"/>
+	<ModbusCmd Title="Set Target Supply Flow target temperature HC1" Comment="" HintText="Heating= 15°C to 65°C
+Cooling= 5°C to 25°C (attention for dew point!)" ModbusAddress="68" ModbusCmd="6" Unit="&lt;v&gt;°C" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="100" RepeatRate="10"/>
+	<ModbusCmd Title="Set Hot water operation" Comment="" HintText="0=OFF
+1=ON" ModbusAddress="72" ModbusCmd="6" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100" RepeatRate="10"/>
+	<ModbusCmd Title="Set Hot water target temperature" Comment="" HintText="" ModbusAddress="74" ModbusCmd="6" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100" RepeatRate="10"/>
+	<ModbusCmd Title="Set Hot water operation mode" Comment="" HintText="0=Eco
+1=Standart
+2=Power
+3=Force (for the EHS only)" ModbusAddress="73" ModbusCmd="6" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="1" DestValHigh="1" RepeatRate="10"/>
+	<ModbusCmd Title="Set ID Outside Temperature" Comment="" HintText="If you want to read  PDU Adress 5 &quot;Outside temperature&quot; - 
+It´s necessary to send a &quot;33284&quot; for example with a &quot;Constant block&quot; to the Datapoint 6001." ModbusAddress="6001" ModbusCmd="16" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10" RepeatRate="5"/>
+	<ModbusCmd Title="Set ID Compressor Frequency" Comment="" HintText="If you want to read  PDU Adress 4 &quot;Compressor Frequency&quot; - 
+It´s necessary to send a &quot; 33336 &quot; for example with a &quot;Constant block&quot; to the Datapoint 6000." ModbusAddress="6000" ModbusCmd="16" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10" RepeatRate="5"/>
+	<ModbusCmd Title="Set Operation HC2" Comment="" HintText="0=OFF
+1=ON" ModbusAddress="82" ModbusCmd="6" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100" RepeatRate="10"/>
+	<ModbusCmd Title="Set Target Supply Flow temperature HC2" Comment="" HintText="Heating= 15°C to 65°C
+Cooling= 5°C to 25°C (attention for dew point!)" ModbusAddress="83" ModbusCmd="6" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="false" SourceValHigh="1" DestValHigh="10" RepeatRate="10"/>
+	<ModbusCmd Title="Set Target Room temperature HC2" Comment="" HintText="Heating= +16°C to 30°C
+Cooling= 18°C to 30°C" ModbusAddress="84" ModbusCmd="6" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="false" SourceValHigh="1" DestValHigh="10" RepeatRate="10"/>
+	<ModbusCmd Title="Set ID Operation HC2" Comment="" HintText="If you want to read or write  PDU Adress 82 &quot;Operation HC2&quot; - 
+It´s necessary to send a &quot;16670&quot; for example with a &quot;Constant block&quot; to the Datapoint 7000." ModbusAddress="7000" ModbusCmd="16" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10" RepeatRate="5"/>
+	<ModbusCmd Title="Set ID Target Supply Flow temperature HC2" Comment="" HintText="If you want to read or write  PDU Adress 83  &quot;Target Supply Flow temperature HC2&quot; - 
+It´s necessary to send a &quot;17111&quot; for example with a &quot;Constant block&quot; to the Datapoint 7001." ModbusAddress="7001" ModbusCmd="16" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10" RepeatRate="5"/>
+	<ModbusCmd Title="Set ID Target Room temperature HC2" Comment="" HintText="If you want to read or write  PDU Adress 84  &quot;Target room temperature HC2&quot; - 
+It´s necessary to send a &quot;17110&quot; for example with a &quot;Constant block&quot; to the Datapoint 7002." ModbusAddress="7002" ModbusCmd="16" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10" RepeatRate="5"/>
+	<ModbusCmd Title="Set ID Additional Heater Hot Water" Comment="" HintText="If you want to read or write  PDU Adress &quot;85&quot; &quot;Additional Heater Hot Water&quot; - 
+It´s necessary to send a &quot;16519&quot; for example with a &quot;Constant block&quot; to the Datapoint 7003." ModbusAddress="7003" ModbusCmd="16" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10" RepeatRate="5"/>
+	<ModbusCmd Title="Set ID Additional Heater Heat/Cool Buffer" Comment="" HintText="If you want to read or write  PDU Adress &quot;Additional Heater&quot; &quot;86&quot; - 
+It´s necessary to send a &quot;16492&quot; for example with a &quot;Constant block&quot; to the Datapoint 7004." ModbusAddress="7004" ModbusCmd="16" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10" RepeatRate="5"/>
+	<ModbusCmd Title="Set ID Flow Rate" Comment="" HintText="If you want to read or write  PDU Adress &quot;87&quot; &quot;Flow Rate&quot; - 
+It´s necessary to send a &quot;17129&quot; for example with a &quot;Constant block&quot; to the Datapoint 7005." ModbusAddress="7005" ModbusCmd="16" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10" RepeatRate="5"/>
+	<ModbusCmd Title="Set ID Switching Valve" Comment="" HintText="If you want to read or write  PDU Adress &quot;89&quot; &quot;Switching Valve&quot; - 
+It´s necessary to send a &quot;16487&quot; for example with a &quot;Constant block&quot; to the Datapoint 7007." ModbusAddress="7007" ModbusCmd="16" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10" RepeatRate="5"/>
+</Modbus>

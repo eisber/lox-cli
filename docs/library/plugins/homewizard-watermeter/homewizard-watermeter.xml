@@ -1,0 +1,7 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<VirtualInHttp Title="HomeWizard Watermeter" Comment="" Address="http://{IP address}/api/v1/data" PollingTime="10">
+	<Info templateType="2" minVersion="14030803"/>
+	<VirtualInHttpCmd Title="Wi-Fi Strength" Comment="The strength of the Wi-Fi signal in _" Check="\i&quot;wifi_strength&quot;:\i\v" Signed="true" Analog="true" SourceValLow="0" DestValLow="0" SourceValHigh="100" DestValHigh="100" DefVal="0" MinVal="-10000" MaxVal="10000" Unit="&lt;v.1&gt;"/>
+	<VirtualInHttpCmd Title="Total Liter (m3)" Comment="Total water usage in cubic meters since installation" Check="\i&quot;total_liter_m3&quot;:\i\v" Signed="true" Analog="true" SourceValLow="0" DestValLow="0" SourceValHigh="100" DestValHigh="100" DefVal="0" MinVal="-10000" MaxVal="10000" Unit="&lt;v.1&gt;"/>
+	<VirtualInHttpCmd Title="Active Liter LPM" Comment="Active water usage in liters per minute" Check="\i&quot;active_liter_lpm&quot;:\i\v" Signed="true" Analog="true" SourceValLow="0" DestValLow="0" SourceValHigh="100" DestValHigh="100" DefVal="0" MinVal="-10000" MaxVal="10000" Unit="&lt;v.1&gt;"/>
+</VirtualInHttp>

@@ -1,0 +1,133 @@
+{
+  "title": "Fire and Water Alarm",
+  "xml_type": "",
+  "kb_slug": "fire-water-alarm",
+  "description": "This function block will alert you of a fire or water leakage.",
+  "inputs": [
+    {
+      "abbreviation": "Cs",
+      "summary": "Confirm alarm signals",
+      "description": "Deativates outputs Pas and Mas. Outputs Pa and Ma remain active. Assigned Audio Players or Lighting Controllers are also switched off.",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "S",
+      "summary": "Smoke detector",
+      "description": "Alarm input for external smoke detector. The name of the connected sensor is used in the user interface.",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "W",
+      "summary": "Water detector",
+      "description": "Alarm input for external water detector. The name of the connected sensor is used in the user interface.",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "F",
+      "summary": "AFCI",
+      "description": "Input for Arc-fault circuit interrupter. The name of the connected sensor is used in the user interface.",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "T",
+      "summary": "Temperature input",
+      "description": "Connection for external temperature sensors. The name of the connected sensor is used in the user interface.",
+      "value_range": "\u221e"
+    },
+    {
+      "abbreviation": "Off",
+      "summary": "Off",
+      "description": "Pulse: Outputs are reset / switched off. On: Block is locked. Dominating input. The name of the connected sensor is used in the user interface.",
+      "value_range": "0/1"
+    }
+  ],
+  "outputs": [
+    {
+      "abbreviation": "Ca",
+      "summary": "Cause of alarm",
+      "description": "Reports cause of the last alarm.",
+      "value_range": "-"
+    },
+    {
+      "abbreviation": "Ta",
+      "summary": "Time and date of alarm",
+      "description": "Reports date and time of the last alarm.",
+      "value_range": "-"
+    },
+    {
+      "abbreviation": "API",
+      "summary": "API Connector",
+      "description": "Intelligent API based connector. API Commands",
+      "value_range": "-"
+    }
+  ],
+  "parameters": [
+    {
+      "abbreviation": "Rem",
+      "summary": "Remanence input",
+      "description": "Remanence input: If active, the function block retains its previous state after a Miniserver reboot. The state of the function block is saved: \u2013 When saving to the Miniserver \u2013 At a planned reboot \u2013 Before a backup \u2013 Once per hour \u2013 When activating/deactivating an alarm system (max. every 10s) The data is saved on the SD card.",
+      "unit": "-",
+      "value_range": "0/1",
+      "default_value": "0"
+    },
+    {
+      "abbreviation": "Mad",
+      "summary": "Main alarm delay",
+      "description": "Main alarm delay after activating the pre-alarm.",
+      "unit": "s",
+      "value_range": "0...\u221e",
+      "default_value": "120"
+    },
+    {
+      "abbreviation": "Max\u03d1",
+      "summary": "Maximum temperature",
+      "description": "If input (T) is greater than or equal to this value, the alarm will be activated.",
+      "unit": "\u00b0",
+      "value_range": "\u221e",
+      "default_value": "43"
+    },
+    {
+      "abbreviation": "MaxA",
+      "summary": "Maximum alarm duration",
+      "description": "The main alarm is automatically confirmed at the end of set time. If (Pac) = 1, the pre-alarm is also automatically confirmed. 0 = No duration limit",
+      "unit": "s",
+      "value_range": "0...\u221e",
+      "default_value": "300"
+    },
+    {
+      "abbreviation": "Pac",
+      "summary": "Pre-alarm confirmation",
+      "description": "1 = Pre-alarm is confirmed automatically when (MaxA) is reached. 0 = Pre-alarm stays active when (MaxA) is reached.",
+      "unit": "-",
+      "value_range": "0/1",
+      "default_value": "0"
+    },
+    {
+      "abbreviation": "Sm",
+      "summary": "Service mode",
+      "description": "Enables the Service mode and suppresses the alarm, only (At) is activated in case of an alarm. 0 = Service mode off, 1 = Service mode permanently on, >1 = Service mode on for this time.",
+      "unit": "s",
+      "value_range": "0...\u221e",
+      "default_value": "0"
+    }
+  ],
+  "properties": [
+    {
+      "summary": "Number of Entries",
+      "description": "Maximum number of saved messages.",
+      "value_range": "2...100",
+      "default_value": "-"
+    },
+    {
+      "summary": "Configuration",
+      "description": "Configuration of the available inputs and outputs.",
+      "value_range": "-",
+      "default_value": "-"
+    }
+  ],
+  "source_url": "https://www.loxone.com/enen/kb/fire-water-alarm/",
+  "input_count": 6,
+  "output_count": 3,
+  "parameter_count": 6,
+  "property_count": 2
+}

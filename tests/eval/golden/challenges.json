@@ -1,0 +1,145 @@
+[
+  {
+    "id": "alarm-im-allgemeinbereich",
+    "url": "https://www.loxone.com/dede/kb/alarm-im-allgemeinbereich/",
+    "title": "Alarm im Allgemeinbereich",
+    "task": "In dieser Config Challenge geht es darum einen Alarm für den Allgemeinbereich in einem Firmengebäude zu konfigurieren.\n\nEin Geschäftsinhaber vermietet Büroräume in seinem Firmengebäude. Die Büroräume sind alle mit einem eigenen Alarmbaustein ausgestattet. Auch Beleuchtung, Raumregelung, Beschattung und Musik können gesteuert werden. Mit dem Dreifachklick wird beim Verlassen das Büro ausgeschaltet und der Alarm aktiviert.\n\nDas einzige Problem ist jedoch der Allgemeinbereich. Dieser besteht aus dem Eingang, dem Treppenhaus und den Aufenthaltsräumen. Derzeit muss immer die letzte Person beim Verlassen daran denken, den Alarm für das gesamte Gebäude zu aktivieren. Davor müssen jedoch erst alle Büroräume kontrolliert werden. Dies wird häufig vergessen oder ignoriert.\n\nDer Haupteingang verfügt über einen NFC Code Touch für die Zutrittskontrolle.\nDie letzte Person, die das Firmengebäude verlässt, schaltet automatisch den Allgemeinbereich verzögert scharf, nachdem sie im Büro den Alarm aktiviert hat.\nDer erste Mitarbeiter, der morgens das Gebäude betritt, deaktiviert beim Betreten des Haupteingangs den Alarm im Allgemeinbereich und im eigenen Büro.\nDie Mieter sind nicht in der Lage den Alarm der anderen Büros zu beeinflussen.\n\nZusatzaufgabe:\nDer Vermieter benötigt außerdem einen Hauptschlüssel. Dieser deaktivert alle Alarmbereiche, damit sie überprüft und gewartet werden können.",
+    "solution_description": "Video walkthrough: https://www.youtube.com/embed/ce3zT_m0iIY?feature=oembed",
+    "config_url": "https://www.loxone.com/dede/wp-content/uploads/sites/2/2020/04/Config-Challenge-Alarm-Allgemeinbereich.Loxone.zip",
+    "config_file": "challenges/alarm-im-allgemeinbereich.Loxone",
+    "solution_video_url": "https://www.youtube.com/embed/ce3zT_m0iIY?feature=oembed",
+    "screenshot_urls": [
+      "https://i.ytimg.com/vi/ce3zT_m0iIY/hqdefault.jpg"
+    ]
+  },
+  {
+    "id": "automatisierung-trockenraum",
+    "url": "https://www.loxone.com/dede/kb/automatisierung-trockenraum/",
+    "title": "Automatisierung Trockenraum",
+    "task": "In dieser Config Challenge geht es um die Umsetzung der Steuerung und Überwachung von Luftentfeuchtern in einem Trockenraum einer Restaurantküche.\n\nEine Restaurantküche trocknet Handtücher, Geschirrtücher und ähnliches in einem eigenen Trockenraum. Die Steuerung der Luftentfeuchter in diesem Raum ist unflexibel und mühsam einzustellen. Dies führt zu hohen Stromrechnungen, da die Luftentfeuchter teilweise viel zu lange laufen. Der Trockenraum ist bereits mit einem Feuchtigkeitssensor ausgestattet, jedoch muss dieser besser überwacht werden, vor allem an Ruhetagen.\n\nDie Luftentfeuchter sollen zu Spitzenzeiten automatisch laufen. Zwischen 13:15 und 15:30Uhr nur ein Luftentfeuchter, und zwischen 19:00 bis 21:30 Uhr beide. An gewissen Feiertagen ist das Restaurant geschlossen. In dieser Zeit sollen die Entfeuchter ausbleiben. Die Feiertage möchte der Wirt über die Betriebszeiten planen.\n\nNeben dem regulären Betrieb gibt es auch Veranstaltungen ohne definierten Zeitplan. Über einen Touch Tree im Trockenraum sollen die Entfeuchter 30 Minuten lang laufen. Über den selben Taster soll auch eine Dauerschaltung möglich sein, die sich um 24:00 Uhr resetet. Um die Dauerschaltung tagsüber kontrollieren zu können, soll eine Push-Nachricht andie Belegschaft gesendet werden, wenn die Luftentfeuchter drei Stunden durchgehendgelaufen sind.\n\nDie relative Luftfeuchte soll in einer Statistik visualisiert werden. Ein Mittelwert pro Stunde.\n\nZusatzaufgabe:\nDer Manager möchte wissen, wieviel der Betrieb der Luftentfeuchter kostet. Deshalb soll monatlich per E-Mail eine Kostenübersicht an den Manager gesendet werden. Energiezähler gibt es keine, aber wir wissen, dass beide der baugleichen Luftentfeuchter je 1000W Leistung haben.",
+    "solution_description": "Video walkthrough: https://www.youtube.com/embed/0NPymyqjueU?feature=oembed",
+    "config_url": "https://www.loxone.com/dede/wp-content/uploads/sites/2/2020/04/Config-Challenge-Automatisierung-Trockenraum-220420.Loxone.zip",
+    "config_file": "challenges/automatisierung-trockenraum.Loxone",
+    "solution_video_url": "https://www.youtube.com/embed/0NPymyqjueU?feature=oembed",
+    "screenshot_urls": [
+      "https://i.ytimg.com/vi/0NPymyqjueU/hqdefault.jpg"
+    ]
+  },
+  {
+    "id": "beleuchtung-in-offenen-wohnraeumen",
+    "url": "https://www.loxone.com/dede/kb/beleuchtung-in-offenen-wohnraeumen/",
+    "title": "Beleuchtung in offenen Wohnräumen",
+    "task": "In dieser Config Challenge geht es um die Umsetzung der Beleuchtung in einem offenen Wohnraum mit drei Bereichen: Wohnen, Kochen, Essen.\n\nIn einem großen, offenen Wohnbereich soll eine möglichst intuitive Bedienung der RGBW Beleuchtung umgesetzt werden. Jeder Bereich hat seinen eigenen Taster und seine eigenen Lichtkreise. Für das Grundlicht stehen zwei Bewegungsmelder Tree zur Verfügung.\n\nEs gibt drei Bereiche im Wohnraum:\n\nKüche\n6x LED Spot RGBW Tree Weiss / Kochinsel Decke\n2x RGBW LED Streifen 5m IP 20 / Kochinsel Indirekt\n1x Touch Tree Weiss / Taststelle Tür\n1x Touch & Grill Air / Kochinsel\nWohnzimmer\n5x LED Spot RGBW Tree Weiss / Ecksofa Decke\n1x LED Spot RGBW Tree Weiss / Sofa Sessel\n1x Smart Socket / Leseleuchte\n2x RGBW LED Streifen 5m IP 20 / Wohnzimmer Indirekt\n1x Touch Tree Weiss / Taststelle Tür\n1x Remote Air / Sofa Sessel Decke\nEsszimmer\n3x LED Pendulum Slim Tree Anthrazit / Esstisch Pendulum\n1x RGBW LED Streifen 5m IP 20 / Esszimmer Indirekt\n6x LED Spot RGBW Tree Weiss / Esszimmer Decke\n1x Touch Tree Weiss / Taststelle Tür\n\nEs gibt ein übergeordnetes Grundlicht das sich unter 10 lux bei Bewegung einschaltet. Ist ein Schlafmodus aktiv, soll bei Bewegung das Nachtlicht eingeschaltet werden. Das Grundlicht sollte sich nach der letzten Bewegung eine halbe Stunde später ausschalten, das Nachtlicht nach 10 Minuten.\n\nDer Wohnbereich hat eine Taststelle mit dem Touch Tree und eine für den Lebensbereich. Bediene ich beispielsweise den Taster für den Essbereich, wird bei Grundlicht nur der Essbereich heller ausgeleuchtet. Die Bereiche Wohnen und Kochen schalten sich so ein, als wäre das Grundlicht an.\n\nDurch einen längeren Klick auf Wohnen oder Kochen kann ich die Helligkeit, wie beim Essbereich, erhöhen oder wieder auf das Grundlicht reduzieren. Bei einem zweiten Klick auf eine der drei Taster wird eine helle, übergeordnete Stimmung (Viel Licht) gewählt. Ein dritter Klick schaltet den Raum wieder zurück auf das Grundlicht. Ein Doppelklick auf irgendeinen Taster im Raum schaltet den gesamten Raum aus.\n\nÜber den Touch & Grill geht bei einem Einfachklick die Stimmung “Kochen” an und durch einen weiteren Klick wieder aus. Die Remote Air reagiert gleich wie der Touch & Grill. Die Remote Air schaltet das Leselicht ein und auch wieder aus. Über beide Taster kann ich durch einen längeren Klick das Grundlicht und viel Licht einschalten und per Doppelklick wieder ausschalten.\n\nZusatzaufgabe:\nDer Kunde möchte eine übergeordnete TV Stimmung. Diese Stimmung soll eingeschaltet werden, wenn der Fernseher aus dem Standby erwacht. Solange der Fernseher läuft soll das Licht nicht selbständig ausgehen. Sobald der Fernseher aus oder im Standby ist soll der Raum ins Grundlicht wechseln.",
+    "solution_description": "Video walkthrough: https://www.youtube.com/embed/QhAQpErLWF0?feature=oembed",
+    "config_url": "https://www.loxone.com/dede/wp-content/uploads/sites/2/2020/04/Config-Challenge-Offene-Beleuchtung.Loxone.zip",
+    "config_file": "challenges/beleuchtung-in-offenen-wohnraeumen.Loxone",
+    "solution_video_url": "https://www.youtube.com/embed/QhAQpErLWF0?feature=oembed",
+    "screenshot_urls": [
+      "https://i.ytimg.com/vi/QhAQpErLWF0/hqdefault.jpg"
+    ]
+  },
+  {
+    "id": "beschattung-spezial",
+    "url": "https://www.loxone.com/dede/kb/beschattung-spezial/",
+    "title": "Beschattung Spezial",
+    "task": "In dieser Config Challenge geht es um die Umsetzung einer speziellen Beschattung.\n\nEine Villa am Südhang benötigt eine spezielle Anpassung der Beschattung. Grund dafür ist das Klima auf über 950 Höhenmeter. Die Sonne ist nur im Hochsommer in der Lage das Haus zu überhitzen. Im Winter bleibt der Schnee teilweise länger auf dem Dach liegen, auch bei Temperaturen über 10°C.\n\nZur späten Abendstunde möchte der Kunde gerne den Ausblick auf die Bergsilhouetten genießen können, ohne dabei auf die zusätzliche Dämmung der Jalousie zu verzichten, wenn er schläft.\n\nDie Automatikbeschattung soll erst dann funktionieren, wenn die Außentemperaturen 20°C überschreiten. Die Ostseite bekommt durch den Bergrücken erst ab April bis September die Morgensonne ab und soll daher in dieser Zeit nicht beschatten.\n\nDer Frostschutz über die Autoconfig funktioniert zwar, die Dachfenster in Bad und Schlafzimmer dürfen jedoch erst nach einer Sichtkontrolle durch den Hausherrn freigegeben werden.\n\nNord- und Ostfenster sollen bei Abenddämmerung schließen. Süd- und Westfenster erst, wenn der Kunde schlafen geht. Im Bad und in den Schlafräumen darf bei Morgendämmerung die Beschattung wieder hochfahren.\n\nZusatzaufgabe:\nDer Weinkeller sollte sich, bis auf die Nachtschließung, komplett anders verhalten wie das restliche Haus. Zum einen sind die teuren Weine temperiert und sollen durch die Sonne keinen größeren Temperaturschwankungen ausgesetzt werden. Zum anderen ist der Weinkeller mit einem Holzboden, teuren Möbeln und Bildern bestückt. Diese sollten vor direktem Sonnenlicht geschützt werden.\n\nBeim Bau der Villa wurde darauf geachtet, dass der Balkon oberhalb des Panoramafensters als Vordach dient. Er steht soweit nach vorne, wie die Decke hoch ist.\n\nDer Kunde möchte solange wie möglich keine Beschattung im Raum, außer die Sonne steht so tief, dass sie in den Weinkeller scheint.",
+    "solution_description": "Video walkthrough: https://www.youtube.com/embed/VRD4MgXLg4I?feature=oembed",
+    "config_url": "https://www.loxone.com/dede/wp-content/uploads/sites/2/2020/04/Config-Challenge-Beschattung-Spezial.Loxone.zip",
+    "config_file": "challenges/beschattung-spezial.Loxone",
+    "solution_video_url": "https://www.youtube.com/embed/VRD4MgXLg4I?feature=oembed",
+    "screenshot_urls": [
+      "https://i.ytimg.com/vi/VRD4MgXLg4I/hqdefault.jpg"
+    ]
+  },
+  {
+    "id": "config-challenge-reinigungsmodus",
+    "url": "https://www.loxone.com/dede/kb/config-challenge-reinigungsmodus/",
+    "title": "Reinigungsmodus",
+    "task": "In der heutigen Config Challenge geht es um die Umsetzung eines Reinigungsmodus.\n\nEine Betrieb hat eine Reinigungsfirma angestellt die Montag, Mittwoch und Freitag, zwischen 17:00 und 19:00 Uhr das Gebäude reinigt.\n\nLeider ist die dimmbare Grundbeleuchtung für die Reinigung nicht hell genug eingestellt. An den Tastern gibt es zwar die Stimmung “Viel Licht” nur wird diese selten aktiviert.\n\nDurch den Lichtmangel kam es schon zu Beschwerden, was die Qualität der Reinigung betrifft. Die Reinigungsfirma möchte daher einen Modus mit mehr Licht und der Betrieb möchte mehr Kontrolle über die geleistete Arbeit der Reinigungsfirma.\n\nDas Reinigungspersonal soll mit dem Key Fob zu den vereinbarten Zeiten die Türen im Firmengebäude öffnen können, und dadurch den Reinigungsmodus aktivieren. Dabei soll im Eingang “Viel Licht” angehen und am NFC Code Touch soll die blaue LED leuchten.\n\nSolange der Modus aktiv ist, kann das Gebäude nicht mehr durch einen Dreifachklick ausgeschalten werden. Auch das Licht im Eingang kann nicht ausgeschalten werden. Erst wenn sich das Reinigungspersonal erneut am NFC Code Touch identifiziert und somit den Reinigungs Modus deaktiviert (blaue LED aus), wechselt das Gebäude von selbst in den Abwesenheits-Modus und das Licht im Eingang geht aus.\n\nIst der Reinigungsmodus aktiv, soll bei Bewegung das Grundlicht in den restlichen Räumen durch viel Licht ersetzt werden, egal wie hell der Raum ist und welche Stimmung zuvor an war.\n\nÜber die Visualisierung soll sichtbar werden, wie lange die Reinigungsfirma anwesend war und monatlich soll eine Statistik per E-Mail an den Betrieb gesendet werden.\n\nZusatzaufgabe:\nDa das Reinigungspersonal erst nach 17:00 die Arbeit beginnt, wenn bereits alle gehen,wäre es gut, wenn man die Bewegung der Mitarbeiter nachverfolgen könnte. Es sollfestgestellt werden können, wie lange sich jemand in welchem Zimmer aufgehalten hat undwelche Fenster geöffnet wurden.​\nDiese Zusatzaufgabe ist nicht für die Praxis gedacht.",
+    "solution_description": "Video walkthrough: https://www.youtube.com/embed/kGnO28Sf5K4?feature=oembed",
+    "config_url": "https://www.loxone.com/dede/wp-content/uploads/sites/2/2020/04/Config-Challenge-Reinigungsmodus.Loxone.zip",
+    "config_file": "challenges/config-challenge-reinigungsmodus.Loxone",
+    "solution_video_url": "https://www.youtube.com/embed/kGnO28Sf5K4?feature=oembed",
+    "screenshot_urls": [
+      "https://i.ytimg.com/vi/kGnO28Sf5K4/hqdefault.jpg"
+    ]
+  },
+  {
+    "id": "gastmodus",
+    "url": "https://www.loxone.com/dede/kb/gastmodus/",
+    "title": "Gastmodus",
+    "task": "Im Gastmodus sollte das Gästezimmer so konfiguriert werden, dass es unabhängig vom restlichen Haus funktioniert, wenn Gäste anwesend sind.\n\nÜber die Autoconfig erhalten wir den Nachtmodus. Dieser wird über einen Dreifachklick in allen Schlafräumen aktiviert. Die Lichter werden ausgeschaltet, die Musik wird gestoppt und der Alarm wird aktiviert usw. Im Hauptschlafzimmer ist diese Funktion sehr praktisch und wird auch jede Nacht genutzt. Im Gästezimmer ist dieser Modus jedoch nicht immer optimal, da ein Gast möglicherweise andere Schlafgewohnheiten hat, als der Hausbesitzer. Der Gast sollte ungestört Musik hören oder lesen können, ohne dass er dabei vom Nachtmodus unterbrochen wird.\n\nWir benötigen eine Funktion, die dem Haus mitteilt, dass gerade ein Gast anwesend ist.\n\nIst kein Gast im Haus, soll der Nachtmodus wie gewohnt funktionieren. D.h. alle Räume, einschließlich dem Gästezimmer, sollten ausgeschaltet werden. Zudem sollte im Gästezimmer die Funktion “Haus im Tiefschlaf” aktiv sein.\n\nIst ein Gast anwesend, sollte sich das Haus dementsprechend anpassen. Das Gästezimmer inkl. Badezimmer sollten vom normalen Nachtmodus ausgenommen sein. Zudem sollte das Gästezimmer zum Heizen in den Komfortmodus wechseln und nach dem Zeitplan des restlichen Hauses funktionieren.\n\nDarüber hinaus sollte der Gast über einen Dreifachklick seinen eigenen Nachtmodus aktivieren können, der das Gästezimmer in den Ruhemodus versetzt.\n\nZusatzaufgabe:\nWenn ein Gast anwesend ist, sollte das Badezimmer nur dann ausgeschaltet werden, wenn sowohl im Hauptschlafzimmer als auch im Gästezimmer der Nachtmodus aktiv ist.\n\nSobald im Hauptschlafzimmer der Nachtmodus aktiviert wurde, sollte man die Musik im Gästezimmer nicht lauter schalten können als 30 Prozent, damit die restlichen Bewohner von der Musik im Gästezimmer nicht gestört werden.",
+    "solution_description": "Video walkthrough: https://www.youtube.com/embed/kaNAyyxr_p8?feature=oembed",
+    "config_url": "https://www.loxone.com/dede/wp-content/uploads/sites/2/2020/04/Config-Challenge-Gastmodus.Loxone.zip",
+    "config_file": "challenges/gastmodus.Loxone",
+    "solution_video_url": "https://www.youtube.com/embed/kaNAyyxr_p8?feature=oembed",
+    "screenshot_urls": [
+      "https://i.ytimg.com/vi/kaNAyyxr_p8/hqdefault.jpg"
+    ]
+  },
+  {
+    "id": "nachtmodus-fuer-die-familie",
+    "url": "https://www.loxone.com/dede/kb/nachtmodus-fuer-die-familie/",
+    "title": "Nachtmodus für die Familie",
+    "task": "In der heutigen Config Challenge geht es um einen Nachtmodus für die Familie.\n\nConfig Vorlage downloaden\n\nIm Loxone Smart Home wird mit einem Dreifachklick standardmäßig der Nachtmodus aktiviert. Dieser schaltet im ganzen Haus alle Lichter aus, stoppt die Musik, deaktiviert die Bewegungsmelder in den Schlafräumen und schaltet den Alarm scharf.\n\nFür einen Haushalt mit 2 Erwachsenen ist diese Funktion praktisch, doch mit Kindern ist es etwas schwieriger, da diese andere Schlafgewohnheiten als die Eltern haben. Die beiden Kinder der Familie gehen zwischen 19:30 und 21:00 Uhr ins Bett. Deshalb soll es in den Kinderzimmern einen eigenen Nachtmodus geben, der sich anders verhält, als der Nachtmodus im Schlafzimmer der Eltern.\n\nIn jedem Schlafraum (1 Schlafzimmer, 2 Kinderzimmer) soll ein eigener Nachtmodus und ein Touch Nightlight installiert werden. Diese Nachtmodi verhalten sich im jeweiligen Raum wie vom Loxone Standard vorgegeben. In jedem Schlafraum soll man sehen können, ob der Nachtmodus aktiv ist. Auch das Display vom Touch Nightlight soll sich dem Nachtlicht anpassen.\n\nGewisse raumübergreifende Funktionen funktionieren schon, wenn der erste Schlafraum in den Nachtmodus wechselt. Zudem darf in den Schlafräumen das Klingeln über den Musikserver nicht mehr funktionieren. In den anderen Räumen sollte die Lautstärke der Musik auf maximal 50% laufen können. Im Korridor, WC und Bad geht bei Bewegung ein angenehmes Nachtlicht an, statt dem Grundlicht. Ansonsten läuft alles wie gehabt.\n\nErst wenn alle drei Nachtmodi aktiv sind, stellt sich der Rest des Hauses nach dem Loxone Standard ein.\n\nZusatzaufgabe:\nDas jüngste Kind will oftmals nicht schlafen und spielt mit der Musik und den Lichtern am Taster. Deshalb soll der Touch neben dem Bett deaktiviert werden, sobald der Nachtmodus eingeschalten wurde. Da der Kleine auch hin und wieder nächtliche Ausflüge unternimmt, möchten die Eltern per Push-Nachricht informiert werden, sobald sich seine Zimmertür öffnet.\n\nDer ältere Sohn hat Schlafprobleme und liest manchmal die halbe Nacht. Über die Visualisierung möchten die Eltern sehen können, welche Lichtstimmung er gerade in seinem Zimmer aktiviert hat.",
+    "solution_description": "Video walkthrough: https://www.youtube.com/embed/Ml44NZVSHYg?feature=oembed",
+    "config_url": "https://www.loxone.com/dede/wp-content/uploads/sites/2/2020/04/Vorlage-Config-Challenge-Nachtmodus.Loxone.zip",
+    "config_file": "challenges/nachtmodus-fuer-die-familie.Loxone",
+    "solution_video_url": "https://www.youtube.com/embed/Ml44NZVSHYg?feature=oembed",
+    "screenshot_urls": [
+      "https://i.ytimg.com/vi/Ml44NZVSHYg/hqdefault.jpg"
+    ]
+  },
+  {
+    "id": "server-ueberwachung",
+    "url": "https://www.loxone.com/dede/kb/server-ueberwachung/",
+    "title": "Serverüberwachung",
+    "task": "Bei dieser Aufgabe geht es darum den Status und den Zustand von Servern zu überwachen, um schneller zu reagieren, wenn ein Server ausfällt.\n\nAls IT und Hosting Unternehmen ist es wichtig, den Zustand der Server regelmäßig zu überprüfen und zu warten. Ausfallzeiten kosten viel Geld. Derzeit gibt ein internes Team, das die Serverräume verwaltet. Jedoch kann es aufgrund der Reaktionszeit der Mitarbeiter einige Zeit dauern, bis ein Fehler festgestellt wird und das Problem behoben werden kann. Wir möchten den Status und den Zustand dieser Server überwachen und schneller reagieren, wenn etwas passiert.\n\nEs gibt vier Server, die über Ping-Anfragen überwacht werden. Wenn einer oder mehrere Server nach 2 – 3 Minuten nicht antworten, wird eine Benachrichtigung ausgelöst. Bei einer Störung sollen nacheinander folgende, verantwortliche Personen angerufen werden:\n\nIT-Techniker\nIT-Supervisor\nIT-Manager\nGeschäftsführer\n\nSolange keiner der Verantwortlichen die Störung quittiert, sollen sie viermal angerufen werden. Wenn keiner innerhalb dieser vier Rufzyklen die Störung quittiert, sollte ein vollständiger (Gebäude-) Alarm, gemäß der Loxone-Standardeinstellung, ausgelöst werden. Die Mitarbeiter können den Alarm und auch die Rufzyklen über die Loxone App quittieren. Falls kein Internet zur Verfügung steht, soll die Quittierung auch möglich sein, indem die Ruftasten 1, 2, 3 auf dem Telefon gedrückt werden.\n\nWenn ein Server offline geht, soll sofort ein Wake-on-Lan-Paket gesendet werden, um ihn wieder zu starten. Durch einen Neustart des Miniservers sollte es keine Störmeldung geben.\n\nZusatzaufgabe:\nGibt es noch andere Möglichkeiten Serverräume zu überwachen? Finden Sie noch drei weitere Wege, wie Sie möglichst früh Störungen erkennen und melden können.",
+    "solution_description": "Video walkthrough: https://www.youtube.com/embed/e0nAlILoZUE?feature=oembed",
+    "config_url": "https://www.loxone.com/dede/wp-content/uploads/sites/2/2020/04/Config-Challenge-Serverueberwachung.Loxone.zip",
+    "config_file": "challenges/server-ueberwachung.Loxone",
+    "solution_video_url": "https://www.youtube.com/embed/e0nAlILoZUE?feature=oembed",
+    "screenshot_urls": [
+      "https://i.ytimg.com/vi/e0nAlILoZUE/hqdefault.jpg"
+    ]
+  },
+  {
+    "id": "sous-vide-garen",
+    "url": "https://www.loxone.com/dede/kb/sous-vide-garen/",
+    "title": "Sous Vide Garen",
+    "task": "In der heutigen Config Challenge geht es ums Sous Vide Garen. Dazu benötigen wir einen Touch & Grill, eine Smart Socket und eine 230V Kochplatte.\n\nSous Vide Garen (Vakuumgaren) ist eine einfache und geniale Methode Grillfleisch oder auch Gemüse schonend auf die gewünschte Kerntemperatur zu bringen. Gerade Fleisch bleibt auf diese Weise saftig und zart. Zudem wird das Grillen viel einfacher, da das Fleisch nach dem Garen nur noch kurz angebraten werden muss, damit es Farbe und Röstaromen bekommt.\n\nDer Touch & Grill bietet sich dafür perfekt als Temperaturüberwachung an. Eine kleine Kochplatte mit 230V soll mit einer Smart Socket gesteuert werden.\n\nUm die Wassertemperatur im Kochtopf zu messen, benötigen wir den gelbe Temperatur Sensor. Der Topf wird von der 230V Kochplatte erwärmt. Damit die Temperaturregelung funktioniert, soll die Kochplatte immer auf maximaler Stufe eingestellt sein und über die Smart Socket am Stromnetz hängen.\n\nWir benötigen eine Temperaturregelung, die das Wasser im Topf auf die richtige Temperatur bringt, nicht darüber hinaus schießt und dabei die Smart Socket schont. Bis 30°C vor Zieltemperatur darf die Herdplatte maximale Energie liefern. Zwischen 10° und 30°C vor Zieltemperatur soll die Smart Socket im Wechsel 15 Sekunden ein und 15 Sekunden ausschalten. Zwischen 5° und 10°C soll sie wechseln zwischen 10 Sekunden ein und 20 Sekunden aus und von 1° bis 5°C soll sie im Wechsel 5 Sekunden ein und 30 Sekunden ausschalten. Ist die Wassertemperatur größer oder gleich der Zieltemperatur, soll die Herdplatte aus bleiben.\n\nDie Zieltemperatur 0°C bis 100°C soll über einen eigenen Schieber in der Visualisierung eingestellt werden können. Zudem soll über die Visualisierung der Garprozess gestartet werden können, oder zu einer bestimmten Uhrzeit starten.",
+    "solution_description": "Video walkthrough: https://www.youtube.com/embed/wb4m9-uFPd4?feature=oembed",
+    "config_url": "https://www.loxone.com/dede/wp-content/uploads/sites/2/2020/04/Config-Challenge-Sous-Vide-Garen.Loxone.zip",
+    "config_file": "challenges/sous-vide-garen.Loxone",
+    "solution_video_url": "https://www.youtube.com/embed/wb4m9-uFPd4?feature=oembed",
+    "screenshot_urls": [
+      "https://i.ytimg.com/vi/wb4m9-uFPd4/hqdefault.jpg"
+    ]
+  },
+  {
+    "id": "tv-zeitzaehler-fuer-kinder",
+    "url": "https://www.loxone.com/dede/kb/tv-zeitzaehler-fuer-kinder/",
+    "title": "TV Zeitzähler für Kinder",
+    "task": "In dieser Config Challenge geht es um einen TV Zeitzähler für Kinder.\n\nDa viele Kinder zu viel Zeit vor dem Fernseher verbringen, wird von den Eltern ein tägliches Limit vorgegeben, wie lange die Kinder fernsehen dürfen. Das führt oftmals zu Diskussionen und teilweise werden die Anforderungen der Eltern einfach ignoriert.\n\nMit Loxone können die TV-Zeiten automatisiert werden und verhindern so, dass die Kinder zu lange vor den Geräten sitzen.\n\nDas Smart Home soll wissen wer gerade den Fernseher bedient, die Kinder oder die Eltern.\n\nDie Kinder haben 2 Stunden Fernsehzeit pro Tag. 5 Minuten vor Ende der Fernsehzeit, soll über die Musikanlage eine Meldung kommen, dass die Zeit fast vorbei ist und noch 5 Minuten Restzeit verbleiben. Sobald die 2 Stunden abgelaufen sind, sollte sich der Fernseher automatisch abschalten.\n\nDie Eltern sollten zudem in der Lage sein, den Fernseher über die App wieder einzuschalten. Die Kinder sollen den Fernseher jedoch nicht wieder einschalten können.\n\nJeden Tag muss die Fernsehzeit zurückgesetzt werden, um am nächsten Tag wieder von vorne zu beginnen.\n\nZusatzaufgabe:\nGelegentlich sollten die Kinder belohnt werden, wenn sie brav gewesen sind. Mit einem eigenen TV-Belohnungs-Button in der Loxone App, können die Eltern den Kindern zusätzlich 5 Minuten Fernsehzeit anhängen.",
+    "solution_description": "Video walkthrough: https://www.youtube.com/embed/yaGLiF2enLQ?feature=oembed",
+    "config_url": "https://www.loxone.com/dede/wp-content/uploads/sites/2/2020/04/Config-Challenge-TV-Zeitzaehler-fuer-Kinder-280420.Loxone.zip",
+    "config_file": "challenges/tv-zeitzaehler-fuer-kinder.Loxone",
+    "solution_video_url": "https://www.youtube.com/embed/yaGLiF2enLQ?feature=oembed",
+    "screenshot_urls": [
+      "https://i.ytimg.com/vi/yaGLiF2enLQ/hqdefault.jpg"
+    ]
+  },
+  {
+    "id": "wasser-notabschaltung",
+    "url": "https://www.loxone.com/dede/kb/wasser-notabschaltung/",
+    "title": "Wasser Notabschaltung",
+    "task": "In dieser Config Challenge geht es um die Umsetzung einer Wasser Notabschaltung.\n\nWasserschäden sind nicht nur teuer und ärgerlich, sondern können auch immensen Schaden anrichten. Gerade kleine Wasserschäden, die nicht sofort auffallen und schleichend dahin tröpfeln.\n\nMit Loxone können Wasserschäden frühzeitig erkannt werden. Sobald austretendes Wasser erkannt wird, sendet der Miniserver eine Nachricht an die verantwortlichen Personen. Wenn niemand auf die Warnung reagiert, kann zusätzlich noch die Hauptwasserleitung automatisch abgeschalten werden.\n\nIn risikoreichen Räumen wie Badezimmer, Waschraum und Küche sollten daher Wassersensoren angebracht werden. Auch an gewissen Stellen im Keller, an denen Wasser von außen eindringen kann, dürfen die Sensoren nicht fehlen.\n\nWenn der Wassersensor an einem der Stellen Wasser detektiert, sollte eine Alarmkette folgende Personen anrufen, solange bis jemand den Alarm quittiert:\n\nHausbesitzer\nKinder\nNachbar\n\nWenn beim ersten Anruf niemand antwortet, sollte ein Magnetventil am Hauptwasseranschluss schließen, um zu verhindern, dass noch mehr Wasser ins Gebäude eindringt. Zudem soll das Gebäude einen Wasseralarm auslösen.\n\nZusatzaufgabe:\nAm Hauptwasseranschluss ist ein Wasserzähler installiert, der pro 10 Liter verbrauchtem Wasser pulsiert. Im Durchschnitt verbraucht ein Europäer 140 Liter Wasser pro Tag. Im Beispiel gehen wir von einer vierköpfigen Familie aus.\n\nZusätzlich soll eine Warnung an die Hausherren gesendet werden, wenn der Wasserverbrauch die erwarteten Werte überschreitet. Dies könnte auf ein potentielles Leck im Gebäude hinweisen.\n\nSind alle Personen abwesend und es wird trotzdem ein Wasserverbrauch gemessen, obwohl Geschirrspüler, Waschmaschine und Co ausgeschaltet sind, sollte ebenfalls eine Nachricht an die Hausbesitzer gehen.",
+    "solution_description": "Video walkthrough: https://www.youtube.com/embed/dISDJ0Td3bo?feature=oembed",
+    "config_url": "https://www.loxone.com/dede/wp-content/uploads/sites/2/2020/04/Config-Challenge-Wasser-Notabschaltung-290420.Loxone.zip",
+    "config_file": "challenges/wasser-notabschaltung.Loxone",
+    "solution_video_url": "https://www.youtube.com/embed/dISDJ0Td3bo?feature=oembed",
+    "screenshot_urls": [
+      "https://i.ytimg.com/vi/dISDJ0Td3bo/hqdefault.jpg"
+    ]
+  }
+]

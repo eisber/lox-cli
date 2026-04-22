@@ -1,0 +1,297 @@
+{
+  "version": "1.0",
+  "description": "Progressive house build — from empty config to full automation in 8 stages",
+  "house": {
+    "name": "Eval House",
+    "rooms": ["Wohnzimmer", "Schlafzimmer", "Küche", "Bad", "Flur", "Garten", "Garage"],
+    "categories": ["Beleuchtung", "Beschattung", "Klima", "Wetter", "Sicherheit"]
+  },
+  "stages": [
+    {
+      "id": "stage-1-foundation",
+      "name": "Foundation",
+      "progress": 10,
+      "description": "Create rooms, categories, and weather sensors",
+      "steps": [
+        {
+          "id": "s1-01",
+          "utterance": "Create a new house with 7 rooms: Wohnzimmer, Schlafzimmer, Küche, Bad, Flur, Garten, and Garage. Add categories for Beleuchtung, Beschattung, Klima, Wetter, and Sicherheit.",
+          "checkpoint": {
+            "rooms": ["Wohnzimmer", "Schlafzimmer", "Küche", "Bad", "Flur", "Garten", "Garage"],
+            "categories": ["Beleuchtung", "Beschattung", "Klima", "Wetter", "Sicherheit"],
+            "min_items": 12
+          }
+        },
+        {
+          "id": "s1-02",
+          "utterance": "Add weather sensors: Außentemperatur, Sonnenschein, Windgeschwindigkeit, Regen, Luftfeuchtigkeit, and Helligkeit as system variables.",
+          "checkpoint": {
+            "controls_by_type": {"SysVar": 6},
+            "min_items": 18
+          }
+        }
+      ]
+    },
+    {
+      "id": "stage-2-lighting",
+      "name": "Lighting",
+      "progress": 25,
+      "description": "Add LightController2 to every room",
+      "steps": [
+        {
+          "id": "s2-01",
+          "utterance": "Add a light controller (LightController2) to every room with scenes Viel Licht, Gemütlich, and Aus.",
+          "checkpoint": {
+            "controls_by_type": {"LightController2": 7},
+            "min_items": 25
+          }
+        },
+        {
+          "id": "s2-02",
+          "utterance": "Rename the Garten light controller to Gartenbeleuchtung and the Garage one to Garagenlicht.",
+          "checkpoint": {
+            "controls_by_title": ["Gartenbeleuchtung", "Garagenlicht"]
+          }
+        }
+      ]
+    },
+    {
+      "id": "stage-3-blinds",
+      "name": "Blinds",
+      "progress": 40,
+      "description": "Add blinds to rooms with windows",
+      "steps": [
+        {
+          "id": "s3-01",
+          "utterance": "Add two blinds (Jalousie 1 and Jalousie 2) to Wohnzimmer, Schlafzimmer, Küche, Bad, and Flur. Add a projection screen called Leinwand to Wohnzimmer.",
+          "checkpoint": {
+            "controls_by_type": {"JalousieUpDown2": 11},
+            "min_items": 36
+          }
+        }
+      ]
+    },
+    {
+      "id": "stage-4-climate",
+      "name": "Climate Control",
+      "progress": 50,
+      "description": "Add heating and AC",
+      "steps": [
+        {
+          "id": "s4-01",
+          "utterance": "Add a room thermostat (HeatIRoomController2) called Raumregler to the Wohnzimmer. Add an AC controller (AcControl) called Klimaanlage to the Wohnzimmer too.",
+          "checkpoint": {
+            "controls_by_type": {"HeatIRoomController2": 1, "AcControl": 1},
+            "controls_by_title": ["Raumregler", "Klimaanlage"]
+          }
+        },
+        {
+          "id": "s4-02",
+          "utterance": "Add room temperature sensors as analog VirtualIns: Raumtemperatur Wohnzimmer and Raumtemperatur Schlafzimmer. Wire the Wohnzimmer sensor to the Raumregler.",
+          "checkpoint": {
+            "controls_by_title": ["Raumtemperatur Wohnzimmer", "Raumtemperatur Schlafzimmer"],
+            "wiring": [{"from_title": "Raumtemperatur Wohnzimmer", "to_title": "Raumregler"}]
+          }
+        }
+      ]
+    },
+    {
+      "id": "stage-5-sensors",
+      "name": "Sensors & I/O",
+      "progress": 60,
+      "description": "Add motion detectors, door contacts, and actuators",
+      "steps": [
+        {
+          "id": "s5-01",
+          "utterance": "Add a motion detector (PresenceDetector) called Bewegungsmelder to the Flur, and one called Bewegungsmelder Garten to the Garten.",
+          "checkpoint": {
+            "controls_by_type": {"PresenceDetector": 2}
+          }
+        },
+        {
+          "id": "s5-02",
+          "utterance": "Erstelle folgende VirtualIns: Türklingel und Türkontakt Eingang für den Flur, Garagentor Sensor für die Garage, Feuchtesensor Garten (analog) und Bewässerung Manuell für den Garten, CO2 Sensor (analog) fürs Wohnzimmer, und Pool Temperatur (analog) für den Garten.",
+          "checkpoint": {
+            "controls_by_title": ["Türklingel", "Türkontakt Eingang", "Garagentor Sensor", "Feuchtesensor Garten", "CO2 Sensor", "Pool Temperatur"],
+            "min_items": 50
+          }
+        },
+        {
+          "id": "s5-03",
+          "utterance": "Add actuator outputs: Lüfter Bad and Heizkörper Bad as VirtualOuts in the bathroom, Bewässerungsventil and Poolpumpe in the garden, Türöffner in the hallway, and Garagentor in the garage.",
+          "checkpoint": {
+            "controls_by_title": ["Lüfter Bad", "Heizkörper Bad", "Bewässerungsventil", "Poolpumpe", "Türöffner", "Garagentor"],
+            "min_items": 60
+          }
+        },
+        {
+          "id": "s5-04",
+          "utterance": "Add two general-purpose switches: Schalter 1 and Schalter 2 as digital VirtualIns in the Wohnzimmer.",
+          "checkpoint": {
+            "controls_by_title": ["Schalter 1", "Schalter 2"],
+            "progress_note": "House hardware is complete — ready for automation"
+          }
+        }
+      ]
+    },
+    {
+      "id": "stage-6-automation",
+      "name": "Basic Automation",
+      "progress": 75,
+      "description": "Wire sensors to actuators with logic",
+      "steps": [
+        {
+          "id": "s6-01",
+          "utterance": "Set up hallway motion lighting: when motion is detected, turn on the hallway light. Also make the front door trigger the light for 90 seconds.",
+          "checkpoint": {
+            "wiring": [
+              {"from_title": "Bewegungsmelder", "to_title": "Lichtsteuerung", "to_room": "Flur"}
+            ]
+          }
+        },
+        {
+          "id": "s6-02",
+          "utterance": "Add weather protection for all blinds: raise them when wind exceeds 50 km/h, and close them when it rains.",
+          "checkpoint": {
+            "new_blocks_min": 1,
+            "wiring_min": 3
+          }
+        },
+        {
+          "id": "s6-03",
+          "utterance": "When it's sunny and above 25°C, close the Wohnzimmer and Schlafzimmer blinds automatically.",
+          "checkpoint": {
+            "new_blocks_min": 2,
+            "wiring_min": 3
+          }
+        },
+        {
+          "id": "s6-04",
+          "utterance": "Bathroom ventilation: turn on the fan when humidity exceeds 70%, and keep it running for 5 minutes after humidity drops. Also dim the bathroom light to 20% at night.",
+          "checkpoint": {
+            "new_blocks_min": 2,
+            "wiring_min": 2
+          }
+        },
+        {
+          "id": "s6-05",
+          "utterance": "Set up the doorbell: when it rings, unlock the door for 3 seconds and turn on the hallway light at 60% for 2 minutes.",
+          "checkpoint": {
+            "new_blocks_min": 2,
+            "wiring_min": 3
+          }
+        },
+        {
+          "id": "s6-06",
+          "utterance": "Garden irrigation: run the valve when soil moisture is below 25% and it's not raining. The manual switch should also work. Turn on garden lights on motion after dark.",
+          "checkpoint": {
+            "new_blocks_min": 3,
+            "wiring_min": 4
+          }
+        },
+        {
+          "id": "s6-07",
+          "utterance": "Garage: light stays on 5 minutes after door opens. Schalter 2 toggles the garage door output.",
+          "checkpoint": {
+            "new_blocks_min": 1,
+            "wiring_min": 2
+          }
+        },
+        {
+          "id": "s6-08",
+          "utterance": "Pool pump: run when water temperature is below 18°C, but only if outside temperature is above 0°C (frost protection).",
+          "checkpoint": {
+            "new_blocks_min": 2,
+            "wiring_min": 3
+          }
+        },
+        {
+          "id": "s6-09",
+          "utterance": "Start the AC only if temperature has been above 30°C for at least 10 minutes, to avoid short cycling.",
+          "checkpoint": {
+            "new_blocks_min": 2,
+            "wiring_min": 2
+          }
+        }
+      ]
+    },
+    {
+      "id": "stage-7-scenes",
+      "name": "Scenes & Modes",
+      "progress": 90,
+      "description": "Multi-room scene triggers on switches",
+      "steps": [
+        {
+          "id": "s7-01",
+          "utterance": "Movie mode on Schalter 2: lower the projection screen, dim the living room to 10%, and start the AC.",
+          "checkpoint": {
+            "new_blocks_min": 1,
+            "wiring_min": 3
+          }
+        },
+        {
+          "id": "s7-02",
+          "utterance": "Gute Nacht on Schalter 1: all lights off, bedroom blinds down, hallway dimmed to 5% on motion.",
+          "checkpoint": {
+            "new_blocks_min": 1,
+            "wiring_min": 3
+          }
+        },
+        {
+          "id": "s7-03",
+          "utterance": "At night, when motion is detected in the hallway, also turn on the garden light for 3 minutes as a security measure.",
+          "checkpoint": {
+            "new_blocks_min": 1,
+            "wiring_min": 2
+          }
+        }
+      ]
+    },
+    {
+      "id": "stage-8-scheduling",
+      "name": "Scheduling",
+      "progress": 100,
+      "description": "Timed automations",
+      "steps": [
+        {
+          "id": "s8-01",
+          "utterance": "Garden irrigation schedule: water every morning from 6:00 to 6:30.",
+          "checkpoint": {
+            "new_blocks_min": 1
+          }
+        },
+        {
+          "id": "s8-02",
+          "utterance": "Outdoor lighting: garden lights on automatically from 8pm to midnight every evening.",
+          "checkpoint": {
+            "new_blocks_min": 1
+          }
+        },
+        {
+          "id": "s8-03",
+          "utterance": "Open bedroom blinds at sunrise every morning.",
+          "checkpoint": {
+            "new_blocks_min": 1,
+            "progress_note": "House is fully configured!"
+          }
+        }
+      ]
+    }
+  ],
+  "final_checkpoint": {
+    "min_rooms": 7,
+    "min_categories": 5,
+    "min_controls": 80,
+    "required_types": [
+      "LightController2", "JalousieUpDown2", "HeatIRoomController2", "AcControl",
+      "PresenceDetector", "VirtualIn", "VirtualOut", "SysVar",
+      "GreaterEqual", "Less", "And", "Or", "Not", "Mult",
+      "OnPulseDelay", "OffDelay", "StairwayLS", "Monoflop",
+      "DayTimer", "PushButton", "Memory"
+    ],
+    "min_wires": 30,
+    "check_clean": true,
+    "validate_clean": true,
+    "scan_clean": true
+  }
+}

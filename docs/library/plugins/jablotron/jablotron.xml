@@ -1,0 +1,22 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Comm Title="Jablotron" Comment="" RS485="true" Baudrate="9600" Databits="8" CycleUserProt="-1">
+	<Info templateType="6" minVersion="12021027"/>
+	<CommCmd Title="PIR sensor ON" Comment="" CmdOn="PG 1 ON\r\n" CmdOff="" Unit="" Analog="false" Text="false" Sensor="true" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="PIR sensor OFF" Comment="" CmdOn="PG 1 OFF\r\n" CmdOff="" Unit="" Analog="false" Text="false" Sensor="true" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="Internal warning 1 OFF" Comment="" CmdOn="INTERNAL_WARNING 1 OFF\r\n" CmdOff="" Unit="" Analog="false" Text="false" Sensor="true" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="Internal warning 1 ON" Comment="" CmdOn="INTERNAL_WARNING 1 ON\r\n" CmdOff="" Unit="" Analog="false" Text="false" Sensor="true" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="External warning 1 OFF" Comment="" CmdOn="EXTERNAL_WARNING 1 OFF\r\n" CmdOff="" Unit="" Analog="false" Text="false" Sensor="true" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="Fire alarm 1 OFF" Comment="" CmdOn="FIRE_ALARM 1 OFF\r\n" CmdOff="" Unit="" Analog="false" Text="false" Sensor="true" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="External warning 1 ON" Comment="" CmdOn="EXTERNAL_WARNING 1 ON\r\n" CmdOff="" Unit="" Analog="false" Text="false" Sensor="true" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="Fire alarm 1 ON" Comment="" CmdOn="FIRE_ALARM 1 ON\r\n" CmdOff="" Unit="" Analog="false" Text="false" Sensor="true" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="Intruder alarm 1 ON" Comment="" CmdOn="INTRUDER_ALARM 1 ON\r\n" CmdOff="" Unit="" Analog="false" Text="false" Sensor="true" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="Section 1 - armed" Comment="" CmdOn="STATE 1 ARMED\r\n" CmdOff="" Unit="" Analog="false" Text="false" Sensor="true" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="Section 1 - partialy_armed" Comment="" CmdOn="STATE 1 ARMED_PART\r\n" CmdOff="" Unit="" Analog="false" Text="false" Sensor="true" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="Section 1 - disarmed" Comment="" CmdOn="STATE 1 READY\r\n" CmdOff="" Unit="" Analog="false" Text="false" Sensor="true" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="Garage door ON" Comment="" CmdOn="PG 33 ON\r\n" CmdOff="" Unit="" Analog="false" Text="false" Sensor="true" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="Garage door OFF" Comment="" CmdOn="PG 33 OFF\r\n" CmdOff="" Unit="" Analog="false" Text="false" Sensor="true" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="Arm section" Comment="" CmdOn="1234 SET 1\r\n" CmdOff="" Unit="" Analog="false" Text="false" Sensor="false" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="Disarm section" Comment="" CmdOn="1234 UNSET 1\r\n" CmdOff="" Unit="" Analog="false" Text="false" Sensor="false" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="Partialy armsection" Comment="" CmdOn="1234 SETP 1\r\n" CmdOff="" Unit="" Analog="false" Text="false" Sensor="false" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="Garage door" Comment="" CmdOn="1234 PGON 2 \r\n" CmdOff="" Unit="" Analog="false" Text="false" Sensor="false" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+</Comm>

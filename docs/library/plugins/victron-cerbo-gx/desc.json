@@ -1,0 +1,9 @@
+{
+                                "type": "template",
+                                "name": "victron-cerbo-gx",
+                                "uuid": "cf72f3db-d9b5-11ef-8ac44cd98f3deb8a",
+                                "version":"1.0.0",
+                                "id": "victron-cerbo-gx-1767",
+                                "file": "victron-cerbo-gx.xml",
+                                "templateType": "7",
+                            }

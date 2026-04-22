@@ -1,0 +1,54 @@
+{
+  "title": "Sequence Controller",
+  "xml_type": "",
+  "kb_slug": "sequential-controller",
+  "description": "The Sequence Controller function block allows programming function sequences in text form.\nVarious processes that require sequential control can be automated this way.",
+  "inputs": [
+    {
+      "abbreviation": "Off",
+      "summary": "Off",
+      "description": "Pulse: Outputs are reset / switched off. On: Block is locked. Dominating input. The name of the connected sensor is used in the user interface.",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "Rem",
+      "summary": "Remanence input",
+      "description": "Remanence input: If active, the function block retains its previous state after a Miniserver reboot. The state of the function block is saved: \u2013 When saving to the Miniserver \u2013 At a planned reboot \u2013 Before a backup \u2013 Once per hour The data is saved on the SD card.",
+      "value_range": "0/1"
+    }
+  ],
+  "outputs": [
+    {
+      "abbreviation": "TQ",
+      "summary": "Text output",
+      "description": "Output can be used by sequences.",
+      "value_range": "-"
+    },
+    {
+      "abbreviation": "API",
+      "summary": "API Connector",
+      "description": "Intelligent API based connector. API Commands",
+      "value_range": "-"
+    }
+  ],
+  "parameters": [],
+  "properties": [
+    {
+      "summary": "Configuration",
+      "description": "Program code editor",
+      "value_range": "-",
+      "default_value": "-"
+    },
+    {
+      "summary": "Interval[ms]",
+      "description": "Interval from line to line in milliseconds. Influences the processing speed of sequences. Low values increase the processing speed, but can also increase the CPU load.",
+      "value_range": "20...1000",
+      "default_value": "500"
+    }
+  ],
+  "source_url": "https://www.loxone.com/enen/kb/sequential-controller/",
+  "input_count": 2,
+  "output_count": 2,
+  "parameter_count": 0,
+  "property_count": 2
+}

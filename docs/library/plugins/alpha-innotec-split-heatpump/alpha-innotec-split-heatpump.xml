@@ -1,0 +1,17 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Modbus Title="Alpha Innotec Split" Comment="" Channel="7">
+	<Info templateType="7" minVersion="13010906"/>
+	<ModbusCmd Title="HOT water temperature(BT7)" Comment="" ModbusAddress="40013" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="10"/>
+	<ModbusCmd Title="Room tempreture(BT50)" Comment="" ModbusAddress="40033" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="30" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Alarm" Comment="Active Alarm Code" ModbusAddress="45001" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Supply tempreture(BT2)" Comment="Current Power Additional Heater(kW)" ModbusAddress="40008" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="1"/>
+	<ModbusCmd Title="Return temperature (BT3)" Comment="Avarage outdoor temp during filter time" ModbusAddress="40012" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="60" Unit="&lt;v.1&gt;°" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="10"/>
+	<ModbusCmd Title="Outdoor tempreture (BT1)" Comment="" ModbusAddress="44362" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="60" Unit="&lt;v.1&gt;°" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="10"/>
+	<ModbusCmd Title="Brine in temperature (BT10)" Comment="" ModbusAddress="40015" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="60" Unit="&lt;v.1&gt;°" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="10"/>
+	<ModbusCmd Title="Brine out temperature(BT11)" Comment="" ModbusAddress="40016" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="60" Unit="&lt;v.1&gt;°" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="10"/>
+	<ModbusCmd Title="Allow Heating" Comment="" ModbusAddress="47371" ModbusCmd="16" Unit="" Analog="false" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Allow Cooling" Comment="Allow the heatpump to cool" ModbusAddress="47372" ModbusCmd="16" Unit="" Analog="false" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="HOT Water Mode" Comment="" ModbusAddress="47041" ModbusCmd="16" ModbusDataType="1" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Holiday" Comment="Activate Holiday Mode" ModbusAddress="48043" ModbusCmd="16" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Reset Alarm" Comment="" ModbusAddress="45171" ModbusCmd="16" Unit="" Analog="false" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+</Modbus>

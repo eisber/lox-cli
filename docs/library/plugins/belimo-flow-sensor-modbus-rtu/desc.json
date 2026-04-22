@@ -1,0 +1,9 @@
+{
+                                "type": "template",
+                                "name": "belimo-flow-sensor-modbus-rtu",
+                                "uuid": "9eff37ec-7c71-11ed-ac014cd98f3deb8a",
+                                "version":"1.0.0",
+                                "id": "belimo-flow-sensor-modbus-rtu-1089",
+                                "file": "belimo-flow-sensor-modbus-rtu.xml",
+                                "templateType": "7",
+                            }

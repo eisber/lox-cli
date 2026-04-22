@@ -1,0 +1,9 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Modbus Title="DeltaOhm_HD3910.x" Comment="Soil Volumetric Water Content &amp; Temperature" Baudrate="9600" Channel="10">
+	<Info templateType="7" minVersion="12021105"/>
+	<ModbusCmd Title="Volumetric Water Content (Percent x 10)" Comment="HD3910: Volumetric Water Content" ModbusAddress="1" ModbusCmd="4" ModbusPollingCycle="30" Unit="&lt;v&gt; % VWC" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="Soil Temperature in °C (°C x 10)" Comment="HD3910: Soil Temperature in °C" ModbusAddress="3" ModbusCmd="4" ModbusDataType="1" ModbusPollingCycle="30" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="Apparent Dielectric Permittivity (X1000)" Comment="HD3910: Apparent Dielectric Permittivity" ModbusAddress="2" ModbusCmd="4" ModbusPollingCycle="30" Unit="&lt;v&gt; PDA" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="1"/>
+	<ModbusCmd Title="Soil Temperature in °F (°F x 10)" Comment="HD3910: Soil Temperature in °F" ModbusAddress="4" ModbusCmd="4" ModbusDataType="1" ModbusPollingCycle="30" Unit="&lt;v&gt; °F" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="16bit Status Byte" Comment="HD3910: Status Byte" ModbusCmd="4" ModbusPollingCycle="30" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="1" DestValHigh="1"/>
+</Modbus>

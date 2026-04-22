@@ -1,0 +1,31 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Modbus Title="EMU Professional II Modbus RTU_V1.0.1" Comment="" Baudrate="19200" Parity="1" Channel="1">
+	<Info templateType="7" minVersion="13011019"/>
+	<ModbusCmd Title="Active Energy Import L123 Total" Comment="" ModbusAddress="7999" ModbusCmd="3" ModbusDataType="34" ModbusPollingCycle="60" Unit="&lt;v&gt;kWh" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Active Energy Import L123 T1" Comment="" ModbusAddress="8001" ModbusCmd="3" ModbusDataType="34" ModbusPollingCycle="60" Unit="&lt;v&gt;kWh" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Active Energy Import L123 T2" Comment="" ModbusAddress="8003" ModbusCmd="3" ModbusDataType="34" ModbusPollingCycle="60" Unit="&lt;v&gt;kWh" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Active Energy Export L123 Total" Comment="" ModbusAddress="8009" ModbusCmd="3" ModbusDataType="34" ModbusPollingCycle="60" Unit="&lt;v&gt;kWh" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Active Energy Export L123 T1" Comment="" ModbusAddress="8011" ModbusCmd="3" ModbusDataType="34" ModbusPollingCycle="60" Unit="&lt;v&gt;kWh" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Active Energy Export L123 T2" Comment="" ModbusAddress="8013" ModbusCmd="3" ModbusDataType="34" ModbusPollingCycle="60" Unit="&lt;v&gt;kWh" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Reactive Energy Import L123 Total" Comment="" ModbusAddress="8199" ModbusCmd="3" ModbusDataType="34" ModbusPollingCycle="60" Unit="&lt;v&gt;kvarh" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Reactive Energy Import L123 T1" Comment="" ModbusAddress="8201" ModbusCmd="3" ModbusDataType="34" ModbusPollingCycle="60" Unit="&lt;v&gt;kvarh" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Reactive Energy Import L123 T2" Comment="" ModbusAddress="8203" ModbusCmd="3" ModbusDataType="34" ModbusPollingCycle="60" Unit="&lt;v&gt;kvarh" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Reactive Energy Export L123 Total" Comment="" ModbusAddress="8209" ModbusCmd="3" ModbusDataType="34" ModbusPollingCycle="60" Unit="&lt;v&gt;kvarh" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Reactive Energy Export L123 T1" Comment="" ModbusAddress="8211" ModbusCmd="3" ModbusDataType="34" ModbusPollingCycle="60" Unit="&lt;v&gt;kvarh" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Reactive Energy Export L123 T2" Comment="" ModbusAddress="8213" ModbusCmd="3" ModbusDataType="34" ModbusPollingCycle="60" Unit="&lt;v&gt;kvarh" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Active Power L123" Comment="" ModbusAddress="8999" ModbusCmd="3" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v&gt;W" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Active Power L1" Comment="" ModbusAddress="9001" ModbusCmd="3" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v&gt;W" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Active Power L2" Comment="" ModbusAddress="9003" ModbusCmd="3" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v&gt;W" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Active Power L3" Comment="" ModbusAddress="9005" ModbusCmd="3" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v&gt;W" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Current L123" Comment="" ModbusAddress="9099" ModbusCmd="3" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.3&gt;A" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Current L1" Comment="" ModbusAddress="9101" ModbusCmd="3" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.3&gt;A" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Current L2" Comment="" ModbusAddress="9103" ModbusCmd="3" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.3&gt;A" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Current L3" Comment="" ModbusAddress="9105" ModbusCmd="3" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.3&gt;A" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Voltage L1­N" Comment="" ModbusAddress="9199" ModbusCmd="3" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt;V" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Voltage L2­N" Comment="" ModbusAddress="9201" ModbusCmd="3" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt;V" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Voltage L3­N" Comment="" ModbusAddress="9203" ModbusCmd="3" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt;V" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Power Factor L1" Comment="" ModbusAddress="9299" ModbusCmd="3" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.2&gt;Cos" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Power Factor L2" Comment="" ModbusAddress="9301" ModbusCmd="3" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.2&gt;Cos" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Power Factor L3" Comment="" ModbusAddress="9303" ModbusCmd="3" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.2&gt;Cos" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Frequency" Comment="" ModbusAddress="9309" ModbusCmd="3" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt;Hz" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+</Modbus>

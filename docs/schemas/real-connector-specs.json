@@ -1,0 +1,714 @@
+{
+  "Mode": [
+    {
+      "k": "I"
+    },
+    {
+      "k": "Q"
+    }
+  ],
+  "CalendarEntry": [
+    {
+      "k": "I"
+    },
+    {
+      "k": "Q"
+    }
+  ],
+  "Day2009": [
+    {
+      "k": "Q"
+    }
+  ],
+  "Year": [
+    {
+      "k": "Q"
+    }
+  ],
+  "Month": [
+    {
+      "k": "Q"
+    }
+  ],
+  "Day": [
+    {
+      "k": "Q"
+    }
+  ],
+  "DayOfWeek": [
+    {
+      "k": "Q"
+    }
+  ],
+  "Calendar": [
+    {
+      "k": "Q"
+    }
+  ],
+  "Time": [
+    {
+      "k": "Q"
+    }
+  ],
+  "Hour": [
+    {
+      "k": "Q"
+    }
+  ],
+  "Minute": [
+    {
+      "k": "Q"
+    }
+  ],
+  "Second": [
+    {
+      "k": "Q"
+    }
+  ],
+  "SecondsBoot": [
+    {
+      "k": "Q"
+    }
+  ],
+  "Sunrise": [
+    {
+      "k": "Q"
+    }
+  ],
+  "Sunset": [
+    {
+      "k": "Q"
+    }
+  ],
+  "Daylight": [
+    {
+      "k": "Q"
+    }
+  ],
+  "Daylight2": [
+    {
+      "k": "Q"
+    }
+  ],
+  "Morningtwilight": [
+    {
+      "k": "Q"
+    }
+  ],
+  "Eveningtwilight": [
+    {
+      "k": "Q"
+    }
+  ],
+  "SunAltitude": [
+    {
+      "k": "Q"
+    }
+  ],
+  "SunAzimuth": [
+    {
+      "k": "Q"
+    }
+  ],
+  "StartPulse": [
+    {
+      "k": "Q"
+    }
+  ],
+  "ImpulseYear": [
+    {
+      "k": "Q"
+    }
+  ],
+  "ImpulseMonth": [
+    {
+      "k": "Q"
+    }
+  ],
+  "ImpulseDay": [
+    {
+      "k": "Q"
+    }
+  ],
+  "ImpulseHour": [
+    {
+      "k": "Q"
+    }
+  ],
+  "ImpulseMinute": [
+    {
+      "k": "Q"
+    }
+  ],
+  "ImpulseSecond": [
+    {
+      "k": "Q"
+    }
+  ],
+  "ImpulseSunrise": [
+    {
+      "k": "Q"
+    }
+  ],
+  "ImpulseSunset": [
+    {
+      "k": "Q"
+    }
+  ],
+  "ImpulseMorningtwilight": [
+    {
+      "k": "Q"
+    }
+  ],
+  "ImpulseEveningtwilight": [
+    {
+      "k": "Q"
+    }
+  ],
+  "DateTime": [
+    {
+      "k": "Q"
+    }
+  ],
+  "NightTime": [
+    {
+      "k": "Q"
+    }
+  ],
+  "Week": [
+    {
+      "k": "Q"
+    }
+  ],
+  "WeatherData": [
+    {
+      "k": "AQ"
+    }
+  ],
+  "SysVar": [
+    {
+      "k": "AI"
+    },
+    {
+      "k": "AQ"
+    },
+    {
+      "k": "Q"
+    }
+  ],
+  "AutoPilot": [
+    {
+      "k": "Input"
+    },
+    {
+      "k": "output"
+    }
+  ],
+  "DigitalIn": [
+    {
+      "k": "Q"
+    },
+    {
+      "k": "Qe"
+    }
+  ],
+  "VoltageIn": [
+    {
+      "k": "AQ"
+    },
+    {
+      "k": "Q"
+    }
+  ],
+  "Actor": [
+    {
+      "k": "I"
+    }
+  ],
+  "OvertempShutdown": [
+    {
+      "k": "Q"
+    }
+  ],
+  "Online": [
+    {
+      "k": "Q"
+    }
+  ],
+  "ApiActor": [
+    {
+      "k": "I"
+    }
+  ],
+  "CallerVirtualIn": [
+    {
+      "k": "Qm"
+    },
+    {
+      "k": "Qe"
+    }
+  ],
+  "LoxAIRsensor": [
+    {
+      "k": "Q"
+    },
+    {
+      "k": "Qe"
+    }
+  ],
+  "LoxAIRAactor": [
+    {
+      "k": "I"
+    }
+  ],
+  "LoxAIRAsensor": [
+    {
+      "k": "AQ"
+    },
+    {
+      "k": "Q"
+    }
+  ],
+  "LoxAIRactor": [
+    {
+      "k": "I"
+    }
+  ],
+  "TreeSensor": [
+    {
+      "k": "Q"
+    },
+    {
+      "k": "Qe"
+    }
+  ],
+  "TreeAsensor": [
+    {
+      "k": "AQ"
+    },
+    {
+      "k": "Q"
+    }
+  ],
+  "TreeAactor": [
+    {
+      "k": "I"
+    }
+  ],
+  "TreeActor": [
+    {
+      "k": "I"
+    }
+  ],
+  "OutputRef": [
+    {
+      "k": "AI"
+    },
+    {
+      "k": "AQ"
+    }
+  ],
+  "InputRef": [
+    {
+      "k": "AI"
+    },
+    {
+      "k": "I"
+    },
+    {
+      "k": "AQ"
+    },
+    {
+      "k": "Q"
+    }
+  ],
+  "AlarmClock": [
+    {
+      "k": "Acknowledge"
+    },
+    {
+      "k": "Snooze"
+    },
+    {
+      "k": "Deactivate"
+    },
+    {
+      "k": "TgMe"
+    },
+    {
+      "k": "TMe"
+    },
+    {
+      "k": "VIN1"
+    },
+    {
+      "k": "RtD"
+    },
+    {
+      "k": "Reset"
+    },
+    {
+      "k": "Remanence"
+    },
+    {
+      "k": "AlarmTime",
+      "def": "120"
+    },
+    {
+      "k": "PrepTime",
+      "def": "180"
+    },
+    {
+      "k": "SnoozeTime",
+      "def": "300"
+    },
+    {
+      "k": "BrightInact"
+    },
+    {
+      "k": "BrightAct",
+      "def": "50"
+    },
+    {
+      "k": "ParWakeAlarmSound",
+      "def": "1"
+    },
+    {
+      "k": "ParWakeAlarmVolume",
+      "def": "100"
+    },
+    {
+      "k": "ParWakeAlarmSloping"
+    },
+    {
+      "k": "QTa"
+    },
+    {
+      "k": "QTe"
+    },
+    {
+      "k": "Qa"
+    },
+    {
+      "k": "Qat"
+    },
+    {
+      "k": "QTp"
+    },
+    {
+      "k": "QMe"
+    },
+    {
+      "k": "AQs"
+    },
+    {
+      "k": "QTna"
+    },
+    {
+      "k": "OutputAPI"
+    }
+  ],
+  "LightController2": [
+    {
+      "k": "I1"
+    },
+    {
+      "k": "I2"
+    },
+    {
+      "k": "I3"
+    },
+    {
+      "k": "I4"
+    },
+    {
+      "k": "InputTriggerUp"
+    },
+    {
+      "k": "InputTriggerDown"
+    },
+    {
+      "k": "Select"
+    },
+    {
+      "k": "Reset"
+    },
+    {
+      "k": "Sel1"
+    },
+    {
+      "k": "Sel2"
+    },
+    {
+      "k": "Sel3"
+    },
+    {
+      "k": "Sel4"
+    },
+    {
+      "k": "Sel5"
+    },
+    {
+      "k": "Sel6"
+    },
+    {
+      "k": "Sel7"
+    },
+    {
+      "k": "Sel8"
+    },
+    {
+      "k": "EnMove"
+    },
+    {
+      "k": "Move"
+    },
+    {
+      "k": "On"
+    },
+    {
+      "k": "Alarm"
+    },
+    {
+      "k": "AlarmClock"
+    },
+    {
+      "k": "Brightness"
+    },
+    {
+      "k": "InputDisable"
+    },
+    {
+      "k": "Presence"
+    },
+    {
+      "k": "RtD"
+    },
+    {
+      "k": "MasterBr"
+    },
+    {
+      "k": "BrightnessLimit",
+      "def": "30"
+    },
+    {
+      "k": "Remanence",
+      "inv": "true"
+    },
+    {
+      "k": "MoveOn",
+      "def": "300"
+    },
+    {
+      "k": "MoveIgnore",
+      "def": "300"
+    },
+    {
+      "k": "Step",
+      "def": "2"
+    },
+    {
+      "k": "Steptime",
+      "def": "0.2"
+    },
+    {
+      "k": "Min"
+    },
+    {
+      "k": "Max",
+      "def": "100"
+    },
+    {
+      "k": "Wrap"
+    },
+    {
+      "k": "NoLast"
+    },
+    {
+      "k": "MoveScene"
+    },
+    {
+      "k": "MaxP",
+      "def": "0.35"
+    },
+    {
+      "k": "MoveTimeout",
+      "def": "3600"
+    },
+    {
+      "k": "RGBalt"
+    },
+    {
+      "k": "SceneMixTime",
+      "def": "1"
+    },
+    {
+      "k": "FadingTime",
+      "def": "1"
+    },
+    {
+      "k": "AlarmClockPeriod",
+      "def": "3"
+    },
+    {
+      "k": "DayMinTemp",
+      "def": "2700"
+    },
+    {
+      "k": "DayMaxTemp",
+      "def": "6500"
+    },
+    {
+      "k": "AlarmPeriod",
+      "def": "4"
+    },
+    {
+      "k": "AlarmBrightness",
+      "def": "50"
+    },
+    {
+      "k": "AQ1"
+    },
+    {
+      "k": "AQ2"
+    },
+    {
+      "k": "AQ3"
+    },
+    {
+      "k": "AQ4"
+    },
+    {
+      "k": "AQ5"
+    },
+    {
+      "k": "AQ6"
+    },
+    {
+      "k": "AQ7"
+    },
+    {
+      "k": "AQ8"
+    },
+    {
+      "k": "AQ9"
+    },
+    {
+      "k": "AQ10"
+    },
+    {
+      "k": "AQ11"
+    },
+    {
+      "k": "AQ12"
+    },
+    {
+      "k": "AQ13"
+    },
+    {
+      "k": "AQ14"
+    },
+    {
+      "k": "AQ15"
+    },
+    {
+      "k": "AQ16"
+    },
+    {
+      "k": "AQ17"
+    },
+    {
+      "k": "AQ18"
+    },
+    {
+      "k": "AQ19"
+    },
+    {
+      "k": "AQ20"
+    },
+    {
+      "k": "Scene"
+    },
+    {
+      "k": "OutputReset"
+    },
+    {
+      "k": "OutputResetAll"
+    },
+    {
+      "k": "OutputAPI"
+    }
+  ],
+  "Memory": [
+    {
+      "k": "Input"
+    },
+    {
+      "k": "AQ"
+    },
+    {
+      "k": "Q"
+    }
+  ],
+  "PresenceDetector": [
+    {
+      "k": "InputActivate"
+    },
+    {
+      "k": "InputExtend"
+    },
+    {
+      "k": "InputTrigger"
+    },
+    {
+      "k": "InputReset"
+    },
+    {
+      "k": "DeviceActivate"
+    },
+    {
+      "k": "DeviceExtend"
+    },
+    {
+      "k": "DeviceTrigger"
+    },
+    {
+      "k": "ControlInput"
+    },
+    {
+      "k": "ParamTOn",
+      "def": "300"
+    },
+    {
+      "k": "ParamTWarn",
+      "def": "15"
+    },
+    {
+      "k": "OutputPresence"
+    },
+    {
+      "k": "OutputActive"
+    },
+    {
+      "k": "OutputOn"
+    },
+    {
+      "k": "OutputOff"
+    },
+    {
+      "k": "OutputOnTime"
+    },
+    {
+      "k": "OutputWarn"
+    },
+    {
+      "k": "OutputDevOnTime"
+    },
+    {
+      "k": "OutputDevActiveTime"
+    },
+    {
+      "k": "OutputAPI"
+    }
+  ]
+}

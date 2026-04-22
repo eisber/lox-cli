@@ -1,0 +1,9 @@
+{
+                                "type": "template",
+                                "name": "lg-tv-remote",
+                                "uuid": "cfe76ee0-1167-11ec-9a744cd98f3deb8a",
+                                "version":"1.0.0",
+                                "id": "lg-tv-remote-60",
+                                "file": "lg-tv-remote.xml",
+                                "templateType": "4",
+                            }

@@ -1,0 +1,36 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Comm Title="Orisec CID Cerial" Comment="" HintText="" Baudrate="9600" Databits="8" CycleUserProt="-1">
+	<Info templateType="5" minVersion="15010527"/>
+	<CommCmd Title="State 1" Comment="" CmdOn="GETZ:\1" CmdOff="" Unit="&lt;v&gt;" HintText="" Analog="true" Text="false" Sensor="true" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="State 2" Comment="" CmdOn="GETZ:\s1\1" CmdOff="" Unit="&lt;v&gt;" HintText="" Analog="true" Text="false" Sensor="true" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="State 3" Comment="" CmdOn="GETZ:\s2\1" CmdOff="" Unit="&lt;v&gt;" HintText="" Analog="true" Text="false" Sensor="true" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="State 4" Comment="" CmdOn="GETZ:\s3\1" CmdOff="" Unit="&lt;v&gt;" HintText="" Analog="true" Text="false" Sensor="true" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="State 5" Comment="" CmdOn="GETZ:\s4\1" CmdOff="" Unit="&lt;v&gt;" HintText="" Analog="true" Text="false" Sensor="true" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="State 6" Comment="" CmdOn="GETZ:\s5\1" CmdOff="" Unit="&lt;v&gt;" HintText="" Analog="true" Text="false" Sensor="true" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="State 7" Comment="" CmdOn="GETZ:\s6\1" CmdOff="" Unit="&lt;v&gt;" HintText="" Analog="true" Text="false" Sensor="true" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="State 8" Comment="" CmdOn="GETZ:\s7\1" CmdOff="" Unit="&lt;v&gt;" HintText="" Analog="true" Text="false" Sensor="true" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="State 9" Comment="" CmdOn="GETZ:\s8\1" CmdOff="" Unit="&lt;v&gt;" HintText="" Analog="true" Text="false" Sensor="true" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="State 10" Comment="" CmdOn="GETZ:\s9\1" CmdOff="" Unit="&lt;v&gt;" HintText="" Analog="true" Text="false" Sensor="true" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="State 11" Comment="" CmdOn="GETZ:\s10\1" CmdOff="" Unit="&lt;v&gt;" HintText="" Analog="true" Text="false" Sensor="true" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="State 12" Comment="" CmdOn="GETZ:\s11\1" CmdOff="" Unit="&lt;v&gt;" HintText="" Analog="true" Text="false" Sensor="true" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="State 13" Comment="" CmdOn="GETZ:\s12\1" CmdOff="" Unit="&lt;v&gt;" HintText="" Analog="true" Text="false" Sensor="true" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="State 14" Comment="" CmdOn="GETZ:\s13\1" CmdOff="" Unit="&lt;v&gt;" HintText="" Analog="true" Text="false" Sensor="true" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="State 15" Comment="" CmdOn="GETZ:\s14\1" CmdOff="" Unit="&lt;v&gt;" HintText="" Analog="true" Text="false" Sensor="true" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="State 16" Comment="" CmdOn="GETZ:\s15\1" CmdOff="" Unit="&lt;v&gt;" HintText="" Analog="true" Text="false" Sensor="true" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="State 17" Comment="" CmdOn="GETZ:\s16\1" CmdOff="" Unit="&lt;v&gt;" HintText="" Analog="true" Text="false" Sensor="true" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="State 18" Comment="" CmdOn="GETZ:\s17\1" CmdOff="" Unit="&lt;v&gt;" HintText="" Analog="true" Text="false" Sensor="true" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="State 19" Comment="" CmdOn="GETZ:\s18\1" CmdOff="" Unit="&lt;v&gt;" HintText="" Analog="true" Text="false" Sensor="true" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="State 20" Comment="" CmdOn="GETZ:\s19\1" CmdOff="" Unit="&lt;v&gt;" HintText="" Analog="true" Text="false" Sensor="true" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="GETVER" Comment="" CmdOn="GETVER" CmdOff="" Unit="" HintText="No authentication required. You can use this to test the system" Analog="false" Text="false" Sensor="false" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="GET Zone" Comment="" CmdOn="1234GETZ" CmdOff="" Unit="" HintText="All outputs need a password need a password to authenticat
+Replace the 1234 with your password" Analog="false" Text="false" Sensor="false" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="ARM" Comment="" CmdOn="1234ARM" CmdOff="" Unit="" HintText="All outputs need a password need a password to authenticat
+Replace the 1234 with your password
+
+" Analog="false" Text="false" Sensor="false" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="DISARM" Comment="" CmdOn="1234DISARM" CmdOff="" Unit="" HintText="All outputs need a password need a password to authenticat
+Replace the 1234 with your password
+" Analog="false" Text="false" Sensor="false" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="GET Partition Status" Comment="" CmdOn="1234GETP" CmdOff="" Unit="" HintText="" Analog="false" Text="false" Sensor="false" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="GET Zone 2" Comment="" CmdOn="1234GETZ:2" CmdOff="" Unit="" HintText="" Analog="false" Text="false" Sensor="false" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+</Comm>

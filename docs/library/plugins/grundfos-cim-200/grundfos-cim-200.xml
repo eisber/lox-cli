@@ -1,0 +1,14 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Modbus Title="Grundfos cim 200" Comment="" Baudrate="19200" Stopbits="1" Channel="1">
+	<Info templateType="7" minVersion="12020916"/>
+	<ModbusCmd Title="PumpLiquidTemp" Comment="" ModbusAddress="321" ModbusCmd="4" ModbusPollingCycle="1" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="ElectronicTemp" Comment="" ModbusAddress="320" ModbusCmd="4" ModbusPollingCycle="1" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="VolumeFlow m3" Comment="" ModbusAddress="301" ModbusCmd="4" ModbusPollingCycle="1" Unit="&lt;v.1&gt; m3" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="Alarm" Comment="" ModbusAddress="204" ModbusCmd="4" ModbusPollingCycle="1" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="RPM" Comment="" ModbusAddress="303" ModbusCmd="4" ModbusPollingCycle="1" Unit="&lt;v.1&gt; rpm" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Frequency" Comment="" ModbusAddress="304" ModbusCmd="4" ModbusPollingCycle="1" Unit="&lt;v.1&gt;Hz" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="MotorCurrent" Comment="" ModbusAddress="308" ModbusCmd="4" ModbusPollingCycle="1" Unit="&lt;v.1&gt; A" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="RelativePerformance" Comment="" ModbusAddress="302" ModbusCmd="4" ModbusPollingCycle="1" Unit="&lt;v.1&gt; %" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="OperationTimeHI" Comment="" ModbusAddress="326" ModbusCmd="4" ModbusDataType="34" ModbusPollingCycle="1" Unit="&lt;v.1&gt; Hr" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="OperationTimeLo" Comment="" ModbusAddress="328" ModbusCmd="4" ModbusDataType="34" ModbusPollingCycle="1" Unit="&lt;v.1&gt; Hr." Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+</Modbus>

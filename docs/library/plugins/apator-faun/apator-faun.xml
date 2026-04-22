@@ -1,0 +1,10 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Modbus Title="Apator Faun" Comment="" HintText="" Baudrate="9600" Parity="1" Channel="2">
+	<Info templateType="7" minVersion="14051207"/>
+	<ModbusCmd Title="Main Energy" Comment="Main Energy" HintText="" ModbusAddress="1030" ModbusCmd="3" ModbusDataType="34" ModbusPollingCycle="5" Unit="&lt;v.2&gt;KWh" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Flow temperature" Comment="Flow temperature" HintText="" ModbusAddress="1062" ModbusCmd="3" ModbusDataType="34" ModbusPollingCycle="5" Unit="Tº P I &lt;v.1&gt; ºC" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="10"/>
+	<ModbusCmd Title="Return temperature" Comment="Return temperature" HintText="" ModbusAddress="1064" ModbusCmd="3" ModbusDataType="34" ModbusPollingCycle="5" Unit="Tº P R &lt;v.1&gt; ºC" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="10"/>
+	<ModbusCmd Title="Main Volume" Comment="Main Volume" HintText="" ModbusAddress="1044" ModbusCmd="4" ModbusDataType="35" ModbusPollingCycle="5" Unit="&lt;v.2&gt; m3" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Instantaneous flow rate" Comment="Instantaneous flow rate" HintText="" ModbusAddress="1542" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.2&gt; m3/h" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="1"/>
+	<ModbusCmd Title="Instantaneous power" Comment="Instantaneous power" HintText="" ModbusAddress="1538" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.2&gt; kW" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+</Modbus>

@@ -1,0 +1,9 @@
+{
+                                "type": "template",
+                                "name": "ochsner-ots-heat-pump",
+                                "uuid": "83b3d176-0d7e-11ed-a4e84cd98f3deb8a",
+                                "version":"1.0.0",
+                                "id": "ochsner-ots-heat-pump-911",
+                                "file": "ochsner-ots-heat-pump.xml",
+                                "templateType": "7",
+                            }

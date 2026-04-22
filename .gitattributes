@@ -1,0 +1,2 @@
+tests/eval/golden/configs/*.Loxone filter=lfs diff=lfs merge=lfs -text
+tests/eval/golden/configs/*.loxone filter=lfs diff=lfs merge=lfs -text

@@ -1,0 +1,68 @@
+{
+  "title": "Ping",
+  "xml_type": "",
+  "kb_slug": "ping-function-block",
+  "description": "Ping",
+  "inputs": [
+    {
+      "abbreviation": "Off",
+      "summary": "Off",
+      "description": "Pulse: Outputs are reset / switched off. On: Block is locked. Dominating input. The name of the connected sensor is used in the user interface.",
+      "value_range": "0/1"
+    }
+  ],
+  "outputs": [
+    {
+      "abbreviation": "Online",
+      "description": "Output is active as long as the target device is ping-able",
+      "value_range": "0/1"
+    }
+  ],
+  "parameters": [
+    {
+      "abbreviation": "Pi",
+      "summary": "Ping interval",
+      "description": "Duration between successful pings",
+      "unit": "s",
+      "value_range": "0...\u221e",
+      "default_value": "10"
+    },
+    {
+      "abbreviation": "Td",
+      "summary": "Timeout duration",
+      "description": "Timeout duration between unsuccessful pings",
+      "unit": "s",
+      "value_range": "0...\u221e",
+      "default_value": "30"
+    },
+    {
+      "abbreviation": "N",
+      "summary": "Number of unsuccessful pings",
+      "description": "Number of unsuccessful pings before the output is switched",
+      "unit": "-",
+      "value_range": "0...\u221e",
+      "default_value": "5"
+    }
+  ],
+  "properties": [
+    {
+      "summary": "Ping address",
+      "description": "Address to check whether there is an internet connection. E.g. 8.8.8.8",
+      "unit": "-",
+      "value_range": "-",
+      "default_value": "-"
+    },
+    {
+      "summary": "Delay after start",
+      "description": "Delay of the first ping in seconds following the restart of the Miniserver.",
+      "unit": "s",
+      "value_range": "0...3600",
+      "default_value": "-"
+    }
+  ],
+  "source_url": "https://www.loxone.com/enen/kb/ping-function-block/",
+  "input_count": 1,
+  "output_count": 1,
+  "parameter_count": 3,
+  "property_count": 2
+}

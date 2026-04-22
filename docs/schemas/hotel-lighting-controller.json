@@ -1,0 +1,216 @@
+{
+  "title": "Hotel Lighting Controller",
+  "xml_type": "",
+  "kb_slug": "hotel-lighting-controller",
+  "description": "Hotel lighting controller for dimming, switching and RGB lighting",
+  "inputs": [
+    {
+      "abbreviation": "S10",
+      "summary": "Trigger selection scene 10",
+      "description": "Trigger selection lighting scene 10",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "S11",
+      "summary": "Trigger seletion scene 11",
+      "description": "Trigger selection lighting scene 11",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "S12",
+      "summary": "Trigger seletion scene 12",
+      "description": "Trigger selection lighting scene 12",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "S13",
+      "summary": "Trigger seletion scene 13",
+      "description": "Trigger selection lighting scene 13",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "R",
+      "summary": "Reset",
+      "description": "Reset input of the hotel lighting controller",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "IS",
+      "summary": "Service button",
+      "description": "Input service button Depending on service mode",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "AIr",
+      "summary": "Room state",
+      "description": "Status input 0 = 'Not booked' 1 = 'Booked' 2 = 'Guest checked in'",
+      "value_range": "\u221e"
+    },
+    {
+      "abbreviation": "ID",
+      "summary": "Door contact",
+      "description": "Input door contact",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "DisMo",
+      "summary": "Disable motion sensor input",
+      "description": "Disable input of the motion sensor",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "Mo",
+      "summary": "Motion sensor",
+      "description": "Motion sensor input",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "Dis",
+      "summary": "Disable",
+      "description": "Disable-input of the hotel lighting controller",
+      "value_range": "0/1"
+    }
+  ],
+  "outputs": [
+    {
+      "abbreviation": "AQ1-20",
+      "description": "Analog output of actuator/dimmer 1-20 on RGB - %-value red + %-value green * 1000 + %-value blue * 1000000",
+      "value_range": "\u221e"
+    },
+    {
+      "abbreviation": "AQs",
+      "description": "Analogue Output - Value indicating currently active scene",
+      "value_range": "\u221e"
+    },
+    {
+      "abbreviation": "QP",
+      "description": "Presence Output",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "QS",
+      "description": "Service Output",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "QD",
+      "description": "Service completed output",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "AQrm",
+      "description": "Analogue output for room service status 1 = Vacant/not cleaned 2 = Occupied/not cleaned 3 = Vacant/cleaned 4 = Occupied/cleaned",
+      "value_range": "\u221e"
+    }
+  ],
+  "parameters": [
+    {
+      "abbreviation": "Rem",
+      "summary": "Remanence input",
+      "description": "Remanence input: If active, the function block retains its previous state after a Miniserver reboot. The state of the function block is saved: \u2013 When saving to the Miniserver \u2013 At a planned reboot \u2013 Before a backup \u2013 Once per hour The data is saved on the SD card.",
+      "unit": "-",
+      "value_range": "0/1",
+      "default_value": "0"
+    },
+    {
+      "abbreviation": "MS",
+      "summary": "Service staff mode",
+      "description": "Input parameter - Service Staff mode 0 = Long click service button after inserting card 1 = Service button signal before inserting card 2 = Service button On before inserting card 3 = Card has to be inserted twice",
+      "unit": "-",
+      "value_range": "\u221e",
+      "default_value": "2"
+    },
+    {
+      "abbreviation": "TM",
+      "summary": "Duration of Service Staff mode",
+      "description": "Parameter - Duration for Service Staff mode",
+      "unit": "s",
+      "value_range": "\u221e",
+      "default_value": "60"
+    },
+    {
+      "abbreviation": "To",
+      "summary": "Duration press and hold for 'All off'",
+      "description": "Parameter input duration long click for 'All off'",
+      "unit": "s",
+      "value_range": "\u221e",
+      "default_value": "2"
+    },
+    {
+      "abbreviation": "Tl",
+      "summary": "Timeout for leaving room",
+      "description": "Input parameter - Timeout for leaving the room Enter 0 if no automatic off after leaving is to be triggered",
+      "unit": "s",
+      "value_range": "\u221e",
+      "default_value": "60"
+    },
+    {
+      "abbreviation": "M",
+      "summary": "Max time between pulses",
+      "description": "Parameter - Maximum duration between 2 pulses",
+      "unit": "s",
+      "value_range": "\u221e",
+      "default_value": "0,35"
+    },
+    {
+      "abbreviation": "SI",
+      "summary": "Step",
+      "description": "Parameter - Step size for dimmer in %",
+      "unit": "%",
+      "value_range": "\u221e",
+      "default_value": "2"
+    },
+    {
+      "abbreviation": "ST",
+      "summary": "Step rate",
+      "description": "Parameter - Step rate for dimmer",
+      "unit": "s",
+      "value_range": "\u221e",
+      "default_value": "0,2"
+    },
+    {
+      "abbreviation": "Min",
+      "summary": "Minimum value",
+      "description": "Parameter input minimum dimmer value (0 to 50%)",
+      "unit": "%",
+      "value_range": "\u221e",
+      "default_value": "15"
+    },
+    {
+      "abbreviation": "Max",
+      "summary": "Maximum value",
+      "description": "Parameter input maximum dimmer value (50 to 100%)",
+      "unit": "%",
+      "value_range": "\u221e",
+      "default_value": "100"
+    },
+    {
+      "abbreviation": "L",
+      "summary": "Do not set last value",
+      "description": "Parameter - do not set last dimmer value (OFF = short click sets last value when switched off)",
+      "unit": "-",
+      "value_range": "0/1",
+      "default_value": "0"
+    },
+    {
+      "abbreviation": "TH",
+      "summary": "Duration On",
+      "description": "Input parameter - Duration ON for motion sensor Countdown starts from falling edge of Mo",
+      "unit": "s",
+      "value_range": "\u221e",
+      "default_value": "180"
+    }
+  ],
+  "properties": [
+    {
+      "summary": "Lighting scenes",
+      "description": "Lighting scene management",
+      "default_value": "-"
+    }
+  ],
+  "source_url": "https://www.loxone.com/enen/kb/hotel-lighting-controller/",
+  "input_count": 11,
+  "output_count": 6,
+  "parameter_count": 12,
+  "property_count": 1
+}

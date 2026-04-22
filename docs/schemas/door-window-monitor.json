@@ -1,0 +1,73 @@
+{
+  "title": "Door and Window Monitor",
+  "xml_type": "",
+  "kb_slug": "door-window-monitor",
+  "description": "The Door and Window Monitor can be used to display the status of doors, windows and garage/gates.\nApart from Loxone Door and Window contacts, conventional contacts can also be used.",
+  "inputs": [
+    {
+      "abbreviation": "Hpos",
+      "summary": "Handle position",
+      "description": "Current position of the handle 1=closed 2=tilted 3=open 4=closed and not secured 5=closed and secured 0=unknown/offline",
+      "value_range": "0...\u221e"
+    },
+    {
+      "abbreviation": "Dwco",
+      "summary": "Door/window contact open",
+      "description": "Used for door or window contacts that detect opening. (0 = closed, 1 = open) Usually used inverted.",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "Dwct",
+      "summary": "Door/window contact tilt",
+      "description": "Used for door or window contacts that detect tilting. (0 = closed, 1 = tilted) Usually used inverted.",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "Dwcs",
+      "summary": "Door/window contact secured",
+      "description": "Used to detect if doors or windows are secured (locked). (0 = unlocked, 1 = locked)",
+      "value_range": "0/1"
+    }
+  ],
+  "outputs": [
+    {
+      "abbreviation": "Txlt",
+      "summary": "Text last triggered",
+      "description": "Name of last triggered sensor",
+      "value_range": "-"
+    },
+    {
+      "abbreviation": "Txu",
+      "summary": "Text unsecure",
+      "description": "Name of opened/tilted/unlocked doors and windows or connected Door and Window Monitor",
+      "value_range": "-"
+    },
+    {
+      "abbreviation": "API",
+      "summary": "API Connector",
+      "description": "Intelligent API based connector. API Commands",
+      "value_range": "-"
+    }
+  ],
+  "parameters": [
+    {
+      "abbreviation": "Rem",
+      "summary": "Remanence input",
+      "description": "Remanence input: If active, the function block retains its previous state after a Miniserver reboot. The state of the function block is saved: \u2013 When saving to the Miniserver \u2013 At a planned reboot \u2013 Before a backup \u2013 Once per hour The data is saved on the SD card.",
+      "value_range": "0/1",
+      "default_value": "0"
+    }
+  ],
+  "properties": [
+    {
+      "summary": "Configuration",
+      "description": "Configuration of the available Inputs and Outputs.",
+      "default_value": "-"
+    }
+  ],
+  "source_url": "https://www.loxone.com/enen/kb/door-window-monitor/",
+  "input_count": 4,
+  "output_count": 3,
+  "parameter_count": 1,
+  "property_count": 1
+}

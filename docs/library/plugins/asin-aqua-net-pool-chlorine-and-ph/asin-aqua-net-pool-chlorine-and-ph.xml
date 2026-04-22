@@ -1,0 +1,10 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Comm Title="AsinAquaNet-smarteon.cz" Comment="" RS485="true" Baudrate="57600" Databits="8" CycleUserProt="-1">
+	<Info templateType="6" minVersion="12021105"/>
+	<CommCmd Title="pH" Comment="" CmdOn="\s2\2\1" CmdOff="" Unit="&lt;v.2&gt;" Analog="true" Text="false" Sensor="true" Signed="false" SourceValHigh="100" DestValHigh="1"/>
+	<CommCmd Title="pH requested" Comment="" CmdOn="\s16\1" CmdOff="" Unit="&lt;v.1&gt;" Analog="true" Text="false" Sensor="true" Signed="false" SourceValHigh="100" DestValHigh="10"/>
+	<CommCmd Title="Chlorine" Comment="" CmdOn="\s4\2\1" CmdOff="" Unit="&lt;v.2&gt; mg/l" Analog="true" Text="false" Sensor="true" Signed="false" SourceValHigh="100" DestValHigh="1"/>
+	<CommCmd Title="Chlorine requested" Comment="" CmdOn="\s17\1" CmdOff="" Unit="&lt;v.1&gt; mg/l" Analog="true" Text="false" Sensor="true" Signed="false" SourceValHigh="100" DestValHigh="10"/>
+	<CommCmd Title="Temperature" Comment="" CmdOn="\s8\2\1" CmdOff="" Unit="&lt;v.1&gt;" Analog="true" Text="false" Sensor="true" Signed="false" SourceValHigh="100" DestValHigh="10"/>
+	<CommCmd Title="Error code" Comment="" CmdOn="\s10\1" CmdOff="" Unit="&lt;v&gt;" Analog="true" Text="false" Sensor="true" Signed="false" SourceValHigh="100" DestValHigh="100"/>
+</Comm>

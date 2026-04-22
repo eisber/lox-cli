@@ -1,0 +1,15 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Modbus Title="ABB Terra AC" Comment="" HintText="" Channel="1">
+	<Info templateType="7" minVersion="15031213"/>
+	<ModbusCmd Title="Active Power" Comment="" HintText="" ModbusAddress="16412" ModbusCmd="3" ModbusDataType="34" ModbusPollingCycle="5" Unit="&lt;v.1&gt;kW" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="1"/>
+	<ModbusCmd Title="Serial Number" Comment="" HintText="" ModbusAddress="16384" ModbusCmd="3" ModbusDataType="34" ModbusPollingCycle="300" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Charging State" Comment="" HintText="" ModbusAddress="16396" ModbusCmd="3" ModbusDataType="34" ModbusPollingCycle="5" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Firmware version" Comment="" HintText="" ModbusAddress="16388" ModbusCmd="3" ModbusDataType="34" ModbusPollingCycle="300" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Socket Lock State" Comment="" HintText="" ModbusAddress="16394" ModbusCmd="3" ModbusDataType="34" ModbusPollingCycle="5" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Energy delivered" Comment="" HintText="" ModbusAddress="16414" ModbusCmd="3" ModbusDataType="34" ModbusPollingCycle="20" Unit="&lt;v.1&gt;kWh" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="1"/>
+	<ModbusCmd Title="User set Strom" Comment="" HintText="" ModbusAddress="16390" ModbusCmd="3" ModbusDataType="34" ModbusPollingCycle="10" Unit="&lt;v&gt;A" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="1"/>
+	<ModbusCmd Title="Charging current limit set by Modbu" Comment="" HintText="" ModbusAddress="16418" ModbusCmd="3" ModbusDataType="34" ModbusPollingCycle="5" Unit="&lt;v&gt;A" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="1"/>
+	<ModbusCmd Title="Current charging current limit" Comment="" HintText="" ModbusAddress="16398" ModbusCmd="3" ModbusDataType="34" ModbusPollingCycle="5" Unit="&lt;v&gt;A" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="1"/>
+	<ModbusCmd Title="Start/Stop Charging Session" Comment="" HintText="" ModbusAddress="16645" ModbusCmd="6" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Set Charging Current Limit" Comment="" HintText="" ModbusAddress="16640" ModbusCmd="16" ModbusDataType="34" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="1" DestValHigh="1000"/>
+</Modbus>

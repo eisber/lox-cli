@@ -1,0 +1,10 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Comm Title="J Geiger" Comment="" Baudrate="115200" Databits="8" CycleUserProt="-1">
+	<Info templateType="5" minVersion="13030119"/>
+	<CommCmd Title="Motor Up" Comment="This moves the motor up." CmdOn="cmd &gt; 01 01 03\r" CmdOff="cmd &gt; 01 01 02\r" Unit="" Analog="false" Text="false" Sensor="false" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="Motor Down" Comment="This moves the motor down." CmdOn="cmd &gt; 01 01 04\r" CmdOff="cmd &gt; 01 01 02\r" Unit="" Analog="false" Text="false" Sensor="false" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="Motor Stop" Comment="This stops the motor." CmdOn="" CmdOff="cmd &gt; 01 01 02\r" Unit="" Analog="false" Text="false" Sensor="false" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="Group Up" Comment="This moves the group up." CmdOn="GRP &gt; 01 FF 03 00 02000000000000000000000000000000 0000\r" CmdOff="GRP &gt; 01 FF 02 00 02000000000000000000000000000000 0000\r" Unit="" Analog="false" Text="false" Sensor="false" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="Group Down" Comment="This moves the group down." CmdOn="GRP &gt; 01 FF 04 00 02000000000000000000000000000000 0000\r" CmdOff="GRP &gt; 01 FF 02 00 02000000000000000000000000000000 0000\r" Unit="" Analog="false" Text="false" Sensor="false" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="Group Stop" Comment="This stops the group." CmdOn="GRP &gt; 01 FF 02 00 02000000000000000000000000000000 0000\r" CmdOff="" Unit="" Analog="false" Text="false" Sensor="false" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+</Comm>

@@ -1,0 +1,15 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Modbus Title="Carlo Gavazzi" Comment="" Baudrate="9600" Channel="1">
+	<Info templateType="7" minVersion="12021201"/>
+	<ModbusCmd Title="Voltage" Comment="" ModbusCmd="4" ModbusDataType="98" ModbusPollingCycle="5" Unit="&lt;v.1&gt;V" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="10"/>
+	<ModbusCmd Title="Current" Comment="" ModbusAddress="2" ModbusCmd="4" ModbusDataType="99" ModbusPollingCycle="5" Unit="&lt;v.1&gt;A" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="1"/>
+	<ModbusCmd Title="Power" Comment="" ModbusAddress="4" ModbusCmd="4" ModbusDataType="99" ModbusPollingCycle="5" Unit="&lt;v.3&gt;kW" Analog="true" Sensor="true" SourceValHigh="10000" DestValHigh="1"/>
+	<ModbusCmd Title="Frequency" Comment="" ModbusAddress="15" ModbusCmd="4" ModbusDataType="65" ModbusPollingCycle="5" Unit="&lt;v.1&gt;Hz" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="10"/>
+	<ModbusCmd Title="Total power" Comment="" ModbusAddress="16" ModbusCmd="4" ModbusDataType="99" ModbusPollingCycle="5" Unit="&lt;v.1&gt;kWh" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="Reactive power" Comment="" ModbusAddress="8" ModbusCmd="4" ModbusDataType="99" ModbusPollingCycle="60" Unit="&lt;v.1&gt;VAr" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="Apparent power" Comment="" ModbusAddress="6" ModbusCmd="4" ModbusDataType="99" ModbusPollingCycle="60" Unit="&lt;v.1&gt;VA" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="Power factor" Comment="" ModbusAddress="14" ModbusCmd="4" ModbusDataType="64" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="1"/>
+	<ModbusCmd Title="Power tarif 1" Comment="" ModbusAddress="24" ModbusCmd="4" ModbusDataType="99" ModbusPollingCycle="60" Unit="&lt;v.1&gt;kWh" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="Power tarif 2" Comment="" ModbusAddress="26" ModbusCmd="4" ModbusDataType="99" ModbusPollingCycle="60" Unit="&lt;v.1&gt;kWh" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Export power" Comment="" ModbusAddress="32" ModbusCmd="4" ModbusDataType="99" ModbusPollingCycle="60" Unit="&lt;v.1&gt;kWh" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+</Modbus>

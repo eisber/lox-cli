@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<VirtualOut Title="Loxone Music Server" Address="http://192.168.1.123:7091" CmdInit="" CloseAfterSend="true" CmdSep=";">
+<Info templateType="3" minVersion="12010617"/>
+  <VirtualOutCmd ID="1" Title="Reboot" Analog="FALSE" 					CmdOnMethod="GET" CmdOn="/reboot" CmdOnHTTP="" CmdOnPost="" CmdOff=""/>
+  <VirtualOutCmd ID="1" Title="Standby" Analog="FALSE" 					CmdOnMethod="GET" CmdOn="/audio/cfg/standby" CmdOnHTTP="" CmdOnPost="" CmdOff=""/>
+  <VirtualOutCmd ID="1" Title="Restart Loxone Services" Analog="FALSE" 	CmdOnMethod="GET" CmdOn="/audio/cfg/restart" CmdOnHTTP="" CmdOnPost="" CmdOff=""/>
+  <VirtualOutCmd ID="1" Title="Triggercard" Analog="FALSE" 			CmdOnMethod="GET" CmdOn="/audio/cfg/triggercard/on" CmdOnHTTP="" CmdOnPost="" CmdOff="/audio/cfg/triggercard/off"/>
+  
+  <VirtualOutCmd ID="1" Title="Zone 1 on" Analog="FALSE" 				CmdOnMethod="GET" CmdOn="/audio/1/on" CmdOnHTTP="" CmdOnPost="" CmdOff=""/>
+  <VirtualOutCmd ID="1" Title="Zone 1 off" Analog="FALSE" 				CmdOnMethod="GET" CmdOn="/audio/1/off" CmdOnHTTP="" CmdOnPost="" CmdOff=""/>
+  <VirtualOutCmd ID="1" Title="Zone 1 shuffle" Analog="FALSE" 			CmdOnMethod="GET" CmdOn="/audio/1/shuffle/1" CmdOnHTTP="" CmdOnPost="" CmdOff="/audio/1/shuffle/0"/>
+  <VirtualOutCmd ID="1" Title="Zone 1 repeat playlist" Analog="FALSE" 	CmdOnMethod="GET" CmdOn="/audio/1/repeat/1" CmdOnHTTP="" CmdOnPost="" CmdOff="/audio/1/repeat/0"/>
+  <VirtualOutCmd ID="1" Title="Zone 1 repeat song" Analog="FALSE" 		CmdOnMethod="GET" CmdOn="/audio/1/repeat/3" CmdOnHTTP="" CmdOnPost="" CmdOff="/audio/1/repeat/0"/>
+  <VirtualOutCmd ID="1" Title="Zone 1 play" Analog="FALSE" 				CmdOnMethod="GET" CmdOn="/audio/1/play" CmdOnHTTP="" CmdOnPost="" CmdOff=""/>
+  <VirtualOutCmd ID="1" Title="Zone 1 pause" Analog="FALSE" 			CmdOnMethod="GET" CmdOn="/audio/1/pause" CmdOnHTTP="" CmdOnPost="" CmdOff=""/>
+  <VirtualOutCmd ID="1" Title="Zone 1 resume" Analog="FALSE" 			CmdOnMethod="GET" CmdOn="/audio/1/resume" CmdOnHTTP="" CmdOnPost="" CmdOff=""/>
+  <VirtualOutCmd ID="1" Title="Zone 1 stop" Analog="FALSE" 				CmdOnMethod="GET" CmdOn="/audio/1/stop" CmdOnHTTP="" CmdOnPost="" CmdOff=""/>
+  <VirtualOutCmd ID="1" Title="Zone 1 position plus" Analog="FALSE" 	CmdOnMethod="GET" CmdOn="/audio/1/position/+30" CmdOnHTTP="" CmdOnPost="" CmdOff=""/>
+  <VirtualOutCmd ID="1" Title="Zone 1 position minus" Analog="FALSE" 	CmdOnMethod="GET" CmdOn="/audio/1/position/-30" CmdOnHTTP="" CmdOnPost="" CmdOff=""/>
+  <VirtualOutCmd ID="2" Title="Zone 1 volume up" Analog="FALSE" 		CmdOnMethod="GET" CmdOn="/audio/1/volume/+5" CmdOnHTTP="" CmdOnPost="" CmdOff=""/>
+  <VirtualOutCmd ID="2" Title="Zone 1 volume down" Analog="FALSE" 		CmdOnMethod="GET" CmdOn="/audio/1/volume/-5" CmdOnHTTP="" CmdOnPost="" CmdOff=""/>
+  <VirtualOutCmd ID="1" Title="Zone 1 queue plus" Analog="FALSE" 		CmdOnMethod="GET" CmdOn="/audio/1/queueplus" CmdOnHTTP="" CmdOnPost="" CmdOff=""/>
+  <VirtualOutCmd ID="1" Title="Zone 1 queue minus" Analog="FALSE" 		CmdOnMethod="GET" CmdOn="/audio/1/queueminus" CmdOnHTTP="" CmdOnPost="" CmdOff=""/>
+  <VirtualOutCmd ID="1" Title="Zone 1 queue clear" Analog="FALSE" 		CmdOnMethod="GET" CmdOn="/audio/1/queue/clear" CmdOnHTTP="" CmdOnPost="" CmdOff=""/>
+  <VirtualOutCmd ID="2" Title="Zone 1 linein" Analog="FALSE" 			CmdOnMethod="GET" CmdOn="/audio/1/linein" CmdOnHTTP="" CmdOnPost="" CmdOff=""/>	  
+  <VirtualOutCmd ID="2" Title="Zone 1 play URL" Analog="FALSE" 			CmdOnMethod="GET" CmdOn="/audio/1/playurl/http://opml.radiotime.com/Tune.ashx?id=s15592&formats=ogg,mp3&partnerId=16&serial=353f098c55f5c9e8d349401b03577d4c" CmdOnHTTP="" CmdOnPost="" CmdOff=""/>	  
+  <VirtualOutCmd ID="2" Title="Zone 1 play file" Analog="FALSE" 		CmdOnMethod="GET" CmdOn="/audio/1/playfile/AUDIO/subfolder/myfile.mp3" CmdOnHTTP="" CmdOnPost="" CmdOff=""/>	
+  <VirtualOutCmd ID="2" Title="Zone 1 play eventfile" Analog="FALSE" 	CmdOnMethod="GET" CmdOn="/audio/1/playeventfile/Event_Sounds/subfolder/myfile.mp3/50" CmdOnHTTP="" CmdOnPost="" CmdOff=""/>
+  
+  <VirtualOutCmd ID="1" Title="Zone 1 sync" Analog="FALSE" 				CmdOnMethod="GET" CmdOn="/audio/1/sync/2/3" CmdOnHTTP="" CmdOnPost="" CmdOff="/audio/1/unsync"/>  
+  <VirtualOutCmd ID="1" Title="Zone 1 roomfav plus" Analog="FALSE" 		CmdOnMethod="GET" CmdOn="/audio/1/roomfav/plus" CmdOnHTTP="" CmdOnPost="" CmdOff=""/>  
+  <VirtualOutCmd ID="2" Title="Zone 1 alarm" Analog="FALSE" 			CmdOnMethod="GET" CmdOn="/audio/1/alarm/40" CmdOnHTTP="" CmdOnPost="" CmdOff="/audio/1/off"/>
+  <VirtualOutCmd ID="2" Title="Zone 1 tts" Analog="FALSE" 				CmdOnMethod="GET" CmdOn="/audio/1/tts/Text der Sprachausgabe/40" CmdOnHTTP="" CmdOnPost="" CmdOff=""/>
+
+  
+  <VirtualOutCmd ID="2" Title="Zone 1 volume" Analog="TRUE" 			CmdOnMethod="GET" CmdOn="/audio/1/volume/&lt;v&gt;" CmdOnHTTP="" CmdOnPost="" CmdOff=""/>
+  <VirtualOutCmd ID="2" Title="Zone 1 position" Analog="TRUE" 			CmdOnMethod="GET" CmdOn="/audio/1/position/&lt;v&gt;" CmdOnHTTP="" CmdOnPost="" CmdOff=""/>
+  <VirtualOutCmd ID="2" Title="Zone 1 queue position" Analog="TRUE" 	CmdOnMethod="GET" CmdOn="/audio/1/queue/&lt;v&gt;" CmdOnHTTP="" CmdOnPost="" CmdOff=""/>
+  <VirtualOutCmd ID="2" Title="Zone 1 buzzer" Analog="TRUE" 			CmdOnMethod="GET" CmdOn="/audio/1/wecker/&lt;v&gt;" CmdOnHTTP="" CmdOnPost="" CmdOff=""/>
+  <VirtualOutCmd ID="2" Title="Zone 1 bell" Analog="TRUE" 				CmdOnMethod="GET" CmdOn="/audio/1/bell/&lt;v&gt;" CmdOnHTTP="" CmdOnPost="" CmdOff=""/>
+  <VirtualOutCmd ID="2" Title="Zone 1 sleep" Analog="TRUE" 				CmdOnMethod="GET" CmdOn="/audio/1/sleep/&lt;v&gt;" CmdOnHTTP="" CmdOnPost="" CmdOff=""/>
+  <VirtualOutCmd ID="2" Title="Zone 1 roomfav" Analog="TRUE" 			CmdOnMethod="GET" CmdOn="/audio/1/roomfav/play/&lt;v&gt;" CmdOnHTTP="" CmdOnPost="" CmdOff=""/>	
+ </VirtualOut>
+
+ 

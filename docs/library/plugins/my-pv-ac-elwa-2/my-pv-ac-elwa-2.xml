@@ -1,0 +1,25 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Modbus Title="AC ELWA 2 Template" Comment="" HintText="" Channel="1">
+	<Info templateType="7" minVersion="15031213"/>
+	<ModbusCmd Title="Read Target Temperatur" Comment="" HintText="" ModbusAddress="1002" ModbusCmd="3" ModbusPollingCycle="300" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="Read Temperatur T1" Comment="" HintText="" ModbusAddress="1001" ModbusCmd="3" ModbusPollingCycle="30" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="Read Power" Comment="" HintText="" ModbusAddress="1000" ModbusCmd="3" ModbusPollingCycle="10" Unit="&lt;v&gt;W" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Read Temperatur T2" Comment="" HintText="" ModbusAddress="1030" ModbusCmd="3" ModbusPollingCycle="30" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="Read Device State" Comment="" HintText="" ModbusAddress="1081" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Read Operation Mode" Comment="" HintText="" ModbusAddress="1065" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="1" DestValHigh="1"/>
+	<ModbusCmd Title="Set Power" Comment="" HintText="" ModbusAddress="1000" ModbusCmd="16" Unit="&lt;v&gt;W" Analog="true" Sensor="false" SourceValHigh="1" DestValHigh="1" RepeatRate="10"/>
+	<ModbusCmd Title="Set Target Temperature" Comment="" HintText="" ModbusAddress="1002" ModbusCmd="16" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="false" SourceValHigh="1" DestValHigh="10"/>
+	<ModbusCmd Title="Set Power Timeout" Comment="" HintText="" ModbusAddress="1004" ModbusCmd="16" Unit="&lt;v&gt;sec" Analog="true" Sensor="false" SourceValHigh="1" DestValHigh="1"/>
+	<ModbusCmd Title="Set Device State" Comment="" HintText="0 = off
+
+1 = on
+
+When &quot;off&quot; the Device doesn´t shut down completly, the Network connection stays active, but it wont heat when State is &quot;off&quot;.
+
+" ModbusAddress="1081" ModbusCmd="16" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="1" DestValHigh="1"/>
+	<ModbusCmd Title="Set Operation Mode" Comment="" HintText="1 = Operation Mode M1
+
+3 = Operation Mode M3 (6,5kW) 
+
+For further Information to the Operation Modes read, the Operation Manuell from the AC ELWA 2." ModbusAddress="1065" ModbusCmd="6" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="1" DestValHigh="1"/>
+</Modbus>

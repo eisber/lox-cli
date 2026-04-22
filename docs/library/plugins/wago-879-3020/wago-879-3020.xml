@@ -1,0 +1,22 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Modbus Title="Wago 879-3020" Comment="" Baudrate="9600" Parity="1" Channel="20">
+	<Info templateType="7" minVersion="14020616"/>
+	<ModbusCmd Title="Voltage L1" Comment="" ModbusAddress="20482" ModbusCmd="3" ModbusDataType="36" ModbusPollingCycle="15" Unit="&lt;v.1&gt;V" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Voltage L2" Comment="" ModbusAddress="20484" ModbusCmd="3" ModbusDataType="36" ModbusPollingCycle="15" Unit="&lt;v.1&gt;V" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Voltage L3" Comment="" ModbusAddress="20486" ModbusCmd="3" ModbusDataType="36" ModbusPollingCycle="15" Unit="&lt;v.1&gt;V" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Current L1" Comment="" ModbusAddress="20492" ModbusCmd="3" ModbusDataType="36" ModbusPollingCycle="15" Unit="&lt;v.3&gt;A" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Current L2" Comment="" ModbusAddress="20494" ModbusCmd="3" ModbusDataType="36" ModbusPollingCycle="15" Unit="&lt;v.3&gt;A" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Current L3" Comment="" ModbusAddress="20496" ModbusCmd="3" ModbusDataType="36" ModbusPollingCycle="15" Unit="&lt;v.3&gt;A" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Power L1" Comment="" ModbusAddress="20500" ModbusCmd="3" ModbusDataType="36" ModbusPollingCycle="15" Unit="&lt;v.1&gt;kW" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Power L2" Comment="" ModbusAddress="20502" ModbusCmd="3" ModbusDataType="36" ModbusPollingCycle="15" Unit="&lt;v.1&gt;kW" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Power L3" Comment="" ModbusAddress="20504" ModbusCmd="3" ModbusDataType="36" ModbusPollingCycle="15" Unit="&lt;v.1&gt;kW" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Frequency" Comment="" ModbusAddress="20488" ModbusCmd="3" ModbusDataType="36" ModbusPollingCycle="15" Unit="&lt;v.2&gt;Hz" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Total active power" Comment="" ModbusAddress="20498" ModbusCmd="3" ModbusDataType="36" ModbusPollingCycle="15" Unit="&lt;v.1&gt;kW" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Total apparent power" Comment="" ModbusAddress="20514" ModbusCmd="3" ModbusDataType="36" ModbusPollingCycle="15" Unit="&lt;v.3&gt;VA" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Total reactive power" Comment="" ModbusAddress="20506" ModbusCmd="3" ModbusDataType="36" ModbusPollingCycle="15" Unit="&lt;v.3&gt;VAr" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Total Energy Import" Comment="" ModbusAddress="24588" ModbusCmd="3" ModbusDataType="36" ModbusPollingCycle="15" Unit="&lt;v.3&gt;kWh" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Total Energy Export" Comment="" ModbusAddress="24600" ModbusCmd="3" ModbusDataType="36" ModbusPollingCycle="15" Unit="&lt;v.3&gt;kWh" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Total Energy Import L1" Comment="" ModbusAddress="24594" ModbusCmd="3" ModbusDataType="36" ModbusPollingCycle="15" Unit="&lt;v.3&gt;kWh" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Total Energy Import L2" Comment="" ModbusAddress="24596" ModbusCmd="3" ModbusDataType="36" ModbusPollingCycle="15" Unit="&lt;v.3&gt;kWh" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Total Energy Import L3" Comment="" ModbusAddress="24598" ModbusCmd="3" ModbusDataType="36" ModbusPollingCycle="15" Unit="&lt;v.3&gt;kWh" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+</Modbus>

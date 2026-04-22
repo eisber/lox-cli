@@ -1,0 +1,46 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Modbus Title="S-therm Yukon" Comment="" HintText="" Baudrate="9600" Channel="1">
+	<Info templateType="7" minVersion="15010522"/>
+	<ModbusCmd Title="Operating frequency" Comment="" HintText="" ModbusAddress="100" ModbusCmd="3" ModbusDataType="33" ModbusPollingCycle="30" Unit="&lt;v.1&gt; Hz" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="T1 water output" Comment="" HintText="" ModbusAddress="110" ModbusCmd="3" ModbusDataType="33" ModbusPollingCycle="30" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Operating Mode" Comment="" HintText="" ModbusAddress="101" ModbusCmd="3" ModbusDataType="33" ModbusPollingCycle="300" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Fan Speed" Comment="" HintText="" ModbusAddress="102" ModbusCmd="3" ModbusDataType="33" ModbusPollingCycle="30" Unit="&lt;v.1&gt; R/MIN" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="PMV openness" Comment="" HintText="" ModbusAddress="103" ModbusCmd="3" ModbusDataType="33" ModbusPollingCycle="60" Unit="&lt;v.1&gt; step" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Water inlet temperature" Comment="" HintText="" ModbusAddress="104" ModbusCmd="3" ModbusDataType="33" ModbusPollingCycle="300" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Water outlet temperature" Comment="" HintText="" ModbusAddress="105" ModbusCmd="3" ModbusDataType="33" ModbusPollingCycle="300" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="T3 Temperature" Comment="" HintText="" ModbusAddress="106" ModbusCmd="3" ModbusDataType="33" ModbusPollingCycle="300" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Discharge temperature" Comment="" HintText="" ModbusAddress="108" ModbusCmd="3" ModbusDataType="33" ModbusPollingCycle="300" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Suction temperature" Comment="" HintText="" ModbusAddress="109" ModbusCmd="3" ModbusDataType="33" ModbusPollingCycle="300" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Tw2" Comment="" HintText="" ModbusAddress="111" ModbusCmd="3" ModbusDataType="33" ModbusPollingCycle="300" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="T2" Comment="" HintText="" ModbusAddress="112" ModbusCmd="3" ModbusDataType="33" ModbusPollingCycle="300" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="T2B" Comment="" HintText="" ModbusAddress="113" ModbusCmd="3" ModbusDataType="33" ModbusPollingCycle="300" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Ta" Comment="" HintText="" ModbusAddress="114" ModbusCmd="3" ModbusDataType="33" ModbusPollingCycle="300" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="T5 DHW tank" Comment="" HintText="" ModbusAddress="115" ModbusCmd="3" ModbusDataType="33" ModbusPollingCycle="300" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="T4 Outdoor temp" Comment="" HintText="" ModbusAddress="107" ModbusCmd="3" ModbusDataType="33" ModbusPollingCycle="300" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="P1 Pressure 1" Comment="" HintText="" ModbusAddress="116" ModbusCmd="3" ModbusDataType="33" ModbusPollingCycle="300" Unit="&lt;v.1&gt; kPa" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="P2 Pressure 2" Comment="" HintText="" ModbusAddress="117" ModbusCmd="3" ModbusDataType="33" ModbusPollingCycle="300" Unit="&lt;v.1&gt; kPa" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Outdoor unit current" Comment="" HintText="" ModbusAddress="118" ModbusCmd="3" ModbusDataType="33" ModbusPollingCycle="300" Unit="&lt;v.1&gt; A" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Outdoor unit voltage" Comment="" HintText="" ModbusAddress="119" ModbusCmd="3" ModbusDataType="33" ModbusPollingCycle="300" Unit="&lt;v.1&gt; V" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Tbt1" Comment="" HintText="" ModbusAddress="120" ModbusCmd="3" ModbusDataType="33" ModbusPollingCycle="300" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Tbt2" Comment="" HintText="" ModbusAddress="121" ModbusCmd="3" ModbusDataType="33" ModbusPollingCycle="300" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Compressor operation time" Comment="" HintText="" ModbusAddress="122" ModbusCmd="3" ModbusDataType="33" ModbusPollingCycle="300" Unit="&lt;v.1&gt; Hrs" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Unit capacity" Comment="" HintText="" ModbusAddress="123" ModbusCmd="3" ModbusDataType="33" ModbusPollingCycle="300" Unit="&lt;v.1&gt; kW" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Current fault" Comment="" HintText="" ModbusAddress="124" ModbusCmd="3" ModbusDataType="33" ModbusPollingCycle="300" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Unit target frequency" Comment="" HintText="" ModbusAddress="132" ModbusCmd="3" ModbusDataType="33" ModbusPollingCycle="300" Unit="&lt;v.1&gt; Hz" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="DC bus current" Comment="" HintText="" ModbusAddress="133" ModbusCmd="3" ModbusDataType="33" ModbusPollingCycle="300" Unit="&lt;v.1&gt; A" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="DC bus voltage" Comment="" HintText="" ModbusAddress="134" ModbusCmd="3" ModbusDataType="33" ModbusPollingCycle="300" Unit="&lt;v.1&gt; V" Analog="true" Sensor="true" SourceValLow="1" DestValLow="10"/>
+	<ModbusCmd Title="TF module temperature" Comment="" HintText="" ModbusAddress="135" ModbusCmd="3" ModbusDataType="33" ModbusPollingCycle="300" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="T1S zone 1" Comment="Climate curve Zone1" HintText="" ModbusAddress="136" ModbusCmd="3" ModbusDataType="33" ModbusPollingCycle="30" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="T1S zone 2" Comment="" HintText="" ModbusAddress="137" ModbusCmd="3" ModbusDataType="33" ModbusPollingCycle="300" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Water flow" Comment="" HintText="" ModbusAddress="138" ModbusCmd="3" ModbusDataType="33" ModbusPollingCycle="300" Unit="&lt;v.1&gt; m3/H" Analog="true" Sensor="true" SourceValLow="1" DestValLow="0.01"/>
+	<ModbusCmd Title="Tsolar" Comment="" HintText="" ModbusAddress="141" ModbusCmd="3" ModbusDataType="33" ModbusPollingCycle="300" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Mode" Comment="Mode setting" HintText="1: Auto
+2: Cool
+3: Heat" ModbusAddress="1" ModbusCmd="6" ModbusDataType="1" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Setting air temperature Ts" Comment="" HintText="" ModbusAddress="3" ModbusCmd="6" ModbusDataType="1" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="false" SourceValHigh="1" DestValHigh="2"/>
+	<ModbusCmd Title="T5s" Comment="" HintText="" ModbusAddress="4" ModbusCmd="6" ModbusDataType="1" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="T1S zone 1" Comment="" HintText="" ModbusAddress="11" ModbusCmd="6" ModbusDataType="1" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="T1S zone 2" Comment="" HintText="" ModbusAddress="12" ModbusCmd="6" ModbusDataType="1" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="On/Off" Comment="" HintText="" ModbusCmd="6" ModbusDataType="1" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Function Setting" Comment="" HintText="" ModbusAddress="5" ModbusCmd="6" ModbusDataType="1" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10"/>
+</Modbus>

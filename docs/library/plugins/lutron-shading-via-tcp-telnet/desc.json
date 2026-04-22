@@ -1,0 +1,9 @@
+{
+                                "type": "template",
+                                "name": "lutron-shading-via-tcp-telnet",
+                                "uuid": "fa5b58dd-2530-11f0-8ac44cd98f3deb8a",
+                                "version":"1.0.1",
+                                "id": "lutron-shading-via-tcp-telnet-1855",
+                                "file": "lutron-shading-via-tcp-telnet.xml",
+                                "templateType": "3",
+                            }

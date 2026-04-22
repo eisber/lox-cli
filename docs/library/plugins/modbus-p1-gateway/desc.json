@@ -1,0 +1,9 @@
+{
+                                "type": "template",
+                                "name": "modbus-p1-gateway",
+                                "uuid": "d8695bcc-2524-11ed-855b4cd98f3deb8a",
+                                "version":"1.0.0",
+                                "id": "modbus-p1-gateway-942",
+                                "file": "modbus-p1-gateway.xml",
+                                "templateType": "7",
+                            }

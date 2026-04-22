@@ -1,0 +1,9 @@
+{
+                                "type": "template",
+                                "name": "captive-video-server",
+                                "uuid": "062f19f4-8846-11ec-a23c4cd98f3deb8a",
+                                "version":"1.0.0",
+                                "id": "captive-video-server-776",
+                                "file": "captive-video-server.xml",
+                                "templateType": "3",
+                            }

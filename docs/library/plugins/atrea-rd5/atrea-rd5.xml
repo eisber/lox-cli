@@ -1,0 +1,23 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Modbus Title="Atrea RD5" Comment="" Channel="1">
+	<Info templateType="7" minVersion="14020616"/>
+	<ModbusCmd Title="Required mode" Comment="Požadovaný režim" ModbusAddress="10705" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Required temperature" Comment="Požadovaná teplota" ModbusAddress="10706" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="ON-OFF status" Comment="Stav ON-OFF" ModbusAddress="10208" ModbusCmd="1" ModbusPollingCycle="5" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="HVAC control - mode" Comment="Řízení VZT - režim" ModbusAddress="10701" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="HVAC control - power" Comment="Řízení VZT - výkon" ModbusAddress="10700" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="HVAC control - temperature" Comment="Řízení VZT - teplota" ModbusAddress="10702" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="HVAC control - zone" Comment="Řízení VZT - zóna" ModbusAddress="10703" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Required power" Comment="Požadovaný výkon" ModbusAddress="10704" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Required zone" Comment="Požadovaná zóna" ModbusAddress="10707" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="T-IDA measurement source" Comment="Zdroj měření T-IDA" ModbusAddress="10514" ModbusCmd="3" ModbusPollingCycle="10" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="T-IDA entry from BMS" Comment="Zápis T-IDA z BMS" ModbusAddress="10214" ModbusCmd="3" ModbusPollingCycle="10" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="T-ODA entry from BMS" Comment="Zápis T-ODA z BMS" ModbusAddress="10213" ModbusCmd="3" ModbusPollingCycle="10" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="T-ODA measurement source" Comment="Zdroj měření T-ODA" ModbusAddress="10510" ModbusCmd="1" ModbusPollingCycle="10" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Required mode" Comment="Požadovaný režim" ModbusAddress="10709" ModbusCmd="6" ModbusDataType="1" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Required temperature" Comment="Požadovaná teplota" ModbusAddress="10710" ModbusCmd="6" ModbusDataType="1" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Required power" Comment="Požadovaný výkon" ModbusAddress="10708" ModbusCmd="6" ModbusDataType="1" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Required zone" Comment="Požadovaná zóna" ModbusAddress="10711" ModbusCmd="6" ModbusDataType="1" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Indoor temperature - set" Comment="Vnitřní teplota - nastavit" ModbusAddress="10214" ModbusCmd="6" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100" RepeatRate="30"/>
+	<ModbusCmd Title="Measurement source T-IDA" Comment="Zdroj měření T-IDA" ModbusAddress="10514" ModbusCmd="6" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+</Modbus>

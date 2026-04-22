@@ -1,0 +1,65 @@
+{
+  "title": "Touch Nightlight Air",
+  "xml_type": "",
+  "kb_slug": "touch-nightlight-air",
+  "description": "## Contents\n- Technical Data\nPower Supply\nCommissioning Air\nProgramming\nFunctions\n- Alarm clock\n- Set alarm time\n- Time format\n- Display brightness\n- Temperature display\n- Downloads",
+  "inputs": [
+    {
+      "name": "T5",
+      "description": "Combined T5 input.",
+      "type": "T5",
+      "values": "\u2013"
+    },
+    {
+      "name": "Buttons 1-5",
+      "description": "These inputs are hidden by default and can be displayed via the properties of the device.",
+      "type": "Digital",
+      "values": "0/1"
+    },
+    {
+      "name": "Button 6",
+      "description": "This input is controlled via the upper middle button on the Touch Nightlight Air.",
+      "type": "Digital",
+      "values": "0/1"
+    }
+  ],
+  "outputs": [
+    {
+      "name": "Smart Actuator RGBW",
+      "description": "RGBW Lighting output for the Backlight on the Touch Nightlight Air. This is a standard Smart Actuator output to be used with a Lighting controller.",
+      "type": "Smart Actuator",
+      "values": "\u2013"
+    },
+    {
+      "name": "Dimmer RGB",
+      "description": "Combined RGB output. This only appears if the device is set to \u201cstandard\u201d type.",
+      "type": "RGB",
+      "values": "\u2013"
+    },
+    {
+      "name": "Dimmer WW",
+      "description": "WW output. This only appears if the device is set to \u201cstandard\u201d type.",
+      "type": "Analog",
+      "values": "0\u2026100"
+    },
+    {
+      "name": "Temperature",
+      "description": "Displays the temperature from different sensors. If used it will swap between it every 5 seconds.",
+      "type": "Analogue",
+      "values": "\u221e"
+    },
+    {
+      "name": "Status LED",
+      "description": "LED in the top button (button 6).",
+      "type": "Digital",
+      "values": "0/1"
+    }
+  ],
+  "parameters": [],
+  "properties": [],
+  "source_url": "https://www.loxone.com/enen/kb/touch-nightlight-air/",
+  "input_count": 3,
+  "output_count": 5,
+  "parameter_count": 0,
+  "property_count": 0
+}

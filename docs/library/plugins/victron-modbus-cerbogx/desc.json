@@ -1,0 +1,9 @@
+{
+                                "type": "template",
+                                "name": "victron-modbus-cerbogx",
+                                "uuid": "9a4c1210-f529-11ef-8ac44cd98f3deb8a",
+                                "version":"1.0.0",
+                                "id": "victron-modbus-cerbogx-1806",
+                                "file": "victron-modbus-cerbogx.xml",
+                                "templateType": "7",
+                            }

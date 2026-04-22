@@ -1,0 +1,15 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<VirtualOut Title="Canon XEED  proj" Comment="" Address="tcp://192.168.1.31:33336" CmdInit="" CloseAfterSend="true" CmdSep="">
+	<Info templateType="3" minVersion="12021027"/>
+	<VirtualOutCmd Title="PWR ON" Comment="" CmdOnMethod="GET" CmdOffMethod="GET" CmdOn="POWER=ON\r" CmdOnHTTP="" CmdOnPost="" CmdOff="" CmdOffHTTP="" CmdOffPost="" Analog="false" Repeat="0" RepeatRate="0"/>
+	<VirtualOutCmd Title="PWR OFF" Comment="" CmdOnMethod="GET" CmdOffMethod="GET" CmdOn="POWER=OFF\r" CmdOnHTTP="" CmdOnPost="" CmdOff="" CmdOffHTTP="" CmdOffPost="" Analog="false" Repeat="0" RepeatRate="0"/>
+	<VirtualOutCmd Title="PWR ON_OFF" Comment="" CmdOnMethod="GET" CmdOffMethod="GET" CmdOn="POWER=ON\r" CmdOnHTTP="" CmdOnPost="" CmdOff="POWER=OFF\r" CmdOffHTTP="" CmdOffPost="" Analog="false" Repeat="0" RepeatRate="0"/>
+	<VirtualOutCmd Title="Pic Blank ON" Comment="" CmdOnMethod="GET" CmdOffMethod="GET" CmdOn="BLANK=ON\r" CmdOnHTTP="" CmdOnPost="" CmdOff="" CmdOffHTTP="" CmdOffPost="" Analog="false" Repeat="0" RepeatRate="0"/>
+	<VirtualOutCmd Title="Pic Blank OFF" Comment="" CmdOnMethod="GET" CmdOffMethod="GET" CmdOn="BLANK=OFF\r" CmdOnHTTP="" CmdOnPost="" CmdOff="" CmdOffHTTP="" CmdOffPost="" Analog="false" Repeat="0" RepeatRate="0"/>
+	<VirtualOutCmd Title="Pic Blank ON OFF" Comment="" CmdOnMethod="GET" CmdOffMethod="GET" CmdOn="BLANK=ON\r" CmdOnHTTP="" CmdOnPost="" CmdOff="BLANK=OFF\r" CmdOffHTTP="" CmdOffPost="" Analog="false" Repeat="0" RepeatRate="0"/>
+	<VirtualOutCmd Title="HDMI IN" Comment="" CmdOnMethod="GET" CmdOffMethod="GET" CmdOn="INPUT=HDMI\r" CmdOnHTTP="" CmdOnPost="" CmdOff="" CmdOffHTTP="" CmdOffPost="" Analog="false" Repeat="0" RepeatRate="0"/>
+	<VirtualOutCmd Title="HDBT Input" Comment="" CmdOnMethod="GET" CmdOffMethod="GET" CmdOn="INPUT=HDBT\r" CmdOnHTTP="" CmdOnPost="" CmdOff="" CmdOffHTTP="" CmdOffPost="" Analog="false" Repeat="0" RepeatRate="0"/>
+	<VirtualOutCmd Title="Lamp Eco" Comment="" CmdOnMethod="GET" CmdOffMethod="GET" CmdOn="LAMP=ECO\r" CmdOnHTTP="" CmdOnPost="" CmdOff="" CmdOffHTTP="" CmdOffPost="" Analog="false" Repeat="0" RepeatRate="0"/>
+	<VirtualOutCmd Title="Lamp Full" Comment="" CmdOnMethod="GET" CmdOffMethod="GET" CmdOn="LAMP=FULL\r" CmdOnHTTP="" CmdOnPost="" CmdOff="" CmdOffHTTP="" CmdOffPost="" Analog="false" Repeat="0" RepeatRate="0"/>
+	<VirtualOutCmd Title="Lamp eco full" Comment="" CmdOnMethod="GET" CmdOffMethod="GET" CmdOn="LAMP=ECO\r" CmdOnHTTP="" CmdOnPost="" CmdOff="LAMP=FULL\r" CmdOffHTTP="" CmdOffPost="" Analog="false" Repeat="0" RepeatRate="0"/>
+</VirtualOut>

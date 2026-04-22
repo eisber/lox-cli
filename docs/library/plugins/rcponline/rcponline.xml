@@ -1,0 +1,5 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<VirtualOut Title="RCPonline VO" Comment="" Address="https://api.rcponline.pl" CmdInit="" HintText="" CloseAfterSend="true" CmdSep="">
+	<Info templateType="3" minVersion="15010820"/>
+	<VirtualOutCmd Title="Request" Comment="" CmdOnMethod="POST" CmdOffMethod="GET" CmdOn="/api/events" CmdOnHTTP="Content-Type:application/xml\r\nAuthorization:Bearer &lt;BEARER&gt;" CmdOnPost="&lt;v&gt;" CmdOff="" CmdOffHTTP="" CmdOffPost="" CmdAnswer="" HintText="" Analog="true" Repeat="0" RepeatRate="0" SourceValHigh="10" DestValHigh="10"/>
+</VirtualOut>

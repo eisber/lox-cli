@@ -1,0 +1,112 @@
+{
+  "title": "AC Central Controller",
+  "xml_type": "",
+  "kb_slug": "ac-central-controller",
+  "description": "This Control represents an outdoor unit combining one or more AC Control indoor units.\nDepending on the requirements of the assigned AC Unit Controllers, it is decided whether the Heating or Cooling mode is active.\nAC Unit Controllers with opposite requirements will be paused to avoid conflicts on the outdoor unit.",
+  "inputs": [
+    {
+      "abbreviation": "\u03d1o",
+      "summary": "Outdoor Temperature",
+      "description": "If this input is not connected, the System Variable \"Outdoor Temperature\" is used. If this value is not available, the value -1000 is displayed.",
+      "unit": "\u00b0",
+      "value_range": "\u221e"
+    },
+    {
+      "abbreviation": "Off",
+      "summary": "Off",
+      "description": "Pulse: Outputs are reset / switched off. On: Block is locked. Dominating input. The name of the connected sensor is used in the user interface.",
+      "unit": "-",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "Ec",
+      "summary": "Excess cooling",
+      "description": "Surplus or cheap cooling energy available. In cooling mode, Intelligent Room Controllers will overcool or allow premature start of cooling.",
+      "unit": "-",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "Eh",
+      "summary": "Excess heating",
+      "description": "Surplus or cheap heating energy available. In heating mode, Intelligent Room Controllers will overheat or allow premature start of heating.",
+      "unit": "-",
+      "value_range": "0/1"
+    }
+  ],
+  "outputs": [
+    {
+      "abbreviation": "H",
+      "summary": "Heating",
+      "description": "Device unit is in heating mode",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "C",
+      "summary": "Cooling",
+      "description": "Device unit is in cooling mode",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "API",
+      "summary": "API Connector",
+      "description": "Intelligent API based connector. API Commands",
+      "value_range": "-"
+    }
+  ],
+  "parameters": [
+    {
+      "abbreviation": "Mode",
+      "summary": "Mode",
+      "description": "0 = Device is turned off. 1 = Automatic changeover based on the AC Unit Controller demands. 2 = heating only if there is sufficient demand. 3 = cooling only if there is sufficient demand.",
+      "unit": "-",
+      "value_range": "0...3",
+      "default_value": "-1"
+    },
+    {
+      "abbreviation": "\u03d1LimH",
+      "summary": "Temperature Limit Heating",
+      "description": "If the used outdoor temperature (Parameter Otm) is above (\u03d1LimH), the system will not switch to heating mode, even if there is a demand. This parameter is only visible in certain configurations.",
+      "unit": "\u00b0",
+      "value_range": "\u221e",
+      "default_value": "18"
+    },
+    {
+      "abbreviation": "\u03d1LimC",
+      "summary": "Temperature Limit Cooling",
+      "description": "If the used outdoor temperature (Parameter Otm) is below (\u03d1LimC), the system will not switch to cooling mode, even if there is a demand. This parameter is only visible in certain configurations.",
+      "unit": "\u00b0",
+      "value_range": "\u221e",
+      "default_value": "15"
+    },
+    {
+      "abbreviation": "Otm",
+      "summary": "Outdoor Temperature Mode",
+      "description": "0 = Disabled (\u03d1LimH and \u03d1LimC not used) 1 = Average Outdoor Temperature of the past 48h 2 = Value of the System Variable 'Expected Average Outdoor Temperature 48h' 3 = Current Outdoor Temperature If enabled, the average outdoor temperature of the last 48h, next 48h or the current temperature is used to select heating/cooling mode according to (\u03d1LimH) and (\u03d1LimC). If the value is not available, this parameter has no effect.",
+      "unit": "-",
+      "value_range": "0...3",
+      "default_value": "2"
+    }
+  ],
+  "properties": [
+    {
+      "summary": "Assignments",
+      "description": "Add or remove AC Unit Controller function blocks",
+      "default_value": "-"
+    },
+    {
+      "summary": "Energy Costs(Heating)",
+      "description": "Costs for running this source. Sources that have been configured to be 'Expensive' will only be requested by room controllers if no sources with higher priorities are available.",
+      "default_value": "-"
+    },
+    {
+      "summary": "Energy Costs(Cooling)",
+      "description": "Costs for running this source. Sources that have been configured to be 'Expensive' will only be requested by room controllers if no sources with higher priorities are available.",
+      "default_value": "-"
+    }
+  ],
+  "source_url": "https://www.loxone.com/enen/kb/ac-central-controller/",
+  "input_count": 4,
+  "output_count": 3,
+  "parameter_count": 4,
+  "property_count": 3
+}

@@ -1,0 +1,97 @@
+{
+  "title": "Wallbox Manager",
+  "xml_type": "",
+  "kb_slug": "wallbox-manager",
+  "description": "The Wallbox Manager block takes over the energy management of multiple Wallboxes.\nIt fulfills the following functions:",
+  "inputs": [
+    {
+      "abbreviation": "Pmax",
+      "summary": "Maximum total power",
+      "description": "Maximum total power available to the Wallboxes. Used primarily as maximum value for overload protection. Can also be used to restrict charging power during periods of high electricity prices or high consumption.",
+      "unit": "kW",
+      "value_range": "0...\u221e"
+    },
+    {
+      "abbreviation": "Peco",
+      "summary": "Power for Eco charging",
+      "description": "Surplus power, which is distributed to the Wallboxes for Eco charging.",
+      "unit": "kW",
+      "value_range": "0...\u221e"
+    },
+    {
+      "abbreviation": "Off",
+      "summary": "Off",
+      "description": "Pulse: Outputs are reset / switched off. On: Block is locked. Dominating input. The name of the connected sensor is used in the user interface.",
+      "unit": "-",
+      "value_range": "0/1"
+    }
+  ],
+  "outputs": [
+    {
+      "abbreviation": "Cp",
+      "summary": "Current power",
+      "description": "Current total power consumption of all Wallboxes. For wallboxes whose power consumption is not known (no meter available or Cp input not used), the assigned power is assumed.",
+      "unit": "kW",
+      "value_range": "0...\u221e"
+    },
+    {
+      "abbreviation": "Ap",
+      "summary": "Assigned Power",
+      "description": "Total power assigned to the wallboxes. Sum of Tp of all linked wallboxes.",
+      "unit": "kW",
+      "value_range": "0...\u221e"
+    },
+    {
+      "abbreviation": "API",
+      "summary": "API Connector",
+      "description": "Intelligent API based connector. API Commands",
+      "unit": "-",
+      "value_range": "-"
+    }
+  ],
+  "parameters": [
+    {
+      "abbreviation": "PrEco",
+      "summary": "Price Eco",
+      "description": "Price per kWh for Eco charging.",
+      "unit": "Currency",
+      "value_range": "\u221e",
+      "default_value": "0.1"
+    },
+    {
+      "abbreviation": "PrPrio",
+      "summary": "Price Priority",
+      "description": "Price per kWh for Priority charging.",
+      "unit": "Currency",
+      "value_range": "\u221e",
+      "default_value": "0.2"
+    },
+    {
+      "abbreviation": "Cfp",
+      "summary": "Connection fee per hour",
+      "description": "Price per hour while the vehicle is connected.",
+      "unit": "Currency",
+      "value_range": "\u221e",
+      "default_value": "0"
+    }
+  ],
+  "properties": [
+    {
+      "summary": "Configure...",
+      "description": "Configure the Wallbox Manager by adding Wallboxes and grouping them together.",
+      "value_range": "-",
+      "default_value": "-"
+    },
+    {
+      "summary": "Activity Log Entries",
+      "description": "Number of entries in the activity log. 0: log is disabled The activity log tracks relevant changes since program start.",
+      "value_range": "0...100",
+      "default_value": "20"
+    }
+  ],
+  "source_url": "https://www.loxone.com/enen/kb/wallbox-manager/",
+  "input_count": 3,
+  "output_count": 3,
+  "parameter_count": 3,
+  "property_count": 2
+}

@@ -1,0 +1,50 @@
+{
+  "title": "Pulse by",
+  "xml_type": "",
+  "kb_slug": "pulse-by",
+  "description": "The block analyzes the text at the T input using user-defined search criteria.",
+  "inputs": [],
+  "outputs": [
+    {
+      "abbreviation": "P",
+      "summary": "Pulse when search pattern is found.",
+      "value_range": "0/1"
+    }
+  ],
+  "parameters": [
+    {
+      "abbreviation": "Pd",
+      "summary": "Pulse Duration",
+      "unit": "s",
+      "value_range": "0...\u221e",
+      "default_value": "1"
+    }
+  ],
+  "properties": [
+    {
+      "summary": "Search Pattern 1",
+      "description": "If the search pattern is included in the text at input T, a pulse is generated at output P. The two wildcards '*' and '?' can be used ('*' = sequence of any characters of any length, '?' = any character). Example: '???nder*' applies to 'grinder', but also to 'thunderstorm'",
+      "default_value": "-"
+    },
+    {
+      "summary": "Search Pattern 2",
+      "description": "If the search pattern is included in the text at input T, a pulse is generated at output P. The two wildcards '*' and '?' can be used ('*' = sequence of any characters of any length, '?' = any character). Example: '???nder*' applies to 'grinder', but also to 'thunderstorm'",
+      "default_value": "-"
+    },
+    {
+      "summary": "Search Pattern 3",
+      "description": "If the search pattern is included in the text at input T, a pulse is generated at output P. The two wildcards '*' and '?' can be used ('*' = sequence of any characters of any length, '?' = any character). Example: '???nder*' applies to 'grinder', but also to 'thunderstorm'",
+      "default_value": "-"
+    },
+    {
+      "summary": "Search Pattern 4",
+      "description": "If the search pattern is included in the text at input T, a pulse is generated at output P. The two wildcards '*' and '?' can be used ('*' = sequence of any characters of any length, '?' = any character). Example: '???nder*' applies to 'grinder', but also to 'thunderstorm'",
+      "default_value": "-"
+    }
+  ],
+  "source_url": "https://www.loxone.com/enen/kb/pulse-by/",
+  "input_count": 0,
+  "output_count": 1,
+  "parameter_count": 1,
+  "property_count": 4
+}

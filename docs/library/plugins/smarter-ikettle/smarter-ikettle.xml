@@ -1,0 +1,11 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<VirtualOut Title="Smarter iKettle" Comment="" Address="tcp://192.168.1.100:2000" CmdInit="" CloseAfterSend="true" CmdSep="">
+    <Info templateType="3" minVersion="12010617"/>
+	<VirtualOutCmd Title="On" Comment="" CmdOnMethod="GET" CmdOffMethod="GET" CmdOn="set sys output 0x4\r" CmdOnHTTP="" CmdOnPost="" CmdOff="" CmdOffHTTP="" CmdOffPost="" Analog="false" Repeat="0" RepeatRate="0"/>
+	<VirtualOutCmd Title="Off" Comment="" CmdOnMethod="GET" CmdOffMethod="GET" CmdOn="set sys output 0x0\r" CmdOnHTTP="" CmdOnPost="" CmdOff="" CmdOffHTTP="" CmdOffPost="" Analog="false" Repeat="0" RepeatRate="0"/>
+	<VirtualOutCmd Title="95°C" Comment="" CmdOnMethod="GET" CmdOffMethod="GET" CmdOn="set sys output 0x2\r" CmdOnHTTP="" CmdOnPost="" CmdOff="" CmdOffHTTP="" CmdOffPost="" Analog="false" Repeat="0" RepeatRate="0"/>
+	<VirtualOutCmd Title="80°C" Comment="" CmdOnMethod="GET" CmdOffMethod="GET" CmdOn="set sys output 0x4000\r" CmdOnHTTP="" CmdOnPost="" CmdOff="" CmdOffHTTP="" CmdOffPost="" Analog="false" Repeat="0" RepeatRate="0"/>
+	<VirtualOutCmd Title="65°C" Comment="" CmdOnMethod="GET" CmdOffMethod="GET" CmdOn="set sys output 0x200\r" CmdOnHTTP="" CmdOnPost="" CmdOff="" CmdOffHTTP="" CmdOffPost="" Analog="false" Repeat="0" RepeatRate="0"/>
+	<VirtualOutCmd Title="100°C" Comment="" CmdOnMethod="GET" CmdOffMethod="GET" CmdOn="set sys output 0x80\r" CmdOnHTTP="" CmdOnPost="" CmdOff="" CmdOffHTTP="" CmdOffPost="" Analog="false" Repeat="0" RepeatRate="0"/>
+	<VirtualOutCmd Title="Warm" Comment="" CmdOnMethod="GET" CmdOffMethod="GET" CmdOn="set sys output 0x8\r" CmdOnHTTP="" CmdOnPost="" CmdOff="" CmdOffHTTP="" CmdOffPost="" Analog="false" Repeat="0" RepeatRate="0"/>
+</VirtualOut>

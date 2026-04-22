@@ -1,0 +1,57 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Modbus Title="Daikin DCOM gateways for Altherma - MODBUS ENG" Comment="" HintText="" Baudrate="9600" Stopbits="1" Channel="1">
+	<Info templateType="7" minVersion="15000511"/>
+	<ModbusCmd Title="Leaving Water Temperature pre BUH" Comment="" HintText="" ModbusAddress="41" ModbusCmd="4" ModbusDataType="33" ModbusPollingCycle="40" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="1"/>
+	<ModbusCmd Title="Leaving Water Temperature pre PHE" Comment="" HintText="" ModbusAddress="40" ModbusCmd="4" ModbusDataType="33" ModbusPollingCycle="40" Unit="&lt;v.2&gt;°C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Return Water Temperature" Comment="" HintText="" ModbusAddress="42" ModbusCmd="4" ModbusDataType="33" ModbusPollingCycle="10" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="1"/>
+	<ModbusCmd Title="Domestic Hot Water Temperature" Comment="" HintText="" ModbusAddress="43" ModbusCmd="4" ModbusDataType="1" ModbusPollingCycle="15" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="1"/>
+	<ModbusCmd Title="Outside Air Temperature" Comment="" HintText="" ModbusAddress="44" ModbusCmd="4" ModbusDataType="33" ModbusPollingCycle="30" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="1"/>
+	<ModbusCmd Title="Liquid Refrigerant Temperature" Comment="" HintText="" ModbusAddress="45" ModbusCmd="4" ModbusDataType="33" ModbusPollingCycle="40" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="1"/>
+	<ModbusCmd Title="Flow Rate" Comment="" HintText="" ModbusAddress="49" ModbusCmd="4" ModbusDataType="1" ModbusPollingCycle="30" Unit="&lt;v&gt;l/h" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="1"/>
+	<ModbusCmd Title="Remocon room temperature" Comment="" HintText="" ModbusAddress="50" ModbusCmd="4" ModbusDataType="33" ModbusPollingCycle="40" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="1"/>
+	<ModbusCmd Title="Operation Mode" Comment="" HintText="1: Topení
+2: Chlazení" ModbusAddress="38" ModbusCmd="4" ModbusDataType="1" ModbusPollingCycle="30" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="3-Way Valve" Comment="" HintText="0: Vytápění prostoru
+1: TUV" ModbusAddress="37" ModbusCmd="4" ModbusDataType="33" ModbusPollingCycle="5" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Hot Start" Comment="" HintText="0: OFF
+1: ON" ModbusAddress="36" ModbusCmd="4" ModbusDataType="33" ModbusPollingCycle="40" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Defrost / Startup" Comment="" HintText="0: OFF
+1: ON" ModbusAddress="35" ModbusCmd="4" ModbusDataType="33" ModbusPollingCycle="40" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Desinfection Operation" Comment="" HintText="0: OFF
+1: ON" ModbusAddress="33" ModbusCmd="4" ModbusDataType="33" ModbusPollingCycle="30" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Booster Heater Run" Comment="" HintText="0: OFF
+1: ON" ModbusAddress="32" ModbusCmd="4" ModbusDataType="33" ModbusPollingCycle="40" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Comopresor Run" Comment="" HintText="0: OFF
+1: ON" ModbusAddress="31" ModbusCmd="4" ModbusDataType="33" ModbusPollingCycle="30" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Circukation Pumo Runnig" Comment="" HintText="0: OFF
+1: ON" ModbusAddress="30" ModbusCmd="4" ModbusDataType="33" ModbusPollingCycle="30" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Unit Error" Comment="" HintText="0: Žádná chyba
+1: Chyba
+2: Varování" ModbusAddress="21" ModbusCmd="4" ModbusDataType="33" ModbusPollingCycle="30" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Unit Error Code" Comment="" HintText="2 znaky ascii" ModbusAddress="22" ModbusCmd="4" ModbusDataType="32" ModbusPollingCycle="30" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Unit Error Sub Code" Comment="" HintText="Když není chyba 32766
+Když je chyba 0 ... 99" ModbusAddress="23" ModbusCmd="4" ModbusDataType="33" ModbusPollingCycle="50" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Leaving Water Main Heating Setpoint" Comment="" HintText="25 ... 55°C" ModbusAddress="1" ModbusCmd="6" ModbusDataType="1" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Leaving Water Main Cooling Setpoint" Comment="" HintText="5 ... 22°C" ModbusAddress="2" ModbusCmd="6" ModbusDataType="1" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Operation Mode" Comment="" HintText="0: Auto
+1: Topení
+2: Chlezení" ModbusAddress="3" ModbusCmd="6" ModbusDataType="1" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Space Heating / Cooling On/Off" Comment="" HintText="0: OFF
+1: ON" ModbusAddress="4" ModbusCmd="6" ModbusDataType="1" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Room Thermostat Control Heating Setpoint" Comment="" HintText="12 ... 30°C" ModbusAddress="6" ModbusCmd="6" ModbusDataType="1" Unit="&lt;v&gt;°C" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Room Thermostat Control Cooling Setpoint" Comment="" HintText="15 ... 35°C" ModbusAddress="7" ModbusCmd="6" ModbusDataType="1" Unit="&lt;v&gt;°C" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Quier Mode Operation" Comment="" HintText="0: OFF
+1: ON" ModbusAddress="9" ModbusCmd="6" ModbusDataType="1" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="DHW Reheat On/Off" Comment="" HintText="30 ... 60°C" ModbusAddress="10" ModbusCmd="6" ModbusDataType="1" Unit="&lt;v&gt;°C" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Weather Dependent Mode On/Off" Comment="" HintText="0: Pevná
+1: Závislé na počasí
+2: Pevný + plánovač
+3: Závislé na počasí + plánovač
+" ModbusAddress="53" ModbusCmd="6" ModbusDataType="1" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="DHW Reheat On/Off" Comment="" HintText="0: OFF
+1: ON" ModbusAddress="12" ModbusCmd="6" ModbusDataType="1" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100" RepeatRate="5"/>
+	<ModbusCmd Title="DHW Booster mode On/Off" Comment="" HintText="0: OFF
+1: ON" ModbusAddress="13" ModbusCmd="6" ModbusDataType="1" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Weather Dependent Mode" Comment="" HintText="+/- 10°C" ModbusAddress="53" ModbusCmd="6" ModbusDataType="1" Unit="&lt;v&gt;°C" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Weather Dependent Mode LWT Cooling Setpoint Offset" Comment="" HintText="+/- 10°C" ModbusAddress="55" ModbusCmd="6" ModbusDataType="1" Unit="&lt;v&gt;°C" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+</Modbus>

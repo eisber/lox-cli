@@ -1,0 +1,9 @@
+{
+                                "type": "template",
+                                "name": "belimo-6-way-epiv-modbus-rtu",
+                                "uuid": "17764182-bc06-11ec-8a5e4cd98f3deb8a",
+                                "version":"1.0.0",
+                                "id": "belimo-6-way-epiv-modbus-rtu-829",
+                                "file": "belimo-6-way-epiv-modbus-rtu.xml",
+                                "templateType": "7",
+                            }

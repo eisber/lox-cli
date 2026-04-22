@@ -1,0 +1,10 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<VirtualOut Title="ENTTEC S-Play - IP Integration" Comment="" Address="http://192.168.25.49:55555" CmdInit="" CloseAfterSend="true" CmdSep=";">
+	<Info templateType="3" minVersion="12040228"/>
+	<VirtualOutCmd Title="Activate Playlist 1 - Default" Comment="" CmdOnMethod="POST" CmdOffMethod="POST" CmdOn="/api" CmdOnHTTP="content-type: application/json" CmdOnPost=" {&quot;command&quot;: 0,&quot;playlist_id&quot;:1,&quot;loop_count&quot;:0}" CmdOff="" CmdOffHTTP="" CmdOffPost="" Analog="false" Repeat="0" RepeatRate="0"/>
+	<VirtualOutCmd Title="Master Intensity _ Brightness" Comment="" CmdOnMethod="POST" CmdOffMethod="POST" CmdOn="/api" CmdOnHTTP="content-type: application/json" CmdOnPost="{&quot;command&quot;:24,&quot;intensity&quot;: &lt;v&gt;}" CmdOff="" CmdOffHTTP="" CmdOffPost="" Analog="true" Repeat="0" RepeatRate="0" SourceValHigh="1" DestValHigh="1"/>
+	<VirtualOutCmd Title="Activate Playlist 3" Comment="" CmdOnMethod="POST" CmdOffMethod="GET" CmdOn="/api" CmdOnHTTP="content-type: application/json" CmdOnPost=" {&quot;command&quot;: 0,&quot;playlist_id&quot;:3,&quot;loop_count&quot;:0}" CmdOff="" CmdOffHTTP="" CmdOffPost="" Analog="false" Repeat="0" RepeatRate="0"/>
+	<VirtualOutCmd Title="All Playlist Off" Comment="" CmdOnMethod="POST" CmdOffMethod="GET" CmdOn="/api" CmdOnHTTP="content-type: application/json" CmdOnPost="{&quot;command&quot;:7}" CmdOff="" CmdOffHTTP="" CmdOffPost="" Analog="false" Repeat="0" RepeatRate="0"/>
+	<VirtualOutCmd Title="Activate Playlist 4" Comment="" CmdOnMethod="POST" CmdOffMethod="GET" CmdOn="/api" CmdOnHTTP="content-type: application/json" CmdOnPost=" {&quot;command&quot;: 0,&quot;playlist_id&quot;:4,&quot;loop_count&quot;:0}" CmdOff="" CmdOffHTTP="" CmdOffPost="" Analog="false" Repeat="0" RepeatRate="0"/>
+	<VirtualOutCmd Title="Activate Playlist 2" Comment="" CmdOnMethod="POST" CmdOffMethod="GET" CmdOn="/api" CmdOnHTTP="content-type: application/json" CmdOnPost=" {&quot;command&quot;: 0,&quot;playlist_id&quot;:2,&quot;loop_count&quot;:0}" CmdOff="" CmdOffHTTP="" CmdOffPost="" Analog="false" Repeat="0" RepeatRate="0"/>
+</VirtualOut>

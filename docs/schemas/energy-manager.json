@@ -1,0 +1,67 @@
+{
+  "title": "Energy Manager Gen. 1",
+  "xml_type": "EnergyManager",
+  "kb_slug": "energy-manager",
+  "description": "With this function block, surplus energy, which is otherwise fed into the grid, can be used optimally. Up to 12 loads can be controlled.",
+  "inputs": [
+    {
+      "abbreviation": "Ps",
+      "summary": "Power energy storage",
+      "description": "Must be connected if output (Re) is used.",
+      "unit": "kW",
+      "value_range": "\u221e"
+    },
+    {
+      "abbreviation": "Prio",
+      "summary": "Priority selection",
+      "description": "Starts the selected load immediately.",
+      "unit": "0/1",
+      "value_range": "0...12"
+    },
+    {
+      "abbreviation": "Off",
+      "summary": "Off",
+      "description": "Pulse: Outputs are reset / switched off. On: Block is locked. Dominating input. The name of the connected sensor is used in the user interface.",
+      "unit": "-",
+      "value_range": "0/1"
+    }
+  ],
+  "outputs": [
+    {
+      "abbreviation": "Re",
+      "summary": "Residual energy",
+      "description": "Can be used, for example, to charge a battery or a heating element (energy storage). If this output is used, the input (Ps) must be connected.",
+      "unit": "kW",
+      "value_range": "\u221e"
+    },
+    {
+      "abbreviation": "API",
+      "summary": "API Connector",
+      "description": "Intelligent API based connector. API Commands",
+      "unit": "-",
+      "value_range": "-"
+    }
+  ],
+  "parameters": [
+    {
+      "abbreviation": "O",
+      "summary": "Offset available energy",
+      "description": "Only so many consumers are activated that the current power (P) does not exceed this value. 0 = Outputs are activated only with excess energy.",
+      "unit": "kW",
+      "value_range": "\u221e",
+      "default_value": "0"
+    }
+  ],
+  "properties": [
+    {
+      "summary": "Properties",
+      "description": "Edit energy manager",
+      "default_value": "-"
+    }
+  ],
+  "source_url": "https://www.loxone.com/enen/kb/energy-manager/",
+  "input_count": 3,
+  "output_count": 2,
+  "parameter_count": 1,
+  "property_count": 1
+}

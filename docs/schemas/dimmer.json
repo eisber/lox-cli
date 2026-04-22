@@ -1,0 +1,101 @@
+{
+  "title": "Dimmer",
+  "xml_type": "Dimmer",
+  "kb_slug": "dimmer",
+  "description": "Optimised dimmer with double click function for single button operation.",
+  "inputs": [
+    {
+      "abbreviation": "Tg",
+      "summary": "Toggle",
+      "description": "Toggles output (D) between 0 and last value (or between 0 and 100 when parameter (Lv) is 1). Long-click for dimming up/down.",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "+",
+      "summary": "Dim+",
+      "description": "Toggles output (D) between 0 and last value (or between 0 and 100 when parameter (Lv) is 1). Long-click for dimming up.",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "-",
+      "summary": "Dim-",
+      "description": "Toggles output (D) between 0 and last value (or between 0 and 100 when parameter (Lv) is 1). Long-click for dimming down.",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "Off",
+      "summary": "Off",
+      "description": "Pulse: Outputs are reset / switched off. On: Block is locked. Dominating input. The name of the connected sensor is used in the user interface.",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "DisPc",
+      "summary": "Disable periphery control",
+      "description": "Disables inputs (Tg), (+), (-) when On. (e.g Child lock, cleaning) Control via user interface is still possible.",
+      "value_range": "0/1"
+    }
+  ],
+  "outputs": [
+    {
+      "abbreviation": "D",
+      "summary": "Dimmer output",
+      "description": "Analog output for dimmer control (e.g. 0-10V)",
+      "value_range": "\u221e"
+    },
+    {
+      "abbreviation": "S",
+      "summary": "Status",
+      "description": "On when output (D) is greater than 0.",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "API",
+      "summary": "API Connector",
+      "description": "Intelligent API based connector. API Commands",
+      "value_range": "-"
+    }
+  ],
+  "parameters": [
+    {
+      "abbreviation": "Rem",
+      "summary": "Remanence input",
+      "description": "Remanence input: If active, the function block retains its previous state after a Miniserver reboot. The state of the function block is saved: \u2013 When saving to the Miniserver \u2013 At a planned reboot \u2013 Before a backup \u2013 Once per hour The data is saved on the SD card.",
+      "value_range": "0/1",
+      "default_value": "0"
+    },
+    {
+      "abbreviation": "Di",
+      "summary": "Delay input",
+      "description": "Delays input for set time. If this parameter is set too low, the block may interpret the input as a held button press rather than a normal (short) click. Applies to inputs (Tg), (+), (-).",
+      "value_range": "\u221e",
+      "default_value": "0,4"
+    },
+    {
+      "abbreviation": "Str",
+      "summary": "Step rate",
+      "description": "Dim value is in-/decreased by (Sts) every (Str) seconds on long-click.",
+      "value_range": "\u221e",
+      "default_value": "0,2"
+    },
+    {
+      "abbreviation": "Dm",
+      "summary": "Dim mode",
+      "description": "1 = Dim between parameters (MinD) and (MaxD) on long-click. 0 = Stop dimming when reaching parameter (MinD) or parameter (MaxD) on long-click. Only applies to input (Tg).",
+      "value_range": "0/1",
+      "default_value": "0"
+    },
+    {
+      "abbreviation": "Lv",
+      "summary": "Last value",
+      "description": "1 = Sets output (D) to (MaxD) when switching on. 0 = Sets last value to ouput (D) when switching on.",
+      "value_range": "0/1",
+      "default_value": "0"
+    }
+  ],
+  "properties": [],
+  "source_url": "https://www.loxone.com/enen/kb/dimmer/",
+  "input_count": 5,
+  "output_count": 3,
+  "parameter_count": 5,
+  "property_count": 0
+}

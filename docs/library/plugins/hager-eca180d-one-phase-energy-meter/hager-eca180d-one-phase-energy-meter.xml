@@ -1,0 +1,12 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Modbus Title="Hager ECA180D" Comment="Hager ECA180D" Baudrate="19200" Parity="1" Channel="2">
+	<Info templateType="7" minVersion="12021105"/>
+	<ModbusCmd Title="Voltage" Comment="" ModbusAddress="45056" ModbusCmd="3" ModbusPollingCycle="10" Unit="&lt;v.1&gt;V" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="1"/>
+	<ModbusCmd Title="Current" Comment="" ModbusAddress="45065" ModbusCmd="3" ModbusDataType="34" ModbusPollingCycle="10" Unit="&lt;v.2&gt;A" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="1"/>
+	<ModbusCmd Title="Power" Comment="" ModbusAddress="45073" ModbusCmd="3" ModbusDataType="35" ModbusPollingCycle="10" Unit="&lt;v&gt;W" Analog="true" Sensor="true" SourceValHigh="1" DestValHigh="10"/>
+	<ModbusCmd Title="Energy In" Comment="" ModbusAddress="45160" ModbusCmd="3" ModbusDataType="34" ModbusPollingCycle="300" Unit="&lt;v&gt;kWh" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Energy Out" Comment="" ModbusAddress="45162" ModbusCmd="3" ModbusDataType="34" ModbusPollingCycle="300" Unit="&lt;v&gt;kWh" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Frequency" Comment="" ModbusAddress="45062" ModbusCmd="3" ModbusPollingCycle="10" Unit="&lt;v.1&gt;Hz" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="1"/>
+	<ModbusCmd Title="Power factor IEC" Comment="" ModbusAddress="45079" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="10" Unit="&lt;v.2&gt;cosΦ" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="1"/>
+	<ModbusCmd Title="Power factor IEEE" Comment="" ModbusAddress="45080" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="10" Unit="&lt;v.2&gt;cosΦ" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="1"/>
+</Modbus>

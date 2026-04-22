@@ -1,0 +1,5 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Comm Title="Lutron RS232" Comment="" HintText="" Baudrate="9600" Databits="8" CycleUserProt="-1">
+	<Info templateType="5" minVersion="15050304"/>
+	<CommCmd Title="Shade Position" Comment="" CmdOn="#OUTPUT,&lt;Integration ID&gt;,1,&lt;v&gt;\r\n" CmdOff="" Unit="&lt;v.1&gt;" HintText="" Analog="true" Text="false" Sensor="false" Signed="true" SourceValHigh="100" DestValLow="100"/>
+</Comm>

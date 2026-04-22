@@ -1,0 +1,19 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Modbus Title="Rotenso RAC" Comment="" Baudrate="9600" Channel="1">
+	<Info templateType="7" minVersion="12040518"/>
+	<ModbusCmd Title="Fan mode" Comment="" ModbusAddress="128" ModbusCmd="1" ModbusPollingCycle="5" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="Dry mode" Comment="" ModbusAddress="129" ModbusCmd="1" ModbusPollingCycle="5" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="Heat mode" Comment="" ModbusAddress="130" ModbusCmd="1" ModbusPollingCycle="5" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="Cool mode" Comment="" ModbusAddress="131" ModbusCmd="1" ModbusPollingCycle="5" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="Auto mode" Comment="" ModbusAddress="132" ModbusCmd="1" ModbusPollingCycle="5" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="Mode locking state" Comment="" ModbusAddress="133" ModbusCmd="1" ModbusPollingCycle="5" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="ON_OFF" Comment="" ModbusAddress="135" ModbusCmd="1" ModbusPollingCycle="5" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="High fan speed" Comment="" ModbusAddress="136" ModbusCmd="1" ModbusPollingCycle="5" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="Medium fan speed" Comment="" ModbusAddress="137" ModbusCmd="1" ModbusPollingCycle="5" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="Low fan speed" Comment="" ModbusAddress="138" ModbusCmd="1" ModbusPollingCycle="5" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="Soft fan speed" Comment="" ModbusAddress="139" ModbusCmd="1" ModbusPollingCycle="5" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="Auto (fixed) fan" Comment="" ModbusAddress="143" ModbusCmd="1" ModbusPollingCycle="5" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="Setting mode" Comment="" ModbusAddress="33" ModbusCmd="16" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Setting temperature" Comment="" ModbusAddress="35" ModbusCmd="16" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Setting fan speed" Comment="" ModbusAddress="34" ModbusCmd="16" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10"/>
+</Modbus>

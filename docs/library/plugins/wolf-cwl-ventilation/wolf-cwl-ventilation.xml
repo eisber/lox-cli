@@ -1,0 +1,38 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Modbus Title="WOLF CWL Excellent" Comment="" Baudrate="9600" Parity="1" Channel="11">
+	<Info templateType="7" minVersion="12021027"/>
+	<ModbusCmd Title="4011_Current pressure suppy duct [Pa]" Comment="" ModbusAddress="4010" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v.1&gt; Pa" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="4013_Preset air flowrate [m³_h]" Comment="" ModbusAddress="4012" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v.1&gt; m³/h" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="4009_Current Temperature from outside sensor [°C]" Comment="" ModbusAddress="4008" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="60" Unit="&lt;v&gt;°C" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="4012_Current pressure exhaust duct [Pa]" Comment="" ModbusAddress="4011" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v.1&gt;Pa" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="4002_Appliance type" Comment="" ModbusAddress="4001" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="4004_Appliance version (basic_plus)" Comment="" ModbusAddress="4003" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="4010_Current Temperature from dwelling[°C]" Comment="" ModbusAddress="4009" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="60" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="4028_Current supply flowrate [m²_h]" Comment="" ModbusAddress="4027" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v.1&gt; m³/h" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="4029_Current exhaust flowrate [m³_h]" Comment="" ModbusAddress="4028" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v.1&gt; m³/h" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="4030_Bypass valve position" Comment="" ModbusAddress="4029" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="4031_Operation bypass valve" Comment="" ModbusAddress="4030" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="4037_Preheater status" Comment="" ModbusAddress="4036" ModbusCmd="3" ModbusPollingCycle="120" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="4038_Preheater power" Comment="" ModbusAddress="4037" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="4039_Current fault code" Comment="" ModbusAddress="4038" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="4040_Filter status" Comment="" ModbusAddress="4039" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="4016_Imbalance permissible" Comment="" ModbusAddress="4015" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="4022_Preset imbalance [m³_h]" Comment="" ModbusAddress="4021" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="4041_Geo heater exchange mode" Comment="" ModbusAddress="4040" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="4047_Geo heater exchange min. temp. [°C]" Comment="" ModbusAddress="4046" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="60" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="4053_Geo heater exchange max temp. [°C]" Comment="" ModbusAddress="4052" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="60" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="4059_No selected CO² Sensor (max 4)" Comment="" ModbusAddress="4058" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="4060_Value selected CO² Sensor [PPM]" Comment="" ModbusAddress="4059" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v.1&gt;PPM" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="6013_Set control mode Bypass" Comment="" ModbusAddress="6012" ModbusCmd="6" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10" RepeatRate="30"/>
+	<ModbusCmd Title="6001_Value flowrate [m³_h]" Comment="" ModbusAddress="6000" ModbusCmd="6" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10" RepeatRate="600"/>
+	<ModbusCmd Title="6006_Operation Bypass value" Comment="" ModbusAddress="6005" ModbusCmd="6" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10" RepeatRate="60"/>
+	<ModbusCmd Title="6004_Imbalance permissible" Comment="" ModbusAddress="6003" ModbusCmd="6" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10" RepeatRate="60"/>
+	<ModbusCmd Title="6012_Reset Wolf appliance" Comment="" ModbusAddress="6011" ModbusCmd="6" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="6011_CO2 Sensor read out" Comment="" ModbusAddress="6010" ModbusCmd="6" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="6010_Geo heat exchanger max temp.[C°]" Comment="" ModbusAddress="6009" ModbusCmd="6" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="1000_Modbus Slave-Adress" Comment="" ModbusAddress="999" ModbusCmd="6" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="6005_Preset imbalance [m³_h]" Comment="" ModbusAddress="6004" ModbusCmd="6" ModbusDataType="1" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="6007_Filter Reset" Comment="" ModbusAddress="6006" ModbusCmd="6" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="6008_Geo heat exchanger mode" Comment="" ModbusAddress="6007" ModbusCmd="6" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="6009_Geo heat exchanger min temp.[C°]" Comment="" ModbusAddress="6008" ModbusCmd="6" ModbusDataType="1" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10"/>
+</Modbus>

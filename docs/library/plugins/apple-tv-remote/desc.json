@@ -1,0 +1,9 @@
+{
+                                "type": "template",
+                                "name": "apple-tv-remote",
+                                "uuid": "cfe76e23-1167-11ec-9a744cd98f3deb8a",
+                                "version":"1.0.0",
+                                "id": "apple-tv-remote-58",
+                                "file": "apple-tv-remote.xml",
+                                "templateType": "4",
+                            }

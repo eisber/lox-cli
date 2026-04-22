@@ -1,0 +1,42 @@
+{
+  "category": "I: Misc software blocks",
+  "blocks": {
+    "DewpointCalculator": {
+      "inputs": {"Temp": "analog", "Humidity": "analog"},
+      "outputs": {"AQ": "analog"},
+      "tests": [
+        {"desc": "20°C 50%RH → ~9.3°C", "set": {"Temp": 20.0, "Humidity": 50.0}, "expect": {"AQ": 9.3}, "wait": 0.5},
+        {"desc": "25°C 80%RH → ~21.3°C", "set": {"Temp": 25.0, "Humidity": 80.0}, "expect": {"AQ": 21.3}, "wait": 0.5},
+        {"desc": "0°C 50%RH → ~-9.2°C", "set": {"Temp": 0.0, "Humidity": 50.0}, "expect": {"AQ": -9.2}, "wait": 0.5}
+      ]
+    },
+    "RampController": {
+      "inputs": {"Target": "analog", "I": "digital"},
+      "outputs": {"AQ": "analog"},
+      "tests": [
+        {"desc": "set target", "set": {"Target": 100.0, "I": 1}, "wait": 1.0},
+        {"desc": "ramp in progress", "set": {"I": 1}, "wait": 2.0}
+      ]
+    },
+    "SequentialController": {
+      "inputs": {"I": "digital", "R": "digital"},
+      "outputs": {"AQ": "analog"},
+      "tests": [
+        {"desc": "reset", "set": {"R": 1, "I": 0}, "expect": {"AQ": 0}},
+        {"desc": "step 1", "set": {"R": 0, "I": 1}, "expect": {"AQ": 1}},
+        {"desc": "step 2", "set": {"I": 0}, "wait": 0.3},
+        {"desc": "step 2 trigger", "set": {"I": 1}, "expect": {"AQ": 2}}
+      ]
+    },
+    "PulseBy": {
+      "inputs": {"I": "analog"},
+      "outputs": {"Q": "digital"},
+      "tests": [
+        {"desc": "zero → no pulse", "set": {"I": 0.0}, "expect": {"Q": 0}},
+        {"desc": "change → pulse", "set": {"I": 10.0}, "expect": {"Q": 1}, "wait": 0.2},
+        {"desc": "pulse resets", "set": {"I": 10.0}, "expect": {"Q": 0}, "wait": 0.5}
+      ]
+    }
+  },
+  "wiring": {}
+}

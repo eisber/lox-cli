@@ -1,0 +1,33 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Modbus Title="komfovent" Comment="" Channel="60">
+	<Info templateType="7" minVersion="12021105"/>
+	<ModbusCmd Title="Outdoor temp" Comment="" ModbusAddress="903" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="10" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValLow="-300" SourceValHigh="100" DestValLow="-30" DestValHigh="10"/>
+	<ModbusCmd Title="Current mode" Comment="" ModbusAddress="4" ModbusCmd="3" ModbusDataType="3" ModbusPollingCycle="20" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Active alarms count" Comment="" ModbusAddress="599" ModbusCmd="3" ModbusDataType="2" ModbusPollingCycle="30" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Extract Temperature" Comment="" ModbusAddress="902" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="10"/>
+	<ModbusCmd Title="Suplay temperature" Comment="" ModbusAddress="901" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="10"/>
+	<ModbusCmd Title="Current supply flow" Comment="" ModbusAddress="905" ModbusCmd="3" ModbusDataType="98" ModbusPollingCycle="30" Unit="&lt;v&gt; m3/h" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Current extract flow" Comment="" ModbusAddress="907" ModbusCmd="3" ModbusDataType="98" ModbusPollingCycle="30" Unit="&lt;v&gt; m3/h" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="On_off status" Comment="" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Eco mode" Comment="" ModbusAddress="2" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Auto mode" Comment="" ModbusAddress="3" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Current supply fan intensivity" Comment="" ModbusAddress="909" ModbusCmd="3" ModbusPollingCycle="30" Unit="&lt;v&gt; %" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="100"/>
+	<ModbusCmd Title="Current extract fan intensivity" Comment="" ModbusAddress="910" ModbusCmd="3" ModbusPollingCycle="30" Unit="&lt;v&gt; %" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="100"/>
+	<ModbusCmd Title="Power consumption" Comment="" ModbusAddress="920" ModbusCmd="3" ModbusPollingCycle="10" Unit="&lt;v&gt; W" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Incing protection" Comment="" ModbusAddress="39" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Energy saving" Comment="" ModbusAddress="924" ModbusCmd="3" ModbusPollingCycle="30" Unit="&lt;v&gt; %" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Heat exchanger efficiency" Comment="Ef" ModbusAddress="923" ModbusCmd="3" ModbusPollingCycle="10" Unit="&lt;v&gt; %" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Heater power" Comment="" ModbusAddress="921" ModbusCmd="3" ModbusPollingCycle="10" Unit="&lt;v&gt; W" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Heat exchanger recovery" Comment="" ModbusAddress="922" ModbusCmd="3" ModbusPollingCycle="10" Unit="&lt;v&gt; W" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Filters Imupurity" Comment="" ModbusAddress="916" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v&gt; %" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Current mode" Comment="" ModbusAddress="4" ModbusCmd="6" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Power" Comment="" ModbusCmd="6" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="1" DestValHigh="1"/>
+	<ModbusCmd Title="Room sensor" Comment="" ModbusAddress="38" ModbusCmd="6" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Auto mode" Comment="" ModbusAddress="3" ModbusCmd="6" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Air quality heating" Comment="" ModbusAddress="210" ModbusCmd="6" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Eco mode" Comment="" ModbusAddress="2" ModbusCmd="6" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Mode Away setpoint" Comment="" ModbusAddress="103" ModbusCmd="6" ModbusDataType="1" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="100"/>
+	<ModbusCmd Title="Mode Normal setpoint" Comment="" ModbusAddress="109" ModbusCmd="6" ModbusDataType="1" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="100"/>
+	<ModbusCmd Title="Mode Intensive setpoint" Comment="" ModbusAddress="115" ModbusCmd="6" ModbusDataType="1" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="100"/>
+	<ModbusCmd Title="Mode Boost setpoint" Comment="" ModbusAddress="121" ModbusCmd="6" ModbusDataType="1" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="100"/>
+</Modbus>

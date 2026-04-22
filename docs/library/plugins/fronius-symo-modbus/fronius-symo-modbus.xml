@@ -1,0 +1,19 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Modbus Title="Fronius Symo" Comment="" Channel="1">
+	<Info templateType="7" minVersion="12021027"/>
+	<ModbusCmd Title="AC Voltage Phase 1" Comment="" ModbusAddress="40084" ModbusCmd="3" ModbusDataType="36" ModbusPollingCycle="300" Unit="&lt;v&gt; V" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="AC Voltage Phase 3" Comment="" ModbusAddress="40088" ModbusCmd="3" ModbusDataType="36" ModbusPollingCycle="300" Unit="&lt;v&gt; V" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="AC Voltage Phase 2" Comment="" ModbusAddress="40086" ModbusCmd="3" ModbusDataType="36" ModbusPollingCycle="300" Unit="&lt;v&gt; V" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="AC Power" Comment="" ModbusAddress="40090" ModbusCmd="3" ModbusDataType="36" ModbusPollingCycle="10" Unit="&lt;v.2&gt; kW" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="1"/>
+	<ModbusCmd Title="AC Frequency" Comment="" ModbusAddress="40092" ModbusCmd="3" ModbusDataType="36" ModbusPollingCycle="300" Unit="&lt;v&gt;Hz" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="AC Current Phase 1" Comment="" ModbusAddress="40072" ModbusCmd="3" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt; A" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="AC Current Phase 2" Comment="" ModbusAddress="40074" ModbusCmd="3" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt; A" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="AC Current Phase 3" Comment="" ModbusAddress="40076" ModbusCmd="3" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt; A" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="DC Voltage 1" Comment="" ModbusAddress="40283" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v.1&gt; V" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="1"/>
+	<ModbusCmd Title="DC Voltage 2" Comment="" ModbusAddress="40303" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v.1&gt; V" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="1"/>
+	<ModbusCmd Title="DC Current 1" Comment="" ModbusAddress="40282" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v.1&gt; A" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="1"/>
+	<ModbusCmd Title="DC Current 2" Comment="" ModbusAddress="40302" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v.1&gt; A" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="1"/>
+	<ModbusCmd Title="Temperature MPPT 1" Comment="" ModbusAddress="40289" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="1"/>
+	<ModbusCmd Title="Temperature MPPT 2" Comment="" ModbusAddress="40309" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="1"/>
+	<ModbusCmd Title="AC Lifetime Energy production" Comment="" ModbusAddress="40100" ModbusCmd="3" ModbusDataType="36" ModbusPollingCycle="300" Unit="&lt;v.2&gt; kWh" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="1"/>
+</Modbus>

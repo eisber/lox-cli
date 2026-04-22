@@ -1,0 +1,80 @@
+{
+  "title": "Tablet",
+  "xml_type": "",
+  "kb_slug": "tablet",
+  "description": "To manage Android and iPad-OS tablets with a Miniserver, these can be integrated similarly to Air or Tree devices.",
+  "inputs": [
+    {
+      "abbreviation": "Ds",
+      "summary": "Default screen",
+      "description": "Input can be used to launch the specified Default Screen on the Tablet by triggering this input.",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "P",
+      "summary": "Presence",
+      "description": "As long as the input is active the display will stay on and the Screensaver stays off, even if the tablet is idle and there is no user interaction.",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "Dnd",
+      "summary": "Do not disturb",
+      "description": "All notifications will be silenced. Fully dims the display or dims to the value specified via parameter SBr, depending on the screensaver settings, as long as there is no user interaction. Overrides input (P).",
+      "value_range": "0/1"
+    }
+  ],
+  "outputs": [
+    {
+      "abbreviation": "Cac",
+      "summary": "Charging active",
+      "description": "On when charging",
+      "unit": "-",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "Blvl",
+      "summary": "Battery level",
+      "description": "Current battery level",
+      "unit": "%",
+      "value_range": "0...100"
+    },
+    {
+      "abbreviation": "Ui",
+      "summary": "User interaction",
+      "description": "Stays ON as long as the tablet is in use. Goes Off after the user interaction overrun duration has ended.",
+      "unit": "-",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "API",
+      "summary": "API Connector",
+      "description": "Intelligent API based connector. API Commands",
+      "unit": "-",
+      "value_range": "-"
+    }
+  ],
+  "parameters": [
+    {
+      "abbreviation": "DBr",
+      "summary": "Display brightness",
+      "description": "Specifies the brightness of the display.",
+      "unit": "%",
+      "value_range": "0...100",
+      "default_value": "80"
+    },
+    {
+      "abbreviation": "SBr",
+      "summary": "Screensaver brightness",
+      "description": "Specifies the brightness of the display when the Screensaver is on.",
+      "unit": "%",
+      "value_range": "0...100",
+      "default_value": "10"
+    }
+  ],
+  "properties": [],
+  "source_url": "https://www.loxone.com/enen/kb/tablet/",
+  "input_count": 3,
+  "output_count": 4,
+  "parameter_count": 2,
+  "property_count": 0
+}

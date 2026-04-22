@@ -1,0 +1,170 @@
+{
+  "title": "Audio Player Fixed Group",
+  "xml_type": "",
+  "kb_slug": "audio-player-fixed-group",
+  "description": "An Audio Player Group can be used to combine multiple Audio Player blocks. This allows for a uniform music experience in open spaces.",
+  "inputs": [
+    {
+      "abbreviation": "V+",
+      "summary": "Volume+",
+      "description": "Increase volume by value set in parameter (Vsts). Double-click selects next favorite.",
+      "unit": "-",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "V-",
+      "summary": "Volume-",
+      "description": "Decrease volume by value set in parameter (Vsts). Double-click turns off the player.",
+      "unit": "-",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "V",
+      "summary": "Set volume",
+      "description": "If the assigned Audio Players are set to different volumes, only the loudest players adopt the new value when the volume is changed; all other players follow accordingly but retain the volume ratio.",
+      "unit": "%",
+      "value_range": "0...100"
+    },
+    {
+      "abbreviation": "P",
+      "summary": "Presence",
+      "description": "Starts playback when 1.",
+      "unit": "-",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "Fav",
+      "summary": "Set favorite",
+      "description": "Selects a favorite based on its assigned ID number. If the selected ID does not exist, the first favorite is selected.",
+      "unit": "-",
+      "value_range": "\u221e"
+    },
+    {
+      "abbreviation": "Alarm",
+      "summary": "Alarm",
+      "description": "Plays alarm sound at volume set in parameter (Va).",
+      "unit": "-",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "FireAlarm",
+      "summary": "Fire alarm",
+      "description": "Plays fire alarm sound at volume set in parameter (Va).",
+      "unit": "-",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "Bell",
+      "summary": "Bell",
+      "description": "Plays doorbell sound at volume set in parameter (Vbell).",
+      "unit": "-",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "Off",
+      "summary": "Off",
+      "description": "Pulse: Outputs are reset / switched off. On: Block is locked. Dominating input.",
+      "unit": "-",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "DisPc",
+      "summary": "Disable periphery control",
+      "description": "Disables inputs V+, V-, V, Play, Pause, Prev, Next, Fav, Bell, Buzzer, T5, TTS, Cs, BTp when On. (e.g child lock, cleaning) Control via user interface is still possible.",
+      "unit": "-",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "DisP",
+      "summary": "Disable presence",
+      "description": "As long as this input is active, any change in value at input (P) is ignored.",
+      "unit": "-",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "T5",
+      "summary": "T5 control",
+      "description": "Button 2 : Volume up; double-click starts playback or choses next favorite Button 5 : Volume down; double-click pauses playback Button 3: Double-click activates (2C); triple-click activates (3C); (Roff) = 0: pauses playback",
+      "unit": "-",
+      "value_range": "\u221e"
+    },
+    {
+      "abbreviation": "TTS",
+      "summary": "Text to speech",
+      "description": "Converts a Text to speech and plays it at the volume set in parameter (Vtts).",
+      "unit": "-",
+      "value_range": "-"
+    },
+    {
+      "abbreviation": "LineIn",
+      "summary": "Set Line In",
+      "description": "Selects the Line In of an Audioserver as source based on its Line In ID.",
+      "unit": "-",
+      "value_range": "0...\u221e"
+    },
+    {
+      "abbreviation": "Cs",
+      "summary": "Custom sound",
+      "description": "Plays custom sound [filename] at volume [vol]. E.g. soundcheck.mp3:80 [filename]:[vol] Custom sounds have to be stored on the Audioserver\u2019s SD card in the folder Event_Sounds! Only mp3 files are supported.",
+      "unit": "-",
+      "value_range": "-"
+    }
+  ],
+  "outputs": [
+    {
+      "abbreviation": "API",
+      "summary": "API Connector",
+      "description": "Intelligent API based connector. API Commands"
+    }
+  ],
+  "parameters": [
+    {
+      "abbreviation": "Roff",
+      "summary": "Ignore room off command",
+      "description": "Ignore Room Off / House Off via T5 (button 3)",
+      "unit": "-",
+      "value_range": "0/1",
+      "default_value": "0"
+    },
+    {
+      "abbreviation": "BTp",
+      "summary": "Bluetooth pairing",
+      "description": "As long as this input is active, bluetooth pairing is available. During this time all bluetooth-enabled Loxone devices can be paired with e.g. a smartphone or other bluetooth-enabled devices. Input is only visible when services and bluetooth are handled by player group This parameter is only visible in certain configurations.",
+      "unit": "-",
+      "value_range": "0/1",
+      "default_value": "0"
+    }
+  ],
+  "properties": [
+    {
+      "summary": "Selection",
+      "description": "All selected function blocks can be controller together.",
+      "default_value": "-"
+    },
+    {
+      "summary": "Enable AirPlay",
+      "description": "Enable AirPlay for all players of this group",
+      "default_value": "-"
+    },
+    {
+      "summary": "Enable Spotify Connect",
+      "description": "Enable Spotify Connect for all players of this group",
+      "default_value": "-"
+    },
+    {
+      "summary": "Handle services by group",
+      "description": "If services are handled by player group, the configured players are not visible in Airplay and Spotifiy connect.",
+      "default_value": "-"
+    },
+    {
+      "summary": "Room Favorite Priority",
+      "description": "If checked, the first room favorite will always be used when the player is activated.",
+      "default_value": "-"
+    }
+  ],
+  "source_url": "https://www.loxone.com/enen/kb/audio-player-fixed-group/",
+  "input_count": 15,
+  "output_count": 1,
+  "parameter_count": 2,
+  "property_count": 5
+}

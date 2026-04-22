@@ -1,0 +1,19 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Modbus Title="Daikin RTD-NET Module" Comment="" Baudrate="9600" Channel="4">
+	<Info templateType="7" minVersion="12021201"/>
+	<ModbusCmd Title="RC Operation Mode" Comment="" ModbusAddress="51" ModbusCmd="4" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Unit Count" Comment="" ModbusAddress="20" ModbusCmd="4" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Is Fault" Comment="" ModbusAddress="21" ModbusCmd="4" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Fault Code" Comment="" ModbusAddress="22" ModbusCmd="4" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Return Air" Comment="" ModbusAddress="23" ModbusCmd="4" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="1"/>
+	<ModbusCmd Title="Filter Alarm" Comment="" ModbusAddress="24" ModbusCmd="4" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Return Air Min" Comment="" ModbusAddress="25" ModbusCmd="4" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="1"/>
+	<ModbusCmd Title="Return Air Max" Comment="" ModbusAddress="26" ModbusCmd="4" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="1"/>
+	<ModbusCmd Title="Thermo On" Comment="" ModbusAddress="30" ModbusCmd="4" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Defrost" Comment="" ModbusAddress="35" ModbusCmd="4" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Setpoint" Comment="" ModbusAddress="1" ModbusCmd="6" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Fanspeed" Comment="" ModbusAddress="2" ModbusCmd="6" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="ON_OFF" Comment="1=Heating, 2=Cooling" ModbusAddress="5" ModbusCmd="6" Unit="Mode &lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100" RepeatRate="5"/>
+	<ModbusCmd Title="Louvre" Comment="" ModbusAddress="4" ModbusCmd="6" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Mode" Comment="" ModbusAddress="3" ModbusCmd="6" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+</Modbus>

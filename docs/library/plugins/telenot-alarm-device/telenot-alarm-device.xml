@@ -1,0 +1,20 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Comm Title="Telenot Alarm device" Comment="" Baudrate="9600" Databits="8">
+	<Info templateType="5" minVersion="12021006"/>
+	<CommCmd Title="TELENOT SEND_NORM" Comment="" CmdOn="\x68\x02\x02\x68\x40\x02\x42\x16" CmdOff="" Unit="" Analog="false" Text="false" Sensor="true" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="TELENOT SEND_NDAT" Comment="" CmdOn="\x68\.\.\x68\x73\x02\." CmdOff="" Unit="" Analog="false" Text="false" Sensor="true" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="TELENOT SEND_NDAT2" Comment="" CmdOn="\x68\x3E\x3E\x68\x73\x02\." CmdOff="" Unit="" Analog="false" Text="false" Sensor="true" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="TELENOT SEND_NDAT3" Comment="" CmdOn="\x68\x1A\x1A\x68\x73\x02\x05\x02\x00\." CmdOff="" Unit="" Analog="false" Text="false" Sensor="true" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="TELENOT SEND_NDAT4" Comment="" CmdOn="\x68\x2C\x2C\x68\x73\x02\x05\x02\." CmdOff="" Unit="" Analog="false" Text="false" Sensor="true" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="Sensor 1-8 Query" Comment="" CmdOn="\x68\.\.\x68\x73\x02\x22\x24\.\.\.\.\1" CmdOff="" Unit="&lt;v.1&gt;V" Analog="true" Text="false" Sensor="true" Signed="false" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="Sensor 9-16 Query" Comment="" CmdOn="\x68\.\.\x68\x73\x02\x22\x24\.\.\.\.\.\1" CmdOff="" Unit="&lt;v.1&gt;V" Analog="true" Text="false" Sensor="true" Signed="false" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="Area 1 Status Query" Comment="" CmdOn="\x68\.\.\x68\x73\x02\x32\x24\.\.\.\.\.\.\.\.\.\.\1\." CmdOff="" Unit="&lt;v.1&gt;V" Analog="true" Text="false" Sensor="true" Signed="false" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="TELENOT CONF_ACK" Comment="" CmdOn="\x68\x02\x02\x68\x00\x02\x02\x16" CmdOff="" Unit="" Analog="false" Text="false" Sensor="true" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="Area 2 Status query" Comment="" CmdOn="\x68\.\.\x68\x73\x02\x32\x24\.\.\.\.\.\.\.\.\.\.\.\1" CmdOff="" Unit="&lt;v.1&gt;" Analog="true" Text="false" Sensor="true" Signed="false" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="Armed internal B1" Comment="" CmdOn="\x68\x09\x09\x68\x73\x01\x05\x02\x00\x05\x31\x02\x62\x15\x16" CmdOff="" Unit="" Analog="false" Text="false" Sensor="false" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="Armed external B1" Comment="" CmdOn="\x68\x09\x09\x68\x73\x01\x05\x02\x00\x05\x32\x02\x61\x15\x16" CmdOff="" Unit="" Analog="false" Text="false" Sensor="false" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="Unarmed B1" Comment="" CmdOn="\x68\x09\x09\x68\x73\x01\x05\x02\x00\x05\x30\x02\xE1\x93\x16" CmdOff="" Unit="" Analog="false" Text="false" Sensor="false" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="Alarm Reset B1" Comment="" CmdOn="\x68\x09\x09\x68\x73\x01\x05\x02\x00\x05\x33\x02\x52\x07\x16" CmdOff="" Unit="" Analog="false" Text="false" Sensor="false" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="TELENOT CONF_ACK" Comment="" CmdOn="\x68\x02\x02\x68\x00\x02\x02\x16" CmdOff="" Unit="" Analog="false" Text="false" Sensor="false" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="TELENOT SEND_NORM" Comment="" CmdOn="\x68\x02\x02\x68\x40\x02\x42\x16" CmdOff="" Unit="" Analog="false" Text="false" Sensor="false" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+</Comm>

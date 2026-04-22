@@ -1,0 +1,416 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Modbus Title="IDM Heat Pump" Comment="" Channel="1">
+    <Info templateType="7" minVersion="12040628"/>
+    <ModbusCmd Title="Excess" Comment="" ModbusAddress="74" ModbusCmd="16" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt; kW" Analog="true" Sensor="false"/>
+    <ModbusCmd Title="Excess" Comment="" ModbusAddress="74" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt; kW" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="Power Electric Heating Element" Comment="" ModbusAddress="76" ModbusCmd="16" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt; kW" Analog="true" Sensor="false"/>
+    <ModbusCmd Title="Power Electric Heating Element" Comment="" ModbusAddress="76" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt; kW" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="PV Power" Comment="" ModbusAddress="78" ModbusCmd="16" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt; kW" Analog="true" Sensor="false"/>
+    <ModbusCmd Title="PV Power" Comment="" ModbusAddress="78" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt; kW" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="Home Consumption" Comment="" ModbusAddress="82" ModbusCmd="16" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt; kW" Analog="true" Sensor="false"/>
+    <ModbusCmd Title="Home Consumption" Comment="" ModbusAddress="82" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt; kW" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="Battery Discharge" Comment="" ModbusAddress="84" ModbusCmd="16" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt; kW" Analog="true" Sensor="false"/>
+    <ModbusCmd Title="Battery Discharge" Comment="" ModbusAddress="84" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt; kW" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="Battery state of charge" Comment="" ModbusAddress="86" ModbusCmd="16" ModbusDataType="33" ModbusPollingCycle="60" Unit="&lt;v&gt; %" Analog="true" Sensor="false"/>
+    <ModbusCmd Title="Battery state of charge" Comment="" ModbusAddress="86" ModbusCmd="4" ModbusDataType="33" ModbusPollingCycle="60" Unit="&lt;v&gt; %" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="outdoor temperature" Comment="" ModbusAddress="1000" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="average outdoortemp." Comment="" ModbusAddress="1002" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="internal message" Comment="" ModbusAddress="1004" ModbusCmd="4" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="Operation Mode System" Comment="" ModbusAddress="1005" ModbusCmd="16" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="false"/>
+    <ModbusCmd Title="Operation Mode System" Comment="" ModbusAddress="1005" ModbusCmd="4" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="smart grid" Comment="" ModbusAddress="1006" ModbusCmd="4" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="heat buffer temperature" Comment="" ModbusAddress="1008" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="cold buffer temperature" Comment="" ModbusAddress="1010" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="DHW temperature bottom" Comment="" ModbusAddress="1012" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="DHW temp. top" Comment="" ModbusAddress="1014" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="hot water tap temperature" Comment="" ModbusAddress="1030" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="Desired Hot Water Temperature" Comment="" ModbusAddress="1032" ModbusCmd="16" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt; °C" Analog="true" Sensor="false"/>
+    <ModbusCmd Title="Desired Hot Water Temperature" Comment="" ModbusAddress="1032" ModbusCmd="4" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt; °C" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="Switch-on Temperature" Comment="" ModbusAddress="1033" ModbusCmd="16" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt; °C" Analog="true" Sensor="false"/>
+    <ModbusCmd Title="Switch-on Temperature" Comment="" ModbusAddress="1033" ModbusCmd="4" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt; °C" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="Switch-off Temperature" Comment="" ModbusAddress="1034" ModbusCmd="16" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt; °C" Analog="true" Sensor="false"/>
+    <ModbusCmd Title="Switch-off Temperature" Comment="" ModbusAddress="1034" ModbusCmd="4" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt; °C" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="Variable Electricity Tariff" Comment="" ModbusAddress="1048" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="Heat Pump flow temperature" Comment="" ModbusAddress="1050" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="return probe" Comment="" ModbusAddress="1052" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="HGL-flow temperature" Comment="" ModbusAddress="1054" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="heat source entry" Comment="" ModbusAddress="1056" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="heat source temperature" Comment="" ModbusAddress="1058" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="inlet air temperature" Comment="" ModbusAddress="1060" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="air heat exchanger temp." Comment="" ModbusAddress="1062" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="inlet air temperature 2" Comment="" ModbusAddress="1064" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="load sensor" Comment="" ModbusAddress="1066" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="Heat Pump Mode" Comment="" ModbusAddress="1090" ModbusCmd="4" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="heating demand" Comment="" ModbusAddress="1091" ModbusCmd="4" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="cooling demand" Comment="" ModbusAddress="1092" ModbusCmd="4" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="hot water demand" Comment="" ModbusAddress="1093" ModbusCmd="4" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="EW/EVU blocking" Comment="" ModbusAddress="1098" ModbusCmd="4" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="Sum fault controller" Comment="" ModbusAddress="1099" ModbusCmd="4" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="Compressor 1" Comment="" ModbusAddress="1100" ModbusCmd="4" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="Compressor 2" Comment="" ModbusAddress="1101" ModbusCmd="4" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="Compressor 3" Comment="" ModbusAddress="1102" ModbusCmd="4" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="Compressor 4" Comment="" ModbusAddress="1103" ModbusCmd="4" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="cargo pump" Comment="" ModbusAddress="1104" ModbusCmd="4" ModbusDataType="33" ModbusPollingCycle="60" Unit="&lt;v&gt; % 0-10V/PWM" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="heat source pump" Comment="" ModbusAddress="1105" ModbusCmd="4" ModbusDataType="33" ModbusPollingCycle="60" Unit="&lt;v&gt; % 0-10V/PWM" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="con. ground water pump" Comment="" ModbusAddress="1106" ModbusCmd="4" ModbusDataType="33" ModbusPollingCycle="60" Unit="&lt;v&gt; % 0-10V/PWM" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="cooling buffer pump M84" Comment="" ModbusAddress="1108" ModbusCmd="4" ModbusDataType="33" ModbusPollingCycle="60" Unit="&lt;v&gt; % 0-10V/PWM" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="heat src backcool pump" Comment="" ModbusAddress="1109" ModbusCmd="4" ModbusDataType="33" ModbusPollingCycle="60" Unit="&lt;v&gt; % 0-10V/PWM" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="valve hc heating/cooling" Comment="" ModbusAddress="1110" ModbusCmd="4" ModbusDataType="33" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="valve heat/cool" Comment="" ModbusAddress="1111" ModbusCmd="4" ModbusDataType="33" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="valve heating/priority" Comment="" ModbusAddress="1112" ModbusCmd="4" ModbusDataType="33" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="M74 Switching heat source heating/cooling" Comment="" ModbusAddress="1113" ModbusCmd="4" ModbusDataType="33" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="valve M78 heat/priority" Comment="" ModbusAddress="1114" ModbusCmd="4" ModbusDataType="33" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="valve M79 buf/heatsourc" Comment="" ModbusAddress="1115" ModbusCmd="4" ModbusDataType="33" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="valve M89 heat source/cold reservoir" Comment="" ModbusAddress="1116" ModbusCmd="4" ModbusDataType="33" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="valve M99 recooling" Comment="" ModbusAddress="1117" ModbusCmd="4" ModbusDataType="33" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="circulationpump" Comment="" ModbusAddress="1118" ModbusCmd="4" ModbusDataType="33" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="Bivalence Point 1 Auxiliary Heat 1" Comment="" ModbusAddress="1120" ModbusCmd="16" ModbusDataType="33" ModbusPollingCycle="60" Unit="&lt;v&gt; °C" Analog="true" Sensor="false"/>
+    <ModbusCmd Title="Bivalence Point 1 Auxiliary Heat 1" Comment="" ModbusAddress="1120" ModbusCmd="4" ModbusDataType="33" ModbusPollingCycle="60" Unit="&lt;v&gt; °C" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="Bivalence Point 2 Auxiliary Heat 1" Comment="" ModbusAddress="1121" ModbusCmd="16" ModbusDataType="33" ModbusPollingCycle="60" Unit="&lt;v&gt; °C" Analog="true" Sensor="false"/>
+    <ModbusCmd Title="Bivalence Point 2 Auxiliary Heat 1" Comment="" ModbusAddress="1121" ModbusCmd="4" ModbusDataType="33" ModbusPollingCycle="60" Unit="&lt;v&gt; °C" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="Bivalence Point 1 Auxiliary Heat 2" Comment="" ModbusAddress="1122" ModbusCmd="16" ModbusDataType="33" ModbusPollingCycle="60" Unit="&lt;v&gt; °C" Analog="true" Sensor="false"/>
+    <ModbusCmd Title="Bivalence Point 1 Auxiliary Heat 2" Comment="" ModbusAddress="1122" ModbusCmd="4" ModbusDataType="33" ModbusPollingCycle="60" Unit="&lt;v&gt; °C" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="Bivalence Point 2 Auxiliary Heat 2" Comment="" ModbusAddress="1123" ModbusCmd="16" ModbusDataType="33" ModbusPollingCycle="60" Unit="&lt;v&gt; °C" Analog="true" Sensor="false"/>
+    <ModbusCmd Title="Bivalence Point 2 Auxiliary Heat 2" Comment="" ModbusAddress="1123" ModbusCmd="4" ModbusDataType="33" ModbusPollingCycle="60" Unit="&lt;v&gt; °C" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="2nd/3rd heat generator" Comment="" ModbusAddress="1124" ModbusCmd="4" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="Maximum Stages Heating" Comment="" ModbusAddress="1147" ModbusCmd="4" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="Maximum Stages Cooling" Comment="" ModbusAddress="1148" ModbusCmd="4" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="Cascade Stages Available Priority" Comment="" ModbusAddress="1149" ModbusCmd="4" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="Cascade Stages Running Heat" Comment="" ModbusAddress="1150" ModbusCmd="4" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="Cascade Stages Running Cool" Comment="" ModbusAddress="1151" ModbusCmd="4" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="Cascade Stages Running Priority" Comment="" ModbusAddress="1152" ModbusCmd="4" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="Cascade Head Demand Temperature" Comment="" ModbusAddress="1200" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="Cascade Cool Demand Temperature" Comment="" ModbusAddress="1202" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="Cascade Priority Demand Temperature" Comment="" ModbusAddress="1204" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="Cascade average Flow Heat Temp." Comment="" ModbusAddress="1206" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="Cascade average Flow Cool Temp." Comment="" ModbusAddress="1208" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="Cascade average Flow Priority Temp." Comment="" ModbusAddress="1210" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="Minimum Power Heating" Comment="" ModbusAddress="1220" ModbusCmd="16" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt; %" Analog="true" Sensor="false"/>
+    <ModbusCmd Title="Minimum Power Heating" Comment="" ModbusAddress="1220" ModbusCmd="4" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt; %" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="Maximum Power Heating" Comment="" ModbusAddress="1221" ModbusCmd="16" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt; %" Analog="true" Sensor="false"/>
+    <ModbusCmd Title="Maximum Power Heating" Comment="" ModbusAddress="1221" ModbusCmd="4" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt; %" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="Minimum Power Cooling" Comment="" ModbusAddress="1222" ModbusCmd="16" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt; %" Analog="true" Sensor="false"/>
+    <ModbusCmd Title="Minimum Power Cooling" Comment="" ModbusAddress="1222" ModbusCmd="4" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt; %" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="Maximum Power Cooling" Comment="" ModbusAddress="1223" ModbusCmd="16" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt; %" Analog="true" Sensor="false"/>
+    <ModbusCmd Title="Maximum Power Cooling" Comment="" ModbusAddress="1223" ModbusCmd="4" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt; %" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="Minimum Power Hot Water" Comment="" ModbusAddress="1224" ModbusCmd="16" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt; %" Analog="true" Sensor="false"/>
+    <ModbusCmd Title="Minimum Power Hot Water" Comment="" ModbusAddress="1224" ModbusCmd="4" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt; %" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="Maximum Power Hot Water" Comment="" ModbusAddress="1225" ModbusCmd="16" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt; %" Analog="true" Sensor="false"/>
+    <ModbusCmd Title="Maximum Power Hot Water" Comment="" ModbusAddress="1225" ModbusCmd="4" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt; %" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="Bivalence Point Heat Parallel" Comment="" ModbusAddress="1226" ModbusCmd="16" ModbusDataType="33" ModbusPollingCycle="60" Unit="&lt;v&gt; °C" Analog="true" Sensor="false"/>
+    <ModbusCmd Title="Bivalence Point Heat Parallel" Comment="" ModbusAddress="1226" ModbusCmd="4" ModbusDataType="33" ModbusPollingCycle="60" Unit="&lt;v&gt; °C" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="Bivalence Point Alternative - Heating" Comment="" ModbusAddress="1227" ModbusCmd="16" ModbusDataType="33" ModbusPollingCycle="60" Unit="&lt;v&gt; °C" Analog="true" Sensor="false"/>
+    <ModbusCmd Title="Bivalence Point Alternative - Heating" Comment="" ModbusAddress="1227" ModbusCmd="4" ModbusDataType="33" ModbusPollingCycle="60" Unit="&lt;v&gt; °C" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="Bivalence Point Cool Parallel" Comment="" ModbusAddress="1228" ModbusCmd="16" ModbusDataType="33" ModbusPollingCycle="60" Unit="&lt;v&gt; °C" Analog="true" Sensor="false"/>
+    <ModbusCmd Title="Bivalence Point Cool Parallel" Comment="" ModbusAddress="1228" ModbusCmd="4" ModbusDataType="33" ModbusPollingCycle="60" Unit="&lt;v&gt; °C" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="Bivalence Point Alternative - Cooling" Comment="" ModbusAddress="1229" ModbusCmd="16" ModbusDataType="33" ModbusPollingCycle="60" Unit="&lt;v&gt; °C" Analog="true" Sensor="false"/>
+    <ModbusCmd Title="Bivalence Point Alternative - Cooling" Comment="" ModbusAddress="1229" ModbusCmd="4" ModbusDataType="33" ModbusPollingCycle="60" Unit="&lt;v&gt; °C" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="Bivalence Point Hot Water Parallel" Comment="" ModbusAddress="1230" ModbusCmd="16" ModbusDataType="33" ModbusPollingCycle="60" Unit="&lt;v&gt; °C" Analog="true" Sensor="false"/>
+    <ModbusCmd Title="Bivalence Point Hot Water Parallel" Comment="" ModbusAddress="1230" ModbusCmd="4" ModbusDataType="33" ModbusPollingCycle="60" Unit="&lt;v&gt; °C" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="Bivalence Point Alternative - Hot Water" Comment="" ModbusAddress="1231" ModbusCmd="16" ModbusDataType="33" ModbusPollingCycle="60" Unit="&lt;v&gt; °C" Analog="true" Sensor="false"/>
+    <ModbusCmd Title="Bivalence Point Alternative - Hot Water" Comment="" ModbusAddress="1231" ModbusCmd="4" ModbusDataType="33" ModbusPollingCycle="60" Unit="&lt;v&gt; °C" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="HC A flow temperature" Comment="" ModbusAddress="1350" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="HC B flow temperature" Comment="" ModbusAddress="1352" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="HC C flow temperature" Comment="" ModbusAddress="1354" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="HC D flow temperature" Comment="" ModbusAddress="1356" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="HC A room temperature" Comment="" ModbusAddress="1364" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="HC B room temperature" Comment="" ModbusAddress="1366" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="HC C room temperature" Comment="" ModbusAddress="1368" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="HC D room temperature" Comment="" ModbusAddress="1370" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="HC A desired flow temp" Comment="" ModbusAddress="1378" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="HC B desired flow temp" Comment="" ModbusAddress="1380" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="HC C desired flow temp" Comment="" ModbusAddress="1382" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="HC D desired flow temp" Comment="" ModbusAddress="1384" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="humidity sensor" Comment="" ModbusAddress="1392" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt; %" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="HC A HC A Mode" Comment="" ModbusAddress="1393" ModbusCmd="16" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="false"/>
+    <ModbusCmd Title="HC A HC A Mode" Comment="" ModbusAddress="1393" ModbusCmd="4" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="HC B HC B Mode" Comment="" ModbusAddress="1394" ModbusCmd="16" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="false"/>
+    <ModbusCmd Title="HC B HC B Mode" Comment="" ModbusAddress="1394" ModbusCmd="4" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="HC C HC C Mode" Comment="" ModbusAddress="1395" ModbusCmd="16" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="false"/>
+    <ModbusCmd Title="HC C HC C Mode" Comment="" ModbusAddress="1395" ModbusCmd="4" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="HC D HC D Mode" Comment="" ModbusAddress="1396" ModbusCmd="16" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="false"/>
+    <ModbusCmd Title="HC D HC D Mode" Comment="" ModbusAddress="1396" ModbusCmd="4" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="HC A Room Temperature Heating Normal" Comment="" ModbusAddress="1401" ModbusCmd="16" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="false"/>
+    <ModbusCmd Title="HC A Room Temperature Heating Normal" Comment="" ModbusAddress="1401" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="HC B Room Temperature Heating Normal" Comment="" ModbusAddress="1403" ModbusCmd="16" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="false"/>
+    <ModbusCmd Title="HC B Room Temperature Heating Normal" Comment="" ModbusAddress="1403" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="HC C Room Temperature Heating Normal" Comment="" ModbusAddress="1405" ModbusCmd="16" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="false"/>
+    <ModbusCmd Title="HC C Room Temperature Heating Normal" Comment="" ModbusAddress="1405" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="HC D Room Temperature Heating Normal" Comment="" ModbusAddress="1407" ModbusCmd="16" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="false"/>
+    <ModbusCmd Title="HC D Room Temperature Heating Normal" Comment="" ModbusAddress="1407" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="HC A Room Temperature Heating Eco" Comment="" ModbusAddress="1415" ModbusCmd="16" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="false"/>
+    <ModbusCmd Title="HC A Room Temperature Heating Eco" Comment="" ModbusAddress="1415" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="HC B Room Temperature Heating Eco" Comment="" ModbusAddress="1417" ModbusCmd="16" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="false"/>
+    <ModbusCmd Title="HC B Room Temperature Heating Eco" Comment="" ModbusAddress="1417" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="HC C Room Temperature Heating Eco" Comment="" ModbusAddress="1419" ModbusCmd="16" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="false"/>
+    <ModbusCmd Title="HC C Room Temperature Heating Eco" Comment="" ModbusAddress="1419" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="HC D Room Temperature Heating Eco" Comment="" ModbusAddress="1421" ModbusCmd="16" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="false"/>
+    <ModbusCmd Title="HC D Room Temperature Heating Eco" Comment="" ModbusAddress="1421" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="HC A Heating Slope" Comment="" ModbusAddress="1429" ModbusCmd="16" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="false"/>
+    <ModbusCmd Title="HC A Heating Slope" Comment="" ModbusAddress="1429" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="HC B Heating Slope" Comment="" ModbusAddress="1431" ModbusCmd="16" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="false"/>
+    <ModbusCmd Title="HC B Heating Slope" Comment="" ModbusAddress="1431" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="HC C Heating Slope" Comment="" ModbusAddress="1433" ModbusCmd="16" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="false"/>
+    <ModbusCmd Title="HC C Heating Slope" Comment="" ModbusAddress="1433" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="HC D Heating Slope" Comment="" ModbusAddress="1435" ModbusCmd="16" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="false"/>
+    <ModbusCmd Title="HC D Heating Slope" Comment="" ModbusAddress="1435" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="HC A Heating Limit" Comment="" ModbusAddress="1442" ModbusCmd="16" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt; °C" Analog="true" Sensor="false"/>
+    <ModbusCmd Title="HC A Heating Limit" Comment="" ModbusAddress="1442" ModbusCmd="4" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt; °C" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="HC B Heating Limit" Comment="" ModbusAddress="1443" ModbusCmd="16" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt; °C" Analog="true" Sensor="false"/>
+    <ModbusCmd Title="HC B Heating Limit" Comment="" ModbusAddress="1443" ModbusCmd="4" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt; °C" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="HC C Heating Limit" Comment="" ModbusAddress="1444" ModbusCmd="16" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt; °C" Analog="true" Sensor="false"/>
+    <ModbusCmd Title="HC C Heating Limit" Comment="" ModbusAddress="1444" ModbusCmd="4" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt; °C" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="HC D Heating Limit" Comment="" ModbusAddress="1445" ModbusCmd="16" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt; °C" Analog="true" Sensor="false"/>
+    <ModbusCmd Title="HC D Heating Limit" Comment="" ModbusAddress="1445" ModbusCmd="4" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt; °C" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="HC A Flow Temperature Heating" Comment="" ModbusAddress="1449" ModbusCmd="16" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt; °C" Analog="true" Sensor="false"/>
+    <ModbusCmd Title="HC A Flow Temperature Heating" Comment="" ModbusAddress="1449" ModbusCmd="4" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt; °C" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="HC B Flow Temperature Heating" Comment="" ModbusAddress="1450" ModbusCmd="16" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt; °C" Analog="true" Sensor="false"/>
+    <ModbusCmd Title="HC B Flow Temperature Heating" Comment="" ModbusAddress="1450" ModbusCmd="4" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt; °C" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="HC C Flow Temperature Heating" Comment="" ModbusAddress="1451" ModbusCmd="16" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt; °C" Analog="true" Sensor="false"/>
+    <ModbusCmd Title="HC C Flow Temperature Heating" Comment="" ModbusAddress="1451" ModbusCmd="4" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt; °C" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="HC D Flow Temperature Heating" Comment="" ModbusAddress="1452" ModbusCmd="16" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt; °C" Analog="true" Sensor="false"/>
+    <ModbusCmd Title="HC D Flow Temperature Heating" Comment="" ModbusAddress="1452" ModbusCmd="4" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt; °C" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="HC A Room Temperature Cooling Normal" Comment="" ModbusAddress="1457" ModbusCmd="16" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="false"/>
+    <ModbusCmd Title="HC A Room Temperature Cooling Normal" Comment="" ModbusAddress="1457" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="HC B Room Temperature Cooling Normal" Comment="" ModbusAddress="1459" ModbusCmd="16" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="false"/>
+    <ModbusCmd Title="HC B Room Temperature Cooling Normal" Comment="" ModbusAddress="1459" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="HC C Room Temperature Cooling Normal" Comment="" ModbusAddress="1461" ModbusCmd="16" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="false"/>
+    <ModbusCmd Title="HC C Room Temperature Cooling Normal" Comment="" ModbusAddress="1461" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="HC D Room Temperature Cooling Normal" Comment="" ModbusAddress="1463" ModbusCmd="16" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="false"/>
+    <ModbusCmd Title="HC D Room Temperature Cooling Normal" Comment="" ModbusAddress="1463" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="HC A Room Temperature Cooling Eco" Comment="" ModbusAddress="1471" ModbusCmd="16" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="false"/>
+    <ModbusCmd Title="HC A Room Temperature Cooling Eco" Comment="" ModbusAddress="1471" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="HC B Room Temperature Cooling Eco" Comment="" ModbusAddress="1473" ModbusCmd="16" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="false"/>
+    <ModbusCmd Title="HC B Room Temperature Cooling Eco" Comment="" ModbusAddress="1473" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="HC C Room Temperature Cooling Eco" Comment="" ModbusAddress="1475" ModbusCmd="16" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="false"/>
+    <ModbusCmd Title="HC C Room Temperature Cooling Eco" Comment="" ModbusAddress="1475" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="HC D Room Temperature Cooling Eco" Comment="" ModbusAddress="1477" ModbusCmd="16" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="false"/>
+    <ModbusCmd Title="HC D Room Temperature Cooling Eco" Comment="" ModbusAddress="1477" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="HC A Cooling Limit" Comment="" ModbusAddress="1484" ModbusCmd="16" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt; °C" Analog="true" Sensor="false"/>
+    <ModbusCmd Title="HC A Cooling Limit" Comment="" ModbusAddress="1484" ModbusCmd="4" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt; °C" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="HC B Cooling Limit" Comment="" ModbusAddress="1485" ModbusCmd="16" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt; °C" Analog="true" Sensor="false"/>
+    <ModbusCmd Title="HC B Cooling Limit" Comment="" ModbusAddress="1485" ModbusCmd="4" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt; °C" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="HC C Cooling Limit" Comment="" ModbusAddress="1486" ModbusCmd="16" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt; °C" Analog="true" Sensor="false"/>
+    <ModbusCmd Title="HC C Cooling Limit" Comment="" ModbusAddress="1486" ModbusCmd="4" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt; °C" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="HC D Cooling Limit" Comment="" ModbusAddress="1487" ModbusCmd="16" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt; °C" Analog="true" Sensor="false"/>
+    <ModbusCmd Title="HC D Cooling Limit" Comment="" ModbusAddress="1487" ModbusCmd="4" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt; °C" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="HC A Flow Temperature Cooling" Comment="" ModbusAddress="1491" ModbusCmd="16" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt; °C" Analog="true" Sensor="false"/>
+    <ModbusCmd Title="HC A Flow Temperature Cooling" Comment="" ModbusAddress="1491" ModbusCmd="4" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt; °C" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="HC B Flow Temperature Cooling" Comment="" ModbusAddress="1492" ModbusCmd="16" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt; °C" Analog="true" Sensor="false"/>
+    <ModbusCmd Title="HC B Flow Temperature Cooling" Comment="" ModbusAddress="1492" ModbusCmd="4" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt; °C" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="HC C Flow Temperature Cooling" Comment="" ModbusAddress="1493" ModbusCmd="16" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt; °C" Analog="true" Sensor="false"/>
+    <ModbusCmd Title="HC C Flow Temperature Cooling" Comment="" ModbusAddress="1493" ModbusCmd="4" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt; °C" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="HC D Flow Temperature Cooling" Comment="" ModbusAddress="1494" ModbusCmd="16" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt; °C" Analog="true" Sensor="false"/>
+    <ModbusCmd Title="HC D Flow Temperature Cooling" Comment="" ModbusAddress="1494" ModbusCmd="4" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt; °C" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="HC A active mode" Comment="" ModbusAddress="1498" ModbusCmd="4" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="HC B active mode" Comment="" ModbusAddress="1499" ModbusCmd="4" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="HC C active mode" Comment="" ModbusAddress="1500" ModbusCmd="4" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="HC D active mode" Comment="" ModbusAddress="1501" ModbusCmd="4" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="HC A Parallel Translation" Comment="" ModbusAddress="1505" ModbusCmd="16" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt; °C" Analog="true" Sensor="false"/>
+    <ModbusCmd Title="HC A Parallel Translation" Comment="" ModbusAddress="1505" ModbusCmd="4" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt; °C" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="HC B Parallel Translation" Comment="" ModbusAddress="1506" ModbusCmd="16" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt; °C" Analog="true" Sensor="false"/>
+    <ModbusCmd Title="HC B Parallel Translation" Comment="" ModbusAddress="1506" ModbusCmd="4" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt; °C" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="HC C Parallel Translation" Comment="" ModbusAddress="1507" ModbusCmd="16" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt; °C" Analog="true" Sensor="false"/>
+    <ModbusCmd Title="HC C Parallel Translation" Comment="" ModbusAddress="1507" ModbusCmd="4" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt; °C" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="HC D Parallel Translation" Comment="" ModbusAddress="1508" ModbusCmd="16" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt; °C" Analog="true" Sensor="false"/>
+    <ModbusCmd Title="HC D Parallel Translation" Comment="" ModbusAddress="1508" ModbusCmd="4" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt; °C" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="HC A external Room Temperature" Comment="" ModbusAddress="1650" ModbusCmd="16" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="false"/>
+    <ModbusCmd Title="HC B external Room Temperature" Comment="" ModbusAddress="1652" ModbusCmd="16" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="false"/>
+    <ModbusCmd Title="HC C external Room Temperature" Comment="" ModbusAddress="1654" ModbusCmd="16" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="false"/>
+    <ModbusCmd Title="HC D external Room Temperature" Comment="" ModbusAddress="1656" ModbusCmd="16" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="false"/>
+    <ModbusCmd Title="external Outdoor Temperature" Comment="" ModbusAddress="1690" ModbusCmd="16" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="false"/>
+    <ModbusCmd Title="external Humidity" Comment="" ModbusAddress="1692" ModbusCmd="16" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt; %" Analog="true" Sensor="false"/>
+    <ModbusCmd Title="External Control Heating Temperature" Comment="" ModbusAddress="1694" ModbusCmd="16" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt; °C" Analog="true" Sensor="false"/>
+    <ModbusCmd Title="External Control Heating Temperature" Comment="" ModbusAddress="1694" ModbusCmd="4" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt; °C" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="External Control Cooling Temperature" Comment="" ModbusAddress="1695" ModbusCmd="16" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt; °C" Analog="true" Sensor="false"/>
+    <ModbusCmd Title="External Control Cooling Temperature" Comment="" ModbusAddress="1695" ModbusCmd="4" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt; °C" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="BMS Heating Request Temperature" Comment="" ModbusAddress="1696" ModbusCmd="16" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="false"/>
+    <ModbusCmd Title="BMS Cooling Request Temperature" Comment="" ModbusAddress="1698" ModbusCmd="16" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="false"/>
+    <ModbusCmd Title="External Control Heating" Comment="" ModbusAddress="1710" ModbusCmd="16" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="false" Sensor="false"/>
+    <ModbusCmd Title="External Control Heating" Comment="" ModbusAddress="1710" ModbusCmd="4" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="false" Sensor="true"/>
+    <ModbusCmd Title="External Control Cooling" Comment="" ModbusAddress="1711" ModbusCmd="16" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="false" Sensor="false"/>
+    <ModbusCmd Title="External Control Cooling" Comment="" ModbusAddress="1711" ModbusCmd="4" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="false" Sensor="true"/>
+    <ModbusCmd Title="DHW External" Comment="" ModbusAddress="1712" ModbusCmd="16" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="false" Sensor="false"/>
+    <ModbusCmd Title="DHW External" Comment="" ModbusAddress="1712" ModbusCmd="4" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="false" Sensor="true"/>
+    <ModbusCmd Title="External Bus Request One Time Priority" Comment="" ModbusAddress="1713" ModbusCmd="16" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="false" Sensor="false"/>
+    <ModbusCmd Title="External Bus Request One Time Priority" Comment="" ModbusAddress="1713" ModbusCmd="4" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="false" Sensor="true"/>
+    <ModbusCmd Title="external Request Brine/Intermediate Pump" Comment="" ModbusAddress="1714" ModbusCmd="16" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="false"/>
+    <ModbusCmd Title="external Request Brine/Intermediate Pump" Comment="" ModbusAddress="1714" ModbusCmd="4" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="external Request Groundwaterpump" Comment="" ModbusAddress="1715" ModbusCmd="16" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="false"/>
+    <ModbusCmd Title="external Request Groundwaterpump" Comment="" ModbusAddress="1715" ModbusCmd="4" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="BMS Heating Buffer Temperature" Comment="" ModbusAddress="1716" ModbusCmd="16" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="false"/>
+    <ModbusCmd Title="BMS Cooling Buffer Temperature" Comment="" ModbusAddress="1718" ModbusCmd="16" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="false"/>
+    <ModbusCmd Title="BMS Freshwater Temperature Bottom" Comment="" ModbusAddress="1720" ModbusCmd="16" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="false"/>
+    <ModbusCmd Title="BMS Freshwater Temperature Top" Comment="" ModbusAddress="1722" ModbusCmd="16" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="false"/>
+    <ModbusCmd Title="Heat Quantity" Comment="" ModbusAddress="1748" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt; kWh" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="total heat quantity" Comment="" ModbusAddress="1750" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt; kWh" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="Cooling Quantity" Comment="" ModbusAddress="1752" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt; kWh" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="Domestic Hot Water Quantity" Comment="" ModbusAddress="1754" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt; kWh" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="Defrost Quantity" Comment="" ModbusAddress="1756" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt; kWh" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="Passive Cooling Quantity" Comment="" ModbusAddress="1758" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt; kWh" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="solar power total" Comment="" ModbusAddress="1760" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt; kWh" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="Heat Quantity Electric Heating Element" Comment="" ModbusAddress="1762" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt; kWh" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="Thermal performance (based on flow sensor)" Comment="" ModbusAddress="1790" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt; kW" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="solar power inst." Comment="" ModbusAddress="1792" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt; kW" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="collector temperature" Comment="" ModbusAddress="1850" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="collectorreturn temp." Comment="" ModbusAddress="1852" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="solar load temperature" Comment="" ModbusAddress="1854" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="Solar Mode" Comment="" ModbusAddress="1856" ModbusCmd="16" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="false"/>
+    <ModbusCmd Title="Solar Mode" Comment="" ModbusAddress="1856" ModbusCmd="4" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="heads./pool temperature" Comment="" ModbusAddress="1857" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="charg. temp. cooling B44" Comment="" ModbusAddress="1870" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="ISC recooling temp." Comment="" ModbusAddress="1872" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="ISC mode" Comment="" ModbusAddress="1874" ModbusCmd="4" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="Quit Error" Comment="" ModbusAddress="1999" ModbusCmd="16" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="false"/>
+    <ModbusCmd Title="ZM1 Mode Heat/Cool" Comment="" ModbusAddress="2000" ModbusCmd="4" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="ZM1 Dehumidification active" Comment="" ModbusAddress="2001" ModbusCmd="4" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="ZM1 R1 Room Temperature" Comment="" ModbusAddress="2002" ModbusCmd="16" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="false"/>
+    <ModbusCmd Title="ZM1 R1 Room Temperature" Comment="" ModbusAddress="2002" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="ZM1 R1 desired room temperature" Comment="" ModbusAddress="2004" ModbusCmd="16" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="false"/>
+    <ModbusCmd Title="ZM1 R1 desired room temperature" Comment="" ModbusAddress="2004" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="ZM1 R1 Room Humidity" Comment="" ModbusAddress="2006" ModbusCmd="16" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt; %rH" Analog="true" Sensor="false"/>
+    <ModbusCmd Title="ZM1 R1 Room Humidity" Comment="" ModbusAddress="2006" ModbusCmd="4" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt; %rH" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="ZM1 R1 Mode" Comment="" ModbusAddress="2007" ModbusCmd="16" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="false"/>
+    <ModbusCmd Title="ZM1 R1 Mode" Comment="" ModbusAddress="2007" ModbusCmd="4" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="ZM1 R1 State" Comment="" ModbusAddress="2008" ModbusCmd="4" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="ZM1 R2 Room Temperature" Comment="" ModbusAddress="2009" ModbusCmd="16" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="false"/>
+    <ModbusCmd Title="ZM1 R2 Room Temperature" Comment="" ModbusAddress="2009" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="ZM1 R2 desired room temperature" Comment="" ModbusAddress="2011" ModbusCmd="16" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="false"/>
+    <ModbusCmd Title="ZM1 R2 desired room temperature" Comment="" ModbusAddress="2011" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="ZM1 R2 Room Humidity" Comment="" ModbusAddress="2013" ModbusCmd="16" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt; %rH" Analog="true" Sensor="false"/>
+    <ModbusCmd Title="ZM1 R2 Room Humidity" Comment="" ModbusAddress="2013" ModbusCmd="4" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt; %rH" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="ZM1 R2 Mode" Comment="" ModbusAddress="2014" ModbusCmd="16" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="false"/>
+    <ModbusCmd Title="ZM1 R2 Mode" Comment="" ModbusAddress="2014" ModbusCmd="4" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="ZM1 R2 State" Comment="" ModbusAddress="2015" ModbusCmd="4" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="ZM1 R3 Room Temperature" Comment="" ModbusAddress="2016" ModbusCmd="16" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="false"/>
+    <ModbusCmd Title="ZM1 R3 Room Temperature" Comment="" ModbusAddress="2016" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="ZM1 R3 desired room temperature" Comment="" ModbusAddress="2018" ModbusCmd="16" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="false"/>
+    <ModbusCmd Title="ZM1 R3 desired room temperature" Comment="" ModbusAddress="2018" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="ZM1 R3 Room Humidity" Comment="" ModbusAddress="2020" ModbusCmd="16" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt; %rH" Analog="true" Sensor="false"/>
+    <ModbusCmd Title="ZM1 R3 Room Humidity" Comment="" ModbusAddress="2020" ModbusCmd="4" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt; %rH" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="ZM1 R3 Mode" Comment="" ModbusAddress="2021" ModbusCmd="16" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="false"/>
+    <ModbusCmd Title="ZM1 R3 Mode" Comment="" ModbusAddress="2021" ModbusCmd="4" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="ZM1 R3 State" Comment="" ModbusAddress="2022" ModbusCmd="4" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="ZM1 R4 Room Temperature" Comment="" ModbusAddress="2023" ModbusCmd="16" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="false"/>
+    <ModbusCmd Title="ZM1 R4 Room Temperature" Comment="" ModbusAddress="2023" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="ZM1 R4 desired room temperature" Comment="" ModbusAddress="2025" ModbusCmd="16" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="false"/>
+    <ModbusCmd Title="ZM1 R4 desired room temperature" Comment="" ModbusAddress="2025" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="ZM1 R4 Room Humidity" Comment="" ModbusAddress="2027" ModbusCmd="16" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt; %rH" Analog="true" Sensor="false"/>
+    <ModbusCmd Title="ZM1 R4 Room Humidity" Comment="" ModbusAddress="2027" ModbusCmd="4" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt; %rH" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="ZM1 R4 Mode" Comment="" ModbusAddress="2028" ModbusCmd="16" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="false"/>
+    <ModbusCmd Title="ZM1 R4 Mode" Comment="" ModbusAddress="2028" ModbusCmd="4" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="ZM1 R4 State" Comment="" ModbusAddress="2029" ModbusCmd="4" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="ZM1 R5 Room Temperature" Comment="" ModbusAddress="2030" ModbusCmd="16" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="false"/>
+    <ModbusCmd Title="ZM1 R5 Room Temperature" Comment="" ModbusAddress="2030" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="ZM1 R5 desired room temperature" Comment="" ModbusAddress="2032" ModbusCmd="16" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="false"/>
+    <ModbusCmd Title="ZM1 R5 desired room temperature" Comment="" ModbusAddress="2032" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="ZM1 R5 Room Humidity" Comment="" ModbusAddress="2034" ModbusCmd="16" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt; %rH" Analog="true" Sensor="false"/>
+    <ModbusCmd Title="ZM1 R5 Room Humidity" Comment="" ModbusAddress="2034" ModbusCmd="4" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt; %rH" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="ZM1 R5 Mode" Comment="" ModbusAddress="2035" ModbusCmd="16" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="false"/>
+    <ModbusCmd Title="ZM1 R5 Mode" Comment="" ModbusAddress="2035" ModbusCmd="4" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="ZM1 R5 State" Comment="" ModbusAddress="2036" ModbusCmd="4" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="ZM1 R6 Room Temperature" Comment="" ModbusAddress="2037" ModbusCmd="16" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="false"/>
+    <ModbusCmd Title="ZM1 R6 Room Temperature" Comment="" ModbusAddress="2037" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="ZM1 R6 desired room temperature" Comment="" ModbusAddress="2039" ModbusCmd="16" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="false"/>
+    <ModbusCmd Title="ZM1 R6 desired room temperature" Comment="" ModbusAddress="2039" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="ZM1 R6 Room Humidity" Comment="" ModbusAddress="2041" ModbusCmd="16" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt; %rH" Analog="true" Sensor="false"/>
+    <ModbusCmd Title="ZM1 R6 Room Humidity" Comment="" ModbusAddress="2041" ModbusCmd="4" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt; %rH" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="ZM1 R6 Mode" Comment="" ModbusAddress="2042" ModbusCmd="16" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="false"/>
+    <ModbusCmd Title="ZM1 R6 Mode" Comment="" ModbusAddress="2042" ModbusCmd="4" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="ZM1 R6 State" Comment="" ModbusAddress="2043" ModbusCmd="4" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="ZM1 R7 Room Temperature" Comment="" ModbusAddress="2044" ModbusCmd="16" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="false"/>
+    <ModbusCmd Title="ZM1 R7 Room Temperature" Comment="" ModbusAddress="2044" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="ZM1 R7 desired room temperature" Comment="" ModbusAddress="2046" ModbusCmd="16" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="false"/>
+    <ModbusCmd Title="ZM1 R7 desired room temperature" Comment="" ModbusAddress="2046" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="ZM1 R7 Room Humidity" Comment="" ModbusAddress="2048" ModbusCmd="16" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt; %rH" Analog="true" Sensor="false"/>
+    <ModbusCmd Title="ZM1 R7 Room Humidity" Comment="" ModbusAddress="2048" ModbusCmd="4" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt; %rH" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="ZM1 R7 Mode" Comment="" ModbusAddress="2049" ModbusCmd="16" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="false"/>
+    <ModbusCmd Title="ZM1 R7 Mode" Comment="" ModbusAddress="2049" ModbusCmd="4" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="ZM1 R7 State" Comment="" ModbusAddress="2050" ModbusCmd="4" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="ZM1 R8 Room Temperature" Comment="" ModbusAddress="2051" ModbusCmd="16" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="false"/>
+    <ModbusCmd Title="ZM1 R8 Room Temperature" Comment="" ModbusAddress="2051" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="ZM1 R8 desired room temperature" Comment="" ModbusAddress="2053" ModbusCmd="16" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="false"/>
+    <ModbusCmd Title="ZM1 R8 desired room temperature" Comment="" ModbusAddress="2053" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="ZM1 R8 Room Humidity" Comment="" ModbusAddress="2055" ModbusCmd="16" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt; %rH" Analog="true" Sensor="false"/>
+    <ModbusCmd Title="ZM1 R8 Room Humidity" Comment="" ModbusAddress="2055" ModbusCmd="4" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt; %rH" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="ZM1 R8 Mode" Comment="" ModbusAddress="2056" ModbusCmd="16" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="false"/>
+    <ModbusCmd Title="ZM1 R8 Mode" Comment="" ModbusAddress="2056" ModbusCmd="4" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="ZM1 R8 State" Comment="" ModbusAddress="2057" ModbusCmd="4" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="ZM1 R9 State" Comment="" ModbusAddress="2064" ModbusCmd="4" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="ZM2 Mode Heat/Cool" Comment="" ModbusAddress="2065" ModbusCmd="4" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="ZM2 Dehumidification active" Comment="" ModbusAddress="2066" ModbusCmd="4" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="ZM2 R1 Room Temperature" Comment="" ModbusAddress="2067" ModbusCmd="16" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="false"/>
+    <ModbusCmd Title="ZM2 R1 Room Temperature" Comment="" ModbusAddress="2067" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="ZM2 R1 desired room temperature" Comment="" ModbusAddress="2069" ModbusCmd="16" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="false"/>
+    <ModbusCmd Title="ZM2 R1 desired room temperature" Comment="" ModbusAddress="2069" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="ZM2 R1 Room Humidity" Comment="" ModbusAddress="2071" ModbusCmd="16" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt; %rH" Analog="true" Sensor="false"/>
+    <ModbusCmd Title="ZM2 R1 Room Humidity" Comment="" ModbusAddress="2071" ModbusCmd="4" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt; %rH" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="ZM2 R1 Mode" Comment="" ModbusAddress="2072" ModbusCmd="16" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="false"/>
+    <ModbusCmd Title="ZM2 R1 Mode" Comment="" ModbusAddress="2072" ModbusCmd="4" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="ZM2 R1 State" Comment="" ModbusAddress="2073" ModbusCmd="4" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="ZM2 R2 Room Temperature" Comment="" ModbusAddress="2074" ModbusCmd="16" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="false"/>
+    <ModbusCmd Title="ZM2 R2 Room Temperature" Comment="" ModbusAddress="2074" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="ZM2 R2 desired room temperature" Comment="" ModbusAddress="2076" ModbusCmd="16" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="false"/>
+    <ModbusCmd Title="ZM2 R2 desired room temperature" Comment="" ModbusAddress="2076" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="ZM2 R2 Room Humidity" Comment="" ModbusAddress="2078" ModbusCmd="16" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt; %rH" Analog="true" Sensor="false"/>
+    <ModbusCmd Title="ZM2 R2 Room Humidity" Comment="" ModbusAddress="2078" ModbusCmd="4" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt; %rH" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="ZM2 R2 Mode" Comment="" ModbusAddress="2079" ModbusCmd="16" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="false"/>
+    <ModbusCmd Title="ZM2 R2 Mode" Comment="" ModbusAddress="2079" ModbusCmd="4" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="ZM2 R2 State" Comment="" ModbusAddress="2080" ModbusCmd="4" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="ZM2 R3 Room Temperature" Comment="" ModbusAddress="2081" ModbusCmd="16" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="false"/>
+    <ModbusCmd Title="ZM2 R3 Room Temperature" Comment="" ModbusAddress="2081" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="ZM2 R3 desired room temperature" Comment="" ModbusAddress="2083" ModbusCmd="16" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="false"/>
+    <ModbusCmd Title="ZM2 R3 desired room temperature" Comment="" ModbusAddress="2083" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="ZM2 R3 Room Humidity" Comment="" ModbusAddress="2085" ModbusCmd="16" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt; %rH" Analog="true" Sensor="false"/>
+    <ModbusCmd Title="ZM2 R3 Room Humidity" Comment="" ModbusAddress="2085" ModbusCmd="4" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt; %rH" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="ZM2 R3 Mode" Comment="" ModbusAddress="2086" ModbusCmd="16" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="false"/>
+    <ModbusCmd Title="ZM2 R3 Mode" Comment="" ModbusAddress="2086" ModbusCmd="4" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="ZM2 R3 State" Comment="" ModbusAddress="2087" ModbusCmd="4" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="ZM2 R4 Room Temperature" Comment="" ModbusAddress="2088" ModbusCmd="16" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="false"/>
+    <ModbusCmd Title="ZM2 R4 Room Temperature" Comment="" ModbusAddress="2088" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="ZM2 R4 desired room temperature" Comment="" ModbusAddress="2090" ModbusCmd="16" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="false"/>
+    <ModbusCmd Title="ZM2 R4 desired room temperature" Comment="" ModbusAddress="2090" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="ZM2 R4 Room Humidity" Comment="" ModbusAddress="2092" ModbusCmd="16" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt; %rH" Analog="true" Sensor="false"/>
+    <ModbusCmd Title="ZM2 R4 Room Humidity" Comment="" ModbusAddress="2092" ModbusCmd="4" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt; %rH" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="ZM2 R4 Mode" Comment="" ModbusAddress="2093" ModbusCmd="16" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="false"/>
+    <ModbusCmd Title="ZM2 R4 Mode" Comment="" ModbusAddress="2093" ModbusCmd="4" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="ZM2 R4 State" Comment="" ModbusAddress="2094" ModbusCmd="4" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="ZM2 R5 Room Temperature" Comment="" ModbusAddress="2095" ModbusCmd="16" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="false"/>
+    <ModbusCmd Title="ZM2 R5 Room Temperature" Comment="" ModbusAddress="2095" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="ZM2 R5 desired room temperature" Comment="" ModbusAddress="2097" ModbusCmd="16" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="false"/>
+    <ModbusCmd Title="ZM2 R5 desired room temperature" Comment="" ModbusAddress="2097" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="ZM2 R5 Room Humidity" Comment="" ModbusAddress="2099" ModbusCmd="16" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt; %rH" Analog="true" Sensor="false"/>
+    <ModbusCmd Title="ZM2 R5 Room Humidity" Comment="" ModbusAddress="2099" ModbusCmd="4" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt; %rH" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="ZM2 R5 Mode" Comment="" ModbusAddress="2100" ModbusCmd="16" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="false"/>
+    <ModbusCmd Title="ZM2 R5 Mode" Comment="" ModbusAddress="2100" ModbusCmd="4" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="ZM2 R5 State" Comment="" ModbusAddress="2101" ModbusCmd="4" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="ZM2 R6 Room Temperature" Comment="" ModbusAddress="2102" ModbusCmd="16" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="false"/>
+    <ModbusCmd Title="ZM2 R6 Room Temperature" Comment="" ModbusAddress="2102" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="ZM2 R6 desired room temperature" Comment="" ModbusAddress="2104" ModbusCmd="16" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="false"/>
+    <ModbusCmd Title="ZM2 R6 desired room temperature" Comment="" ModbusAddress="2104" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="ZM2 R6 Room Humidity" Comment="" ModbusAddress="2106" ModbusCmd="16" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt; %rH" Analog="true" Sensor="false"/>
+    <ModbusCmd Title="ZM2 R6 Room Humidity" Comment="" ModbusAddress="2106" ModbusCmd="4" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt; %rH" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="ZM2 R6 Mode" Comment="" ModbusAddress="2107" ModbusCmd="16" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="false"/>
+    <ModbusCmd Title="ZM2 R6 Mode" Comment="" ModbusAddress="2107" ModbusCmd="4" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="ZM2 R6 State" Comment="" ModbusAddress="2108" ModbusCmd="4" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="ZM2 R7 Room Temperature" Comment="" ModbusAddress="2109" ModbusCmd="16" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="false"/>
+    <ModbusCmd Title="ZM2 R7 Room Temperature" Comment="" ModbusAddress="2109" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="ZM2 R7 desired room temperature" Comment="" ModbusAddress="2111" ModbusCmd="16" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="false"/>
+    <ModbusCmd Title="ZM2 R7 desired room temperature" Comment="" ModbusAddress="2111" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="ZM2 R7 Room Humidity" Comment="" ModbusAddress="2113" ModbusCmd="16" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt; %rH" Analog="true" Sensor="false"/>
+    <ModbusCmd Title="ZM2 R7 Room Humidity" Comment="" ModbusAddress="2113" ModbusCmd="4" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt; %rH" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="ZM2 R7 Mode" Comment="" ModbusAddress="2114" ModbusCmd="16" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="false"/>
+    <ModbusCmd Title="ZM2 R7 Mode" Comment="" ModbusAddress="2114" ModbusCmd="4" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="ZM2 R7 State" Comment="" ModbusAddress="2115" ModbusCmd="4" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="ZM2 R8 Room Temperature" Comment="" ModbusAddress="2116" ModbusCmd="16" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="false"/>
+    <ModbusCmd Title="ZM2 R8 Room Temperature" Comment="" ModbusAddress="2116" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="ZM2 R8 desired room temperature" Comment="" ModbusAddress="2118" ModbusCmd="16" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="false"/>
+    <ModbusCmd Title="ZM2 R8 desired room temperature" Comment="" ModbusAddress="2118" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="ZM2 R8 Room Humidity" Comment="" ModbusAddress="2120" ModbusCmd="16" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt; %rH" Analog="true" Sensor="false"/>
+    <ModbusCmd Title="ZM2 R8 Room Humidity" Comment="" ModbusAddress="2120" ModbusCmd="4" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt; %rH" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="ZM2 R8 Mode" Comment="" ModbusAddress="2121" ModbusCmd="16" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="false"/>
+    <ModbusCmd Title="ZM2 R8 Mode" Comment="" ModbusAddress="2121" ModbusCmd="4" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="ZM2 R8 State" Comment="" ModbusAddress="2122" ModbusCmd="4" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="ZM2 R9 State" Comment="" ModbusAddress="2129" ModbusCmd="4" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true"/>
+    <ModbusCmd Title="total electrical power + PV-Offset (if there is no value from the inverter, that from the polynomial is used)" Comment="" ModbusAddress="4122" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt; kW" Analog="true" Sensor="true"/>
+</Modbus>

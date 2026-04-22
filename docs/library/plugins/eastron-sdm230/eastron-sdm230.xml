@@ -1,0 +1,16 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Modbus Title="Eastron SDM230" Comment="" Baudrate="9600" Channel="2">
+	<Info templateType="7" minVersion="12020916"/>
+	<ModbusCmd Title="Line to neutral volts" Comment="" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="5" Unit="&lt;v.1&gt;V" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Current" Comment="" ModbusAddress="6" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="10" Unit="&lt;v.1&gt;A" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Active Power" Comment="" ModbusAddress="12" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="10" Unit="&lt;v.1&gt;W" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Import Active Energy" Comment="" ModbusAddress="72" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="10" Unit="&lt;v.1&gt;kWh" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Export Active Energy" Comment="" ModbusAddress="74" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="10" Unit="&lt;v.1&gt;kWh" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Maximum current Demand" Comment="" ModbusAddress="264" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="10" Unit="&lt;v.1&gt;A" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Maximum total system power demand" Comment="" ModbusAddress="84" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="10" Unit="&lt;v.1&gt;W" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Maximum total system power demand" Comment="" ModbusAddress="86" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="10" Unit="&lt;v.1&gt;W" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Current system positive power demand" Comment="Potencia activa máxima" ModbusAddress="88" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="10" Unit="&lt;v.1&gt;W" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Maximum system positive power demand" Comment="" ModbusAddress="90" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="10" Unit="&lt;v.1&gt;W" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Current system reverse power demand" Comment="" ModbusAddress="92" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="10" Unit="&lt;v.1&gt;W" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Maximum system reverse power demand" Comment="Máxima demanda del sistema" ModbusAddress="94" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="10" Unit="&lt;v.1&gt;W" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+</Modbus>

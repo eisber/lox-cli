@@ -1,0 +1,9 @@
+{
+                                "type": "template",
+                                "name": "mb-otg-gateway-modbus-to-opentherm-1-channel",
+                                "uuid": "351f6197-0770-11ed-bc144cd98f3deb8a",
+                                "version":"1.0.0",
+                                "id": "mb-otg-gateway-modbus-to-opentherm-1-channel-906",
+                                "file": "mb-otg-gateway-modbus-to-opentherm-1-channel.xml",
+                                "templateType": "7",
+                            }

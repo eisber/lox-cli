@@ -1,0 +1,110 @@
+{
+  "title": "Schedule",
+  "xml_type": "",
+  "kb_slug": "timerscheduler",
+  "description": "Timer switch with freely adjustable schedule and operating modes.\nThe timer switch can be used digitally (on/off) or analogue.\nA double click on the block opens the editing window in which the schedule can be set.\nBy activating remanence (battery symbol), the previous state is restored after a power failure.",
+  "inputs": [
+    {
+      "abbreviation": "Act",
+      "summary": "Activate",
+      "description": "If 'activation required' is set in an entry, it is only activated with an additional pulse on this input while entry is active.",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "Off",
+      "summary": "Off",
+      "description": "Pulse: Outputs are reset / switched off. On: Block is locked. Dominating input. The name of the connected sensor is used in the user interface.",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "Rtd",
+      "summary": "Reset to default",
+      "description": "Resets parameters and settings of the block to the default values as specified in the block preset.",
+      "value_range": "0/1"
+    }
+  ],
+  "outputs": [
+    {
+      "abbreviation": "O",
+      "summary": "Output",
+      "description": "Digital: 0 or 1 Analog: Default value or value of entry.",
+      "unit": "-",
+      "value_range": "\u221e"
+    },
+    {
+      "abbreviation": "Rt",
+      "summary": "Remaining time",
+      "description": "Remaining time of a timer started in the user interface.",
+      "unit": "s",
+      "value_range": "0...\u221e"
+    },
+    {
+      "abbreviation": "API",
+      "summary": "API Connector",
+      "description": "Intelligent API based connector. API Commands",
+      "unit": "-",
+      "value_range": "-"
+    }
+  ],
+  "parameters": [
+    {
+      "abbreviation": "Rem",
+      "summary": "Remanence input",
+      "description": "Remanence input: If active, the function block retains its previous state after a Miniserver reboot. The state of the function block is saved: \u2013 When saving to the Miniserver \u2013 At a planned reboot \u2013 Before a backup \u2013 Once per hour The data is saved on the SD card.",
+      "unit": "-",
+      "value_range": "0/1",
+      "default_value": "0"
+    },
+    {
+      "abbreviation": "Am",
+      "summary": "Automatic mode",
+      "description": "0 = Automatic 1 = Manual via Parameter (Mm)",
+      "unit": "-",
+      "value_range": "0/1",
+      "default_value": "0"
+    },
+    {
+      "abbreviation": "Mm",
+      "summary": "Manual mode",
+      "description": "Set the operating mode manually.",
+      "unit": "-",
+      "value_range": "\u221e",
+      "default_value": "0"
+    },
+    {
+      "abbreviation": "Don",
+      "summary": "On-duration of output (O)",
+      "description": "If 'activation required' is set, the duration which the value is output on (O) is limited to this time. 0=disabled",
+      "unit": "s",
+      "value_range": "0...\u221e",
+      "default_value": "0"
+    }
+  ],
+  "properties": [
+    {
+      "summary": "Schedule",
+      "description": "Schedules for time-based permission to function blocks used for access control such as the Authentication NFC Code Touch or Access Controller. Changes affect all users and user groups that are configured to use this schedule.",
+      "default_value": "-"
+    },
+    {
+      "summary": "Use as Digital Output",
+      "description": "If checked, the analog output will be used as digital output.",
+      "default_value": "-"
+    },
+    {
+      "summary": "Description for Active",
+      "description": "This text is displayed in the Apps instead of 'Active'.",
+      "default_value": "-"
+    },
+    {
+      "summary": "Description for Inactive",
+      "description": "This text is displayed in the Apps instead of 'Inactive'.",
+      "default_value": "-"
+    }
+  ],
+  "source_url": "https://www.loxone.com/enen/kb/timerscheduler/",
+  "input_count": 3,
+  "output_count": 3,
+  "parameter_count": 4,
+  "property_count": 4
+}

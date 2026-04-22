@@ -1,0 +1,23 @@
+{
+  "category": "B: Math (remaining)",
+  "blocks": {
+    "Add4": {
+      "inputs": {"I1": "analog", "I2": "analog", "I3": "analog", "I4": "analog"},
+      "outputs": {"AQ": "analog"},
+      "tests": [
+        {"desc": "1+2+3+4=10", "set": {"I1": 1, "I2": 2, "I3": 3, "I4": 4}, "expect": {"AQ": 10.0}},
+        {"desc": "all zeros", "set": {"I1": 0, "I2": 0, "I3": 0, "I4": 0}, "expect": {"AQ": 0.0}},
+        {"desc": "negative", "set": {"I1": -5, "I2": 10, "I3": -3, "I4": 8}, "expect": {"AQ": 10.0}}
+      ]
+    },
+    "Average": {
+      "inputs": {"I": "analog"},
+      "outputs": {"AQ": "analog"},
+      "tests": [
+        {"desc": "single value", "set": {"I": 50.0}, "expect": {"AQ": 50.0}},
+        {"desc": "zero", "set": {"I": 0.0}, "expect": {"AQ": 0.0}}
+      ]
+    }
+  },
+  "wiring": {}
+}

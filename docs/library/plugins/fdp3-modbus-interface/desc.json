@@ -1,0 +1,9 @@
+{
+                                "type": "template",
+                                "name": "fdp3-modbus-interface",
+                                "uuid": "eb476b4c-1973-11ed-a08d4cd98f3deb8a",
+                                "version":"1.0.0",
+                                "id": "fdp3-modbus-interface-935",
+                                "file": "fdp3-modbus-interface.xml",
+                                "templateType": "7",
+                            }

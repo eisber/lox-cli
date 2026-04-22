@@ -1,0 +1,1523 @@
+{
+  "200054-Ultraschallsensor.pdf": {
+    "extracted_path": "datasheets/extracted/200054-Ultraschallsensor.md",
+    "filename": "200054-Ultraschallsensor.pdf",
+    "is_datasheet": true,
+    "local_path": "datasheets/pdfs/200054-Ultraschallsensor.pdf",
+    "name": "200054 Ultraschallsensor",
+    "source_article": "connection-of-the-ultrasonic-sensor",
+    "url": "https://www.loxone.com/wp-content/uploads/datasheets/200054-Ultraschallsensor.pdf"
+  },
+  "CommunicatingWithMiniserver.pdf": {
+    "extracted_path": "datasheets/extracted/CommunicatingWithMiniserver.md",
+    "filename": "CommunicatingWithMiniserver.pdf",
+    "is_datasheet": true,
+    "local_path": "datasheets/pdfs/CommunicatingWithMiniserver.pdf",
+    "name": "CommunicatingWithMiniserver",
+    "source_article": "api",
+    "url": "https://www.loxone.com/wp-content/uploads/datasheets/CommunicatingWithMiniserver.pdf"
+  },
+  "Datasheet_1wireExtension_100014.pdf": {
+    "extracted_path": "datasheets/extracted/Datasheet_1wireExtension_100014.md",
+    "filename": "Datasheet_1wireExtension_100014.pdf",
+    "is_datasheet": true,
+    "local_path": "datasheets/pdfs/Datasheet_1wireExtension_100014.pdf",
+    "name": "Datasheet 1wireExtension 100014",
+    "source_article": "1-wire-extension",
+    "url": "http://updatefiles.loxone.com/KnowledgeBase/Online/Common/Documents/Datasheet_1wireExtension_100014.pdf"
+  },
+  "Datasheet_1wireTemperatureProbe_200077.pdf": {
+    "extracted_path": "datasheets/extracted/Datasheet_1wireTemperatureProbe_200077.md",
+    "filename": "Datasheet_1wireTemperatureProbe_200077.pdf",
+    "is_datasheet": true,
+    "local_path": "datasheets/pdfs/Datasheet_1wireTemperatureProbe_200077.pdf",
+    "name": "Datasheet 1wireTemperatureProbe 200077",
+    "source_article": "1-wire-extension",
+    "url": "http://updatefiles.loxone.com/KnowledgeBase/Online/Common/Documents/Datasheet_1wireTemperatureProbe_200077.pdf"
+  },
+  "Datasheet_ACControlAir_DaikinP1P2_100559.pdf": {
+    "extracted_path": "datasheets/extracted/Datasheet_ACControlAir_DaikinP1P2_100559.md",
+    "filename": "Datasheet_ACControlAir_DaikinP1P2_100559.pdf",
+    "is_datasheet": true,
+    "local_path": "datasheets/pdfs/Datasheet_ACControlAir_DaikinP1P2_100559.pdf",
+    "name": "Datasheet ACControlAir DaikinP1P2 100559",
+    "source_article": "ac-control-air-for-daikin-p1p2",
+    "url": "http://updatefiles.loxone.com/KnowledgeBase/Online/Common/Documents/Datasheet_ACControlAir_DaikinP1P2_100559.pdf"
+  },
+  "Datasheet_ACControlAir_Gree_100553.pdf": {
+    "extracted_path": "datasheets/extracted/Datasheet_ACControlAir_Gree_100553.md",
+    "filename": "Datasheet_ACControlAir_Gree_100553.pdf",
+    "is_datasheet": true,
+    "local_path": "datasheets/pdfs/Datasheet_ACControlAir_Gree_100553.pdf",
+    "name": "Datasheet ACControlAir Gree 100553",
+    "source_article": "ac-control-air-for-gree",
+    "url": "http://updatefiles.loxone.com/KnowledgeBase/Online/Common/Documents/Datasheet_ACControlAir_Gree_100553.pdf"
+  },
+  "Datasheet_ACControlAir_LG_100618.pdf": {
+    "extracted_path": "datasheets/extracted/Datasheet_ACControlAir_LG_100618.md",
+    "filename": "Datasheet_ACControlAir_LG_100618.pdf",
+    "is_datasheet": true,
+    "local_path": "datasheets/pdfs/Datasheet_ACControlAir_LG_100618.pdf",
+    "name": "Datasheet ACControlAir LG 100618",
+    "source_article": "ac-control-air-for-lg",
+    "url": "http://updatefiles.loxone.com/KnowledgeBase/Online/Common/Documents/Datasheet_ACControlAir_LG_100618.pdf"
+  },
+  "Datasheet_ACControlAir_MHI_100558.pdf": {
+    "extracted_path": "datasheets/extracted/Datasheet_ACControlAir_MHI_100558.md",
+    "filename": "Datasheet_ACControlAir_MHI_100558.pdf",
+    "is_datasheet": true,
+    "local_path": "datasheets/pdfs/Datasheet_ACControlAir_MHI_100558.pdf",
+    "name": "Datasheet ACControlAir MHI 100558",
+    "source_article": "ac-control-air-for-mitsubishi-heavy-industries",
+    "url": "http://updatefiles.loxone.com/KnowledgeBase/Online/Common/Documents/Datasheet_ACControlAir_MHI_100558.pdf"
+  },
+  "Datasheet_ACControlAir_Sinclair_100587.pdf": {
+    "extracted_path": "datasheets/extracted/Datasheet_ACControlAir_Sinclair_100587.md",
+    "filename": "Datasheet_ACControlAir_Sinclair_100587.pdf",
+    "is_datasheet": true,
+    "local_path": "datasheets/pdfs/Datasheet_ACControlAir_Sinclair_100587.pdf",
+    "name": "Datasheet ACControlAir Sinclair 100587",
+    "source_article": "ac-control-air-for-gree",
+    "url": "http://updatefiles.loxone.com/KnowledgeBase/Online/Common/Documents/Datasheet_ACControlAir_Sinclair_100587.pdf"
+  },
+  "Datasheet_ACControl_DaikinS21_100556.pdf": {
+    "extracted_path": "datasheets/extracted/Datasheet_ACControl_DaikinS21_100556.md",
+    "filename": "Datasheet_ACControl_DaikinS21_100556.pdf",
+    "is_datasheet": true,
+    "local_path": "datasheets/pdfs/Datasheet_ACControl_DaikinS21_100556.pdf",
+    "name": "Datasheet ACControl DaikinS21 100556",
+    "source_article": "ac-control-air-for-daikin-s21",
+    "url": "http://updatefiles.loxone.com/KnowledgeBase/Online/Common/Documents/Datasheet_ACControl_DaikinS21_100556.pdf"
+  },
+  "Datasheet_ACControl_Fujitsu_100557.pdf": {
+    "extracted_path": "datasheets/extracted/Datasheet_ACControl_Fujitsu_100557.md",
+    "filename": "Datasheet_ACControl_Fujitsu_100557.pdf",
+    "is_datasheet": true,
+    "local_path": "datasheets/pdfs/Datasheet_ACControl_Fujitsu_100557.pdf",
+    "name": "Datasheet ACControl Fujitsu 100557",
+    "source_article": "ac-control-air-for-fujitsu",
+    "url": "http://updatefiles.loxone.com/KnowledgeBase/Online/Common/Documents/Datasheet_ACControl_Fujitsu_100557.pdf"
+  },
+  "Datasheet_ACControl_MEL_100555.pdf": {
+    "extracted_path": "datasheets/extracted/Datasheet_ACControl_MEL_100555.md",
+    "filename": "Datasheet_ACControl_MEL_100555.pdf",
+    "is_datasheet": true,
+    "local_path": "datasheets/pdfs/Datasheet_ACControl_MEL_100555.pdf",
+    "name": "Datasheet ACControl MEL 100555",
+    "source_article": "ac-control-air-for-mitsubishi-electric",
+    "url": "http://updatefiles.loxone.com/KnowledgeBase/Online/Common/Documents/Datasheet_ACControl_MEL_100555.pdf"
+  },
+  "Datasheet_ACControl_Toshiba_100554.pdf": {
+    "extracted_path": "datasheets/extracted/Datasheet_ACControl_Toshiba_100554.md",
+    "filename": "Datasheet_ACControl_Toshiba_100554.pdf",
+    "is_datasheet": true,
+    "local_path": "datasheets/pdfs/Datasheet_ACControl_Toshiba_100554.pdf",
+    "name": "Datasheet ACControl Toshiba 100554",
+    "source_article": "ac-control-air-for-toshiba",
+    "url": "http://updatefiles.loxone.com/KnowledgeBase/Online/Common/Documents/Datasheet_ACControl_Toshiba_100554.pdf"
+  },
+  "Datasheet_AIExtension_100381.pdf": {
+    "extracted_path": "datasheets/extracted/Datasheet_AIExtension_100381.md",
+    "filename": "Datasheet_AIExtension_100381.pdf",
+    "is_datasheet": true,
+    "local_path": "datasheets/pdfs/Datasheet_AIExtension_100381.pdf",
+    "name": "Datasheet AIExtension 100381",
+    "source_article": "ai-extension-gen-1",
+    "url": "http://updatefiles.loxone.com/KnowledgeBase/Online/Common/Documents/Datasheet_AIExtension_100381.pdf"
+  },
+  "Datasheet_AIExtension_100471.pdf": {
+    "extracted_path": "datasheets/extracted/Datasheet_AIExtension_100471.md",
+    "filename": "Datasheet_AIExtension_100471.pdf",
+    "is_datasheet": true,
+    "local_path": "datasheets/pdfs/Datasheet_AIExtension_100471.pdf",
+    "name": "Datasheet AIExtension 100471",
+    "source_article": "ai-extension",
+    "url": "http://updatefiles.loxone.com/KnowledgeBase/Online/Common/Documents/Datasheet_AIExtension_100471.pdf"
+  },
+  "Datasheet_AOExtension_100382.pdf": {
+    "extracted_path": "datasheets/extracted/Datasheet_AOExtension_100382.md",
+    "filename": "Datasheet_AOExtension_100382.pdf",
+    "is_datasheet": true,
+    "local_path": "datasheets/pdfs/Datasheet_AOExtension_100382.pdf",
+    "name": "Datasheet AOExtension 100382",
+    "source_article": "ao-extension",
+    "url": "http://updatefiles.loxone.com/KnowledgeBase/Online/Common/Documents/Datasheet_AOExtension_100382.pdf"
+  },
+  "Datasheet_AirBaseExtension_100114.pdf": {
+    "extracted_path": "datasheets/extracted/Datasheet_AirBaseExtension_100114.md",
+    "filename": "Datasheet_AirBaseExtension_100114.pdf",
+    "is_datasheet": true,
+    "local_path": "datasheets/pdfs/Datasheet_AirBaseExtension_100114.pdf",
+    "name": "Datasheet AirBaseExtension 100114",
+    "source_article": "air-base-extension",
+    "url": "http://updatefiles.loxone.com/KnowledgeBase/Online/Common/Documents/Datasheet_AirBaseExtension_100114.pdf"
+  },
+  "Datasheet_AlarmSirenAir_100312.pdf": {
+    "extracted_path": "datasheets/extracted/Datasheet_AlarmSirenAir_100312.md",
+    "filename": "Datasheet_AlarmSirenAir_100312.pdf",
+    "is_datasheet": true,
+    "local_path": "datasheets/pdfs/Datasheet_AlarmSirenAir_100312.pdf",
+    "name": "Datasheet AlarmSirenAir 100312",
+    "source_article": "alarm-siren-air",
+    "url": "http://updatefiles.loxone.com/KnowledgeBase/Online/Common/Documents/Datasheet_AlarmSirenAir_100312.pdf"
+  },
+  "Datasheet_AlarmSirenTree_100313.pdf": {
+    "extracted_path": "datasheets/extracted/Datasheet_AlarmSirenTree_100313.md",
+    "filename": "Datasheet_AlarmSirenTree_100313.pdf",
+    "is_datasheet": true,
+    "local_path": "datasheets/pdfs/Datasheet_AlarmSirenTree_100313.pdf",
+    "name": "Datasheet AlarmSirenTree 100313",
+    "source_article": "alarm-siren-tree",
+    "url": "http://updatefiles.loxone.com/KnowledgeBase/Online/Common/Documents/Datasheet_AlarmSirenTree_100313.pdf"
+  },
+  "Datasheet_Audioserver_100428.pdf": {
+    "extracted_path": "datasheets/extracted/Datasheet_Audioserver_100428.md",
+    "filename": "Datasheet_Audioserver_100428.pdf",
+    "is_datasheet": true,
+    "local_path": "datasheets/pdfs/Datasheet_Audioserver_100428.pdf",
+    "name": "Datasheet Audioserver 100428",
+    "source_article": "audio-cabling",
+    "url": "http://updatefiles.loxone.com/KnowledgeBase/Online/Common/Documents/Datasheet_Audioserver_100428.pdf"
+  },
+  "Datasheet_BelimoAir_100520.pdf": {
+    "extracted_path": "datasheets/extracted/Datasheet_BelimoAir_100520.md",
+    "filename": "Datasheet_BelimoAir_100520.pdf",
+    "is_datasheet": true,
+    "local_path": "datasheets/pdfs/Datasheet_BelimoAir_100520.pdf",
+    "name": "Datasheet BelimoAir 100520",
+    "source_article": "belimo-air",
+    "url": "http://updatefiles.loxone.com/KnowledgeBase/Online/Common/Documents/Datasheet_BelimoAir_100520.pdf"
+  },
+  "Datasheet_BelimoTree_100519.pdf": {
+    "extracted_path": "datasheets/extracted/Datasheet_BelimoTree_100519.md",
+    "filename": "Datasheet_BelimoTree_100519.pdf",
+    "is_datasheet": true,
+    "local_path": "datasheets/pdfs/Datasheet_BelimoTree_100519.pdf",
+    "name": "Datasheet BelimoTree 100519",
+    "source_article": "belimo-tree",
+    "url": "http://updatefiles.loxone.com/KnowledgeBase/Online/Common/Documents/Datasheet_BelimoTree_100519.pdf"
+  },
+  "Datasheet_ButtonAir_100465.pdf": {
+    "extracted_path": "datasheets/extracted/Datasheet_ButtonAir_100465.md",
+    "filename": "Datasheet_ButtonAir_100465.pdf",
+    "is_datasheet": true,
+    "local_path": "datasheets/pdfs/Datasheet_ButtonAir_100465.pdf",
+    "name": "Datasheet ButtonAir 100465",
+    "source_article": "button-air",
+    "url": "http://updatefiles.loxone.com/KnowledgeBase/Online/Common/Documents/Datasheet_ButtonAir_100465.pdf"
+  },
+  "Datasheet_DALIAir_100570.pdf": {
+    "extracted_path": "datasheets/extracted/Datasheet_DALIAir_100570.md",
+    "filename": "Datasheet_DALIAir_100570.pdf",
+    "is_datasheet": true,
+    "local_path": "datasheets/pdfs/Datasheet_DALIAir_100570.pdf",
+    "name": "Datasheet DALIAir 100570",
+    "source_article": "dali-air",
+    "url": "http://updatefiles.loxone.com/KnowledgeBase/Online/Common/Documents/Datasheet_DALIAir_100570.pdf"
+  },
+  "Datasheet_DALIExtension10Devices_100623.pdf": {
+    "extracted_path": "datasheets/extracted/Datasheet_DALIExtension10Devices_100623.md",
+    "filename": "Datasheet_DALIExtension10Devices_100623.pdf",
+    "is_datasheet": true,
+    "local_path": "datasheets/pdfs/Datasheet_DALIExtension10Devices_100623.pdf",
+    "name": "Datasheet DALIExtension10Devices 100623",
+    "source_article": "dali-extension-for-10-devices",
+    "url": "http://updatefiles.loxone.com/KnowledgeBase/Online/Common/Documents/Datasheet_DALIExtension10Devices_100623.pdf"
+  },
+  "Datasheet_DALIExtension_100200.pdf": {
+    "extracted_path": "datasheets/extracted/Datasheet_DALIExtension_100200.md",
+    "filename": "Datasheet_DALIExtension_100200.pdf",
+    "is_datasheet": true,
+    "local_path": "datasheets/pdfs/Datasheet_DALIExtension_100200.pdf",
+    "name": "Datasheet DALIExtension 100200",
+    "source_article": "dali-extension",
+    "url": "http://updatefiles.loxone.com/KnowledgeBase/Online/Common/Documents/Datasheet_DALIExtension_100200.pdf"
+  },
+  "Datasheet_DIExtension_100283.pdf": {
+    "extracted_path": "datasheets/extracted/Datasheet_DIExtension_100283.md",
+    "filename": "Datasheet_DIExtension_100283.pdf",
+    "is_datasheet": true,
+    "local_path": "datasheets/pdfs/Datasheet_DIExtension_100283.pdf",
+    "name": "Datasheet DIExtension 100283",
+    "source_article": "di-extension",
+    "url": "http://updatefiles.loxone.com/KnowledgeBase/Online/Common/Documents/Datasheet_DIExtension_100283.pdf"
+  },
+  "Datasheet_DMXExtension_100012.pdf": {
+    "extracted_path": "datasheets/extracted/Datasheet_DMXExtension_100012.md",
+    "filename": "Datasheet_DMXExtension_100012.pdf",
+    "is_datasheet": true,
+    "local_path": "datasheets/pdfs/Datasheet_DMXExtension_100012.pdf",
+    "name": "Datasheet DMXExtension 100012",
+    "source_article": "dmx-extension",
+    "url": "http://updatefiles.loxone.com/KnowledgeBase/Online/Common/Documents/Datasheet_DMXExtension_100012.pdf"
+  },
+  "Datasheet_DimmerExtension120V_100043.pdf": {
+    "extracted_path": "datasheets/extracted/Datasheet_DimmerExtension120V_100043.md",
+    "filename": "Datasheet_DimmerExtension120V_100043.pdf",
+    "is_datasheet": true,
+    "local_path": "datasheets/pdfs/Datasheet_DimmerExtension120V_100043.pdf",
+    "name": "Datasheet DimmerExtension120V 100043",
+    "source_article": "dimmer-extension",
+    "url": "http://updatefiles.loxone.com/KnowledgeBase/Online/Common/Documents/Datasheet_DimmerExtension120V_100043.pdf"
+  },
+  "Datasheet_DimmerExtension_100029.pdf": {
+    "extracted_path": "datasheets/extracted/Datasheet_DimmerExtension_100029.md",
+    "filename": "Datasheet_DimmerExtension_100029.pdf",
+    "is_datasheet": true,
+    "local_path": "datasheets/pdfs/Datasheet_DimmerExtension_100029.pdf",
+    "name": "Datasheet DimmerExtension 100029",
+    "source_article": "dimmer-extension",
+    "url": "http://updatefiles.loxone.com/KnowledgeBase/Online/Common/Documents/Datasheet_DimmerExtension_100029.pdf"
+  },
+  "Datasheet_DoorWindowContactAir_100210.pdf": {
+    "extracted_path": "datasheets/extracted/Datasheet_DoorWindowContactAir_100210.md",
+    "filename": "Datasheet_DoorWindowContactAir_100210.pdf",
+    "is_datasheet": true,
+    "local_path": "datasheets/pdfs/Datasheet_DoorWindowContactAir_100210.pdf",
+    "name": "Datasheet DoorWindowContactAir 100210",
+    "source_article": "door-window-contact-air",
+    "url": "http://updatefiles.loxone.com/KnowledgeBase/Online/Common/Documents/Datasheet_DoorWindowContactAir_100210.pdf"
+  },
+  "Datasheet_EnergyMeter_1PhaseTree_100566.pdf": {
+    "extracted_path": "datasheets/extracted/Datasheet_EnergyMeter_1PhaseTree_100566.md",
+    "filename": "Datasheet_EnergyMeter_1PhaseTree_100566.pdf",
+    "is_datasheet": true,
+    "local_path": "datasheets/pdfs/Datasheet_EnergyMeter_1PhaseTree_100566.pdf",
+    "name": "Datasheet EnergyMeter 1PhaseTree 100566",
+    "source_article": "energy-meter-1-phase-tree",
+    "url": "http://updatefiles.loxone.com/KnowledgeBase/Online/Common/Documents/Datasheet_EnergyMeter_1PhaseTree_100566.pdf"
+  },
+  "Datasheet_EnergyMeter_3PhaseTree_100567.pdf": {
+    "extracted_path": "datasheets/extracted/Datasheet_EnergyMeter_3PhaseTree_100567.md",
+    "filename": "Datasheet_EnergyMeter_3PhaseTree_100567.pdf",
+    "is_datasheet": true,
+    "local_path": "datasheets/pdfs/Datasheet_EnergyMeter_3PhaseTree_100567.pdf",
+    "name": "Datasheet EnergyMeter 3PhaseTree 100567",
+    "source_article": "energy-meter-3-phase-tree",
+    "url": "http://updatefiles.loxone.com/KnowledgeBase/Online/Common/Documents/Datasheet_EnergyMeter_3PhaseTree_100567.pdf"
+  },
+  "Datasheet_Extension_100002.pdf": {
+    "extracted_path": "datasheets/extracted/Datasheet_Extension_100002.md",
+    "filename": "Datasheet_Extension_100002.pdf",
+    "is_datasheet": true,
+    "local_path": "datasheets/pdfs/Datasheet_Extension_100002.pdf",
+    "name": "Datasheet Extension 100002",
+    "source_article": "extension",
+    "url": "http://updatefiles.loxone.com/KnowledgeBase/Online/Common/Documents/Datasheet_Extension_100002.pdf"
+  },
+  "Datasheet_FlushmountPresenceSensorTree_100466.pdf": {
+    "extracted_path": "datasheets/extracted/Datasheet_FlushmountPresenceSensorTree_100466.md",
+    "filename": "Datasheet_FlushmountPresenceSensorTree_100466.pdf",
+    "is_datasheet": true,
+    "local_path": "datasheets/pdfs/Datasheet_FlushmountPresenceSensorTree_100466.pdf",
+    "name": "Datasheet FlushmountPresenceSensorTree 100466",
+    "source_article": "presence-sensor-tree",
+    "url": "http://updatefiles.loxone.com/KnowledgeBase/Online/Common/Documents/Datasheet_FlushmountPresenceSensorTree_100466.pdf"
+  },
+  "Datasheet_FroelingExtension_100158.pdf": {
+    "extracted_path": "datasheets/extracted/Datasheet_FroelingExtension_100158.md",
+    "filename": "Datasheet_FroelingExtension_100158.pdf",
+    "is_datasheet": true,
+    "local_path": "datasheets/pdfs/Datasheet_FroelingExtension_100158.pdf",
+    "name": "Datasheet FroelingExtension 100158",
+    "source_article": "froeling-extension",
+    "url": "http://updatefiles.loxone.com/KnowledgeBase/Online/Common/Documents/Datasheet_FroelingExtension_100158.pdf"
+  },
+  "Datasheet_HoermannAir_100552.pdf": {
+    "extracted_path": "datasheets/extracted/Datasheet_HoermannAir_100552.md",
+    "filename": "Datasheet_HoermannAir_100552.pdf",
+    "is_datasheet": true,
+    "local_path": "datasheets/pdfs/Datasheet_HoermannAir_100552.pdf",
+    "name": "Datasheet HoermannAir 100552",
+    "source_article": "hoermann-air",
+    "url": "http://updatefiles.loxone.com/KnowledgeBase/Online/Common/Documents/Datasheet_HoermannAir_100552.pdf"
+  },
+  "Datasheet_IRControlAir_100141.pdf": {
+    "extracted_path": "datasheets/extracted/Datasheet_IRControlAir_100141.md",
+    "filename": "Datasheet_IRControlAir_100141.pdf",
+    "is_datasheet": true,
+    "local_path": "datasheets/pdfs/Datasheet_IRControlAir_100141.pdf",
+    "name": "Datasheet IRControlAir 100141",
+    "source_article": "ir-control-air",
+    "url": "http://updatefiles.loxone.com/KnowledgeBase/Online/Common/Documents/Datasheet_IRControlAir_100141.pdf"
+  },
+  "Datasheet_InstallSpeaker10Client_610153.pdf": {
+    "extracted_path": "datasheets/extracted/Datasheet_InstallSpeaker10Client_610153.md",
+    "filename": "Datasheet_InstallSpeaker10Client_610153.pdf",
+    "is_datasheet": true,
+    "local_path": "datasheets/pdfs/Datasheet_InstallSpeaker10Client_610153.pdf",
+    "name": "Datasheet InstallSpeaker10Client 610153",
+    "source_article": "install-speaker-10-client",
+    "url": "http://updatefiles.loxone.com/KnowledgeBase/Online/Common/Documents/Datasheet_InstallSpeaker10Client_610153.pdf"
+  },
+  "Datasheet_InstallSpeaker10Master_610152.pdf": {
+    "extracted_path": "datasheets/extracted/Datasheet_InstallSpeaker10Master_610152.md",
+    "filename": "Datasheet_InstallSpeaker10Master_610152.pdf",
+    "is_datasheet": true,
+    "local_path": "datasheets/pdfs/Datasheet_InstallSpeaker10Master_610152.pdf",
+    "name": "Datasheet InstallSpeaker10Master 610152",
+    "source_article": "install-speaker-10-master",
+    "url": "http://updatefiles.loxone.com/KnowledgeBase/Online/Common/Documents/Datasheet_InstallSpeaker10Master_610152.pdf"
+  },
+  "Datasheet_InstallSpeaker10Passive_610148.pdf": {
+    "extracted_path": "datasheets/extracted/Datasheet_InstallSpeaker10Passive_610148.md",
+    "filename": "Datasheet_InstallSpeaker10Passive_610148.pdf",
+    "is_datasheet": true,
+    "local_path": "datasheets/pdfs/Datasheet_InstallSpeaker10Passive_610148.pdf",
+    "name": "Datasheet InstallSpeaker10Passive 610148",
+    "source_article": "audio-cabling",
+    "url": "http://updatefiles.loxone.com/KnowledgeBase/Online/Common/Documents/Datasheet_InstallSpeaker10Passive_610148.pdf"
+  },
+  "Datasheet_InstallSpeaker7Client_610151.pdf": {
+    "extracted_path": "datasheets/extracted/Datasheet_InstallSpeaker7Client_610151.md",
+    "filename": "Datasheet_InstallSpeaker7Client_610151.pdf",
+    "is_datasheet": true,
+    "local_path": "datasheets/pdfs/Datasheet_InstallSpeaker7Client_610151.pdf",
+    "name": "Datasheet InstallSpeaker7Client 610151",
+    "source_article": "install-speaker-7-client",
+    "url": "http://updatefiles.loxone.com/KnowledgeBase/Online/Common/Documents/Datasheet_InstallSpeaker7Client_610151.pdf"
+  },
+  "Datasheet_InstallSpeaker7Master_610149.pdf": {
+    "extracted_path": "datasheets/extracted/Datasheet_InstallSpeaker7Master_610149.md",
+    "filename": "Datasheet_InstallSpeaker7Master_610149.pdf",
+    "is_datasheet": true,
+    "local_path": "datasheets/pdfs/Datasheet_InstallSpeaker7Master_610149.pdf",
+    "name": "Datasheet InstallSpeaker7Master 610149",
+    "source_article": "install-speaker-7-master",
+    "url": "http://updatefiles.loxone.com/KnowledgeBase/Online/Common/Documents/Datasheet_InstallSpeaker7Master_610149.pdf"
+  },
+  "Datasheet_InstallSpeaker7Passive_100497.pdf": {
+    "extracted_path": "datasheets/extracted/Datasheet_InstallSpeaker7Passive_100497.md",
+    "filename": "Datasheet_InstallSpeaker7Passive_100497.pdf",
+    "is_datasheet": true,
+    "local_path": "datasheets/pdfs/Datasheet_InstallSpeaker7Passive_100497.pdf",
+    "name": "Datasheet InstallSpeaker7Passive 100497",
+    "source_article": "audio-cabling",
+    "url": "http://updatefiles.loxone.com/KnowledgeBase/Online/Common/Documents/Datasheet_InstallSpeaker7Passive_100497.pdf"
+  },
+  "Datasheet_InstallSub10Client_610163.pdf": {
+    "extracted_path": "datasheets/extracted/Datasheet_InstallSub10Client_610163.md",
+    "filename": "Datasheet_InstallSub10Client_610163.pdf",
+    "is_datasheet": true,
+    "local_path": "datasheets/pdfs/Datasheet_InstallSub10Client_610163.pdf",
+    "name": "Datasheet InstallSub10Client 610163",
+    "source_article": "install-sub-10-client",
+    "url": "http://updatefiles.loxone.com/KnowledgeBase/Online/Common/Documents/Datasheet_InstallSub10Client_610163.pdf"
+  },
+  "Datasheet_InstallSub10Master_610162.pdf": {
+    "extracted_path": "datasheets/extracted/Datasheet_InstallSub10Master_610162.md",
+    "filename": "Datasheet_InstallSub10Master_610162.pdf",
+    "is_datasheet": true,
+    "local_path": "datasheets/pdfs/Datasheet_InstallSub10Master_610162.pdf",
+    "name": "Datasheet InstallSub10Master 610162",
+    "source_article": "install-sub-10-master",
+    "url": "http://updatefiles.loxone.com/KnowledgeBase/Online/Common/Documents/Datasheet_InstallSub10Master_610162.pdf"
+  },
+  "Datasheet_Intercom_100484,100485.pdf": {
+    "extracted_path": "datasheets/extracted/Datasheet_Intercom_100484,100485.md",
+    "filename": "Datasheet_Intercom_100484,100485.pdf",
+    "is_datasheet": true,
+    "local_path": "datasheets/pdfs/Datasheet_Intercom_100484,100485.pdf",
+    "name": "Datasheet Intercom 100484,100485",
+    "source_article": "intercom",
+    "url": "https://www.loxone.com/wp-content/uploads/datasheets/Datasheet_Intercom_100484,100485.pdf"
+  },
+  "Datasheet_InternormExtension_100232.pdf": {
+    "extracted_path": "datasheets/extracted/Datasheet_InternormExtension_100232.md",
+    "filename": "Datasheet_InternormExtension_100232.pdf",
+    "is_datasheet": true,
+    "local_path": "datasheets/pdfs/Datasheet_InternormExtension_100232.pdf",
+    "name": "Datasheet InternormExtension 100232",
+    "source_article": "internorm-extension",
+    "url": "http://updatefiles.loxone.com/KnowledgeBase/Online/Common/Documents/Datasheet_InternormExtension_100232.pdf"
+  },
+  "Datasheet_KNXExtension_100322.pdf": {
+    "extracted_path": "datasheets/extracted/Datasheet_KNXExtension_100322.md",
+    "filename": "Datasheet_KNXExtension_100322.pdf",
+    "is_datasheet": true,
+    "local_path": "datasheets/pdfs/Datasheet_KNXExtension_100322.pdf",
+    "name": "Datasheet KNXExtension 100322",
+    "source_article": "knx-extension",
+    "url": "http://updatefiles.loxone.com/KnowledgeBase/Online/Common/Documents/Datasheet_KNXExtension_100322.pdf"
+  },
+  "Datasheet_LEDCeilingLightAirUS_100635,100636.pdf": {
+    "extracted_path": "datasheets/extracted/Datasheet_LEDCeilingLightAirUS_100635,100636.md",
+    "filename": "Datasheet_LEDCeilingLightAirUS_100635,100636.pdf",
+    "is_datasheet": true,
+    "local_path": "datasheets/pdfs/Datasheet_LEDCeilingLightAirUS_100635,100636.pdf",
+    "name": "Datasheet LEDCeilingLightAirUS 100635,100636",
+    "source_article": "led-ceiling-light-rgbw-air",
+    "url": "http://updatefiles.loxone.com/KnowledgeBase/Online/Common/Documents/Datasheet_LEDCeilingLightAirUS_100635,100636.pdf"
+  },
+  "Datasheet_LEDCeilingLightAir_100286,100287,100500.pdf": {
+    "extracted_path": "datasheets/extracted/Datasheet_LEDCeilingLightAir_100286,100287,100500.md",
+    "filename": "Datasheet_LEDCeilingLightAir_100286,100287,100500.pdf",
+    "is_datasheet": true,
+    "local_path": "datasheets/pdfs/Datasheet_LEDCeilingLightAir_100286,100287,100500.pdf",
+    "name": "Datasheet LEDCeilingLightAir 100286,100287,100500",
+    "source_article": "led-ceiling-light-rgbw-air",
+    "url": "http://updatefiles.loxone.com/KnowledgeBase/Online/Common/Documents/Datasheet_LEDCeilingLightAir_100286,100287,100500.pdf"
+  },
+  "Datasheet_LEDCeilingLightTree_100288,100289,100495.pdf": {
+    "extracted_path": "datasheets/extracted/Datasheet_LEDCeilingLightTree_100288,100289,100495.md",
+    "filename": "Datasheet_LEDCeilingLightTree_100288,100289,100495.pdf",
+    "is_datasheet": true,
+    "local_path": "datasheets/pdfs/Datasheet_LEDCeilingLightTree_100288,100289,100495.pdf",
+    "name": "Datasheet LEDCeilingLightTree 100288,100289,100495",
+    "source_article": "led-ceiling-light-rgbw-tree",
+    "url": "http://updatefiles.loxone.com/KnowledgeBase/Online/Common/Documents/Datasheet_LEDCeilingLightTree_100288,100289,100495.pdf"
+  },
+  "Datasheet_LEDCeilingSpotRGBWTree_100237.pdf": {
+    "extracted_path": "datasheets/extracted/Datasheet_LEDCeilingSpotRGBWTree_100237.md",
+    "filename": "Datasheet_LEDCeilingSpotRGBWTree_100237.pdf",
+    "is_datasheet": true,
+    "local_path": "datasheets/pdfs/Datasheet_LEDCeilingSpotRGBWTree_100237.pdf",
+    "name": "Datasheet LEDCeilingSpotRGBWTree 100237",
+    "source_article": "led-surface-mount-spot-rgbw-tree",
+    "url": "http://updatefiles.loxone.com/KnowledgeBase/Online/Common/Documents/Datasheet_LEDCeilingSpotRGBWTree_100237.pdf"
+  },
+  "Datasheet_LEDCeilingSpotWW-PWM_100505,100506.pdf": {
+    "extracted_path": "datasheets/extracted/Datasheet_LEDCeilingSpotWW-PWM_100505,100506.md",
+    "filename": "Datasheet_LEDCeilingSpotWW-PWM_100505,100506.pdf",
+    "is_datasheet": true,
+    "local_path": "datasheets/pdfs/Datasheet_LEDCeilingSpotWW-PWM_100505,100506.pdf",
+    "name": "Datasheet LEDCeilingSpotWW PWM 100505,100506",
+    "source_article": "led-spot-ww",
+    "url": "https://www.loxone.com/wp-content/uploads/datasheets/Datasheet_LEDCeilingSpotWW-PWM_100505,100506.pdf"
+  },
+  "Datasheet_LEDCeilingSpotWWTree_100238.pdf": {
+    "extracted_path": "datasheets/extracted/Datasheet_LEDCeilingSpotWWTree_100238.md",
+    "filename": "Datasheet_LEDCeilingSpotWWTree_100238.pdf",
+    "is_datasheet": true,
+    "local_path": "datasheets/pdfs/Datasheet_LEDCeilingSpotWWTree_100238.pdf",
+    "name": "Datasheet LEDCeilingSpotWWTree 100238",
+    "source_article": "led-surface-mount-spot-ww-tree",
+    "url": "http://updatefiles.loxone.com/KnowledgeBase/Online/Common/Documents/Datasheet_LEDCeilingSpotWWTree_100238.pdf"
+  },
+  "Datasheet_LEDPendulumSlimRGBWTreeUS_100369.pdf": {
+    "extracted_path": "datasheets/extracted/Datasheet_LEDPendulumSlimRGBWTreeUS_100369.md",
+    "filename": "Datasheet_LEDPendulumSlimRGBWTreeUS_100369.pdf",
+    "is_datasheet": true,
+    "local_path": "datasheets/pdfs/Datasheet_LEDPendulumSlimRGBWTreeUS_100369.pdf",
+    "name": "Datasheet LEDPendulumSlimRGBWTreeUS 100369",
+    "source_article": "led-pendulum-slim-rgbw-tree",
+    "url": "http://updatefiles.loxone.com/KnowledgeBase/Online/Common/Documents/Datasheet_LEDPendulumSlimRGBWTreeUS_100369.pdf"
+  },
+  "Datasheet_LEDPendulumSlimTree_100308,100309,100492.pdf": {
+    "extracted_path": "datasheets/extracted/Datasheet_LEDPendulumSlimTree_100308,100309,100492.md",
+    "filename": "Datasheet_LEDPendulumSlimTree_100308,100309,100492.pdf",
+    "is_datasheet": true,
+    "local_path": "datasheets/pdfs/Datasheet_LEDPendulumSlimTree_100308,100309,100492.pdf",
+    "name": "Datasheet LEDPendulumSlimTree 100308,100309,100492",
+    "source_article": "led-pendulum-slim-rgbw-tree",
+    "url": "http://updatefiles.loxone.com/KnowledgeBase/Online/Common/Documents/Datasheet_LEDPendulumSlimTree_100308,100309,100492.pdf"
+  },
+  "Datasheet_LEDSpotRGBWTreeEU_100330.pdf": {
+    "extracted_path": "datasheets/extracted/Datasheet_LEDSpotRGBWTreeEU_100330.md",
+    "filename": "Datasheet_LEDSpotRGBWTreeEU_100330.pdf",
+    "is_datasheet": true,
+    "local_path": "datasheets/pdfs/Datasheet_LEDSpotRGBWTreeEU_100330.pdf",
+    "name": "Datasheet LEDSpotRGBWTreeEU 100330",
+    "source_article": "led-spot-rgbw-tree",
+    "url": "http://updatefiles.loxone.com/KnowledgeBase/Online/Common/Documents/Datasheet_LEDSpotRGBWTreeEU_100330.pdf"
+  },
+  "Datasheet_LEDSpotRGBWTreeGen1_100269.pdf": {
+    "extracted_path": "datasheets/extracted/Datasheet_LEDSpotRGBWTreeGen1_100269.md",
+    "filename": "Datasheet_LEDSpotRGBWTreeGen1_100269.pdf",
+    "is_datasheet": true,
+    "local_path": "datasheets/pdfs/Datasheet_LEDSpotRGBWTreeGen1_100269.pdf",
+    "name": "Datasheet LEDSpotRGBWTreeGen1 100269",
+    "source_article": "led-spot-rgbw-tree-gen-1",
+    "url": "http://updatefiles.loxone.com/KnowledgeBase/Online/Common/Documents/Datasheet_LEDSpotRGBWTreeGen1_100269.pdf"
+  },
+  "Datasheet_LEDSpotWW-PWM_100327,100331.pdf": {
+    "extracted_path": "datasheets/extracted/Datasheet_LEDSpotWW-PWM_100327,100331.md",
+    "filename": "Datasheet_LEDSpotWW-PWM_100327,100331.pdf",
+    "is_datasheet": true,
+    "local_path": "datasheets/pdfs/Datasheet_LEDSpotWW-PWM_100327,100331.pdf",
+    "name": "Datasheet LEDSpotWW PWM 100327,100331",
+    "source_article": "led-spot-ww",
+    "url": "https://www.loxone.com/wp-content/uploads/datasheets/Datasheet_LEDSpotWW-PWM_100327,100331.pdf"
+  },
+  "Datasheet_LEDSpotWWTreeGen1_100268.pdf": {
+    "extracted_path": "datasheets/extracted/Datasheet_LEDSpotWWTreeGen1_100268.md",
+    "filename": "Datasheet_LEDSpotWWTreeGen1_100268.pdf",
+    "is_datasheet": true,
+    "local_path": "datasheets/pdfs/Datasheet_LEDSpotWWTreeGen1_100268.pdf",
+    "name": "Datasheet LEDSpotWWTreeGen1 100268",
+    "source_article": "led-spot-ww-tree-gen-1",
+    "url": "http://updatefiles.loxone.com/KnowledgeBase/Online/Common/Documents/Datasheet_LEDSpotWWTreeGen1_100268.pdf"
+  },
+  "Datasheet_LEDStrip_WW_200043,200061,200092.pdf": {
+    "extracted_path": "datasheets/extracted/Datasheet_LEDStrip_WW_200043,200061,200092.md",
+    "filename": "Datasheet_LEDStrip_WW_200043,200061,200092.pdf",
+    "is_datasheet": true,
+    "local_path": "datasheets/pdfs/Datasheet_LEDStrip_WW_200043,200061,200092.pdf",
+    "name": "Datasheet LEDStrip WW 200043,200061,200092",
+    "source_article": "led-strips-new-build",
+    "url": "https://www.loxone.com/wp-content/uploads/datasheets/Datasheet_LEDStrip_WW_200043,200061,200092.pdf"
+  },
+  "Datasheet_LedCeilingSpotRGBWTree_100503,100504.pdf": {
+    "extracted_path": "datasheets/extracted/Datasheet_LedCeilingSpotRGBWTree_100503,100504.md",
+    "filename": "Datasheet_LedCeilingSpotRGBWTree_100503,100504.pdf",
+    "is_datasheet": true,
+    "local_path": "datasheets/pdfs/Datasheet_LedCeilingSpotRGBWTree_100503,100504.pdf",
+    "name": "Datasheet LedCeilingSpotRGBWTree 100503,100504",
+    "source_article": "led-spot-rgbw-tree",
+    "url": "http://updatefiles.loxone.com/KnowledgeBase/Online/Common/Documents/Datasheet_LedCeilingSpotRGBWTree_100503,100504.pdf"
+  },
+  "Datasheet_LoxoneTreeCableEca_100637.pdf": {
+    "extracted_path": "datasheets/extracted/Datasheet_LoxoneTreeCableEca_100637.md",
+    "filename": "Datasheet_LoxoneTreeCableEca_100637.pdf",
+    "is_datasheet": true,
+    "local_path": "datasheets/pdfs/Datasheet_LoxoneTreeCableEca_100637.pdf",
+    "name": "Datasheet LoxoneTreeCableEca 100637",
+    "source_article": "tree-branch",
+    "url": "http://updatefiles.loxone.com/KnowledgeBase/Online/Common/Documents/Datasheet_LoxoneTreeCableEca_100637.pdf"
+  },
+  "Datasheet_MBusExtension_100569.pdf": {
+    "extracted_path": "datasheets/extracted/Datasheet_MBusExtension_100569.md",
+    "filename": "Datasheet_MBusExtension_100569.pdf",
+    "is_datasheet": true,
+    "local_path": "datasheets/pdfs/Datasheet_MBusExtension_100569.pdf",
+    "name": "Datasheet MBusExtension 100569",
+    "source_article": "m-bus-extension",
+    "url": "http://updatefiles.loxone.com/KnowledgeBase/Online/Common/Documents/Datasheet_MBusExtension_100569.pdf"
+  },
+  "Datasheet_MiniserverCompact_100512.pdf": {
+    "extracted_path": "datasheets/extracted/Datasheet_MiniserverCompact_100512.md",
+    "filename": "Datasheet_MiniserverCompact_100512.pdf",
+    "is_datasheet": true,
+    "local_path": "datasheets/pdfs/Datasheet_MiniserverCompact_100512.pdf",
+    "name": "Datasheet MiniserverCompact 100512",
+    "source_article": "miniserver-compact",
+    "url": "http://updatefiles.loxone.com/KnowledgeBase/Online/Common/Documents/Datasheet_MiniserverCompact_100512.pdf"
+  },
+  "Datasheet_MiniserverGen1_100001.pdf": {
+    "extracted_path": "datasheets/extracted/Datasheet_MiniserverGen1_100001.md",
+    "filename": "Datasheet_MiniserverGen1_100001.pdf",
+    "is_datasheet": true,
+    "local_path": "datasheets/pdfs/Datasheet_MiniserverGen1_100001.pdf",
+    "name": "Datasheet MiniserverGen1 100001",
+    "source_article": "miniserver-gen-1",
+    "url": "http://updatefiles.loxone.com/KnowledgeBase/Online/Common/Documents/Datasheet_MiniserverGen1_100001.pdf"
+  },
+  "Datasheet_MiniserverGo_100139.pdf": {
+    "extracted_path": "datasheets/extracted/Datasheet_MiniserverGo_100139.md",
+    "filename": "Datasheet_MiniserverGo_100139.pdf",
+    "is_datasheet": true,
+    "local_path": "datasheets/pdfs/Datasheet_MiniserverGo_100139.pdf",
+    "name": "Datasheet MiniserverGo 100139",
+    "source_article": "miniserver-go-gen-1",
+    "url": "http://updatefiles.loxone.com/KnowledgeBase/Online/Common/Documents/Datasheet_MiniserverGo_100139.pdf"
+  },
+  "Datasheet_MiniserverGo_100336.pdf": {
+    "extracted_path": "datasheets/extracted/Datasheet_MiniserverGo_100336.md",
+    "filename": "Datasheet_MiniserverGo_100336.pdf",
+    "is_datasheet": true,
+    "local_path": "datasheets/pdfs/Datasheet_MiniserverGo_100336.pdf",
+    "name": "Datasheet MiniserverGo 100336",
+    "source_article": "miniserver-go",
+    "url": "http://updatefiles.loxone.com/KnowledgeBase/Online/Common/Documents/Datasheet_MiniserverGo_100336.pdf"
+  },
+  "Datasheet_Miniserver_100335.pdf": {
+    "extracted_path": "datasheets/extracted/Datasheet_Miniserver_100335.md",
+    "filename": "Datasheet_Miniserver_100335.pdf",
+    "is_datasheet": true,
+    "local_path": "datasheets/pdfs/Datasheet_Miniserver_100335.pdf",
+    "name": "Datasheet Miniserver 100335",
+    "source_article": "miniserver",
+    "url": "http://updatefiles.loxone.com/KnowledgeBase/Online/Common/Documents/Datasheet_Miniserver_100335.pdf"
+  },
+  "Datasheet_ModbusAir_100565.pdf": {
+    "extracted_path": "datasheets/extracted/Datasheet_ModbusAir_100565.md",
+    "filename": "Datasheet_ModbusAir_100565.pdf",
+    "is_datasheet": true,
+    "local_path": "datasheets/pdfs/Datasheet_ModbusAir_100565.pdf",
+    "name": "Datasheet ModbusAir 100565",
+    "source_article": "modbus-air",
+    "url": "http://updatefiles.loxone.com/KnowledgeBase/Online/Common/Documents/Datasheet_ModbusAir_100565.pdf"
+  },
+  "Datasheet_ModbusEnergyMeter1phase_200156.pdf": {
+    "extracted_path": "datasheets/extracted/Datasheet_ModbusEnergyMeter1phase_200156.md",
+    "filename": "Datasheet_ModbusEnergyMeter1phase_200156.pdf",
+    "is_datasheet": true,
+    "local_path": "datasheets/pdfs/Datasheet_ModbusEnergyMeter1phase_200156.pdf",
+    "name": "Datasheet ModbusEnergyMeter1phase 200156",
+    "source_article": "modbus-extension",
+    "url": "http://updatefiles.loxone.com/KnowledgeBase/Online/Common/Documents/Datasheet_ModbusEnergyMeter1phase_200156.pdf"
+  },
+  "Datasheet_ModbusEnergyMeter3phase_200157.pdf": {
+    "extracted_path": "datasheets/extracted/Datasheet_ModbusEnergyMeter3phase_200157.md",
+    "filename": "Datasheet_ModbusEnergyMeter3phase_200157.pdf",
+    "is_datasheet": true,
+    "local_path": "datasheets/pdfs/Datasheet_ModbusEnergyMeter3phase_200157.pdf",
+    "name": "Datasheet ModbusEnergyMeter3phase 200157",
+    "source_article": "modbus-extension",
+    "url": "http://updatefiles.loxone.com/KnowledgeBase/Online/Common/Documents/Datasheet_ModbusEnergyMeter3phase_200157.pdf"
+  },
+  "Datasheet_ModbusEnergyMeter_1phase_200156.pdf": {
+    "extracted_path": "datasheets/extracted/Datasheet_ModbusEnergyMeter_1phase_200156.md",
+    "filename": "Datasheet_ModbusEnergyMeter_1phase_200156.pdf",
+    "is_datasheet": true,
+    "local_path": "datasheets/pdfs/Datasheet_ModbusEnergyMeter_1phase_200156.pdf",
+    "name": "Datasheet ModbusEnergyMeter 1phase 200156",
+    "source_article": "modbus-energy-meter",
+    "url": "https://www.loxone.com/dede/wp-content/uploads/sites/2/2016/08/Datasheet_ModbusEnergyMeter_1phase_200156.pdf"
+  },
+  "Datasheet_ModbusEnergyMeter_3phase_200157.pdf": {
+    "extracted_path": "datasheets/extracted/Datasheet_ModbusEnergyMeter_3phase_200157.md",
+    "filename": "Datasheet_ModbusEnergyMeter_3phase_200157.pdf",
+    "is_datasheet": true,
+    "local_path": "datasheets/pdfs/Datasheet_ModbusEnergyMeter_3phase_200157.pdf",
+    "name": "Datasheet ModbusEnergyMeter 3phase 200157",
+    "source_article": "modbus-energy-meter",
+    "url": "https://www.loxone.com/dede/wp-content/uploads/sites/2/2016/08/Datasheet_ModbusEnergyMeter_3phase_200157.pdf"
+  },
+  "Datasheet_ModbusExtension_100124.pdf": {
+    "extracted_path": "datasheets/extracted/Datasheet_ModbusExtension_100124.md",
+    "filename": "Datasheet_ModbusExtension_100124.pdf",
+    "is_datasheet": true,
+    "local_path": "datasheets/pdfs/Datasheet_ModbusExtension_100124.pdf",
+    "name": "Datasheet ModbusExtension 100124",
+    "source_article": "modbus-extension",
+    "url": "http://updatefiles.loxone.com/KnowledgeBase/Online/Common/Documents/Datasheet_ModbusExtension_100124.pdf"
+  },
+  "Datasheet_MotionSensorAir_100190.pdf": {
+    "extracted_path": "datasheets/extracted/Datasheet_MotionSensorAir_100190.md",
+    "filename": "Datasheet_MotionSensorAir_100190.pdf",
+    "is_datasheet": true,
+    "local_path": "datasheets/pdfs/Datasheet_MotionSensorAir_100190.pdf",
+    "name": "Datasheet MotionSensorAir 100190",
+    "source_article": "motion-sensor-air",
+    "url": "http://updatefiles.loxone.com/KnowledgeBase/Online/Common/Documents/Datasheet_MotionSensorAir_100190.pdf"
+  },
+  "Datasheet_MotionSensorTree_100223.pdf": {
+    "extracted_path": "datasheets/extracted/Datasheet_MotionSensorTree_100223.md",
+    "filename": "Datasheet_MotionSensorTree_100223.pdf",
+    "is_datasheet": true,
+    "local_path": "datasheets/pdfs/Datasheet_MotionSensorTree_100223.pdf",
+    "name": "Datasheet MotionSensorTree 100223",
+    "source_article": "motion-sensor-tree",
+    "url": "http://updatefiles.loxone.com/KnowledgeBase/Online/Common/Documents/Datasheet_MotionSensorTree_100223.pdf"
+  },
+  "Datasheet_MountingFrameDouble_100489,100490.pdf": {
+    "extracted_path": "datasheets/extracted/Datasheet_MountingFrameDouble_100489,100490.md",
+    "filename": "Datasheet_MountingFrameDouble_100489,100490.pdf",
+    "is_datasheet": true,
+    "local_path": "datasheets/pdfs/Datasheet_MountingFrameDouble_100489,100490.pdf",
+    "name": "Datasheet MountingFrameDouble 100489,100490",
+    "source_article": "intercom",
+    "url": "http://updatefiles.loxone.com/KnowledgeBase/Online/Common/Documents/Datasheet_MountingFrameDouble_100489,100490.pdf"
+  },
+  "Datasheet_MountingFrameSingle_100487,100488.pdf": {
+    "extracted_path": "datasheets/extracted/Datasheet_MountingFrameSingle_100487,100488.md",
+    "filename": "Datasheet_MountingFrameSingle_100487,100488.pdf",
+    "is_datasheet": true,
+    "local_path": "datasheets/pdfs/Datasheet_MountingFrameSingle_100487,100488.pdf",
+    "name": "Datasheet MountingFrameSingle 100487,100488",
+    "source_article": "intercom",
+    "url": "http://updatefiles.loxone.com/KnowledgeBase/Online/Common/Documents/Datasheet_MountingFrameSingle_100487,100488.pdf"
+  },
+  "Datasheet_MultiExtensionAir_100116.pdf": {
+    "extracted_path": "datasheets/extracted/Datasheet_MultiExtensionAir_100116.md",
+    "filename": "Datasheet_MultiExtensionAir_100116.pdf",
+    "is_datasheet": true,
+    "local_path": "datasheets/pdfs/Datasheet_MultiExtensionAir_100116.pdf",
+    "name": "Datasheet MultiExtensionAir 100116",
+    "source_article": "multi-extension-air",
+    "url": "http://updatefiles.loxone.com/KnowledgeBase/Online/Common/Documents/Datasheet_MultiExtensionAir_100116.pdf"
+  },
+  "Datasheet_NFCCodeTouchAirGen1_100299,100305.pdf": {
+    "extracted_path": "datasheets/extracted/Datasheet_NFCCodeTouchAirGen1_100299,100305.md",
+    "filename": "Datasheet_NFCCodeTouchAirGen1_100299,100305.pdf",
+    "is_datasheet": true,
+    "local_path": "datasheets/pdfs/Datasheet_NFCCodeTouchAirGen1_100299,100305.pdf",
+    "name": "Datasheet NFCCodeTouchAirGen1 100299,100305",
+    "source_article": "nfc-code-touch-air",
+    "url": "http://updatefiles.loxone.com/KnowledgeBase/Online/Common/Documents/Datasheet_NFCCodeTouchAirGen1_100299,100305.pdf"
+  },
+  "Datasheet_NFCCodeTouchAir_100482,100483.pdf": {
+    "extracted_path": "datasheets/extracted/Datasheet_NFCCodeTouchAir_100482,100483.md",
+    "filename": "Datasheet_NFCCodeTouchAir_100482,100483.pdf",
+    "is_datasheet": true,
+    "local_path": "datasheets/pdfs/Datasheet_NFCCodeTouchAir_100482,100483.pdf",
+    "name": "Datasheet NFCCodeTouchAir 100482,100483",
+    "source_article": "nfc-code-touch-air-2",
+    "url": "http://updatefiles.loxone.com/KnowledgeBase/Online/Common/Documents/Datasheet_NFCCodeTouchAir_100482,100483.pdf"
+  },
+  "Datasheet_NFCCodeTouchTreeGen1_100300,100306.pdf": {
+    "extracted_path": "datasheets/extracted/Datasheet_NFCCodeTouchTreeGen1_100300,100306.md",
+    "filename": "Datasheet_NFCCodeTouchTreeGen1_100300,100306.pdf",
+    "is_datasheet": true,
+    "local_path": "datasheets/pdfs/Datasheet_NFCCodeTouchTreeGen1_100300,100306.pdf",
+    "name": "Datasheet NFCCodeTouchTreeGen1 100300,100306",
+    "source_article": "nfc-code-touch-tree",
+    "url": "http://updatefiles.loxone.com/KnowledgeBase/Online/Common/Documents/Datasheet_NFCCodeTouchTreeGen1_100300,100306.pdf"
+  },
+  "Datasheet_NFCCodeTouchTree_100480,100481.pdf": {
+    "extracted_path": "datasheets/extracted/Datasheet_NFCCodeTouchTree_100480,100481.md",
+    "filename": "Datasheet_NFCCodeTouchTree_100480,100481.pdf",
+    "is_datasheet": true,
+    "local_path": "datasheets/pdfs/Datasheet_NFCCodeTouchTree_100480,100481.pdf",
+    "name": "Datasheet NFCCodeTouchTree 100480,100481",
+    "source_article": "nfc-code-touch-tree-2",
+    "url": "http://updatefiles.loxone.com/KnowledgeBase/Online/Common/Documents/Datasheet_NFCCodeTouchTree_100480,100481.pdf"
+  },
+  "Datasheet_NFCCodeTouchforNano_100301.pdf": {
+    "extracted_path": "datasheets/extracted/Datasheet_NFCCodeTouchforNano_100301.md",
+    "filename": "Datasheet_NFCCodeTouchforNano_100301.pdf",
+    "is_datasheet": true,
+    "local_path": "datasheets/pdfs/Datasheet_NFCCodeTouchforNano_100301.pdf",
+    "name": "Datasheet NFCCodeTouchforNano 100301",
+    "source_article": "nano-io-air",
+    "url": "http://updatefiles.loxone.com/KnowledgeBase/Online/Common/Documents/Datasheet_NFCCodeTouchforNano_100301.pdf"
+  },
+  "Datasheet_NMCAir_100472.pdf": {
+    "extracted_path": "datasheets/extracted/Datasheet_NMCAir_100472.md",
+    "filename": "Datasheet_NMCAir_100472.pdf",
+    "is_datasheet": true,
+    "local_path": "datasheets/pdfs/Datasheet_NMCAir_100472.pdf",
+    "name": "Datasheet NMCAir 100472",
+    "source_article": "nano-motor-controller-air",
+    "url": "http://updatefiles.loxone.com/KnowledgeBase/Online/Common/Documents/Datasheet_NMCAir_100472.pdf"
+  },
+  "Datasheet_NMCTree_100473.pdf": {
+    "extracted_path": "datasheets/extracted/Datasheet_NMCTree_100473.md",
+    "filename": "Datasheet_NMCTree_100473.pdf",
+    "is_datasheet": true,
+    "local_path": "datasheets/pdfs/Datasheet_NMCTree_100473.pdf",
+    "name": "Datasheet NMCTree 100473",
+    "source_article": "nano-motor-controller-tree",
+    "url": "http://updatefiles.loxone.com/KnowledgeBase/Online/Common/Documents/Datasheet_NMCTree_100473.pdf"
+  },
+  "Datasheet_Nano2RelayTree_100395.pdf": {
+    "extracted_path": "datasheets/extracted/Datasheet_Nano2RelayTree_100395.md",
+    "filename": "Datasheet_Nano2RelayTree_100395.pdf",
+    "is_datasheet": true,
+    "local_path": "datasheets/pdfs/Datasheet_Nano2RelayTree_100395.pdf",
+    "name": "Datasheet Nano2RelayTree 100395",
+    "source_article": "nano-2-relay-tree",
+    "url": "http://updatefiles.loxone.com/KnowledgeBase/Online/Common/Documents/Datasheet_Nano2RelayTree_100395.pdf"
+  },
+  "Datasheet_NanoDITree_100242.pdf": {
+    "extracted_path": "datasheets/extracted/Datasheet_NanoDITree_100242.md",
+    "filename": "Datasheet_NanoDITree_100242.pdf",
+    "is_datasheet": true,
+    "local_path": "datasheets/pdfs/Datasheet_NanoDITree_100242.pdf",
+    "name": "Datasheet NanoDITree 100242",
+    "source_article": "nano-di-tree",
+    "url": "http://updatefiles.loxone.com/KnowledgeBase/Online/Common/Documents/Datasheet_NanoDITree_100242.pdf"
+  },
+  "Datasheet_NanoDimmerAir_100212.pdf": {
+    "extracted_path": "datasheets/extracted/Datasheet_NanoDimmerAir_100212.md",
+    "filename": "Datasheet_NanoDimmerAir_100212.pdf",
+    "is_datasheet": true,
+    "local_path": "datasheets/pdfs/Datasheet_NanoDimmerAir_100212.pdf",
+    "name": "Datasheet NanoDimmerAir 100212",
+    "source_article": "nano-dimmer-air",
+    "url": "http://updatefiles.loxone.com/KnowledgeBase/Online/Common/Documents/Datasheet_NanoDimmerAir_100212.pdf"
+  },
+  "Datasheet_NanoIOAir_100153.pdf": {
+    "extracted_path": "datasheets/extracted/Datasheet_NanoIOAir_100153.md",
+    "filename": "Datasheet_NanoIOAir_100153.pdf",
+    "is_datasheet": true,
+    "local_path": "datasheets/pdfs/Datasheet_NanoIOAir_100153.pdf",
+    "name": "Datasheet NanoIOAir 100153",
+    "source_article": "nano-io-air",
+    "url": "http://updatefiles.loxone.com/KnowledgeBase/Online/Common/Documents/Datasheet_NanoIOAir_100153.pdf"
+  },
+  "Datasheet_NanoRelayAir_100426.pdf": {
+    "extracted_path": "datasheets/extracted/Datasheet_NanoRelayAir_100426.md",
+    "filename": "Datasheet_NanoRelayAir_100426.pdf",
+    "is_datasheet": true,
+    "local_path": "datasheets/pdfs/Datasheet_NanoRelayAir_100426.pdf",
+    "name": "Datasheet NanoRelayAir 100426",
+    "source_article": "nano-relay-air",
+    "url": "http://updatefiles.loxone.com/KnowledgeBase/Online/Common/Documents/Datasheet_NanoRelayAir_100426.pdf"
+  },
+  "Datasheet_P1MeterReaderAir_100663.pdf": {
+    "extracted_path": "datasheets/extracted/Datasheet_P1MeterReaderAir_100663.md",
+    "filename": "Datasheet_P1MeterReaderAir_100663.pdf",
+    "is_datasheet": true,
+    "local_path": "datasheets/pdfs/Datasheet_P1MeterReaderAir_100663.pdf",
+    "name": "Datasheet P1MeterReaderAir 100663",
+    "source_article": "p1-meter-reader-air",
+    "url": "http://updatefiles.loxone.com/KnowledgeBase/Online/Common/Documents/Datasheet_P1MeterReaderAir_100663.pdf"
+  },
+  "Datasheet_PaketsafePlus_100444.pdf": {
+    "extracted_path": "datasheets/extracted/Datasheet_PaketsafePlus_100444.md",
+    "filename": "Datasheet_PaketsafePlus_100444.pdf",
+    "is_datasheet": true,
+    "local_path": "datasheets/pdfs/Datasheet_PaketsafePlus_100444.pdf",
+    "name": "Datasheet PaketsafePlus 100444",
+    "source_article": "paketsafe-air",
+    "url": "http://updatefiles.loxone.com/KnowledgeBase/Online/Common/Documents/Datasheet_PaketsafePlus_100444.pdf"
+  },
+  "Datasheet_PoEInjector_100486.pdf": {
+    "extracted_path": "datasheets/extracted/Datasheet_PoEInjector_100486.md",
+    "filename": "Datasheet_PoEInjector_100486.pdf",
+    "is_datasheet": true,
+    "local_path": "datasheets/pdfs/Datasheet_PoEInjector_100486.pdf",
+    "name": "Datasheet PoEInjector 100486",
+    "source_article": "intercom",
+    "url": "http://updatefiles.loxone.com/KnowledgeBase/Online/Common/Documents/Datasheet_PoEInjector_100486.pdf"
+  },
+  "Datasheet_PowerSupplyBackup_EU_100401.pdf": {
+    "extracted_path": "datasheets/extracted/Datasheet_PowerSupplyBackup_EU_100401.md",
+    "filename": "Datasheet_PowerSupplyBackup_EU_100401.pdf",
+    "is_datasheet": true,
+    "local_path": "datasheets/pdfs/Datasheet_PowerSupplyBackup_EU_100401.pdf",
+    "name": "Datasheet PowerSupplyBackup EU 100401",
+    "source_article": "power-supply-backup",
+    "url": "http://updatefiles.loxone.com/KnowledgeBase/Online/Common/Documents/Datasheet_PowerSupplyBackup_EU_100401.pdf"
+  },
+  "Datasheet_PresenceSensorAir_100420.pdf": {
+    "extracted_path": "datasheets/extracted/Datasheet_PresenceSensorAir_100420.md",
+    "filename": "Datasheet_PresenceSensorAir_100420.pdf",
+    "is_datasheet": true,
+    "local_path": "datasheets/pdfs/Datasheet_PresenceSensorAir_100420.pdf",
+    "name": "Datasheet PresenceSensorAir 100420",
+    "source_article": "presence-sensor-air",
+    "url": "http://updatefiles.loxone.com/KnowledgeBase/Online/Common/Documents/Datasheet_PresenceSensorAir_100420.pdf"
+  },
+  "Datasheet_PresenceSensorTree_100422.pdf": {
+    "extracted_path": "datasheets/extracted/Datasheet_PresenceSensorTree_100422.md",
+    "filename": "Datasheet_PresenceSensorTree_100422.pdf",
+    "is_datasheet": true,
+    "local_path": "datasheets/pdfs/Datasheet_PresenceSensorTree_100422.pdf",
+    "name": "Datasheet PresenceSensorTree 100422",
+    "source_article": "presence-sensor-tree",
+    "url": "http://updatefiles.loxone.com/KnowledgeBase/Online/Common/Documents/Datasheet_PresenceSensorTree_100422.pdf"
+  },
+  "Datasheet_RGBW24VCompactDimmerAir_100324.pdf": {
+    "extracted_path": "datasheets/extracted/Datasheet_RGBW24VCompactDimmerAir_100324.md",
+    "filename": "Datasheet_RGBW24VCompactDimmerAir_100324.pdf",
+    "is_datasheet": true,
+    "local_path": "datasheets/pdfs/Datasheet_RGBW24VCompactDimmerAir_100324.pdf",
+    "name": "Datasheet RGBW24VCompactDimmerAir 100324",
+    "source_article": "rgbw-24v-dimmer-air",
+    "url": "http://updatefiles.loxone.com/KnowledgeBase/Online/Common/Documents/Datasheet_RGBW24VCompactDimmerAir_100324.pdf"
+  },
+  "Datasheet_RGBW24VCompactDimmerTree_100325.pdf": {
+    "extracted_path": "datasheets/extracted/Datasheet_RGBW24VCompactDimmerTree_100325.md",
+    "filename": "Datasheet_RGBW24VCompactDimmerTree_100325.pdf",
+    "is_datasheet": true,
+    "local_path": "datasheets/pdfs/Datasheet_RGBW24VCompactDimmerTree_100325.pdf",
+    "name": "Datasheet RGBW24VCompactDimmerTree 100325",
+    "source_article": "rgbw-24v-dimmer-tree",
+    "url": "http://updatefiles.loxone.com/KnowledgeBase/Online/Common/Documents/Datasheet_RGBW24VCompactDimmerTree_100325.pdf"
+  },
+  "Datasheet_RGBW24VDimmerAir_100125.pdf": {
+    "extracted_path": "datasheets/extracted/Datasheet_RGBW24VDimmerAir_100125.md",
+    "filename": "Datasheet_RGBW24VDimmerAir_100125.pdf",
+    "is_datasheet": true,
+    "local_path": "datasheets/pdfs/Datasheet_RGBW24VDimmerAir_100125.pdf",
+    "name": "Datasheet RGBW24VDimmerAir 100125",
+    "source_article": "rgbw-24v-dimmer-air",
+    "url": "http://updatefiles.loxone.com/KnowledgeBase/Online/Common/Documents/Datasheet_RGBW24VDimmerAir_100125.pdf"
+  },
+  "Datasheet_RGBW24VDimmerTree_100239.pdf": {
+    "extracted_path": "datasheets/extracted/Datasheet_RGBW24VDimmerTree_100239.md",
+    "filename": "Datasheet_RGBW24VDimmerTree_100239.pdf",
+    "is_datasheet": true,
+    "local_path": "datasheets/pdfs/Datasheet_RGBW24VDimmerTree_100239.pdf",
+    "name": "Datasheet RGBW24VDimmerTree 100239",
+    "source_article": "rgbw-24v-dimmer-tree",
+    "url": "http://updatefiles.loxone.com/KnowledgeBase/Online/Common/Documents/Datasheet_RGBW24VDimmerTree_100239.pdf"
+  },
+  "Datasheet_RS232Extension_100013.pdf": {
+    "extracted_path": "datasheets/extracted/Datasheet_RS232Extension_100013.md",
+    "filename": "Datasheet_RS232Extension_100013.pdf",
+    "is_datasheet": true,
+    "local_path": "datasheets/pdfs/Datasheet_RS232Extension_100013.pdf",
+    "name": "Datasheet RS232Extension 100013",
+    "source_article": "rs232-extension",
+    "url": "http://updatefiles.loxone.com/KnowledgeBase/Online/Common/Documents/Datasheet_RS232Extension_100013.pdf"
+  },
+  "Datasheet_RS485Extension_100011.pdf": {
+    "extracted_path": "datasheets/extracted/Datasheet_RS485Extension_100011.md",
+    "filename": "Datasheet_RS485Extension_100011.pdf",
+    "is_datasheet": true,
+    "local_path": "datasheets/pdfs/Datasheet_RS485Extension_100011.pdf",
+    "name": "Datasheet RS485Extension 100011",
+    "source_article": "rs485-extension",
+    "url": "http://updatefiles.loxone.com/KnowledgeBase/Online/Common/Documents/Datasheet_RS485Extension_100011.pdf"
+  },
+  "Datasheet_RelayExtension_100038.pdf": {
+    "extracted_path": "datasheets/extracted/Datasheet_RelayExtension_100038.md",
+    "filename": "Datasheet_RelayExtension_100038.pdf",
+    "is_datasheet": true,
+    "local_path": "datasheets/pdfs/Datasheet_RelayExtension_100038.pdf",
+    "name": "Datasheet RelayExtension 100038",
+    "source_article": "relay-extension",
+    "url": "http://updatefiles.loxone.com/KnowledgeBase/Online/Common/Documents/Datasheet_RelayExtension_100038.pdf"
+  },
+  "Datasheet_Relay_HF32FA-G.pdf": {
+    "extracted_path": "datasheets/extracted/Datasheet_Relay_HF32FA-G.md",
+    "filename": "Datasheet_Relay_HF32FA-G.pdf",
+    "is_datasheet": true,
+    "local_path": "datasheets/pdfs/Datasheet_Relay_HF32FA-G.pdf",
+    "name": "Datasheet Relay HF32FA G",
+    "source_article": "nano-2-relay-tree",
+    "url": "http://updatefiles.loxone.com/KnowledgeBase/Online/Common/Documents/Datasheet_Relay_HF32FA-G.pdf"
+  },
+  "Datasheet_Relay_RT9S0015WG.pdf": {
+    "extracted_path": "datasheets/extracted/Datasheet_Relay_RT9S0015WG.md",
+    "filename": "Datasheet_Relay_RT9S0015WG.pdf",
+    "is_datasheet": true,
+    "local_path": "datasheets/pdfs/Datasheet_Relay_RT9S0015WG.pdf",
+    "name": "Datasheet Relay RT9S0015WG",
+    "source_article": "multi-extension-air",
+    "url": "http://updatefiles.loxone.com/KnowledgeBase/Online/Common/Documents/Datasheet_Relay_RT9S0015WG.pdf"
+  },
+  "Datasheet_RemoteAir_100140.pdf": {
+    "extracted_path": "datasheets/extracted/Datasheet_RemoteAir_100140.md",
+    "filename": "Datasheet_RemoteAir_100140.pdf",
+    "is_datasheet": true,
+    "local_path": "datasheets/pdfs/Datasheet_RemoteAir_100140.pdf",
+    "name": "Datasheet RemoteAir 100140",
+    "source_article": "remote-mini-air",
+    "url": "http://updatefiles.loxone.com/KnowledgeBase/Online/Common/Documents/Datasheet_RemoteAir_100140.pdf"
+  },
+  "Datasheet_RemoteAir_100624,100625.pdf": {
+    "extracted_path": "datasheets/extracted/Datasheet_RemoteAir_100624,100625.md",
+    "filename": "Datasheet_RemoteAir_100624,100625.pdf",
+    "is_datasheet": true,
+    "local_path": "datasheets/pdfs/Datasheet_RemoteAir_100624,100625.pdf",
+    "name": "Datasheet RemoteAir 100624,100625",
+    "source_article": "remote-air",
+    "url": "http://updatefiles.loxone.com/KnowledgeBase/Online/Common/Documents/Datasheet_RemoteAir_100624,100625.pdf"
+  },
+  "Datasheet_RoomComfortSensorAir_100264.pdf": {
+    "extracted_path": "datasheets/extracted/Datasheet_RoomComfortSensorAir_100264.md",
+    "filename": "Datasheet_RoomComfortSensorAir_100264.pdf",
+    "is_datasheet": true,
+    "local_path": "datasheets/pdfs/Datasheet_RoomComfortSensorAir_100264.pdf",
+    "name": "Datasheet RoomComfortSensorAir 100264",
+    "source_article": "room-comfort-sensor-air",
+    "url": "http://updatefiles.loxone.com/KnowledgeBase/Online/Common/Documents/Datasheet_RoomComfortSensorAir_100264.pdf"
+  },
+  "Datasheet_RoomComfortSensorTree_100276.pdf": {
+    "extracted_path": "datasheets/extracted/Datasheet_RoomComfortSensorTree_100276.md",
+    "filename": "Datasheet_RoomComfortSensorTree_100276.pdf",
+    "is_datasheet": true,
+    "local_path": "datasheets/pdfs/Datasheet_RoomComfortSensorTree_100276.pdf",
+    "name": "Datasheet RoomComfortSensorTree 100276",
+    "source_article": "room-comfort-sensor-tree",
+    "url": "http://updatefiles.loxone.com/KnowledgeBase/Online/Common/Documents/Datasheet_RoomComfortSensorTree_100276.pdf"
+  },
+  "Datasheet_SatelliteSpeakerIP64Client_610157,610169.pdf": {
+    "extracted_path": "datasheets/extracted/Datasheet_SatelliteSpeakerIP64Client_610157,610169.md",
+    "filename": "Datasheet_SatelliteSpeakerIP64Client_610157,610169.pdf",
+    "is_datasheet": true,
+    "local_path": "datasheets/pdfs/Datasheet_SatelliteSpeakerIP64Client_610157,610169.pdf",
+    "name": "Datasheet SatelliteSpeakerIP64Client 610157,610169",
+    "source_article": "satellite-speaker-ip64-client",
+    "url": "http://updatefiles.loxone.com/KnowledgeBase/Online/Common/Documents/Datasheet_SatelliteSpeakerIP64Client_610157,610169.pdf"
+  },
+  "Datasheet_SatelliteSpeakerIP64Master_610156,610168.pdf": {
+    "extracted_path": "datasheets/extracted/Datasheet_SatelliteSpeakerIP64Master_610156,610168.md",
+    "filename": "Datasheet_SatelliteSpeakerIP64Master_610156,610168.pdf",
+    "is_datasheet": true,
+    "local_path": "datasheets/pdfs/Datasheet_SatelliteSpeakerIP64Master_610156,610168.pdf",
+    "name": "Datasheet SatelliteSpeakerIP64Master 610156,610168",
+    "source_article": "satellite-speaker-ip64-master",
+    "url": "http://updatefiles.loxone.com/KnowledgeBase/Online/Common/Documents/Datasheet_SatelliteSpeakerIP64Master_610156,610168.pdf"
+  },
+  "Datasheet_SchuecoExtension_100457.pdf": {
+    "extracted_path": "datasheets/extracted/Datasheet_SchuecoExtension_100457.md",
+    "filename": "Datasheet_SchuecoExtension_100457.pdf",
+    "is_datasheet": true,
+    "local_path": "datasheets/pdfs/Datasheet_SchuecoExtension_100457.pdf",
+    "name": "Datasheet SchuecoExtension 100457",
+    "source_article": "schueco-extension",
+    "url": "http://updatefiles.loxone.com/KnowledgeBase/Online/Common/Documents/Datasheet_SchuecoExtension_100457.pdf"
+  },
+  "Datasheet_ShadingActuatorAir_100290.pdf": {
+    "extracted_path": "datasheets/extracted/Datasheet_ShadingActuatorAir_100290.md",
+    "filename": "Datasheet_ShadingActuatorAir_100290.pdf",
+    "is_datasheet": true,
+    "local_path": "datasheets/pdfs/Datasheet_ShadingActuatorAir_100290.pdf",
+    "name": "Datasheet ShadingActuatorAir 100290",
+    "source_article": "shading-actuator-air",
+    "url": "http://updatefiles.loxone.com/KnowledgeBase/Online/Common/Documents/Datasheet_ShadingActuatorAir_100290.pdf"
+  },
+  "Datasheet_SmartSocketAir_100115.pdf": {
+    "extracted_path": "datasheets/extracted/Datasheet_SmartSocketAir_100115.md",
+    "filename": "Datasheet_SmartSocketAir_100115.pdf",
+    "is_datasheet": true,
+    "local_path": "datasheets/pdfs/Datasheet_SmartSocketAir_100115.pdf",
+    "name": "Datasheet SmartSocketAir 100115",
+    "source_article": "smart-socket-air",
+    "url": "http://updatefiles.loxone.com/KnowledgeBase/Online/Common/Documents/Datasheet_SmartSocketAir_100115.pdf"
+  },
+  "Datasheet_SmokeDetectorAir_100142.pdf": {
+    "extracted_path": "datasheets/extracted/Datasheet_SmokeDetectorAir_100142.md",
+    "filename": "Datasheet_SmokeDetectorAir_100142.pdf",
+    "is_datasheet": true,
+    "local_path": "datasheets/pdfs/Datasheet_SmokeDetectorAir_100142.pdf",
+    "name": "Datasheet SmokeDetectorAir 100142",
+    "source_article": "smoke-detector-air",
+    "url": "http://updatefiles.loxone.com/KnowledgeBase/Online/Common/Documents/Datasheet_SmokeDetectorAir_100142.pdf"
+  },
+  "Datasheet_StereoExtension_100429.pdf": {
+    "extracted_path": "datasheets/extracted/Datasheet_StereoExtension_100429.md",
+    "filename": "Datasheet_StereoExtension_100429.pdf",
+    "is_datasheet": true,
+    "local_path": "datasheets/pdfs/Datasheet_StereoExtension_100429.pdf",
+    "name": "Datasheet StereoExtension 100429",
+    "source_article": "stereo-extension",
+    "url": "http://updatefiles.loxone.com/KnowledgeBase/Online/Common/Documents/Datasheet_StereoExtension_100429.pdf"
+  },
+  "Datasheet_TableLampAir_100550,100551.pdf": {
+    "extracted_path": "datasheets/extracted/Datasheet_TableLampAir_100550,100551.md",
+    "filename": "Datasheet_TableLampAir_100550,100551.pdf",
+    "is_datasheet": true,
+    "local_path": "datasheets/pdfs/Datasheet_TableLampAir_100550,100551.pdf",
+    "name": "Datasheet TableLampAir 100550,100551",
+    "source_article": "table-lamp-air",
+    "url": "http://updatefiles.loxone.com/KnowledgeBase/Online/Common/Documents/Datasheet_TableLampAir_100550,100551.pdf"
+  },
+  "Datasheet_TouchAir_100155.pdf": {
+    "extracted_path": "datasheets/extracted/Datasheet_TouchAir_100155.md",
+    "filename": "Datasheet_TouchAir_100155.pdf",
+    "is_datasheet": true,
+    "local_path": "datasheets/pdfs/Datasheet_TouchAir_100155.pdf",
+    "name": "Datasheet TouchAir 100155",
+    "source_article": "touch-air",
+    "url": "http://updatefiles.loxone.com/KnowledgeBase/Online/Common/Documents/Datasheet_TouchAir_100155.pdf"
+  },
+  "Datasheet_TouchFlex24VCO2Air_100614,100615.pdf": {
+    "extracted_path": "datasheets/extracted/Datasheet_TouchFlex24VCO2Air_100614,100615.md",
+    "filename": "Datasheet_TouchFlex24VCO2Air_100614,100615.pdf",
+    "is_datasheet": true,
+    "local_path": "datasheets/pdfs/Datasheet_TouchFlex24VCO2Air_100614,100615.pdf",
+    "name": "Datasheet TouchFlex24VCO2Air 100614,100615",
+    "source_article": "touch-pure-flex-air",
+    "url": "http://updatefiles.loxone.com/KnowledgeBase/Online/Common/Documents/Datasheet_TouchFlex24VCO2Air_100614,100615.pdf"
+  },
+  "Datasheet_TouchFlexCO2Tree_100612,100613.pdf": {
+    "extracted_path": "datasheets/extracted/Datasheet_TouchFlexCO2Tree_100612,100613.md",
+    "filename": "Datasheet_TouchFlexCO2Tree_100612,100613.pdf",
+    "is_datasheet": true,
+    "local_path": "datasheets/pdfs/Datasheet_TouchFlexCO2Tree_100612,100613.pdf",
+    "name": "Datasheet TouchFlexCO2Tree 100612,100613",
+    "source_article": "touch-pure-flex-tree",
+    "url": "http://updatefiles.loxone.com/KnowledgeBase/Online/Common/Documents/Datasheet_TouchFlexCO2Tree_100612,100613.pdf"
+  },
+  "Datasheet_TouchPureAirGen1_100206.pdf": {
+    "extracted_path": "datasheets/extracted/Datasheet_TouchPureAirGen1_100206.md",
+    "filename": "Datasheet_TouchPureAirGen1_100206.pdf",
+    "is_datasheet": true,
+    "local_path": "datasheets/pdfs/Datasheet_TouchPureAirGen1_100206.pdf",
+    "name": "Datasheet TouchPureAirGen1 100206",
+    "source_article": "touch-pure-air-gen-1",
+    "url": "http://updatefiles.loxone.com/KnowledgeBase/Online/Common/Documents/Datasheet_TouchPureAirGen1_100206.pdf"
+  },
+  "Datasheet_TouchPureAir_100463,100464,100501.pdf": {
+    "extracted_path": "datasheets/extracted/Datasheet_TouchPureAir_100463,100464,100501.md",
+    "filename": "Datasheet_TouchPureAir_100463,100464,100501.pdf",
+    "is_datasheet": true,
+    "local_path": "datasheets/pdfs/Datasheet_TouchPureAir_100463,100464,100501.pdf",
+    "name": "Datasheet TouchPureAir 100463,100464,100501",
+    "source_article": "touch-pure-air",
+    "url": "http://updatefiles.loxone.com/KnowledgeBase/Online/Common/Documents/Datasheet_TouchPureAir_100463,100464,100501.pdf"
+  },
+  "Datasheet_TouchPureCO2Tree_100517,100518.pdf": {
+    "extracted_path": "datasheets/extracted/Datasheet_TouchPureCO2Tree_100517,100518.md",
+    "filename": "Datasheet_TouchPureCO2Tree_100517,100518.pdf",
+    "is_datasheet": true,
+    "local_path": "datasheets/pdfs/Datasheet_TouchPureCO2Tree_100517,100518.pdf",
+    "name": "Datasheet TouchPureCO2Tree 100517,100518",
+    "source_article": "touch-pure-co2-tree",
+    "url": "http://updatefiles.loxone.com/KnowledgeBase/Online/Common/Documents/Datasheet_TouchPureCO2Tree_100517,100518.pdf"
+  },
+  "Datasheet_TouchPureFlexAirGen1_100509,100510.pdf": {
+    "extracted_path": "datasheets/extracted/Datasheet_TouchPureFlexAirGen1_100509,100510.md",
+    "filename": "Datasheet_TouchPureFlexAirGen1_100509,100510.pdf",
+    "is_datasheet": true,
+    "local_path": "datasheets/pdfs/Datasheet_TouchPureFlexAirGen1_100509,100510.pdf",
+    "name": "Datasheet TouchPureFlexAirGen1 100509,100510",
+    "source_article": "touch-pure-flex-air",
+    "url": "http://updatefiles.loxone.com/KnowledgeBase/Online/Common/Documents/Datasheet_TouchPureFlexAirGen1_100509,100510.pdf"
+  },
+  "Datasheet_TouchPureFlexAir_100675,100676.pdf": {
+    "extracted_path": "datasheets/extracted/Datasheet_TouchPureFlexAir_100675,100676.md",
+    "filename": "Datasheet_TouchPureFlexAir_100675,100676.pdf",
+    "is_datasheet": true,
+    "local_path": "datasheets/pdfs/Datasheet_TouchPureFlexAir_100675,100676.pdf",
+    "name": "Datasheet TouchPureFlexAir 100675,100676",
+    "source_article": "touch-pure-flex-air",
+    "url": "http://updatefiles.loxone.com/KnowledgeBase/Online/Common/Documents/Datasheet_TouchPureFlexAir_100675,100676.pdf"
+  },
+  "Datasheet_TouchPureFlexIP44Air_100610,100611.pdf": {
+    "extracted_path": "datasheets/extracted/Datasheet_TouchPureFlexIP44Air_100610,100611.md",
+    "filename": "Datasheet_TouchPureFlexIP44Air_100610,100611.pdf",
+    "is_datasheet": true,
+    "local_path": "datasheets/pdfs/Datasheet_TouchPureFlexIP44Air_100610,100611.pdf",
+    "name": "Datasheet TouchPureFlexIP44Air 100610,100611",
+    "source_article": "touch-pure-flex-air",
+    "url": "http://updatefiles.loxone.com/KnowledgeBase/Online/Common/Documents/Datasheet_TouchPureFlexIP44Air_100610,100611.pdf"
+  },
+  "Datasheet_TouchPureFlexIP44Tree_100608,100609.pdf": {
+    "extracted_path": "datasheets/extracted/Datasheet_TouchPureFlexIP44Tree_100608,100609.md",
+    "filename": "Datasheet_TouchPureFlexIP44Tree_100608,100609.pdf",
+    "is_datasheet": true,
+    "local_path": "datasheets/pdfs/Datasheet_TouchPureFlexIP44Tree_100608,100609.pdf",
+    "name": "Datasheet TouchPureFlexIP44Tree 100608,100609",
+    "source_article": "touch-pure-flex-tree",
+    "url": "http://updatefiles.loxone.com/KnowledgeBase/Online/Common/Documents/Datasheet_TouchPureFlexIP44Tree_100608,100609.pdf"
+  },
+  "Datasheet_TouchPureFlexTreeGen1_100507,100508.pdf": {
+    "extracted_path": "datasheets/extracted/Datasheet_TouchPureFlexTreeGen1_100507,100508.md",
+    "filename": "Datasheet_TouchPureFlexTreeGen1_100507,100508.pdf",
+    "is_datasheet": true,
+    "local_path": "datasheets/pdfs/Datasheet_TouchPureFlexTreeGen1_100507,100508.pdf",
+    "name": "Datasheet TouchPureFlexTreeGen1 100507,100508",
+    "source_article": "touch-pure-flex-tree",
+    "url": "http://updatefiles.loxone.com/KnowledgeBase/Online/Common/Documents/Datasheet_TouchPureFlexTreeGen1_100507,100508.pdf"
+  },
+  "Datasheet_TouchPureFlexTree_100673,100674.pdf": {
+    "extracted_path": "datasheets/extracted/Datasheet_TouchPureFlexTree_100673,100674.md",
+    "filename": "Datasheet_TouchPureFlexTree_100673,100674.pdf",
+    "is_datasheet": true,
+    "local_path": "datasheets/pdfs/Datasheet_TouchPureFlexTree_100673,100674.pdf",
+    "name": "Datasheet TouchPureFlexTree 100673,100674",
+    "source_article": "touch-pure-flex-tree",
+    "url": "http://updatefiles.loxone.com/KnowledgeBase/Online/Common/Documents/Datasheet_TouchPureFlexTree_100673,100674.pdf"
+  },
+  "Datasheet_TouchPureTreeGen1_100219.pdf": {
+    "extracted_path": "datasheets/extracted/Datasheet_TouchPureTreeGen1_100219.md",
+    "filename": "Datasheet_TouchPureTreeGen1_100219.pdf",
+    "is_datasheet": true,
+    "local_path": "datasheets/pdfs/Datasheet_TouchPureTreeGen1_100219.pdf",
+    "name": "Datasheet TouchPureTreeGen1 100219",
+    "source_article": "touch-pure-tree-2",
+    "url": "http://updatefiles.loxone.com/KnowledgeBase/Online/Common/Documents/Datasheet_TouchPureTreeGen1_100219.pdf"
+  },
+  "Datasheet_TouchPureTree_100461,100462,100493.pdf": {
+    "extracted_path": "datasheets/extracted/Datasheet_TouchPureTree_100461,100462,100493.md",
+    "filename": "Datasheet_TouchPureTree_100461,100462,100493.pdf",
+    "is_datasheet": true,
+    "local_path": "datasheets/pdfs/Datasheet_TouchPureTree_100461,100462,100493.pdf",
+    "name": "Datasheet TouchPureTree 100461,100462,100493",
+    "source_article": "touch-pure-tree-2",
+    "url": "http://updatefiles.loxone.com/KnowledgeBase/Online/Common/Documents/Datasheet_TouchPureTree_100461,100462,100493.pdf"
+  },
+  "Datasheet_TouchSurfaceAir_100285.pdf": {
+    "extracted_path": "datasheets/extracted/Datasheet_TouchSurfaceAir_100285.md",
+    "filename": "Datasheet_TouchSurfaceAir_100285.pdf",
+    "is_datasheet": true,
+    "local_path": "datasheets/pdfs/Datasheet_TouchSurfaceAir_100285.pdf",
+    "name": "Datasheet TouchSurfaceAir 100285",
+    "source_article": "touch-surface-air",
+    "url": "http://updatefiles.loxone.com/KnowledgeBase/Online/Common/Documents/Datasheet_TouchSurfaceAir_100285.pdf"
+  },
+  "Datasheet_TouchSurfaceTree_100284.pdf": {
+    "extracted_path": "datasheets/extracted/Datasheet_TouchSurfaceTree_100284.md",
+    "filename": "Datasheet_TouchSurfaceTree_100284.pdf",
+    "is_datasheet": true,
+    "local_path": "datasheets/pdfs/Datasheet_TouchSurfaceTree_100284.pdf",
+    "name": "Datasheet TouchSurfaceTree 100284",
+    "source_article": "touch-surface-tree",
+    "url": "http://updatefiles.loxone.com/KnowledgeBase/Online/Common/Documents/Datasheet_TouchSurfaceTree_100284.pdf"
+  },
+  "Datasheet_TouchTreeUS_100425.pdf": {
+    "extracted_path": "datasheets/extracted/Datasheet_TouchTreeUS_100425.md",
+    "filename": "Datasheet_TouchTreeUS_100425.pdf",
+    "is_datasheet": true,
+    "local_path": "datasheets/pdfs/Datasheet_TouchTreeUS_100425.pdf",
+    "name": "Datasheet TouchTreeUS 100425",
+    "source_article": "touch-tree",
+    "url": "http://updatefiles.loxone.com/KnowledgeBase/Online/Common/Documents/Datasheet_TouchTreeUS_100425.pdf"
+  },
+  "Datasheet_TouchTree_100221.pdf": {
+    "extracted_path": "datasheets/extracted/Datasheet_TouchTree_100221.md",
+    "filename": "Datasheet_TouchTree_100221.pdf",
+    "is_datasheet": true,
+    "local_path": "datasheets/pdfs/Datasheet_TouchTree_100221.pdf",
+    "name": "Datasheet TouchTree 100221",
+    "source_article": "touch-tree",
+    "url": "http://updatefiles.loxone.com/KnowledgeBase/Online/Common/Documents/Datasheet_TouchTree_100221.pdf"
+  },
+  "Datasheet_TouchforNanoUS_100427.pdf": {
+    "extracted_path": "datasheets/extracted/Datasheet_TouchforNanoUS_100427.md",
+    "filename": "Datasheet_TouchforNanoUS_100427.pdf",
+    "is_datasheet": true,
+    "local_path": "datasheets/pdfs/Datasheet_TouchforNanoUS_100427.pdf",
+    "name": "Datasheet TouchforNanoUS 100427",
+    "source_article": "nano-relay-air",
+    "url": "http://updatefiles.loxone.com/KnowledgeBase/Online/Common/Documents/Datasheet_TouchforNanoUS_100427.pdf"
+  },
+  "Datasheet_TouchforNano_100154.pdf": {
+    "extracted_path": "datasheets/extracted/Datasheet_TouchforNano_100154.md",
+    "filename": "Datasheet_TouchforNano_100154.pdf",
+    "is_datasheet": true,
+    "local_path": "datasheets/pdfs/Datasheet_TouchforNano_100154.pdf",
+    "name": "Datasheet TouchforNano 100154",
+    "source_article": "nano-dimmer-air",
+    "url": "http://updatefiles.loxone.com/KnowledgeBase/Online/Common/Documents/Datasheet_TouchforNano_100154.pdf"
+  },
+  "Datasheet_TreeExtension_100218.pdf": {
+    "extracted_path": "datasheets/extracted/Datasheet_TreeExtension_100218.md",
+    "filename": "Datasheet_TreeExtension_100218.pdf",
+    "is_datasheet": true,
+    "local_path": "datasheets/pdfs/Datasheet_TreeExtension_100218.pdf",
+    "name": "Datasheet TreeExtension 100218",
+    "source_article": "tree-extension",
+    "url": "http://updatefiles.loxone.com/KnowledgeBase/Online/Common/Documents/Datasheet_TreeExtension_100218.pdf"
+  },
+  "Datasheet_TreetoAirBridge_100451.pdf": {
+    "extracted_path": "datasheets/extracted/Datasheet_TreetoAirBridge_100451.md",
+    "filename": "Datasheet_TreetoAirBridge_100451.pdf",
+    "is_datasheet": true,
+    "local_path": "datasheets/pdfs/Datasheet_TreetoAirBridge_100451.pdf",
+    "name": "Datasheet TreetoAirBridge 100451",
+    "source_article": "tree-to-air-bridge",
+    "url": "http://updatefiles.loxone.com/KnowledgeBase/Online/Common/Documents/Datasheet_TreetoAirBridge_100451.pdf"
+  },
+  "Datasheet_ValveActuatorAirGen1_100163.pdf": {
+    "extracted_path": "datasheets/extracted/Datasheet_ValveActuatorAirGen1_100163.md",
+    "filename": "Datasheet_ValveActuatorAirGen1_100163.pdf",
+    "is_datasheet": true,
+    "local_path": "datasheets/pdfs/Datasheet_ValveActuatorAirGen1_100163.pdf",
+    "name": "Datasheet ValveActuatorAirGen1 100163",
+    "source_article": "valve-actuator-air",
+    "url": "http://updatefiles.loxone.com/KnowledgeBase/Online/Common/Documents/Datasheet_ValveActuatorAirGen1_100163.pdf"
+  },
+  "Datasheet_ValveActuatorAir_100603.pdf": {
+    "extracted_path": "datasheets/extracted/Datasheet_ValveActuatorAir_100603.md",
+    "filename": "Datasheet_ValveActuatorAir_100603.pdf",
+    "is_datasheet": true,
+    "local_path": "datasheets/pdfs/Datasheet_ValveActuatorAir_100603.pdf",
+    "name": "Datasheet ValveActuatorAir 100603",
+    "source_article": "valve-actuator-air",
+    "url": "http://updatefiles.loxone.com/KnowledgeBase/Online/Common/Documents/Datasheet_ValveActuatorAir_100603.pdf"
+  },
+  "Datasheet_ValveActuatorTreeGen1_100225.pdf": {
+    "extracted_path": "datasheets/extracted/Datasheet_ValveActuatorTreeGen1_100225.md",
+    "filename": "Datasheet_ValveActuatorTreeGen1_100225.pdf",
+    "is_datasheet": true,
+    "local_path": "datasheets/pdfs/Datasheet_ValveActuatorTreeGen1_100225.pdf",
+    "name": "Datasheet ValveActuatorTreeGen1 100225",
+    "source_article": "valve-actuator-tree",
+    "url": "http://updatefiles.loxone.com/KnowledgeBase/Online/Common/Documents/Datasheet_ValveActuatorTreeGen1_100225.pdf"
+  },
+  "Datasheet_ValveActuatorTree_100602.pdf": {
+    "extracted_path": "datasheets/extracted/Datasheet_ValveActuatorTree_100602.md",
+    "filename": "Datasheet_ValveActuatorTree_100602.pdf",
+    "is_datasheet": true,
+    "local_path": "datasheets/pdfs/Datasheet_ValveActuatorTree_100602.pdf",
+    "name": "Datasheet ValveActuatorTree 100602",
+    "source_article": "valve-actuator-tree",
+    "url": "http://updatefiles.loxone.com/KnowledgeBase/Online/Common/Documents/Datasheet_ValveActuatorTree_100602.pdf"
+  },
+  "Datasheet_Wallbox11kW16AAir_100527.pdf": {
+    "extracted_path": "datasheets/extracted/Datasheet_Wallbox11kW16AAir_100527.md",
+    "filename": "Datasheet_Wallbox11kW16AAir_100527.pdf",
+    "is_datasheet": true,
+    "local_path": "datasheets/pdfs/Datasheet_Wallbox11kW16AAir_100527.pdf",
+    "name": "Datasheet Wallbox11kW16AAir 100527",
+    "source_article": "wallbox-air",
+    "url": "http://updatefiles.loxone.com/KnowledgeBase/Online/Common/Documents/Datasheet_Wallbox11kW16AAir_100527.pdf"
+  },
+  "Datasheet_Wallbox11kW16ATree_100526.pdf": {
+    "extracted_path": "datasheets/extracted/Datasheet_Wallbox11kW16ATree_100526.md",
+    "filename": "Datasheet_Wallbox11kW16ATree_100526.pdf",
+    "is_datasheet": true,
+    "local_path": "datasheets/pdfs/Datasheet_Wallbox11kW16ATree_100526.pdf",
+    "name": "Datasheet Wallbox11kW16ATree 100526",
+    "source_article": "wallbox-tree",
+    "url": "http://updatefiles.loxone.com/KnowledgeBase/Online/Common/Documents/Datasheet_Wallbox11kW16ATree_100526.pdf"
+  },
+  "Datasheet_Wallbox7.4kW32AAir_100536.pdf": {
+    "extracted_path": "datasheets/extracted/Datasheet_Wallbox7.4kW32AAir_100536.md",
+    "filename": "Datasheet_Wallbox7.4kW32AAir_100536.pdf",
+    "is_datasheet": true,
+    "local_path": "datasheets/pdfs/Datasheet_Wallbox7.4kW32AAir_100536.pdf",
+    "name": "Datasheet Wallbox7.4kW32AAir 100536",
+    "source_article": "wallbox-7-4kw-32a-air",
+    "url": "http://updatefiles.loxone.com/KnowledgeBase/Online/Common/Documents/Datasheet_Wallbox7.4kW32AAir_100536.pdf"
+  },
+  "Datasheet_Wallbox7.4kW32ATree_100535.pdf": {
+    "extracted_path": "datasheets/extracted/Datasheet_Wallbox7.4kW32ATree_100535.md",
+    "filename": "Datasheet_Wallbox7.4kW32ATree_100535.pdf",
+    "is_datasheet": true,
+    "local_path": "datasheets/pdfs/Datasheet_Wallbox7.4kW32ATree_100535.pdf",
+    "name": "Datasheet Wallbox7.4kW32ATree 100535",
+    "source_article": "wallbox-7-4kw-32a-tree",
+    "url": "http://updatefiles.loxone.com/KnowledgeBase/Online/Common/Documents/Datasheet_Wallbox7.4kW32ATree_100535.pdf"
+  },
+  "Datasheet_WatersensorAir_100211.pdf": {
+    "extracted_path": "datasheets/extracted/Datasheet_WatersensorAir_100211.md",
+    "filename": "Datasheet_WatersensorAir_100211.pdf",
+    "is_datasheet": true,
+    "local_path": "datasheets/pdfs/Datasheet_WatersensorAir_100211.pdf",
+    "name": "Datasheet WatersensorAir 100211",
+    "source_article": "water-sensor-air",
+    "url": "http://updatefiles.loxone.com/KnowledgeBase/Online/Common/Documents/Datasheet_WatersensorAir_100211.pdf"
+  },
+  "Datasheet_WeatherStationAir_100245.pdf": {
+    "extracted_path": "datasheets/extracted/Datasheet_WeatherStationAir_100245.md",
+    "filename": "Datasheet_WeatherStationAir_100245.pdf",
+    "is_datasheet": true,
+    "local_path": "datasheets/pdfs/Datasheet_WeatherStationAir_100245.pdf",
+    "name": "Datasheet WeatherStationAir 100245",
+    "source_article": "weather-station-air",
+    "url": "http://updatefiles.loxone.com/KnowledgeBase/Online/Common/Documents/Datasheet_WeatherStationAir_100245.pdf"
+  },
+  "Datasheet_WeatherStationTree_100246.pdf": {
+    "extracted_path": "datasheets/extracted/Datasheet_WeatherStationTree_100246.md",
+    "filename": "Datasheet_WeatherStationTree_100246.pdf",
+    "is_datasheet": true,
+    "local_path": "datasheets/pdfs/Datasheet_WeatherStationTree_100246.pdf",
+    "name": "Datasheet WeatherStationTree 100246",
+    "source_article": "weather-station-tree",
+    "url": "http://updatefiles.loxone.com/KnowledgeBase/Online/Common/Documents/Datasheet_WeatherStationTree_100246.pdf"
+  },
+  "Datasheet_WindowHandleAir_100177.pdf": {
+    "extracted_path": "datasheets/extracted/Datasheet_WindowHandleAir_100177.md",
+    "filename": "Datasheet_WindowHandleAir_100177.pdf",
+    "is_datasheet": true,
+    "local_path": "datasheets/pdfs/Datasheet_WindowHandleAir_100177.pdf",
+    "name": "Datasheet WindowHandleAir 100177",
+    "source_article": "window-handle-air",
+    "url": "http://updatefiles.loxone.com/KnowledgeBase/Online/Common/Documents/Datasheet_WindowHandleAir_100177.pdf"
+  },
+  "Datasheet_WristButtonAir_100496.pdf": {
+    "extracted_path": "datasheets/extracted/Datasheet_WristButtonAir_100496.md",
+    "filename": "Datasheet_WristButtonAir_100496.pdf",
+    "is_datasheet": true,
+    "local_path": "datasheets/pdfs/Datasheet_WristButtonAir_100496.pdf",
+    "name": "Datasheet WristButtonAir 100496",
+    "source_article": "wrist-button-air",
+    "url": "http://updatefiles.loxone.com/KnowledgeBase/Online/Common/Documents/Datasheet_WristButtonAir_100496.pdf"
+  },
+  "EN_Datasheet_200003-outside-temperature-sensor.pdf": {
+    "extracted_path": "datasheets/extracted/EN_Datasheet_200003-outside-temperature-sensor.md",
+    "filename": "EN_Datasheet_200003-outside-temperature-sensor.pdf",
+    "is_datasheet": true,
+    "local_path": "datasheets/pdfs/EN_Datasheet_200003-outside-temperature-sensor.pdf",
+    "name": "EN Datasheet 200003 outside temperature sensor",
+    "source_article": "correction-analogue-input-output-values",
+    "url": "https://www.loxone.com/enen/wp-content/uploads/sites/3/2017/07/EN_Datasheet_200003-outside-temperature-sensor.pdf"
+  },
+  "EN_Datasheet_200006-indoor-temperature-sensor.pdf": {
+    "extracted_path": "datasheets/extracted/EN_Datasheet_200006-indoor-temperature-sensor.md",
+    "filename": "EN_Datasheet_200006-indoor-temperature-sensor.pdf",
+    "is_datasheet": true,
+    "local_path": "datasheets/pdfs/EN_Datasheet_200006-indoor-temperature-sensor.pdf",
+    "name": "EN Datasheet 200006 indoor temperature sensor",
+    "source_article": "correction-analogue-input-output-values",
+    "url": "https://www.loxone.com/enen/wp-content/uploads/sites/3/2017/07/EN_Datasheet_200006-indoor-temperature-sensor.pdf"
+  },
+  "EN_Datasheet_200017-co2-temperature-sensor.pdf": {
+    "extracted_path": "datasheets/extracted/EN_Datasheet_200017-co2-temperature-sensor.md",
+    "filename": "EN_Datasheet_200017-co2-temperature-sensor.pdf",
+    "is_datasheet": true,
+    "local_path": "datasheets/pdfs/EN_Datasheet_200017-co2-temperature-sensor.pdf",
+    "name": "EN Datasheet 200017 co2 temperature sensor",
+    "source_article": "correction-analogue-input-output-values",
+    "url": "https://www.loxone.com/enen/wp-content/uploads/sites/3/2017/07/EN_Datasheet_200017-co2-temperature-sensor.pdf"
+  },
+  "EN_Datasheet_200031-outside-temperature-humidity-sensor.pdf": {
+    "extracted_path": "datasheets/extracted/EN_Datasheet_200031-outside-temperature-humidity-sensor.md",
+    "filename": "EN_Datasheet_200031-outside-temperature-humidity-sensor.pdf",
+    "is_datasheet": true,
+    "local_path": "datasheets/pdfs/EN_Datasheet_200031-outside-temperature-humidity-sensor.pdf",
+    "name": "EN Datasheet 200031 outside temperature humidity sensor",
+    "source_article": "correction-analogue-input-output-values",
+    "url": "https://www.loxone.com/enen/wp-content/uploads/sites/3/2017/07/EN_Datasheet_200031-outside-temperature-humidity-sensor.pdf"
+  },
+  "EN_Datasheet_200032-brightness-sensor.pdf": {
+    "extracted_path": "datasheets/extracted/EN_Datasheet_200032-brightness-sensor.md",
+    "filename": "EN_Datasheet_200032-brightness-sensor.pdf",
+    "is_datasheet": true,
+    "local_path": "datasheets/pdfs/EN_Datasheet_200032-brightness-sensor.pdf",
+    "name": "EN Datasheet 200032 brightness sensor",
+    "source_article": "correction-analogue-input-output-values",
+    "url": "https://www.loxone.com/enen/wp-content/uploads/sites/3/2017/07/EN_Datasheet_200032-brightness-sensor.pdf"
+  },
+  "EN_Datasheet_200136_Sauna_TemperaturFeuchtefuehler.pdf": {
+    "extracted_path": "datasheets/extracted/EN_Datasheet_200136_Sauna_TemperaturFeuchtefuehler.md",
+    "filename": "EN_Datasheet_200136_Sauna_TemperaturFeuchtefuehler.pdf",
+    "is_datasheet": true,
+    "local_path": "datasheets/pdfs/EN_Datasheet_200136_Sauna_TemperaturFeuchtefuehler.pdf",
+    "name": "EN Datasheet 200136 Sauna TemperaturFeuchtefuehler",
+    "source_article": "correction-analogue-input-output-values",
+    "url": "https://www.loxone.com/enen/wp-content/uploads/sites/3/2017/07/EN_Datasheet_200136_Sauna_TemperaturFeuchtefuehler.pdf"
+  },
+  "EN_Datasheet_200154-PressureSensor.pdf": {
+    "extracted_path": "datasheets/extracted/EN_Datasheet_200154-PressureSensor.md",
+    "filename": "EN_Datasheet_200154-PressureSensor.pdf",
+    "is_datasheet": true,
+    "local_path": "datasheets/pdfs/EN_Datasheet_200154-PressureSensor.pdf",
+    "name": "EN Datasheet 200154 PressureSensor",
+    "source_article": "correction-analogue-input-output-values",
+    "url": "https://www.loxone.com/enen/wp-content/uploads/sites/3/2017/07/EN_Datasheet_200154-PressureSensor.pdf"
+  },
+  "EN_Datasheet_200203-Drucksensor.pdf": {
+    "extracted_path": "datasheets/extracted/EN_Datasheet_200203-Drucksensor.md",
+    "filename": "EN_Datasheet_200203-Drucksensor.pdf",
+    "is_datasheet": true,
+    "local_path": "datasheets/pdfs/EN_Datasheet_200203-Drucksensor.pdf",
+    "name": "EN Datasheet 200203 Drucksensor",
+    "source_article": "correction-analogue-input-output-values",
+    "url": "https://www.loxone.com/enen/wp-content/uploads/sites/3/2017/07/EN_Datasheet_200203-Drucksensor.pdf"
+  },
+  "EN_KB_Diagram_Loxone_Speaker_Datasheet.pdf": {
+    "extracted_path": "datasheets/extracted/EN_KB_Diagram_Loxone_Speaker_Datasheet.md",
+    "filename": "EN_KB_Diagram_Loxone_Speaker_Datasheet.pdf",
+    "is_datasheet": true,
+    "local_path": "datasheets/pdfs/EN_KB_Diagram_Loxone_Speaker_Datasheet.pdf",
+    "name": "EN KB Diagram Loxone Speaker Datasheet",
+    "source_article": "loxone-speaker",
+    "url": "https://www.loxone.com/enen/wp-content/uploads/sites/3/2016/10/EN_KB_Diagram_Loxone_Speaker_Datasheet.pdf"
+  },
+  "EN_KB_Diagram_PWM_Datasheet.pdf": {
+    "extracted_path": "datasheets/extracted/EN_KB_Diagram_PWM_Datasheet.md",
+    "filename": "EN_KB_Diagram_PWM_Datasheet.pdf",
+    "is_datasheet": true,
+    "local_path": "datasheets/pdfs/EN_KB_Diagram_PWM_Datasheet.pdf",
+    "name": "EN KB Diagram PWM Datasheet",
+    "source_article": "pwm-dimmer",
+    "url": "https://www.loxone.com/enen/wp-content/uploads/sites/3/2016/10/EN_KB_Diagram_PWM_Datasheet.pdf"
+  },
+  "Loxone_PortsDomains.pdf": {
+    "extracted_path": "datasheets/extracted/Loxone_PortsDomains.md",
+    "filename": "Loxone_PortsDomains.pdf",
+    "is_datasheet": true,
+    "local_path": "datasheets/pdfs/Loxone_PortsDomains.pdf",
+    "name": "Loxone PortsDomains",
+    "source_article": "initial-setup-miniserver",
+    "url": "https://www.loxone.com/wp-content/uploads/datasheets/Loxone_PortsDomains.pdf"
+  },
+  "OperatingModeSchedule.pdf": {
+    "extracted_path": "datasheets/extracted/OperatingModeSchedule.md",
+    "filename": "OperatingModeSchedule.pdf",
+    "is_datasheet": true,
+    "local_path": "datasheets/pdfs/OperatingModeSchedule.pdf",
+    "name": "OperatingModeSchedule",
+    "source_article": "api",
+    "url": "https://www.loxone.com/wp-content/uploads/datasheets/OperatingModeSchedule.pdf"
+  },
+  "StructureFile.pdf": {
+    "extracted_path": "datasheets/extracted/StructureFile.md",
+    "filename": "StructureFile.pdf",
+    "is_datasheet": true,
+    "local_path": "datasheets/pdfs/StructureFile.pdf",
+    "name": "StructureFile",
+    "source_article": "api",
+    "url": "https://www.loxone.com/wp-content/uploads/datasheets/StructureFile.pdf"
+  },
+  "UserManagement.pdf": {
+    "extracted_path": "datasheets/extracted/UserManagement.md",
+    "filename": "UserManagement.pdf",
+    "is_datasheet": true,
+    "local_path": "datasheets/pdfs/UserManagement.pdf",
+    "name": "UserManagement",
+    "source_article": "api",
+    "url": "https://www.loxone.com/wp-content/uploads/datasheets/UserManagement.pdf"
+  }
+}

@@ -1,0 +1,43 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Modbus Title="Brink Flair" Comment="" Channel="1">
+	<Info templateType="7" minVersion="12021105"/>
+	<ModbusCmd Title="Device type" Comment="" ModbusAddress="4004" ModbusCmd="4" ModbusDataType="64" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Serial number - part1" Comment="" ModbusAddress="4010" ModbusCmd="4" ModbusDataType="64" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Serial number - part2" Comment="" ModbusAddress="4011" ModbusCmd="4" ModbusDataType="64" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Serial number - part3" Comment="" ModbusAddress="4012" ModbusCmd="4" ModbusDataType="64" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Actual supply air pressure" Comment="" ModbusAddress="4023" ModbusCmd="4" ModbusDataType="64" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Actual exhaust air pressure" Comment="" ModbusAddress="4024" ModbusCmd="4" ModbusDataType="64" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Supply air setpoint" Comment="" ModbusAddress="4031" ModbusCmd="4" ModbusDataType="64" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Actual value supply air" Comment="" ModbusAddress="4032" ModbusCmd="4" ModbusDataType="64" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Temperature sensor - supply fan" Comment="" ModbusAddress="4036" ModbusCmd="4" ModbusDataType="65" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Exhaust air setpoint" Comment="" ModbusAddress="4041" ModbusCmd="4" ModbusDataType="64" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Actual value exhaust air" Comment="" ModbusAddress="4042" ModbusCmd="4" ModbusDataType="64" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Temperature sensor - exhaust fan" Comment="" ModbusAddress="4046" ModbusCmd="4" ModbusDataType="65" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Bypass status" Comment="" ModbusAddress="4050" ModbusCmd="4" ModbusDataType="64" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Preheater status" Comment="" ModbusAddress="4060" ModbusCmd="4" ModbusDataType="64" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Preheater power" Comment="" ModbusAddress="4061" ModbusCmd="4" ModbusDataType="64" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Temperature NTC1" Comment="" ModbusAddress="4081" ModbusCmd="4" ModbusDataType="65" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Filter status" Comment="" ModbusAddress="4100" ModbusCmd="4" ModbusDataType="64" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="CO2 - sensor 1" Comment="" ModbusAddress="4201" ModbusCmd="4" ModbusDataType="64" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="CO2 - sensor 2" Comment="" ModbusAddress="4203" ModbusCmd="4" ModbusDataType="64" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="CO2 - sensor 3" Comment="" ModbusAddress="4205" ModbusCmd="4" ModbusDataType="64" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="CO2 - sensor 4" Comment="" ModbusAddress="4207" ModbusCmd="4" ModbusDataType="64" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Bypass mode" Comment="" ModbusAddress="6100" ModbusCmd="3" ModbusDataType="64" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Change proposal - switch position" Comment="" ModbusAddress="8001" ModbusCmd="3" ModbusDataType="64" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Desired throughput setting" Comment="" ModbusAddress="8002" ModbusCmd="3" ModbusDataType="64" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Imbalance allowed" Comment="" ModbusAddress="6033" ModbusCmd="3" ModbusDataType="64" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="ModBus control switch" Comment="" ModbusAddress="8000" ModbusCmd="3" ModbusDataType="64" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Offset imbalance exhaust air" Comment="" ModbusAddress="6036" ModbusCmd="3" ModbusDataType="64" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Offset imbalance supply air" Comment="" ModbusAddress="6035" ModbusCmd="3" ModbusDataType="64" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Reset filter warning" Comment="" ModbusAddress="8010" ModbusCmd="3" ModbusDataType="64" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Reset the device" Comment="" ModbusAddress="8011" ModbusCmd="3" ModbusDataType="64" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Imbalance allowed" Comment="" ModbusAddress="6033" ModbusCmd="6" Unit="" Analog="false" Sensor="false"/>
+	<ModbusCmd Title="Offset imbalance supply air" Comment="" ModbusAddress="6035" ModbusCmd="6" Unit="" Analog="false" Sensor="false"/>
+	<ModbusCmd Title="Offset imbalance exhaust air" Comment="" ModbusAddress="6036" ModbusCmd="6" Unit="" Analog="false" Sensor="false"/>
+	<ModbusCmd Title="Bypass mode" Comment="" ModbusAddress="6100" ModbusCmd="6" Unit="" Analog="false" Sensor="false"/>
+	<ModbusCmd Title="ModBus control switch" Comment="" ModbusAddress="8000" ModbusCmd="6" Unit="" Analog="false" Sensor="false"/>
+	<ModbusCmd Title="Change proposal - switch position" Comment="" ModbusAddress="8001" ModbusCmd="6" Unit="" Analog="false" Sensor="false"/>
+	<ModbusCmd Title="Desired throughput setting" Comment="" ModbusAddress="8002" ModbusCmd="6" Unit="" Analog="false" Sensor="false"/>
+	<ModbusCmd Title="Reset filter warning" Comment="" ModbusAddress="8010" ModbusCmd="6" Unit="" Analog="false" Sensor="false"/>
+	<ModbusCmd Title="Reset the device" Comment="" ModbusAddress="8011" ModbusCmd="6" Unit="" Analog="false" Sensor="false"/>
+</Modbus>

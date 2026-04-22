@@ -1,0 +1,14 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Comm Title="RS485 Extension" Comment="" RS485="true" Baudrate="57600" Databits="8">
+	<Info templateType="6" minVersion="13030223"/>
+	<CommCmd Title="Temperature Bench" Comment="" CmdOn="\TEMP-BENCH \v" CmdOff="" Unit="&lt;v.1&gt;°C" Analog="true" Text="false" Sensor="true" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="Temperature Heater" Comment="" CmdOn="\TEMP-HEATER \v" CmdOff="" Unit="&lt;v.1&gt;°C" Analog="true" Text="false" Sensor="true" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="Sauna Status Off" Comment="" CmdOn="\SAUNA off" CmdOff="" Unit="" Analog="false" Text="false" Sensor="true" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="Sauna Status On" Comment="" CmdOn="\SAUNA on" CmdOff="" Unit="" Analog="false" Text="false" Sensor="true" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="Call Bench Temperature" Comment="" CmdOn="get temp-bench val\r\n" CmdOff="" Unit="" Analog="false" Text="false" Sensor="false" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="Call Heater Temperature" Comment="" CmdOn="get temp-heater val\r\n" CmdOff="" Unit="" Analog="false" Text="false" Sensor="false" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="Call Sauna Status" Comment="" CmdOn="get sauna \r\n" CmdOff="" Unit="" Analog="false" Text="false" Sensor="false" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="Call Sauna Off" Comment="" CmdOn="set sauna off\r\n" CmdOff="" Unit="" Analog="false" Text="false" Sensor="false" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="Call Sauna On" Comment="" CmdOn="set sauna on\r\n" CmdOff="" Unit="" Analog="false" Text="false" Sensor="false" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="Target temperature Sauna" Comment="" CmdOn="set sauna val &lt;v&gt;\r\n" CmdOff="" Unit="&lt;v.1&gt;" Analog="true" Text="false" Sensor="false" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+</Comm>

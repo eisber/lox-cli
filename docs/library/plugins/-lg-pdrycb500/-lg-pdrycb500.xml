@@ -1,0 +1,14 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Modbus Title="PDRYCB500" Comment="" HintText="" Baudrate="9600" Channel="1">
+	<Info templateType="7" minVersion="14051207"/>
+	<ModbusCmd Title="Status On_Off" Comment="" HintText="" ModbusCmd="1" ModbusPollingCycle="10" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="Room_Temp" Comment="" HintText="" ModbusAddress="2" ModbusCmd="4" ModbusPollingCycle="10" Unit="&lt;v.1&gt; ºC" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="10"/>
+	<ModbusCmd Title="Error Alarm (CH)" Comment="" HintText="" ModbusAddress="99" ModbusCmd="4" ModbusPollingCycle="10" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="SetPoint Temperature" Comment="" HintText="" ModbusAddress="1" ModbusCmd="3" ModbusPollingCycle="10" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="10"/>
+	<ModbusCmd Title="Mode_Status" Comment="" HintText="" ModbusCmd="3" ModbusPollingCycle="10" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="SetFanSpeed_Status" Comment="" HintText="" ModbusAddress="14" ModbusCmd="3" ModbusPollingCycle="10" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="On_Off" Comment="" HintText="" ModbusCmd="5" Unit="" Analog="false" Sensor="false"/>
+	<ModbusCmd Title="Setp_point_Temp" Comment="" HintText="" ModbusAddress="1" ModbusCmd="6" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="SetMode" Comment="" HintText="" ModbusCmd="6" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="SetFanSpeed" Comment="" HintText="" ModbusAddress="14" ModbusCmd="6" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+</Modbus>

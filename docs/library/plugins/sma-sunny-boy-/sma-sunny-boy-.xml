@@ -1,0 +1,16 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Modbus Title="SMA Sunny Boy" Comment="" Channel="3">
+	<Info templateType="7" minVersion="12010504"/>
+	<ModbusCmd Title="Inverter Type" Comment="" ModbusAddress="30053" ModbusCmd="3" ModbusDataType="98" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="GridVoltageL1" Comment="" ModbusAddress="30783" ModbusCmd="3" ModbusDataType="98" ModbusPollingCycle="5" Unit="&lt;v.1&gt; V" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="GridFrequentie" Comment="" ModbusAddress="30803" ModbusCmd="3" ModbusDataType="98" ModbusPollingCycle="5" Unit="&lt;v.1&gt; Hz" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Power" Comment="" ModbusAddress="30775" ModbusCmd="3" ModbusDataType="99" ModbusPollingCycle="5" Unit="&lt;v.1&gt; W" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="DailyYield" Comment="" ModbusAddress="30537" ModbusCmd="3" ModbusDataType="98" ModbusPollingCycle="5" Unit="&lt;v.1&gt; Kwh" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="TotalYield" Comment="" ModbusAddress="30531" ModbusCmd="3" ModbusDataType="99" ModbusPollingCycle="5" Unit="&lt;v.1&gt; Kwh" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="TotalYield Wh" Comment="" ModbusAddress="30529" ModbusCmd="3" ModbusDataType="98" ModbusPollingCycle="60" Unit="&lt;v.1&gt; Wh" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="DC Current" Comment="" ModbusAddress="30769" ModbusCmd="3" ModbusDataType="99" ModbusPollingCycle="60" Unit="&lt;v.1&gt; A" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="DC Voltage" Comment="" ModbusAddress="30771" ModbusCmd="3" ModbusDataType="99" ModbusPollingCycle="60" Unit="&lt;v.1&gt; V" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="DC Power" Comment="" ModbusAddress="30773" ModbusCmd="3" ModbusDataType="99" ModbusPollingCycle="60" Unit="&lt;v.1&gt; W" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Heat sink temperature" Comment="" ModbusAddress="34109" ModbusCmd="3" ModbusDataType="99" ModbusPollingCycle="60" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Internal temperature" Comment="" ModbusAddress="34113" ModbusCmd="3" ModbusDataType="99" ModbusPollingCycle="60" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+</Modbus>

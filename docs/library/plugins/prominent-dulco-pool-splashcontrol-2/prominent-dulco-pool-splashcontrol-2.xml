@@ -1,0 +1,12 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Modbus Title="Pool SplashControl 2" Comment="" Baudrate="19200" Channel="1">
+	<Info templateType="7" minVersion="12040414"/>
+	<ModbusCmd Title="Param_E2_RDX_State" Comment="" ModbusAddress="1300" ModbusCmd="3" ModbusDataType="99" ModbusPollingCycle="30" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Param_E1_PH_State" Comment="" ModbusAddress="1200" ModbusCmd="3" ModbusDataType="99" ModbusPollingCycle="30" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Param_E2_RDX_alarm_low" Comment="3. Redox Alarm low" ModbusAddress="1310" ModbusCmd="3" ModbusDataType="100" ModbusPollingCycle="30" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Param_E1_PH_alarm_high" Comment="1. PH Alarm high" ModbusAddress="1208" ModbusCmd="3" ModbusDataType="100" ModbusPollingCycle="30" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Param_E1_PH_Measure_value" Comment="2. PH Wert" ModbusAddress="1202" ModbusCmd="3" ModbusDataType="100" ModbusPollingCycle="30" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Param_E2_RDX_Measure_value" Comment="2. Redox Wert" ModbusAddress="1302" ModbusCmd="3" ModbusDataType="100" ModbusPollingCycle="30" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Param_E2_RDX_alarm_high" Comment="1. Redox Alarm high" ModbusAddress="1308" ModbusCmd="3" ModbusDataType="100" ModbusPollingCycle="30" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Param_E1_PH_alarm_low" Comment="3. PH Alarm low" ModbusAddress="1210" ModbusCmd="3" ModbusDataType="100" ModbusPollingCycle="30" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+</Modbus>

@@ -1,0 +1,7 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<VirtualOut Title="Sonnen Battery" Comment="" Address="http://192.168.x.xxx" CmdInit="" HintText="" CloseAfterSend="true" CmdSep="">
+	<Info templateType="3" minVersion="14070306"/>
+	<VirtualOutCmd Title="Manual Charge Rate" Comment="" CmdOnMethod="POST" CmdOffMethod="GET" CmdOn="/api/v2/setpoint/charge/&lt;v&gt;" CmdOnHTTP="Auth-Token:xxxxxxxxxxxxx\r\nContent-Type: application/json" CmdOnPost="&lt;v&gt;" CmdOff="" CmdOffHTTP="" CmdOffPost="" CmdAnswer="" HintText="" Analog="true" Repeat="0" RepeatRate="0" SourceValHigh="10" DestValHigh="10"/>
+	<VirtualOutCmd Title="Manual Mode" Comment="" CmdOnMethod="PUT" CmdOffMethod="PUT" CmdOn="/api/v2/configurations?EM_OperatingMode=1" CmdOnHTTP="Auth-Token: xxxxxxxxxxxxxx\r\nContent-Type: application/json" CmdOnPost="&lt;v&gt;" CmdOff="/api/v2/configurations?EM_OperatingMode=2" CmdOffHTTP="Auth-Token:xxxxxxxxxxxxxxxxx\r\nContent-Type: application/json" CmdOffPost="&lt;v&gt;" CmdAnswer="" HintText="" Analog="false" Repeat="0" RepeatRate="0"/>
+	<VirtualOutCmd Title="Manual Discharge Rate" Comment="" CmdOnMethod="POST" CmdOffMethod="GET" CmdOn="/api/v2/setpoint/discharge/&lt;v&gt;" CmdOnHTTP="Auth-Token: xxxxxxxxx\r\nContent-Type: application/json" CmdOnPost="&lt;v&gt;" CmdOff="" CmdOffHTTP="" CmdOffPost="" CmdAnswer="" HintText="" Analog="true" Repeat="0" RepeatRate="0" SourceValHigh="10" DestValHigh="10"/>
+</VirtualOut>

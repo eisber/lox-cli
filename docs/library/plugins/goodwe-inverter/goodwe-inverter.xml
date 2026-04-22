@@ -1,0 +1,40 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Modbus Title="GoodWe inverter EN (1.2.2)" Comment="" Channel="247">
+	<Info templateType="7" minVersion="13030208"/>
+	<ModbusCmd Title="Network frequency" Comment="" ModbusAddress="35123" ModbusCmd="3" ModbusPollingCycle="300" Unit="&lt;v.1&gt; Hz" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="1"/>
+	<ModbusCmd Title="Battery charge status" Comment="" ModbusAddress="37007" ModbusCmd="3" ModbusPollingCycle="120" Unit="&lt;v.1&gt;%" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="UPS load" Comment="" ModbusAddress="35173" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.1&gt;%" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="L1 - power" Comment="" ModbusAddress="35125" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="120" Unit="&lt;v.1&gt;W" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="L2 - power" Comment="" ModbusAddress="35130" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="120" Unit="&lt;v.1&gt;W" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="L3 - power" Comment="" ModbusAddress="35135" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="120" Unit="&lt;v.1&gt;W" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="L1 - voltage" Comment="" ModbusAddress="35121" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.1&gt;V" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="L2 - voltage" Comment="" ModbusAddress="35126" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.1&gt;V" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="L3 - voltage" Comment="" ModbusAddress="35131" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.1&gt;V" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="Total production" Comment="" ModbusAddress="35192" ModbusCmd="3" ModbusDataType="34" ModbusPollingCycle="120" Unit="&lt;v.1&gt; kWh" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="10"/>
+	<ModbusCmd Title="Load on Back-Up" Comment="" ModbusAddress="35170" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="5" Unit="&lt;v.1&gt;W" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Total converter power" Comment="" ModbusAddress="35138" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="120" Unit="&lt;v.1&gt;W" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Network power" Comment="" ModbusAddress="35140" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="5" Unit="&lt;v.1&gt; kW" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="1"/>
+	<ModbusCmd Title="PV1 power" Comment="" ModbusAddress="35105" ModbusCmd="3" ModbusDataType="98" ModbusPollingCycle="5" Unit="&lt;v.1&gt; kW" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="1"/>
+	<ModbusCmd Title="Consumed energy" Comment="" ModbusAddress="35203" ModbusCmd="3" ModbusDataType="98" ModbusPollingCycle="120" Unit="&lt;v.1&gt; kWh" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="10"/>
+	<ModbusCmd Title="First group battery OUT power" Comment="" ModbusAddress="35183" ModbusCmd="3" ModbusDataType="33" ModbusPollingCycle="5" Unit="&lt;v.1&gt; kW" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="1"/>
+	<ModbusCmd Title="L1 - power Back-Up" Comment="" ModbusAddress="35150" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="120" Unit="&lt;v.1&gt;W" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="L2 - power Back-Up" Comment="" ModbusAddress="35156" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="120" Unit="&lt;v.1&gt;W" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="L3 - power Back-Up" Comment="" ModbusAddress="35162" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="120" Unit="&lt;v.1&gt;W" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="PV Mode" Comment="" ModbusAddress="35119" ModbusCmd="3" ModbusDataType="98" ModbusPollingCycle="120" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="L1 - network power" Comment="" ModbusAddress="35164" ModbusCmd="3" ModbusDataType="33" ModbusPollingCycle="120" Unit="&lt;v.1&gt;W" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="L2 - network power" Comment="" ModbusAddress="35166" ModbusCmd="3" ModbusDataType="33" ModbusPollingCycle="120" Unit="&lt;v.1&gt;W" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="L3 - network power" Comment="" ModbusAddress="35168" ModbusCmd="3" ModbusDataType="33" ModbusPollingCycle="120" Unit="&lt;v.1&gt;W" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Total network power" Comment="" ModbusAddress="35172" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="120" Unit="&lt;v.1&gt;W" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Total Back-Up Performance" Comment="" ModbusAddress="35170" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="120" Unit="&lt;v.1&gt;W" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Battery IN power today" Comment="" ModbusAddress="35208" ModbusCmd="3" ModbusDataType="32" ModbusPollingCycle="120" Unit="&lt;v.1&gt; kWh" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="10"/>
+	<ModbusCmd Title="Battery OUT power today" Comment="" ModbusAddress="35211" ModbusCmd="3" ModbusDataType="32" ModbusPollingCycle="120" Unit="&lt;v.1&gt; kWh" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="10"/>
+	<ModbusCmd Title="Battery IN power" Comment="" ModbusAddress="35206" ModbusCmd="3" ModbusDataType="98" ModbusPollingCycle="120" Unit="&lt;v.1&gt; kWh" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="10"/>
+	<ModbusCmd Title="Battery OUT power" Comment="" ModbusAddress="35209" ModbusCmd="3" ModbusDataType="98" ModbusPollingCycle="120" Unit="&lt;v.1&gt; kWh" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="10"/>
+	<ModbusCmd Title="Network status" Comment="" ModbusAddress="35136" ModbusCmd="3" ModbusDataType="32" ModbusPollingCycle="120" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Purchased energy" Comment="" ModbusAddress="36017" ModbusCmd="3" ModbusDataType="100" ModbusPollingCycle="5" Unit="&lt;v.2&gt; kWh" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="1"/>
+	<ModbusCmd Title="Supplied energy" Comment="" ModbusAddress="36015" ModbusCmd="3" ModbusDataType="100" ModbusPollingCycle="5" Unit="&lt;v.1&gt; kWh" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="1"/>
+	<ModbusCmd Title="Temperature driver" Comment="" ModbusAddress="35174" ModbusCmd="3" ModbusDataType="32" ModbusPollingCycle="5" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="PV2 power" Comment="" ModbusAddress="35109" ModbusCmd="3" ModbusDataType="98" ModbusPollingCycle="5" Unit="&lt;v.1&gt;kW" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="1"/>
+	<ModbusCmd Title="PV3 power" Comment="" ModbusAddress="35113" ModbusCmd="3" ModbusDataType="98" ModbusPollingCycle="5" Unit="&lt;v.1&gt;kW" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="1"/>
+	<ModbusCmd Title="PV E-Total" Comment="" ModbusAddress="35191" ModbusCmd="4" ModbusDataType="2" ModbusPollingCycle="120" Unit="&lt;v.1&gt;V" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="10"/>
+</Modbus>

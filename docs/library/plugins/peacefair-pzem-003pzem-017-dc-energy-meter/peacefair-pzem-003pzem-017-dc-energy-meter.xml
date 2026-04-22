@@ -1,0 +1,15 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Modbus Title="PZEM-003, PZEM-017" Comment="DC Energy Meter" HintText="" Channel="1">
+	<Info templateType="7" minVersion="14040925"/>
+	<ModbusCmd Title="Voltage value" Comment="" HintText="" ModbusCmd="4" ModbusDataType="32" ModbusPollingCycle="5" Unit="&lt;v.2&gt; V" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="1"/>
+	<ModbusCmd Title="Current value" Comment="" HintText="" ModbusAddress="1" ModbusCmd="4" ModbusDataType="32" ModbusPollingCycle="5" Unit="&lt;v.2&gt; A" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="1"/>
+	<ModbusCmd Title="Power value" Comment="" HintText="" ModbusAddress="2" ModbusCmd="4" ModbusDataType="34" ModbusPollingCycle="5" Unit="&lt;v.1&gt; W" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="Energy value" Comment="" HintText="" ModbusAddress="4" ModbusCmd="4" ModbusDataType="34" ModbusPollingCycle="5" Unit="&lt;v&gt; Wh" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="High voltage alarm status" Comment="" HintText="" ModbusAddress="6" ModbusCmd="4" ModbusPollingCycle="5" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="Low voltage alarm status" Comment="" HintText="" ModbusAddress="7" ModbusCmd="4" ModbusPollingCycle="5" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="High voltage alarm threshold" Comment="" HintText="" ModbusCmd="3" ModbusDataType="32" ModbusPollingCycle="5" Unit="&lt;v.2&gt; V" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="1"/>
+	<ModbusCmd Title="Low voltage alarm threshold" Comment="" HintText="" ModbusAddress="1" ModbusCmd="3" ModbusDataType="32" ModbusPollingCycle="5" Unit="&lt;v.2&gt; V" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="1"/>
+	<ModbusCmd Title="High voltage alarm threshold" Comment="" HintText="5~350V, default is 300V" ModbusCmd="6" ModbusDataType="32" Unit="&lt;v.2&gt; V" Analog="true" Sensor="false" SourceValHigh="1" DestValHigh="100"/>
+	<ModbusCmd Title="Low voltage alarm threshold" Comment="" HintText="1~350V, default is 7V" ModbusAddress="1" ModbusCmd="6" ModbusDataType="32" Unit="&lt;v.2&gt; V" Analog="true" Sensor="false" SourceValHigh="1" DestValHigh="100"/>
+	<ModbusCmd Title="Modbus address" Comment="" HintText="Range is 1 to 257. Use carefully!" ModbusAddress="2" ModbusCmd="6" ModbusDataType="32" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10"/>
+</Modbus>

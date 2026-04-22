@@ -1,0 +1,9 @@
+{
+                                "type": "template",
+                                "name": "roku-tv",
+                                "uuid": "b7c14c0a-17bd-11ec-9a744cd98f3deb8a",
+                                "version":"1.0.0",
+                                "id": "roku-tv-202",
+                                "file": "roku-tv.xml",
+                                "templateType": "4",
+                            }

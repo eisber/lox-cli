@@ -1,0 +1,46 @@
+{
+  "wiring_pattern": {
+    "description": "How UX wires VirtualIn \u2192 Block",
+    "steps": [
+      "UX creates a converter element inside VirtualIn with AI, I, AQ, Q connectors",
+      "Block input gets <In Input=\"aq-uuid\"/> pointing to the converter AQ connector",
+      "Original Q and Qm connectors on VirtualIn remain unchanged",
+      "Converter AQ UUID has byte pattern 02ff in position 8-9"
+    ],
+    "important": "XML-injected wiring using Q connector UUID does NOT work. Must use AQ from converter."
+  },
+  "reading_outputs": {
+    "description": "How to read block output values",
+    "methods": {
+      "/sps/state/{uuid}": "Returns status code (always 5), NOT the actual value",
+      "/sps/io/{uuid}/state": "Works for VirtualIn, VirtualOut, and StateV (Virtual Status)",
+      "WebSocket ValueState": "Only broadcasts control UUIDs from LoxAPP3.json, not block connectors"
+    },
+    "solution": "Wire block output Q \u2192 StateV (Virtual Status) input, read via /sps/io/{statev-uuid}/state"
+  },
+  "statev_mapping": {
+    "And_Q": "20699539-0224-4b37-ffff234d69b98eb1",
+    "Or_Q": "2069954d-01d1-62dd-ffff234d69b98eb1",
+    "Not_Q": "20699556-020e-6eb5-ffff234d69b98eb1",
+    "Xor_Q": "2069955f-038b-7a99-ffff234d69b98eb1"
+  },
+  "sps_compilation": {
+    "description": "SPS compilation is done by Loxone Config UX locally",
+    "logic_gates": "And/Or/Not/Xor work with FTP+sps/restart (native SPS opcodes)",
+    "math_blocks": "Add/Subtract/Multiply/Divide need UX compilation (higher-level constructs)",
+    "upload_api": "POST /dev/fsput/lx/prog/sps_new.zip?autht={token}&user={user}",
+    "auth_format": "lowercase HMAC-SHA256(one_time_key_bytes, \"user:pwHash\")",
+    "auto_restart": "Miniserver auto-restarts SPS after fsput (no explicit reboot)",
+    "status": "Token auth gets 403 (valid format, needs /wsx WebSocket session for permission)"
+  },
+  "xml_type_corrections": {
+    "Add": "Type=Add (NOT Add2), connectors: Input1/Input2/AQ",
+    "Add4": "Type=Add4, connectors: Input1-4/AQ",
+    "note": "Connector keys for math: Input1/Input2 (not I1/I2), output AQ (not Q)"
+  },
+  "test_results": {
+    "cat_a": "14/14 PASS (AND/OR/NOT/XOR truth tables)",
+    "cat_b_add": "6/6 PASS (addition with integers and decimals)",
+    "total": "20/20 PASS"
+  }
+}

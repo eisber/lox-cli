@@ -1,0 +1,10 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Modbus Title="Sigenstor Slave" Comment="" HintText="" Channel="1">
+	<Info templateType="7" minVersion="15021014"/>
+	<ModbusCmd Title="Energy Export" Comment="" HintText="" ModbusAddress="30556" ModbusCmd="3" ModbusDataType="102" ModbusPollingCycle="60" Unit="&lt;v&gt; kwh" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="1"/>
+	<ModbusCmd Title="Energy Import" Comment="" HintText="" ModbusAddress="30562" ModbusCmd="3" ModbusDataType="102" ModbusPollingCycle="60" Unit="&lt;v&gt; kwh" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="1"/>
+	<ModbusCmd Title="Battery charge" Comment="" HintText="" ModbusAddress="30568" ModbusCmd="3" ModbusDataType="102" ModbusPollingCycle="60" Unit="&lt;v&gt; kwh" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="1"/>
+	<ModbusCmd Title="Battery discharge" Comment="" HintText="" ModbusAddress="30574" ModbusCmd="3" ModbusDataType="102" ModbusPollingCycle="60" Unit="&lt;v&gt; kwh" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="1"/>
+	<ModbusCmd Title="Active Power" Comment="" HintText="" ModbusAddress="30587" ModbusCmd="3" ModbusDataType="99" ModbusPollingCycle="3" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="1"/>
+	<ModbusCmd Title="PV Power" Comment="" HintText="" ModbusAddress="31035" ModbusCmd="3" ModbusDataType="99" ModbusPollingCycle="3" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="1"/>
+</Modbus>

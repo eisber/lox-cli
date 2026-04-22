@@ -1,0 +1,61 @@
+{
+  "title": "Long Click",
+  "xml_type": "",
+  "kb_slug": "long-click",
+  "description": "Multiple function push-button with up to four functions, pulse after click",
+  "inputs": [
+    {
+      "abbreviation": "Tr",
+      "summary": "Trigger",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "R",
+      "summary": "Reset",
+      "value_range": "0/1"
+    }
+  ],
+  "outputs": [
+    {
+      "abbreviation": "O1",
+      "summary": "Pulse when (Tr) \u2264 (TI)",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "O2",
+      "summary": "Pulse when (TI) \u2264 (Tr) \u2264 2x(TI)",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "O3",
+      "summary": "Pulse when 2x(TI) \u2264 (Tr) \u2264 3x(TI)",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "O4",
+      "summary": "Pulse when 3x(TI) \u2264 (Tr)",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "V",
+      "summary": "Value (V1-4), depending on time of input (Tr)",
+      "value_range": "\u221e"
+    }
+  ],
+  "parameters": [
+    {
+      "abbreviation": "Rem",
+      "summary": "Remanence input",
+      "description": "Remanence input: If active, the function block retains its previous state after a Miniserver reboot. The state of the function block is saved: \u2013 When saving to the Miniserver \u2013 At a planned reboot \u2013 Before a backup \u2013 Once per hour The data is saved on the SD card.",
+      "unit": "-",
+      "value_range": "0/1",
+      "default_value": "0"
+    }
+  ],
+  "properties": [],
+  "source_url": "https://www.loxone.com/enen/kb/long-click/",
+  "input_count": 2,
+  "output_count": 5,
+  "parameter_count": 1,
+  "property_count": 0
+}

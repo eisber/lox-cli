@@ -1,0 +1,11 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Modbus Title="EM24 Ethernet" Comment="Energiezähler" Channel="1">
+	<Info templateType="7" minVersion="12021105"/>
+	<ModbusCmd Title="kWh (+) TOT" Comment="" ModbusAddress="52" ModbusCmd="4" ModbusDataType="35" ModbusPollingCycle="60" Unit="&lt;v.2&gt; kWh" Analog="true" Sensor="true" SourceValLow="10" SourceValHigh="100" DestValLow="1" DestValHigh="10"/>
+	<ModbusCmd Title="kWh (-) TOT" Comment="" ModbusAddress="78" ModbusCmd="4" ModbusDataType="35" ModbusPollingCycle="60" Unit="&lt;v.2&gt; kWh" Analog="true" Sensor="true" SourceValLow="10" SourceValHigh="100" DestValLow="1" DestValHigh="10"/>
+	<ModbusCmd Title="kW sys" Comment="" ModbusAddress="40" ModbusCmd="4" ModbusDataType="35" ModbusPollingCycle="60" Unit="&lt;v.2&gt; kW" Analog="true" Sensor="true" SourceValLow="10000" SourceValHigh="100000" DestValLow="1" DestValHigh="10"/>
+	<ModbusCmd Title="V L1-N" Comment="" ModbusCmd="4" ModbusDataType="35" ModbusPollingCycle="60" Unit="&lt;v.1&gt; V" Analog="true" Sensor="true" SourceValLow="10" SourceValHigh="100" DestValLow="1" DestValHigh="10"/>
+	<ModbusCmd Title="Hz" Comment="" ModbusAddress="51" ModbusCmd="4" ModbusPollingCycle="60" Unit="&lt;v.1&gt; Hz" Analog="true" Sensor="true" SourceValLow="10" SourceValHigh="100" DestValLow="1" DestValHigh="10"/>
+	<ModbusCmd Title="V L2-N" Comment="" ModbusAddress="2" ModbusCmd="4" ModbusDataType="35" ModbusPollingCycle="60" Unit="&lt;v.1&gt; V" Analog="true" Sensor="true" SourceValLow="10" SourceValHigh="100" DestValLow="1" DestValHigh="10"/>
+	<ModbusCmd Title="V L3-N" Comment="" ModbusAddress="4" ModbusCmd="4" ModbusDataType="35" ModbusPollingCycle="60" Unit="&lt;v.1&gt; V" Analog="true" Sensor="true" SourceValLow="10" SourceValHigh="100" DestValLow="1" DestValHigh="10"/>
+</Modbus>

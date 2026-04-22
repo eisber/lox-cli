@@ -1,0 +1,30 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Modbus Title="ETREL INCH Charger" Comment="" Channel="1">
+	<Info templateType="7" minVersion="12040222"/>
+	<ModbusCmd Title="Charging Status" Comment="" ModbusCmd="4" ModbusDataType="33" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Measured vehicle number of phase" Comment="" ModbusAddress="1" ModbusCmd="4" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="EV max phase current" Comment="" ModbusAddress="2" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt; A" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Target current" Comment="" ModbusAddress="4" ModbusCmd="4" ModbusDataType="100" ModbusPollingCycle="60" Unit="&lt;v.1&gt; A" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Frequency" Comment="" ModbusAddress="6" ModbusCmd="4" ModbusDataType="100" ModbusPollingCycle="60" Unit="&lt;v.1&gt; Hz" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="L-N Voltage (L1)" Comment="" ModbusAddress="8" ModbusCmd="4" ModbusDataType="100" ModbusPollingCycle="60" Unit="&lt;v.1&gt; V" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="L-N Voltage (L2)" Comment="" ModbusAddress="10" ModbusCmd="4" ModbusDataType="100" ModbusPollingCycle="60" Unit="&lt;v.1&gt; V" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="L-N Voltage (L3)" Comment="" ModbusAddress="12" ModbusCmd="4" ModbusDataType="100" ModbusPollingCycle="60" Unit="&lt;v.1&gt; V" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Current L1" Comment="" ModbusAddress="14" ModbusCmd="4" ModbusDataType="100" ModbusPollingCycle="60" Unit="&lt;v.1&gt; A" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Current L2" Comment="" ModbusAddress="16" ModbusCmd="4" ModbusDataType="100" ModbusPollingCycle="60" Unit="&lt;v.1&gt; A" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Current L3" Comment="" ModbusAddress="18" ModbusCmd="4" ModbusDataType="100" ModbusPollingCycle="60" Unit="&lt;v.1&gt; A" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Active Power L1" Comment="" ModbusAddress="20" ModbusCmd="4" ModbusDataType="100" ModbusPollingCycle="60" Unit="&lt;v.1&gt; kW" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Active Power L2" Comment="" ModbusAddress="22" ModbusCmd="4" ModbusDataType="100" ModbusPollingCycle="60" Unit="&lt;v.1&gt; kW" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Active Power L3" Comment="" ModbusAddress="24" ModbusCmd="4" ModbusDataType="100" ModbusPollingCycle="60" Unit="&lt;v.1&gt; kW" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Active Power Total" Comment="" ModbusAddress="26" ModbusCmd="4" ModbusDataType="100" ModbusPollingCycle="60" Unit="&lt;v.1&gt; kW" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Power Factor" Comment="" ModbusAddress="28" ModbusCmd="4" ModbusDataType="100" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Total imported active energy in running session" Comment="" ModbusAddress="30" ModbusCmd="4" ModbusDataType="100" ModbusPollingCycle="60" Unit="&lt;v.1&gt; kWh" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Running Session Duration" Comment="" ModbusAddress="32" ModbusCmd="4" ModbusDataType="39" ModbusPollingCycle="60" Unit="&lt;v.1&gt; s" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Running Session departure time" Comment="" ModbusAddress="36" ModbusCmd="4" ModbusDataType="39" ModbusPollingCycle="60" Unit="&lt;v.1&gt; s" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Stop charging" Comment="Value ignored, triggered by write" ModbusAddress="1" ModbusCmd="16" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Pause charging" Comment="Value ignored, triggered by write" ModbusAddress="2" ModbusCmd="16" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Set departure time" Comment="Seconds since midnight" ModbusAddress="4" ModbusCmd="16" ModbusDataType="39" Unit="&lt;v.1&gt; s" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Set current setpoint" Comment="" ModbusAddress="8" ModbusCmd="16" ModbusDataType="100" Unit="&lt;v.1&gt; A" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Cancel current setpoint" Comment="Value ignored, triggered by write" ModbusAddress="10" ModbusCmd="16" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Charger Set time" Comment="Unix Time (seconds since 1970-01-01 00:00:00 UTC)" ModbusAddress="1000" ModbusCmd="16" ModbusDataType="38" Unit="&lt;v.1&gt; s" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Charger Restart" Comment="Value ignored, triggered by write" ModbusAddress="1004" ModbusCmd="16" ModbusDataType="1" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+</Modbus>

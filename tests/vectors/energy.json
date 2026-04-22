@@ -1,0 +1,30 @@
+{
+  "category": "H: Energy/Meter blocks",
+  "blocks": {
+    "Meter": {
+      "inputs": {"I": "analog", "R": "digital"},
+      "outputs": {"AQ": "analog", "Q": "digital"},
+      "tests": [
+        {"desc": "reset", "set": {"R": 1, "I": 0.0}, "expect": {"AQ": 0.0}},
+        {"desc": "accumulate", "set": {"R": 0, "I": 100.0}, "wait": 2.0}
+      ]
+    },
+    "FixedValueMeter": {
+      "inputs": {"I": "digital", "R": "digital"},
+      "outputs": {"AQ": "analog"},
+      "tests": [
+        {"desc": "reset", "set": {"R": 1, "I": 0}, "expect": {"AQ": 0.0}},
+        {"desc": "pulse count", "set": {"R": 0, "I": 1}, "wait": 0.5}
+      ]
+    },
+    "RuntimeCounter": {
+      "inputs": {"I": "digital", "R": "digital"},
+      "outputs": {"AQ": "analog"},
+      "tests": [
+        {"desc": "reset", "set": {"R": 1, "I": 0}, "expect": {"AQ": 0.0}},
+        {"desc": "start counting", "set": {"R": 0, "I": 1}, "wait": 2.0}
+      ]
+    }
+  },
+  "wiring": {}
+}

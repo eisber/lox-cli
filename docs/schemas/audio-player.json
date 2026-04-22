@@ -1,0 +1,341 @@
+{
+  "title": "Audio Player",
+  "xml_type": "AudioPlayer",
+  "kb_slug": "audio-player",
+  "description": "With the Audio Player function block you can define an Audio Zone. This is usually a room or an area of a building where audio playback is desired. The block is used with the outputs of the Audioserver or a Stereo Extension.",
+  "inputs": [
+    {
+      "abbreviation": "V+",
+      "summary": "Volume+",
+      "description": "Increase volume by value set in parameter (Vsts). Double-click selects next favorite.",
+      "unit": "-",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "V-",
+      "summary": "Volume-",
+      "description": "Decrease volume by value set in parameter (Vsts). Double-click turns off the player.",
+      "unit": "-",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "V",
+      "summary": "Set volume",
+      "description": "If the player is turned off, playback will start automatically.",
+      "unit": "%",
+      "value_range": "0...100"
+    },
+    {
+      "abbreviation": "P",
+      "summary": "Presence",
+      "description": "Starts playback when 1.",
+      "unit": "-",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "Fav",
+      "summary": "Set favorite",
+      "description": "Selects a favorite based on its assigned ID number. If the selected ID does not exist, the first favorite is selected.",
+      "unit": "-",
+      "value_range": "\u221e"
+    },
+    {
+      "abbreviation": "Alarm",
+      "summary": "Alarm",
+      "description": "Plays alarm sound at volume set in parameter (Va).",
+      "unit": "-",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "FireAlarm",
+      "summary": "Fire alarm",
+      "description": "Plays fire alarm sound at volume set in parameter (Va).",
+      "unit": "-",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "Bell",
+      "summary": "Bell",
+      "description": "Plays doorbell sound at volume set in parameter (Vbell).",
+      "unit": "-",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "Buzzer",
+      "summary": "Buzzer",
+      "description": "Starts alarm clock action as specified in the properties. If the action \"Alarm Clock Chime\" is selected, the alarm clock sound is played at the volume set in parameter (Vbuzzer).",
+      "unit": "-",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "LineIn",
+      "summary": "Set Line In",
+      "description": "Selects the Line In of an Audioserver as source based on its Line In ID.",
+      "unit": "-",
+      "value_range": "0...\u221e"
+    },
+    {
+      "abbreviation": "Off",
+      "summary": "Off",
+      "description": "Pulse: Outputs are reset / switched off. On: Block is locked. Dominating input. The name of the connected sensor is used in the user interface.",
+      "unit": "-",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "DisPc",
+      "summary": "Disable periphery control",
+      "description": "Disables inputs V+, V-, V, Play, Pause, Prev, Next, Fav, Bell, Buzzer, T5, TTS, Cs, BTp when On. (e.g child lock, cleaning) Control via user interface is still possible.",
+      "unit": "-",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "DisP",
+      "summary": "Disable presence",
+      "description": "As long as this input is active, any change in value at input (P) is ignored.",
+      "unit": "-",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "T5",
+      "summary": "T5 control",
+      "description": "Button 2 : Volume up; double-click starts playback or choses next favorite Button 5 : Volume down; double-click pauses playback Button 3: Double-click activates (2C); triple-click activates (3C); (Roff) = 0: pauses playback",
+      "unit": "-",
+      "value_range": "\u221e"
+    },
+    {
+      "abbreviation": "TTS",
+      "summary": "Text to speech",
+      "description": "Converts a Text to speech and plays it at the volume set in parameter (Vtts).",
+      "unit": "-",
+      "value_range": "-"
+    },
+    {
+      "abbreviation": "Rtd",
+      "summary": "Reset to default",
+      "description": "Resets parameters and settings of the block to the default values as specified in the block preset.",
+      "unit": "-",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "Tg",
+      "summary": "Toggle",
+      "description": "Toggles between play and pause",
+      "unit": "-",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "Cs",
+      "summary": "Custom sound",
+      "description": "Plays custom sound [filename] at volume [vol]. E.g. soundcheck.mp3:80 [filename]:[vol] Custom sounds have to be stored on the Audioserver\u2019s SD card in the folder Event_Sounds! Only mp3 files are supported.",
+      "unit": "-",
+      "value_range": "-"
+    }
+  ],
+  "outputs": [
+    {
+      "abbreviation": "Stereo LR",
+      "summary": "Stereo Left & Right",
+      "description": "Outputs the full stereo signal",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "Play",
+      "summary": "Play status",
+      "description": "1 when player is currently playing",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "2C",
+      "summary": "Pulse on double-click",
+      "description": "Pulse on a double- or triple-click or pulse on input (Off).",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "3C",
+      "summary": "Pulse on triple-click",
+      "description": "Pulse on a triple-click.",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "Stereo L",
+      "summary": "Stereo Left",
+      "description": "Outputs the left channel of the stereo signal.",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "Stereo R",
+      "summary": "Stereo Right",
+      "description": "Outputs the right channel of the stereo signal.",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "V+",
+      "summary": "Pulse on Volume+",
+      "description": "Functionality is only enabled when Stereo Outputs with external controlled \"Volume-Mode\" are connected.",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "V-",
+      "summary": "Pulse on Volume-",
+      "description": "Functionality is only enabled when Stereo Outputs with external controlled \"Volume-Mode\" are connected.",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "Sub",
+      "summary": "Subwoofer",
+      "description": "Outputs the subwoofer channel of the stereo signal. This output can only be used with Master/Client subwoofers.",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "BTp",
+      "summary": "Bluetooth Pairing",
+      "description": "As long as this output is active, Bluetooth pairing is active. During this time all Bluetooth-capable Loxone devices can be paired with a smartphone or other Bluetooth devices. This output is only visible in certain configurations.",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "API",
+      "summary": "API Connector",
+      "description": "Intelligent API based connector. API Commands",
+      "value_range": "-"
+    }
+  ],
+  "parameters": [
+    {
+      "abbreviation": "Von",
+      "summary": "Power on volume",
+      "description": "Volume when playback is started or resumed. -1 = Saves the last volume setting as the startup volume.",
+      "unit": "%",
+      "value_range": "-1...100",
+      "default_value": "10"
+    },
+    {
+      "abbreviation": "Vm",
+      "summary": "Maximum volume",
+      "description": "Setting for maximum volume",
+      "unit": "%",
+      "value_range": "0...100",
+      "default_value": "100"
+    },
+    {
+      "abbreviation": "Vsts",
+      "summary": "Step size volume",
+      "description": "Decrease volume by value set in parameter (Vsts). Double-click turns off the player.",
+      "unit": "%",
+      "value_range": "1...100",
+      "default_value": "1"
+    },
+    {
+      "abbreviation": "Va",
+      "summary": "Minimum volume alarm sounds",
+      "description": "If the current playback volume is higher, it is used instead of the minimum volume.",
+      "unit": "%",
+      "value_range": "0...100",
+      "default_value": "75"
+    },
+    {
+      "abbreviation": "Vbell",
+      "summary": "Minimum volume doorbell",
+      "description": "If the current playback volume is higher, it is used instead of the minimum volume.",
+      "unit": "%",
+      "value_range": "0...100",
+      "default_value": "50"
+    },
+    {
+      "abbreviation": "Vbuzzer",
+      "summary": "Minimum volume alarm clock",
+      "description": "If the current playback volume is higher, it is used instead of the minimum volume.",
+      "unit": "%",
+      "value_range": "0...100",
+      "default_value": "10"
+    },
+    {
+      "abbreviation": "Vtts",
+      "summary": "Minimum volume TTS and announcements",
+      "description": "If the current playback volume is higher, it is used instead of the minimum volume.",
+      "unit": "%",
+      "value_range": "0...100",
+      "default_value": "20"
+    },
+    {
+      "abbreviation": "Roff",
+      "summary": "Ignore room off command",
+      "description": "Ignore Room Off / House Off via T5 (button 3)",
+      "unit": "-",
+      "value_range": "0/1",
+      "default_value": "0"
+    },
+    {
+      "abbreviation": "BuzzerFav",
+      "summary": "Alarm clock favorite",
+      "description": "Room favorite ID for alarm clock, if the alarm clock action room favorite is used.",
+      "unit": "-",
+      "value_range": "\u221e",
+      "default_value": "1"
+    },
+    {
+      "abbreviation": "BTp",
+      "summary": "Bluetooth pairing",
+      "description": "As long as this input is active, bluetooth pairing is available. During this time all bluetooth-enabled Loxone devices can be paired with e.g. a smartphone or other bluetooth-enabled devices. This parameter is only visible in certain configurations.",
+      "unit": "-",
+      "value_range": "0/1",
+      "default_value": "0"
+    },
+    {
+      "abbreviation": "Ft",
+      "summary": "Volume Fading Time",
+      "description": "Volume adjustments made via input V are applied within the configured time when the player is already active. The fading time also applies to the Buzzer input. 0 = No fading; volume changes occur immediately.",
+      "unit": "s",
+      "value_range": "15...1800",
+      "default_value": "0"
+    }
+  ],
+  "properties": [
+    {
+      "summary": "Alarm Clock Action",
+      "description": "Action that is carried out when the alarm goes off",
+      "value_range": "-",
+      "default_value": "-"
+    },
+    {
+      "summary": "Enable AirPlay",
+      "description": "Enable AirPlay for this player. Option is not available if music services are handled by Player-Group.",
+      "value_range": "-",
+      "default_value": "-"
+    },
+    {
+      "summary": "Enable Spotify Connect",
+      "description": "Enable Spotify Connect for this player. Option is not available if music services are handled by Player-Group.",
+      "value_range": "-",
+      "default_value": "-"
+    },
+    {
+      "summary": "Room Favorite Priority",
+      "description": "If checked, the first room favorite will always be used when the player is activated.",
+      "value_range": "-",
+      "default_value": "-"
+    },
+    {
+      "summary": "Activity Log Entries",
+      "description": "Number of entries in the activity log. 0: log is disabled The activity log tracks relevant changes since program start.",
+      "value_range": "0...100",
+      "default_value": "20"
+    },
+    {
+      "summary": "Player-ID",
+      "description": "ID of the player on the Audioserver or audio device",
+      "value_range": "\u221e",
+      "default_value": "-"
+    },
+    {
+      "summary": "Automatic Highpass-Filter",
+      "description": "When a subwoofer is connected to the Audio Player, all other speakers automatically stop reproducing bass frequencies, reducing their load. This behavior can be disabled by unchecking the corresponding checkbox, allowing all connected speakers to play the full frequency range.",
+      "value_range": "-",
+      "default_value": "-"
+    }
+  ],
+  "source_url": "https://www.loxone.com/enen/kb/audio-player/",
+  "input_count": 18,
+  "output_count": 11,
+  "parameter_count": 11,
+  "property_count": 7
+}

@@ -1,0 +1,492 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<RC Title="Nagrzewnica Dalap HW 5404" Comment="">
+	<Info templateType="4" minVersion="14040925"/>
+	<RCkey Title="Włącz/Wyłącz" Comment="">
+		<IRdata ID="115" Protocol="10" Frequency="38461" MaxPulses="343" Repeats="1" TolPeriod="400" TolPulse="1000" NumRaw="36" Num="5" Ix="030101010101010101000000000000000000010001010100010100010000000100020402" IxDef="">
+			<RawPeriod Ix="0" N="343" P="-30992" T="-30118"/>
+			<RawPeriod Ix="1" N="22" P="14656" T="28443"/>
+			<RawPeriod Ix="2" N="22" P="14543" T="28334"/>
+			<RawPeriod Ix="3" N="22" P="14546" T="28334"/>
+			<RawPeriod Ix="4" N="22" P="14546" T="28337"/>
+			<RawPeriod Ix="5" N="22" P="14487" T="28331"/>
+			<RawPeriod Ix="6" N="22" P="14490" T="28337"/>
+			<RawPeriod Ix="7" N="22" P="14487" T="28331"/>
+			<RawPeriod Ix="8" N="22" P="14481" T="28325"/>
+			<RawPeriod Ix="9" N="22" P="14484" T="-32328"/>
+			<RawPeriod Ix="10" N="22" P="14596" T="-32327"/>
+			<RawPeriod Ix="11" N="22" P="14600" T="-32327"/>
+			<RawPeriod Ix="12" N="22" P="14603" T="-32327"/>
+			<RawPeriod Ix="13" N="22" P="14600" T="-32327"/>
+			<RawPeriod Ix="14" N="22" P="14603" T="-32327"/>
+			<RawPeriod Ix="15" N="22" P="14603" T="-32327"/>
+			<RawPeriod Ix="16" N="22" P="14603" T="-32327"/>
+			<RawPeriod Ix="17" N="22" P="14596" T="-32327"/>
+			<RawPeriod Ix="18" N="22" P="14600" T="28381"/>
+			<RawPeriod Ix="19" N="22" P="14487" T="-32328"/>
+			<RawPeriod Ix="20" N="22" P="14596" T="28381"/>
+			<RawPeriod Ix="21" N="22" P="14537" T="28325"/>
+			<RawPeriod Ix="22" N="22" P="14543" T="28331"/>
+			<RawPeriod Ix="23" N="22" P="14487" T="-32328"/>
+			<RawPeriod Ix="24" N="22" P="14603" T="28387"/>
+			<RawPeriod Ix="25" N="22" P="14487" T="28331"/>
+			<RawPeriod Ix="26" N="22" P="14490" T="-32328"/>
+			<RawPeriod Ix="27" N="22" P="14603" T="28387"/>
+			<RawPeriod Ix="28" N="22" P="14487" T="-32328"/>
+			<RawPeriod Ix="29" N="22" P="14600" T="-32327"/>
+			<RawPeriod Ix="30" N="22" P="14603" T="-32327"/>
+			<RawPeriod Ix="31" N="22" P="14600" T="28387"/>
+			<RawPeriod Ix="32" N="22" P="14487" T="-32328"/>
+			<RawPeriod Ix="33" N="22" P="14603" T="-24929"/>
+			<RawPeriod Ix="34" N="343" P="-30993" T="-30554"/>
+			<RawPeriod Ix="35" N="22" P="14656" T="-24929"/>
+			<Period Ix="0" N="22" P="14600" T="-32327"/>
+			<Period Ix="1" N="22" P="14543" T="28334"/>
+			<Period Ix="2" N="22" P="14603" T="-24929"/>
+			<Period Ix="3" N="343" P="-30992" T="-30118"/>
+			<Period Ix="4" N="343" P="-30993" T="-30554"/>
+		</IRdata>
+		<IRdataToggle ID="0" Protocol="0" Frequency="0" MaxPulses="0" Repeats="1" TolPeriod="400" TolPulse="1000" NumRaw="0" Num="0" Ix="" IxDef=""/>
+	</RCkey>
+	<RCkey Title="24H" Comment="">
+		<IRdata ID="116" Protocol="10" Frequency="38461" MaxPulses="343" Repeats="1" TolPeriod="400" TolPulse="1000" NumRaw="34" Num="4" Ix="02010101010101010100000000000000000000000101010001010101000000010003" IxDef="">
+			<RawPeriod Ix="0" N="343" P="-30984" T="-30110"/>
+			<RawPeriod Ix="1" N="22" P="14712" T="28443"/>
+			<RawPeriod Ix="2" N="22" P="14656" T="28387"/>
+			<RawPeriod Ix="3" N="22" P="14656" T="28387"/>
+			<RawPeriod Ix="4" N="22" P="14656" T="28443"/>
+			<RawPeriod Ix="5" N="22" P="14653" T="28387"/>
+			<RawPeriod Ix="6" N="22" P="14653" T="28387"/>
+			<RawPeriod Ix="7" N="22" P="14653" T="28387"/>
+			<RawPeriod Ix="8" N="22" P="14656" T="28387"/>
+			<RawPeriod Ix="9" N="22" P="14662" T="-32327"/>
+			<RawPeriod Ix="10" N="22" P="14653" T="-32327"/>
+			<RawPeriod Ix="11" N="22" P="14709" T="-32326"/>
+			<RawPeriod Ix="12" N="22" P="14656" T="-32327"/>
+			<RawPeriod Ix="13" N="22" P="14712" T="-32327"/>
+			<RawPeriod Ix="14" N="22" P="14709" T="-32327"/>
+			<RawPeriod Ix="15" N="22" P="14656" T="-32327"/>
+			<RawPeriod Ix="16" N="22" P="14653" T="-32327"/>
+			<RawPeriod Ix="17" N="22" P="14650" T="-32327"/>
+			<RawPeriod Ix="18" N="22" P="14653" T="-32327"/>
+			<RawPeriod Ix="19" N="22" P="14656" T="-32327"/>
+			<RawPeriod Ix="20" N="22" P="14650" T="28381"/>
+			<RawPeriod Ix="21" N="22" P="14662" T="28387"/>
+			<RawPeriod Ix="22" N="22" P="14656" T="28387"/>
+			<RawPeriod Ix="23" N="22" P="14656" T="-32327"/>
+			<RawPeriod Ix="24" N="22" P="14650" T="28387"/>
+			<RawPeriod Ix="25" N="22" P="14653" T="28387"/>
+			<RawPeriod Ix="26" N="22" P="14656" T="28393"/>
+			<RawPeriod Ix="27" N="22" P="14656" T="28387"/>
+			<RawPeriod Ix="28" N="22" P="14662" T="-32327"/>
+			<RawPeriod Ix="29" N="22" P="14653" T="-32327"/>
+			<RawPeriod Ix="30" N="22" P="14656" T="-32327"/>
+			<RawPeriod Ix="31" N="22" P="14709" T="28443"/>
+			<RawPeriod Ix="32" N="22" P="14653" T="-32327"/>
+			<RawPeriod Ix="33" N="22" P="14656" T="-30110"/>
+			<Period Ix="0" N="22" P="14662" T="-32327"/>
+			<Period Ix="1" N="22" P="14656" T="28387"/>
+			<Period Ix="2" N="343" P="-30984" T="-30110"/>
+			<Period Ix="3" N="22" P="14656" T="-30110"/>
+		</IRdata>
+		<IRdataToggle ID="0" Protocol="0" Frequency="0" MaxPulses="0" Repeats="1" TolPeriod="400" TolPulse="1000" NumRaw="0" Num="0" Ix="" IxDef=""/>
+	</RCkey>
+	<RCkey Title="Mode" Comment="">
+		<IRdata ID="117" Protocol="10" Frequency="38461" MaxPulses="343" Repeats="1" TolPeriod="400" TolPulse="1000" NumRaw="34" Num="4" Ix="02010101010101010100000000000000000101000101010001000001000000010003" IxDef="">
+			<RawPeriod Ix="0" N="343" P="-30991" T="-30117"/>
+			<RawPeriod Ix="1" N="22" P="14603" T="28437"/>
+			<RawPeriod Ix="2" N="22" P="14550" T="28337"/>
+			<RawPeriod Ix="3" N="22" P="14550" T="28337"/>
+			<RawPeriod Ix="4" N="22" P="14546" T="28337"/>
+			<RawPeriod Ix="5" N="22" P="14543" T="28337"/>
+			<RawPeriod Ix="6" N="22" P="14543" T="28331"/>
+			<RawPeriod Ix="7" N="22" P="14543" T="28331"/>
+			<RawPeriod Ix="8" N="22" P="14550" T="28337"/>
+			<RawPeriod Ix="9" N="22" P="14546" T="-32327"/>
+			<RawPeriod Ix="10" N="22" P="14546" T="-32327"/>
+			<RawPeriod Ix="11" N="22" P="14600" T="-32327"/>
+			<RawPeriod Ix="12" N="22" P="14596" T="-32327"/>
+			<RawPeriod Ix="13" N="22" P="14596" T="-32327"/>
+			<RawPeriod Ix="14" N="22" P="14546" T="-32327"/>
+			<RawPeriod Ix="15" N="22" P="14600" T="-32327"/>
+			<RawPeriod Ix="16" N="22" P="14550" T="-32327"/>
+			<RawPeriod Ix="17" N="22" P="14596" T="28381"/>
+			<RawPeriod Ix="18" N="22" P="14546" T="28337"/>
+			<RawPeriod Ix="19" N="22" P="14490" T="-32328"/>
+			<RawPeriod Ix="20" N="22" P="14606" T="28393"/>
+			<RawPeriod Ix="21" N="22" P="14546" T="28337"/>
+			<RawPeriod Ix="22" N="22" P="14487" T="28337"/>
+			<RawPeriod Ix="23" N="22" P="14490" T="-32328"/>
+			<RawPeriod Ix="24" N="22" P="14600" T="28387"/>
+			<RawPeriod Ix="25" N="22" P="14493" T="-32328"/>
+			<RawPeriod Ix="26" N="22" P="14603" T="-32327"/>
+			<RawPeriod Ix="27" N="22" P="14603" T="28387"/>
+			<RawPeriod Ix="28" N="22" P="14546" T="-32328"/>
+			<RawPeriod Ix="29" N="22" P="14603" T="-32327"/>
+			<RawPeriod Ix="30" N="22" P="14543" T="-32327"/>
+			<RawPeriod Ix="31" N="22" P="14603" T="28387"/>
+			<RawPeriod Ix="32" N="22" P="14487" T="-32328"/>
+			<RawPeriod Ix="33" N="22" P="14600" T="-30117"/>
+			<Period Ix="0" N="22" P="14546" T="-32327"/>
+			<Period Ix="1" N="22" P="14546" T="28337"/>
+			<Period Ix="2" N="343" P="-30991" T="-30117"/>
+			<Period Ix="3" N="22" P="14600" T="-30117"/>
+		</IRdata>
+		<IRdataToggle ID="0" Protocol="0" Frequency="0" MaxPulses="0" Repeats="1" TolPeriod="400" TolPulse="1000" NumRaw="0" Num="0" Ix="" IxDef=""/>
+	</RCkey>
+	<RCkey Title="Swing" Comment="">
+		<IRdata ID="118" Protocol="10" Frequency="38461" MaxPulses="343" Repeats="1" TolPeriod="400" TolPulse="1000" NumRaw="36" Num="5" Ix="030101010101010101000000000000000000000001010101010101010000000000020402" IxDef="">
+			<RawPeriod Ix="0" N="343" P="-30991" T="-30116"/>
+			<RawPeriod Ix="1" N="22" P="14546" T="28387"/>
+			<RawPeriod Ix="2" N="22" P="14484" T="28331"/>
+			<RawPeriod Ix="3" N="22" P="14540" T="28381"/>
+			<RawPeriod Ix="4" N="22" P="14484" T="28331"/>
+			<RawPeriod Ix="5" N="22" P="14540" T="28325"/>
+			<RawPeriod Ix="6" N="22" P="14543" T="28381"/>
+			<RawPeriod Ix="7" N="22" P="14543" T="28331"/>
+			<RawPeriod Ix="8" N="22" P="14543" T="28381"/>
+			<RawPeriod Ix="9" N="22" P="14487" T="-32327"/>
+			<RawPeriod Ix="10" N="22" P="14487" T="-32327"/>
+			<RawPeriod Ix="11" N="22" P="14546" T="-32327"/>
+			<RawPeriod Ix="12" N="22" P="14546" T="-32327"/>
+			<RawPeriod Ix="13" N="22" P="14546" T="-32327"/>
+			<RawPeriod Ix="14" N="22" P="14543" T="-32327"/>
+			<RawPeriod Ix="15" N="22" P="14540" T="-32327"/>
+			<RawPeriod Ix="16" N="22" P="14481" T="-32327"/>
+			<RawPeriod Ix="17" N="22" P="14481" T="-32327"/>
+			<RawPeriod Ix="18" N="22" P="14490" T="-32327"/>
+			<RawPeriod Ix="19" N="22" P="14487" T="-32327"/>
+			<RawPeriod Ix="20" N="22" P="14487" T="28331"/>
+			<RawPeriod Ix="21" N="22" P="14490" T="28281"/>
+			<RawPeriod Ix="22" N="22" P="14543" T="28331"/>
+			<RawPeriod Ix="23" N="22" P="14550" T="28337"/>
+			<RawPeriod Ix="24" N="22" P="14546" T="28331"/>
+			<RawPeriod Ix="25" N="22" P="14546" T="28337"/>
+			<RawPeriod Ix="26" N="22" P="14546" T="28337"/>
+			<RawPeriod Ix="27" N="22" P="14603" T="28387"/>
+			<RawPeriod Ix="28" N="22" P="14546" T="-32327"/>
+			<RawPeriod Ix="29" N="22" P="14546" T="-32327"/>
+			<RawPeriod Ix="30" N="22" P="14603" T="-32327"/>
+			<RawPeriod Ix="31" N="22" P="14600" T="-32327"/>
+			<RawPeriod Ix="32" N="22" P="14546" T="-32327"/>
+			<RawPeriod Ix="33" N="22" P="14546" T="-24931"/>
+			<RawPeriod Ix="34" N="343" P="-30991" T="-30552"/>
+			<RawPeriod Ix="35" N="22" P="14600" T="-24931"/>
+			<Period Ix="0" N="22" P="14546" T="-32327"/>
+			<Period Ix="1" N="22" P="14540" T="28325"/>
+			<Period Ix="2" N="22" P="14546" T="-24931"/>
+			<Period Ix="3" N="343" P="-30991" T="-30116"/>
+			<Period Ix="4" N="343" P="-30991" T="-30552"/>
+		</IRdata>
+		<IRdataToggle ID="0" Protocol="0" Frequency="0" MaxPulses="0" Repeats="1" TolPeriod="400" TolPulse="1000" NumRaw="0" Num="0" Ix="" IxDef=""/>
+	</RCkey>
+	<RCkey Title="LOCK" Comment="">
+		<IRdata ID="119" Protocol="10" Frequency="38461" MaxPulses="343" Repeats="1" TolPeriod="400" TolPulse="1000" NumRaw="34" Num="4" Ix="02010101010101010100000000000000000101010000010101000000010100000003" IxDef="">
+			<RawPeriod Ix="0" N="343" P="-30990" T="-30115"/>
+			<RawPeriod Ix="1" N="22" P="14493" T="28337"/>
+			<RawPeriod Ix="2" N="22" P="14493" T="28393"/>
+			<RawPeriod Ix="3" N="22" P="14487" T="28337"/>
+			<RawPeriod Ix="4" N="22" P="14487" T="28331"/>
+			<RawPeriod Ix="5" N="22" P="14490" T="28337"/>
+			<RawPeriod Ix="6" N="22" P="14490" T="28337"/>
+			<RawPeriod Ix="7" N="22" P="14487" T="28331"/>
+			<RawPeriod Ix="8" N="22" P="14546" T="28337"/>
+			<RawPeriod Ix="9" N="22" P="14546" T="-32327"/>
+			<RawPeriod Ix="10" N="22" P="14490" T="-32327"/>
+			<RawPeriod Ix="11" N="22" P="14550" T="-32327"/>
+			<RawPeriod Ix="12" N="22" P="14546" T="-32327"/>
+			<RawPeriod Ix="13" N="22" P="14603" T="-32327"/>
+			<RawPeriod Ix="14" N="22" P="14606" T="-32327"/>
+			<RawPeriod Ix="15" N="22" P="14546" T="-32327"/>
+			<RawPeriod Ix="16" N="22" P="14606" T="-32327"/>
+			<RawPeriod Ix="17" N="22" P="14603" T="28387"/>
+			<RawPeriod Ix="18" N="22" P="14550" T="28337"/>
+			<RawPeriod Ix="19" N="22" P="14550" T="28337"/>
+			<RawPeriod Ix="20" N="22" P="14546" T="-32327"/>
+			<RawPeriod Ix="21" N="22" P="14603" T="-32327"/>
+			<RawPeriod Ix="22" N="22" P="14543" T="28387"/>
+			<RawPeriod Ix="23" N="22" P="14490" T="28337"/>
+			<RawPeriod Ix="24" N="22" P="14490" T="28337"/>
+			<RawPeriod Ix="25" N="22" P="14490" T="-32328"/>
+			<RawPeriod Ix="26" N="22" P="14603" T="-32327"/>
+			<RawPeriod Ix="27" N="22" P="14603" T="-32327"/>
+			<RawPeriod Ix="28" N="22" P="14606" T="28393"/>
+			<RawPeriod Ix="29" N="22" P="14546" T="28337"/>
+			<RawPeriod Ix="30" N="22" P="14550" T="-32328"/>
+			<RawPeriod Ix="31" N="22" P="14603" T="-32327"/>
+			<RawPeriod Ix="32" N="22" P="14550" T="-32327"/>
+			<RawPeriod Ix="33" N="22" P="14609" T="-30115"/>
+			<Period Ix="0" N="22" P="14603" T="-32327"/>
+			<Period Ix="1" N="22" P="14493" T="28337"/>
+			<Period Ix="2" N="343" P="-30990" T="-30115"/>
+			<Period Ix="3" N="22" P="14609" T="-30115"/>
+		</IRdata>
+		<IRdataToggle ID="0" Protocol="0" Frequency="0" MaxPulses="0" Repeats="1" TolPeriod="400" TolPulse="1000" NumRaw="0" Num="0" Ix="" IxDef=""/>
+	</RCkey>
+	<RCkey Title="Auto" Comment="">
+		<IRdata ID="120" Protocol="10" Frequency="38461" MaxPulses="343" Repeats="1" TolPeriod="400" TolPulse="1000" NumRaw="36" Num="5" Ix="030101010101010101000000000000000000010100010101010100000100000000020402" IxDef="">
+			<RawPeriod Ix="0" N="343" P="-30993" T="-30118"/>
+			<RawPeriod Ix="1" N="22" P="14434" T="28287"/>
+			<RawPeriod Ix="2" N="22" P="14493" T="28337"/>
+			<RawPeriod Ix="3" N="22" P="14493" T="28343"/>
+			<RawPeriod Ix="4" N="22" P="14487" T="28331"/>
+			<RawPeriod Ix="5" N="22" P="14434" T="28337"/>
+			<RawPeriod Ix="6" N="22" P="14431" T="28281"/>
+			<RawPeriod Ix="7" N="22" P="14487" T="28337"/>
+			<RawPeriod Ix="8" N="22" P="14487" T="28331"/>
+			<RawPeriod Ix="9" N="22" P="14437" T="-32327"/>
+			<RawPeriod Ix="10" N="22" P="14434" T="-32327"/>
+			<RawPeriod Ix="11" N="22" P="14487" T="-32327"/>
+			<RawPeriod Ix="12" N="22" P="14484" T="-32327"/>
+			<RawPeriod Ix="13" N="22" P="14434" T="-32327"/>
+			<RawPeriod Ix="14" N="22" P="14487" T="-32327"/>
+			<RawPeriod Ix="15" N="22" P="14487" T="-32327"/>
+			<RawPeriod Ix="16" N="22" P="14490" T="-32327"/>
+			<RawPeriod Ix="17" N="22" P="14434" T="-32327"/>
+			<RawPeriod Ix="18" N="22" P="14434" T="28281"/>
+			<RawPeriod Ix="19" N="22" P="14493" T="28337"/>
+			<RawPeriod Ix="20" N="22" P="14487" T="-32327"/>
+			<RawPeriod Ix="21" N="22" P="14490" T="28337"/>
+			<RawPeriod Ix="22" N="22" P="14431" T="28331"/>
+			<RawPeriod Ix="23" N="22" P="14434" T="28281"/>
+			<RawPeriod Ix="24" N="22" P="14487" T="28331"/>
+			<RawPeriod Ix="25" N="22" P="14431" T="28278"/>
+			<RawPeriod Ix="26" N="22" P="14490" T="-32327"/>
+			<RawPeriod Ix="27" N="22" P="14490" T="-32327"/>
+			<RawPeriod Ix="28" N="22" P="14490" T="28337"/>
+			<RawPeriod Ix="29" N="22" P="14434" T="-32327"/>
+			<RawPeriod Ix="30" N="22" P="14434" T="-32327"/>
+			<RawPeriod Ix="31" N="22" P="14437" T="-32327"/>
+			<RawPeriod Ix="32" N="22" P="14437" T="-32327"/>
+			<RawPeriod Ix="33" N="22" P="14437" T="-24934"/>
+			<RawPeriod Ix="34" N="343" P="-30995" T="-30555"/>
+			<RawPeriod Ix="35" N="22" P="14546" T="-24934"/>
+			<Period Ix="0" N="22" P="14437" T="-32327"/>
+			<Period Ix="1" N="22" P="14493" T="28337"/>
+			<Period Ix="2" N="22" P="14437" T="-24934"/>
+			<Period Ix="3" N="343" P="-30993" T="-30118"/>
+			<Period Ix="4" N="343" P="-30995" T="-30555"/>
+		</IRdata>
+		<IRdataToggle ID="0" Protocol="0" Frequency="0" MaxPulses="0" Repeats="1" TolPeriod="400" TolPulse="1000" NumRaw="0" Num="0" Ix="" IxDef=""/>
+	</RCkey>
+	<RCkey Title="Delay" Comment="">
+		<IRdata ID="121" Protocol="10" Frequency="38461" MaxPulses="343" Repeats="1" TolPeriod="400" TolPulse="1000" NumRaw="34" Num="4" Ix="02010101010101010100000000000000000001000001010101010001010000000003" IxDef="">
+			<RawPeriod Ix="0" N="343" P="-30982" T="-30108"/>
+			<RawPeriod Ix="1" N="22" P="14653" T="28437"/>
+			<RawPeriod Ix="2" N="22" P="14603" T="28437"/>
+			<RawPeriod Ix="3" N="22" P="14603" T="28387"/>
+			<RawPeriod Ix="4" N="22" P="14603" T="28387"/>
+			<RawPeriod Ix="5" N="22" P="14600" T="28443"/>
+			<RawPeriod Ix="6" N="22" P="14603" T="28393"/>
+			<RawPeriod Ix="7" N="22" P="14603" T="28393"/>
+			<RawPeriod Ix="8" N="22" P="14603" T="28393"/>
+			<RawPeriod Ix="9" N="22" P="14603" T="-32327"/>
+			<RawPeriod Ix="10" N="22" P="14662" T="-32326"/>
+			<RawPeriod Ix="11" N="22" P="14603" T="-32327"/>
+			<RawPeriod Ix="12" N="22" P="14665" T="-32327"/>
+			<RawPeriod Ix="13" N="22" P="14656" T="-32327"/>
+			<RawPeriod Ix="14" N="22" P="14603" T="-32327"/>
+			<RawPeriod Ix="15" N="22" P="14662" T="-32326"/>
+			<RawPeriod Ix="16" N="22" P="14603" T="-32327"/>
+			<RawPeriod Ix="17" N="22" P="14656" T="-32327"/>
+			<RawPeriod Ix="18" N="22" P="14603" T="28387"/>
+			<RawPeriod Ix="19" N="22" P="14606" T="-32327"/>
+			<RawPeriod Ix="20" N="22" P="14656" T="-32327"/>
+			<RawPeriod Ix="21" N="22" P="14603" T="28443"/>
+			<RawPeriod Ix="22" N="22" P="14546" T="28393"/>
+			<RawPeriod Ix="23" N="22" P="14600" T="28387"/>
+			<RawPeriod Ix="24" N="22" P="14600" T="28387"/>
+			<RawPeriod Ix="25" N="22" P="14603" T="28387"/>
+			<RawPeriod Ix="26" N="22" P="14600" T="-32327"/>
+			<RawPeriod Ix="27" N="22" P="14603" T="28443"/>
+			<RawPeriod Ix="28" N="22" P="14600" T="28387"/>
+			<RawPeriod Ix="29" N="22" P="14600" T="-32327"/>
+			<RawPeriod Ix="30" N="22" P="14600" T="-32327"/>
+			<RawPeriod Ix="31" N="22" P="14656" T="-32327"/>
+			<RawPeriod Ix="32" N="22" P="14603" T="-32327"/>
+			<RawPeriod Ix="33" N="22" P="14656" T="-30108"/>
+			<Period Ix="0" N="22" P="14603" T="-32327"/>
+			<Period Ix="1" N="22" P="14603" T="28387"/>
+			<Period Ix="2" N="343" P="-30982" T="-30108"/>
+			<Period Ix="3" N="22" P="14656" T="-30108"/>
+		</IRdata>
+		<IRdataToggle ID="0" Protocol="0" Frequency="0" MaxPulses="0" Repeats="1" TolPeriod="400" TolPulse="1000" NumRaw="0" Num="0" Ix="" IxDef=""/>
+	</RCkey>
+	<RCkey Title="W-Timer" Comment="">
+		<IRdata ID="122" Protocol="10" Frequency="38461" MaxPulses="343" Repeats="1" TolPeriod="400" TolPulse="1000" NumRaw="36" Num="5" Ix="030101010101010101000000000000000001000001000101010001010001000000020402" IxDef="">
+			<RawPeriod Ix="0" N="343" P="-30981" T="-30107"/>
+			<RawPeriod Ix="1" N="22" P="14662" T="28500"/>
+			<RawPeriod Ix="2" N="22" P="14603" T="28393"/>
+			<RawPeriod Ix="3" N="22" P="14600" T="28387"/>
+			<RawPeriod Ix="4" N="22" P="14603" T="28393"/>
+			<RawPeriod Ix="5" N="22" P="14653" T="28437"/>
+			<RawPeriod Ix="6" N="22" P="14606" T="28393"/>
+			<RawPeriod Ix="7" N="22" P="14603" T="28393"/>
+			<RawPeriod Ix="8" N="22" P="14603" T="28443"/>
+			<RawPeriod Ix="9" N="22" P="14603" T="-32327"/>
+			<RawPeriod Ix="10" N="22" P="14656" T="-32327"/>
+			<RawPeriod Ix="11" N="22" P="14662" T="-32327"/>
+			<RawPeriod Ix="12" N="22" P="14656" T="-32327"/>
+			<RawPeriod Ix="13" N="22" P="14656" T="-32327"/>
+			<RawPeriod Ix="14" N="22" P="14653" T="-32327"/>
+			<RawPeriod Ix="15" N="22" P="14656" T="-32327"/>
+			<RawPeriod Ix="16" N="22" P="14662" T="-32327"/>
+			<RawPeriod Ix="17" N="22" P="14662" T="28500"/>
+			<RawPeriod Ix="18" N="22" P="14603" T="-32327"/>
+			<RawPeriod Ix="19" N="22" P="14656" T="-32327"/>
+			<RawPeriod Ix="20" N="22" P="14656" T="28443"/>
+			<RawPeriod Ix="21" N="22" P="14603" T="-32327"/>
+			<RawPeriod Ix="22" N="22" P="14656" T="28493"/>
+			<RawPeriod Ix="23" N="22" P="14546" T="28387"/>
+			<RawPeriod Ix="24" N="22" P="14550" T="28393"/>
+			<RawPeriod Ix="25" N="22" P="14546" T="-32327"/>
+			<RawPeriod Ix="26" N="22" P="14656" T="28443"/>
+			<RawPeriod Ix="27" N="22" P="14606" T="28393"/>
+			<RawPeriod Ix="28" N="22" P="14603" T="-32327"/>
+			<RawPeriod Ix="29" N="22" P="14662" T="28500"/>
+			<RawPeriod Ix="30" N="22" P="14546" T="-32327"/>
+			<RawPeriod Ix="31" N="22" P="14662" T="-32327"/>
+			<RawPeriod Ix="32" N="22" P="14715" T="-32327"/>
+			<RawPeriod Ix="33" N="22" P="14653" T="-24931"/>
+			<RawPeriod Ix="34" N="343" P="-30985" T="-30546"/>
+			<RawPeriod Ix="35" N="22" P="14662" T="-24931"/>
+			<Period Ix="0" N="22" P="14656" T="-32327"/>
+			<Period Ix="1" N="22" P="14603" T="28393"/>
+			<Period Ix="2" N="22" P="14653" T="-24931"/>
+			<Period Ix="3" N="343" P="-30981" T="-30107"/>
+			<Period Ix="4" N="343" P="-30985" T="-30546"/>
+		</IRdata>
+		<IRdataToggle ID="0" Protocol="0" Frequency="0" MaxPulses="0" Repeats="1" TolPeriod="400" TolPulse="1000" NumRaw="0" Num="0" Ix="" IxDef=""/>
+	</RCkey>
+	<RCkey Title="-" Comment="">
+		<IRdata ID="123" Protocol="10" Frequency="38461" MaxPulses="343" Repeats="1" TolPeriod="400" TolPulse="1000" NumRaw="36" Num="5" Ix="030101010101010101000000000000000001010101010100010000000000000100020402" IxDef="">
+			<RawPeriod Ix="0" N="343" P="-30984" T="-30109"/>
+			<RawPeriod Ix="1" N="22" P="14603" T="28443"/>
+			<RawPeriod Ix="2" N="22" P="14550" T="28393"/>
+			<RawPeriod Ix="3" N="22" P="14546" T="28387"/>
+			<RawPeriod Ix="4" N="22" P="14550" T="28443"/>
+			<RawPeriod Ix="5" N="22" P="14550" T="28393"/>
+			<RawPeriod Ix="6" N="22" P="14546" T="28393"/>
+			<RawPeriod Ix="7" N="22" P="14543" T="28387"/>
+			<RawPeriod Ix="8" N="22" P="14550" T="28393"/>
+			<RawPeriod Ix="9" N="22" P="14546" T="-32327"/>
+			<RawPeriod Ix="10" N="22" P="14546" T="-32327"/>
+			<RawPeriod Ix="11" N="22" P="14546" T="-32327"/>
+			<RawPeriod Ix="12" N="22" P="14546" T="-32326"/>
+			<RawPeriod Ix="13" N="22" P="14550" T="-32326"/>
+			<RawPeriod Ix="14" N="22" P="14553" T="-32327"/>
+			<RawPeriod Ix="15" N="22" P="14550" T="-32326"/>
+			<RawPeriod Ix="16" N="22" P="14550" T="-32327"/>
+			<RawPeriod Ix="17" N="22" P="14550" T="28400"/>
+			<RawPeriod Ix="18" N="22" P="14546" T="28393"/>
+			<RawPeriod Ix="19" N="22" P="14550" T="28400"/>
+			<RawPeriod Ix="20" N="22" P="14546" T="28443"/>
+			<RawPeriod Ix="21" N="22" P="14550" T="28400"/>
+			<RawPeriod Ix="22" N="22" P="14546" T="28393"/>
+			<RawPeriod Ix="23" N="22" P="14553" T="-32326"/>
+			<RawPeriod Ix="24" N="22" P="14493" T="28400"/>
+			<RawPeriod Ix="25" N="22" P="14546" T="-32327"/>
+			<RawPeriod Ix="26" N="22" P="14550" T="-32327"/>
+			<RawPeriod Ix="27" N="22" P="14546" T="-32327"/>
+			<RawPeriod Ix="28" N="22" P="14550" T="-32326"/>
+			<RawPeriod Ix="29" N="22" P="14546" T="-32327"/>
+			<RawPeriod Ix="30" N="22" P="14546" T="-32326"/>
+			<RawPeriod Ix="31" N="22" P="14550" T="28400"/>
+			<RawPeriod Ix="32" N="22" P="14546" T="-32326"/>
+			<RawPeriod Ix="33" N="22" P="14490" T="-24929"/>
+			<RawPeriod Ix="34" N="343" P="-30987" T="-30546"/>
+			<RawPeriod Ix="35" N="22" P="14546" T="-24929"/>
+			<Period Ix="0" N="22" P="14546" T="-32327"/>
+			<Period Ix="1" N="22" P="14546" T="28387"/>
+			<Period Ix="2" N="22" P="14490" T="-24929"/>
+			<Period Ix="3" N="343" P="-30984" T="-30109"/>
+			<Period Ix="4" N="343" P="-30987" T="-30546"/>
+		</IRdata>
+		<IRdataToggle ID="0" Protocol="0" Frequency="0" MaxPulses="0" Repeats="1" TolPeriod="400" TolPulse="1000" NumRaw="0" Num="0" Ix="" IxDef=""/>
+	</RCkey>
+	<RCkey Title="+" Comment="">
+		<IRdata ID="124" Protocol="10" Frequency="38461" MaxPulses="343" Repeats="1" TolPeriod="400" TolPulse="1000" NumRaw="34" Num="4" Ix="02010101010101010100000000000000000000010101010001010100000000010003" IxDef="">
+			<RawPeriod Ix="0" N="343" P="-30983" T="-30107"/>
+			<RawPeriod Ix="1" N="22" P="14543" T="28387"/>
+			<RawPeriod Ix="2" N="22" P="14546" T="28443"/>
+			<RawPeriod Ix="3" N="22" P="14546" T="28393"/>
+			<RawPeriod Ix="4" N="22" P="14543" T="28437"/>
+			<RawPeriod Ix="5" N="22" P="14550" T="28393"/>
+			<RawPeriod Ix="6" N="22" P="14550" T="28393"/>
+			<RawPeriod Ix="7" N="22" P="14603" T="28443"/>
+			<RawPeriod Ix="8" N="22" P="14543" T="28387"/>
+			<RawPeriod Ix="9" N="22" P="14546" T="-32326"/>
+			<RawPeriod Ix="10" N="22" P="14546" T="-32327"/>
+			<RawPeriod Ix="11" N="22" P="14550" T="-32327"/>
+			<RawPeriod Ix="12" N="22" P="14546" T="-32327"/>
+			<RawPeriod Ix="13" N="22" P="14550" T="-32326"/>
+			<RawPeriod Ix="14" N="22" P="14546" T="-32327"/>
+			<RawPeriod Ix="15" N="22" P="14550" T="-32327"/>
+			<RawPeriod Ix="16" N="22" P="14543" T="-32327"/>
+			<RawPeriod Ix="17" N="22" P="14543" T="-32327"/>
+			<RawPeriod Ix="18" N="22" P="14543" T="-32327"/>
+			<RawPeriod Ix="19" N="22" P="14540" T="28437"/>
+			<RawPeriod Ix="20" N="22" P="14543" T="28387"/>
+			<RawPeriod Ix="21" N="22" P="14546" T="28393"/>
+			<RawPeriod Ix="22" N="22" P="14543" T="28437"/>
+			<RawPeriod Ix="23" N="22" P="14493" T="-32327"/>
+			<RawPeriod Ix="24" N="22" P="14490" T="28387"/>
+			<RawPeriod Ix="25" N="22" P="14546" T="28387"/>
+			<RawPeriod Ix="26" N="22" P="14550" T="28393"/>
+			<RawPeriod Ix="27" N="22" P="14543" T="-32327"/>
+			<RawPeriod Ix="28" N="22" P="14546" T="-32327"/>
+			<RawPeriod Ix="29" N="22" P="14543" T="-32327"/>
+			<RawPeriod Ix="30" N="22" P="14550" T="-32327"/>
+			<RawPeriod Ix="31" N="22" P="14490" T="28393"/>
+			<RawPeriod Ix="32" N="22" P="14543" T="-32327"/>
+			<RawPeriod Ix="33" N="22" P="14487" T="-30107"/>
+			<Period Ix="0" N="22" P="14546" T="-32327"/>
+			<Period Ix="1" N="22" P="14543" T="28387"/>
+			<Period Ix="2" N="343" P="-30983" T="-30107"/>
+			<Period Ix="3" N="22" P="14487" T="-30107"/>
+		</IRdata>
+		<IRdataToggle ID="0" Protocol="0" Frequency="0" MaxPulses="0" Repeats="1" TolPeriod="400" TolPulse="1000" NumRaw="0" Num="0" Ix="" IxDef=""/>
+	</RCkey>
+	<RCkey Title="Set" Comment="">
+		<IRdata ID="125" Protocol="1" Frequency="38461" MaxPulses="343" Repeats="1" TolPeriod="400" TolPulse="1000" NumRaw="34" Num="4" Ix="02010101010101010100000000000000000001000100010101010001000100000003" IxDef="">
+			<RawPeriod Ix="0" N="343" P="-30965" T="-30090"/>
+			<RawPeriod Ix="1" N="22" P="14768" T="28606"/>
+			<RawPeriod Ix="2" N="22" P="14712" T="28500"/>
+			<RawPeriod Ix="3" N="22" P="14768" T="28550"/>
+			<RawPeriod Ix="4" N="22" P="14768" T="28550"/>
+			<RawPeriod Ix="5" N="22" P="14715" T="28556"/>
+			<RawPeriod Ix="6" N="22" P="14712" T="28500"/>
+			<RawPeriod Ix="7" N="22" P="14768" T="28550"/>
+			<RawPeriod Ix="8" N="22" P="14718" T="28562"/>
+			<RawPeriod Ix="9" N="22" P="14712" T="-32326"/>
+			<RawPeriod Ix="10" N="22" P="14771" T="-32326"/>
+			<RawPeriod Ix="11" N="22" P="14765" T="-32326"/>
+			<RawPeriod Ix="12" N="22" P="14765" T="-32325"/>
+			<RawPeriod Ix="13" N="22" P="14709" T="-32326"/>
+			<RawPeriod Ix="14" N="22" P="14712" T="-32326"/>
+			<RawPeriod Ix="15" N="22" P="14712" T="-32326"/>
+			<RawPeriod Ix="16" N="22" P="14709" T="-32326"/>
+			<RawPeriod Ix="17" N="22" P="14712" T="-32326"/>
+			<RawPeriod Ix="18" N="22" P="14709" T="28493"/>
+			<RawPeriod Ix="19" N="22" P="14709" T="-32326"/>
+			<RawPeriod Ix="20" N="22" P="14712" T="28550"/>
+			<RawPeriod Ix="21" N="22" P="14706" T="-32326"/>
+			<RawPeriod Ix="22" N="22" P="14762" T="28543"/>
+			<RawPeriod Ix="23" N="22" P="14709" T="28493"/>
+			<RawPeriod Ix="24" N="22" P="14706" T="28543"/>
+			<RawPeriod Ix="25" N="22" P="14709" T="28493"/>
+			<RawPeriod Ix="26" N="22" P="14709" T="-32326"/>
+			<RawPeriod Ix="27" N="22" P="14765" T="28550"/>
+			<RawPeriod Ix="28" N="22" P="14709" T="-32326"/>
+			<RawPeriod Ix="29" N="22" P="14768" T="28550"/>
+			<RawPeriod Ix="30" N="22" P="14712" T="-32326"/>
+			<RawPeriod Ix="31" N="22" P="14712" T="-32326"/>
+			<RawPeriod Ix="32" N="22" P="14768" T="-32326"/>
+			<RawPeriod Ix="33" N="22" P="14712" T="-30090"/>
+			<Period Ix="0" N="22" P="14712" T="-32326"/>
+			<Period Ix="1" N="22" P="14768" T="28550"/>
+			<Period Ix="2" N="343" P="-30965" T="-30090"/>
+			<Period Ix="3" N="22" P="14712" T="-30090"/>
+		</IRdata>
+		<IRdataToggle ID="0" Protocol="0" Frequency="0" MaxPulses="0" Repeats="1" TolPeriod="400" TolPulse="1000" NumRaw="0" Num="0" Ix="" IxDef=""/>
+	</RCkey>
+</RC>

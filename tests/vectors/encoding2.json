@@ -1,0 +1,34 @@
+{
+  "category": "F2: Encoding (remaining)",
+  "blocks": {
+    "BinaryDecoder2": {
+      "inputs": {"I": "analog"},
+      "outputs": {"Q": "digital"},
+      "tests": [
+        {"desc": "bit 0 off", "set": {"I": 0}, "expect": {"Q": 0}},
+        {"desc": "bit 0 on", "set": {"I": 1}, "expect": {"Q": 1}},
+        {"desc": "bit 1", "set": {"I": 2}, "expect": {"Q": 0}},
+        {"desc": "bit 0+1", "set": {"I": 3}, "expect": {"Q": 1}}
+      ]
+    },
+    "AnalogMultiplexer4": {
+      "inputs": {"I1": "analog", "I2": "analog", "I3": "analog", "I4": "analog", "Sel": "analog"},
+      "outputs": {"AQ": "analog"},
+      "tests": [
+        {"desc": "sel=0 → I1", "set": {"Sel": 0, "I1": 10, "I2": 20, "I3": 30, "I4": 40}, "expect": {"AQ": 10.0}},
+        {"desc": "sel=1 → I2", "set": {"Sel": 1, "I1": 10, "I2": 20, "I3": 30, "I4": 40}, "expect": {"AQ": 20.0}},
+        {"desc": "sel=2 → I3", "set": {"Sel": 2, "I1": 10, "I2": 20, "I3": 30, "I4": 40}, "expect": {"AQ": 30.0}},
+        {"desc": "sel=3 → I4", "set": {"Sel": 3, "I1": 10, "I2": 20, "I3": 30, "I4": 40}, "expect": {"AQ": 40.0}}
+      ]
+    },
+    "BinaryEncoder": {
+      "inputs": {"I": "digital"},
+      "outputs": {"AQ": "analog"},
+      "tests": [
+        {"desc": "off", "set": {"I": 0}, "expect": {"AQ": 0}},
+        {"desc": "on", "set": {"I": 1}, "expect": {"AQ": 1}}
+      ]
+    }
+  },
+  "wiring": {}
+}

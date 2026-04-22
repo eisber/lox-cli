@@ -1,0 +1,197 @@
+{
+  "title": "Wallbox",
+  "xml_type": "",
+  "kb_slug": "wallbox-block",
+  "description": "The Wallbox function block is used to control a charging station for electric vehicles.",
+  "inputs": [
+    {
+      "abbreviation": "Ec",
+      "summary": "Enable charging",
+      "description": "A pulse =1s or permanent on, activates charging and switches off again after a falling edge. If this input is inverted and not connected, charging is allowed. Eco charging if managed by Wallbox Manager.",
+      "unit": "-",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "Ecp",
+      "summary": "Enable charging priority",
+      "description": "A pulse =1s or permanent on, activates Priority and ends the charging process completely after a falling edge. This input is only visible in certain configurations.",
+      "unit": "-",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "Sm1-5",
+      "summary": "Set charging mode 1-5",
+      "description": "This input is only visible in certain configurations.",
+      "unit": "-",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "Lm1-5",
+      "summary": "Limit charging mode 1-5",
+      "description": "Define up to 5 charging modes with different charging limits. This input is only visible in certain configurations.",
+      "unit": "kW",
+      "value_range": "\u221e"
+    },
+    {
+      "abbreviation": "Pm1-5",
+      "summary": "Price charging mode 1-5",
+      "description": "Define up to 5 charging modes with different pricing per kWh. This input is only visible in certain configurations.",
+      "unit": "-",
+      "value_range": "\u221e"
+    },
+    {
+      "abbreviation": "Pmm",
+      "summary": "Price charging mode manual",
+      "description": "Pmm is Manual charging mode 99 (App only). This input is only visible in certain configurations.",
+      "unit": "-",
+      "value_range": "\u221e"
+    },
+    {
+      "abbreviation": "Ls",
+      "summary": "Load shedding",
+      "description": "If activated, the device pauses charging to prevent grid power peaks or similar issues, remaining paused as long as load shedding is active.",
+      "unit": "-",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "Off",
+      "summary": "Off",
+      "description": "Pulse: reset outputs except meter outputs On: Block is locked. Dominating input. Resetting the Wallbox with input Off sets the mode from the (Muv) parameter.",
+      "unit": "-",
+      "value_range": "0/1"
+    }
+  ],
+  "outputs": [
+    {
+      "abbreviation": "Ca",
+      "summary": "Charging allowed",
+      "description": "Charging is allowed when: -Ec (Enable Charging) is active -Ec is inverted and not connected -Charging is not disabled via Ls or Off -Charging limit is not below minimal charging power.",
+      "unit": "-",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "M",
+      "summary": "Current charging mode",
+      "description": "Charging mode 1-5. 99 = Manual mode (App only)",
+      "unit": "-",
+      "value_range": "\u221e"
+    },
+    {
+      "abbreviation": "Tp",
+      "summary": "Target charging power",
+      "description": "Target charging power according to current mode. Output is 0 if charging Limit is below minimal charging power or output Ca is 0.",
+      "unit": "kW",
+      "value_range": "\u221e"
+    },
+    {
+      "abbreviation": "Lcl",
+      "summary": "Last charge log",
+      "description": "Text output of - Vc On and Off time - Duration (Vc on/off) - Charged energy (kWh) - User ID.",
+      "unit": "-",
+      "value_range": "-"
+    },
+    {
+      "abbreviation": "Cac",
+      "summary": "Charging active",
+      "description": "If the Cac input is unused and no Loxone Wallbox is connected, the output is 1 when the vehicle is connected and the Cp input is greater than the minimum charging power.",
+      "unit": "-",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "Cclc",
+      "summary": "Charging costs last charge",
+      "description": "Provides the calculated costs of the last charging session. If a charging session is active, its running costs are output.",
+      "unit": "-",
+      "value_range": "\u221e"
+    },
+    {
+      "abbreviation": "API",
+      "summary": "API Connector",
+      "description": "Intelligent API based connector. API Commands",
+      "unit": "-",
+      "value_range": "-"
+    }
+  ],
+  "parameters": [
+    {
+      "abbreviation": "Muv",
+      "summary": "Mode after unplugging the vehicle",
+      "description": "0 = Keep current mode 1-5 = Switch to mode 1-5 This parameter is only visible in certain configurations.",
+      "unit": "-",
+      "value_range": "\u221e",
+      "default_value": "0"
+    },
+    {
+      "abbreviation": "Cfp",
+      "summary": "Connection fee per hour",
+      "description": "Price per hour while the vehicle is connected. This parameter is only visible in certain configurations.",
+      "unit": "Currency",
+      "value_range": "\u221e",
+      "default_value": "0"
+    },
+    {
+      "abbreviation": "Mro",
+      "summary": "Meter reading offset",
+      "description": "Value is added to output (Mr).",
+      "unit": "-",
+      "value_range": "\u221e",
+      "default_value": "0"
+    }
+  ],
+  "properties": [
+    {
+      "summary": "Max. charging power",
+      "description": "Max. charging power [kW]",
+      "unit": "kW",
+      "value_range": "0...\u221e",
+      "default_value": "11"
+    },
+    {
+      "summary": "Min. charging power",
+      "description": "Min. charging power [kW]",
+      "unit": "kW",
+      "value_range": "0...\u221e",
+      "default_value": "4.16"
+    },
+    {
+      "summary": "Configuration",
+      "description": "Configuration of the Inputs and Outputs Used.",
+      "unit": "-",
+      "value_range": "-",
+      "default_value": "-"
+    },
+    {
+      "summary": "Number of Entries",
+      "description": "Maximum number of saved messages.",
+      "unit": "-",
+      "value_range": "1...100",
+      "default_value": "100"
+    },
+    {
+      "summary": "Relative metering",
+      "description": "Active: The physical meter only sends partial quantities at intervals (relative), the block adds them up and uses them to form the meter reading. Not active: The physical meter provides its own total meter reading (absolute), the function block only maps it.",
+      "unit": "-",
+      "value_range": "-",
+      "default_value": "-"
+    },
+    {
+      "summary": "Report invalid Meter Reading",
+      "description": "If checked, you will be notified if invalid Meter Reading values have been detected. For instance, when a physical counter sends unrealistic values due to transmission errors.",
+      "unit": "-",
+      "value_range": "-",
+      "default_value": "-"
+    },
+    {
+      "summary": "Regional regulation",
+      "description": "Select the regulation applicable to your region. The Wallbox will adjust its behavior accordingly (e.g., voltage/frequency response). Additional equipment may be required (e.g. Energy Meter 3-Phase Tree).",
+      "unit": "-",
+      "value_range": "-",
+      "default_value": "-"
+    }
+  ],
+  "source_url": "https://www.loxone.com/enen/kb/wallbox-block/",
+  "input_count": 8,
+  "output_count": 7,
+  "parameter_count": 3,
+  "property_count": 7
+}

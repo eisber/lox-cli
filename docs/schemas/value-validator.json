@@ -1,0 +1,74 @@
+{
+  "title": "Value Validator",
+  "xml_type": "",
+  "kb_slug": "value-validator",
+  "description": "Uses a given input value and sets a validated value on the output",
+  "inputs": [
+    {
+      "abbreviation": "V",
+      "summary": "Value",
+      "description": "Value to be validated",
+      "value_range": "\u221e"
+    },
+    {
+      "abbreviation": "En",
+      "summary": "Enable",
+      "description": "If input is connected, value will not be set on output until delay D has elapsed after enabling input.",
+      "value_range": "0/1"
+    }
+  ],
+  "outputs": [
+    {
+      "abbreviation": "V",
+      "summary": "Value",
+      "description": "Validated output value",
+      "value_range": "\u221e"
+    },
+    {
+      "abbreviation": "E",
+      "summary": "Error",
+      "description": "Output is active when input value is not valid or Minimum Change Interval timed out.",
+      "value_range": "0/1"
+    }
+  ],
+  "parameters": [
+    {
+      "abbreviation": "Tmc",
+      "summary": "Minimum Change Interval",
+      "description": "If value is > 0, the value of the input must change in this interval. Interval is not checked if input Enable is off.",
+      "unit": "s",
+      "value_range": "\u221e",
+      "default_value": "3600"
+    },
+    {
+      "abbreviation": "Min",
+      "summary": "Minimum Value",
+      "description": "Smallest valid value. Output will not be set if input value is below minimum.",
+      "unit": "-",
+      "value_range": "\u221e",
+      "default_value": "-1000"
+    },
+    {
+      "abbreviation": "Max",
+      "summary": "Maximum Value",
+      "description": "Largest valid value. Output will not be set if input value is above maximum.",
+      "unit": "-",
+      "value_range": "\u221e",
+      "default_value": "1000"
+    },
+    {
+      "abbreviation": "D",
+      "summary": "Delay",
+      "description": "Validated value will be set on output after configured delay, only if input Enable is connected and activated. For multiple value changes while waiting for delay, the last validated value will be set on output. With each activation of the Enable input, the delay is awaited once.",
+      "unit": "s",
+      "value_range": "\u221e",
+      "default_value": "0"
+    }
+  ],
+  "properties": [],
+  "source_url": "https://www.loxone.com/enen/kb/value-validator/",
+  "input_count": 2,
+  "output_count": 2,
+  "parameter_count": 4,
+  "property_count": 0
+}

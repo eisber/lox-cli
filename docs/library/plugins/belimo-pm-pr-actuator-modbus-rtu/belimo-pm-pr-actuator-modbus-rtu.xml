@@ -1,0 +1,24 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Modbus Title="Belimo PM-PR Actuator Modbus RTU" Comment="" Baudrate="38400" Channel="1">
+	<Info templateType="7" minVersion="12021201"/>
+	<ModbusCmd Title="Actuator Type" Comment="" ModbusAddress="3" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Relative Position" Comment="" ModbusAddress="4" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v.2&gt;%" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="10"/>
+	<ModbusCmd Title="Absolute Position" Comment="" ModbusAddress="5" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v.2&gt;°" Analog="true" Sensor="true" SourceValHigh="10000" DestValHigh="100"/>
+	<ModbusCmd Title="Sensor 1 Value" Comment="" ModbusAddress="8" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Setpoint Analog" Comment="" ModbusAddress="12" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v.2&gt;%" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="10"/>
+	<ModbusCmd Title="Series Number 1st Part" Comment="" ModbusAddress="100" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Series Number 2nd Part" Comment="" ModbusAddress="101" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Series Number 4th Part" Comment="" ModbusAddress="102" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Firmware Version" Comment="" ModbusAddress="103" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Malfunction and Service Information" Comment="" ModbusAddress="104" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Sensor 2 Value" Comment="" ModbusAddress="9" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Setpoint" Comment="" ModbusCmd="6" Unit="&lt;v.2&gt;%" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="1000"/>
+	<ModbusCmd Title="Override Control" Comment="" ModbusAddress="1" ModbusCmd="6" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Sensor 1 Type" Comment="" ModbusAddress="107" ModbusCmd="6" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Setpoint Source" Comment="" ModbusAddress="118" ModbusCmd="6" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Sensor 2 Type" Comment="" ModbusAddress="114" ModbusCmd="6" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Command" Comment="" ModbusAddress="2" ModbusCmd="6" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Bus Fail Position" Comment="" ModbusAddress="108" ModbusCmd="6" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Timeout for Bus Watchdog in s" Comment="" ModbusAddress="109" ModbusCmd="6" Unit="&lt;v&gt;s" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Maximum Position in Percent" Comment="" ModbusAddress="106" ModbusCmd="6" Unit="&lt;v.2&gt;%" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="1000"/>
+</Modbus>

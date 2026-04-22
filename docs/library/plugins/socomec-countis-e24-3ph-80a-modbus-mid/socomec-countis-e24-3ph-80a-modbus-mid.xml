@@ -1,0 +1,27 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Modbus Title="COUNTIS E24" Comment="" HintText="" Baudrate="9600" Channel="5">
+	<Info templateType="7" minVersion="15000511"/>
+	<ModbusCmd Title="Voltage L1" Comment="" HintText="" ModbusAddress="50520" ModbusCmd="3" ModbusDataType="34" ModbusPollingCycle="15" Unit="&lt;v.1&gt;V" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="1"/>
+	<ModbusCmd Title="Voltage L2" Comment="" HintText="" ModbusAddress="50522" ModbusCmd="3" ModbusDataType="34" ModbusPollingCycle="15" Unit="&lt;v.1&gt;V" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="1"/>
+	<ModbusCmd Title="Voltage L3" Comment="" HintText="" ModbusAddress="50524" ModbusCmd="3" ModbusDataType="34" ModbusPollingCycle="15" Unit="&lt;v.1&gt;V" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="1"/>
+	<ModbusCmd Title="Current L1" Comment="" HintText="" ModbusAddress="50528" ModbusCmd="3" ModbusDataType="34" ModbusPollingCycle="15" Unit="&lt;v.2&gt;A" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="1"/>
+	<ModbusCmd Title="Current L2" Comment="" HintText="" ModbusAddress="50530" ModbusCmd="3" ModbusDataType="34" ModbusPollingCycle="15" Unit="&lt;v.2&gt;A" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="1"/>
+	<ModbusCmd Title="Current L3" Comment="" HintText="" ModbusAddress="50532" ModbusCmd="3" ModbusDataType="34" ModbusPollingCycle="15" Unit="&lt;v.2&gt;A" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="1"/>
+	<ModbusCmd Title="Power L1" Comment="" HintText="" ModbusAddress="50544" ModbusCmd="3" ModbusDataType="35" ModbusPollingCycle="15" Unit="&lt;v.1&gt;W" Analog="true" Sensor="true" SourceValHigh="1" DestValHigh="10"/>
+	<ModbusCmd Title="Power L2" Comment="" HintText="" ModbusAddress="50546" ModbusCmd="3" ModbusDataType="35" ModbusPollingCycle="15" Unit="&lt;v.1&gt;W" Analog="true" Sensor="true" SourceValHigh="1" DestValHigh="10"/>
+	<ModbusCmd Title="Power L3" Comment="" HintText="" ModbusAddress="50548" ModbusCmd="3" ModbusDataType="35" ModbusPollingCycle="15" Unit="&lt;v.1&gt;W" Analog="true" Sensor="true" SourceValHigh="1" DestValHigh="10"/>
+	<ModbusCmd Title="Total Active Power" Comment="" HintText="" ModbusAddress="50536" ModbusCmd="3" ModbusDataType="35" ModbusPollingCycle="5" Unit="&lt;v.2&gt;kW" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="1"/>
+	<ModbusCmd Title="Frequency" Comment="" HintText="" ModbusAddress="50526" ModbusCmd="3" ModbusDataType="34" ModbusPollingCycle="15" Unit="&lt;v.2&gt;Hz" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="1"/>
+	<ModbusCmd Title="Energy Consumption" Comment="" HintText="" ModbusAddress="50770" ModbusCmd="3" ModbusDataType="34" ModbusPollingCycle="15" Unit="&lt;v.1&gt;kWh" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Total Apparent Power" Comment="" HintText="" ModbusAddress="50540" ModbusCmd="3" ModbusDataType="34" ModbusPollingCycle="15" Unit="&lt;v.1&gt;VA" Analog="true" Sensor="true" SourceValHigh="1" DestValHigh="10"/>
+	<ModbusCmd Title="Total Reactive Power" Comment="" HintText="" ModbusAddress="50538" ModbusCmd="3" ModbusDataType="35" ModbusPollingCycle="15" Unit="&lt;v.1&gt;VAr" Analog="true" Sensor="true" SourceValHigh="1" DestValHigh="10"/>
+	<ModbusCmd Title="Neutral Current IN" Comment="" HintText="" ModbusAddress="50534" ModbusCmd="3" ModbusDataType="34" ModbusPollingCycle="15" Unit="&lt;v.2&gt;A" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="1"/>
+	<ModbusCmd Title="System value I Sys" Comment="" HintText="" ModbusAddress="50568" ModbusCmd="3" ModbusDataType="34" ModbusPollingCycle="15" Unit="&lt;v.2&gt;A" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="1"/>
+	<ModbusCmd Title="Phase to Phase Voltage: U12" Comment="" HintText="" ModbusAddress="50514" ModbusCmd="3" ModbusDataType="34" ModbusPollingCycle="15" Unit="&lt;v.1&gt;V" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="1"/>
+	<ModbusCmd Title="Phase to Phase Voltage: U23" Comment="" HintText="" ModbusAddress="50516" ModbusCmd="3" ModbusDataType="34" ModbusPollingCycle="15" Unit="&lt;v.1&gt;V" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="1"/>
+	<ModbusCmd Title="Phase to Phase Voltage: U31" Comment="" HintText="" ModbusAddress="50518" ModbusCmd="3" ModbusDataType="34" ModbusPollingCycle="15" Unit="&lt;v.1&gt;V" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="1"/>
+	<ModbusCmd Title="System value U Sys" Comment="" HintText="" ModbusAddress="50570" ModbusCmd="3" ModbusDataType="34" ModbusPollingCycle="15" Unit="&lt;v.1&gt;V" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="1"/>
+	<ModbusCmd Title="System value V Sys" Comment="" HintText="" ModbusAddress="50572" ModbusCmd="3" ModbusDataType="34" ModbusPollingCycle="15" Unit="&lt;v.1&gt;V" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="1"/>
+	<ModbusCmd Title="Phase sequence" Comment="" HintText="" ModbusAddress="51315" ModbusCmd="3" ModbusPollingCycle="15" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Tariff" Comment="" HintText="" ModbusAddress="40481" ModbusCmd="6" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+</Modbus>

@@ -1,0 +1,131 @@
+{
+  "title": "Flow Temperature Calculator",
+  "xml_type": "",
+  "kb_slug": "intelligent-temperature-controller",
+  "description": "The function block Flow Temperature Calculator calculates the flow temperature based on the outside temperature and the integrated heating curve, as well as the energy requirements of the assigned rooms.\nIt determines the heating or cooling requirements of all rooms of a mixing circuit and enables the control of mixing valves and pumps.",
+  "inputs": [
+    {
+      "abbreviation": "\u03d1o",
+      "summary": "Outdoor Temperature",
+      "description": "Analog input for the current outdoor temperature. If this input is not connected, the System Variable \"Outdoor Temperature\" is used. If this value is not available, 0\u00b0 will be used for calculation, and the value -1000 is displayed on this input.",
+      "value_range": "\u221e"
+    },
+    {
+      "abbreviation": "Ib",
+      "summary": "Boost",
+      "description": "Digital Input - Boosts the manifold operation. When ON: - During Heating: The maximum target flow temperature (Parameter Max) is put out on output AQf - During Cooling: The minimal target flow temperature (Parameter Min) is put out on output AQf",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "St",
+      "summary": "Stop",
+      "description": "STOP Input - Switches Qp Off - During Heating: The minimal target flow temperature (Parameter Min) is put out on AQf and AQb - During Cooling: The maximum target flow temperature (Parameter Max) is put out on AQf and AQb",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "Tb",
+      "summary": "Buffer Temperature",
+      "description": "Current buffer temperature If this input is used, the mixer will enable (output Qp) as soon as the buffer setpoint temperature (AQb + B) is reached",
+      "value_range": "\u221e"
+    }
+  ],
+  "outputs": [
+    {
+      "abbreviation": "API",
+      "summary": "API Connector",
+      "description": "Intelligent API based connector. API Commands",
+      "value_range": "-"
+    }
+  ],
+  "parameters": [
+    {
+      "abbreviation": "Min",
+      "summary": "Minimum",
+      "description": "Minimum flow setpoint temperature The outdoor temperature of input \u03d1o or system variable is required to calculate the flow temperature.",
+      "unit": "-",
+      "value_range": "\u221e",
+      "default_value": "5"
+    },
+    {
+      "abbreviation": "Max",
+      "summary": "Maximum",
+      "description": "Maximum flow setpoint temperature The outdoor temperature of input \u03d1o or system variable is required to calculate the flow temperature.",
+      "unit": "-",
+      "value_range": "\u221e",
+      "default_value": "40"
+    },
+    {
+      "abbreviation": "B",
+      "summary": "Buffer Target Temperature Offset",
+      "description": "Parameter - Buffer target temperature offset (increase for heating, decrease for cooling)",
+      "unit": "-",
+      "value_range": "\u221e",
+      "default_value": "5"
+    },
+    {
+      "abbreviation": "S",
+      "summary": "Slope",
+      "description": "Slope of the heating or cooling curve",
+      "unit": "-",
+      "value_range": "\u221e",
+      "default_value": "0,5"
+    },
+    {
+      "abbreviation": "N",
+      "summary": "Offset",
+      "description": "Parallel shift of the heating curve or cooling curve (When heating, the flow setpoint temperature is increased by this value, when cooling it is decreased)",
+      "unit": "-",
+      "value_range": "\u221e",
+      "default_value": "0"
+    },
+    {
+      "abbreviation": "Str",
+      "summary": "Switch-On Threshold",
+      "description": "Switch-on threshold in % Only if the valve position of at least one room exceeds this value, the pump (Qp) is enabled If all Room Controllers of an assigned Heating and Cooling Controller/HVAC Controller are used, this parameter has no effect. The Heating and Cooling Controller's switch-on threshold of applies in this case.",
+      "unit": "-",
+      "value_range": "\u221e",
+      "default_value": "35"
+    },
+    {
+      "abbreviation": "G",
+      "summary": "Gain",
+      "description": "Gain of the room temperature difference Sets with what gain the room temperature difference is weighted (default value = 1)",
+      "unit": "-",
+      "value_range": "\u221e",
+      "default_value": "1"
+    },
+    {
+      "abbreviation": "I",
+      "summary": "Target temperature increase / decrease",
+      "description": "Target room temperature increase for heating, or target room temperature decrease for cooling.",
+      "unit": "-",
+      "value_range": "\u221e",
+      "default_value": "2"
+    },
+    {
+      "abbreviation": "Ps",
+      "summary": "Pump standstill",
+      "description": "Maximum pump standstill in days. If the pump was not activated in set time, it will be activated automatically at 2 a.m. for 3 minutes. Time should be set as specified by the manufacturer!",
+      "unit": "d",
+      "value_range": "\u221e",
+      "default_value": "0"
+    }
+  ],
+  "properties": [
+    {
+      "summary": "Controller for",
+      "description": "Select Heating or Cooling loop",
+      "default_value": "-"
+    },
+    {
+      "summary": "Assignments",
+      "description": "Assignment of Intelligent Room Controllers. Based on the request of all configured Room Controllers, flow and buffer temperatures, and other output values are calculated.",
+      "default_value": "-"
+    }
+  ],
+  "source_url": "https://www.loxone.com/enen/kb/intelligent-temperature-controller/",
+  "input_count": 4,
+  "output_count": 1,
+  "parameter_count": 9,
+  "property_count": 2
+}

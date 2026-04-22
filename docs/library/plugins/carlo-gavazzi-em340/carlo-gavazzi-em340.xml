@@ -1,0 +1,26 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Modbus Title="Carlo Gavazzi EM340" Comment="" Baudrate="19200" Parity="1" Channel="1">
+	<Info templateType="7" minVersion="12021027"/>
+	<ModbusCmd Title="Hz" Comment="" ModbusAddress="272" ModbusCmd="4" ModbusDataType="99" ModbusPollingCycle="60" Unit="&lt;v&gt;Hz" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="Total Energy" Comment="" ModbusAddress="274" ModbusCmd="4" ModbusDataType="99" ModbusPollingCycle="5" Unit="&lt;v.1&gt;kWh" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="Total T1 Energy" Comment="Celková Energia VT" ModbusAddress="338" ModbusCmd="4" ModbusDataType="99" ModbusPollingCycle="5" Unit="&lt;v.2&gt;kWh" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="Total T2 Energy" Comment="Celková Energia NT" ModbusAddress="340" ModbusCmd="4" ModbusDataType="99" ModbusPollingCycle="5" Unit="&lt;v.2&gt;kWh" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="L1 Energy" Comment="" ModbusAddress="332" ModbusCmd="4" ModbusDataType="99" ModbusPollingCycle="5" Unit="&lt;v.1&gt;kWh" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="Total Active Power" Comment="" ModbusAddress="262" ModbusCmd="4" ModbusDataType="99" ModbusPollingCycle="5" Unit="&lt;v.3&gt;kW" Analog="true" Sensor="true" SourceValHigh="10000" DestValHigh="1"/>
+	<ModbusCmd Title="Dmd Peak" Comment="Demanded Power Peak" ModbusAddress="284" ModbusCmd="4" ModbusDataType="99" ModbusPollingCycle="5" Unit="&lt;v&gt;W" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="L2 Energy" Comment="" ModbusAddress="334" ModbusCmd="4" ModbusDataType="99" ModbusPollingCycle="5" Unit="&lt;v.1&gt;kWh" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="L3 Energy" Comment="" ModbusAddress="336" ModbusCmd="4" ModbusDataType="99" ModbusPollingCycle="5" Unit="&lt;v.1&gt;kWh" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="Dmd" Comment="Demanded Power" ModbusAddress="282" ModbusCmd="4" ModbusDataType="99" ModbusPollingCycle="5" Unit="&lt;v&gt;W" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="L1 Active Power" Comment="" ModbusAddress="292" ModbusCmd="4" ModbusDataType="99" ModbusPollingCycle="5" Unit="&lt;v.3&gt;kW" Analog="true" Sensor="true" SourceValHigh="10000" DestValHigh="1"/>
+	<ModbusCmd Title="L2 Active Power" Comment="" ModbusAddress="306" ModbusCmd="4" ModbusDataType="99" ModbusPollingCycle="5" Unit="&lt;v.3&gt;kW" Analog="true" Sensor="true" SourceValHigh="10000" DestValHigh="1"/>
+	<ModbusCmd Title="L3 Active Power" Comment="" ModbusAddress="320" ModbusCmd="4" ModbusDataType="99" ModbusPollingCycle="5" Unit="&lt;v.3&gt;kW" Analog="true" Sensor="true" SourceValHigh="10000" DestValHigh="1"/>
+	<ModbusCmd Title="L1 Volt" Comment="" ModbusAddress="288" ModbusCmd="4" ModbusDataType="99" ModbusPollingCycle="5" Unit="&lt;v.1&gt;V" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="PF" Comment="Power Factor" ModbusAddress="268" ModbusCmd="4" ModbusDataType="99" ModbusPollingCycle="5" Unit="&lt;v.3&gt;" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="1"/>
+	<ModbusCmd Title="L1 Ampere" Comment="" ModbusAddress="290" ModbusCmd="4" ModbusDataType="99" ModbusPollingCycle="5" Unit="&lt;v.3&gt;A" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="1"/>
+	<ModbusCmd Title="L2 Ampere" Comment="" ModbusAddress="304" ModbusCmd="4" ModbusDataType="99" ModbusPollingCycle="5" Unit="&lt;v.3&gt;A" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="1"/>
+	<ModbusCmd Title="L3 Ampere" Comment="" ModbusAddress="318" ModbusCmd="4" ModbusDataType="99" ModbusPollingCycle="5" Unit="&lt;v.3&gt;A" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="1"/>
+	<ModbusCmd Title="Dmd Integration Time" Comment="Demanded Power Integration Time" ModbusAddress="4112" ModbusCmd="4" ModbusDataType="98" ModbusPollingCycle="60" Unit="&lt;v&gt;min" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Partial Reset" Comment="" ModbusAddress="16384" ModbusCmd="6" ModbusDataType="32" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Total Reset" Comment="" ModbusAddress="16385" ModbusCmd="6" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Dmd Integration Time" Comment="" ModbusAddress="4112" ModbusCmd="6" ModbusDataType="34" Unit="&lt;v&gt;min" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10"/>
+</Modbus>

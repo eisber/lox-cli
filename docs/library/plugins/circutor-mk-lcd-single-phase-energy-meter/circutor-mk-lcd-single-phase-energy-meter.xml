@@ -1,0 +1,11 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Modbus Title="Circutor MK-LCD" Comment="" Baudrate="9600" Channel="2">
+	<Info templateType="7" minVersion="12021027"/>
+	<ModbusCmd Title="Partial reset" Comment="" ModbusAddress="2103" ModbusCmd="5" Unit="" Analog="false" Sensor="false"/>
+	<ModbusCmd Title="Energy (Kwh)" Comment="energia" ModbusAddress="8" ModbusCmd="3" ModbusDataType="34" ModbusPollingCycle="60" Unit="&lt;v.3&gt;Kw·h" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="1"/>
+	<ModbusCmd Title="Voltage (v)" Comment="" ModbusCmd="3" ModbusDataType="34" ModbusPollingCycle="60" Unit="&lt;v.2&gt;V" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="Power (Kw)" Comment="" ModbusAddress="4" ModbusCmd="3" ModbusDataType="34" ModbusPollingCycle="60" Unit="&lt;v.3&gt;Kw" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="1"/>
+	<ModbusCmd Title="Amps (A)" Comment="" ModbusAddress="2" ModbusCmd="3" ModbusDataType="34" ModbusPollingCycle="60" Unit="&lt;v.2&gt;A" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="1"/>
+	<ModbusCmd Title="Frequency (Hz)" Comment="" ModbusAddress="6" ModbusCmd="3" ModbusDataType="34" ModbusPollingCycle="60" Unit="&lt;v.1&gt;Hz" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="Partial energy (Kwh)" Comment="" ModbusAddress="10" ModbusCmd="3" ModbusDataType="34" ModbusPollingCycle="60" Unit="&lt;v.3&gt;Kw·h" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="1"/>
+</Modbus>

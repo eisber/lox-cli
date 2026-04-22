@@ -1,0 +1,52 @@
+{
+  "title": "Scaler",
+  "xml_type": "",
+  "kb_slug": "scaler",
+  "description": "With this block you can re-scale Analogue Values.",
+  "inputs": [
+    {
+      "abbreviation": "V",
+      "summary": "Value",
+      "value_range": "\u221e"
+    }
+  ],
+  "outputs": [
+    {
+      "abbreviation": "Sv",
+      "summary": "Scaled value",
+      "value_range": "\u221e"
+    }
+  ],
+  "parameters": [
+    {
+      "abbreviation": "V1",
+      "summary": "Value 1",
+      "value_range": "\u221e",
+      "default_value": "0"
+    },
+    {
+      "abbreviation": "Sv1",
+      "summary": "Scaled value 1",
+      "value_range": "\u221e",
+      "default_value": "0"
+    },
+    {
+      "abbreviation": "V2",
+      "summary": "Value 2",
+      "value_range": "\u221e",
+      "default_value": "10"
+    },
+    {
+      "abbreviation": "Sv2",
+      "summary": "Scaled value 2",
+      "value_range": "\u221e",
+      "default_value": "10"
+    }
+  ],
+  "properties": [],
+  "source_url": "https://www.loxone.com/enen/kb/scaler/",
+  "input_count": 1,
+  "output_count": 1,
+  "parameter_count": 4,
+  "property_count": 0
+}

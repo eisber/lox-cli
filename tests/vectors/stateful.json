@@ -1,0 +1,58 @@
+{
+  "category": "D: Stateful",
+  "blocks": {
+    "Memory": {
+      "inputs": {"S": "digital", "R": "digital"},
+      "outputs": {"Q": "digital"},
+      "tests": [
+        {"desc": "set", "set": {"S": 1, "R": 0}, "expect": {"Q": 1}},
+        {"desc": "hold", "set": {"S": 0, "R": 0}, "expect": {"Q": 1}},
+        {"desc": "reset", "set": {"S": 0, "R": 1}, "expect": {"Q": 0}},
+        {"desc": "hold after reset", "set": {"S": 0, "R": 0}, "expect": {"Q": 0}}
+      ]
+    },
+    "Counter": {
+      "inputs": {"I": "digital", "R": "digital"},
+      "outputs": {"AQ": "analog", "Q": "digital"},
+      "tests": [
+        {"desc": "reset", "set": {"R": 1, "I": 0}, "expect": {"AQ": 0}},
+        {"desc": "release reset", "set": {"R": 0, "I": 0}, "expect": {"AQ": 0}},
+        {"desc": "count 1", "set": {"I": 1}, "expect": {"AQ": 1}},
+        {"desc": "count 2 (pulse off)", "set": {"I": 0}, "expect": {"AQ": 1}},
+        {"desc": "count 2 (pulse on)", "set": {"I": 1}, "expect": {"AQ": 2}}
+      ]
+    },
+    "UpDownCounter": {
+      "inputs": {"Up": "digital", "Down": "digital", "R": "digital"},
+      "outputs": {"AQ": "analog"},
+      "tests": [
+        {"desc": "reset", "set": {"R": 1, "Up": 0, "Down": 0}, "expect": {"AQ": 0}},
+        {"desc": "release", "set": {"R": 0, "Up": 0, "Down": 0}, "expect": {"AQ": 0}},
+        {"desc": "up 1", "set": {"Up": 1, "Down": 0}, "expect": {"AQ": 1}},
+        {"desc": "up off", "set": {"Up": 0, "Down": 0}, "expect": {"AQ": 1}},
+        {"desc": "up 2", "set": {"Up": 1, "Down": 0}, "expect": {"AQ": 2}},
+        {"desc": "down", "set": {"Up": 0, "Down": 1}, "expect": {"AQ": 1}}
+      ]
+    },
+    "EdgeDetection": {
+      "inputs": {"I": "digital"},
+      "outputs": {"RQ": "digital", "FQ": "digital"},
+      "tests": [
+        {"desc": "initial off", "set": {"I": 0}, "expect": {"RQ": 0, "FQ": 0}, "wait": 0.3},
+        {"desc": "rising edge", "set": {"I": 1}, "expect": {"RQ": 1, "FQ": 0}, "wait": 0.2},
+        {"desc": "after rise (pulse resets)", "set": {"I": 1}, "expect": {"RQ": 0, "FQ": 0}, "wait": 0.5},
+        {"desc": "falling edge", "set": {"I": 0}, "expect": {"RQ": 0, "FQ": 1}, "wait": 0.2}
+      ]
+    },
+    "Status": {
+      "inputs": {"I": "analog"},
+      "outputs": {"AQ": "analog", "Q": "digital"},
+      "tests": [
+        {"desc": "zero", "set": {"I": 0.0}, "expect": {"AQ": 0.0, "Q": 0}},
+        {"desc": "nonzero", "set": {"I": 42.0}, "expect": {"AQ": 42.0, "Q": 1}},
+        {"desc": "negative", "set": {"I": -5.0}, "expect": {"AQ": -5.0, "Q": 1}}
+      ]
+    }
+  },
+  "wiring": {}
+}

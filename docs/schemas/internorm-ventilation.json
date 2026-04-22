@@ -1,0 +1,176 @@
+{
+  "title": "Internorm Fan",
+  "xml_type": "",
+  "kb_slug": "internorm-ventilation",
+  "description": "This block is used to control an Internorm I-tec ventilation system. Humidity, CO2 value, as well as indoor and outdoor temperature can be included.",
+  "inputs": [
+    {
+      "abbreviation": "Sat",
+      "summary": "Supply air temperature",
+      "description": "Used to support temperature control in combination with the Intelligent Room Controller and for frost protection. If this input is not connected the system variable \"Outdoor Temperature\" is used. If this variable is not available, support for temperature control and frost protection is not available.",
+      "unit": "\u00b0",
+      "value_range": "\u221e"
+    },
+    {
+      "abbreviation": "Dwc",
+      "summary": "Door/window contact",
+      "description": "1 = Open, 0 = Closed",
+      "unit": "-",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "Off",
+      "summary": "Off",
+      "description": "1 = control stopped and set to lock",
+      "unit": "-",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "Sm",
+      "summary": "Sleep mode",
+      "description": "Digital Input - Sleep Mode: Turns off ventilation for the time set in parameter (Smt). Afterwards, the block will start again with ventilation.",
+      "unit": "-",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "B",
+      "summary": "Boost",
+      "description": "Stops the control and sets the output to 100 percent.",
+      "unit": "-",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "Ex",
+      "summary": "Exhaust air",
+      "description": "Stops the control and activates exhaust air at 100 percent. ATTENTION: This input can only be used if the block property \"Exhaust air/supply air operation allowed\" is activated. This input is only visible in certain configurations.",
+      "unit": "-",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "Rtd",
+      "summary": "Reset to default",
+      "description": "Resets parameters and settings of the block to the default values as specified in the block preset.",
+      "unit": "-",
+      "value_range": "0/1"
+    }
+  ],
+  "outputs": [
+    {
+      "abbreviation": "S",
+      "summary": "Status",
+      "description": "Analog Output - Value indicates which parameter is driving the ventilation. This output is for informational reasons only. 0: Basic Ventilation, 1: Increased Humidity, 2: Temperature Control, 3: Poor Air Quality (CO2), 4: Manual Stop, 5: Window Open, 6: Manual Boost, 7: Manual Control User Interface, 8: Manual Exhaust Air, 9: Sleep Mode, 10: Frost Protection.",
+      "value_range": "0...10"
+    },
+    {
+      "abbreviation": "Fc",
+      "summary": "Filter change",
+      "description": "Digital Output - Filter Change: Indicates whether air filters need to be changed.",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "Error",
+      "summary": "Error",
+      "description": "Analogue error output: Indicates if there is an error: 0 = No Error, 1 = Offline, 2 = Flaps closed, 100-115 = Internorm error code.",
+      "value_range": "\u221e"
+    },
+    {
+      "abbreviation": "API",
+      "summary": "API Connector",
+      "description": "Intelligent API based connector. API Commands",
+      "value_range": "-"
+    }
+  ],
+  "parameters": [
+    {
+      "abbreviation": "Hmax",
+      "summary": "Maximum humidity",
+      "description": "The block will attempt to keep (Hi) below set value.",
+      "unit": "%",
+      "value_range": "0...100",
+      "default_value": "60"
+    },
+    {
+      "abbreviation": "CO2max",
+      "summary": "Maximum CO2 (air pollution)",
+      "description": "The block will attempt to keep (CO2) below set value.",
+      "unit": "ppm",
+      "value_range": "0...\u221e",
+      "default_value": "1000"
+    },
+    {
+      "abbreviation": "Pet",
+      "summary": "Presence extend time",
+      "description": "Starts with the falling edge of input (P). Extends presence by the specified time.",
+      "unit": "s",
+      "value_range": "0...\u221e",
+      "default_value": "1800"
+    },
+    {
+      "abbreviation": "Smt",
+      "summary": "Sleep mode timeout",
+      "description": "Starts with the falling edge of input (Sm). Keeps the device off for the specified time.",
+      "unit": "s",
+      "value_range": "0...\u221e",
+      "default_value": "7200"
+    },
+    {
+      "abbreviation": "Iva",
+      "summary": "Intensive ventilation absence",
+      "description": "The value for the fan when presence is Off and (Hi) is greater than the parameter (Hmax). Intensive ventilation stops when (Hi) is less than (Hmax - 3%). In the \"Supporting temperature control\" and \"Poor air quality (CO2)\" modes, this value is used as the maximum.",
+      "unit": "%",
+      "value_range": "0...100",
+      "default_value": "100"
+    },
+    {
+      "abbreviation": "Bva",
+      "summary": "Basic ventilation absence",
+      "description": "Value for fan in automatic mode when presence is Off. In temperature mode this value is used as minimum.",
+      "unit": "%",
+      "value_range": "0...100",
+      "default_value": "10"
+    },
+    {
+      "abbreviation": "Ivp",
+      "summary": "Intensive ventilation presence",
+      "description": "The value for the fan when presence is On and (Hi) is greater than the parameter (Hmax). Intensive ventilation stops when (Hi) is less than (Hmax - 3%). In the \"Supporting temperature control\" and \"Poor air quality (CO2)\" modes, this value is used as the maximum.",
+      "unit": "%",
+      "value_range": "0...100",
+      "default_value": "30"
+    },
+    {
+      "abbreviation": "Bvp",
+      "summary": "Basic ventilation presence",
+      "description": "Value for fan in automatic mode when presence is On. In temperature mode this value is used as minimum.",
+      "unit": "%",
+      "value_range": "0...100",
+      "default_value": "22"
+    }
+  ],
+  "properties": [
+    {
+      "summary": "Energy Costs",
+      "description": "Costs for running this source. Sources that have been configured to be 'Expensive' will only be requested by room controllers if no sources with higher priorities are available.",
+      "default_value": "-"
+    },
+    {
+      "summary": "Extract / Supply permitted",
+      "description": "Sets whether a fan is permitted to operate as extract only. When active, an extra input is available on the Leaf function block which can be used to start the extract mode. WARNING: If a room has an open fireplace an extract fan in close proximity may result in smoke being pulled into the room!",
+      "default_value": "-"
+    },
+    {
+      "summary": "Airflow direction (heat exchanger disabled)",
+      "description": "Sets the direction of ventilation when the heat exchanger is switched off for an Internorm fan. If the heat exchanger is active, there is no prevailing ventilation direction, supply air and exhaust air run simultaneously.",
+      "default_value": "-"
+    },
+    {
+      "summary": "Linked Fan",
+      "description": "Fan linked to this function block. Devices that can be assigned: Internorm I-Tec Ventilation",
+      "default_value": "-"
+    }
+  ],
+  "source_url": "https://www.loxone.com/enen/kb/internorm-ventilation/",
+  "input_count": 7,
+  "output_count": 4,
+  "parameter_count": 8,
+  "property_count": 4
+}

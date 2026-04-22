@@ -1,0 +1,248 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  build:
+    name: Build ${{ matrix.target }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        include:
+          - target: x86_64-unknown-linux-musl
+            os: ubuntu-latest
+            artifact: lox-cli-linux-x86_64
+          - target: aarch64-unknown-linux-musl
+            os: ubuntu-latest
+            artifact: lox-cli-linux-aarch64
+          - target: x86_64-apple-darwin
+            os: macos-latest
+            artifact: lox-cli-macos-x86_64
+          - target: aarch64-apple-darwin
+            os: macos-latest
+            artifact: lox-cli-macos-aarch64
+          - target: x86_64-pc-windows-msvc
+            os: windows-latest
+            artifact: lox-cli-windows-x86_64
+          - target: aarch64-pc-windows-msvc
+            os: windows-latest
+            artifact: lox-cli-windows-aarch64
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Rust stable
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.target }}
+
+      - name: Install cargo-zigbuild (Linux musl)
+        if: contains(matrix.target, 'linux-musl')
+        run: |
+          pip install ziglang
+          cargo install cargo-zigbuild --locked
+
+      - name: Cache cargo
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: ${{ runner.os }}-${{ matrix.target }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: ${{ runner.os }}-${{ matrix.target }}-cargo-
+
+      - name: Build (zigbuild for musl)
+        if: contains(matrix.target, 'linux-musl')
+        run: cargo zigbuild --release --target ${{ matrix.target }}
+
+      - name: Build
+        if: ${{ !contains(matrix.target, 'linux-musl') }}
+        run: cargo build --release --target ${{ matrix.target }}
+
+      - name: Rename binary (Unix)
+        if: runner.os != 'Windows'
+        run: |
+          cp target/${{ matrix.target }}/release/lox ${{ matrix.artifact }}
+
+      - name: Rename binary (Windows)
+        if: runner.os == 'Windows'
+        run: |
+          cp target/${{ matrix.target }}/release/lox.exe ${{ matrix.artifact }}.exe
+
+      - name: SHA256 checksum (Unix)
+        if: runner.os != 'Windows'
+        run: |
+          if command -v sha256sum >/dev/null 2>&1; then
+            sha256sum ${{ matrix.artifact }} > ${{ matrix.artifact }}.sha256
+          else
+            shasum -a 256 ${{ matrix.artifact }} > ${{ matrix.artifact }}.sha256
+          fi
+
+      - name: SHA256 checksum (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          $hash = (Get-FileHash "${{ matrix.artifact }}.exe" -Algorithm SHA256).Hash.ToLower()
+          "$hash  ${{ matrix.artifact }}.exe" | Out-File -Encoding ascii "${{ matrix.artifact }}.exe.sha256"
+
+      - name: Upload artifacts (Unix)
+        if: runner.os != 'Windows'
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.artifact }}
+          path: |
+            ${{ matrix.artifact }}
+            ${{ matrix.artifact }}.sha256
+
+      - name: Upload artifacts (Windows)
+        if: runner.os == 'Windows'
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.artifact }}
+          path: |
+            ${{ matrix.artifact }}.exe
+            ${{ matrix.artifact }}.exe.sha256
+
+  release:
+    name: Create GitHub Release
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+          merge-multiple: true
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: artifacts/*
+          generate_release_notes: true
+
+  docker:
+    name: Push Docker image
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download Linux artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+          merge-multiple: true
+
+      - name: Prepare binaries
+        run: |
+          mkdir -p docker/linux/amd64 docker/linux/arm64
+          cp artifacts/lox-cli-linux-x86_64 docker/linux/amd64/lox
+          cp artifacts/lox-cli-linux-aarch64 docker/linux/arm64/lox
+          chmod +x docker/linux/amd64/lox docker/linux/arm64/lox
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Docker metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ghcr.io/${{ github.repository }}
+          tags: |
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=raw,value=latest
+
+      - name: Build and push
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: Dockerfile.release
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+
+  update-homebrew:
+    name: Update Homebrew Formula
+    needs: release
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+          merge-multiple: true
+
+      - name: Update formula with checksums
+        run: |
+          VERSION="${GITHUB_REF_NAME#v}"
+          export SHA_MACOS_ARM=$(awk '{print $1}' artifacts/lox-cli-macos-aarch64.sha256)
+          export SHA_MACOS_X86=$(awk '{print $1}' artifacts/lox-cli-macos-x86_64.sha256)
+          export SHA_LINUX_ARM=$(awk '{print $1}' artifacts/lox-cli-linux-aarch64.sha256)
+          export SHA_LINUX_X86=$(awk '{print $1}' artifacts/lox-cli-linux-x86_64.sha256)
+
+          sed -i "s/^  version \".*\"/  version \"${VERSION}\"/" Formula/lox-cli.rb
+
+          # Update SHA256 values in order of appearance:
+          # 1st = macos-aarch64, 2nd = macos-x86_64,
+          # 3rd = linux-aarch64, 4th = linux-x86_64
+          python3 - <<'PYEOF'
+          import re, os
+
+          sha_map = [
+              os.environ["SHA_MACOS_ARM"],
+              os.environ["SHA_MACOS_X86"],
+              os.environ["SHA_LINUX_ARM"],
+              os.environ["SHA_LINUX_X86"],
+          ]
+
+          with open("Formula/lox-cli.rb") as f:
+              content = f.read()
+
+          idx = [0]
+          def replacer(m):
+              i = idx[0]
+              idx[0] += 1
+              return f'sha256 "{sha_map[i]}"'
+
+          content = re.sub(r'sha256 "[^"]*"', replacer, content)
+
+          with open("Formula/lox-cli.rb", "w") as f:
+              f.write(content)
+          PYEOF
+
+      - name: Commit updated formula
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add Formula/lox-cli.rb
+          git commit -m "brew: update formula to ${GITHUB_REF_NAME}"
+          git push origin main

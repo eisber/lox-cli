@@ -1,0 +1,8 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Modbus Title="Metz Connect MR-DI4 Modbus RTU" Comment="" HintText="" Baudrate="9600" Channel="1">
+	<Info templateType="7" minVersion="15031213"/>
+	<ModbusCmd Title="Digital input 1" Comment="" HintText="" ModbusCmd="2" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="1" DestValHigh="255"/>
+	<ModbusCmd Title="Digital input 2" Comment="" HintText="" ModbusAddress="1" ModbusCmd="2" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="1" DestValHigh="255"/>
+	<ModbusCmd Title="Digital input 4" Comment="" HintText="" ModbusAddress="3" ModbusCmd="2" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="1" DestValHigh="255"/>
+	<ModbusCmd Title="Digital input 3" Comment="" HintText="" ModbusAddress="2" ModbusCmd="2" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="1" DestValHigh="255"/>
+</Modbus>

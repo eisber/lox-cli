@@ -1,0 +1,21 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Modbus Title="Heidelberg Energy Control" Comment="" Baudrate="19200" Parity="1" Channel="1">
+	<Info templateType="7" minVersion="12021027"/>
+	<ModbusCmd Title="L1 Current RMS" Comment="1=0,1 A RMS" ModbusAddress="6" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="L2 Current RMS" Comment="1=0,1 A RMS" ModbusAddress="7" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="L3 Current RMS" Comment="1=0,1 A RMS" ModbusAddress="8" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="PCB-Temperatur in 0,1 °C" Comment="325 = 32,5C° _ -145=14,5 C°" ModbusAddress="9" ModbusCmd="4" ModbusDataType="1" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="L1 Voltage" Comment="238 = 238V" ModbusAddress="10" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v.1V&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="L2 Voltage" Comment="238 = 238V" ModbusAddress="11" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="L3 Voltage" Comment="238 = 238V" ModbusAddress="12" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Extern Lock State" Comment="0 = Locked 1= unlocked" ModbusAddress="13" ModbusCmd="4" ModbusPollingCycle="5" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="Power (L1+L2+L3) in VA" Comment="" ModbusAddress="14" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v.1VA&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Energy since PowerOn" Comment="1000=1000VAh" ModbusAddress="16" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v.1VAh&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Energy since Installation" Comment="1000=1000VAh" ModbusAddress="18" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v.1VAh&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Hardware configuration max current" Comment="10=10A" ModbusAddress="100" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v.1A&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Hardware configuration min current" Comment="" ModbusAddress="101" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v.1A&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Charging State" Comment="" ModbusAddress="5" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Max Current A 60-160" Comment="100=10A" ModbusAddress="261" ModbusCmd="6" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Standby Function Control" Comment="0=Enable 4=Disable" ModbusAddress="258" ModbusCmd="6" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Remote Lock" Comment="0=locked 1= unlocked" ModbusAddress="259" ModbusCmd="6" Unit="" Analog="false" Sensor="false"/>
+</Modbus>

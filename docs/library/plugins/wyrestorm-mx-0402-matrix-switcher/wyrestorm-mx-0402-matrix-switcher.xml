@@ -1,0 +1,12 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Comm Title="Wyrestorm MX-0402-3xx Matrix Switcher" Comment="" RS485="false" Baudrate="9600" Databits="8">
+    <Info templateType="5" minVersion="12010617"/>
+	<CommCmd Title="Input 1 on Output 1" Comment="" CmdOn="\x63\x69\x72\x20\x31\x37\x0D\x0A" CmdOff="" Unit="" Analog="false" Text="false" Sensor="false"/>
+	<CommCmd Title="Input 1 on Output 2" Comment="" CmdOn="\x63\x69\x72\x20\x30\x36\x0D\x0A" CmdOff="" Unit="" Analog="false" Text="false" Sensor="false"/>
+	<CommCmd Title="Input 2 on Output 1" Comment="" CmdOn="\x63\x69\x72\x20\x31\x32\x0D\x0A" CmdOff="" Unit="" Analog="false" Text="false" Sensor="false"/>
+	<CommCmd Title="Input 2 on Output 2" Comment="" CmdOn="\x63\x69\x72\x20\x30\x36\x0D\x0A" CmdOff="" Unit="" Analog="false" Text="false" Sensor="false"/>
+	<CommCmd Title="Input 3 on Output 1" Comment="" CmdOn="\x63\x69\x72\x20\x35\x39\x0D\x0A" CmdOff="" Unit="" Analog="false" Text="false" Sensor="false"/>
+	<CommCmd Title="Input 3 on Output 2" Comment="" CmdOn="\x63\x69\x72\x20\x30\x35\x0D\x0A" CmdOff="" Unit="" Analog="false" Text="false" Sensor="false"/>
+	<CommCmd Title="Input 4 on Output 1" Comment="" CmdOn="\x63\x69\x72\x20\x30\x38\x0D\x0A" CmdOff="" Unit="" Analog="false" Text="false" Sensor="false"/>
+	<CommCmd Title="Input 4 on Output 2" Comment="" CmdOn="\x63\x69\x72\x20\x30\x33\x0D\x0A" CmdOff="" Unit="" Analog="false" Text="false" Sensor="false"/>
+</Comm>

@@ -1,0 +1,142 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Modbus Title="SOLARFOCUS Distribution" Comment="" HintText="" Channel="1">
+	<Info templateType="7" minVersion="14070201"/>
+	<ModbusCmd Title="1100 - Actual Flowtemperature HC1" Comment="Actual Flowtemperature HC1" HintText="" ModbusAddress="1100" ModbusCmd="4" ModbusDataType="1" ModbusPollingCycle="30" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="10"/>
+	<ModbusCmd Title="1103 - State Safety Temperature Thermostat HC1" Comment="State Safety Temperature Thermostat HC1" HintText="1= Temperature OK
+0= Temperature Overload" ModbusAddress="1103" ModbusCmd="4" ModbusPollingCycle="30" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="1105 - State Circulationpump HC1" Comment="State Circulationpump HC1" HintText="0=Off, 1=On" ModbusAddress="1105" ModbusCmd="4" ModbusPollingCycle="30" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="1106 - State Mixing Valve Position HC1" Comment="State Mixing Valve Position HC1" HintText="" ModbusAddress="1106" ModbusCmd="4" ModbusPollingCycle="30" Unit="&lt;v&gt;%" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="1107 - State Operation mode HC1" Comment="State Operation mode HC1" HintText="0 .... Heating circuit switched off
+1 .... Reduced mode
+2 .... Heating mode
+3 .... Holiday mode
+4 .... Screed program
+5 .... Frost protection mode
+6 .... Chimney sweep
+7 .... Heating circuit not released
+8 .... Heat dissipation
+9 .... Ambient switch-off temperature heating mode reached
+10 .. Room set temperature heating mode reached
+11 .. DHW tank priority is active
+12 .. Continuous heating
+13 .. Continuous reduction mode
+14 .. Outside sensor interruption
+15..
+16..
+17..
+18.." ModbusAddress="1107" ModbusCmd="4" ModbusPollingCycle="30" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="1150 - Actual Flowtemperature HC2" Comment="Actual Flowtemperature HC2" HintText="" ModbusAddress="1150" ModbusCmd="4" ModbusDataType="1" ModbusPollingCycle="30" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="1"/>
+	<ModbusCmd Title="1153 - State Safety Temperature Thermostat HC2" Comment="State Safety Temperature Thermostat HC2" HintText="1= Temperature OK
+0= Temperature Overload" ModbusAddress="1153" ModbusCmd="4" ModbusPollingCycle="30" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="1155 - State Circulationpump HC2" Comment="State Circulationpump HC2" HintText="0=Off, 1=On" ModbusAddress="1155" ModbusCmd="4" ModbusPollingCycle="30" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="1156 - State Mixing Valve Position HC2" Comment="State Mixing Valve Position HC2" HintText="" ModbusAddress="1156" ModbusCmd="4" ModbusPollingCycle="30" Unit="&lt;v&gt;%" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="1157 - State Operation mode HC2" Comment="State Operation mode HC2" HintText="0 .... Heating circuit switched off
+1 .... Reduced mode
+2 .... Heating mode
+3 .... Holiday mode
+4 .... Screed program
+5 .... Frost protection mode
+6 .... Chimney sweep
+7 .... Heating circuit not released
+8 .... Heat dissipation
+9 .... Ambient switch-off temperature heating mode reached
+10 .. Room set temperature heating mode reached
+11 .. DHW tank priority is active
+12 .. Continuous heating
+13 .. Continuous reduction mode
+14 .. Outside sensor interruption
+15..
+16..
+17..
+18.." ModbusAddress="1157" ModbusCmd="4" ModbusPollingCycle="30" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="1900 - Actual Heating/Cooling Buffer Temperature Top" Comment="Actual Heating/Cooling Buffer Temperature Top" HintText="" ModbusAddress="1900" ModbusCmd="4" ModbusDataType="1" ModbusPollingCycle="30" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="10"/>
+	<ModbusCmd Title="1901 - Actual Heating/Cooling Buffer Temperature Bottom" Comment="Actual Heating/Cooling Buffer Temperature Bottom" HintText="" ModbusAddress="1901" ModbusCmd="4" ModbusDataType="1" ModbusPollingCycle="30" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="10"/>
+	<ModbusCmd Title="1903 - State Heating/Cooling Buffer Circulation Pump" Comment="State Heating/Cooling Buffer Circulation Pump" HintText="0=not charging, 1=charging" ModbusAddress="1903" ModbusCmd="4" ModbusPollingCycle="30" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="1904 - State Heating/Cooling Buffer Operation state" Comment="State Heating/Cooling Buffer Operation state" HintText="0…Status not present
+1…Standby
+2… Buffer tank charging
+3…Frost protection mode
+4…Chimney sweep
+5…Heat dissipation
+6…Pump test run is active
+7…DHW tank charging" ModbusAddress="1904" ModbusCmd="4" ModbusPollingCycle="30" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="1905 - State Heating/Cooling Buffer Operation mode" Comment="State Heating/Cooling Buffer Operation mode" HintText="0…Always off
+1…Always on
+2…Time switching" ModbusAddress="1905" ModbusCmd="4" ModbusPollingCycle="30" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="500 - Actual Hot Water Storage Temperature" Comment="Actual Hot Water Storage Temperature" HintText="" ModbusAddress="500" ModbusCmd="4" ModbusDataType="1" ModbusPollingCycle="30" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="10"/>
+	<ModbusCmd Title="501 - State Hot Water Storage Operation State" Comment="State Hot Water Storage Operation State" HintText="0…DHW tank status not present
+1…Standby
+2…Charge
+3…Frost protection
+4…Chimney sweep mode
+5…Legionella protection
+6…Request
+7…Energy source too hot
+8…Blockage protection
+9…One-off release active
+10…Sensor short circuit
+11…Sensor interruption
+12…Holiday mode
+13…Defrost" ModbusAddress="501" ModbusCmd="4" ModbusPollingCycle="30" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="502 - State Hot Water Storage Operation mode" Comment="State Hot Water Storage Operation mode" HintText="0…Always off
+1…Always on
+2…Monday – Sunday
+3…By block (Monday – Friday, Saturday – Sunday)
+4…By day" ModbusAddress="502" ModbusCmd="4" ModbusPollingCycle="30" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="32600 - Target Flowtemperature HC1" Comment="Target Flowtemperature HC1" HintText="Vampair Pro
+MIN= 20°C
+MAX=70°C
+COOLING MODE = ATTENTION TO DEWPOINT 
+ATTENTION TO TEMPERATURES UNDER 18 DEGREE! 
+" ModbusAddress="32600" ModbusCmd="16" ModbusDataType="1" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="100" RepeatRate="60"/>
+	<ModbusCmd Title="32602 - Release Cooling HC1" Comment="Release Cooling HC1" HintText="0…Heating circuit is to be heated if target flow &gt; 0
+1…Heating circuit is to be cooled if target flow &gt; 0 (see required flow temperature, cooling)
+
+Vampair Pro
+MIN= 20°C
+MAX=70°C
+COOLING MODE = ATTENTION TO DEWPOINT 
+ATTENTION TO TEMPERATURES UNDER 18 DEGREE! " ModbusAddress="32602" ModbusCmd="16" ModbusDataType="1" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100" RepeatRate="60"/>
+	<ModbusCmd Title="32603 - Operation Mode HC1" Comment="Operation Mode HC1" HintText="0…Continuous mode
+1…Reduced mode
+2…Automatic (time setting is observed)
+3…Heating circuit switched off (frost guard only)" ModbusAddress="32603" ModbusCmd="16" ModbusDataType="1" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100" RepeatRate="60"/>
+	<ModbusCmd Title="32003 - Hot Water Circulationpump" Comment="Hot Water Circulationpump" HintText="0=OFF
+1=ON
+Attention Schedule on Solarfocus operation control!" ModbusAddress="32003" ModbusCmd="16" ModbusDataType="1" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100" RepeatRate="60"/>
+	<ModbusCmd Title="32650 - Target Flowtemperature HC2" Comment="Target Flowtemperature HC2" HintText="Vampair Pro
+MIN= 20°C
+MAX=70°C
+COOLING MODE = ATTENTION TO DEWPOINT 
+ATTENTION TO TEMPERATURES UNDER 18 DEGREE! " ModbusAddress="32650" ModbusCmd="16" ModbusDataType="1" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="100" RepeatRate="60"/>
+	<ModbusCmd Title="32652 - Release Cooling HC2" Comment="Release Cooling HC2" HintText="0…Heating circuit is to be heated if target flow &gt; 0
+1…Heating circuit is to be cooled if target flow &gt; 0 (see required flow temperature, cooling)
+
+Vampair Pro
+MIN= 20°C
+MAX=70°C
+COOLING MODE = ATTENTION TO DEWPOINT 
+ATTENTION TO TEMPERATURES UNDER 18 DEGREE! " ModbusAddress="32652" ModbusCmd="16" ModbusDataType="1" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100" RepeatRate="60"/>
+	<ModbusCmd Title="32653 - Operating mode HC2" Comment="Operating mode HC2" HintText="0…Continuous mode
+1…Reduced mode
+2…Automatic (time setting is observed)
+3…Heating circuit switched off (frost guard only)" ModbusAddress="32653" ModbusCmd="16" ModbusDataType="1" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100" RepeatRate="60"/>
+	<ModbusCmd Title="32000 - Hot Water Targettemperature" Comment="Hot Water Targettemperature" HintText="Vimpair Pro= 
+MIN= 12Grad
+MAX= 65Grad" ModbusAddress="32000" ModbusCmd="16" ModbusDataType="1" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="100" RepeatRate="60"/>
+	<ModbusCmd Title="32002 - Hot Water Operation mode" Comment="Hot Water Operation mode" HintText="0…Always off
+1…Always on
+2…Monday – Sunday 
+3…By block (Monday – Friday, Saturday – Sunday)
+4…By day" ModbusAddress="32002" ModbusCmd="16" ModbusDataType="1" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100" RepeatRate="60"/>
+	<ModbusCmd Title="32608 - Operation Mode HC1" Comment="Operation Mode HC1" HintText="0…Heating
+1…Cooling
+2…Heating+Cooling" ModbusAddress="32608" ModbusCmd="16" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10" RepeatRate="20"/>
+	<ModbusCmd Title="32658 - Operation Mode HC2" Comment="Operation Mode HC2" HintText="0…Heating
+1…Cooling
+2…Heating+Cooling" ModbusAddress="32658" ModbusCmd="16" ModbusDataType="1" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100" RepeatRate="15"/>
+	<ModbusCmd Title="32606 - Actual Roomtemperature HC1" Comment="Actual Roomtemperature HC1" HintText="MIN=5°C
+MAX=45°C" ModbusAddress="32606" ModbusCmd="16" ModbusDataType="1" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="100" RepeatRate="20"/>
+	<ModbusCmd Title="32656 - Actual Roomtemperature HC2" Comment="Actual Roomtemperature HC2" HintText="MIN=5°C
+MAX=45°C" ModbusAddress="32656" ModbusCmd="16" ModbusDataType="1" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="100" RepeatRate="20"/>
+</Modbus>

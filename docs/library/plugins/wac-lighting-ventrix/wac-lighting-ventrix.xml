@@ -1,0 +1,6 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<VirtualOut Title="WAC" Comment="" Address="http://&lt;IP-ADDRESS&gt;" CmdInit="" HintText="" CloseAfterSend="true" CmdSep=";">
+	<Info templateType="3" minVersion="15000529"/>
+	<VirtualOutCmd Title="Fixture" Comment="" CmdOnMethod="POST" CmdOffMethod="GET" CmdOn="/fixture" CmdOnHTTP="Content Type: application/json" CmdOnPost="&lt;v&gt;" CmdOff="" CmdOffHTTP="" CmdOffPost="" CmdAnswer="" HintText="" Analog="true" Repeat="0" RepeatRate="0" SourceValHigh="10" DestValHigh="10"/>
+	<VirtualOutCmd Title="Group" Comment="" CmdOnMethod="POST" CmdOffMethod="GET" CmdOn="/group" CmdOnHTTP="Content Type: application/json" CmdOnPost="&lt;v&gt;" CmdOff="" CmdOffHTTP="" CmdOffPost="" CmdAnswer="" HintText="" Analog="true" Repeat="0" RepeatRate="0" SourceValHigh="10" DestValHigh="10"/>
+</VirtualOut>

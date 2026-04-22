@@ -1,0 +1,63 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Modbus Title="Belimo 6-way EPIV V4 Modbus RTU" Comment="" HintText="" Baudrate="38400" Stopbits="1" Channel="1">
+	<Info templateType="7" minVersion="15021014"/>
+	<ModbusCmd Title="Relative position" Comment="" HintText="" ModbusAddress="4" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v.2&gt;%" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="10"/>
+	<ModbusCmd Title="Absolute position" Comment="" HintText="" ModbusAddress="5" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v.2&gt;°" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="10"/>
+	<ModbusCmd Title="Relative volumetric flow" Comment="" HintText="" ModbusAddress="6" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v.2&gt;%" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="10"/>
+	<ModbusCmd Title="Absolute volumetric flow in selected unit" Comment="" HintText="" ModbusAddress="9" ModbusCmd="3" ModbusDataType="34" ModbusPollingCycle="60" Unit="&lt;v.3&gt;l/h" Analog="true" Sensor="true" SourceValHigh="10000" DestValHigh="10"/>
+	<ModbusCmd Title="Setpoint analog" Comment="" HintText="" ModbusAddress="11" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v.2&gt;%" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="10"/>
+	<ModbusCmd Title="Temperature (flow body) in Celcius" Comment="" HintText="" ModbusAddress="21" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="60" Unit="&lt;v.2&gt;°C" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="10"/>
+	<ModbusCmd Title="Temperature (flow body) in Fahrenheit" Comment="" HintText="" ModbusAddress="22" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="60" Unit="&lt;v.2&gt;°F" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="10"/>
+	<ModbusCmd Title="Glycol concentration" Comment="" HintText="" ModbusAddress="25" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v.2&gt;%" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="10"/>
+	<ModbusCmd Title="Series number 1st part" Comment="" HintText="" ModbusAddress="100" ModbusCmd="3" ModbusPollingCycle="300" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Series number 2nd part" Comment="" HintText="" ModbusAddress="101" ModbusCmd="3" ModbusPollingCycle="300" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Series number 4th part" Comment="" HintText="" ModbusAddress="102" ModbusCmd="3" ModbusPollingCycle="300" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Firmware version" Comment="" HintText="" ModbusAddress="103" ModbusCmd="3" ModbusPollingCycle="300" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Error state" Comment="" HintText="" ModbusAddress="104" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Absolute volumetric flow in liter per second" Comment="" HintText="" ModbusAddress="7" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v.3&gt;l/s" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="10"/>
+	<ModbusCmd Title="Absolute volumetric flow in gpm" Comment="" HintText="" ModbusAddress="8" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v.3&gt;gpm" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="10"/>
+	<ModbusCmd Title="Setpoint absolute flow in selected unit" Comment="" HintText="" ModbusAddress="17" ModbusCmd="3" ModbusDataType="98" ModbusPollingCycle="60" Unit="&lt;v.3&gt;l/h" Analog="true" Sensor="true" SourceValHigh="10000" DestValHigh="10"/>
+	<ModbusCmd Title="Nominal volumetric flow in selected unit" Comment="" HintText="" ModbusAddress="112" ModbusCmd="3" ModbusDataType="98" ModbusPollingCycle="300" Unit="&lt;v.3&gt;l/h" Analog="true" Sensor="true" SourceValHigh="10000" DestValHigh="10"/>
+	<ModbusCmd Title="Nominal volumetric flow in liter per second" Comment="" HintText="" ModbusAddress="110" ModbusCmd="3" ModbusPollingCycle="300" Unit="&lt;v.3&gt;l/s" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="10"/>
+	<ModbusCmd Title="Nominal volumetric flow in gpm" Comment="" HintText="" ModbusAddress="111" ModbusCmd="3" ModbusPollingCycle="300" Unit="&lt;v.3&gt;gpm" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="10"/>
+	<ModbusCmd Title="Sensor 1 value" Comment="" HintText="" ModbusAddress="12" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v&gt;mV" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Setpoint absolute flow in liter per second" Comment="" HintText="" ModbusAddress="15" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v.3&gt;l/s" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="10"/>
+	<ModbusCmd Title="Setpoint absolute flow in gpm" Comment="" HintText="" ModbusAddress="16" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v.3&gt;gpm" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="10"/>
+	<ModbusCmd Title="Accumulated volume in cubic meter" Comment="" HintText="" ModbusAddress="59" ModbusCmd="3" ModbusDataType="34" ModbusPollingCycle="60" Unit="&lt;v.2&gt;m3" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="10"/>
+	<ModbusCmd Title="Accumulated volume in gallon" Comment="" HintText="" ModbusAddress="61" ModbusCmd="3" ModbusDataType="34" ModbusPollingCycle="60" Unit="&lt;v.2&gt;gal" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Accumulated volume in selected unit" Comment="" HintText="" ModbusAddress="63" ModbusCmd="3" ModbusDataType="98" ModbusPollingCycle="60" Unit="&lt;v&gt;l/h" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Bus Termination" Comment="" HintText="" ModbusAddress="99" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Flow meter serial number first digits" Comment="" HintText="" ModbusAddress="200" ModbusCmd="3" ModbusDataType="34" ModbusPollingCycle="300" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Flow meter serial number last digits" Comment="" HintText="" ModbusAddress="202" ModbusCmd="3" ModbusDataType="34" ModbusPollingCycle="300" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Device Type" Comment="" HintText="" ModbusAddress="3" ModbusCmd="3" ModbusPollingCycle="300" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Actual sequence" Comment="" HintText="" ModbusAddress="217" ModbusCmd="3" ModbusPollingCycle="300" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Relative humidity" Comment="" HintText="" ModbusAddress="231" ModbusCmd="3" ModbusPollingCycle="300" Unit="&lt;v.2&gt;%" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="10"/>
+	<ModbusCmd Title="Condensation protection status" Comment="" HintText="" ModbusAddress="232" ModbusCmd="3" ModbusPollingCycle="300" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Setpoint relative" Comment="" HintText="" ModbusCmd="6" Unit="&lt;v.2&gt;%" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="10000" RepeatRate="60"/>
+	<ModbusCmd Title="Override control" Comment="" HintText="" ModbusAddress="1" ModbusCmd="6" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100" RepeatRate="60"/>
+	<ModbusCmd Title="Control Mode" Comment="" HintText="" ModbusAddress="116" ModbusCmd="6" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Unit Selection Flow" Comment="" HintText="" ModbusAddress="147" ModbusCmd="6" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Setpoint source" Comment="" HintText="" ModbusAddress="118" ModbusCmd="6" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Command" Comment="" HintText="" ModbusAddress="2" ModbusCmd="6" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100" RepeatRate="60"/>
+	<ModbusCmd Title="Timeout for bus watchdog" Comment="" HintText="" ModbusAddress="109" ModbusCmd="6" Unit="&lt;v&gt;s" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Bus fail action" Comment="" HintText="" ModbusAddress="108" ModbusCmd="6" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Sensor 1 type" Comment="" HintText="" ModbusAddress="120" ModbusCmd="6" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Unit Selection Volume" Comment="" HintText="" ModbusAddress="149" ModbusCmd="6" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Setpoint relative for sequence 1" Comment="" HintText="" ModbusAddress="53" ModbusCmd="6" Unit="&lt;v.2&gt;%" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="1000"/>
+	<ModbusCmd Title="Setpoint relative for sequence 2" Comment="" HintText="" ModbusAddress="54" ModbusCmd="6" Unit="&lt;v.2&gt;%" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="1000"/>
+	<ModbusCmd Title="Setpoint mode" Comment="" HintText="" ModbusAddress="219" ModbusCmd="6" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Invert sequences" Comment="" HintText="" ModbusAddress="218" ModbusCmd="6" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Max. flow limit for sequence 1 in percent" Comment="" HintText="" ModbusAddress="207" ModbusCmd="6" Unit="&lt;v.2&gt;%" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="1000"/>
+	<ModbusCmd Title="Max. flow limit for sequence 2 in percent" Comment="" HintText="" ModbusAddress="212" ModbusCmd="6" Unit="&lt;v.2&gt;%" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="1000"/>
+	<ModbusCmd Title="Max. flow limit for sequence 1 in liter per second" Comment="" HintText="" ModbusAddress="208" ModbusCmd="6" Unit="&lt;v.2&gt;l/s" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="1000"/>
+	<ModbusCmd Title="Max. flow limit for sequence 1 in gpm" Comment="" HintText="" ModbusAddress="209" ModbusCmd="6" Unit="&lt;v.1&gt;gpm" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="100"/>
+	<ModbusCmd Title="Max. flow limit for sequence 1 in selected unit" Comment="" HintText="" ModbusAddress="210" ModbusCmd="16" ModbusDataType="98" Unit="&lt;v.3&gt;l/h" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10000"/>
+	<ModbusCmd Title="Max. flow limit for sequence 2 in liter per second" Comment="" HintText="" ModbusAddress="213" ModbusCmd="6" Unit="&lt;v.2&gt;l/s" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="1000"/>
+	<ModbusCmd Title="Max. flow limit for sequence 2 in gpm" Comment="" HintText="" ModbusAddress="214" ModbusCmd="6" Unit="&lt;v.1&gt;gpm" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="100"/>
+	<ModbusCmd Title="Max. flow limit for sequence 2 in selected unit" Comment="" HintText="" ModbusAddress="215" ModbusCmd="16" ModbusDataType="98" Unit="&lt;v.3&gt;l/h" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10000"/>
+	<ModbusCmd Title="Enable condensation protection" Comment="" HintText="" ModbusAddress="229" ModbusCmd="6" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Condensation protection action" Comment="" HintText="" ModbusAddress="230" ModbusCmd="6" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Condensation warning threshold" Comment="" HintText="" ModbusAddress="234" ModbusCmd="6" Unit="&lt;v.2&gt;%" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="1000"/>
+	<ModbusCmd Title="Condensation alarm threshold" Comment="" HintText="" ModbusAddress="234" ModbusCmd="6" Unit="&lt;v.2&gt;%" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="1000"/>
+	<ModbusCmd Title="Condensation action delay" Comment="" HintText="" ModbusAddress="235" ModbusCmd="6" Unit="&lt;v&gt;s" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10"/>
+</Modbus>

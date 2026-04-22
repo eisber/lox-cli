@@ -1,0 +1,19 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Modbus Title="Circutor CEM-C30" Comment="" Baudrate="9600" Channel="2">
+	<Info templateType="7" minVersion="12021105"/>
+	<ModbusCmd Title="Voltage 1 (V)" Comment="" ModbusAddress="1842" ModbusCmd="3" ModbusDataType="35" ModbusPollingCycle="10" Unit="&lt;v.1&gt;V" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="Voltage 2 (V)" Comment="" ModbusAddress="1844" ModbusCmd="3" ModbusDataType="35" ModbusPollingCycle="10" Unit="&lt;v.1&gt;V" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="Voltage 3 (V)" Comment="" ModbusAddress="1846" ModbusCmd="3" ModbusDataType="35" ModbusPollingCycle="10" Unit="&lt;v.1&gt;V" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="Cos phi F1" Comment="" ModbusAddress="1854" ModbusCmd="3" ModbusDataType="35" ModbusPollingCycle="10" Unit="&lt;v.2&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="1"/>
+	<ModbusCmd Title="Cos phi F2" Comment="" ModbusAddress="1856" ModbusCmd="3" ModbusDataType="35" ModbusPollingCycle="10" Unit="&lt;v.2&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="1"/>
+	<ModbusCmd Title="Cos phi F3" Comment="" ModbusAddress="1858" ModbusCmd="3" ModbusDataType="35" ModbusPollingCycle="10" Unit="&lt;v.2&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="1"/>
+	<ModbusCmd Title="Energy (Kwh)" Comment="" ModbusCmd="3" ModbusDataType="35" ModbusPollingCycle="10" Unit="&lt;v.1&gt;Kwh" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="1"/>
+	<ModbusCmd Title="Partial Energy (Kwh)" Comment="" ModbusAddress="48" ModbusCmd="3" ModbusDataType="35" ModbusPollingCycle="10" Unit="&lt;v.1&gt;Kwh" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="1"/>
+	<ModbusCmd Title="Energy reac. (Kwrh)" Comment="" ModbusAddress="4" ModbusCmd="3" ModbusDataType="35" ModbusPollingCycle="10" Unit="&lt;v.1&gt;Kwrh" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="1"/>
+	<ModbusCmd Title="Partial Energy reac. (Kwrh)" Comment="" ModbusAddress="52" ModbusCmd="3" ModbusDataType="35" ModbusPollingCycle="10" Unit="&lt;v.1&gt;Kwrh" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="1"/>
+	<ModbusCmd Title="Power (Kw)" Comment="" ModbusAddress="1884" ModbusCmd="3" ModbusDataType="35" ModbusPollingCycle="10" Unit="&lt;v.3&gt;Kw" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="1"/>
+	<ModbusCmd Title="Amps 1 (A)" Comment="" ModbusAddress="1848" ModbusCmd="3" ModbusDataType="35" ModbusPollingCycle="10" Unit="&lt;v.1&gt;A" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Amps 2 (A)" Comment="" ModbusAddress="1850" ModbusCmd="3" ModbusDataType="35" ModbusPollingCycle="10" Unit="&lt;v.1&gt;A" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Amps 3 (A)" Comment="" ModbusAddress="1852" ModbusCmd="3" ModbusDataType="35" ModbusPollingCycle="10" Unit="&lt;v.1&gt;A" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Partial Reset" Comment="" ModbusAddress="2048" ModbusCmd="5" Unit="" Analog="false" Sensor="false"/>
+</Modbus>

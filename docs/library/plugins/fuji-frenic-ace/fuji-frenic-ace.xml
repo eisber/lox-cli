@@ -1,0 +1,9 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Modbus Title="Variador FUJI FRENIC-Ace" Comment="" Baudrate="19200" Channel="1">
+	<Info templateType="7" minVersion="12020927"/>
+	<ModbusCmd Title="M05 Frequency Reference" Comment="" ModbusAddress="2053" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="1"/>
+	<ModbusCmd Title="M09 Working Frequency" Comment="" ModbusAddress="2057" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="10"/>
+	<ModbusCmd Title="M50 INPUT VALUE C1 ANALOG" Comment="" ModbusAddress="2098" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValLow="4" SourceValHigh="20020" DestValHigh="10"/>
+	<ModbusCmd Title="S05 Frequency Reference" Comment="" ModbusAddress="1797" ModbusCmd="6" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="1" DestValHigh="100"/>
+	<ModbusCmd Title="S06 Motor 1 Operation" Comment="" ModbusAddress="1798" ModbusCmd="6" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+</Modbus>

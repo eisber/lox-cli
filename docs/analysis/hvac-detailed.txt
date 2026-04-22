@@ -1,0 +1,253 @@
+================================================================================
+LOXONE HVAC CONFIG ANALYSIS
+================================================================================
+
+CONFIG METADATA:
+  File: /tmp/hvac-fixed.Loxone
+  Version: 262 (reference version 267 = 5 versions older)
+  Total blocks: 162 unique types found
+  Connector-map reference: 195 types
+  Simulator implementation: 60 types
+
+================================================================================
+1. NEW HARDWARE TYPES (NOT IN CONNECTOR-MAP.JSON)
+================================================================================
+
+SYSTEM/INFRASTRUCTURE TYPES (76 total):
+  These are mostly system infrastructure, not actionable hardware blocks.
+  Include: Actor, Memory, Calendar, DateTime, Impulse*, SysVar, Logger, 
+  Modbus* (server/device), Notification, WeatherData, Lox1wire*, LoxAIR*,
+  VirtualIn, DigitalIn, DimCurrentIn, VoltageIn, etc.
+
+POTENTIALLY CRITICAL FOR HVAC (3 types):
+  ✗ OvertempShutdown   - Safety block for limiting max temperature
+  ✗ SwitchingTimer     - Timer-based switching logic
+  ✗ Switch2Button      - Input processing
+
+================================================================================
+2. BLOCKS IN CONNECTOR-MAP BUT NOT IN SIMULATOR (17 types)
+================================================================================
+
+CRITICAL FOR HVAC SIMULATION:
+  ✗ HVACController       - Core HVAC control logic (4 instances found in config)
+  ✗ HeatIRoomController2 - Intelligent room climate control (2 instances found)
+  ✗ Heatmixer            - Valve mixing control for heating circuits
+  ✗ Heatmixer2           - Second-generation valve mixer
+  ✗ AcControl            - Air conditioning logic (1 instance found)
+  ✗ HvacAC               - AC cooling control
+  ✗ DewPoint             - Dewpoint calculation (3 instances found)
+  ✗ Ventilation          - Ventilation control (2 instances found)
+
+SUPPORTING BLOCKS NOT IMPLEMENTED:
+  ✗ StatusMonitor        - Status monitoring/watchdog
+  ✗ TimeMinmax           - Time-based min/max tracking
+  ✗ Solarpumpcontrol     - Solar thermal pump control
+  ✗ StepSel              - Step selector logic
+  ✗ Validator            - Input validation
+  ✗ LightController2     - Not HVAC-critical but used in some configs
+  ✗ PushButton2Sel       - Input processing
+  ✗ CentralLight         - Not HVAC-critical
+  ✗ Avg                  - Averaging filter
+
+================================================================================
+3. EXTRACTED HVAC PARAMETERS (REAL VALUES FROM CONFIG)
+================================================================================
+
+HVACController (Heat Pump / Heating Sources):
+  Temperature Limits:
+    TempMin               = -22°C         (absolute minimum)
+    TempLimitH            = 15°C          (heating limit)
+    TempLimitC            = 18°C          (cooling limit)
+    Temp                  = -5.646°C      (offset correction)
+    TempAdditional        = -6°C          (additional heating threshold)
+  
+  Control Timing:
+    FanDelay              = 120s          (fan startup delay)
+    TimePulseOn           = 750s          (pulse on duration)
+    TimePulseOff          = 300s          (pulse off duration)
+    TimeAddional          = 60s           (additional heat timing)
+    OnThreshold           = 30 (units?)   (activation threshold)
+  
+  Advanced:
+    Average               = 2             (averaging window)
+
+HeatIRoomController2 (Intelligent Room Control):
+  Temperature Setpoints:
+    TComfort              = 22.5°C        (comfort mode heating)
+    TComfortC             = 24.5°C        (comfort cooling)
+    TComfortHC            = 22°C          (heating-cooling hybrid)
+    TSave                 = 2°C           (energy save offset)
+    TSaveL                = 3°C           (save low limit)
+    TSaveU                = 3°C           (save upper limit)
+    TMax                  = 28°C          (absolute max)
+    TDeepSleep            = 5°C           (deep sleep offset)
+    TExcess               = 1°C           (excess control threshold)
+  
+  Shading Control Thresholds:
+    TShadeHeat            = 27.5°C        (close shade above)
+    TShadeCool            = 23.5°C        (open shade above)
+  
+  Window Monitoring:
+    TWin                  = 300s          (window open timeout)
+  
+  PID Control:
+    THCelvin              = 120           (heating P-gain equivalent)
+    TCCelvin              = 60            (cooling P-gain equivalent)
+    TDiff                 = 1.5°C         (hysteresis band)
+  
+  Timing:
+    TimeC                 = 3600s         (1 hour cooling time constant)
+    TimeS                 = 3600s         (1 hour save time constant)
+    TimeMv                = 1800s         (30 min movement time)
+    TimeMove              = 14s           (presence move timeout)
+  
+  Schedule Control:
+    Timer entries with 8-15 schedule entries
+    Mode entries: Min/Max comfort levels per mode
+    Modes include presence detection, manual override, deep sleep
+
+AcControl (Air Conditioning):
+  Current State:
+    inTempCurr            = 15.4°C        (measured room temp)
+    inTempTarget          = 17°C          (AC setpoint)
+    inFan                 = 1             (fan speed level)
+    inAirDir              = 8             (air direction mode)
+  
+  Limits:
+    minTemp               = 1°C           (absolute minimum)
+    maxTemp               = 40°C          (absolute maximum)
+    parHyst               = 0.5°C         (hysteresis band)
+  
+  Timing:
+    parPause              = 7200s         (2 hour pause between cycles)
+    parOff                = 1             (off delay/margin)
+
+DewPoint:
+  - 3 instances found (outdoor, room 1, room 2)
+  - No default parameters visible in XML
+  - Calculates dew point for condensation prevention
+
+================================================================================
+4. BLOCK-BY-BLOCK IMPLEMENTATION STATUS
+================================================================================
+
+BLOCK TYPE                  | IN MAP? | SIMULATED? | HVAC CRITICAL? | NOTES
+────────────────────────────┼─────────┼────────────┼────────────────┼──────────────
+AMemory                     | YES     | YES        | NO             | General-purpose latch
+Add                         | YES     | YES        | NO             | Math operation
+AnalogMultiplexer2          | YES     | YES        | NO             | Signal router
+AnalogThresholdTrigger      | YES     | YES        | MAYBE          | Trigger on threshold
+And                         | YES     | YES        | NO             | Logic gate
+AMinmax                      | YES     | YES        | NO             | Auto min/max tracking
+Avg                         | YES     | NO         | YES            | Temperature averaging
+AcControl                   | YES     | NO         | YES (★★★)      | AC unit control
+Counter                     | YES     | YES        | NO             | Event counting
+DewPoint                    | YES     | NO         | MAYBE          | Humidity calc (3x in use)
+DayTimer                    | YES     | YES        | NO             | Schedule timer
+EdgeDetection               | YES     | YES        | NO             | Edge detection
+Equal                       | YES     | YES        | NO             | Comparison
+GreaterEqual                | YES     | YES        | NO             | Comparison
+HeatIRoomController2        | YES     | NO         | YES (★★★)      | Room thermostat (2x in use)
+Heatmixer                   | YES     | NO         | YES (★★★)      | 3-way valve mixing
+Heatmixer2                  | YES     | NO         | YES (★★★)      | Advanced valve mixing
+HVACController              | YES     | NO         | YES (★★★)      | Main HVAC logic (4x in use)
+HvacAC                      | YES     | NO         | YES (★★)       | AC control auxiliary
+Less                        | YES     | YES        | NO             | Comparison
+LessEqual                   | YES     | YES        | NO             | Comparison
+LightController2            | YES     | NO         | NO             | Lighting control
+Memory                      | NO      | YES        | NO             | State latch
+Monoflop                    | YES     | YES        | NO             | One-shot timer
+OffDelay                    | YES     | YES        | NO             | Delay off
+OnDelay                     | YES     | YES        | NO             | Delay on
+OnPulseDelay                | YES     | YES        | NO             | Pulse timing
+PushButton                  | YES     | NO         | NO             | Button input
+PushButton2Sel              | YES     | NO         | NO             | Multi-button input
+PulseAt                     | YES     | YES        | NO             | Time-pulse trigger
+PulseGen                    | YES     | YES        | NO             | Pulse generator
+Solarpumpcontrol            | YES     | NO         | MAYBE          | Solar thermal control
+State                       | YES     | YES        | NO             | State machine
+StateV                      | YES     | YES        | NO             | Analog state
+StatusMonitor               | YES     | NO         | MAYBE          | Watchdog/monitor
+StepSel                     | YES     | NO         | NO             | Step selector
+SwitchingTimer              | NO      | YES        | MAYBE          | Interval timer (3x in use)
+TimeMinmax                  | YES     | NO         | NO             | Time-based limit
+Validator                   | YES     | NO         | NO             | Input validation
+Ventilation                 | YES     | NO         | YES (★★)       | Fan control (2x in use)
+OvertempShutdown            | NO      | NO         | YES (★★)       | Safety shutdown (2x)
+
+Legend: ★★★ = Critical   ★★ = Important   ★ = Nice-to-have
+
+================================================================================
+5. IMPLEMENTATION PRIORITIES FOR HVAC SIMULATION
+================================================================================
+
+TIER 1 - ABSOLUTELY REQUIRED (without these, no heating/cooling works):
+  1. HVACController (4 instances, core loop)
+  2. HeatIRoomController2 (2 instances, room thermostats)
+  3. Heatmixer / Heatmixer2 (valve mixing logic)
+
+TIER 2 - HIGHLY IMPORTANT (AC and safety):
+  4. AcControl (AC unit operation)
+  5. HvacAC (AC auxiliary control)
+  6. OvertempShutdown (overtemp protection - 2 instances)
+  7. Ventilation (fan control - 2 instances)
+
+TIER 3 - SUPPORTING (improves accuracy):
+  8. DewPoint (3 instances - prevents condensation)
+  9. Avg (averaging temperatures)
+  10. StatusMonitor (for diagnostics)
+  11. SwitchingTimer (3 instances - auxiliary timing)
+
+TIER 4 - OPTIONAL (nice-to-have):
+  12. TimeMinmax (time-based tracking)
+  13. Solarpumpcontrol (solar integration)
+  14. Other comparison/logic blocks (already mostly implemented)
+
+================================================================================
+6. CONNECTOR DISCOVERY FINDINGS
+================================================================================
+
+HeatIRoomController2 Inputs:
+  - Temp (from temperature sensor)
+  - Window (from window sensor)
+  - Comfort/Save/Move/Reset (mode selection)
+  - InCo2, InHumid (optional air quality)
+  
+HVACController Inputs:
+  - Temperature sensor inputs
+  - Enable/control inputs
+  - PID feedback inputs
+  
+Heatmixer Inputs (inferred):
+  - Hot water inlet
+  - Cold water inlet
+  - Valve position control
+  - Target temperature setpoint
+  
+AcControl Inputs:
+  - Current temperature
+  - Target temperature
+  - Fan speed command
+  - Air direction command
+
+================================================================================
+CONCLUSION
+================================================================================
+
+This HVAC configuration is moderately complex with 4 core HVAC blocks
+(HVACController, HeatIRoomController2 x2, AcControl) plus supporting
+blocks for AC, ventilation, safety, and calculation.
+
+To achieve basic HVAC simulation:
+  - Implement the 3 Tier-1 blocks (HVACController, HeatIRoomController2, Heatmixer)
+  - Estimated effort: 40-60 hours
+  - Would enable ~70% of simulation fidelity
+
+Full implementation including Tier 2-3:
+  - ~100-150 hours additional work
+  - Would enable ~95%+ simulation fidelity
+  - Critical for real-world validation
+
+The config version is 5 versions behind the current reference (262 vs 267),
+but uses standard Loxone HVAC patterns that are stable across versions.
+

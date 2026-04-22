@@ -1,0 +1,19 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Modbus Title="SE Power Tag 3phase" Comment="Schneider Electric Power Tag 3ph." Channel="2">
+	<Info templateType="7" minVersion="12020913"/>
+	<ModbusCmd Title="Current A" Comment="" ModbusAddress="2999" ModbusCmd="3" ModbusDataType="100" ModbusPollingCycle="60" Unit="&lt;v.3&gt; A" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Current B" Comment="" ModbusAddress="3001" ModbusCmd="3" ModbusDataType="100" ModbusPollingCycle="60" Unit="&lt;v.3&gt; A" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Current C" Comment="" ModbusAddress="3003" ModbusCmd="3" ModbusDataType="100" ModbusPollingCycle="60" Unit="&lt;v.3&gt; A" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Current N" Comment="" ModbusAddress="3005" ModbusCmd="3" ModbusDataType="100" ModbusPollingCycle="60" Unit="&lt;v.3&gt; A" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Voltage A-B" Comment="" ModbusAddress="3019" ModbusCmd="3" ModbusDataType="100" ModbusPollingCycle="60" Unit="&lt;v.2&gt; V" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Voltage B-C" Comment="" ModbusAddress="3021" ModbusCmd="3" ModbusDataType="100" ModbusPollingCycle="60" Unit="&lt;v.2&gt; V" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Voltage C-A" Comment="" ModbusAddress="3023" ModbusCmd="3" ModbusDataType="100" ModbusPollingCycle="60" Unit="&lt;v.2&gt; V" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Voltage A-N" Comment="" ModbusAddress="3027" ModbusCmd="3" ModbusDataType="100" ModbusPollingCycle="60" Unit="&lt;v.2&gt; V" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Voltage B-N" Comment="" ModbusAddress="3029" ModbusCmd="3" ModbusDataType="100" ModbusPollingCycle="60" Unit="&lt;v.2&gt; V" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Voltage C-N" Comment="" ModbusAddress="3031" ModbusCmd="3" ModbusDataType="100" ModbusPollingCycle="60" Unit="&lt;v.2&gt; V" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Active Power A" Comment="" ModbusAddress="3053" ModbusCmd="3" ModbusDataType="100" ModbusPollingCycle="60" Unit="&lt;v.3&gt; W" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Active Power B" Comment="" ModbusAddress="3055" ModbusCmd="3" ModbusDataType="100" ModbusPollingCycle="60" Unit="&lt;v.3&gt; W" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Active Power C" Comment="" ModbusAddress="3057" ModbusCmd="3" ModbusDataType="100" ModbusPollingCycle="60" Unit="&lt;v.3&gt; W" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Active Power" Comment="" ModbusAddress="3059" ModbusCmd="3" ModbusDataType="100" ModbusPollingCycle="60" Unit="&lt;v.3&gt; W" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Energy Active Total Import" Comment="" ModbusAddress="3203" ModbusCmd="3" ModbusDataType="102" ModbusPollingCycle="60" Unit="&lt;v.2&gt; kWh" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="1"/>
+</Modbus>

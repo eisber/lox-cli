@@ -1,0 +1,9 @@
+{
+                                "type": "template",
+                                "name": "belimo-cq24a-bac-modbus-rtu",
+                                "uuid": "4acacc75-bc07-11ec-8a5e4cd98f3deb8a",
+                                "version":"1.0.0",
+                                "id": "belimo-cq24a-bac-modbus-rtu-831",
+                                "file": "belimo-cq24a-bac-modbus-rtu.xml",
+                                "templateType": "7",
+                            }

@@ -1,0 +1,5 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<VirtualOut Title="Sensibo Sky V2" Comment="" Address="https://home.sensibo.com:443" CmdInit="" CloseAfterSend="true" CmdSep=";">
+	<Info templateType="3" minVersion="13011117"/>
+	<VirtualOutCmd Title="Command VCQ1" Comment="" CmdOnMethod="POST" CmdOffMethod="POST" CmdOn="/api/v2/pods/evAeFtMz/acStates?apiKey=69QXhrsR1oUBCkFwk6MZMVcuALczdl" CmdOnHTTP="" CmdOnPost="&lt;v&gt;" CmdOff="" CmdOffHTTP="" CmdOffPost="" Analog="true" Repeat="0" RepeatRate="0" SourceValHigh="10" DestValHigh="10"/>
+</VirtualOut>

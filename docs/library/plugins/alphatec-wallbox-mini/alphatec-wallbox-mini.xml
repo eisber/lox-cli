@@ -1,0 +1,12 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Modbus Title="Alphatec_Wallbox_Mini" Comment="Control the Alphatec Wallbox" Baudrate="9600" Channel="1">
+	<Info templateType="7" minVersion="12021027"/>
+	<ModbusCmd Title="EVSE status" Comment="1 ready, 2 connected, 3 charging" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Actual Modbus ID" Comment="default 1" ModbusAddress="1" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Installed Amps" Comment="Read from rotary switch" ModbusAddress="2" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Enable Station" Comment="0 charging station enabled, 1 disabled" ModbusAddress="4" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Setted Amps" Comment="" ModbusAddress="5" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v.1&gt; A" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Reboot Unit" Comment="Allways 0" ModbusAddress="8" ModbusCmd="3" ModbusPollingCycle="60" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="Enable Station" Comment="0 charging station enabled, 1 disabled" ModbusAddress="4" ModbusCmd="16" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Set actual Amps" Comment="Must be higher than 6A" ModbusAddress="5" ModbusCmd="16" Unit="&lt;v.1&gt; A" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+</Modbus>

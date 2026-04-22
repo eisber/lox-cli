@@ -1,0 +1,8 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Modbus Title="Schrack MGX20400" Comment="" HintText="" Baudrate="9600" Parity="1" Channel="1">
+	<Info templateType="7" minVersion="15000227"/>
+	<ModbusCmd Title="Total Energy" Comment="" HintText="" ModbusAddress="24576" ModbusCmd="3" ModbusDataType="36" ModbusPollingCycle="15" Unit="&lt;v.1&gt;kWh" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="GI Reverse Energy" Comment="" HintText="" ModbusAddress="24588" ModbusCmd="3" ModbusDataType="36" ModbusPollingCycle="30" Unit="&lt;v.1&gt;kWh" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="GE Forward Energy" Comment="" HintText="" ModbusAddress="24600" ModbusCmd="3" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt;kWh" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="GPWR Total active power" Comment="" HintText="" ModbusAddress="20498" ModbusCmd="3" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt;kW" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+</Modbus>

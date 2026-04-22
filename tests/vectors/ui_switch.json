@@ -1,0 +1,67 @@
+{
+  "category": "G: UI/Switch blocks",
+  "blocks": {
+    "Switch": {
+      "inputs": {"I": "digital"},
+      "outputs": {"Q": "digital", "AQ": "analog"},
+      "tests": [
+        {"desc": "off", "set": {"I": 0}, "expect": {"Q": 0}},
+        {"desc": "on", "set": {"I": 1}, "expect": {"Q": 1}},
+        {"desc": "off again", "set": {"I": 0}, "expect": {"Q": 0}}
+      ]
+    },
+    "Pushbutton": {
+      "inputs": {"I": "digital"},
+      "outputs": {"Q": "digital", "DblQ": "digital", "LongQ": "digital"},
+      "tests": [
+        {"desc": "off", "set": {"I": 0}, "expect": {"Q": 0}},
+        {"desc": "short press", "set": {"I": 1}, "expect": {"Q": 1}, "wait": 0.2},
+        {"desc": "release", "set": {"I": 0}, "expect": {"Q": 0}, "wait": 0.3}
+      ]
+    },
+    "PushSwitch": {
+      "inputs": {"I": "digital"},
+      "outputs": {"Q": "digital"},
+      "tests": [
+        {"desc": "initial off", "set": {"I": 0}, "expect": {"Q": 0}},
+        {"desc": "press → toggle on", "set": {"I": 1}, "expect": {"Q": 1}, "wait": 0.2},
+        {"desc": "release", "set": {"I": 0}, "expect": {"Q": 1}, "wait": 0.3},
+        {"desc": "press → toggle off", "set": {"I": 1}, "expect": {"Q": 0}, "wait": 0.2}
+      ]
+    },
+    "LongClick": {
+      "inputs": {"I": "digital"},
+      "outputs": {"Q": "digital", "LQ": "digital"},
+      "tests": [
+        {"desc": "off", "set": {"I": 0}, "expect": {"Q": 0, "LQ": 0}},
+        {"desc": "short press", "set": {"I": 1}, "expect": {"Q": 1}, "wait": 0.2},
+        {"desc": "release short", "set": {"I": 0}, "expect": {"Q": 0}, "wait": 0.3}
+      ]
+    },
+    "Scene": {
+      "inputs": {"I": "digital"},
+      "outputs": {"Q": "digital"},
+      "tests": [
+        {"desc": "off", "set": {"I": 0}, "expect": {"Q": 0}},
+        {"desc": "activate", "set": {"I": 1}, "expect": {"Q": 1}}
+      ]
+    },
+    "Scaler": {
+      "inputs": {"I": "analog"},
+      "outputs": {"AQ": "analog"},
+      "tests": [
+        {"desc": "zero", "set": {"I": 0.0}, "expect": {"AQ": 0.0}},
+        {"desc": "midpoint", "set": {"I": 50.0}, "expect": {"AQ": 50.0}},
+        {"desc": "full", "set": {"I": 100.0}, "expect": {"AQ": 100.0}}
+      ]
+    },
+    "Ping": {
+      "inputs": {"I": "digital"},
+      "outputs": {"Q": "digital", "AQ": "analog"},
+      "tests": [
+        {"desc": "trigger", "set": {"I": 1}, "wait": 2.0}
+      ]
+    }
+  },
+  "wiring": {}
+}

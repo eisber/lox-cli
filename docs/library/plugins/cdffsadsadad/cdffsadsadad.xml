@@ -1,0 +1,43 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Modbus Title="Samsung AC Device 0" Comment="" HintText="" Baudrate="9600" Parity="1" Channel="1">
+	<Info templateType="7" minVersion="15000529"/>
+	<ModbusCmd Title="Air conditioner State" Comment="" HintText="" ModbusAddress="52" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Actual Roomtemperature" Comment="" HintText="" ModbusAddress="58" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v.1&gt;ºC" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="Target Roomtemperature" Comment="" HintText="" ModbusAddress="59" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.1&gt;ºC" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="Discharge temperature" Comment="" HintText="Only available by Fancoils - Discharge Temperature = Supply Flow Air Temperature" ModbusAddress="111" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Filter-cleaning reminder" Comment="" HintText="" ModbusAddress="107" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Air conditioner Mode" Comment="" HintText="0=Auto
+1=Cool
+2=Dry
+3=Fan
+4=Heat
+21=Cool Storage
+24=Heat Storage" ModbusAddress="53" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Indoor Fan Speed" Comment="" HintText="0=Auto
+1=Low
+2=Middle
+3=High" ModbusAddress="54" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Airflow direction" Comment="" HintText="106=Spot =Verical airflow
+85=Middle as example 45 degree
+64=Wide = Horizontal airflow
+Swing=15 = Constantly Changing airflow" ModbusAddress="81" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Set Air conditioner on_off" Comment="" HintText="" ModbusAddress="52" ModbusCmd="6" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Set Air conditioner Mode" Comment="" HintText="0=Auto
+1=Cool
+2=Dry
+3=Fan
+4=Heat
+21=Cool Storage
+24=Heat Storage" ModbusAddress="53" ModbusCmd="6" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Set Indoor fan speed" Comment="" HintText="0=Auto
+1=Low
+2=Middle
+3=High" ModbusAddress="54" ModbusCmd="6" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Set Roomtemperature" Comment="" HintText="" ModbusAddress="58" ModbusCmd="6" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="100"/>
+	<ModbusCmd Title="Set Airflow direction" Comment="" HintText="106=Spot =Verical airflow
+85=Middle as example 45 degree
+64=Wide = Horizontal airflow
+Swing=15 = Constantly Changing airflow" ModbusAddress="81" ModbusCmd="6" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Enable vertical airflow direction" Comment="" HintText="0= Off
+1= On" ModbusAddress="55" ModbusCmd="6" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+</Modbus>

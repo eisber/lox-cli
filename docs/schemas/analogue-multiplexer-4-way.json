@@ -1,0 +1,36 @@
+{
+  "title": "Analogue Multiplexer (4-Way)",
+  "xml_type": "",
+  "kb_slug": "analogue-multiplexer-4-way",
+  "description": "This block can select between 4 analog values via a parameter input (Sel).",
+  "inputs": [
+    {
+      "abbreviation": "Off",
+      "summary": "Off",
+      "description": "Pulse: Outputs are reset / switched off. On: Block is locked. Dominating input.",
+      "value_range": "0/1"
+    }
+  ],
+  "outputs": [
+    {
+      "abbreviation": "V",
+      "summary": "Value",
+      "value_range": "\u221e"
+    }
+  ],
+  "parameters": [
+    {
+      "abbreviation": "Sel",
+      "summary": "Select value",
+      "description": "0: (V) = 0 1: (V) = (V1) ... 4: (V) = (V4)",
+      "value_range": "0...4",
+      "default_value": "1"
+    }
+  ],
+  "properties": [],
+  "source_url": "https://www.loxone.com/enen/kb/analogue-multiplexer-4-way/",
+  "input_count": 1,
+  "output_count": 1,
+  "parameter_count": 1,
+  "property_count": 0
+}

@@ -1,0 +1,9 @@
+{
+                                "type": "template",
+                                "name": "belimo-iot-actuator-modbus-tcp",
+                                "uuid": "12f039d5-b422-11ec-abdc4cd98f3deb8a",
+                                "version":"1.0.0",
+                                "id": "belimo-iot-actuator-modbus-tcp-820",
+                                "file": "belimo-iot-actuator-modbus-tcp.xml",
+                                "templateType": "7",
+                            }

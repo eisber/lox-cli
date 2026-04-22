@@ -1,0 +1,9 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<VirtualInHttp Title="AIDOO PRO" Comment="" Address="http://192.168.1.90:3000/api/v1/hvac?systemid=1&amp;zoneid=1" HintText="" PollingTime="10">
+	<Info templateType="2" minVersion="15031202"/>
+	<VirtualInHttpCmd Title="On/Off" Comment="" Check="&quot;on&quot;:	\v" Signed="true" Analog="true" SourceValLow="0" DestValLow="0" SourceValHigh="100" DestValHigh="100" DefVal="0" MinVal="-10000" MaxVal="10000" Unit="&lt;v.1&gt;" HintText=""/>
+	<VirtualInHttpCmd Title="Mode" Comment="" Check="&quot;mode&quot;:	\v" Signed="true" Analog="true" SourceValLow="0" DestValLow="0" SourceValHigh="100" DestValHigh="100" DefVal="0" MinVal="-10000" MaxVal="10000" Unit="&lt;v.1&gt;" HintText=""/>
+	<VirtualInHttpCmd Title="Setpoint Temp" Comment="" Check="&quot;setpoint&quot;:	\v" Signed="true" Analog="true" SourceValLow="0" DestValLow="0" SourceValHigh="100" DestValHigh="100" DefVal="0" MinVal="-10000" MaxVal="10000" Unit="&lt;v.1&gt;" HintText=""/>
+	<VirtualInHttpCmd Title="Speed" Comment="" Check="&quot;speed&quot;:	\v" Signed="true" Analog="true" SourceValLow="0" DestValLow="0" SourceValHigh="100" DestValHigh="100" DefVal="0" MinVal="-10000" MaxVal="10000" Unit="&lt;v.1&gt;" HintText=""/>
+	<VirtualInHttpCmd Title="Comando VCI1" Comment="" Check="&quot;errors&quot;:	[\v" Signed="true" Analog="true" SourceValLow="0" DestValLow="0" SourceValHigh="100" DestValHigh="100" DefVal="0" MinVal="-10000" MaxVal="10000" Unit="&lt;v.1&gt;" HintText=""/>
+</VirtualInHttp>

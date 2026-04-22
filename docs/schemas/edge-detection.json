@@ -1,0 +1,50 @@
+{
+  "title": "Edge Detection",
+  "xml_type": "",
+  "kb_slug": "edge-detection",
+  "description": "This function block provides a pulse when the value of a digital signal changes. It can be distinguished between rising and falling edge.",
+  "inputs": [
+    {
+      "abbreviation": "I",
+      "summary": "Input",
+      "description": "Input at which edges are detected",
+      "value_range": "0/1"
+    }
+  ],
+  "outputs": [
+    {
+      "abbreviation": "P",
+      "summary": "Pulse at every edge",
+      "description": "Outputs a pulse at every edge.",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "On",
+      "summary": "Pulse at rising edge",
+      "description": "Outputs a pulse at a rising edge.",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "Off",
+      "summary": "Pulse at falling edge",
+      "description": "Outputs a pulse at a falling edge.",
+      "value_range": "0/1"
+    }
+  ],
+  "parameters": [
+    {
+      "abbreviation": "Pd",
+      "summary": "Pulse duration",
+      "description": "Pulse duration at the outputs when an edge was detected.",
+      "unit": "s",
+      "value_range": "0...\u221e",
+      "default_value": "1"
+    }
+  ],
+  "properties": [],
+  "source_url": "https://www.loxone.com/enen/kb/edge-detection/",
+  "input_count": 1,
+  "output_count": 3,
+  "parameter_count": 1,
+  "property_count": 0
+}

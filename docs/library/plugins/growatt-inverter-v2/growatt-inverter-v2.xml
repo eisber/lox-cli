@@ -1,0 +1,33 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Modbus Title="Growatt Inverter v2" Comment="" Baudrate="9600" Channel="1">
+	<Info templateType="7" minVersion="13011117"/>
+	<ModbusCmd Title="Inverter status" Comment="" ModbusCmd="4" ModbusPollingCycle="10" Unit="&lt;v.0&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Output power" Comment="" ModbusAddress="35" ModbusCmd="4" ModbusDataType="34" ModbusPollingCycle="10" Unit="&lt;v.3&gt;kW" Analog="true" Sensor="true" SourceValHigh="10000" DestValHigh="1"/>
+	<ModbusCmd Title="PV energy today" Comment="" ModbusAddress="59" ModbusCmd="4" ModbusDataType="34" ModbusPollingCycle="10" Unit="&lt;v.1&gt; kWh" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="PV energy total" Comment="" ModbusAddress="61" ModbusCmd="4" ModbusDataType="34" ModbusPollingCycle="10" Unit="&lt;v.1&gt; kWh" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="Battery state of charge" Comment="" ModbusAddress="1014" ModbusCmd="4" ModbusPollingCycle="10" Unit="&lt;v.0&gt;%" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Input power from PV panels" Comment="" ModbusAddress="1" ModbusCmd="4" ModbusDataType="34" ModbusPollingCycle="10" Unit="&lt;v.3&gt;kW" Analog="true" Sensor="true" SourceValHigh="10000" DestValHigh="1"/>
+	<ModbusCmd Title="Input power from PV string 1" Comment="" ModbusAddress="5" ModbusCmd="4" ModbusDataType="34" ModbusPollingCycle="10" Unit="&lt;v.3&gt;kW" Analog="true" Sensor="true" SourceValHigh="10000" DestValHigh="1"/>
+	<ModbusCmd Title="Input power from PV string 2" Comment="" ModbusAddress="9" ModbusCmd="4" ModbusDataType="34" ModbusPollingCycle="10" Unit="&lt;v.3&gt;kW" Analog="true" Sensor="true" SourceValHigh="10000" DestValHigh="1"/>
+	<ModbusCmd Title="Inverter temperature" Comment="" ModbusAddress="93" ModbusCmd="4" ModbusDataType="1" ModbusPollingCycle="10" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="Battery temperature" Comment="" ModbusAddress="1040" ModbusCmd="4" ModbusDataType="1" ModbusPollingCycle="10" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="Energy to grid total" Comment="" ModbusAddress="1050" ModbusCmd="4" ModbusDataType="34" ModbusPollingCycle="10" Unit="&lt;v.1&gt;kWh" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="Energy to grid today" Comment="" ModbusAddress="1048" ModbusCmd="4" ModbusDataType="34" ModbusPollingCycle="10" Unit="&lt;v.1&gt;kWh" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="Battery voltage" Comment="" ModbusAddress="1013" ModbusCmd="4" ModbusPollingCycle="10" Unit="&lt;v.1&gt;V" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="Charge power" Comment="" ModbusAddress="1011" ModbusCmd="4" ModbusDataType="34" ModbusPollingCycle="10" Unit="&lt;v.3&gt;kW" Analog="true" Sensor="true" SourceValHigh="10000" DestValHigh="1"/>
+	<ModbusCmd Title="Discharge power" Comment="" ModbusAddress="1009" ModbusCmd="4" ModbusDataType="34" ModbusPollingCycle="10" Unit="&lt;v.3&gt;kW" Analog="true" Sensor="true" SourceValHigh="10000" DestValHigh="1"/>
+	<ModbusCmd Title="Energy to user total" Comment="" ModbusAddress="1046" ModbusCmd="4" ModbusDataType="34" ModbusPollingCycle="10" Unit="&lt;v.1&gt;kWh" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="Energy to user today" Comment="" ModbusAddress="1044" ModbusCmd="4" ModbusDataType="34" ModbusPollingCycle="10" Unit="&lt;v.1&gt;kWh" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="Discharge energy today" Comment="" ModbusAddress="1052" ModbusCmd="4" ModbusDataType="34" ModbusPollingCycle="10" Unit="&lt;v.1&gt;kWh" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="Discharge energy total" Comment="" ModbusAddress="1054" ModbusCmd="4" ModbusDataType="34" ModbusPollingCycle="10" Unit="&lt;v.1&gt;kWh" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="Charge energy today" Comment="" ModbusAddress="1056" ModbusCmd="4" ModbusDataType="34" ModbusPollingCycle="10" Unit="&lt;v.1&gt;kWh" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="Charge energy total" Comment="" ModbusAddress="1058" ModbusCmd="4" ModbusDataType="34" ModbusPollingCycle="10" Unit="&lt;v.1&gt;kWh" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="Local load energy today" Comment="" ModbusAddress="1060" ModbusCmd="4" ModbusDataType="34" ModbusPollingCycle="10" Unit="&lt;v.1&gt;kWh" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="Local load energy total" Comment="" ModbusAddress="1062" ModbusCmd="4" ModbusDataType="34" ModbusPollingCycle="10" Unit="&lt;v.1&gt;kWh" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="AC power to user" Comment="" ModbusAddress="1021" ModbusCmd="4" ModbusDataType="34" ModbusPollingCycle="10" Unit="&lt;v.3&gt;kW" Analog="true" Sensor="true" SourceValHigh="10000" DestValHigh="1"/>
+	<ModbusCmd Title="AC power to grid" Comment="" ModbusAddress="1029" ModbusCmd="4" ModbusDataType="34" ModbusPollingCycle="10" Unit="&lt;v.3&gt;kW" Analog="true" Sensor="true" SourceValHigh="10000" DestValHigh="1"/>
+	<ModbusCmd Title="INV power to local load" Comment="" ModbusAddress="1037" ModbusCmd="4" ModbusDataType="34" ModbusPollingCycle="10" Unit="&lt;v.3&gt;kW" Analog="true" Sensor="true" SourceValHigh="10000" DestValHigh="1"/>
+	<ModbusCmd Title="EPS output power L1" Comment="" ModbusAddress="1070" ModbusCmd="4" ModbusDataType="34" ModbusPollingCycle="10" Unit="&lt;v.3&gt;kVA" Analog="true" Sensor="true" SourceValHigh="10000" DestValHigh="1"/>
+	<ModbusCmd Title="EPS output power L2" Comment="" ModbusAddress="1074" ModbusCmd="4" ModbusDataType="34" ModbusPollingCycle="10" Unit="&lt;v.3&gt;kVA" Analog="true" Sensor="true" SourceValHigh="10000" DestValHigh="1"/>
+	<ModbusCmd Title="EPS output power L3" Comment="" ModbusAddress="1078" ModbusCmd="4" ModbusDataType="34" ModbusPollingCycle="10" Unit="&lt;v.3&gt;kVA" Analog="true" Sensor="true" SourceValHigh="10000" DestValHigh="1"/>
+</Modbus>

@@ -1,0 +1,9 @@
+{
+                                "type": "template",
+                                "name": "solinteg-hybrid-inverter",
+                                "uuid": "e83fc423-4e45-11ef-98b24cd98f3deb8a",
+                                "version":"1.0.0",
+                                "id": "solinteg-hybrid-inverter-1605",
+                                "file": "solinteg-hybrid-inverter.xml",
+                                "templateType": "7",
+                            }

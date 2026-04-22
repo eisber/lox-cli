@@ -1,0 +1,43 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Modbus Title="Nilan VP18" Comment="" Baudrate="19200" Parity="1" Channel="30">
+	<Info templateType="7" minVersion="12021027"/>
+	<ModbusCmd Title="Control.RunAct" Comment="Actual on - off state" ModbusAddress="1000" ModbusCmd="4" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Control.ModeAct" Comment="Actual operation mode" ModbusAddress="1001" ModbusCmd="4" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Control.SecInState" Comment="Actual time in state" ModbusAddress="1003" ModbusCmd="4" ModbusPollingCycle="60" Unit="&lt;v&gt;s" Analog="true" Sensor="true" SourceValHigh="60" DestValHigh="1"/>
+	<ModbusCmd Title="Input.T1_Intake" Comment="Fresh air intake temperature" ModbusAddress="201" ModbusCmd="4" ModbusDataType="1" ModbusPollingCycle="60" Unit="&lt;v.1&gt;°" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="1"/>
+	<ModbusCmd Title="Input.T6_Evap" Comment="Evaporator temperature" ModbusAddress="206" ModbusCmd="4" ModbusDataType="1" ModbusPollingCycle="60" Unit="&lt;v.1&gt;°" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="1"/>
+	<ModbusCmd Title="Input.T5_Cond" Comment="Condenser temperature" ModbusAddress="205" ModbusCmd="4" ModbusDataType="1" ModbusPollingCycle="60" Unit="&lt;v.1&gt;°" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="1"/>
+	<ModbusCmd Title="Input.T10_Extern" Comment="External room temperature" ModbusAddress="210" ModbusCmd="4" ModbusDataType="1" ModbusPollingCycle="60" Unit="&lt;v.1&gt;°" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="1"/>
+	<ModbusCmd Title="Input.T7_Inlet" Comment="Inlet temperature (after heater)" ModbusAddress="207" ModbusCmd="4" ModbusDataType="1" ModbusPollingCycle="60" Unit="&lt;v.1&gt;°" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="1"/>
+	<ModbusCmd Title="AirQual.RH" Comment="Humidity sensor value" ModbusAddress="221" ModbusCmd="4" ModbusPollingCycle="60" Unit="&lt;v.2&gt;%" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="1"/>
+	<ModbusCmd Title="Alarm.List_1_ID" Comment="Alarm 1 - Code" ModbusAddress="401" ModbusCmd="4" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Alarm.List_2_ID" Comment="Alarm 2 - Code" ModbusAddress="404" ModbusCmd="4" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Alarm.List_3_ID" Comment="Alarm 3 - Code" ModbusAddress="407" ModbusCmd="4" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Input.T11_Top" Comment="Hot water top temperature" ModbusAddress="211" ModbusCmd="4" ModbusDataType="1" ModbusPollingCycle="60" Unit="&lt;v.1&gt;°" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="1"/>
+	<ModbusCmd Title="Input.T12_Bottom" Comment="Hot water bottom temperature" ModbusAddress="212" ModbusCmd="4" ModbusDataType="1" ModbusPollingCycle="60" Unit="&lt;v.1&gt;°" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="1"/>
+	<ModbusCmd Title="Input.Boil" Comment="Hot water boiling" ModbusAddress="109" ModbusCmd="4" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Control.State" Comment="Actual control state" ModbusAddress="1002" ModbusCmd="4" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Input.T0_Controller" Comment="Controller board temperature" ModbusAddress="200" ModbusCmd="4" ModbusDataType="1" ModbusPollingCycle="60" Unit="&lt;v.1&gt;°" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="1"/>
+	<ModbusCmd Title="Input.T15_Room" Comment="User panel room temperature" ModbusAddress="215" ModbusCmd="4" ModbusDataType="1" ModbusPollingCycle="60" Unit="&lt;v.1&gt;°" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="1"/>
+	<ModbusCmd Title="AirFlow.VentSet" Comment="Actual ventilation step set point" ModbusAddress="1100" ModbusCmd="4" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Output.ExhaustSpeed" Comment="Exhaust fan speed" ModbusAddress="200" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v&gt;%" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="1"/>
+	<ModbusCmd Title="Output.InletSpeed" Comment="Inlet fan speed" ModbusAddress="201" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v&gt;%" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="1"/>
+	<ModbusCmd Title="Control.TempSet" Comment="User temperature setpoint" ModbusAddress="1004" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="60" Unit="&lt;v.1&gt;°" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="1"/>
+	<ModbusCmd Title="Output.Compressor" Comment="Compressor" ModbusAddress="109" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Output.WaterHeat" Comment="Hot water heater" ModbusAddress="116" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="HotWater.TempSet_T11" Comment="Top temperature setpoint (electric)" ModbusAddress="1700" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="60" Unit="&lt;v.1&gt;°" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="1"/>
+	<ModbusCmd Title="HotWater.TempSet_T12" Comment="Bottom temperature setpoint (compressor)" ModbusAddress="1701" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="60" Unit="&lt;v.1&gt;°" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="1"/>
+	<ModbusCmd Title="AirTemp.TempMaxSum" Comment="Inlet temp. max. summer" ModbusAddress="1203" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="60" Unit="&lt;v.1&gt;°" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="1"/>
+	<ModbusCmd Title="AirTemp.TempMinSum" Comment="Inlet temp. min. summer" ModbusAddress="1201" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="60" Unit="&lt;v.1&gt;°" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="1"/>
+	<ModbusCmd Title="AirTemp.TempMaxWin" Comment="Inlet temp. max. winter" ModbusAddress="1204" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="60" Unit="&lt;v.1&gt;°" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="1"/>
+	<ModbusCmd Title="AirTemp.TempMinWin" Comment="Inlet temp. min. winter" ModbusAddress="1202" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="60" Unit="&lt;v.1&gt;°" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="1"/>
+	<ModbusCmd Title="AirTemp.TempSummer" Comment="Summer - Winter limit" ModbusAddress="1205" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="60" Unit="&lt;v.1&gt;°" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="1"/>
+	<ModbusCmd Title="Control.ModeSet" Comment="User operation mode select" ModbusAddress="1002" ModbusCmd="16" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Control.VentSet" Comment="User ventilation step select" ModbusAddress="1003" ModbusCmd="16" Unit="&lt;v&gt; Step" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Control.TempSet" Comment="User temperature setpoint" ModbusAddress="1004" ModbusCmd="16" Unit="&lt;v.2&gt;°C" Analog="true" Sensor="false" SourceValHigh="1" DestValHigh="100"/>
+	<ModbusCmd Title="Control.RunSet" Comment="User on - off select (equal to ON_OFF keys)" ModbusAddress="1001" ModbusCmd="16" Unit="" Analog="false" Sensor="false"/>
+	<ModbusCmd Title="AirFlow.AirExchMode" Comment="Air exchange mode" ModbusAddress="1100" ModbusCmd="16" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="HotWater.TempSet_T11" Comment="Top temperature setpoint (electric)" ModbusAddress="1700" ModbusCmd="16" Unit="&lt;v.1&gt;°" Analog="true" Sensor="false" SourceValHigh="1" DestValHigh="100"/>
+	<ModbusCmd Title="HotWater.TempSet_T12" Comment="Bottom temperature setpoint (compressor)" ModbusAddress="1701" ModbusCmd="16" Unit="&lt;v.1&gt;°" Analog="true" Sensor="false" SourceValHigh="1" DestValHigh="100"/>
+	<ModbusCmd Title="Alarm.Reset" Comment="Clear one specific alarm code or all" ModbusAddress="400" ModbusCmd="16" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+</Modbus>

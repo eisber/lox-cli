@@ -1,0 +1,18 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Modbus Title="ArgoClima" Comment="" Baudrate="115200" Channel="1">
+	<Info templateType="7" minVersion="13011019"/>
+	<ModbusCmd Title="133 - On_Off" Comment="" ModbusAddress="133" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="154 - Mode" Comment="0= Heating 1=Cooling" ModbusAddress="154" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="198 - Setpoint" Comment="" ModbusAddress="198" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.1&gt;º" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="10"/>
+	<ModbusCmd Title="43 - Power Consumption" Comment="" ModbusAddress="43" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="5" Unit="&lt;v.1&gt; kW" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="10"/>
+	<ModbusCmd Title="114 - Return Water Temp" Comment="114 - BDC temp retorno agua" ModbusAddress="114" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.1&gt;º" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="10"/>
+	<ModbusCmd Title="281 - ACS Water Inlet Temperature" Comment="" ModbusAddress="281" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.1&gt;º" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="10"/>
+	<ModbusCmd Title="292 - ACS Water Outlet Temperature" Comment="" ModbusAddress="292" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.1&gt;º" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="10"/>
+	<ModbusCmd Title="288 - ACS Water flow" Comment="" ModbusAddress="288" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.1&gt; l/min" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="10"/>
+	<ModbusCmd Title="194 - Maximum climatic curve setpoint" Comment="" ModbusAddress="194" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.1&gt;º" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="10"/>
+	<ModbusCmd Title="195 - Minimum climatic curve setpoint" Comment="" ModbusAddress="195" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.1&gt;º" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="10"/>
+	<ModbusCmd Title="196 - Ambient temperature below which setpoint is maximum" Comment="" ModbusAddress="196" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.1&gt;º" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="10"/>
+	<ModbusCmd Title="197 - Ambient temperature below which setpoint is minimum" Comment="" ModbusAddress="197" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.1&gt;º" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="10"/>
+	<ModbusCmd Title="121 - Water Flow" Comment="" ModbusAddress="121" ModbusCmd="3" ModbusPollingCycle="10" Unit="&lt;v.1&gt; m3/h" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="10"/>
+	<ModbusCmd Title="115 - Supply Water Temperature" Comment="" ModbusAddress="115" ModbusCmd="3" ModbusPollingCycle="10" Unit="&lt;v.1&gt;º" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="10"/>
+</Modbus>

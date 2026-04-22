@@ -1,0 +1,20 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Modbus Title="BMS-IFMB0AWR-E" Comment="" Baudrate="9600" Stopbits="1" Channel="1">
+	<Info templateType="7" minVersion="14040904"/>
+	<ModbusCmd Title="Zone1/2 On/Off" Comment="" ModbusAddress="40000" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="300" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Operation Mode" Comment="1:Heat 2:cool" ModbusAddress="40002" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="300" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Temperature setting Zone 1" Comment="" ModbusAddress="40003" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="300" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Hot Water On/Off" Comment="" ModbusAddress="40001" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="300" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Temperature Setting Zone 2" Comment="" ModbusAddress="40004" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="300" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Hot water temperature setting" Comment="" ModbusAddress="40005" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="300" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Auto temp Operation On/Off" Comment="" ModbusAddress="40006" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="300" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Hot water boost On/Off" Comment="" ModbusAddress="40008" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="300" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Auto temp operation On/Off" Comment="" ModbusAddress="40006" ModbusCmd="6" ModbusDataType="1" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Hot Water On/Off" Comment="" ModbusAddress="40001" ModbusCmd="6" ModbusDataType="1" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Hot Water temperature" Comment="" ModbusAddress="40005" ModbusCmd="6" ModbusDataType="1" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Zone1/2 On/Off" Comment="" ModbusAddress="40000" ModbusCmd="6" ModbusDataType="1" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Temperature Setting Zone 2" Comment="" ModbusAddress="40004" ModbusCmd="6" ModbusDataType="1" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Temperature setting Zone 1" Comment="" ModbusAddress="40003" ModbusCmd="6" ModbusDataType="1" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Operation Mode" Comment="1:Heat 2:Cool" ModbusAddress="40002" ModbusCmd="6" ModbusDataType="1" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Hot water boost On/Off" Comment="" ModbusAddress="40008" ModbusCmd="6" ModbusDataType="1" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10"/>
+</Modbus>

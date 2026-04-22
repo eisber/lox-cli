@@ -1,0 +1,32 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Modbus Title="Chint DSSU666 Energy Meter 3-phase" Comment="" Baudrate="9600" Parity="1" Channel="4">
+	<Info templateType="7" minVersion="13030301"/>
+	<ModbusCmd Title="Voltage L1-L2" Comment="" ModbusAddress="8192" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt; V" Analog="true" Sensor="true" SourceValHigh="1" DestValHigh="0.1"/>
+	<ModbusCmd Title="Voltage L2-L3" Comment="" ModbusAddress="8194" ModbusCmd="4" ModbusDataType="4" ModbusPollingCycle="60" Unit="&lt;v.1&gt; V" Analog="true" Sensor="true" SourceValHigh="1" DestValHigh="0.1"/>
+	<ModbusCmd Title="Voltage L3-L1" Comment="" ModbusAddress="8196" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt; V" Analog="true" Sensor="true" SourceValHigh="1" DestValHigh="0.1"/>
+	<ModbusCmd Title="Frequency" Comment="" ModbusAddress="8260" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt; Hz" Analog="true" Sensor="true" SourceValHigh="1" DestValHigh="0.01"/>
+	<ModbusCmd Title="Current L1" Comment="" ModbusAddress="8204" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt; A" Analog="true" Sensor="true" SourceValHigh="1" DestValHigh="0.001"/>
+	<ModbusCmd Title="Current L2" Comment="" ModbusAddress="8206" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt; A" Analog="true" Sensor="true" SourceValHigh="1" DestValHigh="0.001"/>
+	<ModbusCmd Title="Current L3" Comment="" ModbusAddress="8208" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt; A" Analog="true" Sensor="true" SourceValHigh="1" DestValHigh="0.001"/>
+	<ModbusCmd Title="Voltage N-L1" Comment="" ModbusAddress="8198" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt; V" Analog="true" Sensor="true" SourceValHigh="1" DestValHigh="0.1"/>
+	<ModbusCmd Title="Voltage N-L2" Comment="" ModbusAddress="8200" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt; V" Analog="true" Sensor="true" SourceValHigh="1" DestValHigh="0.1"/>
+	<ModbusCmd Title="Voltage N-L3" Comment="" ModbusAddress="8202" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt; V" Analog="true" Sensor="true" SourceValHigh="1" DestValHigh="0.1"/>
+	<ModbusCmd Title="Active Power Combined" Comment="" ModbusAddress="8210" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt; W" Analog="true" Sensor="true" SourceValHigh="1" DestValHigh="0.1"/>
+	<ModbusCmd Title="Active Power L1" Comment="" ModbusAddress="8212" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt; W" Analog="true" Sensor="true" SourceValHigh="1" DestValHigh="0.1"/>
+	<ModbusCmd Title="Active Power L2" Comment="" ModbusAddress="8214" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt; W" Analog="true" Sensor="true" SourceValHigh="1" DestValHigh="0.1"/>
+	<ModbusCmd Title="Active Power L3" Comment="" ModbusAddress="8216" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt; W" Analog="true" Sensor="true" SourceValHigh="1" DestValHigh="0.1"/>
+	<ModbusCmd Title="Reactive Power Combined" Comment="" ModbusAddress="8218" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt; var" Analog="true" Sensor="true" SourceValHigh="1" DestValHigh="0.1"/>
+	<ModbusCmd Title="Reactive Power L1" Comment="" ModbusAddress="8220" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt; var" Analog="true" Sensor="true" SourceValHigh="1" DestValHigh="0.1"/>
+	<ModbusCmd Title="Reactive Power L2" Comment="" ModbusAddress="8222" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt; var" Analog="true" Sensor="true" SourceValHigh="1" DestValHigh="0.1"/>
+	<ModbusCmd Title="Reactive Power L3" Comment="" ModbusAddress="8224" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt; var" Analog="true" Sensor="true" SourceValHigh="1" DestValHigh="0.1"/>
+	<ModbusCmd Title="Power Factor Combined" Comment="" ModbusAddress="8234" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="1" DestValHigh="0.001"/>
+	<ModbusCmd Title="Power Factor L1" Comment="" ModbusAddress="8236" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="1" DestValHigh="0.001"/>
+	<ModbusCmd Title="Power Factor L2" Comment="" ModbusAddress="8238" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="1" DestValHigh="0.001"/>
+	<ModbusCmd Title="Power Factor L3" Comment="" ModbusAddress="8240" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="1" DestValHigh="0.001"/>
+	<ModbusCmd Title="Import Total Active Energy" Comment="" ModbusAddress="4126" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt; kWh" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Export Total Active Energy" Comment="" ModbusAddress="4136" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt; kWh" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Total reactive energy of the first quadrant" Comment="" ModbusAddress="4146" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt; kvarh" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Total reactive energy of the second quadrant" Comment="" ModbusAddress="4166" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt; kvarh" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Total reactive energy of the third quadrant" Comment="" ModbusAddress="4176" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt; kvarh" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Total reactive energy of the fourth quadrant" Comment="" ModbusAddress="4156" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt; kvarh" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+</Modbus>

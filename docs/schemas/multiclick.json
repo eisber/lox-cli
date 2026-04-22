@@ -1,0 +1,76 @@
+{
+  "title": "Multi-Click",
+  "xml_type": "",
+  "kb_slug": "multiclick",
+  "description": "Multiple function push-button with up to four functions, pulse after click\nThe multi-click program block determines whether a button has been pressed one, two, three, or four times.\nSo you can, for example, create a function where a triple-click performs a different function to a double-click.",
+  "inputs": [
+    {
+      "abbreviation": "Tr",
+      "summary": "Trigger",
+      "description": "Sends a pulse to the output (1C-4C) depending on the number of clicks.",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "Off",
+      "summary": "Off",
+      "description": "Pulse: Outputs are reset / switched off. On: Block is locked. Dominating input.",
+      "value_range": "0/1"
+    }
+  ],
+  "outputs": [
+    {
+      "abbreviation": "1C",
+      "summary": "Pulse on single-click",
+      "description": "Pulse on single-click for the duration set in parameter (On).",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "2C",
+      "summary": "Pulse on double-click",
+      "description": "Pulse on double-click for the duration set in parameter (On).",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "3C",
+      "summary": "Pulse on triple-click",
+      "description": "Pulse on triple-click for the duration set in parameter (On).",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "4C",
+      "summary": "Pulse on quad-click",
+      "description": "Pulse on quad-click for the duration set in parameter (On).",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "V",
+      "summary": "Value triggered output",
+      "description": "Sets the value (V1c-V4c) of the triggered output.",
+      "value_range": "\u221e"
+    }
+  ],
+  "parameters": [
+    {
+      "abbreviation": "Rem",
+      "summary": "Remanence input",
+      "description": "Remanence input: If active, the function block retains its previous state after a Miniserver reboot. The state of the function block is saved: \u2013 When saving to the Miniserver \u2013 At a planned reboot \u2013 Before a backup \u2013 Once per hour The data is saved on the SD card.",
+      "unit": "-",
+      "value_range": "0/1",
+      "default_value": "0"
+    },
+    {
+      "abbreviation": "Tmc",
+      "summary": "Time multi-click",
+      "description": "Maximum time between two pulses to count as multi-click.",
+      "unit": "s",
+      "value_range": "0...\u221e",
+      "default_value": "0,35"
+    }
+  ],
+  "properties": [],
+  "source_url": "https://www.loxone.com/enen/kb/multiclick/",
+  "input_count": 2,
+  "output_count": 5,
+  "parameter_count": 2,
+  "property_count": 0
+}

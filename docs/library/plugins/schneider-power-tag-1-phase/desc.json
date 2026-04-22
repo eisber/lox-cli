@@ -1,0 +1,9 @@
+{
+                                "type": "template",
+                                "name": "schneider-power-tag-1-phase",
+                                "uuid": "cbafa46a-5cd9-11ec-8aa04cd98f3deb8a",
+                                "version":"1.0.1",
+                                "id": "schneider-power-tag-1-phase-652",
+                                "file": "schneider-power-tag-1-phase.xml",
+                                "templateType": "7",
+                            }

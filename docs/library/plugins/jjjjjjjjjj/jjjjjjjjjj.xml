@@ -1,0 +1,60 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Modbus Title="EVSE" Comment="" HintText="" Channel="1">
+	<Info templateType="7" minVersion="14070209"/>
+	<ModbusCmd Title="0 EVSE ID" Comment="" HintText="" ModbusCmd="3" ModbusDataType="34" ModbusPollingCycle="120" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="2 EVSE Charge Enabled" Comment="" HintText="" ModbusAddress="2" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="3 EVSE Allowed Charge Current" Comment="" HintText="" ModbusAddress="3" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v&gt; A" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="4 EVSE Charge Mode - 1Phase/3Phase" Comment="" HintText="" ModbusAddress="4" ModbusCmd="3" ModbusPollingCycle="5" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="5 EVSE Third Relay (socket lock)" Comment="" HintText="" ModbusAddress="5" ModbusCmd="3" ModbusPollingCycle="5" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="6 External Relay (optional)" Comment="" HintText="" ModbusAddress="6" ModbusCmd="3" ModbusPollingCycle="5" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="10 EVSE Default Allowed Charge Current [A]" Comment="" HintText="" ModbusAddress="10" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v&gt; A" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="11 EVSE Default Charge Mode - 1Phase/3Phase" Comment="" HintText="" ModbusAddress="11" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="12 EVSE Type" Comment="" HintText="" ModbusAddress="12" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="13 Grid Type" Comment="" HintText="" ModbusAddress="13" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="14 Source Wh measurement" Comment="" HintText="" ModbusAddress="14" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="15 Comm Type with" Comment="" HintText="" ModbusAddress="15" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="16 External Relay Conf" Comment="" HintText="" ModbusAddress="16" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="100 EVSE L1 Voltage" Comment="" HintText="" ModbusAddress="100" ModbusCmd="3" ModbusDataType="36" ModbusPollingCycle="5" Unit="&lt;v.1&gt; V" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="102 EVSE L2 Voltage" Comment="" HintText="" ModbusAddress="102" ModbusCmd="3" ModbusDataType="36" ModbusPollingCycle="5" Unit="&lt;v.1&gt; V" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="104 EVSE L3 Voltage" Comment="" HintText="" ModbusAddress="104" ModbusCmd="3" ModbusDataType="36" ModbusPollingCycle="5" Unit="&lt;v.1&gt; V" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="106 EVSE L1 Current" Comment="" HintText="" ModbusAddress="106" ModbusCmd="3" ModbusDataType="36" ModbusPollingCycle="5" Unit="&lt;v.1&gt; A" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="108 EVSE L2 Current" Comment="" HintText="" ModbusAddress="108" ModbusCmd="3" ModbusDataType="36" ModbusPollingCycle="5" Unit="&lt;v.1&gt; A" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="110 EVSE L3 Current" Comment="" HintText="" ModbusAddress="110" ModbusCmd="3" ModbusDataType="36" ModbusPollingCycle="5" Unit="&lt;v.1&gt; A" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="112 EVSE L1 Power factor" Comment="" HintText="" ModbusAddress="112" ModbusCmd="3" ModbusDataType="36" ModbusPollingCycle="5" Unit="&lt;v.2&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="114 EVSE L2 Power factor" Comment="" HintText="" ModbusAddress="114" ModbusCmd="3" ModbusDataType="36" ModbusPollingCycle="5" Unit="&lt;v.2&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="116 EVSE L3 Power factor" Comment="" HintText="" ModbusAddress="116" ModbusCmd="3" ModbusDataType="36" ModbusPollingCycle="5" Unit="&lt;v.2&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="134 EVSE Wh charged all time (total counter)" Comment="" HintText="" ModbusAddress="134" ModbusCmd="3" ModbusDataType="34" ModbusPollingCycle="5" Unit="&lt;v.1&gt; Wh" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="118 EVSE L1 Frequency" Comment="" HintText="" ModbusAddress="118" ModbusCmd="3" ModbusDataType="36" ModbusPollingCycle="5" Unit="&lt;v.1&gt; Hz" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="120 EVSE L2 Frequency" Comment="" HintText="" ModbusAddress="120" ModbusCmd="3" ModbusDataType="36" ModbusPollingCycle="5" Unit="&lt;v.1&gt; Hz" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="122 EVSE L3 Frequency" Comment="" HintText="" ModbusAddress="122" ModbusCmd="3" ModbusDataType="36" ModbusPollingCycle="5" Unit="&lt;v.1&gt; Hz" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="126 EVSE L2 Power" Comment="" HintText="" ModbusAddress="126" ModbusCmd="3" ModbusDataType="36" ModbusPollingCycle="5" Unit="&lt;v&gt; W" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="128 EVSE L3 Power" Comment="" HintText="" ModbusAddress="128" ModbusCmd="3" ModbusDataType="36" ModbusPollingCycle="5" Unit="&lt;v&gt; W" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="130 EVSE Total Power" Comment="" HintText="" ModbusAddress="130" ModbusCmd="3" ModbusDataType="36" ModbusPollingCycle="5" Unit="&lt;v.1&gt; Wh" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="132 EVSE Wh charged in this session (charge session)" Comment="" HintText="" ModbusAddress="132" ModbusCmd="3" ModbusDataType="34" ModbusPollingCycle="5" Unit="&lt;v.1&gt; Wh" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="124 EVSE L1 Power" Comment="" HintText="" ModbusAddress="124" ModbusCmd="3" ModbusDataType="36" ModbusPollingCycle="5" Unit="&lt;v&gt; W" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="136 EVSE Temperature" Comment="" HintText="" ModbusAddress="136" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="15" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="138 EVSE EV State" Comment="" HintText="" ModbusAddress="138" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="139 EVSE Charging State (theoretical)" Comment="" HintText="" ModbusAddress="139" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="144 EVSE Emergency STOP button" Comment="" HintText="" ModbusAddress="144" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="140 EVSE Actual Charging State" Comment="" HintText="" ModbusAddress="140" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="141 EVSE Warnings" Comment="" HintText="" ModbusAddress="141" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="142 EVSE Seriour Errors" Comment="" HintText="" ModbusAddress="142" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="143 EVSE Socket&apos;s lock state" Comment="" HintText="" ModbusAddress="143" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="145 EVSE PP Pin State" Comment="" HintText="" ModbusAddress="145" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="146 EVSE CP Pin PWM Width" Comment="" HintText="" ModbusAddress="146" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="137 EVSE External Temperature" Comment="" HintText="" ModbusAddress="137" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="15" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="2 EVSE Charge Enabled" Comment="" HintText="" ModbusAddress="2" ModbusCmd="6" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="3 EVSE Allowed Charge Current" Comment="" HintText="" ModbusAddress="3" ModbusCmd="6" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="52 EVSE Protocol Version" Comment="" HintText="" ModbusAddress="52" ModbusCmd="6" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100" RepeatRate="20"/>
+	<ModbusCmd Title="4 EVSE Charge Mode - 1Phase/3Phase" Comment="" HintText="" ModbusAddress="4" ModbusCmd="6" Unit="" Analog="false" Sensor="false"/>
+	<ModbusCmd Title="5 EVSE Third Relay (socket lock)" Comment="" HintText="" ModbusAddress="5" ModbusCmd="6" Unit="" Analog="false" Sensor="false"/>
+	<ModbusCmd Title="6 EVSE External Relay (optional)" Comment="" HintText="" ModbusAddress="6" ModbusCmd="6" Unit="" Analog="false" Sensor="false"/>
+	<ModbusCmd Title="10 EVSE Default Allowed Charge Current [A]" Comment="" HintText="" ModbusAddress="10" ModbusCmd="6" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="11 EVSE Default Charge Mode - 1Phase/3Phase" Comment="" HintText="" ModbusAddress="11" ModbusCmd="6" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="12 EVSE Type" Comment="" HintText="" ModbusAddress="12" ModbusCmd="6" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="13 Grid Type" Comment="" HintText="" ModbusAddress="13" ModbusCmd="6" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="14 Source Wh measurement" Comment="" HintText="" ModbusAddress="14" ModbusCmd="6" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="15 Comm Type with" Comment="" HintText="" ModbusAddress="15" ModbusCmd="6" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="16 External Relay Conf" Comment="" HintText="" ModbusAddress="16" ModbusCmd="6" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="50 Set Wh-Total Counter" Comment="" HintText="" ModbusAddress="50" ModbusCmd="16" ModbusDataType="34" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+</Modbus>

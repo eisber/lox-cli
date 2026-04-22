@@ -1,0 +1,9 @@
+{
+                                "type": "template",
+                                "name": "pce-wallbox",
+                                "uuid": "96f847cf-34d3-11ed-99424cd98f3deb8a",
+                                "version":"1.0.0",
+                                "id": "pce-wallbox-954",
+                                "file": "pce-wallbox.xml",
+                                "templateType": "7",
+                            }

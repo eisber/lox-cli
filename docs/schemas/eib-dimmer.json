@@ -1,0 +1,84 @@
+{
+  "title": "EIB Dimmer",
+  "xml_type": "",
+  "kb_slug": "eib-dimmer",
+  "description": "Using the +/- input trigger sets an appropriate value at the output for EIB dimmer",
+  "inputs": [
+    {
+      "abbreviation": "DisPc",
+      "summary": "Disable periphery control",
+      "description": "Disables all inputs.",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "On",
+      "summary": "On",
+      "description": "On: Status = ON, Dimmer Value = 100%",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "Off",
+      "summary": "Off",
+      "description": "Off: Status = OFF, Dimmer Value = 0%. Permanent ON will not block the control",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "S",
+      "summary": "Status",
+      "description": "Connect this input to a EIB-sensor (group address switching or response of switching)",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "Cdv",
+      "summary": "Current dim value",
+      "description": "Connect this input to a EIB-sensor (group address brightness or response of brightness)",
+      "value_range": "\u221e"
+    }
+  ],
+  "outputs": [
+    {
+      "abbreviation": "D",
+      "summary": "Dimmer output",
+      "description": "Output D is the analog dimmer output and represents a relative \"Dim by \u00b1value%\" command, where each + or \u2212 sends an additional dimming step. Connect this output to a EIB-dimmer actuator (group address dimming)",
+      "value_range": "\u221e"
+    },
+    {
+      "abbreviation": "S",
+      "summary": "Status",
+      "description": "Switching output for turning On and Off dimmer This output is controlled by the inputs (On) and (Off). Connect this output to a EIB-dimming actuator (group address switching)",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "Cdv",
+      "summary": "Current dim value",
+      "description": "Connect this output to a EIB-dimming actuator (group address brightness).",
+      "value_range": "\u221e"
+    },
+    {
+      "abbreviation": "API",
+      "summary": "API Connector",
+      "description": "Intelligent API based connector. API Commands",
+      "value_range": "-"
+    }
+  ],
+  "parameters": [
+    {
+      "abbreviation": "Sts",
+      "summary": "Step size",
+      "value_range": "\u221e",
+      "default_value": "5"
+    },
+    {
+      "abbreviation": "Rr",
+      "summary": "Repetition rate",
+      "value_range": "\u221e",
+      "default_value": "0,2"
+    }
+  ],
+  "properties": [],
+  "source_url": "https://www.loxone.com/enen/kb/eib-dimmer/",
+  "input_count": 5,
+  "output_count": 4,
+  "parameter_count": 2,
+  "property_count": 0
+}

@@ -1,0 +1,7 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<VirtualOut Title="Smart-ME-Cloud" Comment="" Address="https://api.smart-me.com" CmdInit="" HintText="" CloseAfterSend="true" CmdSep="">
+	<Info templateType="3" minVersion="16010630"/>
+	<VirtualOutCmd Title="Zähler 1" Comment="" CmdOnMethod="POST" CmdOffMethod="GET" CmdOn="/Devices" CmdOnHTTP="accept: text/plain
+Authorization: ApiKey {Api Key}
+Content-Type: application/json-patch+json" CmdOnPost="&lt;v&gt;" CmdOff="" CmdOffHTTP="" CmdOffPost="" CmdAnswer="" HintText="" Analog="true" Repeat="0" RepeatRate="0" SourceValHigh="10" DestValHigh="10"/>
+</VirtualOut>

@@ -1,0 +1,102 @@
+{
+  "title": "Energy Monitor",
+  "xml_type": "EnergyMonitor",
+  "kb_slug": "energy-monitor",
+  "description": "The Energy Monitor facilitates the collection of production data, for example a PV system.\nThe Energy Monitor can be used to record production data of an inverter. The data can be processed by the object inputs in combination with a counter.\nIn addition, the block can visualize production data, financial savings and a battery storage in the user interface.",
+  "inputs": [
+    {
+      "abbreviation": "Ptot",
+      "summary": "Production total",
+      "description": "This input is only visible in certain configurations.",
+      "unit": "kWh",
+      "value_range": "0...\u221e"
+    },
+    {
+      "abbreviation": "Ppwr",
+      "summary": "Production power",
+      "description": "This input is only visible in certain configurations.",
+      "unit": "kW",
+      "value_range": "\u221e"
+    },
+    {
+      "abbreviation": "Gpwr",
+      "summary": "Grid power",
+      "description": "Positive value: Energy is imported from the grid. Negative value: Energy is exported to the grid.",
+      "unit": "kW",
+      "value_range": "\u221e"
+    },
+    {
+      "abbreviation": "Spwr",
+      "summary": "Energy storage power",
+      "description": "Positive value: Energy storage is being discharged. Negative value: Energy storage is being charged. This input is only visible in certain configurations.",
+      "unit": "kW",
+      "value_range": "\u221e"
+    },
+    {
+      "abbreviation": "SoC",
+      "summary": "Energy storage state of charge",
+      "description": "This input is only visible in certain configurations.",
+      "unit": "%",
+      "value_range": "0...100"
+    },
+    {
+      "abbreviation": "R",
+      "summary": "Reset",
+      "description": "Reset counter values. The name of the connected sensor is used in the user interface.",
+      "unit": "-",
+      "value_range": "0/1"
+    }
+  ],
+  "outputs": [
+    {
+      "abbreviation": "Gpwr",
+      "summary": "Grid power",
+      "description": "Positive value: Energy is imported from the grid. Negative value: Energy is exported to the grid.",
+      "unit": "kW",
+      "value_range": "\u221e"
+    },
+    {
+      "abbreviation": "Spwr",
+      "summary": "Energy storage power",
+      "description": "Positive value: Energy storage is being discharged. Negative value: Energy storage is being charged.",
+      "unit": "kW",
+      "value_range": "\u221e"
+    },
+    {
+      "abbreviation": "API",
+      "summary": "API Connector",
+      "description": "Intelligent API based connector. API Commands",
+      "unit": "-",
+      "value_range": "-"
+    }
+  ],
+  "parameters": [
+    {
+      "abbreviation": "Abs",
+      "summary": "Absolute value",
+      "description": "Handling of inputs (Gi) and (Ge): 0 = Each new value is added incrementally to the total value. 1 = Value is used absolute and equals the reading of the meter.",
+      "unit": "-",
+      "value_range": "0/1",
+      "default_value": "0"
+    }
+  ],
+  "properties": [
+    {
+      "summary": "Data Source",
+      "description": "Data source (inverter type), e.g. Fronius, Kostal The data polled once every minute. If the inputs are used as data source, the function block is also updated whenever the input values change.",
+      "value_range": "-",
+      "default_value": "-"
+    },
+    {
+      "summary": "Battery capacity",
+      "description": "Capacity of the battery in kWh",
+      "value_range": "\u221e",
+      "default_value": "0"
+    }
+  ],
+  "source_url": "https://www.loxone.com/enen/kb/energy-monitor/",
+  "input_count": 6,
+  "output_count": 3,
+  "parameter_count": 1,
+  "property_count": 2
+}

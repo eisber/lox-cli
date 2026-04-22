@@ -1,0 +1,12 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Modbus Title="Allaway Zi Series EN" Comment="vacuum cleaner" Baudrate="19200" Parity="1" Channel="7">
+	<Info templateType="7" minVersion="13011019"/>
+	<ModbusCmd Title="operating hours" Comment="vacuum cleaner operating hours" ModbusAddress="3001" ModbusCmd="4" ModbusPollingCycle="3600" Unit="&lt;v.1&gt;h" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="filter usage" Comment="vacuum cleaner filter usage" ModbusAddress="3002" ModbusCmd="4" ModbusPollingCycle="300" Unit="&lt;v.1&gt;%" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="dust bin level" Comment="vacuum cleaner dust bin level" ModbusAddress="3003" ModbusCmd="4" ModbusPollingCycle="300" Unit="&lt;v.1&gt;%" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="running" Comment="vacuum cleaner running" ModbusAddress="1001" ModbusCmd="2" ModbusPollingCycle="5" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="filter alarm" Comment="vacuum cleaner filter alarm" ModbusAddress="1002" ModbusCmd="2" ModbusPollingCycle="60" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="dust bin full" Comment="vacuum cleaner dust bin full" ModbusAddress="1003" ModbusCmd="2" ModbusPollingCycle="60" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="motor alarm" Comment="vacuum cleaner motor alarm" ModbusAddress="1004" ModbusCmd="2" ModbusPollingCycle="60" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="power off" Comment="vacuum cleaner Modbus power off" ModbusAddress="1" ModbusCmd="5" Unit="" Analog="false" Sensor="false"/>
+</Modbus>

@@ -1,0 +1,160 @@
+{
+  "title": "Authentication NFC Code Touch",
+  "xml_type": "",
+  "kb_slug": "authentication-nfc-code-touch",
+  "description": "The Authentication NFC Code Touch function block is used to program an NFC Code Touch.",
+  "inputs": [],
+  "outputs": [
+    {
+      "abbreviation": "O1-6",
+      "summary": "Output 1-6",
+      "description": "Activates (Output 1-6) for the duration of (Don) when authentication is successful.",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "Cla",
+      "summary": "Cause of last authorization",
+      "description": "Provides date & time, user and output of last authorization. The text is available until a new message replaces it. Observe privacy laws!",
+      "value_range": "-"
+    },
+    {
+      "abbreviation": "Ula",
+      "summary": "User of last authorization",
+      "description": "Provides the user's NFC Code Touch ID if available (otherwise username), NFC tag or access code name. The text is available until the next message replaces it.",
+      "value_range": "-"
+    },
+    {
+      "abbreviation": "Nlo",
+      "summary": "Name or number of last output",
+      "description": "Provides name or number of the last output. The text is available until the next message replaces it.",
+      "value_range": "-"
+    },
+    {
+      "abbreviation": "Tla",
+      "summary": "Time and date of last authorization",
+      "description": "Provides date and time of last authorization. The text is available until the next message replaces it.",
+      "value_range": "-"
+    },
+    {
+      "abbreviation": "Ad",
+      "summary": "Authentication denied",
+      "description": "Activates output for the duration of (Don) when authentication is denied.",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "As",
+      "summary": "Authentication successful",
+      "description": "Activates output for the duration of (Don) when authentication is successful.",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "Nco",
+      "summary": "Number of current output",
+      "description": "Number of the current output. -1 = Denied",
+      "value_range": "-1...\u221e"
+    },
+    {
+      "abbreviation": "Bsel",
+      "summary": "Doorbell pre-select",
+      "description": "A number entered before ringing is displayed here. -1 = Output if no pre-selection was entered.",
+      "value_range": "-1...9999"
+    },
+    {
+      "abbreviation": "Unla",
+      "summary": "Username of last authorization",
+      "description": "Returns the username of the last authorized user. Trust users are extended with the host name of the trust member. The text is available until the next message replaces it.",
+      "value_range": "-"
+    },
+    {
+      "abbreviation": "Uidla",
+      "summary": "User-Id of last authorization",
+      "description": "Returns the User-Id of the last authorized user. Trust users are extended with the host name of the trust member. The text is available until the next message replaces it.",
+      "value_range": "-"
+    },
+    {
+      "abbreviation": "API",
+      "summary": "API Connector",
+      "description": "Intelligent API based connector. API Commands",
+      "value_range": "-"
+    }
+  ],
+  "parameters": [
+    {
+      "abbreviation": "Bbl",
+      "summary": "Activate bell button light",
+      "description": "Activates the doorbell button's green light when 1. Not available for battery powered devices. This parameter is only visible in certain configurations.",
+      "unit": "-",
+      "value_range": "0/1",
+      "default_value": "0"
+    },
+    {
+      "abbreviation": "Bbr",
+      "summary": "Button brightness",
+      "description": "Sets the brightness of the keypad illumination. Not available with battery powered devices.",
+      "unit": "%",
+      "value_range": "0...100",
+      "default_value": "50"
+    },
+    {
+      "abbreviation": "Blan",
+      "summary": "Activate button light at night",
+      "description": "Automatically switches on the button lights at night (Daylight 30min) when 1. Only available with NFC Code Touch Gen.1 devices. This parameter is only visible in certain configurations.",
+      "unit": "-",
+      "value_range": "0/1",
+      "default_value": "0"
+    },
+    {
+      "abbreviation": "Bl",
+      "summary": "Activate button light",
+      "description": "Permanently switches on the button lights when 1. Not available for battery-powered devices.",
+      "unit": "-",
+      "value_range": "0/1",
+      "default_value": "0"
+    },
+    {
+      "abbreviation": "Au",
+      "summary": "Authentication",
+      "description": "Specifies the authentication method used. 0 = Two-Factor Authentication 1 = Code or NFC 2 = NFC 3 = Code 4 = OCPP or NFC Default = 1, or when value outside of range Two-factor authentication requires both an access code and an NFC tag to be presented within 30 seconds, in any order. Tags and codes from different users may be used, provided both are valid. Two-factor authentication is not supported on battery-powered NFC Code Touch Air Gen. 1 devices.",
+      "unit": "-",
+      "value_range": "0...4",
+      "default_value": "1"
+    }
+  ],
+  "properties": [
+    {
+      "summary": "Assigned Device",
+      "description": "The user must identify themselves on the selected device. The following devices can be selected: NFC Code Touch Air NFC Code Touch Tree NFC Code Touch for Nano",
+      "value_range": "-",
+      "default_value": "-"
+    },
+    {
+      "summary": "Edit Access Authorisations",
+      "description": "Click here to edit access permissions for user-independent NFC-tags/access codes",
+      "value_range": "-",
+      "default_value": "-"
+    },
+    {
+      "summary": "Allow Additional Preselections",
+      "description": "If activated, additional preselections from 7 to 9999 can be used. Activated preselections greater than 6 are output at the output (Nco). With this option selected, a prefix must always be entered before each access code.",
+      "value_range": "-",
+      "default_value": "-"
+    },
+    {
+      "summary": "NFC Confirms Entry",
+      "description": "When an NFC tag is placed on the reader, the pre-selection is automatically confirmed. When two-factor authentication is used, the code can also be confirmed this way.",
+      "value_range": "-",
+      "default_value": "-"
+    },
+    {
+      "summary": "Number of Entries",
+      "description": "Maximum number of saved messages.",
+      "value_range": "0...100",
+      "default_value": "-"
+    }
+  ],
+  "source_url": "https://www.loxone.com/enen/kb/authentication-nfc-code-touch/",
+  "input_count": 0,
+  "output_count": 12,
+  "parameter_count": 5,
+  "property_count": 5
+}

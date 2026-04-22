@@ -1,0 +1,18 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Modbus Title="AMTRON Charge Control &amp; Professional" Comment="activate Modbus TCP in the webinterface of the AMTRON" Channel="1">
+	<Info templateType="7" minVersion="14020616"/>
+	<ModbusCmd Title="Vehicle State" Comment="" ModbusAddress="122" ModbusCmd="3" ModbusPollingCycle="5" Unit="CP: &lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Hardware Current Limit" Comment="" ModbusAddress="133" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v&gt; A" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Total Energy" Comment="" ModbusAddress="218" ModbusCmd="3" ModbusDataType="98" ModbusPollingCycle="5" Unit="&lt;v&gt;kWh" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="1"/>
+	<ModbusCmd Title="Total Power" Comment="" ModbusAddress="220" ModbusCmd="3" ModbusDataType="98" ModbusPollingCycle="5" Unit="&lt;v&gt;W" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="1"/>
+	<ModbusCmd Title="Signaled Current" Comment="" ModbusAddress="706" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.0&gt; A" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Charged Energy" Comment="" ModbusAddress="705" ModbusCmd="3" ModbusDataType="32" ModbusPollingCycle="5" Unit="&lt;v&gt;kWh" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="1"/>
+	<ModbusCmd Title="Charge Duration" Comment="" ModbusAddress="709" ModbusCmd="3" ModbusDataType="32" ModbusPollingCycle="5" Unit="&lt;v&gt;s" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Current L1" Comment="" ModbusAddress="212" ModbusCmd="3" ModbusDataType="98" ModbusPollingCycle="5" Unit="&lt;v.3&gt;A" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="1"/>
+	<ModbusCmd Title="Current L2" Comment="" ModbusAddress="214" ModbusCmd="3" ModbusDataType="98" ModbusPollingCycle="5" Unit="&lt;v.3&gt;A" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="1"/>
+	<ModbusCmd Title="Current L3" Comment="" ModbusAddress="216" ModbusCmd="3" ModbusDataType="98" ModbusPollingCycle="5" Unit="&lt;v.3&gt;A" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="1"/>
+	<ModbusCmd Title="Power L1" Comment="" ModbusAddress="206" ModbusCmd="3" ModbusDataType="98" ModbusPollingCycle="5" Unit="&lt;v.0&gt;W" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Power L2" Comment="" ModbusAddress="208" ModbusCmd="3" ModbusDataType="98" ModbusPollingCycle="5" Unit="&lt;v.0&gt;W" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Power L3" Comment="" ModbusAddress="210" ModbusCmd="3" ModbusDataType="98" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Current Limit" Comment="" ModbusAddress="1000" ModbusCmd="6" Unit="&lt;v.1&gt; A" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10" RepeatRate="10"/>
+</Modbus>

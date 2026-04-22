@@ -1,0 +1,41 @@
+{
+  "category": "E: Timing",
+  "blocks": {
+    "Monoflop": {
+      "inputs": {"I": "digital"},
+      "outputs": {"Q": "digital"},
+      "tests": [
+        {"desc": "off initially", "set": {"I": 0}, "expect": {"Q": 0}},
+        {"desc": "trigger on", "set": {"I": 1}, "expect": {"Q": 1}, "wait": 0.2},
+        {"desc": "still on (within pulse)", "set": {"I": 0}, "expect": {"Q": 1}, "wait": 0.3},
+        {"desc": "off after pulse (>1s default)", "set": {"I": 0}, "expect": {"Q": 0}, "wait": 2.0}
+      ]
+    },
+    "SwitchOnDelay": {
+      "inputs": {"I": "digital"},
+      "outputs": {"Q": "digital"},
+      "tests": [
+        {"desc": "input on (delayed)", "set": {"I": 1}, "expect": {"Q": 0}, "wait": 0.2},
+        {"desc": "after delay", "set": {"I": 1}, "expect": {"Q": 1}, "wait": 2.0},
+        {"desc": "input off (immediate)", "set": {"I": 0}, "expect": {"Q": 0}, "wait": 0.3}
+      ]
+    },
+    "PulseGenerator": {
+      "inputs": {"I": "digital"},
+      "outputs": {"Q": "digital"},
+      "tests": [
+        {"desc": "off", "set": {"I": 0}, "expect": {"Q": 0}},
+        {"desc": "start (generates pulses)", "set": {"I": 1}, "expect": {"Q": 1}, "wait": 0.5}
+      ]
+    },
+    "PWM": {
+      "inputs": {"I": "analog"},
+      "outputs": {"Q": "digital"},
+      "tests": [
+        {"desc": "0% duty", "set": {"I": 0.0}, "expect": {"Q": 0}, "wait": 0.5},
+        {"desc": "100% duty", "set": {"I": 100.0}, "expect": {"Q": 1}, "wait": 0.5}
+      ]
+    }
+  },
+  "wiring": {}
+}

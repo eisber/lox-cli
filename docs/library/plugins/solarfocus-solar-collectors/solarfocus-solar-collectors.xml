@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<Modbus Title="SOLARFOCUS Solar" Comment="eco manager-touch V19.072" Channel="1">
+	<Info templateType="7" minVersion="12010617"/>
+	<!-- Inputregister-->
+	<ModbusCmd Title="Collector temperature 1" Comment="" 		ModbusAddress="2100" ModbusCmd="4" ModbusDataType="1" ModbusPollingCycle="30" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="10"/>
+	<ModbusCmd Title="Collector temperature 2" Comment="" 		ModbusAddress="2101" ModbusCmd="4" ModbusDataType="1" ModbusPollingCycle="30" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="10"/>
+	<ModbusCmd Title="Collector flow temperature" Comment="" 	ModbusAddress="2102" ModbusCmd="4" ModbusDataType="1" ModbusPollingCycle="30" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="10"/>
+	<ModbusCmd Title="Collector return flow temperature" Comment="" 	ModbusAddress="2103" ModbusCmd="4" ModbusDataType="1" ModbusPollingCycle="30" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="10"/>
+	<ModbusCmd Title="HM flow" Comment="" 				ModbusAddress="2104" ModbusCmd="4" ModbusDataType="1" ModbusPollingCycle="30" Unit="&lt;v&gt;l" Analog="true" Sensor="true"/>
+	<ModbusCmd Title="Current power" Comment="" 			ModbusAddress="2105" ModbusCmd="4" ModbusDataType="1" ModbusPollingCycle="30" Unit="&lt;v.1&gt;kW" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="10"/>
+	<ModbusCmd Title="HM yield" Comment="" 					ModbusAddress="2106" ModbusCmd="4" ModbusDataType="99" ModbusPollingCycle="30" Unit="&lt;v&gt;Wh" Analog="true" Sensor="true"/>
+	<ModbusCmd Title="Daily yield" Comment="" 					ModbusAddress="2108" ModbusCmd="4" ModbusDataType="99" ModbusPollingCycle="30" Unit="&lt;v&gt;Wh" Analog="true" Sensor="true"/>
+	<ModbusCmd Title="Tank sensor 1" Comment="" 				ModbusAddress="2110" ModbusCmd="4" ModbusDataType="1" ModbusPollingCycle="30" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="10"/>
+	<ModbusCmd Title="Tank sensor 2" Comment="" 				ModbusAddress="2111" ModbusCmd="4" ModbusDataType="1" ModbusPollingCycle="30" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="10"/>
+	<ModbusCmd Title="Tank sensor 3" Comment="" 				ModbusAddress="2112" ModbusCmd="4" ModbusDataType="1" ModbusPollingCycle="30" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="10"/>
+	<ModbusCmd Title="Solar – Status bar" Comment="" 			ModbusAddress="2113" ModbusCmd="4" ModbusPollingCycle="30" Unit="&lt;v&gt;" Analog="true" Sensor="true"/>
+	
+</Modbus>

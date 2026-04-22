@@ -1,0 +1,52 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Comm Title="XTP II CrossPoint Series" Comment="" HintText="" Baudrate="9600" Databits="8" CycleUserProt="-1">
+	<Info templateType="5" minVersion="14040925"/>
+	<CommCmd Title="O1 &gt; I1" Comment="" CmdOn="Out1 In1 All\r\n" CmdOff="" Unit="" HintText="" Analog="false" Text="false" Sensor="true" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="O1 &gt; I2" Comment="" CmdOn="Out1 In2 All\r\n" CmdOff="" Unit="" HintText="" Analog="false" Text="false" Sensor="true" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="O1 &gt; I3" Comment="" CmdOn="Out1 In3 All\r\n" CmdOff="" Unit="" HintText="" Analog="false" Text="false" Sensor="true" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="O1 &gt; I4" Comment="" CmdOn="Out1 In4 All\r\n" CmdOff="" Unit="" HintText="" Analog="false" Text="false" Sensor="true" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="O2 &gt; I4" Comment="" CmdOn="Out2 In4 All\r\n" CmdOff="" Unit="" HintText="" Analog="false" Text="false" Sensor="true" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="O3 &gt; I4" Comment="" CmdOn="Out3 In4 All\r\n" CmdOff="" Unit="" HintText="" Analog="false" Text="false" Sensor="true" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="O4 &gt; I4" Comment="" CmdOn="Out4 In4 All\r\n" CmdOff="" Unit="" HintText="" Analog="false" Text="false" Sensor="true" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="O4 &gt; I3" Comment="" CmdOn="Out4 In3 All\r\n" CmdOff="" Unit="" HintText="" Analog="false" Text="false" Sensor="true" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="O3 &gt; I3" Comment="" CmdOn="Out3 In3 All\r\n" CmdOff="" Unit="" HintText="" Analog="false" Text="false" Sensor="true" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="O2 &gt; I3" Comment="" CmdOn="Out2 In3 All\r\n" CmdOff="" Unit="" HintText="" Analog="false" Text="false" Sensor="true" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="O2 &gt; I2" Comment="" CmdOn="Out2 In2 All\r\n" CmdOff="" Unit="" HintText="" Analog="false" Text="false" Sensor="true" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="O3 &gt; I2" Comment="" CmdOn="Out3 In2 All\r\n" CmdOff="" Unit="" HintText="" Analog="false" Text="false" Sensor="true" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="O4 &gt; I2" Comment="" CmdOn="Out4 In2 All\r\n" CmdOff="" Unit="" HintText="" Analog="false" Text="false" Sensor="true" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="O4 &gt; I1" Comment="" CmdOn="Out4 In1 All\r\n" CmdOff="" Unit="" HintText="" Analog="false" Text="false" Sensor="true" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="O3 &gt; I1" Comment="" CmdOn="Out3 In1 All\r\n" CmdOff="" Unit="" HintText="" Analog="false" Text="false" Sensor="true" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="O2 &gt; I1" Comment="" CmdOn="Out2 In1 All\r\n" CmdOff="" Unit="" HintText="" Analog="false" Text="false" Sensor="true" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="Output 1" Comment="" CmdOn="Out1 In\v All\r\n" CmdOff="" Unit="&lt;v&gt;" HintText="" Analog="true" Text="false" Sensor="true" Signed="true" SourceValHigh="4" DestValHigh="4"/>
+	<CommCmd Title="Output 2" Comment="" CmdOn="Out2 In\v All\r\n" CmdOff="" Unit="&lt;v&gt;" HintText="" Analog="true" Text="false" Sensor="true" Signed="true" SourceValHigh="4" DestValHigh="4"/>
+	<CommCmd Title="Output 3" Comment="" CmdOn="Out3 In\v All\r\n" CmdOff="" Unit="&lt;v&gt;" HintText="" Analog="true" Text="false" Sensor="true" Signed="true" SourceValHigh="4" DestValHigh="4"/>
+	<CommCmd Title="Output 4" Comment="" CmdOn="Out4 In\v All\r\n" CmdOff="" Unit="&lt;v&gt;" HintText="" Analog="true" Text="false" Sensor="true" Signed="true" SourceValHigh="4" DestValHigh="4"/>
+	<CommCmd Title="All In 1" Comment="" CmdOn="In1 All\r\n" CmdOff="" Unit="" HintText="" Analog="false" Text="false" Sensor="true" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="All In 2" Comment="" CmdOn="In2 All\r\n" CmdOff="" Unit="" HintText="" Analog="false" Text="false" Sensor="true" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="All In 3" Comment="" CmdOn="In3 All\r\n" CmdOff="" Unit="" HintText="" Analog="false" Text="false" Sensor="true" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="All In 4" Comment="" CmdOn="In4 All\r\n" CmdOff="" Unit="" HintText="" Analog="false" Text="false" Sensor="true" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="O1&gt;I2" Comment="" CmdOn="2*1!\r\n" CmdOff="" Unit="" HintText="" Analog="false" Text="false" Sensor="false" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="O1&gt;I1" Comment="" CmdOn="1*1!\r\n" CmdOff="" Unit="" HintText="" Analog="false" Text="false" Sensor="false" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="O1&gt;I3" Comment="" CmdOn="3*1!\r\n" CmdOff="" Unit="" HintText="" Analog="false" Text="false" Sensor="false" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="O1&gt;I4" Comment="" CmdOn="4*1!\r\n" CmdOff="" Unit="" HintText="" Analog="false" Text="false" Sensor="false" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="O2&gt;I1" Comment="" CmdOn="1*2!\r\n" CmdOff="" Unit="" HintText="" Analog="false" Text="false" Sensor="false" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="O3&gt;I1" Comment="" CmdOn="1*3!\r\n" CmdOff="" Unit="" HintText="" Analog="false" Text="false" Sensor="false" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="O4&gt;I1" Comment="" CmdOn="1*4!\r\n" CmdOff="" Unit="" HintText="" Analog="false" Text="false" Sensor="false" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="O2&gt;I2" Comment="" CmdOn="2*2!\r\n" CmdOff="" Unit="" HintText="" Analog="false" Text="false" Sensor="false" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="O3&gt;I2" Comment="" CmdOn="2*3!\r\n" CmdOff="" Unit="" HintText="" Analog="false" Text="false" Sensor="false" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="O4&gt;I2" Comment="" CmdOn="2*4!\r\n" CmdOff="" Unit="" HintText="" Analog="false" Text="false" Sensor="false" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="O2&gt;I3" Comment="" CmdOn="3*2!\r\n" CmdOff="" Unit="" HintText="" Analog="false" Text="false" Sensor="false" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="O3&gt;I3" Comment="" CmdOn="3*3!\r\n" CmdOff="" Unit="" HintText="" Analog="false" Text="false" Sensor="false" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="O4&gt;I3" Comment="" CmdOn="3*4!\r\n" CmdOff="" Unit="" HintText="" Analog="false" Text="false" Sensor="false" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="O2&gt;I4" Comment="" CmdOn="4*2!\r\n" CmdOff="" Unit="" HintText="" Analog="false" Text="false" Sensor="false" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="O3&gt;I4" Comment="" CmdOn="4*3!\r\n" CmdOff="" Unit="" HintText="" Analog="false" Text="false" Sensor="false" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="O4&gt;I4" Comment="" CmdOn="4*4!\r\n" CmdOff="" Unit="" HintText="" Analog="false" Text="false" Sensor="false" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="All&gt;I1" Comment="" CmdOn="1*!\r\n" CmdOff="" Unit="" HintText="" Analog="false" Text="false" Sensor="false" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="All&gt;I2" Comment="" CmdOn="2*!\r\n" CmdOff="" Unit="" HintText="" Analog="false" Text="false" Sensor="false" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="All&gt;I3" Comment="" CmdOn="3*!\r\n" CmdOff="" Unit="" HintText="" Analog="false" Text="false" Sensor="false" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="All&gt;I4" Comment="" CmdOn="4*!\r\n" CmdOff="" Unit="" HintText="" Analog="false" Text="false" Sensor="false" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="Output 1" Comment="" CmdOn="&lt;v&gt;*1!\r\n" CmdOff="" Unit="&lt;v.1&gt;" HintText="" Analog="true" Text="false" Sensor="false" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="Output 2" Comment="" CmdOn="&lt;v&gt;*2!\r\n" CmdOff="" Unit="&lt;v.1&gt;" HintText="" Analog="true" Text="false" Sensor="false" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="Output 3" Comment="" CmdOn="&lt;v&gt;*3!\r\n" CmdOff="" Unit="&lt;v.1&gt;" HintText="" Analog="true" Text="false" Sensor="false" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="Output 4" Comment="" CmdOn="&lt;v&gt;*4!\r\n" CmdOff="" Unit="&lt;v.1&gt;" HintText="" Analog="true" Text="false" Sensor="false" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+</Comm>

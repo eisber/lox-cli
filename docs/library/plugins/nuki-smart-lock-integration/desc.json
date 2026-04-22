@@ -1,0 +1,9 @@
+{
+                                "type": "template",
+                                "name": "nuki-smart-lock-integration",
+                                "uuid": "b6cf669c-a582-11ef-8ac44cd98f3deb8a",
+                                "version":"1.0.0",
+                                "id": "nuki-smart-lock-integration-1728",
+                                "file": "nuki-smart-lock-integration.xml",
+                                "templateType": "3",
+                            }

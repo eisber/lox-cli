@@ -1,0 +1,12 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Modbus Title="Hoval- PV Heater" Comment="" HintText="" Channel="1">
+	<Info templateType="7" minVersion="15000416"/>
+	<ModbusCmd Title="Temperatur" Comment="Aktuelle Isttemperatur" HintText="" ModbusAddress="325" ModbusCmd="4" ModbusDataType="100" ModbusPollingCycle="60" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Emergency Mode" Comment="Notbetrieb" HintText="" ModbusAddress="108" ModbusCmd="4" ModbusPollingCycle="60" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="Actual Load" Comment="Aktuelle Leistung" HintText="" ModbusAddress="110" ModbusCmd="4" ModbusPollingCycle="10" Unit="&lt;v.1&gt; kW" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="1"/>
+	<ModbusCmd Title="Actual Temperatur Limit" Comment="Aktuelles Temperaturlimit Sollwert" HintText="" ModbusAddress="640" ModbusCmd="4" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt; °C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Power Step" Comment="Heizstufen" HintText="" ModbusAddress="200" ModbusCmd="6" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100" RepeatRate="7"/>
+	<ModbusCmd Title="Load Setpoint" Comment="Positiver Laststollwert" HintText="" ModbusAddress="201" ModbusCmd="6" ModbusDataType="1" Unit="&lt;v.1&gt;W" Analog="true" Sensor="false" SourceValHigh="1" DestValHigh="1000" RepeatRate="7"/>
+	<ModbusCmd Title="Load Feedin" Comment="Negativer Laststollwert" HintText="" ModbusAddress="202" ModbusCmd="6" ModbusDataType="1" Unit="&lt;v.1&gt;W" Analog="true" Sensor="false" SourceValHigh="1" DestValHigh="-1000" RepeatRate="7"/>
+	<ModbusCmd Title="Temp Limit" Comment="Temperaturlimit Sollwert" HintText="" ModbusAddress="597" ModbusCmd="6" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10" RepeatRate="7"/>
+</Modbus>

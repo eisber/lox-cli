@@ -1,0 +1,205 @@
+{
+  "title": "Audio Central",
+  "xml_type": "",
+  "kb_slug": "audio-central",
+  "description": "This central block can be used to control multiple audio block together.\nThe functions that can be used depend on the linked blocks such as Audio Player or Music Server Zone, and are set via their parameters.",
+  "inputs": [
+    {
+      "abbreviation": "TgZ",
+      "summary": "Toggle Zone",
+      "description": "Toggles zone on and off",
+      "unit": "-",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "Zon",
+      "summary": "Zone On",
+      "description": "Digital Input - Single pulse turns zone on",
+      "unit": "-",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "Zoff",
+      "summary": "Zone Off",
+      "description": "Digital Input - Single pulse turns zone off When playing a playlist, pressing Play will restart playback at the beginning of the title.",
+      "unit": "-",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "V+",
+      "summary": "Volume+",
+      "description": "Increase volume by value set in parameter (Vsts). Double-click selects next favorite.",
+      "unit": "-",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "V-",
+      "summary": "Volume-",
+      "description": "Decrease volume by value set in parameter (Vsts). Double-click turns off the player.",
+      "unit": "-",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "V",
+      "summary": "Set volume",
+      "description": "If the assigned Audio Players are set to different volumes, only the loudest players adopt the new value when the volume is changed; all other players follow accordingly but retain the volume ratio.",
+      "unit": "%",
+      "value_range": "0...100"
+    },
+    {
+      "abbreviation": "S+",
+      "summary": "Casatunes Music Server: Next Source",
+      "description": "Trigger next source",
+      "unit": "-",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "AIs",
+      "summary": "Casatunes Music Server: Source",
+      "description": "Analogue Input Source This input is only visible in certain configurations.",
+      "unit": "-",
+      "value_range": "\u221e"
+    },
+    {
+      "abbreviation": "Stop",
+      "summary": "Stop playback",
+      "description": "Trigger stop playback When playing a playlist, pressing Play will restart playback at the beginning of the title.",
+      "unit": "-",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "Shuffle",
+      "summary": "Shuffle",
+      "description": "Trigger shuffle This input is only visible in certain configurations.",
+      "unit": "-",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "Repeat",
+      "summary": "Repeat",
+      "description": "Analogue Input - Value to indicate repeat state 0 = Off, 1 = Repeat Continuously, 2 = Repeat Once This input is only visible in certain configurations.",
+      "unit": "-",
+      "value_range": "0...2"
+    },
+    {
+      "abbreviation": "Sleep",
+      "summary": "Sleep timer input",
+      "description": "Zone is muted and switched off after duration specified in Ts The sleep timer is reset when switching off the zone (Off, Pause, Stop, R). This input is only visible in certain configurations.",
+      "unit": "-",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "TTS",
+      "summary": "Text to Speech input",
+      "description": "Text to Speech input Maximum length 400 characters",
+      "unit": "-",
+      "value_range": "-"
+    },
+    {
+      "abbreviation": "Off",
+      "summary": "Off",
+      "description": "Pulse: Outputs are reset / switched off. On: Block is locked. Dominating input. The name of the connected sensor is used in the user interface.",
+      "unit": "-",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "T5",
+      "summary": "T5 control",
+      "description": "Button 2 : Volume up; double-click starts playback or choses next favorite Button 5 : Volume down; double-click pauses playback Button 3: Double-click activates (2C); triple-click activates (3C); (Roff) = 0: pauses playback",
+      "unit": "-",
+      "value_range": "\u221e"
+    },
+    {
+      "abbreviation": "DisPc",
+      "summary": "Disable periphery control",
+      "description": "Disables inputs V+, V-, V, Play, Pause, Prev, Next, Fav, Bell, Buzzer, T5, TTS, Cs, BTp when On. (e.g child lock, cleaning) Control via user interface is still possible.",
+      "unit": "-",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "DisP",
+      "summary": "Disable presence",
+      "description": "As long as this input is active, any change in value at input (P) is ignored.",
+      "unit": "-",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "Alarm",
+      "summary": "Alarm",
+      "description": "Plays alarm sound at volume set in parameter (Va).",
+      "unit": "-",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "FireAlarm",
+      "summary": "Fire alarm",
+      "description": "Plays fire alarm sound at volume set in parameter (Va).",
+      "unit": "-",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "Bell",
+      "summary": "Bell",
+      "description": "Plays doorbell sound at volume set in parameter (Vbell).",
+      "unit": "-",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "Buzzer",
+      "summary": "Buzzer",
+      "description": "Starts alarm clock action as specified in the properties. If the action \"Alarm Clock Chime\" is selected, the alarm clock sound is played at the volume set in parameter (Vbuzzer).",
+      "unit": "-",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "Rtd",
+      "summary": "Reset to default",
+      "description": "Resets parameters and settings of the block to the default values as specified in the block preset.",
+      "unit": "-",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "Cs",
+      "summary": "Custom sound",
+      "description": "Plays custom sound [filename] at volume [vol]. E.g. soundcheck.mp3:80 [filename]:[vol] Custom sounds have to be stored on the Audioserver\u2019s SD card in the folder Event_Sounds! Only mp3 files are supported.",
+      "unit": "-",
+      "value_range": "-"
+    }
+  ],
+  "outputs": [
+    {
+      "abbreviation": "API",
+      "summary": "API Connector",
+      "description": "Intelligent API based connector. API Commands",
+      "value_range": "-"
+    },
+    {
+      "abbreviation": "Na",
+      "summary": "Active Audio Players",
+      "description": "Number of active Audio Players",
+      "value_range": "\u221e"
+    }
+  ],
+  "parameters": [
+    {
+      "abbreviation": "Roff",
+      "summary": "Ignore room off command",
+      "description": "Ignore Room Off / House Off via T5 (button 3)",
+      "unit": "-",
+      "value_range": "0/1",
+      "default_value": "0"
+    }
+  ],
+  "properties": [
+    {
+      "summary": "Selection",
+      "description": "All selected Music Server Zones and Audio Players can be controlled together.",
+      "default_value": "-"
+    }
+  ],
+  "source_url": "https://www.loxone.com/enen/kb/audio-central/",
+  "input_count": 23,
+  "output_count": 2,
+  "parameter_count": 1,
+  "property_count": 1
+}

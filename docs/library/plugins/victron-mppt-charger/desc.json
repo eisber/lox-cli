@@ -1,0 +1,9 @@
+{
+                                "type": "template",
+                                "name": "victron-mppt-charger",
+                                "uuid": "975b2e0a-1da0-11ed-855b4cd98f3deb8a",
+                                "version":"1.0.0",
+                                "id": "victron-mppt-charger-937",
+                                "file": "victron-mppt-charger.xml",
+                                "templateType": "7",
+                            }

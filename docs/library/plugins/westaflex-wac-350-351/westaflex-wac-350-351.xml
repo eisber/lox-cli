@@ -1,0 +1,28 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Modbus Title="Westaflex WAC 350 & 351" Comment="Westaflex" Baudrate="19200" Channel="1">
+    <Info templateType="7" minVersion="12010617"/>
+	<ModbusCmd Title="outside temperature" Comment="" ModbusAddress="9" ModbusCmd="4" ModbusPollingCycle="10" Unit="&lt;v.1&gt;°" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="extract air temperature" Comment="" ModbusAddress="3" ModbusCmd="4" ModbusPollingCycle="10" Unit="&lt;v.1&gt;°" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="supply air temperature" Comment="" ModbusCmd="4" ModbusPollingCycle="10" Unit="&lt;v.1&gt;°" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="extract air humidity" Comment="" ModbusAddress="13" ModbusCmd="4" ModbusPollingCycle="10" Unit="&lt;v.1&gt;%" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="fan level" Comment="" ModbusAddress="15" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v.1&gt;%" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="target temperature" Comment="" ModbusAddress="1" ModbusCmd="3" ModbusPollingCycle="10" Unit="&lt;v.1&gt;°" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Alarm extract sensor" Comment="" ModbusAddress="6" ModbusCmd="1" ModbusPollingCycle="5" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="fan" Comment="" ModbusAddress="13" ModbusCmd="1" ModbusPollingCycle="5" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="Alarm set temperature" Comment="" ModbusAddress="8" ModbusCmd="1" ModbusPollingCycle="5" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="fire Alarm" Comment="" ModbusAddress="1" ModbusCmd="1" ModbusPollingCycle="5" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="filter Message" Comment="" ModbusAddress="2" ModbusCmd="1" ModbusPollingCycle="5" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="Frost protection" Comment="" ModbusCmd="1" ModbusPollingCycle="5" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="Alarm fan" Comment="" ModbusAddress="3" ModbusCmd="1" ModbusPollingCycle="5" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="Alarm supply voltage" Comment="" ModbusAddress="5" ModbusCmd="1" ModbusPollingCycle="5" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="Alarm exhaust air sensor" Comment="" ModbusAddress="7" ModbusCmd="1" ModbusPollingCycle="5" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="Alarm supply air sensor" Comment="" ModbusAddress="8" ModbusCmd="1" ModbusPollingCycle="5" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="Alarm return water" Comment="" ModbusAddress="10" ModbusCmd="1" ModbusPollingCycle="5" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="Alarm outdoor sensor" Comment="" ModbusAddress="11" ModbusCmd="1" ModbusPollingCycle="5" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="reheating" Comment="" ModbusAddress="14" ModbusCmd="1" ModbusPollingCycle="5" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="Limit outside air temperature" Comment="" ModbusCmd="4" ModbusPollingCycle="5" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="exhaust air temperature" Comment="Fortlufttemperatur" ModbusAddress="6" ModbusCmd="4" ModbusPollingCycle="10" Unit="&lt;v.1&gt;°" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="outdoor air flap" Comment="Außenluftklappe" ModbusAddress="14" ModbusCmd="4" ModbusPollingCycle="5" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="target temperature" Comment="" ModbusAddress="1" ModbusCmd="6" ModbusDataType="32" Unit="&lt;v.1&gt;V" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="fan level" Comment="" ModbusCmd="6" ModbusDataType="32" Unit="&lt;v.1&gt;V" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10"/>
+</Modbus>

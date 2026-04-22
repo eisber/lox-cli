@@ -1,0 +1,175 @@
+{
+  "version": "1.0",
+  "description": "Build a complete house from scratch using homeowner-style natural language requests",
+  "persona": "homeowner",
+  "note": "Prompts use everyday language — no block types, no connector names, no technical details. The agent must figure out the right approach.",
+  "fixture": "empty",
+  "stages": [
+    {
+      "id": "h1",
+      "name": "The basics",
+      "progress": 15,
+      "steps": [
+        {
+          "utterance": "We're setting up a new smart home. We have these rooms: living room, bedroom, kitchen, bathroom, hallway, garden, and garage. Can you set it up?",
+          "checkpoint": {"min_rooms": 7}
+        },
+        {
+          "utterance": "We need weather data — temperature, sunshine, wind, rain, humidity, and how bright it is outside.",
+          "checkpoint": {"min_items": 18}
+        }
+      ]
+    },
+    {
+      "id": "h2",
+      "name": "Lights and blinds",
+      "progress": 35,
+      "steps": [
+        {
+          "utterance": "Every room needs smart lights. The garden light should be called Gartenbeleuchtung and the garage one Garagenlicht.",
+          "checkpoint": {"controls_by_type": {"LightController2": 7}}
+        },
+        {
+          "utterance": "Add blinds to all rooms except the garden and garage — two per room. Also add a motorized projection screen in the living room.",
+          "checkpoint": {"controls_by_type": {"JalousieUpDown2": 11}}
+        }
+      ]
+    },
+    {
+      "id": "h3",
+      "name": "Climate and sensors",
+      "progress": 55,
+      "steps": [
+        {
+          "utterance": "The living room needs a thermostat and air conditioning. Add room temperature sensors for the living room and bedroom.",
+          "checkpoint": {"controls_by_type": {"HeatIRoomController2": 1, "AcControl": 1}}
+        },
+        {
+          "utterance": "We need a motion sensor in the hallway and one in the garden. Also a doorbell, a front door sensor, and a garage door sensor.",
+          "checkpoint": {"controls_by_type": {"PresenceDetector": 2}}
+        },
+        {
+          "utterance": "The bathroom needs a fan and a radiator we can control. The garden needs an irrigation valve, a pool pump, and a soil moisture sensor. Add a CO2 sensor for the living room and a pool temperature sensor.",
+          "checkpoint": {"min_items": 55}
+        },
+        {
+          "utterance": "We need two general purpose switches and a manual irrigation button.",
+          "checkpoint": {"min_items": 60}
+        }
+      ]
+    },
+    {
+      "id": "h4",
+      "name": "Everyday comfort",
+      "progress": 70,
+      "steps": [
+        {
+          "utterance": "When someone walks through the hallway, turn on the light. The front door opening should also trigger the hallway light for about a minute and a half.",
+          "checkpoint": {"wiring_min": 2}
+        },
+        {
+          "utterance": "The bathroom gets really steamy after showers. Can you make the fan turn on automatically and keep running for a few minutes after?",
+          "checkpoint": {"new_blocks_min": 1}
+        },
+        {
+          "utterance": "At night, the hallway and bathroom lights should be much dimmer — maybe 20% — so they don't wake anyone up.",
+          "checkpoint": {"new_blocks_min": 1}
+        },
+        {
+          "utterance": "Connect the room temperature sensor to the living room thermostat so it knows the current temperature.",
+          "checkpoint": {"wiring_min": 1}
+        }
+      ]
+    },
+    {
+      "id": "h5",
+      "name": "Weather protection",
+      "progress": 80,
+      "steps": [
+        {
+          "utterance": "When it gets really windy, the blinds should go up everywhere for protection. Same when it rains — close them.",
+          "checkpoint": {"new_blocks_min": 1, "wiring_min": 2}
+        },
+        {
+          "utterance": "On hot sunny days, close the living room and bedroom blinds automatically to keep the house cool.",
+          "checkpoint": {"new_blocks_min": 2}
+        },
+        {
+          "utterance": "The pool pump should run when the water gets cold, but not when it's freezing outside — we don't want frozen pipes.",
+          "checkpoint": {"new_blocks_min": 2}
+        }
+      ]
+    },
+    {
+      "id": "h6",
+      "name": "Garden and garage",
+      "progress": 88,
+      "steps": [
+        {
+          "utterance": "The garden should water itself when the soil is dry, but not when it's raining. The manual button should still work too.",
+          "checkpoint": {"new_blocks_min": 3}
+        },
+        {
+          "utterance": "When someone moves in the garden at night, turn on the light. Also, the garage light should stay on for five minutes after the door opens.",
+          "checkpoint": {"new_blocks_min": 1}
+        },
+        {
+          "utterance": "The second switch should open and close the garage door.",
+          "checkpoint": {"wiring_min": 1}
+        }
+      ]
+    },
+    {
+      "id": "h7",
+      "name": "Doorbell and security",
+      "progress": 93,
+      "steps": [
+        {
+          "utterance": "When the doorbell rings, buzz the door open for 3 seconds and turn on the hallway light so they can see.",
+          "checkpoint": {"new_blocks_min": 1}
+        },
+        {
+          "utterance": "If the garage door opens at night, turn on the garden light for a few minutes as well — I want to see who's there.",
+          "checkpoint": {"new_blocks_min": 1}
+        }
+      ]
+    },
+    {
+      "id": "h8",
+      "name": "Modes and scenes",
+      "progress": 98,
+      "steps": [
+        {
+          "utterance": "Movie night: when I press switch 2, the projection screen should come down, living room lights go to 10%, and the AC turns on.",
+          "checkpoint": {"new_blocks_min": 1, "wiring_min": 2}
+        },
+        {
+          "utterance": "Good night mode on switch 1: turn off all lights, close the bedroom blinds, and if someone walks through the hallway, only 5% light.",
+          "checkpoint": {"wiring_min": 3}
+        }
+      ]
+    },
+    {
+      "id": "h9",
+      "name": "Scheduling",
+      "progress": 100,
+      "steps": [
+        {
+          "utterance": "Water the garden every morning from 6 to 6:30. And turn on the garden lights automatically in the evening, say from 8pm to midnight.",
+          "checkpoint": {"new_blocks_min": 2}
+        },
+        {
+          "utterance": "Don't start the AC unless it's been hot for at least 10 minutes — I don't want it cycling on and off all day.",
+          "checkpoint": {"new_blocks_min": 1}
+        }
+      ]
+    }
+  ],
+  "final_checkpoint": {
+    "min_controls": 70,
+    "min_wires": 25,
+    "check_errors": 0,
+    "validate_errors": 0,
+    "scan_clean": true
+  }
+}

@@ -1,0 +1,9 @@
+{
+                                "type": "template",
+                                "name": "loxone-music-server",
+                                "uuid": "cfe73a97-1167-11ec-9a744cd98f3deb8a",
+                                "version":"1.0.0",
+                                "id": "loxone-music-server-2",
+                                "file": "loxone-music-server.xml",
+                                "templateType": "3",
+                            }

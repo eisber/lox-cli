@@ -1,0 +1,43 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Modbus Title="Belimo Temperature Humidity CO2 Sensor Modbus RTU" Comment="" Baudrate="38400" Channel="1">
+	<Info templateType="7" minVersion="12021201"/>
+	<ModbusCmd Title="Temperature" Comment="" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="5" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="10"/>
+	<ModbusCmd Title="Relative Humidity" Comment="" ModbusAddress="1" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="5" Unit="&lt;v.2&gt;%RH" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="10"/>
+	<ModbusCmd Title="Absolute Humidity" Comment="" ModbusAddress="2" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="5" Unit="&lt;v.2&gt;g/m3" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="10"/>
+	<ModbusCmd Title="Enthalpy" Comment="" ModbusAddress="3" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="5" Unit="&lt;v.2&gt;kj/kg" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="10"/>
+	<ModbusCmd Title="Dew Point" Comment="" ModbusAddress="4" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="5" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="10"/>
+	<ModbusCmd Title="CO2" Comment="" ModbusAddress="5" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="5" Unit="&lt;v&gt;ppm" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Sensor Detection" Comment="" ModbusAddress="501" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Hardware version main circuit board" Comment="" ModbusAddress="502" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Firmware version main circuit board" Comment="" ModbusAddress="503" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Hardware version RS 485 module" Comment="" ModbusAddress="504" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Firmware version RS 485 module" Comment="" ModbusAddress="505" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Maximum output voltage" Comment="" ModbusAddress="509" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.1&gt;V" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Operating hours counter" Comment="" ModbusAddress="510" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v&gt;h" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Device Detection" Comment="" ModbusAddress="500" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Offset Temperature" Comment="" ModbusAddress="100" ModbusCmd="6" ModbusDataType="1" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="100"/>
+	<ModbusCmd Title="Offset Relative Humidity" Comment="" ModbusAddress="101" ModbusCmd="6" ModbusDataType="1" Unit="&lt;v.1&gt;%RH" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Offset CO2" Comment="" ModbusAddress="102" ModbusCmd="6" ModbusDataType="1" Unit="&lt;v&gt;ppm" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Lower Limit Temperature" Comment="" ModbusAddress="200" ModbusCmd="6" ModbusDataType="1" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Upper Limit Temperature" Comment="" ModbusAddress="201" ModbusCmd="6" ModbusDataType="1" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Lower Limit Relative Humidity" Comment="" ModbusAddress="202" ModbusCmd="6" ModbusDataType="1" Unit="&lt;v.1&gt;%RH" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Upper Limit Relative Humidity" Comment="" ModbusAddress="203" ModbusCmd="6" ModbusDataType="1" Unit="&lt;v.1&gt;%RH" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Lower Limit Absolute Humidity" Comment="" ModbusAddress="204" ModbusCmd="6" ModbusDataType="1" Unit="&lt;v.1&gt;g/m3" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Upper Limit Absolute Humidity" Comment="" ModbusAddress="205" ModbusCmd="6" ModbusDataType="1" Unit="&lt;v.1&gt;g/m3" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Lower Limit Enthalpy" Comment="" ModbusAddress="206" ModbusCmd="6" ModbusDataType="1" Unit="&lt;v.1&gt;kJ/kg" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Upper Limit Enthalpy" Comment="" ModbusAddress="207" ModbusCmd="6" ModbusDataType="1" Unit="&lt;v.1&gt;kJ/kg" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Lower Limit Dew Point" Comment="" ModbusAddress="208" ModbusCmd="6" ModbusDataType="1" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Upper Limit Dew Point" Comment="" ModbusAddress="209" ModbusCmd="6" ModbusDataType="1" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Lower Limit CO2" Comment="" ModbusAddress="210" ModbusCmd="6" ModbusDataType="1" Unit="&lt;v&gt;ppm" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Upper Limit CO2" Comment="" ModbusAddress="211" ModbusCmd="6" ModbusDataType="1" Unit="&lt;v&gt;ppm" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Channel Temperature" Comment="" ModbusAddress="300" ModbusCmd="6" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Channel Relative Humidity" Comment="" ModbusAddress="301" ModbusCmd="6" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Channel Absolute Humidity" Comment="" ModbusAddress="302" ModbusCmd="6" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Channel Enthalpy" Comment="" ModbusAddress="303" ModbusCmd="6" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Channel Dew Point" Comment="" ModbusAddress="304" ModbusCmd="6" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Channel CO2" Comment="" ModbusAddress="305" ModbusCmd="6" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Selection of the Unitary System" Comment="" ModbusAddress="400" ModbusCmd="6" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Minimum output voltage" Comment="" ModbusAddress="508" ModbusCmd="6" Unit="&lt;v.1&gt;V" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Countdown for maintenance" Comment="" ModbusAddress="511" ModbusCmd="6" Unit="&lt;v&gt;h" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Countdown for visual inspection" Comment="" ModbusAddress="512" ModbusCmd="6" Unit="&lt;v&gt;h" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+</Modbus>

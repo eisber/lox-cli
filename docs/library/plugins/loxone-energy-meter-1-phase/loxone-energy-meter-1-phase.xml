@@ -1,0 +1,7 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Modbus Title="Loxone Modbus Electricity Meter (Single Phase)" Comment="" Baudrate="19200" Parity="1" Channel="1">
+    <Info templateType="7" minVersion="12010617"/>
+	<ModbusCmd Title="Energy Consumption" Comment="" ModbusAddress="27" ModbusCmd="3" ModbusDataType="34" ModbusPollingCycle="10" Unit="&lt;v.3&gt;kWh" Analog="true" Sensor="true" SourceValHigh="1" DestValHigh="0.01" ST="19"/>
+	<ModbusCmd Title="Power" Comment="" ModbusAddress="37" ModbusDataType="1"  ModbusCmd="3" ModbusPollingCycle="10" Unit="&lt;v.3&gt;kW" Analog="true" Sensor="true" SourceValHigh="1" DestValHigh="0.01" ST="17"/>
+	<ModbusCmd Title="Energy Production" Comment="" ModbusAddress="29" ModbusCmd="3" ModbusDataType="34" ModbusPollingCycle="10" Unit="&lt;v.2&gt;kWh" Analog="true" Sensor="true" SourceValHigh="1" DestValHigh="0.01" ST="18"/>
+</Modbus>

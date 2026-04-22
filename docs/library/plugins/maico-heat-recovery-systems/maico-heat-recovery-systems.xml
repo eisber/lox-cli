@@ -1,0 +1,41 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Modbus Title="Maico Lüfter" Comment="" templatetype="7" Channel="10">
+	<Info templateType="7" minVersion="12020913"/>
+	<ModbusCmd Title="7 Temperatur Lufteintritt" Comment="Temperatur Lufteintritt" ModbusAddress="703" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="600" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="7 Temperatur Zuluft" Comment="Temperatur Zuluft" ModbusAddress="704" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="600" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="7 Temperatur Abluft" Comment="Temperatur Abluft" ModbusAddress="705" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="600" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="7 Temperatur Fortluft" Comment="Temperatur Fortluft" ModbusAddress="703" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="600" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="6 Drehzahl Zuluft" Comment="Drehzahl Zuluft" ModbusAddress="651" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v&gt; U/min" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="6 Aktuelle Lüftungsstufe" Comment="Aktuelle Lüftungsstufe" ModbusAddress="650" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="7 Feuchtigkeit Abluft" Comment="Luftfeuchte Abluft" ModbusAddress="750" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="600" Unit="&lt;v&gt; %" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="8 Stellantrieb Sommerbypass" Comment="Sommerbypass" ModbusAddress="802" ModbusCmd="3" ModbusPollingCycle="60" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="6 Volumenstrom Abluft" Comment="Volumenstrom Abluft" ModbusAddress="654" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="60" Unit="&lt;v&gt; m3/h" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="6 Drehzahl Abluft" Comment="Drehzahl Abluft" ModbusAddress="652" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v&gt; U/min" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="5 Jahreszeit" Comment="Jahreszeit" ModbusAddress="552" ModbusCmd="3" ModbusPollingCycle="3600" Unit="&lt;v&gt; 0=Winter 1=Sommer" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="4 Fehler Low Word" Comment="Fehler Low Word" ModbusAddress="402" ModbusCmd="3" ModbusPollingCycle="3600" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="4 Fehler High Word" Comment="Fehler High Word" ModbusAddress="401" ModbusCmd="3" ModbusPollingCycle="3600" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="6 Restlaufzeit Gerätefilter" Comment="Restlaufzeit Gerätefilter" ModbusAddress="655" ModbusCmd="3" ModbusPollingCycle="3600" Unit="&lt;v&gt; Tage" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="5 Betriebsart" Comment="Betriebsart" ModbusAddress="550" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v&gt; 2=Auto-Sensor" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="4 Hinweis High Word" Comment="Hinweis High Word" ModbusAddress="403" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="4 Hinweis Low Word" Comment="Hinweis Low Word" ModbusAddress="404" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="6 Restlaufzeit Aussenfilter" Comment="Restlaufzeit Aussenfilter" ModbusAddress="656" ModbusCmd="3" ModbusPollingCycle="3600" Unit="&lt;v&gt; Tage" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="6 Restlaufzeit Raumfilter" Comment="Restlaufzeit Raumfilter" ModbusAddress="657" ModbusCmd="3" ModbusPollingCycle="3600" Unit="&lt;v&gt; Tage" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="6 Volumenstrom Zuluft" Comment="Volumenstrom Zuluft" ModbusAddress="653" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v&gt; m3/h" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="5 Lüftungsstufe" Comment="Lüftungsstufe Vorgabe" ModbusAddress="554" ModbusCmd="16" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="5 Betriebsart" Comment="Betriebsart" ModbusAddress="550" ModbusCmd="16" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="7 CO2-Wert (ppm)" Comment="CO2-Wert (ppm)" ModbusAddress="764" ModbusCmd="16" Unit="&lt;v&gt; ppm" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10" RepeatRate="600"/>
+	<ModbusCmd Title="7 Feuchte Raum Bus" Comment="Feuchte (Mittelwert)" ModbusAddress="763" ModbusCmd="16" Unit="&lt;v&gt; %" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10" RepeatRate="600"/>
+	<ModbusCmd Title="5 Solltemperatur Raum" Comment="Raumsolltemperatur" ModbusAddress="553" ModbusCmd="16" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="100"/>
+	<ModbusCmd Title="3 Abgleich Raumtemperatur" Comment="Abgleich Raumtemperatur" ModbusAddress="300" ModbusCmd="16" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="100"/>
+	<ModbusCmd Title="3 T-Zuluft min. kuehlen" Comment="Min. Temperatur Zuluft beim Kühlen" ModbusAddress="301" ModbusCmd="16" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="100"/>
+	<ModbusCmd Title="3 T-Raum max" Comment="Max. Raumtemperatur" ModbusAddress="302" ModbusCmd="16" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="100"/>
+	<ModbusCmd Title="7 Temperatur Raum Ext" Comment="Raumtemperatur Extern" ModbusAddress="701" ModbusCmd="16" ModbusDataType="1" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="100"/>
+	<ModbusCmd Title="7 T-Raum Bus" Comment="Raumtemperatur Bus" ModbusAddress="707" ModbusCmd="16" ModbusDataType="1" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="100"/>
+	<ModbusCmd Title="5 Jahreszeit" Comment="Aktor Jahreszeit" ModbusAddress="552" ModbusCmd="16" Unit="&lt;v&gt; 0= Winter, 1=Sommer" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="5 Stosslüftung" Comment="Stosslüftung" ModbusAddress="551" ModbusCmd="16" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="1 Filterwechsel Aussenfilter" Comment="Filterwechsel Aussenfilter" ModbusAddress="158" ModbusCmd="16" Unit="&lt;v.x&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="1 Filterwechsel Gerätefilter" Comment="Filterwechsel Gerätefilter" ModbusAddress="157" ModbusCmd="16" Unit="&lt;v.x&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="1 Filterwechsel Raumfilter" Comment="Filterwechsel Raumfilter" ModbusAddress="159" ModbusCmd="16" Unit="&lt;v.x&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="4 Fehler Reset" Comment="Fehler Reset" ModbusAddress="405" ModbusCmd="16" Unit="&lt;v.x&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="5 Einschlaffunktion" Comment="Einschlaffunktion" ModbusAddress="-1" ModbusCmd="16" Unit="&lt;v.x&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10"/>
+</Modbus>

@@ -1,0 +1,21 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Modbus Title="Carlo Gavazzi EM540" Comment="" Baudrate="9600" Channel="1">
+	<Info templateType="7" minVersion="12021201"/>
+	<ModbusCmd Title="V L1-N" Comment="" ModbusCmd="4" ModbusDataType="99" ModbusPollingCycle="5" Unit="&lt;v.1&gt;V" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="Hz" Comment="" ModbusAddress="51" ModbusCmd="4" ModbusDataType="99" ModbusPollingCycle="5" Unit="&lt;v.1&gt;Hz" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="V L2-N" Comment="" ModbusAddress="2" ModbusCmd="4" ModbusDataType="99" ModbusPollingCycle="60" Unit="&lt;v.1&gt;V" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="V L3-N" Comment="" ModbusAddress="4" ModbusCmd="4" ModbusDataType="99" ModbusPollingCycle="60" Unit="&lt;v.1&gt;V" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="V L1-L2" Comment="" ModbusAddress="6" ModbusCmd="4" ModbusDataType="99" ModbusPollingCycle="60" Unit="&lt;v.1&gt;V" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="V L2-L3" Comment="" ModbusAddress="8" ModbusCmd="4" ModbusDataType="99" ModbusPollingCycle="60" Unit="&lt;v.1&gt;V" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="V L3-L1" Comment="" ModbusAddress="10" ModbusCmd="4" ModbusDataType="99" ModbusPollingCycle="60" Unit="&lt;v.1&gt;V" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="A L1" Comment="" ModbusAddress="12" ModbusCmd="4" ModbusDataType="99" ModbusPollingCycle="60" Unit="&lt;v.1&gt;A" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="1"/>
+	<ModbusCmd Title="A L2" Comment="" ModbusAddress="14" ModbusCmd="4" ModbusDataType="99" ModbusPollingCycle="60" Unit="&lt;v.1&gt;A" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="1"/>
+	<ModbusCmd Title="A L3" Comment="" ModbusAddress="16" ModbusCmd="4" ModbusDataType="99" ModbusPollingCycle="60" Unit="&lt;v.1&gt;A" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="1"/>
+	<ModbusCmd Title="kW L1" Comment="" ModbusAddress="18" ModbusCmd="4" ModbusDataType="99" ModbusPollingCycle="60" Unit="&lt;v.1&gt;kW" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="kW L2" Comment="" ModbusAddress="20" ModbusCmd="4" ModbusDataType="99" ModbusPollingCycle="60" Unit="&lt;v.1&gt;kW" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="kW L3" Comment="" ModbusAddress="22" ModbusCmd="4" ModbusDataType="99" ModbusPollingCycle="60" Unit="&lt;v.1&gt;kW" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="kWh+TOT" Comment="" ModbusAddress="52" ModbusCmd="4" ModbusDataType="99" ModbusPollingCycle="60" Unit="&lt;v.1&gt;kWh" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="kWh-TOT" Comment="" ModbusAddress="78" ModbusCmd="4" ModbusDataType="99" ModbusPollingCycle="60" Unit="&lt;v.1&gt;kWh" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="kWh+t1" Comment="" ModbusAddress="70" ModbusCmd="4" ModbusDataType="99" ModbusPollingCycle="60" Unit="&lt;v.1&gt;kWh" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="kWh+t2" Comment="" ModbusAddress="72" ModbusCmd="4" ModbusDataType="99" ModbusPollingCycle="60" Unit="&lt;v.1&gt;kWh" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+</Modbus>

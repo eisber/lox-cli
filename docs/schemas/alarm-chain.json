@@ -1,0 +1,99 @@
+{
+  "title": "Alarm Chain",
+  "xml_type": "",
+  "kb_slug": "alarm-chain",
+  "description": "Creates a 10-level Alarm Sequence with text outputs. After the set reaction time, the next step becomes active. If the alarm continues to be active after the last stage, the chain starts over again.",
+  "inputs": [
+    {
+      "abbreviation": "A",
+      "summary": "Alarm",
+      "description": "ON: alarm start, OFF: alarm end",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "Au",
+      "summary": "Urgent alarm",
+      "description": "ON: alarm start at all outputs (A1-10), OFF: alarm ends at all outputs (A1-10). If (A) and (Au) are (ON), (Au) is dominating.",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "AEs",
+      "summary": "Alarm emergency service",
+      "description": "ON: emergancy alarm start, OFF: emergency alarm ends if (A) and (Au) are OFF.",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "T1-3",
+      "summary": "Alarm texts 1-3",
+      "description": "Text provided on this input can be used in the alarm messages of output (A1-10).",
+      "value_range": "-"
+    },
+    {
+      "abbreviation": "Ca",
+      "summary": "Confirm alarm",
+      "description": "Pulse: Resets all alarm outputs. On = Alarm outputs are locked.",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "Off",
+      "summary": "Off",
+      "description": "Pulse: Outputs are reset / switched off. On: Block is locked. Dominating input.",
+      "value_range": "0/1"
+    }
+  ],
+  "outputs": [
+    {
+      "abbreviation": "A1-10",
+      "summary": "Alarm chain stage 1-10",
+      "description": "Text output for alarm chain level 1-10. Is skipped if not connected.",
+      "value_range": "-"
+    },
+    {
+      "abbreviation": "AEs",
+      "summary": "Alarm text emergency services",
+      "description": "ON when the alarm chain have reached their maximum repetition (MaxR) or when input (AEs) is activated.",
+      "value_range": "-"
+    },
+    {
+      "abbreviation": "As",
+      "summary": "Current alarm stage",
+      "description": "Number of the current level of the alarm chain (A1-10) -1 = All alarm levels active",
+      "value_range": "-1...10"
+    }
+  ],
+  "parameters": [
+    {
+      "abbreviation": "Rt",
+      "summary": "Reaction time",
+      "description": "Time before next level is activated. If input (Au) is enabled then this parameter refers to the duration before outputs are activated again. 0 = All alarm outputs are activated at the same time and only once.",
+      "unit": "s",
+      "value_range": "0...\u221e",
+      "default_value": "60"
+    },
+    {
+      "abbreviation": "MaxR",
+      "summary": "Maximum repetitions",
+      "description": "The maximum number of times the alarm chain is repeated. 0 = Unlimited repetitions",
+      "unit": "-",
+      "value_range": "0...\u221e",
+      "default_value": "4"
+    }
+  ],
+  "properties": [
+    {
+      "summary": "Alarm text emergency services",
+      "description": "Is provided at output (AEs) when active. If this text is empty, the default alarm text is used. The following values can be used: : Name of the block  - : Text at inputs (T1-3) : Time of the alarm when (A) or (Au) is activated : Customer name from the project settings : Customer address from project settings",
+      "default_value": "-"
+    },
+    {
+      "summary": "Alarm text",
+      "description": "Is provided at outputs (A1-10) when active. The following values can be used: : Name of the block  - : Text at inputs (T1-3)  - : Value without decimal places at inputs (T1-3)  - : Value with 2 decimal places at inputs (T1-3) : Time of the alarm when (A) or (Au) is activated : Customer name from the project settings : Customer address from project settings : Time in seconds before activating output (AEs)",
+      "default_value": "-"
+    }
+  ],
+  "source_url": "https://www.loxone.com/enen/kb/alarm-chain/",
+  "input_count": 6,
+  "output_count": 3,
+  "parameter_count": 2,
+  "property_count": 2
+}

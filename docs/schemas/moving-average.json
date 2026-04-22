@@ -1,0 +1,59 @@
+{
+  "title": "Moving Average",
+  "xml_type": "",
+  "kb_slug": "moving-average",
+  "description": "The function block takes the value from the input every 'C' seconds and places it in a buffer that has a maximum of 'N' entries. The oldest entry from this buffer is always removed. The average value is calculated from these entries.",
+  "inputs": [
+    {
+      "abbreviation": "V",
+      "summary": "Value",
+      "description": "Analogue input from which the moving average is calculated.",
+      "value_range": "\u221e"
+    },
+    {
+      "abbreviation": "R",
+      "summary": "Reset",
+      "description": "Deactivates the averaging function. Output (Avg) is equal to the value at input (V).",
+      "value_range": "0/1"
+    }
+  ],
+  "outputs": [
+    {
+      "abbreviation": "Avg",
+      "summary": "Average",
+      "value_range": "\u221e"
+    }
+  ],
+  "parameters": [
+    {
+      "abbreviation": "Rem",
+      "summary": "Remanence input",
+      "description": "Remanence input: If active, the function block retains its previous state after a Miniserver reboot. The state of the function block is saved: \u2013 When saving to the Miniserver \u2013 At a planned reboot \u2013 Before a backup \u2013 Once per hour The data is saved on the SD card.",
+      "unit": "-",
+      "value_range": "0/1",
+      "default_value": "0"
+    },
+    {
+      "abbreviation": "C",
+      "summary": "Polling cycle",
+      "description": "Used to set the interval at which the value on the input read to then be averaged.",
+      "unit": "s",
+      "value_range": "0...\u221e",
+      "default_value": "60"
+    },
+    {
+      "abbreviation": "N",
+      "summary": "Number of readings",
+      "description": "Number of values used for calculating average.",
+      "unit": "-",
+      "value_range": "0...1000",
+      "default_value": "60"
+    }
+  ],
+  "properties": [],
+  "source_url": "https://www.loxone.com/enen/kb/moving-average/",
+  "input_count": 2,
+  "output_count": 1,
+  "parameter_count": 3,
+  "property_count": 0
+}

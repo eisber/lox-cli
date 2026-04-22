@@ -1,0 +1,9 @@
+{
+                                "type": "template",
+                                "name": "solplanet-inverter-modbus-template",
+                                "uuid": "da9b0f49-a735-11ed-b7204cd98f3deb8a",
+                                "version":"1.0.0",
+                                "id": "solplanet-inverter-modbus-template-1155",
+                                "file": "solplanet-inverter-modbus-template.xml",
+                                "templateType": "7",
+                            }

@@ -1,0 +1,35 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Modbus Title="Solis RHI-3P10K-HVES-5G" Comment="" HintText="" Channel="1">
+	<Info templateType="7" minVersion="15020930"/>
+	<ModbusCmd Title="Grid Frequency" Comment="" HintText="" ModbusAddress="33094" ModbusCmd="4" ModbusPollingCycle="60" Unit="&lt;v.1&gt; Hz" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="1"/>
+	<ModbusCmd Title="AC Total output power" Comment="" HintText="" ModbusAddress="33057" ModbusCmd="4" ModbusDataType="98" ModbusPollingCycle="5" Unit="&lt;v.3&gt; kW" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="1"/>
+	<ModbusCmd Title="DC 1 Voltage" Comment="" HintText="" ModbusAddress="33049" ModbusCmd="4" ModbusPollingCycle="60" Unit="&lt;v.1&gt;V" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="DC 1 Current" Comment="" HintText="" ModbusAddress="33050" ModbusCmd="4" ModbusPollingCycle="60" Unit="&lt;v.1&gt;A" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="DC 2 Voltage" Comment="" HintText="" ModbusAddress="33051" ModbusCmd="4" ModbusPollingCycle="60" Unit="&lt;v.1&gt;V" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="DC 2 Current" Comment="" HintText="" ModbusAddress="33052" ModbusCmd="4" ModbusPollingCycle="60" Unit="&lt;v.1&gt;A" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="DC 3 Voltage" Comment="" HintText="" ModbusAddress="33053" ModbusCmd="4" ModbusPollingCycle="60" Unit="&lt;v.1&gt;V" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="DC 3 Current" Comment="" HintText="" ModbusAddress="33054" ModbusCmd="4" ModbusPollingCycle="60" Unit="&lt;v.1&gt;A" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="DC 4 Voltage" Comment="" HintText="" ModbusAddress="33055" ModbusCmd="4" ModbusPollingCycle="60" Unit="&lt;v.1&gt;V" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="DC 4 Current" Comment="" HintText="" ModbusAddress="33056" ModbusCmd="4" ModbusPollingCycle="60" Unit="&lt;v.1&gt;A" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="Inverter temperature" Comment="" HintText="" ModbusAddress="33093" ModbusCmd="4" ModbusPollingCycle="300" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="Battery voltage" Comment="" HintText="10&lt;--&gt;1V" ModbusAddress="33133" ModbusCmd="4" ModbusPollingCycle="300" Unit="&lt;v.1&gt;V" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Battery Current" Comment="" HintText="10&lt;--&gt;1A
++：charge
+-：discharge" ModbusAddress="33134" ModbusCmd="4" ModbusPollingCycle="300" Unit="&lt;v.1&gt;A" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Battery current direction" Comment="" HintText="Indicate charge/discharge
+0：charge
+1：discharge" ModbusAddress="33135" ModbusCmd="4" ModbusPollingCycle="300" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Backup AC voltage (Phase A)" Comment="" HintText="10&lt;--&gt;1V" ModbusAddress="33137" ModbusCmd="4" ModbusPollingCycle="30" Unit="&lt;v.1&gt;V" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="Backup AC current (Phase A)" Comment="" HintText="10&lt;--&gt;1A" ModbusAddress="33138" ModbusCmd="4" ModbusPollingCycle="30" Unit="&lt;v.1&gt;A" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="Battery capacity SOC" Comment="" HintText="100&lt;--&gt;100%" ModbusAddress="33139" ModbusCmd="4" ModbusPollingCycle="10" Unit="&lt;v&gt;%" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Battery health SOH" Comment="" HintText="100&lt;--&gt;100%" ModbusAddress="33140" ModbusCmd="4" ModbusPollingCycle="300" Unit="&lt;v&gt;%" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Household load" Comment="" HintText="1&lt;--&gt;1W" ModbusAddress="33147" ModbusCmd="4" ModbusPollingCycle="10" Unit="&lt;v.1&gt;W" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Backup load" Comment="" HintText="1&lt;--&gt;1W" ModbusAddress="33148" ModbusCmd="4" ModbusPollingCycle="30" Unit="&lt;v.1&gt;W" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="Battery Power" Comment="" HintText="1 &lt;--&gt; 1W" ModbusAddress="33149" ModbusCmd="4" ModbusDataType="35" ModbusPollingCycle="30" Unit="&lt;v.1&gt;W" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Backup AC current (Phase B)" Comment="" HintText="" ModbusAddress="33154" ModbusCmd="4" ModbusPollingCycle="30" Unit="&lt;v.1&gt;A" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="Backup AC current (Phase C)" Comment="" HintText="" ModbusAddress="33156" ModbusCmd="4" ModbusPollingCycle="30" Unit="&lt;v.1&gt;A" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="Backup AC voltage (Phase B)" Comment="" HintText="" ModbusAddress="33153" ModbusCmd="4" ModbusPollingCycle="30" Unit="&lt;v.1&gt;V" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="Backup AC voltage (Phase C)" Comment="" HintText="" ModbusAddress="33155" ModbusCmd="4" ModbusPollingCycle="30" Unit="&lt;v.1&gt;V" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="Battery total charge energy" Comment="" HintText="1&lt;--&gt;1kWh" ModbusAddress="33161" ModbusCmd="4" ModbusDataType="34" ModbusPollingCycle="300" Unit="&lt;v.1&gt;kWh" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Total energy generation" Comment="" HintText="" ModbusAddress="33029" ModbusCmd="4" ModbusDataType="98" ModbusPollingCycle="300" Unit="&lt;v.1&gt;kWh" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+</Modbus>

@@ -1,0 +1,25 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Modbus Title="ED-THCV-PBLS5-MB" Comment="Design: Feller EDIZIOdue®" HintText="Room sensor with communication interface
+Flush-mounted design: surface-mounted version on request
+Measured variable: Temperature: 0 to 50°C
+Measured variable: relative humidity: 0 to 100 %
+Measured variable: CO2: 400 to 2000 ppm
+Measured variable: mixed gases VOC: 0 to 5000 ppm
+RS-485 interface for Modbus RTU
+Version: V2.1
+Protection class: IP20
+
+Depending on the device variant, not all sensors or operating elements are fitted and indicate a value of 0." Baudrate="19200" Parity="1" Channel="160">
+	<Info templateType="7" minVersion="15021014"/>
+	<ModbusCmd Title="I_Temperature - Analogue sensor" Comment="Room temperature" HintText="Value range: -1000 to 5000 Physical value: -10.00 to 50.00 °C" ModbusCmd="4" ModbusDataType="1" ModbusPollingCycle="60" Unit="&lt;v.2&gt; °C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="1"/>
+	<ModbusCmd Title="I_Relative humidity - Analogue sensor" Comment="Room humidity" HintText="Value range: 0 to 10000 Physical value: 0 to 100.00 % r.H." ModbusAddress="1" ModbusCmd="4" ModbusPollingCycle="300" Unit="&lt;v.2&gt; r.H." Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="1"/>
+	<ModbusCmd Title="IC_CO2 concentration - Analogue sensor" Comment="CO2 concentration" HintText="Value range: 0 to 40000 Physical value: 0 to 40 000 ppm3" ModbusAddress="3" ModbusCmd="4" ModbusPollingCycle="20" Unit="&lt;v&gt; ppm" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="I_TVOC concentration - Analogue sensor" Comment="TVOC concentration" HintText="Value range: 0 to 65 000 Physical quantity: 0 to 65,000 ppb" ModbusAddress="5" ModbusCmd="4" ModbusPollingCycle="300" Unit="&lt;v&gt; ppb" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="I_Temperature - Setpoint" Comment="All room sensors with a “P” in the product designation have an adjusting wheel for setting the temperature setpoint." HintText="Setpoint 0 to 10 000 corresponds to 0 to 100.00 %." ModbusAddress="2" ModbusCmd="4" ModbusPollingCycle="10" Unit="&lt;v.2&gt; °C" Analog="true" Sensor="true" SourceValHigh="10000" DestValLow="15" DestValHigh="30"/>
+	<ModbusCmd Title="I_Read presence" Comment="" HintText="" ModbusAddress="501" ModbusCmd="1" ModbusPollingCycle="30" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="I_Bitregister 5" Comment="" HintText="" ModbusAddress="4" ModbusCmd="4" ModbusPollingCycle="20" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="O_Temperature Offset" Comment="Temperature Offset" HintText="Value range: -200 to 200 Physical value: ± 2.00 K" ModbusAddress="13" ModbusCmd="6" ModbusDataType="1" Unit="&lt;v&gt; cK" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="O_Reset" Comment="Reset" HintText="The device is restarted when writing to 1" ModbusAddress="19" ModbusCmd="6" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="O_Bitregister 5" Comment="" HintText="" ModbusAddress="4" ModbusCmd="6" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="OC_Write presence" Comment="" HintText="" ModbusAddress="501" ModbusCmd="5" Unit="" Analog="false" Sensor="false"/>
+</Modbus>

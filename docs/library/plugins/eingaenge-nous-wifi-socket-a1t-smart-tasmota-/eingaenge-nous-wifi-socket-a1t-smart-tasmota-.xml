@@ -1,0 +1,10 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<VirtualInHttp Title="Nous Wifi Socket A1T  Smart Tasmota" Comment="" Address="http://1.1.1.1/cm?cmnd=Status%208" HintText="" PollingTime="10">
+	<Info templateType="2" minVersion="15020930"/>
+	<VirtualInHttpCmd Title="Nous Current" Comment="" Check="&quot;Current&quot;:\v" Signed="true" Analog="true" SourceValLow="0" DestValLow="0" SourceValHigh="100" DestValHigh="100" DefVal="0" MinVal="-10000" MaxVal="10000" Unit="&lt;v.3&gt;" HintText=""/>
+	<VirtualInHttpCmd Title="Nous Factor" Comment="" Check="&quot;Factor&quot;:\v" Signed="true" Analog="true" SourceValLow="0" DestValLow="0" SourceValHigh="100" DestValHigh="100" DefVal="0" MinVal="-10000" MaxVal="10000" Unit="&lt;v.1&gt;" HintText=""/>
+	<VirtualInHttpCmd Title="Nous Power Reactive" Comment="" Check="&quot;ReactivePower&quot;:\v" Signed="true" Analog="true" SourceValLow="0" DestValLow="0" SourceValHigh="100" DestValHigh="100" DefVal="0" MinVal="-10000" MaxVal="10000" Unit="&lt;v.1&gt;" HintText=""/>
+	<VirtualInHttpCmd Title="Nous Power Apparent" Comment="" Check="&quot;ApparentPower&quot;:\v" Signed="true" Analog="true" SourceValLow="0" DestValLow="0" SourceValHigh="100" DestValHigh="100" DefVal="0" MinVal="-10000" MaxVal="10000" Unit="&lt;v.1&gt;" HintText=""/>
+	<VirtualInHttpCmd Title="Nous Voltage" Comment="" Check="&quot;Voltage&quot;:\v" Signed="true" Analog="true" SourceValLow="0" DestValLow="0" SourceValHigh="100" DestValHigh="100" DefVal="0" MinVal="-10000" MaxVal="10000" Unit="&lt;v.1&gt;" HintText=""/>
+	<VirtualInHttpCmd Title="Nous Power" Comment="" Check="&quot;Power&quot;:\v" Signed="true" Analog="true" SourceValLow="0" DestValLow="0" SourceValHigh="100" DestValHigh="100" DefVal="0" MinVal="-10000" MaxVal="10000" Unit="&lt;v.1&gt;" HintText=""/>
+</VirtualInHttp>

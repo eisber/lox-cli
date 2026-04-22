@@ -1,0 +1,164 @@
+{
+  "title": "Session Database Connector",
+  "xml_type": "",
+  "kb_slug": "session-database-connector",
+  "description": "This block can be used to track and display sessions in an Exosphere database, such as wallbox charging.",
+  "inputs": [
+    {
+      "abbreviation": "SStart",
+      "summary": "Session start",
+      "description": "Pulse at input triggers the start of a session and writes to the database, if configured.",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "SEnd",
+      "summary": "Session end",
+      "description": "Pulse at input triggers the end of a session and writes to the database, if configured.",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "Uid",
+      "summary": "User-ID",
+      "description": "User-ID. If set before being triggered, the user fields of the corresponding user can be used.",
+      "value_range": "-"
+    },
+    {
+      "abbreviation": "CI1",
+      "summary": "Custom input 1",
+      "description": "Additional custom input 1",
+      "value_range": "-"
+    },
+    {
+      "abbreviation": "CI2",
+      "summary": "Custom input 2",
+      "description": "Additional custom input 2",
+      "value_range": "-"
+    },
+    {
+      "abbreviation": "CI3",
+      "summary": "Custom input 3",
+      "description": "Additional custom input 3",
+      "value_range": "-"
+    },
+    {
+      "abbreviation": "CI4",
+      "summary": "Custom input 4",
+      "description": "Additional custom input 4",
+      "value_range": "-"
+    },
+    {
+      "abbreviation": "CI5",
+      "summary": "Custom input 5",
+      "description": "Additional custom input 5",
+      "value_range": "-"
+    },
+    {
+      "abbreviation": "CI6",
+      "summary": "Custom input 6",
+      "description": "Additional custom input 6",
+      "value_range": "-"
+    },
+    {
+      "abbreviation": "CI7",
+      "summary": "Custom input 7",
+      "description": "Additional custom input 7",
+      "value_range": "-"
+    },
+    {
+      "abbreviation": "CI8",
+      "summary": "Custom input 8",
+      "description": "Additional custom input 8",
+      "value_range": "-"
+    },
+    {
+      "abbreviation": "CI9",
+      "summary": "Custom input 9",
+      "description": "Additional custom input 9",
+      "value_range": "-"
+    },
+    {
+      "abbreviation": "CI10",
+      "summary": "Custom input 10",
+      "description": "Additional custom input 10",
+      "value_range": "-"
+    },
+    {
+      "abbreviation": "CI11",
+      "summary": "Custom input 11",
+      "description": "Additional custom input 11",
+      "value_range": "-"
+    },
+    {
+      "abbreviation": "CI12",
+      "summary": "Custom input 12",
+      "description": "Additional custom input 12",
+      "value_range": "-"
+    },
+    {
+      "abbreviation": "CI13",
+      "summary": "Custom input 13",
+      "description": "Additional custom input 13",
+      "value_range": "-"
+    },
+    {
+      "abbreviation": "CI14",
+      "summary": "Custom input 14",
+      "description": "Additional custom input 14",
+      "value_range": "-"
+    },
+    {
+      "abbreviation": "CI15",
+      "summary": "Custom input 15",
+      "description": "Additional custom input 15",
+      "value_range": "-"
+    },
+    {
+      "abbreviation": "CI16",
+      "summary": "Custom input 16",
+      "description": "Additional custom input 16",
+      "value_range": "-"
+    }
+  ],
+  "outputs": [
+    {
+      "abbreviation": "Log",
+      "summary": "Log output",
+      "description": "Log output on every write operation to the database",
+      "value_range": "-"
+    },
+    {
+      "abbreviation": "Sa",
+      "summary": "Session active",
+      "description": "Active when a session is currently active",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "API",
+      "summary": "API Connector",
+      "description": "Intelligent API based connector. API Commands",
+      "value_range": "-"
+    }
+  ],
+  "parameters": [
+    {
+      "abbreviation": "Td",
+      "summary": "Trigger Delay",
+      "description": "Delays writing to database after trigger to make sure all inputs are set",
+      "unit": "ms",
+      "value_range": "\u221e",
+      "default_value": "0"
+    }
+  ],
+  "properties": [
+    {
+      "summary": "Column content",
+      "description": "Edit column content. Specify the data that should be written to the database columns.",
+      "default_value": "-"
+    }
+  ],
+  "source_url": "https://www.loxone.com/enen/kb/session-database-connector/",
+  "input_count": 19,
+  "output_count": 3,
+  "parameter_count": 1,
+  "property_count": 1
+}

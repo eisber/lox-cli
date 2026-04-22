@@ -1,0 +1,46 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Modbus Title="Solarfocus Vampair" Comment="eco manager-touch V21.040" HintText="" Channel="1">
+	<Info templateType="7" minVersion="14070201"/>
+	<ModbusCmd Title="2300 - Actual Heatpump Flowtemperature" Comment="Actual Heatpump Flowtemperature" HintText="" ModbusAddress="2300" ModbusCmd="4" ModbusDataType="1" ModbusPollingCycle="30" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="10"/>
+	<ModbusCmd Title="2301 - Actual Heatpump Return Flowtemperature" Comment="Actual Heatpump Return Flowtemperature" HintText="" ModbusAddress="2301" ModbusCmd="4" ModbusDataType="1" ModbusPollingCycle="30" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="10"/>
+	<ModbusCmd Title="2302 - Actual Heatpump Flow" Comment="Actual Heatpump Flow" HintText="" ModbusAddress="2302" ModbusCmd="4" ModbusDataType="1" ModbusPollingCycle="30" Unit="&lt;v&gt;l/h" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="2303 - Actual Heatpump Compressor Speed" Comment="Actual Heatpump Compressor Speed" HintText="" ModbusAddress="2303" ModbusCmd="4" ModbusDataType="1" ModbusPollingCycle="30" Unit="&lt;v&gt;U/min" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="2304 - Actual Heatpump EVU State" Comment="Actual Heatpump EVU State" HintText="0…Electricity supplier lock not active ( normal operation)
+1… Electricity supplier lock active" ModbusAddress="2304" ModbusCmd="4" ModbusPollingCycle="30" Unit="" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="2306 - Actual Heatpump Defrost State" Comment="Actual Heatpump Defrost State" HintText="0…Defrosting not active
+1…Defrosting active" ModbusAddress="2306" ModbusCmd="4" ModbusPollingCycle="30" Unit="" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="2307 - State Hot Water Operation mode" Comment="State Hot Water Operation mode" HintText="0…DHW tank charging not active,
+1…DHW tank charging active" ModbusAddress="2307" ModbusCmd="4" ModbusPollingCycle="30" Unit="" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="2310 - State Heatpump Total Thermal Energy" Comment="State Heatpump Total Thermal Energy" HintText="Heating + Hot Water preparation" ModbusAddress="2310" ModbusCmd="4" ModbusDataType="99" ModbusPollingCycle="30" Unit="&lt;v.3&gt;kWh" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="1"/>
+	<ModbusCmd Title="2312 - State Heatpump Total Thermal Energy Hot Water" Comment="State Heatpump Total Thermal Energy Hot Water" HintText="" ModbusAddress="2312" ModbusCmd="4" ModbusDataType="99" ModbusPollingCycle="30" Unit="&lt;v.3&gt;kWh" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="1"/>
+	<ModbusCmd Title="2314 - State Heatpump Total Thermal Energy Heating" Comment="State Heatpump Total Thermal Energy Heating" HintText="" ModbusAddress="2314" ModbusCmd="4" ModbusDataType="99" ModbusPollingCycle="30" Unit="&lt;v.3&gt;kWh" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="1"/>
+	<ModbusCmd Title="2316 - State Heatpump Total Electrical Energy Heating+Hot Water" Comment="State Heatpump Total Electrical Energy Heating+Hot Water" HintText="" ModbusAddress="2316" ModbusCmd="4" ModbusDataType="99" ModbusPollingCycle="30" Unit="&lt;v.3&gt;kWh" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="1"/>
+	<ModbusCmd Title="2318 - State Heatpump Total Electrical Energy HotWater" Comment="State Heatpump Total Electrical Energy HotWater" HintText="" ModbusAddress="2318" ModbusCmd="4" ModbusDataType="99" ModbusPollingCycle="30" Unit="&lt;v.3&gt;kWh" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="1"/>
+	<ModbusCmd Title="2320 - State Heatpump Total Electrical Energy Heating" Comment="State Heatpump Total Electrical Energy Heating" HintText="" ModbusAddress="2320" ModbusCmd="4" ModbusDataType="99" ModbusPollingCycle="30" Unit="&lt;v.3&gt;kWh" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="1"/>
+	<ModbusCmd Title="2322 - Actual Heatpump Electrical Power" Comment="Actual Heatpump Electrical Power" HintText="" ModbusAddress="2322" ModbusCmd="4" ModbusDataType="1" ModbusPollingCycle="30" Unit="&lt;v&gt;W" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="1"/>
+	<ModbusCmd Title="2323 - Actual Heatpump Thermal Power Cooling" Comment="Actual Heatpump Thermal Power Cooling" HintText="" ModbusAddress="2323" ModbusCmd="4" ModbusDataType="1" ModbusPollingCycle="30" Unit="&lt;v&gt;W" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="2324 - Actual Heatpump Thermal Power Heating" Comment="Actual Heatpump Thermal Power Heating" HintText="" ModbusAddress="2324" ModbusCmd="4" ModbusDataType="1" ModbusPollingCycle="30" Unit="&lt;v&gt;W" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="2326 - State Heatpump Total Thermal Energy Cooling" Comment="State Heatpump Total Thermal Energy Cooling" HintText="" ModbusAddress="2326" ModbusCmd="4" ModbusDataType="99" ModbusPollingCycle="30" Unit="&lt;v.3&gt;kWh" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="1"/>
+	<ModbusCmd Title="2328 - State Heatpump Total Electrical Energy Cooling" Comment="State Heatpump Total Electrical Energy Cooling" HintText="" ModbusAddress="2328" ModbusCmd="4" ModbusDataType="99" ModbusPollingCycle="30" Unit="&lt;v.3&gt;kWh" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="1"/>
+	<ModbusCmd Title="2330 - State Heatpump Operation mode" Comment="State Heatpump Operation mode" HintText="0: Standby
+1: Heating mode
+2: Heating mode, DHW tank charging
+3: Cooling mode
+4: Manual operation
+5: Electricity supplier - lock active
+6: no time release, heat pump off
+7: Outside temperature lock, heat pump off
+8: electric auxiliary heating active
+9: Foreign boiler active, heat pump off
+10: Cooling request
+11: manual power input
+12: Heat pump switched off" ModbusAddress="2330" ModbusCmd="4" ModbusPollingCycle="30" Unit="" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="2408 - Actual Outdoor temperature" Comment="Actual Outdoor temperature" HintText="" ModbusAddress="2408" ModbusCmd="4" ModbusDataType="1" ModbusPollingCycle="30" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="10"/>
+	<ModbusCmd Title="2404 - State Heatpump Interruption Messagenumber" Comment="State Heatpump Interruption Messagenumber" HintText="0= no fault 
+&gt;0 = See Interruption Code List" ModbusAddress="2404" ModbusCmd="4" ModbusDataType="1" ModbusPollingCycle="30" Unit="" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="33404 - Heatpump EVU Lock" Comment="Heatpump EVU Lock" HintText="0…Disable electricity supplier – lock only if electricity supplier – lock is active, 
+otherwise the required value will be ignored
+1…Enable electricity supplier – lock only if the electricity supplier – lock has 
+not already been enabled by a blocking time or by Smart – Grid – operating 
+mode 1)" ModbusAddress="33404" ModbusCmd="16" ModbusDataType="1" Unit="" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100" RepeatRate="60"/>
+</Modbus>

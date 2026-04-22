@@ -1,0 +1,9 @@
+{
+                                "type": "template",
+                                "name": "kwh-prediction-price-spain",
+                                "uuid": "f10d2ac7-6ff8-11ed-ac014cd98f3deb8a",
+                                "version":"1.0.2",
+                                "id": "kwh-prediction-price-spain-1048",
+                                "file": "kwh-prediction-price-spain.xml",
+                                "templateType": "2",
+                            }

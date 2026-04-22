@@ -1,0 +1,46 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Modbus Title="PCE EV11.3" Comment="" HintText="" Channel="1">
+	<Info templateType="7" minVersion="16000610"/>
+	<ModbusCmd Title="CHARGING_CURRENT" Comment="" HintText="0 = Ladepause
+1 bis 5999 unterer Bereich mit 6A 1-phasig
+6000 bis 16000 Ladevorgang 1-phasig
+16001 bis 38767 Übergangsbereich
+Wenn letztgültiger Wert ≤ 16000 und aktueller
+Wert zwischen 16001 und 38767, dann Wert
+= 16000
+Wenn letztgültiger Wert ≥ 38768 und aktueller
+Wert zwischen 16001 und 38767, dann Wert
+= 38768
+38768 bis 48768 Ladevorgang 3-phasig (38768
+= 6A, 48768 = 16A; Bit Nr.15 ist immer 1)
+48768 bis 65535 oberer Bereich mit 16A
+3-phasig" ModbusAddress="104" ModbusCmd="3" ModbusPollingCycle="10" Unit="&lt;v&gt; A" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="1"/>
+	<ModbusCmd Title="CHARGING_STATE" Comment="" HintText="" ModbusAddress="100" ModbusCmd="3" ModbusPollingCycle="10" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="CHARGING_RELAY_STATE" Comment="" HintText="0 = Initialisierung
+1 = (A1) Ladestation bereit / kein Fahrzeug angeschlossen
+2 = (A2)
+3 = (B1) Ladestation bereit / Fahrzeug angeschlossen / ausstehende Autorisierung
+4 = (B2) Ladestation bereit / Fahrzeug angeschlossen
+5 = (C1) Ladepause / Fahrzeug bereit
+6 = (C2) Ladevorgang aktiv
+7 = (E) Störung (rote Status LED)" ModbusAddress="101" ModbusCmd="3" ModbusPollingCycle="10" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="PHASE_AUTOSWITCH" Comment="" HintText="0 = Kein Ladevorgang
+1 = 1-Phasiger Ladevorgang
+2 = 3-Phasiger Ladevorgang" ModbusAddress="103" ModbusCmd="3" ModbusPollingCycle="10" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="POWERMETER_0" Comment="" HintText="" ModbusAddress="106" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="1"/>
+	<ModbusCmd Title="ERROR" Comment="" HintText="" ModbusAddress="110" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="CHARGING_TIME" Comment="" HintText="" ModbusAddress="105" ModbusCmd="3" ModbusPollingCycle="10" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="TEMPERATURE" Comment="" HintText="" ModbusAddress="109" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="PWM_IN_MAX_" Comment="" HintText="" ModbusAddress="129" ModbusCmd="3" ModbusPollingCycle="10" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="RCD_CURRENT_DC" Comment="" HintText="" ModbusAddress="133" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="10" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="RCD_CURRENT_ACTUEL" Comment="" HintText="" ModbusAddress="134" ModbusCmd="3" ModbusPollingCycle="10" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="CHARGING_CURRENT" Comment="" HintText="" ModbusAddress="200" ModbusCmd="6" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValLow="10" SourceValHigh="10" DestValLow="10" DestValHigh="10" RepeatRate="25"/>
+	<ModbusCmd Title="HEARTBEAT" Comment="" HintText="Wert muss sich spätestens alle 60s ändern,
+damit die Befehle verarbeitet werden.
+Wenn keine Kommunikation. dann „Sollwert
+Ladeleistung, wenn Heartbeat NOK“" ModbusAddress="203" ModbusCmd="6" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100" RepeatRate="3600"/>
+	<ModbusCmd Title="CHARGING_CURRENT_OFFLINE" Comment="" HintText="" ModbusAddress="201" ModbusCmd="6" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100" RepeatRate="3600"/>
+	<ModbusCmd Title="MAX_CHARGING_TIME" Comment="" HintText="" ModbusAddress="202" ModbusCmd="6" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100" RepeatRate="3600"/>
+	<ModbusCmd Title="LED_BRIGHTNESS" Comment="" HintText="" ModbusAddress="204" ModbusCmd="6" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100" RepeatRate="3600"/>
+	<ModbusCmd Title="MODE_DIGITAL_IN" Comment="" HintText="" ModbusAddress="205" ModbusCmd="6" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100" RepeatRate="3600"/>
+</Modbus>

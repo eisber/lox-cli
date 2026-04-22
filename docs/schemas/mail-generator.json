@@ -1,0 +1,78 @@
+{
+  "title": "Mail Generator",
+  "xml_type": "",
+  "kb_slug": "mail-generator",
+  "description": "Sends an email on rising edge. All properties can be customized with placeholders (e.g. <v1>, <user.email>, <sys.rain>, etc). Double-click on the logic block to open the text editor where you can edit the body (message) of the email.",
+  "inputs": [
+    {
+      "abbreviation": "Tr",
+      "summary": "Triggers output",
+      "description": "Sends the email on rising edge.",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "V1-8",
+      "summary": "Value 1-8",
+      "description": "Input values can be used in the email message and properties",
+      "value_range": "-"
+    },
+    {
+      "abbreviation": "Uid",
+      "summary": "User-ID",
+      "description": "User-ID. If set before being triggered, the user fields of the corresponding user can be used.",
+      "value_range": "-"
+    }
+  ],
+  "outputs": [
+    {
+      "abbreviation": "API",
+      "summary": "API Connector",
+      "description": "Intelligent API based connector. API Commands"
+    }
+  ],
+  "parameters": [
+    {
+      "abbreviation": "Td",
+      "summary": "Trigger Delay",
+      "description": "Delays email-generation after trigger to make sure all inputs are set",
+      "unit": "ms",
+      "value_range": "0...2147483647",
+      "default_value": "0"
+    },
+    {
+      "abbreviation": "Tu",
+      "summary": "Update Interval",
+      "description": "Interval how often the email gets sent while the Trigger input is active. Can be used to update the email parameters using the new input values in a regular interval. 0 = Disabled",
+      "unit": "s",
+      "value_range": "0...2147483647",
+      "default_value": "0"
+    }
+  ],
+  "properties": [
+    {
+      "summary": "Mailer",
+      "description": "Mailer service to be used for sending the email",
+      "default_value": "-"
+    },
+    {
+      "summary": "Recipient Email",
+      "description": "Email address of the recipient. To enter multiple recipients, use a semi-colon (;) as separator. Placeholders can be used (e.g. , , , etc)",
+      "default_value": "-"
+    },
+    {
+      "summary": "Subject",
+      "description": "Subject of the email. Variables can be used (e.g. , , , etc)",
+      "default_value": "-"
+    },
+    {
+      "summary": "Body",
+      "description": "Message (body) of the email. Placeholders can be used (e.g. , , , etc)",
+      "default_value": "-"
+    }
+  ],
+  "source_url": "https://www.loxone.com/enen/kb/mail-generator/",
+  "input_count": 3,
+  "output_count": 1,
+  "parameter_count": 2,
+  "property_count": 4
+}

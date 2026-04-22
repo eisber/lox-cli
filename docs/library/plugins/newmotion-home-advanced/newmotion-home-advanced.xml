@@ -1,0 +1,11 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<VirtualInHttp Title="Newmotion Home Advanced" Comment="" Address="http://charger.local:12800//user/status" PollingTime="10">
+	<Info templateType="2" minVersion="12021102"/>
+	<VirtualInHttpCmd Title="Charging Rate kW" Comment="" Check="Charging rate: \v" Signed="false" Analog="true" SourceValLow="0" DestValLow="0" SourceValHigh="100" DestValHigh="100" DefVal="0" MinVal="-10000" MaxVal="10000"/>
+	<VirtualInHttpCmd Title="Charging Rate I" Comment="" Check="Charging rate:\iphase\i [\v" Signed="false" Analog="true" SourceValLow="0" DestValLow="0" SourceValHigh="100" DestValHigh="100" DefVal="0" MinVal="-10000" MaxVal="10000"/>
+	<VirtualInHttpCmd Title="chargingNeed kW" Comment="" Check="\iNeed:\i \v" Signed="false" Analog="true" SourceValLow="0" DestValLow="0" SourceValHigh="100" DestValHigh="100" DefVal="0" MinVal="-10000" MaxVal="10000"/>
+	<VirtualInHttpCmd Title="chargingNeed I" Comment="" Check="\iNeed:\i\iphase\i [\v" Signed="false" Analog="true" SourceValLow="0" DestValLow="0" SourceValHigh="100" DestValHigh="100" DefVal="0" MinVal="-10000" MaxVal="10000"/>
+	<VirtualInHttpCmd Title="Car status" Comment="" Check="\i&quot;statusCar&quot;:\i&quot;\1" Signed="true" Analog="true" SourceValLow="0" DestValLow="0" SourceValHigh="100" DestValHigh="100" DefVal="0" MinVal="0" MaxVal="255"/>
+	<VirtualInHttpCmd Title="consumed" Comment="" Check="consumed&quot;:\v" Signed="false" Analog="true" SourceValLow="0" DestValLow="0" SourceValHigh="1000" DestValHigh="1" DefVal="0" MinVal="-10000" MaxVal="10000"/>
+	<VirtualInHttpCmd Title="Limit" Comment="" Check="\i&quot;limit&quot;\i\i&quot;current&quot;:\i\v" Signed="true" Analog="true" SourceValLow="0" DestValLow="0" SourceValHigh="100" DestValHigh="100" DefVal="0" MinVal="-10000" MaxVal="10000"/>
+</VirtualInHttp>

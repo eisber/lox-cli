@@ -1,0 +1,28 @@
+{
+  "title": "Touch and Grill Air",
+  "xml_type": "",
+  "kb_slug": "touch-and-grill-air",
+  "description": "## Contents\n- Technical Data\nPower Supply\nCommissioning Air\nProgramming\nFunctions\n- Keys\u00a0\n- Temperature Sensor\n- Temperature Monitor\n- Timer function\n- Standby mode\n- Display Brightness\n- Downloads",
+  "inputs": [
+    {
+      "name": "T5",
+      "description": "Combined T5 input. This can be used multiple times throughout the config project.",
+      "type": "T5",
+      "values": "\u2013"
+    },
+    {
+      "name": "Buttons 1 \u2013 5",
+      "description": "These inputs are hidden by default and can be displayed via the properties of the device.",
+      "type": "Digital",
+      "values": "0/1"
+    }
+  ],
+  "outputs": [],
+  "parameters": [],
+  "properties": [],
+  "source_url": "https://www.loxone.com/enen/kb/touch-and-grill-air/",
+  "input_count": 2,
+  "output_count": 0,
+  "parameter_count": 0,
+  "property_count": 0
+}

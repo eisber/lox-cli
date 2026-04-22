@@ -1,0 +1,18 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Modbus Title="Alpha Innotec Energy Block separate components" Comment="" HintText="" Channel="1">
+	<Info templateType="7" minVersion="16011106"/>
+	<ModbusCmd Title="RBE Temperature" Comment="" HintText="" ModbusAddress="10106" ModbusCmd="4" ModbusDataType="1" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValLow="10" SourceValHigh="100" DestValLow="1" DestValHigh="100"/>
+	<ModbusCmd Title="RBE setpoint" Comment="" HintText="" ModbusAddress="10060" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValLow="10" SourceValHigh="100" DestValLow="1" DestValHigh="100"/>
+	<ModbusCmd Title="power Consumption Current" Comment="" HintText="" ModbusAddress="10301" ModbusCmd="4" ModbusDataType="1" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="DHW_status" Comment="" HintText="" ModbusAddress="10004" ModbusCmd="4" ModbusDataType="1" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Limitation PC Mode" Comment="" HintText="" ModbusAddress="10040" ModbusCmd="6" ModbusDataType="1" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100" RepeatRate="60"/>
+	<ModbusCmd Title="PC Limit" Comment="" HintText="" ModbusAddress="10041" ModbusCmd="6" ModbusDataType="1" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="1" DestValHigh="10" RepeatRate="60"/>
+	<ModbusCmd Title="Block Cooling" Comment="" HintText="" ModbusAddress="10052" ModbusCmd="6" ModbusDataType="1" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100" RepeatRate="60"/>
+	<ModbusCmd Title="Block Pool" Comment="" HintText="" ModbusAddress="10053" ModbusCmd="6" ModbusDataType="1" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100" RepeatRate="60"/>
+	<ModbusCmd Title="Block_Heating" Comment="" HintText="" ModbusAddress="10050" ModbusCmd="6" ModbusDataType="1" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100" RepeatRate="60"/>
+	<ModbusCmd Title="Block_Hot_water" Comment="" HintText="" ModbusAddress="10051" ModbusCmd="6" ModbusDataType="1" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100" RepeatRate="60"/>
+	<ModbusCmd Title="DHW_level" Comment="" HintText="" ModbusAddress="10008" ModbusCmd="6" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100" RepeatRate="60"/>
+	<ModbusCmd Title="Heating_overall mode" Comment="" HintText="" ModbusAddress="10065" ModbusCmd="6" ModbusDataType="1" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100" RepeatRate="60"/>
+	<ModbusCmd Title="DHW mode" Comment="" HintText="" ModbusAddress="10005" ModbusCmd="6" ModbusDataType="1" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100" RepeatRate="60"/>
+	<ModbusCmd Title="heatingOverallLevel" Comment="" HintText="" ModbusAddress="10067" ModbusCmd="6" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100" RepeatRate="60"/>
+</Modbus>

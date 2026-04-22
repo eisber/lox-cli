@@ -1,0 +1,17 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Comm Title="Fronius Inverter (all)" Comment="" RS485="true" Baudrate="9600" Databits="8" ChecksumType="5">
+	<Info templateType="6" minVersion="13010906"/>
+	<CommCmd Title="Get Power - NOW" Comment="Value actual Power" CmdOn="\x01\x10\2\1" CmdOff="" Unit="W" Analog="true" Text="false" Sensor="true" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="Get Energy - TOTAL" Comment="Value Energy - TOTAL" CmdOn="\x01\x11\2\1" CmdOff="" Unit="Wh" Analog="true" Text="false" Sensor="true" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="Get Energy - DAY" Comment="Value Energy - DAY" CmdOn="\x01\x12\2\1" CmdOff="" Unit="Wh" Analog="true" Text="false" Sensor="true" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="Get Energy - YEAR" Comment="Value Energy - YEAR" CmdOn="\x01\x13\2\1" CmdOff="" Unit="Wh" Analog="true" Text="false" Sensor="true" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="Get AC Current - NOW" Comment="Value AC Current - NOW" CmdOn="\x01\x14\2\1" CmdOff="" Unit="A" Analog="true" Text="false" Sensor="true" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="Get AC Voltage - NOW" Comment="Value AC Voltage - NOW" CmdOn="\x01\x15\2\1" CmdOff="" Unit="V" Analog="true" Text="false" Sensor="true" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="Get AC Freqency - NOW" Comment="Value acutal Frequency" CmdOn="\x01\x16\2\1" CmdOff="" Unit="Hz" Analog="true" Text="false" Sensor="true" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="Get DC Current - NOW" Comment="Value DC Current - NOW" CmdOn="\x01\x17\2\1" CmdOff="" Unit="A" Analog="true" Text="false" Sensor="true" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="Get DC Voltage - NOW" Comment="Value DC Voltage - NOW" CmdOn="\x01\x18\2\1" CmdOff="" Unit="V" Analog="true" Text="false" Sensor="true" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="Get Yield - DAY" Comment="Value Profit in the set currency" CmdOn="\x01\x19\2\1" CmdOff="" Unit="" Analog="true" Text="false" Sensor="true" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="Get Yield - YEAR" Comment="Value Profit in the set currency - YEAR" CmdOn="\x01\x1F\2\1" CmdOff="" Unit="" Analog="true" Text="false" Sensor="true" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="Get Yield - TOTAL" Comment="Value Profit in the set currency - TOTAL" CmdOn="\x01\x25\2\1" CmdOff="" Unit="" Analog="true" Text="false" Sensor="true" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="Get Energy total ex" Comment="Value total energy ex" CmdOn="\x01\x36\2\1" CmdOff="" Unit="Wh" Analog="true" Text="false" Sensor="true" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+</Comm>

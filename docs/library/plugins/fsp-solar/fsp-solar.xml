@@ -1,0 +1,36 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Modbus Title="FSP-Hybrid-Rev02" Comment="" HintText="" Baudrate="19200" Channel="2">
+	<Info templateType="7" minVersion="14051207"/>
+	<ModbusCmd Title="892 1 Inner temperature Read Only" Comment="" HintText="" ModbusAddress="892" ModbusCmd="3" ModbusPollingCycle="5" Unit="10" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="984 2 AC output total power Read Only" Comment="" HintText="" ModbusAddress="984" ModbusCmd="3" ModbusDataType="35" ModbusPollingCycle="5" Unit="10" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="387 2 Solar input power 1W Read Only" Comment="" HintText="" ModbusAddress="228" ModbusCmd="3" ModbusDataType="34" ModbusPollingCycle="6" Unit="10" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="389 2 Solar input power 2 W Read Only" Comment="" HintText="" ModbusAddress="232" ModbusCmd="3" ModbusDataType="34" ModbusPollingCycle="6" Unit="10" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="1253 2 The max power limit to feed to grid ,32 bit,the upper 16 bits are 0000" Comment="" HintText="" ModbusAddress="1253" ModbusCmd="3" ModbusDataType="34" ModbusPollingCycle="5" Unit="10" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="208 working mode" Comment="" HintText="00	00 Power on mode	
+01	01 Standby mode	
+02	02 Bypass mode	
+03	03 Battery mode	
+04	04 Fault mode	
+05	05 Hybrid mode(Line mode, Grid mode)	
+06	06 Charge mode	
+" ModbusAddress="208" ModbusCmd="3" ModbusPollingCycle="5" Unit="10" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="211 AC input active power R" Comment="" HintText="" ModbusAddress="211" ModbusCmd="3" ModbusDataType="35" ModbusPollingCycle="5" Unit="10" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="217 AC output active power R" Comment="" HintText="" ModbusAddress="217" ModbusCmd="3" ModbusDataType="35" ModbusPollingCycle="5" Unit="10" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="234 Solar input voltage 1" Comment="" HintText="" ModbusAddress="234" ModbusCmd="3" ModbusPollingCycle="5" Unit="10" Analog="true" Sensor="true" SourceValHigh="1" DestValHigh="0.1"/>
+	<ModbusCmd Title="235 Solar input voltage 2" Comment="" HintText="" ModbusAddress="235" ModbusCmd="3" ModbusPollingCycle="5" Unit="10" Analog="true" Sensor="true" SourceValHigh="1" DestValHigh="0.1"/>
+	<ModbusCmd Title="257 AC input active power S" Comment="" HintText="" ModbusAddress="257" ModbusCmd="3" ModbusDataType="35" ModbusPollingCycle="5" Unit="10" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="259 AC input active power T" Comment="" HintText="" ModbusAddress="259" ModbusCmd="3" ModbusDataType="35" ModbusPollingCycle="5" Unit="10" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="377 AC input total active power" Comment="" HintText="" ModbusAddress="377" ModbusCmd="3" ModbusDataType="35" ModbusPollingCycle="5" Unit="10" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="245 AC output total active power" Comment="" HintText="" ModbusAddress="245" ModbusCmd="3" ModbusDataType="35" ModbusPollingCycle="6" Unit="10" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="188 Battery voltage" Comment="" HintText="" ModbusAddress="188" ModbusCmd="3" ModbusPollingCycle="5" Unit="10" Analog="true" Sensor="true" SourceValHigh="1" DestValHigh="0.1"/>
+	<ModbusCmd Title="226 Battery capacity" Comment="" HintText="" ModbusAddress="226" ModbusCmd="3" ModbusPollingCycle="5" Unit="10" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="231 Battery current" Comment="" HintText="" ModbusAddress="231" ModbusCmd="3" ModbusPollingCycle="5" Unit="10" Analog="true" Sensor="true" SourceValHigh="1" DestValHigh="0.1"/>
+	<ModbusCmd Title="696 Solar input current 1" Comment="" HintText="" ModbusAddress="696" ModbusCmd="3" ModbusPollingCycle="5" Unit="10" Analog="true" Sensor="true" SourceValHigh="1" DestValHigh="0.1"/>
+	<ModbusCmd Title="698 Solar input current 2" Comment="" HintText="" ModbusAddress="698" ModbusCmd="3" ModbusPollingCycle="5" Unit="10" Analog="true" Sensor="true" SourceValHigh="1" DestValHigh="0.1"/>
+	<ModbusCmd Title="230 +: charge, -: discharge(Battery current)" Comment="" HintText="" ModbusAddress="230" ModbusCmd="3" ModbusPollingCycle="5" Unit="10" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="1196 Battery power" Comment="" HintText="" ModbusAddress="1196" ModbusCmd="3" ModbusDataType="35" ModbusPollingCycle="5" Unit="10" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="614 AC input current R" Comment="" HintText="" ModbusAddress="614" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="5" Unit="10" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="616 AC input current S" Comment="" HintText="" ModbusAddress="616" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="5" Unit="10" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="618 AC input current T" Comment="" HintText="" ModbusAddress="618" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="5" Unit="10" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="1253 2 The max power limit to feed to grid ,32 bit,the upper 16 bits are 0000" Comment="" HintText="" ModbusAddress="1253" ModbusCmd="16" ModbusDataType="34" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+</Modbus>

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Modbus Title="SMART X96-5E" Comment="Multifunction energy analyzer" Baudrate="19200" Parity="1" Channel="1">
+	<Info templateType="7" minVersion="12021105"/>
+	<ModbusCmd Title="Current L1" Comment="" ModbusAddress="6" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="15" Unit="&lt;v.1&gt;A" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Current L2" Comment="" ModbusAddress="8" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="15" Unit="&lt;v.1&gt;A" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Current L3" Comment="" ModbusAddress="10" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="15" Unit="&lt;v.1&gt;A" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Voltage L1" Comment="" ModbusAddress="200" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt;V" Analog="true" Sensor="true" SourceValHigh="1" DestValHigh="1"/>
+	<ModbusCmd Title="Voltage L3" Comment="" ModbusAddress="204" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt;V" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Voltage L2" Comment="" ModbusAddress="202" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt;V" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Frequency" Comment="" ModbusAddress="70" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt;Hz" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Total system power" Comment="" ModbusAddress="52" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="10" Unit="&lt;v.1&gt;kW" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="0.1"/>
+	<ModbusCmd Title="Total active Energy" Comment="" ModbusAddress="342" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="10" Unit="&lt;v.1&gt;kWh" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="THD Voltage 2st=63st harmonic L1" Comment="" ModbusAddress="402" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="20" Unit="&lt;v.1&gt;%" Analog="true" Sensor="true" SourceValHigh="1" DestValHigh="1"/>
+	<ModbusCmd Title="THD Voltage 2st=63st harmonic L2" Comment="" ModbusAddress="526" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="20" Unit="&lt;v.1&gt;%" Analog="true" Sensor="true" SourceValHigh="1" DestValHigh="1"/>
+	<ModbusCmd Title="THD Voltage 2st=63st harmonic L3" Comment="" ModbusAddress="650" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="20" Unit="&lt;v.1&gt;%" Analog="true" Sensor="true" SourceValHigh="1" DestValHigh="1"/>
+	<ModbusCmd Title="THD Current 2st=63st harmonic L1" Comment="" ModbusAddress="774" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="20" Unit="&lt;v.1&gt;%" Analog="true" Sensor="true" SourceValHigh="1" DestValHigh="1"/>
+	<ModbusCmd Title="THD Current 2st=63st harmonic L3" Comment="" ModbusAddress="1022" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="20" Unit="&lt;v.1&gt;%" Analog="true" Sensor="true" SourceValHigh="1" DestValHigh="1"/>
+	<ModbusCmd Title="THD Current 2st=63st harmonic L2" Comment="" ModbusAddress="898" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="20" Unit="&lt;v.1&gt;%" Analog="true" Sensor="true" SourceValHigh="1" DestValHigh="1"/>
+	<ModbusCmd Title="Voltage L1 to N" Comment="" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt;V" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Voltage L2 to N" Comment="" ModbusAddress="2" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt;V" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Voltage L3 to N" Comment="" ModbusAddress="4" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt;V" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="THD average line to line volts" Comment="" ModbusAddress="340" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt;%" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="THD volts L1 to L2" Comment="" ModbusAddress="331" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="20" Unit="&lt;v.1&gt;%" Analog="true" Sensor="true" SourceValHigh="1" DestValHigh="1"/>
+	<ModbusCmd Title="THD volts L2 to L3" Comment="" ModbusAddress="336" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="20" Unit="&lt;v.1&gt;%" Analog="true" Sensor="true" SourceValHigh="1" DestValHigh="1"/>
+	<ModbusCmd Title="THD volts L3 to L1" Comment="" ModbusAddress="338" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="20" Unit="&lt;v.1&gt;%" Analog="true" Sensor="true" SourceValHigh="1" DestValHigh="1"/>
+	<ModbusCmd Title="Total import active energy" Comment="" ModbusAddress="72" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="15" Unit="&lt;v.1&gt;kWh" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Total apparent energy" Comment="" ModbusAddress="80" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="15" Unit="&lt;v.1&gt;kVAh" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+</Modbus>

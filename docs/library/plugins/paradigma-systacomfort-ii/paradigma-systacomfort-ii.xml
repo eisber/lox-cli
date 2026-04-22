@@ -1,0 +1,50 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Modbus Title="Paradigma SystaCompfort II" Comment="" Channel="1">
+	<Info templateType="7" minVersion="13011117"/>
+	<ModbusCmd Title="Solar day yield" Comment="" ModbusAddress="20" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="10"/>
+	<ModbusCmd Title="Testbit" Comment="" ModbusAddress="9998" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Temp Outside (TA)" Comment="" ModbusCmd="4" ModbusPollingCycle="60" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="Temp CV1 Supply (TV)" Comment="" ModbusAddress="1" ModbusCmd="4" ModbusPollingCycle="60" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="Temp CV1 Return (TR)" Comment="" ModbusAddress="2" ModbusCmd="4" ModbusPollingCycle="60" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="Temp Heating Tank San (TWEE)" Comment="" ModbusAddress="3" ModbusCmd="4" ModbusPollingCycle="60" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="Temp Heating Tank Middle (TPO)" Comment="" ModbusAddress="4" ModbusCmd="4" ModbusPollingCycle="60" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="Temp Heating Tank Bottom (TPU)" Comment="" ModbusAddress="5" ModbusCmd="4" ModbusPollingCycle="60" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="Temp Circulation Return (TZR)" Comment="" ModbusAddress="6" ModbusCmd="4" ModbusPollingCycle="60" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="Temp CV2 Supply (TV2)" Comment="" ModbusAddress="7" ModbusCmd="4" ModbusPollingCycle="60" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="Temp CV2 Return (TR2)" Comment="" ModbusAddress="8" ModbusCmd="4" ModbusPollingCycle="60" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="Temp CV1 Room (RI1)" Comment="" ModbusAddress="9" ModbusCmd="4" ModbusPollingCycle="60" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="Temp CV2 Room (RI2)" Comment="" ModbusAddress="10" ModbusCmd="4" ModbusPollingCycle="60" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="Temp Solar Collector (TSA)" Comment="" ModbusAddress="11" ModbusCmd="4" ModbusPollingCycle="60" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="Temp CV Kettle Supply (FATV)" Comment="" ModbusAddress="12" ModbusCmd="4" ModbusPollingCycle="60" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="Temp CV Kettle Return (FATR)" Comment="" ModbusAddress="13" ModbusCmd="4" ModbusPollingCycle="60" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="Temp CV3 Supply (TV3)" Comment="" ModbusAddress="17" ModbusCmd="4" ModbusPollingCycle="60" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="Temp CV3 Return (TR3)" Comment="" ModbusAddress="18" ModbusCmd="4" ModbusPollingCycle="60" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="Temp Solar Supply (TSE)" Comment="" ModbusAddress="31" ModbusCmd="4" ModbusPollingCycle="60" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="Temp Heating Tank Top (TW)" Comment="" ModbusAddress="32" ModbusCmd="4" ModbusPollingCycle="60" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="Temp Solar Return (TSV)" Comment="" ModbusAddress="33" ModbusCmd="4" ModbusPollingCycle="60" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="Solar Flow Rate (S)" Comment="" ModbusAddress="35" ModbusCmd="4" ModbusPollingCycle="10" Unit="&lt;v.1&gt;l/min" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="Temp Solar Outside (TAM)" Comment="" ModbusAddress="36" ModbusCmd="4" ModbusPollingCycle="60" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="Temp San Tank (TSP)" Comment="" ModbusAddress="40" ModbusCmd="4" ModbusPollingCycle="60" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="Temp San Out (TWW)" Comment="" ModbusAddress="41" ModbusCmd="4" ModbusPollingCycle="60" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="Temp San In (TKW)" Comment="" ModbusAddress="42" ModbusCmd="4" ModbusPollingCycle="60" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="San Flow Rate (VKW)" Comment="" ModbusAddress="43" ModbusCmd="4" ModbusPollingCycle="60" Unit="&lt;v.1&gt;l/min" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="San Flow Rate Tank (VSPm)" Comment="" ModbusAddress="44" ModbusCmd="4" ModbusPollingCycle="60" Unit="&lt;v.1&gt;l/min" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="San Heating On" Comment="" ModbusAddress="4" ModbusCmd="1" ModbusPollingCycle="60" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="San Heating Blocked" Comment="" ModbusAddress="5" ModbusCmd="1" ModbusPollingCycle="60" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="Temp CV1 Supply Setpoint (TV)" Comment="" ModbusAddress="2" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="Temp CV2 Supply Setpoint (TV2)" Comment="" ModbusAddress="3" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="Temp CV3 Supply Setpoint" Comment="" ModbusAddress="4" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="Status CV2" Comment="" ModbusAddress="37" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Status CV1" Comment="" ModbusAddress="36" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Status CV3" Comment="" ModbusAddress="38" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="San Heating On" Comment="" ModbusAddress="4" ModbusCmd="5" Unit="" Analog="false" Sensor="false" RepeatRate="240"/>
+	<ModbusCmd Title="San Circulation On" Comment="" ModbusAddress="6" ModbusCmd="5" Unit="" Analog="false" Sensor="false" RepeatRate="240"/>
+	<ModbusCmd Title="San Circulation Off" Comment="" ModbusAddress="7" ModbusCmd="5" Unit="" Analog="false" Sensor="false" RepeatRate="240"/>
+	<ModbusCmd Title="San Heating Off" Comment="" ModbusAddress="5" ModbusCmd="5" Unit="" Analog="false" Sensor="false" RepeatRate="240"/>
+	<ModbusCmd Title="Temp CV1 Supply Setpoint (TV)" Comment="" ModbusAddress="2" ModbusCmd="16" ModbusDataType="1" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="1" DestValHigh="10" RepeatRate="240"/>
+	<ModbusCmd Title="Temp CV2 Supply Setpoint (TV2)" Comment="" ModbusAddress="3" ModbusCmd="16" ModbusDataType="1" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="1" DestValHigh="10" RepeatRate="240"/>
+	<ModbusCmd Title="Temp CV3 Supply Setpoint (TV3)" Comment="" ModbusAddress="4" ModbusCmd="16" ModbusDataType="1" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="1" DestValHigh="10" RepeatRate="240"/>
+	<ModbusCmd Title="Temp CV1 Supply Setpoint Percentage (TV)" Comment="" ModbusAddress="5" ModbusCmd="16" Unit="&lt;v.1&gt;%" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100" RepeatRate="240"/>
+	<ModbusCmd Title="Temp CV2 Supply Setpoint Percentage (TV2)" Comment="" ModbusAddress="6" ModbusCmd="16" Unit="&lt;v.1&gt;%" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100" RepeatRate="240"/>
+	<ModbusCmd Title="Temp CV3 Supply Setpoint Percentage (TV3)" Comment="" ModbusAddress="7" ModbusCmd="16" Unit="&lt;v.1&gt;%" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100" RepeatRate="240"/>
+</Modbus>

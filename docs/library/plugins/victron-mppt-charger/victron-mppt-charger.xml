@@ -1,0 +1,24 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Modbus Title="Victron MPPT Charger" Comment="" Channel="238">
+	<Info templateType="7" minVersion="13000726"/>
+	<ModbusCmd Title="Battery Voltage" Comment="" ModbusAddress="771" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v.2&gt;V" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="0.1"/>
+	<ModbusCmd Title="Battery Current" Comment="" ModbusAddress="772" ModbusCmd="4" ModbusDataType="1" ModbusPollingCycle="5" Unit="&lt;v.2&gt;A" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="0.1"/>
+	<ModbusCmd Title="PV Power" Comment="" ModbusAddress="789" ModbusCmd="4" ModbusPollingCycle="60" Unit="&lt;v.1&gt;W" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="Battery Temperature" Comment="" ModbusAddress="773" ModbusCmd="4" ModbusDataType="1" ModbusPollingCycle="60" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="Charge State" Comment="" ModbusAddress="775" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="PV Voltage" Comment="" ModbusAddress="776" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v.2&gt;V" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="0.1"/>
+	<ModbusCmd Title="Equalization pending" Comment="" ModbusAddress="778" ModbusCmd="4" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Equalization time remaining" Comment="" ModbusAddress="779" ModbusCmd="4" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="Relay on the Charger" Comment="" ModbusAddress="780" ModbusCmd="4" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Yield Today" Comment="" ModbusAddress="784" ModbusCmd="4" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Yield Yesterday" Comment="" ModbusAddress="786" ModbusCmd="4" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Maximum charge power today" Comment="" ModbusAddress="785" ModbusCmd="4" ModbusPollingCycle="60" Unit="&lt;v&gt;W" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Maximum charge power yesterday" Comment="" ModbusAddress="787" ModbusCmd="4" ModbusPollingCycle="60" Unit="&lt;v&gt;W" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Error Code" Comment="" ModbusAddress="788" ModbusCmd="4" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="User Yield" Comment="" ModbusAddress="790" ModbusCmd="4" ModbusPollingCycle="60" Unit="&lt;v.1&gt;kWh" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="MPP operation mode" Comment="" ModbusAddress="791" ModbusCmd="4" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="PV Voltage for tracker 0" Comment="" ModbusAddress="3700" ModbusCmd="4" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="0.1"/>
+	<ModbusCmd Title="Lo batt. voltage alarm" Comment="" ModbusAddress="782" ModbusCmd="4" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="High batt. voltage alarm" Comment="" ModbusAddress="783" ModbusCmd="4" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Charger on off" Comment="" ModbusAddress="774" ModbusCmd="6" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10"/>
+</Modbus>

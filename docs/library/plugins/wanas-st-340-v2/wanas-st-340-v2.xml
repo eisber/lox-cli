@@ -1,0 +1,57 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Modbus Title="Wanas ST-340 V2" Comment="" Baudrate="19200" Parity="1" Channel="1">
+	<Info templateType="7" minVersion="13011019"/>
+	<ModbusCmd Title="Supply airflow" Comment="" ModbusCmd="3" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt;m³/h" Analog="true" Sensor="true" SourceValHigh="1600" DestValHigh="1600"/>
+	<ModbusCmd Title="Exhaust airflow" Comment="" ModbusAddress="1" ModbusCmd="3" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt;m³/h" Analog="true" Sensor="true" SourceValHigh="1600" DestValHigh="1600"/>
+	<ModbusCmd Title="Supply gear" Comment="" ModbusAddress="2" ModbusCmd="3" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="3" DestValHigh="3"/>
+	<ModbusCmd Title="Exhaust gear" Comment="" ModbusAddress="3" ModbusCmd="3" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="3" DestValHigh="3"/>
+	<ModbusCmd Title="Outside temp." Comment="" ModbusAddress="4" ModbusCmd="3" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="65535" DestValHigh="6553"/>
+	<ModbusCmd Title="Exhaust temp." Comment="" ModbusAddress="5" ModbusCmd="3" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="65535" DestValHigh="6553"/>
+	<ModbusCmd Title="Supply temp." Comment="" ModbusAddress="6" ModbusCmd="3" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="65535" DestValHigh="6553"/>
+	<ModbusCmd Title="Room temp." Comment="" ModbusAddress="7" ModbusCmd="3" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="65535" DestValHigh="6553"/>
+	<ModbusCmd Title="Day of week" Comment="" ModbusAddress="8" ModbusCmd="3" ModbusDataType="32" ModbusPollingCycle="30" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="6" DestValHigh="6"/>
+	<ModbusCmd Title="End of zone 1 ( start of zone 2)" Comment="" ModbusAddress="10" ModbusCmd="3" ModbusDataType="32" ModbusPollingCycle="30" Unit="&lt;v&gt;min" Analog="true" Sensor="true" SourceValHigh="1440" DestValHigh="1440"/>
+	<ModbusCmd Title="End of zone 2 ( start of zone 3)" Comment="" ModbusAddress="11" ModbusCmd="3" ModbusDataType="32" ModbusPollingCycle="30" Unit="&lt;v&gt;min" Analog="true" Sensor="true" SourceValHigh="1440" DestValHigh="1440"/>
+	<ModbusCmd Title="End of zone 3 ( start of zone 4)" Comment="" ModbusAddress="12" ModbusCmd="3" ModbusDataType="32" ModbusPollingCycle="30" Unit="&lt;v&gt;min" Analog="true" Sensor="true" SourceValHigh="1440" DestValHigh="1440"/>
+	<ModbusCmd Title="End of zone 4 ( start of zone 5)" Comment="" ModbusAddress="13" ModbusCmd="3" ModbusDataType="32" ModbusPollingCycle="30" Unit="&lt;v&gt;min" Analog="true" Sensor="true" SourceValHigh="1440" DestValHigh="1440"/>
+	<ModbusCmd Title="Zone 1 run" Comment="" ModbusAddress="14" ModbusCmd="3" ModbusDataType="32" ModbusPollingCycle="30" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="3" DestValHigh="3"/>
+	<ModbusCmd Title="Zone 2 run" Comment="" ModbusAddress="15" ModbusCmd="3" ModbusDataType="32" ModbusPollingCycle="30" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="3" DestValHigh="3"/>
+	<ModbusCmd Title="Zone 3 run" Comment="" ModbusAddress="16" ModbusCmd="3" ModbusDataType="32" ModbusPollingCycle="30" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="3" DestValHigh="3"/>
+	<ModbusCmd Title="Zone 4 run" Comment="" ModbusAddress="17" ModbusCmd="3" ModbusDataType="32" ModbusPollingCycle="30" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="3" DestValHigh="3"/>
+	<ModbusCmd Title="Zone 5 run" Comment="" ModbusAddress="18" ModbusCmd="3" ModbusDataType="32" ModbusPollingCycle="30" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="3" DestValHigh="3"/>
+	<ModbusCmd Title="Zone 1 temp." Comment="" ModbusAddress="19" ModbusCmd="3" ModbusDataType="32" ModbusPollingCycle="30" Unit="&lt;v&gt;C" Analog="true" Sensor="true" SourceValLow="10" SourceValHigh="30" DestValLow="10" DestValHigh="30"/>
+	<ModbusCmd Title="Zone 2 temp." Comment="" ModbusAddress="20" ModbusCmd="3" ModbusDataType="32" ModbusPollingCycle="30" Unit="&lt;v&gt;C" Analog="true" Sensor="true" SourceValLow="10" SourceValHigh="30" DestValLow="10" DestValHigh="30"/>
+	<ModbusCmd Title="Zone 3 temp." Comment="" ModbusAddress="21" ModbusCmd="3" ModbusDataType="32" ModbusPollingCycle="30" Unit="&lt;v&gt;C" Analog="true" Sensor="true" SourceValLow="10" SourceValHigh="30" DestValLow="10" DestValHigh="30"/>
+	<ModbusCmd Title="Zone 4 temp." Comment="" ModbusAddress="22" ModbusCmd="3" ModbusDataType="32" ModbusPollingCycle="30" Unit="&lt;v&gt;C" Analog="true" Sensor="true" SourceValLow="10" SourceValHigh="30" DestValLow="10" DestValHigh="30"/>
+	<ModbusCmd Title="Zone 5 temp." Comment="" ModbusAddress="23" ModbusCmd="3" ModbusDataType="32" ModbusPollingCycle="30" Unit="&lt;v&gt;C" Analog="true" Sensor="true" SourceValLow="10" SourceValHigh="30" DestValLow="10" DestValHigh="30"/>
+	<ModbusCmd Title="Communication parameters" Comment="" ModbusAddress="26" ModbusCmd="3" ModbusDataType="32" ModbusPollingCycle="30" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="5" DestValHigh="5"/>
+	<ModbusCmd Title="Extra Temp" Comment="" ModbusAddress="29" ModbusCmd="3" ModbusDataType="32" ModbusPollingCycle="30" Unit="&lt;v.1&gt;C" Analog="true" Sensor="true" SourceValHigh="65535" DestValHigh="6553"/>
+	<ModbusCmd Title="Ground heat exchanger" Comment="" ModbusAddress="30" ModbusCmd="3" ModbusDataType="32" ModbusPollingCycle="30" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="1" DestValHigh="1"/>
+	<ModbusCmd Title="Bypass" Comment="" ModbusAddress="31" ModbusCmd="3" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v.x&gt;" Analog="true" Sensor="true" SourceValHigh="1" DestValHigh="1"/>
+	<ModbusCmd Title="Humidifier" Comment="" ModbusAddress="32" ModbusCmd="3" ModbusDataType="32" ModbusPollingCycle="30" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="1" DestValHigh="1"/>
+	<ModbusCmd Title="Heater" Comment="" ModbusAddress="33" ModbusCmd="3" ModbusDataType="32" ModbusPollingCycle="30" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="1" DestValHigh="1"/>
+	<ModbusCmd Title="Cooler" Comment="" ModbusAddress="34" ModbusCmd="3" ModbusDataType="32" ModbusPollingCycle="30" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="1" DestValHigh="1"/>
+	<ModbusCmd Title="Holiday" Comment="" ModbusAddress="43" ModbusCmd="3" ModbusDataType="32" ModbusPollingCycle="30" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="1" DestValHigh="1"/>
+	<ModbusCmd Title="Filter change" Comment="" ModbusAddress="36" ModbusCmd="3" ModbusDataType="32" ModbusPollingCycle="600" Unit="za &lt;v&gt; dni" Analog="true" Sensor="true" SourceValHigh="252" DestValHigh="252"/>
+	<ModbusCmd Title="Ground heat exchanger menu" Comment="" ModbusAddress="38" ModbusCmd="3" ModbusDataType="32" ModbusPollingCycle="30" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="1" DestValHigh="1"/>
+	<ModbusCmd Title="Bypass menu" Comment="" ModbusAddress="39" ModbusCmd="3" ModbusDataType="32" ModbusPollingCycle="30" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="1" DestValHigh="1"/>
+	<ModbusCmd Title="Humidifier menu" Comment="" ModbusAddress="39" ModbusCmd="3" ModbusDataType="32" ModbusPollingCycle="30" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="1" DestValHigh="1"/>
+	<ModbusCmd Title="Heater  menu" Comment="" ModbusAddress="41" ModbusCmd="3" ModbusDataType="32" ModbusPollingCycle="30" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="60" DestValHigh="60"/>
+	<ModbusCmd Title="Cooler menu" Comment="" ModbusAddress="42" ModbusCmd="3" ModbusDataType="32" ModbusPollingCycle="30" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="60" DestValHigh="60"/>
+	<ModbusCmd Title="Holiday menu" Comment="" ModbusAddress="43" ModbusCmd="3" ModbusDataType="32" ModbusPollingCycle="30" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="30" DestValHigh="30"/>
+	<ModbusCmd Title="Fireplace function" Comment="" ModbusAddress="44" ModbusCmd="3" ModbusDataType="32" ModbusPollingCycle="30" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="180" DestValHigh="180"/>
+	<ModbusCmd Title="Party function" Comment="" ModbusAddress="45" ModbusCmd="3" ModbusDataType="32" ModbusPollingCycle="30" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="720" DestValHigh="720"/>
+	<ModbusCmd Title="Canopy input" Comment="" ModbusAddress="48" ModbusCmd="3" ModbusDataType="32" ModbusPollingCycle="30" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="1" DestValHigh="1"/>
+	<ModbusCmd Title="Fire input" Comment="" ModbusAddress="49" ModbusCmd="3" ModbusDataType="32" ModbusPollingCycle="30" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="1" DestValHigh="1"/>
+	<ModbusCmd Title="Data" Comment="" ModbusAddress="50" ModbusCmd="3" ModbusDataType="32" ModbusPollingCycle="30" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="65535" DestValHigh="65535"/>
+	<ModbusCmd Title="Hour" Comment="" ModbusAddress="51" ModbusCmd="3" ModbusDataType="32" ModbusPollingCycle="30" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="65535" DestValHigh="65535"/>
+	<ModbusCmd Title="Zone 1 run" Comment="" ModbusAddress="14" ModbusCmd="6" ModbusDataType="32" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="3" DestValHigh="3"/>
+	<ModbusCmd Title="Day of the week" Comment="" ModbusAddress="8" ModbusCmd="6" ModbusDataType="32" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="6" DestValHigh="6"/>
+	<ModbusCmd Title="Zone 2 run" Comment="" ModbusAddress="15" ModbusCmd="6" ModbusDataType="32" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="3" DestValHigh="3"/>
+	<ModbusCmd Title="Zone 3 run" Comment="" ModbusAddress="16" ModbusCmd="6" ModbusDataType="32" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="3" DestValHigh="3"/>
+	<ModbusCmd Title="Zone 4 run" Comment="" ModbusAddress="17" ModbusCmd="6" ModbusDataType="32" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="3" DestValHigh="3"/>
+	<ModbusCmd Title="Zone 5 run" Comment="" ModbusAddress="18" ModbusCmd="6" ModbusDataType="32" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="3" DestValHigh="3"/>
+	<ModbusCmd Title="Bypass" Comment="" ModbusAddress="39" ModbusCmd="6" ModbusDataType="32" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="1" DestValHigh="1"/>
+	<ModbusCmd Title="Fireplace function" Comment="" ModbusAddress="44" ModbusCmd="6" ModbusDataType="32" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="180" DestValHigh="180"/>
+	<ModbusCmd Title="Party function" Comment="" ModbusAddress="45" ModbusCmd="6" ModbusDataType="32" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="720" DestValHigh="720"/>
+</Modbus>

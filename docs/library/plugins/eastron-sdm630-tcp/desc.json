@@ -1,0 +1,9 @@
+{
+                                "type": "template",
+                                "name": "eastron-sdm630-tcp",
+                                "uuid": "4e5daea2-26a9-11ef-aa3d4cd98f3deb8a",
+                                "version":"1.0.1",
+                                "id": "eastron-sdm630-tcp-1572",
+                                "file": "eastron-sdm630-tcp.xml",
+                                "templateType": "7",
+                            }

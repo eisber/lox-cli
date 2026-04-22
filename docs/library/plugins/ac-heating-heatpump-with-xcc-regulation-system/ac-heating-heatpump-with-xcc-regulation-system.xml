@@ -1,0 +1,39 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Modbus Title="AC Heating xCC Heatpump" Comment="" HintText="" Channel="1">
+	<Info templateType="7" minVersion="14070306"/>
+	<ModbusCmd Title="T_Act" Comment="Actual heating water temperature" HintText="" ModbusAddress="1" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValLow="100" SourceValHigh="10000" DestValLow="1" DestValHigh="100"/>
+	<ModbusCmd Title="T_Req" Comment="Requested heating water temperature" HintText="" ModbusAddress="2" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValLow="100" SourceValHigh="10000" DestValLow="1" DestValHigh="100"/>
+	<ModbusCmd Title="Sys_act_power" Comment="Actual system power" HintText="" ModbusAddress="3" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Outside_t" Comment="Outside temperature (no filter)" HintText="" ModbusAddress="126" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValLow="-2000" SourceValHigh="3200" DestValLow="20" DestValHigh="32"/>
+	<ModbusCmd Title="T_Ret" Comment="Return water temperature" HintText="" ModbusAddress="284" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValLow="100" SourceValHigh="10000" DestValLow="1" DestValHigh="100"/>
+	<ModbusCmd Title="Heat1_act_room_t" Comment="Heating 1 actual room temperature" HintText="" ModbusAddress="4" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValLow="100" SourceValHigh="10000" DestValLow="1" DestValHigh="100"/>
+	<ModbusCmd Title="DHW_t" Comment="Actual DHW water temperature" HintText="" ModbusAddress="92" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValLow="100" SourceValHigh="10000" DestValLow="1" DestValHigh="100"/>
+	<ModbusCmd Title="HP_Power" Comment="Heatpump power" HintText="" ModbusAddress="207" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Err" Comment="Error" HintText="" ModbusAddress="33" ModbusCmd="2" ModbusPollingCycle="60" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="Err_non_crit" Comment="Non critical error" HintText="" ModbusAddress="34" ModbusCmd="2" ModbusPollingCycle="60" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="Err_critical" Comment="Critical error" HintText="" ModbusAddress="35" ModbusCmd="2" ModbusPollingCycle="60" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="LRT" Comment="Low rate tarif active" HintText="" ModbusAddress="72" ModbusCmd="2" ModbusPollingCycle="60" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="Heater_act" Comment="Electric heater active" HintText="" ModbusAddress="74" ModbusCmd="2" ModbusPollingCycle="60" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="DHW_act" Comment="DHW heating active" HintText="" ModbusAddress="27" ModbusCmd="2" ModbusPollingCycle="60" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="Heat1_act" Comment="Heating 1 active" HintText="" ModbusAddress="13" ModbusCmd="2" ModbusPollingCycle="60" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="DHW_last_sanit" Comment="Time from last DHW sanitation" HintText="" ModbusAddress="221" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="DHW_circ_act" Comment="DHW Circulation pump running" HintText="" ModbusAddress="82" ModbusCmd="2" ModbusPollingCycle="60" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="Heat2_act" Comment="Heating 2 active" HintText="" ModbusAddress="14" ModbusCmd="2" ModbusPollingCycle="60" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="Heat2_act_room_t" Comment="Heating 2 actual room temperature" HintText="" ModbusAddress="5" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValLow="1000" SourceValHigh="10000" DestValLow="10" DestValHigh="100"/>
+	<ModbusCmd Title="Heat1_room_req" Comment="Heating 1 - requested room temperature" HintText="" ModbusAddress="16" ModbusCmd="6" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Heat1_water_const" Comment="Heating 1 - water constant temperature" HintText="" ModbusAddress="114" ModbusCmd="6" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="DHW_Max" Comment="DHW maximum temperature" HintText="" ModbusAddress="88" ModbusCmd="6" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="DHW_Min" Comment="DHW minimal temperature" HintText="" ModbusAddress="89" ModbusCmd="6" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Ext_T_1" Comment="External temperature input 1" HintText="" ModbusAddress="96" ModbusCmd="6" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Ext_T_2" Comment="External temperature input 2" HintText="" ModbusAddress="97" ModbusCmd="6" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Main_Switch" Comment="Master switch" HintText="" ModbusCmd="5" Unit="" Analog="false" Sensor="false"/>
+	<ModbusCmd Title="Heat1_En" Comment="Heating 1 enabled" HintText="" ModbusAddress="1" ModbusCmd="5" Unit="" Analog="false" Sensor="false"/>
+	<ModbusCmd Title="DHW_En" Comment="DHW Enabled" HintText="" ModbusAddress="25" ModbusCmd="5" Unit="" Analog="false" Sensor="false"/>
+	<ModbusCmd Title="DWH_Sanit_t" Comment="DHW sanitation temperature" HintText="" ModbusAddress="217" ModbusCmd="6" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValLow="100" SourceValHigh="10000" DestValLow="1" DestValHigh="100"/>
+	<ModbusCmd Title="DHW_circ_en" Comment="DHW enable circulation function" HintText="" ModbusAddress="76" ModbusCmd="5" Unit="" Analog="false" Sensor="false"/>
+	<ModbusCmd Title="DHW_circ_manual" Comment="DHW Circulation pump manual mode" HintText="" ModbusAddress="79" ModbusCmd="5" Unit="" Analog="false" Sensor="false"/>
+	<ModbusCmd Title="DHW_circ_man_state" Comment="DHW circulation pump manual state" HintText="" ModbusAddress="80" ModbusCmd="5" Unit="" Analog="false" Sensor="false"/>
+	<ModbusCmd Title="Heat2_En" Comment="Heating 2 enabled" HintText="" ModbusAddress="2" ModbusCmd="5" Unit="" Analog="false" Sensor="false"/>
+	<ModbusCmd Title="Heat2_room_req" Comment="Heating 2 - requested room temperature" HintText="" ModbusAddress="17" ModbusCmd="6" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValLow="100" SourceValHigh="10000" DestValLow="10" DestValHigh="100"/>
+	<ModbusCmd Title="Heat2_water_const" Comment="Heating 2 - water constant temperature" HintText="" ModbusAddress="115" ModbusCmd="6" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValLow="1000" SourceValHigh="10000" DestValLow="10" DestValHigh="100"/>
+</Modbus>

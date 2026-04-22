@@ -1,0 +1,9 @@
+{
+                                "type": "template",
+                                "name": "amit-dm-ot2-modbus-to-opentherm",
+                                "uuid": "a3693969-f8f9-11ef-8ac44cd98f3deb8a",
+                                "version":"1.0.0",
+                                "id": "amit-dm-ot2-modbus-to-opentherm-1815",
+                                "file": "amit-dm-ot2-modbus-to-opentherm.xml",
+                                "templateType": "7",
+                            }

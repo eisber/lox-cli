@@ -1,0 +1,21 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Modbus Title="Chiltrix" Comment="" HintText="" Baudrate="9600" Channel="1">
+	<Info templateType="7" minVersion="14040925"/>
+	<ModbusCmd Title="Switch on/off" Comment="" HintText="0= off, 1= on" ModbusAddress="140" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Operating Mode" Comment="" HintText="0= cool, 1=heat, 2=DHW,3=cool+DHW,4=HEAT+DHW" ModbusAddress="141" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="AC cooling target temperature" Comment="" HintText="" ModbusAddress="142" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.1&gt;°F" Analog="true" Sensor="true" SourceValHigh="100" DestValLow="32" DestValHigh="212"/>
+	<ModbusCmd Title="AC heating target temprerature" Comment="" HintText="" ModbusAddress="143" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.1&gt;°F" Analog="true" Sensor="true" SourceValHigh="100" DestValLow="32" DestValHigh="212"/>
+	<ModbusCmd Title="Hot water target temperature" Comment="" HintText="" ModbusAddress="144" ModbusCmd="3" ModbusPollingCycle="300" Unit="&lt;v.1&gt;°F" Analog="true" Sensor="true" SourceValHigh="100" DestValLow="32" DestValHigh="212"/>
+	<ModbusCmd Title="AC heating Au mode" Comment="" HintText="0= disable; 1= enable" ModbusAddress="145" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Hot water Au mode" Comment="" HintText="0= disable; 1= enable" ModbusAddress="146" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Ambient Air Temp" Comment="" HintText="" ModbusAddress="202" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.1&gt;°F" Analog="true" Sensor="true" SourceValHigh="1000" DestValLow="32" DestValHigh="212"/>
+	<ModbusCmd Title="Compressor Frequency" Comment="" HintText="" ModbusAddress="227" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v&gt;Hz" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Outlet water Temp" Comment="" HintText="" ModbusAddress="205" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.1&gt;°F" Analog="true" Sensor="true" SourceValHigh="1000" DestValLow="32" DestValHigh="212"/>
+	<ModbusCmd Title="Water Flow" Comment="" HintText="" ModbusAddress="213" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.1&gt;Gpm" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="2.642"/>
+	<ModbusCmd Title="Input Ac Current" Comment="" HintText="" ModbusAddress="256" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v&gt;A" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Inlet Water Temp" Comment="" HintText="" ModbusAddress="281" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.1&gt;°F" Analog="true" Sensor="true" SourceValHigh="1000" DestValLow="32" DestValHigh="212"/>
+	<ModbusCmd Title="Operating mode" Comment="" HintText="" ModbusAddress="141" ModbusCmd="6" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Switch on/off" Comment="" HintText="" ModbusAddress="140" ModbusCmd="6" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="AC target temperature heating" Comment="" HintText="" ModbusAddress="143" ModbusCmd="6" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="AC target temperature cooling" Comment="" HintText="" ModbusAddress="142" ModbusCmd="6" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValLow="32" SourceValHigh="212" DestValHigh="100"/>
+</Modbus>

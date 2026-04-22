@@ -1,0 +1,56 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Modbus Title="SpiralaEn" Comment="" HintText="" Baudrate="19200" Parity="1" Channel="60">
+	<Info templateType="7" minVersion="15000529"/>
+	<ModbusCmd Title="DHW tank temperature" Comment="" HintText="Put the division by the Factor value after the output.
+" ModbusAddress="2" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="3" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Accumulation tank temperature circuit 1" Comment="" HintText="Put the division by the Factor value after the output." ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="3" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Room temperature 1" Comment="" HintText="Put the division by the Factor value after the output.
+" ModbusAddress="4" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="180" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Fault relay" Comment="" HintText="Insert the block &quot;Binary encoding&quot; behind the output and use output no. 6" ModbusAddress="30" ModbusCmd="3" ModbusPollingCycle="3" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Accumulation tank temperature circuit 2" Comment="" HintText="Put the division by the Factor value after the output.
+" ModbusAddress="1" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="3" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Cooling sensor temperature" Comment="" HintText="Put the division by the Factor value after the output.
+" ModbusAddress="17" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="3" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Outdoor temperature" Comment="" HintText="Put the division by the Factor value after the output.
+" ModbusAddress="3" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="300" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Room temperature 2" Comment="" HintText="Put the division by the Factor value after the output.
+" ModbusAddress="5" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="180" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Desired power from PV" Comment="" HintText="Put the division by the Factor value after the output.
+" ModbusAddress="6" ModbusCmd="3" ModbusPollingCycle="30" Unit="&lt;v.1&gt;%" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Actual machine power" Comment="" HintText="Put the division by the Factor value after the output.
+" ModbusAddress="7" ModbusCmd="3" ModbusPollingCycle="30" Unit="&lt;v.1&gt;%" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Desired machine power limitation" Comment="" HintText="Put the division by the Factor value after the output.
+" ModbusAddress="8" ModbusCmd="3" ModbusPollingCycle="30" Unit="&lt;v.1&gt;%" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Outlet heating water temperature" Comment="" HintText="Put the division by the Factor value after the output.
+" ModbusAddress="10" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="3" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Return heating water inlet temperature" Comment="" HintText="Put the division by the Factor value after the output.
+" ModbusAddress="11" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="30" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Primary inlet water temperature" Comment="" HintText="Put the division by the Factor value after the output.
+" ModbusAddress="12" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="30" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Temperature primary water outlet" Comment="" HintText="Put the division by the Factor value after the output.
+" ModbusAddress="13" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="30" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Compressor outlet temperature" Comment="" HintText="Put the division by the Factor value after the output.
+" ModbusAddress="14" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="300" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Desired temperature of circuit 1" Comment="" HintText="Put the division by the Factor value after the output.
+" ModbusAddress="18" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="300" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Desired temperature of circuit 2" Comment="" HintText="Put the division by the Factor value after the output.
+" ModbusAddress="19" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="30" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Desired DHW temperature" Comment="" HintText="Put the division by the Factor value after the output.
+" ModbusAddress="20" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="300" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Desired room temperature 1" Comment="" HintText="Put the division by the Factor value after the output.
+" ModbusAddress="21" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="300" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Desired room temperature 2" Comment="" HintText="Put the division by the Factor value after the output.
+" ModbusAddress="22" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="300" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Desired room temperature 1" Comment="" HintText="Insert multiplication by 256 before input." ModbusAddress="21" ModbusCmd="6" ModbusDataType="1" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Switch the system to cooling" Comment="" HintText="To switch to cooling, insert 1" ModbusAddress="56" ModbusCmd="6" Unit="" Analog="false" Sensor="false"/>
+	<ModbusCmd Title="Desired machine power limitation" Comment="" HintText="Insert multiplication by 256 before input.
+" ModbusAddress="8" ModbusCmd="6" Unit="&lt;v.1&gt;%" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Desired temperature of circuit 1" Comment="" HintText="Insert multiplication by 256 before input.
+" ModbusAddress="18" ModbusCmd="6" ModbusDataType="1" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Desired temperature of circuit 2" Comment="" HintText="Insert multiplication by 256 before input.
+" ModbusAddress="19" ModbusCmd="6" ModbusDataType="1" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Desired room temperature 2" Comment="" HintText="Insert multiplication by 256 before input.
+" ModbusAddress="22" ModbusCmd="6" ModbusDataType="1" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Desired DHW temperature" Comment="" HintText="Insert multiplication by 256 before input.
+" ModbusAddress="20" ModbusCmd="6" ModbusDataType="1" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+</Modbus>

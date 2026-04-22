@@ -1,0 +1,66 @@
+{
+  "title": "Sequencer",
+  "xml_type": "",
+  "kb_slug": "sequencer",
+  "description": "Trigger switches the next output on.",
+  "inputs": [
+    {
+      "abbreviation": "Tr",
+      "summary": "Trigger",
+      "description": "Switches the next output on.",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "P",
+      "summary": "Position",
+      "description": "Chooses a specific output",
+      "value_range": "0...8"
+    },
+    {
+      "abbreviation": "R",
+      "summary": "Reset",
+      "description": "When 1 (O) = (Dv)",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "DisPc",
+      "summary": "Disable",
+      "description": "Disables inputs (Tr) and (P) when On. (Child lock)",
+      "value_range": "0/1"
+    }
+  ],
+  "outputs": [
+    {
+      "abbreviation": "O1-8",
+      "summary": "Output 1-8",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "Sel",
+      "summary": "Selected output",
+      "value_range": "0...8"
+    }
+  ],
+  "parameters": [
+    {
+      "abbreviation": "Rem",
+      "summary": "Remanence input",
+      "description": "Remanence input: If active, the function block retains its previous state after a Miniserver reboot. The state of the function block is saved: \u2013 When saving to the Miniserver \u2013 At a planned reboot \u2013 Before a backup \u2013 Once per hour The data is saved on the SD card.",
+      "value_range": "0/1",
+      "default_value": "0"
+    },
+    {
+      "abbreviation": "Dv",
+      "summary": "Default value",
+      "description": "Output that should be set when (R) is triggered (0 = all OFF)",
+      "value_range": "0...8",
+      "default_value": "1"
+    }
+  ],
+  "properties": [],
+  "source_url": "https://www.loxone.com/enen/kb/sequencer/",
+  "input_count": 4,
+  "output_count": 2,
+  "parameter_count": 2,
+  "property_count": 0
+}

@@ -1,0 +1,27 @@
+{
+  "title": "IR Controller",
+  "xml_type": "",
+  "kb_slug": "ir-control",
+  "description": "The IR Controller is used for complex IR codes, e.g. buttons that send a different IR signal every time the button on the remote control is pressed.",
+  "inputs": [
+    {
+      "abbreviation": "I1-6",
+      "summary": "Input 1-6",
+      "value_range": "\u221e"
+    }
+  ],
+  "outputs": [],
+  "parameters": [],
+  "properties": [
+    {
+      "summary": "IR Command",
+      "description": "In conjunction with the value received on the inputs this string is used to create the message that is sent via the IR actuator. Refer to help for further information.",
+      "default_value": "-"
+    }
+  ],
+  "source_url": "https://www.loxone.com/enen/kb/ir-control/",
+  "input_count": 1,
+  "output_count": 0,
+  "parameter_count": 0,
+  "property_count": 1
+}

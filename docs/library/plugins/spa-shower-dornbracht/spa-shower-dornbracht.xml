@@ -1,0 +1,6 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<VirtualOut Title="DORNBRACHT SHOWER" Comment="Las duchas por defecto se ponen a una dirección IP estática rango 169. Solo se puede modificar por DHCP al ponerlo en un router" Address="http://&lt;SHOWER_IP&gt;" CmdInit="" CloseAfterSend="true" CmdSep="">
+	<Info templateType="3" minVersion="13000726"/>
+	<VirtualOutCmd Title="SHOWER ON" Comment="" CmdOnMethod="GET" CmdOffMethod="GET" CmdOn="/service.api?module=unitmaster&amp;function=function_on&amp;function_id=&lt;id_num&gt;&amp;pin=&lt;pin&gt;" CmdOnHTTP="" CmdOnPost="" CmdOff="" CmdOffHTTP="" CmdOffPost="" Analog="false" Repeat="0" RepeatRate="0"/>
+	<VirtualOutCmd Title="SHOWER OFF" Comment="" CmdOnMethod="GET" CmdOffMethod="GET" CmdOn="/service.api?module=unitmaster&amp;function=function_off&amp;function_id=&lt;id_num&gt;&amp;pin=&lt;pin&gt;" CmdOnHTTP="" CmdOnPost="" CmdOff="" CmdOffHTTP="" CmdOffPost="" Analog="false" Repeat="0" RepeatRate="0"/>
+</VirtualOut>

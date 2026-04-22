@@ -1,0 +1,9 @@
+{
+                                "type": "template",
+                                "name": "fronius-modbus-tcp-integer",
+                                "uuid": "505a9d7e-3992-11ed-99424cd98f3deb8a",
+                                "version":"1.0.1",
+                                "id": "fronius-modbus-tcp-integer-978",
+                                "file": "fronius-modbus-tcp-integer.xml",
+                                "templateType": "7",
+                            }

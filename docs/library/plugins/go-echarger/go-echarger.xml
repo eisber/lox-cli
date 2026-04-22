@@ -1,0 +1,16 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Modbus Title="go-eCharger" Comment="" Channel="1">
+	<Info templateType="7" minVersion="12021006"/>
+	<ModbusCmd Title="CAR_STATE" Comment="Status PWM Signalisierung" ModbusAddress="100" ModbusCmd="4" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="ERROR" Comment="Fehler" ModbusAddress="107" ModbusCmd="4" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="ENERGY_TOTAL" Comment="Gesamt geladene Energiemenge" ModbusAddress="128" ModbusCmd="4" ModbusDataType="34" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="POWER_TOTAL" Comment="Leistung gesamt" ModbusAddress="120" ModbusCmd="4" ModbusDataType="34" ModbusPollingCycle="10" Unit="&lt;v.1&gt; W" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="1"/>
+	<ModbusCmd Title="ENERGY_CHARGE" Comment="Geladene Energiemenge" ModbusAddress="132" ModbusCmd="4" ModbusDataType="34" ModbusPollingCycle="60" Unit="&lt;v.1&gt; kW" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="AMP_L1" Comment="Ampere auf L1" ModbusAddress="114" ModbusCmd="4" ModbusDataType="34" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="AMP_L2" Comment="Ampere auf L2" ModbusAddress="116" ModbusCmd="4" ModbusDataType="34" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="AMP_L3" Comment="Ampere auf L3" ModbusAddress="118" ModbusCmd="4" ModbusDataType="34" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="ADAPTER_INPUT" Comment="Ladebox Adapter verbunden" ModbusAddress="202" ModbusCmd="4" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="ALLOW" Comment="Erlaube Laden" ModbusAddress="200" ModbusCmd="6" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="AMPERE_VOLATILE" Comment="Ampere Wert für die PWM" ModbusAddress="299" ModbusCmd="6" Unit="&lt;v&gt; A" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="ACCESS_STATE" Comment="Zugangskontrolle" ModbusAddress="201" ModbusCmd="6" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10"/>
+</Modbus>

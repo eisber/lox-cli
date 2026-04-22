@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<VirtualOut Title="Samsung TV" Address="sams://192.168.1.80:55000" CmdInit="" CloseAfterSend="true" CmdSep=";">
+  <Info templateType="3" minVersion="12010617"/>
+  <VirtualOutCmd ID="1" Title="Num 0" CmdOn="KEY_0" CmdOff="" Repeat="0,000" RepeatRate="0,000" Analog="false"/>
+  <VirtualOutCmd ID="2" Title="Num 1" CmdOn="KEY_1" CmdOff="" Repeat="0,000" RepeatRate="0,000" Analog="false"/>
+  <VirtualOutCmd ID="3" Title="Num 2" CmdOn="KEY_2" CmdOff="" Repeat="0,000" RepeatRate="0,000" Analog="false"/>
+  <VirtualOutCmd ID="4" Title="Num 3" CmdOn="KEY_3" CmdOff="" Repeat="0,000" RepeatRate="0,000" Analog="false"/>
+  <VirtualOutCmd ID="5" Title="Num 4" CmdOn="KEY_4" CmdOff="" Repeat="0,000" RepeatRate="0,000" Analog="false"/>
+  <VirtualOutCmd ID="6" Title="Num 5" CmdOn="KEY_5" CmdOff="" Repeat="0,000" RepeatRate="0,000" Analog="false"/>
+  <VirtualOutCmd ID="7" Title="Num 6" CmdOn="KEY_6" CmdOff="" Repeat="0,000" RepeatRate="0,000" Analog="false"/>
+  <VirtualOutCmd ID="8" Title="Num 7" CmdOn="KEY_7" CmdOff="" Repeat="0,000" RepeatRate="0,000" Analog="false"/>
+  <VirtualOutCmd ID="9" Title="Num 8" CmdOn="KEY_8" CmdOff="" Repeat="0,000" RepeatRate="0,000" Analog="false"/>
+  <VirtualOutCmd ID="10" Title="Num 9" CmdOn="KEY_9" CmdOff="" Repeat="0,000" RepeatRate="0,000" Analog="false"/>
+  <VirtualOutCmd ID="11" Title="Volume Up" CmdOn="KEY_VOLUP" CmdOff="" Repeat="0,000" RepeatRate="0,000" Analog="false"/>
+  <VirtualOutCmd ID="12" Title="Volume Down" CmdOn="KEY_VOLDOWN" CmdOff="" Repeat="0,000" RepeatRate="0,000" Analog="false"/>
+  <VirtualOutCmd ID="13" Title="Power Toggle" CmdOn="KEY_POWER" CmdOff="" Repeat="0,000" RepeatRate="0,000" Analog="false"/>
+  <VirtualOutCmd ID="14" Title="Channel Up" CmdOn="KEY_CHUP" CmdOff="" Repeat="0,000" RepeatRate="0,000" Analog="false"/>
+  <VirtualOutCmd ID="15" Title="Channel Down" CmdOn="KEY_CHDOWN" CmdOff="" Repeat="0,000" RepeatRate="0,000" Analog="false"/>
+  <VirtualOutCmd ID="16" Title="Source" CmdOn="KEY_SOURCE" CmdOff="" Repeat="0,000" RepeatRate="0,000" Analog="false"/>
+  <VirtualOutCmd ID="17" Title="Play" CmdOn="KEY_PLAY" CmdOff="" Repeat="0,000" RepeatRate="0,000" Analog="false"/>
+  <VirtualOutCmd ID="18" Title="Pause" CmdOn="KEY_PAUSE" CmdOff="" Repeat="0,000" RepeatRate="0,000" Analog="false"/>
+  <VirtualOutCmd ID="19" Title="Stop" CmdOn="KEY_STOP" CmdOff="" Repeat="0,000" RepeatRate="0,000" Analog="false"/>
+  <VirtualOutCmd ID="20" Title="Power Off" CmdOn="KEY_POWEROFF" CmdOff="" Repeat="0,000" RepeatRate="0,000" Analog="false"/>
+  <VirtualOutCmd ID="21" Title="Power On" CmdOn="KEY_POWERON" CmdOff="" Repeat="0,000" RepeatRate="0,000" Analog="false"/>
+</VirtualOut>

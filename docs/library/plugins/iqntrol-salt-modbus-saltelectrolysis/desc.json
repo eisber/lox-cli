@@ -1,0 +1,9 @@
+{
+                                "type": "template",
+                                "name": "iqntrol-salt-modbus-saltelectrolysis",
+                                "uuid": "78c70866-18b0-11ed-b17a4cd98f3deb8a",
+                                "version":"1.0.0",
+                                "id": "iqntrol-salt-modbus-saltelectrolysis-932",
+                                "file": "iqntrol-salt-modbus-saltelectrolysis.xml",
+                                "templateType": "7",
+                            }

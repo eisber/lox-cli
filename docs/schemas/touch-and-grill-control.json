@@ -1,0 +1,114 @@
+{
+  "title": "Touch & Grill Control",
+  "xml_type": "",
+  "kb_slug": "touch-and-grill-control",
+  "description": "This block enables you to integrate the functionality of the Touch & Grill Air into your Loxone system.\nCore temperatures can be monitored, target temperatures can be determined and timers can be set.\nUp to 2 function blocks can be created per device, e.g. for use in the kitchen and garden.\nOnly one of the function blocks can remote control the Touch & Grill Air at a time. The other is set to inactive.\nA block can be activated via the (Afb) input. At the beginning, the first inserted block is active.\nAny touches to the device's touch surface are directed to the active function block's T5 input.",
+  "inputs": [
+    {
+      "abbreviation": "Afb",
+      "summary": "Activate function block",
+      "description": "Activates control of this function block by its associated Touch & Grill.",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "DisT",
+      "summary": "Disable touch controls",
+      "description": "Serves as protection against unwanted touch- events, e.g. during cleaning or transport.",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "Off",
+      "summary": "Off",
+      "description": "Pulse: Outputs are reset / switched off. On: Block is locked. Dominating input. The name of the connected sensor is used in the user interface.",
+      "value_range": "0/1"
+    }
+  ],
+  "outputs": [
+    {
+      "abbreviation": "Ay",
+      "summary": "Alarm yellow sensor",
+      "description": "Active, when alarm is triggered by the yellow sensor.",
+      "unit": "-",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "Ag",
+      "summary": "Alarm green sensor",
+      "description": "Active, when alarm is triggered by the green sensor.",
+      "unit": "-",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "At",
+      "summary": "Alarm timer",
+      "description": "Active, when alarm is triggered at the end of the timer.",
+      "unit": "-",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "Rt",
+      "summary": "Remaining time",
+      "description": "Remaining run time of a running timer.",
+      "unit": "s",
+      "value_range": "0...5999"
+    },
+    {
+      "abbreviation": "Fb",
+      "summary": "Function block state",
+      "description": "Output is active as long as this function block is controlled by its associated Touch & Grill.",
+      "unit": "-",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "Atx",
+      "summary": "Alarm Text",
+      "description": "Text of the last triggered alarm.",
+      "unit": "-",
+      "value_range": "-"
+    },
+    {
+      "abbreviation": "API",
+      "summary": "API Connector",
+      "description": "Intelligent API based connector. API Commands",
+      "unit": "-",
+      "value_range": "-"
+    }
+  ],
+  "parameters": [
+    {
+      "abbreviation": "Dm",
+      "summary": "Maximum alarm duration (s)",
+      "description": "After this time, all existing alarms are automatically acknowledged.",
+      "unit": "s",
+      "value_range": "1...\u221e",
+      "default_value": "3600"
+    },
+    {
+      "abbreviation": "B",
+      "summary": "Display-Brightness",
+      "description": "Display brightness of the associated Touch & Grill Air device.",
+      "unit": "%",
+      "value_range": "0...100",
+      "default_value": "100"
+    }
+  ],
+  "properties": [
+    {
+      "summary": "Number of Entries",
+      "description": "Maximum number of saved messages.",
+      "value_range": "2...100",
+      "default_value": "20"
+    },
+    {
+      "summary": "Assigned Touch & Grill Air",
+      "description": "Touch & Grill Air that is associated with this function block",
+      "value_range": "-",
+      "default_value": "-"
+    }
+  ],
+  "source_url": "https://www.loxone.com/enen/kb/touch-and-grill-control/",
+  "input_count": 3,
+  "output_count": 7,
+  "parameter_count": 2,
+  "property_count": 2
+}

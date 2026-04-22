@@ -1,0 +1,8 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Modbus Title="Wago Pro 2" Comment="Wago Pro 2" Baudrate="19200" Parity="1" Channel="23">
+	<Info templateType="7" minVersion="12010716"/>
+	<ModbusCmd Title="State" Comment="" ModbusAddress="2" ModbusCmd="4" ModbusPollingCycle="5" Unit="" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Voltage Out" Comment="" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v.1&gt;V" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="1"/>
+	<ModbusCmd Title="Current Out" Comment="" ModbusAddress="1" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v.2&gt;A" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="1"/>
+	<ModbusCmd Title="Power Out" Comment="" ModbusAddress="6" ModbusCmd="4" ModbusDataType="34" ModbusPollingCycle="5" Unit="&lt;v.2&gt;W" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+</Modbus>

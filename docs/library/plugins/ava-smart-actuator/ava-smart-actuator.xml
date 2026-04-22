@@ -1,0 +1,6 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Modbus Title="AVA Smart Actuator" Comment="" Baudrate="9600" Parity="1" Channel="101">
+	<Info templateType="7" minVersion="13010808"/>
+	<ModbusCmd Title="Read Valve Position" Comment="" ModbusAddress="20" ModbusCmd="4" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Change Valve Position" Comment="" ModbusAddress="2" ModbusCmd="6" ModbusDataType="32" Unit="&lt;v.1&gt;%" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="1000"/>
+</Modbus>

@@ -1,0 +1,9 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Modbus Title="E+E Elektronik EE072" Comment="" Baudrate="9600" Parity="1" Channel="234">
+	<Info templateType="7" minVersion="12021105"/>
+	<ModbusCmd Title="Temperature T" Comment="" ModbusAddress="1002" ModbusCmd="3" ModbusDataType="100" ModbusPollingCycle="5" Unit="&lt;v.2&gt;°C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Relative humidity RH, Uw" Comment="" ModbusAddress="1020" ModbusCmd="3" ModbusDataType="100" ModbusPollingCycle="5" Unit="&lt;v&gt;% RH" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Dew point temperature Td" Comment="" ModbusAddress="1104" ModbusCmd="3" ModbusDataType="100" ModbusPollingCycle="5" Unit="&lt;v.2&gt;°C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Frost point temperature Tf" Comment="" ModbusAddress="1130" ModbusCmd="3" ModbusDataType="100" ModbusPollingCycle="5" Unit="&lt;v.2&gt;°C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Absolute humidity dv" Comment="" ModbusAddress="1112" ModbusCmd="3" ModbusDataType="100" ModbusPollingCycle="5" Unit="&lt;v.2&gt;g/m³" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+</Modbus>

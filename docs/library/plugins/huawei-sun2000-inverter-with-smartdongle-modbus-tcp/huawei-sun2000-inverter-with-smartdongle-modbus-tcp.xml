@@ -1,0 +1,11 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Modbus Title="HUAWEI SUN2000 SDongle 2-upd" Comment="" HintText="" Channel="1">
+	<Info templateType="7" minVersion="14070223"/>
+	<ModbusCmd Title="SmartPowerSensor Power" Comment="" HintText="Measuring the power of the grid connection.
+Adopt the validiation if the power from/to the grid can exceed 25 kW" ModbusAddress="37113" ModbusCmd="3" ModbusDataType="99" ModbusPollingCycle="10" Unit="&lt;v.1&gt; kW" Analog="true" Sensor="true" SourceValHigh="1" DestValHigh="-0.001"/>
+	<ModbusCmd Title="Luna SOC" Comment="" HintText="The state of charge of the battery in % from 0 to 100" ModbusAddress="37004" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v.0&gt;%" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="Luna Power" Comment="" HintText="Charge/Discharge Power of the battery storage.
+Adopt the validation if the connected battery can provide more than 7,6 kW" ModbusAddress="37001" ModbusCmd="3" ModbusDataType="99" ModbusPollingCycle="10" Unit="&lt;v.3&gt; kW" Analog="true" Sensor="true" SourceValHigh="1" DestValHigh="-0.001"/>
+	<ModbusCmd Title="DC Power" Comment="" HintText="Contains both the power arriving from the panels, as well as the power provided by the battery.
+Adopt the validation if more than 15kW can be provided by the system." ModbusAddress="32064" ModbusCmd="3" ModbusDataType="99" ModbusPollingCycle="10" Unit="&lt;v.3&gt; kW" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="0.1"/>
+</Modbus>

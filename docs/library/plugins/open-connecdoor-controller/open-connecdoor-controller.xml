@@ -1,0 +1,14 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Comm Title="connecdoor.controller" Comment="" HintText="" RS485="true" Baudrate="9600" Databits="8" ChecksumType="4">
+	<Info templateType="6" minVersion="16000603"/>
+	<CommCmd Title="DAYMODE" Comment="" CmdOn="PEN35_0_DAYMODE" CmdOff="" Unit="" HintText="" Analog="false" Text="false" Sensor="false" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="GET STATUS" Comment="" CmdOn="PEN35_0_STATUS" CmdOff="" Unit="" HintText="" Analog="false" Text="false" Sensor="false" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="NIGHTMODE" Comment="" CmdOn="PEN35_0_NIGHTMODE" CmdOff="" Unit="" HintText="" Analog="false" Text="false" Sensor="false" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="LOCK ACTIVE WING" Comment="" CmdOn="PEN35_0_LOCK_ACTIVE_WING" CmdOff="" Unit="" HintText="" Analog="false" Text="false" Sensor="false" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="LOCK PASSIVE WING" Comment="" CmdOn="PEN35_0_LOCK_PASSIVE_WING" CmdOff="" Unit="" HintText="" Analog="false" Text="false" Sensor="false" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="LOCK DOOR SYSTEM" Comment="" CmdOn="PEN35_0_LOCK_DOOR_SYSTEM" CmdOff="" Unit="" HintText="" Analog="false" Text="false" Sensor="false" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="REBOOT" Comment="" CmdOn="PEN35_0_REBOOT" CmdOff="" Unit="" HintText="" Analog="false" Text="false" Sensor="false" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="UNLOCK ACTIVE WING" Comment="" CmdOn="PEN35_0_UNLOCK_ACTIVE_WING" CmdOff="" Unit="" HintText="" Analog="false" Text="false" Sensor="false" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="UNLOCK PASSIVE WING" Comment="" CmdOn="PEN35_0_UNLOCK_PASSIVE_WING" CmdOff="" Unit="" HintText="" Analog="false" Text="false" Sensor="false" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="UNLOCK DOOR SYSTEM" Comment="" CmdOn="PEN35_0_UNLOCK_DOOR_SYSTEM" CmdOff="" Unit="" HintText="" Analog="false" Text="false" Sensor="false" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+</Comm>

@@ -1,0 +1,93 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Modbus Title="Viessmann Heating &amp; Cooling" Comment="" HintText="" Channel="1">
+	<Info templateType="7" minVersion="15000227"/>
+	<ModbusCmd Title="Actual outside temperature" Comment="0x01C1 / IN-94" HintText="" ModbusAddress="93" ModbusCmd="4" ModbusDataType="1" ModbusPollingCycle="60" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="10"/>
+	<ModbusCmd Title="Actual buffer temperature" Comment="0x01CB / IN-108" HintText="" ModbusAddress="107" ModbusCmd="4" ModbusDataType="3" ModbusPollingCycle="60" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="10"/>
+	<ModbusCmd Title="Actual warm water temperature" Comment="0x01CD / IN-110" HintText="" ModbusAddress="109" ModbusCmd="4" ModbusDataType="3" ModbusPollingCycle="60" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="10"/>
+	<ModbusCmd Title="State operation mode HC2" Comment="0xA440 / HO-82" HintText="0: HVAC_AUTO, 
+1: HVAC_HEAT, 
+2: HVAC_MRNG_WRMUP, 
+3: HVAC_COOL, 
+6: HVAC_OFF, 
+7: HVAC_TEST, 
+8: HVAC_EMERG_HEAT, 
+10: HVAC_FREE_COOL,
+12: HVAC_MAX_HEAT, 
+13: HVAC_ECONOMY,
+14: HVAC_DEHUMID,
+16: HVAC_EMERG_COOL,
+100: HVAC_FLOW_TEMP,
+255: HVAC_NUL" ModbusAddress="81" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="State operation mode HC3" Comment="0xA480 / HO-81" HintText="0: HVAC_AUTO, 
+1: HVAC_HEAT, 
+2: HVAC_MRNG_WRMUP, 
+3: HVAC_COOL, 
+6: HVAC_OFF, 
+7: HVAC_TEST, 
+8: HVAC_EMERG_HEAT, 
+10: HVAC_FREE_COOL,
+12: HVAC_MAX_HEAT, 
+13: HVAC_ECONOMY,
+14: HVAC_DEHUMID,
+16: HVAC_EMERG_COOL,
+100: HVAC_FLOW_TEMP,
+255: HVAC_NUL" ModbusAddress="80" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="State operation mode warm water storage" Comment="0xA3C2 / HO-84" HintText="0: HVAC_AUTO, 
+1: HVAC_HEAT, 
+2: HVAC_MRNG_WRMUP, 
+6: HVAC_OFF, 
+255: HVAC_NUL" ModbusAddress="83" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Actual generator temperature" Comment="0x01C5 / IN-100" HintText="" ModbusAddress="99" ModbusCmd="4" ModbusDataType="3" ModbusPollingCycle="60" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="10"/>
+	<ModbusCmd Title="State target temperature warm water" Comment="0xA3C0 / HO-68" HintText="" ModbusAddress="67" ModbusCmd="3" ModbusDataType="3" ModbusPollingCycle="60" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="10"/>
+	<ModbusCmd Title="Actual flow temperature HC2" Comment="0x01D4 / IN-122" HintText="" ModbusAddress="121" ModbusCmd="4" ModbusDataType="3" ModbusPollingCycle="60" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="10"/>
+	<ModbusCmd Title="Actual flow temperature HC3" Comment="0x01D5 / IN-124" HintText="" ModbusAddress="123" ModbusCmd="4" ModbusDataType="3" ModbusPollingCycle="60" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="10"/>
+	<ModbusCmd Title="State Circulationpump HC3" Comment="0x048F / ST-11" HintText="0=OFF
+1=ON" ModbusAddress="10" ModbusCmd="2" ModbusPollingCycle="60" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="State Circulationpump HC2" Comment="0x048E / ST-10" HintText="0=OFF
+1=ON" ModbusAddress="9" ModbusCmd="2" ModbusPollingCycle="60" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="State Circulationpump warm water" Comment="0x0490 / ST-17" HintText="0=OFF
+1=ON" ModbusAddress="16" ModbusCmd="2" ModbusPollingCycle="60" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="State Valve heating / warm water" Comment="0x0415 / ST-2" HintText="0=Room heating/cooling
+1=Warm water" ModbusAddress="1" ModbusCmd="2" ModbusPollingCycle="60" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="State target temperature HC2" Comment="0xA443 / HO-5" HintText="" ModbusAddress="4" ModbusCmd="3" ModbusDataType="3" ModbusPollingCycle="60" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="10"/>
+	<ModbusCmd Title="State target temperature HC3" Comment="0xA483 / HO-6" HintText="" ModbusAddress="5" ModbusCmd="3" ModbusDataType="3" ModbusPollingCycle="60" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="10"/>
+	<ModbusCmd Title="Target temperature HC2" Comment="0xA443 / HO-5" HintText="MIN= 0°C
+MAX=127°C" ModbusAddress="4" ModbusCmd="6" Unit="&lt;v&gt;°C" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="1000" RepeatRate="5"/>
+	<ModbusCmd Title="Target temperature HC3" Comment="0xA483 / HO-6" HintText="MIN= 0°C
+MAX=127°C" ModbusAddress="5" ModbusCmd="6" Unit="&lt;v&gt;°C" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="1000" RepeatRate="5"/>
+	<ModbusCmd Title="Operation mode HC2" Comment="0xA440 - HO-82" HintText="0: HVAC_AUTO, 
+1: HVAC_HEAT, 
+2: HVAC_MRNG_WRMUP, 
+3: HVAC_COOL, 
+6: HVAC_OFF, 
+7: HVAC_TEST, 
+8: HVAC_EMERG_HEAT, 
+10: HVAC_FREE_COOL,
+12: HVAC_MAX_HEAT, 
+13: HVAC_ECONOMY,
+14: HVAC_DEHUMID,
+16: HVAC_EMERG_COOL,
+100: HVAC_FLOW_TEMP,
+255: HVAC_NUL" ModbusAddress="81" ModbusCmd="6" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100" RepeatRate="5"/>
+	<ModbusCmd Title="Operation mode HC3" Comment="0xA480 / HO-81" HintText="0: HVAC_AUTO, 
+1: HVAC_HEAT, 
+2: HVAC_MRNG_WRMUP, 
+3: HVAC_COOL, 
+6: HVAC_OFF, 
+7: HVAC_TEST, 
+8: HVAC_EMERG_HEAT, 
+10: HVAC_FREE_COOL,
+12: HVAC_MAX_HEAT, 
+13: HVAC_ECONOMY,
+14: HVAC_DEHUMID,
+16: HVAC_EMERG_COOL,
+100: HVAC_FLOW_TEMP,
+255: HVAC_NUL" ModbusAddress="80" ModbusCmd="6" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100" RepeatRate="5"/>
+	<ModbusCmd Title="Target temperature warm water storage" Comment="0xA3C0 / HO-68" HintText="MIN=0°C
+MAX=90°C" ModbusAddress="67" ModbusCmd="6" Unit="&lt;v&gt;°C" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="100" RepeatRate="5"/>
+	<ModbusCmd Title="Operation mode warm water storage" Comment="0xA3C2 / HO-84" HintText="0: HVAC_AUTO, 
+1: HVAC_HEAT, 
+2: HVAC_MRNG_WRMUP, 
+6: HVAC_OFF, 
+255: HVAC_NUL" ModbusAddress="83" ModbusCmd="6" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100" RepeatRate="5"/>
+</Modbus>

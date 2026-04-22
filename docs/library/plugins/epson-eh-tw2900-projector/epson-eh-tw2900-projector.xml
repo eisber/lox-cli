@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Comm Title="Epson EH-TW2900 Projector" Comment="Compatible with other Epson Projectors, but inputs may vary." Baudrate="9600" Databits="8" Stopbits="0" Parity="0" EndChar="0" ChecksumType="0">
+  <Info templateType="5" minVersion="12010617"/>
+  <CommCmd ID="1" Title="Power On" Comment="" Sensor="false" Analog="false" CmdOn="PWR ON\r" CmdOff=""/>
+  <CommCmd ID="2" Title="Power Off" Comment="" Sensor="false" Analog="false" CmdOn="PWR OFF\r" CmdOff=""/>
+  <CommCmd ID="3" Title="Source: Component YCbCr" Comment="" Sensor="false" Analog="false" CmdOn="SOURCE 14\r" CmdOff=""/>
+  <CommCmd ID="4" Title="Source: Component YPbPr" Comment="" Sensor="false" Analog="false" CmdOn="SOURCE 15\r" CmdOff=""/>
+  <CommCmd ID="5" Title="Source: PC (RGB)" Comment="" Sensor="false" Analog="false" CmdOn="SOURCE 21\r" CmdOff=""/>
+  <CommCmd ID="6" Title="Source: HDMI1" Comment="" Sensor="false" Analog="false" CmdOn="SOURCE 30\r" CmdOff=""/>
+  <CommCmd ID="7" Title="Source: HDMI2" Comment="" Sensor="false" Analog="false" CmdOn="SOURCE A0\r" CmdOff=""/>
+  <CommCmd ID="8" Title="Source: Component Video" Comment="" Sensor="false" Analog="false" CmdOn="SOURCE 41\r" CmdOff=""/>
+  <CommCmd ID="9" Title="Source: Video S" Comment="" Sensor="false" Analog="false" CmdOn="SOURCE 42\r" CmdOff=""/>
+</Comm>

@@ -1,0 +1,6 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<VirtualOut Title="Denon Amp POA-3012CI" Comment="" Address="tcp://192.168.1.5:23" CmdInit="" CloseAfterSend="true" CmdSep="">
+    <Info templateType="3" minVersion="12010617"/>
+	<VirtualOutCmd Title="Power Off" Comment="" CmdOnMethod="GET" CmdOffMethod="GET" CmdOn="PW00STANDBY\r" CmdOnHTTP="" CmdOnPost="" CmdOff="" CmdOffHTTP="" CmdOffPost="" Analog="false" Repeat="0.000" RepeatRate="0.000"/>
+	<VirtualOutCmd Title="Power On" Comment="" CmdOnMethod="GET" CmdOffMethod="GET" CmdOn="PW00ON\r" CmdOnHTTP="" CmdOnPost="" CmdOff="" CmdOffHTTP="" CmdOffPost="" Analog="false" Repeat="0.000" RepeatRate="0.000"/>
+</VirtualOut>

@@ -1,0 +1,114 @@
+{
+  "title": "Irrigation",
+  "xml_type": "",
+  "kb_slug": "irrigation",
+  "description": "The Irrigation function block is used to control an irrigation system, for example in your garden.",
+  "inputs": [
+    {
+      "abbreviation": "Act",
+      "summary": "Activation",
+      "description": "Activates irrigation. Starts only if there was insufficient rain, and no sufficient amount of rain is expected.",
+      "unit": "-",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "Sel",
+      "summary": "Select valve",
+      "description": "Activates valve (V1-8). 0 - deactivates all valves 9 - activates all valves",
+      "unit": "-",
+      "value_range": "0...9"
+    },
+    {
+      "abbreviation": "Raf",
+      "summary": "Rain forecast",
+      "description": "Input for the expected amount of precipitation in the next hours",
+      "unit": "l/m\u00b2",
+      "value_range": "0...\u221e"
+    },
+    {
+      "abbreviation": "Ra",
+      "summary": "Rain",
+      "description": "Input for a rain sensor or equivalent information. Used to determine the rain duration.",
+      "unit": "-",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "Off",
+      "summary": "Off",
+      "description": "Pulse: Outputs are reset / switched off. On: Block is locked. Dominating input. The name of the connected sensor is used in the user interface.",
+      "unit": "-",
+      "value_range": "0/1"
+    }
+  ],
+  "outputs": [
+    {
+      "abbreviation": "P",
+      "summary": "Pump",
+      "description": "Output for pump control",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "V1-8",
+      "summary": "Valve 1-8",
+      "description": "Output for valve control",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "Av",
+      "summary": "Active valve",
+      "description": "Currently active valve 0 - All off 9 - All on",
+      "value_range": "0...9"
+    },
+    {
+      "abbreviation": "API",
+      "summary": "API Connector",
+      "description": "Intelligent API based connector. API Commands",
+      "value_range": "-"
+    }
+  ],
+  "parameters": [
+    {
+      "abbreviation": "MaxR",
+      "summary": "Maximum precipitation in the next set hours",
+      "description": "If the precipitation forecast (Raf) is greater than this value, irrigation is no longer activated via input (Act).",
+      "unit": "l/m\u00b2",
+      "value_range": "0...\u221e",
+      "default_value": "2"
+    },
+    {
+      "abbreviation": "MaxRa",
+      "summary": "Maximum rain duration in the last 24 hours",
+      "description": "If it rained for longer than this time in total in the last 24 hours, irrigation is no longer activated via input (Act).",
+      "unit": "s",
+      "value_range": "0...\u221e",
+      "default_value": "1800"
+    },
+    {
+      "abbreviation": "Tv1-8",
+      "summary": "Valve Time 1-8",
+      "description": "Duration of how long the valve is active until the next one is activated.",
+      "unit": "s",
+      "value_range": "0...\u221e",
+      "default_value": "600"
+    }
+  ],
+  "properties": [
+    {
+      "summary": "Configuration",
+      "description": "Configuration of the irrigation zones",
+      "value_range": "-",
+      "default_value": "-"
+    },
+    {
+      "summary": "Number of Entries",
+      "description": "Maximum number of saved messages.",
+      "value_range": "1...50",
+      "default_value": "50"
+    }
+  ],
+  "source_url": "https://www.loxone.com/enen/kb/irrigation/",
+  "input_count": 5,
+  "output_count": 4,
+  "parameter_count": 3,
+  "property_count": 2
+}

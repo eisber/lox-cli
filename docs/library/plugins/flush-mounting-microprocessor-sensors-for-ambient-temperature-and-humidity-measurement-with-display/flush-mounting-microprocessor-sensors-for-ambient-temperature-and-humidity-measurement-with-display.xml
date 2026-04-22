@@ -1,0 +1,18 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Modbus Title="MB-THL-SXX" Comment="" Baudrate="19200" Channel="1">
+	<Info templateType="7" minVersion="12021201"/>
+	<ModbusCmd Title="Actual Temperature" Comment="" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="60" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="10" DestValLow="10" DestValHigh="100"/>
+	<ModbusCmd Title="Actual Relative Humidity" Comment="" ModbusAddress="1" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="60" Unit="&lt;v&gt;%" Analog="true" Sensor="true" SourceValHigh="10" DestValLow="10" DestValHigh="100"/>
+	<ModbusCmd Title="Temperature Calibration Offset" Comment="" ModbusAddress="15" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="60" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="10" DestValLow="10" DestValHigh="100"/>
+	<ModbusCmd Title="Humidity Calibration Offset" Comment="" ModbusAddress="16" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="60" Unit="&lt;v&gt;%" Analog="true" Sensor="true" SourceValHigh="10" DestValLow="10" DestValHigh="100"/>
+	<ModbusCmd Title="Ambient Set Temperature" Comment="" ModbusAddress="2" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="60" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="10" DestValLow="10" DestValHigh="100"/>
+	<ModbusCmd Title="Use Winter Limit" Comment="" ModbusAddress="7" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Temperature Calibration Offset" Comment="" ModbusAddress="15" ModbusCmd="6" ModbusDataType="1" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="false" SourceValHigh="10" DestValLow="10" DestValHigh="100"/>
+	<ModbusCmd Title="Humidity Calibration Offset" Comment="" ModbusAddress="16" ModbusCmd="6" Unit="&lt;v&gt;%" Analog="true" Sensor="false" SourceValHigh="10" DestValLow="10" DestValHigh="100"/>
+	<ModbusCmd Title="Ambient Set Temperature" Comment="" ModbusAddress="2" ModbusCmd="6" ModbusDataType="1" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="false" SourceValHigh="10" DestValLow="10" DestValHigh="100"/>
+	<ModbusCmd Title="Use Winter Limit" Comment="" ModbusAddress="7" ModbusCmd="6" ModbusDataType="1" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValLow="10" DestValHigh="100"/>
+	<ModbusCmd Title="Summer Minimum Limit" Comment="" ModbusAddress="11" ModbusCmd="6" ModbusDataType="1" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="false" SourceValHigh="10" DestValLow="10" DestValHigh="100"/>
+	<ModbusCmd Title="Summer Maximum Limit" Comment="" ModbusAddress="12" ModbusCmd="6" ModbusDataType="1" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="false" SourceValHigh="10" DestValLow="10" DestValHigh="100"/>
+	<ModbusCmd Title="Winter Minimum Limit" Comment="" ModbusAddress="13" ModbusCmd="6" ModbusDataType="1" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="false" SourceValHigh="10" DestValLow="10" DestValHigh="100"/>
+	<ModbusCmd Title="Winter Maximum Limit" Comment="" ModbusAddress="14" ModbusCmd="6" ModbusDataType="1" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="false" SourceValHigh="10" DestValLow="10" DestValHigh="100"/>
+</Modbus>

@@ -1,0 +1,38 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Modbus Title="Stiebel Eltron LWZ &amp; LWA" Comment="" Channel="1">
+	<Info templateType="7" minVersion="13010812"/>
+	<ModbusCmd Title="1 - ACTUAL ROOM T HC1" Comment="Remote control value" ModbusCmd="4" ModbusPollingCycle="60" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="10"/>
+	<ModbusCmd Title="4 - ACTUAL ROOM T HC2" Comment="Remote control value" ModbusAddress="3" ModbusCmd="4" ModbusPollingCycle="60" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="10"/>
+	<ModbusCmd Title="7 - OUTSIDE TEMPERATURE" Comment="" ModbusAddress="6" ModbusCmd="4" ModbusDataType="1" ModbusPollingCycle="60" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="10"/>
+	<ModbusCmd Title="8 - ACTUAL VALUE HC1" Comment="" ModbusAddress="7" ModbusCmd="4" ModbusPollingCycle="60" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="10"/>
+	<ModbusCmd Title="12 - FLOW TEMPERATURE" Comment="" ModbusAddress="11" ModbusCmd="4" ModbusPollingCycle="60" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="10"/>
+	<ModbusCmd Title="13 - RETURN TEMPERATURE" Comment="" ModbusAddress="12" ModbusCmd="4" ModbusPollingCycle="60" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="10"/>
+	<ModbusCmd Title="16 - ACTUAL DHW TEMPERATURE" Comment="" ModbusAddress="15" ModbusCmd="4" ModbusPollingCycle="60" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="10"/>
+	<ModbusCmd Title="1001 - OPERATING MODE" Comment="" ModbusAddress="1000" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="1002 - ROOM TEMPERATURE DAY" Comment="Set room, heating, heating circuit 1" ModbusAddress="1001" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="10"/>
+	<ModbusCmd Title="1003 - ROOM TEMP. NIGHT" Comment="Set room, heating, heating circuit 1" ModbusAddress="1002" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="10"/>
+	<ModbusCmd Title="1005 - ROOM TEMPERATURE DAY" Comment="Set room, heating, heating circuit 2" ModbusAddress="1004" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="10"/>
+	<ModbusCmd Title="1006 - ROOM TEMP. NIGHT" Comment="Set room, heating, heating circuit 2" ModbusAddress="1005" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="10"/>
+	<ModbusCmd Title="1012 - DHW SET DAY" Comment="Domestic Hot Water (DHW)" ModbusAddress="1011" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="10"/>
+	<ModbusCmd Title="1013 - DHW SET NIGHT" Comment="Domestic Hot Water (DHW)" ModbusAddress="1012" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="10"/>
+	<ModbusCmd Title="1018 - DAY STAGE" Comment="Ventilation" ModbusAddress="1017" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="1019 - NIGHT STAGE" Comment="Ventilation" ModbusAddress="1018" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="1020 - PARTY STAGE" Comment="Ventilation" ModbusAddress="1019" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="1021 - MANUAL STAGE" Comment="Ventilation" ModbusAddress="1020" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="2001 - OPERATING STATUS" Comment="bit-coded" ModbusAddress="2000" ModbusCmd="4" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="2002 - FAULT STATUS" Comment="System fault" ModbusAddress="2001" ModbusCmd="4" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="2003 - BUS-STATUS" Comment="CAN bus status" ModbusAddress="2002" ModbusCmd="4" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="2004 - DEFROST INITIATED" Comment="defrost signal" ModbusAddress="2003" ModbusCmd="4" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="2005 - OPERATING STATUS-2" Comment="bit-coded" ModbusAddress="2004" ModbusCmd="4" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="1001 - OPERATING MODE" Comment="" ModbusAddress="1000" ModbusCmd="16" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="1002 - ROOM TEMPERATURE DAY" Comment="Set room, heating, heating circuit 1" ModbusAddress="1001" ModbusCmd="16" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="100"/>
+	<ModbusCmd Title="1003 - ROOM TEMP. NIGHT" Comment="Set room, heating, heating circuit 1" ModbusAddress="1002" ModbusCmd="16" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="100"/>
+	<ModbusCmd Title="1005 - ROOM TEMPERATURE DAY" Comment="Set room, heating, heating circuit 2" ModbusAddress="1004" ModbusCmd="16" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="100"/>
+	<ModbusCmd Title="1006 - ROOM TEMP. NIGHT" Comment="Set room, heating, heating circuit 2" ModbusAddress="1005" ModbusCmd="16" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="100"/>
+	<ModbusCmd Title="1012 - DHW SET DAY" Comment="Domestic Hot Water (DHW)" ModbusAddress="1011" ModbusCmd="16" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="100"/>
+	<ModbusCmd Title="1013 - DHW SET NIGHT" Comment="Domestic Hot Water (DHW)" ModbusAddress="1012" ModbusCmd="16" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="100"/>
+	<ModbusCmd Title="1018 - DAY STAGE" Comment="Ventilation" ModbusAddress="1017" ModbusCmd="16" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="1019 - NIGHT STAGE" Comment="Ventilation" ModbusAddress="1018" ModbusCmd="16" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="1020 - PARTY STAGE" Comment="Ventilation" ModbusAddress="1019" ModbusCmd="16" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="1021 - MANUAL STAGE" Comment="Ventilation" ModbusAddress="1020" ModbusCmd="16" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+</Modbus>

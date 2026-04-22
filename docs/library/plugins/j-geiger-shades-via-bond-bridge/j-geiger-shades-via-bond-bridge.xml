@@ -1,0 +1,7 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<VirtualOut Title="J Geiger Bond" Comment="" Address="http://IP" CmdInit="" CloseAfterSend="true" CmdSep=";">
+	<Info templateType="3" minVersion="13030119"/>
+	<VirtualOutCmd Title="Bond UP" Comment="" CmdOnMethod="PUT" CmdOffMethod="PUT" CmdOn="/v2/devices/Device ID/actions/Open" CmdOnHTTP="" CmdOnPost="{&quot;_token&quot;: &quot;Bond Token&quot;}" CmdOff="/v2/devices/Device ID/actions/Hold" CmdOffHTTP="" CmdOffPost="{&quot;_token&quot;: &quot;Bond Token&quot;}" CmdAnswer="" Analog="false" Repeat="0" RepeatRate="0"/>
+	<VirtualOutCmd Title="Bond Down" Comment="" CmdOnMethod="PUT" CmdOffMethod="PUT" CmdOn="/v2/devices/Device ID/actions/Close" CmdOnHTTP="" CmdOnPost="{&quot;_token&quot;: &quot;Bond Token&quot;}" CmdOff="/v2/devices/Device ID/actions/Hold" CmdOffHTTP="" CmdOffPost="{&quot;_token&quot;: &quot;Bond Token&quot;}" CmdAnswer="" Analog="false" Repeat="0" RepeatRate="0"/>
+	<VirtualOutCmd Title="Bond Stop" Comment="" CmdOnMethod="PUT" CmdOffMethod="PUT" CmdOn="/v2/devices/Device ID/actions/Hold" CmdOnHTTP="" CmdOnPost="{&quot;_token&quot;: &quot;Bond Token&quot;}" CmdOff="" CmdOffHTTP="" CmdOffPost="" CmdAnswer="" Analog="false" Repeat="0" RepeatRate="0"/>
+</VirtualOut>

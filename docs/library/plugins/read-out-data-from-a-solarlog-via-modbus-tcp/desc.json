@@ -1,0 +1,9 @@
+{
+                                "type": "template",
+                                "name": "read-out-data-from-a-solarlog-via-modbus-tcp",
+                                "uuid": "6c758c45-3a37-11ec-a3784cd98f3deb8a",
+                                "version":"1.0.0",
+                                "id": "read-out-data-from-a-solarlog-via-modbus-tcp-443",
+                                "file": "read-out-data-from-a-solarlog-via-modbus-tcp.xml",
+                                "templateType": "7",
+                            }

@@ -1,0 +1,1059 @@
+[
+  {
+    "id": "kr01-bedroom-auto-shade",
+    "pattern": [
+      "auto-shading",
+      "threshold"
+    ],
+    "utterance": "Set up automatic shading in the bedroom: when sunshine is strong and temperature is above 22°C, lower both blinds automatically",
+    "difficulty": "medium",
+    "expected": {
+      "new_blocks": [
+        {
+          "type": "GreaterEqual"
+        },
+        {
+          "type": "And"
+        }
+      ],
+      "wiring": [
+        {
+          "from_title": "Sonnenschein",
+          "to_type": "And",
+          "to_connector": "I1"
+        },
+        {
+          "from_title": "Außentemperatur",
+          "to_type": "GreaterEqual",
+          "to_connector": "Input1"
+        },
+        {
+          "from_type": "GreaterEqual",
+          "to_type": "And",
+          "from_connector": "Q",
+          "to_connector": "I2"
+        },
+        {
+          "from_type": "And",
+          "to_title": "Jalousie 1",
+          "to_room": "Schlafzimmer",
+          "to_connector": "InputTriggerDown",
+          "from_connector": "Q"
+        },
+        {
+          "from_type": "And",
+          "to_title": "Jalousie 2",
+          "to_room": "Schlafzimmer",
+          "to_connector": "InputTriggerDown",
+          "from_connector": "Q"
+        }
+      ],
+      "params": [
+        {
+          "block_type": "GreaterEqual",
+          "param": "Input2",
+          "value": "22"
+        }
+      ],
+      "simulation": [
+        {
+          "name": "should trigger when condition met",
+          "inputs": {
+            "Sonnenschein.AQ": 1.0,
+            "Außentemperatur.AQ": 27.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Jalousie 1.InputTriggerDown": {
+              ">": 0.5
+            }
+          }
+        },
+        {
+          "name": "should NOT trigger when condition not met",
+          "inputs": {
+            "Sonnenschein.AQ": 0.0,
+            "Außentemperatur.AQ": 17.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Jalousie 1.InputTriggerDown": {
+              "<": 0.5
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "kr02-bedroom-screen-movie",
+    "pattern": [
+      "projection-screen",
+      "dimming"
+    ],
+    "utterance": "When I press switch 2, lower the projection screen in the living room and dim the lights to 15%",
+    "difficulty": "medium",
+    "expected": {
+      "new_blocks": [
+        {
+          "type": "Mult"
+        }
+      ],
+      "wiring": [
+        {
+          "from_title": "Schalter 2",
+          "to_title": "Leinwand",
+          "to_connector": "InputTriggerDown"
+        },
+        {
+          "from_type": "Mult",
+          "to_title": "Lichtsteuerung",
+          "to_room": "Wohnzimmer",
+          "to_connector": "Brightness",
+          "from_connector": "AQ"
+        }
+      ],
+      "params": [
+        {
+          "block_type": "Mult",
+          "param": "Input2",
+          "value": "15"
+        }
+      ],
+      "simulation": [
+        {
+          "name": "should produce scaled output when input active",
+          "inputs": {
+            "Schalter 2.Q": 1.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Lichtsteuerung.Brightness": {
+              ">": 0.0
+            }
+          }
+        },
+        {
+          "name": "should produce no output with zero input",
+          "inputs": {
+            "Schalter 2.Q": 0.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Lichtsteuerung.Brightness": {
+              "<": 0.5
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "kr03-bathroom-radiator-manual",
+    "pattern": [
+      "radiator-boost",
+      "manual-trigger"
+    ],
+    "utterance": "Beim Drücken von Schalter 1 soll der Heizkörper im Bad für 20 Minuten aktiviert werden",
+    "difficulty": "medium",
+    "expected": {
+      "new_blocks": [
+        {
+          "type": "StairwayLS"
+        }
+      ],
+      "wiring": [
+        {
+          "from_title": "Schalter 1",
+          "to_type": "StairwayLS",
+          "to_connector": "InputTrigger"
+        },
+        {
+          "from_type": "StairwayLS",
+          "to_title": "Heizkörper Bad",
+          "to_connector": "I1",
+          "from_connector": "Q"
+        }
+      ],
+      "params": [
+        {
+          "block_type": "StairwayLS",
+          "param": "TimeHigh",
+          "value": "1200"
+        }
+      ],
+      "simulation": [
+        {
+          "name": "should activate on trigger",
+          "inputs": {
+            "Schalter 1.Q": 1.0
+          },
+          "ticks": 50,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Heizkörper Bad.I1": {
+              ">": 0.5
+            }
+          }
+        },
+        {
+          "name": "should NOT activate without trigger",
+          "inputs": {
+            "Schalter 1.Q": 0.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Heizkörper Bad.I1": {
+              "<": 0.5
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "kr04-living-room-full-climate",
+    "pattern": [
+      "threshold",
+      "combined-condition",
+      "fan-out",
+      "ac"
+    ],
+    "utterance": "When it is hot and sunny, close all living room blinds and start the AC. Use the room temperature for the thermostat.",
+    "difficulty": "expert",
+    "expected": {
+      "new_blocks": [
+        {
+          "type": "GreaterEqual"
+        },
+        {
+          "type": "And"
+        }
+      ],
+      "wiring": [
+        {
+          "from_title": "Außentemperatur",
+          "to_type": "GreaterEqual",
+          "to_connector": "Input1"
+        },
+        {
+          "from_title": "Sonnenschein",
+          "to_type": "And",
+          "to_connector": "I1"
+        },
+        {
+          "from_type": "GreaterEqual",
+          "to_type": "And",
+          "from_connector": "Q",
+          "to_connector": "I2"
+        },
+        {
+          "from_type": "And",
+          "to_title": "Jalousie 1",
+          "to_room": "Wohnzimmer",
+          "to_connector": "InputTriggerDown",
+          "from_connector": "Q"
+        },
+        {
+          "from_type": "And",
+          "to_title": "Klimaanlage",
+          "to_connector": "toggle",
+          "from_connector": "Q"
+        },
+        {
+          "from_title": "Raumtemperatur Wohnzimmer",
+          "to_title": "Raumregler",
+          "to_connector": "Temp"
+        }
+      ],
+      "params": [
+        {
+          "block_type": "GreaterEqual",
+          "param": "Input2",
+          "value": "28"
+        }
+      ],
+      "simulation": [
+        {
+          "name": "should trigger when all conditions met",
+          "inputs": {
+            "Außentemperatur.AQ": 25.0,
+            "Sonnenschein.AQ": 1.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Jalousie 1.InputTriggerDown": {
+              ">": 0.5
+            }
+          }
+        },
+        {
+          "name": "should NOT trigger when only partial conditions met",
+          "inputs": {
+            "Außentemperatur.AQ": 15.0,
+            "Sonnenschein.AQ": 1.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Jalousie 1.InputTriggerDown": {
+              "<": 0.5
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "kr05-pool-temp-pump",
+    "pattern": [
+      "pool-automation",
+      "threshold"
+    ],
+    "utterance": "Keep the pool pump running whenever the pool water temperature is below 18°C",
+    "difficulty": "easy",
+    "expected": {
+      "new_blocks": [
+        {
+          "type": "Less"
+        }
+      ],
+      "wiring": [
+        {
+          "from_title": "Pool Temperatur",
+          "to_type": "Less",
+          "to_connector": "Input1"
+        },
+        {
+          "from_type": "Less",
+          "to_title": "Poolpumpe",
+          "to_connector": "I1",
+          "from_connector": "Q"
+        }
+      ],
+      "params": [
+        {
+          "block_type": "Less",
+          "param": "Input2",
+          "value": "18"
+        }
+      ],
+      "simulation": [
+        {
+          "inputs": {
+            "Pool Temperatur.AQ": 15.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Poolpumpe.I1": {
+              ">": 0.5
+            }
+          },
+          "name": "should trigger when condition met"
+        },
+        {
+          "name": "should NOT trigger when condition not met",
+          "inputs": {
+            "Pool Temperatur.AQ": 5.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Poolpumpe.I1": {
+              "<": 0.5
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "kr06-pool-cold-protection",
+    "pattern": [
+      "pool-automation",
+      "combined-condition",
+      "negation"
+    ],
+    "utterance": "Run the pool pump when water is cold (below 10°C) but only if it's not freezing outside (above 0°C)",
+    "difficulty": "hard",
+    "expected": {
+      "new_blocks": [
+        {
+          "type": "Less"
+        },
+        {
+          "type": "GreaterEqual"
+        },
+        {
+          "type": "And"
+        }
+      ],
+      "wiring": [
+        {
+          "from_title": "Pool Temperatur",
+          "to_type": "Less",
+          "to_connector": "Input1"
+        },
+        {
+          "from_title": "Außentemperatur",
+          "to_type": "GreaterEqual",
+          "to_connector": "Input1"
+        },
+        {
+          "from_type": "Less",
+          "to_type": "And",
+          "from_connector": "Q",
+          "to_connector": "I1"
+        },
+        {
+          "from_type": "GreaterEqual",
+          "to_type": "And",
+          "from_connector": "Q",
+          "to_connector": "I2"
+        },
+        {
+          "from_type": "And",
+          "to_title": "Poolpumpe",
+          "to_connector": "I1",
+          "from_connector": "Q"
+        }
+      ],
+      "params": [
+        {
+          "block_type": "Less",
+          "param": "Input2",
+          "value": "10"
+        },
+        {
+          "block_type": "GreaterEqual",
+          "param": "Input2",
+          "value": "0"
+        }
+      ],
+      "simulation": [
+        {
+          "name": "should trigger when all conditions met",
+          "inputs": {
+            "Pool Temperatur.AQ": 15.0,
+            "Außentemperatur.AQ": 15.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Poolpumpe.I1": {
+              ">": 0.5
+            }
+          }
+        },
+        {
+          "name": "should NOT trigger when only partial conditions met",
+          "inputs": {
+            "Pool Temperatur.AQ": 25.0,
+            "Außentemperatur.AQ": 15.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Poolpumpe.I1": {
+              "<": 0.5
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "kr07-doorbell-hallway-light",
+    "pattern": [
+      "door-access",
+      "timed-switch"
+    ],
+    "utterance": "Wenn die Türklingel läutet, schalte das Licht im Flur für 2 Minuten auf 60% ein",
+    "difficulty": "hard",
+    "expected": {
+      "new_blocks": [
+        {
+          "type": "StairwayLS"
+        },
+        {
+          "type": "Mult"
+        }
+      ],
+      "wiring": [
+        {
+          "from_title": "Türklingel",
+          "to_type": "StairwayLS",
+          "to_connector": "InputTrigger"
+        },
+        {
+          "from_type": "StairwayLS",
+          "to_type": "Mult",
+          "from_connector": "Q",
+          "to_connector": "Input1"
+        },
+        {
+          "from_type": "Mult",
+          "to_title": "Lichtsteuerung",
+          "to_room": "Flur",
+          "to_connector": "Brightness",
+          "from_connector": "AQ"
+        }
+      ],
+      "params": [
+        {
+          "block_type": "StairwayLS",
+          "param": "TimeHigh",
+          "value": "120"
+        },
+        {
+          "block_type": "Mult",
+          "param": "Input2",
+          "value": "60"
+        }
+      ],
+      "simulation": [
+        {
+          "name": "should activate on trigger",
+          "inputs": {
+            "Türklingel.Q": 1.0
+          },
+          "ticks": 50,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Lichtsteuerung.Brightness": {
+              ">": 0.5
+            }
+          }
+        },
+        {
+          "name": "should NOT activate without trigger",
+          "inputs": {
+            "Türklingel.Q": 0.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Lichtsteuerung.Brightness": {
+              "<": 0.5
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "kr08-irrigation-two-zones",
+    "pattern": [
+      "scheduled-irrigation",
+      "daytimer"
+    ],
+    "utterance": "Set up two irrigation zones: the garden valve runs 6:00-6:30 and the pool pump runs 6:30-7:00 every morning",
+    "difficulty": "expert",
+    "expected": {
+      "new_blocks": [
+        {
+          "type": "DayTimer"
+        },
+        {
+          "type": "DayTimer"
+        }
+      ],
+      "wiring": [
+        {
+          "from_type": "DayTimer",
+          "to_title": "Bewässerungsventil",
+          "to_connector": "I1",
+          "from_connector": "AQ"
+        },
+        {
+          "from_type": "DayTimer",
+          "to_title": "Poolpumpe",
+          "to_connector": "I1",
+          "from_connector": "AQ"
+        }
+      ],
+      "params": [],
+      "simulation": [
+        {
+          "name": "should activate during scheduled period",
+          "inputs": {},
+          "ticks": 0,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Bewässerungsventil.I1": {
+              ">": 0.5
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "kr09-outdoor-light-schedule",
+    "pattern": [
+      "scheduled-action",
+      "daytimer"
+    ],
+    "utterance": "Turn on the garden lights automatically from sunset (8pm) until midnight every day",
+    "difficulty": "medium",
+    "expected": {
+      "new_blocks": [
+        {
+          "type": "DayTimer"
+        }
+      ],
+      "wiring": [
+        {
+          "from_type": "DayTimer",
+          "to_title": "Gartenbeleuchtung",
+          "to_connector": "I1",
+          "from_connector": "AQ"
+        }
+      ],
+      "params": [],
+      "simulation": [
+        {
+          "name": "should activate during scheduled period",
+          "inputs": {},
+          "ticks": 0,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Gartenbeleuchtung.I1": {
+              ">": 0.5
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "kr10-global-heating-reset",
+    "pattern": [
+      "fan-out",
+      "heating-reset"
+    ],
+    "utterance": "When switch 1 is pressed, reset the living room thermostat and use the room temperature sensor with it",
+    "difficulty": "medium",
+    "expected": {
+      "new_blocks": [],
+      "wiring": [
+        {
+          "from_title": "Raumtemperatur Wohnzimmer",
+          "to_title": "Raumregler",
+          "to_connector": "Temp"
+        }
+      ],
+      "params": [],
+      "simulation": [
+        {
+          "name": "should activate during scheduled period",
+          "inputs": {},
+          "ticks": 0,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Raumregler.Temp": {
+              ">": 0.5
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "kr11-night-security",
+    "pattern": [
+      "time-window",
+      "presence",
+      "dimming"
+    ],
+    "utterance": "At night, when motion is detected in the hallway, turn on the light at 10% and also turn on the garden light for 3 minutes",
+    "difficulty": "hard",
+    "expected": {
+      "new_blocks": [
+        {
+          "type": "And"
+        },
+        {
+          "type": "Mult"
+        },
+        {
+          "type": "StairwayLS"
+        }
+      ],
+      "wiring": [
+        {
+          "from_title": "Bewegungsmelder",
+          "to_type": "And",
+          "to_connector": "I1"
+        },
+        {
+          "from_type": "And",
+          "to_type": "Mult",
+          "from_connector": "Q",
+          "to_connector": "Input1"
+        },
+        {
+          "from_type": "Mult",
+          "to_title": "Lichtsteuerung",
+          "to_room": "Flur",
+          "to_connector": "Brightness",
+          "from_connector": "AQ"
+        },
+        {
+          "from_type": "And",
+          "to_type": "StairwayLS",
+          "from_connector": "Q",
+          "to_connector": "InputTrigger"
+        },
+        {
+          "from_type": "StairwayLS",
+          "to_title": "Gartenbeleuchtung",
+          "from_connector": "Q"
+        }
+      ],
+      "params": [
+        {
+          "block_type": "Mult",
+          "param": "Input2",
+          "value": "10"
+        },
+        {
+          "block_type": "StairwayLS",
+          "param": "TimeHigh",
+          "value": "180"
+        }
+      ],
+      "simulation": [
+        {
+          "name": "should trigger when all conditions met",
+          "inputs": {
+            "Bewegungsmelder.OutputPresence": 1.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Lichtsteuerung.Brightness": {
+              ">": 0.5
+            }
+          }
+        },
+        {
+          "name": "should NOT trigger when condition not met",
+          "inputs": {
+            "Bewegungsmelder.OutputPresence": 0.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Lichtsteuerung.Brightness": {
+              "<": 0.5
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "kr12-energy-aware-ac",
+    "pattern": [
+      "threshold",
+      "combined-condition",
+      "delayed-action"
+    ],
+    "utterance": "Only start the AC if temperature has been above 30°C for at least 10 minutes, so it does not keep turning on and off too quickly",
+    "difficulty": "hard",
+    "expected": {
+      "new_blocks": [
+        {
+          "type": "GreaterEqual"
+        },
+        {
+          "type": "OnPulseDelay"
+        }
+      ],
+      "wiring": [
+        {
+          "from_title": "Außentemperatur",
+          "to_type": "GreaterEqual",
+          "to_connector": "Input1"
+        },
+        {
+          "from_type": "GreaterEqual",
+          "to_type": "OnPulseDelay",
+          "from_connector": "Q",
+          "to_connector": "InputTrigger"
+        },
+        {
+          "from_type": "OnPulseDelay",
+          "to_title": "Klimaanlage",
+          "to_connector": "toggle",
+          "from_connector": "Q"
+        }
+      ],
+      "params": [
+        {
+          "block_type": "GreaterEqual",
+          "param": "Input2",
+          "value": "30"
+        },
+        {
+          "block_type": "OnPulseDelay",
+          "param": "Time",
+          "value": "600"
+        }
+      ],
+      "simulation": [
+        {
+          "inputs": {
+            "Außentemperatur.AQ": 32.0
+          },
+          "ticks": 6000,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Klimaanlage.toggle": {
+              ">": 0.5
+            }
+          },
+          "name": "should trigger when condition met"
+        },
+        {
+          "name": "should NOT trigger when condition not met",
+          "inputs": {
+            "Außentemperatur.AQ": 22.0
+          },
+          "ticks": 6000,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Klimaanlage.toggle": {
+              "<": 0.5
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "kr13-smart-ventilation",
+    "pattern": [
+      "threshold",
+      "combined-condition"
+    ],
+    "utterance": "Lüfter im Bad einschalten wenn die Feuchtigkeit über 65% steigt, aber nur wenn das Licht an ist",
+    "difficulty": "hard",
+    "expected": {
+      "new_blocks": [
+        {
+          "type": "GreaterEqual"
+        },
+        {
+          "type": "And"
+        }
+      ],
+      "wiring": [
+        {
+          "from_title": "Luftfeuchtigkeit",
+          "to_type": "GreaterEqual",
+          "to_connector": "Input1"
+        },
+        {
+          "from_type": "GreaterEqual",
+          "to_type": "And",
+          "from_connector": "Q",
+          "to_connector": "I1"
+        },
+        {
+          "from_title": "Lichtsteuerung",
+          "from_room": "Bad",
+          "to_type": "And",
+          "to_connector": "I2"
+        },
+        {
+          "from_type": "And",
+          "to_title": "Lüfter Bad",
+          "to_connector": "I1",
+          "from_connector": "Q"
+        }
+      ],
+      "params": [
+        {
+          "block_type": "GreaterEqual",
+          "param": "Input2",
+          "value": "65"
+        }
+      ],
+      "simulation": [
+        {
+          "name": "should trigger when all conditions met",
+          "inputs": {
+            "Luftfeuchtigkeit.AQ": 70.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Lüfter Bad.I1": {
+              ">": 0.5
+            }
+          }
+        },
+        {
+          "name": "should NOT trigger when condition not met",
+          "inputs": {
+            "Luftfeuchtigkeit.AQ": 60.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Lüfter Bad.I1": {
+              "<": 0.5
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "kr14-garage-security",
+    "pattern": [
+      "monoflop",
+      "timed-switch",
+      "fan-out"
+    ],
+    "utterance": "When the garage door opens at night, turn on the garage light for 5 minutes and flash the garden light for 10 seconds",
+    "difficulty": "hard",
+    "expected": {
+      "new_blocks": [
+        {
+          "type": "StairwayLS"
+        },
+        {
+          "type": "Monoflop"
+        }
+      ],
+      "wiring": [
+        {
+          "from_title": "Garagentor Sensor",
+          "to_type": "StairwayLS",
+          "to_connector": "InputTrigger"
+        },
+        {
+          "from_type": "StairwayLS",
+          "to_title": "Garagenlicht",
+          "from_connector": "Q"
+        },
+        {
+          "from_title": "Garagentor Sensor",
+          "to_type": "Monoflop",
+          "to_connector": "InputTrigger"
+        },
+        {
+          "from_type": "Monoflop",
+          "to_title": "Gartenbeleuchtung",
+          "from_connector": "Q"
+        }
+      ],
+      "params": [
+        {
+          "block_type": "StairwayLS",
+          "param": "TimeHigh",
+          "value": "300"
+        },
+        {
+          "block_type": "Monoflop",
+          "param": "Time",
+          "value": "10"
+        }
+      ],
+      "simulation": [
+        {
+          "name": "should trigger when condition met",
+          "inputs": {
+            "Garagentor Sensor.Q": 1.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Garagenlicht.Q": {
+              ">": 0.5
+            }
+          }
+        },
+        {
+          "name": "should NOT trigger when condition not met",
+          "inputs": {
+            "Garagentor Sensor.Q": 0.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Garagenlicht.Q": {
+              "<": 0.5
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "kr15-comfort-temp-memory",
+    "pattern": [
+      "memory",
+      "temperature-setpoint"
+    ],
+    "utterance": "Save a comfort temperature of 22°C for the living room thermostat. Also use the room temperature sensor with it.",
+    "difficulty": "medium",
+    "expected": {
+      "new_blocks": [
+        {
+          "type": "Memory"
+        }
+      ],
+      "wiring": [
+        {
+          "from_type": "Memory",
+          "to_title": "Raumregler",
+          "to_connector": "Temp"
+        },
+        {
+          "from_title": "Raumtemperatur Wohnzimmer",
+          "to_title": "Raumregler"
+        }
+      ],
+      "params": [],
+      "simulation": [
+        {
+          "name": "should latch on when set",
+          "inputs": {
+            "Raumtemperatur Wohnzimmer.AQ": 27.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Raumregler.Temp": {
+              ">": 0.5
+            }
+          }
+        },
+        {
+          "name": "should NOT latch without trigger",
+          "inputs": {
+            "Raumtemperatur Wohnzimmer.AQ": 17.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Raumregler.Temp": {
+              "<": 0.5
+            }
+          }
+        }
+      ]
+    }
+  }
+]

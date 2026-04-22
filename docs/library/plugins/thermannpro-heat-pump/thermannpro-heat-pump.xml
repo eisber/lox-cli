@@ -1,0 +1,29 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Modbus Title="Thermannpro heat pump" Comment="" HintText="" Baudrate="9600" Channel="1">
+	<Info templateType="7" minVersion="15010820"/>
+	<ModbusCmd Title="Temp. Set-Heating" Comment="" HintText="" ModbusAddress="769" ModbusCmd="3" ModbusDataType="33" ModbusPollingCycle="1" Unit="&lt;v&gt; °C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Switching on/off" Comment="" HintText="" ModbusAddress="773" ModbusCmd="3" ModbusDataType="32" ModbusPollingCycle="1" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Mode setting" Comment="" HintText="" ModbusAddress="772" ModbusCmd="3" ModbusDataType="33" ModbusPollingCycle="5" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Temp. Set-Floor Heating" Comment="" HintText="" ModbusAddress="771" ModbusCmd="3" ModbusDataType="33" ModbusPollingCycle="1" Unit="&lt;v&gt; °C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Temp. Set-Hot Water" Comment="" HintText="" ModbusAddress="770" ModbusCmd="3" ModbusDataType="33" ModbusPollingCycle="1" Unit="&lt;v&gt; °C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Temp. Set-Cooling" Comment="" HintText="" ModbusAddress="768" ModbusCmd="3" ModbusDataType="33" ModbusPollingCycle="1" Unit="&lt;v&gt; °C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Cooling setting curve" Comment="" HintText="" ModbusAddress="787" ModbusCmd="3" ModbusDataType="32" ModbusPollingCycle="1" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Heating setting curve" Comment="" HintText="" ModbusAddress="788" ModbusCmd="3" ModbusDataType="32" ModbusPollingCycle="1" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="DHW setting curve" Comment="" HintText="" ModbusAddress="789" ModbusCmd="3" ModbusDataType="32" ModbusPollingCycle="1" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Floorheating setting curve" Comment="" HintText="" ModbusAddress="790" ModbusCmd="3" ModbusDataType="32" ModbusPollingCycle="1" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="DHW temp T16" Comment="" HintText="" ModbusAddress="84" ModbusCmd="3" ModbusDataType="33" ModbusPollingCycle="1" Unit="&lt;v&gt; °C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Buffer tank temp T10" Comment="" HintText="" ModbusAddress="116" ModbusCmd="3" ModbusDataType="33" ModbusPollingCycle="1" Unit="&lt;v&gt; °C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="External ambient temp" Comment="" HintText="" ModbusAddress="74" ModbusCmd="3" ModbusDataType="33" ModbusPollingCycle="120" Unit="&lt;v&gt; °C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="T8" Comment="" HintText="" ModbusAddress="79" ModbusCmd="3" ModbusDataType="33" ModbusPollingCycle="15" Unit="&lt;v&gt; °C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="T15" Comment="" HintText="" ModbusAddress="80" ModbusCmd="3" ModbusDataType="33" ModbusPollingCycle="15" Unit="&lt;v&gt; °C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Temp. Set-Heating" Comment="" HintText="" ModbusAddress="769" ModbusCmd="6" Unit="&lt;v&gt; °C" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Switching on/off" Comment="" HintText="" ModbusAddress="773" ModbusCmd="6" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Mode setting" Comment="" HintText="" ModbusAddress="772" ModbusCmd="6" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Temp. Set-Cooling" Comment="" HintText="" ModbusAddress="768" ModbusCmd="6" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Temp. Set-Floor Heating" Comment="" HintText="" ModbusAddress="771" ModbusCmd="6" Unit="&lt;v&gt; °C" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Temp. Set-Hot Water" Comment="" HintText="" ModbusAddress="770" ModbusCmd="6" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Cooling setting curve" Comment="" HintText="" ModbusAddress="787" ModbusCmd="6" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Floorheating setting curve" Comment="" HintText="" ModbusAddress="790" ModbusCmd="6" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="DHW setting curve" Comment="" HintText="" ModbusAddress="789" ModbusCmd="6" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Heating setting curve" Comment="" HintText="" ModbusAddress="788" ModbusCmd="6" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+</Modbus>

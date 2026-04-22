@@ -1,0 +1,65 @@
+{
+  "title": "Power Supply & Backup (Function Block)",
+  "xml_type": "",
+  "kb_slug": "power-supply-backup-block",
+  "description": "This function block is used to integrate a Loxone Power Supply & Backup.",
+  "inputs": [],
+  "outputs": [
+    {
+      "abbreviation": "Pt",
+      "summary": "Power total",
+      "description": "Current total power of all power outputs combined.",
+      "unit": "kW",
+      "value_range": "\u221e"
+    },
+    {
+      "abbreviation": "Bm",
+      "summary": "Backup mode",
+      "description": "Active when the supply power fails.",
+      "unit": "-",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "P1-7",
+      "summary": "Power 1-7",
+      "description": "This output is only visible in certain configurations.",
+      "unit": "kW",
+      "value_range": "\u221e"
+    },
+    {
+      "abbreviation": "Soc",
+      "summary": "Battery state of charge",
+      "description": "Current charge level of the battery.",
+      "unit": "%",
+      "value_range": "\u221e"
+    },
+    {
+      "abbreviation": "Ol",
+      "summary": "Overload",
+      "description": "Active when maximum power capacity of 1kW is exceeded for 5 seconds. Device will shut down automatically if output power isn\u2019t reduced!",
+      "unit": "-",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "API",
+      "summary": "API Connector",
+      "description": "Intelligent API based connector. API Commands",
+      "unit": "-",
+      "value_range": "-"
+    }
+  ],
+  "parameters": [],
+  "properties": [
+    {
+      "summary": "Number of Entries",
+      "description": "Maximum number of saved messages.",
+      "value_range": "1...100",
+      "default_value": "100"
+    }
+  ],
+  "source_url": "https://www.loxone.com/enen/kb/power-supply-backup-block/",
+  "input_count": 0,
+  "output_count": 6,
+  "parameter_count": 0,
+  "property_count": 1
+}

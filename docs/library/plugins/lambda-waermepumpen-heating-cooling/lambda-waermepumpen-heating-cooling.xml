@@ -1,0 +1,200 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Modbus Title="Lambda Heating &amp; Cooling" Comment="" HintText="" Channel="1">
+	<Info templateType="7" minVersion="15000227"/>
+	<ModbusCmd Title="3001 State Operating Mode Heat/Cool Buffer" Comment="" HintText="0 = STBY, 
+1 = HEATING, 
+2 = COOLING, 
+3 = SUMMER, 
+4 = FROST, 
+5 = HOLIDAY, 
+6 = PRIO-STOP, 
+7 = ERROR, 
+8 = OFF, 
+9 = STBY-FROST" ModbusAddress="3001" ModbusCmd="3" ModbusDataType="32" ModbusPollingCycle="30" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="3002 Actual Heat/Cool Buffertemperature Top" Comment="" HintText="Actual temperature buffer high sensor" ModbusAddress="3002" ModbusCmd="3" ModbusDataType="33" ModbusPollingCycle="15" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="3003 Actual Heat/Cool Buffertemperature Bottom" Comment="" HintText="Actual temperature buffer low sensor" ModbusAddress="3003" ModbusCmd="3" ModbusDataType="33" ModbusPollingCycle="15" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="2001 State Operating Mode Hot Water Storage" Comment="" HintText="0 = STBY, 
+1 = DHW, 
+2 = LEGIO, 
+3 = SUMMER, 
+4 = FROST, 
+5 = HOLIDAY, 
+6 = PRIO-STOP, 
+7 = ERROR, 
+8 = OFF, 
+9 = PROMPT-DHW, 
+10 = TRAILING-STOP, 
+11 = TEMP-LOCK, 
+12 = STBY-FROST" ModbusAddress="2001" ModbusCmd="3" ModbusDataType="32" ModbusPollingCycle="30" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="2002 Actual Hot Water Storage Temperature Top" Comment="" HintText="Actual temperature boiler high sensor" ModbusAddress="2002" ModbusCmd="3" ModbusDataType="33" ModbusPollingCycle="15" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="2003 Actual Hot Water Storage Temperature Bottom" Comment="" HintText="Actual temperature boiler low sensor" ModbusAddress="2003" ModbusCmd="3" ModbusDataType="33" ModbusPollingCycle="15" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="5001 State Operating Mode HC1" Comment="" HintText="0 = HEATING, 
+1 = ECO, 
+2 = COOLING, 
+3 = FLOORDRY, 
+4 = FROST, 
+5 = MAX-TEMP, 
+6 = ERROR, 
+7 = SERVICE, 
+8 = HOLIDAY, 
+9 = CH-SUMMER, 
+10 = CC-WINTER, 
+11 = PRIO-STOP, 
+12 = OFF, 
+13 = RELEASE-OFF, 
+14 = TIME-OFF, 
+15 = STBY, 
+16 = STBY-HEATING, 
+17 = STBY-ECO, 
+18 = STBY-COOLING, 
+19 = STBY-FROST, 
+20 = STBY-FLOORDRY, " ModbusAddress="5001" ModbusCmd="3" ModbusDataType="32" ModbusPollingCycle="30" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="5002 Actual Supply Flowtemperature HC1" Comment="" HintText="Actual temperature flow line sensor" ModbusAddress="5002" ModbusCmd="3" ModbusDataType="33" ModbusPollingCycle="15" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="0103 Actual Heatpump Power Consumption" Comment="" HintText="Actual power consumption of all configurated heat pumps" ModbusAddress="103" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="5" Unit="&lt;v.3&gt;kW" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="1"/>
+	<ModbusCmd Title="0002 Actual Outsidetemperature" Comment="" HintText="Actual ambient temperature (min = -50.0°C; max = 80.0°C)" ModbusAddress="2002" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="30" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="1"/>
+	<ModbusCmd Title="0003 Actual Outsidetemperature average" Comment="" HintText=" Arithmetic average temperature of the last 60 minutes" ModbusAddress="3" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="30" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="1000 State Heatpump Error" Comment="" HintText="0 = NONE, 
+1 = MESSAGE, 
+2 = WARNING, 
+3 = ALARM, 
+4 = FAULT" ModbusAddress="1000" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="30" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="1002 State Heatpump Operation State" Comment="" HintText="0 = INIT, 
+1 = REFERENCE, 
+2 = RESTART-BLOCK, 
+3 = READY, 
+4 = START PUMPS, 
+5 = START COMPRESSOR, 
+6 = PRE-REGULATION, 
+7 = REGULATION, 
+8 = Not Used, 
+9 = COOLING, 
+10 = DEFROSTING, 
+20 = STOPPING, 
+30 = FAULT-LOCK, 
+31 = ALARM-BLOCK, 
+40 = ERROR-RESET" ModbusAddress="1002" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="30" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="1003 State Heatpump Operation Mode" Comment="" HintText="0 = STBY, 
+1 = CH, 
+2 = DHW, 
+3 = CC, 
+4 = CIRCULATE, 
+5 = DEFROST, 
+6 = OFF, 
+7 = FROST, 
+8 = STBY-FROST, 
+9 = Not used, 
+10 = SUMMER, 
+11 = HOLIDAY, 
+12 = ERROR, 
+13 = WARNING, 
+14 = INFO-MESSAGE, 
+15 = TIME-BLOCK, 
+16 = RELEASE-BLOCK, 
+17 = MINTEMP-BLOCK, 
+18 = FIRMWARE-DOWNLOAD" ModbusAddress="1003" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="30" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="1004 Actual Heatpump Supply Flowtemperature" Comment="" HintText="Flow line temperature" ModbusAddress="1004" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="15" Unit="&lt;v.2&gt;°C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="1"/>
+	<ModbusCmd Title="1005 Actual Heatpump Return Flowtemperature" Comment="" HintText="Return line temperature" ModbusAddress="1005" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="15" Unit="&lt;v.2&gt;°C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="1"/>
+	<ModbusCmd Title="1006 Actual Heatpump Flow Rate" Comment="" HintText="Volume flow heat sink" ModbusAddress="1006" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="30" Unit="&lt;v.3&gt;l/min" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="1007 Actual Heatpump Outdoorsuctiontemperature" Comment="" HintText="Energy source inlet temperature" ModbusAddress="1007" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="30" Unit="&lt;v.2&gt;°C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="1"/>
+	<ModbusCmd Title="1011 Actual Heatpump Inverter Thermal Power" Comment="" HintText="Actual heating capacity" ModbusAddress="1011" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="15" Unit="&lt;v.2&gt;kW" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="1012 Actual Heatpump Inverter Electrical Power" Comment="" HintText="Frequency inverter actual power consumption" ModbusAddress="1012" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="15" Unit="&lt;v.2&gt;kW" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="1"/>
+	<ModbusCmd Title="1013 Actual Heatpump COP" Comment="" HintText="Coefficient of performance
+External peripherals such as pumps and mixers are not part of this COP! Only inverter!" ModbusAddress="1013" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="15" Unit="&lt;v.2&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="1"/>
+	<ModbusCmd Title="1001 State Heatpump Error number" Comment="" HintText="Scrolling through all active error numbers (Nr.1 - Nr.99)" ModbusAddress="1001" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="30" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="2050 State Hot Water Targettemperature" Comment="" HintText="State value for boiler temperature (min = 25.0°C; max = 65.0°C)" ModbusAddress="2050" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="15" Unit="&lt;v.2&gt;°C" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="1019 State Relais Request Contact additional heat generator" Comment="" HintText="1 = NO-Relais for 2nd heating stage is activated.
+For controlling an external heat generator. 
+This can be an external immersion heater or an external oil or gas boiler. 
+In the standard case, the internal heating element (8.8 kW) is controlled. However, this can also be disconnected. " ModbusAddress="1019" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="30" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="5102 Actual Supply Flowtemperature HC2" Comment="" HintText="Actual temperature flow line sensor" ModbusAddress="5102" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="15" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="5101 State Operating Mode HC2" Comment="" HintText="0 = HEATING, 
+1 = ECO, 
+2 = COOLING, 
+3 = FLOORDRY, 
+4 = FROST, 
+5 = MAX-TEMP, 
+6 = ERROR, 
+7 = SERVICE, 
+8 = HOLIDAY, 
+9 = CH-SUMMER, 
+10 = CC-WINTER, 
+11 = PRIO-STOP, 
+12 = OFF, 
+13 = RELEASE-OFF, 
+14 = TIME-OFF, 
+15 = STBY, 
+16 = STBY-HEATING, 
+17 = STBY-ECO, 
+18 = STBY-COOLING, 
+19 = STBY-FROST, 
+20 = STBY-FLOORDRY, " ModbusAddress="5101" ModbusCmd="3" ModbusPollingCycle="30" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="5050 State Offset Flow Line Temperature HC1" Comment="" HintText="Min= -10K 
+Max= +10K 
+
+Attention! 
+This data point only works if the flow setpoint temperature 
+is controlled according to the Lambda heating curve. 
+It is an offset value that is added to or subtracted from the existing setpoint. 
+If Loxone sends the setpoint temperature via the 
+Flow Line Temperature heating circuit data point, this offset value is NOT to be used. " ModbusAddress="5050" ModbusCmd="3" ModbusPollingCycle="15" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="5150 State Offset Flow Line Temperature HC2" Comment="" HintText="Min= -10K 
+Max= +10K 
+
+Attention! 
+This data point only works if the flow setpoint temperature 
+is controlled according to the Lambda heating curve. 
+It is an offset value that is added to or subtracted from the existing setpoint. 
+If Loxone sends the setpoint temperature via the 
+Flow Line Temperature heating circuit data point, this offset value is NOT to be used. " ModbusAddress="5150" ModbusCmd="3" ModbusPollingCycle="30" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="1" DestValHigh="10"/>
+	<ModbusCmd Title="2050 Hot Water Storage Targettemperature" Comment="" HintText="Setting for maximum boiler temperature (min = 25.0°C; max = 65.0°C)" ModbusAddress="2050" ModbusCmd="16" ModbusDataType="33" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="false" SourceValHigh="1" DestValHigh="10" RepeatRate="10"/>
+	<ModbusCmd Title="5005 Target Supplyflowtemperature HC1" Comment="" HintText="The flow setpoint for heating and cooling is sent here. 
+Min heating= 17°C
+Max heating= 65°C
+Min cooling= 12°C - dew point attention!
+The operating mode must match beforehand. 
+This means that if I want to heat, I must send a 3 for heating operation mode. 
+This means that if I want to cool, I must send a 4 for cooling operation mode. " ModbusAddress="5005" ModbusCmd="16" ModbusDataType="33" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="false" SourceValHigh="1" DestValHigh="10" RepeatRate="10"/>
+	<ModbusCmd Title="0102 Actual Input Power-General E-Manager" Comment="" HintText="Actual input power [UINT16 (min = 0W; max = 65535W)] or 
+actual excess power [INT16 (min = -32768W; max = 32767W)] (depends on settings in Module)" ModbusAddress="102" ModbusCmd="16" ModbusDataType="1" Unit="&lt;v.1&gt;kW" Analog="true" Sensor="false" SourceValHigh="1" DestValHigh="1000" RepeatRate="10"/>
+	<ModbusCmd Title="5006 Target Operating Mode HC1" Comment="" HintText="0 = OFF(RW), 
+1 = MANUAL(R), 
+2 = AUTOMATIK(RW), 
+3 = AUTO-HEATING(RW) --&gt; Use for heating operation mode
+4 = AUTO-COOLING(RW) --&gt; Use for cooling operation mode
+5 = FROST(RW), 
+6 = SUMMER(RW), 
+7 = FLOOR-DRY(R)" ModbusAddress="5006" ModbusCmd="16" ModbusDataType="1" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100" RepeatRate="10"/>
+	<ModbusCmd Title="5105 Target Supplyflowtemperature HC2" Comment="" HintText="The flow setpoint for heating and cooling is sent here. 
+Min heating= 17°C
+Max heating= 65°C
+Min cooling= 12°C - dew point attention!
+The operating mode must match beforehand. 
+This means that if I want to heat, I must send a 3 for heating operation mode. 
+This means that if I want to cool, I must send a 4 for cooling operation mode. " ModbusAddress="5105" ModbusCmd="16" ModbusDataType="33" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="false" SourceValHigh="1" DestValHigh="10" RepeatRate="10"/>
+	<ModbusCmd Title="5106 Target Operating Mode HC2" Comment="" HintText="0 = OFF(RW), 
+1 = MANUAL(R), 
+2 = AUTOMATIK(RW), 
+3 = AUTO-HEATING(RW) --&gt; Use for heating operation mode
+4 = AUTO-COOLING(RW) --&gt; Use for cooling operation mode
+5 = FROST(RW), 
+6 = SUMMER(RW), 
+7 = FLOOR-DRY(R)" ModbusAddress="5106" ModbusCmd="16" ModbusDataType="1" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100" RepeatRate="10"/>
+	<ModbusCmd Title="5050 Offset Target Supplyflowtemperature HC1" Comment="" HintText="Min= -10K 
+Max= +10K 
+
+Attention! 
+This data point only works if the flow setpoint temperature 
+is controlled according to the Lambda heating curve. 
+It is an offset value that is added to or subtracted from the existing setpoint. 
+If Loxone sends the setpoint temperature via the 
+Flow Line Temperature heating circuit data point, this offset value is NOT to be used. " ModbusAddress="5050" ModbusCmd="16" ModbusDataType="33" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="false" SourceValHigh="1" DestValHigh="10" RepeatRate="10"/>
+	<ModbusCmd Title="5150 Offset Target Supplyflowtemperature HC2" Comment="" HintText="Min= -10K 
+Max= +10K 
+
+Attention! 
+This data point only works if the flow setpoint temperature 
+is controlled according to the Lambda heating curve. 
+It is an offset value that is added to or subtracted from the existing setpoint. 
+If Loxone sends the setpoint temperature via the 
+Flow Line Temperature heating circuit data point, this offset value is NOT to be used. " ModbusAddress="5150" ModbusCmd="16" ModbusDataType="33" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="false" SourceValHigh="1" DestValHigh="10" RepeatRate="10"/>
+</Modbus>

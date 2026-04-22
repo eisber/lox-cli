@@ -1,0 +1,42 @@
+{
+  "title": "Automatic Rule",
+  "xml_type": "AutoPilot",
+  "kb_slug": "automatic-rule",
+  "description": "The Automatic Rule block offers a way to create programming that is not only defined in Loxone Config, but can also be edited by users in the app.",
+  "inputs": [
+    {
+      "abbreviation": "Tg",
+      "summary": "Toggle",
+      "description": "Enable / disable automatic rule",
+      "value_range": "0/1",
+      "xml_key": "Input"
+    }
+  ],
+  "outputs": [
+    {
+      "abbreviation": "API",
+      "summary": "API Connector",
+      "description": "Intelligent API based connector. API Commands",
+      "value_range": "-",
+      "xml_key": "output"
+    }
+  ],
+  "parameters": [],
+  "properties": [
+    {
+      "summary": "Configuration",
+      "description": "Display configuration",
+      "default_value": "-"
+    },
+    {
+      "summary": "Notification when executing",
+      "description": "Show notification in the App when action list is executed.",
+      "default_value": "-"
+    }
+  ],
+  "source_url": "https://www.loxone.com/enen/kb/automatic-rule/",
+  "input_count": 1,
+  "output_count": 1,
+  "parameter_count": 0,
+  "property_count": 2
+}

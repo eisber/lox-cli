@@ -1,0 +1,43 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Modbus Title="M-TEC Energy Butler Gen3" Comment="" HintText="" Channel="247">
+	<Info templateType="7" minVersion="14051207"/>
+	<ModbusCmd Title="State of Charge (SOC)" Comment="Battery level" HintText="" ModbusAddress="33000" ModbusCmd="3" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v.3&gt;%" Analog="true" Sensor="true" SourceValHigh="1" DestValHigh="0.01"/>
+	<ModbusCmd Title="Battery Voltage" Comment="Battery voltage" HintText="" ModbusAddress="30254" ModbusCmd="3" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v.1&gt;V" Analog="true" Sensor="true" SourceValHigh="1" DestValHigh="0.1"/>
+	<ModbusCmd Title="Battery Current" Comment="Battery current" HintText="" ModbusAddress="30255" ModbusCmd="3" ModbusDataType="33" ModbusPollingCycle="60" Unit="&lt;v.1&gt;A" Analog="true" Sensor="true" SourceValHigh="1" DestValHigh="0.1"/>
+	<ModbusCmd Title="Battery Temperatur" Comment="Battery temperature" HintText="" ModbusAddress="33003" ModbusCmd="3" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="1" DestValHigh="0.1"/>
+	<ModbusCmd Title="BMS State" Comment="Battery Management System State Code" HintText="0:wait, wait for on-grid
+1:check, self-check
+2:On Grid 
+3:fault 
+4:flash, firmware update
+5.Off Grid" ModbusAddress="33002" ModbusCmd="3" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="BMS Error" Comment="Battery Management System Error Code" HintText="" ModbusAddress="33016" ModbusCmd="3" ModbusDataType="34" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="BMS Warning" Comment="Battery Management System Warning Code" HintText="" ModbusAddress="33018" ModbusCmd="3" ModbusDataType="34" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="AC Power Grid" Comment="Power at the AC input of the inverter" HintText="" ModbusAddress="11016" ModbusCmd="3" ModbusDataType="35" ModbusPollingCycle="60" Unit="&lt;v&gt;kW" Analog="true" Sensor="true" SourceValHigh="1" DestValHigh="0.001"/>
+	<ModbusCmd Title="AC Power Backup" Comment="Power at the output of the inverter" HintText="" ModbusAddress="30230" ModbusCmd="3" ModbusDataType="35" ModbusPollingCycle="60" Unit="&lt;v&gt;kW" Analog="true" Sensor="true" SourceValHigh="1" DestValHigh="0.001"/>
+	<ModbusCmd Title="PV Power" Comment="PV generation total" HintText="" ModbusAddress="11028" ModbusCmd="3" ModbusDataType="34" ModbusPollingCycle="60" Unit="&lt;v&gt;kW" Analog="true" Sensor="true" SourceValHigh="1" DestValHigh="0.001"/>
+	<ModbusCmd Title="Power Meter" Comment="Meter Grid connection point (NVP) Output" HintText="" ModbusAddress="11000" ModbusCmd="3" ModbusDataType="35" ModbusPollingCycle="60" Unit="&lt;v&gt;kW" Analog="true" Sensor="true" SourceValHigh="1" DestValHigh="0.001"/>
+	<ModbusCmd Title="Battery Power" Comment="Charging / discharging power of the battery" HintText="" ModbusAddress="30258" ModbusCmd="3" ModbusDataType="35" ModbusPollingCycle="60" Unit="&lt;v&gt;kW" Analog="true" Sensor="true" SourceValHigh="1" DestValHigh="0.001"/>
+	<ModbusCmd Title="Running State" Comment="Running state" HintText="0:wait, wait for on-grid
+1:check, self-check
+2:On Grid 
+3:fault 
+4:flash, firmware update
+5.Off Grid" ModbusAddress="10105" ModbusCmd="3" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Fault FLAG1" Comment="Fault Flag 1" HintText="1: Mains Lost
+2: Grid Voltage Fault
+4: Grid Frequency Fault
+8:DCI Fault
+16: ISO Over Limitation
+32: GFCI Fault
+64: PV Over Voltage
+128: Bus Voltage Fault
+256: Inverter Over Temperature" ModbusAddress="10112" ModbusCmd="3" ModbusDataType="2" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Fault FLAG2" Comment="Fault Flag 2" HintText="2: SPI Fault
+4: E2 Fault
+8: GFCI Device Fault
+16: AC Transducer Fault
+32: Relay Check Fail
+64: Internal Fan Fault
+128: External Fan Fault" ModbusAddress="10114" ModbusCmd="3" ModbusDataType="34" ModbusPollingCycle="300" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+</Modbus>

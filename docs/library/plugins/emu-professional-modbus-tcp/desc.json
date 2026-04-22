@@ -1,0 +1,9 @@
+{
+                                "type": "template",
+                                "name": "emu-professional-modbus-tcp",
+                                "uuid": "73d36a7c-715c-11ed-ac014cd98f3deb8a",
+                                "version":"1.0.0",
+                                "id": "emu-professional-modbus-tcp-1068",
+                                "file": "emu-professional-modbus-tcp.xml",
+                                "templateType": "7",
+                            }

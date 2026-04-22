@@ -1,0 +1,60 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Modbus Title="Mitsubishi Heat Pump EN v1" Comment="" Baudrate="9600" Stopbits="1" Channel="1">
+	<Info templateType="7" minVersion="14000328"/>
+	<ModbusCmd Title="Flow Temp" Comment="Flow Temp Up" ModbusAddress="102" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v&gt;ºC" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="1"/>
+	<ModbusCmd Title="Operating Mode DHW" Comment="" ModbusAddress="27" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Ecodan On-Off" Comment="" ModbusAddress="25" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Tank Water Temp Actual" Comment="" ModbusAddress="106" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v&gt;ºC" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="1"/>
+	<ModbusCmd Title="Heating Mode – Zone 1" Comment="Ecodan Zone 1 Mode" ModbusAddress="28" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Heating Mode – Zone 2" Comment="Ecodan Zone 2 Mode" ModbusAddress="29" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Heat Pump On-Off" Comment="" ModbusAddress="127" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Return Temp" Comment="" ModbusAddress="104" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v&gt;ºC" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="1"/>
+	<ModbusCmd Title="Flow Temp Zone 1" Comment="" ModbusAddress="108" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v&gt;ºC" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="1"/>
+	<ModbusCmd Title="Flow Temp Zone 2" Comment="" ModbusAddress="112" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v&gt;ºC" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="1"/>
+	<ModbusCmd Title="Return Temp Zone 1" Comment="" ModbusAddress="110" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v&gt;ºC" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="1"/>
+	<ModbusCmd Title="Return Temp Zone 2" Comment="" ModbusAddress="114" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v&gt;ºC" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="1"/>
+	<ModbusCmd Title="Water Pump 1" Comment="" ModbusAddress="149" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Water Pump 2" Comment="" ModbusAddress="150" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Flow Rate" Comment="" ModbusAddress="299" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v&gt; l/min" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Last Measured Heating Consumption 1" Comment="" ModbusAddress="282" ModbusCmd="3" ModbusPollingCycle="10" Unit="&lt;v&gt;kWh" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Last Measured DHW Consumption 1" Comment="" ModbusAddress="286" ModbusCmd="3" ModbusPollingCycle="10" Unit="&lt;v&gt;kWh" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Energy Consumption Measured Day" Comment="" ModbusAddress="281" ModbusCmd="3" ModbusPollingCycle="10" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Energy Consumption Measured Month" Comment="" ModbusAddress="280" ModbusCmd="3" ModbusPollingCycle="10" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Energy Consumption Measured Year" Comment="" ModbusAddress="279" ModbusCmd="3" ModbusPollingCycle="10" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Energy Production Measured Day" Comment="" ModbusAddress="291" ModbusCmd="3" ModbusPollingCycle="10" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Energy Production Measured Month" Comment="" ModbusAddress="290" ModbusCmd="3" ModbusPollingCycle="10" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Energy Production Measured Year" Comment="" ModbusAddress="289" ModbusCmd="3" ModbusPollingCycle="10" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Last Measured Heating Production 1" Comment="" ModbusAddress="292" ModbusCmd="3" ModbusPollingCycle="10" Unit="&lt;v&gt;kWh" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Last Measured DHW Production 1" Comment="" ModbusAddress="296" ModbusCmd="3" ModbusPollingCycle="10" Unit="&lt;v&gt;kWh" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Consumed Power (actual)" Comment="Current" ModbusAddress="379" ModbusCmd="3" ModbusPollingCycle="10" Unit="&lt;v&gt;kW" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Produced Power (actual)" Comment="" ModbusAddress="380" ModbusCmd="3" ModbusPollingCycle="10" Unit="&lt;v&gt;kW" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Flow Temp Setpoint Zone 1" Comment="" ModbusAddress="86" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.1&gt;ºC" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="1"/>
+	<ModbusCmd Title="Flow Temp Setpoint Zone 2" Comment="" ModbusAddress="88" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.1&gt;ºC" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="1"/>
+	<ModbusCmd Title="Tank Water Temp Target" Comment="" ModbusAddress="31" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v&gt;ºC" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="1"/>
+	<ModbusCmd Title="DHW Prohibited" Comment="" ModbusAddress="39" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Heating Zone 1 Prohibited" Comment="" ModbusAddress="40" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Heating Zone 2 Prohibited" Comment="" ModbusAddress="42" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="DHW Temperature Drop" Comment="" ModbusAddress="92" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v&gt;ºC" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="10"/>
+	<ModbusCmd Title="Last Measured DHW Consumption 2" Comment="" ModbusAddress="287" ModbusCmd="3" ModbusPollingCycle="10" Unit="&lt;v.3&gt;kW" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="10"/>
+	<ModbusCmd Title="Last Measured Heating Consumption 2" Comment="" ModbusAddress="283" ModbusCmd="3" ModbusPollingCycle="10" Unit="&lt;v.3&gt;kW" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="10"/>
+	<ModbusCmd Title="Last Measured DHW Production 2" Comment="" ModbusAddress="297" ModbusCmd="3" ModbusPollingCycle="10" Unit="&lt;v.3&gt;kW" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="10"/>
+	<ModbusCmd Title="Last Measured Heating Production 2" Comment="" ModbusAddress="293" ModbusCmd="3" ModbusPollingCycle="10" Unit="&lt;v.3&gt;kW" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="10"/>
+	<ModbusCmd Title="Display Error Code Digit 1" Comment="" ModbusAddress="70" ModbusCmd="3" ModbusPollingCycle="10" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Display Error Code Digit 2" Comment="" ModbusAddress="71" ModbusCmd="3" ModbusPollingCycle="10" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Booster Heater 1" Comment="" ModbusAddress="145" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Booster Heater 2" Comment="" ModbusAddress="146" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Water Pump 3" Comment="" ModbusAddress="151" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Force DHW" Comment="" ModbusAddress="37" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Holiday" Comment="" ModbusAddress="38" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Legionella Prevention" Comment="" ModbusAddress="350" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Heat Source Phase DHW" Comment="" ModbusAddress="364" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Modbus Counter" Comment="" ModbusAddress="11" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Set Zone 1 Thermostat" Comment="" ModbusAddress="33" ModbusCmd="6" Unit="&lt;v&gt;ºC" Analog="true" Sensor="false" SourceValHigh="1" DestValHigh="100"/>
+	<ModbusCmd Title="Set Zone 2 Thermostat" Comment="" ModbusAddress="35" ModbusCmd="6" Unit="&lt;v&gt;ºC" Analog="true" Sensor="false" SourceValHigh="1" DestValHigh="100"/>
+	<ModbusCmd Title="Set Zone 1 Heating Mode" Comment="" ModbusAddress="28" ModbusCmd="6" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Set Zone 2 Heating Mode" Comment="" ModbusAddress="29" ModbusCmd="6" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Set DHW Mode" Comment="" ModbusAddress="27" ModbusCmd="6" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Set Ecodan On-Off" Comment="" ModbusAddress="25" ModbusCmd="6" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Force DHW" Comment="" ModbusAddress="37" ModbusCmd="6" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Set Tank Water Temperature" Comment="" ModbusAddress="31" ModbusCmd="6" Unit="&lt;v&gt;ºC" Analog="true" Sensor="false" SourceValHigh="1" DestValHigh="100"/>
+</Modbus>

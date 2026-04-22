@@ -1,0 +1,96 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Comm Title="Paradox Evo" Comment="Paradox EZS" Baudrate="19200" Databits="8" CycleUserProt="-1" DataUserProt="ASCII">
+	<Info templateType="5" minVersion="12021105"/>
+	<CommCmd Title="Zone 001 OFF" Comment="Zone 001 is OK" CmdOn="G000N001A001\r" CmdOff="" Unit="" Analog="false" Text="false" Sensor="true" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="Zone 002 OFF" Comment="Zone 002 is OK" CmdOn="G000N002A001\r" CmdOff="" Unit="" Analog="false" Text="false" Sensor="true" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="Zone 003 OFF" Comment="Zone 003 is OK" CmdOn="G000N003A001\r" CmdOff="" Unit="" Analog="false" Text="false" Sensor="true" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="Zone 004 OFF" Comment="Zone 004 is OK" CmdOn="G000N004A001\r" CmdOff="" Unit="" Analog="false" Text="false" Sensor="true" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="Zone 005 OFF" Comment="Zone 005 is OK" CmdOn="G000N005A001\r" CmdOff="" Unit="" Analog="false" Text="false" Sensor="true" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="Zone 006 OFF" Comment="Zone 006 is OK" CmdOn="G000N006A001\r" CmdOff="" Unit="" Analog="false" Text="false" Sensor="true" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="Zone 007 OFF" Comment="Zone 007 is OK" CmdOn="G000N007A001\r" CmdOff="" Unit="" Analog="false" Text="false" Sensor="true" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="Zone 008 OFF" Comment="Zone 008 is OK" CmdOn="G000N008A001\r" CmdOff="" Unit="" Analog="false" Text="false" Sensor="true" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="Zone 009 OFF" Comment="Zone 009 is OK" CmdOn="G000N009A001\r" CmdOff="" Unit="" Analog="false" Text="false" Sensor="true" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="Zone 010 OFF" Comment="Zone 010 is OK" CmdOn="G000N010A001\r" CmdOff="" Unit="" Analog="false" Text="false" Sensor="true" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="Zone 011 OFF" Comment="Zone 011 is OK" CmdOn="G000N011A001\r" CmdOff="" Unit="" Analog="false" Text="false" Sensor="true" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="Zone 012 OFF" Comment="Zone 012 is OK" CmdOn="G000N012A001\r" CmdOff="" Unit="" Analog="false" Text="false" Sensor="true" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="Zone 013 OFF" Comment="Zone 013 is OK" CmdOn="G000N013A001\r" CmdOff="" Unit="" Analog="false" Text="false" Sensor="true" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="Zone 014 OFF" Comment="Zone 014 is OK" CmdOn="G000N014A001\r" CmdOff="" Unit="" Analog="false" Text="false" Sensor="true" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="Zone 015 OFF" Comment="Zone 015 is OK" CmdOn="G000N015A001\r" CmdOff="" Unit="" Analog="false" Text="false" Sensor="true" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="Zone 016 OFF" Comment="Zone 016 is OK" CmdOn="G000N016A001\r" CmdOff="" Unit="" Analog="false" Text="false" Sensor="true" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="Zone 017 OFF" Comment="Zone 017 is OK" CmdOn="G000N017A001\r" CmdOff="" Unit="" Analog="false" Text="false" Sensor="true" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="Zone 018 OFF" Comment="Zone 018 is OK" CmdOn="G000N018A001\r" CmdOff="" Unit="" Analog="false" Text="false" Sensor="true" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="Zone 019 OFF" Comment="Zone 019 is OK" CmdOn="G000N019A001\r" CmdOff="" Unit="" Analog="false" Text="false" Sensor="true" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="Zone 020 OFF" Comment="Zone 020 is OK" CmdOn="G000N020A001\r" CmdOff="" Unit="" Analog="false" Text="false" Sensor="true" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="Zone 001 ON" Comment="Zone 001 is OPEN" CmdOn="G001N001A001\r" CmdOff="" Unit="" Analog="false" Text="false" Sensor="true" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="Zone 002 ON" Comment="Zone 002 is OPEN" CmdOn="G001N002A001\r" CmdOff="" Unit="" Analog="false" Text="false" Sensor="true" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="Zone 003 ON" Comment="Zone 003 is OPEN" CmdOn="G001N003A001\r" CmdOff="" Unit="" Analog="false" Text="false" Sensor="true" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="Zone 004 ON" Comment="Zone 004 is OPEN" CmdOn="G001N004A001\r" CmdOff="" Unit="" Analog="false" Text="false" Sensor="true" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="Zone 005 ON" Comment="Zone 005 is OPEN" CmdOn="G001N005A001\r" CmdOff="" Unit="" Analog="false" Text="false" Sensor="true" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="Zone 006 ON" Comment="Zone 006 is OPEN" CmdOn="G001N006A001\r" CmdOff="" Unit="" Analog="false" Text="false" Sensor="true" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="Zone 007 ON" Comment="Zone 007 is OPEN" CmdOn="G001N007A001\r" CmdOff="" Unit="" Analog="false" Text="false" Sensor="true" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="Zone 008 ON" Comment="Zone 008 is OPEN" CmdOn="G001N008A001\r" CmdOff="" Unit="" Analog="false" Text="false" Sensor="true" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="Zone 009 ON" Comment="Zone 009 is OPEN" CmdOn="G001N009A001\r" CmdOff="" Unit="" Analog="false" Text="false" Sensor="true" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="Zone 010 ON" Comment="Zone 010 is OPEN" CmdOn="G001N010A001\r" CmdOff="" Unit="" Analog="false" Text="false" Sensor="true" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="Zone 011 ON" Comment="Zone 011 is OPEN" CmdOn="G001N011A001\r" CmdOff="" Unit="" Analog="false" Text="false" Sensor="true" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="Zone 012 ON" Comment="Zone 012 is OPEN" CmdOn="G001N012A001\r" CmdOff="" Unit="" Analog="false" Text="false" Sensor="true" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="Zone 013 ON" Comment="Zone 013 is OPEN" CmdOn="G001N013A001\r" CmdOff="" Unit="" Analog="false" Text="false" Sensor="true" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="Zone 014 ON" Comment="Zone 014 is OPEN" CmdOn="G001N014A001\r" CmdOff="" Unit="" Analog="false" Text="false" Sensor="true" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="Zone 015 ON" Comment="Zone 015 is OPEN" CmdOn="G001N015A001\r" CmdOff="" Unit="" Analog="false" Text="false" Sensor="true" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="Zone 016 ON" Comment="Zone 016 is OPEN" CmdOn="G001N016A001\r" CmdOff="" Unit="" Analog="false" Text="false" Sensor="true" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="Zone 017 ON" Comment="Zone 017 is OPEN" CmdOn="G001N017A001\r" CmdOff="" Unit="" Analog="false" Text="false" Sensor="true" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="Zone 018 ON" Comment="Zone 018 is OPEN" CmdOn="G001N018A001\r" CmdOff="" Unit="" Analog="false" Text="false" Sensor="true" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="Zone 019 ON" Comment="Zone 019 is OPEN" CmdOn="G001N019A001\r" CmdOff="" Unit="" Analog="false" Text="false" Sensor="true" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="Zone 020 ON" Comment="Zone 020 is OPEN" CmdOn="G001N020A001\r" CmdOff="" Unit="" Analog="false" Text="false" Sensor="true" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="A1 ARM fail" Comment="Area 1 ARM failed" CmdOn="AA001&amp;fail\r" CmdOff="" Unit="" Analog="false" Text="false" Sensor="true" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="A1 DISARM ok" Comment="Area 1 DISARM success" CmdOn="AD001&amp;ok\r" CmdOff="" Unit="" Analog="false" Text="false" Sensor="true" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="A1 ARM ok" Comment="Area 1 ARM success" CmdOn="AA001&amp;ok\r" CmdOff="" Unit="" Analog="false" Text="false" Sensor="true" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="A1 partial ARM" Comment="Area 1 partial ARM" CmdOn="G012N004A001\r" CmdOff="" Unit="" Analog="false" Text="false" Sensor="true" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="User Code entered" Comment="User code input" CmdOn="G005N\#\#\#A000\r" CmdOff="" Unit="" Analog="false" Text="false" Sensor="true" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="A1 OFF by master" Comment="Disarming with Master Code (Area 1)" CmdOn="G013N\#\#\#A001\r" CmdOff="" Unit="" Analog="false" Text="false" Sensor="true" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="A1 ON by master" Comment="Arming with Master Code (Area 1)" CmdOn="G009N\#\#\#A001\r" CmdOff="" Unit="" Analog="false" Text="false" Sensor="true" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="A1 ARM Force" Comment="Area 1 Force ARM" CmdOn="G064N001A001\r" CmdOff="" Unit="" Analog="false" Text="false" Sensor="true" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="A1 DISARM fail" Comment="Area 1 DISARM failed" CmdOn="AD001&amp;fail\r" CmdOff="" Unit="" Analog="false" Text="false" Sensor="true" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="A1 ON by user" Comment="Arming with User Code (Area 1)" CmdOn="G010N\#\#\#A001\r" CmdOff="" Unit="" Analog="false" Text="false" Sensor="true" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="A1 OFF by user" Comment="Disarm with User Code (Area 1)" CmdOn="G014N\#\#\#A001\r" CmdOff="" Unit="" Analog="false" Text="false" Sensor="true" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="A1 ARM Normal" Comment="Area 1 ARM" CmdOn="G064N000A001\r" CmdOff="" Unit="" Analog="false" Text="false" Sensor="true" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="A1 ARM Stay" Comment="Area 1 Stay ARM" CmdOn="G064N002A001\r" CmdOff="" Unit="" Analog="false" Text="false" Sensor="true" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="A1 ARM Instant" Comment="Area 1 Stay ARM instantly" CmdOn="G064N003A001\r" CmdOff="" Unit="" Analog="false" Text="false" Sensor="true" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="A1 ALARM till OFF" Comment="Area 1 ALARM till OFF" CmdOn="G064N004A001\r" CmdOff="" Unit="" Analog="false" Text="false" Sensor="true" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="A1 ALARM silent" Comment="Area 1 ALARM silent" CmdOn="G064N005A001\r" CmdOff="" Unit="" Analog="false" Text="false" Sensor="true" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="A1 ALARM" Comment="Area 1 ALARM" CmdOn="G064N006A001\r" CmdOff="" Unit="" Analog="false" Text="false" Sensor="true" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="A1 ALARM FIRE" Comment="Area 1 FIRE" CmdOn="G064N007A001\r" CmdOff="" Unit="" Analog="false" Text="false" Sensor="true" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="DELAY exit" Comment="Leaving time" CmdOn="G065N001A001\r" CmdOff="" Unit="" Analog="false" Text="false" Sensor="true" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="DELAY entry" Comment="Comming time" CmdOn="G065N002A001\r" CmdOff="" Unit="" Analog="false" Text="false" Sensor="true" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="OFF after event by master" Comment="Disarming with Master Code after Alarm" CmdOn="G016N\#\#\#A001\r" CmdOff="" Unit="" Analog="false" Text="false" Sensor="true" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="OFF after event by user" Comment="Disarming with User Code after Alarm" CmdOn="G017N\#\#\#A001\r" CmdOff="" Unit="" Analog="false" Text="false" Sensor="true" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="CANCEL alarm by master" Comment="Alarm Cancelled with Master Code" CmdOn="G019N\#\#\#A001\r" CmdOff="" Unit="" Analog="false" Text="false" Sensor="true" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="CANCEL alarm by user" Comment="Alarm Cancelled with User Code" CmdOn="G020N\#\#\#A001\r" CmdOff="" Unit="" Analog="false" Text="false" Sensor="true" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="AC fail" Comment="AC failure" CmdOn="G036N001\r" CmdOff="" Unit="" Analog="false" Text="false" Sensor="true" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="BATT fail" Comment="Battery failure" CmdOn="G036N002\r" CmdOff="" Unit="" Analog="false" Text="false" Sensor="true" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="AC restore" Comment="AC recovered" CmdOn="G037N001\r" CmdOff="" Unit="" Analog="false" Text="false" Sensor="true" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="BATT restore" Comment="Battery recovered" CmdOn="G037N002\r" CmdOff="" Unit="" Analog="false" Text="false" Sensor="true" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="A1 status query" Comment="Area 1 status query" CmdOn="RA001\r" CmdOff="" Unit="" Analog="false" Text="false" Sensor="false" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="A1_ARM_Force" Comment="Area 1 ARM Force by user code" CmdOn="AA001F9999\r" CmdOff="" Unit="" Analog="false" Text="false" Sensor="false" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="A1_ARM_STAY" Comment="Area 1 ARM Stay by user" CmdOn="AA001S9999\r" CmdOff="" Unit="" Analog="false" Text="false" Sensor="false" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="A1_DISARM" Comment="Area 1 DISARM by user code" CmdOn="AD0019999\r" CmdOff="" Unit="" Analog="false" Text="false" Sensor="false" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="Z001" Comment="Read Zone status" CmdOn="RZ001\n\r" CmdOff="" Unit="" Analog="false" Text="false" Sensor="false" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="Z002" Comment="Read Zone status" CmdOn="RZ002\n\r" CmdOff="" Unit="" Analog="false" Text="false" Sensor="false" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="Z003" Comment="Read Zone status" CmdOn="RZ003\n\r" CmdOff="" Unit="" Analog="false" Text="false" Sensor="false" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="Z004" Comment="Read Zone status" CmdOn="RZ004\n\r" CmdOff="" Unit="" Analog="false" Text="false" Sensor="false" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="Z005" Comment="Read Zone status" CmdOn="RZ005\n\r" CmdOff="" Unit="" Analog="false" Text="false" Sensor="false" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="Z006" Comment="Read Zone status" CmdOn="RZ006\n\r" CmdOff="" Unit="" Analog="false" Text="false" Sensor="false" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="Z007" Comment="Read Zone status" CmdOn="RZ007\n\r" CmdOff="" Unit="" Analog="false" Text="false" Sensor="false" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="Z008" Comment="Read Zone status" CmdOn="RZ008\n\r" CmdOff="" Unit="" Analog="false" Text="false" Sensor="false" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="Z009" Comment="Read Zone status" CmdOn="RZ009\n\r" CmdOff="" Unit="" Analog="false" Text="false" Sensor="false" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="Z010" Comment="Read Zone status" CmdOn="RZ010\n\r" CmdOff="" Unit="" Analog="false" Text="false" Sensor="false" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="Z011" Comment="Read Zone status" CmdOn="RZ011\n\r" CmdOff="" Unit="" Analog="false" Text="false" Sensor="false" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="Z012" Comment="Read Zone status" CmdOn="RZ012\n\r" CmdOff="" Unit="" Analog="false" Text="false" Sensor="false" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="Z013" Comment="Read Zone status" CmdOn="RZ013\n\r" CmdOff="" Unit="" Analog="false" Text="false" Sensor="false" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="Z014" Comment="Read Zone status" CmdOn="RZ014\n\r" CmdOff="" Unit="" Analog="false" Text="false" Sensor="false" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="Z015" Comment="Read Zone status" CmdOn="RZ015\n\r" CmdOff="" Unit="" Analog="false" Text="false" Sensor="false" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="Z016" Comment="Read Zone status" CmdOn="RZ016\n\r" CmdOff="" Unit="" Analog="false" Text="false" Sensor="false" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="Z017" Comment="Read Zone status" CmdOn="RZ017\n\r" CmdOff="" Unit="" Analog="false" Text="false" Sensor="false" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="Z018" Comment="Read Zone status" CmdOn="RZ018\n\r" CmdOff="" Unit="" Analog="false" Text="false" Sensor="false" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="Z019" Comment="Read Zone status" CmdOn="RZ019\n\r" CmdOff="" Unit="" Analog="false" Text="false" Sensor="false" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="Z020" Comment="Read Zone status" CmdOn="RZ020\n\r" CmdOff="" Unit="" Analog="false" Text="false" Sensor="false" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+</Comm>

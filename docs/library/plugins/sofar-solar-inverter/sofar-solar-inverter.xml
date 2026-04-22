@@ -1,0 +1,17 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Modbus Title="SofarSolar inverter" Comment="" Baudrate="9600" Channel="1">
+	<Info templateType="7" minVersion="12040628"/>
+	<ModbusCmd Title="PV1 voltage" Comment="" ModbusAddress="6" ModbusCmd="4" ModbusPollingCycle="60" Unit="&lt;v.1&gt;V" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="PV1 current" Comment="" ModbusAddress="7" ModbusCmd="4" ModbusDataType="1" ModbusPollingCycle="60" Unit="&lt;v.1&gt;A" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="1"/>
+	<ModbusCmd Title="PV1 power" Comment="" ModbusAddress="12" ModbusCmd="4" ModbusDataType="34" ModbusPollingCycle="60" Unit="&lt;v.1&gt;kW" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="1"/>
+	<ModbusCmd Title="Grid frequency" Comment="" ModbusAddress="17" ModbusCmd="4" ModbusPollingCycle="60" Unit="&lt;v.1&gt;Hz" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="1"/>
+	<ModbusCmd Title="Total production" Comment="" ModbusAddress="24" ModbusCmd="4" ModbusDataType="34" ModbusPollingCycle="60" Unit="&lt;v.1&gt;kWh" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Output active power" Comment="" ModbusAddress="15" ModbusCmd="4" ModbusPollingCycle="60" Unit="&lt;v.1&gt;kW" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="1"/>
+	<ModbusCmd Title="Today production" Comment="" ModbusAddress="28" ModbusCmd="4" ModbusPollingCycle="60" Unit="&lt;v.1&gt;kWh" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="1"/>
+	<ModbusCmd Title="A-phase voltage" Comment="" ModbusAddress="18" ModbusCmd="4" ModbusPollingCycle="60" Unit="&lt;v.1&gt;V" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="B-phase voltage" Comment="" ModbusAddress="20" ModbusCmd="4" ModbusPollingCycle="60" Unit="&lt;v.1&gt;V" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="C-phase voltage" Comment="" ModbusAddress="22" ModbusCmd="4" ModbusPollingCycle="60" Unit="&lt;v.1&gt;V" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="A-phase current" Comment="" ModbusAddress="19" ModbusCmd="4" ModbusPollingCycle="60" Unit="&lt;v.1&gt;A" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="1"/>
+	<ModbusCmd Title="B-phase current" Comment="" ModbusAddress="21" ModbusCmd="4" ModbusPollingCycle="60" Unit="&lt;v.1&gt;A" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="1"/>
+	<ModbusCmd Title="C-phase current" Comment="" ModbusAddress="23" ModbusCmd="4" ModbusPollingCycle="60" Unit="&lt;v.1&gt;A" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="1"/>
+</Modbus>

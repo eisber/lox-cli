@@ -1,0 +1,34 @@
+{
+  "category": "C2: Comparison (remaining)",
+  "blocks": {
+    "DiffThresholdSwitch": {
+      "inputs": {"I1": "analog", "I2": "analog"},
+      "outputs": {"Q": "digital"},
+      "tests": [
+        {"desc": "small diff", "set": {"I1": 50.0, "I2": 49.0}, "expect": {"Q": 0}},
+        {"desc": "large diff", "set": {"I1": 50.0, "I2": 30.0}, "expect": {"Q": 1}},
+        {"desc": "equal", "set": {"I1": 25.0, "I2": 25.0}, "expect": {"Q": 0}},
+        {"desc": "reversed large", "set": {"I1": 30.0, "I2": 50.0}, "expect": {"Q": 1}}
+      ]
+    },
+    "MinMaxReset": {
+      "inputs": {"I": "analog", "R": "digital"},
+      "outputs": {"Min": "analog", "Max": "analog", "Avg": "analog"},
+      "tests": [
+        {"desc": "reset", "set": {"R": 1, "I": 0.0}, "expect": {"Min": 0.0, "Max": 0.0}},
+        {"desc": "first value", "set": {"R": 0, "I": 50.0}, "expect": {"Min": 50.0, "Max": 50.0}},
+        {"desc": "higher value", "set": {"I": 80.0}, "expect": {"Min": 50.0, "Max": 80.0}},
+        {"desc": "lower value", "set": {"I": 20.0}, "expect": {"Min": 20.0, "Max": 80.0}}
+      ]
+    },
+    "ValueValidator": {
+      "inputs": {"I": "analog"},
+      "outputs": {"AQ": "analog", "Q": "digital", "ErrQ": "digital"},
+      "tests": [
+        {"desc": "valid value", "set": {"I": 50.0}, "expect": {"AQ": 50.0, "Q": 1, "ErrQ": 0}},
+        {"desc": "zero", "set": {"I": 0.0}, "expect": {"AQ": 0.0, "Q": 1, "ErrQ": 0}}
+      ]
+    }
+  },
+  "wiring": {}
+}

@@ -1,0 +1,9 @@
+{
+                                "type": "template",
+                                "name": "apc-smart-ups-smt",
+                                "uuid": "cfe73f34-1167-11ec-9a744cd98f3deb8a",
+                                "version":"1.0.0",
+                                "id": "apc-smart-ups-smt-9",
+                                "file": "apc-smart-ups-smt.xml",
+                                "templateType": "7",
+                            }

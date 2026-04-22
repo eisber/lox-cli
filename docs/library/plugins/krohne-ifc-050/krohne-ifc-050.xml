@@ -1,0 +1,15 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Modbus Title="Krohne IFC 050" Comment="Flowmeter" Baudrate="19200" Parity="1" Channel="1">
+	<Info templateType="7" minVersion="12020916"/>
+	<ModbusCmd Title="Counter 1" Comment="" ModbusAddress="41000" ModbusCmd="3" ModbusDataType="36" ModbusPollingCycle="10" Unit="&lt;v.2&gt;m3" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Counter 1 status" Comment="" ModbusAddress="3000" ModbusCmd="1" ModbusPollingCycle="5" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="Q m3s" Comment="" ModbusAddress="30002" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="10" Unit="&lt;v.3&gt;m3/s" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Counter 2 status" Comment="" ModbusAddress="3001" ModbusCmd="1" ModbusPollingCycle="60" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="Counter 2" Comment="" ModbusAddress="41002" ModbusCmd="3" ModbusDataType="36" ModbusPollingCycle="10" Unit="&lt;v.2&gt;m3" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Limit cond-Stat" Comment="" ModbusAddress="43014" ModbusCmd="3" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.3&gt;S/m" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Counter 1 ON-OFF" Comment="" ModbusAddress="3000" ModbusCmd="5" Unit="" Analog="false" Sensor="false"/>
+	<ModbusCmd Title="Counter ON-OFF" Comment="" ModbusAddress="3001" ModbusCmd="5" Unit="" Analog="false" Sensor="false"/>
+	<ModbusCmd Title="Counter 1 RESET" Comment="" ModbusAddress="3003" ModbusCmd="5" Unit="" Analog="false" Sensor="false"/>
+	<ModbusCmd Title="Counter 2 RESET" Comment="" ModbusAddress="3004" ModbusCmd="5" Unit="" Analog="false" Sensor="false"/>
+	<ModbusCmd Title="Conf. conductivity limit" Comment="" ModbusAddress="43014" ModbusCmd="16" ModbusDataType="36" Unit="&lt;v.3&gt;S/m" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+</Modbus>

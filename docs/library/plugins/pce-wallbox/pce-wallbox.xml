@@ -1,0 +1,23 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Modbus Title="PCE Wallbox" Comment="" Channel="1">
+	<Info templateType="7" minVersion="13000726"/>
+	<ModbusCmd Title="OCPP_STATUS" Comment="" ModbusAddress="104" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="VEHICLE_STATE" Comment="" ModbusAddress="122" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="METER_POWER_L1" Comment="" ModbusAddress="206" ModbusCmd="3" ModbusDataType="98" ModbusPollingCycle="5" Unit="&lt;v.1&gt;W" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="METER_POWER_L2" Comment="" ModbusAddress="208" ModbusCmd="3" ModbusDataType="98" ModbusPollingCycle="5" Unit="&lt;v.1&gt;W" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="METER_POWER_L3" Comment="" ModbusAddress="210" ModbusCmd="3" ModbusDataType="98" ModbusPollingCycle="5" Unit="&lt;v.1&gt;W" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="METER_CURRENT_L1" Comment="" ModbusAddress="212" ModbusCmd="3" ModbusDataType="98" ModbusPollingCycle="5" Unit="&lt;v.1&gt;mA" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="METER_CURRENT_L2" Comment="" ModbusAddress="214" ModbusCmd="3" ModbusDataType="98" ModbusPollingCycle="5" Unit="&lt;v.1&gt;mA" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="METER_CURRENT_L3" Comment="" ModbusAddress="216" ModbusCmd="3" ModbusDataType="98" ModbusPollingCycle="5" Unit="&lt;v.1&gt;mA" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="METER_TOTAL_ENERGY_" Comment="" ModbusAddress="218" ModbusCmd="3" ModbusDataType="98" ModbusPollingCycle="5" Unit="&lt;v.1&gt;Wh" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="DLM_SUB_DISTR_LIMIT_L1" Comment="" ModbusAddress="613" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.1&gt;A" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="DLM_SUB_DISTR_LIMIT_L2" Comment="" ModbusAddress="614" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.1&gt;A" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="DLM_SUB_DISTR_LIMIT_L3" Comment="" ModbusAddress="615" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.1&gt;A" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="CHARGED_ENERGY" Comment="" ModbusAddress="716" ModbusCmd="3" ModbusDataType="98" ModbusPollingCycle="5" Unit="&lt;v.1&gt;Wh" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="CHARGE_DURATION" Comment="" ModbusAddress="718" ModbusCmd="3" ModbusDataType="98" ModbusPollingCycle="5" Unit="&lt;v.1&gt;s" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="CP_AVAILABILITY" Comment="" ModbusAddress="124" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="DLM_OPERATOR_DISTR_LIMIT_L1" Comment="" ModbusAddress="613" ModbusCmd="6" Unit="&lt;v.1&gt;A" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="DLM_OPERATOR_DISTR_LIMIT_L2" Comment="" ModbusAddress="614" ModbusCmd="6" Unit="&lt;v.1&gt;A" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="DLM_OPERATOR_DISTR_LIMIT_L3" Comment="" ModbusAddress="615" ModbusCmd="6" Unit="&lt;v.1&gt;A" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="CP_Availability" Comment="" ModbusAddress="124" ModbusCmd="16" Unit="" Analog="false" Sensor="false"/>
+</Modbus>

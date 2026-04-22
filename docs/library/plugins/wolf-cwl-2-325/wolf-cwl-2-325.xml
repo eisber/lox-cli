@@ -1,0 +1,23 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Modbus Title="Wolf CWL-2-325 EN" Comment="Zentrallüftung" Baudrate="9600" Channel="20">
+	<Info templateType="7" minVersion="12021027"/>
+	<ModbusCmd Title="exhaust air temperature" Comment="Ablufttemperatur" ModbusAddress="4046" ModbusCmd="4" ModbusDataType="1" ModbusPollingCycle="5" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="actual pressure supply air" Comment="Zuluft Druck" ModbusAddress="4023" ModbusCmd="4" ModbusDataType="1" ModbusPollingCycle="60" Unit="&lt;v.1&gt;Pa" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="actual pressure exhaust air" Comment="Abluft Druck" ModbusAddress="4024" ModbusCmd="4" ModbusDataType="1" ModbusPollingCycle="60" Unit="&lt;v.1&gt;Pa" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="setpoint supply air" Comment="Zuluft Soll" ModbusAddress="4031" ModbusCmd="4" ModbusPollingCycle="60" Unit="&lt;v.1&gt;m³/h" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="actual value in air" Comment="Zuluft Ist" ModbusAddress="4032" ModbusCmd="4" ModbusPollingCycle="60" Unit="&lt;v.1&gt;m³/h" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="exhaust air flow rate setpoint" Comment="Abluft Soll" ModbusAddress="4041" ModbusCmd="4" ModbusPollingCycle="60" Unit="&lt;v.1&gt;m³/h" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="actual value throughput exhaust air" Comment="Abluft Ist" ModbusAddress="4042" ModbusCmd="4" ModbusPollingCycle="60" Unit="&lt;v.1&gt;m³/h" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="temperature supply air" Comment="Zulufttemperatur Ventilator" ModbusAddress="4036" ModbusCmd="4" ModbusDataType="1" ModbusPollingCycle="60" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="Bypass-Status" Comment="Zustand Bypass" ModbusAddress="4050" ModbusCmd="4" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="filter status" Comment="Filterstatus" ModbusAddress="4100" ModbusCmd="4" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Imbalance allowed" Comment="" ModbusAddress="6033" ModbusCmd="6" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Offset imbalance supply air" Comment="" ModbusAddress="6035" ModbusCmd="6" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Offset imbalance exaust air" Comment="" ModbusAddress="6036" ModbusCmd="6" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Bypass mode" Comment="" ModbusAddress="6100" ModbusCmd="6" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Desired throughput setting" Comment="" ModbusAddress="8000" ModbusCmd="6" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="change of switch position" Comment="" ModbusAddress="8001" ModbusCmd="6" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Desired throughput setting" Comment="" ModbusAddress="8002" ModbusCmd="6" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Reset filter warning" Comment="" ModbusAddress="8010" ModbusCmd="6" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Reset the device" Comment="" ModbusAddress="8011" ModbusCmd="6" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+</Modbus>

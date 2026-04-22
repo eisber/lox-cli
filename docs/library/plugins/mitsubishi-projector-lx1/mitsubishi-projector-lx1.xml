@@ -1,0 +1,9 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Comm Title="Mitsubishi Projector - LX1 " Comment="" Baudrate="9600" Databits="8" Stopbits="0" Parity="0" EndChar="0" ChecksumType="0">
+  <Info templateType="5" minVersion="12010617"/>  
+  <CommCmd ID="1" Title="Power On" Comment="" Sensor="false" Analog="false" CmdOn="\x30\x30\x21\x0D" CmdOff=""/>
+  <CommCmd ID="2" Title="Power Off" Comment="" Sensor="false" Analog="false" CmdOn="\x30\x30\x22\x0D" CmdOff=""/>
+  <CommCmd ID="3" Title="Source: Computer" Comment="" Sensor="false" Analog="false" CmdOn="\x30\x30\x5F\x72\x31\x0D" CmdOff=""/>
+  <CommCmd ID="4" Title="Source: Video" Comment="" Sensor="false" Analog="false" CmdOn="\x30\x30\x5F\x76\x31\x0D" CmdOff=""/>
+  <CommCmd ID="5" Title="Source: S-Video" Comment="" Sensor="false" Analog="false" CmdOn="\x30\x30\x5F\x76\x32\x0D" CmdOff=""/>  
+</Comm>

@@ -1,0 +1,68 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Modbus Title="Hargassner Heizkesselsteuerung" Comment="" Channel="1">
+	<Info templateType="7" minVersion="12021201"/>
+
+
+
+
+	<ModbusCmd Title="Accumulator Temperatur Bottom" Comment="" ModbusAddress="6153" ModbusCmd="3" ModbusDataType="100" ModbusPollingCycle="30" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Accumulator Temperatur Middle" Comment="" ModbusAddress="6151" ModbusCmd="3" ModbusDataType="100" ModbusPollingCycle="30" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Accumulator Temperatur Top" Comment="" ModbusAddress="6149" ModbusCmd="3" ModbusDataType="100" ModbusPollingCycle="30" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Boiler Output" Comment="" ModbusAddress="6513" ModbusCmd="3" ModbusDataType="100" ModbusPollingCycle="5" Unit="&lt;v.1&gt;%" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+
+	<ModbusCmd Title="Boiler temp." Comment="" ModbusAddress="10082" ModbusCmd="16" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100" RepeatRate="60"/>
+	<ModbusCmd Title="Boiler temp. - set value" Comment="" ModbusAddress="11538" ModbusCmd="16" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100" RepeatRate="60"/>
+	<ModbusCmd Title="Return temperature" Comment="Boiler backflow temperature" ModbusAddress="11514" ModbusCmd="16" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100" RepeatRate="60"/>
+	<ModbusCmd Title="Set value - return temp." Comment="Boiler backflow target temperature" ModbusAddress="11610" ModbusCmd="16" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100" RepeatRate="60"/>
+	<ModbusCmd Title="Accum. fill level" Comment="" ModbusAddress="11342" ModbusCmd="16" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100" RepeatRate="60"/>
+	<ModbusCmd Title="Highest demand" Comment="" ModbusAddress="11678" ModbusCmd="16" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100" RepeatRate="60"/>
+	<ModbusCmd Title="Temp. - external heat" Comment="" ModbusAddress="11500" ModbusCmd="16" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100" RepeatRate="60"/>
+	<ModbusCmd Title="Current error number" Comment="" ModbusAddress="11530" ModbusCmd="16" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100" RepeatRate="60"/>
+	<ModbusCmd Title="Fuel storage level" Comment="" ModbusAddress="11534" ModbusCmd="16" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100" RepeatRate="60"/>
+
+	<ModbusCmd Title="Outside temperature" Comment="" ModbusAddress="10008" ModbusCmd="16" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100" RepeatRate="60"/>
+	<ModbusCmd Title="Outside temp. - average" Comment="" ModbusAddress="10006" ModbusCmd="16" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100" RepeatRate="60"/>
+	<ModbusCmd Title="External heat circuit target temp." Comment="" ModbusAddress="11296" ModbusCmd="16" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100" RepeatRate="60"/>
+
+	<ModbusCmd Title="Temp. - flow - heat circuit A" Comment="" ModbusAddress="10244" ModbusCmd="16" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100" RepeatRate="60"/>
+	<ModbusCmd Title="Set temp. - flow - heat circuit A" Comment="" ModbusAddress="10246" ModbusCmd="16" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100" RepeatRate="60"/>
+	<ModbusCmd Title="Room sensor - remote control - HC A" Comment="" ModbusAddress="10052" ModbusCmd="16" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100" RepeatRate="60"/>
+	<ModbusCmd Title="Set temp. - room sensor - heat circuit A" Comment="" ModbusAddress="11226" ModbusCmd="16" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100" RepeatRate="60"/>
+	<ModbusCmd Title="Status - HC A" Comment="" ModbusAddress="10248" ModbusCmd="16" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100" RepeatRate="60"/>
+	<ModbusCmd Title="Remote Status - HC A" Comment="" ModbusAddress="11542" ModbusCmd="16" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100" RepeatRate="60"/>
+	<ModbusCmd Title="Room temp. spec. for HC A" Comment="" ModbusAddress="11000" ModbusCmd="16" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100" RepeatRate="60"/>
+	<ModbusCmd Title="Temp. - flow - heat circuit 1" Comment="" ModbusAddress="10144" ModbusCmd="16" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100" RepeatRate="60"/>
+	<ModbusCmd Title="Set temp. - flow - heat circuit 1" Comment="" ModbusAddress="10146" ModbusCmd="16" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100" RepeatRate="60"/>
+	<ModbusCmd Title="Room sensor - remote control - HC 1" Comment="" ModbusAddress="10040" ModbusCmd="16" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100" RepeatRate="60"/>
+	<ModbusCmd Title="Set temp. - room sensor - heat circuit 1" Comment="" ModbusAddress="11228" ModbusCmd="16" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100" RepeatRate="60"/>
+	<ModbusCmd Title="Status - HC 1" Comment="" ModbusAddress="10178" ModbusCmd="16" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100" RepeatRate="60"/>
+	<ModbusCmd Title="Remote Status - HC 1" Comment="" ModbusAddress="11544" ModbusCmd="16" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100" RepeatRate="60"/>
+	<ModbusCmd Title="Room temp. spec. for HC 1" Comment="" ModbusAddress="11002" ModbusCmd="16" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100" RepeatRate="60"/>
+
+	<ModbusCmd Title="Temperature HWT A" Comment="Hot water tank A temperature" ModbusAddress="10016" ModbusCmd="16" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100" RepeatRate="60"/>	
+	<ModbusCmd Title="HWT A target temperature" Comment="hot water tank A target temperature" ModbusAddress="11252" ModbusCmd="16" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100" RepeatRate="60"/>
+	<ModbusCmd Title="HWT A status" Comment="Hot water tank A state" ModbusAddress="10196" ModbusCmd="16" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100" RepeatRate="60"/>	
+	<ModbusCmd Title="Temperature HWT 1" Comment="Hot water tank 1 temperature" ModbusAddress="10010" ModbusCmd="16" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100" RepeatRate="60"/>	
+	<ModbusCmd Title="HWT 1 target temperature" Comment="hot water tank 1 target temperature" ModbusAddress="11254" ModbusCmd="16" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100" RepeatRate="60"/>
+	<ModbusCmd Title="HWT 1 status" Comment="Hot water tank 1 state" ModbusAddress="10190" ModbusCmd="16" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100" RepeatRate="60"/>		
+
+	<ModbusCmd Title="MBUS channel 1 flow temperature" Comment="Energymeter " ModbusAddress="11016" ModbusCmd="16" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100" RepeatRate="60"/>		
+	<ModbusCmd Title="MBUS channel 1 return temperature" Comment="" ModbusAddress="11018" ModbusCmd="16" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100" RepeatRate="60"/>	
+	<ModbusCmd Title="MBUS channel 1 output" Comment="" ModbusAddress="11020" ModbusCmd="16" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100" RepeatRate="60"/>	
+	<ModbusCmd Title="MBUS channel 1 flow" Comment="" ModbusAddress="11022" ModbusCmd="16" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100" RepeatRate="60"/>	
+	<ModbusCmd Title="MBUS channel 1 energy" Comment="" ModbusAddress="11024" ModbusCmd="16" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100" RepeatRate="60"/>	
+
+
+	<ModbusCmd Title="Malfunction" Comment="" ModbusAddress="16036" ModbusCmd="16" Unit="&lt;v.1&gt;%" Analog="false" Sensor="false" SourceValHigh="100" DestValHigh="100" RepeatRate="60"/>	
+	<ModbusCmd Title="Pump - HC A" Comment="" ModbusAddress="16028" ModbusCmd="16" Unit="&lt;v.1&gt;" Analog="false" Sensor="false" SourceValHigh="100" DestValHigh="100" RepeatRate="60"/>	
+	<ModbusCmd Title="Pump - HC 1" Comment="" ModbusAddress="16029" ModbusCmd="16" Unit="&lt;v.1&gt;" Analog="false" Sensor="false" SourceValHigh="100" DestValHigh="100" RepeatRate="60"/>	
+	<ModbusCmd Title="HWT A pump" Comment="" ModbusAddress="16002" ModbusCmd="16" Unit="&lt;v.1&gt;" Analog="false" Sensor="false" SourceValHigh="100" DestValHigh="100" RepeatRate="60"/>	
+	<ModbusCmd Title="HWT 1 pump" Comment="" ModbusAddress="16003" ModbusCmd="16" Unit="&lt;v.1&gt;" Analog="false" Sensor="false" SourceValHigh="100" DestValHigh="100" RepeatRate="60"/>	
+	
+	
+	<ModbusCmd Title="HWT A circulation pump" Comment="" ModbusAddress="16049" ModbusCmd="16" Unit="&lt;v.1&gt;kW" Analog="false" Sensor="false" SourceValHigh="100" DestValHigh="100" RepeatRate="60"/>
+	<ModbusCmd Title="HWT 1 circulation pump" Comment="" ModbusAddress="16050" ModbusCmd="16" Unit="&lt;v.1&gt;kW" Analog="false" Sensor="false" SourceValHigh="100" DestValHigh="100" RepeatRate="60"/>
+
+	
+	
+</Modbus>

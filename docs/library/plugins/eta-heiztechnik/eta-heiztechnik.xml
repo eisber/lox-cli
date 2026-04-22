@@ -1,0 +1,60 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Modbus Title="ETA Heating" Comment="" HintText="" Channel="1">
+	<Info templateType="7" minVersion="15000529"/>
+	<ModbusCmd Title="Puffer Fühler 2" Comment="Pufferfühler Oben Mitte" HintText="" ModbusAddress="6002" ModbusCmd="3" ModbusDataType="99" ModbusPollingCycle="30" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="Puffer Fühler 3" Comment="Pufferfühler Unten Mitte" HintText="" ModbusAddress="6004" ModbusCmd="3" ModbusDataType="99" ModbusPollingCycle="30" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="Kesselstatus" Comment="" HintText="4000= Ausgeschaltet
+4001= Bereit 
+4002= Geladen
+4003= Voll
+4004= Entaschen
+4005= Position wechseln 
+4006= Spülen
+4007= Startvorgang
+4008= Ein
+4009= In Betrieb 
+4010= Fördern 
+4011= Heizen 
+4012= Absenken 
+4013= Laden 
+4014= Abstellen 
+4015= Glutabbrand
+4016= Störung" ModbusAddress="5000" ModbusCmd="3" ModbusDataType="99" ModbusPollingCycle="30" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Warmwassertemperatur" Comment="" HintText="" ModbusAddress="7000" ModbusCmd="3" ModbusDataType="99" ModbusPollingCycle="30" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="Kesseltemperatur" Comment="" HintText="" ModbusAddress="5002" ModbusCmd="3" ModbusDataType="99" ModbusPollingCycle="30" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="FBH EinAus Taster" Comment="Schalter Status" HintText="" ModbusAddress="3002" ModbusCmd="3" ModbusDataType="99" ModbusPollingCycle="30" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Puffer Fühler 1" Comment="Pufferfühler Oben" HintText="" ModbusAddress="6000" ModbusCmd="3" ModbusDataType="99" ModbusPollingCycle="30" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="HK-Pumpe" Comment="" HintText="1040= Aus
+1041= Ein 
+1042= Verriegelt 
+1043= Sicherung defekt 
+1044= Keine Klemme zugewiesen 
+1045= Klemme nicht verfügbar" ModbusAddress="4001" ModbusCmd="3" ModbusDataType="99" ModbusPollingCycle="30" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="HK EinAus Taster" Comment="Schalter Status" HintText="1802= Aus
+1803= Ein" ModbusAddress="4002" ModbusCmd="3" ModbusDataType="99" ModbusPollingCycle="30" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="FBH Vorlauftemperatur" Comment="Vorlauftemperatur" HintText="" ModbusAddress="3006" ModbusCmd="3" ModbusDataType="99" ModbusPollingCycle="30" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="10"/>
+	<ModbusCmd Title="Wasserdruck" Comment="" HintText="" ModbusAddress="7002" ModbusCmd="3" ModbusDataType="99" ModbusPollingCycle="30" Unit="&lt;v.1&gt;bar" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="1"/>
+	<ModbusCmd Title="FBH Pumpe" Comment="" HintText="" ModbusAddress="3004" ModbusCmd="3" ModbusDataType="99" ModbusPollingCycle="30" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="FBH Sollwert" Comment="Sollwert" HintText="" ModbusAddress="3010" ModbusCmd="3" ModbusDataType="99" ModbusPollingCycle="30" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="FBH Status" Comment="" HintText="" ModbusAddress="3008" ModbusCmd="3" ModbusDataType="99" ModbusPollingCycle="30" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="HK Vorlauftemperatur" Comment="" HintText="" ModbusAddress="4004" ModbusCmd="3" ModbusDataType="99" ModbusPollingCycle="30" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="10"/>
+	<ModbusCmd Title="HK Sollwert" Comment="" HintText="" ModbusAddress="4008" ModbusCmd="3" ModbusDataType="99" ModbusPollingCycle="30" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="HK Status" Comment="" HintText="" ModbusAddress="4006" ModbusCmd="3" ModbusDataType="99" ModbusPollingCycle="30" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Puffer Fühler 4" Comment="Pufferfühler Unten" HintText="" ModbusAddress="6006" ModbusCmd="3" ModbusDataType="99" ModbusPollingCycle="30" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="Kessel Verbrauch seit Asche entleeren" Comment="" HintText="" ModbusAddress="7004" ModbusCmd="3" ModbusDataType="99" ModbusPollingCycle="30" Unit="&lt;v&gt; kg" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Kessel Volllaststunden" Comment="" HintText="" ModbusAddress="7006" ModbusCmd="3" ModbusDataType="99" ModbusPollingCycle="30" Unit="&lt;v&gt;h" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Raumisttemperatur Wohnen" Comment="" HintText="Min= -20°C
+Max=50°C" ModbusAddress="1000" ModbusCmd="16" ModbusDataType="99" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="100" RepeatRate="10"/>
+	<ModbusCmd Title="Raumisttemperatur Bad" Comment="" HintText="Min= -20°C
+Max=50°C" ModbusAddress="2000" ModbusCmd="16" ModbusDataType="99" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="100" RepeatRate="10"/>
+	<ModbusCmd Title="Raumsolltemperatur Bad" Comment="" HintText="Min= 0°C 
+Max= 35°C" ModbusAddress="2002" ModbusCmd="16" ModbusDataType="99" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="100" RepeatRate="10"/>
+	<ModbusCmd Title="Raum Heizen AN Bad" Comment="" HintText="" ModbusAddress="2004" ModbusCmd="16" ModbusDataType="99" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100" RepeatRate="10"/>
+	<ModbusCmd Title="Raum Heizen AN Wohnen" Comment="" HintText="" ModbusAddress="1004" ModbusCmd="16" ModbusDataType="99" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100" RepeatRate="10"/>
+	<ModbusCmd Title="Raumsolltemperatur Wohnen" Comment="" HintText="Min= 0°C 
+Max= 35°C" ModbusAddress="1002" ModbusCmd="16" ModbusDataType="99" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="100" RepeatRate="10"/>
+	<ModbusCmd Title="Raum Absenken AN Bad" Comment="" HintText="" ModbusAddress="2006" ModbusCmd="16" ModbusDataType="99" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100" RepeatRate="10"/>
+	<ModbusCmd Title="Raum Absenken AN Wohnen" Comment="" HintText="" ModbusAddress="1006" ModbusCmd="16" ModbusDataType="99" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100" RepeatRate="10"/>
+	<ModbusCmd Title="Warmwassersoll" Comment="" HintText="MIN= 0°C
+MAX= 60°C" ModbusAddress="7008" ModbusCmd="16" ModbusDataType="99" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="100" RepeatRate="10"/>
+</Modbus>

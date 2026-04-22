@@ -1,0 +1,2304 @@
+[
+  {
+    "id": "2473",
+    "name": "Schlüsselloses Schließfach-Management",
+    "name_en": "Keyless Locker Management",
+    "category": "access",
+    "secondary_categories": [
+      "security"
+    ],
+    "description": "Verwaltung des schlüssellosen Schließfachzugangs über den NFC Code Touch und die Benutzerverwaltung.",
+    "implementation": "In diesem Usecase zeigen wir die Einfache Realisierung von einem Spind Management mit Loxone, dem NFC Code Touch und die Benutzerverwaltung.\nElektronische Spinde oder Schließfächer sind oft teuer und kompliziert zu verwalten. Die verfügbaren Lösungen sind in der Regel Insellösungen, bei denen der jeweilige Schlüssel nur den zugewiesenen Spind öffnen kann. Der Verlust eines Schlüssels oder Änderungen der Berechtigungen sind meist aufwendig und zeitintensiv.Effizienter für Unternehmen oder Vereine ist ein System, das nicht nur den Zutritt zu Türen und Toren regelt, sondern gleichzeitig das Öffnen der entsprechenden Spinde oder Schließfächer ermöglicht. Wenn neue Mitarbeiter oder Vereinsmitglieder hinzukommen, sollte der administrative Aufwand zur Zuweisung eines Schließfachs so gering wie möglich gehalten werden.\nEinfache Verwaltung mit dem NFC Code Touch Loxone\nAls Schlüssel dient die NFC- sowie RFID-Technologie (Near Field Communication & Radio-Frequency Identification). Key Fobs, NFC Smart Tags, NFC Karten sowie gängige RFID-Chips, wie sie zum Beispiel bei Tankkarten oder Kaffeeautomaten verwendet werden, können problemlos in das Loxone System integriert werden. Diese Tags sind äußerst praktisch, da sie entweder als Schlüsselanhänger verwendet oder etwa in der Geldbörse oder auf dem Smartphone angebracht werden können – so hat man den \"Schlüssel\" jederzeit griffbereit.Hält man den den Tag an den NFC Code Touch, wird das jeweilige Schließfach oder der Spind geöffnet. Um den Spind elektronisch zu öffnen, ist pro Spind ein elektronisches Schloss sowie ein digitaler Ausgang notwendig.Dafür eignen sich der 24V RGBW Dimmer (der auch mit 12V betrieben werden kann) oder die Relay Extension.\nIn der Loxone Config wird für jede Person ein Benutzer angelegt und der entsprechende NFC Key Fob oder Smart Tag eingelernt. Jeder Benutzer erhält eine eindeutige Benutzer-ID. Diese ID wird im Funktionsbaustein „Berechtigung NFC Code Touch“ erfasst und an den Baustein „Impuls bei“ übergeben, der den zugeordneten digitalen Ausgang aktiviert.",
+    "implementation_html": "<p>In diesem Usecase zeigen wir die Einfache Realisierung von einem Spind Management mit Loxone, dem NFC Code Touch und die Benutzerverwaltung.</p>\n<p><strong>Elektronische Spinde</strong> oder Schließfächer <strong>sind oft teuer und kompliziert</strong> zu verwalten. <br />Die verfügbaren Lösungen sind in der Regel <strong>Insellösungen</strong>, bei denen der jeweilige Schlüssel nur den zugewiesenen Spind öffnen kann. Der <strong>Verlust eines Schlüssels</strong> oder Änderungen der Berechtigungen sind <strong>meist aufwendig und zeitintensiv.<br /></strong>Effizienter für Unternehmen oder Vereine ist ein System, das <strong>nicht nur den Zutritt zu Türen und Toren</strong> regelt, sondern gleichzeitig das Öffnen der entsprechenden <strong>Spinde oder Schließfächer</strong> ermöglicht. <br />Wenn neue Mitarbeiter oder Vereinsmitglieder hinzukommen, sollte der <strong>administrative Aufwand</strong> zur Zuweisung eines Schließfachs <strong>so gering wie möglich</strong> gehalten werden.</p>\n<p><strong>Einfache Verwaltung mit dem NFC Code Touch Loxone</strong></p>\n<p>Als Schlüssel dient die NFC- sowie RFID-Technologie (Near Field Communication &amp; Radio-Frequency Identification). <br />Key Fobs, NFC Smart Tags, NFC Karten sowie gängige RFID-Chips, wie sie zum Beispiel bei Tankkarten oder Kaffeeautomaten verwendet werden, können problemlos in das Loxone System integriert werden. <br />Diese Tags sind äußerst praktisch, da sie entweder als Schlüsselanhänger verwendet oder etwa in der Geldbörse oder auf dem Smartphone angebracht werden können – so hat man den &#34;Schlüssel&#34; jederzeit griffbereit.<br />Hält man den den Tag an den NFC Code Touch, wird das jeweilige Schließfach oder der Spind geöffnet. Um den Spind elektronisch zu öffnen, ist pro Spind ein elektronisches Schloss sowie ein digitaler Ausgang notwendig.<br />Dafür eignen sich der 24V RGBW Dimmer (der auch mit 12V betrieben werden kann) oder die Relay Extension.</p>\n<p>In der <strong>Loxone Config</strong> wird für jede Person ein Benutzer angelegt und der entsprechende NFC Key Fob oder Smart Tag eingelernt. <br />Jeder Benutzer erhält eine eindeutige Benutzer-ID. Diese ID wird im Funktionsbaustein „Berechtigung NFC Code Touch“ erfasst und an den Baustein „Impuls bei“ übergeben, der den zugeordneten digitalen Ausgang aktiviert.</p>",
+    "function_blocks": [
+      {
+        "name": "Berechtigung NFC Code Touch",
+        "url": "https://www.loxone.com/help/AuthenticationNFC"
+      },
+      {
+        "name": "Status",
+        "url": "https://www.loxone.com/help/status"
+      },
+      {
+        "name": "Impuls bei",
+        "url": "https://www.loxone.com/help/PulseBy"
+      }
+    ],
+    "auto_config": false,
+    "config_version": "16.0.6.3",
+    "config_files": [
+      {
+        "name": "usecase-keyless-locker-management.Loxone",
+        "url": "https://pimcore.loxone.com/06%20Use%20Cases/Access/Keyless%20locker%20management/usecase-keyless-locker-management.Loxone"
+      }
+    ],
+    "required_products": [
+      {
+        "name": "NFC Code Touch Tree Signalweiß",
+        "sku": "100481"
+      },
+      {
+        "name": "Verschlüsselte NFC Smart Cards Set - 10 Stück",
+        "sku": "200446"
+      },
+      {
+        "name": "NFC Key Fob Set (10 Stk.)",
+        "sku": "200318"
+      }
+    ],
+    "url_slug": "keyless-locker-management",
+    "remarks": "Wenn ein Benutzer Zugriff auf mehrere Schließfächer hat, werden diese gleichzeitig geöffnet.Obwohl die NFC-Tags im Miniserver des Unternehmens hinterlegt sind, können sie auch bequem im eigenen Zuhause für den Zutritt genutzt werden."
+  },
+  {
+    "id": "6577",
+    "name": "NFC Beleuchtung bei Dämmerung",
+    "name_en": "NFC lighting at dusk",
+    "category": "access",
+    "secondary_categories": [
+      "security"
+    ],
+    "description": "Bei Dämmerung wird die Hintergrundbeleuchtung des NFC Code Touch automatisch aktiviert.",
+    "implementation": "Ist eine Intercom verbaut, wird der integrierte Näherungssensor genutzt, um bei erkannter Präsenz die Hintergrundbeleuchtung des NFC Code Touch zu aktivieren.Ist keine Intercom vorhanden, orientiert sich die Beleuchtung an der Zeitinformation „Nacht“ und schaltet sich automatisch ein, sobald es dunkel wird, ohne Bewegung zu berücksichtigen.",
+    "implementation_html": "<p class=\"p1\">Ist eine Intercom verbaut, wird der integrierte Näherungssensor genutzt, um bei erkannter Präsenz die Hintergrundbeleuchtung des NFC Code Touch zu aktivieren.</p><p class=\"p1\">Ist <strong>keine</strong> Intercom vorhanden, orientiert sich die Beleuchtung an der Zeitinformation „Nacht“ und schaltet sich automatisch ein, sobald es dunkel wird, ohne Bewegung zu berücksichtigen.</p><p></p>",
+    "function_blocks": [
+      {
+        "name": "Berechtigung NFC Code Touch",
+        "url": "https://www.loxone.com/help/AuthenticationNFC"
+      }
+    ],
+    "auto_config": true,
+    "config_version": "16.0.6.3",
+    "config_files": [
+      {
+        "name": "UseCase - Automated NFC Light.Loxone",
+        "url": "https://pimcore.loxone.com/06%20Use%20Cases/Access/NFC%20backlight%20at%20motion/UseCase%20-%20Automated%20NFC%20Light.Loxone"
+      }
+    ],
+    "required_products": [
+      {
+        "name": "Intercom Signalweiß",
+        "sku": "100484"
+      },
+      {
+        "name": "NFC Code Touch Tree Signalweiß",
+        "sku": "100481"
+      },
+      {
+        "name": "Präsenzmelder Deckeneinbau Tree Weiß",
+        "sku": "100466"
+      }
+    ],
+    "url_slug": "automated-nfc-backlight",
+    "remarks": "Es können auch eigene Logiken definiert werden, um die Hintergrundbeleuchtung zu steuern – beispielsweise über einen externen Präsenzmelder im Außenbereich."
+  },
+  {
+    "id": "6378",
+    "name": "Stumme Lichtklingel",
+    "name_en": "Silent light bell",
+    "category": "access",
+    "secondary_categories": [
+      "lighting",
+      "audio"
+    ],
+    "description": "Optische Klingel für Situationen, wo akustische Signale nicht erwünscht sind.",
+    "implementation": "Standardmäßig ertönt die akustische Klingel in allen Räumen, die dem Raumtyp „Aufenthaltsraum“ zugewiesen sind.Mit der Loxone Intercom besteht die Möglichkeit, die Klingel bequem über die App stumm zu schalten.Wird diese Funktion aktiviert, erfolgt die Signalisierung des Klingelns ausschließlich über eine Push-Benachrichtigung auf den definierten Endgeräten – sowie visuell durch blinkendes Licht in allen Aufenthaltsräumen.Der zugehörige Funktionsbaustein „Intercom“ bietet zusätzlich einen Eingang zur automatisierten Stummschaltung sowie einen Ausgang, über den das stumme Klingelsignal in weitere Logiken eingebunden werden kann.So lässt sich die Klingelfunktion beispielsweise mit dem zentralen Schlafmodus, dem Schlafmodus der Kinder oder anderen individuellen Szenarien verknüpfen.",
+    "implementation_html": "<p><strong>Standardmäßig</strong> ertönt die akustische Klingel in allen Räumen, die dem Raumtyp „Aufenthaltsraum“ zugewiesen sind.</p><p>Mit der Loxone Intercom besteht die Möglichkeit, die Klingel bequem über die App <strong>stumm</strong> zu schalten.</p><p>Wird diese Funktion aktiviert, erfolgt die Signalisierung des Klingelns <strong>ausschließlich</strong> über eine <strong>Push-Benachrichtigung</strong> auf den definierten Endgeräten – sowie visuell durch <strong>blinkendes Licht</strong> in allen Aufenthaltsräumen.</p><p>Der zugehörige Funktionsbaustein „<strong>Intercom</strong>“ bietet zusätzlich einen Eingang zur automatisierten Stummschaltung sowie einen Ausgang, über den das stumme Klingelsignal in weitere Logiken eingebunden werden kann.</p><p>So lässt sich die Klingelfunktion beispielsweise mit dem <strong>zentralen Schlafmodus</strong>, dem <strong>Schlafmodus der Kinder</strong> oder anderen <strong>individuellen Szenarien</strong> verknüpfen.</p>",
+    "function_blocks": [
+      {
+        "name": "Lichtsteuerung",
+        "url": "https://www.loxone.com/help/lighting-controller"
+      },
+      {
+        "name": "Audio Player",
+        "url": "https://www.loxone.com/help/audioplayer"
+      },
+      {
+        "name": "Taster",
+        "url": "https://www.loxone.com/help/push-button"
+      },
+      {
+        "name": "Berechtigung NFC Code Touch",
+        "url": "https://www.loxone.com/help/AuthenticationNFC"
+      }
+    ],
+    "auto_config": true,
+    "config_version": "16.0.6.10",
+    "config_files": [
+      {
+        "name": "UseCase-silent-light-doorbell.Loxone",
+        "url": "https://pimcore.loxone.com/06%20Use%20Cases/Access/Silent%20Light%20Doorbell/UseCase-silent-light-doorbell.Loxone"
+      }
+    ],
+    "required_products": [
+      {
+        "name": "NFC Code Touch Tree Signalweiß",
+        "sku": "100481"
+      },
+      {
+        "name": "LED Spot RGBW Tree Weiß",
+        "sku": "100330"
+      },
+      {
+        "name": "Touch Tree Weiß",
+        "sku": "100221"
+      },
+      {
+        "name": "RGBW 24V Compact Dimmer Tree",
+        "sku": "100325"
+      }
+    ],
+    "url_slug": "silent-light-doorbell",
+    "remarks": ""
+  },
+  {
+    "id": "20597",
+    "name": "Akustischer Einbruchalarm",
+    "name_en": "Acoustic burglar alarm",
+    "category": "audio",
+    "secondary_categories": [
+      "access",
+      "security"
+    ],
+    "description": "Alarm über das Loxone Audiosystem zur Abschreckung und Alarmierung.",
+    "implementation": "Die Realisierung des akustischen Einbruchalarms erfolgt über den Loxone Alarmanlagen-Baustein in Verbindung mit dem Loxone Audio-System. Durch einen Doppelklick auf den Baustein lassen sich die relevanten Inputs zur Auslösung definieren – beispielsweise Fensterkontakte, Bewegungsmelder oder Glasbruchmelder. Ebenso werden hier die Audio Player ausgewählt, über die der Alarmton im Ereignisfall ausgegeben wird. Die Aktivierung der Alarmanlage kann wahlweise über die Funktion „Haus verlassen“ oder manuell über die Loxone App erfolgen. Bei detektiertem Einbruch wird der Alarm ausgelöst und eine akustische Signalisierung über die zuvor definierten Zonen ausgegeben. Die Alarmmeldung kann vom Nutzer in der Loxone App quittiert werden. Die Deaktivierung der Alarmanlage erfolgt über einen berechtigten Zutritt, typischerweise über den NFC Code Touch oder der Loxone App.",
+    "implementation_html": "<p style=\"color: rgb(33, 33, 33);\"><span style=\"color: rgb(33, 33, 33);\">Die Realisierung des akustischen Einbruchalarms erfolgt über den Loxone Alarmanlagen-Baustein in Verbindung mit dem Loxone Audio-System. </span><span style=\"color: rgb(33, 33, 33);\">Durch einen Doppelklick auf den Baustein lassen sich die relevanten Inputs zur Auslösung definieren – beispielsweise Fensterkontakte, Bewegungsmelder oder Glasbruchmelder. </span></p><p><span style=\"color: rgb(33, 33, 33);\">Ebenso werden hier die Audio Player ausgewählt, über die der Alarmton im Ereignisfall ausgegeben wird. Die Aktivierung der Alarmanlage kann wahlweise über die Funktion „Haus verlassen“ oder manuell über die Loxone App erfolgen. Bei detektiertem Einbruch wird der Alarm ausgelöst und eine akustische Signalisierung über die zuvor definierten Zonen ausgegeben. Die Alarmmeldung kann vom Nutzer in der Loxone App quittiert werden. Die Deaktivierung der Alarmanlage erfolgt über einen berechtigten Zutritt, typischerweise über den NFC Code Touch oder der Loxone App.</span></p>",
+    "function_blocks": [
+      {
+        "name": "Audio Player",
+        "url": "https://www.loxone.com/help/audioplayer"
+      },
+      {
+        "name": "Alarmanlage",
+        "url": "https://www.loxone.com/help/burglar-alarm"
+      },
+      {
+        "name": "Alarmierungskette",
+        "url": "https://www.loxone.com/help/alarm-chain"
+      },
+      {
+        "name": "Audio Zentral",
+        "url": "https://www.loxone.com/help/audio-central"
+      },
+      {
+        "name": "Schalter",
+        "url": "https://www.loxone.com/help/switch"
+      },
+      {
+        "name": "Berechtigung NFC Code Touch",
+        "url": "https://www.loxone.com/help/AuthenticationNFC"
+      }
+    ],
+    "auto_config": true,
+    "config_version": "16.0.6.3",
+    "config_files": [
+      {
+        "name": "Use_Case__Audible_burglar_alarm.Loxone",
+        "url": "https://pimcore.loxone.com/06%20Use%20Cases/Audio/Acoustic%20Burglar%20Alarm/Use_Case__Audible_burglar_alarm.Loxone"
+      }
+    ],
+    "required_products": [
+      {
+        "name": "Install Speaker 7 Master",
+        "sku": "610149"
+      },
+      {
+        "name": "Install Speaker 7 Client",
+        "sku": "610151"
+      },
+      {
+        "name": "NFC Code Touch Tree Signalweiß",
+        "sku": "100481"
+      },
+      {
+        "name": "Präsenzmelder Deckeneinbau Tree Weiß",
+        "sku": "100466"
+      },
+      {
+        "name": "LED Ceiling Light RGBW Tree Weiß",
+        "sku": "100288"
+      },
+      {
+        "name": "Alarmsirene Tree",
+        "sku": "100313"
+      },
+      {
+        "name": "Tür- & Fensterkontakt Air Weiß",
+        "sku": "100210"
+      },
+      {
+        "name": "Präsenzmelder Air Weiß",
+        "sku": "100420"
+      }
+    ],
+    "url_slug": "acoustic-burglar-alarm",
+    "remarks": "Bei der Verwendung zugänglicher Visualisierungsgeräte (z. B. Wandtablets im Wohnbereich) ist zwingend darauf zu achten, dass der Alarmanlagenbaustein mit einem Visualisierungskennwort geschützt ist. Ohne diese Absicherung besteht das Risiko, dass ein potenzieller Einbrecher den Alarm über die Visualisierung deaktiviert."
+  },
+  {
+    "id": "20592",
+    "name": "Akustischer Brand- und Wasseralarm",
+    "name_en": "Acoustic fire and water alarm",
+    "category": "audio",
+    "secondary_categories": [
+      "security"
+    ],
+    "description": "Akustische Warnung über das Loxone Audiosystem im Brand- oder Wasseralarmfall.",
+    "implementation": "Mithilfe des Softwarebausteins „Brand- und Wasser Alarm“ können Gefahren wie Feuer oder ein ungewollter Wasseraustritt zuverlässig erkannt werden. Wird ein entsprechender Sensor ausgelöst, reagiert das System sofort:• Die Musikwiedergabe in allen Räumen wird automatisch gestoppt.• Zeitgleich ertönt ein deutlich hörbarer Alarmton über die definierten Audio Player.• So wird sichergestellt, dass der Alarm im gesamten Gebäude wahrgenommen wird – selbst wenn man sich gerade in einem anderen Raum aufhält oder Musik hört.In der Loxone App wird der Alarm angezeigt, sodass auf einen Blick erkannt werden kann, welcher Sensor ihn ausgelöst hat. Zudem lässt sich der Alarm bequem direkt über die App quittieren – für schnelle Reaktion und maximale Transparenz.Die Konfiguration erfolgt einfach per Doppelklick auf den Baustein „Brand- und Wassermeldezentrale“. Dort werden die Eingänge definiert, also die Sensoren, die den Alarm auslösen. Ebenso lassen sich die Ausgänge festlegen – in diesem Fall die Audio Player, über die der Alarmton abgespielt werden soll.",
+    "implementation_html": "<p><span style=\"color: rgb(33, 33, 33);\">Mithilfe des Softwarebausteins „Brand- und Wasser Alarm“ können Gefahren wie Feuer oder ein ungewollter Wasseraustritt zuverlässig erkannt werden. Wird ein entsprechender Sensor ausgelöst, reagiert das System sofort:</span></p><p><span style=\"color: rgb(33, 33, 33);\">• Die Musikwiedergabe in allen Räumen wird automatisch gestoppt.</span></p><p><span style=\"color: rgb(33, 33, 33);\">• Zeitgleich ertönt ein deutlich hörbarer Alarmton über die definierten Audio Player.</span></p><p><span style=\"color: rgb(33, 33, 33);\">• So wird sichergestellt, dass der Alarm im gesamten Gebäude wahrgenommen wird – selbst wenn man sich gerade in einem anderen Raum aufhält oder Musik hört.</span></p><p><span style=\"color: rgb(33, 33, 33);\">In der Loxone App wird der Alarm angezeigt, sodass auf einen Blick erkannt werden kann, welcher Sensor ihn ausgelöst hat. Zudem lässt sich der Alarm bequem direkt über die App quittieren – für schnelle Reaktion und maximale Transparenz.</span></p><p><span style=\"color: rgb(33, 33, 33);\">Die Konfiguration erfolgt einfach per Doppelklick auf den Baustein „Brand- und Wassermeldezentrale“. Dort werden die Eingänge definiert, also die Sensoren, die den Alarm auslösen. Ebenso lassen sich die Ausgänge festlegen – in diesem Fall die Audio Player, über die der Alarmton abgespielt werden soll.</span></p>",
+    "function_blocks": [
+      {
+        "name": "Audio Player",
+        "url": "https://www.loxone.com/help/audioplayer"
+      },
+      {
+        "name": "Brand- und Wassermeldezentrale",
+        "url": "https://www.loxone.com/help/fire-water-alarm"
+      }
+    ],
+    "auto_config": true,
+    "config_version": "16.0.6.3",
+    "config_files": [
+      {
+        "name": "Use_Case_Audible_fire_and_water_alarm.Loxone",
+        "url": "https://pimcore.loxone.com/06%20Use%20Cases/Audio/Acoustic%20Fire%20and%20Water%20alarm/Use_Case_Audible_fire_and_water_alarm.Loxone"
+      }
+    ],
+    "required_products": [
+      {
+        "name": "Audioserver",
+        "sku": "100428"
+      },
+      {
+        "name": "Rauchmelder Air",
+        "sku": "100142"
+      },
+      {
+        "name": "Wassersensor Air",
+        "sku": "100211"
+      }
+    ],
+    "url_slug": "acoustic-fire-water-alarm",
+    "remarks": ""
+  },
+  {
+    "id": "6646",
+    "name": "Benutzerdefinierte Event Sounds",
+    "name_en": "Custom event sounds",
+    "category": "audio",
+    "secondary_categories": [],
+    "description": "Wiedergabe von benutzerdefinierten Sounds oder Werbejingles in gewünschten Zeitintervallen.",
+    "implementation": "Um einen gewünschten Klang regelmäßig abzuspielen, können Sie die Funktion Benutzerdefinierte Klänge von Loxone nutzen. Speichern Sie dazu die gewünschte Audiodatei auf dem Audioserver, Miniserver Compact oder Master Speaker. Auf den Ordner Event_Sounds kann über das Netzwerkfenster in Windows mittels SMB Protokoll \\\\{ip-address}\\Event_Sounds zugegriffen werden.Mithilfe des Textgenerator-Bausteins senden Sie anschließend die Audiodatei an den Audioplayer. Im Texteditor speichern Sie die Datei inklusive der Lautstärke in folgendem Format:Jingle1.mp3:20Das gewünschte Zeitintervall legen Sie über den Impulsgeber fest.Über den Schalter-Baustein kann die gesamte Funktion deaktiviert werden.",
+    "implementation_html": "<p class=\"p1\">Um einen gewünschten Klang regelmäßig abzuspielen, können Sie die Funktion <strong>Benutzerdefinierte Klänge</strong> von Loxone nutzen. Speichern Sie dazu die gewünschte Audiodatei auf dem <strong>Audioserver</strong><span style=\"color: rgb(0, 0, 0); background-color: rgb(255, 255, 255);\">, Miniserver Compact oder Master Speaker. Auf den Ordner Event_Sounds kann über das </span><strong>Netzwerkfenster in Windows </strong>mittels SMB Protokoll<span style=\"color: rgb(0, 0, 0); background-color: rgb(255, 255, 255);\"> \\\\{ip-address}\\Event_Sounds zugegriffen werden.</span></p><p class=\"p1\">Mithilfe des <strong>Textgenerator-Bausteins</strong> senden Sie anschließend die Audiodatei an den Audioplayer. Im Texteditor speichern Sie die Datei inklusive der Lautstärke in folgendem Format:</p><p class=\"p1\"><strong>Jingle1.mp3:20</strong></p><p class=\"p1\">Das gewünschte Zeitintervall legen Sie über den <strong>Impulsgeber</strong> fest.</p><p class=\"p1\">Über den <strong>Schalter-Baustein</strong> kann die gesamte Funktion deaktiviert werden.</p><p></p>",
+    "function_blocks": [
+      {
+        "name": "Audio Player",
+        "url": "https://www.loxone.com/help/audioplayer"
+      },
+      {
+        "name": "Text Generator",
+        "url": "https://www.loxone.com/help/text-generator"
+      },
+      {
+        "name": "Schalter",
+        "url": "https://www.loxone.com/help/switch"
+      },
+      {
+        "name": "Impulsgeber",
+        "url": "https://www.loxone.com/help/pulse-generator"
+      },
+      {
+        "name": "UND",
+        "url": "https://www.loxone.com/help/And"
+      }
+    ],
+    "auto_config": false,
+    "config_version": "16.0.6.3",
+    "config_files": [
+      {
+        "name": "Use_Case_Audio_Custom_Event.Loxone",
+        "url": "https://pimcore.loxone.com/06%20Use%20Cases/Audio/Custom%20Event%20Sounds/Use_Case_Audio_Custom_Event.Loxone"
+      }
+    ],
+    "required_products": [
+      {
+        "name": "Audioserver",
+        "sku": "100428"
+      }
+    ],
+    "url_slug": "custom-event-sounds",
+    "remarks": ""
+  },
+  {
+    "id": "20593",
+    "name": "Türklingel mit individuellen Sounds",
+    "name_en": "Doorbell with individual sounds",
+    "category": "audio",
+    "secondary_categories": [
+      "access"
+    ],
+    "description": "Individueller Klingelton wenn es läutet.",
+    "implementation": "Klingelsignal flexibel über Lautsprecher ausgebenDas Türklingelsignal kann ganz einfach in beliebigen Räumen ausgegeben werden. Dafür wird in der Konfiguration festgelegt, in welchen Bereichen des Gebäudes das Signal hörbar sein soll – zum Beispiel im Wohnzimmer, in der Küche oder auch im Gartenhaus.Sobald jemand an der Haustür klingelt – egal ob über die Loxone Intercom oder den NFC Code Touch – wird die gerade laufende Musik automatisch pausiert. Stattdessen ertönt das Klingelsignal über die zuvor definierten Lautsprecher. So wird sichergestellt, dass das Klingeln auch dann wahrgenommen wird, wenn es im Raum gerade laut ist oder Musik läuft.Eigener Klingelton für persönliche NoteNeben der Raumauswahl lässt sich auch der Klingelton individuell anpassen. Wer dem Türklingelsignal eine persönliche Note verleihen möchte, kann ganz einfach eine eigene Audiodatei hinterlegen.Dazu wird die gewünschte Sounddatei – zum Beispiel ein kurzer Jingle oder eine Stimme – in den Netzwerkordner „Event_Sounds“ auf dem Audioserver, dem Miniserver Compact oder einem Master Speaker abgelegt. Der Zugriff auf diesen Ordner erfolgt über das Netzwerkfenster in Windows mittels SMB Protokoll  \\\\{ip-address}\\Event_Sounds.Wird die Datei anschließend in 1-doorbell.mp3 umbenannt, erkennt das System sie automatisch als Klingelton. Fortan wird bei jedem Klingeln nicht der Standardton, sondern der individuell ausgewählte Sound abgespielt – ganz automatisch und ohne weiteren Aufwand.",
+    "implementation_html": "<p><strong>Klingelsignal flexibel über Lautsprecher ausgeben</strong></p><p style=\"color: rgb(33, 33, 33);\"><span style=\"color: rgb(33, 33, 33);\">Das Türklingelsignal kann ganz einfach in beliebigen Räumen ausgegeben werden. Dafür wird in der Konfiguration festgelegt, in welchen Bereichen des Gebäudes das Signal hörbar sein soll – zum Beispiel im Wohnzimmer, in der Küche oder auch im Gartenhaus.</span></p><p style=\"color: rgb(33, 33, 33);\"><span style=\"color: rgb(33, 33, 33);\">Sobald jemand an der Haustür klingelt – egal ob über die Loxone Intercom oder den NFC Code Touch – wird die gerade laufende Musik automatisch pausiert. Stattdessen ertönt das Klingelsignal über die zuvor definierten Lautsprecher. So wird sichergestellt, dass das Klingeln auch dann wahrgenommen wird, wenn es im Raum gerade laut ist oder Musik läuft.</span></p><p><strong>Eigener Klingelton für persönliche Note</strong></p><p><span style=\"color: rgb(33, 33, 33);\">Neben der Raumauswahl lässt sich auch der Klingelton individuell anpassen. Wer dem Türklingelsignal eine persönliche Note verleihen möchte, kann ganz einfach eine eigene Audiodatei hinterlegen.</span></p><p style=\"color: rgb(33, 33, 33);\"><span style=\"color: rgb(33, 33, 33);\">Dazu wird die gewünschte Sounddatei – zum Beispiel ein kurzer Jingle oder eine Stimme – in den Netzwerkordner „Event_Sounds“ auf dem Audioserver, dem Miniserver Compact oder einem Master Speaker abgelegt. Der Zugriff auf diesen Ordner erfolgt </span><span style=\"color: rgb(0, 0, 0); background-color: rgb(255, 255, 255);\">über das </span><strong>Netzwerkfenster in Windows </strong><span>mittels SMB Protokoll </span><span style=\"color: rgb(0, 0, 0); background-color: rgb(255, 255, 255);\"> \\\\{ip-address}\\Event_Sounds.</span></p><p><span style=\"color: rgb(33, 33, 33);\">Wird die Datei anschließend in 1-doorbell.mp3 umbenannt, erkennt das System sie automatisch als Klingelton. Fortan wird bei jedem Klingeln nicht der Standardton, sondern der individuell ausgewählte Sound abgespielt – ganz automatisch und ohne weiteren Aufwand.</span></p>",
+    "function_blocks": [
+      {
+        "name": "Audio Player",
+        "url": "https://www.loxone.com/help/audioplayer"
+      },
+      {
+        "name": "Audio Zentral",
+        "url": "https://www.loxone.com/help/audio-central"
+      },
+      {
+        "name": "Berechtigung NFC Code Touch",
+        "url": "https://www.loxone.com/help/AuthenticationNFC"
+      }
+    ],
+    "auto_config": true,
+    "config_version": "16.0.6.3",
+    "config_files": [
+      {
+        "name": "Use_Case_Doorbell_with_custom_sounds.Loxone",
+        "url": "https://pimcore.loxone.com/06%20Use%20Cases/Audio/Individual%20Doorbell%20Sounds/Use_Case_Doorbell_with_custom_sounds.Loxone"
+      }
+    ],
+    "required_products": [
+      {
+        "name": "Audioserver",
+        "sku": "100428"
+      },
+      {
+        "name": "Intercom Signalweiß",
+        "sku": "100484"
+      },
+      {
+        "name": "NFC Code Touch Tree Signalweiß",
+        "sku": "100481"
+      }
+    ],
+    "url_slug": "individual-doorbell-sounds",
+    "remarks": "Der originale \"1-doorbell.mp3\" muss entweder gelöscht oder umbenannt werden."
+  },
+  {
+    "id": "25559",
+    "name": "Mehrzonen-Audiobeschallung im Restaurant ",
+    "name_en": "",
+    "category": "audio",
+    "secondary_categories": [
+      "audio"
+    ],
+    "description": "Mehrzonen-Audiobeschallung im Restaurant: gleiche Musik in allen Bereichen, zeitgesteuerte Lautstärkeprofile, einfache Bedienung über die Loxone App.",
+    "implementation": "Im Restaurant gibt es vier Audiobereiche – Main Dining, Bar Area, Lounge und Terrace. Jeder Bereich verfügt über einen eigenen Audio Player in der Loxone Master/Client Audio Struktur. Diese Player sind zu einer fixen Gruppe zusammengefasst, sodass in allen Bereichen stets dieselbe Musikquelle abgespielt wird. Die unterschiedlichen Musik-Modi Breakfast, Day, Dinner und Night werden automatisch über eine Schaltuhr aktiviert. Je nach aktivem Zeitprofil werden für alle vier Bereiche passende Lautstärkepegel vorgegeben, z.B. dezente Hintergrundmusik am Morgen und höhere Lautstärke am Abend. Für die Bedienung in der Loxone App wird die Lautstärkeregelung bewusst über einen Lichtbaustein abgebildet. Jeder Bereich erhält einen eigenen Kanal (0–100 %), der wie ein Lautstärkeregler genutzt wird. So kann das Personal die Lautstärke in den einzelnen Zonen bequem über die Lichtsteuerung anpassen, ohne direkten Zugriff auf die Audio Player oder den Musikinhalt zu haben. Die Musikquellen bleiben damit nur für Administratoren frei. Zusätzlich gibt es einen zentralen Schalter „Music Off“, der alle Audiobereiche gleichzeitig stumm schaltet – etwa für Durchsagen, Sperrstunden oder besondere Veranstaltungen. In Restaurants treffen ganz unterschiedliche Bedürfnisse aufeinander: Während Gäste im Barbereich eher eine lebendige Atmosphäre mit höherer Lautstärke erwarten, wünschen sich Besucher im Ruhebereich oder in Nischen eine deutlich leisere Hintergrundmusik. Gleichzeitig ändern sich die Anforderungen je nach Tageszeit – etwa Frühstück, Mittagsgeschäft oder Abendbetrieb mit höherer Auslastung.",
+    "implementation_html": "<p>Im Restaurant gibt es vier Audiobereiche – Main Dining, Bar Area, Lounge und Terrace. Jeder Bereich verfügt über einen eigenen Audio Player in der Loxone Master/Client Audio Struktur. Diese Player sind zu einer fixen Gruppe zusammengefasst, sodass in allen Bereichen stets dieselbe Musikquelle abgespielt wird. </p><p></p><p>Die unterschiedlichen Musik-Modi Breakfast, Day, Dinner und Night werden automatisch über eine Schaltuhr aktiviert. Je nach aktivem Zeitprofil werden für alle vier Bereiche passende Lautstärkepegel vorgegeben, z.B. dezente Hintergrundmusik am Morgen und höhere Lautstärke am Abend. </p><p></p><p>Für die Bedienung in der Loxone App wird die Lautstärkeregelung bewusst über einen Lichtbaustein abgebildet. Jeder Bereich erhält einen eigenen Kanal (0–100 %), der wie ein Lautstärkeregler genutzt wird. So kann das Personal die Lautstärke in den einzelnen Zonen bequem über die Lichtsteuerung anpassen, ohne direkten Zugriff auf die Audio Player oder den Musikinhalt zu haben. Die Musikquellen bleiben damit nur für Administratoren frei. </p><p></p><p>Zusätzlich gibt es einen zentralen Schalter „Music Off“, der alle Audiobereiche gleichzeitig stumm schaltet – etwa für Durchsagen, Sperrstunden oder besondere Veranstaltungen. In Restaurants treffen ganz unterschiedliche Bedürfnisse aufeinander: Während Gäste im Barbereich eher eine lebendige Atmosphäre mit höherer Lautstärke erwarten, wünschen sich Besucher im Ruhebereich oder in Nischen eine deutlich leisere Hintergrundmusik. Gleichzeitig ändern sich die Anforderungen je nach Tageszeit – etwa Frühstück, Mittagsgeschäft oder Abendbetrieb mit höherer Auslastung. </p>",
+    "function_blocks": [
+      {
+        "name": "Audio Player",
+        "url": "https://www.loxone.com/help/audioplayer"
+      },
+      {
+        "name": "Lichtsteuerung",
+        "url": "https://www.loxone.com/help/lighting-controller"
+      },
+      {
+        "name": "Analogwahlschalter",
+        "url": "https://www.loxone.com/help/analog-multiplexer-2"
+      },
+      {
+        "name": "Schalter",
+        "url": "https://www.loxone.com/help/switch"
+      },
+      {
+        "name": "Schaltuhr",
+        "url": "https://www.loxone.com/help/schedule"
+      },
+      {
+        "name": "Audio Player Gruppe fix",
+        "url": "https://www.loxone.com/help/audiogroupfix"
+      }
+    ],
+    "auto_config": false,
+    "config_version": "16.1.11.6",
+    "config_files": [
+      {
+        "name": "Multi-Zone Audio with Individual Volume Control.Loxone",
+        "url": "https://pimcore.loxone.com/06%20Use%20Cases/Audio/Multi%20Zone%20Audio%20Restaurant/Multi-Zone%20Audio%20with%20Individual%20Volume%20Control.Loxone"
+      }
+    ],
+    "required_products": [],
+    "url_slug": "restaurant-multi-zone-audio",
+    "remarks": "Für diese Lösung sollten individuelle Benutzer und Benutzergruppen in der Loxone Config angelegt werden. So kann der Zugriff auf die Audio Player gezielt eingeschränkt und ausschließlich Administratoren der Musikinhalt bzw. die Audioeinstellungen freigegeben werden."
+  },
+  {
+    "id": "6683",
+    "name": "Musikstart durch Türöffnung",
+    "name_en": "Music start through door opening",
+    "category": "audio",
+    "secondary_categories": [],
+    "description": "Automatischer Start einer Wunsch-Playlist bei Öffnen der Terrassentür.",
+    "implementation": "In diesem Beispiel wurde der Fensterkontakt eines Hebe-Schiebe-Elements integriert.Er ist so angebracht, dass er nur dann als „geschlossen“ erkannt wird, wenn die Tür abgesenkt und vollständig verriegelt ist.Sie können den bestehenden Türkontakt Ihrer Terrassentür nutzen, um damit die Musikwiedergabe zu steuern: Öffnet sich die Tür, startet automatisch Ihre Musik – wird sie wieder geschlossen, stoppt die Wiedergabe.",
+    "implementation_html": "<p class=\"p1\">In diesem Beispiel wurde der Fensterkontakt eines <strong>Hebe-Schiebe-Elements</strong> integriert.</p><p class=\"p1\">Er ist so angebracht, dass er nur dann als „<strong>geschlossen</strong>“ erkannt wird, wenn die Tür abgesenkt und vollständig verriegelt ist.</p><p class=\"p1\">Sie können den bestehenden Türkontakt Ihrer Terrassentür nutzen, um damit die Musikwiedergabe zu steuern: Öffnet sich die Tür, startet automatisch Ihre Musik – wird sie wieder geschlossen, stoppt die Wiedergabe.</p><p></p>",
+    "function_blocks": [
+      {
+        "name": "Audio Player",
+        "url": "https://www.loxone.com/help/audioplayer"
+      },
+      {
+        "name": "Präsenz",
+        "url": "https://www.loxone.com/help/presence2"
+      }
+    ],
+    "auto_config": false,
+    "config_version": "15.5.3.4",
+    "config_files": [
+      {
+        "name": "Patio_Speaker.Loxone",
+        "url": "https://pimcore.loxone.com/06%20Use%20Cases/Audio/Music%20Playback%20when%20Opening%20Patio%20Door/Patio_Speaker.Loxone"
+      }
+    ],
+    "required_products": [
+      {
+        "name": "Satellite Speaker IP64 Master schwarz",
+        "sku": "610156"
+      },
+      {
+        "name": "Audioserver",
+        "sku": "100428"
+      }
+    ],
+    "url_slug": "automatic-patio-audio",
+    "remarks": "Achten Sie darauf, dass herkömmliche Fensterkontakte oft schon als „geschlossen“ gelten, wenn die Tür lediglich durch einen Luftzug zu fällt – ohne verriegelt zu sein.\nIn solchen Fällen empfiehlt es sich, gezielt Kontakte einzusetzen, die die Position des Fenstergriffs überwachen und nicht nur das Fenster selbst.\nEine ideale Lösung bietet hier der Fenstergriff Air, der zuverlässig erkennt, ob die Tür tatsächlich verriegelt ist."
+  },
+  {
+    "id": "20504",
+    "name": "Klimaanlagen Kindermodus",
+    "name_en": "AC Children's Mode",
+    "category": "climate",
+    "secondary_categories": [],
+    "description": "Automatische Geräusch- und Luftzugsreduktion der Klimaanlage für mehr Komfort.",
+    "implementation": "Ziel: Maximaler Komfort und Verringerung gesundheitlicher Risiken für ein Kind durch:\n\nMinimierung von Betriebsgeräuschen\nVermeidung von direktem Luftstrom auf das Bett\nReduzierung der Kühlintensität\n\nVerhalten bei aktiviertem \"Kinder-Modus\"\nDer AC Unit Controller setzt spezielle, schonende Einstellungen um:\n\nUmschalten auf Trockenmodus\nLüftergeschwindigkeit auf Leise, Sehr Niedrig oder Niedrig\nLuftstromrichtung auf Position 5 – zum Deckenbereich gerichtet\n\nWann kann der Kinder-Modus aktiviert werden?\nNachdem das Ziel eine sanftere Klimatisierung ist, kann der Modus nur aktiviert werden, wenn die Klima-Einheit auch läuft und sich im \"cool\" Modus befindet.\nWarum Trockenmodus?\nDer Trockenmodus reduziert die Luftfeuchtigkeit im Raum, ohne die Temperatur stark abzusenken. Im Vergleich zum Kühlmodus ist er weniger aggressiv und besser für Kleinkinder geeignet, da er plötzliche Temperaturschwankungen vermeidet, die das Risiko von Erkältungen oder Unwohlsein erhöhen können.\nVerhalten bei deaktiviertem \"Kinder-Modus\" (Klimaanlage bleibt an)\nDer AC Unit Controller schaltet zurück in den Automatikmodus und passt Lüftergeschwindigkeit sowie Kühlleistung automatisch an, um die gewünschte Raumtemperatur zu halten",
+    "implementation_html": "<p><strong>Ziel: Maximaler Komfort und Verringerung gesundheitlicher Risiken für ein Kind durch:</strong></p>\n<ul>\n<li class>Minimierung von Betriebsgeräuschen</li>\n<li class>Vermeidung von direktem Luftstrom auf das Bett</li>\n<li class>Reduzierung der Kühlintensität</li>\n</ul>\n<p><strong>Verhalten bei aktiviertem &#34;Kinder-Modus&#34;</strong></p>\n<p>Der AC Unit Controller setzt spezielle, schonende Einstellungen um:</p>\n<ul>\n<li class>Umschalten auf Trockenmodus</li>\n<li class>Lüftergeschwindigkeit auf Leise, Sehr Niedrig oder Niedrig</li>\n<li class>Luftstromrichtung auf Position 5 – zum Deckenbereich gerichtet</li>\n</ul>\n<p><strong>Wann kann der Kinder-Modus aktiviert werden?</strong></p>\n<p>Nachdem das Ziel eine sanftere Klimatisierung ist, kann der Modus nur aktiviert werden, wenn die Klima-Einheit auch läuft und sich im &#34;cool&#34; Modus befindet.</p>\n<p><strong>Warum Trockenmodus?</strong></p>\n<p>Der Trockenmodus reduziert die Luftfeuchtigkeit im Raum, ohne die Temperatur stark abzusenken. Im Vergleich zum Kühlmodus ist er weniger aggressiv und besser für Kleinkinder geeignet, da er plötzliche Temperaturschwankungen vermeidet, die das Risiko von Erkältungen oder Unwohlsein erhöhen können.</p>\n<p><strong>Verhalten bei deaktiviertem &#34;Kinder-Modus&#34; (Klimaanlage bleibt an)</strong></p>\n<p>Der AC Unit Controller schaltet zurück in den Automatikmodus und passt Lüftergeschwindigkeit sowie Kühlleistung automatisch an, um die gewünschte Raumtemperatur zu halten</p>",
+    "function_blocks": [
+      {
+        "name": "Klimaanlagensteuerung",
+        "url": "https://www.loxone.com/help/AC-Control-block"
+      },
+      {
+        "name": "Schalter",
+        "url": "https://www.loxone.com/help/switch"
+      },
+      {
+        "name": "Automatik-Regel",
+        "url": "https://www.loxone.com/help/autorule"
+      }
+    ],
+    "auto_config": false,
+    "config_version": "16.0.6.3",
+    "config_files": [
+      {
+        "name": "UseCase-AC-ChildMode.Loxone",
+        "url": "https://pimcore.loxone.com/06%20Use%20Cases/Climate/AC%20Child%20Mode/UseCase-AC-ChildMode.Loxone"
+      }
+    ],
+    "required_products": [
+      {
+        "name": "AC Control Air for LG",
+        "sku": "100618"
+      }
+    ],
+    "url_slug": "air-conditioning-child-mode",
+    "remarks": ""
+  },
+  {
+    "id": "20546",
+    "name": "Klimaanlage mit Präsenz-, Zeit- und Fensterüberwachung",
+    "name_en": "AC with presence, time and window monitoring",
+    "category": "climate",
+    "secondary_categories": [
+      "energy"
+    ],
+    "description": "Automatische und energieeffiziente Klimaanlagensteuerung – abhängig von Präsenz, Zeitschaltplan und Fensterstatus.",
+    "implementation": "Die Klimaanlage (AC) soll nur dann aktiv sein, wenn alle folgenden Bedingungen erfüllt sind:\n\nPräsenz im Raum erkannt\naktuelle Zeit liegt innerhalb des Wochenzeitplans\nalle Fenster und Türen sind geschlossen\n\nDie Klimaanlage wird nur aktiviert, wenn innerhalb des definierten Zeitfensters der Schaltuhr eine Präsenz erkannt wird. Die Zeitfenster lassen sich flexibel in der App anpassen.\nWird ein Fenster oder eine Tür geöffnet, pausiert die Klimaanlage automatisch und bleibt solange deaktiviert, bis alle Öffnungen wieder geschlossen sind.",
+    "implementation_html": "<p>Die Klimaanlage (AC) soll nur dann aktiv sein, wenn <strong>alle</strong> folgenden Bedingungen erfüllt sind:</p>\n<ul>\n<li><strong>Präsenz</strong> im Raum erkannt</li>\n<li>aktuelle Zeit liegt <strong>innerhalb des Wochenzeitplans</strong></li>\n<li><strong>alle Fenster und Türen</strong> sind geschlossen</li>\n</ul>\n<p>Die Klimaanlage wird nur aktiviert, wenn innerhalb des definierten Zeitfensters der Schaltuhr eine Präsenz erkannt wird. Die Zeitfenster lassen sich flexibel in der App anpassen.</p>\n<p>Wird ein Fenster oder eine Tür geöffnet, pausiert die Klimaanlage automatisch und bleibt solange deaktiviert, bis alle Öffnungen wieder geschlossen sind.</p>",
+    "function_blocks": [
+      {
+        "name": "Klimaanlagensteuerung",
+        "url": "https://www.loxone.com/help/AC-Control-block"
+      },
+      {
+        "name": "Schaltuhr",
+        "url": "https://www.loxone.com/help/schedule"
+      },
+      {
+        "name": "Präsenz",
+        "url": "https://www.loxone.com/help/presence2"
+      }
+    ],
+    "auto_config": false,
+    "config_version": "16.0.6.3",
+    "config_files": [
+      {
+        "name": "Schedule & Presence & Windows AC Control.Loxone",
+        "url": "https://pimcore.loxone.com/06%20Use%20Cases/Climate/AC%20with%20presence%2C%20time%20and%20window%20monitoring/Schedule%20%26%20Presence%20%26%20Windows%20AC%20Control.Loxone"
+      }
+    ],
+    "required_products": [
+      {
+        "name": "AC Control Air for LG",
+        "sku": "100618"
+      },
+      {
+        "name": "Tür- & Fensterkontakt Air Weiß",
+        "sku": "100210"
+      },
+      {
+        "name": "Präsenzmelder Air Weiß",
+        "sku": "100420"
+      }
+    ],
+    "url_slug": "ac-presence-time-window-monitoring",
+    "remarks": ""
+  },
+  {
+    "id": "4801",
+    "name": "Integration von Klimaanlagen",
+    "name_en": "Air Conditioning (AC) Integration",
+    "category": "climate",
+    "secondary_categories": [],
+    "description": "Einbindung einer Klimaanlage in Loxone mit der AC Control Air.",
+    "implementation": "Um eine Klimaanlage möglichst einfach in Loxone zu integrieren, haben wir die AC Control Air entwickelt. Sie kann in unter 3 Minuten direkt in der Klimaanlage installiert werden.\nIn unserem Anwendungsbeispiel kommt ein Multi-Split-Klimagerät mit 3 Inneneinheiten zum Einsatz. Die Außeneinheit einer Klimaanlage kann entweder heizen oder kühlen, jedoch nicht beides gleichzeitig. Alle Inneneinheiten müssen daher im selben Modus betrieben werden. Der Baustein „Klimaanlagen Zentralsteuerung“ erfasst den Kühl- bzw. Heizbedarf der verschiedenen Zonen mit dem Intelligenten Raumregler und sorgt so für den störungsfreien und effizienten Betrieb der Klimaanlage.\nEco-ModusIm Eco-Modus läuft die Klimaanlage möglichst energiesparend. Sie schaltet sich nur dann ein, wenn es wirklich notwendig ist, um den Raum vor Überhitzung zu bewahren. Wurde der Raum um die konfigurierte Hysterese gekühlt, schaltet die Klimaanlage automatisch wieder ab. Der Eco-Modus ist zu jenen Zeiten aktiv, in denen niemand im Gebäude ist.\nComfort-ModusIm Comfort-Modus sorgt die Klimaanlage möglichst angenehm für die gewünschte Temperatur. Wird die Komforttemperatur  überschritten, beginnt sie automatisch zu kühlen. Ist die Wunschtemperatur erreicht, läuft sie konstant auf einer geringen Stufe, um ohne Störgeräusche die Temperatur zu halten.Der Comfort-Modus ist für jene Zeiten vorgesehen, in denen jemand im Gebäude ist.\nEnergiemanagementSelbstverständlich ermöglicht die Integration der Klimaanlagen in Loxone eine Reihe von Maßnahmen zur Energieoptimierung:\n\nBetrieb der Klimaanlage priorisiert bei PV Überschuss\nBetrieb der Klimaanlage wenn Strom besonders günstig verfügbar ist durch den Spot-Price-Optimizer\nLastmanagement zur Sicherung des Gebäudeanschlusses vor Überlast\nÜberkühlen bzw. Überheizen eines Raumes wenn überschüssige Energie vorhanden ist",
+    "implementation_html": "<p>Um eine Klimaanlage möglichst einfach in Loxone zu integrieren, haben wir die AC Control Air entwickelt. Sie kann in unter 3 Minuten direkt in der Klimaanlage installiert werden.</p>\n<p>In unserem Anwendungsbeispiel kommt ein Multi-Split-Klimagerät mit 3 Inneneinheiten zum Einsatz. Die Außeneinheit einer Klimaanlage kann entweder heizen oder kühlen, jedoch nicht beides gleichzeitig. Alle Inneneinheiten müssen daher im selben Modus betrieben werden. Der Baustein „Klimaanlagen Zentralsteuerung“ erfasst den Kühl- bzw. Heizbedarf der verschiedenen Zonen mit dem Intelligenten Raumregler und sorgt so für den störungsfreien und effizienten Betrieb der Klimaanlage.</p>\n<p><strong>Eco-Modus</strong><br />Im Eco-Modus läuft die Klimaanlage möglichst energiesparend. Sie schaltet sich nur dann ein, wenn es wirklich notwendig ist, um den Raum vor Überhitzung zu bewahren. Wurde der Raum um die konfigurierte Hysterese gekühlt, schaltet die Klimaanlage automatisch wieder ab. Der Eco-Modus ist zu jenen Zeiten aktiv, in denen niemand im Gebäude ist.</p>\n<p><strong>Comfort-Modus</strong><br />Im Comfort-Modus sorgt die Klimaanlage möglichst angenehm für die gewünschte Temperatur. Wird die Komforttemperatur  überschritten, beginnt sie automatisch zu kühlen. Ist die Wunschtemperatur erreicht, läuft sie konstant auf einer geringen Stufe, um ohne Störgeräusche die Temperatur zu halten.<br />Der Comfort-Modus ist für jene Zeiten vorgesehen, in denen jemand im Gebäude ist.</p>\n<p><strong>Energiemanagement<br /></strong>Selbstverständlich ermöglicht die Integration der Klimaanlagen in Loxone eine Reihe von Maßnahmen zur Energieoptimierung:</p>\n<ul>\n<li>Betrieb der Klimaanlage priorisiert bei PV Überschuss</li>\n<li>Betrieb der Klimaanlage wenn Strom besonders günstig verfügbar ist durch den Spot-Price-Optimizer</li>\n<li>Lastmanagement zur Sicherung des Gebäudeanschlusses vor Überlast</li>\n<li>Überkühlen bzw. Überheizen eines Raumes wenn überschüssige Energie vorhanden ist</li>\n</ul>",
+    "function_blocks": [
+      {
+        "name": "Klimaanlagensteuerung",
+        "url": "https://www.loxone.com/help/AC-Control-block"
+      },
+      {
+        "name": "Intelligente Raumregelung",
+        "url": "https://www.loxone.com/help/intelligent-room-controller"
+      },
+      {
+        "name": "Lastmanager",
+        "url": "https://www.loxone.com/help/loadmanager"
+      },
+      {
+        "name": "Energiemanager",
+        "url": "https://www.loxone.com/help/energy-manager"
+      },
+      {
+        "name": "Klimaanlagen Zentralsteuerung",
+        "url": "https://www.loxone.com/help/ac-climate-controller"
+      },
+      {
+        "name": "Präsenz",
+        "url": "https://www.loxone.com/help/presence2"
+      }
+    ],
+    "auto_config": false,
+    "config_version": "16.0.6.3",
+    "config_files": [
+      {
+        "name": "UseCase-integrating-air-conditioning.loxone",
+        "url": "https://pimcore.loxone.com/06%20Use%20Cases/Climate/Integrating%20Air%20Conditioning/UseCase-integrating-air-conditioning.loxone"
+      }
+    ],
+    "required_products": [
+      {
+        "name": "Miniserver Compact",
+        "sku": "100512"
+      },
+      {
+        "name": "Touch Tree Weiß",
+        "sku": "100221"
+      },
+      {
+        "name": "NFC Code Touch Tree Signalweiß",
+        "sku": "100481"
+      },
+      {
+        "name": "AC Control Air for LG",
+        "sku": "100618"
+      }
+    ],
+    "url_slug": "air-conditioning-integration",
+    "remarks": "Der Stecker für die AC Control Air verbirgt sich hinter einer geschlossenen Abdeckung im Bauraum der Inneneinheit, welche einfach mit einer Schraube geöffnet werden kann.\nDie AC Control ist eine unidirektionale Schnittstelle, die ausschließlich Signale senden, jedoch keine empfangen kann. Aus diesem Grund sendet es kontinuierlich Befehle, um sicherzustellen, dass die Vorgaben des Miniservers zuverlässig ausgeführt werden. Dadurch ist eine parallele Bedienung über die Fernbedienung nicht möglich."
+  },
+  {
+    "id": "20506",
+    "name": "Klimaanlage im Nachtmodus",
+    "name_en": "Air conditioning in night mode",
+    "category": "climate",
+    "secondary_categories": [],
+    "description": "Geräuschreduktion und Luftstrom-Anpassung laut Zeitplanung für besseren Schlafkomfort.",
+    "implementation": "Das Ziel ist die Automatische Anpassung der Klimaanlage zur Minimierung von Geräuschen und Vermeidung von direktem Luftstrom im Schlafzimmer während der Nacht, basierend auf einem vordefinierten Zeitplan.\nFunktionsweise\n\n\nAktivierung: Manuell durch den Nutzer (App, Schalter, Touch oder Automatik)\n\n\nDeaktivierung: Automatisch zur eingestellten Zeit („Nachtmodus deaktivieren“, Standard 08:00 Uhr)\n\n\nÄnderungen erfolgen nur, wenn die Klimaanlage eingeschaltet ist\n\n\nZeitplanung\n\n\nRaumbezogener Zeitplan wird über die Auto-Konfiguration definiert\n\n\nBeispiel Schlafzimmer:\n\n\nMontag bis Freitag: 21:00 – 06:00 Uhr\n\n\nSamstag und Sonntag: 21:00 – 10:00 Uhr\n\n\n\n\nVerhalten bei aktiviertem Nachtmodus\nDer AC Unit Controller passt die Einstellungen an, um den Schlafkomfort zu verbessern:\n\n\nLüftergeschwindigkeit auf Leise, Sehr Niedrig oder Niedrig (abhängig vom Gerät)\n\n\nLuftstromposition auf Position 5, um die Luft zur Decke zu lenken und direkten Luftstrom aufs Bett zu vermeiden\n\n\n(Optional) Trockenmodus in kinderrelevanten Räumen zur schonenden Kühlung\n\n\nVorteile\n\n\nGeräusche werden auf ein Minimum reduziert für ungestörten Schlaf\n\n\nLuftstrom wird umgeleitet, um direkten Luftzug auf das Bett zu verhindern",
+    "implementation_html": "<p class>Das Ziel ist die Automatische Anpassung der Klimaanlage zur Minimierung von Geräuschen und Vermeidung von direktem Luftstrom im Schlafzimmer während der Nacht, basierend auf einem vordefinierten Zeitplan.</p>\n<p class><strong>Funktionsweise</strong></p>\n<ul>\n<li class>\n<p class><strong>Aktivierung:</strong> Manuell durch den Nutzer (App, Schalter, Touch oder Automatik)</p>\n</li>\n<li class>\n<p class><strong>Deaktivierung:</strong> Automatisch zur eingestellten Zeit („Nachtmodus deaktivieren“, Standard 08:00 Uhr)</p>\n</li>\n<li class>\n<p class><strong>Änderungen erfolgen nur, wenn die Klimaanlage eingeschaltet ist</strong></p>\n</li>\n</ul>\n<p class><strong>Zeitplanung</strong></p>\n<ul>\n<li class>\n<p class>Raumbezogener Zeitplan wird über die Auto-Konfiguration definiert</p>\n</li>\n<li class>\n<p class>Beispiel Schlafzimmer:</p>\n<ul>\n<li class>\n<p class>Montag bis Freitag: 21:00 – 06:00 Uhr</p>\n</li>\n<li class>\n<p class>Samstag und Sonntag: 21:00 – 10:00 Uhr</p>\n</li>\n</ul>\n</li>\n</ul>\n<p class><strong>Verhalten bei aktiviertem Nachtmodus</strong></p>\n<p class>Der AC Unit Controller passt die Einstellungen an, um den Schlafkomfort zu verbessern:</p>\n<ul>\n<li class>\n<p class>Lüftergeschwindigkeit auf Leise, Sehr Niedrig oder Niedrig (abhängig vom Gerät)</p>\n</li>\n<li class>\n<p class>Luftstromposition auf Position 5, um die Luft zur Decke zu lenken und direkten Luftstrom aufs Bett zu vermeiden</p>\n</li>\n<li class>\n<p class>(Optional) Trockenmodus in kinderrelevanten Räumen zur schonenden Kühlung</p>\n</li>\n</ul>\n<p class><strong>Vorteile</strong></p>\n<ul>\n<li class>\n<p class>Geräusche werden auf ein Minimum reduziert für ungestörten Schlaf</p>\n</li>\n<li class>\n<p class>Luftstrom wird umgeleitet, um direkten Luftzug auf das Bett zu verhindern</p>\n</li>\n</ul>",
+    "function_blocks": [
+      {
+        "name": "Klimaanlagensteuerung",
+        "url": "https://www.loxone.com/help/AC-Control-block"
+      },
+      {
+        "name": "Automatik-Regel",
+        "url": "https://www.loxone.com/help/autorule"
+      },
+      {
+        "name": "Schaltuhr",
+        "url": "https://www.loxone.com/help/schedule"
+      },
+      {
+        "name": "Schalter",
+        "url": "https://www.loxone.com/help/switch"
+      },
+      {
+        "name": "Impuls um",
+        "url": "https://www.loxone.com/help/PulseAt"
+      }
+    ],
+    "auto_config": false,
+    "config_version": "16.0.6.3",
+    "config_files": [
+      {
+        "name": "UseCase-AC-NightMode.Loxone",
+        "url": "https://pimcore.loxone.com/06%20Use%20Cases/Climate/AC%20Night%20Mode/UseCase-AC-NightMode.Loxone"
+      }
+    ],
+    "required_products": [
+      {
+        "name": "AC Control Air for LG",
+        "sku": "100618"
+      }
+    ],
+    "url_slug": "air-conditioning-night-mode",
+    "remarks": "Diese Einstellungen werden nur angewendet, wenn die Klimaanlage bereits eingeschaltet ist. Der Nachtmodus schaltet Geräte nicht ein, sondern verändert nur das Verhalten aktiver Geräte."
+  },
+  {
+    "id": "21678",
+    "name": "Automatisierter Deckenventilator basierend auf Anwesenheit und Heiz-/Kühlbedarf",
+    "name_en": "Automated Ceiling Fan based on presence & heating/cooling demand",
+    "category": "climate",
+    "secondary_categories": [
+      "climate"
+    ],
+    "description": "Der Deckenventilator unterstützt das Heiz-/Kühlsystem durch Luftbewegung und ist zusätzlich bei Anwesenheit aktiv.",
+    "implementation": "Ein Deckenventilator, der durch den Loxone Fan Control Tree gesteuert wird, reagiert auf Anwesenheit und Heiz-/Kühlbedarf. Sobald entweder Heizen oder Kühlen erforderlich ist, läuft er auf mittlerer Geschwindigkeit, um die Luft für eine gleichmäßigere Klimaregelung zu bewegen. Er läuft auch auf mittlerer Stufe, wenn Anwesenheit erkannt wird. Wenn weder Heizen noch Kühlen erforderlich ist und die Anwesenheit ausgeschaltet ist, schaltet er sich aus.Der Intelligente Raumregler stützt sich auf eine Klappe (luftbasiertes System) zur Steuerung der Heizung/Kühlung sowie auf einen Tür- und Fensterkontakt, der bei geöffneten Türen/Fenstern ausgeschaltet wird. Der Präsenzbaustein stützt sich auf einen Präsenzmelder Tree, sowie auf den Tür- und Fensterkontakt Air. Außerdem wurde ein Touch Pure Flex mit einer reduzierten Konfiguration verwendet, um den Ventilator zu steuern und Temperatur und Luftfeuchtigkeit an den intelligenten Raumregler zu melden.",
+    "implementation_html": "<p style=\"caret-color: rgb(0, 0, 0); color: rgb(0, 0, 0); font-style: normal; font-variant-caps: normal; font-weight: 400; letter-spacing: normal; orphans: auto; text-align: start; text-indent: 0px; text-transform: none; white-space: normal; widows: auto; word-spacing: 0px; -webkit-text-stroke-width: 0px; text-decoration: none;\"><span style=\"color: rgb(0, 0, 0);\">Ein Deckenventilator, der durch den Loxone Fan Control Tree gesteuert wird, reagiert auf Anwesenheit und Heiz-/Kühlbedarf. Sobald entweder Heizen oder Kühlen erforderlich ist, läuft er auf mittlerer Geschwindigkeit, um die Luft für eine gleichmäßigere Klimaregelung zu bewegen. </span></p><p style=\"caret-color: rgb(0, 0, 0); color: rgb(0, 0, 0); font-style: normal; font-variant-caps: normal; font-weight: 400; letter-spacing: normal; orphans: auto; text-align: start; text-indent: 0px; text-transform: none; white-space: normal; widows: auto; word-spacing: 0px; -webkit-text-stroke-width: 0px; text-decoration: none;\"><span style=\"color: rgb(0, 0, 0);\">Er läuft auch auf mittlerer Stufe, wenn Anwesenheit erkannt wird. Wenn weder Heizen noch Kühlen erforderlich ist und die Anwesenheit ausgeschaltet ist, schaltet er sich aus.</span></p><p style=\"caret-color: rgb(0, 0, 0); color: rgb(0, 0, 0); font-style: normal; font-variant-caps: normal; font-weight: 400; letter-spacing: normal; orphans: auto; text-align: start; text-indent: 0px; text-transform: none; white-space: normal; widows: auto; word-spacing: 0px; -webkit-text-stroke-width: 0px; text-decoration: none;\"></p><p style=\"caret-color: rgb(0, 0, 0); color: rgb(0, 0, 0); font-style: normal; font-variant-caps: normal; font-weight: 400; letter-spacing: normal; orphans: auto; text-align: start; text-indent: 0px; text-transform: none; white-space: normal; widows: auto; word-spacing: 0px; -webkit-text-stroke-width: 0px; text-decoration: none;\"><span style=\"color: rgb(0, 0, 0);\">Der Intelligente Raumregler stützt sich auf eine Klappe (luftbasiertes System) zur Steuerung der Heizung/Kühlung sowie auf einen Tür- und Fensterkontakt, der bei geöffneten Türen/Fenstern ausgeschaltet wird. </span></p><p style=\"caret-color: rgb(0, 0, 0); color: rgb(0, 0, 0); font-style: normal; font-variant-caps: normal; font-weight: 400; letter-spacing: normal; orphans: auto; text-align: start; text-indent: 0px; text-transform: none; white-space: normal; widows: auto; word-spacing: 0px; -webkit-text-stroke-width: 0px; text-decoration: none;\"><span style=\"color: rgb(0, 0, 0);\">Der Präsenzbaustein stützt sich auf einen Präsenzmelder Tree, sowie auf den Tür- und Fensterkontakt Air. Außerdem wurde ein Touch Pure Flex mit einer reduzierten Konfiguration verwendet, um den Ventilator zu steuern und Temperatur und Luftfeuchtigkeit an den intelligenten Raumregler zu melden.</span></p>",
+    "function_blocks": [
+      {
+        "name": "Intelligente Raumregelung",
+        "url": "https://www.loxone.com/help/intelligent-room-controller"
+      },
+      {
+        "name": "Stufenauswahl",
+        "url": "https://www.loxone.com/help/step-selector"
+      },
+      {
+        "name": "Präsenz",
+        "url": "https://www.loxone.com/help/presence2"
+      },
+      {
+        "name": "Flankenerkennung",
+        "url": "https://www.loxone.com/help/edge-detection"
+      }
+    ],
+    "auto_config": false,
+    "config_version": "16.0.6.10",
+    "config_files": [
+      {
+        "name": "Fan_Control_-_Presence_and_Temperature_Support.Loxone",
+        "url": "https://pimcore.loxone.com/06%20Use%20Cases/Climate/Automated%20Ceiling%20Fan/Fan_Control_-_Presence_and_Temperature_Support.Loxone"
+      }
+    ],
+    "required_products": [
+      {
+        "name": "Fan Control Tree",
+        "sku": "100622"
+      },
+      {
+        "name": "Tür- & Fensterkontakt Air Weiß",
+        "sku": "100210"
+      },
+      {
+        "name": "Touch Pure Flex Tree Anthrazit",
+        "sku": "100674"
+      },
+      {
+        "name": "Präsenzmelder Deckeneinbau Tree Weiß",
+        "sku": "100466"
+      }
+    ],
+    "url_slug": "automated-ceiling-fan",
+    "remarks": "Prüfen Sie die Kompatibilität des Deckenventilators mit unserer Fan Control Tree."
+  },
+  {
+    "id": "20519",
+    "name": "Klimaanlage steuern mit Touch Pure Flex",
+    "name_en": "Control AC with Touch Pure Flex",
+    "category": "climate",
+    "secondary_categories": [
+      "energy"
+    ],
+    "description": "Einfachste Steuerung von Klimaanlagen über ein zentrales Bedienteil und App-Integration.",
+    "implementation": "Mit dem speziell entwickelten Touch Pure Flex lassen sich individuelle Funktionen unkompliziert realisieren.In diesem Projekt wurde auf den Touch Pure Flex Air Battery gesetzt, der die Steuerung der Klimaanlage einfach und übersichtlich auf einen Taster bringt.Der Touch Pure Flex Air Battery ersetzt den herkömmlichen Thermostat und ermöglicht eine vollständige, intuitive Bedienung der Klimaanlage – kabellos, batteriebetrieben und nahtlos in das Loxone System integriert.\nÜber die API lässt sich der AC Unit Controller direkt vom Gerät aus bedienen.\nFunktionen im Überblick:\n\nEin/Aus-Schalter\nStummschaltungsmodus (Silent Mode)\nEinstellbare Zieltemperatur (18–32 °C in 1 °C-Schritten)\nWahl des Betriebsmodus: Auto, Heizen, Kühlen, Trocken, Lüfter\nSteuerung der Lüftergeschwindigkeit (bis zu 7 Stufen)\nEinstellung der Luftstromrichtung (Auto, Schwenkfunktion, feste Positionen)\n\nEin integrierter Feuchtigkeitssensor aktiviert automatisch die Trockenfunktion bei einer Luftfeuchtigkeit über 65 % während des Kühlbetriebs und schaltet zurück auf Auto, wenn die Feuchtigkeit unter 55 % fällt. Dies sorgt für schnellere Erreichung der Wunschtemperatur und erhöht den Komfort spürbar.",
+    "implementation_html": "<p>Mit dem speziell entwickelten <strong>Touch Pure Flex </strong>lassen sich individuelle Funktionen unkompliziert realisieren.<br />In diesem Projekt wurde auf den Touch Pure Flex Air <strong>Battery</strong> gesetzt, der die Steuerung der Klimaanlage einfach und übersichtlich auf einen Taster bringt.<br />Der Touch Pure Flex Air Battery <strong>ersetzt</strong> den <strong>herkömmlichen Thermostat</strong> und ermöglicht eine <strong>vollständige, intuitive Bedienung</strong> der Klimaanlage – kabellos, batteriebetrieben und nahtlos in das Loxone System integriert.</p>\n<p>Über die API lässt sich der AC Unit Controller direkt vom Gerät aus bedienen.</p>\n<p><strong>Funktionen im Überblick:</strong></p>\n<ul>\n<li>Ein/Aus-Schalter</li>\n<li>Stummschaltungsmodus (Silent Mode)</li>\n<li>Einstellbare Zieltemperatur (18–32 °C in 1 °C-Schritten)</li>\n<li>Wahl des Betriebsmodus: Auto, Heizen, Kühlen, Trocken, Lüfter</li>\n<li>Steuerung der Lüftergeschwindigkeit (bis zu 7 Stufen)</li>\n<li>Einstellung der Luftstromrichtung (Auto, Schwenkfunktion, feste Positionen)</li>\n</ul>\n<p>Ein <strong>integrierter Feuchtigkeitssensor</strong> aktiviert automatisch die Trockenfunktion bei einer Luftfeuchtigkeit über 65 % während des Kühlbetriebs und schaltet zurück auf Auto, wenn die Feuchtigkeit unter 55 % fällt. <br />Dies sorgt für schnellere Erreichung der Wunschtemperatur und erhöht den Komfort spürbar.</p>",
+    "function_blocks": [
+      {
+        "name": "Klimaanlagensteuerung",
+        "url": "https://www.loxone.com/help/AC-Control-block"
+      },
+      {
+        "name": "Schalter",
+        "url": "https://www.loxone.com/help/switch"
+      },
+      {
+        "name": "Automatik-Regel",
+        "url": "https://www.loxone.com/help/autorule"
+      }
+    ],
+    "auto_config": false,
+    "config_version": "16.0.6.3",
+    "config_files": [
+      {
+        "name": "UseCase-AC-TouchPureFlex.Loxone",
+        "url": "https://pimcore.loxone.com/06%20Use%20Cases/Climate/AC%20with%20Touch%20Pure%20Flex/UseCase-AC-TouchPureFlex.Loxone"
+      }
+    ],
+    "required_products": [
+      {
+        "name": "AC Control Air for LG",
+        "sku": "100618"
+      },
+      {
+        "name": "Touch Pure Flex 24V Air Anthrazit",
+        "sku": "100676"
+      }
+    ],
+    "url_slug": "ac-touch-pure-flex",
+    "remarks": ""
+  },
+  {
+    "id": "20505",
+    "name": "Energieoptimierte Klimasteuerung mit Spotpreis",
+    "name_en": "Energy-optimized climate control with spot price",
+    "category": "climate",
+    "secondary_categories": [
+      "energy"
+    ],
+    "description": "Vermeidung von teuren Stromstunden für Klimageräte über das AC-Control Air.",
+    "implementation": "Bei variablen Strompreisen werden die Klimageräte in den teuersten Stunden des Tages automatisch abgeschaltet, um unnötige Kosten zu vermeiden.\nDer Spotpreis-Baustein ermittelt täglich um Mitternacht die 20 günstigsten Stunden des folgenden Tages.Innerhalb dieses Zeitfensters ist die Klimatisierung der Räume über die AC Units freigegeben. Im Gegensatz dazu werden die 4 teuersten Stunden gesperrt.\nDie Klimaanlagen-Bausteine verfügen über einen Eingang für den Lastabwurf („LS“), der aktiviert wird, sobald die teuren Stunden des Tages gelten. Diese Statusänderung wird zudem direkt in der Visualisierung des Bausteins klar dargestellt.",
+    "implementation_html": "<p>Bei <strong>variablen Strompreisen</strong> werden die Klimageräte <strong>in den teuersten Stunden</strong> des Tages automatisch <strong>abgeschaltet</strong>, um unnötige Kosten zu vermeiden.</p>\n<p>Der <strong>Spotpreis-Baustein</strong> ermittelt täglich um Mitternacht die <strong>20 günstigsten Stunden</strong> des folgenden Tages.<br />Innerhalb dieses Zeitfensters ist die Klimatisierung der Räume über die AC Units <strong>freigegeben</strong>. <br />Im Gegensatz dazu werden die <strong>4 teuersten Stunden gesperrt.</strong></p>\n<p>Die Klimaanlagen-Bausteine verfügen über einen Eingang für den <strong>Lastabwurf</strong> („LS“), der aktiviert wird, sobald die teuren Stunden des Tages gelten. <br />Diese Statusänderung wird zudem <strong>direkt in der Visualisierung</strong> des Bausteins <strong>klar dargestellt.</strong></p>",
+    "function_blocks": [
+      {
+        "name": "Klimaanlagensteuerung",
+        "url": "https://www.loxone.com/help/AC-Control-block"
+      },
+      {
+        "name": "Klimaanlagen Zentralsteuerung",
+        "url": "https://www.loxone.com/help/ac-climate-controller"
+      },
+      {
+        "name": "Spotpreis-Optimierer",
+        "url": "https://www.loxone.com/enen/kb/spot-price-optimizer/"
+      },
+      {
+        "name": "Impuls um",
+        "url": "https://www.loxone.com/help/PulseAt"
+      }
+    ],
+    "auto_config": false,
+    "config_version": "16.0.6.3",
+    "config_files": [
+      {
+        "name": "Spot Price Optimizer AC Control.Loxone",
+        "url": "https://pimcore.loxone.com/06%20Use%20Cases/Climate/AC%20Spotprice/Spot%20Price%20Optimizer%20AC%20Control.Loxone"
+      }
+    ],
+    "required_products": [
+      {
+        "name": "AC Control Air for LG",
+        "sku": "100618"
+      }
+    ],
+    "url_slug": "air-conditioning-spotprice",
+    "remarks": "Bei Bedarf können die Zeiträume für die Berechnung der günstigen und teuren Stunden auch bequem in der App im \"Spotpreis-Optimierer\" angepasst werden.\nBei unterschiedlichen Anforderungen einzelner Räume zwischen Heizen und Kühlen entscheidet der Klimaanlagen-Zentralbaustein intelligent, welche Betriebsart sinnvoll ist."
+  },
+  {
+    "id": "24482",
+    "name": "Gewerbliche Kühlhausüberwachung ",
+    "name_en": "",
+    "category": "climate",
+    "secondary_categories": [
+      "security",
+      "climate"
+    ],
+    "description": "Temperatursensoren überwachen die Küchentemperaturen. Daten werden in der Loxone App visualisiert und monatlich per E-Mail versendet.",
+    "implementation": "Die Temperaturüberwachung in Kühlräumen kann durch verschiedene Sensortechnologien realisiert werden, die in das Loxone System integriert sind. Die erfassten Werte werden kontinuierlich aufgezeichnet und in der Loxone App visualisiert. Alle Sensoren verfügen über eine Validierung: Liegt ein Messwert außerhalb des zulässigen Bereichs, wird der Fehlerausgang aktiviert und der Miniserver löst automatisch einen Alarm aus. Um sicherzustellen, dass die Kühlung auch im Fehlerfall zuverlässig bleibt, wird statt des fehlerhaften Messwerts automatisch ein voreingestellter Standardwert ausgegeben. Wenn ein Sensor falsche Daten liefert oder ausfällt, erkennt das System den Fehler sofort und schaltet auf den sicheren Standardwert um. Dadurch bleibt die Temperatur stabil und die Qualität der gelagerten Produkte ist weiterhin geschützt. Diese Lösung ermöglicht eine schnelle Fehlererkennung und garantiert eine sofortige Reaktion bei Störungen, ohne die Produktqualität zu gefährden. Zur lückenlosen Dokumentation der Kühlkette wird ein Logger aktiviert, der alle Temperaturdaten lokal auf der SD-Karte des Miniservers speichert. Für eine klare und übersichtliche Visualisierung der Temperaturen sorgt der Baustein „Anlagenschema“, der alle Messwerte auf einen Blick darstellt.",
+    "implementation_html": "<p>Die Temperaturüberwachung in Kühlräumen kann durch verschiedene Sensortechnologien realisiert werden, die in das Loxone System integriert sind. Die erfassten Werte werden kontinuierlich aufgezeichnet und in der Loxone App visualisiert. Alle Sensoren verfügen über eine Validierung: Liegt ein Messwert außerhalb des zulässigen Bereichs, wird der Fehlerausgang aktiviert und der Miniserver löst automatisch einen Alarm aus. </p><p></p><p>Um sicherzustellen, dass die Kühlung auch im Fehlerfall zuverlässig bleibt, wird statt des fehlerhaften Messwerts automatisch ein voreingestellter Standardwert ausgegeben. Wenn ein Sensor falsche Daten liefert oder ausfällt, erkennt das System den Fehler sofort und schaltet auf den sicheren Standardwert um. Dadurch bleibt die Temperatur stabil und die Qualität der gelagerten Produkte ist weiterhin geschützt. </p><p></p><p>Diese Lösung ermöglicht eine schnelle Fehlererkennung und garantiert eine sofortige Reaktion bei Störungen, ohne die Produktqualität zu gefährden. Zur lückenlosen Dokumentation der Kühlkette wird ein Logger aktiviert, der alle Temperaturdaten lokal auf der SD-Karte des Miniservers speichert. Für eine klare und übersichtliche Visualisierung der Temperaturen sorgt der Baustein „Anlagenschema“, der alle Messwerte auf einen Blick darstellt.</p>",
+    "function_blocks": [
+      {
+        "name": "Anlagenschema",
+        "url": "https://www.loxone.com/help/status"
+      }
+    ],
+    "auto_config": false,
+    "config_version": "16.1.11.6",
+    "config_files": [
+      {
+        "name": "Cold Storage Monitoring.Loxone",
+        "url": "https://pimcore.loxone.com/06%20Use%20Cases/Climate/cold-storage-monitoring/Cold%20Storage%20Monitoring.Loxone"
+      }
+    ],
+    "required_products": [
+      {
+        "name": "Miniserver",
+        "sku": "100335"
+      }
+    ],
+    "url_slug": "cold-storage-monitoring",
+    "remarks": "Die Temperaturmessung kann über verschiedene Technologien erfolgen z.B. 1-Wire, 0-10V oder Modbus."
+  },
+  {
+    "id": "20536",
+    "name": "Klimaanlagen-Steuerung nach Zeitplan",
+    "name_en": "Schedule-based air conditioning control",
+    "category": "climate",
+    "secondary_categories": [],
+    "description": "Zeitsteuerung der Klimaanlage nach Raumtyp inklusive Pause-Funktion bei offenen Fenstern.",
+    "implementation": "Ziel ist das automatische Ein- und Ausschalten der Klimaanlage basierend auf einem wöchentlichen Zeitplan, der je nach Raumtyp definiert ist. Dies verbessert die Energieeffizienz und gewährleistet Komfort während der aktiven Stunden.\nEinrichtungVerwenden Sie die Funktion „Timing nach Raumtyp“ in der Auto-Konfiguration zur Planung.\nBeispielzeitplan – Wohnzimmer:\n\n\nSonntag bis Donnerstag: 06:00 – 21:00 Uhr\n\n\nFreitag und Samstag: 06:00 – 24:00 Uhr\n\n\nVerhaltenDie Klimaanlage schaltet sich nur ein, wenn der Zeitplan aktiv ist. Außerhalb dieser Zeiten schaltet sie automatisch ab.\nAnpassungsmöglichkeiten\n\n\nZeitplan und Verhalten können individuell angepasst werden über die Einstellungen des AC Unit Controllers.\n\n\nStandardwerte können im Reiter „Properties“ in den Einstellungen geändert werden.\n\n\nVerknüpfung mit spezifischen Betriebsmodi wie „Urlaub“, um das Standardverhalten temporär zu überschreiben.\n\n\nFunktion Tür- und Fensterkontakt Air\nWenn die Klimaanlage eingeschaltet ist, wird sie pausiert, sobald eine Tür oder ein Fenster geöffnet wird. Der Betrieb wird automatisch fortgesetzt, sobald alle geschlossen sind.\n\n\n0 = geschlossen\n\n\n1 = geöffnet\n\n\nDiese Funktion hilft, Energie zu sparen, indem eine Kühlung oder Heizung vermieden wird, solange Fenster oder Türen geöffnet sind.",
+    "implementation_html": "<p class>Ziel ist das automatische Ein- und Ausschalten der Klimaanlage basierend auf einem wöchentlichen Zeitplan, der je nach Raumtyp definiert ist. Dies verbessert die Energieeffizienz und gewährleistet Komfort während der aktiven Stunden.</p>\n<p class><strong>Einrichtung</strong><br />Verwenden Sie die Funktion „Timing nach Raumtyp“ in der Auto-Konfiguration zur Planung.</p>\n<p class><strong>Beispielzeitplan – Wohnzimmer:</strong></p>\n<ul>\n<li class>\n<p class>Sonntag bis Donnerstag: 06:00 – 21:00 Uhr</p>\n</li>\n<li class>\n<p class>Freitag und Samstag: 06:00 – 24:00 Uhr</p>\n</li>\n</ul>\n<p class><strong>Verhalten</strong><br />Die Klimaanlage schaltet sich nur ein, wenn der Zeitplan aktiv ist. Außerhalb dieser Zeiten schaltet sie automatisch ab.</p>\n<p class><strong>Anpassungsmöglichkeiten</strong></p>\n<ul>\n<li class>\n<p class>Zeitplan und Verhalten können individuell angepasst werden über die Einstellungen des AC Unit Controllers.</p>\n</li>\n<li class>\n<p class>Standardwerte können im Reiter „Properties“ in den Einstellungen geändert werden.</p>\n</li>\n<li class>\n<p class>Verknüpfung mit spezifischen Betriebsmodi wie „Urlaub“, um das Standardverhalten temporär zu überschreiben.</p>\n</li>\n</ul>\n<p class><strong>Funktion Tür- und Fensterkontakt Air</strong></p>\n<p class>Wenn die Klimaanlage eingeschaltet ist, wird sie pausiert, sobald eine Tür oder ein Fenster geöffnet wird. Der Betrieb wird automatisch fortgesetzt, sobald alle geschlossen sind.</p>\n<ul>\n<li class>\n<p class>0 &#61; geschlossen</p>\n</li>\n<li class>\n<p class>1 &#61; geöffnet</p>\n</li>\n</ul>\n<p class>Diese Funktion hilft, Energie zu sparen, indem eine Kühlung oder Heizung vermieden wird, solange Fenster oder Türen geöffnet sind.</p>",
+    "function_blocks": [
+      {
+        "name": "Klimaanlagensteuerung",
+        "url": "https://www.loxone.com/help/AC-Control-block"
+      },
+      {
+        "name": "Schaltuhr",
+        "url": "https://www.loxone.com/help/schedule"
+      }
+    ],
+    "auto_config": true,
+    "config_version": "16.0.6.3",
+    "config_files": [
+      {
+        "name": "Schedule-Based AC Control.Loxone",
+        "url": "https://pimcore.loxone.com/06%20Use%20Cases/Climate/Schedule-based%20AC%20Control/Schedule-Based%20AC%20Control.Loxone"
+      }
+    ],
+    "required_products": [
+      {
+        "name": "AC Control Air for LG",
+        "sku": "100618"
+      },
+      {
+        "name": "Tür- & Fensterkontakt Air Weiß",
+        "sku": "100210"
+      }
+    ],
+    "url_slug": "schedule-based-ac-control",
+    "remarks": "- Empfehlen Sie Kunden, Betriebsmodi zu verwenden, um das Systemverhalten einfach zu ändern, ohne den Zeitplan manuell anpassen zu müssen."
+  },
+  {
+    "id": "20476",
+    "name": "Einbindung der Wärmepumpe ins Energiemanagement über SG-Ready",
+    "name_en": "Integration of the heat pump into energy management via SG-Ready",
+    "category": "energy",
+    "secondary_categories": [
+      "climate"
+    ],
+    "description": "SG Ready wird verwendet, um den Verbrauch der Wärmepumpe basierend auf den Signalen des Energiemanagements zu erhöhen oder zu senken.",
+    "implementation": "SG Ready (Smart Grid Ready) ist ein Standard, mit dem Wärmepumpen auf externe Steuersignale reagieren können – In diesem Fall über ein Nano 2 Relay Tree. So passt die Wärmepumpe ihren Stromverbrauch automatisch an die aktuelle Energiesituation an.Beispiel:Bei günstiger Energie (z. B. PV-Überschuss) kann sie mehr Wärme erzeugen, bei teurem Strom den Verbrauch reduzieren oder ganz pausieren.Technisch funktioniert das über zwei Kontakteingänge (K1 und K2) an der Wärmepumpe. Je nachdem, ob diese offen oder geschlossen sind, ergeben sich vier Betriebsmodi:Normalbetrieb (Standard): Wenn sowohl der K1- als auch der K2-Schalter offen sind, läuft die Wärmepumpe im normalen Betrieb.Reduziert: Ist K1 offen und K2 geschlossen, wird der Verbrauch gesenkt, um Energie zu sparen.Erhöht: Wenn K1 geschlossen und K2 offen ist, wird der Verbrauch erhöht, zum Beispiel bei einem Überschuss an PV-Energie.Sperre: Wenn sowohl K1 als auch K2 geschlossen sind, darf die Wärmepumpe nicht laufen.",
+    "implementation_html": "<p><strong>SG Ready</strong> (Smart Grid Ready) ist ein Standard, mit dem Wärmepumpen auf externe Steuersignale reagieren können – In diesem Fall über ein Nano 2 Relay Tree. </p><p>So passt die Wärmepumpe ihren Stromverbrauch automatisch an die aktuelle Energiesituation an.</p><p><strong>Beispiel:</strong></p><p>Bei günstiger Energie (z. B. PV-Überschuss) kann sie mehr Wärme erzeugen, bei teurem Strom den Verbrauch reduzieren oder ganz pausieren.</p><p><strong>Technisch funktioniert das über zwei Kontakteingänge (K1 und K2)</strong> an der Wärmepumpe. Je nachdem, ob diese offen oder geschlossen sind, ergeben sich vier Betriebsmodi:</p><p class=\"p2\"></p><ul><li><strong>Normalbetrieb (Standard)</strong>: Wenn sowohl der K1- als auch der K2-Schalter offen sind, läuft die Wärmepumpe im normalen Betrieb.</li><li><strong>Reduziert</strong>: Ist K1 offen und K2 geschlossen, wird der Verbrauch gesenkt, um Energie zu sparen.</li><li><strong>Erhöht</strong>: Wenn K1 geschlossen und K2 offen ist, wird der Verbrauch erhöht, zum Beispiel bei einem Überschuss an PV-Energie.</li><li><strong>Sperre</strong>: Wenn sowohl K1 als auch K2 geschlossen sind, darf die Wärmepumpe nicht laufen.</li></ul><p></p>",
+    "function_blocks": [
+      {
+        "name": "Intelligente Raumregelung",
+        "url": "https://www.loxone.com/help/intelligent-room-controller"
+      },
+      {
+        "name": "Energiemanager",
+        "url": "https://www.loxone.com/help/energy-manager"
+      },
+      {
+        "name": "Energieflussmonitor",
+        "url": "https://www.loxone.com/help/energy-flow-monitor"
+      },
+      {
+        "name": "Zähler Bidirektional",
+        "url": "https://www.loxone.com/help/meter-bidirectional"
+      },
+      {
+        "name": "Zähler",
+        "url": "https://www.loxone.com/help/meter"
+      },
+      {
+        "name": "Lastmanager",
+        "url": "https://www.loxone.com/help/loadmanager"
+      },
+      {
+        "name": "Spotpreis-Optimierer",
+        "url": "https://www.loxone.com/enen/kb/spot-price-optimizer/"
+      },
+      {
+        "name": "Impuls um",
+        "url": "https://www.loxone.com/help/PulseAt"
+      },
+      {
+        "name": "Heiz- und Kühlsteuerung",
+        "url": "https://www.loxone.com/help/climate-controller"
+      },
+      {
+        "name": "Binärdekoder",
+        "url": "https://www.loxone.com/help/BinDecoder"
+      },
+      {
+        "name": "Status",
+        "url": "https://www.loxone.com/help/status"
+      },
+      {
+        "name": "Schalter",
+        "url": "https://www.loxone.com/help/switch"
+      },
+      {
+        "name": "Ausschaltverzögerung",
+        "url": "https://www.loxone.com/help/OffDelay"
+      },
+      {
+        "name": "Flankenerkennung",
+        "url": "https://www.loxone.com/help/edge-detection"
+      },
+      {
+        "name": "ODER",
+        "url": "https://www.loxone.com/help/Or"
+      },
+      {
+        "name": "UND",
+        "url": "https://www.loxone.com/help/And"
+      }
+    ],
+    "auto_config": false,
+    "config_version": "16.0.6.10",
+    "config_files": [
+      {
+        "name": "SG_Ready_Use_Case.Loxone",
+        "url": "https://pimcore.loxone.com/06%20Use%20Cases/Energy/SG-Ready%20-%20Heatpump/SG_Ready_Use_Case.Loxone"
+      }
+    ],
+    "required_products": [
+      {
+        "name": "Touch Tree Weiß",
+        "sku": "100221"
+      },
+      {
+        "name": "Stellantrieb Tree",
+        "sku": "100602"
+      },
+      {
+        "name": "Nano 2 Relay Tree",
+        "sku": "100395"
+      },
+      {
+        "name": "Präsenzmelder Deckeneinbau Tree Weiß",
+        "sku": "100466"
+      },
+      {
+        "name": "Energiezähler 3-phasig Tree",
+        "sku": "100567"
+      }
+    ],
+    "url_slug": "smart-grid-ready-heatpump",
+    "remarks": "Je nach Wärmepumpenhersteller kann die Belegung variieren – bitte Datenblatt prüfen.\nBitte prüfen Sie vor der Signalvergabe die konkrete SG-Ready-Implementierung Ihrer Wärmepumpe.\nDie Umsetzung kann je nach Hersteller/Konfiguration unterschiedlich ausfallen!\nZum Teil unterscheiden sich die Zustände nach der SG Version, mehr dazu hier»"
+  },
+  {
+    "id": "5145",
+    "name": "Ladestationen abrechnen mit Energiemanagement",
+    "name_en": "Managed Charging with Billing via Exosphere Session Database Connector",
+    "category": "energy",
+    "secondary_categories": [],
+    "description": "Wallboxen abrechnen und überwachen mit Exosphere-Datenbank.",
+    "implementation": "Bei Ladestationen, die für Ladegäste zur Verfügung stehen, ist oft eine Ladefreigabe erforderlich.\nAnforderungen an die Ladefreigabe:\n\nFreigabe der Ladungen nur für berechtigte Nutzer\nOptimiertes Laden bei günstigen Strompreisen\nSchutz vor Überlastung und Vermeidung von Spitzenlasten\nAufzeichnung und ggf. Abrechnung der Ladevorgänge\n\n \nEnergiemanagement & Lastoptimierung\nEin Energiemanagement-System optimiert den Ladestrom aus eigener Erzeugung oder von der Strombörse und verhindert eine Überlastung des Gebäudes.Dabei können 15-Minuten-Messungen die maximale Last vorgeben – typisch für Unternehmen mit hohem Stromverbrauch und großer Anschlussleistung.\nBeispielkonfiguration: Zwei Wallbox Tree\nDieses Beispiel nutzt zwei Wallbox Tree (Nord und Süd), jeweils mit:\n\nNFC Code Touch zur Nutzerfreigabe\n3-Phasen-Zähler Tree zur Verbrauchserfassung\nMessung der Netzanschlussleistung & PV-Erzeugung mit weiteren 3-Phasen-Zählern Tree\n\n \nLadefreigabe & Tarifmodelle\nBerechtigte Nutzer können die Ladesäulen via NFC oder Code-Eingabe aktivieren.Im Wallbox Manager sind zwei Tarifmodi hinterlegt:\nModus ECO (0,25 € pro kWh)\n\nDer Spotpreis-Optimierer ermittelt die 5 günstigsten Stunden am Tag & in der Nacht, um sowohl Tages- als auch Übernachtungsgäste mit Energie zu versorgen.\nZusätlich wird überschüssiger, selbst erzeugter Strom genutzt.\nFair verteilt auf alle Ladestationen im ECO-Modus.\n\n \nModus PRIO (0,50 € pro kWh)\n\nSofortige maximale Ladeleistung an der gewählten Ladesäule bevorzugt zu ECO.\nFair verteilt auf alle Ladestationen im PRIO-Modus.\n\n \nLastschutz: Die Ladesäulen werden nur dann abgeschaltet, wenn die Spitzenlast überschritten wird oder der Überlastschutz greift.\nDokumentation & Erfassung der Ladevorgänge\nZusätzlich werden die Ladesessions in einem Session-Database-Connector-Baustein erfasst und in der Exosphere dokumentiert. Optional werden sie auch in einem Logfile auf dem Miniserver gespeichert.\nDie Erfassung der Sessions beinhaltet:\n\nStart und Ende der Ladung\nNutzer, der die Ladung aktiviert hat\nGeladener Modus (ECO oder PRIO)\nKosten der Ladung\nGesamt geladene Energie",
+    "implementation_html": "<p>Bei<strong> Ladestationen</strong>, die für Ladegäste zur Verfügung stehen, ist oft eine <strong>Ladefreigabe erforderlich</strong>.</p>\n<p><span style=\"text-decoration: underline;\"><strong>Anforderungen an die Ladefreigabe:</strong></span></p>\n<ul>\n<li><strong>Freigabe der Ladungen</strong> nur für berechtigte Nutzer</li>\n<li><strong>Optimiertes Laden</strong> bei günstigen Strompreisen</li>\n<li><strong>Schutz vor Überlastung</strong> und Vermeidung von Spitzenlasten</li>\n<li><strong>Aufzeichnung und ggf. Abrechnung</strong> der Ladevorgänge</li>\n</ul>\n<p> </p>\n<p><span style=\"text-decoration: underline;\"><strong>Energiemanagement &amp; Lastoptimierung</strong></span></p>\n<p>Ein <strong>Energiemanagement-System</strong> optimiert den Ladestrom aus <strong>eigener Erzeugung oder von der Strombörse</strong> und verhindert eine <strong>Überlastung des Gebäudes</strong>.<br />Dabei können <strong>15-Minuten-Messungen</strong> die maximale Last vorgeben – typisch für Unternehmen mit <strong>hohem Stromverbrauch und großer Anschlussleistung.</strong></p>\n<p><span style=\"text-decoration: underline;\"><strong>Beispielkonfiguration: Zwei Wallbox Tree</strong></span></p>\n<p>Dieses Beispiel nutzt zwei <strong>Wallbox Tree (Nord und Süd)</strong>, jeweils mit:</p>\n<ul>\n<li><strong>NFC Code Touch</strong> zur Nutzerfreigabe</li>\n<li><strong>3-Phasen-Zähler Tree</strong> zur Verbrauchserfassung</li>\n<li>Messung der <strong>Netzanschlussleistung &amp; PV-Erzeugung</strong> mit weiteren 3-Phasen-Zählern Tree</li>\n</ul>\n<p> </p>\n<p><span style=\"text-decoration: underline;\"><strong>Ladefreigabe &amp; Tarifmodelle</strong></span></p>\n<p>Berechtigte Nutzer können die Ladesäulen <strong>via NFC oder Code-Eingabe</strong> aktivieren.<br />Im <strong>Wallbox Manager</strong> sind zwei <strong>Tarifmodi</strong> hinterlegt:</p>\n<p><strong>Modus ECO (0,25 € pro kWh)</strong></p>\n<ul>\n<li>Der <strong>Spotpreis-Optimierer</strong> ermittelt die <strong>5 günstigsten Stunden am Tag &amp; in der Nacht</strong>, um sowohl <strong>Tages- als auch Übernachtungsgäste</strong> mit Energie zu versorgen.</li>\n<li>Zusätlich wird <strong>überschüssiger, selbst erzeugter Strom</strong> genutzt.</li>\n<li>Fair verteilt auf alle Ladestationen im ECO-Modus.</li>\n</ul>\n<p> </p>\n<p><strong>Modus PRIO (0,50 € pro kWh)</strong></p>\n<ul>\n<li><strong>Sofortige maximale Ladeleistung</strong> an der gewählten Ladesäule bevorzugt zu ECO.</li>\n<li>Fair verteilt auf alle Ladestationen im PRIO-Modus.</li>\n</ul>\n<p> </p>\n<p><strong>Lastschutz:</strong> Die Ladesäulen werden nur dann abgeschaltet, wenn die <strong>Spitzenlast überschritten wird</strong> oder der <strong>Überlastschutz</strong> greift.</p>\n<p><span style=\"text-decoration: underline;\"><strong>Dokumentation &amp; Erfassung der Ladevorgänge</strong></span></p>\n<p>Zusätzlich werden die Ladesessions in einem <strong>Session-Database-Connector-Baustein</strong> erfasst und in der <strong>Exosphere dokumentiert</strong>. Optional werden sie auch in einem <strong>Logfile auf dem Miniserver</strong> gespeichert.</p>\n<p>Die Erfassung der Sessions beinhaltet:</p>\n<ul>\n<li><strong>Start und Ende der Ladung</strong></li>\n<li><strong>Nutzer, der die Ladung aktiviert hat</strong></li>\n<li><strong>Geladener Modus (ECO oder PRIO)</strong></li>\n<li><strong>Kosten der Ladung</strong></li>\n<li><strong>Gesamt geladene Energie</strong></li>\n</ul>\n<p> </p>",
+    "function_blocks": [
+      {
+        "name": "Spotpreis-Optimierer",
+        "url": "https://www.loxone.com/enen/kb/spot-price-optimizer/"
+      },
+      {
+        "name": "Impuls um",
+        "url": "https://www.loxone.com/help/PulseAt"
+      },
+      {
+        "name": "Lastmanager",
+        "url": "https://www.loxone.com/help/loadmanager"
+      },
+      {
+        "name": "Zähler Bidirektional",
+        "url": "https://www.loxone.com/help/meter-bidirectional"
+      },
+      {
+        "name": "Energiemanager",
+        "url": "https://www.loxone.com/help/energy-manager"
+      },
+      {
+        "name": "Zähler",
+        "url": "https://www.loxone.com/help/meter"
+      },
+      {
+        "name": "Energieflussmonitor",
+        "url": "https://www.loxone.com/help/energy-flow-monitor"
+      },
+      {
+        "name": "Wallbox Manager",
+        "url": "https://www.loxone.com/help/wallbox-manager"
+      },
+      {
+        "name": "Analogwahlschalter",
+        "url": "https://www.loxone.com/help/analog-multiplexer-2"
+      },
+      {
+        "name": "Wallbox",
+        "url": "https://www.loxone.com/help/wallbox-block"
+      },
+      {
+        "name": "Session Database Connector",
+        "url": "https://www.loxone.com/help/SessionDatabaseConnector"
+      },
+      {
+        "name": "Berechtigung NFC Code Touch",
+        "url": "https://www.loxone.com/help/AuthenticationNFC"
+      },
+      {
+        "name": "Radiotasten",
+        "url": "https://www.loxone.com/help/radio-buttons"
+      },
+      {
+        "name": "Addierer",
+        "url": "https://www.loxone.com/help/add-2"
+      }
+    ],
+    "auto_config": false,
+    "config_version": "16.0.6.10",
+    "config_files": [
+      {
+        "name": "UseCase_Wallbox-Billing-Exosphere-Database-Connector.Loxone",
+        "url": "https://pimcore.loxone.com/06%20Use%20Cases/Energy/Charging%20-%20Billing%20-%20Exosphere/UseCase_Wallbox-Billing-Exosphere-Database-Connector.Loxone"
+      }
+    ],
+    "required_products": [
+      {
+        "name": "Wallbox 11kW 16A Tree",
+        "sku": "100526"
+      },
+      {
+        "name": "Energiezähler 3-phasig Tree",
+        "sku": "100567"
+      },
+      {
+        "name": "NFC Code Touch Tree Signalweiß",
+        "sku": "100481"
+      }
+    ],
+    "url_slug": "wallbox-billing-exosphere-database-connector",
+    "remarks": "Für die Nutzung des Session Database Connectors ist eine Loxone Exosphere Lizenz erforderlich\nPassen Sie die Grenzwerte der Wallbox Manager- und Last-/Energiemanager-Bausteine an Ihre Installation an."
+  },
+  {
+    "id": "4798",
+    "name": "OCPP in Loxone integrieren",
+    "name_en": "OCPP Integration",
+    "category": "energy",
+    "secondary_categories": [],
+    "description": "Abrechnung von Wallboxen über OCPP (Open Charge Point Protocol) in Loxone integrieren.",
+    "implementation": "Die Loxone Wallbox unterstützt seit der Version 15.1 das OCPP-Protokoll und lässt sich nahtlos in jedes gängige OCPP-Backend integrieren. In Kombination mit dem NFC Code Touch können zudem RFID-Karten verwendet werden.\nIn diesem Use Case wird erläutert, wie eine Wallbox in ein OCPP-Backend integriert werden kann – in diesem Fall das Backend von eCarUp.\nLadekarten, die vom NFC Code Touch ausgelesen und vom Backend erkannt werden, erteilen über den API-Connector eine Freigabe an den NFC Code Touch Baustein. Dieser übermittelt die Freigabe an den Wallbox-Baustein und ermöglicht das Laden, sobald ein Fahrzeug verbunden ist.Die Abrechnung erfolgt direkt über das OCPP-Backend.\nKennt das Backend die Ladekarte nicht, überprüft der Miniserver, ob die Karte lokal hinterlegt ist. Ist dies der Fall, wird die Freigabe je nach zugewiesener Berechtigung erteilt, ohne dass eine Abrechnung über das Backend erfolgt.In diesem Fall könnte auch eine lokale Erfassung der Ladekosten in Betracht gezogen werden (nicht Teil dieses Use Cases).\n\n\n\n\n\n\n\n\n\n\n\n\nDie Loxone Wallbox ist kompatibel mit ChargePoint be.ENERGISED (OCPP 1.6).",
+    "implementation_html": "<div class=\"flex-shrink-0 flex flex-col relative items-end\">\n<div> </div>\n</div>\n<div class=\"group/conversation-turn relative flex w-full min-w-0 flex-col agent-turn\">\n<div class=\"flex-col gap-1 md:gap-3\">\n<div class=\"flex max-w-full flex-col flex-grow\">\n<div class=\"min-h-8 text-message flex w-full flex-col items-end gap-2 whitespace-normal break-words text-start [.text-message&#43;&amp;]:mt-5\">\n<div class=\"flex w-full flex-col gap-1 empty:hidden first:pt-[3px]\">\n<div class=\"markdown prose w-full break-words dark:prose-invert light\">\n<p><strong>Die Loxone Wallbox</strong> unterstützt seit der Version <strong>15.1</strong> das <strong>OCPP-Protokoll</strong> und lässt sich nahtlos in jedes gängige OCPP-Backend integrieren. In Kombination mit dem <strong>NFC Code Touch</strong> können zudem <strong>RFID-Karten</strong> verwendet werden.</p>\n<p>In diesem <strong>Use Case</strong> wird erläutert, wie eine Wallbox in ein OCPP-Backend integriert werden kann – in diesem Fall das Backend von <strong>eCarUp</strong>.</p>\n<p><strong>Ladekarten</strong>, die vom <strong>NFC Code Touch</strong> ausgelesen und vom Backend erkannt werden, erteilen über den <strong>API-Connector</strong> eine Freigabe an den <strong>NFC Code Touch Baustein</strong>. Dieser übermittelt die Freigabe an den <strong>Wallbox-Baustein</strong> und ermöglicht das Laden, sobald ein Fahrzeug verbunden ist.<br />Die <strong>Abrechnung</strong> erfolgt direkt über das <strong>OCPP-Backend</strong>.</p>\n<p>Kennt das Backend die Ladekarte nicht, überprüft der <strong>Miniserver</strong>, ob die Karte <strong>lokal hinterlegt</strong> ist. Ist dies der Fall, wird die Freigabe je nach zugewiesener Berechtigung erteilt, ohne dass eine Abrechnung über das Backend erfolgt.<br />In diesem Fall könnte auch eine <strong>lokale Erfassung der Ladekosten</strong> in Betracht gezogen werden <em>(nicht Teil dieses Use Cases).</em></p>\n</div>\n</div>\n</div>\n</div>\n</div>\n</div>\n<div class=\"group/conversation-turn relative flex w-full min-w-0 flex-col agent-turn\">\n<div class=\"flex-col gap-1 md:gap-3\">\n<div class=\"flex max-w-full flex-col flex-grow\">\n<div class=\"min-h-8 text-message flex w-full flex-col items-end gap-2 whitespace-normal break-words text-start [.text-message&#43;&amp;]:mt-5\">\n<div class=\"flex w-full flex-col gap-1 empty:hidden first:pt-[3px]\">\n<div class=\"markdown prose w-full break-words dark:prose-invert light\">\n<p>Die Loxone Wallbox ist kompatibel mit ChargePoint be.ENERGISED (OCPP 1.6).</p>\n</div>\n</div>\n</div>\n</div>\n</div>\n</div>",
+    "function_blocks": [
+      {
+        "name": "Wallbox",
+        "url": "https://www.loxone.com/help/wallbox-block"
+      },
+      {
+        "name": "Berechtigung NFC Code Touch",
+        "url": "https://www.loxone.com/help/AuthenticationNFC"
+      }
+    ],
+    "auto_config": false,
+    "config_version": "16.0.6.10",
+    "config_files": [
+      {
+        "name": "UseCase-ocpp-integration.loxone",
+        "url": "https://pimcore.loxone.com/06%20Use%20Cases/Energy/OCPP%20Integration/UseCase-ocpp-integration.loxone"
+      }
+    ],
+    "required_products": [
+      {
+        "name": "Wallbox 11kW 16A Tree",
+        "sku": "100526"
+      },
+      {
+        "name": "Energiezähler 3-phasig Tree",
+        "sku": "100567"
+      },
+      {
+        "name": "NFC Code Touch Tree Signalweiß",
+        "sku": "100481"
+      }
+    ],
+    "url_slug": "ocpp-integration",
+    "remarks": "Je nach länderspezifischen Vorgaben kann es notwendig sein, spezielle Zähler für Abrechnungszwecke zu verwenden, wie beispielsweise MID-Zertifizierung oder Eichrechtskonformität.\n\n\nWie die Abrechnung zwischen Anlagenbetreiber und Roaming-Anbieter gehandhabt wird, ist vom jeweiligen Roaming-Anbieter abhängig."
+  },
+  {
+    "id": "5138",
+    "name": "Optimierte Speichernutzung mit Spotpreis",
+    "name_en": "Optimized storage usage with spot price",
+    "category": "energy",
+    "secondary_categories": [],
+    "description": "Nächtliches Aufladen von Batteriespeichern aus dem Netz, zur Reduzierung von Tagesstromkosten",
+    "implementation": "Eine Batterie zu besitzen ist heutzutage nicht nur für Betreiber von Photovoltaikanlagen interessant, sondern kann auch ohne PV in Kombination mit einem dynamischen Stromtarif sinnvoll genutzt werden.Dieser Use Case zeigt, wie eine Batterie gezielt in günstigen Tarifzeiten mit Netzstrom geladen wird, um das Gebäude in teuren Stromstunden effizient und kostensparend mit Energie zu versorgen – ganz ohne eigene PV-Anlage.\nMit einem Batteriespeicher lässt sich günstiger Nachtstrom speichern und tagsüber in teuren Phasen nutzen. Damit das optimal funktioniert, wird täglich eine automatische Anpassung vorgenommen:\nLaden in günstigen Stunden\n\nDie Batterie wird nachts aufgeladen, wenn die Strompreise niedrig sind.\nDabei wird sichergestellt, dass genug Energie für die teuren Tagesstunden zur Verfügung steht.\n\nPreisberechnung\n\nJeden Abend wird geprüft, wie sich die Strompreise am nächsten Tag entwickeln.\nFalls sich große Preisunterschiede ergeben, wird die Batterie gezielt in den günstigsten Stunden geladen.\nGleichzeitig wird verhindert, dass die Batterie in günstigen Stunden entladen wird.\n\nAutomatik\n\nDie Batterie wird aus dem Netz geladen – entweder komplett oder bis zu einem bestimmten Level.\nVerhindert eine unnötige Entladung in günstigen Tagesstunden.",
+    "implementation_html": "<p>Eine <strong>Batterie zu besitzen</strong> ist heutzutage nicht nur für Betreiber von <strong>Photovoltaikanlagen</strong> interessant, sondern kann auch <strong>ohne PV</strong> in Kombination mit einem <strong>dynamischen Stromtarif</strong> sinnvoll genutzt werden.<br />Dieser <strong>Use Case</strong> zeigt, wie eine Batterie gezielt in <strong>günstigen Tarifzeiten</strong> mit Netzstrom geladen wird, um das Gebäude in <strong>teuren Stromstunden</strong> effizient und kostensparend mit Energie zu versorgen – <strong>ganz ohne eigene PV-Anlage</strong>.</p>\n<p>Mit einem <strong>Batteriespeicher</strong> lässt sich günstiger <strong>Nachtstrom</strong> speichern und tagsüber in teuren Phasen nutzen. Damit das optimal funktioniert, wird täglich eine automatische Anpassung vorgenommen:</p>\n<p><strong>Laden in günstigen Stunden</strong></p>\n<ul>\n<li>Die Batterie wird nachts aufgeladen, wenn die Strompreise niedrig sind.</li>\n<li>Dabei wird sichergestellt, dass genug Energie für die teuren Tagesstunden zur Verfügung steht.</li>\n</ul>\n<p><strong>Preisberechnung</strong></p>\n<ul>\n<li><strong>Jeden Abend</strong> wird geprüft, wie sich die Strompreise am nächsten Tag entwickeln.</li>\n<li>Falls sich große Preisunterschiede ergeben, wird die Batterie gezielt in den<strong> günstigsten Stunden</strong> geladen.</li>\n<li>Gleichzeitig wird verhindert, dass die Batterie in günstigen Stunden entladen wird.</li>\n</ul>\n<p><strong>Automatik</strong></p>\n<ul>\n<li>Die Batterie wird aus dem Netz geladen – entweder komplett oder bis zu einem bestimmten Level.</li>\n<li>Verhindert eine unnötige Entladung in günstigen Tagesstunden.</li>\n</ul>",
+    "function_blocks": [
+      {
+        "name": "Spotpreis-Optimierer",
+        "url": "https://www.loxone.com/enen/kb/spot-price-optimizer/"
+      },
+      {
+        "name": "Impuls um",
+        "url": "https://www.loxone.com/help/PulseAt"
+      },
+      {
+        "name": "Formel",
+        "url": "https://www.loxone.com/help/Formula"
+      },
+      {
+        "name": "Verzögerter Impuls",
+        "url": "https://www.loxone.com/help/delayed-pulse"
+      },
+      {
+        "name": "UND",
+        "url": "https://www.loxone.com/help/And"
+      }
+    ],
+    "auto_config": true,
+    "config_version": "16.0.6.10",
+    "config_files": [
+      {
+        "name": "UseCase-optimized-battery-usage-spot-price.Loxone",
+        "url": "https://pimcore.loxone.com/06%20Use%20Cases/Energy/Spot%20Price%20-%20Battery/UseCase-optimized-battery-usage-spot-price.Loxone"
+      }
+    ],
+    "required_products": [
+      {
+        "name": "Miniserver",
+        "sku": "100335"
+      }
+    ],
+    "url_slug": "optimized-battery-usage-spot-price",
+    "remarks": "Beim Laden aus dem Stromnetz geht durch die Umwandlung von Wechsel- zu Gleichstrom und zurück Energie verloren. Diese Verluste sollten in der Steuerungslogik berücksichtigt werden.Stellen Sie sicher, dass die Batterie lange genug geladen wird, um den Energiebedarf für den kommenden Tag zuverlässig zu decken.Haben Sie eine Photovoltaikanlage? Dann sollte die Batterie nicht unnötig aus dem Netz geladen werden – besonders vor sonnigen Tagen. Nutzen Sie z. B. die Sonnenscheinprognosen des Loxone Wetterdienstes, um abzuschätzen, wann ausreichend Solarstrom zur Verfügung steht."
+  },
+  {
+    "id": "2805",
+    "name": "PV-Überschuss mit Batteriespeicher und Heizstab",
+    "name_en": "PV Surplus with battery storage and heating rod",
+    "category": "energy",
+    "secondary_categories": [
+      "climate"
+    ],
+    "description": "PV-Überschuss-Nutzung mit vollständiger Integration von Batteriespeicher, Wechselrichter und Einschraubheizstab für einen Pufferspeicher.",
+    "implementation": "Dieser Use Case zeigt, wie überschüssiger Solarstrom bestmöglich genutzt wird – durch eine intelligente Verteilung in:\n\nBatteriespeicher – Speichert den PV-Überschuss für späteren Verbrauch.\nPuffererhitzung – Nutzt den Strom für einen elektrischen Heizstab, um das Wasser zu erwärmen.\n\nDadurch wird sichergestellt, dass der selbst erzeugte Strom optimal genutzt wird, anstatt ihn zu niedrigen Preisen ins Netz einzuspeisen.\nEin Anfang der 2000er-Jahre gebautes Einfamilienhaus mit Gasheizung wurde mit einer PV-Anlage nachgerüstet. Zum Einsatz kam ein Fronius Gen24 Wechselrichter für die 9,5 kWp Anlage, ein 16 kWh Batteriespeicher von BYD, sowie ein 5,3kW Heizstab von Askoma (Askoheat+), der in einen vorhandenen 1000 Liter Pufferspeicher eingesetzt wurde.\nDer Heizstab ist 7-stufig regelbar und wie auch die anderen Komponenten in der Installation per Modbus TCP ansteuerbar. Somit kann über den Energiemanager stufenweise Leistung an den Heizstab freigegeben werden, je nachdem wie viel Überschuss vorhanden ist.\nZu Beginn der Konfiguration wurde sich mit Installateur und Kunde auf folgende Rahmenbedingungen geeinigt:\n\nPV-Überschuss soll ab einem Batteriespeicher-Ladestand von 80% für die Warmwasseraufbereitung verwendet werden.\nDer Ladestand des Batteriespeichers soll nie unter 15% fallen.\nLaut Kunden wird das meiste Warmwasser abends benötigt, daher soll sichergestellt sein, dass die Temperatur des Pufferspeichers zwischen 16:00 und 20:00 Uhr auf zumindest 55°C beträgt.\nSollte der solare Ertrag nicht für die Warmwasserbereitung reichen, wird das Aufheizen von der Gasheizung übernommen.\nMorgens wird keine große Menge an Warmwasser benötigt, daher wird zwischen 5:00 und 6:00 nur dann Warmwasser mit dem Heizstab bereitet, wenn die Restkapazität des Batteriespeichers nicht unter 50% ist, und auch nur dann wenn der Pufferspeicher selbst eine Temperatur von unter 50°C aufweist.",
+    "implementation_html": "<p>Dieser <strong>Use Case</strong> zeigt, wie überschüssiger <strong>Solarstrom</strong> bestmöglich genutzt wird – durch eine <strong>intelligente Verteilung</strong> in:</p>\n<ul>\n<li><strong>Batteriespeicher</strong> – Speichert den PV-Überschuss für späteren Verbrauch.</li>\n<li><strong>Puffererhitzung</strong> – Nutzt den Strom für einen <strong>elektrischen Heizstab</strong>, um das Wasser zu erwärmen.</li>\n</ul>\n<p>Dadurch wird sichergestellt, dass der <strong>selbst erzeugte Strom</strong> optimal genutzt wird, anstatt ihn zu niedrigen Preisen ins Netz einzuspeisen.</p>\n<p>Ein Anfang der 2000er-Jahre gebautes Einfamilienhaus mit Gasheizung wurde mit einer PV-Anlage nachgerüstet. Zum Einsatz kam ein Fronius Gen24 Wechselrichter für die 9,5 kWp Anlage, ein 16 kWh Batteriespeicher von BYD, sowie ein 5,3kW Heizstab von Askoma (Askoheat&#43;), der in einen vorhandenen 1000 Liter Pufferspeicher eingesetzt wurde.</p>\n<p class=\"p1\">Der Heizstab ist 7-stufig regelbar und wie auch die anderen Komponenten in der Installation per Modbus TCP ansteuerbar. Somit kann über den Energiemanager stufenweise Leistung an den Heizstab freigegeben werden, je nachdem wie viel Überschuss vorhanden ist.</p>\n<p class=\"p1\"><strong>Zu Beginn der Konfiguration wurde sich mit Installateur und Kunde auf folgende Rahmenbedingungen geeinigt:</strong></p>\n<ul class=\"ul1\">\n<li class=\"li1\">PV-Überschuss soll <strong>ab einem Batteriespeicher-Ladestand von 80%</strong> für die Warmwasseraufbereitung verwendet werden.</li>\n<li class=\"li1\">Der Ladestand des Batteriespeichers soll <strong>nie unter 15%</strong> fallen.</li>\n<li class=\"li1\">Laut Kunden wird das meiste Warmwasser abends benötigt, daher soll sichergestellt sein, dass die Temperatur des Pufferspeichers zwischen <strong>16:00 und 20:00 Uhr auf zumindest 55°C</strong> beträgt.</li>\n<li class=\"li1\">Sollte der solare Ertrag nicht für die Warmwasserbereitung reichen, wird das <strong>Aufheizen von der Gasheizung</strong> übernommen.</li>\n<li class=\"li1\">Morgens wird keine große Menge an Warmwasser benötigt, daher<strong> wird zwischen 5:00 und 6:00 nur dann Warmwasser</strong> mit dem Heizstab bereitet, wenn die Restkapazität des Batteriespeichers nicht unter 50% ist, und auch nur dann wenn der <strong>Pufferspeicher selbst eine Temperatur von unter 50°C </strong>aufweist.</li>\n</ul>",
+    "function_blocks": [
+      {
+        "name": "Zähler für Speicher",
+        "url": "https://www.loxone.com/help/meter-storage"
+      },
+      {
+        "name": "Zähler Bidirektional",
+        "url": "https://www.loxone.com/help/meter-bidirectional"
+      },
+      {
+        "name": "Zähler",
+        "url": "https://www.loxone.com/help/meter"
+      },
+      {
+        "name": "Energieflussmonitor",
+        "url": "https://www.loxone.com/help/energy-flow-monitor"
+      },
+      {
+        "name": "Energiemanager",
+        "url": "https://www.loxone.com/help/energy-manager"
+      },
+      {
+        "name": "Schalter",
+        "url": "https://www.loxone.com/help/switch"
+      },
+      {
+        "name": "Größer"
+      },
+      {
+        "name": "Kleiner"
+      },
+      {
+        "name": "UND",
+        "url": "https://www.loxone.com/help/And"
+      },
+      {
+        "name": "Analogwahlschalter",
+        "url": "https://www.loxone.com/help/analog-multiplexer-2"
+      },
+      {
+        "name": "Schaltuhr",
+        "url": "https://www.loxone.com/help/schedule"
+      },
+      {
+        "name": "Analogwahlschalter 4-fach",
+        "url": "https://www.loxone.com/help/analog-multiplexer-4"
+      },
+      {
+        "name": "Status",
+        "url": "https://www.loxone.com/help/status"
+      },
+      {
+        "name": "Virtueller Status",
+        "url": "https://www.loxone.com/help/virtual-status"
+      }
+    ],
+    "auto_config": false,
+    "config_version": "16.0.6.10",
+    "config_files": [
+      {
+        "name": "usecase-pv-surplus-heating.loxone",
+        "url": "https://pimcore.loxone.com/06%20Use%20Cases/Energy/PV%20-%20Battery%20-%20Heatingrod/usecase-pv-surplus-heating.loxone"
+      }
+    ],
+    "required_products": [
+      {
+        "name": "Smart Socket Air - Type F",
+        "sku": "100115"
+      }
+    ],
+    "url_slug": "pv-surplus-heating",
+    "remarks": "Alle Geräte kommunizieren mit dem Miniserver über das Netzwerk (Modbus TCP). Daher ist eine saubere Netzwerkinfrastruktur nötig - wie hier über Vergabe von statischen IP-Adressen (oder DHCP IP-Reservierung am Router)\nLaut Datenblatt des Askoheat+ musste der Sendezyklus zwischen 1000 und 8000 Millisekunden eingestellt werden. (In der Beispielkonfiguration hier z.B. 7 sek) Da dieser zu Beginn mit einer zu niedrigen Frequenz eingestellt war, kam es zu ungeplanten Abschaltungen des Heizstabes (Immer laut Herstellervorgaben einstellen).\n\nDieser Use Case in unserem Blog Beitrag zusammengefasst:PV Überschussregelung mit Batterie und Heizstab"
+  },
+  {
+    "id": "6563",
+    "name": "PV-Überschuss & Spotpreise für Warmwasser",
+    "name_en": "PV surplus &amp; spot prices for hot water",
+    "category": "energy",
+    "secondary_categories": [
+      "climate"
+    ],
+    "description": "Betrieb eines 3-phasigen Heizstabes zur Warmwasserspeicherung mit PV-Überschuss und günstigem Spotpreis-Strom.",
+    "implementation": "In diesem Beispiel kommt ein RGBW Dimmer Tree zum Einsatz, um phasenweise Steuersignale an Schütze zu liefern, die für den jeweiligen Heizstab geeignet sind. Die Leistungsmessung des Heizstabs übernimmt ein Energy Meter 3-Phase Tree.\nDer Energiemanager aktiviert bei vorhandenem PV-Überschuss stufenweise die einzelnen Phasen des Heizstabs, um den überschüssigen Solarstrom effizient zu nutzen.Bei negativen Spotpreisen werden alle drei Phasen gleichzeitig aktiviert, um den günstigen Strom aus dem Netz maximal auszunutzen.\nDie Temperaturabschaltung erfolgt durch den Heizstab selbst, wird jedoch kontinuierlich über den Energy Meter überwacht.Sollte der Heizstab trotz Abschaltung weiterhin Leistung aufnehmen (erkennbar über den Energiezähler), wird dies automatisch erkannt und eine entsprechende Meldung abgesetzt – ein Hinweis auf ein mögliches Problem mit den Schützen.",
+    "implementation_html": "<p>In diesem Beispiel kommt ein RGBW Dimmer Tree zum Einsatz, um phasenweise Steuersignale an Schütze zu liefern, die für den jeweiligen Heizstab geeignet sind. Die Leistungsmessung des Heizstabs übernimmt ein Energy Meter 3-Phase Tree.</p>\n<p>Der Energiemanager aktiviert bei vorhandenem PV-Überschuss stufenweise die einzelnen Phasen des Heizstabs, um den überschüssigen Solarstrom effizient zu nutzen.<br />Bei negativen Spotpreisen werden alle drei Phasen gleichzeitig aktiviert, um den günstigen Strom aus dem Netz maximal auszunutzen.</p>\n<p>Die Temperaturabschaltung erfolgt durch den Heizstab selbst, wird jedoch kontinuierlich über den Energy Meter überwacht.<br />Sollte der Heizstab trotz Abschaltung weiterhin Leistung aufnehmen (erkennbar über den Energiezähler), wird dies automatisch erkannt und eine entsprechende Meldung abgesetzt – ein Hinweis auf ein mögliches Problem mit den Schützen.</p>",
+    "function_blocks": [
+      {
+        "name": "Energiemanager",
+        "url": "https://www.loxone.com/help/energy-manager"
+      },
+      {
+        "name": "Zähler Bidirektional",
+        "url": "https://www.loxone.com/help/meter-bidirectional"
+      },
+      {
+        "name": "Energieflussmonitor",
+        "url": "https://www.loxone.com/help/energy-flow-monitor"
+      },
+      {
+        "name": "Spotpreis-Optimierer",
+        "url": "https://www.loxone.com/enen/kb/spot-price-optimizer/"
+      },
+      {
+        "name": "Lastmanager",
+        "url": "https://www.loxone.com/help/loadmanager"
+      },
+      {
+        "name": "Status",
+        "url": "https://www.loxone.com/help/status"
+      },
+      {
+        "name": "Einschaltverzögerung",
+        "url": "https://www.loxone.com/help/OnDelay"
+      }
+    ],
+    "auto_config": false,
+    "config_version": "16.0.6.3",
+    "config_files": [
+      {
+        "name": "Hotwater_Heating_Rod.Loxone",
+        "url": "https://pimcore.loxone.com/06%20Use%20Cases/Energy/PV%20-%20Energymanager%20-%20Spotprice%20-%20Heatingrod/Hotwater_Heating_Rod.Loxone"
+      }
+    ],
+    "required_products": [
+      {
+        "name": "Energiezähler 3-phasig Tree",
+        "sku": "100567"
+      },
+      {
+        "name": "RGBW 24V Compact Dimmer Tree",
+        "sku": "100325"
+      }
+    ],
+    "url_slug": "hot-water-storage-pv-spotprice",
+    "remarks": ""
+  },
+  {
+    "id": "26694",
+    "name": "Sommer-Nieder-Arbeitspreis (SNAP) berechnen",
+    "name_en": "Sommer-Nieder-Arbeitspreis (SNAP) berechnen",
+    "category": "energy",
+    "secondary_categories": [
+      "energy"
+    ],
+    "description": "Den Sommer-Nieder-Arbeitspreis (SNAP) in LOXONE Config berechnen.",
+    "implementation": "In Österreich wird Strom im Sommer für alle Haushalte günstiger. Da in den Mittagsstunden mehr PV-Ertrag produziert wird, gilt von 1. April bis 30. September zwischen 10 und 16 Uhr der Sommer-Nieder-Arbeitspreis (SNAP). Energie ist dann um 20% reduziert. Es empfiehlt sich also, Waschmaschine, Geschirrspüler und Co. wenn möglich, während dieser Zeit in Betrieb zu nehmen.Mit LOXONE Config kannst du über den Spotpreis-Optimierer die Vergünstigung ganz einfach mit einberechnen, damit dein Gebäude die Energie am besten dann einsetzt, wenn sie am günstigsten ist.So funktioniert’s:Im Funktionsblock Spotpreis-Optimierer in LOXONE Config unter „Preisberechner“ folgende Formel eingeben, damit dein Gebäude weiß, wann der Sommer-Nieder-Arbeitspreis gilt:(I1*1,2)+IF(I4>=600;IF(I4<=960;IF(I3>=4;IF(I3<=9;I2*0,8;I2);I2);I2);I2)Erklärung zur Formel:I1: netto Arbeitspreis in Euro von EPEX multipliziert mit 1,2 um brutto Arbeitspreis zu erhaltenBrutto-Netzgebühr Eingang über I2 in EuroAbsenkung der Netzgebühr um 20% von April bis September zwischen 10 und 16 Uhr:Über Eingang I3 Eingrenzung auf Monat April bis SeptemberÜber Minuten seit Mitternacht (I4) Eingrenzung auf 10 - 16 Uhr",
+    "implementation_html": "<p>In Österreich wird Strom im Sommer für alle Haushalte günstiger. Da in den Mittagsstunden mehr PV-Ertrag produziert wird, gilt <strong>von 1. April bis 30. September</strong> <strong>zwischen 10 und 16 Uhr </strong>der <strong>Sommer-Nieder-Arbeitspreis (SNAP)</strong>. Energie ist dann um <strong>20% reduziert</strong>. Es empfiehlt sich also, Waschmaschine, Geschirrspüler und Co. wenn möglich, während dieser Zeit in Betrieb zu nehmen.</p><p>Mit LOXONE Config kannst du über den Spotpreis-Optimierer die Vergünstigung ganz einfach mit einberechnen, damit dein Gebäude die Energie am besten dann einsetzt, wenn sie am günstigsten ist.</p><p><strong>So funktioniert’s:</strong></p><p>Im Funktionsblock <strong>Spotpreis-Optimierer i</strong>n <strong>LOXONE Config </strong>unter „Preisberechner“ folgende Formel eingeben, damit dein Gebäude weiß, wann der Sommer-Nieder-Arbeitspreis gilt:</p><p></p><table class=\"ql-table-better\"><tbody><tr><td data-row=\"row-fscg\" class><p class=\"ql-table-block\" data-cell=\"cell-pkl8\">(I1*1,2)&#43;IF(I4&gt;&#61;600;IF(I4&lt;&#61;960;IF(I3&gt;&#61;4;IF(I3&lt;&#61;9;I2*0,8;I2);I2);I2);I2)</p></td></tr></tbody></table><p></p><p><strong>Erklärung zur Formel:</strong></p><ul><li>I1: netto Arbeitspreis in Euro von EPEX multipliziert mit 1,2 um brutto Arbeitspreis zu erhalten</li><li>Brutto-Netzgebühr Eingang über I2 in Euro</li></ul><p></p><p>Absenkung der Netzgebühr um 20% von April bis September zwischen 10 und 16 Uhr:</p><ul><li>Über Eingang I3 Eingrenzung auf Monat April bis September</li><li>Über Minuten seit Mitternacht (I4) Eingrenzung auf 10 - 16 Uhr</li></ul><p></p>",
+    "function_blocks": [
+      {
+        "name": "Spotpreis-Optimierer",
+        "url": "https://www.loxone.com/enen/kb/spot-price-optimizer/"
+      }
+    ],
+    "auto_config": false,
+    "config_version": "17.0.3.31",
+    "config_files": [
+      {
+        "name": "Netzgebühr reduziert.Loxone",
+        "url": "https://pimcore.loxone.com/06%20Use%20Cases/Energy/SNAP%20Berechnung%20AT/Netzgebu%CC%88hr%20reduziert.Loxone"
+      }
+    ],
+    "required_products": [
+      {
+        "name": "Miniserver",
+        "sku": "100335"
+      }
+    ],
+    "url_slug": "snap-spotpreis-optimierer",
+    "remarks": "Die Voraussetzung ist ein bestehendes Energiemanagement mit LOXONE. Bitte überprüfe vor der Implementierung die Daten deines Netzwerkbetreibers."
+  },
+  {
+    "id": "4796",
+    "name": "Wallbox Lademodi",
+    "name_en": "Wallbox Charging Modes",
+    "category": "energy",
+    "secondary_categories": [],
+    "description": "Konfiguration von drei verschiedenen Lademodi mit der Loxone Wallbox: Full Power, Comfort und Eco",
+    "implementation": "Mit der Loxone Wallbox lassen sich verschiedene Lademodi konfigurieren, die perfekt auf die Bedürfnisse und Rahmenbedingungen von E-Auto Besitzern abgestimmt sind. Diese lassen sich beispielsweise durch einen Touch Pure Flex, der in die Wallbox eingebaut werden kann, umschalten. Die dabei entstehenden Energieflüsse lassen sich mit dem Energy Meter 3-Phase Tree im Energieflussmonitor visualisieren und aufzeichnen. So eine Beispielkonfiguration kann folgendermaßen aussehen:Full Power: Dieser Lademodus wird dann verwendet, wenn das Elektrofahrzeug so schnell wie möglich geladen werden soll. Im Fall der Loxone Wallbox kann mit bis zu 11kW aufgeladen werden.Comfort: Hier wird über einen längeren Zeitraum, wie etwa von 21:00-06:00 Uhr, mit geringerer Leistung aufgeladen. In der Beispielkonfiguration sind das 5kW. Damit wird akkuschonend geladen.Eco: Dieser Modus bedeutet, dass das Elektrofahrzeug nur dann aufgeladen wird, wenn Überschussstrom vorhanden ist – z.B. durch eine PV-Anlage.",
+    "implementation_html": "<p>Mit der Loxone Wallbox lassen sich verschiedene Lademodi konfigurieren, die perfekt auf die Bedürfnisse und Rahmenbedingungen von E-Auto Besitzern abgestimmt sind. Diese lassen sich beispielsweise durch einen Touch Pure Flex, der in die Wallbox eingebaut werden kann, umschalten. Die dabei entstehenden Energieflüsse lassen sich mit dem Energy Meter 3-Phase Tree im Energieflussmonitor visualisieren und aufzeichnen. So eine Beispielkonfiguration kann folgendermaßen aussehen:</p><p><strong>Full Power</strong>: Dieser Lademodus wird dann verwendet, wenn das Elektrofahrzeug so schnell wie möglich geladen werden soll. Im Fall der Loxone Wallbox kann mit bis zu 11kW aufgeladen werden.</p><p><strong>Comfort</strong>: Hier wird über einen längeren Zeitraum, wie etwa von 21:00-06:00 Uhr, mit geringerer Leistung aufgeladen. In der Beispielkonfiguration sind das 5kW. Damit wird akkuschonend geladen.</p><p><strong>Eco</strong>: Dieser Modus bedeutet, dass das Elektrofahrzeug nur dann aufgeladen wird, wenn Überschussstrom vorhanden ist – z.B. durch eine PV-Anlage.</p>",
+    "function_blocks": [
+      {
+        "name": "Energieflussmonitor",
+        "url": "https://www.loxone.com/help/energy-flow-monitor"
+      },
+      {
+        "name": "Zähler Bidirektional",
+        "url": "https://www.loxone.com/help/meter-bidirectional"
+      },
+      {
+        "name": "Zähler",
+        "url": "https://www.loxone.com/help/meter"
+      },
+      {
+        "name": "Energiemanager",
+        "url": "https://www.loxone.com/help/energy-manager"
+      },
+      {
+        "name": "Zähler für Speicher",
+        "url": "https://www.loxone.com/help/meter-storage"
+      },
+      {
+        "name": "Wallbox",
+        "url": "https://www.loxone.com/help/wallbox-block"
+      },
+      {
+        "name": "Radiotasten",
+        "url": "https://www.loxone.com/help/radio-buttons"
+      }
+    ],
+    "auto_config": false,
+    "config_version": "16.0.6.10",
+    "config_files": [
+      {
+        "name": "UseCase-wallbox-charging-modes.loxone",
+        "url": "https://pimcore.loxone.com/06%20Use%20Cases/Energy/Wallbox%20-%203%20Charging%20Modes/UseCase-wallbox-charging-modes.loxone"
+      }
+    ],
+    "required_products": [
+      {
+        "name": "Wallbox 11kW 16A Tree",
+        "sku": "100526"
+      },
+      {
+        "name": "Energiezähler 3-phasig Tree",
+        "sku": "100567"
+      },
+      {
+        "name": "Touch Pure Flex Tree Anthrazit",
+        "sku": "100674"
+      }
+    ],
+    "url_slug": "wallbox-charging-modes",
+    "remarks": ""
+  },
+  {
+    "id": "4797",
+    "name": "Wallbox Lademodi mit Spotpreis",
+    "name_en": "Wallbox charging modes with spot price",
+    "category": "energy",
+    "secondary_categories": [],
+    "description": "Erweiterung der Lademodi mit der Loxone Wallbox inklusive Spotpreis-Optimierer-Einbindung.",
+    "implementation": "Dank dem Spotpreis Optimierer kann die Loxone Wallbox völlig automatisiert zu den günstigsten Stunden laut Spotpreismarkt laden.Die Ausgangskonfiguration in diesem Anwendungsbeispiel ist die gleiche wie bei dem Use Case Wallbox Lademodi. Dort finden Sie auch Informationen zu den „Eco“ und „Full Power“ Lademodi, die auch in diesem Anwendungsbeispiel vorkommen.In dieser Beispielkonfiguration verwenden wir den „Comfort“ Lademodus, um mit dem Spotpreis Optimierer und der Loxone Wallbox so günstig wie möglich aufladen zu können. Der Nutzer definiert hierbei die Anzahl der Stunden, die geladen werden soll, und den maximalen Strompreis, den er zu zahlen bereit ist.Zum Beispiel kann eingestellt werden, dass innerhalb der nächsten 10 Stunden ab Aktivierung für 2 Stunden zum Preis von bis zu 0,4€ pro kWh (40ct/kWh) geladen wird. Der Spotpreis Optimierer sucht den günstigsten Preis in diesem Zeitraum aus und steuert die Wallbox. Ist das günstigste Zeitfenster erreicht, schaltet die Wallbox auf volle Leistung (11 kW), um das Fahrzeug zu laden.So kann Abends das Auto angeschlossen werden, über den Touch Pure Flex der „Comfort“ Lademodus ausgewählt werden, und am nächsten Tag steht das Auto so günstig wie möglich geladen wieder zur Nutzung bereit.",
+    "implementation_html": "<p>Dank dem <a href=\"https://www.loxone.com/dede/kb/spotpreis-optimierer/\" rel=\"noopener noreferrer\" target=\"_blank\">Spotpreis Optimierer</a> kann die Loxone Wallbox völlig automatisiert zu den günstigsten Stunden laut Spotpreismarkt laden.</p><p>Die Ausgangskonfiguration in diesem Anwendungsbeispiel ist die gleiche wie bei dem Use Case <a href=\"https://www.loxone.com/dede/use-cases/wallbox-charging-modes\" rel=\"noopener noreferrer\" target=\"_blank\">Wallbox Lademodi</a>. Dort finden Sie auch Informationen zu den „Eco“ und „Full Power“ Lademodi, die auch in diesem Anwendungsbeispiel vorkommen.</p><p>In dieser Beispielkonfiguration verwenden wir den „Comfort“ Lademodus, um mit dem Spotpreis Optimierer und der Loxone Wallbox so günstig wie möglich aufladen zu können. Der Nutzer definiert hierbei die Anzahl der Stunden, die geladen werden soll, und den maximalen Strompreis, den er zu zahlen bereit ist.</p><p>Zum Beispiel kann eingestellt werden, dass innerhalb der nächsten 10 Stunden ab Aktivierung für 2 Stunden zum Preis von bis zu 0,4€ pro kWh (40ct/kWh) geladen wird. Der Spotpreis Optimierer sucht den günstigsten Preis in diesem Zeitraum aus und steuert die Wallbox. Ist das günstigste Zeitfenster erreicht, schaltet die Wallbox auf volle Leistung (11 kW), um das Fahrzeug zu laden.</p><p>So kann Abends das Auto angeschlossen werden, über den Touch Pure Flex der „Comfort“ Lademodus ausgewählt werden, und am nächsten Tag steht das Auto so günstig wie möglich geladen wieder zur Nutzung bereit.</p>",
+    "function_blocks": [
+      {
+        "name": "Spotpreis-Optimierer",
+        "url": "https://www.loxone.com/enen/kb/spot-price-optimizer/"
+      },
+      {
+        "name": "Analogwahlschalter",
+        "url": "https://www.loxone.com/help/analog-multiplexer-2"
+      },
+      {
+        "name": "Wallbox",
+        "url": "https://www.loxone.com/help/wallbox-block"
+      },
+      {
+        "name": "Energiemanager",
+        "url": "https://www.loxone.com/help/energy-manager"
+      },
+      {
+        "name": "Radiotasten",
+        "url": "https://www.loxone.com/help/radio-buttons"
+      },
+      {
+        "name": "Status",
+        "url": "https://www.loxone.com/help/status"
+      }
+    ],
+    "auto_config": false,
+    "config_version": "16.0.6.10",
+    "config_files": [
+      {
+        "name": "UseCase-wallbox-charging-modes-spotprice.loxone",
+        "url": "https://pimcore.loxone.com/06%20Use%20Cases/Energy/Wallbox%20-%20Spotprice/UseCase-wallbox-charging-modes-spotprice.loxone"
+      }
+    ],
+    "required_products": [
+      {
+        "name": "Wallbox 11kW 16A Tree",
+        "sku": "100526"
+      },
+      {
+        "name": "IR Zählerinterface Air",
+        "sku": "100151"
+      },
+      {
+        "name": "Touch Pure Flex Tree Anthrazit",
+        "sku": "100674"
+      }
+    ],
+    "url_slug": "wallbox-charging-modes-spotprice",
+    "remarks": ""
+  },
+  {
+    "id": "24476",
+    "name": "Automatischer Reinigungsmodus via NFC ",
+    "name_en": "Automatic cleaning mode via NFC ",
+    "category": "lighting",
+    "secondary_categories": [
+      "lighting"
+    ],
+    "description": "Über den NFC Code Touch aktiviert die Vorwahl 99 den Reinigungsmodus, der das Licht auf 100% setzt. Der Modus wird bei Abwesenheit oder per Tagesimpuls automatisch deaktiviert.",
+    "implementation": "Reinigungsbereiche benötigen oft eine starke Beleuchtung für effizientes Arbeiten. Ohne eine einfache Möglichkeit, das Licht automatisch zu steuern, bleibt es nach der Reinigung häufig unnötig eingeschaltet, was zu Energieverschwendung führt. Über den NFC Code Touch, der für die Zutrittsberechtigung eines Bereichs zuständig ist, kann durch die Vorwahl (99) der Reinigungsmodus aktiviert werden. Ein Schalterbaustein „Reinigungsmodus“ wird ausgelöst, der den Zentral-Beleuchtungsbaustein auf „Alles ein“ setzt. Der Modus wird automatisch bei Abwesenheit, erfasst durch den Präsenzbaustein, oder über einen Tagesimpuls (täglicher Impuls um 00:00 Uhr) deaktiviert.",
+    "implementation_html": "<p>Reinigungsbereiche benötigen oft eine starke Beleuchtung für effizientes Arbeiten. Ohne eine einfache Möglichkeit, das Licht automatisch zu steuern, bleibt es nach der Reinigung häufig unnötig eingeschaltet, was zu Energieverschwendung führt. </p><p></p><p>Über den NFC Code Touch, der für die Zutrittsberechtigung eines Bereichs zuständig ist, kann durch die Vorwahl (99) der Reinigungsmodus aktiviert werden. Ein Schalterbaustein <strong>„Reinigungsmodus“</strong> wird ausgelöst, der den Zentral-Beleuchtungsbaustein auf <strong>„Alles ein“</strong> setzt. Der Modus wird automatisch bei Abwesenheit, erfasst durch den Präsenzbaustein, oder über einen Tagesimpuls (täglicher Impuls um 00:00 Uhr) deaktiviert.</p>",
+    "function_blocks": [
+      {
+        "name": "Schalter",
+        "url": "https://www.loxone.com/help/switch"
+      },
+      {
+        "name": "Impuls bei",
+        "url": "https://www.loxone.com/help/PulseBy"
+      },
+      {
+        "name": "Berechtigung NFC Code Touch",
+        "url": "https://www.loxone.com/help/AuthenticationNFC"
+      },
+      {
+        "name": "Licht Zentral",
+        "url": "https://www.loxone.com/help/lighting-central"
+      },
+      {
+        "name": "Präsenz",
+        "url": "https://www.loxone.com/help/presence2"
+      }
+    ],
+    "auto_config": false,
+    "config_version": "16.1.11.6",
+    "config_files": [
+      {
+        "name": "Cleaning Mode Activated by NFC.Loxone",
+        "url": "https://pimcore.loxone.com/06%20Use%20Cases/Lighting/Automatic%20cleaning%20mode%20via%20NFC/Cleaning%20Mode%20Activated%20by%20NFC.Loxone"
+      }
+    ],
+    "required_products": [
+      {
+        "name": "NFC Code Touch Tree Samtweiß",
+        "sku": "100859"
+      }
+    ],
+    "url_slug": "nfc-cleaning-mode-lighting",
+    "remarks": ""
+  },
+  {
+    "id": "4065",
+    "name": "Effiziente Nachtbeleuchtung",
+    "name_en": "Efficient lighting at night",
+    "category": "lighting",
+    "secondary_categories": [
+      "security"
+    ],
+    "description": "Reduktion der Licht-Nachlaufzeit im Nachtmodus zur Effizienzsteigerung.",
+    "implementation": "Um die Leuchtdauer des Lichts bei automatischer Aktivierung im Nachtmodus zu reduzieren, kann folgender Use Case umgesetzt werden:\nFunktionsweise:\nSobald der Nachtmodus aktiviert wird (Loxone-Standard: Dreifach-Klick im Schlafzimmer), werden über den Analogwahlschalter die Parameter des Lichtbausteins angepasst, sodass die Nachlaufzeit der automatischen Abschaltung bei Bewegungs- Präsenzerkennung verkürzt wird.",
+    "implementation_html": "<p>Um die Leuchtdauer des Lichts bei automatischer Aktivierung im <strong>Nachtmodus</strong> zu reduzieren, kann folgender Use Case umgesetzt werden:</p>\n<p><strong>Funktionsweise:</strong></p>\n<p>Sobald der Nachtmodus aktiviert wird (Loxone-Standard: Dreifach-Klick im Schlafzimmer), werden über den Analogwahlschalter die Parameter des Lichtbausteins angepasst, sodass die Nachlaufzeit der automatischen Abschaltung bei Bewegungs- Präsenzerkennung verkürzt wird.</p>",
+    "function_blocks": [
+      {
+        "name": "Präsenz",
+        "url": "https://www.loxone.com/help/presence2"
+      },
+      {
+        "name": "Lichtsteuerung",
+        "url": "https://www.loxone.com/help/lighting-controller"
+      },
+      {
+        "name": "Wecker",
+        "url": "https://www.loxone.com/help/alarm-clock"
+      },
+      {
+        "name": "Licht Zentral",
+        "url": "https://www.loxone.com/help/lighting-central"
+      },
+      {
+        "name": "Schalter",
+        "url": "https://www.loxone.com/help/switch"
+      },
+      {
+        "name": "Impuls um",
+        "url": "https://www.loxone.com/help/PulseAt"
+      },
+      {
+        "name": "Analogwahlschalter",
+        "url": "https://www.loxone.com/help/analog-multiplexer-2"
+      }
+    ],
+    "auto_config": false,
+    "config_version": "16.0.6.3",
+    "config_files": [
+      {
+        "name": "usecase-shorter-night-lighting.Loxone",
+        "url": "https://pimcore.loxone.com/06%20Use%20Cases/Lighting/Shorter%20follow-up%20night%20lighting/usecase-shorter-night-lighting.Loxone"
+      }
+    ],
+    "required_products": [
+      {
+        "name": "NFC Code Touch Tree Signalweiß",
+        "sku": "100481"
+      },
+      {
+        "name": "LED Spot RGBW Tree Weiß",
+        "sku": "100330"
+      },
+      {
+        "name": "Touch Tree Weiß",
+        "sku": "100221"
+      },
+      {
+        "name": "Präsenzmelder Deckeneinbau Tree Weiß",
+        "sku": "100466"
+      },
+      {
+        "name": "LED Ceiling Light RGBW Tree Weiß",
+        "sku": "100288"
+      },
+      {
+        "name": "RGBW 24V Compact Dimmer Tree",
+        "sku": "100325"
+      },
+      {
+        "name": "Präsenzmelder Air Weiß",
+        "sku": "100420"
+      },
+      {
+        "name": "Touch Nightlight Classic Air Signalweiß",
+        "sku": "100476"
+      }
+    ],
+    "url_slug": "shorter-night-lighting",
+    "remarks": "Dieser UseCase funktioniert nur in Verwendung von Präsenz oder Bewegungsmelder. Dabei ist es egal ob Tree / Air oder über Digitale Eingänge. Die Nachlaufzeiten die bei Tree & Air Melder hinterlegt sind gehören berücksichtigt und ggf. reduziert.Empfehlenswert ist ein gedimmtes Nachtlicht, da dieses weniger munter macht. (Warum helles Licht munter macht)"
+  },
+  {
+    "id": "24488",
+    "name": "Automatisierter Benachrichtigungsprozess für nicht zu reinigende Zimmer ",
+    "name_en": "Automated notification process for rooms that cannot be cleaned ",
+    "category": "other",
+    "secondary_categories": [
+      "other"
+    ],
+    "description": "Täglich um 09:00 erhält die Rezeption eine E-Mail mit allen Zimmern, die per „Not-Cleaning“-Button von der Reinigung ausgenommen sind.",
+    "implementation": "Über den Touch Pure Flex im Zimmer können Gäste die Zimmerreinigung abbestellen, indem sie den „Not Cleaning“-Button betätigen. Beim Betätigen dieser Taste leuchtet die dazugehörige LED am Touch Pure Flex auf, sodass der Gast visuell bestätigt bekommt, dass die Funktion aktiviert wurde. Die Meldung wird direkt über die Netzwerkinterkommunikation an den Rezeptions-Miniserver übermittelt und durch den Baustein „Fenster- & Türkontakt“ erfasst. Täglich um 09:00 Uhr löst der „Impuls um“ den „Text Generator“ aus, der eine Liste der Zimmer erstellt, die nicht gereinigt werden müssen. Diese Liste wird dann um 09:00 Uhr automatisch als E-Mail an die Rezeption gesendet, sodass diese rechtzeitig über die zu überspringenden Zimmer informiert ist.Um 9:02 Uhr wird die Funktion „Not Cleaning“ ebenfalls mit einem “Impuls um” zurückgesetzt, und die LED am Touch Pure Flex des Gastes erlischt, um die Deaktivierung der Funktion anzuzeigen.",
+    "implementation_html": "<p>Über den Touch Pure Flex im Zimmer können Gäste die Zimmerreinigung abbestellen, indem sie den „Not Cleaning“-Button betätigen. Beim Betätigen dieser Taste leuchtet die dazugehörige LED am Touch Pure Flex auf, sodass der Gast visuell bestätigt bekommt, dass die Funktion aktiviert wurde. Die Meldung wird direkt über die Netzwerkinterkommunikation an den Rezeptions-Miniserver übermittelt und durch den Baustein „Fenster- &amp; Türkontakt“ erfasst. Täglich um 09:00 Uhr löst der „Impuls um“ den „Text Generator“ aus, der eine Liste der Zimmer erstellt, die nicht gereinigt werden müssen. Diese Liste wird dann um 09:00 Uhr automatisch als E-Mail an die Rezeption gesendet, sodass diese rechtzeitig über die zu überspringenden Zimmer informiert ist.</p><p></p><p>Um 9:02 Uhr wird die Funktion „Not Cleaning“ ebenfalls mit einem “Impuls um” zurückgesetzt, und die LED am Touch Pure Flex des Gastes erlischt, um die Deaktivierung der Funktion anzuzeigen.</p>",
+    "function_blocks": [
+      {
+        "name": "Fenster - und Türüberwachung",
+        "url": "https://www.loxone.com/help/door-window-monitor"
+      },
+      {
+        "name": "Text Generator",
+        "url": "https://www.loxone.com/help/text-generator"
+      },
+      {
+        "name": "Impuls um",
+        "url": "https://www.loxone.com/help/PulseAt"
+      },
+      {
+        "name": "Schalter",
+        "url": "https://www.loxone.com/help/switch"
+      }
+    ],
+    "auto_config": false,
+    "config_version": "16.1.11.6",
+    "config_files": [
+      {
+        "name": "no-cleaning-room-email.Loxone",
+        "url": "https://pimcore.loxone.com/06%20Use%20Cases/Other/Automate%20notification%20process%20for%20rooms%20that%20cannot%20be%20cleaned/no-cleaning-room-email.Loxone"
+      }
+    ],
+    "required_products": [
+      {
+        "name": "Touch Pure Flex Tree Anthrazit",
+        "sku": "100674"
+      }
+    ],
+    "url_slug": "automated-mail-dispatch-uncleaned-rooms",
+    "remarks": "Stellen Sie sicher, dass die Netzwerkinterkommunikation zuverlässig funktioniert, um eine fehlerfreie Übertragung der „Not Cleaning“-Meldungen zwischen den Zimmern und der Rezeption zu gewährleisten."
+  },
+  {
+    "id": "5175",
+    "name": "Espressomaschine vor dem Aufstehen aufheizen",
+    "name_en": "Preheat Espresso Machine before Alarm",
+    "category": "other",
+    "secondary_categories": [],
+    "description": "Verwendung der Pre-Alarm Funktion, um die Espressomaschine zum Vorheizen einzuschalten, bevor der Wecker klingelt.",
+    "implementation": "Die meisten Siebträgermaschinen für den Heimgebrauch benötigen zwischen 10 und 30 Minuten zum Aufheizen, bis sie einsatzbereit sind. Sie nach dem Aufwachen einzuschalten, wäre in vielen Fällen zu spät, insbesondere für Menschen, die sich nach dem Aufwachen schnell auf den Weg zur Arbeit machen wollen.\nIn diesem Anwendungsfall wird die Voralarmfunktion des Wecker-Funktionsbausteines genutzt, um die Espressomaschine über eine Smart Socket Air einzuschalten, bevor der eigentliche Alarm erfolgt.",
+    "implementation_html": "<p>Die meisten Siebträgermaschinen für den Heimgebrauch benötigen zwischen 10 und 30 Minuten zum Aufheizen, bis sie einsatzbereit sind. Sie nach dem Aufwachen einzuschalten, wäre in vielen Fällen zu spät, insbesondere für Menschen, die sich nach dem Aufwachen schnell auf den Weg zur Arbeit machen wollen.</p>\n<p>In diesem Anwendungsfall wird die Voralarmfunktion des Wecker-Funktionsbausteines genutzt, um die Espressomaschine über eine Smart Socket Air einzuschalten, bevor der eigentliche Alarm erfolgt. </p>",
+    "function_blocks": [
+      {
+        "name": "Wecker",
+        "url": "https://www.loxone.com/help/alarm-clock"
+      },
+      {
+        "name": "Multiplizierer",
+        "url": "https://www.loxone.com/help/multiply"
+      },
+      {
+        "name": "Schalter",
+        "url": "https://www.loxone.com/help/switch"
+      },
+      {
+        "name": "Zähler",
+        "url": "https://www.loxone.com/help/meter"
+      }
+    ],
+    "auto_config": false,
+    "config_version": "16.0.6.3",
+    "config_files": [
+      {
+        "name": "UseCase_espresso-machine-preheat-alarm.Loxone",
+        "url": "https://pimcore.loxone.com/06%20Use%20Cases/Other/Espresso%20Machine%20Preheat%20Alarm/UseCase_espresso-machine-preheat-alarm.Loxone"
+      }
+    ],
+    "required_products": [
+      {
+        "name": "Miniserver Go",
+        "sku": "100336"
+      },
+      {
+        "name": "Smart Socket Air - Type F",
+        "sku": "100115"
+      }
+    ],
+    "url_slug": "preheat-espresso-machine-alarm",
+    "remarks": "Vergewissern Sie sich, dass die Espressomaschine über einen einfachen Ein/Aus-Schalter verfügt, der in der Position „Ein“ belassen werden kann, damit dies funktioniert. Die meisten E61-Maschinen der gängigen Hersteller sollten mit diesem Anwendungsfall funktionieren.\nBei moderneren Espressomaschinen (PIDs, elektronische Steuerungen, Touchscreens usw.) testen Sie zunächst, ob das Unterbrechen der Stromzufuhr und anschließende Wiedereinschalten dazu führt, dass die Maschine wieder voll einschalten und weiter aufheizen kann.\nIst dies nicht der Fall, kann in manchen Fällen am Gerät selbst ein Weck-Timer eingestellt werden. Allerdings wird er sich dann nicht entsprechend der in der Loxone App eingestellten Weckzeit ändern."
+  },
+  {
+    "id": "24479",
+    "name": "Servicerufsystem im Restaurant ",
+    "name_en": "Service call system in restaurants ",
+    "category": "other",
+    "secondary_categories": [
+      "other"
+    ],
+    "description": "Mit der Loxone Table Lampe wird ein Service-Ruf im Restaurant ausgelöst: Ein Klick aktiviert rot leuchtende LED-Ringe am Tisch und an der Bar.",
+    "implementation": "Jeder Tisch im Restaurant ist mit einer Loxone Table Lampe ausgestattet, die dem Gast die Kontrolle über die Helligkeit bietet. Über die beiden Tasten (+ und -) kann der Gast die Lichtstimmung in fünf Stufen anpassen: AUS, 25%, 50%, 75% und 100%. Durch einen Klick auf den Licht Button wird der Service-Ruf aktiviert. Der LED-Ring der Table Lampe leuchtet rot und signalisiert dem Personal, dass an diesem Tisch Service benötigt wird. Gleichzeitig wird der LED-Ring der Lampe an der Bar ebenfalls rot, um das Personal dort zu informieren. Wenn die Lampe geladen wird, wird der Service-Ruf zurückgesetzt und das Licht deaktiviert, um den Status zu aktualisieren.",
+    "implementation_html": "<p>Jeder Tisch im Restaurant ist mit einer Loxone Table Lampe ausgestattet, die dem Gast die Kontrolle über die Helligkeit bietet. Über die beiden Tasten (&#43; und -) kann der Gast die Lichtstimmung in fünf Stufen anpassen: AUS, 25%, 50%, 75% und 100%. Durch einen Klick auf den Licht Button wird der Service-Ruf aktiviert. Der LED-Ring der Table Lampe leuchtet rot und signalisiert dem Personal, dass an diesem Tisch Service benötigt wird. Gleichzeitig wird der LED-Ring der Lampe an der Bar ebenfalls rot, um das Personal dort zu informieren. Wenn die Lampe geladen wird, wird der Service-Ruf zurückgesetzt und das Licht deaktiviert, um den Status zu aktualisieren.</p>",
+    "function_blocks": [
+      {
+        "name": "Lichtsteuerung",
+        "url": "https://www.loxone.com/help/lighting-controller"
+      },
+      {
+        "name": "Monoflop",
+        "url": "https://www.loxone.com/help/Monoflop"
+      },
+      {
+        "name": "Größer"
+      },
+      {
+        "name": "MinMax",
+        "url": "https://www.loxone.com/help/Minmax"
+      },
+      {
+        "name": "Analogwahlschalter",
+        "url": "https://www.loxone.com/help/analog-multiplexer-2"
+      },
+      {
+        "name": "Größer oder gleich"
+      }
+    ],
+    "auto_config": false,
+    "config_version": "16.1.11.6",
+    "config_files": [
+      {
+        "name": "Service Request.Loxone",
+        "url": "https://pimcore.loxone.com/06%20Use%20Cases/Other/Service%20call%20system%20in%20restaurants/Service%20Request.Loxone"
+      }
+    ],
+    "required_products": [
+      {
+        "name": "Table Lamp Air Weiß",
+        "sku": "100550"
+      }
+    ],
+    "url_slug": "service-call-system-restaurants",
+    "remarks": "Da der Service-Ruf über die Licht-Taste der Table Lampe erfolgt, könnte dies für den Gast nicht immer eindeutig sein. Wir empfehlen daher, einen individuellen Aufkleber mit einem Icon anzubringen, das dem Gast klar signalisiert, dass er über diese Taste den Service anfordern kann."
+  },
+  {
+    "id": "20723",
+    "name": "TV Szene mit verstecktem Taster",
+    "name_en": "TV scene with hidden button",
+    "category": "other",
+    "secondary_categories": [
+      "energy",
+      "lighting",
+      "audio",
+      "shading"
+    ],
+    "description": "Aktivierung des TV-Modus in einem Raum durch Berührung eines unsichtbaren Schalters.",
+    "implementation": "Hier wurde der Touch Surface verwendet, um den Fernsehmodus zu aktivieren. Die zusätzliche Taste, die standardmäßig zum Aktivieren des Touch Surface dient, wurde in diesem Fall als Auslöser für den Fernsehmodus verwendet.Der Taster wird nahezu unsichtbar in ein Möbelstück integriert und kann dank der kapazitiven Oberfläche einfach ausgelöst werden.Sobald alle bereit sind, um fernzusehen, wird die Taste gedrückt und der Raum wechselt in die Fernseh-Szene.Die Smart Socket schaltet den Fernseher ein.Das Licht stellt sich auf die TV-Stimmung ein.Die Beschattung schließt sich.Der Standard mit 5 Tasten bleibt unverändert und ermöglicht jederzeit die manuelle Steuerung von Licht, Beschattung und Musik.",
+    "implementation_html": "<p class=\"markdown prose dark:prose-invert w-full break-words light\">Hier wurde der Touch Surface verwendet, um den Fernsehmodus zu aktivieren. Die zusätzliche Taste, die standardmäßig zum Aktivieren des Touch Surface dient, wurde in diesem Fall als Auslöser für den Fernsehmodus verwendet.</p><p class=\"markdown prose dark:prose-invert w-full break-words light\">Der Taster wird nahezu unsichtbar in ein Möbelstück integriert und kann dank der kapazitiven Oberfläche einfach ausgelöst werden.</p><p class=\"markdown prose dark:prose-invert w-full break-words light\">Sobald alle bereit sind, um fernzusehen, wird die Taste gedrückt und der Raum wechselt in die Fernseh-Szene.</p><ul><li>Die Smart Socket schaltet den Fernseher ein.</li><li>Das Licht stellt sich auf die TV-Stimmung ein.</li><li>Die Beschattung schließt sich.</li></ul><p class=\"markdown prose dark:prose-invert w-full break-words light\">Der Standard mit 5 Tasten bleibt unverändert und ermöglicht jederzeit die manuelle Steuerung von Licht, Beschattung und Musik.</p><p></p>",
+    "function_blocks": [
+      {
+        "name": "Lichtsteuerung",
+        "url": "https://www.loxone.com/help/lighting-controller"
+      },
+      {
+        "name": "Szene",
+        "url": "https://www.loxone.com/help/scene"
+      },
+      {
+        "name": "Schalter",
+        "url": "https://www.loxone.com/help/switch"
+      },
+      {
+        "name": "Zähler",
+        "url": "https://www.loxone.com/help/meter"
+      },
+      {
+        "name": "Virtueller Status",
+        "url": "https://www.loxone.com/help/virtual-status"
+      },
+      {
+        "name": "Automatikbeschattung",
+        "url": "https://www.loxone.com/help/auto-shading"
+      },
+      {
+        "name": "Audio Player",
+        "url": "https://www.loxone.com/help/audioplayer"
+      }
+    ],
+    "auto_config": false,
+    "config_version": "16.0.6.10",
+    "config_files": [
+      {
+        "name": "Touch Surface.Loxone",
+        "url": "https://pimcore.loxone.com/06%20Use%20Cases/Other/Touch%20Surface%20TV/Touch%20Surface.Loxone"
+      }
+    ],
+    "required_products": [
+      {
+        "name": "Smart Socket Air - Type F",
+        "sku": "100115"
+      },
+      {
+        "name": "Touch Surface Tree",
+        "sku": "100284"
+      },
+      {
+        "name": "Nano 2 Relay Tree",
+        "sku": "100395"
+      },
+      {
+        "name": "LED Ceiling Light RGBW Tree Weiß",
+        "sku": "100288"
+      }
+    ],
+    "url_slug": "tv-mode-hidden-switch",
+    "remarks": "Zu dieser Szene können über die Loxone App individuell weitere Befehle hinzugefügt werden, z.B. Türklingel aus, TTS-Durchsage uvm."
+  },
+  {
+    "id": "25556",
+    "name": "Zentraler Statusmonitor für Hotelzimmer",
+    "name_en": "",
+    "category": "other",
+    "secondary_categories": [
+      "other"
+    ],
+    "description": "LOXONE ermöglicht die Erfassung und zentrale Anzeige von Hotelzimmer-Status (Präsenz, Reinigung, „Bitte nicht stören“) zur Optimierung der Abläufe.",
+    "implementation": "In einem Hotel ist es für die Rezeption entscheidend, jederzeit zu wissen, ob ein Zimmer aktuell belegt ist, ob der Gast nicht gestört werden möchte oder ob das Zimmer zur Reinigung freigegeben ist. Ohne zentrale, automatisierte Rückmeldung aus den Zimmern müssen diese Zustände manuell abgefragt werden – etwa durch persönliche Rücksprache mit dem Housekeeping oder durch Kontrollgänge auf den Etagen. Das ist zeitaufwendig, fehleranfällig und erschwert eine effiziente Planung der Zimmerreinigung sowie einen serviceorientierten Umgang mit den Wünschen der Gäste.Im Hotelzimmer erfassen Präsenzmelder die Anwesenheit der Gäste. Über den Touch Pure Flex können der Reinigungsmodus und der „Bitte nicht stören-Modus“ aktiviert werden. Der Miniserver im Hotelzimmer wertet die Betriebszustände (Präsenz, Reinigung, keine Präsenz, nicht stören) aus und überträgt diese per Netzwerk-Interkommunikation an den Rezeptions-Miniserver. Dort werden alle Zimmerzustände im zentralen Statusmonitor visualisiert, sodass das Rezeptions- und Housekeeping-Team den aktuellen Status jedes Zimmers auf einen Blick erkennt und die Reinigungsabläufe optimal an die Wünsche der Gäste anpassen kann.",
+    "implementation_html": "<p>In einem Hotel ist es für die Rezeption entscheidend, jederzeit zu wissen, ob ein Zimmer aktuell belegt ist, ob der Gast nicht gestört werden möchte oder ob das Zimmer zur Reinigung freigegeben ist. Ohne zentrale, automatisierte Rückmeldung aus den Zimmern müssen diese Zustände manuell abgefragt werden – etwa durch persönliche Rücksprache mit dem Housekeeping oder durch Kontrollgänge auf den Etagen. Das ist zeitaufwendig, fehleranfällig und erschwert eine effiziente Planung der Zimmerreinigung sowie einen serviceorientierten Umgang mit den Wünschen der Gäste.</p><p></p><p>Im Hotelzimmer erfassen Präsenzmelder die Anwesenheit der Gäste. Über den Touch Pure Flex können der Reinigungsmodus und der „Bitte nicht stören-Modus“ aktiviert werden. Der Miniserver im Hotelzimmer wertet die Betriebszustände (Präsenz, Reinigung, keine Präsenz, nicht stören) aus und überträgt diese per Netzwerk-Interkommunikation an den Rezeptions-Miniserver. Dort werden alle Zimmerzustände im zentralen Statusmonitor visualisiert, sodass das Rezeptions- und Housekeeping-Team den aktuellen Status jedes Zimmers auf einen Blick erkennt und die Reinigungsabläufe optimal an die Wünsche der Gäste anpassen kann.</p><p></p>",
+    "function_blocks": [
+      {
+        "name": "Status",
+        "url": "https://www.loxone.com/help/status"
+      },
+      {
+        "name": "Präsenz",
+        "url": "https://www.loxone.com/help/presence2"
+      },
+      {
+        "name": "Schalter",
+        "url": "https://www.loxone.com/help/switch"
+      },
+      {
+        "name": "Status Monitor",
+        "url": "https://www.loxone.com/help/StatusMonitor"
+      }
+    ],
+    "auto_config": false,
+    "config_version": "16.1.11.6",
+    "config_files": [
+      {
+        "name": "Hotel Room Status Monitor.Loxone",
+        "url": "https://pimcore.loxone.com/06%20Use%20Cases/Other/Hotel%20Room%20Status%20Monitor/Hotel%20Room%20Status%20Monitor.Loxone"
+      }
+    ],
+    "required_products": [
+      {
+        "name": "Präsenzmelder Air Weiß",
+        "sku": "100420"
+      },
+      {
+        "name": "Touch Pure Flex Standard Tree Signalweiß Gen. 1 Auslaufmodell",
+        "sku": "100544"
+      }
+    ],
+    "url_slug": "hotel-room-status-monitor",
+    "remarks": "Hotel, Hotelzimmer, Zimmerstatus, Statusmonitor, Präsenzmelder, Präsenz, Reinigung, Bitte nicht stören, Touch Pure Flex, Miniserver, Netzwerk-Interkommunikation, Rezeption, Housekeeping"
+  },
+  {
+    "id": "6638",
+    "name": "Automatisches Scharf/Unscharf schalten",
+    "name_en": "Automatic arming/disarming",
+    "category": "security",
+    "secondary_categories": [
+      "access"
+    ],
+    "description": "Scharfstellen der Alarmanlage durch Verknüpfung mit Haus-verlassen Funktion.",
+    "implementation": "Haus-verlassen-Funktion:Die letzte Person, die das Haus verlässt, führt einen Dreifachklick am Taster neben der Haustür aus. Dadurch wird der Abwesenheitsmodus aktiviert – einschließlich aller zugehörigen Funktionen wie dem Scharfstellen der Alarmanlage.Abends möchte man ebenfalls die Alarmanlage aktivieren, allerdings ohne, dass nächtliche Bewegungen im Haus einen Alarm auslösen. Dafür gibt es den Gute-Nacht-Modus:Dieser wird ebenfalls per Dreifachklick ausgelöst, jedoch am Taster im Schlafzimmer. Im Unterschied zum Haus-verlassen-Modus wird die Alarmanlage dabei ohne Präsenzerkennung aktiviert – sodass man sich frei im Haus bewegen kann, während die Außenhaut geschützt bleibt. Die Alarmanlage wird immer mit einer Verzögerung aktiviert, sodass noch ein paar Minuten zur Verfügung stehen, um sich ohne scharfe Alarmanlage zu bewegen. Beispielsweise, wenn beim Verlassen des Hauses noch etwas vergessen wurde – wie der Autoschlüssel – bleibt genügend Zeit, diesen zu holen, ohne sofort den Alarm auszulösen. Deaktiviert wird die Alarmanlage über das berechtigte Betreten des Hauses, also über den NFC Code Touch oder die Loxone App. Morgens, wenn man aufsteht, ist der Wecker in das intelligente Gebäude integriert. Mit dem Klingeln des Weckers wird die Alarmanlage ebenfalls automatisch deaktiviert. Es besteht jederzeit die Möglichkeit, den Alarmstatus und Ereignisse am Smartphone zu verfolgen oder die Alarmanlage dort manuell scharf- oder unscharf zu schalten.",
+    "implementation_html": "<p class=\"p1\"><strong>Haus-verlassen-Funktion:</strong></p><p class=\"p1\">Die letzte Person, die das Haus verlässt, führt einen <strong>Dreifachklick</strong> am Taster neben der Haustür aus. Dadurch wird der <strong>Abwesenheitsmodus</strong> aktiviert – einschließlich aller zugehörigen Funktionen wie dem Scharfstellen der Alarmanlage.</p><p class=\"p1\">Abends möchte man ebenfalls die Alarmanlage aktivieren, allerdings ohne, dass nächtliche Bewegungen im Haus einen Alarm auslösen. </p><p class=\"p1\">Dafür gibt es den <strong>Gute-Nacht-Modus</strong>:</p><p class=\"p1\">Dieser wird ebenfalls per <strong>Dreifachklick</strong> ausgelöst, jedoch am Taster im Schlafzimmer. Im Unterschied zum Haus-verlassen-Modus wird die Alarmanlage dabei <strong>ohne Präsenzerkennung</strong> aktiviert – sodass man sich frei im Haus bewegen kann, während die Außenhaut geschützt bleibt. Die Alarmanlage wird immer mit einer <strong>Verzögerung</strong> aktiviert, sodass noch ein paar Minuten zur Verfügung stehen, um sich ohne scharfe Alarmanlage zu bewegen. Beispielsweise, wenn beim Verlassen des Hauses noch etwas vergessen wurde – wie der Autoschlüssel – bleibt genügend Zeit, diesen zu holen, ohne sofort den Alarm auszulösen. </p><p class=\"p1\">Deaktiviert wird die Alarmanlage über das <strong>berechtigte Betreten des Hauses</strong>, also über den <strong>NFC Code Touch</strong> oder die <strong>Loxone App</strong>. Morgens, wenn man aufsteht, ist der <strong>Wecker</strong> in das intelligente Gebäude integriert. Mit dem Klingeln des Weckers wird die Alarmanlage ebenfalls automatisch deaktiviert. Es besteht jederzeit die Möglichkeit, den <strong>Alarmstatus und Ereignisse</strong> am Smartphone zu verfolgen oder die Alarmanlage dort manuell scharf- oder unscharf zu schalten.</p><p></p>",
+    "function_blocks": [
+      {
+        "name": "Lichtsteuerung",
+        "url": "https://www.loxone.com/help/lighting-controller"
+      },
+      {
+        "name": "Wecker",
+        "url": "https://www.loxone.com/help/alarm-clock"
+      },
+      {
+        "name": "Alarmanlage",
+        "url": "https://www.loxone.com/help/burglar-alarm"
+      },
+      {
+        "name": "Schalter",
+        "url": "https://www.loxone.com/help/switch"
+      },
+      {
+        "name": "Impuls um",
+        "url": "https://www.loxone.com/help/PulseAt"
+      },
+      {
+        "name": "Berechtigung NFC Code Touch",
+        "url": "https://www.loxone.com/help/AuthenticationNFC"
+      }
+    ],
+    "auto_config": true,
+    "config_version": "16.0.6.10",
+    "config_files": [
+      {
+        "name": "Use Case – Automatic Arm.Loxone",
+        "url": "https://pimcore.loxone.com/06%20Use%20Cases/Security/Automatic%20Arm-Disarm%20Funciton/Use%20Case%20%E2%80%93%20Automatic%20Arm.Loxone"
+      }
+    ],
+    "required_products": [
+      {
+        "name": "NFC Code Touch Tree Signalweiß",
+        "sku": "100481"
+      },
+      {
+        "name": "Touch Tree Weiß",
+        "sku": "100221"
+      },
+      {
+        "name": "Touch Nightlight Classic Air Signalweiß",
+        "sku": "100476"
+      }
+    ],
+    "url_slug": "automatic-arm-disarm-function",
+    "remarks": ""
+  },
+  {
+    "id": "25578",
+    "name": "Fenster- und Türüberwachung bei Abwesenheit des Gastes",
+    "name_en": "",
+    "category": "security",
+    "secondary_categories": [
+      "security"
+    ],
+    "description": "Diese Config Datei überwacht Türen und Fenster in Hotelzimmern und sendet bei offenen Türen und Regen Benachrichtigungen an einen Teams-Kanal.",
+    "implementation": "Jedes Hotelzimmer ist mit einem Miniserver Compact ausgestattet, der den Öffnungszustand der Außentür über einen Türkontakt und die Anwesenheit des Gastes mittels Präsenzmeldern erfasst. Diese Daten werden an den Rezeptionsminiserver übertragen, wo die Logik abgebildet wird. Wenn die Außentür geöffnet ist und keine Präsenz im Zimmer festgestellt wird, wird dieser Zustand an den Fenster- und Türüberwachungsbaustein weitergegeben. Der Ausgang des Bausteins, der mit der Zimmernummer bezeichnet wird, wird an einen Textgenerator angeschlossen, der bei länger als 600 Sekunden andauerndem Regen eine Benachrichtigung per E-Mail an das Team sendet.",
+    "implementation_html": "<p>Jedes Hotelzimmer ist mit einem Miniserver Compact ausgestattet, der den Öffnungszustand der Außentür über einen Türkontakt und die Anwesenheit des Gastes mittels Präsenzmeldern erfasst. Diese Daten werden an den Rezeptionsminiserver übertragen, wo die Logik abgebildet wird. Wenn die Außentür geöffnet ist und keine Präsenz im Zimmer festgestellt wird, wird dieser Zustand an den Fenster- und Türüberwachungsbaustein weitergegeben. Der Ausgang des Bausteins, der mit der Zimmernummer bezeichnet wird, wird an einen Textgenerator angeschlossen, der bei länger als 600 Sekunden andauerndem Regen eine Benachrichtigung per E-Mail an das Team sendet. </p>",
+    "function_blocks": [
+      {
+        "name": "UND",
+        "url": "https://www.loxone.com/help/And"
+      },
+      {
+        "name": "Fenster - und Türüberwachung",
+        "url": "https://www.loxone.com/help/door-window-monitor"
+      },
+      {
+        "name": "Text Generator",
+        "url": "https://www.loxone.com/help/text-generator"
+      },
+      {
+        "name": "Ein- und Ausschaltverzögerung",
+        "url": "https://www.loxone.com/help/OnOffDelay"
+      },
+      {
+        "name": "Composite-Fensterkontakt",
+        "url": "https://www.loxone.com/help/combined-window-contact"
+      },
+      {
+        "name": "Gleich"
+      },
+      {
+        "name": "Präsenz",
+        "url": "https://www.loxone.com/help/presence2"
+      }
+    ],
+    "auto_config": false,
+    "config_version": "16.1.11.6",
+    "config_files": [
+      {
+        "name": "Guest Room Door.Loxone",
+        "url": "https://pimcore.loxone.com/06%20Use%20Cases/Security/Campus-%20Room%20Door%20Window%20Monitoring/Guest%20Room%20Door.Loxone"
+      }
+    ],
+    "required_products": [
+      {
+        "name": "Miniserver Compact",
+        "sku": "100512"
+      },
+      {
+        "name": "Wetterstation Tree",
+        "sku": "100246"
+      },
+      {
+        "name": "Präsenzmelder Deckeneinbau Tree Weiß",
+        "sku": "100466"
+      }
+    ],
+    "url_slug": "room-door-window-monitoring",
+    "remarks": ""
+  },
+  {
+    "id": "5124",
+    "name": "Alarmierung bei kritischem Hochwasserstand ",
+    "name_en": "Flood warning",
+    "category": "security",
+    "secondary_categories": [],
+    "description": "Erfassung von Pegelständen und automatische Alarmierung bei Überschwemmungsgefahr",
+    "implementation": "In hochwassergefährdeten Gebieten ist rasches Handeln entscheidend, um Hab und Gut vor Wasserschäden zu bewahren. Mit Hilfe des Loxone Miniservers können ganz einfach Werte von Websites ausgelesen werden. Da Behörden und Organisationen sehr zuverlässig Informationen über die aktuelle Sachlage bereitstellen, machen wir uns dies zu zunutze und erfassen mit Hilfe eines virtuellen HTTP Eingangs die aktuellen Pegelstände. \nVirtueller HTTP-Eingang\nIn den Eigenschaften des virtuellen HTTP-Eingangs wird nun die Adresse der Webseite eingetragen, von wo aus der Hochwasserstand ausgelesen werden soll. In unserem Beispiel werden die Werte von der Webseite des Landesamts für Umwelt zyklisch abgefragt. Entscheidend dabei ist der aktuelle Wasserstand. \n\nUm jetzt den Hochwasserstand auslesen zu können, müssen Sie einen virtuellen HTTP Befehl einfügen. Entscheidend ist hier die korrekte Befehlserkennung. Bevor Sie die Befehlserkennung richtig konfigurieren können, müssen Sie wissen, wie die Webseite aufgebaut ist. Hierzu betrachten Sie den Quellcode der Seite, und suchen den Wert, der ausgelesen werden soll.\nLetzter Messwert vom <b>07.08.23 13:30</b> Uhr: <b>582</b> cm</span> \n\n\nEin markanter Anhaltspunkt ist der Text “Uhr: “, der unmittelbar vor dem entscheidenden Wert steht. Wichtig ist, dass dieser Text in dieser Form nur einmal im Quellcode auftritt. Um nun den Wert auszulesen, tragen Sie folgende Befehlserkennung ein:\nUhr: \\s3\\v\nDie Befehlserkennung ist so aufgebaut, dass als Erstes an die markante Textstelle gesprungen wird (Uhr:). Mit \\s3 werden drei Zeichen übersprungen und \\v liest den eigentlichen Wert aus. Nun wird der aktuelle Pegelstand angezeigt. Es empfiehlt sich die Statistik zu aktivieren, denn damit wird die Entwicklung des Wasserstandes visuell in der Loxone App dargestellt. \n\nAutomatische Alarmierung bei einem kritischen Hochwasserstand \n\n\nUm nun eine automatische Alarmierung auszulösen, kommt der Funktionsbaustein “Status” zum Einsatz. Hier können Sie verschiedene Bedingungen einstellen. Ist beispielsweise der Wasserstand > XY cm, so gibt der Baustein einen Statuswert sowie einen Statustext aus. Dieser Ausgang wird nun mit dem Funktionsbaustein „Brand- & Wassermeldezentrale“ verbunden. Wird der im Status Baustein definierte Wert nun überschritten, wird der Alarm ausgelöst über den Caller Service wird ein Anruf abgesetzt. Optional kann außerdem die Beleuchtung oder der Audioserver in den Alarm eingebunden werden. \n\n\nSollte nun die Website nicht mehr zuverlässig Daten liefern, so kann dies über den Fehlerausgang des virtuellen HTTP Eingangs erkannt werden. Sollte dies der Fall sein, wird ebenfalls ein Anruf via Caller Service abgesetzt.",
+    "implementation_html": "<p><span class=\"TextRun SCXW165969517 BCX4\"><span class=\"NormalTextRun SCXW165969517 BCX4\">In hochwassergefährdeten Gebieten ist rasches Handeln entscheidend, um Hab und Gut vor Wasserschäden zu bewahren.</span></span><span class=\"EOP SCXW165969517 BCX4\"> </span><span class=\"TextRun SCXW59300829 BCX4\"><span class=\"NormalTextRun SCXW59300829 BCX4\">Mit Hilfe des Loxone Miniservers können ganz einfach Werte von Websites ausgelesen werden. Da Behörden und Organisationen sehr zuverlässig Informationen über die aktuelle Sachlage bereitstellen, machen wir uns dies zu zunutze und erfassen mit Hilfe eines </span></span><a class=\"Hyperlink SCXW59300829 BCX4\" href=\"https://www.loxone.com/dede/kb/virtueller-http-eingang/\" target=\"_blank\" rel=\"noopener\"><span class=\"TextRun Underlined SCXW59300829 BCX4\"><span class=\"NormalTextRun SCXW59300829 BCX4\">virtuellen HTTP Eingangs</span></span></a><span class=\"TextRun SCXW59300829 BCX4\"><span class=\"NormalTextRun SCXW59300829 BCX4\"> die aktuellen Pegelstände.</span></span><span class=\"EOP SCXW59300829 BCX4\"> </span></p>\n<p><strong><span class=\"EOP SCXW59300829 BCX4\"><span class=\"TextRun SCXW8343604 BCX4\"><span class=\"NormalTextRun SCXW8343604 BCX4\">Virtueller </span><span class=\"NormalTextRun SCXW8343604 BCX4\">HTTP-Eingang</span></span></span></strong></p>\n<p><span class=\"EOP SCXW59300829 BCX4\"><span class=\"TextRun SCXW211566251 BCX4\"><span class=\"NormalTextRun SCXW211566251 BCX4\">In den Eigenschaften des virtuellen </span><span class=\"NormalTextRun SCXW211566251 BCX4\">HTTP-Eingangs</span><span class=\"NormalTextRun SCXW211566251 BCX4\"> wird nun die Adresse der Webseite eingetragen, von wo aus der Hochwasserstand ausgelesen werden soll. In unserem Beispiel werden die Werte von der Webseite des </span></span><a class=\"Hyperlink SCXW211566251 BCX4\" href=\"https://www.hnd.bayern.de/pegel/donau_bis_passau/passau-10091008\" target=\"_blank\" rel=\"noopener\"><span class=\"TextRun Underlined SCXW211566251 BCX4\"><span class=\"NormalTextRun SCXW211566251 BCX4\">Landesamts für Umwelt</span></span></a><span class=\"TextRun SCXW211566251 BCX4\"><span class=\"NormalTextRun SCXW211566251 BCX4\"> zyklisch abgefragt. Entscheidend dabei ist der aktuelle Wasserstand.</span></span><span class=\"EOP SCXW211566251 BCX4\"> </span></span></p>\n<div class=\"OutlineElement Ltr SCXW255644061 BCX4\">\n<p class=\"Paragraph SCXW255644061 BCX4\"><span class=\"TextRun SCXW255644061 BCX4\"><span class=\"NormalTextRun SCXW255644061 BCX4\">Um jetzt den Hochwasserstand auslesen zu können, müssen Sie einen </span></span><a class=\"Hyperlink SCXW255644061 BCX4\" href=\"https://www.loxone.com/dede/kb/virtueller-http-eingang/\" target=\"_blank\" rel=\"noopener\"><span class=\"TextRun Underlined SCXW255644061 BCX4\"><span class=\"NormalTextRun SCXW255644061 BCX4\">virtuellen HTTP Befehl</span></span></a><span class=\"TextRun SCXW255644061 BCX4\"><span class=\"NormalTextRun SCXW255644061 BCX4\"> einfügen. Entscheidend ist hier die korrekte Befehlserkennung. Bevor Sie die Befehlserkennung richtig konfigurieren können, müssen Sie wissen, wie die Webseite aufgebaut ist.</span></span> <span class=\"TextRun SCXW255644061 BCX4\"><span class=\"NormalTextRun SCXW255644061 BCX4\">Hierzu betrachten Sie den Quellcode der Seite, und suchen den Wert, der ausgelesen werden soll.</span></span></p>\n<p class=\"Paragraph SCXW255644061 BCX4\"><span class=\"TextRun SCXW255644061 BCX4\"><span class=\"NormalTextRun SCXW255644061 BCX4\">Letzter Messwert vom &lt;b&gt;07.08.23 13:30&lt;/b&gt; Uhr: &lt;b&gt;</span><span class=\"NormalTextRun SCXW255644061 BCX4\">582</span><span class=\"NormalTextRun SCXW255644061 BCX4\">&lt;/b&gt; cm&lt;/span&gt;</span></span><span class=\"EOP SCXW255644061 BCX4\"> </span></p>\n</div>\n<div class=\"OutlineElement Ltr SCXW255644061 BCX4\">\n<p class=\"Paragraph SCXW255644061 BCX4\"><span class=\"TextRun SCXW255644061 BCX4\"><span class=\"NormalTextRun SCXW255644061 BCX4\">Ein markanter Anhaltspunkt ist der Text “Uhr: “, der unmittelbar vor dem entscheidenden Wert steht. Wichtig ist, dass dieser Text in dieser Form nur einmal im Quellcode auftritt. Um nun den Wert auszulesen, tragen Sie folgende Befehlserkennung ein:</span></span></p>\n<p class=\"Paragraph SCXW255644061 BCX4\"><strong><span class=\"TextRun SCXW255644061 BCX4\"><span class=\"NormalTextRun SCXW255644061 BCX4\">Uhr: \\s3\\v</span></span></strong></p>\n<p class=\"Paragraph SCXW255644061 BCX4\"><span class=\"TextRun SCXW255644061 BCX4\"><span class=\"NormalTextRun SCXW255644061 BCX4\"><span class=\"TextRun SCXW228892094 BCX4\"><span class=\"NormalTextRun SCXW228892094 BCX4\">Die Befehlserkennung ist so aufgebaut, dass als Erstes an die markante Textstelle gesprungen wird (Uhr</span><span class=\"NormalTextRun SCXW228892094 BCX4\">:)</span><span class=\"NormalTextRun SCXW228892094 BCX4\">. Mit </span></span><span class=\"TextRun SCXW228892094 BCX4\"><span class=\"NormalTextRun SCXW228892094 BCX4\">\\s3</span></span><span class=\"TextRun SCXW228892094 BCX4\"><span class=\"NormalTextRun SCXW228892094 BCX4\"> werden drei Zeichen übersprungen und \\v liest den eigentlichen Wert aus. Nun wird der aktuelle Pegelstand angezeigt. Es empfiehlt sich die Statistik zu aktivieren, denn damit wird die Entwicklung des Wasserstandes visuell in der Loxone App dargestellt.</span></span><span class=\"EOP SCXW228892094 BCX4\"> </span></span></span></p>\n<div class=\"OutlineElement Ltr SCXW60135950 BCX4\">\n<p class=\"Paragraph SCXW60135950 BCX4\"><strong><span class=\"TextRun SCXW60135950 BCX4\"><span class=\"NormalTextRun SCXW60135950 BCX4\">Automatische Alarmierung bei einem kritischen Hochwasserstand</span></span><span class=\"EOP SCXW60135950 BCX4\"> </span></strong></p>\n</div>\n<div class=\"OutlineElement Ltr SCXW60135950 BCX4\">\n<p class=\"Paragraph SCXW60135950 BCX4\"><span class=\"TextRun SCXW60135950 BCX4\"><span class=\"NormalTextRun SCXW60135950 BCX4\">Um nun eine automatische Alarmierung auszulösen, kommt der Funktionsbaustein “Status” zum Einsatz. Hier können Sie verschiedene Bedingungen einstellen. Ist beispielsweise der Wasserstand &gt; XY cm, so gibt der Baustein einen Statuswert sowie einen Statustext aus.</span></span><span class=\"EOP SCXW60135950 BCX4\"> </span><span class=\"TextRun SCXW60135950 BCX4\"><span class=\"NormalTextRun SCXW60135950 BCX4\">Dieser Ausgang wird nun mit dem Funktionsbaustein „</span></span><a class=\"Hyperlink SCXW60135950 BCX4\" href=\"https://www.loxone.com/dede/kb/brand-wasser-meldezentrale/\" target=\"_blank\" rel=\"noopener\"><span class=\"TextRun Underlined SCXW60135950 BCX4\"><span class=\"NormalTextRun SCXW60135950 BCX4\">Brand- &amp; Wassermeldezentrale</span></span></a><span class=\"TextRun SCXW60135950 BCX4\"><span class=\"NormalTextRun SCXW60135950 BCX4\">“ verbunden. Wird der im Status Baustein definierte Wert nun überschritten, wird der Alarm ausgelöst über den </span></span><a class=\"Hyperlink SCXW60135950 BCX4\" href=\"https://shop.loxone.com/dede/caller-service-10-jahre.html\" target=\"_blank\" rel=\"noopener\"><span class=\"TextRun Underlined SCXW60135950 BCX4\"><span class=\"NormalTextRun SCXW60135950 BCX4\">Caller Service</span></span></a><span class=\"TextRun SCXW60135950 BCX4\"><span class=\"NormalTextRun SCXW60135950 BCX4\"> wird ein Anruf abgesetzt. Optional kann außerdem die Beleuchtung oder der </span></span><a class=\"Hyperlink SCXW60135950 BCX4\" href=\"https://shop.loxone.com/dede/audioserver.html\" target=\"_blank\" rel=\"noopener\"><span class=\"TextRun Underlined SCXW60135950 BCX4\"><span class=\"NormalTextRun SCXW60135950 BCX4\">Audioserver</span></span></a><span class=\"TextRun SCXW60135950 BCX4\"><span class=\"NormalTextRun SCXW60135950 BCX4\"> in den Alarm eingebunden werden.</span></span><span class=\"EOP SCXW60135950 BCX4\"> </span></p>\n</div>\n<div class=\"OutlineElement Ltr SCXW60135950 BCX4\">\n<p class=\"Paragraph SCXW60135950 BCX4\"><span class=\"TextRun SCXW60135950 BCX4\"><span class=\"NormalTextRun SCXW60135950 BCX4\">Sollte nun die Website nicht mehr zuverlässig Daten liefern, so kann dies über den Fehlerausgang des virtuellen </span><span class=\"NormalTextRun ContextualSpellingAndGrammarErrorV2Themed SCXW60135950 BCX4\">HTTP Eingangs</span><span class=\"NormalTextRun SCXW60135950 BCX4\"> erkannt werden. Sollte dies der Fall sein, wird ebenfalls ein Anruf via </span></span><a class=\"Hyperlink SCXW60135950 BCX4\" href=\"https://shop.loxone.com/dede/caller-service-10-jahre.html\" target=\"_blank\" rel=\"noopener\"><span class=\"TextRun Underlined SCXW60135950 BCX4\"><span class=\"NormalTextRun SCXW60135950 BCX4\">Caller Service</span></span></a><span class=\"TextRun SCXW60135950 BCX4\"><span class=\"NormalTextRun SCXW60135950 BCX4\"> abgesetzt.</span></span><span class=\"EOP SCXW60135950 BCX4\"> </span></p>\n</div>\n</div>",
+    "function_blocks": [
+      {
+        "name": "Status",
+        "url": "https://www.loxone.com/help/status"
+      },
+      {
+        "name": "Brand- und Wassermeldezentrale",
+        "url": "https://www.loxone.com/help/fire-water-alarm"
+      }
+    ],
+    "auto_config": false,
+    "config_version": "16.0.6.10",
+    "config_files": [
+      {
+        "name": "UseCase-flood-warning.loxone",
+        "url": "https://pimcore.loxone.com/06%20Use%20Cases/Security/Flood%20Warning/UseCase-flood-warning.loxone"
+      }
+    ],
+    "required_products": [
+      {
+        "name": "Miniserver",
+        "sku": "100335"
+      }
+    ],
+    "url_slug": "flood-warning",
+    "remarks": "Mit dem Anlagenschema kann der Pegelstand visualisiert werden (siehe Bild in der Galerie)"
+  },
+  {
+    "id": "25620",
+    "name": "Netzwerkperipherie Überwachung",
+    "name_en": "",
+    "category": "security",
+    "secondary_categories": [],
+    "description": "Überwachen Sie mehrere Netzwerkgeräte mit einer klaren Visualisierung im Status Monitor der Loxone App. Bei Ausfall eines Geräts erfolgt automatisch eine Benachrichtigung per E-Mail an den IT-Verantwortlichen.",
+    "implementation": "Mit dem Loxone Miniserver und dem Ping Baustein erfolgt die Überwachung von Netzwerkgeräten ganz einfach. Hierzu wird die Netzwerkadresse des zu überwachenden Geräts hinterlegt, und in einem individuell einstellbaren Intervall wird das Gerät angepingt. Ist das Gerät nicht mehr erreichbar, wird es als “offline” gemeldet und der Status im Status Monitor der Loxone App übersichtlich angezeigt. Fällt ein Gerät aus, wird automatisch eine Benachrichtigung per E-Mail an den IT-Verantwortlichen gesendet, um sofortige Maßnahmen einzuleiten.",
+    "implementation_html": "<p>Mit dem Loxone Miniserver und dem Ping Baustein erfolgt die Überwachung von Netzwerkgeräten ganz einfach. Hierzu wird die Netzwerkadresse des zu überwachenden Geräts hinterlegt, und in einem individuell einstellbaren Intervall wird das Gerät angepingt. Ist das Gerät nicht mehr erreichbar, wird es als “offline” gemeldet und der Status im Status Monitor der Loxone App übersichtlich angezeigt. Fällt ein Gerät aus, wird automatisch eine Benachrichtigung per E-Mail an den IT-Verantwortlichen gesendet, um sofortige Maßnahmen einzuleiten.</p><p></p>",
+    "function_blocks": [
+      {
+        "name": "Ping",
+        "url": "https://www.loxone.com/help/Ping"
+      },
+      {
+        "name": "Status Monitor",
+        "url": "https://www.loxone.com/help/StatusMonitor"
+      }
+    ],
+    "auto_config": false,
+    "config_version": "16.1.11.6",
+    "config_files": [
+      {
+        "name": "Network Monitoring.Loxone",
+        "url": "https://pimcore.loxone.com/06%20Use%20Cases/Security/network%20device%20monitoring/Network%20Monitoring.Loxone"
+      }
+    ],
+    "required_products": [],
+    "url_slug": "network-device-monitoring",
+    "remarks": ""
+  },
+  {
+    "id": "20499",
+    "name": "Alarmanlage nachrüsten",
+    "name_en": "Retrofit alarm system",
+    "category": "security",
+    "secondary_categories": [
+      "shading",
+      "lighting",
+      "audio",
+      "access"
+    ],
+    "description": "Einfache Nachrüstung einer Alarmanlage ohne bestehende Verkabelung.",
+    "implementation": "Funkbasierte Komponenten wie Bewegungsmelder, Fensterkontakte oder Sirenen kommunizieren drahtlos mit dem Loxone Miniserver über eine Air Base Extension. In diesem Projekt wurden sämtliche Fenster mit Fensterkontakten Air ausgestattet. Optional kann der Fenstergriff Air zum Einsatz kommen, der nicht nur den Öffnungszustand, sondern auch Erschütterungen erkennt.Alle vorhandenen Sensoren – z. B. Präsenzmelder – lassen sich für die Alarmierung nutzen.Abwesenheitsmodus: Vollschutz – alle Sensoren aktivNachtmodus: Teilschutz – nur Außenhülle wird überwacht, freie Bewegung im Innenbereich bleibt möglichAblauf bei Auslösung:1. Stiller AlarmSmartphone-Benachrichtigung an alle BewohnerAlle Taster geben akustisches Feedback (klicken) 2. Akustischer AlarmLautsprecher (sofern vorhanden) spielen Alarmsignal zur Abschreckung und als Signal für Dritte. 3. Optischer AlarmDas Licht beginnt zu blinkenDie Beschattung fährt hoch 4. Externer AlarmDie Alarmsirene im Außenbereich ertönt und macht auch die Nachbarn aufmerksam. Umfang je nach Ausbaustufe einstellbar (z. B. nur Licht oder gesamter visueller Alarm)Anwesenheitssimulation:Bei aktivem Abwesenheitsmodus simulieren Licht, Musik und Beschattung die Anwesenheit. Dies erfolgt automatisiert und zufallsbasiert, um Einbrecher abzuschrecken.Deaktivierung:Der Alarm kann per NFC Code Touch oder über die Loxone App quittiert und deaktiviert werden – abhängig von Berechtigungen.",
+    "implementation_html": "<p>Funkbasierte Komponenten wie Bewegungsmelder, Fensterkontakte oder Sirenen kommunizieren drahtlos mit dem <strong>Loxone Miniserver</strong> über eine <strong>Air Base Extension</strong>. </p><p>In diesem Projekt wurden sämtliche Fenster mit <strong>Fensterkontakten Air</strong> ausgestattet. </p><p>Optional kann der <strong>Fenstergriff Air</strong> zum Einsatz kommen, der nicht nur den Öffnungszustand, sondern auch Erschütterungen erkennt.</p><p>Alle vorhandenen Sensoren – z. B. <strong>Präsenzmelder</strong> – lassen sich für die Alarmierung nutzen.</p><ul><li><strong>Abwesenheitsmodus</strong>: Vollschutz – alle Sensoren aktiv</li><li><strong>Nachtmodus</strong>: Teilschutz – nur Außenhülle wird überwacht, freie Bewegung im Innenbereich bleibt möglich</li></ul><p class=\"p4\"><strong>Ablauf bei Auslösung:</strong></p><p class=\"p4\"><strong>1. Stiller Alarm</strong></p><ul><li>Smartphone-Benachrichtigung an alle Bewohner</li><li>Alle Taster geben akustisches Feedback (klicken)</li></ul><p> </p><p><strong>2. Akustischer Alarm</strong></p><ul><li>Lautsprecher (sofern vorhanden) spielen Alarmsignal zur Abschreckung und als Signal für Dritte.</li></ul><p class=\"p1\"> </p><p class=\"p1\"><strong>3. Optischer Alarm</strong></p><ul><li>Das Licht beginnt zu blinken</li><li>Die Beschattung fährt hoch</li></ul><p> </p><p><strong>4. Externer Alarm</strong></p><ul><li>Die Alarmsirene im Außenbereich ertönt und macht auch die Nachbarn aufmerksam.</li></ul><p> </p><p>Umfang je nach Ausbaustufe einstellbar (z. B. nur Licht oder gesamter visueller Alarm)</p><p class=\"p4\"><strong>Anwesenheitssimulation:</strong></p><p class=\"p1\">Bei aktivem Abwesenheitsmodus simulieren Licht, Musik und Beschattung die Anwesenheit. Dies erfolgt automatisiert und zufallsbasiert, um Einbrecher abzuschrecken.</p><p class=\"p4\"><strong>Deaktivierung:</strong></p><p class=\"p1\">Der Alarm kann per <strong>NFC Code Touch</strong> oder über die <strong>Loxone App</strong> quittiert und deaktiviert werden – abhängig von Berechtigungen.</p><p></p>",
+    "function_blocks": [
+      {
+        "name": "Präsenz",
+        "url": "https://www.loxone.com/help/presence2"
+      },
+      {
+        "name": "Lichtsteuerung",
+        "url": "https://www.loxone.com/help/lighting-controller"
+      },
+      {
+        "name": "Wecker",
+        "url": "https://www.loxone.com/help/alarm-clock"
+      },
+      {
+        "name": "Alarmanlage",
+        "url": "https://www.loxone.com/help/burglar-alarm"
+      },
+      {
+        "name": "Alarmierungskette",
+        "url": "https://www.loxone.com/help/alarm-chain"
+      },
+      {
+        "name": "Fenster - und Türüberwachung",
+        "url": "https://www.loxone.com/help/door-window-monitor"
+      },
+      {
+        "name": "Licht Zentral",
+        "url": "https://www.loxone.com/help/lighting-central"
+      },
+      {
+        "name": "Schalter",
+        "url": "https://www.loxone.com/help/switch"
+      },
+      {
+        "name": "Impuls um",
+        "url": "https://www.loxone.com/help/PulseAt"
+      },
+      {
+        "name": "Langzeitklick",
+        "url": "https://www.loxone.com/help/LongClick"
+      },
+      {
+        "name": "Taster",
+        "url": "https://www.loxone.com/help/push-button"
+      },
+      {
+        "name": "Berechtigung NFC Code Touch",
+        "url": "https://www.loxone.com/help/AuthenticationNFC"
+      }
+    ],
+    "auto_config": true,
+    "config_version": "16.0.6.10",
+    "config_files": [
+      {
+        "name": "Use Case - Retrofit Burglar Alarm.Loxone",
+        "url": "https://pimcore.loxone.com/06%20Use%20Cases/Security/Burglar%20Alarm%20Retrofit/Use%20Case%20-%20Retrofit%20Burglar%20Alarm.Loxone"
+      }
+    ],
+    "required_products": [
+      {
+        "name": "Tür- & Fensterkontakt Air Weiß",
+        "sku": "100210"
+      },
+      {
+        "name": "LED Ceiling Light RGBW Air Weiß",
+        "sku": "100286"
+      },
+      {
+        "name": "Präsenzmelder Air Weiß",
+        "sku": "100420"
+      },
+      {
+        "name": "Touch Nightlight Classic Air Signalweiß",
+        "sku": "100476"
+      },
+      {
+        "name": "Smart Socket Air - Type G",
+        "sku": "100121"
+      },
+      {
+        "name": "Touch Air Weiß",
+        "sku": "100155"
+      },
+      {
+        "name": "Fenstergriff Air",
+        "sku": "100177"
+      },
+      {
+        "name": "Alarmsirene Air",
+        "sku": "100312"
+      },
+      {
+        "name": "NFC Code Touch Air Signalweiß",
+        "sku": "100483"
+      }
+    ],
+    "url_slug": "burglar-alarm-retrofit",
+    "remarks": "Für maximale Betriebssicherheit empfiehlt sich der Einsatz des NFC Code Touch. Dadurch kann der Alarm auch ohne Smartphone oder Netzwerkverbindung direkt vor Ort deaktiviert oder quittiert werden\nEine Paniktaste, Langzeit Klick auf den Loxone Touch im Schlafzimmer, kann in kritischen Situationen aktiviert werden. Das Licht blinkt für 2 Minuten im gesamten Gebäude\nBei der Integration von Außensirenen in eine Loxone-Alarmanlage ist die Beachtung lokaler Vorschriften zwingend erforderlich. In vielen Regionen gelten klare Regelungen zur Dauer des Alarms."
+  },
+  {
+    "id": "20594",
+    "name": "Terrassentür-Beschattung",
+    "name_en": "Patio door shading",
+    "category": "shading",
+    "secondary_categories": [
+      "access",
+      "climate",
+      "security"
+    ],
+    "description": "Automatisches Hochfahren und Halten der Beschattung, um aussperren zu verhindern.",
+    "implementation": "Über den Tür- und Fensterkontakt Air wird das Öffnen der Terrassentür erkannt. Der Baustein Automatik-Beschattung fährt daraufhin die Beschattung automatisch nach oben und hält sie geöffnet - auch bei aktiver Sonnenstands-Automatik oder zentralen Fahrbefehlen.Parallel dazu nutzt der intelligente Raumregler das Türsignal, um Heiz- oder Kühlquellen (z.B. Klimaanlage) zu deaktivieren, falls die Tür über eine definierte Zeit hinweg offen bleibt.So wird verhindert, dass man durch die Beschattung auf der Terrasse ausgesperrt wird – und gleichzeitig unnötiges Heizen oder Kühlen durch die offene Tür vermieden, was zur Energieeinsparung beiträgt.",
+    "implementation_html": "<p><span style=\"color: rgb(33, 33, 33);\">Über den Tür- und Fensterkontakt Air wird das Öffnen der Terrassentür erkannt. Der Baustein Automatik-Beschattung fährt daraufhin die Beschattung automatisch nach oben und hält sie geöffnet - auch bei aktiver Sonnenstands-Automatik oder zentralen Fahrbefehlen.</span></p><p><span style=\"color: rgb(33, 33, 33);\">Parallel dazu nutzt der intelligente Raumregler das Türsignal, um Heiz- oder Kühlquellen (z.B. Klimaanlage) zu deaktivieren, falls die Tür über eine definierte Zeit hinweg offen bleibt.</span></p><p><span style=\"color: rgb(33, 33, 33);\">So wird verhindert, dass man durch die Beschattung auf der Terrasse ausgesperrt wird – und gleichzeitig unnötiges Heizen oder Kühlen durch die offene Tür vermieden, was zur Energieeinsparung beiträgt.</span></p>",
+    "function_blocks": [
+      {
+        "name": "Intelligente Raumregelung",
+        "url": "https://www.loxone.com/help/intelligent-room-controller"
+      },
+      {
+        "name": "Automatikbeschattung",
+        "url": "https://www.loxone.com/help/auto-shading"
+      }
+    ],
+    "auto_config": true,
+    "config_version": "16.0.6.3",
+    "config_files": [
+      {
+        "name": "Patio_Door_Shading.Loxone",
+        "url": "https://pimcore.loxone.com/06%20Use%20Cases/Shading/Patio%20Door%20Shading/Patio_Door_Shading.Loxone"
+      }
+    ],
+    "required_products": [
+      {
+        "name": "Nano 2 Relay Tree",
+        "sku": "100395"
+      },
+      {
+        "name": "Touch Tree Weiß",
+        "sku": "100221"
+      },
+      {
+        "name": "Power Supply & Backup",
+        "sku": "100401"
+      },
+      {
+        "name": "Tür- & Fensterkontakt Air Weiß",
+        "sku": "100210"
+      }
+    ],
+    "url_slug": "patio-door-shading",
+    "remarks": "Statt des Tür-/Fensterkontakts Air lassen sich auch ein Fenstergriff Air oder fest installierte Kontakte an Fenstern und Türen über Nano DI Tree oder DI Extension integrieren."
+  },
+  {
+    "id": "20595",
+    "name": "Sturmschutz für Beschattungen",
+    "name_en": "Storm protection for shading",
+    "category": "shading",
+    "secondary_categories": [
+      "security"
+    ],
+    "description": "Automatische Fahrt in Sicherheitsposition bei Überschreitung einer bestimmten Windgeschwindigkeit",
+    "implementation": "Überschreitet die Live-Windgeschwindigkeit der Wetterstation Tree einen definierten Grenzwert, fahren die Beschattungen automatisch in eine einstellbare Sicherheitsposition (z. B. vollständig geöffnet), um Schäden durch Sturm zu vermeiden.Sobald die Windgeschwindigkeit wieder unter den Grenzwert fällt, wird der Sturmschutz wieder aufgehoben. In diesem Beispiel, wurde die Einschaltschwelle auf 45 km/h gesetzt. Bleibt die Windgeschwindigkeit länger als 45 Minuten unter 30 km/h,wird der Sturmschutz automatisch aufgehoben.Mit einem Schalter kann die gesperrte Beschattung auch vorzeitig wieder freigegeben werden. Abhängig vom Beschattungstyp kann beim Baustein Automatikbeschattung festgelegt werden, ob diese beim Sturmschutz gänzlich geöffnet oder geschlossen sein soll.",
+    "implementation_html": "<p><span style=\"color: rgb(33, 33, 33);\">Überschreitet die Live-Windgeschwindigkeit der Wetterstation Tree einen definierten Grenzwert, fahren die Beschattungen automatisch in eine einstellbare Sicherheitsposition (z. B. vollständig geöffnet), um Schäden durch Sturm zu vermeiden.</span></p><p><span style=\"color: rgb(33, 33, 33);\">Sobald die Windgeschwindigkeit wieder unter den Grenzwert fällt, wird der Sturmschutz wieder aufgehoben. In diesem Beispiel, wurde die Einschaltschwelle auf 45 km/h gesetzt. Bleibt die Windgeschwindigkeit länger als 45 Minuten unter 30 km/h,wird der Sturmschutz automatisch aufgehoben.</span></p><p><span style=\"color: rgb(33, 33, 33);\">Mit einem Schalter kann die gesperrte Beschattung auch vorzeitig wieder freigegeben werden. </span></p><p><span style=\"color: rgb(33, 33, 33);\">Abhängig vom Beschattungstyp kann beim Baustein Automatikbeschattung festgelegt werden, ob diese beim Sturmschutz gänzlich geöffnet oder geschlossen sein soll.</span></p>",
+    "function_blocks": [
+      {
+        "name": "Schalter",
+        "url": "https://www.loxone.com/help/switch"
+      },
+      {
+        "name": "Flankenerkennung",
+        "url": "https://www.loxone.com/help/edge-detection"
+      },
+      {
+        "name": "Schwellwertschalter",
+        "url": "https://www.loxone.com/help/threshold-switch"
+      },
+      {
+        "name": "Ausschaltverzögerung",
+        "url": "https://www.loxone.com/help/OffDelay"
+      }
+    ],
+    "auto_config": false,
+    "config_version": "16.0.6.3",
+    "config_files": [
+      {
+        "name": "Storm_Protection_Sample.Loxone",
+        "url": "https://pimcore.loxone.com/06%20Use%20Cases/Shading/Shading%20Storm%20Protection/Storm_Protection_Sample.Loxone"
+      }
+    ],
+    "required_products": [
+      {
+        "name": "Wetterstation Tree",
+        "sku": "100246"
+      }
+    ],
+    "url_slug": "shading-storm-protection",
+    "remarks": "Überprüfen Sie die empfohlenen Grenzwerte Ihrer Beschattung und passen Sie diese in der Logik entsprechend an."
+  }
+]

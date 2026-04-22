@@ -1,0 +1,9 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Modbus Title="SMT-131" Comment="" Baudrate="19200" Channel="1">
+	<Info templateType="7" minVersion="12020916"/>
+	<ModbusCmd Title="Actual Temp" Comment="" ModbusAddress="10" ModbusCmd="3" ModbusPollingCycle="11" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="Setpoint" Comment="" ModbusAddress="8" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="Operating Status" Comment="" ModbusAddress="6" ModbusCmd="3" ModbusPollingCycle="7" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Operating Status" Comment="" ModbusAddress="6" ModbusCmd="6" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Setpoint" Comment="" ModbusAddress="8" ModbusCmd="6" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+</Modbus>

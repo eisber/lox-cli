@@ -1,0 +1,19 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<VirtualOut Title="Logitech Squeezebox" Address="tcp://192.168.1.199:9090" CmdInit="" CloseAfterSend="true" CmdSep=";">
+  <Info templateType="3" minVersion="12010617"/>  
+  <VirtualOutCmd ID="1" Title="Power on" CmdOn="power 1\r" CmdOff="" Repeat="0,000" RepeatRate="0,000" Analog="false"/>
+  <VirtualOutCmd ID="2" Title="Power off" CmdOn="power 0\r" CmdOff="" Repeat="0,000" RepeatRate="0,000" Analog="false"/>
+  <VirtualOutCmd ID="3" Title="Standby" CmdOn="sleep 1\r" CmdOff="" Repeat="0,000" RepeatRate="0,000" Analog="false"/>
+  <VirtualOutCmd ID="4" Title="Volume plus 5 Percent" CmdOn="mixer volume +5\r" CmdOff="" Repeat="0,000" RepeatRate="0,000" Analog="false"/>
+  <VirtualOutCmd ID="5" Title="Volume minus 5 Percent" CmdOn="mixer volume -5\r" CmdOff="" Repeat="0,000" RepeatRate="0,000" Analog="false"/>
+  <VirtualOutCmd ID="6" Title="Treble plus 10 Percent" CmdOn="mixer treble +10\r" CmdOff="" Repeat="0,000" RepeatRate="0,000" Analog="false"/>
+  <VirtualOutCmd ID="7" Title="Treble minus 10 Percent" CmdOn="mixer treble -10\r" CmdOff="" Repeat="0,000" RepeatRate="0,000" Analog="false"/>
+  <VirtualOutCmd ID="8" Title="Bass plus 10 Percent" CmdOn="mixer bass +10\r" CmdOff="" Repeat="0,000" RepeatRate="0,000" Analog="false"/>
+  <VirtualOutCmd ID="9" Title="Bass minus 10 Percent" CmdOn="mixer bass -10\r" CmdOff="" Repeat="0,000" RepeatRate="0,000" Analog="false"/>
+  <VirtualOutCmd ID="10" Title="Mute" CmdOn="mixer muting 1\r" CmdOff="" Repeat="0,000" RepeatRate="0,000" Analog="false"/>
+  <VirtualOutCmd ID="11" Title="Unmute" CmdOn="mixer muting 0\r" CmdOff="" Repeat="0,000" RepeatRate="0,000" Analog="false"/>
+  <VirtualOutCmd ID="12" Title="Play" CmdOn="play\r" CmdOff="" Repeat="0,000" RepeatRate="0,000" Analog="false"/>
+  <VirtualOutCmd ID="13" Title="Pause" CmdOn="pause\r" CmdOff="" Repeat="0,000" RepeatRate="0,000" Analog="false"/>
+  <VirtualOutCmd ID="14" Title="Stop" CmdOn="stop\r" CmdOff="" Repeat="0,000" RepeatRate="0,000" Analog="false"/>
+  <VirtualOutCmd ID="15" Title="Display text" CmdOn="display www.loxone.com\r" CmdOff="" Repeat="0,000" RepeatRate="0,000" Analog="false"/>
+</VirtualOut>

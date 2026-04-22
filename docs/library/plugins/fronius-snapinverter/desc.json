@@ -1,0 +1,9 @@
+{
+                                "type": "template",
+                                "name": "fronius-snapinverter",
+                                "uuid": "d19eafae-0350-11ed-85d64cd98f3deb8a",
+                                "version":"1.0.0",
+                                "id": "fronius-snapinverter-903",
+                                "file": "fronius-snapinverter.xml",
+                                "templateType": "2",
+                            }

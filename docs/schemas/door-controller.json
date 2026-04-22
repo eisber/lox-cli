@@ -1,0 +1,99 @@
+{
+  "title": "Door Controller",
+  "xml_type": "",
+  "kb_slug": "door-controller",
+  "description": "Door controller with door bell and camera\nThe door control uses two separate methods for audio and video streaming, so it is possible to use a video only, audio only, or a combined audio / video stream for your intercom / camera.\nFirst, create an intercom to be selected in the properties of the door controller as the linked intercom\nTo do this, select the item ''Network devices'' in the periphery and then insert an intercom using the ''Add network device'' button\nIf you are using a Loxone Intercom, you can also add it via ''Network Device Search''",
+  "inputs": [
+    {
+      "abbreviation": "Bell",
+      "summary": "Activate bell",
+      "description": "Activates output (Bell) and assigned audio players. If a Loxone Intercom is used, it is not necessary to connect this input.",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "Off",
+      "summary": "Off",
+      "description": "Pulse: Outputs are reset / switched off. On: Block is locked. Dominating input. The name of the connected sensor is used in the user interface.",
+      "value_range": "0/1"
+    }
+  ],
+  "outputs": [
+    {
+      "abbreviation": "Bell",
+      "summary": "Bell",
+      "description": "Output for controlling a doorbell.",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "O1",
+      "summary": "Custom output 1",
+      "description": "Output is named in the settings and triggered from the user interface.",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "O2",
+      "summary": "Custom output 2",
+      "description": "Output is named in the settings and triggered from the user interface.",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "O3",
+      "summary": "Custom output 3",
+      "description": "Output is named in the settings and triggered from the user interface.",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "API",
+      "summary": "API Connector",
+      "description": "Intelligent API based connector. API Commands",
+      "value_range": "-"
+    }
+  ],
+  "parameters": [
+    {
+      "abbreviation": "maxB",
+      "summary": "Maximum bell duration",
+      "description": "Output (Bell) remain active for set duration. Answering or rejecting the call deactivates the output (Bell) immediately. If set to 0, the bell will remain active until its answered in the visualization.",
+      "unit": "s",
+      "value_range": "0...\u221e",
+      "default_value": "60"
+    }
+  ],
+  "properties": [
+    {
+      "summary": "Assigned Intercom",
+      "description": "This is where you can assign the door controller to an Intercom. (Note: The Intercom is listed as an object in the periphery tree)",
+      "default_value": "-"
+    },
+    {
+      "summary": "O1: User Interface Action 1",
+      "description": "Name for function 1 e.g. door release",
+      "default_value": "-"
+    },
+    {
+      "summary": "O2: User Interface Action 2",
+      "description": "Name for function 2 e.g. outside light",
+      "default_value": "-"
+    },
+    {
+      "summary": "O3: User Interface Action 3",
+      "description": "Name for function 3 e.g. Inside Light",
+      "default_value": "-"
+    },
+    {
+      "summary": "Configuration",
+      "description": "Configuration of the Inputs and Outputs Used.",
+      "default_value": "-"
+    },
+    {
+      "summary": "Show video stream when doorbell rings",
+      "description": "Shows the video stream in the user interface instead of a snapshot, when the doorbell rings. Disable this option if the Intercom can\u2019t manage video streaming to multiple user interfaces at once.",
+      "default_value": "-"
+    }
+  ],
+  "source_url": "https://www.loxone.com/enen/kb/door-controller/",
+  "input_count": 2,
+  "output_count": 5,
+  "parameter_count": 1,
+  "property_count": 6
+}

@@ -1,0 +1,9 @@
+{
+                                "type": "template",
+                                "name": "schneider-energy-meter-3-phase",
+                                "uuid": "3f8e1ddd-5cda-11ec-8aa04cd98f3deb8a",
+                                "version":"1.0.1",
+                                "id": "schneider-energy-meter-3-phase-655",
+                                "file": "schneider-energy-meter-3-phase.xml",
+                                "templateType": "7",
+                            }

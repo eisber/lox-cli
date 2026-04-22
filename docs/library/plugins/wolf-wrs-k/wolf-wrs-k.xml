@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Modbus Title="WOLF WRS-K" Comment="" Baudrate="9600" Stopbits="1" Channel="1">
+	<Info templateType="7" minVersion="12021027"/>
+	<ModbusCmd Title="Collective fault" Comment="" ModbusAddress="1" ModbusCmd="1" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Operational status" Comment="" ModbusAddress="117" ModbusCmd="1" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Supply air temperature" Comment="" ModbusAddress="1" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="Exhaust air temperature" Comment="" ModbusAddress="4" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="Status setpoint" Comment="" ModbusAddress="10" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Speed supply air" Comment="" ModbusAddress="13" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v.1&gt;%" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="Speed exhaust air" Comment="" ModbusAddress="14" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v.1&gt;%" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="Setpoint temperature" Comment="" ModbusAddress="11" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="Supply air setpoint" Comment="" ModbusAddress="10" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="Heat recovery" Comment="" ModbusAddress="30" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.1&gt;%" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="Electric heater" Comment="" ModbusAddress="28" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.1&gt;%" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="Outside air temperature" Comment="" ModbusAddress="2" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="Exhaust air humidity" Comment="" ModbusAddress="8" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.1&gt;%" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="Supply air humidity" Comment="" ModbusAddress="9" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.1&gt;%" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="Outside air humidity" Comment="" ModbusAddress="42" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.1&gt;%" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="Volume flow of supply air" Comment="" ModbusAddress="212" ModbusCmd="3" ModbusPollingCycle="10" Unit="&lt;v.1&gt;m³/h" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Volume flow of exhaust air" Comment="" ModbusAddress="213" ModbusCmd="3" ModbusPollingCycle="10" Unit="&lt;v.1&gt;m³/h" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Operating mode" Comment="" ModbusAddress="214" ModbusCmd="6" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Speed supply air" Comment="" ModbusAddress="19" ModbusCmd="16" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10" RepeatRate="10"/>
+	<ModbusCmd Title="Speed exhaust air" Comment="" ModbusAddress="20" ModbusCmd="16" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10" RepeatRate="10"/>
+	<ModbusCmd Title="Setpoint temperature" Comment="" ModbusAddress="18" ModbusCmd="16" ModbusDataType="1" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10" RepeatRate="5"/>
+	<ModbusCmd Title="On-Off" Comment="" ModbusAddress="222" ModbusCmd="6" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10"/>
+</Modbus>

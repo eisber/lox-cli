@@ -1,0 +1,85 @@
+{
+  "title": "AAL Smart Alarm",
+  "xml_type": "",
+  "kb_slug": "aal-smart-alarm",
+  "description": "This function block enables intelligent detection of emergency situations. If an individual is in need of help (e.g. after falling), help can be contacted quickly. In addition, a manual alarm is available, e.g. via an emergency button or other alarm logic. Loxone products such as the Motion Sensor Tree can easily be selected via a configuration dialog (double-click on the block).",
+  "inputs": [
+    {
+      "abbreviation": "A",
+      "summary": "Activate alarm",
+      "description": "Triggers the alarm. Connect an emergency button or other alarm logic here. The name of the connected sensor is used in the user interface.",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "Off",
+      "summary": "Off",
+      "description": "Pulse: Outputs are reset / switched off. On: Block is locked. Dominating input. The name of the connected sensor is used in the user interface.",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "Dis",
+      "summary": "Disable",
+      "description": "Intelligent detection of emergency situations is disabled when 1. Can be used when the home is left. A manual alarm through input (A) is still possible.",
+      "value_range": "0/1"
+    }
+  ],
+  "outputs": [
+    {
+      "abbreviation": "A1-2",
+      "summary": "Alarm level 1-2",
+      "description": "Level 1 is activated immediately upon alarm triggering. Level 2 is activated after the delay set on parameter D.",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "API",
+      "summary": "API Connector",
+      "description": "Intelligent API based connector. API Commands",
+      "value_range": "-"
+    }
+  ],
+  "parameters": [
+    {
+      "abbreviation": "Tt",
+      "summary": "Time transit room",
+      "description": "If no further movement is detected within this time after the last movement in a transit room, the alarm is triggered.",
+      "unit": "min",
+      "value_range": "1...\u221e",
+      "default_value": "15"
+    },
+    {
+      "abbreviation": "Tc",
+      "summary": "Time common room",
+      "description": "If no further movement is detected within this time after the last movement in a common room, the alarm is triggered.",
+      "unit": "min",
+      "value_range": "1...\u221e",
+      "default_value": "60"
+    },
+    {
+      "abbreviation": "Tb",
+      "summary": "Time bedroom",
+      "description": "If no further movement is detected within this time after the last movement in a bedroom, the alarm is triggered.",
+      "unit": "min",
+      "value_range": "1...\u221e",
+      "default_value": "420"
+    }
+  ],
+  "properties": [
+    {
+      "summary": "Number of Entries",
+      "description": "Maximum number of saved messages.",
+      "value_range": "2...100",
+      "default_value": "20"
+    },
+    {
+      "summary": "Configuration",
+      "description": "Configure devices here for automatic use as detectors in the block (e.g. Presence Sensor Tree). Sensors without an assigned room, or with a room of the types Other or Central are ignored in the intelligent detection of emergency situations and marked grey in the dialogue.",
+      "value_range": "-",
+      "default_value": "-"
+    }
+  ],
+  "source_url": "https://www.loxone.com/enen/kb/aal-smart-alarm/",
+  "input_count": 3,
+  "output_count": 2,
+  "parameter_count": 3,
+  "property_count": 2
+}

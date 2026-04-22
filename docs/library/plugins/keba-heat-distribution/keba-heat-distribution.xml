@@ -1,0 +1,66 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Modbus Title="Keba Heat distribution" Comment="" Baudrate="1" Stopbits="18318644" Channel="1">
+  <Info templateType="7" minVersion="12010617"/>
+  
+  <ModbusCmd Title=">Control Status" Comment="" ModbusAddress="0" ModbusCmd="1" ModbusPollingCycle="10" Unit="&lt;v.1&gt;°" Analog="false" Sensor="true"/>  
+  <ModbusCmd Title="Target temperature heating circuit 1" 	Comment="" ModbusAddress="2"   ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="10" Unit="&lt;v.1&gt;°" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+  <ModbusCmd Title="Room temperature heating circuit 1" 	Comment="" ModbusAddress="1"   ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="10" Unit="&lt;v.1&gt;°" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+  <ModbusCmd Title="Room humidity heating circuit 1" 		Comment="" ModbusAddress="10"  ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="10" Unit="&lt;v.1&gt;%" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+  <ModbusCmd Title="Operating mode heating circuit 1"  	Comment="" ModbusAddress="7"   ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="10" Unit="&lt;v.0&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+  <ModbusCmd Title="Heating requirement heating circuit 1" 	Comment="" ModbusAddress="8"   ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="10" Unit="&lt;v.0&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+  <ModbusCmd Title="Target temperature heating circuit 2" 	Comment="" ModbusAddress="52"  ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="10" Unit="&lt;v.1&gt;°" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+  <ModbusCmd Title="Room temperature heating circuit 2" 	Comment="" ModbusAddress="51"  ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="10" Unit="&lt;v.1&gt;°" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+  <ModbusCmd Title="Room humidity heating circuit 2" 		Comment="" ModbusAddress="60"  ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="10" Unit="&lt;v.1&gt;%" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+  <ModbusCmd Title="Operating mode heating circuit 2" 		Comment="" ModbusAddress="57"  ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="10" Unit="&lt;v.0&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+  <ModbusCmd Title="Heating requirement heating circuit 2" 	Comment="" ModbusAddress="58"  ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="10" Unit="&lt;v.0&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+  <ModbusCmd Title="Target temperature heating circuit 3" 	Comment="" ModbusAddress="102" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="10" Unit="&lt;v.1&gt;°" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+  <ModbusCmd Title="Room temperature heating circuit 3" 	Comment="" ModbusAddress="101" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="10" Unit="&lt;v.1&gt;°" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+  <ModbusCmd Title="Room humidity heating circuit 3" 		Comment="" ModbusAddress="110" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="10" Unit="&lt;v.1&gt;%" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+  <ModbusCmd Title="Operating mode heating circuit 3" 		Comment="" ModbusAddress="107" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="10" Unit="&lt;v.0&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+  <ModbusCmd Title="Heating requirement heating circuit 3" 	Comment="" ModbusAddress="108" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="10" Unit="&lt;v.0&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+
+
+  <ModbusCmd Title="Boiler 1 temperature top " 	Comment="" ModbusAddress="401"  ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="10" Unit="&lt;v.1&gt;°" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+  <ModbusCmd Title="Boiler 1 operating mode " 	Comment="" ModbusAddress="403"  ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="10" Unit="&lt;v.1&gt;°" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+  <ModbusCmd Title="Puffer 1 temperature top" 	Comment="" ModbusAddress="601"  ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="10" Unit="&lt;v.1&gt;°" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+  <ModbusCmd Title="Puffer 1 temperature middle" 	Comment="" ModbusAddress="603"  ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="10" Unit="&lt;v.1&gt;°" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+  <ModbusCmd Title="Operating mode" 	  			Comment="" ModbusAddress="1500" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="10" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+  <ModbusCmd Title="Outside temperature" 			Comment="" ModbusAddress="1502" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="10" Unit="&lt;v.1&gt;°" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+  <ModbusCmd Title="Alarm 1" 					Comment="" ModbusAddress="1450" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="10" Unit="&lt;v.1&gt;°" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+  <ModbusCmd Title="Alarm 2" 					Comment="" ModbusAddress="1451" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="10" Unit="&lt;v.1&gt;°" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+  <ModbusCmd Title="Alarm 3" 					Comment="" ModbusAddress="1452" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="10" Unit="&lt;v.1&gt;°" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+  <ModbusCmd Title="Alarm 4" 					Comment="" ModbusAddress="1453" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="10" Unit="&lt;v.1&gt;°" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+  <ModbusCmd Title="Alarm 5" 					Comment="" ModbusAddress="1454" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="10" Unit="&lt;v.1&gt;°" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+    
+  <ModbusCmd Title="Write target temperature heating circuit 1" 			Comment="" ModbusAddress="4"    ModbusCmd="16" ModbusDataType="1" Unit="&lt;v.1&gt;°" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="100"/>
+  <ModbusCmd Title="Write economy temperature heating circuit 1" 			Comment="" ModbusAddress="5"    ModbusCmd="16" ModbusDataType="1" Unit="&lt;v.1&gt;°" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="100"/>
+  <ModbusCmd Title="Write cooling requirements heating circuit 1" 			Comment="" ModbusAddress="11"   ModbusCmd="16" ModbusDataType="1" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10"/>
+  <ModbusCmd Title="Write heating requirements heating circuit 1" 			Comment="" ModbusAddress="12"   ModbusCmd="16" ModbusDataType="1" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10"/>
+  <ModbusCmd Title="Write flow target temperature heating circuit 1" 	Comment="" ModbusAddress="13"   ModbusCmd="16" ModbusDataType="1" Unit="&lt;v.1&gt;°" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="100"/>
+  <ModbusCmd Title="Write offset heating circuit 1" 		  			Comment="" ModbusAddress="6"    ModbusCmd="16" ModbusDataType="1" Unit="&lt;v.1&gt;°" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+  <ModbusCmd Title="Write operating mode heating circuit 1"  			Comment="" ModbusAddress="7"    ModbusCmd="16" ModbusDataType="1" Unit="&lt;v.0&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+   
+ <ModbusCmd Title="Write target temperature heating circuit 2" 			Comment="" ModbusAddress="54"   ModbusCmd="16" ModbusDataType="1" Unit="&lt;v.1&gt;°" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="100"/>
+  <ModbusCmd Title="Write economy temperature heating circuit 2" 			Comment="" ModbusAddress="55"   ModbusCmd="16" ModbusDataType="1" Unit="&lt;v.1&gt;°" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="100"/>
+  <ModbusCmd Title="Write cooling requirements heating circuit 2" 			Comment="" ModbusAddress="61"   ModbusCmd="16" ModbusDataType="1" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10"/>
+  <ModbusCmd Title="Write heating requirements heating circuit 2" 			Comment="" ModbusAddress="62"   ModbusCmd="16" ModbusDataType="1" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10"/>
+  <ModbusCmd Title="Write flow target temperature heating circuit 2" 	Comment="" ModbusAddress="63"   ModbusCmd="16" ModbusDataType="1" Unit="&lt;v.1&gt;°" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="100"/>
+  <ModbusCmd Title="Write offset heating circuit 2" 		  			Comment="" ModbusAddress="56"   ModbusCmd="16" ModbusDataType="1" Unit="&lt;v.1&gt;°" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+  <ModbusCmd Title="Write operating mode heating circuit 2"  			Comment="" ModbusAddress="57"   ModbusCmd="16" ModbusDataType="1" Unit="&lt;v.0&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+  
+  <ModbusCmd Title="Write target temperature heating circuit 3" 			Comment="" ModbusAddress="104"  ModbusCmd="16" ModbusDataType="1" Unit="&lt;v.1&gt;°" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="100"/>
+  <ModbusCmd Title="Write economy temperature heating circuit 3" 			Comment="" ModbusAddress="105"  ModbusCmd="16" ModbusDataType="1" Unit="&lt;v.1&gt;°" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="100"/>
+  <ModbusCmd Title="Write cooling requirements heating circuit 3" 			Comment="" ModbusAddress="111"  ModbusCmd="16" ModbusDataType="1" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10"/>
+  <ModbusCmd Title="Write heating requirements heating circuit 3" 			Comment="" ModbusAddress="112"  ModbusCmd="16" ModbusDataType="1" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10"/>
+  <ModbusCmd Title="Write flow target temperature heating circuit 3" 	Comment="" ModbusAddress="113"  ModbusCmd="16" ModbusDataType="1" Unit="&lt;v.1&gt;°" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="100"/>
+  <ModbusCmd Title="Write offset heating circuit 3" 		  			Comment="" ModbusAddress="106"  ModbusCmd="16" ModbusDataType="1" Unit="&lt;v.1&gt;°" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+  <ModbusCmd Title="Write operating mode heating circuit 3"  			Comment="" ModbusAddress="107"  ModbusCmd="16" ModbusDataType="1" Unit="&lt;v.0&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+  
+  <ModbusCmd Title="Boiler 1 write target temperature" 				Comment="" ModbusAddress="402"  ModbusCmd="16" ModbusDataType="1" Unit="&lt;v.1&gt;°" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="100"/>
+  <ModbusCmd Title="Boiler 1 write operating mode" 				Comment="" ModbusAddress="403"  ModbusCmd="16" ModbusDataType="1" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10"/> 
+  <ModbusCmd Title="Puffer 1 write backup temperature" 			Comment="" ModbusAddress="604"  ModbusCmd="16" ModbusDataType="1" Unit="&lt;v.1&gt;°" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="100"/>
+  <ModbusCmd Title="Puffer 1 write cooling temperature" 				Comment="" ModbusAddress="606"  ModbusCmd="16" ModbusDataType="1" Unit="&lt;v.1&gt;°" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="100"/>
+  <ModbusCmd Title="External requirements" 							Comment="" ModbusAddress="1100" ModbusCmd="16" ModbusDataType="1" Unit="&lt;v.0&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+  <ModbusCmd Title="External requirements temperature" 				Comment="" ModbusAddress="1101" ModbusCmd="16" ModbusDataType="1" Unit="&lt;v.1&gt;°" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="100"/>
+  <ModbusCmd Title="Write operating mode" 						Comment="" ModbusAddress="1500" ModbusCmd="16" ModbusDataType="1" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10"/>
+</Modbus>

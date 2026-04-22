@@ -1,0 +1,9 @@
+{
+                                "type": "template",
+                                "name": "siemens-sentron-pac3100-energy-meter-3-phase",
+                                "uuid": "cfe76d3a-1167-11ec-9a744cd98f3deb8a",
+                                "version":"1.0.0",
+                                "id": "siemens-sentron-pac3100-energy-meter-3-phase-54",
+                                "file": "siemens-sentron-pac3100-energy-meter-3-phase.xml",
+                                "templateType": "7",
+                            }

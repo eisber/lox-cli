@@ -1,0 +1,18 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<VirtualOut Title="QLAB_Default" Comment="" Address="/dev/udp/192.168.1.1/53535" CmdInit="" CloseAfterSend="true" CmdSep=";">
+	<Info templateType="3" minVersion="12021105"/>
+	<VirtualOutCmd Title="5 Sec Color Fade" Comment="" CmdOnMethod="GET" CmdOffMethod="GET" CmdOn="/cue/4.5/start" CmdOnHTTP="" CmdOnPost="" CmdOff="/cue/4.5/panic" CmdOffHTTP="" CmdOffPost="" Analog="false" Repeat="0" RepeatRate="0"/>
+	<VirtualOutCmd Title="2 Sec Color Fade" Comment="" CmdOnMethod="GET" CmdOffMethod="GET" CmdOn="/cue/11/start" CmdOnHTTP="" CmdOnPost="" CmdOff="/cue/11/panic" CmdOffHTTP="" CmdOffPost="" Analog="false" Repeat="0" RepeatRate="0"/>
+	<VirtualOutCmd Title="Red" Comment="" CmdOnMethod="GET" CmdOffMethod="GET" CmdOn="/cue/110/start" CmdOnHTTP="" CmdOnPost="" CmdOff="/cue/110/panic" CmdOffHTTP="" CmdOffPost="" Analog="false" Repeat="0" RepeatRate="0"/>
+	<VirtualOutCmd Title="Green" Comment="" CmdOnMethod="GET" CmdOffMethod="GET" CmdOn="/cue/90/start" CmdOnHTTP="" CmdOnPost="" CmdOff="/cue/90/panic" CmdOffHTTP="" CmdOffPost="" Analog="false" Repeat="0" RepeatRate="0"/>
+	<VirtualOutCmd Title="Amber" Comment="" CmdOnMethod="GET" CmdOffMethod="GET" CmdOn="/cue/70/start" CmdOnHTTP="" CmdOnPost="" CmdOff="/cue/70/panic" CmdOffHTTP="" CmdOffPost="" Analog="false" Repeat="0" RepeatRate="0"/>
+	<VirtualOutCmd Title="Ocean" Comment="" CmdOnMethod="GET" CmdOffMethod="GET" CmdOn="/cue/140/start" CmdOnHTTP="" CmdOnPost="" CmdOff="/cue/140/panic" CmdOffHTTP="" CmdOffPost="" Analog="false" Repeat="0" RepeatRate="0"/>
+	<VirtualOutCmd Title="Pink" Comment="" CmdOnMethod="GET" CmdOffMethod="GET" CmdOn="/cue/60/start" CmdOnHTTP="" CmdOnPost="" CmdOff="/cue/60/panic" CmdOffHTTP="" CmdOffPost="" Analog="false" Repeat="0" RepeatRate="0"/>
+	<VirtualOutCmd Title="Purple" Comment="" CmdOnMethod="GET" CmdOffMethod="GET" CmdOn="/cue/100/start" CmdOnHTTP="" CmdOnPost="" CmdOff="/cue/100/panic" CmdOffHTTP="" CmdOffPost="" Analog="false" Repeat="0" RepeatRate="0"/>
+	<VirtualOutCmd Title="Strobe" Comment="" CmdOnMethod="GET" CmdOffMethod="GET" CmdOn="/cue/50/start" CmdOnHTTP="" CmdOnPost="" CmdOff="/cue/50/panic" CmdOffHTTP="" CmdOffPost="" Analog="false" Repeat="0" RepeatRate="0"/>
+	<VirtualOutCmd Title="Fade Off" Comment="" CmdOnMethod="GET" CmdOffMethod="GET" CmdOn="/cue/40/start" CmdOnHTTP="" CmdOnPost="" CmdOff="" CmdOffHTTP="" CmdOffPost="" Analog="false" Repeat="0" RepeatRate="0"/>
+	<VirtualOutCmd Title="Yellow" Comment="" CmdOnMethod="GET" CmdOffMethod="GET" CmdOn="/cue/120/start" CmdOnHTTP="" CmdOnPost="" CmdOff="/cue/120/panic" CmdOffHTTP="" CmdOffPost="" Analog="false" Repeat="0" RepeatRate="0"/>
+	<VirtualOutCmd Title="Blue" Comment="" CmdOnMethod="GET" CmdOffMethod="GET" CmdOn="/cue/80/start" CmdOnHTTP="" CmdOnPost="" CmdOff="/cue/80/panic" CmdOffHTTP="" CmdOffPost="" Analog="false" Repeat="0" RepeatRate="0"/>
+	<VirtualOutCmd Title="Morning" Comment="" CmdOnMethod="GET" CmdOffMethod="GET" CmdOn="/cue/130/start" CmdOnHTTP="" CmdOnPost="" CmdOff="/cue/130/panic" CmdOffHTTP="" CmdOffPost="" Analog="false" Repeat="0" RepeatRate="0"/>
+	<VirtualOutCmd Title="Half Sec Color Fade" Comment="" CmdOnMethod="GET" CmdOffMethod="GET" CmdOn="/cue/29/start" CmdOnHTTP="" CmdOnPost="" CmdOff="/cue/29/panic" CmdOffHTTP="" CmdOffPost="" Analog="false" Repeat="0" RepeatRate="0"/>
+</VirtualOut>

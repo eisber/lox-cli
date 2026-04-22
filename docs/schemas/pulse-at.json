@@ -1,0 +1,60 @@
+{
+  "title": "Pulse at",
+  "xml_type": "",
+  "kb_slug": "pulse-at",
+  "description": "The Pulse at function block provides a pulse with adjustable duration.",
+  "inputs": [
+    {
+      "abbreviation": "Off",
+      "summary": "Off",
+      "description": "Pulse: Outputs are reset / switched off. On: Block is locked. Dominating input. The name of the connected sensor is used in the user interface.",
+      "value_range": "0/1"
+    }
+  ],
+  "outputs": [
+    {
+      "abbreviation": "O",
+      "summary": "Output",
+      "description": "Activates the output at the defined time, for the duration set in parameter (Don).",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "API",
+      "summary": "API Connector",
+      "description": "Intelligent API based connector. API Commands",
+      "value_range": "-"
+    }
+  ],
+  "parameters": [
+    {
+      "abbreviation": "Rem",
+      "summary": "Remanence input",
+      "description": "Remanence input: If active, the function block retains its previous state after a Miniserver reboot. The state of the function block is saved: \u2013 When saving to the Miniserver \u2013 At a planned reboot \u2013 Before a backup \u2013 Once per hour The data is saved on the SD card.",
+      "unit": "-",
+      "value_range": "0/1",
+      "default_value": "0"
+    }
+  ],
+  "properties": [
+    {
+      "summary": "Pulse",
+      "description": "Selection of when the pulse is to be output.",
+      "default_value": "-"
+    },
+    {
+      "summary": "Time",
+      "description": "Time at which the pulse is created Format hh:mm:ss",
+      "default_value": "-"
+    },
+    {
+      "summary": "One Off Pulse",
+      "description": "One off pulse on a specific date Only available for certain time functions (e.g. Pulse at Sunset). If unticked, the pulse is created every day or every time the selected time function is activated.",
+      "default_value": "-"
+    }
+  ],
+  "source_url": "https://www.loxone.com/enen/kb/pulse-at/",
+  "input_count": 1,
+  "output_count": 2,
+  "parameter_count": 1,
+  "property_count": 3
+}

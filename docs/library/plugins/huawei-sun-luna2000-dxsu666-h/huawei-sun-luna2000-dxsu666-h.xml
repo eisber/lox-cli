@@ -1,0 +1,31 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Modbus Title="Huawei Sun_Luna_SmartMeter" Comment="" Channel="1">
+	<Info templateType="7" minVersion="13011110"/>
+	<ModbusCmd Title="19 - Production Power Ppwr" Comment="" ModbusAddress="32064" ModbusCmd="3" ModbusDataType="99" ModbusPollingCycle="5" Unit="&lt;v.3&gt; kW" Analog="true" Sensor="true" SourceValHigh="10000" DestValHigh="10"/>
+	<ModbusCmd Title="20 - Production total Ptot" Comment="Aktuelle Gesamtproduktion" ModbusAddress="32106" ModbusCmd="3" ModbusDataType="98" ModbusPollingCycle="10" Unit="&lt;v.2&gt; kWh" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="10"/>
+	<ModbusCmd Title="6 - Daily energy yield" Comment="Energieertrag täglich" ModbusAddress="32114" ModbusCmd="3" ModbusDataType="98" ModbusPollingCycle="60" Unit="&lt;v.2&gt; kWh" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="10"/>
+	<ModbusCmd Title="1 - Power factor" Comment="" ModbusAddress="32084" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="1"/>
+	<ModbusCmd Title="2 - Grid frequency" Comment="Netzfrequenz" ModbusAddress="32085" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v.2&gt;" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="10"/>
+	<ModbusCmd Title="3 - Efficiency" Comment="Effizienz" ModbusAddress="32086" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v.1&gt; %" Analog="true" Sensor="true" SourceValHigh="10000" DestValHigh="10"/>
+	<ModbusCmd Title="23 - Wechselrichter int Temp" Comment="" ModbusAddress="32087" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="30" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="10"/>
+	<ModbusCmd Title="4 - Insulation resistance" Comment="" ModbusAddress="32088" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v&gt; MOhm" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="5 - Device status" Comment="Gerätestatus" ModbusAddress="32089" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="11 - Energy Storage Power Spwr" Comment="" ModbusAddress="37001" ModbusCmd="3" ModbusDataType="99" ModbusPollingCycle="5" Unit="&lt;v.3&gt;" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="-1"/>
+	<ModbusCmd Title="9 - Energy Starage state of Charge SoC" Comment="" ModbusAddress="37004" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="18 - Lieferung + Bezug -" Comment="" ModbusAddress="37113" ModbusCmd="3" ModbusDataType="99" ModbusPollingCycle="5" Unit="&lt;v.3&gt; kW" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="1"/>
+	<ModbusCmd Title="7 - AC Laden Status" Comment="" ModbusAddress="47087" ModbusCmd="3" ModbusPollingCycle="10" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="22 - Storage Working Mode Status" Comment="" ModbusAddress="47086" ModbusCmd="3" ModbusPollingCycle="10" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="21 - Reverse Active Power" Comment="" ModbusAddress="37115" ModbusCmd="3" ModbusDataType="99" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="-1"/>
+	<ModbusCmd Title="17 - Grid Energy Import GI" Comment="" ModbusAddress="37119" ModbusCmd="3" ModbusDataType="99" ModbusPollingCycle="10" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="1"/>
+	<ModbusCmd Title="16 - Grid Energy export Ge" Comment="" ModbusAddress="37121" ModbusCmd="3" ModbusDataType="99" ModbusPollingCycle="10" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="1"/>
+	<ModbusCmd Title="14 - Energy Storage Total charge" Comment="" ModbusAddress="37780" ModbusCmd="3" ModbusDataType="98" ModbusPollingCycle="10" Unit="&lt;v.1&gt;kWh" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="1"/>
+	<ModbusCmd Title="15 - Energy Storage Total discharge" Comment="" ModbusAddress="37782" ModbusCmd="3" ModbusDataType="98" ModbusPollingCycle="10" Unit="&lt;v.1&gt;kWh" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="1"/>
+	<ModbusCmd Title="13 - Energy Storage Status" Comment="" ModbusAddress="37762" ModbusCmd="3" ModbusPollingCycle="10" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="10 - Energy Storage 2 Temp" Comment="" ModbusAddress="37752" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="30" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="8 - Energy Staorage 1 Temp" Comment="" ModbusAddress="37022" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="30" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="51 - Max. Entladeleistung Storage DC" Comment="" ModbusAddress="47077" ModbusCmd="16" ModbusDataType="98" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="52 - Max. Ladeleistung Storage DC" Comment="" ModbusAddress="47075" ModbusCmd="16" ModbusDataType="98" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="50 - AC Laden ein_Aus" Comment="" ModbusAddress="47087" ModbusCmd="6" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="53 - Max. Ladeleistung Storage from AC" Comment="" ModbusAddress="47242" ModbusCmd="16" ModbusDataType="98" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="1" DestValHigh="1000"/>
+	<ModbusCmd Title="54 - Storage Working Mode" Comment="" ModbusAddress="47086" ModbusCmd="6" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10" RepeatRate="9"/>
+</Modbus>

@@ -1,0 +1,28 @@
+{
+  "title": "Add (4-way)",
+  "xml_type": "",
+  "kb_slug": "add-4-way",
+  "description": "Adds several analog values and makes the result available at output (O).",
+  "inputs": [],
+  "outputs": [
+    {
+      "abbreviation": "O",
+      "summary": "(O) = (V1) + (V2) + (V3) + (V4)",
+      "value_range": "\u221e"
+    }
+  ],
+  "parameters": [
+    {
+      "abbreviation": "V1-4",
+      "summary": "Value 1-4",
+      "value_range": "\u221e",
+      "default_value": "0"
+    }
+  ],
+  "properties": [],
+  "source_url": "https://www.loxone.com/enen/kb/add-4-way/",
+  "input_count": 0,
+  "output_count": 1,
+  "parameter_count": 1,
+  "property_count": 0
+}

@@ -1,0 +1,9 @@
+{
+                                "type": "template",
+                                "name": "fronius-smart-meter-ip",
+                                "uuid": "eca842ad-b469-11ee-a1fe4cd98f3deb8a",
+                                "version":"1.0.1",
+                                "id": "fronius-smart-meter-ip-1428",
+                                "file": "fronius-smart-meter-ip.xml",
+                                "templateType": "2",
+                            }

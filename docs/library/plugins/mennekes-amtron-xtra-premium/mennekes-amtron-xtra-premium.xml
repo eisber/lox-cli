@@ -1,0 +1,23 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Modbus Title="AMTRON® Xtra &amp; Premium" Comment="" Channel="255">
+	<Info templateType="7" minVersion="14000328"/>
+	<ModbusCmd Title="Temperature (extern)" Comment="" ModbusAddress="769" ModbusCmd="4" ModbusDataType="33" ModbusPollingCycle="60" Unit="&lt;v&gt;°C" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Temperature (intern)" Comment="" ModbusAddress="768" ModbusCmd="4" ModbusDataType="33" ModbusPollingCycle="60" Unit="&lt;v&gt;°C" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="CP State" Comment="" ModbusAddress="770" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="PP State" Comment="" ModbusAddress="771" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Error Code" Comment="" ModbusAddress="772" ModbusCmd="4" ModbusPollingCycle="5" Unit="Fehlercode &lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="AMTRON State" Comment="" ModbusAddress="773" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Charged Energy" Comment="" ModbusAddress="781" ModbusCmd="4" ModbusDataType="2" ModbusPollingCycle="5" Unit="&lt;v.2&gt;kWh" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="1"/>
+	<ModbusCmd Title="Actual Power Consumption" Comment="" ModbusAddress="783" ModbusCmd="4" ModbusDataType="2" ModbusPollingCycle="5" Unit="&lt;v.2&gt; kW" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="1"/>
+	<ModbusCmd Title="Rated Current" Comment="" ModbusAddress="777" ModbusCmd="4" ModbusPollingCycle="60" Unit="&lt;v&gt; A" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Installation Current" Comment="" ModbusAddress="778" ModbusCmd="4" ModbusPollingCycle="60" Unit="&lt;v&gt; A" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Number of Phases" Comment="" ModbusAddress="776" ModbusCmd="4" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Autostart Charging" Comment="" ModbusAddress="525" ModbusCmd="2" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="RFID Authorization" Comment="" ModbusAddress="523" ModbusCmd="2" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Energy Manager Installed" Comment="" ModbusAddress="520" ModbusCmd="2" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="EV Wake-Up" Comment="" ModbusAddress="531" ModbusCmd="2" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Operation Mode" Comment="" ModbusAddress="774" ModbusCmd="4" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Change Charge State" Comment="" ModbusAddress="1025" ModbusCmd="6" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Current Limitation" Comment="" ModbusAddress="1024" ModbusCmd="6" ModbusDataType="64" Unit="&lt;v&gt; A" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Reboot AMTRON" Comment="" ModbusAddress="264" ModbusCmd="5" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10"/>
+</Modbus>

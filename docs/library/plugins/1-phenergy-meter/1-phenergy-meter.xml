@@ -1,0 +1,16 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Modbus Title="Algodue UEM80-2D E" Comment="Energy Meter 3-Phase Modbus-TCP" Channel="1">
+	<Info templateType="7" minVersion="12021105"/>
+	<ModbusCmd Title="Total Active Power (P∑)" Comment="" ModbusAddress="4134" ModbusCmd="4" ModbusDataType="100" ModbusPollingCycle="5" Unit="&lt;v.1&gt; W" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Energy Consumption (+kWh∑)" Comment="" ModbusAddress="4358" ModbusCmd="4" ModbusDataType="100" ModbusPollingCycle="60" Unit="&lt;v.3&gt; kWh" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="1"/>
+	<ModbusCmd Title="Energy Production (-kWh∑)" Comment="" ModbusAddress="4366" ModbusCmd="4" ModbusDataType="100" ModbusPollingCycle="60" Unit="&lt;v.3&gt; kWh" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="1"/>
+	<ModbusCmd Title="Frequency (F)" Comment="" ModbusAddress="4152" ModbusCmd="4" ModbusDataType="100" ModbusPollingCycle="30" Unit="&lt;v.2&gt; Hz" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Energy-Meter FW 2 (User)" Comment="" ModbusAddress="1536" ModbusCmd="4" ModbusPollingCycle="120" Unit="&lt;v.2&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="1"/>
+	<ModbusCmd Title="Total Apparent Power (S∑)" Comment="" ModbusAddress="4142" ModbusCmd="4" ModbusDataType="100" ModbusPollingCycle="10" Unit="&lt;v.1&gt; VA" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Total Reactive Power (Q∑)" Comment="" ModbusAddress="4150" ModbusCmd="4" ModbusDataType="100" ModbusPollingCycle="10" Unit="&lt;v.1&gt; var" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Voltage (V∑)" Comment="" ModbusAddress="4108" ModbusCmd="4" ModbusDataType="100" ModbusPollingCycle="60" Unit="&lt;v.1&gt; V" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Current (A∑)" Comment="" ModbusAddress="4118" ModbusCmd="4" ModbusDataType="100" ModbusPollingCycle="10" Unit="&lt;v.3&gt; A" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Energy-Meter Model" Comment="" ModbusAddress="1285" ModbusCmd="4" ModbusPollingCycle="120" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Power Factor (PF∑)" Comment="" ModbusAddress="4126" ModbusCmd="4" ModbusDataType="100" ModbusPollingCycle="10" Unit="&lt;v.2&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Energy-Meter FW (Metrology)" Comment="" ModbusAddress="1287" ModbusCmd="4" ModbusPollingCycle="120" Unit="&lt;v.2&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="1"/>
+</Modbus>

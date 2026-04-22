@@ -1,0 +1,5 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<VirtualOut Title="OpenRGB" Comment="" Address="tcp://homepi:7777" CmdInit="" CloseAfterSend="false" CmdSep=";">
+	<Info templateType="3" minVersion="12040406"/>
+	<VirtualOutCmd Title="Color" Comment="" CmdOnMethod="GET" CmdOffMethod="GET" CmdOn="&lt;v&gt;" CmdOnHTTP="" CmdOnPost="" CmdOff="" CmdOffHTTP="" CmdOffPost="" Analog="true" Repeat="1" RepeatRate="1" SourceValHigh="10" DestValHigh="10"/>
+</VirtualOut>

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Comm Title="Kostal Inverter" Comment="" Baudrate="19200" Databits="8" UserProt="1" CycleUserProt="60.000" DataUserProt="1">
+    <Info templateType="6" minVersion="12010617"/>
+	<CommCmd Title="Total energy" Comment="" CmdOn="1:totalenergy:\v" CmdOff="" Unit="&lt;v&gt;Wh" Analog="true" Text="false" Sensor="true"/>
+	<CommCmd Title="Day energy" Comment="" CmdOn="1:dayenergy:\v" CmdOff="" Unit="&lt;v&gt;Wh" Analog="true" Text="false" Sensor="true"/>
+	<CommCmd Title="State" Comment="" CmdOn="1:state:\v" CmdOff="" Unit="&lt;v&gt;" Analog="true" Text="false" Sensor="true"/>
+	<CommCmd Title="Error" Comment="" CmdOn="1:error\v" CmdOff="" Unit="&lt;v&gt;" Analog="true" Text="false" Sensor="true"/>
+	<CommCmd Title="Errorcode" Comment="" CmdOn="1:ecode:\v" CmdOff="" Unit="&lt;v&gt;" Analog="true" Text="false" Sensor="true"/>
+	<CommCmd Title="Generator voltage 1" Comment="" CmdOn="1:US1:\v" CmdOff="" Unit="&lt;v.1&gt;V" Analog="true" Text="false" Sensor="true"/>
+	<CommCmd Title="Generator voltage 2" Comment="" CmdOn="1:US2:\v" CmdOff="" Unit="&lt;v.1&gt;V" Analog="true" Text="false" Sensor="true"/>
+	<CommCmd Title="Generator voltage 3" Comment="" CmdOn="1:US3:\v" CmdOff="" Unit="&lt;v.1&gt;V" Analog="true" Text="false" Sensor="true"/>
+	<CommCmd Title="Generator current 1" Comment="" CmdOn="1:IS1:\v" CmdOff="" Unit="&lt;v.1&gt;A" Analog="true" Text="false" Sensor="true"/>
+	<CommCmd Title="Generator current 2" Comment="" CmdOn="1:IS2:\v" CmdOff="" Unit="&lt;v.1&gt;A" Analog="true" Text="false" Sensor="true"/>
+	<CommCmd Title="Generator current 3" Comment="" CmdOn="1:IS3:\v" CmdOff="" Unit="&lt;v.1&gt;A" Analog="true" Text="false" Sensor="true"/>
+	<CommCmd Title="Output voltage 1" Comment="" CmdOn="1:UP1:\v" CmdOff="" Unit="&lt;v.1&gt;V" Analog="true" Text="false" Sensor="true"/>
+	<CommCmd Title="Output voltage 2" Comment="" CmdOn="1:UP2:\v" CmdOff="" Unit="&lt;v.1&gt;V" Analog="true" Text="false" Sensor="true"/>
+	<CommCmd Title="Output voltage 3" Comment="" CmdOn="1:UP3:\v" CmdOff="" Unit="&lt;v.1&gt;V" Analog="true" Text="false" Sensor="true"/>
+	<CommCmd Title="Output power 1" Comment="" CmdOn="1:PP1:\v" CmdOff="" Unit="&lt;v&gt;W" Analog="true" Text="false" Sensor="true"/>
+	<CommCmd Title="Output power 2" Comment="" CmdOn="1:PP2:\v" CmdOff="" Unit="&lt;v&gt;W" Analog="true" Text="false" Sensor="true"/>
+	<CommCmd Title="Output power 3" Comment="" CmdOn="1:PP3:\v" CmdOff="" Unit="&lt;v&gt;W" Analog="true" Text="false" Sensor="true"/>
+</Comm>

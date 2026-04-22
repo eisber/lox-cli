@@ -1,0 +1,5 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Modbus Title="E+E Elektronik EE600" Comment="" Baudrate="9600" Parity="1" Channel="43">
+	<Info templateType="7" minVersion="12021105"/>
+	<ModbusCmd Title="Differential pressuere" Comment="" ModbusAddress="1212" ModbusCmd="3" ModbusDataType="100" ModbusPollingCycle="5" Unit="&lt;v.1&gt;mbar" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+</Modbus>

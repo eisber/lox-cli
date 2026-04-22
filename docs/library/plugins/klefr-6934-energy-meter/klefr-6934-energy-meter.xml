@@ -1,0 +1,21 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Modbus Title="KLEFR-6934-Smarteon.cz" Comment="" Baudrate="9600" Parity="1" Channel="101">
+	<Info templateType="7" minVersion="12021105"/>
+	<ModbusCmd Title="Grid frequency [Hz]" Comment="ET1 (nabíjení elektromobilu) Frekvence [Hz]" ModbusAddress="20488" ModbusCmd="3" ModbusDataType="4" ModbusPollingCycle="10" Unit="&lt;v.2&gt; Hz" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="T1 reverse active energy [kWh]" Comment="ET1 (nabíjení elektromobilu): celková spotřeba" ModbusAddress="24602" ModbusCmd="3" ModbusDataType="4" ModbusPollingCycle="10" Unit="&lt;v.2&gt; kWh" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="L1 Voltage [V]" Comment="ET1 (nabíjení elektromobilu): napětí L1" ModbusAddress="20482" ModbusCmd="3" ModbusDataType="4" ModbusPollingCycle="10" Unit="&lt;v&gt; V" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="L1 Current [A]" Comment="ET1 (nabíjení elektromobilu): proud L1" ModbusAddress="20492" ModbusCmd="3" ModbusDataType="4" ModbusPollingCycle="10" Unit="&lt;v.2&gt; A" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Power Down Counter" Comment="ET1 (nabíjení elektromobilu) počítadlo výpadků" ModbusAddress="16406" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="10" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Modbus ID" Comment="ET1 (nabíjení elektromobilu): Modbus ID" ModbusAddress="16387" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="5" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="L2 Voltage [V]" Comment="ET1 (nabíjení elektromobilu): napětí L2" ModbusAddress="20484" ModbusCmd="3" ModbusDataType="4" ModbusPollingCycle="10" Unit="&lt;v&gt; V" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="L3 Voltage [V]" Comment="ET1 (nabíjení elektromobilu): napětí L3" ModbusAddress="20486" ModbusCmd="3" ModbusDataType="4" ModbusPollingCycle="10" Unit="&lt;v&gt; V" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="L2 Current [A]" Comment="ET1 (nabíjení elektromobilu): proud L2" ModbusAddress="20494" ModbusCmd="3" ModbusDataType="4" ModbusPollingCycle="10" Unit="&lt;v.2&gt; A" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="L3 Current [A]" Comment="ET1 (nabíjení elektromobilu): proud L3" ModbusAddress="20496" ModbusCmd="3" ModbusDataType="4" ModbusPollingCycle="10" Unit="&lt;v.2&gt; A" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Total active power [kW]" Comment="Total power" ModbusAddress="20498" ModbusCmd="3" ModbusDataType="4" ModbusPollingCycle="10" Unit="&lt;v.2&gt; kW" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Total apparent power  [kVA]" Comment="ET1 (nabíjení elektromobilu)" ModbusAddress="20514" ModbusCmd="3" ModbusDataType="4" ModbusPollingCycle="10" Unit="&lt;v.2&gt; kVA" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="T2 reverse active energy [kWh]" Comment="" ModbusAddress="24604" ModbusCmd="3" ModbusDataType="4" ModbusPollingCycle="10" Unit="&lt;v.2&gt; kWh" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Tariff" Comment="" ModbusAddress="24648" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="10" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="T1 Total active energy [kWh]" Comment="" ModbusAddress="24578" ModbusCmd="3" ModbusDataType="4" ModbusPollingCycle="10" Unit="&lt;v.2&gt; kWh" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="T2 Total active energy [kWh]" Comment="" ModbusAddress="24602" ModbusCmd="3" ModbusDataType="4" ModbusPollingCycle="10" Unit="&lt;v.2&gt; kWh" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Tariff" Comment="Tariff" ModbusAddress="24648" ModbusCmd="6" ModbusDataType="1" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100" RepeatRate="60"/>
+</Modbus>

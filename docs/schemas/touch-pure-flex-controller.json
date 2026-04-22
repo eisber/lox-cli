@@ -1,0 +1,207 @@
+{
+  "title": "Touch Pure Flex Controller",
+  "xml_type": "",
+  "kb_slug": "touch-pure-flex-controller",
+  "description": "Controls the brightness levels of Touch Pure Flex Air and Tree.",
+  "inputs": [
+    {
+      "abbreviation": "P",
+      "summary": "Presence",
+      "description": "Presence is active. Activates the display.",
+      "unit": "-",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "DnD",
+      "summary": "Do not Disturb",
+      "description": "Display and backlight stays off when the device is idle.",
+      "unit": "-",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "LbT",
+      "summary": "Light by Touch",
+      "description": "When active, the first touch activates the display but does not execute a command.",
+      "unit": "-",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "L",
+      "summary": "Lighting active",
+      "description": "The room is illuminated by artificial lighting. This input is not used when a Lighting Controller is connected via the API Connector.",
+      "unit": "-",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "Br",
+      "summary": "Room brightness",
+      "description": "Current room brightness. This input is not used when a Lighting Controller is connected via the API Connector.",
+      "unit": "lux",
+      "value_range": "\u221e"
+    },
+    {
+      "abbreviation": "Set",
+      "summary": "Set Brightness",
+      "description": "Individual display brightness. The value will remain active until changes in presence, room brightness or artificial lighting are detected.",
+      "unit": "%",
+      "value_range": "\u221e"
+    },
+    {
+      "abbreviation": "Off",
+      "summary": "Off",
+      "description": "Locks the block. Dominating input.",
+      "unit": "-",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "Don",
+      "summary": "Display On",
+      "description": "Activate display. Display Brightness BrD will be used. Input is overruled by DnD",
+      "unit": "-",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "Bl",
+      "summary": "Backlight On",
+      "description": "Activate backlight. If current brightness CBrB is 0, default brightness BrDef will be used. Input is overruled by DnD",
+      "unit": "-",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "Txt",
+      "summary": "Display Text",
+      "description": "Set custom display text. Display Brightness BrD will be used. Input is overruled by DnD",
+      "unit": "-",
+      "value_range": "-"
+    }
+  ],
+  "outputs": [
+    {
+      "abbreviation": "CBrB",
+      "summary": "Current Brightness Backlight",
+      "description": "Current Backlight brightness for connected devices. When Backlight Bl is active, BrDef is used as fallback if the value is 0.",
+      "unit": "-",
+      "value_range": "\u221e"
+    },
+    {
+      "abbreviation": "P",
+      "summary": "Presence",
+      "description": "Presence is active.",
+      "unit": "-",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "L",
+      "summary": "Lighting Active",
+      "description": "Lighting is active.",
+      "unit": "-",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "B",
+      "summary": "Bright",
+      "description": "Active when room brightness is above the threshold.",
+      "unit": "-",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "Br",
+      "summary": "Room brightness",
+      "description": "Current room brightness.",
+      "unit": "lux",
+      "value_range": "\u221e"
+    },
+    {
+      "abbreviation": "BrD",
+      "summary": "Brightness Display & status LEDs",
+      "description": "Brightness used for the display when the display is active, and for the status LEDs when any LED is active. Brightness equals CBrB. If CBrB is 0, BrDef is used. Ensures the display and LEDs remain visible even when the backlight is inactive.",
+      "unit": "-",
+      "value_range": "\u221e"
+    },
+    {
+      "abbreviation": "API",
+      "summary": "API Connector",
+      "description": "Intelligent API based connector. API Commands",
+      "unit": "-",
+      "value_range": "-"
+    }
+  ],
+  "parameters": [
+    {
+      "abbreviation": "BrDP",
+      "summary": "Dark and Presence Brightness",
+      "description": "Brightness for rooms with presence, without daylight or artificial lighting.",
+      "unit": "%",
+      "value_range": "0...100",
+      "default_value": "10"
+    },
+    {
+      "abbreviation": "BrDnP",
+      "summary": "Dark and no Presence Brightness",
+      "description": "Brightness for rooms without presence, without daylight or artificial lighting.",
+      "unit": "%",
+      "value_range": "0...100",
+      "default_value": "0"
+    },
+    {
+      "abbreviation": "BrLP",
+      "summary": "Lighting and Presence Brightness",
+      "description": "Brightness for rooms with presence and artificial lighting but actual room brightness below the threshold Brt.",
+      "unit": "%",
+      "value_range": "0...100",
+      "default_value": "70"
+    },
+    {
+      "abbreviation": "BrLnP",
+      "summary": "Lighting and no Presence Brightness",
+      "description": "Brightness for rooms without presence with artificial lighting but actual room brightness below the threshold Brt.",
+      "unit": "%",
+      "value_range": "0...100",
+      "default_value": "0"
+    },
+    {
+      "abbreviation": "BrBP",
+      "summary": "Bright and Presence Brightness",
+      "description": "Brightness for rooms with presence and room brightness above the threshold Brt.",
+      "unit": "%",
+      "value_range": "0...100",
+      "default_value": "70"
+    },
+    {
+      "abbreviation": "BrBnP",
+      "summary": "Bright and no Presence Brightness",
+      "description": "Brightness for rooms without presence and room brightness above the threshold Brt.",
+      "unit": "%",
+      "value_range": "0...100",
+      "default_value": "0"
+    },
+    {
+      "abbreviation": "BrDef",
+      "summary": "Default Brightness",
+      "description": "Default brightness used as a fallback for the backlight CBrB or display BrD if the calculated brightness CBrB is 0.",
+      "unit": "%",
+      "value_range": "0...100",
+      "default_value": "70"
+    },
+    {
+      "abbreviation": "Brt",
+      "summary": "Brightness threshold",
+      "description": "If the room brightness exceeds the maximum value, the daylight settings are activated. This parameter is not used when a Lighting Controller is connected via the API Connector.",
+      "unit": "lux",
+      "value_range": "0...\u221e",
+      "default_value": "30"
+    }
+  ],
+  "properties": [
+    {
+      "summary": "Brightness preset",
+      "description": "Sets the brightness value to a recommended level based on the color of the Touch Pure Flex.",
+      "default_value": "-"
+    }
+  ],
+  "source_url": "https://www.loxone.com/enen/kb/touch-pure-flex-controller/",
+  "input_count": 10,
+  "output_count": 7,
+  "parameter_count": 8,
+  "property_count": 1
+}

@@ -1,0 +1,9 @@
+{
+                                "type": "template",
+                                "name": "metz-connect-mr-di4-modbus-rtu",
+                                "uuid": "f89a7542-bfc3-11ef-8ac44cd98f3deb8a",
+                                "version":"1.0.0",
+                                "id": "metz-connect-mr-di4-modbus-rtu-1753",
+                                "file": "metz-connect-mr-di4-modbus-rtu.xml",
+                                "templateType": "7",
+                            }

@@ -1,0 +1,17 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Modbus Title="Orno  OR-WE-514" Comment="" Baudrate="9600" Parity="1" Channel="1">
+	<Info templateType="7" minVersion="12021105"/>
+	<ModbusCmd Title="Modbus ID" Comment="" ModbusAddress="272" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Modbus Baudrate" Comment="" ModbusAddress="273" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="772" DestValLow="1200" DestValHigh="9600"/>
+	<ModbusCmd Title="Display Setup view" Comment="" ModbusAddress="274" ModbusCmd="3" ModbusPollingCycle="30" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Grid Frequency" Comment="" ModbusAddress="304" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.2&gt; Hz" Analog="true" Sensor="true" SourceValHigh="5000" DestValHigh="50"/>
+	<ModbusCmd Title="Voltage" Comment="" ModbusAddress="305" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.2&gt; V" Analog="true" Sensor="true" SourceValHigh="25000" DestValHigh="250"/>
+	<ModbusCmd Title="Current" Comment="Current" ModbusAddress="313" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.2&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Active Power" Comment="" ModbusAddress="319" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Reactive Power" Comment="" ModbusAddress="328" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Apparent Power" Comment="" ModbusAddress="336" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Power Factor" Comment="" ModbusAddress="344" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.1&gt; kWh" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="1"/>
+	<ModbusCmd Title="Reactive Energy" Comment="" ModbusAddress="40990" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Active energy" Comment="" ModbusAddress="40960" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Display Setup (config)" Comment="" ModbusAddress="274" ModbusCmd="16" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10"/>
+</Modbus>

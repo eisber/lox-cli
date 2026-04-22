@@ -1,0 +1,54 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Modbus Title="Stiebel Eltron Heating &amp; Cooling" Comment="" HintText="" Channel="1">
+	<Info templateType="7" minVersion="15000227"/>
+	<ModbusCmd Title="519 - State Target Buffer temperature" Comment="" HintText="" ModbusAddress="518" ModbusCmd="4" ModbusPollingCycle="60" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="518 - Actual Buffer temperature" Comment="" HintText="" ModbusAddress="517" ModbusCmd="4" ModbusPollingCycle="60" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="513 - Actual Supply Flowtemperature Heatpump" Comment="" HintText="" ModbusAddress="512" ModbusCmd="4" ModbusPollingCycle="60" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="508 - Actual Supply Flowtemperature HC1" Comment="" HintText="" ModbusAddress="507" ModbusCmd="4" ModbusPollingCycle="60" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="516 - Actual Return Flowtemperature Heatpump" Comment="" HintText="" ModbusAddress="515" ModbusCmd="4" ModbusPollingCycle="60" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="1"/>
+	<ModbusCmd Title="510 - State Target Supply Flowtemperature HC1" Comment="" HintText="" ModbusAddress="509" ModbusCmd="4" ModbusPollingCycle="60" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="2504 - State Heatpump Error" Comment="" HintText="0=OK
+1=FAULT" ModbusAddress="2503" ModbusCmd="4" ModbusPollingCycle="30" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="1501 - State Heatpump Operating mode" Comment="" HintText="1=STANDBY MODE
+2=PROGRAMMED 
+OPERATION
+3=COMFORT MODE
+4=ECO MODE
+5=DHW MODE
+0=EMERGENCY 
+OPERATION
+" ModbusAddress="1500" ModbusCmd="3" ModbusPollingCycle="30" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="1504 - State Heating Curve HC1" Comment="" HintText="" ModbusAddress="1503" ModbusCmd="3" ModbusPollingCycle="30" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="1"/>
+	<ModbusCmd Title="2508 - State Heatpump Faultnumber" Comment="" HintText="" ModbusAddress="2507" ModbusCmd="4" ModbusPollingCycle="30" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="522 - Actual Hot Water Storage temperature" Comment="" HintText="" ModbusAddress="521" ModbusCmd="4" ModbusPollingCycle="60" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="523 - State Target Hot Water Storage temperature" Comment="" HintText="" ModbusAddress="522" ModbusCmd="4" ModbusPollingCycle="60" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="507 - Actual Outsidetemperature" Comment="" HintText="" ModbusAddress="506" ModbusCmd="4" ModbusPollingCycle="60" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="511 - Actual Supply Flowtemperature HC2" Comment="" HintText="" ModbusAddress="510" ModbusCmd="4" ModbusPollingCycle="60" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="512 - State Target Supply Flowtemperature HC2" Comment="" HintText="" ModbusAddress="511" ModbusCmd="4" ModbusPollingCycle="60" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="1502 - State Comfort Roomtemperature HC1" Comment="" HintText="" ModbusAddress="1501" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="30" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="1505 - State Comfort Roomtemperature HC2" Comment="" HintText="" ModbusAddress="1504" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="30" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="1503 - State Eco Roomtemperature HC1" Comment="" HintText="" ModbusAddress="1502" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="30" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="1506 - State Eco Roomtemperature HC2" Comment="" HintText="" ModbusAddress="1505" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="30" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="1507 - State Heating Curve HC2" Comment="" HintText="" ModbusAddress="1506" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="30" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="1501 - Heatpump Operating mode" Comment="" HintText="1=STANDBY MODE
+2=PROGRAMMED 
+OPERATION
+3=COMFORT MODE
+4=ECO MODE
+5=DHW MODE
+0=EMERGENCY 
+OPERATION
+" ModbusAddress="1500" ModbusCmd="6" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100" RepeatRate="5"/>
+	<ModbusCmd Title="1502 - HC1 Comfort temperature" Comment="" HintText="MIN=5
+MAX=30" ModbusAddress="1501" ModbusCmd="6" ModbusDataType="1" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100" RepeatRate="5"/>
+	<ModbusCmd Title="1505 - HC2 Comfort temperature" Comment="" HintText="MIN=5
+MAX=30" ModbusAddress="1504" ModbusCmd="6" ModbusDataType="1" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100" RepeatRate="5"/>
+	<ModbusCmd Title="1511 - Hot Water Eco temperature" Comment="" HintText="MIN=10
+MAX=60" ModbusAddress="1510" ModbusCmd="6" ModbusDataType="1" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="1" DestValHigh="10" RepeatRate="5"/>
+	<ModbusCmd Title="1510 - Hot Water Comfort temperature" Comment="" HintText="MIN=10
+MAX=60" ModbusAddress="1509" ModbusCmd="6" ModbusDataType="1" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="1" DestValHigh="10" RepeatRate="5"/>
+	<ModbusCmd Title="1503 - HC1 Eco temperature" Comment="" HintText="MIN=5
+MAX=30" ModbusAddress="1502" ModbusCmd="6" ModbusDataType="1" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100" RepeatRate="5"/>
+	<ModbusCmd Title="1506 - HC2 Eco temperature" Comment="" HintText="MIN=5
+MAX=30" ModbusAddress="1505" ModbusCmd="6" ModbusDataType="1" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100" RepeatRate="5"/>
+</Modbus>

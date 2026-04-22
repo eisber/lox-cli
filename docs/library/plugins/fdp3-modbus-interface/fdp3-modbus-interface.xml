@@ -1,0 +1,10 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Modbus Title="FDP3-MODBUS Interface" Comment="" Baudrate="9600" Channel="1">
+	<Info templateType="7" minVersion="13010808"/>
+	<ModbusCmd Title="Setpoint Min" Comment="" ModbusAddress="20" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Setpoint Max" Comment="" ModbusAddress="21" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Setpoint" Comment="" ModbusAddress="1" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="OnOff" Comment="" ModbusAddress="5" ModbusCmd="6" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10" RepeatRate="60"/>
+	<ModbusCmd Title="Mode" Comment="" ModbusAddress="3" ModbusCmd="6" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10" RepeatRate="60"/>
+	<ModbusCmd Title="Setpoint" Comment="" ModbusAddress="1" ModbusCmd="6" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10" RepeatRate="60"/>
+</Modbus>

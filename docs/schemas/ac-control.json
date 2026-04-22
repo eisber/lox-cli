@@ -1,0 +1,124 @@
+{
+  "title": "AC Unit Controller",
+  "xml_type": "ACControl",
+  "kb_slug": "ac-control",
+  "description": "The AC Unit Controller function block is used to control air conditioning units.",
+  "inputs": [],
+  "outputs": [
+    {
+      "abbreviation": "Status",
+      "summary": "Device-Status",
+      "description": "0 = Off, 1 = On",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "API",
+      "summary": "API Connector",
+      "description": "Intelligent API based connector. API Commands",
+      "value_range": "-"
+    }
+  ],
+  "parameters": [
+    {
+      "abbreviation": "Ptd",
+      "summary": "Pause timer duration",
+      "description": "Starts with the falling edge of input (Pt). Keeps the device paused for the specified duration.",
+      "unit": "s",
+      "value_range": "0...\u221e",
+      "default_value": "7200"
+    },
+    {
+      "abbreviation": "Hys",
+      "summary": "Hysteresis",
+      "description": "Hysteresis for switching on and off. This setting only applies when the target temperature is managed by the Intelligent Room Controller (enabled automatically).",
+      "unit": "\u00b0",
+      "value_range": "0...\u221e",
+      "default_value": "0.5"
+    },
+    {
+      "abbreviation": "O",
+      "summary": "Target Offset",
+      "description": "Target temperature offset in relation to received target temperature. This setting only applies when the target temperature is managed by the Intelligent Room Controller (enabled automatically) and the controller is in Eco or Eco2 (building protection) mode.",
+      "unit": "\u00b0",
+      "value_range": "0...\u221e",
+      "default_value": "1"
+    },
+    {
+      "abbreviation": "minT",
+      "summary": "Minimum Target Temperature",
+      "description": "Lowest target temperature which can be set in the App",
+      "unit": "\u00b0",
+      "value_range": "\u221e",
+      "default_value": "1"
+    },
+    {
+      "abbreviation": "maxT",
+      "summary": "Maximum Target Temperature",
+      "description": "Highest target temperature which can be set in the App",
+      "unit": "\u00b0",
+      "value_range": "\u221e",
+      "default_value": "40"
+    }
+  ],
+  "properties": [
+    {
+      "summary": "Mode names",
+      "description": "Configure usage and naming of operating modes",
+      "value_range": "-",
+      "default_value": "-"
+    },
+    {
+      "summary": "Airflow names",
+      "description": "Configure usage and naming of airflow-directions",
+      "value_range": "-",
+      "default_value": "-"
+    },
+    {
+      "summary": "Fanspeed names",
+      "description": "Configure usage and naming of fanspeeds",
+      "value_range": "-",
+      "default_value": "-"
+    },
+    {
+      "summary": "Silent Mode Fan Speed",
+      "description": "Fan Speed which is set when silent mode is activated",
+      "value_range": "-",
+      "default_value": "-"
+    },
+    {
+      "summary": "Default Airflow",
+      "description": "Airflow-direction which is set when the AC is switched off",
+      "value_range": "-",
+      "default_value": "-"
+    },
+    {
+      "summary": "Default Fan Speed",
+      "description": "Fan Speed which is set when the AC is switched off",
+      "value_range": "-",
+      "default_value": "-"
+    },
+    {
+      "summary": "Default target temperature mode",
+      "description": "Specifies whether the system uses the last applied default target temperature or a manually defined fixed value.",
+      "value_range": "-",
+      "default_value": "-"
+    },
+    {
+      "summary": "Activity Log Entries",
+      "description": "Number of entries in the activity log. 0: log is disabled The activity log tracks relevant changes since program start.",
+      "value_range": "0...100",
+      "default_value": "20"
+    },
+    {
+      "summary": "Forward \u03d1c to AC Unit",
+      "description": "If checked, the \u03d1c input of the AC Unit Controller or \u03d1c of the connected Intelligent Room Controller is forwarded to the indoor unit.",
+      "value_range": "-",
+      "default_value": "-"
+    }
+  ],
+  "source_url": "https://www.loxone.com/enen/kb/ac-control/",
+  "input_count": 0,
+  "output_count": 2,
+  "parameter_count": 5,
+  "property_count": 9
+}

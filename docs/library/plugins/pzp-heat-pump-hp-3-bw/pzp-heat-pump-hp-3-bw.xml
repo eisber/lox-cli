@@ -1,0 +1,54 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Modbus Title="PZP_HEAT_PUMP_HP_3_BW" Comment="" Channel="1">
+	<Info templateType="7" minVersion="12021105"/>
+	<ModbusCmd Title="SW-Major v" Comment="" ModbusAddress="2" ModbusCmd="4" ModbusPollingCycle="4095" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="SW-minor" Comment="" ModbusAddress="3" ModbusCmd="4" ModbusPollingCycle="4095" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="SW - fix" Comment="" ModbusAddress="4" ModbusCmd="4" ModbusDataType="32" ModbusPollingCycle="4095" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="PLC - CP1051_AI0" Comment="" ModbusAddress="20" ModbusCmd="4" ModbusPollingCycle="10" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="1"/>
+	<ModbusCmd Title="PLC - CP1051_AI5" Comment="" ModbusAddress="25" ModbusCmd="4" ModbusPollingCycle="10" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="1"/>
+	<ModbusCmd Title="PLC - CP1051_AI4" Comment="" ModbusAddress="24" ModbusCmd="4" ModbusPollingCycle="10" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="1"/>
+	<ModbusCmd Title="PLC - CP1051_AI3" Comment="" ModbusAddress="23" ModbusCmd="4" ModbusPollingCycle="10" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="1"/>
+	<ModbusCmd Title="PLC - CP1051_AI2" Comment="" ModbusAddress="22" ModbusCmd="4" ModbusPollingCycle="10" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="1"/>
+	<ModbusCmd Title="PLC - CP1051_AI1" Comment="" ModbusAddress="21" ModbusCmd="4" ModbusPollingCycle="10" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="1"/>
+	<ModbusCmd Title="EXP_AI0" Comment="" ModbusAddress="26" ModbusCmd="4" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="1"/>
+	<ModbusCmd Title="EXP_AI1" Comment="" ModbusAddress="27" ModbusCmd="4" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="1"/>
+	<ModbusCmd Title="EXP_AI6" Comment="" ModbusAddress="32" ModbusCmd="4" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="1"/>
+	<ModbusCmd Title="EXP_AI5" Comment="" ModbusAddress="31" ModbusCmd="4" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="1"/>
+	<ModbusCmd Title="EXP_AI4" Comment="" ModbusAddress="30" ModbusCmd="4" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="1"/>
+	<ModbusCmd Title="EXP_AI3" Comment="" ModbusAddress="29" ModbusCmd="4" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="1"/>
+	<ModbusCmd Title="EXP_AI2" Comment="" ModbusAddress="28" ModbusCmd="4" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="1"/>
+	<ModbusCmd Title="TEMP01" Comment="" ModbusAddress="100" ModbusCmd="4" ModbusPollingCycle="45" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="TEMP02" Comment="" ModbusAddress="101" ModbusCmd="4" ModbusPollingCycle="45" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="TEMP03" Comment="" ModbusAddress="102" ModbusCmd="4" ModbusPollingCycle="45" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="TEMP04" Comment="" ModbusAddress="103" ModbusCmd="4" ModbusPollingCycle="45" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="TEMP05" Comment="" ModbusAddress="104" ModbusCmd="4" ModbusPollingCycle="45" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="TEMP06_COMPRESSOR" Comment="Compressor temperature" ModbusAddress="105" ModbusCmd="4" ModbusPollingCycle="45" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="TEMP07" Comment="" ModbusAddress="106" ModbusCmd="4" ModbusPollingCycle="45" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="TEMP10" Comment="" ModbusAddress="107" ModbusCmd="4" ModbusPollingCycle="45" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="OUTPUT to floor heating (108)" Comment="" ModbusAddress="108" ModbusCmd="4" ModbusPollingCycle="10" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="TEMP12_WATER_HEATING" Comment="Water heating temperature" ModbusAddress="109" ModbusCmd="4" ModbusPollingCycle="45" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="TEMP13" Comment="" ModbusAddress="110" ModbusCmd="4" ModbusPollingCycle="45" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="TEMP14" Comment="" ModbusAddress="111" ModbusCmd="4" ModbusPollingCycle="45" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="TEMP15" Comment="" ModbusAddress="112" ModbusCmd="4" ModbusPollingCycle="45" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="TEMP16" Comment="" ModbusAddress="113" ModbusCmd="4" ModbusPollingCycle="45" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="TEMP17_OUTSIDE" Comment="Outside temperature" ModbusAddress="114" ModbusCmd="4" ModbusDataType="1" ModbusPollingCycle="45" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="TEMP18" Comment="" ModbusAddress="115" ModbusCmd="4" ModbusPollingCycle="60" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="Manual control state" Comment="" ModbusAddress="60000" ModbusCmd="1" ModbusPollingCycle="45" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="Heating temperature (60100)" Comment="" ModbusAddress="60100" ModbusCmd="4" ModbusDataType="1" ModbusPollingCycle="15" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="Water heating temperature (60400)" Comment="" ModbusAddress="60400" ModbusCmd="4" ModbusDataType="1" ModbusPollingCycle="15" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="Water heating hysterezis (60401)" Comment="" ModbusAddress="60401" ModbusCmd="4" ModbusDataType="1" ModbusPollingCycle="10" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="W100-60001" Comment="" ModbusAddress="60001" ModbusCmd="4" ModbusDataType="3" ModbusPollingCycle="10" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Circulating pump TO1" Comment="" ModbusAddress="256" ModbusCmd="1" ModbusPollingCycle="60" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="Circulating pump TO2" Comment="" ModbusAddress="264" ModbusCmd="1" ModbusPollingCycle="60" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="Heating  circuit 1 - requirement (60140)" Comment="" ModbusAddress="60140" ModbusCmd="1" ModbusPollingCycle="20" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="Heating  circuit  2 - requirement (60141)" Comment="" ModbusAddress="60141" ModbusCmd="1" ModbusPollingCycle="20" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="Heating  circuit  3 - requirement (60142)" Comment="" ModbusAddress="60142" ModbusCmd="1" ModbusPollingCycle="20" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="TEMP11" Comment="" ModbusAddress="108" ModbusCmd="4" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="Manual control activation (60001)" Comment="Manual control activation" ModbusAddress="60001" ModbusCmd="5" Unit="" Analog="false" Sensor="false" RepeatRate="40"/>
+	<ModbusCmd Title="Required water heating temperature (60400)" Comment="" ModbusAddress="60400" ModbusCmd="6" ModbusDataType="1" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="1" DestValHigh="10" RepeatRate="720"/>
+	<ModbusCmd Title="Required heating temperature (60100)" Comment="" ModbusAddress="60100" ModbusCmd="6" ModbusDataType="1" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="1" DestValHigh="10"/>
+	<ModbusCmd Title="Water heating hysterezis (60401)" Comment="Allows set water temperature" ModbusAddress="60401" ModbusCmd="6" ModbusDataType="1" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100" RepeatRate="720"/>
+	<ModbusCmd Title="Heating configuration register (60001)" Comment="" ModbusAddress="60001" ModbusCmd="6" ModbusDataType="1" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100" RepeatRate="360"/>
+	<ModbusCmd Title="Water heating configuration (registr 60004)" Comment="Allows temperature settings etc." ModbusAddress="60004" ModbusCmd="6" ModbusDataType="1" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100" RepeatRate="360"/>
+	<ModbusCmd Title="Register W200 (60002)" Comment="" ModbusAddress="60002" ModbusCmd="6" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100" RepeatRate="60"/>
+</Modbus>

@@ -1,0 +1,7 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Modbus Title="Siemens RDF660MB" Comment="" Baudrate="9600" Stopbits="1" Channel="10">
+	<Info templateType="7" minVersion="12021201"/>
+	<ModbusCmd Title="Room Temperature" Comment="" ModbusAddress="3" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v.2&gt;ºC" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="0.2"/>
+	<ModbusCmd Title="Room Setpoint" Comment="" ModbusAddress="4" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v.2&gt;ºC" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="0.2"/>
+	<ModbusCmd Title="Room Setpoint" Comment="" ModbusAddress="103" ModbusCmd="6" Unit="&lt;v.1&gt;ºC" Analog="true" Sensor="false" SourceValHigh="0.2" DestValHigh="10"/>
+</Modbus>

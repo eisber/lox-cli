@@ -1,0 +1,80 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Modbus Title="S&amp;P DOMEO 210 RD" Comment="" Baudrate="19200" Stopbits="1" Parity="1" Channel="1">
+	<Info templateType="7" minVersion="12020916"/>
+	<ModbusCmd Title="2 CLP CONTROL" Comment="" ModbusAddress="2" ModbusCmd="2" ModbusPollingCycle="5" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="5 THAW MODE" Comment="" ModbusAddress="5" ModbusCmd="2" ModbusPollingCycle="5" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="7 IMPULSION MOTOR STATUS" Comment="" ModbusAddress="7" ModbusCmd="2" ModbusPollingCycle="5" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="10 INTERIOR TEMPERATURE PROBE STATUS" Comment="" ModbusAddress="10" ModbusCmd="2" ModbusPollingCycle="5" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="11 DISCHARGE TEMPERATURE PROBE STATUS" Comment="" ModbusAddress="11" ModbusCmd="2" ModbusPollingCycle="5" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="12 OUTDOOR TEMPERATURE PROBE STATUS R" Comment="" ModbusAddress="12" ModbusCmd="2" ModbusPollingCycle="5" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="13 STATUS PROBE IMPULSION TEMPERATURE" Comment="" ModbusAddress="13" ModbusCmd="2" ModbusPollingCycle="5" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="14 ALARM STATUS OF DIRTY FILTER" Comment="" ModbusAddress="14" ModbusCmd="2" ModbusPollingCycle="5" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="6 ENGINE EXTRACTION STATUS" Comment="" ModbusAddress="6" ModbusCmd="2" ModbusPollingCycle="5" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="2 BATTERY PRE-HEATING R_W 0" Comment="" ModbusAddress="2" ModbusCmd="1" ModbusPollingCycle="5" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="3 BATTERY POST-HEATING R_W 0" Comment="" ModbusAddress="3" ModbusCmd="1" ModbusPollingCycle="5" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="4 POTENTIAL FREE CONTACT CONTROL SELECTION R_W 0" Comment="" ModbusAddress="4" ModbusCmd="1" ModbusPollingCycle="5" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="6 VERSION SELECTOR R_W 0" Comment="" ModbusAddress="6" ModbusCmd="1" ModbusPollingCycle="5" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="7 MODE ACTIVATION R_W 0" Comment="" ModbusAddress="7" ModbusCmd="1" ModbusPollingCycle="5" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="8 AUTOMATIC CONTROL BYPASS R_W 0" Comment="" ModbusAddress="8" ModbusCmd="1" ModbusPollingCycle="5" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="9 BYPASS MANUAL R_W 0" Comment="" ModbusAddress="9" ModbusCmd="1" ModbusPollingCycle="5" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="12 DIRTY FILTER ALARM RESET (BY TIME)" Comment="" ModbusAddress="12" ModbusCmd="1" ModbusPollingCycle="5" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="13 RESTORE FACTORY PARAMETERS W" Comment="" ModbusAddress="13" ModbusCmd="1" ModbusPollingCycle="5" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="1 VERSION R" Comment="" ModbusAddress="1" ModbusCmd="1" ModbusPollingCycle="5" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="6 SOFTWARE VERSION CENTRAL UNITY" Comment="" ModbusAddress="6" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="7 REMOTE SOFTWARE VERSION" Comment="" ModbusAddress="7" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="8 CONSOLE PROGRAMMING SOFTWARE VERSION" Comment="" ModbusAddress="8" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="9 TYPE OF DOUBLE FLOW" Comment="" ModbusAddress="9" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="10 TIPE OF REGULATION" Comment="" ModbusAddress="10" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v.2&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="12 FLOW OFFSET" Comment="" ModbusAddress="12" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="13 MINIMUM FLOW" Comment="" ModbusAddress="13" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="14 TIMED HIGH FLOW 1_2H _ BOOST" Comment="" ModbusAddress="14" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="15 HIGH FLOW _ FREE COOLING" Comment="" ModbusAddress="15" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="16 ACTUAL FLOW" Comment="" ModbusAddress="16" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="17 MEASURED TENSION 0-10V" Comment="" ModbusAddress="17" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="19 EXTRACTION ENGINE REVOLUTIONS" Comment="" ModbusAddress="19" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="20 IMPULSE ENGINE REVOLUTIONS" Comment="" ModbusAddress="20" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="21 TEMPERATURE INT" Comment="" ModbusAddress="21" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v.1&gt;ºC" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="22 TEMPERATURE EXT" Comment="" ModbusAddress="22" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v.1&gt;ºC" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="23 TEMPERATURE Tex" Comment="" ModbusAddress="23" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v.1&gt;ºC" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="24 IMPULSION TEMPERATURE" Comment="" ModbusAddress="24" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v.1&gt;ºC" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="25 BYPASS STATE" Comment="" ModbusAddress="25" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="26 BATTERY STATUS PREHEATING" Comment="" ModbusAddress="26" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="27 POST HEATING BATTERY STATUS" Comment="" ModbusAddress="27" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="37 ALARM TIME OF DIRTY FILTER" Comment="" ModbusAddress="37" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="36 TEMPERATURE Tin BATTERY PREHEATING" Comment="" ModbusAddress="36" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="38 TEMPERATURE Tout PREHEATING BATTERY" Comment="" ModbusAddress="38" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="39 TEMPERATURE Tin POST HEATING BATTERY" Comment="" ModbusAddress="39" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="40 TEMPERATURE Tout POST HEATING BATTERY_" Comment="" ModbusAddress="40" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="0 INTERFACE MODBUS NODE" Comment="" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="1 BAUDRATE MODBUS" Comment="" ModbusAddress="1" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="8 SELECTION OF FLOW OFFSET" Comment="" ModbusAddress="8" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="9 LOW FLOW SELECTION" Comment="" ModbusAddress="9" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="10 SELECTION OF TIMED HIGH FLOW 1_2 H _ BOOST" Comment="" ModbusAddress="10" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="11 HIGH FLOW RATE SELECTION _ FREECOOLING" Comment="" ModbusAddress="11" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="15 FLOW SETPOINT" Comment="" ModbusAddress="15" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="16 MINIMUM SETPOINT IN 0‐10V_" Comment="" ModbusAddress="16" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="17 MAXIMUM SETPOINT IN 0‐10V" Comment="" ModbusAddress="17" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="22 BYPASS AUTO: Text MINIMUM" Comment="" ModbusAddress="22" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="23 BYPASS AUTO: MINIMUM Tint_" Comment="" ModbusAddress="23" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="24 TIME BYPASS MANUAL" Comment="" ModbusAddress="24" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="25 PRE-HEATING BATTERY Tº ON" Comment="" ModbusAddress="25" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="26 PRE-HEATING BATTERY Tº OFF" Comment="" ModbusAddress="26" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="27 PRE-HEATING BATTERY CONSTANT Tº" Comment="" ModbusAddress="27" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="28 POST-HEATING BATTERY CONSTANT Tº" Comment="" ModbusAddress="28" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="31 TIME SELECTION ALARM OF DIRTY FILTER" Comment="" ModbusAddress="31" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="2 PRE-HEATING BATTERY" Comment="" ModbusAddress="2" ModbusCmd="5" Unit="" Analog="false" Sensor="false"/>
+	<ModbusCmd Title="3 POST-HEATING BATTERY" Comment="" ModbusAddress="3" ModbusCmd="5" Unit="" Analog="false" Sensor="false"/>
+	<ModbusCmd Title="4 POTENTIAL FREE CONTACT CONTROL SELECTION" Comment="" ModbusAddress="4" ModbusCmd="5" Unit="" Analog="false" Sensor="false"/>
+	<ModbusCmd Title="6 VERSION SELECTION" Comment="" ModbusAddress="6" ModbusCmd="5" Unit="" Analog="false" Sensor="false"/>
+	<ModbusCmd Title="7 MODE ACTIVATION" Comment="" ModbusAddress="7" ModbusCmd="5" Unit="" Analog="false" Sensor="false"/>
+	<ModbusCmd Title="8 AUTOMATIC BYPASS CONTROL" Comment="" ModbusAddress="8" ModbusCmd="5" Unit="" Analog="false" Sensor="false"/>
+	<ModbusCmd Title="9 BYPASS MANUAL" Comment="" ModbusAddress="9" ModbusCmd="5" Unit="" Analog="false" Sensor="false"/>
+	<ModbusCmd Title="12 ALARM RESET OF DIRTY FILTER (BY TIME)" Comment="" ModbusAddress="12" ModbusCmd="5" Unit="" Analog="false" Sensor="false"/>
+	<ModbusCmd Title="8 FLOW OFFSET SELECTION" Comment="" ModbusAddress="8" ModbusCmd="6" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="9 LOW FLOW SELECTION" Comment="" ModbusAddress="9" ModbusCmd="6" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="10 SELECTION OF TIMED HIGH FLOW 1_2 H _ BOOST" Comment="" ModbusAddress="10" ModbusCmd="6" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="11 HIGH FLOW RATE SELECTION _ FREECOOLING" Comment="" ModbusAddress="11" ModbusCmd="6" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="15 FLOW OFFSET" Comment="" ModbusAddress="15" ModbusCmd="6" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="16 MINIMUM SETPOINT IN 0‐10V" Comment="" ModbusAddress="16" ModbusCmd="6" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="17 MAXIMUM SETPOINT IN 0‐10V" Comment="" ModbusAddress="17" ModbusCmd="6" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+</Modbus>

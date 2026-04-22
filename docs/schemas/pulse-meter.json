@@ -1,0 +1,61 @@
+{
+  "title": "Pulse Meter",
+  "xml_type": "",
+  "kb_slug": "pulse-meter",
+  "description": "This meter is suitable for recording consumption or delivery of various utilities such as electricity, gas, water, heat, etc.",
+  "inputs": [
+    {
+      "abbreviation": "P",
+      "summary": "Pulse",
+      "description": "For meters with pulse output (S0), connected to digital inputs.",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "F",
+      "summary": "Frequency",
+      "description": "For meters with pulse output (S0), connected to digital inputs used as frequency counter.",
+      "value_range": "0...\u221e"
+    },
+    {
+      "abbreviation": "R",
+      "summary": "Reset",
+      "description": "Pulse: Meter reading outputs are reset. On: Block is locked.",
+      "value_range": "0/1"
+    }
+  ],
+  "outputs": [
+    {
+      "abbreviation": "Pf",
+      "summary": "Power or flow",
+      "description": "Power or flow rate Calculated from pulse to pulse time and parameter Np. Pulse interval  10 seconds: Update every 10 seconds, calculation of an average value.",
+      "value_range": "0...\u221e"
+    },
+    {
+      "abbreviation": "API",
+      "summary": "API Connector",
+      "description": "Intelligent API based connector. API Commands",
+      "value_range": "-"
+    }
+  ],
+  "parameters": [
+    {
+      "abbreviation": "Mro",
+      "summary": "Meter reading offset",
+      "description": "Value is added to output (Mr).",
+      "value_range": "\u221e",
+      "default_value": "0"
+    }
+  ],
+  "properties": [
+    {
+      "summary": "Report invalid Meter Reading",
+      "description": "If checked, you will be notified if invalid Meter Reading values have been detected. For instance, when a physical counter sends unrealistic values due to transmission errors.",
+      "default_value": "-"
+    }
+  ],
+  "source_url": "https://www.loxone.com/enen/kb/pulse-meter/",
+  "input_count": 3,
+  "output_count": 2,
+  "parameter_count": 1,
+  "property_count": 1
+}

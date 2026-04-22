@@ -1,0 +1,178 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Loxone Config Eval Case",
+  "description": "Schema for Loxone configuration editing evaluation test cases",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "required": ["id", "utterance", "expected"],
+    "properties": {
+      "id": {
+        "type": "string",
+        "pattern": "^[a-z0-9-]+$",
+        "description": "Unique identifier using kebab-case"
+      },
+      "utterance": {
+        "type": "string",
+        "minLength": 10,
+        "description": "User request in natural language"
+      },
+      "difficulty": {
+        "type": "string",
+        "enum": ["easy", "medium", "hard", "expert"],
+        "description": "Difficulty level for weighted scoring"
+      },
+      "pattern": {
+        "type": "string",
+        "description": "Pattern category (e.g., 'motion-light', 'hvac', 'presence')"
+      },
+      "source": {
+        "type": "string",
+        "description": "Source of the case (e.g., 'loxone.com', 'forum', 'generated')"
+      },
+      "expected": {
+        "type": "object",
+        "required": ["new_blocks"],
+        "properties": {
+          "new_blocks": {
+            "type": "array",
+            "description": "Expected blocks to be created",
+            "items": {
+              "type": "object",
+              "required": ["type"],
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "description": "Loxone block type (e.g., 'LightController2', 'And')"
+                },
+                "title_contains": {
+                  "type": "string",
+                  "description": "Expected substring in block title"
+                },
+                "room": {
+                  "type": "string",
+                  "description": "Expected room assignment"
+                },
+                "page": {
+                  "type": "string",
+                  "description": "Expected page placement"
+                }
+              }
+            }
+          },
+          "wiring": {
+            "type": "array",
+            "description": "Expected wiring connections between blocks",
+            "items": {
+              "type": "object",
+              "properties": {
+                "from_type": {
+                  "type": "string",
+                  "description": "Source block type"
+                },
+                "from_title": {
+                  "type": "string",
+                  "description": "Source block title (substring match)"
+                },
+                "from_connector": {
+                  "type": "string",
+                  "description": "Source connector name (e.g., 'AQ')"
+                },
+                "from_conn": {
+                  "type": "string",
+                  "description": "Alternative source connector name"
+                },
+                "to_type": {
+                  "type": "string",
+                  "description": "Target block type"
+                },
+                "to_title": {
+                  "type": "string",
+                  "description": "Target block title (substring match)"
+                },
+                "to_connector": {
+                  "type": "string",
+                  "description": "Target connector name (e.g., 'I1')"
+                },
+                "to_conn": {
+                  "type": "string",
+                  "description": "Alternative target connector name"
+                }
+              }
+            }
+          },
+          "params": {
+            "type": "array",
+            "description": "Expected parameter values on blocks",
+            "items": {
+              "type": "object",
+              "properties": {
+                "block_type": {
+                  "type": "string"
+                },
+                "block_title": {
+                  "type": "string"
+                },
+                "param_name": {
+                  "type": "string"
+                },
+                "param_value": {
+                  "oneOf": [
+                    {"type": "string"},
+                    {"type": "number"},
+                    {"type": "boolean"}
+                  ]
+                }
+              }
+            }
+          },
+          "simulation": {
+            "type": "object",
+            "description": "Optional lox-sim signal validation",
+            "properties": {
+              "inputs": {
+                "type": "object",
+                "description": "Input signals to set",
+                "additionalProperties": {
+                  "oneOf": [
+                    {"type": "number"},
+                    {"type": "boolean"}
+                  ]
+                }
+              },
+              "expected_outputs": {
+                "type": "object",
+                "description": "Expected output signal values",
+                "additionalProperties": {
+                  "oneOf": [
+                    {"type": "number"},
+                    {"type": "boolean"}
+                  ]
+                }
+              },
+              "steps": {
+                "type": "array",
+                "description": "Multi-step simulation scenario",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "time": {
+                      "type": "number",
+                      "description": "Simulation time in seconds"
+                    },
+                    "inputs": {
+                      "type": "object"
+                    },
+                    "expected": {
+                      "type": "object"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

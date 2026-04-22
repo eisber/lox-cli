@@ -1,0 +1,176 @@
+{
+  "title": "Intelligent Room Controller",
+  "xml_type": "IRoomControllerV2",
+  "kb_slug": "intelligent-room-controller",
+  "description": "The Intelligent Room Controller maintains a set room temperature and automatically switches between heating and cooling.\nOptionally, various heating or cooling sources such as Heating and Cooling Controllers and Room Ventilation Controllers can be configured.",
+  "inputs": [
+    {
+      "abbreviation": "Mode",
+      "summary": "Mode",
+      "description": "-1 = Intelligent Room Controller is turned off. 0 = Automatic according to schedule: Heating or cooling based on current temperature and target temperatures. 1 = Automatic according to schedule: Heating only if required; cooling outputs deactivated. 2 = Automatic according to schedule: Cooling only if required; shading outputs active, heating outputs deactivated. 3 = Fixed setpoint: Target temperature set by input (\u03d1t), heating or cooling based on current temperature and target temperatures. 4 = Fixed setpoint: heating only; target temperature set by input (\u03d1t); cooling outputs deactivated; shading output deactivated if the temperature is lower then Temperature heat protection (\u03d1hp). 5=Fixed setpoint: target temperature set by input (\u03d1t); heating outputs deactivated; cooling and shading outputs active when exceeding target temperature.",
+      "unit": "-",
+      "value_range": "-1...5"
+    },
+    {
+      "abbreviation": "\u03d1t",
+      "summary": "Target temperature",
+      "description": "Target temperature in fixed setpoint mode",
+      "unit": "\u00b0",
+      "value_range": "\u221e"
+    },
+    {
+      "abbreviation": "Dwc",
+      "summary": "Door / window contact",
+      "description": "0 = closed, 1 = open; For automatic modes (0-2) only! If the current outdoor temperature is lower (while heating) or higher (while cooling) than the current room temperature, the system switches to \"Off\" (Building protection) after delay according to parameter (Ddwc) for as long as the window remains open. The input is only considered closed if all connected windows are closed.",
+      "unit": "-",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "C",
+      "summary": "Comfort",
+      "description": "Starts \"Comfort\" when ON (rising edge) and activates the timer (Cet) when OFF (falling edge). After time (Cet) expires, the set automatic mode will continue. The temperature is kept at (\u03d1ch) when heating, or (\u03d1cc) when cooling. The presence button in the app starts \"Comfort\" until the next schedule entry, but for a maximum of 48 hours.",
+      "unit": "-",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "E",
+      "summary": "Eco",
+      "description": "Start \"Eco\" when ON (rising edge) and activates the timer (EBpet) when OFF (falling edge). After timer (EBpet) expires, the set automatic mode will continue. If timer (EBpet) is 0, the timer runs until the next change in the schedule. The temperature is kept at \u03d1ch-\u03d1eh (Eco Min) when heating, or \u03d1cc+\u03d1ec (Eco Max) when cooling.",
+      "unit": "-",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "Bp",
+      "summary": "Building protection",
+      "description": "Starts Building protection when ON (rising edge) and activates the timer (EBpet) when OFF (falling edge). Heating/cooling is only used to keep the temperature above \u03d1fp (frost protection), or below \u03d1hp (heat protection). After timer (EBpet) expires, the set automatic mode will continue. If (EBpet) is 0, the timer runs until the next change in the schedule.",
+      "unit": "-",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "P",
+      "summary": "Presence",
+      "description": "Extends Comfort when ON and activates the timer (Pet) when OFF (falling edge). If Eco is currently active, a comfort timer is started after 30 minutes of continuous motion / presence. After (Pet) expires, the set automatic mode will continue.",
+      "unit": "-",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "Off",
+      "summary": "Off",
+      "description": "Pulse: Timers started by inputs (C), (E), (Bp) or (P) are cancelled. Timers started via the user interface remain active. On = Block is locked and all heating and cooling outputs set to 0. The name of the connected sensor is used in the user interface.",
+      "unit": "-",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "DisP",
+      "summary": "Disable presence",
+      "description": "Disables input (P) when 1.",
+      "unit": "-",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "\u03d1o",
+      "summary": "Outdoor temperature",
+      "description": "Used by input (Dwc). If this input is not connected, the system variable \"Outdoor temperature\" is used. If variable \"Outdoor temperature\" is not available, the value -1000 is displayed.",
+      "unit": "\u00b0",
+      "value_range": "\u221e"
+    },
+    {
+      "abbreviation": "CO2",
+      "summary": "CO2",
+      "description": "Current CO2 Level. Value is not used for calculations but is forwarded as information to the app and to the configured targets, such as Heating and Cooling Controller, HVAC Controller, or Room Ventilation Controller.",
+      "unit": "ppm",
+      "value_range": "\u221e"
+    },
+    {
+      "abbreviation": "H",
+      "summary": "Humidity",
+      "description": "Relative humidity. Value is not used for calculations but is forwarded as information to the app and to the configured targets, such as Heating and Cooling Controller, HVAC Controller, or Room Ventilation Controller.",
+      "unit": "%",
+      "value_range": "\u221e"
+    },
+    {
+      "abbreviation": "Fan",
+      "summary": "Fan speed 0-7",
+      "description": "0 = Off 1 = Auto 2 = Silent 3 = Very Low 4 = Low 5 = Medium 6 = High 7 = Very High Available fan speeds can be set in the fan speed settings of the block.",
+      "unit": "-",
+      "value_range": "0...7"
+    },
+    {
+      "abbreviation": "ADir",
+      "summary": "Airflow direction up/down 1-8",
+      "description": "1 = Auto 2-6 = Position 1-5 7 = Swing 8 = No Swing Available airflow directions can be set in the airflow direction settings of the block. Vertical vane adjustment is not supported on any AC Control Air type. This limitation is primarily due to restrictions in the interfaces used to communicate with the air conditioning units. While some models could theoretically support this feature, it has not been implemented to maintain consistency in controls across all types.",
+      "unit": "-",
+      "value_range": "1...8"
+    },
+    {
+      "abbreviation": "Rtd",
+      "summary": "Reset to default",
+      "description": "Resets parameters and settings of the block to the default values as specified in the block preset.",
+      "unit": "-",
+      "value_range": "0/1"
+    }
+  ],
+  "outputs": [],
+  "parameters": [],
+  "properties": [
+    {
+      "summary": "Configure Sources",
+      "description": "Configure available Heating/Cooling sources. Supported sources can be created, prioritized, and set per Heating/Cooling/PWM Source.",
+      "value_range": "-",
+      "default_value": "-"
+    },
+    {
+      "summary": "Schedule",
+      "description": "Temperature schedule for heating and cooling",
+      "value_range": "-",
+      "default_value": "-"
+    },
+    {
+      "summary": "Use single comfort temperature",
+      "description": "If checked, the Intelligent Room Controller uses a single comfort temperature instead of separated heating/cooling comfort temperature",
+      "value_range": "-",
+      "default_value": "-"
+    },
+    {
+      "summary": "Allow surplus heating",
+      "description": "If checked, the Intelligent Room Controller will adapt the target temperatures if an assigned Heating and Cooling Controller signals that surplus heating energy is available.",
+      "value_range": "-",
+      "default_value": "-"
+    },
+    {
+      "summary": "Allow surplus cooling",
+      "description": "If checked, the Intelligent Room Controller will adapt the target temperatures if an assigned Heating and Cooling Controller signals that surplus cooling energy is available.",
+      "value_range": "-",
+      "default_value": "-"
+    },
+    {
+      "summary": "Use all configured sources at the same time",
+      "description": "If checked, the heating or cooling demand is sent to all linked sources. If unchecked, the demand is sent to the first available source and all lower priority sources that have been defined as 'cheap'.",
+      "value_range": "-",
+      "default_value": "-"
+    },
+    {
+      "summary": "Enable PWM Outputs",
+      "description": "If checked, the outputs H, C, and HC are used as PWM outputs",
+      "value_range": "-",
+      "default_value": "-"
+    },
+    {
+      "summary": "Monitor Temperature",
+      "description": "If checked, you will be notified if there is a large difference between the room temperature and the target temperature, which could indicate possible errors in the heating/cooling system.",
+      "value_range": "-",
+      "default_value": "-"
+    },
+    {
+      "summary": "Activity Log Entries",
+      "description": "Number of entries in the activity log. 0: log is disabled The activity log tracks relevant changes since program start.",
+      "value_range": "0...100",
+      "default_value": "20"
+    }
+  ],
+  "source_url": "https://www.loxone.com/enen/kb/intelligent-room-controller/",
+  "input_count": 15,
+  "output_count": 0,
+  "parameter_count": 0,
+  "property_count": 9
+}

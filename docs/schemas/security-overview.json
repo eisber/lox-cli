@@ -1,0 +1,89 @@
+{
+  "title": "Burglar Alarm Central",
+  "xml_type": "",
+  "kb_slug": "security-overview",
+  "description": "With this function block, all Burglar Alarm blocks can be controlled together.\nDouble-click on the block to open the dialogue for selecting the linked blocks",
+  "inputs": [
+    {
+      "abbreviation": "Tg",
+      "summary": "Toggle with presence detection",
+      "description": "Toggles between arm / disarm. Presence sensors are used to trigger an alarm.",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "Tgnp",
+      "summary": "Toggle without presence detection",
+      "description": "Toggles between arm / disarm. Presence sensors are not used to trigger an alarm.",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "A",
+      "summary": "Arm with presence detection",
+      "description": "Arms the alarm system. Presence sensors are used to trigger an alarm.",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "Anp",
+      "summary": "Arm without presence detection",
+      "description": "Arms the alarm system. Presence sensors are not used to trigger an alarm.",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "Ad",
+      "summary": "Arm delayed with presence detection",
+      "description": "Arms the alarm system with a delay (Ard). Presence sensors are used to trigger an alarm.",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "Adnp",
+      "summary": "Arm delayed without presence detection",
+      "description": "Arms the alarm system with a delay (Ard). Presence sensors are not used to trigger an alarm.",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "Off",
+      "summary": "Off",
+      "description": "Pulse: Outputs are reset / switched off. On: Block is locked. Dominating input. The name of the connected sensor is used in the user interface.",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "Ca",
+      "summary": "Confirm alarm",
+      "description": "Confirms the current alarm and resets all alarm outputs. The alarm system remains armed.",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "DisPc",
+      "summary": "Disable periphery control",
+      "description": "Disables inputs (Tg), (Tgnp), (A), (Anp), (Ad), (Adnp) when On. (e.g Child lock, cleaning) Control via user interface is still possible.",
+      "value_range": "0/1"
+    }
+  ],
+  "outputs": [
+    {
+      "abbreviation": "API",
+      "summary": "API Connector",
+      "description": "Intelligent API based connector. API Commands",
+      "value_range": "-"
+    },
+    {
+      "abbreviation": "Na",
+      "summary": "Active Armed Alarms",
+      "description": "Number of active armed alarms",
+      "value_range": "\u221e"
+    }
+  ],
+  "parameters": [],
+  "properties": [
+    {
+      "summary": "Selection",
+      "description": "All selected Alarm function blocks can be controlled together.",
+      "default_value": "-"
+    }
+  ],
+  "source_url": "https://www.loxone.com/enen/kb/security-overview/",
+  "input_count": 9,
+  "output_count": 2,
+  "parameter_count": 0,
+  "property_count": 1
+}

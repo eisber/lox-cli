@@ -1,0 +1,17 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Modbus Title="OBO Ion Wallbox" Comment="For product variants: Basic; Key; Basic Protect; Key Protect" Baudrate="19200" Parity="1" Channel="101">
+	<Info templateType="7" minVersion="13000629"/>
+	<ModbusCmd Title="EVSE advertised current" Comment="The current being advertised to the EV at this moment in time" ModbusAddress="16" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v&gt; A" Analog="true" Sensor="true" SourceValHigh="32" DestValHigh="32"/>
+	<ModbusCmd Title="Active state" Comment="0=A, 1=B, 2=C, 3=D, 4=F" ModbusAddress="11" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="4" DestValHigh="4"/>
+	<ModbusCmd Title="Charge disable behaviour on power loss" Comment="0 = state C disabled" ModbusAddress="13" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="1" DestValHigh="1"/>
+	<ModbusCmd Title="Active charging current" Comment="0, 6A-32A Alloted current to advertise to EV" ModbusAddress="6" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v&gt; A" Analog="true" Sensor="true" SourceValHigh="32" DestValHigh="32"/>
+	<ModbusCmd Title="Charge disable" Comment="0 = state C disabled, 1 = auto start charging, 2 = start once" ModbusAddress="5" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="2" DestValHigh="2"/>
+	<ModbusCmd Title="Fallback current" Comment="0-32A - Current to advertise on comms loss" ModbusAddress="30" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v&gt; A" Analog="true" Sensor="true" SourceValHigh="32" DestValHigh="32"/>
+	<ModbusCmd Title="Comms time-out" Comment="If no data recieved within XmC default to Fallback Current, 0=no time out, Allowed values 1000-60000 [ms]" ModbusAddress="28" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v&gt; ms" Analog="true" Sensor="true" SourceValHigh="60000" DestValHigh="60000"/>
+	<ModbusCmd Title="Error code" Comment="1=RCM self test failed; 2=DC residual current fault; 4=Failed diode check" ModbusAddress="14" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="127" DestValHigh="127"/>
+	<ModbusCmd Title="Fallback current" Comment="0-32A - Current to advertise on comms loss" ModbusAddress="30" ModbusCmd="6" Unit="&lt;v&gt; A" Analog="true" Sensor="false" SourceValHigh="32" DestValHigh="32"/>
+	<ModbusCmd Title="Charge disable" Comment="0=state C disabled; 1= auto start charging; 2=start once" ModbusAddress="5" ModbusCmd="6" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="2" DestValHigh="2"/>
+	<ModbusCmd Title="Active charging current" Comment="" ModbusAddress="6" ModbusCmd="6" Unit="&lt;v&gt; A" Analog="true" Sensor="false" SourceValHigh="32" DestValHigh="32" RepeatRate="5"/>
+	<ModbusCmd Title="Charge disable behaviour on power loss" Comment="0=state C disabled" ModbusAddress="13" ModbusCmd="6" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="1" DestValHigh="1"/>
+	<ModbusCmd Title="Comms time-out" Comment="If no data recieved within XmC default to Fallback Current, 0=no time out, Allowed values 1000-60000 [ms]" ModbusAddress="28" ModbusCmd="6" Unit="&lt;v&gt; ms" Analog="true" Sensor="false" SourceValHigh="60000" DestValHigh="60000"/>
+</Modbus>

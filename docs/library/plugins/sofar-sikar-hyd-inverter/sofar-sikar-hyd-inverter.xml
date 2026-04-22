@@ -1,0 +1,19 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Modbus Title="SofarSolar inverter" Comment="" HintText="" Baudrate="9600" Channel="1">
+	<Info templateType="7" minVersion="14051207"/>
+	<ModbusCmd Title="Status" Comment="" HintText="" ModbusAddress="1028" ModbusCmd="3" ModbusPollingCycle="10" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Power_Bat1" Comment="" HintText="" ModbusAddress="1542" ModbusCmd="3" ModbusDataType="33" ModbusPollingCycle="10" Unit="&lt;v.2&gt;kW" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="-1"/>
+	<ModbusCmd Title="SOC_Bat1" Comment="Naładowanie magazynu" HintText="" ModbusAddress="1544" ModbusCmd="3" ModbusPollingCycle="10" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="PV_Generation_Total" Comment="" HintText="" ModbusAddress="1670" ModbusCmd="3" ModbusDataType="34" ModbusPollingCycle="10" Unit="&lt;v.3&gt;kWh" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="10"/>
+	<ModbusCmd Title="Energy_Purchase_Total" Comment="" HintText="" ModbusAddress="1678" ModbusCmd="3" ModbusDataType="34" ModbusPollingCycle="10" Unit="&lt;v.2&gt;kWh" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="10"/>
+	<ModbusCmd Title="Energy_Selling_Total" Comment="" HintText="" ModbusAddress="1682" ModbusCmd="3" ModbusDataType="34" ModbusPollingCycle="10" Unit="&lt;v.2&gt;kWh" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="10"/>
+	<ModbusCmd Title="ActivePower_Output_Total" Comment="" HintText="" ModbusAddress="1157" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="10" Unit="&lt;v.1&gt;kW" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="ActivePower_PV_Ext" Comment="" HintText="" ModbusAddress="1198" ModbusCmd="3" ModbusPollingCycle="10" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Power_PV_Total" Comment="" HintText="" ModbusAddress="1476" ModbusCmd="3" ModbusPollingCycle="10" Unit="&lt;v.2&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="Power_PV1" Comment="" HintText="" ModbusAddress="1414" ModbusCmd="3" ModbusPollingCycle="10" Unit="&lt;v.2&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="1"/>
+	<ModbusCmd Title="Power_PV2" Comment="" HintText="" ModbusAddress="1417" ModbusCmd="3" ModbusPollingCycle="10" Unit="&lt;v.2&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="1"/>
+	<ModbusCmd Title="ActivePower_Load_Total" Comment="" HintText="" ModbusAddress="1284" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="10" Unit="&lt;v.2&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="1"/>
+	<ModbusCmd Title="ActivePower_Output_L1N" Comment="" HintText="" ModbusAddress="1202" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="10" Unit="&lt;v.2&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="ActivePower_Output_L2N" Comment="" HintText="" ModbusAddress="1207" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="10" Unit="&lt;v.2&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="ActivePower_PCC_Total" Comment="" HintText="" ModbusAddress="1160" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="10" Unit="&lt;v.2&gt;kW" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="-1"/>
+</Modbus>

@@ -1,0 +1,15 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Modbus Title="Kaisai_HeatPump_KHA_KMK_KHC" Comment="Heat Pump" Baudrate="9600" Channel="2">
+	<Info templateType="7" minVersion="12021105"/>
+	<ModbusCmd Title="Operating Mode" Comment="Operating mode" ModbusAddress="40102" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="T4 Temperature" Comment="Outdoor temperature" ModbusAddress="40108" ModbusCmd="4" ModbusDataType="1" ModbusPollingCycle="5" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Ta Room Temperature" Comment="Room temperature" ModbusAddress="40115" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="T5 Water Tank Temperature" Comment="Water tank temperature" ModbusAddress="40116" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Current fault" Comment="Current fault" ModbusAddress="40125" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Compressor operation time" Comment="Compressor operation time" ModbusAddress="40123" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v&gt; hour" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Load output" Comment="Load output" ModbusAddress="40130" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Power output" Comment="Power output" ModbusAddress="40146" ModbusCmd="4" ModbusDataType="34" ModbusPollingCycle="5" Unit="&lt;v.1&gt; kW" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Electricity consumption" Comment="Electricity consumption" ModbusAddress="40144" ModbusCmd="4" ModbusDataType="34" ModbusPollingCycle="5" Unit="&lt;v.3&gt; kWh" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Setting the mode" Comment="Setting mode" ModbusAddress="40002" ModbusCmd="6" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Power On Off" Comment="" ModbusAddress="40001" ModbusCmd="6" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+</Modbus>

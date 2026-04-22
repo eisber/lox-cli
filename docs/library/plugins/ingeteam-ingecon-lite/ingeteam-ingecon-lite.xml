@@ -1,0 +1,18 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Modbus Title="Ingeteam Ingecon Lite" Comment="" Baudrate="9600" Channel="1">
+    <Info templateType="7" minVersion="12010617"/>
+	<ModbusCmd Title="Vac" Comment="" ModbusAddress="19" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v&gt;Volt" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Iac" Comment="" ModbusAddress="15" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v&gt;Amp x100" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Total Energy" Comment="" ModbusCmd="4" ModbusDataType="34" ModbusPollingCycle="60" Unit="&lt;v&gt;kWh" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Total Operation Hours" Comment="" ModbusAddress="2" ModbusCmd="4" ModbusDataType="34" ModbusPollingCycle="60" Unit="&lt;v&gt;h" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Total Number of Connections" Comment="" ModbusAddress="4" ModbusCmd="4" ModbusDataType="34" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Alarm Code" Comment="" ModbusAddress="11" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Fac" Comment="" ModbusAddress="20" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v&gt;Hertz x100" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Active Power (P)" Comment="" ModbusAddress="16" ModbusCmd="4" ModbusDataType="1" ModbusPollingCycle="5" Unit="&lt;v&gt;W" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="CosPhi" Comment="" ModbusAddress="17" ModbusCmd="4" ModbusDataType="1" ModbusPollingCycle="5" Unit="&lt;v&gt; x1000" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Ipv" Comment="" ModbusAddress="13" ModbusCmd="4" ModbusDataType="1" ModbusPollingCycle="5" Unit="&lt;v&gt;Amp x100" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Vpv" Comment="" ModbusAddress="12" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v&gt;Volt" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="CosPhiSign" Comment="" ModbusAddress="18" ModbusCmd="4" ModbusDataType="1" ModbusPollingCycle="5" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Pac Limitation" Comment="" ModbusAddress="1000" ModbusCmd="16" ModbusDataType="34" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Start/Stop" Comment="" ModbusAddress="1000" ModbusCmd="6" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10"/>
+</Modbus>

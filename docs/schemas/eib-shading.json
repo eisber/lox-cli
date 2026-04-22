@@ -1,0 +1,58 @@
+{
+  "title": "EIB Shading",
+  "xml_type": "",
+  "kb_slug": "eib-shading",
+  "description": "EIB motor control for the blinds using two button control",
+  "inputs": [
+    {
+      "abbreviation": "Pos",
+      "summary": "Position",
+      "description": "Used to provide feedback of the current shading position to the function block",
+      "unit": "%",
+      "value_range": "0...100"
+    },
+    {
+      "abbreviation": "DisPc",
+      "summary": "Disable periphery control",
+      "description": "Disables inputs Po, Pc, when On. (e.g Child lock, cleaning) Control via user interface is still possible.",
+      "unit": "-",
+      "value_range": "0/1"
+    }
+  ],
+  "outputs": [
+    {
+      "abbreviation": "Lo",
+      "summary": "Long-term operation",
+      "description": "-1 = passive 0 = open 1 = close Connect this output to an EIB-actuator (group address for long-term operation of blinds)",
+      "value_range": "\u221e"
+    },
+    {
+      "abbreviation": "So",
+      "summary": "Short-term operation",
+      "description": "-1 = passive 0 = open 1 = close Connect this output to an EIB-actuator (group address for short-term operation of blinds)",
+      "value_range": "\u221e"
+    },
+    {
+      "abbreviation": "API",
+      "summary": "API Connector",
+      "description": "Intelligent API based connector. API Commands",
+      "value_range": "-"
+    }
+  ],
+  "parameters": [
+    {
+      "abbreviation": "Tlc",
+      "summary": "Time long-click",
+      "description": "Pulse duration on inputs (Po) (Pc) to trigger a long-term operation (Lo).",
+      "unit": "s",
+      "value_range": "0...\u221e",
+      "default_value": "0,3"
+    }
+  ],
+  "properties": [],
+  "source_url": "https://www.loxone.com/enen/kb/eib-shading/",
+  "input_count": 2,
+  "output_count": 3,
+  "parameter_count": 1,
+  "property_count": 0
+}

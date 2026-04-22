@@ -1,0 +1,15 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Modbus Title="JUICE CHARGER ME Wallbox V2" Comment="" HintText="" Channel="1">
+	<Info templateType="7" minVersion="15000529"/>
+	<ModbusCmd Title="Hems Current Limit (A)" Comment="" HintText="" ModbusAddress="1000" ModbusCmd="3" ModbusPollingCycle="10" Unit="&lt;v&gt;A" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Angebotener Strom to EV" Comment="" HintText="" ModbusAddress="706" ModbusCmd="3" ModbusPollingCycle="10" Unit="&lt;v&gt;A" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Charged Energy Session" Comment="" HintText="" ModbusAddress="705" ModbusCmd="3" ModbusPollingCycle="10" Unit="&lt;v&gt;Wh" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Total Power" Comment="" HintText="" ModbusAddress="220" ModbusCmd="3" ModbusDataType="99" ModbusPollingCycle="5" Unit="&lt;v.1&gt;W" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="1"/>
+	<ModbusCmd Title="Total Energy" Comment="" HintText="" ModbusAddress="218" ModbusCmd="3" ModbusDataType="99" ModbusPollingCycle="10" Unit="&lt;v.1&gt;Wh" Analog="true" Sensor="true" SourceValHigh="1" DestValHigh="1"/>
+	<ModbusCmd Title="Operator current limit" Comment="" HintText="" ModbusAddress="134" ModbusCmd="3" ModbusPollingCycle="10" Unit="&lt;v&gt;A" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Vehicle (Control Pilot)" Comment="" HintText="" ModbusAddress="122" ModbusCmd="3" ModbusPollingCycle="10" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Voltage L1" Comment="" HintText="" ModbusAddress="222" ModbusCmd="3" ModbusDataType="99" ModbusPollingCycle="300" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Voltage L2" Comment="" HintText="" ModbusAddress="224" ModbusCmd="3" ModbusDataType="99" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Voltage L3" Comment="" HintText="" ModbusAddress="226" ModbusCmd="3" ModbusDataType="99" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Hems Current Limit (A)" Comment="" HintText="" ModbusAddress="1000" ModbusCmd="6" Unit="&lt;v&gt;A" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+</Modbus>

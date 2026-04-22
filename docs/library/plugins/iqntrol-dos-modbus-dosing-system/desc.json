@@ -1,0 +1,9 @@
+{
+                                "type": "template",
+                                "name": "iqntrol-dos-modbus-dosing-system",
+                                "uuid": "dd17e238-1941-11ed-a08d4cd98f3deb8a",
+                                "version":"1.0.1",
+                                "id": "iqntrol-dos-modbus-dosing-system-933",
+                                "file": "iqntrol-dos-modbus-dosing-system.xml",
+                                "templateType": "7",
+                            }

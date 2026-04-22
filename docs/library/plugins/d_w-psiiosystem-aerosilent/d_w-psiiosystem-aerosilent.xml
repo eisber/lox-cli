@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Comm Title="D&W psiioSYSTEM aerosilent" Comment="Drexel und Weiss" Baudrate="115200" Databits="8" CycleUserProt="-1">
+    <Info templateType="5" minVersion="12010617"/>
+	<CommCmd Title="Outside air temperature" Comment="Outside air temperature" CmdOn="LU 202 \v" CmdOff="" Unit="&lt;v.1&gt; °C" Analog="true" Text="false" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="CO2" Comment="CO2" CmdOn="LU 230 \v" CmdOff="" Unit="&lt;v&gt; ppm" Analog="true" Text="false" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="Fan speed exhaust" Comment="Fan speed exhaust" CmdOn="LU 1186 \v" CmdOff="" Unit="&lt;v&gt; 1/min" Analog="true" Text="false" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="Fan speed supply" Comment="Fan speed supply" CmdOn="LU 1184 \v" CmdOff="" Unit="&lt;v&gt; 1/min" Analog="true" Text="false" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="Change fine particle filter" Comment="Change fine particle filter" CmdOn="LU 7004 \v" CmdOff="" Unit="&lt;v&gt;" Analog="true" Text="false" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="Change coarse particle filter" Comment="Change coarse particle filter" CmdOn="LU 7002 \v" CmdOff="" Unit="&lt;v&gt;" Analog="true" Text="false" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="Error 1 (LU)" Comment="Error 1 (LU)" CmdOn="LU 800 \v" CmdOff="" Unit="" Analog="true" Text="false" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="Error 2 (LU)" Comment="Error 2 (LU)" CmdOn="LU 7500 \v" CmdOff="" Unit="" Analog="true" Text="false" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="Mode_WLG" Comment="Mode_WLG" CmdOn="LU 5002 \v" CmdOff="" Unit="&lt;v&gt;" Analog="true" Text="false" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="Room temperature" Comment="Room temperature" CmdOn="WP 200 \v" CmdOff="" Unit="&lt;v.1&gt;°C" Analog="true" Text="false" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="Fan level 1" Comment="Fan level 1" CmdOn="LU 5002 1\n\r" CmdOff="" Unit="" Analog="false" Text="false" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="Fan level 2" Comment="Fan level 2" CmdOn="LU 5002 2\n\r" CmdOff="" Unit="" Analog="false" Text="false" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="Fan level 3" Comment="Fan level 3" CmdOn="LU 5002 3\n\r" CmdOff="" Unit="" Analog="false" Text="false" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="Fan automatic" Comment="Fan automatic" CmdOn="LU 5002 4\n\rLU 1048 1\n\r" CmdOff="" Unit="" Analog="false" Text="false" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="Party" Comment="Party" CmdOn="LU 5002 5\n\r" CmdOff="" Unit="" Analog="false" Text="false" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="Fan off" Comment="Fan off" CmdOn="LU 5002 0\n\r" CmdOff="" Unit="" Analog="false" Text="false" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="Heating PLUS function" Comment="" CmdOn="WP 5492 1\n\r" CmdOff="WP 5492 0\n\r" Unit="" Analog="false" Text="false" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="Room setpoint temperature" Comment="" CmdOn="WP 5016 &lt;v.1&gt;\n\r" CmdOff="" Unit="&lt;v.1&gt; °C" Analog="true" Text="false" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+</Comm>

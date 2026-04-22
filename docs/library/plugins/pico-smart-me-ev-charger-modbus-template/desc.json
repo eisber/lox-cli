@@ -1,0 +1,9 @@
+{
+                                "type": "template",
+                                "name": "pico-smart-me-ev-charger-modbus-template",
+                                "uuid": "3ce44c9b-f4a5-11ed-bad44cd98f3deb8a",
+                                "version":"1.0.1",
+                                "id": "pico-smart-me-ev-charger-modbus-template-1225",
+                                "file": "pico-smart-me-ev-charger-modbus-template.xml",
+                                "templateType": "7",
+                            }

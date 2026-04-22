@@ -1,0 +1,257 @@
+{
+  "title": "Heating and Cooling Controller",
+  "xml_type": "ClimateController",
+  "kb_slug": "climate-controller",
+  "description": "This block controls a Heating and/or Cooling source.\nDepending on the requirements of the assigned Intelligent Room Controllers, it is decided whether the Heating or Cooling mode is active.",
+  "inputs": [
+    {
+      "abbreviation": "\u03d1o",
+      "summary": "Outdoor Temperature",
+      "description": "If this input is not connected, the System Variable \"Outdoor Temperature\" is used. If this value is not available, the value -1000 is displayed.",
+      "unit": "\u00b0",
+      "value_range": "\u221e"
+    },
+    {
+      "abbreviation": "B",
+      "summary": "Boost",
+      "description": "Activates Stage 2 immediately. When in heating mode, output (Ah) is also enabled. The name of the connected sensor is used in the user interface.",
+      "unit": "-",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "Off",
+      "summary": "Off",
+      "description": "Pulse: Outputs are reset / switched off. On: Block is locked. Dominating input. The name of the connected sensor is used in the user interface.",
+      "unit": "-",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "Ah",
+      "summary": "Additional heating",
+      "description": "Activates output (Ah) when 1. The name of the connected sensor is used in the user interface.",
+      "unit": "-",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "F",
+      "summary": "Fan",
+      "description": "Activates output (F) when 1.",
+      "unit": "-",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "Ec",
+      "summary": "Excess cooling",
+      "description": "Surplus or cheap cooling energy available In cooling mode, Intelligent Room Controllers will overcool or allow premature start of cooling.",
+      "unit": "-",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "Eh",
+      "summary": "Excess heating",
+      "description": "Surplus or cheap heating energy available. In heating mode, Intelligent Room Controllers will overheat or premature start of heating will be permitted.",
+      "unit": "-",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "Mh",
+      "summary": "Manual heating",
+      "description": "Activates Manual Heating Mode when 1. As long as (Mh) is active, the requirements of the Intelligent Room Controllers are ignored and the Heating operation is activated. e.g. For Hot Water Treatment. Minimum run times are observed.",
+      "unit": "-",
+      "value_range": "0/1"
+    }
+  ],
+  "outputs": [
+    {
+      "abbreviation": "H2",
+      "summary": "Heating stage 2",
+      "description": "Activates Stage 2 of the heating source after time (Tt2s). When Block is set to Type Heat Pump, the output is activated immediately when the outside temperature is below (\u03d1minS2). Will be deactivated again when heating is deactivated.",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "C2",
+      "summary": "Cooling stage 2",
+      "description": "Activates Stage 2 of the cooling source after time (Tt2s). Will be deactivated again, when cooling is deactivated.",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "Sv",
+      "summary": "Switching valve",
+      "description": "Controls the switching valve. 0 = Heating, 1 = Cooling. Only after the switching valve is in position (Vd), the outputs (H) / (H2) or (C) / (C2) are switched on. This output is only visible in certain configurations.",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "F",
+      "summary": "Fan",
+      "description": "Cooling: The fan starts immediately after cooling is activated and the valve movement is complete. Heating: For heat pumps, the fan starts 15 seconds after heating is activated and the valve movement is complete. For oil/gas, the fan does not operate during heating.",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "Fc",
+      "summary": "Filter change",
+      "description": "1 when (Dfc) has expired.",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "\u03d1oa",
+      "summary": "Average outdoor temperature",
+      "description": "Shows the average outdoor temperature of the last 48 hours. The calculated value is available as soon as the first 24 hours have passed! Until then, the value -1000 is displayed!",
+      "value_range": "\u221e"
+    },
+    {
+      "abbreviation": "API",
+      "summary": "API Connector",
+      "description": "Intelligent API based connector. API Commands",
+      "value_range": "-"
+    }
+  ],
+  "parameters": [
+    {
+      "abbreviation": "Mode",
+      "summary": "Mode",
+      "description": "-1 = Heating and Cooling Controller is turned off. 0 = Automatic changeover based on the Intelligent Room Controller demands. 1 = heating only if there is sufficient demand. 2 = cooling only if there is sufficient demand.",
+      "unit": "-",
+      "value_range": "-1...2",
+      "default_value": "0"
+    },
+    {
+      "abbreviation": "MinHr",
+      "summary": "Time minimum HVAC Runtime",
+      "description": "The minimum runtime must be met before switching to standby (All inputs OFF) or the opposite mode. Minimum openings of the room controllers are ensured.",
+      "unit": "min",
+      "value_range": "\u221e",
+      "default_value": "0"
+    },
+    {
+      "abbreviation": "Sot",
+      "summary": "Switch on threshold",
+      "description": "Average valve openings of the Intelligent Room Controllers must exceed (Sot) in order to start operation.",
+      "unit": "%",
+      "value_range": "0...100",
+      "default_value": "30"
+    },
+    {
+      "abbreviation": "Vd",
+      "summary": "Valve delay",
+      "description": "Time required by the switching valve (Sv) to move into position. This parameter is only visible in certain configurations.",
+      "unit": "s",
+      "value_range": "\u221e",
+      "default_value": "0"
+    },
+    {
+      "abbreviation": "Fod",
+      "summary": "Fan Overrun Duration",
+      "description": "Overrun time of the fan after the end of heating/cooling to bring the residual energy out of the system.",
+      "unit": "s",
+      "value_range": "\u221e",
+      "default_value": "120"
+    },
+    {
+      "abbreviation": "Don",
+      "summary": "Duration for On",
+      "description": "Duration for ON pulse for (MaxTp).",
+      "unit": "s",
+      "value_range": "\u221e",
+      "default_value": "750"
+    },
+    {
+      "abbreviation": "Doff",
+      "summary": "Duration for Off",
+      "description": "Duration for OFF pulse for (MaxTp).",
+      "unit": "s",
+      "value_range": "180...\u221e",
+      "default_value": "300"
+    },
+    {
+      "abbreviation": "MaxTp",
+      "summary": "Maximum threshold for pulsing",
+      "description": "Maximum threshold for pulsing based on the valve opening percentage. If the sum of the valve openings is smaller than this value, the Heating/Cooling outputs will pulse at intervals of (Don) and (Doff). 0 = Disables the timer.",
+      "unit": "%",
+      "value_range": "\u221e",
+      "default_value": "0"
+    },
+    {
+      "abbreviation": "Dfc",
+      "summary": "Days until Filter Change",
+      "description": "Specify the number of days remaining until the filter needs to be replaced. 0 = Deactivated",
+      "unit": "Days",
+      "value_range": "\u221e",
+      "default_value": "0"
+    },
+    {
+      "abbreviation": "Tt2s",
+      "summary": "Time to second stage",
+      "description": "Delay before Stage 2 is enabled after the start of a heating/cooling cycle.",
+      "unit": "min",
+      "value_range": "\u221e",
+      "default_value": "60"
+    },
+    {
+      "abbreviation": "\u03d1minS2",
+      "summary": "Minimum Temperature Stage 2",
+      "description": "If the used outdoor temperature (Parameter Otm) is below (\u03d1minS2), Stage 2 is activated immediately. This parameter is only visible in certain configurations. This parameter is only visible in certain configurations.",
+      "unit": "\u00b0",
+      "value_range": "\u221e",
+      "default_value": "-6"
+    },
+    {
+      "abbreviation": "\u03d1minHP",
+      "summary": "Minimum Temperature Heat Pump",
+      "description": "Minimum outdoor temperature required to operate the heat pump. If the outdoor temperature (\u03d1o) falls below this value, only the auxiliary heating (Ah) is activated in heating mode, the outputs (H) / (H2) remain off. This parameter is only visible in certain configurations.",
+      "unit": "\u00b0",
+      "value_range": "\u221e",
+      "default_value": "-22"
+    },
+    {
+      "abbreviation": "Otm",
+      "summary": "Outdoor Temperature Mode",
+      "description": "0 = Disabled (\u03d1LimH and \u03d1LimC not used) 1 = Average Outdoor Temperature of the past 48h 2 = Value of the System Variable 'Expected Average Outdoor Temperature 48h' 3 = Current Outdoor Temperature If enabled, the average outdoor temperature of the last 48h, next 48h or the current temperature is used to select heating/cooling mode according to (\u03d1LimH) and (\u03d1LimC). If the value is not available, this parameter has no effect.",
+      "unit": "-",
+      "value_range": "0...3",
+      "default_value": "2"
+    },
+    {
+      "abbreviation": "\u03d1LimH",
+      "summary": "Temperature Limit Heating",
+      "description": "If the used outdoor temperature (Parameter Otm) is above (\u03d1LimH), the system will not switch to heating mode, even if there is a demand.",
+      "unit": "\u00b0",
+      "value_range": "\u221e",
+      "default_value": "18"
+    },
+    {
+      "abbreviation": "\u03d1LimC",
+      "summary": "Temperature Limit Cooling",
+      "description": "If the used outdoor temperature (Parameter Otm) is below (\u03d1LimC), the system will not switch to cooling mode, even if there is a demand.",
+      "unit": "\u00b0",
+      "value_range": "\u221e",
+      "default_value": "15"
+    }
+  ],
+  "properties": [
+    {
+      "summary": "Assign room controllers",
+      "description": "Add or remove the Climate Controller as a source for individual Intelligent Room Controllers. Further settings (Priority, PWM, etc.) can be made in the configuration dialog of each Intelligent Room Controller.",
+      "default_value": "-"
+    },
+    {
+      "summary": "Heating Type",
+      "description": "Type of the heat source",
+      "default_value": "-"
+    },
+    {
+      "summary": "Energy Costs(Heating)",
+      "description": "Costs for running this source. Sources that have been configured to be 'Expensive' will only be requested by room controllers if no sources with higher priorities are available.",
+      "default_value": "-"
+    },
+    {
+      "summary": "Energy Costs(Cooling)",
+      "description": "Costs for running this source. Sources that have been configured to be 'Expensive' will only be requested by room controllers if no sources with higher priorities are available.",
+      "default_value": "-"
+    }
+  ],
+  "source_url": "https://www.loxone.com/enen/kb/climate-controller/",
+  "input_count": 8,
+  "output_count": 7,
+  "parameter_count": 15,
+  "property_count": 4
+}

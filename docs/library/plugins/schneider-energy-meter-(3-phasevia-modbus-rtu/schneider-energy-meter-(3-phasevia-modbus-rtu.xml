@@ -1,0 +1,28 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Modbus Title="SE Energy Meter 3phase (Modbus RTU)" Comment="Schneider Electric Energy Meter 3ph." Baudrate="19200" Parity="1" Channel="12">
+	<Info templateType="7" minVersion="12021201"/>
+	<ModbusCmd Title="Product Identification" Comment="" ModbusAddress="89" ModbusCmd="3" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v.0&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Current A" Comment="" ModbusAddress="2999" ModbusCmd="3" ModbusDataType="36" ModbusPollingCycle="10" Unit="&lt;v.3&gt; A" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Current B" Comment="" ModbusAddress="3001" ModbusCmd="3" ModbusDataType="36" ModbusPollingCycle="10" Unit="&lt;v.3&gt; A" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Current C" Comment="" ModbusAddress="3003" ModbusCmd="3" ModbusDataType="36" ModbusPollingCycle="10" Unit="&lt;v.3&gt; A" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Current N" Comment="" ModbusAddress="3005" ModbusCmd="3" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.3&gt; A" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Voltage A-B" Comment="" ModbusAddress="3019" ModbusCmd="3" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.2&gt; V" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Voltage B-C" Comment="" ModbusAddress="3021" ModbusCmd="3" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.2&gt; V" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Voltage C-A" Comment="" ModbusAddress="3023" ModbusCmd="3" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.2&gt; V" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Voltage A-N" Comment="" ModbusAddress="3027" ModbusCmd="3" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.2&gt; V" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Voltage B-N" Comment="" ModbusAddress="3029" ModbusCmd="3" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.2&gt; V" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Voltage C-N" Comment="" ModbusAddress="3031" ModbusCmd="3" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.2&gt; V" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Active Power A" Comment="" ModbusAddress="3053" ModbusCmd="3" ModbusDataType="36" ModbusPollingCycle="10" Unit="&lt;v.3&gt; kW" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Active Power B" Comment="" ModbusAddress="3055" ModbusCmd="3" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.3&gt; kW" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Active Power C" Comment="" ModbusAddress="3057" ModbusCmd="3" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.3&gt; kW" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Active Power" Comment="" ModbusAddress="3059" ModbusCmd="3" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.3&gt; W" Analog="true" Sensor="true" SourceValHigh="1" DestValHigh="1000"/>
+	<ModbusCmd Title="Reactive Power" Comment="" ModbusAddress="3067" ModbusCmd="3" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.3&gt; VAR" Analog="true" Sensor="true" SourceValHigh="1" DestValHigh="1000"/>
+	<ModbusCmd Title="Apparent Power" Comment="" ModbusAddress="3075" ModbusCmd="3" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.3&gt; Va" Analog="true" Sensor="true" SourceValHigh="1" DestValHigh="1000"/>
+	<ModbusCmd Title="Frequency" Comment="" ModbusAddress="3109" ModbusCmd="3" ModbusDataType="36" ModbusPollingCycle="5" Unit="&lt;v.3&gt; Hz" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Energy Active Total Import" Comment="" ModbusAddress="20272" ModbusCmd="3" ModbusDataType="36" ModbusPollingCycle="10" Unit="&lt;v.3&gt; kWh" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="1"/>
+	<ModbusCmd Title="Energy Active Total Export" Comment="" ModbusAddress="20270" ModbusCmd="3" ModbusDataType="36" ModbusPollingCycle="10" Unit="&lt;v.3&gt; kWh" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="1"/>
+	<ModbusCmd Title="Energy Reactive Total Import" Comment="" ModbusAddress="20276" ModbusCmd="3" ModbusDataType="36" ModbusPollingCycle="10" Unit="&lt;v.2&gt; kVARh" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="1"/>
+	<ModbusCmd Title="Energy Reactive Total Export" Comment="" ModbusAddress="20274" ModbusCmd="3" ModbusDataType="36" ModbusPollingCycle="10" Unit="&lt;v.2&gt; kVARh" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="1"/>
+	<ModbusCmd Title="Energy Apparent Total Export" Comment="" ModbusAddress="2715" ModbusCmd="3" ModbusDataType="36" ModbusPollingCycle="5" Unit="&lt;v.3&gt; kVAh" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Energy Apparent Total Import" Comment="" ModbusAddress="3717" ModbusCmd="3" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.3&gt; kVAh" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="1"/>
+</Modbus>

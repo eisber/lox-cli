@@ -1,0 +1,33 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Modbus Title="Solis S5-EH1P6K-L" Comment="" HintText="" Channel="1">
+	<Info templateType="7" minVersion="15031213"/>
+	<ModbusCmd Title="GRID Frequency" Comment="" HintText="" ModbusAddress="33094" ModbusCmd="4" ModbusPollingCycle="60" Unit="&lt;v.1&gt; Hz" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="1"/>
+	<ModbusCmd Title="DC Total output power" Comment="" HintText="" ModbusAddress="33057" ModbusCmd="4" ModbusDataType="98" ModbusPollingCycle="5" Unit="&lt;v.3&gt; kW" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="1"/>
+	<ModbusCmd Title="SOLAR 1 Voltage" Comment="" HintText="" ModbusAddress="33049" ModbusCmd="4" ModbusPollingCycle="60" Unit="&lt;v.1&gt; V" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="DC 1 Current" Comment="" HintText="" ModbusAddress="33050" ModbusCmd="4" ModbusPollingCycle="60" Unit="&lt;v.1&gt; A" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="SOLAR 2 Voltage" Comment="" HintText="" ModbusAddress="33051" ModbusCmd="4" ModbusPollingCycle="60" Unit="&lt;v.1&gt; V" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="DC 2 Current" Comment="" HintText="" ModbusAddress="33052" ModbusCmd="4" ModbusPollingCycle="60" Unit="&lt;v.1&gt; A" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="Inverter temperature" Comment="" HintText="" ModbusAddress="33093" ModbusCmd="4" ModbusPollingCycle="10" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="Battery voltage" Comment="" HintText="10&lt;--&gt;1V" ModbusAddress="33133" ModbusCmd="4" ModbusPollingCycle="300" Unit="&lt;v.1&gt;V" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="Battery Current" Comment="" HintText="10&lt;--&gt;1A
++：charge
+-：discharge" ModbusAddress="33134" ModbusCmd="4" ModbusPollingCycle="300" Unit="&lt;v.1&gt;A" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Battery current direction" Comment="" HintText="Indicate charge/discharge
+0：charge
+1：discharge" ModbusAddress="33135" ModbusCmd="4" ModbusPollingCycle="2" Unit="&lt;v&gt;： 0-charge： 1-discharge" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Backup AC voltage (Phase A)" Comment="" HintText="10&lt;--&gt;1V" ModbusAddress="33137" ModbusCmd="4" ModbusPollingCycle="30" Unit="&lt;v.1&gt; V" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="Backup AC current (Phase A)" Comment="" HintText="10&lt;--&gt;1A" ModbusAddress="33138" ModbusCmd="4" ModbusPollingCycle="2" Unit="&lt;v.1&gt; A" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="Battery capacity SOC" Comment="" HintText="100&lt;--&gt;100%" ModbusAddress="33139" ModbusCmd="4" ModbusPollingCycle="10" Unit="&lt;v&gt;%" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Battery health SOH" Comment="" HintText="100&lt;--&gt;100%" ModbusAddress="33140" ModbusCmd="4" ModbusPollingCycle="300" Unit="&lt;v&gt;%" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Household load" Comment="" HintText="1&lt;--&gt;1W" ModbusAddress="33147" ModbusCmd="4" ModbusPollingCycle="2" Unit="&lt;v.1&gt;W" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Backup load" Comment="" HintText="" ModbusAddress="33148" ModbusCmd="4" ModbusPollingCycle="2" Unit="&lt;v&gt; W" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Battery Power" Comment="" HintText="1 &lt;--&gt; 1W" ModbusAddress="33149" ModbusCmd="4" ModbusDataType="35" ModbusPollingCycle="2" Unit="&lt;v.1&gt;W" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Battery total charge energy" Comment="" HintText="1&lt;--&gt;1kWh" ModbusAddress="33161" ModbusCmd="4" ModbusDataType="34" ModbusPollingCycle="300" Unit="&lt;v.1&gt; kWh" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Total energy generation" Comment="" HintText="" ModbusAddress="33029" ModbusCmd="4" ModbusDataType="98" ModbusPollingCycle="300" Unit="&lt;v&gt; mWh" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="GRID - Meter Active Power" Comment="" HintText="" ModbusAddress="33130" ModbusCmd="4" ModbusDataType="35" ModbusPollingCycle="2" Unit="&lt;v&gt;W" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Meter Total active energiy to grid" Comment="" HintText="" ModbusAddress="33285" ModbusCmd="4" ModbusDataType="35" ModbusPollingCycle="300" Unit="&lt;v&gt; MW" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="PV PRODUKTION" Comment="" HintText="" ModbusAddress="33057" ModbusCmd="4" ModbusDataType="35" ModbusPollingCycle="2" Unit="&lt;v.1&gt;W" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="GRID Volt" Comment="" HintText="" ModbusAddress="33073" ModbusCmd="4" ModbusDataType="1" ModbusPollingCycle="5" Unit="&lt;v.1&gt; V" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="GRID Current" Comment="" HintText="" ModbusAddress="33252" ModbusCmd="4" ModbusDataType="1" ModbusPollingCycle="2" Unit="&lt;v.1&gt; A" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="1"/>
+	<ModbusCmd Title="Inverter Current" Comment="" HintText="" ModbusAddress="33905" ModbusCmd="4" ModbusPollingCycle="2" Unit="&lt;v.1&gt; A" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+</Modbus>

@@ -1,0 +1,9 @@
+{
+                                "type": "template",
+                                "name": "socomec-countis-e28-active-energy-meters-three-phase-direct-80-a-modbus-tcp-mid",
+                                "uuid": "fe59aad5-1ad6-11ec-9a744cd98f3deb8a",
+                                "version":"1.0.0",
+                                "id": "socomec-countis-e28-active-energy-meters-three-phase-direct-80-a-modbus-tcp-mid-251",
+                                "file": "socomec-countis-e28-active-energy-meters-three-phase-direct-80-a-modbus-tcp-mid.xml",
+                                "templateType": "7",
+                            }

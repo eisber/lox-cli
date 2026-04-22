@@ -1,0 +1,55 @@
+{
+  "title": "Wind Gauge",
+  "xml_type": "",
+  "kb_slug": "wind-gauge",
+  "description": "With the function block Wind Gauge, the frequency input from a wind speed sensor can be converted to a wind speed value\nPlease note that only inputs with frequency counter functionality can be used.\nIf the wind sensor is connected to a Digital Input of the Multi Extension Air, the wind speed is transmitted every minute. As a result, the value for calculation must be divided by 60!",
+  "inputs": [
+    {
+      "abbreviation": "F",
+      "summary": "Frequency",
+      "value_range": "\u221e"
+    }
+  ],
+  "outputs": [
+    {
+      "abbreviation": "Avg",
+      "summary": "Average wind speed",
+      "unit": "km/h",
+      "value_range": "0...\u221e"
+    },
+    {
+      "abbreviation": "G",
+      "summary": "3 second average for gusts",
+      "unit": "km/h",
+      "value_range": "0...\u221e"
+    },
+    {
+      "abbreviation": "AvgMax",
+      "summary": "Maximum wind speed in the averaging period",
+      "unit": "km/h",
+      "value_range": "0...\u221e"
+    },
+    {
+      "abbreviation": "Wa",
+      "summary": "Wind alarm",
+      "unit": "-",
+      "value_range": "0/1"
+    }
+  ],
+  "parameters": [
+    {
+      "abbreviation": "F",
+      "summary": "Factor",
+      "description": "Conversion coefficient Hz to km/h resp. m/s or other units as stated on datasheet",
+      "unit": "-",
+      "value_range": "\u221e",
+      "default_value": "1"
+    }
+  ],
+  "properties": [],
+  "source_url": "https://www.loxone.com/enen/kb/wind-gauge/",
+  "input_count": 1,
+  "output_count": 4,
+  "parameter_count": 1,
+  "property_count": 0
+}

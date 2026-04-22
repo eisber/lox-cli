@@ -1,0 +1,57 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Modbus Title="Xvent" Comment="" Baudrate="19200" Parity="1" Channel="1">
+	<Info templateType="7" minVersion="13000726"/>
+	<ModbusCmd Title="FW version" Comment="" ModbusAddress="30000" ModbusCmd="4" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="act_state 1" Comment="" ModbusAddress="30001" ModbusCmd="4" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="act_state 2" Comment="" ModbusAddress="30002" ModbusCmd="4" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="act_state 3" Comment="" ModbusAddress="30003" ModbusCmd="4" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="AQS_state" Comment="" ModbusAddress="30004" ModbusCmd="4" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="AQS_state.fan_flow" Comment="" ModbusAddress="30005" ModbusCmd="4" ModbusPollingCycle="60" Unit="&lt;v&gt; m³/h" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="10"/>
+	<ModbusCmd Title="set_FAN_FLOW" Comment="" ModbusAddress="30006" ModbusCmd="4" ModbusPollingCycle="60" Unit="&lt;v&gt; m³/h" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="10"/>
+	<ModbusCmd Title="act_PID.prop" Comment="" ModbusAddress="30007" ModbusCmd="4" ModbusDataType="1" ModbusPollingCycle="60" Unit="&lt;v&gt; mV" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="act_PID.integ" Comment="" ModbusAddress="30008" ModbusCmd="4" ModbusPollingCycle="60" Unit="&lt;v&gt; mV" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="act_PID.der" Comment="" ModbusAddress="30009" ModbusCmd="4" ModbusDataType="1" ModbusPollingCycle="60" Unit="&lt;v&gt; mV" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="act_PID.result" Comment="" ModbusAddress="30010" ModbusCmd="4" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="set_FAN_SPEED" Comment="" ModbusAddress="30011" ModbusCmd="4" ModbusPollingCycle="60" Unit="&lt;v&gt; V" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="10"/>
+	<ModbusCmd Title="set_T_ROOM" Comment="" ModbusAddress="30012" ModbusCmd="4" ModbusDataType="1" ModbusPollingCycle="60" Unit="&lt;v&gt; °C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="10"/>
+	<ModbusCmd Title="act_CO2" Comment="" ModbusAddress="30013" ModbusCmd="4" ModbusPollingCycle="60" Unit="&lt;v&gt; ppm" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="act_RH" Comment="" ModbusAddress="30014" ModbusCmd="4" ModbusPollingCycle="60" Unit="&lt;v&gt; %RH" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="10"/>
+	<ModbusCmd Title="act_Flow" Comment="" ModbusAddress="30015" ModbusCmd="4" ModbusPollingCycle="60" Unit="&lt;v&gt; m³/h" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="10"/>
+	<ModbusCmd Title="act_T_ROOM" Comment="" ModbusAddress="30016" ModbusCmd="4" ModbusDataType="1" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="act_T_EXHAUST" Comment="" ModbusAddress="30017" ModbusCmd="4" ModbusDataType="1" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="FAN1.act_AO" Comment="" ModbusAddress="30018" ModbusCmd="4" ModbusPollingCycle="60" Unit="&lt;v&gt; V" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="10"/>
+	<ModbusCmd Title="FAN1.act_tacho" Comment="" ModbusAddress="30019" ModbusCmd="4" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="FAN2.act_AO" Comment="" ModbusAddress="30020" ModbusCmd="4" ModbusPollingCycle="60" Unit="&lt;v&gt; V" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="10"/>
+	<ModbusCmd Title="FAN2.act_tacho" Comment="" ModbusAddress="30021" ModbusCmd="4" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="timer.act_cool_preheat" Comment="" ModbusAddress="30022" ModbusCmd="4" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="timer.act_cool_postheat" Comment="" ModbusAddress="30023" ModbusCmd="4" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="timer.act_summer_mode" Comment="" ModbusAddress="30024" ModbusCmd="4" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="timer.act_boost_mode" Comment="" ModbusAddress="30025" ModbusCmd="4" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="timers_1" Comment="" ModbusAddress="30026" ModbusCmd="4" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="timers_2" Comment="" ModbusAddress="30027" ModbusCmd="4" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="act_FILTER_ELAPSED_TIME" Comment="" ModbusAddress="30028" ModbusCmd="4" ModbusPollingCycle="60" Unit="&lt;v&gt; h" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="act_ui_timer" Comment="" ModbusAddress="30029" ModbusCmd="4" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="act_preheat_timer High" Comment="" ModbusAddress="30030" ModbusCmd="4" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="act_preheat_timer Low" Comment="" ModbusAddress="30031" ModbusCmd="4" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="act_startup_timer" Comment="" ModbusAddress="30032" ModbusCmd="4" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="rele" Comment="" ModbusAddress="30033" ModbusCmd="4" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="front panel" Comment="" ModbusAddress="40000" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="set_CO2" Comment="" ModbusAddress="40001" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="set_RH" Comment="" ModbusAddress="40002" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="bits" Comment="" ModbusAddress="40016" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="corr_T_ROOM" Comment="" ModbusAddress="40017" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="set_BOOST_MODE_DURATION" Comment="" ModbusAddress="40021" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="set_FILTER_LIFETIME" Comment="" ModbusAddress="40023" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="1" DestValHigh="3600"/>
+	<ModbusCmd Title="set_SUMMER_MODE_DURATION" Comment="" ModbusAddress="40018" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="front panel" Comment="" ModbusAddress="40000" ModbusCmd="16" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="set_BOOST_MODE_DURATION" Comment="" ModbusAddress="40021" ModbusCmd="16" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="set_SUMMER_MODE_DURATION" Comment="" ModbusAddress="40018" ModbusCmd="16" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="set_CO2" Comment="" ModbusAddress="40001" ModbusCmd="16" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="set_RH" Comment="" ModbusAddress="40002" ModbusCmd="16" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="bits" Comment="" ModbusAddress="40016" ModbusCmd="16" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="corr_T_ROOM" Comment="" ModbusAddress="40017" ModbusCmd="16" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="set_BOOST_MODE_FAN_SPEED" Comment="" ModbusAddress="40019" ModbusCmd="16" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="set_BOOST_MODE_FAN_FLOW" Comment="" ModbusAddress="40020" ModbusCmd="16" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="set_FAN_OFFSET_STATIC" Comment="" ModbusAddress="40022" ModbusCmd="16" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="set_FILTER_LIFETIME" Comment="" ModbusAddress="40023" ModbusCmd="16" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10"/>
+</Modbus>

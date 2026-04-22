@@ -1,0 +1,40 @@
+{
+  "title": "Status",
+  "xml_type": "",
+  "kb_slug": "status",
+  "description": "You can use this function block to show user-defined status texts and symbols in the User Interface\nIn addition, this can be used for decision logic.\nDouble-click on the program block to open the editing window.",
+  "inputs": [],
+  "outputs": [
+    {
+      "abbreviation": "Txt",
+      "summary": "Current status text",
+      "description": "The current status text resulting from the conditions specified in the editing window of the block.",
+      "value_range": "-"
+    },
+    {
+      "abbreviation": "Val",
+      "summary": "Current status value",
+      "description": "The current status value resulting from the conditions specified in the editing window of the block.",
+      "value_range": "\u221e"
+    },
+    {
+      "abbreviation": "API",
+      "summary": "API Connector",
+      "description": "Intelligent API based connector. API Commands",
+      "value_range": "-"
+    }
+  ],
+  "parameters": [],
+  "properties": [
+    {
+      "summary": "Status",
+      "description": "Status-text",
+      "default_value": "-"
+    }
+  ],
+  "source_url": "https://www.loxone.com/enen/kb/status/",
+  "input_count": 0,
+  "output_count": 3,
+  "parameter_count": 0,
+  "property_count": 1
+}

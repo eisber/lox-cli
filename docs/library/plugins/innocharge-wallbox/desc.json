@@ -1,0 +1,9 @@
+{
+                                "type": "template",
+                                "name": "innocharge-wallbox",
+                                "uuid": "734c802d-61b3-11ec-8aa04cd98f3deb8a",
+                                "version":"1.0.0",
+                                "id": "innocharge-wallbox-701",
+                                "file": "innocharge-wallbox.xml",
+                                "templateType": "7",
+                            }

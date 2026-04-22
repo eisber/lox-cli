@@ -1,0 +1,21 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Modbus Title="Systemair Save VTR500L" Comment="HVAC" Baudrate="19200" Parity="1" Channel="3">
+  <Info templateType="7" minVersion="12021105" />
+  <ModbusCmd Title="REG_USERMODE_MODE" Comment="Active User Mode" ModbusAddress="1160" ModbusCmd="4" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="1" DestValHigh="1" />
+  <ModbusCmd Title="REG_SENSOR_SAT" Comment="Supply Air Temperature" ModbusAddress="12102" ModbusCmd="4" ModbusDataType="1" ModbusPollingCycle="60" Unit="&lt;v.1&gt;°" Analog="true" Sensor="true" SourceValHigh="1" DestValHigh="0.1" />
+  <ModbusCmd Title="REG_SENSOR_RHS_PDM" Comment="PDM RHS sensor value" ModbusAddress="12135" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="60" Unit="&lt;v.1&gt;%" Analog="true" Sensor="true" SourceValHigh="1" DestValHigh="1" />
+  <ModbusCmd Title="REG_SENSOR_PDM_EAT_VALUE" Comment="Extract air temperature sensor" ModbusAddress="12543" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="60" Unit="&lt;v.1&gt;°" Analog="true" Sensor="true" SourceValHigh="1" DestValHigh="0.1" />
+  <ModbusCmd Title="REG_OUTPUT_SAF" Comment="SAF fan speed" ModbusAddress="12400" ModbusCmd="4" ModbusPollingCycle="20" Unit="&lt;v.1&gt; o/min" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10" />
+  <ModbusCmd Title="REG_OUTPUT_EAF" Comment="EAF fan speed" ModbusAddress="12401" ModbusCmd="4" ModbusPollingCycle="20" Unit="&lt;v.1&gt; o/min" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10" />
+  <ModbusCmd Title="REG_OUTPUT_ALARM" Comment="REG_OUTPUT_ALARM" ModbusAddress="14002" ModbusCmd="4" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="1" DestValHigh="1" />
+  <ModbusCmd Title="REG_SENSOR_OAT" Comment="Outdoor Air Temperature" ModbusAddress="12101" ModbusCmd="4" ModbusDataType="1" ModbusPollingCycle="60" Unit="&lt;v.1&gt;°" Analog="true" Sensor="true" SourceValHigh="1" DestValHigh="0.1" />
+  <ModbusCmd Title="REG_HEAT_EXCHANGER_FROM_SATC" Comment="Heat exchanger" ModbusAddress="2140" ModbusCmd="4" ModbusPollingCycle="60" Unit="&lt;v.1&gt; %" Analog="true" Sensor="true" SourceValHigh="1" DestValHigh="1" />
+  <ModbusCmd Title="REG_OUTPUT_Y2_ANALOG" Comment="Heat exchanger effect" ModbusAddress="14102" ModbusCmd="4" ModbusPollingCycle="60" Unit="&lt;v.1&gt;W" Analog="true" Sensor="true" SourceValHigh="1" DestValHigh="16.7" />
+  <ModbusCmd Title="REG_OUTPUT_Y2_DIGITAL" Comment="Heat Exchanger DO state" ModbusAddress="14103" ModbusCmd="4" ModbusPollingCycle="60" Unit="&lt;v.1&gt; " Analog="true" Sensor="true" SourceValHigh="1" DestValHigh="1" />
+  <ModbusCmd Title="REG_FILTER_REMAINING_TIME" Comment="low" ModbusAddress="7004" ModbusCmd="4" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="1" DestValHigh="1" />
+  <ModbusCmd Title="REG_FILTER_REMAINING_TIME" Comment="high" ModbusAddress="7005" ModbusCmd="4" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="1" DestValHigh="1" />
+  <ModbusCmd Title="REG_TC_SP" Comment="Temperature setpoint for the supply air" ModbusAddress="2000" ModbusCmd="6" ModbusDataType="1" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValLow="12" SourceValHigh="30" DestValLow="120" DestValHigh="300"></ModbusCmd>
+  <ModbusCmd Title="REG_USERMODE_HMI_CHANGE_REQUEST" Comment="Changing of active user mode" ModbusAddress="1161" ModbusCmd="6" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10" />
+  <ModbusCmd Title="REG_USERMODE_MANUAL_AIRFLOW_ LEVEL_SAF" Comment="Fan speed level for mode Manuel, supply fan" ModbusAddress="1130" ModbusCmd="6" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10" />
+  <ModbusCmd Title="REG_USERMODE_MANUAL_AIRFLOW_ LEVEL_EAF" Comment="Fan speed level for mode Manuel, extract fan" ModbusAddress="1131" ModbusCmd="6" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10" />
+</Modbus>

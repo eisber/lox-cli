@@ -1,0 +1,190 @@
+╔════════════════════════════════════════════════════════════════════════════╗
+║                    HVAC LOXONE CONFIG ANALYSIS SUMMARY                    ║
+║                          1,416 Blocks | 161 Types                         ║
+╚════════════════════════════════════════════════════════════════════════════╝
+
+┌─ CRITICAL FINDINGS ─────────────────────────────────────────────────────────┐
+
+1. COMPLETE ARCHITECTURE MAPPED:
+   ✓ 14 Intelligent Room Controllers (HeatIRoomController2)
+   ✓ 9 Flow Temperature Calculators (Heatmixer2)
+   ✓ 41 Rooms/Zones (Place blocks)
+   ✓ 174 Sensor Inputs (InputRef)
+   ✓ 35 Actuator Outputs (OutputRef)
+   ✓ 63 State Memory Blocks
+   ✓ 9 Safety State Machines
+   ✓ 9 Minmax aggregators
+   ✓ 7 OnDelay timers
+   ✓ 6 AnalogMultiplexer routers
+
+2. EVALUATION COVERAGE GAP:
+   ✓ Currently supported: ~400 blocks (28%)
+   ✗ Not supported: ~1000 blocks (72%)
+   
+   Most critical gap:
+   - HeatIRoomController2 (14 blocks) - NOT in connector-map
+   - Heatmixer2 (9 blocks) - NOT in connector-map
+   - Memory (63 blocks) - NOT in connector-map
+   - TreeSensor (158 blocks) - NOT in connector-map
+   - TreeAsensor (88 blocks) - NOT in connector-map
+
+3. HVAC-UNIQUE PATTERNS NOT IN OUR EVAL SET:
+   
+   a) Proportional Flow Temperature Mixing
+      "Use weather temperature to calculate required boiler outlet temp"
+      → Requires Heatmixer2 support
+   
+   b) Multi-Circuit Separation with Different Limits
+      • Radiators: 5-55°C
+      • Floor heating: 5-40°C  
+      • Fancoils: 5-70°C
+      → Requires multiple independent Heatmixer2 blocks
+   
+   c) Per-Room Intelligent Control with 4 Setpoints
+      • Heating comfort: 18-22.5°C (varies by room)
+      • Cooling comfort: 20-24.5°C (varies by room)
+      • HC hybrid: 22°C
+      • Emergency save: -2°C from comfort
+      → Requires HeatIRoomController2 support
+   
+   d) State Machines for Safety Systems
+      • 4 CO sensors (2 zones × 2 sensor pairs)
+      • DHW tank temperature monitor
+      • Fan speed limiters (3 independent)
+      → State machines with internal state tracking
+   
+   e) Dew Point Condensation Prevention
+      • Room-specific dew point calculation
+      • Automatic ventilation trigger
+      • Memory persistence across restarts
+      → Requires per-room dew point tracking
+   
+   f) Thermal Disinfection Cycles
+      • Weekly boost to 60°C for legionella prevention
+      • Scheduled via calendar
+      • Automatic duration limiting
+      → Requires calendar scheduling + state persistence
+
+4. NEW DEVICE TYPES SEEN IN REAL HVAC SYSTEMS:
+   - Lox1wireDevice (13) - 1-wire bus sensors
+   - Lox1wireAsensor (13) - 1-wire temperature probes
+   - LoxAIR ecosystem (33 blocks) - dedicated air quality system
+   - ModbusASensor (25) - industrial Modbus integration
+   - WeatherData (11) - weather service integration
+   - HVACController (4) - generic HVAC control
+   - Ventilation (2) - ventilation-specific control
+
+5. SIGNAL FLOW ARCHITECTURE:
+   
+   Sensors (174 InputRef) → Minmax Aggregators (9) → Logic (Memory/State) 
+     ↓
+   Heatmixer2 (9) → Flow Temp Calculation (proportional)
+     ↓
+   HeatIRoomController2 (14) → Room-specific setpoint selection
+     ↓
+   Actuators (35 OutputRef) → Pumps/Valves/Dampers
+
+6. HOMEOWNER UTTERANCE EXAMPLES NOT YET SUPPORTED:
+
+   "Adjust the heating system so radiators get hotter water in winter 
+    and cooler water in summer, with floor heating staying moderate 
+    all year based on outside temperature."
+   → Requires Heatmixer2 proportional mixing
+
+   "Set the living room to 22 degrees for heating but 24 degrees for 
+    cooling, with a 1.5 degree swing. Drop it to 20 on save mode."
+   → Requires HeatIRoomController2 with multi-mode setpoints
+
+   "If the CO2 level gets too high during the day, turn on ventilation 
+    automatically. Track this separately for morning/evening modes."
+   → Requires State machine + Memory + Minmax aggregation
+
+   "Watch the humidity in the bedroom and prevent condensation by 
+    activating dehumidification when dew point is reached."
+   → Requires dew point calculation + room-specific thresholds
+
+   "Warm up the house 20 minutes before we arrive home by checking 
+    the outside temperature and pre-heating the buffer tank."
+   → Requires calendar scheduling + Heatmixer2 + weather integration
+
+   "Boost the hot water heating to maximum for 15 minutes when someone 
+    requests a hot bath, then return to normal."
+   → Requires state persistence + OnDelay timing + OutputRef override
+
+7. BLOCK TYPE DISTRIBUTION:
+
+   Top 10 categories by count:
+   1. InputRef (174) - Sensor inputs
+   2. TreeSensor (158) - Device tree sensors
+   3. TreeAsensor (88) - Analog tree sensors
+   4. RightGroup (87) - UI organization
+   5. CallerVirtualIn (70) - Event routing
+   6. Memory (63) - State persistence ← KEY MISSING
+   7. Online (51) - Status tracking
+   8. Category (46) - Logical grouping
+   9. Text (44) - UI labels
+   10. Place (41) - Room abstraction
+
+   HVAC-Specific:
+   - HeatIRoomController2: 14 (missing)
+   - Heatmixer2: 9 (missing)
+   - State: 9 (missing)
+   - Minmax: 9 (missing)
+   - AnalogMultiplexer2: 6 (missing)
+   - OnDelay: 7 (missing)
+
+8. ROOMS/ZONES (41 TOTAL):
+
+   Single rooms: Attic, Bar, Bathroom, Bedroom, Central, Conference Room,
+   Conservatory, Dining Room, Dressing Room, Fancoils, Garage, Garage
+   ventilation, Garden, Gym, Hall, Ironing Room, Kitchen, Landing, Laundry
+   Room, Living Room, Measurement, Mechanical Room, Mud Room, Not Assigned,
+   Nursery, Outside, Patio, Playroom, Pool, Porch, Powder Room, Sauna,
+   Server Room, Stairwell, Storage Cellar, Study, Typical application 1,
+   Typical application 2, Ventilation 1, Ventilation 2, Washing Area
+
+9. MEMORY BLOCK PURPOSES (63 TOTAL):
+
+   HVAC Control (23):
+   Boost (2), Circulation pump, Circulation pump cooling, Circulation pump
+   heating, Cooling demand, DHW demand (4), Fan speed (5), Heating demand
+   (2), HRV mode, On-demand circulation, Ventilation demand (2)
+
+   Comfort/Occupancy (8):
+   Arriving at Home, Evacuate Garage, Good Morning, Good night Master
+   Bedroom, Goodnight, Leaving House, Leaving House Mud Room
+
+   Safety/Critical (10):
+   1st/2nd floor CO critical/warning (4), Presence, Room Controller Reset,
+   Temp sensor error, Temperature setpoint (2), Value out of range
+
+   Environmental (13):
+   CO2 zoning (2), Dew point tracking (3), Humidity OK, Room-specific
+   leaving triggers (5), Thermal disinfection status
+
+└─────────────────────────────────────────────────────────────────────────────┘
+
+RECOMMENDATION: 
+============
+
+To meaningfully evaluate HVAC automation utterances, add support for:
+
+Priority 1 (HVAC-Critical):
+  □ HeatIRoomController2 - intelligent room control with mode switching
+  □ Heatmixer2 - proportional flow temperature calculation
+  □ Memory - state persistence backbone
+  □ State - finite state machines for safety systems
+
+Priority 2 (Automation Backbone):
+  □ Place/Room abstraction
+  □ Minmax aggregation
+  □ AnalogMultiplexer2 - signal selection
+  □ OnDelay - timer-based delays
+
+Priority 3 (Integration):
+  □ TreeDevice/TreeSensor - device tree representation
+  □ WeatherData - external weather integration
+  □ CallerVirtualIn - event/mode routing
+  □ OutputRef - actuator mapping
+
+Full analysis saved to: /home/amy/src/lox/HVAC_ANALYSIS.md

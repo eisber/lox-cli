@@ -1,0 +1,9 @@
+{
+                                "type": "template",
+                                "name": "hager-ecr310d-power-counter",
+                                "uuid": "873d4200-43c9-11ec-a3784cd98f3deb8a",
+                                "version":"1.0.2",
+                                "id": "hager-ecr310d-power-counter-506",
+                                "file": "hager-ecr310d-power-counter.xml",
+                                "templateType": "7",
+                            }

@@ -1,0 +1,7 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Modbus Title="SMA Österreichs Energie" Comment="" HintText="" Channel="1">
+	<Info templateType="7" minVersion="15010820"/>
+	<ModbusCmd Title="TotWhExp1" Comment="" HintText="" ModbusAddress="108" ModbusCmd="3" ModbusDataType="64" ModbusPollingCycle="300" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="TotWhImp1" Comment="" HintText="" ModbusAddress="116" ModbusCmd="3" ModbusDataType="96" ModbusPollingCycle="300" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="WattNetz1" Comment="" HintText="" ModbusAddress="88" ModbusCmd="3" ModbusDataType="64" ModbusPollingCycle="300" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="1"/>
+</Modbus>

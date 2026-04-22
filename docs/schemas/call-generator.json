@@ -1,0 +1,80 @@
+{
+  "title": "Call Generator",
+  "xml_type": "",
+  "kb_slug": "call-generator",
+  "description": "Calls a number on rising edge. Message and phone number can be customized with placeholders (e.g. <v1>, <user.phone>, <sysvar.rain>, etc). Double-click on the logic block to open the text editor where you can edit the message that will be played during the call. The function block also contains optional pulse outputs when key presses 0-9 are detected",
+  "inputs": [
+    {
+      "abbreviation": "Tr",
+      "summary": "Triggers output",
+      "description": "Calls a phone number on rising edge.",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "V1-8",
+      "summary": "Value 1-8",
+      "description": "Input values can be used in the message and in the phone number property field",
+      "value_range": "-"
+    },
+    {
+      "abbreviation": "Uid",
+      "summary": "User-ID",
+      "description": "User-ID. If set before being triggered, the user fields of the corresponding user can be used.",
+      "value_range": "-"
+    }
+  ],
+  "outputs": [
+    {
+      "abbreviation": "Dk0-9",
+      "summary": "Dial key 0-9",
+      "description": "Pulses on key press during the call",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "API",
+      "summary": "API Connector",
+      "description": "Intelligent API based connector. API Commands",
+      "value_range": "-"
+    }
+  ],
+  "parameters": [
+    {
+      "abbreviation": "Td",
+      "summary": "Trigger Delay",
+      "description": "Delays the call after trigger to make sure all inputs are set",
+      "unit": "ms",
+      "value_range": "0...2147483647",
+      "default_value": "0"
+    },
+    {
+      "abbreviation": "Tu",
+      "summary": "Update Interval",
+      "description": "Interval how often the call is initiated while the Trigger input is active. Can be used to update the call parameters using the new input values in a regular interval. 0 = Disabled",
+      "unit": "s",
+      "value_range": "0...2147483647",
+      "default_value": "0"
+    }
+  ],
+  "properties": [
+    {
+      "summary": "Language",
+      "description": "Language used when playing the message",
+      "default_value": "-"
+    },
+    {
+      "summary": "Phone number",
+      "description": "Phone number to be called. Placeholders can be used (e.g. , , , etc). Note that only use numbers are supported. (e.g. 0043728770700)",
+      "default_value": "-"
+    },
+    {
+      "summary": "Message",
+      "description": "Message to be played during the call. Placeholders are supported (e.g. , , , etc)",
+      "default_value": "-"
+    }
+  ],
+  "source_url": "https://www.loxone.com/enen/kb/call-generator/",
+  "input_count": 3,
+  "output_count": 2,
+  "parameter_count": 2,
+  "property_count": 3
+}

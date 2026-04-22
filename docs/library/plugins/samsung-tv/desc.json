@@ -1,0 +1,9 @@
+{
+                                "type": "template",
+                                "name": "samsung-tv",
+                                "uuid": "cfe74be5-1167-11ec-9a744cd98f3deb8a",
+                                "version":"1.0.0",
+                                "id": "samsung-tv-26",
+                                "file": "samsung-tv.xml",
+                                "templateType": "3",
+                            }

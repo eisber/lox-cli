@@ -1,0 +1,20 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Modbus Title="Flexit Nordic " Comment="" Baudrate="9600" Channel="1">
+	<Info templateType="7" minVersion="12021027"/>
+	<ModbusCmd Title="Room Operating Mode" Comment="" ModbusAddress="2013" ModbusCmd="3" ModbusPollingCycle="20" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValLow="1" SourceValHigh="4" DestValHigh="3"/>
+	<ModbusCmd Title="Outside Air Temp" Comment="" ModbusAddress="1" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="20" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Supply Air Temp" Comment="" ModbusAddress="5" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="20" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Alarm Indication" Comment="" ModbusAddress="3001" ModbusCmd="3" ModbusPollingCycle="20" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Extract Air Temp" Comment="" ModbusAddress="9" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="20" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Exhaust Air Temp" Comment="" ModbusAddress="13" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="20" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Setpoint Temp Away" Comment="" ModbusAddress="1163" ModbusCmd="3" ModbusDataType="36" ModbusPollingCycle="20" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Setpoint Temp Home" Comment="" ModbusAddress="1155" ModbusCmd="3" ModbusDataType="36" ModbusPollingCycle="20" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Operating Time Filter Replacement" Comment="" ModbusAddress="1269" ModbusCmd="3" ModbusDataType="36" ModbusPollingCycle="3600" Unit="&lt;v&gt; hod." Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Operating Time Filter" Comment="" ModbusAddress="1271" ModbusCmd="3" ModbusDataType="36" ModbusPollingCycle="3600" Unit="&lt;v&gt; hod." Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Room Operating Mode" Comment="1:stop, 2:Away, 3:Home, 4:High" ModbusAddress="2013" ModbusCmd="6" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Setpoint Temp Home" Comment="" ModbusAddress="1155" ModbusCmd="16" ModbusDataType="36" Unit="&lt;v&gt;°C" Analog="true" Sensor="false" SourceValLow="10" SourceValHigh="30" DestValLow="10" DestValHigh="30"/>
+	<ModbusCmd Title="Setpoint Temp Away" Comment="" ModbusAddress="1163" ModbusCmd="16" ModbusDataType="36" Unit="&lt;v&gt;°C" Analog="true" Sensor="false" SourceValLow="10" SourceValHigh="30" DestValLow="10" DestValHigh="30"/>
+	<ModbusCmd Title="Trigger Fireplace" Comment="Odtah vzduchu" ModbusAddress="3007" ModbusCmd="6" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValLow="1" SourceValHigh="2" DestValLow="1" DestValHigh="2"/>
+	<ModbusCmd Title="Trigger Rapid Vent" Comment="1:ready, 2:trigger" ModbusAddress="3006" ModbusCmd="6" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValLow="1" SourceValHigh="2" DestValLow="1" DestValHigh="2"/>
+	<ModbusCmd Title="Comfort button" Comment="" ModbusAddress="2040" ModbusCmd="6" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10" RepeatRate="3600"/>
+</Modbus>

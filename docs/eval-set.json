@@ -1,0 +1,2010 @@
+[
+  {
+    "utterance": "Lower blinds in the living room when it's sunny and above 20 degrees to protect the piano",
+    "expected_blocks": [
+      "GreaterEqual",
+      "And"
+    ],
+    "expected_wiring": [
+      "Outdoor Temperature → GreaterEqual.Input1",
+      "Sunshine → And.I1",
+      "GreaterEqual.Q → And.I2",
+      "And.Q → Jalousie 1.InputTriggerDown"
+    ],
+    "expected_params": {
+      "GreaterEqual.Input2": "20"
+    },
+    "room": "Wohnzimmer",
+    "page": "Wohnzimmer",
+    "category": "automation",
+    "difficulty": "medium",
+    "validated": true
+  },
+  {
+    "utterance": "Set up lighting in the bedroom with moods for reading, sleeping, and a bright all-on mode",
+    "expected_blocks": [
+      "LightController2"
+    ],
+    "expected_scenes": [
+      "Lesen",
+      "Schlafen",
+      "Viel Licht",
+      "Aus"
+    ],
+    "room": "Schlafzimmer",
+    "category": "room-setup",
+    "difficulty": "easy"
+  },
+  {
+    "utterance": "When someone rings the doorbell, turn on the entrance light for 5 minutes",
+    "expected_blocks": [
+      "Monoflop"
+    ],
+    "expected_wiring": [
+      "Doorbell → Monoflop.I",
+      "Monoflop.Q → Entrance Light.On"
+    ],
+    "expected_params": {
+      "Monoflop.T": "300"
+    },
+    "room": "Flur",
+    "category": "automation",
+    "difficulty": "medium"
+  },
+  {
+    "utterance": "Turn off all lights in the house when the alarm is armed",
+    "expected_blocks": [],
+    "expected_wiring": [
+      "Alarm Mode → All Lights.InputDisable"
+    ],
+    "room": "Zentral",
+    "category": "automation",
+    "difficulty": "easy"
+  },
+  {
+    "utterance": "Water the garden every day at 6am for 30 minutes, but not when it's raining",
+    "expected_blocks": [
+      "DayTimer",
+      "And",
+      "Not"
+    ],
+    "expected_wiring": [
+      "DayTimer.Q → And.I1",
+      "Rain → Not.I",
+      "Not.Q → And.I2",
+      "And.Q → Irrigation.On"
+    ],
+    "room": "Garten",
+    "category": "automation",
+    "difficulty": "hard"
+  },
+  {
+    "utterance": "Close pool cover when wind speed exceeds 40 km/h",
+    "expected_blocks": [
+      "GreaterEqual"
+    ],
+    "expected_wiring": [
+      "Wind Speed → GreaterEqual.Input1",
+      "GreaterEqual.Q → Pool Cover.InputTriggerDown"
+    ],
+    "expected_params": {
+      "GreaterEqual.Input2": "40"
+    },
+    "room": "Pool",
+    "category": "automation",
+    "difficulty": "medium"
+  },
+  {
+    "utterance": "Dim the hallway light to 30% between 10pm and 6am, full brightness during the day",
+    "expected_blocks": [
+      "GreaterEqual",
+      "Less",
+      "And",
+      "Mult"
+    ],
+    "room": "Flur",
+    "category": "automation",
+    "difficulty": "hard"
+  },
+  {
+    "utterance": "Configure the bathroom with light, heated floor, and ventilation fan that runs 10 min after light off",
+    "expected_blocks": [
+      "LightController2",
+      "OnPulseDelay"
+    ],
+    "room": "Bad Eltern",
+    "category": "room-setup",
+    "difficulty": "medium"
+  },
+  {
+    "utterance": "Add a lighting controller to Pool with moods: Viel Licht, Aus",
+    "type": "LightController2",
+    "room": "Pool",
+    "title": "Poolhaus",
+    "params": {
+      "BrightnessLimit": "300",
+      "MoveOn": "300",
+      "MoveIgnore": "10",
+      "Step": "2",
+      "Steptime": "0.2",
+      "Max": "100",
+      "MaxP": "0.35",
+      "MoveTimeout": "600",
+      "SceneMixTime": "1",
+      "FadingTime": "1",
+      "AlarmClockPeriod": "3",
+      "DayMinTemp": "2700",
+      "DayMaxTemp": "6500",
+      "AlarmPeriod": "4",
+      "AlarmBrightness": "50"
+    },
+    "scenes": [
+      "Viel Licht",
+      "Aus"
+    ],
+    "category": "room-setup"
+  },
+  {
+    "utterance": "Add a lighting controller to Pool with moods: Viel Licht, Aus, half ",
+    "type": "LightController2",
+    "room": "Pool",
+    "title": "Poolllicht",
+    "params": {
+      "BrightnessLimit": "30",
+      "MoveOn": "900",
+      "MoveIgnore": "300",
+      "Step": "2",
+      "Steptime": "0.2",
+      "Max": "100",
+      "MaxP": "0.35",
+      "MoveTimeout": "3600",
+      "SceneMixTime": "1",
+      "FadingTime": "1",
+      "AlarmClockPeriod": "3",
+      "DayMinTemp": "2700",
+      "DayMaxTemp": "6500",
+      "AlarmPeriod": "4",
+      "AlarmBrightness": "50"
+    },
+    "scenes": [
+      "Viel Licht",
+      "Aus",
+      "half "
+    ],
+    "category": "room-setup"
+  },
+  {
+    "utterance": "Add a lighting controller to Abstellraum with moods: Viel Licht, Aus",
+    "type": "LightController2",
+    "room": "Abstellraum",
+    "title": "Lichtsteuerung",
+    "params": {
+      "BrightnessLimit": "150",
+      "MoveOn": "60",
+      "MoveIgnore": "0.01",
+      "Step": "2",
+      "Steptime": "0.2",
+      "Max": "100",
+      "MaxP": "0.35",
+      "MoveTimeout": "360",
+      "SceneMixTime": "1",
+      "FadingTime": "1",
+      "AlarmClockPeriod": "3",
+      "DayMinTemp": "2700",
+      "DayMaxTemp": "6500",
+      "AlarmPeriod": "4",
+      "AlarmBrightness": "50"
+    },
+    "scenes": [
+      "Viel Licht",
+      "Aus"
+    ],
+    "category": "room-setup"
+  },
+  {
+    "utterance": "Add a lighting controller to Außenbereich with moods: Viel Licht, Aus",
+    "type": "LightController2",
+    "room": "Außenbereich",
+    "title": "Balkon OG",
+    "params": {
+      "BrightnessLimit": "30",
+      "MoveOn": "120",
+      "MoveIgnore": "300",
+      "Step": "2",
+      "Steptime": "0.2",
+      "Max": "100",
+      "MaxP": "0.35",
+      "MoveTimeout": "3600",
+      "SceneMixTime": "1",
+      "FadingTime": "1",
+      "AlarmClockPeriod": "3",
+      "DayMinTemp": "2700",
+      "DayMaxTemp": "6500",
+      "AlarmPeriod": "4",
+      "AlarmBrightness": "50"
+    },
+    "scenes": [
+      "Viel Licht",
+      "Aus"
+    ],
+    "category": "room-setup"
+  },
+  {
+    "utterance": "Add a lighting controller to Außenbereich with moods: Viel Licht, Aus",
+    "type": "LightController2",
+    "room": "Außenbereich",
+    "title": "Garten",
+    "params": {
+      "BrightnessLimit": "30",
+      "MoveOn": "120",
+      "MoveIgnore": "300",
+      "Step": "2",
+      "Steptime": "0.2",
+      "Max": "100",
+      "MaxP": "0.35",
+      "MoveTimeout": "3600",
+      "SceneMixTime": "1",
+      "FadingTime": "1",
+      "AlarmClockPeriod": "3",
+      "DayMinTemp": "2700",
+      "DayMaxTemp": "6500",
+      "AlarmPeriod": "4",
+      "AlarmBrightness": "50"
+    },
+    "scenes": [
+      "Viel Licht",
+      "Aus"
+    ],
+    "category": "room-setup"
+  },
+  {
+    "utterance": "Add a lighting controller to Außenbereich with moods: Viel Licht, Aus",
+    "type": "LightController2",
+    "room": "Außenbereich",
+    "title": "Außenbeleuchtung Pool",
+    "params": {
+      "BrightnessLimit": "30",
+      "MoveOn": "120",
+      "MoveIgnore": "300",
+      "Step": "2",
+      "Steptime": "0.2",
+      "Max": "100",
+      "MaxP": "0.35",
+      "MoveTimeout": "3600",
+      "SceneMixTime": "1",
+      "FadingTime": "1",
+      "AlarmClockPeriod": "3",
+      "DayMinTemp": "2700",
+      "DayMaxTemp": "6500",
+      "AlarmPeriod": "4",
+      "AlarmBrightness": "50"
+    },
+    "scenes": [
+      "Viel Licht",
+      "Aus"
+    ],
+    "category": "room-setup"
+  },
+  {
+    "utterance": "Add a lighting controller to Außenbereich with moods: Viel Licht, Aus",
+    "type": "LightController2",
+    "room": "Außenbereich",
+    "title": "Carport",
+    "params": {
+      "BrightnessLimit": "300",
+      "MoveOn": "120",
+      "MoveIgnore": "300",
+      "Step": "2",
+      "Steptime": "0.2",
+      "Max": "100",
+      "MaxP": "0.35",
+      "MoveTimeout": "3600",
+      "SceneMixTime": "1",
+      "FadingTime": "1",
+      "AlarmClockPeriod": "3",
+      "DayMinTemp": "2700",
+      "DayMaxTemp": "6500",
+      "AlarmPeriod": "4",
+      "AlarmBrightness": "50"
+    },
+    "scenes": [
+      "Viel Licht",
+      "Aus"
+    ],
+    "category": "room-setup"
+  },
+  {
+    "utterance": "Add a lighting controller to Außenbereich with moods: Viel Licht, Aus, grass ",
+    "type": "LightController2",
+    "room": "Außenbereich",
+    "title": "Atrium",
+    "params": {
+      "BrightnessLimit": "30",
+      "MoveOn": "120",
+      "MoveIgnore": "300",
+      "Step": "2",
+      "Steptime": "0.2",
+      "Max": "100",
+      "MaxP": "0.35",
+      "MoveTimeout": "3600",
+      "SceneMixTime": "1",
+      "FadingTime": "1",
+      "AlarmClockPeriod": "3",
+      "DayMinTemp": "2700",
+      "DayMaxTemp": "6500",
+      "AlarmPeriod": "4",
+      "AlarmBrightness": "50"
+    },
+    "scenes": [
+      "Viel Licht",
+      "Aus",
+      "grass "
+    ],
+    "category": "room-setup"
+  },
+  {
+    "utterance": "Add a lighting controller to Außenbereich with moods: Viel Licht, Aus",
+    "type": "LightController2",
+    "room": "Außenbereich",
+    "title": "Außenbeleuchtung Garten",
+    "params": {
+      "BrightnessLimit": "30",
+      "MoveOn": "120",
+      "MoveIgnore": "300",
+      "Step": "2",
+      "Steptime": "0.2",
+      "Max": "100",
+      "MaxP": "0.35",
+      "MoveTimeout": "3600",
+      "SceneMixTime": "1",
+      "FadingTime": "1",
+      "AlarmClockPeriod": "3",
+      "DayMinTemp": "2700",
+      "DayMaxTemp": "6500",
+      "AlarmPeriod": "4",
+      "AlarmBrightness": "50"
+    },
+    "scenes": [
+      "Viel Licht",
+      "Aus"
+    ],
+    "category": "room-setup"
+  },
+  {
+    "utterance": "Add a lighting controller to Außenbereich with moods: Aus, Viel Licht",
+    "type": "LightController2",
+    "room": "Außenbereich",
+    "title": "Zugang Haustüre",
+    "params": {
+      "BrightnessLimit": "30",
+      "MoveOn": "300",
+      "Step": "2",
+      "Steptime": "0.2",
+      "Max": "100",
+      "MaxP": "0.35",
+      "MoveTimeout": "3600",
+      "SceneMixTime": "1",
+      "FadingTime": "1",
+      "AlarmClockPeriod": "3",
+      "DayMinTemp": "2700",
+      "DayMaxTemp": "6500",
+      "AlarmPeriod": "4",
+      "AlarmBrightness": "50"
+    },
+    "scenes": [
+      "Aus",
+      "Viel Licht"
+    ],
+    "category": "room-setup"
+  },
+  {
+    "utterance": "Add a lighting controller to Außenbereich with moods: Viel Licht, Aus",
+    "type": "LightController2",
+    "room": "Außenbereich",
+    "title": "Einfahrt",
+    "params": {
+      "BrightnessLimit": "200",
+      "MoveOn": "600",
+      "Step": "2",
+      "Steptime": "0.2",
+      "Max": "100",
+      "MaxP": "0.35",
+      "MoveTimeout": "3600",
+      "SceneMixTime": "1",
+      "FadingTime": "1",
+      "AlarmClockPeriod": "3",
+      "DayMinTemp": "2700",
+      "DayMaxTemp": "6500",
+      "AlarmPeriod": "4",
+      "AlarmBrightness": "50"
+    },
+    "scenes": [
+      "Viel Licht",
+      "Aus"
+    ],
+    "category": "room-setup"
+  },
+  {
+    "utterance": "Add a lighting controller to Bad Eltern with moods: Viel Licht, Bewegung, Aus, Badewanne, WC",
+    "type": "LightController2",
+    "room": "Bad Eltern",
+    "title": "Lichtsteuerung",
+    "params": {
+      "BrightnessLimit": "30",
+      "MoveOn": "120",
+      "MoveIgnore": "5",
+      "Step": "2",
+      "Steptime": "0.1",
+      "Max": "100",
+      "MaxP": "0.35",
+      "SceneMixTime": "1",
+      "FadingTime": "1",
+      "AlarmClockPeriod": "3",
+      "DayMinTemp": "2700",
+      "DayMaxTemp": "6500",
+      "AlarmPeriod": "4",
+      "AlarmBrightness": "50"
+    },
+    "scenes": [
+      "Viel Licht",
+      "Bewegung",
+      "Aus",
+      "Badewanne",
+      "WC"
+    ],
+    "category": "room-setup"
+  },
+  {
+    "utterance": "Add a lighting controller to Bad Kinder with moods: Viel Licht, Aus",
+    "type": "LightController2",
+    "room": "Bad Kinder",
+    "title": "Lichtsteuerung",
+    "params": {
+      "BrightnessLimit": "30",
+      "MoveOn": "900",
+      "MoveIgnore": "0.01",
+      "Step": "2",
+      "Steptime": "0.1",
+      "Max": "100",
+      "MaxP": "0.35",
+      "MoveTimeout": "3600",
+      "SceneMixTime": "1",
+      "FadingTime": "1",
+      "AlarmClockPeriod": "3",
+      "DayMinTemp": "2700",
+      "DayMaxTemp": "6500",
+      "AlarmPeriod": "4",
+      "AlarmBrightness": "50"
+    },
+    "scenes": [
+      "Viel Licht",
+      "Aus"
+    ],
+    "category": "room-setup"
+  },
+  {
+    "utterance": "Add a lighting controller to Bad Workshop with moods: Viel Licht, Aus",
+    "type": "LightController2",
+    "room": "Bad Workshop",
+    "title": "Lichtsteuerung",
+    "params": {
+      "BrightnessLimit": "300",
+      "MoveOn": "1200",
+      "MoveIgnore": "10",
+      "Step": "5",
+      "Steptime": "0.1",
+      "Max": "100",
+      "MaxP": "0.35",
+      "MoveTimeout": "1200",
+      "SceneMixTime": "1",
+      "FadingTime": "1",
+      "AlarmClockPeriod": "3",
+      "DayMinTemp": "2700",
+      "DayMaxTemp": "6500",
+      "AlarmPeriod": "4",
+      "AlarmBrightness": "50"
+    },
+    "scenes": [
+      "Viel Licht",
+      "Aus"
+    ],
+    "category": "room-setup"
+  },
+  {
+    "utterance": "Add a lighting controller to Durchgangszimmer EG with moods: 50 Prozent, Viel Licht, call, Aus, BWM",
+    "type": "LightController2",
+    "room": "Durchgangszimmer EG",
+    "title": "Lichtsteuerung",
+    "params": {
+      "BrightnessLimit": "30",
+      "MoveOn": "10",
+      "MoveIgnore": "300",
+      "Step": "2",
+      "Steptime": "0.1",
+      "Max": "100",
+      "MaxP": "0.35",
+      "MoveTimeout": "3600",
+      "SceneMixTime": "1",
+      "FadingTime": "1",
+      "AlarmClockPeriod": "3",
+      "DayMinTemp": "2700",
+      "DayMaxTemp": "6500",
+      "AlarmPeriod": "4",
+      "AlarmBrightness": "50"
+    },
+    "scenes": [
+      "50 Prozent",
+      "Viel Licht",
+      "call",
+      "Aus",
+      "BWM"
+    ],
+    "category": "room-setup"
+  },
+  {
+    "utterance": "Add a lighting controller to Esszimmer with moods: Viel Licht, Aus, Stimmung, Stimmung Platzldecke ",
+    "type": "LightController2",
+    "room": "Esszimmer",
+    "title": "Lichtsteuerung",
+    "params": {
+      "BrightnessLimit": "30",
+      "MoveOn": "900",
+      "MoveIgnore": "0.01",
+      "Step": "5",
+      "Steptime": "0.1",
+      "Max": "100",
+      "MaxP": "0.35",
+      "MoveTimeout": "3600",
+      "SceneMixTime": "1",
+      "FadingTime": "1",
+      "AlarmClockPeriod": "3",
+      "DayMinTemp": "2700",
+      "DayMaxTemp": "6500",
+      "AlarmPeriod": "4",
+      "AlarmBrightness": "50"
+    },
+    "scenes": [
+      "Viel Licht",
+      "Aus",
+      "Stimmung",
+      "Stimmung Platzldecke "
+    ],
+    "category": "room-setup"
+  },
+  {
+    "utterance": "Add a lighting controller to Flur with moods: Viel Licht, Aus",
+    "type": "LightController2",
+    "room": "Flur",
+    "title": "Lichtsteuerung",
+    "params": {
+      "BrightnessLimit": "300",
+      "MoveOn": "12",
+      "MoveIgnore": "300",
+      "Step": "2",
+      "Steptime": "0.1",
+      "Max": "100",
+      "MaxP": "0.35",
+      "MoveTimeout": "3600",
+      "SceneMixTime": "1",
+      "FadingTime": "1",
+      "AlarmClockPeriod": "3",
+      "DayMinTemp": "2700",
+      "DayMaxTemp": "6500",
+      "AlarmPeriod": "4",
+      "AlarmBrightness": "50"
+    },
+    "scenes": [
+      "Viel Licht",
+      "Aus"
+    ],
+    "category": "room-setup"
+  },
+  {
+    "utterance": "Add a lighting controller to Flur OG with moods: Viel Licht, Aus",
+    "type": "LightController2",
+    "room": "Flur OG",
+    "title": "Lichtsteuerung",
+    "params": {
+      "BrightnessLimit": "300",
+      "MoveOn": "10",
+      "Step": "2",
+      "Steptime": "0.1",
+      "Max": "100",
+      "MaxP": "0.35",
+      "MoveTimeout": "60",
+      "SceneMixTime": "1",
+      "FadingTime": "1",
+      "AlarmClockPeriod": "3",
+      "DayMinTemp": "2700",
+      "DayMaxTemp": "6500",
+      "AlarmPeriod": "4",
+      "AlarmBrightness": "50"
+    },
+    "scenes": [
+      "Viel Licht",
+      "Aus"
+    ],
+    "category": "room-setup"
+  },
+  {
+    "utterance": "Add a lighting controller to Garage with moods: Viel Licht, Aus",
+    "type": "LightController2",
+    "room": "Garage",
+    "title": "Lichtsteuerung",
+    "params": {
+      "BrightnessLimit": "150",
+      "MoveOn": "120",
+      "MoveIgnore": "300",
+      "Step": "2",
+      "Steptime": "0.2",
+      "Max": "100",
+      "MaxP": "0.35",
+      "MoveTimeout": "3600",
+      "SceneMixTime": "1",
+      "FadingTime": "1",
+      "AlarmClockPeriod": "3",
+      "DayMinTemp": "2700",
+      "DayMaxTemp": "6500",
+      "AlarmPeriod": "4",
+      "AlarmBrightness": "50"
+    },
+    "scenes": [
+      "Viel Licht",
+      "Aus"
+    ],
+    "category": "room-setup"
+  },
+  {
+    "utterance": "Add a lighting controller to Kammer with moods: Viel Licht, Aus",
+    "type": "LightController2",
+    "room": "Kammer",
+    "title": "Lichtsteuerung",
+    "params": {
+      "BrightnessLimit": "300",
+      "MoveOn": "10",
+      "MoveIgnore": "300",
+      "Step": "2",
+      "Steptime": "0.1",
+      "Max": "100",
+      "MaxP": "0.35",
+      "MoveTimeout": "360",
+      "SceneMixTime": "1",
+      "FadingTime": "1",
+      "AlarmClockPeriod": "3",
+      "DayMinTemp": "2700",
+      "DayMaxTemp": "6500",
+      "AlarmPeriod": "4",
+      "AlarmBrightness": "50"
+    },
+    "scenes": [
+      "Viel Licht",
+      "Aus"
+    ],
+    "category": "room-setup"
+  },
+  {
+    "utterance": "Add a lighting controller to Keller with moods: Viel Licht, Aus, Stiegenaufgang",
+    "type": "LightController2",
+    "room": "Keller",
+    "title": "Lichtsteuerung",
+    "params": {
+      "BrightnessLimit": "30",
+      "MoveOn": "900",
+      "MoveIgnore": "300",
+      "Step": "2",
+      "Steptime": "0.2",
+      "Max": "100",
+      "MaxP": "0.35",
+      "MoveTimeout": "3600",
+      "SceneMixTime": "1",
+      "FadingTime": "1",
+      "AlarmClockPeriod": "3",
+      "DayMinTemp": "2700",
+      "DayMaxTemp": "6500",
+      "AlarmPeriod": "4",
+      "AlarmBrightness": "50"
+    },
+    "scenes": [
+      "Viel Licht",
+      "Aus",
+      "Stiegenaufgang"
+    ],
+    "category": "room-setup"
+  },
+  {
+    "utterance": "Add a lighting controller to Küche with moods: Stimmung, Work, Viel Licht, Aus, Clean Up, Light",
+    "type": "LightController2",
+    "room": "Küche",
+    "title": "Lichtsteuerung",
+    "params": {
+      "BrightnessLimit": "30",
+      "MoveOn": "900",
+      "MoveIgnore": "300",
+      "Step": "5",
+      "Steptime": "0.1",
+      "Max": "100",
+      "MaxP": "0.35",
+      "MoveTimeout": "3600",
+      "SceneMixTime": "1",
+      "FadingTime": "1",
+      "AlarmClockPeriod": "3",
+      "DayMinTemp": "2700",
+      "DayMaxTemp": "6500",
+      "AlarmPeriod": "4",
+      "AlarmBrightness": "50"
+    },
+    "scenes": [
+      "Stimmung",
+      "Work",
+      "Viel Licht",
+      "Aus",
+      "Clean Up",
+      "Light"
+    ],
+    "category": "room-setup"
+  },
+  {
+    "utterance": "Add a lighting controller to Lager with moods: Viel Licht, Aus",
+    "type": "LightController2",
+    "room": "Lager",
+    "title": "Lichtsteuerung",
+    "params": {
+      "BrightnessLimit": "30",
+      "MoveOn": "900",
+      "MoveIgnore": "0.01",
+      "Step": "2",
+      "Steptime": "0.2",
+      "Max": "100",
+      "MaxP": "0.35",
+      "MoveTimeout": "3600",
+      "SceneMixTime": "1",
+      "FadingTime": "1",
+      "AlarmClockPeriod": "3",
+      "DayMinTemp": "2700",
+      "DayMaxTemp": "6500",
+      "AlarmPeriod": "4",
+      "AlarmBrightness": "50"
+    },
+    "scenes": [
+      "Viel Licht",
+      "Aus"
+    ],
+    "category": "room-setup"
+  },
+  {
+    "utterance": "Add a lighting controller to Peter Office with moods: Viel Licht, Aus, Mood",
+    "type": "LightController2",
+    "room": "Peter Office",
+    "title": "Lichtsteuerung",
+    "params": {
+      "BrightnessLimit": "30",
+      "MoveOn": "900",
+      "MoveIgnore": "300",
+      "Step": "2",
+      "Steptime": "0.1",
+      "Max": "100",
+      "MaxP": "0.35",
+      "MoveTimeout": "3600",
+      "SceneMixTime": "1",
+      "FadingTime": "1",
+      "AlarmClockPeriod": "3",
+      "DayMinTemp": "2700",
+      "DayMaxTemp": "6500",
+      "AlarmPeriod": "4",
+      "AlarmBrightness": "50"
+    },
+    "scenes": [
+      "Viel Licht",
+      "Aus",
+      "Mood"
+    ],
+    "category": "room-setup"
+  },
+  {
+    "utterance": "Add a lighting controller to Schlafzimmer with moods: Viel Licht, Aus, Bed, Closet, Movie",
+    "type": "LightController2",
+    "room": "Schlafzimmer",
+    "title": "Lichtsteuerung",
+    "params": {
+      "BrightnessLimit": "30",
+      "MoveOn": "300",
+      "MoveIgnore": "0.01",
+      "Step": "2",
+      "Steptime": "0.1",
+      "Max": "100",
+      "MaxP": "0.35",
+      "MoveTimeout": "3600",
+      "SceneMixTime": "1",
+      "FadingTime": "1",
+      "AlarmClockPeriod": "3",
+      "DayMinTemp": "2700",
+      "DayMaxTemp": "6500",
+      "AlarmPeriod": "4",
+      "AlarmBrightness": "50"
+    },
+    "scenes": [
+      "Viel Licht",
+      "Aus",
+      "Bed",
+      "Closet",
+      "Movie"
+    ],
+    "category": "room-setup"
+  },
+  {
+    "utterance": "Add a lighting controller to Stiege EG-OG with moods: Viel Licht, Aus, BWM",
+    "type": "LightController2",
+    "room": "Stiege EG-OG",
+    "title": "Lichtsteuerung",
+    "params": {
+      "BrightnessLimit": "30",
+      "MoveOn": "10",
+      "Step": "2",
+      "Steptime": "0.2",
+      "Max": "100",
+      "MaxP": "0.35",
+      "MoveTimeout": "3600",
+      "SceneMixTime": "1",
+      "FadingTime": "1",
+      "AlarmClockPeriod": "3",
+      "DayMinTemp": "2700",
+      "DayMaxTemp": "6500",
+      "AlarmPeriod": "4",
+      "AlarmBrightness": "50"
+    },
+    "scenes": [
+      "Viel Licht",
+      "Aus",
+      "BWM"
+    ],
+    "category": "room-setup"
+  },
+  {
+    "utterance": "Add a lighting controller to Technikraum with moods: Viel Licht, Aus",
+    "type": "LightController2",
+    "room": "Technikraum",
+    "title": "Lichtsteuerung",
+    "params": {
+      "BrightnessLimit": "300",
+      "MoveOn": "300",
+      "MoveIgnore": "10",
+      "Step": "5",
+      "Steptime": "0.1",
+      "Max": "100",
+      "MaxP": "0.35",
+      "MoveTimeout": "600",
+      "SceneMixTime": "1",
+      "FadingTime": "1",
+      "AlarmClockPeriod": "3",
+      "DayMinTemp": "2700",
+      "DayMaxTemp": "6500",
+      "AlarmPeriod": "4",
+      "AlarmBrightness": "50"
+    },
+    "scenes": [
+      "Viel Licht",
+      "Aus"
+    ],
+    "category": "room-setup"
+  },
+  {
+    "utterance": "Add a lighting controller to Außenbereich with moods: Viel Licht, Aus, Clean Up",
+    "type": "LightController2",
+    "room": "Außenbereich",
+    "title": "Terrasse",
+    "params": {
+      "BrightnessLimit": "30",
+      "MoveOn": "120",
+      "MoveIgnore": "300",
+      "Step": "2",
+      "Steptime": "0.2",
+      "Max": "100",
+      "MaxP": "0.35",
+      "MoveTimeout": "3600",
+      "SceneMixTime": "1",
+      "FadingTime": "1",
+      "AlarmClockPeriod": "3",
+      "DayMinTemp": "2700",
+      "DayMaxTemp": "6500",
+      "AlarmPeriod": "4",
+      "AlarmBrightness": "50"
+    },
+    "scenes": [
+      "Viel Licht",
+      "Aus",
+      "Clean Up"
+    ],
+    "category": "room-setup"
+  },
+  {
+    "utterance": "Add a lighting controller to WC EG with moods: Viel Licht, Aus",
+    "type": "LightController2",
+    "room": "WC EG",
+    "title": "Lichtsteuerung",
+    "params": {
+      "BrightnessLimit": "300",
+      "MoveOn": "180",
+      "MoveIgnore": "10",
+      "Step": "5",
+      "Steptime": "0.1",
+      "Max": "100",
+      "MaxP": "0.35",
+      "MoveTimeout": "300",
+      "SceneMixTime": "1",
+      "AlarmClockPeriod": "3",
+      "DayMinTemp": "2700",
+      "DayMaxTemp": "6500",
+      "AlarmPeriod": "4",
+      "AlarmBrightness": "50"
+    },
+    "scenes": [
+      "Viel Licht",
+      "Aus"
+    ],
+    "category": "room-setup"
+  },
+  {
+    "utterance": "Add a lighting controller to Werkstatt with moods: Viel Licht, Aus",
+    "type": "LightController2",
+    "room": "Werkstatt",
+    "title": "Werkstatt",
+    "params": {
+      "BrightnessLimit": "30",
+      "MoveOn": "120",
+      "MoveIgnore": "300",
+      "Step": "2",
+      "Steptime": "0.2",
+      "Max": "100",
+      "MaxP": "0.35",
+      "MoveTimeout": "3600",
+      "SceneMixTime": "1",
+      "FadingTime": "1",
+      "AlarmClockPeriod": "3",
+      "DayMinTemp": "2700",
+      "DayMaxTemp": "6500",
+      "AlarmPeriod": "4",
+      "AlarmBrightness": "50"
+    },
+    "scenes": [
+      "Viel Licht",
+      "Aus"
+    ],
+    "category": "room-setup"
+  },
+  {
+    "utterance": "Add a lighting controller to Wohnzimmer with moods: Aus, Stimmung, Stimmung mit Ring, Viel Licht, Piano, TV, Clean Up, Concert",
+    "type": "LightController2",
+    "room": "Wohnzimmer",
+    "title": "Lichtsteuerung",
+    "params": {
+      "BrightnessLimit": "30",
+      "MoveOn": "900",
+      "MoveIgnore": "300",
+      "Step": "5",
+      "Steptime": "0.1",
+      "Max": "100",
+      "MaxP": "0.35",
+      "MoveTimeout": "3600",
+      "SceneMixTime": "1",
+      "FadingTime": "1",
+      "AlarmClockPeriod": "3",
+      "DayMinTemp": "2700",
+      "DayMaxTemp": "6500",
+      "AlarmPeriod": "4",
+      "AlarmBrightness": "50"
+    },
+    "scenes": [
+      "Aus",
+      "Stimmung",
+      "Stimmung mit Ring",
+      "Viel Licht",
+      "Piano",
+      "TV",
+      "Clean Up",
+      "Concert"
+    ],
+    "category": "room-setup"
+  },
+  {
+    "utterance": "Add a lighting controller to Workshop with moods: Aus, Clean Up, Above Bed Lights, Mood Lights, Puzzle",
+    "type": "LightController2",
+    "room": "Workshop",
+    "title": "Lichtsteuerung",
+    "params": {
+      "BrightnessLimit": "30",
+      "MoveOn": "120",
+      "MoveIgnore": "300",
+      "Step": "5",
+      "Steptime": "0.1",
+      "Max": "100",
+      "MaxP": "0.35",
+      "MoveTimeout": "3600",
+      "SceneMixTime": "1",
+      "FadingTime": "2",
+      "AlarmClockPeriod": "3",
+      "DayMinTemp": "2700",
+      "DayMaxTemp": "6500",
+      "AlarmPeriod": "4",
+      "AlarmBrightness": "50"
+    },
+    "scenes": [
+      "Aus",
+      "Clean Up",
+      "Above Bed Lights",
+      "Mood Lights",
+      "Puzzle"
+    ],
+    "category": "room-setup"
+  },
+  {
+    "utterance": "Add a lighting controller to Workshop with moods: BWM, Aus",
+    "type": "LightController2",
+    "room": "Workshop",
+    "title": "Handlauf",
+    "params": {
+      "BrightnessLimit": "300",
+      "MoveOn": "10",
+      "MoveIgnore": "30",
+      "Step": "5",
+      "Steptime": "0.1",
+      "Max": "100",
+      "MaxP": "0.35",
+      "MoveTimeout": "3600",
+      "SceneMixTime": "1",
+      "FadingTime": "1",
+      "AlarmClockPeriod": "3",
+      "DayMinTemp": "2700",
+      "DayMaxTemp": "6500",
+      "AlarmPeriod": "4",
+      "AlarmBrightness": "50"
+    },
+    "scenes": [
+      "BWM",
+      "Aus"
+    ],
+    "category": "room-setup"
+  },
+  {
+    "utterance": "Add a lighting controller to Workshop with moods: Viel Licht, Aus, BWM",
+    "type": "LightController2",
+    "room": "Workshop",
+    "title": "Flur",
+    "params": {
+      "BrightnessLimit": "300",
+      "MoveOn": "10",
+      "MoveIgnore": "5",
+      "Step": "2",
+      "Steptime": "0.2",
+      "Max": "100",
+      "MaxP": "0.35",
+      "SceneMixTime": "1",
+      "FadingTime": "1",
+      "AlarmClockPeriod": "3",
+      "DayMinTemp": "2700",
+      "DayMaxTemp": "6500",
+      "AlarmPeriod": "4",
+      "AlarmBrightness": "50"
+    },
+    "scenes": [
+      "Viel Licht",
+      "Aus",
+      "BWM"
+    ],
+    "category": "room-setup"
+  },
+  {
+    "utterance": "Add blind 'Pergola 2' to Pool",
+    "type": "EIBJalousie",
+    "room": "Pool",
+    "title": "Pergola 2",
+    "category": "room-setup"
+  },
+  {
+    "utterance": "Add blind 'Pergola 3' to Pool",
+    "type": "EIBJalousie",
+    "room": "Pool",
+    "title": "Pergola 3",
+    "category": "room-setup"
+  },
+  {
+    "utterance": "Add blind 'Pergola 1' to Pool",
+    "type": "EIBJalousie",
+    "room": "Pool",
+    "title": "Pergola 1",
+    "category": "room-setup"
+  },
+  {
+    "utterance": "Add blind 'Roletta 4' to Pool",
+    "type": "EIBJalousie",
+    "room": "Pool",
+    "title": "Roletta 4",
+    "category": "room-setup"
+  },
+  {
+    "utterance": "Add blind 'Roletta 3' to Pool",
+    "type": "EIBJalousie",
+    "room": "Pool",
+    "title": "Roletta 3",
+    "category": "room-setup"
+  },
+  {
+    "utterance": "Add blind 'Roletta 2' to Pool",
+    "type": "EIBJalousie",
+    "room": "Pool",
+    "title": "Roletta 2",
+    "category": "room-setup"
+  },
+  {
+    "utterance": "Add blind 'Roletta 1' to Pool",
+    "type": "EIBJalousie",
+    "room": "Pool",
+    "title": "Roletta 1",
+    "category": "room-setup"
+  },
+  {
+    "utterance": "Add blind 'Jalousie' to Bad Kinder",
+    "type": "EIBJalousie",
+    "room": "Bad Kinder",
+    "title": "Jalousie",
+    "category": "room-setup"
+  },
+  {
+    "utterance": "Add blind 'Jalousie' to Esszimmer",
+    "type": "EIBJalousie",
+    "room": "Esszimmer",
+    "title": "Jalousie",
+    "category": "room-setup"
+  },
+  {
+    "utterance": "Add blind 'Jalousie 1' to Peter Office",
+    "type": "EIBJalousie",
+    "room": "Peter Office",
+    "title": "Jalousie 1",
+    "category": "room-setup"
+  },
+  {
+    "utterance": "Add blind 'Jalousie 2' to Peter Office",
+    "type": "EIBJalousie",
+    "room": "Peter Office",
+    "title": "Jalousie 2",
+    "category": "room-setup"
+  },
+  {
+    "utterance": "Add blind 'Jalousie Gang' to Peter Office",
+    "type": "EIBJalousie",
+    "room": "Peter Office",
+    "title": "Jalousie Gang",
+    "category": "room-setup"
+  },
+  {
+    "utterance": "Add blind 'Jalousie' to Schlafzimmer",
+    "type": "EIBJalousie",
+    "room": "Schlafzimmer",
+    "title": "Jalousie",
+    "category": "room-setup"
+  },
+  {
+    "utterance": "Add blind 'Leinwand' to Schlafzimmer",
+    "type": "EIBJalousie",
+    "room": "Schlafzimmer",
+    "title": "Leinwand",
+    "category": "room-setup"
+  },
+  {
+    "utterance": "Add blind 'Jalousie' to Stiege EG-OG",
+    "type": "EIBJalousie",
+    "room": "Stiege EG-OG",
+    "title": "Jalousie",
+    "category": "room-setup"
+  },
+  {
+    "utterance": "Add blind 'Jalousie 1' to Wohnzimmer",
+    "type": "EIBJalousie",
+    "room": "Wohnzimmer",
+    "title": "Jalousie 1",
+    "category": "room-setup"
+  },
+  {
+    "utterance": "Add blind 'Jalousie 2' to Wohnzimmer",
+    "type": "EIBJalousie",
+    "room": "Wohnzimmer",
+    "title": "Jalousie 2",
+    "category": "room-setup"
+  },
+  {
+    "utterance": "Add blind 'Jalousie 4' to Wohnzimmer",
+    "type": "EIBJalousie",
+    "room": "Wohnzimmer",
+    "title": "Jalousie 4",
+    "category": "room-setup"
+  },
+  {
+    "utterance": "Add blind 'Jalousie 3' to Wohnzimmer",
+    "type": "EIBJalousie",
+    "room": "Wohnzimmer",
+    "title": "Jalousie 3",
+    "category": "room-setup"
+  },
+  {
+    "utterance": "Add blind 'Jalousie 5' to Wohnzimmer",
+    "type": "EIBJalousie",
+    "room": "Wohnzimmer",
+    "title": "Jalousie 5",
+    "category": "room-setup"
+  },
+  {
+    "utterance": "Add blind 'Jalousie All' to Wohnzimmer",
+    "type": "EIBJalousie",
+    "room": "Wohnzimmer",
+    "title": "Jalousie All",
+    "category": "room-setup"
+  },
+  {
+    "utterance": "Add blind 'Jalousie' to Workshop",
+    "type": "EIBJalousie",
+    "room": "Workshop",
+    "title": "Jalousie",
+    "category": "room-setup"
+  },
+  {
+    "utterance": "Add intelligent room climate control to Bad Eltern",
+    "type": "HeatIRoomController2",
+    "room": "Bad Eltern",
+    "title": "Intelligente Raumregelung",
+    "category": "room-setup"
+  },
+  {
+    "utterance": "Add intelligent room climate control to Bad Kinder",
+    "type": "HeatIRoomController2",
+    "room": "Bad Kinder",
+    "title": "Intelligente Raumregelung",
+    "category": "room-setup"
+  },
+  {
+    "utterance": "Add intelligent room climate control to Bad Workshop",
+    "type": "HeatIRoomController2",
+    "room": "Bad Workshop",
+    "title": "Intelligente Raumregelung",
+    "category": "room-setup"
+  },
+  {
+    "utterance": "Add intelligent room climate control to Durchgangszimmer EG",
+    "type": "HeatIRoomController2",
+    "room": "Durchgangszimmer EG",
+    "title": "Intelligente Raumregelung",
+    "category": "room-setup"
+  },
+  {
+    "utterance": "Add intelligent room climate control to Esszimmer",
+    "type": "HeatIRoomController2",
+    "room": "Esszimmer",
+    "title": "Intelligente Raumregelung",
+    "category": "room-setup"
+  },
+  {
+    "utterance": "Add intelligent room climate control to Flur",
+    "type": "HeatIRoomController2",
+    "room": "Flur",
+    "title": "Intelligente Raumregelung",
+    "category": "room-setup"
+  },
+  {
+    "utterance": "Add intelligent room climate control to Garage",
+    "type": "HeatIRoomController2",
+    "room": "Garage",
+    "title": "Intelligente Raumregelung",
+    "category": "room-setup"
+  },
+  {
+    "utterance": "Add intelligent room climate control to Keller",
+    "type": "HeatIRoomController2",
+    "room": "Keller",
+    "title": "Intelligente Raumregelung",
+    "category": "room-setup"
+  },
+  {
+    "utterance": "Add intelligent room climate control to Küche",
+    "type": "HeatIRoomController2",
+    "room": "Küche",
+    "title": "Intelligente Raumregelung",
+    "category": "room-setup"
+  },
+  {
+    "utterance": "Add intelligent room climate control to Peter Office",
+    "type": "HeatIRoomController2",
+    "room": "Peter Office",
+    "title": "Intelligente Raumregelung",
+    "category": "room-setup"
+  },
+  {
+    "utterance": "Add intelligent room climate control to Schlafzimmer",
+    "type": "HeatIRoomController2",
+    "room": "Schlafzimmer",
+    "title": "Intelligente Raumregelung",
+    "category": "room-setup"
+  },
+  {
+    "utterance": "Add intelligent room climate control to WC EG",
+    "type": "HeatIRoomController2",
+    "room": "WC EG",
+    "title": "Intelligente Raumregelung",
+    "category": "room-setup"
+  },
+  {
+    "utterance": "Add intelligent room climate control to Wohnzimmer",
+    "type": "HeatIRoomController2",
+    "room": "Wohnzimmer",
+    "title": "Intelligente Raumregelung",
+    "category": "room-setup"
+  },
+  {
+    "utterance": "Add intelligent room climate control to Workshop",
+    "type": "HeatIRoomController2",
+    "room": "Workshop",
+    "title": "Intelligente Raumregelung",
+    "category": "room-setup"
+  },
+  {
+    "utterance": "Add AC / air conditioning control to Durchgangszimmer EG",
+    "type": "AcControl",
+    "room": "Durchgangszimmer EG",
+    "title": "Klimaanlagensteuerung",
+    "category": "room-setup"
+  },
+  {
+    "utterance": "Add AC / air conditioning control to Esszimmer",
+    "type": "AcControl",
+    "room": "Esszimmer",
+    "title": "Klimaanlagensteuerung",
+    "category": "room-setup"
+  },
+  {
+    "utterance": "Add AC / air conditioning control to Keller",
+    "type": "AcControl",
+    "room": "Keller",
+    "title": "Klimaanlagensteuerung",
+    "category": "room-setup"
+  },
+  {
+    "utterance": "Add AC / air conditioning control to Peter Office",
+    "type": "AcControl",
+    "room": "Peter Office",
+    "title": "Klimaanlagensteuerung",
+    "category": "room-setup"
+  },
+  {
+    "utterance": "Add AC / air conditioning control to Schlafzimmer",
+    "type": "AcControl",
+    "room": "Schlafzimmer",
+    "title": "Klimaanlagensteuerung",
+    "category": "room-setup"
+  },
+  {
+    "utterance": "Add AC / air conditioning control to Wohnzimmer",
+    "type": "AcControl",
+    "room": "Wohnzimmer",
+    "title": "Klimaanlagensteuerung",
+    "category": "room-setup"
+  },
+  {
+    "utterance": "Add AC / air conditioning control to Workshop",
+    "type": "AcControl",
+    "room": "Workshop",
+    "title": "Klimaanlagensteuerung",
+    "category": "room-setup"
+  },
+  {
+    "utterance": "On page 'PV': logic with 2 blocks (Add:O896, Add:O897)",
+    "type": "logic-chain",
+    "page": "PV",
+    "blocks": [
+      {
+        "type": "Add",
+        "title": "O896",
+        "wired_inputs": 1
+      },
+      {
+        "type": "Add",
+        "title": "O897",
+        "wired_inputs": 1
+      }
+    ],
+    "category": "automation"
+  },
+  {
+    "utterance": "On page '1. Zutritt': logic with 6 blocks (And:O548, And:O548, And:O548, Monoflop:O683, DayTimer:Schaltuhr...)",
+    "type": "logic-chain",
+    "page": "1. Zutritt",
+    "blocks": [
+      {
+        "type": "And",
+        "title": "O548",
+        "wired_inputs": 2
+      },
+      {
+        "type": "And",
+        "title": "O548",
+        "wired_inputs": 2
+      },
+      {
+        "type": "And",
+        "title": "O548",
+        "wired_inputs": 2
+      },
+      {
+        "type": "Monoflop",
+        "title": "O683",
+        "wired_inputs": 3
+      },
+      {
+        "type": "DayTimer",
+        "title": "Schaltuhr",
+        "wired_inputs": 0
+      },
+      {
+        "type": "Monoflop",
+        "title": "O683",
+        "wired_inputs": 1
+      }
+    ],
+    "category": "automation"
+  },
+  {
+    "utterance": "On page '3 Bewässerung': logic with 27 blocks (GreaterEqual:O743, And:O745, GreaterEqual:O747, DayTimer:Nachfüllung Schaltuhr, DayTimer:Brunnen...)",
+    "type": "logic-chain",
+    "page": "3 Bewässerung",
+    "blocks": [
+      {
+        "type": "GreaterEqual",
+        "title": "O743",
+        "wired_inputs": 1
+      },
+      {
+        "type": "And",
+        "title": "O745",
+        "wired_inputs": 3
+      },
+      {
+        "type": "GreaterEqual",
+        "title": "O747",
+        "wired_inputs": 1
+      },
+      {
+        "type": "DayTimer",
+        "title": "Nachfüllung Schaltuhr",
+        "wired_inputs": 0
+      },
+      {
+        "type": "DayTimer",
+        "title": "Brunnen",
+        "wired_inputs": 0
+      },
+      {
+        "type": "DayTimer",
+        "title": "Tropfleitung Hochbeete",
+        "wired_inputs": 0
+      },
+      {
+        "type": "DayTimer",
+        "title": "Regner Garten Süd",
+        "wired_inputs": 0
+      },
+      {
+        "type": "DayTimer",
+        "title": "Regner Föhren",
+        "wired_inputs": 0
+      },
+      {
+        "type": "DayTimer",
+        "title": "Regner Poolhouse",
+        "wired_inputs": 0
+      },
+      {
+        "type": "DayTimer",
+        "title": "Tropfleitung Garten Ost",
+        "wired_inputs": 0
+      },
+      {
+        "type": "DayTimer",
+        "title": "Regner Garten Ost",
+        "wired_inputs": 0
+      },
+      {
+        "type": "DayTimer",
+        "title": "Einfahrt",
+        "wired_inputs": 0
+      },
+      {
+        "type": "DayTimer",
+        "title": "Atrium",
+        "wired_inputs": 0
+      },
+      {
+        "type": "And",
+        "title": "O842",
+        "wired_inputs": 2
+      },
+      {
+        "type": "And",
+        "title": "O842",
+        "wired_inputs": 2
+      },
+      {
+        "type": "And",
+        "title": "O842",
+        "wired_inputs": 2
+      },
+      {
+        "type": "And",
+        "title": "O842",
+        "wired_inputs": 2
+      },
+      {
+        "type": "And",
+        "title": "O842",
+        "wired_inputs": 2
+      },
+      {
+        "type": "And",
+        "title": "O842",
+        "wired_inputs": 2
+      },
+      {
+        "type": "And",
+        "title": "O842",
+        "wired_inputs": 2
+      },
+      {
+        "type": "And",
+        "title": "O842",
+        "wired_inputs": 2
+      },
+      {
+        "type": "And",
+        "title": "O842",
+        "wired_inputs": 2
+      },
+      {
+        "type": "And",
+        "title": "O1024",
+        "wired_inputs": 2
+      },
+      {
+        "type": "PulseAt",
+        "title": "Regner startet",
+        "wired_inputs": 0
+      },
+      {
+        "type": "PulseAt",
+        "title": "Tropfer startet",
+        "wired_inputs": 0
+      },
+      {
+        "type": "DayTimer",
+        "title": "Regner Garten West",
+        "wired_inputs": 0
+      },
+      {
+        "type": "And",
+        "title": "O842",
+        "wired_inputs": 2
+      }
+    ],
+    "category": "automation"
+  },
+  {
+    "utterance": "On page '4. Lüftung': logic with 1 blocks (State:Status)",
+    "type": "logic-chain",
+    "page": "4. Lüftung",
+    "blocks": [
+      {
+        "type": "State",
+        "title": "Status",
+        "wired_inputs": 1
+      }
+    ],
+    "category": "automation"
+  },
+  {
+    "utterance": "On page '4 Bewässerung': logic with 2 blocks (DayTimer:Tropfleitung Garten West, And:O842)",
+    "type": "logic-chain",
+    "page": "4 Bewässerung",
+    "blocks": [
+      {
+        "type": "DayTimer",
+        "title": "Tropfleitung Garten West",
+        "wired_inputs": 0
+      },
+      {
+        "type": "And",
+        "title": "O842",
+        "wired_inputs": 2
+      }
+    ],
+    "category": "automation"
+  },
+  {
+    "utterance": "On page '5 Pool': logic with 16 blocks (Monoflop:O32, Monoflop:O32, OnPulseDelay:O1085, OnPulseDelay:O1085, OnPulseDelay:O1085...)",
+    "type": "logic-chain",
+    "page": "5 Pool",
+    "blocks": [
+      {
+        "type": "Monoflop",
+        "title": "O32",
+        "wired_inputs": 3
+      },
+      {
+        "type": "Monoflop",
+        "title": "O32",
+        "wired_inputs": 3
+      },
+      {
+        "type": "OnPulseDelay",
+        "title": "O1085",
+        "wired_inputs": 1
+      },
+      {
+        "type": "OnPulseDelay",
+        "title": "O1085",
+        "wired_inputs": 1
+      },
+      {
+        "type": "OnPulseDelay",
+        "title": "O1085",
+        "wired_inputs": 1
+      },
+      {
+        "type": "OnPulseDelay",
+        "title": "O1085",
+        "wired_inputs": 1
+      },
+      {
+        "type": "OnPulseDelay",
+        "title": "O1085",
+        "wired_inputs": 1
+      },
+      {
+        "type": "OnPulseDelay",
+        "title": "O1085",
+        "wired_inputs": 1
+      },
+      {
+        "type": "OnPulseDelay",
+        "title": "O1085",
+        "wired_inputs": 1
+      },
+      {
+        "type": "OnPulseDelay",
+        "title": "O1085",
+        "wired_inputs": 1
+      },
+      {
+        "type": "OnPulseDelay",
+        "title": "O1085",
+        "wired_inputs": 1
+      },
+      {
+        "type": "OnPulseDelay",
+        "title": "O1085",
+        "wired_inputs": 1
+      },
+      {
+        "type": "OnPulseDelay",
+        "title": "O1085",
+        "wired_inputs": 1
+      },
+      {
+        "type": "OnPulseDelay",
+        "title": "O1085",
+        "wired_inputs": 1
+      },
+      {
+        "type": "OnPulseDelay",
+        "title": "O1085",
+        "wired_inputs": 1
+      },
+      {
+        "type": "OnPulseDelay",
+        "title": "O1085",
+        "wired_inputs": 1
+      }
+    ],
+    "category": "automation"
+  },
+  {
+    "utterance": "On page '6. Alarm': logic with 3 blocks (Monoflop:RWA Rücksetzen, And:O1041, And:O1041)",
+    "type": "logic-chain",
+    "page": "6. Alarm",
+    "blocks": [
+      {
+        "type": "Monoflop",
+        "title": "RWA Rücksetzen",
+        "wired_inputs": 1
+      },
+      {
+        "type": "And",
+        "title": "O1041",
+        "wired_inputs": 2
+      },
+      {
+        "type": "And",
+        "title": "O1041",
+        "wired_inputs": 2
+      }
+    ],
+    "category": "automation"
+  },
+  {
+    "utterance": "On page 'Außenbereich': logic with 6 blocks (DayTimer:Außenbeleuchtung Poolv Schaltuhr, DayTimer:Atrium Schaltuhr, DayTimer:Außenbeleuchtung Garten Schaltuhr, DayTimer:Garten Schaltuhr, And:O1221...)",
+    "type": "logic-chain",
+    "page": "Außenbereich",
+    "blocks": [
+      {
+        "type": "DayTimer",
+        "title": "Außenbeleuchtung Poolv Schaltuhr",
+        "wired_inputs": 0
+      },
+      {
+        "type": "DayTimer",
+        "title": "Atrium Schaltuhr",
+        "wired_inputs": 0
+      },
+      {
+        "type": "DayTimer",
+        "title": "Außenbeleuchtung Garten Schaltuhr",
+        "wired_inputs": 0
+      },
+      {
+        "type": "DayTimer",
+        "title": "Garten Schaltuhr",
+        "wired_inputs": 0
+      },
+      {
+        "type": "And",
+        "title": "O1221",
+        "wired_inputs": 2
+      },
+      {
+        "type": "Monoflop",
+        "title": "O1222",
+        "wired_inputs": 1
+      }
+    ],
+    "category": "automation"
+  },
+  {
+    "utterance": "On page 'Bad Eltern': logic with 2 blocks (StairwayLS:Heizkörper, Mult:O267)",
+    "type": "logic-chain",
+    "page": "Bad Eltern",
+    "blocks": [
+      {
+        "type": "StairwayLS",
+        "title": "Heizkörper",
+        "wired_inputs": 2
+      },
+      {
+        "type": "Mult",
+        "title": "O267",
+        "wired_inputs": 1
+      }
+    ],
+    "category": "automation"
+  },
+  {
+    "utterance": "On page 'Bad Kinder': logic with 2 blocks (StairwayLS:Heizkörper, Mult:O267)",
+    "type": "logic-chain",
+    "page": "Bad Kinder",
+    "blocks": [
+      {
+        "type": "StairwayLS",
+        "title": "Heizkörper",
+        "wired_inputs": 2
+      },
+      {
+        "type": "Mult",
+        "title": "O267",
+        "wired_inputs": 1
+      }
+    ],
+    "category": "automation"
+  },
+  {
+    "utterance": "On page 'Bad Workshop': logic with 2 blocks (StairwayLS:Heizkörper, Mult:O267)",
+    "type": "logic-chain",
+    "page": "Bad Workshop",
+    "blocks": [
+      {
+        "type": "StairwayLS",
+        "title": "Heizkörper",
+        "wired_inputs": 2
+      },
+      {
+        "type": "Mult",
+        "title": "O267",
+        "wired_inputs": 1
+      }
+    ],
+    "category": "automation"
+  },
+  {
+    "utterance": "On page 'Durchgangszimmer EG': logic with 2 blocks (State:Fan-Auswahl, State:Mode-Auswahl)",
+    "type": "logic-chain",
+    "page": "Durchgangszimmer EG",
+    "blocks": [
+      {
+        "type": "State",
+        "title": "Fan-Auswahl",
+        "wired_inputs": 1
+      },
+      {
+        "type": "State",
+        "title": "Mode-Auswahl",
+        "wired_inputs": 1
+      }
+    ],
+    "category": "automation"
+  },
+  {
+    "utterance": "On page 'Esszimmer': logic with 2 blocks (State:Fan-Auswahl, State:Mode-Auswahl)",
+    "type": "logic-chain",
+    "page": "Esszimmer",
+    "blocks": [
+      {
+        "type": "State",
+        "title": "Fan-Auswahl",
+        "wired_inputs": 1
+      },
+      {
+        "type": "State",
+        "title": "Mode-Auswahl",
+        "wired_inputs": 1
+      }
+    ],
+    "category": "automation"
+  },
+  {
+    "utterance": "On page 'Keller': logic with 3 blocks (State:Fan-Auswahl, State:Mode-Auswahl, GreaterEqual:O55005)",
+    "type": "logic-chain",
+    "page": "Keller",
+    "blocks": [
+      {
+        "type": "State",
+        "title": "Fan-Auswahl",
+        "wired_inputs": 1
+      },
+      {
+        "type": "State",
+        "title": "Mode-Auswahl",
+        "wired_inputs": 1
+      },
+      {
+        "type": "GreaterEqual",
+        "title": "O55005",
+        "wired_inputs": 1
+      }
+    ],
+    "category": "automation"
+  },
+  {
+    "utterance": "On page 'Peter Office': logic with 2 blocks (State:Fan-Auswahl, State:Mode-Auswahl)",
+    "type": "logic-chain",
+    "page": "Peter Office",
+    "blocks": [
+      {
+        "type": "State",
+        "title": "Fan-Auswahl",
+        "wired_inputs": 1
+      },
+      {
+        "type": "State",
+        "title": "Mode-Auswahl",
+        "wired_inputs": 1
+      }
+    ],
+    "category": "automation"
+  },
+  {
+    "utterance": "On page 'Schlafzimmer': logic with 10 blocks (AutoJalousie:Automatikbeschattung, Monoflop:O1021, State:Fan-Auswahl, State:Mode-Auswahl, PulseAt:Pulse at...)",
+    "type": "logic-chain",
+    "page": "Schlafzimmer",
+    "blocks": [
+      {
+        "type": "AutoJalousie",
+        "title": "Automatikbeschattung",
+        "wired_inputs": 2
+      },
+      {
+        "type": "Monoflop",
+        "title": "O1021",
+        "wired_inputs": 2
+      },
+      {
+        "type": "State",
+        "title": "Fan-Auswahl",
+        "wired_inputs": 1
+      },
+      {
+        "type": "State",
+        "title": "Mode-Auswahl",
+        "wired_inputs": 1
+      },
+      {
+        "type": "PulseAt",
+        "title": "Pulse at",
+        "wired_inputs": 0
+      },
+      {
+        "type": "And",
+        "title": "O60830",
+        "wired_inputs": 2
+      },
+      {
+        "type": "OnPulseDelay",
+        "title": "O61101",
+        "wired_inputs": 1
+      },
+      {
+        "type": "OnPulseDelay",
+        "title": "O61101",
+        "wired_inputs": 1
+      },
+      {
+        "type": "OnPulseDelay",
+        "title": "O61101",
+        "wired_inputs": 1
+      },
+      {
+        "type": "OnPulseDelay",
+        "title": "O61101",
+        "wired_inputs": 1
+      }
+    ],
+    "category": "automation"
+  },
+  {
+    "utterance": "On page 'Wohnzimmer': logic with 2 blocks (State:Fan-Auswahl, State:Mode-Auswahl)",
+    "type": "logic-chain",
+    "page": "Wohnzimmer",
+    "blocks": [
+      {
+        "type": "State",
+        "title": "Fan-Auswahl",
+        "wired_inputs": 1
+      },
+      {
+        "type": "State",
+        "title": "Mode-Auswahl",
+        "wired_inputs": 1
+      }
+    ],
+    "category": "automation"
+  },
+  {
+    "utterance": "On page 'Workshop': logic with 4 blocks (State:Fan-Auswahl, State:Mode-Auswahl, OnPulseDelay:O60124, OnPulseDelay:O60341)",
+    "type": "logic-chain",
+    "page": "Workshop",
+    "blocks": [
+      {
+        "type": "State",
+        "title": "Fan-Auswahl",
+        "wired_inputs": 1
+      },
+      {
+        "type": "State",
+        "title": "Mode-Auswahl",
+        "wired_inputs": 1
+      },
+      {
+        "type": "OnPulseDelay",
+        "title": "O60124",
+        "wired_inputs": 1
+      },
+      {
+        "type": "OnPulseDelay",
+        "title": "O60341",
+        "wired_inputs": 1
+      }
+    ],
+    "category": "automation"
+  }
+]

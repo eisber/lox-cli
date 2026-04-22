@@ -1,0 +1,169 @@
+{
+  "title": "Garage/Gate",
+  "xml_type": "",
+  "kb_slug": "garagegate",
+  "description": "Motor control for garage or gate using one or two buttons\nWith the Garage and Gate Function Block, various garage doors or gates can be controlled and integrated into the Loxone system.\nSelect the type of control (Garage or Gate) in properties to ensure the correct animation is used.\nThe right type of control for the gate must be used. The outputs Tg, Op, and Cl simulate pressing a key on a controller or keyfob.\nUse the output (Tg) if its gate or garage control has only one connection for one button (toggle). Use the outputs (Op) and (Cl) if there is a discrete connection for each opening and closing\nDirect control is used when the motor is directly connected to outputs from Loxone products (similar to a blind motor)",
+  "inputs": [
+    {
+      "abbreviation": "Tg",
+      "summary": "Toggle",
+      "description": "Toggles between open, stop, close. For single button control.",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "Co",
+      "summary": "Complete open",
+      "description": "If in motion, stops.",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "Cc",
+      "summary": "Complete close",
+      "description": "If in motion, stops.",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "T5",
+      "summary": "T5 control",
+      "description": "Button 1: Complete open Button 4: Complete close",
+      "value_range": "\u221e"
+    },
+    {
+      "abbreviation": "Io",
+      "summary": "Is open",
+      "description": "Input is used to report the \u201cfully opened\u201d position via a limit switch or similar.",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "Ic",
+      "summary": "Is closed",
+      "description": "Input is used to report the \u201cfully closed\u201d position via a limit switch or similar.",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "Off",
+      "summary": "Off",
+      "description": "Pulse stops movement. On locks the block. Dominating input. The name of the connected sensor is used in the user interface.",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "Spo",
+      "summary": "Sensor prevent opening",
+      "description": "If active, opening is prevented but closing is still possible. Used to connect a photoelectric sensor or similar.",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "Spc",
+      "summary": "Sensor prevent closing",
+      "description": "If active, closing is prevented but opening is still possible. Used to connect a photoelectric sensor or similar.",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "DisPc",
+      "summary": "Disable periphery control",
+      "description": "Disables inputs Tg, Co, Cc, T5 when On. (e.g Child lock, cleaning) Control via user interface is still possible.",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "Po",
+      "summary": "Partially Open",
+      "description": "Moves Gate to partially open position if current position is different.",
+      "value_range": "0/1"
+    }
+  ],
+  "outputs": [
+    {
+      "abbreviation": "Tg",
+      "summary": "Pulse to Open/Stop/Close",
+      "description": "This output is only visible in certain configurations.",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "Pos",
+      "summary": "Position",
+      "description": "0.0 = closed, 1.0 = open",
+      "value_range": "0...1"
+    },
+    {
+      "abbreviation": "Wl",
+      "summary": "Warning light",
+      "description": "For activating a flashing warning light when the gate is moving. On/Off time is defined via parameters (Wlon) and (Wloff).",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "API",
+      "summary": "API Connector",
+      "description": "Intelligent API based connector. API Commands",
+      "value_range": "-"
+    }
+  ],
+  "parameters": [
+    {
+      "abbreviation": "Rem",
+      "summary": "Remanence input",
+      "description": "Remanence input: If active, the function block retains its previous state after a Miniserver reboot. The state of the function block is saved: \u2013 When saving to the Miniserver \u2013 At a planned reboot \u2013 Before a backup \u2013 Once per hour The data is saved on the SD card.",
+      "unit": "-",
+      "value_range": "0/1",
+      "default_value": "0"
+    },
+    {
+      "abbreviation": "Pd",
+      "summary": "Pulse duration",
+      "description": "Pulse duration of outputs Tg, Op, Cl. This parameter is only visible in certain configurations.",
+      "unit": "s",
+      "value_range": "0...\u221e",
+      "default_value": "0,5"
+    },
+    {
+      "abbreviation": "Ppd",
+      "summary": "Pulse pause duration",
+      "description": "Pause duration between two subsequent pulses of outputs Tg, Op, Cl. This parameter is only visible in certain configurations.",
+      "unit": "s",
+      "value_range": "0...\u221e",
+      "default_value": "0,5"
+    },
+    {
+      "abbreviation": "Mld",
+      "summary": "Motor lock duration",
+      "description": "Duration of motor lock between direction changes.",
+      "unit": "s",
+      "value_range": "0...\u221e",
+      "default_value": "0,5"
+    },
+    {
+      "abbreviation": "Type",
+      "summary": "Type",
+      "description": "Animation Type 0 = Garage Door 1 = Single Gate opening to the left 2 = Single Gate opening to the right 3 = Gate opening to both sides 4 = Folding Door opening to the left 5 = Folding Door opening to the right",
+      "unit": "-",
+      "value_range": "0...5",
+      "default_value": "0"
+    },
+    {
+      "abbreviation": "PoPos",
+      "summary": "Partially Open Position",
+      "description": "Target-Position for Input Po",
+      "unit": "-",
+      "value_range": "0...1",
+      "default_value": "0,2"
+    }
+  ],
+  "properties": [
+    {
+      "summary": "Connection Type",
+      "description": "Sets the behaviour of the outputs (Tg), (Op) and (Cl) Direct Control = Digital Outputs Separate Controller = Pulse Outputs",
+      "value_range": "-",
+      "default_value": "-"
+    },
+    {
+      "summary": "Activity Log Entries",
+      "description": "Number of entries in the activity log. 0: log is disabled The activity log tracks relevant changes since program start.",
+      "value_range": "0...100",
+      "default_value": "20"
+    }
+  ],
+  "source_url": "https://www.loxone.com/enen/kb/garagegate/",
+  "input_count": 11,
+  "output_count": 4,
+  "parameter_count": 6,
+  "property_count": 2
+}

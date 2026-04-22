@@ -1,0 +1,87 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<template>
+	<Info templateType="20" minVersion="15031031" generic="BelimoDevice"/>
+	<C Type="BelimoDevice" gid="BelimoDevice" V="171" U="1dce3277-0235-4a1c-ffffc3442641ddad" Title="Firvena MP24-AIO" Cl="105,195,80" WF="16384" DevT="5" LRec="499945050" Inst="" Snr="00000000000000">
+		<IoData Cr="1dcc8c7c-019c-3d89-ffff2ad455845670" Pr="1dcc8c7c-01a3-3e62-ffff2ad455845670"/>
+		<C Type="Online" IName="S0" V="171" U="1dce3277-0235-4a1d-ffffc3442641ddad" Title="Online status Firvena" Cl="105,195,80" Nio="1" WF="20480" MinTime="10" Idx="-1">
+			<Co K="Q" U="1bc0fbb2-0388-99bc-00ffadcc567884f8"/>
+			<IoData Cr="1dcc8c7c-019c-3d89-ffff2ad455845670" Pr="1dcc8c7c-01a3-3e62-ffff2ad455845670" St="2"/>
+			<Display Unit="&lt;v&gt;" StateOnly="true" IxText="8"/>
+		</C>
+		<C Type="BelimoAsensor" IName="AI0" V="171" U="1dce3277-0235-4a1e-ffffc3442641ddad" Title="Value 1" Cl="105,195,80" Nio="2" WF="16400" Analog="true" EnoceanSubType="4" ModbusAddress="29" ModbusDataType="2" ModbusPollingCycle="10" SourceValHigh="10" DestValHigh="10" MaxVal="10" MinChange="0.25" MinTime="1000">
+			<Co K="AQ" U="1bc0fc61-01bc-fa96-00ff5b458b9ee306"/>
+			<Co K="Q" U="1bc0fc61-01bc-fa97-01ff5b458b9ee306"/>
+			<IoData Cr="1dcc8c7c-019e-3da1-ffff2ad455845670" Pr="1dcc8c7c-01a8-3ede-ffff2ad455845670" St="4"/>
+			<Display Type="2" Unit="&lt;v.1&gt;" StateOnly="true"/>
+		</C>
+		<C Type="BelimoAsensor" IName="AI1" V="171" U="1dce3277-0235-4a1f-ffffc3442641ddad" Title="Value 2" Cl="105,195,80" Nio="2" WF="16400" Analog="true" EnoceanSubType="4" ModbusAddress="30" ModbusDataType="2" ModbusPollingCycle="10" SourceValHigh="10" DestValHigh="10" MaxVal="10" MinChange="0.25" MinTime="1000" Idx="1">
+			<Co K="AQ" U="1bc0fc6f-00e0-0bf0-00ff717c3669d9e2"/>
+			<Co K="Q" U="1bc0fc6f-00e0-0bf1-01ff717c3669d9e2"/>
+			<IoData Cr="1dcc8c7c-019e-3da1-ffff2ad455845670" Pr="1dcc8c7c-01a8-3ede-ffff2ad455845670" St="4"/>
+			<Display Type="2" Unit="&lt;v.1&gt;" StateOnly="true"/>
+		</C>
+		<C Type="BelimoAsensor" IName="AI2" V="171" U="1dce3277-0235-4a20-ffffc3442641ddad" Title="Value 3" Cl="105,195,80" Nio="2" WF="16400" Analog="true" EnoceanSubType="4" ModbusAddress="31" ModbusDataType="2" ModbusPollingCycle="10" SourceValHigh="10" DestValHigh="10" MaxVal="10" MinChange="0.25" MinTime="1000" Idx="2">
+			<Co K="AQ" U="1bc0fcc7-00b2-6bac-00ffc90024cf3aa0"/>
+			<Co K="Q" U="1bc0fcc7-00b2-6bad-01ffc90024cf3aa0"/>
+			<IoData Cr="1dcc8c7c-019e-3da1-ffff2ad455845670" Pr="1dcc8c7c-01a8-3ede-ffff2ad455845670" St="4"/>
+			<Display Type="2" Unit="&lt;v.1&gt;" StateOnly="true"/>
+		</C>
+		<C Type="BelimoAsensor" IName="AI3" V="171" U="1dce3277-0235-4a21-ffffc3442641ddad" Title="Value 4" Cl="105,195,80" Nio="2" WF="16400" Analog="true" EnoceanSubType="4" ModbusAddress="32" ModbusDataType="2" ModbusPollingCycle="10" SourceValHigh="10" DestValHigh="10" MaxVal="10" MinChange="0.25" MinTime="1000" Idx="3">
+			<Co K="AQ" U="1bc0fccb-019d-7469-00ffce729c0b670a"/>
+			<Co K="Q" U="1bc0fccb-019d-746a-01ffce729c0b670a"/>
+			<IoData Cr="1dcc8c7c-019e-3da1-ffff2ad455845670" Pr="1dcc8c7c-01a8-3ede-ffff2ad455845670" St="4"/>
+			<Display Type="2" Unit="&lt;v.1&gt;" StateOnly="true"/>
+		</C>
+		<C Type="BelimoAactor" IName="AQ0" V="171" U="1dce3277-0235-4a22-ffffc3442641ddad" Title="Sensor type 1" Cl="105,195,80" Nio="1" WF="16400" Channel="1" SourceValHigh="10" DestValHigh="10" DimmType="3" SubType="3" ModbusAddress="120" ModbusDataType="1" RepeatRate="60" NTXT="0 - None, 1 - U 0..10 V, 2 - R (800..1600ohm), 3 - R (0..60kohm), 4 - Switch">
+			<Co K="I" Nc="1" U="1bc0fc7a-0093-14a2-00ff70227c909f7b">
+				<In Input="1dce3285-0171-5682-01ff914f07761272"/>
+			</Co>
+			<IoData Cr="1dcc8c7c-019e-3da1-ffff2ad455845670" Pr="1dcc8c7c-01a8-3ede-ffff2ad455845670"/>
+			<Display Unit="&lt;v.1&gt;" StateOnly="true"/>
+		</C>
+		<C Type="BelimoAactor" IName="AQ1" V="171" U="1dce3277-0235-4a23-ffffc3442641ddad" Title="Sensor type 2" Cl="105,195,80" Nio="1" WF="16400" Channel="1" SourceValHigh="10" DestValHigh="10" DimmType="3" SubType="3" ModbusAddress="121" ModbusDataType="1" RepeatRate="60" Idx="1" NTXT="0 - None, 1 - U 0..10 V, 2 - R (800..1600ohm), 3 - R (0..60kohm), 4 - Switch">
+			<Co K="I" Nc="1" U="1bc0fc81-0276-2605-00ff569bee8348e2">
+				<In Input="1dce3285-0171-5687-01fffd565e39430a"/>
+			</Co>
+			<IoData Cr="1dcc8c7c-019e-3da1-ffff2ad455845670" Pr="1dcc8c7c-01a8-3ede-ffff2ad455845670"/>
+			<Display Unit="&lt;v.1&gt;" StateOnly="true"/>
+		</C>
+		<C Type="BelimoAactor" IName="AQ2" V="171" U="1dce3277-0235-4a24-ffffc3442641ddad" Title="Sensor type 3" Cl="105,195,80" Nio="1" WF="16400" Channel="1" SourceValHigh="10" DestValHigh="10" DimmType="3" SubType="3" ModbusAddress="122" ModbusDataType="1" RepeatRate="60" Idx="2" NTXT="0 - None, 1 - U 0..10 V, 2 - R (800..1600ohm), 3 - R (0..60kohm), 4 - Switch">
+			<Co K="I" Nc="1" U="1bc0fcb0-02d4-48d0-00fff7efecb7c059">
+				<In Input="1dce3285-0175-599d-01fffd565e39430a"/>
+			</Co>
+			<IoData Cr="1dcc8c7c-019e-3da1-ffff2ad455845670" Pr="1dcc8c7c-01a8-3ede-ffff2ad455845670"/>
+			<Display Unit="&lt;v.1&gt;" StateOnly="true"/>
+		</C>
+		<C Type="BelimoAactor" IName="AQ3" V="171" U="1dce3277-0235-4a25-ffffc3442641ddad" Title="Sensor type 4" Cl="105,195,80" Nio="1" WF="16400" Channel="1" SourceValHigh="10" DestValHigh="10" DimmType="3" SubType="3" ModbusAddress="123" ModbusDataType="1" RepeatRate="60" Idx="3" NTXT="0 - None, 1 - U 0..10 V, 2 - R (800..1600ohm), 3 - R (0..60kohm), 4 - Switch">
+			<Co K="I" Nc="1" U="1bc0fcb2-0043-5187-00ff928d06d08519">
+				<In Input="1dce3285-0175-59a2-01fffd565e39430a"/>
+			</Co>
+			<IoData Cr="1dcc8c7c-019e-3da1-ffff2ad455845670" Pr="1dcc8c7c-01a8-3ede-ffff2ad455845670"/>
+			<Display Unit="&lt;v.1&gt;" StateOnly="true"/>
+		</C>
+		<C Type="BelimoAsensor" IName="AI4" V="171" U="1dce340e-002c-6ef2-ffffc3442641ddad" Title="Malfunction &amp; Service Information" Cl="0,0,0" Nio="2" WF="16400" ValOT="1" Analog="true" EnoceanSubType="4" ModbusAddress="110" ModbusDataType="1" ModbusPollingCycle="60" SourceValHigh="10" DestValHigh="10" MaxVal="10" MinChange="0.25" MinTime="1000" Idx="4" NTXT="Bit 0 - AI.1 Error (temperature outside the measured range)
+Bit 1 - AI.2 Error (temperature outside the measured range)
+Bit 2 - AI.3 Error (temperature outside the measured range)
+Bit 3 - AI.4 Error (temperature outside the measured range)">
+			<Co K="AQ" U="1dce340e-002c-6ef0-00ffe85eaae83dc2"/>
+			<Co K="Q" U="1dce340e-002c-6ef1-01ffe85eaae83dc2"/>
+			<IoData Cr="1dcc8c7c-019e-3da1-ffff2ad455845670" Pr="1dcc8c7c-01a8-3ede-ffff2ad455845670" St="4"/>
+			<Display Type="2" Unit="&lt;v&gt;" StateOnly="true"/>
+		</C>
+		<C Type="BelimoAactor" IName="AQ5" V="171" U="1dce34e8-0305-f247-ffffc3442641ddad" Title="Output 1" Cl="0,0,0" Nio="1" WF="16400" Channel="1" SourceValHigh="10" DestValHigh="10" DimmType="3" SubType="3" ModbusAddress="16" ModbusDataType="2" RepeatRate="60" Idx="5">
+			<Co K="I" Nc="1" U="1dce34e8-0305-f246-00ff4ae44407cc47">
+				<In Input="1dce34f6-03e0-fcfb-01ff89d611ade15b"/>
+			</Co>
+			<IoData Cr="1dcc8c7c-019e-3da1-ffff2ad455845670" Pr="1dcc8c7c-01a8-3ede-ffff2ad455845670"/>
+			<Display Unit="&lt;v.1&gt;" StateOnly="true"/>
+		</C>
+		<C Type="BelimoAactor" IName="AQ5" V="171" U="1dce34e9-01ca-f5d3-ffffc3442641ddad" Title="Output 2" Cl="0,0,0" Nio="1" WF="16400" Channel="1" SourceValHigh="10" DestValHigh="10" DimmType="3" SubType="3" ModbusAddress="17" ModbusDataType="2" RepeatRate="60" Idx="5">
+			<Co K="I" Nc="1" U="1dce34e9-01ca-f5d2-00ffefc6efd999d1">
+				<In Input="1dce34f6-03e2-fd31-01ff8e1c26197c4d"/>
+			</Co>
+			<IoData Cr="1dcc8c7c-019e-3da1-ffff2ad455845670" Pr="1dcc8c7c-01a8-3ede-ffff2ad455845670"/>
+			<Display Unit="&lt;v.1&gt;" StateOnly="true"/>
+		</C>
+	</C>
+</template>

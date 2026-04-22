@@ -1,0 +1,12 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Modbus Title="wallbe Eco2.0s" Comment="" Channel="255">
+	<Info templateType="7" minVersion="13000629"/>
+	<ModbusCmd Title="Status" Comment="" ModbusAddress="100" ModbusCmd="4" ModbusPollingCycle="10" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="charging power" Comment="" ModbusAddress="120" ModbusCmd="4" ModbusDataType="32" ModbusPollingCycle="10" Unit="&lt;v.1&gt;KW" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="0.1"/>
+	<ModbusCmd Title="Total Energy" Comment="" ModbusAddress="128" ModbusCmd="4" ModbusDataType="32" ModbusPollingCycle="10" Unit="&lt;v&gt;KWh" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="charging time" Comment="" ModbusAddress="102" ModbusCmd="4" ModbusDataType="34" ModbusPollingCycle="10" Unit="&lt;v&gt;s" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="1000"/>
+	<ModbusCmd Title="Error Code" Comment="" ModbusAddress="107" ModbusCmd="4" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="energy charging process" Comment="energy of the current charging process" ModbusAddress="132" ModbusCmd="4" ModbusDataType="34" ModbusPollingCycle="60" Unit="&lt;v.1&gt;KWh" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="charge release" Comment="" ModbusAddress="400" ModbusCmd="5" Unit="" Analog="false" Sensor="false"/>
+	<ModbusCmd Title="charging current specification" Comment="" ModbusAddress="528" ModbusCmd="6" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+</Modbus>

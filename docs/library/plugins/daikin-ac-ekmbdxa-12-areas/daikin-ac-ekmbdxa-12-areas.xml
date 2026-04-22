@@ -1,0 +1,58 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Modbus Title="DAIKIN_EKMBDXA_12_zones" Comment="" Baudrate="9600" Channel="6">
+	<Info templateType="7" minVersion="12010617"/>
+	<ModbusCmd Title="Temperature Zone 1" Comment="" ModbusAddress="2010" ModbusCmd="4" ModbusDataType="1" ModbusPollingCycle="5" Unit="&lt;v.1&gt; ºC" Analog="true" Sensor="true" SourceValLow="10" SourceValHigh="100" DestValLow="1" DestValHigh="10"/>
+	<ModbusCmd Title="Temperature Zone 2" Comment="" ModbusAddress="2016" ModbusCmd="4" ModbusDataType="1" ModbusPollingCycle="5" Unit="&lt;v.1&gt; ºC" Analog="true" Sensor="true" SourceValLow="10" SourceValHigh="100" DestValLow="1" DestValHigh="10"/>
+	<ModbusCmd Title="Temperature Zone 3" Comment="" ModbusAddress="2022" ModbusCmd="4" ModbusDataType="1" ModbusPollingCycle="5" Unit="&lt;v.1&gt; ºC" Analog="true" Sensor="true" SourceValLow="10" SourceValHigh="100" DestValLow="1" DestValHigh="10"/>
+	<ModbusCmd Title="Temperature Zone 4" Comment="" ModbusAddress="2028" ModbusCmd="4" ModbusDataType="1" ModbusPollingCycle="5" Unit="&lt;v.1&gt; ºC" Analog="true" Sensor="true" SourceValLow="10" SourceValHigh="100" DestValLow="1" DestValHigh="10"/>
+	<ModbusCmd Title="Temperature Zone 5" Comment="" ModbusAddress="2034" ModbusCmd="4" ModbusDataType="1" ModbusPollingCycle="5" Unit="&lt;v.1&gt; ºC" Analog="true" Sensor="true" SourceValLow="10" SourceValHigh="100" DestValLow="1" DestValHigh="10"/>
+	<ModbusCmd Title="Temperature Zone 6 (Master)" Comment="" ModbusAddress="2040" ModbusCmd="4" ModbusDataType="1" ModbusPollingCycle="5" Unit="&lt;v.1&gt; ºC" Analog="true" Sensor="true" SourceValLow="10" SourceValHigh="100" DestValLow="1" DestValHigh="10"/>
+	<ModbusCmd Title="Temperature Set Point Zone 1" Comment="" ModbusAddress="2008" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v.1&gt; ºC" Analog="true" Sensor="true" SourceValLow="10" SourceValHigh="100" DestValLow="1" DestValHigh="10"/>
+	<ModbusCmd Title="Temperature Set Point Zone 2" Comment="" ModbusAddress="2014" ModbusCmd="4" ModbusDataType="1" ModbusPollingCycle="5" Unit="&lt;v.1&gt; ºC" Analog="true" Sensor="true" SourceValLow="10" SourceValHigh="100" DestValLow="1" DestValHigh="10"/>
+	<ModbusCmd Title="Temperature Set Point Zone 3" Comment="" ModbusAddress="2020" ModbusCmd="4" ModbusDataType="1" ModbusPollingCycle="5" Unit="&lt;v.1&gt; ºC" Analog="true" Sensor="true" SourceValLow="10" SourceValHigh="100" DestValLow="1" DestValHigh="10"/>
+	<ModbusCmd Title="Temperature Set Point Zone 4" Comment="" ModbusAddress="2026" ModbusCmd="4" ModbusDataType="1" ModbusPollingCycle="5" Unit="&lt;v.1&gt; ºC" Analog="true" Sensor="true" SourceValLow="10" SourceValHigh="100" DestValLow="1" DestValHigh="10"/>
+	<ModbusCmd Title="Temperature Set Point Zone 5" Comment="" ModbusAddress="2032" ModbusCmd="4" ModbusDataType="1" ModbusPollingCycle="5" Unit="&lt;v.1&gt; ºC" Analog="true" Sensor="true" SourceValLow="10" SourceValHigh="100" DestValLow="1" DestValHigh="10"/>
+	<ModbusCmd Title="Temperature Set Point Zone 6 (Master)" Comment="" ModbusAddress="2038" ModbusCmd="4" ModbusDataType="1" ModbusPollingCycle="5" Unit="&lt;v.1&gt; ºC" Analog="true" Sensor="true" SourceValLow="10" SourceValHigh="100" DestValLow="1" DestValHigh="10"/>
+	<ModbusCmd Title="Operation Mode Zone 1" Comment="" ModbusAddress="2007" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Operation Mode Zone 2" Comment="" ModbusAddress="2013" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Operation Mode Zone 3" Comment="" ModbusAddress="2019" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Operation Mode Zone 4" Comment="" ModbusAddress="2025" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Operation Mode Zone 5" Comment="" ModbusAddress="2031" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Operation Mode Zone 6 (Master)" Comment="" ModbusAddress="2037" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="ON_OFF Zone 1" Comment="" ModbusAddress="2006" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="ON_OFF Zone 2" Comment="" ModbusAddress="2012" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="ON_OFF Zone 3" Comment="" ModbusAddress="2018" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="ON_OFF Zone 4" Comment="" ModbusAddress="2024" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="ON_OFF Zone 5" Comment="" ModbusAddress="2030" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="ON_OFF Zone 6 (Master)" Comment="" ModbusAddress="2036" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="FFR_Test_Modbus_Adr 0001" Comment="" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="FFR_Test_Modbus_Adr_0002" Comment="" ModbusAddress="1" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="FFR_Test_Modbus_Adr_0003" Comment="" ModbusAddress="5" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="ON_OFF Zone 7" Comment="" ModbusAddress="2042" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Operation Mode Zone 7" Comment="" ModbusAddress="2043" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Temperature Set Point Zone 7" Comment="" ModbusAddress="2044" ModbusCmd="4" ModbusDataType="1" ModbusPollingCycle="5" Unit="&lt;v.1&gt; ºC" Analog="true" Sensor="true" SourceValLow="10" SourceValHigh="100" DestValLow="1" DestValHigh="10"/>
+	<ModbusCmd Title="Temperature Zone 7" Comment="" ModbusAddress="2046" ModbusCmd="4" ModbusDataType="1" ModbusPollingCycle="5" Unit="&lt;v.1&gt; ºC" Analog="true" Sensor="true" SourceValLow="10" SourceValHigh="100" DestValLow="1" DestValHigh="10"/>
+	<ModbusCmd Title="Indoor Unit Capability Zone 1" Comment="" ModbusAddress="1003" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Indoor Unit Capability Zone 7" Comment="" ModbusAddress="1018" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Operation Mode Zone 6 [Master]" Comment="" ModbusAddress="2019" ModbusCmd="6" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100" RepeatRate="5"/>
+	<ModbusCmd Title="Temperature Set Point Zone 1" Comment="" ModbusAddress="2005" ModbusCmd="6" ModbusDataType="1" Unit="&lt;v.1&gt; ºC" Analog="true" Sensor="false" SourceValLow="1" SourceValHigh="10" DestValLow="10" DestValHigh="100"/>
+	<ModbusCmd Title="Temperature Set Point Zone 2" Comment="" ModbusAddress="2008" ModbusCmd="6" ModbusDataType="1" Unit="&lt;v.1&gt; ºC" Analog="true" Sensor="false" SourceValLow="1" SourceValHigh="10" DestValLow="10" DestValHigh="100"/>
+	<ModbusCmd Title="Temperature Set Point Zone 3" Comment="" ModbusAddress="2011" ModbusCmd="6" ModbusDataType="1" Unit="&lt;v.1&gt; ºC" Analog="true" Sensor="false" SourceValLow="1" SourceValHigh="10" DestValLow="10" DestValHigh="100"/>
+	<ModbusCmd Title="Temperature Set Point Zone 4" Comment="" ModbusAddress="2014" ModbusCmd="6" ModbusDataType="1" Unit="&lt;v.1&gt; ºC" Analog="true" Sensor="false" SourceValLow="1" SourceValHigh="10" DestValLow="10" DestValHigh="100"/>
+	<ModbusCmd Title="Temperature Set Point Zone 5" Comment="" ModbusAddress="2017" ModbusCmd="6" ModbusDataType="1" Unit="&lt;v.1&gt; ºC" Analog="true" Sensor="false" SourceValLow="1" SourceValHigh="10" DestValLow="10" DestValHigh="100"/>
+	<ModbusCmd Title="Temperature Set Point Zone 6 (Master)" Comment="" ModbusAddress="2020" ModbusCmd="6" ModbusDataType="1" Unit="&lt;v.1&gt; ºC" Analog="true" Sensor="false" SourceValLow="1" SourceValHigh="10" DestValLow="10" DestValHigh="100"/>
+	<ModbusCmd Title="ON_OFF Zone 1" Comment="" ModbusAddress="2003" ModbusCmd="6" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="ON_OFF Zone 2" Comment="" ModbusAddress="2006" ModbusCmd="6" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="ON_OFF Zone 3" Comment="" ModbusAddress="2009" ModbusCmd="6" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="ON_OFF Zone 4" Comment="" ModbusAddress="2012" ModbusCmd="6" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="ON_OFF Zone 5" Comment="" ModbusAddress="2015" ModbusCmd="6" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="ON_OFF Zone 6 (Master)" Comment="" ModbusAddress="2018" ModbusCmd="6" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="ON_OFF Zone 7" Comment="" ModbusAddress="2021" ModbusCmd="6" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Temperature Set Point Zone 7" Comment="" ModbusAddress="2023" ModbusCmd="6" ModbusDataType="1" Unit="&lt;v.1&gt; ºC" Analog="true" Sensor="false" SourceValLow="1" SourceValHigh="10" DestValLow="10" DestValHigh="100"/>
+	<ModbusCmd Title="Operation Mode Zone 7" Comment="" ModbusAddress="2022" ModbusCmd="6" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10" RepeatRate="5"/>
+	<ModbusCmd Title="Operation Mode Zone 1" Comment="" ModbusAddress="2004" ModbusCmd="6" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10" RepeatRate="5"/>
+	<ModbusCmd Title="Operation Mode Zone 2" Comment="" ModbusAddress="2007" ModbusCmd="6" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10" RepeatRate="5"/>
+	<ModbusCmd Title="Operation Mode Zone 3" Comment="" ModbusAddress="2010" ModbusCmd="6" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10" RepeatRate="5"/>
+	<ModbusCmd Title="Operation Mode Zone 4" Comment="" ModbusAddress="2013" ModbusCmd="6" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10" RepeatRate="5"/>
+	<ModbusCmd Title="Operation Mode Zone 5" Comment="" ModbusAddress="2016" ModbusCmd="6" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10" RepeatRate="5"/>
+</Modbus>

@@ -1,0 +1,39 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Comm Title="Meltem M-WRG-S" Comment="" Baudrate="9600" Databits="8" Parity="1" CycleUserProt="60">
+    <Info templateType="6" minVersion="12010617"/>
+	<CommCmd Title="rcv control device" Comment="" CmdOn="\n001\.W#001\v" CmdOff="" Unit="&lt;v&gt;" Analog="true" Text="false" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="rcv blower level" Comment="" CmdOn="\n001\.W#010\v" CmdOff="" Unit="&lt;v&gt;" Analog="true" Text="false" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="rcv filter dirty" Comment="" CmdOn="\n001lW#032\v" CmdOff="" Unit="" Analog="false" Text="false" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="rcv switch position" Comment="" CmdOn="\n001lW#030\v" CmdOff="" Unit="&lt;v.1&gt;" Analog="true" Text="false" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="rcv temp exhaust air after exchanger" Comment="" CmdOn="\n001lW#040\v" CmdOff="" Unit="&lt;v.1&gt;°" Analog="true" Text="false" Sensor="true" SourceValHigh="999" DestValLow="-40" DestValHigh="59.9"/>
+	<CommCmd Title="rcv temp exhaust air inside*" Comment="" CmdOn="\n001lW#041\v" CmdOff="" Unit="&lt;v.1&gt;°" Analog="true" Text="false" Sensor="true" SourceValHigh="999" DestValLow="-40" DestValHigh="59.9"/>
+	<CommCmd Title="rcv temp supply air outside*" Comment="" CmdOn="\n001lW#042\v" CmdOff="" Unit="&lt;v.1&gt;°" Analog="true" Text="false" Sensor="true" SourceValHigh="999" DestValLow="-40" DestValHigh="59.9"/>
+	<CommCmd Title="rcv temp supply air after exchanger*" Comment="" CmdOn="\n001lW#043\v" CmdOff="" Unit="&lt;v.1&gt;°" Analog="true" Text="false" Sensor="true" SourceValHigh="999" DestValLow="-40" DestValHigh="59.9"/>
+	<CommCmd Title="rcv danger of frost" Comment="" CmdOn="\n001lW#031\v" CmdOff="" Unit="" Analog="false" Text="false" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="rcv fan mode" Comment="" CmdOn="\n001\.W#005\v" CmdOff="" Unit="" Analog="false" Text="false" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="rcv blower level supply" Comment="" CmdOn="\n001\.W#011\v" CmdOff="" Unit="&lt;v.1&gt;" Analog="true" Text="false" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="rcv blower level exhaust" Comment="" CmdOn="\n001\.W#012\v" CmdOff="" Unit="&lt;v.1&gt;" Analog="true" Text="false" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="rq control device" Comment="" CmdOn="\n001lW001\r" CmdOff="" Unit="&lt;v&gt;" Analog="true" Text="false" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="set control device" Comment="" CmdOn="\n001sW00100&lt;v&gt;\r" CmdOff="" Unit="" Analog="false" Text="false" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="set blower level 0-9" Comment="" CmdOn="\n001sW01000&lt;v&gt;\r" CmdOff="" Unit="&lt;v&gt;" Analog="true" Text="false" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="rq filter dirty" Comment="" CmdOn="\n001lW032\r" CmdOff="" Unit="" Analog="false" Text="false" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="rq blower level" Comment="" CmdOn="\n001lW010\r" CmdOff="" Unit="" Analog="false" Text="false" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="set blower level 10" Comment="" CmdOn="\n001sW010010\r" CmdOff="" Unit="" Analog="false" Text="false" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="rq Switch position" Comment="" CmdOn="\n001lW030\r" CmdOff="" Unit="" Analog="false" Text="false" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="rq temp exhaust air after exchanger" Comment="" CmdOn="\n001lW040\r" CmdOff="" Unit="" Analog="false" Text="false" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="rq temp exhaust air inside*" Comment="" CmdOn="\n001lW041\r" CmdOff="" Unit="" Analog="false" Text="false" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="rq temp supply air outside*" Comment="" CmdOn="\n001lW042\r" CmdOff="" Unit="" Analog="false" Text="false" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="rq temp supply air after exchanger*" Comment="" CmdOn="\n001lW043\r" CmdOff="" Unit="" Analog="false" Text="false" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="rq danger of frost" Comment="" CmdOn="\n001lW031\r" CmdOff="" Unit="" Analog="false" Text="false" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="set blower level supply 0-9" Comment="" CmdOn="\n001sW01100&lt;v&gt;\r" CmdOff="" Unit="&lt;v.1&gt;" Analog="true" Text="false" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="set blower level exhaust 0-9" Comment="" CmdOn="\n001sW01200&lt;v&gt;\r" CmdOff="" Unit="&lt;v.1&gt;" Analog="true" Text="false" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="set fan mode" Comment="" CmdOn="\n001sW005001\r" CmdOff="\n001sW005000\r" Unit="" Analog="false" Text="false" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="rq fan mode" Comment="" CmdOn="\n001lW005\r" CmdOff="" Unit="" Analog="false" Text="false" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="set blower level supply 10" Comment="" CmdOn="\n001sW01100010\r" CmdOff="" Unit="" Analog="false" Text="false" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="set blower level exhaust 10" Comment="" CmdOn="\n001sW01200010\r" CmdOff="" Unit="" Analog="false" Text="false" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="rq blower level supply" Comment="" CmdOn="\n001lW011\r" CmdOff="" Unit="" Analog="false" Text="false" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="rq blower level exhaust" Comment="" CmdOn="\n001lW012\r" CmdOff="" Unit="" Analog="false" Text="false" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="set beeper" Comment="" CmdOn="\n001sW004001\r" CmdOff="\n001sW004000\r" Unit="" Analog="false" Text="false" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="set panels mode" Comment="" CmdOn="\n001sW003001\r" CmdOff="\n001sW003000\r" Unit="" Analog="false" Text="false" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="set frost mode" Comment="" CmdOn="\n001sW002001\r" CmdOff="\n001sW002000\r" Unit="" Analog="false" Text="false" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+</Comm>

@@ -1,0 +1,190 @@
+╔════════════════════════════════════════════════════════════════════════════════╗
+║                    HVAC SIMULATOR GAPS - QUICK REFERENCE                       ║
+╚════════════════════════════════════════════════════════════════════════════════╝
+
+CONFIG FACTS:
+  Version: 262 (ref: 267, only 5 versions old) ✓ Modern
+  Total blocks: 162 types | Implemented: 60 types (37%)
+  New types not in map: 76 (mostly infrastructure)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+MUST IMPLEMENT (NO SIMULATION WITHOUT THESE):
+
+  1. HVACController ★★★
+     Instances: 4
+     Function: Main heating/cooling loop controller
+     Config: Temp limits (-22 to +28°C), PID tuning, pulse timing (750s on/300s off)
+     Complexity: HIGH (PID algorithm, multiple setpoints)
+     Est. Effort: 20h
+
+  2. HeatIRoomController2 ★★★  
+     Instances: 2
+     Function: Intelligent per-room thermostat with presence detection
+     Config: Comfort (22.5°C), Save (2°C offset), DeepSleep, Schedule (8-15 modes)
+     Complexity: VERY HIGH (multi-mode logic, scheduling, air quality)
+     Est. Effort: 25h
+
+  3. Heatmixer / Heatmixer2 ★★★
+     Instances: Paired with HVACController
+     Function: 3-way proportional valve mixing for precise temperature control
+     Config: Blending algorithm (hot + cold → target temp)
+     Complexity: MEDIUM-HIGH (proportional control, thermal dynamics)
+     Est. Effort: 15h
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+SHOULD IMPLEMENT (ENABLE CRITICAL FEATURES):
+
+  4. AcControl ★★
+     Instances: 1 (AC unit control)
+     Config: Setpoint=17°C, hysteresis=0.5°C, anti-cycle pause=2 hours
+     Est. Effort: 15h
+
+  5. Ventilation ★★
+     Instances: 2 (general + garage)
+     Function: Fan speed control, humidity/CO2 driven
+     Est. Effort: 10h
+
+  6. OvertempShutdown ★★
+     Instances: 2 (safety blocks)
+     Function: Emergency cutoff at max temperature
+     Est. Effort: 5h
+
+  7. DewPoint ★
+     Instances: 3 (outdoor + 2 rooms)
+     Function: Condensation prevention
+     Est. Effort: 15h
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+IMPLEMENTATION PHASES:
+
+  PHASE 1 (70% fidelity): HVACController + HeatIRoomController2 + Heatmixer
+                          Effort: 40-60 hours
+                          Result: Basic heating/cooling works
+
+  PHASE 2 (85% fidelity): Add AcControl + Ventilation + OvertempShutdown  
+                          Effort: 30-40 hours
+                          Result: Full AC support + safety
+
+  PHASE 3 (95% fidelity): Add DewPoint + Avg + StatusMonitor
+                          Effort: 30-50 hours
+                          Result: Edge cases + diagnostics
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+INTERESTING REAL PARAMETERS FOUND:
+
+  HVACController:
+    • Temperature limits: -22°C (min) to +28°C (max)
+    • Heating limit: 15°C | Cooling limit: 18°C
+    • Pulse timing: 750s ON / 300s OFF (33% duty cycle baseline)
+    • Fan delay: 120 seconds
+
+  HeatIRoomController2 (Master Bedroom):
+    • Comfort heating: 22.5°C | Cooling: 24.5°C
+    • Energy save offset: 2°C below comfort
+    • Hysteresis: 1.5°C deadband (prevents oscillation)
+    • PID gains: 120 (heating) / 60 (cooling) 
+    • Time constants: 3600s (1 hour) for both heat & cool
+    • Schedule: 8 modes (Away, Presence variants)
+    • Window timeout: 300s (5 min) then triggers cooling
+
+  HeatIRoomController2 (Cooling Zone):
+    • More conservative: 18°C heat / 20°C cool
+    • Narrower save band: ±2.5°C
+    • Advanced: Has CO2 and humidity inputs for air quality
+
+  AcControl:
+    • Current setpoint: 17°C | Current measured: 15.4°C
+    • Hysteresis: 0.5°C (tight control)
+    • Safety: minimum 1°C / maximum 40°C
+    • Anti-cycle: 7200s (2 hour) minimum off time
+    • Fan levels: 0-8 variable speed
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+CONNECTOR INSIGHTS:
+
+  HVACController has these pins with Def= values:
+    TempMin, TempLimitH/C, FanDelay, TimePulseOn/Off, OnThreshold, Average
+
+  HeatIRoomController2 (57 pins total):
+    Temperature: TempO, TComfort, TComfortC, TComfortHC, TSave*, TShadeCool/Heat, TMax
+    Timing: TimeC, TimeS, TimeMv, TimeMove, TWin (window)
+    Control: TDiff (hysteresis), TExcess, THCelvin, TCCelvin (gains)
+    Modes: 3 schedule timer entries with From/To minutes
+    Inputs: Temp, Window, Comfort, Save, Move, Reset, Reset, DisMv, RtD
+
+  AcControl (9 inputs):
+    inTempCurr, inTempTarget, inFan, inAirDir, maxTemp, minTemp, parHyst, parPause, parOff
+
+  Heatmixer (inferred):
+    Likely has: HotInlet, ColdInlet, TargetTemp, ValvePosition, Output
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+WHAT'S ALREADY IMPLEMENTED (GOOD NEWS):
+
+  ✓ Logic gates: And, Or, Not, Xor
+  ✓ Math: Add, Sub, Mult, Div, Minmax, AMinmax, Mod, Int, Shift
+  ✓ Comparisons: Equal, NotEqual, Greater, GreaterEqual, Less, LessEqual
+  ✓ Timers: OnDelay, OffDelay, Monoflop, OnPulseDelay, StairwayLS, PulseGen, PulseAt
+  ✓ State: State, StateV, FlipFlop, RSFlipFlop, SRFlipFlop, Memory, AMemory
+  ✓ Control: DayTimer, Calendar, EdgeDetection, PWM
+  ✓ Analog: AnalogScaler, AnalogMultiplexer, AnalogMultiplexer2, AnalogStepper
+  ✓ Triggers: AnalogComparator, AnalogDiffTrigger, AnalogThresholdTrigger, AnalogWatchdog
+  ✓ Counters: Counter, UpDownCounter, HourCounter
+  ✓ And 30+ more...
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+KNOWN ISSUES / MISSING:
+
+  New not in map (likely OK to skip):
+    • DateTime, Calendar, Impulse*, SysVar, Logger
+    • WeatherData, WeatherServer, ModbusServer, Modbus*
+    • LoxAIR, Lox1wire (hardware integrations)
+    • VirtualIn, InputRef, OutputRef (architectural)
+    • Actor, ApiActor, AutoPilot (obsolete/internal)
+
+  Nice-to-have but not critical:
+    • SwitchingTimer (already have OnDelay/Monoflop)
+    • Avg (temperature averaging - easy to add)
+    • StatusMonitor (diagnostics)
+    • TimeMinmax (limit tracking)
+    • Solarpumpcontrol (solar-only feature)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+ACTION ITEMS FOR SIMULATOR:
+
+  IMMEDIATELY:
+    □ Add HVACController (core heating/cooling PID)
+    □ Add HeatIRoomController2 (room thermostats)
+    □ Add Heatmixer (3-way valve control)
+    □ Add AcControl (AC cooling)
+    □ Add OvertempShutdown (safety)
+    
+  SOON:
+    □ Add Ventilation (fan control)
+    □ Add DewPoint (humidity calc)
+    □ Add Avg (temperature filter)
+    □ Add SwitchingTimer (if not satisfied with Monoflop)
+    
+  LATER:
+    □ Add StatusMonitor (diagnostics)
+    □ Add TimeMinmax (advanced logging)
+    □ Validate with more configs
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+ESTIMATED TOTAL EFFORT:
+
+  Phase 1 (Core):              40-60 hours  → 70% fidelity
+  Phase 2 (AC + Safety):       30-40 hours  → 85% fidelity  
+  Phase 3 (Polish):            30-50 hours  → 95%+ fidelity
+  ─────────────────────────────────────────────────────────
+  TOTAL:                       100-150 hours
+

@@ -1,0 +1,28 @@
+{
+  "title": "Multiply",
+  "xml_type": "",
+  "kb_slug": "multiply",
+  "description": "Multiplies two or more analog values and makes the result available at output (O).",
+  "inputs": [],
+  "outputs": [
+    {
+      "abbreviation": "O",
+      "description": "(O) = (V1) x (V2)",
+      "value_range": "\u221e"
+    }
+  ],
+  "parameters": [
+    {
+      "abbreviation": "V1-2",
+      "summary": "Value 1-2",
+      "value_range": "\u221e",
+      "default_value": "0"
+    }
+  ],
+  "properties": [],
+  "source_url": "https://www.loxone.com/enen/kb/multiply/",
+  "input_count": 0,
+  "output_count": 1,
+  "parameter_count": 1,
+  "property_count": 0
+}

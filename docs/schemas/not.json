@@ -1,0 +1,27 @@
+{
+  "title": "NOT",
+  "xml_type": "",
+  "kb_slug": "not",
+  "description": "Inverts input value.",
+  "inputs": [
+    {
+      "abbreviation": "I",
+      "summary": "Input",
+      "value_range": "0/1"
+    }
+  ],
+  "outputs": [
+    {
+      "abbreviation": "O",
+      "summary": "Output",
+      "value_range": "0/1"
+    }
+  ],
+  "parameters": [],
+  "properties": [],
+  "source_url": "https://www.loxone.com/enen/kb/not/",
+  "input_count": 1,
+  "output_count": 1,
+  "parameter_count": 0,
+  "property_count": 0
+}

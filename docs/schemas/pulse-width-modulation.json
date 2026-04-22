@@ -1,0 +1,36 @@
+{
+  "title": "Pulse Width Modulation",
+  "xml_type": "",
+  "kb_slug": "pulse-width-modulation",
+  "description": "Pulse width modulator to convert analog values into digital signals.",
+  "inputs": [
+    {
+      "abbreviation": "Off",
+      "summary": "Off",
+      "description": "Pulse: Outputs are reset / switched off. On: Block is locked. Dominating input.",
+      "value_range": "0/1"
+    }
+  ],
+  "outputs": [
+    {
+      "abbreviation": "PWM",
+      "summary": "PWM output",
+      "value_range": "0/1"
+    }
+  ],
+  "parameters": [
+    {
+      "abbreviation": "P",
+      "summary": "Period",
+      "unit": "s",
+      "value_range": "0...\u221e",
+      "default_value": "1"
+    }
+  ],
+  "properties": [],
+  "source_url": "https://www.loxone.com/enen/kb/pulse-width-modulation/",
+  "input_count": 1,
+  "output_count": 1,
+  "parameter_count": 1,
+  "property_count": 0
+}

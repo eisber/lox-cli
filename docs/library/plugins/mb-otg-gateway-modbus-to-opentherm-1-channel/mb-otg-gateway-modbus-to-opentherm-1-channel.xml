@@ -1,0 +1,31 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Modbus Title="MB-OTG" Comment="" Baudrate="9600" Channel="1">
+	<Info templateType="7" minVersion="12021201"/>
+	<ModbusCmd Title="Slave Configuration" Comment="" ModbusAddress="2" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="OEM Fault code" Comment="" ModbusAddress="3" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="RBP Flags" Comment="" ModbusAddress="4" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Boiler maximum capacity (kW)" Comment="" ModbusAddress="5" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Relative modulation level" Comment="" ModbusAddress="7" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Heating circuit H2O pressure (bar)" Comment="" ModbusAddress="7" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Water Outlet Temperature" Comment="" ModbusAddress="8" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="60" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="10" DestValLow="10" DestValHigh="100"/>
+	<ModbusCmd Title="DHW Temperature" Comment="" ModbusAddress="9" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="60" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="10" DestValLow="10" DestValHigh="100"/>
+	<ModbusCmd Title="Water Inlet Temperature" Comment="" ModbusAddress="10" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="60" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="10" DestValLow="10" DestValHigh="100"/>
+	<ModbusCmd Title="Boiler Working time" Comment="" ModbusAddress="17" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Heating set point limit" Comment="" ModbusAddress="16" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="60" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="10" DestValLow="10" DestValHigh="100"/>
+	<ModbusCmd Title="DHW set point limit" Comment="" ModbusAddress="15" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Exhaust fumes Temperature" Comment="" ModbusAddress="12" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Water Pump working time" Comment="" ModbusAddress="18" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Opentherm communication Status" Comment="" ModbusAddress="23" ModbusCmd="3" ModbusPollingCycle="60" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="Heating Set point" Comment="" ModbusAddress="25" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="DHW Set point" Comment="" ModbusAddress="26" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Modulation Power limit" Comment="" ModbusAddress="27" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Alarm present" Comment="" ModbusCmd="1" ModbusPollingCycle="60" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="Heat mode ON" Comment="" ModbusAddress="1" ModbusCmd="1" ModbusPollingCycle="60" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="DHW mode ON" Comment="" ModbusAddress="2" ModbusCmd="1" ModbusPollingCycle="60" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="Flame ON" Comment="" ModbusAddress="3" ModbusCmd="1" ModbusPollingCycle="60" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="Heating Set Point" Comment="" ModbusAddress="25" ModbusCmd="6" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="false" SourceValHigh="10" DestValLow="10" DestValHigh="100"/>
+	<ModbusCmd Title="DHW Set Point" Comment="" ModbusAddress="26" ModbusCmd="6" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="false" SourceValHigh="10" DestValLow="10" DestValHigh="100"/>
+	<ModbusCmd Title="Modulation Power Limit" Comment="" ModbusAddress="27" ModbusCmd="6" Unit="&lt;v&gt;%" Analog="true" Sensor="false" SourceValHigh="10" DestValLow="10" DestValHigh="100"/>
+	<ModbusCmd Title="Heating Enable" Comment="" ModbusAddress="48" ModbusCmd="5" Unit="" Analog="false" Sensor="false"/>
+	<ModbusCmd Title="DHW Enable" Comment="" ModbusAddress="49" ModbusCmd="5" Unit="" Analog="false" Sensor="false"/>
+</Modbus>

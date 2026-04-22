@@ -1,0 +1,39 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Modbus Title="Vestel EVC04 V1.1" Comment="" Channel="255">
+	<Info templateType="7" minVersion="13010812"/>
+	<ModbusCmd Title="Date" Comment="" ModbusAddress="290" ModbusCmd="3" ModbusDataType="34" ModbusPollingCycle="60" Unit="&lt;v&gt;yymmdd" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Time" Comment="" ModbusAddress="294" ModbusCmd="3" ModbusDataType="34" ModbusPollingCycle="60" Unit="&lt;v.&gt;hhmmss" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Chargepoint State" Comment="" ModbusAddress="1000" ModbusCmd="3" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Charging State" Comment="(0) no charging (1) charging" ModbusAddress="1001" ModbusCmd="3" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Equipment State" Comment="(0) initializing (1) running (2) fault (3) disabled" ModbusAddress="1002" ModbusCmd="3" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Cable State" Comment="(0) no cable (1) cable con - no vehicle (2) vehicle con (3) cable locked" ModbusAddress="1004" ModbusCmd="3" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="EVSE Fault Code" Comment="(0) no fault - other: Fault code" ModbusAddress="1006" ModbusCmd="3" ModbusDataType="34" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Active Power Total" Comment="" ModbusAddress="1020" ModbusCmd="3" ModbusDataType="34" ModbusPollingCycle="60" Unit="&lt;v&gt;W" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Current L1" Comment="" ModbusAddress="1008" ModbusCmd="3" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt;A" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="1"/>
+	<ModbusCmd Title="Current L2" Comment="" ModbusAddress="1010" ModbusCmd="3" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt;A" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="1"/>
+	<ModbusCmd Title="Current L3" Comment="" ModbusAddress="1012" ModbusCmd="3" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt;A" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="1"/>
+	<ModbusCmd Title="Voltage L1" Comment="" ModbusAddress="1014" ModbusCmd="3" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt;V" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Voltage L2" Comment="" ModbusAddress="1016" ModbusCmd="3" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt;V" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Voltage L3" Comment="" ModbusAddress="1018" ModbusCmd="3" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt;V" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Active Power L1" Comment="" ModbusAddress="1024" ModbusCmd="3" ModbusDataType="34" ModbusPollingCycle="60" Unit="&lt;v&gt;W" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Active Power L2" Comment="" ModbusAddress="1028" ModbusCmd="3" ModbusDataType="34" ModbusPollingCycle="60" Unit="&lt;v&gt;W" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Active Power L3" Comment="" ModbusAddress="1032" ModbusCmd="3" ModbusDataType="34" ModbusPollingCycle="60" Unit="&lt;v&gt;W" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Meter Reading" Comment="" ModbusAddress="1036" ModbusCmd="3" ModbusDataType="34" ModbusPollingCycle="60" Unit="&lt;v.1&gt;kWh" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="10"/>
+	<ModbusCmd Title="Chargepoint Power" Comment="Max Power of Chargepoint" ModbusAddress="400" ModbusCmd="3" ModbusDataType="34" ModbusPollingCycle="60" Unit="&lt;v&gt;W" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Session Max Current" Comment="" ModbusAddress="1100" ModbusCmd="3" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt;A" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="EVSE Min Current" Comment="Min possible charging current for EVSE" ModbusAddress="1102" ModbusCmd="3" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt;A" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="EVSE Max Current" Comment="Max possible charging current for EVSE" ModbusAddress="1104" ModbusCmd="3" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt;A" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Cable Max Current" Comment="" ModbusAddress="1106" ModbusCmd="3" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt;A" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Session Energy" Comment="" ModbusAddress="1502" ModbusCmd="3" ModbusDataType="34" ModbusPollingCycle="60" Unit="&lt;v&gt;kWh" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="1"/>
+	<ModbusCmd Title="Session Duration" Comment="" ModbusAddress="1508" ModbusCmd="3" ModbusDataType="34" ModbusPollingCycle="60" Unit="&lt;v&gt;s" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Failsafe Current" Comment="Failsafe charging current during communication failure" ModbusAddress="2000" ModbusCmd="3" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt;A" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Failsafe Timeout" Comment="Timeout for switching to failsafe charging" ModbusAddress="2002" ModbusCmd="3" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt;s" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Session End Time" Comment="" ModbusAddress="1512" ModbusCmd="3" ModbusDataType="34" ModbusPollingCycle="60" Unit="&lt;v&gt;hhmmss" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Charging Current" Comment="Dynamic charging current" ModbusAddress="5004" ModbusCmd="3" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt;A" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Number of Phases" Comment="(0) 1-phase (1) 3-phase" ModbusAddress="404" ModbusCmd="3" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Session Start Time" Comment="" ModbusAddress="1504" ModbusCmd="3" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt;hhmmss" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Failsafe Current" Comment="" ModbusAddress="2000" ModbusCmd="16" ModbusDataType="32" Unit="&lt;v&gt;A" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Failsafe Timeout" Comment="" ModbusAddress="2002" ModbusCmd="16" ModbusDataType="32" Unit="&lt;v&gt;s" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Alive Register" Comment="" ModbusAddress="6000" ModbusCmd="16" ModbusDataType="32" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Charging Current" Comment="" ModbusAddress="5004" ModbusCmd="16" ModbusDataType="32" Unit="&lt;v&gt;A" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+</Modbus>

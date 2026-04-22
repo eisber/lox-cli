@@ -1,0 +1,16 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Modbus Title="Orno OR-WE-516" Comment="" Channel="1">
+	<Info templateType="7" minVersion="14030828"/>
+	<ModbusCmd Title="L1 Voltage" Comment="" ModbusAddress="14" ModbusCmd="3" ModbusDataType="4" ModbusPollingCycle="10" Unit="&lt;v.1&gt; V" Analog="true" Sensor="true" SourceValHigh="1" DestValHigh="1"/>
+	<ModbusCmd Title="L1 Current" Comment="" ModbusAddress="22" ModbusCmd="3" ModbusDataType="4" ModbusPollingCycle="10" Unit="&lt;v.3&gt; A" Analog="true" Sensor="true" SourceValHigh="1" DestValHigh="1"/>
+	<ModbusCmd Title="Total Active Energy" Comment="" ModbusAddress="256" ModbusCmd="3" ModbusDataType="4" ModbusPollingCycle="10" Unit="&lt;v.3&gt; kWh" Analog="true" Sensor="true" SourceValHigh="1" DestValHigh="1"/>
+	<ModbusCmd Title="L2 Current" Comment="" ModbusAddress="24" ModbusCmd="3" ModbusDataType="4" ModbusPollingCycle="10" Unit="&lt;v.3&gt; A" Analog="true" Sensor="true" SourceValHigh="1" DestValHigh="1"/>
+	<ModbusCmd Title="L3 Current" Comment="" ModbusAddress="26" ModbusCmd="3" ModbusDataType="4" ModbusPollingCycle="10" Unit="&lt;v.3&gt; A" Analog="true" Sensor="true" SourceValHigh="1" DestValHigh="1"/>
+	<ModbusCmd Title="L2 Voltage" Comment="" ModbusAddress="16" ModbusCmd="3" ModbusDataType="4" ModbusPollingCycle="10" Unit="&lt;v.3&gt; V" Analog="true" Sensor="true" SourceValHigh="1" DestValHigh="1"/>
+	<ModbusCmd Title="L3 Voltage" Comment="" ModbusAddress="18" ModbusCmd="3" ModbusDataType="4" ModbusPollingCycle="10" Unit="&lt;v.3&gt; V" Analog="true" Sensor="true" SourceValHigh="1" DestValHigh="1"/>
+	<ModbusCmd Title="Active Power" Comment="" ModbusAddress="28" ModbusCmd="3" ModbusDataType="4" ModbusPollingCycle="10" Unit="&lt;v.3&gt; kW" Analog="true" Sensor="true" SourceValHigh="1" DestValHigh="1"/>
+	<ModbusCmd Title="Reactive Power" Comment="" ModbusAddress="36" ModbusCmd="3" ModbusDataType="4" ModbusPollingCycle="10" Unit="&lt;v.3&gt; VA" Analog="true" Sensor="true" SourceValHigh="1" DestValHigh="1"/>
+	<ModbusCmd Title="Power Factor" Comment="" ModbusAddress="52" ModbusCmd="3" ModbusDataType="4" ModbusPollingCycle="10" Unit="&lt;v.3&gt;" Analog="true" Sensor="true" SourceValHigh="1" DestValHigh="1"/>
+	<ModbusCmd Title="Total Energy Import" Comment="" ModbusAddress="264" ModbusCmd="3" ModbusDataType="4" ModbusPollingCycle="10" Unit="&lt;v.3&gt; kWh" Analog="true" Sensor="true" SourceValHigh="1" DestValHigh="1"/>
+	<ModbusCmd Title="Total Energy Export" Comment="" ModbusAddress="272" ModbusCmd="3" ModbusDataType="4" ModbusPollingCycle="10" Unit="&lt;v.3&gt; kWh" Analog="true" Sensor="true" SourceValHigh="1" DestValHigh="1"/>
+</Modbus>

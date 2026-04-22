@@ -1,0 +1,41 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Modbus Title="SAX-Power Home Battery Storage" Comment="" HintText="" Channel="64">
+	<Info templateType="7" minVersion="15000409"/>
+	<ModbusCmd Title="get_state" Comment="Get device state (on/off)." HintText="Get device state (on/off).
+1 = off
+2 = on
+3 = connected (if internally connected to the grid)
+4 = standby" ModbusAddress="45" ModbusCmd="3" ModbusPollingCycle="2" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="get_soc" Comment="State of charge of the battery in percent." HintText="State of charge of the battery in percent (%)." ModbusAddress="46" ModbusCmd="3" ModbusPollingCycle="2" Unit="&lt;v&gt;%" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="get_power" Comment="Actual power of charging/discharging in kilowatts." HintText="Actual power of charging/discharging in kilowatts.
+positive = discharge
+negative = charge
+
+Value from device in watts, already converted in kilowatts by value correction.
+You have to substract 16,384 from this value!!!" ModbusAddress="47" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="1" Unit="&lt;v.3&gt;kW" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="1"/>
+	<ModbusCmd Title="get_power_meter" Comment="Get power from connected electricity meter in kilowatts" HintText="Get power from connected electricity meter in kilowatts
+positive = consumption
+negative = delivery
+
+Value from device in watts, already converted in kilowatts by value correction.
+You have to substract 16,384 from this value!!!" ModbusAddress="48" ModbusCmd="3" ModbusPollingCycle="2" Unit="&lt;v.3&gt;kW" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="1"/>
+	<ModbusCmd Title="set_power" Comment="Set power charging/discharging in kilowatts." HintText="Set power charging/discharging in kilowatts.
+positive value = discharge
+negative value = charge
+
+Have to be set in watts for the device.
+Already converted to watts in value correction." ModbusAddress="41" ModbusCmd="16" Unit="&lt;v.3&gt;kW" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100" RepeatRate="5"/>
+	<ModbusCmd Title="set_cosPhi" Comment="Set power fator." HintText="Set power fator.
+Conversion of 1000!
+To set cos phi of 0,95 you have to set 950.
+Already converted in value correction." ModbusAddress="42" ModbusCmd="16" Unit="&lt;v.2&gt;" Analog="true" Sensor="false" SourceValHigh="1" DestValHigh="1000" RepeatRate="5"/>
+	<ModbusCmd Title="set_max_dischargepower" Comment="Set maximum power of discharge in kilowatts." HintText="Set maximum power of discharge in kilowatts.
+Have to be set in watts for the device.
+Already converted to watts in value correction." ModbusAddress="43" ModbusCmd="16" Unit="&lt;v.3&gt;kW" Analog="true" Sensor="false" SourceValHigh="1" DestValHigh="1000" RepeatRate="5"/>
+	<ModbusCmd Title="set_max_chargepower" Comment="Set maximum power of charging in kilowatts." HintText="Set maximum power of charging in kilowatts.
+Have to be set in watts for the device.
+Already converted to watts in value correction." ModbusAddress="44" ModbusCmd="16" Unit="&lt;v.3&gt;kW" Analog="true" Sensor="false" SourceValHigh="1" DestValHigh="1000" RepeatRate="5"/>
+	<ModbusCmd Title="set_state" Comment="Set device state (on/off)." HintText="Set device state (on/off).
+1 = off
+2 = on" ModbusAddress="45" ModbusCmd="16" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100" RepeatRate="5"/>
+</Modbus>

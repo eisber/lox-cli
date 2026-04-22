@@ -1,0 +1,14 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<VirtualOut Title="Panasonic Projector" Comment="" Address="tcp://192.168.1.100:1024" CmdInit="" CloseAfterSend="true" CmdSep="">
+	<Info templateType="3" minVersion="12021027"/>
+	<VirtualOutCmd Title="Power ON" Comment="" CmdOnMethod="GET" CmdOffMethod="GET" CmdOn="00PON\r" CmdOnHTTP="" CmdOnPost="" CmdOff="" CmdOffHTTP="" CmdOffPost="" Analog="false" Repeat="0" RepeatRate="0"/>
+	<VirtualOutCmd Title="Power OFF" Comment="" CmdOnMethod="GET" CmdOffMethod="GET" CmdOn="00POF\r" CmdOnHTTP="" CmdOnPost="" CmdOff="" CmdOffHTTP="" CmdOffPost="" Analog="false" Repeat="0" RepeatRate="0"/>
+	<VirtualOutCmd Title="Mute ON" Comment="" CmdOnMethod="GET" CmdOffMethod="GET" CmdOn="00AMT:0\r" CmdOnHTTP="" CmdOnPost="" CmdOff="" CmdOffHTTP="" CmdOffPost="" Analog="false" Repeat="0" RepeatRate="0"/>
+	<VirtualOutCmd Title="Mute OFF" Comment="" CmdOnMethod="GET" CmdOffMethod="GET" CmdOn="00AMT:1\r" CmdOnHTTP="" CmdOnPost="" CmdOff="" CmdOffHTTP="" CmdOffPost="" Analog="false" Repeat="0" RepeatRate="0"/>
+	<VirtualOutCmd Title="HDMI1" Comment="" CmdOnMethod="GET" CmdOffMethod="GET" CmdOn="00IIS:HD1\r" CmdOnHTTP="" CmdOnPost="" CmdOff="" CmdOffHTTP="" CmdOffPost="" Analog="false" Repeat="0" RepeatRate="0"/>
+	<VirtualOutCmd Title="HDMI2" Comment="" CmdOnMethod="GET" CmdOffMethod="GET" CmdOn="00IIS:HD2\r" CmdOnHTTP="" CmdOnPost="" CmdOff="" CmdOffHTTP="" CmdOffPost="" Analog="false" Repeat="0" RepeatRate="0"/>
+	<VirtualOutCmd Title="Volume UP" Comment="" CmdOnMethod="GET" CmdOffMethod="GET" CmdOn="00AUU\r" CmdOnHTTP="" CmdOnPost="" CmdOff="" CmdOffHTTP="" CmdOffPost="" Analog="false" Repeat="0" RepeatRate="0"/>
+	<VirtualOutCmd Title="Volume DOWN" Comment="" CmdOnMethod="GET" CmdOffMethod="GET" CmdOn="00AUD\r" CmdOnHTTP="" CmdOnPost="" CmdOff="" CmdOffHTTP="" CmdOffPost="" Analog="false" Repeat="0" RepeatRate="0"/>
+	<VirtualOutCmd Title="Freeze ON" Comment="" CmdOnMethod="GET" CmdOffMethod="GET" CmdOn="00OFZ:1\r" CmdOnHTTP="" CmdOnPost="" CmdOff="" CmdOffHTTP="" CmdOffPost="" Analog="false" Repeat="0" RepeatRate="0"/>
+	<VirtualOutCmd Title="Freeze OFF" Comment="" CmdOnMethod="GET" CmdOffMethod="GET" CmdOn="00OFZ:0\r" CmdOnHTTP="" CmdOnPost="" CmdOff="" CmdOffHTTP="" CmdOffPost="" Analog="false" Repeat="0" RepeatRate="0"/>
+</VirtualOut>

@@ -1,0 +1,47 @@
+{
+  "title": "Dewpoint Calculator",
+  "xml_type": "",
+  "kb_slug": "dewpoint-calculator",
+  "description": "Calculates the dewpoint based on current temperature and relative humidity.",
+  "inputs": [
+    {
+      "abbreviation": "\u03d1",
+      "summary": "Temperature",
+      "description": "Current Temperature",
+      "unit": "\u00b0",
+      "value_range": "-65\u00b0C/-85\u00b0F...60\u00b0C/140\u00b0F"
+    },
+    {
+      "abbreviation": "H",
+      "summary": "Relative Humidity",
+      "description": "Relative Humidity of the Air",
+      "unit": "%",
+      "value_range": "1...100"
+    }
+  ],
+  "outputs": [
+    {
+      "abbreviation": "\u03d1d",
+      "summary": "Dew Point",
+      "description": "Calculated Dew Point Temperature",
+      "unit": "\u00b0",
+      "value_range": "\u221e"
+    }
+  ],
+  "parameters": [
+    {
+      "abbreviation": "O",
+      "summary": "Output Offset",
+      "description": "Adds a fixed offset to the calculated dew point",
+      "unit": "\u00b0",
+      "value_range": "\u221e",
+      "default_value": "0"
+    }
+  ],
+  "properties": [],
+  "source_url": "https://www.loxone.com/enen/kb/dewpoint-calculator/",
+  "input_count": 2,
+  "output_count": 1,
+  "parameter_count": 1,
+  "property_count": 0
+}

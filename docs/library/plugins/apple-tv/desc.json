@@ -1,0 +1,9 @@
+{
+                                "type": "template",
+                                "name": "apple-tv",
+                                "uuid": "d360d307-522e-11ec-a3784cd98f3deb8a",
+                                "version":"1.0.0",
+                                "id": "apple-tv-615",
+                                "file": "apple-tv.xml",
+                                "templateType": "4",
+                            }

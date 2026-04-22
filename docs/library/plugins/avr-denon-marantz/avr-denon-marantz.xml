@@ -1,0 +1,9 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<VirtualInHttp Title="AVR Denon_Marantz" Comment="" Address="http://192.168.1.81/goform/formMainZone_MainZoneXmlStatusLite.xml" PollingTime="10">
+	<Info templateType="2" minVersion="12031214"/>
+	<VirtualInHttpCmd Title="Power" Comment="" Check="&lt;Power&gt;\i&lt;value&gt;\i\s1\1" Signed="true" Analog="true" SourceValLow="70" DestValLow="0" SourceValHigh="78" DestValHigh="1" DefVal="0" MinVal="-10000" MaxVal="10000"/>
+	<VirtualInHttpCmd Title="Volume" Comment="" Check="&lt;MasterVolume&gt;\i&lt;value&gt;\i\v" Signed="true" Analog="true" SourceValLow="-79.5" DestValLow="0.5" SourceValHigh="18" DestValHigh="98" DefVal="0" MinVal="-79.5" MaxVal="18"/>
+	<VirtualInHttpCmd Title="Source 1st byte" Comment="" Check="&lt;InputFuncSelect&gt;\i&lt;value&gt;\i\1" Signed="true" Analog="true" SourceValLow="0" DestValLow="0" SourceValHigh="100" DestValHigh="100" DefVal="0" MinVal="-10000" MaxVal="10000"/>
+	<VirtualInHttpCmd Title="Source 2nd byte" Comment="" Check="&lt;InputFuncSelect&gt;\i&lt;value&gt;\i\s1\1" Signed="true" Analog="true" SourceValLow="0" DestValLow="0" SourceValHigh="100" DestValHigh="100" DefVal="0" MinVal="-10000" MaxVal="10000"/>
+	<VirtualInHttpCmd Title="Volume &quot;--&quot;" Comment="" Check="&lt;MasterVolume&gt;\i&lt;value&gt;\i\s1\1" Signed="true" Analog="true" SourceValLow="0" DestValLow="0" SourceValHigh="100" DestValHigh="100" DefVal="0" MinVal="-10000" MaxVal="10000"/>
+</VirtualInHttp>

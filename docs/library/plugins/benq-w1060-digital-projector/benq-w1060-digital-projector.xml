@@ -1,0 +1,15 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Comm Title="BenQ W1060 Digital Projector" Comment="Written for W1060, others may work" Baudrate="115200" Databits="8" CycleUserProt="-1.000">
+    <Info templateType="5" minVersion="12010617"/>
+	<CommCmd Title="Power On" Comment="" CmdOn="\r*pow=on#\r" CmdOff="" Unit="" Analog="false" Text="false" Sensor="false"/>
+	<CommCmd Title="Power Off" Comment="" CmdOn="\r*pow=off#\r" CmdOff="" Unit="" Analog="false" Text="false" Sensor="false"/>
+	<CommCmd Title="Source: PC (YPbPr)" Comment="" CmdOn="\r*sour=RGB#\r" CmdOff="" Unit="" Analog="false" Text="false" Sensor="false"/>
+	<CommCmd Title="Source: PC 2 (YPbPr 2)" Comment="" CmdOn="\r*sour=RGB2#\r" CmdOff="" Unit="" Analog="false" Text="false" Sensor="false"/>
+	<CommCmd Title="Source: DVI-A" Comment="" CmdOn="\r*sour=dviA#\r" CmdOff="" Unit="" Analog="false" Text="false" Sensor="false"/>
+	<CommCmd Title="Source: DVI-D" Comment="" CmdOn="\r*sour=dvid#\r" CmdOff="" Unit="" Analog="false" Text="false" Sensor="false"/>
+	<CommCmd Title="Source: HDMI 1" Comment="" CmdOn="\r*sour=hdmi#\r" CmdOff="" Unit="" Analog="false" Text="false" Sensor="false"/>
+	<CommCmd Title="Source: HDMI 2" Comment="" CmdOn="\r*sour=hdmi2#\r" CmdOff="" Unit="" Analog="false" Text="false" Sensor="false"/>
+	<CommCmd Title="Source: Composite" Comment="" CmdOn="\r*sour=vid#\r" CmdOff="" Unit="" Analog="false" Text="false" Sensor="false"/>
+	<CommCmd Title="Source: S-Video" Comment="" CmdOn="\r*sour=svid#\r" CmdOff="" Unit="" Analog="false" Text="false" Sensor="false"/>
+	<CommCmd Title="Source: Network" Comment="" CmdOn="\r*sour=network#\r" CmdOff="" Unit="" Analog="false" Text="false" Sensor="false"/>
+</Comm>

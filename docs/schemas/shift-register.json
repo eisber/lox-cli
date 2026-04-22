@@ -1,0 +1,47 @@
+{
+  "title": "Shift Register",
+  "xml_type": "",
+  "kb_slug": "shift-register",
+  "description": "Delay of digital pulses",
+  "inputs": [
+    {
+      "abbreviation": "Tr",
+      "summary": "Trigger",
+      "description": "With each pulse the value of (D) is stored and the register contents are shifted.",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "D",
+      "summary": "Data",
+      "description": "Data input of shift register",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "Dir",
+      "summary": "Shift direction",
+      "description": "Shift direction of the shift register",
+      "value_range": "0/1"
+    }
+  ],
+  "outputs": [
+    {
+      "abbreviation": "O",
+      "description": "Output",
+      "value_range": "0/1"
+    }
+  ],
+  "parameters": [
+    {
+      "abbreviation": "Rb",
+      "summary": "Register bit",
+      "value_range": "\u221e",
+      "default_value": "8"
+    }
+  ],
+  "properties": [],
+  "source_url": "https://www.loxone.com/enen/kb/shift-register/",
+  "input_count": 3,
+  "output_count": 1,
+  "parameter_count": 1,
+  "property_count": 0
+}

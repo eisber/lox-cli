@@ -1,0 +1,9 @@
+{
+                                "type": "template",
+                                "name": "logitech-squeezebox",
+                                "uuid": "cfe7450f-1167-11ec-9a744cd98f3deb8a",
+                                "version":"1.0.0",
+                                "id": "logitech-squeezebox-19",
+                                "file": "logitech-squeezebox.xml",
+                                "templateType": "3",
+                            }

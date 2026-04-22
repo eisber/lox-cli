@@ -1,0 +1,72 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Modbus Title="Unity 50-120 Kostad" Comment="" HintText="" Channel="1">
+	<Info templateType="7" minVersion="15031213"/>
+	<ModbusCmd Title="State [1]" Comment="" HintText="Condition of the Charging device
+0 EVSE not available - state F
+1 EVSE available - state A
+2 Plug detected - state A+
+3 reserved
+4 EV connected – state B
+5 EV connected – state C-
+6 EV connected, ventilation required – state D-
+7 EVSE ready - state B+
+8 EV ready - state C
+9 Charging EV - state C+
+10 EV ready, ventilation required – state D
+11 Charging EV, ventilation required -- state D+
+12 Stop charging
+13 Alarm
+14 Shortcut – state E
+15 Digital Com by EVSE state" ModbusAddress="999" ModbusCmd="3" ModbusPollingCycle="30" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Charger State[1]" Comment="" HintText="Status of the charging process:
+0: Charging process not started (no vehicle connected)
+1: Connected, waiting for release (by RFID or Local)
+2: Charging process starts
+3: Shop
+4: Suspended (loading paused)
+5: Charging process successfully completed (Vehicle still plugged
+in)
+6: Charging process completed by user (vehicle still plugged in)
+7: Charging ended with error (vehicle still connected)" ModbusAddress="1000" ModbusCmd="3" ModbusPollingCycle="10" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Charging Voltage [1]" Comment="" HintText="" ModbusAddress="1001" ModbusCmd="3" ModbusDataType="98" ModbusPollingCycle="30" Unit="&lt;v.1&gt;V" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="10"/>
+	<ModbusCmd Title="Charging Current [1]" Comment="" HintText="" ModbusAddress="1003" ModbusCmd="3" ModbusPollingCycle="10" Unit="&lt;v.1&gt;A" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="10"/>
+	<ModbusCmd Title="Charging Power [1]" Comment="" HintText="" ModbusAddress="1004" ModbusCmd="3" ModbusDataType="98" ModbusPollingCycle="10" Unit="&lt;v.1&gt;kW" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="1"/>
+	<ModbusCmd Title="Charged Energy [1]" Comment="" HintText="" ModbusAddress="1008" ModbusCmd="3" ModbusDataType="98" ModbusPollingCycle="15" Unit="&lt;v.1&gt;Wh" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="SOC [1]" Comment="" HintText="" ModbusAddress="1010" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v.1&gt;%" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="10"/>
+	<ModbusCmd Title="Connector Type [1]" Comment="" HintText="0 invalid
+1 DC-CCS
+2 DC CHAdeMO
+3 AC Typ 2" ModbusAddress="1011" ModbusCmd="3" ModbusPollingCycle="10" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Maximum Charging Power [1]" Comment="" HintText="Maximum Charging Power (EV) requested by the vehicle. [W]
+0 if no vehicle attached" ModbusAddress="1012" ModbusCmd="3" ModbusDataType="98" ModbusPollingCycle="60" Unit="&lt;v.1&gt;W" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Minimum Charging Power [1]" Comment="" HintText="Minimum Charging Power (EV) requested by the vehicle. [W]
+0 if no vehicle attached" ModbusAddress="1014" ModbusCmd="3" ModbusDataType="98" ModbusPollingCycle="60" Unit="&lt;v.1&gt;W" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Station Error Code [1]" Comment="" HintText="" ModbusAddress="1016" ModbusCmd="3" ModbusPollingCycle="30" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="State charging point" Comment="" HintText="Condition of the Charger
+0: Not Ready
+1: Available
+2: Charging
+3: Suspended
+10: Faulted" ModbusAddress="99" ModbusCmd="3" ModbusPollingCycle="10" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Available Charging Power[1]" Comment="" HintText="Available power for the connector [W]
+(keep in mind that there are vehicles on the market
+which stop the charging process when the charging
+power is set to zero for too long, even when
+&lt;Minimum charging power (EV)&gt; is zero)" ModbusAddress="1599" ModbusCmd="16" ModbusDataType="98" Unit="&lt;v.1&gt;W" Analog="true" Sensor="false" SourceValHigh="1" DestValHigh="1000"/>
+	<ModbusCmd Title="Suspend Mode [1]" Comment="" HintText="Pause charging:
+0: no pause
+1: Charging pause (leave locking etc. on)
+(keep in mind that there are vehicles on the market
+which stop the charging process when the charging
+is suspended for too long)" ModbusAddress="1601" ModbusCmd="6" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Charge Control [1]" Comment="" HintText="Control charging process:
+0: do nothing
+1: Manually authorize and start charging process
+2: Cancel charging process" ModbusAddress="1602" ModbusCmd="6" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Communication Timeout" Comment="" HintText="Timeout in seconds for communication failure:
+0: Deactivate Time Out
+10-600= 10-600 seconds
+(if no read action is detected on the EVSE side for this time the
+fallback values apply. This value should be the same as
+parameterized on the charger itself in the configuration menu)" ModbusAddress="201" ModbusCmd="6" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+</Modbus>

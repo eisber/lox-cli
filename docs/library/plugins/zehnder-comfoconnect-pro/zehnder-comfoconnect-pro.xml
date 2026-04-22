@@ -1,0 +1,52 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Modbus Title="Zehnder ComfoConnect Pro" Comment="" HintText="Zehnder ComfoConnect Pro Modbus TCP" Channel="1">
+	<Info templateType="7" minVersion="15031213"/>
+	<ModbusCmd Title="Fehlerprotokoll" Comment="Lüftung Fehlerprotokoll" HintText="" ModbusCmd="2" ModbusPollingCycle="10" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="Verbindungsstatus" Comment="Lüftung Verbindungsstatus" HintText="" ModbusCmd="4" ModbusPollingCycle="10" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Aktiver Fehler 1" Comment="Lüftung Aktiver Fehler 1" HintText="" ModbusAddress="1" ModbusCmd="4" ModbusPollingCycle="10" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Temperatur Profil (S)" Comment="Lüftung Temperatur Profil (S)" HintText="" ModbusAddress="1" ModbusCmd="3" ModbusPollingCycle="30" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Temperatur Profil Modus (S)" Comment="Lüftung Temperatur Profil Modus (S)" HintText="" ModbusAddress="2" ModbusCmd="3" ModbusPollingCycle="30" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Raumluft Temperatur" Comment="Lüftung Raumluft Temperatur" HintText="" ModbusAddress="7" ModbusCmd="4" ModbusDataType="1" ModbusPollingCycle="60" Unit="&lt;v.1&gt; °" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="100"/>
+	<ModbusCmd Title="Abluft Temperatur" Comment="Lüftung Abluft Temperatur" HintText="" ModbusAddress="8" ModbusCmd="4" ModbusDataType="1" ModbusPollingCycle="60" Unit="&lt;v.1&gt; °" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="100"/>
+	<ModbusCmd Title="Aussenluft Temperatur" Comment="Lüftung Aussenluft Temperatur" HintText="" ModbusAddress="10" ModbusCmd="4" ModbusDataType="1" ModbusPollingCycle="60" Unit="&lt;v.1&gt; °" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="100"/>
+	<ModbusCmd Title="Zuluft Temperatur" Comment="Lüftung Zuluft Temperatur" HintText="" ModbusAddress="11" ModbusCmd="4" ModbusDataType="1" ModbusPollingCycle="60" Unit="&lt;v.1&gt; °" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="100"/>
+	<ModbusCmd Title="Fortluft Temperatur" Comment="Lüftung Fortluft Temperatur" HintText="" ModbusAddress="9" ModbusCmd="4" ModbusDataType="1" ModbusPollingCycle="60" Unit="&lt;v.1&gt; °" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="100"/>
+	<ModbusCmd Title="Abluft Feuchte" Comment="Lüftung Abluft Feuchte" HintText="" ModbusAddress="13" ModbusCmd="4" ModbusPollingCycle="60" Unit="&lt;v&gt; %" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Zuluft Feuchte" Comment="Lüftung Zuluft Feuchte" HintText="" ModbusAddress="16" ModbusCmd="4" ModbusPollingCycle="60" Unit="&lt;v&gt; %" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Fortluft Feuchte" Comment="Lüftung Fortluft Feuchte" HintText="" ModbusAddress="14" ModbusCmd="4" ModbusPollingCycle="60" Unit="&lt;v&gt; %" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Aussenluft Feuchte" Comment="Lüftung Aussenluft Feuchte" HintText="" ModbusAddress="15" ModbusCmd="4" ModbusPollingCycle="60" Unit="&lt;v&gt; %" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Raumluft Feuchte" Comment="Lüftung Raumluft Feuchte" HintText="" ModbusAddress="12" ModbusCmd="4" ModbusPollingCycle="60" Unit="&lt;v&gt; %" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Aktiver Fehler 2" Comment="Lüftung Aktiver Fehler 2" HintText="" ModbusAddress="2" ModbusCmd="4" ModbusPollingCycle="10" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Aktiver Fehler 3" Comment="Lüftung Aktiver Fehler 3" HintText="" ModbusAddress="3" ModbusCmd="4" ModbusPollingCycle="10" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Aktiver Fehler 4" Comment="Lüftung Aktiver Fehler 4" HintText="" ModbusAddress="4" ModbusCmd="4" ModbusPollingCycle="10" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Stufe (S)" Comment="Lüftung Stufe (S)" HintText="" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Filterstatus" Comment="Lüftung Filterstatus" HintText="" ModbusAddress="25" ModbusCmd="4" ModbusPollingCycle="300" Unit="&lt;v&gt; days" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Filter tauschen" Comment="Lüftung Filter tauschen" HintText="" ModbusAddress="3" ModbusCmd="2" ModbusPollingCycle="300" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="Zuluft Ventilator Volumen" Comment="Lüftung Zuluft Ventilator Volumen" HintText="" ModbusAddress="6" ModbusCmd="4" ModbusPollingCycle="10" Unit="&lt;v&gt; m³" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="ComfoClime (S)" Comment="Lüftung ComfoClime (S)" HintText="" ModbusAddress="8" ModbusCmd="1" ModbusPollingCycle="30" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="Standby" Comment="Lüftung Standby" HintText="" ModbusAddress="1" ModbusCmd="2" ModbusPollingCycle="30" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="Abwesenheitsfunktion (S)" Comment="Lüftung Abwesenheitsfunktion (S)" HintText="" ModbusAddress="7" ModbusCmd="1" ModbusPollingCycle="10" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="Modus (S) Auto / Manuell" Comment="Lüftung Modus (S) Auto / Manuell" HintText="" ModbusAddress="5" ModbusCmd="1" ModbusPollingCycle="5" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="Fehler zurücksetzen (S)" Comment="Lüftung Fehler zurücksetzen (S)" HintText="" ModbusCmd="1" ModbusPollingCycle="30" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="Stufe (S) 1" Comment="Lüftung Stufe (S) 1" HintText="" ModbusAddress="2" ModbusCmd="1" ModbusPollingCycle="5" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="Stufe (S) 2" Comment="Lüftung Stufe (S) 2" HintText="" ModbusAddress="3" ModbusCmd="1" ModbusPollingCycle="5" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="Stufe (S) 3" Comment="Lüftung Stufe (S) 3" HintText="" ModbusAddress="4" ModbusCmd="1" ModbusPollingCycle="5" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="Stufe (S) Abwesend" Comment="Lüftung Stufe (S) Abwesend" HintText="" ModbusAddress="1" ModbusCmd="1" ModbusPollingCycle="5" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="Temperatur Profil Festwert (S)" Comment="Lüftung Temperatur Profil Festwert (S)" HintText="" ModbusAddress="3" ModbusCmd="3" ModbusPollingCycle="30" Unit="&lt;v.1&gt;°" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="100"/>
+	<ModbusCmd Title="Party timer (S)" Comment="Lüftung Party timer (S)" HintText="" ModbusAddress="6" ModbusCmd="1" ModbusPollingCycle="10" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="Party timer sec (S)" Comment="Lüftung Party timer sec (S)" HintText="" ModbusAddress="4" ModbusCmd="3" ModbusPollingCycle="30" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Stufe (A) Abwesend" Comment="Lüftung Stufe (A) Abwesend" HintText="" ModbusAddress="1" ModbusCmd="5" Unit="" Analog="false" Sensor="false"/>
+	<ModbusCmd Title="Stufe (A) 1" Comment="Lüftung Stufe (A) 1" HintText="" ModbusAddress="2" ModbusCmd="5" Unit="" Analog="false" Sensor="false"/>
+	<ModbusCmd Title="Stufe (A) 2" Comment="Lüftung Stufe (A) 2" HintText="" ModbusAddress="3" ModbusCmd="5" Unit="" Analog="false" Sensor="false"/>
+	<ModbusCmd Title="Stufe (A) 3" Comment="Lüftung Stufe (A) 3" HintText="" ModbusAddress="4" ModbusCmd="5" Unit="" Analog="false" Sensor="false"/>
+	<ModbusCmd Title="Modus (A) Auto / Manuell" Comment="Lüftung Modus (A) Auto / Manuell" HintText="" ModbusAddress="5" ModbusCmd="5" Unit="" Analog="false" Sensor="false"/>
+	<ModbusCmd Title="Temperatur Profil" Comment="" HintText="" ModbusAddress="1" ModbusCmd="6" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Temperatur Profil Modus" Comment="" HintText="" ModbusAddress="2" ModbusCmd="6" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Temperatur Profil Festwert" Comment="" HintText="" ModbusAddress="3" ModbusCmd="6" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="1000" DestValHigh="100"/>
+	<ModbusCmd Title="Abwesenheitsfunktion" Comment="" HintText="" ModbusAddress="7" ModbusCmd="5" Unit="" Analog="false" Sensor="false"/>
+	<ModbusCmd Title="Stufe (A)" Comment="Lüftung Stufe (A)" HintText="" ModbusCmd="6" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="ComfoClime" Comment="" HintText="" ModbusAddress="8" ModbusCmd="5" Unit="" Analog="false" Sensor="false"/>
+	<ModbusCmd Title="Fehler zurücksetzen" Comment="" HintText="" ModbusCmd="5" Unit="" Analog="false" Sensor="false"/>
+	<ModbusCmd Title="Party timer sec" Comment="" HintText="" ModbusAddress="4" ModbusCmd="6" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Party timer" Comment="" HintText="" ModbusAddress="6" ModbusCmd="5" Unit="" Analog="false" Sensor="false"/>
+</Modbus>

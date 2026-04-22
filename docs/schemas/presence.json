@@ -1,0 +1,99 @@
+{
+  "title": "Presence",
+  "xml_type": "",
+  "kb_slug": "presence",
+  "description": "The Presence block combines devices and logic that indicate presence in a room. Loxone sensors such as Touch devices, Door and Window Contacts, and Motion and Presence Sensors are supported.",
+  "inputs": [
+    {
+      "abbreviation": "Act",
+      "summary": "Activate",
+      "description": "Activates presence on rising edge. On falling edge, the presence extend time (Pet) starts. Continuous ON and each falling edge extends the presence. When using the Desktop App for Presence detection, the App sends a (Act) impulse every (Pet)/2 seconds.",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "Ext",
+      "summary": "Extend",
+      "description": "As long as the input is active, already active presence is extended. On falling edge, the presence extend time (Pet) starts.",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "AE",
+      "summary": "Activate / Extend",
+      "description": "Each change at the input activates or extends the presence.",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "Off",
+      "summary": "Off",
+      "description": "Pulse: Outputs are reset / switched off. On: Block is locked. Dominating input. The name of the connected sensor is used in the user interface.",
+      "value_range": "0/1"
+    }
+  ],
+  "outputs": [
+    {
+      "abbreviation": "Pc",
+      "summary": "Presence combined",
+      "description": "Combined presence output. Can be used on all presence and motion inputs of other function blocks.",
+      "unit": "-",
+      "value_range": "\u221e"
+    },
+    {
+      "abbreviation": "Pd",
+      "summary": "Current presence duration",
+      "description": "Duration of the current presence period.",
+      "unit": "s",
+      "value_range": "\u221e"
+    },
+    {
+      "abbreviation": "Warn",
+      "summary": "Switch-off warning",
+      "description": "Warning pulse before end of presence.",
+      "unit": "-",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "API",
+      "summary": "API Connector",
+      "description": "Intelligent API based connector. API Commands",
+      "unit": "-",
+      "value_range": "-"
+    }
+  ],
+  "parameters": [
+    {
+      "abbreviation": "Pet",
+      "summary": "Presence extend time",
+      "description": "Starts with the falling edge of input (Act) and input (Ext) and extends presence by set time, this time is doubled for the presence session if a reactivation happens within 30 seconds. Loxone presence sensors adopt this extend time. The device and the block prolong presence for (Pet) seconds after the last presence was detected by the device.",
+      "unit": "s",
+      "value_range": "2...\u221e",
+      "default_value": "900"
+    },
+    {
+      "abbreviation": "Tw",
+      "summary": "Switch-off warning time",
+      "description": "Time of the switch-off warning before the end of presence. Minimum 2 seconds or 0 to deactivate.",
+      "unit": "s",
+      "value_range": "0...\u221e",
+      "default_value": "15"
+    }
+  ],
+  "properties": [
+    {
+      "summary": "Configuration",
+      "description": "Configuration of the Inputs and Outputs Used.",
+      "value_range": "-",
+      "default_value": "-"
+    },
+    {
+      "summary": "Number of Entries",
+      "description": "Maximum number of saved messages.",
+      "value_range": "1...50",
+      "default_value": "50"
+    }
+  ],
+  "source_url": "https://www.loxone.com/enen/kb/presence/",
+  "input_count": 4,
+  "output_count": 4,
+  "parameter_count": 2,
+  "property_count": 2
+}

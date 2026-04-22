@@ -1,0 +1,16 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Modbus Title="Brunner BSH_en" Comment="" Channel="1">
+	<Info templateType="7" minVersion="12021105"/>
+	<ModbusCmd Title="Door contact open" Comment="" ModbusAddress="4168" ModbusCmd="4" ModbusPollingCycle="5" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="Door contact close" Comment="" ModbusAddress="4169" ModbusCmd="4" ModbusPollingCycle="5" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="Temperature combustion chamber" Comment="" ModbusAddress="4161" ModbusCmd="4" ModbusPollingCycle="60" Unit="&lt;v&gt;°" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="10"/>
+	<ModbusCmd Title="Temperature boiler water" Comment="" ModbusAddress="4162" ModbusCmd="4" ModbusPollingCycle="60" Unit="&lt;v&gt;°" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="10"/>
+	<ModbusCmd Title="Chimney temperature" Comment="" ModbusAddress="4163" ModbusCmd="4" ModbusPollingCycle="60" Unit="&lt;v&gt;°" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="10"/>
+	<ModbusCmd Title="Buffer sensor T4 (PT1000)" Comment="" ModbusAddress="4162" ModbusCmd="4" ModbusPollingCycle="60" Unit="&lt;v&gt;°" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="10"/>
+	<ModbusCmd Title="Sensor T6 (PT1000)" Comment="(Buffer above or in the middle)" ModbusAddress="4166" ModbusCmd="4" ModbusPollingCycle="60" Unit="&lt;v&gt;°" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="10"/>
+	<ModbusCmd Title="Sensor T7 (PT1000)" Comment="(Buffer above or in the middle)" ModbusAddress="4167" ModbusCmd="4" ModbusPollingCycle="60" Unit="&lt;v&gt;°" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="10"/>
+	<ModbusCmd Title="Battery status" Comment="" ModbusAddress="4170" ModbusCmd="4" ModbusPollingCycle="60" Unit="&lt;v&gt;V" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="10"/>
+	<ModbusCmd Title="Number of burns" Comment="" ModbusAddress="4311" ModbusCmd="4" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Number of heating errors" Comment="" ModbusAddress="4313" ModbusCmd="4" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Number of refills" Comment="" ModbusAddress="4314" ModbusCmd="4" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+</Modbus>

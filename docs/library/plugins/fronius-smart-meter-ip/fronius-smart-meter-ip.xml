@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<VirtualInHttp Title="Fronius Smart Meter IP" Comment="" Address="http://username:password@192.168.16.71/wizard/public/api/rest" HintText="" PollingTime="10">
+	<Info templateType="2" minVersion="14051207"/>
+	<VirtualInHttpCmd Title="P_sum" Comment="" Check="&lt;p id=&quot;W&quot;&gt;\v" Signed="true" Analog="true" SourceValLow="0" DestValLow="0" SourceValHigh="100000" DestValHigh="100" DefVal="0" MinVal="-10000" MaxVal="10000" Unit="&lt;v.1&gt;kW" HintText=""/>
+	<VirtualInHttpCmd Title="P_L3" Comment="" Check="&lt;p id=&quot;WphC&quot;&gt;\v" Signed="true" Analog="true" SourceValLow="0" DestValLow="0" SourceValHigh="100000" DestValHigh="100" DefVal="0" MinVal="-10000" MaxVal="10000" Unit="&lt;v.1&gt;kW" HintText=""/>
+	<VirtualInHttpCmd Title="P_L1" Comment="" Check="&lt;p id=&quot;WphA&quot;&gt;\v" Signed="true" Analog="true" SourceValLow="0" DestValLow="0" SourceValHigh="100000" DestValHigh="100" DefVal="0" MinVal="-10000" MaxVal="10000" Unit="&lt;v.1&gt;kW" HintText=""/>
+	<VirtualInHttpCmd Title="P_L2" Comment="" Check="&lt;p id=&quot;WphB&quot;&gt;\v" Signed="true" Analog="true" SourceValLow="0" DestValLow="0" SourceValHigh="100000" DestValHigh="100" DefVal="0" MinVal="-10000" MaxVal="10000" Unit="&lt;v.1&gt;kW" HintText=""/>
+	<VirtualInHttpCmd Title="EnergyFromGrid" Comment="" Check="&lt;p id=&quot;TotWhImp&quot;&gt;\v" Signed="true" Analog="true" SourceValLow="0" DestValLow="0" SourceValHigh="100000" DestValHigh="100" DefVal="0" MinVal="-10000" MaxVal="10000" Unit="&lt;v.1&gt;kWh" HintText=""/>
+	<VirtualInHttpCmd Title="EnergyToGrid" Comment="" Check="&lt;p id=&quot;TotWhExp&quot;&gt;\v" Signed="true" Analog="true" SourceValLow="0" DestValLow="0" SourceValHigh="100000" DestValHigh="100" DefVal="0" MinVal="-10000" MaxVal="10000" Unit="&lt;v.1&gt;kWh" HintText=""/>
+	<VirtualInHttpCmd Title="A_L3" Comment="" Check="&lt;p id=&quot;AphC&quot;&gt;\v" Signed="true" Analog="true" SourceValLow="0" DestValLow="0" SourceValHigh="100" DestValHigh="100" DefVal="0" MinVal="-10000" MaxVal="10000" Unit="&lt;v.1&gt;A" HintText=""/>
+	<VirtualInHttpCmd Title="A_L1" Comment="" Check="&lt;p id=&quot;AphA&quot;&gt;\v" Signed="true" Analog="true" SourceValLow="0" DestValLow="0" SourceValHigh="100" DestValHigh="100" DefVal="0" MinVal="-10000" MaxVal="10000" Unit="&lt;v.1&gt;A" HintText=""/>
+	<VirtualInHttpCmd Title="A_L2" Comment="" Check="&lt;p id=&quot;AphB&quot;&gt;\v" Signed="true" Analog="true" SourceValLow="0" DestValLow="0" SourceValHigh="100" DestValHigh="100" DefVal="0" MinVal="-10000" MaxVal="10000" Unit="&lt;v.1&gt;A" HintText=""/>
+</VirtualInHttp>

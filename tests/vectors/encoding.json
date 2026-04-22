@@ -1,0 +1,25 @@
+{
+  "category": "F: Encoding",
+  "blocks": {
+    "BinaryDecoder": {
+      "inputs": {"I": "analog"},
+      "outputs": {"Q": "digital"},
+      "tests": [
+        {"desc": "input 0", "set": {"I": 0}, "expect": {"Q": 0}},
+        {"desc": "input 1", "set": {"I": 1}, "expect": {"Q": 1}},
+        {"desc": "input 2", "set": {"I": 2}, "expect": {"Q": 0}},
+        {"desc": "input 3", "set": {"I": 3}, "expect": {"Q": 1}}
+      ]
+    },
+    "AnalogMultiplexer2": {
+      "inputs": {"I1": "analog", "I2": "analog", "Sel": "digital"},
+      "outputs": {"AQ": "analog"},
+      "tests": [
+        {"desc": "sel=0 → I1", "set": {"Sel": 0, "I1": 10.0, "I2": 20.0}, "expect": {"AQ": 10.0}},
+        {"desc": "sel=1 → I2", "set": {"Sel": 1, "I1": 10.0, "I2": 20.0}, "expect": {"AQ": 20.0}},
+        {"desc": "sel=0 different", "set": {"Sel": 0, "I1": 99.0, "I2": 1.0}, "expect": {"AQ": 99.0}}
+      ]
+    }
+  },
+  "wiring": {}
+}

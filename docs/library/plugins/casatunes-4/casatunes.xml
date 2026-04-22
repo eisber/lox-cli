@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<VirtualOut Title="CasaTunes" Address="tcp://192.168.1.199:23" CmdInit="" CloseAfterSend="true" CmdSep="/">
+  <Info templateType="3" minVersion="12010617"/>
+  <VirtualOutCmd ID="1" Title="Zone 1 On" CmdOn="!POWER,ZON1,PWRON\r\x04" CmdOff="" Repeat="0,000" RepeatRate="0,000" Analog="false"/>
+  <VirtualOutCmd ID="2" Title="Zone 1 Off" CmdOn="!POWER,ZON1,PWROFF\r\x04" CmdOff="" Repeat="0,000" RepeatRate="0,000" Analog="false"/>
+  <VirtualOutCmd ID="3" Title="Zone 2 On" CmdOn="!POWER,ZON2,PWRON\r\x04" CmdOff="" Repeat="0,000" RepeatRate="0,000" Analog="false"/>
+  <VirtualOutCmd ID="4" Title="Zone 2 Off" CmdOn="!POWER,ZON2,PWROFF\r\x04" CmdOff="" Repeat="0,000" RepeatRate="0,000" Analog="false"/>
+  <VirtualOutCmd ID="5" Title="Zone 3 On" CmdOn="!POWER,ZON3,PWRON\r\x04" CmdOff="" Repeat="0,000" RepeatRate="0,000" Analog="false"/>
+  <VirtualOutCmd ID="6" Title="Zone 3 Off" CmdOn="!POWER,ZON3,PWROFF\r\x04" CmdOff="" Repeat="0,000" RepeatRate="0,000" Analog="false"/>
+  <VirtualOutCmd ID="7" Title="Zone 4 On" CmdOn="!POWER,ZON4,PWRON\r\x04" CmdOff="" Repeat="0,000" RepeatRate="0,000" Analog="false"/>
+  <VirtualOutCmd ID="8" Title="Zone 4 Off" CmdOn="!POWER,ZON4,PWROFF\r\x04" CmdOff="" Repeat="0,000" RepeatRate="0,000" Analog="false"/>
+  <VirtualOutCmd ID="9" Title="Zone 5 On" CmdOn="!POWER,ZON5,PWRON\r\x04" CmdOff="" Repeat="0,000" RepeatRate="0,000" Analog="false"/>
+  <VirtualOutCmd ID="10" Title="Zone 5 Off" CmdOn="!POWER,ZON5,PWROFF\r\x04" CmdOff="" Repeat="0,000" RepeatRate="0,000" Analog="false"/>
+  <VirtualOutCmd ID="11" Title="Zone 6 On" CmdOn="!POWER,ZON6,PWRON\r\x04" CmdOff="" Repeat="0,000" RepeatRate="0,000" Analog="false"/>
+  <VirtualOutCmd ID="12" Title="Zone 6 Off" CmdOn="!POWER,ZON6,PWROFF\r\x04" CmdOff="" Repeat="0,000" RepeatRate="0,000" Analog="false"/>
+  <VirtualOutCmd ID="13" Title="Zone 1 Vol up" CmdOn="!VOLCHG,ZON1,VO+2\r\x04" CmdOff="" Repeat="0,000" RepeatRate="0,000" Analog="false"/>
+  <VirtualOutCmd ID="14" Title="Zone 1 Vol down" CmdOn="!VOLCHG,ZON1,VO-2\r\x04" CmdOff="" Repeat="0,000" RepeatRate="0,000" Analog="false"/>
+  <VirtualOutCmd ID="15" Title="Zone 2 Vol up" CmdOn="!VOLCHG,ZON2,VO+2\r\x04" CmdOff="" Repeat="0,000" RepeatRate="0,000" Analog="false"/>
+  <VirtualOutCmd ID="16" Title="Zone 2 Vol down" CmdOn="!VOLCHG,ZON2,VO-2\r\x04" CmdOff="" Repeat="0,000" RepeatRate="0,000" Analog="false"/>
+  <VirtualOutCmd ID="17" Title="Zone 3 Vol up" CmdOn="!VOLCHG,ZON3,VO+2\r\x04" CmdOff="" Repeat="0,000" RepeatRate="0,000" Analog="false"/>
+  <VirtualOutCmd ID="18" Title="Zone 3 Vol down" CmdOn="!VOLCHG,ZON3,VO-2\r\x04" CmdOff="" Repeat="0,000" RepeatRate="0,000" Analog="false"/>
+  <VirtualOutCmd ID="19" Title="Zone 4 Vol up" CmdOn="!VOLCHG,ZON4,VO+2\r\x04" CmdOff="" Repeat="0,000" RepeatRate="0,000" Analog="false"/>
+  <VirtualOutCmd ID="20" Title="Zone 4 Vol down" CmdOn="!VOLCHG,ZON4,VO-2\r\x04" CmdOff="" Repeat="0,000" RepeatRate="0,000" Analog="false"/>
+  <VirtualOutCmd ID="21" Title="Zone 5 Vol up" CmdOn="!VOLCHG,ZON5,VO+2\r\x04" CmdOff="" Repeat="0,000" RepeatRate="0,000" Analog="false"/>
+  <VirtualOutCmd ID="22" Title="Zone 5 Vol down" CmdOn="!VOLCHG,ZON5,VO-2\r\x04" CmdOff="" Repeat="0,000" RepeatRate="0,000" Analog="false"/>
+  <VirtualOutCmd ID="23" Title="Zone 6 Vol up" CmdOn="!VOLCHG,ZON6,VO+2\r\x04" CmdOff="" Repeat="0,000" RepeatRate="0,000" Analog="false"/>
+  <VirtualOutCmd ID="24" Title="Zone 6 Vol down" CmdOn="!VOLCHG,ZON6,VO-2\r\x04" CmdOff="" Repeat="0,000" RepeatRate="0,000" Analog="false"/>
+  <VirtualOutCmd ID="25" Title="Zone 1 next Title" CmdOn="!SRCNEXTTRK,ZON1\r\x04" CmdOff="" Repeat="0,000" RepeatRate="0,000" Analog="false"/>
+  <VirtualOutCmd ID="26" Title="Zone 1 previous Title" CmdOn="!SRCPREVTRK,ZON1\r\x04" CmdOff="" Repeat="0,000" RepeatRate="0,000" Analog="false"/>
+  <VirtualOutCmd ID="27" Title="Zone 2 next Title" CmdOn="!SRCNEXTTRK,ZON2\r\x04" CmdOff="" Repeat="0,000" RepeatRate="0,000" Analog="false"/>
+  <VirtualOutCmd ID="28" Title="Zone 2 previous Title" CmdOn="!SRCPREVTRK,ZON2\r\x04" CmdOff="" Repeat="0,000" RepeatRate="0,000" Analog="false"/>
+  <VirtualOutCmd ID="29" Title="Zone 3 next Title" CmdOn="!SRCNEXTTRK,ZON3\r\x04" CmdOff="" Repeat="0,000" RepeatRate="0,000" Analog="false"/>
+  <VirtualOutCmd ID="30" Title="Zone 3 previous Title" CmdOn="!SRCPREVTRK,ZON3\r\x04" CmdOff="" Repeat="0,000" RepeatRate="0,000" Analog="false"/>
+  <VirtualOutCmd ID="31" Title="Zone 4 next Title" CmdOn="!SRCNEXTTRK,ZON4\r\x04" CmdOff="" Repeat="0,000" RepeatRate="0,000" Analog="false"/>
+  <VirtualOutCmd ID="32" Title="Zone 4 previous Title" CmdOn="!SRCPREVTRK,ZON4\r\x04" CmdOff="" Repeat="0,000" RepeatRate="0,000" Analog="false"/>
+  <VirtualOutCmd ID="33" Title="Zone 5 next Title" CmdOn="!SRCNEXTTRK,ZON5\r\x04" CmdOff="" Repeat="0,000" RepeatRate="0,000" Analog="false"/>
+  <VirtualOutCmd ID="34" Title="Zone 5 previous Title" CmdOn="!SRCPREVTRK,ZON5\r\x04" CmdOff="" Repeat="0,000" RepeatRate="0,000" Analog="false"/>
+  <VirtualOutCmd ID="35" Title="Zone 6 next Title" CmdOn="!SRCNEXTTRK,ZON6\r\x04" CmdOff="" Repeat="0,000" RepeatRate="0,000" Analog="false"/>
+  <VirtualOutCmd ID="36" Title="Zone 6 previous Title" CmdOn="!SRCPREVTRK,ZON6\r\x04" CmdOff="" Repeat="0,000" RepeatRate="0,000" Analog="false"/>
+</VirtualOut>

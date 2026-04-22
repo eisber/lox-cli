@@ -1,0 +1,81 @@
+{
+  "title": "PV Production Forecast",
+  "xml_type": "",
+  "kb_slug": "pv-production-forecast",
+  "description": "The PV Production Forecast function block predicts photovoltaic production without requiring physical metering or orientation data. It uses absolute irradiance (GHI) forecast data from the Weather Service. Please note, it does not account for potential inverter limitations.",
+  "inputs": [
+    {
+      "abbreviation": "Off",
+      "summary": "Off input",
+      "description": "Sets the Ready output to OFF and the prediction outputs to -1",
+      "value_range": "0/1"
+    }
+  ],
+  "outputs": [
+    {
+      "abbreviation": "Ppwr",
+      "summary": "Potential Power",
+      "description": "Indicates the PV power output that could currently be generated based on solar radiation provided by the weather service. -1 if no prediction can be provided.",
+      "unit": "kW",
+      "value_range": "\u221e"
+    },
+    {
+      "abbreviation": "Pp",
+      "summary": "Predicted period",
+      "description": "Outputs the prediction for the given period of time starting from the next full hour. -1 if no prediction can be provided.",
+      "unit": "kWh",
+      "value_range": "\u221e"
+    },
+    {
+      "abbreviation": "Ptd",
+      "summary": "Predicted today",
+      "description": "Outputs the prediction for today. -1 if no prediction can be provided.",
+      "unit": "kWh",
+      "value_range": "\u221e"
+    },
+    {
+      "abbreviation": "Pnd",
+      "summary": "Predicted next day",
+      "description": "Outputs the prediction for the next day. -1 if no prediction can be provided.",
+      "unit": "kWh",
+      "value_range": "\u221e"
+    },
+    {
+      "abbreviation": "Ready",
+      "summary": "Prediction provided",
+      "description": "OFF if control is locked via Off input or if no prediction can be provided (loss of internet connection, subscription expired, etc)",
+      "unit": "-",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "API",
+      "summary": "API Connector",
+      "description": "Intelligent API based connector. API Commands",
+      "unit": "-",
+      "value_range": "-"
+    }
+  ],
+  "parameters": [
+    {
+      "abbreviation": "Period",
+      "summary": "Calculated Period",
+      "description": "Forecast is calculated over this period of time starting from the next full hour.",
+      "unit": "h",
+      "value_range": "0...72",
+      "default_value": "24"
+    }
+  ],
+  "properties": [
+    {
+      "summary": "Max PV power [kWp]",
+      "description": "PV's theoretical maximum power production",
+      "value_range": "0...\u221e",
+      "default_value": "0"
+    }
+  ],
+  "source_url": "https://www.loxone.com/enen/kb/pv-production-forecast/",
+  "input_count": 1,
+  "output_count": 6,
+  "parameter_count": 1,
+  "property_count": 1
+}

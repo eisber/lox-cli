@@ -1,0 +1,974 @@
+[
+  {
+    "id": "eng01-pv-metering",
+    "pattern": [
+      "energy",
+      "metering",
+      "pv"
+    ],
+    "utterance": "Set up a PV production meter \u2014 connect the Modbus sensor reading to track solar power and energy",
+    "difficulty": "easy",
+    "source": "extracted from energy-interfaces.Loxone: MeterAbsUni 'PV' with Pf input from InputRef sensor",
+    "expected": {
+      "new_blocks": [
+        {
+          "type": "MeterAbsUni",
+          "title": "PV"
+        }
+      ],
+      "wiring": [
+        {
+          "from_type": "InputRef",
+          "from_title": "PV Power",
+          "from_conn": "AQ",
+          "to_conn": "Pf",
+          "to_type": "MeterAbsUni"
+        }
+      ],
+      "params": [
+        {
+          "connector": "Un1",
+          "value": "<v.3>kW",
+          "comment": "Power display format"
+        },
+        {
+          "connector": "Un2",
+          "value": "<v.1>kWh",
+          "comment": "Energy display format"
+        }
+      ]
+    }
+  },
+  {
+    "id": "eng02-grid-bidirectional-meter",
+    "pattern": [
+      "energy",
+      "metering",
+      "grid",
+      "bidirectional"
+    ],
+    "utterance": "Create a bidirectional grid meter to track grid import and export separately with daily/weekly/monthly/yearly rollups",
+    "difficulty": "medium",
+    "source": "extracted from energy-interfaces.Loxone: MeterAbsBi 'Grid' tracking import (Mr1) and export (Mr2) with period outputs",
+    "expected": {
+      "new_blocks": [
+        {
+          "type": "MeterAbsBi",
+          "title": "Grid"
+        }
+      ],
+      "wiring": [
+        {
+          "from_type": "InputRef",
+          "from_title": "Grid Power",
+          "from_conn": "AQ",
+          "to_conn": "Pf",
+          "to_type": "MeterAbsBi"
+        }
+      ],
+      "params": [
+        {
+          "connector": "Un1",
+          "value": "<v.3>kW",
+          "comment": "Power format"
+        },
+        {
+          "connector": "Un2",
+          "value": "<v.1>kWh",
+          "comment": "Energy format"
+        }
+      ]
+    }
+  },
+  {
+    "id": "eng03-battery-storage-meter",
+    "pattern": [
+      "energy",
+      "metering",
+      "battery",
+      "storage"
+    ],
+    "utterance": "Set up a battery storage meter \u2014 track charge/discharge power and SOC level",
+    "difficulty": "medium",
+    "source": "extracted from energy-interfaces.Loxone: MeterAbsSt 'Battery' with Pf (power), Slvl (SOC) inputs, MaxLvl=100",
+    "expected": {
+      "new_blocks": [
+        {
+          "type": "MeterAbsSt",
+          "title": "Battery"
+        }
+      ],
+      "wiring": [
+        {
+          "from_type": "InputRef",
+          "from_title": "Battery Power",
+          "from_conn": "AQ",
+          "to_conn": "Pf",
+          "to_type": "MeterAbsSt"
+        },
+        {
+          "from_type": "InputRef",
+          "from_title": "SOC",
+          "from_conn": "AQ",
+          "to_conn": "Slvl",
+          "to_type": "MeterAbsSt"
+        }
+      ],
+      "params": [
+        {
+          "connector": "MaxLvl",
+          "value": "100",
+          "comment": "Max SOC level"
+        },
+        {
+          "connector": "UnSt",
+          "value": "<v>%",
+          "comment": "SOC display format"
+        }
+      ]
+    }
+  },
+  {
+    "id": "eng04-digital-meter-boiler",
+    "pattern": [
+      "energy",
+      "metering",
+      "digital",
+      "appliance"
+    ],
+    "utterance": "Create a digital meter for the boiler \u2014 it's a fixed-power load, just track on/off state with 1.5kW rated power",
+    "difficulty": "easy",
+    "source": "extracted from energy-interfaces.Loxone: MeterDig 'Boiler' with digital input A and Ppwr=1.5",
+    "expected": {
+      "new_blocks": [
+        {
+          "type": "MeterDig",
+          "title": "Boiler"
+        }
+      ],
+      "wiring": [
+        {
+          "from_type": "InputRef",
+          "from_title": "Boiler State",
+          "from_conn": "Q",
+          "to_conn": "A",
+          "to_type": "MeterDig"
+        }
+      ],
+      "params": [
+        {
+          "connector": "Ppwr",
+          "value": "1.5",
+          "comment": "Rated power in kW"
+        }
+      ]
+    }
+  },
+  {
+    "id": "eng05-efm-full-setup",
+    "pattern": [
+      "energy",
+      "efm",
+      "monitoring",
+      "dashboard"
+    ],
+    "utterance": "Set up an Energy Flow Monitor with PV production, grid import/export, battery storage, and an appliance category \u2014 configure electricity pricing at 0.20 EUR/kWh",
+    "difficulty": "hard",
+    "source": "extracted from energy-interfaces.Loxone: EFM 'Energy Flow Monitor' with tree structure: PV (type 4), Grid (type 2), Battery (type 3), Appliance group",
+    "expected": {
+      "new_blocks": [
+        {
+          "type": "EFM",
+          "title": "Energy Flow Monitor"
+        },
+        {
+          "type": "MeterAbsUni",
+          "title": "PV"
+        },
+        {
+          "type": "MeterAbsBi",
+          "title": "Grid"
+        },
+        {
+          "type": "MeterAbsSt",
+          "title": "Battery"
+        }
+      ],
+      "wiring": [
+        {
+          "from_type": "InputRef",
+          "from_title": "PV Power",
+          "from_conn": "AQ",
+          "to_conn": "Pf",
+          "to_type": "MeterAbsUni"
+        },
+        {
+          "from_type": "InputRef",
+          "from_title": "Grid Power",
+          "from_conn": "AQ",
+          "to_conn": "Pf",
+          "to_type": "MeterAbsBi"
+        },
+        {
+          "from_type": "InputRef",
+          "from_title": "Battery Power",
+          "from_conn": "AQ",
+          "to_conn": "Pf",
+          "to_type": "MeterAbsSt"
+        }
+      ],
+      "params": [
+        {
+          "connector": "Pre",
+          "value": "0.2",
+          "comment": "Export price EUR/kWh"
+        },
+        {
+          "connector": "Pri",
+          "value": "0.2",
+          "comment": "Import price EUR/kWh"
+        },
+        {
+          "connector": "CO2",
+          "value": "0.42",
+          "comment": "CO2 factor kg/kWh"
+        }
+      ]
+    }
+  },
+  {
+    "id": "eng06-energy-manager-pv-surplus",
+    "pattern": [
+      "energy",
+      "energy-manager",
+      "pv-surplus",
+      "load-priority"
+    ],
+    "utterance": "Configure an Energy Manager 2 to distribute PV surplus \u2014 connect grid power and PV production, then wire the boiler and heating element as priority loads",
+    "difficulty": "hard",
+    "source": "extracted from energy-interfaces.Loxone: EnergyManager2 'Energy manager' with Gpwr (grid), Ppwr (PV), IL1 (boiler), IL2 (heating)",
+    "expected": {
+      "new_blocks": [
+        {
+          "type": "EnergyManager2",
+          "title": "Energy Manager"
+        }
+      ],
+      "wiring": [
+        {
+          "from_type": "InputRef",
+          "from_title": "Grid Power",
+          "from_conn": "AQ",
+          "to_conn": "Gpwr",
+          "to_type": "EnergyManager2"
+        },
+        {
+          "from_type": "InputRef",
+          "from_title": "PV Power",
+          "from_conn": "AQ",
+          "to_conn": "Ppwr",
+          "to_type": "EnergyManager2"
+        },
+        {
+          "from_type": "InputRef",
+          "from_title": "Boiler State",
+          "from_conn": "Q",
+          "to_conn": "IL1",
+          "to_type": "EnergyManager2"
+        },
+        {
+          "from_type": "InputRef",
+          "from_title": "Heating Element",
+          "from_conn": "AQ",
+          "to_conn": "IL2",
+          "to_type": "EnergyManager2"
+        }
+      ],
+      "params": [
+        {
+          "connector": "MinSoc",
+          "value": "20",
+          "comment": "Minimum battery SOC before surplus routing"
+        },
+        {
+          "connector": "MaxSpwr",
+          "value": "3",
+          "comment": "Max storage power in kW"
+        }
+      ]
+    }
+  },
+  {
+    "id": "eng07-load-shedding",
+    "pattern": [
+      "energy",
+      "load-shedding",
+      "overload-protection"
+    ],
+    "utterance": "Set up a Load Manager for overload protection \u2014 monitor total power consumption and shed hairdryer (1kW), sauna (5kW), and boiler (3kW) loads in priority order with a 10kW limit",
+    "difficulty": "hard",
+    "source": "extracted from energy-interfaces.Loxone: LoadShed 'Load Manager' with cP from grid formula, Sl1=Hairdryer, Sl2=Sauna, Sl3=Boiler, maxP=10",
+    "expected": {
+      "new_blocks": [
+        {
+          "type": "LoadShed",
+          "title": "Load Manager"
+        }
+      ],
+      "wiring": [
+        {
+          "from_type": "Formula",
+          "from_title": "Grid Power",
+          "from_conn": "AQ",
+          "to_conn": "cP",
+          "to_type": "LoadShed"
+        },
+        {
+          "from_type": "InputRef",
+          "from_title": "Hairdryer Status",
+          "from_conn": "Q",
+          "to_conn": "Sl1",
+          "to_type": "LoadShed"
+        },
+        {
+          "from_type": "InputRef",
+          "from_title": "Sauna Status",
+          "from_conn": "Q",
+          "to_conn": "Sl2",
+          "to_type": "LoadShed"
+        },
+        {
+          "from_type": "InputRef",
+          "from_title": "Boiler Status",
+          "from_conn": "Q",
+          "to_conn": "Sl3",
+          "to_type": "LoadShed"
+        }
+      ],
+      "params": [
+        {
+          "connector": "maxP",
+          "value": "10",
+          "comment": "Maximum allowed power in kW"
+        },
+        {
+          "connector": "maxTp",
+          "value": "20",
+          "comment": "Max test period in minutes"
+        },
+        {
+          "connector": "Hysteresis",
+          "value": "1",
+          "comment": "Power hysteresis in kW"
+        }
+      ]
+    }
+  },
+  {
+    "id": "eng08-spot-price-optimizer",
+    "pattern": [
+      "energy",
+      "spot-price",
+      "optimization",
+      "scheduling"
+    ],
+    "utterance": "Configure a Spot Price Optimizer \u2014 set it to schedule cheap hours with a 4-hour minimum runtime and 24-hour analysis window, display prices in EUR/kWh",
+    "difficulty": "medium",
+    "source": "extracted from energy-interfaces.Loxone: SpotOpt 'Spot Price Optimizer' with Tn=4, Ta=24, Mod=2, U0-U23 hourly price inputs",
+    "expected": {
+      "new_blocks": [
+        {
+          "type": "SpotOpt",
+          "title": "Spot Price Optimizer"
+        }
+      ],
+      "wiring": [
+        {
+          "from_type": "InputRef",
+          "from_title": "Spot Trigger",
+          "from_conn": "AQ",
+          "to_conn": "Tr",
+          "to_type": "SpotOpt"
+        }
+      ],
+      "params": [
+        {
+          "connector": "Tn",
+          "value": "4",
+          "comment": "Minimum number of cheap hours"
+        },
+        {
+          "connector": "Ta",
+          "value": "24",
+          "comment": "Analysis window in hours"
+        },
+        {
+          "connector": "Mod",
+          "value": "2",
+          "comment": "Operating mode"
+        },
+        {
+          "connector": "Un",
+          "value": "<v.3>\u20ac/kWh",
+          "comment": "Price display unit"
+        }
+      ]
+    }
+  },
+  {
+    "id": "eng09-spot-dhw-heating",
+    "pattern": [
+      "energy",
+      "spot-price",
+      "dhw",
+      "hot-water"
+    ],
+    "utterance": "Set up spot price optimization for domestic hot water \u2014 trigger at morning and evening times, find cheapest hours for DHW heating",
+    "difficulty": "medium",
+    "source": "extracted from energy-interfaces.Loxone: SpotOpt 'Spot DHW' with Tr from PulseAt 'Morning DHW' and PulseAt 'Evening DHW'",
+    "expected": {
+      "new_blocks": [
+        {
+          "type": "SpotOpt",
+          "title": "Spot DHW"
+        },
+        {
+          "type": "PulseAt",
+          "title": "Morning DHW"
+        },
+        {
+          "type": "PulseAt",
+          "title": "Evening DHW"
+        }
+      ],
+      "wiring": [
+        {
+          "from_type": "PulseAt",
+          "from_title": "Morning DHW",
+          "from_conn": "Q",
+          "to_conn": "Tr",
+          "to_type": "SpotOpt"
+        },
+        {
+          "from_type": "PulseAt",
+          "from_title": "Evening DHW",
+          "from_conn": "Q",
+          "to_conn": "Tr",
+          "to_type": "SpotOpt"
+        }
+      ],
+      "params": [
+        {
+          "connector": "Tn",
+          "value": "4",
+          "comment": "Number of cheap hours for DHW"
+        },
+        {
+          "connector": "Ta",
+          "value": "24",
+          "comment": "24h analysis window"
+        }
+      ]
+    }
+  },
+  {
+    "id": "eng10-spot-battery-grid-charging",
+    "pattern": [
+      "energy",
+      "spot-price",
+      "battery",
+      "grid-charging"
+    ],
+    "utterance": "Configure spot price optimization for grid-to-battery charging \u2014 trigger at dusk, find cheapest overnight hours to charge the battery from grid",
+    "difficulty": "medium",
+    "source": "extracted from energy-interfaces.Loxone: SpotOpt 'Spot grid battery charging' with Tr from 'Pulse at Dusk'",
+    "expected": {
+      "new_blocks": [
+        {
+          "type": "SpotOpt",
+          "title": "Spot Grid Battery Charging"
+        }
+      ],
+      "wiring": [
+        {
+          "from_type": "InputRef",
+          "from_title": "Pulse at Dusk",
+          "from_conn": "Q",
+          "to_conn": "Tr",
+          "to_type": "SpotOpt"
+        }
+      ],
+      "params": [
+        {
+          "connector": "Tn",
+          "value": "4",
+          "comment": "Cheap hours for battery charging"
+        },
+        {
+          "connector": "Ta",
+          "value": "24",
+          "comment": "Analysis window"
+        }
+      ]
+    }
+  },
+  {
+    "id": "eng11-wallbox-basic",
+    "pattern": [
+      "energy",
+      "wallbox",
+      "ev-charging",
+      "nfc-auth"
+    ],
+    "utterance": "Set up a Wallbox for EV charging \u2014 wire the NFC authentication, vehicle connected sensor, and energy meter. Set min charge power to 4.16kW and max to 11kW",
+    "difficulty": "medium",
+    "source": "extracted from energy-interfaces.Loxone: Wallbox 'Wallbox' with allow/connected/energy/user inputs, P1=4.16, P2=11",
+    "expected": {
+      "new_blocks": [
+        {
+          "type": "Wallbox",
+          "title": "Wallbox"
+        }
+      ],
+      "wiring": [
+        {
+          "from_type": "InputRef",
+          "from_title": "Authentication",
+          "from_conn": "Q",
+          "to_conn": "allow",
+          "to_type": "Wallbox"
+        },
+        {
+          "from_type": "InputRef",
+          "from_title": "Vehicle Connected",
+          "from_conn": "AQ",
+          "to_conn": "connected",
+          "to_type": "Wallbox"
+        },
+        {
+          "from_type": "InputRef",
+          "from_title": "Meter Reading",
+          "from_conn": "AQ",
+          "to_conn": "energy",
+          "to_type": "Wallbox"
+        },
+        {
+          "from_type": "InputRef",
+          "from_title": "User ID",
+          "from_conn": "AQ",
+          "to_conn": "user",
+          "to_type": "Wallbox"
+        }
+      ],
+      "params": [
+        {
+          "connector": "P1",
+          "value": "4.16",
+          "comment": "Minimum charging power in kW (6A \u00d7 3 phases)"
+        },
+        {
+          "connector": "P2",
+          "value": "11",
+          "comment": "Maximum charging power in kW (16A \u00d7 3 phases)"
+        }
+      ]
+    }
+  },
+  {
+    "id": "eng12-wallbox-spot-price",
+    "pattern": [
+      "energy",
+      "wallbox",
+      "spot-price",
+      "cheap-charging"
+    ],
+    "utterance": "Configure a wallbox to only charge during cheap electricity hours \u2014 wire the spot price optimizer output to the wallbox allow input, and connect vehicle detection",
+    "difficulty": "medium",
+    "source": "extracted from energy-interfaces.Loxone: Wallbox 'Wallbox A' with allow from And 'Cheap hours', valmode1 for surplus",
+    "expected": {
+      "new_blocks": [
+        {
+          "type": "Wallbox",
+          "title": "Wallbox A"
+        },
+        {
+          "type": "SpotOpt",
+          "title": "Wallbox SPO"
+        },
+        {
+          "type": "And",
+          "title": "Cheap Hours"
+        }
+      ],
+      "wiring": [
+        {
+          "from_type": "And",
+          "from_title": "Cheap Hours",
+          "from_conn": "Q",
+          "to_conn": "allow",
+          "to_type": "Wallbox"
+        },
+        {
+          "from_type": "InputRef",
+          "from_title": "Vehicle Connected",
+          "from_conn": "AQ",
+          "to_conn": "connected",
+          "to_type": "Wallbox"
+        },
+        {
+          "from_type": "InputRef",
+          "from_title": "Energy Surplus",
+          "from_conn": "AQ",
+          "to_conn": "valmode1",
+          "to_type": "Wallbox"
+        }
+      ],
+      "params": [
+        {
+          "connector": "P1",
+          "value": "4.16",
+          "comment": "Min charge power"
+        },
+        {
+          "connector": "P2",
+          "value": "11",
+          "comment": "Max charge power"
+        }
+      ]
+    }
+  },
+  {
+    "id": "eng13-wallbox-manager-fleet",
+    "pattern": [
+      "energy",
+      "wallbox-manager",
+      "fleet",
+      "load-balancing"
+    ],
+    "utterance": "Set up a Wallbox Manager (WBEM) for a parking garage with 5 wallboxes in 2 groups \u2014 Group 1 with 2 wallboxes and Group 2 with 3 wallboxes, each group on a 22kW fuse. Connect the Energy Manager surplus output for eco charging",
+    "difficulty": "hard",
+    "source": "extracted from energy-interfaces.Loxone: WBEM 'Wallbox Manager' with Pmax from VirtualIn, Peco from EnergyManager2.OL1, tree structure with 2 groups",
+    "expected": {
+      "new_blocks": [
+        {
+          "type": "WBEM",
+          "title": "Wallbox Manager"
+        },
+        {
+          "type": "Wallbox",
+          "title": "Wallbox 1.1"
+        },
+        {
+          "type": "Wallbox",
+          "title": "Wallbox 1.2"
+        },
+        {
+          "type": "Wallbox",
+          "title": "Wallbox 2.1"
+        },
+        {
+          "type": "Wallbox",
+          "title": "Wallbox 2.2"
+        },
+        {
+          "type": "Wallbox",
+          "title": "Wallbox 2.3"
+        },
+        {
+          "type": "EnergyManager2",
+          "title": "Energy Manager"
+        }
+      ],
+      "wiring": [
+        {
+          "from_type": "InputRef",
+          "from_title": "Max Available Power",
+          "from_conn": "AQ",
+          "to_conn": "Pmax",
+          "to_type": "WBEM"
+        },
+        {
+          "from_type": "EnergyManager2",
+          "from_title": "Energy Manager",
+          "from_conn": "OL1",
+          "to_conn": "Peco",
+          "to_type": "WBEM"
+        }
+      ],
+      "params": [
+        {
+          "connector": "PrEco",
+          "value": "0.1",
+          "comment": "Eco price threshold EUR/kWh"
+        },
+        {
+          "connector": "PrPrio",
+          "value": "0.2",
+          "comment": "Priority price threshold EUR/kWh"
+        }
+      ]
+    }
+  },
+  {
+    "id": "eng14-power-supply-backup",
+    "pattern": [
+      "energy",
+      "power-supply",
+      "backup",
+      "ups"
+    ],
+    "utterance": "Configure a Power Supply & Backup unit with sub-meters for system, peripherals, lights, and audio categories",
+    "difficulty": "medium",
+    "source": "extracted from energy-interfaces.Loxone: PowerUnit 'Power Supply & Backup' with child MeterAbsUni blocks (IName 0-4,7) for subcategories",
+    "expected": {
+      "new_blocks": [
+        {
+          "type": "PowerUnit",
+          "title": "Power Supply & Backup"
+        },
+        {
+          "type": "MeterAbsUni",
+          "title": "System"
+        },
+        {
+          "type": "MeterAbsUni",
+          "title": "Peripherals"
+        },
+        {
+          "type": "MeterAbsUni",
+          "title": "Lights"
+        },
+        {
+          "type": "MeterAbsUni",
+          "title": "Audio"
+        }
+      ],
+      "wiring": [
+        {
+          "from_type": "PowerUnit",
+          "from_title": "Power Supply & Backup",
+          "from_conn": "OutPower",
+          "to_conn": "Pf",
+          "to_type": "MeterAbsUni",
+          "to_title": "Power Supply & Backup"
+        },
+        {
+          "from_type": "PowerUnit",
+          "from_title": "Power Supply & Backup",
+          "from_conn": "Power1",
+          "to_conn": "Pf",
+          "to_type": "MeterAbsUni",
+          "to_title": "System"
+        },
+        {
+          "from_type": "PowerUnit",
+          "from_title": "Power Supply & Backup",
+          "from_conn": "Power2",
+          "to_conn": "Pf",
+          "to_type": "MeterAbsUni",
+          "to_title": "Peripherals"
+        }
+      ],
+      "params": [
+        {
+          "connector": "TRK_NE",
+          "value": "100",
+          "comment": "Track never expire percentage"
+        },
+        {
+          "connector": "TRK_MAX",
+          "value": "100",
+          "comment": "Track max percentage"
+        }
+      ]
+    }
+  },
+  {
+    "id": "eng15-wallbox-metered",
+    "pattern": [
+      "energy",
+      "wallbox",
+      "metering",
+      "billing"
+    ],
+    "utterance": "Set up a wallbox with its own dedicated energy meter for billing \u2014 use a MeterAbsUni accumulation meter to track wallbox consumption separately with Modbus energy readings",
+    "difficulty": "medium",
+    "source": "extracted from energy-interfaces.Loxone: MeterAbsUni 'Flat 1 Wallbox Meter' with Acum=true, Mr from CmdRecognition, and Wallbox linked via Rec",
+    "expected": {
+      "new_blocks": [
+        {
+          "type": "MeterAbsUni",
+          "title": "Wallbox Meter"
+        },
+        {
+          "type": "Wallbox",
+          "title": "Wallbox"
+        }
+      ],
+      "wiring": [
+        {
+          "from_type": "CmdRecognition",
+          "from_title": "Modbus Reader",
+          "from_conn": "AnalogOutput",
+          "to_conn": "Mr",
+          "to_type": "MeterAbsUni"
+        }
+      ],
+      "params": [
+        {
+          "connector": "Acum",
+          "value": "true",
+          "comment": "Accumulation mode \u2014 meter reading is absolute total"
+        }
+      ]
+    }
+  },
+  {
+    "id": "eng16-energy-manager-recalc",
+    "pattern": [
+      "energy",
+      "energy-manager",
+      "recalc",
+      "periodic"
+    ],
+    "utterance": "Configure an Energy Manager with a 5-second recalculation pulse to continuously redistribute surplus power among connected loads",
+    "difficulty": "easy",
+    "source": "extracted from energy-interfaces.Loxone: EnergyManager2 with Recalc wired to PulseGen '5s recalc'",
+    "expected": {
+      "new_blocks": [
+        {
+          "type": "EnergyManager2",
+          "title": "Energy Manager"
+        },
+        {
+          "type": "PulseGen",
+          "title": "5s Recalc"
+        }
+      ],
+      "wiring": [
+        {
+          "from_type": "PulseGen",
+          "from_title": "5s Recalc",
+          "from_conn": "Q",
+          "to_conn": "Recalc",
+          "to_type": "EnergyManager2"
+        },
+        {
+          "from_type": "InputRef",
+          "from_title": "Grid Power",
+          "from_conn": "AQ",
+          "to_conn": "Gpwr",
+          "to_type": "EnergyManager2"
+        },
+        {
+          "from_type": "InputRef",
+          "from_title": "PV Power",
+          "from_conn": "AQ",
+          "to_conn": "Ppwr",
+          "to_type": "EnergyManager2"
+        }
+      ],
+      "params": []
+    }
+  },
+  {
+    "id": "eng17-wallbox-pv-surplus-mode",
+    "pattern": [
+      "energy",
+      "wallbox",
+      "pv-surplus",
+      "flex-charging"
+    ],
+    "utterance": "Configure a wallbox for PV surplus charging mode \u2014 connect the energy surplus signal to valmode1 and use edge detection on vehicle connect to auto-start",
+    "difficulty": "medium",
+    "source": "extracted from energy-interfaces.Loxone: Wallbox 'Wallbox B' with valmode1 from InputRef 'energy surplus', allow from EdgeDetection 'VC pulse'",
+    "expected": {
+      "new_blocks": [
+        {
+          "type": "Wallbox",
+          "title": "Wallbox"
+        },
+        {
+          "type": "EdgeDetection",
+          "title": "Vehicle Connect Pulse"
+        }
+      ],
+      "wiring": [
+        {
+          "from_type": "EdgeDetection",
+          "from_title": "Vehicle Connect Pulse",
+          "from_conn": "RisingEdge",
+          "to_conn": "allow",
+          "to_type": "Wallbox"
+        },
+        {
+          "from_type": "InputRef",
+          "from_title": "Vehicle Connected",
+          "from_conn": "AQ",
+          "to_conn": "connected",
+          "to_type": "Wallbox"
+        },
+        {
+          "from_type": "InputRef",
+          "from_title": "Energy Surplus",
+          "from_conn": "AQ",
+          "to_conn": "valmode1",
+          "to_type": "Wallbox"
+        }
+      ],
+      "params": [
+        {
+          "connector": "P1",
+          "value": "4.16",
+          "comment": "Min charge power (6A \u00d7 3 phases)"
+        },
+        {
+          "connector": "P2",
+          "value": "11",
+          "comment": "Max charge power (16A \u00d7 3 phases)"
+        }
+      ]
+    }
+  },
+  {
+    "id": "eng18-sauna-digital-meter-multiphase",
+    "pattern": [
+      "energy",
+      "metering",
+      "digital",
+      "multi-phase"
+    ],
+    "utterance": "Set up a digital meter for a multi-phase sauna \u2014 use a formula to sum all phase powers, then feed the total to the MeterDig block",
+    "difficulty": "medium",
+    "source": "extracted from energy-interfaces.Loxone: MeterDig 'Sauna' with A and Ppwr from Formula 'All phases'",
+    "expected": {
+      "new_blocks": [
+        {
+          "type": "MeterDig",
+          "title": "Sauna"
+        },
+        {
+          "type": "Formula",
+          "title": "All Phases"
+        }
+      ],
+      "wiring": [
+        {
+          "from_type": "Formula",
+          "from_title": "All Phases",
+          "from_conn": "AQ",
+          "to_conn": "A",
+          "to_type": "MeterDig"
+        },
+        {
+          "from_type": "Formula",
+          "from_title": "All Phases",
+          "from_conn": "AQ",
+          "to_conn": "Ppwr",
+          "to_type": "MeterDig"
+        }
+      ],
+      "params": []
+    }
+  }
+]

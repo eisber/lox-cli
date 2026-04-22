@@ -1,0 +1,33 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Modbus Title="Belimo JR Actuator Modbus RTU" Comment="" HintText="" Baudrate="19200" Stopbits="1" Channel="1">
+	<Info templateType="7" minVersion="15000511"/>
+	<ModbusCmd Title="Device type" Comment="" HintText="" ModbusAddress="3" ModbusCmd="3" ModbusPollingCycle="300" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Relative position" Comment="" HintText="" ModbusAddress="4" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v.2&gt;%" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="10"/>
+	<ModbusCmd Title="Absolute position" Comment="" HintText="" ModbusAddress="5" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v.2&gt;°" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="10"/>
+	<ModbusCmd Title="Analog setpoint" Comment="" HintText="" ModbusAddress="11" ModbusCmd="3" ModbusPollingCycle="300" Unit="&lt;v.2&gt;%" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="10"/>
+	<ModbusCmd Title="Sensor 1 value" Comment="" HintText="" ModbusAddress="12" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Sensor 1 temperature in Celcius" Comment="" HintText="" ModbusAddress="13" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v.2&gt;°C" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="10"/>
+	<ModbusCmd Title="Sensor 1 temperature in Fahrenheit" Comment="" HintText="" ModbusAddress="14" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v.2&gt;°F" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="10"/>
+	<ModbusCmd Title="Sensor 1 temperature in selected unit" Comment="" HintText="" ModbusAddress="15" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v.2&gt;°C" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="10"/>
+	<ModbusCmd Title="Sensor 2 value" Comment="" HintText="" ModbusAddress="49" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Sensor 2 temperature in Celcius" Comment="" HintText="" ModbusAddress="50" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v.2&gt;°C" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="10"/>
+	<ModbusCmd Title="Sensor 2 temperature in Fahrenheit" Comment="" HintText="" ModbusAddress="51" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v.2&gt;°F" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="10"/>
+	<ModbusCmd Title="Sensor 2 temperature in selected unit" Comment="" HintText="" ModbusAddress="52" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v.2&gt;°C" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="10"/>
+	<ModbusCmd Title="Bus termination" Comment="" HintText="" ModbusAddress="99" ModbusCmd="3" ModbusPollingCycle="300" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Seies number 1st part" Comment="" HintText="" ModbusAddress="100" ModbusCmd="3" ModbusPollingCycle="300" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Series number 2nd part" Comment="" HintText="" ModbusAddress="101" ModbusCmd="3" ModbusPollingCycle="300" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Series number 4th part" Comment="" HintText="" ModbusAddress="102" ModbusCmd="3" ModbusPollingCycle="300" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Firmware version" Comment="" HintText="" ModbusAddress="103" ModbusCmd="3" ModbusPollingCycle="300" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Malfunction and service information" Comment="" HintText="" ModbusAddress="107" ModbusCmd="3" ModbusPollingCycle="300" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Relative setpoint" Comment="" HintText="" ModbusCmd="6" Unit="&lt;v.2&gt;%" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="1000" RepeatRate="60"/>
+	<ModbusCmd Title="Override control" Comment="" HintText="" ModbusAddress="1" ModbusCmd="6" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Maximum limit" Comment="" HintText="" ModbusAddress="106" ModbusCmd="6" Unit="&lt;v.2&gt;%" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Bus watchdog fail action" Comment="" HintText="" ModbusAddress="108" ModbusCmd="6" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Timeout for bus watchdog" Comment="" HintText="" ModbusAddress="109" ModbusCmd="6" Unit="&lt;v&gt;s" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Setpoint source" Comment="" HintText="" ModbusAddress="118" ModbusCmd="6" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Sensor type" Comment="" HintText="" ModbusAddress="120" ModbusCmd="6" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Sensor 1 passive type" Comment="" HintText="" ModbusAddress="121" ModbusCmd="6" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Sensor 2 type" Comment="" HintText="" ModbusAddress="122" ModbusCmd="6" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Sensor 2 passive type" Comment="" HintText="" ModbusAddress="123" ModbusCmd="6" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Select temperature unit" Comment="" HintText="" ModbusAddress="151" ModbusCmd="6" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10"/>
+</Modbus>

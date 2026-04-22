@@ -1,0 +1,64 @@
+{
+  "title": "Push Button",
+  "xml_type": "",
+  "kb_slug": "push-button",
+  "description": "On/Off push-button",
+  "inputs": [
+    {
+      "abbreviation": "Tr",
+      "summary": "Trigger",
+      "description": "Switches output (O) on for the duration set in parameter (Don). Another pulse extends the on-duration.",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "Off",
+      "summary": "Off",
+      "description": "Pulse: Outputs are reset / switched off. On: Block is locked. Dominating input. The name of the connected sensor is used in the user interface.",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "DisPc",
+      "summary": "Disable periphery control",
+      "description": "Disables inputs (Tr), (Off) when On. (e.g Child lock, cleaning) Control via user interface is still possible.",
+      "value_range": "0/1"
+    }
+  ],
+  "outputs": [
+    {
+      "abbreviation": "O",
+      "summary": "Output",
+      "description": "On for the duration set in parameter (Don).",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "API",
+      "summary": "API Connector",
+      "description": "Intelligent API based connector. API Commands",
+      "value_range": "-"
+    }
+  ],
+  "parameters": [
+    {
+      "abbreviation": "Rem",
+      "summary": "Remanence input",
+      "description": "Remanence input: If active, the function block retains its previous state after a Miniserver reboot. The state of the function block is saved: \u2013 When saving to the Miniserver \u2013 At a planned reboot \u2013 Before a backup \u2013 Once per hour The data is saved on the SD card.",
+      "unit": "-",
+      "value_range": "0/1",
+      "default_value": "0"
+    },
+    {
+      "abbreviation": "Don",
+      "summary": "On-duration of output (O)",
+      "description": "0 = Output (O) remains active as long as the button is pressed.",
+      "unit": "s",
+      "value_range": "0...\u221e",
+      "default_value": "0,3"
+    }
+  ],
+  "properties": [],
+  "source_url": "https://www.loxone.com/enen/kb/push-button/",
+  "input_count": 3,
+  "output_count": 2,
+  "parameter_count": 2,
+  "property_count": 0
+}

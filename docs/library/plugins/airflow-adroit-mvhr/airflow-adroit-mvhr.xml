@@ -1,0 +1,14 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Modbus Title="Airflow Adroit" Comment="" Baudrate="19200" Parity="1" Channel="1">
+	<Info templateType="7" minVersion="12020920"/>
+	<ModbusCmd Title="External Temperature" Comment="Value is in CKelvin so need to _100 then -273" ModbusAddress="4356" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Limp Mode" Comment="" ModbusAddress="4621" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Filter Change" Comment="Days until filter change due" ModbusAddress="4620" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="MVHR State" Comment="" ModbusAddress="4609" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="MVHR Boost Timer" Comment="" ModbusAddress="4612" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="MVHR State" Comment="0=At Home, 1=Away" ModbusAddress="4609" ModbusCmd="6" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="MVHR Boost Timer" Comment="" ModbusAddress="4612" ModbusCmd="6" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10" RepeatRate="30"/>
+	<ModbusCmd Title="MVHR Fireplace Timer" Comment="" ModbusAddress="4613" ModbusCmd="6" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="MVHR Extra Timer" Comment="" ModbusAddress="4614" ModbusCmd="6" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Digital Input 1 Mode" Comment="" ModbusAddress="20518" ModbusCmd="6" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10"/>
+</Modbus>

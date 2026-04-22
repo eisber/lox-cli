@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Modbus Title="Dosieranlage Pool" Comment="" Baudrate="38400" Channel="1">
+	<Info templateType="7" minVersion="14030803"/>
+	<ModbusCmd Title="ph Rohwert" Comment="" ModbusAddress="1" ModbusCmd="3" ModbusDataType="32" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Chlor Kanister leer" Comment="" ModbusAddress="1" ModbusCmd="1" ModbusPollingCycle="5" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="kein Durchfluss" Comment="" ModbusAddress="2" ModbusCmd="1" ModbusPollingCycle="5" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="ph Skalierungsfaktor" Comment="" ModbusAddress="3" ModbusCmd="3" ModbusDataType="32" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Chlor Rohwert" Comment="" ModbusAddress="5" ModbusCmd="3" ModbusDataType="32" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Chlor Skalierungsfaktor" Comment="" ModbusAddress="7" ModbusCmd="3" ModbusDataType="32" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="ph Minus Kanister leer" Comment="" ModbusCmd="1" ModbusPollingCycle="5" Unit="" Analog="false" Sensor="true"/>
+</Modbus>

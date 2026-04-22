@@ -1,0 +1,36 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<VirtualOut Title="JustHDMI MT0404-VL4" Comment="4x4 HDBaseT Matrix" Address="tcp://192.168.0.100:8000" CmdInit="" CloseAfterSend="true" CmdSep="">
+    <Info templateType="3" minVersion="12010617"/>
+	<VirtualOutCmd Title="On" Comment="" CmdOnMethod="GET" CmdOffMethod="GET" CmdOn="PON\r" CmdOnHTTP="" CmdOnPost="" CmdOff="" CmdOffHTTP="" CmdOffPost="" Analog="false" Repeat="0" RepeatRate="0"/>
+	<VirtualOutCmd Title="Off" Comment="" CmdOnMethod="GET" CmdOffMethod="GET" CmdOn="POFF\r" CmdOnHTTP="" CmdOnPost="" CmdOff="" CmdOffHTTP="" CmdOffPost="" Analog="false" Repeat="0" RepeatRate="0"/>
+	<VirtualOutCmd Title="Output 1-1" Comment="" CmdOnMethod="GET" CmdOffMethod="GET" CmdOn="OUT 01 FR 01\r" CmdOnHTTP="" CmdOnPost="" CmdOff="" CmdOffHTTP="" CmdOffPost="" Analog="false" Repeat="0" RepeatRate="0"/>
+	<VirtualOutCmd Title="Output 1-2" Comment="" CmdOnMethod="GET" CmdOffMethod="GET" CmdOn="OUT 01 FR 02\r" CmdOnHTTP="" CmdOnPost="" CmdOff="" CmdOffHTTP="" CmdOffPost="" Analog="false" Repeat="0" RepeatRate="0"/>
+	<VirtualOutCmd Title="Output 1-3" Comment="" CmdOnMethod="GET" CmdOffMethod="GET" CmdOn="OUT 01 FR 03\r" CmdOnHTTP="" CmdOnPost="" CmdOff="" CmdOffHTTP="" CmdOffPost="" Analog="false" Repeat="0" RepeatRate="0"/>
+	<VirtualOutCmd Title="Output 1-4" Comment="" CmdOnMethod="GET" CmdOffMethod="GET" CmdOn="OUT 01 FR 04\r" CmdOnHTTP="" CmdOnPost="" CmdOff="" CmdOffHTTP="" CmdOffPost="" Analog="false" Repeat="0" RepeatRate="0"/>
+	<VirtualOutCmd Title="Output 1 - Off" Comment="" CmdOnMethod="GET" CmdOffMethod="GET" CmdOn="OUT 01 OFF\r" CmdOnHTTP="" CmdOnPost="" CmdOff="" CmdOffHTTP="" CmdOffPost="" Analog="false" Repeat="0" RepeatRate="0"/>
+	<VirtualOutCmd Title="Output 2-1" Comment="" CmdOnMethod="GET" CmdOffMethod="GET" CmdOn="OUT 02 FR 01\r" CmdOnHTTP="" CmdOnPost="" CmdOff="" CmdOffHTTP="" CmdOffPost="" Analog="false" Repeat="0" RepeatRate="0"/>
+	<VirtualOutCmd Title="Output 2-2" Comment="" CmdOnMethod="GET" CmdOffMethod="GET" CmdOn="OUT 02 FR 02\r" CmdOnHTTP="" CmdOnPost="" CmdOff="" CmdOffHTTP="" CmdOffPost="" Analog="false" Repeat="0" RepeatRate="0"/>
+	<VirtualOutCmd Title="Output 2-3" Comment="" CmdOnMethod="GET" CmdOffMethod="GET" CmdOn="OUT 02 FR 03\r" CmdOnHTTP="" CmdOnPost="" CmdOff="" CmdOffHTTP="" CmdOffPost="" Analog="false" Repeat="0" RepeatRate="0"/>
+	<VirtualOutCmd Title="Output 2-4" Comment="" CmdOnMethod="GET" CmdOffMethod="GET" CmdOn="OUT 02 FR 04\r" CmdOnHTTP="" CmdOnPost="" CmdOff="" CmdOffHTTP="" CmdOffPost="" Analog="false" Repeat="0" RepeatRate="0"/>
+	<VirtualOutCmd Title="Output 2 - Off" Comment="" CmdOnMethod="GET" CmdOffMethod="GET" CmdOn="OUT 02 OFF\r" CmdOnHTTP="" CmdOnPost="" CmdOff="" CmdOffHTTP="" CmdOffPost="" Analog="false" Repeat="0" RepeatRate="0"/>
+	<VirtualOutCmd Title="Output 3-1" Comment="" CmdOnMethod="GET" CmdOffMethod="GET" CmdOn="OUT 03 FR 01\r" CmdOnHTTP="" CmdOnPost="" CmdOff="" CmdOffHTTP="" CmdOffPost="" Analog="false" Repeat="0" RepeatRate="0"/>
+	<VirtualOutCmd Title="Output 3-2" Comment="" CmdOnMethod="GET" CmdOffMethod="GET" CmdOn="OUT 03 FR 02\r" CmdOnHTTP="" CmdOnPost="" CmdOff="" CmdOffHTTP="" CmdOffPost="" Analog="false" Repeat="0" RepeatRate="0"/>
+	<VirtualOutCmd Title="Output 3-3" Comment="" CmdOnMethod="GET" CmdOffMethod="GET" CmdOn="OUT 03 FR 03\r" CmdOnHTTP="" CmdOnPost="" CmdOff="" CmdOffHTTP="" CmdOffPost="" Analog="false" Repeat="0" RepeatRate="0"/>
+	<VirtualOutCmd Title="Output 3-4" Comment="" CmdOnMethod="GET" CmdOffMethod="GET" CmdOn="OUT 03 FR 04\r" CmdOnHTTP="" CmdOnPost="" CmdOff="" CmdOffHTTP="" CmdOffPost="" Analog="false" Repeat="0" RepeatRate="0"/>
+	<VirtualOutCmd Title="Output 3 - Off" Comment="" CmdOnMethod="GET" CmdOffMethod="GET" CmdOn="OUT 03 OFF\r" CmdOnHTTP="" CmdOnPost="" CmdOff="" CmdOffHTTP="" CmdOffPost="" Analog="false" Repeat="0" RepeatRate="0"/>
+	<VirtualOutCmd Title="Output 4-1" Comment="" CmdOnMethod="GET" CmdOffMethod="GET" CmdOn="OUT 04 FR 01\r" CmdOnHTTP="" CmdOnPost="" CmdOff="" CmdOffHTTP="" CmdOffPost="" Analog="false" Repeat="0" RepeatRate="0"/>
+	<VirtualOutCmd Title="Output 4-2" Comment="" CmdOnMethod="GET" CmdOffMethod="GET" CmdOn="OUT 04 FR 02\r" CmdOnHTTP="" CmdOnPost="" CmdOff="" CmdOffHTTP="" CmdOffPost="" Analog="false" Repeat="0" RepeatRate="0"/>
+	<VirtualOutCmd Title="Output 4-3" Comment="" CmdOnMethod="GET" CmdOffMethod="GET" CmdOn="OUT 04 FR 03\r" CmdOnHTTP="" CmdOnPost="" CmdOff="" CmdOffHTTP="" CmdOffPost="" Analog="false" Repeat="0" RepeatRate="0"/>
+	<VirtualOutCmd Title="Output 4-4" Comment="" CmdOnMethod="GET" CmdOffMethod="GET" CmdOn="OUT 04 FR 04\r" CmdOnHTTP="" CmdOnPost="" CmdOff="" CmdOffHTTP="" CmdOffPost="" Analog="false" Repeat="0" RepeatRate="0"/>
+	<VirtualOutCmd Title="Output 4 - Off" Comment="" CmdOnMethod="GET" CmdOffMethod="GET" CmdOn="OUT 04 OFF\r" CmdOnHTTP="" CmdOnPost="" CmdOff="" CmdOffHTTP="" CmdOffPost="" Analog="false" Repeat="0" RepeatRate="0"/>
+	<VirtualOutCmd Title="Output 1 On" Comment="" CmdOnMethod="GET" CmdOffMethod="GET" CmdOn="OUT 01 ON\r" CmdOnHTTP="" CmdOnPost="" CmdOff="" CmdOffHTTP="" CmdOffPost="" Analog="false" Repeat="0" RepeatRate="0"/>
+	<VirtualOutCmd Title="Output 2 On" Comment="" CmdOnMethod="GET" CmdOffMethod="GET" CmdOn="OUT 02 ON\r" CmdOnHTTP="" CmdOnPost="" CmdOff="" CmdOffHTTP="" CmdOffPost="" Analog="false" Repeat="0" RepeatRate="0"/>
+	<VirtualOutCmd Title="Output 3 On" Comment="" CmdOnMethod="GET" CmdOffMethod="GET" CmdOn="OUT 03 ON\r" CmdOnHTTP="" CmdOnPost="" CmdOff="" CmdOffHTTP="" CmdOffPost="" Analog="false" Repeat="0" RepeatRate="0"/>
+	<VirtualOutCmd Title="Output 4 On" Comment="" CmdOnMethod="GET" CmdOffMethod="GET" CmdOn="OUT 04 ON\r" CmdOnHTTP="" CmdOnPost="" CmdOff="" CmdOffHTTP="" CmdOffPost="" Analog="false" Repeat="0" RepeatRate="0"/>
+	<VirtualOutCmd Title="Beep On" Comment="" CmdOnMethod="GET" CmdOffMethod="GET" CmdOn="BEEP ON\r" CmdOnHTTP="" CmdOnPost="" CmdOff="" CmdOffHTTP="" CmdOffPost="" Analog="false" Repeat="0" RepeatRate="0"/>
+	<VirtualOutCmd Title="Beep Off" Comment="" CmdOnMethod="GET" CmdOffMethod="GET" CmdOn="BEEP OFF\r" CmdOnHTTP="" CmdOnPost="" CmdOff="" CmdOffHTTP="" CmdOffPost="" Analog="false" Repeat="0" RepeatRate="0"/>
+	<VirtualOutCmd Title="All Outputs - 1" Comment="" CmdOnMethod="GET" CmdOffMethod="GET" CmdOn="OUT 00 FR 01\r" CmdOnHTTP="" CmdOnPost="" CmdOff="" CmdOffHTTP="" CmdOffPost="" Analog="false" Repeat="0" RepeatRate="0"/>
+	<VirtualOutCmd Title="All Outputs - 2" Comment="" CmdOnMethod="GET" CmdOffMethod="GET" CmdOn="OUT 00 FR 02\r" CmdOnHTTP="" CmdOnPost="" CmdOff="" CmdOffHTTP="" CmdOffPost="" Analog="false" Repeat="0" RepeatRate="0"/>
+	<VirtualOutCmd Title="All Outputs - 3" Comment="" CmdOnMethod="GET" CmdOffMethod="GET" CmdOn="OUT 00 FR 03\r" CmdOnHTTP="" CmdOnPost="" CmdOff="" CmdOffHTTP="" CmdOffPost="" Analog="false" Repeat="0" RepeatRate="0"/>
+	<VirtualOutCmd Title="All Outputs - 4" Comment="" CmdOnMethod="GET" CmdOffMethod="GET" CmdOn="OUT 00 FR 04\r" CmdOnHTTP="" CmdOnPost="" CmdOff="" CmdOffHTTP="" CmdOffPost="" Analog="false" Repeat="0" RepeatRate="0"/>
+</VirtualOut>

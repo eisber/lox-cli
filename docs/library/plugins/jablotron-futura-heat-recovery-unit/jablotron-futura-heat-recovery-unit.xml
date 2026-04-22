@@ -1,0 +1,52 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Modbus Title="Jablotron_Futura_Smarteon.cz" Comment="" Channel="1">
+	<Info templateType="7" minVersion="12021105"/>
+	<ModbusCmd Title="fact_device_id" Comment="identifikace zařízení, pro Futuru2 vždy 39" ModbusCmd="4" ModbusPollingCycle="120" Unit="" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="sys_options" Comment="varianta zařízení (0-1=Futura L, 2=Futura M)" ModbusAddress="14" ModbusCmd="4" ModbusPollingCycle="120" Unit="" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="fut_config" Comment="možnosti zařízení (b0=int. heating, b1=CB cooling, b2=CB heating)" ModbusAddress="15" ModbusCmd="4" ModbusPollingCycle="5" Unit="" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="fut_mode0" Comment="aktuální režim zařízení, bity 0..15" ModbusAddress="16" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v&gt; s" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="fut_mode1" Comment="aktuální režim zařízení, bity 16..31" ModbusAddress="17" ModbusCmd="4" ModbusPollingCycle="5" Unit="" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="fut_error0" Comment="poruchy zařízení, bity 0..15" ModbusAddress="18" ModbusCmd="4" ModbusPollingCycle="5" Unit="" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="fut_error1" Comment="poruchy zařízení, bity 16..31" ModbusAddress="19" ModbusCmd="4" ModbusPollingCycle="5" Unit="" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="fut_warning0" Comment="výstrahy zařízení, bity 0..15" ModbusAddress="20" ModbusCmd="4" ModbusPollingCycle="5" Unit="" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="fut_warning1" Comment="výstrahy zařízení, bity 16..31" ModbusAddress="21" ModbusCmd="4" ModbusPollingCycle="5" Unit="" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="fut_temp_ambient" Comment="teplota venkovního vzduchu" ModbusAddress="30" ModbusCmd="4" ModbusPollingCycle="50" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="fut_temp_fresh" Comment="teplota dodávaného vzduchu do domu" ModbusAddress="31" ModbusCmd="4" ModbusPollingCycle="50" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="fut_temp_indoor" Comment="teplota odsávaného vzduchu z domu" ModbusAddress="32" ModbusCmd="4" ModbusPollingCycle="50" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="fut_temp_waste" Comment="teplota odpadního vzduchu" ModbusAddress="33" ModbusCmd="4" ModbusPollingCycle="50" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="fut_humi_ambient" Comment="relativní vlhkost venkovního vzduchu" ModbusAddress="34" ModbusCmd="4" ModbusPollingCycle="120" Unit="&lt;v.1&gt; %" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="fut_t_out" Comment="teplota externího NTC senzoru venkovní teploty (-99 = nezapojeno)" ModbusAddress="38" ModbusCmd="4" ModbusPollingCycle="60" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="fut_filter_wear_level" Comment="hodnota zanesení filtrů" ModbusAddress="40" ModbusCmd="4" ModbusPollingCycle="50" Unit="&lt;v&gt; %" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="fut_power_consumption" Comment="aktuální příkon jednotky" ModbusAddress="41" ModbusCmd="4" ModbusPollingCycle="15" Unit="W" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="fut_air_flow" Comment="aktuální vzduchové množství" ModbusAddress="44" ModbusCmd="4" ModbusPollingCycle="40" Unit="m3_h" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="fut_dig_inputs" Comment="digitální vstupy (bit0 - user button, bit1 - fact button, bit2 - boost" ModbusAddress="51" ModbusCmd="4" ModbusPollingCycle="120" Unit="" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="ui_co21" Comment="Hodnota CO2 nástěnného ovladače Jablotron" ModbusAddress="102" ModbusCmd="4" ModbusPollingCycle="20" Unit="ppm" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="ui_temp1" Comment="Teplota nástěnného ovladače 1" ModbusAddress="103" ModbusCmd="4" ModbusPollingCycle="20" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="ui_humi1" Comment="Relativní vlhkost nástěnného ovladače 1" ModbusAddress="104" ModbusCmd="4" ModbusPollingCycle="20" Unit="&lt;v.1&gt; %" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="func_ventilation" Comment="nastavený výkon větrání (0 – vypnuto, 1..5 – přednastavená úroveň 1" ModbusCmd="3" ModbusPollingCycle="5" Unit="" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="func_boost_tm" Comment="Boost - zbývající čas" ModbusAddress="1" ModbusCmd="3" ModbusPollingCycle="10" Unit=" &lt;v&gt; s" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="func_circulation_tm" Comment="Cirkulace - zbývající čas" ModbusAddress="2" ModbusCmd="3" ModbusPollingCycle="10" Unit="&lt;v&gt; s" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="func_overpressure_tm" Comment="Přetlak-Krb: zbývající čas:" ModbusAddress="3" ModbusCmd="3" ModbusPollingCycle="120" Unit="&lt;v&gt; s" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="func_night_tm" Comment="Funkce Noc: čtení: zbývající čas, zápis: čas 0 – 7200 s" ModbusAddress="4" ModbusCmd="3" ModbusPollingCycle="120" Unit="&lt;v&gt; s" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="func_party_tm" Comment="Funkce Party: čtení: zbývající čas, zápis: čas 0 – 28800 s" ModbusAddress="5" ModbusCmd="3" ModbusPollingCycle="120" Unit=" s" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="func_time_prog" Comment="Zapnutí _ vypnutí časového programu" ModbusAddress="12" ModbusCmd="3" ModbusPollingCycle="120" Unit="" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="cfg_bypass_enable" Comment="Povolení automatického řízení bypasu" ModbusAddress="14" ModbusCmd="3" ModbusPollingCycle="11" Unit="" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="func_ventilation" Comment="nastavený výkon větrání (0 – vypnuto, 1..5 – přednastavená úroveň 1" ModbusCmd="6" Unit="" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="func_boost_tm" Comment="Funkce Boost: čtení: zbývající čas, zápis: čas 0 – 7200 s" ModbusAddress="1" ModbusCmd="6" Unit=" s" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="func_circulation_tm" Comment="Funkce Cirkulace: čtení: zbývající čas, zápis: čas 0 – 7200 s" ModbusAddress="2" ModbusCmd="6" Unit=" s" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="func_overpressure_tm" Comment="Funkce Přetlak: čtení: zbývající čas, zápis: čas 0 – 7200 s" ModbusAddress="3" ModbusCmd="6" Unit=" s" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="func_night_tm" Comment="Funkce Noc: čtení: zbývající čas, zápis: čas 0 – 7200 s" ModbusAddress="4" ModbusCmd="6" Unit=" s" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100" RepeatRate="60"/>
+	<ModbusCmd Title="func_party_tm" Comment="Funkce Party: čtení: zbývající čas, zápis: čas 0 – 28800 s" ModbusAddress="5" ModbusCmd="6" Unit=" s" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="func_away_begin0" Comment="Dovolená - začátek, unix timestamp, local time, 0=off, bity 0..15" ModbusAddress="6" ModbusCmd="6" Unit="" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="func_away_begin1" Comment="Dovolená - začátek, unix timestamp, local time, 0=off, bity 16..31" ModbusAddress="7" ModbusCmd="6" Unit="" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="func_away_end0" Comment="Dovolená - konec, unix timestamp, local time, 0=off, bity 0..15" ModbusAddress="8" ModbusCmd="6" Unit="" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="func_away_end1" Comment="Dovolená - konec, unix timestamp, local time, 0=off, bity 16..31" ModbusAddress="9" ModbusCmd="6" Unit="" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="cfg_temp_set" Comment="Preferovaná teplota" ModbusAddress="10" ModbusCmd="6" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="cfg_humi_set" Comment="Preferovaná vlhkost" ModbusAddress="11" ModbusCmd="6" Unit="&lt;v.1&gt; %" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="func_time_prog" Comment="Zapnutí _ vypnutí časového programu" ModbusAddress="12" ModbusCmd="6" Unit="" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="func_antiradon" Comment="Povolení protiradonové ochrany" ModbusAddress="13" ModbusCmd="6" Unit="" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="cfg_bypass_enable" Comment="Povolení automatického řízení bypasu" ModbusAddress="14" ModbusCmd="6" Unit="" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="cfg_heating_enable" Comment="Povolení topení dohřevu" ModbusAddress="15" ModbusCmd="6" Unit="" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="cfg_cooling_enable" Comment="Povolení chlazení Coolbreezem" ModbusAddress="16" ModbusCmd="6" Unit="" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="cfg_comfort_enable" Comment="Povolení komfortního řízení teploty" ModbusAddress="17" ModbusCmd="6" Unit="" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+</Modbus>

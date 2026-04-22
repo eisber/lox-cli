@@ -1,0 +1,89 @@
+{
+  "title": "Emergency Alarm",
+  "xml_type": "",
+  "kb_slug": "emergency-alarm",
+  "description": "The Emergency Alarm allows individuals in emergency situations to trigger a call for help or an alarm.\nFor this, compatible devices such as the Button Air, the Wrist Button Air, or a Loxone Touch are linked to the block, or the block's inputs and outputs are used for manual programming.",
+  "inputs": [
+    {
+      "abbreviation": "Tg",
+      "summary": "Toggle push & hold",
+      "description": "If input is active longer than parameter (Ta), an alarm is triggered. If input is active longer than parameter (Tc) while an alarm is active, the alarm is confirmed. The name of the connected sensor is used in the user interface.",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "A",
+      "summary": "Activate alarm",
+      "description": "Triggers the alarm. The name of the connected sensor is used in the user interface.",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "Ca",
+      "summary": "Confirm alarm",
+      "description": "Confirm alarm. The name of the connected sensor is used in the user interface.",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "Off",
+      "summary": "Off",
+      "description": "Pulse: Outputs are reset / switched off. On: Block is locked. Dominating input. The name of the connected sensor is used in the user interface.",
+      "value_range": "0/1"
+    }
+  ],
+  "outputs": [
+    {
+      "abbreviation": "Ca",
+      "summary": "Cause of alarm",
+      "description": "Provides the name or location of the triggering button or the name of the app user.",
+      "value_range": "-"
+    },
+    {
+      "abbreviation": "Cc",
+      "summary": "Cause of confirmation",
+      "description": "Provides the name or location of the acknowledging button or the name of the app user.",
+      "value_range": "-"
+    },
+    {
+      "abbreviation": "API",
+      "summary": "API Connector",
+      "description": "Intelligent API based connector. API Commands",
+      "value_range": "-"
+    }
+  ],
+  "parameters": [
+    {
+      "abbreviation": "Ta",
+      "summary": "Push & hold time alarm",
+      "description": "For input (Tg).",
+      "unit": "s",
+      "value_range": "1...10",
+      "default_value": "4"
+    },
+    {
+      "abbreviation": "Tc",
+      "summary": "Push & hold time confirmation",
+      "description": "For input (Tg).",
+      "unit": "s",
+      "value_range": "1...10",
+      "default_value": "2"
+    }
+  ],
+  "properties": [
+    {
+      "summary": "Number of Entries",
+      "description": "Maximum number of saved messages.",
+      "value_range": "2...100",
+      "default_value": "20"
+    },
+    {
+      "summary": "Configuration",
+      "description": "Configure devices for use as emergency buttons. Normal buttons (e.g. Touch Tree) trigger an alarm if they are pressed for the duration 'Ta'. A further pulse for the duration 'Tc' acknowledges the alarm.",
+      "value_range": "-",
+      "default_value": "-"
+    }
+  ],
+  "source_url": "https://www.loxone.com/enen/kb/emergency-alarm/",
+  "input_count": 4,
+  "output_count": 3,
+  "parameter_count": 2,
+  "property_count": 2
+}

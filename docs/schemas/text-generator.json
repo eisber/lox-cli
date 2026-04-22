@@ -1,0 +1,93 @@
+{
+  "title": "Text Generator",
+  "xml_type": "",
+  "kb_slug": "text-generator",
+  "description": "Create customized texts with the 8 inputs which can be text or numbers. Double-click on the logic block to open the text editor where you can define your texts. The text will be generated after the trigger input is activated.",
+  "inputs": [
+    {
+      "abbreviation": "Tr",
+      "summary": "Triggers output",
+      "description": "Creates the text on rising edge. Reset generated text on falling edge.",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "V1-8",
+      "summary": "Value 1-8",
+      "description": "Input values can be used in the text editor",
+      "value_range": "-"
+    },
+    {
+      "abbreviation": "Uid",
+      "summary": "User-ID",
+      "description": "User-ID. If set before being triggered, the user fields of the corresponding user can be used.",
+      "value_range": "-"
+    }
+  ],
+  "outputs": [
+    {
+      "abbreviation": "Txt",
+      "summary": "Generated text",
+      "description": "Outputs the generated text defined in the corresponding text editor when the input (Tr) is triggered"
+    },
+    {
+      "abbreviation": "Txt1-4",
+      "summary": "Generated text 1-4",
+      "description": "Outputs the generated text defined in the corresponding text editor when the input (Tr) is triggered"
+    },
+    {
+      "abbreviation": "API",
+      "summary": "API Connector",
+      "description": "Intelligent API based connector. API Commands"
+    }
+  ],
+  "parameters": [
+    {
+      "abbreviation": "Td",
+      "summary": "Trigger Delay",
+      "description": "Delays text-generation after trigger to make sure all inputs are set",
+      "unit": "ms",
+      "value_range": "0...2147483647",
+      "default_value": "0"
+    },
+    {
+      "abbreviation": "Tu",
+      "summary": "Update Interval",
+      "description": "Interval how often the text gets updated while the Trigger input is active. Can be used to update the text using the new input values in a regular interval. 0 = Disabled",
+      "unit": "s",
+      "value_range": "0...2147483647",
+      "default_value": "0"
+    }
+  ],
+  "properties": [
+    {
+      "summary": "Text Editor - Txt",
+      "description": "Specifies the text to set on the corresponding output when there is a rising edge on Tr.",
+      "default_value": "-"
+    },
+    {
+      "summary": "Text Editor - Txt1",
+      "description": "Specifies the text to set on the corresponding output when there is a rising edge on Tr.",
+      "default_value": "-"
+    },
+    {
+      "summary": "Text Editor - Txt2",
+      "description": "Specifies the text to set on the corresponding output when there is a rising edge on Tr.",
+      "default_value": "-"
+    },
+    {
+      "summary": "Text Editor - Txt3",
+      "description": "Specifies the text to set on the corresponding output when there is a rising edge on Tr.",
+      "default_value": "-"
+    },
+    {
+      "summary": "Text Editor - Txt4",
+      "description": "Specifies the text to set on the corresponding output when there is a rising edge on Tr.",
+      "default_value": "-"
+    }
+  ],
+  "source_url": "https://www.loxone.com/enen/kb/text-generator/",
+  "input_count": 3,
+  "output_count": 3,
+  "parameter_count": 2,
+  "property_count": 5
+}

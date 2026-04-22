@@ -1,0 +1,29 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Modbus Title="Aermec ANL050_en" Comment="Chiller Aermec" Baudrate="9600" Stopbits="1" Channel="4">
+	<Info templateType="7" minVersion="12021105"/>
+	<ModbusCmd Title="ON-Off" Comment="on _ off command" ModbusCmd="1" ModbusPollingCycle="60" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="TIA" Comment="Water Inlet Temp" ModbusAddress="2" ModbusCmd="3" ModbusPollingCycle="30" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="10"/>
+	<ModbusCmd Title="CP" Comment="State Compressor" ModbusAddress="5" ModbusCmd="1" ModbusPollingCycle="30" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="Cumulative Alarms" Comment="" ModbusAddress="13" ModbusCmd="1" ModbusPollingCycle="30" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="Cumulative Pre-alarms" Comment="" ModbusAddress="14" ModbusCmd="1" ModbusPollingCycle="30" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="TUA" Comment="Water Outlet Temp" ModbusAddress="3" ModbusCmd="3" ModbusPollingCycle="30" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="10"/>
+	<ModbusCmd Title="TGP" Comment="Pressing GAS temp" ModbusAddress="5" ModbusCmd="3" ModbusPollingCycle="30" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="10"/>
+	<ModbusCmd Title="Set Point" Comment="Adjustment set point" ModbusAddress="19" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="10"/>
+	<ModbusCmd Title="Machine Status" Comment="Operating status: 0 = Chiller OFF _ 1 = Chiller ON _ 2 = Partialisation injection _ 3 = Defrost by injection _ 4 = Defrost by cycle inversion" ModbusAddress="32" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Alarm 1 MT Compressor" Comment="Compressor Magnetothermic Trip (code 1)" ModbusAddress="85" ModbusCmd="1" ModbusPollingCycle="60" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="Alarm 2 MT Fan" Comment="Fan Magnetothermic Trip (code 2)" ModbusAddress="86" ModbusCmd="1" ModbusPollingCycle="60" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="Alarm 3 high pression" Comment="Allarme high pression (cod.3)" ModbusAddress="87" ModbusCmd="1" ModbusPollingCycle="60" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="Alarm 4 water" Comment="Flow switch or differential pressure switch alarm (code 4)" ModbusAddress="88" ModbusCmd="1" ModbusPollingCycle="60" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="Alarm 5 low pression" Comment="Allarm low pression (cod.5)" ModbusAddress="89" ModbusCmd="1" ModbusPollingCycle="60" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="Alarm 6 NTC1" Comment="Allarm probe NTC1 absent (cod.6)" ModbusAddress="90" ModbusCmd="1" ModbusPollingCycle="60" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="Alarm 7 NTC2" Comment="Allarm probe NTC2 absent (cod.7)" ModbusAddress="91" ModbusCmd="1" ModbusPollingCycle="60" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="Alarm 8 Antifreeze" Comment="Alarm antifreeze (cod.8)" ModbusAddress="92" ModbusCmd="1" ModbusPollingCycle="60" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="Alarm 9 NTC4" Comment="Alarm probe NTC4 absent (cod.9)" ModbusAddress="93" ModbusCmd="1" ModbusPollingCycle="60" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="Alarm 10 Pressure Gas Temp" Comment="High pressure gas temperature alarm (code 10)" ModbusAddress="94" ModbusCmd="1" ModbusPollingCycle="60" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="Alarm 16 Low Yield" Comment="Allarm Low Yield (code16)" ModbusAddress="100" ModbusCmd="1" ModbusPollingCycle="60" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="Alarm 17 MT Pup" Comment="Pump magnetothermic trip (code 17)" ModbusAddress="101" ModbusCmd="1" ModbusPollingCycle="60" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="HC0" Comment="Hours of operation of the compressor" ModbusAddress="14" ModbusCmd="1" ModbusPollingCycle="3600" Unit="&lt;v&gt;h" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="10"/>
+	<ModbusCmd Title="Po Power supplied" Comment="Power supplied by the machine" ModbusAddress="26" ModbusCmd="1" ModbusPollingCycle="30" Unit="&lt;v&gt;%" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="10"/>
+	<ModbusCmd Title="On-Off Chiller" Comment="" ModbusCmd="5" Unit="" Analog="false" Sensor="false"/>
+	<ModbusCmd Title="RESET Allarm" Comment="" ModbusAddress="4" ModbusCmd="5" Unit="" Analog="false" Sensor="false"/>
+</Modbus>

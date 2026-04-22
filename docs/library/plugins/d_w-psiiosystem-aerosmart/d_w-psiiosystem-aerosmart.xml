@@ -1,0 +1,30 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Comm Title="D&W psiioSYSTEM aerosmart" Comment="Drexel und Weiss" Baudrate="115200" Databits="8" CycleUserProt="-1">
+    <Info templateType="5" minVersion="12010617"/>
+	<CommCmd Title="Aussenlufttemperatur" Comment="Aussenlufttemperatur" CmdOn="LU 202 \v" CmdOff="" Unit="&lt;v.1&gt; °C" Analog="true" Text="false" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="CO2" Comment="CO2" CmdOn="LU 230 \v" CmdOff="" Unit="&lt;v&gt; ppm" Analog="true" Text="false" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="Drehzahl Abluftventilator" Comment="Drehzahl Abluftventilator" CmdOn="LU 1186 \v" CmdOff="" Unit="&lt;v&gt; 1/min" Analog="true" Text="false" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="Drehzahl Zuluftventilator" Comment="Drehzahl Zuluftventilator" CmdOn="LU 1184 \v" CmdOff="" Unit="&lt;v&gt; 1/min" Analog="true" Text="false" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="Feinstaubfilter wechseln" Comment="Feinstaubfilter wechseln" CmdOn="LU 7004 \v" CmdOff="" Unit="&lt;v&gt;" Analog="true" Text="false" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="Grobstaubfilter wechseln" Comment="Grobstaubfilter wechseln" CmdOn="LU 7002 \v" CmdOff="" Unit="&lt;v&gt;" Analog="true" Text="false" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="Summenstörung 1 (LU)" Comment="Summenstörung 1 (LU)" CmdOn="LU 800 \v" CmdOff="" Unit="" Analog="true" Text="false" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="Summenstörung 2 (LU)" Comment="Summenstörung 2 (LU)" CmdOn="LU 7500 \v" CmdOff="" Unit="" Analog="true" Text="false" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="Raumtemperatur" Comment="Raumtemperatur" CmdOn="WP 200 \v" CmdOff="" Unit="&lt;v.1&gt; °C" Analog="true" Text="false" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="Summenstörung 1 (WP)" Comment="Summenstörung 1 (WP)" CmdOn="WP 800 \v" CmdOff="" Unit="" Analog="true" Text="false" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="Summenstörung 2 (WP)" Comment="Summenstörung 2 (WP)" CmdOn="WP 7500 \v" CmdOff="" Unit="" Analog="true" Text="false" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="Temp. Boiler (EHZ)" Comment="Temp. Boiler (EHZ)" CmdOn="WP 212 \v" CmdOff="" Unit="&lt;v.1&gt; °C" Analog="true" Text="false" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="Modus_WLG" Comment="Modus_WLG" CmdOn="LU 5002 \v" CmdOff="" Unit="&lt;v&gt;" Analog="true" Text="false" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="Brauchw. Soll-Temp. (psiio)" Comment="Brauchw. Soll-Temp. (psiio)" CmdOn="WP 5064 \v" CmdOff="" Unit="&lt;v&gt;°C" Analog="true" Text="false" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="Raum Soll-Temp. (psiio)" Comment="Raum Soll-Temp. (psiio)" CmdOn="WP 5016 \v" CmdOff="" Unit="&lt;v.1&gt;°C" Analog="true" Text="false" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="Temp. Boiler (Wärmepumpe)" Comment="Temp. Boiler (Wärmepumpe)" CmdOn="WP 214 \v" CmdOff="" Unit="&lt;v.1&gt;°C" Analog="true" Text="false" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="Ventilator Stufe 1" Comment="Ventilator Stufe 1" CmdOn="LU 5002 1\n\r" CmdOff="" Unit="" Analog="false" Text="false" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="Ventilator Stufe 2" Comment="Ventilator Stufe 2" CmdOn="LU 5002 2\n\r" CmdOff="" Unit="" Analog="false" Text="false" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="Ventilator Stufe 3" Comment="Ventilator Stufe 3" CmdOn="LU 5002 3\n\r" CmdOff="" Unit="" Analog="false" Text="false" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="Ventilator Automatik" Comment="Ventilator Automatik" CmdOn="LU 5002 4\n\rLU 1048 1\n\r" CmdOff="" Unit="" Analog="false" Text="false" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="Party" Comment="Party" CmdOn="LU 5002 5\n\r" CmdOff="" Unit="" Analog="false" Text="false" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="Ventilator Aus" Comment="Ventilator Aus" CmdOn="LU 5002 0\n\r" CmdOff="" Unit="" Analog="false" Text="false" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="Raum Soll-Temperatur" Comment="Raum Soll-Temperatur" CmdOn="WP 5016 &lt;v.1&gt;\n\r" CmdOff="" Unit="&lt;v.1&gt; °C" Analog="true" Text="false" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="Brauchwasser Soll-Temperatur" Comment="Brauchwasser Soll-Temperatur" CmdOn="WP 5064 &lt;v&gt;\n\r" CmdOff="" Unit="&lt;v&gt; °C" Analog="true" Text="false" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="Funktion BAD +" Comment="Funktion BAD +" CmdOn="WP 5036 1\n\r" CmdOff="WP 5036 0\n\r" Unit="" Analog="false" Text="false" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="Funktion HEIZUNG +" Comment="Funktion HEIZUNG +" CmdOn="WP 5492 1\n\r" CmdOff="WP 5492 0\n\r" Unit="" Analog="false" Text="false" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+</Comm>

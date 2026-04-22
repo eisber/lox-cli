@@ -1,0 +1,167 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Modbus Title="Rekuperator aeroVent v.1.5" Comment="Dostęp ModBUS dla rekuperatora aeroVent" HintText="" Baudrate="115200" Channel="1">
+	<Info templateType="7" minVersion="15000529"/>
+	<ModbusCmd Title="Nawiew" Comment="Wysterowanie wentylatora nawiewu" HintText="0..100%" ModbusAddress="43" ModbusCmd="3" ModbusPollingCycle="1" Unit="&lt;v&gt;%" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Wywiew" Comment="Wysterowanie wentylatora wywiewu" HintText="0..100%
+" ModbusAddress="44" ModbusCmd="3" ModbusPollingCycle="1" Unit="&lt;v&gt;%" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Jaki bieg pracy" Comment="Bieg pracy regulatora" HintText="3 –bieg 1,
+4 – bieg 2,
+5 – bieg 3," ModbusAddress="4" ModbusCmd="3" ModbusPollingCycle="1" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="6" DestValHigh="6"/>
+	<ModbusCmd Title="Temperatura nawiewu" Comment="Temperatura nawiewu" HintText="-40..60°C" ModbusAddress="6" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="1" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValLow="-400" SourceValHigh="600" DestValLow="-40" DestValHigh="60"/>
+	<ModbusCmd Title="Temperatura czerpni" Comment="" HintText="-40.0..60.0,
+999 - jeśli awaria czujnika, w celu odczytu warości dziesiętnych odczytana wartość mnożona jest x10" ModbusAddress="8" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="1" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValLow="-400" SourceValHigh="600" DestValLow="-40" DestValHigh="60"/>
+	<ModbusCmd Title="Temperatura wyrzutni" Comment="" HintText="-40.0..60.0,
+999 - jeśli awaria czujnika, w celu odczytu warości dziesiętnych odczytana wartość mnożona jest x10" ModbusAddress="9" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="1" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValLow="-400" SourceValHigh="600" DestValLow="-40" DestValHigh="60"/>
+	<ModbusCmd Title="Czujnik CO2" Comment="Jakość powietrza" HintText="Jednostka PPM
+Zakres dostosować do podłączonego czujnika." ModbusAddress="42" ModbusCmd="3" ModbusPollingCycle="1" Unit="CO2 &lt;v&gt;ppm" Analog="true" Sensor="true" SourceValHigh="2000" DestValHigh="2000"/>
+	<ModbusCmd Title="Rok" Comment="" HintText="2015..2099" ModbusAddress="62" ModbusCmd="3" ModbusPollingCycle="300" Unit="Rok &lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="3000" DestValHigh="3000"/>
+	<ModbusCmd Title="Czy awaria" Comment="Status awaria" HintText="0 - Pozwolenie na pracę aktywne (brak awarii)
+1 - Brak pozwolenia na pracę (awaria urządzenia)
+" ModbusAddress="3" ModbusCmd="3" ModbusPollingCycle="10" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Czy pracuje" Comment="Status pracy" HintText="0 - urządzenie wyłączone/zatrzymane
+1 - urządzenie pracuje
+" ModbusAddress="2" ModbusCmd="3" ModbusPollingCycle="10" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="MODB_progSeries" Comment="Wersja programu" HintText="Format: SXXX.YYY
+XXX - starszy bajt,
+YYY - młodszy bajt
+" ModbusCmd="3" ModbusPollingCycle="300" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="65535" DestValHigh="65535"/>
+	<ModbusCmd Title="Temperatura wyciągu" Comment="Temperatura wyciągu" HintText="-40.0..60.0,
+999 - jeśli awaria czujnika, w celu odczytu warości dziesiętnych odczytana wartość mnożona jest x10" ModbusAddress="7" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="1" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValLow="-400" SourceValHigh="600" DestValLow="-40" DestValHigh="60"/>
+	<ModbusCmd Title="Wilgotność" Comment="Jakość powietrza" HintText="Zakres 0..100%" ModbusAddress="41" ModbusCmd="3" ModbusPollingCycle="1" Unit="Wilgotność &lt;v.1&gt;%" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Miesiąc" Comment="" HintText="1..12
+" ModbusAddress="61" ModbusCmd="3" ModbusPollingCycle="300" Unit="Miesiąc &lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="12" DestValHigh="12"/>
+	<ModbusCmd Title="Dzień" Comment="" HintText="1..31" ModbusAddress="60" ModbusCmd="3" ModbusPollingCycle="300" Unit="Dzień &lt;v&gt;" Analog="true" Sensor="true" SourceValLow="1" SourceValHigh="31" DestValLow="1" DestValHigh="31"/>
+	<ModbusCmd Title="Temperatura panelu" Comment="Temperatura głównego panelu" HintText="-40.0..60.0,
+999 - jeśli awaria czujnika, w celu odczytu warości dziesiętnych odczytana wartość mnożona jest x10" ModbusAddress="12" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="1" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValLow="-400" SourceValHigh="600" DestValLow="-40" DestValHigh="60"/>
+	<ModbusCmd Title="Czy Bypass" Comment="Stan by-pass" HintText="0 - off
+1 - on" ModbusAddress="17" ModbusCmd="3" ModbusPollingCycle="10" Unit="Bypass stan &lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="1" DestValHigh="1"/>
+	<ModbusCmd Title="Bypass out" Comment="Wysterowanie siłownika by-pass w _" HintText="0..100%" ModbusAddress="27" ModbusCmd="3" ModbusPollingCycle="10" Unit="Bypass wysterowanie &lt;v&gt;%" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Czy SAP" Comment="Sygnał z systemu anty pożarowego" HintText="0 - SAP
+1 - brak SAP" ModbusAddress="18" ModbusCmd="3" ModbusPollingCycle="10" Unit="SAP &lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="1" DestValHigh="1"/>
+	<ModbusCmd Title="Czy IN1" Comment="Sygnał zewnętrzny IN1" HintText="0 - nieaktywny
+1 - aktywny" ModbusAddress="19" ModbusCmd="3" ModbusPollingCycle="10" Unit="IN1 &lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="1" DestValHigh="1"/>
+	<ModbusCmd Title="Czy IN2" Comment="Sygnał zewnętrzny IN2" HintText="0 - nieaktywny
+1 - aktywny" ModbusAddress="20" ModbusCmd="3" ModbusPollingCycle="10" Unit="IN2 &lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="1" DestValHigh="1"/>
+	<ModbusCmd Title="Czy ECO" Comment="Centrala alarmowa" HintText="0 - nieaktywny
+1 - aktywny" ModbusAddress="21" ModbusCmd="3" ModbusPollingCycle="10" Unit="ECO &lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="1" DestValHigh="1"/>
+	<ModbusCmd Title="Czy preheater" Comment="Nagrzewnica wstępna" HintText="0 - nieaktywny
+1 - aktywny
+" ModbusAddress="22" ModbusCmd="3" ModbusPollingCycle="10" Unit="Preheater &lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="1" DestValHigh="1"/>
+	<ModbusCmd Title="Czy postheater" Comment="Nagrzewnica wtórna" HintText="0 - nieaktywny
+1 - aktywny
+" ModbusAddress="23" ModbusCmd="3" ModbusPollingCycle="10" Unit="Postheater&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="1" DestValHigh="1"/>
+	<ModbusCmd Title="Czy GWC" Comment="Stan siłownika GWC" HintText="0 - nieaktywny
+1 - aktywny
+" ModbusAddress="26" ModbusCmd="3" ModbusPollingCycle="10" Unit="GWC &lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="1" DestValHigh="1"/>
+	<ModbusCmd Title="Godzina" Comment="Godzina" HintText="0-23" ModbusAddress="63" ModbusCmd="3" ModbusPollingCycle="300" Unit="Godzina &lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="23" DestValHigh="23"/>
+	<ModbusCmd Title="Minuta" Comment="Minuta" HintText="0..59" ModbusAddress="64" ModbusCmd="3" ModbusPollingCycle="10" Unit="Minuty &lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="59" DestValHigh="59"/>
+	<ModbusCmd Title="Czy CleanMode" Comment="Tryb czyszczenia wymiennika" HintText="0 - nieaktywny
+1 - aktywny
+" ModbusAddress="29" ModbusCmd="3" ModbusPollingCycle="10" Unit="Clean mode &lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="1" DestValHigh="1"/>
+	<ModbusCmd Title="Czy tryb ręczny" Comment="Czy tryb sterowania ręcznego?" HintText="1 - tryb sterowania ręcznego" ModbusAddress="31" ModbusCmd="3" ModbusPollingCycle="10" Unit="Manual &lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="1" DestValHigh="1"/>
+	<ModbusCmd Title="LeadTempSensor" Comment="Czujnik wiodący temperatury" HintText="0 - czujnik wywiewu,
+1 - czujnik nawiewu,
+100 – czujnik panelu" ModbusAddress="5" ModbusCmd="3" ModbusPollingCycle="300" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Czy Lato-zima" Comment="Jaki tryb lato-zima?" HintText="1 - auto
+2 - zima
+3 - lato
+4 - wentylacja" ModbusAddress="38" ModbusCmd="3" ModbusPollingCycle="300" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Histereza lato-zima" Comment="Histereza lato-zima" HintText="0..20°C,
+14°C domyślnie
+" ModbusAddress="39" ModbusCmd="3" ModbusPollingCycle="300" Unit="&lt;v&gt;°C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Czy tryb party" Comment="Czy włączony tryb party?" HintText="0 - nieaktywny,
+1 - aktywny" ModbusAddress="34" ModbusCmd="3" ModbusPollingCycle="10" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="1" DestValHigh="1"/>
+	<ModbusCmd Title="Czy wietrzenie" Comment="Wspomaganie wietrzenia otwartymi oknami" HintText="0 - nieaktywny,
+1 - aktywny
+" ModbusAddress="32" ModbusCmd="3" ModbusPollingCycle="10" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Czy harmonogram" Comment="Praca wg harmonogramu" HintText="0 - nieaktywny,
+1 - aktywny" ModbusAddress="37" ModbusCmd="3" ModbusPollingCycle="10" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="1" DestValHigh="1"/>
+	<ModbusCmd Title="Czy tryb postoju" Comment="Wyłącza wentylację na predefiniowany czas" HintText="0 - nieaktywny,
+1 - aktywny" ModbusAddress="33" ModbusCmd="3" ModbusPollingCycle="10" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="1" DestValHigh="1"/>
+	<ModbusCmd Title="Temperatura załączenia zima" Comment="Temperatura załączenia trybu zima" HintText="-20..20°C
+0° domyślnie
+" ModbusAddress="40" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="300" Unit="&lt;v&gt;°C" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Czy kominek" Comment="Czy włączony tryb kominek?" HintText="0 - nieaktywny
+1 - aktywny" ModbusAddress="35" ModbusCmd="3" ModbusPollingCycle="10" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="1" DestValHigh="1"/>
+	<ModbusCmd Title="S/N1-2" Comment="Znak 1,2 (kod ASCII)" HintText="" ModbusAddress="122" ModbusCmd="3" ModbusDataType="32" ModbusPollingCycle="1000" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="S/N3-4" Comment="" HintText="" ModbusAddress="123" ModbusCmd="3" ModbusPollingCycle="1000" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="S/N5-6" Comment="" HintText="" ModbusAddress="124" ModbusCmd="3" ModbusPollingCycle="1000" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="S/N7-8" Comment="" HintText="" ModbusAddress="125" ModbusCmd="3" ModbusPollingCycle="1000" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="S/N9-10" Comment="" HintText="" ModbusAddress="126" ModbusCmd="3" ModbusPollingCycle="1000" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="User1SupFanSpeed" Comment="Prędkość W1 dla biegu 1" HintText="0..100%
+" ModbusAddress="48" ModbusCmd="3" ModbusPollingCycle="300" Unit="&lt;v&gt;%" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="User2SupFanSpeed" Comment="" HintText="0..100%
+" ModbusAddress="49" ModbusCmd="3" ModbusPollingCycle="300" Unit="&lt;v&gt;%" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="User3SupFanSpeed" Comment="" HintText="0..100%
+" ModbusAddress="50" ModbusCmd="3" ModbusPollingCycle="300" Unit="&lt;v&gt;%" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="ECOSupFanSpeed" Comment="Prędkość wentylatora W1 dla trybu ECO" HintText="0..100%
+" ModbusAddress="52" ModbusCmd="3" ModbusPollingCycle="300" Unit="&lt;v&gt;%" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="User1ExhSpeed" Comment="" HintText="" ModbusAddress="54" ModbusCmd="3" ModbusPollingCycle="300" Unit="&lt;v&gt;%" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="User2ExhSpeed" Comment="" HintText="" ModbusAddress="55" ModbusCmd="3" ModbusPollingCycle="300" Unit="&lt;v&gt;%" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="User3ExhSpeed" Comment="" HintText="" ModbusAddress="56" ModbusCmd="3" ModbusPollingCycle="300" Unit="&lt;v&gt;%" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="ECOExhFanSpeed" Comment="" HintText="" ModbusAddress="58" ModbusCmd="3" ModbusPollingCycle="300" Unit="&lt;v&gt;%" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Czas postoju tryb ECO" Comment="" HintText="1..24" ModbusAddress="65" ModbusCmd="3" ModbusPollingCycle="300" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Czas wietrzenia trybu ECO" Comment="" HintText="1..100
+" ModbusAddress="66" ModbusCmd="3" ModbusPollingCycle="300" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Czas do przeglądu ogólnego" Comment="" HintText="0..999 dni" ModbusAddress="68" ModbusCmd="3" ModbusPollingCycle="300" Unit="&lt;v&gt;dni" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="1000"/>
+	<ModbusCmd Title="Czas trwania trybu party" Comment="" HintText="1..180 min,
+3 domyślnie" ModbusAddress="67" ModbusCmd="3" ModbusPollingCycle="300" Unit="&lt;v&gt;min" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Pozwolenie pracy GWC" Comment="" HintText="0 - zamknięty,
+1 - otwórz,
+2 - auto" ModbusAddress="69" ModbusCmd="3" ModbusPollingCycle="300" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Górny próg załączenia GWC - zima" Comment="" HintText="5..20°C,
+8 domyślnie" ModbusAddress="70" ModbusCmd="3" ModbusPollingCycle="300" Unit="&lt;v&gt;°C" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Dolny próg załączenia GWC - lato" Comment="" HintText="10..30°C,
+18 domyślnie" ModbusAddress="71" ModbusCmd="3" ModbusPollingCycle="300" Unit="&lt;v&gt;°C" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Tryb postoju" Comment="Wyłącza wentylację na predefiniowany czas" HintText="0 - nieaktywny,
+1 - aktywny
+" ModbusAddress="33" ModbusCmd="6" Unit="" Analog="false" Sensor="false"/>
+	<ModbusCmd Title="WORK_MODE" Comment="Bieg pracy wentylatora" HintText="0..6
+3 -bieg 1,
+4 - bieg 2,
+5 - bieg 3,
+" ModbusAddress="4" ModbusCmd="6" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValLow="1" SourceValHigh="3" DestValLow="3" DestValHigh="5"/>
+	<ModbusCmd Title="Tryb PARTY" Comment="Tryb PARTY" HintText="0 - nieaktywny,
+1 - aktywny
+" ModbusAddress="34" ModbusCmd="6" Unit="" Analog="false" Sensor="false"/>
+	<ModbusCmd Title="Tryb wietrzenie" Comment="Wspomaganie wietrzenia otwartymi oknami. Pracuje tylko wyciąg." HintText="0 - nieaktywny,
+1 - aktywny" ModbusAddress="32" ModbusCmd="6" Unit="" Analog="false" Sensor="false"/>
+	<ModbusCmd Title="Tryb kominek" Comment="" HintText="0 - nieaktywny
+1 - aktywny" ModbusAddress="35" ModbusCmd="6" Unit="" Analog="false" Sensor="false"/>
+	<ModbusCmd Title="Harmonogram" Comment="Praca wg harmonogramu" HintText="0 - nieaktywna
+1 - aktywna" ModbusAddress="37" ModbusCmd="6" Unit="" Analog="false" Sensor="false"/>
+	<ModbusCmd Title="Lato-zima" Comment="Tryb lato-zima" HintText="1 - auto
+2 - zima
+3 - lato
+4 - wentylacja
+" ModbusAddress="38" ModbusCmd="6" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Histereza lato-zima" Comment="Histereza lato-zima" HintText="0..20°C,
+14°C domyślnie" ModbusAddress="39" ModbusCmd="6" Unit="&lt;v&gt;°C" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Temperatura trybu zima" Comment="Temperatura załączenia trybu zima" HintText="-20..20°C,
+0°C domyślnie" ModbusAddress="40" ModbusCmd="6" Unit="&lt;v&gt;°C" Analog="true" Sensor="false" SourceValLow="-20" SourceValHigh="20" DestValLow="-20" DestValHigh="20"/>
+	<ModbusCmd Title="User1SupFanSpeed" Comment="Prędkość W1 dla biegu 1" HintText="15..100%
+" ModbusAddress="48" ModbusCmd="6" Unit="&lt;v&gt;%" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="User2SupFanSpeed" Comment="Prękość W1 dla biegu 2" HintText="15..100%
+" ModbusAddress="49" ModbusCmd="6" Unit="&lt;v&gt;%" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="User3SupFanSpeed" Comment="Prędkość W1 dla biegu 3" HintText="15..100%
+" ModbusAddress="50" ModbusCmd="6" Unit="&lt;v&gt;%" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="ECOSupFanSpeed" Comment="Prędkość wentylatora W1 dla trybu ECO" HintText="15..100%
+" ModbusAddress="52" ModbusCmd="6" Unit="&lt;v&gt;%" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="User1ExhFanSpeed" Comment="Prędkość W2 dla biegu 1" HintText="15..100%
+" ModbusAddress="54" ModbusCmd="6" Unit="&lt;v&gt;%" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="User2ExhFanSpeed" Comment="Prędkość W2 dla biegu 2" HintText="15..100%
+" ModbusAddress="55" ModbusCmd="6" Unit="&lt;v&gt;%" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="User3ExhFanSpeed" Comment="Prędkość W2 dla biegu 3" HintText="15..100%
+" ModbusAddress="56" ModbusCmd="6" Unit="&lt;v&gt;%" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="ECOExhFanSpeed" Comment="Prędkość wentylatora W2 dla trybu ECO" HintText="15..100%
+" ModbusAddress="58" ModbusCmd="6" Unit="&lt;v&gt;%" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Czas postoju tryb ECO" Comment="" HintText="1..24
+" ModbusAddress="65" ModbusCmd="6" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Czas wietrzenia trybu ECO" Comment="" HintText="1..100" ModbusAddress="66" ModbusCmd="6" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Czas trwania trybu party" Comment="" HintText="1..180
+" ModbusAddress="67" ModbusCmd="6" Unit="&lt;v&gt;min" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Czas do przeglądu ogólnego" Comment="" HintText="0..999
+" ModbusAddress="68" ModbusCmd="6" Unit="&lt;v&gt;dni" Analog="true" Sensor="false" SourceValHigh="1000" DestValHigh="1000"/>
+	<ModbusCmd Title="Clean mode manual" Comment="Ręczne uruchomienie czyszczenia wymiennika" HintText="0 - nieaktywny
+1 - aktywny" ModbusAddress="30" ModbusCmd="6" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10"/>
+</Modbus>

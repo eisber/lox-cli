@@ -1,0 +1,9 @@
+{
+                                "type": "template",
+                                "name": "heidelberg-energy-control-wallbox-modbus",
+                                "uuid": "92cf76a7-3750-11ec-a3784cd98f3deb8a",
+                                "version":"1.0.0",
+                                "id": "heidelberg-energy-control-wallbox-modbus-402",
+                                "file": "heidelberg-energy-control-wallbox-modbus.xml",
+                                "templateType": "7",
+                            }

@@ -1,0 +1,9 @@
+{
+                                "type": "template",
+                                "name": "reolink-ip-cam",
+                                "uuid": "03190877-ac00-11ee-a3984cd98f3deb8a",
+                                "version":"1.0.2",
+                                "id": "reolink-ip-cam-1422",
+                                "file": "reolink-ip-cam.xml",
+                                "templateType": "3",
+                            }

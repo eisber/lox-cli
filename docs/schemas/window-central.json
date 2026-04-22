@@ -1,0 +1,90 @@
+{
+  "title": "Window Central",
+  "xml_type": "",
+  "kb_slug": "window-central",
+  "description": "Central control for multiple windows.",
+  "inputs": [
+    {
+      "abbreviation": "Co",
+      "summary": "Complete open",
+      "description": "Stopping not possible.",
+      "unit": "-",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "Cc",
+      "summary": "Complete close",
+      "description": "Stopping not possible.",
+      "unit": "-",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "Tg",
+      "summary": "Toggle",
+      "description": "Toggles between open, stop, close. For single button control.",
+      "unit": "-",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "Pos",
+      "summary": "Position of window",
+      "description": "Move windows to specified position.",
+      "unit": "%",
+      "value_range": "0...100"
+    },
+    {
+      "abbreviation": "So",
+      "summary": "Slightly Open",
+      "description": "Moves window to slightly open position if current position is different.",
+      "unit": "-",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "Wp",
+      "summary": "Weather protection",
+      "description": "Windows are closed and locked for further operation when on. Control via user interface is still possible.",
+      "unit": "-",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "Off",
+      "summary": "Off",
+      "description": "Pulse stops movement. On locks the block. Dominating input. The name of the connected sensor is used in the user interface.",
+      "unit": "-",
+      "value_range": "0/1"
+    }
+  ],
+  "outputs": [
+    {
+      "abbreviation": "API",
+      "summary": "API Connector",
+      "description": "Intelligent API based connector. API Commands",
+      "value_range": "-"
+    },
+    {
+      "abbreviation": "No",
+      "summary": "Open windows",
+      "description": "Number of open windows",
+      "value_range": "\u221e"
+    },
+    {
+      "abbreviation": "Nc",
+      "summary": "Closed windows",
+      "description": "Number of closed windows",
+      "value_range": "\u221e"
+    }
+  ],
+  "parameters": [],
+  "properties": [
+    {
+      "summary": "Selection",
+      "description": "All selected window blocks can be controlled together.",
+      "default_value": "-"
+    }
+  ],
+  "source_url": "https://www.loxone.com/enen/kb/window-central/",
+  "input_count": 7,
+  "output_count": 3,
+  "parameter_count": 0,
+  "property_count": 1
+}

@@ -1,0 +1,52 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Comm Title="Nice DMBM" Comment="" HintText="" Baudrate="115200" Databits="8" CycleUserProt="-1">
+	<Info templateType="5" minVersion="15000326"/>
+	<CommCmd Title="Input 1" Comment="" CmdOn="inp * 01 0\v" CmdOff="" Unit="&lt;v.1&gt;" HintText="" Analog="true" Text="false" Sensor="true" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="Input 2" Comment="" CmdOn="inp * 02 0\v" CmdOff="" Unit="&lt;v.1&gt;" HintText="" Analog="true" Text="false" Sensor="true" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="Input 3" Comment="" CmdOn="inp * 03 0\v" CmdOff="" Unit="&lt;v.1&gt;" HintText="" Analog="true" Text="false" Sensor="true" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="Input 4" Comment="" CmdOn="inp * 04 0\v" CmdOff="" Unit="&lt;v.1&gt;" HintText="" Analog="true" Text="false" Sensor="true" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="Input 5" Comment="" CmdOn="inp * 05 0\v" CmdOff="" Unit="&lt;v.1&gt;" HintText="" Analog="true" Text="false" Sensor="true" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="Input 6" Comment="" CmdOn="inp * 06 0\v" CmdOff="" Unit="&lt;v.1&gt;" HintText="" Analog="true" Text="false" Sensor="true" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="Input 7" Comment="" CmdOn="inp * 07 0\v" CmdOff="" Unit="&lt;v.1&gt;" HintText="" Analog="true" Text="false" Sensor="true" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="Input 8" Comment="" CmdOn="inp * 08 0\v" CmdOff="" Unit="&lt;v.1&gt;" HintText="" Analog="true" Text="false" Sensor="true" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="Input 9" Comment="" CmdOn="inp * 09 0\v" CmdOff="" Unit="&lt;v.1&gt;" HintText="" Analog="true" Text="false" Sensor="true" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="Input 10" Comment="" CmdOn="inp * 10 0\v" CmdOff="" Unit="&lt;v.1&gt;" HintText="" Analog="true" Text="false" Sensor="true" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="Input 11" Comment="" CmdOn="inp * 11 0\v" CmdOff="" Unit="&lt;v.1&gt;" HintText="" Analog="true" Text="false" Sensor="true" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="Input 12" Comment="" CmdOn="inp * 12 0\v" CmdOff="" Unit="&lt;v.1&gt;" HintText="" Analog="true" Text="false" Sensor="true" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="Motor 1 Position" Comment="" CmdOn="POS &gt; 01 01 &lt;v&gt; FFFF F\r" CmdOff="" Unit="&lt;v&gt;" HintText="" Analog="true" Text="false" Sensor="false" Signed="true" SourceValHigh="100" DestValHigh="1000"/>
+	<CommCmd Title="Motor 1 Close" Comment="" CmdOn="cmd &gt; 01 01 04\r" CmdOff="cmd &gt; 01 01 02\r" Unit="" HintText="" Analog="false" Text="false" Sensor="false" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="Motor 1 Open" Comment="" CmdOn="cmd &gt; 01 01 03\r" CmdOff="cmd &gt; 01 01 02\r" Unit="" HintText="" Analog="false" Text="false" Sensor="false" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="Motor 2 Open" Comment="" CmdOn="cmd &gt; 01 02 03\r" CmdOff="cmd &gt; 01 02 02\r" Unit="" HintText="" Analog="false" Text="false" Sensor="false" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="Motor 2 Close" Comment="" CmdOn="cmd &gt; 01 02 04\r" CmdOff="cmd &gt; 01 02 02\r" Unit="" HintText="" Analog="false" Text="false" Sensor="false" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="Motor 2 Position" Comment="" CmdOn="POS &gt; 01 02 &lt;v&gt; FFFF F\r" CmdOff="" Unit="&lt;v&gt;" HintText="" Analog="true" Text="false" Sensor="false" Signed="true" SourceValHigh="100" DestValHigh="1000"/>
+	<CommCmd Title="Motor 3 Open" Comment="" CmdOn="cmd &gt; 01 03 03\r" CmdOff="cmd &gt; 01 03 02\r" Unit="" HintText="" Analog="false" Text="false" Sensor="false" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="Motor 3 Close" Comment="" CmdOn="cmd &gt; 01 03 04\r" CmdOff="cmd &gt; 01 03 02\r" Unit="" HintText="" Analog="false" Text="false" Sensor="false" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="Motor 3 Position" Comment="" CmdOn="POS &gt; 01 03 &lt;v&gt; FFFF F\r" CmdOff="" Unit="&lt;v&gt;" HintText="" Analog="true" Text="false" Sensor="false" Signed="true" SourceValHigh="100" DestValHigh="1000"/>
+	<CommCmd Title="Motor 4 Open" Comment="" CmdOn="cmd &gt; 01 04 03\r" CmdOff="cmd &gt; 01 04 02\r" Unit="" HintText="" Analog="false" Text="false" Sensor="false" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="Motor 4 Close" Comment="" CmdOn="cmd &gt; 01 04 04\r" CmdOff="cmd &gt; 01 04 02\r" Unit="" HintText="" Analog="false" Text="false" Sensor="false" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="Motor 4 Position" Comment="" CmdOn="POS &gt; 01 04 &lt;v&gt; FFFF F\r" CmdOff="" Unit="&lt;v&gt;" HintText="" Analog="true" Text="false" Sensor="false" Signed="true" SourceValHigh="100" DestValHigh="1000"/>
+	<CommCmd Title="Motor 5 Open" Comment="" CmdOn="cmd &gt; 01 05 03\r" CmdOff="cmd &gt; 01 05 02\r" Unit="" HintText="" Analog="false" Text="false" Sensor="false" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="Motor 5 Close" Comment="" CmdOn="cmd &gt; 01 05 04\r" CmdOff="cmd &gt; 01 05 02\r" Unit="" HintText="" Analog="false" Text="false" Sensor="false" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="Motor 5 Position" Comment="" CmdOn="POS &gt; 01 05 &lt;v&gt; FFFF F\r" CmdOff="" Unit="&lt;v&gt;" HintText="" Analog="true" Text="false" Sensor="false" Signed="true" SourceValHigh="100" DestValHigh="1000"/>
+	<CommCmd Title="Motor 6 Open" Comment="" CmdOn="cmd &gt; 01 06 03\r" CmdOff="cmd &gt; 01 06 02\r" Unit="" HintText="" Analog="false" Text="false" Sensor="false" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="Motor 6 Close" Comment="" CmdOn="cmd &gt; 01 06 04\r" CmdOff="cmd &gt; 01 06 02\r" Unit="" HintText="" Analog="false" Text="false" Sensor="false" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="Motor 6 Position" Comment="" CmdOn="POS &gt; 01 06 &lt;v&gt; FFFF F\r" CmdOff="" Unit="&lt;v&gt;" HintText="" Analog="true" Text="false" Sensor="false" Signed="true" SourceValHigh="100" DestValHigh="1000"/>
+	<CommCmd Title="Motor 7 Open" Comment="" CmdOn="cmd &gt; 01 07 03\r" CmdOff="cmd &gt; 01 07 02\r" Unit="" HintText="" Analog="false" Text="false" Sensor="false" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="Motor 7 Close" Comment="" CmdOn="cmd &gt; 01 07 04\r" CmdOff="cmd &gt; 01 07 02\r" Unit="" HintText="" Analog="false" Text="false" Sensor="false" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="Motor 7 Position" Comment="" CmdOn="POS &gt; 01 07 &lt;v&gt; FFFF F\r" CmdOff="" Unit="&lt;v&gt;" HintText="" Analog="true" Text="false" Sensor="false" Signed="true" SourceValHigh="100" DestValHigh="1000"/>
+	<CommCmd Title="Motor 8 Open" Comment="" CmdOn="cmd &gt; 01 08 03\r" CmdOff="cmd &gt; 01 08 02\r" Unit="" HintText="" Analog="false" Text="false" Sensor="false" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="Motor 8 Close" Comment="" CmdOn="cmd &gt; 01 08 04\r" CmdOff="cmd &gt; 01 08 02\r" Unit="" HintText="" Analog="false" Text="false" Sensor="false" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="Motor 8 Position" Comment="" CmdOn="POS &gt; 01 08 &lt;v&gt; FFFF F\r" CmdOff="" Unit="&lt;v&gt;" HintText="" Analog="true" Text="false" Sensor="false" Signed="true" SourceValHigh="100" DestValHigh="1000"/>
+	<CommCmd Title="Motor 9 Open" Comment="" CmdOn="cmd &gt; 01 09 03\r" CmdOff="cmd &gt; 01 09 02\r" Unit="" HintText="" Analog="false" Text="false" Sensor="false" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="Motor 9 Close" Comment="" CmdOn="cmd &gt; 01 09 04\r" CmdOff="cmd &gt; 01 09 02\r" Unit="" HintText="" Analog="false" Text="false" Sensor="false" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="Motor 9 Position" Comment="" CmdOn="POS &gt; 01 09 &lt;v&gt; FFFF F\r" CmdOff="" Unit="&lt;v&gt;" HintText="" Analog="true" Text="false" Sensor="false" Signed="true" SourceValHigh="100" DestValHigh="1000"/>
+	<CommCmd Title="Motor 10 Open" Comment="" CmdOn="cmd &gt; 01 10 03\r" CmdOff="cmd &gt; 01 10 02\r" Unit="" HintText="" Analog="false" Text="false" Sensor="false" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="Motor 10 Close" Comment="" CmdOn="cmd &gt; 01 10 04\r" CmdOff="cmd &gt; 01 10 02\r" Unit="" HintText="" Analog="false" Text="false" Sensor="false" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="Motor 10 Position" Comment="" CmdOn="POS &gt; 01 10 &lt;v&gt; FFFF F\r" CmdOff="" Unit="&lt;v&gt;" HintText="" Analog="true" Text="false" Sensor="false" Signed="true" SourceValHigh="100" DestValHigh="1000"/>
+	<CommCmd Title="Motor 11 Open" Comment="" CmdOn="cmd &gt; 01 11 03\r" CmdOff="cmd &gt; 01 11 02\r" Unit="" HintText="" Analog="false" Text="false" Sensor="false" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="Motor 11 Close" Comment="" CmdOn="cmd &gt; 01 11 04\r" CmdOff="cmd &gt; 01 11 02\r" Unit="" HintText="" Analog="false" Text="false" Sensor="false" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="Motor 11 Position" Comment="" CmdOn="POS &gt; 01 11 &lt;v&gt; FFFF F\r" CmdOff="" Unit="&lt;v&gt;" HintText="" Analog="true" Text="false" Sensor="false" Signed="true" SourceValHigh="100" DestValHigh="1000"/>
+	<CommCmd Title="Motor 12 Open" Comment="" CmdOn="cmd &gt; 01 12 03\r" CmdOff="cmd &gt; 01 12 02\r" Unit="" HintText="" Analog="false" Text="false" Sensor="false" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="Motor 12 Close" Comment="" CmdOn="cmd &gt; 01 12 04\r" CmdOff="cmd &gt; 01 12 02\r" Unit="" HintText="" Analog="false" Text="false" Sensor="false" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="Motor 12 Position" Comment="" CmdOn="POS &gt; 01 12 &lt;v&gt; FFFF F\r" CmdOff="" Unit="&lt;v&gt;" HintText="" Analog="true" Text="false" Sensor="false" Signed="true" SourceValHigh="100" DestValHigh="1000"/>
+</Comm>

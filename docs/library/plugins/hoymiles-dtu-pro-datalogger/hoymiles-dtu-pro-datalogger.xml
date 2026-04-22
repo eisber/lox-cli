@@ -1,0 +1,9 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Modbus Title="Hoymiles DTU-PRO-S" Comment="" Channel="111">
+	<Info templateType="7" minVersion="14010509"/>
+	<ModbusCmd Title="Grid Voltage" Comment="" ModbusAddress="4108" ModbusCmd="3" ModbusDataType="2" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Grid Frequency" Comment="" ModbusAddress="4110" ModbusCmd="3" ModbusDataType="2" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="PV Power" Comment="" ModbusAddress="4112" ModbusCmd="3" ModbusDataType="2" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Temperatur" Comment="" ModbusAddress="4120" ModbusCmd="3" ModbusDataType="2" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Today Production" Comment="" ModbusAddress="4114" ModbusCmd="3" ModbusDataType="2" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+</Modbus>

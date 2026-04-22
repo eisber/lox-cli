@@ -1,0 +1,40 @@
+{
+  "title": "MinMax",
+  "xml_type": "",
+  "kb_slug": "minmax",
+  "description": "The MinMax block determines the lowest and highest value at its analogue inputs, and outputs these two values at the outputs.",
+  "inputs": [
+    {
+      "abbreviation": "Off",
+      "summary": "Off",
+      "description": "Pulse: Outputs are reset / switched off. On: Block is locked. Dominating input.",
+      "value_range": "0/1"
+    }
+  ],
+  "outputs": [
+    {
+      "abbreviation": "Min",
+      "summary": "Current minimum value",
+      "value_range": "\u221e"
+    },
+    {
+      "abbreviation": "Max",
+      "summary": "Current maximum value",
+      "value_range": "\u221e"
+    }
+  ],
+  "parameters": [
+    {
+      "abbreviation": "V1-4",
+      "summary": "Value 1-4",
+      "value_range": "\u221e",
+      "default_value": "0"
+    }
+  ],
+  "properties": [],
+  "source_url": "https://www.loxone.com/enen/kb/minmax/",
+  "input_count": 1,
+  "output_count": 2,
+  "parameter_count": 1,
+  "property_count": 0
+}

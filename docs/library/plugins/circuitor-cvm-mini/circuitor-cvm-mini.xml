@@ -1,0 +1,52 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Modbus Title="CVM-Mini Circutor " Comment="" Baudrate="9600" Channel="1">
+	<Info templateType="7" minVersion="12020916"/>
+	<ModbusCmd Title="Tension L1" Comment="" ModbusCmd="4" ModbusDataType="34" ModbusPollingCycle="5" Unit="&lt;v&gt;V" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="100"/>
+	<ModbusCmd Title="Current L1" Comment="" ModbusAddress="2" ModbusCmd="4" ModbusDataType="34" ModbusPollingCycle="5" Unit="&lt;v&gt;mA" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Active Power L1" Comment="" ModbusAddress="4" ModbusCmd="4" ModbusDataType="35" ModbusPollingCycle="5" Unit="&lt;v&gt;w" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Reactive Power L1" Comment="" ModbusAddress="6" ModbusCmd="4" ModbusDataType="35" ModbusPollingCycle="5" Unit="&lt;v&gt;w" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Aparent Power L1" Comment="" ModbusAddress="74" ModbusCmd="4" ModbusDataType="35" ModbusPollingCycle="5" Unit="&lt;v&gt;w" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Power Factor L1" Comment="" ModbusAddress="8" ModbusCmd="4" ModbusDataType="35" ModbusPollingCycle="5" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Tension L2" Comment="" ModbusAddress="10" ModbusCmd="4" ModbusDataType="34" ModbusPollingCycle="5" Unit="&lt;v&gt;V" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="100"/>
+	<ModbusCmd Title="Current L2" Comment="" ModbusAddress="12" ModbusCmd="4" ModbusDataType="34" ModbusPollingCycle="5" Unit="&lt;v&gt;mA" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Active Power L2" Comment="" ModbusAddress="14" ModbusCmd="4" ModbusDataType="35" ModbusPollingCycle="5" Unit="&lt;v&gt;w" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Reactive Power L2" Comment="" ModbusAddress="16" ModbusCmd="4" ModbusDataType="35" ModbusPollingCycle="5" Unit="&lt;v&gt;w" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Aparent Power L2" Comment="" ModbusAddress="76" ModbusCmd="4" ModbusDataType="35" ModbusPollingCycle="5" Unit="&lt;v&gt;w" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Power Factor L2" Comment="" ModbusAddress="18" ModbusCmd="4" ModbusDataType="35" ModbusPollingCycle="5" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Tension L3" Comment="" ModbusAddress="20" ModbusCmd="4" ModbusDataType="34" ModbusPollingCycle="5" Unit="&lt;v&gt;V" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="100"/>
+	<ModbusCmd Title="Current L3" Comment="" ModbusAddress="22" ModbusCmd="4" ModbusDataType="34" ModbusPollingCycle="5" Unit="&lt;v&gt;mA" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Active Power L3" Comment="" ModbusAddress="24" ModbusCmd="4" ModbusDataType="35" ModbusPollingCycle="5" Unit="&lt;v&gt;w" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Reactive Power L3" Comment="" ModbusAddress="26" ModbusCmd="4" ModbusDataType="35" ModbusPollingCycle="5" Unit="&lt;v&gt;w" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Aparent Power L3" Comment="" ModbusAddress="78" ModbusCmd="4" ModbusDataType="35" ModbusPollingCycle="5" Unit="&lt;v&gt;w" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Power Factor L3" Comment="" ModbusAddress="28" ModbusCmd="4" ModbusDataType="35" ModbusPollingCycle="5" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Active Power III" Comment="" ModbusAddress="30" ModbusCmd="4" ModbusDataType="35" ModbusPollingCycle="5" Unit="&lt;v&gt;w" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Inductive Power III" Comment="" ModbusAddress="32" ModbusCmd="4" ModbusDataType="35" ModbusPollingCycle="5" Unit="&lt;v&gt;w" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Capacitive Power III" Comment="" ModbusAddress="34" ModbusCmd="4" ModbusDataType="35" ModbusPollingCycle="5" Unit="&lt;v&gt;w" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Cos φ III" Comment="" ModbusAddress="36" ModbusCmd="4" ModbusDataType="35" ModbusPollingCycle="5" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Power Factor III" Comment="" ModbusAddress="38" ModbusCmd="4" ModbusDataType="35" ModbusPollingCycle="5" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Frequency" Comment="" ModbusAddress="40" ModbusCmd="4" ModbusDataType="34" ModbusPollingCycle="5" Unit="&lt;v&gt;Hz" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="10"/>
+	<ModbusCmd Title="Tension L1-L2" Comment="" ModbusAddress="42" ModbusCmd="4" ModbusDataType="34" ModbusPollingCycle="5" Unit="&lt;v&gt;V" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="100"/>
+	<ModbusCmd Title="Tension L2-L3" Comment="" ModbusAddress="44" ModbusCmd="4" ModbusDataType="34" ModbusPollingCycle="5" Unit="&lt;v&gt;V" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="100"/>
+	<ModbusCmd Title="Tension L3-L1" Comment="" ModbusAddress="46" ModbusCmd="4" ModbusDataType="34" ModbusPollingCycle="5" Unit="&lt;v&gt;V" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="100"/>
+	<ModbusCmd Title="_ THD V L1" Comment="" ModbusAddress="48" ModbusCmd="4" ModbusDataType="34" ModbusPollingCycle="5" Unit="&lt;v&gt;%" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="_ THD V L2" Comment="" ModbusAddress="50" ModbusCmd="4" ModbusDataType="34" ModbusPollingCycle="5" Unit="&lt;v&gt;%" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="_ THD V L3" Comment="" ModbusAddress="52" ModbusCmd="4" ModbusDataType="34" ModbusPollingCycle="5" Unit="&lt;v&gt;%" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="_ THD A L1" Comment="" ModbusAddress="54" ModbusCmd="4" ModbusDataType="34" ModbusPollingCycle="5" Unit="&lt;v&gt;%" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="_ THD A L2" Comment="" ModbusAddress="56" ModbusCmd="4" ModbusDataType="34" ModbusPollingCycle="5" Unit="&lt;v&gt;%" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="_ THD A L3" Comment="" ModbusAddress="58" ModbusCmd="4" ModbusDataType="34" ModbusPollingCycle="5" Unit="&lt;v&gt;%" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Aparent Power III" Comment="" ModbusAddress="66" ModbusCmd="4" ModbusDataType="35" ModbusPollingCycle="5" Unit="&lt;v&gt;w" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Maximum Demand" Comment="" ModbusAddress="68" ModbusCmd="4" ModbusDataType="34" ModbusPollingCycle="5" Unit="&lt;v&gt;w" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Three-phase Current" Comment="" ModbusAddress="70" ModbusCmd="4" ModbusDataType="34" ModbusPollingCycle="5" Unit="&lt;v&gt;mA" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Neutral Current" Comment="" ModbusAddress="72" ModbusCmd="4" ModbusDataType="34" ModbusPollingCycle="5" Unit="&lt;v&gt;mA" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Maximum Demand A2" Comment="" ModbusAddress="82" ModbusCmd="4" ModbusDataType="34" ModbusPollingCycle="5" Unit="&lt;v&gt;mA" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Maximum Demand A3" Comment="" ModbusAddress="84" ModbusCmd="4" ModbusDataType="34" ModbusPollingCycle="5" Unit="&lt;v&gt;w" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Active Energy" Comment="" ModbusAddress="60" ModbusCmd="4" ModbusDataType="34" ModbusPollingCycle="5" Unit="&lt;v&gt;w/h" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Inductive Reactive Energy" Comment="" ModbusAddress="62" ModbusCmd="4" ModbusDataType="34" ModbusPollingCycle="5" Unit="&lt;v&gt;w/h" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Capacitive Reactive Energy" Comment="" ModbusAddress="64" ModbusCmd="4" ModbusDataType="34" ModbusPollingCycle="5" Unit="&lt;v&gt;w/h" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Aparent Energy" Comment="" ModbusAddress="86" ModbusCmd="4" ModbusDataType="34" ModbusPollingCycle="5" Unit="&lt;v&gt;w/h" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Active Energy Generated" Comment="" ModbusAddress="88" ModbusCmd="4" ModbusDataType="35" ModbusPollingCycle="5" Unit="&lt;v&gt;w/h" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Inductive Energy Generated" Comment="" ModbusAddress="90" ModbusCmd="4" ModbusDataType="35" ModbusPollingCycle="5" Unit="&lt;v&gt;w/h" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Capacitive Energy Generated" Comment="" ModbusAddress="92" ModbusCmd="4" ModbusDataType="35" ModbusPollingCycle="5" Unit="&lt;v&gt;w/h" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Aparent Energy Generated" Comment="" ModbusAddress="94" ModbusCmd="4" ModbusDataType="35" ModbusPollingCycle="5" Unit="&lt;v&gt;w/h" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Temperature" Comment="" ModbusAddress="80" ModbusCmd="4" ModbusDataType="34" ModbusPollingCycle="5" Unit="&lt;v&gt;º" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="100"/>
+</Modbus>

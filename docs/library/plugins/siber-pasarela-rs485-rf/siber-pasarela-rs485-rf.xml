@@ -1,0 +1,20 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Modbus Title="SIBER PASARELA MODBUS RS485 - RF" Comment="" HintText="" Baudrate="19200" Parity="1" Channel="1">
+	<Info templateType="7" minVersion="15000424"/>
+	<ModbusCmd Title="41500 RW Requested system ventilation speed" Comment="" HintText="" ModbusAddress="41500" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="41025 R - CO2 level" Comment="" HintText="" ModbusAddress="41025" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.1&gt; ppm" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="41023 R - Air Quality" Comment="" HintText="" ModbusAddress="41023" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v&gt; %" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="41021-41022 R - Exhaust Flow Level" Comment="" HintText="" ModbusAddress="41021" ModbusCmd="3" ModbusDataType="100" ModbusPollingCycle="5" Unit="&lt;v.1&gt; m3/h" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="41019-41022 R - Exhaust Flow Level" Comment="" HintText="" ModbusAddress="41021" ModbusCmd="3" ModbusDataType="100" ModbusPollingCycle="5" Unit="&lt;v.1&gt; m3/h" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="41018 R - Outdoor Humidiy" Comment="" HintText="" ModbusAddress="41018" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v&gt; %" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="41017 R - Indoor Humidity" Comment="" HintText="" ModbusAddress="41017" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v&gt; %" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="41016 R - Bypass position" Comment="" HintText="" ModbusAddress="41016" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v&gt; %" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="41015 R - Defrost" Comment="" HintText="" ModbusAddress="41015" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="41014 R - Filter Dirty" Comment="" HintText="" ModbusAddress="41014" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="41011-41012 R - Supply Temperature" Comment="" HintText="" ModbusAddress="41011" ModbusCmd="3" ModbusDataType="100" ModbusPollingCycle="5" Unit="&lt;v.1&gt; ºC" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="41009-41010 R - Exhaust Temperature" Comment="" HintText="" ModbusAddress="41009" ModbusCmd="3" ModbusDataType="100" ModbusPollingCycle="5" Unit="&lt;v.1&gt; ºC" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="41007-41008 R - Outdoor Temperature" Comment="" HintText="" ModbusAddress="41007" ModbusCmd="3" ModbusDataType="100" ModbusPollingCycle="5" Unit="&lt;v.1&gt; ºC" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="41005-41006 R - Indoor Temperature" Comment="" HintText="" ModbusAddress="41005" ModbusCmd="3" ModbusDataType="100" ModbusPollingCycle="5" Unit="&lt;v.1&gt; ºC" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="41003 R - Error Code" Comment="" HintText="" ModbusAddress="41003" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="41500 RW Requested system ventilation speed" Comment="" HintText="" ModbusAddress="41500" ModbusCmd="6" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10"/>
+</Modbus>

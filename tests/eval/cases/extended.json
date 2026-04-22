@@ -1,0 +1,890 @@
+[
+  {
+    "id": "kx01-pushbutton-toggle-light",
+    "pattern": [
+      "pushbutton",
+      "toggle"
+    ],
+    "utterance": "Create a button that turns the living room light on if it is off and off if it is on",
+    "difficulty": "easy",
+    "expected": {
+      "new_blocks": [
+        {
+          "type": "PushButton"
+        }
+      ],
+      "wiring": [
+        {
+          "from_type": "PushButton",
+          "to_title": "Lichtsteuerung",
+          "to_room": "Wohnzimmer",
+          "to_connector": "I1",
+          "from_connector": "Q"
+        }
+      ],
+      "params": [],
+      "simulation": [
+        {
+          "name": "should activate on button press",
+          "inputs": {
+            "PushButton.InputTrigger": 1.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Lichtsteuerung.I1": {
+              ">": 0.5
+            }
+          }
+        },
+        {
+          "name": "should NOT activate without press",
+          "inputs": {
+            "PushButton.InputTrigger": 0.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Lichtsteuerung.I1": {
+              "<": 0.5
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "kx02-pushbutton-irrigation-enable",
+    "pattern": [
+      "pushbutton",
+      "manual-trigger"
+    ],
+    "utterance": "Erstelle einen Taster der die Gartenbewässerung freigibt",
+    "difficulty": "easy",
+    "expected": {
+      "new_blocks": [
+        {
+          "type": "PushButton"
+        }
+      ],
+      "wiring": [
+        {
+          "from_type": "PushButton",
+          "to_title": "Bewässerungsventil",
+          "to_connector": "I1",
+          "from_connector": "Q"
+        }
+      ],
+      "params": [],
+      "simulation": [
+        {
+          "name": "should activate on trigger",
+          "inputs": {
+            "PushButton.InputTrigger": 1.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Bewässerungsventil.I1": {
+              ">": 0.5
+            }
+          }
+        },
+        {
+          "name": "should NOT activate without trigger",
+          "inputs": {
+            "PushButton.InputTrigger": 0.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Bewässerungsventil.I1": {
+              "<": 0.5
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "kx03-pushbutton-all-lights-off",
+    "pattern": [
+      "pushbutton",
+      "fan-out"
+    ],
+    "utterance": "Create a master off button that resets all lights in the house",
+    "difficulty": "hard",
+    "expected": {
+      "new_blocks": [
+        {
+          "type": "PushButton"
+        }
+      ],
+      "wiring": [
+        {
+          "from_type": "PushButton",
+          "to_title": "Lichtsteuerung",
+          "to_room": "Wohnzimmer",
+          "from_connector": "Q"
+        },
+        {
+          "from_type": "PushButton",
+          "to_title": "Lichtsteuerung",
+          "to_room": "Schlafzimmer",
+          "from_connector": "Q"
+        },
+        {
+          "from_type": "PushButton",
+          "to_title": "Lichtsteuerung",
+          "to_room": "Flur",
+          "from_connector": "Q"
+        }
+      ],
+      "params": [],
+      "simulation": [
+        {
+          "name": "should activate on button press",
+          "inputs": {
+            "PushButton.InputTrigger": 1.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Lichtsteuerung.I1": {
+              ">": 0.5
+            }
+          }
+        },
+        {
+          "name": "should NOT activate without press",
+          "inputs": {
+            "PushButton.InputTrigger": 0.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Lichtsteuerung.I1": {
+              "<": 0.5
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "kx04-offdelay-fan-linger",
+    "pattern": [
+      "off-delay"
+    ],
+    "utterance": "Keep the bathroom fan running for 5 minutes after the humidity drops below the threshold",
+    "difficulty": "medium",
+    "expected": {
+      "new_blocks": [
+        {
+          "type": "GreaterEqual"
+        },
+        {
+          "type": "OffDelay"
+        }
+      ],
+      "wiring": [
+        {
+          "from_title": "Luftfeuchtigkeit",
+          "to_type": "GreaterEqual",
+          "to_connector": "Input1"
+        },
+        {
+          "from_type": "GreaterEqual",
+          "to_type": "OffDelay",
+          "from_connector": "Q",
+          "to_connector": "InputTrigger"
+        },
+        {
+          "from_type": "OffDelay",
+          "to_title": "Lüfter Bad",
+          "to_connector": "I1",
+          "from_connector": "Q"
+        }
+      ],
+      "params": [
+        {
+          "block_type": "GreaterEqual",
+          "param": "Input2",
+          "value": "70"
+        },
+        {
+          "block_type": "OffDelay",
+          "param": "Time",
+          "value": "300"
+        }
+      ],
+      "simulation": [
+        {
+          "name": "should trigger when condition met",
+          "inputs": {
+            "Luftfeuchtigkeit.AQ": 75.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Lüfter Bad.I1": {
+              ">": 0.5
+            }
+          }
+        },
+        {
+          "name": "should stay on during off-delay after condition drops",
+          "inputs": {
+            "Luftfeuchtigkeit.AQ": 75.0
+          },
+          "setup_inputs": {
+            "Luftfeuchtigkeit.AQ": 75.0
+          },
+          "setup_ticks": 10,
+          "ticks": 20,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Lüfter Bad.I1": {
+              ">": 0.5
+            }
+          }
+        },
+        {
+          "name": "should NOT trigger when condition not met",
+          "inputs": {
+            "Luftfeuchtigkeit.AQ": 65.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Lüfter Bad.I1": {
+              "<": 0.5
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "kx05-offdelay-garage-light",
+    "pattern": [
+      "off-delay"
+    ],
+    "utterance": "The garage light should stay on for 3 minutes after the door closes",
+    "difficulty": "medium",
+    "expected": {
+      "new_blocks": [
+        {
+          "type": "OffDelay"
+        }
+      ],
+      "wiring": [
+        {
+          "from_title": "Garagentor Sensor",
+          "to_type": "OffDelay",
+          "to_connector": "InputTrigger"
+        },
+        {
+          "from_type": "OffDelay",
+          "to_title": "Garagenlicht",
+          "from_connector": "Q"
+        }
+      ],
+      "params": [
+        {
+          "block_type": "OffDelay",
+          "param": "Time",
+          "value": "180"
+        }
+      ],
+      "simulation": [
+        {
+          "name": "should trigger when condition met",
+          "inputs": {
+            "Garagentor Sensor.Q": 1.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Garagenlicht.Q": {
+              ">": 0.5
+            }
+          }
+        },
+        {
+          "name": "should NOT trigger when condition not met",
+          "inputs": {
+            "Garagentor Sensor.Q": 0.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Garagenlicht.Q": {
+              "<": 0.5
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "kx06-add-temp-offset",
+    "pattern": [
+      "add",
+      "analog"
+    ],
+    "utterance": "Make the outside temperature read 2 degrees higher before the thermostat uses it",
+    "difficulty": "medium",
+    "expected": {
+      "new_blocks": [
+        {
+          "type": "Add"
+        }
+      ],
+      "wiring": [
+        {
+          "from_title": "Außentemperatur",
+          "to_type": "Add",
+          "to_connector": "Input1"
+        },
+        {
+          "from_type": "Add",
+          "to_title": "Raumregler",
+          "to_connector": "Temp",
+          "from_connector": "AQ"
+        }
+      ],
+      "params": [
+        {
+          "block_type": "Add",
+          "param": "Input2",
+          "value": "2"
+        }
+      ],
+      "simulation": [
+        {
+          "inputs": {
+            "Außentemperatur.AQ": 20.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Raumregler.Temp": {
+              ">=": 21.5,
+              "<=": 22.5
+            }
+          },
+          "name": "should trigger when condition met"
+        },
+        {
+          "name": "should NOT trigger when condition not met",
+          "inputs": {
+            "Außentemperatur.AQ": 10.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Raumregler.Temp": {
+              "<": 21.5
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "kx07-pulseat-morning-trigger",
+    "pattern": [
+      "pulse-at",
+      "scheduled"
+    ],
+    "utterance": "Open the bedroom blinds every day at 7:00",
+    "difficulty": "medium",
+    "expected": {
+      "new_blocks": [
+        {
+          "type": "PulseAt"
+        }
+      ],
+      "wiring": [
+        {
+          "from_type": "PulseAt",
+          "to_title": "Jalousie 1",
+          "to_room": "Schlafzimmer",
+          "to_connector": "InputTriggerUp",
+          "from_connector": "Q"
+        }
+      ],
+      "params": [],
+      "simulation": [
+        {
+          "name": "should activate during scheduled period",
+          "inputs": {},
+          "ticks": 0,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Jalousie 1.InputTriggerUp": {
+              ">": 0.5
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "kx08-pulseat-evening-garden",
+    "pattern": [
+      "pulse-at",
+      "scheduled"
+    ],
+    "utterance": "Jeden Abend um 20 Uhr soll das Gartenlicht automatisch angehen",
+    "difficulty": "medium",
+    "expected": {
+      "new_blocks": [
+        {
+          "type": "PulseAt"
+        }
+      ],
+      "wiring": [
+        {
+          "from_type": "PulseAt",
+          "to_title": "Gartenbeleuchtung",
+          "from_connector": "Q"
+        }
+      ],
+      "params": [],
+      "simulation": [
+        {
+          "name": "should activate during scheduled period",
+          "inputs": {},
+          "ticks": 0,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Gartenbeleuchtung.I1": {
+              ">": 0.5
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "kx09-autojalousie-bedroom",
+    "pattern": [
+      "auto-shading",
+      "sun-position"
+    ],
+    "utterance": "Set up automatic sun-position shading for the bedroom blinds",
+    "difficulty": "medium",
+    "expected": {
+      "new_blocks": [
+        {
+          "type": "AutoJalousie"
+        }
+      ],
+      "wiring": [
+        {
+          "from_type": "AutoJalousie",
+          "to_title": "Jalousie 1",
+          "to_room": "Schlafzimmer",
+          "from_connector": "OutputCombined"
+        }
+      ],
+      "params": [],
+      "simulation": [
+        {
+          "name": "should trigger when condition met",
+          "inputs": {
+            "Sonnenschein.AQ": 1.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Jalousie 1.InputTriggerDown": {
+              ">": 0.5
+            }
+          }
+        },
+        {
+          "name": "should NOT trigger when condition not met",
+          "inputs": {
+            "Sonnenschein.AQ": 0.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Jalousie 1.InputTriggerDown": {
+              "<": 0.5
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "kx10-sunrise-blinds-open",
+    "pattern": [
+      "time-trigger",
+      "sunrise"
+    ],
+    "utterance": "Open all bedroom blinds at sunrise every morning",
+    "difficulty": "medium",
+    "expected": {
+      "new_blocks": [
+        {
+          "type": "ImpulseSunrise"
+        }
+      ],
+      "wiring": [
+        {
+          "to_title": "Jalousie 1",
+          "to_room": "Schlafzimmer",
+          "to_connector": "InputTriggerUp"
+        },
+        {
+          "to_title": "Jalousie 2",
+          "to_room": "Schlafzimmer",
+          "to_connector": "InputTriggerUp"
+        }
+      ],
+      "params": [],
+      "simulation": [
+        {
+          "name": "should activate during scheduled period",
+          "inputs": {},
+          "ticks": 0,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Jalousie 1.InputTriggerUp": {
+              ">": 0.5
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "kx11-sunset-garden-light",
+    "pattern": [
+      "time-trigger",
+      "sunset"
+    ],
+    "utterance": "Turn on the garden lights at sunset automatically",
+    "difficulty": "medium",
+    "expected": {
+      "new_blocks": [
+        {
+          "type": "Less"
+        }
+      ],
+      "wiring": [
+        {
+          "to_title": "Gartenbeleuchtung"
+        }
+      ],
+      "params": [],
+      "simulation": [
+        {
+          "name": "should trigger when condition met",
+          "inputs": {
+            "Sonnenschein.AQ": 1.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Gartenbeleuchtung.I1": {
+              ">": 0.5
+            }
+          }
+        },
+        {
+          "name": "should NOT trigger when condition not met",
+          "inputs": {
+            "Sonnenschein.AQ": 0.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Gartenbeleuchtung.I1": {
+              "<": 0.5
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "kx12-nighttime-dim-hallway",
+    "pattern": [
+      "time-trigger",
+      "night-time",
+      "dimming"
+    ],
+    "utterance": "During nighttime, automatically dim the hallway light to 15%",
+    "difficulty": "hard",
+    "expected": {
+      "new_blocks": [
+        {
+          "type": "Mult"
+        }
+      ],
+      "wiring": [
+        {
+          "from_type": "Mult",
+          "to_title": "Lichtsteuerung",
+          "to_room": "Flur",
+          "to_connector": "Brightness",
+          "from_connector": "AQ"
+        }
+      ],
+      "params": [
+        {
+          "block_type": "Mult",
+          "param": "Input2",
+          "value": "15"
+        }
+      ],
+      "simulation": [
+        {
+          "name": "should scale output when active",
+          "inputs": {
+            "Bewegungsmelder.OutputPresence": 1.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Lichtsteuerung.Brightness": {
+              ">": 0.0
+            }
+          }
+        },
+        {
+          "name": "should produce no output when inactive",
+          "inputs": {
+            "Bewegungsmelder.OutputPresence": 0.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Lichtsteuerung.Brightness": {
+              "<": 0.5
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "kx13-state-fan-speed",
+    "pattern": [
+      "state-machine",
+      "hvac"
+    ],
+    "utterance": "Create a fan speed selector for the living room AC with three modes: low, medium, high",
+    "difficulty": "hard",
+    "expected": {
+      "new_blocks": [
+        {
+          "type": "State"
+        }
+      ],
+      "wiring": [
+        {
+          "from_type": "State",
+          "to_title": "Klimaanlage",
+          "from_connector": "AQ"
+        }
+      ],
+      "params": [],
+      "simulation": [
+        {
+          "name": "should produce output when triggered",
+          "inputs": {
+            "Türkontakt Eingang.Q": 1.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Klimaanlage.toggle": {
+              ">": 0.0
+            }
+          }
+        },
+        {
+          "name": "should be inactive without trigger",
+          "inputs": {
+            "Türkontakt Eingang.Q": 0.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Klimaanlage.toggle": {
+              "<": 0.5
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "kx14-offdelay-plus-threshold",
+    "pattern": [
+      "off-delay",
+      "threshold",
+      "combined-condition"
+    ],
+    "utterance": "Turn on the pool pump when water is cold, and keep it running for 30 minutes after it warms up",
+    "difficulty": "hard",
+    "expected": {
+      "new_blocks": [
+        {
+          "type": "Less"
+        },
+        {
+          "type": "OffDelay"
+        }
+      ],
+      "wiring": [
+        {
+          "from_title": "Pool Temperatur",
+          "to_type": "Less",
+          "to_connector": "Input1"
+        },
+        {
+          "from_type": "Less",
+          "to_type": "OffDelay",
+          "from_connector": "Q",
+          "to_connector": "InputTrigger"
+        },
+        {
+          "from_type": "OffDelay",
+          "to_title": "Poolpumpe",
+          "to_connector": "I1",
+          "from_connector": "Q"
+        }
+      ],
+      "params": [
+        {
+          "block_type": "Less",
+          "param": "Input2",
+          "value": "15"
+        },
+        {
+          "block_type": "OffDelay",
+          "param": "Time",
+          "value": "1800"
+        }
+      ],
+      "simulation": [
+        {
+          "name": "should trigger when all conditions met",
+          "inputs": {
+            "Pool Temperatur.AQ": 14.0
+          },
+          "ticks": 20,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Poolpumpe.I1": {
+              ">": 0.5
+            }
+          }
+        },
+        {
+          "name": "should NOT trigger when condition not met",
+          "inputs": {
+            "Pool Temperatur.AQ": 25.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Poolpumpe.I1": {
+              "<": 0.5
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "kx15-pushbutton-scene-trigger",
+    "pattern": [
+      "pushbutton",
+      "fan-out",
+      "dimming"
+    ],
+    "utterance": "Auf einen Taster: Wohnzimmer auf 40%, Gartenlicht an, und Jalousien im Schlafzimmer schließen",
+    "difficulty": "expert",
+    "expected": {
+      "new_blocks": [
+        {
+          "type": "PushButton"
+        },
+        {
+          "type": "Mult"
+        }
+      ],
+      "wiring": [
+        {
+          "from_type": "PushButton",
+          "to_type": "Mult",
+          "to_connector": "Input1",
+          "from_connector": "Q"
+        },
+        {
+          "from_type": "Mult",
+          "to_title": "Lichtsteuerung",
+          "to_room": "Wohnzimmer",
+          "to_connector": "Brightness",
+          "from_connector": "AQ"
+        },
+        {
+          "from_type": "PushButton",
+          "to_title": "Gartenbeleuchtung",
+          "from_connector": "Q"
+        },
+        {
+          "from_type": "PushButton",
+          "to_title": "Jalousie 1",
+          "to_room": "Schlafzimmer",
+          "to_connector": "InputTriggerDown",
+          "from_connector": "Q"
+        }
+      ],
+      "params": [
+        {
+          "block_type": "Mult",
+          "param": "Input2",
+          "value": "40"
+        }
+      ],
+      "simulation": [
+        {
+          "name": "should produce scaled output when input active",
+          "inputs": {
+            "PushButton.InputTrigger": 1.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Lichtsteuerung.Brightness": {
+              ">": 0.0
+            }
+          }
+        },
+        {
+          "name": "should produce no output with zero input",
+          "inputs": {
+            "PushButton.InputTrigger": 0.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Lichtsteuerung.Brightness": {
+              "<": 0.5
+            }
+          }
+        }
+      ]
+    }
+  }
+]

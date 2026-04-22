@@ -1,0 +1,93 @@
+{
+  "title": "Meter & Storage",
+  "xml_type": "",
+  "kb_slug": "meter-storage",
+  "description": "This meter is used to integrate a storage and records its level, charging and discharging.",
+  "inputs": [
+    {
+      "abbreviation": "Pf",
+      "summary": "Power or flow",
+      "description": "If only this input is used, the meter reading is also calculated from it. Otherwise it is only used for the output (Pf) and the user interface.",
+      "value_range": "\u221e"
+    },
+    {
+      "abbreviation": "Mrd",
+      "summary": "Meter reading Discharge",
+      "description": "Discharge Input for meters that send the meter reading directly as an analog value. For meters that only send partial quantities (e.g. Smart Socket), relative metering must be activated in the settings of the block.",
+      "value_range": "0...\u221e"
+    },
+    {
+      "abbreviation": "Mrc",
+      "summary": "Meter reading Charge",
+      "description": "Charge Input for meters that send the meter reading directly as an analog value. For meters that only send partial quantities (e.g. Smart Socket), relative metering must be activated in the settings of the block.",
+      "value_range": "0...\u221e"
+    },
+    {
+      "abbreviation": "R",
+      "summary": "Reset",
+      "description": "Pulse: Meter reading outputs are reset. On: Block is locked.",
+      "value_range": "0/1"
+    }
+  ],
+  "outputs": [
+    {
+      "abbreviation": "Pf",
+      "summary": "Power or flow",
+      "description": "Positive value: Storage is being discharged. Negative value: Storage is being charged.",
+      "value_range": "\u221e"
+    },
+    {
+      "abbreviation": "API",
+      "summary": "API Connector",
+      "description": "Intelligent API based connector. API Commands",
+      "value_range": "-"
+    }
+  ],
+  "parameters": [
+    {
+      "abbreviation": "Mrod",
+      "summary": "Meter reading offset discharge",
+      "description": "Value is added to output (Mrc).",
+      "value_range": "\u221e",
+      "default_value": "0"
+    },
+    {
+      "abbreviation": "Mroc",
+      "summary": "Meter reading offset charge",
+      "description": "Value is added to output (Mrd).",
+      "value_range": "\u221e",
+      "default_value": "0"
+    }
+  ],
+  "properties": [
+    {
+      "summary": "Power/Flow direction",
+      "description": "Specifies whether the physical meter provides the charge or discharge value as a positive or negative value to the Pf input of the block.",
+      "value_range": "-",
+      "default_value": "-"
+    },
+    {
+      "summary": "Maximum storage level",
+      "description": "Maximum storage level used for the user interface",
+      "value_range": "0...\u221e",
+      "default_value": "100"
+    },
+    {
+      "summary": "Relative metering",
+      "description": "Active: The physical meter only sends partial quantities at intervals (relative), the block adds them up and uses them to form the meter reading. Not active: The physical meter provides its own total meter reading (absolute), the function block only maps it.",
+      "value_range": "-",
+      "default_value": "-"
+    },
+    {
+      "summary": "Report invalid Meter Reading",
+      "description": "If checked, you will be notified if invalid Meter Reading values have been detected. For instance, when a physical counter sends unrealistic values due to transmission errors.",
+      "value_range": "-",
+      "default_value": "-"
+    }
+  ],
+  "source_url": "https://www.loxone.com/enen/kb/meter-storage/",
+  "input_count": 4,
+  "output_count": 2,
+  "parameter_count": 2,
+  "property_count": 4
+}

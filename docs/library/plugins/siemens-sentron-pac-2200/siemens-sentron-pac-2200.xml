@@ -1,0 +1,22 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Modbus Title="Siemens Sentron PAC2200 Energy meter" Comment="" Channel="255">
+	<Info templateType="7" minVersion="12021201"/>
+	<ModbusCmd Title="Voltage L1-N" Comment="" ModbusAddress="1" ModbusCmd="3" ModbusDataType="100" ModbusPollingCycle="10" Unit="&lt;v.1&gt;V" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Voltage L2-N" Comment="" ModbusAddress="3" ModbusCmd="3" ModbusDataType="100" ModbusPollingCycle="10" Unit="&lt;v.1&gt;V" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Voltage L3-N" Comment="" ModbusAddress="5" ModbusCmd="3" ModbusDataType="100" ModbusPollingCycle="10" Unit="&lt;v.1&gt;V" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Voltage L1-L2" Comment="" ModbusAddress="7" ModbusCmd="3" ModbusDataType="100" ModbusPollingCycle="10" Unit="&lt;v.1&gt;V" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Voltage L2-L3" Comment="" ModbusAddress="9" ModbusCmd="3" ModbusDataType="100" ModbusPollingCycle="10" Unit="&lt;v.1&gt;V" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Voltage L3-L1" Comment="" ModbusAddress="11" ModbusCmd="3" ModbusDataType="100" ModbusPollingCycle="10" Unit="&lt;v.1&gt;V" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Current L1" Comment="" ModbusAddress="13" ModbusCmd="3" ModbusDataType="100" ModbusPollingCycle="10" Unit="&lt;v.1&gt;A" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Current L2" Comment="" ModbusAddress="15" ModbusCmd="3" ModbusDataType="100" ModbusPollingCycle="10" Unit="&lt;v.1&gt;A" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Current L3" Comment="" ModbusAddress="17" ModbusCmd="3" ModbusDataType="100" ModbusPollingCycle="10" Unit="&lt;v.1&gt;A" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Apparent Power L1" Comment="" ModbusAddress="19" ModbusCmd="3" ModbusDataType="100" ModbusPollingCycle="10" Unit="&lt;v.1&gt;VA" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Apparent Power L2" Comment="" ModbusAddress="21" ModbusCmd="3" ModbusDataType="100" ModbusPollingCycle="10" Unit="&lt;v.1&gt;VA" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Apparent Power L3" Comment="" ModbusAddress="23" ModbusCmd="3" ModbusDataType="100" ModbusPollingCycle="10" Unit="&lt;v.1&gt;VA" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Active Power L1" Comment="" ModbusAddress="25" ModbusCmd="3" ModbusDataType="100" ModbusPollingCycle="5" Unit="&lt;v.1&gt;W" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Active Power L2" Comment="" ModbusAddress="27" ModbusCmd="3" ModbusDataType="100" ModbusPollingCycle="5" Unit="&lt;v.1&gt;W" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Active Power L3" Comment="" ModbusAddress="29" ModbusCmd="3" ModbusDataType="100" ModbusPollingCycle="5" Unit="&lt;v.1&gt;W" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Total Apparent Power" Comment="" ModbusAddress="47" ModbusCmd="3" ModbusDataType="68" ModbusPollingCycle="10" Unit="&lt;v.1&gt;VA" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Total Active Power" Comment="" ModbusAddress="65" ModbusCmd="3" ModbusDataType="100" ModbusPollingCycle="15" Unit="&lt;v.1&gt;W" Analog="true" Sensor="true" SourceValHigh="10000" DestValHigh="10000"/>
+	<ModbusCmd Title="Total Reactive Power" Comment="" ModbusAddress="51" ModbusCmd="3" ModbusDataType="68" ModbusPollingCycle="10" Unit="&lt;v.1&gt;var" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+</Modbus>

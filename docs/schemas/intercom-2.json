@@ -1,0 +1,128 @@
+{
+  "title": "Intercom",
+  "xml_type": "",
+  "kb_slug": "intercom-2",
+  "description": "The Intercom function block is used to integrate and program the Loxone Intercom.",
+  "inputs": [
+    {
+      "abbreviation": "Bell",
+      "summary": "Activate bell",
+      "description": "Activates output (Bell) and assigned audio players. Activates output (Mute) if input (Mute) is 1. This input is not visible when the Intercom originates from another Trust member.",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "Mute",
+      "summary": "Mute bell",
+      "description": "Deactivates output (Bell) and assigned audio players when 1.",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "TTS",
+      "summary": "Text to speech",
+      "description": "Text input for playing a voice message over the Intercom speakers. This input is not visible when the Intercom originates from another Trust member.",
+      "value_range": "-"
+    },
+    {
+      "abbreviation": "Off",
+      "summary": "Off",
+      "description": "Pulse: Outputs are reset / switched off. On: Block is locked. Dominating input. The name of the connected sensor is used in the user interface.",
+      "value_range": "0/1"
+    }
+  ],
+  "outputs": [
+    {
+      "abbreviation": "Bell",
+      "summary": "Bell",
+      "description": "Output for controlling a doorbell.",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "Mute",
+      "summary": "Bell muted",
+      "description": "Output for controlling an alternative, activated when the doorbell is muted and the bell is rung.",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "O1",
+      "summary": "Custom output 1",
+      "description": "Output is named in the settings and triggered from the user interface.",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "O2",
+      "summary": "Custom output 2",
+      "description": "Output is named in the settings and triggered from the user interface.",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "O3",
+      "summary": "Custom output 3",
+      "description": "Output is named in the settings and triggered from the user interface.",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "API",
+      "summary": "API Connector",
+      "description": "Intelligent API based connector. API Commands",
+      "value_range": "-"
+    }
+  ],
+  "parameters": [
+    {
+      "abbreviation": "maxB",
+      "summary": "Maximum bell duration",
+      "description": "Output (Bell) and (Mute) will remain active for set duration. The doorbell signal is only played once by the assigned audio players, even if visitors ring several times. Answering or rejecting the call deactivates the outputs (Bell) and (Mute) immediately. If set to 0, the bell will remain active until its answered in the visualization.",
+      "unit": "s",
+      "value_range": "0...\u221e",
+      "default_value": "60"
+    },
+    {
+      "abbreviation": "Bbr",
+      "summary": "Button brightness",
+      "description": "Sets the brightness of the intercom button illumination. This input is not visible when the Intercom originates from another Trust member.",
+      "unit": "%",
+      "value_range": "0...100",
+      "default_value": "20"
+    },
+    {
+      "abbreviation": "Bbl",
+      "summary": "Activate bell button light",
+      "description": "Activates the intercom button illumination when 1. This input is not visible when the Intercom originates from another Trust member.",
+      "unit": "-",
+      "value_range": "0/1",
+      "default_value": "0"
+    }
+  ],
+  "properties": [
+    {
+      "summary": "Audio Player Bell Output",
+      "description": "Pair the Intercom with your Audio Players to play a ringtone when the doorbell is pressed.",
+      "default_value": "-"
+    },
+    {
+      "summary": "Reply With Message",
+      "description": "The specified text is played back as a voice message on the Intercom when selecting it in the user interface.",
+      "default_value": "-"
+    },
+    {
+      "summary": "O1: User Interface Action 1",
+      "description": "Name for function 1 e.g. door release",
+      "default_value": "-"
+    },
+    {
+      "summary": "O2: User Interface Action 2",
+      "description": "Name for function 2 e.g. outside light",
+      "default_value": "-"
+    },
+    {
+      "summary": "O3: User Interface Action 3",
+      "description": "Name for function 3 e.g. Inside Light",
+      "default_value": "-"
+    }
+  ],
+  "source_url": "https://www.loxone.com/enen/kb/intercom-2/",
+  "input_count": 4,
+  "output_count": 6,
+  "parameter_count": 3,
+  "property_count": 5
+}

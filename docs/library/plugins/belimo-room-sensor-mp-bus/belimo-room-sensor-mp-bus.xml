@@ -1,0 +1,84 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<template>
+	<Info templateType="20" minVersion="13011117" generic="BelimoDevice"/>
+	<C Type="BelimoDevice" gid="BelimoDevice" V="157" U="1a28d1ef-0141-54c8-ffff0c1521bb2005" Title="Belimo Room Sensor MP-Bus" Cl="105,195,80" WF="16384" MPAdd="12" DevT="5" Snr="00000000000000">
+		<IoData Cr="1a248883-032b-4090-ffff033aa1373f3c" Pr="1a248883-0387-4165-ffff033aa1373f3c"/>
+		<C Type="Online" IName="S0" V="157" U="1a28d1ef-0141-54c9-ffff0c1521bb2005" Title="Online Status Belimo Room Operating Unit MP-Bus" Cl="105,195,80" Nio="1" WF="20480" MinTime="10" NoMsg="true">
+			<Co K="Q" U="199d24cf-034d-4b16-ffffaa539d1fe84d"/>
+			<IoData Cr="1a248883-032b-4090-ffff033aa1373f3c" Pr="1a248883-0387-4165-ffff033aa1373f3c" St="2"/>
+			<Display Unit="&lt;v&gt;" StateOnly="true" IxText="8"/>
+		</C>
+		<C Type="BelimoAsensor" IName="AI0" V="157" U="1a28d1ef-0141-54ca-ffff0c1521bb2005" Title="Room temperature" Cl="105,195,80" Nio="2" WF="16384" Analog="true" EnoceanSubType="4" ModbusAddress="14" ModbusDataType="2" ModbusPollingCycle="60" SourceValHigh="1000" DestValHigh="10" MaxVal="10" MinChange="0.25" MinTime="1000">
+			<Co K="AQ" U="199d2ed4-00e6-7666-ffffe6fc3a69d59a"/>
+			<Co K="Q" U="199d2ed4-00e6-7667-ffffe6fc3a69d59a"/>
+			<IoData Cr="1a248883-032b-4090-ffff033aa1373f3c" Pr="1a248883-0387-4165-ffff033aa1373f3c" St="4"/>
+			<Display Type="2" Unit="&lt;v.2&gt;°C" StateOnly="true"/>
+		</C>
+		<C Type="BelimoAsensor" IName="AI0" V="157" U="1a28d1ef-0141-54cb-ffff0c1521bb2005" Title="Relative humidity" Cl="105,195,80" Nio="2" WF="16384" Analog="true" EnoceanSubType="4" ModbusAddress="16" ModbusDataType="2" ModbusPollingCycle="60" SourceValHigh="1000" DestValHigh="10" MaxVal="10" MinChange="0.25" MinTime="1000">
+			<Co K="AQ" U="199d2f14-02a6-9080-fffffe4f9da5a683"/>
+			<Co K="Q" U="199d2f14-02a6-9081-fffffe4f9da5a683"/>
+			<IoData Cr="1a248883-032b-4090-ffff033aa1373f3c" Pr="1a248883-0387-4165-ffff033aa1373f3c" St="4"/>
+			<Display Type="2" Unit="&lt;v.2&gt;%" StateOnly="true"/>
+		</C>
+		<C Type="BelimoAsensor" IName="AI0" V="157" U="1a28d1ef-0141-54cc-ffff0c1521bb2005" Title="CO2 value" Cl="105,195,80" Nio="2" WF="16384" Analog="true" EnoceanSubType="4" ModbusAddress="17" ModbusDataType="2" ModbusPollingCycle="60" SourceValHigh="10" DestValHigh="10" MaxVal="10" MinChange="0.25" MinTime="1000">
+			<Co K="AQ" U="199d2f3d-003d-a4e3-ffff246aa963c426"/>
+			<Co K="Q" U="199d2f3d-003d-a4e4-ffff246aa963c426"/>
+			<IoData Cr="1a248883-032b-4090-ffff033aa1373f3c" Pr="1a248883-0387-4165-ffff033aa1373f3c" St="4"/>
+			<Display Type="2" Unit="&lt;v&gt;ppm" StateOnly="true"/>
+		</C>
+		<C Type="BelimoAsensor" IName="AI0" V="157" U="1a28d1ef-0141-54cd-ffff0c1521bb2005" Title="Dew point temperature" Cl="105,195,80" Nio="2" WF="16384" Analog="true" EnoceanSubType="4" ModbusAddress="33" ModbusDataType="2" ModbusPollingCycle="60" SourceValHigh="1000" DestValHigh="10" MaxVal="10" MinChange="0.25" MinTime="1000">
+			<Co K="AQ" U="199d2f6a-0282-b66f-ffff94925833cc78"/>
+			<Co K="Q" U="199d2f6a-0282-b670-ffff94925833cc78"/>
+			<IoData Cr="1a248883-032b-4090-ffff033aa1373f3c" Pr="1a248883-0387-4165-ffff033aa1373f3c" St="4"/>
+			<Display Type="2" Unit="&lt;v.2&gt;°C" StateOnly="true"/>
+		</C>
+		<C Type="BelimoAactor" IName="AQ0" V="157" U="1a28d1ef-0141-54ce-ffff0c1521bb2005" Title="Room temperature offset" Cl="105,195,80" Nio="1" WF="16384" Channel="1" SourceValHigh="10" DestValHigh="1000" SubType="3" ModbusAddress="110" ModbusDataType="2">
+			<Co K="I" U="199d2f93-018d-cdeb-ffff787545f14723"/>
+			<IoData Cr="1a248883-032b-4090-ffff033aa1373f3c" Pr="1a248883-0387-4165-ffff033aa1373f3c"/>
+			<Display Unit="&lt;v.2&gt;K" StateOnly="true"/>
+		</C>
+		<C Type="BelimoAactor" IName="AQ0" V="157" U="1a28d1ef-0141-54cf-ffff0c1521bb2005" Title="Relative humidity offset" Cl="105,195,80" Nio="1" WF="16384" Channel="1" SourceValHigh="10" DestValHigh="1000" SubType="3" ModbusAddress="111" ModbusDataType="2">
+			<Co K="I" U="199d2fb2-03ad-df94-ffffd9a825623ee2"/>
+			<IoData Cr="1a248883-032b-4090-ffff033aa1373f3c" Pr="1a248883-0387-4165-ffff033aa1373f3c"/>
+			<Display Unit="&lt;v.1&gt;%" StateOnly="true"/>
+		</C>
+		<C Type="BelimoAactor" IName="AQ0" V="157" U="1a28d1ef-0141-54d0-ffff0c1521bb2005" Title="CO2 offset" Cl="105,195,80" Nio="1" WF="16384" Channel="1" SourceValHigh="10" DestValHigh="10" SubType="3" ModbusAddress="112" ModbusDataType="2">
+			<Co K="I" U="199d302d-031e-02fb-ffff050fae0af917"/>
+			<IoData Cr="1a248883-032b-4090-ffff033aa1373f3c" Pr="1a248883-0387-4165-ffff033aa1373f3c"/>
+			<Display Unit="&lt;v&gt;ppm" StateOnly="true"/>
+		</C>
+		<C Type="BelimoAsensor" IName="AI0" V="157" U="1a28d1ef-0141-54d1-ffff0c1521bb2005" Title="Air quality status" Cl="105,195,80" Nio="2" WF="16384" Analog="true" EnoceanSubType="4" ModbusAddress="21" ModbusDataType="1" ModbusPollingCycle="60" SourceValHigh="10" DestValHigh="10" MaxVal="10" MinChange="0.25" MinTime="1000">
+			<Co K="AQ" U="199d38bb-01a0-6c75-ffffcead6b93a6bb"/>
+			<Co K="Q" U="199d38bb-01a0-6c76-ffffcead6b93a6bb"/>
+			<IoData Cr="1a248883-032b-4090-ffff033aa1373f3c" Pr="1a248883-0387-4165-ffff033aa1373f3c" St="4"/>
+			<Display Type="2" Unit="&lt;v&gt;" StateOnly="true"/>
+		</C>
+		<C Type="BelimoAactor" IName="AQ0" V="157" U="1a28d1ef-0141-54d2-ffff0c1521bb2005" Title="CO2 limit for good air quality" Cl="105,195,80" Nio="1" WF="16384" Channel="1" SourceValHigh="10" DestValHigh="10" SubType="3" ModbusAddress="126" ModbusDataType="2">
+			<Co K="I" U="199d38ee-011f-7f8d-ffffb696ad3467e7"/>
+			<IoData Cr="1a248883-032b-4090-ffff033aa1373f3c" Pr="1a248883-0387-4165-ffff033aa1373f3c"/>
+			<Display Unit="&lt;v&gt;ppm" StateOnly="true"/>
+		</C>
+		<C Type="BelimoAactor" IName="AQ0" V="157" U="1a28d1ef-0141-54d3-ffff0c1521bb2005" Title="CO2 limit for moderate air quality" Cl="105,195,80" Nio="1" WF="16384" Channel="1" SourceValHigh="10" DestValHigh="10" SubType="3" ModbusAddress="127" ModbusDataType="2">
+			<Co K="I" U="199d390e-034e-8f80-ffff0d86fcec56dc"/>
+			<IoData Cr="1a248883-032b-4090-ffff033aa1373f3c" Pr="1a248883-0387-4165-ffff033aa1373f3c"/>
+			<Display Unit="&lt;v&gt;ppm" StateOnly="true"/>
+		</C>
+		<C Type="BelimoAactor" IName="AQ0" V="157" U="1a28d1ef-0141-54d4-ffff0c1521bb2005" Title="Air quality indication" Cl="105,195,80" Nio="1" WF="16384" Channel="1" SourceValHigh="10" DestValHigh="10" SubType="3" ModbusAddress="128" ModbusDataType="1">
+			<Co K="I" U="199d3942-027c-a913-ffffa197b319a206"/>
+			<IoData Cr="1a248883-032b-4090-ffff033aa1373f3c" Pr="1a248883-0387-4165-ffff033aa1373f3c"/>
+			<Display Unit="&lt;v&gt;" StateOnly="true"/>
+		</C>
+		<C Type="BelimoAsensor" IName="AI0" V="157" U="1a28d1ef-0141-54d5-ffff0c1521bb2005" Title="Error state" Cl="105,195,80" Nio="2" WF="16384" Analog="true" EnoceanSubType="4" ModbusAddress="11" ModbusDataType="1" ModbusPollingCycle="60" SourceValHigh="10" DestValHigh="10" MaxVal="10" MinChange="0.25" MinTime="1000">
+			<Co K="AQ" U="199d3973-0325-bc4e-ffffe0554248bff0"/>
+			<Co K="Q" U="199d3973-0325-bc4f-ffffe0554248bff0"/>
+			<IoData Cr="1a248883-032b-4090-ffff033aa1373f3c" Pr="1a248883-0387-4165-ffff033aa1373f3c" St="4"/>
+			<Display Type="2" Unit="&lt;v&gt;" StateOnly="true"/>
+		</C>
+		<C Type="BelimoAsensor" IName="AI0" V="157" U="1a28d1ef-0141-54d6-ffff0c1521bb2005" Title="Status device" Cl="105,195,80" Nio="2" WF="16384" Analog="true" EnoceanSubType="4" ModbusAddress="30" ModbusDataType="2" ModbusPollingCycle="60" SourceValHigh="10" DestValHigh="10" MaxVal="10" MinChange="0.25" MinTime="1000">
+			<Co K="AQ" U="199d398d-00fc-cc65-ffff6f2da51474bc"/>
+			<Co K="Q" U="199d398d-00fc-cc66-ffff6f2da51474bc"/>
+			<IoData Cr="1a248883-032b-4090-ffff033aa1373f3c" Pr="1a248883-0387-4165-ffff033aa1373f3c" St="4"/>
+			<Display Type="2" Unit="&lt;v&gt;" StateOnly="true"/>
+		</C>
+	</C>
+</template>

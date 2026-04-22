@@ -1,0 +1,9 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Modbus Title="Haier AC YCJ-A002" Comment="" Baudrate="9600" Channel="1">
+	<Info templateType="7" minVersion="13010808"/>
+	<ModbusCmd Title="Indoor temperature" Comment="" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="On_Off" Comment="" ModbusCmd="5" Unit="" Analog="false" Sensor="false"/>
+	<ModbusCmd Title="Mode" Comment="1-cooling, 2-heating, 3-dehumidification" ModbusAddress="1" ModbusCmd="6" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Temperature setpoint" Comment="16-30 celcius" ModbusCmd="6" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Fan speed" Comment="1- low, 2- middle, 3-high, 4- auto" ModbusAddress="2" ModbusCmd="6" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+</Modbus>

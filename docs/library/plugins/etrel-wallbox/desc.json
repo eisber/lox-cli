@@ -1,0 +1,9 @@
+{
+                                "type": "template",
+                                "name": "etrel-wallbox",
+                                "uuid": "cd8c6996-3318-11ec-9a744cd98f3deb8a",
+                                "version":"1.0.2",
+                                "id": "etrel-wallbox-384",
+                                "file": "etrel-wallbox.xml",
+                                "templateType": "7",
+                            }

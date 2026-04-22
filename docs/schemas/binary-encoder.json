@@ -1,0 +1,28 @@
+{
+  "title": "Binary Encoder",
+  "xml_type": "",
+  "kb_slug": "binary-encoder",
+  "description": "Binary Encoder to encode up to 32 input bits to an analog value",
+  "inputs": [
+    {
+      "abbreviation": "Bit 0-31",
+      "summary": "Bit 0-31",
+      "description": "Individual Bits to be combined. Bit 0: least significant bit (LSB)",
+      "value_range": "0/1"
+    }
+  ],
+  "outputs": [
+    {
+      "abbreviation": "V",
+      "summary": "Calculated output value",
+      "value_range": "0...4294967295"
+    }
+  ],
+  "parameters": [],
+  "properties": [],
+  "source_url": "https://www.loxone.com/enen/kb/binary-encoder/",
+  "input_count": 1,
+  "output_count": 1,
+  "parameter_count": 0,
+  "property_count": 0
+}

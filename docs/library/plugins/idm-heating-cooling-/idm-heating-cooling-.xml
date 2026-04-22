@@ -1,0 +1,66 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Modbus Title="iDM Heating &amp; Cooling" Comment="" HintText="" Channel="1">
+	<Info templateType="7" minVersion="15000227"/>
+	<ModbusCmd Title="State Heatpump Operation mode" Comment="" HintText="0=Off
+1=Heating Mode
+2=Cooling Mode
+4=Hot Water Mode
+8=Defrost Mode" ModbusAddress="1090" ModbusCmd="4" ModbusPollingCycle="30" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Heatpump Errormonitoring" Comment="" HintText="0=NO Error
+1=Error" ModbusAddress="1099" ModbusCmd="4" ModbusPollingCycle="30" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Actual Outdoortemperature [B32]" Comment="" HintText="" ModbusAddress="1000" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="1800" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Actual Outdoortemperature average" Comment="" HintText="" ModbusAddress="1002" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="1800" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="State System Operation mode" Comment="" HintText="0= Standby
+1=Automatic
+2=Absent
+4=Domestic Hot Water Only
+5=Heating / Cooling Only" ModbusAddress="1005" ModbusCmd="4" ModbusPollingCycle="10" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Current Heatpump Error Number" Comment="" HintText="" ModbusAddress="1004" ModbusCmd="4" ModbusPollingCycle="30" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Actual Supply Heatpump Flowtemperature [B33]" Comment="" HintText="" ModbusAddress="1050" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="30" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Actual Heatpump Return Flowtemperature [B34]" Comment="" HintText="" ModbusAddress="1052" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="30" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Actual Hot Water temperatur Top [B48]" Comment="" HintText="" ModbusAddress="1014" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Actual Electrical Power" Comment="" HintText="" ModbusAddress="1790" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="5" Unit="&lt;v.1&gt; kW" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Total Thermal Power Electric Heater" Comment="" HintText="" ModbusAddress="1762" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt; kWh" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Actual Room Humidity [B31]" Comment="" HintText="" ModbusAddress="1392" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt; %" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="State Hot Water Target temperature" Comment="" HintText="" ModbusAddress="1032" ModbusCmd="4" ModbusDataType="2" ModbusPollingCycle="600" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="State Heating Operation mode" Comment="" HintText="0=OFF
+1=ON" ModbusAddress="1710" ModbusCmd="3" ModbusPollingCycle="30" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="Actual Hot Water temperature Bottom [B41]" Comment="" HintText="" ModbusAddress="1012" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Actual Hot Water Outlet temperature [B42]" Comment="" HintText="" ModbusAddress="1030" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Total Thermal Power Heating" Comment="" HintText="" ModbusAddress="1750" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt; kWh" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Total Thermal Power Cooling" Comment="" HintText="" ModbusAddress="1752" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt; kWh" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Total Thermal Power Hot water" Comment="" HintText="" ModbusAddress="1754" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt; kWh" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="State Cooling Operation mode" Comment="" HintText="0=OFF
+1=ON" ModbusAddress="1711" ModbusCmd="3" ModbusPollingCycle="30" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="State Operation mode HC1" Comment="" HintText="0=Off
+1=Time Program
+2=Normal
+3=Eco
+4=Manual Heating
+5=Manual Cooling" ModbusAddress="1393" ModbusCmd="4" ModbusPollingCycle="30" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Actual Supply Flowtemperature HC1 [B51]" Comment="" HintText="" ModbusAddress="1350" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="State Target Supply Flowtemperature HC1" Comment="" HintText="" ModbusAddress="1378" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="State Hot water preparation" Comment="" HintText="0=OFF
+1=ON" ModbusAddress="1712" ModbusCmd="3" ModbusPollingCycle="60" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="State Active operation mode HC1" Comment="" HintText="0=Off
+1=Heating Mode
+2=Cooling Mode" ModbusAddress="1498" ModbusCmd="4" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Actual Buffertemperature Bottom [B38]" Comment="" HintText="" ModbusAddress="1008" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Actual Buffertemperature Top [B40]" Comment="" HintText="" ModbusAddress="1010" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Actual Heatpump Supply Flowtemperature [B45]" Comment="" HintText="" ModbusAddress="1066" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="System operation mode" Comment="" HintText="0=Standby
+1=Automatic
+2=Absent
+4=Domestic Hot Water Only
+5=Heating / Cooling Only" ModbusAddress="1005" ModbusCmd="6" ModbusDataType="32" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100" RepeatRate="10"/>
+	<ModbusCmd Title="Request Heatpump Heating operation mode" Comment="" HintText="0=OFF
+1=ON" ModbusAddress="1710" ModbusCmd="5" Unit="" Analog="false" Sensor="false" RepeatRate="10"/>
+	<ModbusCmd Title="Request Heatpump Cooling operation mode" Comment="" HintText="0=OFF
+1=ON" ModbusAddress="1711" ModbusCmd="5" Unit="" Analog="false" Sensor="false" RepeatRate="10"/>
+	<ModbusCmd Title="External Request Supply Flowtemperature Heating HC1" Comment="" HintText="MIN=25°C
+MAX=65°C" ModbusAddress="1694" ModbusCmd="6" ModbusDataType="32" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100" RepeatRate="10"/>
+	<ModbusCmd Title="Hot Water Target temperature" Comment="" HintText="MIN=35°C
+MAX=70°C" ModbusAddress="1032" ModbusCmd="6" ModbusDataType="32" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100" RepeatRate="10"/>
+	<ModbusCmd Title="External Request Supply Flowtemperature Cooling HC1" Comment="" HintText="MIN=10°C
+MAX=25°C" ModbusAddress="1695" ModbusCmd="6" ModbusDataType="32" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100" RepeatRate="10"/>
+</Modbus>

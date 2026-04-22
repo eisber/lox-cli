@@ -1,0 +1,2287 @@
+[
+  {
+    "name": "Challenge: Alarm im Allgemeinbereich",
+    "id": "alarm-im-allgemeinbereich",
+    "description": "Alarm für den Allgemeinbereich eines Firmengebäudes — automatische Scharfschaltung wenn alle Büros verlassen sind, Deaktivierung beim Betreten.",
+    "fixture": "challenges/alarm-im-allgemeinbereich.Loxone",
+    "stages": [
+      {
+        "stage": 1,
+        "name": "Büro-Alarme und NFC-Zugang einrichten",
+        "utterance": "Wir haben ein Firmengebäude mit vier Büros und einem Allgemeinbereich (Eingang, Treppenhaus, Aufenthalt). Jedes Büro hat schon einen Alarmbaustein. Im Eingang ist ein NFC Code Touch für die Zutrittskontrolle. Richte bitte den Alarm für den Allgemeinbereich ein.",
+        "expected": {
+          "new_blocks": [
+            {
+              "type": "Alarm",
+              "title": "Alarm Allgemeinbereich"
+            }
+          ],
+          "params": {},
+          "simulation": [
+            {
+              "name": "should activate during scheduled period",
+              "inputs": {},
+              "ticks": 0,
+              "dt": 0.1,
+              "expected_outputs": {
+                "Alarm Allgemeinbereich.I1": {
+                  ">": 0.5
+                }
+              }
+            }
+          ]
+        }
+      },
+      {
+        "stage": 2,
+        "name": "Automatische Scharfschaltung",
+        "utterance": "Wenn alle vier Büro-Alarme aktiv sind, also alle Mitarbeiter gegangen sind, soll der Allgemeinbereich automatisch und verzögert scharfgeschaltet werden. Nutze dafür ein UND-Gatter, das prüft ob alle Büro-Alarme aktiv sind.",
+        "expected": {
+          "new_blocks": [
+            {
+              "type": "And",
+              "title": "Alle Büros scharf"
+            }
+          ],
+          "wiring": [
+            {
+              "from": "Alarm Büro 1.Q",
+              "to": "Alle Büros scharf.I1"
+            },
+            {
+              "from": "Alarm Büro 2.Q",
+              "to": "Alle Büros scharf.I2"
+            },
+            {
+              "from": "Alle Büros scharf.Q",
+              "to": "Alarm Allgemeinbereich.Inactive",
+              "note": "inverted"
+            }
+          ],
+          "simulation": [
+            {
+              "name": "should produce output when triggered",
+              "inputs": {
+                "Türkontakt Eingang.Q": 1.0
+              },
+              "ticks": 10,
+              "dt": 0.1,
+              "expected_outputs": {
+                "Alle Büros scharf.I1": {
+                  ">": 0.0
+                }
+              }
+            },
+            {
+              "name": "should be inactive without trigger",
+              "inputs": {
+                "Türkontakt Eingang.Q": 0.0
+              },
+              "ticks": 10,
+              "dt": 0.1,
+              "expected_outputs": {
+                "Alle Büros scharf.I1": {
+                  "<": 0.5
+                }
+              }
+            }
+          ]
+        }
+      },
+      {
+        "stage": 3,
+        "name": "Deaktivierung beim Betreten",
+        "utterance": "Der erste Mitarbeiter, der morgens das Gebäude über den NFC Code Touch betritt, soll den Alarm im Allgemeinbereich und in seinem eigenen Büro deaktivieren. Die Mieter sollen aber nicht die Alarme der anderen Büros beeinflussen können.",
+        "expected": {
+          "wiring": [
+            {
+              "from": "NFC Code Touch.Q1",
+              "to": "Alarm Allgemeinbereich.Inactive"
+            },
+            {
+              "from": "NFC Code Touch.Q1",
+              "to": "Alarm Büro 1.Inactive"
+            }
+          ]
+        }
+      },
+      {
+        "stage": 4,
+        "name": "Hauptschlüssel für den Vermieter",
+        "utterance": "Der Vermieter braucht einen Hauptschlüssel am NFC Code Touch. Wenn er diesen nutzt, sollen alle Alarmbereiche deaktiviert werden — alle vier Büros und der Allgemeinbereich — damit er alles überprüfen und warten kann.",
+        "expected": {
+          "wiring": [
+            {
+              "from": "NFC Code Touch.Q5",
+              "to": "Alarm Allgemeinbereich.Inactive"
+            },
+            {
+              "from": "NFC Code Touch.Q5",
+              "to": "Alarm Büro 1.Inactive"
+            },
+            {
+              "from": "NFC Code Touch.Q5",
+              "to": "Alarm Büro 2.Inactive"
+            },
+            {
+              "from": "NFC Code Touch.Q5",
+              "to": "Alarm Büro 3.Inactive"
+            },
+            {
+              "from": "NFC Code Touch.Q5",
+              "to": "Alarm Büro 4.Inactive"
+            }
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "name": "Challenge: Automatisierung Trockenraum",
+    "id": "automatisierung-trockenraum",
+    "description": "Steuerung von Luftentfeuchtern in einem Trockenraum — zeitgesteuert, manuell per Touch, mit Feuchtigkeitsüberwachung und Kostenberechnung.",
+    "fixture": "challenges/automatisierung-trockenraum.Loxone",
+    "stages": [
+      {
+        "stage": 1,
+        "name": "Zeitgesteuerte Entfeuchtung",
+        "utterance": "Unsere Restaurantküche hat einen Trockenraum mit zwei baugleichen Luftentfeuchtern (je 1000W). Die Entfeuchter sollen zu Spitzenzeiten automatisch laufen: zwischen 13:15 und 15:30 Uhr nur ein Entfeuchter, zwischen 19:00 und 21:30 Uhr beide. An Feiertagen sollen sie aus bleiben — die Feiertage planen wir über die Betriebszeiten.",
+        "expected": {
+          "new_blocks": [
+            {
+              "type": "DayTimer",
+              "title": "Zeitplan Entfeuchter 1"
+            },
+            {
+              "type": "DayTimer",
+              "title": "Zeitplan Entfeuchter 2"
+            }
+          ],
+          "params": {},
+          "simulation": [
+            {
+              "name": "should activate during scheduled period",
+              "inputs": {},
+              "ticks": 0,
+              "dt": 0.1,
+              "expected_outputs": {
+                "Lüfter Bad.I1": {
+                  ">": 0.5
+                }
+              }
+            }
+          ]
+        }
+      },
+      {
+        "stage": 2,
+        "name": "Manuelle Steuerung per Touch",
+        "utterance": "Über einen Touch Tree im Trockenraum sollen die Entfeuchter 30 Minuten lang laufen. Ein weiterer Klick soll eine Dauerschaltung aktivieren, die sich um Mitternacht zurücksetzt. Wenn die Entfeuchter drei Stunden durchgehend laufen, soll eine Push-Nachricht an die Belegschaft gesendet werden.",
+        "expected": {
+          "new_blocks": [
+            {
+              "type": "Monoflop",
+              "title": "30min Entfeuchtung"
+            },
+            {
+              "type": "FlipFlop",
+              "title": "Dauerschaltung"
+            },
+            {
+              "type": "PulseAt",
+              "title": "Mitternacht Reset"
+            },
+            {
+              "type": "OnDelay",
+              "title": "3h Warnung"
+            }
+          ],
+          "wiring": [
+            {
+              "from": "PulseAt.Q",
+              "to": "Dauerschaltung.InputR"
+            },
+            {
+              "from": "OnDelay.Q",
+              "to": "Push-Nachricht"
+            }
+          ],
+          "simulation": [
+            {
+              "name": "should trigger when condition met",
+              "inputs": {
+                "Luftfeuchtigkeit.AQ": 65.0
+              },
+              "ticks": 10,
+              "dt": 0.1,
+              "expected_outputs": {
+                "Lüfter Bad.I1": {
+                  ">": 0.5
+                }
+              }
+            },
+            {
+              "name": "should NOT trigger when condition not met",
+              "inputs": {
+                "Luftfeuchtigkeit.AQ": 55.0
+              },
+              "ticks": 10,
+              "dt": 0.1,
+              "expected_outputs": {
+                "Lüfter Bad.I1": {
+                  "<": 0.5
+                }
+              }
+            }
+          ]
+        }
+      },
+      {
+        "stage": 3,
+        "name": "Feuchtigkeitsüberwachung",
+        "utterance": "Die relative Luftfeuchte soll in einer Statistik visualisiert werden — als Mittelwert pro Stunde. Der Feuchtigkeitssensor im Trockenraum ist schon da, wir müssen ihn nur richtig auswerten.",
+        "expected": {
+          "new_blocks": [
+            {
+              "type": "StatusMonitor",
+              "title": "Feuchtigkeit Statistik"
+            }
+          ],
+          "simulation": [
+            {
+              "name": "should activate during scheduled period",
+              "inputs": {},
+              "ticks": 0,
+              "dt": 0.1,
+              "expected_outputs": {
+                "Feuchtigkeit Statistik.I1": {
+                  ">": 0.5
+                }
+              }
+            }
+          ]
+        }
+      },
+      {
+        "stage": 4,
+        "name": "Monatliche Kostenübersicht",
+        "utterance": "Der Manager möchte wissen, was der Betrieb der Luftentfeuchter kostet. Es gibt keine Energiezähler, aber beide Geräte haben je 1000W. Berechne die Betriebsstunden und sende monatlich per E-Mail eine Kostenübersicht an den Manager.",
+        "expected": {
+          "new_blocks": [
+            {
+              "type": "HourCounter",
+              "title": "Betriebsstunden Entfeuchter 1"
+            },
+            {
+              "type": "HourCounter",
+              "title": "Betriebsstunden Entfeuchter 2"
+            },
+            {
+              "type": "Formula",
+              "title": "Kostenberechnung"
+            },
+            {
+              "type": "MailGen",
+              "title": "Monatsbericht Kosten"
+            }
+          ],
+          "wiring": [
+            {
+              "from": "HourCounter.AQ",
+              "to": "Kostenberechnung"
+            }
+          ],
+          "simulation": [
+            {
+              "name": "should trigger when condition met",
+              "inputs": {
+                "Luftfeuchtigkeit.AQ": 65.0
+              },
+              "ticks": 10,
+              "dt": 0.1,
+              "expected_outputs": {
+                "Lüfter Bad.I1": {
+                  ">": 0.5
+                }
+              }
+            },
+            {
+              "name": "should NOT trigger when condition not met",
+              "inputs": {
+                "Luftfeuchtigkeit.AQ": 55.0
+              },
+              "ticks": 10,
+              "dt": 0.1,
+              "expected_outputs": {
+                "Lüfter Bad.I1": {
+                  "<": 0.5
+                }
+              }
+            }
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "name": "Challenge: Beleuchtung in offenen Wohnräumen",
+    "id": "beleuchtung-in-offenen-wohnraeumen",
+    "description": "Intuitive RGBW-Beleuchtung in einem offenen Wohnbereich mit drei Zonen (Küche, Wohnen, Essen) — Grundlicht, Stimmungen, TV-Modus.",
+    "fixture": "challenges/beleuchtung-in-offenen-wohnraeumen.Loxone",
+    "stages": [
+      {
+        "stage": 1,
+        "name": "Lichtcontroller für drei Bereiche",
+        "utterance": "Wir haben einen offenen Wohnbereich mit drei Bereichen: Küche, Wohnzimmer und Esszimmer. Jeder Bereich braucht einen eigenen Lichtcontroller mit RGBW-Spots und LED-Streifen. Die Küche hat 6 Spots und 2 LED-Streifen, das Wohnzimmer hat 6 Spots, eine Leseleuchte und 2 LED-Streifen, und das Esszimmer hat 3 Pendelleuchten, 6 Spots und einen LED-Streifen.",
+        "expected": {
+          "new_blocks": [
+            {
+              "type": "LightController2",
+              "title": "Licht Küche"
+            },
+            {
+              "type": "LightController2",
+              "title": "Licht Wohnzimmer"
+            },
+            {
+              "type": "LightController2",
+              "title": "Licht Esszimmer"
+            }
+          ],
+          "simulation": [
+            {
+              "name": "should activate during scheduled period",
+              "inputs": {},
+              "ticks": 0,
+              "dt": 0.1,
+              "expected_outputs": {
+                "Lichtsteuerung.I1": {
+                  ">": 0.5
+                }
+              }
+            }
+          ]
+        }
+      },
+      {
+        "stage": 2,
+        "name": "Grundlicht mit Bewegungsmelder",
+        "utterance": "Es gibt zwei Bewegungsmelder Tree. Bei Bewegung und unter 10 Lux soll das Grundlicht in allen drei Bereichen angehen. Im Schlafmodus soll stattdessen das Nachtlicht eingeschaltet werden. Das Grundlicht soll sich 30 Minuten nach der letzten Bewegung ausschalten, das Nachtlicht nach 10 Minuten.",
+        "expected": {
+          "new_blocks": [
+            {
+              "type": "PresenceDetector",
+              "title": "Präsenz Wohnbereich"
+            },
+            {
+              "type": "AnalogComparator",
+              "title": "Dämmerung unter 10lux"
+            }
+          ],
+          "wiring": [
+            {
+              "from": "PresenceDetector.OutputPresence",
+              "to": "Licht Küche"
+            },
+            {
+              "from": "PresenceDetector.OutputPresence",
+              "to": "Licht Wohnzimmer"
+            },
+            {
+              "from": "PresenceDetector.OutputPresence",
+              "to": "Licht Esszimmer"
+            }
+          ],
+          "simulation": [
+            {
+              "name": "should trigger when condition met",
+              "inputs": {
+                "Bewegungsmelder.OutputPresence": 1.0,
+                "Sonnenschein.AQ": 1.0
+              },
+              "ticks": 10,
+              "dt": 0.1,
+              "expected_outputs": {
+                "Lichtsteuerung.I1": {
+                  ">": 0.5
+                }
+              }
+            },
+            {
+              "name": "should NOT trigger when condition not met",
+              "inputs": {
+                "Bewegungsmelder.OutputPresence": 0.0,
+                "Sonnenschein.AQ": 0.0
+              },
+              "ticks": 10,
+              "dt": 0.1,
+              "expected_outputs": {
+                "Lichtsteuerung.I1": {
+                  "<": 0.5
+                }
+              }
+            }
+          ]
+        }
+      },
+      {
+        "stage": 3,
+        "name": "Tasterbedienung und Stimmungen",
+        "utterance": "Jeder Bereich hat einen Touch Tree Taster. Beim ersten Klick auf den Essbereich-Taster wird nur dort heller beleuchtet. Beim zweiten Klick kommt die Stimmung 'Viel Licht'. Ein dritter Klick geht zurück aufs Grundlicht. Ein Doppelklick auf irgendeinen Taster schaltet den ganzen Raum aus. Ein langer Klick auf Wohnen oder Kochen erhöht die Helligkeit.",
+        "expected": {
+          "new_blocks": [
+            {
+              "type": "MultiClick",
+              "title": "Taster Küche"
+            },
+            {
+              "type": "MultiClick",
+              "title": "Taster Wohnzimmer"
+            },
+            {
+              "type": "MultiClick",
+              "title": "Taster Esszimmer"
+            }
+          ],
+          "wiring": [
+            {
+              "from": "Taster Esszimmer.Q1",
+              "to": "Licht Esszimmer"
+            },
+            {
+              "from": "Taster Esszimmer.Q2",
+              "to": "Licht Esszimmer"
+            }
+          ],
+          "simulation": [
+            {
+              "name": "should activate during scheduled period",
+              "inputs": {},
+              "ticks": 0,
+              "dt": 0.1,
+              "expected_outputs": {
+                "Lichtsteuerung.I1": {
+                  ">": 0.5
+                }
+              }
+            }
+          ]
+        }
+      },
+      {
+        "stage": 4,
+        "name": "TV-Stimmung automatisch",
+        "utterance": "Der Kunde möchte eine TV-Stimmung: Wenn der Fernseher aus dem Standby erwacht, soll die TV-Beleuchtung aktiviert werden. Solange der Fernseher läuft, soll das Licht nicht selbständig ausgehen. Wenn der TV aus ist, soll der Raum ins Grundlicht wechseln.",
+        "expected": {
+          "new_blocks": [
+            {
+              "type": "EdgeDetection",
+              "title": "TV Status Erkennung"
+            },
+            {
+              "type": "FlipFlop",
+              "title": "TV aktiv"
+            }
+          ],
+          "wiring": [
+            {
+              "from": "TV Status Erkennung.RisingEdge",
+              "to": "Licht Wohnzimmer"
+            },
+            {
+              "from": "TV Status Erkennung.FallingEdge",
+              "to": "Licht Wohnzimmer"
+            }
+          ],
+          "simulation": [
+            {
+              "name": "should produce output when triggered",
+              "inputs": {
+                "Türkontakt Eingang.Q": 1.0
+              },
+              "ticks": 10,
+              "dt": 0.1,
+              "expected_outputs": {
+                "Lichtsteuerung.I1": {
+                  ">": 0.0
+                }
+              }
+            },
+            {
+              "name": "should be inactive without trigger",
+              "inputs": {
+                "Türkontakt Eingang.Q": 0.0
+              },
+              "ticks": 10,
+              "dt": 0.1,
+              "expected_outputs": {
+                "Lichtsteuerung.I1": {
+                  "<": 0.5
+                }
+              }
+            }
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "name": "Challenge: Beschattung Spezial",
+    "id": "beschattung-spezial",
+    "description": "Spezielle Beschattung für eine Villa am Südhang — temperaturabhängig, saisonbedingt, mit separater Weinkeller-Logik.",
+    "fixture": "challenges/beschattung-spezial.Loxone",
+    "stages": [
+      {
+        "stage": 1,
+        "name": "Temperaturabhängige Automatik",
+        "utterance": "Unsere Villa liegt auf über 950 Meter am Südhang. Die Automatikbeschattung soll erst funktionieren, wenn die Außentemperatur 20°C überschreitet. Richte bitte einen Temperaturvergleich ein, der die Beschattung freigibt.",
+        "expected": {
+          "new_blocks": [
+            {
+              "type": "AnalogComparator",
+              "title": "Temp über 20°C"
+            }
+          ],
+          "wiring": [
+            {
+              "from": "Temp über 20°C.Q",
+              "to": "AutoJalousie"
+            }
+          ],
+          "simulation": [
+            {
+              "name": "should trigger when condition met",
+              "inputs": {
+                "Außentemperatur.AQ": 955.0,
+                "Sonnenschein.AQ": 1.0
+              },
+              "ticks": 10,
+              "dt": 0.1,
+              "expected_outputs": {
+                "Jalousie 1.InputTriggerDown": {
+                  ">": 0.5
+                }
+              }
+            },
+            {
+              "name": "should NOT trigger when condition not met",
+              "inputs": {
+                "Außentemperatur.AQ": 945.0,
+                "Sonnenschein.AQ": 0.0
+              },
+              "ticks": 10,
+              "dt": 0.1,
+              "expected_outputs": {
+                "Jalousie 1.InputTriggerDown": {
+                  "<": 0.5
+                }
+              }
+            }
+          ]
+        }
+      },
+      {
+        "stage": 2,
+        "name": "Saisonale Ostseiten-Sperre",
+        "utterance": "Die Ostseite bekommt erst von April bis September Morgensonne durch den Bergrücken. In dieser Zeit soll sie nicht beschatten. Außerdem dürfen die Dachfenster in Bad und Schlafzimmer nach dem Frostschutz erst nach einer manuellen Sichtkontrolle durch den Hausherrn freigegeben werden.",
+        "expected": {
+          "new_blocks": [
+            {
+              "type": "DayTimer",
+              "title": "Saison April-September"
+            },
+            {
+              "type": "And",
+              "title": "Ostseite Sperre"
+            },
+            {
+              "type": "PushButton",
+              "title": "Freigabe Dachfenster"
+            }
+          ],
+          "wiring": [
+            {
+              "from": "Saison April-September.AQ",
+              "to": "Ostseite Sperre.I1"
+            }
+          ],
+          "simulation": [
+            {
+              "name": "should trigger when condition met",
+              "inputs": {
+                "Außentemperatur.AQ": 15.0,
+                "Sonnenschein.AQ": 1.0
+              },
+              "ticks": 10,
+              "dt": 0.1,
+              "expected_outputs": {
+                "Jalousie 1.InputTriggerDown": {
+                  ">": 0.5
+                }
+              }
+            },
+            {
+              "name": "should NOT trigger when condition not met",
+              "inputs": {
+                "Außentemperatur.AQ": 25.0,
+                "Sonnenschein.AQ": 0.0
+              },
+              "ticks": 10,
+              "dt": 0.1,
+              "expected_outputs": {
+                "Jalousie 1.InputTriggerDown": {
+                  "<": 0.5
+                }
+              }
+            }
+          ]
+        }
+      },
+      {
+        "stage": 3,
+        "name": "Dämmerungssteuerung nach Himmelsrichtung",
+        "utterance": "Nord- und Ostfenster sollen bei Abenddämmerung schließen. Süd- und Westfenster erst, wenn der Kunde schlafen geht. Im Bad und in den Schlafräumen darf bei Morgendämmerung die Beschattung wieder hochfahren.",
+        "expected": {
+          "new_blocks": [
+            {
+              "type": "AnalogComparator",
+              "title": "Abenddämmerung"
+            },
+            {
+              "type": "AnalogComparator",
+              "title": "Morgendämmerung"
+            }
+          ],
+          "wiring": [
+            {
+              "from": "Abenddämmerung.Q",
+              "to": "Jalousie Nord.ManualPosition"
+            },
+            {
+              "from": "Abenddämmerung.Q",
+              "to": "Jalousie Ost.ManualPosition"
+            },
+            {
+              "from": "Morgendämmerung.Q",
+              "to": "Jalousie Bad.InputTriggerUp"
+            },
+            {
+              "from": "Morgendämmerung.Q",
+              "to": "Jalousie Schlafzimmer.InputTriggerUp"
+            }
+          ],
+          "simulation": [
+            {
+              "name": "should trigger when condition met",
+              "inputs": {
+                "Sonnenschein.AQ": 1.0
+              },
+              "ticks": 10,
+              "dt": 0.1,
+              "expected_outputs": {
+                "Jalousie 1.InputTriggerDown": {
+                  ">": 0.5
+                }
+              }
+            },
+            {
+              "name": "should NOT trigger when condition not met",
+              "inputs": {
+                "Sonnenschein.AQ": 0.0
+              },
+              "ticks": 10,
+              "dt": 0.1,
+              "expected_outputs": {
+                "Jalousie 1.InputTriggerDown": {
+                  "<": 0.5
+                }
+              }
+            }
+          ]
+        }
+      },
+      {
+        "stage": 4,
+        "name": "Weinkeller Sonderbeschattung",
+        "utterance": "Der Weinkeller verhält sich komplett anders als der Rest. Die teuren Weine und der Holzboden müssen vor direktem Sonnenlicht geschützt werden. Der Balkon über dem Panoramafenster dient als Vordach — er steht so weit vor wie die Decke hoch ist. Solange die Sonne nicht direkt reinscheint, soll keine Beschattung aktiv sein. Nur wenn die Sonne tief genug steht, soll die Jalousie schließen.",
+        "expected": {
+          "new_blocks": [
+            {
+              "type": "AnalogComparator",
+              "title": "Sonne tief Weinkeller"
+            },
+            {
+              "type": "And",
+              "title": "Weinkeller Beschattung aktiv"
+            }
+          ],
+          "wiring": [
+            {
+              "from": "Sonne tief Weinkeller.Q",
+              "to": "Weinkeller Beschattung aktiv.I1"
+            },
+            {
+              "from": "Weinkeller Beschattung aktiv.Q",
+              "to": "Jalousie Weinkeller.Shade"
+            }
+          ],
+          "simulation": [
+            {
+              "name": "should trigger when condition met",
+              "inputs": {
+                "Sonnenschein.AQ": 1.0
+              },
+              "ticks": 10,
+              "dt": 0.1,
+              "expected_outputs": {
+                "Jalousie 1.InputTriggerDown": {
+                  ">": 0.5
+                }
+              }
+            },
+            {
+              "name": "should NOT trigger when condition not met",
+              "inputs": {
+                "Sonnenschein.AQ": 0.0
+              },
+              "ticks": 10,
+              "dt": 0.1,
+              "expected_outputs": {
+                "Jalousie 1.InputTriggerDown": {
+                  "<": 0.5
+                }
+              }
+            }
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "name": "Challenge: Reinigungsmodus",
+    "id": "config-challenge-reinigungsmodus",
+    "description": "Reinigungsmodus für ein Firmengebäude — Key Fob Aktivierung, volle Beleuchtung, Zeiterfassung und Abwesenheits-Modus beim Verlassen.",
+    "fixture": "challenges/config-challenge-reinigungsmodus.Loxone",
+    "stages": [
+      {
+        "stage": 1,
+        "name": "Reinigungsmodus aktivieren",
+        "utterance": "Eine Reinigungsfirma kommt Montag, Mittwoch und Freitag zwischen 17:00 und 19:00 Uhr. Das Reinigungspersonal soll sich mit dem Key Fob am NFC Code Touch identifizieren und damit den Reinigungsmodus aktivieren. Im Eingang soll dann 'Viel Licht' angehen und die blaue LED am NFC Code Touch leuchten.",
+        "expected": {
+          "new_blocks": [
+            {
+              "type": "FlipFlop",
+              "title": "Reinigungsmodus"
+            },
+            {
+              "type": "DayTimer",
+              "title": "Reinigungszeiten"
+            }
+          ],
+          "wiring": [
+            {
+              "from": "NFC Code Touch.Q1",
+              "to": "Reinigungsmodus.InputS"
+            },
+            {
+              "from": "Reinigungsmodus.Q",
+              "to": "NFC Code Touch.Lb"
+            },
+            {
+              "from": "Reinigungsmodus.Q",
+              "to": "Licht Eingang"
+            }
+          ],
+          "simulation": [
+            {
+              "name": "should trigger when condition met",
+              "inputs": {
+                "Bewegungsmelder.OutputPresence": 1.0,
+                "Türkontakt Eingang.Q": 1.0
+              },
+              "ticks": 10,
+              "dt": 0.1,
+              "expected_outputs": {
+                "Lichtsteuerung.I1": {
+                  ">": 0.5
+                }
+              }
+            },
+            {
+              "name": "should NOT trigger when condition not met",
+              "inputs": {
+                "Bewegungsmelder.OutputPresence": 0.0,
+                "Türkontakt Eingang.Q": 0.0
+              },
+              "ticks": 10,
+              "dt": 0.1,
+              "expected_outputs": {
+                "Lichtsteuerung.I1": {
+                  "<": 0.5
+                }
+              }
+            }
+          ]
+        }
+      },
+      {
+        "stage": 2,
+        "name": "Sperre und Bewegungslicht",
+        "utterance": "Solange der Reinigungsmodus aktiv ist, darf das Gebäude nicht per Dreifachklick ausgeschalten werden und das Licht im Eingang kann nicht aus. Bei Bewegung soll in den restlichen Räumen 'Viel Licht' statt dem Grundlicht angehen — egal wie hell der Raum ist.",
+        "expected": {
+          "new_blocks": [
+            {
+              "type": "And",
+              "title": "Reinigung Bewegung aktiv"
+            }
+          ],
+          "wiring": [
+            {
+              "from": "Reinigungsmodus.Q",
+              "to": "Reinigung Bewegung aktiv.I1"
+            },
+            {
+              "from": "Bewegungsmelder.Q",
+              "to": "Reinigung Bewegung aktiv.I2"
+            },
+            {
+              "from": "Reinigung Bewegung aktiv.Q",
+              "to": "LightController2"
+            }
+          ],
+          "simulation": [
+            {
+              "name": "should trigger when condition met",
+              "inputs": {
+                "Sonnenschein.AQ": 1.0,
+                "Bewegungsmelder.OutputPresence": 1.0
+              },
+              "ticks": 10,
+              "dt": 0.1,
+              "expected_outputs": {
+                "Lichtsteuerung.I1": {
+                  ">": 0.5
+                }
+              }
+            },
+            {
+              "name": "should NOT trigger when condition not met",
+              "inputs": {
+                "Sonnenschein.AQ": 0.0,
+                "Bewegungsmelder.OutputPresence": 0.0
+              },
+              "ticks": 10,
+              "dt": 0.1,
+              "expected_outputs": {
+                "Lichtsteuerung.I1": {
+                  "<": 0.5
+                }
+              }
+            }
+          ]
+        }
+      },
+      {
+        "stage": 3,
+        "name": "Deaktivierung und Abwesenheit",
+        "utterance": "Wenn sich das Reinigungspersonal erneut am NFC Code Touch identifiziert, wird der Reinigungsmodus deaktiviert: blaue LED aus, Gebäude wechselt in den Abwesenheits-Modus und das Licht im Eingang geht aus.",
+        "expected": {
+          "wiring": [
+            {
+              "from": "NFC Code Touch.Q1",
+              "to": "Reinigungsmodus.InputR"
+            }
+          ],
+          "simulation": [
+            {
+              "name": "should trigger when condition met",
+              "inputs": {
+                "Bewegungsmelder.OutputPresence": 1.0,
+                "Türkontakt Eingang.Q": 1.0
+              },
+              "ticks": 10,
+              "dt": 0.1,
+              "expected_outputs": {
+                "Lichtsteuerung.I1": {
+                  ">": 0.5
+                }
+              }
+            },
+            {
+              "name": "should NOT trigger when condition not met",
+              "inputs": {
+                "Bewegungsmelder.OutputPresence": 0.0,
+                "Türkontakt Eingang.Q": 0.0
+              },
+              "ticks": 10,
+              "dt": 0.1,
+              "expected_outputs": {
+                "Lichtsteuerung.I1": {
+                  "<": 0.5
+                }
+              }
+            }
+          ]
+        }
+      },
+      {
+        "stage": 4,
+        "name": "Zeiterfassung und Statistik",
+        "utterance": "Über die Visualisierung soll sichtbar sein, wie lange die Reinigungsfirma anwesend war. Monatlich soll eine Statistik per E-Mail an den Betrieb gesendet werden.",
+        "expected": {
+          "new_blocks": [
+            {
+              "type": "HourCounter",
+              "title": "Reinigungszeit"
+            },
+            {
+              "type": "MailGen",
+              "title": "Monatsbericht Reinigung"
+            }
+          ],
+          "wiring": [
+            {
+              "from": "Reinigungsmodus.Q",
+              "to": "Reinigungszeit.InputEnable"
+            }
+          ],
+          "simulation": [
+            {
+              "name": "should produce output when triggered",
+              "inputs": {
+                "Türkontakt Eingang.Q": 1.0
+              },
+              "ticks": 10,
+              "dt": 0.1,
+              "expected_outputs": {
+                "Reinigungszeit.I1": {
+                  ">": 0.0
+                }
+              }
+            },
+            {
+              "name": "should be inactive without trigger",
+              "inputs": {
+                "Türkontakt Eingang.Q": 0.0
+              },
+              "ticks": 10,
+              "dt": 0.1,
+              "expected_outputs": {
+                "Reinigungszeit.I1": {
+                  "<": 0.5
+                }
+              }
+            }
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "name": "Challenge: Gastmodus",
+    "id": "gastmodus",
+    "description": "Gästezimmer unabhängig vom Haupt-Nachtmodus betreiben — eigener Nachtmodus für Gäste, Komfortheizung, Lautstärke-Limit.",
+    "fixture": "challenges/gastmodus.Loxone",
+    "stages": [
+      {
+        "stage": 1,
+        "name": "Gastanwesenheit erfassen",
+        "utterance": "Wir brauchen einen Schalter in der App, der dem Haus mitteilt, dass ein Gast anwesend ist. Wenn kein Gast da ist, soll alles wie gewohnt funktionieren inkl. dem normalen Nachtmodus für alle Räume.",
+        "expected": {
+          "new_blocks": [
+            {
+              "type": "PushButton",
+              "title": "Gast anwesend"
+            }
+          ],
+          "simulation": [
+            {
+              "name": "should trigger when condition met",
+              "inputs": {
+                "Türkontakt Eingang.Q": 1.0
+              },
+              "ticks": 10,
+              "dt": 0.1,
+              "expected_outputs": {
+                "Klimaanlage.I1": {
+                  ">": 0.5
+                }
+              }
+            },
+            {
+              "name": "should NOT trigger when condition not met",
+              "inputs": {
+                "Türkontakt Eingang.Q": 0.0
+              },
+              "ticks": 10,
+              "dt": 0.1,
+              "expected_outputs": {
+                "Klimaanlage.I1": {
+                  "<": 0.5
+                }
+              }
+            }
+          ]
+        }
+      },
+      {
+        "stage": 2,
+        "name": "Gästezimmer vom Nachtmodus ausnehmen",
+        "utterance": "Wenn ein Gast anwesend ist, sollen das Gästezimmer und das Gäste-Badezimmer vom normalen Nachtmodus ausgenommen werden. Zudem soll das Gästezimmer zum Heizen in den Komfortmodus wechseln.",
+        "expected": {
+          "new_blocks": [
+            {
+              "type": "And",
+              "title": "Nachtmodus ohne Gast"
+            }
+          ],
+          "wiring": [
+            {
+              "from": "Gast anwesend.Q",
+              "to": "Nachtmodus ohne Gast.I1",
+              "note": "inverted"
+            },
+            {
+              "from": "Nachtmodus.Q",
+              "to": "Nachtmodus ohne Gast.I2"
+            },
+            {
+              "from": "Gast anwesend.Q",
+              "to": "Thermostat Gästezimmer.Comfort"
+            }
+          ],
+          "simulation": [
+            {
+              "name": "should trigger when condition met",
+              "inputs": {
+                "Außentemperatur.AQ": 25.0
+              },
+              "ticks": 10,
+              "dt": 0.1,
+              "expected_outputs": {
+                "Raumregler.Temp": {
+                  ">": 0.5
+                }
+              }
+            },
+            {
+              "name": "should NOT trigger when condition not met",
+              "inputs": {
+                "Außentemperatur.AQ": 15.0
+              },
+              "ticks": 10,
+              "dt": 0.1,
+              "expected_outputs": {
+                "Raumregler.Temp": {
+                  "<": 0.5
+                }
+              }
+            }
+          ]
+        }
+      },
+      {
+        "stage": 3,
+        "name": "Eigener Gast-Nachtmodus",
+        "utterance": "Der Gast soll über einen Dreifachklick seinen eigenen Nachtmodus im Gästezimmer aktivieren können — Licht aus, Musik aus, Ruhe.",
+        "expected": {
+          "new_blocks": [
+            {
+              "type": "MultiClick",
+              "title": "Dreifachklick Gast"
+            },
+            {
+              "type": "FlipFlop",
+              "title": "Gast Nachtmodus"
+            }
+          ],
+          "wiring": [
+            {
+              "from": "Dreifachklick Gast.Q3",
+              "to": "Gast Nachtmodus.InputS"
+            }
+          ],
+          "simulation": [
+            {
+              "name": "should produce output when triggered",
+              "inputs": {
+                "Türkontakt Eingang.Q": 1.0
+              },
+              "ticks": 10,
+              "dt": 0.1,
+              "expected_outputs": {
+                "Lichtsteuerung.I1": {
+                  ">": 0.0
+                }
+              }
+            },
+            {
+              "name": "should be inactive without trigger",
+              "inputs": {
+                "Türkontakt Eingang.Q": 0.0
+              },
+              "ticks": 10,
+              "dt": 0.1,
+              "expected_outputs": {
+                "Lichtsteuerung.I1": {
+                  "<": 0.5
+                }
+              }
+            }
+          ]
+        }
+      },
+      {
+        "stage": 4,
+        "name": "Badezimmer-Logik und Musiklimit",
+        "utterance": "Das Badezimmer soll nur dann ausgeschalten werden, wenn sowohl im Hauptschlafzimmer als auch im Gästezimmer der Nachtmodus aktiv ist. Außerdem: Sobald im Hauptschlafzimmer der Nachtmodus aktiv ist, darf die Musik im Gästezimmer nicht lauter als 30 Prozent sein.",
+        "expected": {
+          "new_blocks": [
+            {
+              "type": "And",
+              "title": "Beide Nachtmodi aktiv"
+            }
+          ],
+          "wiring": [
+            {
+              "from": "Gast Nachtmodus.Q",
+              "to": "Beide Nachtmodi aktiv.I1"
+            },
+            {
+              "from": "Nachtmodus Hauptschlafzimmer.Q",
+              "to": "Beide Nachtmodi aktiv.I2"
+            },
+            {
+              "from": "Beide Nachtmodi aktiv.Q",
+              "to": "Bad ausschalten"
+            }
+          ],
+          "simulation": [
+            {
+              "name": "should produce output when triggered",
+              "inputs": {
+                "Türkontakt Eingang.Q": 1.0
+              },
+              "ticks": 10,
+              "dt": 0.1,
+              "expected_outputs": {
+                "Klimaanlage.I1": {
+                  ">": 0.0
+                }
+              }
+            },
+            {
+              "name": "should be inactive without trigger",
+              "inputs": {
+                "Türkontakt Eingang.Q": 0.0
+              },
+              "ticks": 10,
+              "dt": 0.1,
+              "expected_outputs": {
+                "Klimaanlage.I1": {
+                  "<": 0.5
+                }
+              }
+            }
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "name": "Challenge: Nachtmodus für die Familie",
+    "id": "nachtmodus-fuer-die-familie",
+    "description": "Individueller Nachtmodus pro Schlafraum — Kinder und Eltern unabhängig, raumübergreifende Funktionen erst wenn alle schlafen.",
+    "fixture": "challenges/nachtmodus-fuer-die-familie.Loxone",
+    "stages": [
+      {
+        "stage": 1,
+        "name": "Individuelle Nachtmodi einrichten",
+        "utterance": "Wir haben 1 Schlafzimmer (Eltern) und 2 Kinderzimmer. In jedem Schlafraum soll ein eigener Nachtmodus und ein Touch Nightlight installiert werden. Man soll in jedem Raum sehen können, ob der Nachtmodus aktiv ist.",
+        "expected": {
+          "new_blocks": [
+            {
+              "type": "FlipFlop",
+              "title": "Nachtmodus Schlafzimmer"
+            },
+            {
+              "type": "FlipFlop",
+              "title": "Nachtmodus Kinderzimmer 1"
+            },
+            {
+              "type": "FlipFlop",
+              "title": "Nachtmodus Kinderzimmer 2"
+            }
+          ]
+        }
+      },
+      {
+        "stage": 2,
+        "name": "Erster Nachtmodus — raumübergreifend",
+        "utterance": "Sobald der erste Schlafraum in den Nachtmodus wechselt, sollen gewisse Dinge passieren: In den Schlafräumen soll die Klingel über den Musikserver nicht mehr funktionieren. Die Musiklautstärke in den anderen Räumen soll auf maximal 50% begrenzt werden. Im Korridor, WC und Bad soll bei Bewegung ein angenehmes Nachtlicht statt dem Grundlicht angehen.",
+        "expected": {
+          "new_blocks": [
+            {
+              "type": "Or",
+              "title": "Mindestens ein Nachtmodus"
+            }
+          ],
+          "wiring": [
+            {
+              "from": "Nachtmodus Schlafzimmer.Q",
+              "to": "Mindestens ein Nachtmodus.I1"
+            },
+            {
+              "from": "Nachtmodus Kinderzimmer 1.Q",
+              "to": "Mindestens ein Nachtmodus.I2"
+            },
+            {
+              "from": "Mindestens ein Nachtmodus.Q",
+              "to": "Nachtlicht Korridor"
+            },
+            {
+              "from": "Mindestens ein Nachtmodus.Q",
+              "to": "Musik Lautstärke Limit"
+            }
+          ],
+          "simulation": [
+            {
+              "name": "should trigger when condition met",
+              "inputs": {
+                "Bewegungsmelder.OutputPresence": 1.0,
+                "Türklingel.Q": 1.0,
+                "Sonnenschein.AQ": 1.0
+              },
+              "ticks": 10,
+              "dt": 0.1,
+              "expected_outputs": {
+                "Lichtsteuerung.I1": {
+                  ">": 0.5
+                }
+              }
+            },
+            {
+              "name": "should NOT trigger when condition not met",
+              "inputs": {
+                "Bewegungsmelder.OutputPresence": 0.0,
+                "Türklingel.Q": 0.0,
+                "Sonnenschein.AQ": 0.0
+              },
+              "ticks": 10,
+              "dt": 0.1,
+              "expected_outputs": {
+                "Lichtsteuerung.I1": {
+                  "<": 0.5
+                }
+              }
+            }
+          ]
+        }
+      },
+      {
+        "stage": 3,
+        "name": "Alle Nachtmodi — Haus komplett",
+        "utterance": "Erst wenn alle drei Nachtmodi aktiv sind, stellt sich der Rest des Hauses nach dem Loxone Standard ein — also der vollständige Nachtmodus für das ganze Haus.",
+        "expected": {
+          "new_blocks": [
+            {
+              "type": "And",
+              "title": "Alle Nachtmodi aktiv"
+            }
+          ],
+          "wiring": [
+            {
+              "from": "Nachtmodus Schlafzimmer.Q",
+              "to": "Alle Nachtmodi aktiv.I1"
+            },
+            {
+              "from": "Nachtmodus Kinderzimmer 1.Q",
+              "to": "Alle Nachtmodi aktiv.I2"
+            }
+          ],
+          "simulation": [
+            {
+              "name": "should produce output when triggered",
+              "inputs": {
+                "Türkontakt Eingang.Q": 1.0
+              },
+              "ticks": 10,
+              "dt": 0.1,
+              "expected_outputs": {
+                "Klimaanlage.I1": {
+                  ">": 0.0
+                }
+              }
+            },
+            {
+              "name": "should be inactive without trigger",
+              "inputs": {
+                "Türkontakt Eingang.Q": 0.0
+              },
+              "ticks": 10,
+              "dt": 0.1,
+              "expected_outputs": {
+                "Klimaanlage.I1": {
+                  "<": 0.5
+                }
+              }
+            }
+          ]
+        }
+      },
+      {
+        "stage": 4,
+        "name": "Kindersicherung und Elternbenachrichtigung",
+        "utterance": "Der Taster neben dem Bett des jüngsten Kindes soll deaktiviert werden, sobald dessen Nachtmodus aktiv ist — er spielt sonst mit Musik und Lichtern. Wenn sich seine Zimmertür nachts öffnet, sollen die Eltern eine Push-Nachricht bekommen. Der ältere Sohn liest manchmal die halbe Nacht — die Eltern möchten in der Visualisierung sehen können, welche Lichtstimmung er gerade hat.",
+        "expected": {
+          "new_blocks": [
+            {
+              "type": "And",
+              "title": "Tür offen Nachtmodus Kind 2"
+            },
+            {
+              "type": "StatusMonitor",
+              "title": "Lichtstimmung Kind 1"
+            }
+          ],
+          "wiring": [
+            {
+              "from": "Nachtmodus Kinderzimmer 2.Q",
+              "to": "Touch Kinderzimmer 2.Disable",
+              "note": "Touch deaktivieren"
+            },
+            {
+              "from": "Tür offen Nachtmodus Kind 2.Q",
+              "to": "Push Nachricht Eltern"
+            }
+          ],
+          "simulation": [
+            {
+              "name": "should trigger when condition met",
+              "inputs": {
+                "Türkontakt Eingang.Q": 1.0
+              },
+              "ticks": 10,
+              "dt": 0.1,
+              "expected_outputs": {
+                "Lichtsteuerung.I1": {
+                  ">": 0.5
+                }
+              }
+            },
+            {
+              "name": "should NOT trigger when condition not met",
+              "inputs": {
+                "Türkontakt Eingang.Q": 0.0
+              },
+              "ticks": 10,
+              "dt": 0.1,
+              "expected_outputs": {
+                "Lichtsteuerung.I1": {
+                  "<": 0.5
+                }
+              }
+            }
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "name": "Challenge: Serverüberwachung",
+    "id": "server-ueberwachung",
+    "description": "Server-Monitoring per Ping mit Alarmkette, Eskalation, Wake-on-LAN und Quittierung.",
+    "fixture": "challenges/server-ueberwachung.Loxone",
+    "stages": [
+      {
+        "stage": 1,
+        "name": "Ping-Überwachung einrichten",
+        "utterance": "Wir haben vier Server die per Ping überwacht werden sollen. Wenn einer oder mehrere Server nach 2 bis 3 Minuten nicht antworten, soll eine Störung ausgelöst werden. Richte bitte Ping-Bausteine für alle vier Server ein.",
+        "expected": {
+          "new_blocks": [
+            {
+              "type": "Ping",
+              "title": "Ping Server 1"
+            },
+            {
+              "type": "Ping",
+              "title": "Ping Server 2"
+            },
+            {
+              "type": "Ping",
+              "title": "Ping Server 3"
+            },
+            {
+              "type": "Ping",
+              "title": "Ping Server 4"
+            },
+            {
+              "type": "Or",
+              "title": "Server Störung"
+            },
+            {
+              "type": "OnDelay",
+              "title": "Verzögerung 2-3 Min"
+            }
+          ],
+          "wiring": [
+            {
+              "from": "Ping Server 1.Online",
+              "to": "Server Störung.I1",
+              "note": "inverted"
+            },
+            {
+              "from": "Ping Server 2.Online",
+              "to": "Server Störung.I2",
+              "note": "inverted"
+            },
+            {
+              "from": "Server Störung.Q",
+              "to": "Verzögerung 2-3 Min.InputTrigger"
+            }
+          ],
+          "simulation": [
+            {
+              "name": "should produce output when triggered",
+              "inputs": {
+                "Türkontakt Eingang.Q": 1.0
+              },
+              "ticks": 10,
+              "dt": 0.1,
+              "expected_outputs": {
+                "Klimaanlage.I1": {
+                  ">": 0.0
+                }
+              }
+            },
+            {
+              "name": "should be inactive without trigger",
+              "inputs": {
+                "Türkontakt Eingang.Q": 0.0
+              },
+              "ticks": 10,
+              "dt": 0.1,
+              "expected_outputs": {
+                "Klimaanlage.I1": {
+                  "<": 0.5
+                }
+              }
+            }
+          ]
+        }
+      },
+      {
+        "stage": 2,
+        "name": "Alarmkette aufbauen",
+        "utterance": "Bei einer Störung sollen nacheinander folgende Personen angerufen werden: IT-Techniker, IT-Supervisor, IT-Manager, Geschäftsführer. Solange keiner quittiert, sollen sie viermal angerufen werden. Die Quittierung soll über die Loxone App möglich sein, oder auch über die Telefontasten 1, 2, 3.",
+        "expected": {
+          "new_blocks": [
+            {
+              "type": "AlarmChain",
+              "title": "Server Alarmkette"
+            }
+          ],
+          "wiring": [
+            {
+              "from": "Verzögerung 2-3 Min.Q",
+              "to": "Server Alarmkette.Alarm"
+            }
+          ],
+          "simulation": [
+            {
+              "name": "should trigger when condition met",
+              "inputs": {
+                "Bewegungsmelder.OutputPresence": 1.0
+              },
+              "ticks": 10,
+              "dt": 0.1,
+              "expected_outputs": {
+                "Klimaanlage.I1": {
+                  ">": 0.5
+                }
+              }
+            },
+            {
+              "name": "should NOT trigger when condition not met",
+              "inputs": {
+                "Bewegungsmelder.OutputPresence": 0.0
+              },
+              "ticks": 10,
+              "dt": 0.1,
+              "expected_outputs": {
+                "Klimaanlage.I1": {
+                  "<": 0.5
+                }
+              }
+            }
+          ]
+        }
+      },
+      {
+        "stage": 3,
+        "name": "Eskalation zum Gebäude-Alarm",
+        "utterance": "Wenn keiner innerhalb der vier Rufzyklen die Störung quittiert, soll ein vollständiger Gebäude-Alarm gemäß der Loxone-Standardeinstellung ausgelöst werden.",
+        "expected": {
+          "new_blocks": [
+            {
+              "type": "Alarm",
+              "title": "Gebäude Alarm Serverraum"
+            }
+          ],
+          "wiring": [
+            {
+              "from": "Server Alarmkette.Level4",
+              "to": "Gebäude Alarm Serverraum"
+            }
+          ],
+          "simulation": [
+            {
+              "name": "should produce output when triggered",
+              "inputs": {
+                "Türkontakt Eingang.Q": 1.0
+              },
+              "ticks": 10,
+              "dt": 0.1,
+              "expected_outputs": {
+                "Gebäude Alarm Serverraum.I1": {
+                  ">": 0.0
+                }
+              }
+            },
+            {
+              "name": "should be inactive without trigger",
+              "inputs": {
+                "Türkontakt Eingang.Q": 0.0
+              },
+              "ticks": 10,
+              "dt": 0.1,
+              "expected_outputs": {
+                "Gebäude Alarm Serverraum.I1": {
+                  "<": 0.5
+                }
+              }
+            }
+          ]
+        }
+      },
+      {
+        "stage": 4,
+        "name": "Wake-on-LAN und Neustart-Schutz",
+        "utterance": "Wenn ein Server offline geht, soll sofort ein Wake-on-LAN-Paket gesendet werden, um ihn wieder zu starten. Bei einem Neustart des Miniservers soll es keine Störmeldung geben — die Alarme sollen sich also nicht fälschlicherweise auslösen.",
+        "expected": {
+          "new_blocks": [
+            {
+              "type": "EdgeDetection",
+              "title": "Server offline Erkennung"
+            },
+            {
+              "type": "OnDelay",
+              "title": "Miniserver Neustart Schutz"
+            }
+          ],
+          "wiring": [
+            {
+              "from": "Ping Server 1.Online",
+              "to": "Server offline Erkennung.Input"
+            },
+            {
+              "from": "Server offline Erkennung.FallingEdge",
+              "to": "Wake-on-LAN"
+            }
+          ],
+          "simulation": [
+            {
+              "name": "should produce output when triggered",
+              "inputs": {
+                "Türkontakt Eingang.Q": 1.0
+              },
+              "ticks": 10,
+              "dt": 0.1,
+              "expected_outputs": {
+                "Server offline Erkennung.I1": {
+                  ">": 0.0
+                }
+              }
+            },
+            {
+              "name": "should be inactive without trigger",
+              "inputs": {
+                "Türkontakt Eingang.Q": 0.0
+              },
+              "ticks": 10,
+              "dt": 0.1,
+              "expected_outputs": {
+                "Server offline Erkennung.I1": {
+                  "<": 0.5
+                }
+              }
+            }
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "name": "Challenge: Sous Vide Garen",
+    "id": "sous-vide-garen",
+    "description": "Sous-Vide-Temperaturregelung mit Touch & Grill — gestufte Heizzyklen über Smart Socket, Zieltemperatur über Schieber, zeitgesteuerter Start.",
+    "fixture": "challenges/sous-vide-garen.Loxone",
+    "stages": [
+      {
+        "stage": 1,
+        "name": "Temperaturbereiche definieren",
+        "utterance": "Wir bauen eine Sous-Vide-Steuerung mit einem Touch & Grill Temperatursensor und einer Smart Socket für die 230V Kochplatte. Die Zieltemperatur (0-100°C) wird über einen Schieber in der Visualisierung eingestellt. Berechne die Differenz zwischen Zieltemperatur und aktueller Wassertemperatur.",
+        "expected": {
+          "new_blocks": [
+            {
+              "type": "Sub",
+              "title": "Temperaturdifferenz"
+            }
+          ],
+          "simulation": [
+            {
+              "name": "should activate during scheduled period",
+              "inputs": {},
+              "ticks": 0,
+              "dt": 0.1,
+              "expected_outputs": {
+                "Temperaturdifferenz.I1": {
+                  ">": 0.5
+                }
+              }
+            }
+          ]
+        }
+      },
+      {
+        "stage": 2,
+        "name": "Gestufte Heizzyklen",
+        "utterance": "Die Temperaturregelung soll so funktionieren: Über 30°C Differenz zur Zieltemperatur darf die Herdplatte volle Energie liefern. Zwischen 10° und 30°C Differenz soll die Smart Socket im Wechsel 15 Sekunden ein und 15 Sekunden aus schalten. Zwischen 5° und 10°C: 10s ein, 20s aus. Zwischen 1° und 5°C: 5s ein, 30s aus. Bei Zieltemperatur oder darüber bleibt die Platte aus.",
+        "expected": {
+          "new_blocks": [
+            {
+              "type": "AnalogComparator",
+              "title": "Diff über 30°C"
+            },
+            {
+              "type": "AnalogComparator",
+              "title": "Diff 10-30°C"
+            },
+            {
+              "type": "AnalogComparator",
+              "title": "Diff 5-10°C"
+            },
+            {
+              "type": "AnalogComparator",
+              "title": "Diff 1-5°C"
+            },
+            {
+              "type": "PulseGen",
+              "title": "Zyklus 15s/15s"
+            },
+            {
+              "type": "PulseGen",
+              "title": "Zyklus 10s/20s"
+            },
+            {
+              "type": "PulseGen",
+              "title": "Zyklus 5s/30s"
+            }
+          ],
+          "wiring": [
+            {
+              "from": "Temperaturdifferenz.AQ",
+              "to": "Diff über 30°C.Input1"
+            },
+            {
+              "from": "Diff 10-30°C.Q",
+              "to": "Zyklus 15s/15s.InputEnable"
+            },
+            {
+              "from": "Diff 5-10°C.Q",
+              "to": "Zyklus 10s/20s.InputEnable"
+            },
+            {
+              "from": "Diff 1-5°C.Q",
+              "to": "Zyklus 5s/30s.InputEnable"
+            }
+          ],
+          "simulation": [
+            {
+              "name": "should trigger when condition met",
+              "inputs": {
+                "Außentemperatur.AQ": 35.0
+              },
+              "ticks": 10,
+              "dt": 0.1,
+              "expected_outputs": {
+                "Diff über 30°C.I1": {
+                  ">": 0.5
+                }
+              }
+            },
+            {
+              "name": "should NOT trigger when condition not met",
+              "inputs": {
+                "Außentemperatur.AQ": 25.0
+              },
+              "ticks": 10,
+              "dt": 0.1,
+              "expected_outputs": {
+                "Diff über 30°C.I1": {
+                  "<": 0.5
+                }
+              }
+            }
+          ]
+        }
+      },
+      {
+        "stage": 3,
+        "name": "Ausgangslogik zusammenführen",
+        "utterance": "Führe die verschiedenen Heizzyklus-Ausgänge zusammen: Die Smart Socket soll ein sein, wenn entweder volle Leistung gefordert ist (über 30°C Differenz) oder einer der Pulszyklen aktiv ist. Nutze ein ODER-Gatter für die Zusammenführung.",
+        "expected": {
+          "new_blocks": [
+            {
+              "type": "Or",
+              "title": "Smart Socket Steuerung"
+            }
+          ],
+          "wiring": [
+            {
+              "from": "Diff über 30°C.Q",
+              "to": "Smart Socket Steuerung.I1"
+            },
+            {
+              "from": "Zyklus 15s/15s.Q",
+              "to": "Smart Socket Steuerung.I2"
+            },
+            {
+              "from": "Smart Socket Steuerung.Q",
+              "to": "Smart Socket"
+            }
+          ],
+          "simulation": [
+            {
+              "name": "should trigger when condition met",
+              "inputs": {
+                "Außentemperatur.AQ": 35.0
+              },
+              "ticks": 10,
+              "dt": 0.1,
+              "expected_outputs": {
+                "Raumregler.Temp": {
+                  ">": 0.5
+                }
+              }
+            },
+            {
+              "name": "should NOT trigger when condition not met",
+              "inputs": {
+                "Außentemperatur.AQ": 25.0
+              },
+              "ticks": 10,
+              "dt": 0.1,
+              "expected_outputs": {
+                "Raumregler.Temp": {
+                  "<": 0.5
+                }
+              }
+            }
+          ]
+        }
+      },
+      {
+        "stage": 4,
+        "name": "Start per Visualisierung oder Timer",
+        "utterance": "Über die Visualisierung soll der Garprozess gestartet werden können. Alternativ soll man eine Uhrzeit einstellen können, zu der der Prozess automatisch startet.",
+        "expected": {
+          "new_blocks": [
+            {
+              "type": "PushButton",
+              "title": "Garprozess Start"
+            },
+            {
+              "type": "PulseAt",
+              "title": "Timer Start Garen"
+            },
+            {
+              "type": "Or",
+              "title": "Garen aktiv"
+            }
+          ],
+          "wiring": [
+            {
+              "from": "Garprozess Start.Q",
+              "to": "Garen aktiv.I1"
+            },
+            {
+              "from": "Timer Start Garen.Q",
+              "to": "Garen aktiv.I2"
+            }
+          ],
+          "simulation": [
+            {
+              "name": "should produce output when triggered",
+              "inputs": {
+                "Türkontakt Eingang.Q": 1.0
+              },
+              "ticks": 10,
+              "dt": 0.1,
+              "expected_outputs": {
+                "Garprozess Start.I1": {
+                  ">": 0.0
+                }
+              }
+            },
+            {
+              "name": "should be inactive without trigger",
+              "inputs": {
+                "Türkontakt Eingang.Q": 0.0
+              },
+              "ticks": 10,
+              "dt": 0.1,
+              "expected_outputs": {
+                "Garprozess Start.I1": {
+                  "<": 0.5
+                }
+              }
+            }
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "name": "Challenge: TV Zeitzähler für Kinder",
+    "id": "tv-zeitzaehler-fuer-kinder",
+    "description": "TV-Zeitlimit für Kinder — 2h pro Tag, Warnung bei 5 Min Restzeit, automatisches Abschalten, täglicher Reset, Belohnungstaste.",
+    "fixture": "challenges/tv-zeitzaehler-fuer-kinder.Loxone",
+    "stages": [
+      {
+        "stage": 1,
+        "name": "Kindermodus und Zeitzähler",
+        "utterance": "Das Smart Home soll wissen, wer gerade den Fernseher bedient — die Kinder oder die Eltern. Richte einen Schalter ein, der zwischen Kinder-Modus und Eltern-Modus umschaltet. Im Kindermodus läuft ein Zeitzähler, der die Fernsehzeit zählt. Die Kinder haben 2 Stunden pro Tag.",
+        "expected": {
+          "new_blocks": [
+            {
+              "type": "PushButton",
+              "title": "Kindermodus"
+            },
+            {
+              "type": "Counter",
+              "title": "TV Zeitzähler"
+            },
+            {
+              "type": "And",
+              "title": "TV Kindermodus aktiv"
+            }
+          ],
+          "wiring": [
+            {
+              "from": "Kindermodus.Q",
+              "to": "TV Kindermodus aktiv.I1"
+            },
+            {
+              "from": "TV Status.Q",
+              "to": "TV Kindermodus aktiv.I2"
+            },
+            {
+              "from": "TV Kindermodus aktiv.Q",
+              "to": "TV Zeitzähler.Trigger"
+            }
+          ],
+          "simulation": [
+            {
+              "name": "should trigger when condition met",
+              "inputs": {
+                "Türkontakt Eingang.Q": 1.0
+              },
+              "ticks": 10,
+              "dt": 0.1,
+              "expected_outputs": {
+                "Kindermodus.I1": {
+                  ">": 0.5
+                }
+              }
+            },
+            {
+              "name": "should NOT trigger when condition not met",
+              "inputs": {
+                "Türkontakt Eingang.Q": 0.0
+              },
+              "ticks": 10,
+              "dt": 0.1,
+              "expected_outputs": {
+                "Kindermodus.I1": {
+                  "<": 0.5
+                }
+              }
+            }
+          ]
+        }
+      },
+      {
+        "stage": 2,
+        "name": "Warnung und automatisches Abschalten",
+        "utterance": "5 Minuten vor Ende der Fernsehzeit soll über die Musikanlage eine Meldung kommen, dass die Zeit fast vorbei ist. Wenn die 2 Stunden abgelaufen sind, soll sich der Fernseher automatisch abschalten.",
+        "expected": {
+          "new_blocks": [
+            {
+              "type": "AnalogComparator",
+              "title": "5 Min Restzeit"
+            },
+            {
+              "type": "AnalogComparator",
+              "title": "Zeit abgelaufen"
+            }
+          ],
+          "wiring": [
+            {
+              "from": "TV Zeitzähler.AQ",
+              "to": "5 Min Restzeit.Input1"
+            },
+            {
+              "from": "TV Zeitzähler.AQ",
+              "to": "Zeit abgelaufen.Input1"
+            },
+            {
+              "from": "Zeit abgelaufen.Q",
+              "to": "TV ausschalten"
+            }
+          ],
+          "simulation": [
+            {
+              "name": "should produce output when triggered",
+              "inputs": {
+                "Türkontakt Eingang.Q": 1.0
+              },
+              "ticks": 10,
+              "dt": 0.1,
+              "expected_outputs": {
+                "Lichtsteuerung.I1": {
+                  ">": 0.0
+                }
+              }
+            },
+            {
+              "name": "should be inactive without trigger",
+              "inputs": {
+                "Türkontakt Eingang.Q": 0.0
+              },
+              "ticks": 10,
+              "dt": 0.1,
+              "expected_outputs": {
+                "Lichtsteuerung.I1": {
+                  "<": 0.5
+                }
+              }
+            }
+          ]
+        }
+      },
+      {
+        "stage": 3,
+        "name": "Eltern-Override und täglicher Reset",
+        "utterance": "Die Eltern sollen den Fernseher über die App wieder einschalten können, auch wenn die Kinderzeit abgelaufen ist. Die Kinder sollen ihn aber nicht wieder einschalten können. Jeden Tag um Mitternacht soll die Fernsehzeit zurückgesetzt werden.",
+        "expected": {
+          "new_blocks": [
+            {
+              "type": "PushButton",
+              "title": "Eltern Override"
+            },
+            {
+              "type": "PulseAt",
+              "title": "Täglicher Reset"
+            }
+          ],
+          "wiring": [
+            {
+              "from": "Täglicher Reset.Q",
+              "to": "TV Zeitzähler.Reset"
+            },
+            {
+              "from": "Eltern Override.Q",
+              "to": "TV einschalten"
+            }
+          ],
+          "simulation": [
+            {
+              "name": "should activate during scheduled period",
+              "inputs": {},
+              "ticks": 0,
+              "dt": 0.1,
+              "expected_outputs": {
+                "Klimaanlage.I1": {
+                  ">": 0.5
+                }
+              }
+            }
+          ]
+        }
+      },
+      {
+        "stage": 4,
+        "name": "Belohnungszeit",
+        "utterance": "Gelegentlich sollen die Kinder belohnt werden: Die Eltern bekommen einen eigenen TV-Belohnungs-Button in der App, mit dem sie den Kindern zusätzlich 5 Minuten Fernsehzeit dranhängen können.",
+        "expected": {
+          "new_blocks": [
+            {
+              "type": "PushButton",
+              "title": "TV Belohnung"
+            },
+            {
+              "type": "Add",
+              "title": "Bonuszeit addieren"
+            }
+          ],
+          "wiring": [
+            {
+              "from": "TV Belohnung.Q",
+              "to": "Bonuszeit addieren"
+            }
+          ],
+          "simulation": [
+            {
+              "name": "should trigger when condition met",
+              "inputs": {
+                "Türkontakt Eingang.Q": 1.0
+              },
+              "ticks": 10,
+              "dt": 0.1,
+              "expected_outputs": {
+                "TV Belohnung.I1": {
+                  ">": 0.5
+                }
+              }
+            },
+            {
+              "name": "should NOT trigger when condition not met",
+              "inputs": {
+                "Türkontakt Eingang.Q": 0.0
+              },
+              "ticks": 10,
+              "dt": 0.1,
+              "expected_outputs": {
+                "TV Belohnung.I1": {
+                  "<": 0.5
+                }
+              }
+            }
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "name": "Challenge: Wasser Notabschaltung",
+    "id": "wasser-notabschaltung",
+    "description": "Wasserschaden-Erkennung mit Alarmkette, automatischer Hauptwasser-Absperrung, Verbrauchsüberwachung und Leck-Erkennung bei Abwesenheit.",
+    "fixture": "challenges/wasser-notabschaltung.Loxone",
+    "stages": [
+      {
+        "stage": 1,
+        "name": "Wassersensoren und Alarmkette",
+        "utterance": "In Badezimmer, Waschraum, Küche und Keller sind Wassersensoren angebracht. Wenn einer der Sensoren Wasser erkennt, soll eine Alarmkette folgende Personen anrufen, bis jemand den Alarm quittiert: Hausbesitzer, Kinder, Nachbar.",
+        "expected": {
+          "new_blocks": [
+            {
+              "type": "Or",
+              "title": "Wasser erkannt"
+            },
+            {
+              "type": "AlarmChain",
+              "title": "Wasser Alarmkette"
+            }
+          ],
+          "wiring": [
+            {
+              "from": "Sensor Bad.Q",
+              "to": "Wasser erkannt.I1"
+            },
+            {
+              "from": "Sensor Waschraum.Q",
+              "to": "Wasser erkannt.I2"
+            },
+            {
+              "from": "Wasser erkannt.Q",
+              "to": "Wasser Alarmkette.Alarm"
+            }
+          ],
+          "simulation": [
+            {
+              "name": "should trigger when condition met",
+              "inputs": {
+                "Bewegungsmelder.OutputPresence": 1.0
+              },
+              "ticks": 10,
+              "dt": 0.1,
+              "expected_outputs": {
+                "Klimaanlage.I1": {
+                  ">": 0.5
+                }
+              }
+            },
+            {
+              "name": "should NOT trigger when condition not met",
+              "inputs": {
+                "Bewegungsmelder.OutputPresence": 0.0
+              },
+              "ticks": 10,
+              "dt": 0.1,
+              "expected_outputs": {
+                "Klimaanlage.I1": {
+                  "<": 0.5
+                }
+              }
+            }
+          ]
+        }
+      },
+      {
+        "stage": 2,
+        "name": "Magnetventil und Gebäude-Alarm",
+        "utterance": "Wenn beim ersten Anruf niemand antwortet, soll das Magnetventil am Hauptwasseranschluss schließen, damit kein weiteres Wasser ins Gebäude eindringt. Zusätzlich soll ein Wasseralarm im ganzen Gebäude ausgelöst werden.",
+        "expected": {
+          "new_blocks": [
+            {
+              "type": "Alarm",
+              "title": "Wasseralarm"
+            }
+          ],
+          "wiring": [
+            {
+              "from": "Wasser Alarmkette.Level1",
+              "to": "Magnetventil"
+            },
+            {
+              "from": "Wasser erkannt.Q",
+              "to": "Wasseralarm"
+            }
+          ],
+          "simulation": [
+            {
+              "name": "should activate during scheduled period",
+              "inputs": {},
+              "ticks": 0,
+              "dt": 0.1,
+              "expected_outputs": {
+                "Wasseralarm.I1": {
+                  ">": 0.5
+                }
+              }
+            }
+          ]
+        }
+      },
+      {
+        "stage": 3,
+        "name": "Wasserverbrauch messen",
+        "utterance": "Am Hauptwasseranschluss ist ein Wasserzähler, der pro 10 Liter pulsiert. Wir haben eine vierköpfige Familie. Im Durchschnitt verbraucht ein Europäer 140 Liter pro Tag. Wenn der Wasserverbrauch die erwarteten Werte überschreitet, soll eine Warnung an die Hausherren gehen — das könnte ein Leck sein.",
+        "expected": {
+          "new_blocks": [
+            {
+              "type": "MeterAbsUni",
+              "title": "Wasserzähler"
+            },
+            {
+              "type": "AnalogComparator",
+              "title": "Verbrauch zu hoch"
+            }
+          ],
+          "wiring": [
+            {
+              "from": "Wasserzähler.ORd",
+              "to": "Verbrauch zu hoch.Input1"
+            }
+          ],
+          "simulation": [
+            {
+              "name": "should trigger when condition met",
+              "inputs": {
+                "Türkontakt Eingang.Q": 1.0
+              },
+              "ticks": 10,
+              "dt": 0.1,
+              "expected_outputs": {
+                "Wasserzähler.I1": {
+                  ">": 0.5
+                }
+              }
+            },
+            {
+              "name": "should NOT trigger when condition not met",
+              "inputs": {
+                "Türkontakt Eingang.Q": 0.0
+              },
+              "ticks": 10,
+              "dt": 0.1,
+              "expected_outputs": {
+                "Wasserzähler.I1": {
+                  "<": 0.5
+                }
+              }
+            }
+          ]
+        }
+      },
+      {
+        "stage": 4,
+        "name": "Leck-Erkennung bei Abwesenheit",
+        "utterance": "Wenn alle Personen abwesend sind und trotzdem Wasserverbrauch gemessen wird — obwohl Geschirrspüler, Waschmaschine und Co ausgeschaltet sind — soll ebenfalls eine Nachricht an die Hausbesitzer gehen.",
+        "expected": {
+          "new_blocks": [
+            {
+              "type": "And",
+              "title": "Leck bei Abwesenheit"
+            }
+          ],
+          "wiring": [
+            {
+              "from": "Alle abwesend.Q",
+              "to": "Leck bei Abwesenheit.I1"
+            },
+            {
+              "from": "Wasserverbrauch aktiv.Q",
+              "to": "Leck bei Abwesenheit.I2"
+            },
+            {
+              "from": "Leck bei Abwesenheit.Q",
+              "to": "Push Warnung Leck"
+            }
+          ],
+          "simulation": [
+            {
+              "name": "should trigger when condition met",
+              "inputs": {
+                "Bewegungsmelder.OutputPresence": 1.0,
+                "Türkontakt Eingang.Q": 1.0
+              },
+              "ticks": 10,
+              "dt": 0.1,
+              "expected_outputs": {
+                "Klimaanlage.I1": {
+                  ">": 0.5
+                }
+              }
+            },
+            {
+              "name": "should NOT trigger when condition not met",
+              "inputs": {
+                "Bewegungsmelder.OutputPresence": 0.0,
+                "Türkontakt Eingang.Q": 0.0
+              },
+              "ticks": 10,
+              "dt": 0.1,
+              "expected_outputs": {
+                "Klimaanlage.I1": {
+                  "<": 0.5
+                }
+              }
+            }
+          ]
+        }
+      }
+    ]
+  }
+]

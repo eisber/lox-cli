@@ -1,0 +1,43 @@
+{
+  "title": "Combined Window Contact",
+  "xml_type": "",
+  "kb_slug": "combined-window-contact",
+  "description": "This function block combines the signal of multiple window contacts used to determine the difference between open and tilted into one combined signal.\nAccording to where on the window a window sensor in installed (it's position), the inputs then determine the right analog value to be passed on to the Door and Window Monitor block.\nThe block is designed so that only one sensor can be connected to each of the inputs (Open) & (Tilt)!",
+  "inputs": [
+    {
+      "abbreviation": "Open",
+      "summary": "0 = closed, 1 = open",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "Tilt",
+      "summary": "0 = closed, 1 = tilt",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "Secured",
+      "summary": "0 = not secured, 1 = secured",
+      "value_range": "0/1"
+    }
+  ],
+  "outputs": [
+    {
+      "abbreviation": "S",
+      "description": "1 = closed, 2 = tilted, 3 = open, 4 = closed and not locked, 5 = closed and locked, 0 = one or more sensors offline",
+      "value_range": "\u221e"
+    }
+  ],
+  "parameters": [],
+  "properties": [
+    {
+      "summary": "Sensor position",
+      "description": "Indicates the position of the sensor on the frame for both the open and tilt contacts to produce the combined signal.",
+      "default_value": "-"
+    }
+  ],
+  "source_url": "https://www.loxone.com/enen/kb/combined-window-contact/",
+  "input_count": 3,
+  "output_count": 1,
+  "parameter_count": 0,
+  "property_count": 1
+}

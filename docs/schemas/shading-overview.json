@@ -1,0 +1,132 @@
+{
+  "title": "Automatic Shading Central",
+  "xml_type": "",
+  "kb_slug": "shading-overview",
+  "description": "This block can be used to control multiple shading blocks together.\nDouble-click on the block to open the dialog for selecting the assigned blocks",
+  "inputs": [
+    {
+      "abbreviation": "Tg",
+      "summary": "Toggle",
+      "description": "Toggles between open, stop, close. For single button control.",
+      "unit": "-",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "Co",
+      "summary": "Complete open",
+      "description": "Stopping not possible.",
+      "unit": "-",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "Cc",
+      "summary": "Complete close",
+      "description": "Stopping not possible.",
+      "unit": "-",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "So",
+      "summary": "Slightly open",
+      "description": "Venetian blinds close completely and move slats in horizontal position according to parameter (Rd). Roller blinds, curtains and awnings move into position according to parameter (Rd).",
+      "unit": "-",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "Sps",
+      "summary": "Sun position automatic start",
+      "description": "Activates the sun position automatic when On at the beginning of the shading period, or also with a pulse during the shading period. The sun position automatic is deactivated for the rest of the day, if block is operated manually. Pulse on (Spr) followed by a rising edge on (Sps) or pulse on (Spr) while (Sps) is active, restarts the sun position automatic.",
+      "unit": "-",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "DisSp",
+      "summary": "Disable sun position automatic",
+      "description": "Disables the sun position automatic when On.",
+      "unit": "-",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "Spr",
+      "summary": "Sun position automatic restart",
+      "description": "Pulse followed by a rising edge at input (Sps) or pulse while input (Sps) is active, restarts the sun position automatic.",
+      "unit": "-",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "Wa",
+      "summary": "Wind alarm",
+      "description": "Moves shading to the wind alarm position set in parameter (Wap) and locks the block(can still be operated through the App/Webinterface). Used for storm protection. Active Automatic is only suspended instead of cancelled. After Wa end, automatic is restarted with a positive edge on Sps or of the sunshine-systemvariable. Automatic conditions are not re-evaluated on end on windalarm. If both conditions are permanently active during windalarm, automatic can be restarted via pulse on Spr. The name of the connected sensor is used in the user interface.",
+      "unit": "-",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "Off",
+      "summary": "Off",
+      "description": "Pulse stops movement. On locks the block. Dominating input. The name of the connected sensor is used in the user interface.",
+      "unit": "-",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "Pos",
+      "summary": "Position of shading",
+      "description": "Move the shading to the specified position.",
+      "unit": "%",
+      "value_range": "0...100"
+    },
+    {
+      "abbreviation": "Slat",
+      "summary": "Position of slats",
+      "description": "Move the slats to the specified position.",
+      "unit": "%",
+      "value_range": "0...100"
+    },
+    {
+      "abbreviation": "T5",
+      "summary": "T5 control",
+      "description": "Button 1: Complete open Button 4: Complete close",
+      "unit": "-",
+      "value_range": "\u221e"
+    },
+    {
+      "abbreviation": "DisPc",
+      "summary": "Disable periphery control",
+      "description": "Disables inputs Tg, Po, Pc, Co, Cc, So, T5 when On. (e.g Child lock, cleaning) Control via user interface is still possible.",
+      "unit": "-",
+      "value_range": "0/1"
+    }
+  ],
+  "outputs": [
+    {
+      "abbreviation": "API",
+      "summary": "API Connector",
+      "description": "Intelligent API based connector. API Commands",
+      "value_range": "-"
+    },
+    {
+      "abbreviation": "No",
+      "summary": "Open shades",
+      "description": "Number of open shades",
+      "value_range": "\u221e"
+    },
+    {
+      "abbreviation": "Nc",
+      "summary": "Closed shades",
+      "description": "Number of closed shades",
+      "value_range": "\u221e"
+    }
+  ],
+  "parameters": [],
+  "properties": [
+    {
+      "summary": "Selection",
+      "description": "All selected Shading function blocks can be controlled together.",
+      "default_value": "-"
+    }
+  ],
+  "source_url": "https://www.loxone.com/enen/kb/shading-overview/",
+  "input_count": 13,
+  "output_count": 3,
+  "parameter_count": 0,
+  "property_count": 1
+}

@@ -1,0 +1,144 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Modbus Title="Belimo UK24MOD Modbus RTU" Comment="" Baudrate="38400" Channel="1">
+	<Info templateType="7" minVersion="12021201"/>
+	<ModbusCmd Title="MP1 Actuator Type" Comment="" ModbusAddress="11" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="MP1 Actual Position" Comment="" ModbusAddress="3" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v.2&gt;%" Analog="true" Sensor="true" SourceValHigh="10000" DestValHigh="100"/>
+	<ModbusCmd Title="MP1 Sensor Value" Comment="" ModbusAddress="7" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="MP1 Series Number 1st Part" Comment="" ModbusAddress="8" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="MP1 Series Number 2nd Part" Comment="" ModbusAddress="9" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="MP1 Series Number 4th Part" Comment="" ModbusAddress="10" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Firmware Version" Comment="" ModbusAddress="1003" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="MP1 Errors and Malfunction" Comment="" ModbusAddress="5" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="MP1 Relative volumetric flow" Comment="" ModbusAddress="4" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v.2&gt;%" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="10"/>
+	<ModbusCmd Title="MP1 Absolute volumetric flow" Comment="" ModbusAddress="15" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v&gt;m3/h" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="MP1 Nominal volumetric flow" Comment="" ModbusAddress="16" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v&gt;m3/h" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="MP1 Time monitoring in s" Comment="" ModbusAddress="12" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v&gt;s" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Modbus baud rate" Comment="" ModbusAddress="1000" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1000"/>
+	<ModbusCmd Title="Modbus adress" Comment="" ModbusAddress="1001" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="MP2 Absolute volumetric flow" Comment="" ModbusAddress="35" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v&gt;m3/h" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="MP3 Absolute volumetric flow" Comment="" ModbusAddress="55" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v&gt;m3/h" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="MP4 Absolute volumetric flow" Comment="" ModbusAddress="75" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v&gt;m3/h" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="MP5 Absolute volumetric flow" Comment="" ModbusAddress="95" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v&gt;m3/h" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="MP6 Absolute volumetric flow" Comment="" ModbusAddress="115" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v&gt;m3/h" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="MP7 Absolute volumetric flow" Comment="" ModbusAddress="135" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v&gt;m3/h" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="MP8 Absolute volumetric flow" Comment="" ModbusAddress="155" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v&gt;m3/h" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="MP2 Actual Position" Comment="" ModbusAddress="23" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v.2&gt;%" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="10"/>
+	<ModbusCmd Title="MP3 Actual Position" Comment="" ModbusAddress="43" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v.2&gt;%" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="10"/>
+	<ModbusCmd Title="MP4 Actual Position" Comment="" ModbusAddress="63" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v.2&gt;%" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="10"/>
+	<ModbusCmd Title="MP5 Actual Position" Comment="" ModbusAddress="83" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v.2&gt;%" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="10"/>
+	<ModbusCmd Title="MP6 Actual Position" Comment="" ModbusAddress="103" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v.2&gt;%" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="10"/>
+	<ModbusCmd Title="MP7 Actual Position" Comment="" ModbusAddress="123" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v.2&gt;%" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="10"/>
+	<ModbusCmd Title="MP8 Actual Position" Comment="" ModbusAddress="143" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v.2&gt;%" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="10"/>
+	<ModbusCmd Title="MP2 Actuator Type" Comment="" ModbusAddress="31" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="MP3 Actuator Type" Comment="" ModbusAddress="51" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="MP4 Actuator Type" Comment="" ModbusAddress="71" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="MP5 Actuator Type" Comment="" ModbusAddress="91" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="MP6 Actuator Type" Comment="" ModbusAddress="111" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="MP7 Actuator Type" Comment="" ModbusAddress="131" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="MP8 Actuator Type" Comment="" ModbusAddress="151" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="MP2 Errors and Malfunction" Comment="" ModbusAddress="25" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="MP3 Errors and Malfunction" Comment="" ModbusAddress="45" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="MP4 Errors and Malfunction" Comment="" ModbusAddress="65" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="MP5 Errors and Malfunction" Comment="" ModbusAddress="85" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="MP6 Errors and Malfunction" Comment="" ModbusAddress="105" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="MP7 Errors and Malfunction" Comment="" ModbusAddress="125" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="MP8 Errors and Malfunction" Comment="" ModbusAddress="145" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="MP2 Nominal volumetric flow" Comment="" ModbusAddress="36" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v&gt;m3/h" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="MP3 Nominal volumetric flow" Comment="" ModbusAddress="56" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v&gt;m3/h" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="MP4 Nominal volumetric flow" Comment="" ModbusAddress="76" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v&gt;m3/h" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="MP5 Nominal volumetric flow" Comment="" ModbusAddress="96" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v&gt;m3/h" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="MP6 Nominal volumetric flow" Comment="" ModbusAddress="116" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v&gt;m3/h" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="MP7 Nominal volumetric flow" Comment="" ModbusAddress="136" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v&gt;m3/h" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="MP8 Nominal volumetric flow" Comment="" ModbusAddress="156" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v&gt;m3/h" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="MP2 Relative volumetric flow" Comment="" ModbusAddress="24" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v.2&gt;%" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="10"/>
+	<ModbusCmd Title="MP3 Relative volumetric flow" Comment="" ModbusAddress="44" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v.2&gt;%" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="10"/>
+	<ModbusCmd Title="MP4 Relative volumetric flow" Comment="" ModbusAddress="64" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v.2&gt;%" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="10"/>
+	<ModbusCmd Title="MP5 Relative volumetric flow" Comment="" ModbusAddress="84" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v.2&gt;%" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="10"/>
+	<ModbusCmd Title="MP6 Relative volumetric flow" Comment="" ModbusAddress="104" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v.2&gt;%" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="10"/>
+	<ModbusCmd Title="MP7 Relative volumetric flow" Comment="" ModbusAddress="124" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v.2&gt;%" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="10"/>
+	<ModbusCmd Title="MP8 Relative volumetric flow" Comment="" ModbusAddress="144" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v.2&gt;%" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="10"/>
+	<ModbusCmd Title="MP2 Sensor Value" Comment="" ModbusAddress="27" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="MP3 Sensor Value" Comment="" ModbusAddress="47" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="MP4 Sensor value" Comment="" ModbusAddress="67" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="MP5 Sensor Value" Comment="" ModbusAddress="87" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="MP6 Sensor Value" Comment="" ModbusAddress="107" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="MP7 Sensor Value" Comment="" ModbusAddress="127" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="MP8 Sensor Value" Comment="" ModbusAddress="147" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="MP2 Series Number 1st Part" Comment="" ModbusAddress="28" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="MP3 Series Number 1st Part" Comment="" ModbusAddress="48" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="MP4 Series Number 1st Part" Comment="" ModbusAddress="68" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="MP5 Series Number 1st Part" Comment="" ModbusAddress="88" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="MP6 Series Number 1st Part" Comment="" ModbusAddress="108" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="MP7 Series Number 1st Part" Comment="" ModbusAddress="128" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="MP8 Series Number 1st Part" Comment="" ModbusAddress="148" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="MP2 Series Number 2nd Part" Comment="" ModbusAddress="29" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="MP3 Series Number 2nd Part" Comment="" ModbusAddress="49" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="MP4 Series Number 2nd Part" Comment="" ModbusAddress="69" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="MP5 Series Number 2nd Part" Comment="" ModbusAddress="89" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="MP6 Series Number 2nd Part" Comment="" ModbusAddress="109" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="MP7 Series Number 2nd Part" Comment="" ModbusAddress="129" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="MP8 Series Number 2nd Part" Comment="" ModbusAddress="149" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="MP2 Series Number 4th Part" Comment="" ModbusAddress="30" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="MP3 Series Number 4th Part" Comment="" ModbusAddress="50" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="MP4 Series Number 4th Part" Comment="" ModbusAddress="70" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="MP5 Series Number 4th Part" Comment="" ModbusAddress="110" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="MP6 Series Number 4th Part" Comment="" ModbusAddress="110" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="MP7 Series Number 4th Part" Comment="" ModbusAddress="130" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="MP8 Series Number 4th Part" Comment="" ModbusAddress="150" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="MP2 Time monitoring in s" Comment="" ModbusAddress="32" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v&gt;s" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="MP3 Time monitoring in s" Comment="" ModbusAddress="52" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v&gt;s" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="MP4 Time monitoring in s" Comment="" ModbusAddress="72" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v&gt;s" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="MP5 Time monitoring in s" Comment="" ModbusAddress="92" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v&gt;s" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="MP6 Time monitoring in s" Comment="" ModbusAddress="112" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v&gt;s" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="MP7 Time monitoring in s" Comment="" ModbusAddress="132" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v&gt;s" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="MP8 Time monitoring in s" Comment="" ModbusAddress="152" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v&gt;s" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="MP1 Setpoint" Comment="" ModbusCmd="6" Unit="&lt;v.2&gt;%" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="1000"/>
+	<ModbusCmd Title="MP1 Override Control" Comment="" ModbusAddress="1" ModbusCmd="6" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="MP1 Command" Comment="" ModbusAddress="2" ModbusCmd="6" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="MP1 Minimum" Comment="" ModbusAddress="13" ModbusCmd="6" Unit="&lt;v.2&gt;%" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="1000"/>
+	<ModbusCmd Title="MP1 Maximum" Comment="" ModbusAddress="14" ModbusCmd="6" Unit="&lt;v.2&gt;%" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="1000"/>
+	<ModbusCmd Title="MP1 Sensor Type" Comment="" ModbusAddress="6" ModbusCmd="6" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Response delay" Comment="" ModbusAddress="1002" ModbusCmd="6" Unit="&lt;v&gt;ms" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="MP2 Command" Comment="" ModbusAddress="22" ModbusCmd="6" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="MP3 Command" Comment="" ModbusAddress="42" ModbusCmd="6" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="MP4 Command" Comment="" ModbusAddress="62" ModbusCmd="6" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="MP5 Command" Comment="" ModbusAddress="82" ModbusCmd="6" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="MP6 Command" Comment="" ModbusAddress="102" ModbusCmd="6" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="MP7 Command" Comment="" ModbusAddress="122" ModbusCmd="6" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="MP8 Command" Comment="" ModbusAddress="142" ModbusCmd="6" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="MP2 Maximum" Comment="" ModbusAddress="34" ModbusCmd="6" Unit="&lt;v.2&gt;%" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="1000"/>
+	<ModbusCmd Title="MP3 Maximum" Comment="" ModbusAddress="54" ModbusCmd="6" Unit="&lt;v.2&gt;%" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="1000"/>
+	<ModbusCmd Title="MP4 Maximum" Comment="" ModbusAddress="74" ModbusCmd="6" Unit="&lt;v.2&gt;%" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="1000"/>
+	<ModbusCmd Title="MP5 Maximum" Comment="" ModbusAddress="94" ModbusCmd="6" Unit="&lt;v.2&gt;%" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="1000"/>
+	<ModbusCmd Title="MP6 Maximum" Comment="" ModbusAddress="114" ModbusCmd="6" Unit="&lt;v.2&gt;%" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="1000"/>
+	<ModbusCmd Title="MP7 Maximum" Comment="" ModbusAddress="134" ModbusCmd="6" Unit="&lt;v.2&gt;%" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="1000"/>
+	<ModbusCmd Title="MP8 Maximum" Comment="" ModbusAddress="154" ModbusCmd="6" Unit="&lt;v.2&gt;%" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="1000"/>
+	<ModbusCmd Title="MP2 Minimum" Comment="" ModbusAddress="33" ModbusCmd="6" Unit="&lt;v.2&gt;%" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="1000"/>
+	<ModbusCmd Title="MP3 Minimum" Comment="" ModbusAddress="53" ModbusCmd="6" Unit="&lt;v.2&gt;%" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="1000"/>
+	<ModbusCmd Title="MP4 Minimum" Comment="" ModbusAddress="73" ModbusCmd="6" Unit="&lt;v.2&gt;%" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="1000"/>
+	<ModbusCmd Title="MP5 Minimum" Comment="" ModbusAddress="93" ModbusCmd="6" Unit="&lt;v.2&gt;%" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="1000"/>
+	<ModbusCmd Title="MP6 Minimum" Comment="" ModbusAddress="113" ModbusCmd="6" Unit="&lt;v.2&gt;%" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="1000"/>
+	<ModbusCmd Title="MP7 Minimum" Comment="" ModbusAddress="133" ModbusCmd="6" Unit="&lt;v.2&gt;%" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="1000"/>
+	<ModbusCmd Title="MP8 Minimum" Comment="" ModbusAddress="153" ModbusCmd="6" Unit="&lt;v.2&gt;%" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="1000"/>
+	<ModbusCmd Title="MP2 Override Control" Comment="" ModbusAddress="21" ModbusCmd="6" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="MP3 Override Control" Comment="" ModbusAddress="41" ModbusCmd="6" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="MP4 Override Control" Comment="" ModbusAddress="61" ModbusCmd="6" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="MP5 Override Control" Comment="" ModbusAddress="81" ModbusCmd="6" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="MP6 Override Control" Comment="" ModbusAddress="101" ModbusCmd="6" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="MP7 Override Control" Comment="" ModbusAddress="121" ModbusCmd="6" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="MP8 Override Control" Comment="" ModbusAddress="141" ModbusCmd="6" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="MP2 Sensor Type" Comment="" ModbusAddress="26" ModbusCmd="6" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="MP3 Sensor Type" Comment="" ModbusAddress="46" ModbusCmd="6" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="MP4 Sensor Type" Comment="" ModbusAddress="66" ModbusCmd="6" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="MP5 Sensor Type" Comment="" ModbusAddress="86" ModbusCmd="6" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="MP6 Sensor Type" Comment="" ModbusAddress="106" ModbusCmd="6" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="MP7 Sensor Type" Comment="" ModbusAddress="126" ModbusCmd="6" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="MP8 Sensor Type" Comment="" ModbusAddress="146" ModbusCmd="6" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="MP2 Setpoint" Comment="" ModbusAddress="20" ModbusCmd="6" Unit="&lt;v.2&gt;%" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="1000"/>
+	<ModbusCmd Title="MP3 Setpoint" Comment="" ModbusAddress="40" ModbusCmd="6" Unit="&lt;v.2&gt;%" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="1000"/>
+	<ModbusCmd Title="MP4 Setpoint" Comment="" ModbusAddress="60" ModbusCmd="6" Unit="&lt;v.2&gt;%" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="1000"/>
+	<ModbusCmd Title="MP5 Setpoint" Comment="" ModbusAddress="80" ModbusCmd="6" Unit="&lt;v.2&gt;%" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="1000"/>
+	<ModbusCmd Title="MP6 Setpoint" Comment="" ModbusAddress="100" ModbusCmd="6" Unit="&lt;v.2&gt;%" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="1000"/>
+	<ModbusCmd Title="MP7 Setpoint" Comment="" ModbusAddress="120" ModbusCmd="6" Unit="&lt;v.2&gt;%" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="1000"/>
+	<ModbusCmd Title="MP8 Setpoint" Comment="" ModbusAddress="140" ModbusCmd="6" Unit="&lt;v.2&gt;%" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="1000"/>
+</Modbus>

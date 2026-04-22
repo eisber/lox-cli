@@ -1,0 +1,84 @@
+{
+  "title": "Meter Bidirectional",
+  "xml_type": "",
+  "kb_slug": "meter-bidirectional",
+  "description": "This bidirectional meter is suitable for recording consumption and delivery of various utilities such as electricity, gas, water, heat, etc.",
+  "inputs": [
+    {
+      "abbreviation": "Pf",
+      "summary": "Power or flow",
+      "description": "If only this input is used, the meter reading is also calculated from it. Otherwise it is only used for the output (Pf) and the user interface.",
+      "value_range": "\u221e"
+    },
+    {
+      "abbreviation": "Mrc",
+      "summary": "Meter reading Consumption",
+      "description": "Consumption Input for meters that send the meter reading directly as an analog value. For meters that only send partial quantities (e.g. Smart Socket), relative metering must be activated in the settings of the block.",
+      "value_range": "0...\u221e"
+    },
+    {
+      "abbreviation": "Mrd",
+      "summary": "Meter reading Delivery",
+      "description": "Delivery Input for meters that send the meter reading directly as an analog value. For meters that only send partial quantities (e.g. Smart Socket), relative metering must be activated in the settings of the block.",
+      "value_range": "0...\u221e"
+    },
+    {
+      "abbreviation": "R",
+      "summary": "Reset",
+      "description": "Pulse: Meter reading outputs are reset. On: Block is locked.",
+      "value_range": "0/1"
+    }
+  ],
+  "outputs": [
+    {
+      "abbreviation": "Pf",
+      "summary": "Power or flow",
+      "description": "Positive value: Energy is consumed. Negative value: Energy is delivered.",
+      "value_range": "\u221e"
+    },
+    {
+      "abbreviation": "API",
+      "summary": "API Connector",
+      "description": "Intelligent API based connector. API Commands",
+      "value_range": "-"
+    }
+  ],
+  "parameters": [
+    {
+      "abbreviation": "Mroc",
+      "summary": "Meter reading offset consumption",
+      "description": "Value is added to output (Mrc).",
+      "value_range": "\u221e",
+      "default_value": "0"
+    },
+    {
+      "abbreviation": "Mrod",
+      "summary": "Meter reading offset delivery",
+      "description": "Value is added to output (Mrd).",
+      "value_range": "\u221e",
+      "default_value": "0"
+    }
+  ],
+  "properties": [
+    {
+      "summary": "Power/Flow direction",
+      "description": "Specifies whether the physical meter provides the delivery or consumption value as a positive or negative value to the Pf input of the block.",
+      "default_value": "-"
+    },
+    {
+      "summary": "Relative metering",
+      "description": "Active: The physical meter only sends partial quantities at intervals (relative), the block adds them up and uses them to form the meter reading. Not active: The physical meter provides its own total meter reading (absolute), the function block only maps it.",
+      "default_value": "-"
+    },
+    {
+      "summary": "Report invalid Meter Reading",
+      "description": "If checked, you will be notified if invalid Meter Reading values have been detected. For instance, when a physical counter sends unrealistic values due to transmission errors.",
+      "default_value": "-"
+    }
+  ],
+  "source_url": "https://www.loxone.com/enen/kb/meter-bidirectional/",
+  "input_count": 4,
+  "output_count": 2,
+  "parameter_count": 2,
+  "property_count": 3
+}

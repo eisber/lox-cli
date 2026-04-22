@@ -1,0 +1,51 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Modbus Title="SAJ Inverter R5 v1" Comment="" Baudrate="2400" Channel="3">
+	<Info templateType="7" minVersion="12020927"/>
+	<ModbusCmd Title="03-256-MPVMode" Comment="" ModbusAddress="256" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="03-257-FaultMSG" Comment="" ModbusAddress="257" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="03-263-PV1Volt" Comment="" ModbusAddress="263" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v.1&gt;V" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="10"/>
+	<ModbusCmd Title="03-264-PV1Curr" Comment="" ModbusAddress="264" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v.2&gt;A" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="1"/>
+	<ModbusCmd Title="03-266-PV2Volt" Comment="" ModbusAddress="266" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v.1&gt;V" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="10"/>
+	<ModbusCmd Title="03-265-PV1Power" Comment="" ModbusAddress="265" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v&gt;W" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="03-267-PV2Curr" Comment="" ModbusAddress="267" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v.2&gt;A" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="1"/>
+	<ModbusCmd Title="03-270-PV3Curr" Comment="" ModbusAddress="270" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v.2&gt;A" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="1"/>
+	<ModbusCmd Title="03-268-PV2Power" Comment="" ModbusAddress="268" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v&gt;W" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="03-269-PV3Volt" Comment="" ModbusAddress="269" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v.1&gt;V" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="10"/>
+	<ModbusCmd Title="03-271-PV3Power" Comment="" ModbusAddress="271" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v&gt;W" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="03-272-BusVolt" Comment="" ModbusAddress="272" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v.1&gt;V" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="10"/>
+	<ModbusCmd Title="03-273-InvTempC" Comment="" ModbusAddress="273" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="60" Unit="&lt;v.2&gt;ºC" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="10"/>
+	<ModbusCmd Title="03-274-GFCI" Comment="" ModbusAddress="274" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="60" Unit="&lt;v&gt;mA" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="03-275-Power" Comment="" ModbusAddress="275" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v&gt;W" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="03-276-QPower" Comment="" ModbusAddress="276" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="60" Unit="&lt;v&gt;Var" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="03-277-PF" Comment="" ModbusAddress="277" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="60" Unit="&lt;v.3&gt;" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="1"/>
+	<ModbusCmd Title="03-278-L1Volt" Comment="" ModbusAddress="278" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v.1&gt;V" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="10"/>
+	<ModbusCmd Title="03-279-L1Curr" Comment="" ModbusAddress="279" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v.2&gt;A" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="1"/>
+	<ModbusCmd Title="03-282-L1Power" Comment="" ModbusAddress="282" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="60" Unit="&lt;v&gt;W" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="03-283-L1PF" Comment="" ModbusAddress="283" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v.3&gt;" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="1"/>
+	<ModbusCmd Title="03-280-L1Freq" Comment="" ModbusAddress="280" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v.2&gt;Hz" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="1"/>
+	<ModbusCmd Title="03-281-L1DCI" Comment="" ModbusAddress="281" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="60" Unit="&lt;v&gt;mA" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="03-284-L2Volt" Comment="" ModbusAddress="284" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v.1&gt;V" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="10"/>
+	<ModbusCmd Title="03-285-L2Curr" Comment="" ModbusAddress="285" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v.2&gt;A" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="1"/>
+	<ModbusCmd Title="03-286-L2Freq" Comment="" ModbusAddress="286" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v.2&gt;Hz" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="1"/>
+	<ModbusCmd Title="03-287-L2DCI" Comment="" ModbusAddress="287" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="60" Unit="&lt;v&gt;mA" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="03-288-L2Power" Comment="" ModbusAddress="288" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v&gt;W" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="03-289-L2PF" Comment="" ModbusAddress="289" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="60" Unit="&lt;v.3&gt;" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="1"/>
+	<ModbusCmd Title="03-296-ISO1" Comment="" ModbusAddress="296" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v&gt;kΩ" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="03-290-L3Volt" Comment="" ModbusAddress="290" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v.1&gt;V" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="10"/>
+	<ModbusCmd Title="03-291-L3Curr" Comment="" ModbusAddress="291" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v.2&gt;A" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="1"/>
+	<ModbusCmd Title="03-292-L3Freq" Comment="" ModbusAddress="292" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v.2&gt;Hz" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="1"/>
+	<ModbusCmd Title="03-293-L3DCI" Comment="" ModbusAddress="293" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="60" Unit="&lt;v&gt;mA" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="03-294-L3Power" Comment="" ModbusAddress="294" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v&gt;W" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="03-295-L3PF" Comment="" ModbusAddress="295" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="60" Unit="&lt;v.3&gt;" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="1"/>
+	<ModbusCmd Title="03-297-ISO2" Comment="" ModbusAddress="297" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v&gt;kΩ" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="03-298-ISO3" Comment="" ModbusAddress="298" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v&gt;kΩ" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="03-299-ISO4" Comment="" ModbusAddress="299" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v&gt;kΩ" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="03-300-Today Energy" Comment="" ModbusAddress="300" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v.2&gt;kWh" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="1"/>
+	<ModbusCmd Title="03-301-Month Energy" Comment="" ModbusAddress="301" ModbusCmd="3" ModbusDataType="34" ModbusPollingCycle="60" Unit="&lt;v.2&gt;kWh" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="1"/>
+	<ModbusCmd Title="03-303-Year Energy" Comment="" ModbusAddress="303" ModbusCmd="3" ModbusDataType="34" ModbusPollingCycle="60" Unit="&lt;v.2&gt;kWh" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="1"/>
+	<ModbusCmd Title="03-305-Total Energy" Comment="" ModbusAddress="305" ModbusCmd="3" ModbusDataType="34" ModbusPollingCycle="60" Unit="&lt;v.2&gt;kWh" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="1"/>
+	<ModbusCmd Title="03-307-Today Hour" Comment="" ModbusAddress="307" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v.1&gt;H" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="10"/>
+	<ModbusCmd Title="03-308-Total Hour" Comment="" ModbusAddress="308" ModbusCmd="3" ModbusDataType="34" ModbusPollingCycle="60" Unit="&lt;v.1&gt;H" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="10"/>
+	<ModbusCmd Title="03-310-Error Count" Comment="" ModbusAddress="310" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="03-311-TIME" Comment="" ModbusAddress="311" ModbusCmd="3" ModbusDataType="35" ModbusPollingCycle="60" Unit="&lt;v.u&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+</Modbus>

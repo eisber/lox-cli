@@ -1,0 +1,34 @@
+{
+  "title": "Memory Flags",
+  "xml_type": "",
+  "kb_slug": "memory-flags",
+  "description": "Saves the input value and makes it available as an output reference",
+  "inputs": [
+    {
+      "abbreviation": "I",
+      "summary": "Input",
+      "value_range": "\u221e"
+    }
+  ],
+  "outputs": [],
+  "parameters": [],
+  "properties": [
+    {
+      "summary": "Type",
+      "description": "Select the type of information you want to transfer with this memory flag",
+      "value_range": "-",
+      "default_value": "-"
+    },
+    {
+      "summary": "Delay",
+      "description": "Delay input, by x cycles, to the output.",
+      "value_range": "0...100",
+      "default_value": "-"
+    }
+  ],
+  "source_url": "https://www.loxone.com/enen/kb/memory-flags/",
+  "input_count": 1,
+  "output_count": 0,
+  "parameter_count": 0,
+  "property_count": 2
+}

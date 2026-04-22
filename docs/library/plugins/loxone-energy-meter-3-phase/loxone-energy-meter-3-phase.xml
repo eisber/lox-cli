@@ -1,0 +1,25 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Modbus Title="Loxone Modbus Electricity Meter (3 Phase)" Comment="" Baudrate="19200" Parity="1" Channel="1">
+	<Info templateType="7" minVersion="13010804"/>
+	<ModbusCmd Title="Total energy consumption" Comment="" ModbusAddress="27" ModbusCmd="3" ModbusDataType="34" ModbusPollingCycle="5" Unit="&lt;v.2&gt;kWh" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="1"/>
+	<ModbusCmd Title="Partial energy consumption" Comment="" ModbusAddress="29" ModbusCmd="3" ModbusDataType="34" ModbusPollingCycle="5" Unit="&lt;v.2&gt;kWh" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="1"/>
+	<ModbusCmd Title="Total energy feedback" Comment="" ModbusAddress="31" ModbusCmd="3" ModbusDataType="34" ModbusPollingCycle="5" Unit="&lt;v.2&gt;kWh" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="1"/>
+	<ModbusCmd Title="Partial energy feedback" Comment="" ModbusAddress="33" ModbusCmd="3" ModbusDataType="34" ModbusPollingCycle="5" Unit="&lt;v.2&gt;kWh" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="1"/>
+	<ModbusCmd Title="Effective voltage of Phase 1" Comment="" ModbusAddress="35" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.1&gt; V" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Effective current of Phase 1" Comment="" ModbusAddress="36" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.1&gt; A" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="Effective active power of Phase 1" Comment="" ModbusAddress="37" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="5" Unit="&lt;v.2&gt;kW" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="1"/>
+	<ModbusCmd Title="Effective reactive power of Phase 1" Comment="" ModbusAddress="38" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="5" Unit="&lt;v.2&gt;kvar" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="1"/>
+	<ModbusCmd Title="cos phi Phase 1" Comment="" ModbusAddress="39" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.2&gt; " Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="1"/>
+	<ModbusCmd Title="Effective voltage of Phase 2" Comment="" ModbusAddress="40" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.1&gt;V" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Effective current of Phase 2" Comment="" ModbusAddress="41" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.1&gt;A" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="Effective active power of Phase 2" Comment="" ModbusAddress="42" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="5" Unit="&lt;v.2&gt;kW" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="1"/>
+	<ModbusCmd Title="Effective reactive power of Phase 2" Comment="" ModbusAddress="43" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="5" Unit="&lt;v.2&gt;kvar" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="1"/>
+	<ModbusCmd Title="cos phi Phase 2" Comment="" ModbusAddress="44" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.2&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="1"/>
+	<ModbusCmd Title="Effective voltage of Phase 3" Comment="" ModbusAddress="45" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.1&gt;V" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Effective current of Phase 3" Comment="" ModbusAddress="46" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.1&gt;A" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="Effective active power of Phase 3" Comment="" ModbusAddress="47" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="5" Unit="&lt;v.2&gt;kW" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="1"/>
+	<ModbusCmd Title="Effective reactive power of Phase 3" Comment="" ModbusAddress="48" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="5" Unit="&lt;v.2&gt;kvar" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="1"/>
+	<ModbusCmd Title="cos phi Phase 3" Comment="" ModbusAddress="49" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.2&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="1"/>
+	<ModbusCmd Title="Effective active power of all phases" Comment="" ModbusAddress="50" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="5" Unit="&lt;v.2&gt;kW" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="1"/>
+	<ModbusCmd Title="Effective reactive power of all phases" Comment="" ModbusAddress="51" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="5" Unit="&lt;v.2&gt;kvar" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="1"/>
+</Modbus>

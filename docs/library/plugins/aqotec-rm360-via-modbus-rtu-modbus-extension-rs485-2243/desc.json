@@ -1,0 +1,9 @@
+{
+                                "type": "template",
+                                "name": "aqotec-rm360-via-modbus-rtu-modbus-extension-rs485",
+                                "uuid": "346579b0-327c-11f1-94144cd98f3deb8a",
+                                "version":"1.0.0",
+                                "id": "aqotec-rm360-via-modbus-rtu-modbus-extension-rs485-2243",
+                                "file": "aqotec-rm360-via-modbus-rtu-modbus-extension-rs485.xml",
+                                "templateType": "7",
+                            }

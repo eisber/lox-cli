@@ -1,0 +1,32 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<VirtualOut Title="Bluesound" Comment="" Address="http://192.168.1.201:11000" CmdInit="" CloseAfterSend="true" CmdSep="">
+	<Info templateType="3" minVersion="12021201"/>
+	<VirtualOutCmd Title="Mute" Comment="" CmdOnMethod="GET" CmdOffMethod="GET" CmdOn="/Volume?mute=1" CmdOnHTTP="" CmdOnPost="" CmdOff="" CmdOffHTTP="" CmdOffPost="" Analog="false" Repeat="0" RepeatRate="0"/>
+	<VirtualOutCmd Title="Mute Toggle" Comment="" CmdOnMethod="GET" CmdOffMethod="GET" CmdOn="/mute" CmdOnHTTP="" CmdOnPost="" CmdOff="" CmdOffHTTP="" CmdOffPost="" Analog="false" Repeat="0" RepeatRate="0"/>
+	<VirtualOutCmd Title="Next Track" Comment="" CmdOnMethod="GET" CmdOffMethod="GET" CmdOn="/Skip" CmdOnHTTP="" CmdOnPost="" CmdOff="" CmdOffHTTP="" CmdOffPost="" Analog="false" Repeat="0" RepeatRate="0"/>
+	<VirtualOutCmd Title="Pause" Comment="" CmdOnMethod="GET" CmdOffMethod="GET" CmdOn="/Pause" CmdOnHTTP="" CmdOnPost="" CmdOff="" CmdOffHTTP="" CmdOffPost="" Analog="false" Repeat="0" RepeatRate="0"/>
+	<VirtualOutCmd Title="Play" Comment="" CmdOnMethod="GET" CmdOffMethod="GET" CmdOn="/Play" CmdOnHTTP="" CmdOnPost="" CmdOff="" CmdOffHTTP="" CmdOffPost="" Analog="false" Repeat="0" RepeatRate="0"/>
+	<VirtualOutCmd Title="Previous Track" Comment="" CmdOnMethod="GET" CmdOffMethod="GET" CmdOn="/Back" CmdOnHTTP="" CmdOnPost="" CmdOff="" CmdOffHTTP="" CmdOffPost="" Analog="false" Repeat="0" RepeatRate="0"/>
+	<VirtualOutCmd Title="Repeat Off" Comment="" CmdOnMethod="GET" CmdOffMethod="GET" CmdOn="/Repeat?state=2" CmdOnHTTP="" CmdOnPost="" CmdOff="" CmdOffHTTP="" CmdOffPost="" Analog="false" Repeat="0" RepeatRate="0"/>
+	<VirtualOutCmd Title="Repeat All" Comment="" CmdOnMethod="GET" CmdOffMethod="GET" CmdOn="/Repeat?state=0" CmdOnHTTP="" CmdOnPost="" CmdOff="" CmdOffHTTP="" CmdOffPost="" Analog="false" Repeat="0" RepeatRate="0"/>
+	<VirtualOutCmd Title="Repeat Track" Comment="" CmdOnMethod="GET" CmdOffMethod="GET" CmdOn="/Repeat?state=1" CmdOnHTTP="" CmdOnPost="" CmdOff="" CmdOffHTTP="" CmdOffPost="" Analog="false" Repeat="0" RepeatRate="0"/>
+	<VirtualOutCmd Title="Shuffle Off" Comment="" CmdOnMethod="GET" CmdOffMethod="GET" CmdOn="/Shuffle?state=0" CmdOnHTTP="" CmdOnPost="" CmdOff="" CmdOffHTTP="" CmdOffPost="" Analog="false" Repeat="0" RepeatRate="0"/>
+	<VirtualOutCmd Title="Shuffle On" Comment="" CmdOnMethod="GET" CmdOffMethod="GET" CmdOn="/Shuffle?state=1" CmdOnHTTP="" CmdOnPost="" CmdOff="" CmdOffHTTP="" CmdOffPost="" Analog="false" Repeat="0" RepeatRate="0"/>
+	<VirtualOutCmd Title="Stop" Comment="" CmdOnMethod="GET" CmdOffMethod="GET" CmdOn="/Stop" CmdOnHTTP="" CmdOnPost="" CmdOff="" CmdOffHTTP="" CmdOffPost="" Analog="false" Repeat="0" RepeatRate="0"/>
+	<VirtualOutCmd Title="Volume" Comment="" CmdOnMethod="GET" CmdOffMethod="GET" CmdOn="/Volume?level=&lt;v&gt;" CmdOnHTTP="" CmdOnPost="" CmdOff="" CmdOffHTTP="" CmdOffPost="" Analog="true" Repeat="0" RepeatRate="0" SourceValHigh="100" DestValHigh="100"/>
+	<VirtualOutCmd Title="Volume Down" Comment="" CmdOnMethod="GET" CmdOffMethod="GET" CmdOn="/Volume?db=-2" CmdOnHTTP="" CmdOnPost="" CmdOff="" CmdOffHTTP="" CmdOffPost="" Analog="false" Repeat="1" RepeatRate="0.5"/>
+	<VirtualOutCmd Title="Volume Up" Comment="" CmdOnMethod="GET" CmdOffMethod="GET" CmdOn="/Volume?db=2" CmdOnHTTP="" CmdOnPost="" CmdOff="" CmdOffHTTP="" CmdOffPost="" Analog="false" Repeat="1" RepeatRate="0.5"/>
+	<VirtualOutCmd Title="Preset 1" Comment="" CmdOnMethod="GET" CmdOffMethod="GET" CmdOn="/Preset?id=1" CmdOnHTTP="" CmdOnPost="" CmdOff="" CmdOffHTTP="" CmdOffPost="" Analog="false" Repeat="0" RepeatRate="0"/>
+	<VirtualOutCmd Title="Preset 2" Comment="" CmdOnMethod="GET" CmdOffMethod="GET" CmdOn="/Preset?id=2" CmdOnHTTP="" CmdOnPost="" CmdOff="" CmdOffHTTP="" CmdOffPost="" Analog="false" Repeat="0" RepeatRate="0"/>
+	<VirtualOutCmd Title="Preset 3" Comment="" CmdOnMethod="GET" CmdOffMethod="GET" CmdOn="/Preset?id=3" CmdOnHTTP="" CmdOnPost="" CmdOff="" CmdOffHTTP="" CmdOffPost="" Analog="false" Repeat="0" RepeatRate="0"/>
+	<VirtualOutCmd Title="Preset 4" Comment="" CmdOnMethod="GET" CmdOffMethod="GET" CmdOn="/Preset?id=4" CmdOnHTTP="" CmdOnPost="" CmdOff="" CmdOffHTTP="" CmdOffPost="" Analog="false" Repeat="0" RepeatRate="0"/>
+	<VirtualOutCmd Title="Preset 5" Comment="" CmdOnMethod="GET" CmdOffMethod="GET" CmdOn="/Preset?id=5" CmdOnHTTP="" CmdOnPost="" CmdOff="" CmdOffHTTP="" CmdOffPost="" Analog="false" Repeat="0" RepeatRate="0"/>
+	<VirtualOutCmd Title="Preset 6" Comment="" CmdOnMethod="GET" CmdOffMethod="GET" CmdOn="/Preset?id=6" CmdOnHTTP="" CmdOnPost="" CmdOff="" CmdOffHTTP="" CmdOffPost="" Analog="false" Repeat="0" RepeatRate="0"/>
+	<VirtualOutCmd Title="Preset 7" Comment="" CmdOnMethod="GET" CmdOffMethod="GET" CmdOn="/Preset?id=7" CmdOnHTTP="" CmdOnPost="" CmdOff="" CmdOffHTTP="" CmdOffPost="" Analog="false" Repeat="0" RepeatRate="0"/>
+	<VirtualOutCmd Title="Preset 8" Comment="" CmdOnMethod="GET" CmdOffMethod="GET" CmdOn="/Preset?id=8" CmdOnHTTP="" CmdOnPost="" CmdOff="" CmdOffHTTP="" CmdOffPost="" Analog="false" Repeat="0" RepeatRate="0"/>
+	<VirtualOutCmd Title="Preset 9" Comment="" CmdOnMethod="GET" CmdOffMethod="GET" CmdOn="/Preset?id=9" CmdOnHTTP="" CmdOnPost="" CmdOff="" CmdOffHTTP="" CmdOffPost="" Analog="false" Repeat="0" RepeatRate="0"/>
+	<VirtualOutCmd Title="Preset 10" Comment="" CmdOnMethod="GET" CmdOffMethod="GET" CmdOn="/Preset?id=10" CmdOnHTTP="" CmdOnPost="" CmdOff="" CmdOffHTTP="" CmdOffPost="" Analog="false" Repeat="0" RepeatRate="0"/>
+	<VirtualOutCmd Title="Input Optical" Comment="" CmdOnMethod="GET" CmdOffMethod="GET" CmdOn="/Play?url=Capture%3Ahw%3A1%2C0%2F1%2F25%2F2" CmdOnHTTP="" CmdOnPost="" CmdOff="" CmdOffHTTP="" CmdOffPost="" Analog="false" Repeat="0" RepeatRate="0"/>
+	<VirtualOutCmd Title="Input Bluetooth" Comment="" CmdOnMethod="GET" CmdOffMethod="GET" CmdOn="/Play?url=Capture%3Abluez%3Abluetooth" CmdOnHTTP="" CmdOnPost="" CmdOff="" CmdOffHTTP="" CmdOffPost="" Analog="false" Repeat="0" RepeatRate="0"/>
+	<VirtualOutCmd Title="Unmute" Comment="" CmdOnMethod="GET" CmdOffMethod="GET" CmdOn="/Volume?mute=0" CmdOnHTTP="" CmdOnPost="" CmdOff="" CmdOffHTTP="" CmdOffPost="" Analog="false" Repeat="0" RepeatRate="0"/>
+</VirtualOut>

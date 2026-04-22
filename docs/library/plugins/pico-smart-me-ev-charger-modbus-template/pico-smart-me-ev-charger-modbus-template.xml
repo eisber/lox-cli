@@ -1,0 +1,39 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Modbus Title="smart-me Pico - Modbus TCP" Comment="Wallbox" Channel="1">
+	<Info templateType="7" minVersion="14010509"/>
+	<ModbusCmd Title="Serial Number" Comment="" ModbusAddress="8191" ModbusCmd="3" ModbusDataType="98" ModbusPollingCycle="30" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Date Time (UTC)" Comment="" ModbusAddress="8193" ModbusCmd="3" ModbusDataType="98" ModbusPollingCycle="30" Unit="&lt;v.u&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Power Total (All Phases)" Comment="" ModbusAddress="8195" ModbusCmd="3" ModbusDataType="99" ModbusPollingCycle="30" Unit="&lt;v.1&gt;mW" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Is Car connected" Comment="" ModbusAddress="8303" ModbusCmd="3" ModbusDataType="33" ModbusPollingCycle="30" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Is charging active" Comment="" ModbusAddress="8288" ModbusCmd="3" ModbusDataType="32" ModbusPollingCycle="30" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Voltage Phase L1" Comment="" ModbusAddress="8211" ModbusCmd="3" ModbusDataType="98" ModbusPollingCycle="30" Unit="&lt;v.3&gt;mV" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Current Phase L1" Comment="" ModbusAddress="8217" ModbusCmd="3" ModbusDataType="99" ModbusPollingCycle="30" Unit="&lt;v.3&gt;mA" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Power Factor (cos phi) L1" Comment="" ModbusAddress="8223" ModbusCmd="3" ModbusPollingCycle="30" Unit="&lt;v.1&gt;cosΦ" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Active Energy Import Total" Comment="" ModbusAddress="8267" ModbusCmd="3" ModbusDataType="98" ModbusPollingCycle="30" Unit="&lt;v.1&gt;Wh" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Reactive Energy Q1" Comment="" ModbusAddress="8279" ModbusCmd="3" ModbusDataType="2" ModbusPollingCycle="30" Unit="&lt;v.1&gt;Varh" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Energy used in active charging" Comment="" ModbusAddress="8289" ModbusCmd="3" ModbusDataType="102" ModbusPollingCycle="30" Unit="&lt;v.1&gt;mWh" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Min. station charging current" Comment="" ModbusAddress="8295" ModbusCmd="3" ModbusDataType="99" ModbusPollingCycle="30" Unit="&lt;v.1&gt;mA" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Max. station charging current" Comment="" ModbusAddress="8297" ModbusCmd="3" ModbusDataType="99" ModbusPollingCycle="30" Unit="&lt;v.1&gt;mA" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Current Phase L2" Comment="" ModbusAddress="8219" ModbusCmd="3" ModbusDataType="99" ModbusPollingCycle="30" Unit="&lt;v.3&gt;mA" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Current Phase L3" Comment="" ModbusAddress="8221" ModbusCmd="3" ModbusDataType="99" ModbusPollingCycle="30" Unit="&lt;v.3&gt;mA" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Voltage Phase L2" Comment="" ModbusAddress="8213" ModbusCmd="3" ModbusDataType="98" ModbusPollingCycle="30" Unit="&lt;v.3&gt;mV" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Voltage Phase L3" Comment="" ModbusAddress="8215" ModbusCmd="3" ModbusDataType="98" ModbusPollingCycle="30" Unit="&lt;v.3&gt;mV" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Power Phase L1" Comment="" ModbusAddress="8197" ModbusCmd="3" ModbusDataType="99" ModbusPollingCycle="30" Unit="&lt;v.1&gt;mW" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Power Phase L2" Comment="" ModbusAddress="8199" ModbusCmd="3" ModbusDataType="99" ModbusPollingCycle="30" Unit="&lt;v.1&gt;mW" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Power Phase L3" Comment="" ModbusAddress="8201" ModbusCmd="3" ModbusDataType="99" ModbusPollingCycle="30" Unit="&lt;v.1&gt;mW" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Reactive Power Total (All Phases)" Comment="" ModbusAddress="8203" ModbusCmd="3" ModbusDataType="99" ModbusPollingCycle="30" Unit="&lt;v.1&gt;mVar" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Reactive Power Phase L1" Comment="" ModbusAddress="8205" ModbusCmd="3" ModbusDataType="99" ModbusPollingCycle="30" Unit="&lt;v.1&gt;mVar" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Reactive Power Phase L2" Comment="" ModbusAddress="8207" ModbusCmd="3" ModbusDataType="99" ModbusPollingCycle="30" Unit="&lt;v.1&gt;mVar" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Reactive Power Phase L3" Comment="" ModbusAddress="8209" ModbusCmd="3" ModbusDataType="99" ModbusPollingCycle="30" Unit="&lt;v.1&gt;mVar" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Power Factor (cos phi) L2" Comment="" ModbusAddress="8224" ModbusCmd="3" ModbusPollingCycle="30" Unit="&lt;v.1&gt;cosΦ" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Power Factor (cos phi) L3" Comment="" ModbusAddress="8225" ModbusCmd="3" ModbusPollingCycle="30" Unit="&lt;v.1&gt;cosΦ" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Reactive Energy Q2" Comment="" ModbusAddress="8281" ModbusCmd="3" ModbusDataType="98" ModbusPollingCycle="30" Unit="&lt;v.1&gt;Varh" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Reactive Energy Q3" Comment="" ModbusAddress="8283" ModbusCmd="3" ModbusDataType="98" ModbusPollingCycle="30" Unit="&lt;v.1&gt;Varh" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Reactive Energy Q4" Comment="" ModbusAddress="8285" ModbusCmd="3" ModbusDataType="98" ModbusPollingCycle="30" Unit="&lt;v.1&gt;Varh" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Is in Loadmanagent Group" Comment="" ModbusAddress="8287" ModbusCmd="3" ModbusDataType="32" ModbusPollingCycle="30" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Start time of active charging" Comment="" ModbusAddress="8295" ModbusCmd="3" ModbusDataType="98" ModbusPollingCycle="30" Unit="&lt;v.u&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Loadmanagement group max. current" Comment="" ModbusAddress="8299" ModbusCmd="3" ModbusDataType="98" ModbusPollingCycle="30" Unit="&lt;v.1&gt;mA" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Active Energy Import T1" Comment="" ModbusAddress="8271" ModbusCmd="3" ModbusDataType="98" ModbusPollingCycle="30" Unit="&lt;v.1&gt;Wh" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Active Energy Import T2" Comment="" ModbusAddress="8273" ModbusCmd="3" ModbusDataType="98" ModbusPollingCycle="30" Unit="&lt;v.1&gt;Wh" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Dynamic max. current (single station or loadmanagment group)" Comment="" ModbusAddress="8301" ModbusCmd="16" ModbusDataType="98" Unit="&lt;v.1&gt;mA" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+</Modbus>

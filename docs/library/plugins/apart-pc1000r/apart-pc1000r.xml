@@ -1,0 +1,27 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Comm Title="Apart PC1000R Player" Comment="" Baudrate="38400" Databits="8">
+    <Info templateType="5" minVersion="12010617"/>
+	<CommCmd Title="PC1000R - Status Play" Comment="" CmdOn="Status: Play" CmdOff="" Unit="" Analog="false" Text="false" Sensor="true"/>
+	<CommCmd Title="PC1000R - Status Pause" Comment="" CmdOn="Status: Pause" CmdOff="" Unit="" Analog="false" Text="false" Sensor="true"/>
+	<CommCmd Title="PC1000R - Status Stop" Comment="" CmdOn="Status: Stop" CmdOff="" Unit="" Analog="false" Text="false" Sensor="true"/>
+	<CommCmd Title="PC1000R - Status Ready" Comment="" CmdOn="Ready" CmdOff="" Unit="" Analog="false" Text="false" Sensor="true"/>
+	<CommCmd Title="PC1000R - Device CD" Comment="" CmdOn="Device: CD Player" CmdOff="" Unit="" Analog="false" Text="false" Sensor="true"/>
+	<CommCmd Title="PC1000R - Device SD" Comment="" CmdOn="Device: SD Card" CmdOff="" Unit="" Analog="false" Text="false" Sensor="true"/>
+	<CommCmd Title="PC1000R - Device USB" Comment="" CmdOn="Device: USB" CmdOff="" Unit="" Analog="false" Text="false" Sensor="true"/>
+	<CommCmd Title="PC1000R - CD Track" Comment="" CmdOn="CD: \v" CmdOff="" Unit="&lt;v.1&gt;V" Analog="true" Text="false" Sensor="true" SourceValHigh="1" DestValHigh="1"/>
+	<CommCmd Title="PC1000R - Time Minuten" Comment="" CmdOn="Time: \v" CmdOff="" Unit="&lt;v.1&gt;V" Analog="true" Text="false" Sensor="true" SourceValHigh="1" DestValHigh="1"/>
+	<CommCmd Title="PC1000R - Time Sekunden" Comment="" CmdOn="Time: \d\d\.\v" CmdOff="" Unit="&lt;v.1&gt;V" Analog="true" Text="false" Sensor="true" SourceValHigh="1" DestValHigh="1"/>
+	<CommCmd Title="PC1000R - MP3 Track" Comment="" CmdOn="MP3: \v" CmdOff="" Unit="&lt;v.1&gt;V" Analog="true" Text="false" Sensor="true" SourceValHigh="1" DestValHigh="1"/>
+	<CommCmd Title="PC1000R - Standby" Comment="" CmdOn="Status: CD In Standby" CmdOff="" Unit="" Analog="false" Text="false" Sensor="true"/>
+	<CommCmd Title="PC1000R - On" Comment="APart MP3 Player" CmdOn="ON" CmdOff="" Unit="" Analog="false" Text="false" Sensor="false" SourceValLow="0" SourceValHigh="0" DestValLow="0" DestValHigh="-0"/>
+	<CommCmd Title="PC1000R - Off" Comment="APart MP3 Player" CmdOn="OFF" CmdOff="" Unit="" Analog="false" Text="false" Sensor="false" SourceValLow="0" SourceValHigh="0" DestValLow="0" DestValHigh="0"/>
+	<CommCmd Title="PC1000R - Play" Comment="APart MP3 Player" CmdOn="PLAY" CmdOff="" Unit="" Analog="false" Text="false" Sensor="false" SourceValLow="0" SourceValHigh="0" DestValLow="0" DestValHigh="0"/>
+	<CommCmd Title="PC1000R - Skip &lt;" Comment="APart MP3 Player" CmdOn="SKIP-" CmdOff="" Unit="" Analog="false" Text="false" Sensor="false" SourceValLow="0" SourceValHigh="0" DestValLow="0" DestValHigh="0"/>
+	<CommCmd Title="PC1000R - Skip &gt;" Comment="APart MP3 Player" CmdOn="SKIP+" CmdOff="" Unit="" Analog="false" Text="false" Sensor="false" SourceValLow="0" SourceValHigh="0" DestValLow="0" DestValHigh="0"/>
+	<CommCmd Title="PC1000R - Vol &gt;" Comment="APart MP3 Player" CmdOn="VOL+" CmdOff="" Unit="" Analog="false" Text="false" Sensor="false" SourceValLow="0" SourceValHigh="0" DestValLow="0" DestValHigh="0"/>
+	<CommCmd Title="PC1000R - Vol &lt;" Comment="APart MP3 Player" CmdOn="VOL-" CmdOff="" Unit="" Analog="false" Text="false" Sensor="false" SourceValLow="0" SourceValHigh="0" DestValLow="0" DestValHigh="0"/>
+	<CommCmd Title="PC1000R - Pause" Comment="APart MP3 Player" CmdOn="PAUSE" CmdOff="" Unit="" Analog="false" Text="false" Sensor="false" SourceValLow="0" SourceValHigh="0" DestValLow="0" DestValHigh="0"/>
+	<CommCmd Title="PC1000R - Stop" Comment="" CmdOn="STOP" CmdOff="" Unit="" Analog="false" Text="false" Sensor="false" SourceValLow="-0" SourceValHigh="0" DestValLow="0" DestValHigh="0"/>
+	<CommCmd Title="PC1000R - Status" Comment="APart MP3 Player" CmdOn="STATUS" CmdOff="" Unit="" Analog="false" Text="false" Sensor="false" SourceValLow="0" SourceValHigh="0" DestValLow="0" DestValHigh="0"/>
+	<CommCmd Title="PC1000R - Quelle" Comment="APart MP3 Player" CmdOn="INPUT" CmdOff="" Unit="" Analog="false" Text="false" Sensor="false" SourceValLow="0" SourceValHigh="0" DestValLow="0" DestValHigh="0"/>
+</Comm>

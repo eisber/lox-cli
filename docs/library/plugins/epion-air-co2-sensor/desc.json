@@ -1,0 +1,9 @@
+{
+                                "type": "template",
+                                "name": "epion-air-co2-sensor",
+                                "uuid": "92470d3e-c932-11ec-8a5e4cd98f3deb8a",
+                                "version":"1.1.1",
+                                "id": "epion-air-co2-sensor-848",
+                                "file": "epion-air-co2-sensor.xml",
+                                "templateType": "2",
+                            }

@@ -1,0 +1,78 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Modbus Title="Hoval Energy Management Version 3.0.0" Comment="" HintText="" Channel="1">
+	<Info templateType="7" minVersion="16011106"/>
+	<ModbusCmd Title="Aktuelle Vorlauftemperatur HC2 [VF2]" Comment="" HintText="" ModbusAddress="1514" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="35" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="Status Betriebsart HC2" Comment="" HintText="" ModbusAddress="1502" ModbusCmd="3" ModbusPollingCycle="40" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Aktuelle Warmwasserspeichertemperatur Oben [SF1]" Comment="" HintText="" ModbusAddress="1500" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="30" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="Status Warmwasserspeicher Betriebsart" Comment="" HintText="" ModbusAddress="1504" ModbusCmd="3" ModbusPollingCycle="30" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Status Warmwasserspeicher Solltemperatur" Comment="" HintText="" ModbusAddress="1499" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="30" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="Status Betriebsart HC1" Comment="" HintText="" ModbusAddress="1501" ModbusCmd="3" ModbusPollingCycle="35" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Aktuelle Vorlauftemperatur HC1 [VF1]" Comment="" HintText="" ModbusAddress="1513" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="40" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="Status Erzeuger Solltemperatur" Comment="" HintText="" ModbusAddress="18724" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="37" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="Aktuelle Erzeugervorlauftemperatur [CVF]" Comment="" HintText="" ModbusAddress="18725" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="30" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="Status Erzeuger Betriebsmeldung" Comment="" HintText="" ModbusAddress="18737" ModbusCmd="3" ModbusPollingCycle="40" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Aktuelle Regelstrategie HC1" Comment="" HintText="" ModbusAddress="27510" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Aktuelle Regelstrategie HC2" Comment="" HintText="" ModbusAddress="27511" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Aktuelle Außentemperatur [AF1]" Comment="" HintText="" ModbusAddress="1477" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="40" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="Aktuelle Warmwasserspeichertemperatur Unten [SF2]" Comment="" HintText="" ModbusAddress="27483" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="30" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="Aktuelle Puffertemperatur Oben [PF1]" Comment="" HintText="" ModbusAddress="17386" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="40" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="Aktuelle Pufferisstemperatur Unten [PF2]" Comment="" HintText="" ModbusAddress="17387" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="40" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="Status Pufferspeicher Betriebsart" Comment="" HintText="" ModbusAddress="17384" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="38" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Status Pufferspeicher Solltemperatur" Comment="" HintText="" ModbusAddress="17385" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="39" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="10"/>
+	<ModbusCmd Title="Status Elektrische Gesamtenergie" Comment="" HintText="" ModbusAddress="25613" ModbusCmd="3" ModbusDataType="99" ModbusPollingCycle="3600" Unit="&lt;v.3&gt;MWh" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="1"/>
+	<ModbusCmd Title="Status Thermische Gesamtenergie Heizbetrieb" Comment="" HintText="" ModbusAddress="27484" ModbusCmd="3" ModbusDataType="98" ModbusPollingCycle="3600" Unit="&lt;v.3&gt;MWh" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="1"/>
+	<ModbusCmd Title="Status Thermische Gesamtenergie Warmwasserbetrieb" Comment="" HintText="" ModbusAddress="27488" ModbusCmd="3" ModbusDataType="98" ModbusPollingCycle="3600" Unit="&lt;v.3&gt;MWh" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="1"/>
+	<ModbusCmd Title="Status Thermische Gesamenergie Kühlbetrieb" Comment="" HintText="" ModbusAddress="27486" ModbusCmd="3" ModbusDataType="98" ModbusPollingCycle="3600" Unit="&lt;v.3&gt;MWh" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="1"/>
+	<ModbusCmd Title="Aktuelle elektrische Leistung" Comment="" HintText="" ModbusAddress="25611" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="15" Unit="&lt;v.1&gt;kW" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="1"/>
+	<ModbusCmd Title="Aktuelle thermische Leistung" Comment="" HintText="" ModbusAddress="25612" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="30" Unit="&lt;v.1&gt;kW" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Status Vorlaufsolltemperatur HC1" Comment="" HintText="" ModbusAddress="19562" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="40" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="Status Vorlaufsolltemperatur HC2" Comment="" HintText="" ModbusAddress="19563" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="40" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="Status Fehlercode vom Automaten" Comment="" HintText="" ModbusAddress="1534" ModbusCmd="3" ModbusPollingCycle="50" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Status Mischkreispumpe HC1" Comment="" HintText="" ModbusAddress="19706" ModbusCmd="3" ModbusPollingCycle="45" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Status Mischkreispumpe HC2" Comment="" HintText="" ModbusAddress="19707" ModbusCmd="3" ModbusPollingCycle="45" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Status Mischer HC1" Comment="" HintText="" ModbusAddress="19658" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="50" Unit="&lt;v&gt;%" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Status Mischer HC2" Comment="" HintText="" ModbusAddress="19659" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="50" Unit="&lt;v&gt;%" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Status Wärmeerzeuger" Comment="" HintText="" ModbusAddress="18722" ModbusCmd="3" ModbusPollingCycle="30" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Aktuelle Modulation WP" Comment="" HintText="" ModbusAddress="18726" ModbusCmd="3" ModbusPollingCycle="30" Unit="&lt;v.0&gt; %" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Status Betriebsstunden" Comment="" HintText="" ModbusAddress="1516" ModbusCmd="3" ModbusDataType="98" ModbusPollingCycle="3600" Unit="&lt;v.0&gt;h" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Status Schaltzyklen" Comment="" HintText="" ModbusAddress="1518" ModbusCmd="3" ModbusDataType="98" ModbusPollingCycle="3600" Unit="&lt;v.0&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Aktuelle HZ Puffer WPF Fühler Temperatur [WPF]" Comment="" HintText="" ModbusAddress="27494" ModbusCmd="3" ModbusPollingCycle="35" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="Status Betriebsart HC3" Comment="" HintText="" ModbusAddress="1503" ModbusCmd="3" ModbusPollingCycle="35" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Aktuelle Vorlauftemperatur HC3 [VF3]" Comment="" HintText="" ModbusAddress="1515" ModbusCmd="3" ModbusPollingCycle="35" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="Status Mischkreispumpe HC3" Comment="" HintText="" ModbusAddress="19708" ModbusCmd="3" ModbusPollingCycle="45" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Status Vorlaufsolltemperatur HC3" Comment="" HintText="" ModbusAddress="19564" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="40" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="Status Mischer HC3" Comment="" HintText="" ModbusAddress="19660" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="50" Unit="&lt;v&gt;%" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Aktuelle Regelstrategie HC3" Comment="" HintText="" ModbusAddress="27512" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Aktuelle Rücklauftemperatur" Comment="" HintText="" ModbusAddress="1535" ModbusCmd="3" ModbusPollingCycle="45" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="10"/>
+	<ModbusCmd Title="Status Jahresarbeitszahl" Comment="" HintText="" ModbusAddress="27467" ModbusCmd="3" ModbusPollingCycle="3700" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="10"/>
+	<ModbusCmd Title="Aktueller Volumenstrom" Comment="" HintText="" ModbusAddress="31708" ModbusCmd="3" ModbusPollingCycle="35" Unit="&lt;v.3&gt;l/min" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="Aktueller COP" Comment="" HintText="" ModbusAddress="27490" ModbusCmd="3" ModbusPollingCycle="30" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="Status Detailstatus Wärmepumpe" Comment="" HintText="0= WP Aus
+1= Heizen mit WP
+2= Aktivkühlen
+3= Sperre (Bivalenz,WW,Usw.)
+4= Warmwasser mit WP 
+5= WP-Frostschutz
+6=WP-Temperatur zu tief
+7=WP-Vorlauf zu hoch
+8= Abtauen
+9= Passivkühlen
+11= HD-Störung (Sensor oder Schalter)
+12= Niederdruckstörung
+16= Wiedereinschaltverzögerung
+17= EW-,Energieerz-Sperre
+18= Vorlaufzeit Primär
+19= Nachlaufzeit Primär
+44= MOP
+49= Erfolglose Abtauung
+51= Vorlaufzeit Kondenserpumpe
+55= Störung Inverter/Modbus Kommunikation
+72-99 Siehe Status Baustein" ModbusAddress="18723" ModbusCmd="3" ModbusPollingCycle="20" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Smart Grid Auslösen" Comment="" HintText="" ModbusAddress="27545" ModbusCmd="6" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100" RepeatRate="35"/>
+	<ModbusCmd Title="Smart Grid Offset Warmwasser Soll" Comment="" HintText="" ModbusAddress="27509" ModbusCmd="6" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="false" SourceValHigh="1" DestValHigh="10" RepeatRate="15"/>
+	<ModbusCmd Title="Smart Grid Offset Heizungspuffer Soll" Comment="" HintText="" ModbusAddress="28839" ModbusCmd="6" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="false" SourceValHigh="1" DestValHigh="10" RepeatRate="15"/>
+	<ModbusCmd Title="Smart Grid Offset Raum Soll HC1" Comment="" HintText="" ModbusAddress="27528" ModbusCmd="6" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="false" SourceValHigh="1" DestValHigh="10" RepeatRate="15"/>
+	<ModbusCmd Title="Smart Grid Offset Raum Soll HC2" Comment="" HintText="" ModbusAddress="27529" ModbusCmd="6" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="false" SourceValHigh="1" DestValHigh="10" RepeatRate="10"/>
+	<ModbusCmd Title="Smart Grid Offset Raum Soll HC3" Comment="" HintText="" ModbusAddress="27530" ModbusCmd="6" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="false" SourceValHigh="1" DestValHigh="10" RepeatRate="10"/>
+	<ModbusCmd Title="Smart Grid über Systembus" Comment="" HintText="" ModbusAddress="27546" ModbusCmd="6" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10" RepeatRate="30"/>
+</Modbus>

@@ -1,0 +1,8 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Comm Title="RS232_DD700_Englisch" Comment="" Baudrate="9600" Databits="8" EndChar="266">
+	<Info templateType="5" minVersion="12021201"/>
+	<CommCmd Title="Relay_1_for_traffic_light_changeover" Comment="" CmdOn="\v\r\n" CmdOff="" Unit="&lt;v.1&gt;" Analog="true" Text="false" Sensor="true" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="scale_current_weight" Comment="" CmdOn="\.\.\.\.\.\v" CmdOff="" Unit="&lt;v.1&gt;" Analog="true" Text="false" Sensor="true" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="Request_scale_current_weight" Comment="" CmdOn="\x58\x42\x0d" CmdOff="" Unit="" Analog="false" Text="false" Sensor="false" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="Request_relay_1_for_traffic light changeover" Comment="" CmdOn="\x54\x4F\x30\x31\x0d" CmdOff="" Unit="" Analog="false" Text="false" Sensor="false" Signed="true" SourceValHigh="100" DestValHigh="100"/>
+</Comm>

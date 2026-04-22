@@ -1,0 +1,6 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<VirtualOut Title="EVRW Recharging Portable Station" Comment="Comando Potenza" Address="http://192.168.1.20" CmdInit="" CloseAfterSend="true" CmdSep=";">
+	<Info templateType="3" minVersion="12021105"/>
+	<VirtualOutCmd Title="EVRW: Power-CMD" Comment="" CmdOnMethod="GET" CmdOffMethod="GET" CmdOn="/remote.json?p=&lt;v&gt;" CmdOnHTTP="" CmdOnPost="" CmdOff="" CmdOffHTTP="" CmdOffPost="" Analog="true" Repeat="0" RepeatRate="0" SourceValHigh="1" DestValHigh="1000"/>
+	<VirtualOutCmd Title="EVRW: Start-Stop CHG" Comment="" CmdOnMethod="GET" CmdOffMethod="GET" CmdOn="/remote.json?p=on" CmdOnHTTP="" CmdOnPost="" CmdOff="/remote.json?p=off" CmdOffHTTP="" CmdOffPost="" Analog="false" Repeat="0" RepeatRate="0"/>
+</VirtualOut>

@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<VirtualOut Title="Pioneer AV Receiver" Address="tcp://192.168.1.199:23" CmdInit="" CloseAfterSend="true" CmdSep=";">
+  <Info templateType="3" minVersion="12010617"/>  
+  <VirtualOutCmd ID="1" Title="Power On" CmdOn="PO\r" CmdOff="" Repeat="0,000" RepeatRate="0,000" Analog="false"/>
+  <VirtualOutCmd ID="2" Title="Power Off" CmdOn="PF\r" CmdOff="" Repeat="0,000" RepeatRate="0,000" Analog="false"/>
+  <VirtualOutCmd ID="3" Title="Volume Up" CmdOn="VU\r" CmdOff="" Repeat="0,000" RepeatRate="0,000" Analog="false"/>
+  <VirtualOutCmd ID="4" Title="Volume Down" CmdOn="VD\r" CmdOff="" Repeat="0,000" RepeatRate="0,000" Analog="false"/>
+  <VirtualOutCmd ID="5" Title="Mute" CmdOn="" CmdOff="" Repeat="0,000" RepeatRate="0,000" Analog="false"/>
+  <VirtualOutCmd ID="6" Title="Source: DVD" CmdOn="04FN\r" CmdOff="" Repeat="0,000" RepeatRate="0,000" Analog="false"/>
+  <VirtualOutCmd ID="7" Title="Source: Blu-Ray" CmdOn="25FN\r" CmdOff="" Repeat="0,000" RepeatRate="0,000" Analog="false"/>
+  <VirtualOutCmd ID="8" Title="Source: TV-Sat" CmdOn="05FN\r" CmdOff="" Repeat="0,000" RepeatRate="0,000" Analog="false"/>
+  <VirtualOutCmd ID="9" Title="Source: HDMI 1" CmdOn="19FN\r" CmdOff="" Repeat="0,000" RepeatRate="0,000" Analog="false"/>
+  <VirtualOutCmd ID="10" Title="Source: HDMI 2" CmdOn="20FN\r" CmdOff="" Repeat="0,000" RepeatRate="0,000" Analog="false"/>
+  <VirtualOutCmd ID="11" Title="Source: HDMI 3" CmdOn="21FN\r" CmdOff="" Repeat="0,000" RepeatRate="0,000" Analog="false"/>
+  <VirtualOutCmd ID="12" Title="Source: HDMI 4" CmdOn="22FN\r" CmdOff="" Repeat="0,000" RepeatRate="0,000" Analog="false"/>
+  <VirtualOutCmd ID="13" Title="Source: HDMI 5" CmdOn="23FN\r" CmdOff="" Repeat="0,000" RepeatRate="0,000" Analog="false"/>
+  <VirtualOutCmd ID="14" Title="Source: Home Media Gallery (Internet Radio)" CmdOn="26FN\r" CmdOff="" Repeat="0,000" RepeatRate="0,000" Analog="false"/>
+  <VirtualOutCmd ID="15" Title="Source: iPod-USB" CmdOn="17FN\r" CmdOff="" Repeat="0,000" RepeatRate="0,000" Analog="false"/>
+  <VirtualOutCmd ID="16" Title="Source: XM-Radio" CmdOn="" CmdOff="18FN\r" Repeat="0,000" RepeatRate="0,000" Analog="false"/>
+  <VirtualOutCmd ID="17" Title="Source: CD" CmdOn="01FN\r" CmdOff="" Repeat="0,000" RepeatRate="0,000" Analog="false"/>
+  <VirtualOutCmd ID="18" Title="Source: CD-R Tape" CmdOn="03FN\r" CmdOff="" Repeat="0,000" RepeatRate="0,000" Analog="false"/>
+  <VirtualOutCmd ID="19" Title="Source: Tuner" CmdOn="02FN\r" CmdOff="" Repeat="0,000" RepeatRate="0,000" Analog="false"/>
+  <VirtualOutCmd ID="20" Title="Source: Sirius-Radio" CmdOn="27FN\r" CmdOff="" Repeat="0,000" RepeatRate="0,000" Analog="false"/>
+  <VirtualOutCmd ID="21" Title="Panel Key Lock" CmdOn="1PKL\r" CmdOff="" Repeat="0,000" RepeatRate="0,000" Analog="false"/>
+  <VirtualOutCmd ID="22" Title="Zone 2 Power on" CmdOn="APO\r" CmdOff="" Repeat="0,000" RepeatRate="0,000" Analog="false"/>
+  <VirtualOutCmd ID="23" Title="Zone 2 Power off" CmdOn="APF\r" CmdOff="" Repeat="0,000" RepeatRate="0,000" Analog="false"/>
+  <VirtualOutCmd ID="24" Title="Zone 3 Power on" CmdOn="BPO\r" CmdOff="" Repeat="0,000" RepeatRate="0,000" Analog="false"/>
+  <VirtualOutCmd ID="25" Title="Zone 3 Power off" CmdOn="BPF\r" CmdOff="" Repeat="0,000" RepeatRate="0,000" Analog="false"/>
+  <VirtualOutCmd ID="26" Title="Zone 2 Volume up" CmdOn="ZU\r" CmdOff="" Repeat="0,000" RepeatRate="0,000" Analog="false"/>
+  <VirtualOutCmd ID="27" Title="Zone 2 Volume down" CmdOn="ZD\r" CmdOff="" Repeat="0,000" RepeatRate="0,000" Analog="false"/>
+  <VirtualOutCmd ID="28" Title="Zone 3 Volume up" CmdOn="YU\r" CmdOff="" Repeat="0,000" RepeatRate="0,000" Analog="false"/>
+  <VirtualOutCmd ID="29" Title="Zone 3 Volume down" CmdOn="YD\r" CmdOff="" Repeat="0,000" RepeatRate="0,000" Analog="false"/>
+</VirtualOut>

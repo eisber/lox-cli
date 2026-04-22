@@ -1,0 +1,6 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<VirtualOut Title="Samsung TV" Comment="" Address="http://192.168.0.25:8080" CmdInit="" CloseAfterSend="true" CmdSep=";">
+	<Info templateType="3" minVersion="12021201"/>
+	<VirtualOutCmd Title="TV Netflix" Comment="SWR 3 Elchradio" CmdOnMethod="POST" CmdOffMethod="POST" CmdOn="/ws/app/Netflix" CmdOnHTTP="" CmdOnPost="rest_command" CmdOff="" CmdOffHTTP="" CmdOffPost="" Analog="false" Repeat="0" RepeatRate="0"/>
+	<VirtualOutCmd Title="TV Youtube" Comment="SWR 3 Elchradio" CmdOnMethod="POST" CmdOffMethod="POST" CmdOn="/ws/app/YouTube" CmdOnHTTP="" CmdOnPost="rest_command.livingroom_tv_app_YouTube" CmdOff="" CmdOffHTTP="" CmdOffPost="" Analog="false" Repeat="0" RepeatRate="0"/>
+</VirtualOut>

@@ -1,0 +1,7 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<VirtualOut Title="Captive Video Server" Comment="" Address="http://[IPaddressofCaptiveServer]:8083" CmdInit="" CloseAfterSend="false" CmdSep="">
+	<Info templateType="3" minVersion="12021201"/>
+	<VirtualOutCmd Title="Record on Camera X for Y seconds" Comment="" CmdOnMethod="POST" CmdOffMethod="POST" CmdOn="/instant/X (change X to camera number from Captive server)/Y (change Y to the number of seconds you want to record)" CmdOnHTTP="" CmdOnPost="/" CmdOff="" CmdOffHTTP="" CmdOffPost="" Analog="false" Repeat="0" RepeatRate="0"/>
+	<VirtualOutCmd Title="Record on Camera# 0 for 30s" Comment="" CmdOnMethod="POST" CmdOffMethod="POST" CmdOn="/instant/0/30" CmdOnHTTP="" CmdOnPost="/" CmdOff="" CmdOffHTTP="" CmdOffPost="" Analog="false" Repeat="0" RepeatRate="0"/>
+	<VirtualOutCmd Title="Trigger Instant Recording" Comment="" CmdOnMethod="POST" CmdOffMethod="POST" CmdOn="/instant" CmdOnHTTP="" CmdOnPost="/" CmdOff="" CmdOffHTTP="" CmdOffPost="" Analog="false" Repeat="0" RepeatRate="0"/>
+</VirtualOut>

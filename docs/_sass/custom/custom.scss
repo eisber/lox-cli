@@ -1,0 +1,460 @@
+// ── Modern typography & layout ────────────────────────────────
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+// Base
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+// Headings
+.main-content {
+  h1, h2, h3, h4, h5, h6 {
+    font-weight: 600;
+    letter-spacing: -0.02em;
+  }
+
+  h1 {
+    font-size: 2.25rem !important;
+    margin-bottom: 0.5rem;
+  }
+
+  h2 {
+    font-size: 1.5rem !important;
+    margin-top: 2.5rem;
+    padding-bottom: 0.4rem;
+    border-bottom: 1px solid #21262d;
+  }
+}
+
+// Code blocks
+code {
+  font-family: 'JetBrains Mono', 'Fira Code', monospace;
+  font-size: 0.85em;
+}
+
+pre.highlight {
+  border: 1px solid #21262d;
+  border-radius: 8px;
+  padding: 1rem 1.25rem;
+
+  code {
+    font-size: 0.82em;
+    line-height: 1.7;
+  }
+}
+
+// Inline code
+code.language-plaintext {
+  background: #1c2129;
+  border: 1px solid #21262d;
+  border-radius: 4px;
+  padding: 0.15em 0.4em;
+  font-size: 0.85em;
+  color: #79c0ff;
+}
+
+// Tables
+.main-content table {
+  border-collapse: separate;
+  border-spacing: 0;
+  border: 1px solid #21262d;
+  border-radius: 8px;
+  overflow: hidden;
+
+  th {
+    background: #161b22;
+    font-weight: 600;
+    text-transform: none;
+    letter-spacing: 0;
+    font-size: 0.85rem;
+    color: #e6edf3;
+    border-bottom: 1px solid #21262d;
+  }
+
+  td {
+    border-bottom: 1px solid #21262d;
+    font-size: 0.9rem;
+  }
+
+  tr:last-child td {
+    border-bottom: none;
+  }
+
+  code {
+    font-size: 0.82em;
+  }
+}
+
+// ── Hero section ──────────────────────────────────────────────
+
+.hero {
+  text-align: center;
+  padding: 3rem 0 2rem;
+  margin-bottom: 2rem;
+  position: relative;
+
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 10%;
+    right: 10%;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, #21262d, transparent);
+  }
+}
+
+.hero-title {
+  font-size: 3rem !important;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  margin-bottom: 0.25rem;
+  border-bottom: none !important;
+  padding-bottom: 0 !important;
+  margin-top: 0 !important;
+  background: linear-gradient(135deg, #e6edf3 0%, #8b949e 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.hero-tagline {
+  font-size: 1.25rem;
+  color: #8b949e;
+  font-weight: 300;
+  margin-bottom: 0.5rem;
+  line-height: 1.6;
+}
+
+.hero-badges {
+  margin-bottom: 1.5rem;
+  display: flex;
+  gap: 0.5rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.hero-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.3rem 0.75rem;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  background: #161b22;
+  border: 1px solid #21262d;
+  color: #8b949e;
+}
+
+.hero-badge-icon {
+  font-size: 0.9rem;
+}
+
+.hero-buttons {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-top: 1.5rem;
+}
+
+.btn-hero {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.7rem 1.75rem;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.95rem;
+  text-decoration: none !important;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.btn-hero-primary {
+  background: #22c55e;
+  color: #0d1117 !important;
+  border: 1px solid #22c55e;
+
+  &:hover {
+    background: #16a34a;
+    border-color: #16a34a;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(34, 197, 94, 0.3);
+  }
+}
+
+.btn-hero-secondary {
+  background: transparent;
+  color: #c9d1d9 !important;
+  border: 1px solid #30363d;
+
+  &:hover {
+    background: #161b22;
+    border-color: #58a6ff;
+    color: #58a6ff !important;
+    transform: translateY(-1px);
+  }
+}
+
+// ── Feature cards ─────────────────────────────────────────────
+
+.features {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1rem;
+  margin: 2rem 0;
+}
+
+.feature-card {
+  background: #161b22;
+  border: 1px solid #21262d;
+  border-radius: 12px;
+  padding: 1.5rem;
+  transition: all 0.2s ease;
+
+  &:hover {
+    border-color: #30363d;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+  }
+}
+
+.feature-icon {
+  font-size: 1.5rem;
+  margin-bottom: 0.75rem;
+  display: block;
+}
+
+.feature-title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #e6edf3;
+  margin-bottom: 0.4rem;
+}
+
+.feature-desc {
+  font-size: 0.875rem;
+  color: #8b949e;
+  line-height: 1.5;
+}
+
+// ── Terminal demo block ───────────────────────────────────────
+
+.terminal {
+  background: #0d1117;
+  border: 1px solid #21262d;
+  border-radius: 12px;
+  overflow: hidden;
+  margin: 2rem 0;
+}
+
+.terminal-header {
+  background: #161b22;
+  padding: 0.6rem 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  border-bottom: 1px solid #21262d;
+}
+
+.terminal-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.terminal-dot-red { background: #ff5f57; }
+.terminal-dot-yellow { background: #febc2e; }
+.terminal-dot-green { background: #28c840; }
+
+.terminal-title {
+  color: #484f58;
+  font-size: 0.75rem;
+  margin-left: 0.5rem;
+  font-family: 'Inter', sans-serif;
+}
+
+.terminal-body {
+  padding: 1rem 1.25rem;
+
+  pre {
+    margin: 0;
+    background: transparent;
+    border: none;
+    padding: 0;
+
+    code {
+      font-size: 0.82em;
+      line-height: 1.7;
+      color: #c9d1d9;
+    }
+  }
+}
+
+.terminal-comment {
+  color: #6e7681;
+}
+
+.terminal-prompt {
+  color: #22c55e;
+  user-select: none;
+  margin-right: 0.4em;
+}
+
+// ── Install snippet ───────────────────────────────────────────
+
+.install-block {
+  background: #161b22;
+  border: 1px solid #21262d;
+  border-radius: 12px;
+  padding: 1.25rem 1.5rem;
+  margin: 1.5rem auto;
+  max-width: 600px;
+  text-align: left;
+
+  code {
+    font-size: 0.9rem;
+    color: #22c55e;
+    background: none;
+    border: none;
+    padding: 0;
+  }
+}
+
+.install-row {
+  display: flex;
+  align-items: baseline;
+  gap: 0.75rem;
+  padding: 0.4rem 0;
+
+  &:first-child {
+    border-bottom: 1px solid #21262d;
+    padding-bottom: 0.65rem;
+    margin-bottom: 0.25rem;
+  }
+}
+
+.install-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #8b949e;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+  min-width: 7rem;
+  text-align: right;
+}
+
+// ── Section headers ───────────────────────────────────────────
+
+.section-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: #22c55e;
+  margin-bottom: 0.25rem;
+}
+
+// ── Horizontal rule ───────────────────────────────────────────
+
+.main-content hr {
+  border: none;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, #21262d, transparent);
+  margin: 2.5rem 0;
+}
+
+// ── Sidebar nav polish ────────────────────────────────────────
+
+.site-title {
+  font-weight: 700 !important;
+  font-size: 1.25rem !important;
+  letter-spacing: -0.02em;
+}
+
+.nav-list .nav-list-item .nav-list-link {
+  font-size: 0.9rem;
+  padding: 0.35rem 0.75rem;
+  border-radius: 6px;
+  transition: all 0.15s ease;
+
+  &:hover {
+    background: #161b22;
+  }
+
+  &.active {
+    background: #161b22;
+    border-left: 2px solid #22c55e;
+    font-weight: 600;
+    color: #e6edf3;
+  }
+}
+
+// ── Buttons (override just-the-docs) ──────────────────────────
+
+.btn {
+  border-radius: 8px;
+  font-weight: 600;
+  transition: all 0.2s ease;
+  border: 1px solid #30363d;
+}
+
+.btn-primary {
+  background: #22c55e;
+  color: #0d1117 !important;
+  border-color: #22c55e;
+
+  &:hover {
+    background: #16a34a;
+    border-color: #16a34a;
+  }
+}
+
+// ── Scrollbar ─────────────────────────────────────────────────
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #0d1117;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #21262d;
+  border-radius: 4px;
+
+  &:hover {
+    background: #30363d;
+  }
+}
+
+// ── Smooth transitions ────────────────────────────────────────
+
+a {
+  transition: color 0.15s ease;
+}
+
+// ── Responsive ────────────────────────────────────────────────
+
+@media (max-width: 600px) {
+  .hero-title {
+    font-size: 2rem !important;
+  }
+
+  .hero-tagline {
+    font-size: 1rem;
+  }
+
+  .features {
+    grid-template-columns: 1fr;
+  }
+}

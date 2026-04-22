@@ -1,0 +1,40 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Modbus Title="D+H ACB Window Drive" Comment="" HintText="" Baudrate="19200" Parity="1" Channel="1">
+	<Info templateType="7" minVersion="14040925"/>
+	<ModbusCmd Title="Actual position" Comment="" HintText="The actual ventilation position of the drive can be read via this value. 
+(referred to ventilation stroke)     
+
+[%]
+Position CLOSED: 0  
+Position OPEN: ≥ 100     
+
+" ModbusAddress="1002" ModbusCmd="4" ModbusPollingCycle="1" Unit="&lt;v&gt;%" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Condition code" Comment="" HintText="The Drive group condition code can be read via this value. 
+
+Possible condition-code are listed in the ACB planning manual." ModbusAddress="1006" ModbusCmd="4" ModbusPollingCycle="1" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Current" Comment="" HintText="The current of complete opening drive group except lock drives can be read via this value.   
+
+[mA] (±50 mA)  
+     " ModbusAddress="1010" ModbusCmd="4" ModbusPollingCycle="1" Unit="&lt;v&gt;mA" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Voltage" Comment="" HintText="The supply voltage of the  drive group can be read via this value.     
+
+[mV]        " ModbusAddress="1011" ModbusCmd="4" ModbusPollingCycle="1" Unit="&lt;v.1&gt;V" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="0.1"/>
+	<ModbusCmd Title="End position CLOSED" Comment="" HintText="" ModbusAddress="1004" ModbusCmd="4" ModbusPollingCycle="1" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Failure" Comment="" HintText="" ModbusAddress="1005" ModbusCmd="4" ModbusPollingCycle="1" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="End position OPEN" Comment="" HintText="" ModbusAddress="1003" ModbusCmd="4" ModbusPollingCycle="1" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Nominal control command" Comment="" HintText="The nominal control command of the drive can be written via this value.
+
+Stop: 0  
+CLOSED: 1  
+OPEN: 2  
+Ventilation position: 6  
+None (without change): 31     " ModbusAddress="2000" ModbusCmd="6" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Nominal position" Comment="" HintText="The nominal ventilation position of the drive can be written via this value.
+
+[0 - 100 %]
+" ModbusAddress="2001" ModbusCmd="6" Unit="&lt;v&gt;%" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Target speed" Comment="" HintText="The target speed of the drive can be written via this value.
+
+[mm/s]  
+" ModbusAddress="2002" ModbusCmd="6" Unit="&lt;v&gt;mm/s" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+</Modbus>

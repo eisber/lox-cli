@@ -1,0 +1,62 @@
+{
+  "title": "Runtime Counter",
+  "xml_type": "",
+  "kb_slug": "maintenance-counter",
+  "description": "The Runtime Counter enables the implementation of a total operating time measurement and maintenance intervals. Examples are maintenance intervals of filters, runtime detection of motors etc...\nAs long as Input (En) is On, the time is measured. The total operating time is displayed at the output (To). The interval of the statistics is fixed to 30 minutes.",
+  "inputs": [
+    {
+      "abbreviation": "En",
+      "summary": "Enable",
+      "description": "Counters running while on.",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "Rmc",
+      "summary": "Reset maintenance counter",
+      "description": "Resets maintenance counter to parameter Mi.",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "Off",
+      "summary": "Off",
+      "description": "Pulse: Outputs are reset / switched off. On: Block is locked. Dominating input. The name of the connected sensor is used in the user interface.",
+      "value_range": "0/1"
+    }
+  ],
+  "outputs": [
+    {
+      "abbreviation": "Rtm",
+      "summary": "Remaining time maintenance",
+      "description": "Time remaining until maintenance interval is reached.",
+      "value_range": "\u221e"
+    },
+    {
+      "abbreviation": "API",
+      "summary": "API Connector",
+      "description": "Intelligent API based connector. API Commands",
+      "value_range": "-"
+    }
+  ],
+  "parameters": [
+    {
+      "abbreviation": "Tu",
+      "summary": "Time unit",
+      "description": "0=seconds 1=minutes 2=hours 3=days Applies only to the analog outputs, not to the user interface!",
+      "value_range": "0...3",
+      "default_value": "0"
+    },
+    {
+      "abbreviation": "Mi",
+      "summary": "Maintenance interval",
+      "description": "Block: Value specified in seconds Property window: 1d12:00:00.000 (Days, Hours, Minutes, Seconds, Ms) 0 = Output (Me) is not used.",
+      "value_range": "\u221e",
+      "default_value": "0"
+    }
+  ],
+  "properties": [],
+  "source_url": "https://www.loxone.com/enen/kb/maintenance-counter/",
+  "input_count": 3,
+  "output_count": 2,
+  "parameter_count": 2,
+  "property_count": 0
+}

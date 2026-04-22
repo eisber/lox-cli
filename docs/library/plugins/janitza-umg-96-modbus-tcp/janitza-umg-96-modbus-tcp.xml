@@ -1,0 +1,18 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Modbus Title="Janitza UMG-96" Comment="" Channel="1">
+	<Info templateType="7" minVersion="12021105"/>
+	<ModbusCmd Title="1 Voltage L1-N" Comment="Hauptmessung" ModbusAddress="19000" ModbusCmd="3" ModbusDataType="100" ModbusPollingCycle="5" Unit="&lt;v.1&gt; V" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="2 Voltage L2-N" Comment="Hauptmessung" ModbusAddress="19002" ModbusCmd="4" ModbusDataType="100" ModbusPollingCycle="5" Unit="&lt;v.1&gt; V" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="3 Voltage L3-N" Comment="Hauptmessung" ModbusAddress="19004" ModbusCmd="3" ModbusDataType="100" ModbusPollingCycle="5" Unit="&lt;v.1&gt; V" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="1 Current I L1" Comment="Hauptmessung" ModbusAddress="19012" ModbusCmd="3" ModbusDataType="100" ModbusPollingCycle="60" Unit="&lt;v.1&gt; A" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="2 Current I L2" Comment="Hauptmessung" ModbusAddress="19014" ModbusCmd="3" ModbusDataType="100" ModbusPollingCycle="60" Unit="&lt;v.1&gt; A" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="3 Current I L3" Comment="Hauptmessung" ModbusAddress="19016" ModbusCmd="3" ModbusDataType="100" ModbusPollingCycle="60" Unit="&lt;v.1&gt; A" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="4 Measured frequency" Comment="Hauptmessung" ModbusAddress="19050" ModbusCmd="3" ModbusDataType="100" ModbusPollingCycle="60" Unit="&lt;v.1&gt; Hz" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="6 Real Energy Consumed" Comment="Hauptmessung" ModbusAddress="19068" ModbusCmd="3" ModbusDataType="100" ModbusPollingCycle="60" Unit="&lt;v.1&gt; kWh" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="1"/>
+	<ModbusCmd Title="6 Apparent Energy" Comment="Hauptmessung" ModbusAddress="19084" ModbusCmd="3" ModbusDataType="100" ModbusPollingCycle="60" Unit="&lt;v.1&gt; kVAh" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="1"/>
+	<ModbusCmd Title="6 Reactive Energy" Comment="Hauptmessung" ModbusAddress="19092" ModbusCmd="3" ModbusDataType="100" ModbusPollingCycle="60" Unit="&lt;v.1&gt; kvarh" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="1"/>
+	<ModbusCmd Title="5 Real Power" Comment="Hauptmessung" ModbusAddress="19026" ModbusCmd="3" ModbusDataType="100" ModbusPollingCycle="60" Unit="&lt;v.1&gt; kW" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="1"/>
+	<ModbusCmd Title="5 Reactive Power" Comment="Hauptmessung" ModbusAddress="19042" ModbusCmd="3" ModbusDataType="100" ModbusPollingCycle="60" Unit="&lt;v.1&gt; kvar" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="1"/>
+	<ModbusCmd Title="5 Apparent Power" Comment="Hauptmessung" ModbusAddress="19034" ModbusCmd="3" ModbusDataType="100" ModbusPollingCycle="60" Unit="&lt;v.1&gt; kVA" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="1"/>
+	<ModbusCmd Title="6 Real Energy Delivered" Comment="Hauptmessung" ModbusAddress="19076" ModbusCmd="3" ModbusDataType="100" ModbusPollingCycle="60" Unit="&lt;v.1&gt; kWh" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="1"/>
+</Modbus>

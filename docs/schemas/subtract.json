@@ -1,0 +1,28 @@
+{
+  "title": "Subtract",
+  "xml_type": "",
+  "kb_slug": "subtract",
+  "description": "Subtracts analog values (V1-V2) and provides the result at output (O)",
+  "inputs": [],
+  "outputs": [
+    {
+      "abbreviation": "O",
+      "description": "(O) = (V1) - (V2)",
+      "value_range": "\u221e"
+    }
+  ],
+  "parameters": [
+    {
+      "abbreviation": "V1-2",
+      "summary": "Value 1-2",
+      "value_range": "\u221e",
+      "default_value": "0"
+    }
+  ],
+  "properties": [],
+  "source_url": "https://www.loxone.com/enen/kb/subtract/",
+  "input_count": 0,
+  "output_count": 1,
+  "parameter_count": 1,
+  "property_count": 0
+}

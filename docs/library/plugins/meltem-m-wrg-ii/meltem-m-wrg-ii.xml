@@ -1,0 +1,24 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Modbus Title="Meltem M-WRG-II P-M-F" Comment="" Baudrate="19200" Parity="1" Channel="1">
+	<Info templateType="7" minVersion="14030828"/>
+	<ModbusCmd Title="Exhaust air temperature" Comment="Fortlufttemperatur" ModbusAddress="41000" ModbusCmd="3" ModbusDataType="100" ModbusPollingCycle="60" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Outdoor air temperature" Comment="Außenlufttemperatur" ModbusAddress="41002" ModbusCmd="3" ModbusDataType="100" ModbusPollingCycle="60" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Extract air temperature" Comment="Ablufttemperatur" ModbusAddress="41004" ModbusCmd="3" ModbusDataType="100" ModbusPollingCycle="60" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Supply air temperature" Comment="Zulufttemperatur" ModbusAddress="41009" ModbusCmd="3" ModbusDataType="100" ModbusPollingCycle="60" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Humidity, extract air" Comment="Feuchte Abluft" ModbusAddress="41006" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v&gt; %" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Humidity, supply air" Comment="Feuchte Zuluft" ModbusAddress="41011" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v&gt; %" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Ventilation level for extract air" Comment="Lüftungsstufe Abluft" ModbusAddress="41020" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v&gt; m³/h" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Ventilation level for supply air" Comment="Lüftungsstufe Zuluft" ModbusAddress="41021" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v&gt; m³/h" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Air filter change indicator" Comment="Luftfilterwechsel-Anzeige" ModbusAddress="41017" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Time until air filter change" Comment="Zeit bis Luftfilterwechsel" ModbusAddress="41027" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v&gt; Days" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Ventilation unit operating hours" Comment="Betriebsstunden Lüftungsgerät" ModbusAddress="41030" ModbusCmd="3" ModbusDataType="98" ModbusPollingCycle="60" Unit="&lt;v&gt; h" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Fan motors operating hours" Comment="Betriebsstunden Lüftermotor" ModbusAddress="41032" ModbusCmd="3" ModbusDataType="98" ModbusPollingCycle="60" Unit="&lt;v&gt; h" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Error message id" Comment="Fehlermeldung" ModbusAddress="41016" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Frost protection active" Comment="Frostschutzfunktion" ModbusAddress="41018" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="CO2, extract air" Comment="" ModbusAddress="41007" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v&gt; ppm" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="VOC, supply air" Comment="" ModbusAddress="41013" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v&gt; %" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Ventilation mode" Comment="Lüftungsmodus" ModbusAddress="41120" ModbusCmd="6" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Supply air fan" Comment="Lüftungsstufe" ModbusAddress="41121" ModbusCmd="6" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Write Command" Comment="Sollwert Schreiben" ModbusAddress="41132" ModbusCmd="6" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Exhaust air fan" Comment="Lüftungsstufe Abluft" ModbusAddress="41122" ModbusCmd="6" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+</Modbus>

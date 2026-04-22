@@ -1,0 +1,9 @@
+{
+                                "type": "template",
+                                "name": "fronius-battery",
+                                "uuid": "654a1d4f-9cf8-11ed-b7204cd98f3deb8a",
+                                "version":"1.0.1",
+                                "id": "fronius-battery-1136",
+                                "file": "fronius-battery.xml",
+                                "templateType": "2",
+                            }

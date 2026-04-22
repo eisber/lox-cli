@@ -1,0 +1,27 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Modbus Title="Regmet RK-CHM-D" Comment="" HintText="" Baudrate="19200" Parity="1" Channel="1">
+	<Info templateType="7" minVersion="15050304"/>
+	<ModbusCmd Title="1: 0x02 Relative humidity" Comment="" HintText="" ModbusAddress="1" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="10" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="0: 0x01 Temperature" Comment="" HintText="" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="10" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="5: 0x06 CO2 concentration" Comment="" HintText="" ModbusAddress="5" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="10" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="9: 0x10 Required humidity" Comment="" HintText="" ModbusAddress="9" ModbusCmd="6" ModbusDataType="1" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="100" RepeatRate="3600"/>
+	<ModbusCmd Title="8: 0x09 Required temperature" Comment="" HintText="" ModbusAddress="8" ModbusCmd="6" ModbusDataType="1" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="100" RepeatRate="3600"/>
+	<ModbusCmd Title="16: 0x17 Required mode 1" Comment="" HintText="" ModbusAddress="16" ModbusCmd="6" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100" RepeatRate="3600"/>
+	<ModbusCmd Title="17: 0x18 Required mode 2" Comment="" HintText="" ModbusAddress="17" ModbusCmd="6" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100" RepeatRate="3600"/>
+	<ModbusCmd Title="76: 0x77  Offset temperature" Comment="" HintText="" ModbusAddress="76" ModbusCmd="6" ModbusDataType="1" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100" RepeatRate="3600"/>
+	<ModbusCmd Title="28: 0x29 Status register" Comment="" HintText="" ModbusAddress="28" ModbusCmd="6" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100" RepeatRate="3600"/>
+	<ModbusCmd Title="34: 0x35 LCD backlight day" Comment="" HintText="" ModbusAddress="33" ModbusCmd="6" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100" RepeatRate="3600"/>
+	<ModbusCmd Title="18: 0x19 Required mode 3" Comment="" HintText="" ModbusAddress="18" ModbusCmd="6" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100" RepeatRate="3600"/>
+	<ModbusCmd Title="24: 0x25 Symbol at position 1" Comment="" HintText="" ModbusAddress="24" ModbusCmd="6" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100" RepeatRate="60"/>
+	<ModbusCmd Title="25: 0x26 Symbol at position 2" Comment="" HintText="" ModbusAddress="25" ModbusCmd="6" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100" RepeatRate="60"/>
+	<ModbusCmd Title="26: 0x27 Symbol at position 3" Comment="" HintText="" ModbusAddress="26" ModbusCmd="6" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100" RepeatRate="60"/>
+	<ModbusCmd Title="37: 0x38 LCD symbol color" Comment="" HintText="" ModbusAddress="37" ModbusCmd="6" ModbusDataType="1" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100" RepeatRate="60"/>
+	<ModbusCmd Title="36: 0x37 LCD value color" Comment="" HintText="" ModbusAddress="36" ModbusCmd="6" ModbusDataType="1" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100" RepeatRate="60"/>
+	<ModbusCmd Title="39: 0x40 Bit Field (external values)" Comment="" HintText="" ModbusAddress="39" ModbusCmd="6" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100" RepeatRate="3600"/>
+	<ModbusCmd Title="35: 0x36 LCD backlight time" Comment="" HintText="" ModbusAddress="35" ModbusCmd="6" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100" RepeatRate="3600"/>
+	<ModbusCmd Title="13: 0x14 Required CO2" Comment="" HintText="" ModbusAddress="13" ModbusCmd="6" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="100" RepeatRate="3600"/>
+	<ModbusCmd Title="19: 0x20 Required mode 4" Comment="" HintText="" ModbusAddress="19" ModbusCmd="6" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100" RepeatRate="3600"/>
+	<ModbusCmd Title="27: 0x28 Symbol at position 4" Comment="" HintText="" ModbusAddress="27" ModbusCmd="6" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100" RepeatRate="60"/>
+	<ModbusCmd Title="38: 0x39 LCD Backlight night" Comment="" HintText="" ModbusAddress="38" ModbusCmd="6" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10" RepeatRate="3600"/>
+	<ModbusCmd Title="77: 0x78 Offset relative humidity" Comment="" HintText="" ModbusAddress="77" ModbusCmd="6" ModbusDataType="1" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100" RepeatRate="3600"/>
+</Modbus>

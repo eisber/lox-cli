@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Modbus Title="FHT-I" Comment="FHT01" Baudrate="19200" Parity="1" Channel="7">
+	<Info templateType="7" minVersion="14000328"/>
+	<ModbusCmd Title="8 - 7 Temperature" Comment="" ModbusAddress="100" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="10" Unit="&lt;v.2&gt; °C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="8 - 7 Relative humidity" Comment="" ModbusAddress="102" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="10" Unit="&lt;v.2&gt; %" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="8 - 7 Dew point temperature" Comment="" ModbusAddress="104" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="10" Unit="&lt;v.2&gt; °C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="8 - 7 Absolute humidity" Comment="" ModbusAddress="112" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="10" Unit="&lt;v.2&gt; g/m³" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="8 - 7 Power supply voltage" Comment="" ModbusAddress="116" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="10" Unit="&lt;v.2&gt; V" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="8 - 7 Flood counter" Comment="" ModbusAddress="142" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="10" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="8 - 7 Flood resistance positive ticks avg" Comment="" ModbusAddress="146" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="10" Unit="&lt;v.2&gt; V" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="8 - 7 Flood resistance negative ticks avg" Comment="" ModbusAddress="148" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="10" Unit="&lt;v.2&gt; V" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="8 - 7 X - The Last Message after reading" Comment="" ModbusAddress="200" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="10" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+</Modbus>

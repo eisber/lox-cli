@@ -1,0 +1,25 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Modbus Title="Eastron SDM120M" Comment="" HintText="" Baudrate="19200" Parity="1" Channel="4">
+	<Info templateType="7" minVersion="14051201"/>
+	<ModbusCmd Title="Voltage" Comment="" HintText="" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="15" Unit="&lt;v.1&gt;V" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Current" Comment="" HintText="" ModbusAddress="6" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="15" Unit="&lt;v.1&gt;A" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Power" Comment="" HintText="" ModbusAddress="12" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="15" Unit="&lt;v.1&gt;W" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Max. current demand" Comment="" HintText="" ModbusAddress="8" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="15" Unit="&lt;v.1&gt;A" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Apparent power" Comment="" HintText="" ModbusAddress="18" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="15" Unit="&lt;v.1&gt;VA" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Reactive power" Comment="" HintText="" ModbusAddress="24" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="15" Unit="&lt;v.1&gt;VAr" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Power Factor" Comment="" HintText="" ModbusAddress="30" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="15" Unit="&lt;v.2&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Frequency" Comment="" HintText="" ModbusAddress="70" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.2&gt;Hz" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Energy Consumption" Comment="" HintText="" ModbusAddress="72" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt;kWh" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Total active energy" Comment="" HintText="" ModbusAddress="86" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt;kWh" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Total reactive energy" Comment="" HintText="" ModbusAddress="88" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt;kvar" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Energy Production" Comment="" HintText="" ModbusAddress="74" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt;kWh" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Energy Consumption Reactive" Comment="" HintText="" ModbusAddress="76" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt;kvarch" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Energy Production Reactive" Comment="" HintText="" ModbusAddress="78" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt;kvarch" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Total system power demand" Comment="" HintText="" ModbusAddress="84" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt;W" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Max. system power demand" Comment="" HintText="" ModbusAddress="86" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt;W" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Import system power demand" Comment="" HintText="" ModbusAddress="88" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="15" Unit="&lt;v.1&gt;W" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Max. import system power demand" Comment="" HintText="" ModbusAddress="90" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt;W" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Export system power demand" Comment="" HintText="" ModbusAddress="92" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="15" Unit="&lt;v.1&gt;W" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Export system power demand" Comment="" HintText="" ModbusAddress="92" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="15" Unit="&lt;v.1&gt;W" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Max. export system power demand" Comment="" HintText="" ModbusAddress="94" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt;W" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+</Modbus>

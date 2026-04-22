@@ -1,0 +1,24 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Modbus Title="OpenTherm DM-OT2" Comment="" HintText="" Baudrate="115200" Parity="1" Channel="4">
+	<Info templateType="7" minVersion="15031213"/>
+	<ModbusCmd Title="Teplota TUV" Comment="" HintText="" ModbusAddress="106" ModbusCmd="3" ModbusDataType="36" ModbusPollingCycle="10" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Teplota topné vody TV1_" Comment="" HintText="" ModbusAddress="102" ModbusCmd="3" ModbusDataType="36" ModbusPollingCycle="10" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Teplota topné vody TV2" Comment="" HintText="" ModbusAddress="104" ModbusCmd="3" ModbusDataType="36" ModbusPollingCycle="10" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Teplota vratu" Comment="" HintText="" ModbusAddress="108" ModbusCmd="3" ModbusDataType="36" ModbusPollingCycle="10" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Venkovní teplota" Comment="" HintText="" ModbusAddress="110" ModbusCmd="3" ModbusDataType="36" ModbusPollingCycle="300" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Výkon topného zdroje" Comment="" HintText="" ModbusAddress="110" ModbusCmd="3" ModbusDataType="36" ModbusPollingCycle="10" Unit="&lt;v.1&gt; %" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Tlak" Comment="" HintText="" ModbusAddress="114" ModbusCmd="3" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt; bar" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Průtok" Comment="" HintText="" ModbusAddress="116" ModbusCmd="3" ModbusDataType="36" ModbusPollingCycle="10" Unit="&lt;v.1&gt; l/s" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Teplota spalin 118" Comment="" HintText="" ModbusAddress="118" ModbusCmd="3" ModbusDataType="36" ModbusPollingCycle="10" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="ID" Comment="" HintText="" ModbusCmd="3" ModbusDataType="32" ModbusPollingCycle="300" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Firmware" Comment="" HintText="" ModbusAddress="1" ModbusCmd="3" ModbusPollingCycle="300" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="BaudRate" Comment="" HintText="" ModbusAddress="5" ModbusCmd="3" ModbusDataType="34" ModbusPollingCycle="10" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Parita" Comment="" HintText="" ModbusAddress="6" ModbusCmd="3" ModbusPollingCycle="10" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Adresa" Comment="" HintText="" ModbusAddress="7" ModbusCmd="3" ModbusPollingCycle="10" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Kód poslední chyby" Comment="" HintText="" ModbusAddress="101" ModbusCmd="4" ModbusPollingCycle="10" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Stavový registr" Comment="" HintText="" ModbusAddress="100" ModbusCmd="4" ModbusPollingCycle="10" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="DM-OT2 200" Comment="" HintText="" ModbusAddress="200" ModbusCmd="6" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10" RepeatRate="15"/>
+	<ModbusCmd Title="DM-OT2 201" Comment="" HintText="" ModbusAddress="201" ModbusCmd="6" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10" RepeatRate="15"/>
+	<ModbusCmd Title="DM-OT2 203" Comment="" HintText="" ModbusAddress="203" ModbusCmd="16" ModbusDataType="36" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10" RepeatRate="15"/>
+	<ModbusCmd Title="DM-OT2 205" Comment="" HintText="" ModbusAddress="205" ModbusCmd="16" ModbusDataType="36" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10" RepeatRate="15"/>
+</Modbus>

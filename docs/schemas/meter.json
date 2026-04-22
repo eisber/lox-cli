@@ -1,0 +1,60 @@
+{
+  "title": "Meter",
+  "xml_type": "",
+  "kb_slug": "meter",
+  "description": "This meter is suitable for recording consumption or delivery of various utilities such as electricity, gas, water, heat, etc.",
+  "inputs": [
+    {
+      "abbreviation": "Pf",
+      "summary": "Power or flow",
+      "description": "If only this input is used, the meter reading is also calculated from it. Otherwise it is only used for the output (Pf) and the user interface.",
+      "value_range": "0...\u221e"
+    },
+    {
+      "abbreviation": "Mr",
+      "summary": "Meter reading",
+      "description": "Input for meters that send the meter reading directly as an analog value. For meters that only send partial quantities (e.g. Smart Socket), relative metering must be activated in the settings of the block.",
+      "value_range": "0...\u221e"
+    },
+    {
+      "abbreviation": "R",
+      "summary": "Reset",
+      "description": "Pulse: Meter reading outputs are reset. On: Block is locked.",
+      "value_range": "0/1"
+    }
+  ],
+  "outputs": [
+    {
+      "abbreviation": "API",
+      "summary": "API Connector",
+      "description": "Intelligent API based connector. API Commands",
+      "value_range": "-"
+    }
+  ],
+  "parameters": [
+    {
+      "abbreviation": "Mro",
+      "summary": "Meter reading offset",
+      "description": "Value is added to output (Mr).",
+      "value_range": "\u221e",
+      "default_value": "0"
+    }
+  ],
+  "properties": [
+    {
+      "summary": "Relative metering",
+      "description": "Active: The physical meter only sends partial quantities at intervals (relative), the block adds them up and uses them to form the meter reading. Not active: The physical meter provides its own total meter reading (absolute), the function block only maps it.",
+      "default_value": "-"
+    },
+    {
+      "summary": "Report invalid Meter Reading",
+      "description": "If checked, you will be notified if invalid Meter Reading values have been detected. For instance, when a physical counter sends unrealistic values due to transmission errors.",
+      "default_value": "-"
+    }
+  ],
+  "source_url": "https://www.loxone.com/enen/kb/meter/",
+  "input_count": 3,
+  "output_count": 1,
+  "parameter_count": 1,
+  "property_count": 2
+}

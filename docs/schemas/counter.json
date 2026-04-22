@@ -1,0 +1,47 @@
+{
+  "title": "Up Counter",
+  "xml_type": "Counter",
+  "kb_slug": "counter",
+  "description": "Simple counter with limit\nTip: If (M) = 1 the counter will only start over if a reset (Off) is triggered or (M) is set to 0.",
+  "inputs": [
+    {
+      "abbreviation": "C",
+      "summary": "Count",
+      "description": "Pulse increases (V) by 1.",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "Off",
+      "summary": "Off",
+      "description": "Pulse: Outputs are reset / switched off. On: Block is locked. Dominating input.",
+      "value_range": "0/1"
+    }
+  ],
+  "outputs": [
+    {
+      "abbreviation": "Lr",
+      "summary": "1 when (V) = (L)",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "V",
+      "summary": "Counter value",
+      "value_range": "\u221e"
+    }
+  ],
+  "parameters": [
+    {
+      "abbreviation": "Rem",
+      "summary": "Remanence input",
+      "description": "Remanence input: If active, the function block retains its previous state after a Miniserver reboot. The state of the function block is saved: \u2013 When saving to the Miniserver \u2013 At a planned reboot \u2013 Before a backup \u2013 Once per hour The data is saved on the SD card.",
+      "value_range": "0/1",
+      "default_value": "0"
+    }
+  ],
+  "properties": [],
+  "source_url": "https://www.loxone.com/enen/kb/counter/",
+  "input_count": 2,
+  "output_count": 2,
+  "parameter_count": 1,
+  "property_count": 0
+}

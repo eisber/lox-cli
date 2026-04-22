@@ -1,0 +1,9 @@
+{
+                                "type": "template",
+                                "name": "metz-connect-mr-ao4-modbus-rtu",
+                                "uuid": "60698365-bfc2-11ef-8ac44cd98f3deb8a",
+                                "version":"1.0.0",
+                                "id": "metz-connect-mr-ao4-modbus-rtu-1752",
+                                "file": "metz-connect-mr-ao4-modbus-rtu.xml",
+                                "templateType": "7",
+                            }

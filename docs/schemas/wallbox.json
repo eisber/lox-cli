@@ -1,0 +1,104 @@
+{
+  "title": "Wallbox Gen. 1",
+  "xml_type": "",
+  "kb_slug": "wallbox",
+  "description": "The Wallbox function block is used to control and visualize a charging station for electric vehicles.\nIt is possible to use the object inputs or a network connected device.\nThe following charging stations are supported:\nKeba KeContact P20\nKeba KeContact P30 C/X\nBMW Wallbox Pro",
+  "inputs": [
+    {
+      "abbreviation": "Vc",
+      "summary": "Vehicle connected",
+      "description": "This input is only visible in certain configurations.",
+      "unit": "-",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "Cp",
+      "summary": "Current charging power",
+      "description": "This input is only visible in certain configurations.",
+      "unit": "kW",
+      "value_range": "\u221e"
+    },
+    {
+      "abbreviation": "E",
+      "summary": "Charged energy",
+      "description": "Energy Input (Absolute). This input is only visible in certain configurations.",
+      "unit": "kWh",
+      "value_range": "0...\u221e"
+    },
+    {
+      "abbreviation": "Cpl",
+      "summary": "Charging power limit",
+      "description": "Allows limiting the charging power to this value, when Charging power limit mode (M) is 2.",
+      "unit": "kW",
+      "value_range": "1.38...22.08"
+    },
+    {
+      "abbreviation": "R",
+      "summary": "Reset",
+      "description": "Resets all counters The name of the connected sensor is used in the user interface.",
+      "unit": "-",
+      "value_range": "0/1"
+    }
+  ],
+  "outputs": [
+    {
+      "abbreviation": "API",
+      "summary": "API Connector",
+      "description": "Intelligent API based connector. API Commands",
+      "unit": "-",
+      "value_range": "-"
+    }
+  ],
+  "parameters": [
+    {
+      "abbreviation": "M",
+      "summary": "Charging power limit mode",
+      "description": "0 = No limit 1 = Manual - Limit set via user interface 2 = Automatic - Limit set via input (Cpl)",
+      "value_range": "0...2",
+      "default_value": "2"
+    },
+    {
+      "abbreviation": "Mr",
+      "summary": "Remember mode",
+      "description": "0 = Set mode to 'Automatic' when unplugging the vehicle. 1 = Remember mode when unplugging the vehicle.",
+      "value_range": "0/1",
+      "default_value": "0"
+    },
+    {
+      "abbreviation": "Sc",
+      "summary": "Start of charging process",
+      "description": "Defines when charging process should start: 0 = Use Wallbox settings 1 = Start / Pause depending on input (Act). This parameter is only visible in certain configurations.",
+      "value_range": "0/1",
+      "default_value": "0"
+    },
+    {
+      "abbreviation": "Profile",
+      "summary": "Select profile",
+      "description": "0 = Profile 1 1 = Profile 2 This parameter is only visible in certain configurations.",
+      "value_range": "0...1",
+      "default_value": "0"
+    }
+  ],
+  "properties": [
+    {
+      "summary": "Linked Charging Station",
+      "description": "If the block is configured with an actual charging station, then the information is loaded accordingly from the device If this is not the case the block inputs are passed on to the outputs.",
+      "default_value": "-"
+    },
+    {
+      "summary": "Profile name 1",
+      "description": "Name of profile 1 (Max 12 characters)",
+      "default_value": "-"
+    },
+    {
+      "summary": "Profile name 2",
+      "description": "Name of profile 2 (Max 12 characters)",
+      "default_value": "-"
+    }
+  ],
+  "source_url": "https://www.loxone.com/enen/kb/wallbox/",
+  "input_count": 5,
+  "output_count": 1,
+  "parameter_count": 4,
+  "property_count": 3
+}

@@ -1,0 +1,36 @@
+{
+  "title": "Formula",
+  "xml_type": "",
+  "kb_slug": "formula",
+  "description": "This function block can be used for mathematical calculations. A formula with a maximum of 4 analogue values can be calculated, the result will be provided at the output. An area of application is the calculation of the level of a water tank. The formula is defined in the properties of the function block.",
+  "inputs": [],
+  "outputs": [
+    {
+      "abbreviation": "E",
+      "summary": "Error",
+      "description": "E.g. an illegal mathematical operation.",
+      "value_range": "-"
+    }
+  ],
+  "parameters": [
+    {
+      "abbreviation": "I1-4",
+      "summary": "Value 1-4",
+      "description": "This value can be used in the formula. A constant value can be also be set in properties.",
+      "value_range": "\u221e",
+      "default_value": "0"
+    }
+  ],
+  "properties": [
+    {
+      "summary": "Formula",
+      "description": "The 4 inputs are referred to as I1,I2,I3,I4. The following operands are available: +,-,*,/,^ The following functions are available: PI, ABS, SQRT, LN, LOG, EXP, SIN, COS, TAN, ARCSIN, ARCCOS, ARCTAN, SINH, COSH, TANH, RAD, DEG, SIGN, INT, IF, MIN, MAX Trigonometric functions use Radians as the unit of measure, inputs in degrees have to be converted first (e.g SIN(RAD(I1))). Example: (I1+(I2*0,005))/SIN(I3)",
+      "default_value": "-"
+    }
+  ],
+  "source_url": "https://www.loxone.com/enen/kb/formula/",
+  "input_count": 0,
+  "output_count": 1,
+  "parameter_count": 1,
+  "property_count": 1
+}

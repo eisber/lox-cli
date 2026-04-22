@@ -1,0 +1,221 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Modbus Title="Hoval Heizen &amp; Kühlen" Comment="" HintText="" Channel="1">
+	<Info templateType="7" minVersion="16011106"/>
+	<ModbusCmd Title="Aktuelle Vorlauftemperatur HC2 [VF2]" Comment="" HintText="" ModbusAddress="1514" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="40" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="Status Betriebsart HC2" Comment="" HintText="#0 = Abgeschaltet
+#1 = Normal Heizbetrieb
+#2 = Komfort Heizbetrieb
+#3 = Spar Heizbetrieb
+#4 = Frostbetrieb
+#7 = Ferienbetrieb
+#8 = Partybetrieb
+#9 = Normal Kühlbetrieb
+#10 = Komfort Kühlbetrieb
+#11 = Spar Kühlbetrieb 
+#12 = Fehler
+#13 = Handbetrieb
+#14 = Schutz Kühlbetrieb
+#15 = Partybetrieb Kühlen
+#22 = Externe Konstantanforderung Kühlbetrieb
+#23 = Externe Konstantanforderung Heizbetrieb
+#26 = Vorzugsbetrieb Smart Grid
+" ModbusAddress="1502" ModbusCmd="3" ModbusPollingCycle="35" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Aktuelle Warmwasserspeichertemperatur Oben [SF1]" Comment="" HintText="" ModbusAddress="1500" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="40" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="Status Warmwasserspeicher Betriebsart" Comment="" HintText="#0 = Abgeschaltet
+#1 = Normal Ladebetrieb
+#2 = Komfort Ladebetrieb
+#3 = Zwangsdrosselung unter 50%
+#4 = Zwangsdrosselung über 50%
+#5 = Störung
+#6 = Warmwasser Entnahme aktiv
+#7 = Warnung
+#8 = Reduzierter Ladebetrieb
+#12 = Smart Grid Vorzugsbetrieb
+#13 = Smart Grid Abnahmezwang" ModbusAddress="1504" ModbusCmd="3" ModbusPollingCycle="35" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Status Warmwasserspeicher Solltemperatur" Comment="" HintText="" ModbusAddress="1499" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="40" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="Status Erzeuger Betriebsart" Comment="" HintText="0=Abgeschaltet
+1=Heizbetrieb
+2=Vorlaufzeit Heizbetrieb
+3=Extern gesperrt (EVU oder Smart Grid)
+4=Kühlbetrieb
+5=Vorlaufzeit Kühlbetrieb
+15=Alarm
+16=Störung
+17=Blockiert
+21= WFmax Abschaltung
+22=WFsoll Abschaltung
+26=Bivalenzabschaltung
+27=Warmwasser Ladesperre
+28=Minimale Auszeit
+29=Minimale Einzeit
+32=Nachlauf
+33=Verzögerung Folge WEZ
+34=Betrieb Übertemperatur
+42=Manueller Handbetrieb Heizen
+43=Manueller Handbetrieb Warmwasser
+44=Manueller Handbetrieb Kühlen" ModbusAddress="18722" ModbusCmd="3" ModbusPollingCycle="35" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Status Betriebsart HC1" Comment="" HintText="#0 = Abgeschaltet
+#1 = Normal Heizbetrieb
+#2 = Komfort Heizbetrieb
+#3 = Spar Heizbetrieb
+#4 = Frostbetrieb
+#7 = Ferienbetrieb
+#8 = Partybetrieb
+#9 = Normal Kühlbetrieb
+#10 = Komfort Kühlbetrieb
+#11 = Spar Kühlbetrieb 
+#12 = Fehler
+#13 = Handbetrieb
+#14 = Schutz Kühlbetrieb
+#15 = Partybetrieb Kühlen
+#22 = Externe Konstantanforderung Kühlbetrieb
+#23 = Externe Konstantanforderung Heizbetrieb
+#26 = Vorzugsbetrieb Smart Grid" ModbusAddress="1501" ModbusCmd="3" ModbusPollingCycle="35" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Aktuelle Vorlauftemperatur HC1 [VF1]" Comment="" HintText="" ModbusAddress="1513" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="40" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="Status Erzeuger Solltemperatur" Comment="" HintText="" ModbusAddress="18724" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="40" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="Aktuelle Erzeugervorlauftemperatur [CVF]" Comment="" HintText="" ModbusAddress="18725" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="40" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="Status Erzeuger Betriebsmeldung" Comment="" HintText="0=Aus
+1=An" ModbusAddress="18737" ModbusCmd="3" ModbusPollingCycle="35" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Aktuelle Regelstrategie HC1" Comment="" HintText="#0: Reine Witterungsgeführung
+#1: Witterungsführung mit Raumaufschaltung
+#2: Reine Raumregelung
+#3: Konstantregelung
+#4: Reine Witterungsführung Heizen + Konstantregelung Kühlen
+#5: Witterungsführung mit Raumaufschaltung Heizen + Konstantregelung Kühlen" ModbusAddress="27510" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Aktuelle Regelstrategie HC2" Comment="" HintText="#0: Reine Witterungsgeführung
+#1: Witterungsführung mit Raumaufschaltung
+#2: Reine Raumregelung
+#3: Konstantregelung
+#4: Reine Witterungsführung Heizen + Konstantregelung Kühlen
+#5: Witterungsführung mit Raumaufschaltung Heizen + Konstantregelung Kühlen" ModbusAddress="27511" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Aktuelle Außentemperatur [AF1]" Comment="" HintText="" ModbusAddress="1477" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="40" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="Aktuelle Warmwasserspeichertemperatur Unten [SF2]" Comment="" HintText="" ModbusAddress="27483" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="40" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="Aktuelle Puffertemperatur Oben [PF1]" Comment="" HintText="Heating=PF(1), Cooling=KPF2" ModbusAddress="17386" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="40" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="Aktuelle Pufferisstemperatur Unten [PF2]" Comment="" HintText="Heating= PF2, Cooling=KPF(1)" ModbusAddress="17387" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="40" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="Status Pufferspeicher Betriebsart" Comment="" HintText="#0 = Keine Anforderung, Aus
+#1 = Anforderung, Temperatur tief
+#2 = Anforderung, Ladung läuft
+#3 = Anforderung, Sollwert erfüllt, Nachlauf aktiv
+#4 = Anforderung, Sollwert erfüllt
+#6 = Energiezwang
+#7= Abschöpffunktion
+#8= Smart Grid Vorzugsbetrieb
+#9= Smart Grid Abnahmezwang
+
+" ModbusAddress="17384" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="40" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Status Pufferspeicher Solltemperatur" Comment="" HintText="" ModbusAddress="17385" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="40" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="10"/>
+	<ModbusCmd Title="Status Elektrische Gesamtleistung" Comment="" HintText="" ModbusAddress="25613" ModbusCmd="3" ModbusDataType="99" ModbusPollingCycle="3600" Unit="&lt;v.3&gt;MWh" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="1"/>
+	<ModbusCmd Title="Status Thermische Gesamtleistung Heizbetrieb" Comment="" HintText="" ModbusAddress="27484" ModbusCmd="3" ModbusDataType="98" ModbusPollingCycle="3600" Unit="&lt;v.3&gt;MWh" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="1"/>
+	<ModbusCmd Title="Status Thermische Gesamtleistung Warmwasserbetrieb" Comment="" HintText="" ModbusAddress="27488" ModbusCmd="3" ModbusDataType="98" ModbusPollingCycle="3200" Unit="&lt;v.3&gt;MWh" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="1"/>
+	<ModbusCmd Title="Status Thermische Gesamtleistung Kühlbetrieb" Comment="" HintText="" ModbusAddress="27486" ModbusCmd="3" ModbusDataType="98" ModbusPollingCycle="3400" Unit="&lt;v.3&gt;MWh" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="1"/>
+	<ModbusCmd Title="Aktuelle elektrische Leistung" Comment="" HintText="" ModbusAddress="25611" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="15" Unit="&lt;v.1&gt;kW" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="10"/>
+	<ModbusCmd Title="Aktuelle thermische Leistung" Comment="" HintText="" ModbusAddress="25612" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="60" Unit="&lt;v.1&gt;kW" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="10"/>
+	<ModbusCmd Title="Status Vorlaufsolltemperatur HC1" Comment="" HintText="" ModbusAddress="19562" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="40" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="Status Vorlaufsolltemperatur HC2" Comment="" HintText="" ModbusAddress="19563" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="40" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="Status Fehlercode vom Automaten" Comment="" HintText="Fehlercodes sind abhängig vom verwendeten Feuerungsautomaten.
+Siehe Programmierseite &quot;Messages Burner Controlers&quot;." ModbusAddress="1534" ModbusCmd="3" ModbusPollingCycle="45" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Status Mischkreispumpe HC1" Comment="" HintText="0= Aus
+1= An" ModbusAddress="19706" ModbusCmd="3" ModbusPollingCycle="35" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Status Mischkreispumpe HC2" Comment="" HintText="0= Aus
+1= An" ModbusAddress="19707" ModbusCmd="3" ModbusPollingCycle="35" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Status Mischer HC1" Comment="" HintText="-100% = ZU 
+100% = AUF" ModbusAddress="19658" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="40" Unit="&lt;v&gt;%" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Status Mischer HC2" Comment="" HintText="-100% = ZU 
+100% = AUF" ModbusAddress="19659" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="40" Unit="&lt;v&gt;%" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Status Wärmeerzeuger" Comment="" HintText="0=Abgeschaltet
+1=Heizbetrieb
+2=Volaufzeit Heizbetrieb
+3=Extern gesperrt
+4=Kühlbetrieb
+5=Vorlaufzeit Kühlbetrieb
+15=Alarm
+16=Störung
+17=Blockierung
+21=WF max / Abschaltung 
+22=WF Soll / Abschaltung 
+26=Bivalenzabschaltung
+27=Warmwasserladesperre
+28=Minimale Auszeit
+29=Minimale Einzeit
+32=Nachlauf
+34=Betrieb Übertemperatur" ModbusAddress="18722" ModbusCmd="3" ModbusPollingCycle="40" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Aktueller COP" Comment="" HintText="" ModbusAddress="27490" ModbusCmd="3" ModbusPollingCycle="20" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="Aktuelle HZ Puffer WPF Temperatur" Comment="" HintText="Wenn PF1 oder PF2 nicht auslesbar sind, liegt es daran dass kein PS-Modul (Puffermodul) von Hoval verbaut ist.
+Dann kommt in den meisten Fällen der WPF Fühler (Modulationsfühler) zum Einsatz. 
+In sehr seltenen Fällen gibt es weder PF1, PF2 oder einen WPF-Fühler an der Hoval Anlage." ModbusAddress="27494" ModbusCmd="3" ModbusPollingCycle="45" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="Aktuelle Rücklauftemperatur" Comment="" HintText="" ModbusAddress="1535" ModbusCmd="3" ModbusPollingCycle="45" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="Aktueller Volumenstrom" Comment="" HintText="" ModbusAddress="31708" ModbusCmd="3" ModbusPollingCycle="35" Unit="&lt;v.3&gt;l/min" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="Status Detailstatus Wärmepumpe" Comment="" HintText="0= WP Aus
+1= Heizen mit WP
+2= Aktivkühlen
+3= Sperre (Bivalenz,WW,Usw.)
+4= Warmwasser mit WP 
+5= WP-Frostschutz
+6=WP-Temperatur zu tief
+7=WP-Vorlauf zu hoch
+8= Abtauen
+9= Passivkühlen
+11= HD-Störung (Sensor oder Schalter)
+12= Niederdruckstörung
+16= Wiedereinschaltverzögerung
+17= EW-,Energieerz-Sperre
+18= Vorlaufzeit Primär
+19= Nachlaufzeit Primär
+44= MOP
+49= Erfolglose Abtauung
+51= Vorlaufzeit Kondenserpumpe
+55= Störung Inverter/Modbus Kommunikation
+72 - 99 SieheStatusBaustein" ModbusAddress="18723" ModbusCmd="3" ModbusPollingCycle="20" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Status Jahresarbeitszahl" Comment="" HintText="" ModbusAddress="27467" ModbusCmd="3" ModbusPollingCycle="1000" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="Status Schaltzyklen" Comment="" HintText="" ModbusAddress="1518" ModbusCmd="3" ModbusDataType="98" ModbusPollingCycle="3900" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Status Betriebsstunden" Comment="" HintText="" ModbusAddress="1516" ModbusCmd="3" ModbusDataType="98" ModbusPollingCycle="4000" Unit="&lt;v&gt;h" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Aktuelle Modulation" Comment="" HintText="" ModbusAddress="18726" ModbusCmd="3" ModbusPollingCycle="30" Unit="&lt;v&gt;%" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Sollvorlauftemperatur Heizen HC1" Comment="" HintText="MIN=10°C
+MAX=80°C
+Sendet man eine &quot;0&quot; geht der Heizkreis Aus" ModbusAddress="1490" ModbusCmd="6" ModbusDataType="1" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="false" SourceValHigh="1" DestValHigh="10" RepeatRate="50"/>
+	<ModbusCmd Title="Warmwasser Solltemperatur" Comment="" HintText="MIN=10°C
+MAX=80°C
+Sendet man eine &quot;0&quot; geht das Warmasser aus" ModbusAddress="1497" ModbusCmd="6" ModbusDataType="1" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="false" SourceValHigh="1" DestValHigh="10" RepeatRate="40"/>
+	<ModbusCmd Title="Warmwasser Betriebsart" Comment="" HintText="0=Standby
+1=Woche 1
+2=Woche 2		
+4=Konstant		
+6=Sparbetrieb" ModbusAddress="1496" ModbusCmd="6" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100" RepeatRate="58"/>
+	<ModbusCmd Title="Sollvorlauftemperatur Heizen HC2" Comment="" HintText="MIN=10°C
+MAX=80°C
+Sendet man eine &quot;0&quot; geht der Heizkreis Aus" ModbusAddress="1491" ModbusCmd="6" ModbusDataType="1" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="false" SourceValHigh="1" DestValHigh="10" RepeatRate="45"/>
+	<ModbusCmd Title="Regelstrategie HC1" Comment="" HintText="#0: Reine Witterungsgeführung
+#1: Witterungsführung mit Raumaufschaltung
+#2: Reine Raumregelung
+#3: Konstantregelung
+#4: Reine Witterungsführung Heizen + Konstantregelung Kühlen
+#5: Witterungsführung mit Raumaufschaltung Heizen + Konstantregelung Kühlen" ModbusAddress="27510" ModbusCmd="6" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100" RepeatRate="3600"/>
+	<ModbusCmd Title="Regelstrategie HC2" Comment="" HintText="#0: Reine Witterungsgeführung
+#1: Witterungsführung mit Raumaufschaltung
+#2: Reine Raumregelung
+#3: Konstantregelung
+#4: Reine Witterungsführung Heizen + Konstantregelung Kühlen
+#5: Witterungsführung mit Raumaufschaltung Heizen + Konstantregelung Kühlen" ModbusAddress="27511" ModbusCmd="6" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100" RepeatRate="3600"/>
+	<ModbusCmd Title="Sollvorlauftemperatur Kühlen HC1" Comment="" HintText="MIN=0°C
+MAX=30°C
+Sendet man eine &quot;0&quot; geht der Heizkreis aus. 
+Achtung auf Taupunktunterschreitung!" ModbusAddress="19482" ModbusCmd="6" ModbusDataType="1" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="false" SourceValHigh="1" DestValHigh="10" RepeatRate="55"/>
+	<ModbusCmd Title="Sollvorlauftemperatur Kühlen HC2" Comment="" HintText="MIN=0°C
+MAX=30°C 
+Sendet man eine &quot;0&quot; geht der Heizkreis aus. 
+Achtung auf Taupunktunterschreitung!" ModbusAddress="23755" ModbusCmd="6" ModbusDataType="1" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="1" DestValHigh="10" RepeatRate="60"/>
+	<ModbusCmd Title="Betriebsart HC1" Comment="" HintText="0=Standby
+1=Woche 1	
+2=Woche 2		
+4=Konstant	
+5=Sparbetrieb		
+7=Manuell Heizen	
+8=Manuell Kühlen" ModbusAddress="1478" ModbusCmd="6" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100" RepeatRate="100"/>
+	<ModbusCmd Title="Betriebsart HC2" Comment="" HintText="0=Standby
+1=Woche 1	
+2=Woche 2		
+4=Konstant	
+5=Sparbetrieb		
+7=Manuell Heizen	
+8=Manuell Kühlen" ModbusAddress="1479" ModbusCmd="6" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100" RepeatRate="110"/>
+</Modbus>

@@ -1,0 +1,20 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Modbus Title="my-PV AC•THOR 202506" Comment="" HintText="" Channel="1">
+	<Info templateType="7" minVersion="16000610"/>
+	<ModbusCmd Title="Read Power" Comment="" HintText="" ModbusAddress="1000" ModbusCmd="3" ModbusPollingCycle="10" Unit="&lt;v.1&gt;kW" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="1"/>
+	<ModbusCmd Title="Read Temp 1" Comment="WW Heizstab Aktuelle Temp" HintText="" ModbusAddress="1001" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="10"/>
+	<ModbusCmd Title="Set Power" Comment="" HintText="Output correction configured to fit a 7.5 kW heating rod.
+Also converts kW used within Loxone to Watt.
+
+my-PV AC Thor 9S detects your rods maximum power and
+adopts the target value accordingly. 
+(3 Phases and neutral required to be connected)
+
+The repetition interval is important, it must be below the
+defined Power Timeout value on the device. In this example
+the timeout is changed from factory default 10 to 60 seconds.
+Hence the timout is set to 20 seconds, ensuring it stays below." ModbusAddress="1000" ModbusCmd="16" Unit="&lt;v&gt;kW" Analog="true" Sensor="false" SourceValHigh="7.5" DestValHigh="9000" RepeatRate="20"/>
+	<ModbusCmd Title="Set WW1 Temp max" Comment="" HintText="" ModbusAddress="1002" ModbusCmd="16" Unit="&lt;v&gt;°C" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="100" RepeatRate="3600"/>
+	<ModbusCmd Title="Set Operation mode" Comment="" HintText="" ModbusAddress="1065" ModbusCmd="16" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100" RepeatRate="60"/>
+	<ModbusCmd Title="Set Power Timeout" Comment="" HintText="" ModbusAddress="1004" ModbusCmd="16" Unit="&lt;v.0&gt;s" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10" RepeatRate="3600"/>
+</Modbus>

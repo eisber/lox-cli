@@ -1,0 +1,122 @@
+{
+  "title": "HVAC Controller",
+  "xml_type": "",
+  "kb_slug": "hvac-controller",
+  "description": "Controller for various types of HVAC systems. This block is optimized to work with at least one Intelligent Room Controller and its intelligent mode switching to control the heating/cooling system.",
+  "inputs": [
+    {
+      "abbreviation": "Mode",
+      "summary": "Mode",
+      "description": "0 = off 1 = automatic mode, switches automatically between heating and cooling, based on demand 2 = heating only 3 = cooling only",
+      "unit": "-",
+      "value_range": "0...3"
+    },
+    {
+      "abbreviation": "\u03d1o",
+      "summary": "Outdoor temperature",
+      "description": "If this input is not connected, the value of the system variable \"Outdoor temperature\" is used.",
+      "unit": "\u00b0",
+      "value_range": "\u221e"
+    },
+    {
+      "abbreviation": "B",
+      "summary": "Boost",
+      "description": "Activate second stage heating/cooling if the first stage is already active.",
+      "unit": "-",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "Off",
+      "summary": "Off",
+      "description": "Pulse: Outputs are reset / switched off. On: Block is locked. Dominating input. The name of the connected sensor is used in the user interface.",
+      "unit": "-",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "Emh",
+      "summary": "Emergency Heat",
+      "description": "Activates output (E) when heating demand = 1. Used for emergency heat, e.g. if heat pump defective.",
+      "unit": "-",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "Fan",
+      "summary": "Fan",
+      "description": "Activates output (G) and opens all Intelligent Room Controllers to 100%. If this input is used, the fan can no longer be activated in the App.",
+      "unit": "-",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "H",
+      "summary": "Humidity",
+      "description": "Required when output (Hmd) is connected in order to optimize indoor humidity. Note: Use the humidity reading of the most relevant room or an average value.",
+      "unit": "-",
+      "value_range": "\u221e"
+    },
+    {
+      "abbreviation": "Ec",
+      "summary": "Excess cooling",
+      "description": "Surplus or cheap cooling energy available In cooling mode, Intelligent Room Controllers will overcool or allow premature start of cooling.",
+      "unit": "-",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "Eh",
+      "summary": "Excess heating",
+      "description": "Surplus or cheap heating energy available. In heating mode, Intelligent Room Controllers will overheat or premature start of heating will be permitted.",
+      "unit": "-",
+      "value_range": "0/1"
+    }
+  ],
+  "outputs": [
+    {
+      "abbreviation": "W/W1",
+      "summary": "1st stage heating",
+      "description": "1st stage heating. Varies depending on selected heating type. For \"Oil/gas/electric\": active for first stage heat, active for second stage heat. For \"Heat pump with fossil fuel backup\": active for second stage heat. For \"Heat pump with electric backup\": active for second stage heat.",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "W2",
+      "summary": "2nd stage heating",
+      "description": "2nd stage heating. Varies depending on selected heating type. For \"Oil/gas/electric\": active for second stage heat. For \"Heat pump with fossil fuel backup\": active for second stage heat. For \"Heat pump with electric backup\": active for second stage heat.",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "Y",
+      "summary": "Compressor",
+      "description": "Compressor. Varies depending on selected heating type. For \"Oil/gas/electric\": active for first stage cool, active for second stage cool. For \"Heat pump with fossil fuel backup\": active for first stage heat/cool, active for second stage cool. For \"Heat pump with electric backup\": active for first stage heat/cool, active for second stage heat/cool.",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "Y2",
+      "summary": "2nd stage cooling",
+      "description": "2nd stage cooling. Varies depending on selected heating type. For \"Oil/gas/electric\": active for second stage cool. For \"Heat pump with fossil fuel backup\": active for second stage cool. For \"Heat pump with electric backup\": active for second stage heat/cool.",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "E",
+      "summary": "Emergency Heat",
+      "description": "Activated depending on input (Eh) or via app activation.",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "O/B",
+      "summary": "Reversing valve",
+      "description": "Changes the operating direction of the heat pump. If (DirV) is deactivated: OFF for heating, ON for cooling. If (DirV) is activated: ON for heating, OFF for cooling.",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "G",
+      "summary": "Fan",
+      "description": "Fan that moves heated or cooled air into the rooms",
+      "value_range": "0/1"
+    }
+  ],
+  "parameters": [],
+  "properties": [],
+  "source_url": "https://www.loxone.com/enen/kb/hvac-controller/",
+  "input_count": 9,
+  "output_count": 7,
+  "parameter_count": 0,
+  "property_count": 0
+}

@@ -1,0 +1,34 @@
+{
+  "title": "Scene",
+  "xml_type": "",
+  "kb_slug": "scene",
+  "description": "A scene contains an action list that is executed with the object input or via the user interface.",
+  "inputs": [
+    {
+      "abbreviation": "Off",
+      "summary": "Off",
+      "description": "On: Block is locked. Dominating input. The name of the connected sensor is used in the user interface.",
+      "value_range": "0/1"
+    }
+  ],
+  "outputs": [
+    {
+      "abbreviation": "API",
+      "summary": "API Connector",
+      "description": "Intelligent API based connector. API Commands"
+    }
+  ],
+  "parameters": [],
+  "properties": [
+    {
+      "summary": "Configuration",
+      "description": "Display configuration",
+      "default_value": "-"
+    }
+  ],
+  "source_url": "https://www.loxone.com/enen/kb/scene/",
+  "input_count": 1,
+  "output_count": 1,
+  "parameter_count": 0,
+  "property_count": 1
+}

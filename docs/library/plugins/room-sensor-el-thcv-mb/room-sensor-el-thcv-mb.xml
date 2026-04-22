@@ -1,0 +1,22 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Modbus Title="EL-THCV-MB" Comment="Design: Feller EDIZIO.liv" HintText="Flush-mounted room sensor with communication interface
+Flush-mounted design: surface-mounted version on request
+CompatibleFeller SNAPFIX®
+Measured variable: Temperature: 0 to 50°C
+Measured variable: relative humidity: 0 to 100 %
+Measured variable: CO2: 400 to 2000 ppm
+Measurand: mixed gases VOC: 0 to 5000 ppm
+RS-485 interface for Modbus RTU
+Version: V2.1
+Protection class: IP20
+
+Depending on the device variant, not all sensors or operating elements are fitted and indicate a value of 0." Baudrate="38400" Stopbits="1" Channel="161">
+	<Info templateType="7" minVersion="15010820"/>
+	<ModbusCmd Title="Analogue sensor - temperature" Comment="Room temperature" HintText="Value range: -1000 to 5000 Physical value: -10.00 to 50.00 °C" ModbusCmd="4" ModbusDataType="1" ModbusPollingCycle="300" Unit="&lt;v.2&gt; °C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Analogue sensor - Relative humidity" Comment="Room humidity" HintText="Value range: 0 to 10000 Physical value: 0 to 100.00 % r.H." ModbusAddress="1" ModbusCmd="4" ModbusPollingCycle="300" Unit="&lt;v.1&gt; r.H." Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Analogue sensor - CO2 concentration" Comment="CO2 concentration" HintText="Value range: 0 to 40000 Physical value: 0 to 40 000 ppm3" ModbusAddress="3" ModbusCmd="4" ModbusPollingCycle="300" Unit="&lt;v&gt; ppm" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Analogue sensor - TVOC concentration" Comment="TVOC concentration" HintText="Value range: 0 to 65 000 Physical quantity: 0 to 65,000 ppb" ModbusAddress="5" ModbusCmd="4" ModbusPollingCycle="300" Unit="&lt;v&gt; ppb" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Device base address" Comment="Address" HintText="" ModbusAddress="10" ModbusCmd="6" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Temperature Offset" Comment="Temperature Offset" HintText="Value range: -200 to 200 Physical value: ± 2.00 K" ModbusAddress="13" ModbusCmd="6" ModbusDataType="1" Unit="&lt;v&gt; K" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Reset" Comment="Reset" HintText="The device is restarted when writing to 1" ModbusAddress="19" ModbusCmd="6" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+</Modbus>

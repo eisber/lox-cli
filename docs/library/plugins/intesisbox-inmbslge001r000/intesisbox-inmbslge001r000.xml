@@ -1,0 +1,18 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Modbus Title="Intesis INMBSLGE001R000" Comment="" Baudrate="9600" Stopbits="1" Channel="1">
+	<Info templateType="7" minVersion="12020916"/>
+	<ModbusCmd Title="AC unit Fan Speed" Comment="" ModbusAddress="2" ModbusCmd="3" ModbusPollingCycle="10" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="AC unit Mode" Comment="" ModbusAddress="1" ModbusCmd="3" ModbusPollingCycle="10" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="AC unit On_Off" Comment="" ModbusCmd="3" ModbusPollingCycle="10" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="AC unit Temperature Setpoint" Comment="" ModbusAddress="4" ModbusCmd="3" ModbusPollingCycle="10" Unit="&lt;v.1&gt;ºC" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="AC unit Vane Position" Comment="" ModbusAddress="3" ModbusCmd="3" ModbusPollingCycle="10" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Error Code" Comment="" ModbusAddress="11" ModbusCmd="3" ModbusPollingCycle="10" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Indoor unit´s ambient external sensor" Comment="" ModbusAddress="22" ModbusCmd="3" ModbusPollingCycle="10" Unit="&lt;v.1&gt;ºC" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="AC unit Temperature reference" Comment="" ModbusAddress="5" ModbusCmd="3" ModbusPollingCycle="10" Unit="&lt;v.1&gt;ºC" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="AC unit On_Off" Comment="" ModbusCmd="6" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="AC unit Mode" Comment="" ModbusAddress="1" ModbusCmd="6" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="AC unit Fan Speed" Comment="" ModbusAddress="2" ModbusCmd="6" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="AC unit Vane Position" Comment="" ModbusAddress="3" ModbusCmd="6" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="AC unit Temperature Setpoint" Comment="" ModbusAddress="4" ModbusCmd="6" Unit="&lt;v.1&gt;ºC" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Indoor unit´s ambient external sensor" Comment="" ModbusAddress="22" ModbusCmd="6" Unit="&lt;v.1&gt;ºC" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+</Modbus>

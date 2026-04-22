@@ -1,0 +1,9 @@
+{
+                                "type": "template",
+                                "name": "siber-modbus-connect",
+                                "uuid": "4a4cd02c-2129-11ec-9a744cd98f3deb8a",
+                                "version":"1.0.0",
+                                "id": "siber-modbus-connect-310",
+                                "file": "siber-modbus-connect.xml",
+                                "templateType": "7",
+                            }

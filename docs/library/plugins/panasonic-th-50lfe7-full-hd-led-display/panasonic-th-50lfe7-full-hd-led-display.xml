@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Comm Title="Panasonic TH-50LFE7 Full HD LED Display" Comment="" Baudrate="9600" Databits="8" CycleUserProt="-1">
+    <Info templateType="5" minVersion="12010617"/>
+	<CommCmd Title="Power On" Comment="" CmdOn="\x02PON\x03" CmdOff="" Unit="" Analog="false" Text="false" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="Power Off" Comment="" CmdOn="\x02POF\x03" CmdOff="" Unit="" Analog="false" Text="false" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="Source: HDMI1" Comment="" CmdOn="\x02IMS:HM1\x03" CmdOff="" Unit="" Analog="false" Text="false" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="Source: HDMI2" Comment="" CmdOn="\x02IMS:HM2\x03" CmdOff="" Unit="" Analog="false" Text="false" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="Source: DVI" Comment="" CmdOn="\x02IMS:DV1\x03" CmdOff="" Unit="" Analog="false" Text="false" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="Source: PC" Comment="" CmdOn="\x02IMS:PC1\x03" CmdOff="" Unit="" Analog="false" Text="false" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="Volume Up" Comment="" CmdOn="\x02AUU\x03" CmdOff="" Unit="" Analog="false" Text="false" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="Volume Down" Comment="" CmdOn="\x02AUD\x03" CmdOff="" Unit="" Analog="false" Text="false" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="Volume Level" Comment="" CmdOn="\x02AVL:&lt;v&gt;\x03" CmdOff="" Unit="" Analog="false" Text="false" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+</Comm>

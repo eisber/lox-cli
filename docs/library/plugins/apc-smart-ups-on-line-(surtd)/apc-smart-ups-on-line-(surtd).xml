@@ -1,0 +1,14 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Modbus Title="APC Smart-UPS On-Line (SURTD)" Comment="" Channel="1">
+	<Info templateType="7" minVersion="12021027"/>
+	<ModbusCmd Title="Remaining Run Time" Comment="" ModbusAddress="128" ModbusCmd="3" ModbusDataType="98" ModbusPollingCycle="5" Unit="&lt;v&gt; min." Analog="true" Sensor="true" SourceValLow="60" SourceValHigh="600" DestValLow="1" DestValHigh="10"/>
+	<ModbusCmd Title="Output Voltage" Comment="" ModbusAddress="142" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.2&gt; V" Analog="true" Sensor="true" SourceValLow="64" SourceValHigh="640" DestValLow="1" DestValHigh="10"/>
+	<ModbusCmd Title="UPS Status Display (0-OK _&gt;0 Error)" Comment="" ModbusAddress="26" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValLow="2" SourceValHigh="4" DestValLow="1" DestValHigh="2"/>
+	<ModbusCmd Title="Battery Temperature" Comment="" ModbusAddress="135" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="5" Unit="&lt;v.2&gt; °C" Analog="true" Sensor="true" SourceValLow="128" SourceValHigh="1280" DestValLow="1" DestValHigh="10"/>
+	<ModbusCmd Title="Battery Charge State" Comment="" ModbusAddress="130" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.1&gt; %" Analog="true" Sensor="true" SourceValLow="512" SourceValHigh="5120" DestValLow="1" DestValHigh="10"/>
+	<ModbusCmd Title="Utilisation Watts" Comment="" ModbusAddress="136" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.1&gt; %" Analog="true" Sensor="true" SourceValLow="256" SourceValHigh="2560" DestValLow="1" DestValHigh="10"/>
+	<ModbusCmd Title="Battery Voltage" Comment="" ModbusAddress="131" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.1&gt; VDC" Analog="true" Sensor="true" SourceValLow="32" SourceValHigh="320" DestValLow="1" DestValHigh="10"/>
+	<ModbusCmd Title="Input Voltage" Comment="" ModbusAddress="151" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.2&gt; VAC" Analog="true" Sensor="true" SourceValLow="64" SourceValHigh="640" DestValLow="1" DestValHigh="10"/>
+	<ModbusCmd Title="Output Frequency" Comment="" ModbusAddress="144" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.2&gt; Hz" Analog="true" Sensor="true" SourceValLow="128" SourceValHigh="1280" DestValLow="1" DestValHigh="10"/>
+	<ModbusCmd Title="Supply Drop Out" Comment="" ModbusAddress="18" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+</Modbus>

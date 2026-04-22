@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Modbus Title="Pluggit Avent 310" Comment="" Channel="1">
+    <Info templateType="7" minVersion="12010617"/>
+	<ModbusCmd Title="Status" Comment="" ModbusAddress="472" ModbusCmd="3" ModbusDataType="34" ModbusPollingCycle="10" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="T1 Fresh air" Comment="" ModbusAddress="132" ModbusCmd="3" ModbusDataType="36" ModbusPollingCycle="5" Unit="&lt;v.1&gt;°" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="T2 Supply air" Comment="" ModbusAddress="134" ModbusCmd="3" ModbusDataType="36" ModbusPollingCycle="5" Unit="&lt;v.1&gt;°" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="T3 Ehaust air" Comment="" ModbusAddress="136" ModbusCmd="3" ModbusDataType="36" ModbusPollingCycle="5" Unit="&lt;v.1&gt;°" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="T4 Outgoing air" Comment="" ModbusAddress="138" ModbusCmd="3" ModbusDataType="36" ModbusPollingCycle="5" Unit="&lt;v.1&gt;°" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="VOC" Comment="" ModbusAddress="430" ModbusCmd="3" ModbusDataType="34" ModbusPollingCycle="5" Unit="&lt;v&gt;ppm" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Act. ventilation level" Comment="" ModbusAddress="324" ModbusCmd="3" ModbusDataType="35" ModbusPollingCycle="5" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Fan level" Comment="" ModbusAddress="324" ModbusCmd="16" ModbusDataType="34" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Operating mode" Comment="" ModbusAddress="169" ModbusCmd="16" ModbusDataType="34" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10"/>
+</Modbus>

@@ -1,0 +1,38 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<VirtualOut Title="Sony Bravia TV IP_v2" Comment="" Address="tcp://192.168.86.10:20060" CmdInit="" CloseAfterSend="true" CmdSep="">
+	<Info templateType="3" minVersion="12040502"/>
+	<VirtualOutCmd Title="HDMI 2" Comment="" CmdOnMethod="GET" CmdOffMethod="GET" CmdOn="*SCINPT0000000100000002\n" CmdOnHTTP="" CmdOnPost="" CmdOff="" CmdOffHTTP="" CmdOffPost="" Analog="false" Repeat="0" RepeatRate="0"/>
+	<VirtualOutCmd Title="Power TOGGLE" Comment="" CmdOnMethod="GET" CmdOffMethod="GET" CmdOn="*SCPOWR0000000000000001\n" CmdOnHTTP="" CmdOnPost="" CmdOff="*SCPOWR0000000000000000\n" CmdOffHTTP="" CmdOffPost="" Analog="false" Repeat="0" RepeatRate="0"/>
+	<VirtualOutCmd Title="HDMI 1" Comment="" CmdOnMethod="GET" CmdOffMethod="GET" CmdOn="*SCINPT0000000100000001\n" CmdOnHTTP="" CmdOnPost="" CmdOff="" CmdOffHTTP="" CmdOffPost="" Analog="false" Repeat="0" RepeatRate="0"/>
+	<VirtualOutCmd Title="D-Pad Up" Comment="" CmdOnMethod="GET" CmdOffMethod="GET" CmdOn="*SCIRCC0000000000000009\n" CmdOnHTTP="" CmdOnPost="" CmdOff="" CmdOffHTTP="" CmdOffPost="" Analog="false" Repeat="0" RepeatRate="0"/>
+	<VirtualOutCmd Title="D-Pad Right" Comment="" CmdOnMethod="GET" CmdOffMethod="GET" CmdOn="*SCIRCC0000000000000011\n" CmdOnHTTP="" CmdOnPost="" CmdOff="" CmdOffHTTP="" CmdOffPost="" Analog="false" Repeat="0" RepeatRate="0"/>
+	<VirtualOutCmd Title="D-Pad Left" Comment="" CmdOnMethod="GET" CmdOffMethod="GET" CmdOn="*SCIRCC0000000000000012\n" CmdOnHTTP="" CmdOnPost="" CmdOff="" CmdOffHTTP="" CmdOffPost="" Analog="false" Repeat="0" RepeatRate="0"/>
+	<VirtualOutCmd Title="D-Pad Down" Comment="" CmdOnMethod="GET" CmdOffMethod="GET" CmdOn="*SCIRCC0000000000000010\n" CmdOnHTTP="" CmdOnPost="" CmdOff="" CmdOffHTTP="" CmdOffPost="" Analog="false" Repeat="0" RepeatRate="0"/>
+	<VirtualOutCmd Title="D-Pad OK" Comment="" CmdOnMethod="GET" CmdOffMethod="GET" CmdOn="*SCIRCC0000000000000013\n" CmdOnHTTP="" CmdOnPost="" CmdOff="" CmdOffHTTP="" CmdOffPost="" Analog="false" Repeat="0" RepeatRate="0"/>
+	<VirtualOutCmd Title="Home" Comment="" CmdOnMethod="GET" CmdOffMethod="GET" CmdOn="*SCIRCC0000000000000006\n" CmdOnHTTP="" CmdOnPost="" CmdOff="" CmdOffHTTP="" CmdOffPost="" Analog="false" Repeat="0" RepeatRate="0"/>
+	<VirtualOutCmd Title="Stop" Comment="" CmdOnMethod="GET" CmdOffMethod="GET" CmdOn="*SCIRCC0000000000000081\n" CmdOnHTTP="" CmdOnPost="" CmdOff="" CmdOffHTTP="" CmdOffPost="" Analog="false" Repeat="0" RepeatRate="0"/>
+	<VirtualOutCmd Title="Pause" Comment="" CmdOnMethod="GET" CmdOffMethod="GET" CmdOn="*SCIRCC0000000000000084\n" CmdOnHTTP="" CmdOnPost="" CmdOff="" CmdOffHTTP="" CmdOffPost="" Analog="false" Repeat="0" RepeatRate="0"/>
+	<VirtualOutCmd Title="Rewind" Comment="" CmdOnMethod="GET" CmdOffMethod="GET" CmdOn="*SCIRCC0000000000000079\n" CmdOnHTTP="" CmdOnPost="" CmdOff="" CmdOffHTTP="" CmdOffPost="" Analog="false" Repeat="0" RepeatRate="0"/>
+	<VirtualOutCmd Title="Play" Comment="" CmdOnMethod="GET" CmdOffMethod="GET" CmdOn="*SCIRCC0000000000000078\n" CmdOnHTTP="" CmdOnPost="" CmdOff="" CmdOffHTTP="" CmdOffPost="" Analog="false" Repeat="0" RepeatRate="0"/>
+	<VirtualOutCmd Title="0" Comment="" CmdOnMethod="GET" CmdOffMethod="GET" CmdOn="*SCIRCC0000000000000027\n" CmdOnHTTP="" CmdOnPost="" CmdOff="" CmdOffHTTP="" CmdOffPost="" Analog="false" Repeat="0" RepeatRate="0"/>
+	<VirtualOutCmd Title="1" Comment="" CmdOnMethod="GET" CmdOffMethod="GET" CmdOn="*SCIRCC0000000000000018\n" CmdOnHTTP="" CmdOnPost="" CmdOff="" CmdOffHTTP="" CmdOffPost="" Analog="false" Repeat="0" RepeatRate="0"/>
+	<VirtualOutCmd Title="2" Comment="" CmdOnMethod="GET" CmdOffMethod="GET" CmdOn="*SCIRCC0000000000000019\n" CmdOnHTTP="" CmdOnPost="" CmdOff="" CmdOffHTTP="" CmdOffPost="" Analog="false" Repeat="0" RepeatRate="0"/>
+	<VirtualOutCmd Title="3" Comment="" CmdOnMethod="GET" CmdOffMethod="GET" CmdOn="*SCIRCC0000000000000020\n" CmdOnHTTP="" CmdOnPost="" CmdOff="" CmdOffHTTP="" CmdOffPost="" Analog="false" Repeat="0" RepeatRate="0"/>
+	<VirtualOutCmd Title="4" Comment="" CmdOnMethod="GET" CmdOffMethod="GET" CmdOn="*SCIRCC0000000000000021\n" CmdOnHTTP="" CmdOnPost="" CmdOff="" CmdOffHTTP="" CmdOffPost="" Analog="false" Repeat="0" RepeatRate="0"/>
+	<VirtualOutCmd Title="5" Comment="" CmdOnMethod="GET" CmdOffMethod="GET" CmdOn="*SCIRCC0000000000000022\n" CmdOnHTTP="" CmdOnPost="" CmdOff="" CmdOffHTTP="" CmdOffPost="" Analog="false" Repeat="0" RepeatRate="0"/>
+	<VirtualOutCmd Title="6" Comment="" CmdOnMethod="GET" CmdOffMethod="GET" CmdOn="*SCIRCC0000000000000023\n" CmdOnHTTP="" CmdOnPost="" CmdOff="" CmdOffHTTP="" CmdOffPost="" Analog="false" Repeat="0" RepeatRate="0"/>
+	<VirtualOutCmd Title="7" Comment="" CmdOnMethod="GET" CmdOffMethod="GET" CmdOn="*SCIRCC0000000000000024\n" CmdOnHTTP="" CmdOnPost="" CmdOff="" CmdOffHTTP="" CmdOffPost="" Analog="false" Repeat="0" RepeatRate="0"/>
+	<VirtualOutCmd Title="8" Comment="" CmdOnMethod="GET" CmdOffMethod="GET" CmdOn="*SCIRCC0000000000000025\n" CmdOnHTTP="" CmdOnPost="" CmdOff="" CmdOffHTTP="" CmdOffPost="" Analog="false" Repeat="0" RepeatRate="0"/>
+	<VirtualOutCmd Title="9" Comment="" CmdOnMethod="GET" CmdOffMethod="GET" CmdOn="*SCIRCC0000000000000026\n" CmdOnHTTP="" CmdOnPost="" CmdOff="" CmdOffHTTP="" CmdOffPost="" Analog="false" Repeat="0" RepeatRate="0"/>
+	<VirtualOutCmd Title="Power OFF" Comment="" CmdOnMethod="GET" CmdOffMethod="GET" CmdOn="*SCPOWR0000000000000000\n" CmdOnHTTP="" CmdOnPost="" CmdOff="" CmdOffHTTP="" CmdOffPost="" Analog="false" Repeat="0" RepeatRate="0"/>
+	<VirtualOutCmd Title="Power ON" Comment="" CmdOnMethod="GET" CmdOffMethod="GET" CmdOn="*SCPOWR0000000000000001\n" CmdOnHTTP="" CmdOnPost="" CmdOff="" CmdOffHTTP="" CmdOffPost="" Analog="false" Repeat="0" RepeatRate="0"/>
+	<VirtualOutCmd Title="Return" Comment="" CmdOnMethod="GET" CmdOffMethod="GET" CmdOn="*SCIRCC0000000000000008\n" CmdOnHTTP="" CmdOnPost="" CmdOff="" CmdOffHTTP="" CmdOffPost="" Analog="false" Repeat="0" RepeatRate="0"/>
+	<VirtualOutCmd Title="Action Menu" Comment="" CmdOnMethod="GET" CmdOffMethod="GET" CmdOn="*SCIRCC0000000000000129\n" CmdOnHTTP="" CmdOnPost="" CmdOff="" CmdOffHTTP="" CmdOffPost="" Analog="false" Repeat="0" RepeatRate="0"/>
+	<VirtualOutCmd Title="Channel Up" Comment="" CmdOnMethod="GET" CmdOffMethod="GET" CmdOn="*SCIRCC0000000000000033\n" CmdOnHTTP="" CmdOnPost="" CmdOff="" CmdOffHTTP="" CmdOffPost="" Analog="false" Repeat="0" RepeatRate="0"/>
+	<VirtualOutCmd Title="Vol +" Comment="" CmdOnMethod="GET" CmdOffMethod="GET" CmdOn="*SCIRCC0000000000000030\n" CmdOnHTTP="" CmdOnPost="" CmdOff="" CmdOffHTTP="" CmdOffPost="" Analog="false" Repeat="0" RepeatRate="0"/>
+	<VirtualOutCmd Title="Vol -" Comment="" CmdOnMethod="GET" CmdOffMethod="GET" CmdOn="*SCIRCC0000000000000031\n" CmdOnHTTP="" CmdOnPost="" CmdOff="" CmdOffHTTP="" CmdOffPost="" Analog="false" Repeat="0" RepeatRate="0"/>
+	<VirtualOutCmd Title="Vol Mute" Comment="" CmdOnMethod="GET" CmdOffMethod="GET" CmdOn="*SCAMUT0000000000000001\n" CmdOnHTTP="" CmdOnPost="" CmdOff="" CmdOffHTTP="" CmdOffPost="" Analog="false" Repeat="0" RepeatRate="0"/>
+	<VirtualOutCmd Title="HDMI 3" Comment="" CmdOnMethod="GET" CmdOffMethod="GET" CmdOn="*SCINPT0000000100000003\n" CmdOnHTTP="" CmdOnPost="" CmdOff="" CmdOffHTTP="" CmdOffPost="" Analog="false" Repeat="0" RepeatRate="0"/>
+	<VirtualOutCmd Title="HDMI 4" Comment="" CmdOnMethod="GET" CmdOffMethod="GET" CmdOn="*SCINPT0000000100000004\n" CmdOnHTTP="" CmdOnPost="" CmdOff="" CmdOffHTTP="" CmdOffPost="" Analog="false" Repeat="0" RepeatRate="0"/>
+	<VirtualOutCmd Title="Channel Down" Comment="" CmdOnMethod="GET" CmdOffMethod="GET" CmdOn="*SCIRCC0000000000000034\n" CmdOnHTTP="" CmdOnPost="" CmdOff="" CmdOffHTTP="" CmdOffPost="" Analog="false" Repeat="0" RepeatRate="0"/>
+</VirtualOut>

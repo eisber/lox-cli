@@ -1,0 +1,18 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Modbus Title="Fronius Symo" Comment="" Channel="1">
+	<Info templateType="7" minVersion="13011019"/>
+	<ModbusCmd Title="AC Voltage Phase 1" Comment="" ModbusAddress="40079" ModbusCmd="3" ModbusPollingCycle="300" Unit="&lt;v.1&gt; V" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="AC Voltage Phase 3" Comment="" ModbusAddress="40081" ModbusCmd="3" ModbusPollingCycle="300" Unit="&lt;v.1&gt; V" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="AC Voltage Phase 2" Comment="" ModbusAddress="40080" ModbusCmd="3" ModbusPollingCycle="300" Unit="&lt;v.1&gt; V" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="AC Power" Comment="" ModbusAddress="40083" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="10" Unit="&lt;v.3&gt; kW" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="AC Frequency" Comment="" ModbusAddress="40085" ModbusCmd="3" ModbusPollingCycle="300" Unit="&lt;v.1&gt; Hz" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="AC Current Phase 1" Comment="" ModbusAddress="40072" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v.3&gt; A" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="AC Current Phase 2" Comment="" ModbusAddress="40073" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v.3&gt; A" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="AC Current Phase 3" Comment="" ModbusAddress="40074" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v.3&gt; A" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="AC Lifetime Energy production" Comment="" ModbusAddress="40092" ModbusCmd="3" ModbusDataType="34" ModbusPollingCycle="300" Unit="&lt;v.2&gt; kWh" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="AC Current Scale factor" Comment="" ModbusAddress="40075" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="AC Frequency scale factor" Comment="" ModbusAddress="40086" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="300" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="AC Lifetime Energy production scale factor" Comment="" ModbusAddress="40095" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="300" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="AC Voltage Scale factor" Comment="" ModbusAddress="40082" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="300" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="AC Power Scale factor" Comment="" ModbusAddress="40084" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="10" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+</Modbus>

@@ -1,0 +1,10 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Modbus Title="KAMSTRUP MULTICAL 403-603" Comment="" Baudrate="19200" Parity="1" Channel="90">
+	<Info templateType="7" minVersion="12020927"/>
+	<ModbusCmd Title="Actual Power" Comment="" ModbusAddress="4" ModbusCmd="3" ModbusDataType="36" ModbusPollingCycle="10" Unit="&lt;v.1&gt;Kw" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Current Water Flow" Comment="" ModbusCmd="3" ModbusDataType="36" ModbusPollingCycle="10" Unit="&lt;v&gt;l/h" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Temp. Impulsion" Comment="" ModbusAddress="6" ModbusCmd="3" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt;ºC" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Temp. Differential" Comment="" ModbusAddress="14" ModbusCmd="3" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt;ºC" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Return Temp." Comment="" ModbusAddress="8" ModbusCmd="3" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt;ºC" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Total Energy Consumed" Comment="" ModbusAddress="20" ModbusCmd="3" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.3&gt;Mwh" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+</Modbus>

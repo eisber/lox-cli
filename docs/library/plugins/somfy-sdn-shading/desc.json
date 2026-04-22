@@ -1,0 +1,9 @@
+{
+                                "type": "template",
+                                "name": "somfy-sdn-shading",
+                                "uuid": "c047b9ae-2538-11f0-8ac44cd98f3deb8a",
+                                "version":"1.0.1",
+                                "id": "somfy-sdn-shading-1856",
+                                "file": "somfy-sdn-shading.xml",
+                                "templateType": "3",
+                            }

@@ -1,0 +1,14 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Modbus Title="WARIOWEATHER COMPACT ME13" Comment="" Channel="4">
+	<Info templateType="7" minVersion="12021105"/>
+	<ModbusCmd Title="Temperature" Comment="" ModbusAddress="1005" ModbusCmd="4" ModbusDataType="1" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="100"/>
+	<ModbusCmd Title="Wind speed" Comment="" ModbusAddress="1002" ModbusCmd="4" ModbusDataType="1" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="100"/>
+	<ModbusCmd Title="Wind directon" Comment="" ModbusAddress="1001" ModbusCmd="4" ModbusDataType="1" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="100"/>
+	<ModbusCmd Title="Humidity" Comment="" ModbusAddress="1006" ModbusCmd="4" ModbusDataType="1" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="100"/>
+	<ModbusCmd Title="Atmospheric pressure" Comment="" ModbusAddress="1007" ModbusCmd="4" ModbusDataType="1" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="100"/>
+	<ModbusCmd Title="Gusty wind" Comment="" ModbusAddress="1003" ModbusCmd="4" ModbusDataType="1" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="360"/>
+	<ModbusCmd Title="Dew point" Comment="" ModbusAddress="1009" ModbusCmd="4" ModbusDataType="1" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="100"/>
+	<ModbusCmd Title="Apparent temperature" Comment="" ModbusAddress="1010" ModbusCmd="4" ModbusDataType="1" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="100"/>
+	<ModbusCmd Title="Exposure" Comment="" ModbusAddress="1008" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="100"/>
+	<ModbusCmd Title="Daily rainfalls" Comment="" ModbusAddress="1004" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+</Modbus>

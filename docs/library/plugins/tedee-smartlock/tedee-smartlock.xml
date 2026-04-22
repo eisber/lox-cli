@@ -1,0 +1,7 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<VirtualOut Title="Tedee Controls VO" Comment="" Address="http://&lt;BRIDGEIPADDRESS&gt;/" CmdInit="" HintText="" CloseAfterSend="true" CmdSep="">
+	<Info templateType="3" minVersion="14051103"/>
+	<VirtualOutCmd Title="lock" Comment="" CmdOnMethod="POST" CmdOffMethod="GET" CmdOn="v1.0/lock/&lt;LOCKDEVICEID&gt;/lock?api_token=&lt;APITOKEN&gt;" CmdOnHTTP="" CmdOnPost="{}" CmdOff="" CmdOffHTTP="" CmdOffPost="" CmdAnswer="" HintText="" Analog="false" Repeat="0" RepeatRate="0"/>
+	<VirtualOutCmd Title="unlockAndPull" Comment="" CmdOnMethod="POST" CmdOffMethod="GET" CmdOn="v1.0/lock/&lt;LOCKDEVICEID&gt;/unlock?mode=4&amp;api_token=&lt;APITOKEN&gt;" CmdOnHTTP="" CmdOnPost="{}" CmdOff="" CmdOffHTTP="" CmdOffPost="" CmdAnswer="" HintText="" Analog="false" Repeat="0" RepeatRate="0"/>
+	<VirtualOutCmd Title="unlock" Comment="" CmdOnMethod="POST" CmdOffMethod="GET" CmdOn="v1.0/lock/&lt;LOCKDEVICEID&gt;/unlock?mode=3&amp;api_token=&lt;APITOKEN&gt;" CmdOnHTTP="" CmdOnPost="{}" CmdOff="" CmdOffHTTP="" CmdOffPost="" CmdAnswer="" HintText="" Analog="false" Repeat="0" RepeatRate="0"/>
+</VirtualOut>

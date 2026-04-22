@@ -1,0 +1,32 @@
+{
+  "title": "AND",
+  "xml_type": "",
+  "kb_slug": "and",
+  "description": "This function block creates a logic AND operation. The output will be active when all connected inputs are active.\nMultiple signals connected to the same input will also be AND-linked.",
+  "inputs": [
+    {
+      "abbreviation": "I1",
+      "summary": "Input 1",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "I2",
+      "summary": "Input 2",
+      "value_range": "0/1"
+    }
+  ],
+  "outputs": [
+    {
+      "abbreviation": "O",
+      "summary": "Output",
+      "value_range": "0/1"
+    }
+  ],
+  "parameters": [],
+  "properties": [],
+  "source_url": "https://www.loxone.com/enen/kb/and/",
+  "input_count": 2,
+  "output_count": 1,
+  "parameter_count": 0,
+  "property_count": 0
+}

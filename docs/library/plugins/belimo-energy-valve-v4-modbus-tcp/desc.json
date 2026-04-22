@@ -1,0 +1,9 @@
+{
+                                "type": "template",
+                                "name": "belimo-energy-valve-v4-modbus-tcp",
+                                "uuid": "fce4f326-f1bc-11ee-b1e74cd98f3deb8a",
+                                "version":"1.0.1",
+                                "id": "belimo-energy-valve-v4-modbus-tcp-1524",
+                                "file": "belimo-energy-valve-v4-modbus-tcp.xml",
+                                "templateType": "7",
+                            }

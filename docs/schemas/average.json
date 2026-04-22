@@ -1,0 +1,28 @@
+{
+  "title": "Average",
+  "xml_type": "",
+  "kb_slug": "average",
+  "description": "This function block calculates the average of analog values at the output (Avg)",
+  "inputs": [],
+  "outputs": [
+    {
+      "abbreviation": "Avg",
+      "summary": "Average",
+      "value_range": "\u221e"
+    }
+  ],
+  "parameters": [
+    {
+      "abbreviation": "V1-4",
+      "summary": "Value 1-4",
+      "value_range": "\u221e",
+      "default_value": "0"
+    }
+  ],
+  "properties": [],
+  "source_url": "https://www.loxone.com/enen/kb/average/",
+  "input_count": 0,
+  "output_count": 1,
+  "parameter_count": 1,
+  "property_count": 0
+}

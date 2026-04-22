@@ -1,0 +1,60 @@
+{
+  "category": "E2: Timing (remaining)",
+  "blocks": {
+    "DelayedPulse": {
+      "inputs": {"I": "digital"},
+      "outputs": {"Q": "digital"},
+      "tests": [
+        {"desc": "off", "set": {"I": 0}, "expect": {"Q": 0}},
+        {"desc": "trigger (delayed pulse)", "set": {"I": 1}, "expect": {"Q": 0}, "wait": 0.2},
+        {"desc": "after delay", "set": {"I": 1}, "expect": {"Q": 1}, "wait": 2.0},
+        {"desc": "input off", "set": {"I": 0}, "expect": {"Q": 0}, "wait": 0.3}
+      ]
+    },
+    "WipingRelay": {
+      "inputs": {"I": "digital"},
+      "outputs": {"Q": "digital"},
+      "tests": [
+        {"desc": "off", "set": {"I": 0}, "expect": {"Q": 0}},
+        {"desc": "short press → toggle on", "set": {"I": 1}, "expect": {"Q": 1}, "wait": 0.2},
+        {"desc": "release", "set": {"I": 0}, "expect": {"Q": 1}, "wait": 0.3},
+        {"desc": "short press → toggle off", "set": {"I": 1}, "expect": {"Q": 0}, "wait": 0.2}
+      ]
+    },
+    "RandomGenerator": {
+      "inputs": {"I": "digital"},
+      "outputs": {"AQ": "analog"},
+      "tests": [
+        {"desc": "trigger generates value", "set": {"I": 1}, "wait": 0.5},
+        {"desc": "value is non-negative", "set": {"I": 0}, "wait": 0.3}
+      ]
+    },
+    "RandomController": {
+      "inputs": {"I": "digital", "Min": "analog", "Max": "analog"},
+      "outputs": {"AQ": "analog"},
+      "tests": [
+        {"desc": "off", "set": {"I": 0, "Min": 0, "Max": 100}, "wait": 0.3},
+        {"desc": "trigger", "set": {"I": 1, "Min": 10, "Max": 20}, "wait": 0.5}
+      ]
+    },
+    "SwitchOnOffDelay": {
+      "inputs": {"I": "digital"},
+      "outputs": {"Q": "digital"},
+      "tests": [
+        {"desc": "input on (delayed)", "set": {"I": 1}, "expect": {"Q": 0}, "wait": 0.2},
+        {"desc": "after on-delay", "set": {"I": 1}, "expect": {"Q": 1}, "wait": 2.0},
+        {"desc": "input off (delayed)", "set": {"I": 0}, "expect": {"Q": 1}, "wait": 0.2},
+        {"desc": "after off-delay", "set": {"I": 0}, "expect": {"Q": 0}, "wait": 2.0}
+      ]
+    },
+    "PulseAt": {
+      "inputs": {"I": "digital"},
+      "outputs": {"Q": "digital"},
+      "tests": [
+        {"desc": "off", "set": {"I": 0}, "expect": {"Q": 0}},
+        {"desc": "trigger", "set": {"I": 1}, "expect": {"Q": 1}, "wait": 0.5}
+      ]
+    }
+  },
+  "wiring": {}
+}

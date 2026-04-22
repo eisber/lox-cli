@@ -1,0 +1,29 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Modbus Title="Control Box B544(E)" Comment="" HintText="" Channel="3">
+	<Info templateType="7" minVersion="15031213"/>
+	<ModbusCmd Title="ON/OFF status" Comment="Stav" HintText="" ModbusCmd="2" ModbusPollingCycle="5" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="Sleep status" Comment="" HintText="" ModbusAddress="3" ModbusCmd="2" ModbusPollingCycle="60" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="Electric heater status" Comment="" HintText="" ModbusAddress="4" ModbusCmd="2" ModbusPollingCycle="60" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="Energy-saving status" Comment="" HintText="" ModbusAddress="9" ModbusCmd="2" ModbusPollingCycle="60" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="Defrost status" Comment="" HintText="" ModbusAddress="10" ModbusCmd="2" ModbusPollingCycle="60" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="Compressor status" Comment="" HintText="" ModbusAddress="11" ModbusCmd="2" ModbusPollingCycle="300" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="Super mode" Comment="" HintText="" ModbusAddress="14" ModbusCmd="2" ModbusPollingCycle="60" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="Mute mode" Comment="" HintText="" ModbusAddress="15" ModbusCmd="2" ModbusPollingCycle="60" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="Indoor temperature" Comment="" HintText="" ModbusAddress="1" ModbusCmd="4" ModbusPollingCycle="300" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="The setting temperature" Comment="" HintText="" ModbusAddress="2" ModbusCmd="4" ModbusPollingCycle="300" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Mode" Comment="" HintText="" ModbusAddress="7" ModbusCmd="4" ModbusPollingCycle="300" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Fan speed" Comment="" HintText="" ModbusAddress="8" ModbusCmd="4" ModbusPollingCycle="300" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Swing" Comment="" HintText="" ModbusAddress="9" ModbusCmd="4" ModbusPollingCycle="300" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Fault" Comment="" HintText="" ModbusAddress="12" ModbusCmd="4" ModbusPollingCycle="300" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Outlet air temperature" Comment="" HintText="" ModbusAddress="15" ModbusCmd="4" ModbusDataType="1" ModbusPollingCycle="300" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="ON/OFF setting" Comment="" HintText="" ModbusCmd="5" Unit="" Analog="false" Sensor="false"/>
+	<ModbusCmd Title="Mode setting" Comment="" HintText="" ModbusAddress="2" ModbusCmd="6" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Swing setting" Comment="" HintText="" ModbusAddress="4" ModbusCmd="6" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Temperature setting" Comment="" HintText="" ModbusCmd="6" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Fan speed setting" Comment="" HintText="" ModbusAddress="3" ModbusCmd="6" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Sleep setting" Comment="" HintText="" ModbusAddress="3" ModbusCmd="5" Unit="" Analog="false" Sensor="false"/>
+	<ModbusCmd Title="Electric heater setting" Comment="" HintText="" ModbusAddress="4" ModbusCmd="5" Unit="" Analog="false" Sensor="false"/>
+	<ModbusCmd Title="Energy-saving mode" Comment="" HintText="" ModbusAddress="9" ModbusCmd="5" Unit="" Analog="false" Sensor="false"/>
+	<ModbusCmd Title="Super mode" Comment="" HintText="" ModbusAddress="13" ModbusCmd="5" Unit="" Analog="false" Sensor="false"/>
+	<ModbusCmd Title="Mute mode" Comment="" HintText="" ModbusAddress="14" ModbusCmd="5" Unit="" Analog="false" Sensor="false"/>
+</Modbus>

@@ -1,0 +1,12 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Comm Title="iQntrol Dosieranlage DOS-COMPLETE Redox-CLF1" Comment="" HintText="" RS485="true" Baudrate="57600" Databits="8" CycleUserProt="-1">
+	<Info templateType="6" minVersion="15010820"/>
+	<CommCmd Title="03-04 pH" Comment="" CmdOn="\s2\2\1" CmdOff="" Unit="&lt;v.2&gt;" HintText="" Analog="true" Text="false" Sensor="true" Signed="false" SourceValHigh="100" DestValHigh="1"/>
+	<CommCmd Title="17 pH required" Comment="" CmdOn="\s16\1" CmdOff="" Unit="&lt;v.1&gt;" HintText="" Analog="true" Text="false" Sensor="true" Signed="false" SourceValHigh="100" DestValHigh="10"/>
+	<CommCmd Title="05-06 CL or RX" Comment="" CmdOn="\s4\2\1" CmdOff="" Unit="&lt;v&gt; mV" HintText="" Analog="true" Text="false" Sensor="true" Signed="false" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="18 CL or Rx required" Comment="" CmdOn="\s17\1" CmdOff="" Unit="&lt;v&gt; mV" HintText="" Analog="true" Text="false" Sensor="true" Signed="false" SourceValHigh="10" DestValHigh="100"/>
+	<CommCmd Title="09-10 temperature" Comment="" CmdOn="\s8\2\1" CmdOff="" Unit="&lt;v.1&gt;" HintText="" Analog="true" Text="false" Sensor="true" Signed="false" SourceValHigh="100" DestValHigh="10"/>
+	<CommCmd Title="11 error1" Comment="" CmdOn="\s10\1" CmdOff="" Unit="&lt;v&gt;" HintText="" Analog="true" Text="false" Sensor="true" Signed="false" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="24 error2" Comment="" CmdOn="\s23\1" CmdOff="" Unit="&lt;v&gt;" HintText="" Analog="true" Text="false" Sensor="true" Signed="false" SourceValHigh="100" DestValHigh="100"/>
+	<CommCmd Title="02 unit   type" Comment="" CmdOn="\s1\1" CmdOff="" Unit="&lt;v.2&gt;" HintText="" Analog="true" Text="false" Sensor="true" Signed="false" SourceValHigh="100" DestValHigh="1"/>
+</Comm>

@@ -1,0 +1,51 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Modbus Title="INMBSPAN001A000" Comment="" HintText="" Baudrate="9600" Stopbits="1" Channel="2">
+	<Info templateType="7" minVersion="15010527"/>
+	<ModbusCmd Title="0_System On/Off" Comment="" HintText="" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="1_Outdoor temperature" Comment="" HintText="" ModbusAddress="1" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="2_Outlet water temperature" Comment="" HintText="" ModbusAddress="2" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="3_Inlet water temperature" Comment="" HintText="" ModbusAddress="3" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="4_Operating mode" Comment="" HintText="" ModbusAddress="4" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="5_Heat mode water temp. setting method" Comment="" HintText="" ModbusAddress="5" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="6_Cool mode water temp. setting method" Comment="" HintText="" ModbusAddress="6" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="9_Zone 1/Zone 2 On/Off" Comment="" HintText="" ModbusAddress="9" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="10_Zone 1 sensors" Comment="" HintText="" ModbusAddress="10" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="11_Zone 2 sensors" Comment="" HintText="" ModbusAddress="11" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="12_Zone 1 setpoint temperature" Comment="" HintText="" ModbusAddress="12" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="13_Zone 2 setpoint temperature" Comment="" HintText="" ModbusAddress="13" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="14_Zone 1 current temperature" Comment="" HintText="" ModbusAddress="14" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="15_Zone 2 current temperature" Comment="" HintText="" ModbusAddress="15" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="16_Zone 1 temperature setting mode" Comment="" HintText="" ModbusAddress="16" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="17_Zone 2 temperature setting mode" Comment="" HintText="" ModbusAddress="17" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="18_Zone 1 min Setpoint temperature" Comment="" HintText="" ModbusAddress="18" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="19_Zone 1 max Setpoint temperature" Comment="" HintText="" ModbusAddress="19" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="20_Zone 2 min Setpoint temperature" Comment="" HintText="" ModbusAddress="20" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="21_Zone 2 max Setpoint temperature" Comment="" HintText="" ModbusAddress="21" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="30_Tank On/Of" Comment="" HintText="" ModbusAddress="30" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="32_Tank current water temperature" Comment="" HintText="" ModbusAddress="32" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="33_Tank water setpoint temperature" Comment="" HintText="" ModbusAddress="33" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="34_Tank heater" Comment="" HintText="" ModbusAddress="34" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="35_Tank min water setpoint temperature" Comment="" HintText="" ModbusAddress="35" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="36_Tank max water setpoint temperature" Comment="" HintText="" ModbusAddress="36" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="45_Tank mode energy consumption" Comment="" HintText="" ModbusAddress="45" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.1&gt;kW" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="1"/>
+	<ModbusCmd Title="46_Heat mode energy consumption" Comment="" HintText="" ModbusAddress="46" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.1&gt;kW" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="1"/>
+	<ModbusCmd Title="47_Cool mode energy consumption" Comment="" HintText="" ModbusAddress="47" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.1&gt;W" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="52_Error Code" Comment="" HintText="" ModbusAddress="52" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="64_Device Status" Comment="" HintText="" ModbusAddress="64" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="70_Current error status" Comment="" HintText="" ModbusAddress="70" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="81_Tank connection" Comment="" HintText="" ModbusAddress="81" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="82_Number of zones" Comment="" HintText="" ModbusAddress="82" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="83_Zone 1 setup" Comment="" HintText="" ModbusAddress="83" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="84_Zone 2 setup" Comment="" HintText="" ModbusAddress="84" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="85_Direction" Comment="" HintText="" ModbusAddress="85" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="86_Outdoor type" Comment="" HintText="" ModbusAddress="86" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="0_System On/Off" Comment="" HintText="" ModbusCmd="6" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="4_Operating mode" Comment="" HintText="" ModbusAddress="4" ModbusCmd="6" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="5_Heat mode water temp. setting method" Comment="" HintText="" ModbusAddress="5" ModbusCmd="6" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="6_Cool mode water temp. setting method" Comment="" HintText="" ModbusAddress="6" ModbusCmd="6" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="9_Zone 1/Zone 2 On/Off" Comment="" HintText="" ModbusAddress="9" ModbusCmd="6" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="12_Zone 1 setpoint temperature" Comment="" HintText="" ModbusAddress="12" ModbusCmd="6" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="13_Zone 2 setpoint temperature" Comment="" HintText="" ModbusAddress="13" ModbusCmd="6" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="30_Tank On/Off" Comment="" HintText="" ModbusAddress="30" ModbusCmd="6" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="33_Tank water setpoint temperature" Comment="" HintText="" ModbusAddress="33" ModbusCmd="6" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+</Modbus>

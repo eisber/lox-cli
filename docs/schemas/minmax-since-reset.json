@@ -1,0 +1,47 @@
+{
+  "title": "MinMax since Reset",
+  "xml_type": "",
+  "kb_slug": "minmax-since-reset",
+  "description": "The minimum and maximum values at input (V) are determined and output at the outputs (Min) and (Max).",
+  "inputs": [
+    {
+      "abbreviation": "V",
+      "summary": "Value",
+      "description": "Analogue input, the values of which are used to determine the minimum and maximum.",
+      "value_range": "\u221e"
+    },
+    {
+      "abbreviation": "R",
+      "summary": "Reset",
+      "description": "Resets (Min) and (Max) to the current value (V).",
+      "value_range": "0/1"
+    }
+  ],
+  "outputs": [
+    {
+      "abbreviation": "Min",
+      "summary": "Minimum",
+      "value_range": "\u221e"
+    },
+    {
+      "abbreviation": "Max",
+      "summary": "Maximum",
+      "value_range": "\u221e"
+    }
+  ],
+  "parameters": [
+    {
+      "abbreviation": "Rem",
+      "summary": "Remanence input",
+      "description": "Remanence input: If active, the function block retains its previous state after a Miniserver reboot. The state of the function block is saved: \u2013 When saving to the Miniserver \u2013 At a planned reboot \u2013 Before a backup \u2013 Once per hour The data is saved on the SD card.",
+      "value_range": "0/1",
+      "default_value": "0"
+    }
+  ],
+  "properties": [],
+  "source_url": "https://www.loxone.com/enen/kb/minmax-since-reset/",
+  "input_count": 2,
+  "output_count": 2,
+  "parameter_count": 1,
+  "property_count": 0
+}

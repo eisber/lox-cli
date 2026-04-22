@@ -1,0 +1,45 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Modbus Title="iQntrol salt modbus" Comment="" Baudrate="9600" Channel="10">
+	<Info templateType="7" minVersion="13000726"/>
+	<ModbusCmd Title="Salt concentration" Comment="" ModbusAddress="20" ModbusCmd="4" ModbusPollingCycle="30" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="10"/>
+	<ModbusCmd Title="Control mode" Comment="" ModbusAddress="16" ModbusCmd="3" ModbusPollingCycle="30" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Master probe" Comment="" ModbusAddress="17" ModbusCmd="3" ModbusPollingCycle="30" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="pH set point" Comment="" ModbusAddress="19" ModbusCmd="3" ModbusPollingCycle="30" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="1"/>
+	<ModbusCmd Title="Current pH value" Comment="" ModbusAddress="17" ModbusCmd="4" ModbusPollingCycle="30" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="Cleaning cycle" Comment="" ModbusAddress="3" ModbusCmd="3" ModbusPollingCycle="30" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="ORP Setpoint" Comment="" ModbusAddress="20" ModbusCmd="3" ModbusPollingCycle="30" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Production set point" Comment="" ModbusAddress="18" ModbusCmd="3" ModbusPollingCycle="30" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="PPM Setpoint" Comment="" ModbusAddress="21" ModbusCmd="3" ModbusPollingCycle="30" Unit="&lt;v.2&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="1"/>
+	<ModbusCmd Title="Cell intensity_p" Comment="" ModbusAddress="16" ModbusCmd="4" ModbusPollingCycle="30" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Current OPR value" Comment="" ModbusAddress="18" ModbusCmd="4" ModbusPollingCycle="30" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Current ppm value" Comment="" ModbusAddress="19" ModbusCmd="4" ModbusPollingCycle="30" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Water temperature" Comment="" ModbusAddress="21" ModbusCmd="4" ModbusPollingCycle="30" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Cell intensity_a" Comment="" ModbusAddress="22" ModbusCmd="4" ModbusPollingCycle="30" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="10"/>
+	<ModbusCmd Title="Cell_voltage" Comment="" ModbusAddress="23" ModbusCmd="4" ModbusPollingCycle="30" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="10"/>
+	<ModbusCmd Title="Cover position" Comment="" ModbusCmd="1" ModbusPollingCycle="30" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="Operation hours_low" Comment="" ModbusAddress="3" ModbusCmd="4" ModbusPollingCycle="60" Unit="&lt;v.2&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Operation hours_high" Comment="" ModbusAddress="4" ModbusCmd="4" ModbusPollingCycle="60" Unit="&lt;v.2&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="pH alarm (active)" Comment="" ModbusAddress="2" ModbusCmd="1" ModbusPollingCycle="30" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="Cell polarity" Comment="" ModbusCmd="2" ModbusPollingCycle="60" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="Filter pump status" Comment="" ModbusAddress="1" ModbusCmd="2" ModbusPollingCycle="60" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="Waiting time for probe to be stable" Comment="" ModbusAddress="2" ModbusCmd="2" ModbusPollingCycle="60" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="Electrode cleaning in process" Comment="" ModbusAddress="3" ModbusCmd="2" ModbusPollingCycle="60" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="ORP probe saturated" Comment="" ModbusAddress="16" ModbusCmd="2" ModbusPollingCycle="30" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="Overtemperature inside the chlorinator" Comment="" ModbusAddress="17" ModbusCmd="2" ModbusPollingCycle="30" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="Open circuit" Comment="" ModbusAddress="18" ModbusCmd="2" ModbusPollingCycle="30" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="No water flow" Comment="" ModbusAddress="19" ModbusCmd="2" ModbusPollingCycle="30" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="Short circuit" Comment="" ModbusAddress="20" ModbusCmd="2" ModbusPollingCycle="30" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="pH Alarm (ALARMS)" Comment="" ModbusAddress="21" ModbusCmd="2" ModbusPollingCycle="30" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="PPM Probe disconnected" Comment="" ModbusAddress="22" ModbusCmd="2" ModbusPollingCycle="30" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="Lack of salt" Comment="" ModbusAddress="32" ModbusCmd="2" ModbusPollingCycle="30" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="Too much salt" Comment="" ModbusAddress="33" ModbusCmd="2" ModbusPollingCycle="30" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="Bad Cell" Comment="" ModbusAddress="34" ModbusCmd="2" ModbusPollingCycle="30" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="ORP probe disconnectetd" Comment="" ModbusAddress="35" ModbusCmd="2" ModbusPollingCycle="30" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="Flow switch" Comment="" ModbusAddress="1" ModbusCmd="1" ModbusPollingCycle="60" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="Cleaning cycle" Comment="" ModbusAddress="3" ModbusCmd="16" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="pH set point" Comment="" ModbusAddress="19" ModbusCmd="16" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="1" DestValHigh="100"/>
+	<ModbusCmd Title="ORP Setpoint" Comment="" ModbusAddress="20" ModbusCmd="16" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="PPM Setpoint" Comment="" ModbusAddress="21" ModbusCmd="16" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="1" DestValHigh="100"/>
+	<ModbusCmd Title="Control mode" Comment="" ModbusAddress="16" ModbusCmd="16" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Production set point" Comment="" ModbusAddress="18" ModbusCmd="16" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10"/>
+</Modbus>

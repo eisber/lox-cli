@@ -1,0 +1,66 @@
+{
+  "title": "Status Monitor",
+  "xml_type": "",
+  "kb_slug": "status-monitor",
+  "description": "The Status Monitor function block can be used to monitor and display user-defined states for devices, logics and inputs.",
+  "inputs": [
+    {
+      "abbreviation": "Stat",
+      "summary": "Status",
+      "description": "Connect one or multiple status inputs. The possible value-text pairs can be defined in the status dialog.",
+      "value_range": "\u221e"
+    }
+  ],
+  "outputs": [
+    {
+      "abbreviation": "Txlc",
+      "summary": "Text last change",
+      "description": "Room, name and status of last changed object with defined status text.",
+      "value_range": "-"
+    },
+    {
+      "abbreviation": "Csr",
+      "summary": "Count state rest",
+      "description": "Number of devices or objects that do not match with any defined state value.",
+      "value_range": "\u221e"
+    },
+    {
+      "abbreviation": "Cs1-10",
+      "summary": "Count state 1-10",
+      "description": "Number of devices or objects whose values match the corresponding defined status values of Cs1-10.",
+      "value_range": "\u221e"
+    },
+    {
+      "abbreviation": "API",
+      "summary": "API Connector",
+      "description": "Intelligent API based connector. API Commands",
+      "value_range": "-"
+    }
+  ],
+  "parameters": [],
+  "properties": [
+    {
+      "summary": "Activity Log Entries",
+      "description": "Number of entries in the activity log. 0: log is disabled The activity log tracks relevant changes since program start.",
+      "value_range": "0...100",
+      "default_value": "20"
+    },
+    {
+      "summary": "Assign Status Monitors",
+      "description": "Choose subordinate status monitors to enable the aggregation of their states based on the text-value pairs defined by the primary status monitor.",
+      "value_range": "-",
+      "default_value": "-"
+    },
+    {
+      "summary": "Status Configuration",
+      "description": "Text-value pairs",
+      "value_range": "-",
+      "default_value": "-"
+    }
+  ],
+  "source_url": "https://www.loxone.com/enen/kb/status-monitor/",
+  "input_count": 1,
+  "output_count": 4,
+  "parameter_count": 0,
+  "property_count": 3
+}

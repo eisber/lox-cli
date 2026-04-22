@@ -1,0 +1,39 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Modbus Title="SolarEdge Inverter with Batteries 20241017" Comment="" HintText="" Channel="1">
+	<Info templateType="7" minVersion="15021014"/>
+	<ModbusCmd Title="I_DC_Power_RAW" Comment="DC Power Raw" HintText="DC Power = PV Production + Battery Power (1&amp;2)
+Raw value, must be converted using SF!
+
+Formula: (RAW*10^SF)/1000 = DC Power in kW" ModbusAddress="40100" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="I_DC_Power_SF" Comment="DC Power Scaling Factor" HintText="Scaling Factor for DC_Power" ModbusAddress="40101" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="60" Unit="&lt;v.1&gt;x" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="I_Status" Comment="Inverter Status" HintText="1 = Off  
+2 = Sleeping (auto-shutdown) – Night mode  
+3 = Grid Monitoring/wake-up  
+4 = Inverter is ON and producing power  
+5 = Production (curtailed)  
+6 = Shutting down  
+7 = Fault  
+8 = Maintenance/setup " ModbusAddress="40107" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="M_AC_Power_RAW" Comment="Grid Power Raw" HintText="AC Power of connected Meter.
+Raw value, needs to be converted using Scaling Factor (SF)
+
+Formula: (RAW*10^SF)/1000 = Meter AC Power in kW" ModbusAddress="40206" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="10" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="M_AC_Power_SF" Comment="Grid Power Scaling Factor" HintText="Scaling factor for connected meters raw AC_Power value." ModbusAddress="40210" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="10" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="M_Exported_Energy_RAW" Comment="Grid Exported Energy Raw" HintText="Raw exported energy value of connected meter.
+Needs to be converted to kWh using the meters energy scaling factor (M_Energy_SF).
+
+Formula: (RAW*10^SF)/1000 = Exported Energy in kWh" ModbusAddress="40226" ModbusCmd="3" ModbusDataType="98" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="M_Imported_Energy_RAW" Comment="Grid Imported Energy Raw" HintText="Raw imported energy value of connected meter.
+Needs to be converted to kWh using the meters energy scaling factor (M_Energy_SF).
+
+Formula: (RAW*10^SF)/1000 = Imported Energy in kWh" ModbusAddress="40234" ModbusCmd="3" ModbusDataType="98" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="M_Energy_SF" Comment="Grid Energy Scaling Factor" HintText="Scaling factor for connected meters raw energy values." ModbusAddress="40242" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="B1_State_of_Energy" Comment="Battery 1 Storage Level" HintText="State of Energy of Battery1 in % (0-100)" ModbusAddress="57732" ModbusCmd="3" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.0&gt;%" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="B1_Instantaneous_Power" Comment="Battery 1 Power" HintText="Power of Battery1 in kW
+Positive = Charging
+Negative = Discharging" ModbusAddress="57716" ModbusCmd="3" ModbusDataType="36" ModbusPollingCycle="10" Unit="&lt;v.3&gt; kW" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="1"/>
+	<ModbusCmd Title="B2_State_of_Energy" Comment="Battery 2 Storage Level" HintText="State of Energy of Battery1 in % (0-100)" ModbusAddress="57972" ModbusCmd="3" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.0&gt;%" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="B2_Instantaneus_Power" Comment="Battery 2 Power" HintText="Power of Battery2 in kW
+Positive = Charging
+Negative = Discharging" ModbusAddress="57988" ModbusCmd="3" ModbusDataType="36" ModbusPollingCycle="10" Unit="&lt;v.3&gt; kW" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="1"/>
+</Modbus>

@@ -1,0 +1,24 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Modbus Title="CHARX - Charger 1" Comment="" Channel="1">
+	<Info templateType="7" minVersion="13021130"/>
+	<ModbusCmd Title="Rate_I" Comment="" ModbusAddress="1297" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Rate_Prct" Comment="" ModbusAddress="1296" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Vehicle Status" Comment="" ModbusAddress="1299" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Max Configured Rate" Comment="" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Min Configured Rate" Comment="" ModbusAddress="1102" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Counter Active Energy" Comment="" ModbusAddress="1250" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Active Power" Comment="" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Allowed Current By plugged in cable" Comment="" ModbusAddress="1298" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Charging release mode" Comment="" ModbusAddress="1120" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Voltage of phase L1" Comment="" ModbusAddress="1232" ModbusCmd="3" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Voltage of phase L2" Comment="" ModbusAddress="1234" ModbusCmd="3" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Voltage of phase L3" Comment="" ModbusAddress="1236" ModbusCmd="3" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Current of phase L1" Comment="" ModbusAddress="1238" ModbusCmd="3" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Current of phase L2" Comment="" ModbusAddress="1240" ModbusCmd="3" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Current of phase L3" Comment="" ModbusAddress="1242" ModbusCmd="3" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Error Code" Comment="" ModbusAddress="1293" ModbusCmd="3" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Max Charging Rate I" Comment="Set the max amount of amps that the car is able to use" ModbusAddress="1301" ModbusCmd="6" Unit="&lt;v&gt; Amps" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Charging Release" Comment="When set to high the charging starts if a vehicle is connected" ModbusAddress="1300" ModbusCmd="5" Unit="" Analog="false" Sensor="false"/>
+	<ModbusCmd Title="Force Unlock" Comment="When using a connector this forces the unlock of the plug" ModbusAddress="1305" ModbusCmd="5" Unit="" Analog="false" Sensor="false"/>
+	<ModbusCmd Title="Reset" Comment="Charging controller restart" ModbusAddress="165" ModbusCmd="5" Unit="" Analog="false" Sensor="false"/>
+</Modbus>

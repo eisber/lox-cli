@@ -1,0 +1,7 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Modbus Title="LSLV-S100" Comment="" Baudrate="9600" Channel="1">
+	<Info templateType="7" minVersion="12010716"/>
+	<ModbusCmd Title="Operation status" Comment="" ModbusAddress="13" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="frequency" Comment="" ModbusAddress="4" ModbusCmd="6" ModbusDataType="1" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="drive comand" Comment="" ModbusAddress="5" ModbusCmd="6" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+</Modbus>

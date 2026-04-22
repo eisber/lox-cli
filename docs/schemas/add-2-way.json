@@ -1,0 +1,28 @@
+{
+  "title": "Add (2-way)",
+  "xml_type": "",
+  "kb_slug": "add-2-way",
+  "description": "Adds two or more analog values and makes the result available at output (O).",
+  "inputs": [],
+  "outputs": [
+    {
+      "abbreviation": "O",
+      "summary": "(O) = (V1) + (V2)",
+      "value_range": "\u221e"
+    }
+  ],
+  "parameters": [
+    {
+      "abbreviation": "V1-2",
+      "summary": "Value 1-2",
+      "value_range": "\u221e",
+      "default_value": "0"
+    }
+  ],
+  "properties": [],
+  "source_url": "https://www.loxone.com/enen/kb/add-2-way/",
+  "input_count": 0,
+  "output_count": 1,
+  "parameter_count": 1,
+  "property_count": 0
+}

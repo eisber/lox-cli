@@ -1,0 +1,17 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Modbus Title="MHT03" Comment="Combined humidity sensor for building materials," Baudrate="19200" Parity="1" Channel="1">
+	<Info templateType="7" minVersion="13011006"/>
+	<ModbusCmd Title="Temperature" Comment="" ModbusAddress="100" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="5" Unit="&lt;v.2&gt; °C" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Relative humidity" Comment="" ModbusAddress="102" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="5" Unit="&lt;v.2&gt; %" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Dew point" Comment="" ModbusAddress="104" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="5" Unit="&lt;v.2&gt; °C" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Moisture content of the material" Comment="" ModbusAddress="106" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="5" Unit="&lt;v.2&gt; %" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Electrical resistance in the positive direction" Comment="" ModbusAddress="108" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="5" Unit="&lt;v.2&gt; Ω" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Absolute humidity" Comment="" ModbusAddress="112" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="5" Unit="&lt;v.2&gt; g/m³" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Power supply voltage" Comment="" ModbusAddress="116" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="5" Unit="&lt;v.2&gt; V" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Temperature in the cavity" Comment="" ModbusAddress="120" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="5" Unit="&lt;v.2&gt; °C" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Relative humidity in the cavity" Comment="" ModbusAddress="122" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="5" Unit="&lt;v.2&gt; %" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Dew point in the cavity" Comment="" ModbusAddress="124" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="5" Unit="&lt;v.2&gt; °C" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Electrical resistance in the negative direction" Comment="" ModbusAddress="128" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="5" Unit="&lt;v.2&gt; Ω" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Absolute humidity in the cavity" Comment="" ModbusAddress="132" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="5" Unit="&lt;v.2&gt; g/m³" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Sensor serial number" Comment="" ModbusAddress="3001" ModbusCmd="4" ModbusDataType="32" ModbusPollingCycle="5" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+</Modbus>

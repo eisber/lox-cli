@@ -1,0 +1,32 @@
+{
+  "title": "Exclusive OR",
+  "xml_type": "",
+  "kb_slug": "exclusive-or",
+  "description": "This function block creates a logic XOR operation. The output will be active when the connected inputs have unequal values.\nNote that multiple signal connected to same input will be OR-linked.",
+  "inputs": [
+    {
+      "abbreviation": "I1",
+      "summary": "Input 1",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "I2",
+      "summary": "Input 2",
+      "value_range": "0/1"
+    }
+  ],
+  "outputs": [
+    {
+      "abbreviation": "O",
+      "summary": "Output",
+      "value_range": "0/1"
+    }
+  ],
+  "parameters": [],
+  "properties": [],
+  "source_url": "https://www.loxone.com/enen/kb/exclusive-or/",
+  "input_count": 2,
+  "output_count": 1,
+  "parameter_count": 0,
+  "property_count": 0
+}

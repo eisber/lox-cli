@@ -1,0 +1,84 @@
+{
+  "title": "Toilet Ventilation Controller",
+  "xml_type": "",
+  "kb_slug": "toilet-ventilation-controller",
+  "description": "The Toilet Ventilation Controller works in \"Sessions\". A pulse at the input (Tg) will start or end the session.\nOutput (S) is switched on directly after being triggered. Output (Fan) switches on after the delay set in Parameter (Fsd).\nIf input (P) is used, the session starts with a rising edge at input (P) and ends the session at a falling edge, delayed by the duration set in parameter (FPet).",
+  "inputs": [
+    {
+      "abbreviation": "Tg",
+      "summary": "Toggle",
+      "description": "Start / end session.",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "P",
+      "summary": "Presence",
+      "description": "Start session when 1.",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "Off",
+      "summary": "Off",
+      "description": "Pulse: Outputs are reset / switched off. On: Block is locked. Dominating input.",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "DisPc",
+      "summary": "Disable periphery control",
+      "description": "Disables all inputs when On. (e.g Child lock, cleaning) Control via user interface is still possible.",
+      "value_range": "0/1"
+    }
+  ],
+  "outputs": [
+    {
+      "abbreviation": "S",
+      "summary": "Session status",
+      "description": "On as long as the session is active.",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "Fan",
+      "summary": "Fan",
+      "description": "Output for fan control.",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "API",
+      "summary": "API Connector",
+      "description": "Intelligent API based connector. API Commands",
+      "value_range": "-"
+    }
+  ],
+  "parameters": [
+    {
+      "abbreviation": "Rem",
+      "summary": "Remanence input",
+      "description": "Remanence input: If active, the function block retains its previous state after a Miniserver reboot. The state of the function block is saved: \u2013 When saving to the Miniserver \u2013 At a planned reboot \u2013 Before a backup \u2013 Once per hour The data is saved on the SD card.",
+      "unit": "-",
+      "value_range": "0/1",
+      "default_value": "0"
+    },
+    {
+      "abbreviation": "Fsd",
+      "summary": "Fan start delay",
+      "description": "Delay before the fan is switched on after the session started.",
+      "unit": "s",
+      "value_range": "0...\u221e",
+      "default_value": "30"
+    },
+    {
+      "abbreviation": "FPet",
+      "summary": "Fan / Movement extend time",
+      "description": "1. Time starts with the falling edge of output (S) and extends output (Fan) by set time. 2. When using input (P), time starts with the falling edge of input (P) and extends outputs (S) and (Fan) by set time.",
+      "unit": "s",
+      "value_range": "0...\u221e",
+      "default_value": "180"
+    }
+  ],
+  "properties": [],
+  "source_url": "https://www.loxone.com/enen/kb/toilet-ventilation-controller/",
+  "input_count": 4,
+  "output_count": 3,
+  "parameter_count": 3,
+  "property_count": 0
+}

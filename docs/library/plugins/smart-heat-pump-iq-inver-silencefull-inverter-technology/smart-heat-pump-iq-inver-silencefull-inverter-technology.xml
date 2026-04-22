@@ -1,0 +1,62 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Modbus Title="heat pump smart" Comment="" Baudrate="9600" Channel="1">
+	<Info templateType="7" minVersion="13000726"/>
+	<ModbusCmd Title="0 Power" Comment="" ModbusCmd="1" ModbusPollingCycle="15" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="304 Water outlet temperature（AIN2)" Comment="" ModbusAddress="4" ModbusCmd="4" ModbusPollingCycle="15" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValLow="60" SourceValHigh="62" DestValHigh="1"/>
+	<ModbusCmd Title="200 mode selection 1" Comment="" ModbusCmd="3" ModbusPollingCycle="15" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="202 Temp setting under Auto mode" Comment="" ModbusAddress="2" ModbusCmd="3" ModbusPollingCycle="15" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValLow="61" SourceValHigh="63" DestValHigh="1"/>
+	<ModbusCmd Title="204 Temp setting under Cooling mode" Comment="" ModbusAddress="4" ModbusCmd="3" ModbusPollingCycle="15" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValLow="61" SourceValHigh="63" DestValHigh="1"/>
+	<ModbusCmd Title="300 Percentage of speed" Comment="" ModbusCmd="4" ModbusPollingCycle="15" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="203 Temp setting under Heating mode" Comment="" ModbusAddress="3" ModbusCmd="3" ModbusPollingCycle="15" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValLow="61" SourceValHigh="63" DestValHigh="1"/>
+	<ModbusCmd Title="201 mode selection 2" Comment="" ModbusAddress="1" ModbusCmd="3" ModbusPollingCycle="30" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="315 Lower limit of setting temp of auto mode" Comment="" ModbusAddress="15" ModbusCmd="4" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValLow="60" SourceValHigh="62" DestValHigh="1"/>
+	<ModbusCmd Title="316 Upper limit of setting temp of auto mode" Comment="" ModbusAddress="16" ModbusCmd="4" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValLow="60" SourceValHigh="62" DestValHigh="1"/>
+	<ModbusCmd Title="317 Lower limit of setting temp of heating mode" Comment="" ModbusAddress="17" ModbusCmd="4" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValLow="60" SourceValHigh="62" DestValHigh="1"/>
+	<ModbusCmd Title="318 Upper limit of setting temp of heating mode" Comment="" ModbusAddress="18" ModbusCmd="4" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValLow="60" SourceValHigh="62" DestValHigh="1"/>
+	<ModbusCmd Title="319 Lower limit of setting temp of cooling mode" Comment="" ModbusAddress="19" ModbusCmd="4" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValLow="60" SourceValHigh="62" DestValHigh="1"/>
+	<ModbusCmd Title="320 Upper limit of setting temp of cooling mode" Comment="" ModbusAddress="20" ModbusCmd="4" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValLow="60" SourceValHigh="62" DestValHigh="1"/>
+	<ModbusCmd Title="12 Switch on_off" Comment="" ModbusCmd="2" ModbusPollingCycle="15" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="11 Defrosting" Comment="" ModbusAddress="1" ModbusCmd="2" ModbusPollingCycle="15" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="48 E0" Comment="" ModbusAddress="48" ModbusCmd="2" ModbusPollingCycle="60" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="49 E1" Comment="" ModbusAddress="49" ModbusCmd="2" ModbusPollingCycle="60" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="50 E2" Comment="" ModbusAddress="50" ModbusCmd="2" ModbusPollingCycle="60" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="51 E3" Comment="" ModbusAddress="51" ModbusCmd="2" ModbusPollingCycle="60" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="52 E4" Comment="" ModbusAddress="52" ModbusCmd="2" ModbusPollingCycle="60" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="53 E5" Comment="" ModbusAddress="53" ModbusCmd="2" ModbusPollingCycle="60" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="54 E6" Comment="" ModbusAddress="54" ModbusCmd="2" ModbusPollingCycle="60" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="55 E7" Comment="" ModbusAddress="55" ModbusCmd="2" ModbusPollingCycle="60" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="56 E8" Comment="" ModbusAddress="56" ModbusCmd="2" ModbusPollingCycle="60" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="57 E9" Comment="" ModbusAddress="57" ModbusCmd="2" ModbusPollingCycle="60" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="58 EA" Comment="" ModbusAddress="58" ModbusCmd="2" ModbusPollingCycle="60" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="59 EB" Comment="" ModbusAddress="59" ModbusCmd="2" ModbusPollingCycle="60" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="61 ED" Comment="Frost Warning" ModbusAddress="61" ModbusCmd="2" ModbusPollingCycle="60" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="64 P0" Comment="" ModbusAddress="64" ModbusCmd="2" ModbusPollingCycle="60" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="65 P1" Comment="" ModbusAddress="65" ModbusCmd="2" ModbusPollingCycle="60" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="66 P2" Comment="" ModbusAddress="66" ModbusCmd="2" ModbusPollingCycle="60" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="67 P3" Comment="" ModbusAddress="67" ModbusCmd="2" ModbusPollingCycle="60" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="68 P4" Comment="" ModbusAddress="68" ModbusCmd="2" ModbusPollingCycle="60" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="69 P5" Comment="" ModbusAddress="69" ModbusCmd="2" ModbusPollingCycle="60" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="70 P6" Comment="" ModbusAddress="70" ModbusCmd="2" ModbusPollingCycle="60" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="71 P7" Comment="" ModbusAddress="71" ModbusCmd="2" ModbusPollingCycle="60" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="72 P8" Comment="" ModbusAddress="72" ModbusCmd="2" ModbusPollingCycle="60" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="73 P9" Comment="" ModbusAddress="73" ModbusCmd="2" ModbusPollingCycle="60" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="74 PA" Comment="" ModbusAddress="74" ModbusCmd="2" ModbusPollingCycle="60" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="80 F0" Comment="" ModbusAddress="80" ModbusCmd="2" ModbusPollingCycle="60" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="81 F1" Comment="" ModbusAddress="81" ModbusCmd="2" ModbusPollingCycle="60" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="82 F2" Comment="" ModbusAddress="82" ModbusCmd="2" ModbusPollingCycle="60" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="83 F3" Comment="" ModbusAddress="83" ModbusCmd="2" ModbusPollingCycle="60" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="84 F4" Comment="" ModbusAddress="84" ModbusCmd="2" ModbusPollingCycle="60" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="85 F5" Comment="" ModbusAddress="85" ModbusCmd="2" ModbusPollingCycle="60" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="86 F6" Comment="" ModbusAddress="86" ModbusCmd="2" ModbusPollingCycle="60" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="87 F7" Comment="" ModbusAddress="87" ModbusCmd="2" ModbusPollingCycle="60" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="88 F8" Comment="" ModbusAddress="88" ModbusCmd="2" ModbusPollingCycle="60" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="89 F9" Comment="" ModbusAddress="89" ModbusCmd="2" ModbusPollingCycle="60" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="91 FB" Comment="" ModbusAddress="91" ModbusCmd="2" ModbusPollingCycle="60" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="303 Inlet water temp" Comment="" ModbusAddress="3" ModbusCmd="4" ModbusPollingCycle="15" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValLow="60" SourceValHigh="62" DestValHigh="1"/>
+	<ModbusCmd Title="mode selection 1 (0-Auto, 1-Heating, 2-Cooling" Comment="Operation mode" ModbusCmd="6" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100" RepeatRate="60"/>
+	<ModbusCmd Title="Power" Comment="" ModbusCmd="5" Unit="" Analog="false" Sensor="false" RepeatRate="60"/>
+	<ModbusCmd Title="Temp setting under Heating mode" Comment="" ModbusAddress="3" ModbusCmd="6" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="1" DestValLow="60" DestValHigh="62" RepeatRate="60"/>
+	<ModbusCmd Title="Temp setting under Cooling mode" Comment="" ModbusAddress="4" ModbusCmd="6" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="1" DestValLow="60" DestValHigh="62" RepeatRate="60"/>
+	<ModbusCmd Title="Temp setting under Auto mode" Comment="" ModbusAddress="2" ModbusCmd="6" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="1" DestValLow="60" DestValHigh="62" RepeatRate="60"/>
+	<ModbusCmd Title="mode selection 2 (0-Normal, 1-silence, 2-Super silence)" Comment="" ModbusAddress="1" ModbusCmd="6" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+</Modbus>

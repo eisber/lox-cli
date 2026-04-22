@@ -1,0 +1,57 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Modbus Title="Compact 2.0s &amp; Start 2.0s" Comment="" Baudrate="57600" Stopbits="1" Channel="50">
+	<Info templateType="7" minVersion="13011117"/>
+	<ModbusCmd Title="53_Voltage L1" Comment="" ModbusAddress="1286" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="5" Unit="&lt;v&gt;V" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="54_Voltage L2" Comment="" ModbusAddress="1288" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="5" Unit="&lt;v&gt;V" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="55_Voltage L3" Comment="" ModbusAddress="1290" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="5" Unit="&lt;v&gt;V" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="50_Current L1" Comment="" ModbusAddress="1280" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="5" Unit="&lt;v&gt;A" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="52_Current L3" Comment="" ModbusAddress="1284" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="5" Unit="&lt;v&gt;A" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="51_Current L2" Comment="" ModbusAddress="1282" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="5" Unit="&lt;v&gt;A" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="56_Power L1" Comment="" ModbusAddress="1292" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="5" Unit="&lt;v&gt;W" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="57_Power L2" Comment="" ModbusAddress="1294" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="5" Unit="&lt;v&gt;W" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="58_Power L3" Comment="" ModbusAddress="1296" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="5" Unit="&lt;v&gt;W" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="59_Power Overall" Comment="" ModbusAddress="1298" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="5" Unit="&lt;v&gt;W" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="10_EVSE State" Comment="" ModbusAddress="256" ModbusCmd="4" ModbusDataType="32" ModbusPollingCycle="5" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="71_Charged Energy Session" Comment="" ModbusAddress="2818" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="5" Unit="&lt;v.3&gt;kWh" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="72_Duration Session" Comment="" ModbusAddress="2820" ModbusCmd="4" ModbusDataType="34" ModbusPollingCycle="5" Unit="&lt;v&gt;s" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="01_Modbus Version" Comment="" ModbusCmd="4" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="04_HW Version" Comment="" ModbusAddress="17" ModbusCmd="4" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="05_Product ID" Comment="" ModbusAddress="18" ModbusCmd="4" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="11_Authorization Status" Comment="" ModbusAddress="257" ModbusCmd="4" ModbusDataType="32" ModbusPollingCycle="5" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="12_Downgrade" Comment="" ModbusAddress="258" ModbusCmd="4" ModbusDataType="32" ModbusPollingCycle="10" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="13_Phase Rotation" Comment="" ModbusAddress="259" ModbusCmd="4" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="30_Downgrade Current" Comment="" ModbusAddress="768" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.1&gt;A" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="31_Charging Current Energy Manager" Comment="" ModbusAddress="770" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="5" Unit="&lt;v.1&gt;A" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="32_Max Current House (DIP)" Comment="" ModbusAddress="772" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v&gt;A" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="33_Max Current EVSE" Comment="" ModbusAddress="774" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v&gt;A" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="34_Phase Options Solar" Comment="" ModbusAddress="778" ModbusCmd="4" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="70_Max Current Session" Comment="" ModbusAddress="2816" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="10" Unit="&lt;v&gt;A" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="82_Cable Lock" Comment="" ModbusAddress="3330" ModbusCmd="4" ModbusDataType="32" ModbusPollingCycle="10" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="83_Solar Charging Mode" Comment="" ModbusAddress="3331" ModbusCmd="4" ModbusDataType="32" ModbusPollingCycle="5" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="84_Requested Phases" Comment="" ModbusAddress="3332" ModbusCmd="4" ModbusDataType="32" ModbusPollingCycle="5" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="85_Charging Release" Comment="" ModbusAddress="3333" ModbusCmd="4" ModbusDataType="32" ModbusPollingCycle="5" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="86_Lock EVSE" Comment="" ModbusAddress="3334" ModbusCmd="4" ModbusPollingCycle="10" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="90_Active Error Code" Comment="" ModbusAddress="3584" ModbusCmd="4" ModbusDataType="32" ModbusPollingCycle="10" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="18_CP State" Comment="" ModbusAddress="264" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="36_Phase Mode HW" Comment="" ModbusAddress="780" ModbusCmd="4" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="37_Cable Lock" Comment="" ModbusAddress="781" ModbusCmd="4" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="38_Master Lost Fallback Current" Comment="" ModbusAddress="782" ModbusCmd="4" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="39_Grid Inbalance" Comment="" ModbusAddress="783" ModbusCmd="4" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="40_Grid Inbalance Threshold" Comment="" ModbusAddress="784" ModbusCmd="4" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt;A" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="41_Grid Phases Connected" Comment="" ModbusAddress="785" ModbusCmd="4" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="42_Authorization" Comment="" ModbusAddress="786" ModbusCmd="4" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="44_Phase Switching Pause" Comment="" ModbusAddress="788" ModbusCmd="4" ModbusPollingCycle="60" Unit="&lt;v&gt;s" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="43_Sunshine+ Current" Comment="" ModbusAddress="787" ModbusCmd="4" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt;A" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="60_Temperature" Comment="" ModbusAddress="2304" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="10" Unit="&lt;v.2&gt;°C" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="73_Detected EV Phases" Comment="" ModbusAddress="2822" ModbusCmd="4" ModbusPollingCycle="10" Unit="&lt;v&gt; EV phases" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="91_Master Lost Fallback State" Comment="" ModbusAddress="3585" ModbusCmd="4" ModbusDataType="32" ModbusPollingCycle="5" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="92_Switched Phases" Comment="" ModbusAddress="3586" ModbusCmd="4" ModbusPollingCycle="10" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="100_Charged Energy Total" Comment="" ModbusAddress="4096" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="5" Unit="&lt;v.2&gt;kWh" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="101_Charging Sessions Total" Comment="" ModbusAddress="4098" ModbusCmd="4" ModbusDataType="34" ModbusPollingCycle="10" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="80_Heartbeat 0x55AA" Comment="" ModbusAddress="3328" ModbusCmd="6" ModbusDataType="32" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="1" DestValHigh="1" RepeatRate="5"/>
+	<ModbusCmd Title="85_Set Charging Release" Comment="" ModbusAddress="3333" ModbusCmd="6" ModbusDataType="32" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10" RepeatRate="5"/>
+	<ModbusCmd Title="31_Set Charging Current Energy Manager" Comment="" ModbusAddress="770" ModbusCmd="16" ModbusDataType="36" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10" RepeatRate="10"/>
+	<ModbusCmd Title="83_Set Solar Charging Mode" Comment="" ModbusAddress="3331" ModbusCmd="6" ModbusDataType="32" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="84_Set Requested Phases" Comment="" ModbusAddress="3332" ModbusCmd="6" ModbusDataType="32" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="86_Set Lock EVSE" Comment="" ModbusAddress="3334" ModbusCmd="6" ModbusDataType="32" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10"/>
+</Modbus>

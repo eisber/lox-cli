@@ -1,0 +1,47 @@
+{
+  "title": "Custom Script Programming",
+  "xml_type": "",
+  "kb_slug": "custom-script-programming",
+  "description": "Allows the realization of complex functions and processes in script language Pico C.\nNote that if an error is detected in the program, the Miniserver may reboot to ensure data consistency. Therefore, a high level of programming skill in C is a must.\nThis control is for developers only, therefore no support is provided.",
+  "inputs": [
+    {
+      "abbreviation": "T1-3",
+      "summary": "Text input 1-3",
+      "value_range": "-"
+    },
+    {
+      "abbreviation": "I1-13",
+      "summary": "Input 1-13",
+      "value_range": "\u221e"
+    }
+  ],
+  "outputs": [
+    {
+      "abbreviation": "Txt1-3",
+      "summary": "Text output 1-3",
+      "description": "Maximum length for text output: 4096 bytes",
+      "value_range": "-"
+    }
+  ],
+  "parameters": [
+    {
+      "abbreviation": "Rem",
+      "summary": "Remanence input",
+      "description": "Remanence input: If active, the function block retains its previous state after a Miniserver reboot. The state of the function block is saved: \u2013 When saving to the Miniserver \u2013 At a planned reboot \u2013 Before a backup \u2013 Once per hour The data is saved on the SD card.",
+      "value_range": "0/1",
+      "default_value": "0"
+    }
+  ],
+  "properties": [
+    {
+      "summary": "Program code",
+      "description": "Program code editor",
+      "default_value": "-"
+    }
+  ],
+  "source_url": "https://www.loxone.com/enen/kb/custom-script-programming/",
+  "input_count": 2,
+  "output_count": 1,
+  "parameter_count": 1,
+  "property_count": 1
+}

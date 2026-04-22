@@ -1,0 +1,86 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Modbus Title="AlnorHRU-P" Comment="HRU" HintText="" Baudrate="115200" Stopbits="1" Channel="1">
+	<Info templateType="7" minVersion="15031213"/>
+	<ModbusCmd Title="Error Status (R)" Comment="Device failure signaling" HintText="" ModbusAddress="3" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Work Mode (RW)" Comment="Read current work mode of the unit" HintText="0 – Off,
+1 – Standby,
+3 – Speed 1,
+4 – Speed 2,
+5 – Speed 3,
+6 – Speed 4" ModbusAddress="4" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Exhaust temperature sensor (R)" Comment="Exhaust temperature sensor" HintText="999 - if the failure sensor" ModbusAddress="9" ModbusCmd="3" ModbusDataType="33" ModbusPollingCycle="5" Unit="&lt;v.1&gt; ºC" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="Extract temperature sensor (R)" Comment="Extract temperature sensor" HintText="999 - if the failure sensor" ModbusAddress="7" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.1&gt; ºC" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="Inlet temperature sensor (R)" Comment="Inlet temperature sensor" HintText="999 - if the failure sensor" ModbusAddress="8" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.1&gt; ºC" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="Supply temperature sensor (R)" Comment="Supply temperature sensor" HintText="999 - if the failure sensor" ModbusAddress="6" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.1&gt; ºC" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="Pre-heater thermostat (R)" Comment="0 - open contact 1 - contact closed" HintText="" ModbusAddress="15" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Afterheater thermostat (R)" Comment="0 - open contact 1 - contact closed" HintText="" ModbusAddress="16" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Bypass status (R)" Comment="0 - ON, 1 - OFF" HintText="" ModbusAddress="17" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="SAP signal (R)" Comment="0 - SAP 1 -NO SAP" HintText="" ModbusAddress="18" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Pre-heater status (R)" Comment="0 - Inactive 1 - Active" HintText="" ModbusAddress="22" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Afterhater status (R)" Comment="0 - Inactive 1 - Active" HintText="" ModbusAddress="23" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Bypass position (R)" Comment="" HintText="" ModbusAddress="27" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.1&gt;%" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Time Mode OUT (RW)" Comment="0 - Inactive 1 - Active" HintText="" ModbusAddress="33" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Time Mode PARTY (RW)" Comment="0 - Inactive 1 - Active" HintText="" ModbusAddress="34" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Fireplace Mode (RW)" Comment="0 - Inactive 1 - Active" HintText="" ModbusAddress="35" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Supply fan speed (R)" Comment="Supply fan speed" HintText="" ModbusAddress="43" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v&gt; %" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Exhaust fan speed (R)" Comment="Exhaust fan speed" HintText="" ModbusAddress="44" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v&gt; %" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Supply fan speed - Speed 1 (RW)" Comment="" HintText="" ModbusAddress="48" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.1&gt; %" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Supply fan speed - Speed 2 (RW)" Comment="" HintText="" ModbusAddress="49" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.1&gt; %" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Supply fan speed - Speed 3 (RW)" Comment="" HintText="" ModbusAddress="50" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.1&gt; %" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Exhaust fan speed - Speed 2 (RW)" Comment="" HintText="" ModbusAddress="55" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.1&gt; %" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Exhaust fan speed - Speed 3 (RW)" Comment="" HintText="" ModbusAddress="56" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.1&gt; %" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Exhaust fan speed - Speed 1 (RW)" Comment="" HintText="" ModbusAddress="54" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.1&gt; %" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Flow setpoint supply (R)" Comment="" HintText="" ModbusAddress="98" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.1&gt; m3/h" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Supply fan flow - Speed 2 (RW)" Comment="" HintText="" ModbusAddress="109" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.1&gt; m3/h" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Flow setpoint exhaust (R)" Comment="W zależnosci od modelu rekuperacji ..." HintText="W zależnosci od modelu rekuperacji ..." ModbusAddress="99" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.1&gt; m3/h" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Flow reading supply (R)" Comment="Flow reading supply" HintText="If the unit is not equipped with a Constant Flow (CF) system, the value is 0." ModbusAddress="94" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v&gt; m3/h" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Flow reading exhaust (R)" Comment="Flow reading exhaust" HintText="If the unit is not equipped with a Constant Flow (CF) system, the value is 0." ModbusAddress="95" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v&gt; m3/h" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Supply fan flow - Speed 1 (RW)" Comment="" HintText="" ModbusAddress="108" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.1&gt; m3/h" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Supply fan flow - Speed 3 (RW)" Comment="" HintText="" ModbusAddress="110" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.1&gt; m3/h" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Exhaust fan flow - Speed 1 (RW)" Comment="" HintText="" ModbusAddress="112" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.1&gt; m3/h" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Exhaust fan flow - Speed 2 (RW)" Comment="" HintText="" ModbusAddress="113" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.1&gt; m3/h" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Exhaust fan flow - Speed 3 (RW)" Comment="" HintText="" ModbusAddress="114" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.1&gt; m3/h" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="GHE status (R)" Comment="0 - Inactive 1 - Active" HintText="" ModbusAddress="26" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="GHE mode (RW)" Comment="0 - closed, 1 - open, 2 - auto" HintText="" ModbusAddress="69" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="GHE winter temperature (RW)" Comment="" HintText="" ModbusAddress="70" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.1&gt; ºC" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="GHE summer temperature (RW)" Comment="" HintText="" ModbusAddress="71" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.1&gt; ºC" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Filter alarm (R)" Comment="0 - Inactive 1 - Active" HintText="Required replacement of air filters" ModbusAddress="202" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Turn ON/OFF (RW)" Comment="0 - OFF, 1 - ON" HintText="" ModbusAddress="1" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Supply filter days left (R)" Comment="" HintText="" ModbusAddress="84" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.1&gt; days" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Exhaust filter days left (R)" Comment="" HintText="" ModbusAddress="85" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.1&gt; days" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Supply air filter - depletion (R)" Comment="Supply air filter - depletion" HintText="" ModbusAddress="86" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v&gt; %" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Exhaust air filter - depletion (R)" Comment="Exhaust air filter - depletion" HintText="" ModbusAddress="87" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v&gt; %" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Reset filter counting (RW)" Comment="2 - Only supply filter, 3 - Only exhaust filter, 7 - Both filters" HintText="" ModbusAddress="88" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Bypass control (RW)" Comment="1 - Closed, 2 - Open, 3 - AUTO" HintText="" ModbusAddress="89" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Airing time mode (RW)" Comment="0 - Inactive 1 - Active" HintText="" ModbusAddress="32" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Humidity indoor (R)" Comment="" HintText="" ModbusAddress="41" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v&gt;%" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="CO2 indoor (R)" Comment="" HintText="" ModbusAddress="42" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.1&gt;ppm" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Work Mode (RW)" Comment="Change current work mode of the unit" HintText="0 - Off,
+1 - Standby,
+3 - Speed 1,
+4 - Speed 2,
+5 - Speed 3,
+" ModbusAddress="4" ModbusCmd="6" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10" RepeatRate="5"/>
+	<ModbusCmd Title="Time Mode OUT (RW)" Comment="0 - Inactive 1 - Active" HintText="" ModbusAddress="33" ModbusCmd="6" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Time Mode PARTY (RW)" Comment="0 - Inactive 1 - Active" HintText="" ModbusAddress="34" ModbusCmd="6" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10" RepeatRate="5"/>
+	<ModbusCmd Title="Fireplace Mode (RW)" Comment="0 - Inactive 1 - Active" HintText="" ModbusAddress="35" ModbusCmd="6" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Supply fan speed - Speed 1 (RW)" Comment="" HintText="" ModbusAddress="48" ModbusCmd="6" Unit="&lt;v&gt; %" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Supply fan speed - Speed 2 (RW)" Comment="" HintText="" ModbusAddress="49" ModbusCmd="6" Unit="&lt;v&gt; %" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Supply fan speed - Speed 3 (RW)" Comment="" HintText="" ModbusAddress="50" ModbusCmd="6" Unit="&lt;v&gt; %" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Exhaust fan speed - Speed 1 (RW)" Comment="" HintText="" ModbusAddress="54" ModbusCmd="6" Unit="&lt;v&gt; %" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Exhaust fan speed - Speed 3 (RW)" Comment="" HintText="" ModbusAddress="56" ModbusCmd="6" Unit="&lt;v&gt; %" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Exhaust fan speed - Speed 2 (RW)" Comment="" HintText="" ModbusAddress="55" ModbusCmd="6" Unit="&lt;v&gt; %" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Supply fan flow - Speed 1 (RW)" Comment="" HintText="" ModbusAddress="108" ModbusCmd="6" Unit="&lt;v.1&gt; m3/h" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Supply fan flow - Speed 2 (RW)" Comment="" HintText="" ModbusAddress="109" ModbusCmd="6" Unit="&lt;v.1&gt; m3/h" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Supply fan flow - Speed 3 (RW)" Comment="" HintText="" ModbusAddress="110" ModbusCmd="6" Unit="&lt;v.1&gt; m3/h" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Exhaust fan flow - Speed 1 (RW)" Comment="" HintText="" ModbusAddress="112" ModbusCmd="6" Unit="&lt;v.1&gt; m3/h" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Exhaust fan flow - Speed 2 (RW)" Comment="" HintText="" ModbusAddress="113" ModbusCmd="6" Unit="&lt;v.1&gt; m3/h" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Exhaust fan flow - Speed 3 (RW)" Comment="" HintText="" ModbusAddress="114" ModbusCmd="6" Unit="&lt;v.1&gt; m3/h" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="GHE mode (RW)" Comment="0 - closed, 1 - open, 2 - auto" HintText="" ModbusAddress="69" ModbusCmd="6" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="GHE winter temperature (RW)" Comment="" HintText="" ModbusAddress="70" ModbusCmd="6" Unit="&lt;v.1&gt; ºC" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="GHE summer temperature (RW)" Comment="" HintText="" ModbusAddress="71" ModbusCmd="6" Unit="&lt;v.1&gt; ºC" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Turn ON/OFF (RW)" Comment="0 - OFF, 1 - ON" HintText="" ModbusAddress="1" ModbusCmd="6" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Reset filter counting (RW)" Comment="2 - Only supply filter, 3 - Only exhaust filter, 7 - Both filters" HintText="" ModbusAddress="88" ModbusCmd="6" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Bypass control (RW)" Comment="1 - Closed, 2 - Open, 3 - AUTO" HintText="" ModbusAddress="89" ModbusCmd="6" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Airing time mode (RW)" Comment="0 - Inactive 1 - Active" HintText="" ModbusAddress="32" ModbusCmd="6" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10" RepeatRate="5"/>
+</Modbus>

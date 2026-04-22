@@ -1,0 +1,22 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Modbus Title="Schneider G4 Wallbox" Comment="" Channel="255">
+	<Info templateType="7" minVersion="13010722"/>
+	<ModbusCmd Title="Remote control status" Comment="" ModbusAddress="20" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v.0&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Error status higher order bits (MSB)" Comment="" ModbusAddress="22" ModbusCmd="4" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Error status low-order bits (LSB)" Comment="" ModbusAddress="23" ModbusCmd="4" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Status charging station (CPW)" Comment="" ModbusAddress="5" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Cable State" Comment="" ModbusAddress="7" ModbusCmd="4" ModbusDataType="32" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Last charging interruption" Comment="" ModbusAddress="8" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Station total power" Comment="" ModbusAddress="357" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="5" Unit="&lt;v.1&gt;kW" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Voltage L1" Comment="" ModbusAddress="365" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="5" Unit="&lt;v.1&gt;V" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Voltage L2" Comment="" ModbusAddress="367" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="5" Unit="&lt;v.1&gt;V" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Voltage L3" Comment="" ModbusAddress="369" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="5" Unit="&lt;v.1&gt;V" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Current L1" Comment="" ModbusAddress="349" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="5" Unit="&lt;v.3&gt;A" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Current L2" Comment="" ModbusAddress="351" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="5" Unit="&lt;v.3&gt;A" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Current L3" Comment="" ModbusAddress="353" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="5" Unit="&lt;v.3&gt;A" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Charging station energy" Comment="" ModbusAddress="356" ModbusCmd="4" ModbusDataType="34" ModbusPollingCycle="5" Unit="&lt;v.1&gt;mWh" Analog="true" Sensor="true" SourceValLow="1000" SourceValHigh="1" DestValLow="1000" DestValHigh="1"/>
+	<ModbusCmd Title="E-Vehicle loading time" Comment="" ModbusAddress="30" ModbusCmd="4" ModbusDataType="34" ModbusPollingCycle="5" Unit="&lt;v.1&gt; sec" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="E-Vehicle session time" Comment="" ModbusAddress="2004" ModbusCmd="4" ModbusDataType="34" ModbusPollingCycle="5" Unit="&lt;v.1&gt; sec" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Remote control command" Comment="" ModbusAddress="150" ModbusCmd="6" Unit="&lt;v.0&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Current limitation" Comment="" ModbusAddress="301" ModbusCmd="6" Unit="&lt;v.0&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10"/>
+</Modbus>

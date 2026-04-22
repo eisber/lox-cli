@@ -1,0 +1,14 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Modbus Title="GoodWe Inverter MT" Comment="Dach Ost" HintText="" Baudrate="9600" Stopbits="1" Channel="247">
+	<Info templateType="7" minVersion="14051207"/>
+	<ModbusCmd Title="L1 - Voltage" Comment="" HintText="" ModbusAddress="772" ModbusCmd="3" ModbusDataType="32" ModbusPollingCycle="10" Unit="&lt;v.1&gt; V" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="L2 - Voltage" Comment="" HintText="" ModbusAddress="773" ModbusCmd="3" ModbusDataType="32" ModbusPollingCycle="10" Unit="&lt;v.1&gt; V" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="L3 - Voltage" Comment="" HintText="" ModbusAddress="774" ModbusCmd="3" ModbusDataType="32" ModbusPollingCycle="10" Unit="&lt;v.1&gt; V" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="L1 - Current" Comment="" HintText="" ModbusAddress="775" ModbusCmd="3" ModbusDataType="32" ModbusPollingCycle="10" Unit="&lt;v.1&gt; A" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="L2 - Current" Comment="" HintText="" ModbusAddress="776" ModbusCmd="3" ModbusDataType="32" ModbusPollingCycle="10" Unit="&lt;v.1&gt; A" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="L3 - Current" Comment="" HintText="" ModbusAddress="777" ModbusCmd="3" ModbusDataType="32" ModbusPollingCycle="10" Unit="&lt;v.1&gt; A" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="L1 - Frequency" Comment="" HintText="" ModbusAddress="778" ModbusCmd="3" ModbusDataType="32" ModbusPollingCycle="10" Unit="&lt;v.2&gt; Hz" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="1"/>
+	<ModbusCmd Title="Internal Temperature" Comment="" HintText="" ModbusAddress="783" ModbusCmd="3" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="Feeding Power" Comment="Produktion" HintText="" ModbusAddress="850" ModbusCmd="3" ModbusDataType="34" ModbusPollingCycle="10" Unit="&lt;v.1&gt; kW" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="1"/>
+	<ModbusCmd Title="Total Feed Power to Grid" Comment="" HintText="" ModbusAddress="786" ModbusCmd="3" ModbusDataType="34" ModbusPollingCycle="60" Unit="&lt;v.1&gt; kWh" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+</Modbus>

@@ -1,0 +1,12 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<VirtualInHttp Title="Sensibo Elements - Mesures" Comment="" Address="https://home.sensibo.com/api/v2/pods/PODID/measurements?apiKey=APIKEY" HintText="" PollingTime="60">
+	<Info templateType="2" minVersion="14070306"/>
+	<VirtualInHttpCmd Title="PM25" Comment="" Check="\i&quot;pm25&quot;: \i\v" Signed="true" Analog="true" SourceValLow="0" DestValLow="0" SourceValHigh="100" DestValHigh="100" DefVal="0" MinVal="-10000" MaxVal="10000" Unit="&lt;v.3&gt; µg/m³" HintText=""/>
+	<VirtualInHttpCmd Title="TVOC" Comment="" Check="\i&quot;tvoc&quot;: \i\v" Signed="true" Analog="true" SourceValLow="0" DestValLow="0" SourceValHigh="100" DestValHigh="100" DefVal="0" MinVal="-10000" MaxVal="10000" Unit="&lt;v&gt; ppb" HintText=""/>
+	<VirtualInHttpCmd Title="CO2" Comment="" Check="\i&quot;co2&quot;: \i\v" Signed="true" Analog="true" SourceValLow="0" DestValLow="0" SourceValHigh="100" DestValHigh="100" DefVal="0" MinVal="-10000" MaxVal="10000" Unit="&lt;v&gt; ppm" HintText=""/>
+	<VirtualInHttpCmd Title="Ethanol" Comment="" Check="\i&quot;etoh&quot;: \i\v" Signed="true" Analog="true" SourceValLow="0" DestValLow="0" SourceValHigh="100" DestValHigh="100" DefVal="0" MinVal="-10000" MaxVal="10000" Unit="&lt;v.3&gt; ppm" HintText=""/>
+	<VirtualInHttpCmd Title="IAQ" Comment="" Check="\i&quot;iaq&quot;: \i\v" Signed="true" Analog="true" SourceValLow="0" DestValLow="0" SourceValHigh="100" DestValHigh="100" DefVal="0" MinVal="-10000" MaxVal="10000" Unit="&lt;v&gt;" HintText=""/>
+	<VirtualInHttpCmd Title="Humidity" Comment="" Check="\i&quot;humidity&quot;:\i\v" Signed="true" Analog="true" SourceValLow="0" DestValLow="0" SourceValHigh="100" DestValHigh="100" DefVal="0" MinVal="-10000" MaxVal="10000" Unit="&lt;v.1&gt; %" HintText=""/>
+	<VirtualInHttpCmd Title="Temperature" Comment="" Check="\i&quot;temperature&quot;:\i\v" Signed="true" Analog="true" SourceValLow="0" DestValLow="0" SourceValHigh="100" DestValHigh="100" DefVal="0" MinVal="-10000" MaxVal="10000" Unit="&lt;v.1&gt; °C" HintText=""/>
+	<VirtualInHttpCmd Title="FeelsLike" Comment="" Check="\i&quot;feelsLike&quot;: \i\v" Signed="true" Analog="true" SourceValLow="0" DestValLow="0" SourceValHigh="100" DestValHigh="100" DefVal="0" MinVal="-10000" MaxVal="10000" Unit="&lt;v.1&gt; °C" HintText=""/>
+</VirtualInHttp>

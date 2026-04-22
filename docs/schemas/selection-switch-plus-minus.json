@@ -1,0 +1,78 @@
+{
+  "title": "Selection Switch +/-",
+  "xml_type": "",
+  "kb_slug": "selection-switch-plus-minus",
+  "description": "A pulse on input (+) / (-) increases / decreases the value on output (O) by the step size (Sts) in between (Vmin) and (Vmax).\nA long-click on (+) / (-) increases / decreases the value on output (O) every (Rr) seconds by step size (Sts).",
+  "inputs": [
+    {
+      "abbreviation": "+",
+      "summary": "Value+",
+      "description": "Increases value on output (O) by step size (Sts).",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "-",
+      "summary": "Value-",
+      "description": "Decreases value on output (O) by step size (Sts).",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "V",
+      "summary": "Set value",
+      "description": "Sets a specific value on output (O).",
+      "value_range": "\u221e"
+    },
+    {
+      "abbreviation": "Off",
+      "summary": "Off",
+      "description": "Pulse: Output (O) is reset to the default value (Vdef). On: Block is locked. Dominating input. The name of the connected sensor is used in the user interface.",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "DisPc",
+      "summary": "Disable periphery control",
+      "description": "Disables all inputs when On. (e.g Child lock, cleaning) Control via user interface is still possible.",
+      "value_range": "0/1"
+    }
+  ],
+  "outputs": [
+    {
+      "abbreviation": "API",
+      "summary": "API Connector",
+      "description": "Intelligent API based connector. API Commands",
+      "value_range": "-"
+    }
+  ],
+  "parameters": [
+    {
+      "abbreviation": "Rem",
+      "summary": "Remanence input",
+      "description": "Remanence input: If active, the function block retains its previous state after a Miniserver reboot. The state of the function block is saved: \u2013 When saving to the Miniserver \u2013 At a planned reboot \u2013 Before a backup \u2013 Once per hour The data is saved on the SD card.",
+      "unit": "-",
+      "value_range": "0/1",
+      "default_value": "0"
+    },
+    {
+      "abbreviation": "Rr",
+      "summary": "Repetition rate",
+      "description": "Long-click on (+) / (-) increases / decreases the value on output (O) every (Rr) seconds.",
+      "unit": "s",
+      "value_range": "0...\u221e",
+      "default_value": "0,2"
+    },
+    {
+      "abbreviation": "Vdef",
+      "summary": "Default value",
+      "description": "Default value when input (Off) is triggered.",
+      "unit": "-",
+      "value_range": "\u221e",
+      "default_value": "1"
+    }
+  ],
+  "properties": [],
+  "source_url": "https://www.loxone.com/enen/kb/selection-switch-plus-minus/",
+  "input_count": 5,
+  "output_count": 1,
+  "parameter_count": 3,
+  "property_count": 0
+}

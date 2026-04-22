@@ -1,0 +1,35 @@
+{
+  "title": "Modulo",
+  "xml_type": "",
+  "kb_slug": "modulo",
+  "description": "Divides analogue values as integers or decimals and outputs the remainder of the division.",
+  "inputs": [],
+  "outputs": [
+    {
+      "abbreviation": "Int",
+      "summary": "Integer",
+      "description": "Result of the integer calculation",
+      "value_range": "\u221e"
+    },
+    {
+      "abbreviation": "Dec",
+      "summary": "Decimals",
+      "description": "Result of the decimal calculation",
+      "value_range": "\u221e"
+    }
+  ],
+  "parameters": [
+    {
+      "abbreviation": "V1-2",
+      "summary": "Value 1-2",
+      "value_range": "\u221e",
+      "default_value": "0"
+    }
+  ],
+  "properties": [],
+  "source_url": "https://www.loxone.com/enen/kb/modulo/",
+  "input_count": 0,
+  "output_count": 2,
+  "parameter_count": 1,
+  "property_count": 0
+}

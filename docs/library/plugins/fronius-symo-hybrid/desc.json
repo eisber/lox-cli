@@ -1,0 +1,9 @@
+{
+                                "type": "template",
+                                "name": "fronius-symo-hybrid",
+                                "uuid": "9f05108b-0351-11ed-85d64cd98f3deb8a",
+                                "version":"1.0.0",
+                                "id": "fronius-symo-hybrid-904",
+                                "file": "fronius-symo-hybrid.xml",
+                                "templateType": "2",
+                            }

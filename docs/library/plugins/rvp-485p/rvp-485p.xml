@@ -1,0 +1,12 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Modbus Title="RVP 485P" Comment="The Salda RIS 700 VE EKO 3.0 recuperator is characterized by installation in the left-hand or right-hand version and heating (integrated heater)." Baudrate="19200" Parity="1" Channel="1">
+	<Info templateType="7" minVersion="12021105"/>
+	<ModbusCmd Title="Filter" Comment="Dirty filter alarm" ModbusAddress="2" ModbusCmd="1" ModbusPollingCycle="60" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="Fan" Comment="Fans alarm" ModbusAddress="3" ModbusCmd="1" ModbusPollingCycle="60" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="RH_value" Comment="DTJ(100) humidity sensor value" ModbusAddress="13" ModbusCmd="1" ModbusPollingCycle="60" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="Texhaust" Comment="DTJ(100) temperature sensor value" ModbusAddress="1" ModbusCmd="1" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Preheater" Comment="Preheater indication" ModbusAddress="12" ModbusCmd="1" ModbusPollingCycle="60" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="Tlimit" Comment="Supply air temperature value" ModbusCmd="1" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Speed" Comment="Fan speed setting" ModbusCmd="6" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="TsetPoint" Comment="Supply air temperature set" ModbusAddress="1" ModbusCmd="6" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10"/>
+</Modbus>

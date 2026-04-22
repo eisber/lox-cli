@@ -1,0 +1,9 @@
+{
+                                "type": "template",
+                                "name": "daikin-heating-cooling",
+                                "uuid": "8b672940-d1c8-11ee-824d4cd98f3deb8a",
+                                "version":"2.0.2",
+                                "id": "daikin-heating-cooling-1465",
+                                "file": "daikin-heating-cooling.xml",
+                                "templateType": "7",
+                            }

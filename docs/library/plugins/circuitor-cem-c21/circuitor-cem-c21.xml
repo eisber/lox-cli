@@ -1,0 +1,15 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Modbus Title="Circutor CEM-C21" Comment="" Baudrate="9600" Channel="1">
+	<Info templateType="7" minVersion="12020916"/>
+	<ModbusCmd Title="Power F1" Comment="" ModbusAddress="1860" ModbusCmd="3" ModbusDataType="35" ModbusPollingCycle="11" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Power F2" Comment="" ModbusAddress="1862" ModbusCmd="3" ModbusDataType="35" ModbusPollingCycle="13" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Power F3" Comment="" ModbusAddress="1864" ModbusCmd="3" ModbusDataType="35" ModbusPollingCycle="17" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Power" Comment="" ModbusAddress="1866" ModbusCmd="3" ModbusDataType="35" ModbusPollingCycle="19" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Reactive Power" Comment="" ModbusAddress="1876" ModbusCmd="3" ModbusDataType="35" ModbusPollingCycle="11" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Voltage F1" Comment="" ModbusAddress="1842" ModbusCmd="3" ModbusDataType="35" ModbusPollingCycle="13" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="Voltage F2" Comment="" ModbusAddress="1844" ModbusCmd="3" ModbusDataType="35" ModbusPollingCycle="17" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="Voltage F3" Comment="" ModbusAddress="1846" ModbusCmd="3" ModbusDataType="3" ModbusPollingCycle="19" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="Cos phi F1" Comment="" ModbusAddress="1854" ModbusCmd="3" ModbusDataType="35" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="1"/>
+	<ModbusCmd Title="Cos phi F2" Comment="" ModbusAddress="1856" ModbusCmd="3" ModbusDataType="35" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="1"/>
+	<ModbusCmd Title="Cos phi F3" Comment="" ModbusAddress="1858" ModbusCmd="4" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="1"/>
+</Modbus>

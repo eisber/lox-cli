@@ -1,0 +1,7833 @@
+{
+  "Actor": {
+    "count": 8,
+    "sample_titles": [
+      "Aktor (Relais) 1",
+      "Aktor (Relais) 2",
+      "Aktor (Relais) 3"
+    ],
+    "has_io_data": true,
+    "connectors": {
+      "I": {
+        "direction": "input"
+      }
+    },
+    "properties": {},
+    "attributes": {
+      "IName": {
+        "count": 8,
+        "samples": [
+          "Q1",
+          "Q2",
+          "Q3"
+        ]
+      },
+      "Nio": {
+        "count": 8,
+        "samples": [
+          "1"
+        ]
+      },
+      "Title": {
+        "count": 8,
+        "samples": [
+          "Aktor (Relais) 1",
+          "Aktor (Relais) 2",
+          "Aktor (Relais) 3"
+        ]
+      },
+      "V": {
+        "count": 8,
+        "samples": [
+          "175"
+        ]
+      },
+      "WF": {
+        "count": 8,
+        "samples": [
+          "16384"
+        ]
+      }
+    },
+    "parent_types": [
+      "OutputCaption"
+    ],
+    "child_types": []
+  },
+  "AlarmClock": {
+    "count": 3,
+    "sample_titles": [
+      "Touch Nightlight Air Cris",
+      "Wecker",
+      "Touch Nightlight Air Marie"
+    ],
+    "has_io_data": true,
+    "connectors": {
+      "AQs": {
+        "direction": "output"
+      },
+      "Acknowledge": {
+        "direction": "unknown"
+      },
+      "AlarmTime": {
+        "direction": "parameter"
+      },
+      "BrightAct": {
+        "direction": "unknown"
+      },
+      "BrightInact": {
+        "direction": "unknown"
+      },
+      "Deactivate": {
+        "direction": "unknown"
+      },
+      "OutputAPI": {
+        "direction": "output"
+      },
+      "ParWakeAlarmSloping": {
+        "direction": "parameter"
+      },
+      "ParWakeAlarmSound": {
+        "direction": "parameter"
+      },
+      "ParWakeAlarmVolume": {
+        "direction": "parameter"
+      },
+      "PrepTime": {
+        "direction": "parameter"
+      },
+      "QMe": {
+        "direction": "output"
+      },
+      "QTa": {
+        "direction": "output"
+      },
+      "QTe": {
+        "direction": "output"
+      },
+      "QTna": {
+        "direction": "output"
+      },
+      "QTp": {
+        "direction": "output"
+      },
+      "Qa": {
+        "direction": "output"
+      },
+      "Qat": {
+        "direction": "output"
+      },
+      "Remanence": {
+        "direction": "unknown"
+      },
+      "Reset": {
+        "direction": "unknown"
+      },
+      "RtD": {
+        "direction": "unknown"
+      },
+      "Snooze": {
+        "direction": "unknown"
+      },
+      "SnoozeTime": {
+        "direction": "parameter"
+      },
+      "TMe": {
+        "direction": "unknown"
+      },
+      "TgMe": {
+        "direction": "unknown"
+      },
+      "VIN1": {
+        "direction": "unknown"
+      }
+    },
+    "properties": {},
+    "attributes": {
+      "Cl": {
+        "count": 3,
+        "samples": [
+          "141,255,112"
+        ]
+      },
+      "Dev": {
+        "count": 2,
+        "samples": [
+          "205d558a-0044-9018-ffff234d69b98eb1",
+          "205fdeec-027c-2898-ffff234d69b98eb1"
+        ]
+      },
+      "LtE": {
+        "count": 1,
+        "samples": [
+          "542987861"
+        ]
+      },
+      "N": {
+        "count": 3,
+        "samples": [
+          "2"
+        ]
+      },
+      "Nio": {
+        "count": 3,
+        "samples": [
+          "26"
+        ]
+      },
+      "Px": {
+        "count": 3,
+        "samples": [
+          "7392"
+        ]
+      },
+      "Px2": {
+        "count": 3,
+        "samples": [
+          "10080"
+        ]
+      },
+      "Py": {
+        "count": 3,
+        "samples": [
+          "2592",
+          "3840"
+        ]
+      },
+      "Py2": {
+        "count": 3,
+        "samples": [
+          "3864",
+          "4920"
+        ]
+      },
+      "SpStates": {
+        "count": 3,
+        "samples": [
+          "205d55be-0097-9d73-ffff95da14fa7b89,205d55be-0097-9d74-ffff95da14fa7b89,205d55be-0097-9d75-ffff95da14fa7b89,205d55be-0097-9d76-ffff95da14fa7b89,205d55be-0097-9d77-ffff95da14fa7b89,205d55be-0097-9d78-ffff95da14fa7b89,205d55be-0097-9d79-ffff95da14fa7b89,205d55be-0097-9d7a-ffff95da14fa7b89,205d55be-0097-9d7b-ffff95da14fa7b89,205d55be-0097-9d7c-ffff95da14fa7b89,205d55be-0097-9d7d-ffff95da14fa7b89,205d55be-0097-9d7e-ffff95da14fa7b89,205d55be-0097-9d7f-ffff95da14fa7b89,205d55be-0097-9d80-ffff95da14fa7b89",
+          "205fdf47-0291-42a3-ffff0795c7cc5c80,205fdf47-0291-42a4-ffff0795c7cc5c80,205fdf47-0291-42a5-ffff0795c7cc5c80,205fdf47-0291-42a6-ffff0795c7cc5c80,205fdf47-0291-42a7-ffff0795c7cc5c80,205fdf47-0291-42a8-ffff0795c7cc5c80,205fdf47-0291-42a9-ffff0795c7cc5c80,205fdf47-0291-42aa-ffff0795c7cc5c80,205fdf47-0291-42ab-ffff0795c7cc5c80,205fdf47-0291-42ac-ffff0795c7cc5c80,205fdf47-0291-42ad-ffff0795c7cc5c80,205fdf47-0291-42ae-ffff0795c7cc5c80,205fdf47-0291-42af-ffff0795c7cc5c80,205fdf47-0291-42b0-ffff0795c7cc5c80",
+          "205fdf66-019c-6176-ffffa56d7a143380,205fdf66-019c-6177-ffffa56d7a143380,205fdf66-019c-6178-ffffa56d7a143380,205fdf66-019c-6179-ffffa56d7a143380,205fdf66-019c-617a-ffffa56d7a143380,205fdf66-019c-617b-ffffa56d7a143380,205fdf66-019c-617c-ffffa56d7a143380,205fdf66-019c-617d-ffffa56d7a143380,205fdf66-019c-617e-ffffa56d7a143380,205fdf66-019c-617f-ffffa56d7a143380,205fdf66-019c-6180-ffffa56d7a143380,205fdf66-019c-6181-ffffa56d7a143380,205fdf66-019c-6182-ffffa56d7a143380,205fdf66-019c-6183-ffffa56d7a143380"
+        ]
+      },
+      "Title": {
+        "count": 3,
+        "samples": [
+          "Touch Nightlight Air Cris",
+          "Touch Nightlight Air Marie",
+          "Wecker"
+        ]
+      },
+      "V": {
+        "count": 3,
+        "samples": [
+          "175"
+        ]
+      },
+      "WF": {
+        "count": 3,
+        "samples": [
+          "16384"
+        ]
+      }
+    },
+    "parent_types": [
+      "Page"
+    ],
+    "child_types": [],
+    "doc_slug": "alarm-clock"
+  },
+  "AnalogInputCaption": {
+    "count": 1,
+    "sample_titles": [
+      "Analoge Eingänge"
+    ],
+    "has_io_data": false,
+    "connectors": {},
+    "properties": {},
+    "attributes": {
+      "Title": {
+        "count": 1,
+        "samples": [
+          "Analoge Eingänge"
+        ]
+      },
+      "V": {
+        "count": 1,
+        "samples": [
+          "175"
+        ]
+      },
+      "WF": {
+        "count": 1,
+        "samples": [
+          "16384"
+        ]
+      }
+    },
+    "parent_types": [
+      "LoxLIVE"
+    ],
+    "child_types": [
+      "VoltageIn"
+    ]
+  },
+  "ApiActor": {
+    "count": 3,
+    "sample_titles": [
+      "API Connector",
+      "API Connector",
+      "API Connector"
+    ],
+    "has_io_data": false,
+    "connectors": {
+      "I": {
+        "direction": "input"
+      }
+    },
+    "properties": {},
+    "attributes": {
+      "AiT": {
+        "count": 3,
+        "samples": [
+          "453",
+          "472"
+        ]
+      },
+      "Cl": {
+        "count": 3,
+        "samples": [
+          "0,0,0",
+          "238,238,238"
+        ]
+      },
+      "Nio": {
+        "count": 3,
+        "samples": [
+          "1"
+        ]
+      },
+      "Title": {
+        "count": 3,
+        "samples": [
+          "API Connector"
+        ]
+      },
+      "Tp": {
+        "count": 3,
+        "samples": [
+          "161",
+          "167"
+        ]
+      },
+      "V": {
+        "count": 3,
+        "samples": [
+          "175"
+        ]
+      },
+      "WF": {
+        "count": 3,
+        "samples": [
+          "8404992",
+          "8405008"
+        ]
+      }
+    },
+    "parent_types": [
+      "IntercomDevice",
+      "LoxAIRDevice"
+    ],
+    "child_types": []
+  },
+  "AutoPilot": {
+    "count": 1,
+    "sample_titles": [
+      "Automatik-Regeln"
+    ],
+    "has_io_data": false,
+    "connectors": {
+      "Input": {
+        "direction": "input"
+      },
+      "output": {
+        "direction": "unknown"
+      }
+    },
+    "properties": {},
+    "attributes": {
+      "Cl": {
+        "count": 1,
+        "samples": [
+          "0,0,0"
+        ]
+      },
+      "Nio": {
+        "count": 1,
+        "samples": [
+          "2"
+        ]
+      },
+      "SpStates": {
+        "count": 1,
+        "samples": [
+          "20123f74-0222-3d73-ffff234d69b98eb1,20123f74-0222-3d74-ffff234d69b98eb1"
+        ]
+      },
+      "Title": {
+        "count": 1,
+        "samples": [
+          "Automatik-Regeln"
+        ]
+      },
+      "V": {
+        "count": 1,
+        "samples": [
+          "175"
+        ]
+      },
+      "WF": {
+        "count": 1,
+        "samples": [
+          "20480"
+        ]
+      }
+    },
+    "parent_types": [
+      "Document"
+    ],
+    "child_types": []
+  },
+  "Calendar": {
+    "count": 1,
+    "sample_titles": [
+      "Aktive Betriebszeit"
+    ],
+    "has_io_data": true,
+    "connectors": {
+      "Q": {
+        "direction": "output"
+      }
+    },
+    "properties": {},
+    "attributes": {
+      "Nio": {
+        "count": 1,
+        "samples": [
+          "1"
+        ]
+      },
+      "Title": {
+        "count": 1,
+        "samples": [
+          "Aktive Betriebszeit"
+        ]
+      },
+      "V": {
+        "count": 1,
+        "samples": [
+          "175"
+        ]
+      },
+      "WF": {
+        "count": 1,
+        "samples": [
+          "16384"
+        ]
+      }
+    },
+    "parent_types": [
+      "TimeCaption"
+    ],
+    "child_types": []
+  },
+  "CalendarCaption": {
+    "count": 1,
+    "sample_titles": [
+      "Betriebszeiten"
+    ],
+    "has_io_data": false,
+    "connectors": {},
+    "properties": {},
+    "attributes": {
+      "Title": {
+        "count": 1,
+        "samples": [
+          "Betriebszeiten"
+        ]
+      },
+      "V": {
+        "count": 1,
+        "samples": [
+          "175"
+        ]
+      },
+      "WF": {
+        "count": 1,
+        "samples": [
+          "16384"
+        ]
+      }
+    },
+    "parent_types": [
+      "Document"
+    ],
+    "child_types": [
+      "CalendarEntry"
+    ]
+  },
+  "CalendarEntry": {
+    "count": 2,
+    "sample_titles": [
+      "Heizperiode",
+      "Kühlperiode"
+    ],
+    "has_io_data": false,
+    "connectors": {
+      "I": {
+        "direction": "input"
+      },
+      "Q": {
+        "direction": "output"
+      }
+    },
+    "properties": {},
+    "attributes": {
+      "CalType": {
+        "count": 2,
+        "samples": [
+          "10",
+          "11"
+        ]
+      },
+      "Day": {
+        "count": 2,
+        "samples": [
+          "1"
+        ]
+      },
+      "Day2": {
+        "count": 2,
+        "samples": [
+          "30"
+        ]
+      },
+      "Mode": {
+        "count": 2,
+        "samples": [
+          "4"
+        ]
+      },
+      "Month": {
+        "count": 2,
+        "samples": [
+          "10",
+          "5"
+        ]
+      },
+      "Month2": {
+        "count": 2,
+        "samples": [
+          "4",
+          "9"
+        ]
+      },
+      "Nio": {
+        "count": 2,
+        "samples": [
+          "2"
+        ]
+      },
+      "Title": {
+        "count": 2,
+        "samples": [
+          "Heizperiode",
+          "Kühlperiode"
+        ]
+      },
+      "V": {
+        "count": 2,
+        "samples": [
+          "175"
+        ]
+      },
+      "WF": {
+        "count": 2,
+        "samples": [
+          "16384"
+        ]
+      },
+      "WeekDayInMonth": {
+        "count": 2,
+        "samples": [
+          "1"
+        ]
+      }
+    },
+    "parent_types": [
+      "CalendarCaption"
+    ],
+    "child_types": []
+  },
+  "Caller": {
+    "count": 7,
+    "sample_titles": [
+      "Feuerwehr",
+      "Polizei",
+      "Rettungsdienst"
+    ],
+    "has_io_data": false,
+    "connectors": {},
+    "properties": {},
+    "attributes": {
+      "ES": {
+        "count": 3,
+        "samples": [
+          "1",
+          "2",
+          "3"
+        ]
+      },
+      "EnableSys": {
+        "count": 7,
+        "samples": [
+          "true"
+        ]
+      },
+      "Phone": {
+        "count": 7,
+        "samples": [
+          ""
+        ]
+      },
+      "Title": {
+        "count": 7,
+        "samples": [
+          "Feuerwehr",
+          "Polizei",
+          "Rettungsdienst"
+        ]
+      },
+      "V": {
+        "count": 7,
+        "samples": [
+          "175"
+        ]
+      },
+      "WF": {
+        "count": 7,
+        "samples": [
+          "16384"
+        ]
+      }
+    },
+    "parent_types": [
+      "LoggerOutCaption"
+    ],
+    "child_types": [
+      "CallerVirtualIn"
+    ]
+  },
+  "CallerVirtualIn": {
+    "count": 70,
+    "sample_titles": [
+      "Wahltaste 0",
+      "Wahltaste 1",
+      "Wahltaste 2"
+    ],
+    "has_io_data": true,
+    "connectors": {
+      "Qe": {
+        "direction": "output"
+      },
+      "Qm": {
+        "direction": "output"
+      }
+    },
+    "properties": {},
+    "attributes": {
+      "CallerKey": {
+        "count": 63,
+        "samples": [
+          "1",
+          "2",
+          "3"
+        ]
+      },
+      "IName": {
+        "count": 70,
+        "samples": [
+          "CVI0",
+          "CVI1",
+          "CVI2"
+        ]
+      },
+      "Idx": {
+        "count": 7,
+        "samples": [
+          "-1"
+        ]
+      },
+      "MinTime": {
+        "count": 70,
+        "samples": [
+          "10"
+        ]
+      },
+      "Nio": {
+        "count": 70,
+        "samples": [
+          "2"
+        ]
+      },
+      "Title": {
+        "count": 70,
+        "samples": [
+          "Wahltaste 0",
+          "Wahltaste 1",
+          "Wahltaste 2"
+        ]
+      },
+      "V": {
+        "count": 70,
+        "samples": [
+          "175"
+        ]
+      },
+      "ValOT": {
+        "count": 70,
+        "samples": [
+          "1"
+        ]
+      },
+      "WF": {
+        "count": 70,
+        "samples": [
+          "16384"
+        ]
+      }
+    },
+    "parent_types": [
+      "Caller"
+    ],
+    "child_types": []
+  },
+  "Category": {
+    "count": 46,
+    "sample_titles": [
+      "Nicht zugeordnet",
+      "Beleuchtung",
+      "Beschattung"
+    ],
+    "has_io_data": false,
+    "connectors": {},
+    "properties": {},
+    "attributes": {
+      "BkColor": {
+        "count": 8,
+        "samples": [
+          "115,224,255",
+          "255,125,48",
+          "255,230,71"
+        ]
+      },
+      "CatGroup": {
+        "count": 25,
+        "samples": [
+          "1",
+          "2",
+          "8"
+        ]
+      },
+      "First": {
+        "count": 1,
+        "samples": [
+          "true"
+        ]
+      },
+      "Icon": {
+        "count": 46,
+        "samples": [
+          "00000038-00ff-0000-0000000000000000",
+          "0000003b-00ff-0000-0000000000000000",
+          "00000153-00ff-0000-0000000000000000"
+        ]
+      },
+      "PType": {
+        "count": 46,
+        "samples": [
+          "2"
+        ]
+      },
+      "RGR": {
+        "count": 46,
+        "samples": [
+          "20123f74-0225-3e8a-ffff234d69b98eb1",
+          "20123f74-0226-3e8e-ffff234d69b98eb1",
+          "20123f74-0226-3e92-ffff234d69b98eb1"
+        ]
+      },
+      "Rating": {
+        "count": 6,
+        "samples": [
+          "1"
+        ]
+      },
+      "Title": {
+        "count": 46,
+        "samples": [
+          "Beleuchtung",
+          "Beschattung",
+          "Nicht zugeordnet"
+        ]
+      },
+      "UseFav": {
+        "count": 6,
+        "samples": [
+          "true"
+        ]
+      },
+      "V": {
+        "count": 46,
+        "samples": [
+          "175"
+        ]
+      },
+      "WF": {
+        "count": 46,
+        "samples": [
+          "16384",
+          "6307840"
+        ]
+      }
+    },
+    "parent_types": [
+      "CategoryCaption"
+    ],
+    "child_types": []
+  },
+  "CategoryCaption": {
+    "count": 1,
+    "sample_titles": [
+      "Kategorien"
+    ],
+    "has_io_data": false,
+    "connectors": {},
+    "properties": {},
+    "attributes": {
+      "Title": {
+        "count": 1,
+        "samples": [
+          "Kategorien"
+        ]
+      },
+      "V": {
+        "count": 1,
+        "samples": [
+          "175"
+        ]
+      },
+      "WF": {
+        "count": 1,
+        "samples": [
+          "16384"
+        ]
+      }
+    },
+    "parent_types": [
+      "Document"
+    ],
+    "child_types": [
+      "Category"
+    ]
+  },
+  "ConstantCaption": {
+    "count": 1,
+    "sample_titles": [
+      "Konstanten"
+    ],
+    "has_io_data": false,
+    "connectors": {},
+    "properties": {},
+    "attributes": {
+      "Title": {
+        "count": 1,
+        "samples": [
+          "Konstanten"
+        ]
+      },
+      "V": {
+        "count": 1,
+        "samples": [
+          "175"
+        ]
+      },
+      "WF": {
+        "count": 1,
+        "samples": [
+          "16384"
+        ]
+      }
+    },
+    "parent_types": [
+      "Document"
+    ],
+    "child_types": []
+  },
+  "DateTime": {
+    "count": 1,
+    "sample_titles": [
+      "Unix Timestamp"
+    ],
+    "has_io_data": true,
+    "connectors": {
+      "Q": {
+        "direction": "output"
+      }
+    },
+    "properties": {},
+    "attributes": {
+      "Nio": {
+        "count": 1,
+        "samples": [
+          "1"
+        ]
+      },
+      "Title": {
+        "count": 1,
+        "samples": [
+          "Unix Timestamp"
+        ]
+      },
+      "V": {
+        "count": 1,
+        "samples": [
+          "175"
+        ]
+      },
+      "WF": {
+        "count": 1,
+        "samples": [
+          "16384"
+        ]
+      }
+    },
+    "parent_types": [
+      "TimeCaption"
+    ],
+    "child_types": []
+  },
+  "Day": {
+    "count": 1,
+    "sample_titles": [
+      "Tag"
+    ],
+    "has_io_data": true,
+    "connectors": {
+      "Q": {
+        "direction": "output"
+      }
+    },
+    "properties": {},
+    "attributes": {
+      "Nio": {
+        "count": 1,
+        "samples": [
+          "1"
+        ]
+      },
+      "Title": {
+        "count": 1,
+        "samples": [
+          "Tag"
+        ]
+      },
+      "V": {
+        "count": 1,
+        "samples": [
+          "175"
+        ]
+      },
+      "WF": {
+        "count": 1,
+        "samples": [
+          "16384"
+        ]
+      }
+    },
+    "parent_types": [
+      "TimeCaption"
+    ],
+    "child_types": []
+  },
+  "Day2009": {
+    "count": 1,
+    "sample_titles": [
+      "Tage seit 2009"
+    ],
+    "has_io_data": true,
+    "connectors": {
+      "Q": {
+        "direction": "output"
+      }
+    },
+    "properties": {},
+    "attributes": {
+      "Nio": {
+        "count": 1,
+        "samples": [
+          "1"
+        ]
+      },
+      "Title": {
+        "count": 1,
+        "samples": [
+          "Tage seit 2009"
+        ]
+      },
+      "V": {
+        "count": 1,
+        "samples": [
+          "175"
+        ]
+      },
+      "WF": {
+        "count": 1,
+        "samples": [
+          "16384"
+        ]
+      }
+    },
+    "parent_types": [
+      "TimeCaption"
+    ],
+    "child_types": []
+  },
+  "DayOfWeek": {
+    "count": 1,
+    "sample_titles": [
+      "Wochentag"
+    ],
+    "has_io_data": true,
+    "connectors": {
+      "Q": {
+        "direction": "output"
+      }
+    },
+    "properties": {},
+    "attributes": {
+      "Nio": {
+        "count": 1,
+        "samples": [
+          "1"
+        ]
+      },
+      "Title": {
+        "count": 1,
+        "samples": [
+          "Wochentag"
+        ]
+      },
+      "V": {
+        "count": 1,
+        "samples": [
+          "175"
+        ]
+      },
+      "WF": {
+        "count": 1,
+        "samples": [
+          "16384"
+        ]
+      }
+    },
+    "parent_types": [
+      "TimeCaption"
+    ],
+    "child_types": []
+  },
+  "Daylight": {
+    "count": 1,
+    "sample_titles": [
+      "Tageslicht"
+    ],
+    "has_io_data": true,
+    "connectors": {
+      "Q": {
+        "direction": "output"
+      }
+    },
+    "properties": {},
+    "attributes": {
+      "Nio": {
+        "count": 1,
+        "samples": [
+          "1"
+        ]
+      },
+      "Title": {
+        "count": 1,
+        "samples": [
+          "Tageslicht"
+        ]
+      },
+      "V": {
+        "count": 1,
+        "samples": [
+          "175"
+        ]
+      },
+      "WF": {
+        "count": 1,
+        "samples": [
+          "16384"
+        ]
+      }
+    },
+    "parent_types": [
+      "TimeCaption"
+    ],
+    "child_types": []
+  },
+  "Daylight2": {
+    "count": 1,
+    "sample_titles": [
+      "Tageslicht 30Min"
+    ],
+    "has_io_data": true,
+    "connectors": {
+      "Q": {
+        "direction": "output"
+      }
+    },
+    "properties": {},
+    "attributes": {
+      "Nio": {
+        "count": 1,
+        "samples": [
+          "1"
+        ]
+      },
+      "Title": {
+        "count": 1,
+        "samples": [
+          "Tageslicht 30Min"
+        ]
+      },
+      "V": {
+        "count": 1,
+        "samples": [
+          "175"
+        ]
+      },
+      "WF": {
+        "count": 1,
+        "samples": [
+          "16384"
+        ]
+      }
+    },
+    "parent_types": [
+      "TimeCaption"
+    ],
+    "child_types": []
+  },
+  "Devicemonitor": {
+    "count": 1,
+    "sample_titles": [
+      "DeviceMonitor"
+    ],
+    "has_io_data": true,
+    "connectors": {},
+    "properties": {},
+    "attributes": {
+      "Cl": {
+        "count": 1,
+        "samples": [
+          "0,0,0"
+        ]
+      },
+      "SpStates": {
+        "count": 1,
+        "samples": [
+          "20123f74-0222-3d79-ffff234d69b98eb1"
+        ]
+      },
+      "Title": {
+        "count": 1,
+        "samples": [
+          "DeviceMonitor"
+        ]
+      },
+      "V": {
+        "count": 1,
+        "samples": [
+          "175"
+        ]
+      },
+      "WF": {
+        "count": 1,
+        "samples": [
+          "20480"
+        ]
+      }
+    },
+    "parent_types": [
+      "Document"
+    ],
+    "child_types": []
+  },
+  "DigitalIn": {
+    "count": 8,
+    "sample_titles": [
+      "Eingang 1",
+      "Eingang 2",
+      "Eingang 3"
+    ],
+    "has_io_data": true,
+    "connectors": {
+      "Q": {
+        "direction": "output"
+      },
+      "Qe": {
+        "direction": "output"
+      }
+    },
+    "properties": {},
+    "attributes": {
+      "IName": {
+        "count": 8,
+        "samples": [
+          "I1",
+          "I2",
+          "I3"
+        ]
+      },
+      "MinTime": {
+        "count": 8,
+        "samples": [
+          "10"
+        ]
+      },
+      "Nio": {
+        "count": 8,
+        "samples": [
+          "2"
+        ]
+      },
+      "Title": {
+        "count": 8,
+        "samples": [
+          "Eingang 1",
+          "Eingang 2",
+          "Eingang 3"
+        ]
+      },
+      "V": {
+        "count": 8,
+        "samples": [
+          "175"
+        ]
+      },
+      "ValOT": {
+        "count": 8,
+        "samples": [
+          "1"
+        ]
+      },
+      "WF": {
+        "count": 8,
+        "samples": [
+          "16384"
+        ]
+      }
+    },
+    "parent_types": [
+      "InputCaption"
+    ],
+    "child_types": []
+  },
+  "Document": {
+    "count": 1,
+    "sample_titles": [
+      "Laufenstrasse"
+    ],
+    "has_io_data": false,
+    "connectors": {},
+    "properties": {},
+    "attributes": {
+      "APPID": {
+        "count": 1,
+        "samples": [
+          "2E238D"
+        ]
+      },
+      "APPKEY": {
+        "count": 1,
+        "samples": [
+          "AF53FC0FF015B64F785E4225C83DC415"
+        ]
+      },
+      "AUE": {
+        "count": 1,
+        "samples": [
+          "true"
+        ]
+      },
+      "BDate": {
+        "count": 1,
+        "samples": [
+          ""
+        ]
+      },
+      "CDate": {
+        "count": 1,
+        "samples": [
+          ""
+        ]
+      },
+      "ConfigVersion": {
+        "count": 1,
+        "samples": [
+          "17000323"
+        ]
+      },
+      "CrashL": {
+        "count": 1,
+        "samples": [
+          "true"
+        ]
+      },
+      "Creator": {
+        "count": 1,
+        "samples": [
+          "Markus Cozowicz"
+        ]
+      },
+      "Ctry": {
+        "count": 1,
+        "samples": [
+          "AT"
+        ]
+      },
+      "Currency": {
+        "count": 1,
+        "samples": [
+          "€"
+        ]
+      },
+      "Date": {
+        "count": 1,
+        "samples": [
+          "2026-03-25 22:31:52"
+        ]
+      },
+      "DateS": {
+        "count": 1,
+        "samples": [
+          "543706312"
+        ]
+      },
+      "EMail": {
+        "count": 1,
+        "samples": [
+          "m@cozowicz.at"
+        ]
+      },
+      "FC": {
+        "count": 1,
+        "samples": [
+          "hsv(25,96,50);hsv(24,95,80);hsv(337,94,50)"
+        ]
+      },
+      "Geo": {
+        "count": 1,
+        "samples": [
+          "7"
+        ]
+      },
+      "Latitude": {
+        "count": 1,
+        "samples": [
+          "46.819"
+        ]
+      },
+      "Logo": {
+        "count": 1,
+        "samples": [
+          ""
+        ]
+      },
+      "Longitude": {
+        "count": 1,
+        "samples": [
+          "13.026"
+        ]
+      },
+      "NumO": {
+        "count": 1,
+        "samples": [
+          "497"
+        ]
+      },
+      "OpenIsHigh": {
+        "count": 1,
+        "samples": [
+          "false"
+        ]
+      },
+      "PostCode": {
+        "count": 1,
+        "samples": [
+          "5020"
+        ]
+      },
+      "SL": {
+        "count": 1,
+        "samples": [
+          "415"
+        ]
+      },
+      "SPSfreq": {
+        "count": 1,
+        "samples": [
+          "100"
+        ]
+      },
+      "Street": {
+        "count": 1,
+        "samples": [
+          "Laufenstrasse 7"
+        ]
+      },
+      "Tel": {
+        "count": 1,
+        "samples": [
+          "06642833656"
+        ]
+      },
+      "Timeserver": {
+        "count": 1,
+        "samples": [
+          ""
+        ]
+      },
+      "Timezone": {
+        "count": 1,
+        "samples": [
+          "Europe/Vienna"
+        ]
+      },
+      "Title": {
+        "count": 1,
+        "samples": [
+          "Laufenstrasse"
+        ]
+      },
+      "Town": {
+        "count": 1,
+        "samples": [
+          "Salzburg"
+        ]
+      },
+      "UnitPrecipitation": {
+        "count": 1,
+        "samples": [
+          "1"
+        ]
+      },
+      "UpdTime": {
+        "count": 1,
+        "samples": [
+          "120"
+        ]
+      },
+      "V": {
+        "count": 1,
+        "samples": [
+          "17000323"
+        ]
+      },
+      "uuidFavCol": {
+        "count": 1,
+        "samples": [
+          "20123f74-0221-3cf3-ffff234d69b98eb1"
+        ]
+      },
+      "uuidFavSeq": {
+        "count": 1,
+        "samples": [
+          "20123f74-0221-3cf2-ffff234d69b98eb1"
+        ]
+      },
+      "uuidNotifications": {
+        "count": 1,
+        "samples": [
+          "20123f74-0221-3cf0-ffff234d69b98eb1"
+        ]
+      },
+      "uuidTime": {
+        "count": 1,
+        "samples": [
+          "20123f74-0221-3cf1-ffff234d69b98eb1"
+        ]
+      }
+    },
+    "parent_types": [
+      "ControlList"
+    ],
+    "child_types": [
+      "AutoPilot",
+      "CalendarCaption",
+      "CategoryCaption",
+      "ConstantCaption",
+      "Devicemonitor",
+      "GlobalStates",
+      "LoxCaption",
+      "LoxLIVE",
+      "MemoryCaption",
+      "MessageCenter",
+      "ModeCaption",
+      "PlaceCaption",
+      "Program",
+      "RemoteControls",
+      "TimeCaption",
+      "WeatherServer"
+    ]
+  },
+  "Eveningtwilight": {
+    "count": 1,
+    "sample_titles": [
+      "Zeit der Abenddämmerung"
+    ],
+    "has_io_data": true,
+    "connectors": {
+      "Q": {
+        "direction": "output"
+      }
+    },
+    "properties": {},
+    "attributes": {
+      "Nio": {
+        "count": 1,
+        "samples": [
+          "1"
+        ]
+      },
+      "Title": {
+        "count": 1,
+        "samples": [
+          "Zeit der Abenddämmerung"
+        ]
+      },
+      "V": {
+        "count": 1,
+        "samples": [
+          "175"
+        ]
+      },
+      "WF": {
+        "count": 1,
+        "samples": [
+          "16384"
+        ]
+      }
+    },
+    "parent_types": [
+      "TimeCaption"
+    ],
+    "child_types": []
+  },
+  "GenTActor": {
+    "count": 1,
+    "sample_titles": [
+      "Publish"
+    ],
+    "has_io_data": true,
+    "connectors": {
+      "Text": {
+        "direction": "unknown"
+      }
+    },
+    "properties": {
+      "mqtt_qos": {
+        "type_codes": [
+          "8"
+        ],
+        "sample_values": []
+      },
+      "mqtt_rem": {
+        "type_codes": [
+          "1"
+        ],
+        "sample_values": []
+      },
+      "mqtt_retain": {
+        "type_codes": [
+          "1"
+        ],
+        "sample_values": []
+      },
+      "mqtt_topic": {
+        "type_codes": [
+          "11"
+        ],
+        "sample_values": []
+      }
+    },
+    "attributes": {
+      "Cl": {
+        "count": 1,
+        "samples": [
+          "0,0,0"
+        ]
+      },
+      "Nio": {
+        "count": 1,
+        "samples": [
+          "1"
+        ]
+      },
+      "ST": {
+        "count": 1,
+        "samples": [
+          "0"
+        ]
+      },
+      "Title": {
+        "count": 1,
+        "samples": [
+          "Publish"
+        ]
+      },
+      "V": {
+        "count": 1,
+        "samples": [
+          "175"
+        ]
+      },
+      "WF": {
+        "count": 1,
+        "samples": [
+          "16384"
+        ]
+      },
+      "cT": {
+        "count": 1,
+        "samples": [
+          "25"
+        ]
+      },
+      "gid": {
+        "count": 1,
+        "samples": [
+          "Mqtt.pubt"
+        ]
+      }
+    },
+    "parent_types": [
+      "Plugin"
+    ],
+    "child_types": [],
+    "doc_slug": "mqtt"
+  },
+  "GenTSensor": {
+    "count": 9,
+    "sample_titles": [
+      "Subscription",
+      "Temperatur",
+      "Windgeschwindigkeit"
+    ],
+    "has_io_data": true,
+    "connectors": {
+      "Text": {
+        "direction": "unknown"
+      }
+    },
+    "properties": {
+      "mqtt_qos": {
+        "type_codes": [
+          "8"
+        ],
+        "sample_values": []
+      },
+      "mqtt_topic": {
+        "type_codes": [
+          "11"
+        ],
+        "sample_values": [
+          "weather/salzburg/best/temperature_2m",
+          "weather/salzburg/best/wind_speed_10m",
+          "weather/salzburg/best/wind_gusts_10m"
+        ]
+      }
+    },
+    "attributes": {
+      "Cl": {
+        "count": 9,
+        "samples": [
+          "0,0,0"
+        ]
+      },
+      "Nio": {
+        "count": 9,
+        "samples": [
+          "1"
+        ]
+      },
+      "ST": {
+        "count": 9,
+        "samples": [
+          "0"
+        ]
+      },
+      "Title": {
+        "count": 9,
+        "samples": [
+          "Subscription",
+          "Temperatur",
+          "Windgeschwindigkeit"
+        ]
+      },
+      "V": {
+        "count": 9,
+        "samples": [
+          "175"
+        ]
+      },
+      "WF": {
+        "count": 9,
+        "samples": [
+          "16384"
+        ]
+      },
+      "cT": {
+        "count": 9,
+        "samples": [
+          "24"
+        ]
+      },
+      "gid": {
+        "count": 9,
+        "samples": [
+          "Mqtt.subt"
+        ]
+      }
+    },
+    "parent_types": [
+      "Plugin"
+    ],
+    "child_types": [],
+    "doc_slug": "mqtt"
+  },
+  "GlobalStates": {
+    "count": 1,
+    "sample_titles": [
+      "Systemvariablen"
+    ],
+    "has_io_data": false,
+    "connectors": {},
+    "properties": {},
+    "attributes": {
+      "Cl": {
+        "count": 1,
+        "samples": [
+          "0,0,0"
+        ]
+      },
+      "SpStates": {
+        "count": 1,
+        "samples": [
+          "20123f74-0222-3d7f-ffff234d69b98eb1,20123f74-0222-3d80-ffff234d69b98eb1,20123f74-0222-3d81-ffff234d69b98eb1,20123f74-0222-3d82-ffff234d69b98eb1,20123f74-0222-3d83-ffff234d69b98eb1,20123f74-0222-3d84-ffff234d69b98eb1,20123f74-0222-3d85-ffff234d69b98eb1,20123f74-0222-3d86-ffff234d69b98eb1,20123f74-0222-3d87-ffff234d69b98eb1"
+        ]
+      },
+      "Title": {
+        "count": 1,
+        "samples": [
+          "Systemvariablen"
+        ]
+      },
+      "V": {
+        "count": 1,
+        "samples": [
+          "175"
+        ]
+      },
+      "WF": {
+        "count": 1,
+        "samples": [
+          "16384"
+        ]
+      }
+    },
+    "parent_types": [
+      "Document"
+    ],
+    "child_types": [
+      "SysVar"
+    ]
+  },
+  "Hour": {
+    "count": 1,
+    "sample_titles": [
+      "Stunde"
+    ],
+    "has_io_data": true,
+    "connectors": {
+      "Q": {
+        "direction": "output"
+      }
+    },
+    "properties": {},
+    "attributes": {
+      "Nio": {
+        "count": 1,
+        "samples": [
+          "1"
+        ]
+      },
+      "Title": {
+        "count": 1,
+        "samples": [
+          "Stunde"
+        ]
+      },
+      "V": {
+        "count": 1,
+        "samples": [
+          "175"
+        ]
+      },
+      "WF": {
+        "count": 1,
+        "samples": [
+          "16384"
+        ]
+      }
+    },
+    "parent_types": [
+      "TimeCaption"
+    ],
+    "child_types": []
+  },
+  "ImpulseDay": {
+    "count": 1,
+    "sample_titles": [
+      "Tagesimpuls"
+    ],
+    "has_io_data": true,
+    "connectors": {
+      "Q": {
+        "direction": "output"
+      }
+    },
+    "properties": {},
+    "attributes": {
+      "Nio": {
+        "count": 1,
+        "samples": [
+          "1"
+        ]
+      },
+      "Title": {
+        "count": 1,
+        "samples": [
+          "Tagesimpuls"
+        ]
+      },
+      "V": {
+        "count": 1,
+        "samples": [
+          "175"
+        ]
+      },
+      "WF": {
+        "count": 1,
+        "samples": [
+          "16384"
+        ]
+      }
+    },
+    "parent_types": [
+      "TimeCaption"
+    ],
+    "child_types": []
+  },
+  "ImpulseEveningtwilight": {
+    "count": 1,
+    "sample_titles": [
+      "Impuls Abenddämmerung"
+    ],
+    "has_io_data": true,
+    "connectors": {
+      "Q": {
+        "direction": "output"
+      }
+    },
+    "properties": {},
+    "attributes": {
+      "Nio": {
+        "count": 1,
+        "samples": [
+          "1"
+        ]
+      },
+      "Title": {
+        "count": 1,
+        "samples": [
+          "Impuls Abenddämmerung"
+        ]
+      },
+      "V": {
+        "count": 1,
+        "samples": [
+          "175"
+        ]
+      },
+      "WF": {
+        "count": 1,
+        "samples": [
+          "16384"
+        ]
+      }
+    },
+    "parent_types": [
+      "TimeCaption"
+    ],
+    "child_types": []
+  },
+  "ImpulseHour": {
+    "count": 1,
+    "sample_titles": [
+      "Stundenimpuls"
+    ],
+    "has_io_data": true,
+    "connectors": {
+      "Q": {
+        "direction": "output"
+      }
+    },
+    "properties": {},
+    "attributes": {
+      "Nio": {
+        "count": 1,
+        "samples": [
+          "1"
+        ]
+      },
+      "Title": {
+        "count": 1,
+        "samples": [
+          "Stundenimpuls"
+        ]
+      },
+      "V": {
+        "count": 1,
+        "samples": [
+          "175"
+        ]
+      },
+      "WF": {
+        "count": 1,
+        "samples": [
+          "16384"
+        ]
+      }
+    },
+    "parent_types": [
+      "TimeCaption"
+    ],
+    "child_types": []
+  },
+  "ImpulseMinute": {
+    "count": 1,
+    "sample_titles": [
+      "Minutenimpuls"
+    ],
+    "has_io_data": true,
+    "connectors": {
+      "Q": {
+        "direction": "output"
+      }
+    },
+    "properties": {},
+    "attributes": {
+      "Nio": {
+        "count": 1,
+        "samples": [
+          "1"
+        ]
+      },
+      "Title": {
+        "count": 1,
+        "samples": [
+          "Minutenimpuls"
+        ]
+      },
+      "V": {
+        "count": 1,
+        "samples": [
+          "175"
+        ]
+      },
+      "WF": {
+        "count": 1,
+        "samples": [
+          "16384"
+        ]
+      }
+    },
+    "parent_types": [
+      "TimeCaption"
+    ],
+    "child_types": []
+  },
+  "ImpulseMonth": {
+    "count": 1,
+    "sample_titles": [
+      "Monatsimpuls"
+    ],
+    "has_io_data": true,
+    "connectors": {
+      "Q": {
+        "direction": "output"
+      }
+    },
+    "properties": {},
+    "attributes": {
+      "Nio": {
+        "count": 1,
+        "samples": [
+          "1"
+        ]
+      },
+      "Title": {
+        "count": 1,
+        "samples": [
+          "Monatsimpuls"
+        ]
+      },
+      "V": {
+        "count": 1,
+        "samples": [
+          "175"
+        ]
+      },
+      "WF": {
+        "count": 1,
+        "samples": [
+          "16384"
+        ]
+      }
+    },
+    "parent_types": [
+      "TimeCaption"
+    ],
+    "child_types": []
+  },
+  "ImpulseMorningtwilight": {
+    "count": 1,
+    "sample_titles": [
+      "Impuls Morgendämmerung"
+    ],
+    "has_io_data": true,
+    "connectors": {
+      "Q": {
+        "direction": "output"
+      }
+    },
+    "properties": {},
+    "attributes": {
+      "Nio": {
+        "count": 1,
+        "samples": [
+          "1"
+        ]
+      },
+      "Title": {
+        "count": 1,
+        "samples": [
+          "Impuls Morgendämmerung"
+        ]
+      },
+      "V": {
+        "count": 1,
+        "samples": [
+          "175"
+        ]
+      },
+      "WF": {
+        "count": 1,
+        "samples": [
+          "16384"
+        ]
+      }
+    },
+    "parent_types": [
+      "TimeCaption"
+    ],
+    "child_types": []
+  },
+  "ImpulseSecond": {
+    "count": 1,
+    "sample_titles": [
+      "Sekundenimpuls"
+    ],
+    "has_io_data": true,
+    "connectors": {
+      "Q": {
+        "direction": "output"
+      }
+    },
+    "properties": {},
+    "attributes": {
+      "Nio": {
+        "count": 1,
+        "samples": [
+          "1"
+        ]
+      },
+      "Title": {
+        "count": 1,
+        "samples": [
+          "Sekundenimpuls"
+        ]
+      },
+      "V": {
+        "count": 1,
+        "samples": [
+          "175"
+        ]
+      },
+      "WF": {
+        "count": 1,
+        "samples": [
+          "16384"
+        ]
+      }
+    },
+    "parent_types": [
+      "TimeCaption"
+    ],
+    "child_types": []
+  },
+  "ImpulseSunrise": {
+    "count": 1,
+    "sample_titles": [
+      "Impuls Sonnenaufgang"
+    ],
+    "has_io_data": true,
+    "connectors": {
+      "Q": {
+        "direction": "output"
+      }
+    },
+    "properties": {},
+    "attributes": {
+      "Nio": {
+        "count": 1,
+        "samples": [
+          "1"
+        ]
+      },
+      "Title": {
+        "count": 1,
+        "samples": [
+          "Impuls Sonnenaufgang"
+        ]
+      },
+      "V": {
+        "count": 1,
+        "samples": [
+          "175"
+        ]
+      },
+      "WF": {
+        "count": 1,
+        "samples": [
+          "16384"
+        ]
+      }
+    },
+    "parent_types": [
+      "TimeCaption"
+    ],
+    "child_types": []
+  },
+  "ImpulseSunset": {
+    "count": 1,
+    "sample_titles": [
+      "Impuls Sonnenuntergang"
+    ],
+    "has_io_data": true,
+    "connectors": {
+      "Q": {
+        "direction": "output"
+      }
+    },
+    "properties": {},
+    "attributes": {
+      "Nio": {
+        "count": 1,
+        "samples": [
+          "1"
+        ]
+      },
+      "Title": {
+        "count": 1,
+        "samples": [
+          "Impuls Sonnenuntergang"
+        ]
+      },
+      "V": {
+        "count": 1,
+        "samples": [
+          "175"
+        ]
+      },
+      "WF": {
+        "count": 1,
+        "samples": [
+          "16384"
+        ]
+      }
+    },
+    "parent_types": [
+      "TimeCaption"
+    ],
+    "child_types": []
+  },
+  "ImpulseYear": {
+    "count": 1,
+    "sample_titles": [
+      "Jahresimpuls"
+    ],
+    "has_io_data": true,
+    "connectors": {
+      "Q": {
+        "direction": "output"
+      }
+    },
+    "properties": {},
+    "attributes": {
+      "Nio": {
+        "count": 1,
+        "samples": [
+          "1"
+        ]
+      },
+      "Title": {
+        "count": 1,
+        "samples": [
+          "Jahresimpuls"
+        ]
+      },
+      "V": {
+        "count": 1,
+        "samples": [
+          "175"
+        ]
+      },
+      "WF": {
+        "count": 1,
+        "samples": [
+          "16384"
+        ]
+      }
+    },
+    "parent_types": [
+      "TimeCaption"
+    ],
+    "child_types": []
+  },
+  "InputCaption": {
+    "count": 1,
+    "sample_titles": [
+      "Digitale Eingänge"
+    ],
+    "has_io_data": false,
+    "connectors": {},
+    "properties": {},
+    "attributes": {
+      "Title": {
+        "count": 1,
+        "samples": [
+          "Digitale Eingänge"
+        ]
+      },
+      "V": {
+        "count": 1,
+        "samples": [
+          "175"
+        ]
+      },
+      "WF": {
+        "count": 1,
+        "samples": [
+          "16384"
+        ]
+      }
+    },
+    "parent_types": [
+      "LoxLIVE"
+    ],
+    "child_types": [
+      "DigitalIn"
+    ]
+  },
+  "InputRef": {
+    "count": 5,
+    "sample_titles": [
+      "T5",
+      "Abwesend",
+      "Abwesend"
+    ],
+    "has_io_data": false,
+    "connectors": {
+      "AI": {
+        "direction": "input"
+      },
+      "AQ": {
+        "direction": "output"
+      },
+      "I": {
+        "direction": "input"
+      },
+      "Q": {
+        "direction": "output"
+      }
+    },
+    "properties": {},
+    "attributes": {
+      "Analog": {
+        "count": 2,
+        "samples": [
+          "true"
+        ]
+      },
+      "Cl": {
+        "count": 5,
+        "samples": [
+          "0,0,0"
+        ]
+      },
+      "LinkRefType": {
+        "count": 5,
+        "samples": [
+          "173",
+          "21"
+        ]
+      },
+      "Nio": {
+        "count": 5,
+        "samples": [
+          "4"
+        ]
+      },
+      "Px": {
+        "count": 5,
+        "samples": [
+          "4320"
+        ]
+      },
+      "Px2": {
+        "count": 5,
+        "samples": [
+          "6432"
+        ]
+      },
+      "Py": {
+        "count": 5,
+        "samples": [
+          "1056",
+          "3264",
+          "3456"
+        ]
+      },
+      "Py2": {
+        "count": 5,
+        "samples": [
+          "1248",
+          "3456",
+          "3648"
+        ]
+      },
+      "Ref": {
+        "count": 5,
+        "samples": [
+          "20123f74-0222-3dd0-ffff234d69b98eb1",
+          "205d558a-0051-903a-ffff234d69b98eb1",
+          "205fdeec-0287-28ba-ffff234d69b98eb1"
+        ]
+      },
+      "Title": {
+        "count": 5,
+        "samples": [
+          "Abwesend",
+          "T5"
+        ]
+      },
+      "V": {
+        "count": 5,
+        "samples": [
+          "175"
+        ]
+      },
+      "WF": {
+        "count": 5,
+        "samples": [
+          "149504"
+        ]
+      }
+    },
+    "parent_types": [
+      "Page"
+    ],
+    "child_types": []
+  },
+  "IntercomDevice": {
+    "count": 1,
+    "sample_titles": [
+      "Intercom"
+    ],
+    "has_io_data": true,
+    "connectors": {},
+    "properties": {},
+    "attributes": {
+      "Addr": {
+        "count": 1,
+        "samples": [
+          ""
+        ]
+      },
+      "AudioPwd": {
+        "count": 1,
+        "samples": [
+          ""
+        ]
+      },
+      "Cl": {
+        "count": 1,
+        "samples": [
+          "0,0,0"
+        ]
+      },
+      "ExtAudioHost": {
+        "count": 1,
+        "samples": [
+          ""
+        ]
+      },
+      "ExtAudioUser": {
+        "count": 1,
+        "samples": [
+          ""
+        ]
+      },
+      "ExtVideoUrl": {
+        "count": 1,
+        "samples": [
+          "http://clouddns:8090/mjpg/video.mjpg"
+        ]
+      },
+      "IntAlertImage": {
+        "count": 1,
+        "samples": [
+          ""
+        ]
+      },
+      "IntAudioHost": {
+        "count": 1,
+        "samples": [
+          ""
+        ]
+      },
+      "IntAudioUser": {
+        "count": 1,
+        "samples": [
+          ""
+        ]
+      },
+      "IntVideoUrl": {
+        "count": 1,
+        "samples": [
+          ""
+        ]
+      },
+      "Lx": {
+        "count": 1,
+        "samples": [
+          "true"
+        ]
+      },
+      "MAC": {
+        "count": 1,
+        "samples": [
+          ""
+        ]
+      },
+      "ProxyPort": {
+        "count": 1,
+        "samples": [
+          "8700"
+        ]
+      },
+      "Title": {
+        "count": 1,
+        "samples": [
+          "Intercom"
+        ]
+      },
+      "UdpPort": {
+        "count": 1,
+        "samples": [
+          "8112"
+        ]
+      },
+      "V": {
+        "count": 1,
+        "samples": [
+          "175"
+        ]
+      },
+      "VideoPwd": {
+        "count": 1,
+        "samples": [
+          ""
+        ]
+      },
+      "VideoUser": {
+        "count": 1,
+        "samples": [
+          ""
+        ]
+      },
+      "WF": {
+        "count": 1,
+        "samples": [
+          "16384"
+        ]
+      }
+    },
+    "parent_types": [
+      "LoxCaption"
+    ],
+    "child_types": [
+      "ApiActor",
+      "LoxDeviceCaption"
+    ]
+  },
+  "LanInt": {
+    "count": 1,
+    "sample_titles": [
+      "Netzwerk Interkommunikation"
+    ],
+    "has_io_data": false,
+    "connectors": {},
+    "properties": {},
+    "attributes": {
+      "MId": {
+        "count": 1,
+        "samples": [
+          ""
+        ]
+      },
+      "Pt": {
+        "count": 1,
+        "samples": [
+          "61263"
+        ]
+      },
+      "Title": {
+        "count": 1,
+        "samples": [
+          "Netzwerk Interkommunikation"
+        ]
+      },
+      "V": {
+        "count": 1,
+        "samples": [
+          "175"
+        ]
+      },
+      "WF": {
+        "count": 1,
+        "samples": [
+          "16384"
+        ]
+      }
+    },
+    "parent_types": [
+      "WeatherCaption"
+    ],
+    "child_types": []
+  },
+  "LightController2": {
+    "count": 2,
+    "sample_titles": [
+      "Lichtsteuerung",
+      "Lichtsteuerung"
+    ],
+    "has_io_data": true,
+    "connectors": {
+      "AQ1": {
+        "direction": "output"
+      },
+      "AQ10": {
+        "direction": "output"
+      },
+      "AQ11": {
+        "direction": "output"
+      },
+      "AQ12": {
+        "direction": "output"
+      },
+      "AQ13": {
+        "direction": "output"
+      },
+      "AQ14": {
+        "direction": "output"
+      },
+      "AQ15": {
+        "direction": "output"
+      },
+      "AQ16": {
+        "direction": "output"
+      },
+      "AQ17": {
+        "direction": "output"
+      },
+      "AQ18": {
+        "direction": "output"
+      },
+      "AQ19": {
+        "direction": "output"
+      },
+      "AQ2": {
+        "direction": "output"
+      },
+      "AQ20": {
+        "direction": "output"
+      },
+      "AQ3": {
+        "direction": "output"
+      },
+      "AQ4": {
+        "direction": "output"
+      },
+      "AQ5": {
+        "direction": "output"
+      },
+      "AQ6": {
+        "direction": "output"
+      },
+      "AQ7": {
+        "direction": "output"
+      },
+      "AQ8": {
+        "direction": "output"
+      },
+      "AQ9": {
+        "direction": "output"
+      },
+      "Alarm": {
+        "direction": "unknown"
+      },
+      "AlarmBrightness": {
+        "direction": "unknown"
+      },
+      "AlarmClock": {
+        "direction": "unknown"
+      },
+      "AlarmClockPeriod": {
+        "direction": "parameter"
+      },
+      "AlarmPeriod": {
+        "direction": "parameter"
+      },
+      "Brightness": {
+        "direction": "unknown"
+      },
+      "BrightnessLimit": {
+        "direction": "unknown"
+      },
+      "DayMaxTemp": {
+        "direction": "unknown"
+      },
+      "DayMinTemp": {
+        "direction": "unknown"
+      },
+      "EnMove": {
+        "direction": "unknown"
+      },
+      "FadingTime": {
+        "direction": "parameter"
+      },
+      "I1": {
+        "direction": "input"
+      },
+      "I2": {
+        "direction": "input"
+      },
+      "I3": {
+        "direction": "input"
+      },
+      "I4": {
+        "direction": "input"
+      },
+      "InputDisable": {
+        "direction": "input"
+      },
+      "InputTriggerDown": {
+        "direction": "input"
+      },
+      "InputTriggerUp": {
+        "direction": "input"
+      },
+      "MasterBr": {
+        "direction": "unknown"
+      },
+      "Max": {
+        "direction": "unknown"
+      },
+      "MaxP": {
+        "direction": "unknown"
+      },
+      "Min": {
+        "direction": "unknown"
+      },
+      "Move": {
+        "direction": "unknown"
+      },
+      "MoveIgnore": {
+        "direction": "unknown"
+      },
+      "MoveOn": {
+        "direction": "unknown"
+      },
+      "MoveScene": {
+        "direction": "unknown"
+      },
+      "MoveTimeout": {
+        "direction": "unknown"
+      },
+      "NoLast": {
+        "direction": "unknown"
+      },
+      "On": {
+        "direction": "unknown"
+      },
+      "OutputAPI": {
+        "direction": "output"
+      },
+      "OutputReset": {
+        "direction": "output"
+      },
+      "OutputResetAll": {
+        "direction": "output"
+      },
+      "Presence": {
+        "direction": "unknown"
+      },
+      "RGBalt": {
+        "direction": "unknown"
+      },
+      "Remanence": {
+        "direction": "unknown"
+      },
+      "Reset": {
+        "direction": "unknown"
+      },
+      "RtD": {
+        "direction": "unknown"
+      },
+      "Scene": {
+        "direction": "unknown"
+      },
+      "SceneMixTime": {
+        "direction": "parameter"
+      },
+      "Sel1": {
+        "direction": "unknown"
+      },
+      "Sel2": {
+        "direction": "unknown"
+      },
+      "Sel3": {
+        "direction": "unknown"
+      },
+      "Sel4": {
+        "direction": "unknown"
+      },
+      "Sel5": {
+        "direction": "unknown"
+      },
+      "Sel6": {
+        "direction": "unknown"
+      },
+      "Sel7": {
+        "direction": "unknown"
+      },
+      "Sel8": {
+        "direction": "unknown"
+      },
+      "Select": {
+        "direction": "unknown"
+      },
+      "Step": {
+        "direction": "unknown"
+      },
+      "Steptime": {
+        "direction": "unknown"
+      },
+      "Wrap": {
+        "direction": "unknown"
+      }
+    },
+    "properties": {},
+    "attributes": {
+      "COName": {
+        "count": 2,
+        "samples": [
+          "1"
+        ]
+      },
+      "CapAI0": {
+        "count": 2,
+        "samples": [
+          "31"
+        ]
+      },
+      "Cl": {
+        "count": 2,
+        "samples": [
+          "255,230,71"
+        ]
+      },
+      "NameAI0": {
+        "count": 2,
+        "samples": [
+          "Touch Nightlight Air Cris",
+          "Touch Nightlight Air Marie"
+        ]
+      },
+      "Nio": {
+        "count": 2,
+        "samples": [
+          "71"
+        ]
+      },
+      "PresM0": {
+        "count": 2,
+        "samples": [
+          "65535"
+        ]
+      },
+      "Px": {
+        "count": 2,
+        "samples": [
+          "7392"
+        ]
+      },
+      "Px2": {
+        "count": 2,
+        "samples": [
+          "10080"
+        ]
+      },
+      "Py": {
+        "count": 2,
+        "samples": [
+          "576"
+        ]
+      },
+      "Py2": {
+        "count": 2,
+        "samples": [
+          "2424"
+        ]
+      },
+      "SpStates": {
+        "count": 2,
+        "samples": [
+          "205d5925-034f-1a48-ffff55cdc89feef5,205d5925-034f-1a49-ffff55cdc89feef5,205d5925-034f-1a4a-ffff55cdc89feef5,205d5925-034f-1a4b-ffff55cdc89feef5,205d5925-034f-1a4c-ffff55cdc89feef5,205d5925-034f-1a4d-ffff55cdc89feef5,205d5925-034f-1a4e-ffff55cdc89feef5,205d5925-034f-1a4f-ffff55cdc89feef5,205d5925-034f-1a50-ffff55cdc89feef5,205d5925-034f-1a51-ffff55cdc89feef5,205d5925-034f-1a52-ffff55cdc89feef5,205d5925-034f-1a53-ffff55cdc89feef5,205d5925-034f-1a54-ffff55cdc89feef5",
+          "205fdf66-0181-60a4-ffff86aba56b2e13,205fdf66-0181-60a5-ffff86aba56b2e13,205fdf66-0181-60a6-ffff86aba56b2e13,205fdf66-0181-60a7-ffff86aba56b2e13,205fdf66-0181-60a8-ffff86aba56b2e13,205fdf66-0181-60a9-ffff86aba56b2e13,205fdf66-0181-60aa-ffff86aba56b2e13,205fdf66-0181-60ab-ffff86aba56b2e13,205fdf66-0181-60ac-ffff86aba56b2e13,205fdf66-0181-60ad-ffff86aba56b2e13,205fdf66-0181-60ae-ffff86aba56b2e13,205fdf66-0181-60af-ffff86aba56b2e13,205fdf66-0181-60b0-ffff86aba56b2e13"
+        ]
+      },
+      "Title": {
+        "count": 2,
+        "samples": [
+          "Lichtsteuerung"
+        ]
+      },
+      "V": {
+        "count": 2,
+        "samples": [
+          "175"
+        ]
+      },
+      "WF": {
+        "count": 2,
+        "samples": [
+          "16384"
+        ]
+      },
+      "uuidSeqenceIx": {
+        "count": 2,
+        "samples": [
+          "205d5328-0055-3342-ffff3ce43fa9aec5,205d5328-0055-3344-ffff3ce43fa9aec5,205d5328-0055-3346-ffff3ce43fa9aec5,205d5328-0055-3348-ffff3ce43fa9aec5,205d5328-0055-334a-ffff3ce43fa9aec5,205d5328-0055-334c-ffff3ce43fa9aec5,205d5328-0055-334e-ffff3ce43fa9aec5,205d5328-0055-3350-ffff3ce43fa9aec5,205d5328-0055-3352-ffff3ce43fa9aec5,205d5328-0055-3354-ffff3ce43fa9aec5,205d5328-0055-3356-ffff3ce43fa9aec5,205d5328-0055-3358-ffff3ce43fa9aec5,205d5328-0055-335a-ffff3ce43fa9aec5,205d5328-0055-335c-ffff3ce43fa9aec5,205d5328-0055-335e-ffff3ce43fa9aec5,205d5328-0055-3360-ffff3ce43fa9aec5,205d5328-0055-3362-ffff3ce43fa9aec5,205d5328-0055-3364-ffff3ce43fa9aec5,205d5328-0055-3366-ffff3ce43fa9aec5,205d5328-0055-3368-ffff3ce43fa9aec5",
+          "205fdfcb-0331-92f1-ffff71abb130f121,205fdfcb-0331-92f2-ffff71abb130f121,205fdfcb-0331-92f3-ffff71abb130f121,205fdfcb-0331-92f4-ffff71abb130f121,205fdfcb-0331-92f5-ffff71abb130f121,205fdfcb-0331-92f6-ffff71abb130f121,205fdfcb-0331-92f7-ffff71abb130f121,205fdfcb-0331-92f8-ffff71abb130f121,205fdfcb-0331-92f9-ffff71abb130f121,205fdfcb-0331-92fa-ffff71abb130f121,205fdfcb-0331-92fb-ffff71abb130f121,205fdfcb-0331-92fc-ffff71abb130f121,205fdfcb-0331-92fd-ffff71abb130f121,205fdfcb-0331-92fe-ffff71abb130f121,205fdfcb-0331-92ff-ffff71abb130f121,205fdfcb-0331-9300-ffff71abb130f121,205fdfcb-0331-9301-ffff71abb130f121,205fdfcb-0331-9302-ffff71abb130f121,205fdfcb-0331-9303-ffff71abb130f121,205fdfcb-0331-9304-ffff71abb130f121"
+        ]
+      },
+      "uuidSeqencing": {
+        "count": 2,
+        "samples": [
+          "205d5328-0055-3341-ffff3ce43fa9aec5,205d5328-0055-3343-ffff3ce43fa9aec5,205d5328-0055-3345-ffff3ce43fa9aec5,205d5328-0055-3347-ffff3ce43fa9aec5,205d5328-0055-3349-ffff3ce43fa9aec5,205d5328-0055-334b-ffff3ce43fa9aec5,205d5328-0055-334d-ffff3ce43fa9aec5,205d5328-0055-334f-ffff3ce43fa9aec5,205d5328-0055-3351-ffff3ce43fa9aec5,205d5328-0055-3353-ffff3ce43fa9aec5,205d5328-0055-3355-ffff3ce43fa9aec5,205d5328-0055-3357-ffff3ce43fa9aec5,205d5328-0055-3359-ffff3ce43fa9aec5,205d5328-0055-335b-ffff3ce43fa9aec5,205d5328-0055-335d-ffff3ce43fa9aec5,205d5328-0055-335f-ffff3ce43fa9aec5,205d5328-0055-3361-ffff3ce43fa9aec5,205d5328-0055-3363-ffff3ce43fa9aec5,205d5328-0055-3365-ffff3ce43fa9aec5,205d5328-0055-3367-ffff3ce43fa9aec5",
+          "205fdfcb-0331-92dd-ffff71abb130f121,205fdfcb-0331-92de-ffff71abb130f121,205fdfcb-0331-92df-ffff71abb130f121,205fdfcb-0331-92e0-ffff71abb130f121,205fdfcb-0331-92e1-ffff71abb130f121,205fdfcb-0331-92e2-ffff71abb130f121,205fdfcb-0331-92e3-ffff71abb130f121,205fdfcb-0331-92e4-ffff71abb130f121,205fdfcb-0331-92e5-ffff71abb130f121,205fdfcb-0331-92e6-ffff71abb130f121,205fdfcb-0331-92e7-ffff71abb130f121,205fdfcb-0331-92e8-ffff71abb130f121,205fdfcb-0331-92e9-ffff71abb130f121,205fdfcb-0331-92ea-ffff71abb130f121,205fdfcb-0331-92eb-ffff71abb130f121,205fdfcb-0331-92ec-ffff71abb130f121,205fdfcb-0331-92ed-ffff71abb130f121,205fdfcb-0331-92ee-ffff71abb130f121,205fdfcb-0331-92ef-ffff71abb130f121,205fdfcb-0331-92f0-ffff71abb130f121"
+        ]
+      }
+    },
+    "parent_types": [
+      "Page"
+    ],
+    "child_types": [],
+    "doc_slug": "lighting-controller"
+  },
+  "Logger": {
+    "count": 1,
+    "sample_titles": [
+      "Standard Logger"
+    ],
+    "has_io_data": false,
+    "connectors": {},
+    "properties": {},
+    "attributes": {
+      "Address": {
+        "count": 1,
+        "samples": [
+          "/log/user.log"
+        ]
+      },
+      "MailSubjText": {
+        "count": 1,
+        "samples": [
+          ""
+        ]
+      },
+      "Std": {
+        "count": 1,
+        "samples": [
+          "true"
+        ]
+      },
+      "Title": {
+        "count": 1,
+        "samples": [
+          "Standard Logger"
+        ]
+      },
+      "V": {
+        "count": 1,
+        "samples": [
+          "175"
+        ]
+      },
+      "WF": {
+        "count": 1,
+        "samples": [
+          "16384"
+        ]
+      }
+    },
+    "parent_types": [
+      "LoggerOutCaption"
+    ],
+    "child_types": []
+  },
+  "LoggerOutCaption": {
+    "count": 1,
+    "sample_titles": [
+      "Mitteilungen"
+    ],
+    "has_io_data": false,
+    "connectors": {},
+    "properties": {},
+    "attributes": {
+      "Title": {
+        "count": 1,
+        "samples": [
+          "Mitteilungen"
+        ]
+      },
+      "V": {
+        "count": 1,
+        "samples": [
+          "175"
+        ]
+      },
+      "WF": {
+        "count": 1,
+        "samples": [
+          "16384"
+        ]
+      }
+    },
+    "parent_types": [
+      "LoxLIVE"
+    ],
+    "child_types": [
+      "Caller",
+      "Logger",
+      "Mailer",
+      "Notification",
+      "Tracker"
+    ]
+  },
+  "LoxAIR": {
+    "count": 1,
+    "sample_titles": [
+      "Air Base Extension"
+    ],
+    "has_io_data": true,
+    "connectors": {},
+    "properties": {},
+    "attributes": {
+      "AirCh": {
+        "count": 1,
+        "samples": [
+          "100"
+        ]
+      },
+      "BaseID": {
+        "count": 1,
+        "samples": [
+          "-1"
+        ]
+      },
+      "CycleUserProt": {
+        "count": 1,
+        "samples": [
+          "-1"
+        ]
+      },
+      "ExtensionBlinkNum": {
+        "count": 1,
+        "samples": [
+          "9"
+        ]
+      },
+      "HwVersion": {
+        "count": 1,
+        "samples": [
+          "2"
+        ]
+      },
+      "Installation": {
+        "count": 1,
+        "samples": [
+          ""
+        ]
+      },
+      "IntAddr": {
+        "count": 1,
+        "samples": [
+          ""
+        ]
+      },
+      "Pause": {
+        "count": 1,
+        "samples": [
+          "10"
+        ]
+      },
+      "RxTimeout": {
+        "count": 1,
+        "samples": [
+          "1000"
+        ]
+      },
+      "Serial": {
+        "count": 1,
+        "samples": [
+          "0CDB1DD9"
+        ]
+      },
+      "SwitchBoard": {
+        "count": 1,
+        "samples": [
+          ""
+        ]
+      },
+      "SwitchBoardPos": {
+        "count": 1,
+        "samples": [
+          "4"
+        ]
+      },
+      "SwitchBoardRow": {
+        "count": 1,
+        "samples": [
+          "1"
+        ]
+      },
+      "Title": {
+        "count": 1,
+        "samples": [
+          "Air Base Extension"
+        ]
+      },
+      "V": {
+        "count": 1,
+        "samples": [
+          "175"
+        ]
+      },
+      "WF": {
+        "count": 1,
+        "samples": [
+          "16384"
+        ]
+      }
+    },
+    "parent_types": [
+      "LoxCaption"
+    ],
+    "child_types": [
+      "LoxAIRDevice",
+      "Online"
+    ]
+  },
+  "LoxAIRAactor": {
+    "count": 8,
+    "sample_titles": [
+      "Smartaktor RGBW",
+      "Temperatur",
+      "Displayhelligkeit inaktiv"
+    ],
+    "has_io_data": true,
+    "connectors": {
+      "I": {
+        "direction": "input"
+      }
+    },
+    "properties": {},
+    "attributes": {
+      "CCap": {
+        "count": 2,
+        "samples": [
+          "31"
+        ]
+      },
+      "Channel": {
+        "count": 8,
+        "samples": [
+          "1"
+        ]
+      },
+      "Cl": {
+        "count": 8,
+        "samples": [
+          "0,0,0",
+          "238,238,238"
+        ]
+      },
+      "DestValHigh": {
+        "count": 8,
+        "samples": [
+          "100"
+        ]
+      },
+      "DimmType": {
+        "count": 8,
+        "samples": [
+          "3"
+        ]
+      },
+      "IName": {
+        "count": 8,
+        "samples": [
+          "AQ1",
+          "AQ2",
+          "AQ3"
+        ]
+      },
+      "Idx": {
+        "count": 8,
+        "samples": [
+          "1",
+          "2",
+          "3"
+        ]
+      },
+      "Nio": {
+        "count": 8,
+        "samples": [
+          "1"
+        ]
+      },
+      "Percent": {
+        "count": 6,
+        "samples": [
+          "true"
+        ]
+      },
+      "SourceValHigh": {
+        "count": 8,
+        "samples": [
+          "100"
+        ]
+      },
+      "SubType": {
+        "count": 8,
+        "samples": [
+          "1",
+          "158",
+          "61"
+        ]
+      },
+      "Title": {
+        "count": 8,
+        "samples": [
+          "Displayhelligkeit inaktiv",
+          "Smartaktor RGBW",
+          "Temperatur"
+        ]
+      },
+      "V": {
+        "count": 8,
+        "samples": [
+          "175"
+        ]
+      },
+      "WF": {
+        "count": 8,
+        "samples": [
+          "16384",
+          "16400",
+          "20480"
+        ]
+      }
+    },
+    "parent_types": [
+      "LoxAIRDevice"
+    ],
+    "child_types": []
+  },
+  "LoxAIRAsensor": {
+    "count": 2,
+    "sample_titles": [
+      "T5",
+      "T5"
+    ],
+    "has_io_data": true,
+    "connectors": {
+      "AQ": {
+        "direction": "output"
+      },
+      "Q": {
+        "direction": "output"
+      }
+    },
+    "properties": {},
+    "attributes": {
+      "Analog": {
+        "count": 2,
+        "samples": [
+          "true"
+        ]
+      },
+      "Cl": {
+        "count": 2,
+        "samples": [
+          "238,238,238"
+        ]
+      },
+      "DestValHigh": {
+        "count": 2,
+        "samples": [
+          "10"
+        ]
+      },
+      "IName": {
+        "count": 2,
+        "samples": [
+          "AI1"
+        ]
+      },
+      "Idx": {
+        "count": 2,
+        "samples": [
+          "1"
+        ]
+      },
+      "MaxVal": {
+        "count": 2,
+        "samples": [
+          "100"
+        ]
+      },
+      "Nio": {
+        "count": 2,
+        "samples": [
+          "2"
+        ]
+      },
+      "ResetTime": {
+        "count": 2,
+        "samples": [
+          "4000"
+        ]
+      },
+      "SourceValHigh": {
+        "count": 2,
+        "samples": [
+          "10"
+        ]
+      },
+      "Title": {
+        "count": 2,
+        "samples": [
+          "T5"
+        ]
+      },
+      "V": {
+        "count": 2,
+        "samples": [
+          "175"
+        ]
+      },
+      "ValOT": {
+        "count": 2,
+        "samples": [
+          "1"
+        ]
+      },
+      "WF": {
+        "count": 2,
+        "samples": [
+          "16400"
+        ]
+      }
+    },
+    "parent_types": [
+      "LoxAIRDevice"
+    ],
+    "child_types": []
+  },
+  "LoxAIRDevice": {
+    "count": 2,
+    "sample_titles": [
+      "Touch Nightlight Air Marie",
+      "Touch Nightlight Air Cris"
+    ],
+    "has_io_data": true,
+    "connectors": {},
+    "properties": {},
+    "attributes": {
+      "AC": {
+        "count": 2,
+        "samples": [
+          "true"
+        ]
+      },
+      "AE": {
+        "count": 2,
+        "samples": [
+          "true"
+        ]
+      },
+      "AirType": {
+        "count": 2,
+        "samples": [
+          "53"
+        ]
+      },
+      "DC": {
+        "count": 2,
+        "samples": [
+          "true"
+        ]
+      },
+      "Hw": {
+        "count": 2,
+        "samples": [
+          "2"
+        ]
+      },
+      "IP": {
+        "count": 2,
+        "samples": [
+          "FE80000000000000524F94FFFEBEFC85",
+          "FE80000000000000524F94FFFEBF56AF"
+        ]
+      },
+      "Installation": {
+        "count": 2,
+        "samples": [
+          ""
+        ]
+      },
+      "PG": {
+        "count": 2,
+        "samples": [
+          ""
+        ]
+      },
+      "PWMFrequency": {
+        "count": 2,
+        "samples": [
+          "123"
+        ]
+      },
+      "SubType": {
+        "count": 2,
+        "samples": [
+          "53"
+        ]
+      },
+      "SwitchBoard": {
+        "count": 2,
+        "samples": [
+          ""
+        ]
+      },
+      "SwitchBoardPos": {
+        "count": 2,
+        "samples": [
+          "1"
+        ]
+      },
+      "SwitchBoardRow": {
+        "count": 2,
+        "samples": [
+          "1"
+        ]
+      },
+      "Title": {
+        "count": 2,
+        "samples": [
+          "Touch Nightlight Air Cris",
+          "Touch Nightlight Air Marie"
+        ]
+      },
+      "UseDimmer": {
+        "count": 2,
+        "samples": [
+          "true"
+        ]
+      },
+      "UseRGBDimmer": {
+        "count": 2,
+        "samples": [
+          "true"
+        ]
+      },
+      "V": {
+        "count": 2,
+        "samples": [
+          "175"
+        ]
+      },
+      "WF": {
+        "count": 2,
+        "samples": [
+          "16384"
+        ]
+      },
+      "btnB": {
+        "count": 2,
+        "samples": [
+          "2"
+        ]
+      }
+    },
+    "parent_types": [
+      "LoxAIR"
+    ],
+    "child_types": [
+      "ApiActor",
+      "LoxAIRAactor",
+      "LoxAIRAsensor",
+      "LoxAIRactor",
+      "LoxAIRsensor",
+      "Online"
+    ]
+  },
+  "LoxAIRactor": {
+    "count": 10,
+    "sample_titles": [
+      "Status LED",
+      "Buzzer verwenden",
+      "Akustischer Alarm"
+    ],
+    "has_io_data": true,
+    "connectors": {
+      "I": {
+        "direction": "input"
+      }
+    },
+    "properties": {},
+    "attributes": {
+      "Cl": {
+        "count": 10,
+        "samples": [
+          "0,0,0"
+        ]
+      },
+      "IName": {
+        "count": 10,
+        "samples": [
+          "Q1",
+          "Q2",
+          "Q3"
+        ]
+      },
+      "Idx": {
+        "count": 10,
+        "samples": [
+          "1",
+          "2",
+          "3"
+        ]
+      },
+      "Nio": {
+        "count": 10,
+        "samples": [
+          "1"
+        ]
+      },
+      "SubType": {
+        "count": 10,
+        "samples": [
+          "168",
+          "70",
+          "71"
+        ]
+      },
+      "Title": {
+        "count": 10,
+        "samples": [
+          "Akustischer Alarm",
+          "Buzzer verwenden",
+          "Status LED"
+        ]
+      },
+      "V": {
+        "count": 10,
+        "samples": [
+          "175"
+        ]
+      },
+      "WF": {
+        "count": 10,
+        "samples": [
+          "16384",
+          "20480"
+        ]
+      }
+    },
+    "parent_types": [
+      "LoxAIRDevice"
+    ],
+    "child_types": []
+  },
+  "LoxAIRsensor": {
+    "count": 12,
+    "sample_titles": [
+      "Eingang 1",
+      "Eingang 2",
+      "Eingang 3"
+    ],
+    "has_io_data": true,
+    "connectors": {
+      "Q": {
+        "direction": "output"
+      },
+      "Qe": {
+        "direction": "output"
+      }
+    },
+    "properties": {},
+    "attributes": {
+      "Cl": {
+        "count": 12,
+        "samples": [
+          "0,0,0"
+        ]
+      },
+      "EnoceanSubType": {
+        "count": 12,
+        "samples": [
+          "16",
+          "17",
+          "18"
+        ]
+      },
+      "IName": {
+        "count": 12,
+        "samples": [
+          "I1",
+          "I2",
+          "I3"
+        ]
+      },
+      "Idx": {
+        "count": 12,
+        "samples": [
+          "1",
+          "2",
+          "3"
+        ]
+      },
+      "MinTime": {
+        "count": 12,
+        "samples": [
+          "10"
+        ]
+      },
+      "Nio": {
+        "count": 12,
+        "samples": [
+          "2"
+        ]
+      },
+      "ResetTime": {
+        "count": 12,
+        "samples": [
+          "4000"
+        ]
+      },
+      "Title": {
+        "count": 12,
+        "samples": [
+          "Eingang 1",
+          "Eingang 2",
+          "Eingang 3"
+        ]
+      },
+      "V": {
+        "count": 12,
+        "samples": [
+          "175"
+        ]
+      },
+      "ValOT": {
+        "count": 12,
+        "samples": [
+          "1"
+        ]
+      },
+      "WF": {
+        "count": 12,
+        "samples": [
+          "16384",
+          "20480"
+        ]
+      }
+    },
+    "parent_types": [
+      "LoxAIRDevice"
+    ],
+    "child_types": []
+  },
+  "LoxCaption": {
+    "count": 17,
+    "sample_titles": [
+      "Symbole",
+      "Push-Benachrichtigungen: Registrierte Geräte",
+      "Benutzer und Berechtigungen"
+    ],
+    "has_io_data": false,
+    "connectors": {},
+    "properties": {},
+    "attributes": {
+      "CaptionType": {
+        "count": 17,
+        "samples": [
+          "20",
+          "28",
+          "5"
+        ]
+      },
+      "Cl": {
+        "count": 17,
+        "samples": [
+          "0,0,0"
+        ]
+      },
+      "IntId": {
+        "count": 3,
+        "samples": [
+          "Unbekannt "
+        ]
+      },
+      "SubType": {
+        "count": 17,
+        "samples": [
+          "20",
+          "28",
+          "5"
+        ]
+      },
+      "Title": {
+        "count": 17,
+        "samples": [
+          "Benutzer und Berechtigungen",
+          "Push-Benachrichtigungen: Registrierte Geräte",
+          "Symbole"
+        ]
+      },
+      "V": {
+        "count": 17,
+        "samples": [
+          "175"
+        ]
+      },
+      "WF": {
+        "count": 17,
+        "samples": [
+          "16384",
+          "20480"
+        ]
+      }
+    },
+    "parent_types": [
+      "Document",
+      "LoxCaption",
+      "LoxLIVE",
+      "LoxTree"
+    ],
+    "child_types": [
+      "IntercomDevice",
+      "LoxAIR",
+      "LoxCaption",
+      "LoxTree",
+      "Permission",
+      "PuDe",
+      "RightGroup",
+      "SwitchingTimer",
+      "TreeDevice",
+      "UserCaption",
+      "UserGroupCaption"
+    ]
+  },
+  "LoxDeviceCaption": {
+    "count": 1,
+    "sample_titles": [
+      "1-Wire Geräte"
+    ],
+    "has_io_data": false,
+    "connectors": {},
+    "properties": {},
+    "attributes": {
+      "Poll": {
+        "count": 1,
+        "samples": [
+          "0"
+        ]
+      },
+      "Title": {
+        "count": 1,
+        "samples": [
+          "1-Wire Geräte"
+        ]
+      },
+      "V": {
+        "count": 1,
+        "samples": [
+          "175"
+        ]
+      },
+      "WF": {
+        "count": 1,
+        "samples": [
+          "16384"
+        ]
+      }
+    },
+    "parent_types": [
+      "IntercomDevice"
+    ],
+    "child_types": []
+  },
+  "LoxLIVE": {
+    "count": 1,
+    "sample_titles": [
+      "MiniServer Salzburg"
+    ],
+    "has_io_data": true,
+    "connectors": {},
+    "properties": {},
+    "attributes": {
+      "BaseID": {
+        "count": 1,
+        "samples": [
+          "-1"
+        ]
+      },
+      "CycleUserProt": {
+        "count": 1,
+        "samples": [
+          "-1"
+        ]
+      },
+      "ExP": {
+        "count": 1,
+        "samples": [
+          "80"
+        ]
+      },
+      "ExP2": {
+        "count": 1,
+        "samples": [
+          "443"
+        ]
+      },
+      "ExtAddr": {
+        "count": 1,
+        "samples": [
+          "connect.loxonecloud.com"
+        ]
+      },
+      "HoN": {
+        "count": 1,
+        "samples": [
+          "MSDEEF"
+        ]
+      },
+      "Installation": {
+        "count": 1,
+        "samples": [
+          ""
+        ]
+      },
+      "IntAddr": {
+        "count": 1,
+        "samples": [
+          ""
+        ]
+      },
+      "IntAddr6": {
+        "count": 1,
+        "samples": [
+          ""
+        ]
+      },
+      "Miniserver": {
+        "count": 1,
+        "samples": [
+          "2"
+        ]
+      },
+      "Pause": {
+        "count": 1,
+        "samples": [
+          "10"
+        ]
+      },
+      "RefAS": {
+        "count": 1,
+        "samples": [
+          "00000000-0000-0000-0000000000000000"
+        ]
+      },
+      "RxTimeout": {
+        "count": 1,
+        "samples": [
+          "1000"
+        ]
+      },
+      "Serial": {
+        "count": 1,
+        "samples": [
+          "504F94A2DEEF"
+        ]
+      },
+      "SwitchBoard": {
+        "count": 1,
+        "samples": [
+          ""
+        ]
+      },
+      "SwitchBoardPos": {
+        "count": 1,
+        "samples": [
+          "1"
+        ]
+      },
+      "SwitchBoardRow": {
+        "count": 1,
+        "samples": [
+          "1"
+        ]
+      },
+      "Title": {
+        "count": 1,
+        "samples": [
+          "MiniServer Salzburg"
+        ]
+      },
+      "V": {
+        "count": 1,
+        "samples": [
+          "175"
+        ]
+      },
+      "WF": {
+        "count": 1,
+        "samples": [
+          "16400"
+        ]
+      }
+    },
+    "parent_types": [
+      "Document"
+    ],
+    "child_types": [
+      "AnalogInputCaption",
+      "InputCaption",
+      "LoggerOutCaption",
+      "LoxCaption",
+      "LoxTree",
+      "Online",
+      "OutputCaption",
+      "OvertempShutdown",
+      "TaskCaption",
+      "VirtualInCaption",
+      "VirtualOutCaption",
+      "WeatherCaption"
+    ]
+  },
+  "LoxTree": {
+    "count": 2,
+    "sample_titles": [
+      "Tree",
+      "Tree Extension"
+    ],
+    "has_io_data": true,
+    "connectors": {},
+    "properties": {},
+    "attributes": {
+      "BaseID": {
+        "count": 2,
+        "samples": [
+          "-1"
+        ]
+      },
+      "CycleUserProt": {
+        "count": 2,
+        "samples": [
+          "-1"
+        ]
+      },
+      "ExtensionBlinkNum": {
+        "count": 2,
+        "samples": [
+          "12",
+          "3"
+        ]
+      },
+      "HwVersion": {
+        "count": 2,
+        "samples": [
+          "2"
+        ]
+      },
+      "IDev": {
+        "count": 1,
+        "samples": [
+          "true"
+        ]
+      },
+      "Installation": {
+        "count": 2,
+        "samples": [
+          ""
+        ]
+      },
+      "IntAddr": {
+        "count": 2,
+        "samples": [
+          ""
+        ]
+      },
+      "Pause": {
+        "count": 2,
+        "samples": [
+          "10"
+        ]
+      },
+      "RxTimeout": {
+        "count": 2,
+        "samples": [
+          "1000"
+        ]
+      },
+      "Serial": {
+        "count": 2,
+        "samples": [
+          "13000001",
+          "1311F788"
+        ]
+      },
+      "SwitchBoard": {
+        "count": 2,
+        "samples": [
+          ""
+        ]
+      },
+      "SwitchBoardPos": {
+        "count": 1,
+        "samples": [
+          "5"
+        ]
+      },
+      "SwitchBoardRow": {
+        "count": 1,
+        "samples": [
+          "1"
+        ]
+      },
+      "Title": {
+        "count": 2,
+        "samples": [
+          "Tree",
+          "Tree Extension"
+        ]
+      },
+      "V": {
+        "count": 2,
+        "samples": [
+          "175"
+        ]
+      },
+      "WF": {
+        "count": 2,
+        "samples": [
+          "16384"
+        ]
+      }
+    },
+    "parent_types": [
+      "LoxCaption",
+      "LoxLIVE"
+    ],
+    "child_types": [
+      "LoxCaption",
+      "Online"
+    ]
+  },
+  "Mailer": {
+    "count": 1,
+    "sample_titles": [
+      "Loxone Cloud Mailer"
+    ],
+    "has_io_data": false,
+    "connectors": {},
+    "properties": {},
+    "attributes": {
+      "Cloud": {
+        "count": 1,
+        "samples": [
+          "true"
+        ]
+      },
+      "EnableSys": {
+        "count": 1,
+        "samples": [
+          "true"
+        ]
+      },
+      "Msg": {
+        "count": 1,
+        "samples": [
+          "true"
+        ]
+      },
+      "SmtpReceiver": {
+        "count": 1,
+        "samples": [
+          ""
+        ]
+      },
+      "SmtpSubject": {
+        "count": 1,
+        "samples": [
+          "Unbenannt"
+        ]
+      },
+      "Title": {
+        "count": 1,
+        "samples": [
+          "Loxone Cloud Mailer"
+        ]
+      },
+      "V": {
+        "count": 1,
+        "samples": [
+          "175"
+        ]
+      },
+      "WF": {
+        "count": 1,
+        "samples": [
+          "16384"
+        ]
+      }
+    },
+    "parent_types": [
+      "LoggerOutCaption"
+    ],
+    "child_types": []
+  },
+  "Memory": {
+    "count": 2,
+    "sample_titles": [
+      "Raum verlassen DG Schlafzimmer",
+      "Raum verlassen OG Kind 1"
+    ],
+    "has_io_data": true,
+    "connectors": {
+      "AQ": {
+        "direction": "output"
+      },
+      "Input": {
+        "direction": "input"
+      },
+      "Q": {
+        "direction": "output"
+      }
+    },
+    "properties": {},
+    "attributes": {
+      "Cl": {
+        "count": 2,
+        "samples": [
+          "238,238,238"
+        ]
+      },
+      "Nio": {
+        "count": 2,
+        "samples": [
+          "3"
+        ]
+      },
+      "Px": {
+        "count": 2,
+        "samples": [
+          "11040"
+        ]
+      },
+      "Px2": {
+        "count": 2,
+        "samples": [
+          "13152"
+        ]
+      },
+      "Py": {
+        "count": 2,
+        "samples": [
+          "1248"
+        ]
+      },
+      "Py2": {
+        "count": 2,
+        "samples": [
+          "1440"
+        ]
+      },
+      "Title": {
+        "count": 2,
+        "samples": [
+          "Raum verlassen DG Schlafzimmer",
+          "Raum verlassen OG Kind 1"
+        ]
+      },
+      "Tp": {
+        "count": 2,
+        "samples": [
+          "0"
+        ]
+      },
+      "V": {
+        "count": 2,
+        "samples": [
+          "175"
+        ]
+      },
+      "WF": {
+        "count": 2,
+        "samples": [
+          "147456"
+        ]
+      }
+    },
+    "parent_types": [
+      "Page"
+    ],
+    "child_types": []
+  },
+  "MemoryCaption": {
+    "count": 1,
+    "sample_titles": [
+      "Merker"
+    ],
+    "has_io_data": false,
+    "connectors": {},
+    "properties": {},
+    "attributes": {
+      "Title": {
+        "count": 1,
+        "samples": [
+          "Merker"
+        ]
+      },
+      "V": {
+        "count": 1,
+        "samples": [
+          "175"
+        ]
+      },
+      "WF": {
+        "count": 1,
+        "samples": [
+          "16384"
+        ]
+      }
+    },
+    "parent_types": [
+      "Document"
+    ],
+    "child_types": []
+  },
+  "MessageCenter": {
+    "count": 1,
+    "sample_titles": [
+      "Systemstatus"
+    ],
+    "has_io_data": true,
+    "connectors": {},
+    "properties": {},
+    "attributes": {
+      "Cl": {
+        "count": 1,
+        "samples": [
+          "0,0,0"
+        ]
+      },
+      "SpStates": {
+        "count": 1,
+        "samples": [
+          "20123f74-0222-3d7c-ffff234d69b98eb1"
+        ]
+      },
+      "Title": {
+        "count": 1,
+        "samples": [
+          "Systemstatus"
+        ]
+      },
+      "V": {
+        "count": 1,
+        "samples": [
+          "175"
+        ]
+      },
+      "WF": {
+        "count": 1,
+        "samples": [
+          "20480"
+        ]
+      }
+    },
+    "parent_types": [
+      "Document"
+    ],
+    "child_types": []
+  },
+  "Minute": {
+    "count": 1,
+    "sample_titles": [
+      "Minuten"
+    ],
+    "has_io_data": true,
+    "connectors": {
+      "Q": {
+        "direction": "output"
+      }
+    },
+    "properties": {},
+    "attributes": {
+      "Nio": {
+        "count": 1,
+        "samples": [
+          "1"
+        ]
+      },
+      "Title": {
+        "count": 1,
+        "samples": [
+          "Minuten"
+        ]
+      },
+      "V": {
+        "count": 1,
+        "samples": [
+          "175"
+        ]
+      },
+      "WF": {
+        "count": 1,
+        "samples": [
+          "16384"
+        ]
+      }
+    },
+    "parent_types": [
+      "TimeCaption"
+    ],
+    "child_types": []
+  },
+  "Mode": {
+    "count": 18,
+    "sample_titles": [
+      "Feiertag",
+      "Urlaub",
+      "Freier Tag/Schulferien"
+    ],
+    "has_io_data": true,
+    "connectors": {
+      "I": {
+        "direction": "input"
+      },
+      "Q": {
+        "direction": "output"
+      }
+    },
+    "properties": {},
+    "attributes": {
+      "Cl": {
+        "count": 1,
+        "samples": [
+          "238,238,238"
+        ]
+      },
+      "Mode": {
+        "count": 17,
+        "samples": [
+          "1",
+          "2",
+          "3"
+        ]
+      },
+      "Nio": {
+        "count": 18,
+        "samples": [
+          "2"
+        ]
+      },
+      "Title": {
+        "count": 18,
+        "samples": [
+          "Feiertag",
+          "Freier Tag/Schulferien",
+          "Urlaub"
+        ]
+      },
+      "V": {
+        "count": 18,
+        "samples": [
+          "175"
+        ]
+      },
+      "WF": {
+        "count": 18,
+        "samples": [
+          "16384",
+          "16400"
+        ]
+      }
+    },
+    "parent_types": [
+      "ModeCaption"
+    ],
+    "child_types": []
+  },
+  "ModeCaption": {
+    "count": 1,
+    "sample_titles": [
+      "Betriebsmodi"
+    ],
+    "has_io_data": false,
+    "connectors": {},
+    "properties": {},
+    "attributes": {
+      "Title": {
+        "count": 1,
+        "samples": [
+          "Betriebsmodi"
+        ]
+      },
+      "V": {
+        "count": 1,
+        "samples": [
+          "175"
+        ]
+      },
+      "WF": {
+        "count": 1,
+        "samples": [
+          "16384"
+        ]
+      }
+    },
+    "parent_types": [
+      "Document"
+    ],
+    "child_types": [
+      "Mode"
+    ]
+  },
+  "Month": {
+    "count": 1,
+    "sample_titles": [
+      "Monat"
+    ],
+    "has_io_data": true,
+    "connectors": {
+      "Q": {
+        "direction": "output"
+      }
+    },
+    "properties": {},
+    "attributes": {
+      "Nio": {
+        "count": 1,
+        "samples": [
+          "1"
+        ]
+      },
+      "Title": {
+        "count": 1,
+        "samples": [
+          "Monat"
+        ]
+      },
+      "V": {
+        "count": 1,
+        "samples": [
+          "175"
+        ]
+      },
+      "WF": {
+        "count": 1,
+        "samples": [
+          "16384"
+        ]
+      }
+    },
+    "parent_types": [
+      "TimeCaption"
+    ],
+    "child_types": []
+  },
+  "Morningtwilight": {
+    "count": 1,
+    "sample_titles": [
+      "Zeit der Morgendämmerung"
+    ],
+    "has_io_data": true,
+    "connectors": {
+      "Q": {
+        "direction": "output"
+      }
+    },
+    "properties": {},
+    "attributes": {
+      "Nio": {
+        "count": 1,
+        "samples": [
+          "1"
+        ]
+      },
+      "Title": {
+        "count": 1,
+        "samples": [
+          "Zeit der Morgendämmerung"
+        ]
+      },
+      "V": {
+        "count": 1,
+        "samples": [
+          "175"
+        ]
+      },
+      "WF": {
+        "count": 1,
+        "samples": [
+          "16384"
+        ]
+      }
+    },
+    "parent_types": [
+      "TimeCaption"
+    ],
+    "child_types": []
+  },
+  "NightTime": {
+    "count": 1,
+    "sample_titles": [
+      "Nacht"
+    ],
+    "has_io_data": true,
+    "connectors": {
+      "Q": {
+        "direction": "output"
+      }
+    },
+    "properties": {},
+    "attributes": {
+      "Nio": {
+        "count": 1,
+        "samples": [
+          "1"
+        ]
+      },
+      "Title": {
+        "count": 1,
+        "samples": [
+          "Nacht"
+        ]
+      },
+      "V": {
+        "count": 1,
+        "samples": [
+          "175"
+        ]
+      },
+      "WF": {
+        "count": 1,
+        "samples": [
+          "16384"
+        ]
+      }
+    },
+    "parent_types": [
+      "TimeCaption"
+    ],
+    "child_types": []
+  },
+  "Notification": {
+    "count": 1,
+    "sample_titles": [
+      "Systembenachrichtigung"
+    ],
+    "has_io_data": true,
+    "connectors": {},
+    "properties": {},
+    "attributes": {
+      "Entries": {
+        "count": 1,
+        "samples": [
+          "10"
+        ]
+      },
+      "Sys": {
+        "count": 1,
+        "samples": [
+          "true"
+        ]
+      },
+      "Title": {
+        "count": 1,
+        "samples": [
+          "Systembenachrichtigung"
+        ]
+      },
+      "V": {
+        "count": 1,
+        "samples": [
+          "175"
+        ]
+      },
+      "WF": {
+        "count": 1,
+        "samples": [
+          "16384"
+        ]
+      }
+    },
+    "parent_types": [
+      "LoggerOutCaption"
+    ],
+    "child_types": []
+  },
+  "Online": {
+    "count": 10,
+    "sample_titles": [
+      "Rechenleistungs-Drosselung",
+      "Onlinestatus",
+      "Funkkanal frei Air Base Extension"
+    ],
+    "has_io_data": true,
+    "connectors": {
+      "Q": {
+        "direction": "output"
+      }
+    },
+    "properties": {},
+    "attributes": {
+      "Cl": {
+        "count": 10,
+        "samples": [
+          "0,0,0"
+        ]
+      },
+      "EnoceanSubType": {
+        "count": 2,
+        "samples": [
+          "1",
+          "4"
+        ]
+      },
+      "IName": {
+        "count": 10,
+        "samples": [
+          "S0",
+          "S1",
+          "S4"
+        ]
+      },
+      "Idx": {
+        "count": 7,
+        "samples": [
+          "-1"
+        ]
+      },
+      "MinTime": {
+        "count": 10,
+        "samples": [
+          "10"
+        ]
+      },
+      "Nio": {
+        "count": 10,
+        "samples": [
+          "1"
+        ]
+      },
+      "NoMsg": {
+        "count": 1,
+        "samples": [
+          "true"
+        ]
+      },
+      "Title": {
+        "count": 10,
+        "samples": [
+          "Funkkanal frei Air Base Extension",
+          "Onlinestatus",
+          "Rechenleistungs-Drosselung"
+        ]
+      },
+      "V": {
+        "count": 10,
+        "samples": [
+          "175"
+        ]
+      },
+      "ValOT": {
+        "count": 10,
+        "samples": [
+          "1"
+        ]
+      },
+      "WF": {
+        "count": 10,
+        "samples": [
+          "20480"
+        ]
+      }
+    },
+    "parent_types": [
+      "LoxAIR",
+      "LoxAIRDevice",
+      "LoxLIVE",
+      "LoxTree",
+      "Plugin",
+      "TreeDevice"
+    ],
+    "child_types": []
+  },
+  "OutputCaption": {
+    "count": 1,
+    "sample_titles": [
+      "Digitale Ausgänge"
+    ],
+    "has_io_data": false,
+    "connectors": {},
+    "properties": {},
+    "attributes": {
+      "Title": {
+        "count": 1,
+        "samples": [
+          "Digitale Ausgänge"
+        ]
+      },
+      "V": {
+        "count": 1,
+        "samples": [
+          "175"
+        ]
+      },
+      "WF": {
+        "count": 1,
+        "samples": [
+          "16384"
+        ]
+      }
+    },
+    "parent_types": [
+      "LoxLIVE"
+    ],
+    "child_types": [
+      "Actor"
+    ]
+  },
+  "OutputRef": {
+    "count": 4,
+    "sample_titles": [
+      "API Connector",
+      "Smartaktor RGBW",
+      "API Connector"
+    ],
+    "has_io_data": false,
+    "connectors": {
+      "AI": {
+        "direction": "input"
+      },
+      "AQ": {
+        "direction": "output"
+      }
+    },
+    "properties": {},
+    "attributes": {
+      "Analog": {
+        "count": 2,
+        "samples": [
+          "true"
+        ]
+      },
+      "Cl": {
+        "count": 4,
+        "samples": [
+          "0,0,0"
+        ]
+      },
+      "LinkRefType": {
+        "count": 4,
+        "samples": [
+          "136",
+          "175"
+        ]
+      },
+      "Nio": {
+        "count": 4,
+        "samples": [
+          "2"
+        ]
+      },
+      "Px": {
+        "count": 4,
+        "samples": [
+          "11040"
+        ]
+      },
+      "Px2": {
+        "count": 4,
+        "samples": [
+          "13152"
+        ]
+      },
+      "Py": {
+        "count": 4,
+        "samples": [
+          "1056",
+          "3648",
+          "4704"
+        ]
+      },
+      "Py2": {
+        "count": 4,
+        "samples": [
+          "1248",
+          "3840",
+          "4896"
+        ]
+      },
+      "Ref": {
+        "count": 4,
+        "samples": [
+          "205d558a-0051-9055-ffff234d69b98eb1",
+          "205fdeec-0287-28b6-ffff234d69b98eb1",
+          "205fdeec-0287-28d5-ffff234d69b98eb1"
+        ]
+      },
+      "Text": {
+        "count": 2,
+        "samples": [
+          "true"
+        ]
+      },
+      "Title": {
+        "count": 4,
+        "samples": [
+          "API Connector",
+          "Smartaktor RGBW"
+        ]
+      },
+      "V": {
+        "count": 4,
+        "samples": [
+          "175"
+        ]
+      },
+      "WF": {
+        "count": 4,
+        "samples": [
+          "147456",
+          "16384",
+          "18432"
+        ]
+      }
+    },
+    "parent_types": [
+      "Page"
+    ],
+    "child_types": []
+  },
+  "OvertempShutdown": {
+    "count": 1,
+    "sample_titles": [
+      "Temperaturabschaltung"
+    ],
+    "has_io_data": true,
+    "connectors": {
+      "Q": {
+        "direction": "output"
+      }
+    },
+    "properties": {},
+    "attributes": {
+      "Cl": {
+        "count": 1,
+        "samples": [
+          "0,0,0"
+        ]
+      },
+      "IName": {
+        "count": 1,
+        "samples": [
+          "TSD"
+        ]
+      },
+      "Idx": {
+        "count": 1,
+        "samples": [
+          "-1"
+        ]
+      },
+      "MinTime": {
+        "count": 1,
+        "samples": [
+          "10"
+        ]
+      },
+      "Nio": {
+        "count": 1,
+        "samples": [
+          "1"
+        ]
+      },
+      "Title": {
+        "count": 1,
+        "samples": [
+          "Temperaturabschaltung"
+        ]
+      },
+      "V": {
+        "count": 1,
+        "samples": [
+          "175"
+        ]
+      },
+      "ValOT": {
+        "count": 1,
+        "samples": [
+          "1"
+        ]
+      },
+      "WF": {
+        "count": 1,
+        "samples": [
+          "20480"
+        ]
+      }
+    },
+    "parent_types": [
+      "LoxLIVE"
+    ],
+    "child_types": []
+  },
+  "Page": {
+    "count": 2,
+    "sample_titles": [
+      "DG Schlafzimmer",
+      "OG Kind 1"
+    ],
+    "has_io_data": true,
+    "connectors": {},
+    "properties": {},
+    "attributes": {
+      "LtE": {
+        "count": 1,
+        "samples": [
+          "543153988"
+        ]
+      },
+      "Title": {
+        "count": 2,
+        "samples": [
+          "DG Schlafzimmer",
+          "OG Kind 1"
+        ]
+      },
+      "V": {
+        "count": 2,
+        "samples": [
+          "175"
+        ]
+      },
+      "WF": {
+        "count": 2,
+        "samples": [
+          "16384"
+        ]
+      }
+    },
+    "parent_types": [
+      "Program"
+    ],
+    "child_types": [
+      "AlarmClock",
+      "InputRef",
+      "LightController2",
+      "Memory",
+      "OutputRef",
+      "PresenceDetector",
+      "Text"
+    ]
+  },
+  "Permission": {
+    "count": 11,
+    "sample_titles": [
+      "Loxone Config",
+      "FTP",
+      "Webseite/Apps"
+    ],
+    "has_io_data": false,
+    "connectors": {},
+    "properties": {},
+    "attributes": {
+      "Cl": {
+        "count": 11,
+        "samples": [
+          "0,0,0"
+        ]
+      },
+      "PT": {
+        "count": 11,
+        "samples": [
+          "1",
+          "2",
+          "3"
+        ]
+      },
+      "Title": {
+        "count": 11,
+        "samples": [
+          "FTP",
+          "Loxone Config",
+          "Webseite/Apps"
+        ]
+      },
+      "V": {
+        "count": 11,
+        "samples": [
+          "175"
+        ]
+      },
+      "WF": {
+        "count": 11,
+        "samples": [
+          "16384"
+        ]
+      }
+    },
+    "parent_types": [
+      "LoxCaption"
+    ],
+    "child_types": []
+  },
+  "Place": {
+    "count": 27,
+    "sample_titles": [
+      "OG Marie 2",
+      "EG Wohnzimmer",
+      "EG Küche"
+    ],
+    "has_io_data": false,
+    "connectors": {},
+    "properties": {},
+    "attributes": {
+      "First": {
+        "count": 1,
+        "samples": [
+          "true"
+        ]
+      },
+      "Icon": {
+        "count": 27,
+        "samples": [
+          "0000005a-00ff-0000-0000000000000000",
+          "0000015c-00ff-0000-0000000000000000",
+          "00000220-00ff-0000-0000000000000000"
+        ]
+      },
+      "PGroup": {
+        "count": 7,
+        "samples": [
+          "3",
+          "4",
+          "5"
+        ]
+      },
+      "PType": {
+        "count": 27,
+        "samples": [
+          "1",
+          "2",
+          "3"
+        ]
+      },
+      "RGR": {
+        "count": 27,
+        "samples": [
+          "20123f74-0222-3dfa-ffff234d69b98eb1",
+          "20123f74-0223-3e06-ffff234d69b98eb1",
+          "20123f74-0223-3e0a-ffff234d69b98eb1"
+        ]
+      },
+      "Rating": {
+        "count": 6,
+        "samples": [
+          "1"
+        ]
+      },
+      "Sqm": {
+        "count": 26,
+        "samples": [
+          "12.4",
+          "19.9",
+          "42"
+        ]
+      },
+      "Title": {
+        "count": 27,
+        "samples": [
+          "EG Küche",
+          "EG Wohnzimmer",
+          "OG Marie 2"
+        ]
+      },
+      "UseFav": {
+        "count": 6,
+        "samples": [
+          "true"
+        ]
+      },
+      "V": {
+        "count": 27,
+        "samples": [
+          "175"
+        ]
+      },
+      "WF": {
+        "count": 27,
+        "samples": [
+          "16384"
+        ]
+      }
+    },
+    "parent_types": [
+      "PlaceCaption"
+    ],
+    "child_types": []
+  },
+  "PlaceCaption": {
+    "count": 1,
+    "sample_titles": [
+      "Räume"
+    ],
+    "has_io_data": false,
+    "connectors": {},
+    "properties": {},
+    "attributes": {
+      "Title": {
+        "count": 1,
+        "samples": [
+          "Räume"
+        ]
+      },
+      "V": {
+        "count": 1,
+        "samples": [
+          "175"
+        ]
+      },
+      "WF": {
+        "count": 1,
+        "samples": [
+          "16384"
+        ]
+      }
+    },
+    "parent_types": [
+      "Document"
+    ],
+    "child_types": [
+      "Place"
+    ]
+  },
+  "Plugin": {
+    "count": 1,
+    "sample_titles": [
+      "MQTT"
+    ],
+    "has_io_data": true,
+    "connectors": {},
+    "properties": {
+      "mqtt_auth_pwd": {
+        "type_codes": [
+          "11"
+        ],
+        "sample_values": [
+          "FGd4nr6XRD56EN8V"
+        ]
+      },
+      "mqtt_auth_user": {
+        "type_codes": [
+          "11"
+        ],
+        "sample_values": [
+          "loxberry"
+        ]
+      },
+      "mqtt_broker_address": {
+        "type_codes": [
+          "11"
+        ],
+        "sample_values": [
+          "192.168.68.74"
+        ]
+      },
+      "mqtt_broker_port": {
+        "type_codes": [
+          "7"
+        ],
+        "sample_values": [
+          "1883"
+        ]
+      },
+      "mqtt_client_id": {
+        "type_codes": [
+          "11"
+        ],
+        "sample_values": [
+          "msdeef-loxone"
+        ]
+      },
+      "mqtt_protocol_version": {
+        "type_codes": [
+          "8"
+        ],
+        "sample_values": [
+          "50000"
+        ]
+      },
+      "mqtt_use_ssl_tls": {
+        "type_codes": [
+          "1"
+        ],
+        "sample_values": []
+      }
+    },
+    "attributes": {
+      "Addr": {
+        "count": 1,
+        "samples": [
+          ""
+        ]
+      },
+      "Cl": {
+        "count": 1,
+        "samples": [
+          "0,0,0"
+        ]
+      },
+      "Desc": {
+        "count": 1,
+        "samples": [
+          "MQTTv5 client Integration"
+        ]
+      },
+      "MAC": {
+        "count": 1,
+        "samples": [
+          ""
+        ]
+      },
+      "NDOC": {
+        "count": 1,
+        "samples": [
+          "MQTTv5 client Integration"
+        ]
+      },
+      "Title": {
+        "count": 1,
+        "samples": [
+          "MQTT"
+        ]
+      },
+      "V": {
+        "count": 1,
+        "samples": [
+          "175"
+        ]
+      },
+      "WF": {
+        "count": 1,
+        "samples": [
+          "16384"
+        ]
+      },
+      "gid": {
+        "count": 1,
+        "samples": [
+          "Mqtt"
+        ]
+      }
+    },
+    "parent_types": [
+      "WeatherCaption"
+    ],
+    "child_types": [
+      "GenTActor",
+      "GenTSensor",
+      "Online"
+    ],
+    "doc_slug": "mqtt"
+  },
+  "PresenceDetector": {
+    "count": 1,
+    "sample_titles": [
+      "Präsenz"
+    ],
+    "has_io_data": true,
+    "connectors": {
+      "ControlInput": {
+        "direction": "unknown"
+      },
+      "DeviceActivate": {
+        "direction": "unknown"
+      },
+      "DeviceExtend": {
+        "direction": "unknown"
+      },
+      "DeviceTrigger": {
+        "direction": "unknown"
+      },
+      "InputActivate": {
+        "direction": "input"
+      },
+      "InputExtend": {
+        "direction": "input"
+      },
+      "InputReset": {
+        "direction": "input"
+      },
+      "InputTrigger": {
+        "direction": "input"
+      },
+      "OutputAPI": {
+        "direction": "output"
+      },
+      "OutputActive": {
+        "direction": "output"
+      },
+      "OutputDevActiveTime": {
+        "direction": "output"
+      },
+      "OutputDevOnTime": {
+        "direction": "output"
+      },
+      "OutputOff": {
+        "direction": "output"
+      },
+      "OutputOn": {
+        "direction": "output"
+      },
+      "OutputOnTime": {
+        "direction": "output"
+      },
+      "OutputPresence": {
+        "direction": "output"
+      },
+      "OutputWarn": {
+        "direction": "output"
+      },
+      "ParamTOn": {
+        "direction": "parameter"
+      },
+      "ParamTWarn": {
+        "direction": "parameter"
+      }
+    },
+    "properties": {},
+    "attributes": {
+      "Cl": {
+        "count": 1,
+        "samples": [
+          "255,92,221"
+        ]
+      },
+      "DEVS": {
+        "count": 1,
+        "samples": [
+          ""
+        ]
+      },
+      "Nio": {
+        "count": 1,
+        "samples": [
+          "19"
+        ]
+      },
+      "Px": {
+        "count": 1,
+        "samples": [
+          "7392"
+        ]
+      },
+      "Px2": {
+        "count": 1,
+        "samples": [
+          "10080"
+        ]
+      },
+      "Py": {
+        "count": 1,
+        "samples": [
+          "4032"
+        ]
+      },
+      "Py2": {
+        "count": 1,
+        "samples": [
+          "5304"
+        ]
+      },
+      "SpStates": {
+        "count": 1,
+        "samples": [
+          "205d5925-034e-1a2c-ffff55cdc89feef5,205d5925-034e-1a2d-ffff55cdc89feef5,205d5925-034e-1a2e-ffff55cdc89feef5,2066c86b-0382-681a-ffff234d69b98eb1,2066c86b-0382-681b-ffff234d69b98eb1"
+        ]
+      },
+      "TRK_MAX": {
+        "count": 1,
+        "samples": [
+          "50"
+        ]
+      },
+      "TRK_NE": {
+        "count": 1,
+        "samples": [
+          "50"
+        ]
+      },
+      "Title": {
+        "count": 1,
+        "samples": [
+          "Präsenz"
+        ]
+      },
+      "V": {
+        "count": 1,
+        "samples": [
+          "175"
+        ]
+      },
+      "WF": {
+        "count": 1,
+        "samples": [
+          "16384"
+        ]
+      }
+    },
+    "parent_types": [
+      "Page"
+    ],
+    "child_types": [],
+    "doc_slug": "presence-detector"
+  },
+  "Program": {
+    "count": 1,
+    "sample_titles": [
+      "MiniServer Salzburg"
+    ],
+    "has_io_data": false,
+    "connectors": {},
+    "properties": {},
+    "attributes": {
+      "Ref": {
+        "count": 1,
+        "samples": [
+          "20123f77-0224-3f93-ffff234d69b98eb1"
+        ]
+      },
+      "Title": {
+        "count": 1,
+        "samples": [
+          "MiniServer Salzburg"
+        ]
+      },
+      "V": {
+        "count": 1,
+        "samples": [
+          "175"
+        ]
+      },
+      "WF": {
+        "count": 1,
+        "samples": [
+          "16384"
+        ]
+      }
+    },
+    "parent_types": [
+      "Document"
+    ],
+    "child_types": [
+      "Page"
+    ]
+  },
+  "PuDe": {
+    "count": 2,
+    "sample_titles": [
+      "Registriertes Gerät",
+      "Registriertes Gerät"
+    ],
+    "has_io_data": false,
+    "connectors": {},
+    "properties": {},
+    "attributes": {
+      "Cl": {
+        "count": 2,
+        "samples": [
+          "0,0,0"
+        ]
+      },
+      "DevOs": {
+        "count": 2,
+        "samples": [
+          "ios"
+        ]
+      },
+      "DevT": {
+        "count": 2,
+        "samples": [
+          "Apple iPhone14,7",
+          "Apple iPhone17,1"
+        ]
+      },
+      "PCfg": {
+        "count": 2,
+        "samples": [
+          "-129"
+        ]
+      },
+      "Title": {
+        "count": 2,
+        "samples": [
+          "Registriertes Gerät"
+        ]
+      },
+      "Usr": {
+        "count": 2,
+        "samples": [
+          "20123f74-022a-3f40-ffff234d69b98eb1",
+          "2012453f-03df-f780-ffff234d69b98eb1"
+        ]
+      },
+      "V": {
+        "count": 2,
+        "samples": [
+          "175"
+        ]
+      },
+      "WF": {
+        "count": 2,
+        "samples": [
+          "4210688"
+        ]
+      },
+      "pTkn": {
+        "count": 2,
+        "samples": [
+          "205d5330-0233-38bf-ffff504f94a2deef",
+          "205d5451-003d-38c5-ffff504f94a2deef"
+        ]
+      }
+    },
+    "parent_types": [
+      "LoxCaption"
+    ],
+    "child_types": []
+  },
+  "RemoteControls": {
+    "count": 1,
+    "sample_titles": [
+      "Fernbedienungen"
+    ],
+    "has_io_data": false,
+    "connectors": {},
+    "properties": {},
+    "attributes": {
+      "Title": {
+        "count": 1,
+        "samples": [
+          "Fernbedienungen"
+        ]
+      },
+      "V": {
+        "count": 1,
+        "samples": [
+          "175"
+        ]
+      },
+      "WF": {
+        "count": 1,
+        "samples": [
+          "16384"
+        ]
+      }
+    },
+    "parent_types": [
+      "Document"
+    ],
+    "child_types": []
+  },
+  "RightGroup": {
+    "count": 73,
+    "sample_titles": [
+      "OG Marie 2",
+      "EG Wohnzimmer",
+      "EG Küche"
+    ],
+    "has_io_data": false,
+    "connectors": {},
+    "properties": {},
+    "attributes": {
+      "Cl": {
+        "count": 73,
+        "samples": [
+          "0,0,0"
+        ]
+      },
+      "GT": {
+        "count": 73,
+        "samples": [
+          "1",
+          "2"
+        ]
+      },
+      "MG": {
+        "count": 73,
+        "samples": [
+          ""
+        ]
+      },
+      "Title": {
+        "count": 73,
+        "samples": [
+          "EG Küche",
+          "EG Wohnzimmer",
+          "OG Marie 2"
+        ]
+      },
+      "V": {
+        "count": 73,
+        "samples": [
+          "175"
+        ]
+      },
+      "WF": {
+        "count": 73,
+        "samples": [
+          "16384"
+        ]
+      }
+    },
+    "parent_types": [
+      "LoxCaption"
+    ],
+    "child_types": []
+  },
+  "Second": {
+    "count": 1,
+    "sample_titles": [
+      "Sekunden"
+    ],
+    "has_io_data": true,
+    "connectors": {
+      "Q": {
+        "direction": "output"
+      }
+    },
+    "properties": {},
+    "attributes": {
+      "Nio": {
+        "count": 1,
+        "samples": [
+          "1"
+        ]
+      },
+      "Title": {
+        "count": 1,
+        "samples": [
+          "Sekunden"
+        ]
+      },
+      "V": {
+        "count": 1,
+        "samples": [
+          "175"
+        ]
+      },
+      "WF": {
+        "count": 1,
+        "samples": [
+          "16384"
+        ]
+      }
+    },
+    "parent_types": [
+      "TimeCaption"
+    ],
+    "child_types": []
+  },
+  "SecondsBoot": {
+    "count": 1,
+    "sample_titles": [
+      "Sekunden seit Boot"
+    ],
+    "has_io_data": true,
+    "connectors": {
+      "Q": {
+        "direction": "output"
+      }
+    },
+    "properties": {},
+    "attributes": {
+      "Nio": {
+        "count": 1,
+        "samples": [
+          "1"
+        ]
+      },
+      "Title": {
+        "count": 1,
+        "samples": [
+          "Sekunden seit Boot"
+        ]
+      },
+      "V": {
+        "count": 1,
+        "samples": [
+          "175"
+        ]
+      },
+      "WF": {
+        "count": 1,
+        "samples": [
+          "16384"
+        ]
+      }
+    },
+    "parent_types": [
+      "TimeCaption"
+    ],
+    "child_types": []
+  },
+  "StartPulse": {
+    "count": 1,
+    "sample_titles": [
+      "Startimpuls"
+    ],
+    "has_io_data": true,
+    "connectors": {
+      "Q": {
+        "direction": "output"
+      }
+    },
+    "properties": {},
+    "attributes": {
+      "Nio": {
+        "count": 1,
+        "samples": [
+          "1"
+        ]
+      },
+      "Title": {
+        "count": 1,
+        "samples": [
+          "Startimpuls"
+        ]
+      },
+      "V": {
+        "count": 1,
+        "samples": [
+          "175"
+        ]
+      },
+      "WF": {
+        "count": 1,
+        "samples": [
+          "16384"
+        ]
+      }
+    },
+    "parent_types": [
+      "TimeCaption"
+    ],
+    "child_types": []
+  },
+  "SunAltitude": {
+    "count": 1,
+    "sample_titles": [
+      "Sonne Höhe"
+    ],
+    "has_io_data": true,
+    "connectors": {
+      "Q": {
+        "direction": "output"
+      }
+    },
+    "properties": {},
+    "attributes": {
+      "Nio": {
+        "count": 1,
+        "samples": [
+          "1"
+        ]
+      },
+      "Title": {
+        "count": 1,
+        "samples": [
+          "Sonne Höhe"
+        ]
+      },
+      "V": {
+        "count": 1,
+        "samples": [
+          "175"
+        ]
+      },
+      "WF": {
+        "count": 1,
+        "samples": [
+          "16384"
+        ]
+      }
+    },
+    "parent_types": [
+      "TimeCaption"
+    ],
+    "child_types": []
+  },
+  "SunAzimuth": {
+    "count": 1,
+    "sample_titles": [
+      "Sonne Richtung"
+    ],
+    "has_io_data": true,
+    "connectors": {
+      "Q": {
+        "direction": "output"
+      }
+    },
+    "properties": {},
+    "attributes": {
+      "Nio": {
+        "count": 1,
+        "samples": [
+          "1"
+        ]
+      },
+      "Title": {
+        "count": 1,
+        "samples": [
+          "Sonne Richtung"
+        ]
+      },
+      "V": {
+        "count": 1,
+        "samples": [
+          "175"
+        ]
+      },
+      "WF": {
+        "count": 1,
+        "samples": [
+          "16384"
+        ]
+      }
+    },
+    "parent_types": [
+      "TimeCaption"
+    ],
+    "child_types": []
+  },
+  "Sunrise": {
+    "count": 1,
+    "sample_titles": [
+      "Zeit des Sonnenaufgangs"
+    ],
+    "has_io_data": true,
+    "connectors": {
+      "Q": {
+        "direction": "output"
+      }
+    },
+    "properties": {},
+    "attributes": {
+      "Nio": {
+        "count": 1,
+        "samples": [
+          "1"
+        ]
+      },
+      "Title": {
+        "count": 1,
+        "samples": [
+          "Zeit des Sonnenaufgangs"
+        ]
+      },
+      "V": {
+        "count": 1,
+        "samples": [
+          "175"
+        ]
+      },
+      "WF": {
+        "count": 1,
+        "samples": [
+          "16384"
+        ]
+      }
+    },
+    "parent_types": [
+      "TimeCaption"
+    ],
+    "child_types": []
+  },
+  "Sunset": {
+    "count": 1,
+    "sample_titles": [
+      "Zeit des Sonnenuntergangs"
+    ],
+    "has_io_data": true,
+    "connectors": {
+      "Q": {
+        "direction": "output"
+      }
+    },
+    "properties": {},
+    "attributes": {
+      "Nio": {
+        "count": 1,
+        "samples": [
+          "1"
+        ]
+      },
+      "Title": {
+        "count": 1,
+        "samples": [
+          "Zeit des Sonnenuntergangs"
+        ]
+      },
+      "V": {
+        "count": 1,
+        "samples": [
+          "175"
+        ]
+      },
+      "WF": {
+        "count": 1,
+        "samples": [
+          "16384"
+        ]
+      }
+    },
+    "parent_types": [
+      "TimeCaption"
+    ],
+    "child_types": []
+  },
+  "SwitchingTimer": {
+    "count": 3,
+    "sample_titles": [
+      "Immer",
+      "Nie",
+      "-"
+    ],
+    "has_io_data": false,
+    "connectors": {},
+    "properties": {},
+    "attributes": {
+      "Cl": {
+        "count": 3,
+        "samples": [
+          "0,0,0"
+        ]
+      },
+      "FIX": {
+        "count": 3,
+        "samples": [
+          "1",
+          "2",
+          "3"
+        ]
+      },
+      "M": {
+        "count": 3,
+        "samples": [
+          "3"
+        ]
+      },
+      "Modes": {
+        "count": 3,
+        "samples": [
+          "",
+          "00000000-0000-0004-1500000000000000,00000000-0000-0005-1500000000000000,00000000-0000-0006-1500000000000000,00000000-0000-0007-1500000000000000,00000000-0000-0008-1500000000000000,00000000-0000-0009-1500000000000000,00000000-0000-000a-1500000000000000"
+        ]
+      },
+      "N": {
+        "count": 1,
+        "samples": [
+          "7"
+        ]
+      },
+      "Title": {
+        "count": 3,
+        "samples": [
+          "-",
+          "Immer",
+          "Nie"
+        ]
+      },
+      "V": {
+        "count": 3,
+        "samples": [
+          "175"
+        ]
+      },
+      "WF": {
+        "count": 3,
+        "samples": [
+          "16384",
+          "20480"
+        ]
+      }
+    },
+    "parent_types": [
+      "LoxCaption"
+    ],
+    "child_types": []
+  },
+  "SysVar": {
+    "count": 13,
+    "sample_titles": [
+      "Außentemperatur",
+      "Außenluftfeuchtigkeit",
+      "Windgeschwindigkeit"
+    ],
+    "has_io_data": true,
+    "connectors": {
+      "AI": {
+        "direction": "input"
+      },
+      "AQ": {
+        "direction": "output"
+      },
+      "Q": {
+        "direction": "output"
+      }
+    },
+    "properties": {},
+    "attributes": {
+      "Cl": {
+        "count": 13,
+        "samples": [
+          "0,0,0"
+        ]
+      },
+      "DestValHigh": {
+        "count": 13,
+        "samples": [
+          "10"
+        ]
+      },
+      "EU": {
+        "count": 13,
+        "samples": [
+          "1"
+        ]
+      },
+      "Fch": {
+        "count": 3,
+        "samples": [
+          "24"
+        ]
+      },
+      "IName": {
+        "count": 13,
+        "samples": [
+          "SYS1",
+          "SYS2",
+          "SYS3"
+        ]
+      },
+      "MaxVal": {
+        "count": 13,
+        "samples": [
+          "100",
+          "1000",
+          "150"
+        ]
+      },
+      "MinVal": {
+        "count": 11,
+        "samples": [
+          "-1000",
+          "-80"
+        ]
+      },
+      "Nio": {
+        "count": 13,
+        "samples": [
+          "3"
+        ]
+      },
+      "OM": {
+        "count": 1,
+        "samples": [
+          "false"
+        ]
+      },
+      "SourceValHigh": {
+        "count": 13,
+        "samples": [
+          "10"
+        ]
+      },
+      "SpStates": {
+        "count": 1,
+        "samples": [
+          "20123f74-022a-3f6f-ffff2a46fab7245e"
+        ]
+      },
+      "SubType": {
+        "count": 12,
+        "samples": [
+          "1",
+          "2",
+          "3"
+        ]
+      },
+      "Title": {
+        "count": 13,
+        "samples": [
+          "Außenluftfeuchtigkeit",
+          "Außentemperatur",
+          "Windgeschwindigkeit"
+        ]
+      },
+      "V": {
+        "count": 13,
+        "samples": [
+          "175"
+        ]
+      },
+      "WF": {
+        "count": 13,
+        "samples": [
+          "6307840"
+        ]
+      },
+      "source": {
+        "count": 13,
+        "samples": [
+          "20123f74-022a-3f73-ffff234d69b98eb1",
+          "20123f74-022b-3f8c-ffff234d69b98eb1",
+          "20123f77-0254-4131-ffff234d69b98eb1"
+        ]
+      }
+    },
+    "parent_types": [
+      "GlobalStates"
+    ],
+    "child_types": []
+  },
+  "TaskCaption": {
+    "count": 1,
+    "sample_titles": [
+      "Aufgezeichnete Tasks"
+    ],
+    "has_io_data": false,
+    "connectors": {},
+    "properties": {},
+    "attributes": {
+      "Cl": {
+        "count": 1,
+        "samples": [
+          "0,0,0"
+        ]
+      },
+      "Title": {
+        "count": 1,
+        "samples": [
+          "Aufgezeichnete Tasks"
+        ]
+      },
+      "V": {
+        "count": 1,
+        "samples": [
+          "175"
+        ]
+      },
+      "WF": {
+        "count": 1,
+        "samples": [
+          "16384"
+        ]
+      },
+      "gT": {
+        "count": 1,
+        "samples": [
+          "20123f77-0232-3fa6-ffff2a46fab7245e"
+        ]
+      },
+      "pT": {
+        "count": 1,
+        "samples": [
+          "20123f77-0232-3fa5-ffff2a46fab7245e"
+        ]
+      }
+    },
+    "parent_types": [
+      "LoxLIVE"
+    ],
+    "child_types": []
+  },
+  "Text": {
+    "count": 1,
+    "sample_titles": [
+      "To-do"
+    ],
+    "has_io_data": false,
+    "connectors": {},
+    "properties": {},
+    "attributes": {
+      "Cl": {
+        "count": 1,
+        "samples": [
+          "255,200,100"
+        ]
+      },
+      "Px": {
+        "count": 1,
+        "samples": [
+          "148"
+        ]
+      },
+      "Px2": {
+        "count": 1,
+        "samples": [
+          "12483"
+        ]
+      },
+      "Py": {
+        "count": 1,
+        "samples": [
+          "5458"
+        ]
+      },
+      "Py2": {
+        "count": 1,
+        "samples": [
+          "5733"
+        ]
+      },
+      "Td": {
+        "count": 1,
+        "samples": [
+          "true"
+        ]
+      },
+      "Text": {
+        "count": 1,
+        "samples": [
+          "Auto-Konfiguration Um eine Aktivierung des Lichts in der Nacht zu verhindern, empfehlen wir Ihnen eine Logik für die Deaktivierung des Präsenzmelders zu erstellen"
+        ]
+      },
+      "Title": {
+        "count": 1,
+        "samples": [
+          "To-do"
+        ]
+      },
+      "V": {
+        "count": 1,
+        "samples": [
+          "175"
+        ]
+      },
+      "WF": {
+        "count": 1,
+        "samples": [
+          "16384"
+        ]
+      }
+    },
+    "parent_types": [
+      "Page"
+    ],
+    "child_types": []
+  },
+  "Time": {
+    "count": 1,
+    "sample_titles": [
+      "Minuten seit Mitternacht"
+    ],
+    "has_io_data": true,
+    "connectors": {
+      "Q": {
+        "direction": "output"
+      }
+    },
+    "properties": {},
+    "attributes": {
+      "Nio": {
+        "count": 1,
+        "samples": [
+          "1"
+        ]
+      },
+      "Title": {
+        "count": 1,
+        "samples": [
+          "Minuten seit Mitternacht"
+        ]
+      },
+      "V": {
+        "count": 1,
+        "samples": [
+          "175"
+        ]
+      },
+      "WF": {
+        "count": 1,
+        "samples": [
+          "16384"
+        ]
+      }
+    },
+    "parent_types": [
+      "TimeCaption"
+    ],
+    "child_types": []
+  },
+  "TimeCaption": {
+    "count": 1,
+    "sample_titles": [
+      "Zeitfunktionen"
+    ],
+    "has_io_data": false,
+    "connectors": {},
+    "properties": {},
+    "attributes": {
+      "Cl": {
+        "count": 1,
+        "samples": [
+          "0,0,0"
+        ]
+      },
+      "Title": {
+        "count": 1,
+        "samples": [
+          "Zeitfunktionen"
+        ]
+      },
+      "V": {
+        "count": 1,
+        "samples": [
+          "175"
+        ]
+      },
+      "WF": {
+        "count": 1,
+        "samples": [
+          "16384"
+        ]
+      }
+    },
+    "parent_types": [
+      "Document"
+    ],
+    "child_types": [
+      "Calendar",
+      "DateTime",
+      "Day",
+      "Day2009",
+      "DayOfWeek",
+      "Daylight",
+      "Daylight2",
+      "Eveningtwilight",
+      "Hour",
+      "ImpulseDay",
+      "ImpulseEveningtwilight",
+      "ImpulseHour",
+      "ImpulseMinute",
+      "ImpulseMonth",
+      "ImpulseMorningtwilight",
+      "ImpulseSecond",
+      "ImpulseSunrise",
+      "ImpulseSunset",
+      "ImpulseYear",
+      "Minute",
+      "Month",
+      "Morningtwilight",
+      "NightTime",
+      "Second",
+      "SecondsBoot",
+      "StartPulse",
+      "SunAltitude",
+      "SunAzimuth",
+      "Sunrise",
+      "Sunset",
+      "Time",
+      "Week",
+      "Year"
+    ]
+  },
+  "Tracker": {
+    "count": 1,
+    "sample_titles": [
+      "Tracker"
+    ],
+    "has_io_data": true,
+    "connectors": {},
+    "properties": {},
+    "attributes": {
+      "Entries": {
+        "count": 1,
+        "samples": [
+          "10"
+        ]
+      },
+      "Rem": {
+        "count": 1,
+        "samples": [
+          "false"
+        ]
+      },
+      "Title": {
+        "count": 1,
+        "samples": [
+          "Tracker"
+        ]
+      },
+      "V": {
+        "count": 1,
+        "samples": [
+          "175"
+        ]
+      },
+      "WF": {
+        "count": 1,
+        "samples": [
+          "16384"
+        ]
+      }
+    },
+    "parent_types": [
+      "LoggerOutCaption"
+    ],
+    "child_types": []
+  },
+  "TreeAactor": {
+    "count": 3,
+    "sample_titles": [
+      "Nachlaufzeit Präsenz",
+      "Zeit",
+      "RGBW 24V Dimmer Tree"
+    ],
+    "has_io_data": true,
+    "connectors": {
+      "I": {
+        "direction": "input"
+      }
+    },
+    "properties": {},
+    "attributes": {
+      "CCap": {
+        "count": 1,
+        "samples": [
+          "31"
+        ]
+      },
+      "Channel": {
+        "count": 3,
+        "samples": [
+          "1"
+        ]
+      },
+      "Cl": {
+        "count": 3,
+        "samples": [
+          "0,0,0"
+        ]
+      },
+      "DestValHigh": {
+        "count": 3,
+        "samples": [
+          "100"
+        ]
+      },
+      "DimmType": {
+        "count": 3,
+        "samples": [
+          "3"
+        ]
+      },
+      "IName": {
+        "count": 3,
+        "samples": [
+          "AQ1",
+          "AQ2"
+        ]
+      },
+      "Idx": {
+        "count": 3,
+        "samples": [
+          "1",
+          "2"
+        ]
+      },
+      "Nio": {
+        "count": 3,
+        "samples": [
+          "1"
+        ]
+      },
+      "Percent": {
+        "count": 3,
+        "samples": [
+          "true"
+        ]
+      },
+      "SourceValHigh": {
+        "count": 3,
+        "samples": [
+          "100"
+        ]
+      },
+      "SubType": {
+        "count": 3,
+        "samples": [
+          "158",
+          "61",
+          "62"
+        ]
+      },
+      "Title": {
+        "count": 3,
+        "samples": [
+          "Nachlaufzeit Präsenz",
+          "RGBW 24V Dimmer Tree",
+          "Zeit"
+        ]
+      },
+      "V": {
+        "count": 3,
+        "samples": [
+          "175"
+        ]
+      },
+      "WF": {
+        "count": 3,
+        "samples": [
+          "134234112",
+          "20480"
+        ]
+      }
+    },
+    "parent_types": [
+      "TreeDevice"
+    ],
+    "child_types": []
+  },
+  "TreeActor": {
+    "count": 1,
+    "sample_titles": [
+      "Akustisches Klick-Signal"
+    ],
+    "has_io_data": true,
+    "connectors": {
+      "I": {
+        "direction": "input"
+      }
+    },
+    "properties": {},
+    "attributes": {
+      "Cl": {
+        "count": 1,
+        "samples": [
+          "0,0,0"
+        ]
+      },
+      "IName": {
+        "count": 1,
+        "samples": [
+          "Q1"
+        ]
+      },
+      "Idx": {
+        "count": 1,
+        "samples": [
+          "1"
+        ]
+      },
+      "Nio": {
+        "count": 1,
+        "samples": [
+          "1"
+        ]
+      },
+      "SubType": {
+        "count": 1,
+        "samples": [
+          "163"
+        ]
+      },
+      "Title": {
+        "count": 1,
+        "samples": [
+          "Akustisches Klick-Signal"
+        ]
+      },
+      "V": {
+        "count": 1,
+        "samples": [
+          "175"
+        ]
+      },
+      "WF": {
+        "count": 1,
+        "samples": [
+          "20480"
+        ]
+      }
+    },
+    "parent_types": [
+      "TreeDevice"
+    ],
+    "child_types": []
+  },
+  "TreeAsensor": {
+    "count": 6,
+    "sample_titles": [
+      "Lautstärke Minimum",
+      "Lautstärke Maximum",
+      "Helligkeit"
+    ],
+    "has_io_data": true,
+    "connectors": {
+      "AQ": {
+        "direction": "output"
+      },
+      "Q": {
+        "direction": "output"
+      }
+    },
+    "properties": {},
+    "attributes": {
+      "Analog": {
+        "count": 6,
+        "samples": [
+          "true"
+        ]
+      },
+      "Cl": {
+        "count": 6,
+        "samples": [
+          "0,0,0"
+        ]
+      },
+      "DestValHigh": {
+        "count": 6,
+        "samples": [
+          "1",
+          "10",
+          "100"
+        ]
+      },
+      "EnoceanSubType": {
+        "count": 5,
+        "samples": [
+          "5",
+          "57",
+          "58"
+        ]
+      },
+      "IName": {
+        "count": 6,
+        "samples": [
+          "AI1",
+          "AI2",
+          "AI3"
+        ]
+      },
+      "Idx": {
+        "count": 6,
+        "samples": [
+          "1",
+          "2",
+          "3"
+        ]
+      },
+      "MaxVal": {
+        "count": 6,
+        "samples": [
+          "10",
+          "10000",
+          "125"
+        ]
+      },
+      "MinChange": {
+        "count": 6,
+        "samples": [
+          "0.25"
+        ]
+      },
+      "MinTime": {
+        "count": 6,
+        "samples": [
+          "1000"
+        ]
+      },
+      "MinVal": {
+        "count": 1,
+        "samples": [
+          "-40"
+        ]
+      },
+      "Nio": {
+        "count": 6,
+        "samples": [
+          "2"
+        ]
+      },
+      "SourceValHigh": {
+        "count": 6,
+        "samples": [
+          "1",
+          "10",
+          "100"
+        ]
+      },
+      "Title": {
+        "count": 6,
+        "samples": [
+          "Helligkeit",
+          "Lautstärke Maximum",
+          "Lautstärke Minimum"
+        ]
+      },
+      "V": {
+        "count": 6,
+        "samples": [
+          "175"
+        ]
+      },
+      "ValOT": {
+        "count": 6,
+        "samples": [
+          "1"
+        ]
+      },
+      "WF": {
+        "count": 6,
+        "samples": [
+          "16384"
+        ]
+      }
+    },
+    "parent_types": [
+      "TreeDevice"
+    ],
+    "child_types": []
+  },
+  "TreeDevice": {
+    "count": 3,
+    "sample_titles": [
+      "Präsenzmelder Tree",
+      "RGBW 24V Dimmer Tree",
+      "Touch Tree"
+    ],
+    "has_io_data": true,
+    "connectors": {},
+    "properties": {},
+    "attributes": {
+      "AC": {
+        "count": 1,
+        "samples": [
+          "1"
+        ]
+      },
+      "BlinkPos": {
+        "count": 1,
+        "samples": [
+          "6"
+        ]
+      },
+      "HwVersion": {
+        "count": 3,
+        "samples": [
+          "1"
+        ]
+      },
+      "Installation": {
+        "count": 3,
+        "samples": [
+          ""
+        ]
+      },
+      "LS": {
+        "count": 1,
+        "samples": [
+          "1"
+        ]
+      },
+      "OnTime": {
+        "count": 1,
+        "samples": [
+          "300"
+        ]
+      },
+      "OnTimeLim": {
+        "count": 1,
+        "samples": [
+          "1800"
+        ]
+      },
+      "OnTimeM": {
+        "count": 1,
+        "samples": [
+          "60"
+        ]
+      },
+      "PG": {
+        "count": 3,
+        "samples": [
+          ""
+        ]
+      },
+      "Rgb": {
+        "count": 1,
+        "samples": [
+          "true"
+        ]
+      },
+      "SendC": {
+        "count": 1,
+        "samples": [
+          "300"
+        ]
+      },
+      "SendCB": {
+        "count": 1,
+        "samples": [
+          "900"
+        ]
+      },
+      "Serial": {
+        "count": 3,
+        "samples": [
+          "B0560D8D",
+          "B056A424",
+          "C016C744"
+        ]
+      },
+      "SubType": {
+        "count": 3,
+        "samples": [
+          "32771",
+          "32780",
+          "32794"
+        ]
+      },
+      "SwitchBoard": {
+        "count": 1,
+        "samples": [
+          ""
+        ]
+      },
+      "SwitchBoardPos": {
+        "count": 1,
+        "samples": [
+          "1"
+        ]
+      },
+      "SwitchBoardRow": {
+        "count": 1,
+        "samples": [
+          "1"
+        ]
+      },
+      "TOr": {
+        "count": 1,
+        "samples": [
+          "270"
+        ]
+      },
+      "Title": {
+        "count": 3,
+        "samples": [
+          "Präsenzmelder Tree",
+          "RGBW 24V Dimmer Tree",
+          "Touch Tree"
+        ]
+      },
+      "TrA": {
+        "count": 1,
+        "samples": [
+          "1000"
+        ]
+      },
+      "TrPres": {
+        "count": 1,
+        "samples": [
+          "250"
+        ]
+      },
+      "TreeType": {
+        "count": 3,
+        "samples": [
+          "32771",
+          "32780",
+          "32794"
+        ]
+      },
+      "V": {
+        "count": 3,
+        "samples": [
+          "175"
+        ]
+      },
+      "WF": {
+        "count": 3,
+        "samples": [
+          "16384"
+        ]
+      }
+    },
+    "parent_types": [
+      "LoxCaption"
+    ],
+    "child_types": [
+      "Online",
+      "TreeAactor",
+      "TreeActor",
+      "TreeAsensor",
+      "TreeSensor"
+    ]
+  },
+  "TreeSensor": {
+    "count": 8,
+    "sample_titles": [
+      "Bewegung",
+      "Präsenz",
+      "Lautstärkealarm"
+    ],
+    "has_io_data": true,
+    "connectors": {
+      "Q": {
+        "direction": "output"
+      },
+      "Qe": {
+        "direction": "output"
+      }
+    },
+    "properties": {},
+    "attributes": {
+      "Cl": {
+        "count": 8,
+        "samples": [
+          "0,0,0"
+        ]
+      },
+      "EnoceanSubType": {
+        "count": 8,
+        "samples": [
+          "168",
+          "170",
+          "4"
+        ]
+      },
+      "IName": {
+        "count": 8,
+        "samples": [
+          "I1",
+          "I2",
+          "I3"
+        ]
+      },
+      "Idx": {
+        "count": 8,
+        "samples": [
+          "1",
+          "2",
+          "3"
+        ]
+      },
+      "MinTime": {
+        "count": 8,
+        "samples": [
+          "10"
+        ]
+      },
+      "Nio": {
+        "count": 8,
+        "samples": [
+          "2"
+        ]
+      },
+      "Title": {
+        "count": 8,
+        "samples": [
+          "Bewegung",
+          "Lautstärkealarm",
+          "Präsenz"
+        ]
+      },
+      "V": {
+        "count": 8,
+        "samples": [
+          "175"
+        ]
+      },
+      "ValOT": {
+        "count": 8,
+        "samples": [
+          "1"
+        ]
+      },
+      "WF": {
+        "count": 8,
+        "samples": [
+          "16384",
+          "20480"
+        ]
+      }
+    },
+    "parent_types": [
+      "TreeDevice"
+    ],
+    "child_types": []
+  },
+  "User": {
+    "count": 5,
+    "sample_titles": [
+      "admin",
+      "Markus",
+      "Cris"
+    ],
+    "has_io_data": false,
+    "connectors": {},
+    "properties": {},
+    "attributes": {
+      "AppGroup": {
+        "count": 5,
+        "samples": [
+          "0"
+        ]
+      },
+      "CodeArr": {
+        "count": 5,
+        "samples": [
+          ""
+        ]
+      },
+      "Desc": {
+        "count": 4,
+        "samples": [
+          "Cris",
+          "Marie",
+          "Markus"
+        ]
+      },
+      "EAIdArr": {
+        "count": 5,
+        "samples": [
+          ""
+        ]
+      },
+      "Ema": {
+        "count": 5,
+        "samples": [
+          "",
+          "c@cozowicz.at",
+          "m@cozowicz.at"
+        ]
+      },
+      "FiN": {
+        "count": 5,
+        "samples": [
+          "",
+          "Crispiana",
+          "Markus"
+        ]
+      },
+      "IDS": {
+        "count": 5,
+        "samples": [
+          ""
+        ]
+      },
+      "LaN": {
+        "count": 5,
+        "samples": [
+          "",
+          "Cozowicz"
+        ]
+      },
+      "LastEdit": {
+        "count": 5,
+        "samples": [
+          "542987500",
+          "542988080",
+          "542988099"
+        ]
+      },
+      "Main": {
+        "count": 1,
+        "samples": [
+          "true"
+        ]
+      },
+      "NFCArr": {
+        "count": 5,
+        "samples": [
+          ""
+        ]
+      },
+      "NFCNArr": {
+        "count": 5,
+        "samples": [
+          ""
+        ]
+      },
+      "OcId": {
+        "count": 5,
+        "samples": [
+          ""
+        ]
+      },
+      "Phn": {
+        "count": 5,
+        "samples": [
+          "",
+          "+436641228024",
+          "+436642833656"
+        ]
+      },
+      "Title": {
+        "count": 5,
+        "samples": [
+          "Cris",
+          "Markus",
+          "admin"
+        ]
+      },
+      "UsCf0": {
+        "count": 5,
+        "samples": [
+          ""
+        ]
+      },
+      "UsCf1": {
+        "count": 5,
+        "samples": [
+          ""
+        ]
+      },
+      "UsCf2": {
+        "count": 5,
+        "samples": [
+          ""
+        ]
+      },
+      "UsCf3": {
+        "count": 5,
+        "samples": [
+          ""
+        ]
+      },
+      "UsCf4": {
+        "count": 5,
+        "samples": [
+          ""
+        ]
+      },
+      "UsCo": {
+        "count": 5,
+        "samples": [
+          ""
+        ]
+      },
+      "UsDb": {
+        "count": 5,
+        "samples": [
+          ""
+        ]
+      },
+      "UsDp": {
+        "count": 5,
+        "samples": [
+          ""
+        ]
+      },
+      "UsId": {
+        "count": 5,
+        "samples": [
+          ""
+        ]
+      },
+      "UsPn": {
+        "count": 5,
+        "samples": [
+          ""
+        ]
+      },
+      "UsR": {
+        "count": 5,
+        "samples": [
+          "-1"
+        ]
+      },
+      "UsRnA": {
+        "count": 5,
+        "samples": [
+          "1664"
+        ]
+      },
+      "UsTt": {
+        "count": 5,
+        "samples": [
+          ""
+        ]
+      },
+      "V": {
+        "count": 5,
+        "samples": [
+          "175"
+        ]
+      },
+      "WF": {
+        "count": 5,
+        "samples": [
+          "16384"
+        ]
+      },
+      "iBtnArr": {
+        "count": 5,
+        "samples": [
+          ""
+        ]
+      }
+    },
+    "parent_types": [
+      "UserCaption"
+    ],
+    "child_types": []
+  },
+  "UserCaption": {
+    "count": 1,
+    "sample_titles": [
+      "Benutzer"
+    ],
+    "has_io_data": false,
+    "connectors": {},
+    "properties": {},
+    "attributes": {
+      "CaptionType": {
+        "count": 1,
+        "samples": [
+          "30"
+        ]
+      },
+      "SubType": {
+        "count": 1,
+        "samples": [
+          "30"
+        ]
+      },
+      "Title": {
+        "count": 1,
+        "samples": [
+          "Benutzer"
+        ]
+      },
+      "UsCf0": {
+        "count": 1,
+        "samples": [
+          ""
+        ]
+      },
+      "UsCf1": {
+        "count": 1,
+        "samples": [
+          ""
+        ]
+      },
+      "UsCf2": {
+        "count": 1,
+        "samples": [
+          ""
+        ]
+      },
+      "UsCf3": {
+        "count": 1,
+        "samples": [
+          ""
+        ]
+      },
+      "UsCf4": {
+        "count": 1,
+        "samples": [
+          ""
+        ]
+      },
+      "V": {
+        "count": 1,
+        "samples": [
+          "175"
+        ]
+      },
+      "WF": {
+        "count": 1,
+        "samples": [
+          "16384"
+        ]
+      }
+    },
+    "parent_types": [
+      "LoxCaption"
+    ],
+    "child_types": [
+      "User"
+    ]
+  },
+  "UserGroup": {
+    "count": 3,
+    "sample_titles": [
+      "Benutzer",
+      "Niemand",
+      "Vollzugriff"
+    ],
+    "has_io_data": false,
+    "connectors": {},
+    "properties": {},
+    "attributes": {
+      "LEd": {
+        "count": 1,
+        "samples": [
+          "542990544"
+        ]
+      },
+      "Rights": {
+        "count": 2,
+        "samples": [
+          "-1",
+          "129"
+        ]
+      },
+      "TMR": {
+        "count": 3,
+        "samples": [
+          "20123f74-0222-3ddc-ffff234d69b98eb1"
+        ]
+      },
+      "Title": {
+        "count": 3,
+        "samples": [
+          "Benutzer",
+          "Niemand",
+          "Vollzugriff"
+        ]
+      },
+      "UgType": {
+        "count": 2,
+        "samples": [
+          "3",
+          "4"
+        ]
+      },
+      "User": {
+        "count": 3,
+        "samples": [
+          "",
+          "20123f74-022a-3f40-ffff234d69b98eb1,2012453f-03df-f780-ffff234d69b98eb1,2012454b-0233-0814-ffff234d69b98eb1,20124521-0138-dbea-ffff234d69b98eb1,2012450c-0310-ce23-ffff234d69b98eb1"
+        ]
+      },
+      "UserGroups": {
+        "count": 3,
+        "samples": [
+          ""
+        ]
+      },
+      "V": {
+        "count": 3,
+        "samples": [
+          "175"
+        ]
+      },
+      "WF": {
+        "count": 3,
+        "samples": [
+          "16384"
+        ]
+      }
+    },
+    "parent_types": [
+      "UserGroupCaption"
+    ],
+    "child_types": []
+  },
+  "UserGroupCaption": {
+    "count": 1,
+    "sample_titles": [
+      "Benutzergruppen"
+    ],
+    "has_io_data": false,
+    "connectors": {},
+    "properties": {},
+    "attributes": {
+      "Title": {
+        "count": 1,
+        "samples": [
+          "Benutzergruppen"
+        ]
+      },
+      "V": {
+        "count": 1,
+        "samples": [
+          "175"
+        ]
+      },
+      "WF": {
+        "count": 1,
+        "samples": [
+          "16384"
+        ]
+      }
+    },
+    "parent_types": [
+      "LoxCaption"
+    ],
+    "child_types": [
+      "UserGroup"
+    ]
+  },
+  "VirtualInCaption": {
+    "count": 1,
+    "sample_titles": [
+      "Virtuelle Eingänge"
+    ],
+    "has_io_data": false,
+    "connectors": {},
+    "properties": {},
+    "attributes": {
+      "Title": {
+        "count": 1,
+        "samples": [
+          "Virtuelle Eingänge"
+        ]
+      },
+      "V": {
+        "count": 1,
+        "samples": [
+          "175"
+        ]
+      },
+      "WF": {
+        "count": 1,
+        "samples": [
+          "16384"
+        ]
+      }
+    },
+    "parent_types": [
+      "LoxLIVE"
+    ],
+    "child_types": []
+  },
+  "VirtualOutCaption": {
+    "count": 1,
+    "sample_titles": [
+      "Virtuelle Ausgänge"
+    ],
+    "has_io_data": false,
+    "connectors": {},
+    "properties": {},
+    "attributes": {
+      "Title": {
+        "count": 1,
+        "samples": [
+          "Virtuelle Ausgänge"
+        ]
+      },
+      "V": {
+        "count": 1,
+        "samples": [
+          "175"
+        ]
+      },
+      "WF": {
+        "count": 1,
+        "samples": [
+          "16384"
+        ]
+      }
+    },
+    "parent_types": [
+      "LoxLIVE"
+    ],
+    "child_types": []
+  },
+  "VoltageIn": {
+    "count": 4,
+    "sample_titles": [
+      "Spannung 1",
+      "Spannung 2",
+      "Spannung 3"
+    ],
+    "has_io_data": true,
+    "connectors": {
+      "AQ": {
+        "direction": "output"
+      },
+      "Q": {
+        "direction": "output"
+      }
+    },
+    "properties": {},
+    "attributes": {
+      "Analog": {
+        "count": 4,
+        "samples": [
+          "true"
+        ]
+      },
+      "DestValHigh": {
+        "count": 4,
+        "samples": [
+          "10"
+        ]
+      },
+      "IName": {
+        "count": 4,
+        "samples": [
+          "AI1",
+          "AI2",
+          "AI3"
+        ]
+      },
+      "MaxVal": {
+        "count": 4,
+        "samples": [
+          "10"
+        ]
+      },
+      "MinChange": {
+        "count": 4,
+        "samples": [
+          "0.25"
+        ]
+      },
+      "MinTime": {
+        "count": 4,
+        "samples": [
+          "1000"
+        ]
+      },
+      "Nio": {
+        "count": 4,
+        "samples": [
+          "2"
+        ]
+      },
+      "SourceValHigh": {
+        "count": 4,
+        "samples": [
+          "10"
+        ]
+      },
+      "Title": {
+        "count": 4,
+        "samples": [
+          "Spannung 1",
+          "Spannung 2",
+          "Spannung 3"
+        ]
+      },
+      "V": {
+        "count": 4,
+        "samples": [
+          "175"
+        ]
+      },
+      "ValOT": {
+        "count": 4,
+        "samples": [
+          "1"
+        ]
+      },
+      "WF": {
+        "count": 4,
+        "samples": [
+          "16384"
+        ]
+      }
+    },
+    "parent_types": [
+      "AnalogInputCaption"
+    ],
+    "child_types": []
+  },
+  "WeatherCaption": {
+    "count": 1,
+    "sample_titles": [
+      "Netzwerkperipherie"
+    ],
+    "has_io_data": false,
+    "connectors": {},
+    "properties": {},
+    "attributes": {
+      "CaptionType": {
+        "count": 1,
+        "samples": [
+          "27"
+        ]
+      },
+      "SubType": {
+        "count": 1,
+        "samples": [
+          "27"
+        ]
+      },
+      "Title": {
+        "count": 1,
+        "samples": [
+          "Netzwerkperipherie"
+        ]
+      },
+      "V": {
+        "count": 1,
+        "samples": [
+          "175"
+        ]
+      },
+      "WF": {
+        "count": 1,
+        "samples": [
+          "16384"
+        ]
+      }
+    },
+    "parent_types": [
+      "LoxLIVE"
+    ],
+    "child_types": [
+      "LanInt",
+      "Plugin"
+    ]
+  },
+  "WeatherData": {
+    "count": 11,
+    "sample_titles": [
+      "Sonnenschein",
+      "Temperatur",
+      "Relative Luftfeuchte"
+    ],
+    "has_io_data": true,
+    "connectors": {
+      "AQ": {
+        "direction": "output"
+      }
+    },
+    "properties": {},
+    "attributes": {
+      "HzdType": {
+        "count": 10,
+        "samples": [
+          "FFFFFFFF"
+        ]
+      },
+      "IName": {
+        "count": 11,
+        "samples": [
+          "WDC1",
+          "WDC3",
+          "WDC34"
+        ]
+      },
+      "Nio": {
+        "count": 11,
+        "samples": [
+          "1"
+        ]
+      },
+      "Offset": {
+        "count": 1,
+        "samples": [
+          "1"
+        ]
+      },
+      "SLs": {
+        "count": 11,
+        "samples": [
+          "600"
+        ]
+      },
+      "SLw": {
+        "count": 11,
+        "samples": [
+          "120"
+        ]
+      },
+      "Title": {
+        "count": 11,
+        "samples": [
+          "Relative Luftfeuchte",
+          "Sonnenschein",
+          "Temperatur"
+        ]
+      },
+      "V": {
+        "count": 11,
+        "samples": [
+          "175"
+        ]
+      },
+      "WF": {
+        "count": 11,
+        "samples": [
+          "16384"
+        ]
+      },
+      "WType": {
+        "count": 11,
+        "samples": [
+          "1",
+          "3",
+          "34"
+        ]
+      }
+    },
+    "parent_types": [
+      "WeatherServer"
+    ],
+    "child_types": [],
+    "doc_slug": "weather-service"
+  },
+  "WeatherServer": {
+    "count": 1,
+    "sample_titles": [
+      "Wetterserver "
+    ],
+    "has_io_data": true,
+    "connectors": {},
+    "properties": {},
+    "attributes": {
+      "Address": {
+        "count": 1,
+        "samples": [
+          "http://weather.loxone.com:6066"
+        ]
+      },
+      "Cl": {
+        "count": 1,
+        "samples": [
+          "0,0,0"
+        ]
+      },
+      "EnableSys": {
+        "count": 1,
+        "samples": [
+          "true"
+        ]
+      },
+      "SType": {
+        "count": 1,
+        "samples": [
+          "0"
+        ]
+      },
+      "SpStates": {
+        "count": 1,
+        "samples": [
+          "20123f77-0254-4130-ffff2a46fab7245e"
+        ]
+      },
+      "Title": {
+        "count": 1,
+        "samples": [
+          "Wetterserver "
+        ]
+      },
+      "V": {
+        "count": 1,
+        "samples": [
+          "175"
+        ]
+      },
+      "VisuUUID": {
+        "count": 1,
+        "samples": [
+          "20120000-0254-412f-ffff2a46fab7245e"
+        ]
+      },
+      "WF": {
+        "count": 1,
+        "samples": [
+          "16384"
+        ]
+      }
+    },
+    "parent_types": [
+      "Document"
+    ],
+    "child_types": [
+      "WeatherData"
+    ],
+    "doc_slug": "weather-service"
+  },
+  "Week": {
+    "count": 1,
+    "sample_titles": [
+      "Woche"
+    ],
+    "has_io_data": true,
+    "connectors": {
+      "Q": {
+        "direction": "output"
+      }
+    },
+    "properties": {},
+    "attributes": {
+      "Nio": {
+        "count": 1,
+        "samples": [
+          "1"
+        ]
+      },
+      "Title": {
+        "count": 1,
+        "samples": [
+          "Woche"
+        ]
+      },
+      "V": {
+        "count": 1,
+        "samples": [
+          "175"
+        ]
+      },
+      "WF": {
+        "count": 1,
+        "samples": [
+          "16384"
+        ]
+      }
+    },
+    "parent_types": [
+      "TimeCaption"
+    ],
+    "child_types": []
+  },
+  "Year": {
+    "count": 1,
+    "sample_titles": [
+      "Jahr"
+    ],
+    "has_io_data": true,
+    "connectors": {
+      "Q": {
+        "direction": "output"
+      }
+    },
+    "properties": {},
+    "attributes": {
+      "Nio": {
+        "count": 1,
+        "samples": [
+          "1"
+        ]
+      },
+      "Title": {
+        "count": 1,
+        "samples": [
+          "Jahr"
+        ]
+      },
+      "V": {
+        "count": 1,
+        "samples": [
+          "175"
+        ]
+      },
+      "WF": {
+        "count": 1,
+        "samples": [
+          "16384"
+        ]
+      }
+    },
+    "parent_types": [
+      "TimeCaption"
+    ],
+    "child_types": []
+  }
+}

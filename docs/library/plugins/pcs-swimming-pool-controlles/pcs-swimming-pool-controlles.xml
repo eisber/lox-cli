@@ -1,0 +1,9 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<VirtualInHttp Title="PCS" Comment="" Address="http://192.168.0.27:8088/pcs52D" PollingTime="10">
+	<Info templateType="2" minVersion="13000726"/>
+	<VirtualInHttpCmd Title="Temperature" Comment="" Check="&quot;temp&quot;:\v" Signed="true" Analog="true" SourceValLow="0" DestValLow="0" SourceValHigh="100" DestValHigh="100" DefVal="0" MinVal="-10000" MaxVal="10000"/>
+	<VirtualInHttpCmd Title="Chlorine" Comment="" Check="&quot;Cl&quot;:\v" Signed="true" Analog="true" SourceValLow="0" DestValLow="0" SourceValHigh="100" DestValHigh="100" DefVal="0" MinVal="-10000" MaxVal="10000"/>
+	<VirtualInHttpCmd Title="Redox" Comment="" Check="&quot;Rx&quot;:\v" Signed="true" Analog="true" SourceValLow="0" DestValLow="0" SourceValHigh="100" DestValHigh="100" DefVal="0" MinVal="-10000" MaxVal="10000"/>
+	<VirtualInHttpCmd Title="pH" Comment="" Check="&quot;pH&quot;:\v" Signed="true" Analog="true" SourceValLow="0" DestValLow="0" SourceValHigh="100" DestValHigh="100" DefVal="0" MinVal="-10000" MaxVal="10000"/>
+	<VirtualInHttpCmd Title="Setpoint temperature" Comment="" Check="&quot;tempNast&quot;:\v" Signed="true" Analog="true" SourceValLow="0" DestValLow="0" SourceValHigh="100" DestValHigh="100" DefVal="0" MinVal="-10000" MaxVal="10000"/>
+</VirtualInHttp>

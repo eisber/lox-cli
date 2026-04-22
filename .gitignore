@@ -1,0 +1,38 @@
+/target
+
+# Dolt database files (added by bd init)
+.dolt/
+*.db
+
+# bv (beads viewer) local config and caches
+.bv/
+
+# Loxone config files (may contain credentials)
+*.Loxone
+*.LoxCC
+*.loxcc
+sps_*.zip
+# Exception: eval test fixture (no PII)
+!tests/eval/fixture.Loxone
+# Exception: golden configs tracked via git-lfs
+!tests/eval/golden/configs/*.Loxone
+!tests/eval/golden/configs/*.loxone
+
+# lox CLI config (contains credentials)
+.lox/
+config.yaml
+
+# Generated docs and i18n (re-generate with scripts/)
+i18n/
+
+
+# Local environment (API keys, endpoints)
+.env
+
+# Downloaded PDFs (too large for git, re-fetch with scripts/fetch-datasheets.py)
+docs/datasheets/pdfs/
+entities.json
+mempalace.yaml
+node_modules/
+package-lock.json
+__pycache__/

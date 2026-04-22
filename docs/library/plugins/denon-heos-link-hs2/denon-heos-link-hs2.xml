@@ -1,0 +1,12 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<VirtualOut Title="Heos Player v1.0.0" Comment="" Address="tcp://YOUR_IP:1255" CmdInit="" HintText="" CloseAfterSend="true" CmdSep=";">
+	<Info templateType="3" minVersion="14051207"/>
+	<VirtualOutCmd Title="Heos Play" Comment="" CmdOnMethod="GET" CmdOffMethod="GET" CmdOn="heos://player/set_play_state?pid=YOUR_PID&amp;state=play\r\n" CmdOnHTTP="" CmdOnPost="" CmdOff="" CmdOffHTTP="" CmdOffPost="" CmdAnswer="" HintText="" Analog="false" Repeat="0" RepeatRate="0"/>
+	<VirtualOutCmd Title="Heos Pause" Comment="" CmdOnMethod="GET" CmdOffMethod="GET" CmdOn="heos://player/set_play_state?pid=YOUR_PID&amp;state=pause\r\n" CmdOnHTTP="" CmdOnPost="" CmdOff="" CmdOffHTTP="" CmdOffPost="" CmdAnswer="" HintText="" Analog="false" Repeat="0" RepeatRate="0"/>
+	<VirtualOutCmd Title="Heos Stop" Comment="" CmdOnMethod="GET" CmdOffMethod="GET" CmdOn="heos://player/set_play_state?pid=YOUR_PID&amp;state=stop\r\n" CmdOnHTTP="" CmdOnPost="" CmdOff="" CmdOffHTTP="" CmdOffPost="" CmdAnswer="" HintText="" Analog="false" Repeat="0" RepeatRate="0"/>
+	<VirtualOutCmd Title="Log in Heos" Comment="" CmdOnMethod="GET" CmdOffMethod="GET" CmdOn="heos://system/sign_in?un=YOUR_USERNAME&amp;pw=YOUR_USERNAME\r\n" CmdOnHTTP="" CmdOnPost="" CmdOff="" CmdOffHTTP="" CmdOffPost="" CmdAnswer="" HintText="" Analog="false" Repeat="0" RepeatRate="0"/>
+	<VirtualOutCmd Title="Heos Mute" Comment="" CmdOnMethod="GET" CmdOffMethod="GET" CmdOn="heos://player/toggle_mute?pid=YOUR_PID\r\n" CmdOnHTTP="" CmdOnPost="" CmdOff="" CmdOffHTTP="" CmdOffPost="" CmdAnswer="" HintText="" Analog="false" Repeat="0" RepeatRate="0"/>
+	<VirtualOutCmd Title="Heos Volume Up" Comment="" CmdOnMethod="GET" CmdOffMethod="GET" CmdOn="heos://player/volume_up?pid=YOUR_PID&amp;step=5\r\n" CmdOnHTTP="" CmdOnPost="" CmdOff="" CmdOffHTTP="" CmdOffPost="" CmdAnswer="" HintText="" Analog="false" Repeat="0" RepeatRate="0"/>
+	<VirtualOutCmd Title="Heos Volume Down" Comment="" CmdOnMethod="GET" CmdOffMethod="GET" CmdOn="heos://player/volume_down?pid=YOUR_PID&amp;step=5\r\n" CmdOnHTTP="" CmdOnPost="" CmdOff="" CmdOffHTTP="" CmdOffPost="" CmdAnswer="" HintText="" Analog="false" Repeat="0" RepeatRate="0"/>
+	<VirtualOutCmd Title="Heos Play Next" Comment="" CmdOnMethod="GET" CmdOffMethod="GET" CmdOn="heos://player/play_next?pid=YOUR_PID" CmdOnHTTP="" CmdOnPost="" CmdOff="" CmdOffHTTP="" CmdOffPost="" CmdAnswer="" HintText="" Analog="false" Repeat="0" RepeatRate="0"/>
+</VirtualOut>

@@ -1,0 +1,5 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<VirtualOut Title="Lutron TCP" Comment="" Address="tcp://&lt;IP-address&gt;:23" CmdInit="&lt;username&gt;\r\n&lt;password&gt;\r\n" HintText="" CloseAfterSend="false" CmdSep="">
+	<Info templateType="3" minVersion="15050304"/>
+	<VirtualOutCmd Title="Shade Position" Comment="" CmdOnMethod="GET" CmdOffMethod="GET" CmdOn="#OUTPUT,&lt;Integration ID&gt;,1,&lt;v&gt;\r\n" CmdOnHTTP="" CmdOnPost="" CmdOff="" CmdOffHTTP="" CmdOffPost="" CmdAnswer="" HintText="" Analog="true" Repeat="0" RepeatRate="0" DestValLow="100" SourceValHigh="100"/>
+</VirtualOut>

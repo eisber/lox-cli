@@ -1,0 +1,140 @@
+{
+  "title": "Window",
+  "xml_type": "",
+  "kb_slug": "skylight",
+  "description": "Controls a window.",
+  "inputs": [
+    {
+      "abbreviation": "Co",
+      "summary": "Complete open",
+      "description": "If in motion, stops.",
+      "unit": "-",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "Cc",
+      "summary": "Complete close",
+      "description": "If in motion, stops.",
+      "unit": "-",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "Tg",
+      "summary": "Toggle",
+      "description": "Toggles between open, stop, close. For single button control.",
+      "unit": "-",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "Pos",
+      "summary": "Position of window",
+      "description": "Move window to specified position.",
+      "unit": "%",
+      "value_range": "0...100"
+    },
+    {
+      "abbreviation": "Wp",
+      "summary": "Weather protection",
+      "description": "Window is closed and locked for further operation when on. Control via user interface is still possible.",
+      "unit": "-",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "Off",
+      "summary": "Off",
+      "description": "Pulse stops movement. On locks the block. Dominating input. The name of the connected sensor is used in the user interface.",
+      "unit": "-",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "Io",
+      "summary": "Is open",
+      "description": "Input is used to report the \u201cfully opened\u201d position via a limit switch or similar.",
+      "unit": "-",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "Ic",
+      "summary": "Is closed",
+      "description": "Input is used to report the \u201cfully closed\u201d position via a limit switch or similar.",
+      "unit": "-",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "CPos",
+      "summary": "Current position",
+      "description": "Input indicating the current tilt position or opening width of the window.",
+      "unit": "%",
+      "value_range": "0...100"
+    },
+    {
+      "abbreviation": "So",
+      "summary": "Slightly Open",
+      "description": "Moves window to slightly open position if current position is different.",
+      "unit": "-",
+      "value_range": "0/1"
+    }
+  ],
+  "outputs": [
+    {
+      "abbreviation": "Pos",
+      "summary": "Position of Window",
+      "description": "Position of the window (0.0 = closed, 1.0 = open)",
+      "unit": "-",
+      "value_range": "0...1"
+    },
+    {
+      "abbreviation": "TPos",
+      "summary": "Target position",
+      "description": "Output for target tilt position or target opening width (Sch\u00fcco). - When input (Po) is ON (rising edge), the target position is set to 100. - When input (Pc) is ON (rising edge), the target position is set to 0. - If either input (Po) or input (Pc) are OFF (falling edge), the target position adopts the value of input (CPos). If input (CPos) is not connected, the target position will be calculated.",
+      "unit": "%",
+      "value_range": "0...100"
+    },
+    {
+      "abbreviation": "API",
+      "summary": "API Connector",
+      "description": "Intelligent API based connector. API Commands",
+      "unit": "-",
+      "value_range": "-"
+    }
+  ],
+  "parameters": [
+    {
+      "abbreviation": "minTd",
+      "summary": "Minimum travel time",
+      "description": "Minimum travel time at pulse on input (Po) or (Pc).",
+      "unit": "s",
+      "value_range": "0...\u221e",
+      "default_value": "0,4"
+    },
+    {
+      "abbreviation": "Mld",
+      "summary": "Motor lock duration",
+      "description": "Duration of motor lock between direction changes",
+      "unit": "s",
+      "value_range": "0...\u221e",
+      "default_value": "0,5"
+    },
+    {
+      "abbreviation": "SoPos",
+      "summary": "Slightly Open Position",
+      "description": "Target position for input So",
+      "unit": "%",
+      "value_range": "0...100",
+      "default_value": "50"
+    }
+  ],
+  "properties": [
+    {
+      "summary": "Activity Log Entries",
+      "description": "Number of entries in the activity log. 0: log is disabled The activity log tracks relevant changes since program start.",
+      "value_range": "0...100",
+      "default_value": "20"
+    }
+  ],
+  "source_url": "https://www.loxone.com/enen/kb/skylight/",
+  "input_count": 10,
+  "output_count": 3,
+  "parameter_count": 3,
+  "property_count": 1
+}

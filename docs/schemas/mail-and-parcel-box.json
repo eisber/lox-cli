@@ -1,0 +1,78 @@
+{
+  "title": "Mail and Parcel Box",
+  "xml_type": "",
+  "kb_slug": "mail-and-parcel-box",
+  "description": "The block can be used to notify the user of the delivery of parcels or mail.\nThe block can be configured either with the Paketsafe Air or manually using the block inputs.",
+  "inputs": [
+    {
+      "abbreviation": "P",
+      "summary": "Package received",
+      "description": "This input is only visible in certain configurations.",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "M",
+      "summary": "Mail received",
+      "description": "This input is only visible in certain configurations.",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "Cp",
+      "summary": "Confirm package",
+      "description": "This input is only visible in certain configurations.",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "Cm",
+      "summary": "Confirm mail",
+      "description": "This input is only visible in certain configurations.",
+      "value_range": "0/1"
+    }
+  ],
+  "outputs": [
+    {
+      "abbreviation": "P",
+      "summary": "Package present",
+      "description": "ON when a package is in the drop box.",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "M",
+      "summary": "Mail present",
+      "description": "ON when there is mail in the mailbox.",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "Txle",
+      "summary": "Text of last event",
+      "description": "Provides date, time and description of the last event.",
+      "value_range": "-"
+    },
+    {
+      "abbreviation": "API",
+      "summary": "API Connector",
+      "description": "Intelligent API based connector. API Commands",
+      "value_range": "-"
+    }
+  ],
+  "parameters": [],
+  "properties": [
+    {
+      "summary": "Number of Entries",
+      "description": "Maximum number of saved messages.",
+      "value_range": "2...100",
+      "default_value": "20"
+    },
+    {
+      "summary": "Assigned Paketsafe Air device",
+      "description": "The Paketsafe Air device that is assigned to this function block.",
+      "value_range": "-",
+      "default_value": "-"
+    }
+  ],
+  "source_url": "https://www.loxone.com/enen/kb/mail-and-parcel-box/",
+  "input_count": 4,
+  "output_count": 4,
+  "parameter_count": 0,
+  "property_count": 2
+}

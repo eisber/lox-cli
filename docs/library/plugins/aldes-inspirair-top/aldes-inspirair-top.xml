@@ -1,0 +1,27 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Modbus Title="Aldes InspirAIR Top" Comment="" HintText="" Baudrate="9600" Stopbits="1" Channel="2">
+	<Info templateType="7" minVersion="15031213"/>
+	<ModbusCmd Title="Serial Number" Comment="" HintText="" ModbusAddress="3" ModbusCmd="3" ModbusDataType="34" ModbusPollingCycle="3600" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Filters usage" Comment="" HintText="" ModbusAddress="347" ModbusCmd="3" ModbusPollingCycle="3600" Unit="&lt;v&gt; h" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Extract air temperature outdoor" Comment="" HintText="" ModbusAddress="353" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="30" Unit="&lt;v.1&gt;°" Analog="true" Sensor="true" SourceValLow="100" SourceValHigh="1" DestValLow="1" DestValHigh="0.01"/>
+	<ModbusCmd Title="Actual mode" Comment="" HintText="" ModbusAddress="1056" ModbusCmd="3" ModbusDataType="32" ModbusPollingCycle="30" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Filters status" Comment="" HintText="" ModbusAddress="346" ModbusCmd="3" ModbusPollingCycle="3600" Unit="&lt;v&gt; %" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Fresh air temperature outdoor" Comment="" HintText="" ModbusAddress="350" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="30" Unit="&lt;v.1&gt;°" Analog="true" Sensor="true" SourceValLow="100" SourceValHigh="1" DestValLow="1" DestValHigh="0.01"/>
+	<ModbusCmd Title="Extract air temperature indoor" Comment="" HintText="" ModbusAddress="351" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="30" Unit="&lt;v.1&gt;°" Analog="true" Sensor="true" SourceValLow="100" SourceValHigh="1" DestValLow="1" DestValHigh="0.01"/>
+	<ModbusCmd Title="Fresh air temperature indoor" Comment="" HintText="" ModbusAddress="352" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="30" Unit="&lt;v.1&gt;°" Analog="true" Sensor="true" SourceValLow="100" SourceValHigh="1" DestValLow="1" DestValHigh="0.01"/>
+	<ModbusCmd Title="Filters lifetime" Comment="" HintText="" ModbusAddress="267" ModbusCmd="3" ModbusPollingCycle="3600" Unit="&lt;v&gt; mois" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Extraction fan speed" Comment="" HintText="" ModbusAddress="354" ModbusCmd="3" ModbusPollingCycle="30" Unit="&lt;v&gt; tr/min" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Extraction fan speed" Comment="" HintText="" ModbusAddress="355" ModbusCmd="3" ModbusPollingCycle="30" Unit="&lt;v&gt; tr/min" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Produt code" Comment="" HintText="" ModbusAddress="259" ModbusCmd="3" ModbusDataType="32" ModbusPollingCycle="3600" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="ID Modbus user" Comment="" HintText="" ModbusAddress="17" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Bypass" Comment="" HintText="" ModbusAddress="348" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Extraction rate" Comment="" HintText="" ModbusAddress="356" ModbusCmd="3" ModbusPollingCycle="30" Unit="&lt;v&gt; m3/h" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Insufflation rate" Comment="" HintText="" ModbusAddress="357" ModbusCmd="3" ModbusPollingCycle="30" Unit="&lt;v&gt; m3/h" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Bypass mode" Comment="bypass.position" HintText="" ModbusAddress="259" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Regulation mode" Comment="" HintText="" ModbusAddress="256" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Error code" Comment="" HintText="" ModbusAddress="384" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Extraction filter type" Comment="" HintText="" ModbusAddress="491" ModbusCmd="3" ModbusPollingCycle="3600" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Insufflation filter type" Comment="" HintText="" ModbusAddress="490" ModbusCmd="3" ModbusPollingCycle="3600" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Demande User" Comment="" HintText="" ModbusAddress="257" ModbusCmd="16" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="User level" Comment="" HintText="" ModbusAddress="16" ModbusCmd="16" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+</Modbus>

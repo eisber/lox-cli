@@ -1,0 +1,115 @@
+{
+  "title": "Mixing Valve Controller",
+  "xml_type": "",
+  "kb_slug": "mixing-valve-controller",
+  "description": "The function block Mixing Valve Controller can be used to control common mixing valve types.\nThis makes it possible to control the flow temperature in heating systems or similar applications in ventilation and air conditioning systems.",
+  "inputs": [
+    {
+      "abbreviation": "Off",
+      "summary": "Off",
+      "description": "Sets output (V) according to parameter (Offm).",
+      "unit": "-",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "DisPc",
+      "summary": "Disable periphery control",
+      "description": "Disables input (\u03d1t) when On. (e.g Child lock, cleaning)",
+      "unit": "-",
+      "value_range": "0/1"
+    }
+  ],
+  "outputs": [
+    {
+      "abbreviation": "V",
+      "summary": "Valve",
+      "description": "Provides signal for 0-10V mixing valve.",
+      "unit": "V",
+      "value_range": "0...10"
+    },
+    {
+      "abbreviation": "Error",
+      "summary": "Error",
+      "description": "Active when difference between current and target temperature exceeds 5\u00b0C/9\u00b0F for longer than 10 minutes. Error timer is reset and suspended for 15 minutes by reference drive, target temperature adaption or a change at input Off.",
+      "unit": "-",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "API",
+      "summary": "API Connector",
+      "description": "Intelligent API based connector. API Commands",
+      "unit": "-",
+      "value_range": "-"
+    }
+  ],
+  "parameters": [
+    {
+      "abbreviation": "St",
+      "summary": "Sampling time",
+      "description": "Sampling period of controller in seconds. New values for (V), (O) and (C) are calculated by the controller at this time interval.",
+      "unit": "s",
+      "value_range": "0...\u221e",
+      "default_value": "40"
+    },
+    {
+      "abbreviation": "Kp%",
+      "summary": "Gain",
+      "description": "Controller gain in %, where Kp% = Kp * 100.",
+      "unit": "%",
+      "value_range": "0...100",
+      "default_value": "2"
+    },
+    {
+      "abbreviation": "Ki%",
+      "summary": "Integral part",
+      "description": "Integral part of the controller in %, where Ki% = Ki * 100.",
+      "unit": "%",
+      "value_range": "0...100",
+      "default_value": "0,03"
+    },
+    {
+      "abbreviation": "Offm",
+      "summary": "Off mode",
+      "description": "0 = Unchanged 1 = Open 2 = Close",
+      "unit": "-",
+      "value_range": "0...2",
+      "default_value": "2"
+    },
+    {
+      "abbreviation": "Mode",
+      "summary": "Mode",
+      "description": "0 = normal, 1 = inverted (for cooling: mixer opens as the temperature rises)",
+      "unit": "-",
+      "value_range": "0/1",
+      "default_value": "0"
+    },
+    {
+      "abbreviation": "Inv",
+      "summary": "Invert",
+      "description": "0 = normal, 1 = analog output is inverted (0V = 100%, 10V = 0%)",
+      "unit": "-",
+      "value_range": "0/1",
+      "default_value": "0"
+    },
+    {
+      "abbreviation": "Vs",
+      "summary": "Valve standstill",
+      "description": "Maximum actuator standstill in days. If the valves have not operated in set time, they will be moved automatically. Time should be set as specified by the manufacturer! 0 = function is disabled.",
+      "unit": "d",
+      "value_range": "\u221e",
+      "default_value": "14"
+    }
+  ],
+  "properties": [
+    {
+      "summary": "Use for System Status Messages",
+      "description": "If this box is ticked, an error message will be sent from this input via the mailer and the system status.",
+      "default_value": "-"
+    }
+  ],
+  "source_url": "https://www.loxone.com/enen/kb/mixing-valve-controller/",
+  "input_count": 2,
+  "output_count": 3,
+  "parameter_count": 7,
+  "property_count": 1
+}

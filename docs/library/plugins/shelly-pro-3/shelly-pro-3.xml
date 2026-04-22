@@ -1,0 +1,65 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Modbus Title="Shelly Pro 3 EM" Comment="Shelly Pro 3 EM/EMData" Channel="1">
+	<Info templateType="7" minVersion="14020616"/>
+	<ModbusCmd Title="Phase A meter error" Comment="" ModbusAddress="1002" ModbusCmd="4" ModbusPollingCycle="10" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="Phase B meter error" Comment="" ModbusAddress="1003" ModbusCmd="4" ModbusPollingCycle="10" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="Phase C meter error" Comment="" ModbusAddress="1004" ModbusCmd="4" ModbusPollingCycle="10" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="Neutral meter error" Comment="" ModbusAddress="1005" ModbusCmd="4" ModbusPollingCycle="10" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="Phase sequence error" Comment="" ModbusAddress="1006" ModbusCmd="4" ModbusPollingCycle="10" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="Neutral current" Comment="" ModbusAddress="1007" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="10" Unit="&lt;v.3&gt;A" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Neutral current mismatch" Comment="" ModbusAddress="1009" ModbusCmd="4" ModbusPollingCycle="10" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="Neutral overcurrent error" Comment="" ModbusAddress="1010" ModbusCmd="4" ModbusPollingCycle="10" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="Total current" Comment="" ModbusAddress="1011" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="10" Unit="&lt;v.3&gt;A" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Total active power" Comment="" ModbusAddress="1013" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="10" Unit="&lt;v.3&gt;kW" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="1"/>
+	<ModbusCmd Title="Total apparent power" Comment="" ModbusAddress="1015" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="10" Unit="&lt;v.3&gt;VA" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Phase A voltage" Comment="" ModbusAddress="1020" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="10" Unit="&lt;v.3&gt;V" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Phase A current" Comment="" ModbusAddress="1022" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="10" Unit="&lt;v.3&gt;A" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Phase A active power" Comment="" ModbusAddress="1024" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="10" Unit="&lt;v.3&gt;kW" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="1"/>
+	<ModbusCmd Title="Phase A apparent power" Comment="" ModbusAddress="1026" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="10" Unit="&lt;v.3&gt;VA" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Phase A power factor" Comment="" ModbusAddress="1028" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="10" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Phase A overpower error" Comment="" ModbusAddress="1030" ModbusCmd="4" ModbusPollingCycle="10" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="Phase A overvoltage error" Comment="" ModbusAddress="1031" ModbusCmd="4" ModbusPollingCycle="10" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="Phase A overcurrent error" Comment="" ModbusAddress="1032" ModbusCmd="4" ModbusPollingCycle="10" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="Phase B voltage" Comment="" ModbusAddress="1040" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="10" Unit="&lt;v.3&gt;V" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Phase B current" Comment="" ModbusAddress="1042" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="10" Unit="&lt;v.3&gt;A" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Phase B active power" Comment="" ModbusAddress="1044" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="10" Unit="&lt;v.3&gt;kW" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="1"/>
+	<ModbusCmd Title="Phase B apparent power" Comment="" ModbusAddress="1046" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="10" Unit="&lt;v.3&gt;VA" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Phase B power factor" Comment="" ModbusAddress="1048" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="10" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Phase B overpower error" Comment="" ModbusAddress="1050" ModbusCmd="4" ModbusPollingCycle="10" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="Phase B overvoltage error" Comment="" ModbusAddress="1051" ModbusCmd="4" ModbusPollingCycle="10" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="Phase B overcurrent error" Comment="" ModbusAddress="1052" ModbusCmd="4" ModbusPollingCycle="10" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="Phase C voltage" Comment="" ModbusAddress="1060" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="10" Unit="&lt;v.3&gt;V" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Phase C current" Comment="" ModbusAddress="1062" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="10" Unit="&lt;v.3&gt;A" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Phase C active power" Comment="" ModbusAddress="1064" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="10" Unit="&lt;v.3&gt;kW" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="1"/>
+	<ModbusCmd Title="Phase C apparent power" Comment="" ModbusAddress="1066" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="10" Unit="&lt;v.3&gt;VA" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Phase C power factor" Comment="" ModbusAddress="1068" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="10" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Phase C overpower error" Comment="" ModbusAddress="1070" ModbusCmd="4" ModbusPollingCycle="10" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="Phase C overvoltage error" Comment="" ModbusAddress="1071" ModbusCmd="4" ModbusPollingCycle="10" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="Phase C overcurrent error" Comment="" ModbusAddress="1072" ModbusCmd="4" ModbusPollingCycle="10" Unit="" Analog="false" Sensor="true"/>
+	<ModbusCmd Title="Total active energy accumulated for all phases - perpetual count" Comment="" ModbusAddress="1162" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="10" Unit="&lt;v.3&gt;kWh" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="1"/>
+	<ModbusCmd Title="Total active returned energy accumulated for all phases - perpetual count" Comment="" ModbusAddress="1164" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="10" Unit="&lt;v.3&gt;kWh" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="1"/>
+	<ModbusCmd Title="Phase A total active energy" Comment="" ModbusAddress="1170" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="10" Unit="&lt;v.3&gt;kWh" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="1"/>
+	<ModbusCmd Title="Phase A fundamental active energy" Comment="" ModbusAddress="1172" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="10" Unit="&lt;v.3&gt;kWh" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="1"/>
+	<ModbusCmd Title="Phase A total active returned energy" Comment="" ModbusAddress="1174" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="10" Unit="&lt;v.3&gt;kWh" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="1"/>
+	<ModbusCmd Title="Phase A fundamental active returned energy" Comment="" ModbusAddress="1176" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="10" Unit="&lt;v.3&gt;kWh" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="1"/>
+	<ModbusCmd Title="Phase A lagging reactive energy" Comment="" ModbusAddress="1178" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="10" Unit="&lt;v.3&gt;VARh" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Phase A leading reactive energy" Comment="" ModbusAddress="1180" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="10" Unit="&lt;v.3&gt;VARh" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Phase A total active energy - perpetual count" Comment="" ModbusAddress="1182" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="10" Unit="&lt;v.3&gt;kWh" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="1"/>
+	<ModbusCmd Title="Phase A total active returned energy - perpetual count" Comment="" ModbusAddress="1184" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="10" Unit="&lt;v.3&gt;kWh" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="1"/>
+	<ModbusCmd Title="Phase B total active energy" Comment="" ModbusAddress="1190" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="10" Unit="&lt;v.3&gt;kWh" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="1"/>
+	<ModbusCmd Title="Phase B fundamental active energy" Comment="" ModbusAddress="1192" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="10" Unit="&lt;v.3&gt;kWh" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="1"/>
+	<ModbusCmd Title="Phase B total active returned energy" Comment="" ModbusAddress="1194" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="10" Unit="&lt;v.3&gt;kWh" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="1"/>
+	<ModbusCmd Title="Phase B fundamental active returned energy" Comment="" ModbusAddress="1196" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="10" Unit="&lt;v.3&gt;kWh" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="1"/>
+	<ModbusCmd Title="Phase B lagging reactive energy" Comment="" ModbusAddress="1198" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="10" Unit="&lt;v.3&gt;VARh" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Phase B leading reactive energy" Comment="" ModbusAddress="1200" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="10" Unit="&lt;v.3&gt;VARh" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Phase B total active energy - perpetual count" Comment="" ModbusAddress="1202" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="10" Unit="&lt;v.3&gt;kWh" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="1"/>
+	<ModbusCmd Title="Phase B total active returned energy - perpetual count" Comment="" ModbusAddress="1204" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="10" Unit="&lt;v.3&gt;kWh" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="1"/>
+	<ModbusCmd Title="Phase C total active energy" Comment="" ModbusAddress="1210" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="10" Unit="&lt;v.3&gt;kWh" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="1"/>
+	<ModbusCmd Title="Phase C fundamental active energy" Comment="" ModbusAddress="1212" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="10" Unit="&lt;v.3&gt;kWh" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="1"/>
+	<ModbusCmd Title="Phase C total active returned energy" Comment="" ModbusAddress="1214" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="10" Unit="&lt;v.3&gt;kWh" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="1"/>
+	<ModbusCmd Title="Phase C fundamental active returned energy" Comment="" ModbusAddress="1216" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="10" Unit="&lt;v.3&gt;kWh" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="1"/>
+	<ModbusCmd Title="Phase C lagging reactive energy" Comment="" ModbusAddress="1218" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="10" Unit="&lt;v.3&gt;VARh" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Phase C leading reactive energy" Comment="" ModbusAddress="1220" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="10" Unit="&lt;v.3&gt;VARh" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Phase C total active energy - perpetual count" Comment="" ModbusAddress="1222" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="10" Unit="&lt;v.3&gt;kWh" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="1"/>
+	<ModbusCmd Title="Phase C total active returned energy - perpetual count" Comment="" ModbusAddress="1224" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="10" Unit="&lt;v.3&gt;kWh" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="1"/>
+</Modbus>

@@ -1,0 +1,1306 @@
+{
+  "2-position-controller": {
+    "inputs": 2,
+    "outputs": 1,
+    "parameters": 3,
+    "properties": 0,
+    "title": "2 Position Controller",
+    "xml_type": "PositionController2"
+  },
+  "3-position-controller": {
+    "inputs": 2,
+    "outputs": 2,
+    "parameters": 2,
+    "properties": 0,
+    "title": "3 Position Controller",
+    "xml_type": "PositionController3"
+  },
+  "aal-smart-alarm": {
+    "inputs": 3,
+    "outputs": 2,
+    "parameters": 3,
+    "properties": 2,
+    "title": "AAL Smart Alarm",
+    "xml_type": "AalSmartAlarm"
+  },
+  "ac-central-controller": {
+    "inputs": 4,
+    "outputs": 3,
+    "parameters": 4,
+    "properties": 3,
+    "title": "AC Central Controller",
+    "xml_type": "ACCentral"
+  },
+  "ac-control": {
+    "inputs": 0,
+    "outputs": 2,
+    "parameters": 5,
+    "properties": 9,
+    "title": "AC Unit Controller",
+    "xml_type": "ACControl"
+  },
+  "access-controller": {
+    "inputs": 3,
+    "outputs": 2,
+    "parameters": 2,
+    "properties": 1,
+    "title": "Access Controller",
+    "xml_type": "AccessController"
+  },
+  "add-2-way": {
+    "inputs": 0,
+    "outputs": 1,
+    "parameters": 1,
+    "properties": 0,
+    "title": "Add (2-way)",
+    "xml_type": "Add2"
+  },
+  "add-4-way": {
+    "inputs": 0,
+    "outputs": 1,
+    "parameters": 1,
+    "properties": 0,
+    "title": "Add (4-way)",
+    "xml_type": "Add4"
+  },
+  "alarm-chain": {
+    "inputs": 6,
+    "outputs": 3,
+    "parameters": 2,
+    "properties": 2,
+    "title": "Alarm Chain",
+    "xml_type": "AlarmChain"
+  },
+  "alarm-clock": {
+    "inputs": 6,
+    "outputs": 6,
+    "parameters": 9,
+    "properties": 2,
+    "title": "Alarm Clock",
+    "xml_type": "AlarmClock"
+  },
+  "analogue-memory": {
+    "inputs": 2,
+    "outputs": 1,
+    "parameters": 1,
+    "properties": 0,
+    "title": "Analogue Memory",
+    "xml_type": "Memory"
+  },
+  "analogue-min-max-limiter": {
+    "inputs": 1,
+    "outputs": 1,
+    "parameters": 2,
+    "properties": 0,
+    "title": "Analogue Limiter (Min/Max)",
+    "xml_type": "AnalogLimiter"
+  },
+  "analogue-multiplexer-2-way": {
+    "inputs": 1,
+    "outputs": 1,
+    "parameters": 1,
+    "properties": 0,
+    "title": "Analogue Multiplexer (2-Way)",
+    "xml_type": "AnalogMultiplexer2"
+  },
+  "analogue-multiplexer-4-way": {
+    "inputs": 1,
+    "outputs": 1,
+    "parameters": 1,
+    "properties": 0,
+    "title": "Analogue Multiplexer (4-Way)",
+    "xml_type": "AnalogMultiplexer4"
+  },
+  "analogue-watchdog": {
+    "inputs": 1,
+    "outputs": 1,
+    "parameters": 1,
+    "properties": 0,
+    "title": "Analogue Value Monitor",
+    "xml_type": "AnalogWatchdog"
+  },
+  "and": {
+    "inputs": 2,
+    "outputs": 1,
+    "parameters": 0,
+    "properties": 0,
+    "title": "AND",
+    "xml_type": "And"
+  },
+  "audio-central": {
+    "inputs": 23,
+    "outputs": 2,
+    "parameters": 1,
+    "properties": 1,
+    "title": "Audio Central",
+    "xml_type": "AudioCentral"
+  },
+  "audio-player": {
+    "inputs": 18,
+    "outputs": 11,
+    "parameters": 11,
+    "properties": 7,
+    "title": "Audio Player",
+    "xml_type": "AudioPlayer"
+  },
+  "audio-player-fixed-group": {
+    "inputs": 15,
+    "outputs": 1,
+    "parameters": 2,
+    "properties": 5,
+    "title": "Audio Player Fixed Group",
+    "xml_type": "AudioPlayerFixedGroup"
+  },
+  "authentication-nfc-code-touch": {
+    "inputs": 0,
+    "outputs": 12,
+    "parameters": 5,
+    "properties": 5,
+    "title": "Authentication NFC Code Touch",
+    "xml_type": "NFCCodeTouch"
+  },
+  "automatic-blinds": {
+    "inputs": 14,
+    "outputs": 10,
+    "parameters": 20,
+    "properties": 2,
+    "title": "Automatic Shading",
+    "xml_type": "Jalousie"
+  },
+  "automatic-blinds-integrated": {
+    "inputs": 14,
+    "outputs": 9,
+    "parameters": 15,
+    "properties": 2,
+    "title": "Automatic Shading Integrated",
+    "xml_type": "CentralJalousie"
+  },
+  "automatic-rule": {
+    "inputs": 1,
+    "outputs": 1,
+    "parameters": 0,
+    "properties": 2,
+    "title": "Automatic Rule",
+    "xml_type": "AutoPilot"
+  },
+  "average": {
+    "inputs": 0,
+    "outputs": 1,
+    "parameters": 1,
+    "properties": 0,
+    "title": "Average",
+    "xml_type": "Average"
+  },
+  "binary-decoder": {
+    "inputs": 1,
+    "outputs": 1,
+    "parameters": 0,
+    "properties": 0,
+    "title": "Binary Decoder",
+    "xml_type": "BinaryDecoder"
+  },
+  "binary-decoder-2": {
+    "inputs": 1,
+    "outputs": 1,
+    "parameters": 0,
+    "properties": 0,
+    "title": "Binary Decoder",
+    "xml_type": "BinaryDecoder2"
+  },
+  "binary-encoder": {
+    "inputs": 1,
+    "outputs": 1,
+    "parameters": 0,
+    "properties": 0,
+    "title": "Binary Encoder",
+    "xml_type": "BinaryEncoder"
+  },
+  "brightness-control": {
+    "inputs": 2,
+    "outputs": 2,
+    "parameters": 2,
+    "properties": 2,
+    "title": "Daylight Responsive Lighting",
+    "xml_type": "DaylightControl"
+  },
+  "burglar-alarm": {
+    "inputs": 14,
+    "outputs": 7,
+    "parameters": 7,
+    "properties": 4,
+    "title": "Burglar Alarm",
+    "xml_type": "Alarm"
+  },
+  "call-generator": {
+    "inputs": 3,
+    "outputs": 2,
+    "parameters": 2,
+    "properties": 3,
+    "title": "Call Generator",
+    "xml_type": "CallGenerator"
+  },
+  "climate-controller": {
+    "inputs": 8,
+    "outputs": 7,
+    "parameters": 15,
+    "properties": 4,
+    "title": "Heating and Cooling Controller",
+    "xml_type": "ClimateController"
+  },
+  "combined-window-contact": {
+    "inputs": 3,
+    "outputs": 1,
+    "parameters": 0,
+    "properties": 1,
+    "title": "Combined Window Contact",
+    "xml_type": "CombinedWindowContact"
+  },
+  "command-recognition": {
+    "inputs": 1,
+    "outputs": 1,
+    "parameters": 0,
+    "properties": 2,
+    "title": "Command Recognition",
+    "xml_type": "CommandRecognition"
+  },
+  "comparator": {
+    "inputs": 2,
+    "outputs": 1,
+    "parameters": 2,
+    "properties": 0,
+    "title": "Comparator",
+    "xml_type": "Comparator"
+  },
+  "counter": {
+    "inputs": 2,
+    "outputs": 2,
+    "parameters": 1,
+    "properties": 0,
+    "title": "Up Counter",
+    "xml_type": "Counter"
+  },
+  "custom-script-programming": {
+    "inputs": 2,
+    "outputs": 1,
+    "parameters": 1,
+    "properties": 1,
+    "title": "Custom Script Programming",
+    "xml_type": "Script"
+  },
+  "delayed-pulse": {
+    "inputs": 1,
+    "outputs": 1,
+    "parameters": 1,
+    "properties": 0,
+    "title": "Delayed Pulse",
+    "xml_type": "DelayedPulse"
+  },
+  "dewpoint-calculator": {
+    "inputs": 2,
+    "outputs": 1,
+    "parameters": 1,
+    "properties": 0,
+    "title": "Dewpoint Calculator",
+    "xml_type": "DewpointCalculator"
+  },
+  "differential-threshold-switch": {
+    "inputs": 1,
+    "outputs": 3,
+    "parameters": 1,
+    "properties": 0,
+    "title": "Differential Threshold Switch",
+    "xml_type": "DiffThresholdSwitch"
+  },
+  "dimmer": {
+    "inputs": 5,
+    "outputs": 3,
+    "parameters": 5,
+    "properties": 0,
+    "title": "Dimmer",
+    "xml_type": "Dimmer"
+  },
+  "divide": {
+    "inputs": 0,
+    "outputs": 1,
+    "parameters": 2,
+    "properties": 0,
+    "title": "Divide",
+    "xml_type": "Divide"
+  },
+  "door-controller": {
+    "inputs": 2,
+    "outputs": 5,
+    "parameters": 1,
+    "properties": 6,
+    "title": "Door Controller",
+    "xml_type": "DoorController"
+  },
+  "door-window-monitor": {
+    "inputs": 4,
+    "outputs": 3,
+    "parameters": 1,
+    "properties": 1,
+    "title": "Door and Window Monitor",
+    "xml_type": "DoorWindowMonitor"
+  },
+  "edge-detection": {
+    "inputs": 1,
+    "outputs": 3,
+    "parameters": 1,
+    "properties": 0,
+    "title": "Edge Detection",
+    "xml_type": "EdgeDetection"
+  },
+  "edge-triggered-wiping-relay": {
+    "inputs": 1,
+    "outputs": 1,
+    "parameters": 2,
+    "properties": 0,
+    "title": "Edge-Triggered Wiping Relay",
+    "xml_type": "WipingRelay"
+  },
+  "eib-dimmer": {
+    "inputs": 5,
+    "outputs": 4,
+    "parameters": 2,
+    "properties": 0,
+    "title": "EIB Dimmer",
+    "xml_type": "EIBDimmer"
+  },
+  "eib-push-button": {
+    "inputs": 5,
+    "outputs": 2,
+    "parameters": 1,
+    "properties": 0,
+    "title": "EIB push-button",
+    "xml_type": "EIBPushbutton"
+  },
+  "eib-shading": {
+    "inputs": 2,
+    "outputs": 3,
+    "parameters": 1,
+    "properties": 0,
+    "title": "EIB Shading",
+    "xml_type": "EIBJalousie"
+  },
+  "emergency-alarm": {
+    "inputs": 4,
+    "outputs": 3,
+    "parameters": 2,
+    "properties": 2,
+    "title": "Emergency Alarm",
+    "xml_type": "EmergencyAlarm"
+  },
+  "energy-flow-monitor": {
+    "inputs": 1,
+    "outputs": 4,
+    "parameters": 2,
+    "properties": 2,
+    "title": "Energy Flow Monitor",
+    "xml_type": "EnergyFlowMonitor"
+  },
+  "energy-manager": {
+    "inputs": 3,
+    "outputs": 2,
+    "parameters": 1,
+    "properties": 1,
+    "title": "Energy Manager Gen. 1",
+    "xml_type": "EnergyManager"
+  },
+  "energy-manager-2": {
+    "inputs": 7,
+    "outputs": 4,
+    "parameters": 3,
+    "properties": 1,
+    "title": "Energy Manager",
+    "xml_type": "EnergyManager2"
+  },
+  "energy-monitor": {
+    "inputs": 6,
+    "outputs": 3,
+    "parameters": 1,
+    "properties": 2,
+    "title": "Energy Monitor",
+    "xml_type": "EnergyMonitor"
+  },
+  "event-database-connector": {
+    "inputs": 18,
+    "outputs": 2,
+    "parameters": 1,
+    "properties": 1,
+    "title": "Event Database Connector",
+    "xml_type": "EventDBConnector"
+  },
+  "exclusive-or": {
+    "inputs": 2,
+    "outputs": 1,
+    "parameters": 0,
+    "properties": 0,
+    "title": "Exclusive OR",
+    "xml_type": "ExclusiveOr"
+  },
+  "fire-water-alarm": {
+    "inputs": 6,
+    "outputs": 3,
+    "parameters": 6,
+    "properties": 2,
+    "title": "Fire and Water Alarm",
+    "xml_type": "FireWaterAlarm"
+  },
+  "fixed-value-meter": {
+    "inputs": 2,
+    "outputs": 1,
+    "parameters": 1,
+    "properties": 1,
+    "title": "Fixed Value Meter",
+    "xml_type": "FixedValueMeter"
+  },
+  "flipflop-rs": {
+    "inputs": 3,
+    "outputs": 1,
+    "parameters": 1,
+    "properties": 0,
+    "title": "RS Flipflop",
+    "xml_type": "FlipFlopRS"
+  },
+  "flipflop-sr": {
+    "inputs": 3,
+    "outputs": 1,
+    "parameters": 1,
+    "properties": 0,
+    "title": "SR Flipflop",
+    "xml_type": "FlipFlopSR"
+  },
+  "formula": {
+    "inputs": 0,
+    "outputs": 1,
+    "parameters": 1,
+    "properties": 1,
+    "title": "Formula",
+    "xml_type": "Formula"
+  },
+  "garagegate": {
+    "inputs": 11,
+    "outputs": 4,
+    "parameters": 6,
+    "properties": 2,
+    "title": "Garage/Gate",
+    "xml_type": "GateController"
+  },
+  "gate-overview": {
+    "inputs": 7,
+    "outputs": 3,
+    "parameters": 0,
+    "properties": 1,
+    "title": "Garage / Gate Central",
+    "xml_type": "GateCentral"
+  },
+  "heating-curve": {
+    "inputs": 2,
+    "outputs": 1,
+    "parameters": 4,
+    "properties": 0,
+    "title": "Heating Curve",
+    "xml_type": "HeatingCurve"
+  },
+  "hotel-lighting-controller": {
+    "inputs": 11,
+    "outputs": 6,
+    "parameters": 12,
+    "properties": 1,
+    "title": "Hotel Lighting Controller",
+    "xml_type": "HotelLightController"
+  },
+  "hvac-controller": {
+    "inputs": 9,
+    "outputs": 7,
+    "parameters": 0,
+    "properties": 0,
+    "title": "HVAC Controller",
+    "xml_type": "HVACController"
+  },
+  "integer": {
+    "inputs": 0,
+    "outputs": 1,
+    "parameters": 2,
+    "properties": 0,
+    "title": "Integer",
+    "xml_type": "Integer"
+  },
+  "intelligent-room-controller": {
+    "inputs": 15,
+    "outputs": 0,
+    "parameters": 0,
+    "properties": 9,
+    "title": "Intelligent Room Controller",
+    "xml_type": "IRoomControllerV2"
+  },
+  "intelligent-temperature-controller": {
+    "inputs": 4,
+    "outputs": 1,
+    "parameters": 9,
+    "properties": 2,
+    "title": "Flow Temperature Calculator",
+    "xml_type": "FlowTemperature"
+  },
+  "intercom-2": {
+    "inputs": 4,
+    "outputs": 6,
+    "parameters": 3,
+    "properties": 5,
+    "title": "Intercom",
+    "xml_type": "IntercomV2"
+  },
+  "internorm-ventilation": {
+    "inputs": 7,
+    "outputs": 4,
+    "parameters": 8,
+    "properties": 4,
+    "title": "Internorm Fan",
+    "xml_type": "InternormVentilation"
+  },
+  "ir-control": {
+    "inputs": 1,
+    "outputs": 0,
+    "parameters": 0,
+    "properties": 1,
+    "title": "IR Controller",
+    "xml_type": "IRController"
+  },
+  "irrigation": {
+    "inputs": 5,
+    "outputs": 4,
+    "parameters": 3,
+    "properties": 2,
+    "title": "Irrigation",
+    "xml_type": "Irrigation"
+  },
+  "leaf-ventilation": {
+    "inputs": 7,
+    "outputs": 4,
+    "parameters": 8,
+    "properties": 5,
+    "title": "Leaf Ventilation",
+    "xml_type": "LeafVentilation"
+  },
+  "lighting-controller": {
+    "inputs": 15,
+    "outputs": 5,
+    "parameters": 19,
+    "properties": 2,
+    "title": "Lighting Controller",
+    "xml_type": "LightController2"
+  },
+  "lighting-overview": {
+    "inputs": 11,
+    "outputs": 2,
+    "parameters": 0,
+    "properties": 1,
+    "title": "Lighting Central",
+    "xml_type": "LightCentral"
+  },
+  "load-manager": {
+    "inputs": 5,
+    "outputs": 6,
+    "parameters": 3,
+    "properties": 2,
+    "title": "Load Manager",
+    "xml_type": "LoadManager"
+  },
+  "long-click": {
+    "inputs": 2,
+    "outputs": 5,
+    "parameters": 1,
+    "properties": 0,
+    "title": "Long Click",
+    "xml_type": "LongClick"
+  },
+  "mail-and-parcel-box": {
+    "inputs": 4,
+    "outputs": 4,
+    "parameters": 0,
+    "properties": 2,
+    "title": "Mail and Parcel Box",
+    "xml_type": "MailBox"
+  },
+  "mail-generator": {
+    "inputs": 3,
+    "outputs": 1,
+    "parameters": 2,
+    "properties": 4,
+    "title": "Mail Generator",
+    "xml_type": "MailGenerator"
+  },
+  "maintenance-counter": {
+    "inputs": 3,
+    "outputs": 2,
+    "parameters": 2,
+    "properties": 0,
+    "title": "Runtime Counter",
+    "xml_type": "RuntimeCounter"
+  },
+  "media-controller": {
+    "inputs": 11,
+    "outputs": 1,
+    "parameters": 3,
+    "properties": 1,
+    "title": "Media Controller",
+    "xml_type": "MediaController"
+  },
+  "memory-flags": {
+    "inputs": 1,
+    "outputs": 0,
+    "parameters": 0,
+    "properties": 2,
+    "title": "Memory Flags",
+    "xml_type": "MemoryFlags"
+  },
+  "meter": {
+    "inputs": 3,
+    "outputs": 1,
+    "parameters": 1,
+    "properties": 2,
+    "title": "Meter",
+    "xml_type": "Meter"
+  },
+  "meter-bidirectional": {
+    "inputs": 4,
+    "outputs": 2,
+    "parameters": 2,
+    "properties": 3,
+    "title": "Meter Bidirectional",
+    "xml_type": "MeterBidirectional"
+  },
+  "meter-storage": {
+    "inputs": 4,
+    "outputs": 2,
+    "parameters": 2,
+    "properties": 4,
+    "title": "Meter & Storage",
+    "xml_type": "MeterStorage"
+  },
+  "minmax": {
+    "inputs": 1,
+    "outputs": 2,
+    "parameters": 1,
+    "properties": 0,
+    "title": "MinMax",
+    "xml_type": "MinMax"
+  },
+  "minmax-since-reset": {
+    "inputs": 2,
+    "outputs": 2,
+    "parameters": 1,
+    "properties": 0,
+    "title": "MinMax since Reset",
+    "xml_type": "MinMaxReset"
+  },
+  "mixing-valve-controller": {
+    "inputs": 2,
+    "outputs": 3,
+    "parameters": 7,
+    "properties": 1,
+    "title": "Mixing Valve Controller",
+    "xml_type": "MixingValve"
+  },
+  "modulo": {
+    "inputs": 0,
+    "outputs": 2,
+    "parameters": 1,
+    "properties": 0,
+    "title": "Modulo",
+    "xml_type": "Modulo"
+  },
+  "monoflop": {
+    "inputs": 1,
+    "outputs": 1,
+    "parameters": 2,
+    "properties": 0,
+    "title": "Monoflop",
+    "xml_type": "Monoflop"
+  },
+  "moving-average": {
+    "inputs": 2,
+    "outputs": 1,
+    "parameters": 3,
+    "properties": 0,
+    "title": "Moving Average",
+    "xml_type": "MovingAverage"
+  },
+  "multiclick": {
+    "inputs": 2,
+    "outputs": 5,
+    "parameters": 2,
+    "properties": 0,
+    "title": "Multi-Click",
+    "xml_type": "MultiClick"
+  },
+  "multifunction-switch": {
+    "inputs": 4,
+    "outputs": 1,
+    "parameters": 3,
+    "properties": 0,
+    "title": "Comfort Switch",
+    "xml_type": "ComfortSwitch"
+  },
+  "multiply": {
+    "inputs": 0,
+    "outputs": 1,
+    "parameters": 1,
+    "properties": 0,
+    "title": "Multiply",
+    "xml_type": "Multiply"
+  },
+  "music-server-zone": {
+    "inputs": 27,
+    "outputs": 2,
+    "parameters": 17,
+    "properties": 2,
+    "title": "Music Server Zone",
+    "xml_type": "MusicServerZone"
+  },
+  "not": {
+    "inputs": 1,
+    "outputs": 1,
+    "parameters": 0,
+    "properties": 0,
+    "title": "NOT",
+    "xml_type": "Not"
+  },
+  "or": {
+    "inputs": 2,
+    "outputs": 1,
+    "parameters": 0,
+    "properties": 0,
+    "title": "OR",
+    "xml_type": "Or"
+  },
+  "pi-controller": {
+    "inputs": 3,
+    "outputs": 1,
+    "parameters": 7,
+    "properties": 0,
+    "title": "PI Controller",
+    "xml_type": "PIController"
+  },
+  "pid-controller": {
+    "inputs": 3,
+    "outputs": 1,
+    "parameters": 7,
+    "properties": 0,
+    "title": "PID Controller",
+    "xml_type": "PIDController"
+  },
+  "ping-function-block": {
+    "inputs": 1,
+    "outputs": 1,
+    "parameters": 3,
+    "properties": 2,
+    "title": "Ping",
+    "xml_type": "Ping"
+  },
+  "pool-controller": {
+    "inputs": 17,
+    "outputs": 19,
+    "parameters": 7,
+    "properties": 1,
+    "title": "Pool Controller",
+    "xml_type": "PoolController"
+  },
+  "power-supply-backup-block": {
+    "inputs": 0,
+    "outputs": 6,
+    "parameters": 0,
+    "properties": 1,
+    "title": "Power Supply & Backup (Function Block)",
+    "xml_type": "PowerSupplyBackup"
+  },
+  "presence": {
+    "inputs": 4,
+    "outputs": 4,
+    "parameters": 2,
+    "properties": 2,
+    "title": "Presence",
+    "xml_type": "PresenceDetector"
+  },
+  "pulse-at": {
+    "inputs": 1,
+    "outputs": 2,
+    "parameters": 1,
+    "properties": 3,
+    "title": "Pulse at",
+    "xml_type": "PulseAt"
+  },
+  "pulse-by": {
+    "inputs": 0,
+    "outputs": 1,
+    "parameters": 1,
+    "properties": 4,
+    "title": "Pulse by",
+    "xml_type": "PulseBy"
+  },
+  "pulse-generator": {
+    "inputs": 2,
+    "outputs": 1,
+    "parameters": 1,
+    "properties": 0,
+    "title": "Pulse Generator",
+    "xml_type": "PulseGenerator"
+  },
+  "pulse-meter": {
+    "inputs": 3,
+    "outputs": 2,
+    "parameters": 1,
+    "properties": 1,
+    "title": "Pulse Meter",
+    "xml_type": "PulseMeter"
+  },
+  "pulse-meter-bidirectional": {
+    "inputs": 5,
+    "outputs": 2,
+    "parameters": 2,
+    "properties": 1,
+    "title": "Pulse Meter Bidirectional",
+    "xml_type": "PulseMeterBidirectional"
+  },
+  "pulse-meter-storage": {
+    "inputs": 5,
+    "outputs": 2,
+    "parameters": 2,
+    "properties": 2,
+    "title": "Pulse Meter & Storage",
+    "xml_type": "PulseMeterStorage"
+  },
+  "pulse-width-modulation": {
+    "inputs": 1,
+    "outputs": 1,
+    "parameters": 1,
+    "properties": 0,
+    "title": "Pulse Width Modulation",
+    "xml_type": "PWM"
+  },
+  "push-button": {
+    "inputs": 3,
+    "outputs": 2,
+    "parameters": 2,
+    "properties": 0,
+    "title": "Push Button",
+    "xml_type": "Pushbutton"
+  },
+  "push-switch": {
+    "inputs": 4,
+    "outputs": 4,
+    "parameters": 1,
+    "properties": 0,
+    "title": "Push Switch",
+    "xml_type": "PushSwitch"
+  },
+  "pv-production-forecast": {
+    "inputs": 1,
+    "outputs": 6,
+    "parameters": 1,
+    "properties": 1,
+    "title": "PV Production Forecast",
+    "xml_type": "PVForecast"
+  },
+  "radio-buttons": {
+    "inputs": 4,
+    "outputs": 1,
+    "parameters": 3,
+    "properties": 1,
+    "title": "Radio Buttons",
+    "xml_type": "RadioButtons"
+  },
+  "radio-buttons-16x": {
+    "inputs": 4,
+    "outputs": 1,
+    "parameters": 3,
+    "properties": 1,
+    "title": "Radio Buttons (16x)",
+    "xml_type": "RadioButtons16"
+  },
+  "ramp-controller": {
+    "inputs": 2,
+    "outputs": 1,
+    "parameters": 3,
+    "properties": 0,
+    "title": "Ramp Controller",
+    "xml_type": "RampController"
+  },
+  "random-controller": {
+    "inputs": 1,
+    "outputs": 1,
+    "parameters": 3,
+    "properties": 0,
+    "title": "Random Controller",
+    "xml_type": "RandomController"
+  },
+  "random-number-generator": {
+    "inputs": 1,
+    "outputs": 1,
+    "parameters": 2,
+    "properties": 0,
+    "title": "Random Number Generator",
+    "xml_type": "RandomGenerator"
+  },
+  "rgb-scene-controller": {
+    "inputs": 6,
+    "outputs": 5,
+    "parameters": 1,
+    "properties": 1,
+    "title": "RGB Lighting Controller",
+    "xml_type": "LightsceneRGB"
+  },
+  "sauna-controller": {
+    "inputs": 10,
+    "outputs": 11,
+    "parameters": 8,
+    "properties": 0,
+    "title": "Sauna Controller",
+    "xml_type": "Sauna"
+  },
+  "sauna-controller-evaporator": {
+    "inputs": 18,
+    "outputs": 14,
+    "parameters": 8,
+    "properties": 0,
+    "title": "Sauna Controller with Evaporator",
+    "xml_type": "SaunaEvaporator"
+  },
+  "saving-switch-on-delay": {
+    "inputs": 1,
+    "outputs": 1,
+    "parameters": 2,
+    "properties": 0,
+    "title": "Saving Switch-On Delay",
+    "xml_type": "SavingSwitchOnDelay"
+  },
+  "scaler": {
+    "inputs": 1,
+    "outputs": 1,
+    "parameters": 4,
+    "properties": 0,
+    "title": "Scaler",
+    "xml_type": "Scaler"
+  },
+  "scene": {
+    "inputs": 1,
+    "outputs": 1,
+    "parameters": 0,
+    "properties": 1,
+    "title": "Scene",
+    "xml_type": "Scene"
+  },
+  "security-overview": {
+    "inputs": 9,
+    "outputs": 2,
+    "parameters": 0,
+    "properties": 1,
+    "title": "Burglar Alarm Central",
+    "xml_type": "SecurityCentral"
+  },
+  "selection-switch-onoff": {
+    "inputs": 4,
+    "outputs": 1,
+    "parameters": 1,
+    "properties": 0,
+    "title": "Switch (On/Off)",
+    "xml_type": "SelectionSwitchOnOff"
+  },
+  "selection-switch-plus": {
+    "inputs": 4,
+    "outputs": 1,
+    "parameters": 3,
+    "properties": 0,
+    "title": "Selection Switch (+)",
+    "xml_type": "SelectionSwitchPlus"
+  },
+  "selection-switch-plus-minus": {
+    "inputs": 5,
+    "outputs": 1,
+    "parameters": 3,
+    "properties": 0,
+    "title": "Selection Switch +/-",
+    "xml_type": "SelectionSwitchPlusMinus"
+  },
+  "sequencer": {
+    "inputs": 4,
+    "outputs": 2,
+    "parameters": 2,
+    "properties": 0,
+    "title": "Sequencer",
+    "xml_type": "Sequencer"
+  },
+  "sequential-controller": {
+    "inputs": 2,
+    "outputs": 2,
+    "parameters": 0,
+    "properties": 2,
+    "title": "Sequence Controller",
+    "xml_type": "SequentialController"
+  },
+  "session-database-connector": {
+    "inputs": 19,
+    "outputs": 3,
+    "parameters": 1,
+    "properties": 1,
+    "title": "Session Database Connector",
+    "xml_type": "SessionDBConnector"
+  },
+  "shading-overview": {
+    "inputs": 13,
+    "outputs": 3,
+    "parameters": 0,
+    "properties": 1,
+    "title": "Automatic Shading Central",
+    "xml_type": "JalousieCentral"
+  },
+  "shift-register": {
+    "inputs": 3,
+    "outputs": 1,
+    "parameters": 1,
+    "properties": 0,
+    "title": "Shift Register",
+    "xml_type": "ShiftRegister"
+  },
+  "skylight": {
+    "inputs": 10,
+    "outputs": 3,
+    "parameters": 3,
+    "properties": 1,
+    "title": "Window",
+    "xml_type": "SkyWindow"
+  },
+  "skylight-blinds": {
+    "inputs": 13,
+    "outputs": 7,
+    "parameters": 14,
+    "properties": 2,
+    "title": "Roof Window Shading",
+    "xml_type": "SkyWindowJalousie"
+  },
+  "solar-pump-controller": {
+    "inputs": 3,
+    "outputs": 9,
+    "parameters": 6,
+    "properties": 2,
+    "title": "Thermal Solar Controller",
+    "xml_type": "SolarPumpController"
+  },
+  "spot-price-optimizer": {
+    "inputs": 3,
+    "outputs": 10,
+    "parameters": 3,
+    "properties": 4,
+    "title": "Spot Price Optimizer",
+    "xml_type": "SpotPriceOptimizer"
+  },
+  "stairwell-light-switch": {
+    "inputs": 3,
+    "outputs": 1,
+    "parameters": 3,
+    "properties": 0,
+    "title": "Stairwell Light Switch",
+    "xml_type": "StairwellLight"
+  },
+  "status": {
+    "inputs": 0,
+    "outputs": 3,
+    "parameters": 0,
+    "properties": 1,
+    "title": "Status",
+    "xml_type": "Status"
+  },
+  "status-monitor": {
+    "inputs": 1,
+    "outputs": 4,
+    "parameters": 0,
+    "properties": 3,
+    "title": "Status Monitor",
+    "xml_type": "StatusMonitor"
+  },
+  "stepper": {
+    "inputs": 1,
+    "outputs": 1,
+    "parameters": 3,
+    "properties": 0,
+    "title": "Stepper",
+    "xml_type": "Stepper"
+  },
+  "subtract": {
+    "inputs": 0,
+    "outputs": 1,
+    "parameters": 1,
+    "properties": 0,
+    "title": "Subtract",
+    "xml_type": "Subtract"
+  },
+  "switch": {
+    "inputs": 3,
+    "outputs": 1,
+    "parameters": 1,
+    "properties": 0,
+    "title": "Switch",
+    "xml_type": "Switch"
+  },
+  "switch-on-and-off-delay": {
+    "inputs": 1,
+    "outputs": 1,
+    "parameters": 3,
+    "properties": 0,
+    "title": "Switch-On and -Off Delay",
+    "xml_type": "SwitchOnOffDelay"
+  },
+  "switch-on-delay": {
+    "inputs": 1,
+    "outputs": 1,
+    "parameters": 2,
+    "properties": 0,
+    "title": "Switch-On Delay",
+    "xml_type": "SwitchOnDelay"
+  },
+  "tablet": {
+    "inputs": 3,
+    "outputs": 4,
+    "parameters": 2,
+    "properties": 0,
+    "title": "Tablet",
+    "xml_type": "Tablet"
+  },
+  "text-generator": {
+    "inputs": 3,
+    "outputs": 3,
+    "parameters": 2,
+    "properties": 5,
+    "title": "Text Generator",
+    "xml_type": "TextGenerator"
+  },
+  "threshold-switch": {
+    "inputs": 1,
+    "outputs": 2,
+    "parameters": 2,
+    "properties": 0,
+    "title": "Threshold Switch",
+    "xml_type": "ThresholdSwitch"
+  },
+  "timerscheduler": {
+    "inputs": 3,
+    "outputs": 3,
+    "parameters": 4,
+    "properties": 4,
+    "title": "Schedule",
+    "xml_type": "TimerScheduler"
+  },
+  "toilet-ventilation-controller": {
+    "inputs": 4,
+    "outputs": 3,
+    "parameters": 3,
+    "properties": 0,
+    "title": "Toilet Ventilation Controller",
+    "xml_type": "ToiletVentilation"
+  },
+  "touch-and-grill-air": {
+    "inputs": 2,
+    "outputs": 0,
+    "parameters": 0,
+    "properties": 0,
+    "title": "Touch and Grill Air",
+    "xml_type": "TouchGrillAir"
+  },
+  "touch-and-grill-control": {
+    "inputs": 3,
+    "outputs": 7,
+    "parameters": 2,
+    "properties": 2,
+    "title": "Touch & Grill Control",
+    "xml_type": "TouchGrillControl"
+  },
+  "touch-nightlight-air": {
+    "inputs": 3,
+    "outputs": 5,
+    "parameters": 0,
+    "properties": 0,
+    "title": "Touch Nightlight Air",
+    "xml_type": "TouchNightlight"
+  },
+  "touch-pure-flex-controller": {
+    "inputs": 10,
+    "outputs": 7,
+    "parameters": 8,
+    "properties": 1,
+    "title": "Touch Pure Flex Controller",
+    "xml_type": "TouchPureFlex"
+  },
+  "up-down-counter": {
+    "inputs": 3,
+    "outputs": 1,
+    "parameters": 2,
+    "properties": 0,
+    "title": "Up-Down Counter",
+    "xml_type": "UpDownCounter"
+  },
+  "utility-meter": {
+    "inputs": 5,
+    "outputs": 3,
+    "parameters": 3,
+    "properties": 0,
+    "title": "Utility Meter",
+    "xml_type": "UtilityMeter"
+  },
+  "value-validator": {
+    "inputs": 2,
+    "outputs": 2,
+    "parameters": 4,
+    "properties": 0,
+    "title": "Value Validator",
+    "xml_type": "ValueValidator"
+  },
+  "ventilation": {
+    "inputs": 9,
+    "outputs": 6,
+    "parameters": 9,
+    "properties": 3,
+    "title": "Room Ventilation Controller",
+    "xml_type": "Ventilation"
+  },
+  "wallbox": {
+    "inputs": 5,
+    "outputs": 1,
+    "parameters": 4,
+    "properties": 3,
+    "title": "Wallbox Gen. 1",
+    "xml_type": "Wallbox"
+  },
+  "wallbox-block": {
+    "inputs": 8,
+    "outputs": 7,
+    "parameters": 3,
+    "properties": 7,
+    "title": "Wallbox",
+    "xml_type": "WallboxBlock"
+  },
+  "wallbox-manager": {
+    "inputs": 3,
+    "outputs": 3,
+    "parameters": 3,
+    "properties": 2,
+    "title": "Wallbox Manager",
+    "xml_type": "WallboxManager"
+  },
+  "wind-gauge": {
+    "inputs": 1,
+    "outputs": 4,
+    "parameters": 1,
+    "properties": 0,
+    "title": "Wind Gauge",
+    "xml_type": "WindGauge"
+  },
+  "window-central": {
+    "inputs": 7,
+    "outputs": 3,
+    "parameters": 0,
+    "properties": 1,
+    "title": "Window Central",
+    "xml_type": "WindowCentral"
+  }
+}

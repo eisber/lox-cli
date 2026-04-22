@@ -1,0 +1,34 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Modbus Title="Ingeteam Ingecon 1Play TL M" Comment="" Baudrate="9600" Channel="1">
+    <Info templateType="7" minVersion="12010617"/>
+	<ModbusCmd Title="Vac" Comment="" ModbusAddress="30" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v&gt;Volt x10" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Iac" Comment="" ModbusAddress="29" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v&gt;Amp x100" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Total Energy" Comment="" ModbusAddress="6" ModbusCmd="4" ModbusDataType="34" ModbusPollingCycle="60" Unit="&lt;v&gt;kWh" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Total Operation Hours" Comment="" ModbusAddress="8" ModbusCmd="4" ModbusDataType="34" ModbusPollingCycle="60" Unit="&lt;v&gt;h" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Total Number of Connections" Comment="" ModbusAddress="10" ModbusCmd="4" ModbusDataType="34" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Alarm Code 1" Comment="" ModbusAddress="18" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Alarm Code 2" Comment="" ModbusAddress="19" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Alarm Code 3" Comment="" ModbusAddress="20" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Alarm Code 4" Comment="" ModbusAddress="21" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Warming" Comment="" ModbusAddress="22" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Fac" Comment="" ModbusAddress="32" ModbusCmd="4" ModbusPollingCycle="60" Unit="&lt;v&gt;Hertz x100" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Apparent Power (S)" Comment="" ModbusAddress="33" ModbusCmd="4" ModbusDataType="1" ModbusPollingCycle="5" Unit="&lt;v&gt;VA" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Reactive Power (Q)" Comment="" ModbusAddress="35" ModbusCmd="4" ModbusDataType="1" ModbusPollingCycle="5" Unit="&lt;v&gt;VAr" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Active Power (P)" Comment="" ModbusAddress="34" ModbusCmd="4" ModbusDataType="1" ModbusPollingCycle="5" Unit="&lt;v&gt;W" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="CosPhi" Comment="" ModbusAddress="36" ModbusCmd="4" ModbusDataType="1" ModbusPollingCycle="5" Unit="&lt;v&gt; x1000" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Ipv 1" Comment="" ModbusAddress="37" ModbusCmd="4" ModbusDataType="1" ModbusPollingCycle="5" Unit="&lt;v&gt;Amp x100" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Ipv 2" Comment="" ModbusAddress="38" ModbusCmd="4" ModbusDataType="1" ModbusPollingCycle="5" Unit="&lt;v&gt;Amp x100" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Vpv 1" Comment="" ModbusAddress="39" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v&gt;Volt" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Vpv 2" Comment="" ModbusAddress="40" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v&gt;Volt" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Ppv" Comment="" ModbusAddress="41" ModbusCmd="4" ModbusDataType="1" ModbusPollingCycle="5" Unit="&lt;v&gt;W" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Ppv 1" Comment="" ModbusAddress="42" ModbusCmd="4" ModbusDataType="1" ModbusPollingCycle="5" Unit="&lt;v&gt;W" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Ppv 2" Comment="" ModbusAddress="43" ModbusCmd="4" ModbusDataType="1" ModbusPollingCycle="5" Unit="&lt;v&gt;W" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Riso" Comment="" ModbusAddress="44" ModbusCmd="4" ModbusPollingCycle="10" Unit="&lt;v&gt;kOhm" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Wattmeter (Self-Consumption)" Comment="" ModbusAddress="45" ModbusCmd="4" ModbusDataType="1" ModbusPollingCycle="5" Unit="&lt;v&gt;W" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Power Reduction Rate" Comment="" ModbusAddress="46" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v&gt;%" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Power Reduction Reason" Comment="" ModbusAddress="47" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Daily Energy" Comment="" ModbusAddress="49" ModbusCmd="4" ModbusDataType="35" ModbusPollingCycle="60" Unit="&lt;v&gt;kWh x100" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Self-Consumption Ratio" Comment="" ModbusAddress="51" ModbusCmd="4" ModbusPollingCycle="10" Unit="&lt;v&gt;%" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Pac Limitation" Comment="" ModbusAddress="1000" ModbusCmd="16" ModbusDataType="34" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Stop(5) - Start(6)" Comment="" ModbusAddress="1000" ModbusCmd="6" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10"/>
+</Modbus>

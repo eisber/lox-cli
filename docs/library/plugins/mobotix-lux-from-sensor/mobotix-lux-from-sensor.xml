@@ -1,0 +1,5 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<VirtualInHttp Title="Lux Kamera" Comment="" Address="http://username:password@192.168.0.10/control/rcontrol?action=gettext&amp;message=$(SEN.LXR)" PollingTime="10">
+	<Info templateType="2" minVersion="12021027"/>
+	<VirtualInHttpCmd Title="Lux Camera" Comment="" Check="\v" Signed="true" Analog="true" SourceValLow="0" DestValLow="0" SourceValHigh="100" DestValHigh="100" DefVal="0" MinVal="-10000" MaxVal="10000"/>
+</VirtualInHttp>

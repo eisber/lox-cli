@@ -1,0 +1,70 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Modbus Title="Unit" Comment="" Channel="1">
+	<Info templateType="7" minVersion="14000328"/>
+	<ModbusCmd Title="244 WATER_CONSUMPTION_COUNTER_CUBIC" Comment="" ModbusAddress="244" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v.1&gt; m3" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="245 WATER_CONSUMPTION_COUNTER_LITER" Comment="" ModbusAddress="245" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v&gt; l" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="246 WATER_FLOW_CURRENT" Comment="" ModbusAddress="246" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v&gt; l" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="249 ENERGY_METER_KWH" Comment="" ModbusAddress="249" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v&gt; KW/H" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="251 ENERGY_METER_WATT" Comment="" ModbusAddress="251" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v&gt; KW/H" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="700 R_OPERATION_MODE" Comment="" ModbusAddress="700" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="701 R_OUTDOOR_TEMPERATURE_SENSOR" Comment="" ModbusAddress="701" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="true" SourceValLow="10" SourceValHigh="20" DestValLow="1" DestValHigh="2"/>
+	<ModbusCmd Title="703 R_INTRCOOLL_SUPPLY_TEMPERATURE_SENSOR" Comment="" ModbusAddress="703" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="true" SourceValLow="10" SourceValHigh="20" DestValLow="1" DestValHigh="2"/>
+	<ModbusCmd Title="702 R_HEAT_RECLAIM_SUPPLY_TEMP" Comment="" ModbusAddress="702" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="true" SourceValLow="10" SourceValHigh="20" DestValLow="1" DestValHigh="2"/>
+	<ModbusCmd Title="705 R_WATER_LEVEL" Comment="" ModbusAddress="705" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v&gt; step" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="713 R_DAMPER_VENTILATION" Comment="" ModbusAddress="713" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v.1&gt; %" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="720 R_WATER_CONDUCTIVITY" Comment="" ModbusAddress="720" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v.1&gt; uS/cm" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="733 R_WATER_MANAGMENT_MODE" Comment="" ModbusAddress="733" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="218 ALARM_ACTIVE" Comment="" ModbusAddress="218" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="219 ALARM_1" Comment="" ModbusAddress="219" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="220 ALARM_2" Comment="" ModbusAddress="220" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="221 ALARM_3" Comment="" ModbusAddress="221" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="222 ALARM_4" Comment="" ModbusAddress="222" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="223 ALARM_5" Comment="" ModbusAddress="223" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="224 ALARM_6" Comment="" ModbusAddress="224" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="225 ALARM_7" Comment="" ModbusAddress="225" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="226 ALARM_8" Comment="" ModbusAddress="226" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="227 ALARM_9" Comment="" ModbusAddress="227" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="228 ALARM_10" Comment="" ModbusAddress="228" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="229 ALARM_11" Comment="" ModbusAddress="229" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="230 ALARM_12" Comment="" ModbusAddress="230" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="231 ALARM_13" Comment="" ModbusAddress="231" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="722 R_PUMP" Comment="" ModbusAddress="722" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="723 R_WATER_DISINFECTION" Comment="" ModbusAddress="723" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="724 R_SUPPLY_SOLENOID" Comment="" ModbusAddress="724" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="725 R_DRAIN_VALVE" Comment="" ModbusAddress="725" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="726 R_FREEZE_PROTECTION_VALVE" Comment="" ModbusAddress="726" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="100 THERMOSTAT_ON_OFF" Comment="" ModbusAddress="100" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="525 C_HYGIENE_ON_OFF" Comment="" ModbusAddress="525" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="103 THERMOSTAT_P_FAN_SPEED_OR_THERMOSTAT_NP_TEMP_SETPOINT" Comment="" ModbusAddress="103" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v&gt;%" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="111 THERMOSTAT_ACTUAL_OPERATION_MODE" Comment="" ModbusAddress="111" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="110 THERMOSTAT_SELECTED_OPERATION_MODE" Comment="" ModbusAddress="110" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="292 UNIT_ON_OFF" Comment="" ModbusAddress="292" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="731 Baromatic presure" Comment="" ModbusAddress="731" ModbusCmd="3" ModbusPollingCycle="300" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="307 Minimum Excaust" Comment="" ModbusAddress="307" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="801 Manual mode selection" Comment="" ModbusAddress="801" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="716 Suply fan" Comment="" ModbusAddress="716" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="103 THERMOSTAT_P_FAN_SPEED_OR_THERMOSTAT_NP_TEMP_SETPOINT" Comment="" ModbusAddress="103" ModbusCmd="6" Unit="&lt;v&gt;%" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10" RepeatRate="10"/>
+	<ModbusCmd Title="110 THERMOSTAT_SELECTED_OPERATION_MODE" Comment="" ModbusAddress="110" ModbusCmd="6" Unit="&lt;v&gt; Mode" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10" RepeatRate="10"/>
+	<ModbusCmd Title="111 THERMOSTAT_ACTUAL_OPERATION_MODE" Comment="" ModbusAddress="111" ModbusCmd="6" Unit="&lt;v&gt; Mode" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10" RepeatRate="10"/>
+	<ModbusCmd Title="203 DIGITAL_INPUT_J12_FUNCTION" Comment="" ModbusAddress="203" ModbusCmd="6" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10" RepeatRate="10"/>
+	<ModbusCmd Title="307 H_MINIMUM_EXHAUST_VENTILATION" Comment="" ModbusAddress="307" ModbusCmd="6" Unit="&lt;v&gt;%" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="308 H_MAXIMUM_EXHAUST_VENTILATION" Comment="" ModbusAddress="308" ModbusCmd="6" Unit="&lt;v&gt;%" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="401 FC_RELEASE_TEMERATURE" Comment="" ModbusAddress="401" ModbusCmd="6" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="501 C_RELEASE_TEMPERATURE" Comment="" ModbusAddress="501" ModbusCmd="6" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="502 C_FAN_1_MINIMUM_SPEED" Comment="" ModbusAddress="502" ModbusCmd="6" Unit="&lt;v.1&gt;%" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="503 C_FAN_1_MAXIMUM_SPEED" Comment="" ModbusAddress="503" ModbusCmd="6" Unit="&lt;v.1&gt;%" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="515 C_MAX_CONDUCTIVITY" Comment="" ModbusAddress="515" ModbusCmd="6" Unit="&lt;v.1&gt;us/cm" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="526 C_HYGIENE_START_TIME" Comment="" ModbusAddress="526" ModbusCmd="6" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="530 C_WINTER_START" Comment="" ModbusAddress="530" ModbusCmd="6" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="531 C_WINTER_END" Comment="" ModbusAddress="531" ModbusCmd="6" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="100 THERMOSTAT_ON_OFF" Comment="" ModbusAddress="100" ModbusCmd="6" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10" RepeatRate="10"/>
+	<ModbusCmd Title="239 ALARM_RESET" Comment="" ModbusAddress="239" ModbusCmd="6" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="292 UNIT_ON_OFF" Comment="" ModbusAddress="292" ModbusCmd="6" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="300 H_ENABLE" Comment="" ModbusAddress="300" ModbusCmd="6" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="400 FC_ENABLE" Comment="" ModbusAddress="400" ModbusCmd="6" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="500 C_ENABLE" Comment="" ModbusAddress="500" ModbusCmd="6" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="525 C_HYGIENE_ON_OFF" Comment="" ModbusAddress="525" ModbusCmd="6" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="529 C_WINTER_MODE" Comment="" ModbusAddress="529" ModbusCmd="6" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="100 THERMOSTAT_ON_OFF holding" Comment="" ModbusAddress="100" ModbusCmd="6" Unit="" Analog="false" Sensor="false"/>
+	<ModbusCmd Title="801 Manual mode selection" Comment="" ModbusAddress="801" ModbusCmd="6" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10"/>
+</Modbus>

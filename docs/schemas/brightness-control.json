@@ -1,0 +1,71 @@
+{
+  "title": "Daylight Responsive Lighting",
+  "xml_type": "",
+  "kb_slug": "brightness-control",
+  "description": "Function block for constant brightness control. Requires a well-positioned sensor that quickly detects the brightness in the room.",
+  "inputs": [
+    {
+      "abbreviation": "Off",
+      "summary": "Off",
+      "description": "Pulse: Outputs are reset / switched off. On: Block is locked. Dominating input.",
+      "value_range": "0/1"
+    },
+    {
+      "abbreviation": "Act",
+      "summary": "Activation",
+      "description": "Activates constant brightness control when 1.",
+      "value_range": "0/1"
+    }
+  ],
+  "outputs": [
+    {
+      "abbreviation": "Lc",
+      "summary": "Light circuits",
+      "description": "Supported are: Smart Actuator RGBW or WW, Lumitech, RGB, 0-100%, 0-10V, 1-10V. If multiple actuators are connected, they must be of the same type.",
+      "value_range": "\u221e"
+    },
+    {
+      "abbreviation": "API",
+      "summary": "API Connector",
+      "description": "Intelligent API based connector. API Commands",
+      "value_range": "-"
+    }
+  ],
+  "parameters": [
+    {
+      "abbreviation": "Hys",
+      "summary": "Hysteresis",
+      "description": "If the difference between target and actual value is greater than this hysteresis, the controller will adjust.",
+      "unit": "%",
+      "value_range": "0...100",
+      "default_value": "10"
+    },
+    {
+      "abbreviation": "Sts",
+      "summary": "Step size",
+      "description": "The larger the step size, the quicker the target value is reached. However, large steps may cause the light change to be visible.",
+      "unit": "%",
+      "value_range": "0...100",
+      "default_value": "5"
+    }
+  ],
+  "properties": [
+    {
+      "summary": "Target brightness",
+      "description": "This brightness is to be maintained when the controller is active.",
+      "value_range": "\u221e",
+      "default_value": "5000"
+    },
+    {
+      "summary": "Set target brightness",
+      "description": "Determine the target brightness to be maintained when the controller is active.",
+      "value_range": "-",
+      "default_value": "-"
+    }
+  ],
+  "source_url": "https://www.loxone.com/enen/kb/brightness-control/",
+  "input_count": 2,
+  "output_count": 2,
+  "parameter_count": 2,
+  "property_count": 2
+}

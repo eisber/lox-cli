@@ -1,0 +1,8 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<VirtualInHttp Title="Epion Air" Comment="" Address="ENTER_YOUR_URL" PollingTime="60">
+	<Info templateType="2" minVersion="12021201"/>
+	<VirtualInHttpCmd Title="Read atmospheric pressure" Comment="" Check="&quot;pres&quot;:\v" Signed="false" Analog="true" SourceValLow="0" DestValLow="0" SourceValHigh="100" DestValHigh="100" DefVal="1000" MinVal="800" MaxVal="1200"/>
+	<VirtualInHttpCmd Title="Read humidity" Comment="" Check="&quot;hum&quot;:\v" Signed="false" Analog="true" SourceValLow="0" DestValLow="0" SourceValHigh="100" DestValHigh="100" DefVal="55" MinVal="0" MaxVal="100"/>
+	<VirtualInHttpCmd Title="Read CO2" Comment="" Check="&quot;co2&quot;:\v" Signed="false" Analog="true" SourceValLow="0" DestValLow="0" SourceValHigh="100" DestValHigh="100" DefVal="401" MinVal="390" MaxVal="5000"/>
+	<VirtualInHttpCmd Title="Read temperature" Comment="" Check="&quot;temp&quot;:\v" Signed="true" Analog="true" SourceValLow="0" DestValLow="0" SourceValHigh="100" DestValHigh="100" DefVal="20" MinVal="-20" MaxVal="60"/>
+</VirtualInHttp>

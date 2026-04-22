@@ -1,0 +1,182 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Modbus Title="Eastron SDM630-TCP" Comment="" HintText="" Channel="1">
+	<Info templateType="7" minVersion="14051207"/>
+	<ModbusCmd Title="001 - Line voltage L1" Comment="Line voltage L1" HintText="" ModbusCmd="4" ModbusDataType="100" ModbusPollingCycle="60" Unit="&lt;v.1&gt; V" Analog="true" Sensor="true" SourceValHigh="1" DestValHigh="1"/>
+	<ModbusCmd Title="002 - Line voltage L2" Comment="Line voltage L2" HintText="" ModbusAddress="2" ModbusCmd="4" ModbusDataType="100" ModbusPollingCycle="60" Unit="&lt;v.1&gt; V" Analog="true" Sensor="true" SourceValHigh="1" DestValHigh="1"/>
+	<ModbusCmd Title="003 - Line voltage L3" Comment="Line voltage L3" HintText="" ModbusAddress="4" ModbusCmd="4" ModbusDataType="100" ModbusPollingCycle="60" Unit="&lt;v.1&gt; V" Analog="true" Sensor="true" SourceValHigh="1" DestValHigh="1"/>
+	<ModbusCmd Title="004 - Current L1" Comment="Current L1" HintText="" ModbusAddress="6" ModbusCmd="4" ModbusDataType="100" ModbusPollingCycle="15" Unit="&lt;v.3&gt; A" Analog="true" Sensor="true" SourceValHigh="1" DestValHigh="1"/>
+	<ModbusCmd Title="005 - Current L2" Comment="Current L2" HintText="" ModbusAddress="8" ModbusCmd="4" ModbusDataType="100" ModbusPollingCycle="15" Unit="&lt;v.3&gt; A" Analog="true" Sensor="true" SourceValHigh="1" DestValHigh="1"/>
+	<ModbusCmd Title="006 - Current L3" Comment="Current L3" HintText="" ModbusAddress="10" ModbusCmd="4" ModbusDataType="100" ModbusPollingCycle="15" Unit="&lt;v.3&gt; A" Analog="true" Sensor="true" SourceValHigh="1" DestValHigh="1"/>
+	<ModbusCmd Title="007 - Power L1" Comment="Power L1" HintText="" ModbusAddress="12" ModbusCmd="4" ModbusDataType="100" ModbusPollingCycle="15" Unit="&lt;v.3&gt; kW" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="1"/>
+	<ModbusCmd Title="008 - Power L2" Comment="Power L2" HintText="" ModbusAddress="14" ModbusCmd="4" ModbusDataType="100" ModbusPollingCycle="15" Unit="&lt;v.3&gt; kW" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="1"/>
+	<ModbusCmd Title="009 - Power L3" Comment="Power L3" HintText="" ModbusAddress="16" ModbusCmd="4" ModbusDataType="100" ModbusPollingCycle="15" Unit="&lt;v.3&gt; kW" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="1"/>
+	<ModbusCmd Title="027 - Total system power" Comment="Total system power" HintText="" ModbusAddress="52" ModbusCmd="4" ModbusDataType="100" ModbusPollingCycle="5" Unit="&lt;v.3&gt; kW" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="1"/>
+	<ModbusCmd Title="036 - Frequency of supply voltages" Comment="Frequency of supply voltages" HintText="" ModbusAddress="70" ModbusCmd="4" ModbusDataType="100" ModbusPollingCycle="60" Unit="&lt;v.2&gt; Hz" Analog="true" Sensor="true" SourceValHigh="1" DestValHigh="1"/>
+	<ModbusCmd Title="037 - Energy import since last reset" Comment="Energy import since last reset" HintText="Total Energy Import" ModbusAddress="72" ModbusCmd="4" ModbusDataType="100" ModbusPollingCycle="60" Unit="&lt;v.3&gt; kWh" Analog="true" Sensor="true" SourceValHigh="1" DestValHigh="1"/>
+	<ModbusCmd Title="038 - Energy export since last reset" Comment="Energy export since last reset" HintText="" ModbusAddress="74" ModbusCmd="4" ModbusDataType="100" ModbusPollingCycle="60" Unit="&lt;v.3&gt; kWh" Analog="true" Sensor="true" SourceValHigh="1" DestValHigh="1"/>
+	<ModbusCmd Title="029 - Total system volt amps" Comment="Total system volt amps" HintText="" ModbusAddress="56" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="15" Unit="&lt;v.1&gt; VA" Analog="true" Sensor="true" SourceValHigh="1" DestValHigh="1"/>
+	<ModbusCmd Title="031 - Total system VAr" Comment="Total system VAr" HintText="" ModbusAddress="60" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="15" Unit="&lt;v.1&gt; VAr" Analog="true" Sensor="true" SourceValHigh="1" DestValHigh="1"/>
+	<ModbusCmd Title="404 - System type" Comment="System type" HintText="1= 1p2w,
+2= 3p3w,
+3= 3p4w." ModbusAddress="10" ModbusCmd="3" ModbusDataType="100" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="1" DestValHigh="1"/>
+	<ModbusCmd Title="010 - Volt amps L1" Comment="Volt amps L1" HintText="" ModbusAddress="18" ModbusCmd="4" ModbusDataType="100" ModbusPollingCycle="15" Unit="&lt;v.1&gt; VA" Analog="true" Sensor="true" SourceValHigh="1" DestValHigh="1"/>
+	<ModbusCmd Title="011 - Volt amps  L2" Comment="Volt amps  L2" HintText="" ModbusAddress="20" ModbusCmd="4" ModbusDataType="100" ModbusPollingCycle="15" Unit="&lt;v.1&gt; VA" Analog="true" Sensor="true" SourceValHigh="1" DestValHigh="1"/>
+	<ModbusCmd Title="012 - Volt amps L3" Comment="Volt amps L3" HintText="" ModbusAddress="22" ModbusCmd="4" ModbusDataType="100" ModbusPollingCycle="15" Unit="&lt;v.1&gt; VA" Analog="true" Sensor="true" SourceValHigh="1" DestValHigh="1"/>
+	<ModbusCmd Title="013 - Volt amps reactive L1" Comment="Volt amps reactive L1" HintText="" ModbusAddress="24" ModbusCmd="4" ModbusDataType="100" ModbusPollingCycle="15" Unit="&lt;v.1&gt; VAr" Analog="true" Sensor="true" SourceValHigh="1" DestValHigh="1"/>
+	<ModbusCmd Title="014 - Volt amps reactive L2" Comment="Volt amps reactive L2" HintText="" ModbusAddress="26" ModbusCmd="4" ModbusDataType="100" ModbusPollingCycle="15" Unit="&lt;v.1&gt; VAr" Analog="true" Sensor="true" SourceValHigh="1" DestValHigh="1"/>
+	<ModbusCmd Title="015 - Volt amps reactive L3" Comment="Volt amps reactive L3" HintText="" ModbusAddress="28" ModbusCmd="4" ModbusDataType="100" ModbusPollingCycle="15" Unit="&lt;v.1&gt; VAr" Analog="true" Sensor="true" SourceValHigh="1" DestValHigh="1"/>
+	<ModbusCmd Title="016 - Power factor L1" Comment="Power factor L1" HintText="" ModbusAddress="30" ModbusCmd="4" ModbusDataType="100" ModbusPollingCycle="15" Unit="&lt;v.3&gt;" Analog="true" Sensor="true" SourceValHigh="1" DestValHigh="1"/>
+	<ModbusCmd Title="017 - Power factor L2" Comment="Power factor L2" HintText="" ModbusAddress="32" ModbusCmd="4" ModbusDataType="100" ModbusPollingCycle="15" Unit="&lt;v.3&gt;" Analog="true" Sensor="true" SourceValHigh="1" DestValHigh="1"/>
+	<ModbusCmd Title="018 - Power factor L3" Comment="Power factor L3" HintText="" ModbusAddress="34" ModbusCmd="4" ModbusDataType="100" ModbusPollingCycle="15" Unit="&lt;v.3&gt;" Analog="true" Sensor="true" SourceValHigh="1" DestValHigh="1"/>
+	<ModbusCmd Title="019 - Phase angle L1" Comment="Phase angle L1" HintText="" ModbusAddress="36" ModbusCmd="4" ModbusDataType="100" ModbusPollingCycle="15" Unit="&lt;v.1&gt; °" Analog="true" Sensor="true" SourceValHigh="1" DestValHigh="1"/>
+	<ModbusCmd Title="020 - Phase angle L2" Comment="Phase angle L2" HintText="" ModbusAddress="38" ModbusCmd="4" ModbusDataType="100" ModbusPollingCycle="15" Unit="&lt;v.1&gt; °" Analog="true" Sensor="true" SourceValHigh="1" DestValHigh="1"/>
+	<ModbusCmd Title="021 - Phase angle L3" Comment="Phase angle L3" HintText="" ModbusAddress="40" ModbusCmd="4" ModbusDataType="100" ModbusPollingCycle="15" Unit="&lt;v.1&gt; °" Analog="true" Sensor="true" SourceValHigh="1" DestValHigh="1"/>
+	<ModbusCmd Title="022 - Average line voltage" Comment="Average line voltage" HintText="" ModbusAddress="42" ModbusCmd="4" ModbusDataType="100" ModbusPollingCycle="15" Unit="&lt;v.1&gt; V" Analog="true" Sensor="true" SourceValHigh="1" DestValHigh="1"/>
+	<ModbusCmd Title="024 - Average line current" Comment="Average line current" HintText="" ModbusAddress="46" ModbusCmd="4" ModbusDataType="100" ModbusPollingCycle="15" Unit="&lt;v.1&gt; A" Analog="true" Sensor="true" SourceValHigh="1" DestValHigh="1"/>
+	<ModbusCmd Title="025 - Sum of line currents" Comment="Sum of line currents" HintText="" ModbusAddress="48" ModbusCmd="4" ModbusDataType="100" ModbusPollingCycle="15" Unit="&lt;v.1&gt; A" Analog="true" Sensor="true" SourceValHigh="1" DestValHigh="1"/>
+	<ModbusCmd Title="032 - Total system power factor" Comment="Total system power factor" HintText="" ModbusAddress="62" ModbusCmd="4" ModbusDataType="100" ModbusPollingCycle="15" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="1" DestValHigh="1"/>
+	<ModbusCmd Title="034 - Total system phase angle" Comment="Total system phase angle" HintText="" ModbusAddress="66" ModbusCmd="4" ModbusDataType="100" ModbusPollingCycle="15" Unit="&lt;v.1&gt; °" Analog="true" Sensor="true" SourceValHigh="1" DestValHigh="1"/>
+	<ModbusCmd Title="039 - Import VArh since last reset" Comment="Import VArh since last reset" HintText="" ModbusAddress="76" ModbusCmd="4" ModbusDataType="100" ModbusPollingCycle="15" Unit="&lt;v.3&gt; kVArh" Analog="true" Sensor="true" SourceValHigh="1" DestValHigh="1"/>
+	<ModbusCmd Title="040 - Export VArh since last reset" Comment="Export VArh since last reset" HintText="" ModbusAddress="78" ModbusCmd="4" ModbusDataType="100" ModbusPollingCycle="15" Unit="&lt;v.3&gt; kVArh" Analog="true" Sensor="true" SourceValHigh="1" DestValHigh="1"/>
+	<ModbusCmd Title="042 - Ah since last reset" Comment="Ah since last reset" HintText="" ModbusAddress="82" ModbusCmd="4" ModbusDataType="100" ModbusPollingCycle="15" Unit="&lt;v.1&gt; Ah" Analog="true" Sensor="true" SourceValHigh="1" DestValHigh="1"/>
+	<ModbusCmd Title="043 - Total system power demand" Comment="Total system power demand" HintText="" ModbusAddress="84" ModbusCmd="4" ModbusDataType="100" ModbusPollingCycle="15" Unit="&lt;v.1&gt; kW" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="1"/>
+	<ModbusCmd Title="044 - Maximum total system power demand" Comment="Maximum total system power demand" HintText="" ModbusAddress="86" ModbusCmd="4" ModbusDataType="100" ModbusPollingCycle="15" Unit="&lt;v.3&gt; kW" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="1"/>
+	<ModbusCmd Title="051 - Total system VA demand" Comment="Total system VA demand" HintText="" ModbusAddress="100" ModbusCmd="4" ModbusDataType="100" ModbusPollingCycle="15" Unit="&lt;v.1&gt; VA" Analog="true" Sensor="true" SourceValHigh="1" DestValHigh="1"/>
+	<ModbusCmd Title="052 - Maximum total system power demand" Comment="Maximum total system power demand" HintText="" ModbusAddress="102" ModbusCmd="4" ModbusDataType="100" ModbusPollingCycle="15" Unit="&lt;v.1&gt; VA" Analog="true" Sensor="true" SourceValHigh="1" DestValHigh="1"/>
+	<ModbusCmd Title="053 - Neutral current demand" Comment="Neutral current demand" HintText="" ModbusAddress="104" ModbusCmd="4" ModbusDataType="100" ModbusPollingCycle="15" Unit="&lt;v.3&gt; A" Analog="true" Sensor="true" SourceValHigh="1" DestValHigh="1"/>
+	<ModbusCmd Title="054 - Maximum neutral current demand" Comment="Maximum neutral current demand" HintText="" ModbusAddress="106" ModbusCmd="4" ModbusDataType="100" ModbusPollingCycle="15" Unit="&lt;v.3&gt; A" Analog="true" Sensor="true" SourceValHigh="1" DestValHigh="1"/>
+	<ModbusCmd Title="101 - L1 to L2 voltage" Comment="L1 to L2 voltage" HintText="" ModbusAddress="200" ModbusCmd="4" ModbusDataType="100" ModbusPollingCycle="15" Unit="&lt;v.1&gt; V" Analog="true" Sensor="true" SourceValHigh="1" DestValHigh="1"/>
+	<ModbusCmd Title="102 - L1 to L2 voltage" Comment="L1 to L2 voltage" HintText="" ModbusAddress="202" ModbusCmd="4" ModbusDataType="100" ModbusPollingCycle="15" Unit="&lt;v.1&gt; V" Analog="true" Sensor="true" SourceValHigh="1" DestValHigh="1"/>
+	<ModbusCmd Title="103 - L3 to L1 voltage" Comment="L3 to L1 voltage" HintText="" ModbusAddress="204" ModbusCmd="4" ModbusDataType="100" ModbusPollingCycle="15" Unit="&lt;v.1&gt; V" Analog="true" Sensor="true" SourceValHigh="1" DestValHigh="1"/>
+	<ModbusCmd Title="104 - Average line to line voltage" Comment="Average line to line voltage" HintText="" ModbusAddress="206" ModbusCmd="4" ModbusDataType="100" ModbusPollingCycle="15" Unit="&lt;v.1&gt; V" Analog="true" Sensor="true" SourceValHigh="1" DestValHigh="1"/>
+	<ModbusCmd Title="113 - Neutral current" Comment="Neutral current" HintText="" ModbusAddress="224" ModbusCmd="4" ModbusDataType="100" ModbusPollingCycle="15" Unit="&lt;v.3&gt; A" Analog="true" Sensor="true" SourceValHigh="1" DestValHigh="1"/>
+	<ModbusCmd Title="118 - L1 voltage THD" Comment="L1 voltage THD" HintText="" ModbusAddress="234" ModbusCmd="4" ModbusDataType="100" ModbusPollingCycle="15" Unit="&lt;v.3&gt; %" Analog="true" Sensor="true" SourceValHigh="1" DestValHigh="1"/>
+	<ModbusCmd Title="119 - L1 voltage THD" Comment="L1 voltage THD" HintText="" ModbusAddress="236" ModbusCmd="4" ModbusDataType="100" ModbusPollingCycle="15" Unit="&lt;v.3&gt; %" Analog="true" Sensor="true" SourceValHigh="1" DestValHigh="1"/>
+	<ModbusCmd Title="120 - L3 voltage THD" Comment="L3 voltage THD" HintText="" ModbusAddress="238" ModbusCmd="4" ModbusDataType="100" ModbusPollingCycle="15" Unit="&lt;v.3&gt; %" Analog="true" Sensor="true" SourceValHigh="1" DestValHigh="1"/>
+	<ModbusCmd Title="121 - L1 current THD" Comment="L1 current THD" HintText="" ModbusAddress="240" ModbusCmd="4" ModbusDataType="100" ModbusPollingCycle="15" Unit="&lt;v.3&gt; %" Analog="true" Sensor="true" SourceValHigh="1" DestValHigh="1"/>
+	<ModbusCmd Title="122 - L2 current THD" Comment="L2 current THD" HintText="" ModbusAddress="242" ModbusCmd="4" ModbusDataType="100" ModbusPollingCycle="15" Unit="&lt;v.3&gt; %" Analog="true" Sensor="true" SourceValHigh="1" DestValHigh="1"/>
+	<ModbusCmd Title="123 - L3 current THD" Comment="L3 current THD" HintText="" ModbusAddress="244" ModbusCmd="4" ModbusDataType="100" ModbusPollingCycle="15" Unit="&lt;v.3&gt; %" Analog="true" Sensor="true" SourceValHigh="1" DestValHigh="1"/>
+	<ModbusCmd Title="125 - Average line voltage THD" Comment="Average line voltage THD" HintText="" ModbusAddress="248" ModbusCmd="4" ModbusDataType="100" ModbusPollingCycle="15" Unit="&lt;v.3&gt; %" Analog="true" Sensor="true" SourceValHigh="1" DestValHigh="1"/>
+	<ModbusCmd Title="126 - Average line current THD" Comment="Average line current THD" HintText="" ModbusAddress="250" ModbusCmd="4" ModbusDataType="100" ModbusPollingCycle="15" Unit="&lt;v.3&gt; %" Analog="true" Sensor="true" SourceValHigh="1" DestValHigh="1"/>
+	<ModbusCmd Title="128 - Total system power factor" Comment="Total system power factor" HintText="" ModbusAddress="254" ModbusCmd="4" ModbusDataType="100" ModbusPollingCycle="15" Unit="&lt;v.3&gt;" Analog="true" Sensor="true" SourceValHigh="1" DestValHigh="1"/>
+	<ModbusCmd Title="130 - L1 current demand" Comment="L1 current demand" HintText="" ModbusAddress="258" ModbusCmd="4" ModbusDataType="100" ModbusPollingCycle="15" Unit="&lt;v.3&gt; A" Analog="true" Sensor="true" SourceValHigh="1" DestValHigh="1"/>
+	<ModbusCmd Title="131 - L2 current demand" Comment="L2 current demand" HintText="" ModbusAddress="260" ModbusCmd="4" ModbusDataType="100" ModbusPollingCycle="15" Unit="&lt;v.3&gt; A" Analog="true" Sensor="true" SourceValHigh="1" DestValHigh="1"/>
+	<ModbusCmd Title="132 - L3 current demand" Comment="L3 current demand" HintText="" ModbusAddress="262" ModbusCmd="4" ModbusDataType="100" ModbusPollingCycle="15" Unit="&lt;v.3&gt; A" Analog="true" Sensor="true" SourceValHigh="1" DestValHigh="1"/>
+	<ModbusCmd Title="133 - Maximum L1 current demand" Comment="Maximum L1 current demand" HintText="" ModbusAddress="264" ModbusCmd="4" ModbusDataType="100" ModbusPollingCycle="15" Unit="&lt;v.3&gt; A" Analog="true" Sensor="true" SourceValHigh="1" DestValHigh="1"/>
+	<ModbusCmd Title="134 - Maximum L2 current demand" Comment="Maximum L2 current demand" HintText="" ModbusAddress="266" ModbusCmd="4" ModbusDataType="100" ModbusPollingCycle="15" Unit="&lt;v.3&gt; A" Analog="true" Sensor="true" SourceValHigh="1" DestValHigh="1"/>
+	<ModbusCmd Title="135 - Maximum L3 current demand" Comment="Maximum L3 current demand" HintText="" ModbusAddress="268" ModbusCmd="4" ModbusDataType="100" ModbusPollingCycle="15" Unit="&lt;v.3&gt; A" Analog="true" Sensor="true" SourceValHigh="1" DestValHigh="1"/>
+	<ModbusCmd Title="168 - L1 to L2 voltage THD" Comment="L1 to L2 voltage THD" HintText="" ModbusAddress="334" ModbusCmd="4" ModbusDataType="100" ModbusPollingCycle="15" Unit="&lt;v.3&gt; %" Analog="true" Sensor="true" SourceValHigh="1" DestValHigh="1"/>
+	<ModbusCmd Title="169 - L2 to L3 voltage THD" Comment="L2 to L3 voltage THD" HintText="" ModbusAddress="336" ModbusCmd="4" ModbusDataType="100" ModbusPollingCycle="15" Unit="&lt;v.3&gt; %" Analog="true" Sensor="true" SourceValHigh="1" DestValHigh="1"/>
+	<ModbusCmd Title="170 - L3 to L1 voltage THD" Comment="L3 to L1 voltage THD" HintText="" ModbusAddress="338" ModbusCmd="4" ModbusDataType="100" ModbusPollingCycle="15" Unit="&lt;v.3&gt; %" Analog="true" Sensor="true" SourceValHigh="1" DestValHigh="1"/>
+	<ModbusCmd Title="171 - Average line to line voltage THD" Comment="Average line to line voltage THD" HintText="" ModbusAddress="340" ModbusCmd="4" ModbusDataType="100" ModbusPollingCycle="15" Unit="&lt;v.3&gt; %" Analog="true" Sensor="true" SourceValHigh="1" DestValHigh="1"/>
+	<ModbusCmd Title="172 - Total kWh" Comment="Total kWh" HintText="" ModbusAddress="342" ModbusCmd="4" ModbusDataType="100" ModbusPollingCycle="15" Unit="&lt;v.3&gt; kWh" Analog="true" Sensor="true" SourceValHigh="1" DestValHigh="1"/>
+	<ModbusCmd Title="173 - Total kVArh" Comment="Total kVArh" HintText="" ModbusAddress="344" ModbusCmd="4" ModbusDataType="100" ModbusPollingCycle="15" Unit="&lt;v.3&gt; kVArh" Analog="true" Sensor="true" SourceValHigh="1" DestValHigh="1"/>
+	<ModbusCmd Title="174 - L1 import kWh" Comment="L1 import kWh" HintText="" ModbusAddress="346" ModbusCmd="4" ModbusDataType="100" ModbusPollingCycle="15" Unit="&lt;v.3&gt; kWh" Analog="true" Sensor="true" SourceValHigh="1" DestValHigh="1"/>
+	<ModbusCmd Title="175 - L2 import kWh" Comment="L2 import kWh" HintText="" ModbusAddress="348" ModbusCmd="4" ModbusDataType="100" ModbusPollingCycle="15" Unit="&lt;v.3&gt; kWh" Analog="true" Sensor="true" SourceValHigh="1" DestValHigh="1"/>
+	<ModbusCmd Title="176 - L3 import kWh" Comment="L3 import kWh" HintText="" ModbusAddress="350" ModbusCmd="4" ModbusDataType="100" ModbusPollingCycle="15" Unit="&lt;v.3&gt; kWh" Analog="true" Sensor="true" SourceValHigh="1" DestValHigh="1"/>
+	<ModbusCmd Title="177 - L1 export kWh" Comment="L1 export kWh" HintText="" ModbusAddress="352" ModbusCmd="4" ModbusDataType="100" ModbusPollingCycle="15" Unit="&lt;v.3&gt; kWh" Analog="true" Sensor="true" SourceValHigh="1" DestValHigh="1"/>
+	<ModbusCmd Title="178 - L2 export kWh" Comment="L2 export kWh" HintText="" ModbusAddress="354" ModbusCmd="4" ModbusDataType="100" ModbusPollingCycle="15" Unit="&lt;v.3&gt; kWh" Analog="true" Sensor="true" SourceValHigh="1" DestValHigh="1"/>
+	<ModbusCmd Title="179 - L3 export kWh" Comment="L3 export kWh" HintText="" ModbusAddress="356" ModbusCmd="4" ModbusDataType="100" ModbusPollingCycle="15" Unit="&lt;v.3&gt; kWh" Analog="true" Sensor="true" SourceValHigh="1" DestValHigh="1"/>
+	<ModbusCmd Title="180 - L1 total kWh" Comment="L1 total kWh" HintText="" ModbusAddress="358" ModbusCmd="4" ModbusDataType="100" ModbusPollingCycle="15" Unit="&lt;v.3&gt; kWh" Analog="true" Sensor="true" SourceValHigh="1" DestValHigh="1"/>
+	<ModbusCmd Title="181 - L2 total kWh" Comment="L2 total kWh" HintText="" ModbusAddress="360" ModbusCmd="4" ModbusDataType="100" ModbusPollingCycle="15" Unit="&lt;v.3&gt; kWh" Analog="true" Sensor="true" SourceValHigh="1" DestValHigh="1"/>
+	<ModbusCmd Title="182 - L3 total kWh" Comment="L3 total kWh" HintText="" ModbusAddress="362" ModbusCmd="4" ModbusDataType="100" ModbusPollingCycle="15" Unit="&lt;v.3&gt; kWh" Analog="true" Sensor="true" SourceValHigh="1" DestValHigh="1"/>
+	<ModbusCmd Title="183 - L1 import kVArh" Comment="L1 import kVArh" HintText="" ModbusAddress="364" ModbusCmd="4" ModbusDataType="100" ModbusPollingCycle="15" Unit="&lt;v.3&gt; kVArh" Analog="true" Sensor="true" SourceValHigh="1" DestValHigh="1"/>
+	<ModbusCmd Title="184 - L2 import kVArh" Comment="L2 import kVArh" HintText="" ModbusAddress="366" ModbusCmd="4" ModbusDataType="100" ModbusPollingCycle="15" Unit="&lt;v.3&gt; kVArh" Analog="true" Sensor="true" SourceValHigh="1" DestValHigh="1"/>
+	<ModbusCmd Title="185 - L3 import kVArh" Comment="L3 import kVArh" HintText="" ModbusAddress="368" ModbusCmd="4" ModbusDataType="100" ModbusPollingCycle="15" Unit="&lt;v.3&gt; kVArh" Analog="true" Sensor="true" SourceValHigh="1" DestValHigh="1"/>
+	<ModbusCmd Title="186 - L1 export kVArh" Comment="L1 export kVArh" HintText="" ModbusAddress="370" ModbusCmd="4" ModbusDataType="100" ModbusPollingCycle="15" Unit="&lt;v.3&gt; kVArh" Analog="true" Sensor="true" SourceValHigh="1" DestValHigh="1"/>
+	<ModbusCmd Title="187 - L2 export kVArh" Comment="L2 export kVArh" HintText="" ModbusAddress="372" ModbusCmd="4" ModbusDataType="100" ModbusPollingCycle="15" Unit="&lt;v.3&gt; kVArh" Analog="true" Sensor="true" SourceValHigh="1" DestValHigh="1"/>
+	<ModbusCmd Title="188 - L3 export kVArh" Comment="L3 export kVArh" HintText="" ModbusAddress="374" ModbusCmd="4" ModbusDataType="100" ModbusPollingCycle="15" Unit="&lt;v.3&gt; kVArh" Analog="true" Sensor="true" SourceValHigh="1" DestValHigh="1"/>
+	<ModbusCmd Title="189 - L1 total kVArh" Comment="L1 total kVArh" HintText="" ModbusAddress="376" ModbusCmd="4" ModbusDataType="100" ModbusPollingCycle="15" Unit="&lt;v.3&gt; kVArh" Analog="true" Sensor="true" SourceValHigh="1" DestValHigh="1"/>
+	<ModbusCmd Title="190 - L2 total kVArh" Comment="L2 total kVArh" HintText="" ModbusAddress="378" ModbusCmd="4" ModbusDataType="100" ModbusPollingCycle="15" Unit="&lt;v.3&gt; kVArh" Analog="true" Sensor="true" SourceValHigh="1" DestValHigh="1"/>
+	<ModbusCmd Title="191 - L3 total kVArh" Comment="L3 total kVArh" HintText="" ModbusAddress="380" ModbusCmd="4" ModbusDataType="100" ModbusPollingCycle="15" Unit="&lt;v.3&gt; kVArh" Analog="true" Sensor="true" SourceValHigh="1" DestValHigh="1"/>
+	<ModbusCmd Title="401 - Demand period" Comment="Demand period" HintText="Time period in minutes to calculate demands." ModbusAddress="2" ModbusCmd="3" ModbusDataType="100" ModbusPollingCycle="60" Unit="&lt;v&gt; min" Analog="true" Sensor="true" SourceValHigh="1" DestValHigh="1"/>
+	<ModbusCmd Title="402 - System voltage" Comment="System voltage" HintText="" ModbusAddress="6" ModbusCmd="3" ModbusDataType="100" ModbusPollingCycle="60" Unit="&lt;v.1&gt; V" Analog="true" Sensor="true" SourceValHigh="1" DestValHigh="1"/>
+	<ModbusCmd Title="403 - System current" Comment="System current" HintText="" ModbusAddress="8" ModbusCmd="3" ModbusDataType="100" ModbusPollingCycle="60" Unit="&lt;v.3&gt; A" Analog="true" Sensor="true" SourceValHigh="1" DestValHigh="1"/>
+	<ModbusCmd Title="405 - KPPA" Comment="KPPA" HintText="Get the status of the KPPA (Key Parameter Programming Authorization):
+0 = not authorized,
+1 = authorized.
+KPPA will will timeout in one minute and can be extended by reading this register." ModbusAddress="14" ModbusCmd="3" ModbusDataType="100" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="1" DestValHigh="1"/>
+	<ModbusCmd Title="406 - Network node" Comment="Network node" HintText="Read the modbus node address: 1 to 247 
+Default is 1. " ModbusAddress="20" ModbusCmd="3" ModbusDataType="100" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="1" DestValHigh="1"/>
+	<ModbusCmd Title="407 - Password" Comment="Password" HintText="Read the password of the meter.
+" ModbusAddress="24" ModbusCmd="3" ModbusDataType="100" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="1" DestValHigh="1"/>
+	<ModbusCmd Title="408 - System power" Comment="System power" HintText="Read the total system power, e.g. for 3p4w returns System Volts x System Amps x 3." ModbusAddress="36" ModbusCmd="3" ModbusDataType="100" ModbusPollingCycle="60" Unit="&lt;v.3&gt; kW" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="1"/>
+	<ModbusCmd Title="409 - Backlit time" Comment="Backlit time" HintText="Time in minutes the background light stays on after any key is pressed." ModbusAddress="60" ModbusCmd="3" ModbusDataType="100" ModbusPollingCycle="60" Unit="&lt;v&gt; min" Analog="true" Sensor="true" SourceValHigh="1" DestValHigh="1"/>
+	<ModbusCmd Title="410 - IP address" Comment="IP address" HintText="Read IP address as a 4  byte number (UINT32).
+A.B.C.D can be retrieved by formula function blocks (input is number I1):
+A=INT(I1/16777216)
+B=INT((I1-INT(I1/16777216)*16777216)/65536)
+C=INT((I1-INT(I1/65536)*65536)/256)
+D=I1-INT(I1/256)*256
+
+" ModbusAddress="61446" ModbusCmd="3" ModbusDataType="98" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="1" DestValHigh="1"/>
+	<ModbusCmd Title="414 - DHCP enabled" Comment="DHCP enabled" HintText="Read DHCP setting:
+0: DHCP is disabled,
+1: DHCP is enabled.
+
+" ModbusAddress="61454" ModbusCmd="3" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="1" DestValHigh="1"/>
+	<ModbusCmd Title="411 - IP subnet mask" Comment="IP subnet mask" HintText="Read IP subnet mask as a 4  byte number (UINT32).
+A.B.C.D can be retrieved by formula function blocks (input is number I1):
+A=INT(I1/16777216)
+B=INT((I1-INT(I1/16777216)*16777216)/65536)
+C=INT((I1-INT(I1/65536)*65536)/256)
+D=I1-INT(I1/256)*256
+
+" ModbusAddress="61448" ModbusCmd="3" ModbusDataType="98" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="1" DestValHigh="1"/>
+	<ModbusCmd Title="412 - IP default gateway" Comment="IP default gateway" HintText="Read IP address of default gateway as a 4  byte number (UINT32).
+A.B.C.D can be retrieved by formula function blocks (input is number I1):
+A=INT(I1/16777216)
+B=INT((I1-INT(I1/16777216)*16777216)/65536)
+C=INT((I1-INT(I1/65536)*65536)/256)
+D=I1-INT(I1/256)*256
+
+" ModbusAddress="61450" ModbusCmd="3" ModbusDataType="98" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="1" DestValHigh="1"/>
+	<ModbusCmd Title="413 - IP port" Comment="IP port" HintText="Read modbus TCP port.
+Range: 0 to 65535. Default is 502." ModbusAddress="61452" ModbusCmd="3" ModbusDataType="32" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="1" DestValHigh="1"/>
+	<ModbusCmd Title="041 - VAh since lst reset" Comment="VAh since lst reset" HintText="" ModbusAddress="80" ModbusCmd="4" ModbusDataType="100" ModbusPollingCycle="15" Unit="&lt;v.3&gt; kVAh" Analog="true" Sensor="true" SourceValHigh="1" DestValHigh="1"/>
+	<ModbusCmd Title="414 - Enable/Disable DHCP" Comment="Enable/Disable DHCP" HintText="Enable or disable DHCP:
+0: disable DHCP,
+1: enable DHCP.
+NOTE: KPPA is required! See KPPA for information." ModbusAddress="61454" ModbusCmd="16" ModbusDataType="96" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="401 - Demand period" Comment="Demand period" HintText="Write demand period: 0, 5, 8, 10, 15, 20, 30 or 60 minutes.
+Default is 60 minutes.
+Setting the period to 0 will cause the demand to show the current parameter value,
+and demand max to show the maximum parameter value since last demand reset." ModbusAddress="2" ModbusCmd="16" ModbusDataType="100" Unit="&lt;v&gt; min" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="404 - System type" Comment="System type" HintText="Values:
+1= 1p2w,
+2= 3p3w,
+3= 3p4w.
+NOTE: KPPA is required! See KPPA for information." ModbusAddress="10" ModbusCmd="16" ModbusDataType="98" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="405 - KPPA" Comment="KPPA" HintText="Write the correct password to get KPPA (Key Parameter Programming Authorization). 
+This is required to write parameters that are password protected.
+The default is 1000. KPPA will will timeout in one minute and can be extended by reading this register.
+Once the required changes have been made to the protected parameters the password shoud be reapplied by 
+a) allowing the KPPA to timeout, or
+b) writing any (wrong) value to this register, or
+c) power cycling the instrument." ModbusAddress="14" ModbusCmd="16" ModbusDataType="100" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="406 - Network node" Comment="Network node" HintText="Write the modbus node address: 1 to 247 
+Default is 1. 
+NOTE: Requires a restart to become effective." ModbusAddress="20" ModbusCmd="16" ModbusDataType="100" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="407 - Password" Comment="Password" HintText="Write the new password (4 digits) from 0000 to 9999.
+NOTE: KPPA is required! See KPPA for information." ModbusAddress="24" ModbusCmd="16" ModbusDataType="100" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="409 - Backlit time" Comment="Backlit time" HintText="Time in minutes the background light stays on after any key is pressed.
+Default 60 minutes.
+Range 0 to 121.
+0 means backlit always on, 121 means backlit always off." ModbusAddress="60" ModbusCmd="16" ModbusDataType="100" Unit="&lt;v&gt; min" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="410 - IP address" Comment="IP address" HintText="Write fixed IP address as 4 bytes.
+A.B.C.D is written as a single number: (A*256+B)*65536+C*256+D  
+NOTE: If DHCP is enabled, this register cannot be set, but can only be read.
+NOTE: KPPA is required! See KPPA for information." ModbusAddress="61446" ModbusCmd="16" ModbusDataType="98" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="411 - IP subnet mask" Comment="IP subnet mask" HintText="Write IP subnet mask as 4 bytes.
+A.B.C.D is written as a single number: (A*256+B)*65536+C*256+D  
+NOTE: If DHCP is enabled, this register cannot be set, but can only be read.
+NOTE: KPPA is required! See KPPA for information." ModbusAddress="61448" ModbusCmd="16" ModbusDataType="98" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="412 - IP default gateway" Comment="IP default gateway" HintText="Write IP address of the default gateway as 4 bytes.
+A.B.C.D is written as a single number: (A*256+B)*65536+C*256+D  
+NOTE: If DHCP is enabled, this register cannot be set, but can only be read.
+NOTE: KPPA is required! See KPPA for information." ModbusAddress="61450" ModbusCmd="16" ModbusDataType="98" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="413 - IP port" Comment="IP port" HintText="Write modbus TCP port.
+Range: 0 to 65535. Default is 502.
+
+NOTE: KPPA is required! See KPPA for information." ModbusAddress="61452" ModbusCmd="16" ModbusDataType="96" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="10"/>
+</Modbus>

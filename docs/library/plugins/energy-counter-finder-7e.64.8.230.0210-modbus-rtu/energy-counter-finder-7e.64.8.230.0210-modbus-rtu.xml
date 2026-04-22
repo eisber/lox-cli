@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Modbus Title="Finder 7E.64.8.230.0210" Comment="Energy Meter 1-Phase Modbus-RTU" Baudrate="9600" Channel="1">
+	<Info templateType="7" minVersion="12021201"/>
+	<ModbusCmd Title="Total Active Power (P∑)" Comment="" ModbusAddress="4134" ModbusCmd="3" ModbusDataType="36" ModbusPollingCycle="5" Unit="&lt;v.1&gt; W" Analog="true" Sensor="true" SourceValHigh="1" DestValHigh="1"/>
+	<ModbusCmd Title="Energy Consumption (+kWh∑)" Comment="" ModbusAddress="4358" ModbusCmd="3" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.3&gt; kWh" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="1"/>
+	<ModbusCmd Title="Energy Production (-kWh∑)" Comment="" ModbusAddress="4366" ModbusCmd="3" ModbusDataType="36" ModbusPollingCycle="60" Unit="&lt;v.3&gt; kWh" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="1"/>
+	<ModbusCmd Title="Frequency (F)" Comment="" ModbusAddress="4152" ModbusCmd="3" ModbusDataType="36" ModbusPollingCycle="10" Unit="&lt;v.2&gt; Hz" Analog="true" Sensor="true" SourceValHigh="1" DestValHigh="1"/>
+	<ModbusCmd Title="Total Apparent Power (S∑)" Comment="" ModbusAddress="4142" ModbusCmd="3" ModbusDataType="36" ModbusPollingCycle="5" Unit="&lt;v.1&gt; VA" Analog="true" Sensor="true" SourceValHigh="1" DestValHigh="1"/>
+	<ModbusCmd Title="Total Reactive Power (Q∑)" Comment="" ModbusAddress="4150" ModbusCmd="3" ModbusDataType="36" ModbusPollingCycle="5" Unit="&lt;v.1&gt; VAr" Analog="true" Sensor="true" SourceValHigh="1" DestValHigh="1"/>
+	<ModbusCmd Title="Voltage (V∑)" Comment="" ModbusAddress="4108" ModbusCmd="3" ModbusDataType="36" ModbusPollingCycle="5" Unit="&lt;v.1&gt; V" Analog="true" Sensor="true" SourceValHigh="1" DestValHigh="1"/>
+	<ModbusCmd Title="Current (A∑)" Comment="" ModbusAddress="4118" ModbusCmd="3" ModbusDataType="36" ModbusPollingCycle="5" Unit="&lt;v.3&gt; A" Analog="true" Sensor="true" SourceValHigh="1" DestValHigh="1"/>
+	<ModbusCmd Title="Power Factor (PF∑)" Comment="" ModbusAddress="4126" ModbusCmd="3" ModbusDataType="36" ModbusPollingCycle="5" Unit="&lt;v.2&gt;" Analog="true" Sensor="true" SourceValHigh="1" DestValHigh="1"/>
+</Modbus>

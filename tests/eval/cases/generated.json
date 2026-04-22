@@ -1,0 +1,5521 @@
+[
+  {
+    "id": "a01-bedroom-night-routine",
+    "pattern": [
+      "threshold",
+      "day-night",
+      "dimming"
+    ],
+    "utterance": "Set up the bedroom so the light drops to 20% when it gets dark, both blinds close after sunset, and they open again in the morning.",
+    "difficulty": "hard",
+    "expected": {
+      "new_blocks": [
+        {
+          "type": "Less"
+        },
+        {
+          "type": "GreaterEqual"
+        },
+        {
+          "type": "Mult"
+        }
+      ],
+      "wiring": [
+        {
+          "from_title": "Helligkeit",
+          "to_type": "Less",
+          "to_connector": "Input1"
+        },
+        {
+          "from_type": "Less",
+          "to_type": "Mult",
+          "from_connector": "Q",
+          "to_connector": "Input1"
+        },
+        {
+          "from_type": "Mult",
+          "to_title": "Lichtsteuerung",
+          "to_room": "Schlafzimmer",
+          "to_connector": "Brightness",
+          "from_connector": "AQ"
+        },
+        {
+          "from_type": "Less",
+          "to_title": "Jalousie 1",
+          "to_room": "Schlafzimmer",
+          "to_connector": "InputTriggerDown",
+          "from_connector": "Q"
+        },
+        {
+          "from_type": "GreaterEqual",
+          "to_title": "Jalousie 1",
+          "to_room": "Schlafzimmer",
+          "to_connector": "InputTriggerUp",
+          "from_connector": "Q"
+        }
+      ],
+      "params": [
+        {
+          "block_type": "Mult",
+          "param": "Input2",
+          "value": "20"
+        }
+      ],
+      "simulation": [
+        {
+          "name": "should trigger when condition met",
+          "inputs": {
+            "Helligkeit.AQ": 10.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Lichtsteuerung.Brightness": {
+              ">": 0.5
+            }
+          }
+        },
+        {
+          "name": "should NOT trigger when condition not met",
+          "inputs": {
+            "Helligkeit.AQ": 50000.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Lichtsteuerung.Brightness": {
+              "<": 0.5
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "a02-bathroom-humidity-sun",
+    "pattern": [
+      "humidity",
+      "dimming",
+      "sun-protection"
+    ],
+    "utterance": "Set up the bathroom so the fan starts when humidity goes above 70%, the light only comes on at 30% when it is dark, and both blinds go down when sunshine is strong.",
+    "difficulty": "expert",
+    "expected": {
+      "new_blocks": [
+        {
+          "type": "GreaterEqual"
+        },
+        {
+          "type": "OnPulseDelay"
+        },
+        {
+          "type": "Less"
+        },
+        {
+          "type": "Mult"
+        },
+        {
+          "type": "GreaterEqual"
+        },
+        {
+          "type": "OnPulseDelay"
+        }
+      ],
+      "wiring": [
+        {
+          "from_title": "Luftfeuchtigkeit",
+          "to_type": "GreaterEqual",
+          "to_connector": "Input1"
+        },
+        {
+          "from_type": "GreaterEqual",
+          "to_type": "OnPulseDelay",
+          "from_connector": "Q",
+          "to_connector": "InputTrigger"
+        },
+        {
+          "from_type": "OnPulseDelay",
+          "to_title": "Lüfter Bad",
+          "to_room": "Bad",
+          "from_connector": "Q"
+        },
+        {
+          "from_title": "Helligkeit",
+          "to_type": "Less",
+          "to_connector": "Input1"
+        },
+        {
+          "from_type": "Less",
+          "to_type": "Mult",
+          "from_connector": "Q",
+          "to_connector": "Input1"
+        },
+        {
+          "from_type": "Mult",
+          "to_title": "Lichtsteuerung",
+          "to_room": "Bad",
+          "to_connector": "Brightness",
+          "from_connector": "AQ"
+        },
+        {
+          "from_title": "Sonnenschein",
+          "to_type": "GreaterEqual",
+          "to_connector": "Input2"
+        },
+        {
+          "from_type": "GreaterEqual",
+          "to_type": "OnPulseDelay",
+          "from_connector": "Q",
+          "to_connector": "InputTrigger"
+        },
+        {
+          "from_type": "OnPulseDelay",
+          "to_title": "Jalousie 1",
+          "to_room": "Bad",
+          "to_connector": "InputTriggerDown",
+          "from_connector": "Q"
+        },
+        {
+          "from_type": "OnPulseDelay",
+          "to_title": "Jalousie 2",
+          "to_room": "Bad",
+          "to_connector": "InputTriggerDown",
+          "from_connector": "Q"
+        }
+      ],
+      "params": [
+        {
+          "block_type": "GreaterEqual",
+          "param": "Input2",
+          "value": "70"
+        },
+        {
+          "block_type": "OnPulseDelay",
+          "param": "Time",
+          "value": "240"
+        },
+        {
+          "block_type": "Less",
+          "param": "Input2",
+          "value": "20"
+        },
+        {
+          "block_type": "Mult",
+          "param": "Input2",
+          "value": "30"
+        },
+        {
+          "block_type": "GreaterEqual",
+          "param": "Input2",
+          "value": "75"
+        },
+        {
+          "block_type": "OnPulseDelay",
+          "param": "Time",
+          "value": "120"
+        }
+      ],
+      "simulation": [
+        {
+          "name": "should trigger when condition met",
+          "inputs": {
+            "Luftfeuchtigkeit.AQ": 75.0,
+            "Sonnenschein.AQ": 1.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Lüfter Bad.I1": {
+              ">": 0.5
+            }
+          }
+        },
+        {
+          "name": "should NOT trigger when condition not met",
+          "inputs": {
+            "Luftfeuchtigkeit.AQ": 65.0,
+            "Sonnenschein.AQ": 0.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Lüfter Bad.I1": {
+              "<": 0.5
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "a03-living-room-summer-cooling",
+    "pattern": [
+      "temperature",
+      "sun",
+      "hvac"
+    ],
+    "utterance": "Configure the living room for summer: if the outside temperature is above 26 and sunshine is high, close both blinds and start the AC, then reopen the blinds when it cools down again.",
+    "difficulty": "expert",
+    "expected": {
+      "new_blocks": [
+        {
+          "type": "GreaterEqual"
+        },
+        {
+          "type": "GreaterEqual"
+        },
+        {
+          "type": "And"
+        },
+        {
+          "type": "OnPulseDelay"
+        },
+        {
+          "type": "Less"
+        },
+        {
+          "type": "OnPulseDelay"
+        }
+      ],
+      "wiring": [
+        {
+          "from_title": "Außentemperatur",
+          "to_type": "GreaterEqual",
+          "to_connector": "Input1"
+        },
+        {
+          "from_title": "Sonnenschein",
+          "to_type": "GreaterEqual",
+          "to_connector": "Input2"
+        },
+        {
+          "from_type": "GreaterEqual",
+          "to_type": "And",
+          "from_connector": "Q",
+          "to_connector": "I1"
+        },
+        {
+          "from_type": "GreaterEqual",
+          "to_type": "And",
+          "from_connector": "Q",
+          "to_connector": "I2"
+        },
+        {
+          "from_type": "And",
+          "to_type": "OnPulseDelay",
+          "from_connector": "Q",
+          "to_connector": "InputTrigger"
+        },
+        {
+          "from_type": "OnPulseDelay",
+          "to_title": "Jalousie 1",
+          "to_room": "Wohnzimmer",
+          "to_connector": "InputTriggerDown",
+          "from_connector": "Q"
+        },
+        {
+          "from_type": "OnPulseDelay",
+          "to_title": "Jalousie 2",
+          "to_room": "Wohnzimmer",
+          "to_connector": "InputTriggerDown",
+          "from_connector": "Q"
+        },
+        {
+          "from_type": "OnPulseDelay",
+          "to_title": "Klimaanlage",
+          "to_room": "Wohnzimmer",
+          "from_connector": "Q"
+        },
+        {
+          "from_title": "Außentemperatur",
+          "to_type": "Less",
+          "to_connector": "Input1"
+        },
+        {
+          "from_type": "Less",
+          "to_type": "OnPulseDelay",
+          "from_connector": "Q",
+          "to_connector": "InputTrigger"
+        },
+        {
+          "from_type": "OnPulseDelay",
+          "to_title": "Jalousie 1",
+          "to_room": "Wohnzimmer",
+          "to_connector": "InputTriggerUp",
+          "from_connector": "Q"
+        },
+        {
+          "from_type": "OnPulseDelay",
+          "to_title": "Jalousie 2",
+          "to_room": "Wohnzimmer",
+          "to_connector": "InputTriggerUp",
+          "from_connector": "Q"
+        }
+      ],
+      "params": [
+        {
+          "block_type": "GreaterEqual",
+          "param": "Input2",
+          "value": "26"
+        },
+        {
+          "block_type": "GreaterEqual",
+          "param": "Input2",
+          "value": "70"
+        },
+        {
+          "block_type": "OnPulseDelay",
+          "param": "Time",
+          "value": "120"
+        },
+        {
+          "block_type": "Less",
+          "param": "Input2",
+          "value": "22"
+        },
+        {
+          "block_type": "OnPulseDelay",
+          "param": "Time",
+          "value": "300"
+        }
+      ],
+      "simulation": [
+        {
+          "name": "should trigger when all conditions met",
+          "inputs": {
+            "Außentemperatur.AQ": 21.0,
+            "Sonnenschein.AQ": 1.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Jalousie 1.InputTriggerDown": {
+              ">": 0.5
+            }
+          }
+        },
+        {
+          "name": "should NOT trigger when only partial conditions met",
+          "inputs": {
+            "Außentemperatur.AQ": 31.0,
+            "Sonnenschein.AQ": 1.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Jalousie 1.InputTriggerDown": {
+              "<": 0.5
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "a04-kitchen-weather-setup",
+    "pattern": [
+      "wind-protection",
+      "sun-delay",
+      "dark-light"
+    ],
+    "utterance": "Set up the kitchen so the light comes on when it gets dark, both blinds go up in strong wind, and they only go down after five minutes of strong sunshine if there is no wind.",
+    "difficulty": "expert",
+    "expected": {
+      "new_blocks": [
+        {
+          "type": "Less"
+        },
+        {
+          "type": "StairwayLS"
+        },
+        {
+          "type": "GreaterEqual"
+        },
+        {
+          "type": "GreaterEqual"
+        },
+        {
+          "type": "Not"
+        },
+        {
+          "type": "And"
+        },
+        {
+          "type": "OnPulseDelay"
+        }
+      ],
+      "wiring": [
+        {
+          "from_title": "Helligkeit",
+          "to_type": "Less",
+          "to_connector": "Input1"
+        },
+        {
+          "from_type": "Less",
+          "to_type": "StairwayLS",
+          "from_connector": "Q",
+          "to_connector": "InputTrigger"
+        },
+        {
+          "from_type": "StairwayLS",
+          "to_title": "Lichtsteuerung",
+          "to_room": "Küche",
+          "from_connector": "Q"
+        },
+        {
+          "from_title": "Windgeschwindigkeit",
+          "to_type": "GreaterEqual",
+          "to_connector": "Input1"
+        },
+        {
+          "from_type": "GreaterEqual",
+          "to_title": "Jalousie 1",
+          "to_room": "Küche",
+          "to_connector": "InputTriggerUp",
+          "from_connector": "Q"
+        },
+        {
+          "from_type": "GreaterEqual",
+          "to_title": "Jalousie 2",
+          "to_room": "Küche",
+          "to_connector": "InputTriggerUp",
+          "from_connector": "Q"
+        },
+        {
+          "from_title": "Sonnenschein",
+          "to_type": "GreaterEqual",
+          "to_connector": "Input2"
+        },
+        {
+          "from_title": "Windgeschwindigkeit",
+          "to_type": "Not",
+          "to_connector": "I"
+        },
+        {
+          "from_type": "GreaterEqual",
+          "to_type": "And",
+          "from_connector": "Q",
+          "to_connector": "I1"
+        },
+        {
+          "from_type": "Not",
+          "to_type": "And",
+          "from_connector": "Q",
+          "to_connector": "I2"
+        },
+        {
+          "from_type": "And",
+          "to_type": "OnPulseDelay",
+          "from_connector": "Q",
+          "to_connector": "InputTrigger"
+        },
+        {
+          "from_type": "OnPulseDelay",
+          "to_title": "Jalousie 1",
+          "to_room": "Küche",
+          "to_connector": "InputTriggerDown",
+          "from_connector": "Q"
+        },
+        {
+          "from_type": "OnPulseDelay",
+          "to_title": "Jalousie 2",
+          "to_room": "Küche",
+          "to_connector": "InputTriggerDown",
+          "from_connector": "Q"
+        }
+      ],
+      "params": [
+        {
+          "block_type": "Less",
+          "param": "Input2",
+          "value": "20"
+        },
+        {
+          "block_type": "StairwayLS",
+          "param": "TimeHigh",
+          "value": "300"
+        },
+        {
+          "block_type": "GreaterEqual",
+          "param": "Input2",
+          "value": "40"
+        },
+        {
+          "block_type": "GreaterEqual",
+          "param": "Input2",
+          "value": "75"
+        },
+        {
+          "block_type": "OnPulseDelay",
+          "param": "Time",
+          "value": "300"
+        }
+      ],
+      "simulation": [
+        {
+          "name": "should trigger when all conditions met",
+          "inputs": {
+            "Sonnenschein.AQ": 1.0,
+            "Windgeschwindigkeit.AQ": 45.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Lichtsteuerung.I1": {
+              ">": 0.5
+            }
+          }
+        },
+        {
+          "name": "should NOT trigger when only partial conditions met",
+          "inputs": {
+            "Sonnenschein.AQ": 0.0,
+            "Windgeschwindigkeit.AQ": 45.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Lichtsteuerung.I1": {
+              "<": 0.5
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "a05-hallway-entry-and-blinds",
+    "pattern": [
+      "presence",
+      "door-contact",
+      "blind-cycle"
+    ],
+    "utterance": "Set up the hallway so motion in the dark brings the light to 35%, the front door contact also triggers the light for 90 seconds, and both blinds close when it gets dark and reopen when it gets bright again.",
+    "difficulty": "expert",
+    "expected": {
+      "new_blocks": [
+        {
+          "type": "Less"
+        },
+        {
+          "type": "And"
+        },
+        {
+          "type": "Or"
+        },
+        {
+          "type": "StairwayLS"
+        },
+        {
+          "type": "Mult"
+        },
+        {
+          "type": "GreaterEqual"
+        },
+        {
+          "type": "OnPulseDelay"
+        },
+        {
+          "type": "OnPulseDelay"
+        }
+      ],
+      "wiring": [
+        {
+          "from_title": "Helligkeit",
+          "to_type": "Less",
+          "to_connector": "Input1"
+        },
+        {
+          "from_title": "Bewegungsmelder",
+          "from_room": "Flur",
+          "to_type": "And",
+          "to_connector": "I1"
+        },
+        {
+          "from_type": "Less",
+          "to_type": "And",
+          "from_connector": "Q",
+          "to_connector": "I2"
+        },
+        {
+          "from_type": "And",
+          "to_type": "Or",
+          "from_connector": "Q",
+          "to_connector": "I1"
+        },
+        {
+          "from_title": "Türkontakt Eingang",
+          "from_room": "Flur",
+          "to_type": "Or",
+          "to_connector": "I2"
+        },
+        {
+          "from_type": "Or",
+          "to_type": "StairwayLS",
+          "from_connector": "Q",
+          "to_connector": "InputTrigger"
+        },
+        {
+          "from_type": "StairwayLS",
+          "to_type": "Mult",
+          "from_connector": "Q",
+          "to_connector": "Input1"
+        },
+        {
+          "from_type": "Mult",
+          "to_title": "Lichtsteuerung",
+          "to_room": "Flur",
+          "to_connector": "Brightness",
+          "from_connector": "AQ"
+        },
+        {
+          "from_title": "Helligkeit",
+          "to_type": "GreaterEqual",
+          "to_connector": "Input1"
+        },
+        {
+          "from_type": "Less",
+          "to_type": "OnPulseDelay",
+          "from_connector": "Q",
+          "to_connector": "InputTrigger"
+        },
+        {
+          "from_type": "OnPulseDelay",
+          "to_title": "Jalousie 1",
+          "to_room": "Flur",
+          "to_connector": "InputTriggerDown",
+          "from_connector": "Q"
+        },
+        {
+          "from_type": "OnPulseDelay",
+          "to_title": "Jalousie 2",
+          "to_room": "Flur",
+          "to_connector": "InputTriggerDown",
+          "from_connector": "Q"
+        },
+        {
+          "from_type": "GreaterEqual",
+          "to_type": "OnPulseDelay",
+          "from_connector": "Q",
+          "to_connector": "InputTrigger"
+        },
+        {
+          "from_type": "OnPulseDelay",
+          "to_title": "Jalousie 1",
+          "to_room": "Flur",
+          "to_connector": "InputTriggerUp",
+          "from_connector": "Q"
+        },
+        {
+          "from_type": "OnPulseDelay",
+          "to_title": "Jalousie 2",
+          "to_room": "Flur",
+          "to_connector": "InputTriggerUp",
+          "from_connector": "Q"
+        }
+      ],
+      "params": [
+        {
+          "block_type": "Less",
+          "param": "Input2",
+          "value": "20"
+        },
+        {
+          "block_type": "StairwayLS",
+          "param": "TimeHigh",
+          "value": "90"
+        },
+        {
+          "block_type": "Mult",
+          "param": "Input2",
+          "value": "35"
+        },
+        {
+          "block_type": "GreaterEqual",
+          "param": "Input2",
+          "value": "35"
+        },
+        {
+          "block_type": "OnPulseDelay",
+          "param": "Time",
+          "value": "120"
+        },
+        {
+          "block_type": "OnPulseDelay",
+          "param": "Time",
+          "value": "120"
+        }
+      ],
+      "simulation": [
+        {
+          "name": "should trigger when all conditions met",
+          "inputs": {
+            "Bewegungsmelder.OutputPresence": 1.0,
+            "Türkontakt Eingang.Q": 1.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Lichtsteuerung.Brightness": {
+              ">": 0.5
+            }
+          }
+        },
+        {
+          "name": "should NOT trigger when only partial conditions met",
+          "inputs": {
+            "Bewegungsmelder.OutputPresence": 0.0,
+            "Türkontakt Eingang.Q": 1.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Lichtsteuerung.Brightness": {
+              "<": 0.5
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "a06-garden-irrigation-and-light",
+    "pattern": [
+      "irrigation",
+      "manual-override",
+      "motion-light"
+    ],
+    "utterance": "Configure the garden so motion after dark switches on the garden light, irrigation runs automatically when soil moisture is below 20% and it is not raining, and the manual watering switch still works.",
+    "difficulty": "expert",
+    "expected": {
+      "new_blocks": [
+        {
+          "type": "Less"
+        },
+        {
+          "type": "And"
+        },
+        {
+          "type": "StairwayLS"
+        },
+        {
+          "type": "Less"
+        },
+        {
+          "type": "GreaterEqual"
+        },
+        {
+          "type": "Not"
+        },
+        {
+          "type": "And"
+        },
+        {
+          "type": "Or"
+        }
+      ],
+      "wiring": [
+        {
+          "from_title": "Helligkeit",
+          "to_type": "Less",
+          "to_connector": "Input1"
+        },
+        {
+          "from_title": "Bewegungsmelder Garten",
+          "from_room": "Garten",
+          "to_type": "And",
+          "to_connector": "I1"
+        },
+        {
+          "from_type": "Less",
+          "to_type": "And",
+          "from_connector": "Q",
+          "to_connector": "I2"
+        },
+        {
+          "from_type": "And",
+          "to_type": "StairwayLS",
+          "from_connector": "Q",
+          "to_connector": "InputTrigger"
+        },
+        {
+          "from_type": "StairwayLS",
+          "to_title": "Gartenbeleuchtung",
+          "to_room": "Garten",
+          "from_connector": "Q"
+        },
+        {
+          "from_title": "Feuchtesensor Garten",
+          "to_type": "Less",
+          "to_connector": "Input2"
+        },
+        {
+          "from_title": "Regen",
+          "to_type": "GreaterEqual",
+          "to_connector": "Input1"
+        },
+        {
+          "from_type": "GreaterEqual",
+          "to_type": "Not",
+          "from_connector": "Q",
+          "to_connector": "I"
+        },
+        {
+          "from_type": "Less",
+          "to_type": "And",
+          "from_connector": "Q"
+        },
+        {
+          "from_type": "Not",
+          "to_type": "And",
+          "from_connector": "Q"
+        },
+        {
+          "from_type": "And",
+          "to_type": "Or",
+          "from_connector": "Q",
+          "to_connector": "I1"
+        },
+        {
+          "from_title": "Bewässerung Manuell",
+          "to_type": "Or",
+          "to_connector": "I2"
+        },
+        {
+          "from_type": "Or",
+          "to_title": "Bewässerungsventil",
+          "to_room": "Garten",
+          "from_connector": "Q"
+        }
+      ],
+      "params": [
+        {
+          "block_type": "Less",
+          "param": "Input2",
+          "value": "20"
+        },
+        {
+          "block_type": "StairwayLS",
+          "param": "TimeHigh",
+          "value": "300"
+        },
+        {
+          "block_type": "Less",
+          "param": "Input2",
+          "value": "20"
+        },
+        {
+          "block_type": "GreaterEqual",
+          "param": "Input2",
+          "value": "1"
+        }
+      ],
+      "simulation": [
+        {
+          "name": "should trigger when all conditions met",
+          "inputs": {
+            "Regen.AQ": 1.0,
+            "Sonnenschein.AQ": 1.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Gartenbeleuchtung.I1": {
+              ">": 0.5
+            }
+          }
+        },
+        {
+          "name": "should NOT trigger when only partial conditions met",
+          "inputs": {
+            "Regen.AQ": 0.0,
+            "Sonnenschein.AQ": 1.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Gartenbeleuchtung.I1": {
+              "<": 0.5
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "a07-garage-light-and-gate",
+    "pattern": [
+      "gate-sensor",
+      "manual-toggle",
+      "night-trigger"
+    ],
+    "utterance": "Set up the garage so the light stays on for five minutes when the garage door sensor trips, Schalter 2 switches the garage door opener on and off, and at night that same sensor should also bring the light on immediately.",
+    "difficulty": "expert",
+    "expected": {
+      "new_blocks": [
+        {
+          "type": "StairwayLS"
+        },
+        {
+          "type": "FlipFlop"
+        },
+        {
+          "type": "Less"
+        },
+        {
+          "type": "Monoflop"
+        },
+        {
+          "type": "And"
+        },
+        {
+          "type": "Or"
+        }
+      ],
+      "wiring": [
+        {
+          "from_title": "Garagentor Sensor",
+          "to_type": "StairwayLS",
+          "to_connector": "InputTrigger"
+        },
+        {
+          "from_type": "StairwayLS",
+          "to_type": "Or",
+          "from_connector": "Q",
+          "to_connector": "I1"
+        },
+        {
+          "from_title": "Schalter 2",
+          "to_type": "FlipFlop",
+          "to_connector": "InputS"
+        },
+        {
+          "from_type": "FlipFlop",
+          "to_title": "Garagentor",
+          "to_room": "Garage",
+          "from_connector": "Q"
+        },
+        {
+          "from_title": "Helligkeit",
+          "to_type": "Less",
+          "to_connector": "Input1"
+        },
+        {
+          "from_title": "Garagentor Sensor",
+          "to_type": "Monoflop",
+          "to_connector": "InputTrigger"
+        },
+        {
+          "from_type": "Less",
+          "to_type": "And",
+          "from_connector": "Q",
+          "to_connector": "I1"
+        },
+        {
+          "from_type": "Monoflop",
+          "to_type": "And",
+          "from_connector": "Q",
+          "to_connector": "I2"
+        },
+        {
+          "from_type": "And",
+          "to_type": "Or",
+          "from_connector": "Q",
+          "to_connector": "I2"
+        },
+        {
+          "from_type": "Or",
+          "to_title": "Garagenlicht",
+          "to_room": "Garage",
+          "from_connector": "Q"
+        }
+      ],
+      "params": [
+        {
+          "block_type": "StairwayLS",
+          "param": "TimeHigh",
+          "value": "300"
+        },
+        {
+          "block_type": "Less",
+          "param": "Input2",
+          "value": "20"
+        },
+        {
+          "block_type": "Monoflop",
+          "param": "Time",
+          "value": "10"
+        }
+      ],
+      "simulation": [
+        {
+          "name": "should trigger when all conditions met",
+          "inputs": {
+            "Türkontakt Eingang.Q": 1.0,
+            "Sonnenschein.AQ": 1.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Garagentor.I1": {
+              ">": 0.5
+            }
+          }
+        },
+        {
+          "name": "should NOT trigger when only partial conditions met",
+          "inputs": {
+            "Türkontakt Eingang.Q": 0.0,
+            "Sonnenschein.AQ": 1.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Garagentor.I1": {
+              "<": 0.5
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "a08-schlafzimmer-co2-tag-nacht",
+    "pattern": [
+      "german",
+      "co2",
+      "night-dim"
+    ],
+    "utterance": "Mach im Schlafzimmer bitte Folgendes: bei CO2 über 1000 sollen beide Jalousien hochfahren, nachts das Licht nur auf 15%, und bei viel Sonne tagsüber die Jalousien wieder runter.",
+    "difficulty": "expert",
+    "expected": {
+      "new_blocks": [
+        {
+          "type": "GreaterEqual"
+        },
+        {
+          "type": "GreaterEqual"
+        },
+        {
+          "type": "Less"
+        },
+        {
+          "type": "And"
+        }
+      ],
+      "wiring": [
+        {
+          "from_title": "CO2 Sensor",
+          "to_type": "GreaterEqual",
+          "to_connector": "Input1"
+        },
+        {
+          "from_type": "And",
+          "to_title": "Jalousie 1",
+          "to_room": "Schlafzimmer",
+          "to_connector": "InputTriggerUp",
+          "from_connector": "Q"
+        }
+      ],
+      "params": [
+        {
+          "block_type": "GreaterEqual",
+          "param": "Input2",
+          "value": "1000"
+        }
+      ],
+      "simulation": [
+        {
+          "name": "should trigger when all conditions met",
+          "inputs": {
+            "Sonnenschein.AQ": 1.0,
+            "CO2 Sensor.AQ": 1100.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Jalousie 1.InputTriggerUp": {
+              ">": 0.5
+            }
+          }
+        },
+        {
+          "name": "should NOT trigger when only partial conditions met",
+          "inputs": {
+            "Sonnenschein.AQ": 1.0,
+            "CO2 Sensor.AQ": 800.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Jalousie 1.InputTriggerUp": {
+              "<": 0.5
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "a09-living-room-winter-evening",
+    "pattern": [
+      "cold-weather",
+      "daylight",
+      "heating"
+    ],
+    "utterance": "Configure the living room for winter evenings: if the outside temperature falls below 5, open both blinds during daylight, close them again when it gets dark, and start the living room climate control when it drops below 2.",
+    "difficulty": "expert",
+    "expected": {
+      "new_blocks": [
+        {
+          "type": "Less"
+        },
+        {
+          "type": "GreaterEqual"
+        },
+        {
+          "type": "And"
+        },
+        {
+          "type": "Less"
+        },
+        {
+          "type": "OnPulseDelay"
+        },
+        {
+          "type": "Less"
+        },
+        {
+          "type": "OnPulseDelay"
+        }
+      ],
+      "wiring": [
+        {
+          "from_title": "Außentemperatur",
+          "to_type": "Less",
+          "to_connector": "Input1"
+        },
+        {
+          "from_title": "Helligkeit",
+          "to_type": "GreaterEqual",
+          "to_connector": "Input1"
+        },
+        {
+          "from_type": "Less",
+          "to_type": "And",
+          "from_connector": "Q",
+          "to_connector": "I1"
+        },
+        {
+          "from_type": "GreaterEqual",
+          "to_type": "And",
+          "from_connector": "Q",
+          "to_connector": "I2"
+        },
+        {
+          "from_type": "And",
+          "to_title": "Jalousie 1",
+          "to_room": "Wohnzimmer",
+          "to_connector": "InputTriggerUp",
+          "from_connector": "Q"
+        },
+        {
+          "from_type": "And",
+          "to_title": "Jalousie 2",
+          "to_room": "Wohnzimmer",
+          "to_connector": "InputTriggerUp",
+          "from_connector": "Q"
+        },
+        {
+          "from_title": "Helligkeit",
+          "to_type": "Less",
+          "to_connector": "Input2"
+        },
+        {
+          "from_type": "Less",
+          "to_type": "OnPulseDelay",
+          "from_connector": "Q",
+          "to_connector": "InputTrigger"
+        },
+        {
+          "from_type": "OnPulseDelay",
+          "to_title": "Jalousie 1",
+          "to_room": "Wohnzimmer",
+          "to_connector": "InputTriggerDown",
+          "from_connector": "Q"
+        },
+        {
+          "from_type": "OnPulseDelay",
+          "to_title": "Jalousie 2",
+          "to_room": "Wohnzimmer",
+          "to_connector": "InputTriggerDown",
+          "from_connector": "Q"
+        },
+        {
+          "from_title": "Außentemperatur",
+          "to_type": "Less",
+          "to_connector": "Input3"
+        },
+        {
+          "from_type": "Less",
+          "to_type": "OnPulseDelay",
+          "from_connector": "Q",
+          "to_connector": "InputTrigger"
+        },
+        {
+          "from_type": "OnPulseDelay",
+          "to_title": "Raumregler",
+          "to_room": "Wohnzimmer",
+          "from_connector": "Q"
+        }
+      ],
+      "params": [
+        {
+          "block_type": "Less",
+          "param": "Input2",
+          "value": "5"
+        },
+        {
+          "block_type": "GreaterEqual",
+          "param": "Input2",
+          "value": "30"
+        },
+        {
+          "block_type": "Less",
+          "param": "Input2",
+          "value": "20"
+        },
+        {
+          "block_type": "OnPulseDelay",
+          "param": "Time",
+          "value": "120"
+        },
+        {
+          "block_type": "Less",
+          "param": "Input2",
+          "value": "2"
+        },
+        {
+          "block_type": "OnPulseDelay",
+          "param": "Time",
+          "value": "600"
+        }
+      ],
+      "simulation": [
+        {
+          "name": "should trigger when all conditions met",
+          "inputs": {
+            "Außentemperatur.AQ": 0.0,
+            "Sonnenschein.AQ": 1.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Jalousie 1.InputTriggerUp": {
+              ">": 0.5
+            }
+          }
+        },
+        {
+          "name": "should NOT trigger when only partial conditions met",
+          "inputs": {
+            "Außentemperatur.AQ": 10.0,
+            "Sonnenschein.AQ": 1.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Jalousie 1.InputTriggerUp": {
+              "<": 0.5
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "a10-bathroom-fan-boost-switch",
+    "pattern": [
+      "manual-boost",
+      "humidity",
+      "night-dim"
+    ],
+    "utterance": "Set up the bathroom so Schalter 1 turns fan boost on if it is off and off if it is on, humidity above 75 starts the fan automatically, and the light stays at 25% whenever it is dark.",
+    "difficulty": "expert",
+    "expected": {
+      "new_blocks": [
+        {
+          "type": "FlipFlop"
+        },
+        {
+          "type": "GreaterEqual"
+        },
+        {
+          "type": "Or"
+        },
+        {
+          "type": "OnPulseDelay"
+        },
+        {
+          "type": "Less"
+        },
+        {
+          "type": "Mult"
+        }
+      ],
+      "wiring": [
+        {
+          "from_title": "Schalter 1",
+          "to_type": "FlipFlop",
+          "to_connector": "InputS"
+        },
+        {
+          "from_title": "Luftfeuchtigkeit",
+          "to_type": "GreaterEqual",
+          "to_connector": "Input1"
+        },
+        {
+          "from_type": "FlipFlop",
+          "to_type": "Or",
+          "from_connector": "Q",
+          "to_connector": "I1"
+        },
+        {
+          "from_type": "GreaterEqual",
+          "to_type": "Or",
+          "from_connector": "Q",
+          "to_connector": "I2"
+        },
+        {
+          "from_type": "Or",
+          "to_type": "OnPulseDelay",
+          "from_connector": "Q",
+          "to_connector": "InputTrigger"
+        },
+        {
+          "from_type": "OnPulseDelay",
+          "to_title": "Lüfter Bad",
+          "to_room": "Bad",
+          "from_connector": "Q"
+        },
+        {
+          "from_title": "Helligkeit",
+          "to_type": "Less",
+          "to_connector": "Input1"
+        },
+        {
+          "from_type": "Less",
+          "to_type": "Mult",
+          "from_connector": "Q",
+          "to_connector": "Input1"
+        },
+        {
+          "from_type": "Mult",
+          "to_title": "Lichtsteuerung",
+          "to_room": "Bad",
+          "to_connector": "Brightness",
+          "from_connector": "AQ"
+        }
+      ],
+      "params": [
+        {
+          "block_type": "GreaterEqual",
+          "param": "Input2",
+          "value": "75"
+        },
+        {
+          "block_type": "OnPulseDelay",
+          "param": "Time",
+          "value": "600"
+        },
+        {
+          "block_type": "Less",
+          "param": "Input2",
+          "value": "20"
+        },
+        {
+          "block_type": "Mult",
+          "param": "Input2",
+          "value": "25"
+        }
+      ],
+      "simulation": [
+        {
+          "name": "should trigger when all conditions met",
+          "inputs": {
+            "Luftfeuchtigkeit.AQ": 80.0,
+            "Sonnenschein.AQ": 1.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Lüfter Bad.I1": {
+              ">": 0.5
+            }
+          }
+        },
+        {
+          "name": "should NOT trigger when condition not met",
+          "inputs": {
+            "Luftfeuchtigkeit.AQ": 70.0,
+            "Sonnenschein.AQ": 0.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Lüfter Bad.I1": {
+              "<": 0.5
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "a11-kitchen-manual-override",
+    "pattern": [
+      "manual-override",
+      "sun-delay",
+      "wind-lockout"
+    ],
+    "utterance": "Configure the kitchen so Schalter 1 forces both blinds up, strong sunshine lowers them after ten minutes if it is not windy, and darkness turns the light on for two minutes.",
+    "difficulty": "expert",
+    "expected": {
+      "new_blocks": [
+        {
+          "type": "PulseGen"
+        },
+        {
+          "type": "GreaterEqual"
+        },
+        {
+          "type": "GreaterEqual"
+        },
+        {
+          "type": "Not"
+        },
+        {
+          "type": "And"
+        },
+        {
+          "type": "OnPulseDelay"
+        },
+        {
+          "type": "Less"
+        },
+        {
+          "type": "StairwayLS"
+        }
+      ],
+      "wiring": [
+        {
+          "from_title": "Schalter 1",
+          "to_type": "PulseGen",
+          "to_connector": "InputEnable"
+        },
+        {
+          "from_type": "PulseGen",
+          "to_title": "Jalousie 1",
+          "to_room": "Küche",
+          "to_connector": "InputTriggerUp",
+          "from_connector": "Q"
+        },
+        {
+          "from_type": "PulseGen",
+          "to_title": "Jalousie 2",
+          "to_room": "Küche",
+          "to_connector": "InputTriggerUp",
+          "from_connector": "Q"
+        },
+        {
+          "from_title": "Sonnenschein",
+          "to_type": "GreaterEqual",
+          "to_connector": "Input1"
+        },
+        {
+          "from_title": "Windgeschwindigkeit",
+          "to_type": "GreaterEqual",
+          "to_connector": "Input2"
+        },
+        {
+          "from_type": "GreaterEqual",
+          "to_type": "Not",
+          "from_connector": "Q",
+          "to_connector": "I"
+        },
+        {
+          "from_type": "GreaterEqual",
+          "to_type": "And",
+          "from_connector": "Q",
+          "to_connector": "I1"
+        },
+        {
+          "from_type": "Not",
+          "to_type": "And",
+          "from_connector": "Q",
+          "to_connector": "I2"
+        },
+        {
+          "from_type": "And",
+          "to_type": "OnPulseDelay",
+          "from_connector": "Q",
+          "to_connector": "InputTrigger"
+        },
+        {
+          "from_type": "OnPulseDelay",
+          "to_title": "Jalousie 1",
+          "to_room": "Küche",
+          "to_connector": "InputTriggerDown",
+          "from_connector": "Q"
+        },
+        {
+          "from_type": "OnPulseDelay",
+          "to_title": "Jalousie 2",
+          "to_room": "Küche",
+          "to_connector": "InputTriggerDown",
+          "from_connector": "Q"
+        },
+        {
+          "from_title": "Helligkeit",
+          "to_type": "Less",
+          "to_connector": "Input1"
+        },
+        {
+          "from_type": "Less",
+          "to_type": "StairwayLS",
+          "from_connector": "Q",
+          "to_connector": "InputTrigger"
+        },
+        {
+          "from_type": "StairwayLS",
+          "to_title": "Lichtsteuerung",
+          "to_room": "Küche",
+          "from_connector": "Q"
+        }
+      ],
+      "params": [
+        {
+          "block_type": "PulseGen",
+          "param": "Time",
+          "value": "2"
+        },
+        {
+          "block_type": "GreaterEqual",
+          "param": "Input2",
+          "value": "70"
+        },
+        {
+          "block_type": "GreaterEqual",
+          "param": "Input2",
+          "value": "40"
+        },
+        {
+          "block_type": "OnPulseDelay",
+          "param": "Time",
+          "value": "600"
+        },
+        {
+          "block_type": "Less",
+          "param": "Input2",
+          "value": "20"
+        },
+        {
+          "block_type": "StairwayLS",
+          "param": "TimeHigh",
+          "value": "120"
+        }
+      ],
+      "simulation": [
+        {
+          "name": "should trigger when all conditions met",
+          "inputs": {
+            "Sonnenschein.AQ": 1.0,
+            "Windgeschwindigkeit.AQ": 45.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Jalousie 1.InputTriggerUp": {
+              ">": 0.5
+            }
+          }
+        },
+        {
+          "name": "should NOT trigger when only partial conditions met",
+          "inputs": {
+            "Sonnenschein.AQ": 0.0,
+            "Windgeschwindigkeit.AQ": 45.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Jalousie 1.InputTriggerUp": {
+              "<": 0.5
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "a12-flur-austrian-setup",
+    "pattern": [
+      "german",
+      "entry-light",
+      "storm-protection"
+    ],
+    "utterance": "Richte den Flur so ein: Wenn die Haustür aufgeht, Licht auf 40 Prozent für zwei Minuten, bei Bewegung im Dunkeln ebenfalls, und die Jalousien sollen bei Sturm rauf fahren.",
+    "difficulty": "expert",
+    "expected": {
+      "new_blocks": [
+        {
+          "type": "Less"
+        },
+        {
+          "type": "And"
+        },
+        {
+          "type": "Or"
+        },
+        {
+          "type": "StairwayLS"
+        },
+        {
+          "type": "Mult"
+        },
+        {
+          "type": "GreaterEqual"
+        }
+      ],
+      "wiring": [
+        {
+          "from_title": "Türkontakt Eingang",
+          "from_room": "Flur",
+          "to_type": "Or",
+          "to_connector": "I1"
+        },
+        {
+          "from_title": "Helligkeit",
+          "to_type": "Less",
+          "to_connector": "Input1"
+        },
+        {
+          "from_title": "Bewegungsmelder",
+          "from_room": "Flur",
+          "to_type": "And",
+          "to_connector": "I1"
+        },
+        {
+          "from_type": "Less",
+          "to_type": "And",
+          "from_connector": "Q",
+          "to_connector": "I2"
+        },
+        {
+          "from_type": "And",
+          "to_type": "Or",
+          "from_connector": "Q",
+          "to_connector": "I2"
+        },
+        {
+          "from_type": "Or",
+          "to_type": "StairwayLS",
+          "from_connector": "Q",
+          "to_connector": "InputTrigger"
+        },
+        {
+          "from_type": "StairwayLS",
+          "to_type": "Mult",
+          "from_connector": "Q",
+          "to_connector": "Input1"
+        },
+        {
+          "from_type": "Mult",
+          "to_title": "Lichtsteuerung",
+          "to_room": "Flur",
+          "to_connector": "Brightness",
+          "from_connector": "AQ"
+        },
+        {
+          "from_title": "Windgeschwindigkeit",
+          "to_type": "GreaterEqual",
+          "to_connector": "Input1"
+        },
+        {
+          "from_type": "GreaterEqual",
+          "to_title": "Jalousie 1",
+          "to_room": "Flur",
+          "to_connector": "InputTriggerUp",
+          "from_connector": "Q"
+        },
+        {
+          "from_type": "GreaterEqual",
+          "to_title": "Jalousie 2",
+          "to_room": "Flur",
+          "to_connector": "InputTriggerUp",
+          "from_connector": "Q"
+        }
+      ],
+      "params": [
+        {
+          "block_type": "Less",
+          "param": "Input2",
+          "value": "20"
+        },
+        {
+          "block_type": "StairwayLS",
+          "param": "TimeHigh",
+          "value": "120"
+        },
+        {
+          "block_type": "Mult",
+          "param": "Input2",
+          "value": "40"
+        },
+        {
+          "block_type": "GreaterEqual",
+          "param": "Input2",
+          "value": "45"
+        }
+      ],
+      "simulation": [
+        {
+          "name": "should trigger when all conditions met",
+          "inputs": {
+            "Türkontakt Eingang.Q": 1.0,
+            "Bewegungsmelder.OutputPresence": 1.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Lichtsteuerung.Brightness": {
+              ">": 0.5
+            }
+          }
+        },
+        {
+          "name": "should NOT trigger when only partial conditions met",
+          "inputs": {
+            "Türkontakt Eingang.Q": 0.0,
+            "Bewegungsmelder.OutputPresence": 1.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Lichtsteuerung.Brightness": {
+              "<": 0.5
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "a13-garden-eco-daylight",
+    "pattern": [
+      "irrigation-gating",
+      "manual-allow",
+      "night-motion"
+    ],
+    "utterance": "Set up the garden so manual irrigation only works when it is sunny and not raining, irrigation also starts automatically below 18% soil moisture, and motion after dark turns on the garden light.",
+    "difficulty": "expert",
+    "expected": {
+      "new_blocks": [
+        {
+          "type": "GreaterEqual"
+        },
+        {
+          "type": "GreaterEqual"
+        },
+        {
+          "type": "Not"
+        },
+        {
+          "type": "And"
+        },
+        {
+          "type": "And"
+        },
+        {
+          "type": "Less"
+        },
+        {
+          "type": "Or"
+        },
+        {
+          "type": "Less"
+        },
+        {
+          "type": "And"
+        },
+        {
+          "type": "StairwayLS"
+        }
+      ],
+      "wiring": [
+        {
+          "from_title": "Sonnenschein",
+          "to_type": "GreaterEqual",
+          "to_connector": "Input1"
+        },
+        {
+          "from_title": "Regen",
+          "to_type": "GreaterEqual",
+          "to_connector": "Input2"
+        },
+        {
+          "from_type": "GreaterEqual",
+          "to_type": "Not",
+          "from_connector": "Q",
+          "to_connector": "I"
+        },
+        {
+          "from_type": "GreaterEqual",
+          "to_type": "And",
+          "from_connector": "Q",
+          "to_connector": "I1"
+        },
+        {
+          "from_type": "Not",
+          "to_type": "And",
+          "from_connector": "Q",
+          "to_connector": "I2"
+        },
+        {
+          "from_title": "Bewässerung Manuell",
+          "to_type": "And"
+        },
+        {
+          "from_type": "And",
+          "to_type": "Or",
+          "from_connector": "Q",
+          "to_connector": "I1"
+        },
+        {
+          "from_title": "Feuchtesensor Garten",
+          "to_type": "Less",
+          "to_connector": "Input1"
+        },
+        {
+          "from_type": "Less",
+          "to_type": "Or",
+          "from_connector": "Q",
+          "to_connector": "I2"
+        },
+        {
+          "from_type": "Or",
+          "to_title": "Bewässerungsventil",
+          "to_room": "Garten",
+          "from_connector": "Q"
+        },
+        {
+          "from_title": "Helligkeit",
+          "to_type": "Less",
+          "to_connector": "Input2"
+        },
+        {
+          "from_title": "Bewegungsmelder Garten",
+          "from_room": "Garten",
+          "to_type": "And"
+        },
+        {
+          "from_type": "Less",
+          "to_type": "And",
+          "from_connector": "Q"
+        },
+        {
+          "from_type": "And",
+          "to_type": "StairwayLS",
+          "from_connector": "Q",
+          "to_connector": "InputTrigger"
+        },
+        {
+          "from_type": "StairwayLS",
+          "to_title": "Gartenbeleuchtung",
+          "to_room": "Garten",
+          "from_connector": "Q"
+        }
+      ],
+      "params": [
+        {
+          "block_type": "GreaterEqual",
+          "param": "Input2",
+          "value": "70"
+        },
+        {
+          "block_type": "GreaterEqual",
+          "param": "Input2",
+          "value": "1"
+        },
+        {
+          "block_type": "Less",
+          "param": "Input2",
+          "value": "18"
+        },
+        {
+          "block_type": "Less",
+          "param": "Input2",
+          "value": "20"
+        },
+        {
+          "block_type": "StairwayLS",
+          "param": "TimeHigh",
+          "value": "300"
+        }
+      ],
+      "simulation": [
+        {
+          "name": "should trigger when all conditions met",
+          "inputs": {
+            "Sonnenschein.AQ": 1.0,
+            "Regen.AQ": 1.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Bewässerungsventil.I1": {
+              ">": 0.5
+            }
+          }
+        },
+        {
+          "name": "should NOT trigger when only partial conditions met",
+          "inputs": {
+            "Sonnenschein.AQ": 0.0,
+            "Regen.AQ": 1.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Bewässerungsventil.I1": {
+              "<": 0.5
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "a14-living-room-override-cooling",
+    "pattern": [
+      "override",
+      "sun-heat",
+      "delayed-ac"
+    ],
+    "utterance": "Set up the living room so strong sun and heat close both blinds, the AC only starts after five minutes of that condition, and Schalter 1 reopens the blinds as an override.",
+    "difficulty": "expert",
+    "expected": {
+      "new_blocks": [
+        {
+          "type": "GreaterEqual"
+        },
+        {
+          "type": "GreaterEqual"
+        },
+        {
+          "type": "And"
+        },
+        {
+          "type": "OnPulseDelay"
+        },
+        {
+          "type": "PulseGen"
+        },
+        {
+          "type": "State"
+        }
+      ],
+      "wiring": [
+        {
+          "from_title": "Sonnenschein",
+          "to_type": "GreaterEqual",
+          "to_connector": "Input1"
+        },
+        {
+          "from_title": "Außentemperatur",
+          "to_type": "GreaterEqual",
+          "to_connector": "Input2"
+        },
+        {
+          "from_type": "GreaterEqual",
+          "to_type": "And",
+          "from_connector": "Q",
+          "to_connector": "I1"
+        },
+        {
+          "from_type": "GreaterEqual",
+          "to_type": "And",
+          "from_connector": "Q",
+          "to_connector": "I2"
+        },
+        {
+          "from_type": "And",
+          "to_title": "Jalousie 1",
+          "to_room": "Wohnzimmer",
+          "to_connector": "InputTriggerDown",
+          "from_connector": "Q"
+        },
+        {
+          "from_type": "And",
+          "to_title": "Jalousie 2",
+          "to_room": "Wohnzimmer",
+          "to_connector": "InputTriggerDown",
+          "from_connector": "Q"
+        },
+        {
+          "from_type": "And",
+          "to_type": "OnPulseDelay",
+          "from_connector": "Q",
+          "to_connector": "InputTrigger"
+        },
+        {
+          "from_type": "OnPulseDelay",
+          "to_title": "Klimaanlage",
+          "to_room": "Wohnzimmer",
+          "from_connector": "Q"
+        },
+        {
+          "from_title": "Schalter 1",
+          "to_type": "PulseGen",
+          "to_connector": "InputEnable"
+        },
+        {
+          "from_type": "PulseGen",
+          "to_title": "Jalousie 1",
+          "to_room": "Wohnzimmer",
+          "to_connector": "InputTriggerUp",
+          "from_connector": "Q"
+        },
+        {
+          "from_type": "PulseGen",
+          "to_title": "Jalousie 2",
+          "to_room": "Wohnzimmer",
+          "to_connector": "InputTriggerUp",
+          "from_connector": "Q"
+        }
+      ],
+      "params": [
+        {
+          "block_type": "GreaterEqual",
+          "param": "Input2",
+          "value": "70"
+        },
+        {
+          "block_type": "GreaterEqual",
+          "param": "Input2",
+          "value": "26"
+        },
+        {
+          "block_type": "OnPulseDelay",
+          "param": "Time",
+          "value": "300"
+        },
+        {
+          "block_type": "PulseGen",
+          "param": "Time",
+          "value": "2"
+        }
+      ],
+      "simulation": [
+        {
+          "name": "should trigger when all conditions met",
+          "inputs": {
+            "Sonnenschein.AQ": 1.0,
+            "Außentemperatur.AQ": 25.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Jalousie 1.InputTriggerDown": {
+              ">": 0.5
+            }
+          }
+        },
+        {
+          "name": "should NOT trigger when only partial conditions met",
+          "inputs": {
+            "Sonnenschein.AQ": 0.0,
+            "Außentemperatur.AQ": 25.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Jalousie 1.InputTriggerDown": {
+              "<": 0.5
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "a15-bathroom-full-routine",
+    "pattern": [
+      "humidity",
+      "blind-cycle",
+      "dark-dim"
+    ],
+    "utterance": "Configure the bathroom so both blinds close when it gets dark, reopen when brightness returns, the fan starts at 68% humidity, and the light sits at 20% in dark conditions.",
+    "difficulty": "expert",
+    "expected": {
+      "new_blocks": [
+        {
+          "type": "Less"
+        },
+        {
+          "type": "OnPulseDelay"
+        },
+        {
+          "type": "GreaterEqual"
+        },
+        {
+          "type": "OnPulseDelay"
+        },
+        {
+          "type": "GreaterEqual"
+        },
+        {
+          "type": "OnPulseDelay"
+        },
+        {
+          "type": "Mult"
+        }
+      ],
+      "wiring": [
+        {
+          "from_title": "Helligkeit",
+          "to_type": "Less",
+          "to_connector": "Input1"
+        },
+        {
+          "from_type": "Less",
+          "to_type": "OnPulseDelay",
+          "from_connector": "Q",
+          "to_connector": "InputTrigger"
+        },
+        {
+          "from_type": "OnPulseDelay",
+          "to_title": "Jalousie 1",
+          "to_room": "Bad",
+          "to_connector": "InputTriggerDown",
+          "from_connector": "Q"
+        },
+        {
+          "from_type": "OnPulseDelay",
+          "to_title": "Jalousie 2",
+          "to_room": "Bad",
+          "to_connector": "InputTriggerDown",
+          "from_connector": "Q"
+        },
+        {
+          "from_title": "Helligkeit",
+          "to_type": "GreaterEqual",
+          "to_connector": "Input1"
+        },
+        {
+          "from_type": "GreaterEqual",
+          "to_type": "OnPulseDelay",
+          "from_connector": "Q",
+          "to_connector": "InputTrigger"
+        },
+        {
+          "from_type": "OnPulseDelay",
+          "to_title": "Jalousie 1",
+          "to_room": "Bad",
+          "to_connector": "InputTriggerUp",
+          "from_connector": "Q"
+        },
+        {
+          "from_type": "OnPulseDelay",
+          "to_title": "Jalousie 2",
+          "to_room": "Bad",
+          "to_connector": "InputTriggerUp",
+          "from_connector": "Q"
+        },
+        {
+          "from_title": "Luftfeuchtigkeit",
+          "to_type": "GreaterEqual",
+          "to_connector": "Input2"
+        },
+        {
+          "from_type": "GreaterEqual",
+          "to_type": "OnPulseDelay",
+          "from_connector": "Q",
+          "to_connector": "InputTrigger"
+        },
+        {
+          "from_type": "OnPulseDelay",
+          "to_title": "Lüfter Bad",
+          "to_room": "Bad",
+          "from_connector": "Q"
+        },
+        {
+          "from_type": "Less",
+          "to_type": "Mult",
+          "from_connector": "Q",
+          "to_connector": "Input1"
+        },
+        {
+          "from_type": "Mult",
+          "to_title": "Lichtsteuerung",
+          "to_room": "Bad",
+          "to_connector": "Brightness",
+          "from_connector": "AQ"
+        }
+      ],
+      "params": [
+        {
+          "block_type": "Less",
+          "param": "Input2",
+          "value": "18"
+        },
+        {
+          "block_type": "OnPulseDelay",
+          "param": "Time",
+          "value": "120"
+        },
+        {
+          "block_type": "GreaterEqual",
+          "param": "Input2",
+          "value": "35"
+        },
+        {
+          "block_type": "OnPulseDelay",
+          "param": "Time",
+          "value": "120"
+        },
+        {
+          "block_type": "GreaterEqual",
+          "param": "Input2",
+          "value": "68"
+        },
+        {
+          "block_type": "OnPulseDelay",
+          "param": "Time",
+          "value": "240"
+        },
+        {
+          "block_type": "Mult",
+          "param": "Input2",
+          "value": "20"
+        }
+      ],
+      "simulation": [
+        {
+          "name": "should trigger when condition met",
+          "inputs": {
+            "Luftfeuchtigkeit.AQ": 73.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Jalousie 1.InputTriggerDown": {
+              ">": 0.5
+            }
+          }
+        },
+        {
+          "name": "should NOT trigger when condition not met",
+          "inputs": {
+            "Luftfeuchtigkeit.AQ": 63.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Jalousie 1.InputTriggerDown": {
+              "<": 0.5
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "b01-living-room-temp-adjust",
+    "pattern": [
+      "threshold",
+      "modification"
+    ],
+    "utterance": "Change the living room blinds so they close at 28°C instead of 25°C.",
+    "difficulty": "easy",
+    "expected": {
+      "new_blocks": [
+        {
+          "type": "GreaterEqual"
+        }
+      ],
+      "wiring": [
+        {
+          "from_title": "Außentemperatur",
+          "to_type": "GreaterEqual",
+          "to_connector": "Input1"
+        },
+        {
+          "from_type": "GreaterEqual",
+          "to_title": "Jalousie 1",
+          "to_room": "Wohnzimmer",
+          "to_connector": "InputTriggerDown",
+          "from_connector": "Q"
+        }
+      ],
+      "params": [
+        {
+          "block_type": "GreaterEqual",
+          "param": "Input2",
+          "value": "28"
+        }
+      ],
+      "simulation": [
+        {
+          "name": "should trigger when condition met",
+          "inputs": {
+            "Außentemperatur.AQ": 33.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Jalousie 1.InputTriggerDown": {
+              ">": 0.5
+            }
+          }
+        },
+        {
+          "name": "should NOT trigger when condition not met",
+          "inputs": {
+            "Außentemperatur.AQ": 23.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Jalousie 1.InputTriggerDown": {
+              "<": 0.5
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "b02-add-rain-protection-all-blinds",
+    "pattern": [
+      "rain-protection",
+      "multi-room",
+      "modification"
+    ],
+    "utterance": "Add rain protection to all the blinds that don't have it yet.",
+    "difficulty": "expert",
+    "expected": {
+      "new_blocks": [
+        {
+          "type": "GreaterEqual"
+        },
+        {
+          "type": "Or"
+        }
+      ],
+      "wiring": [
+        {
+          "from_title": "Regen",
+          "to_type": "GreaterEqual",
+          "to_connector": "Input1"
+        },
+        {
+          "from_type": "GreaterEqual",
+          "to_type": "Or",
+          "from_connector": "Q",
+          "to_connector": "I1"
+        },
+        {
+          "from_type": "Or",
+          "to_title": "Jalousie 1",
+          "to_room": "Wohnzimmer",
+          "to_connector": "InputTriggerUp",
+          "from_connector": "Q"
+        },
+        {
+          "from_type": "Or",
+          "to_title": "Jalousie 2",
+          "to_room": "Wohnzimmer",
+          "to_connector": "InputTriggerUp",
+          "from_connector": "Q"
+        },
+        {
+          "from_type": "Or",
+          "to_title": "Jalousie 1",
+          "to_room": "Schlafzimmer",
+          "to_connector": "InputTriggerUp",
+          "from_connector": "Q"
+        },
+        {
+          "from_type": "Or",
+          "to_title": "Jalousie 2",
+          "to_room": "Schlafzimmer",
+          "to_connector": "InputTriggerUp",
+          "from_connector": "Q"
+        },
+        {
+          "from_type": "Or",
+          "to_title": "Jalousie 1",
+          "to_room": "Küche",
+          "to_connector": "InputTriggerUp",
+          "from_connector": "Q"
+        },
+        {
+          "from_type": "Or",
+          "to_title": "Jalousie 2",
+          "to_room": "Küche",
+          "to_connector": "InputTriggerUp",
+          "from_connector": "Q"
+        },
+        {
+          "from_type": "Or",
+          "to_title": "Jalousie 1",
+          "to_room": "Bad",
+          "to_connector": "InputTriggerUp",
+          "from_connector": "Q"
+        },
+        {
+          "from_type": "Or",
+          "to_title": "Jalousie 2",
+          "to_room": "Bad",
+          "to_connector": "InputTriggerUp",
+          "from_connector": "Q"
+        },
+        {
+          "from_type": "Or",
+          "to_title": "Jalousie 1",
+          "to_room": "Flur",
+          "to_connector": "InputTriggerUp",
+          "from_connector": "Q"
+        },
+        {
+          "from_type": "Or",
+          "to_title": "Jalousie 2",
+          "to_room": "Flur",
+          "to_connector": "InputTriggerUp",
+          "from_connector": "Q"
+        }
+      ],
+      "params": [
+        {
+          "block_type": "GreaterEqual",
+          "param": "Input2",
+          "value": "1"
+        }
+      ],
+      "simulation": [
+        {
+          "name": "should trigger when all conditions met",
+          "inputs": {
+            "Regen.AQ": 1.0,
+            "Sonnenschein.AQ": 1.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Jalousie 1.InputTriggerUp": {
+              ">": 0.5
+            }
+          }
+        },
+        {
+          "name": "should NOT trigger when condition not met",
+          "inputs": {
+            "Regen.AQ": 0.0,
+            "Sonnenschein.AQ": 0.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Jalousie 1.InputTriggerUp": {
+              "<": 0.5
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "b03-garden-moisture-lower",
+    "pattern": [
+      "irrigation",
+      "threshold",
+      "modification"
+    ],
+    "utterance": "The garden irrigation is too aggressive, reduce the moisture threshold to 15%.",
+    "difficulty": "easy",
+    "expected": {
+      "new_blocks": [
+        {
+          "type": "Less"
+        }
+      ],
+      "wiring": [],
+      "params": [
+        {
+          "block_type": "Less",
+          "param": "Input2",
+          "value": "15"
+        }
+      ],
+      "simulation": [
+        {
+          "name": "should trigger when condition met",
+          "inputs": {
+            "Luftfeuchtigkeit.AQ": 20.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Bewässerungsventil.I1": {
+              ">": 0.5
+            }
+          }
+        },
+        {
+          "name": "should NOT trigger when condition not met",
+          "inputs": {
+            "Luftfeuchtigkeit.AQ": 10.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Bewässerungsventil.I1": {
+              "<": 0.5
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "b04-hallway-shorter-light",
+    "pattern": [
+      "timing",
+      "presence",
+      "modification"
+    ],
+    "utterance": "The hallway motion light stays on too long, shorten it to 90 seconds.",
+    "difficulty": "easy",
+    "expected": {
+      "new_blocks": [
+        {
+          "type": "StairwayLS"
+        }
+      ],
+      "wiring": [],
+      "params": [
+        {
+          "block_type": "StairwayLS",
+          "param": "TimeHigh",
+          "value": "90"
+        }
+      ],
+      "simulation": [
+        {
+          "name": "should trigger when condition met",
+          "inputs": {
+            "Bewegungsmelder.OutputPresence": 1.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Lichtsteuerung.I1": {
+              ">": 0.5
+            }
+          }
+        },
+        {
+          "name": "should NOT trigger when condition not met",
+          "inputs": {
+            "Bewegungsmelder.OutputPresence": 0.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Lichtsteuerung.I1": {
+              "<": 0.5
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "b05-bathroom-fan-delay",
+    "pattern": [
+      "fan-delay",
+      "humidity",
+      "modification"
+    ],
+    "utterance": "Make the bathroom fan wait for two minutes of high humidity before it starts.",
+    "difficulty": "medium",
+    "expected": {
+      "new_blocks": [
+        {
+          "type": "OnPulseDelay"
+        }
+      ],
+      "wiring": [
+        {
+          "from_type": "GreaterEqual",
+          "to_type": "OnPulseDelay",
+          "to_connector": "InputTrigger"
+        },
+        {
+          "from_type": "OnPulseDelay",
+          "to_title": "Lüfter Bad",
+          "to_room": "Bad",
+          "from_connector": "Q"
+        }
+      ],
+      "params": [
+        {
+          "block_type": "OnPulseDelay",
+          "param": "Time",
+          "value": "120"
+        }
+      ],
+      "simulation": [
+        {
+          "name": "should activate on trigger",
+          "inputs": {
+            "Luftfeuchtigkeit.AQ": 65.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Lüfter Bad.I1": {
+              ">": 0.5
+            }
+          }
+        },
+        {
+          "name": "should NOT activate without trigger",
+          "inputs": {
+            "Luftfeuchtigkeit.AQ": 0.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Lüfter Bad.I1": {
+              "<": 0.5
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "b06-bedroom-sun-threshold-80",
+    "pattern": [
+      "sun-threshold",
+      "blinds",
+      "modification"
+    ],
+    "utterance": "Only lower the bedroom blinds when sunshine is above 80% instead of 60%.",
+    "difficulty": "easy",
+    "expected": {
+      "new_blocks": [
+        {
+          "type": "GreaterEqual"
+        }
+      ],
+      "wiring": [],
+      "params": [
+        {
+          "block_type": "GreaterEqual",
+          "param": "Input2",
+          "value": "80"
+        }
+      ],
+      "simulation": [
+        {
+          "name": "should trigger when condition met",
+          "inputs": {
+            "Sonnenschein.AQ": 1.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Jalousie 1.InputTriggerDown": {
+              ">": 0.5
+            }
+          }
+        },
+        {
+          "name": "should NOT trigger when condition not met",
+          "inputs": {
+            "Sonnenschein.AQ": 0.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Jalousie 1.InputTriggerDown": {
+              "<": 0.5
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "b07-garden-light-brighter",
+    "pattern": [
+      "brightness",
+      "night-light",
+      "modification"
+    ],
+    "utterance": "Make the garden light brighter at night, use 75% instead of 60%.",
+    "difficulty": "easy",
+    "expected": {
+      "new_blocks": [
+        {
+          "type": "Mult"
+        }
+      ],
+      "wiring": [],
+      "params": [
+        {
+          "block_type": "Mult",
+          "param": "Input2",
+          "value": "75"
+        }
+      ],
+      "simulation": [
+        {
+          "name": "should trigger when condition met",
+          "inputs": {
+            "Sonnenschein.AQ": 1.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Lichtsteuerung.I1": {
+              ">": 0.5
+            }
+          }
+        },
+        {
+          "name": "should NOT trigger when condition not met",
+          "inputs": {
+            "Sonnenschein.AQ": 0.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Lichtsteuerung.I1": {
+              "<": 0.5
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "b08-garage-light-longer",
+    "pattern": [
+      "timing",
+      "garage",
+      "modification"
+    ],
+    "utterance": "Change the garage light auto-off from three minutes to five minutes.",
+    "difficulty": "easy",
+    "expected": {
+      "new_blocks": [
+        {
+          "type": "StairwayLS"
+        }
+      ],
+      "wiring": [],
+      "params": [
+        {
+          "block_type": "StairwayLS",
+          "param": "TimeHigh",
+          "value": "300"
+        }
+      ],
+      "simulation": [
+        {
+          "name": "should trigger when condition met",
+          "inputs": {
+            "Türkontakt Eingang.Q": 1.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Lichtsteuerung.I1": {
+              ">": 0.5
+            }
+          }
+        },
+        {
+          "name": "should NOT trigger when condition not met",
+          "inputs": {
+            "Türkontakt Eingang.Q": 0.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Lichtsteuerung.I1": {
+              "<": 0.5
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "b09-living-room-ac-threshold",
+    "pattern": [
+      "ac",
+      "temperature",
+      "modification"
+    ],
+    "utterance": "Don't start the living room AC unless the outside temperature is above 24°C.",
+    "difficulty": "easy",
+    "expected": {
+      "new_blocks": [
+        {
+          "type": "GreaterEqual"
+        }
+      ],
+      "wiring": [
+        {
+          "from_title": "Außentemperatur",
+          "to_type": "GreaterEqual",
+          "to_connector": "Input1",
+          "from_connector": "AQ"
+        },
+        {
+          "from_type": "GreaterEqual",
+          "to_title": "Klimaanlage",
+          "to_connector": "toggle",
+          "from_connector": "Q"
+        }
+      ],
+      "params": [
+        {
+          "block_type": "GreaterEqual",
+          "param": "Input2",
+          "value": "24"
+        }
+      ],
+      "simulation": [
+        {
+          "name": "should trigger when condition met",
+          "inputs": {
+            "Außentemperatur.AQ": 29.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Klimaanlage.toggle": {
+              ">": 0.5
+            }
+          }
+        },
+        {
+          "name": "should NOT trigger when condition not met",
+          "inputs": {
+            "Außentemperatur.AQ": 19.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Klimaanlage.toggle": {
+              "<": 0.5
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "b10-hallway-door-only-at-night",
+    "pattern": [
+      "door-contact",
+      "day-night",
+      "modification"
+    ],
+    "utterance": "Make the hallway light ignore the front door contact during daytime.",
+    "difficulty": "medium",
+    "expected": {
+      "new_blocks": [
+        {
+          "type": "Less"
+        },
+        {
+          "type": "And"
+        }
+      ],
+      "wiring": [
+        {
+          "from_title": "Helligkeit",
+          "to_type": "Less",
+          "to_connector": "Input1"
+        },
+        {
+          "from_title": "Türkontakt Eingang",
+          "from_room": "Flur",
+          "to_type": "And",
+          "to_connector": "I1"
+        },
+        {
+          "from_type": "Less",
+          "to_type": "And",
+          "from_connector": "Q",
+          "to_connector": "I2"
+        },
+        {
+          "from_type": "And",
+          "to_type": "StairwayLS",
+          "from_connector": "Q"
+        }
+      ],
+      "params": [
+        {
+          "block_type": "Less",
+          "param": "Input2",
+          "value": "20"
+        }
+      ],
+      "simulation": [
+        {
+          "name": "should activate when condition met",
+          "inputs": {
+            "Türkontakt Eingang.Q": 1.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Lichtsteuerung.I1": {
+              ">": 0.5
+            }
+          }
+        },
+        {
+          "name": "should NOT activate when condition not met",
+          "inputs": {
+            "Türkontakt Eingang.Q": 0.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Lichtsteuerung.I1": {
+              "<": 0.5
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "b11-windschutz-alle-jalousien",
+    "pattern": [
+      "german",
+      "wind-protection",
+      "multi-room"
+    ],
+    "utterance": "Bitte ergänze einen Windschutz für alle Jalousien, die noch keinen haben.",
+    "difficulty": "expert",
+    "expected": {
+      "new_blocks": [
+        {
+          "type": "GreaterEqual"
+        },
+        {
+          "type": "Or"
+        }
+      ],
+      "wiring": [
+        {
+          "from_title": "Windgeschwindigkeit",
+          "to_type": "GreaterEqual",
+          "to_connector": "Input1"
+        },
+        {
+          "from_type": "GreaterEqual",
+          "to_type": "Or",
+          "from_connector": "Q",
+          "to_connector": "I1"
+        },
+        {
+          "from_type": "Or",
+          "to_title": "Jalousie 1",
+          "to_room": "Wohnzimmer",
+          "to_connector": "InputTriggerUp",
+          "from_connector": "Q"
+        },
+        {
+          "from_type": "Or",
+          "to_title": "Jalousie 2",
+          "to_room": "Wohnzimmer",
+          "to_connector": "InputTriggerUp",
+          "from_connector": "Q"
+        },
+        {
+          "from_type": "Or",
+          "to_title": "Jalousie 1",
+          "to_room": "Schlafzimmer",
+          "to_connector": "InputTriggerUp",
+          "from_connector": "Q"
+        },
+        {
+          "from_type": "Or",
+          "to_title": "Jalousie 2",
+          "to_room": "Schlafzimmer",
+          "to_connector": "InputTriggerUp",
+          "from_connector": "Q"
+        },
+        {
+          "from_type": "Or",
+          "to_title": "Jalousie 1",
+          "to_room": "Küche",
+          "to_connector": "InputTriggerUp",
+          "from_connector": "Q"
+        },
+        {
+          "from_type": "Or",
+          "to_title": "Jalousie 2",
+          "to_room": "Küche",
+          "to_connector": "InputTriggerUp",
+          "from_connector": "Q"
+        },
+        {
+          "from_type": "Or",
+          "to_title": "Jalousie 1",
+          "to_room": "Bad",
+          "to_connector": "InputTriggerUp",
+          "from_connector": "Q"
+        },
+        {
+          "from_type": "Or",
+          "to_title": "Jalousie 2",
+          "to_room": "Bad",
+          "to_connector": "InputTriggerUp",
+          "from_connector": "Q"
+        },
+        {
+          "from_type": "Or",
+          "to_title": "Jalousie 1",
+          "to_room": "Flur",
+          "to_connector": "InputTriggerUp",
+          "from_connector": "Q"
+        },
+        {
+          "from_type": "Or",
+          "to_title": "Jalousie 2",
+          "to_room": "Flur",
+          "to_connector": "InputTriggerUp",
+          "from_connector": "Q"
+        }
+      ],
+      "params": [
+        {
+          "block_type": "GreaterEqual",
+          "param": "Input2",
+          "value": "45"
+        }
+      ],
+      "simulation": [
+        {
+          "name": "should trigger when all conditions met",
+          "inputs": {
+            "Sonnenschein.AQ": 1.0,
+            "Windgeschwindigkeit.AQ": 45.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Jalousie 1.InputTriggerUp": {
+              ">": 0.5
+            }
+          }
+        },
+        {
+          "name": "should NOT trigger when condition not met",
+          "inputs": {
+            "Sonnenschein.AQ": 0.0,
+            "Windgeschwindigkeit.AQ": 35.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Jalousie 1.InputTriggerUp": {
+              "<": 0.5
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "b12-bathroom-night-light-lower",
+    "pattern": [
+      "brightness",
+      "night-light",
+      "modification"
+    ],
+    "utterance": "Reduce the bathroom night light from 30% to 15%.",
+    "difficulty": "easy",
+    "expected": {
+      "new_blocks": [
+        {
+          "type": "Mult"
+        }
+      ],
+      "wiring": [],
+      "params": [
+        {
+          "block_type": "Mult",
+          "param": "Input2",
+          "value": "15"
+        }
+      ],
+      "simulation": [
+        {
+          "name": "should trigger when condition met",
+          "inputs": {
+            "Sonnenschein.AQ": 1.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Lichtsteuerung.I1": {
+              ">": 0.5
+            }
+          }
+        },
+        {
+          "name": "should NOT trigger when condition not met",
+          "inputs": {
+            "Sonnenschein.AQ": 0.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Lichtsteuerung.I1": {
+              "<": 0.5
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "b13-kitchen-open-after-rain",
+    "pattern": [
+      "rain-stop",
+      "delay",
+      "modification"
+    ],
+    "utterance": "In the kitchen, open the blinds again when it stops raining, but only after ten minutes.",
+    "difficulty": "medium",
+    "expected": {
+      "new_blocks": [
+        {
+          "type": "Not"
+        },
+        {
+          "type": "OnPulseDelay"
+        }
+      ],
+      "wiring": [
+        {
+          "from_title": "Regen",
+          "to_type": "Not",
+          "to_connector": "I"
+        },
+        {
+          "from_type": "Not",
+          "to_type": "OnPulseDelay",
+          "from_connector": "Q",
+          "to_connector": "InputTrigger"
+        },
+        {
+          "from_type": "OnPulseDelay",
+          "to_title": "Jalousie 1",
+          "to_room": "Küche",
+          "to_connector": "InputTriggerUp",
+          "from_connector": "Q"
+        },
+        {
+          "from_type": "OnPulseDelay",
+          "to_title": "Jalousie 2",
+          "to_room": "Küche",
+          "to_connector": "InputTriggerUp",
+          "from_connector": "Q"
+        }
+      ],
+      "params": [
+        {
+          "block_type": "OnPulseDelay",
+          "param": "Time",
+          "value": "600"
+        }
+      ],
+      "simulation": [
+        {
+          "name": "should output low when input high (NOT)",
+          "inputs": {
+            "Regen.AQ": 1.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Jalousie 1.InputTriggerUp": {
+              "<": 0.5
+            }
+          }
+        },
+        {
+          "name": "should output high when input low (NOT)",
+          "inputs": {
+            "Regen.AQ": 0.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Jalousie 1.InputTriggerUp": {
+              ">": 0.5
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "b14-living-room-sun-stability",
+    "pattern": [
+      "sun-delay",
+      "anti-flicker",
+      "modification"
+    ],
+    "utterance": "Make the living room blinds wait five minutes of continuous sun before closing.",
+    "difficulty": "medium",
+    "expected": {
+      "new_blocks": [
+        {
+          "type": "OnPulseDelay"
+        }
+      ],
+      "wiring": [
+        {
+          "from_type": "And",
+          "to_type": "OnPulseDelay",
+          "to_connector": "InputTrigger"
+        },
+        {
+          "from_type": "OnPulseDelay",
+          "to_title": "Jalousie 1",
+          "to_room": "Wohnzimmer",
+          "to_connector": "InputTriggerDown",
+          "from_connector": "Q"
+        },
+        {
+          "from_type": "OnPulseDelay",
+          "to_title": "Jalousie 2",
+          "to_room": "Wohnzimmer",
+          "to_connector": "InputTriggerDown",
+          "from_connector": "Q"
+        }
+      ],
+      "params": [
+        {
+          "block_type": "OnPulseDelay",
+          "param": "Time",
+          "value": "300"
+        }
+      ],
+      "simulation": [
+        {
+          "name": "should activate on trigger",
+          "inputs": {
+            "Sonnenschein.AQ": 1.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Jalousie 1.InputTriggerDown": {
+              ">": 0.5
+            }
+          }
+        },
+        {
+          "name": "should NOT activate without trigger",
+          "inputs": {
+            "Sonnenschein.AQ": 0.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Jalousie 1.InputTriggerDown": {
+              "<": 0.5
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "b15-hallway-dim-lower",
+    "pattern": [
+      "night-dim",
+      "presence",
+      "modification"
+    ],
+    "utterance": "The hallway is still too bright at night, dim it to 10% on motion.",
+    "difficulty": "easy",
+    "expected": {
+      "new_blocks": [
+        {
+          "type": "Mult"
+        }
+      ],
+      "wiring": [],
+      "params": [
+        {
+          "block_type": "Mult",
+          "param": "Input2",
+          "value": "10"
+        }
+      ],
+      "simulation": [
+        {
+          "name": "should trigger when condition met",
+          "inputs": {
+            "Sonnenschein.AQ": 1.0,
+            "Bewegungsmelder.OutputPresence": 1.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Lichtsteuerung.I1": {
+              ">": 0.5
+            }
+          }
+        },
+        {
+          "name": "should NOT trigger when condition not met",
+          "inputs": {
+            "Sonnenschein.AQ": 0.0,
+            "Bewegungsmelder.OutputPresence": 0.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Lichtsteuerung.I1": {
+              "<": 0.5
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "c01-movie-night-mode",
+    "pattern": [
+      "scene",
+      "multi-room",
+      "mode-toggle"
+    ],
+    "utterance": "Put movie night on Schalter 1: set the living room light to 10%, close both living room blinds, and keep the hallway light at only 5% when there is motion.",
+    "difficulty": "expert",
+    "expected": {
+      "new_blocks": [
+        {
+          "type": "Mult"
+        }
+      ],
+      "wiring": [
+        {
+          "from_title": "Schalter 1",
+          "to_title": "Jalousie 1",
+          "to_room": "Wohnzimmer",
+          "to_connector": "InputTriggerDown"
+        },
+        {
+          "from_title": "Schalter 1",
+          "to_title": "Klimaanlage",
+          "to_connector": "toggle"
+        },
+        {
+          "from_type": "Mult",
+          "to_title": "Lichtsteuerung",
+          "to_room": "Wohnzimmer",
+          "to_connector": "Brightness",
+          "from_connector": "AQ"
+        }
+      ],
+      "params": [
+        {
+          "block_type": "Mult",
+          "param": "Input2",
+          "value": "10"
+        }
+      ],
+      "simulation": [
+        {
+          "name": "should produce scaled output when input active",
+          "inputs": {
+            "Türkontakt Eingang.Q": 1.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Lichtsteuerung.Brightness": {
+              ">": 0.0
+            }
+          }
+        },
+        {
+          "name": "should produce no output with zero input",
+          "inputs": {
+            "Türkontakt Eingang.Q": 0.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Lichtsteuerung.Brightness": {
+              "<": 0.5
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "c02-abwesenheitsmodus",
+    "pattern": [
+      "german",
+      "away-mode",
+      "multi-room"
+    ],
+    "utterance": "Abwesenheitsmodus auf Schalter 2: alle Jalousien schließen und die Bewässerung ausschalten.",
+    "difficulty": "expert",
+    "expected": {
+      "new_blocks": [],
+      "wiring": [
+        {
+          "from_title": "Schalter 2",
+          "to_title": "Jalousie 1",
+          "to_room": "Wohnzimmer",
+          "to_connector": "InputTriggerDown"
+        },
+        {
+          "from_title": "Schalter 2",
+          "to_title": "Jalousie 1",
+          "to_room": "Schlafzimmer",
+          "to_connector": "InputTriggerDown"
+        },
+        {
+          "from_title": "Schalter 2",
+          "to_title": "Bewässerungsventil",
+          "to_connector": "I1"
+        }
+      ],
+      "params": [],
+      "simulation": [
+        {
+          "name": "should activate on trigger",
+          "inputs": {
+            "Schalter 2.Q": 1.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Jalousie 1.InputTriggerDown": {
+              ">": 0.5
+            }
+          }
+        },
+        {
+          "name": "should NOT activate without trigger",
+          "inputs": {
+            "Schalter 2.Q": 0.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Jalousie 1.InputTriggerDown": {
+              "<": 0.5
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "c03-baby-sleep-mode",
+    "pattern": [
+      "scene",
+      "inhibit",
+      "hallway-dim"
+    ],
+    "utterance": "Baby is sleeping mode on Schalter 1: keep the hallway light at no more than 5%, block automatic bedroom blind movement, and leave the bathroom fan automation alone.",
+    "difficulty": "expert",
+    "expected": {
+      "new_blocks": [
+        {
+          "type": "FlipFlop"
+        },
+        {
+          "type": "Not"
+        },
+        {
+          "type": "And"
+        },
+        {
+          "type": "Mult"
+        },
+        {
+          "type": "StairwayLS"
+        }
+      ],
+      "wiring": [
+        {
+          "from_title": "Schalter 1",
+          "to_type": "FlipFlop",
+          "to_connector": "InputS"
+        },
+        {
+          "from_type": "FlipFlop",
+          "to_type": "Not",
+          "from_connector": "Q",
+          "to_connector": "I"
+        },
+        {
+          "from_type": "Not",
+          "to_type": "And",
+          "from_connector": "Q",
+          "to_connector": "I1"
+        },
+        {
+          "from_type": "And",
+          "to_title": "Jalousie 1",
+          "to_room": "Schlafzimmer",
+          "from_connector": "Q"
+        },
+        {
+          "from_type": "And",
+          "to_title": "Jalousie 2",
+          "to_room": "Schlafzimmer",
+          "from_connector": "Q"
+        },
+        {
+          "from_title": "Bewegungsmelder",
+          "from_room": "Flur",
+          "to_type": "StairwayLS",
+          "to_connector": "InputTrigger"
+        },
+        {
+          "from_type": "StairwayLS",
+          "to_type": "Mult",
+          "from_connector": "Q",
+          "to_connector": "Input1"
+        },
+        {
+          "from_type": "Mult",
+          "to_title": "Lichtsteuerung",
+          "to_room": "Flur",
+          "to_connector": "Brightness",
+          "from_connector": "AQ"
+        }
+      ],
+      "params": [
+        {
+          "block_type": "StairwayLS",
+          "param": "TimeHigh",
+          "value": "120"
+        },
+        {
+          "block_type": "Mult",
+          "param": "Input2",
+          "value": "5"
+        }
+      ],
+      "simulation": [
+        {
+          "name": "should trigger when all conditions met",
+          "inputs": {
+            "Bewegungsmelder.OutputPresence": 1.0,
+            "Türkontakt Eingang.Q": 1.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Jalousie 1.InputTriggerDown": {
+              ">": 0.5
+            }
+          }
+        },
+        {
+          "name": "should NOT trigger when only partial conditions met",
+          "inputs": {
+            "Bewegungsmelder.OutputPresence": 0.0,
+            "Türkontakt Eingang.Q": 1.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Jalousie 1.InputTriggerDown": {
+              "<": 0.5
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "c04-summer-heat-shield",
+    "pattern": [
+      "temperature",
+      "sun",
+      "multi-room"
+    ],
+    "utterance": "When the outside temperature is above 30 and sunshine is high, close the living room, bedroom, and kitchen blinds, but leave the bathroom alone.",
+    "difficulty": "expert",
+    "expected": {
+      "new_blocks": [
+        {
+          "type": "GreaterEqual"
+        },
+        {
+          "type": "GreaterEqual"
+        },
+        {
+          "type": "And"
+        },
+        {
+          "type": "OnPulseDelay"
+        }
+      ],
+      "wiring": [
+        {
+          "from_title": "Außentemperatur",
+          "to_type": "GreaterEqual",
+          "to_connector": "Input1"
+        },
+        {
+          "from_title": "Sonnenschein",
+          "to_type": "GreaterEqual",
+          "to_connector": "Input2"
+        },
+        {
+          "from_type": "GreaterEqual",
+          "to_type": "And",
+          "from_connector": "Q",
+          "to_connector": "I1"
+        },
+        {
+          "from_type": "GreaterEqual",
+          "to_type": "And",
+          "from_connector": "Q",
+          "to_connector": "I2"
+        },
+        {
+          "from_type": "And",
+          "to_type": "OnPulseDelay",
+          "from_connector": "Q",
+          "to_connector": "InputTrigger"
+        },
+        {
+          "from_type": "OnPulseDelay",
+          "to_title": "Jalousie 1",
+          "to_room": "Wohnzimmer",
+          "to_connector": "InputTriggerDown",
+          "from_connector": "Q"
+        },
+        {
+          "from_type": "OnPulseDelay",
+          "to_title": "Jalousie 2",
+          "to_room": "Wohnzimmer",
+          "to_connector": "InputTriggerDown",
+          "from_connector": "Q"
+        },
+        {
+          "from_type": "OnPulseDelay",
+          "to_title": "Jalousie 1",
+          "to_room": "Schlafzimmer",
+          "to_connector": "InputTriggerDown",
+          "from_connector": "Q"
+        },
+        {
+          "from_type": "OnPulseDelay",
+          "to_title": "Jalousie 2",
+          "to_room": "Schlafzimmer",
+          "to_connector": "InputTriggerDown",
+          "from_connector": "Q"
+        },
+        {
+          "from_type": "OnPulseDelay",
+          "to_title": "Jalousie 1",
+          "to_room": "Küche",
+          "to_connector": "InputTriggerDown",
+          "from_connector": "Q"
+        },
+        {
+          "from_type": "OnPulseDelay",
+          "to_title": "Jalousie 2",
+          "to_room": "Küche",
+          "to_connector": "InputTriggerDown",
+          "from_connector": "Q"
+        }
+      ],
+      "params": [
+        {
+          "block_type": "GreaterEqual",
+          "param": "Input2",
+          "value": "30"
+        },
+        {
+          "block_type": "GreaterEqual",
+          "param": "Input2",
+          "value": "70"
+        },
+        {
+          "block_type": "OnPulseDelay",
+          "param": "Time",
+          "value": "180"
+        }
+      ],
+      "simulation": [
+        {
+          "name": "should trigger when all conditions met",
+          "inputs": {
+            "Außentemperatur.AQ": 35.0,
+            "Sonnenschein.AQ": 1.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Jalousie 1.InputTriggerDown": {
+              ">": 0.5
+            }
+          }
+        },
+        {
+          "name": "should NOT trigger when only partial conditions met",
+          "inputs": {
+            "Außentemperatur.AQ": 25.0,
+            "Sonnenschein.AQ": 1.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Jalousie 1.InputTriggerDown": {
+              "<": 0.5
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "c05-guests-arriving",
+    "pattern": [
+      "door-scene",
+      "darkness",
+      "multi-room"
+    ],
+    "utterance": "When the front door opens after dark, turn the hallway to 50%, the living room to 40%, and switch on the garden light for five minutes.",
+    "difficulty": "expert",
+    "expected": {
+      "new_blocks": [
+        {
+          "type": "Less"
+        },
+        {
+          "type": "And"
+        },
+        {
+          "type": "StairwayLS"
+        },
+        {
+          "type": "Mult"
+        },
+        {
+          "type": "Mult"
+        }
+      ],
+      "wiring": [
+        {
+          "from_title": "Helligkeit",
+          "to_type": "Less",
+          "to_connector": "Input1"
+        },
+        {
+          "from_title": "Türkontakt Eingang",
+          "from_room": "Flur",
+          "to_type": "And",
+          "to_connector": "I1"
+        },
+        {
+          "from_type": "Less",
+          "to_type": "And",
+          "from_connector": "Q",
+          "to_connector": "I2"
+        },
+        {
+          "from_type": "And",
+          "to_type": "StairwayLS",
+          "from_connector": "Q",
+          "to_connector": "InputTrigger"
+        },
+        {
+          "from_type": "StairwayLS",
+          "to_type": "Mult",
+          "from_connector": "Q",
+          "to_connector": "Input1"
+        },
+        {
+          "from_type": "Mult",
+          "to_title": "Lichtsteuerung",
+          "to_room": "Flur",
+          "to_connector": "Brightness",
+          "from_connector": "AQ"
+        },
+        {
+          "from_type": "StairwayLS",
+          "to_type": "Mult",
+          "from_connector": "Q",
+          "to_connector": "Input2"
+        },
+        {
+          "from_type": "Mult",
+          "to_title": "Lichtsteuerung",
+          "to_room": "Wohnzimmer",
+          "to_connector": "Brightness",
+          "from_connector": "AQ"
+        },
+        {
+          "from_type": "StairwayLS",
+          "to_title": "Gartenbeleuchtung",
+          "to_room": "Garten",
+          "from_connector": "Q"
+        }
+      ],
+      "params": [
+        {
+          "block_type": "Less",
+          "param": "Input2",
+          "value": "20"
+        },
+        {
+          "block_type": "StairwayLS",
+          "param": "TimeHigh",
+          "value": "300"
+        },
+        {
+          "block_type": "Mult",
+          "param": "Input2",
+          "value": "50"
+        },
+        {
+          "block_type": "Mult",
+          "param": "Input2",
+          "value": "40"
+        }
+      ],
+      "simulation": [
+        {
+          "name": "should trigger when all conditions met",
+          "inputs": {
+            "Türkontakt Eingang.Q": 1.0,
+            "Helligkeit.AQ": 10.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Lichtsteuerung.Brightness": {
+              ">": 0.5
+            }
+          }
+        },
+        {
+          "name": "should NOT trigger when only partial conditions met",
+          "inputs": {
+            "Türkontakt Eingang.Q": 0.0,
+            "Helligkeit.AQ": 10.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Lichtsteuerung.Brightness": {
+              "<": 0.5
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "c06-sturm-und-regen",
+    "pattern": [
+      "german",
+      "storm-scene",
+      "multi-room"
+    ],
+    "utterance": "Wenn Sturm oder Regen kommt, sollen alle Jalousien rauf fahren und die Bewässerung stoppen.",
+    "difficulty": "expert",
+    "expected": {
+      "new_blocks": [
+        {
+          "type": "GreaterEqual"
+        },
+        {
+          "type": "GreaterEqual"
+        },
+        {
+          "type": "Or"
+        },
+        {
+          "type": "Not"
+        }
+      ],
+      "wiring": [
+        {
+          "from_title": "Windgeschwindigkeit",
+          "to_type": "GreaterEqual",
+          "to_connector": "Input1"
+        },
+        {
+          "from_title": "Regen",
+          "to_type": "GreaterEqual",
+          "to_connector": "Input2"
+        },
+        {
+          "from_type": "GreaterEqual",
+          "to_type": "Or",
+          "from_connector": "Q",
+          "to_connector": "I1"
+        },
+        {
+          "from_type": "GreaterEqual",
+          "to_type": "Or",
+          "from_connector": "Q",
+          "to_connector": "I2"
+        },
+        {
+          "from_type": "Or",
+          "to_title": "Jalousie 1",
+          "to_room": "Wohnzimmer",
+          "to_connector": "InputTriggerUp",
+          "from_connector": "Q"
+        },
+        {
+          "from_type": "Or",
+          "to_title": "Jalousie 2",
+          "to_room": "Wohnzimmer",
+          "to_connector": "InputTriggerUp",
+          "from_connector": "Q"
+        },
+        {
+          "from_type": "Or",
+          "to_title": "Jalousie 1",
+          "to_room": "Schlafzimmer",
+          "to_connector": "InputTriggerUp",
+          "from_connector": "Q"
+        },
+        {
+          "from_type": "Or",
+          "to_title": "Jalousie 2",
+          "to_room": "Schlafzimmer",
+          "to_connector": "InputTriggerUp",
+          "from_connector": "Q"
+        },
+        {
+          "from_type": "Or",
+          "to_title": "Jalousie 1",
+          "to_room": "Küche",
+          "to_connector": "InputTriggerUp",
+          "from_connector": "Q"
+        },
+        {
+          "from_type": "Or",
+          "to_title": "Jalousie 2",
+          "to_room": "Küche",
+          "to_connector": "InputTriggerUp",
+          "from_connector": "Q"
+        },
+        {
+          "from_type": "Or",
+          "to_title": "Jalousie 1",
+          "to_room": "Bad",
+          "to_connector": "InputTriggerUp",
+          "from_connector": "Q"
+        },
+        {
+          "from_type": "Or",
+          "to_title": "Jalousie 2",
+          "to_room": "Bad",
+          "to_connector": "InputTriggerUp",
+          "from_connector": "Q"
+        },
+        {
+          "from_type": "Or",
+          "to_title": "Jalousie 1",
+          "to_room": "Flur",
+          "to_connector": "InputTriggerUp",
+          "from_connector": "Q"
+        },
+        {
+          "from_type": "Or",
+          "to_title": "Jalousie 2",
+          "to_room": "Flur",
+          "to_connector": "InputTriggerUp",
+          "from_connector": "Q"
+        },
+        {
+          "from_type": "Or",
+          "to_type": "Not",
+          "from_connector": "Q",
+          "to_connector": "I"
+        },
+        {
+          "from_type": "Not",
+          "to_title": "Bewässerungsventil",
+          "to_room": "Garten",
+          "from_connector": "Q"
+        }
+      ],
+      "params": [
+        {
+          "block_type": "GreaterEqual",
+          "param": "Input2",
+          "value": "45"
+        },
+        {
+          "block_type": "GreaterEqual",
+          "param": "Input2",
+          "value": "1"
+        }
+      ],
+      "simulation": [
+        {
+          "name": "should trigger when all conditions met",
+          "inputs": {
+            "Regen.AQ": 1.0,
+            "Windgeschwindigkeit.AQ": 45.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Jalousie 1.InputTriggerUp": {
+              ">": 0.5
+            }
+          }
+        },
+        {
+          "name": "should NOT trigger when condition not met",
+          "inputs": {
+            "Regen.AQ": 0.0,
+            "Windgeschwindigkeit.AQ": 35.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Jalousie 1.InputTriggerUp": {
+              "<": 0.5
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "c07-gute-nacht-modus",
+    "pattern": [
+      "german",
+      "night-scene",
+      "motion-dim"
+    ],
+    "utterance": "Auf Schalter 2: Gute Nacht. Alles Licht aus, Schlafzimmer-Jalousien runter, und im Flur bei Bewegung nur noch 5 Prozent Licht.",
+    "difficulty": "expert",
+    "expected": {
+      "new_blocks": [
+        {
+          "type": "FlipFlop"
+        },
+        {
+          "type": "Not"
+        },
+        {
+          "type": "And"
+        },
+        {
+          "type": "StairwayLS"
+        },
+        {
+          "type": "Mult"
+        }
+      ],
+      "wiring": [
+        {
+          "from_title": "Schalter 2",
+          "to_type": "FlipFlop",
+          "to_connector": "InputS"
+        },
+        {
+          "from_type": "FlipFlop",
+          "to_type": "Not",
+          "from_connector": "Q",
+          "to_connector": "I"
+        },
+        {
+          "from_type": "Not",
+          "to_title": "Lichtsteuerung",
+          "to_room": "Wohnzimmer",
+          "from_connector": "Q"
+        },
+        {
+          "from_type": "Not",
+          "to_title": "Lichtsteuerung",
+          "to_room": "Schlafzimmer",
+          "from_connector": "Q"
+        },
+        {
+          "from_type": "Not",
+          "to_title": "Lichtsteuerung",
+          "to_room": "Küche",
+          "from_connector": "Q"
+        },
+        {
+          "from_type": "Not",
+          "to_title": "Lichtsteuerung",
+          "to_room": "Bad",
+          "from_connector": "Q"
+        },
+        {
+          "from_type": "Not",
+          "to_title": "Lichtsteuerung",
+          "to_room": "Flur",
+          "from_connector": "Q"
+        },
+        {
+          "from_type": "Not",
+          "to_title": "Gartenbeleuchtung",
+          "to_room": "Garten",
+          "from_connector": "Q"
+        },
+        {
+          "from_type": "Not",
+          "to_title": "Garagenlicht",
+          "to_room": "Garage",
+          "from_connector": "Q"
+        },
+        {
+          "from_type": "FlipFlop",
+          "to_title": "Jalousie 1",
+          "to_room": "Schlafzimmer",
+          "to_connector": "InputTriggerDown",
+          "from_connector": "Q"
+        },
+        {
+          "from_type": "FlipFlop",
+          "to_title": "Jalousie 2",
+          "to_room": "Schlafzimmer",
+          "to_connector": "InputTriggerDown",
+          "from_connector": "Q"
+        },
+        {
+          "from_title": "Bewegungsmelder",
+          "from_room": "Flur",
+          "to_type": "And",
+          "to_connector": "I1"
+        },
+        {
+          "from_type": "FlipFlop",
+          "to_type": "And",
+          "from_connector": "Q",
+          "to_connector": "I2"
+        },
+        {
+          "from_type": "And",
+          "to_type": "StairwayLS",
+          "from_connector": "Q",
+          "to_connector": "InputTrigger"
+        },
+        {
+          "from_type": "StairwayLS",
+          "to_type": "Mult",
+          "from_connector": "Q",
+          "to_connector": "Input1"
+        },
+        {
+          "from_type": "Mult",
+          "to_title": "Lichtsteuerung",
+          "to_room": "Flur",
+          "to_connector": "Brightness",
+          "from_connector": "AQ"
+        }
+      ],
+      "params": [
+        {
+          "block_type": "StairwayLS",
+          "param": "TimeHigh",
+          "value": "120"
+        },
+        {
+          "block_type": "Mult",
+          "param": "Input2",
+          "value": "5"
+        }
+      ],
+      "simulation": [
+        {
+          "name": "should trigger when all conditions met",
+          "inputs": {
+            "Bewegungsmelder.OutputPresence": 1.0,
+            "Türkontakt Eingang.Q": 1.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Lichtsteuerung.I1": {
+              ">": 0.5
+            }
+          }
+        },
+        {
+          "name": "should NOT trigger when only partial conditions met",
+          "inputs": {
+            "Bewegungsmelder.OutputPresence": 0.0,
+            "Türkontakt Eingang.Q": 1.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Lichtsteuerung.I1": {
+              "<": 0.5
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "c08-party-mode",
+    "pattern": [
+      "party-scene",
+      "mode-toggle",
+      "irrigation-block"
+    ],
+    "utterance": "Put party mode on Schalter 1: garden and living room lights to 80%, keep the living room blinds open, and block irrigation while the mode is active.",
+    "difficulty": "expert",
+    "expected": {
+      "new_blocks": [
+        {
+          "type": "FlipFlop"
+        },
+        {
+          "type": "Mult"
+        },
+        {
+          "type": "Mult"
+        },
+        {
+          "type": "PulseGen"
+        },
+        {
+          "type": "Not"
+        }
+      ],
+      "wiring": [
+        {
+          "from_title": "Schalter 1",
+          "to_type": "FlipFlop",
+          "to_connector": "InputS"
+        },
+        {
+          "from_type": "FlipFlop",
+          "to_type": "Mult",
+          "from_connector": "Q",
+          "to_connector": "Input1"
+        },
+        {
+          "from_type": "Mult",
+          "to_title": "Lichtsteuerung",
+          "to_room": "Wohnzimmer",
+          "to_connector": "Brightness",
+          "from_connector": "AQ"
+        },
+        {
+          "from_type": "FlipFlop",
+          "to_type": "Mult",
+          "from_connector": "Q",
+          "to_connector": "Input2"
+        },
+        {
+          "from_type": "Mult",
+          "to_title": "Gartenbeleuchtung",
+          "to_room": "Garten",
+          "from_connector": "AQ"
+        },
+        {
+          "from_type": "FlipFlop",
+          "to_type": "PulseGen",
+          "from_connector": "Q",
+          "to_connector": "InputEnable"
+        },
+        {
+          "from_type": "PulseGen",
+          "to_title": "Jalousie 1",
+          "to_room": "Wohnzimmer",
+          "to_connector": "InputTriggerUp",
+          "from_connector": "Q"
+        },
+        {
+          "from_type": "PulseGen",
+          "to_title": "Jalousie 2",
+          "to_room": "Wohnzimmer",
+          "to_connector": "InputTriggerUp",
+          "from_connector": "Q"
+        },
+        {
+          "from_type": "FlipFlop",
+          "to_type": "Not",
+          "from_connector": "Q",
+          "to_connector": "I"
+        },
+        {
+          "from_type": "Not",
+          "to_title": "Bewässerungsventil",
+          "to_room": "Garten",
+          "from_connector": "Q"
+        }
+      ],
+      "params": [
+        {
+          "block_type": "Mult",
+          "param": "Input2",
+          "value": "80"
+        },
+        {
+          "block_type": "Mult",
+          "param": "Input2",
+          "value": "80"
+        },
+        {
+          "block_type": "PulseGen",
+          "param": "Time",
+          "value": "2"
+        }
+      ],
+      "simulation": [
+        {
+          "name": "should output low when input high (NOT)",
+          "inputs": {
+            "Türkontakt Eingang.Q": 1.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Lichtsteuerung.Brightness": {
+              "<": 0.5
+            }
+          }
+        },
+        {
+          "name": "should output high when input low (NOT)",
+          "inputs": {
+            "Türkontakt Eingang.Q": 0.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Lichtsteuerung.Brightness": {
+              ">": 0.5
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "c09-morning-ventilation",
+    "pattern": [
+      "co2",
+      "daylight",
+      "multi-room"
+    ],
+    "utterance": "When CO2 is above 1200 and it is already bright, open the bedroom and living room blinds, but do not start the AC.",
+    "difficulty": "expert",
+    "expected": {
+      "new_blocks": [
+        {
+          "type": "GreaterEqual"
+        },
+        {
+          "type": "GreaterEqual"
+        },
+        {
+          "type": "And"
+        },
+        {
+          "type": "Not"
+        }
+      ],
+      "wiring": [
+        {
+          "from_title": "CO2 Sensor",
+          "to_type": "GreaterEqual",
+          "to_connector": "Input1"
+        },
+        {
+          "from_title": "Helligkeit",
+          "to_type": "GreaterEqual",
+          "to_connector": "Input2"
+        },
+        {
+          "from_type": "GreaterEqual",
+          "to_type": "And",
+          "from_connector": "Q",
+          "to_connector": "I1"
+        },
+        {
+          "from_type": "GreaterEqual",
+          "to_type": "And",
+          "from_connector": "Q",
+          "to_connector": "I2"
+        },
+        {
+          "from_type": "And",
+          "to_title": "Jalousie 1",
+          "to_room": "Schlafzimmer",
+          "to_connector": "InputTriggerUp",
+          "from_connector": "Q"
+        },
+        {
+          "from_type": "And",
+          "to_title": "Jalousie 2",
+          "to_room": "Schlafzimmer",
+          "to_connector": "InputTriggerUp",
+          "from_connector": "Q"
+        },
+        {
+          "from_type": "And",
+          "to_title": "Jalousie 1",
+          "to_room": "Wohnzimmer",
+          "to_connector": "InputTriggerUp",
+          "from_connector": "Q"
+        },
+        {
+          "from_type": "And",
+          "to_title": "Jalousie 2",
+          "to_room": "Wohnzimmer",
+          "to_connector": "InputTriggerUp",
+          "from_connector": "Q"
+        },
+        {
+          "from_type": "And",
+          "to_type": "Not",
+          "from_connector": "Q",
+          "to_connector": "I"
+        },
+        {
+          "from_type": "Not",
+          "to_title": "Klimaanlage",
+          "to_room": "Wohnzimmer",
+          "from_connector": "Q"
+        }
+      ],
+      "params": [
+        {
+          "block_type": "GreaterEqual",
+          "param": "Input2",
+          "value": "1200"
+        },
+        {
+          "block_type": "GreaterEqual",
+          "param": "Input2",
+          "value": "35"
+        }
+      ],
+      "simulation": [
+        {
+          "name": "should trigger when all conditions met",
+          "inputs": {
+            "Luftfeuchtigkeit.AQ": 1205.0,
+            "Sonnenschein.AQ": 1.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Jalousie 1.InputTriggerUp": {
+              ">": 0.5
+            }
+          }
+        },
+        {
+          "name": "should NOT trigger when only partial conditions met",
+          "inputs": {
+            "Luftfeuchtigkeit.AQ": 1195.0,
+            "Sonnenschein.AQ": 1.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Jalousie 1.InputTriggerUp": {
+              "<": 0.5
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "c10-rainy-evening-arrival",
+    "pattern": [
+      "mode-gated",
+      "door-scene",
+      "rain-block"
+    ],
+    "utterance": "If Schalter 2 is active and the front door opens while it is dark and raining, switch on the hallway and kitchen lights and keep garden irrigation off.",
+    "difficulty": "expert",
+    "expected": {
+      "new_blocks": [
+        {
+          "type": "FlipFlop"
+        },
+        {
+          "type": "Less"
+        },
+        {
+          "type": "GreaterEqual"
+        },
+        {
+          "type": "And"
+        },
+        {
+          "type": "And"
+        },
+        {
+          "type": "StairwayLS"
+        },
+        {
+          "type": "Not"
+        }
+      ],
+      "wiring": [
+        {
+          "from_title": "Schalter 2",
+          "to_type": "FlipFlop",
+          "to_connector": "InputS"
+        },
+        {
+          "from_title": "Helligkeit",
+          "to_type": "Less",
+          "to_connector": "Input1"
+        },
+        {
+          "from_title": "Regen",
+          "to_type": "GreaterEqual",
+          "to_connector": "Input1"
+        },
+        {
+          "from_title": "Türkontakt Eingang",
+          "from_room": "Flur",
+          "to_type": "And",
+          "to_connector": "I1"
+        },
+        {
+          "from_type": "FlipFlop",
+          "to_type": "And",
+          "from_connector": "Q",
+          "to_connector": "I2"
+        },
+        {
+          "from_type": "And",
+          "to_type": "And",
+          "from_connector": "Q"
+        },
+        {
+          "from_type": "Less",
+          "to_type": "And",
+          "from_connector": "Q"
+        },
+        {
+          "from_type": "GreaterEqual",
+          "to_type": "And",
+          "from_connector": "Q"
+        },
+        {
+          "from_type": "And",
+          "to_type": "StairwayLS",
+          "from_connector": "Q",
+          "to_connector": "InputTrigger"
+        },
+        {
+          "from_type": "StairwayLS",
+          "to_title": "Lichtsteuerung",
+          "to_room": "Flur",
+          "from_connector": "Q"
+        },
+        {
+          "from_type": "StairwayLS",
+          "to_title": "Lichtsteuerung",
+          "to_room": "Küche",
+          "from_connector": "Q"
+        },
+        {
+          "from_type": "GreaterEqual",
+          "to_type": "Not",
+          "from_connector": "Q",
+          "to_connector": "I"
+        },
+        {
+          "from_type": "Not",
+          "to_title": "Bewässerungsventil",
+          "to_room": "Garten",
+          "from_connector": "Q"
+        }
+      ],
+      "params": [
+        {
+          "block_type": "Less",
+          "param": "Input2",
+          "value": "20"
+        },
+        {
+          "block_type": "GreaterEqual",
+          "param": "Input2",
+          "value": "1"
+        },
+        {
+          "block_type": "StairwayLS",
+          "param": "TimeHigh",
+          "value": "180"
+        }
+      ],
+      "simulation": [
+        {
+          "name": "should trigger when all conditions met",
+          "inputs": {
+            "Regen.AQ": 1.0,
+            "Türkontakt Eingang.Q": 1.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Lichtsteuerung.I1": {
+              ">": 0.5
+            }
+          }
+        },
+        {
+          "name": "should NOT trigger when only partial conditions met",
+          "inputs": {
+            "Regen.AQ": 0.0,
+            "Türkontakt Eingang.Q": 1.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Lichtsteuerung.I1": {
+              "<": 0.5
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "d01-flur-colloquial-motion-light",
+    "pattern": [
+      "german",
+      "implicit-target",
+      "colloquial"
+    ],
+    "utterance": "Mach das Licht im Flur an wenn jemand kommt.",
+    "difficulty": "easy",
+    "expected": {
+      "new_blocks": [],
+      "wiring": [
+        {
+          "from_title": "Bewegungsmelder",
+          "from_connector": "OutputPresence",
+          "to_title": "Lichtsteuerung",
+          "to_room": "Flur",
+          "to_connector": "Presence"
+        }
+      ],
+      "params": [],
+      "simulation": [
+        {
+          "name": "should activate on presence",
+          "inputs": {
+            "Bewegungsmelder.OutputPresence": 1.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Lichtsteuerung.Presence": {
+              ">": 0.5
+            }
+          }
+        },
+        {
+          "name": "should NOT activate without presence",
+          "inputs": {
+            "Bewegungsmelder.OutputPresence": 0.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Lichtsteuerung.Presence": {
+              "<": 0.5
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "d02-bathroom-too-steamy",
+    "pattern": [
+      "implicit-target",
+      "humidity",
+      "fan"
+    ],
+    "utterance": "The bathroom gets too steamy.",
+    "difficulty": "medium",
+    "expected": {
+      "new_blocks": [
+        {
+          "type": "GreaterEqual"
+        },
+        {
+          "type": "OnPulseDelay"
+        }
+      ],
+      "wiring": [
+        {
+          "from_title": "Luftfeuchtigkeit",
+          "to_type": "GreaterEqual",
+          "to_connector": "Input1"
+        },
+        {
+          "from_type": "GreaterEqual",
+          "to_type": "OnPulseDelay",
+          "from_connector": "Q",
+          "to_connector": "InputTrigger"
+        },
+        {
+          "from_type": "OnPulseDelay",
+          "to_title": "Lüfter Bad",
+          "to_room": "Bad",
+          "from_connector": "Q"
+        }
+      ],
+      "params": [
+        {
+          "block_type": "GreaterEqual",
+          "param": "Input2",
+          "value": "70"
+        },
+        {
+          "block_type": "OnPulseDelay",
+          "param": "Time",
+          "value": "240"
+        }
+      ],
+      "simulation": [
+        {
+          "name": "should trigger when condition met",
+          "inputs": {
+            "Luftfeuchtigkeit.AQ": 75.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Lüfter Bad.I1": {
+              ">": 0.5
+            }
+          }
+        },
+        {
+          "name": "should NOT trigger when condition not met",
+          "inputs": {
+            "Luftfeuchtigkeit.AQ": 65.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Lüfter Bad.I1": {
+              "<": 0.5
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "d03-office-too-bright",
+    "pattern": [
+      "no-target",
+      "missing-room",
+      "edge-case"
+    ],
+    "utterance": "It's too bright in the office.",
+    "difficulty": "easy",
+    "expected": {
+      "error": "no_target",
+      "simulation": [
+        {
+          "name": "should trigger when condition met",
+          "inputs": {
+            "Sonnenschein.AQ": 1.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Lichtsteuerung.I1": {
+              ">": 0.5
+            }
+          }
+        },
+        {
+          "name": "should NOT trigger when condition not met",
+          "inputs": {
+            "Sonnenschein.AQ": 0.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Lichtsteuerung.I1": {
+              "<": 0.5
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "d04-jalousien-wetterfest",
+    "pattern": [
+      "german",
+      "ambiguous-scope",
+      "weather-protection"
+    ],
+    "utterance": "Bitte mach die Jalousien wetterfest.",
+    "difficulty": "expert",
+    "expected": {
+      "new_blocks": [
+        {
+          "type": "GreaterEqual"
+        },
+        {
+          "type": "GreaterEqual"
+        },
+        {
+          "type": "Or"
+        }
+      ],
+      "wiring": [
+        {
+          "from_title": "Windgeschwindigkeit",
+          "to_type": "GreaterEqual",
+          "to_connector": "Input1"
+        },
+        {
+          "from_title": "Regen",
+          "to_type": "GreaterEqual",
+          "to_connector": "Input2"
+        },
+        {
+          "from_type": "GreaterEqual",
+          "to_type": "Or",
+          "from_connector": "Q",
+          "to_connector": "I1"
+        },
+        {
+          "from_type": "GreaterEqual",
+          "to_type": "Or",
+          "from_connector": "Q",
+          "to_connector": "I2"
+        },
+        {
+          "from_type": "Or",
+          "to_title": "Jalousie 1",
+          "to_room": "Wohnzimmer",
+          "to_connector": "InputTriggerUp",
+          "from_connector": "Q"
+        },
+        {
+          "from_type": "Or",
+          "to_title": "Jalousie 2",
+          "to_room": "Wohnzimmer",
+          "to_connector": "InputTriggerUp",
+          "from_connector": "Q"
+        },
+        {
+          "from_type": "Or",
+          "to_title": "Jalousie 1",
+          "to_room": "Schlafzimmer",
+          "to_connector": "InputTriggerUp",
+          "from_connector": "Q"
+        },
+        {
+          "from_type": "Or",
+          "to_title": "Jalousie 2",
+          "to_room": "Schlafzimmer",
+          "to_connector": "InputTriggerUp",
+          "from_connector": "Q"
+        },
+        {
+          "from_type": "Or",
+          "to_title": "Jalousie 1",
+          "to_room": "Küche",
+          "to_connector": "InputTriggerUp",
+          "from_connector": "Q"
+        },
+        {
+          "from_type": "Or",
+          "to_title": "Jalousie 2",
+          "to_room": "Küche",
+          "to_connector": "InputTriggerUp",
+          "from_connector": "Q"
+        },
+        {
+          "from_type": "Or",
+          "to_title": "Jalousie 1",
+          "to_room": "Bad",
+          "to_connector": "InputTriggerUp",
+          "from_connector": "Q"
+        },
+        {
+          "from_type": "Or",
+          "to_title": "Jalousie 2",
+          "to_room": "Bad",
+          "to_connector": "InputTriggerUp",
+          "from_connector": "Q"
+        },
+        {
+          "from_type": "Or",
+          "to_title": "Jalousie 1",
+          "to_room": "Flur",
+          "to_connector": "InputTriggerUp",
+          "from_connector": "Q"
+        },
+        {
+          "from_type": "Or",
+          "to_title": "Jalousie 2",
+          "to_room": "Flur",
+          "to_connector": "InputTriggerUp",
+          "from_connector": "Q"
+        }
+      ],
+      "params": [
+        {
+          "block_type": "GreaterEqual",
+          "param": "Input2",
+          "value": "45"
+        },
+        {
+          "block_type": "GreaterEqual",
+          "param": "Input2",
+          "value": "1"
+        }
+      ],
+      "simulation": [
+        {
+          "name": "should trigger when all conditions met",
+          "inputs": {
+            "Regen.AQ": 1.0,
+            "Sonnenschein.AQ": 1.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Jalousie 1.InputTriggerUp": {
+              ">": 0.5
+            }
+          }
+        },
+        {
+          "name": "should NOT trigger when condition not met",
+          "inputs": {
+            "Regen.AQ": 0.0,
+            "Sonnenschein.AQ": 0.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Jalousie 1.InputTriggerUp": {
+              "<": 0.5
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "d05-front-door-light-things-up",
+    "pattern": [
+      "implicit-target",
+      "door-contact",
+      "dimming"
+    ],
+    "utterance": "The front door should light things up a bit.",
+    "difficulty": "medium",
+    "expected": {
+      "new_blocks": [
+        {
+          "type": "StairwayLS"
+        },
+        {
+          "type": "Mult"
+        }
+      ],
+      "wiring": [
+        {
+          "from_title": "Türkontakt Eingang",
+          "from_room": "Flur",
+          "to_type": "StairwayLS",
+          "to_connector": "InputTrigger"
+        },
+        {
+          "from_type": "StairwayLS",
+          "to_type": "Mult",
+          "from_connector": "Q",
+          "to_connector": "Input1"
+        },
+        {
+          "from_type": "Mult",
+          "to_title": "Lichtsteuerung",
+          "to_room": "Flur",
+          "to_connector": "Brightness",
+          "from_connector": "AQ"
+        }
+      ],
+      "params": [
+        {
+          "block_type": "StairwayLS",
+          "param": "TimeHigh",
+          "value": "120"
+        },
+        {
+          "block_type": "Mult",
+          "param": "Input2",
+          "value": "30"
+        }
+      ],
+      "simulation": [
+        {
+          "name": "should activate on trigger",
+          "inputs": {
+            "Türkontakt Eingang.Q": 1.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Lichtsteuerung.Brightness": {
+              ">": 0.5
+            }
+          }
+        },
+        {
+          "name": "should NOT activate without trigger",
+          "inputs": {
+            "Türkontakt Eingang.Q": 0.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Lichtsteuerung.Brightness": {
+              "<": 0.5
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "d06-wenns-schuettet-keine-bewaesserung",
+    "pattern": [
+      "german",
+      "implicit-target",
+      "rain-block"
+    ],
+    "utterance": "Wenn's schüttet, sollen die Pflanzen nix kriegen.",
+    "difficulty": "medium",
+    "expected": {
+      "new_blocks": [
+        {
+          "type": "GreaterEqual"
+        },
+        {
+          "type": "Not"
+        },
+        {
+          "type": "And"
+        }
+      ],
+      "wiring": [
+        {
+          "from_title": "Regen",
+          "to_type": "GreaterEqual",
+          "to_connector": "Input1"
+        },
+        {
+          "from_type": "GreaterEqual",
+          "to_type": "Not",
+          "from_connector": "Q",
+          "to_connector": "I"
+        },
+        {
+          "from_type": "Not",
+          "to_type": "And",
+          "from_connector": "Q",
+          "to_connector": "I1"
+        },
+        {
+          "from_type": "And",
+          "to_title": "Bewässerungsventil",
+          "to_room": "Garten",
+          "from_connector": "Q"
+        }
+      ],
+      "params": [
+        {
+          "block_type": "GreaterEqual",
+          "param": "Input2",
+          "value": "1"
+        }
+      ],
+      "simulation": [
+        {
+          "name": "should trigger when all conditions met",
+          "inputs": {
+            "Regen.AQ": 1.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Bewässerungsventil.I1": {
+              ">": 0.5
+            }
+          }
+        },
+        {
+          "name": "should NOT trigger when condition not met",
+          "inputs": {
+            "Regen.AQ": 0.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Bewässerungsventil.I1": {
+              "<": 0.5
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "d07-sleeping-room-night-dim",
+    "pattern": [
+      "implicit-room",
+      "night-dim",
+      "translation-variant"
+    ],
+    "utterance": "Turn down the sleeping room lights at night.",
+    "difficulty": "medium",
+    "expected": {
+      "new_blocks": [
+        {
+          "type": "Less"
+        },
+        {
+          "type": "Mult"
+        }
+      ],
+      "wiring": [
+        {
+          "from_title": "Helligkeit",
+          "to_type": "Less",
+          "to_connector": "Input1"
+        },
+        {
+          "from_type": "Less",
+          "to_type": "Mult",
+          "from_connector": "Q",
+          "to_connector": "Input1"
+        },
+        {
+          "from_type": "Mult",
+          "to_title": "Lichtsteuerung",
+          "to_room": "Schlafzimmer",
+          "to_connector": "Brightness",
+          "from_connector": "AQ"
+        }
+      ],
+      "params": [
+        {
+          "block_type": "Less",
+          "param": "Input2",
+          "value": "20"
+        },
+        {
+          "block_type": "Mult",
+          "param": "Input2",
+          "value": "20"
+        }
+      ],
+      "simulation": [
+        {
+          "name": "should trigger when condition met",
+          "inputs": {
+            "Sonnenschein.AQ": 1.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Lichtsteuerung.Brightness": {
+              ">": 0.5
+            }
+          }
+        },
+        {
+          "name": "should NOT trigger when condition not met",
+          "inputs": {
+            "Sonnenschein.AQ": 0.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Lichtsteuerung.Brightness": {
+              "<": 0.5
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "d08-wohnzimmer-zu-heiss",
+    "pattern": [
+      "german",
+      "implicit-hvac",
+      "summer-heat"
+    ],
+    "utterance": "Im Wohnzimmer ist's im Sommer zu heiß.",
+    "difficulty": "hard",
+    "expected": {
+      "new_blocks": [
+        {
+          "type": "GreaterEqual"
+        },
+        {
+          "type": "GreaterEqual"
+        },
+        {
+          "type": "And"
+        }
+      ],
+      "wiring": [
+        {
+          "from_title": "Außentemperatur",
+          "to_type": "GreaterEqual",
+          "to_connector": "Input1"
+        },
+        {
+          "from_title": "Sonnenschein",
+          "to_type": "GreaterEqual",
+          "to_connector": "Input2"
+        },
+        {
+          "from_type": "GreaterEqual",
+          "to_type": "And",
+          "from_connector": "Q",
+          "to_connector": "I1"
+        },
+        {
+          "from_type": "GreaterEqual",
+          "to_type": "And",
+          "from_connector": "Q",
+          "to_connector": "I2"
+        },
+        {
+          "from_type": "And",
+          "to_title": "Jalousie 1",
+          "to_room": "Wohnzimmer",
+          "to_connector": "InputTriggerDown",
+          "from_connector": "Q"
+        },
+        {
+          "from_type": "And",
+          "to_title": "Jalousie 2",
+          "to_room": "Wohnzimmer",
+          "to_connector": "InputTriggerDown",
+          "from_connector": "Q"
+        },
+        {
+          "from_type": "And",
+          "to_title": "Klimaanlage",
+          "to_room": "Wohnzimmer",
+          "from_connector": "Q"
+        }
+      ],
+      "params": [
+        {
+          "block_type": "GreaterEqual",
+          "param": "Input2",
+          "value": "27"
+        },
+        {
+          "block_type": "GreaterEqual",
+          "param": "Input2",
+          "value": "70"
+        }
+      ],
+      "simulation": [
+        {
+          "name": "should trigger when all conditions met",
+          "inputs": {
+            "Außentemperatur.AQ": 25.0,
+            "Sonnenschein.AQ": 1.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Jalousie 1.InputTriggerDown": {
+              ">": 0.5
+            }
+          }
+        },
+        {
+          "name": "should NOT trigger when only partial conditions met",
+          "inputs": {
+            "Außentemperatur.AQ": 15.0,
+            "Sonnenschein.AQ": 1.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Jalousie 1.InputTriggerDown": {
+              "<": 0.5
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "d09-kitchen-sun-less-twitchy",
+    "pattern": [
+      "anti-flicker",
+      "implicit-existing-logic",
+      "sun"
+    ],
+    "utterance": "Make the sunshine sensor less twitchy for the kitchen blinds.",
+    "difficulty": "easy",
+    "expected": {
+      "new_blocks": [
+        {
+          "type": "OnPulseDelay"
+        }
+      ],
+      "wiring": [
+        {
+          "from_title": "Sonnenschein",
+          "to_type": "OnPulseDelay",
+          "to_connector": "InputTrigger"
+        },
+        {
+          "from_type": "OnPulseDelay",
+          "to_title": "Jalousie 1",
+          "to_room": "Küche",
+          "to_connector": "InputTriggerDown",
+          "from_connector": "Q"
+        },
+        {
+          "from_type": "OnPulseDelay",
+          "to_title": "Jalousie 2",
+          "to_room": "Küche",
+          "to_connector": "InputTriggerDown",
+          "from_connector": "Q"
+        }
+      ],
+      "params": [
+        {
+          "block_type": "OnPulseDelay",
+          "param": "Time",
+          "value": "300"
+        }
+      ],
+      "simulation": [
+        {
+          "name": "should activate on trigger",
+          "inputs": {
+            "Sonnenschein.AQ": 1.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Jalousie 1.InputTriggerDown": {
+              ">": 0.5
+            }
+          }
+        },
+        {
+          "name": "should NOT activate without trigger",
+          "inputs": {
+            "Sonnenschein.AQ": 0.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Jalousie 1.InputTriggerDown": {
+              "<": 0.5
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "d10-nursery-no-target",
+    "pattern": [
+      "no-target",
+      "missing-room",
+      "edge-case"
+    ],
+    "utterance": "Set up the nursery blinds to stay still.",
+    "difficulty": "easy",
+    "expected": {
+      "error": "no_target",
+      "simulation": [
+        {
+          "name": "should trigger when condition met",
+          "inputs": {
+            "Sonnenschein.AQ": 1.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Jalousie 1.InputTriggerDown": {
+              ">": 0.5
+            }
+          }
+        },
+        {
+          "name": "should NOT trigger when condition not met",
+          "inputs": {
+            "Sonnenschein.AQ": 0.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Jalousie 1.InputTriggerDown": {
+              "<": 0.5
+            }
+          }
+        }
+      ]
+    }
+  }
+]

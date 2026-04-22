@@ -1,0 +1,18 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Modbus Title="Sungrow Hybrid inverter" Comment="" Channel="1">
+	<Info templateType="7" minVersion="13000726"/>
+	<ModbusCmd Title="Total Output Energy" Comment="" ModbusAddress="5003" ModbusCmd="4" ModbusDataType="34" ModbusPollingCycle="10" Unit="&lt;v.1&gt;kWh" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="Total DC power" Comment="PV Power" ModbusAddress="5016" ModbusCmd="4" ModbusDataType="34" ModbusPollingCycle="10" Unit="&lt;v.1&gt;kW" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="1"/>
+	<ModbusCmd Title="Total PV Generation" Comment="" ModbusAddress="13002" ModbusCmd="4" ModbusDataType="34" ModbusPollingCycle="10" Unit="&lt;v.1&gt;kWh" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="Total Export Energy from PV" Comment="" ModbusAddress="13005" ModbusCmd="4" ModbusDataType="34" ModbusPollingCycle="10" Unit="&lt;v.1&gt;kWh" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="Total direct energy consumption" Comment="" ModbusAddress="13017" ModbusCmd="4" ModbusDataType="34" ModbusPollingCycle="10" Unit="&lt;v.1&gt;kWh" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="Battery power" Comment="" ModbusAddress="13021" ModbusCmd="4" ModbusPollingCycle="10" Unit="&lt;v.1&gt;kW" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="1"/>
+	<ModbusCmd Title="Battery state of healthy" Comment="" ModbusAddress="13023" ModbusCmd="4" ModbusPollingCycle="10" Unit="&lt;v.1&gt;%" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="Self-consumption of today in percent" Comment="" ModbusAddress="13028" ModbusCmd="4" ModbusPollingCycle="10" Unit="&lt;v.1&gt;%" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="Total active power" Comment="" ModbusAddress="13033" ModbusCmd="4" ModbusDataType="35" ModbusPollingCycle="10" Unit="&lt;v.1&gt;kW" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="1"/>
+	<ModbusCmd Title="Total Import Energy" Comment="" ModbusAddress="13036" ModbusCmd="4" ModbusDataType="34" ModbusPollingCycle="10" Unit="&lt;v.1&gt;kWh" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="10"/>
+	<ModbusCmd Title="Total Export Energy" Comment="" ModbusAddress="13045" ModbusCmd="4" ModbusDataType="34" ModbusPollingCycle="10" Unit="&lt;v.1&gt;kWh" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="Battery level" Comment="" ModbusAddress="13022" ModbusCmd="4" ModbusPollingCycle="10" Unit="&lt;v.1&gt;%" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="Running state" Comment="" ModbusAddress="13000" ModbusCmd="4" ModbusPollingCycle="10" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Export Power" Comment="" ModbusAddress="13009" ModbusCmd="4" ModbusDataType="35" ModbusPollingCycle="10" Unit="&lt;v.1&gt;kW" Analog="true" Sensor="true" SourceValHigh="1000" DestValHigh="-1"/>
+</Modbus>

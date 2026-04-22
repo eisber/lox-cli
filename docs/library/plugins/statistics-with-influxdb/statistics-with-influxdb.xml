@@ -1,0 +1,6 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<VirtualOut Title="connection_InfluxDB" Comment="" Address="https://eu-central-1-1.aws.cloud2.influxdata.com" CmdInit="" CloseAfterSend="true" CmdSep="">
+	<Info templateType="3" minVersion="13011117"/>
+	<VirtualOutCmd Title="statistic 1" Comment="" CmdOnMethod="POST" CmdOffMethod="POST" CmdOn="/api/v2/write?org=9ddbbe60a90c985e&amp;bucket=Loxone&amp;precision=s" CmdOnHTTP="Authorization: Token SYYe80uGtKFEHaI8ILycYASlCqD3dkkpyh7uHhEtMvV3Nh5ykhC90wn-_ndPjbA9q9Jj20nzcTV1RR-yV2qjqQ==\r\nContent-Type: text/plain; charset=utf-8\r\nAccept: application/json" CmdOnPost="&lt;v&gt;" CmdOff="" CmdOffHTTP="" CmdOffPost="" Analog="true" Repeat="0" RepeatRate="0" SourceValHigh="10" DestValHigh="10"/>
+	<VirtualOutCmd Title="statistic 2" Comment="" CmdOnMethod="POST" CmdOffMethod="POST" CmdOn="/api/v2/write?org=9ddbbe60a90c985e&amp;bucket=Loxone&amp;precision=s" CmdOnHTTP="Authorization: Token SYYe80uGtKFEHaI8ILycYASlCqD3dkkpyh7uHhEtMvV3Nh5ykhC90wn-_ndPjbA9q9Jj20nzcTV1RR-yV2qjqQ==\r\nContent-Type: text/plain; charset=utf-8\r\nAccept: application/json" CmdOnPost="&lt;v&gt;" CmdOff="" CmdOffHTTP="" CmdOffPost="" Analog="true" Repeat="0" RepeatRate="0" SourceValHigh="10" DestValHigh="10"/>
+</VirtualOut>

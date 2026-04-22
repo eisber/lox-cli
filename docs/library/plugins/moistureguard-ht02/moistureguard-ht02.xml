@@ -1,0 +1,10 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Modbus Title="HT02" Comment="Combined humidity and temperature sensor" Baudrate="19200" Parity="1" Channel="1">
+	<Info templateType="7" minVersion="13011006"/>
+	<ModbusCmd Title="Temperature" Comment="" ModbusAddress="100" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="5" Unit="&lt;v.2&gt; °C" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Relative humidity" Comment="" ModbusAddress="102" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="5" Unit="&lt;v.2&gt; %" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Teplota rosného bodu" Comment="" ModbusAddress="104" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="5" Unit="&lt;v.2&gt; °C" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Absolute humidity" Comment="" ModbusAddress="112" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="5" Unit="&lt;v.2&gt; g/m³" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Power supply voltage" Comment="" ModbusAddress="116" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="5" Unit="&lt;v.2&gt; V" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Sensor serial number" Comment="" ModbusAddress="3001" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+</Modbus>

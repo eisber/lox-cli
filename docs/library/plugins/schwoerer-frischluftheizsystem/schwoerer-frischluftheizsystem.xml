@@ -1,0 +1,36 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Modbus Title="Schwörer Haus - fresh-air heater" Comment="" Baudrate="19200" Parity="1" Channel="1">
+	<Info templateType="7" minVersion="12021022"/>
+	<ModbusCmd Title="100 - operating mode" Comment="" ModbusAddress="100" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="5" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="102 - current air level" Comment="" ModbusAddress="102" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="5" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="101 - manual air level" Comment="" ModbusAddress="101" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="5" Unit="&lt;v&gt; Stufe" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="932 - target temperature room 1" Comment="" ModbusAddress="932" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.1&gt; °C" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="948 - auxiliary heater enable room 1" Comment="" ModbusAddress="948" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="230 - heating-cooling function" Comment="" ModbusAddress="230" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="231 - heating pump - heating" Comment="" ModbusAddress="231" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="232 - heating pump - cooling" Comment="" ModbusAddress="232" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="240 - error message" Comment="" ModbusAddress="240" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="253 - emergency mode" Comment="" ModbusAddress="253" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="242 - pressure monitor active" Comment="" ModbusAddress="242" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="243 - EVU locker active" Comment="" ModbusAddress="243" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="244 - door open" Comment="" ModbusAddress="244" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="245 - device filter dirty" Comment="" ModbusAddress="245" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="246 - prelocated filter dirty" Comment="" ModbusAddress="246" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="247 - low fare off" Comment="" ModbusAddress="247" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="248 - powersupply off" Comment="" ModbusAddress="248" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="250 - Pressostat activated" Comment="" ModbusAddress="250" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="251 - EVU locker extern active" Comment="" ModbusAddress="251" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="252 - heating module test operation active" Comment="" ModbusAddress="252" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="254 - air intake too cold" Comment="" ModbusAddress="254" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="265 - remaining time device filter" Comment="" ModbusAddress="265" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v&gt; Tage" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="263 - remaining time prelocated filter" Comment="" ModbusAddress="263" ModbusCmd="3" ModbusPollingCycle="5" Unit="&lt;v&gt; Tage" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="manual air level" Comment="" ModbusAddress="101" ModbusCmd="16" ModbusDataType="1" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100" RepeatRate="60"/>
+	<ModbusCmd Title="100 - operating mode" Comment="" ModbusAddress="100" ModbusCmd="16" ModbusDataType="1" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100" RepeatRate="60"/>
+	<ModbusCmd Title="932 - target temperature room 1" Comment="" ModbusAddress="932" ModbusCmd="16" Unit="&lt;v&gt; °C" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="100"/>
+	<ModbusCmd Title="900 - current temperature room 1" Comment="" ModbusAddress="900" ModbusCmd="16" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="100" RepeatRate="500"/>
+	<ModbusCmd Title="948 - auxiliary heater enable room 1" Comment="" ModbusAddress="948" ModbusCmd="16" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="230 - heating-cooling function" Comment="" ModbusAddress="230" ModbusCmd="16" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="231 - heating pump - heating" Comment="" ModbusAddress="231" ModbusCmd="16" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="232 - heating pump - cooling" Comment="" ModbusAddress="232" ModbusCmd="16" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="241 - Error Reset" Comment="" ModbusAddress="241" ModbusCmd="16" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+</Modbus>

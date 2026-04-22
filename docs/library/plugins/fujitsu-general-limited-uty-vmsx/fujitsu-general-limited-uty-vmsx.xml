@@ -1,0 +1,16 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Modbus Title="Fujitsu_UTY-VMSX" Comment="" Baudrate="9600" Stopbits="1" Channel="3">
+	<Info templateType="7" minVersion="13010722"/>
+	<ModbusCmd Title="57 Indoor temperature status" Comment="" ModbusAddress="57" ModbusCmd="4" ModbusPollingCycle="30" Unit="&lt;v.1&gt;ºC" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="2.5"/>
+	<ModbusCmd Title="53 Operation mode status" Comment="" ModbusAddress="53" ModbusCmd="4" ModbusPollingCycle="30" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="54 Operation ON_OFF status" Comment="" ModbusAddress="54" ModbusCmd="4" ModbusPollingCycle="30" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="55 Set temperature status" Comment="" ModbusAddress="55" ModbusCmd="4" ModbusPollingCycle="15" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="2.5"/>
+	<ModbusCmd Title="59 Error monitoring" Comment="" ModbusAddress="59" ModbusCmd="4" ModbusPollingCycle="30" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="60 Horizontal air direction" Comment="" ModbusAddress="60" ModbusCmd="4" ModbusPollingCycle="30" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="63 Economy mode operation" Comment="" ModbusAddress="63" ModbusCmd="4" ModbusPollingCycle="30" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="01 Operation mode setting_" Comment="" ModbusAddress="1" ModbusCmd="6" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="02 Operation ON_OFF setting" Comment="" ModbusAddress="2" ModbusCmd="6" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="03 Set temperature setting" Comment="" ModbusAddress="3" ModbusCmd="6" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="04 Airflow setting" Comment="" ModbusAddress="4" ModbusCmd="6" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="05 Vertical air direction position status" Comment="" ModbusAddress="5" ModbusCmd="6" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+</Modbus>

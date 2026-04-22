@@ -1,0 +1,9 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<VirtualInHttp Title="Stiebel Eltron LWZ 403 SOL" Comment="" Address="http://172.16.200.245:80/?s=1,0" PollingTime="120">
+    <Info templateType="2" minVersion="12010617"/>
+	<VirtualInHttpCmd Title="outside temperature" Comment="" Check="AUSSENTEMPERATUR&lt;/td&gt;\i&lt;td class=&quot;value round-rightbottom&quot;&gt;\i\v" Signed="true" Analog="true" SourceValLow="0" DestValLow="-2" SourceValHigh="100" DestValHigh="98" DefVal="0" MinVal="-10000" MaxVal="10000"/>
+	<VirtualInHttpCmd Title="flow temperature" Comment="" Check="VORLAUFTEMP.&lt;/td&gt;\i&lt;td class=&quot;value&quot;&gt;\i\v" Signed="true" Analog="true" SourceValLow="0" DestValLow="0" SourceValHigh="100" DestValHigh="100" DefVal="0" MinVal="-10000" MaxVal="10000"/>
+	<VirtualInHttpCmd Title="return temperature" Comment="" Check="RÜCKLAUFTEMP.&lt;/td&gt;\i&lt;td class=&quot;value&quot;&gt;\i\v" Signed="true" Analog="true" SourceValLow="0" DestValLow="0" SourceValHigh="100" DestValHigh="100" DefVal="0" MinVal="-10000" MaxVal="10000"/>
+	<VirtualInHttpCmd Title="internal temperature" Comment="" Check="RAUMISTTEMP. HK1&lt;/td&gt;\i&lt;td class=&quot;value&quot;&gt;\i\v" Signed="true" Analog="true" SourceValLow="0" DestValLow="-3" SourceValHigh="100" DestValHigh="97" DefVal="0" MinVal="-10000" MaxVal="10000"/>
+	<VirtualInHttpCmd Title="water temperature" Comment="" Check="WW-ISTTEMP.&lt;/td&gt;\i&lt;td class=&quot;value&quot;&gt;\i\v" Signed="true" Analog="true" SourceValLow="0" DestValLow="0" SourceValHigh="100" DestValHigh="100" DefVal="0" MinVal="-10000" MaxVal="10000"/>
+</VirtualInHttp>

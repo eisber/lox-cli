@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Modbus Title="INEPRO PRO1-Mod 1-phase" Comment="" Baudrate="9600" Parity="1" Channel="40">
+	<Info templateType="7" minVersion="14000328"/>
+	<ModbusCmd Title="Voltage" Comment="" ModbusAddress="8192" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="300" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Grid Frequency" Comment="" ModbusAddress="8224" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="300" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Current" Comment="" ModbusAddress="8288" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="300" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Total Active Power" Comment="" ModbusAddress="8320" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="300" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Total Reactive Power" Comment="" ModbusAddress="8352" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="300" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Total Apparent Power" Comment="" ModbusAddress="8384" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="300" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Power Factor" Comment="" ModbusAddress="8416" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="300" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Total Active Energy" Comment="" ModbusAddress="12288" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="300" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Total Reactive Energy" Comment="" ModbusAddress="12384" ModbusCmd="4" ModbusDataType="36" ModbusPollingCycle="300" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+</Modbus>

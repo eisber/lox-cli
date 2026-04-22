@@ -1,0 +1,7 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<VirtualOut Title="Yale Smart Lock" Comment="" Address="https://connect.getseam.com" CmdInit="" HintText="" CloseAfterSend="true" CmdSep="">
+	<Info templateType="3" minVersion="15050304"/>
+	<VirtualOutCmd Title="Get Data" Comment="" CmdOnMethod="POST" CmdOffMethod="GET" CmdOn="/devices/list" CmdOnHTTP="accept: application/json \r\nContent-Type: application/json \r\nauthorization:Bearer &lt;YourAPIToken&gt;" CmdOnPost="{ &quot;device_id&quot;: &quot;&lt;Your Device Id&gt;&quot; }" CmdOff="" CmdOffHTTP="" CmdOffPost="" CmdAnswer="/user/common/yale_state.html" HintText="" Analog="false" Repeat="0" RepeatRate="0"/>
+	<VirtualOutCmd Title="Unlock" Comment="" CmdOnMethod="POST" CmdOffMethod="GET" CmdOn="/locks/unlock_door" CmdOnHTTP="accept: application/json \r\nContent-Type: application/json \r\nauthorization:Bearer &lt;YourAPIToken&gt;" CmdOnPost="{ &quot;device_id&quot;: &quot;&lt;Your Device Id&gt;&quot; }" CmdOff="" CmdOffHTTP="" CmdOffPost="" CmdAnswer="" HintText="" Analog="false" Repeat="0" RepeatRate="0"/>
+	<VirtualOutCmd Title="Lock" Comment="" CmdOnMethod="POST" CmdOffMethod="GET" CmdOn="/locks/lock_door" CmdOnHTTP="accept: application/json \r\nContent-Type: application/json \r\nauthorization:Bearer &lt;YourAPIToken&gt;" CmdOnPost="{ &quot;device_id&quot;: &quot;&lt;Your Device Id&gt;&quot; }" CmdOff="" CmdOffHTTP="" CmdOffPost="" CmdAnswer="" HintText="" Analog="false" Repeat="0" RepeatRate="0"/>
+</VirtualOut>

@@ -1,0 +1,2299 @@
+[
+  {
+    "id": "hve01-irc-bathroom-heating-cooling",
+    "pattern": [
+      "hvac",
+      "room-control",
+      "irc-zone"
+    ],
+    "utterance": "Set up the bathroom with heating and cooling — use the temperature sensor for feedback and a Tree valve actuator for the zone valve",
+    "difficulty": "medium",
+    "source": "extracted from HVAC config: Bathroom IRC with Temp/Move/Reset/inFan inputs, valve actuator output",
+    "expected": {
+      "new_blocks": [
+        {
+          "type": "HeatIRoomController2",
+          "title": "Intelligent Room Controller"
+        }
+      ],
+      "wiring": [
+        {
+          "from_type": "InputRef",
+          "from_title": "Temperature",
+          "from_conn": "AQ",
+          "to_conn": "Temp",
+          "to_type": "HeatIRoomController2"
+        },
+        {
+          "from_type": "InputRef",
+          "from_title": "Motion",
+          "from_conn": "AQ",
+          "to_conn": "Move",
+          "to_type": "HeatIRoomController2"
+        }
+      ],
+      "params": [
+        {
+          "connector": "Cap",
+          "value": "3",
+          "comment": "Cap=3 means heating+cooling"
+        }
+      ],
+      "simulation": [
+        {
+          "name": "heating valve opens when bathroom temp below setpoint",
+          "inputs": {
+            "Raumtemperatur Wohnzimmer.AQ": 18.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Raumregler.AQh": {
+              ">": 0
+            }
+          }
+        },
+        {
+          "name": "heating valve closed when bathroom temp above setpoint",
+          "inputs": {
+            "Raumtemperatur Wohnzimmer.AQ": 25.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Raumregler.AQh": {
+              "==": 0
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "hve02-irc-motion-economy",
+    "pattern": [
+      "hvac",
+      "room-control",
+      "presence-economy"
+    ],
+    "utterance": "When nobody is in the bedroom, automatically switch the room controller to economy mode. Use the motion sensor and reset it when the lights turn off",
+    "difficulty": "hard",
+    "source": "extracted: Bedroom IRC chain: Motion→Move, LightController.OutputReset→Memory(Leaving Room)→IRC.Reset",
+    "expected": {
+      "new_blocks": [
+        {
+          "type": "HeatIRoomController2",
+          "title": "Intelligent Room Controller"
+        },
+        {
+          "type": "Memory",
+          "title": "Leaving Room Bedroom"
+        }
+      ],
+      "wiring": [
+        {
+          "from_type": "InputRef",
+          "from_title": "Motion",
+          "from_conn": "AQ",
+          "to_conn": "Move",
+          "to_type": "HeatIRoomController2"
+        },
+        {
+          "from_type": "LightController2",
+          "from_conn": "OutputReset",
+          "to_type": "Memory",
+          "to_conn": "S"
+        },
+        {
+          "from_type": "Memory",
+          "from_title": "Leaving Room Bedroom",
+          "from_conn": "Q",
+          "to_conn": "Reset",
+          "to_type": "HeatIRoomController2"
+        }
+      ],
+      "params": [],
+      "simulation": [
+        {
+          "name": "economy mode activated when no motion detected",
+          "inputs": {
+            "Bewegungsmelder.OutputPresence": 0.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Raumregler.AQh": {
+              "<": 0.5
+            }
+          }
+        },
+        {
+          "name": "comfort mode restored when motion detected",
+          "inputs": {
+            "Bewegungsmelder.OutputPresence": 1.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Raumregler.AQh": {
+              ">": 0.5
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "hve03-irc-humidity-fan",
+    "pattern": [
+      "hvac",
+      "room-control",
+      "humidity-fan"
+    ],
+    "utterance": "Connect the bathroom humidity sensor to the room controller so it can manage ventilation fan speed based on humidity levels",
+    "difficulty": "medium",
+    "source": "extracted: Bathroom IRC has Humidity→inFan input for automatic fan management",
+    "expected": {
+      "new_blocks": [
+        {
+          "type": "HeatIRoomController2"
+        }
+      ],
+      "wiring": [
+        {
+          "from_type": "InputRef",
+          "from_title": "Humidity",
+          "from_conn": "AQ",
+          "to_conn": "inFan",
+          "to_type": "HeatIRoomController2"
+        }
+      ],
+      "params": [],
+      "simulation": [
+        {
+          "name": "ventilation fan activated on high humidity",
+          "inputs": {
+            "Luftfeuchtigkeit.AQ": 75.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Lüfter Bad.I1": {
+              ">": 0.5
+            }
+          }
+        },
+        {
+          "name": "ventilation fan off on normal humidity",
+          "inputs": {
+            "Luftfeuchtigkeit.AQ": 45.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Lüfter Bad.I1": {
+              "<": 0.5
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "hve04-irc-dual-source",
+    "pattern": [
+      "hvac",
+      "room-control",
+      "multi-source"
+    ],
+    "utterance": "Set up the bedroom room controller with two heating/cooling sources — a heat pump as primary and the AC central controller as secondary backup",
+    "difficulty": "expert",
+    "source": "extracted: Bedroom IRC has SourceCap=67, two Objects (heat pump + AC), PrioH=0,1 PrioC=0,1, Cap=771,0",
+    "expected": {
+      "new_blocks": [
+        {
+          "type": "HeatIRoomController2",
+          "title": "Intelligent Room Controller"
+        }
+      ],
+      "wiring": [],
+      "params": [
+        {
+          "connector": "SourceCap",
+          "value": "67",
+          "comment": "multiple heat sources"
+        },
+        {
+          "connector": "PrioH",
+          "value": "0,1",
+          "comment": "heating priority order"
+        },
+        {
+          "connector": "PrioC",
+          "value": "0,1",
+          "comment": "cooling priority order"
+        },
+        {
+          "connector": "Cap",
+          "value": "771,0",
+          "comment": "h+c for source 1, none for source 2"
+        }
+      ],
+      "simulation": [
+        {
+          "name": "heating demand from dual-source IRC when cold",
+          "inputs": {
+            "Außentemperatur.AQ": 15.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Raumregler.AQh": {
+              ">": 0
+            }
+          }
+        },
+        {
+          "name": "no heating demand when room temp satisfied",
+          "inputs": {
+            "Außentemperatur.AQ": 25.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Raumregler.AQh": {
+              "==": 0
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "hve05-irc-radiator-zone",
+    "pattern": [
+      "hvac",
+      "room-control",
+      "radiator-zone"
+    ],
+    "utterance": "Set up a radiator zone with heating only — connect the room temperature sensor and wire the output to an Air valve actuator",
+    "difficulty": "medium",
+    "source": "extracted: Room 1 (Radiator) in Typical app 1, Cap=25 (heating+floor+radiator), Temp input, Valve Actuator Air output",
+    "expected": {
+      "new_blocks": [
+        {
+          "type": "HeatIRoomController2",
+          "title": "Room 1 (Radiator)"
+        }
+      ],
+      "wiring": [
+        {
+          "from_type": "InputRef",
+          "from_title": "Temperature",
+          "from_conn": "AQ",
+          "to_conn": "Temp",
+          "to_type": "HeatIRoomController2"
+        },
+        {
+          "from_conn": "AQh",
+          "to_type": "OutputRef",
+          "to_title": "Valve Actuator Air",
+          "from_type": "HeatIRoomController2",
+          "to_conn": "I"
+        }
+      ],
+      "params": [
+        {
+          "connector": "Cap",
+          "value": "25",
+          "comment": "heating + floor + radiator type"
+        }
+      ],
+      "simulation": [
+        {
+          "name": "radiator valve opens when room temp below setpoint",
+          "inputs": {
+            "Raumtemperatur Wohnzimmer.AQ": 18.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Raumregler.AQh": {
+              ">": 0
+            }
+          }
+        },
+        {
+          "name": "radiator valve closed when room temp above setpoint",
+          "inputs": {
+            "Raumtemperatur Wohnzimmer.AQ": 27.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Raumregler.AQh": {
+              "==": 0
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "hve06-irc-floor-heating-zone",
+    "pattern": [
+      "hvac",
+      "room-control",
+      "floor-heating"
+    ],
+    "utterance": "Configure a floor heating zone controller — temperature sensor input, Tree valve actuator output, heating-only mode",
+    "difficulty": "medium",
+    "source": "extracted: Room 3 (Floor heating) in Typical app 1, Cap=25, Temp→IRC→Valve Actuator Tree",
+    "expected": {
+      "new_blocks": [
+        {
+          "type": "HeatIRoomController2",
+          "title": "Room 3 (Floor heating)"
+        }
+      ],
+      "wiring": [
+        {
+          "from_type": "InputRef",
+          "from_title": "Temperature",
+          "from_conn": "AQ",
+          "to_conn": "Temp",
+          "to_type": "HeatIRoomController2"
+        },
+        {
+          "from_conn": "AQh",
+          "to_type": "OutputRef",
+          "to_title": "Valve Actuator Tree",
+          "from_type": "HeatIRoomController2",
+          "to_conn": "I"
+        }
+      ],
+      "params": [
+        {
+          "connector": "Cap",
+          "value": "25",
+          "comment": "heating + floor + radiator capabilities"
+        }
+      ],
+      "simulation": [
+        {
+          "name": "floor heating valve opens when room temp below setpoint",
+          "inputs": {
+            "Raumtemperatur Wohnzimmer.AQ": 18.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Raumregler.AQh": {
+              ">": 0
+            }
+          }
+        },
+        {
+          "name": "floor heating valve closed when room temp above setpoint",
+          "inputs": {
+            "Raumtemperatur Wohnzimmer.AQ": 27.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Raumregler.AQh": {
+              "==": 0
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "hve07-hm2-heatpump-flow-temp",
+    "pattern": [
+      "hvac",
+      "heatmixer",
+      "flow-temperature"
+    ],
+    "utterance": "Calculate the flow temperature for the heat pump and send both heating and cooling supply temperature requests to the external heat pump controller",
+    "difficulty": "hard",
+    "source": "extracted: Flow Temperature Calculator on Central Heating page, Max→External Request Supply Flowtemperature (Heating + Cooling) HC1",
+    "expected": {
+      "new_blocks": [
+        {
+          "type": "Heatmixer2",
+          "title": "Flow Temperature Calculator"
+        }
+      ],
+      "wiring": [
+        {
+          "from_conn": "Max",
+          "to_type": "OutputRef",
+          "to_title": "External Request Supply Flowtemperature Cooling HC1",
+          "from_type": "Heatmixer2",
+          "to_conn": "I"
+        },
+        {
+          "from_conn": "Max",
+          "to_type": "OutputRef",
+          "to_title": "External Request Supply Flowtemperature Heating HC1",
+          "from_type": "Heatmixer2",
+          "to_conn": "I"
+        }
+      ],
+      "params": [],
+      "simulation": [
+        {
+          "name": "flow temp request sent when heating demand exists",
+          "inputs": {
+            "Außentemperatur.AQ": -5.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Raumregler.AQh": {
+              ">": 0
+            }
+          }
+        },
+        {
+          "name": "no flow temp request when no heating demand",
+          "inputs": {
+            "Außentemperatur.AQ": 20.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Raumregler.AQh": {
+              "==": 0
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "hve08-hm2-radiator-flow-buffer",
+    "pattern": [
+      "hvac",
+      "heatmixer",
+      "radiator-circuit"
+    ],
+    "utterance": "Set up the radiator flow temperature calculator — read the buffer tank temperature, output the desired temperature to a min/max block, and control the circulation pump",
+    "difficulty": "hard",
+    "source": "extracted: Radiators flow temp. calculator: InBuffer←Buffer tank radiators, BufferInc→Minmax(Desired temp), Transconductance→Circulation pump radiators",
+    "expected": {
+      "new_blocks": [
+        {
+          "type": "Heatmixer2",
+          "title": "Radiators flow temp. calculator"
+        }
+      ],
+      "wiring": [
+        {
+          "from_type": "InputRef",
+          "from_title": "Buffer tank radiators",
+          "from_conn": "AQ",
+          "to_conn": "InBuffer",
+          "to_type": "Heatmixer2"
+        },
+        {
+          "from_conn": "BufferInc",
+          "to_type": "Minmax",
+          "to_title": "Desired temp.",
+          "to_conn": "AQmax",
+          "from_type": "Heatmixer2"
+        },
+        {
+          "from_conn": "Transconductance",
+          "to_type": "OutputRef",
+          "to_title": "Circulation pump radiators",
+          "from_type": "Heatmixer2",
+          "to_conn": "I"
+        }
+      ],
+      "params": [],
+      "simulation": [
+        {
+          "name": "circulation pump activated when buffer has heat",
+          "inputs": {
+            "Außentemperatur.AQ": -5.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Poolpumpe.I1": {
+              ">": 0.5
+            }
+          }
+        },
+        {
+          "name": "circulation pump off when no heating demand",
+          "inputs": {
+            "Außentemperatur.AQ": 22.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Poolpumpe.I1": {
+              "<": 0.5
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "hve09-hm2-floor-mixing-valve",
+    "pattern": [
+      "hvac",
+      "heatmixer",
+      "floor-mixing-valve"
+    ],
+    "utterance": "Configure the floor heating flow temperature calculator with a buffer tank input, and have it control a mixing valve and circulation pump. The mixing valve needs both the target temperature and a stop signal",
+    "difficulty": "expert",
+    "source": "extracted: Floor heating flow temp calculator: InBuffer←Buffer tank floor heating, Max→Mixing Valve.Input, Transconductance→Mixing Valve.Stop + Circulation pump relay",
+    "expected": {
+      "new_blocks": [
+        {
+          "type": "Heatmixer2",
+          "title": "Floor heating flow temp. calculator"
+        },
+        {
+          "type": "Heatmixer",
+          "title": "Mixing Valve"
+        }
+      ],
+      "wiring": [
+        {
+          "from_type": "InputRef",
+          "from_title": "Buffer tank floor heating",
+          "from_conn": "AQ",
+          "to_conn": "InBuffer",
+          "to_type": "Heatmixer2"
+        },
+        {
+          "from_type": "Heatmixer2",
+          "from_conn": "Max",
+          "to_type": "Heatmixer",
+          "to_title": "Mixing Valve",
+          "to_conn": "Input"
+        },
+        {
+          "from_type": "Heatmixer2",
+          "from_conn": "Transconductance",
+          "to_type": "Heatmixer",
+          "to_title": "Mixing Valve",
+          "to_conn": "Stop"
+        },
+        {
+          "from_type": "Heatmixer2",
+          "from_conn": "Transconductance",
+          "to_type": "OutputRef",
+          "to_title": "Actuator (Relay) 5",
+          "to_conn": "I"
+        }
+      ],
+      "params": [],
+      "simulation": [
+        {
+          "name": "mixing valve adjusts when floor heating demands heat",
+          "inputs": {
+            "Außentemperatur.AQ": 0.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Raumregler.AQh": {
+              ">": 0
+            }
+          }
+        },
+        {
+          "name": "mixing valve closed when no floor heating demand",
+          "inputs": {
+            "Außentemperatur.AQ": 22.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Raumregler.AQh": {
+              "==": 0
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "hve10-hm2-dewpoint-cooling",
+    "pattern": [
+      "hvac",
+      "heatmixer",
+      "dewpoint-protection"
+    ],
+    "utterance": "Set up a cooling flow temperature calculator that respects the dew point — never cool the water below the dew point to prevent condensation on the pipes",
+    "difficulty": "expert",
+    "source": "extracted: Room 1 Cooling Calculator has TxQr←DewPoint:Dewpoint room 1.DewP, ensuring cooling temp stays above dew point",
+    "expected": {
+      "new_blocks": [
+        {
+          "type": "Heatmixer2",
+          "title": "Room 1 Cooling Calculator"
+        },
+        {
+          "type": "DewPoint",
+          "title": "Dewpoint room 1"
+        }
+      ],
+      "wiring": [
+        {
+          "from_type": "DewPoint",
+          "from_title": "Dewpoint room 1",
+          "from_conn": "DewP",
+          "to_type": "Heatmixer2",
+          "to_conn": "TxQr"
+        },
+        {
+          "from_type": "InputRef",
+          "from_title": "Cooling buffer temp.",
+          "from_conn": "AQ",
+          "to_conn": "InBuffer",
+          "to_type": "Heatmixer2"
+        }
+      ],
+      "params": [],
+      "simulation": [
+        {
+          "name": "cooling limited above dew point to prevent condensation",
+          "inputs": {
+            "Außentemperatur.AQ": 30.0,
+            "Luftfeuchtigkeit.AQ": 70.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Raumregler.AQc": {
+              ">": 0
+            }
+          }
+        },
+        {
+          "name": "no cooling when already below dew point risk",
+          "inputs": {
+            "Außentemperatur.AQ": 20.0,
+            "Luftfeuchtigkeit.AQ": 40.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Raumregler.AQc": {
+              "==": 0
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "hve11-mem-leaving-house-reset",
+    "pattern": [
+      "hvac",
+      "presence",
+      "leaving-house"
+    ],
+    "utterance": "When I leave the house, reset all room controllers to economy mode. Detect leaving via the mud room light controller turning off or pressing the Away button",
+    "difficulty": "hard",
+    "source": "extracted: Leaving House Mud Room→Memory(Leaving House).S + PushButton(Away)→Memory.S, then Memory.Q→Room Controller Reset",
+    "expected": {
+      "new_blocks": [
+        {
+          "type": "Memory",
+          "title": "Leaving House"
+        },
+        {
+          "type": "Memory",
+          "title": "Room Controller Reset"
+        }
+      ],
+      "wiring": [
+        {
+          "from_type": "LightController2",
+          "from_conn": "OutputResetAll",
+          "to_type": "Memory",
+          "to_title": "Leaving House Mud Room",
+          "to_conn": "S"
+        },
+        {
+          "from_type": "Memory",
+          "from_title": "Leaving House",
+          "from_conn": "Q",
+          "to_type": "Memory",
+          "to_title": "Room Controller Reset",
+          "to_conn": "S"
+        }
+      ],
+      "params": [],
+      "simulation": [
+        {
+          "name": "room controllers reset to economy on leaving",
+          "inputs": {
+            "Bewegungsmelder.OutputPresence": 0.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Raumregler.AQh": {
+              "<": 0.5
+            }
+          }
+        },
+        {
+          "name": "room controllers stay in comfort when home",
+          "inputs": {
+            "Bewegungsmelder.OutputPresence": 1.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Raumregler.AQh": {
+              ">": 0.5
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "hve12-mem-goodnight-mode",
+    "pattern": [
+      "hvac",
+      "presence",
+      "goodnight"
+    ],
+    "utterance": "Create a goodnight routine — pressing the Night button stores the state, which then triggers a room controller reset to drop to nighttime setpoints",
+    "difficulty": "medium",
+    "source": "extracted: PushButton(Night)→Memory(Goodnight).S, Goodnight.Q→Room Controller Reset.S",
+    "expected": {
+      "new_blocks": [
+        {
+          "type": "Memory",
+          "title": "Goodnight"
+        },
+        {
+          "type": "Memory",
+          "title": "Room Controller Reset"
+        }
+      ],
+      "wiring": [
+        {
+          "from_type": "PushButton",
+          "from_title": "Night",
+          "to_type": "Memory",
+          "to_title": "Goodnight",
+          "to_conn": "S",
+          "from_conn": "Q"
+        },
+        {
+          "from_type": "Memory",
+          "from_title": "Goodnight",
+          "from_conn": "Q",
+          "to_type": "Memory",
+          "to_title": "Room Controller Reset",
+          "to_conn": "S"
+        }
+      ],
+      "params": [],
+      "simulation": [
+        {
+          "name": "goodnight button triggers room controller reset",
+          "inputs": {
+            "Türkontakt Eingang.Q": 1.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Raumregler.AQh": {
+              ">": 0.5
+            }
+          }
+        },
+        {
+          "name": "room controllers unchanged without goodnight trigger",
+          "inputs": {
+            "Türkontakt Eingang.Q": 0.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Raumregler.AQh": {
+              "<": 0.5
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "hve13-mem-garage-co-ventilation",
+    "pattern": [
+      "hvac",
+      "garage",
+      "co-safety"
+    ],
+    "utterance": "Monitor CO levels on both garage floors. If any floor reaches warning or critical levels, trigger ventilation demand to extract the fumes",
+    "difficulty": "expert",
+    "source": "extracted: StatusMonitor(1st/2nd floor).Txlc/Csr→Memory(CO critical/warning).S, all feed into Memory(Ventilation demand).S",
+    "expected": {
+      "new_blocks": [
+        {
+          "type": "StatusMonitor",
+          "title": "1st floor"
+        },
+        {
+          "type": "StatusMonitor",
+          "title": "2nd floor"
+        },
+        {
+          "type": "Memory",
+          "title": "1st floor CO critical"
+        },
+        {
+          "type": "Memory",
+          "title": "1st floor CO warning"
+        },
+        {
+          "type": "Memory",
+          "title": "2nd floor CO critical"
+        },
+        {
+          "type": "Memory",
+          "title": "2nd floor CO warning"
+        },
+        {
+          "type": "Memory",
+          "title": "Ventilation demand"
+        }
+      ],
+      "wiring": [
+        {
+          "from_type": "StatusMonitor",
+          "from_title": "1st floor",
+          "from_conn": "Txlc",
+          "to_type": "Memory",
+          "to_title": "1st floor CO critical",
+          "to_conn": "S"
+        },
+        {
+          "from_type": "Memory",
+          "from_title": "1st floor CO critical",
+          "from_conn": "Q",
+          "to_type": "Memory",
+          "to_title": "Ventilation demand",
+          "to_conn": "S"
+        },
+        {
+          "from_type": "StatusMonitor",
+          "from_title": "2nd floor",
+          "from_conn": "Txlc",
+          "to_type": "Memory",
+          "to_title": "2nd floor CO critical",
+          "to_conn": "S"
+        }
+      ],
+      "params": [],
+      "simulation": [
+        {
+          "name": "ventilation activates on high CO level",
+          "inputs": {
+            "CO2 Sensor.AQ": 100.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Lüfter Bad.I1": {
+              ">": 0.5
+            }
+          }
+        },
+        {
+          "name": "ventilation off when CO levels normal",
+          "inputs": {
+            "CO2 Sensor.AQ": 10.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Lüfter Bad.I1": {
+              "<": 0.5
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "hve14-mem-dhw-thermal-disinfect",
+    "pattern": [
+      "hvac",
+      "dhw",
+      "thermal-disinfection"
+    ],
+    "utterance": "Enable domestic hot water demand from the threshold trigger. Every 10 days, force a thermal disinfection cycle that heats the pipes to 65°C to kill legionella",
+    "difficulty": "expert",
+    "source": "extracted: AnalogThresholdTrigger(DHW demand)→Memory(DHW demand), Counter(10 days)→Memory(Required thermal disinfection), EdgeDetection(≥65)→Memory(Thermal desinfection of piping)",
+    "expected": {
+      "new_blocks": [
+        {
+          "type": "Memory",
+          "title": "DHW demand"
+        },
+        {
+          "type": "AnalogThresholdTrigger",
+          "title": "DHW demand"
+        },
+        {
+          "type": "Memory",
+          "title": "Required thermal disinfection"
+        },
+        {
+          "type": "Counter",
+          "title": "10 days counter"
+        },
+        {
+          "type": "Memory",
+          "title": "Thermal disinfection of piping"
+        },
+        {
+          "type": "EdgeDetection",
+          "title": "Circulation when temp is ≥65"
+        }
+      ],
+      "wiring": [
+        {
+          "from_type": "AnalogThresholdTrigger",
+          "from_conn": "Off",
+          "to_type": "Memory",
+          "to_title": "DHW demand",
+          "to_conn": "S"
+        },
+        {
+          "from_type": "Counter",
+          "from_title": "10 days counter",
+          "to_type": "Memory",
+          "to_title": "Required thermal disinfection",
+          "to_conn": "S",
+          "from_conn": "AQ"
+        },
+        {
+          "from_type": "EdgeDetection",
+          "from_conn": "PulseTime",
+          "to_type": "Memory",
+          "to_title": "Thermal disinfection of piping",
+          "to_conn": "S"
+        }
+      ],
+      "params": [],
+      "simulation": [
+        {
+          "name": "thermal disinfection triggers DHW demand",
+          "inputs": {
+            "Außentemperatur.AQ": 55.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Raumregler.AQh": {
+              ">": 0
+            }
+          }
+        },
+        {
+          "name": "no DHW demand when tank above disinfection temp",
+          "inputs": {
+            "Außentemperatur.AQ": 65.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Raumregler.AQh": {
+              "==": 0
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "hve15-mode-away",
+    "pattern": [
+      "hvac",
+      "mode",
+      "away"
+    ],
+    "utterance": "Create an Away operating mode that, when active, signals the building automation to reduce heating and disable unnecessary systems",
+    "difficulty": "medium",
+    "source": "extracted: Mode(Away).QN→InputRef(Away) — inverted output feeds into presence-dependent logic across multiple pages",
+    "expected": {
+      "new_blocks": [
+        {
+          "type": "Mode",
+          "title": "Away"
+        }
+      ],
+      "wiring": [
+        {
+          "from_type": "Mode",
+          "from_title": "Away",
+          "from_conn": "QN",
+          "to_type": "InputRef",
+          "to_title": "Away",
+          "to_conn": "I"
+        }
+      ],
+      "params": [],
+      "simulation": [
+        {
+          "name": "away mode signal propagates to building automation",
+          "inputs": {
+            "Bewegungsmelder.OutputPresence": 0.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Raumregler.AQh": {
+              "<": 0.5
+            }
+          }
+        },
+        {
+          "name": "normal mode when presence detected",
+          "inputs": {
+            "Bewegungsmelder.OutputPresence": 1.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Raumregler.AQh": {
+              ">": 0.5
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "hve16-mode-night",
+    "pattern": [
+      "hvac",
+      "mode",
+      "night-setback"
+    ],
+    "utterance": "Set up a Night operating mode — when active, broadcast the night signal to all room controllers, ventilation, and the HRV system for nighttime setback temperatures",
+    "difficulty": "hard",
+    "source": "extracted: Mode(Night).QN→5 different InputRef(Night) blocks across multiple pages (rooms, ventilation, HRV)",
+    "expected": {
+      "new_blocks": [
+        {
+          "type": "Mode",
+          "title": "Night"
+        }
+      ],
+      "wiring": [
+        {
+          "from_type": "Mode",
+          "from_title": "Night",
+          "from_conn": "QN",
+          "to_type": "InputRef",
+          "to_title": "Night",
+          "to_conn": "I"
+        }
+      ],
+      "params": [],
+      "simulation": [
+        {
+          "name": "night mode signal broadcast to all controllers",
+          "inputs": {
+            "Türkontakt Eingang.Q": 1.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Lüfter Bad.I1": {
+              ">": 0.5
+            }
+          }
+        },
+        {
+          "name": "day mode signal when night mode deactivated",
+          "inputs": {
+            "Türkontakt Eingang.Q": 0.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Lüfter Bad.I1": {
+              "<": 0.5
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "hve17-mode-heating-cooling-period",
+    "pattern": [
+      "hvac",
+      "mode",
+      "seasonal"
+    ],
+    "utterance": "Define seasonal heating and cooling period modes based on the calendar — heating runs October to April, cooling May to September",
+    "difficulty": "medium",
+    "source": "extracted: Mode(Heating Period) and Mode(Cooling Period) present as calendar-driven operating modes",
+    "expected": {
+      "new_blocks": [
+        {
+          "type": "Mode",
+          "title": "Heating Period"
+        },
+        {
+          "type": "Mode",
+          "title": "Cooling Period"
+        }
+      ],
+      "wiring": [],
+      "params": [],
+      "simulation": [
+        {
+          "name": "heating period mode active in winter months",
+          "inputs": {
+            "Außentemperatur.AQ": -5.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Raumregler.AQh": {
+              ">": 0
+            }
+          }
+        },
+        {
+          "name": "cooling period mode active in summer months",
+          "inputs": {
+            "Außentemperatur.AQ": 30.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Raumregler.AQh": {
+              "==": 0
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "hve18-mode-vacation",
+    "pattern": [
+      "hvac",
+      "mode",
+      "vacation"
+    ],
+    "utterance": "Create a vacation operating mode that keeps frost protection active but drops all zones to minimum temperature to save energy while we're away for weeks",
+    "difficulty": "medium",
+    "source": "extracted: Mode(Vacation) is a calendar-driven operating mode alongside Presence Simulation and Holiday modes",
+    "expected": {
+      "new_blocks": [
+        {
+          "type": "Mode",
+          "title": "Vacation"
+        }
+      ],
+      "wiring": [],
+      "params": [],
+      "simulation": [
+        {
+          "name": "frost protection maintained during vacation",
+          "inputs": {
+            "Außentemperatur.AQ": -10.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Raumregler.AQh": {
+              ">": 0
+            }
+          }
+        },
+        {
+          "name": "minimal energy use when vacation and mild weather",
+          "inputs": {
+            "Außentemperatur.AQ": 15.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Klimaanlage.I1": {
+              "<": 0.5
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "hve19-chain-sensor-irc-heatpump",
+    "pattern": [
+      "hvac",
+      "chain",
+      "sensor-to-heatpump"
+    ],
+    "utterance": "Wire the complete heating chain: room temperature sensors feed into intelligent room controllers, which request heat from an HVAC controller that signals the heat pump to run in heating mode",
+    "difficulty": "expert",
+    "source": "extracted chain: Temperature(InputRef)→IRC.Temp, IRC registered with HVACController(Heat pump), HVACController.TimePulseOff→OutputRef(Request Heatpump Heating)",
+    "expected": {
+      "new_blocks": [
+        {
+          "type": "HeatIRoomController2",
+          "title": "Intelligent Room Controller"
+        },
+        {
+          "type": "HVACController",
+          "title": "Heat pump"
+        }
+      ],
+      "wiring": [
+        {
+          "from_type": "InputRef",
+          "from_title": "Temperature",
+          "from_conn": "AQ",
+          "to_type": "HeatIRoomController2",
+          "to_conn": "Temp"
+        },
+        {
+          "from_type": "HVACController",
+          "from_title": "Heat pump",
+          "from_conn": "TimePulseOff",
+          "to_type": "OutputRef",
+          "to_title": "Request Heatpump Heating operation mode",
+          "to_conn": "I"
+        },
+        {
+          "from_type": "HVACController",
+          "from_title": "Heat pump",
+          "from_conn": "TimeFilter",
+          "to_type": "OutputRef",
+          "to_title": "Request Heatpump Cooling operation mode",
+          "to_conn": "I"
+        }
+      ],
+      "params": [],
+      "simulation": [
+        {
+          "name": "heat pump receives demand when rooms are cold",
+          "inputs": {
+            "Außentemperatur.AQ": 15.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Raumregler.AQh": {
+              ">": 0
+            }
+          }
+        },
+        {
+          "name": "heat pump idle when rooms are satisfied",
+          "inputs": {
+            "Außentemperatur.AQ": 25.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Raumregler.AQh": {
+              "==": 0
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "hve20-chain-buffer-mixer-valve",
+    "pattern": [
+      "hvac",
+      "chain",
+      "buffer-mixer-valve"
+    ],
+    "utterance": "Set up the mixing valve control chain for floor heating: buffer tank temperature feeds the flow temp calculator, which sets the mixing valve target and enables the circulation pump. The mixing valve reads the actual flow temperature for PID feedback",
+    "difficulty": "expert",
+    "source": "extracted chain: Buffer tank(InputRef)→Heatmixer2.InBuffer, Heatmixer2.Max→Heatmixer.Input, Heatmixer2.Transconductance→Heatmixer.Stop+Circ pump, Flow temp(InputRef)→Heatmixer.Temp",
+    "expected": {
+      "new_blocks": [
+        {
+          "type": "Heatmixer2",
+          "title": "Flow Temperature Calculator"
+        },
+        {
+          "type": "Heatmixer",
+          "title": "Mixing Valve Controller"
+        }
+      ],
+      "wiring": [
+        {
+          "from_type": "InputRef",
+          "from_title": "Heating buffer",
+          "from_conn": "AQ",
+          "to_type": "Heatmixer2",
+          "to_conn": "InBuffer"
+        },
+        {
+          "from_type": "Heatmixer2",
+          "from_conn": "Max",
+          "to_type": "Heatmixer",
+          "to_title": "Mixing Valve Controller",
+          "to_conn": "Input"
+        },
+        {
+          "from_type": "Heatmixer2",
+          "from_conn": "Transconductance",
+          "to_type": "Heatmixer",
+          "to_title": "Mixing Valve Controller",
+          "to_conn": "Stop"
+        },
+        {
+          "from_type": "Heatmixer2",
+          "from_conn": "Transconductance",
+          "to_type": "OutputRef",
+          "to_title": "Circulation pump",
+          "to_conn": "I"
+        },
+        {
+          "from_type": "InputRef",
+          "from_title": "Flow temp.",
+          "from_conn": "AQ",
+          "to_type": "Heatmixer",
+          "to_conn": "Temp"
+        }
+      ],
+      "params": [],
+      "simulation": [
+        {
+          "name": "mixing valve adjusts when buffer has heat and demand exists",
+          "inputs": {
+            "Außentemperatur.AQ": 0.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Mischventil.I1": {
+              ">": 0.5
+            }
+          }
+        },
+        {
+          "name": "mixing valve closed when no heating demand",
+          "inputs": {
+            "Außentemperatur.AQ": 22.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Mischventil.I1": {
+              "<": 0.5
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "hve21-chain-irc-fancoil-speed",
+    "pattern": [
+      "hvac",
+      "chain",
+      "fancoil-fan-speed"
+    ],
+    "utterance": "Wire the fancoil fan speed control: the room controller calculates the required fan speed and stores it in a memory block, which is then read by the fan speed controller",
+    "difficulty": "hard",
+    "source": "extracted chain: IRC(Room 1).TSave→Memory(Fan speed room 1).S, IRC(Room 1).TPWM→Memory(Room 1 mode).S — fan speed and mode stored separately",
+    "expected": {
+      "new_blocks": [
+        {
+          "type": "HeatIRoomController2",
+          "title": "Room 1"
+        },
+        {
+          "type": "Memory",
+          "title": "Fan speed room 1"
+        },
+        {
+          "type": "Memory",
+          "title": "Room 1 mode"
+        }
+      ],
+      "wiring": [
+        {
+          "from_type": "HeatIRoomController2",
+          "from_title": "Room 1",
+          "from_conn": "TSave",
+          "to_type": "Memory",
+          "to_title": "Fan speed room 1",
+          "to_conn": "S"
+        },
+        {
+          "from_type": "HeatIRoomController2",
+          "from_title": "Room 1",
+          "from_conn": "TPWM",
+          "to_type": "Memory",
+          "to_title": "Room 1 mode",
+          "to_conn": "S"
+        }
+      ],
+      "params": [],
+      "simulation": [
+        {
+          "name": "fan speed memory set when IRC has heating demand",
+          "inputs": {
+            "Außentemperatur.AQ": 15.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Lüfter Bad.I1": {
+              ">": 0.5
+            }
+          }
+        },
+        {
+          "name": "fan speed at minimum when no demand",
+          "inputs": {
+            "Außentemperatur.AQ": 23.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Lüfter Bad.I1": {
+              "<": 0.5
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "hve22-chain-4pipe-fancoil",
+    "pattern": [
+      "hvac",
+      "chain",
+      "4pipe-fancoil-system"
+    ],
+    "utterance": "Build a 4-pipe fancoil system with separate heating and cooling circuits. Each room needs its own heating and cooling flow temp calculators, mixing valve controllers, and the room mode determines which circuit is active",
+    "difficulty": "expert",
+    "source": "extracted: 4-pipe fancoil with Room 1/2 Heating/Cooling Calculators, each with buffer tank inputs, dew point limits on cooling, mode-switched mixing valves",
+    "expected": {
+      "new_blocks": [
+        {
+          "type": "Heatmixer2",
+          "title": "Room 1 Heating Calculator"
+        },
+        {
+          "type": "Heatmixer2",
+          "title": "Room 1 Cooling Calculator"
+        },
+        {
+          "type": "Heatmixer",
+          "title": "Mixing Valve Controller"
+        },
+        {
+          "type": "AnalogMultiplexer2",
+          "title": "Flow target temp. room 1"
+        },
+        {
+          "type": "DewPoint",
+          "title": "Dewpoint room 1"
+        }
+      ],
+      "wiring": [
+        {
+          "from_type": "Heatmixer2",
+          "from_title": "Room 1 Heating Calculator",
+          "from_conn": "Max",
+          "to_type": "AnalogMultiplexer2",
+          "to_conn": "InputDisable"
+        },
+        {
+          "from_type": "Heatmixer2",
+          "from_title": "Room 1 Cooling Calculator",
+          "from_conn": "Max",
+          "to_type": "AnalogMultiplexer2",
+          "to_conn": "Input2"
+        },
+        {
+          "from_type": "DewPoint",
+          "from_conn": "DewP",
+          "to_type": "Heatmixer2",
+          "to_title": "Room 1 Cooling Calculator",
+          "to_conn": "TxQr"
+        },
+        {
+          "from_type": "AnalogMultiplexer2",
+          "from_conn": "AQ",
+          "to_type": "Heatmixer",
+          "to_title": "Mixing Valve Controller",
+          "to_conn": "Input"
+        }
+      ],
+      "params": [],
+      "simulation": [
+        {
+          "name": "heating circuit active when cold outside",
+          "inputs": {
+            "Außentemperatur.AQ": -5.0,
+            "Luftfeuchtigkeit.AQ": 50.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Raumregler.AQh": {
+              ">": 0
+            }
+          }
+        },
+        {
+          "name": "cooling circuit respects dew point limit",
+          "inputs": {
+            "Außentemperatur.AQ": 30.0,
+            "Luftfeuchtigkeit.AQ": 70.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Lüfter Bad.I1": {
+              ">=": 0
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "hve23-chain-hrv-bypass",
+    "pattern": [
+      "hvac",
+      "chain",
+      "hrv-bypass-control"
+    ],
+    "utterance": "Control the HRV bypass valve — open it when there's cooling demand AND conditions allow free cooling. Close it otherwise to maintain heat recovery",
+    "difficulty": "hard",
+    "source": "extracted chain: And(bypass and cooling demand).Q→Memory(Bypass ON).S — bypass only activates when both conditions met",
+    "expected": {
+      "new_blocks": [
+        {
+          "type": "And",
+          "title": "bypass and cooling demand"
+        },
+        {
+          "type": "Memory",
+          "title": "Bypass ON"
+        }
+      ],
+      "wiring": [
+        {
+          "from_type": "And",
+          "from_title": "bypass and cooling demand",
+          "from_conn": "Q",
+          "to_type": "Memory",
+          "to_title": "Bypass ON",
+          "to_conn": "S"
+        }
+      ],
+      "params": [],
+      "simulation": [
+        {
+          "name": "bypass opens when cooling demand and outdoor temp allows",
+          "inputs": {
+            "Außentemperatur.AQ": 18.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Lüfter Bad.I1": {
+              ">": 0.5
+            }
+          }
+        },
+        {
+          "name": "bypass closed when no cooling demand",
+          "inputs": {
+            "Außentemperatur.AQ": 5.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Lüfter Bad.I1": {
+              "<": 0.5
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "hve24-chain-zonal-hrv-co2",
+    "pattern": [
+      "hvac",
+      "chain",
+      "zonal-hrv-co2"
+    ],
+    "utterance": "Set up zonal heat recovery ventilation with CO2 sensors in the day zone and night zone. The HRV mode selector drives the system and individual zone CO2 readings adjust airflow",
+    "difficulty": "expert",
+    "source": "extracted: StepSel(Heat Recovery mode)→Memory(HRV mode), CO2(InputRef)→Memory(Night Zone CO2), Study(InputRef)→Memory(Day zone CO2)",
+    "expected": {
+      "new_blocks": [
+        {
+          "type": "StepSel",
+          "title": "Heat Recovery mode"
+        },
+        {
+          "type": "Memory",
+          "title": "HRV mode"
+        },
+        {
+          "type": "Memory",
+          "title": "Night Zone CO2"
+        },
+        {
+          "type": "Memory",
+          "title": "Day zone CO2"
+        }
+      ],
+      "wiring": [
+        {
+          "from_type": "StepSel",
+          "from_title": "Heat Recovery mode",
+          "to_type": "Memory",
+          "to_title": "HRV mode",
+          "to_conn": "S",
+          "from_conn": "AQ"
+        },
+        {
+          "from_type": "InputRef",
+          "from_title": "CO2",
+          "from_conn": "AQ",
+          "to_type": "Memory",
+          "to_title": "Night Zone CO2",
+          "to_conn": "S"
+        },
+        {
+          "from_type": "InputRef",
+          "from_title": "Study",
+          "from_conn": "AQ",
+          "to_type": "Memory",
+          "to_title": "Day zone CO2",
+          "to_conn": "S"
+        }
+      ],
+      "params": [],
+      "simulation": [
+        {
+          "name": "HRV mode increases on high CO2 in day zone",
+          "inputs": {
+            "CO2 Sensor.AQ": 900.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Lüfter Bad.I1": {
+              ">": 0.5
+            }
+          }
+        },
+        {
+          "name": "HRV at minimum when CO2 levels normal",
+          "inputs": {
+            "CO2 Sensor.AQ": 400.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Lüfter Bad.I1": {
+              "<": 0.5
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "hve25-chain-decentral-hrv-bedroom",
+    "pattern": [
+      "hvac",
+      "chain",
+      "decentral-hrv-room"
+    ],
+    "utterance": "Set up a decentralized HRV unit for the master bedroom — the ventilation controller drives the fan speed memory, and a goodnight signal adjusts the ventilation mode",
+    "difficulty": "hard",
+    "source": "extracted: Ventilation(Master Bedroom)→Memory(Fan speed bedroom), Memory(Good night Master Bedroom) used for mode control",
+    "expected": {
+      "new_blocks": [
+        {
+          "type": "Ventilation",
+          "title": "Master Bedroom"
+        },
+        {
+          "type": "Memory",
+          "title": "Fan speed bedroom"
+        },
+        {
+          "type": "Memory",
+          "title": "Good night Master Bedroom"
+        }
+      ],
+      "wiring": [
+        {
+          "from_type": "Ventilation",
+          "from_title": "Master Bedroom",
+          "to_type": "Memory",
+          "to_title": "Fan speed bedroom",
+          "to_conn": "S",
+          "from_conn": "OUT_V"
+        }
+      ],
+      "params": [],
+      "simulation": [
+        {
+          "name": "bedroom HRV fan speed set by ventilation controller",
+          "inputs": {
+            "Bewegungsmelder.OutputPresence": 1.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Lüfter Bad.I1": {
+              ">": 0.5
+            }
+          }
+        },
+        {
+          "name": "bedroom HRV at low speed when unoccupied",
+          "inputs": {
+            "Bewegungsmelder.OutputPresence": 0.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Lüfter Bad.I1": {
+              "<": 0.5
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "hve26-humidity-ventilation-logic",
+    "pattern": [
+      "hvac",
+      "ventilation",
+      "humidity-compare"
+    ],
+    "utterance": "Only ventilate when the room humidity is higher than outside — compare room and outside absolute humidity and dew points to decide if ventilation makes sense",
+    "difficulty": "hard",
+    "source": "extracted: Formula(AH Room/Outside)→Memory(Absolute Humidity), Less(Room lower)→Memory(Humidity OK), Less(Out. Dewpoint lesser than room temp)→Memory(Dew Point OK)",
+    "expected": {
+      "new_blocks": [
+        {
+          "type": "Formula",
+          "title": "AH Room"
+        },
+        {
+          "type": "Formula",
+          "title": "AH Outside"
+        },
+        {
+          "type": "Memory",
+          "title": "Room Absolute Humidity"
+        },
+        {
+          "type": "Memory",
+          "title": "Outside Absolute Humidity"
+        },
+        {
+          "type": "Less",
+          "title": "Room lower"
+        },
+        {
+          "type": "Memory",
+          "title": "Humidity OK"
+        }
+      ],
+      "wiring": [
+        {
+          "from_type": "Formula",
+          "from_title": "AH Room",
+          "to_type": "Memory",
+          "to_title": "Room Absolute Humidity",
+          "to_conn": "S",
+          "from_conn": "AQ"
+        },
+        {
+          "from_type": "Formula",
+          "from_title": "AH Outside",
+          "to_type": "Memory",
+          "to_title": "Outside Absolute Humidity",
+          "to_conn": "S",
+          "from_conn": "AQ"
+        },
+        {
+          "from_type": "Less",
+          "from_title": "Room lower",
+          "to_type": "Memory",
+          "to_title": "Humidity OK",
+          "to_conn": "S",
+          "from_connector": "Q"
+        }
+      ],
+      "params": [],
+      "simulation": [
+        {
+          "name": "ventilation active when room humidity higher than outside",
+          "inputs": {
+            "Luftfeuchtigkeit.AQ": 75.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Lüfter Bad.I1": {
+              ">": 0.5
+            }
+          }
+        },
+        {
+          "name": "ventilation blocked when outside humidity higher",
+          "inputs": {
+            "Luftfeuchtigkeit.AQ": 35.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Lüfter Bad.I1": {
+              "<": 0.5
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "hve27-sensor-validation",
+    "pattern": [
+      "hvac",
+      "sensor",
+      "validation"
+    ],
+    "utterance": "Validate the outside temperature sensor — detect when the sensor is offline or reading values out of range, and store the error states for diagnostics",
+    "difficulty": "medium",
+    "source": "extracted: Outside temperature(InputRef).Q→Memory(Temp. sensor error), Validator(Temp. validation).error→Memory(Value out of range)",
+    "expected": {
+      "new_blocks": [
+        {
+          "type": "Validator",
+          "title": "Temp. validation"
+        },
+        {
+          "type": "Memory",
+          "title": "Temp. sensor error"
+        },
+        {
+          "type": "Memory",
+          "title": "Value out of the range"
+        }
+      ],
+      "wiring": [
+        {
+          "from_type": "InputRef",
+          "from_title": "Outside temperature",
+          "from_conn": "Q",
+          "to_type": "Memory",
+          "to_title": "Temp. sensor error",
+          "to_conn": "S"
+        },
+        {
+          "from_type": "Validator",
+          "from_title": "Temp. validation",
+          "from_conn": "error",
+          "to_type": "Memory",
+          "to_title": "Value out of the range",
+          "to_conn": "S"
+        }
+      ],
+      "params": [],
+      "simulation": [
+        {
+          "name": "sensor error flagged when value out of range",
+          "inputs": {
+            "Außentemperatur.AQ": -50.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Statusblock.AQ": {
+              ">": 0.5
+            }
+          }
+        },
+        {
+          "name": "sensor valid when reading in normal range",
+          "inputs": {
+            "Außentemperatur.AQ": 20.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Statusblock.AQ": {
+              "<": 0.5
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "hve28-hvac-dhw-priority",
+    "pattern": [
+      "hvac",
+      "hvac-controller",
+      "dhw-priority"
+    ],
+    "utterance": "Configure the heating source controller so that domestic hot water demand and thermal disinfection requests take priority over space heating — they should trigger the manual heat input to force the boiler on",
+    "difficulty": "expert",
+    "source": "extracted: InputRef(DHW demand).Q→HVACController.ManualHeat, InputRef(Required thermal disinfection).Q→HVACController.ManualHeat",
+    "expected": {
+      "new_blocks": [
+        {
+          "type": "HVACController",
+          "title": "Main heating source"
+        }
+      ],
+      "wiring": [
+        {
+          "from_type": "InputRef",
+          "from_title": "DHW demand",
+          "from_conn": "Q",
+          "to_type": "HVACController",
+          "to_conn": "ManualHeat"
+        },
+        {
+          "from_type": "InputRef",
+          "from_title": "Required thermal disinfection",
+          "from_conn": "Q",
+          "to_type": "HVACController",
+          "to_conn": "ManualHeat"
+        }
+      ],
+      "params": [],
+      "simulation": [
+        {
+          "name": "DHW demand takes priority over space heating",
+          "inputs": {
+            "Außentemperatur.AQ": 5.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Raumregler.AQh": {
+              ">": 0
+            }
+          }
+        },
+        {
+          "name": "space heating resumes when DHW is satisfied",
+          "inputs": {
+            "Außentemperatur.AQ": 22.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Raumregler.AQh": {
+              "==": 0
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "hve29-ondemand-circulation",
+    "pattern": [
+      "hvac",
+      "dhw",
+      "on-demand-circulation"
+    ],
+    "utterance": "Set up on-demand hot water circulation — when someone triggers the circulation button, run the pump for a timed period using a monoflop, and store the demand state",
+    "difficulty": "medium",
+    "source": "extracted: Monoflop(On-demand circulation)→Memory(On-demand circulation).S",
+    "expected": {
+      "new_blocks": [
+        {
+          "type": "Monoflop",
+          "title": "On-demand circulation"
+        },
+        {
+          "type": "Memory",
+          "title": "On-demand circulation"
+        }
+      ],
+      "wiring": [
+        {
+          "from_type": "Monoflop",
+          "from_title": "On-demand circulation",
+          "to_type": "Memory",
+          "to_title": "On-demand circulation",
+          "to_conn": "S",
+          "from_connector": "Q"
+        }
+      ],
+      "params": [],
+      "simulation": [
+        {
+          "name": "circulation pump runs on button trigger",
+          "inputs": {
+            "Türklingel.Q": 1.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Poolpumpe.I1": {
+              ">": 0.5
+            }
+          }
+        },
+        {
+          "name": "circulation pump stops after timeout",
+          "inputs": {
+            "Türklingel.Q": 0.0
+          },
+          "ticks": 6100,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Poolpumpe.I1": {
+              "<": 0.5
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "hve30-fancoil-irc-mode-state",
+    "pattern": [
+      "hvac",
+      "fancoil",
+      "mode-distribution"
+    ],
+    "utterance": "Distribute the IRC operating mode to multiple fancoil room controllers — use a State block to decode the mode number, store it in memory, and feed it to each room's AMode input",
+    "difficulty": "expert",
+    "source": "extracted: State(Status)→Memory(IRC mode).S, Memory.Q→InputRef(IRC mode), InputRef→IRC(Room 1).AMode + IRC(Room 2).AMode",
+    "expected": {
+      "new_blocks": [
+        {
+          "type": "State",
+          "title": "Status"
+        },
+        {
+          "type": "Memory",
+          "title": "IRC mode"
+        }
+      ],
+      "wiring": [
+        {
+          "from_type": "State",
+          "from_title": "Status",
+          "to_type": "Memory",
+          "to_title": "IRC mode",
+          "to_conn": "S",
+          "from_connector": "AQ"
+        },
+        {
+          "from_type": "InputRef",
+          "from_title": "IRC mode",
+          "from_conn": "AQ",
+          "to_type": "HeatIRoomController2",
+          "to_conn": "AMode"
+        },
+        {
+          "from_type": "InputRef",
+          "from_title": "IRC mode",
+          "from_conn": "Q",
+          "to_type": "HeatIRoomController2",
+          "to_conn": "AMode"
+        }
+      ],
+      "params": [],
+      "simulation": [
+        {
+          "name": "IRC mode distributed to fancoil controllers",
+          "inputs": {
+            "Außentemperatur.AQ": 15.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Raumregler.AQh": {
+              ">": 0
+            }
+          }
+        },
+        {
+          "name": "fancoil controllers idle when no mode change",
+          "inputs": {
+            "Außentemperatur.AQ": 22.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Raumregler.AQh": {
+              "==": 0
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "hve31-2pipe-hc-slope",
+    "pattern": [
+      "hvac",
+      "fancoil",
+      "2pipe-slope-switch"
+    ],
+    "utterance": "In a 2-pipe fancoil system, use an analog multiplexer to switch between heating and cooling slope curves. The HVAC controller's minimum temperature output selects which slope is active",
+    "difficulty": "expert",
+    "source": "extracted: HVACController.TempMin→AnalogMultiplexer2(H/C Slope).Input1, Heatmixer2.Qp←AnalogMultiplexer2.Select",
+    "expected": {
+      "new_blocks": [
+        {
+          "type": "HVACController",
+          "title": "Heating and Cooling Controller"
+        },
+        {
+          "type": "AnalogMultiplexer2",
+          "title": "H/C Slope"
+        },
+        {
+          "type": "Heatmixer2",
+          "title": "Flow Temperature Calculator"
+        }
+      ],
+      "wiring": [
+        {
+          "from_type": "HVACController",
+          "from_conn": "TempMin",
+          "to_type": "AnalogMultiplexer2",
+          "to_title": "H/C Slope",
+          "to_conn": "Input1"
+        },
+        {
+          "from_type": "AnalogMultiplexer2",
+          "from_title": "H/C Slope",
+          "from_conn": "AQ",
+          "to_type": "Heatmixer2",
+          "to_conn": "Qp"
+        }
+      ],
+      "params": [],
+      "simulation": [
+        {
+          "name": "heating slope active in winter via multiplexer",
+          "inputs": {
+            "Außentemperatur.AQ": -5.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Raumregler.AQh": {
+              ">": 0
+            }
+          }
+        },
+        {
+          "name": "cooling slope selected in summer",
+          "inputs": {
+            "Außentemperatur.AQ": 30.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Raumregler.AQh": {
+              "==": 0
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "hve32-boost-monoflop",
+    "pattern": [
+      "hvac",
+      "boost",
+      "timed-override"
+    ],
+    "utterance": "Create a heating boost button that temporarily overrides to comfort temperature for a fixed duration, then automatically returns to the scheduled mode",
+    "difficulty": "medium",
+    "source": "extracted: Monoflop(O208)→Memory(Boost).S, Boost.Q fed to IRC blocks as override",
+    "expected": {
+      "new_blocks": [
+        {
+          "type": "Monoflop",
+          "title": "Boost timer"
+        },
+        {
+          "type": "Memory",
+          "title": "Boost"
+        }
+      ],
+      "wiring": [
+        {
+          "from_type": "Monoflop",
+          "to_type": "Memory",
+          "to_title": "Boost",
+          "to_conn": "S",
+          "from_connector": "Q"
+        }
+      ],
+      "params": [],
+      "simulation": [
+        {
+          "name": "boost button triggers comfort override",
+          "inputs": {
+            "Türklingel.Q": 1.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Raumregler.AQh": {
+              ">": 0
+            }
+          }
+        },
+        {
+          "name": "boost expires after monoflop timeout",
+          "inputs": {
+            "Türklingel.Q": 0.0
+          },
+          "ticks": 6100,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Raumregler.AQh": {
+              "==": 0
+            }
+          }
+        }
+      ]
+    }
+  }
+]

@@ -1,0 +1,179 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Modbus Title="M-TEC Heating&amp;Cooling" Comment="" HintText="" Channel="1">
+	<Info templateType="7" minVersion="15010522"/>
+	<ModbusCmd Title="State Heatpump Operating Hours" Comment="" HintText="" ModbusAddress="700" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v&gt;h" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Actual Outsidetemperature" Comment="" HintText="" ModbusAddress="1502" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="5" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="10"/>
+	<ModbusCmd Title="State Hot Water Operatingmode" Comment="" HintText="0=Off
+1=Time programm (Automatic)
+2=Operation without temperatur reduction (Normal)
+3=Forced Hot Water Tank load" ModbusAddress="403" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Actual Hot Water temperature" Comment="" HintText="" ModbusAddress="401" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="10"/>
+	<ModbusCmd Title="State Target Roomtemperature HC1" Comment="" HintText="" ModbusAddress="2" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v&gt;°C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="10"/>
+	<ModbusCmd Title="Actual Operating mode HC1" Comment="" HintText="0=Standby
+1=Timer (Automatic)
+2=Day
+3=Night
+4=Vacation
+5=Party 
+8=Extern" ModbusAddress="7" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Actual Room Humidity HC1" Comment="" HintText="" ModbusAddress="10" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v.1&gt;%" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Actual Roomtemperature HC1" Comment="" HintText="" ModbusAddress="1" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="60" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="10"/>
+	<ModbusCmd Title="Actual Electrical Heatpump Power" Comment="" HintText="Power only for Compressor and internal operationcurrent. " ModbusAddress="707" ModbusCmd="3" ModbusPollingCycle="10" Unit="&lt;v&gt;W" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Actual Heatpump Thermal Power" Comment="" HintText="" ModbusAddress="706" ModbusCmd="3" ModbusDataType="32" ModbusPollingCycle="15" Unit="&lt;v&gt;kW" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="State Heatpump Operationmode" Comment="" HintText="0=Off
+1=On
+2=Backup" ModbusAddress="713" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="State Heatpump Total Electrical Energy" Comment="" HintText="" ModbusAddress="702" ModbusCmd="3" ModbusDataType="35" ModbusPollingCycle="15" Unit="&lt;v&gt;kWh" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Actual Operating mode HC2" Comment="" HintText="0=Standby
+1=Timer (Automatic)
+2=Day
+3=Night
+4=Vacation
+5=Party 
+8=Extern" ModbusAddress="57" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Actual Operating mode HC3" Comment="" HintText="0=Standby
+1=Timer (Automatic)
+2=Day
+3=Night
+4=Vacation
+5=Party 
+8=Extern" ModbusAddress="107" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Actual Room Humidity HC2" Comment="" HintText="" ModbusAddress="60" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v.1&gt;%" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Actual Room Humidity HC3" Comment="" HintText="" ModbusAddress="110" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v.1&gt;%" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Actual Roomtemperature HC2" Comment="" HintText="" ModbusAddress="51" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="60" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="10"/>
+	<ModbusCmd Title="Actual Roomtemperature HC3" Comment="" HintText="" ModbusAddress="101" ModbusCmd="3" ModbusDataType="1" ModbusPollingCycle="60" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="10"/>
+	<ModbusCmd Title="State Target Roomtemperature HC2" Comment="" HintText="" ModbusAddress="52" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v&gt;°C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="10"/>
+	<ModbusCmd Title="State Target Roomtemperature HC3" Comment="" HintText="" ModbusAddress="102" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v&gt;°C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="10"/>
+	<ModbusCmd Title="State Heatpump Error" Comment="" HintText="0=OK / no Alarm
+1=Alarm" ModbusAddress="1450" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="State Target Supplyflowtemperature HC1" Comment="" HintText="" ModbusAddress="13" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="10"/>
+	<ModbusCmd Title="Actual Supplyflowtemperature HC1" Comment="" HintText="" ModbusAddress="15" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="10"/>
+	<ModbusCmd Title="Actual Supplyflowtemperature HC2" Comment="" HintText="" ModbusAddress="65" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="10"/>
+	<ModbusCmd Title="Actual Supplyflowtemperature HC3" Comment="" HintText="" ModbusAddress="115" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="10"/>
+	<ModbusCmd Title="State Target Supplyflowtemperature HC2" Comment="" HintText="" ModbusAddress="63" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="10"/>
+	<ModbusCmd Title="State Target Supplyflowtemperature HC3" Comment="" HintText="" ModbusAddress="113" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="10"/>
+	<ModbusCmd Title="Actual Hot Water Targettemperature" Comment="" HintText="" ModbusAddress="402" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="10"/>
+	<ModbusCmd Title="Actual Buffertemperature Top" Comment="" HintText="" ModbusAddress="601" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="10"/>
+	<ModbusCmd Title="State Heatpump operation state" Comment="" HintText="0=Standby 
+1=PreRun
+2=AutomaticHeat
+3=Defrost
+4=AutomaticCool 
+5=PostRun
+7=Safety Shutdown
+8=Error" ModbusAddress="703" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Actual Heatpump Supplyflowtemperature" Comment="" HintText="" ModbusAddress="705" ModbusCmd="3" ModbusPollingCycle="15" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="10"/>
+	<ModbusCmd Title="Actual Heatpump Backflowtemperature" Comment="" HintText="" ModbusAddress="710" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="10"/>
+	<ModbusCmd Title="Actual Heatpump Brine IN Temperature" Comment="" HintText="" ModbusAddress="708" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="10"/>
+	<ModbusCmd Title="Actual Heatpump BrineOUT Temperature" Comment="" HintText="" ModbusAddress="709" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="10"/>
+	<ModbusCmd Title="State Heatpump Targetttemperature" Comment="" HintText="" ModbusAddress="719" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="10"/>
+	<ModbusCmd Title="State Compressorspeed" Comment="" HintText="" ModbusAddress="718" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v.1&gt;%" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="State Coolrequest Buffer" Comment="" HintText="0=Off
+1=On" ModbusAddress="608" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="State Coolrequest HC1" Comment="" HintText="0=Off
+1=Active
+2= Reason Back Flow Off
+3= Reason Other Temperature Prio Off
+4= Reason Room Request Off
+5= Reaseon Outside temperature Off 
+6= Reason Supply Flowtemperature Off " ModbusAddress="20" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="State Coolrequest HC2" Comment="" HintText="0=Off
+1=Active
+2= Reason Back Flow Off
+3= Reason Other Temperature Prio Off
+4= Reason Room Request Off
+5= Reaseon Outside temperature Off 
+6= Reason Supply Flowtemperature Off " ModbusAddress="70" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="State Coolrequest HC3" Comment="" HintText="0=Off
+1=Active
+2= Reason Back Flow Off
+3= Reason Other Temperature Prio Off
+4= Reason Room Request Off
+5= Reaseon Outside temperature Off 
+6= Reason Supply Flowtemperature Off " ModbusAddress="120" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="State Heatrequest Buffer" Comment="" HintText="0=Off
+1=On" ModbusAddress="607" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="State Heatrequest HC1" Comment="" HintText="0=Off
+1=Active
+2= Reason Back Flow Off
+3= Reason Other Temperature Prio Off
+4= Reason Room Request Off
+5= Reaseon Outside temperature Off 
+6= Reason Supply Flowtemperature Off " ModbusAddress="19" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="State Heatrequest HC2" Comment="" HintText="0=Off
+1=Active
+2= Reason Back Flow Off
+3= Reason Other Temperature Prio Off
+4= Reason Room Request Off
+5= Reaseon Outside temperature Off 
+6= Reason Supply Flowtemperature Off " ModbusAddress="69" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="State Heatrequest HC3" Comment="" HintText="0=Off
+1=Active
+2= Reason Back Flow Off
+3= Reason Other Temperature Prio Off
+4= Reason Room Request Off
+5= Reaseon Outside temperature Off 
+6= Reason Supply Flowtemperature Off " ModbusAddress="119" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Actual Buffertemperature Bottom" Comment="" HintText="" ModbusAddress="603" ModbusCmd="3" ModbusPollingCycle="60" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="10"/>
+	<ModbusCmd Title="HC. 1 normal room temperature" Comment="" HintText="If there is no external setpoint from Loxone and the heat pump regulates according to its own heating curve, these setpoints must be used." ModbusAddress="4" ModbusCmd="16" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="100" RepeatRate="10"/>
+	<ModbusCmd Title="Set System Operation mode" Comment="" HintText="0=Standby
+1=Summer(Only Hot Water)
+2=AutoHeat
+3=AutoCool
+4=Full Auto (Automatic Change between Heating and Cooling)" ModbusAddress="1500" ModbusCmd="16" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100" RepeatRate="10"/>
+	<ModbusCmd Title="HC. 1 offset room temperature" Comment="" HintText="If there is no external setpoint from Loxone and the heat pump regulates according to its own heating curve, these setpoints must be used." ModbusAddress="6" ModbusCmd="16" ModbusDataType="1" Unit="&lt;v.1&gt;K" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="100" RepeatRate="10"/>
+	<ModbusCmd Title="Set Operationmode HC1" Comment="" HintText="0=Standby
+1=Timer (Automatic)
+2=Day
+3=Night
+4=Vacation
+5=Party 
+8=Extern" ModbusAddress="7" ModbusCmd="16" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100" RepeatRate="10"/>
+	<ModbusCmd Title="Set cooling requirement HC1" Comment="" HintText="0=OFF
+1=ON" ModbusAddress="11" ModbusCmd="16" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100" RepeatRate="10"/>
+	<ModbusCmd Title="Set heating requirement HC1" Comment="" HintText="0=OFF
+1=ON" ModbusAddress="12" ModbusCmd="16" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100" RepeatRate="10"/>
+	<ModbusCmd Title="Set Target Supplyflowtemperature HC1" Comment="" HintText="MIN=10°C
+MAX=55°C" ModbusAddress="13" ModbusCmd="16" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="100" RepeatRate="10"/>
+	<ModbusCmd Title="Set Hot Water Targettemperature" Comment="" HintText="Min=0°C
+Max=52°C" ModbusAddress="402" ModbusCmd="16" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="100" RepeatRate="10"/>
+	<ModbusCmd Title="HC. 1 lower room temperature" Comment="" HintText="If there is no external setpoint from Loxone and the heat pump regulates according to its own heating curve, these setpoints must be used." ModbusAddress="5" ModbusCmd="16" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="100" RepeatRate="10"/>
+	<ModbusCmd Title="Set Outside temperature" Comment="" HintText="" ModbusAddress="1503" ModbusCmd="16" ModbusDataType="1" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="100" RepeatRate="10"/>
+	<ModbusCmd Title="PV. current surplus power" Comment="" HintText="If there is no external setpoint from Loxone and the heat pump regulates according to its own energymanagement, these setpoint must be used." ModbusAddress="1000" ModbusCmd="16" ModbusDataType="1" Unit="&lt;v&gt;kW" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100000" RepeatRate="10"/>
+	<ModbusCmd Title="Set Hot Water Operationmode" Comment="" HintText="0=Off
+1=Time programm (Automatic)
+2=Operation without temperatur reduction (Normal)
+3=Forced Hot Water Tank load" ModbusAddress="403" ModbusCmd="16" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100" RepeatRate="10"/>
+	<ModbusCmd Title="HC. 2 lower room temperature" Comment="" HintText="If there is no external setpoint from Loxone and the heat pump regulates according to its own heating curve, these setpoints must be used." ModbusAddress="55" ModbusCmd="16" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="100" RepeatRate="10"/>
+	<ModbusCmd Title="HC. 3 lower room temperature" Comment="" HintText="If there is no external setpoint from Loxone and the heat pump regulates according to its own heating curve, these setpoints must be used." ModbusAddress="105" ModbusCmd="16" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="100" RepeatRate="10"/>
+	<ModbusCmd Title="Set Operationmode HC2" Comment="" HintText="0=Standby
+1=Timer (Automatic)
+2=Day
+3=Night
+4=Vacation
+5=Party 
+8=Extern" ModbusAddress="57" ModbusCmd="16" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100" RepeatRate="10"/>
+	<ModbusCmd Title="Set Operationmode HC3" Comment="" HintText="0=Standby
+1=Timer (Automatic)
+2=Day
+3=Night
+4=Vacation
+5=Party 
+8=Extern" ModbusAddress="107" ModbusCmd="16" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100" RepeatRate="10"/>
+	<ModbusCmd Title="Set heating requirement HC2" Comment="" HintText="0=OFF
+1=ON" ModbusAddress="62" ModbusCmd="16" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100" RepeatRate="10"/>
+	<ModbusCmd Title="Set heating requirement HC3" Comment="" HintText="0=OFF
+1=ON" ModbusAddress="112" ModbusCmd="16" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100" RepeatRate="10"/>
+	<ModbusCmd Title="Set cooling requirement HC2" Comment="" HintText="0=OFF
+1=ON" ModbusAddress="61" ModbusCmd="16" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100" RepeatRate="10"/>
+	<ModbusCmd Title="Set cooling requirement HC3" Comment="" HintText="0=OFF
+1=ON" ModbusAddress="111" ModbusCmd="16" Unit="&lt;v&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100" RepeatRate="10"/>
+	<ModbusCmd Title="HC. 2 normal room temperature" Comment="" HintText="If there is no external setpoint from Loxone and the heat pump regulates according to its own heating curve, these setpoints must be used." ModbusAddress="54" ModbusCmd="16" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="100" RepeatRate="10"/>
+	<ModbusCmd Title="HC. 3 normal room temperature" Comment="" HintText="If there is no external setpoint from Loxone and the heat pump regulates according to its own heating curve, these setpoints must be used." ModbusAddress="104" ModbusCmd="16" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="100" RepeatRate="10"/>
+	<ModbusCmd Title="HC. 2 offset room temperature" Comment="" HintText="If there is no external setpoint from Loxone and the heat pump regulates according to its own heating curve, these setpoints must be used." ModbusAddress="56" ModbusCmd="16" ModbusDataType="1" Unit="&lt;v.1&gt;K" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="100" RepeatRate="10"/>
+	<ModbusCmd Title="HC. 3 offset room temperature" Comment="" HintText="If there is no external setpoint from Loxone and the heat pump regulates according to its own heating curve, these setpoints must be used." ModbusAddress="106" ModbusCmd="16" ModbusDataType="1" Unit="&lt;v.1&gt;K" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="100" RepeatRate="10"/>
+	<ModbusCmd Title="Set Target Supplyflowtemperature HC2" Comment="" HintText="MIN=10°C
+MAX=55°C" ModbusAddress="63" ModbusCmd="16" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="100" RepeatRate="10"/>
+	<ModbusCmd Title="Set Target Supplyflowtemperature HC3" Comment="" HintText="MIN=10°C
+MAX=55°C" ModbusAddress="113" ModbusCmd="16" Unit="&lt;v.1&gt;°C" Analog="true" Sensor="false" SourceValHigh="10" DestValHigh="100" RepeatRate="10"/>
+</Modbus>

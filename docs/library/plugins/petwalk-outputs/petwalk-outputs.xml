@@ -1,0 +1,5 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<VirtualOut Title="PetWalk" Comment="" Address="http://192.168.1.41:8080" CmdInit="" CloseAfterSend="true" CmdSep=";">
+	<Info templateType="3" minVersion="13000726"/>
+	<VirtualOutCmd Title="Door" Comment="" CmdOnMethod="PUT" CmdOffMethod="PUT" CmdOn="/states" CmdOnHTTP="Content-Type: application/json" CmdOnPost="{\r\n  &quot;door&quot;: &quot;open&quot;,\r\n  &quot;system&quot;: &quot;on&quot;\r\n}" CmdOff="/states" CmdOffHTTP="Content-Type: application/json" CmdOffPost="{\r\n  &quot;door&quot;: &quot;closed&quot;,\r\n  &quot;system&quot;: &quot;on&quot;\r\n}" Analog="false" Repeat="0" RepeatRate="0"/>
+</VirtualOut>

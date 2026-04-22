@@ -1,0 +1,9 @@
+{
+                                "type": "template",
+                                "name": "belimo-2-way-epiv-v4-modbus-rtu",
+                                "uuid": "27191401-7c71-11ed-ac014cd98f3deb8a",
+                                "version":"1.0.0",
+                                "id": "belimo-2-way-epiv-v4-modbus-rtu-1088",
+                                "file": "belimo-2-way-epiv-v4-modbus-rtu.xml",
+                                "templateType": "7",
+                            }

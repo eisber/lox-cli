@@ -1,0 +1,45 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<VirtualInHttp Title="WiiM Amp Status" Comment="(c) Marek Suk marek@sukovi.cz" Address="https://&lt;IP&gt;/httpapi.asp?command=getPlayerStatus" HintText="" PollingTime="10">
+	<Info templateType="2" minVersion="15031213"/>
+	<VirtualInHttpCmd Title="Mode" Comment="" Check="&quot;mode&quot;:&quot;\v" Signed="false" Analog="true" SourceValLow="0" DestValLow="0" SourceValHigh="0" DestValHigh="0" DefVal="0" MinVal="0" MaxVal="0" Unit="&lt;v&gt;" HintText="0  None
+1  AirPlay or AirPlay 2
+2  3rd party DLNA
+3  Cast
+10-19 Wiimu playlist
+  10 default wiimu mode
+  11 USB disk playlist
+  16 TF card play list
+20-30  Reserved
+31  Spotify Connect
+32  TIDAL Connect
+40  AUX-In
+41  BT
+42  External storage
+43  Optical-In
+50  Mirror
+60  Voice mail
+99  Slave"/>
+	<VirtualInHttpCmd Title="Volume" Comment="" Check="&quot;vol&quot;:&quot;\v" Signed="false" Analog="true" SourceValLow="0" DestValLow="0" SourceValHigh="0" DestValHigh="0" DefVal="0" MinVal="0" MaxVal="0" Unit="&lt;v&gt;" HintText="Current volume 0-100"/>
+	<VirtualInHttpCmd Title="Loop" Comment="" Check="&quot;loop&quot;:&quot;\v" Signed="false" Analog="true" SourceValLow="0" DestValLow="0" SourceValHigh="0" DestValHigh="0" DefVal="0" MinVal="0" MaxVal="0" Unit="&lt;v&gt;" HintText="0  Loop all
+1  Single loop
+2  Shuffle loop
+3  Shuffle, no loop
+4  No shuffle, no loop"/>
+	<VirtualInHttpCmd Title="Type" Comment="" Check="&quot;type&quot;:&quot;\v" Signed="false" Analog="true" SourceValLow="0" DestValLow="0" SourceValHigh="0" DestValHigh="0" DefVal="0" MinVal="0" MaxVal="0" Unit="&lt;v&gt;" HintText="0  Master or standalone device
+1  Slave"/>
+	<VirtualInHttpCmd Title="Channel" Comment="" Check="&quot;ch&quot;:&quot;\v" Signed="false" Analog="true" SourceValLow="0" DestValLow="0" SourceValHigh="0" DestValHigh="0" DefVal="0" MinVal="0" MaxVal="0" Unit="&lt;v&gt;" HintText="0  Stereo
+1  Left
+2  Right"/>
+	<VirtualInHttpCmd Title="EQ" Comment="" Check="&quot;eq&quot;:&quot;\v" Signed="false" Analog="true" SourceValLow="0" DestValLow="0" SourceValHigh="0" DestValHigh="0" DefVal="0" MinVal="0" MaxVal="0" Unit="&lt;v&gt;" HintText="The preset number of the Equalizer"/>
+	<VirtualInHttpCmd Title="Status" Comment="" Check="&quot;status&quot;:&quot;\1\2" Signed="false" Analog="true" SourceValLow="0" DestValLow="0" SourceValHigh="0" DestValHigh="0" DefVal="0" MinVal="0" MaxVal="0" Unit="&lt;v&gt;" HintText="29811  Stop
+27760  Play
+28524  Loading
+24944  Pause"/>
+	<VirtualInHttpCmd Title="Curpos" Comment="" Check="&quot;curpos&quot;:&quot;\v" Signed="false" Analog="true" SourceValLow="0" DestValLow="0" SourceValHigh="0" DestValHigh="0" DefVal="0" MinVal="0" MaxVal="0" Unit="&lt;v&gt;" HintText="Position, in ms"/>
+	<VirtualInHttpCmd Title="OffsetPts" Comment="" Check="&quot;offset_pts&quot;:&quot;\v" Signed="false" Analog="true" SourceValLow="0" DestValLow="0" SourceValHigh="0" DestValHigh="0" DefVal="0" MinVal="0" MaxVal="0" Unit="&lt;v&gt;" HintText=""/>
+	<VirtualInHttpCmd Title="TotLen" Comment="" Check="&quot;totlen&quot;:&quot;\v" Signed="false" Analog="true" SourceValLow="0" DestValLow="0" SourceValHigh="0" DestValHigh="0" DefVal="0" MinVal="0" MaxVal="0" Unit="&lt;v&gt;" HintText="Duration in ms"/>
+	<VirtualInHttpCmd Title="AlarmFlag" Comment="" Check="&quot;alarmflag&quot;:&quot;\v" Signed="false" Analog="true" SourceValLow="0" DestValLow="0" SourceValHigh="0" DestValHigh="0" DefVal="0" MinVal="0" MaxVal="0" Unit="&lt;v&gt;" HintText=""/>
+	<VirtualInHttpCmd Title="Mute" Comment="" Check="&quot;mute&quot;:&quot;\v" Signed="false" Analog="true" SourceValLow="0" DestValLow="0" SourceValHigh="0" DestValHigh="0" DefVal="0" MinVal="0" MaxVal="0" Unit="&lt;v&gt;" HintText="Current mute state"/>
+	<VirtualInHttpCmd Title="PliCount" Comment="" Check="&quot;plicount&quot;:&quot;\v" Signed="false" Analog="true" SourceValLow="0" DestValLow="0" SourceValHigh="0" DestValHigh="0" DefVal="0" MinVal="0" MaxVal="0" Unit="&lt;v&gt;" HintText="The total number of tracks in the playlist"/>
+	<VirtualInHttpCmd Title="PliCurr" Comment="" Check="&quot;plicurr&quot;:&quot;\v" Signed="false" Analog="true" SourceValLow="0" DestValLow="0" SourceValHigh="0" DestValHigh="0" DefVal="0" MinVal="0" MaxVal="0" Unit="&lt;v&gt;" HintText="Current track index"/>
+</VirtualInHttp>

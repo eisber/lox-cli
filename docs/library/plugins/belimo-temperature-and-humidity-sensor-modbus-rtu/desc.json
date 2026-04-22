@@ -1,0 +1,9 @@
+{
+                                "type": "template",
+                                "name": "belimo-temperature-and-humidity-sensor-modbus-rtu",
+                                "uuid": "31374faf-bc08-11ec-8a5e4cd98f3deb8a",
+                                "version":"1.0.0",
+                                "id": "belimo-temperature-and-humidity-sensor-modbus-rtu-833",
+                                "file": "belimo-temperature-and-humidity-sensor-modbus-rtu.xml",
+                                "templateType": "7",
+                            }

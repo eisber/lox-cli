@@ -1,0 +1,9 @@
+{
+                                "type": "template",
+                                "name": "belimo-temperature-humidity-co2-sensor-modbus-rtu",
+                                "uuid": "cc78725e-bc08-11ec-8a5e4cd98f3deb8a",
+                                "version":"1.0.0",
+                                "id": "belimo-temperature-humidity-co2-sensor-modbus-rtu-834",
+                                "file": "belimo-temperature-humidity-co2-sensor-modbus-rtu.xml",
+                                "templateType": "7",
+                            }

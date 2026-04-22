@@ -1,0 +1,75 @@
+{
+  "title": "Energy Flow Monitor",
+  "xml_type": "",
+  "kb_slug": "energy-flow-monitor",
+  "description": "The Energy Flow Monitor displays a overall view of the energy flow in a building.",
+  "inputs": [
+    {
+      "abbreviation": "Off",
+      "summary": "Off",
+      "description": "Pulse: Outputs are reset / switched off. On: Block is locked. Dominating input. The name of the connected sensor is used in the user interface.",
+      "value_range": "0/1"
+    }
+  ],
+  "outputs": [
+    {
+      "abbreviation": "Co2d",
+      "summary": "CO2 today",
+      "description": "Calculation of CO2 savings: Co2d = Pd * CO2 The calculation of the number of trees in the user interface is based on the formulas of the Greenhouse Gas Equivalencies Calculator.",
+      "value_range": "\u221e"
+    },
+    {
+      "abbreviation": "Yd",
+      "summary": "Yield today",
+      "description": "Calculation hourly or when the price changes according to the following formula: Yd = (Pd - Ed) * Pri + Ed * Pre",
+      "value_range": "\u221e"
+    },
+    {
+      "abbreviation": "Rest",
+      "summary": "Top Rest Power",
+      "description": "Calculated remaining power of the top group",
+      "value_range": "\u221e"
+    },
+    {
+      "abbreviation": "API",
+      "summary": "API Connector",
+      "description": "Intelligent API based connector. API Commands",
+      "value_range": "-"
+    }
+  ],
+  "parameters": [
+    {
+      "abbreviation": "Pre",
+      "summary": "kWh price export",
+      "description": "This parameter is only visible in certain configurations.",
+      "unit": "Currency",
+      "value_range": "\u221e",
+      "default_value": "0,2"
+    },
+    {
+      "abbreviation": "Pri",
+      "summary": "kWh price import",
+      "description": "This parameter is only visible in certain configurations.",
+      "unit": "Currency",
+      "value_range": "\u221e",
+      "default_value": "0,2"
+    }
+  ],
+  "properties": [
+    {
+      "summary": "Source Price Export",
+      "description": "Select a Spot Price Optimizer as source for the energy export price or use the parameter. Only objects from the same Miniserver can be selected!",
+      "default_value": "-"
+    },
+    {
+      "summary": "Source Price Import",
+      "description": "Select a Spot Price Optimizer as source for the energy import price or use the parameter. Only objects from the same Miniserver can be selected!",
+      "default_value": "-"
+    }
+  ],
+  "source_url": "https://www.loxone.com/enen/kb/energy-flow-monitor/",
+  "input_count": 1,
+  "output_count": 4,
+  "parameter_count": 2,
+  "property_count": 2
+}

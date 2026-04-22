@@ -1,0 +1,1189 @@
+[
+  {
+    "id": "tg01-bedroom-temp-memory",
+    "pattern": [
+      "memory",
+      "math",
+      "night-mode"
+    ],
+    "utterance": "Remember the current bedroom temperature when I press the switch, then subtract 3 degrees as the night setpoint",
+    "difficulty": "hard",
+    "expected": {
+      "new_blocks": [
+        {
+          "type": "AMemory",
+          "title_contains": "Temp",
+          "room": "Schlafzimmer",
+          "page": "Schlafzimmer"
+        },
+        {
+          "type": "Sub",
+          "title_contains": "Night",
+          "room": "Schlafzimmer",
+          "page": "Schlafzimmer"
+        }
+      ],
+      "wiring": [
+        {
+          "from_title": "Raumtemperatur Schlafzimmer",
+          "from_connector": "AQ",
+          "to_type": "AMemory",
+          "to_connector": "Input"
+        },
+        {
+          "from_title": "Schalter 1",
+          "from_connector": "Q",
+          "to_type": "AMemory",
+          "to_connector": "Trigger"
+        },
+        {
+          "from_type": "AMemory",
+          "from_connector": "AQ",
+          "to_type": "Sub",
+          "to_connector": "Input1"
+        }
+      ],
+      "params": [
+        {
+          "block_type": "Sub",
+          "param": "Input2",
+          "value": "3"
+        }
+      ],
+      "simulation": [
+        {
+          "name": "should latch on when set",
+          "inputs": {
+            "Schalter 1.Q": 1.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Temp.Input1": {
+              ">": 0.5
+            }
+          }
+        },
+        {
+          "name": "should NOT latch without trigger",
+          "inputs": {
+            "Schalter 1.Q": 0.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Temp.Input1": {
+              "<": 0.5
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "tg02-kitchen-blind-darkness",
+    "pattern": [
+      "shading",
+      "threshold",
+      "new-control"
+    ],
+    "utterance": "Add a blind to the kitchen window and close it automatically when the brightness drops below 200 lux",
+    "difficulty": "medium",
+    "expected": {
+      "new_blocks": [
+        {
+          "type": "LessEqual",
+          "title_contains": "200",
+          "room": "Küche",
+          "page": "Küche"
+        },
+        {
+          "type": "JalousieUpDown2",
+          "title_contains": "Küche",
+          "room": "Küche",
+          "page": "Küche"
+        }
+      ],
+      "wiring": [
+        {
+          "from_title": "Helligkeit",
+          "from_connector": "AQ",
+          "to_type": "LessEqual",
+          "to_connector": "Input1"
+        },
+        {
+          "from_type": "LessEqual",
+          "from_connector": "Q",
+          "to_type": "JalousieUpDown2",
+          "to_connector": "InputTriggerDown"
+        }
+      ],
+      "params": [
+        {
+          "block_type": "LessEqual",
+          "param": "Input2",
+          "value": "200"
+        }
+      ],
+      "simulation": [
+        {
+          "name": "should trigger when condition met",
+          "inputs": {
+            "Sonnenschein.AQ": 1.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "200.InputTriggerDown": {
+              ">": 0.5
+            }
+          }
+        },
+        {
+          "name": "should NOT trigger when condition not met",
+          "inputs": {
+            "Sonnenschein.AQ": 0.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "200.InputTriggerDown": {
+              "<": 0.5
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "tg03-indoor-outdoor-average",
+    "pattern": [
+      "math",
+      "temperature",
+      "display"
+    ],
+    "utterance": "Show me the average of the living room temperature and outdoor temperature on the dashboard",
+    "difficulty": "easy",
+    "expected": {
+      "new_blocks": [
+        {
+          "type": "Average",
+          "title_contains": "Avg",
+          "room": "Wohnzimmer",
+          "page": "Wohnzimmer"
+        }
+      ],
+      "wiring": [
+        {
+          "from_title": "Raumtemperatur Wohnzimmer",
+          "from_connector": "AQ",
+          "to_type": "Average",
+          "to_connector": "Input1"
+        },
+        {
+          "from_title": "Außentemperatur",
+          "from_connector": "AQ",
+          "to_type": "Average",
+          "to_connector": "Input2"
+        }
+      ],
+      "params": [],
+      "simulation": [
+        {
+          "name": "should trigger when condition met",
+          "inputs": {
+            "Außentemperatur.AQ": 25.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Avg.Input1": {
+              ">": 0.5
+            }
+          }
+        },
+        {
+          "name": "should NOT trigger when condition not met",
+          "inputs": {
+            "Außentemperatur.AQ": 15.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Avg.Input1": {
+              "<": 0.5
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "tg04-humidity-running-avg",
+    "pattern": [
+      "math",
+      "time-average",
+      "threshold",
+      "hvac"
+    ],
+    "utterance": "Calculate a 30-minute running average of humidity and turn on the bathroom ventilation when it exceeds 70 percent",
+    "difficulty": "hard",
+    "expected": {
+      "new_blocks": [
+        {
+          "type": "Avg",
+          "title_contains": "Humidity",
+          "room": "Bad",
+          "page": "Bad"
+        },
+        {
+          "type": "Greater",
+          "title_contains": "70",
+          "room": "Bad",
+          "page": "Bad"
+        }
+      ],
+      "wiring": [
+        {
+          "from_title": "Luftfeuchtigkeit",
+          "from_connector": "AQ",
+          "to_type": "Avg",
+          "to_connector": "Input"
+        },
+        {
+          "from_type": "Avg",
+          "from_connector": "AQ",
+          "to_type": "Greater",
+          "to_connector": "Input1"
+        }
+      ],
+      "params": [
+        {
+          "block_type": "Avg",
+          "param": "Time",
+          "value": "1800"
+        },
+        {
+          "block_type": "Greater",
+          "param": "Input2",
+          "value": "70"
+        }
+      ],
+      "simulation": [
+        {
+          "name": "should trigger when condition met",
+          "inputs": {
+            "Luftfeuchtigkeit.AQ": 75.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Humidity.Input1": {
+              ">": 0.5
+            }
+          }
+        },
+        {
+          "name": "should NOT trigger when condition not met",
+          "inputs": {
+            "Luftfeuchtigkeit.AQ": 65.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Humidity.Input1": {
+              "<": 0.5
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "tg05-brightness-correction",
+    "pattern": [
+      "math",
+      "division",
+      "modulo",
+      "glitch-detection"
+    ],
+    "utterance": "Divide the brightness value by 100 to normalize it, check the remainder, and alert me when the remainder is not zero to catch sensor glitches",
+    "difficulty": "hard",
+    "expected": {
+      "new_blocks": [
+        {
+          "type": "Div",
+          "title_contains": "Normalize",
+          "room": "Wohnzimmer",
+          "page": "Wohnzimmer"
+        },
+        {
+          "type": "Mod",
+          "title_contains": "Remainder",
+          "room": "Wohnzimmer",
+          "page": "Wohnzimmer"
+        },
+        {
+          "type": "NotEqual",
+          "title_contains": "Glitch",
+          "room": "Wohnzimmer",
+          "page": "Wohnzimmer"
+        }
+      ],
+      "wiring": [
+        {
+          "from_title": "Helligkeit",
+          "from_connector": "AQ",
+          "to_type": "Div",
+          "to_connector": "Input1"
+        },
+        {
+          "from_title": "Helligkeit",
+          "from_connector": "AQ",
+          "to_type": "Mod",
+          "to_connector": "Input1"
+        },
+        {
+          "from_type": "Mod",
+          "from_connector": "AQ",
+          "to_type": "NotEqual",
+          "to_connector": "Input1"
+        }
+      ],
+      "params": [
+        {
+          "block_type": "Div",
+          "param": "Input2",
+          "value": "100"
+        },
+        {
+          "block_type": "Mod",
+          "param": "Input2",
+          "value": "100"
+        },
+        {
+          "block_type": "NotEqual",
+          "param": "Input2",
+          "value": "0"
+        }
+      ],
+      "simulation": [
+        {
+          "name": "should trigger when condition met",
+          "inputs": {
+            "Sonnenschein.AQ": 1.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Normalize.AQ": {
+              ">": 0.5
+            }
+          }
+        },
+        {
+          "name": "should NOT trigger when condition not met",
+          "inputs": {
+            "Sonnenschein.AQ": 0.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Normalize.AQ": {
+              "<": 0.5
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "tg06-xor-hallway-switch",
+    "pattern": [
+      "logic",
+      "exclusive-or",
+      "two-way-switch"
+    ],
+    "utterance": "Set up a two-way switch for the hallway light so either switch toggles it, but pressing both at once cancels out",
+    "difficulty": "easy",
+    "expected": {
+      "new_blocks": [
+        {
+          "type": "Xor",
+          "title_contains": "Switch",
+          "room": "Flur",
+          "page": "Flur"
+        }
+      ],
+      "wiring": [
+        {
+          "from_title": "Schalter 1",
+          "from_connector": "Q",
+          "to_type": "Xor",
+          "to_connector": "I1"
+        },
+        {
+          "from_title": "Schalter 2",
+          "from_connector": "Q",
+          "to_type": "Xor",
+          "to_connector": "I2"
+        }
+      ],
+      "params": [],
+      "simulation": [
+        {
+          "name": "should activate during scheduled period",
+          "inputs": {},
+          "ticks": 0,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Switch.Q": {
+              ">": 0.5
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "tg07-garden-lights-zero",
+    "pattern": [
+      "threshold",
+      "exact-match",
+      "lighting"
+    ],
+    "utterance": "Turn on the garden lights only when the brightness sensor reads exactly zero",
+    "difficulty": "easy",
+    "expected": {
+      "new_blocks": [
+        {
+          "type": "Equal",
+          "title_contains": "Dark",
+          "room": "Garten",
+          "page": "Garten"
+        }
+      ],
+      "wiring": [
+        {
+          "from_title": "Helligkeit",
+          "from_connector": "AQ",
+          "to_type": "Equal",
+          "to_connector": "Input1"
+        }
+      ],
+      "params": [
+        {
+          "block_type": "Equal",
+          "param": "Input2",
+          "value": "0"
+        }
+      ],
+      "simulation": [
+        {
+          "name": "should trigger when condition met",
+          "inputs": {
+            "Sonnenschein.AQ": 1.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Dark.Input1": {
+              ">": 0.5
+            }
+          }
+        },
+        {
+          "name": "should NOT trigger when condition not met",
+          "inputs": {
+            "Sonnenschein.AQ": 0.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Dark.Input1": {
+              "<": 0.5
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "tg08-co2-delayed-ventilation",
+    "pattern": [
+      "threshold",
+      "delay",
+      "air-quality"
+    ],
+    "utterance": "When the CO2 level goes above 800 ppm, wait 5 minutes before turning on the kitchen ventilation to avoid false triggers from cooking",
+    "difficulty": "medium",
+    "expected": {
+      "new_blocks": [
+        {
+          "type": "Greater",
+          "title_contains": "CO2",
+          "room": "Küche",
+          "page": "Küche"
+        },
+        {
+          "type": "OnDelay",
+          "title_contains": "Delay",
+          "room": "Küche",
+          "page": "Küche"
+        }
+      ],
+      "wiring": [
+        {
+          "from_title": "CO2 Sensor",
+          "from_connector": "AQ",
+          "to_type": "Greater",
+          "to_connector": "Input1"
+        },
+        {
+          "from_type": "Greater",
+          "from_connector": "Q",
+          "to_type": "OnDelay",
+          "to_connector": "InputTrigger"
+        }
+      ],
+      "params": [
+        {
+          "block_type": "Greater",
+          "param": "Input2",
+          "value": "800"
+        },
+        {
+          "block_type": "OnDelay",
+          "param": "Time",
+          "value": "300"
+        }
+      ],
+      "simulation": [
+        {
+          "name": "should trigger when condition met",
+          "inputs": {
+            "CO2 Sensor.AQ": 805.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "CO2.InputTrigger": {
+              ">": 0.5
+            }
+          }
+        },
+        {
+          "name": "should NOT trigger when condition not met",
+          "inputs": {
+            "CO2 Sensor.AQ": 795.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "CO2.InputTrigger": {
+              "<": 0.5
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "tg09-bathroom-fan-timing",
+    "pattern": [
+      "delay",
+      "on-off",
+      "hvac"
+    ],
+    "utterance": "The bathroom fan should come on 2 minutes after the light switch is pressed and keep running for 10 minutes after the light is turned off",
+    "difficulty": "medium",
+    "expected": {
+      "new_blocks": [
+        {
+          "type": "OnOffDelay",
+          "title_contains": "Fan",
+          "room": "Bad",
+          "page": "Bad"
+        }
+      ],
+      "wiring": [
+        {
+          "from_title": "Schalter 1",
+          "from_connector": "Q",
+          "to_type": "OnOffDelay",
+          "to_connector": "InputTrigger"
+        }
+      ],
+      "params": [
+        {
+          "block_type": "OnOffDelay",
+          "param": "TimeOn",
+          "value": "120"
+        },
+        {
+          "block_type": "OnOffDelay",
+          "param": "TimeOff",
+          "value": "600"
+        }
+      ],
+      "simulation": [
+        {
+          "name": "should activate on trigger",
+          "inputs": {
+            "Türkontakt Eingang.Q": 1.0
+          },
+          "ticks": 50,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Fan.InputTrigger": {
+              ">": 0.5
+            }
+          }
+        },
+        {
+          "name": "should NOT activate without trigger",
+          "inputs": {
+            "Türkontakt Eingang.Q": 0.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Fan.InputTrigger": {
+              "<": 0.5
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "tg10-long-press-party",
+    "pattern": [
+      "button",
+      "long-press",
+      "scene"
+    ],
+    "utterance": "When I press and hold the living room button for 3 seconds, activate the party mode lighting scene",
+    "difficulty": "medium",
+    "expected": {
+      "new_blocks": [
+        {
+          "type": "PushButton2",
+          "title_contains": "Button",
+          "room": "Wohnzimmer",
+          "page": "Wohnzimmer"
+        },
+        {
+          "type": "LongClick",
+          "title_contains": "Long",
+          "room": "Wohnzimmer",
+          "page": "Wohnzimmer"
+        }
+      ],
+      "wiring": [
+        {
+          "from_title": "Schalter 1",
+          "from_connector": "Q",
+          "to_type": "PushButton2",
+          "to_connector": "InputTriggerOn"
+        },
+        {
+          "from_type": "PushButton2",
+          "from_connector": "Q",
+          "to_type": "LongClick",
+          "to_connector": "InputTrigger"
+        }
+      ],
+      "params": [
+        {
+          "block_type": "LongClick",
+          "param": "Time",
+          "value": "3"
+        }
+      ],
+      "simulation": [
+        {
+          "name": "should activate on trigger",
+          "inputs": {
+            "Türkontakt Eingang.Q": 1.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Button.InputTrigger": {
+              ">": 0.5
+            }
+          }
+        },
+        {
+          "name": "should NOT activate without trigger",
+          "inputs": {
+            "Türkontakt Eingang.Q": 0.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Button.InputTrigger": {
+              "<": 0.5
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "tg11-doorbell-pulse",
+    "pattern": [
+      "pulse",
+      "notification",
+      "timing"
+    ],
+    "utterance": "Generate a short 2-second pulse when the doorbell rings to trigger the chime in the hallway",
+    "difficulty": "easy",
+    "expected": {
+      "new_blocks": [
+        {
+          "type": "PulseBy",
+          "title_contains": "Doorbell",
+          "room": "Flur",
+          "page": "Flur"
+        }
+      ],
+      "wiring": [
+        {
+          "from_title": "Türklingel",
+          "from_connector": "Q",
+          "to_type": "PulseBy",
+          "to_connector": "Text"
+        }
+      ],
+      "params": [
+        {
+          "block_type": "PulseBy",
+          "param": "Time",
+          "value": "2"
+        }
+      ],
+      "simulation": [
+        {
+          "name": "should activate on doorbell",
+          "inputs": {
+            "Türklingel.Q": 1.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Doorbell.Q": {
+              ">": 0.5
+            }
+          }
+        },
+        {
+          "name": "should NOT activate without doorbell",
+          "inputs": {
+            "Türklingel.Q": 0.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Doorbell.Q": {
+              "<": 0.5
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "tg12-garage-alarm-latch",
+    "pattern": [
+      "flip-flop",
+      "security",
+      "latch"
+    ],
+    "utterance": "When the garage door sensor trips, latch the security alarm on and keep it active until I manually reset it with switch 2",
+    "difficulty": "medium",
+    "expected": {
+      "new_blocks": [
+        {
+          "type": "RSFlipFlop",
+          "title_contains": "Alarm",
+          "room": "Garage",
+          "page": "Garage"
+        }
+      ],
+      "wiring": [
+        {
+          "from_title": "Garagentor Sensor",
+          "from_connector": "Q",
+          "to_type": "RSFlipFlop",
+          "to_connector": "InputS"
+        },
+        {
+          "from_title": "Schalter 2",
+          "from_connector": "Q",
+          "to_type": "RSFlipFlop",
+          "to_connector": "InputR"
+        }
+      ],
+      "params": [],
+      "simulation": [
+        {
+          "name": "should activate when door opens",
+          "inputs": {
+            "Garagentor Sensor.Q": 1.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Alarm.Q": {
+              ">": 0.5
+            }
+          }
+        },
+        {
+          "name": "should NOT activate when door closed",
+          "inputs": {
+            "Garagentor Sensor.Q": 0.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Alarm.Q": {
+              "<": 0.5
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "tg13-ventilation-priority-toggle",
+    "pattern": [
+      "flip-flop",
+      "priority",
+      "hvac"
+    ],
+    "utterance": "Set up a two-switch control for the bathroom ventilation where the on-switch always wins over the off-switch",
+    "difficulty": "medium",
+    "expected": {
+      "new_blocks": [
+        {
+          "type": "SRFlipFlop",
+          "title_contains": "Vent",
+          "room": "Bad",
+          "page": "Bad"
+        }
+      ],
+      "wiring": [
+        {
+          "from_title": "Schalter 1",
+          "from_connector": "Q",
+          "to_type": "SRFlipFlop",
+          "to_connector": "InputS"
+        },
+        {
+          "from_title": "Schalter 2",
+          "from_connector": "Q",
+          "to_type": "SRFlipFlop",
+          "to_connector": "InputR"
+        }
+      ],
+      "params": [],
+      "simulation": [
+        {
+          "name": "should latch on when set",
+          "inputs": {
+            "Schalter 1.Q": 1.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Vent.Q": {
+              ">": 0.5
+            }
+          }
+        },
+        {
+          "name": "should NOT latch without trigger",
+          "inputs": {
+            "Schalter 1.Q": 0.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Vent.Q": {
+              "<": 0.5
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "tg14-pool-temp-state",
+    "pattern": [
+      "state",
+      "display",
+      "monitoring"
+    ],
+    "utterance": "Track the pool temperature as a state variable so I can see it on the garden dashboard",
+    "difficulty": "easy",
+    "expected": {
+      "new_blocks": [
+        {
+          "type": "StateV",
+          "title_contains": "Pool",
+          "room": "Garten",
+          "page": "Garten"
+        }
+      ],
+      "wiring": [
+        {
+          "from_title": "Pool Temperatur",
+          "from_connector": "AQ",
+          "to_type": "StateV",
+          "to_connector": "I"
+        }
+      ],
+      "params": [],
+      "simulation": [
+        {
+          "name": "should trigger when condition met",
+          "inputs": {
+            "Pool Temperatur.AQ": 25.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Pool.AQ": {
+              ">": 0.5
+            }
+          }
+        },
+        {
+          "name": "should NOT trigger when condition not met",
+          "inputs": {
+            "Pool Temperatur.AQ": 15.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Pool.AQ": {
+              "<": 0.5
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "tg15-knx-garage-monitoring",
+    "pattern": [
+      "knx",
+      "sensor",
+      "monitoring"
+    ],
+    "utterance": "Add a KNX bus temperature sensor for the garage and create a state variable to show its reading on the dashboard",
+    "difficulty": "medium",
+    "expected": {
+      "new_blocks": [
+        {
+          "type": "EIBsensor",
+          "title_contains": "KNX",
+          "room": "Garage",
+          "page": "Garage"
+        },
+        {
+          "type": "StateV",
+          "title_contains": "Garage",
+          "room": "Garage",
+          "page": "Garage"
+        }
+      ],
+      "wiring": [
+        {
+          "from_type": "EIBsensor",
+          "from_connector": "AQ",
+          "to_type": "StateV",
+          "to_connector": "I"
+        }
+      ],
+      "params": [],
+      "simulation": [
+        {
+          "name": "should activate when door opens",
+          "inputs": {
+            "Türkontakt Eingang.Q": 1.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "KNX.I": {
+              ">": 0.5
+            }
+          }
+        },
+        {
+          "name": "should NOT activate when door closed",
+          "inputs": {
+            "Türkontakt Eingang.Q": 0.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "KNX.I": {
+              "<": 0.5
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "tg16-knx-light-actuator",
+    "pattern": [
+      "knx",
+      "actuator",
+      "integration"
+    ],
+    "utterance": "Add a KNX bus actuator for the garage light so I can control it through the smart home system",
+    "difficulty": "easy",
+    "expected": {
+      "new_blocks": [
+        {
+          "type": "EIBactor",
+          "title_contains": "Garage",
+          "room": "Garage",
+          "page": "Garage"
+        }
+      ],
+      "wiring": [
+        {
+          "from_title": "Schalter 1",
+          "from_connector": "Q",
+          "to_type": "EIBactor",
+          "to_connector": "I"
+        }
+      ],
+      "params": [],
+      "simulation": [
+        {
+          "name": "should activate when door opens",
+          "inputs": {
+            "Türkontakt Eingang.Q": 1.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Garage.I": {
+              ">": 0.5
+            }
+          }
+        },
+        {
+          "name": "should NOT activate when door closed",
+          "inputs": {
+            "Türkontakt Eingang.Q": 0.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Garage.I": {
+              "<": 0.5
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "tg17-temp-diff-blind-close",
+    "pattern": [
+      "math",
+      "temperature",
+      "shading",
+      "threshold"
+    ],
+    "utterance": "Calculate the temperature difference between the living room and outside, and close the blinds when the room is more than 5 degrees warmer to keep heat out",
+    "difficulty": "hard",
+    "expected": {
+      "new_blocks": [
+        {
+          "type": "Sub",
+          "title_contains": "Diff",
+          "room": "Wohnzimmer",
+          "page": "Wohnzimmer"
+        },
+        {
+          "type": "Greater",
+          "title_contains": "5",
+          "room": "Wohnzimmer",
+          "page": "Wohnzimmer"
+        }
+      ],
+      "wiring": [
+        {
+          "from_title": "Raumtemperatur Wohnzimmer",
+          "from_connector": "AQ",
+          "to_type": "Sub",
+          "to_connector": "Input1"
+        },
+        {
+          "from_title": "Außentemperatur",
+          "from_connector": "AQ",
+          "to_type": "Sub",
+          "to_connector": "Input2"
+        },
+        {
+          "from_type": "Sub",
+          "from_connector": "AQ",
+          "to_type": "Greater",
+          "to_connector": "Input1"
+        },
+        {
+          "from_type": "Greater",
+          "from_connector": "Q",
+          "to_title": "Jalousie 1",
+          "to_room": "Wohnzimmer",
+          "to_connector": "InputTriggerDown"
+        }
+      ],
+      "params": [
+        {
+          "block_type": "Greater",
+          "param": "Input2",
+          "value": "5"
+        }
+      ],
+      "simulation": [
+        {
+          "name": "should trigger when condition met",
+          "inputs": {
+            "Außentemperatur.AQ": 10.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Jalousie 1.InputTriggerDown": {
+              ">": 0.5
+            }
+          }
+        },
+        {
+          "name": "should NOT trigger when condition not met",
+          "inputs": {
+            "Außentemperatur.AQ": 0.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Jalousie 1.InputTriggerDown": {
+              "<": 0.5
+            }
+          }
+        }
+      ]
+    }
+  }
+]

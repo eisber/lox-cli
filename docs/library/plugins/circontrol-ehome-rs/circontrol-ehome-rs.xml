@@ -1,0 +1,24 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Modbus Title="Circontrol Ehome" Comment="" Baudrate="9600" Channel="1">
+	<Info templateType="7" minVersion="12020927"/>
+	<ModbusCmd Title="Intensity max. station" Comment="" ModbusAddress="15" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Vehicle cable intensity" Comment="" ModbusAddress="10" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Intensity max. load" Comment="" ModbusAddress="16" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Disable Charge Station" Comment="" ModbusAddress="23" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Gear Load of Vehicle" Comment="" ModbusAddress="20" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Vehicle load stop" Comment="" ModbusAddress="21" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Temporary stop loading vehicle" Comment="" ModbusAddress="22" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="State of Vehicle" Comment="" ModbusAddress="11" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Intensity Charge" Comment="" ModbusAddress="17" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Last load counter (Min)" Comment="" ModbusAddress="18" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Current load counter (Min)" Comment="" ModbusAddress="19" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Error code 1" Comment="" ModbusAddress="12" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Error code 2" Comment="" ModbusAddress="13" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Error code 3" Comment="" ModbusAddress="14" ModbusCmd="4" ModbusPollingCycle="5" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Gear Load of Vehicle" Comment="" ModbusAddress="20" ModbusCmd="16" Unit="" Analog="false" Sensor="false"/>
+	<ModbusCmd Title="Set max intensity load" Comment="" ModbusAddress="16" ModbusCmd="16" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Vehicle load stop" Comment="" ModbusAddress="21" ModbusCmd="16" Unit="" Analog="false" Sensor="false"/>
+	<ModbusCmd Title="Temporary stop loading vehicle" Comment="" ModbusAddress="22" ModbusCmd="16" Unit="" Analog="false" Sensor="false"/>
+	<ModbusCmd Title="Disable Charge Station" Comment="" ModbusAddress="23" ModbusCmd="16" Unit="" Analog="false" Sensor="false"/>
+	<ModbusCmd Title="Set percentage of load intensity" Comment="" ModbusAddress="17" ModbusCmd="16" Unit="&lt;v.1&gt;" Analog="true" Sensor="false" SourceValHigh="100" DestValHigh="100"/>
+</Modbus>

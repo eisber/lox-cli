@@ -1,0 +1,9 @@
+{
+                                "type": "template",
+                                "name": "statistics-with-influxdb",
+                                "uuid": "e5ba667c-c8b1-11ed-839a4cd98f3deb8a",
+                                "version":"1.0.0",
+                                "id": "statistics-with-influxdb-1187",
+                                "file": "statistics-with-influxdb.xml",
+                                "templateType": "3",
+                            }

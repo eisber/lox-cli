@@ -1,0 +1,18 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Modbus Title="DIEHL" Comment="Energy Meters" HintText="" Baudrate="9600" Channel="40">
+	<Info templateType="7" minVersion="14051207"/>
+	<ModbusCmd Title="Energy" Comment="" HintText="" ModbusAddress="8" ModbusCmd="3" ModbusDataType="36" ModbusPollingCycle="300" Unit="&lt;v&gt; kWh" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Volume" Comment="" HintText="" ModbusAddress="18" ModbusCmd="3" ModbusDataType="36" ModbusPollingCycle="300" Unit="&lt;v&gt; l" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Power" Comment="" HintText="" ModbusAddress="28" ModbusCmd="3" ModbusDataType="36" ModbusPollingCycle="15" Unit="&lt;v.3&gt; kW" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="0.01"/>
+	<ModbusCmd Title="Flow rate" Comment="" HintText="" ModbusAddress="38" ModbusCmd="3" ModbusDataType="36" ModbusPollingCycle="15" Unit="&lt;v.1&gt; l/h" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Forward temperature" Comment="" HintText="" ModbusAddress="46" ModbusCmd="3" ModbusDataType="36" ModbusPollingCycle="15" Unit="&lt;v.2&gt;ºC" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Temperature difference" Comment="" HintText="" ModbusAddress="62" ModbusCmd="3" ModbusDataType="36" ModbusPollingCycle="300" Unit="&lt;v.2&gt;ºC" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Return temperature" Comment="" HintText="" ModbusAddress="54" ModbusCmd="3" ModbusDataType="36" ModbusPollingCycle="15" Unit="&lt;v.2&gt;ºC" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Energy unit" Comment="" HintText="" ModbusAddress="7" ModbusCmd="3" ModbusPollingCycle="300" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Volume unit" Comment="" HintText="" ModbusAddress="17" ModbusCmd="3" ModbusPollingCycle="300" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Power unit" Comment="" HintText="" ModbusAddress="27" ModbusCmd="3" ModbusPollingCycle="300" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Flow rate unit" Comment="" HintText="" ModbusAddress="37" ModbusCmd="3" ModbusPollingCycle="300" Unit="&lt;v&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Forward temperature unit" Comment="" HintText="" ModbusAddress="45" ModbusCmd="3" ModbusPollingCycle="300" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Return temperature unit" Comment="" HintText="" ModbusAddress="53" ModbusCmd="3" ModbusPollingCycle="300" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+	<ModbusCmd Title="Temperature difference unit" Comment="" HintText="" ModbusAddress="61" ModbusCmd="3" ModbusPollingCycle="300" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="10"/>
+</Modbus>

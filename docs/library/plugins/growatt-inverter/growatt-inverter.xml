@@ -1,0 +1,11 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Modbus Title="Growatt Inverter" Comment="" Baudrate="9600" Channel="1">
+	<Info templateType="7" minVersion="13010906"/>
+	<ModbusCmd Title="Inverter status" Comment="0-waiting, 1-normal, 2-fault" ModbusCmd="4" ModbusPollingCycle="60" Unit="&lt;v.1&gt;" Analog="true" Sensor="true" SourceValHigh="100" DestValHigh="100"/>
+	<ModbusCmd Title="Output power" Comment="" ModbusAddress="35" ModbusCmd="4" ModbusDataType="34" ModbusPollingCycle="60" Unit="&lt;v.1&gt; kWh" Analog="true" Sensor="true" SourceValHigh="10000" DestValHigh="1"/>
+	<ModbusCmd Title="Today generated energy" Comment="" ModbusAddress="53" ModbusCmd="4" ModbusDataType="34" ModbusPollingCycle="60" Unit="&lt;v.1&gt; kWh" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="Total generated energy" Comment="" ModbusAddress="55" ModbusCmd="4" ModbusDataType="34" ModbusPollingCycle="60" Unit="&lt;v.1&gt; kWh" Analog="true" Sensor="true" SourceValHigh="10" DestValHigh="1"/>
+	<ModbusCmd Title="Grid output power L1" Comment="" ModbusAddress="40" ModbusCmd="4" ModbusDataType="99" ModbusPollingCycle="60" Unit="&lt;v.2&gt;kVA" Analog="true" Sensor="true" SourceValHigh="10000" DestValHigh="1"/>
+	<ModbusCmd Title="Grid output power L2" Comment="" ModbusAddress="44" ModbusCmd="4" ModbusDataType="99" ModbusPollingCycle="60" Unit="&lt;v.2&gt;kVA" Analog="true" Sensor="true" SourceValHigh="10000" DestValHigh="1"/>
+	<ModbusCmd Title="Grid output power L3" Comment="" ModbusAddress="48" ModbusCmd="4" ModbusDataType="99" ModbusPollingCycle="60" Unit="&lt;v.2&gt;kVA" Analog="true" Sensor="true" SourceValHigh="10000" DestValHigh="1"/>
+</Modbus>

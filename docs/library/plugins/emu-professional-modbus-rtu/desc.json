@@ -1,0 +1,9 @@
+{
+                                "type": "template",
+                                "name": "emu-professional-modbus-rtu",
+                                "uuid": "4d43fb51-715d-11ed-ac014cd98f3deb8a",
+                                "version":"1.0.0",
+                                "id": "emu-professional-modbus-rtu-1069",
+                                "file": "emu-professional-modbus-rtu.xml",
+                                "templateType": "7",
+                            }

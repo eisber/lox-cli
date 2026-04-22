@@ -1,0 +1,5 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<VirtualInHttp Title="VuPlus powerstate" Comment="" Address="http://192.168.3.4/web/powerstate" PollingTime="60">
+	<Info templateType="2" minVersion="12021105"/>
+	<VirtualInHttpCmd Title="VuPlus powerstate" Comment="" Check="&lt;e2instandby&gt; \w" Signed="false" Analog="true" SourceValLow="0" DestValLow="0" SourceValHigh="100" DestValHigh="100" DefVal="0" MinVal="-10000" MaxVal="10000"/>
+</VirtualInHttp>
