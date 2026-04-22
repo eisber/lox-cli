@@ -5,6 +5,15 @@ on:
     - cron: '0 3 * * 1'  # Weekly Monday 3am UTC
   workflow_dispatch:
     inputs:
+      agent:
+        description: 'Agent backend'
+        default: 'opencode'
+        type: choice
+        options:
+          - opencode
+          - copilot
+          - claude
+          - builtin
       model:
         description: 'Model to evaluate'
         default: 'gpt-4o'
@@ -58,16 +67,23 @@ jobs:
       - name: Install Python deps
         run: pip install openai
 
+      - name: Install OpenCode
+        if: inputs.agent == 'opencode' || inputs.agent == ''
+        run: curl -fsSL https://opencode.ai/install | bash
+
       - name: Run eval
         id: eval
         continue-on-error: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          OPENAI_BASE_URL: https://models.inference.ai.azure.com
+          OPENAI_API_KEY: ${{ secrets.GITHUB_TOKEN }}
           LOX_TELEMETRY: '0'
         run: |
           export PATH="${{ github.workspace }}/target/release:$PATH"
-          python3 tests/eval/scripts/llm-agent.py \
+          python3 tests/eval/scripts/eval-agent.py \
             --all \
+            --agent "${{ inputs.agent || 'opencode' }}" \
             --model "${{ inputs.model || 'gpt-4o' }}" \
             --section "${{ inputs.filter || 'synthetic' }}" \
             --max-cases "${{ inputs.max_cases || '20' }}" \
@@ -77,12 +93,12 @@ jobs:
         if: always()
         run: |
           if [ -f tests/eval/reports/ci-eval-report.json ]; then
-            python3 tests/eval/scripts/llm-agent.py --report tests/eval/reports/ci-eval-report.json | tee -a "$GITHUB_STEP_SUMMARY"
+            python3 tests/eval/scripts/eval-agent.py --report tests/eval/reports/ci-eval-report.json | tee -a "$GITHUB_STEP_SUMMARY"
           fi
 
       - name: Upload report
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: eval-report-${{ inputs.model || 'gpt-4o' }}
+          name: eval-report-${{ inputs.agent || 'opencode' }}-${{ inputs.model || 'gpt-4o' }}
           path: tests/eval/reports/ci-eval-report.json
