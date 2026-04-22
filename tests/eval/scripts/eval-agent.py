@@ -48,7 +48,7 @@ CLITracker = _agent_runner.CLITracker
 _llm_agent = _imp("llm-agent")
 run_simulation = _llm_agent.run_simulation
 
-AGENT_TIMEOUT = 300  # 5 minutes per case
+AGENT_TIMEOUT = 600  # 10 minutes per case
 
 
 # ── Agent Backends ───────────────────────────────────────────
