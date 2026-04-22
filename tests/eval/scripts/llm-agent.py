@@ -43,10 +43,49 @@ generate_report = _agent_runner.generate_report
 print_report = _agent_runner.print_report
 CLITracker = _agent_runner.CLITracker
 
-_sim_validator = _imp("run-sim-validation")
-run_simulation = _sim_validator.run_simulation
-
 MAX_RETRIES = 3
+
+
+def _find_lox_sim():
+    """Find the lox-sim binary."""
+    for candidate in ["lox-sim", "./target/release/lox-sim", str(EVAL_DIR.parent.parent / "target" / "release" / "lox-sim")]:
+        if shutil.which(candidate):
+            return [candidate]
+        p = Path(candidate)
+        if p.exists():
+            return [str(p)]
+    return ["lox-sim"]  # hope it's on PATH
+
+
+def run_simulation(case_id: str, case: dict, config_path: str) -> dict:
+    """Run simulation specs via Rust lox-sim binary."""
+    sims = case.get("expected", {}).get("simulation", [])
+    if not sims:
+        return {"case_id": case_id, "pass": True, "passed_count": 0, "total_count": 0, "scenarios": []}
+
+    sim_json = json.dumps(sims)
+    lox_sim = _find_lox_sim()
+
+    try:
+        r = subprocess.run(
+            lox_sim + ["run", config_path, "--sim", sim_json],
+            capture_output=True, text=True, timeout=30
+        )
+        if r.stdout.strip():
+            result = json.loads(r.stdout)
+            return {
+                "case_id": case_id,
+                "pass": result.get("pass", False),
+                "passed_count": result.get("passed", 0),
+                "total_count": result.get("total", 0),
+                "scenarios": result.get("scenarios", []),
+            }
+        else:
+            return {"case_id": case_id, "pass": False, "passed_count": 0, "total_count": len(sims),
+                    "error": r.stderr.strip()[:500], "scenarios": []}
+    except Exception as e:
+        return {"case_id": case_id, "pass": False, "passed_count": 0, "total_count": len(sims),
+                "error": str(e), "scenarios": []}
 
 
 # ── LLM Client ──────────────────────────────────────────────
