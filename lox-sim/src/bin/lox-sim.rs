@@ -97,6 +97,107 @@ fn main() {
                 }
             }
         }
+        "step" => {
+            // Step-by-step simulation: show signal changes each tick
+            let sim_json = args.iter().position(|a| a == "--sim")
+                .and_then(|p| args.get(p + 1).cloned())
+                .or_else(|| {
+                    let mut buf = String::new();
+                    std::io::Read::read_to_string(&mut std::io::stdin(), &mut buf).ok();
+                    Some(buf)
+                })
+                .unwrap_or_default();
+
+            let spec: SimSpec = serde_json::from_str(&sim_json).unwrap_or_else(|e| {
+                eprintln!("invalid sim JSON: {e}");
+                std::process::exit(1);
+            });
+
+            let mut engine = SimEngine::new(graph.clone());
+
+            // Set inputs
+            for (key, value) in &spec.inputs {
+                let block_name = key.split('.').next().unwrap_or(key);
+                if !engine.set_input(key, *value) {
+                    let _ = engine.set_input(block_name, *value);
+                }
+            }
+
+            // Print initial state
+            println!("t=0.000  inputs: {:?}", spec.inputs);
+
+            // Watch list: all blocks that have wired inputs + expected outputs
+            let mut watch: Vec<(String, usize, String)> = Vec::new(); // (display, block_id, conn_key)
+            for bid in 0..graph.block_count() {
+                let info = graph.block_info(bid);
+                for &cid in &info.outputs {
+                    if graph.input_source_of(cid).is_some() || !info.inputs.iter().all(|&ic| graph.input_source_of(ic).is_none()) {
+                        let key = graph.connector(cid).key.clone();
+                        let room = info.room.as_deref().unwrap_or("");
+                        let display = if room.is_empty() {
+                            format!("{}.{}", info.name, key)
+                        } else {
+                            format!("{} [{}].{}", info.name, room, key)
+                        };
+                        watch.push((display, bid, key));
+                    }
+                }
+            }
+            // Also watch expected outputs
+            for output_key in spec.expected_outputs.keys() {
+                if !watch.iter().any(|(d, _, _)| d == output_key) {
+                    watch.push((output_key.clone(), usize::MAX, String::new()));
+                }
+            }
+
+            // Tick and show changes
+            let mut prev_values: Vec<f64> = watch.iter().map(|(_, bid, key)| {
+                if *bid < graph.block_count() {
+                    graph.find_connector(*bid, key)
+                        .map(|cid| engine.signal(cid))
+                        .unwrap_or(0.0)
+                } else { 0.0 }
+            }).collect();
+
+            for tick in 0..spec.ticks {
+                engine.tick(spec.dt);
+                let t = (tick + 1) as f64 * spec.dt;
+
+                let mut changes = Vec::new();
+                for (i, (display, bid, key)) in watch.iter().enumerate() {
+                    let val = if *bid < graph.block_count() {
+                        graph.find_connector(*bid, key)
+                            .map(|cid| {
+                                // Read from wire source for input connectors
+                                graph.input_source_of(cid)
+                                    .map(|src| engine.signal(src))
+                                    .unwrap_or(engine.signal(cid))
+                            })
+                            .unwrap_or(0.0)
+                    } else { 0.0 };
+
+                    if (val - prev_values[i]).abs() > 1e-9 {
+                        changes.push(format!("{display}={val:.2}"));
+                        prev_values[i] = val;
+                    }
+                }
+
+                if !changes.is_empty() {
+                    println!("t={t:.3}  {}", changes.join("  "));
+                }
+            }
+
+            // Final check
+            println!("\n--- final ---");
+            for (output_key, comparators) in &spec.expected_outputs {
+                let actual = resolve_output(&engine, &graph, output_key);
+                for (op, expected) in comparators {
+                    let pass = check_comparator(actual, op, *expected);
+                    let icon = if pass { "✅" } else { "❌" };
+                    println!("{icon} {output_key} = {actual:.4}  {op} {expected}");
+                }
+            }
+        }
         "run" => {
             let sim_json = if let Some(pos) = args.iter().position(|a| a == "--sim") {
                 args.get(pos + 1)
@@ -186,6 +287,51 @@ struct ScenarioResult {
     checks: Vec<serde_json::Value>,
 }
 
+fn resolve_output(engine: &SimEngine, graph: &lox_sim::graph::SimGraph, output_key: &str) -> f64 {
+    let mut actual = engine.get_output(output_key);
+    if actual == 0.0 && output_key.contains('.') {
+        let parts: Vec<&str> = output_key.splitn(2, '.').collect();
+        let block_name = parts[0];
+        let conn_name = parts.get(1).unwrap_or(&"");
+        for bid in 0..graph.block_count() {
+            let info = graph.block_info(bid);
+            let name_matches = info.name == block_name
+                || info.room.as_ref().map_or(false, |r| {
+                    format!("{} [{}]", info.name, r) == block_name
+                });
+            if !name_matches {
+                continue;
+            }
+            if let Some(cid) = graph.find_connector(bid, conn_name) {
+                if let Some(src) = graph.input_source_of(cid) {
+                    let sig = engine.signal(src);
+                    if sig.abs() > actual.abs() {
+                        actual = sig;
+                    }
+                } else {
+                    let sig = engine.signal(cid);
+                    if sig.abs() > actual.abs() {
+                        actual = sig;
+                    }
+                }
+            }
+        }
+    }
+    actual
+}
+
+fn check_comparator(actual: f64, op: &str, expected: f64) -> bool {
+    match op {
+        ">" => actual > expected,
+        ">=" => actual >= expected,
+        "<" => actual < expected,
+        "<=" => actual <= expected,
+        "==" => (actual - expected).abs() < 1e-9,
+        "~=" => (actual - expected).abs() < expected.abs() * 0.05 + 1e-9,
+        _ => false,
+    }
+}
+
 fn run_one(graph: &lox_sim::graph::SimGraph, spec: &SimSpec) -> ScenarioResult {
     let mut engine = SimEngine::new(graph.clone());
 
@@ -230,50 +376,10 @@ fn run_one(graph: &lox_sim::graph::SimGraph, spec: &SimSpec) -> ScenarioResult {
     let mut all_pass = true;
 
     for (output_key, comparators) in &spec.expected_outputs {
-        let mut actual = engine.get_output(output_key);
-
-        // If 0, try reading the input connector's wire source (engine reads
-        // from source directly during eval, doesn't copy to input cid)
-        if actual == 0.0 && output_key.contains('.') {
-            let parts: Vec<&str> = output_key.splitn(2, '.').collect();
-            let block_name = parts[0];
-            let conn_name = parts.get(1).unwrap_or(&"");
-            for bid in 0..graph.block_count() {
-                let info = graph.block_info(bid);
-                let name_matches = info.name == block_name
-                    || info.room.as_ref().map_or(false, |r| {
-                        format!("{} [{}]", info.name, r) == block_name
-                    });
-                if !name_matches {
-                    continue;
-                }
-                if let Some(cid) = graph.find_connector(bid, conn_name) {
-                    // Read from wire source if wired
-                    if let Some(src) = graph.input_source_of(cid) {
-                        let sig = engine.signal(src);
-                        if sig.abs() > actual.abs() {
-                            actual = sig;
-                        }
-                    } else {
-                        let sig = engine.signal(cid);
-                        if sig.abs() > actual.abs() {
-                            actual = sig;
-                        }
-                    }
-                }
-            }
-        }
+        let actual = resolve_output(&engine, graph, output_key);
 
         for (op, expected) in comparators {
-            let pass = match op.as_str() {
-                ">" => actual > *expected,
-                ">=" => actual >= *expected,
-                "<" => actual < *expected,
-                "<=" => actual <= *expected,
-                "==" => (actual - expected).abs() < 1e-9,
-                "~=" => (actual - expected).abs() < expected.abs() * 0.05 + 1e-9,
-                _ => false,
-            };
+            let pass = check_comparator(actual, op, *expected);
 
             if !pass {
                 all_pass = false;
