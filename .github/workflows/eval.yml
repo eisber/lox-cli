@@ -1,0 +1,81 @@
+name: Eval
+
+on:
+  schedule:
+    - cron: '0 3 * * 1'  # Weekly Monday 3am UTC
+  workflow_dispatch:
+    inputs:
+      model:
+        description: 'Model to evaluate'
+        default: 'gpt-4o'
+        type: choice
+        options:
+          - gpt-4o
+          - gpt-4o-mini
+          - o4-mini
+      filter:
+        description: 'Case filter (empty=all synthetic cases)'
+        default: 'synthetic'
+        type: string
+      max_cases:
+        description: 'Max cases to run'
+        default: '20'
+        type: string
+
+permissions:
+  contents: read
+  models: read
+
+jobs:
+  eval:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          lfs: true
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache cargo
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: eval-${{ runner.os }}-${{ hashFiles('Cargo.lock') }}
+
+      - name: Build lox-cli
+        run: cargo build --release
+
+      - name: Install Python deps
+        run: pip install openai
+
+      - name: Run eval
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          LOX_TELEMETRY: '0'
+          PATH: ${{ github.workspace }}/target/release:${{ env.PATH }}
+        run: |
+          python3 tests/eval/scripts/llm-agent.py \
+            --all \
+            --model "${{ inputs.model || 'gpt-4o' }}" \
+            --filter "${{ inputs.filter || 'synthetic' }}" \
+            --max-cases "${{ inputs.max_cases || '20' }}" \
+            --output tests/eval/reports/ci-eval-report.json
+
+      - name: Print summary
+        if: always()
+        run: |
+          if [ -f tests/eval/reports/ci-eval-report.json ]; then
+            python3 tests/eval/scripts/llm-agent.py --report tests/eval/reports/ci-eval-report.json | tee -a "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - name: Upload report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: eval-report-${{ inputs.model || 'gpt-4o' }}
+          path: tests/eval/reports/ci-eval-report.json
