@@ -266,7 +266,9 @@ def execute_commands(commands: list[str], tracker: CLITracker, cwd=None):
 
 def run_case(case, work_dir: Path, client, model: str, verbose: bool = False):
     """
-    Execute the LLM agent for one eval case.
+    Execute the LLM agent for one eval case with multi-turn feedback.
+
+    Loop: build → check → sim test → fix → repeat (up to MAX_RETRIES)
 
     Returns: (result_path, tracker, token_usage)
     """
@@ -304,40 +306,45 @@ def run_case(case, work_dir: Path, client, model: str, verbose: bool = False):
         if verbose:
             print(f"    → {len(commands)} commands parsed", file=sys.stderr)
 
-        # Separate validate from mutating commands
-        mutating = [c for c in commands if "validate" not in c]
-        validates = [c for c in commands if "validate" in c]
+        # Execute all commands
+        outputs = execute_commands(commands, tracker, cwd=str(work_dir))
+        all_commands_run.extend(commands)
 
-        # Execute mutating commands first
-        outputs = execute_commands(mutating, tracker, cwd=str(work_dir))
-        all_commands_run.extend(mutating)
-
-        # Run validation (always, even if LLM forgot)
-        validate_cmd = f"lox config validate {config_path}"
-        val_outputs = execute_commands(
-            validates if validates else [validate_cmd], tracker, cwd=str(work_dir)
-        )
-        if not validates:
-            all_commands_run.append(validate_cmd)
+        # Run check (always)
+        check_cmd = f"lox config check {config_path}"
+        if not any("config check" in c for c in commands):
+            check_out = execute_commands([check_cmd], tracker, cwd=str(work_dir))
+            all_commands_run.append(check_cmd)
         else:
-            all_commands_run.extend(validates)
+            check_out = [o for o in outputs if "config check" in o.get("command", "")]
 
-        # Check for errors
-        val_out = val_outputs[-1] if val_outputs else {}
-        val_stdout = val_out.get("stdout", "")
-        val_rc = val_out.get("returncode", 1)
-        has_errors = val_rc != 0 or "✗" in val_stdout
+        check_stdout = check_out[-1].get("stdout", "") if check_out else ""
+        has_check_errors = "✗" in check_stdout
 
-        if not has_errors or attempt >= MAX_RETRIES:
-            break
+        # If check has errors, retry with check feedback
+        if has_check_errors and attempt < MAX_RETRIES:
+            tracker.retries += 1
+            retry_prompt = build_retry_prompt(
+                all_commands_run, check_stdout, str(config_path)
+            )
+            messages.append({"role": "assistant", "content": reply})
+            messages.append({"role": "user", "content": retry_prompt})
+            continue
 
-        # Retry: feed errors back to LLM
-        tracker.retries += 1
-        retry_prompt = build_retry_prompt(
-            all_commands_run, val_stdout + val_out.get("stderr", ""), str(config_path)
-        )
-        messages.append({"role": "assistant", "content": reply})
-        messages.append({"role": "user", "content": retry_prompt})
+        # Run simulation test if case has sim specs
+        sims = case.get("expected", {}).get("simulation", [])
+        if sims and attempt < MAX_RETRIES:
+            sim_result = run_simulation(case["id"], case, str(config_path))
+            if not sim_result.get("pass", True):
+                # Build sim feedback
+                tracker.retries += 1
+                sim_feedback = _build_sim_feedback(sim_result, all_commands_run, str(config_path))
+                messages.append({"role": "assistant", "content": reply})
+                messages.append({"role": "user", "content": sim_feedback})
+                continue
+
+        # All good (or out of retries)
+        break
 
     token_usage = {
         "input_tokens_est": total_input_tokens,
@@ -347,6 +354,45 @@ def run_case(case, work_dir: Path, client, model: str, verbose: bool = False):
     }
 
     return config_path, tracker, token_usage
+
+
+def _build_sim_feedback(sim_result: dict, commands_run: list[str], config_path: str) -> str:
+    """Build a retry prompt from simulation test failures."""
+    failures = []
+    for scenario in sim_result.get("scenarios", []):
+        if not scenario.get("pass"):
+            for check in scenario.get("checks", []):
+                if not check.get("pass"):
+                    failures.append(
+                        f"  {scenario['name']}: {check['output']} = {check['actual']}"
+                        f" (expected {check['comparator']} {check['expected']})"
+                    )
+
+    return f"""\
+Your circuit was built but the simulation test FAILED. The signals don't produce the expected output.
+
+## Simulation Failures
+{chr(10).join(failures)}
+
+## What This Means
+The blocks exist but the signal doesn't flow correctly from sensor to actuator.
+Common issues:
+- Missing wire between a logic block output and the actuator
+- Wrong block type (e.g. OnPulseDelay has a delay BEFORE the pulse; use StairwayLS for immediate timed switch)
+- Sensor wired to wrong input connector
+
+## Commands Already Run
+{chr(10).join(commands_run[-10:])}
+
+## Debug Tip
+Run `lox sim dump {config_path}` to see all wires and signal values.
+
+## Instructions
+Fix the wiring or block issues. Output additional `lox config` commands.
+The config file is: {config_path}
+End with: lox config check {config_path}
+Respond ONLY with the CLI commands, one per line.
+"""
 
 
 # ── Main ─────────────────────────────────────────────────────
