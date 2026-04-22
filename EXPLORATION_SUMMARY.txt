@@ -1,0 +1,414 @@
+================================================================================
+LOX-SIM ENGINE EXPLORATION - COMPLETE ANALYSIS
+================================================================================
+
+DOCUMENTS GENERATED
+===================
+1. LOX_SIM_ENGINE_ANALYSIS.md (1206 lines)
+   → Complete detailed breakdown of all engine components
+   → Every method, struct, and design decision documented
+   → Full code snippets from source files
+
+2. QUICK_REFERENCE.md (400+ lines)
+   → Quick-lookup guide for key structures and methods
+   → Tick flow diagram
+   → Block trait examples
+   → Testing patterns
+
+3. VALUE_INJECTION_DESIGN.md (350+ lines)
+   → Proposal for new "override registry" mechanism
+   → API design (inject_snapshot, hold_value, release_value)
+   → Usage examples and test strategy
+   → Performance analysis
+
+================================================================================
+KEY FINDINGS
+================================================================================
+
+1. ENGINE ARCHITECTURE
+   ✓ Signal-based: signals[ConnectorId] = f64 value
+   ✓ Dirty-flag optimized: blocks skipped if inputs unchanged
+   ✓ Topologically ordered: all upstream blocks eval before downstream
+   ✓ Feedback-aware: back-edges use prev_signals[] to prevent cycles
+
+2. CORE FIELDS
+   • signals: Vec<f64> - current connector values
+   • prev_signals: Vec<f64> - previous-tick snapshot
+   • dirty: Vec<bool> - per-block dirty flags
+   • downstream: Vec<Vec<BlockId>> - adjacency for dirty propagation
+   • named_inputs/named_outputs: name→cid lookup maps
+
+3. TICK ALGORITHM (tick() method, lines 265-387)
+   FOR each block in topological order:
+     IF dirty[block]:
+       inputs = gather(signals[] or prev_signals[] if feedback)
+       params = gather(signals[param_cids])
+       prev_inputs = gather(prev_signals[input_srcs])
+       outputs = block.eval(inputs, params, dt, prev_inputs)
+       FOR output in outputs:
+         IF value_changed: mark_downstream_dirty()
+       dirty[block] = false
+   
+   AFTER loop:
+     prev_signals[] = signals[]  // Snapshot for next tick
+     FOR edge_sensitive blocks:
+       IF their prev_inputs context changed:
+         dirty[block] = true
+
+4. VALUE INJECTION METHODS
+   set_input(name, value)
+   ├─ Targets: input connectors or source block outputs
+   ├─ Effect: signals[cid] = value; dirty[block] = true
+   └─ Special: If OUTPUT connector, also mark downstream dirty
+   
+   inject_output(name, value)
+   ├─ Targets: output connectors directly
+   ├─ Effect: signals[cid] = value; dirty[block] = true; mark downstream
+   └─ Use case: Simulate sensor readings
+   
+   set_param(block, key, value)
+   ├─ Targets: parameter connectors only
+   └─ Effect: signals[cid] = value; dirty[block] = true
+
+5. BLOCK TRAIT (Block::eval)
+   fn eval(inputs, params, dt, prev_inputs) → Vec<Signal>
+   ├─ inputs: current-tick values from connected inputs
+   ├─ params: current-tick values from parameter connectors
+   ├─ dt: time delta (not always used)
+   ├─ prev_inputs: previous-tick input values (for edge detection)
+   └─ Returns: one f64 per output connector
+   
+   Special method: is_edge_sensitive() → bool
+   └─ If true, block re-marked dirty if prev_inputs context changed
+   └─ Used by: RisingEdge, Counter, OffDelay, etc.
+
+6. GRAPH STRUCTURE
+   • ConnectorId = usize (index into global signals array)
+   • BlockId = usize (index into blocks array)
+   • BlockInfo: { id, name, room, inputs, outputs, params }
+   • ConnectorInfo: { id, key, dir, block_id, default_value }
+   • input_source: Map[input_cid] → output_cid (the wire)
+   • Topological sort identifies feedback wires (back-edges)
+
+7. SOURCE BLOCKS (SysVar, VirtualIn)
+   Special treatment in engine:
+   ├─ Type-checked as "source_types = ["SysVar", "VirtualIn"]"
+   ├─ Bare name maps to BOTH inputs AND outputs
+   ├─ set_input("VirtualIn", 5.0) drives output directly
+   ├─ Output connector changes mark downstream dirty
+   └─ Allows injection to propagate immediately
+
+8. DIRTY FLAG STRATEGY
+   dirty[block] = true when:
+   ├─ set_input(), inject_output(), or set_param() called
+   ├─ Upstream block's output changes (> ε difference)
+   ├─ Edge-sensitive block's prev_inputs context changes
+   └─ mark_all_dirty() called explicitly
+   
+   dirty[block] = false after:
+   └─ Block successfully evaluated
+
+9. NAMED INPUTS/OUTPUTS RESOLUTION
+   Bare name:              "BlockName"
+   Dotted name:            "BlockName.ConnectorKey"
+   Room-qualified bare:    "BlockName [RoomName]"
+   Room-qualified dotted:  "BlockName [RoomName].ConnectorKey"
+   
+   For source blocks: bare name maps to ALL inputs AND outputs
+   For normal blocks:  bare name maps to first input (set_input) or first output (get_output)
+
+10. FEEDBACK LOOPS
+    Identified via topological sort back-edge detection
+    eval_info[block].input_sources = [(src_cid, is_feedback), ...]
+    IF is_feedback: read prev_signals[src] ELSE read signals[src]
+    Prevents same-tick cycles; feedback delayed by one tick
+
+11. NO EXISTING FREEZE MECHANISM
+    ✗ No way to hold output constant without block re-eval
+    ✗ No way to prevent block from overwriting overridden value
+    ✗ No way to "freeze" a block mid-simulation
+    ✗ No tracking of where override came from
+    ✗ No priority system for conflicting overrides
+
+================================================================================
+GAP ANALYSIS: LIMITATION OF CURRENT VALUE INJECTION
+================================================================================
+
+PROBLEM 1: One-shot overrides are overwritten
+─────────────────────────────────────────────
+set_input("Sensor", 5.0)   ← Set value
+tick(0.01)
+  Block evaluates → outputs new_value
+  signals[cid] = new_value   ← OVERWRITES injected 5.0
+Result: Next tick, old injected value is gone
+
+PROBLEM 2: No persistent hold mechanism
+──────────────────────────────────────
+Cannot simulate:
+├─ Frozen hardware output (e.g., valve stuck open)
+├─ Faulty sensor (reading always same value)
+├─ Emergency shutdown (output forced to 0)
+└─ Testing: hold output while varying inputs
+
+PROBLEM 3: No override context/metadata
+─────────────────────────────────────────
+Cannot determine:
+├─ Is this value overridden?
+├─ Why is it overridden?
+├─ When was it overridden?
+├─ What override source has priority?
+
+PROBLEM 4: No conflict resolution
+──────────────────────────────────
+Multiple systems may want to override same connector
+└─ No priority system to resolve conflicts
+
+================================================================================
+PROPOSED SOLUTION: OVERRIDE REGISTRY
+================================================================================
+
+Add to SimEngine:
+  overrides: HashMap<ConnectorId, OverrideState>
+  tick_counter: u64
+
+pub enum OverrideState {
+    Snapshot { value: f64, tick_set: u64 },           // 1-tick override
+    Held { value: f64, source: String, locked_at_tick: u64 },  // Persistent
+}
+
+New API Methods:
+1. inject_snapshot(name, value) → bool
+   └─ One-shot: override lasts exactly 1 tick, then auto-cleared
+
+2. hold_value(name, value, source) → bool
+   └─ Persistent: override persists until release_value() called
+
+3. release_value(name) → bool
+   └─ Clear override and force block re-evaluation
+
+4. is_overridden(name) → bool
+   └─ Query whether a connector has active override
+
+5. get_override(name) → Option<(source, value)>
+   └─ Inspect which override is active and its source
+
+6. clear_all_overrides() → void
+   └─ Clear all overrides at once (cleanup)
+
+Modified tick():
+  FOR each block:
+    IF output_cid is overridden: SKIP writing eval result
+    ELSE: signals[output_cid] = eval_result
+  
+  Clear expired snapshots (tick_set < current_tick)
+
+================================================================================
+USAGE EXAMPLES
+================================================================================
+
+Example 1: Simulate Sensor Failure
+───────────────────────────────────
+engine.hold_value("Room1.Temperature", 20.0, "sensor_fault");
+for tick in 0..100 {
+    engine.tick(0.01);
+    // Downstream blocks see constant 20.0
+}
+engine.release_value("Room1.Temperature");
+engine.tick(0.01);  // Resume normal operation
+
+Example 2: One-Off Test Stimulus
+─────────────────────────────────
+engine.inject_snapshot("PresenceDetector.OutputPresence", 1.0);
+engine.tick(0.01);  // Motion signal processed
+// Snapshot automatically cleared before next tick
+engine.tick(0.01);  // No motion
+
+Example 3: Emergency Shutdown
+──────────────────────────────
+if building_on_fire {
+    engine.hold_value("System.MainRelay", 0.0, "emergency");
+}
+// Cannot override until emergency is cleared
+
+Example 4: Debug Value Freezing
+────────────────────────────────
+for tick in 0..1000 {
+    engine.tick(0.01);
+    if engine.get_output("House.Temperature") > 30.0 {
+        engine.hold_value("HeatController.Output", 0.0, "debug_freeze");
+        // Investigate with heating frozen...
+        break;
+    }
+}
+
+================================================================================
+FILES REFERENCED IN ANALYSIS
+================================================================================
+
+Core Engine:
+  lox-sim/src/engine.rs           (880 lines)
+    ├─ SimEngine struct            (lines 36-49)
+    ├─ tick() method               (lines 265-387)
+    ├─ set_input() method          (lines 191-210)
+    ├─ inject_output() method      (lines 217-232)
+    ├─ Tests                       (lines 634-1215)
+    └─ eval_block_dual()           (lines 556-629)
+
+Block Definitions:
+  lox-sim/src/blocks/mod.rs       (500+ lines)
+    ├─ Block trait                 (lines 142-165)
+    ├─ PassThrough                 (lines 168-191)
+    ├─ RisingEdge                  (lines 246-270)
+    ├─ Gain                        (lines 272-298)
+    ├─ Block factory               (lines 342-500+)
+    └─ source blocks (SysVar)
+
+  lox-sim/src/blocks/io.rs        (150+ lines)
+    ├─ passthrough_io_block! macro (lines 14-42)
+    ├─ VirtualIn                   (lines 104-108)
+    └─ Other I/O blocks
+
+  lox-sim/src/blocks/misc.rs      (1400+ lines)
+    ├─ stub_block! macro           (lines 15-45)
+    └─ SysVar                      (stub)
+
+Graph & Types:
+  lox-sim/src/graph.rs            (400+ lines)
+    ├─ SimGraph struct             (lines 76-84)
+    ├─ BlockInfo struct            (lines 44-53)
+    ├─ add_block()                 (lines 103-133)
+    ├─ add_wire()                  (lines 136-156)
+    ├─ topological_order()         (lines 164-223)
+    └─ Accessors                   (lines 244-327)
+
+  lox-sim/src/types.rs            (97 lines)
+    ├─ Signal type                 (line 2)
+    ├─ ConnectorId type            (line 5)
+    ├─ BlockId type                (line 8)
+    ├─ ConnectorDir enum           (lines 11-16)
+    └─ ConnectorInfo struct        (lines 18-26)
+
+Tests:
+  lox-sim/tests/integration.rs    (200+ lines)
+    ├─ set_input() usage
+    ├─ Real fixture parsing
+    └─ Integration test patterns
+
+  lox-sim/src/engine.rs tests     (580+ lines)
+    ├─ single_passthrough
+    ├─ chain_propagation
+    ├─ dirty_flag_skips_unchanged_blocks
+    ├─ diamond_add_merge
+    ├─ feedback_loop_uses_previous_tick
+    └─ rising_edge_detection
+
+================================================================================
+IMPLEMENTATION ROADMAP
+================================================================================
+
+PHASE 1: Core Override Registry (1-2 days)
+──────────────────────────────────────────
+[x] Define OverrideState enum
+[x] Add overrides field to SimEngine
+[x] Add tick_counter field to SimEngine
+[ ] Modify tick() to skip output writes for overridden connectors
+[ ] Clear snapshot overrides post-tick
+
+PHASE 2: API Methods (1 day)
+────────────────────────────
+[ ] inject_snapshot() implementation
+[ ] hold_value() implementation
+[ ] release_value() implementation
+[ ] is_overridden() implementation
+[ ] get_override() implementation
+[ ] clear_all_overrides() implementation
+
+PHASE 3: Testing (2-3 days)
+───────────────────────────
+[ ] Unit tests: snapshot expiry
+[ ] Unit tests: held value persistence
+[ ] Unit tests: release behavior
+[ ] Integration tests: feedback with overrides
+[ ] Integration tests: edge detection with overrides
+[ ] Stress tests: many simultaneous overrides
+
+PHASE 4: Documentation (1 day)
+──────────────────────────────
+[ ] API documentation
+[ ] Examples in docstrings
+[ ] Integration guide
+[ ] Migration guide for set_input() users
+
+TOTAL ESTIMATE: 5-7 days
+
+================================================================================
+BACKWARD COMPATIBILITY
+================================================================================
+
+✓ set_input() behavior unchanged
+✓ inject_output() behavior unchanged
+✓ set_param() behavior unchanged
+✓ All existing tests pass
+✓ New functions are opt-in extensions
+
+No breaking changes to public API.
+
+================================================================================
+PERFORMANCE IMPACT
+================================================================================
+
+Memory:
+  - HashMap<ConnectorId, OverrideState>
+  - Typical: < 1KB for most simulations
+  - Worst case: O(number of overridden connectors)
+
+CPU:
+  - Lookup: O(1) amortized per output
+  - Insertion/removal: O(1) amortized
+  - Negligible impact on tick() runtime
+  - Clearing snapshots: O(number of active overrides)
+
+Trade-off: Minimal overhead for significant capability gain.
+
+================================================================================
+RISK ASSESSMENT
+================================================================================
+
+Risk: Overrides prevent block state from advancing
+──────────────────────────────────────────────────
+Mitigation: Override only output signals, not internal state
+Result: Block state continues to advance; output just bypassed
+
+Risk: Multiple overrides on same connector
+──────────────────────────────────────────
+Mitigation: HashMap allows only one override per connector
+Future:    Could add priority system if needed
+
+Risk: Forgotten overrides affecting subsequent tests
+───────────────────────────────────────────────────
+Mitigation: clear_all_overrides() + test harness documentation
+Future:    Add test cleanup fixtures
+
+================================================================================
+VALIDATION PLAN
+================================================================================
+
+1. Unit tests validate override behavior in isolation
+2. Integration tests validate with real Loxone configurations
+3. Regression tests ensure existing API unchanged
+4. Performance tests measure tick() overhead
+5. Edge case tests (empty engine, all blocks overridden, etc.)
+6. Documentation review by team
+
+================================================================================
+NEXT STEPS
+================================================================================
+
+1. Review this analysis with team
+2. Approve or refine design
+3. Assign implementation sprint
+4. Begin Phase 1: Core registry
+5. Iterative testing and refinement
+6. Documentation and release notes
+
+================================================================================
