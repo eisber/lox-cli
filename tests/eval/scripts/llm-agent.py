@@ -177,13 +177,10 @@ def _load_skill(name: str) -> str:
 
 def build_llm_prompt(case, config_path: str) -> str:
     config_skill = _load_skill("loxone-config")
-    sim_skill = _load_skill("loxone-sim")
     fixture_desc = _describe_fixture(config_path)
 
     return f"""\
 {config_skill}
-
-{sim_skill}
 
 ## Current Config
 File: {config_path}
@@ -193,8 +190,27 @@ File: {config_path}
 ## Task
 {case['utterance']}
 
-Respond ONLY with `lox` commands, one per line. No explanations.
-End with: lox config check {config_path}
+## Your Workflow (follow this order)
+
+1. **SEARCH**: Start by finding the right block types:
+   `lox blocks search "relevant keywords" -o json`
+
+2. **BUILD**: Add blocks, set params, wire connectors
+
+3. **CHECK**: Run `lox config check {config_path}` — fix any warnings/errors
+
+4. **TEST**: Run `lox sim run {config_path} --sim '...'` — verify signals propagate
+
+5. **FIX**: If sim fails, inspect with `lox sim dump` and fix wiring/blocks
+
+6. **DONE**: When sim passes and check is clean, output: DONE
+
+## Rules
+- Output `lox` commands one per line
+- You may output multiple rounds of commands — each will be executed
+- After executing, you'll see the stdout/stderr of each command
+- When satisfied, output the single word: DONE
+- Do NOT explain — just output commands or DONE
 """
 
 

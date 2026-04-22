@@ -130,18 +130,22 @@ def run_claude(utterance: str, config_path: str, work_dir: str) -> int:
 def run_builtin(utterance: str, config_path: str, work_dir: str,
                 model: str = "gpt-4o", verbose: bool = False) -> int:
     """Our built-in LLM loop (fallback via llm-agent.py)."""
-    # Reconstruct a minimal case dict for run_case
     case = {"id": Path(config_path).stem, "utterance": utterance, "expected": {}}
 
     client = _llm_agent._create_client()
     work_path = Path(work_dir)
 
-    # run_case copies the fixture itself, but we already copied it.
-    # We need to set FIXTURE to the existing config so the copy is a no-op.
+    # Prevent run_case from re-copying (file already in place)
     orig_fixture = _llm_agent.FIXTURE
+    _llm_agent.FIXTURE = Path(config_path).resolve()
+    # Use a separate work subdir so run_case's copy is to a different path
+    case_dir = work_path / "_builtin"
+    case_dir.mkdir(exist_ok=True)
+    shutil.copy2(config_path, case_dir / Path(config_path).name)
     try:
-        _llm_agent.FIXTURE = Path(config_path)
-        _llm_agent.run_case(case, work_path, client, model, verbose=verbose)
+        result_path, _, _ = _llm_agent.run_case(case, case_dir, client, model, verbose=verbose)
+        # Copy result back
+        shutil.copy2(str(result_path), config_path)
     finally:
         _llm_agent.FIXTURE = orig_fixture
 
