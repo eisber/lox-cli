@@ -134,9 +134,17 @@ pub fn parse_element(root: &Element) -> Result<SimGraph, String> {
         for &cid in &info.outputs {
             let key = format!("{}.{}", info.name, graph.connector(cid).key);
             name_to_output.insert(key, cid);
+            // Room-qualified: "Name [Room].Connector"
+            if let Some(ref room) = info.room {
+                let rkey = format!("{} [{}].{}", info.name, room, graph.connector(cid).key);
+                name_to_output.insert(rkey, cid);
+            }
         }
         if let Some(&cid) = info.outputs.first() {
             name_to_output.entry(info.name.clone()).or_insert(cid);
+            if let Some(ref room) = info.room {
+                name_to_output.entry(format!("{} [{}]", info.name, room)).or_insert(cid);
+            }
         }
     }
 

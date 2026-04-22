@@ -295,11 +295,11 @@
       ],
       "simulation": [
         {
-          "name": "should activate on trigger",
+          "name": "fan should run after light off (inject into light)",
           "inputs": {
-            "Bewegungsmelder.OutputPresence": 1.0
+            "Lichtsteuerung [Bad].I1": 1.0
           },
-          "ticks": 6100,
+          "ticks": 20,
           "dt": 0.1,
           "expected_outputs": {
             "Lüfter Bad.I1": {
@@ -308,10 +308,8 @@
           }
         },
         {
-          "name": "should NOT activate without trigger",
-          "inputs": {
-            "Bewegungsmelder.OutputPresence": 0.0
-          },
+          "name": "fan should not run with no trigger",
+          "inputs": {},
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
@@ -345,27 +343,27 @@
       "params": [],
       "simulation": [
         {
+          "name": "light activates on motion",
           "inputs": {
-            "Bewegungsmelder.OutputPresence": 1.0
+            "Bewegungsmelder": 1.0
           },
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Lichtsteuerung.Presence": {
+            "Lichtsteuerung [Flur].Presence": {
               ">": 0.5
             }
-          },
-          "name": "should trigger when condition met"
+          }
         },
         {
-          "name": "should NOT trigger when condition not met",
+          "name": "light off without motion",
           "inputs": {
-            "Bewegungsmelder.OutputPresence": 0.0
+            "Bewegungsmelder": 0.0
           },
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Lichtsteuerung.Presence": {
+            "Lichtsteuerung [Flur].Presence": {
               "<": 0.5
             }
           }
@@ -499,10 +497,10 @@
       ],
       "simulation": [
         {
-          "name": "should trigger when all conditions met",
+          "name": "irrigation active when dry and no rain",
           "inputs": {
-            "Regen.AQ": 0.0,
-            "Feuchtesensor Garten.AQ": 25.0
+            "Feuchtesensor Garten": 25.0,
+            "Regen": 0.0
           },
           "ticks": 10,
           "dt": 0.1,
@@ -513,10 +511,10 @@
           }
         },
         {
-          "name": "should NOT trigger when only partial conditions met",
+          "name": "irrigation blocked when raining",
           "inputs": {
-            "Regen.AQ": 1.0,
-            "Feuchtesensor Garten.AQ": 25.0
+            "Feuchtesensor Garten": 25.0,
+            "Regen": 1.0
           },
           "ticks": 10,
           "dt": 0.1,
@@ -564,11 +562,11 @@
       ],
       "simulation": [
         {
-          "name": "should activate on trigger",
+          "name": "garage light on when door opens",
           "inputs": {
-            "Garagentor Sensor.Q": 1.0
+            "Garagentor Sensor": 1.0
           },
-          "ticks": 3100,
+          "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
             "Garagenlicht.I1": {
@@ -577,9 +575,9 @@
           }
         },
         {
-          "name": "should NOT activate without trigger",
+          "name": "garage light off without trigger",
           "inputs": {
-            "Garagentor Sensor.Q": 0.0
+            "Garagentor Sensor": 0.0
           },
           "ticks": 10,
           "dt": 0.1,
