@@ -50,6 +50,11 @@ jobs:
       - name: Build lox-cli
         run: cargo build --release
 
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
       - name: Install Python deps
         run: pip install openai
 
@@ -57,8 +62,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           LOX_TELEMETRY: '0'
-          PATH: ${{ github.workspace }}/target/release:${{ env.PATH }}
         run: |
+          export PATH="${{ github.workspace }}/target/release:$PATH"
           python3 tests/eval/scripts/llm-agent.py \
             --all \
             --model "${{ inputs.model || 'gpt-4o' }}" \
