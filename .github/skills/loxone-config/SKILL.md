@@ -77,28 +77,14 @@ lox sim run FILE --sim '{"inputs":{"Sensor.AQ":value},"ticks":10,"dt":0.1,"expec
 - Outputs JSON with pass/fail and actual values
 - Comparators: `>`, `>=`, `<`, `<=`, `==`, `~=` (±5%)
 
-## Block Type Reference
+## Block Discovery
 
-| Type | Inputs | Outputs | Params |
-|------|--------|---------|--------|
-| GreaterEqual | Input1 (analog) | Q (1 if Input1 ≥ Input2) | Input2=threshold |
-| Less | Input1 (analog) | Q (1 if Input1 < Input2) | Input2=threshold |
-| Greater | Input1 (analog) | Q (1 if Input1 > Input2) | Input2=threshold |
-| And | I1, I2 (digital) | Q (1 if all inputs >0.5) | |
-| Or | I1, I2 (digital) | Q (1 if any input >0.5) | |
-| Not | I (digital) | Q (inverted) | |
-| Mult | Input1, Input2 | AQ (product) | Input2=factor |
-| Add | Input1, Input2 | AQ (sum) | |
-| Sub | Input1, Input2 | AQ (difference) | |
-| Memory | S (set), R (reset) | Q (stored value) | |
-| FlipFlop | InputS (set), InputR (reset) | Q (toggle) | |
-| Monoflop | InputTrigger | Q (pulse for Time seconds) | Time |
-| OnPulseDelay | InputTrigger | Q (delayed pulse: wait Delay, then on for Duration) | Delay, Duration |
-| StairwayLS | InputTrigger, On | Q (timed switch: on immediately for TimeHigh seconds) | TimeHigh |
-| OffDelay | InputTrigger | Q (stays on for Time after input goes off) | Time |
-| DayTimer | (internal clock) | AQ, Qon, Qoff | (schedule via timer-schedule cmd) |
-| PulseGen | InputEnable | Q (periodic pulse) | Period |
-| State | I1..I20 | AQ, TQ (selected state) | |
+Before adding blocks, search for the right type:
+
+```bash
+lox blocks search "what you want" -o json
+lox blocks info TypeName -o json
+```
 
 ### Key distinction: StairwayLS vs OnPulseDelay
 

@@ -237,6 +237,11 @@ pub(crate) enum Cmd {
         #[command(subcommand)]
         action: commands::sim_cmd::SimCmd,
     },
+    /// Search, inspect, and list Loxone automation block types
+    Blocks {
+        #[command(subcommand)]
+        action: BlocksCmd,
+    },
     /// Browse Loxone KB articles, datasheets, and technical documentation
     Docs {
         /// Search term or article slug (e.g. "lighting-controller", "mqtt", "nano")
@@ -250,6 +255,27 @@ pub(crate) enum Cmd {
         /// List all available articles
         #[arg(long)]
         list: bool,
+    },
+}
+
+#[derive(Subcommand)]
+pub(crate) enum BlocksCmd {
+    /// Search for block types by intent or keyword (e.g. "timed light", "blind wind")
+    Search {
+        /// Search query (natural language or block name)
+        query: String,
+    },
+    /// Show full details for a block type (inputs, outputs, parameters)
+    Info {
+        /// Block xml_type (e.g. StairwayLS, And, JalousieUpDown2)
+        block_type: String,
+    },
+    /// List block types, optionally filtered by category
+    #[command(alias = "ls")]
+    List {
+        /// Filter by category (logic, math, compare, timer, schedule, state, lighting, shading, hvac, security, energy, io, button, misc)
+        #[arg(long)]
+        category: Option<String>,
     },
 }
 
@@ -978,6 +1004,7 @@ fn command_name(cmd: &Cmd) -> String {
         Cmd::Completions { .. } => "completions".into(),
         Cmd::Schema { .. } => "schema".into(),
         Cmd::Sim { .. } => "sim".into(),
+        Cmd::Blocks { .. } => "blocks".into(),
         Cmd::Docs { .. } => "docs".into(),
     }
 }
@@ -1060,6 +1087,7 @@ fn run(cli: Cli) -> Result<()> {
         }
         Cmd::Schema { command } => commands::config_cmd::cmd_schema(&ctx, command),
         Cmd::Sim { action } => commands::sim_cmd::cmd_sim(action),
+        Cmd::Blocks { action } => commands::blocks_cmd::cmd_blocks(&ctx, action),
         Cmd::Docs {
             query,
             datasheet,
