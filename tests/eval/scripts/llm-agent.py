@@ -170,6 +170,10 @@ lox config wire-connector FILE "TargetBlock.InputConnector" "SourceBlock.OutputC
   - FIRST argument is the TARGET (input), SECOND is the SOURCE (output)
   - Signal flows: Source.Output → Target.Input
 
+### Add a schedule to a DayTimer block
+lox config timer-schedule FILE "DayTimerTitle" "HH:MM-HH:MM" --value VALUE
+  - Example: lox config timer-schedule config.Loxone "Nachtzeit" "22:00-06:00" --value 30
+
 ### Verify your work
 lox config check FILE
 

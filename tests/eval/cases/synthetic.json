@@ -156,29 +156,31 @@
       ],
       "simulation": [
         {
-          "name": "should scale output when active",
+          "name": "should dim to 30% at midnight (active period)",
           "inputs": {
-            "Mult.Input1": 1.0
+            "Nachtzeit.minutes_since_midnight": 0.0,
+            "Nachtzeit.day_of_week": 0.0
           },
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Lichtsteuerung.Brightness": {
+            "Lichtsteuerung [Flur].Brightness": {
               ">=": 25,
               "<=": 35
             }
           }
         },
         {
-          "name": "should produce no output when inactive",
+          "name": "should not dim at noon (inactive period)",
           "inputs": {
-            "Mult.Input1": 0.0
+            "Nachtzeit.minutes_since_midnight": 720.0,
+            "Nachtzeit.day_of_week": 0.0
           },
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Lichtsteuerung.Brightness": {
-              "<": 0.5
+            "Lichtsteuerung [Flur].Brightness": {
+              "<": 1
             }
           }
         }

@@ -1,0 +1,99 @@
+{
+  "summary": {
+    "total": 1,
+    "passed": 1,
+    "failed": 0,
+    "pass_rate": 1.0,
+    "xml_valid": 1,
+    "validation_pass": 1,
+    "avg_overall_score": 1.0,
+    "avg_weighted_score": 1.5,
+    "avg_block_f1": 1.0,
+    "avg_wiring_accuracy": 1.0,
+    "avg_wiring_precision": 1.0,
+    "avg_param_accuracy": 1.0,
+    "avg_ux_score": 1.0,
+    "total_cli_invocations": 14,
+    "total_retries": 0,
+    "total_tokens_input": 250,
+    "total_tokens_output": 1385,
+    "avg_cli_per_case": 14.0,
+    "avg_tokens_per_case": 1635.0
+  },
+  "by_difficulty": {
+    "medium": {
+      "count": 1,
+      "passed": 1,
+      "avg_score": 1.0,
+      "avg_block_f1": 1.0,
+      "avg_wiring": 1.0,
+      "avg_params": 1.0,
+      "avg_cli_invocations": 14.0,
+      "avg_tokens": 1385.0
+    }
+  },
+  "by_pattern": {
+    "threshold": {
+      "count": 1,
+      "passed": 1,
+      "avg_score": 1.0
+    },
+    "combined-condition": {
+      "count": 1,
+      "passed": 1,
+      "avg_score": 1.0
+    }
+  },
+  "cases": [
+    {
+      "pass": true,
+      "overall_score": 1.0,
+      "weighted_score": 1.5,
+      "xml_valid": true,
+      "validation_pass": true,
+      "validation_errors": 0,
+      "metrics": {
+        "blocks": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "true_positives": 2,
+          "false_positives": 0,
+          "false_negatives": 0
+        },
+        "wiring": {
+          "accuracy": 1.0,
+          "precision": 1.0,
+          "correct": 4,
+          "total": 4,
+          "extra": 0
+        },
+        "params": {
+          "accuracy": 1.0,
+          "correct": 1,
+          "total": 1
+        },
+        "ux": {
+          "score": 1.0,
+          "issues": []
+        }
+      },
+      "case_id": "s01-piano-protection",
+      "difficulty": "medium",
+      "patterns": [
+        "threshold",
+        "combined-condition"
+      ],
+      "utterance": "Lower blinds in the living room when it's sunny and above 20 degrees to protect the piano",
+      "cli_invocations": 14,
+      "retries": 0,
+      "validation_runs": 1,
+      "tokens": {
+        "input_chars": 1003,
+        "output_chars": 5543,
+        "input_tokens_est": 250,
+        "output_tokens_est": 1385
+      }
+    }
+  ]
+}
