@@ -69,11 +69,11 @@ def _build_instructions(utterance: str, config_path: str) -> str:
     return f"""\
 You are configuring a Loxone Miniserver. The config file is: {config_path}
 
-{skill_text}
+Read the skill reference at .github/skills/loxone-config/SKILL.md for CLI commands and block types.
 
 Follow this workflow:
 1. Search: lox blocks search "relevant keywords"
-2. Build: lox config add/wire-connector/set-param commands
+2. Build: use lox config add, wire-connector, set-param commands
 3. Check: lox config check {config_path}
 4. Test: lox sim run {config_path} --sim '...'
 5. Fix any issues and re-check
@@ -106,12 +106,13 @@ def run_opencode(utterance: str, config_path: str, work_dir: str) -> int:
 def run_copilot(utterance: str, config_path: str, work_dir: str) -> int:
     """Run GitHub Copilot CLI."""
     instructions = _build_instructions(utterance, config_path)
+    project_root = str(EVAL_DIR.parent.parent)
 
     result = subprocess.run(
         ["copilot", "-p", instructions,
-         "--add-dir", work_dir, "--allow-all"],
+         "--add-dir", work_dir, "--add-dir", project_root, "--allow-all"],
         capture_output=True, text=True, timeout=AGENT_TIMEOUT,
-        cwd=work_dir,
+        cwd=project_root,
     )
     return result.returncode
 
