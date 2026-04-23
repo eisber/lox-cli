@@ -238,3 +238,5 @@ lox config check config.Loxone
 5. **Connector names are case-sensitive**: `Input1` not `input1`, `InputTrigger` not `Trigger`, `AQ` not `aq`.
 6. **Analog vs digital**: Comparison blocks (GreaterEqual, Less) output digital (0/1). Mult, Add output analog. Wire analog→analog and digital→digital inputs.
 7. **Missing parameters**: Always set threshold values (Input2) on comparison blocks. Always set TimeHigh on StairwayLS, Time on Monoflop.
+8. **⚠ ALWAYS wire the output**: Every logic block's output (Q or AQ) MUST be wired to an actuator or next block. A block with unwired output does nothing. After wiring inputs, always wire the output too.
+9. **Complete the signal chain**: sensor → logic block → actuator. All three must be connected. Run `lox config check` to verify — it warns about disconnected outputs.
