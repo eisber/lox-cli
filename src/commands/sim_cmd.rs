@@ -162,6 +162,22 @@ fn run_one(graph: &SimGraph, spec: &SimSpec) -> ScenarioResult {
                 break;
             }
         }
+        if found {
+            continue;
+        }
+        // Fallback: inject into output connector (for non-source blocks)
+        if engine.inject_output(key, *value) {
+            continue;
+        }
+        if engine.inject_output(block_name, *value) {
+            continue;
+        }
+        for c in &candidates {
+            if engine.inject_output(c, *value) {
+                found = true;
+                break;
+            }
+        }
         if !found {
             eprintln!("warning: could not set input '{key}'");
         }

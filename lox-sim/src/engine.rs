@@ -198,12 +198,24 @@ impl SimEngine {
                 self.signals[cid] = value;
                 let block_id = self.graph.connector(cid).block_id;
                 self.dirty[block_id] = true;
-                // When setting an output connector directly (source blocks),
-                // also mark downstream blocks dirty so the value propagates.
                 if self.graph.connector(cid).dir == ConnectorDir::Output {
+                    self.output_overrides.insert(cid, value);
                     for &ds in &self.downstream[block_id] {
                         self.dirty[ds] = true;
                     }
+                }
+            }
+            true
+        } else if let Some(cids) = self.named_outputs.get(name) {
+            // Name matched an output connector — use persistent override
+            let cids = cids.clone();
+            for &cid in &cids {
+                self.output_overrides.insert(cid, value);
+                self.signals[cid] = value;
+                let block_id = self.graph.connector(cid).block_id;
+                self.dirty[block_id] = true;
+                for &ds in &self.downstream[block_id] {
+                    self.dirty[ds] = true;
                 }
             }
             true
