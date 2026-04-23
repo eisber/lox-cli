@@ -88,17 +88,19 @@ lox blocks info TypeName -o json
 
 ### Key distinction: StairwayLS vs OnPulseDelay vs OffDelay
 
-⚠ **IMPORTANT**: For "turn on X for N minutes when triggered", ALWAYS use **StairwayLS**.
+⚠ **Choose the right timer block based on behavior:**
 
 | Block | Behavior | Use When |
 |-------|----------|----------|
-| **StairwayLS** | Trigger → ON immediately for TimeHigh seconds → OFF | "turn on light for 5 min", "garage light for 5 min when door opens" |
-| **OnPulseDelay** | Trigger → WAIT Delay seconds → ON for Duration → OFF | "wait 10s then beep for 2s" |
+| **StairwayLS** | Trigger → ON immediately for TimeHigh seconds → OFF | "turn on light for 5 min", "garage light when door opens" |
+| **OnPulseDelay** | Trigger → WAIT Delay seconds → ON for Duration → OFF | "wait 10s then beep for 2s", "delayed pump start" |
 | **OffDelay** | Input ON → Output ON. Input OFF → Output stays ON for Time more seconds → OFF | "fan stays on 10 min after light turns off" |
 | **Monoflop** | Trigger → ON for Time seconds (re-triggerable) | "pulse for exactly N seconds" |
 
-**Never use OnPulseDelay for timed lights or garage lights.** Use StairwayLS.
-**Use OffDelay for "keep running after trigger stops"** (e.g., bathroom fan after light off).
+**Decision rule:**
+- Immediate timed-on? → **StairwayLS**
+- Keep on after input drops? → **OffDelay**
+- Wait then pulse? → **OnPulseDelay**
 
 ## Fixture Sensors (wire FROM these outputs)
 
@@ -238,5 +240,5 @@ lox config check config.Loxone
 5. **Connector names are case-sensitive**: `Input1` not `input1`, `InputTrigger` not `Trigger`, `AQ` not `aq`.
 6. **Analog vs digital**: Comparison blocks (GreaterEqual, Less) output digital (0/1). Mult, Add output analog. Wire analog→analog and digital→digital inputs.
 7. **Missing parameters**: Always set threshold values (Input2) on comparison blocks. Always set TimeHigh on StairwayLS, Time on Monoflop.
-8. **⚠ ALWAYS wire the output**: Every logic block's output (Q or AQ) MUST be wired to an actuator or next block. A block with unwired output does nothing. After wiring inputs, always wire the output too.
-9. **Complete the signal chain**: sensor → logic block → actuator. All three must be connected. Run `lox config check` to verify — it warns about disconnected outputs.
+8. **⚠ ALWAYS wire the output**: Every logic block's output (Q or AQ) MUST be wired to an actuator or the next block. A block with unwired output does nothing. After wiring inputs, always wire the output too.
+9. **Complete the signal path**: Ensure there is a complete path from source (sensor, schedule, switch) to the final target actuator. Don't leave intermediate outputs disconnected. Run `lox config check` to verify.
