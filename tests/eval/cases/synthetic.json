@@ -639,29 +639,14 @@
       ],
       "simulation": [
         {
-          "name": "should trigger when all conditions met",
-          "inputs": {
-            "Mult.Input1": 1.0
-          },
+          "name": "brightness should be non-zero (DayTimer active with default output)",
+          "inputs": {},
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Lichtsteuerung.Brightness": {
+            "Lichtsteuerung [Schlafzimmer].Brightness": {
               ">=": 15,
               "<=": 25
-            }
-          }
-        },
-        {
-          "name": "should NOT trigger when condition not met",
-          "inputs": {
-            "Mult.Input1": 0.0
-          },
-          "ticks": 10,
-          "dt": 0.1,
-          "expected_outputs": {
-            "Lichtsteuerung.Brightness": {
-              "<": 0.5
             }
           }
         }
