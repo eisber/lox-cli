@@ -199,7 +199,15 @@ impl SimEngine {
                 let block_id = self.graph.connector(cid).block_id;
                 self.dirty[block_id] = true;
                 if self.graph.connector(cid).dir == ConnectorDir::Output {
-                    self.output_overrides.insert(cid, value);
+                    // Only override non-source blocks. Source blocks (SysVar,
+                    // VirtualIn, PassThrough) naturally pass values through —
+                    // overriding them would freeze the output and break edge
+                    // detection in downstream blocks.
+                    let bt = self.blocks[block_id].block_type();
+                    if !matches!(bt, "SysVar" | "VirtualIn" | "PassThrough"
+                        | "VirtualOut" | "VirtualState") {
+                        self.output_overrides.insert(cid, value);
+                    }
                     for &ds in &self.downstream[block_id] {
                         self.dirty[ds] = true;
                     }

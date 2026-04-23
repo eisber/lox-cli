@@ -99,8 +99,14 @@ impl Block for OnPulseDelay {
         let duration = params.get(1).copied().unwrap_or(0.5).max(0.0);
 
         if !is_high(prev_trigger) && is_high(trigger) {
-            self.delay_remaining = delay;
-            self.pulse_remaining = 0.0;
+            if delay <= 0.0 {
+                // No delay — start pulse immediately
+                self.pulse_remaining = duration.max(dt);
+                self.delay_remaining = 0.0;
+            } else {
+                self.delay_remaining = delay;
+                self.pulse_remaining = 0.0;
+            }
         }
 
         let mut q = false;

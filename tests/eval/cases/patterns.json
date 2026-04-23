@@ -197,27 +197,25 @@
       ],
       "simulation": [
         {
-          "name": "should activate on trigger",
+          "name": "door opens after delay (test at t=2s during pulse)",
           "inputs": {
             "Türklingel.Q": 1.0
           },
-          "ticks": 10,
+          "ticks": 20,
           "dt": 0.1,
           "expected_outputs": {
-            "Türöffner.I1": {
+            "Türöffner [Flur].I1": {
               ">": 0.5
             }
           }
         },
         {
-          "name": "should NOT activate without trigger",
-          "inputs": {
-            "Türklingel.Q": 0.0
-          },
+          "name": "door stays closed without trigger",
+          "inputs": {},
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Türöffner.I1": {
+            "Türöffner [Flur].I1": {
               "<": 0.5
             }
           }
