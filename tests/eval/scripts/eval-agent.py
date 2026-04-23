@@ -108,7 +108,7 @@ def run_copilot(utterance: str, config_path: str, work_dir: str) -> int:
     instructions = _build_instructions(utterance, config_path)
 
     result = subprocess.run(
-        ["npx", "@github/copilot", "-p", instructions,
+        ["copilot", "-p", instructions,
          "--add-dir", work_dir, "--allow-all"],
         capture_output=True, text=True, timeout=AGENT_TIMEOUT,
         cwd=work_dir,
@@ -255,6 +255,7 @@ def main():
     parser.add_argument("--filter", help="Filter cases by pattern/difficulty/keyword")
     parser.add_argument("--section", help="Only run a specific case section")
     parser.add_argument("--max-cases", type=int, help="Max cases to run")
+    parser.add_argument("--skip", type=int, default=0, help="Skip first N cases")
     parser.add_argument(
         "--agent", default="copilot",
         choices=list(AGENTS.keys()),
@@ -298,6 +299,8 @@ def main():
             sys.exit(2)
     else:
         cases = load_cases(args.filter, args.section, args.max_cases)
+        if args.skip:
+            cases = cases[args.skip:]
 
     print(f"Eval Agent — agent={args.agent}  model={args.model}  cases={len(cases)}")
     print(f"Fixture: {FIXTURE}")
