@@ -61,6 +61,10 @@ impl Block for Monoflop {
     fn is_edge_sensitive(&self) -> bool {
         true
     }
+
+    fn is_time_dependent(&self) -> bool {
+        true
+    }
 }
 
 /// Delayed pulse: rising edge starts a delay, then emits a pulse for Time seconds.
@@ -148,6 +152,10 @@ impl Block for OnPulseDelay {
     fn is_edge_sensitive(&self) -> bool {
         true
     }
+
+    fn is_time_dependent(&self) -> bool {
+        true
+    }
 }
 
 /// Switch-off delay: output remains high for Time seconds after the trigger falls.
@@ -212,6 +220,10 @@ impl Block for OffDelay {
     }
 
     fn is_edge_sensitive(&self) -> bool {
+        true
+    }
+
+    fn is_time_dependent(&self) -> bool {
         true
     }
 }
@@ -279,6 +291,10 @@ impl Block for StairwayLS {
     }
 
     fn is_edge_sensitive(&self) -> bool {
+        true
+    }
+
+    fn is_time_dependent(&self) -> bool {
         true
     }
 }
@@ -448,6 +464,10 @@ impl Block for EdgeDetection {
     }
 
     fn is_edge_sensitive(&self) -> bool {
+        true
+    }
+
+    fn is_time_dependent(&self) -> bool {
         true
     }
 }
@@ -840,6 +860,10 @@ impl Block for EdgeWipingRelay {
     fn is_edge_sensitive(&self) -> bool {
         true
     }
+
+    fn is_time_dependent(&self) -> bool {
+        true
+    }
 }
 
 /// Generic switching timer: rising edge turns output on for a configurable
@@ -910,6 +934,10 @@ impl Block for SwitchingTimer {
     }
 
     fn is_edge_sensitive(&self) -> bool {
+        true
+    }
+
+    fn is_time_dependent(&self) -> bool {
         true
     }
 }

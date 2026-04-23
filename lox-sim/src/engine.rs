@@ -21,6 +21,9 @@ struct BlockEvalInfo {
     param_cids: Vec<ConnectorId>,
     /// Whether the block uses prev_inputs for edge detection.
     edge_sensitive: bool,
+    /// Whether the block has time-dependent state (timers, counters) that
+    /// must be re-evaluated every tick even when inputs haven't changed.
+    time_dependent: bool,
     /// Previous-tick inputs as seen during last evaluation (for dirty detection).
     last_prev_inputs: Vec<f64>,
 }
@@ -82,11 +85,13 @@ impl SimEngine {
                     .collect();
                 let n_inputs = input_sources.len();
                 let edge_sensitive = blocks[bid].is_edge_sensitive();
+                let time_dependent = blocks[bid].is_time_dependent();
                 BlockEvalInfo {
                     input_sources,
                     output_cids: info.outputs.clone(),
                     param_cids: info.params.clone(),
                     edge_sensitive,
+                    time_dependent,
                     last_prev_inputs: vec![0.0; n_inputs],
                 }
             })
@@ -317,6 +322,15 @@ impl SimEngine {
         let mut blocks_evaluated = 0usize;
         let mut blocks_skipped = 0usize;
         let mut signal_changes = 0u64;
+
+        // Mark time-dependent blocks (timers, delays) as dirty every tick
+        // so they re-evaluate internal countdown/pulse state even when
+        // inputs haven't changed.
+        for (bid, ei) in self.eval_info.iter().enumerate() {
+            if ei.time_dependent {
+                self.dirty[bid] = true;
+            }
+        }
 
         for idx in 0..self.topo_order.len() {
             let block_id = self.topo_order[idx];

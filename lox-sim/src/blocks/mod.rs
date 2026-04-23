@@ -162,6 +162,12 @@ pub trait Block: Send + Sync + BlockClone {
     fn is_edge_sensitive(&self) -> bool {
         false
     }
+
+    /// Whether the block has time-dependent internal state that needs
+    /// re-evaluation every tick (timers, counters, delays).
+    fn is_time_dependent(&self) -> bool {
+        false
+    }
 }
 
 /// Passes first input to output unchanged.
