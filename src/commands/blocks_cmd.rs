@@ -106,7 +106,10 @@ const ALIASES: &[(&str, &[&str])] = &[
     ("speicher", &["AMemory"]),
     ("merker", &["AMemory", "FlipFlop"]),
     ("zähler", &["Counter", "UpDownCounter"]),
-    ("schwellwert", &["GreaterEqual", "Less", "AnalogThresholdTrigger"]),
+    (
+        "schwellwert",
+        &["GreaterEqual", "Less", "AnalogThresholdTrigger"],
+    ),
     ("größer", &["GreaterEqual", "Greater"]),
     ("kleiner", &["Less", "LessEqual"]),
     ("vergleich", &["GreaterEqual", "Less", "Equal"]),
@@ -138,7 +141,10 @@ const ALIASES: &[(&str, &[&str])] = &[
     ("frostschutz", &["Less"]),
     ("windschutz", &["GreaterEqual"]),
     ("regenschutz", &["GreaterEqual", "Not"]),
-    ("temperatur", &["GreaterEqual", "Less", "HeatIRoomController2"]),
+    (
+        "temperatur",
+        &["GreaterEqual", "Less", "HeatIRoomController2"],
+    ),
     ("feuchtigkeit", &["GreaterEqual", "Less", "DewPoint"]),
     ("taupunkt", &["DewPoint"]),
     ("nacht", &["DayTimer", "Less"]),
@@ -331,16 +337,26 @@ struct ConnectorEntry {
     conn_type: String, // "Input", "Output", "Parameter"
     name: String,
     short: String,
+    summary: Option<String>,
     default: Option<String>,
     min: Option<String>,
     max: Option<String>,
     unit: Option<String>,
 }
 
+fn load_connector_summaries() -> HashMap<String, HashMap<String, String>> {
+    let json_str = include_str!("../../docs/schemas/connector-summaries.json");
+    let raw: HashMap<String, HashMap<String, String>> =
+        serde_json::from_str(json_str).unwrap_or_default();
+    raw
+}
+
 fn load_block_index() -> Vec<BlockEntry> {
     let json_str = include_str!("../../docs/schemas/loxone-block-types-full.json");
     let raw: HashMap<String, serde_json::Value> =
         serde_json::from_str(json_str).unwrap_or_default();
+
+    let summaries = load_connector_summaries();
 
     let mut blocks = Vec::with_capacity(raw.len());
     for (xml_type, val) in &raw {
@@ -350,31 +366,38 @@ fn load_block_index() -> Vec<BlockEntry> {
             .unwrap_or(xml_type)
             .to_string();
 
+        let type_summaries = summaries.get(xml_type);
+
         let connectors = val
             .get("connectors")
             .and_then(|c| c.as_array())
             .map(|arr| {
                 arr.iter()
-                    .map(|c| ConnectorEntry {
-                        conn_type: c
-                            .get("type")
-                            .and_then(|v| v.as_str())
-                            .unwrap_or("")
-                            .to_string(),
-                        name: c
-                            .get("name")
-                            .and_then(|v| v.as_str())
-                            .unwrap_or("")
-                            .to_string(),
-                        short: c
+                    .map(|c| {
+                        let short = c
                             .get("short")
                             .and_then(|v| v.as_str())
                             .unwrap_or("")
-                            .to_string(),
-                        default: c.get("default").and_then(|v| v.as_str()).map(String::from),
-                        min: c.get("min").and_then(|v| v.as_str()).map(String::from),
-                        max: c.get("max").and_then(|v| v.as_str()).map(String::from),
-                        unit: c.get("unit").and_then(|v| v.as_str()).map(String::from),
+                            .to_string();
+                        let summary = type_summaries.and_then(|s| s.get(&short)).cloned();
+                        ConnectorEntry {
+                            conn_type: c
+                                .get("type")
+                                .and_then(|v| v.as_str())
+                                .unwrap_or("")
+                                .to_string(),
+                            name: c
+                                .get("name")
+                                .and_then(|v| v.as_str())
+                                .unwrap_or("")
+                                .to_string(),
+                            short,
+                            summary,
+                            default: c.get("default").and_then(|v| v.as_str()).map(String::from),
+                            min: c.get("min").and_then(|v| v.as_str()).map(String::from),
+                            max: c.get("max").and_then(|v| v.as_str()).map(String::from),
+                            unit: c.get("unit").and_then(|v| v.as_str()).map(String::from),
+                        }
                     })
                     .collect()
             })
@@ -542,10 +565,7 @@ fn blocks_search(ctx: &RunContext, query: &str) -> Result<()> {
         );
     } else {
         println!("Search: \"{}\"\n", query);
-        println!(
-            "{:<24} {:<30} {:>6}  CATEGORY",
-            "TYPE", "NAME", "SCORE"
-        );
+        println!("{:<24} {:<30} {:>6}  CATEGORY", "TYPE", "NAME", "SCORE");
         println!("{}", "─".repeat(76));
         for (xml_type, score, name) in &results {
             let cat = category_for(xml_type).unwrap_or("-");
@@ -629,6 +649,9 @@ fn blocks_info(ctx: &RunContext, block_type: &str) -> Result<()> {
                 "name": c.name,
                 "short": c.short,
             });
+            if let Some(s) = &c.summary {
+                obj["summary"] = serde_json::Value::String(s.clone());
+            }
             if let Some(d) = &c.default {
                 obj["default"] = serde_json::Value::String(d.clone());
             }
@@ -678,12 +701,7 @@ fn blocks_info(ctx: &RunContext, block_type: &str) -> Result<()> {
         if !inputs.is_empty() {
             println!("  Inputs:");
             for c in &inputs {
-                let detail = format_connector_detail(c);
-                if detail.is_empty() {
-                    println!("    {:<20} {}", c.name, c.short);
-                } else {
-                    println!("    {:<20} {} {}", c.name, c.short, detail);
-                }
+                print_connector(c);
             }
             println!();
         }
@@ -691,12 +709,7 @@ fn blocks_info(ctx: &RunContext, block_type: &str) -> Result<()> {
         if !outputs.is_empty() {
             println!("  Outputs:");
             for c in &outputs {
-                let detail = format_connector_detail(c);
-                if detail.is_empty() {
-                    println!("    {:<20} {}", c.name, c.short);
-                } else {
-                    println!("    {:<20} {} {}", c.name, c.short, detail);
-                }
+                print_connector(c);
             }
             println!();
         }
@@ -704,12 +717,7 @@ fn blocks_info(ctx: &RunContext, block_type: &str) -> Result<()> {
         if !params.is_empty() {
             println!("  Parameters:");
             for c in &params {
-                let detail = format_connector_detail(c);
-                if detail.is_empty() {
-                    println!("    {:<20} {}", c.name, c.short);
-                } else {
-                    println!("    {:<20} {} {}", c.name, c.short, detail);
-                }
+                print_connector(c);
             }
             println!();
         }
@@ -779,9 +787,9 @@ fn load_scenarios_for_type(xml_type: &str) -> Vec<(String, String)> {
                 .and_then(|e| e.get("new_blocks"))
                 .and_then(|b| b.as_array());
             if let Some(blocks) = blocks {
-                let uses_type = blocks.iter().any(|b| {
-                    b.get("type").and_then(|t| t.as_str()) == Some(xml_type)
-                });
+                let uses_type = blocks
+                    .iter()
+                    .any(|b| b.get("type").and_then(|t| t.as_str()) == Some(xml_type));
                 if uses_type {
                     let difficulty = case
                         .get("difficulty")
@@ -826,6 +834,16 @@ fn format_connector_detail(c: &ConnectorEntry) -> String {
         String::new()
     } else {
         format!("({})", parts.join(", "))
+    }
+}
+
+fn print_connector(c: &ConnectorEntry) {
+    let label = c.summary.as_deref().unwrap_or(&c.short);
+    let detail = format_connector_detail(c);
+    if detail.is_empty() {
+        println!("    {:<20} {}", c.name, label);
+    } else {
+        println!("    {:<20} {} {}", c.name, label, detail);
     }
 }
 

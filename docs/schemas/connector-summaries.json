@@ -1,0 +1,1309 @@
+{
+  "2Point": {
+    "Hys": "Hysteresis",
+    "Inv": "Inverted",
+    "O": "Output",
+    "PV": "Process value",
+    "SP": "Setpoint"
+  },
+  "3Point": {
+    "O1": "Output 1",
+    "O2": "Output 2",
+    "PV": "Process value",
+    "SP1": "Setpoint 1",
+    "SP2": "Setpoint 2"
+  },
+  "AMemory": {
+    "Off": "Off",
+    "Set": "Set value to output (V)",
+    "V": "Value"
+  },
+  "AMinmax": {
+    "Max": "Maximum",
+    "Min": "Minimum",
+    "V": "Value"
+  },
+  "AalEmergency": {
+    "A": "Activate alarm",
+    "Ca": "Cause of alarm",
+    "Cc": "Cause of confirmation",
+    "Ta": "Push & hold time alarm",
+    "Tc": "Push & hold time confirmation",
+    "Tg": "Toggle push & hold"
+  },
+  "AalSmartAlarm": {
+    "A": "Activate alarm",
+    "Dis": "Disable",
+    "Tb": "Time bedroom",
+    "Tc": "Time common room",
+    "Tt": "Time transit room"
+  },
+  "AcControl": {
+    "Hys": "Hysteresis",
+    "O": "Target Offset",
+    "Ptd": "Pause timer duration",
+    "Status": "Device-Status",
+    "maxT": "Maximum Target Temperature",
+    "minT": "Minimum Target Temperature"
+  },
+  "Access": {
+    "Dsel": "Duration Access Controller selected",
+    "Eid": "External Authentication ID",
+    "P": "Permission given",
+    "Pd": "Pulse duration",
+    "Sel": "Select access controller"
+  },
+  "Add": {
+    "O": "(O) = (V1) + (V2)"
+  },
+  "Add4": {
+    "O": "(O) = (V1) + (V2) + (V3) + (V4)"
+  },
+  "Alarm": {
+    "Aoc": "Arm open contact",
+    "At": "Alarm test",
+    "Atm": "Alarm test mode",
+    "Ca": "Cause of alarm",
+    "Eip": "Extension of alarm input pulses",
+    "MaxA": "Maximum alarm duration",
+    "S": "Status",
+    "Sac": "Silent alarm confirmation",
+    "Spt": "Second presence sensor time window",
+    "Ta": "Time and date of alarm",
+    "WDot": "Text output for open windows / doors",
+    "WDs": "Window / door state"
+  },
+  "AlarmChain": {
+    "A": "Alarm",
+    "AEs": "Alarm text emergency services",
+    "As": "Current alarm stage",
+    "Au": "Urgent alarm",
+    "Ca": "Confirm alarm",
+    "MaxR": "Maximum repetitions",
+    "Rt": "Reaction time"
+  },
+  "AlarmClock": {
+    "A": "Alarm",
+    "As": "Alarm sound (Touch Nightlight)",
+    "Asf": "Alarm sound fade-in (Touch Nightlight)",
+    "Asv": "Alarm sound volume (Touch Nightlight)",
+    "Bra": "Touch Nightlight display brightness active",
+    "Bri": "Touch Nightlight display brightness inactive",
+    "Buzzer": "Buzzer",
+    "Ca": "Confirm alarm",
+    "Da": "Default alarm state",
+    "DisA": "Disable alarm entries",
+    "MaxA": "Maximum alarm duration",
+    "Pa": "Pre-alarm",
+    "Pat": "Pre-alarm time",
+    "S": "Start snooze timer",
+    "Sd": "Snooze duration",
+    "Set": "Set alarm time for default alarm",
+    "Tg": "Toggle",
+    "Tna": "Time of next alarm"
+  },
+  "AnalogComparator": {
+    "V1": "Value 1",
+    "V2": "Value 2",
+    "Voff": "Off-value",
+    "Von": "On-value"
+  },
+  "AnalogDiffTrigger": {
+    "T": "1 depending on the set threshold values.",
+    "Teoff": "Pulse on falling edge",
+    "Teon": "Pulse on rising edge",
+    "V": "Value"
+  },
+  "AnalogMultiplexer": {
+    "Sel": "Select value",
+    "V": "Value"
+  },
+  "AnalogMultiplexer2": {
+    "Sel": "Select value",
+    "V": "Value"
+  },
+  "AnalogScaler": {
+    "Sv": "Scaled value",
+    "Sv1": "Scaled value 1",
+    "Sv2": "Scaled value 2",
+    "V": "Value",
+    "V1": "Value 1",
+    "V2": "Value 2"
+  },
+  "AnalogStepper": {
+    "Dir": "Direction",
+    "M": "Maximum",
+    "V": "Set value"
+  },
+  "AnalogThresholdTrigger": {
+    "Off": "Pulse at falling edge",
+    "On": "Pulse at rising edge",
+    "Pd": "Pulse duration",
+    "V": "Value"
+  },
+  "AnalogWatchdog": {
+    "Te": "1 when threshold exceeded"
+  },
+  "And": {
+    "I1": "Input 1",
+    "I2": "Input 2",
+    "O": "Output"
+  },
+  "AutoJalousie": {
+    "AQpp": "Command output",
+    "Bld": "Backlash duration",
+    "Bldo": "Backlash duration opposite",
+    "Cl": "Close",
+    "Dir": "Compass direction",
+    "Dte": "Direction tolerance end",
+    "Dts": "Direction tolerance start",
+    "Mld": "Motor lock duration",
+    "Off": "Off",
+    "Op": "Open",
+    "Pos": "Position of shading",
+    "Rd": "Return duration",
+    "Rdd": "Reference Drive Down",
+    "Sd": "Slat distance",
+    "Slat": "Position of slats",
+    "Sp": "Sun position automatic",
+    "Spe": "Sun position automatic end action",
+    "Spi": "Sun position automatic interval",
+    "Spm": "Sun position automatic mode",
+    "Spoe": "Sun position automatic end offset",
+    "Spos": "Sun position automatic start offset",
+    "Sw": "Slat width",
+    "TPos": "Target position",
+    "Tdc": "Time double-click",
+    "Tlc": "Time long-click",
+    "Type": "Shading type",
+    "Wap": "Wind alarm position",
+    "Wds": "Wind, door/window contact state",
+    "minTd": "Minimum travel duration"
+  },
+  "AutomaticScene": {
+    "Off": "Off"
+  },
+  "AutopilotRule": {
+    "Tg": "Toggle"
+  },
+  "Average": {
+    "Avg": "Average"
+  },
+  "Avg": {
+    "Avg": "Average",
+    "C": "Polling cycle",
+    "N": "Number of readings",
+    "R": "Reset",
+    "V": "Value"
+  },
+  "BinDecoder": {
+    "V": "Value"
+  },
+  "BinEncoder": {
+    "V": "Calculated output value"
+  },
+  "BrightnessControl": {
+    "Act": "Activation",
+    "Hys": "Hysteresis",
+    "Lc": "Light circuits",
+    "Sts": "Step size"
+  },
+  "CallGen": {
+    "Td": "Trigger Delay",
+    "Tr": "Triggers output",
+    "Tu": "Update Interval",
+    "Uid": "User-ID"
+  },
+  "CarCharger": {
+    "Cp": "Current charging power",
+    "Cpl": "Charging power limit",
+    "E": "Charged energy",
+    "M": "Charging power limit mode",
+    "Mr": "Remember mode",
+    "Profile": "Select profile",
+    "R": "Reset",
+    "Sc": "Start of charging process",
+    "Vc": "Vehicle connected"
+  },
+  "CentralAlarm": {
+    "Na": "Active Armed Alarms"
+  },
+  "CentralGate": {
+    "Nc": "Closed gates",
+    "No": "Open gates",
+    "Po": "Partially Open"
+  },
+  "CentralLight": {
+    "Na": "Active Lights"
+  },
+  "CentralMusic": {
+    "Na": "Active Audio Players",
+    "Roff": "Ignore room off command"
+  },
+  "CentralRoofwindow": {
+    "Nc": "Closed windows",
+    "No": "Open windows",
+    "So": "Slightly Open"
+  },
+  "CentralShade": {
+    "Nc": "Closed shades",
+    "No": "Open shades"
+  },
+  "ClimateControllerUS": {
+    "B": "Boost",
+    "E": "Emergency Heat",
+    "Ec": "Excess cooling",
+    "Eh": "Excess heating",
+    "Emh": "Emergency Heat",
+    "Fan": "Fan",
+    "G": "Fan",
+    "H": "Humidity",
+    "Mode": "Mode",
+    "O/B": "Reversing valve",
+    "W/W1": "1st stage heating",
+    "W2": "2nd stage heating",
+    "Y": "Compressor",
+    "Y2": "2nd stage cooling",
+    "ϑo": "Outdoor temperature"
+  },
+  "CmdRecognition": {
+    "Lv": "Last extracted value",
+    "T": "Text Input"
+  },
+  "Counter": {
+    "C": "Count",
+    "Lr": "1 when (V) = (L)",
+    "V": "Counter value"
+  },
+  "DayTimer": {
+    "Act": "Activate",
+    "Am": "Automatic mode",
+    "Don": "On-duration of output (O)",
+    "Mm": "Manual mode",
+    "O": "Output",
+    "Off": "Off",
+    "Rt": "Remaining time"
+  },
+  "DbConE": {
+    "CI1": "Custom input 1",
+    "CI10": "Custom input 10",
+    "CI11": "Custom input 11",
+    "CI12": "Custom input 12",
+    "CI13": "Custom input 13",
+    "CI14": "Custom input 14",
+    "CI15": "Custom input 15",
+    "CI16": "Custom input 16",
+    "CI2": "Custom input 2",
+    "CI3": "Custom input 3",
+    "CI4": "Custom input 4",
+    "CI5": "Custom input 5",
+    "CI6": "Custom input 6",
+    "CI7": "Custom input 7",
+    "CI8": "Custom input 8",
+    "CI9": "Custom input 9",
+    "ETr": "Trigger",
+    "Log": "Log output",
+    "Td": "Trigger Delay",
+    "Uid": "User-ID"
+  },
+  "DbConS": {
+    "CI1": "Custom input 1",
+    "CI10": "Custom input 10",
+    "CI11": "Custom input 11",
+    "CI12": "Custom input 12",
+    "CI13": "Custom input 13",
+    "CI14": "Custom input 14",
+    "CI15": "Custom input 15",
+    "CI16": "Custom input 16",
+    "CI2": "Custom input 2",
+    "CI3": "Custom input 3",
+    "CI4": "Custom input 4",
+    "CI5": "Custom input 5",
+    "CI6": "Custom input 6",
+    "CI7": "Custom input 7",
+    "CI8": "Custom input 8",
+    "CI9": "Custom input 9",
+    "Log": "Log output",
+    "SEnd": "Session end",
+    "SStart": "Session start",
+    "Sa": "Session active",
+    "Td": "Trigger Delay",
+    "Uid": "User-ID"
+  },
+  "DewPoint": {
+    "H": "Relative Humidity",
+    "O": "Output Offset",
+    "ϑ": "Temperature",
+    "ϑd": "Dew Point"
+  },
+  "Div": {
+    "V1": "Value 1",
+    "V2": "Value 2"
+  },
+  "Doorcontroller": {
+    "Bell": "Bell",
+    "O1": "Custom output 1",
+    "O2": "Custom output 2",
+    "O3": "Custom output 3",
+    "maxB": "Maximum bell duration"
+  },
+  "EFM": {
+    "Co2d": "CO2 today",
+    "Pre": "kWh price export",
+    "Pri": "kWh price import",
+    "Rest": "Top Rest Power",
+    "Yd": "Yield today"
+  },
+  "EIBJalousie": {
+    "DisPc": "Disable periphery control",
+    "Lo": "Long-term operation",
+    "Pos": "Position",
+    "So": "Short-term operation",
+    "Tlc": "Time long-click"
+  },
+  "EIBPush": {
+    "DisPc": "Disable periphery control",
+    "O": "Output",
+    "Off": "Off",
+    "On": "On",
+    "S": "State",
+    "Tg": "Toggle"
+  },
+  "EdgeDetection": {
+    "I": "Input",
+    "Off": "Pulse at falling edge",
+    "On": "Pulse at rising edge",
+    "P": "Pulse at every edge",
+    "Pd": "Pulse duration"
+  },
+  "EdgeWipingRelay": {
+    "C": "Cycles",
+    "P": "Pulse"
+  },
+  "EibDimmer": {
+    "Cdv": "Current dim value",
+    "D": "Dimmer output",
+    "DisPc": "Disable periphery control",
+    "Off": "Off",
+    "On": "On",
+    "Rr": "Repetition rate",
+    "S": "Status",
+    "Sts": "Step size"
+  },
+  "Energy": {
+    "Abs": "Absolute value",
+    "C": "Consumption",
+    "Cf": "Consumption frequency",
+    "Cp": "Consumption pulse",
+    "Mro": "Meter reading offset",
+    "Np": "Number of pulses per unit",
+    "Pf": "Power or flow",
+    "Pfp": "Power or Flow by pulses",
+    "R": "Reset"
+  },
+  "EnergyManager": {
+    "O": "Offset available energy",
+    "Prio": "Priority selection",
+    "Ps": "Power energy storage",
+    "Re": "Residual energy"
+  },
+  "EnergyManager2": {
+    "Gpwr": "Grid power",
+    "MaxSpwr": "Maximum energy storage power",
+    "MinSoc": "Minimum state of charge",
+    "Next": "Next Calculation",
+    "O": "Offset grid power",
+    "Ppwr": "Production power",
+    "Prio": "Priority selection",
+    "Recalc": "Recalculate",
+    "Spwr": "Energy storage power"
+  },
+  "Formula": {
+    "E": "Error"
+  },
+  "Fronius": {
+    "Abs": "Absolute value",
+    "Gpwr": "Grid power",
+    "Ppwr": "Production power",
+    "Ptot": "Production total",
+    "R": "Reset",
+    "SoC": "Energy storage state of charge",
+    "Spwr": "Energy storage power"
+  },
+  "HVACController": {
+    "B": "Boost",
+    "Ec": "Excess cooling",
+    "Eh": "Excess heating",
+    "H": "Humidity",
+    "Mode": "Mode",
+    "ϑo": "Outdoor temperature"
+  },
+  "HeatIRoomController2": {
+    "ADir": "Airflow direction up/down 1-8",
+    "Bp": "Building protection",
+    "C": "Comfort",
+    "CO2": "CO2",
+    "DisP": "Disable presence",
+    "Dwc": "Door / window contact",
+    "E": "Eco",
+    "Fan": "Fan speed 0-7",
+    "H": "Humidity",
+    "Mode": "Mode",
+    "Off": "Off",
+    "P": "Presence",
+    "ϑo": "Outdoor temperature",
+    "ϑt": "Target temperature"
+  },
+  "Heatcurve": {
+    "Ct": "Current temperature",
+    "Dis": "Disable",
+    "Iv": "Invalid values",
+    "O": "Offset",
+    "S": "Slope",
+    "maxFt": "Maximum flow temperature",
+    "minFt": "Minimum flow temperature"
+  },
+  "Heatmixer": {
+    "DisPc": "Disable periphery control",
+    "Error": "Error",
+    "Inv": "Invert",
+    "Ki%": "Integral part",
+    "Kp%": "Gain",
+    "Mode": "Mode",
+    "Off": "Off",
+    "Offm": "Off mode",
+    "St": "Sampling time",
+    "V": "Valve",
+    "Vs": "Valve standstill"
+  },
+  "Heatmixer2": {
+    "B": "Buffer Target Temperature Offset",
+    "G": "Gain",
+    "I": "Target temperature increase / decrease",
+    "Ib": "Boost",
+    "Max": "Maximum",
+    "Min": "Minimum",
+    "N": "Offset",
+    "Ps": "Pump standstill",
+    "S": "Slope",
+    "St": "Stop",
+    "Str": "Switch-On Threshold",
+    "Tb": "Buffer Temperature",
+    "ϑo": "Outdoor Temperature"
+  },
+  "HourCounter": {
+    "En": "Enable",
+    "Mi": "Maintenance interval",
+    "Rmc": "Reset maintenance counter",
+    "Rtm": "Remaining time maintenance",
+    "Tu": "Time unit"
+  },
+  "HvacAC": {
+    "C": "Cooling",
+    "Ec": "Excess cooling",
+    "Eh": "Excess heating",
+    "H": "Heating",
+    "Mode": "Mode",
+    "ϑLimC": "Temperature Limit Cooling",
+    "ϑLimH": "Temperature Limit Heating",
+    "ϑo": "Outdoor Temperature"
+  },
+  "Int": {
+    "R": "Result",
+    "Ro": "Round",
+    "V": "Value"
+  },
+  "Intercom": {
+    "Bbl": "Activate bell button light",
+    "Bbr": "Button brightness",
+    "Bell": "Bell",
+    "Mute": "Bell muted",
+    "O1": "Custom output 1",
+    "O2": "Custom output 2",
+    "O3": "Custom output 3",
+    "TTS": "Text to speech",
+    "maxB": "Maximum bell duration"
+  },
+  "Irrigation": {
+    "Act": "Activation",
+    "Av": "Active valve",
+    "MaxR": "Maximum precipitation in the next set hours",
+    "MaxRa": "Maximum rain duration in the last 24 hours",
+    "P": "Pump",
+    "Ra": "Rain",
+    "Raf": "Rain forecast",
+    "Sel": "Select valve"
+  },
+  "Jalousiemotor": {
+    "Blk": "Motor blocked",
+    "Dir": "Compass direction",
+    "Dte": "Direction tolerance end",
+    "Dts": "Direction tolerance start",
+    "Im": "In motion",
+    "Obs": "Obstacle",
+    "Off": "Off",
+    "Pos": "Position of shading",
+    "Sd": "Slat distance",
+    "Slat": "Position of slats",
+    "Sop": "Slightly open position",
+    "Sp": "Sun position automatic",
+    "Spe": "Sun position automatic end action",
+    "Spi": "Sun position automatic interval",
+    "Spm": "Sun position automatic mode",
+    "Spoe": "Sun position automatic end offset",
+    "Spos": "Sun position automatic start offset",
+    "Spu": "Slat position upwards movement",
+    "Sw": "Slat width",
+    "Tdc": "Time double-click",
+    "Tlc": "Time long-click",
+    "Wap": "Wind alarm position",
+    "Wds": "Wind, door/window contact state"
+  },
+  "JoinWindowSensor": {
+    "Open": "0 = closed, 1 = open",
+    "S": "1 = closed, 2 = tilted, 3 = open, 4 = closed and not locked,",
+    "Secured": "0 = not secured, 1 = secured",
+    "Tilt": "0 = closed, 1 = tilt"
+  },
+  "Leaf": {
+    "B": "Boost",
+    "Bva": "Basic ventilation absence",
+    "Bvp": "Basic ventilation presence",
+    "CO2max": "Maximum CO2 (air pollution)",
+    "Dwc": "Door/window contact",
+    "Error": "Error",
+    "Ex": "Exhaust air",
+    "Fc": "Filter change",
+    "Hmax": "Maximum humidity",
+    "Iva": "Intensive ventilation absence",
+    "Ivp": "Intensive ventilation presence",
+    "Off": "Off",
+    "Pet": "Presence extend time",
+    "S": "Status",
+    "Sat": "Supply air temperature",
+    "Sm": "Sleep mode",
+    "Smt": "Sleep mode timeout"
+  },
+  "LightController2": {
+    "2C": "Pulse on double-click",
+    "3C": "Pulse on triple-click",
+    "Afi": "Alarm flashing interval",
+    "Ao": "Alternative operation Lc1-4",
+    "Brt": "Brightness threshold",
+    "Dm": "Dim mode",
+    "Fbu": "Fading time buzzer",
+    "Ft": "Fading time",
+    "Lv": "Last value output Lc1-4",
+    "M": "Current mood",
+    "MaxAbr": "Maximum alarm brightness",
+    "MaxBr": "Maximum brightness (50 to 100%)",
+    "MaxCt": "Maximum color temperature",
+    "Met": "Manual operation extend time",
+    "MinBr": "Minimum brightness (0 to 50%)",
+    "MinCt": "Minimum color temperature",
+    "Mmd": "Mixing moods duration",
+    "Moet": "Motion extend time",
+    "Pm": "Presence mood",
+    "Pto": "Presence automatic timeout",
+    "Str": "Step rate brightness"
+  },
+  "LightControllerH": {
+    "AIr": "Room state",
+    "AQrm": "Analogue output for room service status 1 = Vacant/not clean",
+    "AQs": "Analogue Output - Value indicating currently active scene",
+    "Dis": "Disable",
+    "DisMo": "Disable motion sensor input",
+    "ID": "Door contact",
+    "IS": "Service button",
+    "L": "Do not set last value",
+    "M": "Max time between pulses",
+    "MS": "Service staff mode",
+    "Max": "Maximum value",
+    "Min": "Minimum value",
+    "Mo": "Motion sensor",
+    "QD": "Service completed output",
+    "QP": "Presence Output",
+    "QS": "Service Output",
+    "R": "Reset",
+    "S10": "Trigger selection scene 10",
+    "S11": "Trigger seletion scene 11",
+    "S12": "Trigger seletion scene 12",
+    "S13": "Trigger seletion scene 13",
+    "SI": "Step",
+    "ST": "Step rate",
+    "TH": "Duration On",
+    "TM": "Duration of Service Staff mode",
+    "Tl": "Timeout for leaving room",
+    "To": "Duration press and hold for 'All off'"
+  },
+  "LightsceneRGB": {
+    "+": "Trigger next scene",
+    "-": "Trigger previous scene",
+    "AIs": "Scene",
+    "AQa": "Analog output RGB %-value red + %-value green * 1000 + %-val",
+    "AQb": "Analogue output for the blue LED",
+    "AQg": "Analogue output for the green LED",
+    "AQr": "Analogue output for the red LED",
+    "AQs": "Analogue Output - Value indicating currently active scene",
+    "Dis": "Disable",
+    "O": "On",
+    "R": "Reset"
+  },
+  "LoadShed": {
+    "Ap": "Available power",
+    "AvgP": "Average power",
+    "Gi": "Grid energy import",
+    "Gpwr": "Grid power",
+    "Hys": "Hysteresis",
+    "MaxP": "Maximum power",
+    "MaxPe": "Maximum power exceeded",
+    "MaxTp": "Maximum technical power",
+    "Off": "Off",
+    "Tr": "Trigger new averaging interval",
+    "TsU": "Time since update averaging interval"
+  },
+  "LongClick": {
+    "O1": "Pulse when (Tr) ≤ (TI)",
+    "O2": "Pulse when (TI) ≤ (Tr) ≤ 2x(TI)",
+    "O3": "Pulse when 2x(TI) ≤ (Tr) ≤ 3x(TI)",
+    "O4": "Pulse when 3x(TI) ≤ (Tr)",
+    "R": "Reset",
+    "Tr": "Trigger",
+    "V": "Value (V1-4), depending on time of input (Tr)"
+  },
+  "MPGroup": {
+    "BTp": "Bluetooth pairing",
+    "Roff": "Ignore room off command"
+  },
+  "MailBox": {
+    "Cm": "Confirm mail",
+    "Cp": "Confirm package",
+    "M": "Mail present",
+    "P": "Package present",
+    "Txle": "Text of last event"
+  },
+  "MailGen": {
+    "Td": "Trigger Delay",
+    "Tr": "Triggers output",
+    "Tu": "Update Interval",
+    "Uid": "User-ID"
+  },
+  "Media": {
+    "Ch": "Set channel",
+    "DisPc": "Disable periphery control",
+    "Mode": "Set mode",
+    "Nst": "Numpad send timeout",
+    "Poff": "Power off",
+    "Pon": "Power on",
+    "Ptg": "Power toggle",
+    "T5": "T5 control",
+    "Tdc": "Time double-click",
+    "V+": "Volume+",
+    "V-": "Volume-"
+  },
+  "MediaClient": {
+    "A": "Alarm input",
+    "AIs": "Casatunes Music Server: Source",
+    "AIv": "Volume level",
+    "AQr": "Remaining time of sleep timer",
+    "Be": "Doorbell input",
+    "Buzzer": "Alarm clock input",
+    "Dis": "Disable",
+    "DisMo": "Disable motion sensor",
+    "FA": "Fire Alarm",
+    "MT": "Automatic switch off motion",
+    "Mo": "Motion sensor",
+    "Mute": "Mute",
+    "Pause": "Pause playback",
+    "Play": "Start playback",
+    "R": "Reset",
+    "ROff": "Ignore room off command",
+    "Repeat": "Repeat",
+    "Rf": "First recurrence",
+    "Rr": "Repeat interval",
+    "S+": "Casatunes Music Server: Next Source",
+    "Shuffle": "Shuffle",
+    "Sleep": "Sleep timer input",
+    "Song+": "Next track",
+    "Song-": "Previous track",
+    "Stop": "Stop playback",
+    "Sv": "Volume step size",
+    "T5": "Combined button input",
+    "TH": "Duration On",
+    "TTS": "Text to Speech input",
+    "Tdc": "Double click interval",
+    "Te": "Event playback duration [s]",
+    "TgZ": "Toggle Zone",
+    "Ti": "Delay of the Motion Sensor",
+    "Tqo": "Delay of Qoff [s]",
+    "Ts": "Sleep timer duration [s]",
+    "V+": "Casatunes Music Server: Volume",
+    "V-": "Volume",
+    "Va": "Loxone Music Server: Alarm volume",
+    "Vbe": "Loxone Music Server: Doorbell volume",
+    "Vbu": "Loxone Music Server: Alarm clock volume",
+    "Vd": "Startup volume",
+    "Vm": "Maximum volume level",
+    "Vt": "Loxone Music Server: TTS volume",
+    "Zoff": "Zone Off",
+    "Zon": "Zone On"
+  },
+  "MeterAbsUni": {
+    "Mr": "Meter reading"
+  },
+  "MeterDig": {
+    "S": "State"
+  },
+  "MeterPBi": {
+    "Fc": "Frequency consumption",
+    "Fd": "Frequency delivery",
+    "Pc": "Pulse consumption",
+    "Pd": "Pulse delivery"
+  },
+  "MeterPUni": {
+    "F": "Frequency",
+    "P": "Pulse"
+  },
+  "Minmax": {
+    "Max": "Current maximum value",
+    "Min": "Current minimum value"
+  },
+  "Mod": {
+    "Dec": "Decimals",
+    "Int": "Integer"
+  },
+  "Monoflop": {
+    "D": "Duration output pulse",
+    "O": "Output"
+  },
+  "MultiClick": {
+    "1C": "Pulse on single-click",
+    "2C": "Pulse on double-click",
+    "3C": "Pulse on triple-click",
+    "4C": "Pulse on quad-click",
+    "Tmc": "Time multi-click",
+    "Tr": "Trigger",
+    "V": "Value triggered output"
+  },
+  "MultiFuncSW": {
+    "On": "On",
+    "Tg": "Toggle",
+    "Tlc": "Time long-click for continious-on",
+    "Tw": "Switch-off warning time"
+  },
+  "MusicPlayer": {
+    "2C": "Pulse on double-click",
+    "3C": "Pulse on triple-click",
+    "BTp": "Bluetooth pairing",
+    "BuzzerFav": "Alarm clock favorite",
+    "Ft": "Volume Fading Time",
+    "Play": "Play status",
+    "Roff": "Ignore room off command",
+    "Stereo L": "Stereo Left",
+    "Stereo LR": "Stereo Left & Right",
+    "Stereo R": "Stereo Right",
+    "Sub": "Subwoofer",
+    "V+": "Pulse on Volume+",
+    "V-": "Pulse on Volume-",
+    "Va": "Minimum volume alarm sounds",
+    "Vbell": "Minimum volume doorbell",
+    "Vbuzzer": "Minimum volume alarm clock",
+    "Vm": "Maximum volume",
+    "Von": "Power on volume",
+    "Vsts": "Step size volume",
+    "Vtts": "Minimum volume TTS and announcements"
+  },
+  "NfcCodeTouch": {
+    "Ad": "Authentication denied",
+    "As": "Authentication successful",
+    "Au": "Authentication",
+    "Bbl": "Activate bell button light",
+    "Bbr": "Button brightness",
+    "Bl": "Activate button light",
+    "Blan": "Activate button light at night",
+    "Bsel": "Doorbell pre-select",
+    "Cla": "Cause of last authorization",
+    "Nco": "Number of current output",
+    "Nlo": "Name or number of last output",
+    "Tla": "Time and date of last authorization",
+    "Uidla": "User-Id of last authorization",
+    "Ula": "User of last authorization",
+    "Unla": "Username of last authorization"
+  },
+  "Not": {
+    "I": "Input",
+    "O": "Output"
+  },
+  "OnDelay": {
+    "Don": "Delay duration",
+    "O": "Output"
+  },
+  "OnOffDelay": {
+    "Doff": "Duration switch-off delay",
+    "Don": "Duration switch-on delay",
+    "O": "Output"
+  },
+  "OnPulseDelay": {
+    "P": "Pulse"
+  },
+  "Or": {
+    "I1": "Input 1",
+    "I2": "Input 2",
+    "O": "Output"
+  },
+  "PButtonT": {
+    "DisPc": "Disable periphery control",
+    "Don": "On-duration of output (O)",
+    "O": "Output",
+    "Tr": "Trigger"
+  },
+  "PVProductionForecast": {
+    "Off": "Off input",
+    "Period": "Calculated Period",
+    "Pnd": "Predicted next day",
+    "Pp": "Predicted period",
+    "Ppwr": "Potential Power",
+    "Ptd": "Predicted today",
+    "Ready": "Prediction provided"
+  },
+  "PWM": {
+    "P": "Period",
+    "PWM": "PWM output"
+  },
+  "Ping": {
+    "N": "Number of unsuccessful pings",
+    "Online": "Output is active as long as the target device is ping-able",
+    "Pi": "Ping interval",
+    "Td": "Timeout duration"
+  },
+  "PoolController": {
+    "Bw": "Backwash cycle state",
+    "Bwd": "Backwash cycle duration",
+    "C": "Cooling demand",
+    "Ci": "Circulation cycle state",
+    "Cid": "Circulation cycle duration",
+    "Cl": "Close pool cover",
+    "Cpos": "Cover position",
+    "Cϑm": "Cycle started via (ϑm)",
+    "DisPc": "Disable periphery control",
+    "Dr": "Draining cycle state",
+    "Drd": "Draining cycle duration",
+    "Dv": "Drain valve",
+    "Eco": "Eco",
+    "Error": "Error code",
+    "Fi": "Filtration cycle state",
+    "Fid": "Filtration cycle duration",
+    "Fp": "Filtration pump",
+    "Fpet": "Filtration pump extend time",
+    "H": "Heating demand",
+    "I1": "Custom input 1",
+    "I2": "Custom input 2",
+    "Off": "Off",
+    "Om": "Current operating mode",
+    "Op": "Open pool cover",
+    "Rid": "Rinsing cycle duration",
+    "Rtc": "Remaining duration of the active cycle",
+    "Sm": "Swimming machine",
+    "Vp": "Set valve position",
+    "Vpos": "Current valve position",
+    "Wm": "Water machine",
+    "ϑh": "Hysteresis temperature",
+    "ϑm": "Current temperature control mode"
+  },
+  "PresenceDetector": {
+    "AE": "Activate / Extend",
+    "Act": "Activate",
+    "Ext": "Extend",
+    "Pc": "Presence combined",
+    "Pd": "Current presence duration",
+    "Pet": "Presence extend time",
+    "Tw": "Switch-off warning time",
+    "Warn": "Switch-off warning"
+  },
+  "PulseAt": {
+    "O": "Output"
+  },
+  "PulseBy": {
+    "P": "Pulse when search pattern is found.",
+    "Pd": "Pulse Duration"
+  },
+  "PulseGen": {
+    "Inv": "Invert",
+    "P": "Pulse"
+  },
+  "PushButton": {
+    "Off": "Off",
+    "Tg": "Toggle"
+  },
+  "PushButton2": {
+    "Soff": "Switch off",
+    "Son": "Switch on"
+  },
+  "PushButtonSel": {
+    "+": "Value+",
+    "Off": "Off",
+    "Rr": "Repetition rate",
+    "Val": "Set value",
+    "Vdef": "Default value"
+  },
+  "PushDimmer": {
+    "+": "Dim+",
+    "-": "Dim-",
+    "D": "Dimmer output",
+    "Di": "Delay input",
+    "DisPc": "Disable periphery control",
+    "Dm": "Dim mode",
+    "Lv": "Last value",
+    "S": "Status",
+    "Str": "Step rate",
+    "Tg": "Toggle"
+  },
+  "RSFlipFlop": {
+    "O": "Output",
+    "R": "Reset",
+    "S": "Set",
+    "Tg": "Toggle"
+  },
+  "Radio2": {
+    "Sel": "Select output",
+    "Sk0": "Skip 0"
+  },
+  "Ramp": {
+    "St": "Stop",
+    "Sts": "Step size",
+    "Sv": "Start value",
+    "V": "Value"
+  },
+  "Rand": {
+    "DisPc": "Disable periphery control",
+    "Max": "Maximum value",
+    "Min": "Minimum value"
+  },
+  "RandomGen": {
+    "En": "Enable",
+    "Ran": "Random output",
+    "Soff": "Maximum duration switch-off delay",
+    "Son": "Maximum duration switch-on delay"
+  },
+  "RetOnDelay": {
+    "Don": "Delay duration",
+    "O": "Output"
+  },
+  "RoofWindow": {
+    "CPos": "Current position",
+    "Mld": "Motor lock duration",
+    "Pos": "Position of Window",
+    "So": "Slightly Open",
+    "SoPos": "Slightly Open Position",
+    "TPos": "Target position",
+    "minTd": "Minimum travel time"
+  },
+  "SRFlipFlop": {
+    "R": "Reset",
+    "S": "Set",
+    "Tg": "Toggle"
+  },
+  "Sauna": {
+    "Dc": "Door contact",
+    "DisPc": "Disable periphery control",
+    "Dry": "Drying state",
+    "Dryd": "Drying phase duration",
+    "Dryϑ": "Drying phase target temperature",
+    "Fan": "Fan",
+    "G": "Gain",
+    "On": "Sauna state",
+    "P": "Presence",
+    "PWMp": "PWM period",
+    "Pm": "Phase mode",
+    "Ready": "Sauna ready",
+    "So": "Sauna output (0-10V)",
+    "Ssd": "Safety shutdown",
+    "Ssdt": "Safety shutdown time",
+    "Ssdϑ": "Safety shutdown temperature",
+    "St": "Sand timer state",
+    "Stoff": "Sand timer end",
+    "Tg": "Toggle",
+    "ϑb": "Current temperature bench",
+    "ϑd": "Temperature deviation",
+    "ϑt": "Target temperature"
+  },
+  "SaunaVapor": {
+    "Dc": "Door contact",
+    "DisPc": "Disable periphery control",
+    "Dryd": "Drying phase duration",
+    "Dryϑ": "Drying phase temperature",
+    "Ev": "Evaporator output (0-10V)",
+    "Evd": "Evaporator digital output",
+    "Fan": "Fan",
+    "Fim": "Finnish manual",
+    "Fin": "Finnish sauna",
+    "G": "Gain",
+    "Her": "Herbal sauna",
+    "Hot": "Hot-air bath",
+    "Ht": "Target humidity",
+    "Hum": "Humidity manual",
+    "Mode": "Current sauna mode",
+    "On": "Sauna state",
+    "P": "Presence",
+    "PWMp": "PWM period",
+    "Pm": "Phase mode",
+    "Ready": "Sauna ready",
+    "So": "Sauna output (0-10V)",
+    "Sof": "Soft Steam bath",
+    "Ssd": "Safety shutdown",
+    "Ssdt": "Safety shutdown time",
+    "Ssdϑ": "Safety shutdown temperature",
+    "St": "Sand timer state",
+    "Stoff": "Sand timer end",
+    "Tg": "Toggle",
+    "Ws": "Water shortage",
+    "ϑb": "Current temperature bench",
+    "ϑd": "Temperature deviation",
+    "ϑt": "Target temperature"
+  },
+  "SequenceController": {
+    "TQ": "Text output"
+  },
+  "Sequencer": {
+    "DisPc": "Disable",
+    "Dv": "Default value",
+    "P": "Position",
+    "R": "Reset",
+    "Sel": "Selected output",
+    "Tr": "Trigger"
+  },
+  "ShadeRoof": {
+    "Cl": "Close",
+    "Dir": "Compass direction",
+    "Dte": "Direction tolerance end",
+    "Dts": "Direction tolerance start",
+    "Mld": "Motor lock duration",
+    "Off": "Off",
+    "Op": "Open",
+    "Pi": "Pitch",
+    "Pos": "Position of shading",
+    "Sop": "Slightly open position",
+    "Sp": "Sun position automatic",
+    "Spe": "Sun position automatic end action",
+    "Spm": "Sun position automatic mode",
+    "Spoe": "Sun position automatic end offset",
+    "Spos": "Sun position automatic start offset",
+    "Tdc": "Time double-click",
+    "Tlc": "Time long-click",
+    "Wap": "Wind alarm position",
+    "Wds": "Wind, door/window contact state",
+    "minTd": "Minimum travel duration"
+  },
+  "Shift": {
+    "D": "Data",
+    "Dir": "Shift direction",
+    "Rb": "Register bit",
+    "Tr": "Trigger"
+  },
+  "SmokeAlarm": {
+    "Ca": "Cause of alarm",
+    "Cs": "Confirm alarm signals",
+    "F": "AFCI",
+    "Mad": "Main alarm delay",
+    "MaxA": "Maximum alarm duration",
+    "Maxϑ": "Maximum temperature",
+    "Pac": "Pre-alarm confirmation",
+    "S": "Smoke detector",
+    "Sm": "Service mode",
+    "T": "Temperature input",
+    "Ta": "Time and date of alarm",
+    "W": "Water detector"
+  },
+  "Solarpumpcontrol": {
+    "Co": "Collector overheating",
+    "Hs": "Heating surplus",
+    "M": "Manual mode",
+    "Maxϑc": "Max. temperature collector",
+    "Maxϑs": "Max. storage temperature exceeded",
+    "Minϑs": "Min. storage temperature exceeded",
+    "Poff": "Pump switch-off threshold",
+    "Pon": "Pump switch-on threshold",
+    "S": "Current storage",
+    "Sel": "Select storage",
+    "Sp": "Solar pump",
+    "Spa": "Solar pump analog (0-10V)",
+    "ϑHs": "Temperature heating surplus"
+  },
+  "SpotOpt": {
+    "Avg": "Average Price",
+    "High": "High",
+    "I2": "Variable Input 2",
+    "I3": "Variable Input 3",
+    "Low": "Low",
+    "Max": "Fixed very high price",
+    "Min": "Lowest Price",
+    "Nv": "Next Price",
+    "O": "Active Output",
+    "Tr": "Trigger",
+    "vHigh": "Very High",
+    "vLow": "Very Low"
+  },
+  "StairwayLS": {
+    "Don": "On-duration of output (O)",
+    "Tr": "Trigger",
+    "Tw": "Switch-off warning time"
+  },
+  "State": {
+    "Txt": "Current status text",
+    "Val": "Current status value"
+  },
+  "StatusMonitor": {
+    "Csr": "Count state rest",
+    "Stat": "Status",
+    "Txlc": "Text last change"
+  },
+  "Tablet": {
+    "Blvl": "Battery level",
+    "Cac": "Charging active",
+    "DBr": "Display brightness",
+    "Dnd": "Do not disturb",
+    "Ds": "Default screen",
+    "P": "Presence",
+    "SBr": "Screensaver brightness",
+    "Ui": "User interaction"
+  },
+  "TextGenerator": {
+    "Td": "Trigger Delay",
+    "Tr": "Triggers output",
+    "Tu": "Update Interval",
+    "Txt": "Generated text",
+    "Uid": "User-ID"
+  },
+  "TimeMinmax": {
+    "Max": "Maximum",
+    "Min": "Minimum",
+    "R": "Reset",
+    "V": "Value"
+  },
+  "ToiletFan": {
+    "FPet": "Fan / Movement extend time",
+    "Fan": "Fan",
+    "Fsd": "Fan start delay",
+    "P": "Presence",
+    "S": "Session status",
+    "Tg": "Toggle"
+  },
+  "TpfController": {
+    "B": "Bright",
+    "Bl": "Backlight On",
+    "Br": "Room brightness",
+    "BrBP": "Bright and Presence Brightness",
+    "BrBnP": "Bright and no Presence Brightness",
+    "BrD": "Brightness Display & status LEDs",
+    "BrDP": "Dark and Presence Brightness",
+    "BrDef": "Default Brightness",
+    "BrDnP": "Dark and no Presence Brightness",
+    "BrLP": "Lighting and Presence Brightness",
+    "BrLnP": "Lighting and no Presence Brightness",
+    "Brt": "Brightness threshold",
+    "CBrB": "Current Brightness Backlight",
+    "DnD": "Do not Disturb",
+    "Don": "Display On",
+    "L": "Lighting Active",
+    "LbT": "Light by Touch",
+    "Off": "Off",
+    "P": "Presence",
+    "Set": "Set Brightness",
+    "Txt": "Display Text"
+  },
+  "UpDownCounter": {
+    "C": "Count",
+    "Dir": "Direction",
+    "O": "Output",
+    "R": "Reset",
+    "Sv": "Start value"
+  },
+  "Validator": {
+    "D": "Delay",
+    "E": "Error",
+    "En": "Enable",
+    "Max": "Maximum Value",
+    "Min": "Minimum Value",
+    "Tmc": "Minimum Change Interval",
+    "V": "Value"
+  },
+  "VentInternorm": {
+    "B": "Boost",
+    "Bva": "Basic ventilation absence",
+    "Bvp": "Basic ventilation presence",
+    "CO2max": "Maximum CO2 (air pollution)",
+    "Dwc": "Door/window contact",
+    "Error": "Error",
+    "Ex": "Exhaust air",
+    "Fc": "Filter change",
+    "Hmax": "Maximum humidity",
+    "Iva": "Intensive ventilation absence",
+    "Ivp": "Intensive ventilation presence",
+    "Off": "Off",
+    "Pet": "Presence extend time",
+    "S": "Status",
+    "Sat": "Supply air temperature",
+    "Sm": "Sleep mode",
+    "Smt": "Sleep mode timeout"
+  },
+  "Ventilation": {
+    "B": "Boost",
+    "Bva": "Basic ventilation absence",
+    "Bvp": "Basic ventilation presence",
+    "CO2": "CO2 indoor.",
+    "CO2max": "Maximum CO2 (air pollution)",
+    "Dwc": "Door/window contact",
+    "Ex": "Exhaust air",
+    "F": "Fan",
+    "Fea": "Fan exhaust air",
+    "Fpt": "Frost protection temperature",
+    "Fsa": "Fan supply air",
+    "He": "Heat exchanger",
+    "Hi": "Humidity indoor.",
+    "Hmax": "Maximum humidity",
+    "Iva": "Intensive ventilation absence",
+    "Ivp": "Intensive ventilation presence",
+    "Off": "Off",
+    "Pet": "Presence extend time",
+    "S": "Status",
+    "Sat": "Supply air temperature",
+    "Sm": "Sleep mode",
+    "Smt": "Sleep mode timeout"
+  },
+  "WBEM": {
+    "Ap": "Assigned Power",
+    "Cfp": "Connection fee per hour",
+    "Cp": "Current power",
+    "Peco": "Power for Eco charging",
+    "Pmax": "Maximum total power",
+    "PrEco": "Price Eco",
+    "PrPrio": "Price Priority"
+  },
+  "Wallbox": {
+    "Cp": "Current charging power",
+    "M": "Charging power limit mode",
+    "Mr": "Remember mode",
+    "R": "Reset",
+    "Vc": "Vehicle connected"
+  },
+  "Wind": {
+    "Avg": "Average wind speed",
+    "AvgMax": "Maximum wind speed in the averaging period",
+    "F": "Factor",
+    "G": "3 second average for gusts",
+    "Wa": "Wind alarm"
+  },
+  "WindowsMonitor": {
+    "Dwco": "Door/window contact open",
+    "Dwcs": "Door/window contact secured",
+    "Dwct": "Door/window contact tilt",
+    "Hpos": "Handle position",
+    "Txlt": "Text last triggered",
+    "Txu": "Text unsecure"
+  },
+  "Xor": {
+    "I1": "Input 1",
+    "I2": "Input 2",
+    "O": "Output"
+  }
+}
