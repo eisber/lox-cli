@@ -563,7 +563,7 @@
       ],
       "simulation": [
         {
-          "name": "garage light on when door opens",
+          "name": "garage light receives signal when door opens",
           "inputs": {
             "Garagentor Sensor.Q": 1.0,
             "Türkontakt Eingang.Q": 1.0
@@ -571,7 +571,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Garagenlicht": {
+            "Garagenlicht [Garage].I1": {
               ">": 0.5
             }
           }
@@ -582,7 +582,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Garagenlicht": {
+            "Garagenlicht [Garage].I1": {
               "<": 0.5
             }
           }
