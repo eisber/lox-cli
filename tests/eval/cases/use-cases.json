@@ -5123,7 +5123,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Lichtsteuerung.AQ": {
+            "Lichtsteuerung [Wohnzimmer].AQ": {
               ">": 0.5
             }
           }
@@ -5136,7 +5136,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Lichtsteuerung.AQ": {
+            "Lichtsteuerung [Wohnzimmer].AQ": {
               "<": 0.5
             }
           }
@@ -5499,7 +5499,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Lichtsteuerung.AQ": {
+            "Lichtsteuerung [Wohnzimmer].AQ": {
               ">": 0.5
             }
           }
@@ -5512,7 +5512,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Lichtsteuerung.AQ": {
+            "Lichtsteuerung [Wohnzimmer].AQ": {
               "<": 0.5
             }
           }
@@ -8031,7 +8031,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Lichtsteuerung.AQ": {
+            "Lichtsteuerung [Wohnzimmer].AQ": {
               ">": 0.5
             }
           }
@@ -8044,7 +8044,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Lichtsteuerung.AQ": {
+            "Lichtsteuerung [Wohnzimmer].AQ": {
               "<": 0.5
             }
           }
@@ -10552,7 +10552,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Lichtsteuerung.AQ": {
+            "Lichtsteuerung [Wohnzimmer].AQ": {
               ">": 0.5
             }
           }
@@ -10565,7 +10565,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Lichtsteuerung.AQ": {
+            "Lichtsteuerung [Wohnzimmer].AQ": {
               "<": 0.5
             }
           }
@@ -11098,7 +11098,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Lichtsteuerung.AQ": {
+            "Lichtsteuerung [Wohnzimmer].AQ": {
               ">": 0.5
             }
           }
@@ -11111,7 +11111,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Lichtsteuerung.AQ": {
+            "Lichtsteuerung [Wohnzimmer].AQ": {
               "<": 0.5
             }
           }

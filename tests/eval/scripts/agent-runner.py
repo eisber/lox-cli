@@ -925,6 +925,7 @@ def load_cases(filter_str=None, section=None, max_cases=None):
                     searchable = f"{c['id']} {pattern} {c['utterance']} {c.get('difficulty', '')}".lower()
                     if filter_str.lower() not in searchable:
                         continue
+                c['_section'] = category
                 cases.append(c)
     
     if max_cases:

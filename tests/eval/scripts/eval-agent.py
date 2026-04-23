@@ -23,7 +23,9 @@ import shutil
 import subprocess
 import sys
 import tempfile
+import threading
 import time
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
 
 # ── Paths ────────────────────────────────────────────────────
@@ -278,6 +280,14 @@ def main():
     parser.add_argument(
         "--verbose", "-v", action="store_true", help="Verbose output"
     )
+    parser.add_argument(
+        "--parallel", type=int, default=1,
+        help="Number of parallel agent instances (default: 1, max recommended: 2)"
+    )
+    parser.add_argument(
+        "--exclude-section", action="append", default=[],
+        help="Exclude a section (can be repeated)"
+    )
     args = parser.parse_args()
 
     # Pretty-print mode
@@ -303,7 +313,12 @@ def main():
         if args.skip:
             cases = cases[args.skip:]
 
-    print(f"Eval Agent — agent={args.agent}  model={args.model}  cases={len(cases)}")
+    # Exclude sections
+    if args.exclude_section:
+        excluded = set(args.exclude_section)
+        cases = [c for c in cases if c.get("_section") not in excluded]
+
+    print(f"Eval Agent — agent={args.agent}  model={args.model}  cases={len(cases)}  parallel={args.parallel}")
     print(f"Fixture: {FIXTURE}")
     print()
 
@@ -314,62 +329,88 @@ def main():
     else:
         work_dir = Path(tempfile.mkdtemp(prefix="lox-eval-agent-"))
 
-    results = []
+    results_by_idx = {}
     passed = 0
     failed = 0
+    print_lock = threading.Lock()
+    counter = {"done": 0}
 
-    for i, case in enumerate(cases):
-        case_id = case["id"]
-        sys.stdout.write(f"  [{i + 1}/{len(cases)}] {case_id:42s} ")
-        sys.stdout.flush()
-
-        result = evaluate_case(
-            case, args.agent, work_dir, model=args.model, verbose=args.verbose
-        )
-        results.append(result)
-
+    def format_result(idx, case_id, result):
         sim_pass = result.get("sim_pass")
         sim_total = result.get("simulation", {}).get("total_count", 0)
         sim_passed_count = result.get("simulation", {}).get("passed_count", 0)
         m = result.get("metrics", {})
         chk = "clean" if result.get("validation_pass") else "dirty"
         err = result.get("error")
+        elapsed = result.get("elapsed_seconds", 0)
+        struct = (f"B={m.get('blocks', {}).get('f1', 0):.0%} "
+                  f"P={m.get('params', {}).get('accuracy', 0):.0%}")
 
         if err:
-            failed += 1
-            print(f"\033[33m⚠ ERROR\033[0m  {err}")
+            return False, f"  [{idx + 1}/{len(cases)}] {case_id:42s} \033[33m⚠ ERROR\033[0m  {err}"
         elif sim_pass:
-            passed += 1
-            print(
-                f"\033[32m✓ PASS\033[0m  sim={sim_passed_count}/{sim_total}  check={chk}  "
-                f"(struct: B={m.get('blocks', {}).get('f1', 0):.0%} "
-                f"P={m.get('params', {}).get('accuracy', 0):.0%})  "
-                f"[{result.get('elapsed_seconds', 0):.0f}s]"
-            )
+            return True, (f"  [{idx + 1}/{len(cases)}] {case_id:42s} "
+                         f"\033[32m✓ PASS\033[0m  sim={sim_passed_count}/{sim_total}  "
+                         f"check={chk}  (struct: {struct})  [{elapsed:.0f}s]")
         elif sim_total > 0:
-            failed += 1
-            print(
-                f"\033[31m✗ FAIL\033[0m  sim={sim_passed_count}/{sim_total}  check={chk}  "
-                f"(struct: B={m.get('blocks', {}).get('f1', 0):.0%} "
-                f"P={m.get('params', {}).get('accuracy', 0):.0%})  "
-                f"[{result.get('elapsed_seconds', 0):.0f}s]"
-            )
+            return False, (f"  [{idx + 1}/{len(cases)}] {case_id:42s} "
+                          f"\033[31m✗ FAIL\033[0m  sim={sim_passed_count}/{sim_total}  "
+                          f"check={chk}  (struct: {struct})  [{elapsed:.0f}s]")
         elif result.get("validation_pass"):
-            passed += 1
-            print(
-                f"\033[32m✓ PASS\033[0m  check=clean  "
-                f"(struct: B={m.get('blocks', {}).get('f1', 0):.0%} "
-                f"P={m.get('params', {}).get('accuracy', 0):.0%})  "
-                f"(no sim spec)  [{result.get('elapsed_seconds', 0):.0f}s]"
-            )
+            return True, (f"  [{idx + 1}/{len(cases)}] {case_id:42s} "
+                         f"\033[32m✓ PASS\033[0m  check=clean  "
+                         f"(struct: {struct})  (no sim spec)  [{elapsed:.0f}s]")
         else:
-            failed += 1
-            print(
-                f"\033[31m✗ FAIL\033[0m  check=dirty  "
-                f"(struct: B={m.get('blocks', {}).get('f1', 0):.0%} "
-                f"P={m.get('params', {}).get('accuracy', 0):.0%})  "
-                f"[{result.get('elapsed_seconds', 0):.0f}s]"
-            )
+            return False, (f"  [{idx + 1}/{len(cases)}] {case_id:42s} "
+                          f"\033[31m✗ FAIL\033[0m  check=dirty  "
+                          f"(struct: {struct})  [{elapsed:.0f}s]")
+
+    def run_one(idx_case):
+        idx, case = idx_case
+        result = evaluate_case(
+            case, args.agent, work_dir, model=args.model, verbose=args.verbose
+        )
+        is_pass, line = format_result(idx, case["id"], result)
+        with print_lock:
+            counter["done"] += 1
+            results_by_idx[idx] = result
+            # Incremental save every 5 cases
+            if counter["done"] % 5 == 0 or counter["done"] == len(cases):
+                partial = [results_by_idx[j] for j in sorted(results_by_idx)]
+                partial_report = generate_report(partial)
+                partial_report["meta"] = {
+                    "agent": args.agent, "model": args.model,
+                    "parallel": args.parallel, "progress": f"{counter['done']}/{len(cases)}",
+                    "timestamp": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+                }
+                out_path = Path(args.output)
+                out_path.parent.mkdir(parents=True, exist_ok=True)
+                with open(out_path, "w") as f:
+                    json.dump(partial_report, f, indent=2, ensure_ascii=False)
+            print(line, flush=True)
+        return idx, result, is_pass
+
+    if args.parallel > 1:
+        with ThreadPoolExecutor(max_workers=args.parallel) as pool:
+            futures = [pool.submit(run_one, (i, c)) for i, c in enumerate(cases)]
+            for future in as_completed(futures):
+                idx, result, is_pass = future.result()
+                results_by_idx[idx] = result
+                if is_pass:
+                    passed += 1
+                else:
+                    failed += 1
+    else:
+        for i, case in enumerate(cases):
+            idx, result, is_pass = run_one((i, case))
+            results_by_idx[idx] = result
+            if is_pass:
+                passed += 1
+            else:
+                failed += 1
+
+    # Reassemble results in order
+    results = [results_by_idx[i] for i in range(len(cases))]
 
     # Generate report
     report = generate_report(results)
@@ -377,6 +418,7 @@ def main():
         "agent": args.agent,
         "model": args.model,
         "timeout_seconds": AGENT_TIMEOUT,
+        "parallel": args.parallel,
         "timestamp": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
     }
 

@@ -360,6 +360,7 @@ fn block_signature(
     &'static [&'static str],
 ) {
     match block_type {
+        "AcControl" => (&["toggle", "inTempCurr"], &["status"], &[]),
         "AMemory" => (&["Input", "Trigger", "Reset"], &["AQ"], &[]),
         "Add" | "Add4" => (&["Input1", "Input2", "Input3", "Input4"], &["AQ", "Q"], &[]),
         "AnalogThresholdTrigger" => (

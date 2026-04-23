@@ -1165,7 +1165,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Jalousie 1.InputTriggerDown": {
+            "Jalousie 1 [Wohnzimmer].InputTriggerDown": {
               ">": 0.5
             }
           }
@@ -1178,7 +1178,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Jalousie 1.InputTriggerDown": {
+            "Jalousie 1 [Wohnzimmer].InputTriggerDown": {
               "<": 0.5
             }
           }

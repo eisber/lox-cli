@@ -65,7 +65,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Jalousie 1.InputTriggerDown": {
+            "Jalousie 1 [Schlafzimmer].InputTriggerDown": {
               ">": 0.5
             }
           }
@@ -79,7 +79,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Jalousie 1.InputTriggerDown": {
+            "Jalousie 1 [Schlafzimmer].InputTriggerDown": {
               "<": 0.5
             }
           }
@@ -131,7 +131,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Lichtsteuerung.Brightness": {
+            "Lichtsteuerung [Wohnzimmer].Brightness": {
               ">": 0.0
             }
           }
@@ -144,7 +144,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Lichtsteuerung.Brightness": {
+            "Lichtsteuerung [Wohnzimmer].Brightness": {
               "<": 0.5
             }
           }
@@ -288,7 +288,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Jalousie 1.InputTriggerDown": {
+            "Jalousie 1 [Wohnzimmer].InputTriggerDown": {
               ">": 0.5
             }
           }
@@ -302,7 +302,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Jalousie 1.InputTriggerDown": {
+            "Jalousie 1 [Wohnzimmer].InputTriggerDown": {
               "<": 0.5
             }
           }
@@ -527,7 +527,7 @@
           "ticks": 50,
           "dt": 0.1,
           "expected_outputs": {
-            "Lichtsteuerung.Brightness": {
+            "Lichtsteuerung [Flur].Brightness": {
               ">": 0.5
             }
           }
@@ -540,7 +540,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Lichtsteuerung.Brightness": {
+            "Lichtsteuerung [Flur].Brightness": {
               "<": 0.5
             }
           }
@@ -739,7 +739,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Lichtsteuerung.Brightness": {
+            "Lichtsteuerung [Flur].Brightness": {
               ">": 0.5
             }
           }
@@ -752,7 +752,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Lichtsteuerung.Brightness": {
+            "Lichtsteuerung [Flur].Brightness": {
               "<": 0.5
             }
           }
@@ -817,7 +817,7 @@
           "ticks": 6000,
           "dt": 0.1,
           "expected_outputs": {
-            "Klimaanlage.toggle": {
+            "Klimaanlage.status": {
               ">": 0.5
             }
           },
@@ -831,7 +831,7 @@
           "ticks": 6000,
           "dt": 0.1,
           "expected_outputs": {
-            "Klimaanlage.toggle": {
+            "Klimaanlage.status": {
               "<": 0.5
             }
           }

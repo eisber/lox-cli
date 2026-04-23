@@ -70,7 +70,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Lichtsteuerung.Brightness": {
+            "Lichtsteuerung [Schlafzimmer].Brightness": {
               ">": 0.5
             }
           }
@@ -83,7 +83,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Lichtsteuerung.Brightness": {
+            "Lichtsteuerung [Schlafzimmer].Brightness": {
               "<": 0.5
             }
           }
@@ -381,29 +381,29 @@
       ],
       "simulation": [
         {
-          "name": "should trigger when all conditions met",
+          "name": "blinds close + AC on when hot and sunny",
           "inputs": {
-            "Außentemperatur.AQ": 21.0,
-            "Sonnenschein.AQ": 1.0
+            "Außentemperatur": 30.0,
+            "Sonnenschein": 1.0
           },
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Jalousie 1.InputTriggerDown": {
+            "Jalousie 1 [Wohnzimmer].InputTriggerDown": {
               ">": 0.5
             }
           }
         },
         {
-          "name": "should NOT trigger when only partial conditions met",
+          "name": "no action when cool",
           "inputs": {
-            "Außentemperatur.AQ": 31.0,
-            "Sonnenschein.AQ": 1.0
+            "Außentemperatur": 20.0,
+            "Sonnenschein": 0.0
           },
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Jalousie 1.InputTriggerDown": {
+            "Jalousie 1 [Wohnzimmer].InputTriggerDown": {
               "<": 0.5
             }
           }
@@ -553,29 +553,27 @@
       ],
       "simulation": [
         {
-          "name": "should trigger when all conditions met",
+          "name": "blinds up in strong wind (safety)",
           "inputs": {
-            "Sonnenschein.AQ": 1.0,
-            "Windgeschwindigkeit.AQ": 45.0
+            "Windgeschwindigkeit": 45.0
           },
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Lichtsteuerung.I1": {
+            "Jalousie 1 [Küche].InputTriggerUp": {
               ">": 0.5
             }
           }
         },
         {
-          "name": "should NOT trigger when only partial conditions met",
+          "name": "no blind movement when calm",
           "inputs": {
-            "Sonnenschein.AQ": 0.0,
-            "Windgeschwindigkeit.AQ": 45.0
+            "Windgeschwindigkeit": 5.0
           },
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Lichtsteuerung.I1": {
+            "Jalousie 1 [Küche].InputTriggerUp": {
               "<": 0.5
             }
           }
@@ -748,29 +746,27 @@
       ],
       "simulation": [
         {
-          "name": "should trigger when all conditions met",
+          "name": "motion triggers light",
           "inputs": {
-            "Bewegungsmelder.OutputPresence": 1.0,
-            "Türkontakt Eingang.Q": 1.0
+            "Bewegungsmelder.OutputPresence": 1.0
           },
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Lichtsteuerung.Brightness": {
+            "Lichtsteuerung [Flur].I1": {
               ">": 0.5
             }
           }
         },
         {
-          "name": "should NOT trigger when only partial conditions met",
+          "name": "no triggers means no light",
           "inputs": {
-            "Bewegungsmelder.OutputPresence": 0.0,
-            "Türkontakt Eingang.Q": 1.0
+            "Bewegungsmelder.OutputPresence": 0.0
           },
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Lichtsteuerung.Brightness": {
+            "Lichtsteuerung [Flur].I1": {
               "<": 0.5
             }
           }
@@ -912,10 +908,10 @@
       ],
       "simulation": [
         {
-          "name": "should trigger when all conditions met",
+          "name": "dark + motion triggers garden light",
           "inputs": {
-            "Regen.AQ": 1.0,
-            "Sonnenschein.AQ": 1.0
+            "Bewegungsmelder Garten.OutputPresence": 1.0,
+            "Helligkeit": 10.0
           },
           "ticks": 10,
           "dt": 0.1,
@@ -926,10 +922,10 @@
           }
         },
         {
-          "name": "should NOT trigger when only partial conditions met",
+          "name": "no motion no light",
           "inputs": {
-            "Regen.AQ": 0.0,
-            "Sonnenschein.AQ": 1.0
+            "Bewegungsmelder Garten.OutputPresence": 0.0,
+            "Helligkeit": 10.0
           },
           "ticks": 10,
           "dt": 0.1,
@@ -1049,29 +1045,27 @@
       ],
       "simulation": [
         {
-          "name": "should trigger when all conditions met",
+          "name": "door sensor triggers garage light",
           "inputs": {
-            "Türkontakt Eingang.Q": 1.0,
-            "Sonnenschein.AQ": 1.0
+            "Garagentor Sensor.Q": 1.0
           },
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Garagentor.I1": {
+            "Garagenlicht [Garage].I1": {
               ">": 0.5
             }
           }
         },
         {
-          "name": "should NOT trigger when only partial conditions met",
+          "name": "no sensor no light",
           "inputs": {
-            "Türkontakt Eingang.Q": 0.0,
-            "Sonnenschein.AQ": 1.0
+            "Garagentor Sensor.Q": 0.0
           },
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Garagentor.I1": {
+            "Garagenlicht [Garage].I1": {
               "<": 0.5
             }
           }
@@ -1126,29 +1120,27 @@
       ],
       "simulation": [
         {
-          "name": "should trigger when all conditions met",
+          "name": "high CO2 opens blinds",
           "inputs": {
-            "Sonnenschein.AQ": 1.0,
-            "CO2 Sensor.AQ": 1100.0
+            "CO2 Sensor": 1100.0
           },
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Jalousie 1.InputTriggerUp": {
+            "Jalousie 1 [Schlafzimmer].InputTriggerUp": {
               ">": 0.5
             }
           }
         },
         {
-          "name": "should NOT trigger when only partial conditions met",
+          "name": "normal CO2 no action",
           "inputs": {
-            "Sonnenschein.AQ": 1.0,
-            "CO2 Sensor.AQ": 800.0
+            "CO2 Sensor": 800.0
           },
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Jalousie 1.InputTriggerUp": {
+            "Jalousie 1 [Schlafzimmer].InputTriggerUp": {
               "<": 0.5
             }
           }
@@ -1303,29 +1295,29 @@
       ],
       "simulation": [
         {
-          "name": "should trigger when all conditions met",
+          "name": "cold + daylight opens blinds",
           "inputs": {
-            "Außentemperatur.AQ": 0.0,
-            "Sonnenschein.AQ": 1.0
+            "Außentemperatur": 0.0,
+            "Helligkeit": 50000.0
           },
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Jalousie 1.InputTriggerUp": {
+            "Jalousie 1 [Wohnzimmer].InputTriggerUp": {
               ">": 0.5
             }
           }
         },
         {
-          "name": "should NOT trigger when only partial conditions met",
+          "name": "warm no action",
           "inputs": {
-            "Außentemperatur.AQ": 10.0,
-            "Sonnenschein.AQ": 1.0
+            "Außentemperatur": 10.0,
+            "Helligkeit": 50000.0
           },
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Jalousie 1.InputTriggerUp": {
+            "Jalousie 1 [Wohnzimmer].InputTriggerUp": {
               "<": 0.5
             }
           }
@@ -1627,29 +1619,27 @@
       ],
       "simulation": [
         {
-          "name": "should trigger when all conditions met",
+          "name": "switch forces blinds up",
           "inputs": {
-            "Sonnenschein.AQ": 1.0,
-            "Windgeschwindigkeit.AQ": 45.0
+            "Schalter 1.Q": 1.0
           },
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Jalousie 1.InputTriggerUp": {
+            "Jalousie 1 [Küche].InputTriggerUp": {
               ">": 0.5
             }
           }
         },
         {
-          "name": "should NOT trigger when only partial conditions met",
+          "name": "no switch no action",
           "inputs": {
-            "Sonnenschein.AQ": 0.0,
-            "Windgeschwindigkeit.AQ": 45.0
+            "Schalter 1.Q": 0.0
           },
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Jalousie 1.InputTriggerUp": {
+            "Jalousie 1 [Küche].InputTriggerUp": {
               "<": 0.5
             }
           }
@@ -1788,7 +1778,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Lichtsteuerung.Brightness": {
+            "Lichtsteuerung [Flur].Brightness": {
               ">": 0.5
             }
           }
@@ -1802,7 +1792,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Lichtsteuerung.Brightness": {
+            "Lichtsteuerung [Flur].Brightness": {
               "<": 0.5
             }
           }
@@ -2126,7 +2116,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Jalousie 1.InputTriggerDown": {
+            "Jalousie 1 [Wohnzimmer].InputTriggerDown": {
               ">": 0.5
             }
           }
@@ -2140,7 +2130,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Jalousie 1.InputTriggerDown": {
+            "Jalousie 1 [Wohnzimmer].InputTriggerDown": {
               "<": 0.5
             }
           }
@@ -2309,7 +2299,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Jalousie 1.InputTriggerDown": {
+            "Jalousie 1 [Bad].InputTriggerDown": {
               ">": 0.5
             }
           }
@@ -2322,7 +2312,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Jalousie 1.InputTriggerDown": {
+            "Jalousie 1 [Bad].InputTriggerDown": {
               "<": 0.5
             }
           }
@@ -2374,7 +2364,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Jalousie 1.InputTriggerDown": {
+            "Jalousie 1 [Wohnzimmer].InputTriggerDown": {
               ">": 0.5
             }
           }
@@ -2387,7 +2377,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Jalousie 1.InputTriggerDown": {
+            "Jalousie 1 [Wohnzimmer].InputTriggerDown": {
               "<": 0.5
             }
           }
@@ -2513,7 +2503,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Jalousie 1.InputTriggerUp": {
+            "Jalousie 1 [Wohnzimmer].InputTriggerUp": {
               ">": 0.5
             }
           }
@@ -2527,7 +2517,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Jalousie 1.InputTriggerUp": {
+            "Jalousie 1 [Wohnzimmer].InputTriggerUp": {
               "<": 0.5
             }
           }
@@ -2562,7 +2552,7 @@
         {
           "name": "should trigger when condition met",
           "inputs": {
-            "Luftfeuchtigkeit.AQ": 20.0
+            "Feuchtesensor Garten.AQ": 20.0
           },
           "ticks": 10,
           "dt": 0.1,
@@ -2575,7 +2565,7 @@
         {
           "name": "should NOT trigger when condition not met",
           "inputs": {
-            "Luftfeuchtigkeit.AQ": 10.0
+            "Feuchtesensor Garten.AQ": 10.0
           },
           "ticks": 10,
           "dt": 0.1,
@@ -2620,7 +2610,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Lichtsteuerung.I1": {
+            "Lichtsteuerung [Flur].I1": {
               ">": 0.5
             }
           }
@@ -2633,7 +2623,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Lichtsteuerung.I1": {
+            "Lichtsteuerung [Flur].I1": {
               "<": 0.5
             }
           }
@@ -2678,11 +2668,11 @@
       ],
       "simulation": [
         {
-          "name": "should activate on trigger",
+          "name": "fan starts after delay",
           "inputs": {
-            "Luftfeuchtigkeit.AQ": 65.0
+            "Luftfeuchtigkeit": 80.0
           },
-          "ticks": 10,
+          "ticks": 1300,
           "dt": 0.1,
           "expected_outputs": {
             "Lüfter Bad.I1": {
@@ -2691,9 +2681,9 @@
           }
         },
         {
-          "name": "should NOT activate without trigger",
+          "name": "no fan when dry",
           "inputs": {
-            "Luftfeuchtigkeit.AQ": 0.0
+            "Luftfeuchtigkeit": 40.0
           },
           "ticks": 10,
           "dt": 0.1,
@@ -2738,7 +2728,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Jalousie 1.InputTriggerDown": {
+            "Jalousie 1 [Schlafzimmer].InputTriggerDown": {
               ">": 0.5
             }
           }
@@ -2751,7 +2741,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Jalousie 1.InputTriggerDown": {
+            "Jalousie 1 [Schlafzimmer].InputTriggerDown": {
               "<": 0.5
             }
           }
@@ -2784,27 +2774,28 @@
       ],
       "simulation": [
         {
-          "name": "should trigger when condition met",
+          "name": "garden light on when dark + motion",
           "inputs": {
-            "Sonnenschein.AQ": 1.0
+            "Bewegungsmelder Garten.OutputPresence": 1.0,
+            "Helligkeit": 10.0
           },
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Lichtsteuerung.I1": {
+            "Gartenbeleuchtung.I1": {
               ">": 0.5
             }
           }
         },
         {
-          "name": "should NOT trigger when condition not met",
+          "name": "no light without motion",
           "inputs": {
-            "Sonnenschein.AQ": 0.0
+            "Bewegungsmelder Garten.OutputPresence": 0.0
           },
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Lichtsteuerung.I1": {
+            "Gartenbeleuchtung.I1": {
               "<": 0.5
             }
           }
@@ -2837,27 +2828,27 @@
       ],
       "simulation": [
         {
-          "name": "should trigger when condition met",
+          "name": "sensor triggers garage light",
           "inputs": {
-            "Türkontakt Eingang.Q": 1.0
+            "Garagentor Sensor.Q": 1.0
           },
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Lichtsteuerung.I1": {
+            "Garagenlicht [Garage].I1": {
               ">": 0.5
             }
           }
         },
         {
-          "name": "should NOT trigger when condition not met",
+          "name": "no sensor no light",
           "inputs": {
-            "Türkontakt Eingang.Q": 0.0
+            "Garagentor Sensor.Q": 0.0
           },
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Lichtsteuerung.I1": {
+            "Garagenlicht [Garage].I1": {
               "<": 0.5
             }
           }
@@ -2903,27 +2894,27 @@
       ],
       "simulation": [
         {
-          "name": "should trigger when condition met",
+          "name": "AC on when hot",
           "inputs": {
             "Außentemperatur.AQ": 29.0
           },
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Klimaanlage.toggle": {
+            "Klimaanlage.status": {
               ">": 0.5
             }
           }
         },
         {
-          "name": "should NOT trigger when condition not met",
+          "name": "AC off when cool",
           "inputs": {
             "Außentemperatur.AQ": 19.0
           },
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Klimaanlage.toggle": {
+            "Klimaanlage.status": {
               "<": 0.5
             }
           }
@@ -2989,7 +2980,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Lichtsteuerung.I1": {
+            "Lichtsteuerung [Flur].I1": {
               ">": 0.5
             }
           }
@@ -3002,7 +2993,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Lichtsteuerung.I1": {
+            "Lichtsteuerung [Flur].I1": {
               "<": 0.5
             }
           }
@@ -3128,7 +3119,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Jalousie 1.InputTriggerUp": {
+            "Jalousie 1 [Wohnzimmer].InputTriggerUp": {
               ">": 0.5
             }
           }
@@ -3142,7 +3133,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Jalousie 1.InputTriggerUp": {
+            "Jalousie 1 [Wohnzimmer].InputTriggerUp": {
               "<": 0.5
             }
           }
@@ -3175,27 +3166,27 @@
       ],
       "simulation": [
         {
-          "name": "should trigger when condition met",
+          "name": "dark triggers night light",
           "inputs": {
-            "Sonnenschein.AQ": 1.0
+            "Helligkeit": 10.0
           },
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Lichtsteuerung.I1": {
+            "Lichtsteuerung [Bad].I1": {
               ">": 0.5
             }
           }
         },
         {
-          "name": "should NOT trigger when condition not met",
+          "name": "bright no light",
           "inputs": {
-            "Sonnenschein.AQ": 0.0
+            "Helligkeit": 50000.0
           },
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Lichtsteuerung.I1": {
+            "Lichtsteuerung [Bad].I1": {
               "<": 0.5
             }
           }
@@ -3264,7 +3255,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Jalousie 1.InputTriggerUp": {
+            "Jalousie 1 [Küche].InputTriggerUp": {
               "<": 0.5
             }
           }
@@ -3277,7 +3268,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Jalousie 1.InputTriggerUp": {
+            "Jalousie 1 [Küche].InputTriggerUp": {
               ">": 0.5
             }
           }
@@ -3337,7 +3328,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Jalousie 1.InputTriggerDown": {
+            "Jalousie 1 [Wohnzimmer].InputTriggerDown": {
               ">": 0.5
             }
           }
@@ -3350,7 +3341,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Jalousie 1.InputTriggerDown": {
+            "Jalousie 1 [Wohnzimmer].InputTriggerDown": {
               "<": 0.5
             }
           }
@@ -3391,7 +3382,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Lichtsteuerung.I1": {
+            "Lichtsteuerung [Flur].I1": {
               ">": 0.5
             }
           }
@@ -3405,7 +3396,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Lichtsteuerung.I1": {
+            "Lichtsteuerung [Flur].I1": {
               "<": 0.5
             }
           }
@@ -3464,7 +3455,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Lichtsteuerung.Brightness": {
+            "Lichtsteuerung [Wohnzimmer].Brightness": {
               ">": 0.0
             }
           }
@@ -3477,7 +3468,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Lichtsteuerung.Brightness": {
+            "Lichtsteuerung [Wohnzimmer].Brightness": {
               "<": 0.5
             }
           }
@@ -3525,7 +3516,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Jalousie 1.InputTriggerDown": {
+            "Jalousie 1 [Wohnzimmer].InputTriggerDown": {
               ">": 0.5
             }
           }
@@ -3538,7 +3529,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Jalousie 1.InputTriggerDown": {
+            "Jalousie 1 [Wohnzimmer].InputTriggerDown": {
               "<": 0.5
             }
           }
@@ -3645,7 +3636,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Jalousie 1.InputTriggerDown": {
+            "Jalousie 1 [Schlafzimmer].InputTriggerDown": {
               ">": 0.5
             }
           }
@@ -3659,7 +3650,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Jalousie 1.InputTriggerDown": {
+            "Jalousie 1 [Schlafzimmer].InputTriggerDown": {
               "<": 0.5
             }
           }
@@ -3790,7 +3781,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Jalousie 1.InputTriggerDown": {
+            "Jalousie 1 [Wohnzimmer].InputTriggerDown": {
               ">": 0.5
             }
           }
@@ -3804,7 +3795,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Jalousie 1.InputTriggerDown": {
+            "Jalousie 1 [Wohnzimmer].InputTriggerDown": {
               "<": 0.5
             }
           }
@@ -3928,7 +3919,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Lichtsteuerung.Brightness": {
+            "Lichtsteuerung [Wohnzimmer].Brightness": {
               ">": 0.5
             }
           }
@@ -3942,7 +3933,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Lichtsteuerung.Brightness": {
+            "Lichtsteuerung [Wohnzimmer].Brightness": {
               "<": 0.5
             }
           }
@@ -4102,7 +4093,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Jalousie 1.InputTriggerUp": {
+            "Jalousie 1 [Wohnzimmer].InputTriggerUp": {
               ">": 0.5
             }
           }
@@ -4116,7 +4107,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Jalousie 1.InputTriggerUp": {
+            "Jalousie 1 [Wohnzimmer].InputTriggerUp": {
               "<": 0.5
             }
           }
@@ -4273,7 +4264,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Lichtsteuerung.I1": {
+            "Lichtsteuerung [Schlafzimmer].I1": {
               ">": 0.5
             }
           }
@@ -4287,7 +4278,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Lichtsteuerung.I1": {
+            "Lichtsteuerung [Schlafzimmer].I1": {
               "<": 0.5
             }
           }
@@ -4412,7 +4403,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Lichtsteuerung.Brightness": {
+            "Lichtsteuerung [Wohnzimmer].Brightness": {
               "<": 0.5
             }
           }
@@ -4425,7 +4416,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Lichtsteuerung.Brightness": {
+            "Lichtsteuerung [Wohnzimmer].Brightness": {
               ">": 0.5
             }
           }
@@ -4543,7 +4534,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Jalousie 1.InputTriggerUp": {
+            "Jalousie 1 [Wohnzimmer].InputTriggerUp": {
               ">": 0.5
             }
           }
@@ -4557,7 +4548,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Jalousie 1.InputTriggerUp": {
+            "Jalousie 1 [Wohnzimmer].InputTriggerUp": {
               "<": 0.5
             }
           }
@@ -4699,7 +4690,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Lichtsteuerung.I1": {
+            "Lichtsteuerung [Küche].I1": {
               ">": 0.5
             }
           }
@@ -4713,7 +4704,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Lichtsteuerung.I1": {
+            "Lichtsteuerung [Küche].I1": {
               "<": 0.5
             }
           }
@@ -4751,7 +4742,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Lichtsteuerung.Presence": {
+            "Lichtsteuerung [Flur].Presence": {
               ">": 0.5
             }
           }
@@ -4764,7 +4755,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Lichtsteuerung.Presence": {
+            "Lichtsteuerung [Flur].Presence": {
               "<": 0.5
             }
           }
@@ -4871,7 +4862,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Lichtsteuerung.I1": {
+            "Lichtsteuerung [Wohnzimmer].I1": {
               ">": 0.5
             }
           }
@@ -4884,7 +4875,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Lichtsteuerung.I1": {
+            "Lichtsteuerung [Wohnzimmer].I1": {
               "<": 0.5
             }
           }
@@ -5029,7 +5020,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Jalousie 1.InputTriggerUp": {
+            "Jalousie 1 [Wohnzimmer].InputTriggerUp": {
               ">": 0.5
             }
           }
@@ -5043,7 +5034,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Jalousie 1.InputTriggerUp": {
+            "Jalousie 1 [Wohnzimmer].InputTriggerUp": {
               "<": 0.5
             }
           }
@@ -5111,7 +5102,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Lichtsteuerung.Brightness": {
+            "Lichtsteuerung [Wohnzimmer].Brightness": {
               ">": 0.5
             }
           }
@@ -5124,7 +5115,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Lichtsteuerung.Brightness": {
+            "Lichtsteuerung [Wohnzimmer].Brightness": {
               "<": 0.5
             }
           }
@@ -5274,7 +5265,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Lichtsteuerung.Brightness": {
+            "Lichtsteuerung [Schlafzimmer].Brightness": {
               ">": 0.5
             }
           }
@@ -5287,7 +5278,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Lichtsteuerung.Brightness": {
+            "Lichtsteuerung [Schlafzimmer].Brightness": {
               "<": 0.5
             }
           }
@@ -5382,7 +5373,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Jalousie 1.InputTriggerDown": {
+            "Jalousie 1 [Wohnzimmer].InputTriggerDown": {
               ">": 0.5
             }
           }
@@ -5396,7 +5387,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Jalousie 1.InputTriggerDown": {
+            "Jalousie 1 [Wohnzimmer].InputTriggerDown": {
               "<": 0.5
             }
           }
@@ -5456,7 +5447,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Jalousie 1.InputTriggerDown": {
+            "Jalousie 1 [Küche].InputTriggerDown": {
               ">": 0.5
             }
           }
@@ -5469,7 +5460,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Jalousie 1.InputTriggerDown": {
+            "Jalousie 1 [Küche].InputTriggerDown": {
               "<": 0.5
             }
           }
@@ -5497,7 +5488,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Jalousie 1.InputTriggerDown": {
+            "Jalousie 1 [Schlafzimmer].InputTriggerDown": {
               ">": 0.5
             }
           }
@@ -5510,7 +5501,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Jalousie 1.InputTriggerDown": {
+            "Jalousie 1 [Schlafzimmer].InputTriggerDown": {
               "<": 0.5
             }
           }

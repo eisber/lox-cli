@@ -858,7 +858,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Lichtsteuerung.Brightness": {
+            "Lichtsteuerung [Wohnzimmer].Brightness": {
               ">": 0.0
             }
           }
@@ -871,7 +871,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Lichtsteuerung.Brightness": {
+            "Lichtsteuerung [Wohnzimmer].Brightness": {
               "<": 0.5
             }
           }
@@ -938,7 +938,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Lichtsteuerung.Brightness": {
+            "Lichtsteuerung [Wohnzimmer].Brightness": {
               ">": 0.5
             }
           }
@@ -951,7 +951,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Lichtsteuerung.Brightness": {
+            "Lichtsteuerung [Wohnzimmer].Brightness": {
               "<": 0.5
             }
           }
@@ -1022,7 +1022,7 @@
           "ticks": 30,
           "dt": 0.1,
           "expected_outputs": {
-            "Lichtsteuerung.Brightness": {
+            "Lichtsteuerung [Wohnzimmer].Brightness": {
               ">": 0.5
             }
           }
@@ -1035,7 +1035,7 @@
           "ticks": 30,
           "dt": 0.1,
           "expected_outputs": {
-            "Lichtsteuerung.Brightness": {
+            "Lichtsteuerung [Wohnzimmer].Brightness": {
               "<": 0.5
             }
           }
