@@ -209,8 +209,10 @@ impl SimEngine {
                     // overriding them would freeze the output and break edge
                     // detection in downstream blocks.
                     let bt = self.blocks[block_id].block_type();
-                    if !matches!(bt, "SysVar" | "VirtualIn" | "PassThrough"
-                        | "VirtualOut" | "VirtualState") {
+                    if !matches!(
+                        bt,
+                        "SysVar" | "VirtualIn" | "PassThrough" | "VirtualOut" | "VirtualState"
+                    ) {
                         self.output_overrides.insert(cid, value);
                     }
                     for &ds in &self.downstream[block_id] {
@@ -1507,5 +1509,225 @@ mod tests {
         e.tick(0.1);
         // A's natural output: passthrough of input 3.0
         assert!((e.get_output("A") - 3.0).abs() < f64::EPSILON);
+    }
+
+    // -- timer blocks re-evaluate every tick (is_time_dependent) -------------
+
+    #[test]
+    fn timer_countdown_without_input_change() {
+        // OnPulseDelay with Delay=1s, Time=3s.
+        // Set trigger once, then verify the block counts down
+        // and fires even though inputs stay constant.
+        let mut g = SimGraph::new();
+        let src = g.add_block("Src", Box::new(PassThrough), &["I1"], &["Q"], &[]);
+        let timer = g.add_block(
+            "Timer",
+            Box::new(OnPulseDelay::new()),
+            &["I1"],
+            &["Q"],
+            &["Delay", "Time"],
+        );
+        g.add_wire(
+            g.find_connector(src, "Q").unwrap(),
+            g.find_connector(timer, "I1").unwrap(),
+        )
+        .unwrap();
+
+        let mut e = SimEngine::new(g);
+        e.set_param("Timer", "Delay", 1.0);
+        e.set_param("Timer", "Time", 3.0);
+
+        // Trigger: 0→1 rising edge
+        e.set_input("Src", 1.0);
+        e.tick(0.1);
+
+        // Tick 15 times at dt=0.1 (total 1.6s from start including trigger tick).
+        // No further input changes — timer must still count down via is_time_dependent.
+        let mut outputs = Vec::new();
+        for _ in 0..15 {
+            e.tick(0.1);
+            outputs.push(e.get_output("Timer"));
+        }
+
+        // After 1s delay (tick 10 from trigger = index 9 here), Q should go high.
+        // At tick 11 (index 10) the pulse should be active.
+        assert!(
+            outputs[9] > 0.0 || outputs[10] > 0.0,
+            "timer should fire after 1s delay, outputs: {outputs:?}"
+        );
+    }
+
+    // -- inject_output override survives re-evaluation -------------------------
+
+    #[test]
+    fn inject_output_survives_reevaluation() {
+        let mut g = SimGraph::new();
+        g.add_block("Gate", Box::new(And), &["I1", "I2"], &["Q"], &[]);
+        let mut e = SimEngine::new(g);
+
+        // Inputs are 0 → And.Q should be 0 normally
+        e.tick(0.1);
+        assert!((e.get_output("Gate")).abs() < f64::EPSILON);
+
+        // Override output to 1.0
+        e.inject_output("Gate", 1.0);
+        for _ in 0..5 {
+            e.tick(0.1);
+            assert!(
+                (e.get_output("Gate") - 1.0).abs() < f64::EPSILON,
+                "inject_output should persist across ticks"
+            );
+        }
+    }
+
+    #[test]
+    fn clear_override_restores_block_output() {
+        let mut g = SimGraph::new();
+        g.add_block("Gate", Box::new(And), &["I1", "I2"], &["Q"], &[]);
+        let mut e = SimEngine::new(g);
+
+        // Override to 1.0
+        e.inject_output("Gate", 1.0);
+        e.tick(0.1);
+        assert!((e.get_output("Gate") - 1.0).abs() < f64::EPSILON);
+
+        // Clear override → block recomputes: inputs are 0, And(0,0)=0
+        e.clear_override("Gate");
+        e.tick(0.1);
+        assert!(
+            e.get_output("Gate").abs() < f64::EPSILON,
+            "clearing override should restore computed output (0.0)"
+        );
+    }
+
+    // -- name-based wire resolution from parsed XML --------------------------
+
+    #[test]
+    fn name_based_wiring_from_xml() {
+        let xml = r#"<?xml version="1.0" encoding="utf-8"?>
+<C Type="Document" Title="Test" V="175">
+  <C Type="Program" Title="Test">
+    <C Type="Page" Title="Test">
+      <C Type="VirtualIn" U="src" Title="Source">
+        <Co K="Q" U="src-q"/>
+      </C>
+      <C Type="And" U="gate" Title="Gate">
+        <Co K="I1" U="gate-i1"><In Input="Source.Q"/></Co>
+        <Co K="I2" U="gate-i2"/>
+        <Co K="Q" U="gate-q"/>
+      </C>
+    </C>
+  </C>
+</C>"#;
+
+        let graph =
+            crate::parser::parse_bytes(xml.as_bytes()).expect("XML should parse successfully");
+        let mut e = SimEngine::new(graph);
+
+        e.set_input("Source", 1.0);
+        e.tick(0.1);
+        // Gate.I1 is wired from Source.Q; I2 defaults to 0 → And=0.
+        // But the signal should at least propagate from Source to Gate.I1.
+        // With And(1,0)=0, verify wiring worked by checking I2-only scenario:
+        e.set_input("Gate.I2", 1.0);
+        e.tick(0.1);
+        assert!(
+            (e.get_output("Gate") - 1.0).abs() < f64::EPSILON,
+            "name-based wiring should connect Source.Q → Gate.I1"
+        );
+    }
+
+    // -- room-qualified name resolution --------------------------------------
+
+    #[test]
+    fn room_qualified_name_resolution() {
+        let xml = r#"<?xml version="1.0" encoding="utf-8"?>
+<C Type="Document" Title="Test" V="175">
+  <C Type="Program" Title="Test">
+    <C Type="Page" Title="Bad">
+      <C Type="VirtualIn" U="vi-bad" Title="Light">
+        <Co K="Q" U="vi-bad-q"/>
+      </C>
+    </C>
+    <C Type="Page" Title="Kitchen">
+      <C Type="VirtualIn" U="vi-kit" Title="Light">
+        <Co K="Q" U="vi-kit-q"/>
+      </C>
+    </C>
+  </C>
+</C>"#;
+
+        let graph =
+            crate::parser::parse_bytes(xml.as_bytes()).expect("XML should parse successfully");
+        let mut e = SimEngine::new(graph);
+
+        // Set only "Light [Bad]" to 1.0
+        assert!(
+            e.set_input("Light [Bad]", 1.0),
+            "room-qualified name should resolve"
+        );
+        e.tick(0.1);
+
+        assert!(
+            (e.get_output("Light [Bad]") - 1.0).abs() < f64::EPSILON,
+            "Light [Bad] should be 1.0"
+        );
+        assert!(
+            (e.get_output("Light [Kitchen]")).abs() < f64::EPSILON,
+            "Light [Kitchen] should remain 0.0"
+        );
+    }
+
+    // -- set_input falls back to named_outputs --------------------------------
+
+    #[test]
+    fn set_input_resolves_output_connectors() {
+        let mut g = SimGraph::new();
+        g.add_block("Gate", Box::new(And), &["I1", "I2"], &["Q"], &[]);
+        let mut e = SimEngine::new(g);
+
+        // set_input on an output connector should succeed via fallback
+        assert!(
+            e.set_input("Gate.Q", 1.0),
+            "set_input should fall back to named_outputs"
+        );
+        e.tick(0.1);
+        assert!(
+            (e.get_output("Gate") - 1.0).abs() < f64::EPSILON,
+            "override via set_input fallback should persist"
+        );
+    }
+
+    // -- OnPulseDelay delay=0 fires immediately ------------------------------
+
+    #[test]
+    fn on_pulse_delay_zero_fires_immediately() {
+        let mut g = SimGraph::new();
+        let src = g.add_block("Src", Box::new(PassThrough), &["I1"], &["Q"], &[]);
+        let timer = g.add_block(
+            "Timer",
+            Box::new(OnPulseDelay::new()),
+            &["I1"],
+            &["Q"],
+            &["Delay", "Time"],
+        );
+        g.add_wire(
+            g.find_connector(src, "Q").unwrap(),
+            g.find_connector(timer, "I1").unwrap(),
+        )
+        .unwrap();
+
+        let mut e = SimEngine::new(g);
+        e.set_param("Timer", "Delay", 0.0);
+        e.set_param("Timer", "Time", 3.0);
+
+        // Trigger: 0→1 rising edge
+        e.set_input("Src", 1.0);
+        e.tick(0.1);
+
+        assert!(
+            (e.get_output("Timer") - 1.0).abs() < f64::EPSILON,
+            "OnPulseDelay with delay=0 should fire on the first tick"
+        );
     }
 }
