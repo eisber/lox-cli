@@ -254,15 +254,17 @@
       ],
       "simulation": [
         {
-          "name": "thermostat receives stored value",
+          "name": "thermostat setpoint receives 21°C",
           "inputs": {
-            "Raumtemperatur Wohnzimmer.AQ": 21.0
+            "Raumtemperatur Wohnzimmer.AQ": 19.0,
+            "Schalter 1.Q": 1.0
           },
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Raumregler [Wohnzimmer].Temp": {
-              ">=": 18
+            "Raumregler [Wohnzimmer].Setpoint": {
+              ">=": 18,
+              "<=": 24
             }
           }
         }
@@ -300,15 +302,17 @@
       ],
       "simulation": [
         {
-          "name": "thermostat receives eco setting",
+          "name": "thermostat setpoint receives 18°C eco",
           "inputs": {
-            "Raumtemperatur Wohnzimmer.AQ": 18.0
+            "Raumtemperatur Wohnzimmer.AQ": 22.0,
+            "Schalter 1.Q": 1.0
           },
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Raumregler [Wohnzimmer].Temp": {
-              ">=": 15
+            "Raumregler [Wohnzimmer].Setpoint": {
+              ">=": 15,
+              "<=": 21
             }
           }
         }
