@@ -538,6 +538,10 @@ impl Block for OnDelay {
         }
     }
 
+    fn is_time_dependent(&self) -> bool {
+        true
+    }
+
     fn block_type(&self) -> &str {
         "OnDelay"
     }
@@ -692,6 +696,10 @@ impl Block for RetOnDelay {
                 self.elapsed = v[0];
             }
         }
+    }
+
+    fn is_time_dependent(&self) -> bool {
+        true
     }
 
     fn block_type(&self) -> &str {
