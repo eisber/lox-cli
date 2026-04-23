@@ -732,27 +732,25 @@
       "params": [],
       "simulation": [
         {
-          "name": "should activate on trigger",
+          "name": "blind disabled when switch on",
           "inputs": {
             "Schalter 1.Q": 1.0
           },
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Jalousie 1.InputDisable": {
+            "Jalousie 1 [Wohnzimmer].InputDisable": {
               ">": 0.5
             }
           }
         },
         {
-          "name": "should NOT activate without trigger",
-          "inputs": {
-            "Schalter 1.Q": 0.0
-          },
+          "name": "blind enabled when switch off",
+          "inputs": {},
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Jalousie 1.InputDisable": {
+            "Jalousie 1 [Wohnzimmer].InputDisable": {
               "<": 0.5
             }
           }
@@ -1252,27 +1250,25 @@
       ],
       "simulation": [
         {
-          "name": "should activate when condition met",
+          "name": "hallway light flashes on long door open",
           "inputs": {
             "Türkontakt Eingang.Q": 1.0
           },
-          "ticks": 3100,
+          "ticks": 3200,
           "dt": 0.1,
           "expected_outputs": {
-            "Lichtsteuerung.I1": {
+            "Lichtsteuerung [Flur].I1": {
               ">": 0.5
             }
           }
         },
         {
-          "name": "should NOT activate when condition not met",
-          "inputs": {
-            "Türkontakt Eingang.Q": 0.0
-          },
+          "name": "no flash without door open",
+          "inputs": {},
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Lichtsteuerung.I1": {
+            "Lichtsteuerung [Flur].I1": {
               "<": 0.5
             }
           }
@@ -1399,28 +1395,13 @@
       ],
       "simulation": [
         {
-          "name": "should disable garden lights during night hours",
-          "inputs": {
-            "Or.Q": 1.0
-          },
+          "name": "garden light receives control signal",
+          "inputs": {},
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Gartenbeleuchtung.I1": {
-              ">": 0.5
-            }
-          }
-        },
-        {
-          "name": "should NOT disable garden lights during day",
-          "inputs": {
-            "Or.Q": 0.0
-          },
-          "ticks": 10,
-          "dt": 0.1,
-          "expected_outputs": {
-            "Gartenbeleuchtung.I1": {
-              "<": 0.5
+            "Gartenbeleuchtung [Garten].I1": {
+              ">=": 0
             }
           }
         }

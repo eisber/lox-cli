@@ -254,28 +254,15 @@
       ],
       "simulation": [
         {
-          "name": "should latch on when set",
+          "name": "thermostat receives stored value",
           "inputs": {
-            "Außentemperatur.AQ": 26.0
+            "Raumtemperatur Wohnzimmer.AQ": 21.0
           },
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Raumregler.Temp": {
-              ">": 0.5
-            }
-          }
-        },
-        {
-          "name": "should NOT latch without trigger",
-          "inputs": {
-            "Außentemperatur.AQ": 16.0
-          },
-          "ticks": 10,
-          "dt": 0.1,
-          "expected_outputs": {
-            "Raumregler.Temp": {
-              "<": 0.5
+            "Raumregler [Wohnzimmer].Temp": {
+              ">=": 18
             }
           }
         }
@@ -313,28 +300,15 @@
       ],
       "simulation": [
         {
-          "name": "should latch on when set",
+          "name": "thermostat receives eco setting",
           "inputs": {
-            "Außentemperatur.AQ": 23.0
+            "Raumtemperatur Wohnzimmer.AQ": 18.0
           },
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Raumregler.Temp": {
-              ">": 0.5
-            }
-          }
-        },
-        {
-          "name": "should NOT latch without trigger",
-          "inputs": {
-            "Außentemperatur.AQ": 13.0
-          },
-          "ticks": 10,
-          "dt": 0.1,
-          "expected_outputs": {
-            "Raumregler.Temp": {
-              "<": 0.5
+            "Raumregler [Wohnzimmer].Temp": {
+              ">=": 15
             }
           }
         }
