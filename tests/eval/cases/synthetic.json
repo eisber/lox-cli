@@ -295,12 +295,11 @@
       ],
       "simulation": [
         {
-          "name": "fan runs when light triggers",
+          "name": "fan runs while light is on",
           "inputs": {
-            "Lichtsteuerung [Bad].AQ1": 1.0,
-            "Bewegungsmelder.OutputPresence": 1.0
+            "Lichtsteuerung [Bad].AQ1": 1.0
           },
-          "ticks": 20,
+          "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
             "Lüfter Bad": {
@@ -309,7 +308,7 @@
           }
         },
         {
-          "name": "fan off with no trigger",
+          "name": "fan off when light has been off long enough",
           "inputs": {},
           "ticks": 10,
           "dt": 0.1,

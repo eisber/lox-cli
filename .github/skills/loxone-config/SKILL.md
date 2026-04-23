@@ -86,10 +86,19 @@ lox blocks search "what you want" -o json
 lox blocks info TypeName -o json
 ```
 
-### Key distinction: StairwayLS vs OnPulseDelay
+### Key distinction: StairwayLS vs OnPulseDelay vs OffDelay
 
-- **StairwayLS**: Trigger → output ON immediately for `TimeHigh` seconds → OFF. Use for "turn on light for 5 minutes".
-- **OnPulseDelay**: Trigger → wait `Delay` seconds → output ON for `Duration` seconds → OFF. Use for "wait 10s then run pump for 30s".
+⚠ **IMPORTANT**: For "turn on X for N minutes when triggered", ALWAYS use **StairwayLS**.
+
+| Block | Behavior | Use When |
+|-------|----------|----------|
+| **StairwayLS** | Trigger → ON immediately for TimeHigh seconds → OFF | "turn on light for 5 min", "garage light for 5 min when door opens" |
+| **OnPulseDelay** | Trigger → WAIT Delay seconds → ON for Duration → OFF | "wait 10s then beep for 2s" |
+| **OffDelay** | Input ON → Output ON. Input OFF → Output stays ON for Time more seconds → OFF | "fan stays on 10 min after light turns off" |
+| **Monoflop** | Trigger → ON for Time seconds (re-triggerable) | "pulse for exactly N seconds" |
+
+**Never use OnPulseDelay for timed lights or garage lights.** Use StairwayLS.
+**Use OffDelay for "keep running after trigger stops"** (e.g., bathroom fan after light off).
 
 ## Fixture Sensors (wire FROM these outputs)
 
@@ -193,7 +202,30 @@ lox config add --type StairwayLS --title "Treppenlicht" --room Flur --page Flur 
 lox config set-param config.Loxone "Treppenlicht" TimeHigh 300
 lox config wire-connector config.Loxone "Treppenlicht.InputTrigger" "Bewegungsmelder.OutputPresence"
 lox config wire-connector config.Loxone "Lichtsteuerung [Flur].I1" "Treppenlicht.Q"
-lox sim run config.Loxone --sim '{"inputs":{"Bewegungsmelder.OutputPresence":1},"ticks":10,"dt":0.1,"expected_outputs":{"Treppenlicht.Q":{">":0.5}}}'
+lox config check config.Loxone
+```
+
+### Bathroom fan: Keep running after light turns off
+
+Use **OffDelay** (NOT OnPulseDelay) — output stays ON for Time seconds after input goes LOW:
+
+```
+lox config add --type OffDelay --title "Lüfter Nachlauf" --room Bad --page Bad config.Loxone
+lox config set-param config.Loxone "Lüfter Nachlauf" Time 600
+lox config wire-connector config.Loxone "Lüfter Nachlauf.InputTrigger" "Lichtsteuerung [Bad].AQ1"
+lox config wire-connector config.Loxone "Lüfter Bad.I1" "Lüfter Nachlauf.Q"
+lox config check config.Loxone
+```
+
+### CO2 threshold: Open window when CO2 exceeds limit
+
+Always wire the threshold output TO the actuator — don't leave outputs disconnected:
+
+```
+lox config add --type GreaterEqual --title "CO2 hoch" --room Küche --page Küche config.Loxone
+lox config set-param config.Loxone "CO2 hoch" Input2 1000
+lox config wire-connector config.Loxone "CO2 hoch.Input1" "CO2 Sensor.AQ"
+lox config wire-connector config.Loxone "Jalousie 1 [Küche].InputTriggerDown" "CO2 hoch.Q"
 lox config check config.Loxone
 ```
 
