@@ -1250,11 +1250,11 @@
       ],
       "simulation": [
         {
-          "name": "hallway light flashes on long door open",
+          "name": "light flashes after 5min door open (check at t=302s)",
           "inputs": {
             "Türkontakt Eingang.Q": 1.0
           },
-          "ticks": 3200,
+          "ticks": 3020,
           "dt": 0.1,
           "expected_outputs": {
             "Lichtsteuerung [Flur].I1": {
