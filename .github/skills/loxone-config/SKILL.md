@@ -245,6 +245,29 @@ lox config wire-connector config.Loxone "Jalousie 1 [Küche].InputTriggerDown" "
 lox config check config.Loxone
 ```
 
+### Heating setpoint: Set room temperature to 22°C
+
+Wire room sensor to `.Temp` (NOT `.TempO`!) and setpoint to `.Setpoint`:
+
+```
+lox config add --type Constant --title "Sollwert 22" --room Wohnzimmer --page Wohnzimmer config.Loxone
+lox config set-param config.Loxone "Sollwert 22" Value 22
+lox config wire-connector config.Loxone "Raumregler.Temp" "Raumtemperatur Wohnzimmer.AQ"
+lox config wire-connector config.Loxone "Raumregler.Setpoint" "Sollwert 22.Q"
+lox config check config.Loxone
+```
+
+### Memory block: Remember a temperature setting
+
+Use AMemory to store a value (e.g., 21°C) when a switch is pressed:
+
+```
+lox config add --type AMemory --title "Temp Speicher" --room Wohnzimmer --page Wohnzimmer config.Loxone
+lox config set-param config.Loxone "Temp Speicher" Input 21
+lox config wire-connector config.Loxone "Temp Speicher.Trigger" "Schalter 1.Q"
+lox config wire-connector config.Loxone "Raumregler.Setpoint" "Temp Speicher.AQ"
+```
+
 ## Common Mistakes
 
 1. **wire-connector argument order**: TARGET first, then SOURCE. `"Target.Input" "Source.Output"` — not the other way around.
@@ -256,3 +279,15 @@ lox config check config.Loxone
 7. **Missing parameters**: Always set threshold values (Input2) on comparison blocks. Always set TimeHigh on StairwayLS, Time on Monoflop.
 8. **⚠ ALWAYS wire the output**: Every logic block's output (Q or AQ) MUST be wired to an actuator or the next block. A block with unwired output does nothing. After wiring inputs, always wire the output too.
 9. **Complete the signal path**: Ensure there is a complete path from source (sensor, schedule, switch) to the final target actuator. Don't leave intermediate outputs disconnected. Run `lox config check` to verify.
+10. **⚠ Raumregler connectors — CRITICAL**: The Raumregler (IRC/Thermostat) has these inputs:
+    - `.Temp` = measured room temperature ← wire the room temperature SENSOR here
+    - `.Setpoint` = desired target temperature ← wire a constant or Memory block here
+    - `.TempO` = outside temperature info (for weather compensation only, NOT for room temp!)
+    - `.Reset` = reset to default
+    - Do NOT wire room temperature to `.TempO`, `.Input`, `.Comfort`, or `.Save` — these are for different purposes.
+    - Output: `.AQh` = heating valve demand (0-100%), `.AQc` = cooling demand
+11. **⚠ Timer duration parameters — CRITICAL**: When creating StairwayLS, OnPulseDelay, OffDelay, or Monoflop blocks, you MUST set the duration parameter. Without it, the timer defaults to 0 seconds and the signal passes through instantly or not at all.
+    - StairwayLS: `set-param FILE "BlockTitle" TimeHigh 300` (5 minutes = 300 seconds)
+    - OnPulseDelay: `set-param FILE "BlockTitle" Time 600` (10 minutes = 600 seconds)
+    - OffDelay: `set-param FILE "BlockTitle" Time 300`
+    - Monoflop: `set-param FILE "BlockTitle" Duration 180`
