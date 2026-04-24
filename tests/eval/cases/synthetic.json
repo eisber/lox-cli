@@ -903,10 +903,10 @@
           "inputs": {
             "Bewegungsmelder Garten.OutputPresence": 1.0
           },
-          "ticks": 1900,
+          "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Gartenbeleuchtung.I1": {
+            "Gartenbeleuchtung [Garten].I1": {
               ">": 0.5
             }
           }
@@ -919,7 +919,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Gartenbeleuchtung.I1": {
+            "Gartenbeleuchtung [Garten].I1": {
               "<": 0.5
             }
           }

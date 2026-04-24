@@ -3323,11 +3323,11 @@
       ],
       "simulation": [
         {
-          "name": "should activate on trigger",
+          "name": "blinds close after sustained sunshine",
           "inputs": {
-            "Sonnenschein.AQ": 1.0
+            "Sonnenschein": 1.0
           },
-          "ticks": 10,
+          "ticks": 3100,
           "dt": 0.1,
           "expected_outputs": {
             "Jalousie 1 [Wohnzimmer].InputTriggerDown": {
@@ -3336,9 +3336,9 @@
           }
         },
         {
-          "name": "should NOT activate without trigger",
+          "name": "no blind close without sunshine",
           "inputs": {
-            "Sonnenschein.AQ": 0.0
+            "Sonnenschein": 0.0
           },
           "ticks": 10,
           "dt": 0.1,
@@ -5095,27 +5095,27 @@
       ],
       "simulation": [
         {
-          "name": "should activate on trigger",
+          "name": "door triggers hallway light",
           "inputs": {
             "Türkontakt Eingang.Q": 1.0
           },
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Lichtsteuerung [Wohnzimmer].Brightness": {
+            "Lichtsteuerung [Flur].I1": {
               ">": 0.5
             }
           }
         },
         {
-          "name": "should NOT activate without trigger",
+          "name": "no trigger no light",
           "inputs": {
             "Türkontakt Eingang.Q": 0.0
           },
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Lichtsteuerung [Wohnzimmer].Brightness": {
+            "Lichtsteuerung [Flur].I1": {
               "<": 0.5
             }
           }
@@ -5440,11 +5440,11 @@
       ],
       "simulation": [
         {
-          "name": "should activate on trigger",
+          "name": "delayed blind close on sustained sunshine",
           "inputs": {
-            "Sonnenschein.AQ": 1.0
+            "Sonnenschein": 1.0
           },
-          "ticks": 10,
+          "ticks": 3100,
           "dt": 0.1,
           "expected_outputs": {
             "Jalousie 1 [Küche].InputTriggerDown": {
@@ -5453,9 +5453,9 @@
           }
         },
         {
-          "name": "should NOT activate without trigger",
+          "name": "no blind close without sunshine",
           "inputs": {
-            "Sonnenschein.AQ": 0.0
+            "Sonnenschein": 0.0
           },
           "ticks": 10,
           "dt": 0.1,
