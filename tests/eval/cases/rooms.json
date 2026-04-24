@@ -346,8 +346,9 @@
       ],
       "simulation": [
         {
+          "name": "cold pool triggers pump",
           "inputs": {
-            "Pool Temperatur.AQ": 15.0
+            "Pool Temperatur": 10
           },
           "ticks": 10,
           "dt": 0.1,
@@ -355,13 +356,12 @@
             "Poolpumpe.I1": {
               ">": 0.5
             }
-          },
-          "name": "should trigger when condition met"
+          }
         },
         {
-          "name": "should NOT trigger when condition not met",
+          "name": "warm pool no pump",
           "inputs": {
-            "Pool Temperatur.AQ": 5.0
+            "Pool Temperatur": 25
           },
           "ticks": 10,
           "dt": 0.1,
@@ -520,27 +520,27 @@
       ],
       "simulation": [
         {
-          "name": "should activate on trigger",
+          "name": "doorbell triggers light",
           "inputs": {
-            "Türklingel.Q": 1.0
+            "Türklingel.Q": 1
           },
-          "ticks": 50,
+          "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Lichtsteuerung [Flur].Brightness": {
+            "Lichtsteuerung [Flur].I1": {
               ">": 0.5
             }
           }
         },
         {
-          "name": "should NOT activate without trigger",
+          "name": "no bell no light",
           "inputs": {
-            "Türklingel.Q": 0.0
+            "Türklingel.Q": 0
           },
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Lichtsteuerung [Flur].Brightness": {
+            "Lichtsteuerung [Flur].I1": {
               "<": 0.5
             }
           }
@@ -972,27 +972,29 @@
       ],
       "simulation": [
         {
-          "name": "should trigger when condition met",
+          "name": "door + dark triggers",
           "inputs": {
-            "Garagentor Sensor.Q": 1.0
+            "Garagentor Sensor.Q": 1,
+            "Helligkeit": 10
           },
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Garagenlicht.Q": {
+            "Garagenlicht [Garage].I1": {
               ">": 0.5
             }
           }
         },
         {
-          "name": "should NOT trigger when condition not met",
+          "name": "no door no trigger",
           "inputs": {
-            "Garagentor Sensor.Q": 0.0
+            "Garagentor Sensor.Q": 0,
+            "Helligkeit": 10
           },
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Garagenlicht.Q": {
+            "Garagenlicht [Garage].I1": {
               "<": 0.5
             }
           }

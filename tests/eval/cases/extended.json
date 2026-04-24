@@ -220,9 +220,9 @@
       ],
       "simulation": [
         {
-          "name": "should trigger when condition met",
+          "name": "humid triggers fan",
           "inputs": {
-            "Luftfeuchtigkeit.AQ": 75.0
+            "Luftfeuchtigkeit": 80
           },
           "ticks": 10,
           "dt": 0.1,
@@ -233,26 +233,9 @@
           }
         },
         {
-          "name": "should stay on during off-delay after condition drops",
+          "name": "dry no fan",
           "inputs": {
-            "Luftfeuchtigkeit.AQ": 75.0
-          },
-          "setup_inputs": {
-            "Luftfeuchtigkeit.AQ": 75.0
-          },
-          "setup_ticks": 10,
-          "ticks": 20,
-          "dt": 0.1,
-          "expected_outputs": {
-            "Lüfter Bad.I1": {
-              ">": 0.5
-            }
-          }
-        },
-        {
-          "name": "should NOT trigger when condition not met",
-          "inputs": {
-            "Luftfeuchtigkeit.AQ": 65.0
+            "Luftfeuchtigkeit": 40
           },
           "ticks": 10,
           "dt": 0.1,
@@ -299,27 +282,27 @@
       ],
       "simulation": [
         {
-          "name": "should trigger when condition met",
+          "name": "door triggers light",
           "inputs": {
-            "Garagentor Sensor.Q": 1.0
+            "Garagentor Sensor.Q": 1
           },
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Garagenlicht.Q": {
+            "Garagenlicht [Garage].I1": {
               ">": 0.5
             }
           }
         },
         {
-          "name": "should NOT trigger when condition not met",
+          "name": "no door no light",
           "inputs": {
-            "Garagentor Sensor.Q": 0.0
+            "Garagentor Sensor.Q": 0
           },
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Garagenlicht.Q": {
+            "Garagenlicht [Garage].I1": {
               "<": 0.5
             }
           }

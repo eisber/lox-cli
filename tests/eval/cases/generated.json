@@ -2549,9 +2549,9 @@
       ],
       "simulation": [
         {
-          "name": "should trigger when condition met",
+          "name": "dry soil irrigates",
           "inputs": {
-            "Feuchtesensor Garten.AQ": 20.0
+            "Feuchtesensor Garten": 10
           },
           "ticks": 10,
           "dt": 0.1,
@@ -2562,9 +2562,9 @@
           }
         },
         {
-          "name": "should NOT trigger when condition not met",
+          "name": "wet soil no irrigation",
           "inputs": {
-            "Feuchtesensor Garten.AQ": 10.0
+            "Feuchtesensor Garten": 30
           },
           "ticks": 10,
           "dt": 0.1,
@@ -4521,10 +4521,10 @@
       ],
       "simulation": [
         {
-          "name": "should trigger when all conditions met",
+          "name": "CO2 high + bright opens blinds",
           "inputs": {
-            "Luftfeuchtigkeit.AQ": 1205.0,
-            "Sonnenschein.AQ": 1.0
+            "CO2 Sensor": 1300,
+            "Helligkeit": 50000
           },
           "ticks": 10,
           "dt": 0.1,
@@ -4535,10 +4535,10 @@
           }
         },
         {
-          "name": "should NOT trigger when only partial conditions met",
+          "name": "CO2 low no action",
           "inputs": {
-            "Luftfeuchtigkeit.AQ": 1195.0,
-            "Sonnenschein.AQ": 1.0
+            "CO2 Sensor": 500,
+            "Helligkeit": 50000
           },
           "ticks": 10,
           "dt": 0.1,

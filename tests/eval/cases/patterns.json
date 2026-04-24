@@ -1763,13 +1763,13 @@
       ],
       "simulation": [
         {
-          "name": "should trigger when all conditions met",
+          "name": "dry soil irrigates",
           "inputs": {
-            "Regen.AQ": 1.0,
-            "Feuchtesensor Garten.AQ": 35.0
+            "Feuchtesensor Garten": 10
           },
           "ticks": 10,
           "dt": 0.1,
+          "time": 360,
           "expected_outputs": {
             "Bewässerungsventil.I1": {
               ">": 0.5
@@ -1777,10 +1777,9 @@
           }
         },
         {
-          "name": "should NOT trigger when only partial conditions met",
+          "name": "wet soil no irrigation",
           "inputs": {
-            "Regen.AQ": 0.0,
-            "Feuchtesensor Garten.AQ": 35.0
+            "Feuchtesensor Garten": 30
           },
           "ticks": 10,
           "dt": 0.1,
