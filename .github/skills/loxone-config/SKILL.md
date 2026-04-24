@@ -129,7 +129,21 @@ lox blocks info TypeName -o json
 | Klimaanlage | Wohnzimmer | .toggle |
 | Poolpumpe | Garten | .I1 |
 | Lüfter Bad | Bad | .I1 |
-| Raumregler | Wohnzimmer | .Temp |
+| Raumregler | Wohnzimmer | .Temp (measured), .Setpoint (target) |
+| Heizkörper Bad | Bad | .I1 |
+| Garagenlicht | Garage | .I1 |
+| Garagentor | Garage | .I1 |
+| Gartenbeleuchtung | Garten | .I1 |
+| Bewässerungsventil | Garten | .I1 |
+| Türöffner | Flur | .I1 |
+| Alarmanlage | Flur | .I (StateV — wire trigger to .I) |
+| Statusblock | Wohnzimmer | .I (StateV — wire value to .I) |
+| Audiozone | Wohnzimmer | .I (StateV — wire trigger to .I) |
+| Wallbox | Garage | .I (StateV — wire control to .I) |
+| Heizstab | Bad | .I (StateV — wire control to .I) |
+| Steckdose | Küche | .I (StateV — wire control to .I) |
+| Türschloss | Flur | .I (StateV — wire unlock to .I) |
+| Batteriespeicher | Garage | .I (StateV — wire control to .I) |
 
 ## Workflow
 
