@@ -7702,7 +7702,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Heizstab.I1": {
+            "Heizstab.AQ": {
               ">": 0.5
             }
           }
@@ -7716,7 +7716,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Heizstab.I1": {
+            "Heizstab.AQ": {
               "<": 0.5
             }
           }
@@ -10949,7 +10949,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Heizstab.I1": {
+            "Heizstab.AQ": {
               ">": 0.5
             }
           }
@@ -10963,7 +10963,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Heizstab.I1": {
+            "Heizstab.AQ": {
               "<": 0.5
             }
           }

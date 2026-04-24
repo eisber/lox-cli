@@ -1,285 +1,390 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ControlList LxAV="84" Version="267" NextMem="3" NextConst="1" NextNote="1" NextObj="120">
-  <C Type="Document" V="175" U="00000001-0000-0001-ffff000000000001" Title="Eval Fixture" WF="16384" ConfigVersion="17000331"/>
-  <!-- Rooms (7 rooms for diverse scenarios) -->
-  <C Type="Place" V="175" U="10000001-0001-0001-ffff000000000001" Title="Wohnzimmer" WF="16384"/>
-  <C Type="Place" V="175" U="10000002-0002-0001-ffff000000000001" Title="Schlafzimmer" WF="16384"/>
-  <C Type="Place" V="175" U="10000003-0003-0001-ffff000000000001" Title="Küche" WF="16384"/>
-  <C Type="Place" V="175" U="10000004-0004-0001-ffff000000000001" Title="Bad" WF="16384"/>
-  <C Type="Place" V="175" U="10000005-0005-0001-ffff000000000001" Title="Flur" WF="16384"/>
-  <C Type="Place" V="175" U="10000006-0006-0001-ffff000000000001" Title="Garten" WF="16384"/>
-  <C Type="Place" V="175" U="10000007-0007-0001-ffff000000000001" Title="Garage" WF="16384"/>
-  <!-- Categories -->
-  <C Type="Category" V="175" U="20000001-0001-0001-ffff000000000001" Title="Beleuchtung" WF="16384"/>
-  <C Type="Category" V="175" U="20000002-0002-0001-ffff000000000001" Title="Beschattung" WF="16384"/>
-  <C Type="Category" V="175" U="20000003-0003-0001-ffff000000000001" Title="Klima" WF="16384"/>
-  <C Type="Category" V="175" U="20000004-0004-0001-ffff000000000001" Title="Wetter" WF="16384"/>
-  <C Type="Category" V="175" U="20000005-0005-0001-ffff000000000001" Title="Sicherheit" WF="16384"/>
-  <!-- Virtual Inputs -->
-  <C Type="VirtualInCaption" V="175" U="a0000001-0001-0001-ffff000000000001" Title="Virtuelle Eingänge" WF="16384">
-    <C Type="VirtualIn" IName="VI0" V="175" U="a0000002-0002-0001-ffff000000000001" Title="Schalter 1" Analog="false" Nio="2" WF="16400">
-      <Co K="Q" U="a0000002-0002-0011-ffff000000000001"/>
-      <Co K="Qm" U="a0000002-0002-0012-ffff000000000001"/>
-      <IoData Pr="10000001-0001-0001-ffff000000000001" Cr="20000001-0001-0001-ffff000000000001"/>
-    </C>
-    <C Type="VirtualIn" IName="VI1" V="175" U="a0000003-0003-0001-ffff000000000001" Title="Schalter 2" Analog="false" Nio="2" WF="16400">
-      <Co K="Q" U="a0000003-0003-0011-ffff000000000001"/>
-      <Co K="Qm" U="a0000003-0003-0012-ffff000000000001"/>
-      <IoData Pr="10000001-0001-0001-ffff000000000001" Cr="20000001-0001-0001-ffff000000000001"/>
-    </C>
-    <C Type="VirtualIn" IName="VI2" V="175" U="a0000004-0004-0001-ffff000000000001" Title="Bewässerung Manuell" Analog="false" Nio="2" WF="16400">
-      <Co K="Q" U="a0000004-0004-0011-ffff000000000001"/>
-      <Co K="Qm" U="a0000004-0004-0012-ffff000000000001"/>
-      <IoData Pr="10000006-0006-0001-ffff000000000001" Cr="20000003-0003-0001-ffff000000000001"/>
-    </C>
-    <C Type="VirtualIn" IName="VI3" V="175" U="a0000005-0005-0001-ffff000000000001" Title="Feuchtesensor Garten" Analog="true" Nio="2" WF="16400">
-      <Co K="AQ" U="a0000005-0005-0011-ffff000000000001"/>
-      <Co K="Qm" U="a0000005-0005-0012-ffff000000000001"/>
-      <IoData Pr="10000006-0006-0001-ffff000000000001" Cr="20000004-0004-0001-ffff000000000001"/>
-    </C>
-    <C Type="VirtualIn" IName="VI4" V="175" U="a0000006-0006-0001-ffff000000000001" Title="CO2 Sensor" Analog="true" Nio="2" WF="16400">
-      <Co K="AQ" U="a0000006-0006-0011-ffff000000000001"/>
-      <Co K="Qm" U="a0000006-0006-0012-ffff000000000001"/>
-      <IoData Pr="10000001-0001-0001-ffff000000000001" Cr="20000003-0003-0001-ffff000000000001"/>
-    </C>
-    <C Type="VirtualIn" IName="VI5" V="175" U="a0000007-0007-0001-ffff000000000001" Title="Garagentor Sensor" Analog="false" Nio="2" WF="16400">
-      <Co K="Q" U="a0000007-0007-0011-ffff000000000001"/>
-      <Co K="Qm" U="a0000007-0007-0012-ffff000000000001"/>
-      <IoData Pr="10000007-0007-0001-ffff000000000001" Cr="20000005-0005-0001-ffff000000000001"/>
-    </C>
-    <C Type="VirtualIn" IName="VI6" V="175" U="a0000009-0009-0001-ffff000000000001" Title="Türklingel" Analog="false" Nio="2" WF="16400">
-      <Co K="Q" U="a0000009-0009-0011-ffff000000000001"/>
-      <Co K="Qm" U="a0000009-0009-0012-ffff000000000001"/>
-      <IoData Pr="10000005-0005-0001-ffff000000000001" Cr="20000005-0005-0001-ffff000000000001"/>
-    </C>
-    <C Type="VirtualIn" IName="VI7" V="175" U="a0000010-0010-0001-ffff000000000001" Title="Raumtemperatur Wohnzimmer" Analog="true" Nio="2" WF="16400">
-      <Co K="AQ" U="a0000010-0010-0011-ffff000000000001"/>
-      <Co K="Qm" U="a0000010-0010-0012-ffff000000000001"/>
-      <IoData Pr="10000001-0001-0001-ffff000000000001" Cr="20000003-0003-0001-ffff000000000001"/>
-    </C>
-    <C Type="VirtualIn" IName="VI8" V="175" U="a0000011-0011-0001-ffff000000000001" Title="Raumtemperatur Schlafzimmer" Analog="true" Nio="2" WF="16400">
-      <Co K="AQ" U="a0000011-0011-0011-ffff000000000001"/>
-      <Co K="Qm" U="a0000011-0011-0012-ffff000000000001"/>
-      <IoData Pr="10000002-0002-0001-ffff000000000001" Cr="20000003-0003-0001-ffff000000000001"/>
-    </C>
-    <C Type="VirtualIn" IName="VI9" V="175" U="a0000012-0012-0001-ffff000000000001" Title="Pool Temperatur" Analog="true" Nio="2" WF="16400">
-      <Co K="AQ" U="a0000012-0012-0011-ffff000000000001"/>
-      <Co K="Qm" U="a0000012-0012-0012-ffff000000000001"/>
-      <IoData Pr="10000006-0006-0001-ffff000000000001" Cr="20000003-0003-0001-ffff000000000001"/>
-    </C>
-  </C>
-  <!-- Weather (extended with humidity, brightness) -->
-  <C Type="WeatherServer" V="175" U="30000001-0001-0001-ffff000000000001" Title="Wetterdaten" WF="16384">
-    <C Type="SysVar" IName="SYS0" V="175" U="30000011-0011-0001-ffff000000000001" Title="Außentemperatur" Nio="1" WF="16384">
-      <Co K="AQ" U="30000011-0011-0011-ffff000000000001"/>
-      <IoData Cr="20000004-0004-0001-ffff000000000001"/>
-    </C>
-    <C Type="SysVar" IName="SYS1" V="175" U="30000012-0012-0001-ffff000000000001" Title="Sonnenschein" Nio="1" WF="16384">
-      <Co K="AQ" U="30000012-0012-0012-ffff000000000001"/>
-      <IoData Cr="20000004-0004-0001-ffff000000000001"/>
-    </C>
-    <C Type="SysVar" IName="SYS2" V="175" U="30000013-0013-0001-ffff000000000001" Title="Windgeschwindigkeit" Nio="1" WF="16384">
-      <Co K="AQ" U="30000013-0013-0013-ffff000000000001"/>
-      <IoData Cr="20000004-0004-0001-ffff000000000001"/>
-    </C>
-    <C Type="SysVar" IName="SYS3" V="175" U="30000014-0014-0001-ffff000000000001" Title="Regen" Nio="1" WF="16384">
-      <Co K="AQ" U="30000014-0014-0014-ffff000000000001"/>
-      <IoData Cr="20000004-0004-0001-ffff000000000001"/>
-    </C>
-    <C Type="SysVar" IName="SYS4" V="175" U="30000015-0015-0001-ffff000000000001" Title="Luftfeuchtigkeit" Nio="1" WF="16384">
-      <Co K="AQ" U="30000015-0015-0015-ffff000000000001"/>
-      <IoData Cr="20000004-0004-0001-ffff000000000001"/>
-    </C>
-    <C Type="SysVar" IName="SYS5" V="175" U="30000016-0016-0001-ffff000000000001" Title="Helligkeit" Nio="1" WF="16384">
-      <Co K="AQ" U="30000016-0016-0016-ffff000000000001"/>
-      <IoData Cr="20000004-0004-0001-ffff000000000001"/>
-    </C>
-  </C>
-  <!-- Program -->
-  <C Type="Program" V="175" U="40000001-0001-0001-ffff000000000001" Title="Eval" WF="16384">
-    <!-- Wohnzimmer -->
-    <C Type="Page" V="175" U="50000001-0001-0001-ffff000000000001" Title="Wohnzimmer" WF="16384">
-      <C Type="LightController2" V="175" U="60000001-0001-0001-ffff000000000001" Title="Lichtsteuerung" Px="7392" Py="576" Nio="3" WF="16384">
-        <C Type="LightscenesC" V="175" U="60000001-0001-1000-ffff000000000001">
-          <C Type="LightsceneC" V="175" U="60000001-0001-1001-ffff000000000001" Title="Viel Licht"/>
-          <C Type="LightsceneC" V="175" U="60000001-0001-1002-ffff000000000001" Title="Gemütlich"/>
-          <C Type="LightsceneC" V="175" U="60000001-0001-1003-ffff000000000001" Title="Aus"/>
-        </C>
-        <Co K="I1" U="60000001-0001-0011-ffff000000000001"/><Co K="Presence" U="60000001-0001-0012-ffff000000000001"/><Co K="AQ1" U="60000001-0001-0013-ffff000000000001"/><Co K="Brightness" U="60000001-0001-0014-ffff000000000001"/>
-        <IoData Pr="10000001-0001-0001-ffff000000000001" Cr="20000001-0001-0001-ffff000000000001"/>
-      </C>
-      <C Type="JalousieUpDown2" V="175" U="70000011-0011-0001-ffff000000000001" Title="Jalousie 1" Px="7392" Py="2016" Nio="4" WF="16384">
-        <Co K="InputTriggerUp" U="70000011-0011-0011-ffff000000000001"/><Co K="InputTriggerDown" U="70000011-0011-0012-ffff000000000001"/>
-        <Co K="InputPos" U="70000011-0011-0013-ffff000000000001"/><Co K="InputDisable" U="70000011-0011-0014-ffff000000000001"/>
-        <IoData Pr="10000001-0001-0001-ffff000000000001" Cr="20000002-0002-0001-ffff000000000001"/>
-      </C>
-      <C Type="JalousieUpDown2" V="175" U="70000012-0012-0001-ffff000000000001" Title="Jalousie 2" Px="7392" Py="3456" Nio="4" WF="16384">
-        <Co K="InputTriggerUp" U="70000012-0012-0011-ffff000000000001"/><Co K="InputTriggerDown" U="70000012-0012-0012-ffff000000000001"/>
-        <Co K="InputPos" U="70000012-0012-0013-ffff000000000001"/><Co K="InputDisable" U="70000012-0012-0014-ffff000000000001"/>
-        <IoData Pr="10000001-0001-0001-ffff000000000001" Cr="20000002-0002-0001-ffff000000000001"/>
-      </C>
-      <C Type="HeatIRoomController2" V="175" U="80000001-0001-0001-ffff000000000001" Title="Raumregler" Px="7392" Py="4896" Nio="2" WF="16384">
-        <Co K="Temp" U="80000001-0001-0011-ffff000000000001"/><Co K="AQh" U="80000001-0001-0012-ffff000000000001"/>
-        <IoData Pr="10000001-0001-0001-ffff000000000001" Cr="20000003-0003-0001-ffff000000000001"/>
-      </C>
-      <C Type="AcControl" V="175" U="80000002-0002-0001-ffff000000000001" Title="Klimaanlage" Px="7392" Py="6336" Nio="3" WF="16384">
-        <Co K="toggle" U="80000002-0002-0011-ffff000000000001"/><Co K="inTempCurr" U="80000002-0002-0012-ffff000000000001"/><Co K="status" U="80000002-0002-0013-ffff000000000001"/>
-        <IoData Pr="10000001-0001-0001-ffff000000000001" Cr="20000003-0003-0001-ffff000000000001"/>
-      </C>
-      <C Type="JalousieUpDown2" V="175" U="70000013-0013-0001-ffff000000000001" Title="Leinwand" Px="7392" Py="7776" Nio="4" WF="16384">
-        <Co K="InputTriggerUp" U="70000013-0013-0011-ffff000000000001"/><Co K="InputTriggerDown" U="70000013-0013-0012-ffff000000000001"/>
-        <Co K="InputPos" U="70000013-0013-0013-ffff000000000001"/><Co K="InputDisable" U="70000013-0013-0014-ffff000000000001"/>
-        <IoData Pr="10000001-0001-0001-ffff000000000001" Cr="20000001-0001-0001-ffff000000000001"/>
-      </C>
-    </C>
-    <!-- Schlafzimmer -->
-    <C Type="Page" V="175" U="50000002-0002-0001-ffff000000000001" Title="Schlafzimmer" WF="16384">
-      <C Type="LightController2" V="175" U="60000002-0002-0001-ffff000000000001" Title="Lichtsteuerung" Px="7392" Py="576" Nio="3" WF="16384">
-        <C Type="LightscenesC" V="175" U="60000002-0002-1000-ffff000000000001">
-          <C Type="LightsceneC" V="175" U="60000002-0002-1001-ffff000000000001" Title="Viel Licht"/>
-          <C Type="LightsceneC" V="175" U="60000002-0002-1002-ffff000000000001" Title="Gemütlich"/>
-          <C Type="LightsceneC" V="175" U="60000002-0002-1003-ffff000000000001" Title="Aus"/>
-        </C>
-        <Co K="I1" U="60000002-0002-0011-ffff000000000001"/><Co K="Presence" U="60000002-0002-0012-ffff000000000001"/><Co K="AQ1" U="60000002-0002-0013-ffff000000000001"/><Co K="Brightness" U="60000002-0002-0014-ffff000000000001"/><Co K="Move" U="60000002-0002-0015-ffff000000000001"/>
-        <IoData Pr="10000002-0002-0001-ffff000000000001" Cr="20000001-0001-0001-ffff000000000001"/>
-      </C>
-      <C Type="JalousieUpDown2" V="175" U="70000021-0021-0001-ffff000000000001" Title="Jalousie 1" Px="7392" Py="2016" Nio="4" WF="16384">
-        <Co K="InputTriggerUp" U="70000021-0021-0011-ffff000000000001"/><Co K="InputTriggerDown" U="70000021-0021-0012-ffff000000000001"/>
-        <Co K="InputPos" U="70000021-0021-0013-ffff000000000001"/><Co K="InputDisable" U="70000021-0021-0014-ffff000000000001"/>
-        <IoData Pr="10000002-0002-0001-ffff000000000001" Cr="20000002-0002-0001-ffff000000000001"/>
-      </C>
-      <C Type="JalousieUpDown2" V="175" U="70000022-0022-0001-ffff000000000001" Title="Jalousie 2" Px="7392" Py="3456" Nio="4" WF="16384">
-        <Co K="InputTriggerUp" U="70000022-0022-0011-ffff000000000001"/><Co K="InputTriggerDown" U="70000022-0022-0012-ffff000000000001"/>
-        <Co K="InputPos" U="70000022-0022-0013-ffff000000000001"/><Co K="InputDisable" U="70000022-0022-0014-ffff000000000001"/>
-        <IoData Pr="10000002-0002-0001-ffff000000000001" Cr="20000002-0002-0001-ffff000000000001"/>
-      </C>
-    </C>
-    <!-- Küche -->
-    <C Type="Page" V="175" U="50000003-0003-0001-ffff000000000001" Title="Küche" WF="16384">
-      <C Type="LightController2" V="175" U="60000003-0003-0001-ffff000000000001" Title="Lichtsteuerung" Px="7392" Py="576" Nio="3" WF="16384">
-        <C Type="LightscenesC" V="175" U="60000003-0003-1000-ffff000000000001">
-          <C Type="LightsceneC" V="175" U="60000003-0003-1001-ffff000000000001" Title="Viel Licht"/>
-          <C Type="LightsceneC" V="175" U="60000003-0003-1002-ffff000000000001" Title="Gemütlich"/>
-          <C Type="LightsceneC" V="175" U="60000003-0003-1003-ffff000000000001" Title="Aus"/>
-        </C>
-        <Co K="I1" U="60000003-0003-0011-ffff000000000001"/><Co K="Presence" U="60000003-0003-0012-ffff000000000001"/><Co K="AQ1" U="60000003-0003-0013-ffff000000000001"/>
-        <IoData Pr="10000003-0003-0001-ffff000000000001" Cr="20000001-0001-0001-ffff000000000001"/>
-      </C>
-      <C Type="JalousieUpDown2" V="175" U="70000031-0031-0001-ffff000000000001" Title="Jalousie 1" Px="7392" Py="2016" Nio="4" WF="16384">
-        <Co K="InputTriggerUp" U="70000031-0031-0011-ffff000000000001"/><Co K="InputTriggerDown" U="70000031-0031-0012-ffff000000000001"/>
-        <Co K="InputPos" U="70000031-0031-0013-ffff000000000001"/><Co K="InputDisable" U="70000031-0031-0014-ffff000000000001"/>
-        <IoData Pr="10000003-0003-0001-ffff000000000001" Cr="20000002-0002-0001-ffff000000000001"/>
-      </C>
-      <C Type="JalousieUpDown2" V="175" U="70000032-0032-0001-ffff000000000001" Title="Jalousie 2" Px="7392" Py="3456" Nio="4" WF="16384">
-        <Co K="InputTriggerUp" U="70000032-0032-0011-ffff000000000001"/><Co K="InputTriggerDown" U="70000032-0032-0012-ffff000000000001"/>
-        <Co K="InputPos" U="70000032-0032-0013-ffff000000000001"/><Co K="InputDisable" U="70000032-0032-0014-ffff000000000001"/>
-        <IoData Pr="10000003-0003-0001-ffff000000000001" Cr="20000002-0002-0001-ffff000000000001"/>
-      </C>
-    </C>
-    <!-- Bad (with ventilation) -->
-    <C Type="Page" V="175" U="50000004-0004-0001-ffff000000000001" Title="Bad" WF="16384">
-      <C Type="LightController2" V="175" U="60000004-0004-0001-ffff000000000001" Title="Lichtsteuerung" Px="7392" Py="576" Nio="3" WF="16384">
-        <C Type="LightscenesC" V="175" U="60000004-0004-1000-ffff000000000001">
-          <C Type="LightsceneC" V="175" U="60000004-0004-1001-ffff000000000001" Title="Viel Licht"/>
-          <C Type="LightsceneC" V="175" U="60000004-0004-1002-ffff000000000001" Title="Gemütlich"/>
-          <C Type="LightsceneC" V="175" U="60000004-0004-1003-ffff000000000001" Title="Aus"/>
-        </C>
-        <Co K="I1" U="60000004-0004-0011-ffff000000000001"/><Co K="Presence" U="60000004-0004-0012-ffff000000000001"/><Co K="AQ1" U="60000004-0004-0013-ffff000000000001"/><Co K="Brightness" U="60000004-0004-0014-ffff000000000001"/>
-        <IoData Pr="10000004-0004-0001-ffff000000000001" Cr="20000001-0001-0001-ffff000000000001"/>
-      </C>
-      <C Type="JalousieUpDown2" V="175" U="70000041-0041-0001-ffff000000000001" Title="Jalousie 1" Px="7392" Py="2016" Nio="4" WF="16384">
-        <Co K="InputTriggerUp" U="70000041-0041-0011-ffff000000000001"/><Co K="InputTriggerDown" U="70000041-0041-0012-ffff000000000001"/>
-        <Co K="InputPos" U="70000041-0041-0013-ffff000000000001"/><Co K="InputDisable" U="70000041-0041-0014-ffff000000000001"/>
-        <IoData Pr="10000004-0004-0001-ffff000000000001" Cr="20000002-0002-0001-ffff000000000001"/>
-      </C>
-      <C Type="JalousieUpDown2" V="175" U="70000042-0042-0001-ffff000000000001" Title="Jalousie 2" Px="7392" Py="3456" Nio="4" WF="16384">
-        <Co K="InputTriggerUp" U="70000042-0042-0011-ffff000000000001"/><Co K="InputTriggerDown" U="70000042-0042-0012-ffff000000000001"/>
-        <Co K="InputPos" U="70000042-0042-0013-ffff000000000001"/><Co K="InputDisable" U="70000042-0042-0014-ffff000000000001"/>
-        <IoData Pr="10000004-0004-0001-ffff000000000001" Cr="20000002-0002-0001-ffff000000000001"/>
-      </C>
-      <C Type="VirtualOut" V="175" U="b0000001-0001-0001-ffff000000000001" Title="Lüfter Bad" Px="11040" Py="576" Nio="2" WF="16384">
-        <Co K="I1" U="b0000001-0001-0011-ffff000000000001"/><Co K="Q1" U="b0000001-0001-0012-ffff000000000001"/>
-        <IoData Pr="10000004-0004-0001-ffff000000000001" Cr="20000003-0003-0001-ffff000000000001"/>
-      </C>
-      <C Type="VirtualOut" V="175" U="b0000004-0004-0001-ffff000000000001" Title="Heizkörper Bad" Px="11040" Py="1440" Nio="2" WF="16384">
-        <Co K="I1" U="b0000004-0004-0011-ffff000000000001"/><Co K="Q1" U="b0000004-0004-0012-ffff000000000001"/>
-        <IoData Pr="10000004-0004-0001-ffff000000000001" Cr="20000003-0003-0001-ffff000000000001"/>
-      </C>
-    </C>
-    <!-- Flur (with motion + door contact) -->
-    <C Type="Page" V="175" U="50000005-0005-0001-ffff000000000001" Title="Flur" WF="16384">
-      <C Type="LightController2" V="175" U="60000005-0005-0001-ffff000000000001" Title="Lichtsteuerung" Px="7392" Py="576" Nio="3" WF="16384">
-        <C Type="LightscenesC" V="175" U="60000005-0005-1000-ffff000000000001">
-          <C Type="LightsceneC" V="175" U="60000005-0005-1001-ffff000000000001" Title="Viel Licht"/>
-          <C Type="LightsceneC" V="175" U="60000005-0005-1002-ffff000000000001" Title="Gemütlich"/>
-          <C Type="LightsceneC" V="175" U="60000005-0005-1003-ffff000000000001" Title="Aus"/>
-        </C>
-        <Co K="I1" U="60000005-0005-0011-ffff000000000001"/><Co K="Presence" U="60000005-0005-0012-ffff000000000001"/><Co K="AQ1" U="60000005-0005-0013-ffff000000000001"/><Co K="Brightness" U="60000005-0005-0014-ffff000000000001"/>
-        <IoData Pr="10000005-0005-0001-ffff000000000001" Cr="20000001-0001-0001-ffff000000000001"/>
-      </C>
-      <C Type="JalousieUpDown2" V="175" U="70000051-0051-0001-ffff000000000001" Title="Jalousie 1" Px="7392" Py="2016" Nio="4" WF="16384">
-        <Co K="InputTriggerUp" U="70000051-0051-0011-ffff000000000001"/><Co K="InputTriggerDown" U="70000051-0051-0012-ffff000000000001"/>
-        <Co K="InputPos" U="70000051-0051-0013-ffff000000000001"/><Co K="InputDisable" U="70000051-0051-0014-ffff000000000001"/>
-        <IoData Pr="10000005-0005-0001-ffff000000000001" Cr="20000002-0002-0001-ffff000000000001"/>
-      </C>
-      <C Type="JalousieUpDown2" V="175" U="70000052-0052-0001-ffff000000000001" Title="Jalousie 2" Px="7392" Py="3456" Nio="4" WF="16384">
-        <Co K="InputTriggerUp" U="70000052-0052-0011-ffff000000000001"/><Co K="InputTriggerDown" U="70000052-0052-0012-ffff000000000001"/>
-        <Co K="InputPos" U="70000052-0052-0013-ffff000000000001"/><Co K="InputDisable" U="70000052-0052-0014-ffff000000000001"/>
-        <IoData Pr="10000005-0005-0001-ffff000000000001" Cr="20000002-0002-0001-ffff000000000001"/>
-      </C>
-      <C Type="PresenceDetector" V="175" U="90000001-0001-0001-ffff000000000001" Title="Bewegungsmelder" Px="4320" Py="576" Nio="2" WF="16384">
-        <Co K="InputTrigger" U="90000001-0001-0011-ffff000000000001"/><Co K="OutputPresence" U="90000001-0001-0012-ffff000000000001"/>
-        <IoData Pr="10000005-0005-0001-ffff000000000001" Cr="20000001-0001-0001-ffff000000000001"/>
-      </C>
-      <C Type="VirtualIn" IName="VI6" V="175" U="a0000008-0008-0001-ffff000000000001" Title="Türkontakt Eingang" Analog="false" Nio="2" WF="16400">
-        <Co K="Q" U="a0000008-0008-0011-ffff000000000001"/><Co K="Qm" U="a0000008-0008-0012-ffff000000000001"/>
-        <IoData Pr="10000005-0005-0001-ffff000000000001" Cr="20000005-0005-0001-ffff000000000001"/>
-      </C>
-      <C Type="VirtualOut" V="175" U="b0000005-0005-0001-ffff000000000001" Title="Türöffner" Px="11040" Py="1440" Nio="2" WF="16384">
-        <Co K="I1" U="b0000005-0005-0011-ffff000000000001"/><Co K="Q1" U="b0000005-0005-0012-ffff000000000001"/>
-        <IoData Pr="10000005-0005-0001-ffff000000000001" Cr="20000005-0005-0001-ffff000000000001"/>
-      </C>
-    </C>
-    <!-- Garten (irrigation, outdoor lighting) -->
-    <C Type="Page" V="175" U="50000006-0006-0001-ffff000000000001" Title="Garten" WF="16384">
-      <C Type="LightController2" V="175" U="60000006-0006-0001-ffff000000000001" Title="Gartenbeleuchtung" Px="7392" Py="576" Nio="3" WF="16384">
-        <C Type="LightscenesC" V="175" U="60000006-0006-1000-ffff000000000001">
-          <C Type="LightsceneC" V="175" U="60000006-0006-1001-ffff000000000001" Title="An"/>
-          <C Type="LightsceneC" V="175" U="60000006-0006-1002-ffff000000000001" Title="Aus"/>
-        </C>
-        <Co K="I1" U="60000006-0006-0011-ffff000000000001"/><Co K="Presence" U="60000006-0006-0012-ffff000000000001"/><Co K="AQ1" U="60000006-0006-0013-ffff000000000001"/>
-        <IoData Pr="10000006-0006-0001-ffff000000000001" Cr="20000001-0001-0001-ffff000000000001"/>
-      </C>
-      <C Type="VirtualOut" V="175" U="b0000002-0002-0001-ffff000000000001" Title="Bewässerungsventil" Px="11040" Py="576" Nio="2" WF="16384">
-        <Co K="I1" U="b0000002-0002-0011-ffff000000000001"/><Co K="Q1" U="b0000002-0002-0012-ffff000000000001"/>
-        <IoData Pr="10000006-0006-0001-ffff000000000001" Cr="20000003-0003-0001-ffff000000000001"/>
-      </C>
-      <C Type="PresenceDetector" V="175" U="90000002-0002-0001-ffff000000000001" Title="Bewegungsmelder Garten" Px="4320" Py="576" Nio="2" WF="16384">
-        <Co K="InputTrigger" U="90000002-0002-0011-ffff000000000001"/><Co K="OutputPresence" U="90000002-0002-0012-ffff000000000001"/>
-        <IoData Pr="10000006-0006-0001-ffff000000000001" Cr="20000005-0005-0001-ffff000000000001"/>
-      </C>
-      <C Type="VirtualOut" V="175" U="b0000006-0006-0001-ffff000000000001" Title="Poolpumpe" Px="11040" Py="1440" Nio="2" WF="16384">
-        <Co K="I1" U="b0000006-0006-0011-ffff000000000001"/><Co K="Q1" U="b0000006-0006-0012-ffff000000000001"/>
-        <IoData Pr="10000006-0006-0001-ffff000000000001" Cr="20000003-0003-0001-ffff000000000001"/>
-      </C>
-    </C>
-    <!-- Garage -->
-    <C Type="Page" V="175" U="50000007-0007-0001-ffff000000000001" Title="Garage" WF="16384">
-      <C Type="LightController2" V="175" U="60000007-0007-0001-ffff000000000001" Title="Garagenlicht" Px="7392" Py="576" Nio="3" WF="16384">
-        <C Type="LightscenesC" V="175" U="60000007-0007-1000-ffff000000000001">
-          <C Type="LightsceneC" V="175" U="60000007-0007-1001-ffff000000000001" Title="An"/>
-          <C Type="LightsceneC" V="175" U="60000007-0007-1002-ffff000000000001" Title="Aus"/>
-        </C>
-        <Co K="I1" U="60000007-0007-0011-ffff000000000001"/><Co K="Presence" U="60000007-0007-0012-ffff000000000001"/><Co K="AQ1" U="60000007-0007-0013-ffff000000000001"/>
-        <IoData Pr="10000007-0007-0001-ffff000000000001" Cr="20000001-0001-0001-ffff000000000001"/>
-      </C>
-      <C Type="VirtualOut" V="175" U="b0000003-0003-0001-ffff000000000001" Title="Garagentor" Px="11040" Py="576" Nio="2" WF="16384">
-        <Co K="I1" U="b0000003-0003-0011-ffff000000000001"/><Co K="Q1" U="b0000003-0003-0012-ffff000000000001"/>
-        <IoData Pr="10000007-0007-0001-ffff000000000001" Cr="20000005-0005-0001-ffff000000000001"/>
-      </C>
-    </C>
-    <!-- Zentral (cross-room logic) -->
-    <C Type="Page" V="175" U="50000008-0008-0001-ffff000000000001" Title="Zentral" WF="16384">
-    </C>
-  </C>
+	<C Type="Document" V="175" U="00000001-0000-0001-ffff000000000001" Title="Eval Fixture" WF="16384" ConfigVersion="17000331" />
+	<!-- Rooms (7 rooms for diverse scenarios) -->
+	<C Type="Place" V="175" U="10000001-0001-0001-ffff000000000001" Title="Wohnzimmer" WF="16384" />
+	<C Type="Place" V="175" U="10000002-0002-0001-ffff000000000001" Title="Schlafzimmer" WF="16384" />
+	<C Type="Place" V="175" U="10000003-0003-0001-ffff000000000001" Title="Küche" WF="16384" />
+	<C Type="Place" V="175" U="10000004-0004-0001-ffff000000000001" Title="Bad" WF="16384" />
+	<C Type="Place" V="175" U="10000005-0005-0001-ffff000000000001" Title="Flur" WF="16384" />
+	<C Type="Place" V="175" U="10000006-0006-0001-ffff000000000001" Title="Garten" WF="16384" />
+	<C Type="Place" V="175" U="10000007-0007-0001-ffff000000000001" Title="Garage" WF="16384" />
+	<!-- Categories -->
+	<C Type="Category" V="175" U="20000001-0001-0001-ffff000000000001" Title="Beleuchtung" WF="16384" />
+	<C Type="Category" V="175" U="20000002-0002-0001-ffff000000000001" Title="Beschattung" WF="16384" />
+	<C Type="Category" V="175" U="20000003-0003-0001-ffff000000000001" Title="Klima" WF="16384" />
+	<C Type="Category" V="175" U="20000004-0004-0001-ffff000000000001" Title="Wetter" WF="16384" />
+	<C Type="Category" V="175" U="20000005-0005-0001-ffff000000000001" Title="Sicherheit" WF="16384" />
+	<!-- Virtual Inputs -->
+	<C Type="VirtualInCaption" V="175" U="a0000001-0001-0001-ffff000000000001" Title="Virtuelle Eingänge" WF="16384">
+		<C Type="VirtualIn" IName="VI0" V="175" U="a0000002-0002-0001-ffff000000000001" Title="Schalter 1" Analog="false" Nio="2" WF="16400">
+			<Co K="Q" U="a0000002-0002-0011-ffff000000000001" />
+			<Co K="Qm" U="a0000002-0002-0012-ffff000000000001" />
+			<IoData Pr="10000001-0001-0001-ffff000000000001" Cr="20000001-0001-0001-ffff000000000001" />
+		</C>
+		<C Type="VirtualIn" IName="VI1" V="175" U="a0000003-0003-0001-ffff000000000001" Title="Schalter 2" Analog="false" Nio="2" WF="16400">
+			<Co K="Q" U="a0000003-0003-0011-ffff000000000001" />
+			<Co K="Qm" U="a0000003-0003-0012-ffff000000000001" />
+			<IoData Pr="10000001-0001-0001-ffff000000000001" Cr="20000001-0001-0001-ffff000000000001" />
+		</C>
+		<C Type="VirtualIn" IName="VI2" V="175" U="a0000004-0004-0001-ffff000000000001" Title="Bewässerung Manuell" Analog="false" Nio="2" WF="16400">
+			<Co K="Q" U="a0000004-0004-0011-ffff000000000001" />
+			<Co K="Qm" U="a0000004-0004-0012-ffff000000000001" />
+			<IoData Pr="10000006-0006-0001-ffff000000000001" Cr="20000003-0003-0001-ffff000000000001" />
+		</C>
+		<C Type="VirtualIn" IName="VI3" V="175" U="a0000005-0005-0001-ffff000000000001" Title="Feuchtesensor Garten" Analog="true" Nio="2" WF="16400">
+			<Co K="AQ" U="a0000005-0005-0011-ffff000000000001" />
+			<Co K="Qm" U="a0000005-0005-0012-ffff000000000001" />
+			<IoData Pr="10000006-0006-0001-ffff000000000001" Cr="20000004-0004-0001-ffff000000000001" />
+		</C>
+		<C Type="VirtualIn" IName="VI4" V="175" U="a0000006-0006-0001-ffff000000000001" Title="CO2 Sensor" Analog="true" Nio="2" WF="16400">
+			<Co K="AQ" U="a0000006-0006-0011-ffff000000000001" />
+			<Co K="Qm" U="a0000006-0006-0012-ffff000000000001" />
+			<IoData Pr="10000001-0001-0001-ffff000000000001" Cr="20000003-0003-0001-ffff000000000001" />
+		</C>
+		<C Type="VirtualIn" IName="VI5" V="175" U="a0000007-0007-0001-ffff000000000001" Title="Garagentor Sensor" Analog="false" Nio="2" WF="16400">
+			<Co K="Q" U="a0000007-0007-0011-ffff000000000001" />
+			<Co K="Qm" U="a0000007-0007-0012-ffff000000000001" />
+			<IoData Pr="10000007-0007-0001-ffff000000000001" Cr="20000005-0005-0001-ffff000000000001" />
+		</C>
+		<C Type="VirtualIn" IName="VI6" V="175" U="a0000009-0009-0001-ffff000000000001" Title="Türklingel" Analog="false" Nio="2" WF="16400">
+			<Co K="Q" U="a0000009-0009-0011-ffff000000000001" />
+			<Co K="Qm" U="a0000009-0009-0012-ffff000000000001" />
+			<IoData Pr="10000005-0005-0001-ffff000000000001" Cr="20000005-0005-0001-ffff000000000001" />
+		</C>
+		<C Type="VirtualIn" IName="VI7" V="175" U="a0000010-0010-0001-ffff000000000001" Title="Raumtemperatur Wohnzimmer" Analog="true" Nio="2" WF="16400">
+			<Co K="AQ" U="a0000010-0010-0011-ffff000000000001" />
+			<Co K="Qm" U="a0000010-0010-0012-ffff000000000001" />
+			<IoData Pr="10000001-0001-0001-ffff000000000001" Cr="20000003-0003-0001-ffff000000000001" />
+		</C>
+		<C Type="VirtualIn" IName="VI8" V="175" U="a0000011-0011-0001-ffff000000000001" Title="Raumtemperatur Schlafzimmer" Analog="true" Nio="2" WF="16400">
+			<Co K="AQ" U="a0000011-0011-0011-ffff000000000001" />
+			<Co K="Qm" U="a0000011-0011-0012-ffff000000000001" />
+			<IoData Pr="10000002-0002-0001-ffff000000000001" Cr="20000003-0003-0001-ffff000000000001" />
+		</C>
+		<C Type="VirtualIn" IName="VI9" V="175" U="a0000012-0012-0001-ffff000000000001" Title="Pool Temperatur" Analog="true" Nio="2" WF="16400">
+			<Co K="AQ" U="a0000012-0012-0011-ffff000000000001" />
+			<Co K="Qm" U="a0000012-0012-0012-ffff000000000001" />
+			<IoData Pr="10000006-0006-0001-ffff000000000001" Cr="20000003-0003-0001-ffff000000000001" />
+		</C>
+	</C>
+	<!-- Weather (extended with humidity, brightness) -->
+	<C Type="WeatherServer" V="175" U="30000001-0001-0001-ffff000000000001" Title="Wetterdaten" WF="16384">
+		<C Type="SysVar" IName="SYS0" V="175" U="30000011-0011-0001-ffff000000000001" Title="Außentemperatur" Nio="1" WF="16384">
+			<Co K="AQ" U="30000011-0011-0011-ffff000000000001" />
+			<IoData Cr="20000004-0004-0001-ffff000000000001" />
+		</C>
+		<C Type="SysVar" IName="SYS1" V="175" U="30000012-0012-0001-ffff000000000001" Title="Sonnenschein" Nio="1" WF="16384">
+			<Co K="AQ" U="30000012-0012-0012-ffff000000000001" />
+			<IoData Cr="20000004-0004-0001-ffff000000000001" />
+		</C>
+		<C Type="SysVar" IName="SYS2" V="175" U="30000013-0013-0001-ffff000000000001" Title="Windgeschwindigkeit" Nio="1" WF="16384">
+			<Co K="AQ" U="30000013-0013-0013-ffff000000000001" />
+			<IoData Cr="20000004-0004-0001-ffff000000000001" />
+		</C>
+		<C Type="SysVar" IName="SYS3" V="175" U="30000014-0014-0001-ffff000000000001" Title="Regen" Nio="1" WF="16384">
+			<Co K="AQ" U="30000014-0014-0014-ffff000000000001" />
+			<IoData Cr="20000004-0004-0001-ffff000000000001" />
+		</C>
+		<C Type="SysVar" IName="SYS4" V="175" U="30000015-0015-0001-ffff000000000001" Title="Luftfeuchtigkeit" Nio="1" WF="16384">
+			<Co K="AQ" U="30000015-0015-0015-ffff000000000001" />
+			<IoData Cr="20000004-0004-0001-ffff000000000001" />
+		</C>
+		<C Type="SysVar" IName="SYS5" V="175" U="30000016-0016-0001-ffff000000000001" Title="Helligkeit" Nio="1" WF="16384">
+			<Co K="AQ" U="30000016-0016-0016-ffff000000000001" />
+			<IoData Cr="20000004-0004-0001-ffff000000000001" />
+		</C>
+	</C>
+	<!-- Program -->
+	<C Type="Program" V="175" U="40000001-0001-0001-ffff000000000001" Title="Eval" WF="16384">
+		<!-- Wohnzimmer -->
+		<C Type="Page" V="175" U="50000001-0001-0001-ffff000000000001" Title="Wohnzimmer" WF="16384">
+			<C Type="LightController2" V="175" U="60000001-0001-0001-ffff000000000001" Title="Lichtsteuerung" Px="7392" Py="576" Nio="3" WF="16384">
+				<C Type="LightscenesC" V="175" U="60000001-0001-1000-ffff000000000001">
+					<C Type="LightsceneC" V="175" U="60000001-0001-1001-ffff000000000001" Title="Viel Licht" />
+					<C Type="LightsceneC" V="175" U="60000001-0001-1002-ffff000000000001" Title="Gemütlich" />
+					<C Type="LightsceneC" V="175" U="60000001-0001-1003-ffff000000000001" Title="Aus" />
+				</C>
+				<Co K="I1" U="60000001-0001-0011-ffff000000000001" />
+				<Co K="Presence" U="60000001-0001-0012-ffff000000000001" />
+				<Co K="AQ1" U="60000001-0001-0013-ffff000000000001" />
+				<Co K="Brightness" U="60000001-0001-0014-ffff000000000001" />
+				<IoData Pr="10000001-0001-0001-ffff000000000001" Cr="20000001-0001-0001-ffff000000000001" />
+			</C>
+			<C Type="JalousieUpDown2" V="175" U="70000011-0011-0001-ffff000000000001" Title="Jalousie 1" Px="7392" Py="2016" Nio="4" WF="16384">
+				<Co K="InputTriggerUp" U="70000011-0011-0011-ffff000000000001" />
+				<Co K="InputTriggerDown" U="70000011-0011-0012-ffff000000000001" />
+				<Co K="InputPos" U="70000011-0011-0013-ffff000000000001" />
+				<Co K="InputDisable" U="70000011-0011-0014-ffff000000000001" />
+				<IoData Pr="10000001-0001-0001-ffff000000000001" Cr="20000002-0002-0001-ffff000000000001" />
+			</C>
+			<C Type="JalousieUpDown2" V="175" U="70000012-0012-0001-ffff000000000001" Title="Jalousie 2" Px="7392" Py="3456" Nio="4" WF="16384">
+				<Co K="InputTriggerUp" U="70000012-0012-0011-ffff000000000001" />
+				<Co K="InputTriggerDown" U="70000012-0012-0012-ffff000000000001" />
+				<Co K="InputPos" U="70000012-0012-0013-ffff000000000001" />
+				<Co K="InputDisable" U="70000012-0012-0014-ffff000000000001" />
+				<IoData Pr="10000001-0001-0001-ffff000000000001" Cr="20000002-0002-0001-ffff000000000001" />
+			</C>
+			<C Type="HeatIRoomController2" V="175" U="80000001-0001-0001-ffff000000000001" Title="Raumregler" Px="7392" Py="4896" Nio="2" WF="16384">
+				<Co K="Temp" U="80000001-0001-0011-ffff000000000001" />
+				<Co K="AQh" U="80000001-0001-0012-ffff000000000001" />
+				<IoData Pr="10000001-0001-0001-ffff000000000001" Cr="20000003-0003-0001-ffff000000000001" />
+			</C>
+			<C Type="AcControl" V="175" U="80000002-0002-0001-ffff000000000001" Title="Klimaanlage" Px="7392" Py="6336" Nio="3" WF="16384">
+				<Co K="toggle" U="80000002-0002-0011-ffff000000000001" />
+				<Co K="inTempCurr" U="80000002-0002-0012-ffff000000000001" />
+				<Co K="status" U="80000002-0002-0013-ffff000000000001" />
+				<IoData Pr="10000001-0001-0001-ffff000000000001" Cr="20000003-0003-0001-ffff000000000001" />
+			</C>
+			<C Type="JalousieUpDown2" V="175" U="70000013-0013-0001-ffff000000000001" Title="Leinwand" Px="7392" Py="7776" Nio="4" WF="16384">
+				<Co K="InputTriggerUp" U="70000013-0013-0011-ffff000000000001" />
+				<Co K="InputTriggerDown" U="70000013-0013-0012-ffff000000000001" />
+				<Co K="InputPos" U="70000013-0013-0013-ffff000000000001" />
+				<Co K="InputDisable" U="70000013-0013-0014-ffff000000000001" />
+				<IoData Pr="10000001-0001-0001-ffff000000000001" Cr="20000001-0001-0001-ffff000000000001" />
+			</C>
+			<C Type="StateV" V="175" U="06112c91-4029-2c1d-ffff000000000001" Title="Statusblock" WF="16384" Px="7392" Py="7824" Nio="2">
+				<Co K="I" U="57006a19-11ed-1b10-ffff000000000001" />
+				<Co K="AQ" U="1e44d062-81a6-59af-ffff000000000001" />
+				<IoData Pr="10000001-0001-0001-ffff000000000001" />
+			</C>
+			<C Type="StateV" V="175" U="5e177c92-b1ba-6caa-ffff000000000001" Title="Audiozone" WF="16384" Px="7392" Py="7872" Nio="2">
+				<Co K="I" U="0279813b-95b6-97a3-ffff000000000001" />
+				<Co K="AQ" U="d49ebbda-0196-84e1-ffff000000000001" />
+				<IoData Pr="10000001-0001-0001-ffff000000000001" />
+			</C>
+			<C Type="StateV" V="175" U="693f2db7-aff8-fe72-ffff000000000001" Title="Formel" WF="16384" Px="7392" Py="7920" Nio="2">
+				<Co K="I" U="937c55e1-f90d-ee70-ffff000000000001" />
+				<Co K="AQ" U="7cb2ff27-68a4-d6fb-ffff000000000001" />
+				<IoData Pr="10000001-0001-0001-ffff000000000001" />
+			</C>
+		</C>
+		<!-- Schlafzimmer -->
+		<C Type="Page" V="175" U="50000002-0002-0001-ffff000000000001" Title="Schlafzimmer" WF="16384">
+			<C Type="LightController2" V="175" U="60000002-0002-0001-ffff000000000001" Title="Lichtsteuerung" Px="7392" Py="576" Nio="3" WF="16384">
+				<C Type="LightscenesC" V="175" U="60000002-0002-1000-ffff000000000001">
+					<C Type="LightsceneC" V="175" U="60000002-0002-1001-ffff000000000001" Title="Viel Licht" />
+					<C Type="LightsceneC" V="175" U="60000002-0002-1002-ffff000000000001" Title="Gemütlich" />
+					<C Type="LightsceneC" V="175" U="60000002-0002-1003-ffff000000000001" Title="Aus" />
+				</C>
+				<Co K="I1" U="60000002-0002-0011-ffff000000000001" />
+				<Co K="Presence" U="60000002-0002-0012-ffff000000000001" />
+				<Co K="AQ1" U="60000002-0002-0013-ffff000000000001" />
+				<Co K="Brightness" U="60000002-0002-0014-ffff000000000001" />
+				<Co K="Move" U="60000002-0002-0015-ffff000000000001" />
+				<IoData Pr="10000002-0002-0001-ffff000000000001" Cr="20000001-0001-0001-ffff000000000001" />
+			</C>
+			<C Type="JalousieUpDown2" V="175" U="70000021-0021-0001-ffff000000000001" Title="Jalousie 1" Px="7392" Py="2016" Nio="4" WF="16384">
+				<Co K="InputTriggerUp" U="70000021-0021-0011-ffff000000000001" />
+				<Co K="InputTriggerDown" U="70000021-0021-0012-ffff000000000001" />
+				<Co K="InputPos" U="70000021-0021-0013-ffff000000000001" />
+				<Co K="InputDisable" U="70000021-0021-0014-ffff000000000001" />
+				<IoData Pr="10000002-0002-0001-ffff000000000001" Cr="20000002-0002-0001-ffff000000000001" />
+			</C>
+			<C Type="JalousieUpDown2" V="175" U="70000022-0022-0001-ffff000000000001" Title="Jalousie 2" Px="7392" Py="3456" Nio="4" WF="16384">
+				<Co K="InputTriggerUp" U="70000022-0022-0011-ffff000000000001" />
+				<Co K="InputTriggerDown" U="70000022-0022-0012-ffff000000000001" />
+				<Co K="InputPos" U="70000022-0022-0013-ffff000000000001" />
+				<Co K="InputDisable" U="70000022-0022-0014-ffff000000000001" />
+				<IoData Pr="10000002-0002-0001-ffff000000000001" Cr="20000002-0002-0001-ffff000000000001" />
+			</C>
+		</C>
+		<!-- Küche -->
+		<C Type="Page" V="175" U="50000003-0003-0001-ffff000000000001" Title="Küche" WF="16384">
+			<C Type="LightController2" V="175" U="60000003-0003-0001-ffff000000000001" Title="Lichtsteuerung" Px="7392" Py="576" Nio="3" WF="16384">
+				<C Type="LightscenesC" V="175" U="60000003-0003-1000-ffff000000000001">
+					<C Type="LightsceneC" V="175" U="60000003-0003-1001-ffff000000000001" Title="Viel Licht" />
+					<C Type="LightsceneC" V="175" U="60000003-0003-1002-ffff000000000001" Title="Gemütlich" />
+					<C Type="LightsceneC" V="175" U="60000003-0003-1003-ffff000000000001" Title="Aus" />
+				</C>
+				<Co K="I1" U="60000003-0003-0011-ffff000000000001" />
+				<Co K="Presence" U="60000003-0003-0012-ffff000000000001" />
+				<Co K="AQ1" U="60000003-0003-0013-ffff000000000001" />
+				<IoData Pr="10000003-0003-0001-ffff000000000001" Cr="20000001-0001-0001-ffff000000000001" />
+			</C>
+			<C Type="JalousieUpDown2" V="175" U="70000031-0031-0001-ffff000000000001" Title="Jalousie 1" Px="7392" Py="2016" Nio="4" WF="16384">
+				<Co K="InputTriggerUp" U="70000031-0031-0011-ffff000000000001" />
+				<Co K="InputTriggerDown" U="70000031-0031-0012-ffff000000000001" />
+				<Co K="InputPos" U="70000031-0031-0013-ffff000000000001" />
+				<Co K="InputDisable" U="70000031-0031-0014-ffff000000000001" />
+				<IoData Pr="10000003-0003-0001-ffff000000000001" Cr="20000002-0002-0001-ffff000000000001" />
+			</C>
+			<C Type="JalousieUpDown2" V="175" U="70000032-0032-0001-ffff000000000001" Title="Jalousie 2" Px="7392" Py="3456" Nio="4" WF="16384">
+				<Co K="InputTriggerUp" U="70000032-0032-0011-ffff000000000001" />
+				<Co K="InputTriggerDown" U="70000032-0032-0012-ffff000000000001" />
+				<Co K="InputPos" U="70000032-0032-0013-ffff000000000001" />
+				<Co K="InputDisable" U="70000032-0032-0014-ffff000000000001" />
+				<IoData Pr="10000003-0003-0001-ffff000000000001" Cr="20000002-0002-0001-ffff000000000001" />
+			</C>
+			<C Type="StateV" V="175" U="7502b3b5-acb8-5653-ffff000000000001" Title="Steckdose" WF="16384" Px="7392" Py="3504" Nio="2">
+				<Co K="I" U="351aecaa-0008-4edc-ffff000000000001" />
+				<Co K="AQ" U="5c439f08-75ab-4dd8-ffff000000000001" />
+				<IoData Pr="10000003-0003-0001-ffff000000000001" />
+			</C>
+		</C>
+		<!-- Bad (with ventilation) -->
+		<C Type="Page" V="175" U="50000004-0004-0001-ffff000000000001" Title="Bad" WF="16384">
+			<C Type="LightController2" V="175" U="60000004-0004-0001-ffff000000000001" Title="Lichtsteuerung" Px="7392" Py="576" Nio="3" WF="16384">
+				<C Type="LightscenesC" V="175" U="60000004-0004-1000-ffff000000000001">
+					<C Type="LightsceneC" V="175" U="60000004-0004-1001-ffff000000000001" Title="Viel Licht" />
+					<C Type="LightsceneC" V="175" U="60000004-0004-1002-ffff000000000001" Title="Gemütlich" />
+					<C Type="LightsceneC" V="175" U="60000004-0004-1003-ffff000000000001" Title="Aus" />
+				</C>
+				<Co K="I1" U="60000004-0004-0011-ffff000000000001" />
+				<Co K="Presence" U="60000004-0004-0012-ffff000000000001" />
+				<Co K="AQ1" U="60000004-0004-0013-ffff000000000001" />
+				<Co K="Brightness" U="60000004-0004-0014-ffff000000000001" />
+				<IoData Pr="10000004-0004-0001-ffff000000000001" Cr="20000001-0001-0001-ffff000000000001" />
+			</C>
+			<C Type="JalousieUpDown2" V="175" U="70000041-0041-0001-ffff000000000001" Title="Jalousie 1" Px="7392" Py="2016" Nio="4" WF="16384">
+				<Co K="InputTriggerUp" U="70000041-0041-0011-ffff000000000001" />
+				<Co K="InputTriggerDown" U="70000041-0041-0012-ffff000000000001" />
+				<Co K="InputPos" U="70000041-0041-0013-ffff000000000001" />
+				<Co K="InputDisable" U="70000041-0041-0014-ffff000000000001" />
+				<IoData Pr="10000004-0004-0001-ffff000000000001" Cr="20000002-0002-0001-ffff000000000001" />
+			</C>
+			<C Type="JalousieUpDown2" V="175" U="70000042-0042-0001-ffff000000000001" Title="Jalousie 2" Px="7392" Py="3456" Nio="4" WF="16384">
+				<Co K="InputTriggerUp" U="70000042-0042-0011-ffff000000000001" />
+				<Co K="InputTriggerDown" U="70000042-0042-0012-ffff000000000001" />
+				<Co K="InputPos" U="70000042-0042-0013-ffff000000000001" />
+				<Co K="InputDisable" U="70000042-0042-0014-ffff000000000001" />
+				<IoData Pr="10000004-0004-0001-ffff000000000001" Cr="20000002-0002-0001-ffff000000000001" />
+			</C>
+			<C Type="VirtualOut" V="175" U="b0000001-0001-0001-ffff000000000001" Title="Lüfter Bad" Px="11040" Py="576" Nio="2" WF="16384">
+				<Co K="I1" U="b0000001-0001-0011-ffff000000000001" />
+				<Co K="Q1" U="b0000001-0001-0012-ffff000000000001" />
+				<IoData Pr="10000004-0004-0001-ffff000000000001" Cr="20000003-0003-0001-ffff000000000001" />
+			</C>
+			<C Type="VirtualOut" V="175" U="b0000004-0004-0001-ffff000000000001" Title="Heizkörper Bad" Px="11040" Py="1440" Nio="2" WF="16384">
+				<Co K="I1" U="b0000004-0004-0011-ffff000000000001" />
+				<Co K="Q1" U="b0000004-0004-0012-ffff000000000001" />
+				<IoData Pr="10000004-0004-0001-ffff000000000001" Cr="20000003-0003-0001-ffff000000000001" />
+			</C>
+			<C Type="StateV" V="175" U="1599b93b-6055-c589-ffff000000000001" Title="Heizstab" WF="16384" Px="7392" Py="3504" Nio="2">
+				<Co K="I" U="b5e622d1-a423-cac9-ffff000000000001" />
+				<Co K="AQ" U="02ab6f0e-a53b-f4eb-ffff000000000001" />
+				<IoData Pr="10000004-0004-0001-ffff000000000001" />
+			</C>
+		</C>
+		<!-- Flur (with motion + door contact) -->
+		<C Type="Page" V="175" U="50000005-0005-0001-ffff000000000001" Title="Flur" WF="16384">
+			<C Type="LightController2" V="175" U="60000005-0005-0001-ffff000000000001" Title="Lichtsteuerung" Px="7392" Py="576" Nio="3" WF="16384">
+				<C Type="LightscenesC" V="175" U="60000005-0005-1000-ffff000000000001">
+					<C Type="LightsceneC" V="175" U="60000005-0005-1001-ffff000000000001" Title="Viel Licht" />
+					<C Type="LightsceneC" V="175" U="60000005-0005-1002-ffff000000000001" Title="Gemütlich" />
+					<C Type="LightsceneC" V="175" U="60000005-0005-1003-ffff000000000001" Title="Aus" />
+				</C>
+				<Co K="I1" U="60000005-0005-0011-ffff000000000001" />
+				<Co K="Presence" U="60000005-0005-0012-ffff000000000001" />
+				<Co K="AQ1" U="60000005-0005-0013-ffff000000000001" />
+				<Co K="Brightness" U="60000005-0005-0014-ffff000000000001" />
+				<IoData Pr="10000005-0005-0001-ffff000000000001" Cr="20000001-0001-0001-ffff000000000001" />
+			</C>
+			<C Type="JalousieUpDown2" V="175" U="70000051-0051-0001-ffff000000000001" Title="Jalousie 1" Px="7392" Py="2016" Nio="4" WF="16384">
+				<Co K="InputTriggerUp" U="70000051-0051-0011-ffff000000000001" />
+				<Co K="InputTriggerDown" U="70000051-0051-0012-ffff000000000001" />
+				<Co K="InputPos" U="70000051-0051-0013-ffff000000000001" />
+				<Co K="InputDisable" U="70000051-0051-0014-ffff000000000001" />
+				<IoData Pr="10000005-0005-0001-ffff000000000001" Cr="20000002-0002-0001-ffff000000000001" />
+			</C>
+			<C Type="JalousieUpDown2" V="175" U="70000052-0052-0001-ffff000000000001" Title="Jalousie 2" Px="7392" Py="3456" Nio="4" WF="16384">
+				<Co K="InputTriggerUp" U="70000052-0052-0011-ffff000000000001" />
+				<Co K="InputTriggerDown" U="70000052-0052-0012-ffff000000000001" />
+				<Co K="InputPos" U="70000052-0052-0013-ffff000000000001" />
+				<Co K="InputDisable" U="70000052-0052-0014-ffff000000000001" />
+				<IoData Pr="10000005-0005-0001-ffff000000000001" Cr="20000002-0002-0001-ffff000000000001" />
+			</C>
+			<C Type="PresenceDetector" V="175" U="90000001-0001-0001-ffff000000000001" Title="Bewegungsmelder" Px="4320" Py="576" Nio="2" WF="16384">
+				<Co K="InputTrigger" U="90000001-0001-0011-ffff000000000001" />
+				<Co K="OutputPresence" U="90000001-0001-0012-ffff000000000001" />
+				<IoData Pr="10000005-0005-0001-ffff000000000001" Cr="20000001-0001-0001-ffff000000000001" />
+			</C>
+			<C Type="VirtualIn" IName="VI6" V="175" U="a0000008-0008-0001-ffff000000000001" Title="Türkontakt Eingang" Analog="false" Nio="2" WF="16400">
+				<Co K="Q" U="a0000008-0008-0011-ffff000000000001" />
+				<Co K="Qm" U="a0000008-0008-0012-ffff000000000001" />
+				<IoData Pr="10000005-0005-0001-ffff000000000001" Cr="20000005-0005-0001-ffff000000000001" />
+			</C>
+			<C Type="VirtualOut" V="175" U="b0000005-0005-0001-ffff000000000001" Title="Türöffner" Px="11040" Py="1440" Nio="2" WF="16384">
+				<Co K="I1" U="b0000005-0005-0011-ffff000000000001" />
+				<Co K="Q1" U="b0000005-0005-0012-ffff000000000001" />
+				<IoData Pr="10000005-0005-0001-ffff000000000001" Cr="20000005-0005-0001-ffff000000000001" />
+			</C>
+			<C Type="StateV" V="175" U="6d1711dd-0770-21a4-ffff000000000001" Title="Alarmanlage" WF="16384" Px="7392" Py="3504" Nio="2">
+				<Co K="I" U="ffcd4e70-7d8d-58b9-ffff000000000001" />
+				<Co K="AQ" U="b167fe85-81f5-23a5-ffff000000000001" />
+				<IoData Pr="10000005-0005-0001-ffff000000000001" />
+			</C>
+			<C Type="StateV" V="175" U="6e67eeb8-374e-8ef9-ffff000000000001" Title="Türschloss" WF="16384" Px="7392" Py="3552" Nio="2">
+				<Co K="I" U="dbf51c5b-5058-84c3-ffff000000000001" />
+				<Co K="AQ" U="7f22d4d3-5620-fc5e-ffff000000000001" />
+				<IoData Pr="10000005-0005-0001-ffff000000000001" />
+			</C>
+			<C Type="PushButton" V="175" U="de15c1f6-a2a4-f5a0-ffff000000000001" Title="PushButton" WF="16384" Px="7392" Py="3600" Nio="5">
+				<Co K="InputTrigger" U="ca0c7178-8d6f-2dd3-ffff000000000001" />
+				<Co K="On" U="e3033d78-e923-40a2-ffff000000000001" />
+				<Co K="Q" U="d31bac7b-ba8c-6b7c-ffff000000000001" />
+				<Co K="Qoff" U="0ad6efab-ea3c-5c3c-ffff000000000001" />
+				<Co K="Qon" U="1547f7c9-ff26-ccb3-ffff000000000001" />
+				<IoData Pr="10000005-0005-0001-ffff000000000001" />
+			</C>
+		</C>
+		<!-- Garten (irrigation, outdoor lighting) -->
+		<C Type="Page" V="175" U="50000006-0006-0001-ffff000000000001" Title="Garten" WF="16384">
+			<C Type="LightController2" V="175" U="60000006-0006-0001-ffff000000000001" Title="Gartenbeleuchtung" Px="7392" Py="576" Nio="3" WF="16384">
+				<C Type="LightscenesC" V="175" U="60000006-0006-1000-ffff000000000001">
+					<C Type="LightsceneC" V="175" U="60000006-0006-1001-ffff000000000001" Title="An" />
+					<C Type="LightsceneC" V="175" U="60000006-0006-1002-ffff000000000001" Title="Aus" />
+				</C>
+				<Co K="I1" U="60000006-0006-0011-ffff000000000001" />
+				<Co K="Presence" U="60000006-0006-0012-ffff000000000001" />
+				<Co K="AQ1" U="60000006-0006-0013-ffff000000000001" />
+				<IoData Pr="10000006-0006-0001-ffff000000000001" Cr="20000001-0001-0001-ffff000000000001" />
+			</C>
+			<C Type="VirtualOut" V="175" U="b0000002-0002-0001-ffff000000000001" Title="Bewässerungsventil" Px="11040" Py="576" Nio="2" WF="16384">
+				<Co K="I1" U="b0000002-0002-0011-ffff000000000001" />
+				<Co K="Q1" U="b0000002-0002-0012-ffff000000000001" />
+				<IoData Pr="10000006-0006-0001-ffff000000000001" Cr="20000003-0003-0001-ffff000000000001" />
+			</C>
+			<C Type="PresenceDetector" V="175" U="90000002-0002-0001-ffff000000000001" Title="Bewegungsmelder Garten" Px="4320" Py="576" Nio="2" WF="16384">
+				<Co K="InputTrigger" U="90000002-0002-0011-ffff000000000001" />
+				<Co K="OutputPresence" U="90000002-0002-0012-ffff000000000001" />
+				<IoData Pr="10000006-0006-0001-ffff000000000001" Cr="20000005-0005-0001-ffff000000000001" />
+			</C>
+			<C Type="VirtualOut" V="175" U="b0000006-0006-0001-ffff000000000001" Title="Poolpumpe" Px="11040" Py="1440" Nio="2" WF="16384">
+				<Co K="I1" U="b0000006-0006-0011-ffff000000000001" />
+				<Co K="Q1" U="b0000006-0006-0012-ffff000000000001" />
+				<IoData Pr="10000006-0006-0001-ffff000000000001" Cr="20000003-0003-0001-ffff000000000001" />
+			</C>
+		</C>
+		<!-- Garage -->
+		<C Type="Page" V="175" U="50000007-0007-0001-ffff000000000001" Title="Garage" WF="16384">
+			<C Type="LightController2" V="175" U="60000007-0007-0001-ffff000000000001" Title="Garagenlicht" Px="7392" Py="576" Nio="3" WF="16384">
+				<C Type="LightscenesC" V="175" U="60000007-0007-1000-ffff000000000001">
+					<C Type="LightsceneC" V="175" U="60000007-0007-1001-ffff000000000001" Title="An" />
+					<C Type="LightsceneC" V="175" U="60000007-0007-1002-ffff000000000001" Title="Aus" />
+				</C>
+				<Co K="I1" U="60000007-0007-0011-ffff000000000001" />
+				<Co K="Presence" U="60000007-0007-0012-ffff000000000001" />
+				<Co K="AQ1" U="60000007-0007-0013-ffff000000000001" />
+				<IoData Pr="10000007-0007-0001-ffff000000000001" Cr="20000001-0001-0001-ffff000000000001" />
+			</C>
+			<C Type="VirtualOut" V="175" U="b0000003-0003-0001-ffff000000000001" Title="Garagentor" Px="11040" Py="576" Nio="2" WF="16384">
+				<Co K="I1" U="b0000003-0003-0011-ffff000000000001" />
+				<Co K="Q1" U="b0000003-0003-0012-ffff000000000001" />
+				<IoData Pr="10000007-0007-0001-ffff000000000001" Cr="20000005-0005-0001-ffff000000000001" />
+			</C>
+			<C Type="StateV" V="175" U="00ca1d2d-8c81-fc8f-ffff000000000001" Title="Wallbox" WF="16384" Px="7392" Py="624" Nio="2">
+				<Co K="I" U="9d53ccd3-0633-701e-ffff000000000001" />
+				<Co K="AQ" U="0b1d7de5-bff9-ac65-ffff000000000001" />
+				<IoData Pr="10000007-0007-0001-ffff000000000001" />
+			</C>
+			<C Type="StateV" V="175" U="91e9f35e-262e-c8fd-ffff000000000001" Title="Batteriespeicher" WF="16384" Px="7392" Py="672" Nio="2">
+				<Co K="I" U="00254439-434e-c5ae-ffff000000000001" />
+				<Co K="AQ" U="0d697fd1-800e-11c0-ffff000000000001" />
+				<IoData Pr="10000007-0007-0001-ffff000000000001" />
+			</C>
+		</C>
+		<!-- Zentral (cross-room logic) -->
+		<C Type="Page" V="175" U="50000008-0008-0001-ffff000000000001" Title="Zentral" WF="16384" />
+	</C>
 </ControlList>
