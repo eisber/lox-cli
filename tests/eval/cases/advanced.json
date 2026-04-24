@@ -525,31 +525,27 @@
       "params": [],
       "simulation": [
         {
-          "name": "should trigger when condition met",
+          "name": "motion triggers light",
           "inputs": {
-            "Sonnenschein.AQ": 1.0,
-            "Bewegungsmelder.OutputPresence": 1.0,
-            "Türkontakt Eingang.Q": 1.0
+            "Bewegungsmelder.OutputPresence": 1
           },
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Jalousie 1 [Flur].InputTriggerDown": {
+            "Lichtsteuerung [Flur].I1": {
               ">": 0.5
             }
           }
         },
         {
-          "name": "should NOT trigger when condition not met",
+          "name": "no motion no light",
           "inputs": {
-            "Sonnenschein.AQ": 0.0,
-            "Bewegungsmelder.OutputPresence": 0.0,
-            "Türkontakt Eingang.Q": 0.0
+            "Bewegungsmelder.OutputPresence": 0
           },
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Jalousie 1 [Flur].InputTriggerDown": {
+            "Lichtsteuerung [Flur].I1": {
               "<": 0.5
             }
           }

@@ -271,27 +271,27 @@
       ],
       "simulation": [
         {
-          "name": "should trigger when condition met",
+          "name": "high humidity triggers fan",
           "inputs": {
-            "Luftfeuchtigkeit.AQ": 75.0
+            "Luftfeuchtigkeit": 75
           },
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Humidity.Input1": {
+            "Lüfter Bad.I1": {
               ">": 0.5
             }
           }
         },
         {
-          "name": "should NOT trigger when condition not met",
+          "name": "low humidity no fan",
           "inputs": {
-            "Luftfeuchtigkeit.AQ": 65.0
+            "Luftfeuchtigkeit": 50
           },
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Humidity.Input1": {
+            "Lüfter Bad.I1": {
               "<": 0.5
             }
           }
@@ -480,27 +480,27 @@
       ],
       "simulation": [
         {
-          "name": "should trigger when condition met",
+          "name": "dark triggers garden light",
           "inputs": {
-            "Sonnenschein.AQ": 1.0
+            "Helligkeit": 0
           },
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Dark.Input1": {
+            "Gartenbeleuchtung [Garten].I1": {
               ">": 0.5
             }
           }
         },
         {
-          "name": "should NOT trigger when condition not met",
+          "name": "bright no light",
           "inputs": {
-            "Sonnenschein.AQ": 0.0
+            "Helligkeit": 50000
           },
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Dark.Input1": {
+            "Gartenbeleuchtung [Garten].I1": {
               "<": 0.5
             }
           }
@@ -829,27 +829,27 @@
       "params": [],
       "simulation": [
         {
-          "name": "should activate when door opens",
+          "name": "door sensor triggers alarm",
           "inputs": {
-            "Garagentor Sensor.Q": 1.0
+            "Garagentor Sensor.Q": 1
           },
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Alarm.Q": {
+            "Garagenlicht [Garage].I1": {
               ">": 0.5
             }
           }
         },
         {
-          "name": "should NOT activate when door closed",
+          "name": "no sensor no alarm",
           "inputs": {
-            "Garagentor Sensor.Q": 0.0
+            "Garagentor Sensor.Q": 0
           },
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Alarm.Q": {
+            "Garagenlicht [Garage].I1": {
               "<": 0.5
             }
           }
@@ -892,27 +892,27 @@
       "params": [],
       "simulation": [
         {
-          "name": "should latch on when set",
+          "name": "switch triggers fan",
           "inputs": {
-            "Schalter 1.Q": 1.0
+            "Schalter 1.Q": 1
           },
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Vent.Q": {
+            "Lüfter Bad.I1": {
               ">": 0.5
             }
           }
         },
         {
-          "name": "should NOT latch without trigger",
+          "name": "switch off no fan",
           "inputs": {
-            "Schalter 1.Q": 0.0
+            "Schalter 1.Q": 0
           },
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Vent.Q": {
+            "Lüfter Bad.I1": {
               "<": 0.5
             }
           }
