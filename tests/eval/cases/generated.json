@@ -3247,28 +3247,30 @@
       ],
       "simulation": [
         {
-          "name": "should output low when input high (NOT)",
+          "name": "blinds up when sun + no rain",
           "inputs": {
-            "Regen.AQ": 1.0
-          },
-          "ticks": 10,
-          "dt": 0.1,
-          "expected_outputs": {
-            "Jalousie 1 [Küche].InputTriggerUp": {
-              "<": 0.5
-            }
-          }
-        },
-        {
-          "name": "should output high when input low (NOT)",
-          "inputs": {
-            "Regen.AQ": 0.0
+            "Regen": 0,
+            "Sonnenschein": 1
           },
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
             "Jalousie 1 [Küche].InputTriggerUp": {
               ">": 0.5
+            }
+          }
+        },
+        {
+          "name": "blinds stay when raining",
+          "inputs": {
+            "Regen": 1,
+            "Sonnenschein": 0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Jalousie 1 [Küche].InputTriggerUp": {
+              "<": 0.5
             }
           }
         }
@@ -3626,29 +3628,27 @@
       ],
       "simulation": [
         {
-          "name": "should trigger when all conditions met",
+          "name": "sleep mode disables blinds",
           "inputs": {
-            "Bewegungsmelder.OutputPresence": 1.0,
-            "Türkontakt Eingang.Q": 1.0
+            "Schalter 1.Q": 1
           },
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Jalousie 1 [Schlafzimmer].InputTriggerDown": {
+            "Jalousie 1 [Schlafzimmer].InputDisable": {
               ">": 0.5
             }
           }
         },
         {
-          "name": "should NOT trigger when only partial conditions met",
+          "name": "no mode enables blinds",
           "inputs": {
-            "Bewegungsmelder.OutputPresence": 0.0,
-            "Türkontakt Eingang.Q": 1.0
+            "Schalter 1.Q": 0
           },
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Jalousie 1 [Schlafzimmer].InputTriggerDown": {
+            "Jalousie 1 [Schlafzimmer].InputDisable": {
               "<": 0.5
             }
           }
@@ -5176,9 +5176,10 @@
       ],
       "simulation": [
         {
-          "name": "should trigger when all conditions met",
+          "name": "irrigation works when dry",
           "inputs": {
-            "Regen.AQ": 1.0
+            "Regen": 0,
+            "Feuchtesensor Garten": 10
           },
           "ticks": 10,
           "dt": 0.1,
@@ -5189,9 +5190,9 @@
           }
         },
         {
-          "name": "should NOT trigger when condition not met",
+          "name": "no irrigation when raining",
           "inputs": {
-            "Regen.AQ": 0.0
+            "Regen": 1
           },
           "ticks": 10,
           "dt": 0.1,

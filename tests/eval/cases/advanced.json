@@ -186,9 +186,10 @@
       "params": [],
       "simulation": [
         {
-          "name": "should trigger when all conditions met",
+          "name": "rain + door triggers warning",
           "inputs": {
-            "Türkontakt Eingang.Q": 1.0
+            "Türkontakt Eingang.Q": 1,
+            "Regen": 1
           },
           "ticks": 10,
           "dt": 0.1,
@@ -199,9 +200,10 @@
           }
         },
         {
-          "name": "should NOT trigger when condition not met",
+          "name": "no rain no warning",
           "inputs": {
-            "Türkontakt Eingang.Q": 0.0
+            "Türkontakt Eingang.Q": 1,
+            "Regen": 0
           },
           "ticks": 10,
           "dt": 0.1,
@@ -804,9 +806,10 @@
       "params": [],
       "simulation": [
         {
-          "name": "should trigger when all conditions met",
+          "name": "cold pool triggers pump",
           "inputs": {
-            "Pool Temperatur.AQ": 25.0
+            "Pool Temperatur": 15,
+            "Sonnenschein": 1
           },
           "ticks": 10,
           "dt": 0.1,
@@ -817,9 +820,10 @@
           }
         },
         {
-          "name": "should NOT trigger when condition not met",
+          "name": "hot pool no pump",
           "inputs": {
-            "Pool Temperatur.AQ": 15.0
+            "Pool Temperatur": 30,
+            "Sonnenschein": 0
           },
           "ticks": 10,
           "dt": 0.1,
