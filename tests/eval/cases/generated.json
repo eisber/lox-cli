@@ -2357,9 +2357,10 @@
       ],
       "simulation": [
         {
-          "name": "should trigger when condition met",
+          "name": "blinds close at 28°C with sunshine",
           "inputs": {
-            "Außentemperatur.AQ": 33.0
+            "Außentemperatur.AQ": 33.0,
+            "Sonnenschein": 1.0
           },
           "ticks": 10,
           "dt": 0.1,
@@ -2370,9 +2371,10 @@
           }
         },
         {
-          "name": "should NOT trigger when condition not met",
+          "name": "blinds stay when cool",
           "inputs": {
-            "Außentemperatur.AQ": 23.0
+            "Außentemperatur.AQ": 23.0,
+            "Sonnenschein": 0.0
           },
           "ticks": 10,
           "dt": 0.1,
@@ -3374,29 +3376,27 @@
       ],
       "simulation": [
         {
-          "name": "should trigger when condition met",
+          "name": "hallway dims on motion",
           "inputs": {
-            "Sonnenschein.AQ": 1.0,
             "Bewegungsmelder.OutputPresence": 1.0
           },
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Lichtsteuerung [Flur].I1": {
+            "Lichtsteuerung [Flur].Presence": {
               ">": 0.5
             }
           }
         },
         {
-          "name": "should NOT trigger when condition not met",
+          "name": "no light without motion",
           "inputs": {
-            "Sonnenschein.AQ": 0.0,
             "Bewegungsmelder.OutputPresence": 0.0
           },
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Lichtsteuerung [Flur].I1": {
+            "Lichtsteuerung [Flur].Presence": {
               "<": 0.5
             }
           }
@@ -5481,22 +5481,22 @@
       "error": "no_target",
       "simulation": [
         {
-          "name": "should trigger when condition met",
+          "name": "blinds do not move",
           "inputs": {
-            "Sonnenschein.AQ": 1.0
+            "Sonnenschein": 1.0
           },
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
             "Jalousie 1 [Schlafzimmer].InputTriggerDown": {
-              ">": 0.5
+              "<": 0.5
             }
           }
         },
         {
-          "name": "should NOT trigger when condition not met",
+          "name": "blinds still do not move",
           "inputs": {
-            "Sonnenschein.AQ": 0.0
+            "Sonnenschein": 0.0
           },
           "ticks": 10,
           "dt": 0.1,

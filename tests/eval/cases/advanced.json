@@ -409,31 +409,27 @@
       "params": [],
       "simulation": [
         {
-          "name": "should trigger when condition met",
+          "name": "heating activates when cold",
           "inputs": {
-            "Außentemperatur.AQ": 15.0,
-            "Bewegungsmelder.OutputPresence": 1.0,
-            "Sonnenschein.AQ": 1.0
+            "Außentemperatur": 15.0
           },
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Jalousie 1 [Schlafzimmer].InputTriggerDown": {
+            "Heizkörper Bad.I1": {
               ">": 0.5
             }
           }
         },
         {
-          "name": "should NOT trigger when condition not met",
+          "name": "heating off when warm",
           "inputs": {
-            "Außentemperatur.AQ": 25.0,
-            "Bewegungsmelder.OutputPresence": 0.0,
-            "Sonnenschein.AQ": 0.0
+            "Außentemperatur": 25.0
           },
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Jalousie 1 [Schlafzimmer].InputTriggerDown": {
+            "Heizkörper Bad.I1": {
               "<": 0.5
             }
           }
