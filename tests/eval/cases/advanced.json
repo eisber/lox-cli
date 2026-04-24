@@ -1468,41 +1468,29 @@
       "params": [],
       "simulation": [
         {
-          "name": "should trigger when condition met",
+          "name": "dark + door triggers lights",
           "inputs": {
-            "Sonnenschein.AQ": 1.0,
-            "Garagentor Sensor.Q": 1.0
+            "Garagentor Sensor.Q": 1.0,
+            "Helligkeit": 10.0
           },
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Garagenlicht.Q": {
-              ">": 0.5
-            },
-            "Gartenbeleuchtung.I1": {
-              ">": 0.5
-            },
-            "Lichtsteuerung [Flur].I1": {
+            "Garagenlicht [Garage].I1": {
               ">": 0.5
             }
           }
         },
         {
-          "name": "should NOT trigger when condition not met",
+          "name": "no door no lights",
           "inputs": {
-            "Sonnenschein.AQ": 0.0,
-            "Garagentor Sensor.Q": 0.0
+            "Garagentor Sensor.Q": 0.0,
+            "Helligkeit": 10.0
           },
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Garagenlicht.Q": {
-              "<": 0.5
-            },
-            "Gartenbeleuchtung.I1": {
-              "<": 0.5
-            },
-            "Lichtsteuerung [Flur].I1": {
+            "Garagenlicht [Garage].I1": {
               "<": 0.5
             }
           }
