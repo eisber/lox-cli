@@ -2721,9 +2721,9 @@
       ],
       "simulation": [
         {
-          "name": "should trigger when condition met",
+          "name": "blinds lower above 80% sunshine",
           "inputs": {
-            "Sonnenschein.AQ": 1.0
+            "Sonnenschein": 85.0
           },
           "ticks": 10,
           "dt": 0.1,
@@ -2734,9 +2734,9 @@
           }
         },
         {
-          "name": "should NOT trigger when condition not met",
+          "name": "no action below 80%",
           "inputs": {
-            "Sonnenschein.AQ": 0.0
+            "Sonnenschein": 50.0
           },
           "ticks": 10,
           "dt": 0.1,

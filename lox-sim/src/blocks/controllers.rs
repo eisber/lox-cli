@@ -664,8 +664,8 @@ impl Block for HeatIRoomController2 {
 // ---------------------------------------------------------------------------
 
 // WARNING: Simplified model — real Loxone behavior may differ.
-// Assumption: Toggle flips on/off state. Cooling demand = max(0, temp - setpoint).
-// Validate against Miniserver.
+// Assumption: Toggle flips on/off state. Dedicated on/off inputs force state.
+// Cooling demand = max(0, temp - setpoint). Validate against Miniserver.
 
 /// Air conditioning control.
 #[derive(Clone, Default)]
@@ -680,7 +680,7 @@ impl AcControl {
 }
 
 impl Block for AcControl {
-    /// Inputs: [toggle, inTempCurr, setpoint]
+    /// Inputs: [toggle, on, off, inTempCurr, setpoint]
     /// Params: []
     /// Outputs: [status, cooling_demand]
     fn eval(
@@ -691,12 +691,23 @@ impl Block for AcControl {
         prev_inputs: &[Signal],
     ) -> Vec<Signal> {
         let toggle = inputs.first().copied().unwrap_or(0.0);
-        let temp = inputs.get(1).copied().unwrap_or(22.0);
-        let setpoint = inputs.get(2).copied().unwrap_or(24.0);
+        let on_cmd = inputs.get(1).copied().unwrap_or(0.0);
+        let off_cmd = inputs.get(2).copied().unwrap_or(0.0);
+        let temp = inputs.get(3).copied().unwrap_or(22.0);
+        let setpoint = inputs.get(4).copied().unwrap_or(24.0);
 
         let prev_toggle = prev_inputs.first().copied().unwrap_or(0.0);
+        let prev_on = prev_inputs.get(1).copied().unwrap_or(0.0);
+        let prev_off = prev_inputs.get(2).copied().unwrap_or(0.0);
+
         if !is_high(prev_toggle) && is_high(toggle) {
             self.on = !self.on;
+        }
+        if !is_high(prev_on) && is_high(on_cmd) {
+            self.on = true;
+        }
+        if !is_high(prev_off) && is_high(off_cmd) {
+            self.on = false;
         }
 
         let demand = if self.on {
@@ -1844,8 +1855,14 @@ mod tests {
     #[test]
     fn ac_toggle_and_demand() {
         let mut ac = AcControl::new();
+        // inputs: [toggle, on, off, inTempCurr, setpoint]
         // Toggle on
-        let out = ac.eval(&[1.0, 26.0, 24.0], &[], 0.0, &[0.0, 0.0, 0.0]);
+        let out = ac.eval(
+            &[1.0, 0.0, 0.0, 26.0, 24.0],
+            &[],
+            0.0,
+            &[0.0, 0.0, 0.0, 0.0, 0.0],
+        );
         assert_eq!(out[0], 1.0); // on
         assert!((out[1] - 2.0).abs() < 0.01); // demand = 26 - 24
     }

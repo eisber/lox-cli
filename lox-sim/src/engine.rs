@@ -178,7 +178,9 @@ impl SimEngine {
             graph,
             blocks,
             signals: signals.clone(),
-            prev_signals: signals,
+            // Previous-tick signals start at zero so that constant defaults
+            // (e.g. Trigger=1 on AMemory) produce a rising edge on the first tick.
+            prev_signals: vec![0.0; signals.len()],
             dirty: vec![true; n_blocks], // first tick evaluates everything
             topo_order: topo.order,
             eval_info,

@@ -157,15 +157,16 @@ impl Block for AlarmChain {
 // ---------------------------------------------------------------------------
 
 // WARNING: Simplified model — real Loxone behavior may differ.
-// Assumption: ORs all smoke detector inputs. Validate against Miniserver.
+// Assumption: ORs alarm detector inputs (InputAlarm, InputAlarmW, InputAlarmS).
+// Confirm/Mute/InputTemp are ignored. Validate against Miniserver.
 
 /// Smoke detection consolidation — any detector triggers alarm.
 #[derive(Clone, Copy)]
 pub struct SmokeAlarm;
 
 impl Block for SmokeAlarm {
-    /// Inputs: [detector1, detector2, ...]
-    /// Outputs: [alarm_active, active_count]
+    /// Inputs: [Confirm, Mute, InputAlarm, InputAlarmW, InputAlarmS, InputTemp]
+    /// Outputs: [OutAlarm1, OutAlarm2, OutSilent, OutHorn, OutNumAlarms, OutAlarmTest]
     fn eval(
         &mut self,
         inputs: &[Signal],
@@ -173,8 +174,15 @@ impl Block for SmokeAlarm {
         _dt: f64,
         _prev: &[Signal],
     ) -> Vec<Signal> {
-        let count = inputs.iter().filter(|&&v| is_high(v)).count();
-        vec![bool_signal(count > 0), count as f64]
+        // Only alarm inputs (indices 2..5) trigger the alarm
+        let alarm_inputs = if inputs.len() > 2 {
+            &inputs[2..inputs.len().min(5)]
+        } else {
+            &[]
+        };
+        let count = alarm_inputs.iter().filter(|&&v| is_high(v)).count();
+        let alarm = bool_signal(count > 0);
+        vec![alarm, alarm, alarm, alarm, count as f64, 0.0]
     }
 
     fn state(&self) -> Option<Vec<u8>> {
@@ -562,8 +570,22 @@ mod tests {
     #[test]
     fn smoke_alarm_any_detector() {
         let mut block = SmokeAlarm;
-        assert_eq!(block.eval(&[0.0, 0.0], &[], 0.0, &[])[0], 0.0);
-        assert_eq!(block.eval(&[0.0, 1.0], &[], 0.0, &[])[0], 1.0);
+        // inputs: [Confirm, Mute, InputAlarm, InputAlarmW, InputAlarmS, InputTemp]
+        // No alarm inputs active
+        assert_eq!(
+            block.eval(&[0.0, 0.0, 0.0, 0.0, 0.0, 0.0], &[], 0.0, &[])[0],
+            0.0
+        );
+        // InputAlarmW active
+        assert_eq!(
+            block.eval(&[0.0, 0.0, 0.0, 1.0, 0.0, 0.0], &[], 0.0, &[])[0],
+            1.0
+        );
+        // InputAlarm active
+        assert_eq!(
+            block.eval(&[0.0, 0.0, 1.0, 0.0, 0.0, 0.0], &[], 0.0, &[])[0],
+            1.0
+        );
     }
 
     #[test]

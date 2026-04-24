@@ -53,6 +53,12 @@ pub enum BlockState {
     },
     /// PushButton — toggle with transition pulses.
     PushButton { is_on: bool },
+    /// OnOffDelay — switch-on and switch-off delay.
+    OnOffDelay {
+        on_elapsed: f64,
+        off_remaining: f64,
+        output: bool,
+    },
 }
 
 // ---------------------------------------------------------------------------
@@ -155,6 +161,13 @@ pub enum EvalStep {
         prev_trigger: usize,
         param_delay: usize,
         param_duration: usize,
+        output: usize,
+        state_idx: usize,
+    },
+    OnOffDelay {
+        trigger: usize,
+        param_on_delay: usize,
+        param_off_delay: usize,
         output: usize,
         state_idx: usize,
     },
@@ -363,10 +376,9 @@ impl CompiledGraph {
             .map(|i| graph.connector(i).default_value)
             .collect();
 
-        // We need a prev_signals index for each connector. We allocate
-        // a second range [n_conn .. 2*n_conn) in the prev_signals array,
-        // but for simplicity we use a separate Vec<f64> of the same size.
-        let prev_signals = signals.clone();
+        // Previous-tick signals start at zero so that constant defaults
+        // (e.g. Trigger=1 on AMemory) produce a rising edge on the first tick.
+        let prev_signals = vec![0.0; n_conn];
 
         // Helper: resolve an input connector to the source signal index.
         // For feedback wires, we'll read from prev_signals instead.
@@ -553,6 +565,21 @@ impl CompiledGraph {
                         prev_trigger: prev_inputs.first().copied().unwrap_or(0),
                         param_delay: params.first().copied().unwrap_or(0),
                         param_duration: params.get(1).copied().unwrap_or(0),
+                        output: outputs[0],
+                        state_idx: si,
+                    }
+                }
+                "OnOffDelay" => {
+                    let si = state.len();
+                    state.push(BlockState::OnOffDelay {
+                        on_elapsed: 0.0,
+                        off_remaining: 0.0,
+                        output: false,
+                    });
+                    EvalStep::OnOffDelay {
+                        trigger: resolved_inputs.first().copied().unwrap_or(0),
+                        param_on_delay: params.first().copied().unwrap_or(0),
+                        param_off_delay: params.get(1).copied().unwrap_or(0),
                         output: outputs[0],
                         state_idx: si,
                     }
@@ -1070,6 +1097,50 @@ impl CompiledGraph {
                             }
                         }
                         self.signals[out] = bool_f64(q);
+                    }
+                }
+
+                // -- OnOffDelay --
+                EvalStep::OnOffDelay {
+                    trigger,
+                    param_on_delay,
+                    param_off_delay,
+                    output,
+                    state_idx,
+                } => {
+                    let trig = self.signals[*trigger];
+                    let on_delay = self.signals[*param_on_delay].max(0.0);
+                    let off_delay = self.signals[*param_off_delay].max(0.0);
+                    let out = *output;
+                    let si = *state_idx;
+
+                    if let BlockState::OnOffDelay {
+                        on_elapsed,
+                        off_remaining,
+                        output: is_on,
+                    } = &mut self.state[si]
+                    {
+                        if trig >= 0.5 {
+                            *off_remaining = 0.0;
+                            if !*is_on {
+                                *on_elapsed += dt;
+                                if *on_elapsed >= on_delay {
+                                    *is_on = true;
+                                }
+                            }
+                        } else {
+                            *on_elapsed = 0.0;
+                            if *is_on {
+                                if *off_remaining <= 0.0 {
+                                    *off_remaining = off_delay;
+                                }
+                                *off_remaining = (*off_remaining - dt).max(0.0);
+                                if *off_remaining <= 0.0 {
+                                    *is_on = false;
+                                }
+                            }
+                        }
+                        self.signals[out] = bool_f64(*is_on);
                     }
                 }
 
