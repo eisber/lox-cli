@@ -1346,7 +1346,8 @@
         {
           "name": "should trigger when condition met",
           "inputs": {
-            "Sonnenschein.AQ": 1.0
+            "Sonnenschein.AQ": 1.0,
+            "Helligkeit": 10.0
           },
           "ticks": 10,
           "dt": 0.1,

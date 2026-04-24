@@ -3447,7 +3447,8 @@
         {
           "name": "should produce scaled output when input active",
           "inputs": {
-            "Türkontakt Eingang.Q": 1.0
+            "Türkontakt Eingang.Q": 1.0,
+            "Schalter 1.Q": 1.0
           },
           "ticks": 10,
           "dt": 0.1,
