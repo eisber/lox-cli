@@ -5118,27 +5118,27 @@
       ],
       "simulation": [
         {
-          "name": "TV scene activates on hidden button press",
+          "name": "TV mode lowers screen",
           "inputs": {
-            "Bewegungsmelder.OutputPresence": 1.0
+            "Schalter 1.Q": 1
           },
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Lichtsteuerung [Wohnzimmer].AQ1": {
+            "Leinwand.InputTriggerDown": {
               ">": 0.5
             }
           }
         },
         {
-          "name": "normal lighting without hidden button",
+          "name": "no TV mode",
           "inputs": {
-            "Bewegungsmelder.OutputPresence": 0.0
+            "Schalter 1.Q": 0
           },
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Lichtsteuerung [Wohnzimmer].AQ1": {
+            "Leinwand.InputTriggerDown": {
               "<": 0.5
             }
           }
