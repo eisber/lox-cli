@@ -1789,7 +1789,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Klimaanlage.I1": {
+            "Klimaanlage.status": {
               ">": 0.5
             }
           }
@@ -1802,7 +1802,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Klimaanlage.I1": {
+            "Klimaanlage.status": {
               "<": 0.5
             }
           }
@@ -1970,7 +1970,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Klimaanlage.I1": {
+            "Klimaanlage.status": {
               ">": 0.5
             }
           }
@@ -1983,7 +1983,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Klimaanlage.I1": {
+            "Klimaanlage.status": {
               "<": 0.5
             }
           }
@@ -2127,7 +2127,7 @@
           "ticks": 100,
           "dt": 0.1,
           "expected_outputs": {
-            "Klimaanlage.I1": {
+            "Klimaanlage.status": {
               ">": 0.5
             }
           }
@@ -2140,7 +2140,7 @@
           "ticks": 100,
           "dt": 0.1,
           "expected_outputs": {
-            "Klimaanlage.I1": {
+            "Klimaanlage.status": {
               "<": 0.5
             }
           }
@@ -2268,7 +2268,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Klimaanlage.I1": {
+            "Klimaanlage.status": {
               ">": 0.5
             }
           }
@@ -2281,7 +2281,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Klimaanlage.I1": {
+            "Klimaanlage.status": {
               "<": 0.5
             }
           }
@@ -2381,7 +2381,7 @@
           "ticks": 100,
           "dt": 0.1,
           "expected_outputs": {
-            "Klimaanlage.I1": {
+            "Klimaanlage.status": {
               ">": 0.5
             }
           }
@@ -2395,7 +2395,7 @@
           "ticks": 100,
           "dt": 0.1,
           "expected_outputs": {
-            "Klimaanlage.I1": {
+            "Klimaanlage.status": {
               "<": 0.5
             }
           }
@@ -2508,7 +2508,7 @@
           "ticks": 100,
           "dt": 0.1,
           "expected_outputs": {
-            "Klimaanlage.I1": {
+            "Klimaanlage.status": {
               ">": 0.5
             }
           }
@@ -2522,7 +2522,7 @@
           "ticks": 100,
           "dt": 0.1,
           "expected_outputs": {
-            "Klimaanlage.I1": {
+            "Klimaanlage.status": {
               "<": 0.5
             }
           }
@@ -3932,27 +3932,25 @@
         {
           "name": "shading raises when patio door opens",
           "inputs": {
-            "Türkontakt Eingang.Q": 1.0,
-            "Sonnenschein.AQ": 1.0
+            "Türkontakt Eingang.Q": 1.0
           },
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Jalousie.AQ": {
+            "Jalousie 1 [Wohnzimmer].InputTriggerUp": {
               ">": 0.5
             }
           }
         },
         {
-          "name": "shading operates normally with door closed",
+          "name": "shading stays when door closed",
           "inputs": {
-            "Türkontakt Eingang.Q": 0.0,
-            "Sonnenschein.AQ": 1.0
+            "Türkontakt Eingang.Q": 0.0
           },
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Jalousie.AQ": {
+            "Jalousie 1 [Wohnzimmer].InputTriggerUp": {
               "<": 0.5
             }
           }
@@ -4065,7 +4063,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Jalousie.AQ": {
+            "Jalousie 1 [Wohnzimmer].InputTriggerUp": {
               ">": 0.5
             }
           }
@@ -4078,7 +4076,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Jalousie.AQ": {
+            "Jalousie 1 [Wohnzimmer].InputTriggerUp": {
               "<": 0.5
             }
           }
@@ -5123,7 +5121,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Lichtsteuerung [Wohnzimmer].AQ": {
+            "Lichtsteuerung [Wohnzimmer].AQ1": {
               ">": 0.5
             }
           }
@@ -5136,7 +5134,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Lichtsteuerung [Wohnzimmer].AQ": {
+            "Lichtsteuerung [Wohnzimmer].AQ1": {
               "<": 0.5
             }
           }
@@ -5499,7 +5497,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Lichtsteuerung [Wohnzimmer].AQ": {
+            "Lichtsteuerung [Wohnzimmer].AQ1": {
               ">": 0.5
             }
           }
@@ -5512,7 +5510,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Lichtsteuerung [Wohnzimmer].AQ": {
+            "Lichtsteuerung [Wohnzimmer].AQ1": {
               "<": 0.5
             }
           }
@@ -8031,20 +8029,20 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Lichtsteuerung [Wohnzimmer].AQ": {
+            "Lichtsteuerung [Flur].I1": {
               ">": 0.5
             }
           }
         },
         {
-          "name": "normal light timer during day mode",
+          "name": "no light without motion",
           "inputs": {
             "Bewegungsmelder.OutputPresence": 0.0
           },
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Lichtsteuerung [Wohnzimmer].AQ": {
+            "Lichtsteuerung [Flur].I1": {
               "<": 0.5
             }
           }
@@ -9132,7 +9130,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Klimaanlage.I1": {
+            "Klimaanlage.status": {
               ">": 0.5
             }
           }
@@ -9146,7 +9144,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Klimaanlage.I1": {
+            "Klimaanlage.status": {
               "<": 0.5
             }
           }
@@ -10552,7 +10550,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Lichtsteuerung [Wohnzimmer].AQ": {
+            "Lichtsteuerung [Flur].I1": {
               ">": 0.5
             }
           }
@@ -10565,7 +10563,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Lichtsteuerung [Wohnzimmer].AQ": {
+            "Lichtsteuerung [Flur].I1": {
               "<": 0.5
             }
           }
@@ -11091,27 +11089,27 @@
       ],
       "simulation": [
         {
-          "name": "NFC backlight activates at dusk",
+          "name": "backlight on at dusk",
           "inputs": {
-            "Sonnenschein.AQ": 0.0
+            "Helligkeit": 10.0
           },
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Lichtsteuerung [Wohnzimmer].AQ": {
+            "Lichtsteuerung [Flur].I1": {
               ">": 0.5
             }
           }
         },
         {
-          "name": "NFC backlight off during daylight",
+          "name": "backlight off in daylight",
           "inputs": {
-            "Sonnenschein.AQ": 1.0
+            "Helligkeit": 50000.0
           },
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Lichtsteuerung [Wohnzimmer].AQ": {
+            "Lichtsteuerung [Flur].I1": {
               "<": 0.5
             }
           }
