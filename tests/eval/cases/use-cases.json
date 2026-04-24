@@ -2384,7 +2384,8 @@
             "Klimaanlage.status": {
               ">": 0.5
             }
-          }
+          },
+          "time": 720
         },
         {
           "name": "AC paused when window open",
@@ -2398,7 +2399,8 @@
             "Klimaanlage.status": {
               "<": 0.5
             }
-          }
+          },
+          "time": 180
         }
       ]
     }
@@ -2511,7 +2513,8 @@
             "Klimaanlage.status": {
               ">": 0.5
             }
-          }
+          },
+          "time": 720
         },
         {
           "name": "AC off when no presence detected",
@@ -2525,7 +2528,8 @@
             "Klimaanlage.status": {
               "<": 0.5
             }
-          }
+          },
+          "time": 180
         }
       ]
     }

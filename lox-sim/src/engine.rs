@@ -289,6 +289,28 @@ impl SimEngine {
         self.output_overrides.clear();
     }
 
+    /// Set the simulation time by injecting `minutes_since_midnight` into ALL
+    /// DayTimer blocks. This enables testing time-dependent logic (schedules,
+    /// night modes, etc.) without knowing agent-created block names.
+    pub fn set_time(&mut self, minutes: f64) {
+        let day_of_week = 1.0; // Monday (1-7)
+        for (name, cids) in &self.named_inputs {
+            if name.ends_with(".minutes_since_midnight") {
+                for &cid in cids {
+                    self.signals[cid] = minutes;
+                    let block_id = self.graph.connector(cid).block_id;
+                    self.dirty[block_id] = true;
+                }
+            } else if name.ends_with(".day_of_week") {
+                for &cid in cids {
+                    self.signals[cid] = day_of_week;
+                    let block_id = self.graph.connector(cid).block_id;
+                    self.dirty[block_id] = true;
+                }
+            }
+        }
+    }
+
     /// Read a named output connector value.
     ///
     /// Names are resolved as `"BlockName"` (first output) or `"BlockName.Key"`.

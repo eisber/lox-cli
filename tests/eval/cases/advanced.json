@@ -363,7 +363,8 @@
             "Lichtsteuerung [Bad].Brightness": {
               ">": 0.0
             }
-          }
+          },
+          "time": 1380
         },
         {
           "name": "should produce no output with zero input",
@@ -376,7 +377,8 @@
             "Lichtsteuerung [Bad].Brightness": {
               "<": 0.5
             }
-          }
+          },
+          "time": 720
         }
       ]
     }
@@ -1056,7 +1058,8 @@
             "Klimaanlage.status": {
               ">": 0.5
             }
-          }
+          },
+          "time": 720
         },
         {
           "name": "should NOT trigger when only partial conditions met",
@@ -1070,7 +1073,8 @@
             "Klimaanlage.status": {
               "<": 0.5
             }
-          }
+          },
+          "time": 180
         }
       ]
     }

@@ -1301,7 +1301,8 @@
             "Lichtsteuerung [Schlafzimmer].Brightness": {
               "<": 0.5
             }
-          }
+          },
+          "time": 360
         }
       ]
     }

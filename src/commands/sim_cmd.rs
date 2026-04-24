@@ -57,6 +57,10 @@ struct SimSpec {
     dt: f64,
     #[serde(default)]
     expected_outputs: HashMap<String, HashMap<String, f64>>,
+    /// Optional time injection (minutes since midnight, 0-1440).
+    /// Automatically injected into ALL DayTimer blocks.
+    #[serde(default)]
+    time: Option<f64>,
 }
 
 fn default_ticks() -> usize {
@@ -138,6 +142,11 @@ fn check_comparator(actual: f64, op: &str, expected: f64) -> bool {
 
 fn run_one(graph: &SimGraph, spec: &SimSpec) -> ScenarioResult {
     let mut engine = SimEngine::new(graph.clone());
+
+    // Inject time into all DayTimer blocks if specified
+    if let Some(minutes) = spec.time {
+        engine.set_time(minutes);
+    }
 
     for (key, value) in &spec.inputs {
         if engine.set_input(key, *value) {
@@ -296,6 +305,11 @@ fn cmd_step(file: &str, sim: Option<&str>, sim_file: Option<&str>) -> Result<()>
     let spec: SimSpec = serde_json::from_str(&sim_json).context("invalid sim JSON")?;
 
     let mut engine = SimEngine::new(graph.clone());
+
+    // Inject time into all DayTimer blocks if specified
+    if let Some(minutes) = spec.time {
+        engine.set_time(minutes);
+    }
 
     for (key, value) in &spec.inputs {
         let block_name = key.split('.').next().unwrap_or(key);

@@ -1308,7 +1308,8 @@
             "Garagenlicht.I1": {
               ">": 0.5
             }
-          }
+          },
+          "time": 1320
         },
         {
           "name": "should NOT trigger when condition not met",
@@ -1321,7 +1322,8 @@
             "Garagenlicht.I1": {
               "<": 0.5
             }
-          }
+          },
+          "time": 720
         }
       ]
     }
@@ -1402,7 +1404,8 @@
             "Gartenbeleuchtung.I1": {
               ">": 0.5
             }
-          }
+          },
+          "time": 1320
         },
         {
           "name": "should NOT trigger when condition not met",
@@ -1415,7 +1418,8 @@
             "Gartenbeleuchtung.I1": {
               "<": 0.5
             }
-          }
+          },
+          "time": 720
         }
       ]
     }
@@ -1515,7 +1519,8 @@
             "Garagentor.I1": {
               ">": 0.5
             }
-          }
+          },
+          "time": 1320
         },
         {
           "name": "should NOT trigger when condition not met",
@@ -1528,7 +1533,8 @@
             "Garagentor.I1": {
               "<": 0.5
             }
-          }
+          },
+          "time": 720
         }
       ]
     }
@@ -1875,7 +1881,8 @@
             "Bewässerungsventil.I1": {
               ">": 0.5
             }
-          }
+          },
+          "time": 360
         },
         {
           "name": "should NOT trigger when only partial conditions met",
@@ -1888,7 +1895,8 @@
             "Bewässerungsventil.I1": {
               "<": 0.5
             }
-          }
+          },
+          "time": 720
         }
       ]
     }

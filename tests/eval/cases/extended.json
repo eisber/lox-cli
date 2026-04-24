@@ -656,7 +656,8 @@
             "Lichtsteuerung [Flur].Brightness": {
               ">": 0.0
             }
-          }
+          },
+          "time": 1380
         },
         {
           "name": "should produce no output when inactive",
@@ -669,7 +670,8 @@
             "Lichtsteuerung [Flur].Brightness": {
               "<": 0.5
             }
-          }
+          },
+          "time": 720
         }
       ]
     }

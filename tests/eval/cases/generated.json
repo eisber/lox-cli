@@ -5270,7 +5270,8 @@
             "Lichtsteuerung [Schlafzimmer].Brightness": {
               ">": 0.5
             }
-          }
+          },
+          "time": 1380
         },
         {
           "name": "should NOT trigger when condition not met",
@@ -5283,7 +5284,8 @@
             "Lichtsteuerung [Schlafzimmer].Brightness": {
               "<": 0.5
             }
-          }
+          },
+          "time": 720
         }
       ]
     }
