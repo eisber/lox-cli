@@ -432,13 +432,28 @@
       "params": [],
       "simulation": [
         {
-          "name": "should activate during scheduled period",
-          "inputs": {},
-          "ticks": 0,
+          "name": "switch triggers light",
+          "inputs": {
+            "Schalter 1.Q": 1
+          },
+          "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Switch.Q": {
+            "Lichtsteuerung [Flur].I1": {
               ">": 0.5
+            }
+          }
+        },
+        {
+          "name": "switch off no light",
+          "inputs": {
+            "Schalter 1.Q": 0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Lichtsteuerung [Flur].I1": {
+              "<": 0.5
             }
           }
         }
@@ -628,27 +643,27 @@
       ],
       "simulation": [
         {
-          "name": "should activate on trigger",
+          "name": "humidity triggers fan",
           "inputs": {
-            "Türkontakt Eingang.Q": 1.0
+            "Luftfeuchtigkeit": 80
           },
-          "ticks": 50,
+          "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Fan.InputTrigger": {
+            "Lüfter Bad.I1": {
               ">": 0.5
             }
           }
         },
         {
-          "name": "should NOT activate without trigger",
+          "name": "dry no fan",
           "inputs": {
-            "Türkontakt Eingang.Q": 0.0
+            "Luftfeuchtigkeit": 40
           },
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Fan.InputTrigger": {
+            "Lüfter Bad.I1": {
               "<": 0.5
             }
           }
