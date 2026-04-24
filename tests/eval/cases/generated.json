@@ -4682,29 +4682,31 @@
       ],
       "simulation": [
         {
-          "name": "should trigger when all conditions met",
+          "name": "light on when dark + rain + door + switch",
           "inputs": {
-            "Regen.AQ": 1.0,
-            "Türkontakt Eingang.Q": 1.0
+            "Schalter 2.Q": 1.0,
+            "Türkontakt Eingang.Q": 1.0,
+            "Helligkeit": 10.0,
+            "Regen": 1.0
           },
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Lichtsteuerung [Küche].I1": {
+            "Lichtsteuerung [Flur].I1": {
               ">": 0.5
             }
           }
         },
         {
-          "name": "should NOT trigger when only partial conditions met",
+          "name": "no light without all conditions",
           "inputs": {
-            "Regen.AQ": 0.0,
-            "Türkontakt Eingang.Q": 1.0
+            "Schalter 2.Q": 0.0,
+            "Türkontakt Eingang.Q": 0.0
           },
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Lichtsteuerung [Küche].I1": {
+            "Lichtsteuerung [Flur].I1": {
               "<": 0.5
             }
           }
@@ -5365,10 +5367,10 @@
       ],
       "simulation": [
         {
-          "name": "should trigger when all conditions met",
+          "name": "blinds close when hot + sunny",
           "inputs": {
-            "Außentemperatur.AQ": 25.0,
-            "Sonnenschein.AQ": 1.0
+            "Außentemperatur.AQ": 30.0,
+            "Sonnenschein": 1.0
           },
           "ticks": 10,
           "dt": 0.1,
@@ -5379,10 +5381,10 @@
           }
         },
         {
-          "name": "should NOT trigger when only partial conditions met",
+          "name": "no action when cool",
           "inputs": {
-            "Außentemperatur.AQ": 15.0,
-            "Sonnenschein.AQ": 1.0
+            "Außentemperatur.AQ": 20.0,
+            "Sonnenschein": 0.0
           },
           "ticks": 10,
           "dt": 0.1,
