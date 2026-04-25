@@ -262,7 +262,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Raumregler [Wohnzimmer].Setpoint": {
+            "Raumregler [Wohnzimmer].Input": {
               ">=": 18,
               "<=": 24
             }
@@ -310,7 +310,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Raumregler [Wohnzimmer].Setpoint": {
+            "Raumregler [Wohnzimmer].Input": {
               ">=": 15,
               "<=": 21
             }
