@@ -749,11 +749,11 @@
       ],
       "simulation": [
         {
-          "name": "should activate on trigger",
+          "name": "fan runs when bathroom light on",
           "inputs": {
-            "Bewegungsmelder.OutputPresence": 1.0
+            "Lichtsteuerung [Bad].AQ1": 1.0
           },
-          "ticks": 6100,
+          "ticks": 5,
           "dt": 0.1,
           "expected_outputs": {
             "Lüfter Bad.I1": {
@@ -762,11 +762,9 @@
           }
         },
         {
-          "name": "should NOT activate without trigger",
-          "inputs": {
-            "Bewegungsmelder.OutputPresence": 0.0
-          },
-          "ticks": 10,
+          "name": "fan off when light never on",
+          "inputs": {},
+          "ticks": 5,
           "dt": 0.1,
           "expected_outputs": {
             "Lüfter Bad.I1": {
@@ -812,11 +810,11 @@
       ],
       "simulation": [
         {
-          "name": "should activate on trigger",
+          "name": "fan runs when bathroom light on",
           "inputs": {
-            "Bewegungsmelder.OutputPresence": 1.0
+            "Lichtsteuerung [Bad].AQ1": 1.0
           },
-          "ticks": 9100,
+          "ticks": 5,
           "dt": 0.1,
           "expected_outputs": {
             "Lüfter Bad.I1": {
@@ -825,11 +823,9 @@
           }
         },
         {
-          "name": "should NOT activate without trigger",
-          "inputs": {
-            "Bewegungsmelder.OutputPresence": 0.0
-          },
-          "ticks": 10,
+          "name": "fan off when light never on",
+          "inputs": {},
+          "ticks": 5,
           "dt": 0.1,
           "expected_outputs": {
             "Lüfter Bad.I1": {
