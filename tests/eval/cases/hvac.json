@@ -70,12 +70,13 @@
         {
           "name": "AC activates when hot outside and room needs cooling",
           "inputs": {
-            "Außentemperatur.AQ": 30.0
+            "Außentemperatur.AQ": 30.0,
+            "Raumtemperatur Schlafzimmer.AQ": 26.0
           },
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Klimaanlage.I1": {
+            "Klimaanlage.status": {
               ">": 0.5
             }
           }
@@ -83,12 +84,13 @@
         {
           "name": "AC blocked when outside temp below 20",
           "inputs": {
-            "Außentemperatur.AQ": 15.0
+            "Außentemperatur.AQ": 15.0,
+            "Raumtemperatur Schlafzimmer.AQ": 26.0
           },
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Klimaanlage.I1": {
+            "Klimaanlage.status": {
               "<": 0.5
             }
           }
