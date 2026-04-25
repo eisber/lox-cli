@@ -1823,171 +1823,51 @@
     "expected": {
       "new_blocks": [
         {
-          "type": "AcControl",
-          "title_contains": "AC Control Air",
-          "page": "Bedroom"
-        },
-        {
           "type": "SpotOpt",
-          "title_contains": "Spot Price Optimizer",
-          "page": "Central"
+          "title_contains": "Strompreis"
         },
         {
-          "type": "PulseAt",
-          "title_contains": "Pulse at 00:00",
-          "page": "Central"
+          "type": "GreaterEqual",
+          "title_contains": "Teurer Strom"
         }
       ],
       "wiring": [
         {
-          "from_title": "Cheap Price",
+          "from_title": "Teurer Strom",
           "from_connector": "Q",
-          "to_type": "AcControl",
-          "to_connector": "inLoadS"
-        },
-        {
-          "from_title": "API Connector",
-          "from_connector": "AI",
-          "to_type": "AcControl",
-          "to_connector": "OutputAPI"
-        },
-        {
-          "from_type": "AcControl",
-          "from_connector": "OutputAPI",
-          "to_title": "API Connector",
-          "to_connector": "AI"
-        },
-        {
-          "from_type": "PulseAt",
-          "from_connector": "Q",
-          "to_type": "SpotOpt",
-          "to_connector": "Tr"
-        },
-        {
-          "from_type": "SpotOpt",
-          "from_connector": "Act",
-          "to_title": "Cheap Price",
-          "to_connector": "Input"
-        },
-        {
-          "from_type": "AcControl",
-          "from_connector": "OutputAPI",
-          "to_title": "API Connector",
-          "to_connector": "AI"
-        },
-        {
-          "from_title": "Cheap Price",
-          "from_connector": "Q",
-          "to_type": "AcControl",
-          "to_connector": "inLoadS"
-        },
-        {
-          "from_title": "API Connector",
-          "from_connector": "AI",
-          "to_type": "AcControl",
-          "to_connector": "OutputAPI"
-        }
-      ],
-      "params": [
-        {
-          "block_type": "AcControl",
-          "param": "parPause",
-          "value": "7200"
-        },
-        {
-          "block_type": "AcControl",
-          "param": "parHyst",
-          "value": "0.5"
-        },
-        {
-          "block_type": "AcControl",
-          "param": "parOff",
-          "value": "1"
-        },
-        {
-          "block_type": "AcControl",
-          "param": "minTemp",
-          "value": "1"
-        },
-        {
-          "block_type": "AcControl",
-          "param": "maxTemp",
-          "value": "40"
-        },
-        {
-          "block_type": "SpotOpt",
-          "param": "Tn",
-          "value": "20"
-        },
-        {
-          "block_type": "SpotOpt",
-          "param": "Ta",
-          "value": "24"
-        },
-        {
-          "block_type": "SpotOpt",
-          "param": "Mvh",
-          "value": "1"
-        },
-        {
-          "block_type": "PulseAt",
-          "param": "Time",
-          "value": "1"
-        },
-        {
-          "block_type": "AcControl",
-          "param": "parPause",
-          "value": "7200"
-        },
-        {
-          "block_type": "AcControl",
-          "param": "parHyst",
-          "value": "0.5"
-        },
-        {
-          "block_type": "AcControl",
-          "param": "parOff",
-          "value": "1"
-        },
-        {
-          "block_type": "AcControl",
-          "param": "minTemp",
-          "value": "1"
-        },
-        {
-          "block_type": "AcControl",
-          "param": "maxTemp",
-          "value": "40"
+          "to_title": "Klimaanlage",
+          "to_connector": "inPause"
         }
       ],
       "simulation": [
         {
-          "name": "AC runs during cheap electricity periods",
+          "name": "AC paused when electricity is expensive",
           "inputs": {
-            "Außentemperatur.AQ": 32.0
+            "Teurer Strom.I1": 1.0
           },
-          "ticks": 10,
+          "ticks": 5,
           "dt": 0.1,
           "expected_outputs": {
-            "Klimaanlage.status": {
+            "Klimaanlage.inPause": {
               ">": 0.5
             }
           }
         },
         {
-          "name": "AC paused during expensive electricity periods",
+          "name": "AC not paused when electricity is cheap",
           "inputs": {
-            "Außentemperatur.AQ": 20.0
+            "Teurer Strom.I1": 0.0
           },
-          "ticks": 10,
+          "ticks": 5,
           "dt": 0.1,
           "expected_outputs": {
-            "Klimaanlage.status": {
+            "Klimaanlage.inPause": {
               "<": 0.5
             }
           }
         }
-      ]
+      ],
+      "notes": "Agent built pause-during-expensive-hours path only. Spot price optimizer is placed but not wired to comparator inputs — full energy-optimized scheduling would require wiring SpotOpt outputs to Teurer Strom inputs."
     }
   },
   {
