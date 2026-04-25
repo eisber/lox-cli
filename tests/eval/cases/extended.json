@@ -126,45 +126,48 @@
           "from_type": "PushButton",
           "to_title": "Lichtsteuerung",
           "to_room": "Wohnzimmer",
-          "from_connector": "Q"
+          "from_connector": "Q",
+          "to_connector": "Reset"
         },
         {
           "from_type": "PushButton",
           "to_title": "Lichtsteuerung",
           "to_room": "Schlafzimmer",
-          "from_connector": "Q"
+          "from_connector": "Q",
+          "to_connector": "Reset"
         },
         {
           "from_type": "PushButton",
           "to_title": "Lichtsteuerung",
           "to_room": "Flur",
-          "from_connector": "Q"
+          "from_connector": "Q",
+          "to_connector": "Reset"
         }
       ],
       "params": [],
       "simulation": [
         {
-          "name": "should activate on button press",
+          "name": "should reset lights on button press",
           "inputs": {
             "PushButton.InputTrigger": 1.0
           },
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Lichtsteuerung [Wohnzimmer].I1": {
+            "Lichtsteuerung [Wohnzimmer].Reset": {
               ">": 0.5
             }
           }
         },
         {
-          "name": "should NOT activate without press",
+          "name": "should NOT reset without press",
           "inputs": {
             "PushButton.InputTrigger": 0.0
           },
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Lichtsteuerung [Wohnzimmer].I1": {
+            "Lichtsteuerung [Wohnzimmer].Reset": {
               "<": 0.5
             }
           }
