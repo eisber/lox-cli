@@ -343,7 +343,7 @@
         {
           "from_type": "Memory",
           "to_title": "Raumregler",
-          "to_connector": "Temp"
+          "to_connector": "Input"
         },
         {
           "from_title": "Schalter 1",
@@ -367,7 +367,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Raumregler.Temp": {
+            "Raumregler.Input": {
               ">": 0.5
             }
           }
@@ -380,7 +380,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Raumregler.Temp": {
+            "Raumregler.Input": {
               "<": 0.5
             }
           }
@@ -1094,8 +1094,12 @@
       "wiring": [
         {
           "from_title": "Schalter 1",
+          "to_type": "Memory"
+        },
+        {
+          "from_type": "Memory",
           "to_title": "Raumregler",
-          "to_connector": "Temp"
+          "to_connector": "Input"
         },
         {
           "from_title": "Schalter 1",
@@ -1119,7 +1123,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Raumregler.Temp": {
+            "Raumregler.Input": {
               ">": 0.5
             }
           }
@@ -1132,7 +1136,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Raumregler.Temp": {
+            "Raumregler.Input": {
               "<": 0.5
             }
           }
@@ -1169,7 +1173,7 @@
         {
           "from_type": "Memory",
           "to_title": "Raumregler",
-          "to_connector": "Temp"
+          "to_connector": "Input"
         },
         {
           "from_title": "Schalter 1",
@@ -1210,7 +1214,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Raumregler.Temp": {
+            "Raumregler.Input": {
               ">": 0.5
             }
           }
@@ -1224,7 +1228,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Raumregler.Temp": {
+            "Raumregler.Input": {
               "<": 0.5
             }
           }
