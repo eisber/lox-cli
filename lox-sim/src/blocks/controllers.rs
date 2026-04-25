@@ -665,7 +665,7 @@ impl Block for HeatIRoomController2 {
 
 // WARNING: Simplified model — real Loxone behavior may differ.
 // Assumption: Toggle flips on/off state. Dedicated on/off inputs force state.
-// Cooling demand = max(0, temp - setpoint). Validate against Miniserver.
+// SilentMode caps fan at 1.0 for quiet operation (children's mode).
 
 /// Air conditioning control.
 #[derive(Clone, Default)]
@@ -680,9 +680,10 @@ impl AcControl {
 }
 
 impl Block for AcControl {
-    /// Inputs: [toggle, on, off, inTempCurr, setpoint]
-    /// Params: []
-    /// Outputs: [status, cooling_demand]
+    /// Inputs: [toggle, on, off, inTempTarget, inTempCurr, inMode, inFan,
+    ///          inAirDir, RtD, inWin, inPause, inLoadS, SilentMode]
+    /// Params: [parPause, parHyst, parOff, minTemp, maxTemp]
+    /// Outputs: [status, mode, fan, airDir, tempTarget, tempCurr]
     fn eval(
         &mut self,
         inputs: &[Signal],
@@ -693,8 +694,12 @@ impl Block for AcControl {
         let toggle = inputs.first().copied().unwrap_or(0.0);
         let on_cmd = inputs.get(1).copied().unwrap_or(0.0);
         let off_cmd = inputs.get(2).copied().unwrap_or(0.0);
-        let temp = inputs.get(3).copied().unwrap_or(22.0);
-        let setpoint = inputs.get(4).copied().unwrap_or(24.0);
+        let target = inputs.get(3).copied().unwrap_or(24.0);
+        let temp = inputs.get(4).copied().unwrap_or(22.0);
+        let in_mode = inputs.get(5).copied().unwrap_or(0.0);
+        let in_fan = inputs.get(6).copied().unwrap_or(0.0);
+        let in_air_dir = inputs.get(7).copied().unwrap_or(0.0);
+        let silent = inputs.get(12).copied().unwrap_or(0.0);
 
         let prev_toggle = prev_inputs.first().copied().unwrap_or(0.0);
         let prev_on = prev_inputs.get(1).copied().unwrap_or(0.0);
@@ -710,13 +715,19 @@ impl Block for AcControl {
             self.on = false;
         }
 
-        let demand = if self.on {
-            (temp - setpoint).max(0.0)
+        let status = bool_signal(self.on);
+        let fan_out = if self.on {
+            if is_high(silent) {
+                in_fan.min(1.0)
+            } else {
+                in_fan
+            }
         } else {
             0.0
         };
 
-        vec![bool_signal(self.on), demand]
+        // Outputs: [status, mode, fan, airDir, tempTarget, tempCurr]
+        vec![status, in_mode, fan_out, in_air_dir, target, temp]
     }
 
     fn state(&self) -> Option<Vec<u8>> {
@@ -1853,18 +1864,47 @@ mod tests {
     // -- AcControl ----------------------------------------------------------
 
     #[test]
-    fn ac_toggle_and_demand() {
+    fn ac_toggle_and_outputs() {
         let mut ac = AcControl::new();
-        // inputs: [toggle, on, off, inTempCurr, setpoint]
-        // Toggle on
+        // inputs: [toggle, on, off, inTempTarget, inTempCurr, inMode, inFan, ...]
+        // Toggle on with target=24, current=26
         let out = ac.eval(
-            &[1.0, 0.0, 0.0, 26.0, 24.0],
+            &[1.0, 0.0, 0.0, 24.0, 26.0, 0.0, 3.0],
             &[],
             0.0,
-            &[0.0, 0.0, 0.0, 0.0, 0.0],
+            &[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
         );
-        assert_eq!(out[0], 1.0); // on
-        assert!((out[1] - 2.0).abs() < 0.01); // demand = 26 - 24
+        assert_eq!(out[0], 1.0); // status = on
+        assert_eq!(out[2], 3.0); // fan = inFan pass-through
+        assert_eq!(out[4], 24.0); // tempTarget
+        assert_eq!(out[5], 26.0); // tempCurr
+    }
+
+    #[test]
+    fn ac_silent_mode_caps_fan() {
+        let mut ac = AcControl::new();
+        // Turn on first
+        ac.eval(
+            &[
+                0.0, 1.0, 0.0, 24.0, 26.0, 0.0, 3.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+            ],
+            &[],
+            0.0,
+            &[0.0; 13],
+        );
+        // Now with SilentMode active (index 12)
+        let out = ac.eval(
+            &[
+                0.0, 0.0, 0.0, 24.0, 26.0, 0.0, 3.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0,
+            ],
+            &[],
+            0.0,
+            &[
+                0.0, 1.0, 0.0, 24.0, 26.0, 0.0, 3.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+            ],
+        );
+        assert_eq!(out[0], 1.0); // still on
+        assert_eq!(out[2], 1.0); // fan capped at 1.0 by SilentMode
     }
 
     // -- Fan blocks ---------------------------------------------------------

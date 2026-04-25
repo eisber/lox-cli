@@ -1785,7 +1785,7 @@
         {
           "name": "childrens mode reduces fan speed and noise",
           "inputs": {
-            "Außentemperatur.AQ": 30.0
+            "Klimaanlage.on": 1.0
           },
           "ticks": 10,
           "dt": 0.1,
@@ -1797,9 +1797,7 @@
         },
         {
           "name": "normal AC mode when childrens mode off",
-          "inputs": {
-            "Außentemperatur.AQ": 18.0
-          },
+          "inputs": {},
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {

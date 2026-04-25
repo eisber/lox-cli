@@ -203,7 +203,12 @@ fn test_trace_eval_configs() {
 
     // Cases with clear source → destination expectations
     let trace_cases = vec![
-        ("k043-direct", "Außentemperatur", "Raumregler", Some("TempO")),
+        (
+            "k043-direct",
+            "Außentemperatur",
+            "Raumregler",
+            Some("TempO"),
+        ),
         (
             "k071-override",
             "Schalter 1",
