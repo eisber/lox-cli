@@ -1999,27 +1999,25 @@
       ],
       "simulation": [
         {
-          "name": "AC switches to quiet night mode during scheduled hours",
-          "inputs": {
-            "Außentemperatur.AQ": 28.0
-          },
-          "ticks": 100,
+          "name": "night mode active",
+          "inputs": {},
+          "ticks": 10,
           "dt": 0.1,
+          "time": 1380,
           "expected_outputs": {
-            "Klimaanlage.status": {
+            "Klimaanlage.SilentMode": {
               ">": 0.5
             }
           }
         },
         {
-          "name": "AC off when not scheduled",
-          "inputs": {
-            "Außentemperatur.AQ": 18.0
-          },
-          "ticks": 100,
+          "name": "day mode inactive",
+          "inputs": {},
+          "ticks": 10,
           "dt": 0.1,
+          "time": 720,
           "expected_outputs": {
-            "Klimaanlage.status": {
+            "Klimaanlage.SilentMode": {
               "<": 0.5
             }
           }
@@ -2140,9 +2138,9 @@
       ],
       "simulation": [
         {
-          "name": "AC responds to touch panel input",
+          "name": "button toggles AC",
           "inputs": {
-            "Außentemperatur.AQ": 30.0
+            "PushButton.InputTrigger": 1
           },
           "ticks": 10,
           "dt": 0.1,
@@ -2153,10 +2151,8 @@
           }
         },
         {
-          "name": "AC idle without touch input when cool",
-          "inputs": {
-            "Außentemperatur.AQ": 18.0
-          },
+          "name": "no button",
+          "inputs": {},
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {

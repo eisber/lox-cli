@@ -1063,13 +1063,28 @@
       "params": [],
       "simulation": [
         {
-          "name": "should activate during scheduled period",
-          "inputs": {},
-          "ticks": 0,
+          "name": "reset sets temperature",
+          "inputs": {
+            "Schalter 1.Q": 1
+          },
+          "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Raumregler.Temp": {
+            "Raumregler.Input": {
               ">": 0.5
+            }
+          }
+        },
+        {
+          "name": "no reset",
+          "inputs": {
+            "Schalter 1.Q": 0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Raumregler.Input": {
+              "<": 0.5
             }
           }
         }

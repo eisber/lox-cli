@@ -1192,9 +1192,9 @@
       "params": [],
       "simulation": [
         {
-          "name": "should activate on trigger",
+          "name": "disable blinds",
           "inputs": {
-            "Schalter 1.Q": 1.0
+            "PushButton.InputTrigger": 1
           },
           "ticks": 10,
           "dt": 0.1,
@@ -1205,10 +1205,8 @@
           }
         },
         {
-          "name": "should NOT activate without trigger",
-          "inputs": {
-            "Schalter 1.Q": 0.0
-          },
+          "name": "enable blinds",
+          "inputs": {},
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {

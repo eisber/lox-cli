@@ -563,13 +563,28 @@
       "params": [],
       "simulation": [
         {
-          "name": "should activate during scheduled period",
-          "inputs": {},
-          "ticks": 0,
+          "name": "sunrise opens blinds",
+          "inputs": {
+            "Sonnenschein": 1
+          },
+          "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
             "Jalousie 1 [Schlafzimmer].InputTriggerUp": {
               ">": 0.5
+            }
+          }
+        },
+        {
+          "name": "no sun no open",
+          "inputs": {
+            "Sonnenschein": 0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Jalousie 1 [Schlafzimmer].InputTriggerUp": {
+              "<": 0.5
             }
           }
         }
