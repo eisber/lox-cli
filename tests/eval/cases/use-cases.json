@@ -1663,8 +1663,9 @@
       ],
       "simulation": [
         {
-          "name": "alarm triggers on intrusion detection",
+          "name": "alarm triggers on intrusion detection when armed",
           "inputs": {
+            "PushButton.Q": 1.0,
             "Bewegungsmelder.OutputPresence": 1.0,
             "Türkontakt Eingang.Q": 1.0
           },
@@ -1679,8 +1680,8 @@
         {
           "name": "no alarm when system disarmed",
           "inputs": {
-            "Bewegungsmelder.OutputPresence": 0.0,
-            "Türkontakt Eingang.Q": 0.0
+            "Bewegungsmelder.OutputPresence": 1.0,
+            "Türkontakt Eingang.Q": 1.0
           },
           "ticks": 10,
           "dt": 0.1,
