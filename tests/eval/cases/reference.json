@@ -1032,34 +1032,34 @@
           "from_connector": "AQ",
           "to_title": "Raumregler",
           "to_room": "Wohnzimmer",
-          "to_connector": "Temp"
+          "to_connector": "TempO"
         }
       ],
       "params": [],
       "simulation": [
         {
-          "name": "should pass temperature to thermostat",
+          "name": "should pass outside temp to thermostat TempO input",
           "inputs": {
             "Außentemperatur.AQ": 22.0
           },
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Raumregler.Temp": {
+            "Raumregler.TempO": {
               ">=": 21.5,
               "<=": 22.5
             }
           }
         },
         {
-          "name": "should pass low temperature to thermostat",
+          "name": "should pass low outside temp to thermostat TempO input",
           "inputs": {
             "Außentemperatur.AQ": -5.0
           },
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Raumregler.Temp": {
+            "Raumregler.TempO": {
               "<=": -4.5
             }
           }

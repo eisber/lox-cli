@@ -1068,7 +1068,7 @@
           "from_title": "Außentemperatur",
           "from_connector": "AQ",
           "to_title": "Raumregler",
-          "to_connector": "Temp"
+          "to_connector": "TempO"
         }
       ],
       "params": [],
@@ -1080,23 +1080,23 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Raumregler.Temp": {
+            "Raumregler.TempO": {
               ">=": 21.5,
               "<=": 22.5
             }
           },
-          "name": "should trigger when condition met"
+          "name": "should pass outside temp to thermostat TempO input"
         },
         {
-          "name": "should NOT trigger when condition not met",
+          "name": "should pass low outside temp to thermostat TempO input",
           "inputs": {
             "Außentemperatur.AQ": 12.0
           },
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Raumregler.Temp": {
-              "<": 21.5
+            "Raumregler.TempO": {
+              "<=": 12.5
             }
           }
         }
