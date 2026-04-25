@@ -166,26 +166,28 @@
         {
           "name": "night setback timer active during night hours",
           "inputs": {
-            "Außentemperatur.AQ": 18.0
+            "Raumtemperatur Wohnzimmer.AQ": 18.0
           },
           "ticks": 100,
           "dt": 0.1,
+          "time": 1380,
           "expected_outputs": {
             "Raumregler.AQh": {
-              ">": 0
+              "<": 0.5
             }
           }
         },
         {
           "name": "normal heating during daytime",
           "inputs": {
-            "Außentemperatur.AQ": 25.0
+            "Raumtemperatur Wohnzimmer.AQ": 18.0
           },
           "ticks": 100,
           "dt": 0.1,
+          "time": 720,
           "expected_outputs": {
             "Raumregler.AQh": {
-              "==": 0
+              ">": 0
             }
           }
         }
