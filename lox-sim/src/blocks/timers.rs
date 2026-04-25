@@ -629,6 +629,10 @@ impl Block for OnOffDelay {
     fn block_type(&self) -> &str {
         "OnOffDelay"
     }
+
+    fn is_time_dependent(&self) -> bool {
+        true
+    }
 }
 
 /// Retentive on-delay: like OnDelay but the elapsed time is NOT reset when the
