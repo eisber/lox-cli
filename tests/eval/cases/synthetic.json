@@ -722,7 +722,7 @@
       "new_blocks": [],
       "wiring": [
         {
-          "from_title": "Schalter 1",
+          "from_title": "Jalousie Sperre",
           "from_connector": "Q",
           "to_title": "Jalousie 1",
           "to_room": "Wohnzimmer",
@@ -734,7 +734,7 @@
         {
           "name": "blind disabled when switch on",
           "inputs": {
-            "Schalter 1.Q": 1.0
+            "Jalousie Sperre.On": 1.0
           },
           "ticks": 10,
           "dt": 0.1,
