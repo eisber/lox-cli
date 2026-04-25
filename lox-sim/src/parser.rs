@@ -377,7 +377,9 @@ fn block_signature(
             &["AQ", "AQm", "Qon", "Qoff", "AQmt"],
             &["Manual", "Mode", "PulseTime"],
         ),
+        "DewPoint" => (&["Temp", "Humid", "Baro"], &["DewP"], &["Off"]),
         "Div" => (&["Input1", "Input2"], &["AQ", "Q"], &[]),
+        "Mod" => (&["Input1", "Input2"], &["AQ", "AQ2"], &[]),
         "EdgeDetection" => (
             &["Input", "I1"],
             &["Edge", "RisingEdge", "FallingEdge"],
@@ -389,6 +391,11 @@ fn block_signature(
         "Gain" => (&["I1"], &["Q"], &["Factor"]),
         "Greater" | "GreaterEqual" | "Less" | "LessEqual" => (&["Input1", "Input2"], &["Q"], &[]),
         "Monoflop" => (&["InputTrigger"], &["Q"], &["Time"]),
+        "Minmax" => (
+            &["Input1", "Input2", "Input3", "Input4"],
+            &["AQmin", "AQmax"],
+            &[],
+        ),
         "Mult" => (&["Input1", "Input2"], &["AQ", "Q"], &[]),
         "Not" => (&["I", "I1"], &["Q"], &[]),
         "OffDelay" => (&["InputTrigger"], &["Q"], &["Time"]),
