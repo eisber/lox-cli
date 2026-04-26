@@ -469,10 +469,9 @@
       "params": [],
       "simulation": [
         {
-          "name": "should trigger when condition met",
+          "name": "humid triggers fan",
           "inputs": {
-            "Außentemperatur.AQ": 25.0,
-            "Luftfeuchtigkeit.AQ": 65.0
+            "Luftfeuchtigkeit": 80
           },
           "ticks": 10,
           "dt": 0.1,
@@ -483,10 +482,9 @@
           }
         },
         {
-          "name": "should NOT trigger when condition not met",
+          "name": "dry no fan",
           "inputs": {
-            "Außentemperatur.AQ": 15.0,
-            "Luftfeuchtigkeit.AQ": 55.0
+            "Luftfeuchtigkeit": 40
           },
           "ticks": 10,
           "dt": 0.1,
@@ -781,13 +779,30 @@
       "params": [],
       "simulation": [
         {
-          "name": "should activate during scheduled period",
-          "inputs": {},
-          "ticks": 0,
+          "name": "irrigation in morning",
+          "inputs": {
+            "Feuchtesensor Garten": 10
+          },
+          "ticks": 10,
           "dt": 0.1,
+          "time": 375,
           "expected_outputs": {
             "Bewässerungsventil.I1": {
               ">": 0.5
+            }
+          }
+        },
+        {
+          "name": "no irrigation at night",
+          "inputs": {
+            "Feuchtesensor Garten": 10
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "time": 1380,
+          "expected_outputs": {
+            "Bewässerungsventil.I1": {
+              "<": 0.5
             }
           }
         }
@@ -1427,9 +1442,10 @@
       "params": [],
       "simulation": [
         {
-          "name": "should trigger when condition met",
+          "name": "humid boosts radiator",
           "inputs": {
-            "Luftfeuchtigkeit.AQ": 65.0
+            "Luftfeuchtigkeit": 85,
+            "Raumtemperatur Wohnzimmer": 18
           },
           "ticks": 10,
           "dt": 0.1,
@@ -1440,9 +1456,10 @@
           }
         },
         {
-          "name": "should NOT trigger when condition not met",
+          "name": "dry no boost",
           "inputs": {
-            "Luftfeuchtigkeit.AQ": 55.0
+            "Luftfeuchtigkeit": 40,
+            "Raumtemperatur Wohnzimmer": 22
           },
           "ticks": 10,
           "dt": 0.1,
