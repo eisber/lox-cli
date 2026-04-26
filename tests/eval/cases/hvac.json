@@ -739,7 +739,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Raumregler.AQh": {
+            "Raumregler.Comfort": {
               ">": 0
             }
           }
@@ -752,7 +752,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Raumregler.AQh": {
+            "Raumregler.Comfort": {
               "==": 0
             }
           }

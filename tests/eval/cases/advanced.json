@@ -1372,7 +1372,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Lichtsteuerung [Wohnzimmer].Brightness": {
+            "Lichtsteuerung [Wohnzimmer].I1": {
               ">": 0.5
             }
           }
@@ -1385,7 +1385,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Lichtsteuerung [Wohnzimmer].Brightness": {
+            "Lichtsteuerung [Wohnzimmer].I1": {
               "<": 0.5
             }
           }

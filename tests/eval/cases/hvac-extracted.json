@@ -1554,8 +1554,8 @@
         {
           "name": "heating circuit active when cold outside",
           "inputs": {
-            "Außentemperatur.AQ": -5.0,
-            "Luftfeuchtigkeit.AQ": 50.0
+            "Luftfeuchtigkeit.AQ": 50.0,
+            "Raumtemperatur Wohnzimmer": -5.0
           },
           "ticks": 10,
           "dt": 0.1,
@@ -1568,8 +1568,8 @@
         {
           "name": "cooling circuit respects dew point limit",
           "inputs": {
-            "Außentemperatur.AQ": 30.0,
-            "Luftfeuchtigkeit.AQ": 70.0
+            "Luftfeuchtigkeit.AQ": 70.0,
+            "Raumtemperatur Wohnzimmer": -5.0
           },
           "ticks": 10,
           "dt": 0.1,

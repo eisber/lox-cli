@@ -366,9 +366,9 @@
       ],
       "simulation": [
         {
-          "name": "AC turns on when hot",
+          "name": "AC on when room hot",
           "inputs": {
-            "Außentemperatur.AQ": 33.0
+            "Raumtemperatur Wohnzimmer": 33
           },
           "ticks": 10,
           "dt": 0.1,
@@ -379,9 +379,9 @@
           }
         },
         {
-          "name": "AC stays off when cool",
+          "name": "AC off when room cool",
           "inputs": {
-            "Außentemperatur.AQ": 23.0
+            "Raumtemperatur Wohnzimmer": 23
           },
           "ticks": 10,
           "dt": 0.1,
@@ -985,27 +985,27 @@
       "params": [],
       "simulation": [
         {
-          "name": "should activate on presence",
+          "name": "motion activates light",
           "inputs": {
-            "Bewegungsmelder Garten.OutputPresence": 1.0
+            "Bewegungsmelder Garten.OutputPresence": 1
           },
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Gartenbeleuchtung.Presence": {
+            "Gartenbeleuchtung [Garten].I1": {
               ">": 0.5
             }
           }
         },
         {
-          "name": "should NOT activate without presence",
+          "name": "no motion no light",
           "inputs": {
-            "Bewegungsmelder Garten.OutputPresence": 0.0
+            "Bewegungsmelder Garten.OutputPresence": 0
           },
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Gartenbeleuchtung.Presence": {
+            "Gartenbeleuchtung [Garten].I1": {
               "<": 0.5
             }
           }
@@ -1192,9 +1192,9 @@
       "params": [],
       "simulation": [
         {
-          "name": "disable blinds",
+          "name": "switch disables all blinds",
           "inputs": {
-            "PushButton.InputTrigger": 1
+            "Schalter 1.Q": 1
           },
           "ticks": 10,
           "dt": 0.1,
@@ -1205,8 +1205,10 @@
           }
         },
         {
-          "name": "enable blinds",
-          "inputs": {},
+          "name": "switch off enables blinds",
+          "inputs": {
+            "Schalter 1.Q": 0
+          },
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
