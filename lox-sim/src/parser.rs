@@ -433,6 +433,7 @@ fn block_signature(
             &["Q", "Qoff", "Qon", "AQ"],
             &["Min", "Max"],
         ),
+        "Ramp" => (&["InputEnable", "InputSelect", "InputStop"], &["AQ"], &["Rate"]),
         "RisingEdge" => (&["I1", "Input"], &["Q", "RisingEdge"], &[]),
         "LightController2" => (
             &[
@@ -517,7 +518,7 @@ fn block_signature(
             &["Pos", "Dir", "Moving"],
             &["TimeEnd"],
         ),
-        "Heatcurve" => (&["Outer", "Setpoint"], &["AQ"], &["Base", "Slope"]),
+        "Heatcurve" => (&["Outer", "Input"], &["AQ"], &["Translate", "Transconductance"]),
         "Heatmixer" => (
             &["Input", "Temp", "Stop", "InputDisable"],
             &["AQ", "Q1", "Q2", "Qe"],

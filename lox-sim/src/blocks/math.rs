@@ -250,23 +250,18 @@ impl Block for Minmax {
 /// Tracks the running minimum and maximum of input values.
 /// A rising edge on reset clears the tracked min/max to the current value.
 ///
-/// // WARNING: Assumed behavior — Loxone internal implementation unknown.
-/// // Assumption: Reset pulse sets both min and max to current input value.
-/// // TODO: Validate against real Miniserver behavior
+/// Analogue Limiter (Min/Max): clamps input value between Min and Max parameters.
+///
+/// Connectors (from connector-map.json):
+///   inputs:  Input (V)
+///   params:  Min (default 0), Max (default 10)
+///   outputs: AQ (clamped value)
 #[derive(Clone)]
-pub struct AMinmax {
-    current_min: f64,
-    current_max: f64,
-    initialized: bool,
-}
+pub struct AMinmax;
 
 impl AMinmax {
     pub fn new() -> Self {
-        Self {
-            current_min: 0.0,
-            current_max: 0.0,
-            initialized: false,
-        }
+        Self
     }
 }
 
@@ -280,49 +275,26 @@ impl Block for AMinmax {
     fn eval(
         &mut self,
         inputs: &[Signal],
-        _params: &[Signal],
+        params: &[Signal],
         _dt: f64,
-        prev: &[Signal],
+        _prev: &[Signal],
     ) -> Vec<Signal> {
         let value = inputs.first().copied().unwrap_or(0.0);
-        let reset = inputs.get(1).copied().unwrap_or(0.0);
-        let prev_reset = prev.get(1).copied().unwrap_or(0.0);
+        let min_val = params.first().copied().unwrap_or(0.0);
+        let max_val = params.get(1).copied().unwrap_or(10.0);
 
-        let reset_edge = is_high(reset) && !is_high(prev_reset);
-
-        if !self.initialized || reset_edge {
-            self.current_min = value;
-            self.current_max = value;
-            self.initialized = true;
-        } else {
-            self.current_min = self.current_min.min(value);
-            self.current_max = self.current_max.max(value);
-        }
-
-        vec![self.current_min, self.current_max]
+        let clamped = value.max(min_val).min(max_val);
+        vec![clamped]
     }
 
     fn state(&self) -> Option<Vec<u8>> {
-        let init_byte = if self.initialized { 1u8 } else { 0u8 };
-        let mut bytes = serialize_f64s(&[self.current_min, self.current_max]);
-        bytes.push(init_byte);
-        Some(bytes)
+        None
     }
 
-    fn restore(&mut self, state: &[u8]) {
-        if let Some(vals) = deserialize_f64s(state, 2) {
-            self.current_min = vals[0];
-            self.current_max = vals[1];
-            self.initialized = state.get(16).copied().unwrap_or(0) != 0;
-        }
-    }
+    fn restore(&mut self, _state: &[u8]) {}
 
     fn block_type(&self) -> &str {
         "AMinmax"
-    }
-
-    fn is_edge_sensitive(&self) -> bool {
-        true
     }
 }
 
@@ -886,45 +858,18 @@ mod tests {
     }
 
     #[test]
-    fn aminmax_tracks_running_min_max() {
+    fn aminmax_clamps_value() {
         let mut block = AMinmax::new();
-        // First eval initializes
-        assert_eq!(
-            block.eval(&[5.0, 0.0], &[], 0.0, &[0.0, 0.0]),
-            vec![5.0, 5.0]
-        );
-        // Track min/max
-        assert_eq!(
-            block.eval(&[3.0, 0.0], &[], 0.0, &[5.0, 0.0]),
-            vec![3.0, 5.0]
-        );
-        assert_eq!(
-            block.eval(&[8.0, 0.0], &[], 0.0, &[3.0, 0.0]),
-            vec![3.0, 8.0]
-        );
-    }
-
-    #[test]
-    fn aminmax_resets_on_pulse() {
-        let mut block = AMinmax::new();
-        block.eval(&[5.0, 0.0], &[], 0.0, &[0.0, 0.0]);
-        block.eval(&[2.0, 0.0], &[], 0.0, &[5.0, 0.0]);
-        // Reset pulse (rising edge on I2)
-        let result = block.eval(&[7.0, 1.0], &[], 0.0, &[2.0, 0.0]);
-        assert_eq!(result, vec![7.0, 7.0]);
-    }
-
-    #[test]
-    fn aminmax_state_roundtrip() {
-        let mut block = AMinmax::new();
-        block.eval(&[5.0, 0.0], &[], 0.0, &[0.0, 0.0]);
-        block.eval(&[2.0, 0.0], &[], 0.0, &[5.0, 0.0]);
-        let state = block.state().unwrap();
-        let mut restored = AMinmax::new();
-        restored.restore(&state);
-        // Should continue tracking from restored state
-        let result = restored.eval(&[1.0, 0.0], &[], 0.0, &[2.0, 0.0]);
-        assert_eq!(result, vec![1.0, 5.0]);
+        // Value within bounds
+        assert_eq!(block.eval(&[5.0], &[0.0, 10.0], 0.0, &[]), vec![5.0]);
+        // Value below min
+        assert_eq!(block.eval(&[-3.0], &[0.0, 10.0], 0.0, &[]), vec![0.0]);
+        // Value above max
+        assert_eq!(block.eval(&[15.0], &[0.0, 10.0], 0.0, &[]), vec![10.0]);
+        // Custom bounds
+        assert_eq!(block.eval(&[30.0], &[25.0, 55.0], 0.0, &[]), vec![30.0]);
+        assert_eq!(block.eval(&[20.0], &[25.0, 55.0], 0.0, &[]), vec![25.0]);
+        assert_eq!(block.eval(&[65.0], &[25.0, 55.0], 0.0, &[]), vec![55.0]);
     }
 
     #[test]
