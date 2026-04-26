@@ -1175,7 +1175,8 @@
         {
           "name": "should trigger when condition met",
           "inputs": {
-            "Außentemperatur.AQ": 10.0
+            "Außentemperatur.AQ": 10.0,
+            "Raumtemperatur Wohnzimmer": 18.0
           },
           "ticks": 10,
           "dt": 0.1,

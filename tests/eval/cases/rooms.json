@@ -1060,12 +1060,13 @@
         {
           "name": "should latch on when set",
           "inputs": {
-            "Raumtemperatur Wohnzimmer.AQ": 27.0
+            "Raumtemperatur Wohnzimmer.AQ": 27.0,
+            "Schalter 1.Q": 1.0
           },
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Raumregler.Temp": {
+            "Raumregler.Input": {
               ">": 0.5
             }
           }
@@ -1078,7 +1079,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Raumregler.Temp": {
+            "Raumregler.Input": {
               "<": 0.5
             }
           }

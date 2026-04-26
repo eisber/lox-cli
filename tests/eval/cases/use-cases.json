@@ -6768,7 +6768,8 @@
             "Audiozone.AQ": {
               ">": 0.5
             }
-          }
+          },
+          "time": 1380
         },
         {
           "name": "music silent outside scheduled hours",
@@ -6781,7 +6782,8 @@
             "Audiozone.AQ": {
               "<": 0.5
             }
-          }
+          },
+          "time": 720
         }
       ]
     }
@@ -11546,7 +11548,8 @@
             "Audiozone.AQ": {
               ">": 0.5
             }
-          }
+          },
+          "time": 720
         },
         {
           "name": "no sound outside scheduled interval",
@@ -11559,7 +11562,8 @@
             "Audiozone.AQ": {
               "<": 0.5
             }
-          }
+          },
+          "time": 1380
         }
       ]
     }

@@ -313,12 +313,14 @@
         {
           "name": "radiator valve opens when room temp below setpoint",
           "inputs": {
-            "Raumtemperatur Wohnzimmer.AQ": 18.0
+            "Raumtemperatur Wohnzimmer.AQ": 18.0,
+            "Raumtemperatur Wohnzimmer": 18.0,
+            "Außentemperatur": 5.0
           },
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Raumregler.AQh": {
+            "Raumregler.TempO": {
               ">": 0
             }
           }
@@ -331,7 +333,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Raumregler.AQh": {
+            "Raumregler.TempO": {
               "==": 0
             }
           }
@@ -383,12 +385,14 @@
         {
           "name": "floor heating valve opens when room temp below setpoint",
           "inputs": {
-            "Raumtemperatur Wohnzimmer.AQ": 18.0
+            "Raumtemperatur Wohnzimmer.AQ": 18.0,
+            "Raumtemperatur Wohnzimmer": 18.0,
+            "Außentemperatur": 5.0
           },
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Raumregler.AQh": {
+            "Raumregler.TempO": {
               ">": 0
             }
           }
@@ -401,7 +405,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Raumregler.AQh": {
+            "Raumregler.TempO": {
               "==": 0
             }
           }
@@ -1297,12 +1301,13 @@
         {
           "name": "heat pump receives demand when rooms are cold",
           "inputs": {
-            "Außentemperatur.AQ": 15.0
+            "Außentemperatur.AQ": 15.0,
+            "Raumtemperatur Wohnzimmer": 18.0
           },
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Raumregler.AQh": {
+            "Raumregler.Temp": {
               ">": 0
             }
           }
@@ -1315,7 +1320,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Raumregler.AQh": {
+            "Raumregler.Temp": {
               "==": 0
             }
           }

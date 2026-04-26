@@ -637,12 +637,13 @@
         {
           "name": "all zones drop to 15C in vacation mode",
           "inputs": {
-            "Außentemperatur.AQ": 10.0
+            "Außentemperatur.AQ": 10.0,
+            "Schalter 1.Q": 1.0
           },
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Raumregler.AQh": {
+            "Raumregler.Temp": {
               ">": 0
             }
           }
@@ -655,7 +656,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Raumregler.AQh": {
+            "Raumregler.Temp": {
               "==": 0
             }
           }
