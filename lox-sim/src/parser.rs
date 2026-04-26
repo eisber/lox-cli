@@ -386,6 +386,16 @@ fn block_signature(
             &["Q", "RisingEdge", "FallingEdge"],
             &["On", "Off", "PulseTime"],
         ),
+        "AnalogMultiplexer" => (
+            &["Input1", "Input2", "Input3", "Input4", "InputDisable"],
+            &["AQ"],
+            &["Select"],
+        ),
+        "AnalogMultiplexer2" => (
+            &["Input1", "Input2", "InputDisable"],
+            &["AQ"],
+            &["Select"],
+        ),
         "AnalogScaler" => (&["Input"], &["AQ"], &["Src1", "Src2", "Dst1", "Dst2"]),
         "And" => (&["I1", "I2"], &["Q"], &[]),
         "Constant" => (&[], &["Q"], &["Value"]),

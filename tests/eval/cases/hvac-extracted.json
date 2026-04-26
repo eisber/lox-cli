@@ -1246,30 +1246,44 @@
       "params": [],
       "simulation": [
         {
-          "name": "frost protection maintained during vacation",
+          "name": "pos",
           "inputs": {
-            "Außentemperatur.AQ": -10.0
+            "Sonnenschein": 1,
+            "Helligkeit": 10,
+            "Außentemperatur": 30,
+            "Bewegungsmelder.OutputPresence": 1,
+            "Schalter 1.Q": 1,
+            "Schalter 2.Q": 1,
+            "Luftfeuchtigkeit": 80,
+            "CO2 Sensor": 1200,
+            "PushButton.InputTrigger": 1,
+            "Raumtemperatur Wohnzimmer": 15,
+            "Türkontakt Eingang.Q": 1,
+            "Pool Temperatur": 10,
+            "Feuchtesensor Garten": 10,
+            "Regen": 0,
+            "Raumtemperatur Schlafzimmer": 15
           },
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Raumregler.AQh": {
+            "Raumregler.AQc": {
               ">": 0
             }
-          }
+          },
+          "time": 1380
         },
         {
-          "name": "minimal energy use when vacation and mild weather",
-          "inputs": {
-            "Außentemperatur.AQ": 15.0
-          },
+          "name": "neg",
+          "inputs": {},
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Klimaanlage.I1": {
-              "<": 0.5
+            "Raumregler.AQc": {
+              "==": 0
             }
-          }
+          },
+          "time": 720
         }
       ]
     }
