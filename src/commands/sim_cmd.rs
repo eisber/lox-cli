@@ -61,6 +61,23 @@ struct SimSpec {
     /// Automatically injected into ALL DayTimer blocks.
     #[serde(default)]
     time: Option<f64>,
+    /// Optional multi-step sequence. Each step sets new inputs, ticks forward,
+    /// then checks outputs. Enables temporal flow testing (e.g. heat rises,
+    /// then cools, then re-triggers).
+    #[serde(default)]
+    steps: Vec<SimStep>,
+}
+
+#[derive(Debug, Clone, serde::Deserialize)]
+struct SimStep {
+    #[serde(default)]
+    inputs: HashMap<String, f64>,
+    #[serde(default = "default_ticks")]
+    ticks: usize,
+    #[serde(default)]
+    time: Option<f64>,
+    #[serde(default)]
+    expected_outputs: HashMap<String, HashMap<String, f64>>,
 }
 
 fn default_ticks() -> usize {
@@ -142,13 +159,45 @@ fn check_comparator(actual: f64, op: &str, expected: f64) -> bool {
 
 fn run_one(graph: &SimGraph, spec: &SimSpec) -> ScenarioResult {
     let mut engine = SimEngine::new(graph.clone());
+    let mut checks = Vec::new();
+    let mut all_pass = true;
 
     // Inject time into all DayTimer blocks if specified
     if let Some(minutes) = spec.time {
         engine.set_time(minutes);
     }
 
-    for (key, value) in &spec.inputs {
+    apply_inputs(&mut engine, &spec.inputs);
+
+    for _ in 0..spec.ticks {
+        engine.tick(spec.dt);
+    }
+
+    // Check initial expected_outputs
+    check_outputs(&engine, graph, &spec.expected_outputs, &mut checks, &mut all_pass);
+
+    // Multi-step: run each step, check outputs after each one
+    for step in &spec.steps {
+        if let Some(minutes) = step.time {
+            engine.set_time(minutes);
+        }
+        apply_inputs(&mut engine, &step.inputs);
+        for _ in 0..step.ticks {
+            engine.tick(spec.dt);
+        }
+        // Check this step's outputs immediately
+        check_outputs(&engine, graph, &step.expected_outputs, &mut checks, &mut all_pass);
+    }
+
+    ScenarioResult {
+        name: spec.name.clone(),
+        pass: all_pass,
+        checks,
+    }
+}
+
+fn apply_inputs(engine: &mut SimEngine, inputs: &HashMap<String, f64>) {
+    for (key, value) in inputs {
         if engine.set_input(key, *value) {
             continue;
         }
@@ -174,7 +223,6 @@ fn run_one(graph: &SimGraph, spec: &SimSpec) -> ScenarioResult {
         if found {
             continue;
         }
-        // Fallback: inject into output connector (for non-source blocks)
         if engine.inject_output(key, *value) {
             continue;
         }
@@ -191,38 +239,33 @@ fn run_one(graph: &SimGraph, spec: &SimSpec) -> ScenarioResult {
             eprintln!("warning: could not set input '{key}'");
         }
     }
+}
 
-    for _ in 0..spec.ticks {
-        engine.tick(spec.dt);
-    }
+fn check_outputs(
+    engine: &SimEngine,
+    graph: &SimGraph,
+    expected: &HashMap<String, HashMap<String, f64>>,
+    checks: &mut Vec<serde_json::Value>,
+    all_pass: &mut bool,
+) {
+    for (output_key, comparators) in expected {
+        let actual = resolve_output(engine, graph, output_key);
 
-    let mut checks = Vec::new();
-    let mut all_pass = true;
-
-    for (output_key, comparators) in &spec.expected_outputs {
-        let actual = resolve_output(&engine, graph, output_key);
-
-        for (op, expected) in comparators {
-            let pass = check_comparator(actual, op, *expected);
+        for (op, exp) in comparators {
+            let pass = check_comparator(actual, op, *exp);
 
             if !pass {
-                all_pass = false;
+                *all_pass = false;
             }
 
             checks.push(serde_json::json!({
                 "output": output_key,
                 "actual": actual,
                 "comparator": op,
-                "expected": expected,
+                "expected": exp,
                 "pass": pass,
             }));
         }
-    }
-
-    ScenarioResult {
-        name: spec.name.clone(),
-        pass: all_pass,
-        checks,
     }
 }
 
