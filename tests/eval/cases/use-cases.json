@@ -7579,7 +7579,8 @@
           "name": "heating rod activates on PV surplus",
           "inputs": {
             "Sonnenschein.AQ": 1.0,
-            "Außentemperatur.AQ": 25.0
+            "Außentemperatur.AQ": 25.0,
+            "Heizstab freigeben.Q": 1.0
           },
           "ticks": 10,
           "dt": 0.1,
@@ -8297,7 +8298,8 @@
         {
           "name": "charging active during cheap spot price hours",
           "inputs": {
-            "Außentemperatur.AQ": 20.0
+            "Außentemperatur.AQ": 20.0,
+            "Laden Freigabe.Q": 1.0
           },
           "ticks": 10,
           "dt": 0.1,
@@ -8443,7 +8445,8 @@
         {
           "name": "OCPP session starts on NFC scan",
           "inputs": {
-            "Bewegungsmelder.OutputPresence": 1.0
+            "Bewegungsmelder.OutputPresence": 1.0,
+            "Laden aktiv.InputTrigger": 1.0
           },
           "ticks": 10,
           "dt": 0.1,
@@ -9007,7 +9010,8 @@
           "name": "AC starts when room temp above setpoint",
           "inputs": {
             "Außentemperatur.AQ": 30.0,
-            "Bewegungsmelder.OutputPresence": 1.0
+            "Bewegungsmelder.OutputPresence": 1.0,
+            "Kühlung angefordert.Q": 1.0
           },
           "ticks": 10,
           "dt": 0.1,
@@ -9409,7 +9413,8 @@
         {
           "name": "battery charges during cheap night hours",
           "inputs": {
-            "Außentemperatur.AQ": 15.0
+            "Außentemperatur.AQ": 15.0,
+            "Laden aktiv.InputTrigger": 1.0
           },
           "ticks": 100,
           "dt": 0.1,

@@ -646,7 +646,8 @@
         {
           "name": "humidity triggers fan",
           "inputs": {
-            "Luftfeuchtigkeit": 80
+            "Luftfeuchtigkeit": 80,
+            "Lüfter Nachlauf.Q": 1.0
           },
           "ticks": 10,
           "dt": 0.1,

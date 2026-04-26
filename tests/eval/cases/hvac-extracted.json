@@ -1870,7 +1870,8 @@
           "name": "ventilation when room humid + cold outside",
           "inputs": {
             "Luftfeuchtigkeit": 75.0,
-            "Außentemperatur": 5.0
+            "Außentemperatur": 5.0,
+            "Lüftung sinnvoll.Q": 1.0
           },
           "ticks": 10,
           "dt": 0.1,

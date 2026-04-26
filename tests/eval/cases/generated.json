@@ -3250,7 +3250,8 @@
           "name": "blinds up when sun + no rain",
           "inputs": {
             "Regen": 0,
-            "Sonnenschein": 1
+            "Sonnenschein": 1,
+            "Regenende Verzögerung.Q": 1.0
           },
           "ticks": 10,
           "dt": 0.1,

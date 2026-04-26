@@ -648,7 +648,9 @@
       "simulation": [
         {
           "name": "should activate during scheduled period",
-          "inputs": {},
+          "inputs": {
+            "Rollo Aufwachen.Q": 1.0
+          },
           "ticks": 0,
           "dt": 0.1,
           "expected_outputs": {
@@ -687,7 +689,9 @@
       "simulation": [
         {
           "name": "should activate during scheduled period",
-          "inputs": {},
+          "inputs": {
+            "Zufall Wohnzimmer.Q": 1.0
+          },
           "ticks": 0,
           "dt": 0.1,
           "expected_outputs": {

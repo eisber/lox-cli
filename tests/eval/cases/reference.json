@@ -1546,9 +1546,9 @@
       "params": [],
       "simulation": [
         {
-          "name": "should activate on trigger",
+          "name": "override on",
           "inputs": {
-            "Schalter 1.Q": 1.0
+            "Override Jalousie 1.InputTrigger": 1
           },
           "ticks": 10,
           "dt": 0.1,
@@ -1559,10 +1559,8 @@
           }
         },
         {
-          "name": "should NOT activate without trigger",
-          "inputs": {
-            "Schalter 1.Q": 0.0
-          },
+          "name": "override off",
+          "inputs": {},
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
@@ -1673,7 +1671,8 @@
         {
           "name": "should trigger when condition met",
           "inputs": {
-            "Sonnenschein.AQ": 1.0
+            "Sonnenschein.AQ": 1.0,
+            "Sonnenverzögerung.Q": 1.0
           },
           "ticks": 6100,
           "dt": 0.1,
