@@ -434,7 +434,8 @@
         {
           "name": "switch triggers light",
           "inputs": {
-            "Schalter 1.Q": 1
+            "Schalter 1.Q": 1,
+            "PushButton.InputTrigger": 1.0
           },
           "ticks": 10,
           "dt": 0.1,

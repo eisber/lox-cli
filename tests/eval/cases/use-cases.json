@@ -4995,7 +4995,8 @@
         {
           "name": "TV mode lowers screen",
           "inputs": {
-            "Schalter 1.Q": 1
+            "Schalter 1.Q": 1,
+            "PushButton.InputTrigger": 1.0
           },
           "ticks": 10,
           "dt": 0.1,
@@ -11387,7 +11388,8 @@
         {
           "name": "alarm arms on leaving house",
           "inputs": {
-            "Bewegungsmelder.OutputPresence": 0.0
+            "Bewegungsmelder.OutputPresence": 0.0,
+            "PushButton.InputTrigger": 1.0
           },
           "ticks": 10,
           "dt": 0.1,

@@ -2280,12 +2280,13 @@
         {
           "name": "boost button triggers comfort override",
           "inputs": {
-            "Türklingel.Q": 1.0
+            "Türklingel.Q": 1.0,
+            "PushButton.InputTrigger": 1.0
           },
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Raumregler.AQh": {
+            "Raumregler.Comfort": {
               ">": 0
             }
           }
@@ -2298,7 +2299,7 @@
           "ticks": 6100,
           "dt": 0.1,
           "expected_outputs": {
-            "Raumregler.AQh": {
+            "Raumregler.Comfort": {
               "==": 0
             }
           }

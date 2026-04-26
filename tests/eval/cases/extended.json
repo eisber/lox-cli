@@ -81,7 +81,8 @@
         {
           "name": "should activate on trigger",
           "inputs": {
-            "Bewässerung Freigabe.InputTrigger": 1.0
+            "Bewässerung Freigabe.InputTrigger": 1.0,
+            "PushButton.InputTrigger": 1.0
           },
           "ticks": 10,
           "dt": 0.1,
