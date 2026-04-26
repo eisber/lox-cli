@@ -4813,9 +4813,9 @@
       ],
       "simulation": [
         {
-          "name": "should trigger when condition met",
+          "name": "humid triggers fan",
           "inputs": {
-            "Luftfeuchtigkeit.AQ": 75.0
+            "Luftfeuchtigkeit": 80
           },
           "ticks": 10,
           "dt": 0.1,
@@ -4826,9 +4826,9 @@
           }
         },
         {
-          "name": "should NOT trigger when condition not met",
+          "name": "dry no fan",
           "inputs": {
-            "Luftfeuchtigkeit.AQ": 65.0
+            "Luftfeuchtigkeit": 50
           },
           "ticks": 10,
           "dt": 0.1,
