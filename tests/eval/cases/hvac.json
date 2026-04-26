@@ -500,32 +500,30 @@
       "params": [],
       "simulation": [
         {
-          "name": "boiler fires when tank below 45C",
+          "name": "cold water boosts heater",
           "inputs": {
-            "Außentemperatur.AQ": 40.0
+            "Warmwasser Temperatur": 30
           },
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Poolpumpe.I1": {
+            "Heizstab.I": {
               ">": 0.5
             }
           },
-          "_note": "Außentemperatur.AQ used as proxy for hot water tank sensor (not in fixture)"
-        },
-        {
-          "name": "boiler off when tank above 55C",
-          "inputs": {
-            "Außentemperatur.AQ": 58.0
-          },
-          "ticks": 10,
-          "dt": 0.1,
-          "expected_outputs": {
-            "Poolpumpe.I1": {
-              "<": 0.5
+          "steps": [
+            {
+              "inputs": {
+                "Warmwasser Temperatur": 60
+              },
+              "ticks": 10,
+              "expected_outputs": {
+                "Heizstab.I": {
+                  "<": 0.5
+                }
+              }
             }
-          },
-          "_note": "Außentemperatur.AQ used as proxy for hot water tank sensor (not in fixture)"
+          ]
         }
       ]
     }

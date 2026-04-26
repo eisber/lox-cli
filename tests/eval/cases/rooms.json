@@ -439,10 +439,10 @@
       ],
       "simulation": [
         {
-          "name": "should trigger when all conditions met",
+          "name": "cold pool protection",
           "inputs": {
-            "Pool Temperatur.AQ": 15.0,
-            "Außentemperatur.AQ": 15.0
+            "Pool Temperatur": 2,
+            "Außentemperatur": 2
           },
           "ticks": 10,
           "dt": 0.1,
@@ -453,10 +453,10 @@
           }
         },
         {
-          "name": "should NOT trigger when only partial conditions met",
+          "name": "warm pool no pump",
           "inputs": {
-            "Pool Temperatur.AQ": 25.0,
-            "Außentemperatur.AQ": 15.0
+            "Pool Temperatur": 20,
+            "Außentemperatur": 15
           },
           "ticks": 10,
           "dt": 0.1,
