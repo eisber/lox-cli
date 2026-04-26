@@ -2773,29 +2773,29 @@
       ],
       "simulation": [
         {
-          "name": "garden light on when dark + motion",
+          "name": "bright at night",
           "inputs": {
-            "Bewegungsmelder Garten.OutputPresence": 1.0,
-            "Helligkeit": 10.0
+            "Bewegungsmelder Garten.OutputPresence": 1
           },
           "ticks": 10,
           "dt": 0.1,
+          "time": 1380,
           "expected_outputs": {
-            "Gartenbeleuchtung.I1": {
-              ">": 0.5
+            "Gartenbeleuchtung [Garten].Brightness": {
+              ">=": 60,
+              "<=": 80
             }
           }
         },
         {
-          "name": "no light without motion",
-          "inputs": {
-            "Bewegungsmelder Garten.OutputPresence": 0.0
-          },
+          "name": "no brightness during day",
+          "inputs": {},
           "ticks": 10,
           "dt": 0.1,
+          "time": 720,
           "expected_outputs": {
-            "Gartenbeleuchtung.I1": {
-              "<": 0.5
+            "Gartenbeleuchtung [Garten].Brightness": {
+              "<": 1
             }
           }
         }
@@ -3165,28 +3165,27 @@
       ],
       "simulation": [
         {
-          "name": "dark triggers night light",
-          "inputs": {
-            "Helligkeit": 10.0
-          },
+          "name": "dim night light",
+          "inputs": {},
           "ticks": 10,
           "dt": 0.1,
+          "time": 1380,
           "expected_outputs": {
-            "Lichtsteuerung [Bad].I1": {
-              ">": 0.5
+            "Lichtsteuerung [Bad].Brightness": {
+              ">=": 10,
+              "<=": 20
             }
           }
         },
         {
-          "name": "bright no light",
-          "inputs": {
-            "Helligkeit": 50000.0
-          },
+          "name": "no night light during day",
+          "inputs": {},
           "ticks": 10,
           "dt": 0.1,
+          "time": 720,
           "expected_outputs": {
-            "Lichtsteuerung [Bad].I1": {
-              "<": 0.5
+            "Lichtsteuerung [Bad].Brightness": {
+              "<": 1
             }
           }
         }

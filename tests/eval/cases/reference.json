@@ -1603,28 +1603,28 @@
       ],
       "simulation": [
         {
-          "name": "brightness set when switch on",
-          "inputs": {
-            "Schalter 1.Q": 1.0
-          },
+          "name": "brightness set to 50",
+          "inputs": {},
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Lichtsteuerung [Wohnzimmer].I1": {
-              ">": 0.5
+            "Lichtsteuerung [Wohnzimmer].Brightness": {
+              ">=": 40,
+              "<=": 60
             }
           }
         },
         {
-          "name": "no brightness when switch off",
+          "name": "brightness is constant",
           "inputs": {
-            "Schalter 1.Q": 0.0
+            "Schalter 1.Q": 1
           },
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Lichtsteuerung [Wohnzimmer].I1": {
-              "<": 0.5
+            "Lichtsteuerung [Wohnzimmer].Brightness": {
+              ">=": 40,
+              "<=": 60
             }
           }
         }
