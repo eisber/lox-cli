@@ -5179,7 +5179,8 @@
           "name": "irrigation works when dry",
           "inputs": {
             "Regen": 0,
-            "Feuchtesensor Garten": 10
+            "Feuchtesensor Garten": 10,
+            "Bewässerung Manuell.InputTrigger": 1.0
           },
           "ticks": 10,
           "dt": 0.1,
