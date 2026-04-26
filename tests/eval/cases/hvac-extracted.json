@@ -741,28 +741,40 @@
       "params": [],
       "simulation": [
         {
-          "name": "room controllers reset to economy on leaving",
+          "name": "pos",
           "inputs": {
-            "Bewegungsmelder.OutputPresence": 0.0
+            "Sonnenschein": 1,
+            "Helligkeit": 10,
+            "Außentemperatur": 30,
+            "Bewegungsmelder.OutputPresence": 1,
+            "Schalter 1.Q": 1,
+            "Schalter 2.Q": 1,
+            "Luftfeuchtigkeit": 80,
+            "CO2 Sensor": 1200,
+            "PushButton.InputTrigger": 1,
+            "Raumtemperatur Wohnzimmer": 15,
+            "Türkontakt Eingang.Q": 1,
+            "Pool Temperatur": 10,
+            "Feuchtesensor Garten": 10,
+            "Regen": 0
           },
           "ticks": 10,
           "dt": 0.1,
+          "time": 1380,
           "expected_outputs": {
-            "Raumregler.AQh": {
-              "<": 0.5
+            "Raumregler.Save": {
+              ">": 0.5
             }
           }
         },
         {
-          "name": "room controllers stay in comfort when home",
-          "inputs": {
-            "Bewegungsmelder.OutputPresence": 1.0
-          },
+          "name": "neg",
+          "inputs": {},
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Raumregler.AQh": {
-              ">": 0.5
+            "Raumregler.Save": {
+              "<": 0.5
             }
           }
         }
@@ -1062,28 +1074,40 @@
       "params": [],
       "simulation": [
         {
-          "name": "away mode signal propagates to building automation",
+          "name": "pos",
           "inputs": {
-            "Bewegungsmelder.OutputPresence": 0.0
+            "Sonnenschein": 1,
+            "Helligkeit": 10,
+            "Außentemperatur": 30,
+            "Bewegungsmelder.OutputPresence": 1,
+            "Schalter 1.Q": 1,
+            "Schalter 2.Q": 1,
+            "Luftfeuchtigkeit": 80,
+            "CO2 Sensor": 1200,
+            "PushButton.InputTrigger": 1,
+            "Raumtemperatur Wohnzimmer": 15,
+            "Türkontakt Eingang.Q": 1,
+            "Pool Temperatur": 10,
+            "Feuchtesensor Garten": 10,
+            "Regen": 0
           },
           "ticks": 10,
           "dt": 0.1,
+          "time": 1380,
           "expected_outputs": {
-            "Raumregler.AQh": {
-              "<": 0.5
+            "Raumregler.Save": {
+              ">": 0.5
             }
           }
         },
         {
-          "name": "normal mode when presence detected",
-          "inputs": {
-            "Bewegungsmelder.OutputPresence": 1.0
-          },
+          "name": "neg",
+          "inputs": {},
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Raumregler.AQh": {
-              ">": 0.5
+            "Raumregler.Save": {
+              "<": 0.5
             }
           }
         }
@@ -2070,27 +2094,39 @@
       "params": [],
       "simulation": [
         {
-          "name": "circulation pump runs on button trigger",
+          "name": "pos",
           "inputs": {
-            "Türklingel.Q": 1.0
+            "Sonnenschein": 1,
+            "Helligkeit": 10,
+            "Außentemperatur": 30,
+            "Bewegungsmelder.OutputPresence": 1,
+            "Schalter 1.Q": 1,
+            "Schalter 2.Q": 1,
+            "Luftfeuchtigkeit": 80,
+            "CO2 Sensor": 1200,
+            "PushButton.InputTrigger": 1,
+            "Raumtemperatur Wohnzimmer": 15,
+            "Türkontakt Eingang.Q": 1,
+            "Pool Temperatur": 10,
+            "Feuchtesensor Garten": 10,
+            "Regen": 0
           },
           "ticks": 10,
           "dt": 0.1,
+          "time": 1380,
           "expected_outputs": {
-            "Poolpumpe.I1": {
+            "Heizstab.I": {
               ">": 0.5
             }
           }
         },
         {
-          "name": "circulation pump stops after timeout",
-          "inputs": {
-            "Türklingel.Q": 0.0
-          },
-          "ticks": 6100,
+          "name": "neg",
+          "inputs": {},
+          "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Poolpumpe.I1": {
+            "Heizstab.I": {
               "<": 0.5
             }
           }

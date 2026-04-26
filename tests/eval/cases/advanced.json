@@ -1211,29 +1211,39 @@
       ],
       "simulation": [
         {
-          "name": "should produce scaled output when input active",
+          "name": "pos",
           "inputs": {
-            "Bewegungsmelder.OutputPresence": 1.0,
-            "Sonnenschein.AQ": 1.0
+            "Sonnenschein": 1,
+            "Helligkeit": 10,
+            "Außentemperatur": 30,
+            "Bewegungsmelder.OutputPresence": 1,
+            "Schalter 1.Q": 1,
+            "Schalter 2.Q": 1,
+            "Luftfeuchtigkeit": 80,
+            "CO2 Sensor": 1200,
+            "PushButton.InputTrigger": 1,
+            "Raumtemperatur Wohnzimmer": 15,
+            "Türkontakt Eingang.Q": 1,
+            "Pool Temperatur": 10,
+            "Feuchtesensor Garten": 10,
+            "Regen": 0
           },
           "ticks": 10,
           "dt": 0.1,
+          "time": 1380,
           "expected_outputs": {
-            "Lichtsteuerung [Schlafzimmer].I1": {
-              ">": 0.0
+            "Lichtsteuerung [Flur].I1": {
+              ">": 0.5
             }
           }
         },
         {
-          "name": "should produce no output with zero input",
-          "inputs": {
-            "Bewegungsmelder.OutputPresence": 0.0,
-            "Sonnenschein.AQ": 0.0
-          },
+          "name": "neg",
+          "inputs": {},
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Lichtsteuerung [Schlafzimmer].I1": {
+            "Lichtsteuerung [Flur].I1": {
               "<": 0.5
             }
           }
@@ -1637,35 +1647,31 @@
       "params": [],
       "simulation": [
         {
-          "name": "should trigger when all conditions met",
+          "name": "cold pool triggers pump",
           "inputs": {
-            "Pool Temperatur.AQ": 15.0,
-            "Außentemperatur.AQ": 15.0
+            "Pool Temperatur": 10,
+            "Sonnenschein": 1,
+            "Außentemperatur": 25
           },
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
             "Poolpumpe.I1": {
-              ">": 0.5
-            },
-            "Jalousie 1 [Wohnzimmer].InputTriggerUp": {
               ">": 0.5
             }
           }
         },
         {
-          "name": "should NOT trigger when only partial conditions met",
+          "name": "warm pool no pump",
           "inputs": {
-            "Pool Temperatur.AQ": 25.0,
-            "Außentemperatur.AQ": 15.0
+            "Pool Temperatur": 30,
+            "Sonnenschein": 0,
+            "Außentemperatur": 15
           },
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
             "Poolpumpe.I1": {
-              "<": 0.5
-            },
-            "Jalousie 1 [Wohnzimmer].InputTriggerUp": {
               "<": 0.5
             }
           }

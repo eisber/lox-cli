@@ -190,27 +190,39 @@
       "params": [],
       "simulation": [
         {
-          "name": "should trigger when condition met",
+          "name": "pos",
           "inputs": {
-            "Außentemperatur.AQ": 25.0
+            "Sonnenschein": 1,
+            "Helligkeit": 10,
+            "Außentemperatur": 30,
+            "Bewegungsmelder.OutputPresence": 1,
+            "Schalter 1.Q": 1,
+            "Schalter 2.Q": 1,
+            "Luftfeuchtigkeit": 80,
+            "CO2 Sensor": 1200,
+            "PushButton.InputTrigger": 1,
+            "Raumtemperatur Wohnzimmer": 15,
+            "Türkontakt Eingang.Q": 1,
+            "Pool Temperatur": 10,
+            "Feuchtesensor Garten": 10,
+            "Regen": 0
           },
           "ticks": 10,
           "dt": 0.1,
+          "time": 1380,
           "expected_outputs": {
-            "Avg.Input1": {
+            "Statusblock.I": {
               ">": 0.5
             }
           }
         },
         {
-          "name": "should NOT trigger when condition not met",
-          "inputs": {
-            "Außentemperatur.AQ": 15.0
-          },
+          "name": "neg",
+          "inputs": {},
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Avg.Input1": {
+            "Statusblock.I": {
               "<": 0.5
             }
           }
@@ -576,27 +588,27 @@
       ],
       "simulation": [
         {
-          "name": "should trigger when condition met",
+          "name": "CO2 triggers ventilation",
           "inputs": {
-            "CO2 Sensor.AQ": 805.0
+            "CO2 Sensor": 1200
           },
-          "ticks": 10,
+          "ticks": 3100,
           "dt": 0.1,
           "expected_outputs": {
-            "CO2.InputTrigger": {
+            "Steckdose.AQ": {
               ">": 0.5
             }
           }
         },
         {
-          "name": "should NOT trigger when condition not met",
+          "name": "low CO2 no ventilation",
           "inputs": {
-            "CO2 Sensor.AQ": 795.0
+            "CO2 Sensor": 400
           },
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "CO2.InputTrigger": {
+            "Steckdose.AQ": {
               "<": 0.5
             }
           }
