@@ -905,27 +905,29 @@
       "params": [],
       "simulation": [
         {
-          "name": "ventilation activates on high CO level",
+          "name": "CO high triggers ventilation",
           "inputs": {
-            "CO2 Sensor.AQ": 100.0
+            "CO Sensor UG": 100,
+            "CO Sensor OG": 100
           },
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Lüfter Bad.I1": {
+            "Abluft Garage.I": {
               ">": 0.5
             }
           }
         },
         {
-          "name": "ventilation off when CO levels normal",
+          "name": "CO normal no ventilation",
           "inputs": {
-            "CO2 Sensor.AQ": 10.0
+            "CO Sensor UG": 10,
+            "CO Sensor OG": 10
           },
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Lüfter Bad.I1": {
+            "Abluft Garage.I": {
               "<": 0.5
             }
           }
