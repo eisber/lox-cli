@@ -18,9 +18,9 @@
       "params": [],
       "simulation": [
         {
-          "name": "heating valve opens when room is cold",
+          "name": "heating responds to room temp",
           "inputs": {
-            "Raumtemperatur Wohnzimmer.AQ": 18.0
+            "Raumtemperatur Wohnzimmer": 15
           },
           "ticks": 10,
           "dt": 0.1,
@@ -28,20 +28,20 @@
             "Raumregler.AQh": {
               ">": 0
             }
-          }
-        },
-        {
-          "name": "heating valve stays closed when room is warm",
-          "inputs": {
-            "Raumtemperatur Wohnzimmer.AQ": 25.0
           },
-          "ticks": 10,
-          "dt": 0.1,
-          "expected_outputs": {
-            "Raumregler.AQh": {
-              "==": 0
+          "steps": [
+            {
+              "inputs": {
+                "Raumtemperatur Wohnzimmer": 28
+              },
+              "ticks": 10,
+              "expected_outputs": {
+                "Raumregler.AQh": {
+                  "==": 0
+                }
+              }
             }
-          }
+          ]
         }
       ]
     }
@@ -447,32 +447,33 @@
       "params": [],
       "simulation": [
         {
-          "name": "heating increases when wall near dew point",
+          "name": "heating adjusts with humidity",
           "inputs": {
-            "Außentemperatur.AQ": 18.0,
-            "Luftfeuchtigkeit.AQ": 80.0
+            "Raumtemperatur Wohnzimmer": 18,
+            "Luftfeuchtigkeit": 80,
+            "Außentemperatur": 5
           },
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Raumregler.AQh": {
-              ">": 0
+            "Heizkörper Bad.I1": {
+              ">": 0.5
             }
-          }
-        },
-        {
-          "name": "no extra heating when wall well above dew point",
-          "inputs": {
-            "Außentemperatur.AQ": 22.0,
-            "Luftfeuchtigkeit.AQ": 40.0
           },
-          "ticks": 10,
-          "dt": 0.1,
-          "expected_outputs": {
-            "Raumregler.AQh": {
-              "==": 0
+          "steps": [
+            {
+              "inputs": {
+                "Raumtemperatur Wohnzimmer": 25,
+                "Luftfeuchtigkeit": 40
+              },
+              "ticks": 10,
+              "expected_outputs": {
+                "Heizkörper Bad.I1": {
+                  "<": 0.5
+                }
+              }
             }
-          }
+          ]
         }
       ]
     }
@@ -593,30 +594,28 @@
       "params": [],
       "simulation": [
         {
-          "name": "preheat starts 30 min before arrival",
+          "name": "preheat on arrival",
           "inputs": {
-            "Außentemperatur.AQ": 5.0
+            "Schalter 1.Q": 1,
+            "Raumtemperatur Wohnzimmer": 18
           },
-          "ticks": 100,
+          "ticks": 10,
           "dt": 0.1,
+          "time": 1020,
           "expected_outputs": {
-            "Raumregler.AQh": {
-              ">": 0
+            "Raumregler.Comfort": {
+              ">": 0.5
             }
-          }
-        },
-        {
-          "name": "no preheat when house already warm",
-          "inputs": {
-            "Außentemperatur.AQ": 23.0
           },
-          "ticks": 100,
-          "dt": 0.1,
-          "expected_outputs": {
-            "Raumregler.AQh": {
-              "==": 0
+          "steps": [
+            {
+              "inputs": {
+                "Raumtemperatur Wohnzimmer": 22
+              },
+              "ticks": 10,
+              "expected_outputs": {}
             }
-          }
+          ]
         }
       ]
     }

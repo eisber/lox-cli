@@ -999,30 +999,31 @@
       "params": [],
       "simulation": [
         {
-          "name": "thermal disinfection triggers DHW demand",
+          "name": "disinfection cycle",
           "inputs": {
-            "Außentemperatur.AQ": 55.0
+            "Warmwasserspeicher": 40
           },
           "ticks": 10,
           "dt": 0.1,
+          "time": 180,
           "expected_outputs": {
-            "Raumregler.AQh": {
-              ">": 0
+            "Heizstab.I": {
+              ">": 0.5
             }
-          }
-        },
-        {
-          "name": "no DHW demand when tank above disinfection temp",
-          "inputs": {
-            "Außentemperatur.AQ": 65.0
           },
-          "ticks": 10,
-          "dt": 0.1,
-          "expected_outputs": {
-            "Raumregler.AQh": {
-              "==": 0
+          "steps": [
+            {
+              "inputs": {
+                "Warmwasserspeicher": 70
+              },
+              "ticks": 10,
+              "expected_outputs": {
+                "Heizstab.I": {
+                  "<": 0.5
+                }
+              }
             }
-          }
+          ]
         }
       ]
     }
