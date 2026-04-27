@@ -463,12 +463,24 @@ impl Block for TimeMinmax {
 // ---------------------------------------------------------------------------
 
 // WARNING: Simplified model — real Loxone behavior may differ.
-// Ramps output from current value toward target at a fixed rate per second.
+// When enabled, ramps output toward Level1 (InputSelect high) or Level2
+// (InputSelect low) at Rate units per second.
 
-/// Value ramp: smoothly transitions output toward input at a configurable rate.
-#[derive(Clone, Default)]
+/// Value ramp: smoothly transitions output between Level1/Level2 at a
+/// configurable rate, gated by InputEnable and steered by InputSelect.
+#[derive(Clone)]
 pub struct Ramp {
     output: f64,
+    initialized: bool,
+}
+
+impl Default for Ramp {
+    fn default() -> Self {
+        Self {
+            output: 0.0,
+            initialized: false,
+        }
+    }
 }
 
 impl Ramp {
@@ -478,9 +490,9 @@ impl Ramp {
 }
 
 impl Block for Ramp {
-    /// Inputs: [target_value]
-    /// Params: [rate_per_second (default 1.0)]
-    /// Outputs: [ramped_value]
+    /// Inputs: [InputEnable, InputSelect, InputStop]
+    /// Params: [Rate, StartValue, Level1, Level2]
+    /// Outputs: [AQ]
     fn eval(
         &mut self,
         inputs: &[Signal],
@@ -488,15 +500,27 @@ impl Block for Ramp {
         dt: f64,
         _prev: &[Signal],
     ) -> Vec<Signal> {
-        let target = inputs.first().copied().unwrap_or(0.0);
+        let enable = inputs.first().copied().unwrap_or(0.0);
+        let select = inputs.get(1).copied().unwrap_or(0.0);
+        let stop = inputs.get(2).copied().unwrap_or(0.0);
+
         let rate = params
             .first()
             .copied()
             .unwrap_or(1.0)
             .abs()
             .max(f64::EPSILON);
+        let start_value = params.get(1).copied().unwrap_or(0.0);
+        let level1 = params.get(2).copied().unwrap_or(100.0);
+        let level2 = params.get(3).copied().unwrap_or(0.0);
 
-        if dt > 0.0 {
+        if !self.initialized {
+            self.output = start_value;
+            self.initialized = true;
+        }
+
+        if enable > 0.0 && stop <= 0.0 && dt > 0.0 {
+            let target = if select > 0.0 { level1 } else { level2 };
             let diff = target - self.output;
             let max_step = rate * dt;
             if diff.abs() <= max_step {
@@ -504,20 +528,26 @@ impl Block for Ramp {
             } else {
                 self.output += max_step * diff.signum();
             }
-        } else {
-            self.output = target;
         }
 
         vec![self.output]
     }
 
+    fn is_time_dependent(&self) -> bool {
+        true
+    }
+
     fn state(&self) -> Option<Vec<u8>> {
-        Some(serialize_f64s(&[self.output]))
+        Some(serialize_f64s(&[
+            self.output,
+            if self.initialized { 1.0 } else { 0.0 },
+        ]))
     }
 
     fn restore(&mut self, state: &[u8]) {
-        if let Some(v) = deserialize_f64s(state, 1) {
+        if let Some(v) = deserialize_f64s(state, 2) {
             self.output = v[0];
+            self.initialized = v[1] > 0.0;
         }
     }
 
@@ -1773,23 +1803,24 @@ mod tests {
     #[test]
     fn ramp_approaches_target() {
         let mut block = Ramp::new();
-        // Target=10, rate=5/s, dt=1s → output should be 5
-        let out = block.eval(&[10.0], &[5.0], 1.0, &[]);
+        // Enable=1, Select=1 → ramp toward Level1=10, rate=5/s, dt=1s → output should be 5
+        // params: [rate=5, start=0, level1=10, level2=0]
+        let out = block.eval(&[1.0, 1.0, 0.0], &[5.0, 0.0, 10.0, 0.0], 1.0, &[]);
         assert!((out[0] - 5.0).abs() < f64::EPSILON);
 
         // Another second → 10
-        let out = block.eval(&[10.0], &[5.0], 1.0, &[]);
+        let out = block.eval(&[1.0, 1.0, 0.0], &[5.0, 0.0, 10.0, 0.0], 1.0, &[]);
         assert!((out[0] - 10.0).abs() < f64::EPSILON);
 
         // Overshoot protection — stays at target
-        let out = block.eval(&[10.0], &[5.0], 1.0, &[]);
+        let out = block.eval(&[1.0, 1.0, 0.0], &[5.0, 0.0, 10.0, 0.0], 1.0, &[]);
         assert!((out[0] - 10.0).abs() < f64::EPSILON);
     }
 
     #[test]
     fn ramp_state_roundtrip() {
         let mut block = Ramp::new();
-        block.eval(&[10.0], &[5.0], 1.0, &[]);
+        block.eval(&[1.0, 1.0, 0.0], &[5.0, 0.0, 10.0, 0.0], 1.0, &[]);
         let state = block.state().unwrap();
         let mut restored = Ramp::new();
         restored.restore(&state);

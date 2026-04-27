@@ -442,7 +442,7 @@ fn block_signature(
         "Ramp" => (
             &["InputEnable", "InputSelect", "InputStop"],
             &["AQ"],
-            &["Rate"],
+            &["Rate", "StartValue", "Level1", "Level2"],
         ),
         "RisingEdge" => (&["I1", "Input"], &["Q", "RisingEdge"], &[]),
         "LightController2" => (
