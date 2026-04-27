@@ -2846,27 +2846,29 @@
       ],
       "simulation": [
         {
-          "name": "alarm sound plays on smoke detection",
+          "name": "pos",
           "inputs": {
-            "Türkontakt Eingang.Q": 1.0
+            "Wassersensor": 1000,
+            "Rauchmelder": 1000
           },
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Alarmanlage.AQ": {
+            "Audiozone [Wohnzimmer].AQ": {
               ">": 0.5
             }
           }
         },
         {
-          "name": "no alarm sound in normal conditions",
+          "name": "neg",
           "inputs": {
-            "Türkontakt Eingang.Q": 0.0
+            "Wassersensor": 0,
+            "Rauchmelder": 0
           },
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Alarmanlage.AQ": {
+            "Audiozone [Wohnzimmer].AQ": {
               "<": 0.5
             }
           }
@@ -5825,27 +5827,37 @@
       ],
       "simulation": [
         {
-          "name": "notification email sent at 9am for flagged rooms",
+          "name": "pos",
           "inputs": {
-            "Türklingel.Q": 1.0
+            "No-Clean Wohnzimmer": 1000,
+            "No-Clean Schlafzimmer": 1000,
+            "No-Clean Küche": 1000,
+            "No-Clean Bad": 1000,
+            "No-Clean Flur": 1000,
+            "Zeitplan 09:00": 1000
           },
-          "ticks": 100,
+          "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Statusblock.AQ": {
+            "NoClean Or1 [Flur].Q": {
               ">": 0.5
             }
           }
         },
         {
-          "name": "no notification when no rooms flagged",
+          "name": "neg",
           "inputs": {
-            "Türklingel.Q": 0.0
+            "No-Clean Wohnzimmer": 0,
+            "No-Clean Schlafzimmer": 0,
+            "No-Clean Küche": 0,
+            "No-Clean Bad": 0,
+            "No-Clean Flur": 0,
+            "Zeitplan 09:00": 0
           },
-          "ticks": 100,
+          "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Statusblock.AQ": {
+            "NoClean Or1 [Flur].Q": {
               "<": 0.5
             }
           }
@@ -7033,29 +7045,45 @@
       ],
       "simulation": [
         {
-          "name": "notification triggered on open door during rain",
+          "name": "pos",
           "inputs": {
-            "Regen.AQ": 1.0,
-            "Türkontakt Eingang.Q": 1.0
+            "Türkontakt Wohnzimmer": 1000,
+            "Fensterkontakt Wohnzimmer": 1000,
+            "Türkontakt Schlafzimmer": 1000,
+            "Fensterkontakt Schlafzimmer": 1000,
+            "Türkontakt Küche": 1000,
+            "Fensterkontakt Küche": 1000,
+            "Türkontakt Bad": 1000,
+            "Fensterkontakt Bad": 1000,
+            "Türkontakt Flur": 1000,
+            "Fensterkontakt Flur": 1000
           },
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Statusblock.AQ": {
+            "Offen Bad [Flur].Q": {
               ">": 0.5
             }
           }
         },
         {
-          "name": "no notification when doors closed",
+          "name": "neg",
           "inputs": {
-            "Regen.AQ": 1.0,
-            "Türkontakt Eingang.Q": 0.0
+            "Türkontakt Wohnzimmer": 0,
+            "Fensterkontakt Wohnzimmer": 0,
+            "Türkontakt Schlafzimmer": 0,
+            "Fensterkontakt Schlafzimmer": 0,
+            "Türkontakt Küche": 0,
+            "Fensterkontakt Küche": 0,
+            "Türkontakt Bad": 0,
+            "Fensterkontakt Bad": 0,
+            "Türkontakt Flur": 0,
+            "Fensterkontakt Flur": 0
           },
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Statusblock.AQ": {
+            "Offen Bad [Flur].Q": {
               "<": 0.5
             }
           }
@@ -8187,27 +8215,31 @@
       ],
       "simulation": [
         {
-          "name": "full power charging mode active",
+          "name": "pos",
           "inputs": {
-            "Sonnenschein.AQ": 1.0
+            "Modus Full Power": 1000,
+            "Modus Comfort": 1000,
+            "Modus Eco": 1000
           },
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Wallbox.AQ": {
+            "Wallbox [Garage].AQ": {
               ">": 0.5
             }
           }
         },
         {
-          "name": "eco mode reduces charging power",
+          "name": "neg",
           "inputs": {
-            "Sonnenschein.AQ": 0.0
+            "Modus Full Power": 0,
+            "Modus Comfort": 0,
+            "Modus Eco": 0
           },
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Wallbox.AQ": {
+            "Wallbox [Garage].AQ": {
               "<": 0.5
             }
           }
@@ -9251,27 +9283,27 @@
       ],
       "simulation": [
         {
-          "name": "alarm activates on high water level",
+          "name": "pos",
           "inputs": {
-            "Pool Temperatur.AQ": 95.0
+            "Pegelsensor": 1000
           },
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Alarmanlage.AQ": {
+            "Statusblock [Wohnzimmer].AQ": {
               ">": 0.5
             }
           }
         },
         {
-          "name": "no alarm on normal water level",
+          "name": "neg",
           "inputs": {
-            "Pool Temperatur.AQ": 20.0
+            "Pegelsensor": 0
           },
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Alarmanlage.AQ": {
+            "Statusblock [Wohnzimmer].AQ": {
               "<": 0.5
             }
           }

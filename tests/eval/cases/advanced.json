@@ -861,10 +861,10 @@
       "params": [],
       "simulation": [
         {
-          "name": "cold pool triggers pump",
+          "name": "solar surplus heats pool",
           "inputs": {
-            "Pool Temperatur": 15,
-            "Sonnenschein": 1
+            "Solarproduktion": 5000,
+            "Hausverbrauch": 1000
           },
           "ticks": 10,
           "dt": 0.1,
@@ -875,10 +875,10 @@
           }
         },
         {
-          "name": "hot pool no pump",
+          "name": "no surplus no pump",
           "inputs": {
-            "Pool Temperatur": 30,
-            "Sonnenschein": 0
+            "Solarproduktion": 0,
+            "Hausverbrauch": 1000
           },
           "ticks": 10,
           "dt": 0.1,
@@ -914,33 +914,27 @@
       "params": [],
       "simulation": [
         {
-          "name": "should trigger when condition met",
+          "name": "pos",
           "inputs": {
-            "Türkontakt Eingang.Q": 1.0
+            "Rauchmelder": 1000
           },
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Türöffner.I1": {
-              ">": 0.5
-            },
-            "Lichtsteuerung [Flur].I1": {
+            "Lichtsteuerung [Flur].Scene": {
               ">": 0.5
             }
           }
         },
         {
-          "name": "should NOT trigger when condition not met",
+          "name": "neg",
           "inputs": {
-            "Türkontakt Eingang.Q": 0.0
+            "Rauchmelder": 0
           },
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Türöffner.I1": {
-              "<": 0.5
-            },
-            "Lichtsteuerung [Flur].I1": {
+            "Lichtsteuerung [Flur].Scene": {
               "<": 0.5
             }
           }

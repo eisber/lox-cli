@@ -823,27 +823,27 @@
       "params": [],
       "simulation": [
         {
-          "name": "goodnight button triggers room controller reset",
+          "name": "pos",
           "inputs": {
-            "Türkontakt Eingang.Q": 1.0
+            "Nacht": 1000
           },
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Raumregler.AQh": {
+            "Raumregler [Wohnzimmer].AQc": {
               ">": 0.5
             }
           }
         },
         {
-          "name": "room controllers unchanged without goodnight trigger",
+          "name": "neg",
           "inputs": {
-            "Türkontakt Eingang.Q": 0.0
+            "Nacht": 0
           },
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Raumregler.AQh": {
+            "Raumregler [Wohnzimmer].AQc": {
               "<": 0.5
             }
           }
@@ -1427,27 +1427,29 @@
       "params": [],
       "simulation": [
         {
-          "name": "mixing valve adjusts when buffer has heat and demand exists",
+          "name": "pos",
           "inputs": {
-            "Außentemperatur.AQ": 0.0
+            "Puffer Temperatur": 1000,
+            "Vorlauf Ist": 1000
           },
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Mischventil.I1": {
+            "Vorlauf Rechner [Wohnzimmer].AQ": {
               ">": 0.5
             }
           }
         },
         {
-          "name": "mixing valve closed when no heating demand",
+          "name": "neg",
           "inputs": {
-            "Außentemperatur.AQ": 22.0
+            "Puffer Temperatur": 0,
+            "Vorlauf Ist": 0
           },
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Mischventil.I1": {
+            "Vorlauf Rechner [Wohnzimmer].AQ": {
               "<": 0.5
             }
           }
@@ -1763,27 +1765,31 @@
       "params": [],
       "simulation": [
         {
-          "name": "HRV mode increases on high CO2 in day zone",
+          "name": "pos",
           "inputs": {
-            "CO2 Sensor.AQ": 900.0
+            "HRV Modus": 1000,
+            "CO2 Tagzone": 1000,
+            "CO2 Nachtzone": 1000
           },
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Lüfter Bad.I1": {
+            "HRV aktiv [Wohnzimmer].Q": {
               ">": 0.5
             }
           }
         },
         {
-          "name": "HRV at minimum when CO2 levels normal",
+          "name": "neg",
           "inputs": {
-            "CO2 Sensor.AQ": 400.0
+            "HRV Modus": 0,
+            "CO2 Tagzone": 0,
+            "CO2 Nachtzone": 0
           },
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Lüfter Bad.I1": {
+            "HRV aktiv [Wohnzimmer].Q": {
               "<": 0.5
             }
           }
@@ -2064,28 +2070,30 @@
       "params": [],
       "simulation": [
         {
-          "name": "DHW demand takes priority over space heating",
+          "name": "pos",
           "inputs": {
-            "Außentemperatur.AQ": 5.0
+            "Warmwasserbedarf": 1000,
+            "Thermische Desinfektion": 1000
           },
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Raumregler.AQh": {
-              ">": 0
+            "DHW Vorrang [Wohnzimmer].Q": {
+              ">": 0.5
             }
           }
         },
         {
-          "name": "space heating resumes when DHW is satisfied",
+          "name": "neg",
           "inputs": {
-            "Außentemperatur.AQ": 22.0
+            "Warmwasserbedarf": 0,
+            "Thermische Desinfektion": 0
           },
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Raumregler.AQh": {
-              "==": 0
+            "DHW Vorrang [Wohnzimmer].Q": {
+              "<": 0.5
             }
           }
         }

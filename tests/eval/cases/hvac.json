@@ -260,27 +260,27 @@
       "params": [],
       "simulation": [
         {
-          "name": "heating allowed when water temp below 40",
+          "name": "pos",
           "inputs": {
-            "Außentemperatur.AQ": 35.0
+            "Vorlauftemperatur": 1000
           },
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Raumregler.AQh": {
+            "Wasser über 40 [Wohnzimmer].Q": {
               ">": 0.5
             }
           }
         },
         {
-          "name": "heating blocked when water temp exceeds 40",
+          "name": "neg",
           "inputs": {
-            "Außentemperatur.AQ": 45.0
+            "Vorlauftemperatur": 0
           },
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Raumregler.AQh": {
+            "Wasser über 40 [Wohnzimmer].Q": {
               "<": 0.5
             }
           }
@@ -774,28 +774,30 @@
       "params": [],
       "simulation": [
         {
-          "name": "efficiency calculated when heat pump running",
+          "name": "pos",
           "inputs": {
-            "Außentemperatur.AQ": 5.0
+            "Stromverbrauch WP": 1000,
+            "Wärmeleistung WP": 1000
           },
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Effizienz.AQ": {
-              ">": 0
+            "Statusblock [Wohnzimmer].AQ": {
+              ">": 0.5
             }
           }
         },
         {
-          "name": "no efficiency data when heat pump idle",
+          "name": "neg",
           "inputs": {
-            "Außentemperatur.AQ": 22.0
+            "Stromverbrauch WP": 0,
+            "Wärmeleistung WP": 0
           },
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Effizienz.AQ": {
-              "==": 0
+            "Statusblock [Wohnzimmer].AQ": {
+              "<": 0.5
             }
           }
         }

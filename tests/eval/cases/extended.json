@@ -731,27 +731,31 @@
       "params": [],
       "simulation": [
         {
-          "name": "should produce output when triggered",
+          "name": "pos",
           "inputs": {
-            "Türkontakt Eingang.Q": 1.0
+            "Lüfter Niedrig": 1000,
+            "Lüfter Mittel": 1000,
+            "Lüfter Hoch": 1000
           },
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Klimaanlage.status": {
-              ">": 0.0
+            "Speed Niedrig [Wohnzimmer].AQ": {
+              ">": 0.5
             }
           }
         },
         {
-          "name": "should be inactive without trigger",
+          "name": "neg",
           "inputs": {
-            "Türkontakt Eingang.Q": 0.0
+            "Lüfter Niedrig": 0,
+            "Lüfter Mittel": 0,
+            "Lüfter Hoch": 0
           },
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Klimaanlage.status": {
+            "Speed Niedrig [Wohnzimmer].AQ": {
               "<": 0.5
             }
           }

@@ -1169,27 +1169,27 @@
       "params": [],
       "simulation": [
         {
-          "name": "should activate when door opens",
+          "name": "pos",
           "inputs": {
-            "Türkontakt Eingang.Q": 1.0
+            "KNX Schalter Garage": 1000
           },
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Garage.I": {
+            "Garagenlicht [Garage].Scene": {
               ">": 0.5
             }
           }
         },
         {
-          "name": "should NOT activate when door closed",
+          "name": "neg",
           "inputs": {
-            "Türkontakt Eingang.Q": 0.0
+            "KNX Schalter Garage": 0
           },
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Garage.I": {
+            "Garagenlicht [Garage].Scene": {
               "<": 0.5
             }
           }
