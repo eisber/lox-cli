@@ -5235,32 +5235,48 @@
       ],
       "simulation": [
         {
-          "name": "ceiling fan activates on presence with heating demand",
+          "name": "pos",
           "inputs": {
-            "Bewegungsmelder.OutputPresence": 1.0,
-            "Außentemperatur.AQ": 15.0
+            "Sonnenschein": 1,
+            "Helligkeit": 10,
+            "Außentemperatur": -5,
+            "Bewegungsmelder.OutputPresence": 1,
+            "Schalter 1.Q": 1,
+            "Schalter 2.Q": 1,
+            "Luftfeuchtigkeit": 80,
+            "CO2 Sensor": 1200,
+            "PushButton.InputTrigger": 1,
+            "Raumtemperatur Wohnzimmer": 5,
+            "Türkontakt Eingang.Q": 1,
+            "Garagentor Sensor.Q": 1,
+            "Pool Temperatur": 5,
+            "Feuchtesensor Garten": 5,
+            "Bewässerung Manuell.Q": 1,
+            "Regen": 0,
+            "Windgeschwindigkeit": 50,
+            "Türklingel.Q": 1,
+            "Bewegungsmelder Garten.OutputPresence": 1
           },
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Raumregler.AQh": {
-              ">": 0
+            "Deckenventilator [Wohnzimmer].AQ": {
+              ">": 0.5
             }
-          }
+          },
+          "time": 1380
         },
         {
-          "name": "ceiling fan off when no presence",
-          "inputs": {
-            "Bewegungsmelder.OutputPresence": 0.0,
-            "Außentemperatur.AQ": 22.0
-          },
+          "name": "neg",
+          "inputs": {},
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Raumregler.AQh": {
-              "==": 0
+            "Deckenventilator [Wohnzimmer].AQ": {
+              "<": 0.5
             }
-          }
+          },
+          "time": 720
         }
       ]
     }
@@ -5654,30 +5670,48 @@
       ],
       "simulation": [
         {
-          "name": "service LED ring activates on table lamp click",
+          "name": "pos",
           "inputs": {
-            "Türklingel.Q": 1.0
+            "Sonnenschein": 1,
+            "Helligkeit": 10,
+            "Außentemperatur": -5,
+            "Bewegungsmelder.OutputPresence": 1,
+            "Schalter 1.Q": 1,
+            "Schalter 2.Q": 1,
+            "Luftfeuchtigkeit": 80,
+            "CO2 Sensor": 1200,
+            "PushButton.InputTrigger": 1,
+            "Raumtemperatur Wohnzimmer": 5,
+            "Türkontakt Eingang.Q": 1,
+            "Garagentor Sensor.Q": 1,
+            "Pool Temperatur": 5,
+            "Feuchtesensor Garten": 5,
+            "Bewässerung Manuell.Q": 1,
+            "Regen": 0,
+            "Windgeschwindigkeit": 50,
+            "Türklingel.Q": 1,
+            "Bewegungsmelder Garten.OutputPresence": 1
           },
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Statusblock.AQ": {
+            "LED Ring Bar [Flur].AQ": {
               ">": 0.5
             }
-          }
+          },
+          "time": 1380
         },
         {
-          "name": "service LED ring off without trigger",
-          "inputs": {
-            "Türklingel.Q": 0.0
-          },
+          "name": "neg",
+          "inputs": {},
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Statusblock.AQ": {
+            "LED Ring Bar [Flur].AQ": {
               "<": 0.5
             }
-          }
+          },
+          "time": 720
         }
       ]
     }
@@ -6224,30 +6258,48 @@
       ],
       "simulation": [
         {
-          "name": "room status shows occupied on presence",
+          "name": "pos",
           "inputs": {
-            "Bewegungsmelder.OutputPresence": 1.0
+            "Sonnenschein": 1,
+            "Helligkeit": 10,
+            "Außentemperatur": -5,
+            "Bewegungsmelder.OutputPresence": 1,
+            "Schalter 1.Q": 1,
+            "Schalter 2.Q": 1,
+            "Luftfeuchtigkeit": 80,
+            "CO2 Sensor": 1200,
+            "PushButton.InputTrigger": 1,
+            "Raumtemperatur Wohnzimmer": 5,
+            "Türkontakt Eingang.Q": 1,
+            "Garagentor Sensor.Q": 1,
+            "Pool Temperatur": 5,
+            "Feuchtesensor Garten": 5,
+            "Bewässerung Manuell.Q": 1,
+            "Regen": 0,
+            "Windgeschwindigkeit": 50,
+            "Türklingel.Q": 1,
+            "Bewegungsmelder Garten.OutputPresence": 1
           },
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Statusblock.AQ": {
+            "Status Zimmer 1 [Wohnzimmer].AQ": {
               ">": 0.5
             }
-          }
+          },
+          "time": 1380
         },
         {
-          "name": "room status shows vacant without presence",
-          "inputs": {
-            "Bewegungsmelder.OutputPresence": 0.0
-          },
+          "name": "neg",
+          "inputs": {},
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Statusblock.AQ": {
+            "Status Zimmer 1 [Wohnzimmer].AQ": {
               "<": 0.5
             }
-          }
+          },
+          "time": 720
         }
       ]
     }
