@@ -1659,30 +1659,48 @@
       "params": [],
       "simulation": [
         {
-          "name": "bypass opens when cooling demand and outdoor temp allows",
+          "name": "pos",
           "inputs": {
-            "Außentemperatur.AQ": 18.0
+            "Sonnenschein": 1,
+            "Helligkeit": 10,
+            "Außentemperatur": -5,
+            "Bewegungsmelder.OutputPresence": 1,
+            "Schalter 1.Q": 1,
+            "Schalter 2.Q": 1,
+            "Luftfeuchtigkeit": 80,
+            "CO2 Sensor": 1200,
+            "PushButton.InputTrigger": 1,
+            "Raumtemperatur Wohnzimmer": 5,
+            "Türkontakt Eingang.Q": 1,
+            "Garagentor Sensor.Q": 1,
+            "Pool Temperatur": 5,
+            "Feuchtesensor Garten": 5,
+            "Bewässerung Manuell.Q": 1,
+            "Regen": 0,
+            "Windgeschwindigkeit": 50,
+            "Türklingel.Q": 1,
+            "Bewegungsmelder Garten.OutputPresence": 1
           },
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Lüfter Bad.I1": {
+            "Außen kühler [Wohnzimmer].Q": {
               ">": 0.5
             }
-          }
+          },
+          "time": 1380
         },
         {
-          "name": "bypass closed when no cooling demand",
-          "inputs": {
-            "Außentemperatur.AQ": 5.0
-          },
+          "name": "neg",
+          "inputs": {},
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Lüfter Bad.I1": {
+            "Außen kühler [Wohnzimmer].Q": {
               "<": 0.5
             }
-          }
+          },
+          "time": 720
         }
       ]
     }

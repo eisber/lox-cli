@@ -415,30 +415,48 @@
       "params": [],
       "simulation": [
         {
-          "name": "heating activates when cold",
+          "name": "pos",
           "inputs": {
-            "Außentemperatur": 15.0
+            "Sonnenschein": 1,
+            "Helligkeit": 10,
+            "Außentemperatur": -5,
+            "Bewegungsmelder.OutputPresence": 1,
+            "Schalter 1.Q": 1,
+            "Schalter 2.Q": 1,
+            "Luftfeuchtigkeit": 80,
+            "CO2 Sensor": 1200,
+            "PushButton.InputTrigger": 1,
+            "Raumtemperatur Wohnzimmer": 5,
+            "Türkontakt Eingang.Q": 1,
+            "Garagentor Sensor.Q": 1,
+            "Pool Temperatur": 5,
+            "Feuchtesensor Garten": 5,
+            "Bewässerung Manuell.Q": 1,
+            "Regen": 0,
+            "Windgeschwindigkeit": 50,
+            "Türklingel.Q": 1,
+            "Bewegungsmelder Garten.OutputPresence": 1
           },
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Heizkörper Bad.I1": {
+            "Nachtmodus [Schlafzimmer].AQ": {
               ">": 0.5
             }
-          }
+          },
+          "time": 1380
         },
         {
-          "name": "heating off when warm",
-          "inputs": {
-            "Außentemperatur": 25.0
-          },
+          "name": "neg",
+          "inputs": {},
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Heizkörper Bad.I1": {
+            "Nachtmodus [Schlafzimmer].AQ": {
               "<": 0.5
             }
-          }
+          },
+          "time": 720
         }
       ]
     }
@@ -1603,32 +1621,48 @@
       "params": [],
       "simulation": [
         {
-          "name": "should trigger when all conditions met",
+          "name": "pos",
           "inputs": {
-            "CO2 Sensor.AQ": 995.0,
-            "Außentemperatur.AQ": 995.0
+            "Sonnenschein": 1,
+            "Helligkeit": 10,
+            "Außentemperatur": -5,
+            "Bewegungsmelder.OutputPresence": 1,
+            "Schalter 1.Q": 1,
+            "Schalter 2.Q": 1,
+            "Luftfeuchtigkeit": 80,
+            "CO2 Sensor": 1200,
+            "PushButton.InputTrigger": 1,
+            "Raumtemperatur Wohnzimmer": 5,
+            "Türkontakt Eingang.Q": 1,
+            "Garagentor Sensor.Q": 1,
+            "Pool Temperatur": 5,
+            "Feuchtesensor Garten": 5,
+            "Bewässerung Manuell.Q": 1,
+            "Regen": 0,
+            "Windgeschwindigkeit": 50,
+            "Türklingel.Q": 1,
+            "Bewegungsmelder Garten.OutputPresence": 1
           },
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Jalousie 1 [Wohnzimmer].InputTriggerDown": {
+            "CO2 über 1000 [Wohnzimmer].Q": {
               ">": 0.5
             }
-          }
+          },
+          "time": 1380
         },
         {
-          "name": "should NOT trigger when only partial conditions met",
-          "inputs": {
-            "CO2 Sensor.AQ": 1005.0,
-            "Außentemperatur.AQ": 995.0
-          },
+          "name": "neg",
+          "inputs": {},
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Jalousie 1 [Wohnzimmer].InputTriggerDown": {
+            "CO2 über 1000 [Wohnzimmer].Q": {
               "<": 0.5
             }
-          }
+          },
+          "time": 720
         }
       ]
     }

@@ -66,6 +66,10 @@ struct SimSpec {
     /// then cools, then re-triggers).
     #[serde(default)]
     steps: Vec<SimStep>,
+    /// When true, include all non-zero output signals in the result JSON.
+    /// Enables auto-discovery of what the agent circuit actually produces.
+    #[serde(default)]
+    trace: bool,
 }
 
 #[derive(Debug, Clone, serde::Deserialize)]
@@ -91,6 +95,34 @@ struct ScenarioResult {
     name: String,
     pass: bool,
     checks: Vec<serde_json::Value>,
+    trace: Vec<serde_json::Value>,
+}
+
+/// Collect all non-zero output signals from the engine as structured JSON.
+fn collect_trace(engine: &SimEngine, graph: &SimGraph) -> Vec<serde_json::Value> {
+    let mut signals = Vec::new();
+    for bid in 0..graph.block_count() {
+        let info = graph.block_info(bid);
+        for &cid in &info.outputs {
+            let val = engine.signal(cid);
+            if val.abs() > 1e-9 {
+                let key = &graph.connector(cid).key;
+                let name = if let Some(ref room) = info.room {
+                    format!("{} [{}].{}", info.name, room, key)
+                } else {
+                    format!("{}.{}", info.name, key)
+                };
+                signals.push(serde_json::json!({
+                    "output": name,
+                    "value": val,
+                    "block": info.name,
+                    "room": info.room,
+                    "connector": key,
+                }));
+            }
+        }
+    }
+    signals
 }
 
 fn load_sim_json(sim: Option<&str>, sim_file: Option<&str>) -> Result<String> {
@@ -193,6 +225,11 @@ fn run_one(graph: &SimGraph, spec: &SimSpec) -> ScenarioResult {
         name: spec.name.clone(),
         pass: all_pass,
         checks,
+        trace: if spec.trace {
+            collect_trace(&engine, graph)
+        } else {
+            Vec::new()
+        },
     }
 }
 
@@ -322,11 +359,15 @@ fn cmd_run(file: &str, sim: Option<&str>, sim_file: Option<&str>) -> Result<()> 
         "total": results.len(),
         "passed": results.iter().filter(|r| r.pass).count(),
         "scenarios": results.iter().map(|r| {
-            serde_json::json!({
+            let mut s = serde_json::json!({
                 "name": r.name,
                 "pass": r.pass,
                 "checks": r.checks,
-            })
+            });
+            if !r.trace.is_empty() {
+                s["trace"] = serde_json::json!(r.trace);
+            }
+            s
         }).collect::<Vec<_>>(),
     });
     println!("{}", serde_json::to_string(&output).unwrap());

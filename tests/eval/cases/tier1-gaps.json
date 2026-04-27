@@ -750,30 +750,48 @@
       ],
       "simulation": [
         {
-          "name": "should activate on trigger",
+          "name": "pos",
           "inputs": {
-            "Türkontakt Eingang.Q": 1.0
+            "Sonnenschein": 1,
+            "Helligkeit": 10,
+            "Außentemperatur": -5,
+            "Bewegungsmelder.OutputPresence": 1,
+            "Schalter 1.Q": 1,
+            "Schalter 2.Q": 1,
+            "Luftfeuchtigkeit": 80,
+            "CO2 Sensor": 1200,
+            "PushButton.InputTrigger": 1,
+            "Raumtemperatur Wohnzimmer": 5,
+            "Türkontakt Eingang.Q": 1,
+            "Garagentor Sensor.Q": 1,
+            "Pool Temperatur": 5,
+            "Feuchtesensor Garten": 5,
+            "Bewässerung Manuell.Q": 1,
+            "Regen": 0,
+            "Windgeschwindigkeit": 50,
+            "Türklingel.Q": 1,
+            "Bewegungsmelder Garten.OutputPresence": 1
           },
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Button.InputTrigger": {
+            "Langer Druck Wohnzimmer [Wohnzimmer].Q1": {
               ">": 0.5
             }
-          }
+          },
+          "time": 1380
         },
         {
-          "name": "should NOT activate without trigger",
-          "inputs": {
-            "Türkontakt Eingang.Q": 0.0
-          },
+          "name": "neg",
+          "inputs": {},
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Button.InputTrigger": {
+            "Langer Druck Wohnzimmer [Wohnzimmer].Q1": {
               "<": 0.5
             }
-          }
+          },
+          "time": 720
         }
       ]
     }
@@ -1013,30 +1031,48 @@
       "params": [],
       "simulation": [
         {
-          "name": "should trigger when condition met",
+          "name": "pos",
           "inputs": {
-            "Pool Temperatur.AQ": 25.0
+            "Sonnenschein": 1,
+            "Helligkeit": 10,
+            "Außentemperatur": -5,
+            "Bewegungsmelder.OutputPresence": 1,
+            "Schalter 1.Q": 1,
+            "Schalter 2.Q": 1,
+            "Luftfeuchtigkeit": 80,
+            "CO2 Sensor": 1200,
+            "PushButton.InputTrigger": 1,
+            "Raumtemperatur Wohnzimmer": 5,
+            "Türkontakt Eingang.Q": 1,
+            "Garagentor Sensor.Q": 1,
+            "Pool Temperatur": 5,
+            "Feuchtesensor Garten": 5,
+            "Bewässerung Manuell.Q": 1,
+            "Regen": 0,
+            "Windgeschwindigkeit": 50,
+            "Türklingel.Q": 1,
+            "Bewegungsmelder Garten.OutputPresence": 1
           },
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Pool.AQ": {
+            "Pool Temperatur Status [Garten].AQ": {
               ">": 0.5
             }
-          }
+          },
+          "time": 1380
         },
         {
-          "name": "should NOT trigger when condition not met",
-          "inputs": {
-            "Pool Temperatur.AQ": 15.0
-          },
+          "name": "neg",
+          "inputs": {},
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Pool.AQ": {
+            "Pool Temperatur Status [Garten].AQ": {
               "<": 0.5
             }
-          }
+          },
+          "time": 720
         }
       ]
     }
