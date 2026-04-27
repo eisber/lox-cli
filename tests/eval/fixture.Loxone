@@ -161,15 +161,17 @@
 			<!-- Tree Window/Door Contacts Wohnzimmer -->
 			<C Type="TreeDevice" TId="DoorWindowContactTree" V="175" U="c1000001-0001-0001-ffff000000000001" Title="Kontakte Wohnzimmer" WF="16384" Serial="B0F10001" TreeType="10002">
 				<IoData Pr="10000001-0001-0001-ffff000000000001" />
-				<C Type="TreeSensor" IName="I0" V="175" U="67cfc41f-4ba6-957b-ffff000000000001" Title="Fensterkontakt Wohnzimmer" Nio="2" WF="20480" MinTime="10" EnoceanSubType="16">
+				<C Type="TreeSensor" IName="I0" V="175" U="67cfc41f-4ba6-957b-ffff000000000001" Title="Fensterkontakt Wohnzimmer" Cl="0,0,0" Nio="2" WF="20480" MinTime="10" EnoceanSubType="16">
 					<Co K="Q" U="67cfc41f-4ba6-9571-ffff000000000001" />
 					<Co K="Qe" U="67cfc41f-4ba6-9572-ffff000000000001" />
-					<IoData Pr="10000001-0001-0001-ffff000000000001" Cr="20000005-0005-0001-ffff000000000001" />
+					<IoData Pr="10000001-0001-0001-ffff000000000001" Cr="20000005-0005-0001-ffff000000000001" St="2" />
+					<Display Unit="&lt;v&gt;" StateOnly="true" />
 				</C>
-				<C Type="TreeSensor" IName="I1" V="175" U="6149a85a-76ab-3f26-ffff000000000001" Title="Türkontakt Wohnzimmer" Nio="2" WF="20480" MinTime="10" EnoceanSubType="16" Idx="1">
+				<C Type="TreeSensor" IName="I1" V="175" U="6149a85a-76ab-3f26-ffff000000000001" Title="Türkontakt Wohnzimmer" Cl="0,0,0" Nio="2" WF="20480" MinTime="10" EnoceanSubType="16" Idx="1">
 					<Co K="Q" U="6149a85a-76ab-3f21-ffff000000000001" />
 					<Co K="Qe" U="6149a85a-76ab-3f22-ffff000000000001" />
-					<IoData Pr="10000001-0001-0001-ffff000000000001" Cr="20000005-0005-0001-ffff000000000001" />
+					<IoData Pr="10000001-0001-0001-ffff000000000001" Cr="20000005-0005-0001-ffff000000000001" St="2" />
+					<Display Unit="&lt;v&gt;" StateOnly="true" />
 				</C>
 			</C>
 		</C>
@@ -205,15 +207,17 @@
 			<!-- Tree Window/Door Contacts Schlafzimmer -->
 			<C Type="TreeDevice" TId="DoorWindowContactTree" V="175" U="c1000002-0002-0001-ffff000000000001" Title="Kontakte Schlafzimmer" WF="16384" Serial="B0F10002" TreeType="10002">
 				<IoData Pr="10000002-0002-0001-ffff000000000001" />
-				<C Type="TreeSensor" IName="I0" V="175" U="d4c74274-3038-6d46-ffff000000000001" Title="Fensterkontakt Schlafzimmer" Nio="2" WF="20480" MinTime="10" EnoceanSubType="16">
+				<C Type="TreeSensor" IName="I0" V="175" U="d4c74274-3038-6d46-ffff000000000001" Title="Fensterkontakt Schlafzimmer" Cl="0,0,0" Nio="2" WF="20480" MinTime="10" EnoceanSubType="16">
 					<Co K="Q" U="d4c74274-3038-6d41-ffff000000000001" />
 					<Co K="Qe" U="d4c74274-3038-6d42-ffff000000000001" />
-					<IoData Pr="10000002-0002-0001-ffff000000000001" Cr="20000005-0005-0001-ffff000000000001" />
+					<IoData Pr="10000002-0002-0001-ffff000000000001" Cr="20000005-0005-0001-ffff000000000001" St="2" />
+					<Display Unit="&lt;v&gt;" StateOnly="true" />
 				</C>
-				<C Type="TreeSensor" IName="I1" V="175" U="0fbb5990-8a3b-1598-ffff000000000001" Title="Türkontakt Schlafzimmer" Nio="2" WF="20480" MinTime="10" EnoceanSubType="16" Idx="1">
+				<C Type="TreeSensor" IName="I1" V="175" U="0fbb5990-8a3b-1598-ffff000000000001" Title="Türkontakt Schlafzimmer" Cl="0,0,0" Nio="2" WF="20480" MinTime="10" EnoceanSubType="16" Idx="1">
 					<Co K="Q" U="0fbb5990-8a3b-1591-ffff000000000001" />
 					<Co K="Qe" U="0fbb5990-8a3b-1592-ffff000000000001" />
-					<IoData Pr="10000002-0002-0001-ffff000000000001" Cr="20000005-0005-0001-ffff000000000001" />
+					<IoData Pr="10000002-0002-0001-ffff000000000001" Cr="20000005-0005-0001-ffff000000000001" St="2" />
+					<Display Unit="&lt;v&gt;" StateOnly="true" />
 				</C>
 			</C>
 		</C>
@@ -252,29 +256,35 @@
 			<!-- Tree Room Climate Sensor Küche -->
 			<C Type="TreeDevice" TId="RoomClimateSensorTree" V="175" U="c2000003-0003-0001-ffff000000000001" Title="Raumsensor Küche" WF="16384" Serial="B0F20003" TreeType="10004">
 				<IoData Pr="10000003-0003-0001-ffff000000000001" />
-				<C Type="TreeAsensor" IName="AI0" V="175" U="3a3a93ce-2942-977a-ffff000000000001" Title="Raumtemperatur Küche" Nio="2" WF="20480" Analog="true" EnoceanSubType="1" SourceValHigh="100" DestValHigh="100" MinVal="-40" MaxVal="125" MinChange="0.25" MinTime="1000">
+				<C Type="TreeAsensor" IName="AI0" V="175" U="3a3a93ce-2942-977a-ffff000000000001" Title="Raumtemperatur Küche" Cl="0,0,0" Nio="2" WF="20480" ValOT="1" Analog="true" EnoceanSubType="1" SourceValHigh="100" DestValHigh="100" MinVal="-40" MaxVal="125" MinChange="0.25" MinTime="1000">
 					<Co K="AQ" U="3a3a93ce-2942-9771-ffff000000000001" />
 					<Co K="Qm" U="3a3a93ce-2942-9772-ffff000000000001" />
-					<IoData Pr="10000003-0003-0001-ffff000000000001" Cr="20000003-0003-0001-ffff000000000001" />
+					<IoData Pr="10000003-0003-0001-ffff000000000001" Cr="20000003-0003-0001-ffff000000000001" St="4" />
+					<Co K="Q" U="3a3a93ce-2942-9773-ffff000000000001" />
+					<Display Type="2" Unit="&lt;v.1&gt;°" StateOnly="true" />
 				</C>
-				<C Type="TreeAsensor" IName="AI1" V="175" U="c2a00003-0003-0001-ffff000000000001" Title="Raumfeuchtigkeit Küche" Nio="2" WF="20480" Analog="true" EnoceanSubType="6" SourceValHigh="100" DestValHigh="100" MinVal="0" MaxVal="100" MinChange="0.5" MinTime="1000" Idx="1">
+				<C Type="TreeAsensor" IName="AI1" V="175" U="c2a00003-0003-0001-ffff000000000001" Title="Raumfeuchtigkeit Küche" Cl="0,0,0" Nio="2" WF="20480" ValOT="1" Analog="true" EnoceanSubType="6" SourceValHigh="100" DestValHigh="100" MinVal="0" MaxVal="100" MinChange="0.5" MinTime="1000" Idx="1">
 					<Co K="AQ" U="c2a00003-0003-0011-ffff000000000001" />
 					<Co K="Qm" U="c2a00003-0003-0012-ffff000000000001" />
-					<IoData Pr="10000003-0003-0001-ffff000000000001" Cr="20000003-0003-0001-ffff000000000001" />
+					<IoData Pr="10000003-0003-0001-ffff000000000001" Cr="20000003-0003-0001-ffff000000000001" St="4" />
+					<Co K="Q" U="c2a00003-0003-0013-ffff000000000001" />
+					<Display Type="2" Unit="&lt;v.1&gt;%" StateOnly="true" />
 				</C>
 			</C>
 			<!-- Tree Window/Door Contacts Küche -->
 			<C Type="TreeDevice" TId="DoorWindowContactTree" V="175" U="c1000003-0003-0001-ffff000000000001" Title="Kontakte Küche" WF="16384" Serial="B0F10003" TreeType="10002">
 				<IoData Pr="10000003-0003-0001-ffff000000000001" />
-				<C Type="TreeSensor" IName="I0" V="175" U="3186b9a5-9c70-b625-ffff000000000001" Title="Fensterkontakt Küche" Nio="2" WF="20480" MinTime="10" EnoceanSubType="16">
+				<C Type="TreeSensor" IName="I0" V="175" U="3186b9a5-9c70-b625-ffff000000000001" Title="Fensterkontakt Küche" Cl="0,0,0" Nio="2" WF="20480" MinTime="10" EnoceanSubType="16">
 					<Co K="Q" U="3186b9a5-9c70-b621-ffff000000000001" />
 					<Co K="Qe" U="3186b9a5-9c70-b622-ffff000000000001" />
-					<IoData Pr="10000003-0003-0001-ffff000000000001" Cr="20000005-0005-0001-ffff000000000001" />
+					<IoData Pr="10000003-0003-0001-ffff000000000001" Cr="20000005-0005-0001-ffff000000000001" St="2" />
+					<Display Unit="&lt;v&gt;" StateOnly="true" />
 				</C>
-				<C Type="TreeSensor" IName="I1" V="175" U="bb855d21-6824-c0a1-ffff000000000001" Title="Türkontakt Küche" Nio="2" WF="20480" MinTime="10" EnoceanSubType="16" Idx="1">
+				<C Type="TreeSensor" IName="I1" V="175" U="bb855d21-6824-c0a1-ffff000000000001" Title="Türkontakt Küche" Cl="0,0,0" Nio="2" WF="20480" MinTime="10" EnoceanSubType="16" Idx="1">
 					<Co K="Q" U="bb855d21-6824-c091-ffff000000000001" />
 					<Co K="Qe" U="bb855d21-6824-c092-ffff000000000001" />
-					<IoData Pr="10000003-0003-0001-ffff000000000001" Cr="20000005-0005-0001-ffff000000000001" />
+					<IoData Pr="10000003-0003-0001-ffff000000000001" Cr="20000005-0005-0001-ffff000000000001" St="2" />
+					<Display Unit="&lt;v&gt;" StateOnly="true" />
 				</C>
 			</C>
 		</C>
@@ -324,15 +334,19 @@
 			<!-- Tree Room Climate Sensor Bad -->
 			<C Type="TreeDevice" TId="RoomClimateSensorTree" V="175" U="c2000004-0004-0001-ffff000000000001" Title="Raumsensor Bad" WF="16384" Serial="B0F20004" TreeType="10004">
 				<IoData Pr="10000004-0004-0001-ffff000000000001" />
-				<C Type="TreeAsensor" IName="AI0" V="175" U="f5e86038-481f-5707-ffff000000000001" Title="Raumtemperatur Bad" Nio="2" WF="20480" Analog="true" EnoceanSubType="1" SourceValHigh="100" DestValHigh="100" MinVal="-40" MaxVal="125" MinChange="0.25" MinTime="1000">
+				<C Type="TreeAsensor" IName="AI0" V="175" U="f5e86038-481f-5707-ffff000000000001" Title="Raumtemperatur Bad" Cl="0,0,0" Nio="2" WF="20480" ValOT="1" Analog="true" EnoceanSubType="1" SourceValHigh="100" DestValHigh="100" MinVal="-40" MaxVal="125" MinChange="0.25" MinTime="1000">
 					<Co K="AQ" U="f5e86038-481f-5701-ffff000000000001" />
 					<Co K="Qm" U="f5e86038-481f-5702-ffff000000000001" />
-					<IoData Pr="10000004-0004-0001-ffff000000000001" Cr="20000003-0003-0001-ffff000000000001" />
+					<IoData Pr="10000004-0004-0001-ffff000000000001" Cr="20000003-0003-0001-ffff000000000001" St="4" />
+					<Co K="Q" U="f5e86038-481f-5703-ffff000000000001" />
+					<Display Type="2" Unit="&lt;v.1&gt;°" StateOnly="true" />
 				</C>
-				<C Type="TreeAsensor" IName="AI1" V="175" U="c2a00004-0004-0001-ffff000000000001" Title="Raumfeuchtigkeit Bad" Nio="2" WF="20480" Analog="true" EnoceanSubType="6" SourceValHigh="100" DestValHigh="100" MinVal="0" MaxVal="100" MinChange="0.5" MinTime="1000" Idx="1">
+				<C Type="TreeAsensor" IName="AI1" V="175" U="c2a00004-0004-0001-ffff000000000001" Title="Raumfeuchtigkeit Bad" Cl="0,0,0" Nio="2" WF="20480" ValOT="1" Analog="true" EnoceanSubType="6" SourceValHigh="100" DestValHigh="100" MinVal="0" MaxVal="100" MinChange="0.5" MinTime="1000" Idx="1">
 					<Co K="AQ" U="c2a00004-0004-0011-ffff000000000001" />
 					<Co K="Qm" U="c2a00004-0004-0012-ffff000000000001" />
-					<IoData Pr="10000004-0004-0001-ffff000000000001" Cr="20000003-0003-0001-ffff000000000001" />
+					<IoData Pr="10000004-0004-0001-ffff000000000001" Cr="20000003-0003-0001-ffff000000000001" St="4" />
+					<Co K="Q" U="c2a00004-0004-0013-ffff000000000001" />
+					<Display Type="2" Unit="&lt;v.1&gt;%" StateOnly="true" />
 				</C>
 			</C>
 			<C Type="VirtualIn" V="175" U="2fac07e5-3308-d1a6-ffff000000000001" Title="Wassersensor" WF="16384" IName="VI14" Px="7392" Py="3600" Nio="0">
@@ -341,29 +355,35 @@
 			<!-- Tree Window/Door Contacts Bad -->
 			<C Type="TreeDevice" TId="DoorWindowContactTree" V="175" U="c1000004-0004-0001-ffff000000000001" Title="Kontakte Bad" WF="16384" Serial="B0F10004" TreeType="10002">
 				<IoData Pr="10000004-0004-0001-ffff000000000001" />
-				<C Type="TreeSensor" IName="I0" V="175" U="4738e85c-cfb0-4ef8-ffff000000000001" Title="Fensterkontakt Bad" Nio="2" WF="20480" MinTime="10" EnoceanSubType="16">
+				<C Type="TreeSensor" IName="I0" V="175" U="4738e85c-cfb0-4ef8-ffff000000000001" Title="Fensterkontakt Bad" Cl="0,0,0" Nio="2" WF="20480" MinTime="10" EnoceanSubType="16">
 					<Co K="Q" U="4738e85c-cfb0-4ef1-ffff000000000001" />
 					<Co K="Qe" U="4738e85c-cfb0-4ef2-ffff000000000001" />
-					<IoData Pr="10000004-0004-0001-ffff000000000001" Cr="20000005-0005-0001-ffff000000000001" />
+					<IoData Pr="10000004-0004-0001-ffff000000000001" Cr="20000005-0005-0001-ffff000000000001" St="2" />
+					<Display Unit="&lt;v&gt;" StateOnly="true" />
 				</C>
-				<C Type="TreeSensor" IName="I1" V="175" U="9ff9cf4c-45e1-2d39-ffff000000000001" Title="Türkontakt Bad" Nio="2" WF="20480" MinTime="10" EnoceanSubType="16" Idx="1">
+				<C Type="TreeSensor" IName="I1" V="175" U="9ff9cf4c-45e1-2d39-ffff000000000001" Title="Türkontakt Bad" Cl="0,0,0" Nio="2" WF="20480" MinTime="10" EnoceanSubType="16" Idx="1">
 					<Co K="Q" U="9ff9cf4c-45e1-2d31-ffff000000000001" />
 					<Co K="Qe" U="9ff9cf4c-45e1-2d32-ffff000000000001" />
-					<IoData Pr="10000004-0004-0001-ffff000000000001" Cr="20000005-0005-0001-ffff000000000001" />
+					<IoData Pr="10000004-0004-0001-ffff000000000001" Cr="20000005-0005-0001-ffff000000000001" St="2" />
+					<Display Unit="&lt;v&gt;" StateOnly="true" />
 				</C>
 			</C>
 			<!-- HVAC Temperature Sensors (Tree) -->
 			<C Type="TreeDevice" TId="TemperatureSensorTree" V="175" U="c3000004-0004-0001-ffff000000000001" Title="HVAC Sensoren" WF="16384" Serial="B0F30001" TreeType="10005">
 				<IoData Pr="10000004-0004-0001-ffff000000000001" />
-				<C Type="TreeAsensor" IName="AI0" V="175" U="7bd83ab2-c2e2-a445-ffff000000000001" Title="Vorlauftemperatur" Nio="2" WF="20480" Analog="true" EnoceanSubType="1" SourceValHigh="100" DestValHigh="100" MinVal="-40" MaxVal="125" MinChange="0.25" MinTime="1000">
+				<C Type="TreeAsensor" IName="AI0" V="175" U="7bd83ab2-c2e2-a445-ffff000000000001" Title="Vorlauftemperatur" Cl="0,0,0" Nio="2" WF="20480" ValOT="1" Analog="true" EnoceanSubType="1" SourceValHigh="100" DestValHigh="100" MinVal="-40" MaxVal="125" MinChange="0.25" MinTime="1000">
 					<Co K="AQ" U="7bd83ab2-c2e2-a441-ffff000000000001" />
 					<Co K="Qm" U="7bd83ab2-c2e2-a442-ffff000000000001" />
-					<IoData Pr="10000004-0004-0001-ffff000000000001" Cr="20000003-0003-0001-ffff000000000001" />
+					<IoData Pr="10000004-0004-0001-ffff000000000001" Cr="20000003-0003-0001-ffff000000000001" St="4" />
+					<Co K="Q" U="7bd83ab2-c2e2-a443-ffff000000000001" />
+					<Display Type="2" Unit="&lt;v.1&gt;°" StateOnly="true" />
 				</C>
-				<C Type="TreeAsensor" IName="AI1" V="175" U="1729afcc-c79b-e3c4-ffff000000000001" Title="Warmwasserspeicher" Nio="2" WF="20480" Analog="true" EnoceanSubType="1" SourceValHigh="100" DestValHigh="100" MinVal="-40" MaxVal="125" MinChange="0.25" MinTime="1000" Idx="1">
+				<C Type="TreeAsensor" IName="AI1" V="175" U="1729afcc-c79b-e3c4-ffff000000000001" Title="Warmwasserspeicher" Cl="0,0,0" Nio="2" WF="20480" ValOT="1" Analog="true" EnoceanSubType="1" SourceValHigh="100" DestValHigh="100" MinVal="-40" MaxVal="125" MinChange="0.25" MinTime="1000" Idx="1">
 					<Co K="AQ" U="1729afcc-c79b-e3c1-ffff000000000001" />
 					<Co K="Qm" U="1729afcc-c79b-e3c2-ffff000000000001" />
-					<IoData Pr="10000004-0004-0001-ffff000000000001" Cr="20000003-0003-0001-ffff000000000001" />
+					<IoData Pr="10000004-0004-0001-ffff000000000001" Cr="20000003-0003-0001-ffff000000000001" St="4" />
+					<Co K="Q" U="1729afcc-c79b-e3c3-ffff000000000001" />
+					<Display Type="2" Unit="&lt;v.1&gt;°" StateOnly="true" />
 				</C>
 			</C>
 		</C>
@@ -431,15 +451,19 @@
 			<!-- Tree Room Climate Sensor Flur -->
 			<C Type="TreeDevice" TId="RoomClimateSensorTree" V="175" U="c2000005-0005-0001-ffff000000000001" Title="Raumsensor Flur" WF="16384" Serial="B0F20005" TreeType="10004">
 				<IoData Pr="10000005-0005-0001-ffff000000000001" />
-				<C Type="TreeAsensor" IName="AI0" V="175" U="2ec51b54-bce5-c238-ffff000000000001" Title="Raumtemperatur Flur" Nio="2" WF="20480" Analog="true" EnoceanSubType="1" SourceValHigh="100" DestValHigh="100" MinVal="-40" MaxVal="125" MinChange="0.25" MinTime="1000">
+				<C Type="TreeAsensor" IName="AI0" V="175" U="2ec51b54-bce5-c238-ffff000000000001" Title="Raumtemperatur Flur" Cl="0,0,0" Nio="2" WF="20480" ValOT="1" Analog="true" EnoceanSubType="1" SourceValHigh="100" DestValHigh="100" MinVal="-40" MaxVal="125" MinChange="0.25" MinTime="1000">
 					<Co K="AQ" U="2ec51b54-bce5-c231-ffff000000000001" />
 					<Co K="Qm" U="2ec51b54-bce5-c232-ffff000000000001" />
-					<IoData Pr="10000005-0005-0001-ffff000000000001" Cr="20000003-0003-0001-ffff000000000001" />
+					<IoData Pr="10000005-0005-0001-ffff000000000001" Cr="20000003-0003-0001-ffff000000000001" St="4" />
+					<Co K="Q" U="2ec51b54-bce5-c233-ffff000000000001" />
+					<Display Type="2" Unit="&lt;v.1&gt;°" StateOnly="true" />
 				</C>
-				<C Type="TreeAsensor" IName="AI1" V="175" U="c2a00005-0005-0001-ffff000000000001" Title="Raumfeuchtigkeit Flur" Nio="2" WF="20480" Analog="true" EnoceanSubType="6" SourceValHigh="100" DestValHigh="100" MinVal="0" MaxVal="100" MinChange="0.5" MinTime="1000" Idx="1">
+				<C Type="TreeAsensor" IName="AI1" V="175" U="c2a00005-0005-0001-ffff000000000001" Title="Raumfeuchtigkeit Flur" Cl="0,0,0" Nio="2" WF="20480" ValOT="1" Analog="true" EnoceanSubType="6" SourceValHigh="100" DestValHigh="100" MinVal="0" MaxVal="100" MinChange="0.5" MinTime="1000" Idx="1">
 					<Co K="AQ" U="c2a00005-0005-0011-ffff000000000001" />
 					<Co K="Qm" U="c2a00005-0005-0012-ffff000000000001" />
-					<IoData Pr="10000005-0005-0001-ffff000000000001" Cr="20000003-0003-0001-ffff000000000001" />
+					<IoData Pr="10000005-0005-0001-ffff000000000001" Cr="20000003-0003-0001-ffff000000000001" St="4" />
+					<Co K="Q" U="c2a00005-0005-0013-ffff000000000001" />
+					<Display Type="2" Unit="&lt;v.1&gt;%" StateOnly="true" />
 				</C>
 			</C>
 			<!-- Air Smoke Detector Flur -->
@@ -454,10 +478,11 @@
 			<!-- Tree Window Contact Flur -->
 			<C Type="TreeDevice" TId="DoorWindowContactTree" V="175" U="c1000005-0005-0001-ffff000000000001" Title="Kontakte Flur" WF="16384" Serial="B0F10005" TreeType="10002">
 				<IoData Pr="10000005-0005-0001-ffff000000000001" />
-				<C Type="TreeSensor" IName="I0" V="175" U="68c21587-51b4-d30a-ffff000000000001" Title="Fensterkontakt Flur" Nio="2" WF="20480" MinTime="10" EnoceanSubType="16">
+				<C Type="TreeSensor" IName="I0" V="175" U="68c21587-51b4-d30a-ffff000000000001" Title="Fensterkontakt Flur" Cl="0,0,0" Nio="2" WF="20480" MinTime="10" EnoceanSubType="16">
 					<Co K="Q" U="68c21587-51b4-d301-ffff000000000001" />
 					<Co K="Qe" U="68c21587-51b4-d302-ffff000000000001" />
-					<IoData Pr="10000005-0005-0001-ffff000000000001" Cr="20000005-0005-0001-ffff000000000001" />
+					<IoData Pr="10000005-0005-0001-ffff000000000001" Cr="20000005-0005-0001-ffff000000000001" St="2" />
+					<Display Unit="&lt;v&gt;" StateOnly="true" />
 				</C>
 			</C>
 		</C>
@@ -522,39 +547,51 @@
 			<!-- Energy Meter (Tree) -->
 			<C Type="TreeDevice" TId="EnergyMeterTree" V="175" U="c5000007-0007-0001-ffff000000000001" Title="Energiezähler" WF="16384" Serial="B0F50001" TreeType="10006">
 				<IoData Pr="10000007-0007-0001-ffff000000000001" />
-				<C Type="TreeAsensor" IName="AI0" V="175" U="3eb816ce-b4f4-d010-ffff000000000001" Title="Solarproduktion" Nio="2" WF="20480" Analog="true" EnoceanSubType="43" SourceValHigh="1" DestValHigh="1" MinVal="-100" MaxVal="100" MinChange="0.25" MinTime="1000">
+				<C Type="TreeAsensor" IName="AI0" V="175" U="3eb816ce-b4f4-d010-ffff000000000001" Title="Solarproduktion" Cl="0,0,0" Nio="2" WF="20480" ValOT="1" Analog="true" EnoceanSubType="43" SourceValHigh="1" DestValHigh="1" MinVal="-100" MaxVal="100" MinChange="0.25" MinTime="1000">
 					<Co K="AQ" U="3eb816ce-b4f4-d011-ffff000000000001" />
 					<Co K="Qm" U="3eb816ce-b4f4-d012-ffff000000000001" />
-					<IoData Pr="10000007-0007-0001-ffff000000000001" Cr="20000003-0003-0001-ffff000000000001" />
+					<IoData Pr="10000007-0007-0001-ffff000000000001" Cr="20000003-0003-0001-ffff000000000001" St="4" />
+					<Co K="Q" U="3eb816ce-b4f4-d013-ffff000000000001" />
+					<Display Type="2" Unit="&lt;v.3&gt;kW" StateOnly="true" />
 				</C>
-				<C Type="TreeAsensor" IName="AI1" V="175" U="78ef6683-f92f-b1d4-ffff000000000001" Title="Hausverbrauch" Nio="2" WF="20480" Analog="true" EnoceanSubType="43" SourceValHigh="1" DestValHigh="1" MinVal="0" MaxVal="100" MinChange="0.25" MinTime="1000" Idx="1">
+				<C Type="TreeAsensor" IName="AI1" V="175" U="78ef6683-f92f-b1d4-ffff000000000001" Title="Hausverbrauch" Cl="0,0,0" Nio="2" WF="20480" ValOT="1" Analog="true" EnoceanSubType="43" SourceValHigh="1" DestValHigh="1" MinVal="0" MaxVal="100" MinChange="0.25" MinTime="1000" Idx="1">
 					<Co K="AQ" U="78ef6683-f92f-b1d1-ffff000000000001" />
 					<Co K="Qm" U="78ef6683-f92f-b1d2-ffff000000000001" />
-					<IoData Pr="10000007-0007-0001-ffff000000000001" Cr="20000003-0003-0001-ffff000000000001" />
+					<IoData Pr="10000007-0007-0001-ffff000000000001" Cr="20000003-0003-0001-ffff000000000001" St="4" />
+					<Co K="Q" U="78ef6683-f92f-b1d3-ffff000000000001" />
+					<Display Type="2" Unit="&lt;v.3&gt;kW" StateOnly="true" />
 				</C>
-				<C Type="TreeAsensor" IName="AI2" V="175" U="ea468315-b4a2-9f8c-ffff000000000001" Title="Stromverbrauch WP" Nio="2" WF="20480" Analog="true" EnoceanSubType="43" SourceValHigh="1" DestValHigh="1" MinVal="0" MaxVal="100" MinChange="0.25" MinTime="1000" Idx="2">
+				<C Type="TreeAsensor" IName="AI2" V="175" U="ea468315-b4a2-9f8c-ffff000000000001" Title="Stromverbrauch WP" Cl="0,0,0" Nio="2" WF="20480" ValOT="1" Analog="true" EnoceanSubType="43" SourceValHigh="1" DestValHigh="1" MinVal="0" MaxVal="100" MinChange="0.25" MinTime="1000" Idx="2">
 					<Co K="AQ" U="ea468315-b4a2-9f81-ffff000000000001" />
 					<Co K="Qm" U="ea468315-b4a2-9f82-ffff000000000001" />
-					<IoData Pr="10000007-0007-0001-ffff000000000001" Cr="20000003-0003-0001-ffff000000000001" />
+					<IoData Pr="10000007-0007-0001-ffff000000000001" Cr="20000003-0003-0001-ffff000000000001" St="4" />
+					<Co K="Q" U="ea468315-b4a2-9f83-ffff000000000001" />
+					<Display Type="2" Unit="&lt;v.3&gt;kW" StateOnly="true" />
 				</C>
-				<C Type="TreeAsensor" IName="AI3" V="175" U="192ef5ea-135b-1c4e-ffff000000000001" Title="Wärmeleistung WP" Nio="2" WF="20480" Analog="true" EnoceanSubType="43" SourceValHigh="1" DestValHigh="1" MinVal="0" MaxVal="100" MinChange="0.25" MinTime="1000" Idx="3">
+				<C Type="TreeAsensor" IName="AI3" V="175" U="192ef5ea-135b-1c4e-ffff000000000001" Title="Wärmeleistung WP" Cl="0,0,0" Nio="2" WF="20480" ValOT="1" Analog="true" EnoceanSubType="43" SourceValHigh="1" DestValHigh="1" MinVal="0" MaxVal="100" MinChange="0.25" MinTime="1000" Idx="3">
 					<Co K="AQ" U="192ef5ea-135b-1c41-ffff000000000001" />
 					<Co K="Qm" U="192ef5ea-135b-1c42-ffff000000000001" />
-					<IoData Pr="10000007-0007-0001-ffff000000000001" Cr="20000003-0003-0001-ffff000000000001" />
+					<IoData Pr="10000007-0007-0001-ffff000000000001" Cr="20000003-0003-0001-ffff000000000001" St="4" />
+					<Co K="Q" U="192ef5ea-135b-1c43-ffff000000000001" />
+					<Display Type="2" Unit="&lt;v.3&gt;kW" StateOnly="true" />
 				</C>
 			</C>
 			<!-- HVAC Temperature Sensors (Tree) -->
 			<C Type="TreeDevice" TId="TemperatureSensorTree" V="175" U="c3000007-0007-0001-ffff000000000001" Title="HVAC Sensoren Technik" WF="16384" Serial="B0F30002" TreeType="10005">
 				<IoData Pr="10000007-0007-0001-ffff000000000001" />
-				<C Type="TreeAsensor" IName="AI0" V="175" U="dc159e9c-0ff7-5a0f-ffff000000000001" Title="Puffertemperatur" Nio="2" WF="20480" Analog="true" EnoceanSubType="1" SourceValHigh="100" DestValHigh="100" MinVal="-40" MaxVal="125" MinChange="0.25" MinTime="1000">
+				<C Type="TreeAsensor" IName="AI0" V="175" U="dc159e9c-0ff7-5a0f-ffff000000000001" Title="Puffertemperatur" Cl="0,0,0" Nio="2" WF="20480" ValOT="1" Analog="true" EnoceanSubType="1" SourceValHigh="100" DestValHigh="100" MinVal="-40" MaxVal="125" MinChange="0.25" MinTime="1000">
 					<Co K="AQ" U="dc159e9c-0ff7-5a01-ffff000000000001" />
 					<Co K="Qm" U="dc159e9c-0ff7-5a02-ffff000000000001" />
-					<IoData Pr="10000007-0007-0001-ffff000000000001" Cr="20000003-0003-0001-ffff000000000001" />
+					<IoData Pr="10000007-0007-0001-ffff000000000001" Cr="20000003-0003-0001-ffff000000000001" St="4" />
+					<Co K="Q" U="dc159e9c-0ff7-5a03-ffff000000000001" />
+					<Display Type="2" Unit="&lt;v.1&gt;°" StateOnly="true" />
 				</C>
-				<C Type="TreeAsensor" IName="AI1" V="175" U="bb165ad5-42d4-96ef-ffff000000000001" Title="Kesseltemperatur" Nio="2" WF="20480" Analog="true" EnoceanSubType="1" SourceValHigh="100" DestValHigh="100" MinVal="-40" MaxVal="125" MinChange="0.25" MinTime="1000" Idx="1">
+				<C Type="TreeAsensor" IName="AI1" V="175" U="bb165ad5-42d4-96ef-ffff000000000001" Title="Kesseltemperatur" Cl="0,0,0" Nio="2" WF="20480" ValOT="1" Analog="true" EnoceanSubType="1" SourceValHigh="100" DestValHigh="100" MinVal="-40" MaxVal="125" MinChange="0.25" MinTime="1000" Idx="1">
 					<Co K="AQ" U="bb165ad5-42d4-96e1-ffff000000000001" />
 					<Co K="Qm" U="bb165ad5-42d4-96e2-ffff000000000001" />
-					<IoData Pr="10000007-0007-0001-ffff000000000001" Cr="20000003-0003-0001-ffff000000000001" />
+					<IoData Pr="10000007-0007-0001-ffff000000000001" Cr="20000003-0003-0001-ffff000000000001" St="4" />
+					<Co K="Q" U="bb165ad5-42d4-96e3-ffff000000000001" />
+					<Display Type="2" Unit="&lt;v.1&gt;°" StateOnly="true" />
 				</C>
 			</C>
 			<C Type="VirtualIn" V="175" U="d0560023-5e3e-93b3-ffff000000000001" Title="KNX Schalter Garage" WF="16384" IName="VI33" Px="7392" Py="1008" Nio="0">

@@ -24,28 +24,26 @@
       "params": [],
       "simulation": [
         {
-          "name": "should output low when input high (NOT)",
+          "name": "AC on resets heating",
           "inputs": {
-            "Außentemperatur.AQ": 25.0
+            "Klimaanlage.toggle": 1
           },
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Klimaanlage.status": {
-              "<": 0.5
+            "Raumregler.Reset": {
+              ">": 0.5
             }
           }
         },
         {
-          "name": "should output high when input low (NOT)",
-          "inputs": {
-            "Außentemperatur.AQ": 15.0
-          },
+          "name": "no AC no reset",
+          "inputs": {},
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Klimaanlage.status": {
-              ">": 0.5
+            "Raumregler.Reset": {
+              "<": 0.5
             }
           }
         }
