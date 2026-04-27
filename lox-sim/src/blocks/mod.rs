@@ -45,14 +45,14 @@ pub use math::{
 pub use misc::{
     AutomaticScene, AutopilotRule, Average, Avg, BinDecoder, BinEncoder, BrightnessControl,
     CallGen, CarCharger, CentralFancoil, CentralGate, CentralLight, CentralMusic, CentralPresence,
-    CentralRoofwindow, CentralShade, ClimateControllerUS, CmdRecognition, Code1, Code4, Code8,
-    Code16, DbConE, DbConS, DeviceTablet, DewPoint, Door, Doorcontroller, EFM, HeatCentral, HvacAC,
+    CentralRoofwindow, CentralShade, ClimateControllerUS, CmdRecognition, Code1, Code16, Code4,
+    Code8, DbConE, DbConS, DeviceTablet, DewPoint, Door, Doorcontroller, HeatCentral, HvacAC,
     Intercom, Irrigation, Leaf, LightControllerH, Lightscene, LightsceneLearn, LightsceneRGB,
     LongClick, MPGroup, MailBox, MailGen, Media, MediaClient, MeterAbsSt, MeterPSt, MultiClick,
     MultiFuncSW, MusicPlayer, Nevo, NfcCodeTouch, PButtonT, Ping, Power, PowerUnit, PulseBy,
     PushDimmer, Radio, Radio2, Ramp, Rand, RandomGen, RoofWindow, Roomcontrol, SequenceController,
     Sequencer, ShadeRoof, SpotOpt, StatusMonitor, SteakThermo, StepSel, SysVar, Tablet,
-    TextGenerator, TimeMinmax, TpfController, Validator, WBEM, Weed, Wind, WindowsMonitor,
+    TextGenerator, TimeMinmax, TpfController, Validator, Weed, Wind, WindowsMonitor, EFM, WBEM,
 };
 pub use schedule::{AlarmClock, Calendar, DayTimer, DayTimerEntry, PulseAt};
 pub use security::{
@@ -64,8 +64,8 @@ pub use state::{
     SampleHold, Shift, State, StateV, UpDownCounter,
 };
 pub use timers::{
-    EdgeDetection, EdgeWipingRelay, Monoflop, OffDelay, OnDelay, OnOffDelay, OnPulseDelay, PWM,
-    PulseGen, RetOnDelay, StairwayLS, SwitchingTimer,
+    EdgeDetection, EdgeWipingRelay, Monoflop, OffDelay, OnDelay, OnOffDelay, OnPulseDelay,
+    PulseGen, RetOnDelay, StairwayLS, SwitchingTimer, PWM,
 };
 
 pub(crate) const DIGITAL_THRESHOLD: Signal = 0.5;
@@ -75,7 +75,11 @@ pub(crate) fn is_high(value: Signal) -> bool {
 }
 
 pub(crate) fn bool_signal(value: bool) -> Signal {
-    if value { 1.0 } else { 0.0 }
+    if value {
+        1.0
+    } else {
+        0.0
+    }
 }
 
 pub(crate) fn serialize_bool(value: bool) -> Vec<u8> {

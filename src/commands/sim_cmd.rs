@@ -206,7 +206,13 @@ fn run_one(graph: &SimGraph, spec: &SimSpec) -> ScenarioResult {
     }
 
     // Check initial expected_outputs
-    check_outputs(&engine, graph, &spec.expected_outputs, &mut checks, &mut all_pass);
+    check_outputs(
+        &engine,
+        graph,
+        &spec.expected_outputs,
+        &mut checks,
+        &mut all_pass,
+    );
 
     // Multi-step: run each step, check outputs after each one
     for step in &spec.steps {
@@ -218,7 +224,13 @@ fn run_one(graph: &SimGraph, spec: &SimSpec) -> ScenarioResult {
             engine.tick(spec.dt);
         }
         // Check this step's outputs immediately
-        check_outputs(&engine, graph, &step.expected_outputs, &mut checks, &mut all_pass);
+        check_outputs(
+            &engine,
+            graph,
+            &step.expected_outputs,
+            &mut checks,
+            &mut all_pass,
+        );
     }
 
     ScenarioResult {

@@ -469,10 +469,11 @@
 			<!-- Air Smoke Detector Flur -->
 			<C Type="LoxAIRDevice" TId="SmokeDetectorAir" V="175" U="c4000005-0005-0001-ffff000000000001" Title="Rauchmelder Flur" WF="16384" IP="FE80000000000000524F94FFFEAA0005" AirType="62" SubType="62" Battery="true">
 				<IoData Pr="10000005-0005-0001-ffff000000000001" />
-				<C Type="LoxAIRsensor" IName="I0" V="175" U="a247933f-4e7b-7381-ffff000000000001" Title="Rauchmelder" Nio="2" WF="20480" ValOT="1" MinTime="10" EnoceanSubType="4">
+				<C Type="LoxAIRsensor" IName="I0" V="175" U="a247933f-4e7b-7381-ffff000000000001" Title="Rauchmelder" Cl="0,0,0" Nio="2" WF="20480" ValOT="1" MinTime="10" EnoceanSubType="4">
 					<Co K="Q" U="a247933f-4e7b-7371-ffff000000000001" />
 					<Co K="Qe" U="a247933f-4e7b-7372-ffff000000000001" />
-					<IoData Pr="10000005-0005-0001-ffff000000000001" Cr="20000005-0005-0001-ffff000000000001" />
+					<IoData Pr="10000005-0005-0001-ffff000000000001" Cr="20000005-0005-0001-ffff000000000001" St="2" />
+					<Display Unit="&lt;v&gt;" StateOnly="true" />
 				</C>
 			</C>
 			<!-- Tree Window Contact Flur -->

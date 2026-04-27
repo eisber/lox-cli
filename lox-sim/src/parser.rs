@@ -6,7 +6,7 @@ use std::path::Path;
 
 use xmltree::Element;
 
-use crate::blocks::{Block, DayTimer, DayTimerEntry, create_block};
+use crate::blocks::{create_block, Block, DayTimer, DayTimerEntry};
 use crate::graph::SimGraph;
 use crate::types::ConnectorDir;
 

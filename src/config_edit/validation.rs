@@ -659,7 +659,84 @@ impl ConfigEditor {
             results.push("✓ All wiring directions valid (Output→Input/Parameter)".to_string());
         }
 
+        // ── Tree/Air sensor hardware block checks ─────────────────────────
+        let mut sensor_issues: Vec<String> = Vec::new();
+        Self::check_sensor_blocks(&self.root, &mut sensor_issues);
+        if sensor_issues.is_empty() {
+            results.push(
+                "✓ All Tree/Air sensor blocks have Display, connectors, and IoData.Cr".to_string(),
+            );
+        } else {
+            for issue in &sensor_issues {
+                results.push(format!("⚠ {issue}"));
+            }
+        }
+
         results
+    }
+
+    /// Validate Tree/Air hardware sensor blocks for completeness.
+    fn check_sensor_blocks(elem: &Element, issues: &mut Vec<String>) {
+        if elem.name == "C" {
+            let etype = elem
+                .attributes
+                .get("Type")
+                .map(String::as_str)
+                .unwrap_or("");
+            let title = elem.attributes.get("Title").cloned().unwrap_or_default();
+
+            let is_digital = matches!(etype, "TreeSensor" | "LoxAIRsensor");
+            let is_analog = matches!(etype, "TreeAsensor" | "LoxAIRAsensor");
+
+            if is_digital || is_analog {
+                // Every sensor must have a <Display> child
+                let has_display = elem
+                    .children
+                    .iter()
+                    .any(|c| c.as_element().is_some_and(|e| e.name == "Display"));
+                if !has_display {
+                    issues.push(format!("{etype} '{title}': missing <Display> child"));
+                }
+
+                // Every sensor IoData must have a Cr (category) reference
+                let has_iodata_cr = elem.children.iter().any(|c| {
+                    c.as_element().is_some_and(|e| {
+                        e.name == "IoData" && e.attributes.get("Cr").is_some_and(|v| !v.is_empty())
+                    })
+                });
+                if !has_iodata_cr {
+                    issues.push(format!(
+                        "{etype} '{title}': IoData missing Cr (category) reference"
+                    ));
+                }
+            }
+
+            // Analog sensors must have both AQ and (Q or Qm) connectors
+            if is_analog {
+                let connector_keys: Vec<String> = elem
+                    .children
+                    .iter()
+                    .filter_map(|c| c.as_element())
+                    .filter(|e| e.name == "Co")
+                    .filter_map(|e| e.attributes.get("K").cloned())
+                    .collect();
+
+                let has_aq = connector_keys.iter().any(|k| k == "AQ");
+                let has_q_or_qm = connector_keys.iter().any(|k| k == "Q" || k == "Qm");
+
+                if !has_aq || !has_q_or_qm {
+                    issues.push(format!(
+                        "{etype} '{title}': must have both AQ and Q (or Qm) connectors"
+                    ));
+                }
+            }
+        }
+
+        for child in &elem.children {
+            if let Some(child_elem) = child.as_element() {
+                Self::check_sensor_blocks(child_elem, issues);
+            }
+        }
     }
 
     fn collect_typed_uuids(
