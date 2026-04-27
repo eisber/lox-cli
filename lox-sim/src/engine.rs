@@ -114,7 +114,14 @@ impl SimEngine {
         // output connectors so set_input drives the value out directly.
         let mut named_inputs: HashMap<String, Vec<ConnectorId>> = HashMap::new();
         let mut named_outputs: HashMap<String, Vec<ConnectorId>> = HashMap::new();
-        let source_types = ["SysVar", "VirtualIn"];
+        let source_types = [
+            "SysVar",
+            "VirtualIn",
+            "TreeSensor",
+            "TreeAsensor",
+            "LoxAIRsensor",
+            "LoxAIRAsensor",
+        ];
         #[allow(clippy::needless_range_loop)]
         for bid in 0..n_blocks {
             let info = graph.block_info(bid);
@@ -213,7 +220,15 @@ impl SimEngine {
                     let bt = self.blocks[block_id].block_type();
                     if !matches!(
                         bt,
-                        "SysVar" | "VirtualIn" | "PassThrough" | "VirtualOut" | "VirtualState"
+                        "SysVar"
+                            | "VirtualIn"
+                            | "PassThrough"
+                            | "VirtualOut"
+                            | "VirtualState"
+                            | "TreeSensor"
+                            | "TreeAsensor"
+                            | "LoxAIRsensor"
+                            | "LoxAIRAsensor"
                     ) {
                         self.output_overrides.insert(cid, value);
                     }

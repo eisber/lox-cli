@@ -120,6 +120,34 @@ passthrough_io_block!(
 );
 
 // ---------------------------------------------------------------------------
+// Tree / Air hardware I/O
+// ---------------------------------------------------------------------------
+
+passthrough_io_block!(
+    /// Tree digital sensor — wired digital input (pass-through).
+    TreeSensor,
+    "TreeSensor"
+);
+
+passthrough_io_block!(
+    /// Tree analog sensor — wired analog input (pass-through).
+    TreeAsensor,
+    "TreeAsensor"
+);
+
+passthrough_io_block!(
+    /// Air digital sensor — wireless digital input (pass-through).
+    LoxAIRsensor,
+    "LoxAIRsensor"
+);
+
+passthrough_io_block!(
+    /// Air analog sensor — wireless analog input (pass-through).
+    LoxAIRAsensor,
+    "LoxAIRAsensor"
+);
+
+// ---------------------------------------------------------------------------
 // Tests
 // ---------------------------------------------------------------------------
 

@@ -6,7 +6,7 @@ use std::path::Path;
 
 use xmltree::Element;
 
-use crate::blocks::{create_block, Block, DayTimer, DayTimerEntry};
+use crate::blocks::{Block, DayTimer, DayTimerEntry, create_block};
 use crate::graph::SimGraph;
 use crate::types::ConnectorDir;
 
@@ -391,11 +391,7 @@ fn block_signature(
             &["AQ"],
             &["Select"],
         ),
-        "AnalogMultiplexer2" => (
-            &["Input1", "Input2", "InputDisable"],
-            &["AQ"],
-            &["Select"],
-        ),
+        "AnalogMultiplexer2" => (&["Input1", "Input2", "InputDisable"], &["AQ"], &["Select"]),
         "AnalogScaler" => (&["Input"], &["AQ"], &["Src1", "Src2", "Dst1", "Dst2"]),
         "And" => (&["I1", "I2"], &["Q"], &[]),
         "Constant" => (&[], &["Q"], &["Value"]),
@@ -443,7 +439,11 @@ fn block_signature(
             &["Q", "Qoff", "Qon", "AQ"],
             &["Min", "Max"],
         ),
-        "Ramp" => (&["InputEnable", "InputSelect", "InputStop"], &["AQ"], &["Rate"]),
+        "Ramp" => (
+            &["InputEnable", "InputSelect", "InputStop"],
+            &["AQ"],
+            &["Rate"],
+        ),
         "RisingEdge" => (&["I1", "Input"], &["Q", "RisingEdge"], &[]),
         "LightController2" => (
             &[
@@ -528,7 +528,11 @@ fn block_signature(
             &["Pos", "Dir", "Moving"],
             &["TimeEnd"],
         ),
-        "Heatcurve" => (&["Outer", "Input"], &["AQ"], &["Translate", "Transconductance"]),
+        "Heatcurve" => (
+            &["Outer", "Input"],
+            &["AQ"],
+            &["Translate", "Transconductance"],
+        ),
         "Heatmixer" => (
             &["Input", "Temp", "Stop", "InputDisable"],
             &["AQ", "Q1", "Q2", "Qe"],
@@ -611,6 +615,9 @@ fn block_signature(
         "StateV" => (&["I"], &["AQ"], &[]),
         "SysVar" => (&["I1"], &["AQ"], &[]),
         "VirtualIn" | "VirtualOut" => (&["I1", "Input"], &["Q", "AQ", "Qm"], &[]),
+        // Tree / Air hardware sensors — source blocks with synthetic input for sim injection
+        "TreeSensor" | "LoxAIRsensor" => (&["I1"], &["Q", "Qe"], &[]),
+        "TreeAsensor" | "LoxAIRAsensor" => (&["I1"], &["AQ", "Q"], &[]),
         "Xor" => (&["I1", "I2"], &["Q"], &[]),
         _ => (&[], &[], &[]),
     }
@@ -619,7 +626,21 @@ fn block_signature(
 fn is_structural_type(block_type: &str) -> bool {
     matches!(
         block_type,
-        "Category" | "Document" | "Page" | "Place" | "Program"
+        "Category"
+            | "Document"
+            | "Page"
+            | "Place"
+            | "Program"
+            // Device containers — hold sensors/actors but are not blocks
+            | "LoxTree"
+            | "LoxCaption"
+            | "TreeDevice"
+            | "LoxAIR"
+            | "LoxAIRDevice"
+            | "Online"
+            | "SysTemp"
+            | "InputCaption"
+            | "KeycodeCaption"
     )
 }
 
