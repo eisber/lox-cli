@@ -113,12 +113,34 @@ lox blocks info TypeName -o json
 | Luftfeuchtigkeit | .AQ | Humidity % |
 | Helligkeit | .AQ | Brightness lux |
 | CO2 Sensor | .AQ | CO2 ppm |
-| Bewegungsmelder | .OutputPresence | Motion 0/1 |
+| Bewegungsmelder | .OutputPresence | Motion 0/1 (Flur) |
+| Bewegungsmelder Garten | .OutputPresence | Motion 0/1 (Garten) |
 | Türkontakt Eingang | .Q | Door contact 0/1 |
 | Türklingel | .Q | Doorbell pulse |
 | Pool Temperatur | .AQ | Pool temp °C |
 | Raumtemperatur Wohnzimmer | .AQ | Room temp °C |
+| Raumtemperatur Schlafzimmer | .AQ | Room temp °C |
+| Raumtemperatur Bad | .AQ | Room temp °C |
+| Raumtemperatur Küche | .AQ | Room temp °C |
+| Raumtemperatur Flur | .AQ | Room temp °C |
 | Schalter 1 | .Q | Switch 0/1 |
+| Schalter 2 | .Q | Switch 0/1 |
+| Feuchtesensor Garten | .AQ | Soil moisture % |
+| Rauchmelder | .Q | Smoke alarm 0/1 |
+| Wassersensor | .Q | Water alarm 0/1 |
+| Pegelsensor | .AQ | Water level m |
+| Fensterkontakt * | .Q | Window contact per room |
+| Türkontakt * | .Q | Door contact per room |
+| Solarproduktion | .AQ | PV production W |
+| Hausverbrauch | .AQ | House consumption W |
+| Stromverbrauch WP | .AQ | Heat pump power W |
+| Wärmeleistung WP | .AQ | Heat pump output W |
+| Vorlauftemperatur | .AQ | Flow temperature °C |
+| Puffertemperatur | .AQ | Buffer tank temp °C |
+| Warmwasserspeicher | .AQ | DHW tank temp °C |
+| Kesseltemperatur | .AQ | Boiler temp °C |
+
+**IMPORTANT:** Always use existing fixture sensors instead of creating VirtualIn blocks. The fixture has sensors for every room and common HVAC/energy measurements. If you need a sensor that doesn't exist, check the fixture first with `lox config describe`.
 
 ## Fixture Actuators (wire TO these inputs)
 

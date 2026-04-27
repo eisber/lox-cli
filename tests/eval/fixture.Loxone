@@ -158,6 +158,12 @@
 				<Co K="AQ" U="7cb2ff27-68a4-d6fb-ffff000000000001" />
 				<IoData Pr="10000001-0001-0001-ffff000000000001" />
 			</C>
+			<C Type="VirtualIn" V="175" U="67cfc41f-4ba6-957b-ffff000000000001" Title="Fensterkontakt Wohnzimmer" WF="16384" IName="VI16" Px="7392" Py="7968" Nio="0">
+				<IoData Pr="10000001-0001-0001-ffff000000000001" />
+			</C>
+			<C Type="VirtualIn" V="175" U="6149a85a-76ab-3f26-ffff000000000001" Title="Türkontakt Wohnzimmer" WF="16384" IName="VI21" Px="7392" Py="8016" Nio="0">
+				<IoData Pr="10000001-0001-0001-ffff000000000001" />
+			</C>
 		</C>
 		<!-- Schlafzimmer -->
 		<C Type="Page" V="175" U="50000002-0002-0001-ffff000000000001" Title="Schlafzimmer" WF="16384">
@@ -187,6 +193,12 @@
 				<Co K="InputPos" U="70000022-0022-0013-ffff000000000001" />
 				<Co K="InputDisable" U="70000022-0022-0014-ffff000000000001" />
 				<IoData Pr="10000002-0002-0001-ffff000000000001" Cr="20000002-0002-0001-ffff000000000001" />
+			</C>
+			<C Type="VirtualIn" V="175" U="d4c74274-3038-6d46-ffff000000000001" Title="Fensterkontakt Schlafzimmer" WF="16384" IName="VI17" Px="7392" Py="3504" Nio="0">
+				<IoData Pr="10000002-0002-0001-ffff000000000001" />
+			</C>
+			<C Type="VirtualIn" V="175" U="0fbb5990-8a3b-1598-ffff000000000001" Title="Türkontakt Schlafzimmer" WF="16384" IName="VI22" Px="7392" Py="3552" Nio="0">
+				<IoData Pr="10000002-0002-0001-ffff000000000001" />
 			</C>
 		</C>
 		<!-- Küche -->
@@ -219,6 +231,15 @@
 			<C Type="StateV" V="175" U="7502b3b5-acb8-5653-ffff000000000001" Title="Steckdose" WF="16384" Px="7392" Py="3504" Nio="2">
 				<Co K="I" U="351aecaa-0008-4edc-ffff000000000001" />
 				<Co K="AQ" U="5c439f08-75ab-4dd8-ffff000000000001" />
+				<IoData Pr="10000003-0003-0001-ffff000000000001" />
+			</C>
+			<C Type="VirtualIn" V="175" U="3a3a93ce-2942-977a-ffff000000000001" Title="Raumtemperatur Küche" WF="16384" IName="VI11" Px="7392" Py="3552" Nio="0">
+				<IoData Pr="10000003-0003-0001-ffff000000000001" />
+			</C>
+			<C Type="VirtualIn" V="175" U="3186b9a5-9c70-b625-ffff000000000001" Title="Fensterkontakt Küche" WF="16384" IName="VI18" Px="7392" Py="3600" Nio="0">
+				<IoData Pr="10000003-0003-0001-ffff000000000001" />
+			</C>
+			<C Type="VirtualIn" V="175" U="bb855d21-6824-c0a1-ffff000000000001" Title="Türkontakt Küche" WF="16384" IName="VI23" Px="7392" Py="3648" Nio="0">
 				<IoData Pr="10000003-0003-0001-ffff000000000001" />
 			</C>
 		</C>
@@ -263,6 +284,24 @@
 			<C Type="StateV" V="175" U="1599b93b-6055-c589-ffff000000000001" Title="Heizstab" WF="16384" Px="7392" Py="3504" Nio="2">
 				<Co K="I" U="b5e622d1-a423-cac9-ffff000000000001" />
 				<Co K="AQ" U="02ab6f0e-a53b-f4eb-ffff000000000001" />
+				<IoData Pr="10000004-0004-0001-ffff000000000001" />
+			</C>
+			<C Type="VirtualIn" V="175" U="f5e86038-481f-5707-ffff000000000001" Title="Raumtemperatur Bad" WF="16384" IName="VI10" Px="7392" Py="3552" Nio="0">
+				<IoData Pr="10000004-0004-0001-ffff000000000001" />
+			</C>
+			<C Type="VirtualIn" V="175" U="2fac07e5-3308-d1a6-ffff000000000001" Title="Wassersensor" WF="16384" IName="VI14" Px="7392" Py="3600" Nio="0">
+				<IoData Pr="10000004-0004-0001-ffff000000000001" />
+			</C>
+			<C Type="VirtualIn" V="175" U="4738e85c-cfb0-4ef8-ffff000000000001" Title="Fensterkontakt Bad" WF="16384" IName="VI19" Px="7392" Py="3648" Nio="0">
+				<IoData Pr="10000004-0004-0001-ffff000000000001" />
+			</C>
+			<C Type="VirtualIn" V="175" U="9ff9cf4c-45e1-2d39-ffff000000000001" Title="Türkontakt Bad" WF="16384" IName="VI24" Px="7392" Py="3696" Nio="0">
+				<IoData Pr="10000004-0004-0001-ffff000000000001" />
+			</C>
+			<C Type="VirtualIn" V="175" U="7bd83ab2-c2e2-a445-ffff000000000001" Title="Vorlauftemperatur" WF="16384" IName="VI29" Px="7392" Py="3744" Nio="0">
+				<IoData Pr="10000004-0004-0001-ffff000000000001" />
+			</C>
+			<C Type="VirtualIn" V="175" U="1729afcc-c79b-e3c4-ffff000000000001" Title="Warmwasserspeicher" WF="16384" IName="VI31" Px="7392" Py="3792" Nio="0">
 				<IoData Pr="10000004-0004-0001-ffff000000000001" />
 			</C>
 		</C>
@@ -327,6 +366,15 @@
 				<Co K="Qon" U="1547f7c9-ff26-ccb3-ffff000000000001" />
 				<IoData Pr="10000005-0005-0001-ffff000000000001" />
 			</C>
+			<C Type="VirtualIn" V="175" U="2ec51b54-bce5-c238-ffff000000000001" Title="Raumtemperatur Flur" WF="16384" IName="VI12" Px="7392" Py="3648" Nio="0">
+				<IoData Pr="10000005-0005-0001-ffff000000000001" />
+			</C>
+			<C Type="VirtualIn" V="175" U="a247933f-4e7b-7381-ffff000000000001" Title="Rauchmelder" WF="16384" IName="VI13" Px="7392" Py="3696" Nio="0">
+				<IoData Pr="10000005-0005-0001-ffff000000000001" />
+			</C>
+			<C Type="VirtualIn" V="175" U="68c21587-51b4-d30a-ffff000000000001" Title="Fensterkontakt Flur" WF="16384" IName="VI20" Px="7392" Py="3744" Nio="0">
+				<IoData Pr="10000005-0005-0001-ffff000000000001" />
+			</C>
 		</C>
 		<!-- Garten (irrigation, outdoor lighting) -->
 		<C Type="Page" V="175" U="50000006-0006-0001-ffff000000000001" Title="Garten" WF="16384">
@@ -355,6 +403,9 @@
 				<Co K="Q1" U="b0000006-0006-0012-ffff000000000001" />
 				<IoData Pr="10000006-0006-0001-ffff000000000001" Cr="20000003-0003-0001-ffff000000000001" />
 			</C>
+			<C Type="VirtualIn" V="175" U="9e4fe582-c9c1-ca74-ffff000000000001" Title="Pegelsensor" WF="16384" IName="VI15" Px="7392" Py="1488" Nio="0">
+				<IoData Pr="10000006-0006-0001-ffff000000000001" />
+			</C>
 		</C>
 		<!-- Garage -->
 		<C Type="Page" V="175" U="50000007-0007-0001-ffff000000000001" Title="Garage" WF="16384">
@@ -381,6 +432,27 @@
 			<C Type="StateV" V="175" U="91e9f35e-262e-c8fd-ffff000000000001" Title="Batteriespeicher" WF="16384" Px="7392" Py="672" Nio="2">
 				<Co K="I" U="00254439-434e-c5ae-ffff000000000001" />
 				<Co K="AQ" U="0d697fd1-800e-11c0-ffff000000000001" />
+				<IoData Pr="10000007-0007-0001-ffff000000000001" />
+			</C>
+			<C Type="VirtualIn" V="175" U="3eb816ce-b4f4-d010-ffff000000000001" Title="Solarproduktion" WF="16384" IName="VI25" Px="7392" Py="720" Nio="0">
+				<IoData Pr="10000007-0007-0001-ffff000000000001" />
+			</C>
+			<C Type="VirtualIn" V="175" U="78ef6683-f92f-b1d4-ffff000000000001" Title="Hausverbrauch" WF="16384" IName="VI26" Px="7392" Py="768" Nio="0">
+				<IoData Pr="10000007-0007-0001-ffff000000000001" />
+			</C>
+			<C Type="VirtualIn" V="175" U="ea468315-b4a2-9f8c-ffff000000000001" Title="Stromverbrauch WP" WF="16384" IName="VI27" Px="7392" Py="816" Nio="0">
+				<IoData Pr="10000007-0007-0001-ffff000000000001" />
+			</C>
+			<C Type="VirtualIn" V="175" U="192ef5ea-135b-1c4e-ffff000000000001" Title="Wärmeleistung WP" WF="16384" IName="VI28" Px="7392" Py="864" Nio="0">
+				<IoData Pr="10000007-0007-0001-ffff000000000001" />
+			</C>
+			<C Type="VirtualIn" V="175" U="dc159e9c-0ff7-5a0f-ffff000000000001" Title="Puffertemperatur" WF="16384" IName="VI30" Px="7392" Py="912" Nio="0">
+				<IoData Pr="10000007-0007-0001-ffff000000000001" />
+			</C>
+			<C Type="VirtualIn" V="175" U="bb165ad5-42d4-96ef-ffff000000000001" Title="Kesseltemperatur" WF="16384" IName="VI32" Px="7392" Py="960" Nio="0">
+				<IoData Pr="10000007-0007-0001-ffff000000000001" />
+			</C>
+			<C Type="VirtualIn" V="175" U="d0560023-5e3e-93b3-ffff000000000001" Title="KNX Schalter Garage" WF="16384" IName="VI33" Px="7392" Py="1008" Nio="0">
 				<IoData Pr="10000007-0007-0001-ffff000000000001" />
 			</C>
 		</C>
