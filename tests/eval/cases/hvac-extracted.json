@@ -41,28 +41,28 @@
       ],
       "simulation": [
         {
-          "name": "heating valve opens when bathroom temp below setpoint",
+          "name": "cold bath heats",
           "inputs": {
-            "Raumtemperatur Wohnzimmer.AQ": 18.0
+            "Raumtemperatur Bad": 15
           },
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Raumregler.AQh": {
-              ">": 0
+            "Heizkörper Bad.I1": {
+              ">": 0.5
             }
           }
         },
         {
-          "name": "heating valve closed when bathroom temp above setpoint",
+          "name": "warm bath no heat",
           "inputs": {
-            "Raumtemperatur Wohnzimmer.AQ": 25.0
+            "Raumtemperatur Bad": 25
           },
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Raumregler.AQh": {
-              "==": 0
+            "Heizkörper Bad.I1": {
+              "<": 0.5
             }
           }
         }
