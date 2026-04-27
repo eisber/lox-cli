@@ -80,27 +80,29 @@
       "params": [],
       "simulation": [
         {
-          "name": "should trigger when all conditions met",
+          "name": "frost activates radiator",
           "inputs": {
-            "Außentemperatur.AQ": -2.0
+            "Außentemperatur": -5
           },
           "ticks": 10,
           "dt": 0.1,
+          "time": 180,
           "expected_outputs": {
-            "Raumregler.Temp": {
+            "Heizkörper Bad.I1": {
               ">": 0.5
             }
           }
         },
         {
-          "name": "should NOT trigger when condition not met",
+          "name": "warm no frost",
           "inputs": {
-            "Außentemperatur.AQ": 8.0
+            "Außentemperatur": 15
           },
           "ticks": 10,
           "dt": 0.1,
+          "time": 720,
           "expected_outputs": {
-            "Raumregler.Temp": {
+            "Heizkörper Bad.I1": {
               "<": 0.5
             }
           }
@@ -961,13 +963,30 @@
       "params": [],
       "simulation": [
         {
-          "name": "should activate during scheduled period",
-          "inputs": {},
-          "ticks": 0,
+          "name": "zones activate",
+          "inputs": {
+            "Bewässerung Manuell.Q": 1,
+            "Regen": 0
+          },
+          "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Bewässerungsventil.I1": {
+            "Zone aktiv.Q": {
               ">": 0.5
+            }
+          }
+        },
+        {
+          "name": "rain blocks",
+          "inputs": {
+            "Bewässerung Manuell.Q": 1,
+            "Regen": 1
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Zone aktiv.Q": {
+              "<": 0.5
             }
           }
         }
