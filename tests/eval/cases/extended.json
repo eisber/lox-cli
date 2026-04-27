@@ -568,7 +568,7 @@
           "inputs": {
             "Sonnenschein": 1
           },
-          "ticks": 10,
+          "ticks": 1,
           "dt": 0.1,
           "expected_outputs": {
             "Jalousie 1 [Schlafzimmer].InputTriggerUp": {
@@ -581,7 +581,7 @@
           "inputs": {
             "Sonnenschein": 0
           },
-          "ticks": 10,
+          "ticks": 1,
           "dt": 0.1,
           "expected_outputs": {
             "Jalousie 1 [Schlafzimmer].InputTriggerUp": {
