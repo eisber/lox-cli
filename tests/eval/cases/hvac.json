@@ -213,28 +213,28 @@
       "params": [],
       "simulation": [
         {
-          "name": "higher flow temp demanded when cold outside",
+          "name": "cold→high flow",
           "inputs": {
-            "Außentemperatur.AQ": -5.0
+            "Außentemperatur": -15
           },
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Raumregler.AQh": {
-              ">": 0
+            "Heizkurve [Wohnzimmer].AQ": {
+              ">": 40
             }
           }
         },
         {
-          "name": "lower flow temp when warm outside",
+          "name": "warm→low flow",
           "inputs": {
-            "Außentemperatur.AQ": 20.0
+            "Außentemperatur": 30
           },
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Raumregler.AQh": {
-              "==": 0
+            "Heizkurve [Wohnzimmer].AQ": {
+              "<": 25
             }
           }
         }
