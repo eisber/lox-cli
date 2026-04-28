@@ -52,27 +52,28 @@
       ],
       "simulation": [
         {
-          "name": "should latch on when set",
+          "name": "memory stores temp",
           "inputs": {
-            "Schalter 1.Q": 1.0
+            "Raumtemperatur Schlafzimmer": 20,
+            "Schalter 1.Q": 1
           },
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Temp.Input1": {
-              ">": 0.5
+            "Temp Speicher [Schlafzimmer].AQ": {
+              ">": 10
             }
           }
         },
         {
-          "name": "should NOT latch without trigger",
+          "name": "no trigger no store",
           "inputs": {
-            "Schalter 1.Q": 0.0
+            "Raumtemperatur Schlafzimmer": 20
           },
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Temp.Input1": {
+            "Temp Speicher [Schlafzimmer].AQ": {
               "<": 0.5
             }
           }
