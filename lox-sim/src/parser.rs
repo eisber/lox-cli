@@ -673,6 +673,32 @@ fn block_signature(
         "TreeSensor" | "LoxAIRsensor" => (&["I1"], &["Q", "Qe"], &[]),
         "TreeAsensor" | "LoxAIRAsensor" => (&["I1"], &["AQ", "Q"], &[]),
         "Xor" => (&["I1", "I2"], &["Q"], &[]),
+        // NFC Code Touch — keypad with code validation
+        "NfcCodeTouch" => (
+            &["Disable", "Lr", "Lg", "Lb", "Lw"],
+            &["Q1", "Q2", "TQ", "TQU", "TQo", "TQt", "Qd", "Qa", "Qn", "Be"],
+            &[],
+        ),
+        // Wallbox Energy Manager
+        "WBEM" => (
+            &["Pmax", "Peco", "Off"],
+            &["Cp", "Ap", "OutputAPI", "allow"],
+            &["PrEco", "PrPrio", "PrHour"],
+        ),
+        // Wallbox charger
+        "Wallbox" | "WallboxAir" => (
+            &["allow", "prio", "connected", "power", "energy", "active",
+              "ocppAuth", "sessStop", "rebootDev",
+              "setmode1", "setmode2", "setmode3", "setmode4", "setmode5"],
+            &["valmode1", "valmode2", "valmode3", "valmode4", "valmode5",
+              "state", "charging", "plugged"],
+            &[],
+        ),
+        // Structural/cosmetic blocks
+        "VirtualInCaption" | "WeatherServer" | "LightscenesC" | "LightsceneC"
+        | "TreeDevice" | "LoxAIRDevice" | "NetworkDevice" | "LoxCaption" => (
+            &[], &[], &[],
+        ),
         _ => (&[], &[], &[]),
     }
 }

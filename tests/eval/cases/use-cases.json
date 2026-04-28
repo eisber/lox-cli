@@ -6223,11 +6223,9 @@
       ],
       "simulation": [
         {
-          "name": "pos",
+          "name": "NFC opens locker",
           "inputs": {
-            "Schließfach 3 Öffner": 1000,
-            "Zugang OK Signal": 1000,
-            "Zugang Abgelehnt": 1000
+            "Schließfach NFC.Q1": 1
           },
           "ticks": 10,
           "dt": 0.1,
@@ -6235,16 +6233,11 @@
             "Türschloss [Flur].AQ": {
               ">": 0.5
             }
-          },
-          "time": 1380
+          }
         },
         {
-          "name": "neg",
-          "inputs": {
-            "Schließfach 3 Öffner": 0,
-            "Zugang OK Signal": 0,
-            "Zugang Abgelehnt": 0
-          },
+          "name": "no NFC",
+          "inputs": {},
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
