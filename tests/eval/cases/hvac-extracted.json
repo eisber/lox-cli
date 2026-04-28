@@ -1912,27 +1912,25 @@
       "params": [],
       "simulation": [
         {
-          "name": "bedroom HRV fan speed set by ventilation controller",
+          "name": "sleep mode vent",
           "inputs": {
-            "Bewegungsmelder.OutputPresence": 1.0
+            "Schalter 2.Q": 1
           },
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Lüfter Bad.I1": {
+            "Lüftung Schlafzimmer.OFan": {
               ">": 0.5
             }
           }
         },
         {
-          "name": "bedroom HRV at low speed when unoccupied",
-          "inputs": {
-            "Bewegungsmelder.OutputPresence": 0.0
-          },
+          "name": "no mode",
+          "inputs": {},
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Lüfter Bad.I1": {
+            "Lüftung Schlafzimmer.OFan": {
               "<": 0.5
             }
           }

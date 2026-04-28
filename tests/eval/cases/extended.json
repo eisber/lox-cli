@@ -507,27 +507,28 @@
       "params": [],
       "simulation": [
         {
-          "name": "should trigger when condition met",
+          "name": "sun triggers shade",
           "inputs": {
-            "Sonnenschein.AQ": 1.0
+            "Sonnenschein": 1,
+            "Außentemperatur": 25
           },
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Jalousie 1 [Schlafzimmer].InputTriggerDown": {
+            "Jalousie 1 [Schlafzimmer].Shade": {
               ">": 0.5
             }
           }
         },
         {
-          "name": "should NOT trigger when condition not met",
+          "name": "no sun",
           "inputs": {
-            "Sonnenschein.AQ": 0.0
+            "Sonnenschein": 0
           },
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Jalousie 1 [Schlafzimmer].InputTriggerDown": {
+            "Jalousie 1 [Schlafzimmer].Shade": {
               "<": 0.5
             }
           }
