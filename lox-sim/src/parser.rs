@@ -53,24 +53,26 @@ pub fn parse_element(root: &Element) -> Result<SimGraph, String> {
     let mut explicit_wires = Vec::new();
 
     for parsed in &parsed_blocks {
-        let input_keys: Vec<&str> = parsed
-            .connectors
-            .iter()
-            .filter(|connector| connector.dir == ConnectorDir::Input)
-            .map(|connector| connector.key.as_str())
-            .collect();
-        let output_keys: Vec<&str> = parsed
-            .connectors
-            .iter()
-            .filter(|connector| connector.dir == ConnectorDir::Output)
-            .map(|connector| connector.key.as_str())
-            .collect();
-        let param_keys: Vec<&str> = parsed
-            .connectors
-            .iter()
-            .filter(|connector| connector.dir == ConnectorDir::Parameter)
-            .map(|connector| connector.key.as_str())
-            .collect();
+        // Get the canonical connector order from block_signature.
+        // The block's eval() function expects inputs/outputs/params in this order,
+        // but XML may list connectors in any order.
+        let (sig_inputs, sig_outputs, sig_params) = block_signature(&parsed.block_type);
+
+        let input_keys = order_keys_by_signature(
+            &parsed.connectors,
+            ConnectorDir::Input,
+            sig_inputs,
+        );
+        let output_keys = order_keys_by_signature(
+            &parsed.connectors,
+            ConnectorDir::Output,
+            sig_outputs,
+        );
+        let param_keys = order_keys_by_signature(
+            &parsed.connectors,
+            ConnectorDir::Parameter,
+            sig_params,
+        );
 
         let block: Box<dyn Block> = if parsed.block_type == "DayTimer" {
             Box::new(DayTimer::new(parsed.daytimer_entries.clone()))
@@ -78,12 +80,16 @@ pub fn parse_element(root: &Element) -> Result<SimGraph, String> {
             create_block(&parsed.block_type)
         };
 
+        let input_refs: Vec<&str> = input_keys.iter().map(|s| s.as_str()).collect();
+        let output_refs: Vec<&str> = output_keys.iter().map(|s| s.as_str()).collect();
+        let param_refs: Vec<&str> = param_keys.iter().map(|s| s.as_str()).collect();
+
         let block_id = graph.add_block(
             parsed.name.clone(),
             block,
-            &input_keys,
-            &output_keys,
-            &param_keys,
+            &input_refs,
+            &output_refs,
+            &param_refs,
         );
 
         // Set room info for name disambiguation
@@ -224,6 +230,36 @@ fn walk_blocks_with_room(elem: &Element, out: &mut Vec<ParsedBlock>, current_roo
             walk_blocks_with_room(child, out, room);
         }
     }
+}
+
+/// Reorder parsed connector keys to match the block_signature order.
+/// Keys present in the signature come first (in signature order),
+/// followed by any extra keys not in the signature (in XML order).
+fn order_keys_by_signature(
+    connectors: &[ParsedConnector],
+    dir: ConnectorDir,
+    signature: &[&str],
+) -> Vec<String> {
+    let available: Vec<&str> = connectors
+        .iter()
+        .filter(|c| c.dir == dir)
+        .map(|c| c.key.as_str())
+        .collect();
+
+    let mut ordered = Vec::new();
+    // First: keys from signature, in signature order
+    for &sig_key in signature {
+        if available.contains(&sig_key) {
+            ordered.push(sig_key.to_string());
+        }
+    }
+    // Then: any extra keys not in signature (preserves XML order)
+    for &key in &available {
+        if !ordered.iter().any(|k| k == key) {
+            ordered.push(key.to_string());
+        }
+    }
+    ordered
 }
 
 fn parse_connectors(block_type: &str, elem: &Element) -> Vec<ParsedConnector> {
