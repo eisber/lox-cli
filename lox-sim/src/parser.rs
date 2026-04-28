@@ -618,8 +618,10 @@ fn block_signature(
             ],
         ),
         "HeatIRoomController2" | "ClimateControllerUS" | "HVACController" => (
-            &["Temp", "Input", "Reset", "AMode"],
-            &["AQh", "AQc"],
+            &["Temp", "Input", "Reset", "InputDisable", "AMode", "CoolingSetpoint",
+              "Window", "Comfort", "Save", "Save2", "Move", "DisMv", "TempO",
+              "InCo2", "InHumid", "inFan", "inAirDir"],
+            &["AQh", "AQc", "AQhc", "AQh1", "AQh2"],
             &[
                 "TComfort",
                 "TComfortC",
