@@ -448,8 +448,19 @@ fn block_signature(
         "FlipFlop" | "RSFlipFlop" | "SRFlipFlop" => {
             (&["InputS", "InputR", "InputTrigger"], &["Q"], &[])
         }
-        "Fan" | "Fancoil" | "FancoilFreshAir" | "Ventilation" | "Ventilation2"
-        | "VentInternorm" | "ToiletFan" => (&["Fan"], &["OFan", "OFanS"], &["Fmax"]),
+        "Fan" | "Fancoil" | "FancoilFreshAir" | "ToiletFan" => (
+            &["Fan"],
+            &["OFan", "OFanS"],
+            &["Fmax"],
+        ),
+        "Ventilation" | "Ventilation2" | "VentInternorm" => (
+            &[
+                "Fan", "IN_H_I", "IN_A_I", "IN_T_O", "IN_W_C", "IN_P", "IN_S",
+                "IN_SL", "IN_T", "IN_E", "Trigger", "Reset",
+            ],
+            &["OFan", "OFanS", "OUT_V", "AQ"],
+            &["Fmax"],
+        ),
         "Gain" => (&["I1"], &["Q"], &["Factor"]),
         "Greater" | "GreaterEqual" | "Less" | "LessEqual" => (&["Input1", "Input2"], &["Q"], &[]),
         "LongClick" => (&["InputTrigger", "Reset"], &["Q2"], &["Max"]),
@@ -515,12 +526,13 @@ fn block_signature(
                 "InputTriggerDown",
                 "InputPos",
                 "InputDisable",
+                "Shade",
             ],
             &["Pos", "Dir", "Moving"],
             &["TimeEnd"],
         ),
         "AutoJalousie" => (
-            &[],
+            &["SunAzimuth", "SunAltitude", "Brightness", "InputDisable"],
             &[
                 "OutputAutoShade",
                 "OutputUp",

@@ -802,13 +802,51 @@ macro_rules! fan_block {
     };
 }
 
-fan_block!(Ventilation, "Ventilation");
 fan_block!(Ventilation2, "Ventilation2");
 fan_block!(VentInternorm, "VentInternorm");
 fan_block!(ToiletFan, "ToiletFan");
 fan_block!(Fan, "Fan");
 fan_block!(Fancoil, "Fancoil");
 fan_block!(FancoilFreshAir, "FancoilFreshAir");
+
+/// Ventilation / HRV block with extended inputs.
+/// Inputs: [Fan, IN_H_I, IN_A_I, IN_T_O, IN_W_C, IN_P, IN_S, IN_SL, IN_T, IN_E, Trigger, Reset]
+/// The max of Fan, IN_S, IN_SL, and Trigger drives the output.
+/// IN_W_C (window contact) shuts off ventilation when high.
+#[derive(Clone, Copy)]
+pub struct Ventilation;
+
+impl Block for Ventilation {
+    fn eval(
+        &mut self,
+        inputs: &[Signal],
+        params: &[Signal],
+        _dt: f64,
+        _prev: &[Signal],
+    ) -> Vec<Signal> {
+        let fan = inputs.first().copied().unwrap_or(0.0);
+        let window = inputs.get(4).copied().unwrap_or(0.0); // IN_W_C
+        let speed = inputs.get(6).copied().unwrap_or(0.0);  // IN_S
+        let sleep = inputs.get(7).copied().unwrap_or(0.0);   // IN_SL
+        let trigger = inputs.get(10).copied().unwrap_or(0.0); // Trigger
+
+        // Window open → shut off
+        if is_high(window) {
+            return vec![0.0, 0.0, 0.0, 0.0];
+        }
+
+        let max_levels = params.first().copied().unwrap_or(3.0).max(1.0);
+        // Effective speed: max of all speed inputs
+        let eff = fan.max(speed).max(sleep).max(trigger);
+        let level = eff.round().clamp(0.0, max_levels);
+        let norm = level / max_levels;
+        vec![level, norm, norm, norm]
+    }
+
+    fn state(&self) -> Option<Vec<u8>> { None }
+    fn restore(&mut self, _state: &[u8]) {}
+    fn block_type(&self) -> &str { "Ventilation" }
+}
 
 // ---------------------------------------------------------------------------
 // IRoomcontrol / IRcontroller
