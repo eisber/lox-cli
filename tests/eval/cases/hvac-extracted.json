@@ -115,30 +115,49 @@
       "params": [],
       "simulation": [
         {
-          "name": "economy mode activated when no motion detected",
+          "name": "pos",
           "inputs": {
-            "Bewegungsmelder.OutputPresence": 0.0
+            "Sonnenschein": 1,
+            "Helligkeit": 10,
+            "Außentemperatur": -5,
+            "Bewegungsmelder.OutputPresence": 1,
+            "Schalter 1.Q": 1,
+            "Schalter 2.Q": 1,
+            "Luftfeuchtigkeit": 80,
+            "CO2 Sensor": 1200,
+            "PushButton.InputTrigger": 1,
+            "Raumtemperatur Wohnzimmer": 5,
+            "Türkontakt Eingang.Q": 1,
+            "Garagentor Sensor.Q": 1,
+            "Pool Temperatur": 5,
+            "Raumtemperatur Bad": 15,
+            "Vorlauftemperatur": 35,
+            "Puffertemperatur": 50,
+            "Warmwasserspeicher": 45,
+            "Kesseltemperatur": 70,
+            "Solarproduktion": 5000,
+            "Hausverbrauch": 1000
           },
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Raumregler.AQh": {
-              "<": 0.5
-            }
-          }
-        },
-        {
-          "name": "comfort mode restored when motion detected",
-          "inputs": {
-            "Bewegungsmelder.OutputPresence": 1.0
-          },
-          "ticks": 10,
-          "dt": 0.1,
-          "expected_outputs": {
-            "Raumregler.AQh": {
+            "Präsenz Schlafzimmer [Schlafzimmer].OutputPresence": {
               ">": 0.5
             }
-          }
+          },
+          "time": 1380
+        },
+        {
+          "name": "neg",
+          "inputs": {},
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Präsenz Schlafzimmer [Schlafzimmer].OutputPresence": {
+              "<": 0.5
+            }
+          },
+          "time": 720
         }
       ]
     }
@@ -520,30 +539,49 @@
       "params": [],
       "simulation": [
         {
-          "name": "circulation pump activated when buffer has heat",
+          "name": "pos",
           "inputs": {
-            "Außentemperatur.AQ": -5.0
+            "Sonnenschein": 1,
+            "Helligkeit": 10,
+            "Außentemperatur": -5,
+            "Bewegungsmelder.OutputPresence": 1,
+            "Schalter 1.Q": 1,
+            "Schalter 2.Q": 1,
+            "Luftfeuchtigkeit": 80,
+            "CO2 Sensor": 1200,
+            "PushButton.InputTrigger": 1,
+            "Raumtemperatur Wohnzimmer": 5,
+            "Türkontakt Eingang.Q": 1,
+            "Garagentor Sensor.Q": 1,
+            "Pool Temperatur": 5,
+            "Raumtemperatur Bad": 15,
+            "Vorlauftemperatur": 35,
+            "Puffertemperatur": 50,
+            "Warmwasserspeicher": 45,
+            "Kesseltemperatur": 70,
+            "Solarproduktion": 5000,
+            "Hausverbrauch": 1000
           },
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Poolpumpe.I1": {
+            "Statusblock [Wohnzimmer].AQ": {
               ">": 0.5
             }
-          }
+          },
+          "time": 1380
         },
         {
-          "name": "circulation pump off when no heating demand",
-          "inputs": {
-            "Außentemperatur.AQ": 22.0
-          },
+          "name": "neg",
+          "inputs": {},
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Poolpumpe.I1": {
+            "Statusblock [Wohnzimmer].AQ": {
               "<": 0.5
             }
-          }
+          },
+          "time": 720
         }
       ]
     }
@@ -1144,27 +1182,28 @@
       "params": [],
       "simulation": [
         {
-          "name": "night mode signal broadcast to all controllers",
+          "name": "pos",
           "inputs": {
-            "Türkontakt Eingang.Q": 1.0
+            "Nachtmodus": 1000
           },
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Lüfter Bad.I1": {
+            "Raumregler [Wohnzimmer].AQc": {
               ">": 0.5
             }
-          }
+          },
+          "time": 1380
         },
         {
-          "name": "day mode signal when night mode deactivated",
+          "name": "neg",
           "inputs": {
-            "Türkontakt Eingang.Q": 0.0
+            "Nachtmodus": 0
           },
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Lüfter Bad.I1": {
+            "Raumregler [Wohnzimmer].AQc": {
               "<": 0.5
             }
           }
@@ -1197,30 +1236,49 @@
       "params": [],
       "simulation": [
         {
-          "name": "heating period mode active in winter months",
+          "name": "pos",
           "inputs": {
-            "Außentemperatur.AQ": -5.0
+            "Sonnenschein": 1,
+            "Helligkeit": 10,
+            "Außentemperatur": -5,
+            "Bewegungsmelder.OutputPresence": 1,
+            "Schalter 1.Q": 1,
+            "Schalter 2.Q": 1,
+            "Luftfeuchtigkeit": 80,
+            "CO2 Sensor": 1200,
+            "PushButton.InputTrigger": 1,
+            "Raumtemperatur Wohnzimmer": 5,
+            "Türkontakt Eingang.Q": 1,
+            "Garagentor Sensor.Q": 1,
+            "Pool Temperatur": 5,
+            "Raumtemperatur Bad": 15,
+            "Vorlauftemperatur": 35,
+            "Puffertemperatur": 50,
+            "Warmwasserspeicher": 45,
+            "Kesseltemperatur": 70,
+            "Solarproduktion": 5000,
+            "Hausverbrauch": 1000
           },
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Raumregler.AQh": {
-              ">": 0
+            "Heizperiode [Wohnzimmer].AQ": {
+              ">": 0.5
             }
-          }
+          },
+          "time": 360
         },
         {
-          "name": "cooling period mode active in summer months",
-          "inputs": {
-            "Außentemperatur.AQ": 30.0
-          },
+          "name": "neg",
+          "inputs": {},
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Raumregler.AQh": {
-              "==": 0
+            "Heizperiode [Wohnzimmer].AQ": {
+              "<": 0.5
             }
-          }
+          },
+          "time": 1380
         }
       ]
     }
@@ -1503,30 +1561,49 @@
       "params": [],
       "simulation": [
         {
-          "name": "fan speed memory set when IRC has heating demand",
+          "name": "pos",
           "inputs": {
-            "Außentemperatur.AQ": 15.0
+            "Sonnenschein": 1,
+            "Helligkeit": 10,
+            "Außentemperatur": -5,
+            "Bewegungsmelder.OutputPresence": 1,
+            "Schalter 1.Q": 1,
+            "Schalter 2.Q": 1,
+            "Luftfeuchtigkeit": 80,
+            "CO2 Sensor": 1200,
+            "PushButton.InputTrigger": 1,
+            "Raumtemperatur Wohnzimmer": 5,
+            "Türkontakt Eingang.Q": 1,
+            "Garagentor Sensor.Q": 1,
+            "Pool Temperatur": 5,
+            "Raumtemperatur Bad": 15,
+            "Vorlauftemperatur": 35,
+            "Puffertemperatur": 50,
+            "Warmwasserspeicher": 45,
+            "Kesseltemperatur": 70,
+            "Solarproduktion": 5000,
+            "Hausverbrauch": 1000
           },
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Lüfter Bad.I1": {
+            "Raumregler [Wohnzimmer].AQc": {
               ">": 0.5
             }
-          }
+          },
+          "time": 1380
         },
         {
-          "name": "fan speed at minimum when no demand",
-          "inputs": {
-            "Außentemperatur.AQ": 23.0
-          },
+          "name": "neg",
+          "inputs": {},
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Lüfter Bad.I1": {
+            "Raumregler [Wohnzimmer].AQc": {
               "<": 0.5
             }
-          }
+          },
+          "time": 720
         }
       ]
     }
@@ -2222,30 +2299,49 @@
       "params": [],
       "simulation": [
         {
-          "name": "IRC mode distributed to fancoil controllers",
+          "name": "pos",
           "inputs": {
-            "Außentemperatur.AQ": 15.0
+            "Sonnenschein": 1,
+            "Helligkeit": 10,
+            "Außentemperatur": -5,
+            "Bewegungsmelder.OutputPresence": 1,
+            "Schalter 1.Q": 1,
+            "Schalter 2.Q": 1,
+            "Luftfeuchtigkeit": 80,
+            "CO2 Sensor": 1200,
+            "PushButton.InputTrigger": 1,
+            "Raumtemperatur Wohnzimmer": 5,
+            "Türkontakt Eingang.Q": 1,
+            "Garagentor Sensor.Q": 1,
+            "Pool Temperatur": 5,
+            "Raumtemperatur Bad": 15,
+            "Vorlauftemperatur": 35,
+            "Puffertemperatur": 50,
+            "Warmwasserspeicher": 45,
+            "Kesseltemperatur": 70,
+            "Solarproduktion": 5000,
+            "Hausverbrauch": 1000
           },
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Raumregler.AQh": {
-              ">": 0
+            "Modus Trigger [Wohnzimmer].Q": {
+              ">": 0.5
             }
-          }
+          },
+          "time": 1380
         },
         {
-          "name": "fancoil controllers idle when no mode change",
-          "inputs": {
-            "Außentemperatur.AQ": 22.0
-          },
+          "name": "neg",
+          "inputs": {},
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Raumregler.AQh": {
-              "==": 0
+            "Modus Trigger [Wohnzimmer].Q": {
+              "<": 0.5
             }
-          }
+          },
+          "time": 720
         }
       ]
     }

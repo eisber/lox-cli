@@ -765,17 +765,18 @@
             "Türkontakt Eingang.Q": 1,
             "Garagentor Sensor.Q": 1,
             "Pool Temperatur": 5,
-            "Feuchtesensor Garten": 5,
-            "Bewässerung Manuell.Q": 1,
-            "Regen": 0,
-            "Windgeschwindigkeit": 50,
-            "Türklingel.Q": 1,
-            "Bewegungsmelder Garten.OutputPresence": 1
+            "Raumtemperatur Bad": 15,
+            "Vorlauftemperatur": 35,
+            "Puffertemperatur": 50,
+            "Warmwasserspeicher": 45,
+            "Kesseltemperatur": 70,
+            "Solarproduktion": 5000,
+            "Hausverbrauch": 1000
           },
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Langer Druck Wohnzimmer [Wohnzimmer].Q1": {
+            "Langer Tastendruck [Wohnzimmer].Q1": {
               ">": 0.5
             }
           },
@@ -787,7 +788,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Langer Druck Wohnzimmer [Wohnzimmer].Q1": {
+            "Langer Tastendruck [Wohnzimmer].Q1": {
               "<": 0.5
             }
           },
@@ -911,30 +912,49 @@
       "params": [],
       "simulation": [
         {
-          "name": "door sensor triggers alarm",
+          "name": "pos",
           "inputs": {
-            "Garagentor Sensor.Q": 1
+            "Sonnenschein": 1,
+            "Helligkeit": 10,
+            "Außentemperatur": -5,
+            "Bewegungsmelder.OutputPresence": 1,
+            "Schalter 1.Q": 1,
+            "Schalter 2.Q": 1,
+            "Luftfeuchtigkeit": 80,
+            "CO2 Sensor": 1200,
+            "PushButton.InputTrigger": 1,
+            "Raumtemperatur Wohnzimmer": 5,
+            "Türkontakt Eingang.Q": 1,
+            "Garagentor Sensor.Q": 1,
+            "Pool Temperatur": 5,
+            "Raumtemperatur Bad": 15,
+            "Vorlauftemperatur": 35,
+            "Puffertemperatur": 50,
+            "Warmwasserspeicher": 45,
+            "Kesseltemperatur": 70,
+            "Solarproduktion": 5000,
+            "Hausverbrauch": 1000
           },
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Garagenlicht [Garage].I1": {
+            "Alarmanlage [Flur].AQ": {
               ">": 0.5
             }
-          }
+          },
+          "time": 1380
         },
         {
-          "name": "no sensor no alarm",
-          "inputs": {
-            "Garagentor Sensor.Q": 0
-          },
+          "name": "neg",
+          "inputs": {},
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Garagenlicht [Garage].I1": {
+            "Alarmanlage [Flur].AQ": {
               "<": 0.5
             }
-          }
+          },
+          "time": 720
         }
       ]
     }
@@ -1112,27 +1132,28 @@
       "params": [],
       "simulation": [
         {
-          "name": "should activate when door opens",
+          "name": "pos",
           "inputs": {
-            "Türkontakt Eingang.Q": 1.0
+            "KNX Temperatur Garage": 1000
           },
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "KNX.I": {
+            "Garagentemperatur [Garage].AQ": {
               ">": 0.5
             }
-          }
+          },
+          "time": 1380
         },
         {
-          "name": "should NOT activate when door closed",
+          "name": "neg",
           "inputs": {
-            "Türkontakt Eingang.Q": 0.0
+            "KNX Temperatur Garage": 0
           },
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "KNX.I": {
+            "Garagentemperatur [Garage].AQ": {
               "<": 0.5
             }
           }

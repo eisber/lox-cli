@@ -412,8 +412,11 @@ fn block_signature(
         "FlipFlop" | "RSFlipFlop" | "SRFlipFlop" => {
             (&["InputS", "InputR", "InputTrigger"], &["Q"], &[])
         }
+        "Fan" | "Fancoil" | "FancoilFreshAir" | "Ventilation" | "Ventilation2"
+        | "VentInternorm" | "ToiletFan" => (&["Fan"], &["OFan", "OFanS"], &["Fmax"]),
         "Gain" => (&["I1"], &["Q"], &["Factor"]),
         "Greater" | "GreaterEqual" | "Less" | "LessEqual" => (&["Input1", "Input2"], &["Q"], &[]),
+        "LongClick" => (&["InputTrigger", "Reset"], &["Q2"], &["Max"]),
         "Monoflop" => (&["InputTrigger"], &["Q"], &["Time"]),
         "Minmax" => (
             &["Input1", "Input2", "Input3", "Input4"],
@@ -612,6 +615,7 @@ fn block_signature(
                 "Servicemode",
             ],
         ),
+        "State" => (&["I1", "I2", "I3", "I4", "I5"], &["AQ"], &["NumStates"]),
         "StateV" => (&["I"], &["AQ"], &[]),
         "SysVar" => (&["I1"], &["AQ"], &[]),
         "VirtualIn" | "VirtualOut" => (&["I1", "Input"], &["Q", "AQ", "Qm"], &[]),

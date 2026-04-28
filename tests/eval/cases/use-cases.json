@@ -926,32 +926,49 @@
       ],
       "simulation": [
         {
-          "name": "heating valve opens when room temp below setpoint",
+          "name": "pos",
           "inputs": {
-            "Außentemperatur.AQ": 18.0,
-            "Luftfeuchtigkeit.AQ": 50.0
+            "Sonnenschein": 1,
+            "Helligkeit": 10,
+            "Außentemperatur": -5,
+            "Bewegungsmelder.OutputPresence": 1,
+            "Schalter 1.Q": 1,
+            "Schalter 2.Q": 1,
+            "Luftfeuchtigkeit": 80,
+            "CO2 Sensor": 1200,
+            "PushButton.InputTrigger": 1,
+            "Raumtemperatur Wohnzimmer": 5,
+            "Türkontakt Eingang.Q": 1,
+            "Garagentor Sensor.Q": 1,
+            "Pool Temperatur": 5,
+            "Raumtemperatur Bad": 15,
+            "Vorlauftemperatur": 35,
+            "Puffertemperatur": 50,
+            "Warmwasserspeicher": 45,
+            "Kesseltemperatur": 70,
+            "Solarproduktion": 5000,
+            "Hausverbrauch": 1000
           },
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Raumregler.AQh": {
-              ">": 0
+            "PV Überschuss [Garage].AQ": {
+              ">": 0.5
             }
-          }
+          },
+          "time": 1380
         },
         {
-          "name": "heating valve closed when room temp above setpoint",
-          "inputs": {
-            "Außentemperatur.AQ": 25.0,
-            "Luftfeuchtigkeit.AQ": 50.0
-          },
+          "name": "neg",
+          "inputs": {},
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Raumregler.AQh": {
-              "==": 0
+            "PV Überschuss [Garage].AQ": {
+              "<": 0.5
             }
-          }
+          },
+          "time": 720
         }
       ]
     }
@@ -5388,30 +5405,49 @@
       ],
       "simulation": [
         {
-          "name": "cleaning mode activates lights to 100% on NFC scan",
+          "name": "pos",
           "inputs": {
-            "Bewegungsmelder.OutputPresence": 1.0
+            "Sonnenschein": 1,
+            "Helligkeit": 10,
+            "Außentemperatur": -5,
+            "Bewegungsmelder.OutputPresence": 1,
+            "Schalter 1.Q": 1,
+            "Schalter 2.Q": 1,
+            "Luftfeuchtigkeit": 80,
+            "CO2 Sensor": 1200,
+            "PushButton.InputTrigger": 1,
+            "Raumtemperatur Wohnzimmer": 5,
+            "Türkontakt Eingang.Q": 1,
+            "Garagentor Sensor.Q": 1,
+            "Pool Temperatur": 5,
+            "Raumtemperatur Bad": 15,
+            "Vorlauftemperatur": 35,
+            "Puffertemperatur": 50,
+            "Warmwasserspeicher": 45,
+            "Kesseltemperatur": 70,
+            "Solarproduktion": 5000,
+            "Hausverbrauch": 1000
           },
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Lichtsteuerung [Wohnzimmer].AQ1": {
+            "Lichtsteuerung [Flur].Scene": {
               ">": 0.5
             }
-          }
+          },
+          "time": 1380
         },
         {
-          "name": "cleaning mode deactivates on departure",
-          "inputs": {
-            "Bewegungsmelder.OutputPresence": 0.0
-          },
+          "name": "neg",
+          "inputs": {},
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Lichtsteuerung [Wohnzimmer].AQ1": {
+            "Lichtsteuerung [Flur].Scene": {
               "<": 0.5
             }
-          }
+          },
+          "time": 720
         }
       ]
     }
@@ -6187,27 +6223,32 @@
       ],
       "simulation": [
         {
-          "name": "locker unlocks on valid NFC scan",
+          "name": "pos",
           "inputs": {
-            "Bewegungsmelder.OutputPresence": 1.0
+            "Schließfach 3 Öffner": 1000,
+            "Zugang OK Signal": 1000,
+            "Zugang Abgelehnt": 1000
           },
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Türschloss.AQ": {
+            "Türschloss [Flur].AQ": {
               ">": 0.5
             }
-          }
+          },
+          "time": 1380
         },
         {
-          "name": "locker stays locked without NFC scan",
+          "name": "neg",
           "inputs": {
-            "Bewegungsmelder.OutputPresence": 0.0
+            "Schließfach 3 Öffner": 0,
+            "Zugang OK Signal": 0,
+            "Zugang Abgelehnt": 0
           },
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Türschloss.AQ": {
+            "Türschloss [Flur].AQ": {
               "<": 0.5
             }
           }
@@ -10930,32 +10971,49 @@
       ],
       "simulation": [
         {
-          "name": "heating rod activates on PV surplus or cheap price",
+          "name": "pos",
           "inputs": {
-            "Sonnenschein.AQ": 1.0,
-            "Außentemperatur.AQ": 25.0
+            "Sonnenschein": 1,
+            "Helligkeit": 10,
+            "Außentemperatur": -5,
+            "Bewegungsmelder.OutputPresence": 1,
+            "Schalter 1.Q": 1,
+            "Schalter 2.Q": 1,
+            "Luftfeuchtigkeit": 80,
+            "CO2 Sensor": 1200,
+            "PushButton.InputTrigger": 1,
+            "Raumtemperatur Wohnzimmer": 5,
+            "Türkontakt Eingang.Q": 1,
+            "Garagentor Sensor.Q": 1,
+            "Pool Temperatur": 5,
+            "Raumtemperatur Bad": 15,
+            "Vorlauftemperatur": 35,
+            "Puffertemperatur": 50,
+            "Warmwasserspeicher": 45,
+            "Kesseltemperatur": 70,
+            "Solarproduktion": 5000,
+            "Hausverbrauch": 1000
           },
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Heizstab.AQ": {
+            "Heizstab [Bad].AQ": {
               ">": 0.5
             }
-          }
+          },
+          "time": 1380
         },
         {
-          "name": "heating rod off without surplus or cheap price",
-          "inputs": {
-            "Sonnenschein.AQ": 0.0,
-            "Außentemperatur.AQ": 10.0
-          },
+          "name": "neg",
+          "inputs": {},
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Heizstab.AQ": {
+            "Heizstab [Bad].AQ": {
               "<": 0.5
             }
-          }
+          },
+          "time": 720
         }
       ]
     }
