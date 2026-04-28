@@ -861,27 +861,27 @@
       "params": [],
       "simulation": [
         {
-          "name": "pos",
+          "name": "night mode eco",
           "inputs": {
-            "Nacht": 1000
+            "Nacht": 1
           },
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Raumregler [Wohnzimmer].AQc": {
+            "Raumregler.Save": {
               ">": 0.5
             }
           }
         },
         {
-          "name": "neg",
+          "name": "no night",
           "inputs": {
             "Nacht": 0
           },
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Raumregler [Wohnzimmer].AQc": {
+            "Raumregler.Save": {
               "<": 0.5
             }
           }
@@ -1182,28 +1182,27 @@
       "params": [],
       "simulation": [
         {
-          "name": "pos",
+          "name": "night mode",
           "inputs": {
-            "Nachtmodus": 1000
+            "Nachtmodus": 1
           },
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Raumregler [Wohnzimmer].AQc": {
+            "Raumregler.Save": {
               ">": 0.5
             }
-          },
-          "time": 1380
+          }
         },
         {
-          "name": "neg",
+          "name": "day mode",
           "inputs": {
             "Nachtmodus": 0
           },
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Raumregler [Wohnzimmer].AQc": {
+            "Raumregler.Save": {
               "<": 0.5
             }
           }
