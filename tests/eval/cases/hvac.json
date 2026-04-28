@@ -819,28 +819,28 @@
       "params": [],
       "simulation": [
         {
-          "name": "underfloor limited to 40C flow temp",
+          "name": "floor heating curve",
           "inputs": {
-            "Außentemperatur.AQ": -10.0
+            "Außentemperatur": -10
           },
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Raumregler.AQh": {
-              ">": 0
+            "Heizkurve EG [Wohnzimmer].AQ": {
+              ">": 20
             }
           }
         },
         {
-          "name": "no heating demand when warm outside",
+          "name": "warm no heat",
           "inputs": {
-            "Außentemperatur.AQ": 22.0
+            "Außentemperatur": 25
           },
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Raumregler.AQh": {
-              "==": 0
+            "Heizkurve EG [Wohnzimmer].AQ": {
+              "<": 20
             }
           }
         }

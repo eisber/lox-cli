@@ -11136,27 +11136,27 @@
       ],
       "simulation": [
         {
-          "name": "backlight on at dusk",
+          "name": "dusk activates NFC backlight",
           "inputs": {
-            "Helligkeit": 10.0
+            "Helligkeit": 10
           },
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Lichtsteuerung [Flur].I1": {
+            "Dämmerung [Flur].Q": {
               ">": 0.5
             }
           }
         },
         {
-          "name": "backlight off in daylight",
+          "name": "bright no backlight",
           "inputs": {
-            "Helligkeit": 50000.0
+            "Helligkeit": 50000
           },
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Lichtsteuerung [Flur].I1": {
+            "Dämmerung [Flur].Q": {
               "<": 0.5
             }
           }

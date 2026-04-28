@@ -127,27 +127,27 @@
       ],
       "simulation": [
         {
-          "name": "should trigger when condition met",
+          "name": "dark closes blind",
           "inputs": {
-            "Sonnenschein.AQ": 1.0
+            "Helligkeit": 10
           },
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "200.InputTriggerDown": {
+            "Jalousie 1 [Küche].InputTriggerDown": {
               ">": 0.5
             }
           }
         },
         {
-          "name": "should NOT trigger when condition not met",
+          "name": "bright no close",
           "inputs": {
-            "Sonnenschein.AQ": 0.0
+            "Helligkeit": 50000
           },
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "200.InputTriggerDown": {
+            "Jalousie 1 [Küche].InputTriggerDown": {
               "<": 0.5
             }
           }
