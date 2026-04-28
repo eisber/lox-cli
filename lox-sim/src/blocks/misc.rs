@@ -806,6 +806,10 @@ impl Block for LongClick {
     fn block_type(&self) -> &str {
         "LongClick"
     }
+
+    fn is_time_dependent(&self) -> bool {
+        true
+    }
 }
 
 // ---------------------------------------------------------------------------

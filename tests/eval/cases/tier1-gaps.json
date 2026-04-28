@@ -751,49 +751,28 @@
       ],
       "simulation": [
         {
-          "name": "pos",
+          "name": "long press activates",
           "inputs": {
-            "Sonnenschein": 1,
-            "Helligkeit": 10,
-            "Außentemperatur": -5,
-            "Bewegungsmelder.OutputPresence": 1,
-            "Schalter 1.Q": 1,
-            "Schalter 2.Q": 1,
-            "Luftfeuchtigkeit": 80,
-            "CO2 Sensor": 1200,
-            "PushButton.InputTrigger": 1,
-            "Raumtemperatur Wohnzimmer": 5,
-            "Türkontakt Eingang.Q": 1,
-            "Garagentor Sensor.Q": 1,
-            "Pool Temperatur": 5,
-            "Raumtemperatur Bad": 15,
-            "Vorlauftemperatur": 35,
-            "Puffertemperatur": 50,
-            "Warmwasserspeicher": 45,
-            "Kesseltemperatur": 70,
-            "Solarproduktion": 5000,
-            "Hausverbrauch": 1000
+            "Schalter 1.Q": 1
           },
-          "ticks": 10,
+          "ticks": 30,
           "dt": 0.1,
           "expected_outputs": {
-            "Langer Tastendruck [Wohnzimmer].Q1": {
+            "Lichtsteuerung [Wohnzimmer].I1": {
               ">": 0.5
             }
-          },
-          "time": 1380
+          }
         },
         {
-          "name": "neg",
+          "name": "no press",
           "inputs": {},
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Langer Tastendruck [Wohnzimmer].Q1": {
+            "Lichtsteuerung [Wohnzimmer].I1": {
               "<": 0.5
             }
-          },
-          "time": 720
+          }
         }
       ]
     }
