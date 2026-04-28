@@ -708,30 +708,30 @@
       "params": [],
       "simulation": [
         {
-          "name": "cooling limited above dew point to prevent condensation",
+          "name": "humid→high safe flow temp",
           "inputs": {
-            "Außentemperatur.AQ": 30.0,
-            "Luftfeuchtigkeit.AQ": 70.0
+            "Raumfeuchtigkeit Bad": 80,
+            "Raumtemperatur Bad": 25
           },
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Raumregler.AQc": {
-              ">": 0
+            "Vorlauf Minimum [Bad].AQmax": {
+              ">": 18
             }
           }
         },
         {
-          "name": "no cooling when already below dew point risk",
+          "name": "dry→low safe flow temp",
           "inputs": {
-            "Außentemperatur.AQ": 20.0,
-            "Luftfeuchtigkeit.AQ": 40.0
+            "Raumfeuchtigkeit Bad": 20,
+            "Raumtemperatur Bad": 20
           },
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Raumregler.AQc": {
-              "==": 0
+            "Vorlauf Minimum [Bad].AQmax": {
+              "<": 18
             }
           }
         }
