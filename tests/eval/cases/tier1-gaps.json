@@ -1114,9 +1114,28 @@
         {
           "name": "pos",
           "inputs": {
+            "Raumtemperatur Bad": 15,
+            "Raumfeuchtigkeit Bad": 70,
+            "Raumtemperatur Wohnzimmer": 18,
+            "Raumtemperatur Schlafzimmer": 16,
+            "Außentemperatur": -5,
+            "Luftfeuchtigkeit": 80,
+            "CO2 Sensor": 1200,
+            "Schalter 1.Q": 1,
+            "Schalter 2.Q": 1,
+            "PushButton.InputTrigger": 1,
+            "Vorlauftemperatur": 35,
+            "Puffertemperatur": 50,
+            "Warmwasserspeicher": 45,
+            "Kesseltemperatur": 70,
+            "Solarproduktion": 5000,
+            "Hausverbrauch": 1000,
+            "Bewegungsmelder.OutputPresence": 1,
+            "Sonnenschein": 1,
+            "Helligkeit": 10,
             "KNX Temperatur Garage": 1000
           },
-          "ticks": 10,
+          "ticks": 30,
           "dt": 0.1,
           "expected_outputs": {
             "Garagentemperatur [Garage].AQ": {
@@ -1127,16 +1146,15 @@
         },
         {
           "name": "neg",
-          "inputs": {
-            "KNX Temperatur Garage": 0
-          },
+          "inputs": {},
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
             "Garagentemperatur [Garage].AQ": {
               "<": 0.5
             }
-          }
+          },
+          "time": 720
         }
       ]
     }
