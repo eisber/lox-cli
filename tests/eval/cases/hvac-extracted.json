@@ -43,26 +43,28 @@
         {
           "name": "cold bath heats",
           "inputs": {
-            "Raumtemperatur Bad": 15
+            "Raumtemperatur Bad": 15,
+            "Außentemperatur": -5
           },
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Heizkörper Bad.I1": {
-              ">": 0.5
+            "Raumregler Bad [Bad].AQh": {
+              ">": 0
             }
           }
         },
         {
           "name": "warm bath no heat",
           "inputs": {
-            "Raumtemperatur Bad": 25
+            "Raumtemperatur Bad": 28,
+            "Außentemperatur": 20
           },
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Heizkörper Bad.I1": {
-              "<": 0.5
+            "Raumregler Bad [Bad].AQh": {
+              "==": 0
             }
           }
         }
@@ -260,27 +262,29 @@
       ],
       "simulation": [
         {
-          "name": "heating demand from dual-source IRC when cold",
+          "name": "cold bedroom heats",
           "inputs": {
-            "Außentemperatur.AQ": 15.0
+            "Raumtemperatur Schlafzimmer": 15,
+            "Außentemperatur": -5
           },
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Raumregler.AQh": {
+            "Raumregler Schlafzimmer [Schlafzimmer].AQh": {
               ">": 0
             }
           }
         },
         {
-          "name": "no heating demand when room temp satisfied",
+          "name": "warm bedroom no heat",
           "inputs": {
-            "Außentemperatur.AQ": 25.0
+            "Raumtemperatur Schlafzimmer": 28,
+            "Außentemperatur": 20
           },
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Raumregler.AQh": {
+            "Raumregler Schlafzimmer [Schlafzimmer].AQh": {
               "==": 0
             }
           }
