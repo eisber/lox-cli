@@ -329,7 +329,7 @@ fn resolve_output(engine: &SimEngine, graph: &lox_sim::graph::SimGraph, output_k
                 || info
                     .room
                     .as_ref()
-                    .map_or(false, |r| format!("{} [{}]", info.name, r) == block_name);
+                    .is_some_and(|r| format!("{} [{}]", info.name, r) == block_name);
             if !name_matches {
                 continue;
             }
