@@ -826,8 +826,8 @@ impl Block for Ventilation {
     ) -> Vec<Signal> {
         let fan = inputs.first().copied().unwrap_or(0.0);
         let window = inputs.get(4).copied().unwrap_or(0.0); // IN_W_C
-        let speed = inputs.get(6).copied().unwrap_or(0.0);  // IN_S
-        let sleep = inputs.get(7).copied().unwrap_or(0.0);   // IN_SL
+        let speed = inputs.get(6).copied().unwrap_or(0.0); // IN_S
+        let sleep = inputs.get(7).copied().unwrap_or(0.0); // IN_SL
         let trigger = inputs.get(10).copied().unwrap_or(0.0); // Trigger
 
         // Window open → shut off
@@ -843,9 +843,13 @@ impl Block for Ventilation {
         vec![level, norm, norm, norm]
     }
 
-    fn state(&self) -> Option<Vec<u8>> { None }
+    fn state(&self) -> Option<Vec<u8>> {
+        None
+    }
     fn restore(&mut self, _state: &[u8]) {}
-    fn block_type(&self) -> &str { "Ventilation" }
+    fn block_type(&self) -> &str {
+        "Ventilation"
+    }
 }
 
 // ---------------------------------------------------------------------------

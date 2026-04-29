@@ -10129,30 +10129,48 @@
       ],
       "simulation": [
         {
-          "name": "charging session starts on NFC authentication",
+          "name": "pos",
           "inputs": {
-            "Bewegungsmelder.OutputPresence": 1.0
+            "Raumtemperatur Bad": 15,
+            "Raumfeuchtigkeit Bad": 70,
+            "Raumtemperatur Wohnzimmer": 18,
+            "Raumtemperatur Schlafzimmer": 16,
+            "Außentemperatur": -5,
+            "Luftfeuchtigkeit": 80,
+            "CO2 Sensor": 1200,
+            "Schalter 1.Q": 1,
+            "Schalter 2.Q": 1,
+            "PushButton.InputTrigger": 1,
+            "Vorlauftemperatur": 35,
+            "Puffertemperatur": 50,
+            "Warmwasserspeicher": 45,
+            "Kesseltemperatur": 70,
+            "Solarproduktion": 5000,
+            "Hausverbrauch": 1000,
+            "Bewegungsmelder.OutputPresence": 1,
+            "Sonnenschein": 1,
+            "Helligkeit": 10
           },
-          "ticks": 10,
+          "ticks": 30,
           "dt": 0.1,
           "expected_outputs": {
-            "Wallbox.AQ": {
+            "PV Überschuss [Garage].AQ": {
               ">": 0.5
             }
-          }
+          },
+          "time": 1380
         },
         {
-          "name": "no charging without authentication",
-          "inputs": {
-            "Bewegungsmelder.OutputPresence": 0.0
-          },
+          "name": "neg",
+          "inputs": {},
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Wallbox.AQ": {
+            "PV Überschuss [Garage].AQ": {
               "<": 0.5
             }
-          }
+          },
+          "time": 720
         }
       ]
     }

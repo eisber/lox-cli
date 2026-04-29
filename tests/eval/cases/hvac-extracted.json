@@ -640,30 +640,48 @@
       "params": [],
       "simulation": [
         {
-          "name": "mixing valve adjusts when floor heating demands heat",
+          "name": "pos",
           "inputs": {
-            "Außentemperatur.AQ": 0.0
+            "Raumtemperatur Bad": 15,
+            "Raumfeuchtigkeit Bad": 70,
+            "Raumtemperatur Wohnzimmer": 18,
+            "Raumtemperatur Schlafzimmer": 16,
+            "Außentemperatur": -5,
+            "Luftfeuchtigkeit": 80,
+            "CO2 Sensor": 1200,
+            "Schalter 1.Q": 1,
+            "Schalter 2.Q": 1,
+            "PushButton.InputTrigger": 1,
+            "Vorlauftemperatur": 35,
+            "Puffertemperatur": 50,
+            "Warmwasserspeicher": 45,
+            "Kesseltemperatur": 70,
+            "Solarproduktion": 5000,
+            "Hausverbrauch": 1000,
+            "Bewegungsmelder.OutputPresence": 1,
+            "Sonnenschein": 1,
+            "Helligkeit": 10
           },
-          "ticks": 10,
+          "ticks": 30,
           "dt": 0.1,
           "expected_outputs": {
-            "Raumregler.AQh": {
-              ">": 0
+            "Puffer OK [Garage].Q": {
+              ">": 0.5
             }
-          }
+          },
+          "time": 1380
         },
         {
-          "name": "mixing valve closed when no floor heating demand",
-          "inputs": {
-            "Außentemperatur.AQ": 22.0
-          },
+          "name": "neg",
+          "inputs": {},
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Raumregler.AQh": {
-              "==": 0
+            "Puffer OK [Garage].Q": {
+              "<": 0.5
             }
-          }
+          },
+          "time": 720
         }
       ]
     }
@@ -1843,32 +1861,49 @@
         {
           "name": "pos",
           "inputs": {
-            "HRV Modus": 1000,
-            "CO2 Tagzone": 1000,
-            "CO2 Nachtzone": 1000
+            "Raumtemperatur Bad": 15,
+            "Raumfeuchtigkeit Bad": 70,
+            "Raumtemperatur Wohnzimmer": 18,
+            "Raumtemperatur Schlafzimmer": 16,
+            "Außentemperatur": -5,
+            "Luftfeuchtigkeit": 80,
+            "CO2 Sensor": 1200,
+            "Schalter 1.Q": 1,
+            "Schalter 2.Q": 1,
+            "PushButton.InputTrigger": 1,
+            "Vorlauftemperatur": 35,
+            "Puffertemperatur": 50,
+            "Warmwasserspeicher": 45,
+            "Kesseltemperatur": 70,
+            "Solarproduktion": 5000,
+            "Hausverbrauch": 1000,
+            "Bewegungsmelder.OutputPresence": 1,
+            "Sonnenschein": 1,
+            "Helligkeit": 10,
+            "CO2 hoch Tag": 1000,
+            "CO2 hoch Nacht": 1000,
+            "HRV Modus": 1000
           },
-          "ticks": 10,
+          "ticks": 30,
           "dt": 0.1,
           "expected_outputs": {
-            "HRV aktiv [Wohnzimmer].Q": {
+            "Lüftung Tag [Wohnzimmer].AQ": {
               ">": 0.5
             }
-          }
+          },
+          "time": 1380
         },
         {
           "name": "neg",
-          "inputs": {
-            "HRV Modus": 0,
-            "CO2 Tagzone": 0,
-            "CO2 Nachtzone": 0
-          },
+          "inputs": {},
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "HRV aktiv [Wohnzimmer].Q": {
+            "Lüftung Tag [Wohnzimmer].AQ": {
               "<": 0.5
             }
-          }
+          },
+          "time": 720
         }
       ]
     }

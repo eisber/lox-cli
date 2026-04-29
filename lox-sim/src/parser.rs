@@ -58,21 +58,12 @@ pub fn parse_element(root: &Element) -> Result<SimGraph, String> {
         // but XML may list connectors in any order.
         let (sig_inputs, sig_outputs, sig_params) = block_signature(&parsed.block_type);
 
-        let input_keys = order_keys_by_signature(
-            &parsed.connectors,
-            ConnectorDir::Input,
-            sig_inputs,
-        );
-        let output_keys = order_keys_by_signature(
-            &parsed.connectors,
-            ConnectorDir::Output,
-            sig_outputs,
-        );
-        let param_keys = order_keys_by_signature(
-            &parsed.connectors,
-            ConnectorDir::Parameter,
-            sig_params,
-        );
+        let input_keys =
+            order_keys_by_signature(&parsed.connectors, ConnectorDir::Input, sig_inputs);
+        let output_keys =
+            order_keys_by_signature(&parsed.connectors, ConnectorDir::Output, sig_outputs);
+        let param_keys =
+            order_keys_by_signature(&parsed.connectors, ConnectorDir::Parameter, sig_params);
 
         let block: Box<dyn Block> = if parsed.block_type == "DayTimer" {
             Box::new(DayTimer::new(parsed.daytimer_entries.clone()))
@@ -432,6 +423,19 @@ fn block_signature(
         "And" => (&["I1", "I2"], &["Q"], &[]),
         "Constant" => (&[], &["Q"], &["Value"]),
         "Counter" => (&["Trigger", "I1"], &["Q", "AQ"], &["EndValue", "Mode"]),
+        "AlarmClock" => (
+            &[
+                "minutes_since_midnight",
+                "day_of_week",
+                "Deactivate",
+                "Acknowledge",
+                "Snooze",
+                "TgMe",
+                "TMe",
+            ],
+            &["Qat", "QTp", "Qa", "QTa", "QTe", "AQs", "QMe", "QTna"],
+            &["AlarmTime", "PrepTime", "SnoozeTime"],
+        ),
         "DayTimer" => (
             &["minutes_since_midnight", "day_of_week", "InputTrigger"],
             &["AQ", "AQm", "Qon", "Qoff", "AQmt"],
@@ -448,15 +452,13 @@ fn block_signature(
         "FlipFlop" | "RSFlipFlop" | "SRFlipFlop" => {
             (&["InputS", "InputR", "InputTrigger"], &["Q"], &[])
         }
-        "Fan" | "Fancoil" | "FancoilFreshAir" | "ToiletFan" => (
-            &["Fan"],
-            &["OFan", "OFanS"],
-            &["Fmax"],
-        ),
+        "Fan" | "Fancoil" | "FancoilFreshAir" | "ToiletFan" => {
+            (&["Fan"], &["OFan", "OFanS"], &["Fmax"])
+        }
         "Ventilation" | "Ventilation2" | "VentInternorm" => (
             &[
-                "Fan", "IN_H_I", "IN_A_I", "IN_T_O", "IN_W_C", "IN_P", "IN_S",
-                "IN_SL", "IN_T", "IN_E", "Trigger", "Reset",
+                "Fan", "IN_H_I", "IN_A_I", "IN_T_O", "IN_W_C", "IN_P", "IN_S", "IN_SL", "IN_T",
+                "IN_E", "Trigger", "Reset",
             ],
             &["OFan", "OFanS", "OUT_V", "AQ"],
             &["Fmax"],
@@ -618,9 +620,25 @@ fn block_signature(
             ],
         ),
         "HeatIRoomController2" | "ClimateControllerUS" | "HVACController" => (
-            &["Temp", "Input", "Reset", "InputDisable", "AMode", "CoolingSetpoint",
-              "Window", "Comfort", "Save", "Save2", "Move", "DisMv", "TempO",
-              "InCo2", "InHumid", "inFan", "inAirDir"],
+            &[
+                "Temp",
+                "Input",
+                "Reset",
+                "InputDisable",
+                "AMode",
+                "CoolingSetpoint",
+                "Window",
+                "Comfort",
+                "Save",
+                "Save2",
+                "Move",
+                "DisMv",
+                "TempO",
+                "InCo2",
+                "InHumid",
+                "inFan",
+                "inAirDir",
+            ],
             &["AQh", "AQc", "AQhc", "AQh1", "AQh2"],
             &[
                 "TComfort",
@@ -676,7 +694,9 @@ fn block_signature(
         // NFC Code Touch — keypad with code validation
         "NfcCodeTouch" => (
             &["Disable", "Lr", "Lg", "Lb", "Lw"],
-            &["Q1", "Q2", "TQ", "TQU", "TQo", "TQt", "Qd", "Qa", "Qn", "Be"],
+            &[
+                "Q1", "Q2", "TQ", "TQU", "TQo", "TQt", "Qd", "Qa", "Qn", "Be",
+            ],
             &[],
         ),
         // Wallbox Energy Manager
@@ -687,18 +707,31 @@ fn block_signature(
         ),
         // Wallbox charger
         "Wallbox" | "WallboxAir" => (
-            &["allow", "prio", "connected", "power", "energy", "active",
-              "ocppAuth", "sessStop", "rebootDev",
-              "setmode1", "setmode2", "setmode3", "setmode4", "setmode5"],
-            &["valmode1", "valmode2", "valmode3", "valmode4", "valmode5",
-              "state", "charging", "plugged"],
+            &[
+                "allow",
+                "prio",
+                "connected",
+                "power",
+                "energy",
+                "active",
+                "ocppAuth",
+                "sessStop",
+                "rebootDev",
+                "setmode1",
+                "setmode2",
+                "setmode3",
+                "setmode4",
+                "setmode5",
+            ],
+            &[
+                "valmode1", "valmode2", "valmode3", "valmode4", "valmode5", "state", "charging",
+                "plugged",
+            ],
             &[],
         ),
         // Structural/cosmetic blocks
-        "VirtualInCaption" | "WeatherServer" | "LightscenesC" | "LightsceneC"
-        | "TreeDevice" | "LoxAIRDevice" | "NetworkDevice" | "LoxCaption" => (
-            &[], &[], &[],
-        ),
+        "VirtualInCaption" | "WeatherServer" | "LightscenesC" | "LightsceneC" | "TreeDevice"
+        | "LoxAIRDevice" | "NetworkDevice" | "LoxCaption" => (&[], &[], &[]),
         _ => (&[], &[], &[]),
     }
 }

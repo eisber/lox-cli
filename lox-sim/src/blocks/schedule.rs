@@ -151,14 +151,18 @@ impl Block for AlarmClock {
         dt: f64,
         _prev_inputs: &[Signal],
     ) -> Vec<Signal> {
+        // inputs: [0]=minutes_since_midnight, [1]=day_of_week, [2]=Deactivate,
+        //         [3]=Acknowledge, [4]=Snooze, [5]=TgMe, [6]=TMe (alarm minute)
+        // params: [0]=AlarmTime (seconds), [1]=PrepTime (seconds), [2]=SnoozeTime
         let minutes = inputs.first().copied().unwrap_or(0.0);
         let _day_of_week = inputs.get(1).copied().unwrap_or(0.0);
-        let enabled = inputs.get(2).copied().unwrap_or(1.0);
-        let alarm_minute = params.first().copied().unwrap_or(420.0); // 7:00 AM
-        let alarm_duration = params.get(1).copied().unwrap_or(60.0).max(0.0);
-        let prep_minutes = params.get(2).copied().unwrap_or(0.0).max(0.0);
+        let deactivated = inputs.get(2).copied().unwrap_or(0.0);
+        let tme = inputs.get(6).copied().unwrap_or(0.0);
+        let alarm_minute = if tme > 0.0 { tme } else { 420.0 }; // default 7:00 AM
+        let alarm_duration = params.first().copied().unwrap_or(120.0).max(0.0);
+        let prep_minutes = (params.get(1).copied().unwrap_or(180.0).max(0.0)) / 60.0;
 
-        if !is_high(enabled) {
+        if is_high(deactivated) {
             self.alarm_remaining = 0.0;
             self.last_minutes = minutes;
             return vec![0.0, 0.0];
@@ -412,42 +416,48 @@ mod tests {
     #[test]
     fn alarm_clock_triggers_at_configured_time() {
         let mut block = AlarmClock::new();
-        // alarm at minute 60 (1:00 AM), duration 30s
+        // alarm at minute 60 (1:00 AM) via TMe input[6], duration 30s via param[0]
+        let inputs = |min: f64, deact: f64| vec![min, 0.0, deact, 0.0, 0.0, 0.0, 60.0];
+        let params = [30.0, 0.0]; // AlarmTime=30s, PrepTime=0s
         assert_eq!(
-            block.eval(&[50.0, 0.0, 1.0], &[60.0, 30.0, 0.0], 1.0, &[]),
+            block.eval(&inputs(50.0, 0.0), &params, 1.0, &[]),
             vec![0.0, 0.0]
         );
         // Cross the alarm minute (remaining starts at 30, -1 → 29)
-        let out = block.eval(&[60.0, 0.0, 1.0], &[60.0, 30.0, 0.0], 1.0, &[]);
+        let out = block.eval(&inputs(60.0, 0.0), &params, 1.0, &[]);
         assert_eq!(out[0], 1.0); // alarm active
                                  // Still active after 10s (29-10 = 19 remaining)
-        let out = block.eval(&[60.5, 0.0, 1.0], &[60.0, 30.0, 0.0], 10.0, &[]);
+        let out = block.eval(&inputs(60.5, 0.0), &params, 10.0, &[]);
         assert_eq!(out[0], 1.0);
         // Drain remaining 19s (output still high this tick, goes to 0)
-        let out = block.eval(&[61.0, 0.0, 1.0], &[60.0, 30.0, 0.0], 19.0, &[]);
+        let out = block.eval(&inputs(61.0, 0.0), &params, 19.0, &[]);
         assert_eq!(out[0], 1.0);
         // Now expired
-        let out = block.eval(&[62.0, 0.0, 1.0], &[60.0, 30.0, 0.0], 1.0, &[]);
+        let out = block.eval(&inputs(62.0, 0.0), &params, 1.0, &[]);
         assert_eq!(out[0], 0.0);
     }
 
     #[test]
     fn alarm_clock_preparation_phase() {
         let mut block = AlarmClock::new();
-        // alarm at 60, prep 10 minutes before
-        let out = block.eval(&[50.0, 0.0, 1.0], &[60.0, 30.0, 10.0], 1.0, &[]);
+        // alarm at 60, prep 600 seconds (10 minutes) before
+        let inputs = |min: f64| vec![min, 0.0, 0.0, 0.0, 0.0, 0.0, 60.0];
+        let params = [30.0, 600.0]; // AlarmTime=30s, PrepTime=600s (10min)
+        let out = block.eval(&inputs(50.0), &params, 1.0, &[]);
         assert_eq!(out[0], 0.0); // alarm not yet
         assert_eq!(out[1], 1.0); // preparation active (50 >= 50 && 50 < 60)
 
-        let out = block.eval(&[45.0, 0.0, 1.0], &[60.0, 30.0, 10.0], 1.0, &[]);
+        let out = block.eval(&inputs(45.0), &params, 1.0, &[]);
         assert_eq!(out[1], 0.0); // too early for preparation
     }
 
     #[test]
     fn alarm_clock_disabled() {
         let mut block = AlarmClock::new();
-        block.eval(&[50.0, 0.0, 1.0], &[60.0, 30.0, 0.0], 1.0, &[]);
-        let out = block.eval(&[60.0, 0.0, 0.0], &[60.0, 30.0, 0.0], 1.0, &[]);
+        let params = [30.0, 0.0]; // AlarmTime=30s, PrepTime=0s
+        block.eval(&[50.0, 0.0, 0.0, 0.0, 0.0, 0.0, 60.0], &params, 1.0, &[]);
+        // Deactivate=1.0 → disabled
+        let out = block.eval(&[60.0, 0.0, 1.0, 0.0, 0.0, 0.0, 60.0], &params, 1.0, &[]);
         assert_eq!(out[0], 0.0); // disabled
     }
 
@@ -527,13 +537,15 @@ mod tests {
     #[test]
     fn alarm_clock_state_roundtrip() {
         let mut b = AlarmClock::new();
-        b.eval(&[50.0, 0.0, 1.0], &[60.0, 60.0, 0.0], 1.0, &[]);
-        b.eval(&[60.0, 0.0, 1.0], &[60.0, 60.0, 0.0], 1.0, &[]);
+        let inputs = |min: f64| vec![min, 0.0, 0.0, 0.0, 0.0, 0.0, 60.0];
+        let params = [60.0, 0.0]; // AlarmTime=60s, PrepTime=0s
+        b.eval(&inputs(50.0), &params, 1.0, &[]);
+        b.eval(&inputs(60.0), &params, 1.0, &[]);
         let state = b.state().unwrap();
         let mut b2 = AlarmClock::new();
         b2.restore(&state);
         // Should still be in alarm state
-        let out = b2.eval(&[61.0, 0.0, 1.0], &[60.0, 60.0, 0.0], 1.0, &[]);
+        let out = b2.eval(&inputs(61.0), &params, 1.0, &[]);
         assert_eq!(out[0], 1.0);
     }
 
