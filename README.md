@@ -97,11 +97,13 @@ Offline Miniserver SPS simulator for testing config changes without hardware:
 
 ---
 
-## Eval Results: 285/285 (100%)
+## Eval Results
 
 The eval harness tests whether an AI agent can correctly configure a Loxone Miniserver from natural language instructions. Each case: utterance → agent builds circuit via CLI → Rust simulator verifies signals propagate correctly.
 
-**285 test cases across 10 categories — all passing:**
+**285 test cases across 10 categories.**
+
+Raw LLM pass rate (agent builds circuit from scratch each run):
 
 | Section | Score | Examples |
 |---------|-------|---------|
@@ -115,6 +117,9 @@ The eval harness tests whether an AI agent can correctly configure a Loxone Mini
 | Use-Cases | 35/40 (88%) | Wallbox charging, NFC lockers, alarm systems |
 | HVAC | 15/18 (83%) | Weather-compensated heating, dewpoint cooling |
 | HVAC-Extracted | 26/32 (81%) | IRC zones, fancoil, HRV ventilation, heat pump |
+| **Total** | **252/268 (94%)** | Core automation: 5 sections at 100% |
+
+Non-deterministic: scores vary ±5% across runs. The remaining failures are complex HVAC chains and specialized hardware (wallbox billing, NFC lockers) where the agent times out or misses wiring.
 
 ### How Evals Work
 
