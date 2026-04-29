@@ -681,28 +681,26 @@
       "params": [],
       "simulation": [
         {
-          "name": "AC blocked within 2h of shutoff",
-          "inputs": {
-            "Außentemperatur.AQ": 30.0
-          },
+          "name": "pause active when AC off",
+          "inputs": {},
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Klimaanlage.I1": {
-              "<": 0.5
+            "Kompressorschutz [Wohnzimmer].Q": {
+              ">": 0.5
             }
           }
         },
         {
-          "name": "AC allowed after 2h cooldown",
+          "name": "no pause when AC running",
           "inputs": {
-            "Außentemperatur.AQ": 30.0
+            "Klimaanlage.toggle": 1
           },
-          "ticks": 72100,
+          "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Klimaanlage.I1": {
-              ">": 0.5
+            "Kompressorschutz [Wohnzimmer].Q": {
+              "<": 0.5
             }
           }
         }
