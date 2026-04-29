@@ -207,6 +207,10 @@ impl Block for AlarmClock {
     fn block_type(&self) -> &str {
         "AlarmClock"
     }
+
+    fn is_time_dependent(&self) -> bool {
+        true
+    }
 }
 
 /// Fire a single pulse at a configured time of day.

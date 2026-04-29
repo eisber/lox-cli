@@ -1360,25 +1360,23 @@
       "params": [],
       "simulation": [
         {
-          "name": "should scale output when active",
-          "inputs": {
-            "Bewegungsmelder.OutputPresence": 1.0
-          },
+          "name": "pre-alarm wake-up",
+          "inputs": {},
           "ticks": 10,
           "dt": 0.1,
+          "time": 418,
           "expected_outputs": {
             "Lichtsteuerung [Schlafzimmer].Brightness": {
-              ">": 0.0
+              ">": 0
             }
           }
         },
         {
-          "name": "should produce no output when inactive",
-          "inputs": {
-            "Bewegungsmelder.OutputPresence": 0.0
-          },
+          "name": "no alarm at noon",
+          "inputs": {},
           "ticks": 10,
           "dt": 0.1,
+          "time": 720,
           "expected_outputs": {
             "Lichtsteuerung [Schlafzimmer].Brightness": {
               "<": 0.5
