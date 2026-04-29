@@ -123,7 +123,7 @@ Non-deterministic: scores vary ±5% across runs. The remaining failures are comp
 
 ### How Evals Work
 
-Each eval case is a JSON spec with an utterance and simulation tests:
+Each eval case is a JSON spec with an utterance and simulation tests. The fixture config (`fixture.Loxone`) provides pre-configured rooms with sensors (temperature, motion, brightness) and actuators (blinds, lights, fans) — the agent adds logic blocks and wires them:
 
 ```json
 {
@@ -149,26 +149,59 @@ Each eval case is a JSON spec with an utterance and simulation tests:
 ```
 
 The pipeline:
-1. **Agent** receives the utterance + fixture config + skill reference
-2. **Agent** uses `lox config add`, `wire-connector`, `set-param` to build the circuit
-3. **Simulator** runs `lox sim run config.Loxone --sim '...'` to verify signal propagation
-4. **Pass/fail** based on whether outputs match expected values
+1. **Agent** receives the utterance + fixture config (with sensors & actuators) + skill reference
+2. **Agent** uses `lox config add`, `wire-connector`, `set-param` to add logic blocks and wire them
+3. **Simulator** injects test values into sensors, ticks the engine, checks actuator outputs
+4. **Pass/fail** based on whether the right actuator fires with the right inputs
 
-### Sample Transcript
+### Sample Transcript (actual LLM run)
 
-**Utterance:** *"Set up the kitchen so the light comes on when it gets dark, both blinds go up in strong wind, and they only go down after five minutes of strong sunshine if there is no wind."*
+**Utterance:** *"When humidity in the bathroom goes above 70%, turn on the fan. Keep it running for 5 minutes after humidity drops back down."*
 
-**Agent builds:**
+The agent reads the skill reference, searches for block types, then builds:
+
+```bash
+# 1. Search for the right blocks
+lox blocks search "greater equal threshold"
+# → GreaterEqual (Threshold comparator)
+lox blocks search "off delay timer"
+# → OffDelay (keeps output on after input drops)
+
+# 2. Add blocks
+lox config add --type GreaterEqual --title "Feuchte hoch" --room Bad config.Loxone
+# ✓ Added GreaterEqual 'Feuchte hoch' on page 'Bad'
+lox config add --type OffDelay --title "Lüfter Nachlauf" --room Bad config.Loxone
+# ✓ Added OffDelay 'Lüfter Nachlauf' on page 'Bad'
+
+# 3. Set parameters
+lox config set-param config.Loxone "Feuchte hoch" Input2 70
+# ✓ Set 'Input2' to 70 on 'Feuchte hoch'
+lox config set-param config.Loxone "Lüfter Nachlauf" Time 300
+# ✓ Set 'Time' to 300 on 'Lüfter Nachlauf'
+
+# 4. Wire the signal path
+lox config wire-connector config.Loxone "Feuchte hoch.Input1" "Raumfeuchtigkeit Bad.AQ"
+# ✓ Wired Raumfeuchtigkeit Bad.AQ → Feuchte hoch.Input1
+lox config wire-connector config.Loxone "Lüfter Nachlauf.InputTrigger" "Feuchte hoch.Q"
+# ✓ Wired Feuchte hoch.Q → Lüfter Nachlauf.InputTrigger
+lox config wire-connector config.Loxone "Lüfter Bad.I1" "Lüfter Nachlauf.Q"
+# ✓ Wired Lüfter Nachlauf.Q → Lüfter Bad.I1
+
+# 5. Validate
+lox config check config.Loxone
+# 1 ok, 0 errors
+
+# 6. Test with simulator
+lox sim run config.Loxone --sim '{"inputs":{"Raumfeuchtigkeit Bad":80},
+  "ticks":10,"dt":0.1,"expected_outputs":{"Lüfter Bad.I1":{">":0.5}}}'
+# {"pass":true,"passed":1,"scenarios":[{"pass":true, ...}]}
+
+lox sim run config.Loxone --sim '{"inputs":{"Raumfeuchtigkeit Bad":50},
+  "ticks":10,"dt":0.1,"expected_outputs":{"Lüfter Bad.I1":{"==":0}}}'
+# {"pass":true,"passed":1,"scenarios":[{"pass":true, ...}]}
 ```
-Helligkeit.AQ → Less "Dunkel" (< 100 lux) → Lichtsteuerung [Küche].I1
-Windgeschwindigkeit.AQ → GreaterEqual "Starker Wind" (≥ 40 km/h) → Jalousie 1 + 2 [Küche].InputTriggerUp
-Sonnenschein.AQ + (Wind < 5 km/h) → And "Sonne ohne Wind" → OnPulseDelay 300s → Jalousie 1 + 2 [Küche].InputTriggerDown
-```
 
-**Simulation verifies:**
-- Wind 45 km/h → blinds go UP ✅
-- Wind 5 km/h → blinds stay ✅
-- 5 min sunshine + no wind → blinds go DOWN ✅
+**Result:** Humidity 80% → fan ON ✅ · Humidity 50% → fan OFF ✅ · Total: 94 seconds, 6 premium requests.
 
 ### Running Evals
 
