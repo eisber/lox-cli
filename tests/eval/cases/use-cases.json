@@ -7294,27 +7294,29 @@
       ],
       "simulation": [
         {
-          "name": "status monitor shows device online",
+          "name": "device offline",
           "inputs": {
-            "Bewegungsmelder.OutputPresence": 1.0
+            "Router Offline.I": 0
           },
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Statusblock.AQ": {
+            "Geräteausfall [Flur].Q": {
               ">": 0.5
             }
           }
         },
         {
-          "name": "status monitor shows device offline on timeout",
+          "name": "all online",
           "inputs": {
-            "Bewegungsmelder.OutputPresence": 0.0
+            "Router Offline.I": 1,
+            "NAS Offline.I": 1,
+            "Server Offline.I": 1
           },
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Statusblock.AQ": {
+            "Geräteausfall [Flur].Q": {
               "<": 0.5
             }
           }
