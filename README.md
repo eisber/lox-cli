@@ -7,9 +7,13 @@
 
 **Tell an AI agent what you want. It configures your Loxone Miniserver.**
 
-*"When humidity in the bathroom goes above 70%, turn on the fan and keep it running for 5 minutes after humidity drops."* → Agent searches block types, adds a threshold comparator + off-delay timer, wires them to the fan, and verifies the circuit with a built-in SPS simulator — all in 90 seconds.
+*"Set up the kitchen so the light comes on when dark, blinds go up in strong wind, and they close after five minutes of sunshine if there's no wind."* → Agent searches block types, adds 5 logic blocks, wires 3 circuits, fixes a pulse duration error after sim feedback, and verifies all 7 test scenarios — in under 5 minutes.
 
 Built for [GitHub Copilot CLI](https://docs.github.com/en/copilot/github-copilot-in-the-cli), [Claude Code](https://docs.anthropic.com/en/docs/agents-and-tools/claude-code/overview), [OpenCode](https://opencode.ai), and any agent that can run shell commands.
+
+<p align="center">
+  <img src="docs/assets/demo.gif" alt="Demo: AI agent configures kitchen automation" width="800">
+</p>
 
 ### How It Works
 
