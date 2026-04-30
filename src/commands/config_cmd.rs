@@ -1178,7 +1178,21 @@ pub fn cmd_config(ctx: &RunContext, action: ConfigCmd) -> Result<()> {
                     cat_uuid.as_deref(),
                     &props,
                 )?;
-                println!("✓ Added {} '{}' (UUID: {})", xml_type, title, uuid);
+                if ctx.json {
+                    let connectors = collect_block_connectors(&editor, &uuid);
+                    println!(
+                        "{}",
+                        serde_json::json!({
+                            "ok": true,
+                            "uuid": uuid,
+                            "type": xml_type,
+                            "title": title,
+                            "connectors": connectors,
+                        })
+                    );
+                } else {
+                    println!("✓ Added {} '{}' (UUID: {})", xml_type, title, uuid);
+                }
             } else {
                 // Auto-detect parent: logic/math blocks go under the first Page,
                 // other types go to root
@@ -1345,10 +1359,25 @@ pub fn cmd_config(ctx: &RunContext, action: ConfigCmd) -> Result<()> {
                         .unwrap_or_default();
                     let parent_elem = editor.get_element_mut(page_path);
                     parent_elem.children.push(xmltree::XMLNode::Element(elem));
-                    println!(
-                        "✓ Added {} '{}' on page '{}' (UUID: {})",
-                        xml_type, title, page_title, uuid
-                    );
+                    if ctx.json {
+                        let connectors = collect_block_connectors(&editor, &uuid);
+                        println!(
+                            "{}",
+                            serde_json::json!({
+                                "ok": true,
+                                "uuid": uuid,
+                                "type": xml_type,
+                                "title": title,
+                                "page": page_title,
+                                "connectors": connectors,
+                            })
+                        );
+                    } else {
+                        println!(
+                            "✓ Added {} '{}' on page '{}' (UUID: {})",
+                            xml_type, title, page_title, uuid
+                        );
+                    }
                 } else if is_page_type {
                     // Find first matching Page and insert directly via path
                     let matches = editor.find_elements("Type:Page");
@@ -1392,7 +1421,21 @@ pub fn cmd_config(ctx: &RunContext, action: ConfigCmd) -> Result<()> {
 
                         let parent_elem = editor.get_element_mut(&first_path);
                         parent_elem.children.push(xmltree::XMLNode::Element(elem));
-                        println!("✓ Added {} '{}' (UUID: {})", xml_type, title, uuid);
+                        if ctx.json {
+                            let connectors = collect_block_connectors(&editor, &uuid);
+                            println!(
+                                "{}",
+                                serde_json::json!({
+                                    "ok": true,
+                                    "uuid": uuid,
+                                    "type": xml_type,
+                                    "title": title,
+                                    "connectors": connectors,
+                                })
+                            );
+                        } else {
+                            println!("✓ Added {} '{}' (UUID: {})", xml_type, title, uuid);
+                        }
                     } else {
                         let uuid = editor.add_element_to_root(
                             xml_type,
@@ -1401,7 +1444,21 @@ pub fn cmd_config(ctx: &RunContext, action: ConfigCmd) -> Result<()> {
                             cat_uuid.as_deref(),
                             &props,
                         )?;
-                        println!("✓ Added {} '{}' (UUID: {})", xml_type, title, uuid);
+                        if ctx.json {
+                            let connectors = collect_block_connectors(&editor, &uuid);
+                            println!(
+                                "{}",
+                                serde_json::json!({
+                                    "ok": true,
+                                    "uuid": uuid,
+                                    "type": xml_type,
+                                    "title": title,
+                                    "connectors": connectors,
+                                })
+                            );
+                        } else {
+                            println!("✓ Added {} '{}' (UUID: {})", xml_type, title, uuid);
+                        }
                     }
                 } else {
                     let uuid = editor.add_element_to_root(
@@ -1411,7 +1468,21 @@ pub fn cmd_config(ctx: &RunContext, action: ConfigCmd) -> Result<()> {
                         cat_uuid.as_deref(),
                         &props,
                     )?;
-                    println!("✓ Added {} '{}' (UUID: {})", xml_type, title, uuid);
+                    if ctx.json {
+                        let connectors = collect_block_connectors(&editor, &uuid);
+                        println!(
+                            "{}",
+                            serde_json::json!({
+                                "ok": true,
+                                "uuid": uuid,
+                                "type": xml_type,
+                                "title": title,
+                                "connectors": connectors,
+                            })
+                        );
+                    } else {
+                        println!("✓ Added {} '{}' (UUID: {})", xml_type, title, uuid);
+                    }
                 }
             }
             save_edited(&editor, &file, save_as.as_deref())?;
@@ -1421,13 +1492,46 @@ pub fn cmd_config(ctx: &RunContext, action: ConfigCmd) -> Result<()> {
             let editor = ConfigEditor::load(&data)?;
             let results = editor.validate_config();
 
-            for r in &results {
-                println!("{}", r);
-            }
             let ok = results.iter().filter(|r| r.starts_with('✓')).count();
             let warn = results.iter().filter(|r| r.starts_with('⚠')).count();
             let err = results.iter().filter(|r| r.starts_with('✗')).count();
-            println!("\n{} passed, {} warnings, {} errors", ok, warn, err);
+            if ctx.json {
+                let items: Vec<serde_json::Value> = results
+                    .iter()
+                    .map(|r| {
+                        let level = if r.starts_with('✓') {
+                            "ok"
+                        } else if r.starts_with('⚠') {
+                            "warning"
+                        } else if r.starts_with('✗') {
+                            "error"
+                        } else {
+                            "info"
+                        };
+                        // Strip leading emoji + space
+                        let msg = r
+                            .chars()
+                            .skip_while(|c| !c.is_alphanumeric())
+                            .collect::<String>();
+                        serde_json::json!({ "level": level, "message": msg })
+                    })
+                    .collect();
+                println!(
+                    "{}",
+                    serde_json::json!({
+                        "ok": err == 0,
+                        "passed": ok,
+                        "warnings": warn,
+                        "errors": err,
+                        "results": items,
+                    })
+                );
+            } else {
+                for r in &results {
+                    println!("{}", r);
+                }
+                println!("\n{} passed, {} warnings, {} errors", ok, warn, err);
+            }
         }
         ConfigCmd::Check { file, selector } => {
             let data = fs::read(&file).with_context(|| format!("Cannot read {}", file))?;
@@ -1445,9 +1549,43 @@ pub fn cmd_config(ctx: &RunContext, action: ConfigCmd) -> Result<()> {
                 } else if r.starts_with('✗') {
                     err += 1;
                 }
-                println!("{}", r);
             }
-            println!("\n{} ok, {} warnings, {} errors", ok, warn, err);
+            if ctx.json {
+                let items: Vec<serde_json::Value> = results
+                    .iter()
+                    .map(|r| {
+                        let level = if r.starts_with('✓') {
+                            "ok"
+                        } else if r.starts_with('⚠') {
+                            "warning"
+                        } else if r.starts_with('✗') {
+                            "error"
+                        } else {
+                            "info"
+                        };
+                        let msg = r
+                            .chars()
+                            .skip_while(|c| !c.is_alphanumeric())
+                            .collect::<String>();
+                        serde_json::json!({ "level": level, "message": msg })
+                    })
+                    .collect();
+                println!(
+                    "{}",
+                    serde_json::json!({
+                        "ok": err == 0,
+                        "passed": ok,
+                        "warnings": warn,
+                        "errors": err,
+                        "results": items,
+                    })
+                );
+            } else {
+                for r in &results {
+                    println!("{}", r);
+                }
+                println!("\n{} ok, {} warnings, {} errors", ok, warn, err);
+            }
         }
         ConfigCmd::Scan { file, strict } => {
             let data = fs::read(&file).with_context(|| format!("Cannot read {}", file))?;
@@ -1666,7 +1804,16 @@ pub fn cmd_config(ctx: &RunContext, action: ConfigCmd) -> Result<()> {
                 .rsplit_once('.')
                 .ok_or_else(|| anyhow::anyhow!("Target must be 'BlockTitle.ConnectorKey'"))?;
             editor.wire_connector(block_title, conn_key, &source_uuid)?;
-            if !ctx.quiet {
+            if ctx.json {
+                println!(
+                    "{}",
+                    serde_json::json!({
+                        "ok": true,
+                        "target": format!("{}.{}", block_title, conn_key),
+                        "source": source_uuid,
+                    })
+                );
+            } else if !ctx.quiet {
                 println!("✓ Wired {}.{} ← {}", block_title, conn_key, source_uuid);
             }
             save_edited(&editor, &file, save_as.as_deref())?;
@@ -1714,7 +1861,21 @@ pub fn cmd_config(ctx: &RunContext, action: ConfigCmd) -> Result<()> {
                             }
                         );
                     }
-                    println!("✓ Set {}.{}: {} → {}", title, param, old, value);
+                    if ctx.json {
+                        println!(
+                            "{}",
+                            serde_json::json!({
+                                "ok": true,
+                                "block": title,
+                                "type": block_type,
+                                "param": param,
+                                "old": old,
+                                "new": value,
+                            })
+                        );
+                    } else {
+                        println!("✓ Set {}.{}: {} → {}", title, param, old, value);
+                    }
                     found = true;
                     break;
                 }
@@ -1737,8 +1898,7 @@ pub fn cmd_config(ctx: &RunContext, action: ConfigCmd) -> Result<()> {
             let elem = editor.get_element(&path);
             let title = elem.attributes.get("Title").cloned().unwrap_or_default();
             let block_type = elem.attributes.get("Type").cloned().unwrap_or_default();
-
-            println!("{} ({}):", title, block_type);
+            let uuid = elem.attributes.get("U").cloned().unwrap_or_default();
 
             let cmap = ConfigEditor::connector_map();
             let types = cmap
@@ -1746,19 +1906,56 @@ pub fn cmd_config(ctx: &RunContext, action: ConfigCmd) -> Result<()> {
                 .map(|(_, _, t)| t.clone())
                 .unwrap_or_default();
 
-            for child in &elem.children {
-                if let Some(co) = child.as_element()
-                    && co.name == "Co"
-                {
-                    let k = co.attributes.get("K").cloned().unwrap_or_default();
-                    let io = types.get(&k).map(|s| s.as_str()).unwrap_or("?");
-                    // Show parameters (P) and inputs with defaults
-                    let def = co.attributes.get("Def");
-                    let inv = co.attributes.get("Inv");
-                    if io == "P" || def.is_some() {
-                        let def_str = def.map(|d| d.as_str()).unwrap_or("(none)");
-                        let inv_str = if inv.is_some() { " [inverted]" } else { "" };
-                        println!("  {} {}: {}{}", io, k, def_str, inv_str);
+            if ctx.json {
+                let connectors: Vec<serde_json::Value> = elem
+                    .children
+                    .iter()
+                    .filter_map(|c| c.as_element())
+                    .filter(|e| e.name == "Co")
+                    .map(|co| {
+                        let k = co.attributes.get("K").cloned().unwrap_or_default();
+                        let co_uuid = co.attributes.get("U").cloned().unwrap_or_default();
+                        let io = types.get(&k).cloned().unwrap_or_else(|| "?".to_string());
+                        let def = co.attributes.get("Def").cloned();
+                        let inv = co.attributes.contains_key("Inv");
+                        let wired = co
+                            .children
+                            .iter()
+                            .any(|c| c.as_element().is_some_and(|e| e.name == "In"));
+                        serde_json::json!({
+                            "key": k,
+                            "uuid": co_uuid,
+                            "direction": io,
+                            "default": def,
+                            "inverted": inv,
+                            "wired": wired,
+                        })
+                    })
+                    .collect();
+                println!(
+                    "{}",
+                    serde_json::json!({
+                        "title": title,
+                        "type": block_type,
+                        "uuid": uuid,
+                        "connectors": connectors,
+                    })
+                );
+            } else {
+                println!("{} ({}):", title, block_type);
+                for child in &elem.children {
+                    if let Some(co) = child.as_element()
+                        && co.name == "Co"
+                    {
+                        let k = co.attributes.get("K").cloned().unwrap_or_default();
+                        let io = types.get(&k).map(|s| s.as_str()).unwrap_or("?");
+                        let def = co.attributes.get("Def");
+                        let inv = co.attributes.get("Inv");
+                        if io == "P" || def.is_some() {
+                            let def_str = def.map(|d| d.as_str()).unwrap_or("(none)");
+                            let inv_str = if inv.is_some() { " [inverted]" } else { "" };
+                            println!("  {} {}: {}{}", io, k, def_str, inv_str);
+                        }
                     }
                 }
             }
@@ -1766,8 +1963,13 @@ pub fn cmd_config(ctx: &RunContext, action: ConfigCmd) -> Result<()> {
         ConfigCmd::Describe { file, room } => {
             let data = fs::read(&file).with_context(|| format!("Cannot read {}", file))?;
             let editor = ConfigEditor::load(&data)?;
-            let description = editor.describe_config(room.as_deref());
-            println!("{}", description);
+            if ctx.json {
+                let structured = editor.describe_config_structured(room.as_deref());
+                println!("{}", serde_json::to_string_pretty(&structured)?);
+            } else {
+                let description = editor.describe_config(room.as_deref());
+                println!("{}", description);
+            }
         }
         ConfigCmd::Stats { file } => {
             if file.ends_with(".zip") {
@@ -2304,6 +2506,38 @@ fn scan_for_pii(content: &str, filename: &str) -> Vec<String> {
     }
 
     findings
+}
+
+/// Collect connector info from a newly-added element for JSON output.
+fn collect_block_connectors(editor: &ConfigEditor, uuid: &str) -> Vec<serde_json::Value> {
+    let selector = format!("uuid:{}", uuid);
+    if let Ok(path) = editor.require_one(&selector) {
+        let elem = editor.get_element(&path);
+        let block_type = elem.attributes.get("Type").cloned().unwrap_or_default();
+        let cmap = ConfigEditor::connector_map();
+        let types = cmap
+            .get(&block_type)
+            .map(|(_, _, t)| t.clone())
+            .unwrap_or_default();
+
+        elem.children
+            .iter()
+            .filter_map(|c| c.as_element())
+            .filter(|e| e.name == "Co")
+            .map(|co| {
+                let k = co.attributes.get("K").cloned().unwrap_or_default();
+                let co_uuid = co.attributes.get("U").cloned().unwrap_or_default();
+                let io = types.get(&k).cloned().unwrap_or_else(|| "?".to_string());
+                serde_json::json!({
+                    "key": k,
+                    "uuid": co_uuid,
+                    "direction": io,
+                })
+            })
+            .collect()
+    } else {
+        vec![]
+    }
 }
 
 fn save_edited(editor: &ConfigEditor, original_path: &str, save_as: Option<&str>) -> Result<()> {

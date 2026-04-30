@@ -11,7 +11,7 @@
 
 Built for [GitHub Copilot CLI](https://docs.github.com/en/copilot/github-copilot-in-the-cli), [Claude Code](https://docs.anthropic.com/en/docs/agents-and-tools/claude-code/overview), [OpenCode](https://opencode.ai), and any agent that can run shell commands.
 
-![Demo: AI agent configures kitchen automation](docs/assets/demo.gif)
+![Demo: AI agent configures kitchen automation](https://raw.githubusercontent.com/eisber/lox-cli/main/docs/assets/demo.gif)
 
 ### How It Works
 

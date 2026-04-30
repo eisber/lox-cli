@@ -1,5 +1,6 @@
 use super::{
-    ConfigEditor, ConfigStats, DescribeEntry, DeviceBusSummary, RoomCompleteness, SceneInfo,
+    ConfigEditor, ConfigStats, DescribeBlockEntry, DescribeConnectorEntry, DescribeEntry,
+    DescribeRoomEntry, DeviceBusSummary, RoomCompleteness, SceneInfo,
 };
 use std::collections::HashMap;
 use xmltree::Element;
@@ -189,6 +190,150 @@ impl ConfigEditor {
         }
 
         out
+    }
+
+    /// Describe the configuration as structured JSON-serializable data.
+    pub fn describe_config_structured(&self, room_filter: Option<&str>) -> Vec<DescribeRoomEntry> {
+        // Build room UUID → name map
+        let mut room_names: HashMap<String, String> = HashMap::new();
+        for e in self.iter_elements(&self.root) {
+            if e.attributes.get("Type").map(|s| s.as_str()) == Some("Place")
+                && let (Some(u), Some(t)) = (e.attributes.get("U"), e.attributes.get("Title"))
+            {
+                room_names.insert(u.clone(), t.clone());
+            }
+        }
+
+        let skip_types = [
+            "InputRef",
+            "OutputRef",
+            "StateV",
+            "VirtualIn",
+            "VirtualOut",
+            "VirtualState",
+            "Page",
+            "Program",
+            "Document",
+            "Category",
+            "CategoryCaption",
+            "Place",
+            "PlaceCaption",
+            "ConstantCaption",
+            "CalendarCaption",
+            "VirtualInCaption",
+            "VirtualOutCaption",
+            "LoxCaption",
+            "TaskCaption",
+            "WeatherCaption",
+            "LoggerOutCaption",
+            "DateTime",
+            "Day",
+            "Day2009",
+            "DayOfWeek",
+            "Daylight",
+            "Daylight2",
+            "Online",
+            "Co",
+            "In",
+            "IoData",
+            "Display",
+            "SET",
+            "Key",
+            "ApiActor",
+            "LoxTree",
+            "LoxAIR",
+            "LoxLIVE",
+            "LoxMORE",
+            "MBusExtension",
+            "Devicemonitor",
+            "MessageCenter",
+            "GlobalStates",
+            "Comm1wire",
+            "Comm232",
+            "Comm485",
+            "CommDMX",
+        ];
+
+        let mut by_room: HashMap<String, Vec<DescribeBlockEntry>> = HashMap::new();
+
+        for e in self.iter_elements(&self.root) {
+            let etype = e.attributes.get("Type").cloned().unwrap_or_default();
+            if skip_types.contains(&etype.as_str()) || etype.is_empty() {
+                continue;
+            }
+            let title = e.attributes.get("Title").cloned().unwrap_or_default();
+            if title.is_empty() {
+                continue;
+            }
+            let uuid = e.attributes.get("U").cloned().unwrap_or_default();
+
+            let mut room_id = String::new();
+            for child in &e.children {
+                if let Some(io) = child.as_element()
+                    && io.name == "IoData"
+                {
+                    room_id = io.attributes.get("Pr").cloned().unwrap_or_default();
+                }
+            }
+            let room_name = room_names
+                .get(&room_id)
+                .cloned()
+                .unwrap_or_else(|| "(unassigned)".to_string());
+
+            if let Some(filter) = room_filter
+                && !room_name.to_lowercase().contains(&filter.to_lowercase())
+            {
+                continue;
+            }
+
+            // Collect connectors with UUIDs and wiring status
+            let cmap = Self::connector_map();
+            let types = cmap
+                .get(&etype)
+                .map(|(_, _, t)| t.clone())
+                .unwrap_or_default();
+
+            let mut connectors = Vec::new();
+            for child in &e.children {
+                if let Some(co) = child.as_element()
+                    && co.name == "Co"
+                {
+                    let k = co.attributes.get("K").cloned().unwrap_or_default();
+                    let co_uuid = co.attributes.get("U").cloned().unwrap_or_default();
+                    let io = types.get(&k).cloned().unwrap_or_else(|| "?".to_string());
+                    let wired = co
+                        .children
+                        .iter()
+                        .any(|c| c.as_element().is_some_and(|e| e.name == "In"));
+                    let def = co.attributes.get("Def").cloned();
+                    connectors.push(DescribeConnectorEntry {
+                        key: k,
+                        uuid: co_uuid,
+                        direction: io,
+                        wired,
+                        default: def,
+                    });
+                }
+            }
+
+            by_room
+                .entry(room_name)
+                .or_default()
+                .push(DescribeBlockEntry {
+                    block_type: etype,
+                    title,
+                    uuid,
+                    connectors,
+                });
+        }
+
+        let mut rooms: Vec<_> = by_room.into_iter().collect();
+        rooms.sort_by(|a, b| a.0.cmp(&b.0));
+
+        rooms
+            .into_iter()
+            .map(|(room, blocks)| DescribeRoomEntry { room, blocks })
+            .collect()
     }
 
     /// Compute comprehensive config statistics in a single tree walk.

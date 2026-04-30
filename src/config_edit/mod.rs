@@ -41,6 +41,33 @@ type ConnectorMap = HashMap<
 /// Describe entry: (type_name, title, scenes, wired_connectors)
 type DescribeEntry = (String, String, Vec<String>, Vec<String>);
 
+/// Structured room entry for JSON output.
+#[derive(Debug, serde::Serialize)]
+pub struct DescribeRoomEntry {
+    pub room: String,
+    pub blocks: Vec<DescribeBlockEntry>,
+}
+
+/// Structured block entry for JSON output.
+#[derive(Debug, serde::Serialize)]
+pub struct DescribeBlockEntry {
+    pub block_type: String,
+    pub title: String,
+    pub uuid: String,
+    pub connectors: Vec<DescribeConnectorEntry>,
+}
+
+/// Structured connector entry for JSON output.
+#[derive(Debug, serde::Serialize)]
+pub struct DescribeConnectorEntry {
+    pub key: String,
+    pub uuid: String,
+    pub direction: String,
+    pub wired: bool,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub default: Option<String>,
+}
+
 /// Template result: (block_type, title, params)
 type TemplateResult = Vec<(String, String, Vec<(String, String)>)>;
 
