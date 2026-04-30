@@ -284,4 +284,6 @@ See **[COMMANDS.md](COMMANDS.md)** for the full command reference, **[DESIGN.md]
 
 Dual-licensed: [AGPL-3.0](LICENSE-AGPL) for open use, [Commercial License](LICENSE-COMMERCIAL) for proprietary redistribution.
 
+Based on [lox](https://github.com/discostu105/lox) by Christoph Neumüller (GPL-3.0). See [NOTICE](NOTICE) for attribution details.
+
 Copyright © 2025-2026 Markus Cozowicz

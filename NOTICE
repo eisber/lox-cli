@@ -1,0 +1,34 @@
+# NOTICE
+
+This project is based on [lox](https://github.com/discostu105/lox) by
+**Christoph Neumüller** ([@discostu105](https://github.com/discostu105)),
+originally licensed under GPL-3.0.
+
+The original project provides a Loxone Miniserver CLI for controlling lights,
+blinds, and more from the terminal. This fork extends it with config-as-code
+editing, an offline SPS simulator, and AI agent tooling.
+
+## Original Copyright
+
+Copyright (c) 2024-2026 Christoph Neumüller
+
+## Modifications
+
+Copyright (c) 2025-2026 Markus Cozowicz
+
+Major additions in this fork:
+- Config editing engine (`src/config_edit/`) — DOM-based XML editing
+- SPS simulator (`lox-sim/`) — offline circuit testing for 195 block types
+- Block library (`lox blocks`) — search and introspect 190+ block types
+- Eval harness (`tests/eval/`) — 285 behavioral test cases
+- AI agent skill references (`.github/skills/`)
+- LoxCC compression (`src/loxcc.rs`)
+- GitOps versioning (`src/gitops.rs`)
+
+Files substantially derived from the original project:
+- `src/main.rs` — CLI entry point and command dispatch
+- `src/client.rs` — Loxone HTTP client
+- `src/config.rs` — Configuration loading
+- `src/token.rs` — Token authentication
+- `src/ws.rs` — WebSocket client
+- `src/ftp.rs` — FTP operations
