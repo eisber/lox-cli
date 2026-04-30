@@ -1,50 +1,60 @@
-# lox — Config-as-Code for Loxone Miniserver
+# lox — AI Agent Tooling for Loxone Miniserver
 
 [![CI](https://github.com/eisber/lox-cli/actions/workflows/ci.yml/badge.svg)](https://github.com/eisber/lox-cli/actions/workflows/ci.yml)
 [![License: AGPL-3.0](https://img.shields.io/badge/License-AGPL%20v3-blue.svg)](https://www.gnu.org/licenses/agpl-3.0)
 [![Rust](https://img.shields.io/badge/Rust-1.91%2B-orange.svg?logo=rust)](https://www.rust-lang.org/)
+[![Eval](https://img.shields.io/badge/eval-94%25%20pass-brightgreen.svg)](#eval-results)
 
-**Configure your Loxone Miniserver entirely from the command line.**
-Rooms, controls, wiring, parameters, device binding, templates — no desktop app required.
-Download config → edit → validate → push. All headless. All scriptable. All version-controlled.
+**Tell an AI agent what you want. It configures your Loxone Miniserver.**
+
+*"When humidity in the bathroom goes above 70%, turn on the fan and keep it running for 5 minutes after humidity drops."* → Agent searches block types, adds a threshold comparator + off-delay timer, wires them to the fan, and verifies the circuit with a built-in SPS simulator — all in 90 seconds.
+
+Built for [GitHub Copilot CLI](https://docs.github.com/en/copilot/github-copilot-in-the-cli), [Claude Code](https://docs.anthropic.com/en/docs/agents-and-tools/claude-code/overview), [OpenCode](https://opencode.ai), and any agent that can run shell commands.
+
+### How It Works
+
+```
+User: "Close the living room blinds when it's sunny and above 25°C"
+  ↓
+Agent reads skill reference (.github/skills/loxone-config/)
+  ↓
+Agent runs CLI commands:
+  lox blocks search "threshold"           → GreaterEqual
+  lox config add --type GreaterEqual ...  → adds block
+  lox config wire-connector ...           → wires sensor → logic → actuator  
+  lox sim run config.Loxone --sim '...'   → ✅ signal propagates correctly
+  ↓
+Config ready to deploy: lox config push config.Loxone --reboot
+```
+
+**94% pass rate** on 285 behavioral eval cases (5 sections at 100%). [See eval results →](#eval-results)
 
 ---
 
 ## Config-as-Code
 
-The core idea: treat your Miniserver configuration like source code. Download it, edit it with semantic commands, validate it, push it back — in scripts, CI/CD pipelines, or AI agent workflows.
+The CLI treats your Miniserver configuration as code — download, edit with semantic commands, validate, push back. Works in scripts, CI/CD, or AI agent workflows.
 
 ```bash
 # Download & inspect
 lox config download --extract          # Download config XML from Miniserver
 lox config describe config.Loxone      # Human-readable summary by room
-lox config devices config.Loxone --ports  # Hardware I/O with used/free status
-
-# Create rooms & controls
-lox config room add config.Loxone "DG Schlafzimmer"
-lox config template config.Loxone bedroom --room "DG Schlafzimmer"
-#   ✓ DG Schlafzimmer Licht (LightController2)
-#   ✓ DG Schlafzimmer Beschattung (JalousieUpDown2)
-#   ✓ DG Schlafzimmer Wecker (AlarmClock)
-
-# Wire controls to hardware
-lox config device-bind config.Loxone "DG Schlafzimmer Licht" AQ1 \
-  --device "RGBW 24V Dimmer Tree"
-
-# Configure parameters
-lox config set-param config.Loxone "DG Schlafzimmer Licht" FadingTime 2.0
 
 # Add logic blocks & wire them
-lox config add --type And --title "Both Sensors" config.Loxone
-lox config wire-connector config.Loxone "Both Sensors.I1" <sensor-uuid>
+lox config add --type GreaterEqual --title "Temp über 25" config.Loxone
+lox config set-param config.Loxone "Temp über 25" Input2 25
+lox config wire-connector config.Loxone "Temp über 25.Input1" "Außentemperatur.AQ"
+lox config wire-connector config.Loxone "Jalousie 1 [Wohnzimmer].InputTriggerDown" "Temp über 25.Q"
 
-# Validate & deploy
-lox config validate config.Loxone      # Check UUIDs, wiring, orphans
-lox config layout config.Loxone        # Auto-arrange blocks (UX Ausrichten grid)
-lox config push config.Loxone --reboot --force  # Upload + fast SPS reload (~4s)
+# Validate & test
+lox config check config.Loxone         # Check wiring completeness
+lox sim run config.Loxone --sim '{"inputs":{"Außentemperatur":30},...}'  # Simulate
+
+# Deploy
+lox config push config.Loxone --reboot --force  # Upload + SPS reload (~4s)
 ```
 
-**No desktop app needed.** The CLI handles LoxCC compression with correct CRC32 checksums, UUID generation, connector maps for 190+ block types, and wiring validation.
+**No desktop app needed.** Handles LoxCC compression, CRC32 checksums, UUID generation, connector maps for 190+ block types, and wiring validation.
 
 ---
 
