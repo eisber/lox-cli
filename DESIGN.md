@@ -1,36 +1,42 @@
 # lox — Design Document
 
-> CLI for Loxone Miniserver
+> Config-as-Code CLI for Loxone Miniserver
 
 ## Status
 
-Working. Core commands functional and tested end-to-end.
+Working. Config editing, SPS simulation, block library, and GitOps workflows functional and tested.
 
 ---
 
 ## Architecture
 
 ```
-┌─────────────────────────────────────────────────────────┐
-│  lox CLI (single binary)                                 │
-│                                                          │
-│  ┌──────────┐  ┌──────────┐                             │
-│  │ Commands │  │  Scenes  │                             │
-│  │ on/off   │  │ YAML     │                             │
-│  │ blind    │  │ run      │                             │
-│  │ if/watch │  │ new      │                             │
-│  └────┬─────┘  └─────┬────┘                             │
-│       │              │                                   │
-│  ┌────▼──────────────▼────┐                              │
-│  │      HTTP Client       │                              │
-│  │  reqwest + Basic Auth  │                              │
-│  └──────────┬─────────────┘                              │
-└─────────────┼───────────────────────────────────────────┘
-              │ HTTPS
+┌──────────────────────────────────────────────────────────────────┐
+│  lox CLI (single binary)                                         │
+│                                                                  │
+│  ┌──────────────┐  ┌───────────┐  ┌──────────┐  ┌───────────┐  │
+│  │ lox config   │  │ lox sim   │  │ lox blocks│  │ lox ctx   │  │
+│  │ download     │  │ check     │  │ search    │  │ add/use   │  │
+│  │ edit/push    │  │ run/step  │  │ info/list │  │ list      │  │
+│  │ validate     │  │ dump      │  │           │  │           │  │
+│  └──────┬───────┘  └─────┬─────┘  └──────────┘  └───────────┘  │
+│         │                │                                       │
+│  ┌──────▼────────────────▼──────────────────┐                    │
+│  │  ConfigEditor (DOM-based XML editing)    │                    │
+│  │  LoxCC compress/decompress               │                    │
+│  │  SPS Simulator engine (lox-sim)          │                    │
+│  └──────┬───────────────────────────────────┘                    │
+│         │                                                        │
+│  ┌──────▼──────────────────────┐                                 │
+│  │  HTTP/FTP Client + Token   │                                  │
+│  │  reqwest + WS (RSA/AES)    │                                  │
+│  └──────────┬─────────────────┘                                  │
+└─────────────┼────────────────────────────────────────────────────┘
+              │ HTTPS / FTP / WSS
     ┌─────────▼──────────┐
     │  Loxone Miniserver │
     │   /jdev/sps/io/    │
-    │   /dev/sps/io/all  │
+    │   /dev/fsget/      │
     │   /data/LoxApp3    │
     └────────────────────┘
 ```
@@ -41,96 +47,23 @@ Working. Core commands functional and tested end-to-end.
 
 | Feature | Status | Notes |
 |---------|--------|-------|
-| `lox ls / rooms` | ✅ | Structure from LoxApp3.json |
-| `lox on/off/pulse/send` | ✅ | Via `/jdev/sps/io/{uuid}/{cmd}` |
-| `lox get` | ✅ | Via `/dev/sps/io/{uuid}/all` XML |
-| `lox blind` | ✅ | PulseUp/Down/FullUp/FullDown/AutomaticDown |
-| `lox status` | ✅ | Firmware, PLC state, memory |
-| `lox if` | ✅ | Exit codes for shell scripting |
-| `lox watch` | ✅ | HTTP polling loop |
-| `lox run <scene>` | ✅ | Multi-step YAML scenes |
-| `lox log` | ⚠️ | Needs admin user |
+| `lox config download/extract` | ✅ | FTP download + LoxCC decompression |
+| `lox config describe/controls/rooms` | ✅ | Inspect config structure |
+| `lox config add/template` | ✅ | Add blocks, apply room templates |
+| `lox config wire-connector/device-bind` | ✅ | Wire controls to inputs/devices |
+| `lox config set-param/get-params` | ✅ | Read/write block parameters |
+| `lox config validate/check/scan` | ✅ | Validation, dead-end detection, PII scan |
+| `lox config layout` | ✅ | Auto-arrange blocks via ELK engine |
+| `lox config push/upload` | ✅ | Recompress + upload to Miniserver |
 | `lox config init/pull/log/restore` | ✅ | Git-based config versioning |
-| `--json` output | ✅ | All commands |
-
----
-
-## Next Steps
-
-### 1. `lox watch` via WebSocket (Medium Priority)
-
-Currently polling. The WS infrastructure exists in `ws.rs` (`connect_raw`). Once wired up:
-
-```bash
-lox watch "Lichtsteuerung"     # real-time, <100ms latency
-lox watch --all                # stream all state changes
-```
-
-Requires Monitor rights enabled in Loxone Config → User Management.
-
----
-
-### 2. `lox set` — Analog/Virtual Inputs (Medium Priority)
-
-Send analog values to virtual inputs:
-
-```bash
-lox set "Solltemperatur" 21.5     # send analog value
-lox set "Modus" "Urlaub"          # send text to virtual text input
-```
-
-API: `/jdev/sps/io/{uuid}/{value}` already supports this, just needs a dedicated command + type detection.
-
----
-
-### 3. `lox mood` — LightControllerV2 Moods (Low Priority)
-
-Loxone light controllers have named moods (Stimmungen):
-
-```bash
-lox mood "Wohnzimmer" list           # list available moods + IDs
-lox mood "Wohnzimmer" set "Abend"   # activate mood by name
-lox mood "Wohnzimmer" set 778       # activate mood by ID
-```
-
-The `/all` output for LightControllerV2 includes `moodList` — needs parsing.
-
----
-
-### 4. `lox rooms` — Room-scoped Commands (Low Priority)
-
-```bash
-lox room "Wohnzimmer" off    # turn off everything in room
-lox room "Wohnzimmer" ls     # list all controls in room
-```
-
-Already have room data in structure, just needs a Room command that iterates.
-
----
-
-### 5. TLS Improvements (Low Priority)
-
-Currently using `danger_accept_invalid_certs`. Options:
-
-**Option A:** Use dyndns hostname (serial-based):
-```
-https://192-168-20-24.{SERIAL}.dyndns.loxonecloud.com
-```
-Already implemented in `Config::tls_host()`, just needs to be used everywhere.
-
-**Option B:** Token auth (newer Loxone firmware)  
-Loxone supports JWT tokens via `/jdev/sys/gettoken` — longer-lived, more secure than Basic Auth per-request.
-
----
-
-### 6. `lox backup` — Structure/Config Backup (Low Priority)
-
-```bash
-lox backup          # save LoxApp3.json + current state snapshot
-lox backup restore  # restore from backup (readonly — shows diff)
-```
-
-Also: `/dev/fslist/` and `/dev/fsget/` allow SD card file access (needs admin).
+| `lox config diff` | ✅ | Compare two config files |
+| `lox config mqtt` | ✅ | MQTT plugin configuration |
+| `lox config user-add/user-remove` | ✅ | User CRUD in config |
+| `lox sim run/step/check/dump` | ✅ | SPS simulator for offline testing |
+| `lox blocks search/info/list` | ✅ | Block type library (190+ types) |
+| `lox ctx add/use/list/remove` | ✅ | Multi-Miniserver contexts |
+| `lox token fetch/refresh/kill` | ✅ | Token auth (RSA+AES key exchange) |
+| `--output json/csv/table` | ✅ | All commands |
 
 ---
 
@@ -139,28 +72,83 @@ Also: `/dev/fslist/` and `/dev/fsget/` allow SD card file access (needs admin).
 ```
 Config (~/.lox/config.yaml)
   host, user, pass, serial
+  Supports flat (single-Miniserver) or multi-context format
+
+Contexts (~/.lox/contexts/<name>/)
+  cache/structure.json    # LoxApp3.json (24h TTL)
+  token.json              # token auth credentials
 
 Structure (cached from LoxApp3.json)
   controls: {uuid → {name, type, room, states}}
   rooms:    {uuid → name}
 
-Scenes (~/.lox/scenes/*.yaml)
-  name, description, steps[]
-    step: {control, cmd, delay_ms}
-
+Project-local (.lox/ discovered by walking up from cwd)
+  config.yaml, cache/, .gitignore
 ```
 
 ---
 
 ## Known Limitations
 
-| Issue | Impact | Fix |
-|-------|--------|-----|
-| `enablestatusupdate` needs Monitor rights | `lox watch` can't use WS | Enable Monitor right in Loxone Config |
-| `CentralLightController` has no numeric `/all` value | Can't watch central lights via polling | Use LightControllerV2 UUIDs directly |
-| State values only via WS (not HTTP) for most types | `lox get` shows limited info | WS with Monitor rights |
-| `lox log` needs admin | Can't read Miniserver logs | Use admin user |
-| No structured error codes | Rule engine uses string matching | Add error enum |
+| Issue | Impact | Workaround |
+|-------|--------|------------|
+| Self-signed Miniserver TLS certs | `danger_accept_invalid_certs` used | Set `serial` in config for DynDNS hostname matching |
+| LoxCC CRC32 must be non-zero | Zero CRC causes Miniserver to ignore `t="15"` password fields | `lox config compress` computes correct CRC32 |
+
+---
+
+## Source Files
+
+### CLI (`src/`)
+
+| File | Purpose |
+|------|---------|
+| `src/main.rs` | CLI entry point, clap argument parsing, top-level command dispatch |
+| `src/client.rs` | `LoxClient` — HTTP client for Miniserver (structure cache, control resolution) |
+| `src/config.rs` | `Config` + `GlobalConfig` — config loading, context resolution, project-local `.lox/` discovery |
+| `src/config_edit/mod.rs` | `ConfigEditor` — DOM-based XML editing engine (element CRUD, wiring, properties) |
+| `src/config_edit/blocks.rs` | Block creation with type-aware connector defaults |
+| `src/config_edit/describe.rs` | Human-readable config description generator |
+| `src/config_edit/layout.rs` | Auto-layout blocks on Pages via ELK engine |
+| `src/config_edit/rooms.rs` | Room management (create, move, rename) |
+| `src/config_edit/selector.rs` | Element selector syntax: `"Title"`, `"Type:And"`, `"uuid:abc-123"`, `"gid:Mqtt"` |
+| `src/config_edit/template.rs` | Room templates (bedroom, bathroom, etc.) |
+| `src/config_edit/validation.rs` | Config validation and automation checking |
+| `src/config_edit/wiring.rs` | Wire-connector and device-bind operations |
+| `src/config_edit/write.rs` | XML write-back (BOM-aware, preserves line endings) |
+| `src/config_edit/properties.rs` | Property and parameter get/set |
+| `src/errors.rs` | Rich error types with Levenshtein fuzzy matching, "did you mean?" suggestions |
+| `src/loxcc.rs` | LoxCC compress/decompress — LZ4-style with CRC32 checksums |
+| `src/loxone_xml.rs` | XML parsing: rooms, controls, users, devices, config summary, diff |
+| `src/gitops.rs` | Git-based config versioning — init, pull, log, restore workflows |
+| `src/ftp.rs` | FTP client for config download/upload to Miniserver |
+| `src/ws.rs` | `LoxWsClient` — async WebSocket connection for token auth (RSA+AES key exchange) |
+| `src/token.rs` | Token auth flow: RSA key exchange, AES-encrypted credentials, HMAC hashing |
+| `src/telemetry.rs` | Anonymous usage analytics |
+| `src/rc6.rs` | RC6 cipher support |
+| `src/commands/config_cmd.rs` | CLI handlers for all `lox config` subcommands |
+| `src/commands/ctx.rs` | `lox ctx` — add/use/list/remove/rename contexts |
+| `src/commands/sim_cmd.rs` | `lox sim` — SPS simulator CLI entry points |
+| `src/commands/blocks_cmd.rs` | `lox blocks` — block type search/info/list |
+
+### SPS Simulator (`lox-sim/src/`)
+
+| File | Purpose |
+|------|---------|
+| `lox-sim/src/lib.rs` | Library entry point |
+| `lox-sim/src/engine.rs` | Simulation engine — tick loop, signal propagation |
+| `lox-sim/src/compiler.rs` | Compiles `.Loxone` XML into simulation graph |
+| `lox-sim/src/graph.rs` | Directed graph of blocks and wires |
+| `lox-sim/src/parser.rs` | YAML spec parser for simulation test cases |
+| `lox-sim/src/state.rs` | Block state management |
+| `lox-sim/src/types.rs` | Core type definitions |
+| `lox-sim/src/clock.rs` | Virtual clock for time-dependent blocks |
+| `lox-sim/src/trace.rs` | Signal trace recording |
+| `lox-sim/src/batch.rs` | Batch simulation runner |
+| `lox-sim/src/io.rs` | I/O handling for simulation |
+| `lox-sim/src/profiler.rs` | Performance profiling |
+| `lox-sim/src/autodiff.rs` | Automatic differentiation support |
+| `lox-sim/src/blocks/*.rs` | Block implementations: logic, math, timers, controllers, I/O, state, schedule, security, compare, energy, misc |
 
 ---
 
