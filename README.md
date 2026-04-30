@@ -11,9 +11,7 @@
 
 Built for [GitHub Copilot CLI](https://docs.github.com/en/copilot/github-copilot-in-the-cli), [Claude Code](https://docs.anthropic.com/en/docs/agents-and-tools/claude-code/overview), [OpenCode](https://opencode.ai), and any agent that can run shell commands.
 
-<p align="center">
-  <img src="docs/assets/demo.gif" alt="Demo: AI agent configures kitchen automation" width="800">
-</p>
+![Demo: AI agent configures kitchen automation](docs/assets/demo.gif)
 
 ### How It Works
 
