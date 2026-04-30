@@ -24,13 +24,15 @@ Works with [GitHub Copilot CLI](https://docs.github.com/en/copilot/github-copilo
 
 ## Install
 
-**Prebuilt binaries** (Linux, macOS, Windows):
-
+**Homebrew** (macOS/Linux):
 ```bash
-# Download from GitHub Releases
-curl -LO https://github.com/eisber/lox-cli/releases/latest/download/lox-x86_64-unknown-linux-gnu.tar.gz
-tar xzf lox-x86_64-unknown-linux-gnu.tar.gz
-sudo mv lox /usr/local/bin/
+brew install eisber/tap/lox-cli
+```
+
+**Prebuilt binaries** (Linux, macOS, Windows) — see [Releases](https://github.com/eisber/lox-cli/releases):
+```bash
+curl -LO https://github.com/eisber/lox-cli/releases/latest/download/lox-cli-linux-x86_64
+chmod +x lox-cli-linux-x86_64 && sudo mv lox-cli-linux-x86_64 /usr/local/bin/lox
 ```
 
 **From crates.io:**

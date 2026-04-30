@@ -1,0 +1,4 @@
+FROM scratch
+ARG TARGETPLATFORM
+COPY docker/${TARGETPLATFORM}/lox /usr/local/bin/lox
+ENTRYPOINT ["/usr/local/bin/lox"]
