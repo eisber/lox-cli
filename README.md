@@ -11,7 +11,7 @@
 
 Built for [GitHub Copilot CLI](https://docs.github.com/en/copilot/github-copilot-in-the-cli), [Claude Code](https://docs.anthropic.com/en/docs/agents-and-tools/claude-code/overview), [OpenCode](https://opencode.ai), and any agent that can run shell commands.
 
-![demo](./docs/assets/demo.gif)
+<video src="https://raw.githubusercontent.com/eisber/lox-cli/main/docs/assets/demo.mp4" autoplay loop muted playsinline width="662"></video>
 
 ### How It Works
 
