@@ -60,11 +60,11 @@ jobs:
 
       - name: Build (zigbuild for musl)
         if: contains(matrix.target, 'linux-musl')
-        run: cargo zigbuild --release --target ${{ matrix.target }}
+        run: cargo zigbuild --release --target ${{ matrix.target }} --features vendored-openssl
 
       - name: Build
         if: ${{ !contains(matrix.target, 'linux-musl') }}
-        run: cargo build --release --target ${{ matrix.target }}
+        run: cargo build --release --target ${{ matrix.target }} --features vendored-openssl
 
       - name: Rename binary (Unix)
         if: runner.os != 'Windows'
