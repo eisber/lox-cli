@@ -131,6 +131,29 @@ jobs:
           files: artifacts/*
           generate_release_notes: true
 
+  publish-crates:
+    name: Publish to crates.io
+    needs: release
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Rust stable
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Publish lox-sim
+        run: cargo publish -p lox-sim --no-verify
+        env:
+          CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
+
+      - name: Wait for crates.io index
+        run: sleep 30
+
+      - name: Publish lox-cli
+        run: cargo publish -p lox-cli --no-verify
+        env:
+          CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
+
   docker:
     name: Push Docker image
     needs: build
