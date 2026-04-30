@@ -2,8 +2,10 @@
 name = "lox-sim"
 version = "0.1.0"
 edition = "2021"
-description = "Loxone Miniserver SPS simulator — differentiable, high-performance"
+description = "Loxone Miniserver SPS simulator — offline circuit testing for 195 block types"
 license = "AGPL-3.0-or-later"
+repository = "https://github.com/eisber/lox-cli"
+keywords = ["loxone", "simulator", "smarthome", "sps"]
 
 [dependencies]
 rayon = "1"

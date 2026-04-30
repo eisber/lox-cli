@@ -5,29 +5,43 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.12.0] — 2026-04-19
+## [0.12.0] — 2026-04-30
 
 ### Added
-- **`lox config describe`** — human-readable config summary grouped by room, with control types and wiring status
-- **`lox config device-bind`** — wire a control's output to a physical device actor via OutputRef chain
-- **`lox config template`** — apply room templates (standard, bedroom, bathroom, hallway, kitchen, outdoor, office) creating LightController2, JalousieUpDown2, Thermostat etc. with sensible defaults
-- **`lox config devices --ports`** — list all hardware I/O ports with used/free status and UUIDs for device-bind
-- **`lox config set-param`** / **`get-params`** — read and write block parameters (Def= values on connectors)
-- **`lox config add-virtual-in`** — create VirtualIn elements with InputRef on Page
-- **`lox config wire-connector`** — wire any connector with source UUID
+- **SPS Simulator** (`lox-sim`) — offline Miniserver circuit simulator
+  - 195 block types: logic, math, lighting, HVAC, timers, blinds, I/O
+  - Topological evaluation engine with cycle detection
+  - Multi-step temporal specs: test heating cycles, timer delays, schedules
+  - Time injection for DayTimer/AlarmClock schedule testing
+  - Structured trace output (JSON) for signal auto-discovery
+  - 367 unit tests, 6k lines of Rust
+- **Eval harness** — 285 behavioral test cases across 10 categories
+  - Utterance → agent builds circuit → simulator verifies signals
+  - 94% raw LLM pass rate (5 sections at 100%)
+  - Parallel execution, incremental reporting
+- **JSON output** on all config commands (`-o json`)
+  - `config add` returns UUID + connector map with UUIDs
+  - `config check/validate` returns structured warnings/errors
+  - `config describe` returns full block inventory with connectors
+  - `config get-params` returns all connectors with wiring status
+  - `config wire-connector` and `set-param` return structured confirmation
+- **Skill references** (`.github/skills/`) for AI agent integration
+  - loxone-config: CLI commands, block types, worked examples, common mistakes
+  - loxone-patterns: 13 automation recipes
+  - loxone-sim: simulator testing patterns
+- **`lox config describe`** — human-readable config summary grouped by room
+- **`lox config device-bind`** — wire a control's output to a physical device
+- **`lox config template`** — room templates (bedroom, bathroom, kitchen, etc.)
 - **`lox config layout`** — ELK-based auto-layout engine for block pages
-- **190 block types** with full connector maps (dynamic JSON, 2384 connectors with I/O/P types)
-- **221 block type definitions** extracted from Loxone Config UX TechDoc
-- **Levenshtein fuzzy matching** on all error messages (type names, selectors, template names)
-- **Room templates** accept German names (schlafzimmer, badezimmer, flur, küche, büro)
-- `add_category()` and `set_param()` methods on ConfigEditor for programmatic use
+- **190 block types** with full connector maps (2384 connectors with I/O/P types)
+- **Levenshtein fuzzy matching** on all error messages
+- **GitOps** — `config pull` downloads, diffs, and commits with semantic messages
 
 ### Fixed
-- **TLS verify_ssl respected in ALL code paths** — previously ws.rs, token.rs, stream.rs hardcoded `danger_accept_invalid_certs(true)`
-- **Token file permissions** — now chmod 0600 on Unix (was world-readable)
-- **Atomic config writes** — write-to-temp + rename prevents corruption on crash/power loss
-- **Fast reload port** — uses configured port instead of hardcoding 443
-- **/wsx read loop hang** — EOF now breaks the loop (was infinite on partial read)
+- **TLS verify_ssl respected in ALL code paths** — previously hardcoded in ws.rs, token.rs, stream.rs
+- **Token file permissions** — now chmod 0600 on Unix
+- **Atomic config writes** — write-to-temp + rename prevents corruption
+- JSON output on `config controls`, `rooms`, `stats` (was broken/missing)
 - **Config patch panic** — empty replacement pattern now returns error instead of panicking
 - **LoxCC allocation cap** — capped at 64MB to prevent OOM from malicious headers
 - **Plaintext token fallback** — now warns when sending token unhashed

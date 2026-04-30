@@ -1,22 +1,62 @@
 # lox — AI Agent Tooling for Loxone Miniserver
 
 [![CI](https://github.com/eisber/lox-cli/actions/workflows/ci.yml/badge.svg)](https://github.com/eisber/lox-cli/actions/workflows/ci.yml)
+[![crates.io](https://img.shields.io/crates/v/lox-cli.svg)](https://crates.io/crates/lox-cli)
 [![License: AGPL-3.0](https://img.shields.io/badge/License-AGPL%20v3-blue.svg)](https://www.gnu.org/licenses/agpl-3.0)
-[![Rust](https://img.shields.io/badge/Rust-1.91%2B-orange.svg?logo=rust)](https://www.rust-lang.org/)
 [![Eval](https://img.shields.io/badge/eval-94%25%20pass-brightgreen.svg)](#eval-results)
 
 **Tell an AI agent what you want. It configures your Loxone Miniserver.**
 
 *"Set up the kitchen so the light comes on when dark, blinds go up in strong wind, and they close after five minutes of sunshine if there's no wind."* → Agent searches block types, adds 5 logic blocks, wires 3 circuits, fixes a pulse duration error after sim feedback, and verifies all 7 test scenarios — in under 5 minutes.
 
-Built for [GitHub Copilot CLI](https://docs.github.com/en/copilot/github-copilot-in-the-cli), [Claude Code](https://docs.anthropic.com/en/docs/agents-and-tools/claude-code/overview), [OpenCode](https://opencode.ai), and any agent that can run shell commands.
-
 <p align="center">
   <img src="docs/assets/demo.gif" alt="Demo: AI agent configures kitchen automation" width="662">
-  <br><sub>▶ Click image to play — AI agent builds 3 kitchen circuits from a natural language prompt</sub>
+  <br><sub>▶ Click to play — Copilot CLI builds 3 kitchen circuits from a natural language prompt</sub>
 </p>
 
-### How It Works
+## Why
+
+[Loxone Config](https://www.loxone.com/enen/products/software/loxone-config/) is a 400MB Windows-only desktop app. You drag blocks onto a canvas, wire them by hand, and hope you didn't miss a connection. For a single room with lighting, blinds, and climate you're easily placing 15+ blocks and 30+ wires.
+
+This CLI replaces that with shell commands an AI agent can call. The agent reads a [skill reference](.github/skills/loxone-config/SKILL.md) (block types, connectors, common mistakes), builds the circuit, then self-tests with an offline SPS simulator — catching wiring errors before anything touches your live system.
+
+Works with [GitHub Copilot CLI](https://docs.github.com/en/copilot/github-copilot-in-the-cli), [Claude Code](https://docs.anthropic.com/en/docs/agents-and-tools/claude-code/overview), [OpenCode](https://opencode.ai), or any agent that can run shell commands.
+
+## Install
+
+**Prebuilt binaries** (Linux, macOS, Windows):
+
+```bash
+# Download from GitHub Releases
+curl -LO https://github.com/eisber/lox-cli/releases/latest/download/lox-x86_64-unknown-linux-gnu.tar.gz
+tar xzf lox-x86_64-unknown-linux-gnu.tar.gz
+sudo mv lox /usr/local/bin/
+```
+
+**From crates.io:**
+```bash
+cargo install lox-cli
+```
+
+**From source:**
+```bash
+git clone https://github.com/eisber/lox-cli && cd lox-cli
+cargo build --release    # Binary at target/release/lox (~14MB)
+```
+
+**Requirements:** Loxone Miniserver Gen 1 or 2 (firmware 12.0+), local network access.
+
+## Quick Start
+
+```bash
+# Connect to your Miniserver
+lox setup set --host https://192.168.1.100 --user admin --pass secret
+
+# Download & inspect config
+lox config download --extract
+lox config describe config.Loxone
+
+## How It Works
 
 ```
 User: "Close the living room blinds when it's sunny and above 25°C"
@@ -25,90 +65,65 @@ Agent reads skill reference (.github/skills/loxone-config/)
   ↓
 Agent runs CLI commands:
   lox blocks search "threshold"           → GreaterEqual
-  lox config add --type GreaterEqual ...  → adds block
-  lox config wire-connector ...           → wires sensor → logic → actuator  
+  lox config add --type GreaterEqual ...  → adds block, returns connector UUIDs
+  lox config wire-connector ...           → wires sensor → logic → actuator
   lox sim run config.Loxone --sim '...'   → ✅ signal propagates correctly
   ↓
 Config ready to deploy: lox config push config.Loxone --reboot
 ```
 
-**94% pass rate** on 285 behavioral eval cases (5 sections at 100%). [See eval results →](#eval-results)
+The CLI handles LoxCC compression, CRC32 checksums, UUID generation, connector maps for 190+ block types, and wiring validation. All commands support `-o json` for agent consumption.
 
 ---
 
 ## Config-as-Code
 
-The CLI treats your Miniserver configuration as code — download, edit with semantic commands, validate, push back. Works in scripts, CI/CD, or AI agent workflows.
-
 ```bash
-# Download & inspect
-lox config download --extract          # Download config XML from Miniserver
-lox config describe config.Loxone      # Human-readable summary by room
-
 # Add logic blocks & wire them
-lox config add --type GreaterEqual --title "Temp über 25" config.Loxone
+lox config add --type GreaterEqual --title "Temp über 25" config.Loxone -o json
+# {"ok":true,"uuid":"...","type":"GreaterEqual","connectors":[{"key":"Input1","uuid":"...","direction":"I"},...]
+
 lox config set-param config.Loxone "Temp über 25" Input2 25
 lox config wire-connector config.Loxone "Temp über 25.Input1" "Außentemperatur.AQ"
 lox config wire-connector config.Loxone "Jalousie 1 [Wohnzimmer].InputTriggerDown" "Temp über 25.Q"
 
 # Validate & test
-lox config check config.Loxone         # Check wiring completeness
-lox sim run config.Loxone --sim '{"inputs":{"Außentemperatur":30},...}'  # Simulate
+lox config check config.Loxone -o json     # Structured warnings/errors
+lox sim run config.Loxone --sim '{"inputs":{"Außentemperatur":30},...}'
 
 # Deploy
 lox config push config.Loxone --reboot --force  # Upload + SPS reload (~4s)
 ```
 
-**No desktop app needed.** Handles LoxCC compression, CRC32 checksums, UUID generation, connector maps for 190+ block types, and wiring validation.
-
----
-
-## Room Templates
-
-Standard presets for common room types. Each creates appropriate controls with sensible parameter defaults:
-
+Room templates for common setups:
 ```bash
-lox config template config.Loxone standard --room "EG Wohnzimmer"
 lox config template config.Loxone bedroom --room "DG Schlafzimmer"
-lox config template config.Loxone bathroom --room "EG Bad"
+# Creates LightController2, JalousieUpDown2, Thermostat with sensible defaults
 ```
 
-Templates: `standard`, `bedroom`, `bathroom`, `hallway`, `kitchen`, `outdoor`, `office`.
-German aliases work too: `schlafzimmer`, `badezimmer`, `flur`, `küche`, `büro`.
-
----
-
-## Config Versioning (GitOps)
-
-Track configuration changes in git with semantic commit messages:
-
+GitOps versioning:
 ```bash
-lox config init ~/loxone-config        # Initialize git repo
-lox config pull                        # Download, diff, commit with meaningful message
-lox config log                         # Show change history
-lox config restore abc123 --force      # Restore from git history
+lox config pull    # Download → diff → semantic commit message
+lox config log     # Change history
 ```
 
-Each pull generates commits like:
-```
-[504F94AABBCC] Config backup 2026-04-19 (v267)
-+ Added control: "Küche Licht" (LightController2)
-~ Renamed: "Licht EG" → "Licht Erdgeschoss"
-- Removed user: "guest"
-```
+## SPS Simulator
 
----
-
-## SPS Simulator (lox-sim)
-
-Offline Miniserver SPS simulator for testing config changes without hardware:
+Offline Miniserver SPS simulator — test config changes without hardware:
 
 - **195 block types** — logic, math, lighting, HVAC, timers, I/O
-- **JIT-compiled engine** — topological sort, batch evaluation, cycle detection
-- **Multi-step temporal specs** — test heating cycles, timer delays, schedule transitions
-- **Time injection** — set `minutes_since_midnight` on all DayTimers for schedule testing
-- **Structured trace** — JSON output of all signal values for auto-discovery
+- **Topological engine** — automatic evaluation order, cycle detection
+- **Temporal testing** — multi-step specs for heating cycles, timer delays, schedules
 - **6k lines of Rust** in `lox-sim/` with 367 unit tests
+
+```bash
+lox sim run config.Loxone --sim '{
+  "inputs": {"Außentemperatur": 30, "Sonnenschein": 1},
+  "ticks": 10, "dt": 0.1,
+  "expected_outputs": {"Jalousie 1 [Wohnzimmer].InputTriggerDown": {">": 0.5}}
+}'
+# {"pass":true,"passed":1,"scenarios":[{"pass":true,...}]}
+```
 
 ---
 
@@ -235,44 +250,16 @@ lox sim run saved-config.Loxone --sim '[...]'
 
 ## For AI Agents
 
-Designed for LLM agent integration with skill references in `.github/skills/`:
+Skill references in `.github/skills/` give agents everything they need:
 
-- **loxone-config** — CLI commands, block types, worked examples, common mistakes
-- **loxone-sim** — simulator testing commands
+- **loxone-config** — CLI commands, 190+ block types, worked examples, common mistakes
+- **loxone-sim** — simulator testing commands and patterns
 - **loxone-patterns** — 13 automation recipes (threshold, timer, schedule, HVAC)
 
-The agent reads the skill, searches block types with `lox blocks search`, builds circuits, and self-tests with `lox sim run`:
-
-```bash
-# Agent workflow
-lox blocks search "timer"              # Find the right block type
-lox config add --type StairwayLS --title "Treppenlicht" config.Loxone
-lox config set-param config.Loxone "Treppenlicht" TimeHigh 300
-lox config wire-connector config.Loxone "Treppenlicht.InputTrigger" "Bewegungsmelder.OutputPresence"
-lox config wire-connector config.Loxone "Lichtsteuerung [Flur].I1" "Treppenlicht.Q"
-lox sim run config.Loxone --sim '{"inputs":{"Bewegungsmelder.OutputPresence":1},...}'
+All errors include fuzzy matching suggestions and available options:
 ```
-
-All errors include structured suggestions, fuzzy matching, and available options.
-
----
-
-## Install
-
-**Build from source (all platforms):**
-```bash
-git clone https://github.com/eisber/lox-cli
-cd lox-cli
-cargo build --release
-# Binary at target/release/lox (~14MB)
-```
-
-**Requirements:** Rust 1.91+, Loxone Miniserver Gen 1/2 (firmware 12.0+), local network access.
-
-## Setup
-
-```bash
-lox setup set --host https://192.168.1.100 --user USER --pass PASS
+Error: Block 'Threshold' not found.
+  Did you mean: GreaterEqual, LessEqual, AnalogThresholdTrigger?
 ```
 
 ### Multiple Miniservers
@@ -287,22 +274,9 @@ lox ctx use home
 
 ## Architecture
 
-Single static Rust binary (~14MB). No runtime dependencies. Works on Windows, macOS, and Linux.
-
-```
-~/.lox/
-  config.yaml          # Host, credentials, aliases
-  cache/structure.json # LoxApp3.json (24h TTL)
-  contexts/            # Per-Miniserver data
-```
+Single static Rust binary (~14MB). No runtime dependencies. Works on Linux, macOS, and Windows.
 
 See **[COMMANDS.md](COMMANDS.md)** for the full command reference, **[DESIGN.md](DESIGN.md)** for architecture details, and **[AGENTS.md](AGENTS.md)** for AI agent integration guidance.
-
----
-
-## Status
-
-This project is an experiment. Expect rough edges. **Use at your own risk** — commands that modify your Miniserver can affect your live system. Always have a backup.
 
 ## License
 
