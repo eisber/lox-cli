@@ -12,5 +12,7 @@ pub struct RunContext {
     pub dry_run: bool,
     #[allow(dead_code)]
     pub no_header: bool,
+    #[allow(dead_code)]
+    pub non_interactive: bool,
     pub trace_id: Option<String>,
 }

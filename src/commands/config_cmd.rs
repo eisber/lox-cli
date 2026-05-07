@@ -382,6 +382,9 @@ pub fn cmd_config(ctx: &RunContext, action: ConfigCmd) -> Result<()> {
         ConfigCmd::Upload { file, force } => {
             let cfg = Config::load()?;
             if !force {
+                if ctx.non_interactive {
+                    bail!("Destructive operation requires --force flag");
+                }
                 eprintln!(
                     "⚠  WARNING: Uploading a config will replace the current Miniserver\n\
                      \x20  programming. A bad configuration can require physical SD card\n\
@@ -392,7 +395,7 @@ pub fn cmd_config(ctx: &RunContext, action: ConfigCmd) -> Result<()> {
                      \x20  Use --force to proceed.",
                     file
                 );
-                std::process::exit(1);
+                bail!("Destructive operation requires --force flag");
             }
             let data = fs::read(&file).with_context(|| format!("Cannot read {}", file))?;
             let filename = std::path::Path::new(&file)
@@ -404,7 +407,7 @@ pub fn cmd_config(ctx: &RunContext, action: ConfigCmd) -> Result<()> {
             println!("Upload complete.");
             println!("Reboot the Miniserver to apply: lox reboot");
         }
-        ConfigCmd::Users { file } => {
+        ConfigCmd::Users { file, limit: _ } => {
             if file.ends_with(".zip") {
                 bail!(
                     "Expected a .Loxone XML file. Run `lox config extract {}` first.",
@@ -429,7 +432,11 @@ pub fn cmd_config(ctx: &RunContext, action: ConfigCmd) -> Result<()> {
                 println!("\n{} users ({} with NFC)", users.len(), nfc_count);
             }
         }
-        ConfigCmd::Devices { file, ports } => {
+        ConfigCmd::Devices {
+            file,
+            ports,
+            limit: _,
+        } => {
             if file.ends_with(".zip") {
                 bail!(
                     "Expected a .Loxone XML file. Run `lox config extract {}` first.",
@@ -678,7 +685,7 @@ pub fn cmd_config(ctx: &RunContext, action: ConfigCmd) -> Result<()> {
                 out_path
             );
         }
-        ConfigCmd::Rooms { file } => {
+        ConfigCmd::Rooms { file, limit: _ } => {
             if file.ends_with(".zip") {
                 bail!(
                     "Expected a .Loxone XML file. Run `lox config extract {}` first.",
@@ -704,7 +711,12 @@ pub fn cmd_config(ctx: &RunContext, action: ConfigCmd) -> Result<()> {
                 println!("\n{} rooms, {} items total", rooms.len(), total);
             }
         }
-        ConfigCmd::Controls { file, r#type, room } => {
+        ConfigCmd::Controls {
+            file,
+            r#type,
+            room,
+            limit: _,
+        } => {
             if file.ends_with(".zip") {
                 bail!(
                     "Expected a .Loxone XML file. Run `lox config extract {}` first.",
@@ -743,12 +755,15 @@ pub fn cmd_config(ctx: &RunContext, action: ConfigCmd) -> Result<()> {
             force,
         } => {
             if !force {
+                if ctx.non_interactive {
+                    bail!("Destructive operation requires --force flag");
+                }
                 eprintln!(
                     "⚠  WARNING: This will modify the live Miniserver configuration.\n\
                      \n\
                      \x20  Use --force to proceed."
                 );
-                std::process::exit(1);
+                bail!("Destructive operation requires --force flag");
             }
             if replace.len() % 2 != 0 {
                 bail!("--replace requires pairs of OLD NEW values");
@@ -827,12 +842,15 @@ pub fn cmd_config(ctx: &RunContext, action: ConfigCmd) -> Result<()> {
             force,
         } => {
             if !force {
+                if ctx.non_interactive {
+                    bail!("Destructive operation requires --force flag");
+                }
                 eprintln!(
                     "⚠  WARNING: This will upload a config to the live Miniserver.\n\
                      \n\
                      \x20  Use --force to proceed."
                 );
-                std::process::exit(1);
+                bail!("Destructive operation requires --force flag");
             }
             // Read the .Loxone XML
             let xml = fs::read(&file).with_context(|| format!("Cannot read {}", file))?;
@@ -907,13 +925,16 @@ pub fn cmd_config(ctx: &RunContext, action: ConfigCmd) -> Result<()> {
         }
         ConfigCmd::PushHttp { file, force } => {
             if !force {
+                if ctx.non_interactive {
+                    bail!("Destructive operation requires --force flag");
+                }
                 eprintln!(
                     "⚠  WARNING: This will upload a config ZIP to the live Miniserver via HTTP.\n\
                      \n\
                      \x20  The Miniserver will auto-restart after receiving the file.\n\
                      \x20  Use --force to proceed."
                 );
-                std::process::exit(1);
+                bail!("Destructive operation requires --force flag");
             }
 
             let zip_data = fs::read(&file).with_context(|| format!("Cannot read {}", file))?;
@@ -3449,6 +3470,7 @@ mod tests {
             csv: false,
             dry_run: false,
             no_header: false,
+            non_interactive: false,
             trace_id: None,
         }
     }
@@ -3456,7 +3478,7 @@ mod tests {
     #[test]
     fn test_cmd_rooms() {
         let (_dir, file) = fixture_file();
-        let result = cmd_config(&ctx(), ConfigCmd::Rooms { file });
+        let result = cmd_config(&ctx(), ConfigCmd::Rooms { file, limit: None });
         assert!(result.is_ok());
     }
 
@@ -3469,6 +3491,7 @@ mod tests {
                 file,
                 r#type: None,
                 room: None,
+                limit: 100,
             },
         );
         assert!(result.is_ok());
@@ -3483,6 +3506,7 @@ mod tests {
                 file,
                 r#type: Some("And".to_string()),
                 room: None,
+                limit: 100,
             },
         );
         assert!(result.is_ok());
@@ -3497,6 +3521,7 @@ mod tests {
                 file,
                 r#type: None,
                 room: Some("Room1".to_string()),
+                limit: 100,
             },
         );
         assert!(result.is_ok());
@@ -3505,14 +3530,28 @@ mod tests {
     #[test]
     fn test_cmd_devices() {
         let (_dir, file) = fixture_file();
-        let result = cmd_config(&ctx(), ConfigCmd::Devices { file, ports: false });
+        let result = cmd_config(
+            &ctx(),
+            ConfigCmd::Devices {
+                file,
+                ports: false,
+                limit: 100,
+            },
+        );
         assert!(result.is_ok());
     }
 
     #[test]
     fn test_cmd_devices_ports() {
         let (_dir, file) = fixture_file();
-        let result = cmd_config(&ctx(), ConfigCmd::Devices { file, ports: true });
+        let result = cmd_config(
+            &ctx(),
+            ConfigCmd::Devices {
+                file,
+                ports: true,
+                limit: 100,
+            },
+        );
         assert!(result.is_ok());
     }
 
@@ -3546,6 +3585,7 @@ mod tests {
             csv: false,
             dry_run: false,
             no_header: false,
+            non_interactive: false,
             trace_id: None,
         };
         let result = cmd_config(&json_ctx, ConfigCmd::Stats { file });
@@ -3582,7 +3622,7 @@ mod tests {
     #[test]
     fn test_cmd_users() {
         let (_dir, file) = fixture_file();
-        let result = cmd_config(&ctx(), ConfigCmd::Users { file });
+        let result = cmd_config(&ctx(), ConfigCmd::Users { file, limit: None });
         assert!(result.is_ok());
     }
 
@@ -3899,6 +3939,7 @@ mod tests {
             &ctx(),
             ConfigCmd::Rooms {
                 file: path.to_str().unwrap().to_string(),
+                limit: 100,
             },
         );
         assert!(result.is_err());

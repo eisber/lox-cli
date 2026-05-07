@@ -279,6 +279,9 @@ pub(crate) enum BlocksCmd {
         /// Filter by category (logic, math, compare, timer, schedule, state, lighting, shading, hvac, security, energy, io, button, misc)
         #[arg(long)]
         category: Option<String>,
+        /// Maximum number of results to display
+        #[arg(long, default_value = "100")]
+        limit: usize,
     },
 }
 
@@ -441,6 +444,9 @@ pub(crate) enum ConfigCmd {
     Users {
         /// Path to a .Loxone XML file (from `lox config extract`)
         file: String,
+        /// Limit number of results displayed
+        #[arg(long)]
+        limit: Option<usize>,
     },
     /// List hardware devices from a .Loxone config file
     Devices {
@@ -449,6 +455,9 @@ pub(crate) enum ConfigCmd {
         /// Show all I/O ports with used/free status
         #[arg(long)]
         ports: bool,
+        /// Limit number of results displayed
+        #[arg(long)]
+        limit: Option<usize>,
     },
     /// Compare two config files (ZIP or .Loxone)
     Diff {
@@ -494,6 +503,9 @@ pub(crate) enum ConfigCmd {
     Rooms {
         /// Path to a .Loxone XML file (from `lox config extract`)
         file: String,
+        /// Limit number of results displayed
+        #[arg(long)]
+        limit: Option<usize>,
     },
     /// List controls with type, title, room, and category from a .Loxone config
     Controls {
@@ -505,6 +517,9 @@ pub(crate) enum ConfigCmd {
         /// Filter by room name
         #[arg(short, long)]
         room: Option<String>,
+        /// Maximum number of results to display
+        #[arg(long, default_value = "100")]
+        limit: usize,
     },
     /// Download, patch, recompress, and upload a config in one step
     Patch {
@@ -1051,6 +1066,7 @@ fn run(cli: Cli) -> Result<()> {
         csv: cli.output == OutputFormat::Csv,
         dry_run: cli.dry_run,
         no_header: cli.no_header,
+        non_interactive: cli.non_interactive,
         trace_id: cli.trace_id.clone(),
     };
 

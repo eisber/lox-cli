@@ -515,7 +515,7 @@ pub fn cmd_blocks(ctx: &RunContext, action: BlocksCmd) -> Result<()> {
     match action {
         BlocksCmd::Search { query } => blocks_search(ctx, &query),
         BlocksCmd::Info { block_type } => blocks_info(ctx, &block_type),
-        BlocksCmd::List { category } => blocks_list(ctx, category.as_deref()),
+        BlocksCmd::List { category, limit } => blocks_list(ctx, category.as_deref(), limit),
     }
 }
 
@@ -847,7 +847,7 @@ fn print_connector(c: &ConnectorEntry) {
     }
 }
 
-fn blocks_list(ctx: &RunContext, category: Option<&str>) -> Result<()> {
+fn blocks_list(ctx: &RunContext, category: Option<&str>, _limit: usize) -> Result<()> {
     let blocks = load_block_index();
 
     // Build type → name lookup
