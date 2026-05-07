@@ -397,3 +397,76 @@ fn config_rooms_json_output() {
         .stdout(predicate::str::contains("\"Room1\""))
         .stdout(predicate::str::contains("\"Room2\""));
 }
+
+// ── config add idempotency ──────────────────────────────────────────────────
+
+#[test]
+fn config_add_idempotent_existing_block() {
+    let dir = TempDir::new().unwrap();
+    let path = write_fixture(&dir);
+
+    // "TestAnd" of type "And" already exists in the fixture
+    lox()
+        .args([
+            "config", "add", &path, "--type", "And", "--title", "TestAnd",
+        ])
+        .assert()
+        .success()
+        .stdout(predicate::str::contains("Already exists"))
+        .stdout(predicate::str::contains("TestAnd"));
+
+    // File should NOT be modified (no save)
+    let content = fs::read_to_string(&path).unwrap();
+    assert_eq!(content, FIXTURE_XML, "File should not be modified");
+}
+
+#[test]
+fn config_add_idempotent_json_output() {
+    let dir = TempDir::new().unwrap();
+    let path = write_fixture(&dir);
+
+    // JSON mode should return existing: true
+    let output = lox()
+        .args([
+            "--output", "json", "config", "add", &path, "--type", "And", "--title", "TestAnd",
+        ])
+        .assert()
+        .success()
+        .get_output()
+        .stdout
+        .clone();
+    let json: serde_json::Value = serde_json::from_slice(&output).unwrap();
+    assert_eq!(json["ok"], true);
+    assert_eq!(json["existing"], true);
+    assert_eq!(json["type"], "And");
+    assert_eq!(json["title"], "TestAnd");
+    assert!(!json["uuid"].as_str().unwrap().is_empty());
+}
+
+#[test]
+fn config_add_idempotent_different_type_creates_new() {
+    let dir = TempDir::new().unwrap();
+    let path = write_fixture(&dir);
+    let out = dir.path().join("new.Loxone");
+    let out_str = out.to_str().unwrap();
+
+    // Same title "TestAnd" but different type "Or" should create a new block
+    lox()
+        .args([
+            "config",
+            "add",
+            &path,
+            "--type",
+            "Or",
+            "--title",
+            "TestAnd",
+            "--save-as",
+            out_str,
+        ])
+        .assert()
+        .success()
+        .stdout(predicate::str::contains("Added"));
+
+    let content = fs::read_to_string(&out).unwrap();
+    assert!(content.contains("TestAnd"), "New block should be created");
+}

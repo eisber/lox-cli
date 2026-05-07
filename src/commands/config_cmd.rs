@@ -1162,6 +1162,41 @@ pub fn cmd_config(ctx: &RunContext, action: ConfigCmd) -> Result<()> {
                 None
             };
 
+            // Idempotency: check if a block with the same Title AND Type already exists
+            let type_selector = format!("Type:{}", xml_type);
+            let existing = editor.find_elements(&type_selector);
+            let existing_match = existing.iter().find(|path| {
+                let elem = editor.get_element(path);
+                elem.attributes
+                    .get("Title")
+                    .map(|t| t == &title)
+                    .unwrap_or(false)
+            });
+            if let Some(found_path) = existing_match {
+                let elem = editor.get_element(found_path);
+                let existing_uuid = elem.attributes.get("U").cloned().unwrap_or_default();
+                if ctx.json {
+                    let connectors = collect_block_connectors(&editor, &existing_uuid);
+                    println!(
+                        "{}",
+                        serde_json::json!({
+                            "ok": true,
+                            "existing": true,
+                            "uuid": existing_uuid,
+                            "type": xml_type,
+                            "title": title,
+                            "connectors": connectors,
+                        })
+                    );
+                } else {
+                    println!(
+                        "✓ Already exists: {} '{}' (UUID: {})",
+                        xml_type, title, existing_uuid
+                    );
+                }
+                return Ok(());
+            }
+
             if let Some(actual_parent) = parent_sel {
                 // --parent explicitly provided — use it (unless --page overrides for page-bound types)
                 if target_page_path.is_some() {
