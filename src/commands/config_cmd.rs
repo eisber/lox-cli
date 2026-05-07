@@ -16,6 +16,14 @@ use crate::{
     loxcc, loxone_xml,
 };
 
+/// Emit a JSON object, injecting `trace_id` if set in context.
+fn emit_json(ctx: &RunContext, mut obj: serde_json::Value) {
+    if let Some(ref tid) = ctx.trace_id {
+        obj["trace_id"] = serde_json::Value::String(tid.clone());
+    }
+    println!("{}", obj);
+}
+
 pub fn cmd_setup(ctx: &RunContext, action: SetupCmd) -> Result<()> {
     match action {
         SetupCmd::Set {
@@ -1029,21 +1037,59 @@ pub fn cmd_config(ctx: &RunContext, action: ConfigCmd) -> Result<()> {
             // Upload as sps_new.zip (consumed by Miniserver on reload)
             eprintln!("Uploading patched config ({} KB)...", new_zip.len() / 1024);
             ftp::upload_backup(&cfg, "sps_new.zip", &new_zip)?;
-            println!("✓ Config uploaded as sps_new.zip");
 
             if reboot {
                 // Fast reload via /wsx 0x3A → 0x05 (~4s)
                 eprintln!("Triggering fast SPS reload via /wsx...");
                 match crate::ws::trigger_fast_reload(&cfg) {
-                    Ok(()) => println!("✓ SPS reloading (~4s)"),
+                    Ok(()) => {
+                        if ctx.json {
+                            emit_json(
+                                ctx,
+                                serde_json::json!({
+                                    "ok": true,
+                                    "file": file,
+                                    "uploaded_as": "sps_new.zip",
+                                    "reboot": "fast_reload",
+                                }),
+                            );
+                        } else {
+                            println!("✓ Config uploaded as sps_new.zip");
+                            println!("✓ SPS reloading (~4s)");
+                        }
+                    }
                     Err(e) => {
                         eprintln!("Fast reload failed ({}), falling back to reboot...", e);
                         let lox = crate::client::LoxClient::new(cfg)?;
                         lox.get_text("/dev/sys/reboot")?;
-                        println!("✓ Reboot initiated (~60s).");
+                        if ctx.json {
+                            emit_json(
+                                ctx,
+                                serde_json::json!({
+                                    "ok": true,
+                                    "file": file,
+                                    "uploaded_as": "sps_new.zip",
+                                    "reboot": "full",
+                                }),
+                            );
+                        } else {
+                            println!("✓ Config uploaded as sps_new.zip");
+                            println!("✓ Reboot initiated (~60s).");
+                        }
                     }
                 }
+            } else if ctx.json {
+                emit_json(
+                    ctx,
+                    serde_json::json!({
+                        "ok": true,
+                        "file": file,
+                        "uploaded_as": "sps_new.zip",
+                        "reboot": false,
+                    }),
+                );
             } else {
+                println!("✓ Config uploaded as sps_new.zip");
                 println!(
                     "Apply with: lox config push --file {} --reboot --force",
                     file
@@ -1325,8 +1371,8 @@ pub fn cmd_config(ctx: &RunContext, action: ConfigCmd) -> Result<()> {
                 let existing_uuid = elem.attributes.get("U").cloned().unwrap_or_default();
                 if ctx.json {
                     let connectors = collect_block_connectors(&editor, &existing_uuid);
-                    println!(
-                        "{}",
+                    emit_json(
+                        ctx,
                         serde_json::json!({
                             "ok": true,
                             "existing": true,
@@ -1334,7 +1380,7 @@ pub fn cmd_config(ctx: &RunContext, action: ConfigCmd) -> Result<()> {
                             "type": xml_type,
                             "title": title,
                             "connectors": connectors,
-                        })
+                        }),
                     );
                 } else {
                     println!(
@@ -1363,15 +1409,15 @@ pub fn cmd_config(ctx: &RunContext, action: ConfigCmd) -> Result<()> {
                 )?;
                 if ctx.json {
                     let connectors = collect_block_connectors(&editor, &uuid);
-                    println!(
-                        "{}",
+                    emit_json(
+                        ctx,
                         serde_json::json!({
                             "ok": true,
                             "uuid": uuid,
                             "type": xml_type,
                             "title": title,
                             "connectors": connectors,
-                        })
+                        }),
                     );
                 } else {
                     println!("✓ Added {} '{}' (UUID: {})", xml_type, title, uuid);
@@ -1544,8 +1590,8 @@ pub fn cmd_config(ctx: &RunContext, action: ConfigCmd) -> Result<()> {
                     parent_elem.children.push(xmltree::XMLNode::Element(elem));
                     if ctx.json {
                         let connectors = collect_block_connectors(&editor, &uuid);
-                        println!(
-                            "{}",
+                        emit_json(
+                            ctx,
                             serde_json::json!({
                                 "ok": true,
                                 "uuid": uuid,
@@ -1553,7 +1599,7 @@ pub fn cmd_config(ctx: &RunContext, action: ConfigCmd) -> Result<()> {
                                 "title": title,
                                 "page": page_title,
                                 "connectors": connectors,
-                            })
+                            }),
                         );
                     } else {
                         println!(
@@ -1606,15 +1652,15 @@ pub fn cmd_config(ctx: &RunContext, action: ConfigCmd) -> Result<()> {
                         parent_elem.children.push(xmltree::XMLNode::Element(elem));
                         if ctx.json {
                             let connectors = collect_block_connectors(&editor, &uuid);
-                            println!(
-                                "{}",
+                            emit_json(
+                                ctx,
                                 serde_json::json!({
                                     "ok": true,
                                     "uuid": uuid,
                                     "type": xml_type,
                                     "title": title,
                                     "connectors": connectors,
-                                })
+                                }),
                             );
                         } else {
                             println!("✓ Added {} '{}' (UUID: {})", xml_type, title, uuid);
@@ -1629,15 +1675,15 @@ pub fn cmd_config(ctx: &RunContext, action: ConfigCmd) -> Result<()> {
                         )?;
                         if ctx.json {
                             let connectors = collect_block_connectors(&editor, &uuid);
-                            println!(
-                                "{}",
+                            emit_json(
+                                ctx,
                                 serde_json::json!({
                                     "ok": true,
                                     "uuid": uuid,
                                     "type": xml_type,
                                     "title": title,
                                     "connectors": connectors,
-                                })
+                                }),
                             );
                         } else {
                             println!("✓ Added {} '{}' (UUID: {})", xml_type, title, uuid);
@@ -1988,13 +2034,13 @@ pub fn cmd_config(ctx: &RunContext, action: ConfigCmd) -> Result<()> {
                 .ok_or_else(|| anyhow::anyhow!("Target must be 'BlockTitle.ConnectorKey'"))?;
             editor.wire_connector(block_title, conn_key, &source_uuid)?;
             if ctx.json {
-                println!(
-                    "{}",
+                emit_json(
+                    ctx,
                     serde_json::json!({
                         "ok": true,
                         "target": format!("{}.{}", block_title, conn_key),
                         "source": source_uuid,
-                    })
+                    }),
                 );
             } else if !ctx.quiet {
                 println!("✓ Wired {}.{} ← {}", block_title, conn_key, source_uuid);
@@ -2045,8 +2091,8 @@ pub fn cmd_config(ctx: &RunContext, action: ConfigCmd) -> Result<()> {
                         );
                     }
                     if ctx.json {
-                        println!(
-                            "{}",
+                        emit_json(
+                            ctx,
                             serde_json::json!({
                                 "ok": true,
                                 "block": title,
@@ -2054,7 +2100,7 @@ pub fn cmd_config(ctx: &RunContext, action: ConfigCmd) -> Result<()> {
                                 "param": param,
                                 "old": old,
                                 "new": value,
-                            })
+                            }),
                         );
                     } else {
                         println!("✓ Set {}.{}: {} → {}", title, param, old, value);
