@@ -52,7 +52,11 @@ pub fn top_matches(query: &str, candidates: &[String], n: usize) -> Vec<String> 
         .filter(|(_, d)| *d <= threshold)
         .collect();
     scored.sort_by_key(|(_, d)| *d);
-    scored.into_iter().take(n).map(|(s, _)| s.to_string()).collect()
+    scored
+        .into_iter()
+        .take(n)
+        .map(|(s, _)| s.to_string())
+        .collect()
 }
 
 /// Suggest the closest match if the distance is reasonable (< 50% of query length).
@@ -284,6 +288,7 @@ mod tests {
 
     #[test]
     fn test_not_found_error_many_candidates() {
+        // When query is very far from all candidates, fall back to count + help
         let candidates: Vec<String> = (0..25).map(|i| format!("Room{}", i)).collect();
         let err = not_found_error("Room", "ZZZZ", &candidates, "lox config room list");
         let msg = err.to_string();
@@ -291,6 +296,54 @@ mod tests {
         assert!(msg.contains("lox config room list"));
         // Should NOT list all items
         assert!(!msg.contains("Room24"));
+    }
+
+    #[test]
+    fn test_not_found_error_many_candidates_with_close_match() {
+        // When query is close to some candidates, show top fuzzy matches
+        let mut candidates: Vec<String> = (0..25).map(|i| format!("Room{}", i)).collect();
+        candidates.push("Threshold".to_string());
+        candidates.push("Thermostat".to_string());
+        let err = not_found_error(
+            "Block type",
+            "Threshhold",
+            &candidates,
+            "lox config add --help",
+        );
+        let msg = err.to_string();
+        assert!(msg.contains("Did you mean:"));
+        assert!(msg.contains("Threshold"));
+        // Should NOT show "options available" when fuzzy matches are present
+        assert!(!msg.contains("options available"));
+    }
+
+    #[test]
+    fn test_top_matches() {
+        let candidates = vec![
+            "And".to_string(),
+            "Or".to_string(),
+            "AnalogThresholdTrigger".to_string(),
+            "GreaterEqual".to_string(),
+            "LessEqual".to_string(),
+            "Threshold".to_string(),
+        ];
+        let matches = top_matches("Threshoold", &candidates, 5);
+        assert!(!matches.is_empty());
+        assert_eq!(matches[0], "Threshold");
+    }
+
+    #[test]
+    fn test_top_matches_empty_candidates() {
+        let candidates: Vec<String> = vec![];
+        let matches = top_matches("query", &candidates, 5);
+        assert!(matches.is_empty());
+    }
+
+    #[test]
+    fn test_top_matches_no_close_matches() {
+        let candidates = vec!["AAAA".to_string(), "BBBB".to_string()];
+        let matches = top_matches("ZZZZZZZZZZ", &candidates, 5);
+        assert!(matches.is_empty());
     }
 
     #[test]
