@@ -50,23 +50,41 @@ pub fn cmd_setup(ctx: &RunContext, action: SetupCmd) -> Result<()> {
             }
             let path = cfg.save()?;
             if !ctx.quiet {
-                println!("✓  Config saved to {:?}", path);
+                eprintln!("✓  Config saved to {:?}", path);
             }
         }
         SetupCmd::Show => {
             let cfg = Config::load()?;
-            println!("host:   {}", cfg.host);
-            println!("user:   {}", cfg.user);
-            println!("pass:   {}", "*".repeat(cfg.pass.len()));
-            if !cfg.serial.is_empty() {
-                println!("serial: {}", cfg.serial);
-            }
-            if !cfg.aliases.is_empty() {
-                println!("aliases:");
-                let mut aliases: Vec<_> = cfg.aliases.iter().collect();
-                aliases.sort_by_key(|(k, _)| k.as_str());
-                for (name, uuid) in aliases {
-                    println!("  {}: {}", name, uuid);
+            if ctx.json {
+                let aliases: std::collections::BTreeMap<&str, &str> = cfg
+                    .aliases
+                    .iter()
+                    .map(|(k, v)| (k.as_str(), v.as_str()))
+                    .collect();
+                println!(
+                    "{}",
+                    serde_json::json!({
+                        "ok": true,
+                        "host": cfg.host,
+                        "user": cfg.user,
+                        "serial": if cfg.serial.is_empty() { None } else { Some(&cfg.serial) },
+                        "aliases": aliases,
+                    })
+                );
+            } else {
+                println!("host:   {}", cfg.host);
+                println!("user:   {}", cfg.user);
+                println!("pass:   {}", "*".repeat(cfg.pass.len()));
+                if !cfg.serial.is_empty() {
+                    println!("serial: {}", cfg.serial);
+                }
+                if !cfg.aliases.is_empty() {
+                    println!("aliases:");
+                    let mut aliases: Vec<_> = cfg.aliases.iter().collect();
+                    aliases.sort_by_key(|(k, _)| k.as_str());
+                    for (name, uuid) in aliases {
+                        println!("  {}: {}", name, uuid);
+                    }
                 }
             }
         }
@@ -85,17 +103,42 @@ pub fn cmd_cache(ctx: &RunContext, action: CacheCmd) -> Result<()> {
                     .duration_since(meta.modified()?)
                     .unwrap_or_default();
                 let size = meta.len();
-                println!("Cache: {:?}", cache);
-                println!("Size:  {:.1} KB", size as f64 / 1024.0);
-                println!("Age:   {}m {}s", age.as_secs() / 60, age.as_secs() % 60);
-                if age.as_secs() < 86400 {
-                    println!("Status: ✓ valid ({} until refresh)", {
-                        let remaining = 86400u64.saturating_sub(age.as_secs());
-                        format!("{}h {}m", remaining / 3600, (remaining % 3600) / 60)
-                    });
+                let stale = age.as_secs() >= 86400;
+                if ctx.json {
+                    println!(
+                        "{}",
+                        serde_json::json!({
+                            "ok": true,
+                            "path": cache.to_string_lossy(),
+                            "size_bytes": size,
+                            "age_seconds": age.as_secs(),
+                            "stale": stale,
+                        })
+                    );
                 } else {
-                    println!("Status: ⚠ stale (will refresh on next command)");
+                    println!("Cache: {:?}", cache);
+                    println!("Size:  {:.1} KB", size as f64 / 1024.0);
+                    println!("Age:   {}m {}s", age.as_secs() / 60, age.as_secs() % 60);
+                    if !stale {
+                        println!("Status: ✓ valid ({} until refresh)", {
+                            let remaining = 86400u64.saturating_sub(age.as_secs());
+                            format!("{}h {}m", remaining / 3600, (remaining % 3600) / 60)
+                        });
+                    } else {
+                        println!("Status: ⚠ stale (will refresh on next command)");
+                    }
                 }
+            } else if ctx.json {
+                println!(
+                    "{}",
+                    serde_json::json!({
+                        "ok": true,
+                        "path": cache.to_string_lossy(),
+                        "size_bytes": null,
+                        "age_seconds": null,
+                        "stale": null,
+                    })
+                );
             } else {
                 println!("No cache. Will be created on first command.");
             }
@@ -103,9 +146,9 @@ pub fn cmd_cache(ctx: &RunContext, action: CacheCmd) -> Result<()> {
         CacheCmd::Clear => {
             if cache.exists() {
                 fs::remove_file(&cache)?;
-                println!("✓ Cache cleared");
+                eprintln!("✓ Cache cleared");
             } else {
-                println!("No cache to clear");
+                eprintln!("No cache to clear");
             }
         }
         CacheCmd::Check => {
@@ -407,7 +450,7 @@ pub fn cmd_config(ctx: &RunContext, action: ConfigCmd) -> Result<()> {
             println!("Upload complete.");
             println!("Reboot the Miniserver to apply: lox reboot");
         }
-        ConfigCmd::Users { file, limit: _ } => {
+        ConfigCmd::Users { file, limit } => {
             if file.ends_with(".zip") {
                 bail!(
                     "Expected a .Loxone XML file. Run `lox config extract {}` first.",
@@ -416,12 +459,27 @@ pub fn cmd_config(ctx: &RunContext, action: ConfigCmd) -> Result<()> {
             }
             let xml = fs::read(&file).with_context(|| format!("Cannot read {}", file))?;
             let users = loxone_xml::parse_users(&xml)?;
+            let total = users.len();
+            let truncated = limit.is_some_and(|l| total > l);
+            let display_limit = limit.unwrap_or(total);
             if ctx.json {
-                println!("{}", serde_json::to_string_pretty(&users)?);
+                let shown = total.min(display_limit);
+                let items: Vec<_> = users.iter().take(display_limit).collect();
+                let mut obj = serde_json::to_value(&items)?;
+                if truncated {
+                    let wrapper = serde_json::json!({
+                        "users": obj,
+                        "truncated": true,
+                        "total": total,
+                        "shown": shown,
+                    });
+                    obj = wrapper;
+                }
+                println!("{}", serde_json::to_string_pretty(&obj)?);
             } else {
                 let nfc_count = users.iter().filter(|u| u.nfc).count();
                 println!("  {:<26} {:<6} Description", "Name", "NFC");
-                for u in &users {
+                for u in users.iter().take(display_limit) {
                     println!(
                         "  {:<26} {:<6} {}",
                         u.name,
@@ -429,14 +487,16 @@ pub fn cmd_config(ctx: &RunContext, action: ConfigCmd) -> Result<()> {
                         u.description,
                     );
                 }
-                println!("\n{} users ({} with NFC)", users.len(), nfc_count);
+                println!("\n{} users ({} with NFC)", total, nfc_count);
+            }
+            if truncated {
+                eprintln!(
+                    "Showing {} of {}. Use --limit to see more.",
+                    display_limit, total
+                );
             }
         }
-        ConfigCmd::Devices {
-            file,
-            ports,
-            limit: _,
-        } => {
+        ConfigCmd::Devices { file, ports, limit } => {
             if file.ends_with(".zip") {
                 bail!(
                     "Expected a .Loxone XML file. Run `lox config extract {}` first.",
@@ -450,20 +510,40 @@ pub fn cmd_config(ctx: &RunContext, action: ConfigCmd) -> Result<()> {
                 print!("{}", editor.list_device_ports());
             } else {
                 let devices = loxone_xml::parse_devices(&xml)?;
+                let total = devices.len();
+                let truncated = limit.is_some_and(|l| total > l);
+                let display_limit = limit.unwrap_or(total);
                 if ctx.json {
-                    println!("{}", serde_json::to_string_pretty(&devices)?);
+                    let shown = total.min(display_limit);
+                    let items: Vec<_> = devices.iter().take(display_limit).collect();
+                    let mut obj = serde_json::to_value(&items)?;
+                    if truncated {
+                        let wrapper = serde_json::json!({
+                            "devices": obj,
+                            "truncated": true,
+                            "total": total,
+                            "shown": shown,
+                        });
+                        obj = wrapper;
+                    }
+                    println!("{}", serde_json::to_string_pretty(&obj)?);
                 } else {
                     let tree: Vec<_> = devices
                         .iter()
                         .filter(|d| d.bus == loxone_xml::DeviceBus::Tree)
+                        .take(display_limit)
                         .collect();
+                    let remaining = display_limit.saturating_sub(tree.len());
                     let air: Vec<_> = devices
                         .iter()
                         .filter(|d| d.bus == loxone_xml::DeviceBus::Air)
+                        .take(remaining)
                         .collect();
+                    let remaining = remaining.saturating_sub(air.len());
                     let net: Vec<_> = devices
                         .iter()
                         .filter(|d| d.bus == loxone_xml::DeviceBus::Network)
+                        .take(remaining)
                         .collect();
 
                     if !tree.is_empty() {
@@ -503,7 +583,13 @@ pub fn cmd_config(ctx: &RunContext, action: ConfigCmd) -> Result<()> {
                             );
                         }
                     }
-                    println!("\n{} devices total", devices.len());
+                    println!("\n{} devices total", total);
+                }
+                if truncated {
+                    eprintln!(
+                        "Showing {} of {}. Use --limit to see more.",
+                        display_limit, total
+                    );
                 }
             }
         }
@@ -685,7 +771,7 @@ pub fn cmd_config(ctx: &RunContext, action: ConfigCmd) -> Result<()> {
                 out_path
             );
         }
-        ConfigCmd::Rooms { file, limit: _ } => {
+        ConfigCmd::Rooms { file, limit } => {
             if file.ends_with(".zip") {
                 bail!(
                     "Expected a .Loxone XML file. Run `lox config extract {}` first.",
@@ -694,8 +780,23 @@ pub fn cmd_config(ctx: &RunContext, action: ConfigCmd) -> Result<()> {
             }
             let xml = fs::read(&file).with_context(|| format!("Cannot read {}", file))?;
             let rooms = loxone_xml::parse_rooms(&xml)?;
+            let total = rooms.len();
+            let truncated = limit.is_some_and(|l| total > l);
+            let display_limit = limit.unwrap_or(total);
             if ctx.json {
-                println!("{}", serde_json::to_string_pretty(&rooms)?);
+                let shown = total.min(display_limit);
+                let items: Vec<_> = rooms.iter().take(display_limit).collect();
+                let mut obj = serde_json::to_value(&items)?;
+                if truncated {
+                    let wrapper = serde_json::json!({
+                        "rooms": obj,
+                        "truncated": true,
+                        "total": total,
+                        "shown": shown,
+                    });
+                    obj = wrapper;
+                }
+                println!("{}", serde_json::to_string_pretty(&obj)?);
             } else {
                 println!("  {:<30} {:<6} UUID", "Room", "Items");
                 println!(
@@ -704,18 +805,24 @@ pub fn cmd_config(ctx: &RunContext, action: ConfigCmd) -> Result<()> {
                     "─".repeat(6),
                     "─".repeat(36)
                 );
-                for r in &rooms {
+                for r in rooms.iter().take(display_limit) {
                     println!("  {:<30} {:<6} {}", r.name, r.item_count, r.uuid);
                 }
-                let total: usize = rooms.iter().map(|r| r.item_count).sum();
-                println!("\n{} rooms, {} items total", rooms.len(), total);
+                let total_items: usize = rooms.iter().map(|r| r.item_count).sum();
+                println!("\n{} rooms, {} items total", total, total_items);
+            }
+            if truncated {
+                eprintln!(
+                    "Showing {} of {}. Use --limit to see more.",
+                    display_limit, total
+                );
             }
         }
         ConfigCmd::Controls {
             file,
             r#type,
             room,
-            limit: _,
+            limit,
         } => {
             if file.ends_with(".zip") {
                 bail!(
@@ -725,8 +832,22 @@ pub fn cmd_config(ctx: &RunContext, action: ConfigCmd) -> Result<()> {
             }
             let xml = fs::read(&file).with_context(|| format!("Cannot read {}", file))?;
             let controls = loxone_xml::parse_controls(&xml, r#type.as_deref(), room.as_deref())?;
+            let total = controls.len();
+            let truncated = total > limit;
             if ctx.json {
-                println!("{}", serde_json::to_string_pretty(&controls)?);
+                let shown = total.min(limit);
+                let items: Vec<_> = controls.iter().take(limit).collect();
+                let mut obj = serde_json::to_value(&items)?;
+                if truncated {
+                    let wrapper = serde_json::json!({
+                        "controls": obj,
+                        "truncated": true,
+                        "total": total,
+                        "shown": shown,
+                    });
+                    obj = wrapper;
+                }
+                println!("{}", serde_json::to_string_pretty(&obj)?);
             } else {
                 println!(
                     "  {:<20} {:<30} {:<20} {:<20} UUID",
@@ -740,13 +861,19 @@ pub fn cmd_config(ctx: &RunContext, action: ConfigCmd) -> Result<()> {
                     "─".repeat(20),
                     "─".repeat(36)
                 );
-                for c in &controls {
+                for c in controls.iter().take(limit) {
                     println!(
                         "  {:<20} {:<30} {:<20} {:<20} {}",
                         c.control_type, c.title, c.room, c.category, c.uuid
                     );
                 }
-                println!("\n{} controls", controls.len());
+                println!("\n{} controls", total);
+            }
+            if truncated {
+                eprintln!(
+                    "Showing {} of {}. Use --limit to see more or --type/--room to filter.",
+                    limit, total
+                );
             }
         }
         ConfigCmd::Patch {
@@ -2054,26 +2181,52 @@ pub fn cmd_config(ctx: &RunContext, action: ConfigCmd) -> Result<()> {
             let plan = editor.apply_template(&template, &room)?;
             save_edited(&editor, &file, save_as.as_deref())?;
 
-            println!("Template '{}' applied to room '{}':", template, room);
-            for (block_type, title, params) in &plan {
-                let param_str = if params.is_empty() {
-                    String::new()
-                } else {
-                    format!(
-                        " [{}]",
-                        params
+            if ctx.json {
+                let blocks: Vec<_> = plan
+                    .iter()
+                    .map(|(block_type, title, params)| {
+                        let params_map: serde_json::Map<String, serde_json::Value> = params
                             .iter()
-                            .map(|(k, v)| format!("{}={}", k, v))
-                            .collect::<Vec<_>>()
-                            .join(", ")
-                    )
-                };
-                println!("  ✓ {} ({}){}", title, block_type, param_str);
+                            .map(|(k, v)| (k.clone(), serde_json::Value::String(v.clone())))
+                            .collect();
+                        serde_json::json!({
+                            "type": block_type,
+                            "title": title,
+                            "params": params_map,
+                        })
+                    })
+                    .collect();
+                println!(
+                    "{}",
+                    serde_json::json!({
+                        "ok": true,
+                        "template": template,
+                        "room": room,
+                        "blocks": blocks,
+                    })
+                );
+            } else {
+                println!("Template '{}' applied to room '{}':", template, room);
+                for (block_type, title, params) in &plan {
+                    let param_str = if params.is_empty() {
+                        String::new()
+                    } else {
+                        format!(
+                            " [{}]",
+                            params
+                                .iter()
+                                .map(|(k, v)| format!("{}={}", k, v))
+                                .collect::<Vec<_>>()
+                                .join(", ")
+                        )
+                    };
+                    println!("  ✓ {} ({}){}", title, block_type, param_str);
+                }
+                println!("\n{} controls created.", plan.len());
+                println!(
+                    "Next: wire inputs with `lox config wire-connector` and outputs with `lox config device-bind`."
+                );
             }
-            println!("\n{} controls created.", plan.len());
-            println!(
-                "Next: wire inputs with `lox config wire-connector` and outputs with `lox config device-bind`."
-            );
         }
         ConfigCmd::Room(action) => cmd_room(ctx, action)?,
         ConfigCmd::Control(action) => cmd_control(ctx, action)?,
@@ -3535,7 +3688,7 @@ mod tests {
             ConfigCmd::Devices {
                 file,
                 ports: false,
-                limit: 100,
+                limit: None,
             },
         );
         assert!(result.is_ok());
@@ -3549,7 +3702,7 @@ mod tests {
             ConfigCmd::Devices {
                 file,
                 ports: true,
-                limit: 100,
+                limit: None,
             },
         );
         assert!(result.is_ok());
@@ -3939,7 +4092,7 @@ mod tests {
             &ctx(),
             ConfigCmd::Rooms {
                 file: path.to_str().unwrap().to_string(),
-                limit: 100,
+                limit: None,
             },
         );
         assert!(result.is_err());

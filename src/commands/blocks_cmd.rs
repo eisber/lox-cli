@@ -847,7 +847,7 @@ fn print_connector(c: &ConnectorEntry) {
     }
 }
 
-fn blocks_list(ctx: &RunContext, category: Option<&str>, _limit: usize) -> Result<()> {
+fn blocks_list(ctx: &RunContext, category: Option<&str>, limit: usize) -> Result<()> {
     let blocks = load_block_index();
 
     // Build type → name lookup
@@ -872,8 +872,12 @@ fn blocks_list(ctx: &RunContext, category: Option<&str>, _limit: usize) -> Resul
             }
         };
 
+        let total = types.len();
+        let truncated = total > limit;
+        let display_types: &[&str] = if truncated { &types[..limit] } else { types };
+
         if ctx.json {
-            let items: Vec<serde_json::Value> = types
+            let items: Vec<serde_json::Value> = display_types
                 .iter()
                 .map(|t| {
                     let name = name_map.get(t).copied().unwrap_or(*t);
@@ -901,19 +905,28 @@ fn blocks_list(ctx: &RunContext, category: Option<&str>, _limit: usize) -> Resul
                     })
                 })
                 .collect();
-            println!(
-                "{}",
-                serde_json::to_string_pretty(&serde_json::json!({
-                    "ok": true,
-                    "category": cat_name,
-                    "blocks": items,
-                }))?
-            );
+            let mut obj = serde_json::json!({
+                "ok": true,
+                "category": cat_name,
+                "blocks": items,
+            });
+            if truncated {
+                obj["truncated"] = serde_json::json!(true);
+                obj["total"] = serde_json::json!(total);
+                obj["shown"] = serde_json::json!(limit);
+            }
+            println!("{}", serde_json::to_string_pretty(&obj)?);
+            if truncated {
+                eprintln!(
+                    "Showing {} of {}. Use --limit to see more or --category to filter.",
+                    limit, total
+                );
+            }
         } else {
             println!("Category: {}\n", cat_name);
             println!("{:<24} {:<30} {:>3} {:>3}", "TYPE", "NAME", "IN", "OUT");
             println!("{}", "─".repeat(64));
-            for t in *types {
+            for t in display_types {
                 let name = name_map.get(t).copied().unwrap_or(t);
                 let io = blocks.iter().find(|b| b.xml_type == *t);
                 let (ni, no) = io
@@ -932,6 +945,12 @@ fn blocks_list(ctx: &RunContext, category: Option<&str>, _limit: usize) -> Resul
                     })
                     .unwrap_or((0, 0));
                 println!("{:<24} {:<30} {:>3} {:>3}", t, name, ni, no);
+            }
+            if truncated {
+                eprintln!(
+                    "Showing {} of {}. Use --limit to see more or --category to filter.",
+                    limit, total
+                );
             }
         }
     } else {
