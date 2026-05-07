@@ -40,6 +40,21 @@ pub fn fuzzy_match<'a>(query: &str, candidates: &'a [String]) -> Option<(&'a str
         .min_by_key(|(_, d)| *d)
 }
 
+/// Return the top N closest matches sorted by distance, filtered by a reasonable threshold.
+pub fn top_matches(query: &str, candidates: &[String], n: usize) -> Vec<String> {
+    if candidates.is_empty() {
+        return Vec::new();
+    }
+    let threshold = (query.len() / 2).max(3);
+    let mut scored: Vec<(&str, usize)> = candidates
+        .iter()
+        .map(|c| (c.as_str(), levenshtein(query, c)))
+        .filter(|(_, d)| *d <= threshold)
+        .collect();
+    scored.sort_by_key(|(_, d)| *d);
+    scored.into_iter().take(n).map(|(s, _)| s.to_string()).collect()
+}
+
 /// Suggest the closest match if the distance is reasonable (< 50% of query length).
 pub fn suggest(query: &str, candidates: &[String]) -> Option<String> {
     let (best, dist) = fuzzy_match(query, candidates)?;
@@ -52,6 +67,8 @@ pub fn suggest(query: &str, candidates: &[String]) -> Option<String> {
 }
 
 /// Format an error with suggestions and available options.
+///
+/// Always includes the top fuzzy matches so agents can self-correct in one retry.
 pub fn not_found_error(
     entity: &str,
     query: &str,
@@ -60,13 +77,16 @@ pub fn not_found_error(
 ) -> anyhow::Error {
     let mut msg = format!("{} '{}' not found.", entity, query);
 
-    if let Some(suggestion) = suggest(query, candidates) {
-        msg.push_str(&format!("\n  Did you mean '{}'?", suggestion));
+    let matches = top_matches(query, candidates, 5);
+
+    if !matches.is_empty() {
+        msg.push_str(&format!(" Did you mean: {}?", matches.join(", ")));
     }
 
     if candidates.len() <= 20 {
         msg.push_str(&format!("\n  Available: {}", candidates.join(", ")));
-    } else {
+    } else if matches.is_empty() {
+        // No fuzzy matches found — fall back to listing count + help command
         msg.push_str(&format!(
             "\n  {} options available. Run: {}",
             candidates.len(),

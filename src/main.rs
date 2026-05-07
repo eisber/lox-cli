@@ -148,6 +148,9 @@ pub(crate) struct Cli {
     /// Output format: json, csv, or table (default)
     #[arg(long, short = 'o', global = true, value_enum, default_value = "table")]
     output: OutputFormat,
+    /// Shorthand for --output json
+    #[arg(long = "json", global = true)]
+    json_flag: bool,
     /// Suppress non-essential output
     #[arg(long, short = 'q', global = true)]
     quiet: bool,
@@ -613,6 +616,7 @@ pub(crate) enum ConfigCmd {
         save_as: Option<String>,
     },
     /// Wire a physical device/sensor to a logical control
+    #[command(visible_alias = "bind")]
     DeviceBind {
         file: String,
         /// Control selector (e.g. "Kitchen Light")
@@ -665,6 +669,7 @@ pub(crate) enum ConfigCmd {
     /// List operating modes from a .Loxone config file
     ModeList { file: String },
     /// Create a VirtualIn element in a config file (returns connector UUID)
+    #[command(visible_alias = "add-vi")]
     AddVirtualIn {
         /// Path to a .Loxone XML file
         file: String,
@@ -680,6 +685,7 @@ pub(crate) enum ConfigCmd {
         save_as: Option<String>,
     },
     /// Wire a connector: add <In Input="source-uuid"/> to target connector
+    #[command(visible_alias = "wire")]
     WireConnector {
         /// Path to a .Loxone XML file
         file: String,
@@ -691,7 +697,7 @@ pub(crate) enum ConfigCmd {
         save_as: Option<String>,
     },
     /// Set a parameter on a block (sets Def= on the connector)
-    #[command(name = "set-param")]
+    #[command(name = "set-param", visible_alias = "set")]
     SetParam {
         /// Path to a .Loxone XML file
         file: String,
@@ -705,7 +711,7 @@ pub(crate) enum ConfigCmd {
         save_as: Option<String>,
     },
     /// Show all parameters of a block with current and default values
-    #[command(name = "get-params")]
+    #[command(name = "get-params", visible_alias = "get")]
     GetParams {
         /// Path to a .Loxone XML file
         file: String,
@@ -1040,7 +1046,7 @@ fn run(cli: Cli) -> Result<()> {
 
     client::set_verbose(cli.verbose);
     let ctx = commands::RunContext {
-        json: cli.output == OutputFormat::Json,
+        json: cli.output == OutputFormat::Json || cli.json_flag,
         quiet: cli.quiet,
         csv: cli.output == OutputFormat::Csv,
         dry_run: cli.dry_run,
