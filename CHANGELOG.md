@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.14.1] — 2026-05-08
+
+### Fixed
+- `lox config devices -o json` now recognizes real-world KNX/EIB `EibAddr` encodings under `EIBline`/caption containers, treats `LoxTree`/`LoxAIR` wrappers as bus extensions, and filters additional virtual/admin containers so standalone fallback is reserved for genuinely ambiguous devices.
+
 ## [0.14.0] — 2026-05-08
 
 ### Added

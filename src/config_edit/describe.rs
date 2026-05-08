@@ -15,6 +15,10 @@ const EXCLUDED_BLOCK_TYPES: &[&str] = &[
     "AMemory",
     "AMinmax",
     "AcControl",
+    "Add",
+    "Add4",
+    "AnalogInputCaption",
+    "AnalogOutputCaption",
     "AnalogComparator",
     "AnalogDiffTrigger",
     "AnalogMultiplexer",
@@ -27,6 +31,8 @@ const EXCLUDED_BLOCK_TYPES: &[&str] = &[
     "And",
     "Application",
     "AutoJalousie",
+    "AutoPilot",
+    "AutopilotRule",
     "AutomaticScene",
     "Average",
     "Avg",
@@ -34,7 +40,11 @@ const EXCLUDED_BLOCK_TYPES: &[&str] = &[
     "BinEncoder",
     "BrightnessControl",
     "Calculator",
+    "Calendar",
     "CallGen",
+    "Caller",
+    "CallerVirtualIn",
+    "CalendarEntry",
     "CentralAlarm",
     "CentralFancoil",
     "CentralGate",
@@ -61,6 +71,10 @@ const EXCLUDED_BLOCK_TYPES: &[&str] = &[
     "Door",
     "Doorcontroller",
     "EIBJalousie",
+    "EIBactorCaption",
+    "EIBline",
+    "EIBsensorCaption",
+    "EFM",
     "Edge",
     "EdgeDetection",
     "EdgeWipingRelay",
@@ -73,6 +87,8 @@ const EXCLUDED_BLOCK_TYPES: &[&str] = &[
     "FancoilFreshAir",
     "FlipFlop",
     "Formula",
+    "Gateway",
+    "GatewayClient",
     "GlobalStates",
     "Greater",
     "GreaterEqual",
@@ -85,6 +101,7 @@ const EXCLUDED_BLOCK_TYPES: &[&str] = &[
     "HourCounter",
     "HvacAC",
     "IRoomcontrol",
+    "InputCaption",
     "InputRef",
     "Int",
     "Irrigation",
@@ -104,9 +121,11 @@ const EXCLUDED_BLOCK_TYPES: &[&str] = &[
     "LightsceneLearn",
     "LightsceneRGB",
     "LoadShed",
+    "Logger",
     "LongClick",
     "MailBox",
     "MailGen",
+    "Mailer",
     "Marker",
     "Media",
     "MediaClient",
@@ -120,6 +139,8 @@ const EXCLUDED_BLOCK_TYPES: &[&str] = &[
     "MeterPUni",
     "MinMax",
     "Minmax",
+    "ModeCaption",
+    "Mode",
     "Mod",
     "Monoflop",
     "Mood",
@@ -130,6 +151,7 @@ const EXCLUDED_BLOCK_TYPES: &[&str] = &[
     "Multiplexer",
     "MusicPlayer",
     "Nevo",
+    "Notification",
     "Nor",
     "Not",
     "NotEqual",
@@ -138,6 +160,9 @@ const EXCLUDED_BLOCK_TYPES: &[&str] = &[
     "OnOffDelay",
     "OnPulseDelay",
     "Or",
+    "OutputCaption",
+    "OutputRefLM",
+    "OvertempShutdown",
     "OutputRef",
     "PButtonT",
     "PI",
@@ -149,12 +174,14 @@ const EXCLUDED_BLOCK_TYPES: &[&str] = &[
     "PoolController",
     "Power",
     "PowerUnit",
+    "Permission",
     "Presence",
     "PresenceController",
     "PresenceDetector",
     "PulseAt",
     "PulseBy",
     "PulseGen",
+    "PuDe",
     "Pushbutton",
     "PushButton",
     "PushButton2",
@@ -171,6 +198,8 @@ const EXCLUDED_BLOCK_TYPES: &[&str] = &[
     "Roomcontrol",
     "Random",
     "Remote",
+    "RemoteControls",
+    "RightGroup",
     "RsFlipFlop",
     "RSFlipFlop",
     "Sauna",
@@ -193,23 +222,33 @@ const EXCLUDED_BLOCK_TYPES: &[&str] = &[
     "StepSel",
     "Sub",
     "Switch",
+    "Switch2Button",
     "SysVar",
     "SystemScheme",
     "Tablet",
     "Text",
     "TextGenerator",
     "TextState",
+    "Time",
     "TimeMinmax",
+    "TimeCaption",
     "Timer",
     "ToiletFan",
     "TpfController",
     "Tracker",
     "UpDownCounter",
+    "User",
+    "UserCaption",
+    "UserGroup",
+    "UserGroupCaption",
     "Validator",
     "Ventilation",
     "VentInternorm",
     "VirtualIn",
     "VirtualOut",
+    "VirtualHttpIn",
+    "VirtualHttpInCmd",
+    "VirtualOutCmd",
     "VirtualState",
     "WBEM",
     "WeatherServer",
@@ -306,6 +345,9 @@ fn is_describe_skipped_type(etype: &str) -> bool {
             | "TaskCaption"
             | "WeatherCaption"
             | "LoggerOutCaption"
+            | "EIBactorCaption"
+            | "EIBsensorCaption"
+            | "EIBline"
             | "DateTime"
             | "Day"
             | "Day2009"
@@ -362,6 +404,26 @@ fn is_excluded_device_type(etype: &str) -> bool {
         || etype.contains("Statistic")
         || etype.contains("Timer")
         || etype.contains("WeatherServer")
+        || etype.starts_with("Impulse")
+        || matches!(
+            etype,
+            "Day"
+                | "Eveningtwilight"
+                | "Hour"
+                | "Minute"
+                | "Month"
+                | "Morningtwilight"
+                | "NightTime"
+                | "Second"
+                | "SecondsBoot"
+                | "StartPulse"
+                | "SunAltitude"
+                | "SunAzimuth"
+                | "Sunrise"
+                | "Sunset"
+                | "Week"
+                | "Year"
+        )
 }
 
 fn first_attr(elem: &Element, names: &[&str]) -> Option<String> {
@@ -391,6 +453,7 @@ fn find_knx_address(elem: &Element) -> Option<String> {
             "KnxAddress",
             "EIBAddress",
             "EibAddress",
+            "EibAddr",
             "BusAddress",
             "Address",
         ],
@@ -616,7 +679,7 @@ fn extension_bus_context(elem: &Element, context: &DeviceBusContext) -> DeviceBu
         .unwrap_or("");
     let bus_serial = first_attr(elem, &["Serial", "BusSerial", "Address", "U"]);
     match etype {
-        "TreeExtension" | "LoxAIRextension" => {
+        "TreeExtension" | "LoxAIRextension" | "LoxTree" => {
             next.bus_type = Some("tree".to_string());
             next.bus_serial = bus_serial;
             next.parent_uuid = elem.attributes.get("U").cloned();
@@ -626,12 +689,12 @@ fn extension_bus_context(elem: &Element, context: &DeviceBusContext) -> DeviceBu
             next.bus_serial = bus_serial;
             next.parent_uuid = elem.attributes.get("U").cloned();
         }
-        "KNXExtension" | "KNXextension" | "EIBExtension" | "EIBextension" => {
+        "KNXExtension" | "KNXextension" | "EIBExtension" | "EIBextension" | "EIBline" => {
             next.bus_type = Some("knx".to_string());
-            next.bus_serial = elem.attributes.get("U").cloned();
+            next.bus_serial = None;
             next.parent_uuid = elem.attributes.get("U").cloned();
         }
-        "AirExtension" => {
+        "AirExtension" | "LoxAIR" => {
             next.bus_type = Some("loxone-air".to_string());
             next.bus_serial = bus_serial;
             next.parent_uuid = elem.attributes.get("U").cloned();
@@ -735,10 +798,7 @@ fn collect_config_devices(
             (
                 DetectedDeviceIdentity {
                     bus_type: "knx".to_string(),
-                    bus_serial: next_context
-                        .parent_uuid
-                        .clone()
-                        .or_else(|| next_context.bus_serial.clone()),
+                    bus_serial: None,
                     bus_address: Some(address),
                     channel_role: None,
                 },
