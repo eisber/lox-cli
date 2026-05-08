@@ -4,7 +4,7 @@ use super::{
     DetectedDeviceConnector, DetectedDeviceIdentity, DeviceBusSummary, RoomCompleteness, SceneInfo,
 };
 use sha2::{Digest, Sha256};
-use std::collections::HashMap;
+use std::collections::{BTreeMap, HashMap};
 use xmltree::Element;
 
 const EXCLUDED_BLOCK_TYPES: &[&str] = &[
@@ -45,6 +45,7 @@ const EXCLUDED_BLOCK_TYPES: &[&str] = &[
     "Caller",
     "CallerVirtualIn",
     "CalendarEntry",
+    "Category",
     "CentralAlarm",
     "CentralFancoil",
     "CentralGate",
@@ -109,6 +110,7 @@ const EXCLUDED_BLOCK_TYPES: &[&str] = &[
     "Jalousie",
     "JalousieUpDown2",
     "JoinWindowSensor",
+    "LanInt",
     "Leaf",
     "Less",
     "LessEqual",
@@ -123,6 +125,7 @@ const EXCLUDED_BLOCK_TYPES: &[&str] = &[
     "LoadShed",
     "Logger",
     "LongClick",
+    "LoxCaption",
     "MailBox",
     "MailGen",
     "Mailer",
@@ -159,12 +162,14 @@ const EXCLUDED_BLOCK_TYPES: &[&str] = &[
     "OnDelay",
     "OnOffDelay",
     "OnPulseDelay",
+    "Online",
     "Or",
     "OutputCaption",
     "OutputRefLM",
     "OvertempShutdown",
     "OutputRef",
     "PButtonT",
+    "Page",
     "PI",
     "PID",
     "PVProductionForecast",
@@ -172,6 +177,7 @@ const EXCLUDED_BLOCK_TYPES: &[&str] = &[
     "Ping",
     "Plugin",
     "PoolController",
+    "Place",
     "Power",
     "PowerUnit",
     "Permission",
@@ -251,6 +257,7 @@ const EXCLUDED_BLOCK_TYPES: &[&str] = &[
     "VirtualOutCmd",
     "VirtualState",
     "WBEM",
+    "WeatherData",
     "WeatherServer",
     "Weed",
     "Wind",
@@ -670,6 +677,206 @@ fn build_detected_device(
     })
 }
 
+fn eib_caption_child_type(caption_type: &str) -> Option<&'static str> {
+    match caption_type {
+        "EIBsensorCaption" => Some("EIBsensor"),
+        "EIBactorCaption" => Some("EIBactor"),
+        _ => None,
+    }
+}
+
+fn title_group_prefix(title: &str) -> String {
+    let mut words = title
+        .split(|c: char| !c.is_alphanumeric())
+        .filter(|part| !part.is_empty())
+        .take(2)
+        .collect::<Vec<_>>();
+    if words.is_empty() {
+        words.push(title.trim());
+    }
+    words.join(" ")
+}
+
+fn eib_caption_group_key(child: &Element) -> Option<String> {
+    let address = find_knx_address(child)?;
+    let address_prefix = address.split('.').take(2).collect::<Vec<_>>().join(".");
+    let title = child
+        .attributes
+        .get("Title")
+        .map(String::as_str)
+        .unwrap_or("");
+    Some(format!("{}|{}", address_prefix, title_group_prefix(title)))
+}
+
+fn direct_device_connectors_with_channel(
+    elem: &Element,
+    connector_map: &super::ConnectorMap,
+    channel_index: u32,
+) -> Vec<DetectedDeviceConnector> {
+    let block_type = elem
+        .attributes
+        .get("Type")
+        .map(String::as_str)
+        .unwrap_or("");
+    let connector_types = connector_map.get(block_type).map(|(_, _, types)| types);
+    let mut connectors = Vec::new();
+    for co in elem.children.iter().filter_map(|child| child.as_element()) {
+        if co.name != "Co" {
+            continue;
+        }
+        let uuid = co.attributes.get("U").cloned().unwrap_or_default();
+        if uuid.is_empty() || is_sentinel_uuid(&uuid) {
+            continue;
+        }
+        let role = co.attributes.get("K").cloned().unwrap_or_default();
+        let direction = connector_types.and_then(|types| types.get(&role).map(String::as_str));
+        connectors.push(DetectedDeviceConnector {
+            uuid,
+            role: role.clone(),
+            channel_index: channel_index_from_role(&role).or(Some(channel_index)),
+            connector_type: connector_type_from_role(&role, direction),
+        });
+    }
+    connectors
+}
+
+fn build_eib_caption_devices(
+    caption: &Element,
+    room_names: &HashMap<String, String>,
+    connector_map: &super::ConnectorMap,
+) -> Vec<DetectedDevice> {
+    let caption_type = caption
+        .attributes
+        .get("Type")
+        .map(String::as_str)
+        .unwrap_or("");
+    let Some(primary_child_type) = eib_caption_child_type(caption_type) else {
+        return Vec::new();
+    };
+    let Some(primary_block_uuid) = caption.attributes.get("U").cloned() else {
+        return Vec::new();
+    };
+    let caption_title = caption
+        .attributes
+        .get("Title")
+        .cloned()
+        .unwrap_or_else(|| caption_type.to_string());
+
+    let mut groups: BTreeMap<String, Vec<&Element>> = BTreeMap::new();
+    for child in caption
+        .children
+        .iter()
+        .filter_map(|child| child.as_element())
+    {
+        if child.name != "C" {
+            continue;
+        }
+        let child_type = child
+            .attributes
+            .get("Type")
+            .map(String::as_str)
+            .unwrap_or("");
+        let is_eib_child = child_type == primary_child_type
+            || (caption_type == "EIBactorCaption" && child_type == "EIBextactor");
+        if !is_eib_child {
+            continue;
+        }
+        if let Some(group_key) = eib_caption_group_key(child) {
+            groups.entry(group_key).or_default().push(child);
+        }
+    }
+
+    let mut devices = Vec::new();
+    for (_group_key, mut children) in groups {
+        children.sort_by(|a, b| {
+            (
+                find_knx_address(a).unwrap_or_default(),
+                a.attributes.get("U").cloned().unwrap_or_default(),
+            )
+                .cmp(&(
+                    find_knx_address(b).unwrap_or_default(),
+                    b.attributes.get("U").cloned().unwrap_or_default(),
+                ))
+        });
+
+        let mut addresses: Vec<String> = children
+            .iter()
+            .filter_map(|child| find_knx_address(child))
+            .collect();
+        addresses.sort();
+        addresses.dedup();
+        if addresses.is_empty() {
+            continue;
+        }
+        let bus_address = addresses.join(",");
+
+        let mut secondary_block_uuids: Vec<String> = children
+            .iter()
+            .filter_map(|child| child.attributes.get("U").cloned())
+            .collect();
+        secondary_block_uuids.sort();
+        secondary_block_uuids.dedup();
+
+        let mut connectors = Vec::new();
+        for (idx, child) in children.iter().enumerate() {
+            connectors.extend(direct_device_connectors_with_channel(
+                child,
+                connector_map,
+                (idx + 1) as u32,
+            ));
+        }
+        connectors.sort_by(|a, b| {
+            (a.channel_index.unwrap_or_default(), &a.role, &a.uuid).cmp(&(
+                b.channel_index.unwrap_or_default(),
+                &b.role,
+                &b.uuid,
+            ))
+        });
+        connectors.dedup_by(|a, b| a.uuid == b.uuid);
+
+        let first_title = children
+            .first()
+            .and_then(|child| child.attributes.get("Title"))
+            .cloned()
+            .unwrap_or_else(|| caption_title.clone());
+        let channel_count = children.len();
+        let device_type = match caption_type {
+            "EIBsensorCaption" => format!("EIB Sensor ({}ch)", channel_count),
+            "EIBactorCaption" => format!("EIB Actor ({}ch)", channel_count),
+            _ => format!("{} ({}ch)", caption_type, channel_count),
+        };
+        let identity = DetectedDeviceIdentity {
+            bus_type: "knx".to_string(),
+            bus_serial: None,
+            bus_address: Some(bus_address),
+            channel_role: Some(caption_type.to_string()),
+        };
+        let stable_device_key = stable_device_key(&identity);
+        let snapshot_room_label = children
+            .iter()
+            .find_map(|child| room_label_for_device(child, room_names))
+            .or_else(|| room_label_for_device(caption, room_names));
+
+        devices.push(DetectedDevice {
+            device_id: device_id_from_key(&stable_device_key),
+            stable_device_key,
+            bus_type: identity.bus_type.clone(),
+            bus_serial: identity.bus_serial.clone(),
+            bus_address: identity.bus_address.clone(),
+            device_type,
+            primary_block_uuid: primary_block_uuid.clone(),
+            secondary_block_uuids,
+            connectors,
+            snapshot_room_label,
+            derived_label: title_group_prefix(&first_title),
+            low_confidence_identity: false,
+            identity_components: identity,
+        });
+    }
+
+    devices
+}
+
 fn extension_bus_context(elem: &Element, context: &DeviceBusContext) -> DeviceBusContext {
     let mut next = context.clone();
     let etype = elem
@@ -733,6 +940,13 @@ fn collect_config_devices(
     if is_device_container_type(etype) {
         for child in elem.children.iter().filter_map(|child| child.as_element()) {
             collect_config_devices(child, &next_context, room_names, connector_map, devices);
+        }
+        return;
+    }
+
+    if eib_caption_child_type(etype).is_some() {
+        for device in build_eib_caption_devices(elem, room_names, connector_map) {
+            push_or_merge_device(devices, device);
         }
         return;
     }

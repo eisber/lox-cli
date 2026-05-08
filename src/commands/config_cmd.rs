@@ -3826,7 +3826,7 @@ mod tests {
     </C>
   </C>
   <C Type="Page" V="175" U="page-office" Title="Office Page" WF="16384">
-    <C Type="WeatherData" V="175" U="standalone-weather" Title="Standalone Weather" WF="16384">
+    <C Type="NetworkDevice" V="175" U="standalone-weather" Title="Standalone Weather" WF="16384">
       <Co K="AQ" U="standalone-weather-aq"/>
       <IoData Cr="cat-hardware" Pr="room-office"/>
     </C>
@@ -3837,6 +3837,37 @@ mod tests {
     <C Type="DayTimer" V="175" U="timer-virtual" Title="Virtual Timer" WF="16384">
       <Co K="Q" U="timer-virtual-q"/>
       <IoData Cr="cat-hardware" Pr="room-office"/>
+    </C>
+  </C>
+</ControlList>"#;
+
+    const EIB_CAPTION_FIXTURE_XML: &str = r#"<?xml version="1.0" encoding="utf-8"?>
+<ControlList Version="267">
+  <C Type="Place" V="175" U="room-1" Title="Room1" WF="16384"/>
+  <C Type="EIBline" V="175" U="eib-line" Title="KNX/EIB Linie">
+    <C Type="EIBsensorCaption" V="175" U="eib-sensor-caption" Title="Sensors">
+      <C Type="EIBsensor" IName="KGI1.2.3" V="175" U="eib-sensor-1" Title="Taster 1 links" Nio="1" WF="16384" EibAddr="1/2/3">
+        <Co K="Q" U="eib-sensor-1-q"/>
+        <IoData Pr="room-1"/>
+      </C>
+      <C Type="EIBsensor" IName="KGI1.2.4" V="175" U="eib-sensor-2" Title="Taster 1 rechts" Nio="1" WF="16384" EibAddr="1/2/4">
+        <Co K="Q" U="eib-sensor-2-q"/>
+        <IoData Pr="room-1"/>
+      </C>
+      <C Type="EIBsensor" IName="KGI1.2.5" V="175" U="eib-sensor-3" Title="Taster 2 links" Nio="1" WF="16384" EibAddr="1/2/5">
+        <Co K="Q" U="eib-sensor-3-q"/>
+        <IoData Pr="room-1"/>
+      </C>
+    </C>
+    <C Type="EIBactorCaption" V="175" U="eib-actor-caption" Title="Actuators">
+      <C Type="EIBactor" IName="KGQ2.0.1" V="175" U="eib-actor-1" Title="Relay 1 light" Nio="1" WF="16384" EibAddr="2/0/1">
+        <Co K="I" U="eib-actor-1-i"/>
+        <IoData Pr="room-1"/>
+      </C>
+      <C Type="EIBactor" IName="KGQ2.0.2" V="175" U="eib-actor-2" Title="Relay 1 fan" Nio="1" WF="16384" EibAddr="2/0/2">
+        <Co K="I" U="eib-actor-2-i"/>
+        <IoData Pr="room-1"/>
+      </C>
     </C>
   </C>
 </ControlList>"#;
@@ -4177,6 +4208,37 @@ mod tests {
                 .iter()
                 .any(|c| c.role == "CH3" && c.channel_index == Some(3))
         );
+    }
+
+    #[test]
+    fn test_cmd_devices_eib_caption_grouping() {
+        let editor = ConfigEditor::load(EIB_CAPTION_FIXTURE_XML.as_bytes()).unwrap();
+        let devices = editor.config_devices(None);
+        assert_eq!(devices.len(), 3);
+
+        let taster_1 = devices
+            .iter()
+            .find(|d| d.bus_address.as_deref() == Some("1.2.3,1.2.4"))
+            .unwrap();
+        assert_eq!(taster_1.bus_type, "knx");
+        assert_eq!(taster_1.bus_serial, None);
+        assert_eq!(taster_1.primary_block_uuid, "eib-sensor-caption");
+        assert_eq!(taster_1.secondary_block_uuids.len(), 2);
+        assert_eq!(taster_1.device_type, "EIB Sensor (2ch)");
+        assert!(
+            taster_1
+                .connectors
+                .iter()
+                .any(|c| c.uuid == "eib-sensor-2-q" && c.channel_index == Some(2))
+        );
+
+        let relay_1 = devices
+            .iter()
+            .find(|d| d.bus_address.as_deref() == Some("2.0.1,2.0.2"))
+            .unwrap();
+        assert_eq!(relay_1.primary_block_uuid, "eib-actor-caption");
+        assert_eq!(relay_1.secondary_block_uuids.len(), 2);
+        assert_eq!(relay_1.device_type, "EIB Actor (2ch)");
     }
 
     #[test]
