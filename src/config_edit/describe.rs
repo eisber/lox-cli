@@ -1247,10 +1247,7 @@ impl ConfigEditor {
             let block_uuid = block.attributes.get("U").cloned().unwrap_or_default();
             let block_title = block.attributes.get("Title").cloned().unwrap_or_default();
             let block_type = block.attributes.get("Type").cloned().unwrap_or_default();
-            if block_title.is_empty()
-                || block_type.is_empty()
-                || is_describe_skipped_type(&block_type)
-            {
+            if block_type.is_empty() {
                 continue;
             }
             let connector_types = connector_map
@@ -1299,10 +1296,7 @@ impl ConfigEditor {
             let block_uuid = block.attributes.get("U").cloned().unwrap_or_default();
             let block_title = block.attributes.get("Title").cloned().unwrap_or_default();
             let block_type = block.attributes.get("Type").cloned().unwrap_or_default();
-            if block_title.is_empty()
-                || block_type.is_empty()
-                || is_describe_skipped_type(&block_type)
-            {
+            if block_type.is_empty() {
                 continue;
             }
             let room_name = room_name_for_block(block, &room_names);

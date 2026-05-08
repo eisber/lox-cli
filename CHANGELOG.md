@@ -5,10 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.14.2] — 2026-05-08
+
+### Fixed
+- `lox config wires -o json` now emits wires involving `InputRef`, `OutputRef`, `VirtualIn`, and other reference/admin block types counted by `config stats`, fixing severe undercounts on migrated real-world configs.
+
 ## [0.14.1] — 2026-05-08
 
 ### Fixed
 - `lox config devices -o json` now recognizes real-world KNX/EIB `EibAddr` encodings under `EIBline`/caption containers, treats `LoxTree`/`LoxAIR` wrappers as bus extensions, and filters additional virtual/admin containers so standalone fallback is reserved for genuinely ambiguous devices.
+- KNX/EIB caption groups now emit one physical-device record per address/title group with child EIB connectors as channels, and wiring proxies/structural blocks such as `InputRef`, `OutputRef`, `CallerVirtualIn`, `Online`, `Page`, `Place`, `Category`, and `LoxCaption` are excluded from the device tray.
 
 ## [0.14.0] — 2026-05-08
 
@@ -150,7 +156,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - WebSocket nonce uses cryptographically random bytes
 - Debug `eprintln!` removed from token RSA parsing
 
-[Unreleased]: https://github.com/eisber/lox-cli/compare/v0.13.0...HEAD
+[Unreleased]: https://github.com/eisber/lox-cli/compare/v0.14.2...HEAD
+[0.14.2]: https://github.com/eisber/lox-cli/compare/v0.14.1...v0.14.2
+[0.14.1]: https://github.com/eisber/lox-cli/compare/v0.14.0...v0.14.1
+[0.14.0]: https://github.com/eisber/lox-cli/compare/v0.13.0...v0.14.0
 [0.13.0]: https://github.com/eisber/lox-cli/compare/v0.12.0...v0.13.0
 [0.12.0]: https://github.com/eisber/lox-cli/compare/v0.8.0...v0.12.0
 [0.8.0]: https://github.com/eisber/lox-cli/compare/v0.1.0...v0.8.0

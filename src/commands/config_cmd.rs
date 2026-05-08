@@ -3755,8 +3755,23 @@ mod tests {
       <Co K="AQ" U="legacy-source-aq"/>
       <IoData Cr="cat-1" Pr="room-1"/>
     </C>
+    <C Type="WeatherData" V="175" U="legacy-source-2" Title="Legacy Sensor 2" WF="16384">
+      <Co K="AQ" U="legacy-source-2-aq"/>
+      <IoData Cr="cat-1" Pr="room-1"/>
+    </C>
+    <C Type="AlarmClock" V="175" U="legacy-source-3" Title="Legacy Source 3" WF="16384">
+      <Co K="Q" U="legacy-source-3-q"/>
+      <IoData Cr="cat-1" Pr="room-1"/>
+    </C>
     <C Type="LightController2" V="175" U="legacy-target" Title="Legacy Light" WF="16384">
       <Co K="AI1" U="legacy-source-aq"/>
+      <Co K="AI2" U="legacy-source-2-aq"/>
+      <Co K="I1" U="legacy-source-3-q"/>
+      <IoData Cr="cat-1" Pr="room-1"/>
+    </C>
+    <C Type="LightController2" V="175" U="legacy-target-2" Title="Legacy Light 2" WF="16384">
+      <Co K="AI1" U="legacy-source-aq"/>
+      <Co K="AI2" U="legacy-source-2-aq"/>
       <IoData Cr="cat-1" Pr="room-1"/>
     </C>
   </C>
@@ -4032,7 +4047,7 @@ mod tests {
         let data = fs::read(&file).unwrap();
         let editor = ConfigEditor::load(&data).unwrap();
         let wires = editor.config_wires(None);
-        assert_eq!(wires.len(), 5);
+        assert_eq!(wires.len(), 9);
         let light_ai1 = wires
             .iter()
             .find(|w| w.target.block_uuid == "target-light" && w.target.connector_key == "AI1")
@@ -4233,14 +4248,78 @@ mod tests {
         let legacy: Vec<_> = editor
             .config_wires(None)
             .into_iter()
-            .filter(|w| w.target.block_uuid == "legacy-target")
+            .filter(|w| w.target.block_uuid.starts_with("legacy-target"))
             .collect();
-        assert_eq!(legacy.len(), 1);
-        assert_eq!(legacy[0].source.block_uuid, "legacy-source");
-        assert_eq!(legacy[0].source.connector_uuid, "legacy-source-aq");
-        assert_eq!(legacy[0].target.block_uuid, "legacy-target");
-        assert_eq!(legacy[0].target.connector_key, "AI1");
-        assert_eq!(legacy[0].target.connector_uuid, "legacy-source-aq");
+        assert_eq!(legacy.len(), 5);
+        assert!(legacy.iter().any(|wire| {
+            wire.source.block_uuid == "legacy-source"
+                && wire.source.connector_uuid == "legacy-source-aq"
+                && wire.target.block_uuid == "legacy-target"
+                && wire.target.connector_key == "AI1"
+        }));
+        assert!(legacy.iter().any(|wire| {
+            wire.source.block_uuid == "legacy-source-2"
+                && wire.source.connector_uuid == "legacy-source-2-aq"
+                && wire.target.block_uuid == "legacy-target"
+                && wire.target.connector_key == "AI2"
+        }));
+        assert!(legacy.iter().any(|wire| {
+            wire.source.block_uuid == "legacy-source-3"
+                && wire.source.connector_uuid == "legacy-source-3-q"
+                && wire.target.block_uuid == "legacy-target"
+                && wire.target.connector_key == "I1"
+        }));
+        assert!(legacy.iter().any(|wire| {
+            wire.source.block_uuid == "legacy-source"
+                && wire.target.block_uuid == "legacy-target-2"
+                && wire.target.connector_key == "AI1"
+        }));
+        assert!(legacy.iter().any(|wire| {
+            wire.source.block_uuid == "legacy-source-2"
+                && wire.target.block_uuid == "legacy-target-2"
+                && wire.target.connector_key == "AI2"
+        }));
+    }
+
+    #[test]
+    fn test_cmd_wires_includes_ref_blocks_counted_by_stats() {
+        let xml = br#"<?xml version="1.0" encoding="utf-8"?>
+<ControlList Version="267">
+  <C Type="Place" V="175" U="room-1" Title="Room1"/>
+  <C Type="Category" V="175" U="cat-1" Title="Beleuchtung"/>
+  <C Type="Page" V="175" U="page-1" Title="Page1">
+    <C Type="InputRef" V="175" U="inputref-1" Title="Input Ref">
+      <Co K="AQ" U="inputref-1-aq"/>
+      <Co K="I" U="inputref-1-i"><In Input="virtual-in-aq"/></Co>
+      <IoData Cr="cat-1" Pr="room-1"/>
+    </C>
+    <C Type="OutputRef" V="175" U="outputref-1" Title="Output Ref">
+      <Co K="AQ" U="outputref-1-aq"><In Input="inputref-1-aq"/></Co>
+      <IoData Cr="cat-1" Pr="room-1"/>
+    </C>
+    <C Type="VirtualIn" V="175" U="virtual-in" Title="Virtual In">
+      <Co K="AQ" U="virtual-in-aq"/>
+      <IoData Cr="cat-1" Pr="room-1"/>
+    </C>
+    <C Type="EIBactor" V="175" U="actor-1" Title="Actor">
+      <Co K="I" U="actor-1-i"><In Input="outputref-1-aq"/></Co>
+      <IoData Cr="cat-1" Pr="room-1"/>
+    </C>
+  </C>
+</ControlList>"#;
+        let editor = ConfigEditor::load(xml).unwrap();
+        let wires = editor.config_wires(None);
+        assert_eq!(editor.config_stats().wiring_total, 3);
+        assert_eq!(wires.len(), 3);
+        assert!(wires.iter().any(|wire| {
+            wire.source.block_uuid == "inputref-1" && wire.target.block_uuid == "outputref-1"
+        }));
+        assert!(wires.iter().any(|wire| {
+            wire.source.block_uuid == "outputref-1" && wire.target.block_uuid == "actor-1"
+        }));
+        assert!(wires.iter().any(|wire| {
+            wire.source.block_uuid == "virtual-in" && wire.target.block_uuid == "inputref-1"
+        }));
     }
 
     #[test]
