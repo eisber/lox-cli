@@ -53,6 +53,7 @@ subcmd_help!(help_config_extract, "config", "extract");
 subcmd_help!(help_config_upload, "config", "upload");
 subcmd_help!(help_config_users, "config", "users");
 subcmd_help!(help_config_devices, "config", "devices");
+subcmd_help!(help_config_wires, "config", "wires");
 subcmd_help!(help_config_diff, "config", "diff");
 subcmd_help!(help_ctx, "ctx");
 subcmd_help!(help_ctx_add, "ctx", "add");

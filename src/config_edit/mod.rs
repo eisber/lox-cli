@@ -68,6 +68,23 @@ pub struct DescribeConnectorEntry {
     pub default: Option<String>,
 }
 
+/// Resolved endpoint for a config-wide wire.
+#[derive(Debug, Clone, PartialEq, Eq, serde::Serialize)]
+pub struct ConfigWireEndpoint {
+    pub block_uuid: String,
+    pub block_title: String,
+    pub block_type: String,
+    pub connector_uuid: String,
+    pub connector_key: String,
+}
+
+/// Config-wide wire edge with source and target endpoints resolved.
+#[derive(Debug, Clone, PartialEq, Eq, serde::Serialize)]
+pub struct ConfigWire {
+    pub source: ConfigWireEndpoint,
+    pub target: ConfigWireEndpoint,
+}
+
 /// Template result: (block_type, title, params)
 type TemplateResult = Vec<(String, String, Vec<(String, String)>)>;
 

@@ -146,6 +146,7 @@ const MAGIC_FEEDBEEF: [u8; 4] = 0xFEED_BEEFu32.to_le_bytes(); // [0xEF, 0xBE, 0x
 /// Rust TLS APIs (rustls `StreamOwned`, native-tls `TlsStream`) buffer
 /// plaintext before encrypting, coalescing both writes into one record and
 /// causing the Miniserver to stay in text mode.
+#[cfg(not(windows))]
 pub fn trigger_fast_reload(cfg: &Config) -> Result<()> {
     use std::io::{Read, Write};
     use std::net::TcpStream;
@@ -294,6 +295,142 @@ pub fn trigger_fast_reload(cfg: &Config) -> Result<()> {
 
     // ── 0x05 PostSave → fast SPS reload ─────────────────────────────────
     tls.ssl_write(&build_binary_cmd(0x05))
+        .map_err(|e| anyhow::anyhow!("postsave write: {e}"))?;
+    tls.flush()?;
+
+    drop(tls);
+    Ok(())
+}
+
+#[cfg(windows)]
+pub fn trigger_fast_reload(cfg: &Config) -> Result<()> {
+    use std::io::{Read, Write};
+    use std::net::TcpStream;
+    use std::time::Duration;
+
+    let (host, port) = {
+        let stripped = cfg
+            .host
+            .trim_start_matches("https://")
+            .trim_start_matches("http://")
+            .trim_end_matches('/');
+        if let Some((h, p)) = stripped.split_once(':') {
+            let p = p.split('/').next().unwrap_or("443");
+            (h.to_string(), p.parse::<u16>().unwrap_or(443))
+        } else {
+            let h = stripped.split('/').next().unwrap_or(stripped);
+            (h.to_string(), 443u16)
+        }
+    };
+
+    let client = crate::client::LoxClient::new(cfg.clone())?;
+    let autht = compute_wsx_autht(&client, cfg)?;
+
+    let uptime_ms = {
+        let r = client.get_text("jdev/sps/io/20123f74-0222-3d2f-ffff234d69b98eb1/state");
+        match r {
+            Ok(s) => {
+                let secs: f64 = serde_json::from_str::<serde_json::Value>(&s)
+                    .ok()
+                    .and_then(|v| {
+                        v["LL"]["value"]
+                            .as_str()
+                            .map(|s| s.to_string())
+                            .or_else(|| v["LL"]["value"].as_f64().map(|f| f.to_string()))
+                    })
+                    .and_then(|s| s.parse().ok())
+                    .unwrap_or(0.0);
+                ((secs * 1000.0) as u32).wrapping_add(2500)
+            }
+            Err(_) => {
+                eprintln!("⚠ Could not read SecondsBoot");
+                0
+            }
+        }
+    };
+
+    let hs = crate::wsx::build_handshake_with_ts(&cfg.user, &cfg.pass, "DEU", uptime_ms);
+
+    let connector = native_tls::TlsConnector::builder()
+        .danger_accept_invalid_certs(!cfg.verify_ssl.unwrap_or(false))
+        .build()?;
+    let tcp = TcpStream::connect(format!("{host}:{port}"))?;
+    tcp.set_nodelay(true)?;
+    tcp.set_read_timeout(Some(Duration::from_secs(10)))?;
+    let mut tls = connector
+        .connect(&host, tcp)
+        .map_err(|e| anyhow::anyhow!("TLS: {e}"))?;
+
+    let upgrade = format!(
+        "GET /wsx?autht={autht}&user={user} HTTP/1.1\r\n\
+         Host: {host}:{port}\r\n\
+         Upgrade: WebSocket\r\n\
+         Connection: Upgrade\r\n\
+         \r\n",
+        autht = autht,
+        user = cfg.user,
+        host = host,
+        port = port,
+    );
+    tls.write_all(upgrade.as_bytes())
+        .map_err(|e| anyhow::anyhow!("upgrade write: {e}"))?;
+    tls.flush()?;
+    std::thread::sleep(Duration::from_millis(500));
+
+    let mut buf = [0u8; 4096];
+    let mut total = 0;
+    loop {
+        let n = tls.read(&mut buf[total..])?;
+        if n == 0 {
+            break;
+        }
+        total += n;
+        if buf[..total].windows(4).any(|w| w == b"\r\n\r\n") {
+            break;
+        }
+        if total >= buf.len() {
+            anyhow::bail!("/wsx upgrade response too large");
+        }
+    }
+    if !String::from_utf8_lossy(&buf[..total]).contains("101") {
+        anyhow::bail!("/wsx upgrade failed");
+    }
+
+    tls.write_all(b"\x00dev/loxone/start\xff")
+        .map_err(|e| anyhow::anyhow!("start write: {e}"))?;
+    tls.flush()?;
+    std::thread::sleep(Duration::from_millis(500));
+
+    tls.write_all(&hs)
+        .map_err(|e| anyhow::anyhow!("handshake write: {e}"))?;
+    tls.flush()?;
+    std::thread::sleep(Duration::from_millis(2000));
+
+    let n = tls.read(&mut buf).unwrap_or(0);
+    if n == 0 || buf[0] != 0x01 {
+        anyhow::bail!(
+            "binary mode failed: 0x{:02X} (expected 0x01)",
+            if n > 0 { buf[0] } else { 0 }
+        );
+    }
+
+    tls.get_ref()
+        .set_read_timeout(Some(Duration::from_millis(100)))?;
+    while tls.read(&mut buf).unwrap_or(0) > 0 {}
+    tls.get_ref()
+        .set_read_timeout(Some(Duration::from_secs(10)))?;
+
+    tls.write_all(&build_binary_cmd(0x3A))
+        .map_err(|e| anyhow::anyhow!("presave write: {e}"))?;
+    tls.flush()?;
+    std::thread::sleep(Duration::from_millis(2000));
+
+    let n = tls.read(&mut buf).unwrap_or(0);
+    if n == 0 || buf[0] != 0x3A {
+        anyhow::bail!("PreSave failed: 0x{:02X}", if n > 0 { buf[0] } else { 0 });
+    }
+
+    tls.write_all(&build_binary_cmd(0x05))
         .map_err(|e| anyhow::anyhow!("postsave write: {e}"))?;
     tls.flush()?;
 

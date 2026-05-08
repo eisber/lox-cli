@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.13.0] — 2026-05-08
+
+### Added
+- `lox config wires -o json` emits the full wire graph including resolved source/target block + connector UUIDs.
+
+### Fixed
+- Windows `/wsx` fast reload now uses native TLS, so config inspection builds do not require OpenSSL while fast reload remains available.
+
 ## [0.12.0] — 2026-04-30
 
 ### Added
@@ -132,6 +140,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - WebSocket nonce uses cryptographically random bytes
 - Debug `eprintln!` removed from token RSA parsing
 
-[Unreleased]: https://github.com/eisber/lox-cli/compare/v0.8.0...HEAD
+[Unreleased]: https://github.com/eisber/lox-cli/compare/v0.13.0...HEAD
+[0.13.0]: https://github.com/eisber/lox-cli/compare/v0.12.0...v0.13.0
+[0.12.0]: https://github.com/eisber/lox-cli/compare/v0.8.0...v0.12.0
 [0.8.0]: https://github.com/eisber/lox-cli/compare/v0.1.0...v0.8.0
 [0.1.0]: https://github.com/eisber/lox-cli/releases/tag/v0.1.0

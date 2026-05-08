@@ -1,11 +1,153 @@
 use super::{
-    ConfigEditor, ConfigStats, DescribeBlockEntry, DescribeConnectorEntry, DescribeEntry,
-    DescribeRoomEntry, DeviceBusSummary, RoomCompleteness, SceneInfo,
+    ConfigEditor, ConfigStats, ConfigWire, ConfigWireEndpoint, DescribeBlockEntry,
+    DescribeConnectorEntry, DescribeEntry, DescribeRoomEntry, DeviceBusSummary, RoomCompleteness,
+    SceneInfo,
 };
 use std::collections::HashMap;
 use xmltree::Element;
 
+#[derive(Clone)]
+struct ConnectorLookupEntry {
+    block_uuid: String,
+    block_title: String,
+    block_type: String,
+    connector_uuid: String,
+    connector_key: String,
+    direction: String,
+}
+
+impl ConnectorLookupEntry {
+    fn wire_endpoint(&self) -> ConfigWireEndpoint {
+        ConfigWireEndpoint {
+            block_uuid: self.block_uuid.clone(),
+            block_title: self.block_title.clone(),
+            block_type: self.block_type.clone(),
+            connector_uuid: self.connector_uuid.clone(),
+            connector_key: self.connector_key.clone(),
+        }
+    }
+}
+
+fn room_name_for_block(block: &Element, room_names: &HashMap<String, String>) -> String {
+    let mut room_id = String::new();
+    for child in &block.children {
+        if let Some(io) = child.as_element()
+            && io.name == "IoData"
+        {
+            room_id = io.attributes.get("Pr").cloned().unwrap_or_default();
+        }
+    }
+    room_names
+        .get(&room_id)
+        .cloned()
+        .unwrap_or_else(|| "(unassigned)".to_string())
+}
+
+fn is_sentinel_uuid(uuid: &str) -> bool {
+    let normalized: String = uuid.chars().filter(|c| *c != '-').collect();
+    !normalized.is_empty() && normalized.chars().all(|c| c == '0')
+}
+
+fn is_input_connector_key(key: &str) -> bool {
+    key.starts_with('I') || key.starts_with("AI") || key.starts_with("Input")
+}
+
+fn infer_connector_direction(key: &str) -> String {
+    if is_input_connector_key(key) {
+        "I".to_string()
+    } else if key.starts_with('Q') || key.starts_with("AQ") {
+        "O".to_string()
+    } else {
+        "?".to_string()
+    }
+}
+
+fn is_describe_skipped_type(etype: &str) -> bool {
+    matches!(
+        etype,
+        "InputRef"
+            | "OutputRef"
+            | "StateV"
+            | "VirtualIn"
+            | "VirtualOut"
+            | "VirtualState"
+            | "Page"
+            | "Program"
+            | "Document"
+            | "Category"
+            | "CategoryCaption"
+            | "Place"
+            | "PlaceCaption"
+            | "ConstantCaption"
+            | "CalendarCaption"
+            | "VirtualInCaption"
+            | "VirtualOutCaption"
+            | "LoxCaption"
+            | "TaskCaption"
+            | "WeatherCaption"
+            | "LoggerOutCaption"
+            | "DateTime"
+            | "Day"
+            | "Day2009"
+            | "DayOfWeek"
+            | "Daylight"
+            | "Daylight2"
+            | "Online"
+            | "Co"
+            | "In"
+            | "IoData"
+            | "Display"
+            | "SET"
+            | "Key"
+            | "ApiActor"
+            | "LoxTree"
+            | "LoxAIR"
+            | "LoxLIVE"
+            | "LoxMORE"
+            | "MBusExtension"
+            | "Devicemonitor"
+            | "MessageCenter"
+            | "GlobalStates"
+            | "Comm1wire"
+            | "Comm232"
+            | "Comm485"
+            | "CommDMX"
+    )
+}
+
+fn resolve_source_endpoint<'a>(
+    candidates: Option<&'a Vec<ConnectorLookupEntry>>,
+    target_block_uuid: &str,
+    target_connector_uuid: &str,
+) -> Option<&'a ConnectorLookupEntry> {
+    let candidates = candidates?;
+    let is_self_reference = |c: &ConnectorLookupEntry| {
+        c.block_uuid == target_block_uuid && c.connector_uuid == target_connector_uuid
+    };
+    candidates
+        .iter()
+        .find(|c| !is_self_reference(c) && c.direction == "O")
+        .or_else(|| {
+            candidates
+                .iter()
+                .find(|c| !is_self_reference(c) && !is_input_connector_key(&c.connector_key))
+        })
+        .or_else(|| candidates.iter().find(|c| !is_self_reference(c)))
+}
+
 impl ConfigEditor {
+    fn room_names(&self) -> HashMap<String, String> {
+        let mut room_names = HashMap::new();
+        for e in self.iter_elements(&self.root) {
+            if e.attributes.get("Type").map(|s| s.as_str()) == Some("Place")
+                && let (Some(u), Some(t)) = (e.attributes.get("U"), e.attributes.get("Title"))
+            {
+                room_names.insert(u.clone(), t.clone());
+            }
+        }
+        room_names
+    }
+
     /// Describe the configuration in human-readable form.
     pub fn describe_config(&self, room_filter: Option<&str>) -> String {
         let mut out = String::new();
@@ -334,6 +476,161 @@ impl ConfigEditor {
             .into_iter()
             .map(|(room, blocks)| DescribeRoomEntry { room, blocks })
             .collect()
+    }
+
+    /// List all resolved config-wide wires as JSON-serializable edges.
+    pub fn config_wires(&self, room_filter: Option<&str>) -> Vec<ConfigWire> {
+        let room_names = self.room_names();
+        let connector_map = Self::connector_map();
+        let mut endpoints_by_uuid: HashMap<String, Vec<ConnectorLookupEntry>> = HashMap::new();
+
+        for block in self.iter_elements(&self.root) {
+            if block.name != "C" {
+                continue;
+            }
+
+            let block_uuid = block.attributes.get("U").cloned().unwrap_or_default();
+            let block_title = block.attributes.get("Title").cloned().unwrap_or_default();
+            let block_type = block.attributes.get("Type").cloned().unwrap_or_default();
+            if block_title.is_empty()
+                || block_type.is_empty()
+                || is_describe_skipped_type(&block_type)
+            {
+                continue;
+            }
+            let connector_types = connector_map
+                .get(&block_type)
+                .map(|(_, _, types)| types)
+                .cloned()
+                .unwrap_or_default();
+
+            for co in block.children.iter().filter_map(|c| c.as_element()) {
+                if co.name != "Co" {
+                    continue;
+                }
+                let Some(connector_uuid) = co.attributes.get("U").cloned() else {
+                    continue;
+                };
+                if is_sentinel_uuid(&connector_uuid) {
+                    continue;
+                }
+                let connector_key = co.attributes.get("K").cloned().unwrap_or_default();
+                let direction = connector_types
+                    .get(&connector_key)
+                    .cloned()
+                    .unwrap_or_else(|| infer_connector_direction(&connector_key));
+
+                endpoints_by_uuid
+                    .entry(connector_uuid.clone())
+                    .or_default()
+                    .push(ConnectorLookupEntry {
+                        block_uuid: block_uuid.clone(),
+                        block_title: block_title.clone(),
+                        block_type: block_type.clone(),
+                        connector_uuid,
+                        connector_key,
+                        direction,
+                    });
+            }
+        }
+
+        let mut wires = Vec::new();
+
+        for block in self.iter_elements(&self.root) {
+            if block.name != "C" {
+                continue;
+            }
+
+            let block_uuid = block.attributes.get("U").cloned().unwrap_or_default();
+            let block_title = block.attributes.get("Title").cloned().unwrap_or_default();
+            let block_type = block.attributes.get("Type").cloned().unwrap_or_default();
+            if block_title.is_empty()
+                || block_type.is_empty()
+                || is_describe_skipped_type(&block_type)
+            {
+                continue;
+            }
+            let room_name = room_name_for_block(block, &room_names);
+            if let Some(filter) = room_filter
+                && !room_name.to_lowercase().contains(&filter.to_lowercase())
+            {
+                continue;
+            }
+
+            for co in block.children.iter().filter_map(|c| c.as_element()) {
+                if co.name != "Co" {
+                    continue;
+                }
+
+                let connector_key = co.attributes.get("K").cloned().unwrap_or_default();
+                let connector_uuid = co.attributes.get("U").cloned().unwrap_or_default();
+                let target = ConfigWireEndpoint {
+                    block_uuid: block_uuid.clone(),
+                    block_title: block_title.clone(),
+                    block_type: block_type.clone(),
+                    connector_uuid: connector_uuid.clone(),
+                    connector_key: connector_key.clone(),
+                };
+
+                let input_refs: Vec<String> = co
+                    .children
+                    .iter()
+                    .filter_map(|c| c.as_element())
+                    .filter(|e| e.name == "In")
+                    .filter_map(|e| e.attributes.get("Input").cloned())
+                    .filter(|u| !is_sentinel_uuid(u))
+                    .collect();
+
+                if !input_refs.is_empty() {
+                    if is_sentinel_uuid(&connector_uuid) {
+                        continue;
+                    }
+                    for source_uuid in input_refs {
+                        if let Some(source) = resolve_source_endpoint(
+                            endpoints_by_uuid.get(&source_uuid),
+                            &block_uuid,
+                            &connector_uuid,
+                        ) {
+                            wires.push(ConfigWire {
+                                source: source.wire_endpoint(),
+                                target: target.clone(),
+                            });
+                        }
+                    }
+                    continue;
+                }
+
+                if is_sentinel_uuid(&connector_uuid) || !is_input_connector_key(&connector_key) {
+                    continue;
+                }
+
+                if let Some(source) = resolve_source_endpoint(
+                    endpoints_by_uuid.get(&connector_uuid),
+                    &block_uuid,
+                    &connector_uuid,
+                ) {
+                    wires.push(ConfigWire {
+                        source: source.wire_endpoint(),
+                        target,
+                    });
+                }
+            }
+        }
+
+        wires.sort_by(|a, b| {
+            (
+                &a.target.block_uuid,
+                &a.target.connector_key,
+                &a.source.block_uuid,
+            )
+                .cmp(&(
+                    &b.target.block_uuid,
+                    &b.target.connector_key,
+                    &b.source.block_uuid,
+                ))
+        });
+
+        wires
     }
 
     /// Compute comprehensive config statistics in a single tree walk.

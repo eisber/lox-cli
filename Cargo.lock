@@ -1788,7 +1788,7 @@ dependencies = [
 
 [[package]]
 name = "lox-cli"
-version = "0.12.0"
+version = "0.13.0"
 dependencies = [
  "aes",
  "anyhow",
@@ -1807,6 +1807,7 @@ dependencies = [
  "httpmock",
  "lox-sim",
  "lz4_flex",
+ "native-tls",
  "openssl",
  "predicates",
  "quick-xml",
@@ -1904,6 +1905,23 @@ dependencies = [
  "libc",
  "wasi",
  "windows-sys 0.61.2",
+]
+
+[[package]]
+name = "native-tls"
+version = "0.2.18"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "465500e14ea162429d264d44189adc38b199b62b1c21eea9f69e4b73cb03bbf2"
+dependencies = [
+ "libc",
+ "log",
+ "openssl",
+ "openssl-probe",
+ "openssl-sys",
+ "schannel",
+ "security-framework",
+ "security-framework-sys",
+ "tempfile",
 ]
 
 [[package]]

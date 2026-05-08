@@ -2200,6 +2200,38 @@ pub fn cmd_config(ctx: &RunContext, action: ConfigCmd) -> Result<()> {
                 println!("{}", description);
             }
         }
+        ConfigCmd::Wires {
+            file,
+            file_opt,
+            room,
+        } => {
+            if file.is_some() && file_opt.is_some() {
+                bail!("Pass the config file either positionally or with --file, not both.");
+            }
+            let file = file
+                .or(file_opt)
+                .ok_or_else(|| anyhow::anyhow!("Missing config file path."))?;
+            let data = fs::read(&file).with_context(|| format!("Cannot read {}", file))?;
+            let editor = ConfigEditor::load(&data)?;
+            let wires = editor.config_wires(room.as_deref());
+            if ctx.json {
+                println!("{}", serde_json::to_string_pretty(&wires)?);
+            } else if wires.is_empty() {
+                println!("No wires found.");
+            } else {
+                for wire in wires {
+                    println!(
+                        "{}.{} ({}) → {}.{} ({})",
+                        wire.source.block_title,
+                        wire.source.connector_key,
+                        wire.source.connector_uuid,
+                        wire.target.block_title,
+                        wire.target.connector_key,
+                        wire.target.connector_uuid
+                    );
+                }
+            }
+        }
         ConfigCmd::Stats { file } => {
             if file.ends_with(".zip") {
                 bail!(
@@ -3627,6 +3659,7 @@ fn resolve_block_type(input: &str) -> Result<(String, Option<&'static str>)> {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use std::collections::HashSet;
     use tempfile::TempDir;
 
     const FIXTURE_XML: &str = r#"<?xml version="1.0" encoding="utf-8"?>
@@ -3655,10 +3688,57 @@ mod tests {
   </C>
 </ControlList>"#;
 
+    const WIRES_FIXTURE_XML: &str = r#"<?xml version="1.0" encoding="utf-8"?>
+<ControlList Version="267">
+  <C Type="Place" V="175" U="room-1" Title="Room1" WF="16384"/>
+  <C Type="Place" V="175" U="room-2" Title="Room2" WF="16384"/>
+  <C Type="Category" V="175" U="cat-1" Title="Beleuchtung" WF="16384"/>
+  <C Type="Page" V="175" U="page-1" Title="Page1" WF="16384">
+    <C Type="WeatherData" V="175" U="source-weather" Title="Helligkeitssensor BWM 1" WF="16384">
+      <Co K="AQ" U="source-weather-aq"/>
+      <IoData Cr="cat-1" Pr="room-1"/>
+    </C>
+    <C Type="AlarmClock" V="175" U="source-clock" Title="Wecker" WF="16384">
+      <Co K="Q" U="source-clock-q"/>
+      <IoData Cr="cat-1" Pr="room-1"/>
+    </C>
+    <C Type="LightController2" V="175" U="target-light" Title="LightController2" WF="16384">
+      <Co K="AI1" U="target-light-ai1"><In Input="source-weather-aq"/></Co>
+      <Co K="I1" U="target-light-i1"><In Input="source-clock-q"/></Co>
+      <Co K="I2" U="00000000-0000-0000-0000000000000000"/>
+      <Co K="I3" U="target-light-i3"/>
+      <Co K="I4" U="target-light-i4"><In Input="target-light-aq1"/></Co>
+      <Co K="AQ1" U="target-light-aq1"/>
+      <IoData Cr="cat-1" Pr="room-1"/>
+    </C>
+    <C Type="WeatherData" V="175" U="legacy-source" Title="Legacy Sensor" WF="16384">
+      <Co K="AQ" U="legacy-source-aq"/>
+      <IoData Cr="cat-1" Pr="room-1"/>
+    </C>
+    <C Type="LightController2" V="175" U="legacy-target" Title="Legacy Light" WF="16384">
+      <Co K="AI1" U="legacy-source-aq"/>
+      <IoData Cr="cat-1" Pr="room-1"/>
+    </C>
+  </C>
+  <C Type="Page" V="175" U="page-2" Title="Page2" WF="16384">
+    <C Type="LightController2" V="175" U="target-room2" Title="Room2 Light" WF="16384">
+      <Co K="AI1" U="target-room2-ai1"><In Input="source-weather-aq"/></Co>
+      <IoData Cr="cat-1" Pr="room-2"/>
+    </C>
+  </C>
+</ControlList>"#;
+
     fn fixture_file() -> (TempDir, String) {
         let dir = TempDir::new().unwrap();
         let path = dir.path().join("test.Loxone");
         fs::write(&path, FIXTURE_XML).unwrap();
+        (dir, path.to_str().unwrap().to_string())
+    }
+
+    fn wires_fixture_file() -> (TempDir, String) {
+        let dir = TempDir::new().unwrap();
+        let path = dir.path().join("wires.Loxone");
+        fs::write(&path, WIRES_FIXTURE_XML).unwrap();
         (dir, path.to_str().unwrap().to_string())
     }
 
@@ -3816,6 +3896,113 @@ mod tests {
             },
         );
         assert!(result.is_ok());
+    }
+
+    #[test]
+    fn test_cmd_wires_basic() {
+        let (_dir, file) = wires_fixture_file();
+        let json_ctx = RunContext {
+            json: true,
+            quiet: false,
+            csv: false,
+            dry_run: false,
+            no_header: false,
+            non_interactive: false,
+            trace_id: None,
+        };
+        let result = cmd_config(
+            &json_ctx,
+            ConfigCmd::Wires {
+                file: Some(file.clone()),
+                file_opt: None,
+                room: None,
+            },
+        );
+        assert!(result.is_ok());
+
+        let data = fs::read(&file).unwrap();
+        let editor = ConfigEditor::load(&data).unwrap();
+        let wires = editor.config_wires(None);
+        assert_eq!(wires.len(), 5);
+        let light_ai1 = wires
+            .iter()
+            .find(|w| w.target.block_uuid == "target-light" && w.target.connector_key == "AI1")
+            .unwrap();
+        assert_eq!(light_ai1.source.block_uuid, "source-weather");
+        assert_eq!(light_ai1.source.block_title, "Helligkeitssensor BWM 1");
+        assert_eq!(light_ai1.source.block_type, "WeatherData");
+        assert_eq!(light_ai1.source.connector_uuid, "source-weather-aq");
+        assert_eq!(light_ai1.source.connector_key, "AQ");
+        assert_eq!(light_ai1.target.block_title, "LightController2");
+        assert_eq!(light_ai1.target.block_type, "LightController2");
+        assert_eq!(light_ai1.target.connector_uuid, "target-light-ai1");
+        let same_block = wires
+            .iter()
+            .find(|w| w.target.block_uuid == "target-light" && w.target.connector_key == "I4")
+            .unwrap();
+        assert_eq!(same_block.source.block_uuid, "target-light");
+        assert_eq!(same_block.source.connector_uuid, "target-light-aq1");
+        assert_eq!(same_block.target.connector_uuid, "target-light-i4");
+    }
+
+    #[test]
+    fn test_cmd_wires_room_filter() {
+        let data = WIRES_FIXTURE_XML.as_bytes();
+        let editor = ConfigEditor::load(data).unwrap();
+        let wires = editor.config_wires(Some("Room2"));
+        assert_eq!(wires.len(), 1);
+        assert_eq!(wires[0].source.block_uuid, "source-weather");
+        assert_eq!(wires[0].target.block_uuid, "target-room2");
+        assert_eq!(wires[0].target.connector_key, "AI1");
+    }
+
+    #[test]
+    fn test_cmd_wires_unwired_skipped() {
+        let editor = ConfigEditor::load(WIRES_FIXTURE_XML.as_bytes()).unwrap();
+        let wires = editor.config_wires(None);
+        assert!(!wires.iter().any(|w| {
+            w.target.connector_uuid == "00000000-0000-0000-0000000000000000"
+                || w.target.connector_key == "I2"
+                || w.target.connector_key == "I3"
+        }));
+        assert!(
+            !wires
+                .iter()
+                .any(|w| { w.source.connector_uuid == "00000000-0000-0000-0000000000000000" })
+        );
+    }
+
+    #[test]
+    fn test_cmd_wires_legacy_co_u_wiring() {
+        let editor = ConfigEditor::load(WIRES_FIXTURE_XML.as_bytes()).unwrap();
+        let legacy: Vec<_> = editor
+            .config_wires(None)
+            .into_iter()
+            .filter(|w| w.target.block_uuid == "legacy-target")
+            .collect();
+        assert_eq!(legacy.len(), 1);
+        assert_eq!(legacy[0].source.block_uuid, "legacy-source");
+        assert_eq!(legacy[0].source.connector_uuid, "legacy-source-aq");
+        assert_eq!(legacy[0].target.block_uuid, "legacy-target");
+        assert_eq!(legacy[0].target.connector_key, "AI1");
+        assert_eq!(legacy[0].target.connector_uuid, "legacy-source-aq");
+    }
+
+    #[test]
+    fn test_cmd_wires_describe_consistency() {
+        let editor = ConfigEditor::load(WIRES_FIXTURE_XML.as_bytes()).unwrap();
+        let describe = editor.describe_config_structured(None);
+        let connector_uuids: HashSet<String> = describe
+            .into_iter()
+            .flat_map(|room| room.blocks)
+            .flat_map(|block| block.connectors)
+            .map(|connector| connector.uuid)
+            .collect();
+
+        for wire in editor.config_wires(None) {
+            assert!(connector_uuids.contains(&wire.source.connector_uuid));
+            assert!(connector_uuids.contains(&wire.target.connector_uuid));
+        }
     }
 
     #[test]

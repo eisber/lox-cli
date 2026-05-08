@@ -755,6 +755,19 @@ pub(crate) enum ConfigCmd {
         #[arg(long)]
         room: Option<String>,
     },
+    /// Emit the full resolved wire graph as source/target connector edges
+    #[command(name = "wires")]
+    Wires {
+        /// Path to a .Loxone XML file
+        #[arg(value_name = "FILE")]
+        file: Option<String>,
+        /// Path to a .Loxone XML file
+        #[arg(short, long = "file", value_name = "FILE")]
+        file_opt: Option<String>,
+        /// Optional: emit wires whose target block is in this room only
+        #[arg(short, long)]
+        room: Option<String>,
+    },
     /// Show comprehensive config statistics
     Stats {
         /// Path to a .Loxone XML file

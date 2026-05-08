@@ -27,6 +27,9 @@ All config fields also support env vars: `LOX_HOST`, `LOX_USER`, `LOX_PASS`, `LO
 lox config describe file.Loxone                   # human-readable config summary by room
 lox config describe file.Loxone --room "Küche"    # describe a single room only
 lox config describe file.Loxone -o json           # JSON output
+lox config wires file.Loxone -o json              # resolved wire graph for block connectors
+lox config wires --file file.Loxone -o json       # same, with explicit file flag
+lox config wires file.Loxone --room "Küche" -o json # wires targeting blocks in one room
 
 lox config rooms file.Loxone                      # list rooms with item counts
 lox config controls file.Loxone                   # list controls with type/room/category
