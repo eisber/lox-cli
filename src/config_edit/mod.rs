@@ -85,6 +85,43 @@ pub struct ConfigWire {
     pub target: ConfigWireEndpoint,
 }
 
+/// A connector exposed by a detected physical device.
+#[derive(Debug, Clone, PartialEq, Eq, serde::Serialize)]
+pub struct DetectedDeviceConnector {
+    pub uuid: String,
+    pub role: String,
+    pub channel_index: Option<u32>,
+    #[serde(rename = "type")]
+    pub connector_type: String,
+}
+
+/// Stable identity fields used to derive a physical-device key.
+#[derive(Debug, Clone, PartialEq, Eq, serde::Serialize)]
+pub struct DetectedDeviceIdentity {
+    pub bus_type: String,
+    pub bus_serial: Option<String>,
+    pub bus_address: Option<String>,
+    pub channel_role: Option<String>,
+}
+
+/// Physical-device record detected from a Loxone config snapshot.
+#[derive(Debug, Clone, PartialEq, Eq, serde::Serialize)]
+pub struct DetectedDevice {
+    pub device_id: String,
+    pub stable_device_key: String,
+    pub bus_type: String,
+    pub bus_serial: Option<String>,
+    pub bus_address: Option<String>,
+    pub device_type: String,
+    pub primary_block_uuid: String,
+    pub secondary_block_uuids: Vec<String>,
+    pub connectors: Vec<DetectedDeviceConnector>,
+    pub snapshot_room_label: Option<String>,
+    pub derived_label: String,
+    pub low_confidence_identity: bool,
+    pub identity_components: DetectedDeviceIdentity,
+}
+
 /// Template result: (block_type, title, params)
 type TemplateResult = Vec<(String, String, Vec<(String, String)>)>;
 

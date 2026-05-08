@@ -455,6 +455,12 @@ pub(crate) enum ConfigCmd {
         /// Show all I/O ports with used/free status
         #[arg(long)]
         ports: bool,
+        /// Optional: emit devices whose snapshot room label matches this room only
+        #[arg(short, long)]
+        room: Option<String>,
+        /// Print device counts to stderr instead of emitting device records
+        #[arg(long)]
+        summary: bool,
         /// Limit number of results displayed
         #[arg(long)]
         limit: Option<usize>,

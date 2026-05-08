@@ -1,10 +1,230 @@
 use super::{
     ConfigEditor, ConfigStats, ConfigWire, ConfigWireEndpoint, DescribeBlockEntry,
-    DescribeConnectorEntry, DescribeEntry, DescribeRoomEntry, DeviceBusSummary, RoomCompleteness,
-    SceneInfo,
+    DescribeConnectorEntry, DescribeEntry, DescribeRoomEntry, DetectedDevice,
+    DetectedDeviceConnector, DetectedDeviceIdentity, DeviceBusSummary, RoomCompleteness, SceneInfo,
 };
+use sha2::{Digest, Sha256};
 use std::collections::HashMap;
 use xmltree::Element;
+
+const EXCLUDED_BLOCK_TYPES: &[&str] = &[
+    "AlarmClock",
+    "AlarmCenter",
+    "Alarm",
+    "AlarmChain",
+    "AMemory",
+    "AMinmax",
+    "AcControl",
+    "AnalogComparator",
+    "AnalogDiffTrigger",
+    "AnalogMultiplexer",
+    "AnalogMultiplexer2",
+    "AnalogScaler",
+    "AnalogStepper",
+    "AnalogThreshold",
+    "AnalogThresholdTrigger",
+    "AnalogWatchdog",
+    "And",
+    "Application",
+    "AutoJalousie",
+    "AutomaticScene",
+    "Average",
+    "Avg",
+    "BinDecoder",
+    "BinEncoder",
+    "BrightnessControl",
+    "Calculator",
+    "CallGen",
+    "CentralAlarm",
+    "CentralFancoil",
+    "CentralGate",
+    "CentralLight",
+    "CentralMusic",
+    "CentralPresence",
+    "CentralRoofwindow",
+    "CentralShade",
+    "ClimateControllerUS",
+    "CmdRecognition",
+    "Code1",
+    "Code4",
+    "Code8",
+    "Code16",
+    "Comparator",
+    "Counter",
+    "DayTimer",
+    "DaylightController",
+    "DbConE",
+    "DbConS",
+    "DbConT",
+    "DewPoint",
+    "Div",
+    "Door",
+    "Doorcontroller",
+    "EIBJalousie",
+    "Edge",
+    "EdgeDetection",
+    "EdgeWipingRelay",
+    "Energy",
+    "EnergyManager",
+    "EnergyManager2",
+    "Equal",
+    "Fan",
+    "Fancoil",
+    "FancoilFreshAir",
+    "FlipFlop",
+    "Formula",
+    "GlobalStates",
+    "Greater",
+    "GreaterEqual",
+    "HVACController",
+    "HeatCentral",
+    "HeatIRoomController2",
+    "Heatcurve",
+    "Heatmixer",
+    "Heatmixer2",
+    "HourCounter",
+    "HvacAC",
+    "IRoomcontrol",
+    "InputRef",
+    "Int",
+    "Irrigation",
+    "IRoomController",
+    "Jalousie",
+    "JalousieUpDown2",
+    "JoinWindowSensor",
+    "Leaf",
+    "Less",
+    "LessEqual",
+    "LightController",
+    "LightController2",
+    "LightControllerH",
+    "LightControllerV2",
+    "Lightscene",
+    "LightsceneC",
+    "LightsceneLearn",
+    "LightsceneRGB",
+    "LoadShed",
+    "LongClick",
+    "MailBox",
+    "MailGen",
+    "Marker",
+    "Media",
+    "MediaClient",
+    "Memory",
+    "MeterAbsBi",
+    "MeterAbsSt",
+    "MeterAbsUni",
+    "MeterDig",
+    "MeterPBi",
+    "MeterPSt",
+    "MeterPUni",
+    "MinMax",
+    "Minmax",
+    "Mod",
+    "Monoflop",
+    "Mood",
+    "MsShortcut",
+    "Mult",
+    "MultiClick",
+    "MultiFuncSW",
+    "Multiplexer",
+    "MusicPlayer",
+    "Nevo",
+    "Nor",
+    "Not",
+    "NotEqual",
+    "OffDelay",
+    "OnDelay",
+    "OnOffDelay",
+    "OnPulseDelay",
+    "Or",
+    "OutputRef",
+    "PButtonT",
+    "PI",
+    "PID",
+    "PVProductionForecast",
+    "PWM",
+    "Ping",
+    "Plugin",
+    "PoolController",
+    "Power",
+    "PowerUnit",
+    "Presence",
+    "PresenceController",
+    "PresenceDetector",
+    "PulseAt",
+    "PulseBy",
+    "PulseGen",
+    "Pushbutton",
+    "PushButton",
+    "PushButton2",
+    "PushButton2Sel",
+    "PushButtonSel",
+    "PushDimmer",
+    "Radio",
+    "Radio2",
+    "Ramp",
+    "Rand",
+    "RandomGen",
+    "RetOnDelay",
+    "RoofWindow",
+    "Roomcontrol",
+    "Random",
+    "Remote",
+    "RsFlipFlop",
+    "RSFlipFlop",
+    "Sauna",
+    "SaunaVapor",
+    "Scene",
+    "SequenceController",
+    "Sequencer",
+    "Sequence",
+    "ShadeRoof",
+    "Shift",
+    "SmokeAlarm",
+    "Solarpumpcontrol",
+    "SpotOpt",
+    "StairwayLS",
+    "State",
+    "Statistic",
+    "Statistics",
+    "StatusMonitor",
+    "SteakThermo",
+    "StepSel",
+    "Sub",
+    "Switch",
+    "SysVar",
+    "SystemScheme",
+    "Tablet",
+    "Text",
+    "TextGenerator",
+    "TextState",
+    "TimeMinmax",
+    "Timer",
+    "ToiletFan",
+    "TpfController",
+    "Tracker",
+    "UpDownCounter",
+    "Validator",
+    "Ventilation",
+    "VentInternorm",
+    "VirtualIn",
+    "VirtualOut",
+    "VirtualState",
+    "WBEM",
+    "WeatherServer",
+    "Weed",
+    "Wind",
+    "WindowsMonitor",
+    "Xor",
+];
+
+#[derive(Clone, Default)]
+struct DeviceBusContext {
+    bus_type: Option<String>,
+    bus_serial: Option<String>,
+    parent_uuid: Option<String>,
+}
 
 #[derive(Clone)]
 struct ConnectorLookupEntry {
@@ -113,6 +333,481 @@ fn is_describe_skipped_type(etype: &str) -> bool {
             | "Comm485"
             | "CommDMX"
     )
+}
+
+fn is_device_container_type(etype: &str) -> bool {
+    matches!(
+        etype,
+        "AirExtension"
+            | "DALIextension"
+            | "DaliExtension"
+            | "KNXExtension"
+            | "KNXextension"
+            | "EIBExtension"
+            | "EIBextension"
+            | "LoxAIRextension"
+            | "TreeExtension"
+            | "1WireExtension"
+            | "OneWireExtension"
+            | "Comm1wire"
+    )
+}
+
+fn is_excluded_device_type(etype: &str) -> bool {
+    EXCLUDED_BLOCK_TYPES.contains(&etype)
+        || etype.contains("Calculator")
+        || etype.contains("Comparator")
+        || etype.contains("Counter")
+        || etype.contains("Memory")
+        || etype.contains("Statistic")
+        || etype.contains("Timer")
+        || etype.contains("WeatherServer")
+}
+
+fn first_attr(elem: &Element, names: &[&str]) -> Option<String> {
+    names
+        .iter()
+        .find_map(|name| elem.attributes.get(*name))
+        .map(|value| value.trim().to_string())
+        .filter(|value| !value.is_empty())
+}
+
+fn first_attr_in_subtree(elem: &Element, names: &[&str]) -> Option<String> {
+    first_attr(elem, names).or_else(|| {
+        elem.children
+            .iter()
+            .filter_map(|child| child.as_element())
+            .find_map(|child| first_attr_in_subtree(child, names))
+    })
+}
+
+fn find_knx_address(elem: &Element) -> Option<String> {
+    first_attr_in_subtree(
+        elem,
+        &[
+            "GroupAddress",
+            "GroupAddr",
+            "KNXAddress",
+            "KnxAddress",
+            "EIBAddress",
+            "EibAddress",
+            "BusAddress",
+            "Address",
+        ],
+    )
+    .map(|address| address.replace('/', "."))
+}
+
+fn room_label_for_device(elem: &Element, room_names: &HashMap<String, String>) -> Option<String> {
+    if let Some(room) = elem
+        .children
+        .iter()
+        .filter_map(|child| child.as_element())
+        .find(|child| child.name == "IoData")
+        .and_then(|io| io.attributes.get("Pr"))
+        .and_then(|room_id| room_names.get(room_id))
+        .cloned()
+        .filter(|room| !room.is_empty())
+    {
+        return Some(room);
+    }
+
+    elem.children
+        .iter()
+        .filter_map(|child| child.as_element())
+        .find_map(|child| room_label_for_device(child, room_names))
+}
+
+fn channel_index_from_role(role: &str) -> Option<u32> {
+    let digits: String = role
+        .chars()
+        .rev()
+        .take_while(|c| c.is_ascii_digit())
+        .collect::<String>()
+        .chars()
+        .rev()
+        .collect();
+    if digits.is_empty() {
+        None
+    } else {
+        digits.parse().ok()
+    }
+}
+
+fn connector_type_from_role(role: &str, direction: Option<&str>) -> String {
+    if role.starts_with("CH") {
+        "channel".to_string()
+    } else {
+        match direction {
+            Some("I") => "input".to_string(),
+            Some("O") => "output".to_string(),
+            Some("P") => "parameter".to_string(),
+            _ if role.starts_with("AI") || role.starts_with('I') => "input".to_string(),
+            _ if role.starts_with("AQ") || role.starts_with('Q') => "output".to_string(),
+            _ => "parameter".to_string(),
+        }
+    }
+}
+
+fn collect_device_connectors(
+    elem: &Element,
+    connector_map: &super::ConnectorMap,
+) -> Vec<DetectedDeviceConnector> {
+    let mut connectors = Vec::new();
+    collect_device_connectors_inner(elem, connector_map, &mut connectors);
+    connectors.sort_by(|a, b| (&a.role, &a.uuid).cmp(&(&b.role, &b.uuid)));
+    connectors.dedup_by(|a, b| a.uuid == b.uuid);
+    connectors
+}
+
+fn collect_device_connectors_inner(
+    elem: &Element,
+    connector_map: &super::ConnectorMap,
+    connectors: &mut Vec<DetectedDeviceConnector>,
+) {
+    let block_type = elem
+        .attributes
+        .get("Type")
+        .map(String::as_str)
+        .unwrap_or("");
+    let connector_types = connector_map.get(block_type).map(|(_, _, types)| types);
+    for child in elem.children.iter().filter_map(|child| child.as_element()) {
+        if child.name == "Co" {
+            let uuid = child.attributes.get("U").cloned().unwrap_or_default();
+            if uuid.is_empty() || is_sentinel_uuid(&uuid) {
+                continue;
+            }
+            let role = child.attributes.get("K").cloned().unwrap_or_default();
+            let direction = connector_types.and_then(|types| types.get(&role).map(String::as_str));
+            connectors.push(DetectedDeviceConnector {
+                uuid,
+                channel_index: channel_index_from_role(&role),
+                connector_type: connector_type_from_role(&role, direction),
+                role,
+            });
+        } else {
+            collect_device_connectors_inner(child, connector_map, connectors);
+        }
+    }
+}
+
+fn collect_secondary_block_uuids(elem: &Element, primary_uuid: &str) -> Vec<String> {
+    let mut uuids = Vec::new();
+    collect_secondary_block_uuids_inner(elem, primary_uuid, &mut uuids);
+    uuids.sort();
+    uuids.dedup();
+    uuids
+}
+
+fn collect_secondary_block_uuids_inner(
+    elem: &Element,
+    primary_uuid: &str,
+    uuids: &mut Vec<String>,
+) {
+    for child in elem.children.iter().filter_map(|child| child.as_element()) {
+        if child.name == "C" {
+            let block_type = child
+                .attributes
+                .get("Type")
+                .map(String::as_str)
+                .unwrap_or("");
+            let title = child
+                .attributes
+                .get("Title")
+                .map(String::as_str)
+                .unwrap_or("");
+            if !title.is_empty()
+                && !is_describe_skipped_type(block_type)
+                && let Some(uuid) = child.attributes.get("U")
+                && uuid != primary_uuid
+            {
+                uuids.push(uuid.clone());
+            }
+        }
+        collect_secondary_block_uuids_inner(child, primary_uuid, uuids);
+    }
+}
+
+fn stable_device_key(identity: &DetectedDeviceIdentity) -> String {
+    let raw = format!(
+        "{}|{}|{}|{}",
+        identity.bus_type,
+        identity.bus_serial.as_deref().unwrap_or(""),
+        identity.bus_address.as_deref().unwrap_or(""),
+        identity.channel_role.as_deref().unwrap_or("")
+    );
+    hex::encode(Sha256::digest(raw.as_bytes()))
+}
+
+fn device_id_from_key(stable_key: &str) -> String {
+    format!("dev-{}", &stable_key[..16])
+}
+
+fn push_or_merge_device(devices: &mut Vec<DetectedDevice>, mut device: DetectedDevice) {
+    if let Some(existing) = devices
+        .iter_mut()
+        .find(|existing| existing.stable_device_key == device.stable_device_key)
+    {
+        if device.primary_block_uuid < existing.primary_block_uuid {
+            existing
+                .secondary_block_uuids
+                .push(existing.primary_block_uuid.clone());
+            existing.primary_block_uuid = device.primary_block_uuid;
+        } else if device.primary_block_uuid != existing.primary_block_uuid {
+            existing
+                .secondary_block_uuids
+                .push(device.primary_block_uuid);
+        }
+        existing
+            .secondary_block_uuids
+            .append(&mut device.secondary_block_uuids);
+        existing.secondary_block_uuids.sort();
+        existing.secondary_block_uuids.dedup();
+        existing.connectors.append(&mut device.connectors);
+        existing
+            .connectors
+            .sort_by(|a, b| (&a.role, &a.uuid).cmp(&(&b.role, &b.uuid)));
+        existing.connectors.dedup_by(|a, b| a.uuid == b.uuid);
+        if existing.snapshot_room_label.is_none() {
+            existing.snapshot_room_label = device.snapshot_room_label;
+        }
+        existing.low_confidence_identity &= device.low_confidence_identity;
+    } else {
+        devices.push(device);
+    }
+}
+
+fn build_detected_device(
+    elem: &Element,
+    room_names: &HashMap<String, String>,
+    connector_map: &super::ConnectorMap,
+    identity: DetectedDeviceIdentity,
+    low_confidence_identity: bool,
+) -> Option<DetectedDevice> {
+    let primary_block_uuid = elem.attributes.get("U")?.clone();
+    let block_type = elem.attributes.get("Type").cloned().unwrap_or_default();
+    let title = elem.attributes.get("Title").cloned().unwrap_or_default();
+    let device_type = first_attr(elem, &["DeviceType", "HardwareType", "ProductType"])
+        .unwrap_or_else(|| block_type.clone());
+    let stable_device_key = stable_device_key(&identity);
+    Some(DetectedDevice {
+        device_id: device_id_from_key(&stable_device_key),
+        stable_device_key,
+        bus_type: identity.bus_type.clone(),
+        bus_serial: identity.bus_serial.clone(),
+        bus_address: identity.bus_address.clone(),
+        device_type,
+        secondary_block_uuids: collect_secondary_block_uuids(elem, &primary_block_uuid),
+        connectors: collect_device_connectors(elem, connector_map),
+        snapshot_room_label: room_label_for_device(elem, room_names),
+        derived_label: if title.is_empty() { block_type } else { title },
+        low_confidence_identity,
+        identity_components: identity,
+        primary_block_uuid,
+    })
+}
+
+fn extension_bus_context(elem: &Element, context: &DeviceBusContext) -> DeviceBusContext {
+    let mut next = context.clone();
+    let etype = elem
+        .attributes
+        .get("Type")
+        .map(String::as_str)
+        .unwrap_or("");
+    let bus_serial = first_attr(elem, &["Serial", "BusSerial", "Address", "U"]);
+    match etype {
+        "TreeExtension" | "LoxAIRextension" => {
+            next.bus_type = Some("tree".to_string());
+            next.bus_serial = bus_serial;
+            next.parent_uuid = elem.attributes.get("U").cloned();
+        }
+        "DALIextension" | "DaliExtension" => {
+            next.bus_type = Some("dali".to_string());
+            next.bus_serial = bus_serial;
+            next.parent_uuid = elem.attributes.get("U").cloned();
+        }
+        "KNXExtension" | "KNXextension" | "EIBExtension" | "EIBextension" => {
+            next.bus_type = Some("knx".to_string());
+            next.bus_serial = elem.attributes.get("U").cloned();
+            next.parent_uuid = elem.attributes.get("U").cloned();
+        }
+        "AirExtension" => {
+            next.bus_type = Some("loxone-air".to_string());
+            next.bus_serial = bus_serial;
+            next.parent_uuid = elem.attributes.get("U").cloned();
+        }
+        "1WireExtension" | "OneWireExtension" | "Comm1wire" => {
+            next.bus_type = Some("1-wire".to_string());
+            next.bus_serial = bus_serial;
+            next.parent_uuid = elem.attributes.get("U").cloned();
+        }
+        _ => {}
+    }
+    next
+}
+
+fn collect_config_devices(
+    elem: &Element,
+    context: &DeviceBusContext,
+    room_names: &HashMap<String, String>,
+    connector_map: &super::ConnectorMap,
+    devices: &mut Vec<DetectedDevice>,
+) {
+    let etype = elem
+        .attributes
+        .get("Type")
+        .map(String::as_str)
+        .unwrap_or("");
+    let next_context = extension_bus_context(elem, context);
+
+    if elem.name != "C" {
+        for child in elem.children.iter().filter_map(|child| child.as_element()) {
+            collect_config_devices(child, &next_context, room_names, connector_map, devices);
+        }
+        return;
+    }
+
+    if is_device_container_type(etype) {
+        for child in elem.children.iter().filter_map(|child| child.as_element()) {
+            collect_config_devices(child, &next_context, room_names, connector_map, devices);
+        }
+        return;
+    }
+
+    if is_describe_skipped_type(etype) || etype.is_empty() {
+        for child in elem.children.iter().filter_map(|child| child.as_element()) {
+            collect_config_devices(child, &next_context, room_names, connector_map, devices);
+        }
+        return;
+    }
+
+    let title = elem
+        .attributes
+        .get("Title")
+        .map(String::as_str)
+        .unwrap_or("");
+    if title.is_empty() {
+        for child in elem.children.iter().filter_map(|child| child.as_element()) {
+            collect_config_devices(child, &next_context, room_names, connector_map, devices);
+        }
+        return;
+    }
+
+    let primary_uuid = elem.attributes.get("U").cloned().unwrap_or_default();
+    let context_bus_type = next_context.bus_type.as_deref();
+    let etype_lower = etype.to_ascii_lowercase();
+    let tree_serial = first_attr(elem, &["Serial", "BusSerial"])
+        .or_else(|| first_attr_in_subtree(elem, &["Serial", "BusSerial"]));
+    let bus_address = first_attr(
+        elem,
+        &["BusAddress", "Address", "Addr", "Adr", "DaliAddress"],
+    );
+
+    let identity = if (context_bus_type == Some("tree") || etype.starts_with("Tree"))
+        && tree_serial.is_some()
+    {
+        Some((
+            DetectedDeviceIdentity {
+                bus_type: "tree".to_string(),
+                bus_serial: next_context.bus_serial.clone(),
+                bus_address: tree_serial,
+                channel_role: None,
+            },
+            false,
+        ))
+    } else if context_bus_type == Some("dali") || etype_lower.contains("dali") {
+        bus_address.clone().map(|address| {
+            (
+                DetectedDeviceIdentity {
+                    bus_type: "dali".to_string(),
+                    bus_serial: next_context.bus_serial.clone(),
+                    bus_address: Some(address),
+                    channel_role: None,
+                },
+                false,
+            )
+        })
+    } else if context_bus_type == Some("knx")
+        || etype.starts_with("KNX")
+        || etype.starts_with("EIB")
+    {
+        find_knx_address(elem).map(|address| {
+            (
+                DetectedDeviceIdentity {
+                    bus_type: "knx".to_string(),
+                    bus_serial: next_context
+                        .parent_uuid
+                        .clone()
+                        .or_else(|| next_context.bus_serial.clone()),
+                    bus_address: Some(address),
+                    channel_role: None,
+                },
+                false,
+            )
+        })
+    } else if context_bus_type == Some("loxone-air") || etype_lower.contains("air") {
+        first_attr(elem, &["BusSerial", "Serial", "IP"])
+            .or_else(|| first_attr_in_subtree(elem, &["BusSerial", "Serial", "IP"]))
+            .map(|serial| {
+                (
+                    DetectedDeviceIdentity {
+                        bus_type: "loxone-air".to_string(),
+                        bus_serial: next_context.bus_serial.clone(),
+                        bus_address: Some(serial),
+                        channel_role: None,
+                    },
+                    false,
+                )
+            })
+    } else if context_bus_type == Some("1-wire")
+        || etype_lower.contains("1wire")
+        || etype_lower.contains("onewire")
+    {
+        first_attr(elem, &["BusAddress", "Address", "Serial", "Addr", "Adr"])
+            .or_else(|| first_attr_in_subtree(elem, &["BusAddress", "Address", "Serial"]))
+            .map(|address| {
+                (
+                    DetectedDeviceIdentity {
+                        bus_type: "1-wire".to_string(),
+                        bus_serial: next_context.bus_serial.clone(),
+                        bus_address: Some(address),
+                        channel_role: None,
+                    },
+                    false,
+                )
+            })
+    } else {
+        None
+    };
+
+    if identity.is_none() && is_excluded_device_type(etype) {
+        for child in elem.children.iter().filter_map(|child| child.as_element()) {
+            collect_config_devices(child, &next_context, room_names, connector_map, devices);
+        }
+        return;
+    }
+
+    let (identity, low_confidence_identity) = identity.unwrap_or_else(|| {
+        (
+            DetectedDeviceIdentity {
+                bus_type: "standalone".to_string(),
+                bus_serial: None,
+                bus_address: None,
+                channel_role: Some(primary_uuid),
+            },
+            true,
+        )
+    });
+
+    if let Some(device) = build_detected_device(
+        elem,
+        room_names,
+        connector_map,
+        identity,
+        low_confidence_identity,
+    ) {
+        push_or_merge_device(devices, device);
+    }
 }
 
 fn resolve_source_endpoint<'a>(
@@ -631,6 +1326,49 @@ impl ConfigEditor {
         });
 
         wires
+    }
+
+    /// Detect physical devices from the configuration tree.
+    pub fn config_devices(&self, room_filter: Option<&str>) -> Vec<DetectedDevice> {
+        let room_names = self.room_names();
+        let connector_map = Self::connector_map();
+        let mut devices = Vec::new();
+        collect_config_devices(
+            &self.root,
+            &DeviceBusContext::default(),
+            &room_names,
+            &connector_map,
+            &mut devices,
+        );
+
+        if let Some(filter) = room_filter {
+            let filter = filter.to_lowercase();
+            devices.retain(|device| {
+                device
+                    .snapshot_room_label
+                    .as_ref()
+                    .is_some_and(|room| room.to_lowercase().contains(&filter))
+            });
+        }
+
+        devices.sort_by(|a, b| {
+            (
+                &a.bus_type,
+                &a.bus_serial,
+                &a.bus_address,
+                &a.identity_components.channel_role,
+                &a.primary_block_uuid,
+            )
+                .cmp(&(
+                    &b.bus_type,
+                    &b.bus_serial,
+                    &b.bus_address,
+                    &b.identity_components.channel_role,
+                    &b.primary_block_uuid,
+                ))
+        });
+
+        devices
     }
 
     /// Compute comprehensive config statistics in a single tree walk.

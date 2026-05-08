@@ -30,6 +30,9 @@ lox config describe file.Loxone -o json           # JSON output
 lox config wires file.Loxone -o json              # resolved wire graph for block connectors
 lox config wires --file file.Loxone -o json       # same, with explicit file flag
 lox config wires file.Loxone --room "Küche" -o json # wires targeting blocks in one room
+lox config devices file.Loxone -o json            # physical devices with bus identity + connectors
+lox config devices file.Loxone --room "Küche" -o json # devices detected in one room
+lox config devices file.Loxone --summary -o json  # print device count summary to stderr
 
 lox config rooms file.Loxone                      # list rooms with item counts
 lox config controls file.Loxone                   # list controls with type/room/category

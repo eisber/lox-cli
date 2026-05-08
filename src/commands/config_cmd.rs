@@ -504,7 +504,13 @@ pub fn cmd_config(ctx: &RunContext, action: ConfigCmd) -> Result<()> {
                 );
             }
         }
-        ConfigCmd::Devices { file, ports, limit } => {
+        ConfigCmd::Devices {
+            file,
+            ports,
+            room,
+            summary,
+            limit,
+        } => {
             if file.ends_with(".zip") {
                 bail!(
                     "Expected a .Loxone XML file. Run `lox config extract {}` first.",
@@ -516,6 +522,40 @@ pub fn cmd_config(ctx: &RunContext, action: ConfigCmd) -> Result<()> {
             if ports {
                 let editor = ConfigEditor::load(&xml)?;
                 print!("{}", editor.list_device_ports());
+            } else if summary || ctx.json || room.is_some() {
+                let editor = ConfigEditor::load(&xml)?;
+                let devices = editor.config_devices(room.as_deref());
+                let total = devices.len();
+                let with_bus_address = devices
+                    .iter()
+                    .filter(|d| d.bus_address.as_ref().is_some_and(|a| !a.is_empty()))
+                    .count();
+                let standalone = devices
+                    .iter()
+                    .filter(|d| d.bus_type == "standalone")
+                    .count();
+                let low_confidence = devices.iter().filter(|d| d.low_confidence_identity).count();
+                if summary {
+                    eprintln!(
+                        "{} devices, {} with bus_address, {} standalone, {} low_confidence",
+                        total, with_bus_address, standalone, low_confidence
+                    );
+                } else if ctx.json {
+                    println!("{}", serde_json::to_string_pretty(&devices)?);
+                } else if devices.is_empty() {
+                    println!("No devices found.");
+                } else {
+                    for device in devices.iter().take(limit.unwrap_or(devices.len())) {
+                        println!(
+                            "{} ({}) [{} {}]",
+                            device.derived_label,
+                            device.device_type,
+                            device.bus_type,
+                            device.bus_address.as_deref().unwrap_or("-")
+                        );
+                    }
+                    println!("\n{} devices total", total);
+                }
             } else {
                 let devices = loxone_xml::parse_devices(&xml)?;
                 let total = devices.len();
@@ -3728,6 +3768,64 @@ mod tests {
   </C>
 </ControlList>"#;
 
+    const DEVICES_FIXTURE_XML: &str = r#"<?xml version="1.0" encoding="utf-8"?>
+<ControlList Version="267">
+  <C Type="Place" V="175" U="room-kitchen" Title="Küche" WF="16384"/>
+  <C Type="Place" V="175" U="room-office" Title="Office" WF="16384"/>
+  <C Type="Category" V="175" U="cat-hardware" Title="Hardware" WF="16384"/>
+  <C Type="TreeExtension" V="175" U="ext-tree" Serial="TREE-EXT-01">
+    <C Type="TreeDevice" V="175" U="tree-touch" Title="Tree Touch Küche" Serial="TREE-TOUCH-01" DeviceType="Loxone Tree Touch">
+      <Co K="P1" U="tree-touch-p1"/>
+      <Co K="P2" U="tree-touch-p2"/>
+      <IoData Cr="cat-hardware" Pr="room-kitchen"/>
+      <C Type="TreeAsensor" V="175" U="tree-touch-temp" Title="Tree Touch Temp">
+        <Co K="AQ" U="tree-touch-temp-aq"/>
+        <IoData Cr="cat-hardware" Pr="room-kitchen"/>
+      </C>
+    </C>
+  </C>
+  <C Type="DALIextension" V="175" U="ext-dali" Serial="DALI-EXT-01">
+    <C Type="DALIDriver" V="175" U="dali-driver" Title="DALI Driver" BusAddress="192" DeviceType="DALI Driver 8ch">
+      <Co K="CH1" U="dali-driver-ch1"/>
+      <Co K="CH2" U="dali-driver-ch2"/>
+      <Co K="CH3" U="dali-driver-ch3"/>
+      <IoData Cr="cat-hardware" Pr="room-kitchen"/>
+    </C>
+  </C>
+  <C Type="KNXExtension" V="175" U="ext-knx">
+    <C Type="EIBSensor" V="175" U="knx-sensor" Title="KNX Sensor" GroupAddress="1/2/3">
+      <Co K="Q" U="knx-sensor-q"/>
+      <IoData Cr="cat-hardware" Pr="room-kitchen"/>
+    </C>
+  </C>
+  <C Type="AirExtension" V="175" U="ext-air" Serial="AIR-EXT-01">
+    <C Type="AirDevice" V="175" U="air-switch" Title="Air Switch" BusSerial="AIR-SWITCH-01">
+      <Co K="I1" U="air-switch-i1"/>
+      <IoData Cr="cat-hardware" Pr="room-kitchen"/>
+    </C>
+  </C>
+  <C Type="1WireExtension" V="175" U="ext-onewire" Serial="ONEWIRE-EXT-01">
+    <C Type="OneWireSensor" V="175" U="onewire-temp" Title="1-Wire Temp" Address="28.FF.01">
+      <Co K="AQ" U="onewire-temp-aq"/>
+      <IoData Cr="cat-hardware" Pr="room-kitchen"/>
+    </C>
+  </C>
+  <C Type="Page" V="175" U="page-office" Title="Office Page" WF="16384">
+    <C Type="WeatherData" V="175" U="standalone-weather" Title="Standalone Weather" WF="16384">
+      <Co K="AQ" U="standalone-weather-aq"/>
+      <IoData Cr="cat-hardware" Pr="room-office"/>
+    </C>
+    <C Type="Calculator" V="175" U="calc-virtual" Title="Virtual Calculator" WF="16384">
+      <Co K="Q" U="calc-virtual-q"/>
+      <IoData Cr="cat-hardware" Pr="room-office"/>
+    </C>
+    <C Type="DayTimer" V="175" U="timer-virtual" Title="Virtual Timer" WF="16384">
+      <Co K="Q" U="timer-virtual-q"/>
+      <IoData Cr="cat-hardware" Pr="room-office"/>
+    </C>
+  </C>
+</ControlList>"#;
+
     fn fixture_file() -> (TempDir, String) {
         let dir = TempDir::new().unwrap();
         let path = dir.path().join("test.Loxone");
@@ -3739,6 +3837,13 @@ mod tests {
         let dir = TempDir::new().unwrap();
         let path = dir.path().join("wires.Loxone");
         fs::write(&path, WIRES_FIXTURE_XML).unwrap();
+        (dir, path.to_str().unwrap().to_string())
+    }
+
+    fn devices_fixture_file() -> (TempDir, String) {
+        let dir = TempDir::new().unwrap();
+        let path = dir.path().join("devices.Loxone");
+        fs::write(&path, DEVICES_FIXTURE_XML).unwrap();
         (dir, path.to_str().unwrap().to_string())
     }
 
@@ -3814,6 +3919,8 @@ mod tests {
             ConfigCmd::Devices {
                 file,
                 ports: false,
+                room: None,
+                summary: false,
                 limit: None,
             },
         );
@@ -3828,6 +3935,8 @@ mod tests {
             ConfigCmd::Devices {
                 file,
                 ports: true,
+                room: None,
+                summary: false,
                 limit: None,
             },
         );
@@ -3970,6 +4079,152 @@ mod tests {
                 .iter()
                 .any(|w| { w.source.connector_uuid == "00000000-0000-0000-0000000000000000" })
         );
+    }
+
+    #[test]
+    fn test_cmd_devices_basic() {
+        let editor = ConfigEditor::load(DEVICES_FIXTURE_XML.as_bytes()).unwrap();
+        let devices = editor.config_devices(None);
+        assert_eq!(devices.len(), 6);
+        let bus_types: HashSet<_> = devices.iter().map(|d| d.bus_type.as_str()).collect();
+        assert!(bus_types.contains("tree"));
+        assert!(bus_types.contains("dali"));
+        assert!(bus_types.contains("knx"));
+        assert!(bus_types.contains("loxone-air"));
+        assert!(bus_types.contains("1-wire"));
+        assert!(bus_types.contains("standalone"));
+
+        let tree = devices.iter().find(|d| d.bus_type == "tree").unwrap();
+        assert_eq!(tree.bus_serial.as_deref(), Some("TREE-EXT-01"));
+        assert_eq!(tree.bus_address.as_deref(), Some("TREE-TOUCH-01"));
+        assert_eq!(tree.device_type, "Loxone Tree Touch");
+        assert_eq!(tree.primary_block_uuid, "tree-touch");
+        assert!(
+            tree.secondary_block_uuids
+                .contains(&"tree-touch-temp".to_string())
+        );
+        assert!(tree.connectors.iter().any(|c| {
+            c.uuid == "tree-touch-p2"
+                && c.role == "P2"
+                && c.channel_index == Some(2)
+                && c.connector_type == "parameter"
+        }));
+        assert_eq!(tree.snapshot_room_label.as_deref(), Some("Küche"));
+        assert!(!tree.low_confidence_identity);
+        assert_eq!(tree.identity_components.bus_type, "tree");
+    }
+
+    #[test]
+    fn test_cmd_devices_room_filter() {
+        let editor = ConfigEditor::load(DEVICES_FIXTURE_XML.as_bytes()).unwrap();
+        let devices = editor.config_devices(Some("Office"));
+        assert_eq!(devices.len(), 1);
+        assert_eq!(devices[0].primary_block_uuid, "standalone-weather");
+        assert_eq!(devices[0].snapshot_room_label.as_deref(), Some("Office"));
+    }
+
+    #[test]
+    fn test_cmd_devices_excluded_types_skipped() {
+        let editor = ConfigEditor::load(DEVICES_FIXTURE_XML.as_bytes()).unwrap();
+        let devices = editor.config_devices(None);
+        assert!(
+            !devices
+                .iter()
+                .any(|d| d.primary_block_uuid == "calc-virtual")
+        );
+        assert!(
+            !devices
+                .iter()
+                .any(|d| d.primary_block_uuid == "timer-virtual")
+        );
+        assert!(
+            !devices
+                .iter()
+                .any(|d| d.derived_label.contains("Virtual Calculator"))
+        );
+    }
+
+    #[test]
+    fn test_cmd_devices_dali_grouping() {
+        let editor = ConfigEditor::load(DEVICES_FIXTURE_XML.as_bytes()).unwrap();
+        let devices = editor.config_devices(None);
+        let dali = devices.iter().find(|d| d.bus_type == "dali").unwrap();
+        assert_eq!(dali.primary_block_uuid, "dali-driver");
+        assert_eq!(dali.bus_address.as_deref(), Some("192"));
+        let channels: Vec<_> = dali
+            .connectors
+            .iter()
+            .filter(|c| c.connector_type == "channel")
+            .collect();
+        assert_eq!(channels.len(), 3);
+        assert!(
+            channels
+                .iter()
+                .any(|c| c.role == "CH3" && c.channel_index == Some(3))
+        );
+    }
+
+    #[test]
+    fn test_cmd_devices_summary_flag() {
+        let (_dir, file) = devices_fixture_file();
+        let result = cmd_config(
+            &ctx(),
+            ConfigCmd::Devices {
+                file,
+                ports: false,
+                room: None,
+                summary: true,
+                limit: None,
+            },
+        );
+        assert!(result.is_ok());
+    }
+
+    #[test]
+    fn test_cmd_devices_sort_order() {
+        let editor = ConfigEditor::load(DEVICES_FIXTURE_XML.as_bytes()).unwrap();
+        let devices = editor.config_devices(None);
+        let keys: Vec<_> = devices
+            .iter()
+            .map(|d| {
+                (
+                    d.bus_type.clone(),
+                    d.bus_serial.clone(),
+                    d.bus_address.clone(),
+                    d.identity_components.channel_role.clone(),
+                    d.primary_block_uuid.clone(),
+                )
+            })
+            .collect();
+        let mut sorted = keys.clone();
+        sorted.sort();
+        assert_eq!(keys, sorted);
+    }
+
+    #[test]
+    fn test_cmd_devices_consistency_with_describe() {
+        let editor = ConfigEditor::load(DEVICES_FIXTURE_XML.as_bytes()).unwrap();
+        let devices = editor.config_devices(None);
+        let described_uuids: HashSet<_> = editor
+            .describe_config_structured(None)
+            .into_iter()
+            .flat_map(|room| room.blocks.into_iter().map(|block| block.uuid))
+            .collect();
+
+        for device in devices {
+            assert!(
+                described_uuids.contains(&device.primary_block_uuid),
+                "{} missing from describe output",
+                device.primary_block_uuid
+            );
+            for secondary_uuid in device.secondary_block_uuids {
+                assert!(
+                    described_uuids.contains(&secondary_uuid),
+                    "{} missing from describe output",
+                    secondary_uuid
+                );
+            }
+        }
     }
 
     #[test]

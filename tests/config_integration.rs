@@ -102,6 +102,21 @@ fn config_devices_ports_flag() {
         .stdout(predicate::str::is_empty().not());
 }
 
+#[test]
+fn config_devices_summary_flag_stderr_only() {
+    let dir = TempDir::new().unwrap();
+    let path = write_fixture(&dir);
+
+    lox()
+        .args(["-o", "json", "config", "devices", &path, "--summary"])
+        .assert()
+        .success()
+        .stdout(predicate::str::is_empty())
+        .stderr(predicate::str::contains(
+            "1 devices, 1 with bus_address, 0 standalone, 0 low_confidence",
+        ));
+}
+
 // ── config validate ─────────────────────────────────────────────────────────
 
 #[test]
