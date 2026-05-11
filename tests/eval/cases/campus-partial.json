@@ -1,0 +1,997 @@
+[
+  {
+    "id": "cp-001",
+    "pattern": ["partial", "complete-chain", "humidity"],
+    "utterance": "A GreaterEqual block 'Feuchte hoch' already exists with threshold set to 70. Wire the Raumfeuchtigkeit Bad sensor output to its Input1. Then add an OffDelay timer (5 minutes) on the output and connect it to the Lichtsteuerung [Bad] I1 input to keep the fan running after humidity drops.",
+    "difficulty": "medium",
+    "fixture_setup": [
+      "lox config add --type GreaterEqual --title 'Feuchte hoch' --room Bad ${FILE}",
+      "lox config set-param ${FILE} 'Feuchte hoch' Input2 70"
+    ],
+    "expected": {
+      "new_blocks": [
+        {"type": "OffDelay"}
+      ],
+      "wiring": [
+        {
+          "from_title": "Raumfeuchtigkeit Bad",
+          "from_connector": "AQ",
+          "to_title": "Feuchte hoch",
+          "to_connector": "Input1"
+        },
+        {
+          "from_title": "Feuchte hoch",
+          "from_connector": "Q",
+          "to_type": "OffDelay",
+          "to_connector": "InputTrigger"
+        },
+        {
+          "from_type": "OffDelay",
+          "from_connector": "Q",
+          "to_title": "Lichtsteuerung [Bad]",
+          "to_connector": "I1"
+        }
+      ],
+      "params": [
+        {"block_type": "OffDelay", "param": "Time", "value": "300"}
+      ],
+      "simulation": [
+        {
+          "name": "fan activates when humidity exceeds threshold",
+          "inputs": {"Raumfeuchtigkeit Bad.AQ": 75.0},
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Lichtsteuerung [Bad].I1": {">": 0.5}
+          }
+        },
+        {
+          "name": "fan stays on after humidity drops (off-delay)",
+          "inputs": {"Raumfeuchtigkeit Bad.AQ": 75.0},
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Lichtsteuerung [Bad].I1": {">": 0.5}
+          },
+          "steps": [
+            {
+              "inputs": {"Raumfeuchtigkeit Bad.AQ": 50.0},
+              "ticks": 20,
+              "expected_outputs": {
+                "Lichtsteuerung [Bad].I1": {">": 0.5}
+              }
+            }
+          ]
+        },
+        {
+          "name": "fan off when humidity never exceeded threshold",
+          "inputs": {"Raumfeuchtigkeit Bad.AQ": 50.0},
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Lichtsteuerung [Bad].I1": {"<": 0.5}
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "cp-002",
+    "pattern": ["partial", "complete-chain", "light-sensor"],
+    "utterance": "A Not block 'Nacht' already exists. Wire the Helligkeit sensor output to its input (so Nacht=1 when dark). Then connect the Not output to the Gartenbeleuchtung I1 input so the garden light turns on at night.",
+    "difficulty": "easy",
+    "fixture_setup": [
+      "lox config add --type Not --title 'Nacht' --room Garten ${FILE}"
+    ],
+    "expected": {
+      "new_blocks": [],
+      "wiring": [
+        {
+          "from_title": "Helligkeit",
+          "from_connector": "AQ",
+          "to_title": "Nacht",
+          "to_connector": "I"
+        },
+        {
+          "from_title": "Nacht",
+          "from_connector": "Q",
+          "to_title": "Gartenbeleuchtung",
+          "to_connector": "I1"
+        }
+      ],
+      "params": [],
+      "simulation": [
+        {
+          "name": "garden light on when dark",
+          "inputs": {"Helligkeit.AQ": 0.0},
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Gartenbeleuchtung.I1": {">": 0.5}
+          }
+        },
+        {
+          "name": "garden light off when bright",
+          "inputs": {"Helligkeit.AQ": 1.0},
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Gartenbeleuchtung.I1": {"<": 0.5}
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "cp-003",
+    "pattern": ["partial", "complete-chain", "wind-sun"],
+    "utterance": "An And block 'Wind und Sonne' exists with I1 already wired to Windgeschwindigkeit. Wire I2 to Sonnenschein. Then connect the And output to Jalousie 1 [Wohnzimmer] InputTriggerDown so the blinds close when it's both windy and sunny.",
+    "difficulty": "medium",
+    "fixture_setup": [
+      "lox config add --type And --title 'Wind und Sonne' --room Wohnzimmer ${FILE}",
+      "lox config wire-connector ${FILE} 'Wind und Sonne.I1' Windgeschwindigkeit.AQ"
+    ],
+    "expected": {
+      "new_blocks": [],
+      "wiring": [
+        {
+          "from_title": "Sonnenschein",
+          "from_connector": "AQ",
+          "to_title": "Wind und Sonne",
+          "to_connector": "I2"
+        },
+        {
+          "from_title": "Wind und Sonne",
+          "from_connector": "Q",
+          "to_title": "Jalousie 1 [Wohnzimmer]",
+          "to_connector": "InputTriggerDown"
+        }
+      ],
+      "params": [],
+      "simulation": [
+        {
+          "name": "blinds close when windy AND sunny",
+          "inputs": {
+            "Windgeschwindigkeit.AQ": 1.0,
+            "Sonnenschein.AQ": 1.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Jalousie 1 [Wohnzimmer].InputTriggerDown": {">": 0.5}
+          }
+        },
+        {
+          "name": "blinds do NOT close when only windy",
+          "inputs": {
+            "Windgeschwindigkeit.AQ": 1.0,
+            "Sonnenschein.AQ": 0.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Jalousie 1 [Wohnzimmer].InputTriggerDown": {"<": 0.5}
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "cp-004",
+    "pattern": ["partial", "complete-chain", "rain-protection"],
+    "utterance": "An Or block 'Wetter schlecht' exists with I1 wired to Regen. Wire I2 to a new GreaterEqual block that triggers when Windgeschwindigkeit exceeds 60 km/h. Connect the Or output to Jalousie 1 [Küche] InputTriggerUp for weather protection.",
+    "difficulty": "hard",
+    "fixture_setup": [
+      "lox config add --type Or --title 'Wetter schlecht' --room Küche ${FILE}",
+      "lox config wire-connector ${FILE} 'Wetter schlecht.I1' Regen.AQ"
+    ],
+    "expected": {
+      "new_blocks": [
+        {"type": "GreaterEqual"}
+      ],
+      "wiring": [
+        {
+          "from_title": "Windgeschwindigkeit",
+          "from_connector": "AQ",
+          "to_type": "GreaterEqual",
+          "to_connector": "Input1"
+        },
+        {
+          "from_type": "GreaterEqual",
+          "from_connector": "Q",
+          "to_title": "Wetter schlecht",
+          "to_connector": "I2"
+        },
+        {
+          "from_title": "Wetter schlecht",
+          "from_connector": "Q",
+          "to_title": "Jalousie 1 [Küche]",
+          "to_connector": "InputTriggerUp"
+        }
+      ],
+      "params": [
+        {"block_type": "GreaterEqual", "param": "Input2", "value": "60"}
+      ],
+      "simulation": [
+        {
+          "name": "blinds retract on rain",
+          "inputs": {"Regen.AQ": 1.0, "Windgeschwindigkeit.AQ": 10.0},
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Jalousie 1 [Küche].InputTriggerUp": {">": 0.5}
+          }
+        },
+        {
+          "name": "blinds retract on high wind",
+          "inputs": {"Regen.AQ": 0.0, "Windgeschwindigkeit.AQ": 70.0},
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Jalousie 1 [Küche].InputTriggerUp": {">": 0.5}
+          }
+        },
+        {
+          "name": "blinds stay when no bad weather",
+          "inputs": {"Regen.AQ": 0.0, "Windgeschwindigkeit.AQ": 20.0},
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Jalousie 1 [Küche].InputTriggerUp": {"<": 0.5}
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "cp-005",
+    "pattern": ["partial", "complete-chain", "presence-light"],
+    "utterance": "A Monoflop 'Flur Timeout' exists with Time=120. The Bewegungsmelder [Flur] is already wired to its InputTrigger. Wire the Monoflop Q output to Lichtsteuerung [Flur] I1 so the hallway light turns on for 2 minutes on motion.",
+    "difficulty": "easy",
+    "fixture_setup": [
+      "lox config add --type Monoflop --title 'Flur Timeout' --room Flur ${FILE}",
+      "lox config set-param ${FILE} 'Flur Timeout' Time 120",
+      "lox config wire-connector ${FILE} 'Flur Timeout.InputTrigger' 'Bewegungsmelder.OutputPresence'"
+    ],
+    "expected": {
+      "new_blocks": [],
+      "wiring": [
+        {
+          "from_title": "Flur Timeout",
+          "from_connector": "Q",
+          "to_title": "Lichtsteuerung [Flur]",
+          "to_connector": "I1"
+        }
+      ],
+      "params": [],
+      "simulation": [
+        {
+          "name": "light on when presence detected",
+          "inputs": {"Bewegungsmelder.OutputPresence": 1.0},
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Lichtsteuerung [Flur].I1": {">": 0.5}
+          }
+        },
+        {
+          "name": "light off when no presence for long time",
+          "inputs": {"Bewegungsmelder.OutputPresence": 0.0},
+          "ticks": 1500,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Lichtsteuerung [Flur].I1": {"<": 0.5}
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "cp-006",
+    "pattern": ["partial", "add-logic", "window-protection"],
+    "utterance": "The Schlafzimmer has Jalousie 1 and Fensterkontakt. Add window protection logic: when the window is open (Fensterkontakt Schlafzimmer = 1), disable the blinds. Use the Fensterkontakt output wired to Jalousie 1 [Schlafzimmer] InputDisable.",
+    "difficulty": "easy",
+    "fixture_setup": [],
+    "expected": {
+      "new_blocks": [],
+      "wiring": [
+        {
+          "from_title": "Fensterkontakt Schlafzimmer",
+          "from_connector": "AQ",
+          "to_title": "Jalousie 1 [Schlafzimmer]",
+          "to_connector": "InputDisable"
+        }
+      ],
+      "params": [],
+      "simulation": [
+        {
+          "name": "blinds disabled when window open",
+          "inputs": {"Fensterkontakt Schlafzimmer.AQ": 1.0},
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Jalousie 1 [Schlafzimmer].InputDisable": {">": 0.5}
+          }
+        },
+        {
+          "name": "blinds enabled when window closed",
+          "inputs": {"Fensterkontakt Schlafzimmer.AQ": 0.0},
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Jalousie 1 [Schlafzimmer].InputDisable": {"<": 0.5}
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "cp-007",
+    "pattern": ["partial", "add-logic", "humidity-control"],
+    "utterance": "The Bad has Raumfeuchtigkeit Bad and a Lichtsteuerung. Add full humidity control: a GreaterEqual threshold at 65%, then a 10-minute OffDelay, connected to Lichtsteuerung [Bad] I2. The sensor AQ goes to the threshold Input1.",
+    "difficulty": "medium",
+    "fixture_setup": [],
+    "expected": {
+      "new_blocks": [
+        {"type": "GreaterEqual"},
+        {"type": "OffDelay"}
+      ],
+      "wiring": [
+        {
+          "from_title": "Raumfeuchtigkeit Bad",
+          "from_connector": "AQ",
+          "to_type": "GreaterEqual",
+          "to_connector": "Input1"
+        },
+        {
+          "from_type": "GreaterEqual",
+          "from_connector": "Q",
+          "to_type": "OffDelay",
+          "to_connector": "InputTrigger"
+        },
+        {
+          "from_type": "OffDelay",
+          "from_connector": "Q",
+          "to_title": "Lichtsteuerung [Bad]",
+          "to_connector": "I2"
+        }
+      ],
+      "params": [
+        {"block_type": "GreaterEqual", "param": "Input2", "value": "65"},
+        {"block_type": "OffDelay", "param": "Time", "value": "600"}
+      ],
+      "simulation": [
+        {
+          "name": "fan on when humidity high",
+          "inputs": {"Raumfeuchtigkeit Bad.AQ": 70.0},
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Lichtsteuerung [Bad].I2": {">": 0.5}
+          }
+        },
+        {
+          "name": "fan off when humidity low (after delay)",
+          "inputs": {"Raumfeuchtigkeit Bad.AQ": 50.0},
+          "ticks": 7000,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Lichtsteuerung [Bad].I2": {"<": 0.5}
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "cp-008",
+    "pattern": ["partial", "add-logic", "frost-protection"],
+    "utterance": "The Garage has no frost protection. Add a GreaterEqual block (inverted: triggers when Außentemperatur drops below 3°C) and connect its output to an Or block. Wire the Or to Lichtsteuerung [Garage] I1 as a frost warning indicator.",
+    "difficulty": "medium",
+    "fixture_setup": [],
+    "expected": {
+      "new_blocks": [
+        {"type": "GreaterEqual"},
+        {"type": "Or"}
+      ],
+      "wiring": [
+        {
+          "from_title": "Außentemperatur",
+          "from_connector": "AQ",
+          "to_type": "GreaterEqual",
+          "to_connector": "Input1"
+        },
+        {
+          "from_type": "GreaterEqual",
+          "from_connector": "Q",
+          "to_type": "Or",
+          "to_connector": "I1"
+        },
+        {
+          "from_type": "Or",
+          "from_connector": "Q",
+          "to_title": "Garagenlicht",
+          "to_connector": "I1"
+        }
+      ],
+      "params": [
+        {"block_type": "GreaterEqual", "param": "Input2", "value": "3"}
+      ],
+      "simulation": [
+        {
+          "name": "frost warning activates when cold",
+          "inputs": {"Außentemperatur.AQ": 1.0},
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Garagenlicht.I1": {"<": 0.5}
+          }
+        },
+        {
+          "name": "frost warning off when warm",
+          "inputs": {"Außentemperatur.AQ": 10.0},
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Garagenlicht.I1": {">": 0.5}
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "cp-009",
+    "pattern": ["partial", "add-logic", "kitchen-ventilation"],
+    "utterance": "The Küche has Raumfeuchtigkeit Küche but no ventilation logic. Add a threshold (GreaterEqual at 60%) and a Monoflop (15 minutes) to Lichtsteuerung [Küche] I1. Sensor AQ → threshold Input1 → Monoflop trigger → light I1.",
+    "difficulty": "medium",
+    "fixture_setup": [],
+    "expected": {
+      "new_blocks": [
+        {"type": "GreaterEqual"},
+        {"type": "Monoflop"}
+      ],
+      "wiring": [
+        {
+          "from_title": "Raumfeuchtigkeit Küche",
+          "from_connector": "AQ",
+          "to_type": "GreaterEqual",
+          "to_connector": "Input1"
+        },
+        {
+          "from_type": "GreaterEqual",
+          "from_connector": "Q",
+          "to_type": "Monoflop",
+          "to_connector": "InputTrigger"
+        },
+        {
+          "from_type": "Monoflop",
+          "from_connector": "Q",
+          "to_title": "Lichtsteuerung [Küche]",
+          "to_connector": "I1"
+        }
+      ],
+      "params": [
+        {"block_type": "GreaterEqual", "param": "Input2", "value": "60"},
+        {"block_type": "Monoflop", "param": "Time", "value": "900"}
+      ],
+      "simulation": [
+        {
+          "name": "ventilation triggers on high humidity",
+          "inputs": {"Raumfeuchtigkeit Küche.AQ": 70.0},
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Lichtsteuerung [Küche].I1": {">": 0.5}
+          }
+        },
+        {
+          "name": "ventilation off on low humidity",
+          "inputs": {"Raumfeuchtigkeit Küche.AQ": 40.0},
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Lichtsteuerung [Küche].I1": {"<": 0.5}
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "cp-010",
+    "pattern": ["partial", "add-logic", "auto-blinds"],
+    "utterance": "The Wohnzimmer has Jalousie 1 but no sun automation. Add a GreaterEqual block for Außentemperatur > 25°C and an And block combining it with Sonnenschein. Wire: Außentemperatur → GreaterEqual Input1, Sonnenschein → And I1, GreaterEqual Q → And I2, And Q → Jalousie 1 [Wohnzimmer] InputTriggerDown.",
+    "difficulty": "hard",
+    "fixture_setup": [],
+    "expected": {
+      "new_blocks": [
+        {"type": "GreaterEqual"},
+        {"type": "And"}
+      ],
+      "wiring": [
+        {
+          "from_title": "Außentemperatur",
+          "from_connector": "AQ",
+          "to_type": "GreaterEqual",
+          "to_connector": "Input1"
+        },
+        {
+          "from_title": "Sonnenschein",
+          "from_connector": "AQ",
+          "to_type": "And",
+          "to_connector": "I1"
+        },
+        {
+          "from_type": "GreaterEqual",
+          "from_connector": "Q",
+          "to_type": "And",
+          "to_connector": "I2"
+        },
+        {
+          "from_type": "And",
+          "from_connector": "Q",
+          "to_title": "Jalousie 1 [Wohnzimmer]",
+          "to_connector": "InputTriggerDown"
+        }
+      ],
+      "params": [
+        {"block_type": "GreaterEqual", "param": "Input2", "value": "25"}
+      ],
+      "simulation": [
+        {
+          "name": "blinds close when hot and sunny",
+          "inputs": {
+            "Außentemperatur.AQ": 30.0,
+            "Sonnenschein.AQ": 1.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Jalousie 1 [Wohnzimmer].InputTriggerDown": {">": 0.5}
+          }
+        },
+        {
+          "name": "blinds stay open when sunny but cool",
+          "inputs": {
+            "Außentemperatur.AQ": 18.0,
+            "Sonnenschein.AQ": 1.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Jalousie 1 [Wohnzimmer].InputTriggerDown": {"<": 0.5}
+          }
+        },
+        {
+          "name": "blinds stay open when hot but cloudy",
+          "inputs": {
+            "Außentemperatur.AQ": 30.0,
+            "Sonnenschein.AQ": 0.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Jalousie 1 [Wohnzimmer].InputTriggerDown": {"<": 0.5}
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "cp-011",
+    "pattern": ["partial", "cross-room", "thermostat-wiring"],
+    "utterance": "The Wohnzimmer Raumregler (HeatIRoomController2) exists but has no temperature input. Wire the Raumtemperatur Wohnzimmer sensor AQ output to the Raumregler Temp input.",
+    "difficulty": "easy",
+    "fixture_setup": [],
+    "expected": {
+      "new_blocks": [],
+      "wiring": [
+        {
+          "from_title": "Raumtemperatur Wohnzimmer",
+          "from_connector": "AQ",
+          "to_title": "Raumregler",
+          "to_connector": "Temp"
+        }
+      ],
+      "params": [],
+      "simulation": [
+        {
+          "name": "thermostat receives room temperature",
+          "inputs": {"Raumtemperatur Wohnzimmer.AQ": 21.5},
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Raumregler.Temp": {">=": 21.0}
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "cp-012",
+    "pattern": ["partial", "cross-room", "presence-to-light"],
+    "utterance": "The Flur Lichtsteuerung exists but has no presence input. Wire the Bewegungsmelder [Flur] OutputPresence to the Lichtsteuerung [Flur] Move input for automatic motion lighting.",
+    "difficulty": "easy",
+    "fixture_setup": [],
+    "expected": {
+      "new_blocks": [],
+      "wiring": [
+        {
+          "from_title": "Bewegungsmelder",
+          "from_connector": "OutputPresence",
+          "to_title": "Lichtsteuerung [Flur]",
+          "to_connector": "Move"
+        }
+      ],
+      "params": [],
+      "simulation": [
+        {
+          "name": "light responds to presence",
+          "inputs": {"Bewegungsmelder.OutputPresence": 1.0},
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Lichtsteuerung [Flur].Move": {">": 0.5}
+          }
+        },
+        {
+          "name": "light off when no presence",
+          "inputs": {"Bewegungsmelder.OutputPresence": 0.0},
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Lichtsteuerung [Flur].Move": {"<": 0.5}
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "cp-013",
+    "pattern": ["partial", "cross-room", "window-thermostat"],
+    "utterance": "The Wohnzimmer Raumregler has no window contact. Wire the Fensterkontakt Wohnzimmer AQ output to the Raumregler Window input so heating pauses when the window is open.",
+    "difficulty": "easy",
+    "fixture_setup": [],
+    "expected": {
+      "new_blocks": [],
+      "wiring": [
+        {
+          "from_title": "Fensterkontakt Wohnzimmer",
+          "from_connector": "AQ",
+          "to_title": "Raumregler",
+          "to_connector": "Window"
+        }
+      ],
+      "params": [],
+      "simulation": [
+        {
+          "name": "heating pauses when window open",
+          "inputs": {
+            "Fensterkontakt Wohnzimmer.AQ": 1.0,
+            "Raumtemperatur Wohnzimmer.AQ": 15.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Raumregler.Window": {">": 0.5}
+          }
+        },
+        {
+          "name": "heating active when window closed",
+          "inputs": {
+            "Fensterkontakt Wohnzimmer.AQ": 0.0,
+            "Raumtemperatur Wohnzimmer.AQ": 15.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Raumregler.Window": {"<": 0.5}
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "cp-014",
+    "pattern": ["partial", "cross-room", "garden-presence"],
+    "utterance": "The Gartenbeleuchtung exists and so does the Bewegungsmelder Garten. Add a StairwayLS between them: wire Bewegungsmelder Garten OutputPresence → StairwayLS InputTrigger, then StairwayLS Q → Gartenbeleuchtung I1. Set TimeHigh to 300 seconds.",
+    "difficulty": "medium",
+    "fixture_setup": [],
+    "expected": {
+      "new_blocks": [
+        {"type": "StairwayLS"}
+      ],
+      "wiring": [
+        {
+          "from_title": "Bewegungsmelder Garten",
+          "from_connector": "OutputPresence",
+          "to_type": "StairwayLS",
+          "to_connector": "InputTrigger"
+        },
+        {
+          "from_type": "StairwayLS",
+          "from_connector": "Q",
+          "to_title": "Gartenbeleuchtung",
+          "to_connector": "I1"
+        }
+      ],
+      "params": [
+        {"block_type": "StairwayLS", "param": "TimeHigh", "value": "300"}
+      ],
+      "simulation": [
+        {
+          "name": "garden light on with presence",
+          "inputs": {"Bewegungsmelder Garten.OutputPresence": 1.0},
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Gartenbeleuchtung.I1": {">": 0.5}
+          }
+        },
+        {
+          "name": "garden light off after timeout",
+          "inputs": {"Bewegungsmelder Garten.OutputPresence": 0.0},
+          "ticks": 3500,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Gartenbeleuchtung.I1": {"<": 0.5}
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "cp-015",
+    "pattern": ["partial", "fix-improve", "temperature-guard"],
+    "utterance": "A GreaterEqual 'Sonne Trigger' exists and is wired to Jalousie 1 [Wohnzimmer] InputTriggerDown via Sonnenschein. Add a temperature guard: create a GreaterEqual for Außentemperatur > 25°C, then an And block. Rewire so Sonnenschein → And I1, new GreaterEqual Q → And I2, And Q → Jalousie InputTriggerDown. The blinds should only close when it's sunny AND hot.",
+    "difficulty": "hard",
+    "fixture_setup": [
+      "lox config add --type GreaterEqual --title 'Sonne Trigger' --room Wohnzimmer ${FILE}",
+      "lox config wire-connector ${FILE} 'Sonne Trigger.Input1' Sonnenschein.AQ",
+      "lox config wire-connector ${FILE} 'Jalousie 1 [Wohnzimmer].InputTriggerDown' 'Sonne Trigger.Q'"
+    ],
+    "expected": {
+      "new_blocks": [
+        {"type": "GreaterEqual"},
+        {"type": "And"}
+      ],
+      "wiring": [
+        {
+          "from_title": "Außentemperatur",
+          "from_connector": "AQ",
+          "to_type": "GreaterEqual",
+          "to_connector": "Input1"
+        },
+        {
+          "from_title": "Sonnenschein",
+          "from_connector": "AQ",
+          "to_type": "And",
+          "to_connector": "I1"
+        },
+        {
+          "from_type": "GreaterEqual",
+          "from_connector": "Q",
+          "to_type": "And",
+          "to_connector": "I2"
+        },
+        {
+          "from_type": "And",
+          "from_connector": "Q",
+          "to_title": "Jalousie 1 [Wohnzimmer]",
+          "to_connector": "InputTriggerDown"
+        }
+      ],
+      "params": [
+        {"block_type": "GreaterEqual", "param": "Input2", "value": "25"}
+      ],
+      "simulation": [
+        {
+          "name": "blinds close when sunny and hot",
+          "inputs": {
+            "Sonnenschein.AQ": 1.0,
+            "Außentemperatur.AQ": 30.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Jalousie 1 [Wohnzimmer].InputTriggerDown": {">": 0.5}
+          }
+        },
+        {
+          "name": "blinds stay when sunny but cool",
+          "inputs": {
+            "Sonnenschein.AQ": 1.0,
+            "Außentemperatur.AQ": 18.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Jalousie 1 [Wohnzimmer].InputTriggerDown": {"<": 0.5}
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "cp-016",
+    "pattern": ["partial", "fix-improve", "stairway-timeout"],
+    "utterance": "The Gartenbeleuchtung currently receives a direct signal from Bewegungsmelder Garten OutputPresence to its I1 input — but it has no timeout, staying on only while presence is active. Add a StairwayLS (10 minutes) between them: rewire so presence → StairwayLS InputTrigger → Gartenbeleuchtung I1.",
+    "difficulty": "medium",
+    "fixture_setup": [
+      "lox config wire-connector ${FILE} 'Gartenbeleuchtung.I1' 'Bewegungsmelder Garten.OutputPresence'"
+    ],
+    "expected": {
+      "new_blocks": [
+        {"type": "StairwayLS"}
+      ],
+      "wiring": [
+        {
+          "from_title": "Bewegungsmelder Garten",
+          "from_connector": "OutputPresence",
+          "to_type": "StairwayLS",
+          "to_connector": "InputTrigger"
+        },
+        {
+          "from_type": "StairwayLS",
+          "from_connector": "Q",
+          "to_title": "Gartenbeleuchtung",
+          "to_connector": "I1"
+        }
+      ],
+      "params": [
+        {"block_type": "StairwayLS", "param": "TimeHigh", "value": "600"}
+      ],
+      "simulation": [
+        {
+          "name": "light on with presence trigger",
+          "inputs": {"Bewegungsmelder Garten.OutputPresence": 1.0},
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Gartenbeleuchtung.I1": {">": 0.5}
+          }
+        },
+        {
+          "name": "light stays on after presence ends (timeout period)",
+          "inputs": {"Bewegungsmelder Garten.OutputPresence": 1.0},
+          "ticks": 5,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Gartenbeleuchtung.I1": {">": 0.5}
+          },
+          "steps": [
+            {
+              "inputs": {"Bewegungsmelder Garten.OutputPresence": 0.0},
+              "ticks": 20,
+              "expected_outputs": {
+                "Gartenbeleuchtung.I1": {">": 0.5}
+              }
+            }
+          ]
+        },
+        {
+          "name": "light off after full timeout",
+          "inputs": {"Bewegungsmelder Garten.OutputPresence": 0.0},
+          "ticks": 7000,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Gartenbeleuchtung.I1": {"<": 0.5}
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "cp-017",
+    "pattern": ["partial", "fix-improve", "ac-outdoor-guard"],
+    "utterance": "The Klimaanlage [Wohnzimmer] has inTempCurr wired to Raumtemperatur Wohnzimmer but no outdoor temperature guard. Add a GreaterEqual (Außentemperatur > 20°C) and wire its output to an And block. Wire And I1 from the existing AC on signal and And I2 from GreaterEqual Q. Connect And Q to Klimaanlage.on input so AC only starts when it's warm outside.",
+    "difficulty": "hard",
+    "fixture_setup": [
+      "lox config wire-connector ${FILE} 'Klimaanlage.inTempCurr' 'Raumtemperatur Wohnzimmer.AQ'"
+    ],
+    "expected": {
+      "new_blocks": [
+        {"type": "GreaterEqual"},
+        {"type": "And"}
+      ],
+      "wiring": [
+        {
+          "from_title": "Außentemperatur",
+          "from_connector": "AQ",
+          "to_type": "GreaterEqual",
+          "to_connector": "Input1"
+        },
+        {
+          "from_type": "GreaterEqual",
+          "from_connector": "Q",
+          "to_type": "And",
+          "to_connector": "I2"
+        },
+        {
+          "from_type": "And",
+          "from_connector": "Q",
+          "to_title": "Klimaanlage",
+          "to_connector": "on"
+        }
+      ],
+      "params": [
+        {"block_type": "GreaterEqual", "param": "Input2", "value": "20"}
+      ],
+      "simulation": [
+        {
+          "name": "AC activates when warm outside and triggered",
+          "inputs": {
+            "Außentemperatur.AQ": 28.0,
+            "And.I1": 1.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Klimaanlage.on": {">": 0.5}
+          }
+        },
+        {
+          "name": "AC blocked when cold outside",
+          "inputs": {
+            "Außentemperatur.AQ": 15.0,
+            "And.I1": 1.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Klimaanlage.on": {"<": 0.5}
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "cp-018",
+    "pattern": ["partial", "fix-improve", "blind-wind-safety"],
+    "utterance": "Jalousie 2 [Flur] has InputTriggerDown wired to Sonnenschein for automatic shading. Add wind safety: create a GreaterEqual for Windgeschwindigkeit > 50, wire it to Jalousie 2 [Flur] InputTriggerUp so high wind retracts the blinds regardless of sun.",
+    "difficulty": "medium",
+    "fixture_setup": [
+      "lox config wire-connector ${FILE} 'Jalousie 2 [Flur].InputTriggerDown' Sonnenschein.AQ"
+    ],
+    "expected": {
+      "new_blocks": [
+        {"type": "GreaterEqual"}
+      ],
+      "wiring": [
+        {
+          "from_title": "Windgeschwindigkeit",
+          "from_connector": "AQ",
+          "to_type": "GreaterEqual",
+          "to_connector": "Input1"
+        },
+        {
+          "from_type": "GreaterEqual",
+          "from_connector": "Q",
+          "to_title": "Jalousie 2 [Flur]",
+          "to_connector": "InputTriggerUp"
+        }
+      ],
+      "params": [
+        {"block_type": "GreaterEqual", "param": "Input2", "value": "50"}
+      ],
+      "simulation": [
+        {
+          "name": "blinds retract on high wind",
+          "inputs": {"Windgeschwindigkeit.AQ": 60.0},
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Jalousie 2 [Flur].InputTriggerUp": {">": 0.5}
+          }
+        },
+        {
+          "name": "blinds stay when wind is calm",
+          "inputs": {"Windgeschwindigkeit.AQ": 20.0},
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Jalousie 2 [Flur].InputTriggerUp": {"<": 0.5}
+          }
+        }
+      ]
+    }
+  }
+]

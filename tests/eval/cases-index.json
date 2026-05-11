@@ -147,6 +147,17 @@
                 "medium": 11,
                 "hard": 4
             }
+        },
+        "campus-partial": {
+            "file": "cases/campus-partial.json",
+            "count": 18,
+            "description": "Partial config completion: agent sees pre-built blocks and must add missing logic/wiring",
+            "fixture_setup": true,
+            "difficulties": {
+                "easy": 6,
+                "medium": 8,
+                "hard": 4
+            }
         }
     }
 }

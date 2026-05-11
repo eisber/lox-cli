@@ -161,12 +161,41 @@ AGENTS = {
 
 # ── Evaluation Flow ──────────────────────────────────────────
 
+def _run_fixture_setup(case: dict, config_path: Path, verbose: bool = False):
+    """Run fixture_setup commands to pre-build partial config before agent starts."""
+    setup_cmds = case.get("fixture_setup", [])
+    if not setup_cmds:
+        return
+    lox_bin = shutil.which("lox") or str(REPO_ROOT / "target" / "release" / "lox")
+    for cmd_template in setup_cmds:
+        cmd = cmd_template.replace("${FILE}", str(config_path))
+        if verbose:
+            print(f"  [setup] {cmd}", file=sys.stderr)
+        # Split respecting shell quoting
+        import shlex
+        parts = shlex.split(cmd)
+        # Replace 'lox' with actual binary path
+        if parts and parts[0] == "lox":
+            parts[0] = lox_bin
+        result = subprocess.run(parts, capture_output=True, text=True, timeout=30)
+        if result.returncode != 0:
+            raise RuntimeError(
+                f"fixture_setup failed: {cmd}\n{result.stderr.strip()}"
+            )
+
+
 def evaluate_case(case: dict, agent_name: str, work_dir: Path,
                   model: str = "gpt-4o", verbose: bool = False) -> dict:
     """Run one eval case: agent → sim → structural eval."""
     case_id = case["id"]
     config_path = work_dir / f"{case_id}.Loxone"
     shutil.copy2(str(FIXTURE), str(config_path))
+
+    # Run fixture_setup commands to pre-build partial config
+    try:
+        _run_fixture_setup(case, config_path, verbose=verbose)
+    except Exception as e:
+        return _error_result(case, f"fixture_setup error: {e}", 0.0, model)
 
     # Run the agent
     start = time.time()
