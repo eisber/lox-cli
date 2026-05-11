@@ -747,17 +747,9 @@ fn block_signature(
             &[],
         ),
         "JoinWindowSensor" => (&["W", "Wt", "Wl"], &["AQ", "Q"], &[]),
-        "Doorcontroller" => (
-            &["Trigger", "Lock", "Unlock"],
-            &["Q", "QLock"],
-            &[],
-        ),
+        "Doorcontroller" => (&["Trigger", "Lock", "Unlock"], &["Q", "QLock"], &[]),
         // Outdoor / garden
-        "Irrigation" => (
-            &["InputTrigger", "Rain", "Moisture"],
-            &["Q"],
-            &["Duration"],
-        ),
+        "Irrigation" => (&["InputTrigger", "Rain", "Moisture"], &["Q"], &["Duration"]),
         // I/O hardware blocks
         "EIBactor" => (&["I1", "Input"], &["Q", "AQ"], &[]),
         "EIBsensor" => (&["I1", "Input"], &["Q", "AQ"], &[]),

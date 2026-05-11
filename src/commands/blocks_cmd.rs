@@ -351,12 +351,45 @@ fn load_connector_summaries() -> HashMap<String, HashMap<String, String>> {
     raw
 }
 
+type ConnectorMap = HashMap<
+    String,
+    (
+        Vec<String>,
+        HashMap<String, String>,
+        HashMap<String, String>,
+    ),
+>;
+
+fn load_connector_map() -> ConnectorMap {
+    let json_str = include_str!("../../docs/schemas/connector-map.json");
+    let raw: HashMap<String, serde_json::Value> =
+        serde_json::from_str(json_str).unwrap_or_default();
+    let mut map = HashMap::new();
+    for (lx_type, val) in raw {
+        let conns: Vec<String> = val
+            .get("c")
+            .and_then(|c| serde_json::from_value(c.clone()).ok())
+            .unwrap_or_default();
+        let defs: HashMap<String, String> = val
+            .get("d")
+            .and_then(|d| serde_json::from_value(d.clone()).ok())
+            .unwrap_or_default();
+        let types: HashMap<String, String> = val
+            .get("t")
+            .and_then(|t| serde_json::from_value(t.clone()).ok())
+            .unwrap_or_default();
+        map.insert(lx_type, (conns, defs, types));
+    }
+    map
+}
+
 fn load_block_index() -> Vec<BlockEntry> {
     let json_str = include_str!("../../docs/schemas/loxone-block-types-full.json");
     let raw: HashMap<String, serde_json::Value> =
         serde_json::from_str(json_str).unwrap_or_default();
 
     let summaries = load_connector_summaries();
+    let cmap = load_connector_map();
 
     let mut blocks = Vec::with_capacity(raw.len());
     for (xml_type, val) in &raw {
@@ -368,7 +401,7 @@ fn load_block_index() -> Vec<BlockEntry> {
 
         let type_summaries = summaries.get(xml_type);
 
-        let connectors = val
+        let mut connectors: Vec<ConnectorEntry> = val
             .get("connectors")
             .and_then(|c| c.as_array())
             .map(|arr| {
@@ -402,6 +435,47 @@ fn load_block_index() -> Vec<BlockEntry> {
                     .collect()
             })
             .unwrap_or_default();
+
+        // Enrich with connector-map.json: add any connectors not already present
+        if let Some((cm_conns, cm_defs, cm_types)) = cmap.get(xml_type) {
+            let existing_shorts: std::collections::HashSet<String> =
+                connectors.iter().map(|c| c.short.clone()).collect();
+            let existing_names: std::collections::HashSet<String> =
+                connectors.iter().map(|c| c.name.clone()).collect();
+            // Collect %d pattern prefixes from existing names (e.g. "Qv%d" → "Qv")
+            let pattern_prefixes: Vec<String> = existing_names
+                .iter()
+                .filter_map(|n| n.strip_suffix("%d").map(|p| p.to_string()))
+                .collect();
+            for key in cm_conns {
+                if existing_shorts.contains(key) || existing_names.contains(key) {
+                    continue;
+                }
+                // Skip if key matches a %d pattern (e.g. "Qv3" matches prefix "Qv")
+                if pattern_prefixes.iter().any(|p| {
+                    key.starts_with(p.as_str())
+                        && key[p.len()..].chars().all(|c| c.is_ascii_digit())
+                }) {
+                    continue;
+                }
+                let conn_type = match cm_types.get(key).map(|s| s.as_str()) {
+                    Some("O") => "Output",
+                    Some("P") => "Parameter",
+                    _ => "Input",
+                };
+                let summary = type_summaries.and_then(|s| s.get(key)).cloned();
+                connectors.push(ConnectorEntry {
+                    conn_type: conn_type.to_string(),
+                    name: key.clone(),
+                    short: key.clone(),
+                    summary,
+                    default: cm_defs.get(key).cloned(),
+                    min: None,
+                    max: None,
+                    unit: None,
+                });
+            }
+        }
 
         blocks.push(BlockEntry {
             xml_type: xml_type.clone(),
