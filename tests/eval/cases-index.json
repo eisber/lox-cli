@@ -190,6 +190,35 @@
                 "hard": 5,
                 "expert": 1
             }
+        },
+        "novel-outdoor": {
+            "file": "cases/novel-outdoor.json",
+            "count": 15,
+            "description": "Outdoor automation: garage door, irrigation, pool/sauna, snow/frost protection, mailbox, camera lights, electric gate, chicken coop",
+            "difficulties": {
+                "medium": 5,
+                "hard": 9,
+                "expert": 1
+            }
+        },
+        "novel-safety": {
+            "file": "cases/novel-safety.json",
+            "count": 15,
+            "description": "Novel safety, monitoring, multi-zone, analog processing, counter/timer, and edge-case robustness scenarios",
+            "difficulties": {
+                "medium": 4,
+                "hard": 7,
+                "expert": 4
+            }
+        },
+        "novel-comfort": {
+            "file": "cases/novel-comfort.json",
+            "count": 15,
+            "description": "Multi-click/long-press patterns, adaptive lighting, state machines, conditional comfort, and complex temporal logic",
+            "difficulties": {
+                "hard": 8,
+                "expert": 7
+            }
         }
     }
 }

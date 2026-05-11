@@ -1,0 +1,739 @@
+[
+  {
+    "id": "nc01-double-click-all-lights",
+    "pattern": ["multi-click", "central-light"],
+    "utterance": "When I double-click the hallway button, toggle all lights in the house on or off",
+    "difficulty": "hard",
+    "expected": {
+      "new_blocks": [
+        {"type": "MultiClick", "room": "Flur", "page": "Flur"},
+        {"type": "FlipFlop", "room": "Flur", "page": "Zentral"}
+      ],
+      "wiring": [
+        {
+          "from_title": "Schalter 1",
+          "from_connector": "Q",
+          "to_type": "MultiClick",
+          "to_connector": "InputTrigger"
+        },
+        {
+          "from_type": "MultiClick",
+          "from_connector": "Q2",
+          "to_type": "FlipFlop",
+          "to_connector": "InputS"
+        }
+      ],
+      "params": [
+        {"block_type": "MultiClick", "param": "Max", "value": "2"},
+        {"block_type": "MultiClick", "param": "Time", "value": "0.4"}
+      ],
+      "simulation": [
+        {
+          "name": "double-click toggles lights on",
+          "inputs": {"Schalter 1.Q": 1.0},
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "MultiClick.Q2": {">": 0.5}
+          }
+        },
+        {
+          "name": "single-click does not trigger Q2",
+          "inputs": {"Schalter 1.Q": 0.0},
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "MultiClick.Q2": {"<": 0.5}
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "nc02-long-press-goodnight",
+    "pattern": ["long-press", "goodnight", "memory"],
+    "utterance": "If I hold the bedroom button for 2 seconds, activate a goodnight mode that turns off all bedroom lights and lowers the blinds",
+    "difficulty": "expert",
+    "expected": {
+      "new_blocks": [
+        {"type": "MultiFuncSW", "room": "Schlafzimmer", "page": "Schlafzimmer"},
+        {"type": "FlipFlop", "title_contains": "Goodnight", "room": "Schlafzimmer", "page": "Schlafzimmer"}
+      ],
+      "wiring": [
+        {
+          "from_title": "Schalter 2",
+          "from_connector": "Q",
+          "to_type": "MultiFuncSW",
+          "to_connector": "InputTrigger"
+        },
+        {
+          "from_type": "MultiFuncSW",
+          "from_connector": "Q",
+          "to_type": "FlipFlop",
+          "to_connector": "InputS"
+        }
+      ],
+      "params": [
+        {"block_type": "MultiFuncSW", "param": "TimeHigh", "value": "2"}
+      ],
+      "simulation": [
+        {
+          "name": "long press activates goodnight mode",
+          "inputs": {"Schalter 2.Q": 1.0},
+          "ticks": 30,
+          "dt": 0.1,
+          "expected_outputs": {
+            "MultiFuncSW.Q": {">": 0.5}
+          }
+        },
+        {
+          "name": "no press means goodnight stays off",
+          "inputs": {},
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "MultiFuncSW.Q": {"<": 0.5}
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "nc03-triple-click-alarm-toggle",
+    "pattern": ["multi-click", "alarm"],
+    "utterance": "Triple-clicking the garage button should arm or disarm the alarm system",
+    "difficulty": "hard",
+    "expected": {
+      "new_blocks": [
+        {"type": "MultiClick", "room": "Garage", "page": "Garage"},
+        {"type": "FlipFlop", "title_contains": "Alarm", "room": "Garage", "page": "Garage"}
+      ],
+      "wiring": [
+        {
+          "from_title": "KNX Schalter Garage",
+          "from_connector": "Q",
+          "to_type": "MultiClick",
+          "to_connector": "InputTrigger"
+        },
+        {
+          "from_type": "MultiClick",
+          "from_connector": "Q3",
+          "to_type": "FlipFlop",
+          "to_connector": "InputS"
+        },
+        {
+          "from_type": "FlipFlop",
+          "from_connector": "Q",
+          "to_title": "Alarmanlage",
+          "to_connector": "I"
+        }
+      ],
+      "params": [
+        {"block_type": "MultiClick", "param": "Max", "value": "3"},
+        {"block_type": "MultiClick", "param": "Time", "value": "0.5"}
+      ],
+      "simulation": [
+        {
+          "name": "triple-click arms alarm",
+          "inputs": {"KNX Schalter Garage.Q": 1.0},
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "MultiClick.Q3": {">": 0.5}
+          }
+        },
+        {
+          "name": "no input keeps alarm off",
+          "inputs": {},
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "MultiClick.Q3": {"<": 0.5}
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "nc04-auto-dim-ambient-brightness",
+    "pattern": ["brightness-control", "threshold", "subtraction"],
+    "utterance": "Automatically dim the living room lights when there's enough natural light — try to maintain about 300 lux in the room",
+    "difficulty": "expert",
+    "expected": {
+      "new_blocks": [
+        {"type": "Sub", "title_contains": "300", "room": "Wohnzimmer", "page": "Wohnzimmer"},
+        {"type": "GreaterEqual", "title_contains": "Lux", "room": "Wohnzimmer", "page": "Wohnzimmer"}
+      ],
+      "wiring": [
+        {
+          "from_title": "Helligkeit",
+          "from_connector": "AQ",
+          "to_type": "Sub",
+          "to_connector": "Input1"
+        },
+        {
+          "from_type": "Sub",
+          "from_connector": "AQ",
+          "to_type": "GreaterEqual",
+          "to_connector": "Input1"
+        }
+      ],
+      "params": [
+        {"block_type": "Sub", "param": "Input1", "value": "300"}
+      ],
+      "simulation": [
+        {
+          "name": "bright sunlight exceeds target",
+          "inputs": {"Helligkeit.AQ": 500.0},
+          "ticks": 5,
+          "dt": 0.1,
+          "expected_outputs": {
+            "GreaterEqual.Q": {">": 0.5}
+          }
+        },
+        {
+          "name": "dim conditions below target",
+          "inputs": {"Helligkeit.AQ": 100.0},
+          "ticks": 5,
+          "dt": 0.1,
+          "expected_outputs": {
+            "GreaterEqual.Q": {"<": 0.5}
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "nc05-color-temp-daytime",
+    "pattern": ["daylight", "daytimer", "color-temperature"],
+    "utterance": "In the evening after 8 PM, switch the living room lights to warm white, and during the morning keep them cool white",
+    "difficulty": "hard",
+    "expected": {
+      "new_blocks": [
+        {"type": "DayTimer", "title_contains": "Abend", "room": "Wohnzimmer", "page": "Wohnzimmer"}
+      ],
+      "wiring": [
+        {
+          "from_type": "DayTimer",
+          "from_connector": "AQ",
+          "to_title": "Lichtsteuerung",
+          "to_connector": "I1"
+        }
+      ],
+      "params": [],
+      "simulation": [
+        {
+          "name": "evening timer active",
+          "inputs": {"DayTimer.AQ": 1.0},
+          "ticks": 5,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Lichtsteuerung.I1": {">": 0.5}
+          }
+        },
+        {
+          "name": "morning timer inactive",
+          "inputs": {"DayTimer.AQ": 0.0},
+          "ticks": 5,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Lichtsteuerung.I1": {"<": 0.5}
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "nc06-wakeup-ramp-light",
+    "pattern": ["ramp", "alarm", "wake-up"],
+    "utterance": "15 minutes before my alarm goes off, slowly ramp the bedroom light from 0% to 100% like a sunrise",
+    "difficulty": "expert",
+    "expected": {
+      "new_blocks": [
+        {"type": "Ramp", "title_contains": "Aufwach", "room": "Schlafzimmer", "page": "Schlafzimmer"}
+      ],
+      "wiring": [
+        {
+          "from_type": "Ramp",
+          "from_connector": "AQ",
+          "to_title": "Lichtsteuerung",
+          "to_connector": "I1"
+        }
+      ],
+      "params": [
+        {"block_type": "Ramp", "param": "StartValue", "value": "0"},
+        {"block_type": "Ramp", "param": "Level1", "value": "100"},
+        {"block_type": "Ramp", "param": "Rate", "value": "0.111"}
+      ],
+      "simulation": [
+        {
+          "name": "ramp enabled increases output",
+          "inputs": {"Ramp.InputEnable": 1.0},
+          "ticks": 20,
+          "dt": 0.5,
+          "expected_outputs": {
+            "Ramp.AQ": {">": 0.0}
+          }
+        },
+        {
+          "name": "ramp disabled stays at zero",
+          "inputs": {"Ramp.InputEnable": 0.0},
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Ramp.AQ": {"<": 0.5}
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "nc07-radio-heating-modes",
+    "pattern": ["radio-button", "heating", "mode-select"],
+    "utterance": "Set up three buttons in the living room to choose between comfort, eco, and frost-protection heating — only one mode should be active at a time",
+    "difficulty": "hard",
+    "expected": {
+      "new_blocks": [
+        {"type": "Radio", "title_contains": "Heizmodus", "room": "Wohnzimmer", "page": "Wohnzimmer"}
+      ],
+      "wiring": [
+        {
+          "from_type": "Radio",
+          "from_connector": "Q1",
+          "to_title": "Raumregler",
+          "to_connector": "I1"
+        }
+      ],
+      "params": [
+        {"block_type": "Radio", "param": "Mode", "value": "3"}
+      ],
+      "simulation": [
+        {
+          "name": "selecting mode 1 activates Q1",
+          "inputs": {"Radio.InputTrigger 1": 1.0},
+          "ticks": 5,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Radio.Q1": {">": 0.5}
+          }
+        },
+        {
+          "name": "no input means no active mode",
+          "inputs": {},
+          "ticks": 5,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Radio.Q1": {"<": 0.5}
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "nc08-stepsel-fan-speed",
+    "pattern": ["step-selector", "fan", "cycle"],
+    "utterance": "Use a single button in the bathroom to cycle through 4 fan speeds: off, low, medium, and high — each press goes to the next speed and wraps around",
+    "difficulty": "hard",
+    "expected": {
+      "new_blocks": [
+        {"type": "StepSel", "title_contains": "Lüfter", "room": "Bad", "page": "Bad"}
+      ],
+      "wiring": [
+        {
+          "from_type": "StepSel",
+          "from_connector": "AQ",
+          "to_title": "Lüfter Bad",
+          "to_connector": "I1"
+        }
+      ],
+      "params": [
+        {"block_type": "StepSel", "param": "Mode", "value": "4"}
+      ],
+      "simulation": [
+        {
+          "name": "trigger advances step",
+          "inputs": {"StepSel.InputTriggerP": 1.0},
+          "ticks": 5,
+          "dt": 0.1,
+          "expected_outputs": {
+            "StepSel.AQ": {">": 0.0}
+          }
+        },
+        {
+          "name": "no trigger stays at current step",
+          "inputs": {},
+          "ticks": 5,
+          "dt": 0.1,
+          "expected_outputs": {
+            "StepSel.AQ": {"<": 0.5}
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "nc09-multifunc-button-kitchen",
+    "pattern": ["multi-function", "short-long-double"],
+    "utterance": "Make the kitchen button multi-purpose: a short press toggles the kitchen light, a long press closes the kitchen blinds, and a double-click turns off everything in the kitchen",
+    "difficulty": "expert",
+    "expected": {
+      "new_blocks": [
+        {"type": "MultiClick", "room": "Küche", "page": "Küche"},
+        {"type": "MultiFuncSW", "room": "Küche", "page": "Küche"}
+      ],
+      "wiring": [
+        {
+          "from_type": "MultiFuncSW",
+          "from_connector": "Q",
+          "to_title": "Lichtsteuerung",
+          "to_connector": "I1"
+        },
+        {
+          "from_type": "MultiClick",
+          "from_connector": "Q2",
+          "to_title": "Jalousie 1",
+          "to_connector": "InputTriggerDown"
+        }
+      ],
+      "params": [
+        {"block_type": "MultiFuncSW", "param": "TimeHigh", "value": "1"},
+        {"block_type": "MultiClick", "param": "Max", "value": "2"},
+        {"block_type": "MultiClick", "param": "Time", "value": "0.4"}
+      ],
+      "simulation": [
+        {
+          "name": "short press toggles light",
+          "inputs": {"MultiFuncSW.InputTrigger": 1.0},
+          "ticks": 5,
+          "dt": 0.1,
+          "expected_outputs": {
+            "MultiFuncSW.Q": {">": 0.5}
+          }
+        },
+        {
+          "name": "double-click fires Q2",
+          "inputs": {"MultiClick.InputTrigger": 1.0},
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "MultiClick.Q2": {">": 0.5}
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "nc10-bathroom-floor-heat-morning",
+    "pattern": ["conditional", "presence", "daytimer", "and"],
+    "utterance": "Only turn on the bathroom floor heating when someone is in the bathroom AND it's between 6 AM and 9 AM",
+    "difficulty": "hard",
+    "expected": {
+      "new_blocks": [
+        {"type": "DayTimer", "title_contains": "Morgen", "room": "Bad", "page": "Bad"},
+        {"type": "And", "title_contains": "Heiz", "room": "Bad", "page": "Bad"}
+      ],
+      "wiring": [
+        {
+          "from_type": "DayTimer",
+          "from_connector": "AQ",
+          "to_type": "And",
+          "to_connector": "I1"
+        },
+        {
+          "from_type": "And",
+          "from_connector": "Q",
+          "to_title": "Heizkörper Bad",
+          "to_connector": "I1"
+        }
+      ],
+      "params": [],
+      "simulation": [
+        {
+          "name": "morning and presence activates heating",
+          "inputs": {"DayTimer.AQ": 1.0, "And.I2": 1.0},
+          "ticks": 5,
+          "dt": 0.1,
+          "expected_outputs": {
+            "And.Q": {">": 0.5}
+          }
+        },
+        {
+          "name": "no presence keeps heating off",
+          "inputs": {"DayTimer.AQ": 1.0, "And.I2": 0.0},
+          "ticks": 5,
+          "dt": 0.1,
+          "expected_outputs": {
+            "And.Q": {"<": 0.5}
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "nc11-co2-window-ventilation",
+    "pattern": ["threshold", "and", "ventilation"],
+    "utterance": "If the CO2 level goes above 800 and all windows are closed, automatically open the kitchen window motor to ventilate",
+    "difficulty": "hard",
+    "expected": {
+      "new_blocks": [
+        {"type": "GreaterEqual", "title_contains": "CO2", "room": "Küche", "page": "Küche"},
+        {"type": "Not", "room": "Küche", "page": "Küche"},
+        {"type": "And", "title_contains": "Lüft", "room": "Küche", "page": "Küche"}
+      ],
+      "wiring": [
+        {
+          "from_title": "CO2 Sensor",
+          "from_connector": "AQ",
+          "to_type": "GreaterEqual",
+          "to_connector": "Input1"
+        },
+        {
+          "from_title": "Fensterkontakt Küche",
+          "from_connector": "Q",
+          "to_type": "Not",
+          "to_connector": "I"
+        },
+        {
+          "from_type": "GreaterEqual",
+          "from_connector": "Q",
+          "to_type": "And",
+          "to_connector": "I1"
+        },
+        {
+          "from_type": "Not",
+          "from_connector": "Q",
+          "to_type": "And",
+          "to_connector": "I2"
+        }
+      ],
+      "params": [
+        {"block_type": "GreaterEqual", "param": "Input2", "value": "800"}
+      ],
+      "simulation": [
+        {
+          "name": "high CO2 and closed window triggers ventilation",
+          "inputs": {"CO2 Sensor.AQ": 900.0, "Fensterkontakt Küche.Q": 0.0},
+          "ticks": 5,
+          "dt": 0.1,
+          "expected_outputs": {
+            "And.Q": {">": 0.5}
+          }
+        },
+        {
+          "name": "low CO2 does not trigger ventilation",
+          "inputs": {"CO2 Sensor.AQ": 500.0, "Fensterkontakt Küche.Q": 0.0},
+          "ticks": 5,
+          "dt": 0.1,
+          "expected_outputs": {
+            "And.Q": {"<": 0.5}
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "nc12-media-room-blinds-dim",
+    "pattern": ["media", "and-gate", "multi-output"],
+    "utterance": "When I turn on the TV in the living room, automatically close the blinds and switch the lights to the dim scene",
+    "difficulty": "hard",
+    "expected": {
+      "new_blocks": [
+        {"type": "FlipFlop", "title_contains": "TV", "room": "Wohnzimmer", "page": "Wohnzimmer"}
+      ],
+      "wiring": [
+        {
+          "from_type": "FlipFlop",
+          "from_connector": "Q",
+          "to_title": "Jalousie 1",
+          "to_connector": "InputTriggerDown"
+        },
+        {
+          "from_type": "FlipFlop",
+          "from_connector": "Q",
+          "to_title": "Lichtsteuerung",
+          "to_connector": "I1"
+        }
+      ],
+      "params": [],
+      "simulation": [
+        {
+          "name": "TV on triggers blinds and dim",
+          "inputs": {"FlipFlop.InputS": 1.0},
+          "ticks": 5,
+          "dt": 0.1,
+          "expected_outputs": {
+            "FlipFlop.Q": {">": 0.5}
+          }
+        },
+        {
+          "name": "TV off resets",
+          "inputs": {"FlipFlop.InputR": 1.0},
+          "ticks": 5,
+          "dt": 0.1,
+          "expected_outputs": {
+            "FlipFlop.Q": {"<": 0.5}
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "nc13-vacation-random-lights",
+    "pattern": ["vacation", "random", "daytimer"],
+    "utterance": "While we're away, randomly turn different lights on and off in the evening between 6 PM and 11 PM to make it look like someone's home — use separate random timers for the hallway and kitchen",
+    "difficulty": "expert",
+    "expected": {
+      "new_blocks": [
+        {"type": "DayTimer", "title_contains": "Abend", "room": "Flur", "page": "Zentral"},
+        {"type": "RandomGen", "title_contains": "Flur", "room": "Flur", "page": "Zentral"},
+        {"type": "RandomGen", "title_contains": "Küche", "room": "Küche", "page": "Zentral"},
+        {"type": "And", "title_contains": "Flur", "room": "Flur", "page": "Zentral"},
+        {"type": "And", "title_contains": "Küche", "room": "Küche", "page": "Zentral"}
+      ],
+      "wiring": [
+        {
+          "from_type": "DayTimer",
+          "from_connector": "AQ",
+          "to_type": "And",
+          "to_connector": "I1"
+        },
+        {
+          "from_type": "RandomGen",
+          "from_connector": "Q",
+          "to_type": "And",
+          "to_connector": "I2"
+        }
+      ],
+      "params": [
+        {"block_type": "RandomGen", "param": "TimeOn", "value": "1800"},
+        {"block_type": "RandomGen", "param": "TimeOff", "value": "2400"}
+      ],
+      "simulation": [
+        {
+          "name": "evening timer enables random gen",
+          "inputs": {"DayTimer.AQ": 1.0, "RandomGen.InputEnable": 1.0},
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "And.I1": {">": 0.5}
+          }
+        },
+        {
+          "name": "daytime keeps lights off",
+          "inputs": {"DayTimer.AQ": 0.0},
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "And.Q": {"<": 0.5}
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "nc14-staggered-startup-delays",
+    "pattern": ["on-delay", "cascade", "startup"],
+    "utterance": "After a power outage, don't turn everything on at once — start the kitchen lights first, then after 30 seconds the hallway lights, and 30 seconds later the garden lights",
+    "difficulty": "expert",
+    "expected": {
+      "new_blocks": [
+        {"type": "OnDelay", "title_contains": "Flur", "room": "Flur", "page": "Zentral"},
+        {"type": "OnDelay", "title_contains": "Garten", "room": "Garten", "page": "Zentral"}
+      ],
+      "wiring": [
+        {
+          "from_type": "OnDelay",
+          "from_connector": "Q",
+          "to_title": "Lichtsteuerung",
+          "to_connector": "I1"
+        }
+      ],
+      "params": [
+        {"block_type": "OnDelay", "param": "Time", "value": "30"}
+      ],
+      "simulation": [
+        {
+          "name": "trigger starts delay chain",
+          "inputs": {"OnDelay.InputTrigger": 1.0},
+          "ticks": 50,
+          "dt": 1.0,
+          "expected_outputs": {
+            "OnDelay.Q": {">": 0.5}
+          }
+        },
+        {
+          "name": "no trigger keeps outputs off",
+          "inputs": {},
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "OnDelay.Q": {"<": 0.5}
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "nc15-door-unlocked-reminder-blink",
+    "pattern": ["pulse-gen", "memory", "and", "reminder"],
+    "utterance": "If the front door has been left unlocked, blink the hallway light every 30 minutes as a reminder until someone locks it again",
+    "difficulty": "expert",
+    "expected": {
+      "new_blocks": [
+        {"type": "FlipFlop", "title_contains": "Schloss", "room": "Flur", "page": "Flur"},
+        {"type": "PulseGen", "title_contains": "Erinnerung", "room": "Flur", "page": "Flur"},
+        {"type": "And", "title_contains": "Blink", "room": "Flur", "page": "Flur"}
+      ],
+      "wiring": [
+        {
+          "from_title": "Türschloss",
+          "from_connector": "AQ",
+          "to_type": "FlipFlop",
+          "to_connector": "InputS"
+        },
+        {
+          "from_type": "FlipFlop",
+          "from_connector": "Q",
+          "to_type": "And",
+          "to_connector": "I1"
+        },
+        {
+          "from_type": "PulseGen",
+          "from_connector": "Q",
+          "to_type": "And",
+          "to_connector": "I2"
+        },
+        {
+          "from_type": "And",
+          "from_connector": "Q",
+          "to_title": "Lichtsteuerung",
+          "to_connector": "I1"
+        }
+      ],
+      "params": [
+        {"block_type": "PulseGen", "param": "TimeHigh", "value": "5"},
+        {"block_type": "PulseGen", "param": "TimeLow", "value": "1800"}
+      ],
+      "simulation": [
+        {
+          "name": "unlocked door and pulse triggers reminder",
+          "inputs": {"Türschloss.AQ": 1.0, "PulseGen.InputEnable": 1.0},
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "FlipFlop.Q": {">": 0.5}
+          }
+        },
+        {
+          "name": "locked door suppresses reminder",
+          "inputs": {"Türschloss.AQ": 0.0},
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "FlipFlop.Q": {"<": 0.5}
+          }
+        }
+      ]
+    }
+  }
+]

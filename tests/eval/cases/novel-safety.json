@@ -1,0 +1,1032 @@
+[
+  {
+    "id": "ns01-freezer-temp-alarm",
+    "pattern": ["monitoring", "threshold", "timer", "analog-watchdog"],
+    "utterance": "Monitor the freezer temperature sensor (Raumtemperatur Küche) — if it rises above -15°C for more than 10 minutes continuously, trigger a notification via a virtual output alarm block",
+    "difficulty": "hard",
+    "expected": {
+      "new_blocks": [
+        {
+          "type": "GreaterEqual",
+          "title_contains": "Freezer",
+          "room": "Küche"
+        },
+        {
+          "type": "OnDelay",
+          "room": "Küche"
+        },
+        {
+          "type": "VirtualOut",
+          "title_contains": "Alarm"
+        }
+      ],
+      "wiring": [
+        {
+          "from_title": "Raumtemperatur Küche",
+          "from_connector": "AQ",
+          "to_type": "GreaterEqual",
+          "to_connector": "Input1"
+        },
+        {
+          "from_type": "GreaterEqual",
+          "from_connector": "Q",
+          "to_type": "OnDelay",
+          "to_connector": "InputTrigger"
+        },
+        {
+          "from_type": "OnDelay",
+          "from_connector": "Q",
+          "to_type": "VirtualOut",
+          "to_connector": "I"
+        }
+      ],
+      "params": [
+        {
+          "block_type": "GreaterEqual",
+          "param": "Input2",
+          "value": "-15"
+        },
+        {
+          "block_type": "OnDelay",
+          "param": "Time",
+          "value": "600"
+        }
+      ],
+      "simulation": [
+        {
+          "name": "temp above threshold triggers alarm after delay",
+          "inputs": {
+            "Raumtemperatur Küche.AQ": -10.0
+          },
+          "ticks": 6500,
+          "dt": 0.1,
+          "expected_outputs": {
+            "OnDelay.Q": {">": 0.5}
+          }
+        },
+        {
+          "name": "temp below threshold no alarm",
+          "inputs": {
+            "Raumtemperatur Küche.AQ": -20.0
+          },
+          "ticks": 6500,
+          "dt": 0.1,
+          "expected_outputs": {
+            "OnDelay.Q": {"<": 0.5}
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "ns02-water-leak-instant-alarm",
+    "pattern": ["safety", "leak-detection", "instant-alarm"],
+    "utterance": "Wire the Wassersensor in the bathroom so that if it detects a leak, it instantly triggers an alarm output and also closes the main water valve (Schalter 2 acts as the valve relay)",
+    "difficulty": "medium",
+    "expected": {
+      "new_blocks": [
+        {
+          "type": "VirtualOut",
+          "title_contains": "Alarm"
+        }
+      ],
+      "wiring": [
+        {
+          "from_title": "Wassersensor",
+          "from_connector": "Q",
+          "to_type": "VirtualOut",
+          "to_connector": "I"
+        },
+        {
+          "from_title": "Wassersensor",
+          "from_connector": "Q",
+          "to_title": "Schalter 2"
+        }
+      ],
+      "params": [],
+      "simulation": [
+        {
+          "name": "leak detected triggers alarm and valve",
+          "inputs": {
+            "Wassersensor.Q": 1.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "VirtualOut.I": {">": 0.5}
+          }
+        },
+        {
+          "name": "no leak no alarm",
+          "inputs": {
+            "Wassersensor.Q": 0.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "VirtualOut.I": {"<": 0.5}
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "ns03-server-room-cooling-escalation",
+    "pattern": ["monitoring", "threshold", "timer", "escalation"],
+    "utterance": "Use the Raumtemperatur Wohnzimmer as server room temp sensor: if it goes above 30°C, immediately activate the Klimaanlage for cooling. If temp is still above 30°C after 5 minutes, also fire an alarm output using an And gate combining the threshold with the OnDelay",
+    "difficulty": "expert",
+    "expected": {
+      "new_blocks": [
+        {
+          "type": "GreaterEqual",
+          "title_contains": "30"
+        },
+        {
+          "type": "OnDelay"
+        },
+        {
+          "type": "And"
+        },
+        {
+          "type": "VirtualOut",
+          "title_contains": "Alarm"
+        }
+      ],
+      "wiring": [
+        {
+          "from_title": "Raumtemperatur Wohnzimmer",
+          "from_connector": "AQ",
+          "to_type": "GreaterEqual",
+          "to_connector": "Input1"
+        },
+        {
+          "from_type": "GreaterEqual",
+          "from_connector": "Q",
+          "to_title": "Klimaanlage"
+        },
+        {
+          "from_type": "GreaterEqual",
+          "from_connector": "Q",
+          "to_type": "OnDelay",
+          "to_connector": "InputTrigger"
+        },
+        {
+          "from_type": "GreaterEqual",
+          "from_connector": "Q",
+          "to_type": "And",
+          "to_connector": "I1"
+        },
+        {
+          "from_type": "OnDelay",
+          "from_connector": "Q",
+          "to_type": "And",
+          "to_connector": "I2"
+        },
+        {
+          "from_type": "And",
+          "from_connector": "Q",
+          "to_type": "VirtualOut",
+          "to_connector": "I"
+        }
+      ],
+      "params": [
+        {
+          "block_type": "GreaterEqual",
+          "param": "Input2",
+          "value": "30"
+        },
+        {
+          "block_type": "OnDelay",
+          "param": "Time",
+          "value": "300"
+        }
+      ],
+      "simulation": [
+        {
+          "name": "high temp activates cooling immediately",
+          "inputs": {
+            "Raumtemperatur Wohnzimmer.AQ": 35.0
+          },
+          "ticks": 20,
+          "dt": 0.1,
+          "expected_outputs": {
+            "GreaterEqual.Q": {">": 0.5}
+          }
+        },
+        {
+          "name": "sustained high temp fires escalation alarm",
+          "inputs": {
+            "Raumtemperatur Wohnzimmer.AQ": 35.0
+          },
+          "ticks": 3200,
+          "dt": 0.1,
+          "expected_outputs": {
+            "And.Q": {">": 0.5}
+          }
+        },
+        {
+          "name": "normal temp no alarm",
+          "inputs": {
+            "Raumtemperatur Wohnzimmer.AQ": 22.0
+          },
+          "ticks": 3200,
+          "dt": 0.1,
+          "expected_outputs": {
+            "And.Q": {"<": 0.5}
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "ns04-goodnight-all-rooms-reset",
+    "pattern": ["multi-zone", "macro", "fan-out"],
+    "utterance": "Create a goodnight macro: when Schalter 1 is pressed, reset lights in every room (Wohnzimmer, Schlafzimmer, Küche, Flur) to off, close all blinds (Jalousie 1 in each room), and set the Raumregler to eco mode by sending a low setpoint of 16°C",
+    "difficulty": "expert",
+    "expected": {
+      "new_blocks": [],
+      "wiring": [
+        {
+          "from_title": "Schalter 1",
+          "from_connector": "Q",
+          "to_title": "Lichtsteuerung [Wohnzimmer]",
+          "to_connector": "Reset"
+        },
+        {
+          "from_title": "Schalter 1",
+          "from_connector": "Q",
+          "to_title": "Lichtsteuerung [Schlafzimmer]",
+          "to_connector": "Reset"
+        },
+        {
+          "from_title": "Schalter 1",
+          "from_connector": "Q",
+          "to_title": "Lichtsteuerung [Küche]",
+          "to_connector": "Reset"
+        },
+        {
+          "from_title": "Schalter 1",
+          "from_connector": "Q",
+          "to_title": "Lichtsteuerung [Flur]",
+          "to_connector": "Reset"
+        },
+        {
+          "from_title": "Schalter 1",
+          "from_connector": "Q",
+          "to_title": "Jalousie 1 [Wohnzimmer]",
+          "to_connector": "InputTriggerDown"
+        },
+        {
+          "from_title": "Schalter 1",
+          "from_connector": "Q",
+          "to_title": "Jalousie 1 [Schlafzimmer]",
+          "to_connector": "InputTriggerDown"
+        },
+        {
+          "from_title": "Schalter 1",
+          "from_connector": "Q",
+          "to_title": "Jalousie 1 [Küche]",
+          "to_connector": "InputTriggerDown"
+        }
+      ],
+      "params": [],
+      "simulation": [
+        {
+          "name": "goodnight resets all lights",
+          "inputs": {
+            "Schalter 1.Q": 1.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Lichtsteuerung [Wohnzimmer].Reset": {">": 0.5},
+            "Lichtsteuerung [Schlafzimmer].Reset": {">": 0.5}
+          }
+        },
+        {
+          "name": "goodnight closes all blinds",
+          "inputs": {
+            "Schalter 1.Q": 1.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Jalousie 1 [Wohnzimmer].InputTriggerDown": {">": 0.5},
+            "Jalousie 1 [Schlafzimmer].InputTriggerDown": {">": 0.5}
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "ns05-wakeup-blinds-light-sequence",
+    "pattern": ["multi-zone", "alarm-clock", "sequence"],
+    "utterance": "Set up a wake-up sequence: when the AlarmClock fires its wake output (QTa), open the Schlafzimmer blinds (Jalousie 1) and after a 2-minute delay turn on the Küche light at 30% brightness using its Brightness input",
+    "difficulty": "hard",
+    "expected": {
+      "new_blocks": [
+        {
+          "type": "AlarmClock",
+          "room": "Schlafzimmer"
+        },
+        {
+          "type": "OnDelay",
+          "title_contains": "Küche"
+        }
+      ],
+      "wiring": [
+        {
+          "from_type": "AlarmClock",
+          "from_connector": "QTa",
+          "to_title": "Jalousie 1 [Schlafzimmer]",
+          "to_connector": "InputTriggerUp"
+        },
+        {
+          "from_type": "AlarmClock",
+          "from_connector": "QTa",
+          "to_type": "OnDelay",
+          "to_connector": "InputTrigger"
+        },
+        {
+          "from_type": "OnDelay",
+          "from_connector": "Q",
+          "to_title": "Lichtsteuerung [Küche]",
+          "to_connector": "On"
+        }
+      ],
+      "params": [
+        {
+          "block_type": "OnDelay",
+          "param": "Time",
+          "value": "120"
+        }
+      ],
+      "simulation": [
+        {
+          "name": "alarm opens blinds immediately",
+          "inputs": {
+            "AlarmClock.QTa": 1.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Jalousie 1 [Schlafzimmer].InputTriggerUp": {">": 0.5}
+          }
+        },
+        {
+          "name": "kitchen light delayed",
+          "inputs": {
+            "AlarmClock.QTa": 1.0
+          },
+          "ticks": 1300,
+          "dt": 0.1,
+          "expected_outputs": {
+            "OnDelay.Q": {">": 0.5}
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "ns06-party-mode-all-rooms-sel3",
+    "pattern": ["multi-zone", "macro", "scene", "fan-out"],
+    "utterance": "Create a party mode button on Schalter 2: when pressed, select scene 3 (Sel3) on all LightControllers in Wohnzimmer and Küche, close all blinds in Wohnzimmer and Schlafzimmer, and turn on the Gartenbeleuchtung",
+    "difficulty": "hard",
+    "expected": {
+      "new_blocks": [],
+      "wiring": [
+        {
+          "from_title": "Schalter 2",
+          "from_connector": "Q",
+          "to_title": "Lichtsteuerung [Wohnzimmer]",
+          "to_connector": "Sel3"
+        },
+        {
+          "from_title": "Schalter 2",
+          "from_connector": "Q",
+          "to_title": "Lichtsteuerung [Küche]",
+          "to_connector": "Sel3"
+        },
+        {
+          "from_title": "Schalter 2",
+          "from_connector": "Q",
+          "to_title": "Jalousie 1 [Wohnzimmer]",
+          "to_connector": "InputTriggerDown"
+        },
+        {
+          "from_title": "Schalter 2",
+          "from_connector": "Q",
+          "to_title": "Jalousie 1 [Schlafzimmer]",
+          "to_connector": "InputTriggerDown"
+        },
+        {
+          "from_title": "Schalter 2",
+          "from_connector": "Q",
+          "to_title": "Gartenbeleuchtung",
+          "to_connector": "On"
+        }
+      ],
+      "params": [],
+      "simulation": [
+        {
+          "name": "party mode activates scenes and closes blinds",
+          "inputs": {
+            "Schalter 2.Q": 1.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Lichtsteuerung [Wohnzimmer].Sel3": {">": 0.5},
+            "Lichtsteuerung [Küche].Sel3": {">": 0.5},
+            "Jalousie 1 [Wohnzimmer].InputTriggerDown": {">": 0.5},
+            "Gartenbeleuchtung.On": {">": 0.5}
+          }
+        },
+        {
+          "name": "no party when switch off",
+          "inputs": {
+            "Schalter 2.Q": 0.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Lichtsteuerung [Wohnzimmer].Sel3": {"<": 0.5}
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "ns07-analog-scaler-sensor-percent",
+    "pattern": ["analog", "scaler", "display"],
+    "utterance": "Add an AnalogScaler block to convert the CO2 Sensor reading from its raw 0-10V range to a 0-100% display value, with source range 0-10 mapping to destination range 0-100",
+    "difficulty": "medium",
+    "expected": {
+      "new_blocks": [
+        {
+          "type": "AnalogScaler",
+          "title_contains": "CO2"
+        }
+      ],
+      "wiring": [
+        {
+          "from_title": "CO2 Sensor",
+          "from_connector": "AQ",
+          "to_type": "AnalogScaler",
+          "to_connector": "Input"
+        }
+      ],
+      "params": [
+        {
+          "block_type": "AnalogScaler",
+          "param": "Src1",
+          "value": "0"
+        },
+        {
+          "block_type": "AnalogScaler",
+          "param": "Dst1",
+          "value": "0"
+        },
+        {
+          "block_type": "AnalogScaler",
+          "param": "Src2",
+          "value": "10"
+        },
+        {
+          "block_type": "AnalogScaler",
+          "param": "Dst2",
+          "value": "100"
+        }
+      ],
+      "simulation": [
+        {
+          "name": "mid-range input scales correctly",
+          "inputs": {
+            "CO2 Sensor.AQ": 5.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "AnalogScaler.AQ": {">=": 49.0}
+          }
+        },
+        {
+          "name": "zero input maps to zero",
+          "inputs": {
+            "CO2 Sensor.AQ": 0.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "AnalogScaler.AQ": {"<": 1.0}
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "ns08-analog-mux-garage-setpoints",
+    "pattern": ["analog", "multiplexer", "mode-select"],
+    "utterance": "Add an AnalogMultiplexer in the Garage to select between three temperature setpoints: Input1=22 (comfort when occupied), Input2=10 (frost protection when away), Input3=18 (standby). Use the KNX Schalter Garage to cycle the Select parameter",
+    "difficulty": "hard",
+    "expected": {
+      "new_blocks": [
+        {
+          "type": "AnalogMultiplexer",
+          "title_contains": "Setpoint",
+          "room": "Garage"
+        }
+      ],
+      "wiring": [
+        {
+          "from_title": "KNX Schalter Garage",
+          "from_connector": "Q",
+          "to_type": "AnalogMultiplexer",
+          "to_connector": "InputDisable"
+        }
+      ],
+      "params": [
+        {
+          "block_type": "AnalogMultiplexer",
+          "param": "Input1",
+          "value": "22"
+        },
+        {
+          "block_type": "AnalogMultiplexer",
+          "param": "Input2",
+          "value": "10"
+        },
+        {
+          "block_type": "AnalogMultiplexer",
+          "param": "Input3",
+          "value": "18"
+        }
+      ],
+      "simulation": [
+        {
+          "name": "default selects first input (comfort)",
+          "inputs": {},
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "AnalogMultiplexer.AQ": {">=": 21.0}
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "ns09-avg-smooth-threshold",
+    "pattern": ["analog", "averaging", "threshold"],
+    "utterance": "Feed the Pool Temperatur sensor through an Avg block to compute a smoothed 10-sample average, then wire the averaged output to a GreaterEqual threshold at 28°C that triggers a notification output when the pool is too warm",
+    "difficulty": "hard",
+    "expected": {
+      "new_blocks": [
+        {
+          "type": "Avg",
+          "title_contains": "Pool"
+        },
+        {
+          "type": "GreaterEqual",
+          "title_contains": "28"
+        },
+        {
+          "type": "VirtualOut",
+          "title_contains": "Pool"
+        }
+      ],
+      "wiring": [
+        {
+          "from_title": "Pool Temperatur",
+          "from_connector": "AQ",
+          "to_type": "Avg",
+          "to_connector": "Input"
+        },
+        {
+          "from_type": "Avg",
+          "from_connector": "AQ",
+          "to_type": "GreaterEqual",
+          "to_connector": "Input1"
+        },
+        {
+          "from_type": "GreaterEqual",
+          "from_connector": "Q",
+          "to_type": "VirtualOut",
+          "to_connector": "I"
+        }
+      ],
+      "params": [
+        {
+          "block_type": "Avg",
+          "param": "Max",
+          "value": "10"
+        },
+        {
+          "block_type": "GreaterEqual",
+          "param": "Input2",
+          "value": "28"
+        }
+      ],
+      "simulation": [
+        {
+          "name": "high temp triggers after averaging",
+          "inputs": {
+            "Pool Temperatur.AQ": 32.0
+          },
+          "ticks": 120,
+          "dt": 0.1,
+          "expected_outputs": {
+            "GreaterEqual.Q": {">": 0.5}
+          }
+        },
+        {
+          "name": "cool temp no alarm",
+          "inputs": {
+            "Pool Temperatur.AQ": 20.0
+          },
+          "ticks": 120,
+          "dt": 0.1,
+          "expected_outputs": {
+            "GreaterEqual.Q": {"<": 0.5}
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "ns10-hour-counter-pump-maintenance",
+    "pattern": ["counter", "maintenance", "hour-counter"],
+    "utterance": "Add an HourCounter to track operating hours of the Garten irrigation pump (use Bewässerung Manuell as the enable signal). Set the maintenance threshold to 1000 hours so the Q output fires when service is needed",
+    "difficulty": "hard",
+    "expected": {
+      "new_blocks": [
+        {
+          "type": "HourCounter",
+          "title_contains": "Pump",
+          "room": "Garten"
+        }
+      ],
+      "wiring": [
+        {
+          "from_title": "Bewässerung Manuell",
+          "from_connector": "Q",
+          "to_type": "HourCounter",
+          "to_connector": "InputEnable"
+        }
+      ],
+      "params": [
+        {
+          "block_type": "HourCounter",
+          "param": "Maintenance",
+          "value": "1000"
+        }
+      ],
+      "simulation": [
+        {
+          "name": "counter increments when pump enabled",
+          "inputs": {
+            "Bewässerung Manuell.Q": 1.0
+          },
+          "ticks": 100,
+          "dt": 0.1,
+          "expected_outputs": {
+            "HourCounter.AQ": {">": 0.0}
+          }
+        },
+        {
+          "name": "counter idle when pump off",
+          "inputs": {
+            "Bewässerung Manuell.Q": 0.0
+          },
+          "ticks": 100,
+          "dt": 0.1,
+          "expected_outputs": {
+            "HourCounter.AQ": {"<": 0.01}
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "ns11-counter-door-openings-daily",
+    "pattern": ["counter", "daily-reset", "statistics"],
+    "utterance": "Count how many times the Türkontakt Eingang opens each day using a Counter block. Wire the door contact rising edge to the Counter trigger, and add a DayTimer configured for midnight to reset the counter daily",
+    "difficulty": "hard",
+    "expected": {
+      "new_blocks": [
+        {
+          "type": "EdgeDetection"
+        },
+        {
+          "type": "Counter",
+          "title_contains": "Door"
+        },
+        {
+          "type": "DayTimer",
+          "title_contains": "Reset"
+        }
+      ],
+      "wiring": [
+        {
+          "from_title": "Türkontakt Eingang",
+          "from_connector": "Q",
+          "to_type": "EdgeDetection",
+          "to_connector": "Input"
+        },
+        {
+          "from_type": "EdgeDetection",
+          "from_connector": "RisingEdge",
+          "to_type": "Counter",
+          "to_connector": "Trigger"
+        }
+      ],
+      "params": [],
+      "simulation": [
+        {
+          "name": "door opening increments counter",
+          "inputs": {
+            "Türkontakt Eingang.Q": 1.0
+          },
+          "ticks": 20,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Counter.AQ": {">": 0.0}
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "ns12-sequence-controller-irrigation-zones",
+    "pattern": ["sequence", "irrigation", "timer"],
+    "utterance": "Set up a SequenceController to step through 4 irrigation zones in sequence — wire the Bewässerung Manuell switch to the ATrigger input to start the sequence, with each zone (AQ1 through AQ4) running for 15 minutes before advancing to the next",
+    "difficulty": "expert",
+    "expected": {
+      "new_blocks": [
+        {
+          "type": "SequenceController",
+          "title_contains": "Irrigation",
+          "room": "Garten"
+        }
+      ],
+      "wiring": [
+        {
+          "from_title": "Bewässerung Manuell",
+          "from_connector": "Q",
+          "to_type": "SequenceController",
+          "to_connector": "ATrigger"
+        }
+      ],
+      "params": [
+        {
+          "block_type": "SequenceController",
+          "param": "AI1",
+          "value": "900"
+        },
+        {
+          "block_type": "SequenceController",
+          "param": "AI2",
+          "value": "900"
+        },
+        {
+          "block_type": "SequenceController",
+          "param": "AI3",
+          "value": "900"
+        },
+        {
+          "block_type": "SequenceController",
+          "param": "AI4",
+          "value": "900"
+        }
+      ],
+      "simulation": [
+        {
+          "name": "trigger starts sequence",
+          "inputs": {
+            "Bewässerung Manuell.Q": 1.0
+          },
+          "ticks": 20,
+          "dt": 0.1,
+          "expected_outputs": {
+            "SequenceController.AQ1": {">": 0.5}
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "ns13-debounce-reed-switch",
+    "pattern": ["edge-case", "debounce", "filter"],
+    "utterance": "The Garagentor Sensor reed switch is noisy and triggers false alarms. Add an OnDelay of 0.5 seconds to debounce it before wiring the filtered signal to a VirtualOut alarm block — only sustained contact closure should trigger",
+    "difficulty": "medium",
+    "expected": {
+      "new_blocks": [
+        {
+          "type": "OnDelay",
+          "title_contains": "Debounce"
+        },
+        {
+          "type": "VirtualOut",
+          "title_contains": "Alarm"
+        }
+      ],
+      "wiring": [
+        {
+          "from_title": "Garagentor Sensor",
+          "from_connector": "Q",
+          "to_type": "OnDelay",
+          "to_connector": "InputTrigger"
+        },
+        {
+          "from_type": "OnDelay",
+          "from_connector": "Q",
+          "to_type": "VirtualOut",
+          "to_connector": "I"
+        }
+      ],
+      "params": [
+        {
+          "block_type": "OnDelay",
+          "param": "Time",
+          "value": "0.5"
+        }
+      ],
+      "simulation": [
+        {
+          "name": "sustained signal passes through",
+          "inputs": {
+            "Garagentor Sensor.Q": 1.0
+          },
+          "ticks": 15,
+          "dt": 0.1,
+          "expected_outputs": {
+            "OnDelay.Q": {">": 0.5}
+          }
+        },
+        {
+          "name": "brief glitch filtered out",
+          "inputs": {
+            "Garagentor Sensor.Q": 0.0
+          },
+          "ticks": 3,
+          "dt": 0.1,
+          "expected_outputs": {
+            "OnDelay.Q": {"<": 0.5}
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "ns14-manual-override-bypass",
+    "pattern": ["edge-case", "priority", "override"],
+    "utterance": "Create a manual override for the Garagenlicht: wire both the Präsenzmelder [Garage] automatic output and the KNX Schalter Garage manual switch into an Or gate. The manual switch should always be able to turn on the light regardless of automation state, bypassing the presence detector logic",
+    "difficulty": "medium",
+    "expected": {
+      "new_blocks": [
+        {
+          "type": "Or",
+          "title_contains": "Override"
+        }
+      ],
+      "wiring": [
+        {
+          "from_title": "Präsenzmelder [Garage]",
+          "from_connector": "Q",
+          "to_type": "Or",
+          "to_connector": "I1"
+        },
+        {
+          "from_title": "KNX Schalter Garage",
+          "from_connector": "Q",
+          "to_type": "Or",
+          "to_connector": "I2"
+        },
+        {
+          "from_type": "Or",
+          "from_connector": "Q",
+          "to_title": "Garagenlicht",
+          "to_connector": "On"
+        }
+      ],
+      "params": [],
+      "simulation": [
+        {
+          "name": "manual switch overrides automation off",
+          "inputs": {
+            "Präsenzmelder [Garage].Q": 0.0,
+            "KNX Schalter Garage.Q": 1.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Or.Q": {">": 0.5}
+          }
+        },
+        {
+          "name": "presence alone activates light",
+          "inputs": {
+            "Präsenzmelder [Garage].Q": 1.0,
+            "KNX Schalter Garage.Q": 0.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Or.Q": {">": 0.5}
+          }
+        },
+        {
+          "name": "both off keeps light off",
+          "inputs": {
+            "Präsenzmelder [Garage].Q": 0.0,
+            "KNX Schalter Garage.Q": 0.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Or.Q": {"<": 0.5}
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "ns15-hysteresis-heating-flipflop",
+    "pattern": ["edge-case", "hysteresis", "hvac", "flipflop"],
+    "utterance": "Implement heating hysteresis for the Schlafzimmer using the Raumtemperatur Schlafzimmer sensor: add two GreaterEqual thresholds — one at 19°C and one at 21°C. Wire them to a FlipFlop so heating turns on when temp drops below 19°C (inverted >=19 goes to Set) and turns off when it rises above 21°C (>=21 goes to Reset). Connect the FlipFlop output to a VirtualOut heating relay",
+    "difficulty": "expert",
+    "expected": {
+      "new_blocks": [
+        {
+          "type": "GreaterEqual",
+          "title_contains": "19"
+        },
+        {
+          "type": "GreaterEqual",
+          "title_contains": "21"
+        },
+        {
+          "type": "Not"
+        },
+        {
+          "type": "FlipFlop"
+        },
+        {
+          "type": "VirtualOut",
+          "title_contains": "Heating"
+        }
+      ],
+      "wiring": [
+        {
+          "from_title": "Raumtemperatur Schlafzimmer",
+          "from_connector": "AQ",
+          "to_type": "GreaterEqual",
+          "to_connector": "Input1"
+        },
+        {
+          "from_type": "Not",
+          "from_connector": "Q",
+          "to_type": "FlipFlop",
+          "to_connector": "InputS"
+        },
+        {
+          "from_type": "FlipFlop",
+          "from_connector": "Q",
+          "to_type": "VirtualOut",
+          "to_connector": "I"
+        }
+      ],
+      "params": [
+        {
+          "block_type": "GreaterEqual",
+          "param": "Input2",
+          "value": "19"
+        }
+      ],
+      "simulation": [
+        {
+          "name": "cold temp turns heating on",
+          "inputs": {
+            "Raumtemperatur Schlafzimmer.AQ": 17.0
+          },
+          "ticks": 20,
+          "dt": 0.1,
+          "expected_outputs": {
+            "FlipFlop.Q": {">": 0.5}
+          }
+        },
+        {
+          "name": "hot temp turns heating off",
+          "inputs": {
+            "Raumtemperatur Schlafzimmer.AQ": 23.0
+          },
+          "ticks": 20,
+          "dt": 0.1,
+          "expected_outputs": {
+            "FlipFlop.Q": {"<": 0.5}
+          }
+        }
+      ]
+    }
+  }
+]
