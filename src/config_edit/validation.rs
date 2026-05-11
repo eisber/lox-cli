@@ -128,6 +128,30 @@ impl ConfigEditor {
             &mut uuid_block_count,
         );
 
+        // Resolve title-based wiring ("BlockTitle.ConnKey") to UUIDs so output
+        // connectivity checks work for both UUID and title-based references.
+        let mut title_conn_to_uuid: HashMap<String, String> = HashMap::new();
+        for elem in self.iter_elements(&self.root) {
+            if let Some(title) = elem.attributes.get("Title") {
+                for child in &elem.children {
+                    if let Some(co) = child.as_element()
+                        && co.name == "Co"
+                        && let (Some(k), Some(u)) = (co.attributes.get("K"), co.attributes.get("U"))
+                    {
+                        title_conn_to_uuid.insert(format!("{}.{}", title, k), u.clone());
+                    }
+                }
+            }
+        }
+        for title_ref in wired_outputs.clone() {
+            if title_ref.contains('.')
+                && !title_ref.contains('-')
+                && let Some(uuid) = title_conn_to_uuid.get(&title_ref)
+            {
+                wired_outputs.insert(uuid.clone());
+            }
+        }
+
         // Walk all blocks
         struct CheckCtx<'a> {
             param_checks: &'a [(&'a str, &'a str, &'a str)],

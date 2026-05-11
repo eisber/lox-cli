@@ -801,7 +801,8 @@ impl Block for State {
                 let cur = inputs.get(i).copied().unwrap_or(0.0);
                 let prev = prev_inputs.get(i).copied().unwrap_or(0.0);
                 if !is_high(prev) && is_high(cur) {
-                    self.current = (i - 1) % num_states;
+                    // 1-indexed: I1 → state 1, I2 → state 2, etc.
+                    self.current = ((i - 1) % num_states) + 1;
                     break;
                 }
             }
@@ -1069,15 +1070,15 @@ mod tests {
     #[test]
     fn state_selects_on_rising_edge() {
         let mut block = State::new();
-        // Select state 1 (input index 2, i.e., second state trigger)
+        // Select state 2 via second state trigger (inputs[2] = I2)
         let out = block.eval(&[0.0, 0.0, 1.0], &[3.0], 0.0, &[0.0, 0.0, 0.0]);
-        assert_eq!(out, vec![1.0]);
-        // Stays in state 1 without new edges
+        assert_eq!(out, vec![2.0]);
+        // Stays in state 2 without new edges
         let out = block.eval(&[0.0, 0.0, 0.0], &[3.0], 0.0, &[0.0, 0.0, 1.0]);
-        assert_eq!(out, vec![1.0]);
-        // Select state 0
+        assert_eq!(out, vec![2.0]);
+        // Select state 1 via first state trigger (inputs[1] = I1)
         let out = block.eval(&[0.0, 1.0, 0.0], &[3.0], 0.0, &[0.0, 0.0, 0.0]);
-        assert_eq!(out, vec![0.0]);
+        assert_eq!(out, vec![1.0]);
         // Reset
         let out = block.eval(&[1.0, 0.0, 0.0], &[3.0], 0.0, &[0.0, 1.0, 0.0]);
         assert_eq!(out, vec![0.0]);

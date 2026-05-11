@@ -683,7 +683,11 @@ fn block_signature(
                 "Servicemode",
             ],
         ),
-        "State" => (&["I1", "I2", "I3", "I4", "I5"], &["AQ"], &["NumStates"]),
+        "State" => (
+            &["R", "I1", "I2", "I3", "I4", "I5"],
+            &["AQ"],
+            &["NumStates"],
+        ),
         "StateV" => (&["I"], &["AQ"], &[]),
         "SysVar" => (&["I1"], &["AQ"], &[]),
         "VirtualIn" | "VirtualOut" => (&["I1", "Input"], &["Q", "AQ", "Qm"], &[]),
