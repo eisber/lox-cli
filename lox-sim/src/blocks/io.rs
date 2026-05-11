@@ -148,6 +148,22 @@ passthrough_io_block!(
 );
 
 // ---------------------------------------------------------------------------
+// Hardware analog/digital inputs
+// ---------------------------------------------------------------------------
+
+passthrough_io_block!(
+    /// Analog voltage input — hardware analog reading (pass-through).
+    VoltageIn,
+    "VoltageIn"
+);
+
+passthrough_io_block!(
+    /// Digital input — hardware digital state (pass-through).
+    DigitalIn,
+    "DigitalIn"
+);
+
+// ---------------------------------------------------------------------------
 // Tests
 // ---------------------------------------------------------------------------
 
@@ -185,6 +201,20 @@ mod tests {
     }
 
     #[test]
+    fn voltage_in_passthrough() {
+        let mut block = VoltageIn;
+        assert_eq!(block.eval(&[3.3], &[], 0.0, &[]), vec![3.3]);
+        assert_eq!(block.eval(&[], &[], 0.0, &[]), vec![0.0]);
+    }
+
+    #[test]
+    fn digital_in_passthrough() {
+        let mut block = DigitalIn;
+        assert_eq!(block.eval(&[1.0], &[], 0.0, &[]), vec![1.0]);
+        assert_eq!(block.eval(&[0.0], &[], 0.0, &[]), vec![0.0]);
+    }
+
+    #[test]
     fn factory_creates_all_io_types() {
         use crate::blocks::create_block;
         for name in &[
@@ -199,6 +229,8 @@ mod tests {
             "VirtualIn",
             "VirtualOut",
             "VirtualState",
+            "VoltageIn",
+            "DigitalIn",
         ] {
             let block = create_block(name);
             assert_eq!(block.block_type(), *name, "Factory mismatch for {name}");

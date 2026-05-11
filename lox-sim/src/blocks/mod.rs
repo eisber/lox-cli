@@ -34,8 +34,9 @@ pub use energy::{
     MeterPBi, MeterPUni, PVProductionForecast, Wallbox,
 };
 pub use io::{
-    EIBPush, EIBactor, EIBextactor, EIBsensor, EibDimmer, InputRef, LoxAIRAsensor, LoxAIRsensor,
-    OutputRef, OutputRefLM, TreeAsensor, TreeSensor, VirtualIn, VirtualOut, VirtualState,
+    DigitalIn, EIBPush, EIBactor, EIBextactor, EIBsensor, EibDimmer, InputRef, LoxAIRAsensor,
+    LoxAIRsensor, OutputRef, OutputRefLM, TreeAsensor, TreeSensor, VirtualIn, VirtualOut,
+    VirtualState, VoltageIn,
 };
 pub use logic::{Equal, Nand, Nor, Not, NotEqual, Or, Xor};
 pub use math::{
@@ -522,6 +523,9 @@ pub fn create_block(block_type: &str) -> Box<dyn Block> {
         "TreeAsensor" => Box::new(TreeAsensor),
         "LoxAIRsensor" => Box::new(LoxAIRsensor),
         "LoxAIRAsensor" => Box::new(LoxAIRAsensor),
+        // Group D — I/O: Hardware analog/digital inputs
+        "VoltageIn" => Box::new(VoltageIn),
+        "DigitalIn" => Box::new(DigitalIn),
 
         // Group D — Misc: Math/Encoding
         "Average" => Box::new(Average),
@@ -639,16 +643,16 @@ pub fn create_block(block_type: &str) -> Box<dyn Block> {
         "SteakThermo" => Box::new(SteakThermo),
         "SpotOpt" => Box::new(SpotOpt),
 
-        // Group D — Misc: Access/door stubs
+        // Group D — Misc: Access/door
         "Door" => Box::new(Door),
-        "Doorcontroller" => Box::new(Doorcontroller),
+        "Doorcontroller" => Box::new(Doorcontroller::new()),
 
         // Group D — Misc: Shade/window stubs
         "RoofWindow" => Box::new(RoofWindow),
         "ShadeRoof" => Box::new(ShadeRoof),
 
-        // Group D — Misc: Outdoor stubs
-        "Irrigation" => Box::new(Irrigation),
+        // Group D — Misc: Outdoor
+        "Irrigation" => Box::new(Irrigation::new()),
         "Leaf" => Box::new(Leaf),
         "Weed" => Box::new(Weed),
         "Wind" => Box::new(Wind),

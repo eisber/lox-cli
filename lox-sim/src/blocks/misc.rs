@@ -1567,11 +1567,75 @@ stub_block!(
     "Door"
 );
 
-stub_block!(
-    /// Door controller — pass-through stub.
-    Doorcontroller,
-    "Doorcontroller"
-);
+// ---------------------------------------------------------------------------
+// Doorcontroller — door access with lock/unlock
+// ---------------------------------------------------------------------------
+
+// WARNING: Simplified model — real Loxone behavior may differ.
+// Assumption: Rising edge on Lock/Unlock toggles lock state.
+// Trigger opens door only when unlocked. Validate against Miniserver.
+
+/// Door controller with lock state and trigger.
+#[derive(Clone, Default)]
+pub struct Doorcontroller {
+    locked: bool,
+}
+
+impl Doorcontroller {
+    pub fn new() -> Self {
+        Self::default()
+    }
+}
+
+impl Block for Doorcontroller {
+    /// Inputs: [Trigger, Lock, Unlock]
+    /// Outputs: [Q (door open), QLock (locked)]
+    fn eval(
+        &mut self,
+        inputs: &[Signal],
+        _params: &[Signal],
+        _dt: f64,
+        prev_inputs: &[Signal],
+    ) -> Vec<Signal> {
+        let trigger = inputs.first().copied().unwrap_or(0.0);
+        let lock_cmd = inputs.get(1).copied().unwrap_or(0.0);
+        let unlock_cmd = inputs.get(2).copied().unwrap_or(0.0);
+
+        let prev_lock = prev_inputs.get(1).copied().unwrap_or(0.0);
+        let prev_unlock = prev_inputs.get(2).copied().unwrap_or(0.0);
+
+        // Rising edge on Lock → lock
+        if !is_high(prev_lock) && is_high(lock_cmd) {
+            self.locked = true;
+        }
+        // Rising edge on Unlock → unlock
+        if !is_high(prev_unlock) && is_high(unlock_cmd) {
+            self.locked = false;
+        }
+
+        let door_open = is_high(trigger) && !self.locked;
+
+        vec![bool_signal(door_open), bool_signal(self.locked)]
+    }
+
+    fn state(&self) -> Option<Vec<u8>> {
+        Some(vec![u8::from(self.locked)])
+    }
+
+    fn restore(&mut self, state: &[u8]) {
+        if let Some(&b) = state.first() {
+            self.locked = b != 0;
+        }
+    }
+
+    fn block_type(&self) -> &str {
+        "Doorcontroller"
+    }
+
+    fn is_edge_sensitive(&self) -> bool {
+        true
+    }
+}
 
 // ---------------------------------------------------------------------------
 // Shade / window stubs
@@ -1593,11 +1657,80 @@ stub_block!(
 // Outdoor / garden stubs
 // ---------------------------------------------------------------------------
 
-stub_block!(
-    /// Irrigation control — pass-through stub.
-    Irrigation,
-    "Irrigation"
-);
+// ---------------------------------------------------------------------------
+// Irrigation — timer-based watering with rain/moisture inhibit
+// ---------------------------------------------------------------------------
+
+// WARNING: Simplified model — real Loxone behavior may differ.
+// Assumption: Rising edge on InputTrigger starts a countdown timer (Duration param).
+// Rain or high Moisture inhibit starting and cancel active watering.
+// Validate against Miniserver.
+
+/// Irrigation valve control with rain/moisture inhibit.
+#[derive(Clone, Default)]
+pub struct Irrigation {
+    timer: f64,
+}
+
+impl Irrigation {
+    pub fn new() -> Self {
+        Self::default()
+    }
+}
+
+impl Block for Irrigation {
+    /// Inputs: [InputTrigger, Rain, Moisture]
+    /// Params: [Duration (seconds, default 300)]
+    /// Outputs: [Q (valve open)]
+    fn eval(
+        &mut self,
+        inputs: &[Signal],
+        params: &[Signal],
+        dt: f64,
+        prev_inputs: &[Signal],
+    ) -> Vec<Signal> {
+        let trigger = inputs.first().copied().unwrap_or(0.0);
+        let rain = inputs.get(1).copied().unwrap_or(0.0);
+        let moisture = inputs.get(2).copied().unwrap_or(0.0);
+        let duration = params.first().copied().unwrap_or(300.0).max(0.0);
+
+        let prev_trigger = prev_inputs.first().copied().unwrap_or(0.0);
+
+        // Rising edge on trigger starts watering (unless rain or high moisture)
+        if !is_high(prev_trigger) && is_high(trigger) && !is_high(rain) && !is_high(moisture) {
+            self.timer = duration;
+        }
+
+        // Rain or high moisture stops irrigation immediately
+        if is_high(rain) || is_high(moisture) {
+            self.timer = 0.0;
+        }
+
+        if self.timer > 0.0 {
+            self.timer = (self.timer - dt).max(0.0);
+        }
+
+        vec![bool_signal(self.timer > 0.0)]
+    }
+
+    fn state(&self) -> Option<Vec<u8>> {
+        Some(serialize_f64s(&[self.timer]))
+    }
+
+    fn restore(&mut self, state: &[u8]) {
+        if let Some(v) = deserialize_f64s(state, 1) {
+            self.timer = v[0];
+        }
+    }
+
+    fn block_type(&self) -> &str {
+        "Irrigation"
+    }
+
+    fn is_edge_sensitive(&self) -> bool {
+        true
+    }
+}
 
 stub_block!(
     /// Leaf wetness sensor — pass-through stub.
@@ -1655,11 +1788,79 @@ stub_block!(
     "Roomcontrol"
 );
 
-stub_block!(
-    /// Windows monitor — pass-through stub.
-    WindowsMonitor,
-    "WindowsMonitor"
-);
+// ---------------------------------------------------------------------------
+// WindowsMonitor — consolidated window state monitoring
+// ---------------------------------------------------------------------------
+
+// WARNING: Simplified model — real Loxone behavior may differ.
+// Assumption: W/Wt/Wl represent a single window's open/tilt/lock states.
+// HI1-HI3 are additional handle inputs treated as open indicators.
+// Remanence input is ignored. Validate against Miniserver.
+
+/// Consolidated window monitoring — aggregates open/tilt/lock states.
+#[derive(Clone, Copy)]
+pub struct WindowsMonitor;
+
+impl Block for WindowsMonitor {
+    /// Inputs: [W, Wt, Wl, HI1, HI2, HI3, Remanence]
+    /// Outputs: [AQo, AQt, AQc, AQof, AQl, AQu, TQ, TQo]
+    fn eval(
+        &mut self,
+        inputs: &[Signal],
+        _params: &[Signal],
+        _dt: f64,
+        _prev: &[Signal],
+    ) -> Vec<Signal> {
+        let w = inputs.first().copied().unwrap_or(0.0);
+        let wt = inputs.get(1).copied().unwrap_or(0.0);
+        let wl = inputs.get(2).copied().unwrap_or(0.0);
+        let hi1 = inputs.get(3).copied().unwrap_or(0.0);
+        let hi2 = inputs.get(4).copied().unwrap_or(0.0);
+        let hi3 = inputs.get(5).copied().unwrap_or(0.0);
+
+        let open_sources = [w, hi1, hi2, hi3];
+        let open_count = open_sources.iter().filter(|&&v| is_high(v)).count() as f64;
+        let any_open = open_count > 0.0;
+        let tilted = is_high(wt);
+        let locked = is_high(wl);
+
+        let tilt_count = if tilted { 1.0 } else { 0.0 };
+        let closed_count = if !any_open && !tilted { 1.0 } else { 0.0 };
+        let all_open_flag = bool_signal(any_open);
+        let lock_count = if locked { 1.0 } else { 0.0 };
+        let unlock_count = if !locked { 1.0 } else { 0.0 };
+        // TQ: status value (0 = closed, 0.5 = tilted, 1 = open)
+        let status = if any_open {
+            1.0
+        } else if tilted {
+            0.5
+        } else {
+            0.0
+        };
+        let text_open = bool_signal(any_open);
+
+        vec![
+            open_count,    // AQo
+            tilt_count,    // AQt
+            closed_count,  // AQc
+            all_open_flag, // AQof
+            lock_count,    // AQl
+            unlock_count,  // AQu
+            status,        // TQ
+            text_open,     // TQo
+        ]
+    }
+
+    fn state(&self) -> Option<Vec<u8>> {
+        None
+    }
+
+    fn restore(&mut self, _state: &[u8]) {}
+
+    fn block_type(&self) -> &str {
+        "WindowsMonitor"
+    }
+}
 
 stub_block!(
     /// TPF controller — pass-through stub.
@@ -1979,9 +2180,147 @@ mod tests {
         assert_eq!(Tablet.block_type(), "Tablet");
         assert_eq!(DeviceTablet.block_type(), "Device Tablet");
         assert_eq!(Door.block_type(), "Door");
-        assert_eq!(Doorcontroller.block_type(), "Doorcontroller");
-        assert_eq!(Irrigation.block_type(), "Irrigation");
+        assert_eq!(Doorcontroller::new().block_type(), "Doorcontroller");
+        assert_eq!(Irrigation::new().block_type(), "Irrigation");
         assert_eq!(WindowsMonitor.block_type(), "WindowsMonitor");
+    }
+
+    // --- WindowsMonitor ---
+
+    #[test]
+    fn windows_monitor_all_closed() {
+        let mut block = WindowsMonitor;
+        let out = block.eval(&[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], &[], 0.0, &[]);
+        assert_eq!(out[0], 0.0); // AQo: no open
+        assert_eq!(out[2], 1.0); // AQc: closed
+        assert_eq!(out[6], 0.0); // TQ: status closed
+    }
+
+    #[test]
+    fn windows_monitor_open_and_tilted() {
+        let mut block = WindowsMonitor;
+        // W=1 (open), Wt=1 (tilted), Wl=0 (unlocked)
+        let out = block.eval(&[1.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0], &[], 0.0, &[]);
+        assert_eq!(out[0], 1.0); // AQo: 1 open
+        assert_eq!(out[1], 1.0); // AQt: 1 tilted
+        assert_eq!(out[2], 0.0); // AQc: not closed
+        assert_eq!(out[3], 1.0); // AQof: open flag
+        assert_eq!(out[5], 1.0); // AQu: unlocked
+        assert_eq!(out[6], 1.0); // TQ: open status
+    }
+
+    #[test]
+    fn windows_monitor_locked() {
+        let mut block = WindowsMonitor;
+        // Wl=1 (locked), everything else closed
+        let out = block.eval(&[0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0], &[], 0.0, &[]);
+        assert_eq!(out[4], 1.0); // AQl: locked
+        assert_eq!(out[5], 0.0); // AQu: not unlocked
+    }
+
+    #[test]
+    fn windows_monitor_handle_inputs() {
+        let mut block = WindowsMonitor;
+        // HI1 and HI3 active
+        let out = block.eval(&[0.0, 0.0, 0.0, 1.0, 0.0, 1.0, 0.0], &[], 0.0, &[]);
+        assert_eq!(out[0], 2.0); // AQo: 2 open (HI1 + HI3)
+        assert_eq!(out[3], 1.0); // AQof: open flag
+    }
+
+    // --- Doorcontroller ---
+
+    #[test]
+    fn doorcontroller_trigger_when_unlocked() {
+        let mut dc = Doorcontroller::new();
+        let out = dc.eval(&[1.0, 0.0, 0.0], &[], 0.0, &[0.0, 0.0, 0.0]);
+        assert_eq!(out[0], 1.0); // Q: door open
+        assert_eq!(out[1], 0.0); // QLock: unlocked
+    }
+
+    #[test]
+    fn doorcontroller_lock_blocks_trigger() {
+        let mut dc = Doorcontroller::new();
+        // Lock rising edge
+        dc.eval(&[0.0, 1.0, 0.0], &[], 0.0, &[0.0, 0.0, 0.0]);
+        // Now trigger with lock held
+        let out = dc.eval(&[1.0, 0.0, 0.0], &[], 0.0, &[0.0, 1.0, 0.0]);
+        assert_eq!(out[0], 0.0); // Q: door stays closed
+        assert_eq!(out[1], 1.0); // QLock: locked
+    }
+
+    #[test]
+    fn doorcontroller_unlock_allows_trigger() {
+        let mut dc = Doorcontroller::new();
+        // Lock
+        dc.eval(&[0.0, 1.0, 0.0], &[], 0.0, &[0.0, 0.0, 0.0]);
+        // Unlock rising edge
+        dc.eval(&[0.0, 0.0, 1.0], &[], 0.0, &[0.0, 1.0, 0.0]);
+        // Trigger
+        let out = dc.eval(&[1.0, 0.0, 0.0], &[], 0.0, &[0.0, 0.0, 1.0]);
+        assert_eq!(out[0], 1.0); // Q: door open
+        assert_eq!(out[1], 0.0); // QLock: unlocked
+    }
+
+    #[test]
+    fn doorcontroller_state_roundtrip() {
+        let mut dc = Doorcontroller::new();
+        dc.eval(&[0.0, 1.0, 0.0], &[], 0.0, &[0.0, 0.0, 0.0]);
+        let state = dc.state().unwrap();
+        let mut restored = Doorcontroller::new();
+        restored.restore(&state);
+        assert_eq!(restored.locked, dc.locked);
+    }
+
+    // --- Irrigation ---
+
+    #[test]
+    fn irrigation_trigger_starts_timer() {
+        let mut irr = Irrigation::new();
+        let out = irr.eval(&[1.0, 0.0, 0.0], &[10.0], 0.0, &[0.0, 0.0, 0.0]);
+        assert_eq!(out[0], 1.0); // Q: valve open
+    }
+
+    #[test]
+    fn irrigation_timer_expires() {
+        let mut irr = Irrigation::new();
+        irr.eval(&[1.0, 0.0, 0.0], &[5.0], 0.0, &[0.0, 0.0, 0.0]);
+        let out = irr.eval(&[0.0, 0.0, 0.0], &[5.0], 6.0, &[1.0, 0.0, 0.0]);
+        assert_eq!(out[0], 0.0); // Q: valve closed after timeout
+    }
+
+    #[test]
+    fn irrigation_rain_inhibits() {
+        let mut irr = Irrigation::new();
+        // Trigger with rain active — should not start
+        let out = irr.eval(&[1.0, 1.0, 0.0], &[10.0], 0.0, &[0.0, 0.0, 0.0]);
+        assert_eq!(out[0], 0.0); // Q: inhibited by rain
+    }
+
+    #[test]
+    fn irrigation_rain_stops_active() {
+        let mut irr = Irrigation::new();
+        // Start watering
+        irr.eval(&[1.0, 0.0, 0.0], &[60.0], 0.0, &[0.0, 0.0, 0.0]);
+        // Rain starts — should stop
+        let out = irr.eval(&[0.0, 1.0, 0.0], &[60.0], 1.0, &[1.0, 0.0, 0.0]);
+        assert_eq!(out[0], 0.0); // Q: stopped by rain
+    }
+
+    #[test]
+    fn irrigation_moisture_inhibits() {
+        let mut irr = Irrigation::new();
+        let out = irr.eval(&[1.0, 0.0, 1.0], &[10.0], 0.0, &[0.0, 0.0, 0.0]);
+        assert_eq!(out[0], 0.0); // Q: inhibited by moisture
+    }
+
+    #[test]
+    fn irrigation_state_roundtrip() {
+        let mut irr = Irrigation::new();
+        irr.eval(&[1.0, 0.0, 0.0], &[60.0], 0.0, &[0.0, 0.0, 0.0]);
+        let state = irr.state().unwrap();
+        let mut restored = Irrigation::new();
+        restored.restore(&state);
+        assert_eq!(restored.timer, irr.timer);
     }
 
     // --- Factory test ---

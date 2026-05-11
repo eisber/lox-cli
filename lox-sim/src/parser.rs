@@ -729,6 +729,41 @@ fn block_signature(
             ],
             &[],
         ),
+        // Central override controllers
+        "CentralLight" => (
+            &["AllOn", "AllOff", "AllScene", "InputDisable"],
+            &["AQ", "AQScene", "Active"],
+            &[],
+        ),
+        "CentralShade" => (
+            &["AllUp", "AllDown", "AllShade", "AllPos", "InputDisable"],
+            &["AQ", "QAnyMoving", "Active"],
+            &[],
+        ),
+        // Window/door monitoring
+        "WindowsMonitor" => (
+            &["W", "Wt", "Wl", "HI1", "HI2", "HI3", "Remanence"],
+            &["AQo", "AQt", "AQc", "AQof", "AQl", "AQu", "TQ", "TQo"],
+            &[],
+        ),
+        "JoinWindowSensor" => (&["W", "Wt", "Wl"], &["AQ", "Q"], &[]),
+        "Doorcontroller" => (
+            &["Trigger", "Lock", "Unlock"],
+            &["Q", "QLock"],
+            &[],
+        ),
+        // Outdoor / garden
+        "Irrigation" => (
+            &["InputTrigger", "Rain", "Moisture"],
+            &["Q"],
+            &["Duration"],
+        ),
+        // I/O hardware blocks
+        "EIBactor" => (&["I1", "Input"], &["Q", "AQ"], &[]),
+        "EIBsensor" => (&["I1", "Input"], &["Q", "AQ"], &[]),
+        "MeterAbsUni" => (&["I1"], &["AQ"], &[]),
+        "VoltageIn" => (&["I1"], &["AQ"], &[]),
+        "DigitalIn" => (&["I1"], &["Q"], &[]),
         // Structural/cosmetic blocks
         "VirtualInCaption" | "WeatherServer" | "LightscenesC" | "LightsceneC" | "TreeDevice"
         | "LoxAIRDevice" | "NetworkDevice" | "LoxCaption" => (&[], &[], &[]),
