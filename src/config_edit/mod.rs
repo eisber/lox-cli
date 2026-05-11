@@ -278,21 +278,83 @@ pub struct ConfigEditor {
     pub root: Element,
     had_bom: bool,
     had_crlf: bool,
+    /// Attributes renamed from digit-prefixed originals (e.g. `12hTF` → `_12hTF`).
+    /// Stored as (sanitized, original) pairs for round-trip restoration in `to_bytes()`.
+    digit_attr_renames: Vec<(String, String)>,
 }
 
 impl ConfigEditor {
     /// Load a .Loxone XML file for editing.
+    ///
+    /// Loxone Config can produce attributes with digit-prefixed names (e.g. `12hTF="true"`)
+    /// which are technically invalid XML. We sanitize these before parsing and restore
+    /// them on write-back.
     pub fn load(data: &[u8]) -> Result<Self> {
         let had_bom = data.starts_with(UTF8_BOM);
         let had_crlf = data.windows(2).any(|w| w == b"\r\n");
         let xml_data = if had_bom { &data[3..] } else { data };
-        let reader = BufReader::new(Cursor::new(xml_data));
+
+        let (xml_data_cow, digit_attr_renames) = Self::sanitize_digit_attrs(xml_data);
+        let reader = BufReader::new(Cursor::new(xml_data_cow.as_ref()));
         let root = Element::parse(reader).context("Failed to parse Loxone XML")?;
         Ok(ConfigEditor {
             root,
             had_bom,
             had_crlf,
+            digit_attr_renames,
         })
+    }
+
+    /// Find attribute names starting with a digit and rename them with an underscore prefix.
+    /// Returns the (possibly modified) data and a list of (sanitized, original) pairs.
+    fn sanitize_digit_attrs(data: &[u8]) -> (std::borrow::Cow<'_, [u8]>, Vec<(String, String)>) {
+        let text = match std::str::from_utf8(data) {
+            Ok(s) => s,
+            Err(_) => return (std::borrow::Cow::Borrowed(data), Vec::new()),
+        };
+
+        // Scan for ` <digit><word-chars>=` patterns (attribute with digit-prefixed name).
+        let mut renames: Vec<(String, String)> = Vec::new();
+        let bytes = text.as_bytes();
+        let len = bytes.len();
+        let mut i = 0;
+        while i < len {
+            // Look for a space/tab/newline followed by a digit
+            if (bytes[i] == b' ' || bytes[i] == b'\t' || bytes[i] == b'\n' || bytes[i] == b'\r')
+                && i + 1 < len
+                && bytes[i + 1].is_ascii_digit()
+            {
+                // Read the attribute name: digits and word chars until '='
+                let start = i + 1;
+                let mut end = start;
+                while end < len && (bytes[end].is_ascii_alphanumeric() || bytes[end] == b'_') {
+                    end += 1;
+                }
+                if end < len && bytes[end] == b'=' && end > start {
+                    let original = &text[start..end];
+                    let sanitized = format!("_{original}");
+                    if !renames.iter().any(|(_, o)| o == original) {
+                        renames.push((sanitized, original.to_string()));
+                    }
+                }
+            }
+            i += 1;
+        }
+
+        if renames.is_empty() {
+            return (std::borrow::Cow::Borrowed(data), renames);
+        }
+
+        // Apply replacements
+        let mut result = text.to_string();
+        for (sanitized, original) in &renames {
+            // Replace ` <original>=` with ` _<original>=` — the leading space ensures
+            // we only match attribute positions, not content.
+            let from = format!(" {original}=");
+            let to = format!(" {sanitized}=");
+            result = result.replace(&from, &to);
+        }
+        (std::borrow::Cow::Owned(result.into_bytes()), renames)
     }
 
     /// Get a mutable reference to an element by path.
@@ -1423,5 +1485,37 @@ mod tests {
             "Test fixture too small — only {} elements checked, expected ≥15",
             input_attrs.len()
         );
+    }
+
+    #[test]
+    fn test_digit_prefixed_attr_roundtrip() {
+        let xml = br#"<?xml version="1.0" encoding="utf-8"?>
+<C Type="IRoomControllerV2" 12hTF="true" Title="HVAC" U="u1"/>"#;
+        let editor = ConfigEditor::load(xml).unwrap();
+
+        // The sanitized attr should be accessible in the DOM as _12hTF
+        assert_eq!(editor.root.attributes.get("_12hTF").unwrap(), "true");
+        assert_eq!(
+            editor.digit_attr_renames,
+            vec![("_12hTF".to_string(), "12hTF".to_string())]
+        );
+
+        // Round-trip: to_bytes must restore the original digit-prefixed name
+        let output = editor.to_bytes().unwrap();
+        let output_str = std::str::from_utf8(&output).unwrap();
+        assert!(
+            output_str.contains(" 12hTF=\"true\""),
+            "Original attribute name not restored: {output_str}"
+        );
+        assert!(
+            !output_str.contains("_12hTF"),
+            "Sanitized name leaked into output: {output_str}"
+        );
+    }
+
+    #[test]
+    fn test_no_digit_attrs_is_noop() {
+        let editor = ConfigEditor::load(SAMPLE_XML).unwrap();
+        assert!(editor.digit_attr_renames.is_empty());
     }
 }

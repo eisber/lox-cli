@@ -18,6 +18,17 @@ impl ConfigEditor {
             .write_with_config(&mut buf, config)
             .context("Failed to write XML")?;
 
+        // Post-process: restore digit-prefixed attribute names
+        if !self.digit_attr_renames.is_empty() {
+            let mut s = String::from_utf8(buf).context("XML is not valid UTF-8")?;
+            for (sanitized, original) in &self.digit_attr_renames {
+                let from = format!(" {sanitized}=");
+                let to = format!(" {original}=");
+                s = s.replace(&from, &to);
+            }
+            buf = s.into_bytes();
+        }
+
         // Post-process: restore BOM
         if self.had_bom {
             let mut result = Vec::with_capacity(3 + buf.len());
