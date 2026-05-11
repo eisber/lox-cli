@@ -219,6 +219,37 @@
                 "hard": 8,
                 "expert": 7
             }
+        },
+        "blocks-hvac-energy": {
+            "file": "cases/blocks-hvac-energy.json",
+            "count": 15,
+            "description": "HVAC, energy, central, and outdoor block type coverage: solar pump, EV charger, pool controller, roof window, central alarm, sauna, leaf sensor, jalousie motor",
+            "difficulties": {
+                "easy": 4,
+                "medium": 6,
+                "hard": 5
+            }
+        },
+        "blocks-ui-access": {
+            "file": "cases/blocks-ui-access.json",
+            "count": 15,
+            "description": "UI, media, access control, and metering blocks: AalEmergency, AalSmartAlarm, Access, CallGen, MailGen, MediaClient, EIBJalousie, EIBPush, EibDimmer, Lightscene, LightsceneLearn, LightsceneRGB, MeterPBi, MeterPSt, PresenceController, Radio2, Sequencer, TpfController",
+            "difficulties": {
+                "easy": 1,
+                "medium": 6,
+                "hard": 6,
+                "expert": 2
+            }
+        },
+        "blocks-logic": {
+            "file": "cases/blocks-logic.json",
+            "count": 15,
+            "description": "Logic, math, timing, and UI block types: 2Point, 3Point, UpDownCounter, AnalogStepper, BrightnessControl, DaylightController, PushDimmer, EdgeWipingRelay, Shift, AnalogWatchdog, AnalogComparator, AnalogDiffTrigger, TimeMinmax, Code4, BinEncoder",
+            "difficulties": {
+                "easy": 3,
+                "medium": 9,
+                "hard": 3
+            }
         }
     }
 }
