@@ -158,6 +158,38 @@
                 "medium": 8,
                 "hard": 4
             }
+        },
+        "campus-hvac": {
+            "file": "cases/campus-hvac.json",
+            "count": 15,
+            "description": "HVAC and climate patterns from campus wiring graph: setpoint switching, window inhibit, bathroom heating, central mode, status display",
+            "difficulties": {
+                "easy": 3,
+                "medium": 5,
+                "hard": 4,
+                "expert": 3
+            }
+        },
+        "campus-hotel": {
+            "file": "cases/campus-hotel.json",
+            "count": 15,
+            "description": "Hotel room automation: NFC checkout sequences, cleaning notifications, central overrides, night-mode timers",
+            "difficulties": {
+                "medium": 6,
+                "hard": 8,
+                "expert": 1
+            }
+        },
+        "campus-lighting": {
+            "file": "cases/campus-lighting.json",
+            "count": 15,
+            "description": "Presence detection and lighting patterns from campus hotel wiring graph: checkout resets, night-mode scenes, humidity fan hold, card-in/out state machines",
+            "difficulties": {
+                "easy": 3,
+                "medium": 6,
+                "hard": 5,
+                "expert": 1
+            }
         }
     }
 }

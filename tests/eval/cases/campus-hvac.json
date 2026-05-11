@@ -1,0 +1,1259 @@
+[
+  {
+    "id": "ch-001",
+    "pattern": [
+      "heating-mode-setpoints",
+      "analog-multiplexer",
+      "setpoint-switch"
+    ],
+    "utterance": "Set up comfort/eco setpoint switching for the Wohnzimmer: use an AnalogMultiplexer to select 22°C when the room is occupied and 18°C when empty, and wire the output to the Raumregler setpoint input",
+    "difficulty": "medium",
+    "source": "campus-wiring-graph: heating-mode-setpoints pattern — AnalogMultiplexer selects setpoint based on occupancy",
+    "expected": {
+      "new_blocks": [
+        {
+          "type": "AnalogMultiplexer2",
+          "title": "Set Setpoint"
+        }
+      ],
+      "wiring": [
+        {
+          "from_type": "AnalogMultiplexer2",
+          "from_connector": "AQ",
+          "to_title": "Raumregler",
+          "to_room": "Wohnzimmer",
+          "to_connector": "SetpointOverride"
+        }
+      ],
+      "params": [
+        {
+          "block_type": "AnalogMultiplexer2",
+          "param": "Input1",
+          "value": "18"
+        },
+        {
+          "block_type": "AnalogMultiplexer2",
+          "param": "Input2",
+          "value": "22"
+        }
+      ],
+      "simulation": [
+        {
+          "name": "occupied room gets comfort setpoint 22",
+          "inputs": {
+            "Set Setpoint.Select": 1.0
+          },
+          "ticks": 5,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Set Setpoint.AQ": {
+              "==": 22.0
+            }
+          }
+        },
+        {
+          "name": "empty room gets eco setpoint 18",
+          "inputs": {
+            "Set Setpoint.Select": 0.0
+          },
+          "ticks": 5,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Set Setpoint.AQ": {
+              "==": 18.0
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "ch-002",
+    "pattern": [
+      "heating-mode-setpoints",
+      "occupancy-mode",
+      "irc-cascade"
+    ],
+    "utterance": "Build a 3-mode occupancy setpoint selector for the Wohnzimmer Raumregler: AnalogMultiplexer with comfort=22°C, eco=18°C, off=15°C. Wire a NotEqual block to detect when the mode is not 'off', and feed the multiplexer output to the IRC setpoint",
+    "difficulty": "hard",
+    "source": "campus-wiring-graph: heating-mode-setpoints — NotEqual:HCM Mode + AnalogMultiplexer2:Set Setpoint → IRC",
+    "expected": {
+      "new_blocks": [
+        {
+          "type": "AnalogMultiplexer2",
+          "title": "Set Setpoint"
+        },
+        {
+          "type": "NotEqual",
+          "title": "HCM Mode"
+        }
+      ],
+      "wiring": [
+        {
+          "from_type": "AnalogMultiplexer2",
+          "from_connector": "AQ",
+          "to_title": "Raumregler",
+          "to_room": "Wohnzimmer",
+          "to_connector": "SetpointOverride"
+        },
+        {
+          "from_type": "NotEqual",
+          "from_connector": "Q",
+          "to_title": "Raumregler",
+          "to_room": "Wohnzimmer",
+          "to_connector": "Move"
+        }
+      ],
+      "params": [
+        {
+          "block_type": "AnalogMultiplexer2",
+          "param": "Input1",
+          "value": "15"
+        },
+        {
+          "block_type": "AnalogMultiplexer2",
+          "param": "Input2",
+          "value": "18"
+        },
+        {
+          "block_type": "AnalogMultiplexer2",
+          "param": "Input3",
+          "value": "22"
+        },
+        {
+          "block_type": "NotEqual",
+          "param": "Input2",
+          "value": "0"
+        }
+      ],
+      "simulation": [
+        {
+          "name": "mode 0 selects off setpoint 15",
+          "inputs": {
+            "Set Setpoint.Select": 0.0,
+            "HCM Mode.Input1": 0.0
+          },
+          "ticks": 5,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Set Setpoint.AQ": {
+              "==": 15.0
+            },
+            "HCM Mode.Q": {
+              "==": 0.0
+            }
+          }
+        },
+        {
+          "name": "mode 2 selects comfort setpoint 22",
+          "inputs": {
+            "Set Setpoint.Select": 2.0,
+            "HCM Mode.Input1": 2.0
+          },
+          "ticks": 5,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Set Setpoint.AQ": {
+              "==": 22.0
+            },
+            "HCM Mode.Q": {
+              ">": 0.5
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "ch-003",
+    "pattern": [
+      "window-heating-inhibit",
+      "window-sensor",
+      "debounce"
+    ],
+    "utterance": "Add a 2-minute window-close delay before re-enabling heating: when Fensterkontakt Wohnzimmer goes low, start an OnDelay, and only clear Raumregler.Window after 2 minutes so the heating doesn't cycle rapidly",
+    "difficulty": "medium",
+    "source": "campus-wiring-graph: window-heating-inhibit — OnDelay:O16733 debounces window close",
+    "expected": {
+      "new_blocks": [
+        {
+          "type": "OnDelay"
+        }
+      ],
+      "wiring": [
+        {
+          "from_title": "Fensterkontakt Wohnzimmer",
+          "from_connector": "AQ",
+          "to_type": "OnDelay",
+          "to_connector": "InputTrigger"
+        },
+        {
+          "from_type": "OnDelay",
+          "from_connector": "Q",
+          "to_title": "Raumregler",
+          "to_room": "Wohnzimmer",
+          "to_connector": "Window"
+        }
+      ],
+      "params": [
+        {
+          "block_type": "OnDelay",
+          "param": "Time",
+          "value": "120"
+        }
+      ],
+      "simulation": [
+        {
+          "name": "window open immediately inhibits heating",
+          "inputs": {
+            "Fensterkontakt Wohnzimmer.AQ": 1.0
+          },
+          "ticks": 5,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Raumregler [Wohnzimmer].Window": {
+              ">": 0.5
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "ch-004",
+    "pattern": [
+      "window-heating-inhibit",
+      "and-gate",
+      "memory"
+    ],
+    "utterance": "Combine the Wohnzimmer window and door contacts into a single heating inhibit signal: wire both Fensterkontakt Wohnzimmer and Türkontakt Wohnzimmer through an Or gate, then into a Memory block to latch the 'window open' state, and connect Memory.Q to Raumregler.Window",
+    "difficulty": "hard",
+    "source": "campus-wiring-graph: window-heating-inhibit — And:Fenster offen + Memory:Außentüre Offen",
+    "expected": {
+      "new_blocks": [
+        {
+          "type": "Or",
+          "title": "Fenster offen"
+        },
+        {
+          "type": "Memory",
+          "title": "Window State"
+        }
+      ],
+      "wiring": [
+        {
+          "from_title": "Fensterkontakt Wohnzimmer",
+          "from_connector": "AQ",
+          "to_type": "Or",
+          "to_connector": "I1"
+        },
+        {
+          "from_title": "Türkontakt Wohnzimmer",
+          "from_connector": "AQ",
+          "to_type": "Or",
+          "to_connector": "I2"
+        },
+        {
+          "from_type": "Or",
+          "from_connector": "Q",
+          "to_type": "Memory",
+          "to_connector": "Input"
+        },
+        {
+          "from_type": "Memory",
+          "from_connector": "Q",
+          "to_title": "Raumregler",
+          "to_room": "Wohnzimmer",
+          "to_connector": "Window"
+        }
+      ],
+      "params": [],
+      "simulation": [
+        {
+          "name": "window open latches inhibit",
+          "steps": [
+            {
+              "inputs": {
+                "Fensterkontakt Wohnzimmer.AQ": 0.0,
+                "Türkontakt Wohnzimmer.AQ": 0.0
+              },
+              "ticks": 2,
+              "dt": 0.1
+            },
+            {
+              "inputs": {
+                "Fensterkontakt Wohnzimmer.AQ": 1.0,
+                "Türkontakt Wohnzimmer.AQ": 0.0
+              },
+              "ticks": 5,
+              "dt": 0.1,
+              "expected_outputs": {
+                "Window State.Q": {
+                  ">": 0.5
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "door open also latches inhibit",
+          "steps": [
+            {
+              "inputs": {
+                "Fensterkontakt Wohnzimmer.AQ": 0.0,
+                "Türkontakt Wohnzimmer.AQ": 0.0
+              },
+              "ticks": 2,
+              "dt": 0.1
+            },
+            {
+              "inputs": {
+                "Fensterkontakt Wohnzimmer.AQ": 0.0,
+                "Türkontakt Wohnzimmer.AQ": 1.0
+              },
+              "ticks": 5,
+              "dt": 0.1,
+              "expected_outputs": {
+                "Window State.Q": {
+                  ">": 0.5
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "no inhibit when both closed",
+          "inputs": {
+            "Fensterkontakt Wohnzimmer.AQ": 0.0,
+            "Türkontakt Wohnzimmer.AQ": 0.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Fenster offen.Q": {
+              "<": 0.5
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "ch-005",
+    "pattern": [
+      "window-heating-inhibit",
+      "off-delay",
+      "re-enable"
+    ],
+    "utterance": "When the Wohnzimmer Fensterkontakt goes from open to closed, use an OffDelay of 2 minutes to keep the Raumregler.Window inhibit active a bit longer, preventing rapid heating cycling after closing the window",
+    "difficulty": "medium",
+    "source": "campus-wiring-graph: window-heating-inhibit debounce variant with OffDelay",
+    "expected": {
+      "new_blocks": [
+        {
+          "type": "OffDelay"
+        }
+      ],
+      "wiring": [
+        {
+          "from_title": "Fensterkontakt Wohnzimmer",
+          "from_connector": "AQ",
+          "to_type": "OffDelay",
+          "to_connector": "InputTrigger"
+        },
+        {
+          "from_type": "OffDelay",
+          "from_connector": "Q",
+          "to_title": "Raumregler",
+          "to_room": "Wohnzimmer",
+          "to_connector": "Window"
+        }
+      ],
+      "params": [
+        {
+          "block_type": "OffDelay",
+          "param": "Time",
+          "value": "120"
+        }
+      ],
+      "simulation": [
+        {
+          "name": "window open activates inhibit immediately",
+          "inputs": {
+            "Fensterkontakt Wohnzimmer.AQ": 1.0
+          },
+          "ticks": 5,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Raumregler [Wohnzimmer].Window": {
+              ">": 0.5
+            }
+          }
+        },
+        {
+          "name": "window close holds inhibit via off-delay",
+          "steps": [
+            {
+              "inputs": {
+                "Fensterkontakt Wohnzimmer.AQ": 1.0
+              },
+              "ticks": 5,
+              "dt": 0.1
+            },
+            {
+              "inputs": {
+                "Fensterkontakt Wohnzimmer.AQ": 0.0
+              },
+              "ticks": 1,
+              "dt": 0.1,
+              "expected_outputs": {
+                "Raumregler [Wohnzimmer].Window": {
+                  ">": 0.5
+                }
+              }
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "id": "ch-006",
+    "pattern": [
+      "bathroom-heating",
+      "irc-zone",
+      "window-inhibit"
+    ],
+    "utterance": "Configure the Bad as a heating zone: add a Raumregler (IRC), wire Raumtemperatur Bad to the Temp input, Raumfeuchtigkeit Bad to InHumid, and Fensterkontakt Bad to the Window inhibit input",
+    "difficulty": "medium",
+    "source": "campus-wiring-graph: bathroom-heating — HeatIRoomController2 with Temp, InHumid, Window inputs",
+    "expected": {
+      "new_blocks": [
+        {
+          "type": "HeatIRoomController2",
+          "title": "Raumregler Bad"
+        }
+      ],
+      "wiring": [
+        {
+          "from_title": "Raumtemperatur Bad",
+          "from_connector": "AQ",
+          "to_type": "HeatIRoomController2",
+          "to_connector": "Temp"
+        },
+        {
+          "from_title": "Raumfeuchtigkeit Bad",
+          "from_connector": "AQ",
+          "to_type": "HeatIRoomController2",
+          "to_connector": "InHumid"
+        },
+        {
+          "from_title": "Fensterkontakt Bad",
+          "from_connector": "AQ",
+          "to_type": "HeatIRoomController2",
+          "to_connector": "Window"
+        }
+      ],
+      "params": [],
+      "simulation": [
+        {
+          "name": "cold bathroom demands heat",
+          "inputs": {
+            "Raumtemperatur Bad.AQ": 15.0,
+            "Raumfeuchtigkeit Bad.AQ": 50.0,
+            "Fensterkontakt Bad.AQ": 0.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Raumregler Bad.AQh": {
+              ">": 0
+            }
+          }
+        },
+        {
+          "name": "window open inhibits heating",
+          "inputs": {
+            "Raumtemperatur Bad.AQ": 15.0,
+            "Raumfeuchtigkeit Bad.AQ": 50.0,
+            "Fensterkontakt Bad.AQ": 1.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Raumregler Bad.AQh": {
+              "==": 0
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "ch-007",
+    "pattern": [
+      "bathroom-heating",
+      "analog-multiplexer",
+      "mode-select"
+    ],
+    "utterance": "Add an AnalogMultiplexer for bathroom IRC mode selection: Input1=comfort (22°C), Input2=eco (20°C). Wire the output to Raumregler Bad.AMode to switch the IRC operating mode based on room occupancy",
+    "difficulty": "hard",
+    "source": "campus-wiring-graph: bathroom-heating — AnalogMultiplexer2:Rtd Irr Mode → IRC.AMode",
+    "expected": {
+      "new_blocks": [
+        {
+          "type": "HeatIRoomController2",
+          "title": "Raumregler Bad"
+        },
+        {
+          "type": "AnalogMultiplexer2",
+          "title": "Rtd Irr Mode"
+        }
+      ],
+      "wiring": [
+        {
+          "from_type": "AnalogMultiplexer2",
+          "from_connector": "AQ",
+          "to_type": "HeatIRoomController2",
+          "to_connector": "AMode"
+        },
+        {
+          "from_title": "Raumtemperatur Bad",
+          "from_connector": "AQ",
+          "to_type": "HeatIRoomController2",
+          "to_connector": "Temp"
+        },
+        {
+          "from_title": "Fensterkontakt Bad",
+          "from_connector": "AQ",
+          "to_type": "HeatIRoomController2",
+          "to_connector": "Window"
+        }
+      ],
+      "params": [
+        {
+          "block_type": "AnalogMultiplexer2",
+          "param": "Input1",
+          "value": "22"
+        },
+        {
+          "block_type": "AnalogMultiplexer2",
+          "param": "Input2",
+          "value": "20"
+        }
+      ],
+      "simulation": [
+        {
+          "name": "comfort mode selected",
+          "inputs": {
+            "Rtd Irr Mode.Select": 0.0
+          },
+          "ticks": 5,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Rtd Irr Mode.AQ": {
+              "==": 22.0
+            }
+          }
+        },
+        {
+          "name": "eco mode selected",
+          "inputs": {
+            "Rtd Irr Mode.Select": 1.0
+          },
+          "ticks": 5,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Rtd Irr Mode.AQ": {
+              "==": 20.0
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "ch-008",
+    "pattern": [
+      "hvac-central-mode",
+      "outdoor-temp",
+      "heating-cooling-switch"
+    ],
+    "utterance": "Set up the central heating/cooling mode switch: wire the Außentemperatur sensor to the Klimaanlage to determine whether the building should be in heating or cooling mode based on outdoor temperature",
+    "difficulty": "easy",
+    "source": "campus-wiring-graph: hvac-central-mode — HVACController with outdoor temp input",
+    "expected": {
+      "new_blocks": [],
+      "wiring": [
+        {
+          "from_title": "Außentemperatur",
+          "from_connector": "AQ",
+          "to_title": "Klimaanlage",
+          "to_room": "Wohnzimmer",
+          "to_connector": "Temp"
+        }
+      ],
+      "params": [],
+      "simulation": [
+        {
+          "name": "cold outdoor temp routes to AC sensor",
+          "inputs": {
+            "Außentemperatur.AQ": 5.0
+          },
+          "ticks": 5,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Klimaanlage [Wohnzimmer].Temp": {
+              "==": 5.0
+            }
+          }
+        },
+        {
+          "name": "warm outdoor temp routes to AC sensor",
+          "inputs": {
+            "Außentemperatur.AQ": 30.0
+          },
+          "ticks": 5,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Klimaanlage [Wohnzimmer].Temp": {
+              "==": 30.0
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "ch-009",
+    "pattern": [
+      "hvac-central-mode",
+      "threshold",
+      "enable-switch"
+    ],
+    "utterance": "Switch between heating and cooling mode based on outdoor temperature: use a GreaterEqual threshold at 20°C on the Außentemperatur, wire to the Klimaanlage enable input so cooling only activates when it's warm outside",
+    "difficulty": "medium",
+    "source": "campus-wiring-graph: hvac-central-mode pattern — threshold-based H/C switching",
+    "expected": {
+      "new_blocks": [
+        {
+          "type": "GreaterEqual",
+          "title": "Outdoor Threshold"
+        }
+      ],
+      "wiring": [
+        {
+          "from_title": "Außentemperatur",
+          "from_connector": "AQ",
+          "to_type": "GreaterEqual",
+          "to_connector": "Input1"
+        },
+        {
+          "from_type": "GreaterEqual",
+          "from_connector": "Q",
+          "to_title": "Klimaanlage",
+          "to_room": "Wohnzimmer",
+          "to_connector": "Enable"
+        }
+      ],
+      "params": [
+        {
+          "block_type": "GreaterEqual",
+          "param": "Input2",
+          "value": "20"
+        }
+      ],
+      "simulation": [
+        {
+          "name": "warm outdoor enables cooling",
+          "inputs": {
+            "Außentemperatur.AQ": 25.0
+          },
+          "ticks": 5,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Outdoor Threshold.Q": {
+              ">": 0.5
+            }
+          }
+        },
+        {
+          "name": "cold outdoor disables cooling",
+          "inputs": {
+            "Außentemperatur.AQ": 10.0
+          },
+          "ticks": 5,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Outdoor Threshold.Q": {
+              "<": 0.5
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "ch-010",
+    "pattern": [
+      "heating-status-display",
+      "state-block",
+      "multi-input"
+    ],
+    "utterance": "Build a heating status display with a 4-input State block in the Wohnzimmer: I1=heating demand from Raumregler.AQh, I2=cooling demand from Raumregler.AQc, I3=window open from Fensterkontakt Wohnzimmer, I4=door open from Türkontakt Wohnzimmer",
+    "difficulty": "hard",
+    "source": "campus-wiring-graph: heating-status-display — State:Status Hzg with 4 inputs from IRC + sensors",
+    "expected": {
+      "new_blocks": [
+        {
+          "type": "State",
+          "title": "Status Hzg"
+        }
+      ],
+      "wiring": [
+        {
+          "from_title": "Raumregler",
+          "from_room": "Wohnzimmer",
+          "from_connector": "AQh",
+          "to_type": "State",
+          "to_connector": "I1"
+        },
+        {
+          "from_title": "Raumregler",
+          "from_room": "Wohnzimmer",
+          "from_connector": "AQc",
+          "to_type": "State",
+          "to_connector": "I2"
+        },
+        {
+          "from_title": "Fensterkontakt Wohnzimmer",
+          "from_connector": "AQ",
+          "to_type": "State",
+          "to_connector": "I3"
+        },
+        {
+          "from_title": "Türkontakt Wohnzimmer",
+          "from_connector": "AQ",
+          "to_type": "State",
+          "to_connector": "I4"
+        }
+      ],
+      "params": [],
+      "simulation": [
+        {
+          "name": "heating demand shows state 1",
+          "steps": [
+            {
+              "inputs": {
+                "Raumregler [Wohnzimmer].AQh": 0.0,
+                "Raumregler [Wohnzimmer].AQc": 0.0,
+                "Fensterkontakt Wohnzimmer.AQ": 0.0,
+                "Türkontakt Wohnzimmer.AQ": 0.0
+              },
+              "ticks": 2,
+              "dt": 0.1
+            },
+            {
+              "inputs": {
+                "Raumregler [Wohnzimmer].AQh": 1.0,
+                "Raumregler [Wohnzimmer].AQc": 0.0,
+                "Fensterkontakt Wohnzimmer.AQ": 0.0,
+                "Türkontakt Wohnzimmer.AQ": 0.0
+              },
+              "ticks": 5,
+              "dt": 0.1,
+              "expected_outputs": {
+                "Status Hzg.AQ": {
+                  ">": 0
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "window open changes state",
+          "steps": [
+            {
+              "inputs": {
+                "Raumregler [Wohnzimmer].AQh": 0.0,
+                "Raumregler [Wohnzimmer].AQc": 0.0,
+                "Fensterkontakt Wohnzimmer.AQ": 0.0,
+                "Türkontakt Wohnzimmer.AQ": 0.0
+              },
+              "ticks": 2,
+              "dt": 0.1
+            },
+            {
+              "inputs": {
+                "Raumregler [Wohnzimmer].AQh": 0.0,
+                "Raumregler [Wohnzimmer].AQc": 0.0,
+                "Fensterkontakt Wohnzimmer.AQ": 1.0,
+                "Türkontakt Wohnzimmer.AQ": 0.0
+              },
+              "ticks": 5,
+              "dt": 0.1,
+              "expected_outputs": {
+                "Status Hzg.AQ": {
+                  ">": 0
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "idle state shows 0",
+          "inputs": {
+            "Raumregler [Wohnzimmer].AQh": 0.0,
+            "Raumregler [Wohnzimmer].AQc": 0.0,
+            "Fensterkontakt Wohnzimmer.AQ": 0.0,
+            "Türkontakt Wohnzimmer.AQ": 0.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Status Hzg.AQ": {
+              "==": 0
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "ch-011",
+    "pattern": [
+      "heating-status-display",
+      "analog-scaler",
+      "valve-output"
+    ],
+    "utterance": "Add AnalogScaler blocks for the Wohnzimmer IRC valve outputs: wire Raumregler.AQh through an AnalogScaler 'Heizen' (0-100%) and Raumregler.AQc through another AnalogScaler 'Kühlen' (0-100%), then feed both scaler outputs into a State block I3 and I4 to display valve positions",
+    "difficulty": "expert",
+    "source": "campus-wiring-graph: heating-status-display — AnalogScaler:Heizen/Kühlen → State:Status Hzg.I3/I4",
+    "expected": {
+      "new_blocks": [
+        {
+          "type": "AnalogScaler",
+          "title": "Heizen"
+        },
+        {
+          "type": "AnalogScaler",
+          "title": "Kühlen"
+        },
+        {
+          "type": "State",
+          "title": "Status Hzg"
+        }
+      ],
+      "wiring": [
+        {
+          "from_title": "Raumregler",
+          "from_room": "Wohnzimmer",
+          "from_connector": "AQh",
+          "to_type": "AnalogScaler",
+          "to_title": "Heizen",
+          "to_connector": "Input"
+        },
+        {
+          "from_title": "Raumregler",
+          "from_room": "Wohnzimmer",
+          "from_connector": "AQc",
+          "to_type": "AnalogScaler",
+          "to_title": "Kühlen",
+          "to_connector": "Input"
+        },
+        {
+          "from_title": "Raumregler",
+          "from_room": "Wohnzimmer",
+          "from_connector": "AQh",
+          "to_type": "State",
+          "to_connector": "I1"
+        },
+        {
+          "from_title": "Raumregler",
+          "from_room": "Wohnzimmer",
+          "from_connector": "AQc",
+          "to_type": "State",
+          "to_connector": "I2"
+        },
+        {
+          "from_type": "AnalogScaler",
+          "from_title": "Heizen",
+          "from_connector": "AQ",
+          "to_type": "State",
+          "to_connector": "I3"
+        },
+        {
+          "from_type": "AnalogScaler",
+          "from_title": "Kühlen",
+          "from_connector": "AQ",
+          "to_type": "State",
+          "to_connector": "I4"
+        }
+      ],
+      "params": [],
+      "simulation": [
+        {
+          "name": "heating valve scales correctly",
+          "inputs": {
+            "Raumregler [Wohnzimmer].AQh": 0.8,
+            "Raumregler [Wohnzimmer].AQc": 0.0
+          },
+          "ticks": 5,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Heizen.AQ": {
+              ">": 0
+            }
+          }
+        },
+        {
+          "name": "cooling valve scales correctly",
+          "inputs": {
+            "Raumregler [Wohnzimmer].AQh": 0.0,
+            "Raumregler [Wohnzimmer].AQc": 0.7
+          },
+          "ticks": 5,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Kühlen.AQ": {
+              ">": 0
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "ch-012",
+    "pattern": [
+      "heating-mode-setpoints",
+      "irc-cascade",
+      "weather-compensation"
+    ],
+    "utterance": "Create an IRC cascade: wire the Außentemperatur sensor to the Wohnzimmer Raumregler.TempO for weather compensation, the Raumtemperatur Wohnzimmer to .Temp for room feedback, and the Raumfeuchtigkeit Wohnzimmer to .InHumid for humidity monitoring",
+    "difficulty": "easy",
+    "source": "campus-wiring-graph: heating-mode-setpoints — IRC with TempO + Temp + InHumid inputs",
+    "expected": {
+      "new_blocks": [],
+      "wiring": [
+        {
+          "from_title": "Außentemperatur",
+          "from_connector": "AQ",
+          "to_title": "Raumregler",
+          "to_room": "Wohnzimmer",
+          "to_connector": "TempO"
+        },
+        {
+          "from_title": "Raumtemperatur Wohnzimmer",
+          "from_connector": "AQ",
+          "to_title": "Raumregler",
+          "to_room": "Wohnzimmer",
+          "to_connector": "Temp"
+        },
+        {
+          "from_title": "Raumfeuchtigkeit Wohnzimmer",
+          "from_connector": "AQ",
+          "to_title": "Raumregler",
+          "to_room": "Wohnzimmer",
+          "to_connector": "InHumid"
+        }
+      ],
+      "params": [],
+      "simulation": [
+        {
+          "name": "outdoor temp feeds weather compensation",
+          "inputs": {
+            "Außentemperatur.AQ": -5.0,
+            "Raumtemperatur Wohnzimmer.AQ": 20.0,
+            "Raumfeuchtigkeit Wohnzimmer.AQ": 55.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Raumregler [Wohnzimmer].TempO": {
+              "==": -5.0
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "ch-013",
+    "pattern": [
+      "heating-status-display",
+      "state-v",
+      "room-display"
+    ],
+    "utterance": "Add a StateV block 'HCm Zimmer' to show the Wohnzimmer IRC setpoint on the room display: wire Raumregler.AQs (setpoint output) to StateV.I so guests can see the current target temperature",
+    "difficulty": "easy",
+    "source": "campus-wiring-graph: heating-status-display — StateV:HCm Zimmer shows IRC setpoint",
+    "expected": {
+      "new_blocks": [
+        {
+          "type": "StateV",
+          "title": "HCm Zimmer"
+        }
+      ],
+      "wiring": [
+        {
+          "from_title": "Raumregler",
+          "from_room": "Wohnzimmer",
+          "from_connector": "AQs",
+          "to_type": "StateV",
+          "to_connector": "I"
+        }
+      ],
+      "params": [],
+      "simulation": [
+        {
+          "name": "setpoint value displayed",
+          "inputs": {
+            "Raumregler [Wohnzimmer].AQs": 22.0
+          },
+          "ticks": 5,
+          "dt": 0.1,
+          "expected_outputs": {
+            "HCm Zimmer.AQ": {
+              "==": 22.0
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "ch-014",
+    "pattern": [
+      "heating-status-display",
+      "door-state",
+      "edge-detection"
+    ],
+    "utterance": "Build a door state display: wire Fensterkontakt Wohnzimmer to State 'Status Türe'.I1 and add an EdgeDetection on Türkontakt Wohnzimmer so the rising edge triggers an AC flex button via PushButton, with the button output going to State.I2 for combined display",
+    "difficulty": "expert",
+    "source": "campus-wiring-graph: heating-status-display — State:Status Türe + EdgeDetection:Light Flex On/Off + PushButton:A/C Flex",
+    "expected": {
+      "new_blocks": [
+        {
+          "type": "State",
+          "title": "Status Türe"
+        },
+        {
+          "type": "EdgeDetection",
+          "title": "Light Flex On/Off"
+        },
+        {
+          "type": "PushButton",
+          "title": "A/C Flex Bett"
+        }
+      ],
+      "wiring": [
+        {
+          "from_title": "Fensterkontakt Wohnzimmer",
+          "from_connector": "AQ",
+          "to_type": "State",
+          "to_title": "Status Türe",
+          "to_connector": "I1"
+        },
+        {
+          "from_title": "Türkontakt Wohnzimmer",
+          "from_connector": "AQ",
+          "to_type": "EdgeDetection",
+          "to_connector": "Input"
+        },
+        {
+          "from_type": "EdgeDetection",
+          "from_connector": "RisingEdge",
+          "to_type": "PushButton",
+          "to_title": "A/C Flex Bett",
+          "to_connector": "On"
+        },
+        {
+          "from_type": "PushButton",
+          "from_title": "A/C Flex Bett",
+          "from_connector": "Q",
+          "to_type": "State",
+          "to_title": "Status Türe",
+          "to_connector": "I2"
+        }
+      ],
+      "params": [],
+      "simulation": [
+        {
+          "name": "door opening triggers edge and button",
+          "steps": [
+            {
+              "inputs": {
+                "Türkontakt Wohnzimmer.AQ": 0.0,
+                "Fensterkontakt Wohnzimmer.AQ": 0.0
+              },
+              "ticks": 2,
+              "dt": 0.1
+            },
+            {
+              "inputs": {
+                "Türkontakt Wohnzimmer.AQ": 1.0,
+                "Fensterkontakt Wohnzimmer.AQ": 0.0
+              },
+              "ticks": 1,
+              "dt": 0.1,
+              "expected_outputs": {
+                "Light Flex On/Off.RisingEdge": {
+                  ">": 0.5
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "window open shows in status I1",
+          "inputs": {
+            "Fensterkontakt Wohnzimmer.AQ": 1.0,
+            "Türkontakt Wohnzimmer.AQ": 0.0
+          },
+          "ticks": 5,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Status Türe.I1": {
+              ">": 0.5
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "ch-015",
+    "pattern": [
+      "heating-mode-setpoints",
+      "heating-status-display",
+      "full-hvac-chain"
+    ],
+    "utterance": "Build the complete HVAC status chain for Wohnzimmer: wire Raumregler.AQh and .AQc through AnalogScaler blocks (Heizen/Kühlen), feed raw and scaled outputs into a State block 'Status Hzg' (I1=heat demand, I2=cool demand, I3=heat valve%, I4=cool valve%), then wire the State.AQ through an AnalogMultiplexer that selects between the status value and a ventilation setpoint based on a fan-on signal",
+    "difficulty": "expert",
+    "source": "campus-wiring-graph: heating-mode-setpoints + heating-status-display combined — full status chain with AnalogScaler + State + AnalogMultiplexer",
+    "expected": {
+      "new_blocks": [
+        {
+          "type": "AnalogScaler",
+          "title": "Heizen"
+        },
+        {
+          "type": "AnalogScaler",
+          "title": "Kühlen"
+        },
+        {
+          "type": "State",
+          "title": "Status Hzg"
+        },
+        {
+          "type": "AnalogMultiplexer2",
+          "title": "Set Setpoint"
+        }
+      ],
+      "wiring": [
+        {
+          "from_title": "Raumregler",
+          "from_room": "Wohnzimmer",
+          "from_connector": "AQh",
+          "to_type": "AnalogScaler",
+          "to_title": "Heizen",
+          "to_connector": "Input"
+        },
+        {
+          "from_title": "Raumregler",
+          "from_room": "Wohnzimmer",
+          "from_connector": "AQc",
+          "to_type": "AnalogScaler",
+          "to_title": "Kühlen",
+          "to_connector": "Input"
+        },
+        {
+          "from_title": "Raumregler",
+          "from_room": "Wohnzimmer",
+          "from_connector": "AQh",
+          "to_type": "State",
+          "to_connector": "I1"
+        },
+        {
+          "from_title": "Raumregler",
+          "from_room": "Wohnzimmer",
+          "from_connector": "AQc",
+          "to_type": "State",
+          "to_connector": "I2"
+        },
+        {
+          "from_type": "AnalogScaler",
+          "from_title": "Heizen",
+          "from_connector": "AQ",
+          "to_type": "State",
+          "to_connector": "I3"
+        },
+        {
+          "from_type": "AnalogScaler",
+          "from_title": "Kühlen",
+          "from_connector": "AQ",
+          "to_type": "State",
+          "to_connector": "I4"
+        },
+        {
+          "from_type": "State",
+          "from_connector": "AQ",
+          "to_type": "AnalogMultiplexer2",
+          "to_connector": "Input2"
+        }
+      ],
+      "params": [],
+      "simulation": [
+        {
+          "name": "heating active shows in state and scaler",
+          "inputs": {
+            "Raumregler [Wohnzimmer].AQh": 0.8,
+            "Raumregler [Wohnzimmer].AQc": 0.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Heizen.AQ": {
+              ">": 0
+            },
+            "Status Hzg.AQ": {
+              ">": 0
+            }
+          }
+        },
+        {
+          "name": "cooling active shows in state and scaler",
+          "inputs": {
+            "Raumregler [Wohnzimmer].AQh": 0.0,
+            "Raumregler [Wohnzimmer].AQc": 0.6
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Kühlen.AQ": {
+              ">": 0
+            },
+            "Status Hzg.AQ": {
+              ">": 0
+            }
+          }
+        },
+        {
+          "name": "idle shows zero state",
+          "inputs": {
+            "Raumregler [Wohnzimmer].AQh": 0.0,
+            "Raumregler [Wohnzimmer].AQc": 0.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Status Hzg.AQ": {
+              "==": 0
+            }
+          }
+        }
+      ]
+    }
+  }
+]
