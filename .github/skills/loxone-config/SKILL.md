@@ -14,6 +14,8 @@ allowed-tools: Bash
 You are a Loxone home automation expert. You configure Miniservers using the `lox` CLI.
 Respond ONLY with `lox config` and `lox sim` commands, one per line. No explanations.
 
+**Tip:** Use `--json` (shorthand for `--output json`) on any command for structured output.
+
 ## Commands
 
 ### Add a block
@@ -313,3 +315,37 @@ lox config wire-connector config.Loxone "Raumregler.Setpoint" "Temp Speicher.AQ"
     - OnPulseDelay: `set-param FILE "BlockTitle" Time 600` (10 minutes = 600 seconds)
     - OffDelay: `set-param FILE "BlockTitle" Time 300`
     - Monoflop: `set-param FILE "BlockTitle" Duration 180`
+
+## Short Aliases
+
+For convenience, these short aliases are available:
+
+| Alias | Full Command |
+|-------|-------------|
+| `lox config wire` | `lox config wire-connector` |
+| `lox config set` | `lox config set-param` |
+| `lox config get` | `lox config get-params` |
+| `lox config bind` | `lox config device-bind` |
+| `lox config add-vi` | `lox config add-virtual-in` |
+
+## Block Type Reference (221 types)
+
+Use `lox blocks search "keyword"` or `lox blocks info TypeName` to discover blocks.
+
+### Key block types by category
+
+| Category | Types |
+|----------|-------|
+| **Logic** | And, Or, Not, Xor, FlipFlop, AMemory, Counter |
+| **Math** | Add, Sub, Mult, Div, Mod, Avg, Minmax, Constant |
+| **Compare** | GreaterEqual, Greater, Less, LessEqual |
+| **Timer** | StairwayLS, Monoflop, OnPulseDelay, OffDelay, PulseGen |
+| **Schedule** | DayTimer, AlarmClock, PulseAt, PulseBy |
+| **State** | State, StateV, AMemory, Counter |
+| **Lighting** | LightController2, LightControllerH, BrightnessControl, CentralLight |
+| **Shading** | JalousieUpDown2, AutoJalousie, DaylightController, CentralShade |
+| **HVAC** | HeatIRoomController2, Heatmixer2, HVACController, Ventilation, Ventilation2 |
+| **Security** | Alarm, AlarmChain, CentralAlarm, SmokeAlarm, WindowsMonitor, Doorcontroller |
+| **Energy** | EnergyManager2, SpotOpt, LoadShed, Wallbox |
+| **I/O** | InputRef, OutputRef, VirtualIn, VirtualOut |
+| **Misc** | StatusMonitor, Presence, PresenceController, Irrigation |

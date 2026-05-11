@@ -2,7 +2,7 @@
 
 Loxone Config-as-Code CLI. All commands operate on local `.Loxone` XML config files — no live Miniserver connection required for editing, simulation, or validation.
 
-Global flags: `-o`/`--output json|csv|table`, `-q`/`--quiet`, `--no-color` (also respects `NO_COLOR` env var), `--no-header`, `-v`/`--verbose` (request logging, `-vv` for request+response bodies), `--dry-run`, `--non-interactive` (fail instead of prompting; implied by `-o json`), `--trace-id <ID>` (correlation ID for agent tracing), `--ctx <name>` (use a specific context)
+Global flags: `--json` (shorthand for `--output json`), `-o`/`--output json|csv|table`, `-q`/`--quiet`, `--no-color` (also respects `NO_COLOR` env var), `--no-header`, `-v`/`--verbose` (request logging, `-vv` for request+response bodies), `--dry-run`, `--non-interactive` (fail instead of prompting; implied by `--json`), `--trace-id <ID>` (correlation ID for agent tracing), `--ctx <name>` (use a specific context)
 
 ---
 
@@ -38,11 +38,12 @@ lox config rooms file.Loxone                      # list rooms with item counts
 lox config controls file.Loxone                   # list controls with type/room/category
 lox config controls file.Loxone -t WeatherData    # filter by type
 lox config controls file.Loxone -r "Zentral"      # filter by room
+lox config controls file.Loxone --limit 10        # limit number of results
 lox config users file.Loxone                      # list user accounts
 lox config devices file.Loxone                    # list hardware devices (Tree/Air/Network)
 lox config devices file.Loxone --ports            # show I/O ports with used/free status
 
-lox config get-params file.Loxone "Kitchen Light" # show all params with current/default values
+lox config get-params file.Loxone "Kitchen Light" # show all params (alias: lox config get)
 lox config stats file.Loxone                      # comprehensive config statistics
 lox config autopilot-list file.Loxone             # list automation/autopilot rules
 lox config mode-list file.Loxone                  # list operating modes
@@ -68,7 +69,7 @@ Options: `--room <ROOM>`, `--category <CATEGORY>`, `--page <PAGE>`, `--parent <P
 ### Set parameters
 
 ```bash
-lox config set-param file.Loxone "Kitchen Light" FadingTime 2.0
+lox config set-param file.Loxone "Kitchen Light" FadingTime 2.0    # alias: lox config set
 lox config set-param file.Loxone "Night Timer" Duration 300
 ```
 
@@ -77,7 +78,7 @@ Arguments: `<FILE> <SELECTOR> <PARAM> <VALUE>`. Selector is a block title or `"u
 ### Wire connectors
 
 ```bash
-lox config wire-connector file.Loxone "Light.I1" <source-uuid>
+lox config wire-connector file.Loxone "Light.I1" <source-uuid>                    # alias: lox config wire
 lox config wire-connector file.Loxone "Both Sensors.I2" <sensor-q-uuid> --save-as out.Loxone
 ```
 
@@ -86,7 +87,7 @@ Arguments: `<FILE> <TARGET> <SOURCE_UUID>`. Target format: `"BlockTitle.Connecto
 ### Device binding
 
 ```bash
-lox config device-bind file.Loxone "Kitchen Light" AQ1 --device "RGBW Dimmer"
+lox config device-bind file.Loxone "Kitchen Light" AQ1 --device "RGBW Dimmer"     # alias: lox config bind
 ```
 
 Arguments: `<FILE> <CONTROL> <OUTPUT_CONN>`. Required: `--device <DEVICE>`.
@@ -112,7 +113,7 @@ Arguments: `<FILE> <SELECTOR> <RANGE>`. Range format: `HH:MM-HH:MM`. `--value` s
 ### Virtual inputs
 
 ```bash
-lox config add-virtual-in file.Loxone "Sensor Feed"
+lox config add-virtual-in file.Loxone "Sensor Feed"                               # alias: lox config add-vi
 lox config add-virtual-in file.Loxone "Analog Sensor" --analog
 lox config add-virtual-in file.Loxone "Custom Input" --parent "VirtualInCaption"
 ```

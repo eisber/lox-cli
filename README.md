@@ -74,7 +74,7 @@ Agent runs CLI commands:
 Config ready to deploy: lox config push config.Loxone --reboot
 ```
 
-The CLI handles LoxCC compression, CRC32 checksums, UUID generation, connector maps for 190+ block types, and wiring validation. All commands support `-o json` for agent consumption.
+The CLI handles LoxCC compression, CRC32 checksums, UUID generation, connector maps for 221 block types, and wiring validation. All commands support `--json` (or `-o json`) for agent consumption.
 
 ---
 
@@ -113,7 +113,7 @@ lox config log     # Change history
 
 Offline Miniserver SPS simulator — test config changes without hardware:
 
-- **195 block types** — logic, math, lighting, HVAC, timers, I/O
+- **215 block types** — logic, math, lighting, HVAC, timers, I/O
 - **Topological engine** — automatic evaluation order, cycle detection
 - **Temporal testing** — multi-step specs for heating cycles, timer delays, schedules
 - **6k lines of Rust** in `lox-sim/` with 367 unit tests
@@ -133,7 +133,7 @@ lox sim run config.Loxone --sim '{
 
 The eval harness tests whether an AI agent can correctly configure a Loxone Miniserver from natural language instructions. Each case: utterance → agent builds circuit via CLI → Rust simulator verifies signals propagate correctly.
 
-**285 test cases across 10 categories.**
+**322 test cases across 13 categories.**
 
 Raw LLM pass rate (agent builds circuit from scratch each run):
 
@@ -254,7 +254,7 @@ lox sim run saved-config.Loxone --sim '[...]'
 
 Skill references in `.github/skills/` give agents everything they need:
 
-- **loxone-config** — CLI commands, 190+ block types, worked examples, common mistakes
+- **loxone-config** — CLI commands, 221 block types, worked examples, common mistakes
 - **loxone-sim** — simulator testing commands and patterns
 - **loxone-patterns** — 13 automation recipes (threshold, timer, schedule, HVAC)
 

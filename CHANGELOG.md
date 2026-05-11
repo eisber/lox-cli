@@ -33,17 +33,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 - **SPS Simulator** (`lox-sim`) — offline Miniserver circuit simulator
-  - 195 block types: logic, math, lighting, HVAC, timers, blinds, I/O
+  - 215 block types: logic, math, lighting, HVAC, timers, blinds, I/O
+  - 11 new block types: WindowsMonitor, Doorcontroller, Irrigation, CentralShade, CentralLight, CentralAlarm, CentralFancoil, CentralGate, CentralMusic, CentralPresence, CentralRoofwindow
   - Topological evaluation engine with cycle detection
   - Multi-step temporal specs: test heating cycles, timer delays, schedules
   - Time injection for DayTimer/AlarmClock schedule testing
   - Structured trace output (JSON) for signal auto-discovery
   - 367 unit tests, 6k lines of Rust
-- **Eval harness** — 285 behavioral test cases across 10 categories
+- **Eval harness** — 322 behavioral test cases across 13 categories
+  - 19 new Campus eval cases
   - Utterance → agent builds circuit → simulator verifies signals
   - 94% raw LLM pass rate (5 sections at 100%)
   - Parallel execution, incremental reporting
-- **JSON output** on all config commands (`-o json`)
+- **`--json` global flag** — shorthand for `--output json` on all commands
+- **`--trace-id`** — correlation ID included in JSON output for agent tracing
+- **`--limit`** flag on list commands (e.g. `config controls --limit 10`)
+- **Short aliases** for common config subcommands:
+  - `wire` → `wire-connector`
+  - `set` → `set-param`
+  - `get` → `get-params`
+  - `bind` → `device-bind`
+  - `add-vi` → `add-virtual-in`
+- **Idempotent `config add`** — re-adding a block with the same title is a no-op
+- **JSON output** on all config commands (`-o json` / `--json`)
   - `config add` returns UUID + connector map with UUIDs
   - `config check/validate` returns structured warnings/errors
   - `config describe` returns full block inventory with connectors
@@ -57,11 +69,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **`lox config device-bind`** — wire a control's output to a physical device
 - **`lox config template`** — room templates (bedroom, bathroom, kitchen, etc.)
 - **`lox config layout`** — ELK-based auto-layout engine for block pages
-- **190 block types** with full connector maps (2384 connectors with I/O/P types)
+- **221 block types** with full connector maps; 12 new connector map entries (195 total)
 - **Levenshtein fuzzy matching** on all error messages
 - **GitOps** — `config pull` downloads, diffs, and commits with semantic messages
 
 ### Fixed
+- **`--non-interactive` wiring fix** — wiring commands now correctly fail instead of prompting when `--non-interactive` is set
+- **XML parser fix** for digit-prefixed attributes (e.g. `2ndInput`) that caused parse failures on some configs
 - **TLS verify_ssl respected in ALL code paths** — previously hardcoded in ws.rs, token.rs, stream.rs
 - **Token file permissions** — now chmod 0600 on Unix
 - **Atomic config writes** — write-to-temp + rename prevents corruption

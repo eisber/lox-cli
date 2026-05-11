@@ -1,0 +1,973 @@
+[
+  {
+    "id": "campus-001",
+    "pattern": ["window-curtain", "door-sensor"],
+    "utterance": "Close both curtains in the Schlafzimmer when the terrace door opens",
+    "difficulty": "easy",
+    "expected": {
+      "new_blocks": [],
+      "wiring": [
+        {
+          "from_title": "Türkontakt Schlafzimmer",
+          "to_title": "Jalousie 1",
+          "to_room": "Schlafzimmer",
+          "to_connector": "InputTriggerDown",
+          "from_connector": "AQ"
+        },
+        {
+          "from_title": "Türkontakt Schlafzimmer",
+          "to_title": "Jalousie 2",
+          "to_room": "Schlafzimmer",
+          "to_connector": "InputTriggerDown",
+          "from_connector": "AQ"
+        }
+      ],
+      "params": [],
+      "simulation": [
+        {
+          "name": "should close curtains when door opens",
+          "inputs": {
+            "Türkontakt Schlafzimmer.AQ": 1.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Jalousie 1 [Schlafzimmer].InputTriggerDown": { ">": 0.5 },
+            "Jalousie 2 [Schlafzimmer].InputTriggerDown": { ">": 0.5 }
+          }
+        },
+        {
+          "name": "should NOT close curtains when door is closed",
+          "inputs": {
+            "Türkontakt Schlafzimmer.AQ": 0.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Jalousie 1 [Schlafzimmer].InputTriggerDown": { "<": 0.5 },
+            "Jalousie 2 [Schlafzimmer].InputTriggerDown": { "<": 0.5 }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "campus-002",
+    "pattern": ["window-curtain", "window-tilt"],
+    "utterance": "Stop the blinds in Schlafzimmer when the window is tilted open",
+    "difficulty": "easy",
+    "expected": {
+      "new_blocks": [],
+      "wiring": [
+        {
+          "from_title": "Fensterkontakt Schlafzimmer",
+          "to_title": "Jalousie 1",
+          "to_room": "Schlafzimmer",
+          "to_connector": "Stop",
+          "from_connector": "AQ"
+        },
+        {
+          "from_title": "Fensterkontakt Schlafzimmer",
+          "to_title": "Jalousie 2",
+          "to_room": "Schlafzimmer",
+          "to_connector": "Stop",
+          "from_connector": "AQ"
+        }
+      ],
+      "params": [],
+      "simulation": [
+        {
+          "name": "should stop blinds when window tilted",
+          "inputs": {
+            "Fensterkontakt Schlafzimmer.AQ": 1.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Jalousie 1 [Schlafzimmer].Stop": { ">": 0.5 },
+            "Jalousie 2 [Schlafzimmer].Stop": { ">": 0.5 }
+          }
+        },
+        {
+          "name": "should NOT stop blinds when window closed",
+          "inputs": {
+            "Fensterkontakt Schlafzimmer.AQ": 0.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Jalousie 1 [Schlafzimmer].Stop": { "<": 0.5 },
+            "Jalousie 2 [Schlafzimmer].Stop": { "<": 0.5 }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "campus-003",
+    "pattern": ["window-curtain", "shade-block"],
+    "utterance": "Block automatic shading on bedroom blinds whenever the terrace door is open",
+    "difficulty": "easy",
+    "expected": {
+      "new_blocks": [],
+      "wiring": [
+        {
+          "from_title": "Türkontakt Schlafzimmer",
+          "to_title": "Jalousie 1",
+          "to_room": "Schlafzimmer",
+          "to_connector": "InputDisable",
+          "from_connector": "AQ"
+        },
+        {
+          "from_title": "Türkontakt Schlafzimmer",
+          "to_title": "Jalousie 2",
+          "to_room": "Schlafzimmer",
+          "to_connector": "InputDisable",
+          "from_connector": "AQ"
+        }
+      ],
+      "params": [],
+      "simulation": [
+        {
+          "name": "should disable blinds when door open",
+          "inputs": {
+            "Türkontakt Schlafzimmer.AQ": 1.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Jalousie 1 [Schlafzimmer].InputDisable": { ">": 0.5 },
+            "Jalousie 2 [Schlafzimmer].InputDisable": { ">": 0.5 }
+          }
+        },
+        {
+          "name": "should NOT disable when door closed",
+          "inputs": {
+            "Türkontakt Schlafzimmer.AQ": 0.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Jalousie 1 [Schlafzimmer].InputDisable": { "<": 0.5 },
+            "Jalousie 2 [Schlafzimmer].InputDisable": { "<": 0.5 }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "campus-004",
+    "pattern": ["window-curtain", "join-window"],
+    "utterance": "Set up a combined window sensor for the Schlafzimmer that merges window contact and door contact, and wire it to disable Jalousie 1",
+    "difficulty": "medium",
+    "expected": {
+      "new_blocks": [
+        { "type": "JoinWindowSensor" }
+      ],
+      "wiring": [
+        {
+          "from_title": "Fensterkontakt Schlafzimmer",
+          "to_type": "JoinWindowSensor",
+          "to_connector": "W",
+          "from_connector": "AQ"
+        },
+        {
+          "from_title": "Türkontakt Schlafzimmer",
+          "to_type": "JoinWindowSensor",
+          "to_connector": "Wl",
+          "from_connector": "AQ"
+        },
+        {
+          "from_type": "JoinWindowSensor",
+          "to_title": "Jalousie 1",
+          "to_room": "Schlafzimmer",
+          "to_connector": "InputDisable",
+          "from_connector": "Q"
+        }
+      ],
+      "params": [],
+      "simulation": [
+        {
+          "name": "should disable jalousie when window open",
+          "inputs": {
+            "Fensterkontakt Schlafzimmer.AQ": 1.0,
+            "Türkontakt Schlafzimmer.AQ": 0.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Jalousie 1 [Schlafzimmer].InputDisable": { ">": 0.5 }
+          }
+        },
+        {
+          "name": "should disable jalousie when door open",
+          "inputs": {
+            "Fensterkontakt Schlafzimmer.AQ": 0.0,
+            "Türkontakt Schlafzimmer.AQ": 1.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Jalousie 1 [Schlafzimmer].InputDisable": { ">": 0.5 }
+          }
+        },
+        {
+          "name": "should NOT disable when all closed",
+          "inputs": {
+            "Fensterkontakt Schlafzimmer.AQ": 0.0,
+            "Türkontakt Schlafzimmer.AQ": 0.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Jalousie 1 [Schlafzimmer].InputDisable": { "<": 0.5 }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "campus-005",
+    "pattern": ["presence", "state-machine"],
+    "utterance": "Track room occupancy in the Flur: latch the presence sensor output into a memory block so occupancy stays high after motion stops",
+    "difficulty": "medium",
+    "expected": {
+      "new_blocks": [
+        { "type": "FlipFlop" }
+      ],
+      "wiring": [
+        {
+          "from_title": "Bewegungsmelder",
+          "to_type": "FlipFlop",
+          "to_connector": "InputS",
+          "from_connector": "OutputPresence"
+        }
+      ],
+      "params": [],
+      "simulation": [
+        {
+          "name": "should latch occupancy on presence",
+          "inputs": {
+            "Bewegungsmelder.OutputPresence": 1.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "FlipFlop.Q": { ">": 0.5 }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "campus-006",
+    "pattern": ["presence", "off-delay"],
+    "utterance": "Turn off the Flur lights 5 minutes after the presence sensor goes inactive",
+    "difficulty": "medium",
+    "expected": {
+      "new_blocks": [
+        { "type": "Not" },
+        { "type": "OnPulseDelay" }
+      ],
+      "wiring": [
+        {
+          "from_title": "Bewegungsmelder",
+          "to_type": "Not",
+          "to_connector": "I",
+          "from_connector": "OutputPresence"
+        },
+        {
+          "from_type": "Not",
+          "to_type": "OnPulseDelay",
+          "to_connector": "InputTrigger",
+          "from_connector": "Q"
+        },
+        {
+          "from_type": "OnPulseDelay",
+          "to_title": "Lichtsteuerung",
+          "to_room": "Flur",
+          "to_connector": "Reset",
+          "from_connector": "Q"
+        }
+      ],
+      "params": [
+        {
+          "block_type": "OnPulseDelay",
+          "param": "Time",
+          "value": "300"
+        }
+      ],
+      "simulation": [
+        {
+          "name": "should reset lights when presence drops",
+          "inputs": {
+            "Bewegungsmelder.OutputPresence": 0.0
+          },
+          "ticks": 3200,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Lichtsteuerung [Flur].Reset": { ">": 0.5 }
+          }
+        },
+        {
+          "name": "should NOT reset lights while presence active",
+          "inputs": {
+            "Bewegungsmelder.OutputPresence": 1.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Lichtsteuerung [Flur].Reset": { "<": 0.5 }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "campus-007",
+    "pattern": ["presence", "welcome-scene"],
+    "utterance": "Trigger the welcome light scene (Sel1) on the Flur Lichtsteuerung when the presence sensor first detects motion",
+    "difficulty": "medium",
+    "expected": {
+      "new_blocks": [
+        { "type": "EdgeDetection" }
+      ],
+      "wiring": [
+        {
+          "from_title": "Bewegungsmelder",
+          "to_type": "EdgeDetection",
+          "to_connector": "Input",
+          "from_connector": "OutputPresence"
+        },
+        {
+          "from_type": "EdgeDetection",
+          "to_title": "Lichtsteuerung",
+          "to_room": "Flur",
+          "to_connector": "Sel1",
+          "from_connector": "RisingEdge"
+        }
+      ],
+      "params": [],
+      "simulation": [
+        {
+          "name": "should trigger welcome scene on rising edge of presence",
+          "inputs": {
+            "Bewegungsmelder.OutputPresence": 1.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Lichtsteuerung [Flur].Sel1": { ">": 0.5 }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "campus-008",
+    "pattern": ["presence", "state-machine", "multi-input"],
+    "utterance": "Create a 3-input state machine for room occupancy: I1 from the Flur presence sensor, I2 from the PushButton (card reader), and display the state as an analog value",
+    "difficulty": "hard",
+    "expected": {
+      "new_blocks": [
+        { "type": "State" }
+      ],
+      "wiring": [
+        {
+          "from_title": "Bewegungsmelder",
+          "to_type": "State",
+          "to_connector": "I1",
+          "from_connector": "OutputPresence"
+        },
+        {
+          "from_title": "PushButton",
+          "to_type": "State",
+          "to_connector": "I2",
+          "from_connector": "Q"
+        }
+      ],
+      "params": [],
+      "simulation": [
+        {
+          "name": "should show state 1 on presence only",
+          "inputs": {
+            "Bewegungsmelder.OutputPresence": 1.0,
+            "PushButton.Q": 0.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "State.AQ": { ">": 0.0 }
+          }
+        },
+        {
+          "name": "should show different state on card + presence",
+          "inputs": {
+            "Bewegungsmelder.OutputPresence": 1.0,
+            "PushButton.Q": 1.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "State.AQ": { ">": 0.0 }
+          }
+        },
+        {
+          "name": "should show 0 state when no inputs active",
+          "inputs": {
+            "Bewegungsmelder.OutputPresence": 0.0,
+            "PushButton.Q": 0.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "State.AQ": { "==": 0.0 }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "campus-009",
+    "pattern": ["hvac", "window-integration"],
+    "utterance": "Disable the Wohnzimmer heating when the window is open by wiring Fensterkontakt Wohnzimmer to the Raumregler window input",
+    "difficulty": "easy",
+    "expected": {
+      "new_blocks": [],
+      "wiring": [
+        {
+          "from_title": "Fensterkontakt Wohnzimmer",
+          "to_title": "Raumregler",
+          "to_room": "Wohnzimmer",
+          "to_connector": "Window",
+          "from_connector": "AQ"
+        }
+      ],
+      "params": [],
+      "simulation": [
+        {
+          "name": "should signal window open to heating controller",
+          "inputs": {
+            "Fensterkontakt Wohnzimmer.AQ": 1.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Raumregler.Window": { ">": 0.5 }
+          }
+        },
+        {
+          "name": "should NOT signal when window closed",
+          "inputs": {
+            "Fensterkontakt Wohnzimmer.AQ": 0.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Raumregler.Window": { "<": 0.5 }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "campus-010",
+    "pattern": ["hvac", "window-delay"],
+    "utterance": "Resume Wohnzimmer heating only after the window has been closed for at least 2 minutes, using a delayed window signal to the Raumregler",
+    "difficulty": "medium",
+    "expected": {
+      "new_blocks": [
+        { "type": "OnPulseDelay" }
+      ],
+      "wiring": [
+        {
+          "from_title": "Fensterkontakt Wohnzimmer",
+          "to_type": "OnPulseDelay",
+          "to_connector": "InputTrigger",
+          "from_connector": "AQ"
+        },
+        {
+          "from_type": "OnPulseDelay",
+          "to_title": "Raumregler",
+          "to_room": "Wohnzimmer",
+          "to_connector": "Window",
+          "from_connector": "Q"
+        }
+      ],
+      "params": [
+        {
+          "block_type": "OnPulseDelay",
+          "param": "Time",
+          "value": "120"
+        }
+      ],
+      "simulation": [
+        {
+          "name": "should keep window signal high during delay after closing",
+          "inputs": {
+            "Fensterkontakt Wohnzimmer.AQ": 1.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Raumregler.Window": { ">": 0.5 }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "campus-011",
+    "pattern": ["hvac", "status-display"],
+    "utterance": "Create a 4-state heating status display: wire the Raumregler heating output, cooling output, economy flag, and comfort flag to a State block with 4 inputs",
+    "difficulty": "hard",
+    "expected": {
+      "new_blocks": [
+        { "type": "State" }
+      ],
+      "wiring": [
+        {
+          "from_title": "Raumregler",
+          "from_room": "Wohnzimmer",
+          "to_type": "State",
+          "to_connector": "I1",
+          "from_connector": "AQh"
+        },
+        {
+          "from_title": "Raumregler",
+          "from_room": "Wohnzimmer",
+          "to_type": "State",
+          "to_connector": "I2",
+          "from_connector": "AQc"
+        },
+        {
+          "from_title": "Raumregler",
+          "from_room": "Wohnzimmer",
+          "to_type": "State",
+          "to_connector": "I3",
+          "from_connector": "Qe"
+        },
+        {
+          "from_title": "Raumregler",
+          "from_room": "Wohnzimmer",
+          "to_type": "State",
+          "to_connector": "I4",
+          "from_connector": "Qs"
+        }
+      ],
+      "params": [],
+      "simulation": [
+        {
+          "name": "should show heating state when AQh active",
+          "inputs": {
+            "Raumregler.AQh": 1.0,
+            "Raumregler.AQc": 0.0,
+            "Raumregler.Qe": 0.0,
+            "Raumregler.Qs": 0.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "State.AQ": { ">": 0.0 }
+          }
+        },
+        {
+          "name": "should show zero when no outputs active",
+          "inputs": {
+            "Raumregler.AQh": 0.0,
+            "Raumregler.AQc": 0.0,
+            "Raumregler.Qe": 0.0,
+            "Raumregler.Qs": 0.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "State.AQ": { "==": 0.0 }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "campus-012",
+    "pattern": ["hvac", "humidity"],
+    "utterance": "Feed the bathroom humidity sensor into the Wohnzimmer Raumregler humidity input so it can adjust ventilation",
+    "difficulty": "easy",
+    "expected": {
+      "new_blocks": [],
+      "wiring": [
+        {
+          "from_title": "Raumfeuchtigkeit Bad",
+          "to_title": "Raumregler",
+          "to_room": "Wohnzimmer",
+          "to_connector": "InHumid",
+          "from_connector": "AQ"
+        }
+      ],
+      "params": [],
+      "simulation": [
+        {
+          "name": "should pass humidity value to room controller",
+          "inputs": {
+            "Raumfeuchtigkeit Bad.AQ": 75.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Raumregler.InHumid": { ">": 50.0 }
+          }
+        },
+        {
+          "name": "should pass low humidity correctly",
+          "inputs": {
+            "Raumfeuchtigkeit Bad.AQ": 30.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Raumregler.InHumid": { "<": 50.0 }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "campus-013",
+    "pattern": ["lighting", "presence-mood"],
+    "utterance": "Switch the Flur Lichtsteuerung to night light mood (Sel5) when the presence sensor warning output fires, indicating the room is about to go idle",
+    "difficulty": "medium",
+    "expected": {
+      "new_blocks": [],
+      "wiring": [
+        {
+          "from_title": "Bewegungsmelder",
+          "to_title": "Lichtsteuerung",
+          "to_room": "Flur",
+          "to_connector": "Sel5",
+          "from_connector": "OutputWarn"
+        }
+      ],
+      "params": [],
+      "simulation": [
+        {
+          "name": "should select night light mood on warning",
+          "inputs": {
+            "Bewegungsmelder.OutputWarn": 1.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Lichtsteuerung [Flur].Sel5": { ">": 0.5 }
+          }
+        },
+        {
+          "name": "should NOT select night light when no warning",
+          "inputs": {
+            "Bewegungsmelder.OutputWarn": 0.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Lichtsteuerung [Flur].Sel5": { "<": 0.5 }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "campus-014",
+    "pattern": ["lighting", "reading-light"],
+    "utterance": "Wire the Flur PushButton to select reading light mood (Sel6) on the Schlafzimmer Lichtsteuerung, like a bedside reading switch",
+    "difficulty": "easy",
+    "expected": {
+      "new_blocks": [],
+      "wiring": [
+        {
+          "from_title": "PushButton",
+          "from_room": "Flur",
+          "to_title": "Lichtsteuerung",
+          "to_room": "Schlafzimmer",
+          "to_connector": "Sel6",
+          "from_connector": "Q"
+        }
+      ],
+      "params": [],
+      "simulation": [
+        {
+          "name": "should select reading light on button press",
+          "inputs": {
+            "PushButton.Q": 1.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Lichtsteuerung [Schlafzimmer].Sel6": { ">": 0.5 }
+          }
+        },
+        {
+          "name": "should NOT select when button not pressed",
+          "inputs": {
+            "PushButton.Q": 0.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Lichtsteuerung [Schlafzimmer].Sel6": { "<": 0.5 }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "campus-015",
+    "pattern": ["lighting", "presence-off"],
+    "utterance": "Reset the Flur Lichtsteuerung to default when the presence sensor turns off, so lights return to base state when the guest leaves",
+    "difficulty": "easy",
+    "expected": {
+      "new_blocks": [],
+      "wiring": [
+        {
+          "from_title": "Bewegungsmelder",
+          "to_title": "Lichtsteuerung",
+          "to_room": "Flur",
+          "to_connector": "Reset",
+          "from_connector": "OutputOff"
+        }
+      ],
+      "params": [],
+      "simulation": [
+        {
+          "name": "should reset lights when presence off fires",
+          "inputs": {
+            "Bewegungsmelder.OutputOff": 1.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Lichtsteuerung [Flur].Reset": { ">": 0.5 }
+          }
+        },
+        {
+          "name": "should NOT reset while presence off is inactive",
+          "inputs": {
+            "Bewegungsmelder.OutputOff": 0.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Lichtsteuerung [Flur].Reset": { "<": 0.5 }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "campus-016",
+    "pattern": ["lighting", "presence-auto"],
+    "utterance": "Wire the hallway presence sensor to the Flur Lichtsteuerung presence input so the light controller handles motion-based lighting automatically",
+    "difficulty": "easy",
+    "expected": {
+      "new_blocks": [],
+      "wiring": [
+        {
+          "from_title": "Bewegungsmelder",
+          "to_title": "Lichtsteuerung",
+          "to_room": "Flur",
+          "to_connector": "Presence",
+          "from_connector": "OutputPresence"
+        }
+      ],
+      "params": [],
+      "simulation": [
+        {
+          "name": "should activate presence-based lighting on motion",
+          "inputs": {
+            "Bewegungsmelder.OutputPresence": 1.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Lichtsteuerung [Flur].Presence": { ">": 0.5 }
+          }
+        },
+        {
+          "name": "should deactivate when no motion",
+          "inputs": {
+            "Bewegungsmelder.OutputPresence": 0.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Lichtsteuerung [Flur].Presence": { "<": 0.5 }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "campus-017",
+    "pattern": ["door-state", "memory"],
+    "utterance": "Track the Wohnzimmer terrace door open/closed state with a FlipFlop memory block: set on door open, reset on door close via an inverted signal",
+    "difficulty": "medium",
+    "expected": {
+      "new_blocks": [
+        { "type": "FlipFlop" },
+        { "type": "Not" }
+      ],
+      "wiring": [
+        {
+          "from_title": "Türkontakt Wohnzimmer",
+          "to_type": "FlipFlop",
+          "to_connector": "InputS",
+          "from_connector": "AQ"
+        },
+        {
+          "from_title": "Türkontakt Wohnzimmer",
+          "to_type": "Not",
+          "to_connector": "I",
+          "from_connector": "AQ"
+        },
+        {
+          "from_type": "Not",
+          "to_type": "FlipFlop",
+          "to_connector": "InputR",
+          "from_connector": "Q"
+        }
+      ],
+      "params": [],
+      "simulation": [
+        {
+          "name": "should latch door-open state",
+          "inputs": {
+            "Türkontakt Wohnzimmer.AQ": 1.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "FlipFlop.Q": { ">": 0.5 }
+          }
+        },
+        {
+          "name": "should reset when door closes",
+          "inputs": {
+            "Türkontakt Wohnzimmer.AQ": 0.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "FlipFlop.Q": { "<": 0.5 }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "campus-018",
+    "pattern": ["door-state", "state-display"],
+    "utterance": "Create a State block that shows the terrace door status in the Wohnzimmer: wire Türkontakt Wohnzimmer to I1 so the state output reflects door open or closed",
+    "difficulty": "easy",
+    "expected": {
+      "new_blocks": [
+        { "type": "State" }
+      ],
+      "wiring": [
+        {
+          "from_title": "Türkontakt Wohnzimmer",
+          "to_type": "State",
+          "to_connector": "I1",
+          "from_connector": "AQ"
+        }
+      ],
+      "params": [],
+      "simulation": [
+        {
+          "name": "should show state when door open",
+          "inputs": {
+            "Türkontakt Wohnzimmer.AQ": 1.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "State.AQ": { ">": 0.0 }
+          }
+        },
+        {
+          "name": "should show zero when door closed",
+          "inputs": {
+            "Türkontakt Wohnzimmer.AQ": 0.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "State.AQ": { "==": 0.0 }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "campus-019",
+    "pattern": ["door-state", "combined-state"],
+    "utterance": "Build a combined door and AC state machine: wire Türkontakt Wohnzimmer to I1 and the Klimaanlage status to I2 of a State block, so you can see both states at a glance",
+    "difficulty": "medium",
+    "expected": {
+      "new_blocks": [
+        { "type": "State" }
+      ],
+      "wiring": [
+        {
+          "from_title": "Türkontakt Wohnzimmer",
+          "to_type": "State",
+          "to_connector": "I1",
+          "from_connector": "AQ"
+        },
+        {
+          "from_title": "Klimaanlage",
+          "from_room": "Wohnzimmer",
+          "to_type": "State",
+          "to_connector": "I2",
+          "from_connector": "status"
+        }
+      ],
+      "params": [],
+      "simulation": [
+        {
+          "name": "should show door-only state",
+          "inputs": {
+            "Türkontakt Wohnzimmer.AQ": 1.0,
+            "Klimaanlage.status": 0.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "State.AQ": { ">": 0.0 }
+          }
+        },
+        {
+          "name": "should show combined state when both active",
+          "inputs": {
+            "Türkontakt Wohnzimmer.AQ": 1.0,
+            "Klimaanlage.status": 1.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "State.AQ": { ">": 0.0 }
+          }
+        },
+        {
+          "name": "should show zero when both inactive",
+          "inputs": {
+            "Türkontakt Wohnzimmer.AQ": 0.0,
+            "Klimaanlage.status": 0.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "State.AQ": { "==": 0.0 }
+          }
+        }
+      ]
+    }
+  }
+]
