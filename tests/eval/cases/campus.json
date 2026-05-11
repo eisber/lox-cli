@@ -1044,29 +1044,58 @@
       "simulation": [
         {
           "name": "should latch door-open state",
-          "inputs": {
-            "Türkontakt Wohnzimmer.AQ": 1.0
-          },
-          "ticks": 10,
-          "dt": 0.1,
-          "expected_outputs": {
-            "FlipFlop.Q": {
-              ">": 0.5
+          "steps": [
+            {
+              "inputs": {
+                "Türkontakt Wohnzimmer": 0
+              },
+              "ticks": 2,
+              "dt": 0.1
+            },
+            {
+              "inputs": {
+                "Türkontakt Wohnzimmer": 1
+              },
+              "ticks": 3,
+              "dt": 0.1,
+              "expected_outputs": {
+                "Terrassentür Merker.Q": {
+                  ">": 0.5
+                }
+              }
             }
-          }
+          ]
         },
         {
-          "name": "should reset when door closes",
-          "inputs": {
-            "Türkontakt Wohnzimmer.AQ": 0.0
-          },
-          "ticks": 10,
-          "dt": 0.1,
-          "expected_outputs": {
-            "FlipFlop.Q": {
-              "<": 0.5
+          "name": "should stay latched after door closes",
+          "steps": [
+            {
+              "inputs": {
+                "Türkontakt Wohnzimmer": 0
+              },
+              "ticks": 2,
+              "dt": 0.1
+            },
+            {
+              "inputs": {
+                "Türkontakt Wohnzimmer": 1
+              },
+              "ticks": 2,
+              "dt": 0.1
+            },
+            {
+              "inputs": {
+                "Türkontakt Wohnzimmer": 0
+              },
+              "ticks": 3,
+              "dt": 0.1,
+              "expected_outputs": {
+                "Terrassentür Merker.Q": {
+                  "<": 0.5
+                }
+              }
             }
-          }
+          ]
         }
       ]
     }
@@ -1097,27 +1126,38 @@
       "simulation": [
         {
           "name": "should show state when door open",
-          "inputs": {
-            "Türkontakt Wohnzimmer.AQ": 1.0
-          },
-          "ticks": 10,
-          "dt": 0.1,
-          "expected_outputs": {
-            "State.AQ": {
-              ">": 0.0
+          "steps": [
+            {
+              "inputs": {
+                "Türkontakt Wohnzimmer": 0
+              },
+              "ticks": 2,
+              "dt": 0.1
+            },
+            {
+              "inputs": {
+                "Türkontakt Wohnzimmer": 1
+              },
+              "ticks": 3,
+              "dt": 0.1,
+              "expected_outputs": {
+                "Terrassentür Status.AQ": {
+                  ">": 0
+                }
+              }
             }
-          }
+          ]
         },
         {
           "name": "should show zero when door closed",
           "inputs": {
-            "Türkontakt Wohnzimmer.AQ": 0.0
+            "Türkontakt Wohnzimmer": 0
           },
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "State.AQ": {
-              "==": 0.0
+            "Terrassentür Status.AQ": {
+              "==": 0
             }
           }
         }
@@ -1157,43 +1197,67 @@
       "simulation": [
         {
           "name": "should show door-only state",
-          "inputs": {
-            "Türkontakt Wohnzimmer.AQ": 1.0,
-            "Klimaanlage.status": 0.0
-          },
-          "ticks": 10,
-          "dt": 0.1,
-          "expected_outputs": {
-            "State.AQ": {
-              ">": 0.0
+          "steps": [
+            {
+              "inputs": {
+                "Türkontakt Wohnzimmer": 0,
+                "Klimaanlage.status": 0
+              },
+              "ticks": 2,
+              "dt": 0.1
+            },
+            {
+              "inputs": {
+                "Türkontakt Wohnzimmer": 1,
+                "Klimaanlage.status": 0
+              },
+              "ticks": 3,
+              "dt": 0.1,
+              "expected_outputs": {
+                "Tür und Klima Status.AQ": {
+                  ">": 0
+                }
+              }
             }
-          }
+          ]
         },
         {
           "name": "should show combined state when both active",
-          "inputs": {
-            "Türkontakt Wohnzimmer.AQ": 1.0,
-            "Klimaanlage.status": 1.0
-          },
-          "ticks": 10,
-          "dt": 0.1,
-          "expected_outputs": {
-            "State.AQ": {
-              ">": 0.0
+          "steps": [
+            {
+              "inputs": {
+                "Türkontakt Wohnzimmer": 0,
+                "Klimaanlage.status": 0
+              },
+              "ticks": 2,
+              "dt": 0.1
+            },
+            {
+              "inputs": {
+                "Türkontakt Wohnzimmer": 1,
+                "Klimaanlage.status": 1
+              },
+              "ticks": 3,
+              "dt": 0.1,
+              "expected_outputs": {
+                "Tür und Klima Status.AQ": {
+                  ">": 0
+                }
+              }
             }
-          }
+          ]
         },
         {
           "name": "should show zero when both inactive",
           "inputs": {
-            "Türkontakt Wohnzimmer.AQ": 0.0,
-            "Klimaanlage.status": 0.0
+            "Türkontakt Wohnzimmer": 0,
+            "Klimaanlage.status": 0
           },
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "State.AQ": {
-              "==": 0.0
+            "Tür und Klima Status.AQ": {
+              "==": 0
             }
           }
         }

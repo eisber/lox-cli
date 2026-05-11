@@ -480,7 +480,17 @@ fn block_signature(
         "OnPulseDelay" => (&["InputTrigger"], &["Q"], &["Delay", "Time"]),
         "Or" => (&["I1", "I2"], &["Q"], &[]),
         "PassThrough" => (&["I1", "Input"], &["Q", "AQ"], &[]),
-        "PresenceDetector" => (&["InputTrigger"], &["OutputPresence"], &[]),
+        "PresenceDetector" => (
+            &["InputActivate", "InputExtend", "InputTrigger", "InputReset"],
+            &[
+                "OutputPresence",
+                "OutputActive",
+                "OutputOn",
+                "OutputOff",
+                "OutputWarn",
+            ],
+            &["ParamTOn", "ParamTWarn"],
+        ),
         "PulseGen" => (
             &["InputEnable", "InputInvert"],
             &["Q"],
