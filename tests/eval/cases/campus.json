@@ -1,7 +1,10 @@
 [
   {
     "id": "campus-001",
-    "pattern": ["window-curtain", "door-sensor"],
+    "pattern": [
+      "window-curtain",
+      "door-sensor"
+    ],
     "utterance": "Close both curtains in the Schlafzimmer when the terrace door opens",
     "difficulty": "easy",
     "expected": {
@@ -32,8 +35,12 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Jalousie 1 [Schlafzimmer].InputTriggerDown": { ">": 0.5 },
-            "Jalousie 2 [Schlafzimmer].InputTriggerDown": { ">": 0.5 }
+            "Jalousie 1 [Schlafzimmer].InputTriggerDown": {
+              ">": 0.5
+            },
+            "Jalousie 2 [Schlafzimmer].InputTriggerDown": {
+              ">": 0.5
+            }
           }
         },
         {
@@ -44,8 +51,12 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Jalousie 1 [Schlafzimmer].InputTriggerDown": { "<": 0.5 },
-            "Jalousie 2 [Schlafzimmer].InputTriggerDown": { "<": 0.5 }
+            "Jalousie 1 [Schlafzimmer].InputTriggerDown": {
+              "<": 0.5
+            },
+            "Jalousie 2 [Schlafzimmer].InputTriggerDown": {
+              "<": 0.5
+            }
           }
         }
       ]
@@ -53,7 +64,10 @@
   },
   {
     "id": "campus-002",
-    "pattern": ["window-curtain", "window-tilt"],
+    "pattern": [
+      "window-curtain",
+      "window-tilt"
+    ],
     "utterance": "Stop the blinds in Schlafzimmer when the window is tilted open",
     "difficulty": "easy",
     "expected": {
@@ -84,8 +98,12 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Jalousie 1 [Schlafzimmer].Stop": { ">": 0.5 },
-            "Jalousie 2 [Schlafzimmer].Stop": { ">": 0.5 }
+            "Jalousie 1 [Schlafzimmer].InputDisable": {
+              ">": 0.5
+            },
+            "Jalousie 2 [Schlafzimmer].InputDisable": {
+              ">": 0.5
+            }
           }
         },
         {
@@ -96,8 +114,12 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Jalousie 1 [Schlafzimmer].Stop": { "<": 0.5 },
-            "Jalousie 2 [Schlafzimmer].Stop": { "<": 0.5 }
+            "Jalousie 1 [Schlafzimmer].InputDisable": {
+              "<": 0.5
+            },
+            "Jalousie 2 [Schlafzimmer].InputDisable": {
+              "<": 0.5
+            }
           }
         }
       ]
@@ -105,7 +127,10 @@
   },
   {
     "id": "campus-003",
-    "pattern": ["window-curtain", "shade-block"],
+    "pattern": [
+      "window-curtain",
+      "shade-block"
+    ],
     "utterance": "Block automatic shading on bedroom blinds whenever the terrace door is open",
     "difficulty": "easy",
     "expected": {
@@ -136,8 +161,12 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Jalousie 1 [Schlafzimmer].InputDisable": { ">": 0.5 },
-            "Jalousie 2 [Schlafzimmer].InputDisable": { ">": 0.5 }
+            "Jalousie 1 [Schlafzimmer].InputDisable": {
+              ">": 0.5
+            },
+            "Jalousie 2 [Schlafzimmer].InputDisable": {
+              ">": 0.5
+            }
           }
         },
         {
@@ -148,8 +177,12 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Jalousie 1 [Schlafzimmer].InputDisable": { "<": 0.5 },
-            "Jalousie 2 [Schlafzimmer].InputDisable": { "<": 0.5 }
+            "Jalousie 1 [Schlafzimmer].InputDisable": {
+              "<": 0.5
+            },
+            "Jalousie 2 [Schlafzimmer].InputDisable": {
+              "<": 0.5
+            }
           }
         }
       ]
@@ -157,12 +190,17 @@
   },
   {
     "id": "campus-004",
-    "pattern": ["window-curtain", "join-window"],
+    "pattern": [
+      "window-curtain",
+      "join-window"
+    ],
     "utterance": "Set up a combined window sensor for the Schlafzimmer that merges window contact and door contact, and wire it to disable Jalousie 1",
     "difficulty": "medium",
     "expected": {
       "new_blocks": [
-        { "type": "JoinWindowSensor" }
+        {
+          "type": "JoinWindowSensor"
+        }
       ],
       "wiring": [
         {
@@ -196,7 +234,9 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Jalousie 1 [Schlafzimmer].InputDisable": { ">": 0.5 }
+            "Jalousie 1 [Schlafzimmer].InputDisable": {
+              ">": 0.5
+            }
           }
         },
         {
@@ -208,7 +248,9 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Jalousie 1 [Schlafzimmer].InputDisable": { ">": 0.5 }
+            "Jalousie 1 [Schlafzimmer].InputDisable": {
+              ">": 0.5
+            }
           }
         },
         {
@@ -220,7 +262,9 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Jalousie 1 [Schlafzimmer].InputDisable": { "<": 0.5 }
+            "Jalousie 1 [Schlafzimmer].InputDisable": {
+              "<": 0.5
+            }
           }
         }
       ]
@@ -228,12 +272,17 @@
   },
   {
     "id": "campus-005",
-    "pattern": ["presence", "state-machine"],
+    "pattern": [
+      "presence",
+      "state-machine"
+    ],
     "utterance": "Track room occupancy in the Flur: latch the presence sensor output into a memory block so occupancy stays high after motion stops",
     "difficulty": "medium",
     "expected": {
       "new_blocks": [
-        { "type": "FlipFlop" }
+        {
+          "type": "FlipFlop"
+        }
       ],
       "wiring": [
         {
@@ -253,7 +302,9 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "FlipFlop.Q": { ">": 0.5 }
+            "Belegung Flur.AQ": {
+              ">": 0.5
+            }
           }
         }
       ]
@@ -261,13 +312,20 @@
   },
   {
     "id": "campus-006",
-    "pattern": ["presence", "off-delay"],
+    "pattern": [
+      "presence",
+      "off-delay"
+    ],
     "utterance": "Turn off the Flur lights 5 minutes after the presence sensor goes inactive",
     "difficulty": "medium",
     "expected": {
       "new_blocks": [
-        { "type": "Not" },
-        { "type": "OnPulseDelay" }
+        {
+          "type": "Not"
+        },
+        {
+          "type": "OnPulseDelay"
+        }
       ],
       "wiring": [
         {
@@ -299,25 +357,40 @@
       ],
       "simulation": [
         {
-          "name": "should reset lights when presence drops",
-          "inputs": {
-            "Bewegungsmelder.OutputPresence": 0.0
-          },
-          "ticks": 3200,
-          "dt": 0.1,
-          "expected_outputs": {
-            "Lichtsteuerung [Flur].Reset": { ">": 0.5 }
-          }
+          "name": "lights stay on after presence drops (OffDelay hold)",
+          "steps": [
+            {
+              "inputs": {
+                "Bewegungsmelder.OutputPresence": 1
+              },
+              "ticks": 5,
+              "dt": 0.1
+            },
+            {
+              "inputs": {
+                "Bewegungsmelder.OutputPresence": 0
+              },
+              "ticks": 5,
+              "dt": 0.1,
+              "expected_outputs": {
+                "Lichtsteuerung [Flur].I1": {
+                  ">": 0.5
+                }
+              }
+            }
+          ]
         },
         {
-          "name": "should NOT reset lights while presence active",
+          "name": "lights on while presence active",
           "inputs": {
-            "Bewegungsmelder.OutputPresence": 1.0
+            "Bewegungsmelder.OutputPresence": 1
           },
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Lichtsteuerung [Flur].Reset": { "<": 0.5 }
+            "Lichtsteuerung [Flur].I1": {
+              ">": 0.5
+            }
           }
         }
       ]
@@ -325,12 +398,17 @@
   },
   {
     "id": "campus-007",
-    "pattern": ["presence", "welcome-scene"],
+    "pattern": [
+      "presence",
+      "welcome-scene"
+    ],
     "utterance": "Trigger the welcome light scene (Sel1) on the Flur Lichtsteuerung when the presence sensor first detects motion",
     "difficulty": "medium",
     "expected": {
       "new_blocks": [
-        { "type": "EdgeDetection" }
+        {
+          "type": "EdgeDetection"
+        }
       ],
       "wiring": [
         {
@@ -351,26 +429,45 @@
       "simulation": [
         {
           "name": "should trigger welcome scene on rising edge of presence",
-          "inputs": {
-            "Bewegungsmelder.OutputPresence": 1.0
-          },
-          "ticks": 10,
-          "dt": 0.1,
-          "expected_outputs": {
-            "Lichtsteuerung [Flur].Sel1": { ">": 0.5 }
-          }
+          "steps": [
+            {
+              "inputs": {
+                "Bewegungsmelder.OutputPresence": 0
+              },
+              "ticks": 2,
+              "dt": 0.1
+            },
+            {
+              "inputs": {
+                "Bewegungsmelder.OutputPresence": 1
+              },
+              "ticks": 1,
+              "dt": 0.1,
+              "expected_outputs": {
+                "Lichtsteuerung [Flur].Sel1": {
+                  ">": 0.5
+                }
+              }
+            }
+          ]
         }
       ]
     }
   },
   {
     "id": "campus-008",
-    "pattern": ["presence", "state-machine", "multi-input"],
+    "pattern": [
+      "presence",
+      "state-machine",
+      "multi-input"
+    ],
     "utterance": "Create a 3-input state machine for room occupancy: I1 from the Flur presence sensor, I2 from the PushButton (card reader), and display the state as an analog value",
     "difficulty": "hard",
     "expected": {
       "new_blocks": [
-        { "type": "State" }
+        {
+          "type": "State"
+        }
       ],
       "wiring": [
         {
@@ -390,38 +487,68 @@
       "simulation": [
         {
           "name": "should show state 1 on presence only",
-          "inputs": {
-            "Bewegungsmelder.OutputPresence": 1.0,
-            "PushButton.Q": 0.0
-          },
-          "ticks": 10,
-          "dt": 0.1,
-          "expected_outputs": {
-            "State.AQ": { ">": 0.0 }
-          }
+          "steps": [
+            {
+              "inputs": {
+                "Bewegungsmelder.OutputPresence": 0,
+                "PushButton.Q": 0
+              },
+              "ticks": 2,
+              "dt": 0.1
+            },
+            {
+              "inputs": {
+                "Bewegungsmelder.OutputPresence": 1,
+                "PushButton.Q": 0
+              },
+              "ticks": 5,
+              "dt": 0.1,
+              "expected_outputs": {
+                "Raumbelegung.AQ": {
+                  ">": 0
+                }
+              }
+            }
+          ]
         },
         {
           "name": "should show different state on card + presence",
-          "inputs": {
-            "Bewegungsmelder.OutputPresence": 1.0,
-            "PushButton.Q": 1.0
-          },
-          "ticks": 10,
-          "dt": 0.1,
-          "expected_outputs": {
-            "State.AQ": { ">": 0.0 }
-          }
+          "steps": [
+            {
+              "inputs": {
+                "Bewegungsmelder.OutputPresence": 0,
+                "PushButton.Q": 0
+              },
+              "ticks": 2,
+              "dt": 0.1
+            },
+            {
+              "inputs": {
+                "Bewegungsmelder.OutputPresence": 1,
+                "PushButton.Q": 1
+              },
+              "ticks": 5,
+              "dt": 0.1,
+              "expected_outputs": {
+                "Raumbelegung.AQ": {
+                  ">": 0
+                }
+              }
+            }
+          ]
         },
         {
           "name": "should show 0 state when no inputs active",
           "inputs": {
-            "Bewegungsmelder.OutputPresence": 0.0,
-            "PushButton.Q": 0.0
+            "Bewegungsmelder.OutputPresence": 0,
+            "PushButton.Q": 0
           },
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "State.AQ": { "==": 0.0 }
+            "Raumbelegung.AQ": {
+              "==": 0
+            }
           }
         }
       ]
@@ -429,7 +556,10 @@
   },
   {
     "id": "campus-009",
-    "pattern": ["hvac", "window-integration"],
+    "pattern": [
+      "hvac",
+      "window-integration"
+    ],
     "utterance": "Disable the Wohnzimmer heating when the window is open by wiring Fensterkontakt Wohnzimmer to the Raumregler window input",
     "difficulty": "easy",
     "expected": {
@@ -453,7 +583,9 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Raumregler.Window": { ">": 0.5 }
+            "Raumregler.Window": {
+              ">": 0.5
+            }
           }
         },
         {
@@ -464,7 +596,9 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Raumregler.Window": { "<": 0.5 }
+            "Raumregler.Window": {
+              "<": 0.5
+            }
           }
         }
       ]
@@ -472,12 +606,17 @@
   },
   {
     "id": "campus-010",
-    "pattern": ["hvac", "window-delay"],
+    "pattern": [
+      "hvac",
+      "window-delay"
+    ],
     "utterance": "Resume Wohnzimmer heating only after the window has been closed for at least 2 minutes, using a delayed window signal to the Raumregler",
     "difficulty": "medium",
     "expected": {
       "new_blocks": [
-        { "type": "OnPulseDelay" }
+        {
+          "type": "OnPulseDelay"
+        }
       ],
       "wiring": [
         {
@@ -510,7 +649,9 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Raumregler.Window": { ">": 0.5 }
+            "Raumregler.Window": {
+              ">": 0.5
+            }
           }
         }
       ]
@@ -518,12 +659,17 @@
   },
   {
     "id": "campus-011",
-    "pattern": ["hvac", "status-display"],
+    "pattern": [
+      "hvac",
+      "status-display"
+    ],
     "utterance": "Create a 4-state heating status display: wire the Raumregler heating output, cooling output, economy flag, and comfort flag to a State block with 4 inputs",
     "difficulty": "hard",
     "expected": {
       "new_blocks": [
-        { "type": "State" }
+        {
+          "type": "State"
+        }
       ],
       "wiring": [
         {
@@ -559,30 +705,37 @@
       "simulation": [
         {
           "name": "should show heating state when AQh active",
-          "inputs": {
-            "Raumregler.AQh": 1.0,
-            "Raumregler.AQc": 0.0,
-            "Raumregler.Qe": 0.0,
-            "Raumregler.Qs": 0.0
-          },
-          "ticks": 10,
-          "dt": 0.1,
-          "expected_outputs": {
-            "State.AQ": { ">": 0.0 }
-          }
+          "steps": [
+            {
+              "inputs": {
+                "Raumregler.AQh": 0
+              },
+              "ticks": 2,
+              "dt": 0.1
+            },
+            {
+              "inputs": {
+                "Raumregler.AQh": 80
+              },
+              "ticks": 5,
+              "dt": 0.1,
+              "expected_outputs": {
+                "Heizstatus.AQ": {
+                  ">": 0
+                }
+              }
+            }
+          ]
         },
         {
           "name": "should show zero when no outputs active",
-          "inputs": {
-            "Raumregler.AQh": 0.0,
-            "Raumregler.AQc": 0.0,
-            "Raumregler.Qe": 0.0,
-            "Raumregler.Qs": 0.0
-          },
+          "inputs": {},
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "State.AQ": { "==": 0.0 }
+            "Heizstatus.AQ": {
+              "==": 0
+            }
           }
         }
       ]
@@ -590,7 +743,10 @@
   },
   {
     "id": "campus-012",
-    "pattern": ["hvac", "humidity"],
+    "pattern": [
+      "hvac",
+      "humidity"
+    ],
     "utterance": "Feed the bathroom humidity sensor into the Wohnzimmer Raumregler humidity input so it can adjust ventilation",
     "difficulty": "easy",
     "expected": {
@@ -614,7 +770,9 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Raumregler.InHumid": { ">": 50.0 }
+            "Raumregler.InHumid": {
+              ">": 50.0
+            }
           }
         },
         {
@@ -625,7 +783,9 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Raumregler.InHumid": { "<": 50.0 }
+            "Raumregler.InHumid": {
+              "<": 50.0
+            }
           }
         }
       ]
@@ -633,7 +793,10 @@
   },
   {
     "id": "campus-013",
-    "pattern": ["lighting", "presence-mood"],
+    "pattern": [
+      "lighting",
+      "presence-mood"
+    ],
     "utterance": "Switch the Flur Lichtsteuerung to night light mood (Sel5) when the presence sensor warning output fires, indicating the room is about to go idle",
     "difficulty": "medium",
     "expected": {
@@ -657,7 +820,9 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Lichtsteuerung [Flur].Sel5": { ">": 0.5 }
+            "Lichtsteuerung [Flur].Sel5": {
+              ">": 0.5
+            }
           }
         },
         {
@@ -668,7 +833,9 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Lichtsteuerung [Flur].Sel5": { "<": 0.5 }
+            "Lichtsteuerung [Flur].Sel5": {
+              "<": 0.5
+            }
           }
         }
       ]
@@ -676,7 +843,10 @@
   },
   {
     "id": "campus-014",
-    "pattern": ["lighting", "reading-light"],
+    "pattern": [
+      "lighting",
+      "reading-light"
+    ],
     "utterance": "Wire the Flur PushButton to select reading light mood (Sel6) on the Schlafzimmer Lichtsteuerung, like a bedside reading switch",
     "difficulty": "easy",
     "expected": {
@@ -701,7 +871,9 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Lichtsteuerung [Schlafzimmer].Sel6": { ">": 0.5 }
+            "Lichtsteuerung [Schlafzimmer].Sel6": {
+              ">": 0.5
+            }
           }
         },
         {
@@ -712,7 +884,9 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Lichtsteuerung [Schlafzimmer].Sel6": { "<": 0.5 }
+            "Lichtsteuerung [Schlafzimmer].Sel6": {
+              "<": 0.5
+            }
           }
         }
       ]
@@ -720,7 +894,10 @@
   },
   {
     "id": "campus-015",
-    "pattern": ["lighting", "presence-off"],
+    "pattern": [
+      "lighting",
+      "presence-off"
+    ],
     "utterance": "Reset the Flur Lichtsteuerung to default when the presence sensor turns off, so lights return to base state when the guest leaves",
     "difficulty": "easy",
     "expected": {
@@ -737,25 +914,40 @@
       "params": [],
       "simulation": [
         {
-          "name": "should reset lights when presence off fires",
-          "inputs": {
-            "Bewegungsmelder.OutputOff": 1.0
-          },
-          "ticks": 10,
-          "dt": 0.1,
-          "expected_outputs": {
-            "Lichtsteuerung [Flur].Reset": { ">": 0.5 }
-          }
+          "name": "should reset lights when presence goes off",
+          "steps": [
+            {
+              "inputs": {
+                "Bewegungsmelder.OutputPresence": 1
+              },
+              "ticks": 3,
+              "dt": 0.1
+            },
+            {
+              "inputs": {
+                "Bewegungsmelder.OutputPresence": 0
+              },
+              "ticks": 3,
+              "dt": 0.1,
+              "expected_outputs": {
+                "Lichtsteuerung [Flur].Reset": {
+                  ">": 0.5
+                }
+              }
+            }
+          ]
         },
         {
-          "name": "should NOT reset while presence off is inactive",
+          "name": "should NOT reset while presence active",
           "inputs": {
-            "Bewegungsmelder.OutputOff": 0.0
+            "Bewegungsmelder.OutputPresence": 1
           },
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Lichtsteuerung [Flur].Reset": { "<": 0.5 }
+            "Lichtsteuerung [Flur].Reset": {
+              "<": 0.5
+            }
           }
         }
       ]
@@ -763,7 +955,10 @@
   },
   {
     "id": "campus-016",
-    "pattern": ["lighting", "presence-auto"],
+    "pattern": [
+      "lighting",
+      "presence-auto"
+    ],
     "utterance": "Wire the hallway presence sensor to the Flur Lichtsteuerung presence input so the light controller handles motion-based lighting automatically",
     "difficulty": "easy",
     "expected": {
@@ -787,7 +982,9 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Lichtsteuerung [Flur].Presence": { ">": 0.5 }
+            "Lichtsteuerung [Flur].Presence": {
+              ">": 0.5
+            }
           }
         },
         {
@@ -798,7 +995,9 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Lichtsteuerung [Flur].Presence": { "<": 0.5 }
+            "Lichtsteuerung [Flur].Presence": {
+              "<": 0.5
+            }
           }
         }
       ]
@@ -806,13 +1005,20 @@
   },
   {
     "id": "campus-017",
-    "pattern": ["door-state", "memory"],
+    "pattern": [
+      "door-state",
+      "memory"
+    ],
     "utterance": "Track the Wohnzimmer terrace door open/closed state with a FlipFlop memory block: set on door open, reset on door close via an inverted signal",
     "difficulty": "medium",
     "expected": {
       "new_blocks": [
-        { "type": "FlipFlop" },
-        { "type": "Not" }
+        {
+          "type": "FlipFlop"
+        },
+        {
+          "type": "Not"
+        }
       ],
       "wiring": [
         {
@@ -844,7 +1050,9 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "FlipFlop.Q": { ">": 0.5 }
+            "FlipFlop.Q": {
+              ">": 0.5
+            }
           }
         },
         {
@@ -855,7 +1063,9 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "FlipFlop.Q": { "<": 0.5 }
+            "FlipFlop.Q": {
+              "<": 0.5
+            }
           }
         }
       ]
@@ -863,12 +1073,17 @@
   },
   {
     "id": "campus-018",
-    "pattern": ["door-state", "state-display"],
+    "pattern": [
+      "door-state",
+      "state-display"
+    ],
     "utterance": "Create a State block that shows the terrace door status in the Wohnzimmer: wire Türkontakt Wohnzimmer to I1 so the state output reflects door open or closed",
     "difficulty": "easy",
     "expected": {
       "new_blocks": [
-        { "type": "State" }
+        {
+          "type": "State"
+        }
       ],
       "wiring": [
         {
@@ -888,7 +1103,9 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "State.AQ": { ">": 0.0 }
+            "State.AQ": {
+              ">": 0.0
+            }
           }
         },
         {
@@ -899,7 +1116,9 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "State.AQ": { "==": 0.0 }
+            "State.AQ": {
+              "==": 0.0
+            }
           }
         }
       ]
@@ -907,12 +1126,17 @@
   },
   {
     "id": "campus-019",
-    "pattern": ["door-state", "combined-state"],
+    "pattern": [
+      "door-state",
+      "combined-state"
+    ],
     "utterance": "Build a combined door and AC state machine: wire Türkontakt Wohnzimmer to I1 and the Klimaanlage status to I2 of a State block, so you can see both states at a glance",
     "difficulty": "medium",
     "expected": {
       "new_blocks": [
-        { "type": "State" }
+        {
+          "type": "State"
+        }
       ],
       "wiring": [
         {
@@ -940,7 +1164,9 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "State.AQ": { ">": 0.0 }
+            "State.AQ": {
+              ">": 0.0
+            }
           }
         },
         {
@@ -952,7 +1178,9 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "State.AQ": { ">": 0.0 }
+            "State.AQ": {
+              ">": 0.0
+            }
           }
         },
         {
@@ -964,7 +1192,9 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "State.AQ": { "==": 0.0 }
+            "State.AQ": {
+              "==": 0.0
+            }
           }
         }
       ]
