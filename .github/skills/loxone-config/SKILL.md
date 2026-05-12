@@ -315,6 +315,7 @@ lox config wire-connector config.Loxone "Raumregler.Setpoint" "Temp Speicher.AQ"
     - OnPulseDelay: `set-param FILE "BlockTitle" Time 600` (10 minutes = 600 seconds)
     - OffDelay: `set-param FILE "BlockTitle" Time 300`
     - Monoflop: `set-param FILE "BlockTitle" Duration 180`
+12. **⚠ Exotic block types — CRITICAL**: When using exotic block types (2Point, SequenceController, AnalogWatchdog, etc.), always check connector names with `lox blocks info <type>` first. Connector names vary between types — don't guess.
 
 ## Short Aliases
 
@@ -349,3 +350,104 @@ Use `lox blocks search "keyword"` or `lox blocks info TypeName` to discover bloc
 | **Energy** | EnergyManager2, SpotOpt, LoadShed, Wallbox |
 | **I/O** | InputRef, OutputRef, VirtualIn, VirtualOut |
 | **Misc** | StatusMonitor, Presence, PresenceController, Irrigation |
+
+### Advanced Block Types
+
+Connector reference for less common block types. Always verify with `lox blocks info <type>`.
+
+#### 2Point — On/off controller with hysteresis
+
+- **Inputs:** `Input` (analog value to control)
+- **Outputs:** `Q` (digital on/off)
+- **Params:** `On` (threshold to turn on), `Off` (threshold to turn off), `PulseTime`, `MinRuntime`
+- **Use case:** Floor heating on at 19°C, off at 21°C
+
+```
+lox config add --type 2Point --title "Heizung" config.Loxone
+lox config set-param config.Loxone "Heizung" On 19
+lox config set-param config.Loxone "Heizung" Off 21
+lox config wire-connector config.Loxone "Heizung.Input" "Raumtemperatur Wohnzimmer.AQ"
+```
+
+#### 3Point — 3-point controller (heat/cool)
+
+- **Inputs:** `Input`
+- **Outputs:** `Q1` (heat), `Q2` (cool)
+- **Params:** `On1`, `Off1` (heat band), `On2`, `Off2` (cool band)
+
+#### UpDownCounter — Bidirectional counter
+
+- **Inputs:** `InputUp`, `InputDown`, `Reset`
+- **Outputs:** `AQ` (count), `Q` (at max)
+- **Params:** `Max`, `Min`
+
+#### HourCounter — Operating hours tracker
+
+- **Inputs:** `Input` (digital: count while high), `Reset`
+- **Outputs:** `AQ` (hours), `Q` (threshold exceeded)
+- **Params:** `Threshold`
+
+#### SequenceController — Step through outputs in sequence
+
+- **Inputs:** `InputTrigger` (advance), `InputReset`
+- **Outputs:** `Q1`–`Q8` (one active at a time), `AQ` (current step)
+- **Params:** `Steps`, `Time` (per step)
+
+#### MultiClick — Detect single/double/triple clicks
+
+- **Inputs:** `InputTrigger`
+- **Outputs:** `Q` (single), `QDouble`, `QTriple`
+- **Params:** `Timeout` (ms between clicks)
+
+#### MultiFuncSW — Multi-function switch
+
+- **Inputs:** `InputTrigger`
+- **Outputs:** `Qshort`, `Qlong`, `Qdouble`
+- **Params:** `LongTime` (ms threshold for long press)
+
+#### Radio — Radio button group (mutual exclusion)
+
+- **Inputs:** `I1`–`I8`, `Reset`
+- **Outputs:** `AQ` (selected index), `Q1`–`Q8` (individual)
+
+#### StepSel — Step selector (cycle through values)
+
+- **Inputs:** `Input` (trigger), `Reset`
+- **Outputs:** `AQ` (current value)
+- **Params:** `Steps`, `Min`, `Max`
+
+#### AnalogWatchdog — Monitor analog value range
+
+- **Inputs:** `Input`
+- **Outputs:** `Q` (alarm: out of range)
+- **Params:** `Min`, `Max`, `Time` (delay before alarm)
+
+#### AnalogScaler — Scale analog value
+
+- **Inputs:** `Input`
+- **Outputs:** `AQ`
+- **Params:** `InMin`, `InMax`, `OutMin`, `OutMax`
+
+#### BrightnessControl — Constant-lux controller
+
+- **Inputs:** `InputBrightness` (measured), `InputEnable`
+- **Outputs:** `AQ` (dimmer value 0–100%)
+- **Params:** `Target` (lux), `Min`, `Max`
+
+#### AnalogMultiplexer / AnalogMultiplexer2 — Select between analog inputs
+
+- **Inputs:** `Input1`, `Input2`, `Input3`, `Input4`
+- **Outputs:** `AQ`
+- **Params:** `Select` (which input to pass through)
+
+#### Ramp — Gradual value change
+
+- **Inputs:** `InputTrigger`, `InputReset`
+- **Outputs:** `AQ` (0→100% over time)
+- **Params:** `RampTime` (seconds)
+
+#### RandomGen — Random number generator
+
+- **Inputs:** `InputTrigger`
+- **Outputs:** `AQ`
+- **Params:** `Min`, `Max`
