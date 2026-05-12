@@ -430,7 +430,7 @@ impl Block for TimeMinmax {
             }
         }
 
-        vec![value, self.min_val, self.max_val]
+        vec![self.min_val, self.max_val]
     }
 
     fn state(&self) -> Option<Vec<u8>> {
@@ -1978,17 +1978,17 @@ mod tests {
     fn time_minmax_tracks_range() {
         let mut block = TimeMinmax::new();
         let out = block.eval(&[5.0, 0.0], &[], 0.0, &[]);
-        assert_eq!(out, vec![5.0, 5.0, 5.0]); // initial
+        assert_eq!(out, vec![5.0, 5.0]); // initial: min=5, max=5
 
         let out = block.eval(&[3.0, 0.0], &[], 0.1, &[]);
-        assert_eq!(out, vec![3.0, 3.0, 5.0]);
+        assert_eq!(out, vec![3.0, 5.0]); // min=3, max=5
 
         let out = block.eval(&[7.0, 0.0], &[], 0.1, &[]);
-        assert_eq!(out, vec![7.0, 3.0, 7.0]);
+        assert_eq!(out, vec![3.0, 7.0]); // min=3, max=7
 
         // Reset
         let out = block.eval(&[10.0, 1.0], &[], 0.1, &[]);
-        assert_eq!(out, vec![10.0, 10.0, 10.0]);
+        assert_eq!(out, vec![10.0, 10.0]); // min=10, max=10
     }
 
     #[test]
