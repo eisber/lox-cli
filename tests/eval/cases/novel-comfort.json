@@ -387,7 +387,7 @@
       "threshold",
       "subtraction"
     ],
-    "utterance": "Automatically dim the living room lights when there's enough natural light — try to maintain about 300 lux in the room",
+    "utterance": "Automatically dim the living room lights when there's enough natural light — try to maintain about 300 lux in the room; wire the brightness threshold output to Jalousie 1 [Wohnzimmer].InputTriggerDown",
     "difficulty": "expert",
     "expected": {
       "new_blocks": [
@@ -434,7 +434,7 @@
           "ticks": 5,
           "dt": 0.1,
           "expected_outputs": {
-            "GreaterEqual.Q": {
+            "Jalousie 1 [Wohnzimmer].InputTriggerDown": {
               ">": 0.5
             }
           }
@@ -447,7 +447,7 @@
           "ticks": 5,
           "dt": 0.1,
           "expected_outputs": {
-            "GreaterEqual.Q": {
+            "Jalousie 1 [Wohnzimmer].InputTriggerDown": {
               "<": 0.5
             }
           }
@@ -519,7 +519,7 @@
       "alarm",
       "wake-up"
     ],
-    "utterance": "15 minutes before my alarm goes off, slowly ramp the bedroom light from 0% to 100% like a sunrise",
+    "utterance": "15 minutes before my alarm goes off, slowly ramp the bedroom light from 0% to 100% like a sunrise; wire the ramp output to Lichtsteuerung [Schlafzimmer]",
     "difficulty": "expert",
     "expected": {
       "new_blocks": [
@@ -564,7 +564,7 @@
           "ticks": 20,
           "dt": 0.5,
           "expected_outputs": {
-            "Ramp.AQ": {
+            "Lichtsteuerung [Schlafzimmer].I1": {
               ">": 0.0
             }
           }
@@ -577,7 +577,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Ramp.AQ": {
+            "Lichtsteuerung [Schlafzimmer].I1": {
               "<": 0.5
             }
           }
@@ -592,7 +592,7 @@
       "heating",
       "mode-select"
     ],
-    "utterance": "Set up three buttons in the living room to choose between comfort, eco, and frost-protection heating — only one mode should be active at a time",
+    "utterance": "Set up three buttons in the living room to choose between comfort, eco, and frost-protection heating — only one mode should be active at a time; wire the mode selection output to Raumregler.Input",
     "difficulty": "hard",
     "expected": {
       "new_blocks": [
@@ -627,7 +627,7 @@
           "ticks": 5,
           "dt": 0.1,
           "expected_outputs": {
-            "Radio.Q1": {
+            "Raumregler.Input": {
               ">": 0.5
             }
           }
@@ -638,7 +638,7 @@
           "ticks": 5,
           "dt": 0.1,
           "expected_outputs": {
-            "Radio.Q1": {
+            "Raumregler.Input": {
               "<": 0.5
             }
           }
@@ -653,7 +653,7 @@
       "fan",
       "cycle"
     ],
-    "utterance": "Use a single button in the bathroom to cycle through 4 fan speeds: off, low, medium, and high — each press goes to the next speed and wraps around",
+    "utterance": "Use a single button in the bathroom to cycle through 4 fan speeds: off, low, medium, and high — each press goes to the next speed and wraps around; wire the fan speed output to Lüfter Bad",
     "difficulty": "hard",
     "expected": {
       "new_blocks": [
@@ -688,7 +688,7 @@
           "ticks": 5,
           "dt": 0.1,
           "expected_outputs": {
-            "StepSel.AQ": {
+            "Lüfter Bad.I1": {
               ">": 0.0
             }
           }
@@ -699,7 +699,7 @@
           "ticks": 5,
           "dt": 0.1,
           "expected_outputs": {
-            "StepSel.AQ": {
+            "Lüfter Bad.I1": {
               "<": 0.5
             }
           }
@@ -833,7 +833,7 @@
       "daytimer",
       "and"
     ],
-    "utterance": "Only turn on the bathroom floor heating when someone is in the bathroom AND it's between 6 AM and 9 AM",
+    "utterance": "Only turn on the bathroom floor heating when someone is in the bathroom AND it's between 6 AM and 9 AM; wire the heating gate output to Heizkörper Bad",
     "difficulty": "hard",
     "expected": {
       "new_blocks": [
@@ -875,7 +875,7 @@
           "ticks": 5,
           "dt": 0.1,
           "expected_outputs": {
-            "And.Q": {
+            "Heizkörper Bad.I1": {
               ">": 0.5
             }
           }
@@ -889,7 +889,7 @@
           "ticks": 5,
           "dt": 0.1,
           "expected_outputs": {
-            "And.Q": {
+            "Heizkörper Bad.I1": {
               "<": 0.5
             }
           }
@@ -904,7 +904,7 @@
       "and",
       "ventilation"
     ],
-    "utterance": "If the CO2 level goes above 800 and all windows are closed, automatically open the kitchen window motor to ventilate",
+    "utterance": "If the CO2 level goes above 800 and all windows are closed, automatically open the kitchen window motor to ventilate; wire the ventilation trigger to Lüfter Bad",
     "difficulty": "hard",
     "expected": {
       "new_blocks": [
@@ -969,7 +969,7 @@
           "ticks": 5,
           "dt": 0.1,
           "expected_outputs": {
-            "And.Q": {
+            "Lüfter Bad.I1": {
               ">": 0.5
             }
           }
@@ -983,7 +983,7 @@
           "ticks": 5,
           "dt": 0.1,
           "expected_outputs": {
-            "And.Q": {
+            "Lüfter Bad.I1": {
               "<": 0.5
             }
           }
@@ -1083,7 +1083,7 @@
       "random",
       "daytimer"
     ],
-    "utterance": "While we're away, randomly turn different lights on and off in the evening between 6 PM and 11 PM to make it look like someone's home — use separate random timers for the hallway and kitchen",
+    "utterance": "While we're away, randomly turn different lights on and off in the evening between 6 PM and 11 PM to make it look like someone's home — use separate random timers for the hallway and kitchen; wire the evening gate to Lichtsteuerung [Wohnzimmer]",
     "difficulty": "expert",
     "expected": {
       "new_blocks": [
@@ -1154,7 +1154,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "And.I1": {
+            "Lichtsteuerung [Wohnzimmer].I1": {
               ">": 0.5
             }
           }
@@ -1167,7 +1167,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "And.Q": {
+            "Lichtsteuerung [Wohnzimmer].I1": {
               "<": 0.5
             }
           }
@@ -1182,7 +1182,7 @@
       "cascade",
       "startup"
     ],
-    "utterance": "After a power outage, don't turn everything on at once — start the kitchen lights first, then after 30 seconds the hallway lights, and 30 seconds later the garden lights",
+    "utterance": "After a power outage, don't turn everything on at once — start the kitchen lights first, then after 30 seconds the hallway lights, and 30 seconds later the garden lights; wire the delayed output to Lichtsteuerung [Küche]",
     "difficulty": "expert",
     "expected": {
       "new_blocks": [
@@ -1223,7 +1223,7 @@
           "ticks": 50,
           "dt": 1.0,
           "expected_outputs": {
-            "OnDelay.Q": {
+            "Lichtsteuerung [Küche].I1": {
               ">": 0.5
             }
           }
@@ -1234,7 +1234,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "OnDelay.Q": {
+            "Lichtsteuerung [Küche].I1": {
               "<": 0.5
             }
           }

@@ -276,7 +276,7 @@
       "presence",
       "state-machine"
     ],
-    "utterance": "Track room occupancy in the Flur: latch the presence sensor output into a memory block so occupancy stays high after motion stops",
+    "utterance": "Track room occupancy in the Flur: latch the presence sensor output into a memory block so occupancy stays high after motion stops; wire the occupancy latch output to Statusblock",
     "difficulty": "medium",
     "expected": {
       "new_blocks": [
@@ -302,7 +302,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Belegung Flur.AQ": {
+            "Statusblock.I1": {
               ">": 0.5
             }
           }
@@ -461,7 +461,7 @@
       "state-machine",
       "multi-input"
     ],
-    "utterance": "Create a 3-input state machine for room occupancy: I1 from the Flur presence sensor, I2 from the PushButton (card reader), and display the state as an analog value",
+    "utterance": "Create a 3-input state machine for room occupancy: I1 from the Flur presence sensor, I2 from the PushButton (card reader), and display the state as an analog value; wire the room occupancy state to Formel",
     "difficulty": "hard",
     "expected": {
       "new_blocks": [
@@ -504,7 +504,7 @@
               "ticks": 5,
               "dt": 0.1,
               "expected_outputs": {
-                "Raumbelegung.AQ": {
+                "Formel.I1": {
                   ">": 0
                 }
               }
@@ -530,7 +530,7 @@
               "ticks": 5,
               "dt": 0.1,
               "expected_outputs": {
-                "Raumbelegung.AQ": {
+                "Formel.I1": {
                   ">": 0
                 }
               }
@@ -546,7 +546,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Raumbelegung.AQ": {
+            "Formel.I1": {
               "==": 0
             }
           }
@@ -663,7 +663,7 @@
       "hvac",
       "status-display"
     ],
-    "utterance": "Create a 4-state heating status display: wire the Raumregler heating output, cooling output, economy flag, and comfort flag to a State block with 4 inputs",
+    "utterance": "Create a 4-state heating status display: wire the Raumregler heating output, cooling output, economy flag, and comfort flag to a State block with 4 inputs; wire the heating status display to Formel",
     "difficulty": "hard",
     "expected": {
       "new_blocks": [
@@ -720,7 +720,7 @@
               "ticks": 5,
               "dt": 0.1,
               "expected_outputs": {
-                "Heizstatus.AQ": {
+                "Formel.I1": {
                   ">": 0
                 }
               }
@@ -733,7 +733,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Heizstatus.AQ": {
+            "Formel.I1": {
               "==": 0
             }
           }
@@ -1106,7 +1106,7 @@
       "door-state",
       "state-display"
     ],
-    "utterance": "Create a State block that shows the terrace door status in the Wohnzimmer: wire Türkontakt Wohnzimmer to I1 so the state output reflects door open or closed",
+    "utterance": "Create a State block that shows the terrace door status in the Wohnzimmer: wire Türkontakt Wohnzimmer to I1 so the state output reflects door open or closed; wire the terrace door status to Statusblock",
     "difficulty": "easy",
     "expected": {
       "new_blocks": [
@@ -1141,7 +1141,7 @@
               "ticks": 3,
               "dt": 0.1,
               "expected_outputs": {
-                "Terrassentür Status.AQ": {
+                "Statusblock.I1": {
                   ">": 0
                 }
               }
@@ -1156,7 +1156,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Terrassentür Status.AQ": {
+            "Statusblock.I1": {
               "==": 0
             }
           }
@@ -1170,7 +1170,7 @@
       "door-state",
       "combined-state"
     ],
-    "utterance": "Build a combined door and AC state machine: wire Türkontakt Wohnzimmer to I1 and the Klimaanlage status to I2 of a State block, so you can see both states at a glance",
+    "utterance": "Build a combined door and AC state machine: wire Türkontakt Wohnzimmer to I1 and the Klimaanlage status to I2 of a State block, so you can see both states at a glance; wire the combined door-and-AC status to Formel",
     "difficulty": "medium",
     "expected": {
       "new_blocks": [
@@ -1214,7 +1214,7 @@
               "ticks": 3,
               "dt": 0.1,
               "expected_outputs": {
-                "Tür und Klima Status.AQ": {
+                "Formel.I1": {
                   ">": 0
                 }
               }
@@ -1240,7 +1240,7 @@
               "ticks": 3,
               "dt": 0.1,
               "expected_outputs": {
-                "Tür und Klima Status.AQ": {
+                "Formel.I1": {
                   ">": 0
                 }
               }
@@ -1256,7 +1256,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Tür und Klima Status.AQ": {
+            "Formel.I1": {
               "==": 0
             }
           }

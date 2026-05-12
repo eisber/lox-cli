@@ -2,7 +2,7 @@
   {
     "id": "ua01-smart-alarm-arm-trigger",
     "pattern": ["alarm", "pre-alarm", "timer"],
-    "utterance": "Smart alarm: arm via button, trigger with 30s pre-alarm, then full alarm after timeout",
+    "utterance": "Smart alarm: arm via button, trigger with 30s pre-alarm, then full alarm after timeout; wire the alarm output to Alarmanlage",
     "difficulty": "hard",
     "expected": {
       "new_blocks": [
@@ -40,7 +40,7 @@
           "ticks": 50,
           "dt": 0.1,
           "expected_outputs": {
-            "Sirene.I1": { ">": 0.5 }
+            "Alarmanlage.I1": { ">": 0.5 }
           }
         },
         {
@@ -52,7 +52,7 @@
           "ticks": 50,
           "dt": 0.1,
           "expected_outputs": {
-            "Sirene.I1": { "<": 0.5 }
+            "Alarmanlage.I1": { "<": 0.5 }
           }
         }
       ]
@@ -61,7 +61,7 @@
   {
     "id": "ua02-knx-dimmer-up-down",
     "pattern": ["dimmer", "knx", "step-control"],
-    "utterance": "KNX dimmer: up/down buttons adjust brightness in 10% steps, min 5% max 100%",
+    "utterance": "KNX dimmer: up/down buttons adjust brightness in 10% steps, min 5% max 100%; wire the dimmer output to Lichtsteuerung [Wohnzimmer]",
     "difficulty": "medium",
     "expected": {
       "new_blocks": [
@@ -97,7 +97,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Dimmer Ausgang.I1": { ">": 0.0 }
+            "Lichtsteuerung [Wohnzimmer].I1": { ">": 0.0 }
           }
         },
         {
@@ -109,7 +109,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Dimmer Ausgang.I1": { "<": 0.5 }
+            "Lichtsteuerung [Wohnzimmer].I1": { "<": 0.5 }
           }
         }
       ]
@@ -176,7 +176,7 @@
   {
     "id": "ua04-media-auto-pause",
     "pattern": ["media", "presence", "auto-pause"],
-    "utterance": "Media control: wire presence sensor to auto-pause media player when room empties",
+    "utterance": "Media control: wire presence sensor to auto-pause media player when room empties; wire the pause signal to Audiozone",
     "difficulty": "medium",
     "expected": {
       "new_blocks": [
@@ -205,7 +205,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Media Player.Pause": { ">": 0.5 }
+            "Audiozone.I1": { ">": 0.5 }
           }
         },
         {
@@ -216,7 +216,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Media Player.Pause": { "<": 0.5 }
+            "Audiozone.I1": { "<": 0.5 }
           }
         }
       ]
@@ -225,7 +225,7 @@
   {
     "id": "ua05-power-meter-threshold",
     "pattern": ["metering", "threshold", "notification"],
-    "utterance": "Power meter: trigger notification when import exceeds 5kW threshold",
+    "utterance": "Power meter: trigger notification when import exceeds 5kW threshold; wire the threshold alert to Alarmanlage",
     "difficulty": "medium",
     "expected": {
       "new_blocks": [
@@ -259,7 +259,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "MailGen.Trigger": { ">": 0.5 }
+            "Alarmanlage.I1": { ">": 0.5 }
           }
         },
         {
@@ -270,7 +270,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "MailGen.Trigger": { "<": 0.5 }
+            "Alarmanlage.I1": { "<": 0.5 }
           }
         }
       ]
@@ -279,7 +279,7 @@
   {
     "id": "ua06-sequencer-garden-zones",
     "pattern": ["sequencer", "irrigation", "timer"],
-    "utterance": "Sequencer: step through 4 garden zones on each button press, 15 min per zone",
+    "utterance": "Sequencer: step through 4 garden zones on each button press, 15 min per zone; wire zone 1 output to Bewässerungsventil",
     "difficulty": "hard",
     "expected": {
       "new_blocks": [
@@ -312,7 +312,7 @@
           "ticks": 20,
           "dt": 0.1,
           "expected_outputs": {
-            "Ventil Zone 1.I1": { ">": 0.5 }
+            "Bewässerungsventil.I1": { ">": 0.5 }
           }
         },
         {
@@ -323,7 +323,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Ventil Zone 1.I1": { "<": 0.5 }
+            "Bewässerungsventil.I1": { "<": 0.5 }
           }
         }
       ]
@@ -332,7 +332,7 @@
   {
     "id": "ua07-rgb-scene-radio-select",
     "pattern": ["rgb-scene", "radio-button", "color-preset"],
-    "utterance": "RGB scene: select between 4 color presets via Radio2 button group",
+    "utterance": "RGB scene: select between 4 color presets via Radio2 button group; wire the scene output to Lichtsteuerung [Wohnzimmer]",
     "difficulty": "hard",
     "expected": {
       "new_blocks": [
@@ -373,7 +373,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "RGB Lampe.I1": { ">": 0.0 }
+            "Lichtsteuerung [Wohnzimmer].I1": { ">": 0.0 }
           }
         }
       ]
@@ -382,7 +382,7 @@
   {
     "id": "ua08-emergency-call-trigger",
     "pattern": ["emergency", "aal", "call"],
-    "utterance": "AAL emergency: panic button triggers alarm, auto-calls caretaker after 60s if not confirmed",
+    "utterance": "AAL emergency: panic button triggers alarm, auto-calls caretaker after 60s if not confirmed; wire the panic trigger to Alarmanlage",
     "difficulty": "hard",
     "expected": {
       "new_blocks": [
@@ -414,7 +414,7 @@
           "ticks": 20,
           "dt": 0.1,
           "expected_outputs": {
-            "CallGen.Trigger": { ">": 0.5 }
+            "Alarmanlage.I1": { ">": 0.5 }
           }
         },
         {
@@ -425,7 +425,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "CallGen.Trigger": { "<": 0.5 }
+            "Alarmanlage.I1": { "<": 0.5 }
           }
         }
       ]
@@ -434,7 +434,7 @@
   {
     "id": "ua09-lightscene-cycle",
     "pattern": ["lightscene", "cycle", "button"],
-    "utterance": "Lightscene: cycle through 4 lighting moods with up/down buttons on wall switch",
+    "utterance": "Lightscene: cycle through 4 lighting moods with up/down buttons on wall switch; wire the scene output to Lichtsteuerung [Wohnzimmer]",
     "difficulty": "medium",
     "expected": {
       "new_blocks": [
@@ -468,7 +468,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Deckenlampe.I1": { ">": 0.0 }
+            "Lichtsteuerung [Wohnzimmer].I1": { ">": 0.0 }
           }
         }
       ]
@@ -477,7 +477,7 @@
   {
     "id": "ua10-presence-controller-office",
     "pattern": ["presence", "brightness", "office"],
-    "utterance": "PresenceController: detect motion and ambient light to control office lighting with 10 min timeout",
+    "utterance": "PresenceController: detect motion and ambient light to control office lighting with 10 min timeout; wire the presence light output to Lichtsteuerung [Flur]",
     "difficulty": "hard",
     "expected": {
       "new_blocks": [
@@ -514,7 +514,7 @@
           "ticks": 20,
           "dt": 0.1,
           "expected_outputs": {
-            "Büro Licht.I1": { ">": 0.5 }
+            "Lichtsteuerung [Flur].I1": { ">": 0.5 }
           }
         },
         {
@@ -526,7 +526,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Büro Licht.I1": { "<": 0.5 }
+            "Lichtsteuerung [Flur].I1": { "<": 0.5 }
           }
         }
       ]
@@ -535,7 +535,7 @@
   {
     "id": "ua11-eib-jalousie-buttons",
     "pattern": ["knx", "jalousie", "button-control"],
-    "utterance": "EIB Jalousie: wall buttons control KNX blind up/down with safety wind sensor lock",
+    "utterance": "EIB Jalousie: wall buttons control KNX blind up/down with safety wind sensor lock; wire the jalousie control to Jalousie 1 [Wohnzimmer]",
     "difficulty": "medium",
     "expected": {
       "new_blocks": [
@@ -576,7 +576,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "EIBJalousie.InputTriggerUp": { ">": 0.5 }
+            "Jalousie 1 [Wohnzimmer].InputTriggerUp": { ">": 0.5 }
           }
         },
         {
@@ -588,7 +588,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "EIBJalousie.InputTriggerUp": { "<": 0.5 }
+            "Jalousie 1 [Wohnzimmer].InputTriggerUp": { "<": 0.5 }
           }
         }
       ]
@@ -597,7 +597,7 @@
   {
     "id": "ua12-mail-on-access-denied",
     "pattern": ["access", "mail", "security"],
-    "utterance": "Send email notification when access is denied at front door NFC reader",
+    "utterance": "Send email notification when access is denied at front door NFC reader; wire the denied-access alert to Alarmanlage",
     "difficulty": "medium",
     "expected": {
       "new_blocks": [
@@ -621,7 +621,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "MailGen.Trigger": { ">": 0.5 }
+            "Alarmanlage.I1": { ">": 0.5 }
           }
         },
         {
@@ -632,7 +632,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "MailGen.Trigger": { "<": 0.5 }
+            "Alarmanlage.I1": { "<": 0.5 }
           }
         }
       ]
@@ -641,7 +641,7 @@
   {
     "id": "ua13-meter-daily-export",
     "pattern": ["metering", "bidirectional", "solar"],
-    "utterance": "Bidirectional meter: track solar export and import separately, display on visualization",
+    "utterance": "Bidirectional meter: track solar export and import separately, display on visualization; wire the power reading to Statusblock",
     "difficulty": "easy",
     "expected": {
       "new_blocks": [
@@ -676,7 +676,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Anzeige Import.I1": { ">": 0.0 }
+            "Statusblock.I1": { ">": 0.0 }
           }
         }
       ]
@@ -685,7 +685,7 @@
   {
     "id": "ua14-learnable-lightscene",
     "pattern": ["lightscene", "learn", "store"],
-    "utterance": "Learnable light scene: store current dimmer values as preset, recall with select buttons",
+    "utterance": "Learnable light scene: store current dimmer values as preset, recall with select buttons; wire the scene recall to Lichtsteuerung [Wohnzimmer]",
     "difficulty": "hard",
     "expected": {
       "new_blocks": [
@@ -723,7 +723,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Lampe 1.I1": { ">": 0.0 }
+            "Lichtsteuerung [Wohnzimmer].I1": { ">": 0.0 }
           }
         }
       ]

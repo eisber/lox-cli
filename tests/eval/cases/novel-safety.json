@@ -7,7 +7,7 @@
       "timer",
       "analog-watchdog"
     ],
-    "utterance": "Monitor the freezer temperature sensor (Raumtemperatur Küche) — if it rises above -15°C for more than 10 minutes continuously, trigger a notification via a virtual output alarm block",
+    "utterance": "Monitor the freezer temperature sensor (Raumtemperatur Küche) — if it rises above -15°C for more than 10 minutes continuously, trigger a notification via a virtual output alarm block; wire the delayed alarm output to Alarmanlage",
     "difficulty": "hard",
     "expected": {
       "new_blocks": [
@@ -66,7 +66,7 @@
           "ticks": 6500,
           "dt": 0.1,
           "expected_outputs": {
-            "OnDelay.Q": {
+            "Alarmanlage.I1": {
               ">": 0.5
             }
           }
@@ -79,7 +79,7 @@
           "ticks": 6500,
           "dt": 0.1,
           "expected_outputs": {
-            "OnDelay.Q": {
+            "Alarmanlage.I1": {
               "<": 0.5
             }
           }
@@ -94,7 +94,7 @@
       "leak-detection",
       "instant-alarm"
     ],
-    "utterance": "Wire the Wassersensor in the bathroom so that if it detects a leak, it instantly triggers an alarm output and also closes the main water valve (Schalter 2 acts as the valve relay)",
+    "utterance": "Wire the Wassersensor in the bathroom so that if it detects a leak, it instantly triggers an alarm output and also closes the main water valve (Schalter 2 acts as the valve relay); wire the leak alarm to Bewässerungsventil to shut off water",
     "difficulty": "medium",
     "expected": {
       "new_blocks": [
@@ -126,7 +126,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "VirtualOut.I": {
+            "Bewässerungsventil.I1": {
               ">": 0.5
             }
           }
@@ -139,7 +139,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "VirtualOut.I": {
+            "Bewässerungsventil.I1": {
               "<": 0.5
             }
           }
@@ -155,7 +155,7 @@
       "timer",
       "escalation"
     ],
-    "utterance": "Use the Raumtemperatur Wohnzimmer as server room temp sensor: if it goes above 30°C, immediately activate the Klimaanlage for cooling. If temp is still above 30°C after 5 minutes, also fire an alarm output using an And gate combining the threshold with the OnDelay",
+    "utterance": "Use the Raumtemperatur Wohnzimmer as server room temp sensor: if it goes above 30°C, immediately activate the Klimaanlage for cooling. If temp is still above 30°C after 5 minutes, also fire an alarm output using an And gate combining the threshold with the OnDelay; wire the cooling trigger to Klimaanlage.on and the escalation alarm to Alarmanlage",
     "difficulty": "expert",
     "expected": {
       "new_blocks": [
@@ -232,7 +232,7 @@
           "ticks": 20,
           "dt": 0.1,
           "expected_outputs": {
-            "GreaterEqual.Q": {
+            "Klimaanlage.on": {
               ">": 0.5
             }
           }
@@ -245,7 +245,7 @@
           "ticks": 3200,
           "dt": 0.1,
           "expected_outputs": {
-            "And.Q": {
+            "Alarmanlage.I1": {
               ">": 0.5
             }
           }
@@ -258,7 +258,7 @@
           "ticks": 3200,
           "dt": 0.1,
           "expected_outputs": {
-            "And.Q": {
+            "Alarmanlage.I1": {
               "<": 0.5
             }
           }
@@ -365,7 +365,7 @@
       "alarm-clock",
       "sequence"
     ],
-    "utterance": "Set up a wake-up sequence: when the AlarmClock fires its wake output (QTa), open the Schlafzimmer blinds (Jalousie 1) and after a 2-minute delay turn on the Küche light at 30% brightness using its Brightness input",
+    "utterance": "Set up a wake-up sequence: when the AlarmClock fires its wake output (QTa), open the Schlafzimmer blinds (Jalousie 1) and after a 2-minute delay turn on the Küche light at 30% brightness using its Brightness input; wire the delayed kitchen light output to Lichtsteuerung [Küche]",
     "difficulty": "hard",
     "expected": {
       "new_blocks": [
@@ -427,7 +427,7 @@
           "ticks": 1300,
           "dt": 0.1,
           "expected_outputs": {
-            "OnDelay.Q": {
+            "Lichtsteuerung [Küche].I1": {
               ">": 0.5
             }
           }
@@ -526,7 +526,7 @@
       "scaler",
       "display"
     ],
-    "utterance": "Add an AnalogScaler block to convert the CO2 Sensor reading from its raw 0-10V range to a 0-100% display value, with source range 0-10 mapping to destination range 0-100",
+    "utterance": "Add an AnalogScaler block to convert the CO2 Sensor reading from its raw 0-10V range to a 0-100% display value, with source range 0-10 mapping to destination range 0-100; wire the scaled output to Statusblock",
     "difficulty": "medium",
     "expected": {
       "new_blocks": [
@@ -574,7 +574,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "AnalogScaler.AQ": {
+            "Statusblock.I1": {
               ">=": 49.0
             }
           }
@@ -587,7 +587,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "AnalogScaler.AQ": {
+            "Statusblock.I1": {
               "<": 1.0
             }
           }
@@ -602,7 +602,7 @@
       "multiplexer",
       "mode-select"
     ],
-    "utterance": "Add an AnalogMultiplexer in the Garage to select between three temperature setpoints: Input1=22 (comfort when occupied), Input2=10 (frost protection when away), Input3=18 (standby). Use the KNX Schalter Garage to cycle the Select parameter",
+    "utterance": "Add an AnalogMultiplexer in the Garage to select between three temperature setpoints: Input1=22 (comfort when occupied), Input2=10 (frost protection when away), Input3=18 (standby). Use the KNX Schalter Garage to cycle the Select parameter; wire the multiplexer output to Statusblock",
     "difficulty": "hard",
     "expected": {
       "new_blocks": [
@@ -644,7 +644,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "AnalogMultiplexer.AQ": {
+            "Statusblock.I1": {
               ">=": 21.0
             }
           }
@@ -659,7 +659,7 @@
       "averaging",
       "threshold"
     ],
-    "utterance": "Feed the Pool Temperatur sensor through an Avg block to compute a smoothed 10-sample average, then wire the averaged output to a GreaterEqual threshold at 28°C that triggers a notification output when the pool is too warm",
+    "utterance": "Feed the Pool Temperatur sensor through an Avg block to compute a smoothed 10-sample average, then wire the averaged output to a GreaterEqual threshold at 28°C that triggers a notification output when the pool is too warm; wire the threshold output to Alarmanlage",
     "difficulty": "hard",
     "expected": {
       "new_blocks": [
@@ -717,7 +717,7 @@
           "ticks": 120,
           "dt": 0.1,
           "expected_outputs": {
-            "GreaterEqual.Q": {
+            "Alarmanlage.I1": {
               ">": 0.5
             }
           }
@@ -730,7 +730,7 @@
           "ticks": 120,
           "dt": 0.1,
           "expected_outputs": {
-            "GreaterEqual.Q": {
+            "Alarmanlage.I1": {
               "<": 0.5
             }
           }
@@ -745,7 +745,7 @@
       "maintenance",
       "hour-counter"
     ],
-    "utterance": "Add an HourCounter to track operating hours of the Garten irrigation pump (use Bewässerung Manuell as the enable signal). Set the maintenance threshold to 1000 hours so the Q output fires when service is needed",
+    "utterance": "Add an HourCounter to track operating hours of the Garten irrigation pump (use Bewässerung Manuell as the enable signal). Set the maintenance threshold to 1000 hours so the Q output fires when service is needed; wire the hour counter output to Statusblock",
     "difficulty": "hard",
     "expected": {
       "new_blocks": [
@@ -779,7 +779,7 @@
           "ticks": 100,
           "dt": 0.1,
           "expected_outputs": {
-            "HourCounter.AQ": {
+            "Statusblock.I1": {
               ">": 0.0
             }
           }
@@ -792,7 +792,7 @@
           "ticks": 100,
           "dt": 0.1,
           "expected_outputs": {
-            "HourCounter.AQ": {
+            "Statusblock.I1": {
               "<": 0.01
             }
           }
@@ -807,7 +807,7 @@
       "daily-reset",
       "statistics"
     ],
-    "utterance": "Count how many times the Türkontakt Eingang opens each day using a Counter block. Wire the door contact rising edge to the Counter trigger, and add a DayTimer configured for midnight to reset the counter daily",
+    "utterance": "Count how many times the Türkontakt Eingang opens each day using a Counter block. Wire the door contact rising edge to the Counter trigger, and add a DayTimer configured for midnight to reset the counter daily; wire the counter output to Statusblock",
     "difficulty": "hard",
     "expected": {
       "new_blocks": [
@@ -847,7 +847,7 @@
           "ticks": 20,
           "dt": 0.1,
           "expected_outputs": {
-            "Counter.AQ": {
+            "Statusblock.I1": {
               ">": 0.0
             }
           }
@@ -862,7 +862,7 @@
       "irrigation",
       "timer"
     ],
-    "utterance": "Set up a SequenceController to step through 4 irrigation zones in sequence — wire the Bewässerung Manuell switch to the ATrigger input to start the sequence, with each zone (AQ1 through AQ4) running for 15 minutes before advancing to the next",
+    "utterance": "Set up a SequenceController to step through 4 irrigation zones in sequence — wire the Bewässerung Manuell switch to the ATrigger input to start the sequence, with each zone (AQ1 through AQ4) running for 15 minutes before advancing to the next; wire zone 1 output to Bewässerungsventil",
     "difficulty": "expert",
     "expected": {
       "new_blocks": [
@@ -911,7 +911,7 @@
           "ticks": 20,
           "dt": 0.1,
           "expected_outputs": {
-            "SequenceController.AQ1": {
+            "Bewässerungsventil.I1": {
               ">": 0.5
             }
           }
@@ -926,7 +926,7 @@
       "debounce",
       "filter"
     ],
-    "utterance": "The Garagentor Sensor reed switch is noisy and triggers false alarms. Add an OnDelay of 0.5 seconds to debounce it before wiring the filtered signal to a VirtualOut alarm block — only sustained contact closure should trigger",
+    "utterance": "The Garagentor Sensor reed switch is noisy and triggers false alarms. Add an OnDelay of 0.5 seconds to debounce it before wiring the filtered signal to a VirtualOut alarm block — only sustained contact closure should trigger; wire the debounced output to Alarmanlage",
     "difficulty": "medium",
     "expected": {
       "new_blocks": [
@@ -969,7 +969,7 @@
           "ticks": 15,
           "dt": 0.1,
           "expected_outputs": {
-            "OnDelay.Q": {
+            "Alarmanlage.I1": {
               ">": 0.5
             }
           }
@@ -982,7 +982,7 @@
           "ticks": 3,
           "dt": 0.1,
           "expected_outputs": {
-            "OnDelay.Q": {
+            "Alarmanlage.I1": {
               "<": 0.5
             }
           }
@@ -997,7 +997,7 @@
       "priority",
       "override"
     ],
-    "utterance": "Create a manual override for the Garagenlicht: wire both the Präsenzmelder [Garage] automatic output and the KNX Schalter Garage manual switch into an Or gate. The manual switch should always be able to turn on the light regardless of automation state, bypassing the presence detector logic",
+    "utterance": "Create a manual override for the Garagenlicht: wire both the Präsenzmelder [Garage] automatic output and the KNX Schalter Garage manual switch into an Or gate. The manual switch should always be able to turn on the light regardless of automation state, bypassing the presence detector logic; wire the combined output to Garagenlicht",
     "difficulty": "medium",
     "expected": {
       "new_blocks": [
@@ -1037,7 +1037,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Or.Q": {
+            "Garagenlicht.I1": {
               ">": 0.5
             }
           }
@@ -1051,7 +1051,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Or.Q": {
+            "Garagenlicht.I1": {
               ">": 0.5
             }
           }
@@ -1065,7 +1065,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Or.Q": {
+            "Garagenlicht.I1": {
               "<": 0.5
             }
           }

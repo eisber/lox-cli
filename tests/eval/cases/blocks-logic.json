@@ -2,7 +2,7 @@
   {
     "id": "bl01-2point-floor-heating",
     "pattern": ["2point", "heating", "hysteresis"],
-    "utterance": "Add a 2-point controller for floor heating in Wohnzimmer: turn on when temperature drops below 19°C, turn off above 21°C",
+    "utterance": "Add a 2-point controller for floor heating in Wohnzimmer: turn on when temperature drops below 19°C, turn off above 21°C; wire the heating output to Heizkörper Bad",
     "difficulty": "medium",
     "expected": {
       "new_blocks": [
@@ -31,7 +31,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Heizung [Wohnzimmer].Q": { ">": 0.5 }
+            "Heizkörper Bad.I1": { ">": 0.5 }
           }
         },
         {
@@ -40,7 +40,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Heizung [Wohnzimmer].Q": { "<": 0.5 }
+            "Heizkörper Bad.I1": { "<": 0.5 }
           }
         }
       ]
@@ -49,7 +49,7 @@
   {
     "id": "bl02-updowncounter-door",
     "pattern": ["counter", "updown", "door"],
-    "utterance": "Use an UpDownCounter to count door openings in Eingang, reset at midnight via a DayTimer pulse",
+    "utterance": "Use an UpDownCounter to count door openings in Eingang, reset at midnight via a DayTimer pulse; wire the counter output to Statusblock",
     "difficulty": "medium",
     "expected": {
       "new_blocks": [
@@ -78,7 +78,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Tür Zähler [Eingang].AQ": { ">": 0.5 }
+            "Statusblock.I1": { ">": 0.5 }
           }
         }
       ]
@@ -87,7 +87,7 @@
   {
     "id": "bl03-brightness-control",
     "pattern": ["brightness", "lux", "constant-light"],
-    "utterance": "BrightnessControl: maintain 300 lux in the living room using the Helligkeit sensor to adjust light output",
+    "utterance": "BrightnessControl: maintain 300 lux in the living room using the Helligkeit sensor to adjust light output; wire the brightness output to Lichtsteuerung [Wohnzimmer]",
     "difficulty": "medium",
     "expected": {
       "new_blocks": [
@@ -121,7 +121,7 @@
           "ticks": 20,
           "dt": 0.1,
           "expected_outputs": {
-            "Lux Regler [Wohnzimmer].AQ": { ">": 0 }
+            "Lichtsteuerung [Wohnzimmer].I1": { ">": 0 }
           }
         }
       ]
@@ -163,7 +163,7 @@
   {
     "id": "bl05-analog-stepper-fan",
     "pattern": ["stepper", "fan", "up-down"],
-    "utterance": "AnalogStepper: adjust fan speed with up/down buttons in 25% steps, range 0–100",
+    "utterance": "AnalogStepper: adjust fan speed with up/down buttons in 25% steps, range 0–100; wire the fan output to Lüfter Bad",
     "difficulty": "medium",
     "expected": {
       "new_blocks": [
@@ -183,7 +183,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Lüfter Stufe.AQ": { ">": 0 }
+            "Lüfter Bad.I1": { ">": 0 }
           }
         }
       ]
@@ -192,7 +192,7 @@
   {
     "id": "bl06-3point-valve",
     "pattern": ["3point", "valve", "hvac"],
-    "utterance": "Use a 3-point controller for the mixing valve in Heizraum: heat when below 40°C, cool when above 50°C",
+    "utterance": "Use a 3-point controller for the mixing valve in Heizraum: heat when below 40°C, cool when above 50°C; wire Q1 (heat) to Heizkörper Bad and Q2 (cool) to Lüfter Bad",
     "difficulty": "medium",
     "expected": {
       "new_blocks": [
@@ -221,7 +221,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Mischventil [Heizraum].Q1": { ">": 0.5 }
+            "Heizkörper Bad.I1": { ">": 0.5 }
           }
         },
         {
@@ -230,7 +230,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Mischventil [Heizraum].Q2": { ">": 0.5 }
+            "Lüfter Bad.I1": { ">": 0.5 }
           }
         }
       ]
@@ -239,7 +239,7 @@
   {
     "id": "bl07-analog-watchdog-water",
     "pattern": ["watchdog", "water", "alarm"],
-    "utterance": "AnalogWatchdog: trigger alarm when water pressure drops below 1.5 bar or exceeds 4.0 bar in Technikraum",
+    "utterance": "AnalogWatchdog: trigger alarm when water pressure drops below 1.5 bar or exceeds 4.0 bar in Technikraum; wire the alarm output to Alarmanlage",
     "difficulty": "medium",
     "expected": {
       "new_blocks": [
@@ -267,7 +267,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Druck Wächter.Q": { ">": 0.5 }
+            "Alarmanlage.I1": { ">": 0.5 }
           }
         }
       ]
@@ -276,7 +276,7 @@
   {
     "id": "bl08-analog-comparator-solar",
     "pattern": ["comparator", "solar", "pump"],
-    "utterance": "AnalogComparator: enable solar pump when collector temperature exceeds tank temperature by 5°C",
+    "utterance": "AnalogComparator: enable solar pump when collector temperature exceeds tank temperature by 5°C; wire the comparator output to Poolpumpe",
     "difficulty": "medium",
     "expected": {
       "new_blocks": [
@@ -310,7 +310,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Solar Vergleich.Q": { ">": 0.5 }
+            "Poolpumpe.I1": { ">": 0.5 }
           }
         }
       ]
@@ -319,7 +319,7 @@
   {
     "id": "bl09-edge-wiping-relay",
     "pattern": ["edge-wiping", "toggle", "light"],
-    "utterance": "EdgeWipingRelay: toggle stairway light with a push button, auto-off after 5 minutes",
+    "utterance": "EdgeWipingRelay: toggle stairway light with a push button, auto-off after 5 minutes; wire the light output to Lichtsteuerung [Flur]",
     "difficulty": "easy",
     "expected": {
       "new_blocks": [
@@ -346,7 +346,7 @@
           "ticks": 5,
           "dt": 0.1,
           "expected_outputs": {
-            "Treppe Licht.Q": { ">": 0.5 }
+            "Lichtsteuerung [Flur].I1": { ">": 0.5 }
           }
         }
       ]
@@ -390,7 +390,7 @@
   {
     "id": "bl11-time-minmax-temperature",
     "pattern": ["time-minmax", "temperature", "tracking"],
-    "utterance": "TimeMinmax: track daily min/max outdoor temperature with reset at midnight in Wohnzimmer",
+    "utterance": "TimeMinmax: track daily min/max outdoor temperature with reset at midnight in Wohnzimmer; wire the max output to Statusblock",
     "difficulty": "easy",
     "expected": {
       "new_blocks": [
@@ -415,7 +415,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Temp MinMax.AQmax": { ">": 20 }
+            "Statusblock.I1": { ">": 20 }
           }
         }
       ]
@@ -424,7 +424,7 @@
   {
     "id": "bl12-daylight-controller",
     "pattern": ["daylight", "color-temperature", "circadian"],
-    "utterance": "DaylightController: adjust LED color temperature from warm 2700K at night to cool 5000K at midday",
+    "utterance": "DaylightController: adjust LED color temperature from warm 2700K at night to cool 5000K at midday; wire the color temperature output to Lichtsteuerung [Wohnzimmer]",
     "difficulty": "medium",
     "expected": {
       "new_blocks": [
@@ -444,7 +444,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Tageslicht Steuerung.AQ": { ">": 0 }
+            "Lichtsteuerung [Wohnzimmer].I1": { ">": 0 }
           }
         }
       ]
@@ -453,7 +453,7 @@
   {
     "id": "bl13-analog-diff-trigger-frost",
     "pattern": ["diff-trigger", "frost", "protection"],
-    "utterance": "AnalogDiffTrigger: enable frost protection when floor surface temperature is more than 3°C below air temperature",
+    "utterance": "AnalogDiffTrigger: enable frost protection when floor surface temperature is more than 3°C below air temperature; wire the frost protection output to Heizkörper Bad",
     "difficulty": "medium",
     "expected": {
       "new_blocks": [
@@ -473,7 +473,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Frost Schutz.Q": { ">": 0.5 }
+            "Heizkörper Bad.I1": { ">": 0.5 }
           }
         }
       ]
@@ -482,7 +482,7 @@
   {
     "id": "bl14-push-dimmer",
     "pattern": ["push-dimmer", "dimming", "press-hold"],
-    "utterance": "PushDimmer: press-and-hold dimmer for bedroom ceiling light, 10% steps between 5% and 100%",
+    "utterance": "PushDimmer: press-and-hold dimmer for bedroom ceiling light, 10% steps between 5% and 100%; wire the dimmer output to Lichtsteuerung [Schlafzimmer]",
     "difficulty": "medium",
     "expected": {
       "new_blocks": [
@@ -518,7 +518,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Dimmer [Schlafzimmer].AQ": { ">": 0 }
+            "Lichtsteuerung [Schlafzimmer].I1": { ">": 0 }
           }
         }
       ]
@@ -527,7 +527,7 @@
   {
     "id": "bl15-bin-encoder-mode",
     "pattern": ["bin-encoder", "mode-select", "binary"],
-    "utterance": "BinEncoder: convert two HVAC mode switches into a single analog mode value for the climate controller",
+    "utterance": "BinEncoder: convert two HVAC mode switches into a single analog mode value for the climate controller; wire the encoded mode value to Raumregler.Input",
     "difficulty": "easy",
     "expected": {
       "new_blocks": [
@@ -561,7 +561,7 @@
           "ticks": 5,
           "dt": 0.1,
           "expected_outputs": {
-            "Modus Encoder.Value": { "<": 0.5 }
+            "Raumregler.Input": { "<": 0.5 }
           }
         },
         {
@@ -573,7 +573,7 @@
           "ticks": 5,
           "dt": 0.1,
           "expected_outputs": {
-            "Modus Encoder.Value": { ">": 0.5 }
+            "Raumregler.Input": { ">": 0.5 }
           }
         }
       ]

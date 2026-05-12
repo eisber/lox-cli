@@ -6,7 +6,7 @@
       "analog-multiplexer",
       "setpoint-switch"
     ],
-    "utterance": "Set up comfort/eco setpoint switching for the Wohnzimmer: use an AnalogMultiplexer to select 22°C when the room is occupied and 18°C when empty, and wire the output to the Raumregler setpoint input",
+    "utterance": "Set up comfort/eco setpoint switching for the Wohnzimmer: use an AnalogMultiplexer to select 22°C when the room is occupied and 18°C when empty, and wire the output to the Raumregler setpoint input; wire the setpoint output to Raumregler.Input",
     "difficulty": "medium",
     "source": "campus-wiring-graph: heating-mode-setpoints pattern — AnalogMultiplexer selects setpoint based on occupancy",
     "expected": {
@@ -46,7 +46,7 @@
           "ticks": 5,
           "dt": 0.1,
           "expected_outputs": {
-            "Set Setpoint.AQ": {
+            "Raumregler.Input": {
               "==": 22.0
             }
           }
@@ -59,7 +59,7 @@
           "ticks": 5,
           "dt": 0.1,
           "expected_outputs": {
-            "Set Setpoint.AQ": {
+            "Raumregler.Input": {
               "==": 18.0
             }
           }
@@ -74,7 +74,7 @@
       "occupancy-mode",
       "irc-cascade"
     ],
-    "utterance": "Build a 3-mode occupancy setpoint selector for the Wohnzimmer Raumregler: AnalogMultiplexer with comfort=22°C, eco=18°C, off=15°C. Wire a NotEqual block to detect when the mode is not 'off', and feed the multiplexer output to the IRC setpoint",
+    "utterance": "Build a 3-mode occupancy setpoint selector for the Wohnzimmer Raumregler: AnalogMultiplexer with comfort=22°C, eco=18°C, off=15°C. Wire a NotEqual block to detect when the mode is not 'off', and feed the multiplexer output to the IRC setpoint; wire the setpoint output to Raumregler.Input and the mode indicator to Statusblock",
     "difficulty": "hard",
     "source": "campus-wiring-graph: heating-mode-setpoints — NotEqual:HCM Mode + AnalogMultiplexer2:Set Setpoint → IRC",
     "expected": {
@@ -136,10 +136,10 @@
           "ticks": 5,
           "dt": 0.1,
           "expected_outputs": {
-            "Set Setpoint.AQ": {
+            "Raumregler.Input": {
               "==": 15.0
             },
-            "HCM Mode.Q": {
+            "Statusblock.I1": {
               "==": 0.0
             }
           }
@@ -153,10 +153,10 @@
           "ticks": 5,
           "dt": 0.1,
           "expected_outputs": {
-            "Set Setpoint.AQ": {
+            "Raumregler.Input": {
               "==": 22.0
             },
-            "HCM Mode.Q": {
+            "Statusblock.I1": {
               ">": 0.5
             }
           }
@@ -226,7 +226,7 @@
       "and-gate",
       "memory"
     ],
-    "utterance": "Combine the Wohnzimmer window and door contacts into a single heating inhibit signal: wire both Fensterkontakt Wohnzimmer and Türkontakt Wohnzimmer through an Or gate, then into a Memory block to latch the 'window open' state, and connect Memory.Q to Raumregler.Window",
+    "utterance": "Combine the Wohnzimmer window and door contacts into a single heating inhibit signal: wire both Fensterkontakt Wohnzimmer and Türkontakt Wohnzimmer through an Or gate, then into a Memory block to latch the 'window open' state, and connect Memory.Q to Raumregler.Window; wire the combined window signal to Raumregler.Window",
     "difficulty": "hard",
     "source": "campus-wiring-graph: window-heating-inhibit — And:Fenster offen + Memory:Außentüre Offen",
     "expected": {
@@ -330,7 +330,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Fenster offen.Q": {
+            "Raumregler.Window": {
               "<": 0.5
             }
           }
@@ -424,7 +424,7 @@
       "irc-zone",
       "window-inhibit"
     ],
-    "utterance": "Configure the Bad as a heating zone: add a Raumregler (IRC), wire Raumtemperatur Bad to the Temp input, Raumfeuchtigkeit Bad to InHumid, and Fensterkontakt Bad to the Window inhibit input",
+    "utterance": "Configure the Bad as a heating zone: add a Raumregler (IRC), wire Raumtemperatur Bad to the Temp input, Raumfeuchtigkeit Bad to InHumid, and Fensterkontakt Bad to the Window inhibit input; wire the heat demand output to Heizkörper Bad",
     "difficulty": "medium",
     "source": "campus-wiring-graph: bathroom-heating — HeatIRoomController2 with Temp, InHumid, Window inputs",
     "expected": {
@@ -466,7 +466,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Raumregler Bad.AQh": {
+            "Heizkörper Bad.I1": {
               ">": 0
             }
           }
@@ -481,7 +481,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Raumregler Bad.AQh": {
+            "Heizkörper Bad.I1": {
               "==": 0
             }
           }
@@ -496,7 +496,7 @@
       "analog-multiplexer",
       "mode-select"
     ],
-    "utterance": "Add an AnalogMultiplexer for bathroom IRC mode selection: Input1=comfort (22°C), Input2=eco (20°C). Wire the output to Raumregler Bad.AMode to switch the IRC operating mode based on room occupancy",
+    "utterance": "Add an AnalogMultiplexer for bathroom IRC mode selection: Input1=comfort (22°C), Input2=eco (20°C). Wire the output to Raumregler Bad.AMode to switch the IRC operating mode based on room occupancy; wire the mode setpoint output to Statusblock",
     "difficulty": "hard",
     "source": "campus-wiring-graph: bathroom-heating — AnalogMultiplexer2:Rtd Irr Mode → IRC.AMode",
     "expected": {
@@ -551,7 +551,7 @@
           "ticks": 5,
           "dt": 0.1,
           "expected_outputs": {
-            "Rtd Irr Mode.AQ": {
+            "Statusblock.I1": {
               "==": 22.0
             }
           }
@@ -564,7 +564,7 @@
           "ticks": 5,
           "dt": 0.1,
           "expected_outputs": {
-            "Rtd Irr Mode.AQ": {
+            "Statusblock.I1": {
               "==": 20.0
             }
           }
@@ -631,7 +631,7 @@
       "threshold",
       "enable-switch"
     ],
-    "utterance": "Switch between heating and cooling mode based on outdoor temperature: use a GreaterEqual threshold at 20°C on the Außentemperatur, wire to the Klimaanlage enable input so cooling only activates when it's warm outside",
+    "utterance": "Switch between heating and cooling mode based on outdoor temperature: use a GreaterEqual threshold at 20°C on the Außentemperatur, wire to the Klimaanlage enable input so cooling only activates when it's warm outside; wire the outdoor threshold to Klimaanlage.on",
     "difficulty": "medium",
     "source": "campus-wiring-graph: hvac-central-mode pattern — threshold-based H/C switching",
     "expected": {
@@ -672,7 +672,7 @@
           "ticks": 5,
           "dt": 0.1,
           "expected_outputs": {
-            "Outdoor Threshold.Q": {
+            "Klimaanlage.on": {
               ">": 0.5
             }
           }
@@ -685,7 +685,7 @@
           "ticks": 5,
           "dt": 0.1,
           "expected_outputs": {
-            "Outdoor Threshold.Q": {
+            "Klimaanlage.on": {
               "<": 0.5
             }
           }
@@ -700,7 +700,7 @@
       "state-block",
       "multi-input"
     ],
-    "utterance": "Build a heating status display with a 4-input State block in the Wohnzimmer: I1=heating demand from Raumregler.AQh, I2=cooling demand from Raumregler.AQc, I3=window open from Fensterkontakt Wohnzimmer, I4=door open from Türkontakt Wohnzimmer",
+    "utterance": "Build a heating status display with a 4-input State block in the Wohnzimmer: I1=heating demand from Raumregler.AQh, I2=cooling demand from Raumregler.AQc, I3=window open from Fensterkontakt Wohnzimmer, I4=door open from Türkontakt Wohnzimmer; wire the heating status to Formel",
     "difficulty": "hard",
     "source": "campus-wiring-graph: heating-status-display — State:Status Hzg with 4 inputs from IRC + sensors",
     "expected": {
@@ -763,7 +763,7 @@
               "ticks": 5,
               "dt": 0.1,
               "expected_outputs": {
-                "Status Hzg.AQ": {
+                "Formel.I1": {
                   ">": 0
                 }
               }
@@ -793,7 +793,7 @@
               "ticks": 5,
               "dt": 0.1,
               "expected_outputs": {
-                "Status Hzg.AQ": {
+                "Formel.I1": {
                   ">": 0
                 }
               }
@@ -811,7 +811,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Status Hzg.AQ": {
+            "Formel.I1": {
               "==": 0
             }
           }
@@ -826,7 +826,7 @@
       "analog-scaler",
       "valve-output"
     ],
-    "utterance": "Add AnalogScaler blocks for the Wohnzimmer IRC valve outputs: wire Raumregler.AQh through an AnalogScaler 'Heizen' (0-100%) and Raumregler.AQc through another AnalogScaler 'Kühlen' (0-100%), then feed both scaler outputs into a State block I3 and I4 to display valve positions",
+    "utterance": "Add AnalogScaler blocks for the Wohnzimmer IRC valve outputs: wire Raumregler.AQh through an AnalogScaler 'Heizen' (0-100%) and Raumregler.AQc through another AnalogScaler 'Kühlen' (0-100%), then feed both scaler outputs into a State block I3 and I4 to display valve positions; wire the heating scaler to Heizkörper Bad and cooling scaler to Lüfter Bad",
     "difficulty": "expert",
     "source": "campus-wiring-graph: heating-status-display — AnalogScaler:Heizen/Kühlen → State:Status Hzg.I3/I4",
     "expected": {
@@ -901,7 +901,7 @@
           "ticks": 5,
           "dt": 0.1,
           "expected_outputs": {
-            "Heizen.AQ": {
+            "Heizkörper Bad.I1": {
               ">": 0
             }
           }
@@ -915,7 +915,7 @@
           "ticks": 5,
           "dt": 0.1,
           "expected_outputs": {
-            "Kühlen.AQ": {
+            "Lüfter Bad.I1": {
               ">": 0
             }
           }
@@ -985,7 +985,7 @@
       "state-v",
       "room-display"
     ],
-    "utterance": "Add a StateV block 'HCm Zimmer' to show the Wohnzimmer IRC setpoint on the room display: wire Raumregler.AQs (setpoint output) to StateV.I so guests can see the current target temperature",
+    "utterance": "Add a StateV block 'HCm Zimmer' to show the Wohnzimmer IRC setpoint on the room display: wire Raumregler.AQs (setpoint output) to StateV.I so guests can see the current target temperature; wire the setpoint display to Statusblock",
     "difficulty": "easy",
     "source": "campus-wiring-graph: heating-status-display — StateV:HCm Zimmer shows IRC setpoint",
     "expected": {
@@ -1014,7 +1014,7 @@
           "ticks": 5,
           "dt": 0.1,
           "expected_outputs": {
-            "HCm Zimmer.AQ": {
+            "Statusblock.I1": {
               "==": 22.0
             }
           }
@@ -1029,7 +1029,7 @@
       "door-state",
       "edge-detection"
     ],
-    "utterance": "Build a door state display: wire Fensterkontakt Wohnzimmer to State 'Status Türe'.I1 and add an EdgeDetection on Türkontakt Wohnzimmer so the rising edge triggers an AC flex button via PushButton, with the button output going to State.I2 for combined display",
+    "utterance": "Build a door state display: wire Fensterkontakt Wohnzimmer to State 'Status Türe'.I1 and add an EdgeDetection on Türkontakt Wohnzimmer so the rising edge triggers an AC flex button via PushButton, with the button output going to State.I2 for combined display; wire the door status to Formel",
     "difficulty": "expert",
     "source": "campus-wiring-graph: heating-status-display — State:Status Türe + EdgeDetection:Light Flex On/Off + PushButton:A/C Flex",
     "expected": {
@@ -1114,7 +1114,7 @@
           "ticks": 5,
           "dt": 0.1,
           "expected_outputs": {
-            "Status Türe.I1": {
+            "Formel.I1": {
               ">": 0.5
             }
           }
@@ -1129,7 +1129,7 @@
       "heating-status-display",
       "full-hvac-chain"
     ],
-    "utterance": "Build the complete HVAC status chain for Wohnzimmer: wire Raumregler.AQh and .AQc through AnalogScaler blocks (Heizen/Kühlen), feed raw and scaled outputs into a State block 'Status Hzg' (I1=heat demand, I2=cool demand, I3=heat valve%, I4=cool valve%), then wire the State.AQ through an AnalogMultiplexer that selects between the status value and a ventilation setpoint based on a fan-on signal",
+    "utterance": "Build the complete HVAC status chain for Wohnzimmer: wire Raumregler.AQh and .AQc through AnalogScaler blocks (Heizen/Kühlen), feed raw and scaled outputs into a State block 'Status Hzg' (I1=heat demand, I2=cool demand, I3=heat valve%, I4=cool valve%), then wire the State.AQ through an AnalogMultiplexer that selects between the status value and a ventilation setpoint based on a fan-on signal; wire the heating scaler to Heizkörper Bad, cooling scaler to Lüfter Bad, and HVAC status to Formel",
     "difficulty": "expert",
     "source": "campus-wiring-graph: heating-mode-setpoints + heating-status-display combined — full status chain with AnalogScaler + State + AnalogMultiplexer",
     "expected": {
@@ -1214,10 +1214,10 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Heizen.AQ": {
+            "Heizkörper Bad.I1": {
               ">": 0
             },
-            "Status Hzg.AQ": {
+            "Formel.I1": {
               ">": 0
             }
           }
@@ -1231,10 +1231,10 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Kühlen.AQ": {
+            "Lüfter Bad.I1": {
               ">": 0
             },
-            "Status Hzg.AQ": {
+            "Formel.I1": {
               ">": 0
             }
           }
@@ -1248,7 +1248,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Status Hzg.AQ": {
+            "Formel.I1": {
               "==": 0
             }
           }

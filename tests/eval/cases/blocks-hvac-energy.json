@@ -2,7 +2,7 @@
   {
     "id": "bhe-001-solar-pump-diff",
     "pattern": ["solar", "pump", "threshold", "differential"],
-    "utterance": "Solar pump: activate when collector temp exceeds storage by 8°C, stop when difference drops below 3°C",
+    "utterance": "Solar pump: activate when collector temp exceeds storage by 8°C, stop when difference drops below 3°C; wire the pump output to Poolpumpe",
     "difficulty": "medium",
     "expected": {
       "new_blocks": [
@@ -38,7 +38,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Solar Pump.Q": { ">": 0.5 }
+            "Poolpumpe.I1": { ">": 0.5 }
           }
         },
         {
@@ -50,7 +50,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Solar Pump.Q": { "<": 0.5 }
+            "Poolpumpe.I1": { "<": 0.5 }
           }
         }
       ]
@@ -59,7 +59,7 @@
   {
     "id": "bhe-002-ev-solar-only",
     "pattern": ["ev-charger", "solar", "logic", "and-gate"],
-    "utterance": "EV charging: enable only when solar production exceeds 3kW AND grid import is zero",
+    "utterance": "EV charging: enable only when solar production exceeds 3kW AND grid import is zero; wire the solar-only gate output to Wallbox",
     "difficulty": "hard",
     "expected": {
       "new_blocks": [
@@ -116,7 +116,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Solar Only.Q": { ">": 0.5 }
+            "Wallbox.I1": { ">": 0.5 }
           }
         },
         {
@@ -128,7 +128,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Solar Only.Q": { "<": 0.5 }
+            "Wallbox.I1": { "<": 0.5 }
           }
         },
         {
@@ -140,7 +140,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Solar Only.Q": { "<": 0.5 }
+            "Wallbox.I1": { "<": 0.5 }
           }
         }
       ]
@@ -149,7 +149,7 @@
   {
     "id": "bhe-003-pool-temp-limit",
     "pattern": ["pool", "daytimer", "temperature", "threshold"],
-    "utterance": "Pool pump schedule: run 10:00-16:00 via DayTimer, disable when water temp exceeds 28°C",
+    "utterance": "Pool pump schedule: run 10:00-16:00 via DayTimer, disable when water temp exceeds 28°C; wire the pump enable gate to Poolpumpe",
     "difficulty": "hard",
     "expected": {
       "new_blocks": [
@@ -198,7 +198,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Pump Enable.Q": { ">": 0.5 }
+            "Poolpumpe.I1": { ">": 0.5 }
           }
         },
         {
@@ -210,7 +210,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Pump Enable.Q": { "<": 0.5 }
+            "Poolpumpe.I1": { "<": 0.5 }
           }
         }
       ]
@@ -219,7 +219,7 @@
   {
     "id": "bhe-004-roof-window-weather",
     "pattern": ["roof-window", "rain", "wind", "or-gate", "safety"],
-    "utterance": "Roof window auto-close on rain OR wind above 40 km/h",
+    "utterance": "Roof window auto-close on rain OR wind above 40 km/h; wire the weather-unsafe output to Jalousie 1 [Wohnzimmer].Safety",
     "difficulty": "medium",
     "expected": {
       "new_blocks": [
@@ -268,7 +268,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Weather Unsafe.Q": { ">": 0.5 }
+            "Jalousie 1 [Wohnzimmer].Safety": { ">": 0.5 }
           }
         },
         {
@@ -280,7 +280,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Weather Unsafe.Q": { ">": 0.5 }
+            "Jalousie 1 [Wohnzimmer].Safety": { ">": 0.5 }
           }
         },
         {
@@ -292,7 +292,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Weather Unsafe.Q": { "<": 0.5 }
+            "Jalousie 1 [Wohnzimmer].Safety": { "<": 0.5 }
           }
         }
       ]
@@ -301,7 +301,7 @@
   {
     "id": "bhe-005-central-heating-or",
     "pattern": ["central-heating", "or-gate", "multi-room", "heat-demand"],
-    "utterance": "Central heating: enable pump when any room calls for heat (Or gate from 3 IRC AQh outputs)",
+    "utterance": "Central heating: enable pump when any room calls for heat (Or gate from 3 IRC AQh outputs); wire the heat-call output to Heizkörper Bad",
     "difficulty": "hard",
     "expected": {
       "new_blocks": [
@@ -363,7 +363,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Any Heat Call.Q": { ">": 0.5 }
+            "Heizkörper Bad.I1": { ">": 0.5 }
           }
         },
         {
@@ -376,7 +376,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Any Heat Call.Q": { "<": 0.5 }
+            "Heizkörper Bad.I1": { "<": 0.5 }
           }
         }
       ]
@@ -413,7 +413,7 @@
   {
     "id": "bhe-007-shade-roof-wind",
     "pattern": ["shade-roof", "wind-protection", "safety"],
-    "utterance": "Retract the terrace awning automatically when wind exceeds 35 km/h",
+    "utterance": "Retract the terrace awning automatically when wind exceeds 35 km/h; wire the wind limit output to Jalousie 1 [Wohnzimmer].Safety",
     "difficulty": "medium",
     "expected": {
       "new_blocks": [
@@ -445,7 +445,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Wind Limit.Q": { ">": 0.5 }
+            "Jalousie 1 [Wohnzimmer].Safety": { ">": 0.5 }
           }
         },
         {
@@ -454,7 +454,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Wind Limit.Q": { "<": 0.5 }
+            "Jalousie 1 [Wohnzimmer].Safety": { "<": 0.5 }
           }
         }
       ]
@@ -531,7 +531,7 @@
   {
     "id": "bhe-011-car-charger-solar-excess",
     "pattern": ["car-charger", "solar", "energy-management"],
-    "utterance": "Configure an EV car charger that only charges from solar excess — wire Fronius production output to the charger enable",
+    "utterance": "Configure an EV car charger that only charges from solar excess — wire Fronius production output to the charger enable; wire the solar excess gate to Wallbox",
     "difficulty": "medium",
     "expected": {
       "new_blocks": [
@@ -563,7 +563,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Solar Excess.Q": { ">": 0.5 }
+            "Wallbox.I1": { ">": 0.5 }
           }
         },
         {
@@ -572,7 +572,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Solar Excess.Q": { "<": 0.5 }
+            "Wallbox.I1": { "<": 0.5 }
           }
         }
       ]
@@ -609,7 +609,7 @@
   {
     "id": "bhe-014-leaf-garden-irrigation",
     "pattern": ["leaf", "garden", "irrigation", "humidity"],
-    "utterance": "Use a Leaf wetness sensor to inhibit garden irrigation when leaf moisture is already high",
+    "utterance": "Use a Leaf wetness sensor to inhibit garden irrigation when leaf moisture is already high; wire the irrigation gate output to Bewässerungsventil",
     "difficulty": "hard",
     "expected": {
       "new_blocks": [
@@ -651,7 +651,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Irrigate Gate.Q": { ">": 0.5 }
+            "Bewässerungsventil.I1": { ">": 0.5 }
           }
         },
         {
@@ -663,7 +663,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Irrigate Gate.Q": { "<": 0.5 }
+            "Bewässerungsventil.I1": { "<": 0.5 }
           }
         }
       ]
