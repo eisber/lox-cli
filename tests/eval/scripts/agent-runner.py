@@ -264,6 +264,25 @@ def evaluate_correctness(fixture_path, result_path, case):
     mod_wiring = collect_wiring(mod_root)
     fix_wiring = collect_wiring(fix_root)
 
+    # Resolve title-based wiring ("BlockTitle.ConnKey") to UUIDs
+    title_to_uuid = {}
+    for elem in mod_root.iter():
+        if elem.tag == "C" or elem.get("Type"):
+            title = elem.get("Title", "")
+            if title:
+                for co in elem:
+                    if (co.tag == "Co" or co.get("Type") == "Co") and co.get("K") and co.get("U"):
+                        title_to_uuid[f"{title}.{co.get('K')}"] = co.get("U")
+
+    # Expand mod_wiring: for each title ref, also add the resolved UUID
+    for cu, sources in list(mod_wiring.items()):
+        resolved = list(sources)
+        for src in sources:
+            if "." in src and "-" not in src:  # title-based, not UUID
+                if src in title_to_uuid:
+                    resolved.append(title_to_uuid[src])
+        mod_wiring[cu] = resolved
+
     # ── Block Evaluation ──
     exp_blocks = expected.get("new_blocks", [])
     block_tp = 0

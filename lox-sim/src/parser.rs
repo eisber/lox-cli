@@ -1543,7 +1543,7 @@ fn block_signature(
             &["Q", "AQ", "AQl", "AQr"],
             &["Unit", "Maintenance"],
         ),
-        "PulseAt" => (&["InputDisable"], &["Q"], &["Time"]),
+        "PulseAt" => (&["minutes_since_midnight", "InputDisable"], &["Q"], &["Time"]),
         "PulseBy" => (&["Text"], &["Pulse"], &["Time"]),
         "Presence" => (&["InputTrigger", "Reset"], &["Q"], &["Time"]),
         // Random generators

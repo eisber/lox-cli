@@ -352,8 +352,9 @@ impl Block for AnalogWatchdog {
         let reset = inputs.get(1).copied().unwrap_or(0.0);
         let prev_reset = prev.get(1).copied().unwrap_or(0.0);
 
-        let min_val = params.first().copied().unwrap_or(0.0);
-        let max_val = params.get(1).copied().unwrap_or(100.0);
+        // params[0] = Threshold (TU = upper), params[1] = Threshold2 (TL = lower)
+        let max_val = params.first().copied().unwrap_or(100.0);
+        let min_val = params.get(1).copied().unwrap_or(0.0);
         let duration = params.get(2).copied().unwrap_or(0.0);
 
         // Reset on rising edge
@@ -529,26 +530,26 @@ mod tests {
     #[test]
     fn analog_watchdog_triggers_after_duration() {
         let mut block = AnalogWatchdog::new();
-        // params: min=5, max=15, duration=3.0
+        // params: [Threshold(upper)=15, Threshold2(lower)=5, duration=3.0]
         // In range: no alarm
-        let result = block.eval(&[10.0, 0.0], &[5.0, 15.0, 3.0], 1.0, &[0.0, 0.0]);
+        let result = block.eval(&[10.0, 0.0], &[15.0, 5.0, 3.0], 1.0, &[0.0, 0.0]);
         assert_eq!(result, vec![0.0, 0.0]);
 
         // Out of range for 1s
-        let result = block.eval(&[20.0, 0.0], &[5.0, 15.0, 3.0], 1.0, &[10.0, 0.0]);
+        let result = block.eval(&[20.0, 0.0], &[15.0, 5.0, 3.0], 1.0, &[10.0, 0.0]);
         assert_eq!(result, vec![0.0, 1.0]); // out_of_range but no alarm yet
 
         // Out of range for 2s more (total 3)
-        let result = block.eval(&[20.0, 0.0], &[5.0, 15.0, 3.0], 2.0, &[20.0, 0.0]);
+        let result = block.eval(&[20.0, 0.0], &[15.0, 5.0, 3.0], 2.0, &[20.0, 0.0]);
         assert_eq!(result, vec![1.0, 1.0]); // alarm!
     }
 
     #[test]
     fn analog_watchdog_resets_on_return_to_range() {
         let mut block = AnalogWatchdog::new();
-        block.eval(&[20.0, 0.0], &[5.0, 15.0, 3.0], 2.0, &[0.0, 0.0]);
+        block.eval(&[20.0, 0.0], &[15.0, 5.0, 3.0], 2.0, &[0.0, 0.0]);
         // Return to range
-        let result = block.eval(&[10.0, 0.0], &[5.0, 15.0, 3.0], 1.0, &[20.0, 0.0]);
+        let result = block.eval(&[10.0, 0.0], &[15.0, 5.0, 3.0], 1.0, &[20.0, 0.0]);
         assert_eq!(result, vec![0.0, 0.0]);
     }
 
@@ -556,12 +557,12 @@ mod tests {
     fn analog_watchdog_reset_input() {
         let mut block = AnalogWatchdog::new();
         // Accumulate time out of range
-        block.eval(&[20.0, 0.0], &[5.0, 15.0, 3.0], 4.0, &[0.0, 0.0]);
+        block.eval(&[20.0, 0.0], &[15.0, 5.0, 3.0], 4.0, &[0.0, 0.0]);
         // Alarm should be on
-        let result = block.eval(&[20.0, 0.0], &[5.0, 15.0, 3.0], 0.0, &[20.0, 0.0]);
+        let result = block.eval(&[20.0, 0.0], &[15.0, 5.0, 3.0], 0.0, &[20.0, 0.0]);
         assert_eq!(result[0], 1.0);
         // Reset rising edge
-        let result = block.eval(&[20.0, 1.0], &[5.0, 15.0, 3.0], 0.0, &[20.0, 0.0]);
+        let result = block.eval(&[20.0, 1.0], &[15.0, 5.0, 3.0], 0.0, &[20.0, 0.0]);
         // After reset, accumulated time is 0, still out of range but no alarm
         assert_eq!(result[0], 0.0);
         assert_eq!(result[1], 1.0);
@@ -570,20 +571,20 @@ mod tests {
     #[test]
     fn analog_watchdog_state_roundtrip() {
         let mut block = AnalogWatchdog::new();
-        block.eval(&[20.0, 0.0], &[5.0, 15.0, 3.0], 2.0, &[0.0, 0.0]);
+        block.eval(&[20.0, 0.0], &[15.0, 5.0, 3.0], 2.0, &[0.0, 0.0]);
         let state = block.state().unwrap();
         let mut restored = AnalogWatchdog::new();
         restored.restore(&state);
         // Should continue accumulating from 2.0
-        let result = restored.eval(&[20.0, 0.0], &[5.0, 15.0, 3.0], 1.5, &[20.0, 0.0]);
+        let result = restored.eval(&[20.0, 0.0], &[15.0, 5.0, 3.0], 1.5, &[20.0, 0.0]);
         assert_eq!(result, vec![1.0, 1.0]); // 2.0 + 1.5 >= 3.0
     }
 
     #[test]
     fn analog_watchdog_below_min() {
         let mut block = AnalogWatchdog::new();
-        // Value below min
-        let result = block.eval(&[2.0, 0.0], &[5.0, 15.0, 0.0], 0.1, &[0.0, 0.0]);
+        // Value below min (Threshold2=5)
+        let result = block.eval(&[2.0, 0.0], &[15.0, 5.0, 0.0], 0.1, &[0.0, 0.0]);
         assert_eq!(result, vec![1.0, 1.0]); // duration=0, instant alarm
     }
 }
