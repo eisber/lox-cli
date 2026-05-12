@@ -1009,7 +1009,7 @@
       "door-state",
       "memory"
     ],
-    "utterance": "Track the Wohnzimmer terrace door open/closed state with a FlipFlop memory block: set on door open, reset on door close via an inverted signal",
+    "utterance": "Track the Wohnzimmer terrace door open/closed state with a FlipFlop memory block: set on door open, reset on door close via an inverted signal; wire the FlipFlop output to the Statusblock for status display",
     "difficulty": "medium",
     "expected": {
       "new_blocks": [
@@ -1059,7 +1059,7 @@
               "ticks": 3,
               "dt": 0.1,
               "expected_outputs": {
-                "Terrassentür Merker.Q": {
+                "Statusblock.I1": {
                   ">": 0.5
                 }
               }
@@ -1090,7 +1090,7 @@
               "ticks": 3,
               "dt": 0.1,
               "expected_outputs": {
-                "Terrassentür Merker.Q": {
+                "Statusblock.I1": {
                   "<": 0.5
                 }
               }

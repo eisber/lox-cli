@@ -6,7 +6,7 @@
       "room-control",
       "irc-zone"
     ],
-    "utterance": "Set up the bathroom with heating and cooling — use the temperature sensor for feedback and a Tree valve actuator for the zone valve",
+    "utterance": "Set up the bathroom with heating and cooling — use the temperature sensor for feedback and a Tree valve actuator for the zone valve; wire the heating valve output to Heizkörper Bad",
     "difficulty": "medium",
     "source": "extracted from HVAC config: Bathroom IRC with Temp/Move/Reset/inFan inputs, valve actuator output",
     "expected": {
@@ -49,7 +49,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Raumregler Bad [Bad].AQh": {
+            "Heizkörper Bad.I1": {
               ">": 0
             }
           }
@@ -63,7 +63,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Raumregler Bad [Bad].AQh": {
+            "Heizkörper Bad.I1": {
               "==": 0
             }
           }
@@ -78,7 +78,7 @@
       "room-control",
       "presence-economy"
     ],
-    "utterance": "When nobody is in the bedroom, automatically switch the room controller to economy mode. Use the motion sensor and reset it when the lights turn off",
+    "utterance": "When nobody is in the bedroom, automatically switch the room controller to economy mode. Use the motion sensor and reset it when the lights turn off; wire the presence output to Lichtsteuerung [Schlafzimmer] Presence input",
     "difficulty": "hard",
     "source": "extracted: Bedroom IRC chain: Motion→Move, LightController.OutputReset→Memory(Leaving Room)→IRC.Reset",
     "expected": {
@@ -143,7 +143,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Präsenz Schlafzimmer [Schlafzimmer].OutputPresence": {
+            "Lichtsteuerung [Schlafzimmer].Presence": {
               ">": 0.5
             }
           },
@@ -155,7 +155,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Präsenz Schlafzimmer [Schlafzimmer].OutputPresence": {
+            "Lichtsteuerung [Schlafzimmer].Presence": {
               "<": 0.5
             }
           },
@@ -227,7 +227,7 @@
       "room-control",
       "multi-source"
     ],
-    "utterance": "Set up the bedroom room controller with two heating/cooling sources — a heat pump as primary and the AC central controller as secondary backup",
+    "utterance": "Set up the bedroom room controller with two heating/cooling sources — a heat pump as primary and the AC central controller as secondary backup; wire the heating output to the Statusblock for monitoring",
     "difficulty": "expert",
     "source": "extracted: Bedroom IRC has SourceCap=67, two Objects (heat pump + AC), PrioH=0,1 PrioC=0,1, Cap=771,0",
     "expected": {
@@ -270,7 +270,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Raumregler Schlafzimmer [Schlafzimmer].AQh": {
+            "Statusblock.I1": {
               ">": 0
             }
           }
@@ -284,7 +284,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Raumregler Schlafzimmer [Schlafzimmer].AQh": {
+            "Statusblock.I1": {
               "==": 0
             }
           }
@@ -443,7 +443,7 @@
       "heatmixer",
       "flow-temperature"
     ],
-    "utterance": "Calculate the flow temperature for the heat pump and send both heating and cooling supply temperature requests to the external heat pump controller",
+    "utterance": "Calculate the flow temperature for the heat pump and send both heating and cooling supply temperature requests to the external heat pump controller; wire the flow temperature output to the Statusblock",
     "difficulty": "hard",
     "source": "extracted: Flow Temperature Calculator on Central Heating page, Max→External Request Supply Flowtemperature (Heating + Cooling) HC1",
     "expected": {
@@ -479,7 +479,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Heizkurve Heizen [Wohnzimmer].AQ": {
+            "Statusblock.I1": {
               ">": 25
             }
           }
@@ -492,7 +492,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Heizkurve Heizen [Wohnzimmer].AQ": {
+            "Statusblock.I1": {
               "<": 25
             }
           }
@@ -597,7 +597,7 @@
       "heatmixer",
       "floor-mixing-valve"
     ],
-    "utterance": "Configure the floor heating flow temperature calculator with a buffer tank input, and have it control a mixing valve and circulation pump. The mixing valve needs both the target temperature and a stop signal",
+    "utterance": "Configure the floor heating flow temperature calculator with a buffer tank input, and have it control a mixing valve and circulation pump. The mixing valve needs both the target temperature and a stop signal; wire the buffer status output to Wallbox",
     "difficulty": "expert",
     "source": "extracted: Floor heating flow temp calculator: InBuffer←Buffer tank floor heating, Max→Mixing Valve.Input, Transconductance→Mixing Valve.Stop + Circulation pump relay",
     "expected": {
@@ -669,7 +669,7 @@
           "ticks": 30,
           "dt": 0.1,
           "expected_outputs": {
-            "Puffer OK [Garage].Q": {
+            "Wallbox.I1": {
               ">": 0.5
             }
           },
@@ -681,7 +681,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Puffer OK [Garage].Q": {
+            "Wallbox.I1": {
               "<": 0.5
             }
           },
@@ -697,7 +697,7 @@
       "heatmixer",
       "dewpoint-protection"
     ],
-    "utterance": "Set up a cooling flow temperature calculator that respects the dew point — never cool the water below the dew point to prevent condensation on the pipes",
+    "utterance": "Set up a cooling flow temperature calculator that respects the dew point — never cool the water below the dew point to prevent condensation on the pipes; wire the minimum flow temperature output to Heizstab",
     "difficulty": "expert",
     "source": "extracted: Room 1 Cooling Calculator has TxQr←DewPoint:Dewpoint room 1.DewP, ensuring cooling temp stays above dew point",
     "expected": {
@@ -738,7 +738,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Vorlauf Minimum [Bad].AQmax": {
+            "Heizstab.I1": {
               ">": 18
             }
           }
@@ -752,7 +752,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Vorlauf Minimum [Bad].AQmax": {
+            "Heizstab.I1": {
               "<": 18
             }
           }
@@ -918,7 +918,7 @@
       "garage",
       "co-safety"
     ],
-    "utterance": "Monitor CO levels on both garage floors. If any floor reaches warning or critical levels, trigger ventilation demand to extract the fumes",
+    "utterance": "Monitor CO levels on both garage floors. If any floor reaches warning or critical levels, trigger ventilation demand to extract the fumes; wire the ventilation demand output to Lüfter Bad",
     "difficulty": "expert",
     "source": "extracted: StatusMonitor(1st/2nd floor).Txlc/Csr→Memory(CO critical/warning).S, all feed into Memory(Ventilation demand).S",
     "expected": {
@@ -989,7 +989,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Abluft Garage.I": {
+            "Lüfter Bad.I1": {
               ">": 0.5
             }
           }
@@ -1003,7 +1003,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Abluft Garage.I": {
+            "Lüfter Bad.I1": {
               "<": 0.5
             }
           }
@@ -1239,7 +1239,7 @@
       "mode",
       "seasonal"
     ],
-    "utterance": "Define seasonal heating and cooling period modes based on the calendar — heating runs October to April, cooling May to September",
+    "utterance": "Define seasonal heating and cooling period modes based on the calendar — heating runs October to April, cooling May to September; wire the heating period signal to the Statusblock",
     "difficulty": "medium",
     "source": "extracted: Mode(Heating Period) and Mode(Cooling Period) present as calendar-driven operating modes",
     "expected": {
@@ -1283,7 +1283,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Heizperiode [Wohnzimmer].AQ": {
+            "Statusblock.I1": {
               ">": 0.5
             }
           },
@@ -1295,7 +1295,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Heizperiode [Wohnzimmer].AQ": {
+            "Statusblock.I1": {
               "<": 0.5
             }
           },
@@ -1452,7 +1452,7 @@
       "chain",
       "buffer-mixer-valve"
     ],
-    "utterance": "Set up the mixing valve control chain for floor heating: buffer tank temperature feeds the flow temp calculator, which sets the mixing valve target and enables the circulation pump. The mixing valve reads the actual flow temperature for PID feedback",
+    "utterance": "Set up the mixing valve control chain for floor heating: buffer tank temperature feeds the flow temp calculator, which sets the mixing valve target and enables the circulation pump. The mixing valve reads the actual flow temperature for PID feedback; wire the flow temperature output to the Statusblock",
     "difficulty": "expert",
     "source": "extracted chain: Buffer tank(InputRef)→Heatmixer2.InBuffer, Heatmixer2.Max→Heatmixer.Input, Heatmixer2.Transconductance→Heatmixer.Stop+Circ pump, Flow temp(InputRef)→Heatmixer.Temp",
     "expected": {
@@ -1514,7 +1514,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Vorlauf Rechner [Wohnzimmer].AQ": {
+            "Statusblock.I1": {
               ">": 0.5
             }
           }
@@ -1528,7 +1528,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Vorlauf Rechner [Wohnzimmer].AQ": {
+            "Statusblock.I1": {
               "<": 0.5
             }
           }
@@ -1732,7 +1732,7 @@
       "chain",
       "hrv-bypass-control"
     ],
-    "utterance": "Control the HRV bypass valve — open it when there's cooling demand AND conditions allow free cooling. Close it otherwise to maintain heat recovery",
+    "utterance": "Control the HRV bypass valve — open it when there's cooling demand AND conditions allow free cooling. Close it otherwise to maintain heat recovery; wire the bypass signal to Formel",
     "difficulty": "hard",
     "source": "extracted chain: And(bypass and cooling demand).Q→Memory(Bypass ON).S — bypass only activates when both conditions met",
     "expected": {
@@ -1784,7 +1784,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Außen kühler [Wohnzimmer].Q": {
+            "Formel.I1": {
               ">": 0.5
             }
           },
@@ -1796,7 +1796,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Außen kühler [Wohnzimmer].Q": {
+            "Formel.I1": {
               "<": 0.5
             }
           },
@@ -1812,7 +1812,7 @@
       "chain",
       "zonal-hrv-co2"
     ],
-    "utterance": "Set up zonal heat recovery ventilation with CO2 sensors in the day zone and night zone. The HRV mode selector drives the system and individual zone CO2 readings adjust airflow",
+    "utterance": "Set up zonal heat recovery ventilation with CO2 sensors in the day zone and night zone. The HRV mode selector drives the system and individual zone CO2 readings adjust airflow; wire the day-zone ventilation output to Lüfter Bad",
     "difficulty": "expert",
     "source": "extracted: StepSel(Heat Recovery mode)→Memory(HRV mode), CO2(InputRef)→Memory(Night Zone CO2), Study(InputRef)→Memory(Day zone CO2)",
     "expected": {
@@ -1891,7 +1891,7 @@
           "ticks": 30,
           "dt": 0.1,
           "expected_outputs": {
-            "Lüftung Tag [Wohnzimmer].AQ": {
+            "Lüfter Bad.I1": {
               ">": 0.5
             }
           },
@@ -1903,7 +1903,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Lüftung Tag [Wohnzimmer].AQ": {
+            "Lüfter Bad.I1": {
               "<": 0.5
             }
           },
@@ -1919,7 +1919,7 @@
       "chain",
       "decentral-hrv-room"
     ],
-    "utterance": "Set up a decentralized HRV unit for the master bedroom — the ventilation controller drives the fan speed memory, and a goodnight signal adjusts the ventilation mode",
+    "utterance": "Set up a decentralized HRV unit for the master bedroom — the ventilation controller drives the fan speed memory, and a goodnight signal adjusts the ventilation mode; wire the fan speed output to Lüfter Bad",
     "difficulty": "hard",
     "source": "extracted: Ventilation(Master Bedroom)→Memory(Fan speed bedroom), Memory(Good night Master Bedroom) used for mode control",
     "expected": {
@@ -1957,7 +1957,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Lüftung Schlafzimmer.OFan": {
+            "Lüfter Bad.I1": {
               ">": 0.5
             }
           }
@@ -1968,7 +1968,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Lüftung Schlafzimmer.OFan": {
+            "Lüfter Bad.I1": {
               "<": 0.5
             }
           }
@@ -2154,7 +2154,7 @@
       "hvac-controller",
       "dhw-priority"
     ],
-    "utterance": "Configure the heating source controller so that domestic hot water demand and thermal disinfection requests take priority over space heating — they should trigger the manual heat input to force the boiler on",
+    "utterance": "Configure the heating source controller so that domestic hot water demand and thermal disinfection requests take priority over space heating — they should trigger the manual heat input to force the boiler on; wire the DHW priority signal to Heizstab",
     "difficulty": "expert",
     "source": "extracted: InputRef(DHW demand).Q→HVACController.ManualHeat, InputRef(Required thermal disinfection).Q→HVACController.ManualHeat",
     "expected": {
@@ -2191,7 +2191,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "DHW Vorrang [Wohnzimmer].Q": {
+            "Heizstab.I1": {
               ">": 0.5
             }
           }
@@ -2205,7 +2205,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "DHW Vorrang [Wohnzimmer].Q": {
+            "Heizstab.I1": {
               "<": 0.5
             }
           }
@@ -2294,7 +2294,7 @@
       "fancoil",
       "mode-distribution"
     ],
-    "utterance": "Distribute the IRC operating mode to multiple fancoil room controllers — use a State block to decode the mode number, store it in memory, and feed it to each room's AMode input",
+    "utterance": "Distribute the IRC operating mode to multiple fancoil room controllers — use a State block to decode the mode number, store it in memory, and feed it to each room's AMode input; wire the mode trigger output to the Statusblock",
     "difficulty": "expert",
     "source": "extracted: State(Status)→Memory(IRC mode).S, Memory.Q→InputRef(IRC mode), InputRef→IRC(Room 1).AMode + IRC(Room 2).AMode",
     "expected": {
@@ -2361,7 +2361,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Modus Trigger [Wohnzimmer].Q": {
+            "Statusblock.I1": {
               ">": 0.5
             }
           },
@@ -2373,7 +2373,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Modus Trigger [Wohnzimmer].Q": {
+            "Statusblock.I1": {
               "<": 0.5
             }
           },
@@ -2389,7 +2389,7 @@
       "fancoil",
       "2pipe-slope-switch"
     ],
-    "utterance": "In a 2-pipe fancoil system, use an analog multiplexer to switch between heating and cooling slope curves. The HVAC controller's minimum temperature output selects which slope is active",
+    "utterance": "In a 2-pipe fancoil system, use an analog multiplexer to switch between heating and cooling slope curves. The HVAC controller's minimum temperature output selects which slope is active; wire the heating curve output to the Statusblock",
     "difficulty": "expert",
     "source": "extracted: HVACController.TempMin→AnalogMultiplexer2(H/C Slope).Input1, Heatmixer2.Qp←AnalogMultiplexer2.Select",
     "expected": {
@@ -2451,7 +2451,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Heizkurve [Wohnzimmer].AQ": {
+            "Statusblock.I1": {
               ">": 0.5
             }
           },
@@ -2463,7 +2463,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Heizkurve [Wohnzimmer].AQ": {
+            "Statusblock.I1": {
               "<": 0.5
             }
           },

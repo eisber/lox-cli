@@ -714,7 +714,7 @@
       "state-machine",
       "hvac"
     ],
-    "utterance": "Create a fan speed selector for the living room AC with three modes: low, medium, high",
+    "utterance": "Create a fan speed selector for the living room AC with three modes: low, medium, high; wire the fan speed output to Audiozone",
     "difficulty": "hard",
     "expected": {
       "new_blocks": [
@@ -741,7 +741,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Speed Niedrig [Wohnzimmer].AQ": {
+            "Audiozone.I1": {
               ">": 0.5
             }
           }
@@ -756,7 +756,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Speed Niedrig [Wohnzimmer].AQ": {
+            "Audiozone.I1": {
               "<": 0.5
             }
           }

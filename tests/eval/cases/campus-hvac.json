@@ -226,7 +226,7 @@
       "and-gate",
       "memory"
     ],
-    "utterance": "Combine the Wohnzimmer window and door contacts into a single heating inhibit signal: wire both Fensterkontakt Wohnzimmer and Türkontakt Wohnzimmer through an Or gate, then into a Memory block to latch the 'window open' state, and connect Memory.Q to Raumregler.Window; wire the combined window signal to Raumregler.Window",
+    "utterance": "Combine the Wohnzimmer window and door contacts into a single heating inhibit signal: wire both Fensterkontakt Wohnzimmer and Türkontakt Wohnzimmer through an Or gate, then into a Memory block to latch the 'window open' state, and connect Memory.Q to Raumregler.Window; wire the combined window signal to Raumregler.Window; wire the combined contact output to Raumregler.Window",
     "difficulty": "hard",
     "source": "campus-wiring-graph: window-heating-inhibit — And:Fenster offen + Memory:Außentüre Offen",
     "expected": {
@@ -288,7 +288,7 @@
               "ticks": 5,
               "dt": 0.1,
               "expected_outputs": {
-                "Window State.Q": {
+                "Raumregler.Window": {
                   ">": 0.5
                 }
               }
@@ -314,7 +314,7 @@
               "ticks": 5,
               "dt": 0.1,
               "expected_outputs": {
-                "Window State.Q": {
+                "Raumregler.Window": {
                   ">": 0.5
                 }
               }
@@ -1029,7 +1029,7 @@
       "door-state",
       "edge-detection"
     ],
-    "utterance": "Build a door state display: wire Fensterkontakt Wohnzimmer to State 'Status Türe'.I1 and add an EdgeDetection on Türkontakt Wohnzimmer so the rising edge triggers an AC flex button via PushButton, with the button output going to State.I2 for combined display; wire the door status to Formel",
+    "utterance": "Build a door state display: wire Fensterkontakt Wohnzimmer to State 'Status Türe'.I1 and add an EdgeDetection on Türkontakt Wohnzimmer so the rising edge triggers an AC flex button via PushButton, with the button output going to State.I2 for combined display; wire the door status to Formel; wire the EdgeDetection rising-edge output to Lichtsteuerung [Wohnzimmer]",
     "difficulty": "expert",
     "source": "campus-wiring-graph: heating-status-display — State:Status Türe + EdgeDetection:Light Flex On/Off + PushButton:A/C Flex",
     "expected": {
@@ -1098,7 +1098,7 @@
               "ticks": 1,
               "dt": 0.1,
               "expected_outputs": {
-                "Light Flex On/Off.RisingEdge": {
+                "Lichtsteuerung [Wohnzimmer].I1": {
                   ">": 0.5
                 }
               }

@@ -1081,7 +1081,7 @@
       "hvac",
       "flipflop"
     ],
-    "utterance": "Implement heating hysteresis for the Schlafzimmer using the Raumtemperatur Schlafzimmer sensor: add two GreaterEqual thresholds — one at 19°C and one at 21°C. Wire them to a FlipFlop so heating turns on when temp drops below 19°C (inverted >=19 goes to Set) and turns off when it rises above 21°C (>=21 goes to Reset). Connect the FlipFlop output to a VirtualOut heating relay",
+    "utterance": "Implement heating hysteresis for the Schlafzimmer using the Raumtemperatur Schlafzimmer sensor: add two GreaterEqual thresholds — one at 19°C and one at 21°C. Wire them to a FlipFlop so heating turns on when temp drops below 19°C (inverted >=19 goes to Set) and turns off when it rises above 21°C (>=21 goes to Reset). Connect the FlipFlop output to a VirtualOut heating relay; wire the hysteresis FlipFlop output to the Statusblock",
     "difficulty": "expert",
     "expected": {
       "new_blocks": [
@@ -1149,7 +1149,7 @@
               "ticks": 20,
               "dt": 0.1,
               "expected_outputs": {
-                "FlipFlop.Q": {
+                "Statusblock.I1": {
                   ">": 0.5
                 }
               }
@@ -1173,7 +1173,7 @@
               "ticks": 20,
               "dt": 0.1,
               "expected_outputs": {
-                "FlipFlop.Q": {
+                "Statusblock.I1": {
                   "<": 0.5
                 }
               }

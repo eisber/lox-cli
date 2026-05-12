@@ -201,7 +201,7 @@
       "heatcurve",
       "weather"
     ],
-    "utterance": "Adjust the radiator water temperature based on the outside weather — hotter water when it's colder outside",
+    "utterance": "Adjust the radiator water temperature based on the outside weather — hotter water when it's colder outside; wire the heating curve output to the Statusblock",
     "difficulty": "hard",
     "expected": {
       "new_blocks": [],
@@ -220,7 +220,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Heizkurve [Wohnzimmer].AQ": {
+            "Statusblock.I1": {
               ">": 40
             }
           }
@@ -233,7 +233,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Heizkurve [Wohnzimmer].AQ": {
+            "Statusblock.I1": {
               "<": 25
             }
           }
@@ -248,7 +248,7 @@
       "safety",
       "temperature"
     ],
-    "utterance": "Make sure the underfloor heating water never exceeds 40°C to protect the floor",
+    "utterance": "Make sure the underfloor heating water never exceeds 40°C to protect the floor; wire the temperature limit signal to Heizstab",
     "difficulty": "medium",
     "expected": {
       "new_blocks": [
@@ -267,7 +267,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Wasser über 40 [Wohnzimmer].Q": {
+            "Heizstab.I1": {
               ">": 0.5
             }
           }
@@ -280,7 +280,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Wasser über 40 [Wohnzimmer].Q": {
+            "Heizstab.I1": {
               "<": 0.5
             }
           }
@@ -669,7 +669,7 @@
       "ac",
       "protection"
     ],
-    "utterance": "Don't let the AC turn back on within 2 hours of shutting off to protect the compressor",
+    "utterance": "Don't let the AC turn back on within 2 hours of shutting off to protect the compressor; wire the compressor protection signal to the Statusblock",
     "difficulty": "hard",
     "expected": {
       "new_blocks": [
@@ -686,7 +686,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Kompressorschutz [Wohnzimmer].Q": {
+            "Statusblock.I1": {
               ">": 0.5
             }
           }
@@ -699,7 +699,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Kompressorschutz [Wohnzimmer].Q": {
+            "Statusblock.I1": {
               "<": 0.5
             }
           }
@@ -809,7 +809,7 @@
       "multizone",
       "circuit"
     ],
-    "utterance": "The ground floor has underfloor heating limited to 40°C, the upper floor has radiators that can go up to 55°C — set up both circuits",
+    "utterance": "The ground floor has underfloor heating limited to 40°C, the upper floor has radiators that can go up to 55°C — set up both circuits; wire the ground-floor heating curve to the Statusblock",
     "difficulty": "expert",
     "expected": {
       "new_blocks": [],
@@ -824,7 +824,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Heizkurve EG [Wohnzimmer].AQ": {
+            "Statusblock.I1": {
               ">": 20
             }
           }
@@ -837,7 +837,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Heizkurve EG [Wohnzimmer].AQ": {
+            "Statusblock.I1": {
               "<": 20
             }
           }

@@ -5,7 +5,7 @@
       "multi-click",
       "central-light"
     ],
-    "utterance": "When I double-click the hallway button, toggle all lights in the house on or off",
+    "utterance": "When I double-click the hallway button, toggle all lights in the house on or off; wire the double-click output to Lichtsteuerung [Flur]",
     "difficulty": "hard",
     "expected": {
       "new_blocks": [
@@ -78,7 +78,7 @@
               "ticks": 1,
               "dt": 0.1,
               "expected_outputs": {
-                "MultiClick.Q2": {
+                "Lichtsteuerung [Flur].I1": {
                   ">": 0.5
                 }
               }
@@ -116,7 +116,7 @@
               "ticks": 1,
               "dt": 0.1,
               "expected_outputs": {
-                "MultiClick.Q2": {
+                "Lichtsteuerung [Flur].I1": {
                   "<": 0.5
                 }
               }
@@ -133,7 +133,7 @@
       "goodnight",
       "memory"
     ],
-    "utterance": "If I hold the bedroom button for 2 seconds, activate a goodnight mode that turns off all bedroom lights and lowers the blinds",
+    "utterance": "If I hold the bedroom button for 2 seconds, activate a goodnight mode that turns off all bedroom lights and lowers the blinds; wire the long-press output to Jalousie 1 [Schlafzimmer]",
     "difficulty": "expert",
     "expected": {
       "new_blocks": [
@@ -188,7 +188,7 @@
               "ticks": 30,
               "dt": 0.1,
               "expected_outputs": {
-                "MultiFuncSW.Q": {
+                "Jalousie 1 [Schlafzimmer].InputTriggerDown": {
                   ">": 0.5
                 }
               }
@@ -208,7 +208,7 @@
               "ticks": 10,
               "dt": 0.1,
               "expected_outputs": {
-                "MultiFuncSW.Q": {
+                "Jalousie 1 [Schlafzimmer].InputTriggerDown": {
                   "<": 0.5
                 }
               }
@@ -224,7 +224,7 @@
       "multi-click",
       "alarm"
     ],
-    "utterance": "Triple-clicking the garage button should arm or disarm the alarm system",
+    "utterance": "Triple-clicking the garage button should arm or disarm the alarm system; wire the triple-click output to Alarmanlage",
     "difficulty": "hard",
     "expected": {
       "new_blocks": [
@@ -318,7 +318,7 @@
               "ticks": 1,
               "dt": 0.1,
               "expected_outputs": {
-                "MultiClick.Q3": {
+                "Alarmanlage.I1": {
                   ">": 0.5
                 }
               }
@@ -370,7 +370,7 @@
               "ticks": 1,
               "dt": 0.1,
               "expected_outputs": {
-                "MultiClick.Q3": {
+                "Alarmanlage.I1": {
                   "<": 0.5
                 }
               }
@@ -713,7 +713,7 @@
       "multi-function",
       "short-long-double"
     ],
-    "utterance": "Make the kitchen button multi-purpose: a short press toggles the kitchen light, a long press closes the kitchen blinds, and a double-click turns off everything in the kitchen",
+    "utterance": "Make the kitchen button multi-purpose: a short press toggles the kitchen light, a long press closes the kitchen blinds, and a double-click turns off everything in the kitchen; wire the short-press output to Lichtsteuerung [Küche] and the double-click output to Jalousie 1 [Küche]",
     "difficulty": "expert",
     "expected": {
       "new_blocks": [
@@ -777,7 +777,7 @@
               "ticks": 5,
               "dt": 0.1,
               "expected_outputs": {
-                "MultiFuncSW.Q": {
+                "Lichtsteuerung [Küche].I1": {
                   ">": 0.5
                 }
               }
@@ -815,7 +815,7 @@
               "ticks": 1,
               "dt": 0.1,
               "expected_outputs": {
-                "MultiClick.Q2": {
+                "Jalousie 1 [Küche].InputTriggerDown": {
                   ">": 0.5
                 }
               }
@@ -998,7 +998,7 @@
       "and-gate",
       "multi-output"
     ],
-    "utterance": "When I turn on the TV in the living room, automatically close the blinds and switch the lights to the dim scene",
+    "utterance": "When I turn on the TV in the living room, automatically close the blinds and switch the lights to the dim scene; wire the FlipFlop output to Jalousie 1 [Wohnzimmer] to trigger blind close",
     "difficulty": "hard",
     "expected": {
       "new_blocks": [
@@ -1042,7 +1042,7 @@
               "ticks": 5,
               "dt": 0.1,
               "expected_outputs": {
-                "FlipFlop.Q": {
+                "Jalousie 1 [Wohnzimmer].InputTriggerDown": {
                   ">": 0.5
                 }
               }
@@ -1066,7 +1066,7 @@
               "ticks": 5,
               "dt": 0.1,
               "expected_outputs": {
-                "FlipFlop.Q": {
+                "Jalousie 1 [Wohnzimmer].InputTriggerDown": {
                   "<": 0.5
                 }
               }
@@ -1250,7 +1250,7 @@
       "and",
       "reminder"
     ],
-    "utterance": "If the front door has been left unlocked, blink the hallway light every 30 minutes as a reminder until someone locks it again",
+    "utterance": "If the front door has been left unlocked, blink the hallway light every 30 minutes as a reminder until someone locks it again; wire the reminder signal to Lichtsteuerung [Flur]",
     "difficulty": "expert",
     "expected": {
       "new_blocks": [
@@ -1331,7 +1331,7 @@
               "ticks": 10,
               "dt": 0.1,
               "expected_outputs": {
-                "FlipFlop.Q": {
+                "Lichtsteuerung [Flur].I1": {
                   ">": 0.5
                 }
               }
@@ -1355,7 +1355,7 @@
               "ticks": 10,
               "dt": 0.1,
               "expected_outputs": {
-                "FlipFlop.Q": {
+                "Lichtsteuerung [Flur].I1": {
                   "<": 0.5
                 }
               }

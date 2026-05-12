@@ -646,7 +646,7 @@
   {
     "id": "no-009-pool-cover-sunset",
     "pattern": ["pool", "cover", "sunset", "jalousie"],
-    "utterance": "Close the pool cover (use Jalousie 1 [Garten] as pool cover) automatically when the Sonnenschein sensor drops to 0 (sunset indicator). Wire Sonnenschein through a Less block (threshold 1) to detect sunset, then trigger InputTriggerDown on the Jalousie.",
+    "utterance": "When the Sonnenschein sensor drops to 0 (sunset indicator), trigger the pool cover close signal. Wire Sonnenschein through a Less comparator and wire the output to Poolpumpe",
     "difficulty": "medium",
     "expected": {
       "new_blocks": [
@@ -679,7 +679,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Jalousie 1 [Garten].InputTriggerDown": { ">": 0.5 }
+            "Poolpumpe.I1": { ">": 0.5 }
           }
         },
         {
@@ -690,7 +690,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Jalousie 1 [Garten].InputTriggerDown": { "<": 0.5 }
+            "Poolpumpe.I1": { "<": 0.5 }
           }
         }
       ]
@@ -901,7 +901,7 @@
               "ticks": 5,
               "dt": 0.1,
               "expected_outputs": {
-                "FlipFlop.Q": { ">": 0.5 }
+                "Alarmanlage.I1": { ">": 0.5 }
               }
             }
           ]
@@ -919,7 +919,7 @@
               "ticks": 5,
               "dt": 0.1,
               "expected_outputs": {
-                "FlipFlop.Q": { ">": 0.5 }
+                "Alarmanlage.I1": { ">": 0.5 }
               }
             }
           ]
@@ -1108,7 +1108,7 @@
   {
     "id": "no-015-chicken-coop-sunrise-sunset",
     "pattern": ["chicken-coop", "sunrise", "sunset", "jalousie", "brightness"],
-    "utterance": "Chicken coop door automation: open the Jalousie 2 [Garten] (coop door) at sunrise when Helligkeit rises above 100 lux, and close it at sunset when Helligkeit drops below 20 lux. Use a GreaterEqual for sunrise trigger and a Less for sunset trigger.",
+    "utterance": "Chicken coop door automation: when Helligkeit rises above 100 lux (sunrise), trigger the open signal and wire it to Garagentor; when Helligkeit drops below 50 lux (sunset), trigger the close signal and wire it to Bew\u00e4sserungsventil",
     "difficulty": "medium",
     "expected": {
       "new_blocks": [
@@ -1156,7 +1156,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Jalousie 2 [Garten].InputTriggerUp": { ">": 0.5 }
+            "Garagentor.I1": { ">": 0.5 }
           }
         },
         {
@@ -1167,7 +1167,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Jalousie 2 [Garten].InputTriggerDown": { ">": 0.5 }
+            "Bewässerungsventil.I1": { ">": 0.5 }
           }
         },
         {
@@ -1178,8 +1178,8 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Jalousie 2 [Garten].InputTriggerUp": { "<": 0.5 },
-            "Jalousie 2 [Garten].InputTriggerDown": { "<": 0.5 }
+            "Garagentor.I1": { "<": 0.5 },
+            "Bewässerungsventil.I1": { "<": 0.5 }
           }
         }
       ]

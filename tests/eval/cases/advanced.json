@@ -391,7 +391,7 @@
       "room-template",
       "bedroom"
     ],
-    "utterance": "Set up a typical bedroom: blackout blinds at night, gentle wake-up light in the morning, cooler temperature for sleeping, and a dim night light if someone gets up",
+    "utterance": "Set up a typical bedroom: blackout blinds at night, gentle wake-up light in the morning, cooler temperature for sleeping, and a dim night light if someone gets up; wire the night mode signal to Jalousie 1 [Schlafzimmer] to close the blackout blinds",
     "difficulty": "expert",
     "expected": {
       "new_blocks": [
@@ -438,7 +438,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Nachtmodus [Schlafzimmer].AQ": {
+            "Jalousie 1 [Schlafzimmer].InputTriggerDown": {
               ">": 0.5
             }
           },
@@ -450,7 +450,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Nachtmodus [Schlafzimmer].AQ": {
+            "Jalousie 1 [Schlafzimmer].InputTriggerDown": {
               "<": 0.5
             }
           },
@@ -947,7 +947,7 @@
       "irrigation",
       "sequencing"
     ],
-    "utterance": "Run the irrigation zones one after another, not all at once — the water pressure isn't enough for everything at the same time",
+    "utterance": "Run the irrigation zones one after another, not all at once — the water pressure isn't enough for everything at the same time; wire the active zone output to Bewässerungsventil",
     "difficulty": "expert",
     "expected": {
       "new_blocks": [
@@ -981,7 +981,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Zone aktiv.Q": {
+            "Bewässerungsventil.I1": {
               ">": 0.5
             }
           }
@@ -995,7 +995,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Zone aktiv.Q": {
+            "Bewässerungsventil.I1": {
               "<": 0.5
             }
           }
@@ -1581,7 +1581,7 @@
       "co2",
       "ventilation"
     ],
-    "utterance": "Wenn der CO2-Wert im Wohnzimmer über 1000 steigt und es draußen nicht zu kalt ist, öffne die Jalousien zum Lüften — aber nur tagsüber",
+    "utterance": "Wenn der CO2-Wert im Wohnzimmer über 1000 steigt und es draußen nicht zu kalt ist, öffne die Jalousien zum Lüften — aber nur tagsüber; wire the CO2 threshold output to Jalousie 1 [Wohnzimmer] to open for ventilation",
     "difficulty": "expert",
     "expected": {
       "new_blocks": [
@@ -1636,7 +1636,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "CO2 über 1000 [Wohnzimmer].Q": {
+            "Jalousie 1 [Wohnzimmer].InputTriggerUp": {
               ">": 0.5
             }
           },
@@ -1648,7 +1648,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "CO2 über 1000 [Wohnzimmer].Q": {
+            "Jalousie 1 [Wohnzimmer].InputTriggerUp": {
               "<": 0.5
             }
           },

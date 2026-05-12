@@ -6,7 +6,7 @@
       "math",
       "night-mode"
     ],
-    "utterance": "Remember the current bedroom temperature when I press the switch, then subtract 3 degrees as the night setpoint",
+    "utterance": "Remember the current bedroom temperature when I press the switch, then subtract 3 degrees as the night setpoint; wire the stored temperature to the Statusblock",
     "difficulty": "hard",
     "expected": {
       "new_blocks": [
@@ -60,7 +60,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Temp Speicher [Schlafzimmer].AQ": {
+            "Statusblock.I1": {
               ">": 10
             }
           }
@@ -73,7 +73,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Temp Speicher [Schlafzimmer].AQ": {
+            "Statusblock.I1": {
               "<": 0.5
             }
           }
@@ -320,7 +320,7 @@
       "modulo",
       "glitch-detection"
     ],
-    "utterance": "Divide the brightness value by 100 to normalize it, check the remainder, and alert me when the remainder is not zero to catch sensor glitches",
+    "utterance": "Divide the brightness value by 100 to normalize it, check the remainder, and alert me when the remainder is not zero to catch sensor glitches; wire the remainder output to Formel",
     "difficulty": "hard",
     "expected": {
       "new_blocks": [
@@ -407,7 +407,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Helligkeit Rest [Wohnzimmer].AQ": {
+            "Formel.I1": {
               ">": 0.5
             }
           },
@@ -419,7 +419,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Helligkeit Rest [Wohnzimmer].AQ": {
+            "Formel.I1": {
               "<": 0.5
             }
           },
@@ -1009,7 +1009,7 @@
       "display",
       "monitoring"
     ],
-    "utterance": "Track the pool temperature as a state variable so I can see it on the garden dashboard",
+    "utterance": "Track the pool temperature as a state variable so I can see it on the garden dashboard; wire the pool temperature state to the Statusblock",
     "difficulty": "easy",
     "expected": {
       "new_blocks": [
@@ -1056,7 +1056,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Pool Temperatur Status [Garten].AQ": {
+            "Statusblock.I1": {
               ">": 0.5
             }
           },
@@ -1068,7 +1068,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Pool Temperatur Status [Garten].AQ": {
+            "Statusblock.I1": {
               "<": 0.5
             }
           },
@@ -1084,7 +1084,7 @@
       "sensor",
       "monitoring"
     ],
-    "utterance": "Add a KNX bus temperature sensor for the garage and create a state variable to show its reading on the dashboard",
+    "utterance": "Add a KNX bus temperature sensor for the garage and create a state variable to show its reading on the dashboard; wire the garage temperature reading to Wallbox",
     "difficulty": "medium",
     "expected": {
       "new_blocks": [
@@ -1138,7 +1138,7 @@
           "ticks": 30,
           "dt": 0.1,
           "expected_outputs": {
-            "Garagentemperatur [Garage].AQ": {
+            "Wallbox.I1": {
               ">": 0.5
             }
           },
@@ -1150,7 +1150,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Garagentemperatur [Garage].AQ": {
+            "Wallbox.I1": {
               "<": 0.5
             }
           },
