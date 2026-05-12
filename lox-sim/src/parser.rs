@@ -991,7 +991,7 @@ fn block_signature(
             &["Q1", "Q2", "AQ"],
             &["Max", "Def"],
         ),
-        "Tablet" => (
+        "Tablet" | "Device Tablet" => (
             &["Ds", "P", "Dnd"],
             &["ODBr", "OCac", "OBat", "OUi", "API"],
             &["DBr", "SBr"],
