@@ -133,9 +133,18 @@ impl Block for AnalogThresholdTrigger {
         let off_threshold = params.get(1).copied().unwrap_or(on_threshold);
         let was_on = self.is_on;
 
-        if input >= on_threshold {
+        // Normalize thresholds: high = turn-on-above, low = turn-off-below.
+        // When On < Off (e.g. frost protection On=0, Off=2), the higher
+        // value is the recovery threshold and the lower is the trigger.
+        let (high, low) = if on_threshold >= off_threshold {
+            (on_threshold, off_threshold)
+        } else {
+            (off_threshold, on_threshold)
+        };
+
+        if input >= high {
             self.is_on = true;
-        } else if input <= off_threshold {
+        } else if input <= low {
             self.is_on = false;
         }
 

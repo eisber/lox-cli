@@ -863,7 +863,15 @@ impl Block for MultiClick {
             }
         }
 
-        vec![self.output]
+        let count = self.output as u32;
+        // Q1..Q4: pulse on matching click count; AQ: raw count
+        vec![
+            if count == 1 { 1.0 } else { 0.0 },
+            if count == 2 { 1.0 } else { 0.0 },
+            if count == 3 { 1.0 } else { 0.0 },
+            if count == 4 { 1.0 } else { 0.0 },
+            self.output,
+        ]
     }
 
     fn state(&self) -> Option<Vec<u8>> {
@@ -999,7 +1007,7 @@ impl Default for StepSel {
 impl Block for StepSel {
     /// Inputs: [trigger, reset]
     /// Params: [num_steps (default 4)]
-    /// Outputs: [current_step]
+    /// Outputs: [Q1, Q2, AQ] — Q1/Q2 are per-step digital, AQ is step number
     fn eval(
         &mut self,
         inputs: &[Signal],
@@ -1018,7 +1026,12 @@ impl Block for StepSel {
             self.current = ((self.current as u32 + 1) % steps) as f64;
         }
 
-        vec![self.current]
+        let step = self.current as u32;
+        vec![
+            if step == 0 { 1.0 } else { 0.0 }, // Q1: active when step 0
+            if step == 1 { 1.0 } else { 0.0 }, // Q2: active when step 1
+            self.current,                        // AQ: current step number
+        ]
     }
 
     fn state(&self) -> Option<Vec<u8>> {
@@ -2097,7 +2110,8 @@ mod tests {
         block.eval(&[0.0], &[1.0], 0.1, &[1.0]);
         // Wait for timeout
         let out = block.eval(&[0.0], &[1.0], 1.0, &[0.0]);
-        assert_eq!(out[0], 2.0); // two clicks
+        assert_eq!(out[1], 1.0); // Q2 pulses on double-click
+        assert_eq!(out[4], 2.0); // AQ = raw click count
     }
 
     // --- PushDimmer ---
@@ -2115,9 +2129,18 @@ mod tests {
     #[test]
     fn step_sel_cycles() {
         let mut block = StepSel::new();
-        assert_eq!(block.eval(&[1.0, 0.0], &[3.0], 0.0, &[0.0])[0], 1.0);
-        assert_eq!(block.eval(&[1.0, 0.0], &[3.0], 0.0, &[0.0])[0], 2.0);
-        assert_eq!(block.eval(&[1.0, 0.0], &[3.0], 0.0, &[0.0])[0], 0.0); // wrap
+        // outputs: [Q1, Q2, AQ]
+        let out = block.eval(&[1.0, 0.0], &[3.0], 0.0, &[0.0]);
+        assert_eq!(out[2], 1.0); // AQ = step 1
+        assert_eq!(out[0], 0.0); // Q1 inactive (step 0 not active)
+        assert_eq!(out[1], 1.0); // Q2 active (step 1)
+
+        let out = block.eval(&[1.0, 0.0], &[3.0], 0.0, &[0.0]);
+        assert_eq!(out[2], 2.0); // AQ = step 2
+
+        let out = block.eval(&[1.0, 0.0], &[3.0], 0.0, &[0.0]);
+        assert_eq!(out[2], 0.0); // AQ wraps to 0
+        assert_eq!(out[0], 1.0); // Q1 active (step 0)
     }
 
     // --- Sequencer ---
