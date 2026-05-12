@@ -628,17 +628,21 @@ impl Block for AnalogMultiplexer {
     fn eval(
         &mut self,
         inputs: &[Signal],
-        params: &[Signal],
+        _params: &[Signal],
         _dt: f64,
         _prev: &[Signal],
     ) -> Vec<Signal> {
-        let n = params.first().copied().unwrap_or(0.0) as usize;
-        if inputs.is_empty() || n == 0 {
+        // inputs = [Input1, Input2, ..., InputN, InputDisable, Select]
+        // Select is 1-based: 1=Input1, 2=Input2, ...; 0=off
+        if inputs.len() < 2 {
             return vec![0.0];
         }
-        // Last input is the index selector
-        let index_raw = inputs.last().copied().unwrap_or(0.0);
-        let index = (index_raw.floor() as usize).min(n.saturating_sub(1));
+        let select = inputs.last().copied().unwrap_or(1.0).floor() as usize;
+        let n_values = inputs.len().saturating_sub(2); // exclude InputDisable + Select
+        if select == 0 || n_values == 0 {
+            return vec![0.0];
+        }
+        let index = (select - 1).min(n_values - 1);
         vec![inputs.get(index).copied().unwrap_or(0.0)]
     }
 
@@ -655,7 +659,7 @@ impl Block for AnalogMultiplexer {
 
 /// 2-input selector: output = I1 when selector is low, I2 when selector is high.
 ///
-/// Inputs: [I1, I2, selector]
+/// Inputs: [I1, I2, InputDisable, Select]
 ///
 /// // WARNING: Assumed behavior — Loxone internal implementation unknown.
 /// // Assumption: Digital threshold on selector input; I1 when low, I2 when high.
@@ -673,7 +677,8 @@ impl Block for AnalogMultiplexer2 {
     ) -> Vec<Signal> {
         let i1 = inputs.first().copied().unwrap_or(0.0);
         let i2 = inputs.get(1).copied().unwrap_or(0.0);
-        let selector = inputs.get(2).copied().unwrap_or(0.0);
+        // Select is last input (index 3: Input1, Input2, InputDisable, Select)
+        let selector = inputs.last().copied().unwrap_or(0.0);
         vec![if is_high(selector) { i2 } else { i1 }]
     }
 
@@ -927,23 +932,29 @@ mod tests {
     #[test]
     fn analog_multiplexer_selects_by_index() {
         let mut block = AnalogMultiplexer;
-        // inputs: [val0, val1, val2, index], params: [N=3]
+        // inputs: [val1, val2, val3, InputDisable, Select]
+        // Select is 1-based: 1=Input1, 2=Input2, 3=Input3
         assert_eq!(
-            block.eval(&[10.0, 20.0, 30.0, 0.0], &[3.0], 0.0, &[]),
+            block.eval(&[10.0, 20.0, 30.0, 0.0, 1.0], &[], 0.0, &[]),
             vec![10.0]
         );
         assert_eq!(
-            block.eval(&[10.0, 20.0, 30.0, 1.0], &[3.0], 0.0, &[]),
+            block.eval(&[10.0, 20.0, 30.0, 0.0, 2.0], &[], 0.0, &[]),
             vec![20.0]
         );
         assert_eq!(
-            block.eval(&[10.0, 20.0, 30.0, 2.0], &[3.0], 0.0, &[]),
+            block.eval(&[10.0, 20.0, 30.0, 0.0, 3.0], &[], 0.0, &[]),
             vec![30.0]
         );
-        // Out-of-range index clamps
+        // Out-of-range index clamps to last value input
         assert_eq!(
-            block.eval(&[10.0, 20.0, 30.0, 99.0], &[3.0], 0.0, &[]),
+            block.eval(&[10.0, 20.0, 30.0, 0.0, 99.0], &[], 0.0, &[]),
             vec![30.0]
+        );
+        // Select=0 outputs 0
+        assert_eq!(
+            block.eval(&[10.0, 20.0, 30.0, 0.0, 0.0], &[], 0.0, &[]),
+            vec![0.0]
         );
     }
 

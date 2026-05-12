@@ -240,17 +240,22 @@ impl Block for AnalogComparator {
 /// //   (output goes low as soon as rate drops below threshold).
 /// // TODO: Validate against real Miniserver behavior
 #[derive(Clone)]
+/// Differential Threshold Switch (Differenzschwellenwertschalter).
+///
+/// Threshold comparator with hysteresis:
+/// - Q turns ON when Input >= On threshold
+/// - Q turns OFF when Input <= (On - Delta)
+///
+/// Inputs: [value]
+/// Params: [On (switch-on threshold), Delta (hysteresis)]
+/// Outputs: [Q (digital), Qon (rising edge pulse), Qoff (falling edge pulse)]
 pub struct AnalogDiffTrigger {
-    prev_value: f64,
-    initialized: bool,
+    is_on: bool,
 }
 
 impl AnalogDiffTrigger {
     pub fn new() -> Self {
-        Self {
-            prev_value: 0.0,
-            initialized: false,
-        }
+        Self { is_on: false }
     }
 }
 
@@ -265,38 +270,33 @@ impl Block for AnalogDiffTrigger {
         &mut self,
         inputs: &[Signal],
         params: &[Signal],
-        dt: f64,
+        _dt: f64,
         _prev: &[Signal],
     ) -> Vec<Signal> {
         let value = inputs.first().copied().unwrap_or(0.0);
-        let rate_threshold = params.first().copied().unwrap_or(1.0);
+        let on_threshold = params.first().copied().unwrap_or(5.0);
+        let delta = params.get(1).copied().unwrap_or(2.0);
+        let off_threshold = on_threshold - delta;
+        let was_on = self.is_on;
 
-        let rate = if !self.initialized || dt <= f64::EPSILON {
-            self.initialized = true;
-            self.prev_value = value;
-            0.0
-        } else {
-            let r = (value - self.prev_value).abs() / dt;
-            self.prev_value = value;
-            r
-        };
+        if value >= on_threshold {
+            self.is_on = true;
+        } else if value <= off_threshold {
+            self.is_on = false;
+        }
 
-        let triggered = rate > rate_threshold;
-        vec![bool_signal(triggered), rate]
+        let q = bool_signal(self.is_on);
+        let rising = bool_signal(!was_on && self.is_on);
+        let falling = bool_signal(was_on && !self.is_on);
+        vec![q, rising, falling]
     }
 
     fn state(&self) -> Option<Vec<u8>> {
-        let init_byte = if self.initialized { 1u8 } else { 0u8 };
-        let mut bytes = serialize_f64s(&[self.prev_value]);
-        bytes.push(init_byte);
-        Some(bytes)
+        Some(vec![if self.is_on { 1u8 } else { 0u8 }])
     }
 
     fn restore(&mut self, state: &[u8]) {
-        if let Some(vals) = deserialize_f64s(state, 1) {
-            self.prev_value = vals[0];
-            self.initialized = state.get(8).copied().unwrap_or(0) != 0;
-        }
+        self.is_on = state.first().copied().unwrap_or(0) != 0;
     }
 
     fn block_type(&self) -> &str {
@@ -488,43 +488,43 @@ mod tests {
     }
 
     #[test]
-    fn analog_diff_trigger_detects_fast_change() {
+    fn analog_diff_trigger_threshold_with_hysteresis() {
         let mut block = AnalogDiffTrigger::new();
-        // First eval: initializes, rate = 0
-        let result = block.eval(&[0.0], &[5.0], 1.0, &[]);
+        // params: On=5, Delta=2 → off threshold = 3
+        // Below threshold: Q=0
+        let result = block.eval(&[4.0], &[5.0, 2.0], 1.0, &[]);
         assert_eq!(result[0], 0.0); // not triggered
-        assert!((result[1] - 0.0).abs() < 1e-10); // rate = 0
 
-        // Slow change: delta=2 in 1s → rate=2, threshold=5 → not triggered
-        let result = block.eval(&[2.0], &[5.0], 1.0, &[]);
-        assert_eq!(result[0], 0.0);
-        assert!((result[1] - 2.0).abs() < 1e-10);
+        // At threshold: Q=1 (>= On)
+        let result = block.eval(&[5.0], &[5.0, 2.0], 1.0, &[]);
+        assert_eq!(result[0], 1.0); // triggered
+        assert_eq!(result[1], 1.0); // rising edge
 
-        // Fast change: delta=10 in 1s → rate=10, threshold=5 → triggered
-        let result = block.eval(&[12.0], &[5.0], 1.0, &[]);
-        assert_eq!(result[0], 1.0);
-        assert!((result[1] - 10.0).abs() < 1e-10);
-    }
+        // Drop into hysteresis band: Q stays 1
+        let result = block.eval(&[4.0], &[5.0, 2.0], 1.0, &[]);
+        assert_eq!(result[0], 1.0); // still on (hysteresis)
 
-    #[test]
-    fn analog_diff_trigger_zero_dt() {
-        let mut block = AnalogDiffTrigger::new();
-        block.eval(&[5.0], &[1.0], 1.0, &[]);
-        // dt = 0 → rate = 0 (avoid division by zero)
-        let result = block.eval(&[100.0], &[1.0], 0.0, &[]);
-        assert_eq!(result[0], 0.0);
+        // Drop below off threshold (On - Delta = 3): Q=0
+        let result = block.eval(&[3.0], &[5.0, 2.0], 1.0, &[]);
+        assert_eq!(result[0], 0.0); // turned off
+        assert_eq!(result[2], 1.0); // falling edge
     }
 
     #[test]
     fn analog_diff_trigger_state_roundtrip() {
         let mut block = AnalogDiffTrigger::new();
-        block.eval(&[10.0], &[5.0], 1.0, &[]);
+        // Turn on (value=6 >= On=5)
+        block.eval(&[6.0], &[5.0, 2.0], 1.0, &[]);
+        assert!(block.is_on);
+
         let state = block.state().unwrap();
         let mut restored = AnalogDiffTrigger::new();
         restored.restore(&state);
-        // Next eval should use prev_value = 10.0
-        let result = restored.eval(&[20.0], &[5.0], 1.0, &[]);
-        assert_eq!(result[0], 1.0); // rate = 10 > threshold 5
+        assert!(restored.is_on);
+
+        // In hysteresis band: should remain on
+        let result = restored.eval(&[4.0], &[5.0, 2.0], 1.0, &[]);
+        assert_eq!(result[0], 1.0); // still on
     }
 
     #[test]
