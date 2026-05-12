@@ -723,6 +723,11 @@ impl Default for AnalogStepper {
 }
 
 impl Block for AnalogStepper {
+    /// Params from parser: [Dir, Step, Max]
+    ///  - Dir: 0 = step up on trigger, 1 = step down (default 0)
+    ///  - Step: increment size (default 1)
+    ///  - Max: upper bound, value clamped to [0, Max] (default 100)
+    /// Single input: Trigger (rising-edge sensitive)
     fn eval(
         &mut self,
         inputs: &[Signal],
@@ -730,36 +735,27 @@ impl Block for AnalogStepper {
         _dt: f64,
         prev: &[Signal],
     ) -> Vec<Signal> {
-        let step = params.first().copied().unwrap_or(1.0);
-        let min_val = params.get(1).copied().unwrap_or(f64::NEG_INFINITY);
-        let max_val = params.get(2).copied().unwrap_or(f64::INFINITY);
-        let initial = params.get(3).copied().unwrap_or(0.0);
+        let dir = params.first().copied().unwrap_or(0.0);
+        let step = params.get(1).copied().unwrap_or(1.0);
+        let max_val = params.get(2).copied().unwrap_or(100.0);
 
         if !self.initialized {
-            self.value = initial;
+            self.value = 0.0;
             self.initialized = true;
         }
 
-        let up = inputs.first().copied().unwrap_or(0.0);
-        let down = inputs.get(1).copied().unwrap_or(0.0);
-        let reset = inputs.get(2).copied().unwrap_or(0.0);
+        let trigger = inputs.first().copied().unwrap_or(0.0);
+        let prev_trigger = prev.first().copied().unwrap_or(0.0);
 
-        let prev_up = prev.first().copied().unwrap_or(0.0);
-        let prev_down = prev.get(1).copied().unwrap_or(0.0);
-        let prev_reset = prev.get(2).copied().unwrap_or(0.0);
-
-        if is_high(reset) && !is_high(prev_reset) {
-            self.value = initial;
-        } else {
-            if is_high(up) && !is_high(prev_up) {
+        if is_high(trigger) && !is_high(prev_trigger) {
+            if dir < 0.5 {
                 self.value += step;
-            }
-            if is_high(down) && !is_high(prev_down) {
+            } else {
                 self.value -= step;
             }
         }
 
-        self.value = self.value.clamp(min_val, max_val);
+        self.value = self.value.clamp(0.0, max_val);
 
         vec![self.value]
     }
@@ -959,94 +955,56 @@ mod tests {
     }
 
     #[test]
-    fn analog_stepper_increments_decrements() {
+    fn analog_stepper_increments() {
         let mut block = AnalogStepper::new();
-        // Params: step=2, min=-10, max=10, initial=0
-        // Rising edge on Up
-        let result = block.eval(
-            &[1.0, 0.0, 0.0],
-            &[2.0, -10.0, 10.0, 0.0],
-            0.0,
-            &[0.0, 0.0, 0.0],
-        );
+        // Params: Dir=0 (up), Step=2, Max=10
+        // Rising edge on Trigger
+        let result = block.eval(&[1.0], &[0.0, 2.0, 10.0], 0.0, &[0.0]);
         assert_eq!(result, vec![2.0]);
         // No edge (still high) — no change
-        let result = block.eval(
-            &[1.0, 0.0, 0.0],
-            &[2.0, -10.0, 10.0, 0.0],
-            0.0,
-            &[1.0, 0.0, 0.0],
-        );
+        let result = block.eval(&[1.0], &[0.0, 2.0, 10.0], 0.0, &[1.0]);
         assert_eq!(result, vec![2.0]);
         // Release and press again
-        let result = block.eval(
-            &[0.0, 0.0, 0.0],
-            &[2.0, -10.0, 10.0, 0.0],
-            0.0,
-            &[1.0, 0.0, 0.0],
-        );
+        let result = block.eval(&[0.0], &[0.0, 2.0, 10.0], 0.0, &[1.0]);
         assert_eq!(result, vec![2.0]);
-        let result = block.eval(
-            &[1.0, 0.0, 0.0],
-            &[2.0, -10.0, 10.0, 0.0],
-            0.0,
-            &[0.0, 0.0, 0.0],
-        );
+        let result = block.eval(&[1.0], &[0.0, 2.0, 10.0], 0.0, &[0.0]);
         assert_eq!(result, vec![4.0]);
+    }
+
+    #[test]
+    fn analog_stepper_decrements() {
+        let mut block = AnalogStepper::new();
+        // Start at 0, Dir=1 (down), Step=2, Max=10 → clamps at 0
+        let result = block.eval(&[1.0], &[1.0, 2.0, 10.0], 0.0, &[0.0]);
+        assert_eq!(result, vec![0.0]); // 0-2 = -2, clamped to 0
     }
 
     #[test]
     fn analog_stepper_respects_bounds() {
         let mut block = AnalogStepper::new();
-        // step=5, min=0, max=10, initial=8
-        let result = block.eval(
-            &[1.0, 0.0, 0.0],
-            &[5.0, 0.0, 10.0, 8.0],
-            0.0,
-            &[0.0, 0.0, 0.0],
-        );
-        assert_eq!(result, vec![10.0]); // 8+5=13, clamped to 10
-    }
-
-    #[test]
-    fn analog_stepper_reset() {
-        let mut block = AnalogStepper::new();
-        // Initial: step=1, min=-100, max=100, initial=0
-        block.eval(
-            &[1.0, 0.0, 0.0],
-            &[1.0, -100.0, 100.0, 0.0],
-            0.0,
-            &[0.0, 0.0, 0.0],
-        );
-        // Reset rising edge
-        let result = block.eval(
-            &[0.0, 0.0, 1.0],
-            &[1.0, -100.0, 100.0, 0.0],
-            0.0,
-            &[1.0, 0.0, 0.0],
-        );
-        assert_eq!(result, vec![0.0]);
+        // Dir=0 (up), Step=5, Max=10 → three triggers: 5, 10, 10 (clamped)
+        let result = block.eval(&[1.0], &[0.0, 5.0, 10.0], 0.0, &[0.0]);
+        assert_eq!(result, vec![5.0]);
+        let result = block.eval(&[0.0], &[0.0, 5.0, 10.0], 0.0, &[1.0]);
+        assert_eq!(result, vec![5.0]);
+        let result = block.eval(&[1.0], &[0.0, 5.0, 10.0], 0.0, &[0.0]);
+        assert_eq!(result, vec![10.0]);
+        let result = block.eval(&[0.0], &[0.0, 5.0, 10.0], 0.0, &[1.0]);
+        assert_eq!(result, vec![10.0]);
+        let result = block.eval(&[1.0], &[0.0, 5.0, 10.0], 0.0, &[0.0]);
+        assert_eq!(result, vec![10.0]); // clamped at max
     }
 
     #[test]
     fn analog_stepper_state_roundtrip() {
         let mut block = AnalogStepper::new();
-        block.eval(
-            &[1.0, 0.0, 0.0],
-            &[3.0, -100.0, 100.0, 0.0],
-            0.0,
-            &[0.0, 0.0, 0.0],
-        );
+        // Dir=0, Step=3, Max=100
+        block.eval(&[1.0], &[0.0, 3.0, 100.0], 0.0, &[0.0]);
         let state = block.state().unwrap();
         let mut restored = AnalogStepper::new();
         restored.restore(&state);
         // One more up
-        let result = restored.eval(
-            &[1.0, 0.0, 0.0],
-            &[3.0, -100.0, 100.0, 0.0],
-            0.0,
-            &[0.0, 0.0, 0.0],
-        );
+        let result = restored.eval(&[1.0], &[0.0, 3.0, 100.0], 0.0, &[0.0]);
         assert_eq!(result, vec![6.0]); // 3 + 3
     }
 }
