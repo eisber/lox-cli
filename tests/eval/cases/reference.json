@@ -1548,7 +1548,7 @@
         {
           "name": "override on",
           "inputs": {
-            "Override Jalousie 1.InputTrigger": 1
+            "Schalter 1.Q": 1
           },
           "ticks": 10,
           "dt": 0.1,
@@ -1671,8 +1671,7 @@
         {
           "name": "should trigger when condition met",
           "inputs": {
-            "Sonnenschein.AQ": 1.0,
-            "Sonnenverzögerung.Q": 1.0
+            "Sonnenschein.AQ": 1.0
           },
           "ticks": 6100,
           "dt": 0.1,

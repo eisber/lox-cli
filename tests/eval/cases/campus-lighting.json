@@ -87,14 +87,14 @@
           "steps": [
             {
               "inputs": {
-                "Check-Out.AQ": 0
+                "Schalter 2.Q": 0
               },
               "ticks": 1,
               "dt": 0.1
             },
             {
               "inputs": {
-                "Check-Out.AQ": 1
+                "Schalter 2.Q": 1
               },
               "ticks": 1,
               "dt": 0.1,
@@ -111,14 +111,14 @@
           "steps": [
             {
               "inputs": {
-                "Check-Out.AQ": 0
+                "Schalter 2.Q": 0
               },
               "ticks": 2,
               "dt": 0.1
             },
             {
               "inputs": {
-                "Check-Out.AQ": 0.0
+                "Schalter 2.Q": 0.0
               },
               "ticks": 10,
               "dt": 0.1,
@@ -161,7 +161,7 @@
         {
           "name": "dim scene when night timer active",
           "inputs": {
-            "Nachtlicht.AQ": 1.0
+            "Schalter 1.Q": 1.0
           },
           "ticks": 10,
           "dt": 0.1,
@@ -175,7 +175,7 @@
         {
           "name": "no dim scene during day",
           "inputs": {
-            "Nachtlicht.AQ": 0.0
+            "Schalter 1.Q": 0.0
           },
           "ticks": 10,
           "dt": 0.1,
@@ -977,7 +977,7 @@
         {
           "name": "checkout resets lights",
           "inputs": {
-            "Checkout.Q": 1.0
+            "Schalter 2.Q": 1.0
           },
           "ticks": 10,
           "dt": 0.1,
@@ -990,7 +990,7 @@
         {
           "name": "cleaning mode enables movement",
           "inputs": {
-            "Reinigungsmodus.Q": 1.0
+            "Schalter 1.Q": 1.0
           },
           "ticks": 10,
           "dt": 0.1,

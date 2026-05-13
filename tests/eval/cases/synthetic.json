@@ -157,10 +157,7 @@
       "simulation": [
         {
           "name": "should dim to 30% at midnight (active period)",
-          "inputs": {
-            "Nachtzeit.minutes_since_midnight": 0.0,
-            "Nachtzeit.day_of_week": 0.0
-          },
+          "inputs": {},
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
@@ -168,21 +165,20 @@
               ">=": 25,
               "<=": 35
             }
-          }
+          },
+          "time": 1
         },
         {
           "name": "should not dim at noon (inactive period)",
-          "inputs": {
-            "Nachtzeit.minutes_since_midnight": 720.0,
-            "Nachtzeit.day_of_week": 0.0
-          },
+          "inputs": {},
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
             "Lichtsteuerung [Flur].Brightness": {
               "<": 1
             }
-          }
+          },
+          "time": 720
         }
       ]
     }
@@ -734,7 +730,7 @@
         {
           "name": "blind disabled when switch on",
           "inputs": {
-            "Jalousie Sperre.On": 1.0
+            "Schalter 1.Q": 1.0
           },
           "ticks": 10,
           "dt": 0.1,

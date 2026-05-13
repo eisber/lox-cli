@@ -409,7 +409,7 @@
         {
           "name": "alarm opens blinds immediately",
           "inputs": {
-            "AlarmClock.QTa": 1.0
+            "PushButton.Q": 1.0
           },
           "ticks": 10,
           "dt": 0.1,
@@ -422,7 +422,7 @@
         {
           "name": "kitchen light delayed",
           "inputs": {
-            "AlarmClock.QTa": 1.0
+            "PushButton.Q": 1.0
           },
           "ticks": 1300,
           "dt": 0.1,
@@ -1043,7 +1043,7 @@
         {
           "name": "manual switch overrides automation off",
           "inputs": {
-            "Präsenzmelder [Garage].Q": 0.0,
+            "Bewegungsmelder Garten.OutputPresence": 0.0,
             "KNX Schalter Garage.Q": 1.0
           },
           "ticks": 10,
@@ -1057,7 +1057,7 @@
         {
           "name": "presence alone activates light",
           "inputs": {
-            "Präsenzmelder [Garage].Q": 1.0,
+            "Bewegungsmelder Garten.OutputPresence": 1.0,
             "KNX Schalter Garage.Q": 0.0
           },
           "ticks": 10,
@@ -1071,7 +1071,7 @@
         {
           "name": "both off keeps light off",
           "inputs": {
-            "Präsenzmelder [Garage].Q": 0.0,
+            "Bewegungsmelder Garten.OutputPresence": 0.0,
             "KNX Schalter Garage.Q": 0.0
           },
           "ticks": 10,

@@ -330,42 +330,42 @@
           "steps": [
             {
               "inputs": {
-                "Input": 0
+                "KNX Schalter Garage.Q": 0
               },
               "ticks": 2,
               "dt": 0.1
             },
             {
               "inputs": {
-                "Input": 1
+                "KNX Schalter Garage.Q": 1
               },
               "ticks": 1,
               "dt": 0.1
             },
             {
               "inputs": {
-                "Input": 0
+                "KNX Schalter Garage.Q": 0
               },
               "ticks": 1,
               "dt": 0.1
             },
             {
               "inputs": {
-                "Input": 1
+                "KNX Schalter Garage.Q": 1
               },
               "ticks": 1,
               "dt": 0.1
             },
             {
               "inputs": {
-                "Input": 0
+                "KNX Schalter Garage.Q": 0
               },
               "ticks": 1,
               "dt": 0.1
             },
             {
               "inputs": {
-                "Input": 1
+                "KNX Schalter Garage.Q": 1
               },
               "ticks": 1,
               "dt": 0.1,
@@ -557,7 +557,7 @@
         {
           "name": "ramp enabled increases output",
           "inputs": {
-            "Ramp.InputEnable": 1.0
+            "PushButton.Q": 1.0
           },
           "ticks": 20,
           "dt": 0.5,
@@ -570,7 +570,7 @@
         {
           "name": "ramp disabled stays at zero",
           "inputs": {
-            "Ramp.InputEnable": 0.0
+            "PushButton.Q": 0.0
           },
           "ticks": 10,
           "dt": 0.1,
@@ -620,7 +620,7 @@
         {
           "name": "selecting mode 1 activates Q1",
           "inputs": {
-            "Radio.InputTrigger 1": 1.0
+            "PushButton.Q": 1.0
           },
           "ticks": 5,
           "dt": 0.1,
@@ -681,7 +681,7 @@
         {
           "name": "trigger advances step",
           "inputs": {
-            "StepSel.InputTriggerP": 1.0
+            "PushButton.Q": 1.0
           },
           "ticks": 5,
           "dt": 0.1,
@@ -763,14 +763,14 @@
           "steps": [
             {
               "inputs": {
-                "MultiFuncSW.InputTrigger": 0.0
+                "PushButton.Q": 0.0
               },
               "ticks": 2,
               "dt": 0.1
             },
             {
               "inputs": {
-                "MultiFuncSW.InputTrigger": 1.0
+                "PushButton.Q": 1.0
               },
               "ticks": 5,
               "dt": 0.1,
@@ -787,28 +787,28 @@
           "steps": [
             {
               "inputs": {
-                "MultiClick.InputTrigger": 0
+                "PushButton.Q": 0
               },
               "ticks": 2,
               "dt": 0.1
             },
             {
               "inputs": {
-                "MultiClick.InputTrigger": 1
+                "PushButton.Q": 1
               },
               "ticks": 1,
               "dt": 0.1
             },
             {
               "inputs": {
-                "MultiClick.InputTrigger": 0
+                "PushButton.Q": 0
               },
               "ticks": 1,
               "dt": 0.1
             },
             {
               "inputs": {
-                "MultiClick.InputTrigger": 1
+                "PushButton.Q": 1
               },
               "ticks": 1,
               "dt": 0.1,
@@ -867,8 +867,7 @@
         {
           "name": "morning and presence activates heating",
           "inputs": {
-            "DayTimer.AQ": 1.0,
-            "And.I2": 1.0
+            "Schalter 1.Q": 1.0
           },
           "ticks": 5,
           "dt": 0.1,
@@ -876,13 +875,13 @@
             "Heizkörper Bad.I1": {
               ">": 0.5
             }
-          }
+          },
+          "time": 1380
         },
         {
           "name": "no presence keeps heating off",
           "inputs": {
-            "DayTimer.AQ": 1.0,
-            "And.I2": 0.0
+            "Schalter 1.Q": 0.0
           },
           "ticks": 5,
           "dt": 0.1,
@@ -890,7 +889,8 @@
             "Heizkörper Bad.I1": {
               "<": 0.5
             }
-          }
+          },
+          "time": 1380
         }
       ]
     }
@@ -1028,14 +1028,14 @@
           "steps": [
             {
               "inputs": {
-                "FlipFlop.InputS": 0.0
+                "PushButton.Q": 0.0
               },
               "ticks": 2,
               "dt": 0.1
             },
             {
               "inputs": {
-                "FlipFlop.InputS": 1.0
+                "PushButton.Q": 1.0
               },
               "ticks": 5,
               "dt": 0.1,
@@ -1052,14 +1052,14 @@
           "steps": [
             {
               "inputs": {
-                "FlipFlop.InputR": 0.0
+                "Schalter 2.Q": 0.0
               },
               "ticks": 2,
               "dt": 0.1
             },
             {
               "inputs": {
-                "FlipFlop.InputR": 1.0
+                "Schalter 2.Q": 1.0
               },
               "ticks": 5,
               "dt": 0.1,
@@ -1146,7 +1146,7 @@
         {
           "name": "evening timer enables random gen",
           "inputs": {
-            "RandomGen.InputEnable": 1.0
+            "Schalter 1.Q": 1.0
           },
           "ticks": 10,
           "dt": 0.1,
@@ -1215,7 +1215,7 @@
         {
           "name": "trigger starts delay chain",
           "inputs": {
-            "OnDelay.InputTrigger": 1.0
+            "PushButton.Q": 1.0
           },
           "ticks": 50,
           "dt": 1.0,
@@ -1315,7 +1315,7 @@
             {
               "inputs": {
                 "Türschloss.AQ": 0.0,
-                "PulseGen.InputEnable": 0.0
+                "Schalter 1.Q": 0.0
               },
               "ticks": 2,
               "dt": 0.1
@@ -1323,7 +1323,7 @@
             {
               "inputs": {
                 "Türschloss.AQ": 1.0,
-                "PulseGen.InputEnable": 1.0
+                "Schalter 1.Q": 1.0
               },
               "ticks": 10,
               "dt": 0.1,

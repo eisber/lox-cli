@@ -283,8 +283,7 @@
           "name": "should trigger when all conditions met",
           "inputs": {
             "Außentemperatur.AQ": 25.0,
-            "Sonnenschein.AQ": 1.0,
-            "Heiß und Sonnig.Q": 1.0
+            "Sonnenschein.AQ": 1.0
           },
           "ticks": 10,
           "dt": 0.1,
@@ -934,8 +933,7 @@
         {
           "name": "should trigger when all conditions met",
           "inputs": {
-            "Luftfeuchtigkeit.AQ": 70.0,
-            "Feucht und Licht.Q": 1.0
+            "Luftfeuchtigkeit.AQ": 1.0
           },
           "ticks": 10,
           "dt": 0.1,

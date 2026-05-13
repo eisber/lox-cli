@@ -1924,7 +1924,7 @@
         {
           "name": "AC paused when electricity is expensive",
           "inputs": {
-            "Teurer Strom.I1": 1.0
+            "Solarproduktion.AQ": 1.0
           },
           "ticks": 5,
           "dt": 0.1,
@@ -1937,7 +1937,7 @@
         {
           "name": "AC not paused when electricity is cheap",
           "inputs": {
-            "Teurer Strom.I1": 0.0
+            "Solarproduktion.AQ": 0.0
           },
           "ticks": 5,
           "dt": 0.1,
@@ -5989,12 +5989,12 @@
         {
           "name": "pos",
           "inputs": {
-            "No-Clean Wohnzimmer": 1000,
-            "No-Clean Schlafzimmer": 1000,
-            "No-Clean Küche": 1000,
-            "No-Clean Bad": 1000,
-            "No-Clean Flur": 1000,
-            "Zeitplan 09:00": 1000
+            "Fensterkontakt Wohnzimmer.Q": 1000,
+            "Fensterkontakt Schlafzimmer.Q": 1000,
+            "Fensterkontakt Küche.Q": 1000,
+            "Fensterkontakt Bad.Q": 1000,
+            "Fensterkontakt Flur.Q": 1000,
+            "Schalter 1.Q": 1000
           },
           "ticks": 10,
           "dt": 0.1,
@@ -6007,12 +6007,12 @@
         {
           "name": "neg",
           "inputs": {
-            "No-Clean Wohnzimmer": 0,
-            "No-Clean Schlafzimmer": 0,
-            "No-Clean Küche": 0,
-            "No-Clean Bad": 0,
-            "No-Clean Flur": 0,
-            "Zeitplan 09:00": 0
+            "Fensterkontakt Wohnzimmer.Q": 0,
+            "Fensterkontakt Schlafzimmer.Q": 0,
+            "Fensterkontakt Küche.Q": 0,
+            "Fensterkontakt Bad.Q": 0,
+            "Fensterkontakt Flur.Q": 0,
+            "Schalter 1.Q": 0
           },
           "ticks": 10,
           "dt": 0.1,
@@ -6351,14 +6351,14 @@
           "steps": [
             {
               "inputs": {
-                "Schließfach NFC.Q1": 0
+                "Schalter 1.Q": 0
               },
               "ticks": 2,
               "dt": 0.1
             },
             {
               "inputs": {
-                "Schließfach NFC.Q1": 1
+                "Schalter 1.Q": 1
               },
               "ticks": 10,
               "dt": 0.1,
@@ -7271,7 +7271,7 @@
             "Fensterkontakt Küche": 1000,
             "Türkontakt Bad": 1000,
             "Fensterkontakt Bad": 1000,
-            "Türkontakt Flur": 1000,
+            "Fensterkontakt Flur.Q": 1000,
             "Fensterkontakt Flur": 1000
           },
           "ticks": 10,
@@ -7293,7 +7293,7 @@
             "Fensterkontakt Küche": 0,
             "Türkontakt Bad": 0,
             "Fensterkontakt Bad": 0,
-            "Türkontakt Flur": 0,
+            "Fensterkontakt Flur.Q": 0,
             "Fensterkontakt Flur": 0
           },
           "ticks": 10,
@@ -7478,7 +7478,7 @@
         {
           "name": "device offline",
           "inputs": {
-            "Router Offline.I": 0
+            "Schalter 1.Q": 0
           },
           "ticks": 10,
           "dt": 0.1,
@@ -7491,9 +7491,8 @@
         {
           "name": "all online",
           "inputs": {
-            "Router Offline.I": 1,
-            "NAS Offline.I": 1,
-            "Server Offline.I": 1
+            "Schalter 1.Q": 1,
+            "Schalter 2.Q": 1
           },
           "ticks": 10,
           "dt": 0.1,
@@ -7898,7 +7897,7 @@
               "inputs": {
                 "Sonnenschein.AQ": 0,
                 "Außentemperatur.AQ": 0,
-                "Heizstab freigeben.Q": 0
+                "Schalter 1.Q": 0
               },
               "ticks": 2,
               "dt": 0.1
@@ -7907,7 +7906,7 @@
               "inputs": {
                 "Sonnenschein.AQ": 1.0,
                 "Außentemperatur.AQ": 25.0,
-                "Heizstab freigeben.Q": 1.0
+                "Schalter 1.Q": 1.0
               },
               "ticks": 10,
               "dt": 0.1,
@@ -8460,9 +8459,9 @@
         {
           "name": "pos",
           "inputs": {
-            "Modus Full Power": 1000,
-            "Modus Comfort": 1000,
-            "Modus Eco": 1000
+            "Schalter 1.Q": 1000,
+            "Schalter 2.Q": 1000,
+            "PushButton.Q": 1000
           },
           "ticks": 10,
           "dt": 0.1,
@@ -8475,9 +8474,9 @@
         {
           "name": "neg",
           "inputs": {
-            "Modus Full Power": 0,
-            "Modus Comfort": 0,
-            "Modus Eco": 0
+            "Schalter 1.Q": 0,
+            "Schalter 2.Q": 0,
+            "PushButton.Q": 0
           },
           "ticks": 10,
           "dt": 0.1,
@@ -8646,7 +8645,7 @@
             {
               "inputs": {
                 "Außentemperatur.AQ": 0,
-                "Laden Freigabe.Q": 0
+                "Schalter 1.Q": 0
               },
               "ticks": 2,
               "dt": 0.1
@@ -8654,7 +8653,7 @@
             {
               "inputs": {
                 "Außentemperatur.AQ": 20.0,
-                "Laden Freigabe.Q": 1.0
+                "Schalter 1.Q": 1.0
               },
               "ticks": 10,
               "dt": 0.1,
@@ -8814,7 +8813,7 @@
           "name": "OCPP session starts on NFC scan",
           "inputs": {
             "Bewegungsmelder.OutputPresence": 1.0,
-            "Laden aktiv.InputTrigger": 1.0
+            "Schalter 1.Q": 1.0
           },
           "ticks": 10,
           "dt": 0.1,
@@ -9379,7 +9378,7 @@
           "inputs": {
             "Außentemperatur.AQ": 30.0,
             "Bewegungsmelder.OutputPresence": 1.0,
-            "Kühlung angefordert.Q": 1.0
+            "Schalter 1.Q": 1.0
           },
           "ticks": 10,
           "dt": 0.1,
@@ -9804,7 +9803,7 @@
           "name": "battery charges during cheap night hours",
           "inputs": {
             "Außentemperatur.AQ": 15.0,
-            "Laden aktiv.InputTrigger": 1.0
+            "Schalter 1.Q": 1.0
           },
           "ticks": 100,
           "dt": 0.1,

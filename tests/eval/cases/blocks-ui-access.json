@@ -1,12 +1,18 @@
 [
   {
     "id": "ua01-smart-alarm-arm-trigger",
-    "pattern": ["alarm", "pre-alarm", "timer"],
+    "pattern": [
+      "alarm",
+      "pre-alarm",
+      "timer"
+    ],
     "utterance": "Smart alarm: arm via button, trigger with 30s pre-alarm, then full alarm after timeout; wire the alarm output to Alarmanlage",
     "difficulty": "hard",
     "expected": {
       "new_blocks": [
-        { "type": "AalSmartAlarm" }
+        {
+          "type": "AalSmartAlarm"
+        }
       ],
       "wiring": [
         {
@@ -27,32 +33,44 @@
         }
       ],
       "params": [
-        { "block_type": "AalSmartAlarm", "param": "Time Throughfare Alarm", "value": "30" },
-        { "block_type": "AalSmartAlarm", "param": "Delay Alarm Level 2", "value": "30" }
+        {
+          "block_type": "AalSmartAlarm",
+          "param": "Time Throughfare Alarm",
+          "value": "30"
+        },
+        {
+          "block_type": "AalSmartAlarm",
+          "param": "Delay Alarm Level 2",
+          "value": "30"
+        }
       ],
       "simulation": [
         {
           "name": "should raise alarm level 2 after trigger during armed state",
           "inputs": {
-            "Taster Arm.Q": 1.0,
-            "Bewegungsmelder Flur.Q": 1.0
+            "Schalter 1.Q": 1.0,
+            "Bewegungsmelder.OutputPresence": 1.0
           },
           "ticks": 50,
           "dt": 0.1,
           "expected_outputs": {
-            "Alarmanlage.I1": { ">": 0.5 }
+            "Alarmanlage.I1": {
+              ">": 0.5
+            }
           }
         },
         {
           "name": "should NOT alarm when not armed",
           "inputs": {
-            "Taster Arm.Q": 0.0,
-            "Bewegungsmelder Flur.Q": 1.0
+            "Schalter 1.Q": 0.0,
+            "Bewegungsmelder.OutputPresence": 1.0
           },
           "ticks": 50,
           "dt": 0.1,
           "expected_outputs": {
-            "Alarmanlage.I1": { "<": 0.5 }
+            "Alarmanlage.I1": {
+              "<": 0.5
+            }
           }
         }
       ]
@@ -60,12 +78,18 @@
   },
   {
     "id": "ua02-knx-dimmer-up-down",
-    "pattern": ["dimmer", "knx", "step-control"],
+    "pattern": [
+      "dimmer",
+      "knx",
+      "step-control"
+    ],
     "utterance": "KNX dimmer: up/down buttons adjust brightness in 10% steps, min 5% max 100%; wire the dimmer output to Lichtsteuerung [Wohnzimmer]",
     "difficulty": "medium",
     "expected": {
       "new_blocks": [
-        { "type": "EibDimmer" }
+        {
+          "type": "EibDimmer"
+        }
       ],
       "wiring": [
         {
@@ -86,30 +110,38 @@
         }
       ],
       "params": [
-        { "block_type": "EibDimmer", "param": "Step", "value": "10" }
+        {
+          "block_type": "EibDimmer",
+          "param": "Step",
+          "value": "10"
+        }
       ],
       "simulation": [
         {
           "name": "should output analog value on trigger",
           "inputs": {
-            "Taster Up.Q": 1.0
+            "PushButton.Q": 1.0
           },
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Lichtsteuerung [Wohnzimmer].I1": { ">": 0.0 }
+            "Lichtsteuerung [Wohnzimmer].I1": {
+              ">": 0.0
+            }
           }
         },
         {
           "name": "should stay at zero without trigger",
           "inputs": {
-            "Taster Up.Q": 0.0,
-            "Taster Down.Q": 0.0
+            "PushButton.Q": 0.0,
+            "Schalter 2.Q": 0.0
           },
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Lichtsteuerung [Wohnzimmer].I1": { "<": 0.5 }
+            "Lichtsteuerung [Wohnzimmer].I1": {
+              "<": 0.5
+            }
           }
         }
       ]
@@ -117,13 +149,21 @@
   },
   {
     "id": "ua03-access-code-unlock",
-    "pattern": ["access-control", "code", "monoflop"],
+    "pattern": [
+      "access-control",
+      "code",
+      "monoflop"
+    ],
     "utterance": "Access control: 4-digit code on Code4 → unlock door for 10 seconds via Monoflop",
     "difficulty": "medium",
     "expected": {
       "new_blocks": [
-        { "type": "Access" },
-        { "type": "Monoflop" }
+        {
+          "type": "Access"
+        },
+        {
+          "type": "Monoflop"
+        }
       ],
       "wiring": [
         {
@@ -145,29 +185,37 @@
         }
       ],
       "params": [
-        { "block_type": "Monoflop", "param": "Time", "value": "10" }
+        {
+          "block_type": "Monoflop",
+          "param": "Time",
+          "value": "10"
+        }
       ],
       "simulation": [
         {
           "name": "should unlock door on valid code",
           "inputs": {
-            "Code4 Eingang.Q": 1.0
+            "Schalter 1.Q": 1.0
           },
           "ticks": 20,
           "dt": 0.1,
           "expected_outputs": {
-            "Türschloss.I1": { ">": 0.5 }
+            "Türschloss.I1": {
+              ">": 0.5
+            }
           }
         },
         {
           "name": "should remain locked without code",
           "inputs": {
-            "Code4 Eingang.Q": 0.0
+            "Schalter 1.Q": 0.0
           },
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Türschloss.I1": { "<": 0.5 }
+            "Türschloss.I1": {
+              "<": 0.5
+            }
           }
         }
       ]
@@ -175,12 +223,18 @@
   },
   {
     "id": "ua04-media-auto-pause",
-    "pattern": ["media", "presence", "auto-pause"],
+    "pattern": [
+      "media",
+      "presence",
+      "auto-pause"
+    ],
     "utterance": "Media control: wire presence sensor to auto-pause media player when room empties; wire the pause signal to Audiozone",
     "difficulty": "medium",
     "expected": {
       "new_blocks": [
-        { "type": "Not" }
+        {
+          "type": "Not"
+        }
       ],
       "wiring": [
         {
@@ -200,23 +254,27 @@
         {
           "name": "should pause when room empty",
           "inputs": {
-            "Präsenzmelder Wohnzimmer.Q": 0.0
+            "Bewegungsmelder.OutputPresence": 0.0
           },
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Audiozone.I1": { ">": 0.5 }
+            "Audiozone.I1": {
+              ">": 0.5
+            }
           }
         },
         {
           "name": "should NOT pause when occupied",
           "inputs": {
-            "Präsenzmelder Wohnzimmer.Q": 1.0
+            "Bewegungsmelder.OutputPresence": 1.0
           },
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Audiozone.I1": { "<": 0.5 }
+            "Audiozone.I1": {
+              "<": 0.5
+            }
           }
         }
       ]
@@ -224,14 +282,24 @@
   },
   {
     "id": "ua05-power-meter-threshold",
-    "pattern": ["metering", "threshold", "notification"],
+    "pattern": [
+      "metering",
+      "threshold",
+      "notification"
+    ],
     "utterance": "Power meter: trigger notification when import exceeds 5kW threshold; wire the threshold alert to Alarmanlage",
     "difficulty": "medium",
     "expected": {
       "new_blocks": [
-        { "type": "MeterPBi" },
-        { "type": "GreaterEqual" },
-        { "type": "MailGen" }
+        {
+          "type": "MeterPBi"
+        },
+        {
+          "type": "GreaterEqual"
+        },
+        {
+          "type": "MailGen"
+        }
       ],
       "wiring": [
         {
@@ -248,29 +316,37 @@
         }
       ],
       "params": [
-        { "block_type": "GreaterEqual", "param": "Input2", "value": "5000" }
+        {
+          "block_type": "GreaterEqual",
+          "param": "Input2",
+          "value": "5000"
+        }
       ],
       "simulation": [
         {
           "name": "should trigger notification above 5kW",
           "inputs": {
-            "MeterPBi.P1": 6000.0
+            "Hausverbrauch.AQ": 6000.0
           },
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Alarmanlage.I1": { ">": 0.5 }
+            "Alarmanlage.I1": {
+              ">": 0.5
+            }
           }
         },
         {
           "name": "should NOT trigger below 5kW",
           "inputs": {
-            "MeterPBi.P1": 3000.0
+            "Hausverbrauch.AQ": 3000.0
           },
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Alarmanlage.I1": { "<": 0.5 }
+            "Alarmanlage.I1": {
+              "<": 0.5
+            }
           }
         }
       ]
@@ -278,13 +354,21 @@
   },
   {
     "id": "ua06-sequencer-garden-zones",
-    "pattern": ["sequencer", "irrigation", "timer"],
+    "pattern": [
+      "sequencer",
+      "irrigation",
+      "timer"
+    ],
     "utterance": "Sequencer: step through 4 garden zones on each button press, 15 min per zone; wire zone 1 output to Bewässerungsventil",
     "difficulty": "hard",
     "expected": {
       "new_blocks": [
-        { "type": "Sequencer" },
-        { "type": "StairwayLS" }
+        {
+          "type": "Sequencer"
+        },
+        {
+          "type": "StairwayLS"
+        }
       ],
       "wiring": [
         {
@@ -300,30 +384,42 @@
         }
       ],
       "params": [
-        { "block_type": "Sequencer", "param": "Max", "value": "4" },
-        { "block_type": "StairwayLS", "param": "TimeHigh", "value": "900" }
+        {
+          "block_type": "Sequencer",
+          "param": "Max",
+          "value": "4"
+        },
+        {
+          "block_type": "StairwayLS",
+          "param": "TimeHigh",
+          "value": "900"
+        }
       ],
       "simulation": [
         {
           "name": "should activate first zone on trigger",
           "inputs": {
-            "Taster Garten.Q": 1.0
+            "PushButton.Q": 1.0
           },
           "ticks": 20,
           "dt": 0.1,
           "expected_outputs": {
-            "Bewässerungsventil.I1": { ">": 0.5 }
+            "Bewässerungsventil.I1": {
+              ">": 0.5
+            }
           }
         },
         {
           "name": "should remain off without trigger",
           "inputs": {
-            "Taster Garten.Q": 0.0
+            "PushButton.Q": 0.0
           },
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Bewässerungsventil.I1": { "<": 0.5 }
+            "Bewässerungsventil.I1": {
+              "<": 0.5
+            }
           }
         }
       ]
@@ -331,13 +427,21 @@
   },
   {
     "id": "ua07-rgb-scene-radio-select",
-    "pattern": ["rgb-scene", "radio-button", "color-preset"],
+    "pattern": [
+      "rgb-scene",
+      "radio-button",
+      "color-preset"
+    ],
     "utterance": "RGB scene: select between 4 color presets via Radio2 button group; wire the scene output to Lichtsteuerung [Wohnzimmer]",
     "difficulty": "hard",
     "expected": {
       "new_blocks": [
-        { "type": "Radio2" },
-        { "type": "LightsceneRGB" }
+        {
+          "type": "Radio2"
+        },
+        {
+          "type": "LightsceneRGB"
+        }
       ],
       "wiring": [
         {
@@ -368,12 +472,14 @@
         {
           "name": "should select scene on radio button press",
           "inputs": {
-            "Taster Szene 1.Q": 1.0
+            "PushButton.Q": 1.0
           },
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Lichtsteuerung [Wohnzimmer].I1": { ">": 0.0 }
+            "Lichtsteuerung [Wohnzimmer].I1": {
+              ">": 0.0
+            }
           }
         }
       ]
@@ -381,13 +487,21 @@
   },
   {
     "id": "ua08-emergency-call-trigger",
-    "pattern": ["emergency", "aal", "call"],
+    "pattern": [
+      "emergency",
+      "aal",
+      "call"
+    ],
     "utterance": "AAL emergency: panic button triggers alarm, auto-calls caretaker after 60s if not confirmed; wire the panic trigger to Alarmanlage",
     "difficulty": "hard",
     "expected": {
       "new_blocks": [
-        { "type": "AalEmergency" },
-        { "type": "CallGen" }
+        {
+          "type": "AalEmergency"
+        },
+        {
+          "type": "CallGen"
+        }
       ],
       "wiring": [
         {
@@ -403,29 +517,37 @@
         }
       ],
       "params": [
-        { "block_type": "AalEmergency", "param": "ParTimeAlarm", "value": "60" }
+        {
+          "block_type": "AalEmergency",
+          "param": "ParTimeAlarm",
+          "value": "60"
+        }
       ],
       "simulation": [
         {
           "name": "should trigger alarm on panic button",
           "inputs": {
-            "Panik Taster.Q": 1.0
+            "PushButton.Q": 1.0
           },
           "ticks": 20,
           "dt": 0.1,
           "expected_outputs": {
-            "Alarmanlage.I1": { ">": 0.5 }
+            "Alarmanlage.I1": {
+              ">": 0.5
+            }
           }
         },
         {
           "name": "should NOT trigger without button press",
           "inputs": {
-            "Panik Taster.Q": 0.0
+            "PushButton.Q": 0.0
           },
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Alarmanlage.I1": { "<": 0.5 }
+            "Alarmanlage.I1": {
+              "<": 0.5
+            }
           }
         }
       ]
@@ -433,12 +555,18 @@
   },
   {
     "id": "ua09-lightscene-cycle",
-    "pattern": ["lightscene", "cycle", "button"],
+    "pattern": [
+      "lightscene",
+      "cycle",
+      "button"
+    ],
     "utterance": "Lightscene: cycle through 4 lighting moods with up/down buttons on wall switch; wire the scene output to Lichtsteuerung [Wohnzimmer]",
     "difficulty": "medium",
     "expected": {
       "new_blocks": [
-        { "type": "Lightscene" }
+        {
+          "type": "Lightscene"
+        }
       ],
       "wiring": [
         {
@@ -463,12 +591,14 @@
         {
           "name": "should change scene on up trigger",
           "inputs": {
-            "Taster Oben.Q": 1.0
+            "PushButton.Q": 1.0
           },
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Lichtsteuerung [Wohnzimmer].I1": { ">": 0.0 }
+            "Lichtsteuerung [Wohnzimmer].I1": {
+              ">": 0.0
+            }
           }
         }
       ]
@@ -476,12 +606,18 @@
   },
   {
     "id": "ua10-presence-controller-office",
-    "pattern": ["presence", "brightness", "office"],
+    "pattern": [
+      "presence",
+      "brightness",
+      "office"
+    ],
     "utterance": "PresenceController: detect motion and ambient light to control office lighting with 10 min timeout; wire the presence light output to Lichtsteuerung [Flur]",
     "difficulty": "hard",
     "expected": {
       "new_blocks": [
-        { "type": "PresenceController" }
+        {
+          "type": "PresenceController"
+        }
       ],
       "wiring": [
         {
@@ -502,31 +638,39 @@
         }
       ],
       "params": [
-        { "block_type": "PresenceController", "param": "TMv", "value": "600" }
+        {
+          "block_type": "PresenceController",
+          "param": "TMv",
+          "value": "600"
+        }
       ],
       "simulation": [
         {
           "name": "should activate light on motion",
           "inputs": {
-            "Bewegungsmelder Büro.Q": 1.0,
-            "Helligkeitssensor.AQ": 100.0
+            "Bewegungsmelder.OutputPresence": 1.0,
+            "Helligkeit.AQ": 100.0
           },
           "ticks": 20,
           "dt": 0.1,
           "expected_outputs": {
-            "Lichtsteuerung [Flur].I1": { ">": 0.5 }
+            "Lichtsteuerung [Flur].I1": {
+              ">": 0.5
+            }
           }
         },
         {
           "name": "should NOT activate without motion",
           "inputs": {
-            "Bewegungsmelder Büro.Q": 0.0,
-            "Helligkeitssensor.AQ": 100.0
+            "Bewegungsmelder.OutputPresence": 0.0,
+            "Helligkeit.AQ": 100.0
           },
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Lichtsteuerung [Flur].I1": { "<": 0.5 }
+            "Lichtsteuerung [Flur].I1": {
+              "<": 0.5
+            }
           }
         }
       ]
@@ -534,13 +678,21 @@
   },
   {
     "id": "ua11-eib-jalousie-buttons",
-    "pattern": ["knx", "jalousie", "button-control"],
+    "pattern": [
+      "knx",
+      "jalousie",
+      "button-control"
+    ],
     "utterance": "EIB Jalousie: wall buttons control KNX blind up/down with safety wind sensor lock; wire the jalousie control to Jalousie 1 [Wohnzimmer]",
     "difficulty": "medium",
     "expected": {
       "new_blocks": [
-        { "type": "EIBJalousie" },
-        { "type": "And" }
+        {
+          "type": "EIBJalousie"
+        },
+        {
+          "type": "And"
+        }
       ],
       "wiring": [
         {
@@ -570,25 +722,29 @@
         {
           "name": "should allow up when wind safe",
           "inputs": {
-            "Taster Hoch.Q": 1.0,
-            "Windsensor.Q": 1.0
+            "PushButton.Q": 1.0,
+            "Windgeschwindigkeit.AQ": 1.0
           },
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Jalousie 1 [Wohnzimmer].InputTriggerUp": { ">": 0.5 }
+            "Jalousie 1 [Wohnzimmer].InputTriggerUp": {
+              ">": 0.5
+            }
           }
         },
         {
           "name": "should block up when wind unsafe",
           "inputs": {
-            "Taster Hoch.Q": 1.0,
-            "Windsensor.Q": 0.0
+            "PushButton.Q": 1.0,
+            "Windgeschwindigkeit.AQ": 0.0
           },
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Jalousie 1 [Wohnzimmer].InputTriggerUp": { "<": 0.5 }
+            "Jalousie 1 [Wohnzimmer].InputTriggerUp": {
+              "<": 0.5
+            }
           }
         }
       ]
@@ -596,12 +752,18 @@
   },
   {
     "id": "ua12-mail-on-access-denied",
-    "pattern": ["access", "mail", "security"],
+    "pattern": [
+      "access",
+      "mail",
+      "security"
+    ],
     "utterance": "Send email notification when access is denied at front door NFC reader; wire the denied-access alert to Alarmanlage",
     "difficulty": "medium",
     "expected": {
       "new_blocks": [
-        { "type": "MailGen" }
+        {
+          "type": "MailGen"
+        }
       ],
       "wiring": [
         {
@@ -616,23 +778,27 @@
         {
           "name": "should send mail on denied access",
           "inputs": {
-            "NFC Leser.Qd": 1.0
+            "Schalter 1.Q": 1.0
           },
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Alarmanlage.I1": { ">": 0.5 }
+            "Alarmanlage.I1": {
+              ">": 0.5
+            }
           }
         },
         {
           "name": "should NOT send mail on valid access",
           "inputs": {
-            "NFC Leser.Qd": 0.0
+            "Schalter 1.Q": 0.0
           },
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Alarmanlage.I1": { "<": 0.5 }
+            "Alarmanlage.I1": {
+              "<": 0.5
+            }
           }
         }
       ]
@@ -640,12 +806,18 @@
   },
   {
     "id": "ua13-meter-daily-export",
-    "pattern": ["metering", "bidirectional", "solar"],
+    "pattern": [
+      "metering",
+      "bidirectional",
+      "solar"
+    ],
     "utterance": "Bidirectional meter: track solar export and import separately, display on visualization; wire the power reading to Statusblock",
     "difficulty": "easy",
     "expected": {
       "new_blocks": [
-        { "type": "MeterPBi" }
+        {
+          "type": "MeterPBi"
+        }
       ],
       "wiring": [
         {
@@ -671,12 +843,14 @@
         {
           "name": "should pass power reading through",
           "inputs": {
-            "Stromzähler.AQ": 2500.0
+            "Hausverbrauch.AQ": 2500.0
           },
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Statusblock.I1": { ">": 0.0 }
+            "Statusblock.I1": {
+              ">": 0.0
+            }
           }
         }
       ]
@@ -684,12 +858,18 @@
   },
   {
     "id": "ua14-learnable-lightscene",
-    "pattern": ["lightscene", "learn", "store"],
+    "pattern": [
+      "lightscene",
+      "learn",
+      "store"
+    ],
     "utterance": "Learnable light scene: store current dimmer values as preset, recall with select buttons; wire the scene recall to Lichtsteuerung [Wohnzimmer]",
     "difficulty": "hard",
     "expected": {
       "new_blocks": [
-        { "type": "LightsceneLearn" }
+        {
+          "type": "LightsceneLearn"
+        }
       ],
       "wiring": [
         {
@@ -711,19 +891,25 @@
         }
       ],
       "params": [
-        { "block_type": "LightsceneLearn", "param": "Max", "value": "8" }
+        {
+          "block_type": "LightsceneLearn",
+          "param": "Max",
+          "value": "8"
+        }
       ],
       "simulation": [
         {
           "name": "should recall stored scene",
           "inputs": {
-            "Taster Lernen.Q": 1.0,
-            "Dimmer Wohnzimmer.AQ": 75.0
+            "PushButton.Q": 1.0,
+            "Helligkeit.AQ": 75.0
           },
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Lichtsteuerung [Wohnzimmer].I1": { ">": 0.0 }
+            "Lichtsteuerung [Wohnzimmer].I1": {
+              ">": 0.0
+            }
           }
         }
       ]
@@ -731,12 +917,18 @@
   },
   {
     "id": "ua15-tpf-presence-display",
-    "pattern": ["tpf", "presence", "setpoint"],
+    "pattern": [
+      "tpf",
+      "presence",
+      "setpoint"
+    ],
     "utterance": "Touch Pure Flex: show room presence on display and forward setpoint changes to HVAC",
     "difficulty": "expert",
     "expected": {
       "new_blocks": [
-        { "type": "TpfController" }
+        {
+          "type": "TpfController"
+        }
       ],
       "wiring": [
         {
@@ -763,30 +955,42 @@
         }
       ],
       "params": [
-        { "block_type": "TpfController", "param": "parsetpoint1", "value": "21" },
-        { "block_type": "TpfController", "param": "parsetpoint2", "value": "18" }
+        {
+          "block_type": "TpfController",
+          "param": "parsetpoint1",
+          "value": "21"
+        },
+        {
+          "block_type": "TpfController",
+          "param": "parsetpoint2",
+          "value": "18"
+        }
       ],
       "simulation": [
         {
           "name": "should forward presence to HVAC",
           "inputs": {
-            "Präsenzmelder.Q": 1.0
+            "Bewegungsmelder.OutputPresence": 1.0
           },
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Raumregler.Move": { ">": 0.5 }
+            "Raumregler.Move": {
+              ">": 0.5
+            }
           }
         },
         {
           "name": "should NOT forward without presence",
           "inputs": {
-            "Präsenzmelder.Q": 0.0
+            "Bewegungsmelder.OutputPresence": 0.0
           },
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Raumregler.Move": { "<": 0.5 }
+            "Raumregler.Move": {
+              "<": 0.5
+            }
           }
         }
       ]

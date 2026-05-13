@@ -48,8 +48,8 @@
         {
           "name": "pump activates when collector exceeds storage by 8°C",
           "inputs": {
-            "Collector Temp.AQ": 68.0,
-            "Storage Temp.AQ": 55.0
+            "Vorlauftemperatur.AQ": 68.0,
+            "Warmwasserspeicher.AQ": 55.0
           },
           "ticks": 10,
           "dt": 0.1,
@@ -62,8 +62,8 @@
         {
           "name": "pump stays off when difference is small",
           "inputs": {
-            "Collector Temp.AQ": 57.0,
-            "Storage Temp.AQ": 55.0
+            "Vorlauftemperatur.AQ": 57.0,
+            "Warmwasserspeicher.AQ": 55.0
           },
           "ticks": 10,
           "dt": 0.1,
@@ -155,8 +155,8 @@
         {
           "name": "charges when solar > 3kW and no grid import",
           "inputs": {
-            "Solar Power.AQ": 4.5,
-            "Grid Import.AQ": 0.0
+            "Solarproduktion.AQ": 4.5,
+            "Hausverbrauch.AQ": 0.0
           },
           "ticks": 10,
           "dt": 0.1,
@@ -169,8 +169,8 @@
         {
           "name": "does NOT charge when solar is low",
           "inputs": {
-            "Solar Power.AQ": 2.0,
-            "Grid Import.AQ": 0.0
+            "Solarproduktion.AQ": 2.0,
+            "Hausverbrauch.AQ": 0.0
           },
           "ticks": 10,
           "dt": 0.1,
@@ -183,8 +183,8 @@
         {
           "name": "does NOT charge when grid importing",
           "inputs": {
-            "Solar Power.AQ": 5.0,
-            "Grid Import.AQ": 1.0
+            "Solarproduktion.AQ": 5.0,
+            "Hausverbrauch.AQ": 1.0
           },
           "ticks": 10,
           "dt": 0.1,
@@ -264,7 +264,7 @@
         {
           "name": "pump runs when scheduled and temp below 28",
           "inputs": {
-            "Pool Temp.AQ": 25.0
+            "Puffertemperatur.AQ": 25.0
           },
           "ticks": 10,
           "dt": 0.1,
@@ -278,7 +278,7 @@
         {
           "name": "pump off when temp exceeds 28",
           "inputs": {
-            "Pool Temp.AQ": 30.0
+            "Puffertemperatur.AQ": 30.0
           },
           "ticks": 10,
           "dt": 0.1,
@@ -357,8 +357,8 @@
         {
           "name": "closes on rain",
           "inputs": {
-            "Rain Sensor.Q": 1.0,
-            "Wind Speed.AQ": 10.0
+            "Regen.AQ": 1.0,
+            "Windgeschwindigkeit.AQ": 10.0
           },
           "ticks": 10,
           "dt": 0.1,
@@ -371,8 +371,8 @@
         {
           "name": "closes on high wind",
           "inputs": {
-            "Rain Sensor.Q": 0.0,
-            "Wind Speed.AQ": 50.0
+            "Regen.AQ": 0.0,
+            "Windgeschwindigkeit.AQ": 50.0
           },
           "ticks": 10,
           "dt": 0.1,
@@ -385,8 +385,8 @@
         {
           "name": "stays open when calm and dry",
           "inputs": {
-            "Rain Sensor.Q": 0.0,
-            "Wind Speed.AQ": 15.0
+            "Regen.AQ": 0.0,
+            "Windgeschwindigkeit.AQ": 15.0
           },
           "ticks": 10,
           "dt": 0.1,
@@ -489,9 +489,9 @@
         {
           "name": "pump on when any room demands heat",
           "inputs": {
-            "Room1 Demand.Input1": 0.0,
-            "Room2 Demand.Input1": 0.8,
-            "Room3 Demand.Input1": 0.0
+            "Raumtemperatur Bad.AQ": 0.0,
+            "Raumtemperatur Flur.AQ": 0.8,
+            "Raumtemperatur Küche.AQ": 0.0
           },
           "ticks": 10,
           "dt": 0.1,
@@ -504,9 +504,9 @@
         {
           "name": "pump off when no room demands heat",
           "inputs": {
-            "Room1 Demand.Input1": 0.0,
-            "Room2 Demand.Input1": 0.0,
-            "Room3 Demand.Input1": 0.0
+            "Raumtemperatur Bad.AQ": 0.0,
+            "Raumtemperatur Flur.AQ": 0.0,
+            "Raumtemperatur Küche.AQ": 0.0
           },
           "ticks": 10,
           "dt": 0.1,
@@ -600,7 +600,7 @@
         {
           "name": "retracts when wind is high",
           "inputs": {
-            "Wind Speed.AQ": 45.0
+            "Windgeschwindigkeit.AQ": 45.0
           },
           "ticks": 10,
           "dt": 0.1,
@@ -613,7 +613,7 @@
         {
           "name": "stays deployed when wind is calm",
           "inputs": {
-            "Wind Speed.AQ": 15.0
+            "Windgeschwindigkeit.AQ": 15.0
           },
           "ticks": 10,
           "dt": 0.1,
@@ -775,7 +775,7 @@
         {
           "name": "charges when solar excess available",
           "inputs": {
-            "Solar Excess.Input1": 5.0
+            "Solarproduktion.AQ": 5.0
           },
           "ticks": 10,
           "dt": 0.1,
@@ -788,7 +788,7 @@
         {
           "name": "does not charge when solar too low",
           "inputs": {
-            "Solar Excess.Input1": 1.0
+            "Solarproduktion.AQ": 1.0
           },
           "ticks": 10,
           "dt": 0.1,
@@ -903,8 +903,7 @@
         {
           "name": "irrigates when dry and scheduled",
           "inputs": {
-            "Dry Enough.Input1": 30.0,
-            "Irrigation Schedule.AQ": 1.0
+            "Feuchtesensor Garten.AQ": 30.0
           },
           "ticks": 10,
           "dt": 0.1,
@@ -912,13 +911,13 @@
             "Bewässerungsventil.I1": {
               ">": 0.5
             }
-          }
+          },
+          "time": 360
         },
         {
           "name": "inhibits irrigation when wet",
           "inputs": {
-            "Dry Enough.Input1": 80.0,
-            "Irrigation Schedule.AQ": 1.0
+            "Feuchtesensor Garten.AQ": 80.0
           },
           "ticks": 10,
           "dt": 0.1,
@@ -926,7 +925,8 @@
             "Bewässerungsventil.I1": {
               "<": 0.5
             }
-          }
+          },
+          "time": 360
         }
       ]
     }

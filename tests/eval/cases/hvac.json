@@ -502,7 +502,7 @@
         {
           "name": "cold water boosts heater",
           "inputs": {
-            "Warmwasser Temperatur": 30
+            "Warmwasserspeicher.AQ": 30
           },
           "ticks": 10,
           "dt": 0.1,
@@ -514,7 +514,7 @@
           "steps": [
             {
               "inputs": {
-                "Warmwasser Temperatur": 60
+                "Warmwasserspeicher.AQ": 60
               },
               "ticks": 10,
               "expected_outputs": {

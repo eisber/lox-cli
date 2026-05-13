@@ -41,7 +41,7 @@
         {
           "name": "occupied room gets comfort setpoint 22",
           "inputs": {
-            "Set Setpoint.Select": 1.0
+            "Schalter 1.Q": 1.0
           },
           "ticks": 5,
           "dt": 0.1,
@@ -54,7 +54,7 @@
         {
           "name": "empty room gets eco setpoint 18",
           "inputs": {
-            "Set Setpoint.Select": 0.0
+            "Schalter 1.Q": 0.0
           },
           "ticks": 5,
           "dt": 0.1,
@@ -130,8 +130,8 @@
         {
           "name": "mode 0 selects off setpoint 15",
           "inputs": {
-            "Set Setpoint.Select": 0.0,
-            "HCM Mode.Input1": 0.0
+            "Schalter 1.Q": 0.0,
+            "Schalter 2.Q": 0.0
           },
           "ticks": 5,
           "dt": 0.1,
@@ -147,8 +147,8 @@
         {
           "name": "mode 2 selects comfort setpoint 22",
           "inputs": {
-            "Set Setpoint.Select": 2.0,
-            "HCM Mode.Input1": 2.0
+            "Schalter 1.Q": 2.0,
+            "Schalter 2.Q": 2.0
           },
           "ticks": 5,
           "dt": 0.1,
@@ -546,7 +546,7 @@
         {
           "name": "comfort mode selected",
           "inputs": {
-            "Rtd Irr Mode.Select": 0.0
+            "Schalter 1.Q": 0.0
           },
           "ticks": 5,
           "dt": 0.1,
@@ -559,7 +559,7 @@
         {
           "name": "eco mode selected",
           "inputs": {
-            "Rtd Irr Mode.Select": 1.0
+            "Schalter 1.Q": 1.0
           },
           "ticks": 5,
           "dt": 0.1,
@@ -1003,7 +1003,7 @@
           "inputs": {
             "Außentemperatur.AQ": -5.0,
             "Raumtemperatur Wohnzimmer.AQ": 20.0,
-            "Raumfeuchtigkeit Wohnzimmer.AQ": 55.0
+            "Raumfeuchtigkeit Küche.AQ": 55.0
           },
           "ticks": 10,
           "dt": 0.1,

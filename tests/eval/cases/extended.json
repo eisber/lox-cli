@@ -81,7 +81,7 @@
         {
           "name": "should activate on trigger",
           "inputs": {
-            "Bewässerung Freigabe.InputTrigger": 1.0,
+            "PushButton.Q": 1.0,
             "PushButton.InputTrigger": 1.0
           },
           "ticks": 10,
@@ -95,7 +95,7 @@
         {
           "name": "should NOT activate without trigger",
           "inputs": {
-            "Bewässerung Freigabe.InputTrigger": 0.0
+            "PushButton.Q": 0.0
           },
           "ticks": 10,
           "dt": 0.1,
@@ -736,18 +736,18 @@
           "steps": [
             {
               "inputs": {
-                "Lüfter Niedrig": 0,
-                "Lüfter Mittel": 0,
-                "Lüfter Hoch": 0
+                "Schalter 1.Q": 0,
+                "Schalter 2.Q": 0,
+                "PushButton.Q": 0
               },
               "ticks": 2,
               "dt": 0.1
             },
             {
               "inputs": {
-                "Lüfter Niedrig": 1000,
-                "Lüfter Mittel": 1000,
-                "Lüfter Hoch": 1000
+                "Schalter 1.Q": 1000,
+                "Schalter 2.Q": 1000,
+                "PushButton.Q": 1000
               },
               "ticks": 10,
               "dt": 0.1,
@@ -764,18 +764,18 @@
           "steps": [
             {
               "inputs": {
-                "Lüfter Niedrig": 0,
-                "Lüfter Mittel": 0,
-                "Lüfter Hoch": 0
+                "Schalter 1.Q": 0,
+                "Schalter 2.Q": 0,
+                "PushButton.Q": 0
               },
               "ticks": 2,
               "dt": 0.1
             },
             {
               "inputs": {
-                "Lüfter Niedrig": 0,
-                "Lüfter Mittel": 0,
-                "Lüfter Hoch": 0
+                "Schalter 1.Q": 0,
+                "Schalter 2.Q": 0,
+                "PushButton.Q": 0
               },
               "ticks": 10,
               "dt": 0.1,

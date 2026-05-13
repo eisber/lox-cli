@@ -885,7 +885,7 @@
         {
           "name": "night mode eco",
           "inputs": {
-            "Nacht": 1
+            "Schalter 1.Q": 1
           },
           "ticks": 10,
           "dt": 0.1,
@@ -898,7 +898,7 @@
         {
           "name": "no night",
           "inputs": {
-            "Nacht": 0
+            "Schalter 1.Q": 0
           },
           "ticks": 10,
           "dt": 0.1,
@@ -983,8 +983,8 @@
         {
           "name": "CO high triggers ventilation",
           "inputs": {
-            "CO Sensor UG": 100,
-            "CO Sensor OG": 100
+            "CO2 Sensor.AQ": 100,
+            "Raumfeuchtigkeit Flur.AQ": 100
           },
           "ticks": 10,
           "dt": 0.1,
@@ -997,8 +997,8 @@
         {
           "name": "CO normal no ventilation",
           "inputs": {
-            "CO Sensor UG": 10,
-            "CO Sensor OG": 10
+            "CO2 Sensor.AQ": 10,
+            "Raumfeuchtigkeit Flur.AQ": 10
           },
           "ticks": 10,
           "dt": 0.1,
@@ -1206,7 +1206,7 @@
         {
           "name": "night mode",
           "inputs": {
-            "Nachtmodus": 1
+            "Schalter 1.Q": 1
           },
           "ticks": 10,
           "dt": 0.1,
@@ -1219,7 +1219,7 @@
         {
           "name": "day mode",
           "inputs": {
-            "Nachtmodus": 0
+            "Schalter 1.Q": 0
           },
           "ticks": 10,
           "dt": 0.1,
@@ -1508,8 +1508,8 @@
         {
           "name": "pos",
           "inputs": {
-            "Puffer Temperatur": 1000,
-            "Vorlauf Ist": 1000
+            "Puffertemperatur.AQ": 1000,
+            "Vorlauftemperatur.AQ": 1000
           },
           "ticks": 10,
           "dt": 0.1,
@@ -1522,8 +1522,8 @@
         {
           "name": "neg",
           "inputs": {
-            "Puffer Temperatur": 0,
-            "Vorlauf Ist": 0
+            "Puffertemperatur.AQ": 0,
+            "Vorlauftemperatur.AQ": 0
           },
           "ticks": 10,
           "dt": 0.1,
@@ -1872,7 +1872,7 @@
             "Außentemperatur": -5,
             "Luftfeuchtigkeit": 80,
             "CO2 Sensor": 1200,
-            "Schalter 1.Q": 1,
+            "Schalter 1.Q": 1000,
             "Schalter 2.Q": 1,
             "PushButton.InputTrigger": 1,
             "Vorlauftemperatur": 35,
@@ -1884,9 +1884,8 @@
             "Bewegungsmelder.OutputPresence": 1,
             "Sonnenschein": 1,
             "Helligkeit": 10,
-            "CO2 hoch Tag": 1000,
-            "CO2 hoch Nacht": 1000,
-            "HRV Modus": 1000
+            "CO2 Sensor.AQ": 1000,
+            "Raumfeuchtigkeit Bad.AQ": 1000
           },
           "ticks": 30,
           "dt": 0.1,
@@ -2046,7 +2045,7 @@
           "inputs": {
             "Luftfeuchtigkeit": 75.0,
             "Außentemperatur": 5.0,
-            "Lüftung sinnvoll.Q": 1.0
+            "Luftfeuchtigkeit.AQ": 1.0
           },
           "ticks": 10,
           "dt": 0.1,
@@ -2185,8 +2184,8 @@
         {
           "name": "pos",
           "inputs": {
-            "Warmwasserbedarf": 1000,
-            "Thermische Desinfektion": 1000
+            "Schalter 1.Q": 1000,
+            "Schalter 2.Q": 1000
           },
           "ticks": 10,
           "dt": 0.1,
@@ -2199,8 +2198,8 @@
         {
           "name": "neg",
           "inputs": {
-            "Warmwasserbedarf": 0,
-            "Thermische Desinfektion": 0
+            "Schalter 1.Q": 0,
+            "Schalter 2.Q": 0
           },
           "ticks": 10,
           "dt": 0.1,
