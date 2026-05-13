@@ -927,47 +927,86 @@
       "simulation": [
         {
           "name": "pos",
-          "inputs": {
-            "Sonnenschein": 1,
-            "Helligkeit": 10,
-            "Außentemperatur": -5,
-            "Bewegungsmelder.OutputPresence": 1,
-            "Schalter 1.Q": 1,
-            "Schalter 2.Q": 1,
-            "Luftfeuchtigkeit": 80,
-            "CO2 Sensor": 1200,
-            "PushButton.InputTrigger": 1,
-            "Raumtemperatur Wohnzimmer": 5,
-            "Türkontakt Eingang.Q": 1,
-            "Garagentor Sensor.Q": 1,
-            "Pool Temperatur": 5,
-            "Raumtemperatur Bad": 15,
-            "Vorlauftemperatur": 35,
-            "Puffertemperatur": 50,
-            "Warmwasserspeicher": 45,
-            "Kesseltemperatur": 70,
-            "Solarproduktion": 5000,
-            "Hausverbrauch": 1000
-          },
-          "ticks": 10,
-          "dt": 0.1,
-          "expected_outputs": {
-            "Wallbox.I1": {
-              ">": 0.5
+          "steps": [
+            {
+              "inputs": {
+                "Sonnenschein": 0,
+                "Helligkeit": 0,
+                "Außentemperatur": 0,
+                "Bewegungsmelder.OutputPresence": 0,
+                "Schalter 1.Q": 0,
+                "Schalter 2.Q": 0,
+                "Luftfeuchtigkeit": 0,
+                "CO2 Sensor": 0,
+                "PushButton.InputTrigger": 0,
+                "Raumtemperatur Wohnzimmer": 0,
+                "Türkontakt Eingang.Q": 0,
+                "Garagentor Sensor.Q": 0,
+                "Pool Temperatur": 0,
+                "Raumtemperatur Bad": 0,
+                "Vorlauftemperatur": 0,
+                "Puffertemperatur": 0,
+                "Warmwasserspeicher": 0,
+                "Kesseltemperatur": 0,
+                "Solarproduktion": 0,
+                "Hausverbrauch": 0
+              },
+              "ticks": 2,
+              "dt": 0.1
+            },
+            {
+              "inputs": {
+                "Sonnenschein": 1,
+                "Helligkeit": 10,
+                "Außentemperatur": -5,
+                "Bewegungsmelder.OutputPresence": 1,
+                "Schalter 1.Q": 1,
+                "Schalter 2.Q": 1,
+                "Luftfeuchtigkeit": 80,
+                "CO2 Sensor": 1200,
+                "PushButton.InputTrigger": 1,
+                "Raumtemperatur Wohnzimmer": 5,
+                "Türkontakt Eingang.Q": 1,
+                "Garagentor Sensor.Q": 1,
+                "Pool Temperatur": 5,
+                "Raumtemperatur Bad": 15,
+                "Vorlauftemperatur": 35,
+                "Puffertemperatur": 50,
+                "Warmwasserspeicher": 45,
+                "Kesseltemperatur": 70,
+                "Solarproduktion": 5000,
+                "Hausverbrauch": 1000
+              },
+              "ticks": 10,
+              "dt": 0.1,
+              "expected_outputs": {
+                "Wallbox.I1": {
+                  ">": 0.5
+                }
+              }
             }
-          },
+          ],
           "time": 1380
         },
         {
           "name": "neg",
-          "inputs": {},
-          "ticks": 10,
-          "dt": 0.1,
-          "expected_outputs": {
-            "Wallbox.I1": {
-              "<": 0.5
+          "steps": [
+            {
+              "inputs": {},
+              "ticks": 2,
+              "dt": 0.1
+            },
+            {
+              "inputs": {},
+              "ticks": 10,
+              "dt": 0.1,
+              "expected_outputs": {
+                "Wallbox.I1": {
+                  "<": 0.5
+                }
+              }
             }
-          },
+          ],
           "time": 720
         }
       ]
@@ -1681,32 +1720,57 @@
       "simulation": [
         {
           "name": "alarm triggers on intrusion detection when armed",
-          "inputs": {
-            "PushButton.Q": 1.0,
-            "Bewegungsmelder.OutputPresence": 1.0,
-            "Türkontakt Eingang.Q": 1.0
-          },
-          "ticks": 10,
-          "dt": 0.1,
-          "expected_outputs": {
-            "Alarmanlage.AQ": {
-              ">": 0.5
+          "steps": [
+            {
+              "inputs": {
+                "PushButton.Q": 0,
+                "Bewegungsmelder.OutputPresence": 0,
+                "Türkontakt Eingang.Q": 0
+              },
+              "ticks": 2,
+              "dt": 0.1
+            },
+            {
+              "inputs": {
+                "PushButton.Q": 1.0,
+                "Bewegungsmelder.OutputPresence": 1.0,
+                "Türkontakt Eingang.Q": 1.0
+              },
+              "ticks": 20,
+              "dt": 0.1,
+              "expected_outputs": {
+                "Alarmanlage.AQ": {
+                  ">": 0.5
+                }
+              }
             }
-          }
+          ]
         },
         {
           "name": "no alarm when system disarmed",
-          "inputs": {
-            "Bewegungsmelder.OutputPresence": 1.0,
-            "Türkontakt Eingang.Q": 1.0
-          },
-          "ticks": 10,
-          "dt": 0.1,
-          "expected_outputs": {
-            "Alarmanlage.AQ": {
-              "<": 0.5
+          "steps": [
+            {
+              "inputs": {
+                "Bewegungsmelder.OutputPresence": 0,
+                "Türkontakt Eingang.Q": 0
+              },
+              "ticks": 2,
+              "dt": 0.1
+            },
+            {
+              "inputs": {
+                "Bewegungsmelder.OutputPresence": 1.0,
+                "Türkontakt Eingang.Q": 1.0
+              },
+              "ticks": 20,
+              "dt": 0.1,
+              "expected_outputs": {
+                "Alarmanlage.AQ": {
+                  "<": 0.5
+                }
+              }
             }
-          }
+          ]
         }
       ]
     }
@@ -3955,29 +4019,51 @@
       "simulation": [
         {
           "name": "shading moves to safety position on high wind",
-          "inputs": {
-            "Windgeschwindigkeit.AQ": 50.0
-          },
-          "ticks": 10,
-          "dt": 0.1,
-          "expected_outputs": {
-            "Jalousie 1 [Wohnzimmer].InputTriggerUp": {
-              ">": 0.5
+          "steps": [
+            {
+              "inputs": {
+                "Windgeschwindigkeit.AQ": 0
+              },
+              "ticks": 2,
+              "dt": 0.1
+            },
+            {
+              "inputs": {
+                "Windgeschwindigkeit.AQ": 50.0
+              },
+              "ticks": 10,
+              "dt": 0.1,
+              "expected_outputs": {
+                "Jalousie 1 [Wohnzimmer].InputTriggerUp": {
+                  ">": 0.5
+                }
+              }
             }
-          }
+          ]
         },
         {
           "name": "shading operates normally in calm conditions",
-          "inputs": {
-            "Windgeschwindigkeit.AQ": 10.0
-          },
-          "ticks": 10,
-          "dt": 0.1,
-          "expected_outputs": {
-            "Jalousie 1 [Wohnzimmer].InputTriggerUp": {
-              "<": 0.5
+          "steps": [
+            {
+              "inputs": {
+                "Windgeschwindigkeit.AQ": 0
+              },
+              "ticks": 2,
+              "dt": 0.1
+            },
+            {
+              "inputs": {
+                "Windgeschwindigkeit.AQ": 10.0
+              },
+              "ticks": 10,
+              "dt": 0.1,
+              "expected_outputs": {
+                "Jalousie 1 [Wohnzimmer].InputTriggerUp": {
+                  "<": 0.5
+                }
+              }
             }
-          }
+          ]
         }
       ]
     }
@@ -5255,46 +5341,84 @@
       "simulation": [
         {
           "name": "pos",
-          "inputs": {
-            "Sonnenschein": 1,
-            "Helligkeit": 10,
-            "Außentemperatur": -5,
-            "Bewegungsmelder.OutputPresence": 1,
-            "Schalter 1.Q": 1,
-            "Schalter 2.Q": 1,
-            "Luftfeuchtigkeit": 80,
-            "CO2 Sensor": 1200,
-            "PushButton.InputTrigger": 1,
-            "Raumtemperatur Wohnzimmer": 5,
-            "Türkontakt Eingang.Q": 1,
-            "Garagentor Sensor.Q": 1,
-            "Pool Temperatur": 5,
-            "Feuchtesensor Garten": 5,
-            "Bewässerung Manuell.Q": 1,
-            "Regen": 0,
-            "Windgeschwindigkeit": 50,
-            "Türklingel.Q": 1,
-            "Bewegungsmelder Garten.OutputPresence": 1
-          },
-          "ticks": 10,
-          "dt": 0.1,
-          "expected_outputs": {
-            "Audiozone.I1": {
-              ">": 0.5
+          "steps": [
+            {
+              "inputs": {
+                "Sonnenschein": 0,
+                "Helligkeit": 0,
+                "Außentemperatur": 0,
+                "Bewegungsmelder.OutputPresence": 0,
+                "Schalter 1.Q": 0,
+                "Schalter 2.Q": 0,
+                "Luftfeuchtigkeit": 0,
+                "CO2 Sensor": 0,
+                "PushButton.InputTrigger": 0,
+                "Raumtemperatur Wohnzimmer": 0,
+                "Türkontakt Eingang.Q": 0,
+                "Garagentor Sensor.Q": 0,
+                "Pool Temperatur": 0,
+                "Feuchtesensor Garten": 0,
+                "Bewässerung Manuell.Q": 0,
+                "Regen": 0,
+                "Windgeschwindigkeit": 0,
+                "Türklingel.Q": 0,
+                "Bewegungsmelder Garten.OutputPresence": 0
+              },
+              "ticks": 2,
+              "dt": 0.1
+            },
+            {
+              "inputs": {
+                "Sonnenschein": 1,
+                "Helligkeit": 10,
+                "Außentemperatur": -5,
+                "Bewegungsmelder.OutputPresence": 1,
+                "Schalter 1.Q": 1,
+                "Schalter 2.Q": 1,
+                "Luftfeuchtigkeit": 80,
+                "CO2 Sensor": 1200,
+                "PushButton.InputTrigger": 1,
+                "Raumtemperatur Wohnzimmer": 5,
+                "Türkontakt Eingang.Q": 1,
+                "Garagentor Sensor.Q": 1,
+                "Pool Temperatur": 5,
+                "Feuchtesensor Garten": 5,
+                "Bewässerung Manuell.Q": 1,
+                "Regen": 0,
+                "Windgeschwindigkeit": 50,
+                "Türklingel.Q": 1,
+                "Bewegungsmelder Garten.OutputPresence": 1
+              },
+              "ticks": 10,
+              "dt": 0.1,
+              "expected_outputs": {
+                "Audiozone.I1": {
+                  ">": 0.5
+                }
+              }
             }
-          },
+          ],
           "time": 1380
         },
         {
           "name": "neg",
-          "inputs": {},
-          "ticks": 10,
-          "dt": 0.1,
-          "expected_outputs": {
-            "Audiozone.I1": {
-              "<": 0.5
+          "steps": [
+            {
+              "inputs": {},
+              "ticks": 2,
+              "dt": 0.1
+            },
+            {
+              "inputs": {},
+              "ticks": 10,
+              "dt": 0.1,
+              "expected_outputs": {
+                "Audiozone.I1": {
+                  "<": 0.5
+                }
+              }
             }
-          },
+          ],
           "time": 720
         }
       ]
@@ -6224,27 +6348,47 @@
       "simulation": [
         {
           "name": "NFC opens locker",
-          "inputs": {
-            "Schließfach NFC.Q1": 1
-          },
-          "ticks": 10,
-          "dt": 0.1,
-          "expected_outputs": {
-            "Türschloss [Flur].AQ": {
-              ">": 0.5
+          "steps": [
+            {
+              "inputs": {
+                "Schließfach NFC.Q1": 0
+              },
+              "ticks": 2,
+              "dt": 0.1
+            },
+            {
+              "inputs": {
+                "Schließfach NFC.Q1": 1
+              },
+              "ticks": 10,
+              "dt": 0.1,
+              "expected_outputs": {
+                "Türschloss [Flur].AQ": {
+                  ">": 0.5
+                }
+              }
             }
-          }
+          ]
         },
         {
           "name": "no NFC",
-          "inputs": {},
-          "ticks": 10,
-          "dt": 0.1,
-          "expected_outputs": {
-            "Türschloss [Flur].AQ": {
-              "<": 0.5
+          "steps": [
+            {
+              "inputs": {},
+              "ticks": 2,
+              "dt": 0.1
+            },
+            {
+              "inputs": {},
+              "ticks": 10,
+              "dt": 0.1,
+              "expected_outputs": {
+                "Türschloss [Flur].AQ": {
+                  "<": 0.5
+                }
+              }
             }
-          }
+          ]
         }
       ]
     }
@@ -6305,46 +6449,84 @@
       "simulation": [
         {
           "name": "pos",
-          "inputs": {
-            "Sonnenschein": 1,
-            "Helligkeit": 10,
-            "Außentemperatur": -5,
-            "Bewegungsmelder.OutputPresence": 1,
-            "Schalter 1.Q": 1,
-            "Schalter 2.Q": 1,
-            "Luftfeuchtigkeit": 80,
-            "CO2 Sensor": 1200,
-            "PushButton.InputTrigger": 1,
-            "Raumtemperatur Wohnzimmer": 5,
-            "Türkontakt Eingang.Q": 1,
-            "Garagentor Sensor.Q": 1,
-            "Pool Temperatur": 5,
-            "Feuchtesensor Garten": 5,
-            "Bewässerung Manuell.Q": 1,
-            "Regen": 0,
-            "Windgeschwindigkeit": 50,
-            "Türklingel.Q": 1,
-            "Bewegungsmelder Garten.OutputPresence": 1
-          },
-          "ticks": 10,
-          "dt": 0.1,
-          "expected_outputs": {
-            "Statusblock.I1": {
-              ">": 0.5
+          "steps": [
+            {
+              "inputs": {
+                "Sonnenschein": 0,
+                "Helligkeit": 0,
+                "Außentemperatur": 0,
+                "Bewegungsmelder.OutputPresence": 0,
+                "Schalter 1.Q": 0,
+                "Schalter 2.Q": 0,
+                "Luftfeuchtigkeit": 0,
+                "CO2 Sensor": 0,
+                "PushButton.InputTrigger": 0,
+                "Raumtemperatur Wohnzimmer": 0,
+                "Türkontakt Eingang.Q": 0,
+                "Garagentor Sensor.Q": 0,
+                "Pool Temperatur": 0,
+                "Feuchtesensor Garten": 0,
+                "Bewässerung Manuell.Q": 0,
+                "Regen": 0,
+                "Windgeschwindigkeit": 0,
+                "Türklingel.Q": 0,
+                "Bewegungsmelder Garten.OutputPresence": 0
+              },
+              "ticks": 2,
+              "dt": 0.1
+            },
+            {
+              "inputs": {
+                "Sonnenschein": 1,
+                "Helligkeit": 10,
+                "Außentemperatur": -5,
+                "Bewegungsmelder.OutputPresence": 1,
+                "Schalter 1.Q": 1,
+                "Schalter 2.Q": 1,
+                "Luftfeuchtigkeit": 80,
+                "CO2 Sensor": 1200,
+                "PushButton.InputTrigger": 1,
+                "Raumtemperatur Wohnzimmer": 5,
+                "Türkontakt Eingang.Q": 1,
+                "Garagentor Sensor.Q": 1,
+                "Pool Temperatur": 5,
+                "Feuchtesensor Garten": 5,
+                "Bewässerung Manuell.Q": 1,
+                "Regen": 0,
+                "Windgeschwindigkeit": 50,
+                "Türklingel.Q": 1,
+                "Bewegungsmelder Garten.OutputPresence": 1
+              },
+              "ticks": 10,
+              "dt": 0.1,
+              "expected_outputs": {
+                "Statusblock.I1": {
+                  ">": 0.5
+                }
+              }
             }
-          },
+          ],
           "time": 1380
         },
         {
           "name": "neg",
-          "inputs": {},
-          "ticks": 10,
-          "dt": 0.1,
-          "expected_outputs": {
-            "Statusblock.I1": {
-              "<": 0.5
+          "steps": [
+            {
+              "inputs": {},
+              "ticks": 2,
+              "dt": 0.1
+            },
+            {
+              "inputs": {},
+              "ticks": 10,
+              "dt": 0.1,
+              "expected_outputs": {
+                "Statusblock.I1": {
+                  "<": 0.5
+                }
+              }
             }
-          },
+          ],
           "time": 720
         }
       ]
@@ -7711,32 +7893,57 @@
       "simulation": [
         {
           "name": "heating rod activates on PV surplus",
-          "inputs": {
-            "Sonnenschein.AQ": 1.0,
-            "Außentemperatur.AQ": 25.0,
-            "Heizstab freigeben.Q": 1.0
-          },
-          "ticks": 10,
-          "dt": 0.1,
-          "expected_outputs": {
-            "Heizstab.AQ": {
-              ">": 0.5
+          "steps": [
+            {
+              "inputs": {
+                "Sonnenschein.AQ": 0,
+                "Außentemperatur.AQ": 0,
+                "Heizstab freigeben.Q": 0
+              },
+              "ticks": 2,
+              "dt": 0.1
+            },
+            {
+              "inputs": {
+                "Sonnenschein.AQ": 1.0,
+                "Außentemperatur.AQ": 25.0,
+                "Heizstab freigeben.Q": 1.0
+              },
+              "ticks": 10,
+              "dt": 0.1,
+              "expected_outputs": {
+                "Heizstab.AQ": {
+                  ">": 0.5
+                }
+              }
             }
-          }
+          ]
         },
         {
           "name": "heating rod off when no PV surplus",
-          "inputs": {
-            "Sonnenschein.AQ": 0.0,
-            "Außentemperatur.AQ": 10.0
-          },
-          "ticks": 10,
-          "dt": 0.1,
-          "expected_outputs": {
-            "Heizstab.AQ": {
-              "<": 0.5
+          "steps": [
+            {
+              "inputs": {
+                "Sonnenschein.AQ": 0,
+                "Außentemperatur.AQ": 0
+              },
+              "ticks": 2,
+              "dt": 0.1
+            },
+            {
+              "inputs": {
+                "Sonnenschein.AQ": 0.0,
+                "Außentemperatur.AQ": 10.0
+              },
+              "ticks": 10,
+              "dt": 0.1,
+              "expected_outputs": {
+                "Heizstab.AQ": {
+                  "<": 0.5
+                }
+              }
             }
-          }
+          ]
         }
       ]
     }
@@ -8435,30 +8642,53 @@
       "simulation": [
         {
           "name": "charging active during cheap spot price hours",
-          "inputs": {
-            "Außentemperatur.AQ": 20.0,
-            "Laden Freigabe.Q": 1.0
-          },
-          "ticks": 10,
-          "dt": 0.1,
-          "expected_outputs": {
-            "Wallbox.AQ": {
-              ">": 0.5
+          "steps": [
+            {
+              "inputs": {
+                "Außentemperatur.AQ": 0,
+                "Laden Freigabe.Q": 0
+              },
+              "ticks": 2,
+              "dt": 0.1
+            },
+            {
+              "inputs": {
+                "Außentemperatur.AQ": 20.0,
+                "Laden Freigabe.Q": 1.0
+              },
+              "ticks": 10,
+              "dt": 0.1,
+              "expected_outputs": {
+                "Wallbox.AQ": {
+                  ">": 0.5
+                }
+              }
             }
-          }
+          ]
         },
         {
           "name": "charging paused during expensive hours",
-          "inputs": {
-            "Außentemperatur.AQ": 10.0
-          },
-          "ticks": 10,
-          "dt": 0.1,
-          "expected_outputs": {
-            "Wallbox.AQ": {
-              "<": 0.5
+          "steps": [
+            {
+              "inputs": {
+                "Außentemperatur.AQ": 0
+              },
+              "ticks": 2,
+              "dt": 0.1
+            },
+            {
+              "inputs": {
+                "Außentemperatur.AQ": 10.0
+              },
+              "ticks": 10,
+              "dt": 0.1,
+              "expected_outputs": {
+                "Wallbox.AQ": {
+                  "<": 0.5
+                }
+              }
             }
-          }
+          ]
         }
       ]
     }
@@ -9320,29 +9550,51 @@
       "simulation": [
         {
           "name": "pos",
-          "inputs": {
-            "Pegelsensor": 1000
-          },
-          "ticks": 10,
-          "dt": 0.1,
-          "expected_outputs": {
-            "Statusblock [Wohnzimmer].AQ": {
-              ">": 0.5
+          "steps": [
+            {
+              "inputs": {
+                "Pegelsensor": 0
+              },
+              "ticks": 2,
+              "dt": 0.1
+            },
+            {
+              "inputs": {
+                "Pegelsensor": 1000
+              },
+              "ticks": 10,
+              "dt": 0.1,
+              "expected_outputs": {
+                "Statusblock [Wohnzimmer].AQ": {
+                  ">": 0.5
+                }
+              }
             }
-          }
+          ]
         },
         {
           "name": "neg",
-          "inputs": {
-            "Pegelsensor": 0
-          },
-          "ticks": 10,
-          "dt": 0.1,
-          "expected_outputs": {
-            "Statusblock [Wohnzimmer].AQ": {
-              "<": 0.5
+          "steps": [
+            {
+              "inputs": {
+                "Pegelsensor": 0
+              },
+              "ticks": 2,
+              "dt": 0.1
+            },
+            {
+              "inputs": {
+                "Pegelsensor": 0
+              },
+              "ticks": 10,
+              "dt": 0.1,
+              "expected_outputs": {
+                "Statusblock [Wohnzimmer].AQ": {
+                  "<": 0.5
+                }
+              }
             }
-          }
+          ]
         }
       ]
     }
@@ -10983,47 +11235,86 @@
       "simulation": [
         {
           "name": "pos",
-          "inputs": {
-            "Sonnenschein": 1,
-            "Helligkeit": 10,
-            "Außentemperatur": -5,
-            "Bewegungsmelder.OutputPresence": 1,
-            "Schalter 1.Q": 1,
-            "Schalter 2.Q": 1,
-            "Luftfeuchtigkeit": 80,
-            "CO2 Sensor": 1200,
-            "PushButton.InputTrigger": 1,
-            "Raumtemperatur Wohnzimmer": 5,
-            "Türkontakt Eingang.Q": 1,
-            "Garagentor Sensor.Q": 1,
-            "Pool Temperatur": 5,
-            "Raumtemperatur Bad": 15,
-            "Vorlauftemperatur": 35,
-            "Puffertemperatur": 50,
-            "Warmwasserspeicher": 45,
-            "Kesseltemperatur": 70,
-            "Solarproduktion": 5000,
-            "Hausverbrauch": 1000
-          },
-          "ticks": 10,
-          "dt": 0.1,
-          "expected_outputs": {
-            "Heizstab [Bad].AQ": {
-              ">": 0.5
+          "steps": [
+            {
+              "inputs": {
+                "Sonnenschein": 0,
+                "Helligkeit": 0,
+                "Außentemperatur": 0,
+                "Bewegungsmelder.OutputPresence": 0,
+                "Schalter 1.Q": 0,
+                "Schalter 2.Q": 0,
+                "Luftfeuchtigkeit": 0,
+                "CO2 Sensor": 0,
+                "PushButton.InputTrigger": 0,
+                "Raumtemperatur Wohnzimmer": 0,
+                "Türkontakt Eingang.Q": 0,
+                "Garagentor Sensor.Q": 0,
+                "Pool Temperatur": 0,
+                "Raumtemperatur Bad": 0,
+                "Vorlauftemperatur": 0,
+                "Puffertemperatur": 0,
+                "Warmwasserspeicher": 0,
+                "Kesseltemperatur": 0,
+                "Solarproduktion": 0,
+                "Hausverbrauch": 0
+              },
+              "ticks": 2,
+              "dt": 0.1
+            },
+            {
+              "inputs": {
+                "Sonnenschein": 1,
+                "Helligkeit": 10,
+                "Außentemperatur": -5,
+                "Bewegungsmelder.OutputPresence": 1,
+                "Schalter 1.Q": 1,
+                "Schalter 2.Q": 1,
+                "Luftfeuchtigkeit": 80,
+                "CO2 Sensor": 1200,
+                "PushButton.InputTrigger": 1,
+                "Raumtemperatur Wohnzimmer": 5,
+                "Türkontakt Eingang.Q": 1,
+                "Garagentor Sensor.Q": 1,
+                "Pool Temperatur": 5,
+                "Raumtemperatur Bad": 15,
+                "Vorlauftemperatur": 35,
+                "Puffertemperatur": 50,
+                "Warmwasserspeicher": 45,
+                "Kesseltemperatur": 70,
+                "Solarproduktion": 5000,
+                "Hausverbrauch": 1000
+              },
+              "ticks": 10,
+              "dt": 0.1,
+              "expected_outputs": {
+                "Heizstab [Bad].AQ": {
+                  ">": 0.5
+                }
+              }
             }
-          },
+          ],
           "time": 1380
         },
         {
           "name": "neg",
-          "inputs": {},
-          "ticks": 10,
-          "dt": 0.1,
-          "expected_outputs": {
-            "Heizstab [Bad].AQ": {
-              "<": 0.5
+          "steps": [
+            {
+              "inputs": {},
+              "ticks": 2,
+              "dt": 0.1
+            },
+            {
+              "inputs": {},
+              "ticks": 10,
+              "dt": 0.1,
+              "expected_outputs": {
+                "Heizstab [Bad].AQ": {
+                  "<": 0.5
+                }
+              }
             }
-          },
+          ],
           "time": 720
         }
       ]

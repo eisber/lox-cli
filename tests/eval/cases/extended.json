@@ -733,33 +733,59 @@
       "simulation": [
         {
           "name": "pos",
-          "inputs": {
-            "Lüfter Niedrig": 1000,
-            "Lüfter Mittel": 1000,
-            "Lüfter Hoch": 1000
-          },
-          "ticks": 10,
-          "dt": 0.1,
-          "expected_outputs": {
-            "Audiozone.I1": {
-              ">": 0.5
+          "steps": [
+            {
+              "inputs": {
+                "Lüfter Niedrig": 0,
+                "Lüfter Mittel": 0,
+                "Lüfter Hoch": 0
+              },
+              "ticks": 2,
+              "dt": 0.1
+            },
+            {
+              "inputs": {
+                "Lüfter Niedrig": 1000,
+                "Lüfter Mittel": 1000,
+                "Lüfter Hoch": 1000
+              },
+              "ticks": 10,
+              "dt": 0.1,
+              "expected_outputs": {
+                "Audiozone.I1": {
+                  ">": 0.5
+                }
+              }
             }
-          }
+          ]
         },
         {
           "name": "neg",
-          "inputs": {
-            "Lüfter Niedrig": 0,
-            "Lüfter Mittel": 0,
-            "Lüfter Hoch": 0
-          },
-          "ticks": 10,
-          "dt": 0.1,
-          "expected_outputs": {
-            "Audiozone.I1": {
-              "<": 0.5
+          "steps": [
+            {
+              "inputs": {
+                "Lüfter Niedrig": 0,
+                "Lüfter Mittel": 0,
+                "Lüfter Hoch": 0
+              },
+              "ticks": 2,
+              "dt": 0.1
+            },
+            {
+              "inputs": {
+                "Lüfter Niedrig": 0,
+                "Lüfter Mittel": 0,
+                "Lüfter Hoch": 0
+              },
+              "ticks": 10,
+              "dt": 0.1,
+              "expected_outputs": {
+                "Audiozone.I1": {
+                  "<": 0.5
+                }
+              }
             }
-          }
+          ]
         }
       ]
     }

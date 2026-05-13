@@ -1046,29 +1046,51 @@
       "simulation": [
         {
           "name": "door sensor triggers garage light",
-          "inputs": {
-            "Garagentor Sensor.Q": 1.0
-          },
-          "ticks": 10,
-          "dt": 0.1,
-          "expected_outputs": {
-            "Garagenlicht [Garage].I1": {
-              ">": 0.5
+          "steps": [
+            {
+              "inputs": {
+                "Garagentor Sensor.Q": 0
+              },
+              "ticks": 2,
+              "dt": 0.1
+            },
+            {
+              "inputs": {
+                "Garagentor Sensor.Q": 1.0
+              },
+              "ticks": 10,
+              "dt": 0.1,
+              "expected_outputs": {
+                "Garagenlicht [Garage].I1": {
+                  ">": 0.5
+                }
+              }
             }
-          }
+          ]
         },
         {
           "name": "no sensor no light",
-          "inputs": {
-            "Garagentor Sensor.Q": 0.0
-          },
-          "ticks": 10,
-          "dt": 0.1,
-          "expected_outputs": {
-            "Garagenlicht [Garage].I1": {
-              "<": 0.5
+          "steps": [
+            {
+              "inputs": {
+                "Garagentor Sensor.Q": 0
+              },
+              "ticks": 2,
+              "dt": 0.1
+            },
+            {
+              "inputs": {
+                "Garagentor Sensor.Q": 0.0
+              },
+              "ticks": 10,
+              "dt": 0.1,
+              "expected_outputs": {
+                "Garagenlicht [Garage].I1": {
+                  "<": 0.5
+                }
+              }
             }
-          }
+          ]
         }
       ]
     }
@@ -1434,31 +1456,55 @@
       "simulation": [
         {
           "name": "should trigger when all conditions met",
-          "inputs": {
-            "Luftfeuchtigkeit.AQ": 80.0,
-            "Sonnenschein.AQ": 1.0
-          },
-          "ticks": 10,
-          "dt": 0.1,
-          "expected_outputs": {
-            "Lüfter Bad.I1": {
-              ">": 0.5
+          "steps": [
+            {
+              "inputs": {
+                "Luftfeuchtigkeit.AQ": 0,
+                "Sonnenschein.AQ": 0
+              },
+              "ticks": 2,
+              "dt": 0.1
+            },
+            {
+              "inputs": {
+                "Luftfeuchtigkeit.AQ": 80.0,
+                "Sonnenschein.AQ": 1.0
+              },
+              "ticks": 10,
+              "dt": 0.1,
+              "expected_outputs": {
+                "Lüfter Bad.I1": {
+                  ">": 0.5
+                }
+              }
             }
-          }
+          ]
         },
         {
           "name": "should NOT trigger when condition not met",
-          "inputs": {
-            "Luftfeuchtigkeit.AQ": 70.0,
-            "Sonnenschein.AQ": 0.0
-          },
-          "ticks": 10,
-          "dt": 0.1,
-          "expected_outputs": {
-            "Lüfter Bad.I1": {
-              "<": 0.5
+          "steps": [
+            {
+              "inputs": {
+                "Luftfeuchtigkeit.AQ": 0,
+                "Sonnenschein.AQ": 0
+              },
+              "ticks": 2,
+              "dt": 0.1
+            },
+            {
+              "inputs": {
+                "Luftfeuchtigkeit.AQ": 70.0,
+                "Sonnenschein.AQ": 0.0
+              },
+              "ticks": 10,
+              "dt": 0.1,
+              "expected_outputs": {
+                "Lüfter Bad.I1": {
+                  "<": 0.5
+                }
+              }
             }
-          }
+          ]
         }
       ]
     }
@@ -2106,31 +2152,55 @@
       "simulation": [
         {
           "name": "should trigger when all conditions met",
-          "inputs": {
-            "Sonnenschein.AQ": 1.0,
-            "Außentemperatur.AQ": 25.0
-          },
-          "ticks": 10,
-          "dt": 0.1,
-          "expected_outputs": {
-            "Jalousie 1 [Wohnzimmer].InputTriggerDown": {
-              ">": 0.5
+          "steps": [
+            {
+              "inputs": {
+                "Sonnenschein.AQ": 0,
+                "Außentemperatur.AQ": 0
+              },
+              "ticks": 2,
+              "dt": 0.1
+            },
+            {
+              "inputs": {
+                "Sonnenschein.AQ": 1.0,
+                "Außentemperatur.AQ": 25.0
+              },
+              "ticks": 10,
+              "dt": 0.1,
+              "expected_outputs": {
+                "Jalousie 1 [Wohnzimmer].InputTriggerDown": {
+                  ">": 0.5
+                }
+              }
             }
-          }
+          ]
         },
         {
           "name": "should NOT trigger when only partial conditions met",
-          "inputs": {
-            "Sonnenschein.AQ": 0.0,
-            "Außentemperatur.AQ": 25.0
-          },
-          "ticks": 10,
-          "dt": 0.1,
-          "expected_outputs": {
-            "Jalousie 1 [Wohnzimmer].InputTriggerDown": {
-              "<": 0.5
+          "steps": [
+            {
+              "inputs": {
+                "Sonnenschein.AQ": 0,
+                "Außentemperatur.AQ": 0
+              },
+              "ticks": 2,
+              "dt": 0.1
+            },
+            {
+              "inputs": {
+                "Sonnenschein.AQ": 0.0,
+                "Außentemperatur.AQ": 25.0
+              },
+              "ticks": 10,
+              "dt": 0.1,
+              "expected_outputs": {
+                "Jalousie 1 [Wohnzimmer].InputTriggerDown": {
+                  "<": 0.5
+                }
+              }
             }
-          }
+          ]
         }
       ]
     }
@@ -3629,29 +3699,51 @@
       "simulation": [
         {
           "name": "sleep mode disables blinds",
-          "inputs": {
-            "Schalter 1.Q": 1
-          },
-          "ticks": 10,
-          "dt": 0.1,
-          "expected_outputs": {
-            "Jalousie 1 [Schlafzimmer].InputDisable": {
-              ">": 0.5
+          "steps": [
+            {
+              "inputs": {
+                "Schalter 1.Q": 0
+              },
+              "ticks": 2,
+              "dt": 0.1
+            },
+            {
+              "inputs": {
+                "Schalter 1.Q": 1
+              },
+              "ticks": 10,
+              "dt": 0.1,
+              "expected_outputs": {
+                "Jalousie 1 [Schlafzimmer].InputDisable": {
+                  ">": 0.5
+                }
+              }
             }
-          }
+          ]
         },
         {
           "name": "no mode enables blinds",
-          "inputs": {
-            "Schalter 1.Q": 0
-          },
-          "ticks": 10,
-          "dt": 0.1,
-          "expected_outputs": {
-            "Jalousie 1 [Schlafzimmer].InputDisable": {
-              "<": 0.5
+          "steps": [
+            {
+              "inputs": {
+                "Schalter 1.Q": 0
+              },
+              "ticks": 2,
+              "dt": 0.1
+            },
+            {
+              "inputs": {
+                "Schalter 1.Q": 0
+              },
+              "ticks": 10,
+              "dt": 0.1,
+              "expected_outputs": {
+                "Jalousie 1 [Schlafzimmer].InputDisable": {
+                  "<": 0.5
+                }
+              }
             }
-          }
+          ]
         }
       ]
     }
@@ -4255,29 +4347,51 @@
       "simulation": [
         {
           "name": "goodnight mode activates on switch",
-          "inputs": {
-            "Schalter 2.Q": 1.0
-          },
-          "ticks": 10,
-          "dt": 0.1,
-          "expected_outputs": {
-            "Jalousie 1 [Schlafzimmer].InputTriggerDown": {
-              ">": 0.5
+          "steps": [
+            {
+              "inputs": {
+                "Schalter 2.Q": 0
+              },
+              "ticks": 2,
+              "dt": 0.1
+            },
+            {
+              "inputs": {
+                "Schalter 2.Q": 1.0
+              },
+              "ticks": 10,
+              "dt": 0.1,
+              "expected_outputs": {
+                "Jalousie 1 [Schlafzimmer].InputTriggerDown": {
+                  ">": 0.5
+                }
+              }
             }
-          }
+          ]
         },
         {
           "name": "no goodnight without switch",
-          "inputs": {
-            "Schalter 2.Q": 0.0
-          },
-          "ticks": 10,
-          "dt": 0.1,
-          "expected_outputs": {
-            "Jalousie 1 [Schlafzimmer].InputTriggerDown": {
-              "<": 0.5
+          "steps": [
+            {
+              "inputs": {
+                "Schalter 2.Q": 0
+              },
+              "ticks": 2,
+              "dt": 0.1
+            },
+            {
+              "inputs": {
+                "Schalter 2.Q": 0.0
+              },
+              "ticks": 10,
+              "dt": 0.1,
+              "expected_outputs": {
+                "Jalousie 1 [Schlafzimmer].InputTriggerDown": {
+                  "<": 0.5
+                }
+              }
             }
-          }
+          ]
         }
       ]
     }
@@ -4393,29 +4507,51 @@
       "simulation": [
         {
           "name": "party mode on",
-          "inputs": {
-            "Schalter 1.Q": 1.0
-          },
-          "ticks": 10,
-          "dt": 0.1,
-          "expected_outputs": {
-            "Gartenbeleuchtung.I1": {
-              ">": 0.5
+          "steps": [
+            {
+              "inputs": {
+                "Schalter 1.Q": 0
+              },
+              "ticks": 2,
+              "dt": 0.1
+            },
+            {
+              "inputs": {
+                "Schalter 1.Q": 1.0
+              },
+              "ticks": 10,
+              "dt": 0.1,
+              "expected_outputs": {
+                "Gartenbeleuchtung.I1": {
+                  ">": 0.5
+                }
+              }
             }
-          }
+          ]
         },
         {
           "name": "no party",
-          "inputs": {
-            "Schalter 1.Q": 0.0
-          },
-          "ticks": 10,
-          "dt": 0.1,
-          "expected_outputs": {
-            "Gartenbeleuchtung.I1": {
-              "<": 0.5
+          "steps": [
+            {
+              "inputs": {
+                "Schalter 1.Q": 0
+              },
+              "ticks": 2,
+              "dt": 0.1
+            },
+            {
+              "inputs": {
+                "Schalter 1.Q": 0.0
+              },
+              "ticks": 10,
+              "dt": 0.1,
+              "expected_outputs": {
+                "Gartenbeleuchtung.I1": {
+                  "<": 0.5
+                }
+              }
             }
-          }
+          ]
         }
       ]
     }
@@ -4679,33 +4815,59 @@
       "simulation": [
         {
           "name": "light on when dark + rain + door + switch",
-          "inputs": {
-            "Schalter 2.Q": 1.0,
-            "Türkontakt Eingang.Q": 1.0,
-            "Helligkeit": 10.0,
-            "Regen": 1.0
-          },
-          "ticks": 10,
-          "dt": 0.1,
-          "expected_outputs": {
-            "Lichtsteuerung [Flur].I1": {
-              ">": 0.5
+          "steps": [
+            {
+              "inputs": {
+                "Schalter 2.Q": 0,
+                "Türkontakt Eingang.Q": 0,
+                "Helligkeit": 0,
+                "Regen": 0
+              },
+              "ticks": 2,
+              "dt": 0.1
+            },
+            {
+              "inputs": {
+                "Schalter 2.Q": 1.0,
+                "Türkontakt Eingang.Q": 1.0,
+                "Helligkeit": 10.0,
+                "Regen": 1.0
+              },
+              "ticks": 10,
+              "dt": 0.1,
+              "expected_outputs": {
+                "Lichtsteuerung [Flur].I1": {
+                  ">": 0.5
+                }
+              }
             }
-          }
+          ]
         },
         {
           "name": "no light without all conditions",
-          "inputs": {
-            "Schalter 2.Q": 0.0,
-            "Türkontakt Eingang.Q": 0.0
-          },
-          "ticks": 10,
-          "dt": 0.1,
-          "expected_outputs": {
-            "Lichtsteuerung [Flur].I1": {
-              "<": 0.5
+          "steps": [
+            {
+              "inputs": {
+                "Schalter 2.Q": 0,
+                "Türkontakt Eingang.Q": 0
+              },
+              "ticks": 2,
+              "dt": 0.1
+            },
+            {
+              "inputs": {
+                "Schalter 2.Q": 0.0,
+                "Türkontakt Eingang.Q": 0.0
+              },
+              "ticks": 10,
+              "dt": 0.1,
+              "expected_outputs": {
+                "Lichtsteuerung [Flur].I1": {
+                  "<": 0.5
+                }
+              }
             }
-          }
+          ]
         }
       ]
     }

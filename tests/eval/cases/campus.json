@@ -296,16 +296,27 @@
       "simulation": [
         {
           "name": "should latch occupancy on presence",
-          "inputs": {
-            "Bewegungsmelder.OutputPresence": 1.0
-          },
-          "ticks": 10,
-          "dt": 0.1,
-          "expected_outputs": {
-            "Statusblock.I1": {
-              ">": 0.5
+          "steps": [
+            {
+              "inputs": {
+                "Bewegungsmelder.OutputPresence": 0
+              },
+              "ticks": 2,
+              "dt": 0.1
+            },
+            {
+              "inputs": {
+                "Bewegungsmelder.OutputPresence": 1.0
+              },
+              "ticks": 10,
+              "dt": 0.1,
+              "expected_outputs": {
+                "Statusblock.I1": {
+                  ">": 0.5
+                }
+              }
             }
-          }
+          ]
         }
       ]
     }
@@ -539,17 +550,29 @@
         },
         {
           "name": "should show 0 state when no inputs active",
-          "inputs": {
-            "Bewegungsmelder.OutputPresence": 0,
-            "PushButton.Q": 0
-          },
-          "ticks": 10,
-          "dt": 0.1,
-          "expected_outputs": {
-            "Formel.I1": {
-              "==": 0
+          "steps": [
+            {
+              "inputs": {
+                "Bewegungsmelder.OutputPresence": 0,
+                "PushButton.Q": 0
+              },
+              "ticks": 2,
+              "dt": 0.1
+            },
+            {
+              "inputs": {
+                "Bewegungsmelder.OutputPresence": 0,
+                "PushButton.Q": 0
+              },
+              "ticks": 10,
+              "dt": 0.1,
+              "expected_outputs": {
+                "Formel.I1": {
+                  "==": 0
+                }
+              }
             }
-          }
+          ]
         }
       ]
     }
@@ -729,14 +752,23 @@
         },
         {
           "name": "should show zero when no outputs active",
-          "inputs": {},
-          "ticks": 10,
-          "dt": 0.1,
-          "expected_outputs": {
-            "Formel.I1": {
-              "==": 0
+          "steps": [
+            {
+              "inputs": {},
+              "ticks": 2,
+              "dt": 0.1
+            },
+            {
+              "inputs": {},
+              "ticks": 10,
+              "dt": 0.1,
+              "expected_outputs": {
+                "Formel.I1": {
+                  "==": 0
+                }
+              }
             }
-          }
+          ]
         }
       ]
     }
@@ -1150,16 +1182,27 @@
         },
         {
           "name": "should show zero when door closed",
-          "inputs": {
-            "Türkontakt Wohnzimmer": 0
-          },
-          "ticks": 10,
-          "dt": 0.1,
-          "expected_outputs": {
-            "Statusblock.I1": {
-              "==": 0
+          "steps": [
+            {
+              "inputs": {
+                "Türkontakt Wohnzimmer": 0
+              },
+              "ticks": 2,
+              "dt": 0.1
+            },
+            {
+              "inputs": {
+                "Türkontakt Wohnzimmer": 0
+              },
+              "ticks": 10,
+              "dt": 0.1,
+              "expected_outputs": {
+                "Statusblock.I1": {
+                  "==": 0
+                }
+              }
             }
-          }
+          ]
         }
       ]
     }
@@ -1249,17 +1292,29 @@
         },
         {
           "name": "should show zero when both inactive",
-          "inputs": {
-            "Türkontakt Wohnzimmer": 0,
-            "Klimaanlage.status": 0
-          },
-          "ticks": 10,
-          "dt": 0.1,
-          "expected_outputs": {
-            "Formel.I1": {
-              "==": 0
+          "steps": [
+            {
+              "inputs": {
+                "Türkontakt Wohnzimmer": 0,
+                "Klimaanlage.status": 0
+              },
+              "ticks": 2,
+              "dt": 0.1
+            },
+            {
+              "inputs": {
+                "Türkontakt Wohnzimmer": 0,
+                "Klimaanlage.status": 0
+              },
+              "ticks": 10,
+              "dt": 0.1,
+              "expected_outputs": {
+                "Formel.I1": {
+                  "==": 0
+                }
+              }
             }
-          }
+          ]
         }
       ]
     }

@@ -1,15 +1,28 @@
 [
   {
     "id": "no-001-garage-presence-autoclose",
-    "pattern": ["garage", "presence", "timer", "auto-close"],
+    "pattern": [
+      "garage",
+      "presence",
+      "timer",
+      "auto-close"
+    ],
     "utterance": "When the Garagentor Sensor detects the car arriving and the Helligkeit sensor reads below 50 lux (it's dark), open the Garagentor. After 5 minutes with no further trigger, auto-close it via a Monoflop timer.",
     "difficulty": "hard",
     "expected": {
       "new_blocks": [
-        { "type": "Less" },
-        { "type": "And" },
-        { "type": "Monoflop" },
-        { "type": "EdgeDetection" }
+        {
+          "type": "Less"
+        },
+        {
+          "type": "And"
+        },
+        {
+          "type": "Monoflop"
+        },
+        {
+          "type": "EdgeDetection"
+        }
       ],
       "wiring": [
         {
@@ -56,33 +69,69 @@
         }
       ],
       "params": [
-        { "block_type": "Less", "param": "Input2", "value": "50" },
-        { "block_type": "Monoflop", "param": "Time", "value": "300" }
+        {
+          "block_type": "Less",
+          "param": "Input2",
+          "value": "50"
+        },
+        {
+          "block_type": "Monoflop",
+          "param": "Time",
+          "value": "300"
+        }
       ],
       "simulation": [
         {
           "name": "should open garage when car detected in dark",
-          "inputs": {
-            "Garagentor Sensor.Q": 1.0,
-            "Helligkeit.AQ": 20.0
-          },
-          "ticks": 10,
-          "dt": 0.1,
-          "expected_outputs": {
-            "Garagentor.I1": { ">": 0.5 }
-          }
+          "steps": [
+            {
+              "inputs": {
+                "Garagentor Sensor.Q": 0,
+                "Helligkeit.AQ": 0
+              },
+              "ticks": 2,
+              "dt": 0.1
+            },
+            {
+              "inputs": {
+                "Garagentor Sensor.Q": 1.0,
+                "Helligkeit.AQ": 20.0
+              },
+              "ticks": 10,
+              "dt": 0.1,
+              "expected_outputs": {
+                "Garagentor.I1": {
+                  ">": 0.5
+                }
+              }
+            }
+          ]
         },
         {
           "name": "should NOT open garage when bright outside",
-          "inputs": {
-            "Garagentor Sensor.Q": 1.0,
-            "Helligkeit.AQ": 200.0
-          },
-          "ticks": 10,
-          "dt": 0.1,
-          "expected_outputs": {
-            "Garagentor.I1": { "<": 0.5 }
-          }
+          "steps": [
+            {
+              "inputs": {
+                "Garagentor Sensor.Q": 0,
+                "Helligkeit.AQ": 0
+              },
+              "ticks": 2,
+              "dt": 0.1
+            },
+            {
+              "inputs": {
+                "Garagentor Sensor.Q": 1.0,
+                "Helligkeit.AQ": 200.0
+              },
+              "ticks": 10,
+              "dt": 0.1,
+              "expected_outputs": {
+                "Garagentor.I1": {
+                  "<": 0.5
+                }
+              }
+            }
+          ]
         },
         {
           "name": "should auto-close after timer expires (falling edge)",
@@ -103,7 +152,9 @@
               "ticks": 5,
               "dt": 60.0,
               "expected_outputs": {
-                "Garagentor.I1": { ">": 0.5 }
+                "Garagentor.I1": {
+                  ">": 0.5
+                }
               }
             }
           ]
@@ -113,12 +164,18 @@
   },
   {
     "id": "no-002-garage-stairway-light",
-    "pattern": ["garage", "stairway-light", "timed"],
+    "pattern": [
+      "garage",
+      "stairway-light",
+      "timed"
+    ],
     "utterance": "When the Garagentor Sensor triggers (door opens), keep the Garagenlicht on for exactly 3 minutes using a StairwayLS block, then turn off automatically.",
     "difficulty": "medium",
     "expected": {
       "new_blocks": [
-        { "type": "StairwayLS" }
+        {
+          "type": "StairwayLS"
+        }
       ],
       "wiring": [
         {
@@ -135,34 +192,48 @@
         }
       ],
       "params": [
-        { "block_type": "StairwayLS", "param": "TimeHigh", "value": "180" }
+        {
+          "block_type": "StairwayLS",
+          "param": "TimeHigh",
+          "value": "180"
+        }
       ],
       "simulation": [
         {
           "name": "should turn on garage light when door opens",
           "steps": [
             {
-              "inputs": { "Garagentor Sensor.Q": 0.0 },
+              "inputs": {
+                "Garagentor Sensor.Q": 0.0
+              },
               "ticks": 3,
               "dt": 0.1
             },
             {
-              "inputs": { "Garagentor Sensor.Q": 1.0 },
+              "inputs": {
+                "Garagentor Sensor.Q": 1.0
+              },
               "ticks": 5,
               "dt": 0.1,
               "expected_outputs": {
-                "Garagenlicht.I1": { ">": 0.5 }
+                "Garagenlicht.I1": {
+                  ">": 0.5
+                }
               }
             }
           ]
         },
         {
           "name": "should NOT be on when door has not opened",
-          "inputs": { "Garagentor Sensor.Q": 0.0 },
+          "inputs": {
+            "Garagentor Sensor.Q": 0.0
+          },
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Garagenlicht.I1": { "<": 0.5 }
+            "Garagenlicht.I1": {
+              "<": 0.5
+            }
           }
         }
       ]
@@ -170,14 +241,25 @@
   },
   {
     "id": "no-003-garage-storm-block",
-    "pattern": ["garage", "storm-protection", "wind", "inhibit"],
+    "pattern": [
+      "garage",
+      "storm-protection",
+      "wind",
+      "inhibit"
+    ],
     "utterance": "Block the Garagentor from operating during a storm: when Windgeschwindigkeit exceeds 60 km/h AND Regen is active, disable the Garagentor by wiring through a Not gate to cut the control signal.",
     "difficulty": "hard",
     "expected": {
       "new_blocks": [
-        { "type": "GreaterEqual" },
-        { "type": "And" },
-        { "type": "Not" }
+        {
+          "type": "GreaterEqual"
+        },
+        {
+          "type": "And"
+        },
+        {
+          "type": "Not"
+        }
       ],
       "wiring": [
         {
@@ -212,7 +294,11 @@
         }
       ],
       "params": [
-        { "block_type": "GreaterEqual", "param": "Input2", "value": "60" }
+        {
+          "block_type": "GreaterEqual",
+          "param": "Input2",
+          "value": "60"
+        }
       ],
       "simulation": [
         {
@@ -224,7 +310,9 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Garagentor.I1": { "<": 0.5 }
+            "Garagentor.I1": {
+              "<": 0.5
+            }
           }
         },
         {
@@ -236,7 +324,9 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Garagentor.I1": { ">": 0.5 }
+            "Garagentor.I1": {
+              ">": 0.5
+            }
           }
         },
         {
@@ -248,7 +338,9 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Garagentor.I1": { ">": 0.5 }
+            "Garagentor.I1": {
+              ">": 0.5
+            }
           }
         }
       ]
@@ -256,14 +348,25 @@
   },
   {
     "id": "no-004-irrigation-rain-moisture-inhibit",
-    "pattern": ["irrigation", "rain-inhibit", "moisture", "or-gate"],
+    "pattern": [
+      "irrigation",
+      "rain-inhibit",
+      "moisture",
+      "or-gate"
+    ],
     "utterance": "Disable the Bewässerungsventil whenever the Regen sensor is active OR the Feuchtesensor Garten reads above 60%. Use an Or gate combining rain and a GreaterEqual on soil moisture to inhibit the valve.",
     "difficulty": "medium",
     "expected": {
       "new_blocks": [
-        { "type": "GreaterEqual" },
-        { "type": "Or" },
-        { "type": "Not" }
+        {
+          "type": "GreaterEqual"
+        },
+        {
+          "type": "Or"
+        },
+        {
+          "type": "Not"
+        }
       ],
       "wiring": [
         {
@@ -298,7 +401,11 @@
         }
       ],
       "params": [
-        { "block_type": "GreaterEqual", "param": "Input2", "value": "60" }
+        {
+          "block_type": "GreaterEqual",
+          "param": "Input2",
+          "value": "60"
+        }
       ],
       "simulation": [
         {
@@ -310,7 +417,9 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Bewässerungsventil.I1": { "<": 0.5 }
+            "Bewässerungsventil.I1": {
+              "<": 0.5
+            }
           }
         },
         {
@@ -322,7 +431,9 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Bewässerungsventil.I1": { "<": 0.5 }
+            "Bewässerungsventil.I1": {
+              "<": 0.5
+            }
           }
         },
         {
@@ -334,7 +445,9 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Bewässerungsventil.I1": { ">": 0.5 }
+            "Bewässerungsventil.I1": {
+              ">": 0.5
+            }
           }
         }
       ]
@@ -342,15 +455,29 @@
   },
   {
     "id": "no-005-timed-watering-schedule",
-    "pattern": ["irrigation", "daytimer", "schedule", "and-gate", "frost"],
+    "pattern": [
+      "irrigation",
+      "daytimer",
+      "schedule",
+      "and-gate",
+      "frost"
+    ],
     "utterance": "Set up timed watering: a DayTimer schedules the Bewässerungsventil daily from 06:00 to 06:30, but only if there is no rain (Not on Regen) AND the Außentemperatur is above 5°C (GreaterEqual). All three conditions must be met via an And gate.",
     "difficulty": "hard",
     "expected": {
       "new_blocks": [
-        { "type": "DayTimer" },
-        { "type": "Not" },
-        { "type": "GreaterEqual" },
-        { "type": "And" }
+        {
+          "type": "DayTimer"
+        },
+        {
+          "type": "Not"
+        },
+        {
+          "type": "GreaterEqual"
+        },
+        {
+          "type": "And"
+        }
       ],
       "wiring": [
         {
@@ -385,59 +512,76 @@
         }
       ],
       "params": [
-        { "block_type": "GreaterEqual", "param": "Input2", "value": "5" }
+        {
+          "block_type": "GreaterEqual",
+          "param": "Input2",
+          "value": "5"
+        }
       ],
       "simulation": [
         {
           "name": "should water when schedule active and conditions met",
           "inputs": {
-            "DayTimer.AQ": 1.0,
             "Regen.AQ": 0.0,
             "Außentemperatur.AQ": 12.0
           },
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Bewässerungsventil.I1": { ">": 0.5 }
-          }
+            "Bewässerungsventil.I1": {
+              ">": 0.5
+            }
+          },
+          "time": 420
         },
         {
           "name": "should NOT water when raining despite schedule",
           "inputs": {
-            "DayTimer.AQ": 1.0,
             "Regen.AQ": 1.0,
             "Außentemperatur.AQ": 12.0
           },
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Bewässerungsventil.I1": { "<": 0.5 }
-          }
+            "Bewässerungsventil.I1": {
+              "<": 0.5
+            }
+          },
+          "time": 720
         },
         {
           "name": "should NOT water when too cold despite schedule",
           "inputs": {
-            "DayTimer.AQ": 1.0,
             "Regen.AQ": 0.0,
             "Außentemperatur.AQ": 2.0
           },
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Bewässerungsventil.I1": { "<": 0.5 }
-          }
+            "Bewässerungsventil.I1": {
+              "<": 0.5
+            }
+          },
+          "time": 720
         }
       ]
     }
   },
   {
     "id": "no-006-cistern-mains-fallback",
-    "pattern": ["cistern", "water-level", "threshold", "fallback"],
+    "pattern": [
+      "cistern",
+      "water-level",
+      "threshold",
+      "fallback"
+    ],
     "utterance": "When the Pegelsensor (cistern level) drops below 20%, switch from cistern to mains water: wire the Pegelsensor through a Less block (threshold 20) and use its output to activate the Bewässerungsventil as mains water fallback.",
     "difficulty": "medium",
     "expected": {
       "new_blocks": [
-        { "type": "Less" }
+        {
+          "type": "Less"
+        }
       ],
       "wiring": [
         {
@@ -454,7 +598,11 @@
         }
       ],
       "params": [
-        { "block_type": "Less", "param": "Input2", "value": "20" }
+        {
+          "block_type": "Less",
+          "param": "Input2",
+          "value": "20"
+        }
       ],
       "simulation": [
         {
@@ -465,7 +613,9 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Bewässerungsventil.I1": { ">": 0.5 }
+            "Bewässerungsventil.I1": {
+              ">": 0.5
+            }
           }
         },
         {
@@ -476,7 +626,9 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Bewässerungsventil.I1": { "<": 0.5 }
+            "Bewässerungsventil.I1": {
+              "<": 0.5
+            }
           }
         }
       ]
@@ -484,15 +636,29 @@
   },
   {
     "id": "no-007-pool-pump-frost-disable",
-    "pattern": ["pool", "daytimer", "frost", "pump", "inhibit"],
+    "pattern": [
+      "pool",
+      "daytimer",
+      "frost",
+      "pump",
+      "inhibit"
+    ],
     "utterance": "Run the Poolpumpe between 10:00 and 16:00 using a DayTimer, but disable it completely if the Außentemperatur drops below 2°C (frost). Use a Less block for the frost check and an And gate to combine schedule with frost protection.",
     "difficulty": "hard",
     "expected": {
       "new_blocks": [
-        { "type": "DayTimer" },
-        { "type": "Less" },
-        { "type": "Not" },
-        { "type": "And" }
+        {
+          "type": "DayTimer"
+        },
+        {
+          "type": "Less"
+        },
+        {
+          "type": "Not"
+        },
+        {
+          "type": "And"
+        }
       ],
       "wiring": [
         {
@@ -527,59 +693,82 @@
         }
       ],
       "params": [
-        { "block_type": "Less", "param": "Input2", "value": "2" }
+        {
+          "block_type": "Less",
+          "param": "Input2",
+          "value": "2"
+        }
       ],
       "simulation": [
         {
           "name": "should run pump when scheduled and warm enough",
           "inputs": {
-            "DayTimer.AQ": 1.0,
             "Außentemperatur.AQ": 15.0
           },
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Poolpumpe.I1": { ">": 0.5 }
-          }
+            "Poolpumpe.I1": {
+              ">": 0.5
+            }
+          },
+          "time": 780
         },
         {
           "name": "should NOT run pump when freezing despite schedule",
           "inputs": {
-            "DayTimer.AQ": 1.0,
             "Außentemperatur.AQ": -1.0
           },
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Poolpumpe.I1": { "<": 0.5 }
-          }
+            "Poolpumpe.I1": {
+              "<": 0.5
+            }
+          },
+          "time": 360
         },
         {
           "name": "should NOT run pump outside schedule even if warm",
           "inputs": {
-            "DayTimer.AQ": 0.0,
             "Außentemperatur.AQ": 20.0
           },
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Poolpumpe.I1": { "<": 0.5 }
-          }
+            "Poolpumpe.I1": {
+              "<": 0.5
+            }
+          },
+          "time": 360
         }
       ]
     }
   },
   {
     "id": "no-008-sauna-temp-safety",
-    "pattern": ["sauna", "temperature", "safety-timer", "hour-counter"],
+    "pattern": [
+      "sauna",
+      "temperature",
+      "safety-timer",
+      "hour-counter"
+    ],
     "utterance": "Control a sauna heater (use Lüfter Bad as heater output): a GreaterEqual block compares Pool Temperatur (repurposed as sauna sensor) against a target of 80°C. A HourCounter tracks total heater runtime and triggers a safety cutoff after 3 hours (Maintenance=3). Wire so the heater runs only when below target AND within the safety time limit.",
     "difficulty": "expert",
     "expected": {
       "new_blocks": [
-        { "type": "GreaterEqual" },
-        { "type": "Not" },
-        { "type": "HourCounter" },
-        { "type": "And" }
+        {
+          "type": "GreaterEqual"
+        },
+        {
+          "type": "Not"
+        },
+        {
+          "type": "HourCounter"
+        },
+        {
+          "type": "And"
+        }
       ],
       "wiring": [
         {
@@ -614,8 +803,16 @@
         }
       ],
       "params": [
-        { "block_type": "GreaterEqual", "param": "Input2", "value": "80" },
-        { "block_type": "HourCounter", "param": "Maintenance", "value": "3" }
+        {
+          "block_type": "GreaterEqual",
+          "param": "Input2",
+          "value": "80"
+        },
+        {
+          "block_type": "HourCounter",
+          "param": "Maintenance",
+          "value": "3"
+        }
       ],
       "simulation": [
         {
@@ -626,7 +823,9 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Lüfter Bad.I1": { ">": 0.5 }
+            "Lüfter Bad.I1": {
+              ">": 0.5
+            }
           }
         },
         {
@@ -637,7 +836,9 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Lüfter Bad.I1": { "<": 0.5 }
+            "Lüfter Bad.I1": {
+              "<": 0.5
+            }
           }
         }
       ]
@@ -645,12 +846,19 @@
   },
   {
     "id": "no-009-pool-cover-sunset",
-    "pattern": ["pool", "cover", "sunset", "jalousie"],
+    "pattern": [
+      "pool",
+      "cover",
+      "sunset",
+      "jalousie"
+    ],
     "utterance": "When the Sonnenschein sensor drops to 0 (sunset indicator), trigger the pool cover close signal. Wire Sonnenschein through a Less comparator and wire the output to Poolpumpe",
     "difficulty": "medium",
     "expected": {
       "new_blocks": [
-        { "type": "Less" }
+        {
+          "type": "Less"
+        }
       ],
       "wiring": [
         {
@@ -668,7 +876,11 @@
         }
       ],
       "params": [
-        { "block_type": "Less", "param": "Input2", "value": "1" }
+        {
+          "block_type": "Less",
+          "param": "Input2",
+          "value": "1"
+        }
       ],
       "simulation": [
         {
@@ -679,7 +891,9 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Poolpumpe.I1": { ">": 0.5 }
+            "Poolpumpe.I1": {
+              ">": 0.5
+            }
           }
         },
         {
@@ -690,7 +904,9 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Poolpumpe.I1": { "<": 0.5 }
+            "Poolpumpe.I1": {
+              "<": 0.5
+            }
           }
         }
       ]
@@ -698,14 +914,26 @@
   },
   {
     "id": "no-010-driveway-frost-risk",
-    "pattern": ["driveway-heating", "frost-risk", "temperature", "humidity", "and-gate"],
+    "pattern": [
+      "driveway-heating",
+      "frost-risk",
+      "temperature",
+      "humidity",
+      "and-gate"
+    ],
     "utterance": "Activate driveway heating (use Heizkörper Bad as heating output) when frost risk is detected: Außentemperatur below 1°C AND Luftfeuchtigkeit above 85%. Combine a Less block on temperature with a GreaterEqual on humidity through an And gate.",
     "difficulty": "hard",
     "expected": {
       "new_blocks": [
-        { "type": "Less" },
-        { "type": "GreaterEqual" },
-        { "type": "And" }
+        {
+          "type": "Less"
+        },
+        {
+          "type": "GreaterEqual"
+        },
+        {
+          "type": "And"
+        }
       ],
       "wiring": [
         {
@@ -740,8 +968,16 @@
         }
       ],
       "params": [
-        { "block_type": "Less", "param": "Input2", "value": "1" },
-        { "block_type": "GreaterEqual", "param": "Input2", "value": "85" }
+        {
+          "block_type": "Less",
+          "param": "Input2",
+          "value": "1"
+        },
+        {
+          "block_type": "GreaterEqual",
+          "param": "Input2",
+          "value": "85"
+        }
       ],
       "simulation": [
         {
@@ -753,7 +989,9 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Heizkörper Bad.I1": { ">": 0.5 }
+            "Heizkörper Bad.I1": {
+              ">": 0.5
+            }
           }
         },
         {
@@ -765,7 +1003,9 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Heizkörper Bad.I1": { "<": 0.5 }
+            "Heizkörper Bad.I1": {
+              "<": 0.5
+            }
           }
         },
         {
@@ -777,7 +1017,9 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Heizkörper Bad.I1": { "<": 0.5 }
+            "Heizkörper Bad.I1": {
+              "<": 0.5
+            }
           }
         }
       ]
@@ -785,13 +1027,22 @@
   },
   {
     "id": "no-011-frost-valve-protection",
-    "pattern": ["frost-protection", "valve", "threshold", "hysteresis"],
+    "pattern": [
+      "frost-protection",
+      "valve",
+      "threshold",
+      "hysteresis"
+    ],
     "utterance": "Frost protection for outdoor water: when the Außentemperatur drops below 0°C, close the Bewässerungsventil. Use an AnalogThresholdTrigger with On=0 and Off=2 to add hysteresis — the valve reopens only when temperature rises above 2°C.",
     "difficulty": "hard",
     "expected": {
       "new_blocks": [
-        { "type": "AnalogThresholdTrigger" },
-        { "type": "Not" }
+        {
+          "type": "AnalogThresholdTrigger"
+        },
+        {
+          "type": "Not"
+        }
       ],
       "wiring": [
         {
@@ -814,8 +1065,16 @@
         }
       ],
       "params": [
-        { "block_type": "AnalogThresholdTrigger", "param": "On", "value": "0" },
-        { "block_type": "AnalogThresholdTrigger", "param": "Off", "value": "2" }
+        {
+          "block_type": "AnalogThresholdTrigger",
+          "param": "On",
+          "value": "0"
+        },
+        {
+          "block_type": "AnalogThresholdTrigger",
+          "param": "Off",
+          "value": "2"
+        }
       ],
       "simulation": [
         {
@@ -826,7 +1085,9 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Bewässerungsventil.I1": { "<": 0.5 }
+            "Bewässerungsventil.I1": {
+              "<": 0.5
+            }
           }
         },
         {
@@ -837,23 +1098,31 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Bewässerungsventil.I1": { ">": 0.5 }
+            "Bewässerungsventil.I1": {
+              ">": 0.5
+            }
           }
         },
         {
           "name": "hysteresis: should remain closed at 1°C (between On and Off)",
           "steps": [
             {
-              "inputs": { "Außentemperatur.AQ": -3.0 },
+              "inputs": {
+                "Außentemperatur.AQ": -3.0
+              },
               "ticks": 10,
               "dt": 0.1
             },
             {
-              "inputs": { "Außentemperatur.AQ": 1.0 },
+              "inputs": {
+                "Außentemperatur.AQ": 1.0
+              },
               "ticks": 10,
               "dt": 0.1,
               "expected_outputs": {
-                "Bewässerungsventil.I1": { "<": 0.5 }
+                "Bewässerungsventil.I1": {
+                  "<": 0.5
+                }
               }
             }
           ]
@@ -863,14 +1132,25 @@
   },
   {
     "id": "no-012-mailbox-notification",
-    "pattern": ["mailbox", "notification", "pulse-at", "daily-reset"],
+    "pattern": [
+      "mailbox",
+      "notification",
+      "pulse-at",
+      "daily-reset"
+    ],
     "utterance": "Mailbox notification: when the Türkontakt Eingang (repurposed as mailbox sensor) triggers, latch a FlipFlop to remember mail has arrived. At 08:00 each morning, fire a PulseAt notification. The FlipFlop resets daily via a second PulseAt at 23:00.",
     "difficulty": "hard",
     "expected": {
       "new_blocks": [
-        { "type": "FlipFlop" },
-        { "type": "PulseAt" },
-        { "type": "PulseAt" }
+        {
+          "type": "FlipFlop"
+        },
+        {
+          "type": "PulseAt"
+        },
+        {
+          "type": "PulseAt"
+        }
       ],
       "wiring": [
         {
@@ -892,16 +1172,22 @@
           "name": "should latch on mailbox open",
           "steps": [
             {
-              "inputs": { "Türkontakt Eingang.Q": 0.0 },
+              "inputs": {
+                "Türkontakt Eingang.Q": 0.0
+              },
               "ticks": 3,
               "dt": 0.1
             },
             {
-              "inputs": { "Türkontakt Eingang.Q": 1.0 },
+              "inputs": {
+                "Türkontakt Eingang.Q": 1.0
+              },
               "ticks": 5,
               "dt": 0.1,
               "expected_outputs": {
-                "Alarmanlage.I1": { ">": 0.5 }
+                "Alarmanlage.I1": {
+                  ">": 0.5
+                }
               }
             }
           ]
@@ -910,16 +1196,22 @@
           "name": "should stay latched after mailbox closes",
           "steps": [
             {
-              "inputs": { "Türkontakt Eingang.Q": 1.0 },
+              "inputs": {
+                "Türkontakt Eingang.Q": 1.0
+              },
               "ticks": 5,
               "dt": 0.1
             },
             {
-              "inputs": { "Türkontakt Eingang.Q": 0.0 },
+              "inputs": {
+                "Türkontakt Eingang.Q": 0.0
+              },
               "ticks": 5,
               "dt": 0.1,
               "expected_outputs": {
-                "Alarmanlage.I1": { ">": 0.5 }
+                "Alarmanlage.I1": {
+                  ">": 0.5
+                }
               }
             }
           ]
@@ -929,14 +1221,26 @@
   },
   {
     "id": "no-013-outdoor-camera-light",
-    "pattern": ["camera", "motion", "stairway-light", "night-only", "and-gate"],
+    "pattern": [
+      "camera",
+      "motion",
+      "stairway-light",
+      "night-only",
+      "and-gate"
+    ],
     "utterance": "Outdoor camera light: when the Bewegungsmelder Garten detects motion AND the Helligkeit sensor reads below 30 lux (nighttime), turn on the Gartenbeleuchtung for 2 minutes using a StairwayLS. The And gate combines motion with darkness.",
     "difficulty": "hard",
     "expected": {
       "new_blocks": [
-        { "type": "Less" },
-        { "type": "And" },
-        { "type": "StairwayLS" }
+        {
+          "type": "Less"
+        },
+        {
+          "type": "And"
+        },
+        {
+          "type": "StairwayLS"
+        }
       ],
       "wiring": [
         {
@@ -971,8 +1275,16 @@
         }
       ],
       "params": [
-        { "block_type": "Less", "param": "Input2", "value": "30" },
-        { "block_type": "StairwayLS", "param": "TimeHigh", "value": "120" }
+        {
+          "block_type": "Less",
+          "param": "Input2",
+          "value": "30"
+        },
+        {
+          "block_type": "StairwayLS",
+          "param": "TimeHigh",
+          "value": "120"
+        }
       ],
       "simulation": [
         {
@@ -984,7 +1296,9 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Gartenbeleuchtung.I1": { ">": 0.5 }
+            "Gartenbeleuchtung.I1": {
+              ">": 0.5
+            }
           }
         },
         {
@@ -996,7 +1310,9 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Gartenbeleuchtung.I1": { "<": 0.5 }
+            "Gartenbeleuchtung.I1": {
+              "<": 0.5
+            }
           }
         },
         {
@@ -1008,7 +1324,9 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Gartenbeleuchtung.I1": { "<": 0.5 }
+            "Gartenbeleuchtung.I1": {
+              "<": 0.5
+            }
           }
         }
       ]
@@ -1016,13 +1334,23 @@
   },
   {
     "id": "no-014-electric-gate-autoclose",
-    "pattern": ["gate", "intercom", "auto-close", "or-gate", "monoflop"],
+    "pattern": [
+      "gate",
+      "intercom",
+      "auto-close",
+      "or-gate",
+      "monoflop"
+    ],
     "utterance": "Electric gate control: open the Türöffner when either the Türklingel rings (intercom) OR the Schalter 1 activates (card reader), using an Or gate. After opening, auto-close after 30 seconds via a Monoflop with falling-edge detection.",
     "difficulty": "hard",
     "expected": {
       "new_blocks": [
-        { "type": "Or" },
-        { "type": "Monoflop" }
+        {
+          "type": "Or"
+        },
+        {
+          "type": "Monoflop"
+        }
       ],
       "wiring": [
         {
@@ -1051,23 +1379,35 @@
         }
       ],
       "params": [
-        { "block_type": "Monoflop", "param": "Time", "value": "30" }
+        {
+          "block_type": "Monoflop",
+          "param": "Time",
+          "value": "30"
+        }
       ],
       "simulation": [
         {
           "name": "should open gate on intercom ring",
           "steps": [
             {
-              "inputs": { "Türklingel.Q": 0.0, "Schalter 1.Q": 0.0 },
+              "inputs": {
+                "Türklingel.Q": 0.0,
+                "Schalter 1.Q": 0.0
+              },
               "ticks": 3,
               "dt": 0.1
             },
             {
-              "inputs": { "Türklingel.Q": 1.0, "Schalter 1.Q": 0.0 },
+              "inputs": {
+                "Türklingel.Q": 1.0,
+                "Schalter 1.Q": 0.0
+              },
               "ticks": 5,
               "dt": 0.1,
               "expected_outputs": {
-                "Türöffner.I1": { ">": 0.5 }
+                "Türöffner.I1": {
+                  ">": 0.5
+                }
               }
             }
           ]
@@ -1076,16 +1416,24 @@
           "name": "should open gate on card reader",
           "steps": [
             {
-              "inputs": { "Türklingel.Q": 0.0, "Schalter 1.Q": 0.0 },
+              "inputs": {
+                "Türklingel.Q": 0.0,
+                "Schalter 1.Q": 0.0
+              },
               "ticks": 3,
               "dt": 0.1
             },
             {
-              "inputs": { "Türklingel.Q": 0.0, "Schalter 1.Q": 1.0 },
+              "inputs": {
+                "Türklingel.Q": 0.0,
+                "Schalter 1.Q": 1.0
+              },
               "ticks": 5,
               "dt": 0.1,
               "expected_outputs": {
-                "Türöffner.I1": { ">": 0.5 }
+                "Türöffner.I1": {
+                  ">": 0.5
+                }
               }
             }
           ]
@@ -1099,7 +1447,9 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Türöffner.I1": { "<": 0.5 }
+            "Türöffner.I1": {
+              "<": 0.5
+            }
           }
         }
       ]
@@ -1107,13 +1457,23 @@
   },
   {
     "id": "no-015-chicken-coop-sunrise-sunset",
-    "pattern": ["chicken-coop", "sunrise", "sunset", "jalousie", "brightness"],
-    "utterance": "Chicken coop door automation: when Helligkeit rises above 100 lux (sunrise), trigger the open signal and wire it to Garagentor; when Helligkeit drops below 50 lux (sunset), trigger the close signal and wire it to Bew\u00e4sserungsventil",
+    "pattern": [
+      "chicken-coop",
+      "sunrise",
+      "sunset",
+      "jalousie",
+      "brightness"
+    ],
+    "utterance": "Chicken coop door automation: when Helligkeit rises above 100 lux (sunrise), trigger the open signal and wire it to Garagentor; when Helligkeit drops below 50 lux (sunset), trigger the close signal and wire it to Bewässerungsventil",
     "difficulty": "medium",
     "expected": {
       "new_blocks": [
-        { "type": "GreaterEqual" },
-        { "type": "Less" }
+        {
+          "type": "GreaterEqual"
+        },
+        {
+          "type": "Less"
+        }
       ],
       "wiring": [
         {
@@ -1144,8 +1504,16 @@
         }
       ],
       "params": [
-        { "block_type": "GreaterEqual", "param": "Input2", "value": "100" },
-        { "block_type": "Less", "param": "Input2", "value": "20" }
+        {
+          "block_type": "GreaterEqual",
+          "param": "Input2",
+          "value": "100"
+        },
+        {
+          "block_type": "Less",
+          "param": "Input2",
+          "value": "20"
+        }
       ],
       "simulation": [
         {
@@ -1156,7 +1524,9 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Garagentor.I1": { ">": 0.5 }
+            "Garagentor.I1": {
+              ">": 0.5
+            }
           }
         },
         {
@@ -1167,7 +1537,9 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Bewässerungsventil.I1": { ">": 0.5 }
+            "Bewässerungsventil.I1": {
+              ">": 0.5
+            }
           }
         },
         {
@@ -1178,8 +1550,12 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Garagentor.I1": { "<": 0.5 },
-            "Bewässerungsventil.I1": { "<": 0.5 }
+            "Garagentor.I1": {
+              "<": 0.5
+            },
+            "Bewässerungsventil.I1": {
+              "<": 0.5
+            }
           }
         }
       ]

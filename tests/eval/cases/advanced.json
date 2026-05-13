@@ -634,7 +634,8 @@
             "Bewässerungsventil.I1": {
               "<": 0.5
             }
-          }
+          },
+          "time": 720
         }
       ]
     }
@@ -716,7 +717,8 @@
             "Lichtsteuerung [Wohnzimmer].I1": {
               ">": 0.5
             }
-          }
+          },
+          "time": 1200
         }
       ]
     }

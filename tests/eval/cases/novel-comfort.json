@@ -485,29 +485,27 @@
       "simulation": [
         {
           "name": "evening timer active",
-          "inputs": {
-            "DayTimer.AQ": 1.0
-          },
+          "inputs": {},
           "ticks": 5,
           "dt": 0.1,
           "expected_outputs": {
             "Lichtsteuerung.I1": {
               ">": 0.5
             }
-          }
+          },
+          "time": 1200
         },
         {
           "name": "morning timer inactive",
-          "inputs": {
-            "DayTimer.AQ": 0.0
-          },
+          "inputs": {},
           "ticks": 5,
           "dt": 0.1,
           "expected_outputs": {
             "Lichtsteuerung.I1": {
               "<": 0.5
             }
-          }
+          },
+          "time": 360
         }
       ]
     }
@@ -1148,7 +1146,6 @@
         {
           "name": "evening timer enables random gen",
           "inputs": {
-            "DayTimer.AQ": 1.0,
             "RandomGen.InputEnable": 1.0
           },
           "ticks": 10,
@@ -1157,20 +1154,20 @@
             "Lichtsteuerung [Wohnzimmer].I1": {
               ">": 0.5
             }
-          }
+          },
+          "time": 1080
         },
         {
           "name": "daytime keeps lights off",
-          "inputs": {
-            "DayTimer.AQ": 0.0
-          },
+          "inputs": {},
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
             "Lichtsteuerung [Wohnzimmer].I1": {
               "<": 0.5
             }
-          }
+          },
+          "time": 360
         }
       ]
     }

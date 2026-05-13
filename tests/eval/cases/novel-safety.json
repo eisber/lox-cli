@@ -841,16 +841,28 @@
       "simulation": [
         {
           "name": "door opening increments counter",
-          "inputs": {
-            "Türkontakt Eingang.Q": 1.0
-          },
-          "ticks": 20,
-          "dt": 0.1,
-          "expected_outputs": {
-            "Statusblock.I1": {
-              ">": 0.0
+          "steps": [
+            {
+              "inputs": {
+                "Türkontakt Eingang.Q": 0
+              },
+              "ticks": 2,
+              "dt": 0.1
+            },
+            {
+              "inputs": {
+                "Türkontakt Eingang.Q": 1.0
+              },
+              "ticks": 20,
+              "dt": 0.1,
+              "expected_outputs": {
+                "Statusblock.I1": {
+                  ">": 0.0
+                }
+              }
             }
-          }
+          ],
+          "time": 1380
         }
       ]
     }

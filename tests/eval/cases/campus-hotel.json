@@ -1,14 +1,23 @@
 [
   {
     "id": "ch-001",
-    "pattern": ["checkout-sequence", "nfc-checkout"],
+    "pattern": [
+      "checkout-sequence",
+      "nfc-checkout"
+    ],
     "utterance": "When a guest checks out by removing their NFC card from the reader, turn off all lights in the Schlafzimmer, pause audio, and reset the heating to eco mode",
     "difficulty": "hard",
     "expected": {
       "new_blocks": [
-        { "type": "Memory" },
-        { "type": "EdgeDetection" },
-        { "type": "OnPulseDelay" }
+        {
+          "type": "Memory"
+        },
+        {
+          "type": "EdgeDetection"
+        },
+        {
+          "type": "OnPulseDelay"
+        }
       ],
       "wiring": [
         {
@@ -43,40 +52,66 @@
           "name": "should reset lights on card removal (falling edge)",
           "steps": [
             {
-              "inputs": { "Türkontakt Schlafzimmer.AQ": 1.0 },
+              "inputs": {
+                "Türkontakt Schlafzimmer.AQ": 1.0
+              },
               "ticks": 5,
               "dt": 0.1
             },
             {
-              "inputs": { "Türkontakt Schlafzimmer.AQ": 0.0 },
+              "inputs": {
+                "Türkontakt Schlafzimmer.AQ": 0.0
+              },
               "ticks": 10,
               "dt": 0.1,
               "expected_outputs": {
-                "Lichtsteuerung [Schlafzimmer].Reset": { ">": 0.5 }
+                "Lichtsteuerung [Schlafzimmer].Reset": {
+                  ">": 0.5
+                }
               }
             }
           ]
         },
         {
           "name": "should NOT reset lights while card is inserted",
-          "inputs": { "Türkontakt Schlafzimmer.AQ": 1.0 },
-          "ticks": 10,
-          "dt": 0.1,
-          "expected_outputs": {
-            "Lichtsteuerung [Schlafzimmer].Reset": { "<": 0.5 }
-          }
+          "steps": [
+            {
+              "inputs": {
+                "Türkontakt Schlafzimmer.AQ": 0
+              },
+              "ticks": 2,
+              "dt": 0.1
+            },
+            {
+              "inputs": {
+                "Türkontakt Schlafzimmer.AQ": 1.0
+              },
+              "ticks": 10,
+              "dt": 0.1,
+              "expected_outputs": {
+                "Lichtsteuerung [Schlafzimmer].Reset": {
+                  "<": 0.5
+                }
+              }
+            }
+          ]
         }
       ]
     }
   },
   {
     "id": "ch-002",
-    "pattern": ["nfc-checkout", "checkout-sequence"],
+    "pattern": [
+      "nfc-checkout",
+      "checkout-sequence"
+    ],
     "utterance": "When the NFC card is inserted at the door reader, activate the presence detector in the Flur and trigger a welcome lighting scene",
     "difficulty": "hard",
     "expected": {
       "new_blocks": [
-        { "type": "EdgeDetection" }
+        {
+          "type": "EdgeDetection"
+        }
       ],
       "wiring": [
         {
@@ -105,16 +140,22 @@
           "name": "should activate presence on card insert (rising edge)",
           "steps": [
             {
-              "inputs": { "Türkontakt Schlafzimmer.AQ": 0.0 },
+              "inputs": {
+                "Türkontakt Schlafzimmer.AQ": 0.0
+              },
               "ticks": 3,
               "dt": 0.1
             },
             {
-              "inputs": { "Türkontakt Schlafzimmer.AQ": 1.0 },
+              "inputs": {
+                "Türkontakt Schlafzimmer.AQ": 1.0
+              },
               "ticks": 10,
               "dt": 0.1,
               "expected_outputs": {
-                "Lichtsteuerung [Flur].Presence": { ">": 0.5 }
+                "Lichtsteuerung [Flur].Presence": {
+                  ">": 0.5
+                }
               }
             }
           ]
@@ -124,13 +165,19 @@
   },
   {
     "id": "ch-003",
-    "pattern": ["cleaning-notification"],
+    "pattern": [
+      "cleaning-notification"
+    ],
     "utterance": "When the cleaning staff presses the button at the door, set the room to cleaning mode and send a notification. Show a cleaning indicator on the Flur push button display",
     "difficulty": "hard",
     "expected": {
       "new_blocks": [
-        { "type": "Memory" },
-        { "type": "PulseAt" }
+        {
+          "type": "Memory"
+        },
+        {
+          "type": "PulseAt"
+        }
       ],
       "wiring": [
         {
@@ -153,13 +200,17 @@
           "name": "should latch cleaning mode on button press",
           "steps": [
             {
-              "inputs": { "PushButton [Flur].Q": 1.0 },
+              "inputs": {
+                "PushButton [Flur].Q": 1.0
+              },
               "ticks": 5,
               "dt": 0.1,
               "expected_outputs": {}
             },
             {
-              "inputs": { "PushButton [Flur].Q": 0.0 },
+              "inputs": {
+                "PushButton [Flur].Q": 0.0
+              },
               "ticks": 10,
               "dt": 0.1,
               "expected_outputs": {}
@@ -171,13 +222,19 @@
   },
   {
     "id": "ch-004",
-    "pattern": ["central-light-off"],
+    "pattern": [
+      "central-light-off"
+    ],
     "utterance": "When the guest leaves the room, turn off all lights across every room after a 2-second delay using a central light-off block",
     "difficulty": "medium",
     "expected": {
       "new_blocks": [
-        { "type": "CentralLight" },
-        { "type": "OnPulseDelay" }
+        {
+          "type": "CentralLight"
+        },
+        {
+          "type": "OnPulseDelay"
+        }
       ],
       "wiring": [
         {
@@ -205,12 +262,16 @@
           "name": "should trigger central light off after leave delay",
           "steps": [
             {
-              "inputs": { "Bewegungsmelder.OutputPresence": 1 },
+              "inputs": {
+                "Bewegungsmelder.OutputPresence": 1
+              },
               "ticks": 5,
               "dt": 0.1
             },
             {
-              "inputs": { "Bewegungsmelder.OutputPresence": 0 },
+              "inputs": {
+                "Bewegungsmelder.OutputPresence": 0
+              },
               "ticks": 30,
               "dt": 0.1,
               "expected_outputs": {}
@@ -222,13 +283,19 @@
   },
   {
     "id": "ch-005",
-    "pattern": ["central-music-off"],
+    "pattern": [
+      "central-music-off"
+    ],
     "utterance": "Pause all audio playback when the guest leaves the room, using a central music-off wired to the presence memory",
     "difficulty": "medium",
     "expected": {
       "new_blocks": [
-        { "type": "CentralMusic" },
-        { "type": "Memory" }
+        {
+          "type": "CentralMusic"
+        },
+        {
+          "type": "Memory"
+        }
       ],
       "wiring": [
         {
@@ -250,12 +317,16 @@
           "name": "should pause audio when presence memory resets",
           "steps": [
             {
-              "inputs": { "Bewegungsmelder.OutputPresence": 1 },
+              "inputs": {
+                "Bewegungsmelder.OutputPresence": 1
+              },
               "ticks": 5,
               "dt": 0.1
             },
             {
-              "inputs": { "Bewegungsmelder.OutputPresence": 0 },
+              "inputs": {
+                "Bewegungsmelder.OutputPresence": 0
+              },
               "ticks": 10,
               "dt": 0.1,
               "expected_outputs": {}
@@ -267,12 +338,16 @@
   },
   {
     "id": "ch-006",
-    "pattern": ["night-mode-timer"],
+    "pattern": [
+      "night-mode-timer"
+    ],
     "utterance": "Between 22:00 and 06:00, switch the Schlafzimmer lights to the dim 'Gemütlich' scene using a DayTimer block",
     "difficulty": "medium",
     "expected": {
       "new_blocks": [
-        { "type": "DayTimer" }
+        {
+          "type": "DayTimer"
+        }
       ],
       "wiring": [
         {
@@ -287,35 +362,50 @@
       "simulation": [
         {
           "name": "should select dim scene when night timer active",
-          "inputs": { "DayTimer.AQ": 1.0 },
+          "inputs": {},
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Lichtsteuerung [Schlafzimmer].Sel2": { ">": 0.5 }
-          }
+            "Lichtsteuerung [Schlafzimmer].Sel2": {
+              ">": 0.5
+            }
+          },
+          "time": 1380
         },
         {
           "name": "should NOT select dim scene during day",
-          "inputs": { "DayTimer.AQ": 0.0 },
+          "inputs": {},
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Lichtsteuerung [Schlafzimmer].Sel2": { "<": 0.5 }
-          }
+            "Lichtsteuerung [Schlafzimmer].Sel2": {
+              "<": 0.5
+            }
+          },
+          "time": 720
         }
       ]
     }
   },
   {
     "id": "ch-007",
-    "pattern": ["checkout-sequence", "bedroom-presence"],
+    "pattern": [
+      "checkout-sequence",
+      "bedroom-presence"
+    ],
     "utterance": "Add a checkout memory latch that prevents re-triggering the all-off sequence until a new guest checks in with their NFC card",
     "difficulty": "hard",
     "expected": {
       "new_blocks": [
-        { "type": "Memory" },
-        { "type": "EdgeDetection" },
-        { "type": "And" }
+        {
+          "type": "Memory"
+        },
+        {
+          "type": "EdgeDetection"
+        },
+        {
+          "type": "And"
+        }
       ],
       "wiring": [
         {
@@ -349,12 +439,16 @@
           "name": "should latch on card removal",
           "steps": [
             {
-              "inputs": { "Türkontakt Schlafzimmer.AQ": 1.0 },
+              "inputs": {
+                "Türkontakt Schlafzimmer.AQ": 1.0
+              },
               "ticks": 5,
               "dt": 0.1
             },
             {
-              "inputs": { "Türkontakt Schlafzimmer.AQ": 0.0 },
+              "inputs": {
+                "Türkontakt Schlafzimmer.AQ": 0.0
+              },
               "ticks": 10,
               "dt": 0.1,
               "expected_outputs": {}
@@ -365,12 +459,16 @@
           "name": "should reset latch on new card insert",
           "steps": [
             {
-              "inputs": { "Türkontakt Schlafzimmer.AQ": 0.0 },
+              "inputs": {
+                "Türkontakt Schlafzimmer.AQ": 0.0
+              },
               "ticks": 5,
               "dt": 0.1
             },
             {
-              "inputs": { "Türkontakt Schlafzimmer.AQ": 1.0 },
+              "inputs": {
+                "Türkontakt Schlafzimmer.AQ": 1.0
+              },
               "ticks": 10,
               "dt": 0.1,
               "expected_outputs": {}
@@ -382,12 +480,17 @@
   },
   {
     "id": "ch-008",
-    "pattern": ["bathroom-presence-light-fan", "cleaning-notification"],
+    "pattern": [
+      "bathroom-presence-light-fan",
+      "cleaning-notification"
+    ],
     "utterance": "In the Bad, turn on the ceiling light when motion is detected and keep it on for 5 minutes after motion stops. Reset everything on checkout",
     "difficulty": "medium",
     "expected": {
       "new_blocks": [
-        { "type": "OffDelay" }
+        {
+          "type": "OffDelay"
+        }
       ],
       "wiring": [
         {
@@ -416,27 +519,37 @@
           "name": "should keep lights on after motion stops",
           "steps": [
             {
-              "inputs": { "Fensterkontakt Bad.AQ": 1.0 },
+              "inputs": {
+                "Fensterkontakt Bad.AQ": 1.0
+              },
               "ticks": 5,
               "dt": 0.1
             },
             {
-              "inputs": { "Fensterkontakt Bad.AQ": 0.0 },
+              "inputs": {
+                "Fensterkontakt Bad.AQ": 0.0
+              },
               "ticks": 10,
               "dt": 0.1,
               "expected_outputs": {
-                "Lichtsteuerung [Bad].Presence": { ">": 0.5 }
+                "Lichtsteuerung [Bad].Presence": {
+                  ">": 0.5
+                }
               }
             }
           ]
         },
         {
           "name": "should activate lights when motion detected",
-          "inputs": { "Fensterkontakt Bad.AQ": 1.0 },
+          "inputs": {
+            "Fensterkontakt Bad.AQ": 1.0
+          },
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Lichtsteuerung [Bad].Presence": { ">": 0.5 }
+            "Lichtsteuerung [Bad].Presence": {
+              ">": 0.5
+            }
           }
         }
       ]
@@ -444,15 +557,27 @@
   },
   {
     "id": "ch-009",
-    "pattern": ["checkout-sequence", "central-light-off", "central-music-off"],
+    "pattern": [
+      "checkout-sequence",
+      "central-light-off",
+      "central-music-off"
+    ],
     "utterance": "On checkout, fire both a central all-lights-off and a central music pause with a 1-second pulse delay so the guest sees the lights fade before full shutoff",
     "difficulty": "hard",
     "expected": {
       "new_blocks": [
-        { "type": "CentralLight" },
-        { "type": "CentralMusic" },
-        { "type": "OnPulseDelay" },
-        { "type": "Memory" }
+        {
+          "type": "CentralLight"
+        },
+        {
+          "type": "CentralMusic"
+        },
+        {
+          "type": "OnPulseDelay"
+        },
+        {
+          "type": "Memory"
+        }
       ],
       "wiring": [
         {
@@ -492,12 +617,16 @@
           "name": "should trigger both central-off blocks on checkout",
           "steps": [
             {
-              "inputs": { "Türkontakt Schlafzimmer.AQ": 1.0 },
+              "inputs": {
+                "Türkontakt Schlafzimmer.AQ": 1.0
+              },
               "ticks": 3,
               "dt": 0.1
             },
             {
-              "inputs": { "Türkontakt Schlafzimmer.AQ": 0.0 },
+              "inputs": {
+                "Türkontakt Schlafzimmer.AQ": 0.0
+              },
               "ticks": 20,
               "dt": 0.1,
               "expected_outputs": {}
@@ -509,13 +638,20 @@
   },
   {
     "id": "ch-010",
-    "pattern": ["bedroom-presence", "checkout-sequence"],
+    "pattern": [
+      "bedroom-presence",
+      "checkout-sequence"
+    ],
     "utterance": "Track room occupancy with a presence memory: card-in sets occupied, card-out clears it. Wire the occupancy state to the Raumregler in Wohnzimmer so heating switches to eco when the room is vacant",
     "difficulty": "hard",
     "expected": {
       "new_blocks": [
-        { "type": "Memory" },
-        { "type": "EdgeDetection" }
+        {
+          "type": "Memory"
+        },
+        {
+          "type": "EdgeDetection"
+        }
       ],
       "wiring": [
         {
@@ -550,16 +686,22 @@
           "name": "should set comfort mode when card inserted",
           "steps": [
             {
-              "inputs": { "Türkontakt Schlafzimmer.AQ": 0.0 },
+              "inputs": {
+                "Türkontakt Schlafzimmer.AQ": 0.0
+              },
               "ticks": 3,
               "dt": 0.1
             },
             {
-              "inputs": { "Türkontakt Schlafzimmer.AQ": 1.0 },
+              "inputs": {
+                "Türkontakt Schlafzimmer.AQ": 1.0
+              },
               "ticks": 10,
               "dt": 0.1,
               "expected_outputs": {
-                "Raumregler [Wohnzimmer].Move": { ">": 0.5 }
+                "Raumregler [Wohnzimmer].Move": {
+                  ">": 0.5
+                }
               }
             }
           ]
@@ -568,16 +710,22 @@
           "name": "should switch to eco when card removed",
           "steps": [
             {
-              "inputs": { "Türkontakt Schlafzimmer.AQ": 1.0 },
+              "inputs": {
+                "Türkontakt Schlafzimmer.AQ": 1.0
+              },
               "ticks": 5,
               "dt": 0.1
             },
             {
-              "inputs": { "Türkontakt Schlafzimmer.AQ": 0.0 },
+              "inputs": {
+                "Türkontakt Schlafzimmer.AQ": 0.0
+              },
               "ticks": 10,
               "dt": 0.1,
               "expected_outputs": {
-                "Raumregler [Wohnzimmer].Move": { "<": 0.5 }
+                "Raumregler [Wohnzimmer].Move": {
+                  "<": 0.5
+                }
               }
             }
           ]
@@ -587,12 +735,17 @@
   },
   {
     "id": "ch-011",
-    "pattern": ["wc-light-fan", "cleaning-notification"],
+    "pattern": [
+      "wc-light-fan",
+      "cleaning-notification"
+    ],
     "utterance": "In the Bad, wire the door contact to enable manual light control only during cleaning mode. Normal guests should have motion-only lighting",
     "difficulty": "medium",
     "expected": {
       "new_blocks": [
-        { "type": "And" }
+        {
+          "type": "And"
+        }
       ],
       "wiring": [
         {
@@ -619,7 +772,9 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Lichtsteuerung [Bad].EnMove": { ">": 0.5 }
+            "Lichtsteuerung [Bad].EnMove": {
+              ">": 0.5
+            }
           }
         },
         {
@@ -630,7 +785,9 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Lichtsteuerung [Bad].EnMove": { "<": 0.5 }
+            "Lichtsteuerung [Bad].EnMove": {
+              "<": 0.5
+            }
           }
         }
       ]
@@ -638,12 +795,17 @@
   },
   {
     "id": "ch-012",
-    "pattern": ["night-mode-timer", "bedroom-light-checkout"],
+    "pattern": [
+      "night-mode-timer",
+      "bedroom-light-checkout"
+    ],
     "utterance": "Create a DayTimer for night mode (22:00–06:00) and wire it to select light scene 6 on the Flur light controller, so the hallway uses a dim path-light at night",
     "difficulty": "medium",
     "expected": {
       "new_blocks": [
-        { "type": "DayTimer" }
+        {
+          "type": "DayTimer"
+        }
       ],
       "wiring": [
         {
@@ -658,35 +820,50 @@
       "simulation": [
         {
           "name": "should select dim path-light during night hours",
-          "inputs": { "DayTimer.AQ": 1.0 },
+          "inputs": {},
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Lichtsteuerung [Flur].Sel6": { ">": 0.5 }
-          }
+            "Lichtsteuerung [Flur].Sel6": {
+              ">": 0.5
+            }
+          },
+          "time": 1380
         },
         {
           "name": "should use default scene during day",
-          "inputs": { "DayTimer.AQ": 0.0 },
+          "inputs": {},
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Lichtsteuerung [Flur].Sel6": { "<": 0.5 }
-          }
+            "Lichtsteuerung [Flur].Sel6": {
+              "<": 0.5
+            }
+          },
+          "time": 720
         }
       ]
     }
   },
   {
     "id": "ch-013",
-    "pattern": ["checkout-sequence", "bedroom-presence"],
+    "pattern": [
+      "checkout-sequence",
+      "bedroom-presence"
+    ],
     "utterance": "When the Flur presence detector goes inactive and the room card is out, send a leave impulse after 30 seconds that triggers the central all-off sequence",
     "difficulty": "hard",
     "expected": {
       "new_blocks": [
-        { "type": "And" },
-        { "type": "Not" },
-        { "type": "OnPulseDelay" }
+        {
+          "type": "And"
+        },
+        {
+          "type": "Not"
+        },
+        {
+          "type": "OnPulseDelay"
+        }
       ],
       "wiring": [
         {
@@ -760,7 +937,9 @@
           "ticks": 20,
           "dt": 0.1,
           "expected_outputs": {
-            "Lichtsteuerung [Schlafzimmer].Reset": { "<": 0.5 }
+            "Lichtsteuerung [Schlafzimmer].Reset": {
+              "<": 0.5
+            }
           }
         }
       ]
@@ -768,13 +947,20 @@
   },
   {
     "id": "ch-014",
-    "pattern": ["heating-mode-setpoints", "checkout-sequence"],
+    "pattern": [
+      "heating-mode-setpoints",
+      "checkout-sequence"
+    ],
     "utterance": "Reset the Wohnzimmer room controller to default setpoint on checkout using an And gate that combines the checkout memory and presence absence",
     "difficulty": "hard",
     "expected": {
       "new_blocks": [
-        { "type": "Memory" },
-        { "type": "And" }
+        {
+          "type": "Memory"
+        },
+        {
+          "type": "And"
+        }
       ],
       "wiring": [
         {
@@ -814,7 +1000,9 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Raumregler [Wohnzimmer].RtD": { ">": 0.5 }
+            "Raumregler [Wohnzimmer].RtD": {
+              ">": 0.5
+            }
           }
         },
         {
@@ -826,7 +1014,9 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Raumregler [Wohnzimmer].RtD": { "<": 0.5 }
+            "Raumregler [Wohnzimmer].RtD": {
+              "<": 0.5
+            }
           }
         }
       ]
@@ -834,16 +1024,30 @@
   },
   {
     "id": "ch-015",
-    "pattern": ["checkout-sequence", "central-light-off", "night-mode-timer"],
+    "pattern": [
+      "checkout-sequence",
+      "central-light-off",
+      "night-mode-timer"
+    ],
     "utterance": "Set up the full hotel room checkout flow: when the card is removed, wait 10 seconds, then reset all Küche lights, close both Küche blinds, and select the night scene if the DayTimer says it's after 22:00",
     "difficulty": "expert",
     "expected": {
       "new_blocks": [
-        { "type": "Memory" },
-        { "type": "EdgeDetection" },
-        { "type": "OnPulseDelay" },
-        { "type": "DayTimer" },
-        { "type": "And" }
+        {
+          "type": "Memory"
+        },
+        {
+          "type": "EdgeDetection"
+        },
+        {
+          "type": "OnPulseDelay"
+        },
+        {
+          "type": "DayTimer"
+        },
+        {
+          "type": "And"
+        }
       ],
       "wiring": [
         {
@@ -917,30 +1121,57 @@
           "name": "should reset lights and close blinds after card removal delay",
           "steps": [
             {
-              "inputs": { "Türkontakt Küche.AQ": 1.0 },
+              "inputs": {
+                "Türkontakt Küche.AQ": 1.0
+              },
               "ticks": 5,
               "dt": 0.1
             },
             {
-              "inputs": { "Türkontakt Küche.AQ": 0.0 },
+              "inputs": {
+                "Türkontakt Küche.AQ": 0.0
+              },
               "ticks": 30,
               "dt": 0.1,
               "expected_outputs": {
-                "Lichtsteuerung [Küche].Reset": { ">": 0.5 },
-                "Jalousie 1 [Küche].InputTriggerDown": { ">": 0.5 },
-                "Jalousie 2 [Küche].InputTriggerDown": { ">": 0.5 }
+                "Lichtsteuerung [Küche].Reset": {
+                  ">": 0.5
+                },
+                "Jalousie 1 [Küche].InputTriggerDown": {
+                  ">": 0.5
+                },
+                "Jalousie 2 [Küche].InputTriggerDown": {
+                  ">": 0.5
+                }
               }
             }
-          ]
+          ],
+          "time": 1380
         },
         {
           "name": "should NOT trigger while card inserted",
-          "inputs": { "Türkontakt Küche.AQ": 1.0 },
-          "ticks": 30,
-          "dt": 0.1,
-          "expected_outputs": {
-            "Lichtsteuerung [Küche].Reset": { "<": 0.5 }
-          }
+          "steps": [
+            {
+              "inputs": {
+                "Türkontakt Küche.AQ": 0
+              },
+              "ticks": 2,
+              "dt": 0.1
+            },
+            {
+              "inputs": {
+                "Türkontakt Küche.AQ": 1.0
+              },
+              "ticks": 30,
+              "dt": 0.1,
+              "expected_outputs": {
+                "Lichtsteuerung [Küche].Reset": {
+                  "<": 0.5
+                }
+              }
+            }
+          ],
+          "time": 720
         }
       ]
     }

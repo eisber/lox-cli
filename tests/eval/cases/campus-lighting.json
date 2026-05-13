@@ -1,7 +1,9 @@
 [
   {
     "id": "cl-001",
-    "pattern": ["bedroom-light-checkout"],
+    "pattern": [
+      "bedroom-light-checkout"
+    ],
     "utterance": "Wire the Bewegungsmelder presence output to the Schlafzimmer Lichtsteuerung presence input so lights turn on when someone enters",
     "difficulty": "easy",
     "expected": {
@@ -48,7 +50,9 @@
   },
   {
     "id": "cl-002",
-    "pattern": ["bedroom-light-checkout"],
+    "pattern": [
+      "bedroom-light-checkout"
+    ],
     "utterance": "Add checkout reset for the Schlafzimmer light: wire a VirtualIn 'Check-Out' through an EdgeDetection block. Connect the rising edge to the Lichtsteuerung reset-to-default input so all lights turn off on guest checkout",
     "difficulty": "medium",
     "expected": {
@@ -104,23 +108,37 @@
         },
         {
           "name": "no reset when checkout stays low",
-          "inputs": {
-            "Check-Out.AQ": 0.0
-          },
-          "ticks": 10,
-          "dt": 0.1,
-          "expected_outputs": {
-            "Lichtsteuerung [Schlafzimmer].RtD": {
-              "<": 0.5
+          "steps": [
+            {
+              "inputs": {
+                "Check-Out.AQ": 0
+              },
+              "ticks": 2,
+              "dt": 0.1
+            },
+            {
+              "inputs": {
+                "Check-Out.AQ": 0.0
+              },
+              "ticks": 10,
+              "dt": 0.1,
+              "expected_outputs": {
+                "Lichtsteuerung [Schlafzimmer].RtD": {
+                  "<": 0.5
+                }
+              }
             }
-          }
+          ]
         }
       ]
     }
   },
   {
     "id": "cl-003",
-    "pattern": ["bedroom-light-checkout", "night-mode-timer"],
+    "pattern": [
+      "bedroom-light-checkout",
+      "night-mode-timer"
+    ],
     "utterance": "Night mode for Schlafzimmer: add a DayTimer with schedule 22:00-06:00, wire its output to the Lichtsteuerung Sel4 input so a dim scene activates at night",
     "difficulty": "medium",
     "expected": {
@@ -151,7 +169,8 @@
             "Lichtsteuerung [Schlafzimmer].Sel4": {
               ">": 0.5
             }
-          }
+          },
+          "time": 1380
         },
         {
           "name": "no dim scene during day",
@@ -164,14 +183,17 @@
             "Lichtsteuerung [Schlafzimmer].Sel4": {
               "<": 0.5
             }
-          }
+          },
+          "time": 720
         }
       ]
     }
   },
   {
     "id": "cl-004",
-    "pattern": ["bedroom-light-checkout"],
+    "pattern": [
+      "bedroom-light-checkout"
+    ],
     "utterance": "Presence-based light with warning dim: wire Bewegungsmelder.OutputPresence to the Schlafzimmer Lichtsteuerung.Presence, and wire Bewegungsmelder.OutputWarn to Lichtsteuerung.Sel5 for a pre-off dim warning before lights go out",
     "difficulty": "medium",
     "expected": {
@@ -233,7 +255,9 @@
   },
   {
     "id": "cl-005",
-    "pattern": ["bedroom-light-checkout"],
+    "pattern": [
+      "bedroom-light-checkout"
+    ],
     "utterance": "Bedside reading light toggle: wire PushButton through an EdgeDetection block. Connect the rising edge output to Lichtsteuerung.Sel6 in the Schlafzimmer for a reading-light mood toggle",
     "difficulty": "medium",
     "expected": {
@@ -285,23 +309,36 @@
         },
         {
           "name": "no toggle when button not pressed",
-          "inputs": {
-            "PushButton.Q": 0.0
-          },
-          "ticks": 10,
-          "dt": 0.1,
-          "expected_outputs": {
-            "Lichtsteuerung [Schlafzimmer].Sel6": {
-              "<": 0.5
+          "steps": [
+            {
+              "inputs": {
+                "PushButton.Q": 0
+              },
+              "ticks": 2,
+              "dt": 0.1
+            },
+            {
+              "inputs": {
+                "PushButton.Q": 0.0
+              },
+              "ticks": 10,
+              "dt": 0.1,
+              "expected_outputs": {
+                "Lichtsteuerung [Schlafzimmer].Sel6": {
+                  "<": 0.5
+                }
+              }
             }
-          }
+          ]
         }
       ]
     }
   },
   {
     "id": "cl-006",
-    "pattern": ["bedroom-presence"],
+    "pattern": [
+      "bedroom-presence"
+    ],
     "utterance": "All-off on leave: add a Not gate and an EdgeDetection. Wire Bewegungsmelder.OutputPresence into the Not, then the Not output into the EdgeDetection. Connect EdgeDetection.RisingEdge to Lichtsteuerung.Reset in the Schlafzimmer so lights reset when presence drops",
     "difficulty": "hard",
     "expected": {
@@ -362,23 +399,36 @@
         },
         {
           "name": "no reset while presence active",
-          "inputs": {
-            "Bewegungsmelder.OutputPresence": 1.0
-          },
-          "ticks": 10,
-          "dt": 0.1,
-          "expected_outputs": {
-            "Lichtsteuerung [Schlafzimmer].Reset": {
-              "<": 0.5
+          "steps": [
+            {
+              "inputs": {
+                "Bewegungsmelder.OutputPresence": 0
+              },
+              "ticks": 2,
+              "dt": 0.1
+            },
+            {
+              "inputs": {
+                "Bewegungsmelder.OutputPresence": 1.0
+              },
+              "ticks": 10,
+              "dt": 0.1,
+              "expected_outputs": {
+                "Lichtsteuerung [Schlafzimmer].Reset": {
+                  "<": 0.5
+                }
+              }
             }
-          }
+          ]
         }
       ]
     }
   },
   {
     "id": "cl-007",
-    "pattern": ["bedroom-presence"],
+    "pattern": [
+      "bedroom-presence"
+    ],
     "utterance": "Presence state machine with card-in memory: add a Memory block 'Zimmer belegt'. Wire Schalter 1 (card-in) to Memory.Input to set the room as occupied. Wire Schalter 2 (card-out) to Memory.Reset. Then wire the Memory.Q output to Bewegungsmelder.InputActivate so presence detection only works when the room is occupied",
     "difficulty": "hard",
     "expected": {
@@ -464,7 +514,9 @@
   },
   {
     "id": "cl-008",
-    "pattern": ["bedroom-presence"],
+    "pattern": [
+      "bedroom-presence"
+    ],
     "utterance": "Extended presence with off-delay: add an OffDelay block (10 minutes) between Bewegungsmelder.OutputPresence and the Schlafzimmer Lichtsteuerung.Presence so lights stay on after movement stops",
     "difficulty": "medium",
     "expected": {
@@ -538,7 +590,9 @@
   },
   {
     "id": "cl-009",
-    "pattern": ["bathroom-presence-light-fan"],
+    "pattern": [
+      "bathroom-presence-light-fan"
+    ],
     "utterance": "Bathroom fan with humidity hold: wire Raumfeuchtigkeit Bad through a GreaterEqual threshold (>65%), add an OffDelay (10 min) on the output, then feed into Lüfter Bad.I1. Also wire Bewegungsmelder.OutputPresence to Lüfter Bad.I1 as a parallel trigger via an Or gate combining both signals",
     "difficulty": "hard",
     "expected": {
@@ -645,7 +699,9 @@
   },
   {
     "id": "cl-010",
-    "pattern": ["bathroom-presence-light-fan"],
+    "pattern": [
+      "bathroom-presence-light-fan"
+    ],
     "utterance": "Bathroom presence triggers light: wire Bewegungsmelder.OutputPresence to the Bad Lichtsteuerung.Presence input so the bathroom light turns on automatically when someone enters",
     "difficulty": "easy",
     "expected": {
@@ -692,7 +748,9 @@
   },
   {
     "id": "cl-011",
-    "pattern": ["bathroom-presence-light-fan"],
+    "pattern": [
+      "bathroom-presence-light-fan"
+    ],
     "utterance": "Combined bathroom automation: presence triggers the Bad light, humidity triggers the fan with hold, and window open forces the fan on. Wire Bewegungsmelder.OutputPresence to Lichtsteuerung [Bad].Presence. Wire Raumfeuchtigkeit Bad through a GreaterEqual (>65%) to an Or gate I1. Wire Fensterkontakt Bad to the Or gate I2. Wire Bewegungsmelder.OutputPresence to Or gate I3. Wire Or gate output to Lüfter Bad.I1",
     "difficulty": "hard",
     "expected": {
@@ -814,7 +872,9 @@
   },
   {
     "id": "cl-012",
-    "pattern": ["wc-light-fan"],
+    "pattern": [
+      "wc-light-fan"
+    ],
     "utterance": "WC automation: wire the Bewegungsmelder presence output to both the Flur Lichtsteuerung.Move and the Lüfter Bad.I1 so motion triggers the WC light and exhaust fan simultaneously",
     "difficulty": "easy",
     "expected": {
@@ -873,7 +933,9 @@
   },
   {
     "id": "cl-013",
-    "pattern": ["wc-light-fan"],
+    "pattern": [
+      "wc-light-fan"
+    ],
     "utterance": "WC light with checkout reset and cleaning mode enable: wire a VirtualIn 'Checkout' to the Flur Lichtsteuerung.Reset. Wire another VirtualIn 'Reinigungsmodus' to Lichtsteuerung.EnMove. Also wire Bewegungsmelder.OutputPresence to Lichtsteuerung.Move for motion control",
     "difficulty": "medium",
     "expected": {
@@ -943,7 +1005,9 @@
   },
   {
     "id": "cl-014",
-    "pattern": ["flex-light-fan-logic"],
+    "pattern": [
+      "flex-light-fan-logic"
+    ],
     "utterance": "Fan logic with humidity and manual override: add an Or gate. Wire Raumfeuchtigkeit Bad through a GreaterEqual (>60%) to Or.I1. Wire Schalter 1 (manual fan switch) to Or.I2. Wire the Or output to Lüfter Bad.I1. Also add an EdgeDetection on Schalter 2 and wire the rising edge to the Schlafzimmer Lichtsteuerung.Sel6 for a light toggle",
     "difficulty": "hard",
     "expected": {
@@ -1007,31 +1071,55 @@
       "simulation": [
         {
           "name": "fan on when humidity high",
-          "inputs": {
-            "Raumfeuchtigkeit Bad.AQ": 70.0,
-            "Schalter 1.Q": 0.0
-          },
-          "ticks": 10,
-          "dt": 0.1,
-          "expected_outputs": {
-            "Lüfter Bad.I1": {
-              ">": 0.5
+          "steps": [
+            {
+              "inputs": {
+                "Raumfeuchtigkeit Bad.AQ": 0,
+                "Schalter 1.Q": 0
+              },
+              "ticks": 2,
+              "dt": 0.1
+            },
+            {
+              "inputs": {
+                "Raumfeuchtigkeit Bad.AQ": 70.0,
+                "Schalter 1.Q": 0.0
+              },
+              "ticks": 10,
+              "dt": 0.1,
+              "expected_outputs": {
+                "Lüfter Bad.I1": {
+                  ">": 0.5
+                }
+              }
             }
-          }
+          ]
         },
         {
           "name": "fan on when manual switch pressed",
-          "inputs": {
-            "Raumfeuchtigkeit Bad.AQ": 40.0,
-            "Schalter 1.Q": 1.0
-          },
-          "ticks": 10,
-          "dt": 0.1,
-          "expected_outputs": {
-            "Lüfter Bad.I1": {
-              ">": 0.5
+          "steps": [
+            {
+              "inputs": {
+                "Raumfeuchtigkeit Bad.AQ": 0,
+                "Schalter 1.Q": 0
+              },
+              "ticks": 2,
+              "dt": 0.1
+            },
+            {
+              "inputs": {
+                "Raumfeuchtigkeit Bad.AQ": 40.0,
+                "Schalter 1.Q": 1.0
+              },
+              "ticks": 10,
+              "dt": 0.1,
+              "expected_outputs": {
+                "Lüfter Bad.I1": {
+                  ">": 0.5
+                }
+              }
             }
-          }
+          ]
         },
         {
           "name": "light toggle on rising edge",
@@ -1059,24 +1147,40 @@
         },
         {
           "name": "fan off when nothing triggers",
-          "inputs": {
-            "Raumfeuchtigkeit Bad.AQ": 40.0,
-            "Schalter 1.Q": 0.0
-          },
-          "ticks": 10,
-          "dt": 0.1,
-          "expected_outputs": {
-            "Lüfter Bad.I1": {
-              "<": 0.5
+          "steps": [
+            {
+              "inputs": {
+                "Raumfeuchtigkeit Bad.AQ": 0,
+                "Schalter 1.Q": 0
+              },
+              "ticks": 2,
+              "dt": 0.1
+            },
+            {
+              "inputs": {
+                "Raumfeuchtigkeit Bad.AQ": 40.0,
+                "Schalter 1.Q": 0.0
+              },
+              "ticks": 10,
+              "dt": 0.1,
+              "expected_outputs": {
+                "Lüfter Bad.I1": {
+                  "<": 0.5
+                }
+              }
             }
-          }
+          ]
         }
       ]
     }
   },
   {
     "id": "cl-015",
-    "pattern": ["bedroom-presence", "bedroom-light-checkout", "flex-light-fan-logic"],
+    "pattern": [
+      "bedroom-presence",
+      "bedroom-light-checkout",
+      "flex-light-fan-logic"
+    ],
     "utterance": "Full bedroom presence circuit: add a Memory 'Zimmer belegt' for occupancy tracking. Wire Schalter 1 (card-in) to Memory.Input, Schalter 2 (card-out) to Memory.Reset. Wire Memory.Q to Bewegungsmelder.InputActivate. Add an OffDelay (15 min) between Bewegungsmelder.OutputPresence and Lichtsteuerung [Schlafzimmer].Presence. Add an EdgeDetection on Memory.Reset, connect RisingEdge to Lichtsteuerung [Schlafzimmer].RtD for checkout-resets-all",
     "difficulty": "expert",
     "expected": {
