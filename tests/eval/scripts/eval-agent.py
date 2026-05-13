@@ -230,9 +230,13 @@ def evaluate_case(case: dict, agent_name: str, work_dir: Path,
     if sim_total > 0:
         eval_result["sim_pass"] = sim_result.get("pass", False)
         eval_result["sim_score"] = sim_passed / sim_total if sim_total else 0
+        # Simulator outcome is the primary pass criterion
+        eval_result["pass"] = sim_result.get("pass", False)
     else:
         eval_result["sim_pass"] = None
         eval_result["sim_score"] = None
+        # No sim specs — fall back to structural score
+        # (eval_result["pass"] already set by evaluate_correctness)
 
     eval_result["case_id"] = case_id
     eval_result["difficulty"] = case.get("difficulty", "medium")
