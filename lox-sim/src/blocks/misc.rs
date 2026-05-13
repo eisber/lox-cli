@@ -1048,7 +1048,7 @@ impl Block for StepSel {
             if step == 1 { 1.0 } else { 0.0 }, // Q1
             if step == 2 { 1.0 } else { 0.0 }, // Q2
             if step == 3 { 1.0 } else { 0.0 }, // Q3
-            self.current,                        // AQ: current step number
+            self.current,                      // AQ: current step number
         ]
     }
 
@@ -1406,7 +1406,7 @@ stub_block!(
 /// Outputs order: Q1, Q2, Q3, AQ
 #[derive(Clone)]
 pub struct Radio {
-    selected: usize, // 0 = none, 1..=3
+    selected: usize,         // 0 = none, 1..=3
     prev_triggers: [f64; 5], // prev values for edge detection (IT1, IT2, IT3, P, M)
 }
 

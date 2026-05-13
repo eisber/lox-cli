@@ -2061,7 +2061,7 @@ mod tests {
         let out = tp.eval(&[18.0, 0.0], &[20.0, 22.0], 0.0, &[]);
         assert_eq!(out[0], 1.0); // heating
         assert_eq!(out[1], 0.0); // no cooling
-        // Cooling zone: value=24, Target1=20, Target2=22 → 24 > 22
+                                 // Cooling zone: value=24, Target1=20, Target2=22 → 24 > 22
         let out = tp.eval(&[24.0, 0.0], &[20.0, 22.0], 0.0, &[]);
         assert_eq!(out[0], 0.0);
         assert_eq!(out[1], 1.0);

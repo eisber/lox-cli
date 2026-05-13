@@ -414,11 +414,22 @@ fn block_signature(
             &["On", "Off", "PulseTime"],
         ),
         "AnalogMultiplexer" => (
-            &["Input1", "Input2", "Input3", "Input4", "InputDisable", "Select"],
+            &[
+                "Input1",
+                "Input2",
+                "Input3",
+                "Input4",
+                "InputDisable",
+                "Select",
+            ],
             &["AQ"],
             &[],
         ),
-        "AnalogMultiplexer2" => (&["Input1", "Input2", "InputDisable", "Select"], &["AQ"], &[]),
+        "AnalogMultiplexer2" => (
+            &["Input1", "Input2", "InputDisable", "Select"],
+            &["AQ"],
+            &[],
+        ),
         "AnalogScaler" => (&["Input"], &["AQ"], &["Src1", "Src2", "Dst1", "Dst2"]),
         "And" => (&["I1", "I2"], &["Q"], &[]),
         "Constant" => (&[], &["Q"], &["Value"]),
@@ -1544,7 +1555,11 @@ fn block_signature(
             &["Q", "AQ", "AQl", "AQr"],
             &["Unit", "Maintenance"],
         ),
-        "PulseAt" => (&["minutes_since_midnight", "InputDisable"], &["Q"], &["Time"]),
+        "PulseAt" => (
+            &["minutes_since_midnight", "InputDisable"],
+            &["Q"],
+            &["Time"],
+        ),
         "PulseBy" => (&["Text"], &["Pulse"], &["Time"]),
         "Presence" => (&["InputTrigger", "Reset"], &["Q"], &["Time"]),
         // Random generators
