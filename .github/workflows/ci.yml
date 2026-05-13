@@ -43,6 +43,9 @@ jobs:
       - name: clippy
         run: cargo clippy --workspace -- -D warnings
 
+      - name: Lint eval specs
+        run: python3 tests/eval/scripts/lint-specs.py
+
   test:
     name: Test (${{ matrix.os }})
     runs-on: ${{ matrix.os }}
