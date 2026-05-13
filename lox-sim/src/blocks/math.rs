@@ -728,10 +728,11 @@ impl Default for AnalogStepper {
 }
 
 impl Block for AnalogStepper {
-    /// Params from parser: [Dir, Step, Max]
-    ///  - Dir: 0 = step up on trigger, 1 = step down (default 0)
-    ///  - Step: increment size (default 1)
-    ///  - Max: upper bound, value clamped to [0, Max] (default 100)
+    /// Params from parser: `[Dir, Step, Max]`
+    ///  - `Dir`: 0 = step up on trigger, 1 = step down (default 0)
+    ///  - `Step`: increment size (default 1)
+    ///  - `Max`: upper bound, value clamped to `[0, Max]` (default 100)
+    ///
     /// Single input: Trigger (rising-edge sensitive)
     fn eval(
         &mut self,

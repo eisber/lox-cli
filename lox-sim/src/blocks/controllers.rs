@@ -915,18 +915,17 @@ impl Block for IRcontroller {
 // ---------------------------------------------------------------------------
 
 // WARNING: Simplified model — real Loxone behavior may differ.
-// Assumption: Linear mapping of brightness to blind position.
-// blind_pos = clamp((brightness - min) / (max - min), 0, 1).
-// Validate against Miniserver.
+// Assumption: Linear mapping of brightness (0–100%) to color temperature
+// (NightColorTemperature … DayColorTemperature). Validate against Miniserver.
 
-/// Maps ambient brightness to blind position.
+/// Maps ambient brightness to LED color temperature (Kelvin).
 #[derive(Clone, Copy)]
 pub struct DaylightController;
 
 impl Block for DaylightController {
-    /// Inputs: [brightness]
-    /// Params: [min_brightness, max_brightness]
-    /// Outputs: [blind_position (0=open, 1=closed)]
+    /// Inputs: [deactivate, brightness (0–100%)]
+    /// Params: [NightColorTemperature, DayColorTemperature]
+    /// Outputs: [color_temperature (K)]
     fn eval(
         &mut self,
         inputs: &[Signal],
@@ -934,12 +933,18 @@ impl Block for DaylightController {
         _dt: f64,
         _prev: &[Signal],
     ) -> Vec<Signal> {
-        let brightness = inputs.first().copied().unwrap_or(0.0);
-        let min_br = params.first().copied().unwrap_or(5000.0);
-        let max_br = params.get(1).copied().unwrap_or(60000.0);
-        let range = (max_br - min_br).max(1.0);
-        let pos = ((brightness - min_br) / range).clamp(0.0, 1.0);
-        vec![pos]
+        let deactivate = inputs.first().copied().unwrap_or(0.0);
+        let brightness = inputs.get(1).copied().unwrap_or(0.0);
+        let night_temp = params.first().copied().unwrap_or(2000.0);
+        let day_temp = params.get(1).copied().unwrap_or(6500.0);
+
+        if deactivate > 0.5 {
+            return vec![0.0];
+        }
+
+        // Map brightness 0–100% → night_temp … day_temp
+        let t = (brightness / 100.0).clamp(0.0, 1.0);
+        vec![night_temp + t * (day_temp - night_temp)]
     }
 
     fn state(&self) -> Option<Vec<u8>> {
@@ -1283,7 +1288,8 @@ impl Block for OvertempShutdown {
 
 // WARNING: Simplified model — real Loxone behavior may differ.
 // Assumption: On/off controller with hysteresis. Output ON when
-// input > setpoint + hysteresis/2, OFF when input < setpoint - hysteresis/2.
+// input > Target + Hysteresis/2, OFF when input < Target - Hysteresis/2.
+// Inv flag inverts the output (use for heating mode).
 // Validate against Miniserver.
 
 /// On/off controller with hysteresis.
@@ -1299,8 +1305,8 @@ impl TwoPoint {
 }
 
 impl Block for TwoPoint {
-    /// Inputs: [measured_value, setpoint]
-    /// Params: [hysteresis]
+    /// Inputs: [measured_value]  (parser: Input, Disable)
+    /// Params: [Target, Hysteresis, Inv]
     /// Outputs: [Q]
     fn eval(
         &mut self,
@@ -1310,8 +1316,9 @@ impl Block for TwoPoint {
         _prev: &[Signal],
     ) -> Vec<Signal> {
         let value = inputs.first().copied().unwrap_or(0.0);
-        let setpoint = inputs.get(1).copied().unwrap_or(0.0);
-        let hyst = params.first().copied().unwrap_or(1.0).abs();
+        let setpoint = params.first().copied().unwrap_or(0.0);
+        let hyst = params.get(1).copied().unwrap_or(1.0).abs();
+        let inv = params.get(2).copied().unwrap_or(0.0) > 0.5;
 
         let half = hyst / 2.0;
         if value >= setpoint + half {
@@ -1320,7 +1327,8 @@ impl Block for TwoPoint {
             self.output = false;
         }
 
-        vec![bool_signal(self.output)]
+        let out = if inv { !self.output } else { self.output };
+        vec![bool_signal(out)]
     }
 
     fn state(&self) -> Option<Vec<u8>> {
@@ -1343,18 +1351,19 @@ impl Block for TwoPoint {
 // ---------------------------------------------------------------------------
 
 // WARNING: Simplified model — real Loxone behavior may differ.
-// Assumption: 3-position controller. Outputs: heating=1 when value < setpoint - deadband,
-// cooling=1 when value > setpoint + deadband, else both 0.
-// Validate against Miniserver.
+// 3-position controller with two setpoints:
+//   Q1 (heat) = 1 when PV < Target1
+//   Q2 (cool) = 1 when PV > Target2
+//   Both 0 when Target1 <= PV <= Target2 (dead band)
 
 /// 3-position controller (heat/off/cool).
 #[derive(Clone, Copy)]
 pub struct ThreePoint;
 
 impl Block for ThreePoint {
-    /// Inputs: [measured_value, setpoint]
-    /// Params: [deadband]
-    /// Outputs: [heating, cooling]
+    /// Inputs: [Input (PV), Disable]
+    /// Params: [Target1, Target2]
+    /// Outputs: [Q1 (heat), Q2 (cool)]
     fn eval(
         &mut self,
         inputs: &[Signal],
@@ -1363,19 +1372,16 @@ impl Block for ThreePoint {
         _prev: &[Signal],
     ) -> Vec<Signal> {
         let value = inputs.first().copied().unwrap_or(0.0);
-        let setpoint = inputs.get(1).copied().unwrap_or(0.0);
-        let deadband = params.first().copied().unwrap_or(1.0).abs();
+        let disable = inputs.get(1).copied().unwrap_or(0.0);
+        let target1 = params.first().copied().unwrap_or(3.0);
+        let target2 = params.get(1).copied().unwrap_or(7.0);
 
-        let heating = if value < setpoint - deadband {
-            1.0
-        } else {
-            0.0
-        };
-        let cooling = if value > setpoint + deadband {
-            1.0
-        } else {
-            0.0
-        };
+        if disable != 0.0 {
+            return vec![0.0, 0.0];
+        }
+
+        let heating = if value < target1 { 1.0 } else { 0.0 };
+        let cooling = if value > target2 { 1.0 } else { 0.0 };
         vec![heating, cooling]
     }
 
@@ -1971,8 +1977,18 @@ mod tests {
     #[test]
     fn daylight_mapping() {
         let mut dc = DaylightController;
-        let out = dc.eval(&[32500.0], &[5000.0, 60000.0], 0.0, &[]);
-        assert!((out[0] - 0.5).abs() < 0.01);
+        // brightness=50%, night=2000K, day=6500K → 4250K
+        let out = dc.eval(&[0.0, 50.0], &[2000.0, 6500.0], 0.0, &[]);
+        assert!((out[0] - 4250.0).abs() < 1.0);
+        // brightness=0% → night temp
+        let out = dc.eval(&[0.0, 0.0], &[2700.0, 5000.0], 0.0, &[]);
+        assert!((out[0] - 2700.0).abs() < 1.0);
+        // brightness=100% → day temp
+        let out = dc.eval(&[0.0, 100.0], &[2700.0, 5000.0], 0.0, &[]);
+        assert!((out[0] - 5000.0).abs() < 1.0);
+        // deactivated → 0
+        let out = dc.eval(&[1.0, 50.0], &[2700.0, 5000.0], 0.0, &[]);
+        assert_eq!(out[0], 0.0);
     }
 
     // -- Heat curve ---------------------------------------------------------
@@ -2003,21 +2019,33 @@ mod tests {
     #[test]
     fn two_point_hysteresis() {
         let mut tp = TwoPoint::new();
-        // value=11, setpoint=10, hyst=2 → 11 > 10+1 → on
-        let out = tp.eval(&[11.0, 10.0], &[2.0], 0.0, &[]);
+        // value=11, Target=10, Hysteresis=2 → 11 > 10+1 → on
+        let out = tp.eval(&[11.0], &[10.0, 2.0], 0.0, &[]);
         assert_eq!(out[0], 1.0);
         // value=9.5, still within dead band → stays on
-        let out = tp.eval(&[9.5, 10.0], &[2.0], 0.0, &[]);
+        let out = tp.eval(&[9.5], &[10.0, 2.0], 0.0, &[]);
         assert_eq!(out[0], 1.0);
         // value=8.5 < 10-1 → off
-        let out = tp.eval(&[8.5, 10.0], &[2.0], 0.0, &[]);
+        let out = tp.eval(&[8.5], &[10.0, 2.0], 0.0, &[]);
+        assert_eq!(out[0], 0.0);
+    }
+
+    #[test]
+    fn two_point_inverted() {
+        let mut tp = TwoPoint::new();
+        // Inv=1: output is inverted (heating mode)
+        // value=8.5 <= 10-1=9 → base OFF, inverted → ON (heating active when cold)
+        let out = tp.eval(&[8.5], &[10.0, 2.0, 1.0], 0.0, &[]);
+        assert_eq!(out[0], 1.0);
+        // value=11 >= 10+1=11 → base ON, inverted → OFF (heating off when warm)
+        let out = tp.eval(&[11.0], &[10.0, 2.0, 1.0], 0.0, &[]);
         assert_eq!(out[0], 0.0);
     }
 
     #[test]
     fn two_point_state_roundtrip() {
         let mut tp = TwoPoint::new();
-        tp.eval(&[11.0, 10.0], &[2.0], 0.0, &[]);
+        tp.eval(&[11.0], &[10.0, 2.0], 0.0, &[]);
         let state = tp.state().unwrap();
         let mut tp2 = TwoPoint::new();
         tp2.restore(&state);
@@ -2029,16 +2057,20 @@ mod tests {
     #[test]
     fn three_point_zones() {
         let mut tp = ThreePoint;
-        // Heating zone: value=18, setpoint=21, deadband=1 → 18 < 21-1
-        let out = tp.eval(&[18.0, 21.0], &[1.0], 0.0, &[]);
+        // Heating zone: value=18, Target1=20, Target2=22 → 18 < 20
+        let out = tp.eval(&[18.0, 0.0], &[20.0, 22.0], 0.0, &[]);
         assert_eq!(out[0], 1.0); // heating
         assert_eq!(out[1], 0.0); // no cooling
-                                 // Cooling zone: value=24
-        let out = tp.eval(&[24.0, 21.0], &[1.0], 0.0, &[]);
+        // Cooling zone: value=24, Target1=20, Target2=22 → 24 > 22
+        let out = tp.eval(&[24.0, 0.0], &[20.0, 22.0], 0.0, &[]);
         assert_eq!(out[0], 0.0);
         assert_eq!(out[1], 1.0);
-        // Dead band: value=21
-        let out = tp.eval(&[21.0, 21.0], &[1.0], 0.0, &[]);
+        // Dead band: value=21, Target1=20, Target2=22 → 20 <= 21 <= 22
+        let out = tp.eval(&[21.0, 0.0], &[20.0, 22.0], 0.0, &[]);
+        assert_eq!(out[0], 0.0);
+        assert_eq!(out[1], 0.0);
+        // Disable input active
+        let out = tp.eval(&[18.0, 1.0], &[20.0, 22.0], 0.0, &[]);
         assert_eq!(out[0], 0.0);
         assert_eq!(out[1], 0.0);
     }

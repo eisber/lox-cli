@@ -1066,7 +1066,7 @@ fn block_signature(
             &["Q"],
             &["TimeHigh", "TimeLow", "Cycles"],
         ),
-        "Shift" => (&["Trigger", "InputData", "InputDir"], &["Q"], &["Bit"]),
+        "Shift" => (&["InputData", "Trigger", "InputDir"], &["Q"], &["Bit"]),
         "TimeMinmax" => (&["Input", "Reset"], &["AQmin", "AQmax"], &[]),
         "UpDownCounter" => (
             &["Trigger", "InputDir", "Reset"],
@@ -1525,11 +1525,12 @@ fn block_signature(
             &[
                 "InputTrigger 1",
                 "InputTrigger 2",
+                "InputTrigger 3",
                 "InputTriggerP",
                 "InputTriggerM",
                 "InputSel",
             ],
-            &["Q1", "Q2", "AQ"],
+            &["Q1", "Q2", "Q3", "AQ"],
             &["Mode"],
         ),
         "SequenceController" => (

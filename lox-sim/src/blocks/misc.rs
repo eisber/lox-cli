@@ -1005,31 +1005,49 @@ impl Default for StepSel {
 }
 
 impl Block for StepSel {
-    /// Inputs: [trigger, reset]
-    /// Params: [num_steps (default 4)]
-    /// Outputs: [Q1, Q2, AQ] — Q1/Q2 are per-step digital, AQ is step number
+    /// Parser maps: [InputTrigger1..3, InputTriggerP, InputTriggerM, InputSel]
+    /// Outputs: [Q1, Q2, Q3, AQ]
     fn eval(
         &mut self,
         inputs: &[Signal],
-        params: &[Signal],
+        _params: &[Signal],
         _dt: f64,
         prev_inputs: &[Signal],
     ) -> Vec<Signal> {
-        let trigger = inputs.first().copied().unwrap_or(0.0);
-        let prev_trigger = prev_inputs.first().copied().unwrap_or(0.0);
-        let reset = inputs.get(1).copied().unwrap_or(0.0);
-        let steps = params.first().copied().unwrap_or(4.0).max(1.0) as u32;
+        // Determine number of steps from Q outputs (outputs.len() - 1 for AQ).
+        // Parser defines 4 outputs: Q1, Q2, Q3, AQ → 3 selectable steps + off = 4 values.
+        let num_q = 3u32; // Q1, Q2, Q3
+        let total_values = num_q + 1; // 0 (off) + Q1..Q3
 
-        if is_high(reset) {
-            self.current = 0.0;
-        } else if !is_high(prev_trigger) && is_high(trigger) {
-            self.current = ((self.current as u32 + 1) % steps) as f64;
+        // Individual triggers: InputTrigger 1..3 (indices 0..2)
+        for i in 0..num_q as usize {
+            let trig = inputs.get(i).copied().unwrap_or(0.0);
+            let prev = prev_inputs.get(i).copied().unwrap_or(0.0);
+            if !is_high(prev) && is_high(trig) {
+                self.current = (i as f64) + 1.0;
+            }
+        }
+
+        // InputTriggerP (index 3): cycle forward
+        let trigger_p = inputs.get(3).copied().unwrap_or(0.0);
+        let prev_p = prev_inputs.get(3).copied().unwrap_or(0.0);
+        if !is_high(prev_p) && is_high(trigger_p) {
+            self.current = ((self.current as u32 + 1) % total_values) as f64;
+        }
+
+        // InputTriggerM (index 4): cycle backward
+        let trigger_m = inputs.get(4).copied().unwrap_or(0.0);
+        let prev_m = prev_inputs.get(4).copied().unwrap_or(0.0);
+        if !is_high(prev_m) && is_high(trigger_m) {
+            let cur = self.current as u32;
+            self.current = if cur == 0 { total_values - 1 } else { cur - 1 } as f64;
         }
 
         let step = self.current as u32;
         vec![
-            if step == 0 { 1.0 } else { 0.0 }, // Q1: active when step 0
-            if step == 1 { 1.0 } else { 0.0 }, // Q2: active when step 1
+            if step == 1 { 1.0 } else { 0.0 }, // Q1
+            if step == 2 { 1.0 } else { 0.0 }, // Q2
+            if step == 3 { 1.0 } else { 0.0 }, // Q3
             self.current,                        // AQ: current step number
         ]
     }
@@ -1382,11 +1400,100 @@ stub_block!(
     "MusicPlayer"
 );
 
-stub_block!(
-    /// Radio (v1) — pass-through stub.
-    Radio,
-    "Radio"
-);
+/// Radio buttons (mutual exclusion). When InputTrigger N rises, selects button N.
+/// Outputs: Q1..Q3 (one-hot), AQ (selected index 1-based, 0 = none).
+/// Inputs order: InputTrigger 1, InputTrigger 2, InputTrigger 3, InputTriggerP, InputTriggerM, InputSel
+/// Outputs order: Q1, Q2, Q3, AQ
+#[derive(Clone)]
+pub struct Radio {
+    selected: usize, // 0 = none, 1..=3
+    prev_triggers: [f64; 5], // prev values for edge detection (IT1, IT2, IT3, P, M)
+}
+
+impl Radio {
+    const NUM_BUTTONS: usize = 3;
+}
+
+impl Default for Radio {
+    fn default() -> Self {
+        Self {
+            selected: 0,
+            prev_triggers: [0.0; 5],
+        }
+    }
+}
+
+impl Block for Radio {
+    fn eval(
+        &mut self,
+        inputs: &[Signal],
+        _params: &[Signal],
+        _dt: f64,
+        _prev: &[Signal],
+    ) -> Vec<Signal> {
+        let get = |i: usize| inputs.get(i).copied().unwrap_or(0.0);
+        let it1 = get(0);
+        let it2 = get(1);
+        let it3 = get(2);
+        let itp = get(3);
+        let itm = get(4);
+        let sel = get(5);
+
+        // Rising-edge detection for triggers
+        let rising = |cur: f64, idx: usize| -> bool {
+            let prev = self.prev_triggers[idx];
+            cur > 0.5 && prev <= 0.5
+        };
+
+        if rising(it1, 0) {
+            self.selected = 1;
+        } else if rising(it2, 1) {
+            self.selected = 2;
+        } else if rising(it3, 2) {
+            self.selected = 3;
+        } else if rising(itp, 3) {
+            if self.selected < Self::NUM_BUTTONS {
+                self.selected += 1;
+            } else {
+                self.selected = 1;
+            }
+        } else if rising(itm, 4) {
+            if self.selected > 1 {
+                self.selected -= 1;
+            } else {
+                self.selected = Self::NUM_BUTTONS;
+            }
+        } else if sel > 0.5 {
+            let s = sel.round() as usize;
+            if (1..=Self::NUM_BUTTONS).contains(&s) {
+                self.selected = s;
+            }
+        }
+
+        self.prev_triggers = [it1, it2, it3, itp, itm];
+
+        let q1 = if self.selected == 1 { 1.0 } else { 0.0 };
+        let q2 = if self.selected == 2 { 1.0 } else { 0.0 };
+        let q3 = if self.selected == 3 { 1.0 } else { 0.0 };
+        let aq = self.selected as f64;
+
+        vec![q1, q2, q3, aq]
+    }
+
+    fn state(&self) -> Option<Vec<u8>> {
+        Some(vec![self.selected as u8])
+    }
+
+    fn restore(&mut self, state: &[u8]) {
+        if let Some(&s) = state.first() {
+            self.selected = s as usize;
+        }
+    }
+
+    fn block_type(&self) -> &str {
+        "Radio"
+    }
+}
 
 stub_block!(
     /// Radio (v2) — pass-through stub.
@@ -2129,18 +2236,27 @@ mod tests {
     #[test]
     fn step_sel_cycles() {
         let mut block = StepSel::new();
-        // outputs: [Q1, Q2, AQ]
-        let out = block.eval(&[1.0, 0.0], &[3.0], 0.0, &[0.0]);
-        assert_eq!(out[2], 1.0); // AQ = step 1
-        assert_eq!(out[0], 0.0); // Q1 inactive (step 0 not active)
-        assert_eq!(out[1], 1.0); // Q2 active (step 1)
+        // inputs: [IT1, IT2, IT3, TrigP, TrigM, Sel]
+        // outputs: [Q1, Q2, Q3, AQ]
+        let idle = [0.0; 6];
+        let mut trig_p = [0.0; 6];
+        trig_p[3] = 1.0; // InputTriggerP
 
-        let out = block.eval(&[1.0, 0.0], &[3.0], 0.0, &[0.0]);
-        assert_eq!(out[2], 2.0); // AQ = step 2
+        let out = block.eval(&trig_p, &[], 0.0, &idle);
+        assert_eq!(out[3], 1.0); // AQ = 1
+        assert_eq!(out[0], 1.0); // Q1 active (step 1)
 
-        let out = block.eval(&[1.0, 0.0], &[3.0], 0.0, &[0.0]);
-        assert_eq!(out[2], 0.0); // AQ wraps to 0
-        assert_eq!(out[0], 1.0); // Q1 active (step 0)
+        let out = block.eval(&trig_p, &[], 0.0, &idle);
+        assert_eq!(out[3], 2.0); // AQ = 2
+        assert_eq!(out[1], 1.0); // Q2 active
+
+        let out = block.eval(&trig_p, &[], 0.0, &idle);
+        assert_eq!(out[3], 3.0); // AQ = 3
+        assert_eq!(out[2], 1.0); // Q3 active
+
+        let out = block.eval(&trig_p, &[], 0.0, &idle);
+        assert_eq!(out[3], 0.0); // AQ wraps to 0
+        assert_eq!(out[0], 0.0); // Q1 inactive
     }
 
     // --- Sequencer ---
@@ -2406,7 +2522,6 @@ mod tests {
             "PowerUnit",
             "PulseBy",
             "PushDimmer",
-            "Radio",
             "Radio2",
             "Ramp",
             "Rand",

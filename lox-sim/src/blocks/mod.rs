@@ -613,7 +613,7 @@ pub fn create_block(block_type: &str) -> Box<dyn Block> {
         "Media" => Box::new(Media),
         "MediaClient" => Box::new(MediaClient),
         "MusicPlayer" => Box::new(MusicPlayer),
-        "Radio" => Box::new(Radio),
+        "Radio" => Box::new(Radio::default()),
         "Radio2" => Box::new(Radio2),
         "Intercom" => Box::new(Intercom),
         "Tablet" => Box::new(Tablet),
