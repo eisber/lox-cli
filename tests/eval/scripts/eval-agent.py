@@ -50,6 +50,8 @@ CLITracker = _agent_runner.CLITracker
 _llm_agent = _imp("llm-agent")
 run_simulation = _llm_agent.run_simulation
 
+from trace_eval import evaluate_by_trace
+
 AGENT_TIMEOUT = 600  # 10 minutes per case
 
 
@@ -185,7 +187,8 @@ def _run_fixture_setup(case: dict, config_path: Path, verbose: bool = False):
 
 
 def evaluate_case(case: dict, agent_name: str, work_dir: Path,
-                  model: str = "gpt-4o", verbose: bool = False) -> dict:
+                  model: str = "gpt-4o", verbose: bool = False,
+                  trace_eval: bool = False) -> dict:
     """Run one eval case: agent → sim → structural eval."""
     case_id = case["id"]
     config_path = work_dir / f"{case_id}.Loxone"
@@ -221,22 +224,43 @@ def evaluate_case(case: dict, agent_name: str, work_dir: Path,
     # Structural evaluation
     eval_result = evaluate_correctness(FIXTURE, config_path, case)
 
-    # Simulation evaluation (the primary metric)
-    sim_result = run_simulation(case_id, case, str(config_path))
-    eval_result["simulation"] = sim_result
-    sim_total = sim_result.get("total_count", 0)
-    sim_passed = sim_result.get("passed_count", 0)
-
-    if sim_total > 0:
-        eval_result["sim_pass"] = sim_result.get("pass", False)
-        eval_result["sim_score"] = sim_passed / sim_total if sim_total else 0
-        # Simulator outcome is the primary pass criterion
-        eval_result["pass"] = sim_result.get("pass", False)
+    if trace_eval:
+        # Trace-based evaluation: probe circuit and judge behavior
+        trace_result = evaluate_by_trace(
+            str(config_path), case["utterance"],
+            agent_backend=agent_name, verbose=verbose,
+        )
+        eval_result["pass"] = trace_result["pass"]
+        eval_result["sim_pass"] = trace_result["pass"]
+        eval_result["sim_score"] = (
+            1.0 if trace_result["pass"] else 0.0
+        )
+        eval_result["trace_judge"] = trace_result
+        eval_result["simulation"] = {
+            "mode": "trace",
+            "sensor_probes": trace_result["sensor_probes"],
+            "responding_sensors": trace_result["responding_sensors"],
+            "total_count": trace_result["sensor_probes"],
+            "passed_count": trace_result["responding_sensors"],
+            "pass": trace_result["pass"],
+        }
     else:
-        eval_result["sim_pass"] = None
-        eval_result["sim_score"] = None
-        # No sim specs — fall back to structural score
-        # (eval_result["pass"] already set by evaluate_correctness)
+        # Standard sim-spec evaluation (the primary metric)
+        sim_result = run_simulation(case_id, case, str(config_path))
+        eval_result["simulation"] = sim_result
+        sim_total = sim_result.get("total_count", 0)
+        sim_passed = sim_result.get("passed_count", 0)
+
+        if sim_total > 0:
+            eval_result["sim_pass"] = sim_result.get("pass", False)
+            eval_result["sim_score"] = sim_passed / sim_total if sim_total else 0
+            # Simulator outcome is the primary pass criterion
+            eval_result["pass"] = sim_result.get("pass", False)
+        else:
+            eval_result["sim_pass"] = None
+            eval_result["sim_score"] = None
+            # No sim specs — fall back to structural score
+            # (eval_result["pass"] already set by evaluate_correctness)
 
     eval_result["case_id"] = case_id
     eval_result["difficulty"] = case.get("difficulty", "medium")
@@ -321,6 +345,10 @@ def main():
         "--exclude-section", action="append", default=[],
         help="Exclude a section (can be repeated)"
     )
+    parser.add_argument(
+        "--trace-eval", action="store_true",
+        help="Use trace-based eval: probe circuit behavior instead of pre-written sim specs"
+    )
     args = parser.parse_args()
 
     # Pretty-print mode
@@ -351,7 +379,8 @@ def main():
         excluded = set(args.exclude_section)
         cases = [c for c in cases if c.get("_section") not in excluded]
 
-    print(f"Eval Agent — agent={args.agent}  model={args.model}  cases={len(cases)}  parallel={args.parallel}")
+    mode = "trace-eval" if args.trace_eval else "sim-spec"
+    print(f"Eval Agent — agent={args.agent}  model={args.model}  mode={mode}  cases={len(cases)}  parallel={args.parallel}")
     print(f"Fixture: {FIXTURE}")
     print()
 
@@ -401,7 +430,8 @@ def main():
     def run_one(idx_case):
         idx, case = idx_case
         result = evaluate_case(
-            case, args.agent, work_dir, model=args.model, verbose=args.verbose
+            case, args.agent, work_dir, model=args.model, verbose=args.verbose,
+            trace_eval=args.trace_eval,
         )
         is_pass, line = format_result(idx, case["id"], result)
         with print_lock:
