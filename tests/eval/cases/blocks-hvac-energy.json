@@ -155,13 +155,13 @@
         {
           "name": "charges when solar > 3kW and no grid import",
           "inputs": {
-            "Solarproduktion.AQ": 4.5,
-            "Hausverbrauch.AQ": 0.0
+            "Solarproduktion": 4500,
+            "Hausverbrauch": 0
           },
-          "ticks": 10,
+          "ticks": 5,
           "dt": 0.1,
           "expected_outputs": {
-            "Wallbox.I1": {
+            "Wallbox.I": {
               ">": 0.5
             }
           }
@@ -169,13 +169,13 @@
         {
           "name": "does NOT charge when solar is low",
           "inputs": {
-            "Solarproduktion.AQ": 2.0,
-            "Hausverbrauch.AQ": 0.0
+            "Solarproduktion": 2000,
+            "Hausverbrauch": 0
           },
-          "ticks": 10,
+          "ticks": 5,
           "dt": 0.1,
           "expected_outputs": {
-            "Wallbox.I1": {
+            "Wallbox.I": {
               "<": 0.5
             }
           }
@@ -183,13 +183,13 @@
         {
           "name": "does NOT charge when grid importing",
           "inputs": {
-            "Solarproduktion.AQ": 5.0,
-            "Hausverbrauch.AQ": 1.0
+            "Solarproduktion": 5000,
+            "Hausverbrauch": 6000
           },
-          "ticks": 10,
+          "ticks": 5,
           "dt": 0.1,
           "expected_outputs": {
-            "Wallbox.I1": {
+            "Wallbox.I": {
               "<": 0.5
             }
           }
