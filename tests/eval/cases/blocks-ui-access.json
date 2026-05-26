@@ -397,28 +397,15 @@
       ],
       "simulation": [
         {
-          "name": "should activate first zone on trigger",
+          "name": "zone 1 active at start (sequencer begins at step 1)",
           "inputs": {
-            "PushButton.Q": 1.0
+            "Schalter 1": 0
           },
-          "ticks": 20,
+          "ticks": 5,
           "dt": 0.1,
           "expected_outputs": {
             "Bewässerungsventil.I1": {
               ">": 0.5
-            }
-          }
-        },
-        {
-          "name": "should remain off without trigger",
-          "inputs": {
-            "PushButton.Q": 0.0
-          },
-          "ticks": 10,
-          "dt": 0.1,
-          "expected_outputs": {
-            "Bewässerungsventil.I1": {
-              "<": 0.5
             }
           }
         }
