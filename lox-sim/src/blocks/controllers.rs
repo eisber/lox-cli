@@ -1328,6 +1328,7 @@ impl Block for TwoPoint {
         }
 
         let out = if inv { !self.output } else { self.output };
+        eprintln!("[2Point] value={value} sp={setpoint} hyst={hyst} inv={inv} half={half} internal={} out={out}", self.output);
         vec![bool_signal(out)]
     }
 

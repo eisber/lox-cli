@@ -403,12 +403,33 @@ impl Block for Access {
 // AalEmergency
 // ---------------------------------------------------------------------------
 
-// WARNING: Block type 'AalEmergency' behavior unknown — using pass-through stub.
-// Actual Loxone behavior not documented. Will be validated later.
+/// AAL emergency alert.
+/// Inputs: InTrigger(0), InAlarm(1), InConfirm(2), InReset(3)
+/// Outputs: OutAlarm(0), OutAlarmStart(1), OutAlarmStop(2), OutAlarmSource(3), OutConfirmSource(4)
+///
+/// InAlarm rising edge activates alarm (OutAlarm=1, OutAlarmStart pulse).
+/// InConfirm rising edge or InReset rising edge deactivates (OutAlarm=0, OutAlarmStop pulse).
+/// InTrigger rising edge also activates alarm (simplified — real block uses push-and-hold).
+#[derive(Clone)]
+pub struct AalEmergency {
+    alarm_active: bool,
+    prev_trigger: f64,
+    prev_alarm: f64,
+    prev_confirm: f64,
+    prev_reset: f64,
+}
 
-/// AAL emergency alert — pass-through stub.
-#[derive(Clone, Copy)]
-pub struct AalEmergency;
+impl Default for AalEmergency {
+    fn default() -> Self {
+        Self {
+            alarm_active: false,
+            prev_trigger: 0.0,
+            prev_alarm: 0.0,
+            prev_confirm: 0.0,
+            prev_reset: 0.0,
+        }
+    }
+}
 
 impl Block for AalEmergency {
     fn eval(
@@ -418,7 +439,36 @@ impl Block for AalEmergency {
         _dt: f64,
         _prev: &[Signal],
     ) -> Vec<Signal> {
-        vec![inputs.first().copied().unwrap_or(0.0)]
+        let trigger = inputs.first().copied().unwrap_or(0.0);
+        let alarm_in = inputs.get(1).copied().unwrap_or(0.0);
+        let confirm = inputs.get(2).copied().unwrap_or(0.0);
+        let reset = inputs.get(3).copied().unwrap_or(0.0);
+
+        let trigger_rising = trigger > 0.5 && self.prev_trigger <= 0.5;
+        let alarm_rising = alarm_in > 0.5 && self.prev_alarm <= 0.5;
+        let confirm_rising = confirm > 0.5 && self.prev_confirm <= 0.5;
+        let reset_rising = reset > 0.5 && self.prev_reset <= 0.5;
+
+        let mut alarm_start = 0.0;
+        let mut alarm_stop = 0.0;
+
+        if (trigger_rising || alarm_rising) && !self.alarm_active {
+            self.alarm_active = true;
+            alarm_start = 1.0;
+        }
+        if (confirm_rising || reset_rising) && self.alarm_active {
+            self.alarm_active = false;
+            alarm_stop = 1.0;
+        }
+
+        self.prev_trigger = trigger;
+        self.prev_alarm = alarm_in;
+        self.prev_confirm = confirm;
+        self.prev_reset = reset;
+
+        let out_alarm = if self.alarm_active { 1.0 } else { 0.0 };
+        // OutAlarm, OutAlarmStart, OutAlarmStop, OutAlarmSource, OutConfirmSource
+        vec![out_alarm, alarm_start, alarm_stop, 0.0, 0.0]
     }
 
     fn state(&self) -> Option<Vec<u8>> {

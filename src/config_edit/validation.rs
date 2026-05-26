@@ -266,10 +266,19 @@ impl ConfigEditor {
                         let has_input_connectors = any_input || !unwired_inputs.is_empty();
                         if has_input_connectors {
                             if !any_input {
-                                results.push(format!(
-                                    "✗ {etype} '{title}': no inputs wired — block has no signal source"
-                                ));
+                                if any_output {
+                                    // Block has outputs wired but no inputs — circuit is incomplete
+                                    results.push(format!(
+                                        "✗ {etype} '{title}': no inputs wired — block has no signal source"
+                                    ));
+                                } else {
+                                    // Standalone block, no wiring at all — just a warning
+                                    results.push(format!(
+                                        "⚠ {etype} '{title}': no inputs wired — may need signal source"
+                                    ));
+                                }
                             } else if !unwired_inputs.is_empty() {
+                                // Partially wired — some inputs missing
                                 results.push(format!(
                                     "✗ {etype} '{title}': unwired inputs: {} — wire signal sources to complete the circuit",
                                     unwired_inputs.join(", ")

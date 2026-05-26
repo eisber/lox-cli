@@ -990,11 +990,13 @@ fn block_signature(
             &[
                 "InputTrigger 1",
                 "InputTrigger 2",
+                "InputTrigger 3",
+                "InputTrigger 4",
                 "InputTriggerP",
                 "InputTriggerM",
                 "InputSel",
             ],
-            &["Q1", "Q2", "AQ"],
+            &["Q1", "Q2", "Q3", "Q4", "AQ"],
             &["Mode"],
         ),
         "Sequencer" => (
@@ -1612,7 +1614,7 @@ fn block_signature(
         ),
         "PWM" => (&["Input", "InputEnable"], &["Q"], &["PT"]),
         // Comparators
-        "Equal" | "NotEqual" => (&[], &["Q"], &["Input1", "Input2"]),
+        "Equal" | "NotEqual" => (&["Input1"], &["Q"], &["Input2"]),
         // Decoders / monitors
         "BinDecoder" => (&["Input"], &["Q1", "Q2"], &[]),
         "StatusMonitor" => (&["Stat"], &["Txlc", "Csr", "Cs1", "Cs2", "API"], &[]),

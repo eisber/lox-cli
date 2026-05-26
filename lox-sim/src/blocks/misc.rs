@@ -1338,11 +1338,36 @@ stub_block!(
     "LightsceneLearn"
 );
 
-stub_block!(
-    /// RGB lightscene — scene with color data.
-    LightsceneRGB,
-    "LightsceneRGB"
-);
+/// RGB lightscene — scene controller with color presets.
+/// Passes Select input through to Scene output, enabling scene number propagation.
+/// Inputs order: AI, InputTriggerUp, InputTriggerDown, Select, InputDisable, Reset, On
+/// Outputs order: AQr, AQg, AQb, Scene, AQa
+#[derive(Clone, Copy)]
+pub struct LightsceneRGB;
+
+impl Block for LightsceneRGB {
+    fn eval(
+        &mut self,
+        inputs: &[Signal],
+        _params: &[Signal],
+        _dt: f64,
+        _prev: &[Signal],
+    ) -> Vec<Signal> {
+        let select = inputs.get(3).copied().unwrap_or(0.0);
+        // Pass Select through to Scene output (index 3)
+        vec![0.0, 0.0, 0.0, select, 0.0]
+    }
+
+    fn state(&self) -> Option<Vec<u8>> {
+        None
+    }
+
+    fn restore(&mut self, _state: &[u8]) {}
+
+    fn block_type(&self) -> &str {
+        "LightsceneRGB"
+    }
+}
 
 // WARNING: Simplified model — real Loxone behavior may differ.
 // Assumption: LightControllerH is a simplified LightController variant.
@@ -1495,11 +1520,104 @@ impl Block for Radio {
     }
 }
 
-stub_block!(
-    /// Radio (v2) — pass-through stub.
-    Radio2,
-    "Radio2"
-);
+/// Radio2 — Radio Buttons (16x). Mutual exclusion with up to 16 buttons.
+/// Inputs order: InputTrigger 1..4, InputTriggerP, InputTriggerM, InputSel
+/// Outputs order: Q1..Q4, AQ
+#[derive(Clone)]
+pub struct Radio2 {
+    selected: usize,
+    prev_triggers: [f64; 6], // IT1..IT4, P, M
+}
+
+impl Radio2 {
+    const NUM_BUTTONS: usize = 4;
+}
+
+impl Default for Radio2 {
+    fn default() -> Self {
+        Self {
+            selected: 0,
+            prev_triggers: [0.0; 6],
+        }
+    }
+}
+
+impl Block for Radio2 {
+    fn eval(
+        &mut self,
+        inputs: &[Signal],
+        _params: &[Signal],
+        _dt: f64,
+        _prev: &[Signal],
+    ) -> Vec<Signal> {
+        let get = |i: usize| inputs.get(i).copied().unwrap_or(0.0);
+
+        // Rising-edge detection
+        let rising = |cur: f64, idx: usize| -> bool {
+            let prev = self.prev_triggers[idx];
+            cur > 0.5 && prev <= 0.5
+        };
+
+        let triggers: [f64; 4] = [get(0), get(1), get(2), get(3)];
+        let itp = get(4);
+        let itm = get(5);
+        let sel = get(6);
+
+        // Check individual triggers (rising edge)
+        let mut triggered = false;
+        for (i, &t) in triggers.iter().enumerate() {
+            if rising(t, i) {
+                self.selected = i + 1;
+                triggered = true;
+                break;
+            }
+        }
+
+        if !triggered {
+            if rising(itp, 4) {
+                if self.selected < Self::NUM_BUTTONS {
+                    self.selected += 1;
+                } else {
+                    self.selected = 1;
+                }
+            } else if rising(itm, 5) {
+                if self.selected > 1 {
+                    self.selected -= 1;
+                } else {
+                    self.selected = Self::NUM_BUTTONS;
+                }
+            } else if sel > 0.5 {
+                let s = sel.round() as usize;
+                if (1..=Self::NUM_BUTTONS).contains(&s) {
+                    self.selected = s;
+                }
+            }
+        }
+
+        self.prev_triggers = [triggers[0], triggers[1], triggers[2], triggers[3], itp, itm];
+
+        let mut out = Vec::with_capacity(Self::NUM_BUTTONS + 1);
+        for i in 1..=Self::NUM_BUTTONS {
+            out.push(if self.selected == i { 1.0 } else { 0.0 });
+        }
+        out.push(self.selected as f64);
+        out
+    }
+
+    fn state(&self) -> Option<Vec<u8>> {
+        Some(vec![self.selected as u8])
+    }
+
+    fn restore(&mut self, state: &[u8]) {
+        if let Some(&s) = state.first() {
+            self.selected = s as usize;
+        }
+    }
+
+    fn block_type(&self) -> &str {
+        "Radio2"
+    }
+}
 
 stub_block!(
     /// Intercom — pass-through stub.
@@ -2502,7 +2620,6 @@ mod tests {
             "LightControllerH",
             "Lightscene",
             "LightsceneLearn",
-            "LightsceneRGB",
             "LongClick",
             "MPGroup",
             "MailBox",
@@ -2522,7 +2639,6 @@ mod tests {
             "PowerUnit",
             "PulseBy",
             "PushDimmer",
-            "Radio2",
             "Ramp",
             "Rand",
             "RandomGen",

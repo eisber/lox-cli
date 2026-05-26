@@ -256,14 +256,17 @@ impl Block for StairwayLS {
     ) -> Vec<Signal> {
         let trigger = inputs.first().copied().unwrap_or(0.0);
         let forced_on = inputs.get(1).copied().unwrap_or(0.0);
+        let reset = inputs.get(2).copied().unwrap_or(0.0);
         let prev_trigger = prev_inputs.first().copied().unwrap_or(0.0);
         let time_high = params.first().copied().unwrap_or(180.0).max(0.0);
 
-        if !is_high(prev_trigger) && is_high(trigger) {
+        if is_high(reset) {
+            self.remaining = 0.0;
+        } else if !is_high(prev_trigger) && is_high(trigger) {
             self.remaining = time_high.max(dt);
         }
 
-        let q = if is_high(forced_on) {
+        let q = if is_high(forced_on) && !is_high(reset) {
             true
         } else {
             let active = self.remaining > 0.0;

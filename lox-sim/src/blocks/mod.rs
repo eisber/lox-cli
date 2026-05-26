@@ -501,7 +501,7 @@ pub fn create_block(block_type: &str) -> Box<dyn Block> {
         "PresenceController" => Box::new(PresenceController::new()),
         "PresenceDetector" => Box::new(PresenceDetector),
         "Access" => Box::new(Access),
-        "AalEmergency" => Box::new(AalEmergency),
+        "AalEmergency" => Box::new(AalEmergency::default()),
         "AalSmartAlarm" => Box::new(AalSmartAlarm),
         "JoinWindowSensor" => Box::new(JoinWindowSensor),
 
@@ -614,7 +614,7 @@ pub fn create_block(block_type: &str) -> Box<dyn Block> {
         "MediaClient" => Box::new(MediaClient),
         "MusicPlayer" => Box::new(MusicPlayer),
         "Radio" => Box::new(Radio::default()),
-        "Radio2" => Box::new(Radio2),
+        "Radio2" => Box::new(Radio2::default()),
         "Intercom" => Box::new(Intercom),
         "Tablet" => Box::new(Tablet),
         "Device Tablet" => Box::new(DeviceTablet),
