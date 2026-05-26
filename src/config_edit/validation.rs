@@ -162,6 +162,7 @@ impl ConfigEditor {
             wired_inputs: &'a HashSet<String>,
             wired_outputs: &'a HashSet<String>,
             uuid_block_count: &'a HashMap<String, usize>,
+            connector_map: &'a ConnectorMap,
         }
 
         fn walk_blocks(
@@ -211,11 +212,18 @@ impl ConfigEditor {
                         }
                     }
 
-                    // Check wiring for logic blocks
-                    if ctx.logic_types.contains(etype) {
+                    // Check wiring for all automation blocks (not just logic types)
+                    {
                         let mut any_input = false;
                         let mut any_output = false;
                         let mut unwired_inputs = Vec::new();
+
+                        // Get connector types from the connector map for this block type
+                        let cmap_types = ctx
+                            .connector_map
+                            .get(etype)
+                            .map(|(_, _, t)| t.clone())
+                            .unwrap_or_default();
 
                         for child in &elem.children {
                             let Some(c) = child.as_element() else {
@@ -233,34 +241,47 @@ impl ConfigEditor {
                                 || ctx.wired_outputs.contains(u)
                                 || *ctx.uuid_block_count.get(u).unwrap_or(&0) >= 2;
 
-                            if ctx.input_keys.contains(k) {
-                                if is_wired {
+                            // Determine direction: prefer connector map, fall back to static sets
+                            let direction = cmap_types.get(k).map(|s| s.as_str());
+                            let is_input = direction == Some("I")
+                                || (direction.is_none() && ctx.input_keys.contains(k));
+                            let is_output = direction == Some("O")
+                                || (direction.is_none() && ctx.output_keys.contains(k));
+
+                            if is_input {
+                                let has_default =
+                                    c.attributes.get("Def").is_some_and(|s| !s.is_empty());
+                                if is_wired || has_default {
                                     any_input = true;
                                 } else {
                                     unwired_inputs.push(k.to_string());
                                 }
                             }
-                            if ctx.output_keys.contains(k) && is_wired {
+                            if is_output && is_wired {
                                 any_output = true;
                             }
                         }
 
-                        if !any_input {
-                            results.push(format!(
-                                "✗ {etype} '{title}': no inputs wired — block has no signal source"
-                            ));
-                        } else if !unwired_inputs.is_empty() {
-                            results.push(format!(
-                                "⚠ {etype} '{title}': unwired inputs: {} — may need signal source",
-                                unwired_inputs.join(", ")
-                            ));
+                        // Only report if block actually has input connectors
+                        let has_input_connectors = any_input || !unwired_inputs.is_empty();
+                        if has_input_connectors {
+                            if !any_input {
+                                results.push(format!(
+                                    "✗ {etype} '{title}': no inputs wired — block has no signal source"
+                                ));
+                            } else if !unwired_inputs.is_empty() {
+                                results.push(format!(
+                                    "✗ {etype} '{title}': unwired inputs: {} — wire signal sources to complete the circuit",
+                                    unwired_inputs.join(", ")
+                                ));
+                            }
                         }
-                        if !any_output {
+                        if ctx.logic_types.contains(etype) && !any_output {
                             results.push(format!(
                                 "⚠ {etype} '{title}': output not connected — block result goes nowhere"
                             ));
                         }
-                        if any_input && any_output {
+                        if has_input_connectors && any_input && unwired_inputs.is_empty() {
                             results.push(format!("✓ {etype} '{title}': inputs and outputs wired"));
                         }
                     }
@@ -357,6 +378,7 @@ impl ConfigEditor {
             }
         }
 
+        let cmap = Self::connector_map();
         let ctx = CheckCtx {
             param_checks: &param_checks,
             logic_types: &logic_types,
@@ -366,6 +388,7 @@ impl ConfigEditor {
             wired_inputs: &wired_inputs,
             wired_outputs: &wired_outputs,
             uuid_block_count: &uuid_block_count,
+            connector_map: &cmap,
         };
 
         walk_blocks(&self.root, selector, &ctx, &mut results);

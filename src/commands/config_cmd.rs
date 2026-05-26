@@ -1855,6 +1855,9 @@ pub fn cmd_config(ctx: &RunContext, action: ConfigCmd) -> Result<()> {
                 }
                 println!("\n{} ok, {} warnings, {} errors", ok, warn, err);
             }
+            if err > 0 {
+                anyhow::bail!("{} error(s) found in config check", err);
+            }
         }
         ConfigCmd::Scan { file, strict } => {
             let data = fs::read(&file).with_context(|| format!("Cannot read {}", file))?;
@@ -2855,10 +2858,12 @@ fn collect_block_connectors(editor: &ConfigEditor, uuid: &str) -> Vec<serde_json
                 let k = co.attributes.get("K").cloned().unwrap_or_default();
                 let co_uuid = co.attributes.get("U").cloned().unwrap_or_default();
                 let io = types.get(&k).cloned().unwrap_or_else(|| "?".to_string());
+                let required = io == "I";
                 serde_json::json!({
                     "key": k,
                     "uuid": co_uuid,
                     "direction": io,
+                    "required": required,
                 })
             })
             .collect()
