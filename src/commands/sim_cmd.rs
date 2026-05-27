@@ -366,7 +366,23 @@ fn cmd_run(file: &str, sim: Option<&str>, sim_file: Option<&str>) -> Result<()> 
         results.push(result);
     }
 
-    let output = serde_json::json!({
+    // Build top-level trace dict from last scenario (for convenience)
+    let trace_dict: serde_json::Map<String, serde_json::Value> = results
+        .last()
+        .map(|r| {
+            r.trace
+                .iter()
+                .filter_map(|t| {
+                    let obj = t.as_object()?;
+                    let key = obj.get("output")?.as_str()?;
+                    let val = obj.get("value")?.as_f64()?;
+                    Some((key.to_string(), serde_json::json!(val)))
+                })
+                .collect()
+        })
+        .unwrap_or_default();
+
+    let mut output = serde_json::json!({
         "pass": all_pass,
         "total": results.len(),
         "passed": results.iter().filter(|r| r.pass).count(),
@@ -382,6 +398,9 @@ fn cmd_run(file: &str, sim: Option<&str>, sim_file: Option<&str>) -> Result<()> 
             s
         }).collect::<Vec<_>>(),
     });
+    if !trace_dict.is_empty() {
+        output["trace"] = serde_json::Value::Object(trace_dict);
+    }
     println!("{}", serde_json::to_string(&output).unwrap());
 
     if !all_pass {

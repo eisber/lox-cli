@@ -217,18 +217,12 @@ impl SimEngine {
                     // VirtualIn, PassThrough) naturally pass values through —
                     // overriding them would freeze the output and break edge
                     // detection in downstream blocks.
+                    // Hardware sensors (TreeSensor, etc.) DO need overrides
+                    // because they have no real input to pass through.
                     let bt = self.blocks[block_id].block_type();
                     if !matches!(
                         bt,
-                        "SysVar"
-                            | "VirtualIn"
-                            | "PassThrough"
-                            | "VirtualOut"
-                            | "VirtualState"
-                            | "TreeSensor"
-                            | "TreeAsensor"
-                            | "LoxAIRsensor"
-                            | "LoxAIRAsensor"
+                        "SysVar" | "VirtualIn" | "PassThrough" | "VirtualOut" | "VirtualState"
                     ) {
                         self.output_overrides.insert(cid, value);
                     }
