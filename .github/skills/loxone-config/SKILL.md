@@ -377,15 +377,15 @@ lox config wire-connector config.Loxone "Heizung.Input" "Raumtemperatur Wohnzimm
 
 #### UpDownCounter — Bidirectional counter
 
-- **Inputs:** `InputUp`, `InputDown`, `Reset`
-- **Outputs:** `AQ` (count), `Q` (at max)
+- **Inputs:** `Trigger` (count pulse), `InputDir` (0=up, 1=down), `Reset`
+- **Outputs:** `AQ` (count value), `Q` (output)
 - **Params:** `Max`, `Min`
 
 #### HourCounter — Operating hours tracker
 
-- **Inputs:** `Input` (digital: count while high), `Reset`
+- **Inputs:** `InputEnable` (count while high), `Reset`
 - **Outputs:** `AQ` (hours), `Q` (threshold exceeded)
-- **Params:** `Threshold`
+- **Params:** `Maintenance` (hour threshold)
 
 #### SequenceController — Step through outputs in sequence
 
@@ -396,14 +396,14 @@ lox config wire-connector config.Loxone "Heizung.Input" "Raumtemperatur Wohnzimm
 #### MultiClick — Detect single/double/triple clicks
 
 - **Inputs:** `InputTrigger`
-- **Outputs:** `Q` (single), `QDouble`, `QTriple`
+- **Outputs:** `Q1` (single), `Q2` (double), `Q3` (triple), `Q4` (quad)
 - **Params:** `Timeout` (ms between clicks)
 
 #### MultiFuncSW — Multi-function switch
 
 - **Inputs:** `InputTrigger`
-- **Outputs:** `Qshort`, `Qlong`, `Qdouble`
-- **Params:** `LongTime` (ms threshold for long press)
+- **Outputs:** `Q` (toggle output)
+- **Params:** `TimeHigh` (on-duration, default 180s), `TimeTrigger` (long-click threshold, default 0.5s)
 
 #### Radio — Radio button group (mutual exclusion)
 
