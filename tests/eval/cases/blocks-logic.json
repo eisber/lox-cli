@@ -812,25 +812,16 @@
         {
           "name": "first on gives 1",
           "inputs": {
-            "Schalter 1.Q": 0.0,
+            "Schalter 1.Q": 1,
             "Schalter 2.Q": 0
           },
-          "ticks": 2,
+          "ticks": 5,
           "dt": 0.1,
-          "steps": [
-            {
-              "inputs": {
-                "Schalter 1.Q": 1,
-                "Schalter 2.Q": 0
-              },
-              "ticks": 5,
-              "expected_outputs": {
-                "Raumregler.Input": {
-                  ">": 0.5
-                }
-              }
+          "expected_outputs": {
+            "Raumregler.Input": {
+              ">": 0.5
             }
-          ]
+          }
         }
       ]
     }

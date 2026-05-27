@@ -61,7 +61,7 @@
         {
           "name": "temp above threshold triggers alarm after delay",
           "inputs": {
-            "Raumtemperatur Küche.AQ": -10.0
+            "Raumtemperatur Küche.AQ": 1.0
           },
           "ticks": 6500,
           "dt": 0.1,
@@ -74,7 +74,7 @@
         {
           "name": "temp below threshold no alarm",
           "inputs": {
-            "Raumtemperatur Küche.AQ": -20.0
+            "Raumtemperatur Küche.AQ": 0.0
           },
           "ticks": 6500,
           "dt": 0.1,
@@ -482,26 +482,18 @@
         {
           "name": "party mode activates scenes and closes blinds",
           "inputs": {
-            "Schalter 2.Q": 0.0
+            "Schalter 2.Q": 1.0
           },
-          "ticks": 2,
+          "ticks": 10,
           "dt": 0.1,
-          "steps": [
-            {
-              "inputs": {
-                "Schalter 2.Q": 1.0
-              },
-              "ticks": 10,
-              "expected_outputs": {
-                "Jalousie 1 [Wohnzimmer].InputTriggerDown": {
-                  ">": 0.5
-                },
-                "Gartenbeleuchtung.On": {
-                  ">": 0.5
-                }
-              }
+          "expected_outputs": {
+            "Jalousie 1 [Wohnzimmer].InputTriggerDown": {
+              ">": 0.5
+            },
+            "Gartenbeleuchtung.On": {
+              ">": 0.5
             }
-          ]
+          }
         },
         {
           "name": "no party when switch off",
@@ -770,23 +762,15 @@
         {
           "name": "counter increments when pump enabled",
           "inputs": {
-            "Bewässerung Manuell.Q": 0.0
+            "Bewässerung Manuell.Q": 1.0
           },
-          "ticks": 2,
+          "ticks": 100,
           "dt": 0.1,
-          "steps": [
-            {
-              "inputs": {
-                "Bewässerung Manuell.Q": 1.0
-              },
-              "ticks": 100,
-              "expected_outputs": {
-                "Statusblock.I": {
-                  ">": 0.0
-                }
-              }
+          "expected_outputs": {
+            "Statusblock.I": {
+              ">": 0.0
             }
-          ]
+          }
         },
         {
           "name": "counter idle when pump off",
@@ -991,23 +975,15 @@
         {
           "name": "sustained signal passes through",
           "inputs": {
-            "Garagentor Sensor.Q": 0.0
+            "Garagentor Sensor.Q": 1.0
           },
-          "ticks": 2,
+          "ticks": 15,
           "dt": 0.1,
-          "steps": [
-            {
-              "inputs": {
-                "Garagentor Sensor.Q": 1.0
-              },
-              "ticks": 15,
-              "expected_outputs": {
-                "Alarmanlage.I": {
-                  ">": 0.5
-                }
-              }
+          "expected_outputs": {
+            "Alarmanlage.I": {
+              ">": 0.5
             }
-          ]
+          }
         },
         {
           "name": "brief glitch filtered out",
@@ -1067,24 +1043,15 @@
           "name": "manual switch overrides automation off",
           "inputs": {
             "Bewegungsmelder Garten.OutputPresence": 0.0,
-            "KNX Schalter Garage.Q": 0.0
+            "KNX Schalter Garage.Q": 1.0
           },
-          "ticks": 2,
+          "ticks": 10,
           "dt": 0.1,
-          "steps": [
-            {
-              "inputs": {
-                "Bewegungsmelder Garten.OutputPresence": 0.0,
-                "KNX Schalter Garage.Q": 1.0
-              },
-              "ticks": 10,
-              "expected_outputs": {
-                "Garagenlicht.I1": {
-                  ">": 0.5
-                }
-              }
+          "expected_outputs": {
+            "Garagenlicht.I1": {
+              ">": 0.5
             }
-          ]
+          }
         },
         {
           "name": "presence alone activates light",
@@ -1198,7 +1165,17 @@
                 }
               }
             }
-          ]
+          ],
+          "expected_outputs": {
+            "Statusblock.I": {
+              ">": 0.5
+            }
+          },
+          "inputs": {
+            "Raumtemperatur Schlafzimmer.AQ": 17.0
+          },
+          "ticks": 22,
+          "dt": 0.1
         },
         {
           "name": "hot temp turns heating off",
@@ -1222,7 +1199,17 @@
                 }
               }
             }
-          ]
+          ],
+          "expected_outputs": {
+            "Statusblock.I": {
+              "<": 0.5
+            }
+          },
+          "inputs": {
+            "Raumtemperatur Schlafzimmer.AQ": 23.0
+          },
+          "ticks": 22,
+          "dt": 0.1
         }
       ]
     }

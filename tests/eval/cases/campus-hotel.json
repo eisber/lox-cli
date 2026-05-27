@@ -70,7 +70,17 @@
                 }
               }
             }
-          ]
+          ],
+          "expected_outputs": {
+            "Lichtsteuerung [Schlafzimmer].Reset": {
+              ">": 0.5
+            }
+          },
+          "inputs": {
+            "Türkontakt Schlafzimmer.Q": 0.0
+          },
+          "ticks": 15,
+          "dt": 0.1
         },
         {
           "name": "should NOT reset lights while card is inserted",
@@ -94,7 +104,17 @@
                 }
               }
             }
-          ]
+          ],
+          "expected_outputs": {
+            "Lichtsteuerung [Schlafzimmer].Reset": {
+              "<": 0.5
+            }
+          },
+          "inputs": {
+            "Türkontakt Schlafzimmer.Q": 1.0
+          },
+          "ticks": 12,
+          "dt": 0.1
         }
       ]
     }
@@ -708,7 +728,17 @@
                 }
               }
             }
-          ]
+          ],
+          "expected_outputs": {
+            "Raumregler [Wohnzimmer].Move": {
+              ">": 0.5
+            }
+          },
+          "inputs": {
+            "Türkontakt Schlafzimmer.AQ": 1.0
+          },
+          "ticks": 13,
+          "dt": 0.1
         },
         {
           "name": "should switch to eco when card removed",
@@ -732,7 +762,17 @@
                 }
               }
             }
-          ]
+          ],
+          "expected_outputs": {
+            "Raumregler [Wohnzimmer].Move": {
+              "<": 0.5
+            }
+          },
+          "inputs": {
+            "Türkontakt Schlafzimmer.AQ": 0.0
+          },
+          "ticks": 15,
+          "dt": 0.1
         }
       ]
     }
@@ -771,23 +811,15 @@
         {
           "name": "should enable manual light control when cleaning active and door open",
           "inputs": {
-            "Türkontakt Bad.AQ": 0.0
+            "Türkontakt Bad.AQ": 1.0
           },
-          "ticks": 2,
+          "ticks": 10,
           "dt": 0.1,
-          "steps": [
-            {
-              "inputs": {
-                "Türkontakt Bad.AQ": 1.0
-              },
-              "ticks": 10,
-              "expected_outputs": {
-                "Lichtsteuerung [Bad].EnMove": {
-                  ">": 0.5
-                }
-              }
+          "expected_outputs": {
+            "Lichtsteuerung [Bad].EnMove": {
+              ">": 0.5
             }
-          ]
+          }
         },
         {
           "name": "should NOT enable manual control when door is closed",
@@ -1006,25 +1038,16 @@
         {
           "name": "should reset thermostat when checkout and no presence",
           "inputs": {
-            "Türkontakt Schlafzimmer.AQ": 0.0,
+            "Türkontakt Schlafzimmer.AQ": 1.0,
             "Bewegungsmelder.OutputAbsence": 1
           },
-          "ticks": 2,
+          "ticks": 10,
           "dt": 0.1,
-          "steps": [
-            {
-              "inputs": {
-                "Türkontakt Schlafzimmer.AQ": 1.0,
-                "Bewegungsmelder.OutputAbsence": 1
-              },
-              "ticks": 10,
-              "expected_outputs": {
-                "Raumregler [Wohnzimmer].RtD": {
-                  ">": 0.5
-                }
-              }
+          "expected_outputs": {
+            "Raumregler [Wohnzimmer].RtD": {
+              ">": 0.5
             }
-          ]
+          }
         },
         {
           "name": "should NOT reset when guest still present",
@@ -1167,7 +1190,23 @@
               }
             }
           ],
-          "time": 1380
+          "time": 1380,
+          "expected_outputs": {
+            "Lichtsteuerung [Küche].Reset": {
+              ">": 0.5
+            },
+            "Jalousie 1 [Küche].InputTriggerDown": {
+              ">": 0.5
+            },
+            "Jalousie 2 [Küche].InputTriggerDown": {
+              ">": 0.5
+            }
+          },
+          "inputs": {
+            "Türkontakt Küche.AQ": 0.0
+          },
+          "ticks": 35,
+          "dt": 0.1
         },
         {
           "name": "should NOT trigger while card inserted",
@@ -1192,7 +1231,17 @@
               }
             }
           ],
-          "time": 720
+          "time": 720,
+          "expected_outputs": {
+            "Lichtsteuerung [Küche].Reset": {
+              "<": 0.5
+            }
+          },
+          "inputs": {
+            "Türkontakt Küche.AQ": 1.0
+          },
+          "ticks": 32,
+          "dt": 0.1
         }
       ]
     }

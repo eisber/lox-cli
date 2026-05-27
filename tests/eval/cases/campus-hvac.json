@@ -768,7 +768,20 @@
                 }
               }
             }
-          ]
+          ],
+          "expected_outputs": {
+            "Formel.I": {
+              ">": 0
+            }
+          },
+          "inputs": {
+            "Raumregler [Wohnzimmer].AQh": 1.0,
+            "Raumregler [Wohnzimmer].AQc": 0.0,
+            "Fensterkontakt Wohnzimmer.AQ": 0.0,
+            "Türkontakt Wohnzimmer.AQ": 0.0
+          },
+          "ticks": 7,
+          "dt": 0.1
         },
         {
           "name": "window open changes state",
@@ -798,7 +811,20 @@
                 }
               }
             }
-          ]
+          ],
+          "expected_outputs": {
+            "Formel.I": {
+              ">": 0
+            }
+          },
+          "inputs": {
+            "Raumregler [Wohnzimmer].AQh": 0.0,
+            "Raumregler [Wohnzimmer].AQc": 0.0,
+            "Fensterkontakt Wohnzimmer.AQ": 1.0,
+            "Türkontakt Wohnzimmer.AQ": 0.0
+          },
+          "ticks": 7,
+          "dt": 0.1
         },
         {
           "name": "idle state shows 0",
@@ -828,7 +854,20 @@
                 }
               }
             }
-          ]
+          ],
+          "expected_outputs": {
+            "Formel.I": {
+              "==": 0
+            }
+          },
+          "inputs": {
+            "Raumregler [Wohnzimmer].AQh": 0.0,
+            "Raumregler [Wohnzimmer].AQc": 0.0,
+            "Fensterkontakt Wohnzimmer.AQ": 0.0,
+            "Türkontakt Wohnzimmer.AQ": 0.0
+          },
+          "ticks": 12,
+          "dt": 0.1
         }
       ]
     }
@@ -930,7 +969,18 @@
                 }
               }
             }
-          ]
+          ],
+          "expected_outputs": {
+            "Heizkörper Bad.I1": {
+              ">": 0
+            }
+          },
+          "inputs": {
+            "Raumregler [Wohnzimmer].AQh": 0.8,
+            "Raumregler [Wohnzimmer].AQc": 0.0
+          },
+          "ticks": 7,
+          "dt": 0.1
         },
         {
           "name": "cooling valve scales correctly",
@@ -956,7 +1006,18 @@
                 }
               }
             }
-          ]
+          ],
+          "expected_outputs": {
+            "Lüfter Bad.I1": {
+              ">": 0
+            }
+          },
+          "inputs": {
+            "Raumregler [Wohnzimmer].AQh": 0.0,
+            "Raumregler [Wohnzimmer].AQc": 0.7
+          },
+          "ticks": 7,
+          "dt": 0.1
         }
       ]
     }
@@ -1141,7 +1202,18 @@
                 }
               }
             }
-          ]
+          ],
+          "expected_outputs": {
+            "Lichtsteuerung [Wohnzimmer].I1": {
+              ">": 0.5
+            }
+          },
+          "inputs": {
+            "Türkontakt Wohnzimmer.AQ": 1.0,
+            "Fensterkontakt Wohnzimmer.AQ": 0.0
+          },
+          "ticks": 3,
+          "dt": 0.1
         },
         {
           "name": "window open shows in status I1",
@@ -1167,7 +1239,18 @@
                 }
               }
             }
-          ]
+          ],
+          "expected_outputs": {
+            "Formel.I": {
+              ">": 0.5
+            }
+          },
+          "inputs": {
+            "Fensterkontakt Wohnzimmer.AQ": 1.0,
+            "Türkontakt Wohnzimmer.AQ": 0.0
+          },
+          "ticks": 7,
+          "dt": 0.1
         }
       ]
     }
@@ -1282,7 +1365,21 @@
                 }
               }
             }
-          ]
+          ],
+          "expected_outputs": {
+            "Heizkörper Bad.I1": {
+              ">": 0
+            },
+            "Formel.I": {
+              ">": 0
+            }
+          },
+          "inputs": {
+            "Raumregler [Wohnzimmer].AQh": 0.8,
+            "Raumregler [Wohnzimmer].AQc": 0.0
+          },
+          "ticks": 12,
+          "dt": 0.1
         },
         {
           "name": "cooling active shows in state and scaler",
@@ -1311,7 +1408,21 @@
                 }
               }
             }
-          ]
+          ],
+          "expected_outputs": {
+            "Lüfter Bad.I1": {
+              ">": 0
+            },
+            "Formel.I": {
+              ">": 0
+            }
+          },
+          "inputs": {
+            "Raumregler [Wohnzimmer].AQh": 0.0,
+            "Raumregler [Wohnzimmer].AQc": 0.6
+          },
+          "ticks": 12,
+          "dt": 0.1
         },
         {
           "name": "idle shows zero state",
@@ -1337,7 +1448,18 @@
                 }
               }
             }
-          ]
+          ],
+          "expected_outputs": {
+            "Formel.I": {
+              "==": 0
+            }
+          },
+          "inputs": {
+            "Raumregler [Wohnzimmer].AQh": 0.0,
+            "Raumregler [Wohnzimmer].AQc": 0.0
+          },
+          "ticks": 12,
+          "dt": 0.1
         }
       ]
     }

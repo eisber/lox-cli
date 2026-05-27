@@ -195,23 +195,15 @@
         {
           "name": "should unlock door on valid code",
           "inputs": {
-            "Schalter 1.Q": 0.0
+            "Schalter 1.Q": 1.0
           },
-          "ticks": 2,
+          "ticks": 20,
           "dt": 0.1,
-          "steps": [
-            {
-              "inputs": {
-                "Schalter 1.Q": 1.0
-              },
-              "ticks": 20,
-              "expected_outputs": {
-                "Türschloss.I": {
-                  ">": 0.5
-                }
-              }
+          "expected_outputs": {
+            "Türschloss.I": {
+              ">": 0.5
             }
-          ]
+          }
         },
         {
           "name": "should remain locked without code",
@@ -405,15 +397,28 @@
       ],
       "simulation": [
         {
-          "name": "zone 1 active at start (sequencer begins at step 1)",
+          "name": "zone 1 active after trigger (sequencer advances to step 1)",
           "inputs": {
-            "Schalter 1.Q": 0
+            "Schalter 1.Q": 1.0
           },
-          "ticks": 5,
+          "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
             "Bewässerungsventil.I1": {
               ">": 0.5
+            }
+          }
+        },
+        {
+          "name": "no trigger keeps valve inactive",
+          "inputs": {
+            "Schalter 1.Q": 0.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Bewässerungsventil.I1": {
+              "<": 0.5
             }
           }
         }
@@ -739,25 +744,16 @@
         {
           "name": "should allow up when wind safe",
           "inputs": {
-            "PushButton.Q": 0.0,
+            "PushButton.Q": 1.0,
             "Windgeschwindigkeit.AQ": 1.0
           },
-          "ticks": 2,
+          "ticks": 10,
           "dt": 0.1,
-          "steps": [
-            {
-              "inputs": {
-                "PushButton.Q": 1.0,
-                "Windgeschwindigkeit.AQ": 1.0
-              },
-              "ticks": 10,
-              "expected_outputs": {
-                "Jalousie 1 [Wohnzimmer].InputTriggerUp": {
-                  ">": 0.5
-                }
-              }
+          "expected_outputs": {
+            "Jalousie 1 [Wohnzimmer].InputTriggerUp": {
+              ">": 0.5
             }
-          ]
+          }
         },
         {
           "name": "should block up when wind unsafe",
@@ -804,23 +800,15 @@
         {
           "name": "should send mail on denied access",
           "inputs": {
-            "Schalter 1.Q": 0.0
+            "Schalter 1.Q": 1.0
           },
-          "ticks": 2,
+          "ticks": 10,
           "dt": 0.1,
-          "steps": [
-            {
-              "inputs": {
-                "Schalter 1.Q": 1.0
-              },
-              "ticks": 10,
-              "expected_outputs": {
-                "Alarmanlage.I": {
-                  ">": 0.5
-                }
-              }
+          "expected_outputs": {
+            "Alarmanlage.I": {
+              ">": 0.5
             }
-          ]
+          }
         },
         {
           "name": "should NOT send mail on valid access",

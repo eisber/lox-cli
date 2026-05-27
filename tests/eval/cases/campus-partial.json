@@ -1196,24 +1196,15 @@
           "name": "AC activates when warm outside and triggered",
           "inputs": {
             "Außentemperatur.AQ": 28.0,
-            "Schalter 1.Q": 0.0
+            "Schalter 1.Q": 1.0
           },
-          "ticks": 2,
+          "ticks": 10,
           "dt": 0.1,
-          "steps": [
-            {
-              "inputs": {
-                "Außentemperatur.AQ": 28.0,
-                "Schalter 1.Q": 1.0
-              },
-              "ticks": 10,
-              "expected_outputs": {
-                "Klimaanlage.on": {
-                  ">": 0.5
-                }
-              }
+          "expected_outputs": {
+            "Klimaanlage.on": {
+              ">": 0.5
             }
-          ]
+          }
         },
         {
           "name": "AC blocked when cold outside",

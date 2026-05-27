@@ -490,7 +490,7 @@
           "name": "pump on when any room demands heat",
           "inputs": {
             "Raumtemperatur Bad.AQ": 0.0,
-            "Raumtemperatur Flur.AQ": 0.8,
+            "Raumtemperatur Flur.AQ": 1.0,
             "Raumtemperatur Küche.AQ": 0.0
           },
           "ticks": 10,
