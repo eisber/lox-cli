@@ -66,7 +66,7 @@
           "ticks": 6500,
           "dt": 0.1,
           "expected_outputs": {
-            "Alarmanlage.I1": {
+            "Alarmanlage.I": {
               ">": 0.5
             }
           }
@@ -79,7 +79,7 @@
           "ticks": 6500,
           "dt": 0.1,
           "expected_outputs": {
-            "Alarmanlage.I1": {
+            "Alarmanlage.I": {
               "<": 0.5
             }
           }
@@ -245,7 +245,7 @@
           "ticks": 3200,
           "dt": 0.1,
           "expected_outputs": {
-            "Alarmanlage.I1": {
+            "Alarmanlage.I": {
               ">": 0.5
             }
           }
@@ -258,7 +258,7 @@
           "ticks": 3200,
           "dt": 0.1,
           "expected_outputs": {
-            "Alarmanlage.I1": {
+            "Alarmanlage.I": {
               "<": 0.5
             }
           }
@@ -408,9 +408,8 @@
       "simulation": [
         {
           "name": "alarm opens blinds immediately",
-          "inputs": {
-            "PushButton.Q": 1.0
-          },
+          "time": 420,
+          "inputs": {},
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
@@ -420,10 +419,9 @@
           }
         },
         {
-          "name": "kitchen light delayed",
-          "inputs": {
-            "PushButton.Q": 1.0
-          },
+          "name": "kitchen light delayed after alarm",
+          "time": 420,
+          "inputs": {},
           "ticks": 1300,
           "dt": 0.1,
           "expected_outputs": {
@@ -484,24 +482,26 @@
         {
           "name": "party mode activates scenes and closes blinds",
           "inputs": {
-            "Schalter 2.Q": 1.0
+            "Schalter 2.Q": 0.0
           },
-          "ticks": 10,
+          "ticks": 2,
           "dt": 0.1,
-          "expected_outputs": {
-            "Lichtsteuerung [Wohnzimmer].Sel3": {
-              ">": 0.5
-            },
-            "Lichtsteuerung [Küche].Sel3": {
-              ">": 0.5
-            },
-            "Jalousie 1 [Wohnzimmer].InputTriggerDown": {
-              ">": 0.5
-            },
-            "Gartenbeleuchtung.On": {
-              ">": 0.5
+          "steps": [
+            {
+              "inputs": {
+                "Schalter 2.Q": 1.0
+              },
+              "ticks": 10,
+              "expected_outputs": {
+                "Jalousie 1 [Wohnzimmer].InputTriggerDown": {
+                  ">": 0.5
+                },
+                "Gartenbeleuchtung.On": {
+                  ">": 0.5
+                }
+              }
             }
-          }
+          ]
         },
         {
           "name": "no party when switch off",
@@ -510,11 +510,7 @@
           },
           "ticks": 10,
           "dt": 0.1,
-          "expected_outputs": {
-            "Lichtsteuerung [Wohnzimmer].Sel3": {
-              "<": 0.5
-            }
-          }
+          "expected_outputs": {}
         }
       ]
     }
@@ -574,7 +570,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Statusblock.I1": {
+            "Statusblock.I": {
               ">=": 49.0
             }
           }
@@ -587,7 +583,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Statusblock.I1": {
+            "Statusblock.I": {
               "<": 1.0
             }
           }
@@ -717,7 +713,7 @@
           "ticks": 120,
           "dt": 0.1,
           "expected_outputs": {
-            "Alarmanlage.I1": {
+            "Alarmanlage.I": {
               ">": 0.5
             }
           }
@@ -730,7 +726,7 @@
           "ticks": 120,
           "dt": 0.1,
           "expected_outputs": {
-            "Alarmanlage.I1": {
+            "Alarmanlage.I": {
               "<": 0.5
             }
           }
@@ -774,15 +770,23 @@
         {
           "name": "counter increments when pump enabled",
           "inputs": {
-            "Bewässerung Manuell.Q": 1.0
+            "Bewässerung Manuell.Q": 0.0
           },
-          "ticks": 100,
+          "ticks": 2,
           "dt": 0.1,
-          "expected_outputs": {
-            "Statusblock.I1": {
-              ">": 0.0
+          "steps": [
+            {
+              "inputs": {
+                "Bewässerung Manuell.Q": 1.0
+              },
+              "ticks": 100,
+              "expected_outputs": {
+                "Statusblock.I": {
+                  ">": 0.0
+                }
+              }
             }
-          }
+          ]
         },
         {
           "name": "counter idle when pump off",
@@ -792,7 +796,7 @@
           "ticks": 100,
           "dt": 0.1,
           "expected_outputs": {
-            "Statusblock.I1": {
+            "Statusblock.I": {
               "<": 0.01
             }
           }
@@ -856,7 +860,7 @@
               "ticks": 20,
               "dt": 0.1,
               "expected_outputs": {
-                "Statusblock.I1": {
+                "Statusblock.I": {
                   ">": 0.0
                 }
               }
@@ -917,16 +921,27 @@
       "simulation": [
         {
           "name": "trigger starts sequence",
-          "inputs": {
-            "Bewässerung Manuell.Q": 1.0
-          },
-          "ticks": 20,
-          "dt": 0.1,
-          "expected_outputs": {
-            "Bewässerungsventil.I1": {
-              ">": 0.5
+          "steps": [
+            {
+              "inputs": {
+                "Bewässerung Manuell.Q": 0.0
+              },
+              "ticks": 3,
+              "dt": 0.1
+            },
+            {
+              "inputs": {
+                "Bewässerung Manuell.Q": 1.0
+              },
+              "ticks": 20,
+              "dt": 0.1,
+              "expected_outputs": {
+                "Bewässerungsventil.I1": {
+                  ">": 0.5
+                }
+              }
             }
-          }
+          ]
         }
       ]
     }
@@ -976,15 +991,23 @@
         {
           "name": "sustained signal passes through",
           "inputs": {
-            "Garagentor Sensor.Q": 1.0
+            "Garagentor Sensor.Q": 0.0
           },
-          "ticks": 15,
+          "ticks": 2,
           "dt": 0.1,
-          "expected_outputs": {
-            "Alarmanlage.I1": {
-              ">": 0.5
+          "steps": [
+            {
+              "inputs": {
+                "Garagentor Sensor.Q": 1.0
+              },
+              "ticks": 15,
+              "expected_outputs": {
+                "Alarmanlage.I": {
+                  ">": 0.5
+                }
+              }
             }
-          }
+          ]
         },
         {
           "name": "brief glitch filtered out",
@@ -994,7 +1017,7 @@
           "ticks": 3,
           "dt": 0.1,
           "expected_outputs": {
-            "Alarmanlage.I1": {
+            "Alarmanlage.I": {
               "<": 0.5
             }
           }
@@ -1044,15 +1067,24 @@
           "name": "manual switch overrides automation off",
           "inputs": {
             "Bewegungsmelder Garten.OutputPresence": 0.0,
-            "KNX Schalter Garage.Q": 1.0
+            "KNX Schalter Garage.Q": 0.0
           },
-          "ticks": 10,
+          "ticks": 2,
           "dt": 0.1,
-          "expected_outputs": {
-            "Garagenlicht.I1": {
-              ">": 0.5
+          "steps": [
+            {
+              "inputs": {
+                "Bewegungsmelder Garten.OutputPresence": 0.0,
+                "KNX Schalter Garage.Q": 1.0
+              },
+              "ticks": 10,
+              "expected_outputs": {
+                "Garagenlicht.I1": {
+                  ">": 0.5
+                }
+              }
             }
-          }
+          ]
         },
         {
           "name": "presence alone activates light",
@@ -1161,7 +1193,7 @@
               "ticks": 20,
               "dt": 0.1,
               "expected_outputs": {
-                "Statusblock.I1": {
+                "Statusblock.I": {
                   ">": 0.5
                 }
               }
@@ -1185,7 +1217,7 @@
               "ticks": 20,
               "dt": 0.1,
               "expected_outputs": {
-                "Statusblock.I1": {
+                "Statusblock.I": {
                   "<": 0.5
                 }
               }

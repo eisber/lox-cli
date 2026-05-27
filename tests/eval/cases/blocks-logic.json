@@ -167,8 +167,8 @@
           "ticks": 20,
           "dt": 0.1,
           "expected_outputs": {
-            "Lichtsteuerung [Wohnzimmer].I1": {
-              ">": 0
+            "Lichtsteuerung [Wohnzimmer].Brightness": {
+              ">": 0.0
             }
           }
         }
@@ -245,16 +245,27 @@
       "simulation": [
         {
           "name": "step up from zero",
-          "inputs": {
-            "PushButton.Q": 1
-          },
-          "ticks": 10,
-          "dt": 0.1,
-          "expected_outputs": {
-            "Lüfter Bad.I1": {
-              ">": 0
+          "steps": [
+            {
+              "inputs": {
+                "PushButton.Q": 0.0
+              },
+              "ticks": 3,
+              "dt": 0.1
+            },
+            {
+              "inputs": {
+                "PushButton.Q": 1.0
+              },
+              "ticks": 10,
+              "dt": 0.1,
+              "expected_outputs": {
+                "Lüfter Bad.I1": {
+                  ">": 0.0
+                }
+              }
             }
-          }
+          ]
         }
       ]
     }
@@ -366,12 +377,12 @@
         {
           "name": "alarm when pressure too low",
           "inputs": {
-            "Raumfeuchtigkeit Bad.AQ": 1.0
+            "Vorlauftemperatur.AQ": 1.0
           },
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Alarmanlage.I1": {
+            "Alarmanlage.I": {
               ">": 0.5
             }
           }
@@ -417,17 +428,29 @@
       "simulation": [
         {
           "name": "pump on when collector hotter",
-          "inputs": {
-            "Vorlauftemperatur.AQ": 60.0,
-            "Warmwasserspeicher.AQ": 40.0
-          },
-          "ticks": 10,
-          "dt": 0.1,
-          "expected_outputs": {
-            "Poolpumpe.I1": {
-              ">": 0.5
+          "steps": [
+            {
+              "inputs": {
+                "Vorlauftemperatur.AQ": 40.0,
+                "Warmwasserspeicher.AQ": 40.0
+              },
+              "ticks": 5,
+              "dt": 0.1
+            },
+            {
+              "inputs": {
+                "Vorlauftemperatur.AQ": 60.0,
+                "Warmwasserspeicher.AQ": 40.0
+              },
+              "ticks": 10,
+              "dt": 0.1,
+              "expected_outputs": {
+                "Poolpumpe.I1": {
+                  ">": 0.5
+                }
+              }
             }
-          }
+          ]
         }
       ]
     }
@@ -555,8 +578,8 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Statusblock.I1": {
-              ">": 20
+            "Statusblock.I": {
+              ">": 20.0
             }
           }
         }
@@ -600,8 +623,8 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Lichtsteuerung [Wohnzimmer].I1": {
-              ">": 0
+            "Lichtsteuerung [Wohnzimmer].Brightness": {
+              ">": 0.0
             }
           }
         }
@@ -639,16 +662,27 @@
       "simulation": [
         {
           "name": "triggers on large diff",
-          "inputs": {
-            "Außentemperatur.AQ": -2.0
-          },
-          "ticks": 10,
-          "dt": 0.1,
-          "expected_outputs": {
-            "Heizkörper Bad.I1": {
-              ">": 0.5
+          "steps": [
+            {
+              "inputs": {
+                "Außentemperatur.AQ": 0.0
+              },
+              "ticks": 5,
+              "dt": 0.1
+            },
+            {
+              "inputs": {
+                "Außentemperatur.AQ": 10.0
+              },
+              "ticks": 10,
+              "dt": 0.1,
+              "expected_outputs": {
+                "Heizkörper Bad.I1": {
+                  ">": 0.5
+                }
+              }
             }
-          }
+          ]
         }
       ]
     }
@@ -704,16 +738,27 @@
       "simulation": [
         {
           "name": "dimmer outputs value on trigger",
-          "inputs": {
-            "PushButton.Q": 1
-          },
-          "ticks": 10,
-          "dt": 0.1,
-          "expected_outputs": {
-            "Lichtsteuerung [Schlafzimmer].I1": {
-              ">": 0
+          "steps": [
+            {
+              "inputs": {
+                "PushButton.Q": 0.0
+              },
+              "ticks": 3,
+              "dt": 0.1
+            },
+            {
+              "inputs": {
+                "PushButton.Q": 1.0
+              },
+              "ticks": 10,
+              "dt": 0.1,
+              "expected_outputs": {
+                "Lichtsteuerung [Schlafzimmer].Brightness": {
+                  ">": 0.0
+                }
+              }
             }
-          }
+          ]
         }
       ]
     }
@@ -767,16 +812,25 @@
         {
           "name": "first on gives 1",
           "inputs": {
-            "Schalter 1.Q": 1,
+            "Schalter 1.Q": 0.0,
             "Schalter 2.Q": 0
           },
-          "ticks": 5,
+          "ticks": 2,
           "dt": 0.1,
-          "expected_outputs": {
-            "Raumregler.Input": {
-              ">": 0.5
+          "steps": [
+            {
+              "inputs": {
+                "Schalter 1.Q": 1,
+                "Schalter 2.Q": 0
+              },
+              "ticks": 5,
+              "expected_outputs": {
+                "Raumregler.Input": {
+                  ">": 0.5
+                }
+              }
             }
-          }
+          ]
         }
       ]
     }

@@ -763,7 +763,7 @@
               "ticks": 5,
               "dt": 0.1,
               "expected_outputs": {
-                "Formel.I1": {
+                "Formel.I": {
                   ">": 0
                 }
               }
@@ -793,7 +793,7 @@
               "ticks": 5,
               "dt": 0.1,
               "expected_outputs": {
-                "Formel.I1": {
+                "Formel.I": {
                   ">": 0
                 }
               }
@@ -823,7 +823,7 @@
               "ticks": 10,
               "dt": 0.1,
               "expected_outputs": {
-                "Formel.I1": {
+                "Formel.I": {
                   "==": 0
                 }
               }
@@ -1162,7 +1162,7 @@
               "ticks": 5,
               "dt": 0.1,
               "expected_outputs": {
-                "Formel.I1": {
+                "Formel.I": {
                   ">": 0.5
                 }
               }
@@ -1277,7 +1277,7 @@
                 "Heizkörper Bad.I1": {
                   ">": 0
                 },
-                "Formel.I1": {
+                "Formel.I": {
                   ">": 0
                 }
               }
@@ -1306,7 +1306,7 @@
                 "Lüfter Bad.I1": {
                   ">": 0
                 },
-                "Formel.I1": {
+                "Formel.I": {
                   ">": 0
                 }
               }
@@ -1332,7 +1332,7 @@
               "ticks": 10,
               "dt": 0.1,
               "expected_outputs": {
-                "Formel.I1": {
+                "Formel.I": {
                   "==": 0
                 }
               }

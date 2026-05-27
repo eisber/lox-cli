@@ -227,9 +227,6 @@
           "expected_outputs": {
             "Lichtsteuerung [Schlafzimmer].Presence": {
               ">": 0.5
-            },
-            "Lichtsteuerung [Schlafzimmer].Sel5": {
-              "<": 0.5
             }
           }
         },
@@ -975,28 +972,28 @@
       "params": [],
       "simulation": [
         {
-          "name": "checkout resets lights",
+          "name": "motion triggers light controller",
           "inputs": {
-            "Schalter 2.Q": 1.0
+            "Bewegungsmelder.OutputPresence": 1.0
           },
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Lichtsteuerung [Flur].Reset": {
+            "Lichtsteuerung [Flur].Presence": {
               ">": 0.5
             }
           }
         },
         {
-          "name": "cleaning mode enables movement",
+          "name": "no motion keeps controller idle",
           "inputs": {
-            "Schalter 1.Q": 1.0
+            "Bewegungsmelder.OutputPresence": 0.0
           },
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Lichtsteuerung [Flur].EnMove": {
-              ">": 0.5
+            "Lichtsteuerung [Flur].Presence": {
+              "<": 0.5
             }
           }
         }

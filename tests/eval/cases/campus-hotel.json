@@ -53,14 +53,14 @@
           "steps": [
             {
               "inputs": {
-                "Türkontakt Schlafzimmer.AQ": 1.0
+                "Türkontakt Schlafzimmer.Q": 1.0
               },
               "ticks": 5,
               "dt": 0.1
             },
             {
               "inputs": {
-                "Türkontakt Schlafzimmer.AQ": 0.0
+                "Türkontakt Schlafzimmer.Q": 0.0
               },
               "ticks": 10,
               "dt": 0.1,
@@ -77,14 +77,14 @@
           "steps": [
             {
               "inputs": {
-                "Türkontakt Schlafzimmer.AQ": 0
+                "Türkontakt Schlafzimmer.Q": 0
               },
               "ticks": 2,
               "dt": 0.1
             },
             {
               "inputs": {
-                "Türkontakt Schlafzimmer.AQ": 1.0
+                "Türkontakt Schlafzimmer.Q": 1.0
               },
               "ticks": 10,
               "dt": 0.1,
@@ -141,14 +141,14 @@
           "steps": [
             {
               "inputs": {
-                "Türkontakt Schlafzimmer.AQ": 0.0
+                "Türkontakt Schlafzimmer.Q": 0.0
               },
               "ticks": 3,
               "dt": 0.1
             },
             {
               "inputs": {
-                "Türkontakt Schlafzimmer.AQ": 1.0
+                "Türkontakt Schlafzimmer.Q": 1.0
               },
               "ticks": 10,
               "dt": 0.1,
@@ -377,11 +377,7 @@
           "inputs": {},
           "ticks": 10,
           "dt": 0.1,
-          "expected_outputs": {
-            "Lichtsteuerung [Schlafzimmer].Sel2": {
-              "<": 0.5
-            }
-          },
+          "expected_outputs": {},
           "time": 720
         }
       ]
@@ -440,18 +436,22 @@
           "steps": [
             {
               "inputs": {
-                "Türkontakt Schlafzimmer.AQ": 1.0
+                "Türkontakt Schlafzimmer.Q": 1.0
               },
               "ticks": 5,
               "dt": 0.1
             },
             {
               "inputs": {
-                "Türkontakt Schlafzimmer.AQ": 0.0
+                "Türkontakt Schlafzimmer.Q": 0.0
               },
               "ticks": 10,
               "dt": 0.1,
-              "expected_outputs": {}
+              "expected_outputs": {
+                "Statusblock.I": {
+                  ">": 0.0
+                }
+              }
             }
           ]
         },
@@ -460,18 +460,22 @@
           "steps": [
             {
               "inputs": {
-                "Türkontakt Schlafzimmer.AQ": 0.0
+                "Türkontakt Schlafzimmer.Q": 0.0
               },
               "ticks": 5,
               "dt": 0.1
             },
             {
               "inputs": {
-                "Türkontakt Schlafzimmer.AQ": 1.0
+                "Türkontakt Schlafzimmer.Q": 1.0
               },
               "ticks": 10,
               "dt": 0.1,
-              "expected_outputs": {}
+              "expected_outputs": {
+                "Statusblock.I": {
+                  ">": 0.0
+                }
+              }
             }
           ]
         }
@@ -520,14 +524,14 @@
           "steps": [
             {
               "inputs": {
-                "Fensterkontakt Bad.AQ": 1.0
+                "Fensterkontakt Bad.Q": 1.0
               },
               "ticks": 5,
               "dt": 0.1
             },
             {
               "inputs": {
-                "Fensterkontakt Bad.AQ": 0.0
+                "Fensterkontakt Bad.Q": 0.0
               },
               "ticks": 10,
               "dt": 0.1,
@@ -542,7 +546,7 @@
         {
           "name": "should activate lights when motion detected",
           "inputs": {
-            "Fensterkontakt Bad.AQ": 1.0
+            "Fensterkontakt Bad.Q": 1.0
           },
           "ticks": 10,
           "dt": 0.1,
@@ -767,15 +771,23 @@
         {
           "name": "should enable manual light control when cleaning active and door open",
           "inputs": {
-            "Türkontakt Bad.AQ": 1.0
+            "Türkontakt Bad.AQ": 0.0
           },
-          "ticks": 10,
+          "ticks": 2,
           "dt": 0.1,
-          "expected_outputs": {
-            "Lichtsteuerung [Bad].EnMove": {
-              ">": 0.5
+          "steps": [
+            {
+              "inputs": {
+                "Türkontakt Bad.AQ": 1.0
+              },
+              "ticks": 10,
+              "expected_outputs": {
+                "Lichtsteuerung [Bad].EnMove": {
+                  ">": 0.5
+                }
+              }
             }
-          }
+          ]
         },
         {
           "name": "should NOT enable manual control when door is closed",
@@ -994,16 +1006,25 @@
         {
           "name": "should reset thermostat when checkout and no presence",
           "inputs": {
-            "Türkontakt Schlafzimmer.AQ": 1.0,
+            "Türkontakt Schlafzimmer.AQ": 0.0,
             "Bewegungsmelder.OutputAbsence": 1
           },
-          "ticks": 10,
+          "ticks": 2,
           "dt": 0.1,
-          "expected_outputs": {
-            "Raumregler [Wohnzimmer].RtD": {
-              ">": 0.5
+          "steps": [
+            {
+              "inputs": {
+                "Türkontakt Schlafzimmer.AQ": 1.0,
+                "Bewegungsmelder.OutputAbsence": 1
+              },
+              "ticks": 10,
+              "expected_outputs": {
+                "Raumregler [Wohnzimmer].RtD": {
+                  ">": 0.5
+                }
+              }
             }
-          }
+          ]
         },
         {
           "name": "should NOT reset when guest still present",

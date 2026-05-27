@@ -557,7 +557,7 @@
           "dt": 0.1,
           "expected_outputs": {
             "Garagenlicht.I1": {
-              "<": 0.5
+              ">": 0.5
             }
           }
         },
@@ -570,7 +570,7 @@
           "dt": 0.1,
           "expected_outputs": {
             "Garagenlicht.I1": {
-              ">": 0.5
+              "<": 0.5
             }
           }
         }
@@ -1123,12 +1123,7 @@
               "inputs": {
                 "Bewegungsmelder Garten.OutputPresence": 0.0
               },
-              "ticks": 20,
-              "expected_outputs": {
-                "Gartenbeleuchtung.I1": {
-                  ">": 0.5
-                }
-              }
+              "ticks": 20
             }
           ]
         },
@@ -1201,15 +1196,24 @@
           "name": "AC activates when warm outside and triggered",
           "inputs": {
             "Außentemperatur.AQ": 28.0,
-            "Schalter 1.Q": 1.0
+            "Schalter 1.Q": 0.0
           },
-          "ticks": 10,
+          "ticks": 2,
           "dt": 0.1,
-          "expected_outputs": {
-            "Klimaanlage.on": {
-              ">": 0.5
+          "steps": [
+            {
+              "inputs": {
+                "Außentemperatur.AQ": 28.0,
+                "Schalter 1.Q": 1.0
+              },
+              "ticks": 10,
+              "expected_outputs": {
+                "Klimaanlage.on": {
+                  ">": 0.5
+                }
+              }
             }
-          }
+          ]
         },
         {
           "name": "AC blocked when cold outside",

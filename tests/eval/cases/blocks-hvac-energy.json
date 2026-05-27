@@ -155,8 +155,8 @@
         {
           "name": "charges when solar > 3kW and no grid import",
           "inputs": {
-            "Solarproduktion": 4500,
-            "Hausverbrauch": 0
+            "Solarproduktion.AQ": 4500,
+            "Hausverbrauch.AQ": 0
           },
           "ticks": 5,
           "dt": 0.1,
@@ -169,8 +169,8 @@
         {
           "name": "does NOT charge when solar is low",
           "inputs": {
-            "Solarproduktion": 2000,
-            "Hausverbrauch": 0
+            "Solarproduktion.AQ": 2000,
+            "Hausverbrauch.AQ": 0
           },
           "ticks": 5,
           "dt": 0.1,
@@ -183,8 +183,8 @@
         {
           "name": "does NOT charge when grid importing",
           "inputs": {
-            "Solarproduktion": 5000,
-            "Hausverbrauch": 6000
+            "Solarproduktion.AQ": 5000,
+            "Hausverbrauch.AQ": 6000
           },
           "ticks": 5,
           "dt": 0.1,
@@ -605,7 +605,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Jalousie 1 [Wohnzimmer].Safety": {
+            "Jalousie 1 [Wohnzimmer].InputDisable": {
               ">": 0.5
             }
           }
@@ -618,7 +618,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Jalousie 1 [Wohnzimmer].Safety": {
+            "Jalousie 1 [Wohnzimmer].InputDisable": {
               "<": 0.5
             }
           }
@@ -651,7 +651,33 @@
           "to_connector": "Inactive"
         }
       ],
-      "params": []
+      "params": [],
+      "simulation": [
+        {
+          "name": "smoke triggers alarm",
+          "steps": [
+            {
+              "inputs": {
+                "Rauchmelder.Q": 0.0
+              },
+              "ticks": 3,
+              "dt": 0.1
+            },
+            {
+              "inputs": {
+                "Rauchmelder.Q": 1.0
+              },
+              "ticks": 10,
+              "dt": 0.1,
+              "expected_outputs": {
+                "Alarmanlage.I": {
+                  ">": 0.5
+                }
+              }
+            }
+          ]
+        }
+      ]
     }
   },
   {
@@ -691,6 +717,32 @@
           "param": "Time",
           "value": "3600"
         }
+      ],
+      "simulation": [
+        {
+          "name": "sauna starts on trigger",
+          "steps": [
+            {
+              "inputs": {
+                "Schalter 1.Q": 0.0
+              },
+              "ticks": 3,
+              "dt": 0.1
+            },
+            {
+              "inputs": {
+                "Schalter 1.Q": 1.0
+              },
+              "ticks": 10,
+              "dt": 0.1,
+              "expected_outputs": {
+                "Statusblock.I": {
+                  ">": 0.5
+                }
+              }
+            }
+          ]
+        }
       ]
     }
   },
@@ -725,6 +777,21 @@
           "block_type": "HvacAC",
           "param": "TempLimitC",
           "value": "24"
+        }
+      ],
+      "simulation": [
+        {
+          "name": "cooling activates when warm",
+          "inputs": {
+            "Raumtemperatur Wohnzimmer.AQ": 26.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Statusblock.I": {
+              ">": 0.5
+            }
+          }
         }
       ]
     }
@@ -775,12 +842,12 @@
         {
           "name": "charges when solar excess available",
           "inputs": {
-            "Solarproduktion.AQ": 5.0
+            "Solarproduktion.AQ": 5000.0
           },
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Wallbox.I1": {
+            "Wallbox.I": {
               ">": 0.5
             }
           }
@@ -788,12 +855,12 @@
         {
           "name": "does not charge when solar too low",
           "inputs": {
-            "Solarproduktion.AQ": 1.0
+            "Solarproduktion.AQ": 1000.0
           },
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Wallbox.I1": {
+            "Wallbox.I": {
               "<": 0.5
             }
           }
@@ -824,6 +891,32 @@
           "param": "ParamTAbsence",
           "value": "1800"
         }
+      ],
+      "simulation": [
+        {
+          "name": "departure triggers reset",
+          "steps": [
+            {
+              "inputs": {
+                "Bewegungsmelder.OutputPresence": 1.0
+              },
+              "ticks": 5,
+              "dt": 0.1
+            },
+            {
+              "inputs": {
+                "Bewegungsmelder.OutputPresence": 0.0
+              },
+              "ticks": 20,
+              "dt": 0.1,
+              "expected_outputs": {
+                "Statusblock.I": {
+                  ">": 0.0
+                }
+              }
+            }
+          ]
+        }
       ]
     }
   },
@@ -843,7 +936,22 @@
         }
       ],
       "wiring": [],
-      "params": []
+      "params": [],
+      "simulation": [
+        {
+          "name": "forecast outputs production estimate",
+          "inputs": {
+            "Solarproduktion.AQ": 5.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Statusblock.I": {
+              ">": 0.0
+            }
+          }
+        }
+      ]
     }
   },
   {
@@ -956,7 +1064,22 @@
           "to_connector": "InputDisable"
         }
       ],
-      "params": []
+      "params": [],
+      "simulation": [
+        {
+          "name": "window open disables motor",
+          "inputs": {
+            "Fensterkontakt Wohnzimmer.Q": 1.0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Jalousie 1 [Wohnzimmer].InputDisable": {
+              ">": 0.5
+            }
+          }
+        }
+      ]
     }
   }
 ]
