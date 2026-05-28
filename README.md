@@ -3,7 +3,7 @@
 [![CI](https://github.com/eisber/lox-cli/actions/workflows/ci.yml/badge.svg)](https://github.com/eisber/lox-cli/actions/workflows/ci.yml)
 [![crates.io](https://img.shields.io/crates/v/lox-cli.svg)](https://crates.io/crates/lox-cli)
 [![License: AGPL-3.0](https://img.shields.io/badge/License-AGPL%20v3-blue.svg)](https://www.gnu.org/licenses/agpl-3.0)
-[![Eval](https://img.shields.io/badge/eval-94%25%20pass-brightgreen.svg)](#eval-results)
+[![Eval](https://img.shields.io/badge/eval-80%25%20pass-brightgreen.svg)](#eval-results)
 
 **Tell an AI agent what you want. It configures your Loxone Miniserver.**
 
