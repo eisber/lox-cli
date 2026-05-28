@@ -79,6 +79,8 @@ struct SimStep {
     #[serde(default = "default_ticks")]
     ticks: usize,
     #[serde(default)]
+    dt: f64,
+    #[serde(default)]
     time: Option<f64>,
     #[serde(default)]
     expected_outputs: HashMap<String, HashMap<String, f64>>,
@@ -220,8 +222,9 @@ fn run_one(graph: &SimGraph, spec: &SimSpec) -> ScenarioResult {
             engine.set_time(minutes);
         }
         apply_inputs(&mut engine, &step.inputs);
+        let step_dt = if step.dt > 0.0 { step.dt } else { spec.dt };
         for _ in 0..step.ticks {
-            engine.tick(spec.dt);
+            engine.tick(step_dt);
         }
         // Check this step's outputs immediately
         check_outputs(
