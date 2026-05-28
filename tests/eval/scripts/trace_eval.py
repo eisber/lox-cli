@@ -27,11 +27,13 @@ REPO_ROOT = EVAL_DIR.parent.parent
 PROBE_SENSORS: list[tuple[str, float, str]] = [
     # Weather SysVars
     ("Außentemperatur", 30.0, "outdoor temperature 30°C"),
+    ("Außentemperatur", -5.0, "outdoor temperature -5°C (frost)"),
     ("Sonnenschein", 1.0, "sunshine active"),
     ("Windgeschwindigkeit", 50.0, "wind speed 50 km/h"),
     ("Regen", 1.0, "rain active"),
     ("Luftfeuchtigkeit", 80.0, "humidity 80%"),
     ("Helligkeit", 80000.0, "brightness 80k lux"),
+    ("Helligkeit", 100.0, "brightness 100 lux (dark)"),
     # Virtual inputs — boolean switches
     ("Schalter 1", 1.0, "switch 1 on"),
     ("Schalter 2", 1.0, "switch 2 on"),
@@ -42,9 +44,10 @@ PROBE_SENSORS: list[tuple[str, float, str]] = [
     ("Feuchtesensor Garten", 30.0, "garden soil moisture 30%"),
     ("CO2 Sensor", 1200.0, "CO₂ level 1200 ppm"),
     ("Raumtemperatur Wohnzimmer", 25.0, "living room temp 25°C"),
+    ("Raumtemperatur Wohnzimmer", 35.0, "living room temp 35°C (hot)"),
     ("Raumtemperatur Schlafzimmer", 25.0, "bedroom temp 25°C"),
     ("Pool Temperatur", 28.0, "pool temp 28°C"),
-    # Per-room tree sensors — temperature
+    # Per-room tree sensors — temperature (normal + extreme)
     ("Raumtemperatur Küche", 25.0, "kitchen temp 25°C"),
     ("Raumtemperatur Bad", 25.0, "bathroom temp 25°C"),
     ("Raumtemperatur Flur", 25.0, "hallway temp 25°C"),
@@ -100,6 +103,10 @@ ACTUATOR_OUTPUTS: list[str] = [
     "Jalousie 2 [Wohnzimmer].InputDisable",
     "Raumregler [Wohnzimmer].Temp",
     "Klimaanlage [Wohnzimmer].toggle",
+    "Klimaanlage [Wohnzimmer].on",
+    "Klimaanlage [Wohnzimmer].off",
+    "Klimaanlage [Wohnzimmer].inTempTarget",
+    "Klimaanlage [Wohnzimmer].inMode",
     "Leinwand [Wohnzimmer].InputTriggerDown",
     "Leinwand [Wohnzimmer].InputTriggerUp",
     # Schlafzimmer
@@ -195,20 +202,18 @@ def _run_sim_probe(
     dt: float = 0.1,
 ) -> tuple[dict[str, float], list[dict[str, Any]]]:
     """
-    Run a single sim probe with trace=true and expected_outputs for all
-    known actuator inputs.  Returns (actuator_values, trace_entries).
+    Run a single sim probe with trace=true and return all non-zero outputs.
 
-    actuator_values: {"Jalousie 1 [Wohnzimmer].InputTriggerDown": 1.0, ...}
-    trace_entries:   [{"output": "...", "value": ..., ...}, ...]
+    Uses the top-level trace dict (all block outputs) rather than a
+    hardcoded actuator list, so it discovers any signal flow regardless
+    of which connectors the agent wired to.
+
+    Returns (all_outputs, trace_entries).
     """
-    # Build expected_outputs that always pass — just to read actual values
-    expected_outputs = {name: {">=": -999999} for name in ACTUATOR_OUTPUTS}
-
     sim_spec = json.dumps({
         "steps": [
             {"inputs": {k: 0.0 for k in inputs}, "ticks": 2, "dt": dt},
-            {"inputs": inputs, "ticks": ticks, "dt": dt,
-             "expected_outputs": expected_outputs},
+            {"inputs": inputs, "ticks": ticks, "dt": dt},
         ],
         "trace": True,
     }, ensure_ascii=False)
@@ -228,19 +233,27 @@ def _run_sim_probe(
     except (json.JSONDecodeError, ValueError):
         return {}, []
 
+    # Use top-level trace dict (all non-zero block outputs)
+    trace_dict = data.get("trace", {})
+
+    # Also collect per-scenario trace entries for detailed inspection
     scenarios = data.get("scenarios", [])
-    if not scenarios:
-        return {}, []
+    trace_entries = []
+    for sc in scenarios:
+        trace_entries.extend(sc.get("trace", []))
 
-    scenario = scenarios[0]
-    trace_entries = scenario.get("trace", [])
+    # Filter to actuator-like outputs (exclude source blocks/sensors)
+    source_prefixes = set()
+    for s_name, _, _ in PROBE_SENSORS:
+        source_prefixes.add(s_name.split(".")[0])
 
-    # Extract actual values from checks
     actuator_values: dict[str, float] = {}
-    for check in scenario.get("checks", []):
-        output_name = check.get("output", "")
-        actual = check.get("actual", 0.0)
-        actuator_values[output_name] = actual
+    for key, val in trace_dict.items():
+        block_name = key.rsplit(".", 1)[0] if "." in key else key
+        # Remove room qualifier for prefix check
+        bare_name = block_name.split(" [")[0] if " [" in block_name else block_name
+        if bare_name not in source_prefixes:
+            actuator_values[key] = val
 
     return actuator_values, trace_entries
 
