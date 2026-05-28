@@ -204,16 +204,20 @@ def _run_sim_probe(
     """
     Run a single sim probe with trace=true and return all non-zero outputs.
 
-    Uses the top-level trace dict (all block outputs) rather than a
-    hardcoded actuator list, so it discovers any signal flow regardless
-    of which connectors the agent wired to.
+    Uses three phases to catch both instant and delayed behavior:
+    1. Baseline (inputs=0, 2 ticks at dt=0.1) — establishes zero state
+    2. Fast (inputs=active, 3 ticks at dt=0.1) — catches instant/edge responses
+    3. Slow (inputs=active, 10 ticks at dt=60) — catches timer delays up to 10 min
+
+    All phases compute instantly (no wallclock wait).
 
     Returns (all_outputs, trace_entries).
     """
     sim_spec = json.dumps({
         "steps": [
-            {"inputs": {k: 0.0 for k in inputs}, "ticks": 2, "dt": dt},
-            {"inputs": inputs, "ticks": ticks, "dt": dt},
+            {"inputs": {k: 0.0 for k in inputs}, "ticks": 2, "dt": 0.1},
+            {"inputs": inputs, "ticks": 3, "dt": 0.1},
+            {"inputs": inputs, "ticks": 10, "dt": 60},
         ],
         "trace": True,
     }, ensure_ascii=False)
