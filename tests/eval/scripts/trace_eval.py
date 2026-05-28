@@ -205,11 +205,12 @@ def _run_sim_probe(
     expected_outputs = {name: {">=": -999999} for name in ACTUATOR_OUTPUTS}
 
     sim_spec = json.dumps({
-        "inputs": inputs,
-        "ticks": ticks,
-        "dt": dt,
+        "steps": [
+            {"inputs": {k: 0.0 for k in inputs}, "ticks": 2, "dt": dt},
+            {"inputs": inputs, "ticks": ticks, "dt": dt,
+             "expected_outputs": expected_outputs},
+        ],
         "trace": True,
-        "expected_outputs": expected_outputs,
     }, ensure_ascii=False)
 
     try:
@@ -311,14 +312,31 @@ def probe_circuit(
     behavior_map: dict[str, dict[str, float]] = {}
     summary_lines: list[str] = []
 
+    # Phase 0: Discover agent-created VirtualIn blocks not in fixture
+    fixture_sensor_names = {s[0] for s in PROBE_SENSORS}
+    extra_sensors: list[tuple[str, float, str]] = []
+    try:
+        import xml.etree.ElementTree as ET
+        tree = ET.parse(config_path)
+        root = tree.getroot()
+        for elem in root.iter("C"):
+            etype = elem.get("Type", "")
+            title = elem.get("Title", "")
+            if etype == "VirtualIn" and title and title not in fixture_sensor_names:
+                extra_sensors.append((title, 1.0, f"agent-created input '{title}'"))
+    except Exception:
+        pass
+
+    all_sensors = list(PROBE_SENSORS) + extra_sensors
+
     # Run a baseline probe with all inputs at 0 to capture default state
     baseline_values, _ = _run_sim_probe(config_path, {}, lox_bin)
 
     # Track sensors that caused intermediate block activity but no actuator change
     sensors_with_intermediate_only: list[tuple[str, float, str]] = []
 
-    # Phase 1: Single-sensor probes
-    for sensor_name, test_value, description in PROBE_SENSORS:
+    # Phase 1: Single-sensor probes (fixture + agent-created)
+    for sensor_name, test_value, description in all_sensors:
         inputs = {sensor_name: test_value}
         if verbose:
             print(f"  [probe] {sensor_name}={test_value:g}", flush=True)
@@ -349,7 +367,7 @@ def probe_circuit(
                 )
 
     # Phase 2: All-sensors-active probe (catches multi-condition AND logic)
-    all_inputs = {name: val for name, val, _ in PROBE_SENSORS}
+    all_inputs = {name: val for name, val, _ in all_sensors}
     if verbose:
         print("  [probe] ALL sensors active", flush=True)
     all_values, _ = _run_sim_probe(config_path, all_inputs, lox_bin)
@@ -418,11 +436,8 @@ def judge_with_llm(
     """
     Ask an LLM judge whether the circuit behavior matches the utterance intent.
 
-    This is a pluggable stub — the actual LLM call will be added in a follow-up.
-    For now, returns a placeholder result with the prompt that would be sent.
-
     Returns:
-        {"pass": None, "verdict": "pending", "prompt": "...", "explanation": ""}
+        {"pass": bool, "verdict": "yes"/"no", "prompt": "...", "explanation": "..."}
     """
     prompt = (
         f'The user asked: "{utterance}"\n'
@@ -431,17 +446,60 @@ def judge_with_llm(
         f"{behavior_summary}\n"
         f"\n"
         f"Does this circuit correctly implement what the user asked for? "
-        f"Answer YES or NO with a brief explanation."
+        f"Answer YES or NO on the first line, then a brief explanation."
     )
 
-    # TODO: implement actual LLM judge call using agent_backend
-    # For now, return the structured prompt so callers can inspect it.
-    return {
-        "pass": None,
-        "verdict": "pending",
-        "prompt": prompt,
-        "explanation": "LLM judge not yet implemented — see behavior_map for manual review.",
-    }
+    try:
+        result = subprocess.run(
+            ["copilot", "-p", prompt],
+            capture_output=True, text=True, timeout=120,
+            cwd=str(REPO_ROOT),
+        )
+        response = result.stdout.strip()
+        if not response:
+            response = result.stderr.strip()
+
+        # Parse YES/NO from first line
+        first_line = response.split("\n")[0].strip().upper()
+        if first_line.startswith("YES"):
+            passed = True
+            verdict = "yes"
+        elif first_line.startswith("NO"):
+            passed = False
+            verdict = "no"
+        else:
+            # Look for YES/NO anywhere in first 200 chars
+            snippet = response[:200].upper()
+            if "YES" in snippet and "NO" not in snippet:
+                passed = True
+                verdict = "yes"
+            elif "NO" in snippet:
+                passed = False
+                verdict = "no"
+            else:
+                passed = None
+                verdict = "unclear"
+
+        return {
+            "pass": passed,
+            "verdict": verdict,
+            "prompt": prompt,
+            "explanation": response[:500],
+        }
+    except subprocess.TimeoutExpired:
+        return {
+            "pass": None,
+            "verdict": "timeout",
+            "prompt": prompt,
+            "explanation": "LLM judge timed out after 120s",
+        }
+    except FileNotFoundError:
+        return {
+            "pass": None,
+            "verdict": "no_backend",
+            "prompt": prompt,
+            "explanation": f"Backend '{agent_backend}' not found",
+        }
 
 
 def evaluate_by_trace(
