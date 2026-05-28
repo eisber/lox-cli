@@ -379,7 +379,7 @@ lox config wire-connector config.Loxone "Heizung.Input" "Raumtemperatur Wohnzimm
 
 - **Inputs:** `Trigger` (count pulse), `InputDir` (0=up, 1=down), `Reset`
 - **Outputs:** `AQ` (count value), `Q` (output)
-- **Params:** `Max`, `Min`
+- **Params:** `StartValue` (default 0), `OnValue` (default 10), `OffValue` (default 5)
 
 #### HourCounter — Operating hours tracker
 
@@ -412,9 +412,21 @@ lox config wire-connector config.Loxone "Heizung.Input" "Raumtemperatur Wohnzimm
 
 #### StepSel — Step selector (cycle through values)
 
-- **Inputs:** `Input` (trigger), `Reset`
-- **Outputs:** `AQ` (current value)
-- **Params:** `Steps`, `Min`, `Max`
+- **Inputs:** `InputTriggerP` (step up), `InputTriggerM` (step down), `InputSel` (direct select 0-16)
+- **Outputs:** `Q1`–`Q8` (active step), `AQ` (current step number)
+- **Params:** `Mode`
+
+#### EibDimmer — KNX dimmer
+
+- **Inputs:** `InputTrigger 1` (up/brighter), `InputTrigger 2` (down/dimmer), `InputTrigger On`, `InputTrigger Off`, `Position` (set value 0-100), `InputDisable`
+- **Outputs:** `AQ` (dimmer value), `Q` (on/off state)
+- Note: connector names have spaces — always quote: `"EibDimmer.InputTrigger 1"`
+
+#### Shift — Shift register
+
+- **Inputs:** `Trigger` (clock pulse), `InputData` (data bit), `InputDir` (shift direction)
+- **Outputs:** `Q` (register output)
+- **Params:** `Bit` (register size, default 8)
 
 #### AnalogWatchdog — Monitor analog value range
 
