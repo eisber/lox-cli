@@ -907,12 +907,12 @@
       "simulation": [
         {
           "name": "morning and presence activates heating",
+          "time": 420,
           "inputs": {
-            "Schalter 1.Q": 1.0
+            "Türkontakt Bad": 1.0
           },
-          "ticks": 5,
+          "ticks": 10,
           "dt": 0.1,
-          "time": 1380,
           "expected_outputs": {
             "Heizkörper Bad.I1": {
               ">": 0.5
@@ -921,17 +921,17 @@
         },
         {
           "name": "no presence keeps heating off",
+          "time": 420,
           "inputs": {
-            "Schalter 1.Q": 0.0
+            "Türkontakt Bad": 0.0
           },
-          "ticks": 5,
+          "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
             "Heizkörper Bad.I1": {
               "<": 0.5
             }
-          },
-          "time": 1380
+          }
         }
       ]
     }
