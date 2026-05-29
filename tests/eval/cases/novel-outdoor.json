@@ -523,7 +523,7 @@
               ">": 0.5
             }
           },
-          "time": 420
+          "time": 375
         },
         {
           "name": "should NOT water when raining despite schedule",
