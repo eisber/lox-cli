@@ -510,8 +510,8 @@
       "register",
       "sequence"
     ],
-    "utterance": "Shift register to create a 4-step LED chase sequence triggered by a clock pulse in Wohnzimmer",
-    "difficulty": "hard",
+    "utterance": "Use a Shift register to delay a digital pulse by 4 clock cycles: wire PushButton to the Shift data input, Schalter 1 to the clock trigger, and the Shift output Q to Statusblock",
+    "difficulty": "medium",
     "expected": {
       "new_blocks": [
         {
@@ -533,13 +533,30 @@
       ],
       "simulation": [
         {
-          "name": "clock drives shift",
-          "inputs": {
-            "PushButton.Q": 1
-          },
-          "ticks": 20,
-          "dt": 0.1,
-          "expected_outputs": {}
+          "name": "output follows input after shift delay",
+          "steps": [
+            {
+              "inputs": {
+                "PushButton.InputTrigger": 1,
+                "Schalter 1": 0
+              },
+              "ticks": 2,
+              "dt": 0.1
+            },
+            {
+              "inputs": {
+                "PushButton.InputTrigger": 1,
+                "Schalter 1": 1
+              },
+              "ticks": 1,
+              "dt": 0.1,
+              "expected_outputs": {
+                "Statusblock.I": {
+                  "<": 0.5
+                }
+              }
+            }
+          ]
         }
       ]
     }
