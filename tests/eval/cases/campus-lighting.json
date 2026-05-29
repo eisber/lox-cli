@@ -87,19 +87,19 @@
           "steps": [
             {
               "inputs": {
-                "Schalter 2.Q": 0
+                "Schalter 2": 0
               },
-              "ticks": 1,
+              "ticks": 2,
               "dt": 0.1
             },
             {
               "inputs": {
-                "Schalter 2.Q": 1
+                "Schalter 2": 1
               },
               "ticks": 1,
               "dt": 0.1,
               "expected_outputs": {
-                "Lichtsteuerung [Schlafzimmer].RtD": {
+                "Lichtsteuerung [Schlafzimmer].Reset": {
                   ">": 0.5
                 }
               }
@@ -108,27 +108,16 @@
         },
         {
           "name": "no reset when checkout stays low",
-          "steps": [
-            {
-              "inputs": {
-                "Schalter 2.Q": 0
-              },
-              "ticks": 2,
-              "dt": 0.1
-            },
-            {
-              "inputs": {
-                "Schalter 2.Q": 0.0
-              },
-              "ticks": 10,
-              "dt": 0.1,
-              "expected_outputs": {
-                "Lichtsteuerung [Schlafzimmer].RtD": {
-                  "<": 0.5
-                }
-              }
+          "inputs": {
+            "Schalter 2": 0
+          },
+          "ticks": 10,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Lichtsteuerung [Schlafzimmer].Reset": {
+              "<": 0.5
             }
-          ]
+          }
         }
       ]
     }
