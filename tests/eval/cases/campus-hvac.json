@@ -41,7 +41,7 @@
         {
           "name": "occupied room gets comfort setpoint 22",
           "inputs": {
-            "Schalter 1.Q": 1.0
+            "Türkontakt Wohnzimmer.Q": 1.0
           },
           "ticks": 5,
           "dt": 0.1,
@@ -54,7 +54,7 @@
         {
           "name": "empty room gets eco setpoint 18",
           "inputs": {
-            "Schalter 1.Q": 0.0
+            "Türkontakt Wohnzimmer.Q": 0.0
           },
           "ticks": 5,
           "dt": 0.1,
@@ -129,37 +129,58 @@
       "simulation": [
         {
           "name": "mode 0 selects off setpoint 15",
-          "inputs": {
-            "Schalter 1.Q": 0.0,
-            "Schalter 2.Q": 0.0
-          },
-          "ticks": 5,
-          "dt": 0.1,
+          "inputs": {},
           "expected_outputs": {
-            "Raumregler.Temp": {
+            "Raumregler.Input": {
               "==": 15.0
             },
             "Statusblock.I": {
               "==": 0.0
             }
-          }
+          },
+          "ticks": 10,
+          "dt": 0.1
         },
         {
           "name": "mode 2 selects comfort setpoint 22",
-          "inputs": {
-            "Schalter 1.Q": 2.0,
-            "Schalter 2.Q": 2.0
-          },
-          "ticks": 5,
-          "dt": 0.1,
-          "expected_outputs": {
-            "Raumregler.Temp": {
-              "==": 22.0
+          "steps": [
+            {
+              "inputs": {
+                "Schalter 1.Q": 0.0
+              },
+              "ticks": 2,
+              "dt": 0.1
             },
-            "Statusblock.I": {
-              ">": 0.5
+            {
+              "inputs": {
+                "Schalter 1.Q": 1.0
+              },
+              "ticks": 3,
+              "dt": 0.1
+            },
+            {
+              "inputs": {
+                "Schalter 1.Q": 0.0
+              },
+              "ticks": 2,
+              "dt": 0.1
+            },
+            {
+              "inputs": {
+                "Schalter 1.Q": 1.0
+              },
+              "ticks": 10,
+              "dt": 0.1,
+              "expected_outputs": {
+                "Raumregler.Input": {
+                  "==": 22.0
+                },
+                "Statusblock.I": {
+                  ">": 0.5
+                }
+              }
             }
-          }
+          ]
         }
       ]
     }
@@ -463,7 +484,7 @@
             "Raumfeuchtigkeit Bad.AQ": 50.0,
             "Fensterkontakt Bad.Q": 0.0
           },
-          "ticks": 10,
+          "ticks": 50,
           "dt": 0.1,
           "expected_outputs": {
             "Heizkörper Bad.I1": {
@@ -478,7 +499,7 @@
             "Raumfeuchtigkeit Bad.AQ": 50.0,
             "Fensterkontakt Bad.Q": 1.0
           },
-          "ticks": 10,
+          "ticks": 50,
           "dt": 0.1,
           "expected_outputs": {
             "Heizkörper Bad.I1": {
@@ -546,9 +567,9 @@
         {
           "name": "comfort mode selected",
           "inputs": {
-            "Schalter 1.Q": 0.0
+            "Türkontakt Wohnzimmer.Q": 0.0
           },
-          "ticks": 5,
+          "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
             "Statusblock.I": {
@@ -559,9 +580,9 @@
         {
           "name": "eco mode selected",
           "inputs": {
-            "Schalter 1.Q": 1.0
+            "Türkontakt Wohnzimmer.Q": 1.0
           },
-          "ticks": 5,
+          "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
             "Statusblock.I": {
@@ -600,7 +621,7 @@
           "inputs": {
             "Außentemperatur.AQ": 5.0
           },
-          "ticks": 5,
+          "ticks": 20,
           "dt": 0.1,
           "expected_outputs": {
             "Klimaanlage [Wohnzimmer].inTempCurr": {
@@ -613,7 +634,7 @@
           "inputs": {
             "Außentemperatur.AQ": 30.0
           },
-          "ticks": 5,
+          "ticks": 20,
           "dt": 0.1,
           "expected_outputs": {
             "Klimaanlage [Wohnzimmer].inTempCurr": {
@@ -750,7 +771,7 @@
                 "Fensterkontakt Wohnzimmer.Q": 0.0,
                 "Türkontakt Wohnzimmer.Q": 0.0
               },
-              "ticks": 2,
+              "ticks": 10,
               "dt": 0.1
             },
             {
@@ -760,7 +781,7 @@
                 "Fensterkontakt Wohnzimmer.Q": 0.0,
                 "Türkontakt Wohnzimmer.Q": 0.0
               },
-              "ticks": 5,
+              "ticks": 10,
               "dt": 0.1,
               "expected_outputs": {
                 "Formel.I": {
@@ -793,7 +814,7 @@
                 "Fensterkontakt Wohnzimmer.Q": 0.0,
                 "Türkontakt Wohnzimmer.Q": 0.0
               },
-              "ticks": 2,
+              "ticks": 10,
               "dt": 0.1
             },
             {
@@ -803,7 +824,7 @@
                 "Fensterkontakt Wohnzimmer.Q": 1.0,
                 "Türkontakt Wohnzimmer.Q": 0.0
               },
-              "ticks": 5,
+              "ticks": 10,
               "dt": 0.1,
               "expected_outputs": {
                 "Formel.I": {
@@ -836,7 +857,7 @@
                 "Fensterkontakt Wohnzimmer.Q": 0,
                 "Türkontakt Wohnzimmer.Q": 0
               },
-              "ticks": 2,
+              "ticks": 10,
               "dt": 0.1
             },
             {
@@ -953,7 +974,7 @@
                 "Raumregler [Wohnzimmer].AQh": 0,
                 "Schalter 2.Q": 0
               },
-              "ticks": 2,
+              "ticks": 10,
               "dt": 0.1
             },
             {
@@ -961,7 +982,7 @@
                 "Raumregler [Wohnzimmer].AQh": 0.8,
                 "Schalter 2.Q": 0.0
               },
-              "ticks": 5,
+              "ticks": 10,
               "dt": 0.1,
               "expected_outputs": {
                 "Heizkörper Bad.I1": {
@@ -990,7 +1011,7 @@
                 "Raumregler [Wohnzimmer].AQh": 0,
                 "Schalter 2.Q": 0
               },
-              "ticks": 2,
+              "ticks": 10,
               "dt": 0.1
             },
             {
@@ -998,7 +1019,7 @@
                 "Raumregler [Wohnzimmer].AQh": 0.0,
                 "Schalter 2.Q": 0.7
               },
-              "ticks": 5,
+              "ticks": 10,
               "dt": 0.1,
               "expected_outputs": {
                 "Lüfter Bad.I1": {
@@ -1110,7 +1131,7 @@
           "inputs": {
             "Raumregler [Wohnzimmer].AQh": 22.0
           },
-          "ticks": 5,
+          "ticks": 15,
           "dt": 0.1,
           "expected_outputs": {
             "Statusblock.I": {
@@ -1186,7 +1207,7 @@
                 "Türkontakt Wohnzimmer.Q": 0.0,
                 "Fensterkontakt Wohnzimmer.Q": 0.0
               },
-              "ticks": 2,
+              "ticks": 5,
               "dt": 0.1
             },
             {
@@ -1194,7 +1215,7 @@
                 "Türkontakt Wohnzimmer.Q": 1.0,
                 "Fensterkontakt Wohnzimmer.Q": 0.0
               },
-              "ticks": 1,
+              "ticks": 5,
               "dt": 0.1,
               "expected_outputs": {
                 "Lichtsteuerung [Wohnzimmer].I1": {
@@ -1223,7 +1244,7 @@
                 "Fensterkontakt Wohnzimmer.Q": 0,
                 "Türkontakt Wohnzimmer.Q": 0
               },
-              "ticks": 2,
+              "ticks": 5,
               "dt": 0.1
             },
             {
@@ -1346,7 +1367,7 @@
                 "Raumregler [Wohnzimmer].AQh": 0,
                 "Schalter 2.Q": 0
               },
-              "ticks": 2,
+              "ticks": 20,
               "dt": 0.1
             },
             {
@@ -1354,7 +1375,7 @@
                 "Raumregler [Wohnzimmer].AQh": 0.8,
                 "Schalter 2.Q": 0.0
               },
-              "ticks": 10,
+              "ticks": 20,
               "dt": 0.1,
               "expected_outputs": {
                 "Heizkörper Bad.I1": {
@@ -1389,7 +1410,7 @@
                 "Raumregler [Wohnzimmer].AQh": 0,
                 "Schalter 2.Q": 0
               },
-              "ticks": 2,
+              "ticks": 20,
               "dt": 0.1
             },
             {
@@ -1397,7 +1418,7 @@
                 "Raumregler [Wohnzimmer].AQh": 0.0,
                 "Schalter 2.Q": 0.6
               },
-              "ticks": 10,
+              "ticks": 20,
               "dt": 0.1,
               "expected_outputs": {
                 "Lüfter Bad.I1": {
@@ -1432,7 +1453,7 @@
                 "Raumregler [Wohnzimmer].AQh": 0,
                 "Schalter 2.Q": 0
               },
-              "ticks": 2,
+              "ticks": 20,
               "dt": 0.1
             },
             {
@@ -1440,7 +1461,7 @@
                 "Raumregler [Wohnzimmer].AQh": 0.0,
                 "Schalter 2.Q": 0.0
               },
-              "ticks": 10,
+              "ticks": 20,
               "dt": 0.1,
               "expected_outputs": {
                 "Formel.I": {

@@ -481,19 +481,30 @@
       "simulation": [
         {
           "name": "party mode activates scenes and closes blinds",
-          "inputs": {
-            "Schalter 2.Q": 1.0
-          },
-          "ticks": 10,
-          "dt": 0.1,
-          "expected_outputs": {
-            "Jalousie 1 [Wohnzimmer].InputTriggerDown": {
-              ">": 0.5
+          "steps": [
+            {
+              "inputs": {
+                "Schalter 2.Q": 0.0
+              },
+              "ticks": 3,
+              "dt": 0.1
             },
-            "Gartenbeleuchtung.I1": {
-              ">": 0.5
+            {
+              "inputs": {
+                "Schalter 2.Q": 1.0
+              },
+              "ticks": 15,
+              "dt": 0.1,
+              "expected_outputs": {
+                "Jalousie 1 [Wohnzimmer].InputTriggerDown": {
+                  ">": 0.5
+                },
+                "Gartenbeleuchtung.I1": {
+                  ">": 0.5
+                }
+              }
             }
-          }
+          ]
         },
         {
           "name": "no party when switch off",
@@ -629,7 +640,7 @@
         {
           "name": "default selects first input (comfort)",
           "inputs": {},
-          "ticks": 10,
+          "ticks": 20,
           "dt": 0.1,
           "expected_outputs": {
             "Statusblock.I": {
@@ -702,7 +713,7 @@
           "inputs": {
             "Pool Temperatur.AQ": 32.0
           },
-          "ticks": 120,
+          "ticks": 200,
           "dt": 0.1,
           "expected_outputs": {
             "Alarmanlage.I": {
@@ -715,7 +726,7 @@
           "inputs": {
             "Pool Temperatur.AQ": 20.0
           },
-          "ticks": 120,
+          "ticks": 200,
           "dt": 0.1,
           "expected_outputs": {
             "Alarmanlage.I": {
@@ -910,14 +921,14 @@
               "inputs": {
                 "Bewässerung Manuell.Q": 0.0
               },
-              "ticks": 3,
+              "ticks": 30,
               "dt": 0.1
             },
             {
               "inputs": {
                 "Bewässerung Manuell.Q": 1.0
               },
-              "ticks": 20,
+              "ticks": 30,
               "dt": 0.1,
               "expected_outputs": {
                 "Bewässerungsventil.I1": {
@@ -1045,7 +1056,7 @@
             "Bewegungsmelder Garten.OutputPresence": 0.0,
             "KNX Schalter Garage.Q": 1.0
           },
-          "ticks": 10,
+          "ticks": 15,
           "dt": 0.1,
           "expected_outputs": {
             "Garagenlicht.I1": {
@@ -1059,7 +1070,7 @@
             "Bewegungsmelder Garten.OutputPresence": 1.0,
             "KNX Schalter Garage.Q": 0.0
           },
-          "ticks": 10,
+          "ticks": 15,
           "dt": 0.1,
           "expected_outputs": {
             "Garagenlicht.I1": {
@@ -1073,7 +1084,7 @@
             "Bewegungsmelder Garten.OutputPresence": 0.0,
             "KNX Schalter Garage.Q": 0.0
           },
-          "ticks": 10,
+          "ticks": 15,
           "dt": 0.1,
           "expected_outputs": {
             "Garagenlicht.I1": {

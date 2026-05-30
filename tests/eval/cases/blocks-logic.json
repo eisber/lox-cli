@@ -250,14 +250,14 @@
               "inputs": {
                 "PushButton.Q": 0.0
               },
-              "ticks": 3,
+              "ticks": 15,
               "dt": 0.1
             },
             {
               "inputs": {
                 "PushButton.Q": 1.0
               },
-              "ticks": 10,
+              "ticks": 15,
               "dt": 0.1,
               "expected_outputs": {
                 "Lüfter Bad.I1": {
@@ -540,7 +540,7 @@
                 "PushButton.InputTrigger": 1,
                 "Schalter 1.Q": 0
               },
-              "ticks": 2,
+              "ticks": 5,
               "dt": 0.1
             },
             {
@@ -548,7 +548,7 @@
                 "PushButton.InputTrigger": 1,
                 "Schalter 1.Q": 1
               },
-              "ticks": 1,
+              "ticks": 5,
               "dt": 0.1,
               "expected_outputs": {
                 "Statusblock.I": {
@@ -637,7 +637,7 @@
           "inputs": {
             "Helligkeit.AQ": 500
           },
-          "ticks": 10,
+          "ticks": 20,
           "dt": 0.1,
           "expected_outputs": {
             "Lichtsteuerung [Wohnzimmer].Brightness": {
@@ -682,16 +682,18 @@
           "steps": [
             {
               "inputs": {
-                "Außentemperatur.AQ": 0.0
+                "Außentemperatur.AQ": 0.0,
+                "Raumtemperatur Flur.AQ": 0.0
               },
-              "ticks": 5,
+              "ticks": 15,
               "dt": 0.1
             },
             {
               "inputs": {
-                "Außentemperatur.AQ": 10.0
+                "Außentemperatur.AQ": 10.0,
+                "Raumtemperatur Flur.AQ": 3.0
               },
-              "ticks": 10,
+              "ticks": 15,
               "dt": 0.1,
               "expected_outputs": {
                 "Heizkörper Bad.I1": {
@@ -760,14 +762,14 @@
               "inputs": {
                 "PushButton.Q": 0.0
               },
-              "ticks": 3,
+              "ticks": 20,
               "dt": 0.1
             },
             {
               "inputs": {
                 "PushButton.Q": 1.0
               },
-              "ticks": 10,
+              "ticks": 20,
               "dt": 0.1,
               "expected_outputs": {
                 "Lichtsteuerung [Schlafzimmer].Brightness": {

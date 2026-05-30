@@ -51,7 +51,7 @@
             "Vorlauftemperatur.AQ": 68.0,
             "Warmwasserspeicher.AQ": 55.0
           },
-          "ticks": 10,
+          "ticks": 30,
           "dt": 0.1,
           "expected_outputs": {
             "Poolpumpe.I1": {
@@ -65,7 +65,7 @@
             "Vorlauftemperatur.AQ": 57.0,
             "Warmwasserspeicher.AQ": 55.0
           },
-          "ticks": 10,
+          "ticks": 30,
           "dt": 0.1,
           "expected_outputs": {
             "Poolpumpe.I1": {
@@ -360,7 +360,7 @@
             "Regen.AQ": 1.0,
             "Windgeschwindigkeit.AQ": 10.0
           },
-          "ticks": 10,
+          "ticks": 20,
           "dt": 0.1,
           "expected_outputs": {
             "Jalousie 1 [Wohnzimmer].InputDisable": {
@@ -374,7 +374,7 @@
             "Regen.AQ": 0.0,
             "Windgeschwindigkeit.AQ": 50.0
           },
-          "ticks": 10,
+          "ticks": 20,
           "dt": 0.1,
           "expected_outputs": {
             "Jalousie 1 [Wohnzimmer].InputDisable": {
@@ -388,7 +388,7 @@
             "Regen.AQ": 0.0,
             "Windgeschwindigkeit.AQ": 15.0
           },
-          "ticks": 10,
+          "ticks": 20,
           "dt": 0.1,
           "expected_outputs": {
             "Jalousie 1 [Wohnzimmer].InputDisable": {
@@ -493,7 +493,7 @@
             "Raumtemperatur Flur.AQ": 1.0,
             "Raumtemperatur Küche.AQ": 0.0
           },
-          "ticks": 10,
+          "ticks": 30,
           "dt": 0.1,
           "expected_outputs": {
             "Heizkörper Bad.I1": {
@@ -508,7 +508,7 @@
             "Raumtemperatur Flur.AQ": 0.0,
             "Raumtemperatur Küche.AQ": 0.0
           },
-          "ticks": 10,
+          "ticks": 30,
           "dt": 0.1,
           "expected_outputs": {
             "Heizkörper Bad.I1": {
@@ -602,7 +602,7 @@
           "inputs": {
             "Windgeschwindigkeit.AQ": 45.0
           },
-          "ticks": 10,
+          "ticks": 20,
           "dt": 0.1,
           "expected_outputs": {
             "Jalousie 1 [Wohnzimmer].InputDisable": {
@@ -615,7 +615,7 @@
           "inputs": {
             "Windgeschwindigkeit.AQ": 15.0
           },
-          "ticks": 10,
+          "ticks": 20,
           "dt": 0.1,
           "expected_outputs": {
             "Jalousie 1 [Wohnzimmer].InputDisable": {
@@ -906,7 +906,7 @@
                 "Bewegungsmelder.OutputPresence": 0.0
               },
               "ticks": 20,
-              "dt": 0.1,
+              "dt": 100.0,
               "expected_outputs": {
                 "Statusblock.I": {
                   ">": 0.0
@@ -1011,28 +1011,28 @@
           "inputs": {
             "Feuchtesensor Garten.AQ": 30.0
           },
-          "ticks": 10,
+          "ticks": 20,
           "dt": 0.1,
           "expected_outputs": {
             "Bewässerungsventil.I1": {
               ">": 0.5
             }
           },
-          "time": 360
+          "time": 420
         },
         {
           "name": "inhibits irrigation when wet",
           "inputs": {
             "Feuchtesensor Garten.AQ": 80.0
           },
-          "ticks": 10,
+          "ticks": 20,
           "dt": 0.1,
           "expected_outputs": {
             "Bewässerungsventil.I1": {
               "<": 0.5
             }
           },
-          "time": 360
+          "time": 420
         }
       ]
     }

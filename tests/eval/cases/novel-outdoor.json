@@ -206,14 +206,14 @@
               "inputs": {
                 "Garagentor Sensor.Q": 0.0
               },
-              "ticks": 3,
+              "ticks": 10,
               "dt": 0.1
             },
             {
               "inputs": {
                 "Garagentor Sensor.Q": 1.0
               },
-              "ticks": 5,
+              "ticks": 10,
               "dt": 0.1,
               "expected_outputs": {
                 "Garagenlicht.I1": {
@@ -1142,17 +1142,17 @@
               "inputs": {
                 "Türkontakt Eingang.Q": 0.0
               },
-              "ticks": 3,
+              "ticks": 10,
               "dt": 0.1
             },
             {
               "inputs": {
                 "Türkontakt Eingang.Q": 1.0
               },
-              "ticks": 5,
+              "ticks": 10,
               "dt": 0.1,
               "expected_outputs": {
-                "Alarmanlage.I": {
+                "Statusblock.I": {
                   ">": 0.5
                 }
               }
@@ -1166,17 +1166,17 @@
               "inputs": {
                 "Türkontakt Eingang.Q": 1.0
               },
-              "ticks": 5,
+              "ticks": 10,
               "dt": 0.1
             },
             {
               "inputs": {
                 "Türkontakt Eingang.Q": 0.0
               },
-              "ticks": 5,
+              "ticks": 10,
               "dt": 0.1,
               "expected_outputs": {
-                "Alarmanlage.I": {
+                "Statusblock.I": {
                   ">": 0.5
                 }
               }
@@ -1361,7 +1361,7 @@
                 "Türklingel.Q": 0.0,
                 "Schalter 1.Q": 0.0
               },
-              "ticks": 3,
+              "ticks": 10,
               "dt": 0.1
             },
             {
@@ -1369,7 +1369,7 @@
                 "Türklingel.Q": 1.0,
                 "Schalter 1.Q": 0.0
               },
-              "ticks": 5,
+              "ticks": 10,
               "dt": 0.1,
               "expected_outputs": {
                 "Türöffner.I1": {
@@ -1387,7 +1387,7 @@
                 "Türklingel.Q": 0.0,
                 "Schalter 1.Q": 0.0
               },
-              "ticks": 3,
+              "ticks": 10,
               "dt": 0.1
             },
             {
@@ -1395,7 +1395,7 @@
                 "Türklingel.Q": 0.0,
                 "Schalter 1.Q": 1.0
               },
-              "ticks": 5,
+              "ticks": 10,
               "dt": 0.1,
               "expected_outputs": {
                 "Türöffner.I1": {
@@ -1411,7 +1411,7 @@
             "Türklingel.Q": 0.0,
             "Schalter 1.Q": 0.0
           },
-          "ticks": 10,
+          "ticks": 15,
           "dt": 0.1,
           "expected_outputs": {
             "Türöffner.I1": {

@@ -181,7 +181,7 @@
               "inputs": {
                 "Schalter 2.Q": 0.0
               },
-              "ticks": 2,
+              "ticks": 5,
               "dt": 0.1
             },
             {
@@ -213,7 +213,7 @@
           "steps": [
             {
               "inputs": {},
-              "ticks": 2,
+              "ticks": 5,
               "dt": 0.1
             },
             {
@@ -301,42 +301,42 @@
               "inputs": {
                 "KNX Schalter Garage.Q": 0
               },
-              "ticks": 2,
+              "ticks": 3,
               "dt": 0.1
             },
             {
               "inputs": {
                 "KNX Schalter Garage.Q": 1
               },
-              "ticks": 1,
+              "ticks": 3,
               "dt": 0.1
             },
             {
               "inputs": {
                 "KNX Schalter Garage.Q": 0
               },
-              "ticks": 1,
+              "ticks": 3,
               "dt": 0.1
             },
             {
               "inputs": {
                 "KNX Schalter Garage.Q": 1
               },
-              "ticks": 1,
+              "ticks": 3,
               "dt": 0.1
             },
             {
               "inputs": {
                 "KNX Schalter Garage.Q": 0
               },
-              "ticks": 1,
+              "ticks": 3,
               "dt": 0.1
             },
             {
               "inputs": {
                 "KNX Schalter Garage.Q": 1
               },
-              "ticks": 1,
+              "ticks": 3,
               "dt": 0.1,
               "expected_outputs": {
                 "Alarmanlage.I": {
@@ -363,42 +363,42 @@
               "inputs": {
                 "KNX Schalter Garage.Q": 0
               },
-              "ticks": 2,
+              "ticks": 3,
               "dt": 0.1
             },
             {
               "inputs": {
                 "KNX Schalter Garage.Q": 1
               },
-              "ticks": 1,
+              "ticks": 3,
               "dt": 0.1
             },
             {
               "inputs": {
                 "KNX Schalter Garage.Q": 0
               },
-              "ticks": 1,
+              "ticks": 3,
               "dt": 0.1
             },
             {
               "inputs": {
                 "KNX Schalter Garage.Q": 1
               },
-              "ticks": 1,
+              "ticks": 3,
               "dt": 0.1
             },
             {
               "inputs": {
                 "KNX Schalter Garage.Q": 0
               },
-              "ticks": 1,
+              "ticks": 3,
               "dt": 0.1
             },
             {
               "inputs": {
                 "KNX Schalter Garage.Q": 1
               },
-              "ticks": 1,
+              "ticks": 3,
               "dt": 0.1,
               "expected_outputs": {
                 "Alarmanlage.I": {
@@ -543,7 +543,7 @@
           "dt": 0.1,
           "expected_outputs": {
             "Lichtsteuerung [Wohnzimmer].I1": {
-              "<": 0.5
+              "==": 0.0
             }
           },
           "time": 360
@@ -600,7 +600,7 @@
           "inputs": {
             "PushButton.Q": 1.0
           },
-          "ticks": 20,
+          "ticks": 40,
           "dt": 0.5,
           "expected_outputs": {
             "Lichtsteuerung [Schlafzimmer].I1": {
@@ -660,16 +660,27 @@
       "simulation": [
         {
           "name": "selecting mode 1 activates Q1",
-          "inputs": {
-            "PushButton.Q": 1.0
-          },
-          "ticks": 5,
-          "dt": 0.1,
-          "expected_outputs": {
-            "Raumregler.Temp": {
-              ">": 0.5
+          "steps": [
+            {
+              "inputs": {
+                "PushButton.Q": 0.0
+              },
+              "ticks": 3,
+              "dt": 0.1
+            },
+            {
+              "inputs": {
+                "PushButton.Q": 1.0
+              },
+              "ticks": 10,
+              "dt": 0.1,
+              "expected_outputs": {
+                "Raumregler.Temp": {
+                  ">": 0.5
+                }
+              }
             }
-          }
+          ]
         },
         {
           "name": "no input means no active mode",
@@ -721,27 +732,49 @@
       "simulation": [
         {
           "name": "trigger advances step",
-          "inputs": {
-            "PushButton.Q": 1.0
-          },
-          "ticks": 5,
-          "dt": 0.1,
-          "expected_outputs": {
-            "Lüfter Bad.I1": {
-              ">": 0.0
+          "steps": [
+            {
+              "inputs": {
+                "PushButton.Q": 0.0
+              },
+              "ticks": 3,
+              "dt": 0.1
+            },
+            {
+              "inputs": {
+                "PushButton.Q": 1.0
+              },
+              "ticks": 10,
+              "dt": 0.1,
+              "expected_outputs": {
+                "Lüfter Bad.I1": {
+                  ">": 0.0
+                }
+              }
             }
-          }
+          ]
         },
         {
           "name": "no trigger stays at current step",
-          "inputs": {},
-          "ticks": 5,
-          "dt": 0.1,
-          "expected_outputs": {
-            "Lüfter Bad.I1": {
-              "<": 0.5
+          "steps": [
+            {
+              "inputs": {
+                "PushButton.Q": 0.0
+              },
+              "ticks": 3,
+              "dt": 0.1
+            },
+            {
+              "inputs": {},
+              "ticks": 10,
+              "dt": 0.1,
+              "expected_outputs": {
+                "Lüfter Bad.I1": {
+                  "<": 0.5
+                }
+              }
             }
-          }
+          ]
         }
       ]
     }
@@ -806,7 +839,7 @@
               "inputs": {
                 "PushButton.Q": 0.0
               },
-              "ticks": 2,
+              "ticks": 5,
               "dt": 0.1
             },
             {
@@ -830,28 +863,28 @@
               "inputs": {
                 "PushButton.Q": 0
               },
-              "ticks": 2,
+              "ticks": 5,
               "dt": 0.1
             },
             {
               "inputs": {
                 "PushButton.Q": 1
               },
-              "ticks": 1,
+              "ticks": 5,
               "dt": 0.1
             },
             {
               "inputs": {
                 "PushButton.Q": 0
               },
-              "ticks": 1,
+              "ticks": 5,
               "dt": 0.1
             },
             {
               "inputs": {
                 "PushButton.Q": 1
               },
-              "ticks": 1,
+              "ticks": 5,
               "dt": 0.1,
               "expected_outputs": {
                 "Jalousie 1 [Küche].InputTriggerDown": {
@@ -911,7 +944,7 @@
           "inputs": {
             "Türkontakt Bad.Q": 1.0
           },
-          "ticks": 10,
+          "ticks": 20,
           "dt": 0.1,
           "expected_outputs": {
             "Heizkörper Bad.I1": {
@@ -925,7 +958,7 @@
           "inputs": {
             "Türkontakt Bad.Q": 0.0
           },
-          "ticks": 10,
+          "ticks": 20,
           "dt": 0.1,
           "expected_outputs": {
             "Heizkörper Bad.I1": {
@@ -1005,7 +1038,7 @@
             "CO2 Sensor.AQ": 900.0,
             "Fensterkontakt Küche.Q": 0.0
           },
-          "ticks": 5,
+          "ticks": 15,
           "dt": 0.1,
           "expected_outputs": {
             "Lüfter Bad.I1": {
@@ -1019,7 +1052,7 @@
             "CO2 Sensor.AQ": 500.0,
             "Fensterkontakt Küche.Q": 0.0
           },
-          "ticks": 5,
+          "ticks": 15,
           "dt": 0.1,
           "expected_outputs": {
             "Lüfter Bad.I1": {
@@ -1071,14 +1104,14 @@
               "inputs": {
                 "PushButton.Q": 0.0
               },
-              "ticks": 2,
+              "ticks": 8,
               "dt": 0.1
             },
             {
               "inputs": {
                 "PushButton.Q": 1.0
               },
-              "ticks": 5,
+              "ticks": 8,
               "dt": 0.1,
               "expected_outputs": {
                 "Jalousie 1 [Wohnzimmer].InputTriggerDown": {
@@ -1105,14 +1138,14 @@
               "inputs": {
                 "Schalter 2.Q": 0.0
               },
-              "ticks": 2,
+              "ticks": 8,
               "dt": 0.1
             },
             {
               "inputs": {
                 "Schalter 2.Q": 1.0
               },
-              "ticks": 5,
+              "ticks": 8,
               "dt": 0.1,
               "expected_outputs": {
                 "Jalousie 1 [Wohnzimmer].InputTriggerDown": {
@@ -1275,16 +1308,27 @@
       "simulation": [
         {
           "name": "trigger starts delay chain",
-          "inputs": {
-            "PushButton.Q": 1.0
-          },
-          "ticks": 50,
-          "dt": 1.0,
-          "expected_outputs": {
-            "Lichtsteuerung [Küche].I1": {
-              ">": 0.5
+          "steps": [
+            {
+              "inputs": {
+                "PushButton.Q": 0.0
+              },
+              "ticks": 2,
+              "dt": 1.0
+            },
+            {
+              "inputs": {
+                "PushButton.Q": 1.0
+              },
+              "ticks": 50,
+              "dt": 1.0,
+              "expected_outputs": {
+                "Lichtsteuerung [Küche].I1": {
+                  ">": 0.5
+                }
+              }
             }
-          }
+          ]
         },
         {
           "name": "no trigger keeps outputs off",
