@@ -530,7 +530,7 @@
           "ticks": 5,
           "dt": 0.1,
           "expected_outputs": {
-            "Lichtsteuerung.I1": {
+            "Lichtsteuerung [Wohnzimmer].I1": {
               ">": 0.5
             }
           },
@@ -542,7 +542,7 @@
           "ticks": 5,
           "dt": 0.1,
           "expected_outputs": {
-            "Lichtsteuerung.I1": {
+            "Lichtsteuerung [Wohnzimmer].I1": {
               "<": 0.5
             }
           },
@@ -666,7 +666,7 @@
           "ticks": 5,
           "dt": 0.1,
           "expected_outputs": {
-            "Raumregler.Input": {
+            "Raumregler.Temp": {
               ">": 0.5
             }
           }
@@ -677,7 +677,7 @@
           "ticks": 5,
           "dt": 0.1,
           "expected_outputs": {
-            "Raumregler.Input": {
+            "Raumregler.Temp": {
               "<": 0.5
             }
           }
@@ -909,7 +909,7 @@
           "name": "morning and presence activates heating",
           "time": 420,
           "inputs": {
-            "Türkontakt Bad": 1.0
+            "Türkontakt Bad.Q": 1.0
           },
           "ticks": 10,
           "dt": 0.1,
@@ -923,7 +923,7 @@
           "name": "no presence keeps heating off",
           "time": 420,
           "inputs": {
-            "Türkontakt Bad": 0.0
+            "Türkontakt Bad.Q": 0.0
           },
           "ticks": 10,
           "dt": 0.1,

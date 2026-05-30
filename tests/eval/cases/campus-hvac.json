@@ -46,7 +46,7 @@
           "ticks": 5,
           "dt": 0.1,
           "expected_outputs": {
-            "Raumregler.Input": {
+            "Raumregler.Temp": {
               "==": 22.0
             }
           }
@@ -59,7 +59,7 @@
           "ticks": 5,
           "dt": 0.1,
           "expected_outputs": {
-            "Raumregler.Input": {
+            "Raumregler.Temp": {
               "==": 18.0
             }
           }
@@ -74,13 +74,13 @@
       "occupancy-mode",
       "irc-cascade"
     ],
-    "utterance": "Build a 3-mode occupancy setpoint selector for the Wohnzimmer Raumregler: AnalogMultiplexer with comfort=22°C, eco=18°C, off=15°C. Wire a NotEqual block to detect when the mode is not 'off', and feed the multiplexer output to the IRC setpoint; wire the setpoint output to Raumregler.Input and the mode indicator to Statusblock",
+    "utterance": "Build a 3-mode occupancy setpoint selector for the Wohnzimmer Raumregler: AnalogMultiplexer with comfort=22°C, eco=18°C, off=15°C. Wire a NotEqual block to detect when the mode is not 'off', and feed the multiplexer output to the IRC setpoint input; wire the setpoint output to Raumregler.Input and the mode indicator to Statusblock",
     "difficulty": "hard",
-    "source": "campus-wiring-graph: heating-mode-setpoints — NotEqual:HCM Mode + AnalogMultiplexer2:Set Setpoint → IRC",
+    "source": "campus-wiring-graph: heating-mode-setpoints — NotEqual:HCM Mode + AnalogMultiplexer:Set Setpoint → IRC",
     "expected": {
       "new_blocks": [
         {
-          "type": "AnalogMultiplexer2",
+          "type": "AnalogMultiplexer",
           "title": "Set Setpoint"
         },
         {
@@ -90,11 +90,11 @@
       ],
       "wiring": [
         {
-          "from_type": "AnalogMultiplexer2",
+          "from_type": "AnalogMultiplexer",
           "from_connector": "AQ",
           "to_title": "Raumregler",
           "to_room": "Wohnzimmer",
-          "to_connector": "SetpointOverride"
+          "to_connector": "Input"
         },
         {
           "from_type": "NotEqual",
@@ -106,17 +106,17 @@
       ],
       "params": [
         {
-          "block_type": "AnalogMultiplexer2",
+          "block_type": "AnalogMultiplexer",
           "param": "Input1",
           "value": "15"
         },
         {
-          "block_type": "AnalogMultiplexer2",
+          "block_type": "AnalogMultiplexer",
           "param": "Input2",
           "value": "18"
         },
         {
-          "block_type": "AnalogMultiplexer2",
+          "block_type": "AnalogMultiplexer",
           "param": "Input3",
           "value": "22"
         },
@@ -136,10 +136,10 @@
           "ticks": 5,
           "dt": 0.1,
           "expected_outputs": {
-            "Raumregler.Input": {
+            "Raumregler.Temp": {
               "==": 15.0
             },
-            "Statusblock.I1": {
+            "Statusblock.I": {
               "==": 0.0
             }
           }
@@ -153,10 +153,10 @@
           "ticks": 5,
           "dt": 0.1,
           "expected_outputs": {
-            "Raumregler.Input": {
+            "Raumregler.Temp": {
               "==": 22.0
             },
-            "Statusblock.I1": {
+            "Statusblock.I": {
               ">": 0.5
             }
           }
@@ -461,7 +461,7 @@
           "inputs": {
             "Raumtemperatur Bad.AQ": 15.0,
             "Raumfeuchtigkeit Bad.AQ": 50.0,
-            "Fensterkontakt Bad.AQ": 0.0
+            "Fensterkontakt Bad.Q": 0.0
           },
           "ticks": 10,
           "dt": 0.1,
@@ -476,7 +476,7 @@
           "inputs": {
             "Raumtemperatur Bad.AQ": 15.0,
             "Raumfeuchtigkeit Bad.AQ": 50.0,
-            "Fensterkontakt Bad.AQ": 1.0
+            "Fensterkontakt Bad.Q": 1.0
           },
           "ticks": 10,
           "dt": 0.1,
@@ -551,7 +551,7 @@
           "ticks": 5,
           "dt": 0.1,
           "expected_outputs": {
-            "Statusblock.I1": {
+            "Statusblock.I": {
               "==": 22.0
             }
           }
@@ -564,7 +564,7 @@
           "ticks": 5,
           "dt": 0.1,
           "expected_outputs": {
-            "Statusblock.I1": {
+            "Statusblock.I": {
               "==": 20.0
             }
           }
@@ -603,7 +603,7 @@
           "ticks": 5,
           "dt": 0.1,
           "expected_outputs": {
-            "Klimaanlage [Wohnzimmer].Temp": {
+            "Klimaanlage [Wohnzimmer].inTempCurr": {
               "==": 5.0
             }
           }
@@ -616,7 +616,7 @@
           "ticks": 5,
           "dt": 0.1,
           "expected_outputs": {
-            "Klimaanlage [Wohnzimmer].Temp": {
+            "Klimaanlage [Wohnzimmer].inTempCurr": {
               "==": 30.0
             }
           }
@@ -746,9 +746,9 @@
             {
               "inputs": {
                 "Raumregler [Wohnzimmer].AQh": 0.0,
-                "Raumregler [Wohnzimmer].AQc": 0.0,
-                "Fensterkontakt Wohnzimmer.AQ": 0.0,
-                "Türkontakt Wohnzimmer.AQ": 0.0
+                "Schalter 2.Q": 0.0,
+                "Fensterkontakt Wohnzimmer.Q": 0.0,
+                "Türkontakt Wohnzimmer.Q": 0.0
               },
               "ticks": 2,
               "dt": 0.1
@@ -756,9 +756,9 @@
             {
               "inputs": {
                 "Raumregler [Wohnzimmer].AQh": 1.0,
-                "Raumregler [Wohnzimmer].AQc": 0.0,
-                "Fensterkontakt Wohnzimmer.AQ": 0.0,
-                "Türkontakt Wohnzimmer.AQ": 0.0
+                "Schalter 2.Q": 0.0,
+                "Fensterkontakt Wohnzimmer.Q": 0.0,
+                "Türkontakt Wohnzimmer.Q": 0.0
               },
               "ticks": 5,
               "dt": 0.1,
@@ -789,9 +789,9 @@
             {
               "inputs": {
                 "Raumregler [Wohnzimmer].AQh": 0.0,
-                "Raumregler [Wohnzimmer].AQc": 0.0,
-                "Fensterkontakt Wohnzimmer.AQ": 0.0,
-                "Türkontakt Wohnzimmer.AQ": 0.0
+                "Schalter 2.Q": 0.0,
+                "Fensterkontakt Wohnzimmer.Q": 0.0,
+                "Türkontakt Wohnzimmer.Q": 0.0
               },
               "ticks": 2,
               "dt": 0.1
@@ -799,9 +799,9 @@
             {
               "inputs": {
                 "Raumregler [Wohnzimmer].AQh": 0.0,
-                "Raumregler [Wohnzimmer].AQc": 0.0,
-                "Fensterkontakt Wohnzimmer.AQ": 1.0,
-                "Türkontakt Wohnzimmer.AQ": 0.0
+                "Schalter 2.Q": 0.0,
+                "Fensterkontakt Wohnzimmer.Q": 1.0,
+                "Türkontakt Wohnzimmer.Q": 0.0
               },
               "ticks": 5,
               "dt": 0.1,
@@ -832,9 +832,9 @@
             {
               "inputs": {
                 "Raumregler [Wohnzimmer].AQh": 0,
-                "Raumregler [Wohnzimmer].AQc": 0,
-                "Fensterkontakt Wohnzimmer.AQ": 0,
-                "Türkontakt Wohnzimmer.AQ": 0
+                "Schalter 2.Q": 0,
+                "Fensterkontakt Wohnzimmer.Q": 0,
+                "Türkontakt Wohnzimmer.Q": 0
               },
               "ticks": 2,
               "dt": 0.1
@@ -842,9 +842,9 @@
             {
               "inputs": {
                 "Raumregler [Wohnzimmer].AQh": 0.0,
-                "Raumregler [Wohnzimmer].AQc": 0.0,
-                "Fensterkontakt Wohnzimmer.AQ": 0.0,
-                "Türkontakt Wohnzimmer.AQ": 0.0
+                "Schalter 2.Q": 0.0,
+                "Fensterkontakt Wohnzimmer.Q": 0.0,
+                "Türkontakt Wohnzimmer.Q": 0.0
               },
               "ticks": 10,
               "dt": 0.1,
@@ -951,7 +951,7 @@
             {
               "inputs": {
                 "Raumregler [Wohnzimmer].AQh": 0,
-                "Raumregler [Wohnzimmer].AQc": 0
+                "Schalter 2.Q": 0
               },
               "ticks": 2,
               "dt": 0.1
@@ -959,7 +959,7 @@
             {
               "inputs": {
                 "Raumregler [Wohnzimmer].AQh": 0.8,
-                "Raumregler [Wohnzimmer].AQc": 0.0
+                "Schalter 2.Q": 0.0
               },
               "ticks": 5,
               "dt": 0.1,
@@ -988,7 +988,7 @@
             {
               "inputs": {
                 "Raumregler [Wohnzimmer].AQh": 0,
-                "Raumregler [Wohnzimmer].AQc": 0
+                "Schalter 2.Q": 0
               },
               "ticks": 2,
               "dt": 0.1
@@ -996,7 +996,7 @@
             {
               "inputs": {
                 "Raumregler [Wohnzimmer].AQh": 0.0,
-                "Raumregler [Wohnzimmer].AQc": 0.7
+                "Schalter 2.Q": 0.7
               },
               "ticks": 5,
               "dt": 0.1,
@@ -1108,12 +1108,12 @@
         {
           "name": "setpoint value displayed",
           "inputs": {
-            "Raumregler [Wohnzimmer].AQs": 22.0
+            "Raumregler [Wohnzimmer].AQh": 22.0
           },
           "ticks": 5,
           "dt": 0.1,
           "expected_outputs": {
-            "Statusblock.I1": {
+            "Statusblock.I": {
               "==": 22.0
             }
           }
@@ -1183,16 +1183,16 @@
           "steps": [
             {
               "inputs": {
-                "Türkontakt Wohnzimmer.AQ": 0.0,
-                "Fensterkontakt Wohnzimmer.AQ": 0.0
+                "Türkontakt Wohnzimmer.Q": 0.0,
+                "Fensterkontakt Wohnzimmer.Q": 0.0
               },
               "ticks": 2,
               "dt": 0.1
             },
             {
               "inputs": {
-                "Türkontakt Wohnzimmer.AQ": 1.0,
-                "Fensterkontakt Wohnzimmer.AQ": 0.0
+                "Türkontakt Wohnzimmer.Q": 1.0,
+                "Fensterkontakt Wohnzimmer.Q": 0.0
               },
               "ticks": 1,
               "dt": 0.1,
@@ -1220,16 +1220,16 @@
           "steps": [
             {
               "inputs": {
-                "Fensterkontakt Wohnzimmer.AQ": 0,
-                "Türkontakt Wohnzimmer.AQ": 0
+                "Fensterkontakt Wohnzimmer.Q": 0,
+                "Türkontakt Wohnzimmer.Q": 0
               },
               "ticks": 2,
               "dt": 0.1
             },
             {
               "inputs": {
-                "Fensterkontakt Wohnzimmer.AQ": 1.0,
-                "Türkontakt Wohnzimmer.AQ": 0.0
+                "Fensterkontakt Wohnzimmer.Q": 1.0,
+                "Türkontakt Wohnzimmer.Q": 0.0
               },
               "ticks": 5,
               "dt": 0.1,
@@ -1344,7 +1344,7 @@
             {
               "inputs": {
                 "Raumregler [Wohnzimmer].AQh": 0,
-                "Raumregler [Wohnzimmer].AQc": 0
+                "Schalter 2.Q": 0
               },
               "ticks": 2,
               "dt": 0.1
@@ -1352,7 +1352,7 @@
             {
               "inputs": {
                 "Raumregler [Wohnzimmer].AQh": 0.8,
-                "Raumregler [Wohnzimmer].AQc": 0.0
+                "Schalter 2.Q": 0.0
               },
               "ticks": 10,
               "dt": 0.1,
@@ -1387,7 +1387,7 @@
             {
               "inputs": {
                 "Raumregler [Wohnzimmer].AQh": 0,
-                "Raumregler [Wohnzimmer].AQc": 0
+                "Schalter 2.Q": 0
               },
               "ticks": 2,
               "dt": 0.1
@@ -1395,7 +1395,7 @@
             {
               "inputs": {
                 "Raumregler [Wohnzimmer].AQh": 0.0,
-                "Raumregler [Wohnzimmer].AQc": 0.6
+                "Schalter 2.Q": 0.6
               },
               "ticks": 10,
               "dt": 0.1,
@@ -1430,7 +1430,7 @@
             {
               "inputs": {
                 "Raumregler [Wohnzimmer].AQh": 0,
-                "Raumregler [Wohnzimmer].AQc": 0
+                "Schalter 2.Q": 0
               },
               "ticks": 2,
               "dt": 0.1
@@ -1438,7 +1438,7 @@
             {
               "inputs": {
                 "Raumregler [Wohnzimmer].AQh": 0.0,
-                "Raumregler [Wohnzimmer].AQc": 0.0
+                "Schalter 2.Q": 0.0
               },
               "ticks": 10,
               "dt": 0.1,

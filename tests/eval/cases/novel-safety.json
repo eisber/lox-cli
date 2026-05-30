@@ -61,7 +61,7 @@
         {
           "name": "temp above threshold triggers alarm after delay",
           "inputs": {
-            "Raumtemperatur Küche.AQ": 1.0
+            "Raumtemperatur Küche.AQ": -10.0
           },
           "ticks": 6500,
           "dt": 0.1,
@@ -74,7 +74,7 @@
         {
           "name": "temp below threshold no alarm",
           "inputs": {
-            "Raumtemperatur Küche.AQ": 0.0
+            "Raumtemperatur Küche.AQ": -20.0
           },
           "ticks": 6500,
           "dt": 0.1,
@@ -425,7 +425,7 @@
           "ticks": 1300,
           "dt": 0.1,
           "expected_outputs": {
-            "Lichtsteuerung [Küche].I1": {
+            "Lichtsteuerung [Küche].On": {
               ">": 0.5
             }
           }
@@ -490,7 +490,7 @@
             "Jalousie 1 [Wohnzimmer].InputTriggerDown": {
               ">": 0.5
             },
-            "Gartenbeleuchtung.On": {
+            "Gartenbeleuchtung.I1": {
               ">": 0.5
             }
           }
@@ -632,7 +632,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Statusblock.I1": {
+            "Statusblock.I": {
               ">=": 21.0
             }
           }

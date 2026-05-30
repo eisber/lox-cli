@@ -396,8 +396,8 @@ lox config wire-connector config.Loxone "Heizung.Input" "Raumtemperatur Wohnzimm
 #### MultiClick — Detect single/double/triple clicks
 
 - **Inputs:** `InputTrigger`
-- **Outputs:** `Q1` (single), `Q2` (double), `Q3` (triple), `Q4` (quad)
-- **Params:** `Timeout` (ms between clicks)
+- **Outputs:** `Q1` (single), `Q2` (double), `Q3` (triple), `Q4` (quad), `AQ` (value output)
+- **Params:** `Max` (time window for multi-click, default 0.35s), `Time` (output on-duration, default 0.1s)
 
 #### MultiFuncSW — Multi-function switch
 
@@ -407,8 +407,9 @@ lox config wire-connector config.Loxone "Heizung.Input" "Raumtemperatur Wohnzimm
 
 #### Radio — Radio button group (mutual exclusion)
 
-- **Inputs:** `I1`–`I8`, `Reset`
+- **Inputs:** `InputTrigger 1`–`InputTrigger 8`, `InputTriggerP` (+), `InputTriggerM` (-), `InputSel` (direct select)
 - **Outputs:** `AQ` (selected index), `Q1`–`Q8` (individual)
+- Note: connector names have spaces — always quote: `"Radio.InputTrigger 1"`
 
 #### StepSel — Step selector (cycle through values)
 
@@ -446,11 +447,19 @@ lox config wire-connector config.Loxone "Heizung.Input" "Raumtemperatur Wohnzimm
 - **Outputs:** `AQ` (dimmer value 0–100%)
 - **Params:** `Target` (lux), `Min`, `Max`
 
-#### AnalogMultiplexer / AnalogMultiplexer2 — Select between analog inputs
+#### AnalogMultiplexer — Select between 4 analog inputs
 
 - **Inputs:** `Input1`, `Input2`, `Input3`, `Input4`
 - **Outputs:** `AQ`
+- **Params:** `Select` (which input to pass through, range 0–4)
+- **Use case:** 3+ mode setpoint selection (comfort/eco/off)
+
+#### AnalogMultiplexer2 — Select between 2 analog inputs
+
+- **Inputs:** `Input1`, `Input2`
+- **Outputs:** `AQ`
 - **Params:** `Select` (which input to pass through)
+- **Note:** Only 2 inputs. For 3+ modes, use AnalogMultiplexer (4-way)
 
 #### Ramp — Gradual value change
 
@@ -463,3 +472,52 @@ lox config wire-connector config.Loxone "Heizung.Input" "Raumtemperatur Wohnzimm
 - **Inputs:** `InputTrigger`
 - **Outputs:** `AQ`
 - **Params:** `Min`, `Max`
+
+#### Counter — Up counter with target
+
+- **Inputs:** `Trigger` (count pulse)
+- **Outputs:** `Q` (1 when count reaches EndValue), `AQ` (current count)
+- **Params:** `EndValue` (target count, default 1000), `Mode`
+- **Use case:** Count door openings, count events before triggering action
+
+#### EdgeDetection — Detect signal edges
+
+- **Inputs:** `Input`
+- **Outputs:** `Edge` (pulse on any edge), `RisingEdge` (pulse on 0→1), `FallingEdge` (pulse on 1→0)
+- **Params:** `PulseTime` (output pulse duration, default 1s)
+- **Use case:** Detect door opening (rising edge), generate trigger pulses from sensor changes
+
+#### OnDelay — Switch-on delay
+
+- **Inputs:** `InputTrigger`
+- **Outputs:** `Q` (delayed output)
+- **Params:** `Time` (delay duration in seconds, default 1)
+- **Use case:** Delay a signal by N seconds (e.g. turn on kitchen light 2 min after alarm)
+
+#### SaunaVapor — Sauna controller with evaporator
+
+- **Inputs:** `Trigger` (toggle on/off), `Input` (target temp °C), `Temp` (measured temp °C), `InputH` (target humidity), `Humidity` (measured humidity), `DoorSensor`, `On` (state)
+- **Outputs:** `AQ` (heater output 0–10V), `Qa` (sauna state on/off), `Qe` (safety shutdown), `Qr` (sauna ready)
+- **Params:** `SafeTemp` (safety shutdown temp, default 139°C), `Time` (operating time, default 600s), `SafeTime` (max safety time, default 7200s), `DryTemp` (drying temp, default 70°C)
+- **Use case:** Sauna with auto-off timer and temperature limit
+
+#### HvacAC — AC central controller
+
+- **Inputs:** `Temp` (outdoor temperature °C), `Stop`, `CoolAvailable`, `HeatAvailable`
+- **Outputs:** `OutHeat1` (heating demand), `OutCool1` (cooling demand), `OutMaintenance`
+- **Params:** `Mode` (0–3), `TempLimitC` (temp above which cooling allowed, default 18°C), `TempLimitH` (temp below which heating allowed, default 15°C)
+- **Use case:** Central HVAC enable/disable based on outdoor temperature
+
+#### MeterPBi — Bidirectional pulse meter
+
+- **Inputs:** `P1` (consumption pulses), `P2` (delivery/export pulses), `F1` (consumption frequency), `F2` (delivery frequency)
+- **Outputs:** `OMr1` (consumption meter reading), `OMr2` (delivery meter reading), `OPf` (power)
+- **Params:** `Np1` (pulses per unit consumption), `Np2` (pulses per unit delivery)
+- **Use case:** Track solar import/export separately
+
+#### VirtualIn — Virtual input (switch/value)
+
+- **Inputs:** (none — triggered from UI or API)
+- **Outputs:** `AQ` (current value)
+- **Use case:** Create UI buttons, API triggers, or test inputs
+- **Note:** Use `Analog="true"` for analog values, `Analog="false"` for digital switches

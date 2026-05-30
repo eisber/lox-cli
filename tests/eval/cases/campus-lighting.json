@@ -99,7 +99,7 @@
               "ticks": 1,
               "dt": 0.1,
               "expected_outputs": {
-                "Lichtsteuerung [Schlafzimmer].Reset": {
+                "Lichtsteuerung [Schlafzimmer].RtD": {
                   ">": 0.5
                 }
               }
@@ -114,7 +114,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Lichtsteuerung [Schlafzimmer].Reset": {
+            "Lichtsteuerung [Schlafzimmer].RtD": {
               "<": 0.5
             }
           }

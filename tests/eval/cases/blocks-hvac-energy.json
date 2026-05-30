@@ -363,7 +363,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Jalousie 1 [Wohnzimmer].Safety": {
+            "Jalousie 1 [Wohnzimmer].InputDisable": {
               ">": 0.5
             }
           }
@@ -377,7 +377,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Jalousie 1 [Wohnzimmer].Safety": {
+            "Jalousie 1 [Wohnzimmer].InputDisable": {
               ">": 0.5
             }
           }
@@ -391,7 +391,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Jalousie 1 [Wohnzimmer].Safety": {
+            "Jalousie 1 [Wohnzimmer].InputDisable": {
               "<": 0.5
             }
           }
@@ -688,7 +688,7 @@
       "temperature",
       "timer"
     ],
-    "utterance": "Configure a sauna with 85°C target temperature and automatic shutdown after 60 minutes",
+    "utterance": "Configure a SaunaVapor block with 85°C target temperature and automatic shutdown after 60 minutes; wire Raumtemperatur Küche as the temperature sensor to the sauna Temp input and the sauna state output to Statusblock",
     "difficulty": "medium",
     "expected": {
       "new_blocks": [
@@ -699,8 +699,7 @@
       ],
       "wiring": [
         {
-          "from_type": "TreeAsensor",
-          "from_title": "Sauna Temp",
+          "from_title": "Raumtemperatur Küche",
           "from_connector": "AQ",
           "to_type": "SaunaVapor",
           "to_connector": "Temp"
@@ -765,8 +764,7 @@
       ],
       "wiring": [
         {
-          "from_type": "TreeAsensor",
-          "from_title": "Room Temp",
+          "from_title": "Raumtemperatur Wohnzimmer",
           "from_connector": "AQ",
           "to_type": "HvacAC",
           "to_connector": "Temp"

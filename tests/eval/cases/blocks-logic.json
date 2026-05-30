@@ -85,7 +85,7 @@
       ],
       "wiring": [
         {
-          "from_title": "Türsensor Eingang",
+          "from_title": "Türkontakt Eingang",
           "from_connector": "Q",
           "to_type": "UpDownCounter",
           "to_connector": "Trigger"
@@ -112,7 +112,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Statusblock.I1": {
+            "Statusblock.I": {
               ">": 0.5
             }
           }
@@ -538,7 +538,7 @@
             {
               "inputs": {
                 "PushButton.InputTrigger": 1,
-                "Schalter 1": 0
+                "Schalter 1.Q": 0
               },
               "ticks": 2,
               "dt": 0.1
@@ -546,7 +546,7 @@
             {
               "inputs": {
                 "PushButton.InputTrigger": 1,
-                "Schalter 1": 1
+                "Schalter 1.Q": 1
               },
               "ticks": 1,
               "dt": 0.1,

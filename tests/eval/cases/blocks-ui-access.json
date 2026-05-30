@@ -54,7 +54,7 @@
           "ticks": 50,
           "dt": 0.1,
           "expected_outputs": {
-            "Alarmanlage.I1": {
+            "Alarmanlage.I": {
               ">": 0.5
             }
           }
@@ -68,7 +68,7 @@
           "ticks": 50,
           "dt": 0.1,
           "expected_outputs": {
-            "Alarmanlage.I1": {
+            "Alarmanlage.I": {
               "<": 0.5
             }
           }
@@ -543,7 +543,7 @@
           "ticks": 20,
           "dt": 0.1,
           "expected_outputs": {
-            "Alarmanlage.I1": {
+            "Alarmanlage.I": {
               ">": 0.5
             }
           }
@@ -556,7 +556,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Alarmanlage.I1": {
+            "Alarmanlage.I": {
               "<": 0.5
             }
           }
@@ -745,7 +745,7 @@
           "name": "should allow up when wind safe",
           "inputs": {
             "PushButton.Q": 1.0,
-            "Windgeschwindigkeit.AQ": 1.0
+            "Windgeschwindigkeit.AQ": 10.0
           },
           "ticks": 10,
           "dt": 0.1,
@@ -759,7 +759,7 @@
           "name": "should block up when wind unsafe",
           "inputs": {
             "PushButton.Q": 1.0,
-            "Windgeschwindigkeit.AQ": 0.0
+            "Windgeschwindigkeit.AQ": 50.0
           },
           "ticks": 10,
           "dt": 0.1,
@@ -833,7 +833,7 @@
       "bidirectional",
       "solar"
     ],
-    "utterance": "Bidirectional meter: track solar export and import separately, display on visualization; wire the power reading to Statusblock",
+    "utterance": "Set up a bidirectional meter to track energy import and export: wire the Hausverbrauch sensor to a MeterPBi block's P1 input, and wire the consumption meter reading output to Statusblock",
     "difficulty": "easy",
     "expected": {
       "new_blocks": [
@@ -843,21 +843,10 @@
       ],
       "wiring": [
         {
-          "from_title": "Stromzähler",
+          "from_title": "Hausverbrauch",
+          "from_connector": "AQ",
           "to_type": "MeterPBi",
           "to_connector": "P1"
-        },
-        {
-          "from_type": "MeterPBi",
-          "to_title": "Anzeige Import",
-          "from_connector": "OMr1",
-          "to_connector": "I1"
-        },
-        {
-          "from_type": "MeterPBi",
-          "to_title": "Anzeige Export",
-          "from_connector": "OMr2",
-          "to_connector": "I1"
         }
       ],
       "params": [],
@@ -1009,7 +998,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Raumregler.Move": {
+            "Raumregler.Temp": {
               ">": 0.5
             }
           }
@@ -1022,7 +1011,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Raumregler.Move": {
+            "Raumregler.Temp": {
               "<": 0.5
             }
           }
