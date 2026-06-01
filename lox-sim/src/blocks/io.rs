@@ -45,11 +45,34 @@ macro_rules! passthrough_io_block {
 // Input/Output references — wire proxies
 // ---------------------------------------------------------------------------
 
-passthrough_io_block!(
-    /// Input reference — proxy that forwards a named input to the block graph.
-    InputRef,
-    "InputRef"
-);
+/// Input reference — proxy that forwards named inputs to the block graph.
+/// I→Q (digital) and AI→AQ (analog).
+#[derive(Clone, Copy)]
+pub struct InputRef;
+
+impl Block for InputRef {
+    fn eval(
+        &mut self,
+        inputs: &[Signal],
+        _params: &[Signal],
+        _dt: f64,
+        _prev: &[Signal],
+    ) -> Vec<Signal> {
+        let i = inputs.first().copied().unwrap_or(0.0);
+        let ai = inputs.get(1).copied().unwrap_or(0.0);
+        vec![i, ai]
+    }
+
+    fn block_type(&self) -> &str {
+        "InputRef"
+    }
+
+    fn state(&self) -> Option<Vec<u8>> {
+        None
+    }
+
+    fn restore(&mut self, _state: &[u8]) {}
+}
 
 passthrough_io_block!(
     /// Output reference — proxy that forwards a block output to a named output.

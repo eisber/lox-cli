@@ -1520,7 +1520,7 @@ fn block_signature(
             &["Time", "MaxRuns"],
         ),
         // Input / output references (passthrough)
-        "InputRef" | "OutputRef" => (&["I"], &[], &[]),
+        "InputRef" | "OutputRef" => (&["I", "AI"], &["Q", "AQ"], &[]),
         // Click / button variants
         "MultiClick" => (
             &["InputTrigger"],
