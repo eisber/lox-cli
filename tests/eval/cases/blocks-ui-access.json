@@ -764,7 +764,7 @@
           "ticks": 30,
           "dt": 0.1,
           "expected_outputs": {
-            "Lichtsteuerung [Flur].I1": {
+            "Lichtsteuerung [Flur].Presence": {
               ">": 0.5
             }
           }
@@ -778,7 +778,7 @@
           "ticks": 30,
           "dt": 0.1,
           "expected_outputs": {
-            "Lichtsteuerung [Flur].I1": {
+            "Lichtsteuerung [Flur].Presence": {
               "<": 0.5
             }
           }

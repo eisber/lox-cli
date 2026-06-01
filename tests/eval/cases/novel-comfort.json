@@ -1332,7 +1332,9 @@
         },
         {
           "name": "no trigger keeps outputs off",
-          "inputs": {},
+          "inputs": {
+            "PushButton.InputTrigger": 0
+          },
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
