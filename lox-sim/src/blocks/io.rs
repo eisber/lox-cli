@@ -197,8 +197,12 @@ mod tests {
     #[test]
     fn input_ref_passthrough() {
         let mut block = InputRef;
-        assert_eq!(block.eval(&[42.0], &[], 0.0, &[]), vec![42.0]);
-        assert_eq!(block.eval(&[], &[], 0.0, &[]), vec![0.0]);
+        // I=42, AI=0 → Q=42, AQ=0
+        assert_eq!(block.eval(&[42.0], &[], 0.0, &[]), vec![42.0, 0.0]);
+        // I=0, AI=99 → Q=0, AQ=99
+        assert_eq!(block.eval(&[0.0, 99.0], &[], 0.0, &[]), vec![0.0, 99.0]);
+        // empty → Q=0, AQ=0
+        assert_eq!(block.eval(&[], &[], 0.0, &[]), vec![0.0, 0.0]);
     }
 
     #[test]
