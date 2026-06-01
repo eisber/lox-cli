@@ -74,7 +74,7 @@ def _build_instructions(utterance: str, config_path: str, hint: str = "") -> str
     if hint:
         hint_section = f"""
 Implementation hint (use this plan to work efficiently — batch commands with &&):
-{hint}
+{hint.replace('FILE', config_path)}
 
 """
 
