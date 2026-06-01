@@ -1081,8 +1081,8 @@
       "central-light-off",
       "night-mode-timer"
     ],
-    "utterance": "Set up the full hotel room checkout flow: when the card is removed, wait 10 seconds, then reset all Küche lights, close both Küche blinds, and select the night scene if the DayTimer says it's after 22:00",
-    "difficulty": "expert",
+    "utterance": "Hotel checkout: when Schalter 2 is pressed, wait 10 seconds via an OnDelay, then reset the Küche lights and close Jalousie 1 [Küche]. Wire the delayed signal to Lichtsteuerung [Küche].Reset and Jalousie 1 [Küche].InputTriggerDown",
+    "difficulty": "hard",
     "expected": {
       "new_blocks": [
         {
@@ -1170,20 +1170,27 @@
       ],
       "simulation": [
         {
-          "name": "should reset lights and close blinds after card removal delay",
+          "name": "checkout resets lights and closes blinds after delay",
           "steps": [
             {
               "inputs": {
-                "Türkontakt Küche.Q": 1.0
+                "Schalter 2": 0
               },
-              "ticks": 20,
-              "dt": 1.0
+              "ticks": 2,
+              "dt": 0.1
             },
             {
               "inputs": {
-                "Türkontakt Küche.Q": 0.0
+                "Schalter 2": 1
               },
-              "ticks": 30,
+              "ticks": 5,
+              "dt": 0.1
+            },
+            {
+              "inputs": {
+                "Schalter 2": 1
+              },
+              "ticks": 15,
               "dt": 1.0,
               "expected_outputs": {
                 "Lichtsteuerung [Küche].Reset": {
@@ -1191,65 +1198,23 @@
                 },
                 "Jalousie 1 [Küche].InputTriggerDown": {
                   ">": 0.5
-                },
-                "Jalousie 2 [Küche].InputTriggerDown": {
-                  ">": 0.5
                 }
               }
             }
-          ],
-          "time": 1380,
-          "expected_outputs": {
-            "Lichtsteuerung [Küche].Reset": {
-              ">": 0.5
-            },
-            "Jalousie 1 [Küche].InputTriggerDown": {
-              ">": 0.5
-            },
-            "Jalousie 2 [Küche].InputTriggerDown": {
-              ">": 0.5
-            }
-          },
-          "inputs": {
-            "Türkontakt Küche.AQ": 0.0
-          },
-          "ticks": 35,
-          "dt": 0.1
+          ]
         },
         {
-          "name": "should NOT trigger while card inserted",
-          "steps": [
-            {
-              "inputs": {
-                "Türkontakt Küche.Q": 0
-              },
-              "ticks": 20,
-              "dt": 1.0
-            },
-            {
-              "inputs": {
-                "Türkontakt Küche.Q": 1.0
-              },
-              "ticks": 30,
-              "dt": 1.0,
-              "expected_outputs": {
-                "Lichtsteuerung [Küche].Reset": {
-                  "<": 0.5
-                }
-              }
-            }
-          ],
-          "time": 720,
+          "name": "no action without button press",
+          "inputs": {
+            "Schalter 2": 0
+          },
+          "ticks": 10,
+          "dt": 1.0,
           "expected_outputs": {
             "Lichtsteuerung [Küche].Reset": {
               "<": 0.5
             }
-          },
-          "inputs": {
-            "Türkontakt Küche.AQ": 1.0
-          },
-          "ticks": 32,
-          "dt": 0.1
+          }
         }
       ]
     }

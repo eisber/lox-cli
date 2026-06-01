@@ -1060,7 +1060,7 @@ fn block_signature(
         "AMinmax" => (&["Input"], &["AQ"], &["Min", "Max"]),
         "AnalogComparator" => (&["Input1", "Input2"], &["Q"], &["On", "Off"]),
         "AnalogDiffTrigger" => (&["Input"], &["Q", "Qon", "Qoff"], &["On", "Delta"]),
-        "AnalogStepper" => (&["Trigger"], &["AQ"], &["Dir", "Step", "Max"]),
+        "AnalogStepper" => (&["Trigger", "Dir"], &["AQ"], &["Step", "Max"]),
         "AnalogWatchdog" => (
             &["Input", "InputDisable"],
             &["Q"],
