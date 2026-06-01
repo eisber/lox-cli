@@ -57,7 +57,7 @@ AGENT_TIMEOUT = 600  # 10 minutes per case
 
 # ── Agent Backends ───────────────────────────────────────────
 
-def _build_instructions(utterance: str, config_path: str) -> str:
+def _build_instructions(utterance: str, config_path: str, hint: str = "") -> str:
     """Build the instruction prompt sent to external agents."""
     skill_path = SKILL_DIR / "loxone-config" / "SKILL.md"
     skill_text = ""
@@ -70,25 +70,31 @@ def _build_instructions(utterance: str, config_path: str) -> str:
                 text = text[end + 3:].lstrip("\n")
         skill_text = text
 
+    hint_section = ""
+    if hint:
+        hint_section = f"""
+Implementation hint (use this plan to work efficiently — batch commands with &&):
+{hint}
+
+"""
+
     return f"""\
 You are configuring a Loxone Miniserver. The config file is: {config_path}
 
 Read the skill reference at .github/skills/loxone-config/SKILL.md for CLI commands and block types.
-
+{hint_section}
 Follow this workflow:
-1. Search: lox blocks search "relevant keywords"
-2. Build: use lox config add, wire-connector, set-param commands
-3. Check: lox config check {config_path}
-4. Test: lox sim run {config_path} --sim '...'
-5. Fix any issues and re-check
+1. Build: use lox config add, wire-connector, set-param commands (batch with && for speed)
+2. Check: lox config check {config_path}
+3. Fix any issues from check output and re-check
 
 Task: {utterance}
 """
 
 
-def run_opencode(utterance: str, config_path: str, work_dir: str) -> int:
+def run_opencode(utterance: str, config_path: str, work_dir: str, hint: str = "") -> int:
     """Run OpenCode agent with lox CLI tools available."""
-    instructions = _build_instructions(utterance, config_path)
+    instructions = _build_instructions(utterance, config_path, hint)
 
     env = {
         **os.environ,
@@ -107,9 +113,9 @@ def run_opencode(utterance: str, config_path: str, work_dir: str) -> int:
     return result.returncode
 
 
-def run_copilot(utterance: str, config_path: str, work_dir: str) -> int:
+def run_copilot(utterance: str, config_path: str, work_dir: str, hint: str = "") -> int:
     """Run GitHub Copilot CLI."""
-    instructions = _build_instructions(utterance, config_path)
+    instructions = _build_instructions(utterance, config_path, hint)
     project_root = str(EVAL_DIR.parent.parent)
 
     result = subprocess.run(
@@ -121,9 +127,9 @@ def run_copilot(utterance: str, config_path: str, work_dir: str) -> int:
     return result.returncode
 
 
-def run_claude(utterance: str, config_path: str, work_dir: str) -> int:
+def run_claude(utterance: str, config_path: str, work_dir: str, hint: str = "") -> int:
     """Run Claude Code."""
-    instructions = _build_instructions(utterance, config_path)
+    instructions = _build_instructions(utterance, config_path, hint)
 
     result = subprocess.run(
         ["claude", "-p", instructions, "--allowedTools", "Bash"],
@@ -208,7 +214,8 @@ def evaluate_case(case: dict, agent_name: str, work_dir: Path,
                         model=model, verbose=verbose)
         else:
             agent_fn = AGENTS[agent_name]
-            agent_fn(case["utterance"], str(config_path), str(work_dir))
+            hint = case.get("hint", "")
+            agent_fn(case["utterance"], str(config_path), str(work_dir), hint=hint)
         agent_error = None
     except subprocess.TimeoutExpired:
         agent_error = f"Agent timed out after {AGENT_TIMEOUT}s"

@@ -1081,8 +1081,8 @@
       "central-light-off",
       "night-mode-timer"
     ],
-    "utterance": "Hotel checkout: when Schalter 2 is pressed, wait 10 seconds via an OnDelay, then reset the Küche lights and close Jalousie 1 [Küche]. Wire the delayed signal to Lichtsteuerung [Küche].Reset and Jalousie 1 [Küche].InputTriggerDown",
-    "difficulty": "hard",
+    "utterance": "Set up the full hotel room checkout flow: when the card is removed (use Schalter 2 as card reader), wait 10 seconds, then reset all Küche lights, close both Küche blinds, and select the night scene (Sel2) on Lichtsteuerung [Küche] if a DayTimer says it's after 22:00",
+    "difficulty": "expert",
     "expected": {
       "new_blocks": [
         {
@@ -1174,6 +1174,13 @@
           "steps": [
             {
               "inputs": {
+                "Schalter 2": 1
+              },
+              "ticks": 2,
+              "dt": 0.1
+            },
+            {
+              "inputs": {
                 "Schalter 2": 0
               },
               "ticks": 2,
@@ -1181,14 +1188,7 @@
             },
             {
               "inputs": {
-                "Schalter 2": 1
-              },
-              "ticks": 5,
-              "dt": 0.1
-            },
-            {
-              "inputs": {
-                "Schalter 2": 1
+                "Schalter 2": 0
               },
               "ticks": 15,
               "dt": 1.0,
@@ -1204,11 +1204,11 @@
           ]
         },
         {
-          "name": "no action without button press",
+          "name": "no action while card still inserted",
           "inputs": {
-            "Schalter 2": 0
+            "Schalter 2": 1
           },
-          "ticks": 10,
+          "ticks": 20,
           "dt": 1.0,
           "expected_outputs": {
             "Lichtsteuerung [Küche].Reset": {
@@ -1217,6 +1217,7 @@
           }
         }
       ]
-    }
+    },
+    "hint": "Plan: 5 blocks, 7 wires. Execute in order:\n1. lox config add --type EdgeDetection --title \"Karte\" FILE\n2. lox config add --type OnDelay --title \"Verzögerung\" FILE && lox config set-param FILE \"Verzögerung\" Time 10\n3. lox config add --type DayTimer --title \"Nachtzeit\" FILE && lox config timer-schedule FILE \"Nachtzeit\" 22:00-06:00 1\n4. lox config add --type And --title \"Nacht Checkout\" FILE\n5. Wire everything:\n   lox config wire FILE \"Karte.Input\" \"Schalter 2.AQ\" && \\\n   lox config wire FILE \"Verzögerung.InputTrigger\" \"Karte.FallingEdge\" && \\\n   lox config wire FILE \"Lichtsteuerung [Küche].Reset\" \"Verzögerung.Q\" && \\\n   lox config wire FILE \"Jalousie 1 [Küche].InputTriggerDown\" \"Verzögerung.Q\" && \\\n   lox config wire FILE \"Jalousie 2 [Küche].InputTriggerDown\" \"Verzögerung.Q\" && \\\n   lox config wire FILE \"Nacht Checkout.I1\" \"Verzögerung.Q\" && \\\n   lox config wire FILE \"Nacht Checkout.I2\" \"Nachtzeit.AQ\" && \\\n   lox config wire FILE \"Lichtsteuerung [Küche].Sel2\" \"Nacht Checkout.Q\"\n6. lox config check FILE"
   }
 ]
