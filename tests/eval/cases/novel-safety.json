@@ -773,25 +773,25 @@
         {
           "name": "counter increments when pump enabled",
           "inputs": {
-            "Bewässerung Manuell.Q": 1.0
+            "Bewässerung Manuell": 1.0
           },
           "ticks": 100,
-          "dt": 0.1,
+          "dt": 36.0,
           "expected_outputs": {
-            "Statusblock.I": {
-              ">": 0.0
+            "Statusblock.AQ": {
+              ">": 0.5
             }
           }
         },
         {
           "name": "counter idle when pump off",
           "inputs": {
-            "Bewässerung Manuell.Q": 0.0
+            "Bewässerung Manuell": 0.0
           },
-          "ticks": 100,
+          "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Statusblock.I": {
+            "Statusblock.AQ": {
               "<": 0.01
             }
           }
