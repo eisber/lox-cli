@@ -2557,7 +2557,12 @@ mod tests {
 
         // Reset with Def=0 turns all off
         let params_def0 = [8.0, 0.0];
-        let out = block.eval(&[0.0, 0.0, 1.0, 0.0], &params_def0, 0.0, &[0.0, 0.0, 0.0, 0.0]);
+        let out = block.eval(
+            &[0.0, 0.0, 1.0, 0.0],
+            &params_def0,
+            0.0,
+            &[0.0, 0.0, 0.0, 0.0],
+        );
         assert_eq!(out[0], 0.0); // all Q off
         assert_eq!(out[8], 0.0); // AQ = 0
     }
