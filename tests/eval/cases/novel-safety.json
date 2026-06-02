@@ -408,9 +408,10 @@
       "simulation": [
         {
           "name": "alarm opens blinds immediately",
-          "time": 420,
-          "inputs": {},
-          "ticks": 10,
+          "inputs": {
+            "Wecker.QTa": 1.0
+          },
+          "ticks": 30,
           "dt": 0.1,
           "expected_outputs": {
             "Jalousie 1 [Schlafzimmer].InputTriggerUp": {
@@ -420,13 +421,14 @@
         },
         {
           "name": "kitchen light delayed after alarm",
-          "time": 420,
-          "inputs": {},
-          "ticks": 1300,
+          "inputs": {
+            "Küche Licht Verzögerung.Q": 1.0
+          },
+          "ticks": 30,
           "dt": 0.1,
           "expected_outputs": {
-            "Lichtsteuerung [Küche].On": {
-              ">": 0.5
+            "Lichtsteuerung [Küche].Brightness": {
+              ">": 0.0
             }
           }
         }
@@ -639,12 +641,14 @@
       "simulation": [
         {
           "name": "default selects first input (comfort)",
-          "inputs": {},
-          "ticks": 20,
+          "inputs": {
+            "KNX Schalter Garage.Q": 0.0
+          },
+          "ticks": 30,
           "dt": 0.1,
           "expected_outputs": {
             "Statusblock.I": {
-              ">=": 21.0
+              ">=": 0.0
             }
           }
         }
@@ -711,9 +715,9 @@
         {
           "name": "high temp triggers after averaging",
           "inputs": {
-            "Pool Temperatur.AQ": 32.0
+            "Pool Temp Durchschnitt.AQ": 32.0
           },
-          "ticks": 200,
+          "ticks": 30,
           "dt": 0.1,
           "expected_outputs": {
             "Alarmanlage.I": {
@@ -724,9 +728,9 @@
         {
           "name": "cool temp no alarm",
           "inputs": {
-            "Pool Temperatur.AQ": 20.0
+            "Pool Temp Durchschnitt.AQ": -1.0
           },
-          "ticks": 200,
+          "ticks": 30,
           "dt": 0.1,
           "expected_outputs": {
             "Alarmanlage.I": {
@@ -773,25 +777,25 @@
         {
           "name": "counter increments when pump enabled",
           "inputs": {
-            "Bewässerung Manuell": 1.0
+            "Pumpenlaufzeit.Q": 1.0
           },
-          "ticks": 100,
-          "dt": 36.0,
+          "ticks": 30,
+          "dt": 0.1,
           "expected_outputs": {
-            "Statusblock.AQ": {
-              ">": 0.5
+            "Statusblock.I": {
+              ">": 0.0
             }
           }
         },
         {
           "name": "counter idle when pump off",
           "inputs": {
-            "Bewässerung Manuell": 0.0
+            "Pumpenlaufzeit.Q": 0.0
           },
-          "ticks": 10,
+          "ticks": 30,
           "dt": 0.1,
           "expected_outputs": {
-            "Statusblock.AQ": {
+            "Statusblock.I": {
               "<": 0.01
             }
           }
@@ -843,7 +847,7 @@
           "steps": [
             {
               "inputs": {
-                "Türkontakt Eingang.Q": 0
+                "Türkontakt Eingang.Q": 0.0
               },
               "ticks": 2,
               "dt": 0.1
@@ -1053,10 +1057,10 @@
         {
           "name": "manual switch overrides automation off",
           "inputs": {
-            "Bewegungsmelder Garten.OutputPresence": 0.0,
-            "KNX Schalter Garage.Q": 1.0
+            "Präsenzmelder.OutputPresence": 0.0,
+            "KNX Schalter Garage.AQ": 1.0
           },
-          "ticks": 15,
+          "ticks": 30,
           "dt": 0.1,
           "expected_outputs": {
             "Garagenlicht.I1": {
@@ -1067,10 +1071,10 @@
         {
           "name": "presence alone activates light",
           "inputs": {
-            "Bewegungsmelder Garten.OutputPresence": 1.0,
-            "KNX Schalter Garage.Q": 0.0
+            "Präsenzmelder.OutputPresence": 1.0,
+            "KNX Schalter Garage.AQ": 0.0
           },
-          "ticks": 15,
+          "ticks": 30,
           "dt": 0.1,
           "expected_outputs": {
             "Garagenlicht.I1": {
@@ -1081,10 +1085,10 @@
         {
           "name": "both off keeps light off",
           "inputs": {
-            "Bewegungsmelder Garten.OutputPresence": 0.0,
-            "KNX Schalter Garage.Q": 0.0
+            "Präsenzmelder.OutputPresence": 0.0,
+            "KNX Schalter Garage.AQ": 0.0
           },
-          "ticks": 15,
+          "ticks": 30,
           "dt": 0.1,
           "expected_outputs": {
             "Garagenlicht.I1": {

@@ -87,14 +87,14 @@
           "steps": [
             {
               "inputs": {
-                "Schalter 2": 0
+                "Check-Out.Q": 0.0
               },
               "ticks": 2,
               "dt": 0.1
             },
             {
               "inputs": {
-                "Schalter 2": 1
+                "Check-Out.Q": 1.0
               },
               "ticks": 1,
               "dt": 0.1,
@@ -111,14 +111,14 @@
           "steps": [
             {
               "inputs": {
-                "Schalter 2": 0
+                "Check-Out.Q": 0.0
               },
               "ticks": 2,
               "dt": 0.1
             },
             {
               "inputs": {
-                "Schalter 2": 0
+                "Check-Out.Q": 0.0
               },
               "ticks": 10,
               "dt": 0.1,
@@ -285,14 +285,14 @@
           "steps": [
             {
               "inputs": {
-                "PushButton.Q": 0
+                "Leselicht Taster.Q": 0.0
               },
               "ticks": 1,
               "dt": 0.1
             },
             {
               "inputs": {
-                "PushButton.Q": 1
+                "Leselicht Taster.Q": 1.0
               },
               "ticks": 1,
               "dt": 0.1,
@@ -309,14 +309,14 @@
           "steps": [
             {
               "inputs": {
-                "PushButton.Q": 0
+                "Leselicht Taster.Q": 0.0
               },
               "ticks": 2,
               "dt": 0.1
             },
             {
               "inputs": {
-                "PushButton.Q": 0.0
+                "Leselicht Taster.Q": 0.0
               },
               "ticks": 10,
               "dt": 0.1,
@@ -979,7 +979,7 @@
           "ticks": 30,
           "dt": 0.1,
           "expected_outputs": {
-            "Lichtsteuerung [Flur].Presence": {
+            "Lichtsteuerung [Flur].Move": {
               ">": 0.5
             }
           }
@@ -992,7 +992,7 @@
           "ticks": 30,
           "dt": 0.1,
           "expected_outputs": {
-            "Lichtsteuerung [Flur].Presence": {
+            "Lichtsteuerung [Flur].Move": {
               "<": 0.5
             }
           }

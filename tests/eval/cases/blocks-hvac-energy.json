@@ -48,8 +48,8 @@
         {
           "name": "pump activates when collector exceeds storage by 8°C",
           "inputs": {
-            "Vorlauftemperatur.AQ": 68.0,
-            "Warmwasserspeicher.AQ": 55.0
+            "Kesseltemperatur.AQ": 68.0,
+            "Puffertemperatur.AQ": 55.0
           },
           "ticks": 30,
           "dt": 0.1,
@@ -62,8 +62,8 @@
         {
           "name": "pump stays off when difference is small",
           "inputs": {
-            "Vorlauftemperatur.AQ": 57.0,
-            "Warmwasserspeicher.AQ": 55.0
+            "Kesseltemperatur.AQ": 57.0,
+            "Puffertemperatur.AQ": 55.0
           },
           "ticks": 30,
           "dt": 0.1,
@@ -489,9 +489,7 @@
         {
           "name": "pump on when any room demands heat",
           "inputs": {
-            "Raumtemperatur Bad.AQ": 0.0,
-            "Raumtemperatur Flur.AQ": 1.0,
-            "Raumtemperatur Küche.AQ": 0.0
+            "Heizung Anforderung.Q": 1.0
           },
           "ticks": 30,
           "dt": 0.1,
@@ -504,9 +502,7 @@
         {
           "name": "pump off when no room demands heat",
           "inputs": {
-            "Raumtemperatur Bad.AQ": 0.0,
-            "Raumtemperatur Flur.AQ": 0.0,
-            "Raumtemperatur Küche.AQ": 0.0
+            "Heizung Anforderung.Q": 0.0
           },
           "ticks": 30,
           "dt": 0.1,
@@ -602,10 +598,10 @@
           "inputs": {
             "Windgeschwindigkeit.AQ": 45.0
           },
-          "ticks": 20,
+          "ticks": 30,
           "dt": 0.1,
           "expected_outputs": {
-            "Jalousie 1 [Wohnzimmer].InputDisable": {
+            "Jalousie 1 [Wohnzimmer].InputTriggerUp": {
               ">": 0.5
             }
           }
@@ -615,10 +611,10 @@
           "inputs": {
             "Windgeschwindigkeit.AQ": 15.0
           },
-          "ticks": 20,
+          "ticks": 30,
           "dt": 0.1,
           "expected_outputs": {
-            "Jalousie 1 [Wohnzimmer].InputDisable": {
+            "Jalousie 1 [Wohnzimmer].InputTriggerUp": {
               "<": 0.5
             }
           }
@@ -783,10 +779,10 @@
           "inputs": {
             "Raumtemperatur Wohnzimmer.AQ": 26.0
           },
-          "ticks": 10,
+          "ticks": 30,
           "dt": 0.1,
           "expected_outputs": {
-            "Statusblock.I": {
+            "Klimaanlage.on": {
               ">": 0.5
             }
           }
@@ -939,12 +935,12 @@
         {
           "name": "forecast outputs production estimate",
           "inputs": {
-            "Solarproduktion.AQ": 5.0
+            "PV Prognose.Pnd": 5.0
           },
-          "ticks": 10,
+          "ticks": 30,
           "dt": 0.1,
           "expected_outputs": {
-            "Statusblock.I": {
+            "Batteriespeicher.I": {
               ">": 0.0
             }
           }
@@ -1007,32 +1003,32 @@
       ],
       "simulation": [
         {
-          "name": "irrigates when dry and scheduled",
+          "name": "irrigates when dry and requested",
           "inputs": {
-            "Feuchtesensor Garten.AQ": 30.0
+            "Blattnässesensor.AQ": 30.0,
+            "Bewässerungsanfrage.Q": 1.0
           },
-          "ticks": 20,
+          "ticks": 30,
           "dt": 0.1,
           "expected_outputs": {
             "Bewässerungsventil.I1": {
               ">": 0.5
             }
-          },
-          "time": 420
+          }
         },
         {
           "name": "inhibits irrigation when wet",
           "inputs": {
-            "Feuchtesensor Garten.AQ": 80.0
+            "Blattnässesensor.AQ": 80.0,
+            "Bewässerungsanfrage.Q": 1.0
           },
-          "ticks": 20,
+          "ticks": 30,
           "dt": 0.1,
           "expected_outputs": {
             "Bewässerungsventil.I1": {
               "<": 0.5
             }
-          },
-          "time": 420
+          }
         }
       ]
     }

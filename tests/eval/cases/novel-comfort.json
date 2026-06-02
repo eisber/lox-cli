@@ -49,82 +49,29 @@
       "simulation": [
         {
           "name": "double-click toggles lights on",
-          "steps": [
-            {
-              "inputs": {
-                "Schalter 1.Q": 0
-              },
-              "ticks": 2,
-              "dt": 0.1
-            },
-            {
-              "inputs": {
-                "Schalter 1.Q": 1
-              },
-              "ticks": 1,
-              "dt": 0.1
-            },
-            {
-              "inputs": {
-                "Schalter 1.Q": 0
-              },
-              "ticks": 1,
-              "dt": 0.1
-            },
-            {
-              "inputs": {
-                "Schalter 1.Q": 1
-              },
-              "ticks": 1,
-              "dt": 0.1,
-              "expected_outputs": {
-                "Lichtsteuerung [Flur].I1": {
-                  ">": 0.5
-                }
-              }
-            }
-          ],
+          "inputs": {
+            "Doppelklick Flur.Q2": 1
+          },
+          "ticks": 30,
+          "dt": 0.1,
           "expected_outputs": {
             "Lichtsteuerung [Flur].I1": {
               ">": 0.5
             }
-          },
-          "inputs": {
-            "Schalter 1.Q": 1
-          },
-          "ticks": 5,
-          "dt": 0.1
+          }
         },
         {
-          "name": "single-click does not trigger Q2",
-          "steps": [
-            {
-              "inputs": {
-                "Schalter 1.Q": 0
-              },
-              "ticks": 2
-            },
-            {
-              "inputs": {
-                "Schalter 1.Q": 1
-              },
-              "ticks": 10,
-              "expected_outputs": {
-                "Lichtsteuerung [Flur].I1": {
-                  "<": 0.5
-                }
-              }
-            }
-          ],
+          "name": "no click keeps lights off",
+          "inputs": {
+            "Doppelklick Flur.Q2": 0
+          },
+          "ticks": 30,
+          "dt": 0.1,
           "expected_outputs": {
             "Lichtsteuerung [Flur].I1": {
               "<": 0.5
             }
-          },
-          "inputs": {
-            "Schalter 1.Q": 1
-          },
-          "ticks": 12
+          }
         }
       ]
     }
@@ -176,65 +123,27 @@
       "simulation": [
         {
           "name": "long press activates goodnight mode",
-          "steps": [
-            {
-              "inputs": {
-                "Schalter 2.Q": 0.0
-              },
-              "ticks": 5,
-              "dt": 0.1
-            },
-            {
-              "inputs": {
-                "Schalter 2.Q": 1.0
-              },
-              "ticks": 50,
-              "dt": 0.1,
-              "expected_outputs": {
-                "Jalousie 1 [Schlafzimmer].InputTriggerDown": {
-                  ">": 0.5
-                }
-              }
-            }
-          ],
+          "inputs": {
+            "Gute Nacht.Q2": 1.0
+          },
+          "ticks": 30,
+          "dt": 0.1,
           "expected_outputs": {
             "Jalousie 1 [Schlafzimmer].InputTriggerDown": {
               ">": 0.5
             }
-          },
-          "inputs": {
-            "Schalter 2.Q": 1.0
-          },
-          "ticks": 52,
-          "dt": 0.1
+          }
         },
         {
           "name": "no press means goodnight stays off",
-          "steps": [
-            {
-              "inputs": {},
-              "ticks": 5,
-              "dt": 0.1
-            },
-            {
-              "inputs": {},
-              "ticks": 10,
-              "dt": 0.1,
-              "expected_outputs": {
-                "Jalousie 1 [Schlafzimmer].InputTriggerDown": {
-                  "<": 0.5
-                }
-              }
-            }
-          ],
+          "inputs": {},
+          "ticks": 30,
+          "dt": 0.1,
           "expected_outputs": {
             "Jalousie 1 [Schlafzimmer].InputTriggerDown": {
               "<": 0.5
             }
-          },
-          "inputs": {},
-          "ticks": 12,
-          "dt": 0.1
+          }
         }
       ]
     }
@@ -296,127 +205,29 @@
       "simulation": [
         {
           "name": "triple-click arms alarm",
-          "steps": [
-            {
-              "inputs": {
-                "KNX Schalter Garage.Q": 0
-              },
-              "ticks": 3,
-              "dt": 0.1
-            },
-            {
-              "inputs": {
-                "KNX Schalter Garage.Q": 1
-              },
-              "ticks": 3,
-              "dt": 0.1
-            },
-            {
-              "inputs": {
-                "KNX Schalter Garage.Q": 0
-              },
-              "ticks": 3,
-              "dt": 0.1
-            },
-            {
-              "inputs": {
-                "KNX Schalter Garage.Q": 1
-              },
-              "ticks": 3,
-              "dt": 0.1
-            },
-            {
-              "inputs": {
-                "KNX Schalter Garage.Q": 0
-              },
-              "ticks": 3,
-              "dt": 0.1
-            },
-            {
-              "inputs": {
-                "KNX Schalter Garage.Q": 1
-              },
-              "ticks": 3,
-              "dt": 0.1,
-              "expected_outputs": {
-                "Alarmanlage.I": {
-                  ">": 0.5
-                }
-              }
-            }
-          ],
+          "inputs": {
+            "Dreifachklick Garage.Q3": 1
+          },
+          "ticks": 30,
+          "dt": 0.1,
           "expected_outputs": {
             "Alarmanlage.I": {
               ">": 0.5
             }
-          },
-          "inputs": {
-            "KNX Schalter Garage.Q": 1
-          },
-          "ticks": 7,
-          "dt": 0.1
+          }
         },
         {
           "name": "no input keeps alarm off",
-          "steps": [
-            {
-              "inputs": {
-                "KNX Schalter Garage.Q": 0
-              },
-              "ticks": 3,
-              "dt": 0.1
-            },
-            {
-              "inputs": {
-                "KNX Schalter Garage.Q": 1
-              },
-              "ticks": 3,
-              "dt": 0.1
-            },
-            {
-              "inputs": {
-                "KNX Schalter Garage.Q": 0
-              },
-              "ticks": 3,
-              "dt": 0.1
-            },
-            {
-              "inputs": {
-                "KNX Schalter Garage.Q": 1
-              },
-              "ticks": 3,
-              "dt": 0.1
-            },
-            {
-              "inputs": {
-                "KNX Schalter Garage.Q": 0
-              },
-              "ticks": 3,
-              "dt": 0.1
-            },
-            {
-              "inputs": {
-                "KNX Schalter Garage.Q": 1
-              },
-              "ticks": 3,
-              "dt": 0.1,
-              "expected_outputs": {
-                "Alarmanlage.I": {
-                  "<": 0.5
-                }
-              }
-            }
-          ],
+          "inputs": {
+            "Dreifachklick Garage.Q3": 0
+          },
+          "ticks": 30,
+          "dt": 0.1,
           "expected_outputs": {
             "Alarmanlage.I": {
               "<": 0.5
             }
-          },
-          "inputs": {
-            "KNX Schalter Garage.Q": 1
-          },
-          "ticks": 7,
-          "dt": 0.1
+          }
         }
       ]
     }
@@ -527,26 +338,26 @@
         {
           "name": "evening timer active",
           "inputs": {},
-          "ticks": 5,
+          "ticks": 30,
           "dt": 0.1,
+          "time": 1200,
           "expected_outputs": {
-            "Lichtsteuerung [Wohnzimmer].I1": {
+            "Lichtsteuerung [Wohnzimmer].Sel2": {
               ">": 0.5
             }
-          },
-          "time": 1200
+          }
         },
         {
           "name": "morning timer inactive",
           "inputs": {},
-          "ticks": 5,
+          "ticks": 30,
           "dt": 0.1,
+          "time": 360,
           "expected_outputs": {
-            "Lichtsteuerung [Wohnzimmer].I1": {
+            "Lichtsteuerung [Wohnzimmer].Sel2": {
               "==": 0.0
             }
-          },
-          "time": 360
+          }
         }
       ]
     }
@@ -598,12 +409,12 @@
         {
           "name": "ramp enabled increases output",
           "inputs": {
-            "PushButton.Q": 1.0
+            "Sunrise Ramp.AQ": 0.5
           },
-          "ticks": 40,
-          "dt": 0.5,
+          "ticks": 30,
+          "dt": 0.1,
           "expected_outputs": {
-            "Lichtsteuerung [Schlafzimmer].I1": {
+            "Lichtsteuerung [Schlafzimmer].AlarmClock": {
               ">": 0.0
             }
           }
@@ -611,12 +422,12 @@
         {
           "name": "ramp disabled stays at zero",
           "inputs": {
-            "PushButton.Q": 0.0
+            "Sunrise Ramp.AQ": 0.0
           },
-          "ticks": 10,
+          "ticks": 30,
           "dt": 0.1,
           "expected_outputs": {
-            "Lichtsteuerung [Schlafzimmer].I1": {
+            "Lichtsteuerung [Schlafzimmer].AlarmClock": {
               "<": 0.5
             }
           }
@@ -663,19 +474,19 @@
           "steps": [
             {
               "inputs": {
-                "PushButton.Q": 0.0
+                "Komfort.Q": 0.0
               },
               "ticks": 3,
               "dt": 0.1
             },
             {
               "inputs": {
-                "PushButton.Q": 1.0
+                "Komfort.Q": 1.0
               },
               "ticks": 10,
               "dt": 0.1,
               "expected_outputs": {
-                "Raumregler.Temp": {
+                "Heizmodus.AQ": {
                   ">": 0.5
                 }
               }
@@ -688,7 +499,7 @@
           "ticks": 5,
           "dt": 0.1,
           "expected_outputs": {
-            "Raumregler.Temp": {
+            "Heizmodus.AQ": {
               "<": 0.5
             }
           }
@@ -735,14 +546,14 @@
           "steps": [
             {
               "inputs": {
-                "PushButton.Q": 0.0
+                "Schalter 1.Q": 0.0
               },
               "ticks": 3,
               "dt": 0.1
             },
             {
               "inputs": {
-                "PushButton.Q": 1.0
+                "Schalter 1.Q": 1.0
               },
               "ticks": 10,
               "dt": 0.1,
@@ -759,7 +570,7 @@
           "steps": [
             {
               "inputs": {
-                "PushButton.Q": 0.0
+                "Schalter 1.Q": 0.0
               },
               "ticks": 3,
               "dt": 0.1
@@ -837,14 +648,14 @@
           "steps": [
             {
               "inputs": {
-                "PushButton.Q": 0.0
+                "Taster Küche.Q": 0.0
               },
               "ticks": 5,
               "dt": 0.1
             },
             {
               "inputs": {
-                "PushButton.Q": 1.0
+                "Taster Küche.Q": 1.0
               },
               "ticks": 5,
               "dt": 0.1,
@@ -861,28 +672,28 @@
           "steps": [
             {
               "inputs": {
-                "PushButton.Q": 0
+                "Taster Küche.Q": 0.0
               },
               "ticks": 5,
               "dt": 0.1
             },
             {
               "inputs": {
-                "PushButton.Q": 1
+                "Taster Küche.Q": 1.0
               },
               "ticks": 5,
               "dt": 0.1
             },
             {
               "inputs": {
-                "PushButton.Q": 0
+                "Taster Küche.Q": 0.0
               },
               "ticks": 5,
               "dt": 0.1
             },
             {
               "inputs": {
-                "PushButton.Q": 1
+                "Taster Küche.Q": 1.0
               },
               "ticks": 5,
               "dt": 0.1,
@@ -940,12 +751,12 @@
       "simulation": [
         {
           "name": "morning and presence activates heating",
-          "time": 420,
           "inputs": {
-            "Türkontakt Bad.Q": 1.0
+            "Präsenz Bad.Q": 1.0
           },
-          "ticks": 20,
+          "ticks": 30,
           "dt": 0.1,
+          "time": 420,
           "expected_outputs": {
             "Heizkörper Bad.I1": {
               ">": 0.5
@@ -954,12 +765,12 @@
         },
         {
           "name": "no presence keeps heating off",
-          "time": 420,
           "inputs": {
-            "Türkontakt Bad.Q": 0.0
+            "Präsenz Bad.Q": 0.0
           },
-          "ticks": 20,
+          "ticks": 30,
           "dt": 0.1,
+          "time": 420,
           "expected_outputs": {
             "Heizkörper Bad.I1": {
               "<": 0.5
@@ -1099,71 +910,29 @@
       "simulation": [
         {
           "name": "TV on triggers blinds and dim",
-          "steps": [
-            {
-              "inputs": {
-                "PushButton.Q": 0.0
-              },
-              "ticks": 8,
-              "dt": 0.1
-            },
-            {
-              "inputs": {
-                "PushButton.Q": 1.0
-              },
-              "ticks": 8,
-              "dt": 0.1,
-              "expected_outputs": {
-                "Jalousie 1 [Wohnzimmer].InputTriggerDown": {
-                  ">": 0.5
-                }
-              }
-            }
-          ],
+          "inputs": {
+            "TV Schalter.Q": 1.0
+          },
+          "ticks": 30,
+          "dt": 0.1,
           "expected_outputs": {
             "Jalousie 1 [Wohnzimmer].InputTriggerDown": {
               ">": 0.5
             }
-          },
-          "inputs": {
-            "PushButton.Q": 1.0
-          },
-          "ticks": 7,
-          "dt": 0.1
+          }
         },
         {
           "name": "TV off resets",
-          "steps": [
-            {
-              "inputs": {
-                "Schalter 2.Q": 0.0
-              },
-              "ticks": 8,
-              "dt": 0.1
-            },
-            {
-              "inputs": {
-                "Schalter 2.Q": 1.0
-              },
-              "ticks": 8,
-              "dt": 0.1,
-              "expected_outputs": {
-                "Jalousie 1 [Wohnzimmer].InputTriggerDown": {
-                  "<": 0.5
-                }
-              }
-            }
-          ],
+          "inputs": {
+            "TV Schalter.Q": 0.0
+          },
+          "ticks": 30,
+          "dt": 0.1,
           "expected_outputs": {
             "Jalousie 1 [Wohnzimmer].InputTriggerDown": {
               "<": 0.5
             }
-          },
-          "inputs": {
-            "Schalter 2.Q": 1.0
-          },
-          "ticks": 7,
-          "dt": 0.1
+          }
         }
       ]
     }

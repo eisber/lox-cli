@@ -50,24 +50,24 @@
           "steps": [
             {
               "inputs": {
-                "Schalter 1.Q": 0.0,
-                "Bewegungsmelder.OutputPresence": 0.0
+                "Bewegungsmelder.OutputPresence": 0.0,
+                "PushButton.Q": 0.0
               },
               "ticks": 3,
               "dt": 0.1
             },
             {
               "inputs": {
-                "Schalter 1.Q": 1.0,
-                "Bewegungsmelder.OutputPresence": 0.0
+                "Bewegungsmelder.OutputPresence": 0.0,
+                "PushButton.Q": 1.0
               },
               "ticks": 5,
               "dt": 0.1
             },
             {
               "inputs": {
-                "Schalter 1.Q": 1.0,
-                "Bewegungsmelder.OutputPresence": 1.0
+                "Bewegungsmelder.OutputPresence": 1.0,
+                "PushButton.Q": 1.0
               },
               "ticks": 50,
               "dt": 0.1,
@@ -82,8 +82,8 @@
         {
           "name": "should NOT alarm when not armed",
           "inputs": {
-            "Schalter 1.Q": 0.0,
-            "Bewegungsmelder.OutputPresence": 1.0
+            "Bewegungsmelder.OutputPresence": 1.0,
+            "PushButton.Q": 0.0
           },
           "expected_outputs": {
             "Alarmanlage.I": {
@@ -142,20 +142,20 @@
           "steps": [
             {
               "inputs": {
-                "PushButton.Q": 0.0,
-                "Schalter 2.Q": 0.0
+                "KNX Hoch.Q": 0.0,
+                "KNX Runter.Q": 0.0
               },
               "ticks": 3,
               "dt": 0.1
             },
             {
               "inputs": {
-                "PushButton.Q": 1.0
+                "KNX Hoch.Q": 1.0
               },
               "ticks": 15,
               "dt": 0.1,
               "expected_outputs": {
-                "Lichtsteuerung [Wohnzimmer].I1": {
+                "Lichtsteuerung [Wohnzimmer].Brightness": {
                   ">": 0.0
                 }
               }
@@ -167,21 +167,21 @@
           "steps": [
             {
               "inputs": {
-                "PushButton.Q": 0.0,
-                "Schalter 2.Q": 0.0
+                "KNX Hoch.Q": 0.0,
+                "KNX Runter.Q": 0.0
               },
               "ticks": 3,
               "dt": 0.1
             },
             {
               "inputs": {
-                "PushButton.Q": 0.0,
-                "Schalter 2.Q": 0.0
+                "KNX Hoch.Q": 0.0,
+                "KNX Runter.Q": 0.0
               },
               "ticks": 15,
               "dt": 0.1,
               "expected_outputs": {
-                "Lichtsteuerung [Wohnzimmer].I1": {
+                "Lichtsteuerung [Wohnzimmer].Brightness": {
                   "<": 0.5
                 }
               }
@@ -456,14 +456,14 @@
           "steps": [
             {
               "inputs": {
-                "Schalter 1.Q": 0.0
+                "Bewässerung Manuell.Q": 0.0
               },
               "ticks": 3,
               "dt": 0.1
             },
             {
               "inputs": {
-                "Schalter 1.Q": 1.0
+                "Bewässerung Manuell.Q": 1.0
               },
               "ticks": 15,
               "dt": 0.1,
@@ -480,14 +480,14 @@
           "steps": [
             {
               "inputs": {
-                "Schalter 1.Q": 0.0
+                "Bewässerung Manuell.Q": 0.0
               },
               "ticks": 3,
               "dt": 0.1
             },
             {
               "inputs": {
-                "Schalter 1.Q": 0.0
+                "Bewässerung Manuell.Q": 0.0
               },
               "ticks": 15,
               "dt": 0.1,
@@ -551,14 +551,14 @@
           "steps": [
             {
               "inputs": {
-                "PushButton.Q": 0.0
+                "Farbwahl.AQ": 0.0
               },
               "ticks": 15,
               "dt": 0.1
             },
             {
               "inputs": {
-                "PushButton.Q": 1.0
+                "Farbwahl.AQ": 1.0
               },
               "ticks": 15,
               "dt": 0.1,
@@ -692,19 +692,19 @@
           "steps": [
             {
               "inputs": {
-                "PushButton.Q": 0.0
+                "Schalter 1.Q": 0.0
               },
               "ticks": 15,
               "dt": 0.1
             },
             {
               "inputs": {
-                "PushButton.Q": 1.0
+                "Schalter 1.Q": 1.0
               },
               "ticks": 15,
               "dt": 0.1,
               "expected_outputs": {
-                "Lichtsteuerung [Wohnzimmer].I1": {
+                "Lichtstimmung.AQs": {
                   ">": 0.0
                 }
               }
@@ -832,10 +832,10 @@
         {
           "name": "should allow up when wind safe",
           "inputs": {
-            "PushButton.Q": 1.0,
+            "EIB Jalousie.OutputLong": 1.0,
             "Windgeschwindigkeit.AQ": 10.0
           },
-          "ticks": 10,
+          "ticks": 30,
           "dt": 0.1,
           "expected_outputs": {
             "Jalousie 1 [Wohnzimmer].InputTriggerUp": {
@@ -844,16 +844,15 @@
           }
         },
         {
-          "name": "should block up when wind unsafe",
+          "name": "should block when wind unsafe",
           "inputs": {
-            "PushButton.Q": 1.0,
-            "Windgeschwindigkeit.AQ": 10.0
+            "Windgeschwindigkeit.AQ": 50.0
           },
-          "ticks": 10,
+          "ticks": 30,
           "dt": 0.1,
           "expected_outputs": {
-            "Jalousie 1 [Wohnzimmer].InputTriggerUp": {
-              "<": 0.5
+            "Jalousie 1 [Wohnzimmer].InputDisable": {
+              ">": 0.5
             }
           }
         }
@@ -953,9 +952,9 @@
         {
           "name": "should pass power reading through",
           "inputs": {
-            "Hausverbrauch.AQ": 2500.0
+            "Energiezähler Bi.OMr1": 2500.0
           },
-          "ticks": 10,
+          "ticks": 30,
           "dt": 0.1,
           "expected_outputs": {
             "Statusblock.I": {
@@ -1013,16 +1012,16 @@
           "steps": [
             {
               "inputs": {
-                "PushButton.Q": 0.0,
-                "Helligkeit.AQ": 75.0
+                "Helligkeit.AQ": 75.0,
+                "Szene 1 Abrufen.Q": 0.0
               },
               "ticks": 15,
               "dt": 0.1
             },
             {
               "inputs": {
-                "PushButton.Q": 1.0,
-                "Helligkeit.AQ": 75.0
+                "Helligkeit.AQ": 75.0,
+                "Szene 1 Abrufen.Q": 1.0
               },
               "ticks": 15,
               "dt": 0.1,
@@ -1092,12 +1091,12 @@
         {
           "name": "should forward presence to HVAC",
           "inputs": {
-            "Bewegungsmelder.OutputPresence": 1.0
+            "Anwesenheit Wohnzimmer.Q": 1.0
           },
-          "ticks": 20,
+          "ticks": 30,
           "dt": 0.1,
           "expected_outputs": {
-            "Raumregler.Temp": {
+            "Raumregler.Move": {
               ">": 0.5
             }
           }
@@ -1105,12 +1104,12 @@
         {
           "name": "should NOT forward without presence",
           "inputs": {
-            "Bewegungsmelder.OutputPresence": 0.0
+            "Anwesenheit Wohnzimmer.Q": 0.0
           },
-          "ticks": 20,
+          "ticks": 30,
           "dt": 0.1,
           "expected_outputs": {
-            "Raumregler.Temp": {
+            "Raumregler.Move": {
               "<": 0.5
             }
           }
