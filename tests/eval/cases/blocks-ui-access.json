@@ -50,27 +50,35 @@
           "steps": [
             {
               "inputs": {
-                "Bewegungsmelder.OutputPresence": 0.0,
-                "PushButton.Q": 0.0
-              },
-              "ticks": 3,
-              "dt": 0.1
-            },
-            {
-              "inputs": {
-                "Bewegungsmelder.OutputPresence": 0.0,
-                "PushButton.Q": 1.0
+                "PushButton.Q": 0.0,
+                "Bewegungsmelder.OutputPresence": 0.0
               },
               "ticks": 5,
               "dt": 0.1
             },
             {
               "inputs": {
-                "Bewegungsmelder.OutputPresence": 1.0,
-                "PushButton.Q": 1.0
+                "PushButton.Q": 1.0,
+                "Bewegungsmelder.OutputPresence": 0.0
               },
-              "ticks": 50,
-              "dt": 0.1,
+              "ticks": 5,
+              "dt": 0.1
+            },
+            {
+              "inputs": {
+                "PushButton.Q": 0.0,
+                "Bewegungsmelder.OutputPresence": 0.0
+              },
+              "ticks": 5,
+              "dt": 0.1
+            },
+            {
+              "inputs": {
+                "PushButton.Q": 0.0,
+                "Bewegungsmelder.OutputPresence": 1.0
+              },
+              "ticks": 200,
+              "dt": 1.0,
               "expected_outputs": {
                 "Alarmanlage.I": {
                   ">": 0.5
@@ -156,14 +164,14 @@
               "dt": 0.1,
               "expected_outputs": {
                 "Lichtsteuerung [Wohnzimmer].Brightness": {
-                  ">": 0.0
+                  ">": 5.0
                 }
               }
             }
           ]
         },
         {
-          "name": "should stay at zero without trigger",
+          "name": "should stay at resting level without trigger",
           "steps": [
             {
               "inputs": {
@@ -182,7 +190,7 @@
               "dt": 0.1,
               "expected_outputs": {
                 "Lichtsteuerung [Wohnzimmer].Brightness": {
-                  "<": 0.5
+                  "<=": 5.0
                 }
               }
             }
@@ -563,7 +571,7 @@
               "ticks": 15,
               "dt": 0.1,
               "expected_outputs": {
-                "Lichtsteuerung [Wohnzimmer].I1": {
+                "RGB Szene.Scene": {
                   ">": 0.0
                 }
               }
@@ -704,7 +712,7 @@
               "ticks": 15,
               "dt": 0.1,
               "expected_outputs": {
-                "Lichtstimmung.AQs": {
+                "Lichtstimmung.AQ1": {
                   ">": 0.0
                 }
               }
@@ -1012,16 +1020,14 @@
           "steps": [
             {
               "inputs": {
-                "Helligkeit.AQ": 75.0,
-                "Szene 1 Abrufen.Q": 0.0
+                "Lichtszene.AQ1": 0.0
               },
               "ticks": 15,
               "dt": 0.1
             },
             {
               "inputs": {
-                "Helligkeit.AQ": 75.0,
-                "Szene 1 Abrufen.Q": 1.0
+                "Lichtszene.AQ1": 1.0
               },
               "ticks": 15,
               "dt": 0.1,

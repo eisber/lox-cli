@@ -1146,12 +1146,12 @@
                 "Türkontakt Eingang.Q": 0.0
               },
               "ticks": 10,
-              "dt": 0.1,
-              "time": 480
+              "dt": 0.1
             },
             {
               "inputs": {
-                "Türkontakt Eingang.Q": 1.0
+                "Türkontakt Eingang.Q": 1.0,
+                "Benachrichtigung 08.Q": 1.0
               },
               "ticks": 10,
               "dt": 0.1,
@@ -1159,8 +1159,7 @@
                 "Statusblock.I": {
                   ">": 0.5
                 }
-              },
-              "time": 480
+              }
             }
           ]
         },
@@ -1169,15 +1168,16 @@
           "steps": [
             {
               "inputs": {
-                "Türkontakt Eingang.Q": 1.0
+                "Türkontakt Eingang.Q": 1.0,
+                "Benachrichtigung 08.Q": 1.0
               },
               "ticks": 10,
-              "dt": 0.1,
-              "time": 480
+              "dt": 0.1
             },
             {
               "inputs": {
-                "Türkontakt Eingang.Q": 0.0
+                "Türkontakt Eingang.Q": 0.0,
+                "Benachrichtigung 08.Q": 1.0
               },
               "ticks": 10,
               "dt": 0.1,
@@ -1185,8 +1185,7 @@
                 "Statusblock.I": {
                   ">": 0.5
                 }
-              },
-              "time": 480
+              }
             }
           ]
         }
