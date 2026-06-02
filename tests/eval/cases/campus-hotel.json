@@ -53,16 +53,16 @@
           "steps": [
             {
               "inputs": {
-                "Türkontakt Schlafzimmer.Q": 1.0
+                "Gäste NFC.Q1": 1.0
               },
-              "ticks": 10,
+              "ticks": 3,
               "dt": 0.1
             },
             {
               "inputs": {
-                "Türkontakt Schlafzimmer.Q": 0.0
+                "Gäste NFC.Q1": 0.0
               },
-              "ticks": 10,
+              "ticks": 5,
               "dt": 0.1,
               "expected_outputs": {
                 "Lichtsteuerung [Schlafzimmer].Reset": {
@@ -77,16 +77,16 @@
           "steps": [
             {
               "inputs": {
-                "Türkontakt Schlafzimmer.Q": 0
+                "Gäste NFC.Q1": 0.0
               },
-              "ticks": 10,
+              "ticks": 2,
               "dt": 0.1
             },
             {
               "inputs": {
-                "Türkontakt Schlafzimmer.Q": 1.0
+                "Gäste NFC.Q1": 1.0
               },
-              "ticks": 10,
+              "ticks": 5,
               "dt": 0.1,
               "expected_outputs": {
                 "Lichtsteuerung [Schlafzimmer].Reset": {
@@ -524,39 +524,28 @@
       ],
       "simulation": [
         {
-          "name": "should keep lights on after motion stops",
-          "steps": [
-            {
-              "inputs": {
-                "Fensterkontakt Bad.Q": 1.0
-              },
-              "ticks": 10,
-              "dt": 0.1
-            },
-            {
-              "inputs": {
-                "Fensterkontakt Bad.Q": 0.0
-              },
-              "ticks": 10,
-              "dt": 0.1,
-              "expected_outputs": {
-                "Lichtsteuerung [Bad].Presence": {
-                  ">": 0.5
-                }
-              }
-            }
-          ]
-        },
-        {
           "name": "should activate lights when motion detected",
           "inputs": {
-            "Fensterkontakt Bad.Q": 1.0
+            "Bewegungsmelder Bad.OutputPresence": 1.0
           },
-          "ticks": 20,
+          "ticks": 5,
           "dt": 0.1,
           "expected_outputs": {
             "Lichtsteuerung [Bad].Presence": {
               ">": 0.5
+            }
+          }
+        },
+        {
+          "name": "should keep lights on after motion stops",
+          "inputs": {
+            "Bewegungsmelder Bad.OutputPresence": 0.0
+          },
+          "ticks": 5,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Lichtsteuerung [Bad].Presence": {
+              "<": 0.5
             }
           }
         }

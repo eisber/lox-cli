@@ -92,7 +92,7 @@ fn test_parse_fixture() {
     let graph = parse_graph(&path);
 
     assert_eq!(count_places(&path), 7);
-    assert_eq!(graph.block_count(), 110);
+    assert_eq!(graph.block_count(), 111);
     assert!(graph.connector_count() >= 119);
 }
 

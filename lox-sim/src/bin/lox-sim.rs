@@ -432,13 +432,15 @@ fn check_comparator(actual: f64, op: &str, expected: f64) -> bool {
 
 fn run_one(graph: &lox_sim::graph::SimGraph, spec: &SimSpec) -> ScenarioResult {
     let mut engine = SimEngine::new(graph.clone());
+    let mut checks = Vec::new();
+    let mut all_pass = true;
 
     // Inject time into all DayTimer blocks if specified
     if let Some(minutes) = spec.time {
         engine.set_time(minutes);
     }
 
-    // Set inputs — try set_input first, then inject_output as fallback
+    // Set top-level inputs
     apply_inputs(&mut engine, &spec.inputs);
 
     if spec.steps.is_empty() {
@@ -447,7 +449,7 @@ fn run_one(graph: &lox_sim::graph::SimGraph, spec: &SimSpec) -> ScenarioResult {
             engine.tick(spec.dt);
         }
     } else {
-        // Multi-step mode
+        // Multi-step mode: run each step, check outputs after each
         for step in &spec.steps {
             if let Some(minutes) = step.time {
                 engine.set_time(minutes);
@@ -457,14 +459,18 @@ fn run_one(graph: &lox_sim::graph::SimGraph, spec: &SimSpec) -> ScenarioResult {
             for _ in 0..step.ticks {
                 engine.tick(step_dt);
             }
+            // Check this step's expected_outputs
+            check_outputs(
+                &engine,
+                graph,
+                &step.expected_outputs,
+                &mut checks,
+                &mut all_pass,
+            );
         }
     }
 
-    // Check outputs (from last step if multi-step, or top-level)
-    let mut checks = Vec::new();
-    let mut all_pass = true;
-
-    // Check top-level expected_outputs
+    // Check top-level expected_outputs (always)
     check_outputs(
         &engine,
         graph,
@@ -472,17 +478,6 @@ fn run_one(graph: &lox_sim::graph::SimGraph, spec: &SimSpec) -> ScenarioResult {
         &mut checks,
         &mut all_pass,
     );
-
-    // Check last step's expected_outputs (if multi-step)
-    if let Some(last_step) = spec.steps.last() {
-        check_outputs(
-            &engine,
-            graph,
-            &last_step.expected_outputs,
-            &mut checks,
-            &mut all_pass,
-        );
-    }
 
     ScenarioResult {
         name: spec.name.clone(),
