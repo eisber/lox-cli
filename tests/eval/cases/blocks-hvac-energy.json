@@ -716,27 +716,16 @@
       "simulation": [
         {
           "name": "sauna starts on trigger",
-          "steps": [
-            {
-              "inputs": {
-                "Schalter 1.Q": 0.0
-              },
-              "ticks": 3,
-              "dt": 0.1
-            },
-            {
-              "inputs": {
-                "Schalter 1.Q": 1.0
-              },
-              "ticks": 10,
-              "dt": 0.1,
-              "expected_outputs": {
-                "Statusblock.I": {
-                  ">": 0.5
-                }
-              }
+          "inputs": {
+            "Sauna.Qa": 1.0
+          },
+          "ticks": 5,
+          "dt": 0.1,
+          "expected_outputs": {
+            "Statusblock.I": {
+              ">": 0.5
             }
-          ]
+          }
         }
       ]
     }

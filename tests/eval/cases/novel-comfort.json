@@ -648,19 +648,26 @@
           "steps": [
             {
               "inputs": {
-                "Taster Küche.Q": 0.0
+                "Taster Küche": 0.0
               },
-              "ticks": 5,
+              "ticks": 3,
               "dt": 0.1
             },
             {
               "inputs": {
-                "Taster Küche.Q": 1.0
+                "Taster Küche": 1.0
               },
-              "ticks": 5,
+              "ticks": 2,
+              "dt": 0.1
+            },
+            {
+              "inputs": {
+                "Taster Küche": 0.0
+              },
+              "ticks": 1,
               "dt": 0.1,
               "expected_outputs": {
-                "Lichtsteuerung [Küche].I1": {
+                "Tastenerkennung Küche.Q1": {
                   ">": 0.5
                 }
               }
@@ -668,37 +675,30 @@
           ]
         },
         {
-          "name": "double-click fires Q2",
+          "name": "long press fires Q2 to blinds",
           "steps": [
             {
               "inputs": {
-                "Taster Küche.Q": 0.0
+                "Taster Küche": 0.0
+              },
+              "ticks": 3,
+              "dt": 0.1
+            },
+            {
+              "inputs": {
+                "Taster Küche": 1.0
               },
               "ticks": 5,
               "dt": 0.1
             },
             {
               "inputs": {
-                "Taster Küche.Q": 1.0
+                "Taster Küche": 0.0
               },
-              "ticks": 5,
-              "dt": 0.1
-            },
-            {
-              "inputs": {
-                "Taster Küche.Q": 0.0
-              },
-              "ticks": 5,
-              "dt": 0.1
-            },
-            {
-              "inputs": {
-                "Taster Küche.Q": 1.0
-              },
-              "ticks": 5,
+              "ticks": 1,
               "dt": 0.1,
               "expected_outputs": {
-                "Jalousie 1 [Küche].InputTriggerDown": {
+                "Tastenerkennung Küche.Q2": {
                   ">": 0.5
                 }
               }

@@ -784,7 +784,8 @@ impl Block for LongClick {
         let current = inputs.first().copied().unwrap_or(0.0);
         let reset = inputs.get(1).copied().unwrap_or(0.0);
 
-        let ti = params.first().copied().unwrap_or(0.35).max(0.001);
+        let raw_ti = params.first().copied().unwrap_or(0.35);
+        let ti = if raw_ti <= 0.0 { 0.35 } else { raw_ti }.max(0.001);
         let v1 = params.get(1).copied().unwrap_or(1.0);
         let v2 = params.get(2).copied().unwrap_or(1.0);
         let v3 = params.get(3).copied().unwrap_or(1.0);
