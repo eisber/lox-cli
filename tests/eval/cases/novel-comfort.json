@@ -1338,7 +1338,7 @@
           "ticks": 10,
           "dt": 0.1,
           "expected_outputs": {
-            "Lichtsteuerung [Küche].I1": {
+            "Lichtsteuerung [Flur].I1": {
               "<": 0.5
             }
           }

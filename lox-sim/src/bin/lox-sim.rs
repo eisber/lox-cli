@@ -302,6 +302,27 @@ struct SimSpec {
     dt: f64,
     #[serde(default)]
     expected_outputs: std::collections::HashMap<String, std::collections::HashMap<String, f64>>,
+    /// Optional time injection (minutes since midnight, 0-1440).
+    /// Automatically injected into ALL DayTimer blocks.
+    #[serde(default)]
+    time: Option<f64>,
+    /// Optional multi-step sequence.
+    #[serde(default)]
+    steps: Vec<SimStep>,
+}
+
+#[derive(serde::Deserialize)]
+struct SimStep {
+    #[serde(default)]
+    inputs: std::collections::HashMap<String, f64>,
+    #[serde(default = "default_ticks")]
+    ticks: usize,
+    #[serde(default)]
+    dt: f64,
+    #[serde(default)]
+    time: Option<f64>,
+    #[serde(default)]
+    expected_outputs: std::collections::HashMap<String, std::collections::HashMap<String, f64>>,
 }
 
 fn default_ticks() -> usize {
@@ -325,8 +346,7 @@ fn resolve_output(engine: &SimEngine, graph: &lox_sim::graph::SimGraph, output_k
         let conn_name = parts.get(1).unwrap_or(&"");
 
         // Extract room qualifier from "Name [Room]" syntax
-        let (bare_name, expected_room) = if block_name.contains(" [") && block_name.ends_with(']')
-        {
+        let (bare_name, expected_room) = if block_name.contains(" [") && block_name.ends_with(']') {
             let idx = block_name.rfind(" [").unwrap();
             (
                 &block_name[..idx],
@@ -374,10 +394,7 @@ fn resolve_output(engine: &SimEngine, graph: &lox_sim::graph::SimGraph, output_k
             if let Some(room) = expected_room {
                 for bid in 0..graph.block_count() {
                     let info = graph.block_info(bid);
-                    let in_room = info
-                        .room
-                        .as_ref()
-                        .is_some_and(|r| r == room);
+                    let in_room = info.room.as_ref().is_some_and(|r| r == room);
                     if !in_room {
                         continue;
                     }
@@ -416,8 +433,66 @@ fn check_comparator(actual: f64, op: &str, expected: f64) -> bool {
 fn run_one(graph: &lox_sim::graph::SimGraph, spec: &SimSpec) -> ScenarioResult {
     let mut engine = SimEngine::new(graph.clone());
 
+    // Inject time into all DayTimer blocks if specified
+    if let Some(minutes) = spec.time {
+        engine.set_time(minutes);
+    }
+
     // Set inputs — try set_input first, then inject_output as fallback
-    for (key, value) in &spec.inputs {
+    apply_inputs(&mut engine, &spec.inputs);
+
+    if spec.steps.is_empty() {
+        // Simple mode: tick and check
+        for _ in 0..spec.ticks {
+            engine.tick(spec.dt);
+        }
+    } else {
+        // Multi-step mode
+        for step in &spec.steps {
+            if let Some(minutes) = step.time {
+                engine.set_time(minutes);
+            }
+            apply_inputs(&mut engine, &step.inputs);
+            let step_dt = if step.dt > 0.0 { step.dt } else { spec.dt };
+            for _ in 0..step.ticks {
+                engine.tick(step_dt);
+            }
+        }
+    }
+
+    // Check outputs (from last step if multi-step, or top-level)
+    let mut checks = Vec::new();
+    let mut all_pass = true;
+
+    // Check top-level expected_outputs
+    check_outputs(
+        &engine,
+        graph,
+        &spec.expected_outputs,
+        &mut checks,
+        &mut all_pass,
+    );
+
+    // Check last step's expected_outputs (if multi-step)
+    if let Some(last_step) = spec.steps.last() {
+        check_outputs(
+            &engine,
+            graph,
+            &last_step.expected_outputs,
+            &mut checks,
+            &mut all_pass,
+        );
+    }
+
+    ScenarioResult {
+        name: spec.name.clone(),
+        pass: all_pass,
+        checks,
+    }
+}
+
+fn apply_inputs(engine: &mut SimEngine, inputs: &std::collections::HashMap<String, f64>) {
+    for (key, value) in inputs {
         if engine.set_input(key, *value) {
             continue;
         }
@@ -425,7 +500,6 @@ fn run_one(graph: &lox_sim::graph::SimGraph, spec: &SimSpec) -> ScenarioResult {
         if engine.set_input(block_name, *value) {
             continue;
         }
-        // Try common suffixes
         let candidates = [
             format!("{block_name}.AQ"),
             format!("{block_name}.Q"),
@@ -444,8 +518,6 @@ fn run_one(graph: &lox_sim::graph::SimGraph, spec: &SimSpec) -> ScenarioResult {
         if found {
             continue;
         }
-        // Fallback: inject directly into output connector (for non-source blocks
-        // like PresenceDetector, where we want to simulate sensor readings)
         if engine.inject_output(key, *value) {
             continue;
         }
@@ -462,39 +534,29 @@ fn run_one(graph: &lox_sim::graph::SimGraph, spec: &SimSpec) -> ScenarioResult {
             eprintln!("warning: could not set input '{key}'");
         }
     }
+}
 
-    // Tick
-    for _ in 0..spec.ticks {
-        engine.tick(spec.dt);
-    }
-
-    // Check outputs
-    let mut checks = Vec::new();
-    let mut all_pass = true;
-
-    for (output_key, comparators) in &spec.expected_outputs {
-        let actual = resolve_output(&engine, graph, output_key);
-
-        for (op, expected) in comparators {
-            let pass = check_comparator(actual, op, *expected);
-
+fn check_outputs(
+    engine: &SimEngine,
+    graph: &lox_sim::graph::SimGraph,
+    expected: &std::collections::HashMap<String, std::collections::HashMap<String, f64>>,
+    checks: &mut Vec<serde_json::Value>,
+    all_pass: &mut bool,
+) {
+    for (output_key, comparators) in expected {
+        let actual = resolve_output(engine, graph, output_key);
+        for (op, exp) in comparators {
+            let pass = check_comparator(actual, op, *exp);
             if !pass {
-                all_pass = false;
+                *all_pass = false;
             }
-
             checks.push(serde_json::json!({
                 "output": output_key,
                 "actual": actual,
                 "comparator": op,
-                "expected": expected,
+                "expected": exp,
                 "pass": pass,
             }));
         }
-    }
-
-    ScenarioResult {
-        name: spec.name.clone(),
-        pass: all_pass,
-        checks,
     }
 }

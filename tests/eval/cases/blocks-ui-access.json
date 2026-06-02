@@ -309,7 +309,7 @@
         {
           "name": "should pause when room empty",
           "inputs": {
-            "Bewegungsmelder.OutputPresence": 0.0
+            "Präsenz Wohnzimmer.OutputPresence": 0.0
           },
           "ticks": 10,
           "dt": 0.1,
@@ -322,7 +322,7 @@
         {
           "name": "should NOT pause when occupied",
           "inputs": {
-            "Bewegungsmelder.OutputPresence": 1.0
+            "Präsenz Wohnzimmer.OutputPresence": 1.0
           },
           "ticks": 10,
           "dt": 0.1,
