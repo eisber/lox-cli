@@ -207,6 +207,9 @@ def _build_instructions(case: dict, config_path: str) -> str:
 - When satisfied, output the single word: DONE
 - Do NOT explain — just output commands or DONE
 """
+
+
+def build_llm_prompt(case, config_path: str) -> str:
     config_skill = _load_skill("loxone-config")
     fixture_desc = _describe_fixture(config_path)
 
