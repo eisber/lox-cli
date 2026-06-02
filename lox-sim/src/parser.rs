@@ -2211,7 +2211,7 @@ mod tests {
 
     #[test]
     fn parse_lightcontroller2_connectors() {
-    let xml = r#"<?xml version="1.0" encoding="utf-8"?>
+        let xml = r#"<?xml version="1.0" encoding="utf-8"?>
 <ControlList>
   <C Type="LightController2" V="175" U="lc2-001" Title="Lichtsteuerung">
     <C Type="LightscenesC" V="175" U="lc2-scenes">
@@ -2225,28 +2225,28 @@ mod tests {
     </Co>
   </C>
 </ControlList>"#;
-    let graph = parse_bytes(xml.as_bytes()).expect("parse failed");
-    // Should have LightController2 + LightsceneC blocks
-    let lc2_count: usize = (0..graph.block_count())
-        .filter(|&bid| graph.block_info(bid).block_type == "LightController2")
-        .count();
-    assert_eq!(lc2_count, 1, "Should have 1 LightController2 block");
+        let graph = parse_bytes(xml.as_bytes()).expect("parse failed");
+        // Should have LightController2 + LightsceneC blocks
+        let lc2_count: usize = (0..graph.block_count())
+            .filter(|&bid| graph.block_info(bid).block_type == "LightController2")
+            .count();
+        assert_eq!(lc2_count, 1, "Should have 1 LightController2 block");
 
-    // LightController2 should have connectors (I1, Presence, AQ1, Reset, ...)
-    let bid = (0..graph.block_count())
-        .find(|&bid| graph.block_info(bid).block_type == "LightController2")
-        .unwrap();
-    let info = graph.block_info(bid);
-    eprintln!("LightController2 block: name={} connectors:", info.name);
-    
-    // Check that we can find key connectors
-    let has_i1 = graph.find_connector(bid, "I1").is_some();
-    let has_reset = graph.find_connector(bid, "Reset").is_some();
-    let has_aq1 = graph.find_connector(bid, "AQ1").is_some();
-    
-    eprintln!("  I1: {}, Reset: {}, AQ1: {}", has_i1, has_reset, has_aq1);
-    assert!(has_i1, "LightController2 should have I1 connector");
-    assert!(has_reset, "LightController2 should have Reset connector");
-    assert!(has_aq1, "LightController2 should have AQ1 connector");
-}
+        // LightController2 should have connectors (I1, Presence, AQ1, Reset, ...)
+        let bid = (0..graph.block_count())
+            .find(|&bid| graph.block_info(bid).block_type == "LightController2")
+            .unwrap();
+        let info = graph.block_info(bid);
+        eprintln!("LightController2 block: name={} connectors:", info.name);
+
+        // Check that we can find key connectors
+        let has_i1 = graph.find_connector(bid, "I1").is_some();
+        let has_reset = graph.find_connector(bid, "Reset").is_some();
+        let has_aq1 = graph.find_connector(bid, "AQ1").is_some();
+
+        eprintln!("  I1: {}, Reset: {}, AQ1: {}", has_i1, has_reset, has_aq1);
+        assert!(has_i1, "LightController2 should have I1 connector");
+        assert!(has_reset, "LightController2 should have Reset connector");
+        assert!(has_aq1, "LightController2 should have AQ1 connector");
+    }
 }

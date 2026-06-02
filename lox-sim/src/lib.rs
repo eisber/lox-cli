@@ -86,4 +86,3 @@ mod debug_smoke {
         assert!(out1 > 0.5, "OutAlarm1 should be high, got {}", out1);
     }
 }
-

@@ -53,14 +53,14 @@
           "steps": [
             {
               "inputs": {
-                "Checkout Erkennung.Input": 1.0
+                "Türkontakt Schlafzimmer.Q": 1.0
               },
               "ticks": 10,
               "dt": 0.1
             },
             {
               "inputs": {
-                "Checkout Erkennung.Input": 0.0
+                "Türkontakt Schlafzimmer.Q": 0.0
               },
               "ticks": 10,
               "dt": 0.1,
@@ -77,14 +77,14 @@
           "steps": [
             {
               "inputs": {
-                "Checkout Erkennung.Input": 0
+                "Türkontakt Schlafzimmer.Q": 0
               },
               "ticks": 10,
               "dt": 0.1
             },
             {
               "inputs": {
-                "Checkout Erkennung.Input": 1.0
+                "Türkontakt Schlafzimmer.Q": 1.0
               },
               "ticks": 10,
               "dt": 0.1,
@@ -528,14 +528,14 @@
           "steps": [
             {
               "inputs": {
-                "Bewegungsmelder Bad.OutputPresence": 1.0
+                "Fensterkontakt Bad.Q": 1.0
               },
               "ticks": 10,
               "dt": 0.1
             },
             {
               "inputs": {
-                "Bewegungsmelder Bad.OutputPresence": 0.0
+                "Fensterkontakt Bad.Q": 0.0
               },
               "ticks": 10,
               "dt": 0.1,
@@ -550,7 +550,7 @@
         {
           "name": "should activate lights when motion detected",
           "inputs": {
-            "Bewegungsmelder Bad.OutputPresence": 1.0
+            "Fensterkontakt Bad.Q": 1.0
           },
           "ticks": 20,
           "dt": 0.1,

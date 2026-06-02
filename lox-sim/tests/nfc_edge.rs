@@ -60,7 +60,7 @@ fn test_nfc_edge_propagation() {
     eprintln!("\nset_input('NFC.Q1', 1.0) -> {}", ok);
     assert!(ok, "set_input NFC.Q1 should succeed");
 
-    // Tick 
+    // Tick
     engine.tick(0.1);
 
     // Print all signals
