@@ -147,11 +147,15 @@ def build_block_index(config_path: str) -> dict[str, dict[str, str]]:
     index: dict[str, dict[str, str]] = {}
     for c in controls:
         title = c.get("title", "")
+        room = c.get("room", "")
+        block_type = c.get("control_type", c.get("type", ""))
         if title:
-            index[title] = {
-                "type": c.get("control_type", c.get("type", "")),
-                "room": c.get("room", ""),
-            }
+            info = {"type": block_type, "room": room}
+            # Bare name — last one wins (may be wrong room)
+            index[title] = info
+            # Room-qualified name — unambiguous
+            if room:
+                index[f"{title} [{room}]"] = info
     return index
 
 

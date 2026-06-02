@@ -323,9 +323,28 @@ fn resolve_output(engine: &SimEngine, graph: &lox_sim::graph::SimGraph, output_k
         let parts: Vec<&str> = output_key.splitn(2, '.').collect();
         let block_name = parts[0];
         let conn_name = parts.get(1).unwrap_or(&"");
+
+        // Extract room qualifier from "Name [Room]" syntax
+        let (bare_name, expected_room) = if block_name.contains(" [") && block_name.ends_with(']')
+        {
+            let idx = block_name.rfind(" [").unwrap();
+            (
+                &block_name[..idx],
+                Some(&block_name[idx + 2..block_name.len() - 1]),
+            )
+        } else {
+            (block_name, None)
+        };
+
+        let mut name_matched = false;
         for bid in 0..graph.block_count() {
             let info = graph.block_info(bid);
             let name_matches = info.name == block_name
+                || info.name == bare_name
+                    && info
+                        .room
+                        .as_ref()
+                        .is_some_and(|r| Some(r.as_str()) == expected_room)
                 || info
                     .room
                     .as_ref()
@@ -333,6 +352,7 @@ fn resolve_output(engine: &SimEngine, graph: &lox_sim::graph::SimGraph, output_k
             if !name_matches {
                 continue;
             }
+            name_matched = true;
             if let Some(cid) = graph.find_connector(bid, conn_name) {
                 if let Some(src) = graph.input_source_of(cid) {
                     let sig = engine.signal(src);
@@ -343,6 +363,36 @@ fn resolve_output(engine: &SimEngine, graph: &lox_sim::graph::SimGraph, output_k
                     let sig = engine.signal(cid);
                     if sig.abs() > actual.abs() {
                         actual = sig;
+                    }
+                }
+            }
+        }
+
+        // Type+room fallback: if no block matched by name but we have a room,
+        // search for ANY block in that room with a matching connector.
+        if actual == 0.0 && !name_matched {
+            if let Some(room) = expected_room {
+                for bid in 0..graph.block_count() {
+                    let info = graph.block_info(bid);
+                    let in_room = info
+                        .room
+                        .as_ref()
+                        .is_some_and(|r| r == room);
+                    if !in_room {
+                        continue;
+                    }
+                    if let Some(cid) = graph.find_connector(bid, conn_name) {
+                        if let Some(src) = graph.input_source_of(cid) {
+                            let sig = engine.signal(src);
+                            if sig.abs() > actual.abs() {
+                                actual = sig;
+                            }
+                        } else {
+                            let sig = engine.signal(cid);
+                            if sig.abs() > actual.abs() {
+                                actual = sig;
+                            }
+                        }
                     }
                 }
             }

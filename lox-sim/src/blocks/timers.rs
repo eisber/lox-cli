@@ -418,7 +418,9 @@ impl Block for EdgeDetection {
     ) -> Vec<Signal> {
         let current = inputs.first().copied().unwrap_or(0.0);
         let previous = prev_inputs.first().copied().unwrap_or(0.0);
-        let pulse_time = params.first().copied().unwrap_or(1.0).max(dt);
+        // PulseTime defaults to 1.0s when not set or set to 0 (Loxone behavior)
+        let raw_pulse = params.first().copied().unwrap_or(1.0);
+        let pulse_time = if raw_pulse <= 0.0 { 1.0 } else { raw_pulse }.max(dt);
 
         if !is_high(previous) && is_high(current) {
             self.rising_remaining = pulse_time;

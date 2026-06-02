@@ -2070,7 +2070,7 @@ mod tests {
     <Co K="Q" U="0001-q"/>
   </C>
 </ControlList>"#;
-        let graph = parse_xml(xml);
+        let graph = parse_bytes(xml.as_bytes()).expect("parse failed");
         assert_eq!(graph.block_count(), 1);
         let block = graph.block_info(0);
         assert_eq!(block.name, "Gate");
@@ -2090,7 +2090,7 @@ mod tests {
     <Co K="Q" U="gate-q"/>
   </C>
 </ControlList>"#;
-        let graph = parse_xml(xml);
+        let graph = parse_bytes(xml.as_bytes()).expect("parse failed");
         assert_eq!(graph.wires().len(), 1);
         let gate = graph.find_block_by_name("Gate").unwrap();
         let input = graph.find_connector(gate, "I1").unwrap();
@@ -2110,7 +2110,7 @@ mod tests {
     <Co K="Q" U="dest-q"/>
   </C>
 </ControlList>"#;
-        let graph = parse_xml(xml);
+        let graph = parse_bytes(xml.as_bytes()).expect("parse failed");
         assert_eq!(graph.wires().len(), 1);
     }
 
@@ -2129,7 +2129,7 @@ mod tests {
     <Entry To="1440" V="0"/>
   </C>
 </ControlList>"#;
-        let graph = parse_xml(xml);
+        let graph = parse_bytes(xml.as_bytes()).expect("parse failed");
         let block = graph.find_block_by_name("Schedule").unwrap();
         assert_eq!(graph.block_info(block).outputs.len(), 5);
         assert_eq!(graph.block_impls[block].block_type(), "DayTimer");
@@ -2143,7 +2143,7 @@ mod tests {
     <Co K="AQ" U="temp-aq"/>
   </C>
 </ControlList>"#;
-        let graph = parse_xml(xml);
+        let graph = parse_bytes(xml.as_bytes()).expect("parse failed");
         let block = graph.find_block_by_name("Temperature").unwrap();
         assert!(graph.find_connector(block, "I1").is_some());
         assert!(graph.find_connector(block, "AQ").is_some());
@@ -2162,7 +2162,7 @@ mod tests {
     <Co K="AQ1" U="light-out"/>
   </C>
 </ControlList>"#;
-        let graph = parse_xml(xml);
+        let graph = parse_bytes(xml.as_bytes()).expect("parse failed");
         assert_eq!(graph.wires().len(), 1);
     }
 
@@ -2175,7 +2175,7 @@ mod tests {
     <Co K="Scene" U="light-scene"/>
   </C>
 </ControlList>"#;
-        let graph = parse_xml(xml);
+        let graph = parse_bytes(xml.as_bytes()).expect("parse failed");
         let block = graph.find_block_by_name("Light").unwrap();
         assert!(graph.find_connector(block, "AQ1").is_some());
         assert!(graph.find_connector(block, "Scene").is_some());
@@ -2190,7 +2190,7 @@ mod tests {
     <Co K="AQh" U="heat-aqh"/>
   </C>
 </ControlList>"#;
-        let graph = parse_xml(xml);
+        let graph = parse_bytes(xml.as_bytes()).expect("parse failed");
         let block = graph.find_block_by_name("Heat").unwrap();
         assert!(graph.find_connector(block, "Temp").is_some());
         assert!(graph.find_connector(block, "AQh").is_some());
@@ -2205,7 +2205,48 @@ mod tests {
     <Co K="Q" U="mystery-q"/>
   </C>
 </ControlList>"#;
-        let graph = parse_xml(xml);
+        let graph = parse_bytes(xml.as_bytes()).expect("parse failed");
         assert_eq!(graph.block_impls[0].block_type(), "PassThrough");
     }
+
+    #[test]
+    fn parse_lightcontroller2_connectors() {
+    let xml = r#"<?xml version="1.0" encoding="utf-8"?>
+<ControlList>
+  <C Type="LightController2" V="175" U="lc2-001" Title="Lichtsteuerung">
+    <C Type="LightscenesC" V="175" U="lc2-scenes">
+      <C Type="LightsceneC" V="175" U="lc2-scene1" Title="Viel Licht" />
+    </C>
+    <Co K="I1" U="lc2-i1"/>
+    <Co K="Presence" U="lc2-presence"/>
+    <Co K="AQ1" U="lc2-aq1"/>
+    <Co K="Reset" U="lc2-reset">
+      <In Input="Sensor.Q" FLG="2"/>
+    </Co>
+  </C>
+</ControlList>"#;
+    let graph = parse_bytes(xml.as_bytes()).expect("parse failed");
+    // Should have LightController2 + LightsceneC blocks
+    let lc2_count: usize = (0..graph.block_count())
+        .filter(|&bid| graph.block_info(bid).block_type == "LightController2")
+        .count();
+    assert_eq!(lc2_count, 1, "Should have 1 LightController2 block");
+
+    // LightController2 should have connectors (I1, Presence, AQ1, Reset, ...)
+    let bid = (0..graph.block_count())
+        .find(|&bid| graph.block_info(bid).block_type == "LightController2")
+        .unwrap();
+    let info = graph.block_info(bid);
+    eprintln!("LightController2 block: name={} connectors:", info.name);
+    
+    // Check that we can find key connectors
+    let has_i1 = graph.find_connector(bid, "I1").is_some();
+    let has_reset = graph.find_connector(bid, "Reset").is_some();
+    let has_aq1 = graph.find_connector(bid, "AQ1").is_some();
+    
+    eprintln!("  I1: {}, Reset: {}, AQ1: {}", has_i1, has_reset, has_aq1);
+    assert!(has_i1, "LightController2 should have I1 connector");
+    assert!(has_reset, "LightController2 should have Reset connector");
+    assert!(has_aq1, "LightController2 should have AQ1 connector");
+}
 }
