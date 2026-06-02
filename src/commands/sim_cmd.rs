@@ -5,6 +5,7 @@ use anyhow::{Context, Result, bail};
 use clap::Subcommand;
 use lox_sim::{engine::SimEngine, graph::SimGraph, parser};
 use serde::Deserialize;
+use serde_json::json;
 
 #[derive(Subcommand)]
 pub enum SimCmd {
@@ -321,7 +322,7 @@ fn check_outputs(
     }
 }
 
-pub fn cmd_sim(action: SimCmd) -> Result<()> {
+pub fn cmd_sim(ctx: &super::RunContext, action: SimCmd) -> Result<()> {
     match action {
         SimCmd::Check { file } => cmd_check(&file),
         SimCmd::Run {
@@ -334,7 +335,7 @@ pub fn cmd_sim(action: SimCmd) -> Result<()> {
             sim,
             sim_file,
         } => cmd_step(&file, sim.as_deref(), sim_file.as_deref()),
-        SimCmd::Dump { file, sim } => cmd_dump(&file, sim.as_deref()),
+        SimCmd::Dump { file, sim } => cmd_dump(&file, sim.as_deref(), ctx.json),
     }
 }
 
@@ -523,7 +524,7 @@ fn cmd_step(file: &str, sim: Option<&str>, sim_file: Option<&str>) -> Result<()>
     Ok(())
 }
 
-fn cmd_dump(file: &str, sim: Option<&str>) -> Result<()> {
+fn cmd_dump(file: &str, sim: Option<&str>, json_output: bool) -> Result<()> {
     let graph = parse_graph(file)?;
     let mut engine = SimEngine::new(graph.clone());
 
@@ -539,6 +540,10 @@ fn cmd_dump(file: &str, sim: Option<&str>) -> Result<()> {
         for _ in 0..spec.ticks {
             engine.tick(spec.dt);
         }
+    }
+
+    if json_output {
+        return cmd_dump_json(&graph, &engine);
     }
 
     println!("=== BLOCKS ({}) ===", graph.block_count());
@@ -592,5 +597,83 @@ fn cmd_dump(file: &str, sim: Option<&str>) -> Result<()> {
             );
         }
     }
+    Ok(())
+}
+
+fn cmd_dump_json(graph: &SimGraph, _engine: &SimEngine) -> Result<()> {
+    let mut blocks_json = Vec::new();
+    let mut wires_json = Vec::new();
+    let mut block_types: HashMap<String, Vec<usize>> = HashMap::new();
+
+    for bid in 0..graph.block_count() {
+        let info = graph.block_info(bid);
+        block_types
+            .entry(info.block_type.clone())
+            .or_default()
+            .push(bid);
+
+        let inputs: Vec<_> = info
+            .inputs
+            .iter()
+            .map(|&cid| {
+                let c = graph.connector(cid);
+                let wired_from = graph.input_source_of(cid);
+                json!({
+                    "cid": cid,
+                    "key": c.key,
+                    "wired_from": wired_from,
+                })
+            })
+            .collect();
+
+        // Build output wired_to by scanning all wires
+        let outputs: Vec<_> = info
+            .outputs
+            .iter()
+            .map(|&cid| {
+                let c = graph.connector(cid);
+                let wired_to: Vec<usize> = graph
+                    .wires()
+                    .iter()
+                    .filter(|(from, _)| *from == cid)
+                    .map(|(_, to)| *to)
+                    .collect();
+                json!({
+                    "cid": cid,
+                    "key": c.key,
+                    "wired_to": wired_to,
+                })
+            })
+            .collect();
+
+        blocks_json.push(json!({
+            "id": bid,
+            "name": info.name,
+            "type": info.block_type,
+            "room": info.room,
+            "inputs": inputs,
+            "outputs": outputs,
+        }));
+    }
+
+    for &(from_cid, to_cid) in graph.wires() {
+        let sc = graph.connector(from_cid);
+        let sb = graph.block_info(sc.block_id);
+        let dc = graph.connector(to_cid);
+        let db = graph.block_info(dc.block_id);
+        wires_json.push(json!({
+            "from_cid": from_cid,
+            "to_cid": to_cid,
+            "from_block": sb.name,
+            "to_block": db.name,
+        }));
+    }
+
+    let output = json!({
+        "blocks": blocks_json,
+        "wires": wires_json,
+        "block_types": block_types,
+    });
+    println!("{}", serde_json::to_string_pretty(&output)?);
     Ok(())
 }

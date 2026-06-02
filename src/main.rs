@@ -1127,7 +1127,7 @@ fn run(cli: Cli) -> Result<()> {
             commands::config_cmd::cmd_completions(&ctx, shell, install)
         }
         Cmd::Schema { command } => commands::config_cmd::cmd_schema(&ctx, command),
-        Cmd::Sim { action } => commands::sim_cmd::cmd_sim(action),
+        Cmd::Sim { action } => commands::sim_cmd::cmd_sim(&ctx, action),
         Cmd::Blocks { action } => commands::blocks_cmd::cmd_blocks(&ctx, action),
         Cmd::Docs {
             query,

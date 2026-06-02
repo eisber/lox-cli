@@ -75,12 +75,13 @@ pub fn parse_element(root: &Element) -> Result<SimGraph, String> {
         let output_refs: Vec<&str> = output_keys.iter().map(|s| s.as_str()).collect();
         let param_refs: Vec<&str> = param_keys.iter().map(|s| s.as_str()).collect();
 
-        let block_id = graph.add_block(
+        let block_id = graph.add_block_with_type(
             parsed.name.clone(),
             block,
             &input_refs,
             &output_refs,
             &param_refs,
+            parsed.block_type.clone(),
         );
 
         // Set room info for name disambiguation

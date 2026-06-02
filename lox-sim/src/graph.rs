@@ -46,6 +46,7 @@ impl std::error::Error for GraphError {}
 pub struct BlockInfo {
     pub id: BlockId,
     pub name: String,
+    pub block_type: String,
     pub room: Option<String>,
     pub inputs: Vec<ConnectorId>,
     pub outputs: Vec<ConnectorId>,
@@ -108,6 +109,22 @@ impl SimGraph {
         output_keys: &[&str],
         param_keys: &[&str],
     ) -> BlockId {
+        let block_type = block.block_type().to_string();
+        self.add_block_with_type(name, block, input_keys, output_keys, param_keys, block_type)
+    }
+
+    /// Add a block with an explicit type string (used by the parser when the
+    /// XML Type attribute differs from the runtime block_type, e.g. unknown blocks
+    /// mapped to PassThrough).
+    pub fn add_block_with_type(
+        &mut self,
+        name: impl Into<String>,
+        block: Box<dyn Block>,
+        input_keys: &[&str],
+        output_keys: &[&str],
+        param_keys: &[&str],
+        block_type: impl Into<String>,
+    ) -> BlockId {
         let block_id = self.blocks.len();
         let name = name.into();
 
@@ -123,6 +140,7 @@ impl SimGraph {
         self.blocks.push(BlockInfo {
             id: block_id,
             name,
+            block_type: block_type.into(),
             room: None,
             inputs,
             outputs,
@@ -300,6 +318,47 @@ impl SimGraph {
     /// Move block implementations out (consumed by `SimEngine`).
     pub(crate) fn take_block_impls(&mut self) -> Vec<Box<dyn Block>> {
         std::mem::take(&mut self.block_impls)
+    }
+
+    // --- Type/room query methods --------------------------------------------
+
+    /// Find all blocks of a given type.
+    pub fn blocks_by_type(&self, block_type: &str) -> Vec<BlockId> {
+        self.blocks
+            .iter()
+            .filter(|b| b.block_type == block_type)
+            .map(|b| b.id)
+            .collect()
+    }
+
+    /// Find all blocks of a given type in a specific room.
+    pub fn blocks_by_type_in_room(&self, block_type: &str, room: &str) -> Vec<BlockId> {
+        self.blocks
+            .iter()
+            .filter(|b| b.block_type == block_type && b.room.as_deref() == Some(room))
+            .map(|b| b.id)
+            .collect()
+    }
+
+    /// Find all output connectors of a block type that match a key pattern.
+    pub fn outputs_matching(
+        &self,
+        block_type: &str,
+        room: Option<&str>,
+        connector_key: &str,
+    ) -> Vec<ConnectorId> {
+        self.blocks
+            .iter()
+            .filter(|b| {
+                b.block_type == block_type && room.is_none_or(|r| b.room.as_deref() == Some(r))
+            })
+            .flat_map(|b| {
+                b.outputs
+                    .iter()
+                    .filter(|&&cid| self.connectors[cid].key == connector_key)
+                    .copied()
+            })
+            .collect()
     }
 
     // --- Internal helpers ---------------------------------------------------
