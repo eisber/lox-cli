@@ -316,6 +316,14 @@ lox config wire-connector config.Loxone "Raumregler.Setpoint" "Temp Speicher.AQ"
     - OffDelay: `set-param FILE "BlockTitle" Time 300`
     - Monoflop: `set-param FILE "BlockTitle" Duration 180`
 12. **⚠ Exotic block types — CRITICAL**: When using exotic block types (2Point, SequenceController, AnalogWatchdog, etc.), always check connector names with `lox blocks info <type>` first. Connector names vary between types — don't guess.
+13. **⚠ Sensor selection — CRITICAL**: Always wire from RAW fixture sensors, not from controller outputs:
+    - Temperature: Wire from `Raumtemperatur <Room>.AQ` (TreeAsensor), NOT from `Raumregler.AQh` (controller output)
+    - Wind: Wire from `Windgeschwindigkeit.AQ` (SysVar), NOT from another block's filtered output
+    - Humidity: Wire from `Raumfeuchtigkeit <Room>.AQ` (TreeAsensor)
+    - Presence: Wire from `Bewegungsmelder.OutputPresence` (PresenceDetector), NOT from door contacts
+    - General rule: trace the signal back to a physical sensor (SysVar, TreeSensor, TreeAsensor, VirtualIn) — don't create intermediate blocks between sensor and your logic
+14. **⚠ DayTimer requires schedule**: A DayTimer block without `timer-schedule` entries outputs 0 forever. Always add at least one schedule entry after creating a DayTimer.
+15. **⚠ Verify EVERY target actuator has a wire**: After building logic, check that every target actuator (VirtualOut, Jalousie, LightController2, etc.) has at least one input wired. Run `lox config check FILE` — errors on unwired inputs mean the circuit is incomplete.
 
 ## Short Aliases
 
