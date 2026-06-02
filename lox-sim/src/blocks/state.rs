@@ -448,11 +448,15 @@ impl Block for Counter {
 #[derive(Clone)]
 pub struct UpDownCounter {
     count: f64,
+    q_state: bool,
 }
 
 impl UpDownCounter {
     pub fn new() -> Self {
-        Self { count: 0.0 }
+        Self {
+            count: 0.0,
+            q_state: false,
+        }
     }
 }
 
@@ -463,9 +467,13 @@ impl Default for UpDownCounter {
 }
 
 impl Block for UpDownCounter {
-    /// inputs: [0] = Up (rising edge increments), [1] = Down (rising edge decrements),
-    ///         [2] = Reset
-    /// params: [0] = min value (default f64::MIN), [1] = max value (default f64::MAX)
+    /// inputs: [0] = Trigger (rising edge increments/decrements),
+    ///         [1] = InputDir (0=up, 1=down),
+    ///         [2] = Reset (sets AQ=StartValue, Q=0)
+    /// params: [0] = StartValue (default 0), [1] = OnValue (default 10),
+    ///         [2] = OffValue (default 5)
+    /// outputs: [0] = Q (hysteresis: ON when AQ>=OnValue, OFF when AQ<=OffValue),
+    ///          [1] = AQ (current counter value)
     fn eval(
         &mut self,
         inputs: &[Signal],
@@ -473,36 +481,44 @@ impl Block for UpDownCounter {
         _dt: f64,
         prev_inputs: &[Signal],
     ) -> Vec<Signal> {
-        let up = inputs.first().copied().unwrap_or(0.0);
-        let down = inputs.get(1).copied().unwrap_or(0.0);
+        let trigger = inputs.first().copied().unwrap_or(0.0);
+        let input_dir = inputs.get(1).copied().unwrap_or(0.0);
         let reset = inputs.get(2).copied().unwrap_or(0.0);
-        let prev_up = prev_inputs.first().copied().unwrap_or(0.0);
-        let prev_down = prev_inputs.get(1).copied().unwrap_or(0.0);
-        let min_val = params.first().copied().unwrap_or(f64::MIN);
-        let max_val = params.get(1).copied().unwrap_or(f64::MAX);
+        let prev_trigger = prev_inputs.first().copied().unwrap_or(0.0);
+
+        let start_value = params.first().copied().unwrap_or(0.0);
+        let on_value = params.get(1).copied().unwrap_or(10.0);
+        let off_value = params.get(2).copied().unwrap_or(5.0);
 
         if is_high(reset) {
-            self.count = 0.0;
-        } else {
-            if !is_high(prev_up) && is_high(up) {
+            self.count = start_value;
+            self.q_state = false;
+        } else if !is_high(prev_trigger) && is_high(trigger) {
+            if input_dir < 0.5 {
                 self.count += 1.0;
-            }
-            if !is_high(prev_down) && is_high(down) {
+            } else {
                 self.count -= 1.0;
             }
-            self.count = self.count.clamp(min_val, max_val);
         }
 
-        vec![self.count, bool_signal(self.count > 0.0)]
+        // Hysteresis for Q output
+        if self.count >= on_value {
+            self.q_state = true;
+        } else if self.count <= off_value {
+            self.q_state = false;
+        }
+
+        vec![bool_signal(self.q_state), self.count]
     }
 
     fn state(&self) -> Option<Vec<u8>> {
-        Some(serialize_f64s(&[self.count]))
+        Some(serialize_f64s(&[self.count, bool_signal(self.q_state)]))
     }
 
     fn restore(&mut self, state: &[u8]) {
-        if let Some(values) = deserialize_f64s(state, 1) {
+        if let Some(values) = deserialize_f64s(state, 2) {
             self.count = values[0];
+            self.q_state = is_high(values[1]);
         }
     }
 
@@ -946,39 +962,69 @@ mod tests {
     #[test]
     fn up_down_counter_increments_and_decrements() {
         let mut block = UpDownCounter::new();
-        // Up edge
-        let out = block.eval(&[1.0, 0.0, 0.0], &[], 0.0, &[0.0, 0.0, 0.0]);
-        assert_eq!(out[0], 1.0);
-        assert_eq!(out[1], 1.0); // Q = count > 0
-                                 // Another up edge
-        let out = block.eval(&[0.0, 0.0, 0.0], &[], 0.0, &[1.0, 0.0, 0.0]);
-        assert_eq!(out[0], 1.0);
-        let out = block.eval(&[1.0, 0.0, 0.0], &[], 0.0, &[0.0, 0.0, 0.0]);
-        assert_eq!(out[0], 2.0);
-        // Down edge
-        let out = block.eval(&[0.0, 1.0, 0.0], &[], 0.0, &[1.0, 0.0, 0.0]);
-        assert_eq!(out[0], 1.0);
-        // Reset
-        let out = block.eval(&[0.0, 0.0, 1.0], &[], 0.0, &[0.0, 1.0, 0.0]);
-        assert_eq!(out[0], 0.0);
-        assert_eq!(out[1], 0.0); // Q = 0
+        // Trigger rising edge, InputDir=0 (up) → count=1
+        let out = block.eval(&[1.0, 0.0, 0.0], &[0.0, 3.0, 1.0], 0.0, &[0.0, 0.0, 0.0]);
+        assert_eq!(out[1], 1.0); // AQ = count
+        assert_eq!(out[0], 0.0); // Q=0 (1 < OnValue=3)
+
+        // Release trigger
+        block.eval(&[0.0, 0.0, 0.0], &[0.0, 3.0, 1.0], 0.0, &[1.0, 0.0, 0.0]);
+        // Trigger again → count=2
+        let out = block.eval(&[1.0, 0.0, 0.0], &[0.0, 3.0, 1.0], 0.0, &[0.0, 0.0, 0.0]);
+        assert_eq!(out[1], 2.0);
+
+        // Release, trigger again → count=3, Q turns ON (3 >= OnValue=3)
+        block.eval(&[0.0, 0.0, 0.0], &[0.0, 3.0, 1.0], 0.0, &[1.0, 0.0, 0.0]);
+        let out = block.eval(&[1.0, 0.0, 0.0], &[0.0, 3.0, 1.0], 0.0, &[0.0, 0.0, 0.0]);
+        assert_eq!(out[1], 3.0);
+        assert_eq!(out[0], 1.0); // Q=1
+
+        // Count down: InputDir=1, trigger → count=2, Q stays ON (hysteresis: 2 > OffValue=1)
+        block.eval(&[0.0, 1.0, 0.0], &[0.0, 3.0, 1.0], 0.0, &[1.0, 0.0, 0.0]);
+        let out = block.eval(&[1.0, 1.0, 0.0], &[0.0, 3.0, 1.0], 0.0, &[0.0, 1.0, 0.0]);
+        assert_eq!(out[1], 2.0);
+        assert_eq!(out[0], 1.0); // Q still ON (hysteresis)
+
+        // Count down again → count=1, Q turns OFF (1 <= OffValue=1)
+        block.eval(&[0.0, 1.0, 0.0], &[0.0, 3.0, 1.0], 0.0, &[1.0, 1.0, 0.0]);
+        let out = block.eval(&[1.0, 1.0, 0.0], &[0.0, 3.0, 1.0], 0.0, &[0.0, 1.0, 0.0]);
+        assert_eq!(out[1], 1.0);
+        assert_eq!(out[0], 0.0); // Q=0
+
+        // Reset sets AQ=StartValue=0, Q=0
+        let out = block.eval(&[0.0, 0.0, 1.0], &[0.0, 3.0, 1.0], 0.0, &[1.0, 1.0, 0.0]);
+        assert_eq!(out[1], 0.0); // AQ = StartValue
+        assert_eq!(out[0], 0.0); // Q = 0
     }
 
     #[test]
-    fn up_down_counter_respects_min_max() {
+    fn up_down_counter_hysteresis() {
         let mut block = UpDownCounter::new();
-        // Min=0, max=2
-        block.eval(&[1.0, 0.0, 0.0], &[0.0, 2.0], 0.0, &[0.0, 0.0, 0.0]);
-        block.eval(&[0.0, 0.0, 0.0], &[0.0, 2.0], 0.0, &[1.0, 0.0, 0.0]);
-        block.eval(&[1.0, 0.0, 0.0], &[0.0, 2.0], 0.0, &[0.0, 0.0, 0.0]);
-        block.eval(&[0.0, 0.0, 0.0], &[0.0, 2.0], 0.0, &[1.0, 0.0, 0.0]);
-        let out = block.eval(&[1.0, 0.0, 0.0], &[0.0, 2.0], 0.0, &[0.0, 0.0, 0.0]);
-        assert_eq!(out[0], 2.0); // clamped at max
+        // Params: StartValue=0, OnValue=10, OffValue=5 (defaults)
+        // Count up to 10 → Q turns ON
+        for i in 0..10 {
+            let prev = if i == 0 { 0.0 } else { 1.0 };
+            block.eval(&[0.0, 0.0, 0.0], &[], 0.0, &[prev, 0.0, 0.0]);
+            block.eval(&[1.0, 0.0, 0.0], &[], 0.0, &[0.0, 0.0, 0.0]);
+        }
+        let out = block.eval(&[0.0, 0.0, 0.0], &[], 0.0, &[1.0, 0.0, 0.0]);
+        assert_eq!(out[1], 10.0); // AQ=10
+        assert_eq!(out[0], 1.0); // Q=1 (10 >= OnValue=10)
 
-        // Try to go below min
-        block.eval(&[0.0, 0.0, 1.0], &[0.0, 2.0], 0.0, &[1.0, 0.0, 0.0]);
-        let out = block.eval(&[0.0, 1.0, 0.0], &[0.0, 2.0], 0.0, &[0.0, 0.0, 1.0]);
-        assert_eq!(out[0], 0.0); // clamped at min
+        // Count down to 6 → Q stays ON (6 > OffValue=5)
+        for _ in 0..4 {
+            block.eval(&[0.0, 1.0, 0.0], &[], 0.0, &[0.0, 0.0, 0.0]);
+            block.eval(&[1.0, 1.0, 0.0], &[], 0.0, &[0.0, 1.0, 0.0]);
+        }
+        let out = block.eval(&[0.0, 1.0, 0.0], &[], 0.0, &[1.0, 1.0, 0.0]);
+        assert_eq!(out[1], 6.0);
+        assert_eq!(out[0], 1.0); // Q still ON
+
+        // Count down to 5 → Q turns OFF (5 <= OffValue=5)
+        block.eval(&[1.0, 1.0, 0.0], &[], 0.0, &[0.0, 1.0, 0.0]);
+        let out = block.eval(&[0.0, 1.0, 0.0], &[], 0.0, &[1.0, 1.0, 0.0]);
+        assert_eq!(out[1], 5.0);
+        assert_eq!(out[0], 0.0); // Q OFF
     }
 
     #[test]
@@ -1099,14 +1145,16 @@ mod tests {
     #[test]
     fn up_down_counter_state_roundtrip() {
         let mut b = UpDownCounter::new();
+        // Count up twice: Trigger edges with InputDir=0 (up)
         b.eval(&[1.0, 0.0, 0.0], &[], 0.0, &[0.0, 0.0, 0.0]);
         b.eval(&[0.0, 0.0, 0.0], &[], 0.0, &[1.0, 0.0, 0.0]);
         b.eval(&[1.0, 0.0, 0.0], &[], 0.0, &[0.0, 0.0, 0.0]);
         let state = b.state().unwrap();
         let mut b2 = UpDownCounter::new();
         b2.restore(&state);
+        // After restore, AQ (out[1]) should still be 2.0
         assert_eq!(
-            b2.eval(&[0.0, 0.0, 0.0], &[], 0.0, &[1.0, 0.0, 0.0])[0],
+            b2.eval(&[0.0, 0.0, 0.0], &[], 0.0, &[1.0, 0.0, 0.0])[1],
             2.0
         );
     }
