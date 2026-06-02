@@ -901,7 +901,8 @@
           ]
         }
       ]
-    }
+    },
+    "hint": "Step-by-step plan:\n1. lox config add --type Or --title 'Abwesenheit Oder' --room Flur FILE\n2. Wire all presence detectors to the Or gate: wire FILE 'Abwesenheit Oder.I1' 'Bewegungsmelder.OutputPresence'\n3. lox config add --type Not --title 'Keine Anwesenheit' --room Flur FILE\n4. wire FILE 'Keine Anwesenheit.I' 'Abwesenheit Oder.Q'\n5. lox config add --type OffDelay --title 'Abwesenheit Timer' --room Flur FILE\n6. set-param FILE 'Abwesenheit Timer' Time 1800\n7. wire FILE 'Abwesenheit Timer.Input' 'Keine Anwesenheit.Q'\n8. lox config add --type EdgeDetection --title 'Abgang Puls' --room Flur FILE\n9. wire FILE 'Abgang Puls.Input' 'Abwesenheit Timer.Q'\n10. wire FILE 'Statusblock.I' 'Abgang Puls.RisingEdge'"
   },
   {
     "id": "bhe-013-pv-forecast",

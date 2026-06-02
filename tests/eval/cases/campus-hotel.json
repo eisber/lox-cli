@@ -161,7 +161,8 @@
           ]
         }
       ]
-    }
+    },
+    "hint": "Step-by-step plan:\n1. The fixture has 'Gäste NFC' (NfcCodeTouch) in Schlafzimmer and 'Bewegungsmelder' (PresenceDetector) in Flur\n2. lox config add --type EdgeDetection --title 'Karte Erkennung' --room Flur FILE\n3. wire FILE 'Karte Erkennung.Input' 'Gäste NFC.Q1'\n4. wire FILE 'Lichtsteuerung [Flur].Presence' 'Karte Erkennung.RisingEdge'\n5. wire FILE 'Lichtsteuerung [Flur].Sel2' 'Karte Erkennung.RisingEdge'"
   },
   {
     "id": "ch-003",
@@ -484,7 +485,8 @@
           ]
         }
       ]
-    }
+    },
+    "hint": "Step-by-step plan:\n1. lox config add --type FlipFlop --title 'Checkout Sperre' --room Schlafzimmer FILE\n2. lox config add --type EdgeDetection --title 'Karte Puls' --room Schlafzimmer FILE\n3. wire FILE 'Karte Puls.Input' 'Gäste NFC.Q1'\n4. wire FILE 'Checkout Sperre.Set' 'Karte Puls.FallingEdge'  -- card removal sets latch\n5. wire FILE 'Checkout Sperre.Reset' 'Karte Puls.RisingEdge'  -- new card resets latch\n6. wire FILE 'Statusblock.I' 'Checkout Sperre.Q'"
   },
   {
     "id": "ch-008",
@@ -972,7 +974,8 @@
           }
         }
       ]
-    }
+    },
+    "hint": "Step-by-step plan:\n1. lox config add --type Not --title 'Keine Präsenz' --room Flur FILE\n2. wire FILE 'Keine Präsenz.I' 'Bewegungsmelder.OutputPresence'\n3. lox config add --type EdgeDetection --title 'Karte Puls' --room Schlafzimmer FILE\n4. wire FILE 'Karte Puls.Input' 'Gäste NFC.Q1'\n5. lox config add --type And --title 'Verlassen Check' --room Schlafzimmer FILE\n6. wire FILE 'Verlassen Check.I1' 'Keine Präsenz.Q'\n7. wire FILE 'Verlassen Check.I2' 'Karte Puls.FallingEdge'  -- card out = NOT output from NFC\n8. lox config add --type OnPulseDelay --title 'Verlassen Timer' --room Schlafzimmer FILE\n9. set-param FILE 'Verlassen Timer' Time 30\n10. wire FILE 'Verlassen Timer.InputTrigger' 'Verlassen Check.Q'\n11. wire FILE 'Lichtsteuerung [Schlafzimmer].Reset' 'Verlassen Timer.Q'"
   },
   {
     "id": "ch-014",

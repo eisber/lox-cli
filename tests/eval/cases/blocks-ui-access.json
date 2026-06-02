@@ -282,7 +282,8 @@
           }
         }
       ]
-    }
+    },
+    "hint": "Step-by-step plan:\n1. The fixture has 'Türschloss' (StateV) in Flur\n2. lox config add --type AccessControl --title 'Zugangskontrolle' --room Flur FILE\n   If AccessControl is not available, use a Code4 block\n3. lox config add --type Monoflop --title 'Tür Timer' --room Flur FILE\n4. set-param FILE 'Tür Timer' Duration 10\n5. wire FILE 'Tür Timer.InputTrigger' 'Zugangskontrolle.Q'\n6. wire FILE 'Türschloss.I' 'Tür Timer.Q'"
   },
   {
     "id": "ua04-media-auto-pause",
