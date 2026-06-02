@@ -175,7 +175,38 @@ def _load_skill(name: str) -> str:
     return text
 
 
-def build_llm_prompt(case, config_path: str) -> str:
+def _build_instructions(case: dict, config_path: str) -> str:
+    """Build workflow instructions, incorporating hints if available."""
+    hint_block = ""
+    if case.get("hint"):
+        hint_block = f"""
+## Recommended Approach (follow these steps closely)
+{case['hint'].replace('FILE', config_path)}
+"""
+
+    return f"""\
+{hint_block}
+## Your Workflow (follow this EXACT order)
+
+1. **SEARCH**: Find block types: `lox blocks search "keyword" -o json`
+2. **ADD**: Create all needed blocks with `lox config add`
+3. **⚠ WIRE (CRITICAL)**: Wire EVERY connection with `lox config wire-connector`.
+   - Every logic block output MUST connect to the next block or actuator
+   - Every logic block input MUST connect from a sensor or upstream block
+   - A block with unwired outputs does NOTHING — the circuit is broken
+   - Run `lox config check {config_path}` — if it shows "unwired input" errors, ADD MORE WIRES
+4. **PARAMS**: Set all parameters: `lox config set-param`
+5. **CHECK**: `lox config check {config_path}` — zero errors required
+6. **DONE**: Output the word DONE
+
+## Rules
+- Output `lox` commands one per line
+- You may output multiple rounds of commands — each will be executed
+- After executing, you'll see the stdout/stderr of each command
+- ⚠ NEVER skip wiring — blocks without wires are useless
+- When satisfied, output the single word: DONE
+- Do NOT explain — just output commands or DONE
+"""
     config_skill = _load_skill("loxone-config")
     fixture_desc = _describe_fixture(config_path)
 
@@ -189,28 +220,7 @@ File: {config_path}
 
 ## Task
 {case['utterance']}
-
-## Your Workflow (follow this order)
-
-1. **SEARCH**: Start by finding the right block types:
-   `lox blocks search "relevant keywords" -o json`
-
-2. **BUILD**: Add blocks, set params, wire connectors
-
-3. **CHECK**: Run `lox config check {config_path}` — fix any warnings/errors
-
-4. **TEST**: Run `lox sim run {config_path} --sim '...'` — verify signals propagate
-
-5. **FIX**: If sim fails, inspect with `lox sim dump` and fix wiring/blocks
-
-6. **DONE**: When sim passes and check is clean, output: DONE
-
-## Rules
-- Output `lox` commands one per line
-- You may output multiple rounds of commands — each will be executed
-- After executing, you'll see the stdout/stderr of each command
-- When satisfied, output the single word: DONE
-- Do NOT explain — just output commands or DONE
+{_build_instructions(case, config_path)}
 """
 
 
@@ -336,6 +346,28 @@ def run_case(case, work_dir: Path, client, model: str, verbose: bool = False):
 
         check_stdout = check_out[-1].get("stdout", "") if check_out else ""
         has_check_errors = "✗" in check_stdout
+
+        # Auto-detect orphaned blocks: if agent added blocks but no wire commands
+        has_add = any("config add" in c for c in commands)
+        has_wire = any("wire-connector" in c or "config wire " in c for c in commands)
+        if has_add and not has_wire and attempt < MAX_RETRIES:
+            tracker.retries += 1
+            wiring_prompt = (
+                "⚠ CRITICAL: You created blocks but did NOT wire any of them!\n"
+                "Blocks without wires are useless — the circuit is completely broken.\n\n"
+                f"## Validation Output\n{check_stdout}\n\n"
+                "## Instructions\n"
+                "You MUST add `lox config wire-connector` commands to connect:\n"
+                "- Each sensor output to the logic block input\n"
+                "- Each logic block output to the next block or actuator\n"
+                "- Use: `lox config wire-connector FILE \"Target.Input\" \"Source.Output\"`\n"
+                f"- Run `lox sim dump {config_path}` to see all blocks and find connector names\n\n"
+                f"The config file is: {config_path}\n"
+                "Respond ONLY with `lox config wire-connector` commands, one per line."
+            )
+            messages.append({"role": "assistant", "content": reply})
+            messages.append({"role": "user", "content": wiring_prompt})
+            continue
 
         # If check has errors, retry with check feedback
         if has_check_errors and attempt < MAX_RETRIES:
