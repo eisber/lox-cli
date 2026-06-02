@@ -475,7 +475,11 @@ fn block_signature(
         ),
         "Gain" => (&["I1"], &["Q"], &["Factor"]),
         "Greater" | "GreaterEqual" | "Less" | "LessEqual" => (&["Input1", "Input2"], &["Q"], &[]),
-        "LongClick" => (&["InputTrigger", "Reset"], &["Q2"], &["Max"]),
+        "LongClick" => (
+            &["InputTrigger", "Reset"],
+            &["Q1", "Q2", "Q3", "Q4", "AQ"],
+            &["Time", "V1", "V2", "V3", "V4"],
+        ),
         "Monoflop" => (&["InputTrigger"], &["Q"], &["Time"]),
         "Minmax" => (
             &["Input1", "Input2", "Input3", "Input4"],
@@ -1002,7 +1006,7 @@ fn block_signature(
         ),
         "Sequencer" => (
             &["InputTrigger", "InputPos", "Reset", "InputDisable"],
-            &["Q1", "Q2", "AQ"],
+            &["Q1", "Q2", "Q3", "Q4", "Q5", "Q6", "Q7", "Q8", "AQ"],
             &["Max", "Def"],
         ),
         "Tablet" | "Device Tablet" => (

@@ -466,7 +466,11 @@ fn block_connectors(block_type: &str) -> (Vec<&'static str>, Vec<&'static str>, 
         "MultiClick" => (vec!["InputTrigger"], vec!["Q1", "Q2", "Q3"], vec!["Time"]),
         "PushDimmer" => (vec!["InputTrigger"], vec!["AQ"], vec!["Min", "Max"]),
         "StepSel" => (vec!["InputTrigger", "Reset"], vec!["AQ"], vec!["Steps"]),
-        "Sequencer" => (vec!["InputTrigger", "Reset"], vec!["AQ"], vec!["Steps"]),
+        "Sequencer" => (
+            vec!["InputTrigger", "InputPos", "Reset", "InputDisable"],
+            vec!["Q1", "Q2", "Q3", "Q4", "Q5", "Q6", "Q7", "Q8", "AQ"],
+            vec!["Max", "Def"],
+        ),
         "LoadShed" => (vec!["I1"], vec!["Q"], vec!["Limit"]),
         "Fronius" | "PVProductionForecast" => (vec!["Input"], vec!["AQ"], vec![]),
         // All remaining types get a minimal I1 → Q passthrough schema.

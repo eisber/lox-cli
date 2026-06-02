@@ -756,50 +756,100 @@ impl Block for PulseBy {
 #[derive(Clone, Default)]
 pub struct LongClick {
     hold_time: f64,
-    fired: bool,
+    pulse_remaining: f64,
+    fired_q: usize, // which Q fired (0=none, 1-4)
 }
 
 impl LongClick {
     pub fn new() -> Self {
-        Self::default()
+        Self {
+            hold_time: 0.0,
+            pulse_remaining: 0.0,
+            fired_q: 0,
+        }
     }
 }
 
 impl Block for LongClick {
-    /// Inputs: [button]
-    /// Params: [threshold_seconds (default 1.0)]
-    /// Outputs: [long_click_detected]
+    /// Inputs: [InputTrigger, Reset]
+    /// Params: [Time (TI, default 0.35), V1, V2, V3, V4]
+    /// Outputs: [Q1, Q2, Q3, Q4, AQ]
     fn eval(
         &mut self,
         inputs: &[Signal],
         params: &[Signal],
         dt: f64,
-        _prev: &[Signal],
+        prev: &[Signal],
     ) -> Vec<Signal> {
-        let pressed = is_high(inputs.first().copied().unwrap_or(0.0));
-        let threshold = params.first().copied().unwrap_or(1.0).max(0.0);
+        let current = inputs.first().copied().unwrap_or(0.0);
+        let reset = inputs.get(1).copied().unwrap_or(0.0);
+
+        let ti = params.first().copied().unwrap_or(0.35).max(0.001);
+        let v1 = params.get(1).copied().unwrap_or(1.0);
+        let v2 = params.get(2).copied().unwrap_or(1.0);
+        let v3 = params.get(3).copied().unwrap_or(1.0);
+        let v4 = params.get(4).copied().unwrap_or(1.0);
+        let values = [v1, v2, v3, v4];
+
+        if is_high(reset) {
+            self.hold_time = 0.0;
+            self.pulse_remaining = 0.0;
+            self.fired_q = 0;
+            return vec![0.0; 5];
+        }
+
+        let pressed = is_high(current);
+        let was_pressed = is_high(prev.first().copied().unwrap_or(0.0));
 
         if pressed {
             self.hold_time += dt;
-            if self.hold_time >= threshold && !self.fired {
-                self.fired = true;
-                return vec![1.0];
-            }
-        } else {
+        } else if was_pressed && !pressed {
+            // Falling edge — determine which Q to fire
+            let hold = self.hold_time;
+            self.fired_q = if hold <= ti {
+                1
+            } else if hold <= 2.0 * ti {
+                2
+            } else if hold <= 3.0 * ti {
+                3
+            } else {
+                4
+            };
+            self.pulse_remaining = 0.1;
             self.hold_time = 0.0;
-            self.fired = false;
         }
 
-        vec![0.0]
+        if self.pulse_remaining > 0.0 {
+            self.pulse_remaining -= dt;
+            let mut out = vec![0.0; 5];
+            let q = self.fired_q;
+            if (1..=4).contains(&q) {
+                out[q - 1] = 1.0;
+                out[4] = values[q - 1];
+            }
+            if self.pulse_remaining <= 0.0 {
+                self.pulse_remaining = 0.0;
+                self.fired_q = 0;
+            }
+            return out;
+        }
+
+        vec![0.0; 5]
     }
 
     fn state(&self) -> Option<Vec<u8>> {
-        Some(serialize_f64s(&[self.hold_time]))
+        Some(serialize_f64s(&[
+            self.hold_time,
+            self.pulse_remaining,
+            self.fired_q as f64,
+        ]))
     }
 
     fn restore(&mut self, state: &[u8]) {
-        if let Some(v) = deserialize_f64s(state, 1) {
+        if let Some(v) = deserialize_f64s(state, 3) {
             self.hold_time = v[0];
+            self.pulse_remaining = v[1];
+            self.fired_q = v[2] as usize;
         }
     }
 
@@ -808,6 +858,10 @@ impl Block for LongClick {
     }
 
     fn is_time_dependent(&self) -> bool {
+        true
+    }
+
+    fn is_edge_sensitive(&self) -> bool {
         true
     }
 }
@@ -1079,18 +1133,26 @@ impl Block for StepSel {
 // Sequencer
 // ---------------------------------------------------------------------------
 
-// WARNING: Simplified model — real Loxone behavior may differ.
-// Steps through stored values on each trigger. Values set via params.
-
-/// Sequencer: outputs stored values in sequence on each trigger.
+/// Sequencer: cycles through positions on trigger, activating one Q output at a time.
+///
+/// Inputs: \[InputTrigger, InputPos, Reset, InputDisable\]
+/// Outputs: \[Q1..Q8, AQ\]
+/// Params: \[Max, Def\]
+///
+/// - InputTrigger rising edge: advance to next position (1→2→...→Max→1)
+/// - InputPos: analog 0–Max, selects position directly when > 0.5
+/// - Reset rising edge: set position to Def (0 = all off)
+/// - InputDisable high: ignore InputTrigger and InputPos
+/// - Q1–Q8: binary, only the current position's output is high
+/// - AQ: current position (1-based), 0 when all off
 #[derive(Clone)]
 pub struct Sequencer {
-    step: usize,
+    position: usize, // 0 = all off, 1..=max = active output
 }
 
 impl Sequencer {
     pub fn new() -> Self {
-        Self { step: 0 }
+        Self { position: 0 }
     }
 }
 
@@ -1101,9 +1163,6 @@ impl Default for Sequencer {
 }
 
 impl Block for Sequencer {
-    /// Inputs: [trigger, reset]
-    /// Params: [val0, val1, val2, ...] — sequence values
-    /// Outputs: [current_value, step_index]
     fn eval(
         &mut self,
         inputs: &[Signal],
@@ -1111,32 +1170,49 @@ impl Block for Sequencer {
         _dt: f64,
         prev_inputs: &[Signal],
     ) -> Vec<Signal> {
+        let max = (params.first().copied().unwrap_or(8.0) as usize).clamp(1, 20);
+        let def = (params.get(1).copied().unwrap_or(0.0) as usize).min(max);
+
         let trigger = inputs.first().copied().unwrap_or(0.0);
         let prev_trigger = prev_inputs.first().copied().unwrap_or(0.0);
-        let reset = inputs.get(1).copied().unwrap_or(0.0);
+        let input_pos = inputs.get(1).copied().unwrap_or(0.0);
+        let reset = inputs.get(2).copied().unwrap_or(0.0);
+        let prev_reset = prev_inputs.get(2).copied().unwrap_or(0.0);
+        let disable = inputs.get(3).copied().unwrap_or(0.0);
 
-        if is_high(reset) {
-            self.step = 0;
-        } else if !is_high(prev_trigger) && is_high(trigger) && !params.is_empty() {
-            self.step = (self.step + 1) % params.len();
+        // Reset on rising edge
+        if !is_high(prev_reset) && is_high(reset) {
+            self.position = def;
         }
 
-        let value = if params.is_empty() {
-            0.0
-        } else {
-            params[self.step % params.len()]
-        };
+        if !is_high(disable) {
+            // InputTrigger rising edge: cycle forward
+            if !is_high(prev_trigger) && is_high(trigger) {
+                self.position = (self.position % max) + 1;
+            }
 
-        vec![value, self.step as f64]
+            // InputPos: direct position select (analog value)
+            if input_pos > 0.5 {
+                self.position = (input_pos.round() as usize).clamp(0, max);
+            }
+        }
+
+        // Build outputs: Q1..Q8 (binary) + AQ (analog position)
+        let mut out = Vec::with_capacity(9);
+        for i in 1..=8usize {
+            out.push(if i == self.position { 1.0 } else { 0.0 });
+        }
+        out.push(self.position as f64);
+        out
     }
 
     fn state(&self) -> Option<Vec<u8>> {
-        Some(serialize_f64s(&[self.step as f64]))
+        Some(serialize_f64s(&[self.position as f64]))
     }
 
     fn restore(&mut self, state: &[u8]) {
         if let Some(v) = deserialize_f64s(state, 1) {
-            self.step = v[0] as usize;
+            self.position = v[0] as usize;
         }
     }
 
@@ -2304,22 +2380,87 @@ mod tests {
     // --- LongClick ---
 
     #[test]
-    fn long_click_detects_hold() {
+    fn long_click_short_press_fires_q1() {
         let mut block = LongClick::new();
-        // Press and hold
-        let out = block.eval(&[1.0], &[1.0], 0.5, &[]);
-        assert_eq!(out[0], 0.0); // not yet
+        let ti = 0.35;
+        // Press and hold for less than TI
+        let out = block.eval(&[1.0], &[ti], 0.2, &[0.0]);
+        assert_eq!(out, vec![0.0; 5]); // still held, no output
 
-        let out = block.eval(&[1.0], &[1.0], 0.5, &[]);
-        assert_eq!(out[0], 1.0); // threshold reached
+        // Release (falling edge) — hold 0.2s ≤ TI → Q1
+        let out = block.eval(&[0.0], &[ti], 0.1, &[1.0]);
+        assert_eq!(out[0], 1.0, "Q1 should pulse");
+        assert_eq!(out[1], 0.0, "Q2 should be off");
+        assert_eq!(out[4], 1.0, "AQ should be V1 (default 1.0)");
+    }
 
-        let out = block.eval(&[1.0], &[1.0], 0.5, &[]);
-        assert_eq!(out[0], 0.0); // already fired
+    #[test]
+    fn long_click_medium_press_fires_q2() {
+        let mut block = LongClick::new();
+        let ti = 0.35;
+        // Hold for TI < hold ≤ 2*TI (0.5s)
+        block.eval(&[1.0], &[ti], 0.5, &[0.0]);
+        // Release
+        let out = block.eval(&[0.0], &[ti], 0.1, &[1.0]);
+        assert_eq!(out[0], 0.0, "Q1 should be off");
+        assert_eq!(out[1], 1.0, "Q2 should pulse");
+        assert_eq!(out[4], 1.0, "AQ should be V2 (default 1.0)");
+    }
 
-        // Release and re-press
-        block.eval(&[0.0], &[1.0], 0.0, &[]);
-        let out = block.eval(&[1.0], &[1.0], 1.0, &[]);
-        assert_eq!(out[0], 1.0); // fires again
+    #[test]
+    fn long_click_long_press_fires_q3() {
+        let mut block = LongClick::new();
+        let ti = 0.35;
+        // Hold for 2*TI < hold ≤ 3*TI (0.8s)
+        block.eval(&[1.0], &[ti], 0.8, &[0.0]);
+        let out = block.eval(&[0.0], &[ti], 0.1, &[1.0]);
+        assert_eq!(out[2], 1.0, "Q3 should pulse");
+    }
+
+    #[test]
+    fn long_click_very_long_press_fires_q4() {
+        let mut block = LongClick::new();
+        let ti = 0.35;
+        // Hold for > 3*TI (1.2s)
+        block.eval(&[1.0], &[ti], 1.2, &[0.0]);
+        let out = block.eval(&[0.0], &[ti], 0.1, &[1.0]);
+        assert_eq!(out[3], 1.0, "Q4 should pulse");
+    }
+
+    #[test]
+    fn long_click_pulse_decays() {
+        let mut block = LongClick::new();
+        let ti = 0.35;
+        // Short press + release
+        block.eval(&[1.0], &[ti], 0.2, &[0.0]);
+        let out = block.eval(&[0.0], &[ti], 0.1, &[1.0]);
+        assert_eq!(out[0], 1.0, "Q1 pulse active");
+
+        // After pulse duration expires
+        let out = block.eval(&[0.0], &[ti], 0.1, &[0.0]);
+        assert_eq!(out, vec![0.0; 5], "all outputs should be zero after pulse");
+    }
+
+    #[test]
+    fn long_click_reset_clears_state() {
+        let mut block = LongClick::new();
+        let ti = 0.35;
+        // Hold button
+        block.eval(&[1.0], &[ti], 0.5, &[0.0]);
+        // Reset while held
+        let out = block.eval(&[1.0, 1.0], &[ti], 0.1, &[1.0]);
+        assert_eq!(out, vec![0.0; 5], "reset should clear everything");
+    }
+
+    #[test]
+    fn long_click_custom_v_params() {
+        let mut block = LongClick::new();
+        let ti = 0.35;
+        let params = &[ti, 10.0, 20.0, 30.0, 40.0]; // V1-V4
+        block.eval(&[1.0], params, 0.2, &[0.0]);
+        let out = block.eval(&[0.0], params, 0.1, &[1.0]);
+        assert_eq!(out[0], 1.0, "Q1 fires");
+        assert_eq!(out[4], 10.0, "AQ should be V1=10.0");
     }
 
     // --- MultiClick ---
@@ -2380,19 +2521,70 @@ mod tests {
     // --- Sequencer ---
 
     #[test]
-    fn sequencer_steps_through_values() {
+    fn sequencer_steps_through_outputs() {
         let mut block = Sequencer::new();
-        let out = block.eval(&[1.0, 0.0], &[10.0, 20.0, 30.0], 0.0, &[0.0]);
-        assert_eq!(out[0], 20.0);
-        assert_eq!(out[1], 1.0);
+        let params = [4.0, 0.0]; // Max=4, Def=0
 
-        let out = block.eval(&[1.0, 0.0], &[10.0, 20.0, 30.0], 0.0, &[0.0]);
-        assert_eq!(out[0], 30.0);
-        assert_eq!(out[1], 2.0);
+        // Rising edge on InputTrigger: position goes 0→1
+        let out = block.eval(&[1.0, 0.0, 0.0, 0.0], &params, 0.0, &[0.0, 0.0, 0.0, 0.0]);
+        assert_eq!(out[0], 1.0); // Q1 active
+        assert_eq!(out[1], 0.0); // Q2 off
+        assert_eq!(out[8], 1.0); // AQ = 1
 
-        let out = block.eval(&[1.0, 0.0], &[10.0, 20.0, 30.0], 0.0, &[0.0]);
-        assert_eq!(out[0], 10.0); // wraps
-        assert_eq!(out[1], 0.0);
+        // Another trigger: 1→2
+        let out = block.eval(&[1.0, 0.0, 0.0, 0.0], &params, 0.0, &[0.0, 0.0, 0.0, 0.0]);
+        assert_eq!(out[0], 0.0); // Q1 off
+        assert_eq!(out[1], 1.0); // Q2 active
+        assert_eq!(out[8], 2.0); // AQ = 2
+
+        // Trigger at max wraps: 4→1
+        block.position = 4;
+        let out = block.eval(&[1.0, 0.0, 0.0, 0.0], &params, 0.0, &[0.0, 0.0, 0.0, 0.0]);
+        assert_eq!(out[0], 1.0); // Q1 active (wrapped)
+        assert_eq!(out[8], 1.0); // AQ = 1
+    }
+
+    #[test]
+    fn sequencer_reset_uses_def() {
+        let mut block = Sequencer::new();
+        block.position = 3;
+        let params = [8.0, 2.0]; // Max=8, Def=2
+
+        // Reset rising edge sets position to Def=2
+        let out = block.eval(&[0.0, 0.0, 1.0, 0.0], &params, 0.0, &[0.0, 0.0, 0.0, 0.0]);
+        assert_eq!(out[1], 1.0); // Q2 active
+        assert_eq!(out[8], 2.0); // AQ = 2
+
+        // Reset with Def=0 turns all off
+        let params_def0 = [8.0, 0.0];
+        let out = block.eval(&[0.0, 0.0, 1.0, 0.0], &params_def0, 0.0, &[0.0, 0.0, 0.0, 0.0]);
+        assert_eq!(out[0], 0.0); // all Q off
+        assert_eq!(out[8], 0.0); // AQ = 0
+    }
+
+    #[test]
+    fn sequencer_disable_blocks_trigger() {
+        let mut block = Sequencer::new();
+        let params = [8.0, 0.0];
+
+        // InputDisable high: trigger ignored
+        let out = block.eval(&[1.0, 0.0, 0.0, 1.0], &params, 0.0, &[0.0, 0.0, 0.0, 0.0]);
+        assert_eq!(out[8], 0.0); // AQ stays 0
+    }
+
+    #[test]
+    fn sequencer_input_pos_selects_directly() {
+        let mut block = Sequencer::new();
+        let params = [8.0, 0.0];
+
+        // InputPos = 5 selects position 5
+        let out = block.eval(&[0.0, 5.0, 0.0, 0.0], &params, 0.0, &[0.0, 0.0, 0.0, 0.0]);
+        assert_eq!(out[4], 1.0); // Q5 active
+        assert_eq!(out[8], 5.0); // AQ = 5
+
+        // InputPos ignored when disabled
+        let out = block.eval(&[0.0, 3.0, 0.0, 1.0], &params, 0.0, &[0.0, 0.0, 0.0, 0.0]);
+        assert_eq!(out[8], 5.0); // AQ stays 5
     }
 
     // --- Central blocks ---
