@@ -231,43 +231,40 @@ def evaluate_case(case: dict, agent_name: str, work_dir: Path,
     # Structural evaluation
     eval_result = evaluate_correctness(FIXTURE, config_path, case)
 
+    # Standard sim-spec evaluation (deterministic signal checks)
+    sim_result = run_simulation(case_id, case, str(config_path))
+    eval_result["simulation"] = sim_result
+    sim_total = sim_result.get("total_count", 0)
+    sim_passed = sim_result.get("passed_count", 0)
+
+    if sim_total > 0:
+        eval_result["sim_pass"] = sim_result.get("pass", False)
+        eval_result["sim_score"] = sim_passed / sim_total if sim_total else 0
+        sim_pass = sim_result.get("pass", False)
+    else:
+        eval_result["sim_pass"] = None
+        eval_result["sim_score"] = None
+        sim_pass = None
+
     if trace_eval:
         # Trace-based evaluation: probe circuit and judge behavior
         trace_result = evaluate_by_trace(
             str(config_path), case["utterance"],
             agent_backend=agent_name, verbose=verbose,
         )
-        eval_result["pass"] = trace_result["pass"]
-        eval_result["sim_pass"] = trace_result["pass"]
-        eval_result["sim_score"] = (
-            1.0 if trace_result["pass"] else 0.0
-        )
         eval_result["trace_judge"] = trace_result
-        eval_result["simulation"] = {
-            "mode": "trace",
-            "sensor_probes": trace_result["sensor_probes"],
-            "responding_sensors": trace_result["responding_sensors"],
-            "total_count": trace_result["sensor_probes"],
-            "passed_count": trace_result["responding_sensors"],
-            "pass": trace_result["pass"],
-        }
-    else:
-        # Standard sim-spec evaluation (the primary metric)
-        sim_result = run_simulation(case_id, case, str(config_path))
-        eval_result["simulation"] = sim_result
-        sim_total = sim_result.get("total_count", 0)
-        sim_passed = sim_result.get("passed_count", 0)
+        trace_pass = trace_result["pass"]
 
-        if sim_total > 0:
-            eval_result["sim_pass"] = sim_result.get("pass", False)
-            eval_result["sim_score"] = sim_passed / sim_total if sim_total else 0
-            # Simulator outcome is the primary pass criterion
-            eval_result["pass"] = sim_result.get("pass", False)
+        # Hybrid pass: sim specs (if present) AND trace judge must agree
+        if sim_pass is not None:
+            eval_result["pass"] = sim_pass and (trace_pass is True or trace_pass is None)
         else:
-            eval_result["sim_pass"] = None
-            eval_result["sim_score"] = None
-            # No sim specs — fall back to structural score
-            # (eval_result["pass"] already set by evaluate_correctness)
+            eval_result["pass"] = trace_pass if trace_pass is not None else False
+    else:
+        # Sim-only mode
+        if sim_pass is not None:
+            eval_result["pass"] = sim_pass
+        # else: eval_result["pass"] already set by evaluate_correctness
 
     eval_result["case_id"] = case_id
     eval_result["difficulty"] = case.get("difficulty", "medium")
