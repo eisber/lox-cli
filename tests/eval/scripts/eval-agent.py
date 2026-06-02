@@ -51,6 +51,7 @@ _llm_agent = _imp("llm-agent")
 run_simulation = _llm_agent.run_simulation
 
 from trace_eval import evaluate_by_trace
+from property_eval import evaluate_case_by_property
 
 AGENT_TIMEOUT = 600  # 10 minutes per case
 
@@ -194,7 +195,7 @@ def _run_fixture_setup(case: dict, config_path: Path, verbose: bool = False):
 
 def evaluate_case(case: dict, agent_name: str, work_dir: Path,
                   model: str = "gpt-4o", verbose: bool = False,
-                  trace_eval: bool = False) -> dict:
+                  trace_eval: bool = False, property_eval: bool = False) -> dict:
     """Run one eval case: agent → sim → structural eval."""
     case_id = case["id"]
     config_path = work_dir / f"{case_id}.Loxone"
@@ -231,40 +232,55 @@ def evaluate_case(case: dict, agent_name: str, work_dir: Path,
     # Structural evaluation
     eval_result = evaluate_correctness(FIXTURE, config_path, case)
 
-    # Standard sim-spec evaluation (deterministic signal checks)
-    sim_result = run_simulation(case_id, case, str(config_path))
-    eval_result["simulation"] = sim_result
-    sim_total = sim_result.get("total_count", 0)
-    sim_passed = sim_result.get("passed_count", 0)
+    if property_eval:
+        # Property-based evaluation: type+room matching instead of exact names
+        prop_result = evaluate_case_by_property(str(config_path), case)
+        eval_result["property_eval"] = prop_result
+        prop_total = prop_result.get("total", 0)
+        prop_passed = prop_result.get("passed", 0)
 
-    if sim_total > 0:
-        eval_result["sim_pass"] = sim_result.get("pass", False)
-        eval_result["sim_score"] = sim_passed / sim_total if sim_total else 0
-        sim_pass = sim_result.get("pass", False)
-    else:
-        eval_result["sim_pass"] = None
-        eval_result["sim_score"] = None
-        sim_pass = None
-
-    if trace_eval:
-        # Trace-based evaluation: probe circuit and judge behavior
-        trace_result = evaluate_by_trace(
-            str(config_path), case["utterance"],
-            agent_backend=agent_name, verbose=verbose,
-        )
-        eval_result["trace_judge"] = trace_result
-        trace_pass = trace_result["pass"]
-
-        # Hybrid pass: sim specs (if present) AND trace judge must agree
-        if sim_pass is not None:
-            eval_result["pass"] = sim_pass and (trace_pass is True or trace_pass is None)
+        if prop_total > 0:
+            eval_result["sim_pass"] = prop_result.get("pass", False)
+            eval_result["sim_score"] = prop_passed / prop_total if prop_total else 0
+            eval_result["pass"] = prop_result.get("pass", False)
         else:
-            eval_result["pass"] = trace_pass if trace_pass is not None else False
+            eval_result["sim_pass"] = None
+            eval_result["sim_score"] = None
     else:
-        # Sim-only mode
-        if sim_pass is not None:
-            eval_result["pass"] = sim_pass
-        # else: eval_result["pass"] already set by evaluate_correctness
+        # Standard sim-spec evaluation (deterministic signal checks)
+        sim_result = run_simulation(case_id, case, str(config_path))
+        eval_result["simulation"] = sim_result
+        sim_total = sim_result.get("total_count", 0)
+        sim_passed = sim_result.get("passed_count", 0)
+
+        if sim_total > 0:
+            eval_result["sim_pass"] = sim_result.get("pass", False)
+            eval_result["sim_score"] = sim_passed / sim_total if sim_total else 0
+            sim_pass = sim_result.get("pass", False)
+        else:
+            eval_result["sim_pass"] = None
+            eval_result["sim_score"] = None
+            sim_pass = None
+
+        if trace_eval:
+            # Trace-based evaluation: probe circuit and judge behavior
+            trace_result = evaluate_by_trace(
+                str(config_path), case["utterance"],
+                agent_backend=agent_name, verbose=verbose,
+            )
+            eval_result["trace_judge"] = trace_result
+            trace_pass = trace_result["pass"]
+
+            # Hybrid pass: sim specs (if present) AND trace judge must agree
+            if sim_pass is not None:
+                eval_result["pass"] = sim_pass and (trace_pass is True or trace_pass is None)
+            else:
+                eval_result["pass"] = trace_pass if trace_pass is not None else False
+        else:
+            # Sim-only mode
+            if sim_pass is not None:
+                eval_result["pass"] = sim_pass
+            # else: eval_result["pass"] already set by evaluate_correctness
 
     eval_result["case_id"] = case_id
     eval_result["difficulty"] = case.get("difficulty", "medium")
@@ -353,6 +369,10 @@ def main():
         "--trace-eval", action="store_true",
         help="Use trace-based eval: probe circuit behavior instead of pre-written sim specs"
     )
+    parser.add_argument(
+        "--property-eval", action="store_true",
+        help="Use property-based eval: type+room matching instead of exact block names"
+    )
     args = parser.parse_args()
 
     # Pretty-print mode
@@ -383,7 +403,7 @@ def main():
         excluded = set(args.exclude_section)
         cases = [c for c in cases if c.get("_section") not in excluded]
 
-    mode = "trace-eval" if args.trace_eval else "sim-spec"
+    mode = "property-eval" if args.property_eval else ("trace-eval" if args.trace_eval else "sim-spec")
     print(f"Eval Agent — agent={args.agent}  model={args.model}  mode={mode}  cases={len(cases)}  parallel={args.parallel}")
     print(f"Fixture: {FIXTURE}")
     print()
@@ -435,7 +455,7 @@ def main():
         idx, case = idx_case
         result = evaluate_case(
             case, args.agent, work_dir, model=args.model, verbose=args.verbose,
-            trace_eval=args.trace_eval,
+            trace_eval=args.trace_eval, property_eval=args.property_eval,
         )
         is_pass, line = format_result(idx, case["id"], result)
         with print_lock:
