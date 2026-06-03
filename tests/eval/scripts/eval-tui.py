@@ -737,8 +737,12 @@ class EvalTUI:
             try:
                 res = subprocess.run([str(LOX_BIN), "sim", "run", str(cfg), "--sim", json.dumps(sc)],
                                      capture_output=True, text=True, timeout=30)
+                # Filter out harmless structural type warnings
+                _NOISE = {"VirtualInCaption", "WeatherServer", "LightscenesC",
+                          "LightsceneC", "TreeDevice", "LoxAIRDevice"}
                 for w in [line for line in res.stderr.splitlines()
-                          if line.startswith("WARNING:") or line.startswith("warning:")][:3]:
+                          if (line.startswith("WARNING:") or line.startswith("warning:"))
+                          and not any(n in line for n in _NOISE)][:3]:
                     lines.append(f"  ⚠ {w}")
                 for ln in res.stdout.splitlines():
                     ln = ln.strip()
