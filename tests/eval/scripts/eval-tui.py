@@ -174,9 +174,12 @@ class EvalTUI:
         total, passed = len(self.all_rows), sum(1 for r in self.all_rows if r["pass"])
         rate = (passed / total * 100) if total else 0
         fp = []
-        if self.filt_status != "all": fp.append(f"status={self.filt_status}")
-        if self.filt_diff: fp.append(f"diff={self.filt_diff}")
-        if self.filt_pat: fp.append(f"/{self.filt_pat}/")
+        if self.filt_status != "all":
+            fp.append(f"status={self.filt_status}")
+        if self.filt_diff:
+            fp.append(f"diff={self.filt_diff}")
+        if self.filt_pat:
+            fp.append(f"/{self.filt_pat}/")
         filt = ("  │  " + " ".join(fp)) if fp else ""
         sort_s = f"sort={self.sort_key}{'↓' if self.sort_rev else '↑'}"
 
@@ -185,15 +188,19 @@ class EvalTUI:
         t.add_column("Case ID", ratio=3, no_wrap=True)
         t.add_column("Diff", width=7, justify="center")
         t.add_column("Sim", width=7, justify="center")
-        for c in ("Block", "Wire", "Param"): t.add_column(c, width=6, justify="right")
+        for c in ("Block", "Wire", "Param"):
+            t.add_column(c, width=6, justify="right")
         t.add_column("Tokens", width=8, justify="right")
 
         vis = max(5, self.console.size.height - 8)
-        if self.cursor < self.scroll_offset: self.scroll_offset = self.cursor
-        elif self.cursor >= self.scroll_offset + vis: self.scroll_offset = self.cursor - vis + 1
+        if self.cursor < self.scroll_offset:
+            self.scroll_offset = self.cursor
+        elif self.cursor >= self.scroll_offset + vis:
+            self.scroll_offset = self.cursor - vis + 1
 
         for i, r in enumerate(self.rows):
-            if i < self.scroll_offset or i >= self.scroll_offset + vis: continue
+            if i < self.scroll_offset or i >= self.scroll_offset + vis:
+                continue
             sel = i == self.cursor
             dc = DIFF_COLORS.get(r["difficulty"], "white")
             partial = r["sim_pass"] and r["block_f1"] < 0.8
@@ -261,10 +268,12 @@ class EvalTUI:
             P.append(Text("─── Agent Built ───", style="bold green"))
             cnt = 0
             for blk in dump.get("blocks", []):
-                if blk["type"] in SKIP_TYPES or (not blk["inputs"] and not blk["outputs"]): continue
+                if blk["type"] in SKIP_TYPES or (not blk["inputs"] and not blk["outputs"]):
+                    continue
                 has_w = any(i.get("wired_from") for i in blk["inputs"]) or \
                         any(o.get("wired_to") for o in blk["outputs"])
-                if not has_w: continue
+                if not has_w:
+                    continue
                 rm = f" [{blk['room']}]" if blk.get("room") else ""
                 P.append(Text.assemble(("  ", ""), (blk["name"], "bold"), (f" ({blk['type']}){rm}", "dim")))
                 unwired = []
@@ -285,7 +294,8 @@ class EvalTUI:
                         P.append(Text(f"    out: {out['key']} → {dst}", style="dim"))
                 cnt += 1
                 if cnt >= 15:
-                    P.append(Text("    … and more", style="dim")); break
+                    P.append(Text("    … and more", style="dim"))
+                    break
             P.append(Text(""))
         # Sim results
         scenarios = r.get("simulation_detail", {}).get("scenarios", [])
@@ -314,16 +324,19 @@ class EvalTUI:
 
     def render_sim(self):
         r = self.selected
-        if not r: return Panel("No case", border_style="red")
+        if not r:
+            return Panel("No case", border_style="red")
         body = Text(self.sim_output) if self.sim_output else Text("Running simulation…", style="bold yellow")
         nav = Text.assemble(("[Esc]", "bold"), " Back  ", ("[q]", "bold"), " Quit")
         return Panel(body, title=f"[bold]Sim Re-run: {r['case_id']}[/bold]",
                      subtitle=nav, border_style="bright_yellow")
 
     def _get_dump(self, case_id):
-        if case_id in self._dump_cache: return self._dump_cache[case_id]
+        if case_id in self._dump_cache:
+            return self._dump_cache[case_id]
         cfg = self.configs_dir / f"{case_id}.Loxone"
-        if not cfg.exists(): return None
+        if not cfg.exists():
+            return None
         try:
             out = subprocess.run([str(LOX_BIN), "sim", "dump", str(cfg), "--json"],
                                 capture_output=True, text=True, timeout=10)
@@ -336,19 +349,22 @@ class EvalTUI:
         spec = self.selected.get("spec", {})
         sim_specs = spec.get("expected", {}).get("simulation", [])
         cfg = self.configs_dir / f"{case_id}.Loxone"
-        if not cfg.exists(): return f"Config not found: {cfg}"
-        if not sim_specs: return "No simulation specs defined for this case."
+        if not cfg.exists():
+            return f"Config not found: {cfg}"
+        if not sim_specs:
+            return "No simulation specs defined for this case."
         lines = []
         for sc in sim_specs:
             try:
                 res = subprocess.run([str(LOX_BIN), "sim", "run", str(cfg), "--sim", json.dumps(sc)],
                                      capture_output=True, text=True, timeout=30)
-                for w in [l for l in res.stderr.splitlines()
-                          if l.startswith("WARNING:") or l.startswith("warning:")][:3]:
+                for w in [line for line in res.stderr.splitlines()
+                          if line.startswith("WARNING:") or line.startswith("warning:")][:3]:
                     lines.append(f"  ⚠ {w}")
                 for ln in res.stdout.splitlines():
                     ln = ln.strip()
-                    if not ln or not ln.startswith("{"): continue
+                    if not ln or not ln.startswith("{"):
+                        continue
                     try:
                         d = json.loads(ln)
                         for s in d.get("scenarios", []):
@@ -404,8 +420,8 @@ class EvalTUI:
             elif key == "g": self.cursor = 0
         elif self.view == "detail":
             if key in ("\x1b", "esc"): self.view = "dashboard"
-            elif key == "n": self._jump_fail(1); self.selected = self.rows[self.cursor]
-            elif key == "p": self._jump_fail(-1); self.selected = self.rows[self.cursor]
+            elif key == "n" and self.rows: self._jump_fail(1); self.selected = self.rows[self.cursor]
+            elif key == "p" and self.rows: self._jump_fail(-1); self.selected = self.rows[self.cursor]
             elif key == "r": self.view = "sim_rerun"; self.sim_output = ""
         elif self.view == "sim_rerun":
             if key in ("\x1b", "esc"): self.view = "detail"
@@ -415,18 +431,23 @@ class EvalTUI:
         if not self.rows:
             self.console.print("[red]No data found. Check --report and --cases paths.[/red]"); return
         self.console.print(f"[dim]Loaded {len(self.all_rows)} cases. Starting TUI…[/dim]")
-        with Live(self.render_dashboard(), console=self.console, screen=True, refresh_per_second=10) as live:
-            while True:
-                try:
-                    render = {"dashboard": self.render_dashboard, "detail": self.render_detail,
-                              "sim_rerun": self.render_sim}
-                    if self.view == "sim_rerun" and not self.sim_output:
-                        live.update(self.render_sim())
-                        self.sim_output = self._run_sim(self.selected["case_id"])
-                    live.update(render[self.view]())
-                    if not self.handle_key(readkey(), live): break
-                except KeyboardInterrupt:
-                    break
+        fd = sys.stdin.fileno()
+        old_term = termios.tcgetattr(fd)
+        try:
+            with Live(self.render_dashboard(), console=self.console, screen=True, refresh_per_second=10) as live:
+                while True:
+                    try:
+                        render = {"dashboard": self.render_dashboard, "detail": self.render_detail,
+                                  "sim_rerun": self.render_sim}
+                        if self.view == "sim_rerun" and not self.sim_output:
+                            live.update(self.render_sim())
+                            self.sim_output = self._run_sim(self.selected["case_id"])
+                        live.update(render[self.view]())
+                        if not self.handle_key(readkey(), live): break
+                    except KeyboardInterrupt:
+                        break
+        finally:
+            termios.tcsetattr(fd, termios.TCSADRAIN, old_term)
 
 
 def main():
