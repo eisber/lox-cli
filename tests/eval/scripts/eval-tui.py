@@ -35,9 +35,10 @@ HELP_DASHBOARD = Text.assemble(
     ("[/]", "bold"), " Search  ", ("[q]", "bold"), " Quit")
 
 HELP_DETAIL = Text.assemble(
-    ("[1-3]", "bold"), " Tabs  ", ("[n/p]", "bold"), " Next/Prev fail  ",
-    ("[c]", "bold"), " Copy  ", ("[r]", "bold"), " Re-run sim  ",
-    ("[Esc]", "bold"), " Back  ", ("[q]", "bold"), " Quit")
+    ("[1-3]", "bold"), " Tabs  ", ("[n/p]", "bold"), " Fails  ",
+    ("[c]", "bold"), " Copy  ", ("[t]", "bold"), " Trace  ",
+    ("[r]", "bold"), " Re-run  ", ("[Esc]", "bold"), " Back  ",
+    ("[?]", "bold"), " Help")
 
 HELP_REPORTS = Text.assemble(
     ("[↑↓]", "bold"), " Navigate  ", ("[Enter]", "bold"), " Select  ",
