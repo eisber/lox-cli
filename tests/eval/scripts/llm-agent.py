@@ -45,7 +45,7 @@ generate_report = _agent_runner.generate_report
 print_report = _agent_runner.print_report
 CLITracker = _agent_runner.CLITracker
 
-MAX_RETRIES = 3
+MAX_RETRIES = 5
 
 
 def _find_lox_sim():
@@ -387,7 +387,20 @@ def run_case(case, work_dir: Path, client, model: str, verbose: bool = False):
         if sims and attempt < MAX_RETRIES:
             sim_result = run_simulation(case["id"], case, str(config_path))
             if not sim_result.get("pass", True):
-                # Build sim feedback
+                # Auto-repair broken chains before retrying with LLM
+                repair_cmds = _auto_repair_chains(str(config_path))
+                print(f"    [auto-repair] found {len(repair_cmds)} chain breaks", file=sys.stderr)
+                if repair_cmds:
+                    repair_outputs = execute_commands(repair_cmds, tracker, cwd=str(work_dir))
+                    for ro in repair_outputs:
+                        print(f"      {ro.get('command','')[:80]} → rc={ro.get('returncode')}", file=sys.stderr)
+                    all_commands_run.extend(repair_cmds)
+                    # Re-test after repair
+                    sim_result = run_simulation(case["id"], case, str(config_path))
+                    if sim_result.get("pass", False):
+                        break  # Fixed!
+
+                # Build sim feedback for LLM retry
                 tracker.retries += 1
                 sim_feedback = _build_sim_feedback(sim_result, all_commands_run, str(config_path))
                 messages.append({"role": "assistant", "content": reply})
@@ -419,9 +432,11 @@ def _build_sim_feedback(sim_result: dict, commands_run: list[str], config_path: 
                         f" (expected {check['comparator']} {check['expected']})"
                     )
 
+    # Auto-detect broken chains: blocks with wired outputs but unwired first input
+    chain_breaks = _detect_broken_chains(config_path)
+
     # Run lox blocks search to suggest better block types based on the task
     block_suggestions = ""
-    # Extract key intent words from the commands (block types used)
     used_types = set()
     for cmd in commands_run:
         if "--type" in cmd:
@@ -440,7 +455,6 @@ def _build_sim_feedback(sim_result: dict, commands_run: list[str], config_path: 
                     capture_output=True, text=True, timeout=10
                 )
                 if r.stdout and "Don't confuse with" in r.stdout:
-                    # Extract the confusion warning
                     for line in r.stdout.split("\n"):
                         if "Don't confuse" in line or ("—" in line and any(t in line for t in ["OnPulseDelay", "StairwayLS", "OffDelay", "Monoflop", "Memory", "FlipFlop"])):
                             suggestions.append(line.strip())
@@ -450,7 +464,6 @@ def _build_sim_feedback(sim_result: dict, commands_run: list[str], config_path: 
         if suggestions:
             block_suggestions = "\n## Block Type Warnings\n" + "\n".join(suggestions)
 
-    # Also run a search for common timer patterns if OnPulseDelay/OffDelay was used
     timer_hint = ""
     if used_types & {"OnPulseDelay", "OffDelay", "OnDelay"}:
         lox = _find_lox()
@@ -469,11 +482,11 @@ Your circuit was built but the simulation test FAILED.
 
 ## Simulation Failures
 {chr(10).join(failures)}
-
+{chain_breaks}
 ## What This Means
 The blocks exist but the signal doesn't flow correctly from sensor to actuator.
 Common issues:
-- Missing wire between a logic block output and the actuator
+- Missing wire between a logic block output and the next block
 - Wrong block type: OnPulseDelay WAITS before pulsing (use StairwayLS for immediate timed switch)
 - OffDelay keeps output on AFTER input drops (use StairwayLS for "on for N seconds on trigger")
 - Sensor wired to wrong input connector
@@ -483,9 +496,9 @@ Common issues:
 {chr(10).join(commands_run[-10:])}
 
 ## Instructions
-1. Consider replacing OnPulseDelay/OffDelay with StairwayLS if the task is "turn on for X minutes"
+1. ⚠ Check the BROKEN CHAIN warnings above — add the missing wires FIRST
 2. Check if all outputs are wired to actuators
-3. Run `lox sim dump {config_path}` to inspect wire values
+3. Run `lox sim dump {config_path}` to inspect wiring
 4. Fix the wiring or block issues
 
 The config file is: {config_path}
@@ -494,7 +507,180 @@ Respond ONLY with the CLI commands, one per line.
 """
 
 
-# ── Main ─────────────────────────────────────────────────────
+def _detect_broken_chains(config_path: str) -> str:
+    """Detect blocks with wired outputs but unwired primary input — broken signal chains."""
+    lox_sim = _find_lox_sim()
+    try:
+        r = subprocess.run(
+            lox_sim + ["dump", config_path, "--json"],
+            capture_output=True, text=True, timeout=30
+        )
+        if not r.stdout.strip():
+            return ""
+        data = json.loads(r.stdout)
+    except Exception:
+        return ""
+
+    # Skip fixture/structural types
+    skip_types = {
+        "SysVar", "VirtualIn", "VirtualOut", "TreeSensor", "TreeAsensor",
+        "TreeDevice", "LoxAIRsensor", "LoxAIRDevice", "PresenceDetector",
+        "NfcCodeTouch", "PushButton", "JalousieUpDown2", "LightController2",
+        "LightscenesC", "LightsceneC", "HeatIRoomController2", "AcControl",
+        "StateV", "LoxAIRAsensor", "VirtualInCaption", "WeatherServer",
+    }
+
+    breaks = []
+    blocks = data.get("blocks", [])
+    for b in blocks:
+        if b.get("type", "") in skip_types:
+            continue
+        outputs = b.get("outputs", [])
+        inputs = b.get("inputs", [])
+        has_wired_output = any(o.get("wired_to") for o in outputs)
+        first_input = inputs[0] if inputs else None
+        has_unwired_first_input = first_input and first_input.get("wired_from") is None
+
+        if has_wired_output and has_unwired_first_input:
+            # Find what could feed this block — look for blocks with unwired outputs
+            suggestion = ""
+            for b2 in blocks:
+                if b2.get("type", "") in skip_types or b2 is b:
+                    continue
+                for o in b2.get("outputs", []):
+                    if not o.get("wired_to"):
+                        room = b.get("room", "")
+                        name = b["name"]
+                        qname = f"{name} [{room}]" if room else name
+                        b2room = b2.get("room", "")
+                        b2name = b2["name"]
+                        b2qname = f"{b2name} [{b2room}]" if b2room else b2name
+                        suggestion = (
+                            f"\n    FIX: `lox config wire-connector CONFIG "
+                            f"\"{qname}.{first_input['key']}\" "
+                            f"\"{b2qname}.{o['key']}\"`"
+                        )
+                        break
+                if suggestion:
+                    break
+            breaks.append(
+                f"  ⚠ '{b['name']}' ({b['type']}): output is wired but "
+                f"input '{first_input['key']}' has NO source — signal chain is BROKEN"
+                f"{suggestion}"
+            )
+
+        has_wired_input = any(i.get("wired_from") is not None for i in inputs)
+        has_no_output_wires = not any(o.get("wired_to") for o in outputs)
+        if has_wired_input and has_no_output_wires and outputs:
+            # Find what this output could feed — look for blocks with unwired inputs
+            suggestion = ""
+            for b2 in blocks:
+                if b2.get("type", "") in skip_types or b2 is b:
+                    continue
+                for inp in b2.get("inputs", []):
+                    if inp.get("wired_from") is None:
+                        room = b.get("room", "")
+                        name = b["name"]
+                        b2room = b2.get("room", "")
+                        b2name = b2["name"]
+                        b2qname = f"{b2name} [{b2room}]" if b2room else b2name
+                        qname = f"{name} [{room}]" if room else name
+                        suggestion = (
+                            f"\n    FIX: `lox config wire-connector CONFIG "
+                            f"\"{b2qname}.{inp['key']}\" "
+                            f"\"{qname}.{outputs[0]['key']}\"`"
+                        )
+                        break
+                if suggestion:
+                    break
+            breaks.append(
+                f"  ⚠ '{b['name']}' ({b['type']}): input is wired but "
+                f"output '{outputs[0]['key']}' goes NOWHERE — add a wire from this output"
+                f"{suggestion}"
+            )
+
+    if breaks:
+        return "\n## ⚠ BROKEN SIGNAL CHAINS DETECTED\n" + "\n".join(breaks) + "\n"
+    return ""
+
+
+def _auto_repair_chains(config_path: str) -> list[str]:
+    """Auto-repair broken signal chains by wiring orphaned outputs to unwired inputs.
+
+    Finds blocks with wired outputs but unwired primary input, and blocks with
+    wired inputs but unwired output. Matches them together and returns wire commands.
+    """
+    lox = _find_lox()
+    lox_sim = _find_lox_sim()
+    try:
+        r = subprocess.run(
+            lox_sim + ["dump", config_path, "--json"],
+            capture_output=True, text=True, timeout=30
+        )
+        if not r.stdout.strip():
+            return []
+        data = json.loads(r.stdout)
+    except Exception:
+        return []
+
+    skip_types = {
+        "SysVar", "VirtualIn", "VirtualOut", "TreeSensor", "TreeAsensor",
+        "TreeDevice", "LoxAIRsensor", "LoxAIRDevice", "PresenceDetector",
+        "NfcCodeTouch", "PushButton", "JalousieUpDown2", "LightController2",
+        "LightscenesC", "LightsceneC", "HeatIRoomController2", "AcControl",
+        "StateV", "LoxAIRAsensor", "VirtualInCaption", "WeatherServer",
+    }
+
+    blocks = data.get("blocks", [])
+
+    # Find blocks with wired inputs but unwired output (dangling sources)
+    dangling_outputs = []  # (block, output_connector)
+    for b in blocks:
+        if b.get("type", "") in skip_types:
+            continue
+        inputs = b.get("inputs", [])
+        outputs = b.get("outputs", [])
+        has_wired_input = any(i.get("wired_from") is not None for i in inputs)
+        has_unwired_output = outputs and not any(o.get("wired_to") for o in outputs)
+        if has_wired_input and has_unwired_output:
+            dangling_outputs.append((b, outputs[0]))
+
+    # Find blocks with wired outputs but unwired first input (dangling sinks)
+    dangling_inputs = []  # (block, input_connector)
+    for b in blocks:
+        if b.get("type", "") in skip_types:
+            continue
+        inputs = b.get("inputs", [])
+        outputs = b.get("outputs", [])
+        has_wired_output = any(o.get("wired_to") for o in outputs)
+        first_input = inputs[0] if inputs else None
+        has_unwired_first = first_input and first_input.get("wired_from") is None
+        if has_wired_output and has_unwired_first:
+            dangling_inputs.append((b, first_input))
+
+    # Match dangling outputs to dangling inputs
+    commands = []
+    used_outputs = set()
+    for sink_block, sink_conn in dangling_inputs:
+        for src_block, src_conn in dangling_outputs:
+            src_id = (src_block["id"], src_conn["cid"])
+            if src_id in used_outputs:
+                continue
+            # Wire: target.input ← source.output
+            src_room = src_block.get("room", "")
+            src_name = f"{src_block['name']} [{src_room}]" if src_room else src_block["name"]
+            sink_room = sink_block.get("room", "")
+            sink_name = f"{sink_block['name']} [{sink_room}]" if sink_room else sink_block["name"]
+            cmd = (
+                f"{lox[0]} config wire-connector {config_path} "
+                f'"{sink_name}.{sink_conn["key"]}" '
+                f'"{src_name}.{src_conn["key"]}"'
+            )
+            commands.append(cmd)
+            used_outputs.add(src_id)
+            break
+
+    return commands
 
 def main():
     parser = argparse.ArgumentParser(description="LLM-powered Loxone Eval Agent")

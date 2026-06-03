@@ -938,7 +938,7 @@
           "steps": [
             {
               "inputs": {
-                "Bewegungsmelder.OutputPresence": 1,
+                "Bewegungsmelder.OutputPresence": 0.0,
                 "Fensterkontakt Schlafzimmer.Q": 0.0
               },
               "ticks": 5,
@@ -946,7 +946,7 @@
             },
             {
               "inputs": {
-                "Bewegungsmelder.OutputPresence": 0,
+                "Bewegungsmelder.OutputPresence": 0.0,
                 "Fensterkontakt Schlafzimmer.Q": 0.0
               },
               "ticks": 20,
@@ -962,11 +962,11 @@
         {
           "name": "should NOT fire leave impulse when card still inserted",
           "inputs": {
-            "Bewegungsmelder.OutputPresence": 0,
+            "Bewegungsmelder.OutputPresence": 0.0,
             "Fensterkontakt Schlafzimmer.Q": 1.0
           },
           "ticks": 20,
-          "dt": 0.1,
+          "dt": 10.0,
           "expected_outputs": {
             "Lichtsteuerung [Schlafzimmer].Reset": {
               "<": 0.5
@@ -975,7 +975,7 @@
         }
       ]
     },
-    "hint": "Step-by-step plan:\n1. lox config add --type Not --title 'Keine Präsenz' --room Flur FILE\n2. wire FILE 'Keine Präsenz.I' 'Bewegungsmelder.OutputPresence'\n3. lox config add --type EdgeDetection --title 'Karte Puls' --room Schlafzimmer FILE\n4. wire FILE 'Karte Puls.Input' 'Gäste NFC.Q1'\n5. lox config add --type And --title 'Verlassen Check' --room Schlafzimmer FILE\n6. wire FILE 'Verlassen Check.I1' 'Keine Präsenz.Q'\n7. wire FILE 'Verlassen Check.I2' 'Karte Puls.FallingEdge'  -- card out = NOT output from NFC\n8. lox config add --type OnPulseDelay --title 'Verlassen Timer' --room Schlafzimmer FILE\n9. set-param FILE 'Verlassen Timer' Time 30\n10. wire FILE 'Verlassen Timer.InputTrigger' 'Verlassen Check.Q'\n11. wire FILE 'Lichtsteuerung [Schlafzimmer].Reset' 'Verlassen Timer.Q'"
+    "hint": "Step-by-step plan:\n1. lox config add --type Not --title 'Keine Präsenz' --room Flur FILE\n2. wire FILE 'Keine Präsenz.I' 'Bewegungsmelder.OutputPresence'\n3. lox config add --type Not --title 'Karte Raus' --room Schlafzimmer FILE\n4. wire FILE 'Karte Raus.I' 'Fensterkontakt Schlafzimmer.Q'\n5. lox config add --type And --title 'Verlassen Check' --room Schlafzimmer FILE\n6. wire FILE 'Verlassen Check.I1' 'Keine Präsenz.Q'\n7. wire FILE 'Verlassen Check.I2' 'Karte Raus.Q'\n8. lox config add --type OnDelay --title 'Verlassen Timer' --room Schlafzimmer FILE\n9. set-param FILE 'Verlassen Timer' Time 30\n10. wire FILE 'Verlassen Timer.Input' 'Verlassen Check.Q'\n11. wire FILE 'Lichtsteuerung [Schlafzimmer].Reset' 'Verlassen Timer.Q'"
   },
   {
     "id": "ch-014",
