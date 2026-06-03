@@ -315,6 +315,15 @@ class EvalTUI:
             self.configs_dir = Path(meta_wd)
         else:
             self.configs_dir = Path(configs_dir) if configs_dir else DEFAULT_CONFIGS
+
+        # If the default report has very few cases and no report was explicitly given,
+        # use fallback mode (live sims on saved configs) for current results.
+        # User can press R to load historical reports.
+        report_cases = self.report.get("cases", []) if self.report else []
+        if len(report_cases) < 5 and report_path is None:
+            self.report = None
+            self.report_path = None
+
         self.all_rows = merge_data(self.report, self.specs, str(self.configs_dir))
         self.rows = list(self.all_rows)
         self.view = "dashboard"
@@ -337,6 +346,13 @@ class EvalTUI:
             return os.get_terminal_size().columns
         except (ValueError, OSError):
             return self.console.size.width
+
+    def _find_best_report(self):
+        """Find the report with the most cases (preferring recent ones)."""
+        if not hasattr(self, "available_reports") or not self.available_reports:
+            return None
+        # Pick the report with the most cases; break ties by date (newest)
+        return max(self.available_reports, key=lambda r: (r.get("cases", 0), r.get("date", "")))
 
     def _apply_filters(self):
         self.rows = list(self.all_rows)
@@ -864,7 +880,7 @@ class EvalTUI:
 
 def main():
     p = argparse.ArgumentParser(description="Loxone Eval TUI — inspect evaluation results")
-    p.add_argument("--report", default=str(DEFAULT_REPORT), help="Path to llm-report.json")
+    p.add_argument("--report", default=None, help="Path to report JSON (default: live sim on saved configs)")
     p.add_argument("--cases", default=str(DEFAULT_CASES), help="Path to eval cases directory")
     p.add_argument("--configs", default=str(DEFAULT_CONFIGS), help="Path to saved .Loxone configs")
     a = p.parse_args()

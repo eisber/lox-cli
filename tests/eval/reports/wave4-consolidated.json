@@ -1,0 +1,3618 @@
+{
+  "summary": {
+    "total": 45,
+    "passed": 15
+  },
+  "cases": [
+    {
+      "pass": false,
+      "overall_score": 0.0,
+      "weighted_score": 0.0,
+      "xml_valid": true,
+      "validation_pass": true,
+      "validation_errors": 0,
+      "metrics": {
+        "blocks": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "true_positives": 0,
+          "false_positives": 2,
+          "false_negatives": 1
+        },
+        "wiring": {
+          "accuracy": 0.0,
+          "precision": 0.333,
+          "correct": 0,
+          "total": 2,
+          "extra": 4
+        },
+        "params": {
+          "accuracy": 0.0,
+          "correct": 0,
+          "total": 2
+        },
+        "ux": {
+          "score": 1.0,
+          "issues": []
+        }
+      },
+      "simulation": {
+        "case_id": "bhe-001-solar-pump-diff",
+        "pass": false,
+        "passed_count": 1,
+        "total_count": 2,
+        "scenarios": [
+          {
+            "checks": [
+              {
+                "actual": 0.0,
+                "comparator": ">",
+                "expected": 0.5,
+                "output": "Solar Pump.Q",
+                "pass": false
+              }
+            ],
+            "name": "pump activates when collector exceeds storage by 8°C",
+            "pass": false
+          },
+          {
+            "checks": [
+              {
+                "actual": 0.0,
+                "comparator": "<",
+                "expected": 0.5,
+                "output": "Solar Pump.Q",
+                "pass": true
+              }
+            ],
+            "name": "pump stays off when difference is small",
+            "pass": true
+          }
+        ]
+      },
+      "sim_pass": false,
+      "sim_score": 0.5,
+      "case_id": "bhe-001-solar-pump-diff",
+      "difficulty": "medium",
+      "patterns": [
+        "solar",
+        "pump",
+        "threshold",
+        "differential"
+      ],
+      "utterance": "Solar pump: activate when collector temp exceeds storage by 8°C, stop when difference drops below 3°C",
+      "elapsed_seconds": 244.7,
+      "cli_invocations": 0,
+      "retries": 0,
+      "tokens": {
+        "input_tokens_est": 0,
+        "output_tokens_est": 0
+      },
+      "model": "gpt-4o"
+    },
+    {
+      "pass": false,
+      "overall_score": 0.411,
+      "weighted_score": 0.823,
+      "xml_valid": true,
+      "validation_pass": true,
+      "validation_errors": 0,
+      "metrics": {
+        "blocks": {
+          "precision": 0.667,
+          "recall": 0.5,
+          "f1": 0.571,
+          "true_positives": 2,
+          "false_positives": 1,
+          "false_negatives": 2
+        },
+        "wiring": {
+          "accuracy": 0.6,
+          "precision": 0.417,
+          "correct": 3,
+          "total": 5,
+          "extra": 7
+        },
+        "params": {
+          "accuracy": 0.0,
+          "correct": 0,
+          "total": 2
+        },
+        "ux": {
+          "score": 1.0,
+          "issues": []
+        }
+      },
+      "simulation": {
+        "case_id": "bhe-002-ev-solar-only",
+        "pass": false,
+        "passed_count": 2,
+        "total_count": 3,
+        "scenarios": [
+          {
+            "checks": [
+              {
+                "actual": 0.0,
+                "comparator": ">",
+                "expected": 0.5,
+                "output": "Solar Only.Q",
+                "pass": false
+              }
+            ],
+            "name": "charges when solar > 3kW and no grid import",
+            "pass": false
+          },
+          {
+            "checks": [
+              {
+                "actual": 0.0,
+                "comparator": "<",
+                "expected": 0.5,
+                "output": "Solar Only.Q",
+                "pass": true
+              }
+            ],
+            "name": "does NOT charge when solar is low",
+            "pass": true
+          },
+          {
+            "checks": [
+              {
+                "actual": 0.0,
+                "comparator": "<",
+                "expected": 0.5,
+                "output": "Solar Only.Q",
+                "pass": true
+              }
+            ],
+            "name": "does NOT charge when grid importing",
+            "pass": true
+          }
+        ]
+      },
+      "sim_pass": false,
+      "sim_score": 0.6666666666666666,
+      "case_id": "bhe-002-ev-solar-only",
+      "difficulty": "hard",
+      "patterns": [
+        "ev-charger",
+        "solar",
+        "logic",
+        "and-gate"
+      ],
+      "utterance": "EV charging: enable only when solar production exceeds 3kW AND grid import is zero",
+      "elapsed_seconds": 150.0,
+      "cli_invocations": 0,
+      "retries": 0,
+      "tokens": {
+        "input_tokens_est": 0,
+        "output_tokens_est": 0
+      },
+      "model": "gpt-4o"
+    },
+    {
+      "pass": true,
+      "overall_score": 0.857,
+      "weighted_score": 1.714,
+      "xml_valid": true,
+      "validation_pass": true,
+      "validation_errors": 0,
+      "metrics": {
+        "blocks": {
+          "precision": 1.0,
+          "recall": 0.75,
+          "f1": 0.857,
+          "true_positives": 3,
+          "false_positives": 0,
+          "false_negatives": 1
+        },
+        "wiring": {
+          "accuracy": 0.75,
+          "precision": 0.5,
+          "correct": 3,
+          "total": 4,
+          "extra": 4
+        },
+        "params": {
+          "accuracy": 1.0,
+          "correct": 1,
+          "total": 1
+        },
+        "ux": {
+          "score": 1.0,
+          "issues": []
+        }
+      },
+      "simulation": {
+        "case_id": "bhe-003-pool-temp-limit",
+        "pass": false,
+        "passed_count": 1,
+        "total_count": 2,
+        "scenarios": [
+          {
+            "checks": [
+              {
+                "actual": 0.0,
+                "comparator": ">",
+                "expected": 0.5,
+                "output": "Pump Enable.Q",
+                "pass": false
+              }
+            ],
+            "name": "pump runs when scheduled and temp below 28",
+            "pass": false
+          },
+          {
+            "checks": [
+              {
+                "actual": 0.0,
+                "comparator": "<",
+                "expected": 0.5,
+                "output": "Pump Enable.Q",
+                "pass": true
+              }
+            ],
+            "name": "pump off when temp exceeds 28",
+            "pass": true
+          }
+        ]
+      },
+      "sim_pass": false,
+      "sim_score": 0.5,
+      "case_id": "bhe-003-pool-temp-limit",
+      "difficulty": "hard",
+      "patterns": [
+        "pool",
+        "daytimer",
+        "temperature",
+        "threshold"
+      ],
+      "utterance": "Pool pump schedule: run 10:00-16:00 via DayTimer, disable when water temp exceeds 28°C",
+      "elapsed_seconds": 144.1,
+      "cli_invocations": 0,
+      "retries": 0,
+      "tokens": {
+        "input_tokens_est": 0,
+        "output_tokens_est": 0
+      },
+      "model": "gpt-4o"
+    },
+    {
+      "pass": true,
+      "overall_score": 0.8,
+      "weighted_score": 1.2,
+      "xml_valid": true,
+      "validation_pass": true,
+      "validation_errors": 0,
+      "metrics": {
+        "blocks": {
+          "precision": 0.667,
+          "recall": 0.667,
+          "f1": 0.667,
+          "true_positives": 2,
+          "false_positives": 1,
+          "false_negatives": 1
+        },
+        "wiring": {
+          "accuracy": 0.75,
+          "precision": 0.5,
+          "correct": 3,
+          "total": 4,
+          "extra": 4
+        },
+        "params": {
+          "accuracy": 1.0,
+          "correct": 1,
+          "total": 1
+        },
+        "ux": {
+          "score": 1.0,
+          "issues": []
+        }
+      },
+      "simulation": {
+        "case_id": "bhe-004-roof-window-weather",
+        "pass": false,
+        "passed_count": 1,
+        "total_count": 3,
+        "scenarios": [
+          {
+            "checks": [
+              {
+                "actual": 0.0,
+                "comparator": ">",
+                "expected": 0.5,
+                "output": "Weather Unsafe.Q",
+                "pass": false
+              }
+            ],
+            "name": "closes on rain",
+            "pass": false
+          },
+          {
+            "checks": [
+              {
+                "actual": 0.0,
+                "comparator": ">",
+                "expected": 0.5,
+                "output": "Weather Unsafe.Q",
+                "pass": false
+              }
+            ],
+            "name": "closes on high wind",
+            "pass": false
+          },
+          {
+            "checks": [
+              {
+                "actual": 0.0,
+                "comparator": "<",
+                "expected": 0.5,
+                "output": "Weather Unsafe.Q",
+                "pass": true
+              }
+            ],
+            "name": "stays open when calm and dry",
+            "pass": true
+          }
+        ]
+      },
+      "sim_pass": false,
+      "sim_score": 0.3333333333333333,
+      "case_id": "bhe-004-roof-window-weather",
+      "difficulty": "medium",
+      "patterns": [
+        "roof-window",
+        "rain",
+        "wind",
+        "or-gate",
+        "safety"
+      ],
+      "utterance": "Roof window auto-close on rain OR wind above 40 km/h",
+      "elapsed_seconds": 96.2,
+      "cli_invocations": 0,
+      "retries": 0,
+      "tokens": {
+        "input_tokens_est": 0,
+        "output_tokens_est": 0
+      },
+      "model": "gpt-4o"
+    },
+    {
+      "pass": false,
+      "overall_score": 0.235,
+      "weighted_score": 0.47,
+      "xml_valid": true,
+      "validation_pass": true,
+      "validation_errors": 0,
+      "metrics": {
+        "blocks": {
+          "precision": 0.25,
+          "recall": 0.25,
+          "f1": 0.25,
+          "true_positives": 1,
+          "false_positives": 3,
+          "false_negatives": 3
+        },
+        "wiring": {
+          "accuracy": 0.4,
+          "precision": 0.625,
+          "correct": 2,
+          "total": 5,
+          "extra": 3
+        },
+        "params": {
+          "accuracy": 0.0,
+          "correct": 0,
+          "total": 3
+        },
+        "ux": {
+          "score": 1.0,
+          "issues": []
+        }
+      },
+      "simulation": {
+        "case_id": "bhe-005-central-heating-or",
+        "pass": false,
+        "passed_count": 1,
+        "total_count": 2,
+        "scenarios": [
+          {
+            "checks": [
+              {
+                "actual": 0.0,
+                "comparator": ">",
+                "expected": 0.5,
+                "output": "Any Heat Call.Q",
+                "pass": false
+              }
+            ],
+            "name": "pump on when any room demands heat",
+            "pass": false
+          },
+          {
+            "checks": [
+              {
+                "actual": 0.0,
+                "comparator": "<",
+                "expected": 0.5,
+                "output": "Any Heat Call.Q",
+                "pass": true
+              }
+            ],
+            "name": "pump off when no room demands heat",
+            "pass": true
+          }
+        ]
+      },
+      "sim_pass": false,
+      "sim_score": 0.5,
+      "case_id": "bhe-005-central-heating-or",
+      "difficulty": "hard",
+      "patterns": [
+        "central-heating",
+        "or-gate",
+        "multi-room",
+        "heat-demand"
+      ],
+      "utterance": "Central heating: enable pump when any room calls for heat (Or gate from 3 IRC AQh outputs)",
+      "elapsed_seconds": 214.8,
+      "cli_invocations": 0,
+      "retries": 0,
+      "tokens": {
+        "input_tokens_est": 0,
+        "output_tokens_est": 0
+      },
+      "model": "gpt-4o"
+    },
+    {
+      "pass": true,
+      "overall_score": 0.8,
+      "weighted_score": 0.8,
+      "xml_valid": true,
+      "validation_pass": true,
+      "validation_errors": 0,
+      "metrics": {
+        "blocks": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "true_positives": 1,
+          "false_positives": 0,
+          "false_negatives": 0
+        },
+        "wiring": {
+          "accuracy": 0.5,
+          "precision": 0.5,
+          "correct": 1,
+          "total": 2,
+          "extra": 2
+        },
+        "params": {
+          "accuracy": 1.0,
+          "correct": 0,
+          "total": 0
+        },
+        "ux": {
+          "score": 1.0,
+          "issues": []
+        }
+      },
+      "simulation": {
+        "case_id": "bhe-006-fronius-daily-tracking",
+        "pass": true,
+        "passed_count": 0,
+        "total_count": 0,
+        "scenarios": []
+      },
+      "sim_pass": null,
+      "sim_score": null,
+      "case_id": "bhe-006-fronius-daily-tracking",
+      "difficulty": "easy",
+      "patterns": [
+        "fronius",
+        "solar-inverter",
+        "energy-tracking"
+      ],
+      "utterance": "Connect a Fronius solar inverter to track daily production and total production",
+      "elapsed_seconds": 153.9,
+      "cli_invocations": 0,
+      "retries": 0,
+      "tokens": {
+        "input_tokens_est": 0,
+        "output_tokens_est": 0
+      },
+      "model": "gpt-4o"
+    },
+    {
+      "pass": false,
+      "overall_score": 0.65,
+      "weighted_score": 0.975,
+      "xml_valid": true,
+      "validation_pass": true,
+      "validation_errors": 0,
+      "metrics": {
+        "blocks": {
+          "precision": 0.5,
+          "recall": 0.5,
+          "f1": 0.5,
+          "true_positives": 1,
+          "false_positives": 1,
+          "false_negatives": 1
+        },
+        "wiring": {
+          "accuracy": 0.5,
+          "precision": 0.5,
+          "correct": 1,
+          "total": 2,
+          "extra": 2
+        },
+        "params": {
+          "accuracy": 1.0,
+          "correct": 1,
+          "total": 1
+        },
+        "ux": {
+          "score": 1.0,
+          "issues": []
+        }
+      },
+      "simulation": {
+        "case_id": "bhe-007-shade-roof-wind",
+        "pass": false,
+        "passed_count": 1,
+        "total_count": 2,
+        "scenarios": [
+          {
+            "checks": [
+              {
+                "actual": 0.0,
+                "comparator": ">",
+                "expected": 0.5,
+                "output": "Wind Limit.Q",
+                "pass": false
+              }
+            ],
+            "name": "retracts when wind is high",
+            "pass": false
+          },
+          {
+            "checks": [
+              {
+                "actual": 0.0,
+                "comparator": "<",
+                "expected": 0.5,
+                "output": "Wind Limit.Q",
+                "pass": true
+              }
+            ],
+            "name": "stays deployed when wind is calm",
+            "pass": true
+          }
+        ]
+      },
+      "sim_pass": false,
+      "sim_score": 0.5,
+      "case_id": "bhe-007-shade-roof-wind",
+      "difficulty": "medium",
+      "patterns": [
+        "shade-roof",
+        "wind-protection",
+        "safety"
+      ],
+      "utterance": "Retract the terrace awning automatically when wind exceeds 35 km/h",
+      "elapsed_seconds": 117.7,
+      "cli_invocations": 0,
+      "retries": 0,
+      "tokens": {
+        "input_tokens_est": 0,
+        "output_tokens_est": 0
+      },
+      "model": "gpt-4o"
+    },
+    {
+      "pass": false,
+      "overall_score": 0.3,
+      "weighted_score": 0.3,
+      "xml_valid": true,
+      "validation_pass": true,
+      "validation_errors": 0,
+      "metrics": {
+        "blocks": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "true_positives": 0,
+          "false_positives": 1,
+          "false_negatives": 1
+        },
+        "wiring": {
+          "accuracy": 0.0,
+          "precision": 0.056,
+          "correct": 0,
+          "total": 1,
+          "extra": 17
+        },
+        "params": {
+          "accuracy": 1.0,
+          "correct": 0,
+          "total": 0
+        },
+        "ux": {
+          "score": 1.0,
+          "issues": []
+        }
+      },
+      "simulation": {
+        "case_id": "bhe-008-central-alarm-trigger",
+        "pass": true,
+        "passed_count": 0,
+        "total_count": 0,
+        "scenarios": []
+      },
+      "sim_pass": null,
+      "sim_score": null,
+      "case_id": "bhe-008-central-alarm-trigger",
+      "difficulty": "easy",
+      "patterns": [
+        "central-alarm",
+        "broadcast",
+        "safety"
+      ],
+      "utterance": "Set up a central alarm that broadcasts to all rooms when a smoke detector triggers",
+      "elapsed_seconds": 121.1,
+      "cli_invocations": 0,
+      "retries": 0,
+      "tokens": {
+        "input_tokens_est": 0,
+        "output_tokens_est": 0
+      },
+      "model": "gpt-4o"
+    },
+    {
+      "pass": false,
+      "overall_score": 0.0,
+      "weighted_score": 0.0,
+      "xml_valid": true,
+      "validation_pass": true,
+      "validation_errors": 0,
+      "metrics": {
+        "blocks": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "true_positives": 0,
+          "false_positives": 1,
+          "false_negatives": 1
+        },
+        "wiring": {
+          "accuracy": 0.0,
+          "precision": 0.167,
+          "correct": 0,
+          "total": 1,
+          "extra": 5
+        },
+        "params": {
+          "accuracy": 0.0,
+          "correct": 0,
+          "total": 2
+        },
+        "ux": {
+          "score": 1.0,
+          "issues": []
+        }
+      },
+      "simulation": {
+        "case_id": "bhe-009-sauna-safety-timer",
+        "pass": true,
+        "passed_count": 0,
+        "total_count": 0,
+        "scenarios": []
+      },
+      "sim_pass": null,
+      "sim_score": null,
+      "case_id": "bhe-009-sauna-safety-timer",
+      "difficulty": "medium",
+      "patterns": [
+        "sauna",
+        "safety",
+        "temperature",
+        "timer"
+      ],
+      "utterance": "Configure a sauna with 85°C target temperature and automatic shutdown after 60 minutes",
+      "elapsed_seconds": 365.4,
+      "cli_invocations": 0,
+      "retries": 0,
+      "tokens": {
+        "input_tokens_est": 0,
+        "output_tokens_est": 0
+      },
+      "model": "gpt-4o"
+    },
+    {
+      "pass": false,
+      "overall_score": 0.0,
+      "weighted_score": 0.0,
+      "xml_valid": true,
+      "validation_pass": true,
+      "validation_errors": 0,
+      "metrics": {
+        "blocks": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "true_positives": 0,
+          "false_positives": 1,
+          "false_negatives": 1
+        },
+        "wiring": {
+          "accuracy": 0.0,
+          "precision": 0.25,
+          "correct": 0,
+          "total": 1,
+          "extra": 3
+        },
+        "params": {
+          "accuracy": 0.0,
+          "correct": 0,
+          "total": 1
+        },
+        "ux": {
+          "score": 1.0,
+          "issues": []
+        }
+      },
+      "simulation": {
+        "case_id": "bhe-010-hvac-ac-setpoint",
+        "pass": true,
+        "passed_count": 0,
+        "total_count": 0,
+        "scenarios": []
+      },
+      "sim_pass": null,
+      "sim_score": null,
+      "case_id": "bhe-010-hvac-ac-setpoint",
+      "difficulty": "medium",
+      "patterns": [
+        "hvac-ac",
+        "temperature",
+        "setpoint",
+        "cooling"
+      ],
+      "utterance": "Set up an HVAC AC controller that cools when room temperature exceeds 24°C setpoint",
+      "elapsed_seconds": 64.6,
+      "cli_invocations": 0,
+      "retries": 0,
+      "tokens": {
+        "input_tokens_est": 0,
+        "output_tokens_est": 0
+      },
+      "model": "gpt-4o"
+    },
+    {
+      "pass": false,
+      "overall_score": 0.4,
+      "weighted_score": 0.6,
+      "xml_valid": true,
+      "validation_pass": true,
+      "validation_errors": 0,
+      "metrics": {
+        "blocks": {
+          "precision": 1.0,
+          "recall": 0.5,
+          "f1": 0.667,
+          "true_positives": 1,
+          "false_positives": 0,
+          "false_negatives": 1
+        },
+        "wiring": {
+          "accuracy": 0.5,
+          "precision": 0.333,
+          "correct": 1,
+          "total": 2,
+          "extra": 4
+        },
+        "params": {
+          "accuracy": 0.0,
+          "correct": 0,
+          "total": 1
+        },
+        "ux": {
+          "score": 1.0,
+          "issues": []
+        }
+      },
+      "simulation": {
+        "case_id": "bhe-011-car-charger-solar-excess",
+        "pass": false,
+        "passed_count": 1,
+        "total_count": 2,
+        "scenarios": [
+          {
+            "checks": [
+              {
+                "actual": 0.0,
+                "comparator": ">",
+                "expected": 0.5,
+                "output": "Solar Excess.Q",
+                "pass": false
+              }
+            ],
+            "name": "charges when solar excess available",
+            "pass": false
+          },
+          {
+            "checks": [
+              {
+                "actual": 0.0,
+                "comparator": "<",
+                "expected": 0.5,
+                "output": "Solar Excess.Q",
+                "pass": true
+              }
+            ],
+            "name": "does not charge when solar too low",
+            "pass": true
+          }
+        ]
+      },
+      "sim_pass": false,
+      "sim_score": 0.5,
+      "case_id": "bhe-011-car-charger-solar-excess",
+      "difficulty": "medium",
+      "patterns": [
+        "car-charger",
+        "solar",
+        "energy-management"
+      ],
+      "utterance": "Configure an EV car charger that only charges from solar excess — wire Fronius production output to the charger enable",
+      "elapsed_seconds": 124.7,
+      "cli_invocations": 0,
+      "retries": 0,
+      "tokens": {
+        "input_tokens_est": 0,
+        "output_tokens_est": 0
+      },
+      "model": "gpt-4o"
+    },
+    {
+      "pass": false,
+      "overall_score": 0.4,
+      "weighted_score": 0.6,
+      "xml_valid": true,
+      "validation_pass": true,
+      "validation_errors": 0,
+      "metrics": {
+        "blocks": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "true_positives": 0,
+          "false_positives": 3,
+          "false_negatives": 1
+        },
+        "wiring": {
+          "accuracy": 1.0,
+          "precision": 0.0,
+          "correct": 0,
+          "total": 0,
+          "extra": 22
+        },
+        "params": {
+          "accuracy": 0.0,
+          "correct": 0,
+          "total": 1
+        },
+        "ux": {
+          "score": 1.0,
+          "issues": []
+        }
+      },
+      "simulation": {
+        "case_id": "bhe-012-central-presence-reset",
+        "pass": true,
+        "passed_count": 0,
+        "total_count": 0,
+        "scenarios": []
+      },
+      "sim_pass": null,
+      "sim_score": null,
+      "case_id": "bhe-012-central-presence-reset",
+      "difficulty": "medium",
+      "patterns": [
+        "central-presence",
+        "reset",
+        "occupancy"
+      ],
+      "utterance": "Set up a central presence controller with 30-minute absence timeout that resets all rooms on departure",
+      "elapsed_seconds": 515.3,
+      "cli_invocations": 0,
+      "retries": 0,
+      "tokens": {
+        "input_tokens_est": 0,
+        "output_tokens_est": 0
+      },
+      "model": "gpt-4o"
+    },
+    {
+      "pass": true,
+      "overall_score": 1.0,
+      "weighted_score": 1.0,
+      "xml_valid": true,
+      "validation_pass": true,
+      "validation_errors": 0,
+      "metrics": {
+        "blocks": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "true_positives": 1,
+          "false_positives": 0,
+          "false_negatives": 0
+        },
+        "wiring": {
+          "accuracy": 1.0,
+          "precision": 0.0,
+          "correct": 0,
+          "total": 0,
+          "extra": 2
+        },
+        "params": {
+          "accuracy": 1.0,
+          "correct": 0,
+          "total": 0
+        },
+        "ux": {
+          "score": 1.0,
+          "issues": []
+        }
+      },
+      "simulation": {
+        "case_id": "bhe-013-pv-forecast",
+        "pass": true,
+        "passed_count": 0,
+        "total_count": 0,
+        "scenarios": []
+      },
+      "sim_pass": null,
+      "sim_score": null,
+      "case_id": "bhe-013-pv-forecast",
+      "difficulty": "easy",
+      "patterns": [
+        "pv-forecast",
+        "energy-planning"
+      ],
+      "utterance": "Add a PV production forecast block to estimate next-day solar yield",
+      "elapsed_seconds": 77.3,
+      "cli_invocations": 0,
+      "retries": 0,
+      "tokens": {
+        "input_tokens_est": 0,
+        "output_tokens_est": 0
+      },
+      "model": "gpt-4o"
+    },
+    {
+      "pass": false,
+      "overall_score": 0.367,
+      "weighted_score": 0.733,
+      "xml_valid": true,
+      "validation_pass": true,
+      "validation_errors": 0,
+      "metrics": {
+        "blocks": {
+          "precision": 0.333,
+          "recall": 0.333,
+          "f1": 0.333,
+          "true_positives": 1,
+          "false_positives": 2,
+          "false_negatives": 2
+        },
+        "wiring": {
+          "accuracy": 0.667,
+          "precision": 0.3,
+          "correct": 2,
+          "total": 3,
+          "extra": 7
+        },
+        "params": {
+          "accuracy": 0.0,
+          "correct": 0,
+          "total": 1
+        },
+        "ux": {
+          "score": 1.0,
+          "issues": []
+        }
+      },
+      "simulation": {
+        "case_id": "bhe-014-leaf-garden-irrigation",
+        "pass": false,
+        "passed_count": 1,
+        "total_count": 2,
+        "scenarios": [
+          {
+            "checks": [
+              {
+                "actual": 0.0,
+                "comparator": ">",
+                "expected": 0.5,
+                "output": "Irrigate Gate.Q",
+                "pass": false
+              }
+            ],
+            "name": "irrigates when dry and scheduled",
+            "pass": false
+          },
+          {
+            "checks": [
+              {
+                "actual": 0.0,
+                "comparator": "<",
+                "expected": 0.5,
+                "output": "Irrigate Gate.Q",
+                "pass": true
+              }
+            ],
+            "name": "inhibits irrigation when wet",
+            "pass": true
+          }
+        ]
+      },
+      "sim_pass": false,
+      "sim_score": 0.5,
+      "case_id": "bhe-014-leaf-garden-irrigation",
+      "difficulty": "hard",
+      "patterns": [
+        "leaf",
+        "garden",
+        "irrigation",
+        "humidity"
+      ],
+      "utterance": "Use a Leaf wetness sensor to inhibit garden irrigation when leaf moisture is already high",
+      "elapsed_seconds": 125.4,
+      "cli_invocations": 0,
+      "retries": 0,
+      "tokens": {
+        "input_tokens_est": 0,
+        "output_tokens_est": 0
+      },
+      "model": "gpt-4o"
+    },
+    {
+      "pass": false,
+      "overall_score": 0.3,
+      "weighted_score": 0.3,
+      "xml_valid": true,
+      "validation_pass": true,
+      "validation_errors": 0,
+      "metrics": {
+        "blocks": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "true_positives": 0,
+          "false_positives": 0,
+          "false_negatives": 1
+        },
+        "wiring": {
+          "accuracy": 0.0,
+          "precision": 0.05,
+          "correct": 0,
+          "total": 1,
+          "extra": 19
+        },
+        "params": {
+          "accuracy": 1.0,
+          "correct": 0,
+          "total": 0
+        },
+        "ux": {
+          "score": 1.0,
+          "issues": []
+        }
+      },
+      "simulation": {
+        "case_id": "bhe-015-jalousie-motor-disable",
+        "pass": true,
+        "passed_count": 0,
+        "total_count": 0,
+        "scenarios": []
+      },
+      "sim_pass": null,
+      "sim_score": null,
+      "case_id": "bhe-015-jalousie-motor-disable",
+      "difficulty": "easy",
+      "patterns": [
+        "jalousie-motor",
+        "window-open",
+        "safety-lock"
+      ],
+      "utterance": "Lock the Jalousiemotor when the window is open — wire window sensor to InputDisable",
+      "elapsed_seconds": 82.5,
+      "cli_invocations": 0,
+      "retries": 0,
+      "tokens": {
+        "input_tokens_est": 0,
+        "output_tokens_est": 0
+      },
+      "model": "gpt-4o"
+    },
+    {
+      "pass": false,
+      "overall_score": 0.0,
+      "weighted_score": 0.0,
+      "xml_valid": true,
+      "validation_pass": true,
+      "validation_errors": 0,
+      "metrics": {
+        "blocks": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "true_positives": 0,
+          "false_positives": 4,
+          "false_negatives": 1
+        },
+        "wiring": {
+          "accuracy": 0.0,
+          "precision": 0.214,
+          "correct": 0,
+          "total": 3,
+          "extra": 11
+        },
+        "params": {
+          "accuracy": 0.0,
+          "correct": 0,
+          "total": 2
+        },
+        "ux": {
+          "score": 1.0,
+          "issues": []
+        }
+      },
+      "simulation": {
+        "case_id": "ua01-smart-alarm-arm-trigger",
+        "pass": false,
+        "passed_count": 1,
+        "total_count": 2,
+        "scenarios": [
+          {
+            "checks": [
+              {
+                "actual": 0.0,
+                "comparator": ">",
+                "expected": 0.5,
+                "output": "Sirene.I1",
+                "pass": false
+              }
+            ],
+            "name": "should raise alarm level 2 after trigger during armed state",
+            "pass": false
+          },
+          {
+            "checks": [
+              {
+                "actual": 0.0,
+                "comparator": "<",
+                "expected": 0.5,
+                "output": "Sirene.I1",
+                "pass": true
+              }
+            ],
+            "name": "should NOT alarm when not armed",
+            "pass": true
+          }
+        ]
+      },
+      "sim_pass": false,
+      "sim_score": 0.5,
+      "case_id": "ua01-smart-alarm-arm-trigger",
+      "difficulty": "hard",
+      "patterns": [
+        "alarm",
+        "pre-alarm",
+        "timer"
+      ],
+      "utterance": "Smart alarm: arm via button, trigger with 30s pre-alarm, then full alarm after timeout",
+      "elapsed_seconds": 259.7,
+      "cli_invocations": 0,
+      "retries": 0,
+      "tokens": {
+        "input_tokens_est": 0,
+        "output_tokens_est": 0
+      },
+      "model": "gpt-4o"
+    },
+    {
+      "case_id": "ua02-knx-dimmer-up-down",
+      "pass": false,
+      "sim_pass": false,
+      "sim_score": 0,
+      "overall_score": 0,
+      "error": "Agent timed out after 600s",
+      "difficulty": "medium",
+      "patterns": [
+        "dimmer",
+        "knx",
+        "step-control"
+      ],
+      "utterance": "KNX dimmer: up/down buttons adjust brightness in 10% steps, min 5% max 100%",
+      "elapsed_seconds": 600.0,
+      "metrics": {
+        "blocks": {
+          "precision": 0,
+          "recall": 0,
+          "f1": 0,
+          "true_positives": 0,
+          "false_positives": 0,
+          "false_negatives": 0
+        },
+        "wiring": {
+          "accuracy": 0,
+          "precision": 0,
+          "correct": 0,
+          "total": 0,
+          "extra": 0
+        },
+        "params": {
+          "accuracy": 0,
+          "correct": 0,
+          "total": 0
+        },
+        "ux": {
+          "score": 0,
+          "issues": []
+        }
+      },
+      "cli_invocations": 0,
+      "retries": 0,
+      "tokens": {
+        "input_tokens_est": 0,
+        "output_tokens_est": 0
+      },
+      "model": "gpt-4o"
+    },
+    {
+      "pass": false,
+      "overall_score": 0.583,
+      "weighted_score": 0.875,
+      "xml_valid": true,
+      "validation_pass": true,
+      "validation_errors": 0,
+      "metrics": {
+        "blocks": {
+          "precision": 0.5,
+          "recall": 0.5,
+          "f1": 0.5,
+          "true_positives": 1,
+          "false_positives": 1,
+          "false_negatives": 1
+        },
+        "wiring": {
+          "accuracy": 0.333,
+          "precision": 0.75,
+          "correct": 1,
+          "total": 3,
+          "extra": 1
+        },
+        "params": {
+          "accuracy": 1.0,
+          "correct": 1,
+          "total": 1
+        },
+        "ux": {
+          "score": 1.0,
+          "issues": []
+        }
+      },
+      "simulation": {
+        "case_id": "ua03-access-code-unlock",
+        "pass": false,
+        "passed_count": 1,
+        "total_count": 2,
+        "scenarios": [
+          {
+            "checks": [
+              {
+                "actual": 0.0,
+                "comparator": ">",
+                "expected": 0.5,
+                "output": "Türschloss.I1",
+                "pass": false
+              }
+            ],
+            "name": "should unlock door on valid code",
+            "pass": false
+          },
+          {
+            "checks": [
+              {
+                "actual": 0.0,
+                "comparator": "<",
+                "expected": 0.5,
+                "output": "Türschloss.I1",
+                "pass": true
+              }
+            ],
+            "name": "should remain locked without code",
+            "pass": true
+          }
+        ]
+      },
+      "sim_pass": false,
+      "sim_score": 0.5,
+      "case_id": "ua03-access-code-unlock",
+      "difficulty": "medium",
+      "patterns": [
+        "access-control",
+        "code",
+        "monoflop"
+      ],
+      "utterance": "Access control: 4-digit code on Code4 → unlock door for 10 seconds via Monoflop",
+      "elapsed_seconds": 100.4,
+      "cli_invocations": 0,
+      "retries": 0,
+      "tokens": {
+        "input_tokens_est": 0,
+        "output_tokens_est": 0
+      },
+      "model": "gpt-4o"
+    },
+    {
+      "pass": false,
+      "overall_score": 0.6,
+      "weighted_score": 0.9,
+      "xml_valid": true,
+      "validation_pass": true,
+      "validation_errors": 0,
+      "metrics": {
+        "blocks": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "true_positives": 1,
+          "false_positives": 0,
+          "false_negatives": 0
+        },
+        "wiring": {
+          "accuracy": 0.0,
+          "precision": 0.5,
+          "correct": 0,
+          "total": 2,
+          "extra": 2
+        },
+        "params": {
+          "accuracy": 1.0,
+          "correct": 0,
+          "total": 0
+        },
+        "ux": {
+          "score": 1.0,
+          "issues": []
+        }
+      },
+      "simulation": {
+        "case_id": "ua04-media-auto-pause",
+        "pass": false,
+        "passed_count": 1,
+        "total_count": 2,
+        "scenarios": [
+          {
+            "checks": [
+              {
+                "actual": 0.0,
+                "comparator": ">",
+                "expected": 0.5,
+                "output": "Media Player.Pause",
+                "pass": false
+              }
+            ],
+            "name": "should pause when room empty",
+            "pass": false
+          },
+          {
+            "checks": [
+              {
+                "actual": 0.0,
+                "comparator": "<",
+                "expected": 0.5,
+                "output": "Media Player.Pause",
+                "pass": true
+              }
+            ],
+            "name": "should NOT pause when occupied",
+            "pass": true
+          }
+        ]
+      },
+      "sim_pass": false,
+      "sim_score": 0.5,
+      "case_id": "ua04-media-auto-pause",
+      "difficulty": "medium",
+      "patterns": [
+        "media",
+        "presence",
+        "auto-pause"
+      ],
+      "utterance": "Media control: wire presence sensor to auto-pause media player when room empties",
+      "elapsed_seconds": 141.9,
+      "cli_invocations": 0,
+      "retries": 0,
+      "tokens": {
+        "input_tokens_est": 0,
+        "output_tokens_est": 0
+      },
+      "model": "gpt-4o"
+    },
+    {
+      "pass": false,
+      "overall_score": 0.65,
+      "weighted_score": 0.975,
+      "xml_valid": true,
+      "validation_pass": true,
+      "validation_errors": 0,
+      "metrics": {
+        "blocks": {
+          "precision": 1.0,
+          "recall": 0.333,
+          "f1": 0.5,
+          "true_positives": 1,
+          "false_positives": 0,
+          "false_negatives": 2
+        },
+        "wiring": {
+          "accuracy": 0.5,
+          "precision": 0.5,
+          "correct": 1,
+          "total": 2,
+          "extra": 2
+        },
+        "params": {
+          "accuracy": 1.0,
+          "correct": 1,
+          "total": 1
+        },
+        "ux": {
+          "score": 1.0,
+          "issues": []
+        }
+      },
+      "simulation": {
+        "case_id": "ua05-power-meter-threshold",
+        "pass": false,
+        "passed_count": 1,
+        "total_count": 2,
+        "scenarios": [
+          {
+            "checks": [
+              {
+                "actual": 0.0,
+                "comparator": ">",
+                "expected": 0.5,
+                "output": "MailGen.Trigger",
+                "pass": false
+              }
+            ],
+            "name": "should trigger notification above 5kW",
+            "pass": false
+          },
+          {
+            "checks": [
+              {
+                "actual": 0.0,
+                "comparator": "<",
+                "expected": 0.5,
+                "output": "MailGen.Trigger",
+                "pass": true
+              }
+            ],
+            "name": "should NOT trigger below 5kW",
+            "pass": true
+          }
+        ]
+      },
+      "sim_pass": false,
+      "sim_score": 0.5,
+      "case_id": "ua05-power-meter-threshold",
+      "difficulty": "medium",
+      "patterns": [
+        "metering",
+        "threshold",
+        "notification"
+      ],
+      "utterance": "Power meter: trigger notification when import exceeds 5kW threshold",
+      "elapsed_seconds": 69.9,
+      "cli_invocations": 0,
+      "retries": 0,
+      "tokens": {
+        "input_tokens_est": 0,
+        "output_tokens_est": 0
+      },
+      "model": "gpt-4o"
+    },
+    {
+      "pass": false,
+      "overall_score": 0.0,
+      "weighted_score": 0.0,
+      "xml_valid": true,
+      "validation_pass": true,
+      "validation_errors": 0,
+      "metrics": {
+        "blocks": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "true_positives": 0,
+          "false_positives": 8,
+          "false_negatives": 2
+        },
+        "wiring": {
+          "accuracy": 0.0,
+          "precision": 0.125,
+          "correct": 0,
+          "total": 2,
+          "extra": 14
+        },
+        "params": {
+          "accuracy": 0.0,
+          "correct": 0,
+          "total": 2
+        },
+        "ux": {
+          "score": 1.0,
+          "issues": []
+        }
+      },
+      "simulation": {
+        "case_id": "ua06-sequencer-garden-zones",
+        "pass": false,
+        "passed_count": 1,
+        "total_count": 2,
+        "scenarios": [
+          {
+            "checks": [
+              {
+                "actual": 0.0,
+                "comparator": ">",
+                "expected": 0.5,
+                "output": "Ventil Zone 1.I1",
+                "pass": false
+              }
+            ],
+            "name": "should activate first zone on trigger",
+            "pass": false
+          },
+          {
+            "checks": [
+              {
+                "actual": 0.0,
+                "comparator": "<",
+                "expected": 0.5,
+                "output": "Ventil Zone 1.I1",
+                "pass": true
+              }
+            ],
+            "name": "should remain off without trigger",
+            "pass": true
+          }
+        ]
+      },
+      "sim_pass": false,
+      "sim_score": 0.5,
+      "case_id": "ua06-sequencer-garden-zones",
+      "difficulty": "hard",
+      "patterns": [
+        "sequencer",
+        "irrigation",
+        "timer"
+      ],
+      "utterance": "Sequencer: step through 4 garden zones on each button press, 15 min per zone",
+      "elapsed_seconds": 374.8,
+      "cli_invocations": 0,
+      "retries": 0,
+      "tokens": {
+        "input_tokens_est": 0,
+        "output_tokens_est": 0
+      },
+      "model": "gpt-4o"
+    },
+    {
+      "pass": false,
+      "overall_score": 0.7,
+      "weighted_score": 1.4,
+      "xml_valid": true,
+      "validation_pass": true,
+      "validation_errors": 0,
+      "metrics": {
+        "blocks": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "true_positives": 2,
+          "false_positives": 0,
+          "false_negatives": 0
+        },
+        "wiring": {
+          "accuracy": 0.25,
+          "precision": 0.4,
+          "correct": 1,
+          "total": 4,
+          "extra": 6
+        },
+        "params": {
+          "accuracy": 1.0,
+          "correct": 0,
+          "total": 0
+        },
+        "ux": {
+          "score": 1.0,
+          "issues": []
+        }
+      },
+      "simulation": {
+        "case_id": "ua07-rgb-scene-radio-select",
+        "pass": false,
+        "passed_count": 0,
+        "total_count": 1,
+        "scenarios": [
+          {
+            "checks": [
+              {
+                "actual": 0.0,
+                "comparator": ">",
+                "expected": 0.0,
+                "output": "RGB Lampe.I1",
+                "pass": false
+              }
+            ],
+            "name": "should select scene on radio button press",
+            "pass": false
+          }
+        ]
+      },
+      "sim_pass": false,
+      "sim_score": 0.0,
+      "case_id": "ua07-rgb-scene-radio-select",
+      "difficulty": "hard",
+      "patterns": [
+        "rgb-scene",
+        "radio-button",
+        "color-preset"
+      ],
+      "utterance": "RGB scene: select between 4 color presets via Radio2 button group",
+      "elapsed_seconds": 549.1,
+      "cli_invocations": 0,
+      "retries": 0,
+      "tokens": {
+        "input_tokens_est": 0,
+        "output_tokens_est": 0
+      },
+      "model": "gpt-4o"
+    },
+    {
+      "pass": false,
+      "overall_score": 0.0,
+      "weighted_score": 0.0,
+      "xml_valid": true,
+      "validation_pass": true,
+      "validation_errors": 0,
+      "metrics": {
+        "blocks": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "true_positives": 0,
+          "false_positives": 3,
+          "false_negatives": 2
+        },
+        "wiring": {
+          "accuracy": 0.0,
+          "precision": 0.143,
+          "correct": 0,
+          "total": 2,
+          "extra": 12
+        },
+        "params": {
+          "accuracy": 0.0,
+          "correct": 0,
+          "total": 1
+        },
+        "ux": {
+          "score": 1.0,
+          "issues": []
+        }
+      },
+      "simulation": {
+        "case_id": "ua08-emergency-call-trigger",
+        "pass": false,
+        "passed_count": 1,
+        "total_count": 2,
+        "scenarios": [
+          {
+            "checks": [
+              {
+                "actual": 0.0,
+                "comparator": ">",
+                "expected": 0.5,
+                "output": "CallGen.Trigger",
+                "pass": false
+              }
+            ],
+            "name": "should trigger alarm on panic button",
+            "pass": false
+          },
+          {
+            "checks": [
+              {
+                "actual": 0.0,
+                "comparator": "<",
+                "expected": 0.5,
+                "output": "CallGen.Trigger",
+                "pass": true
+              }
+            ],
+            "name": "should NOT trigger without button press",
+            "pass": true
+          }
+        ]
+      },
+      "sim_pass": false,
+      "sim_score": 0.5,
+      "case_id": "ua08-emergency-call-trigger",
+      "difficulty": "hard",
+      "patterns": [
+        "emergency",
+        "aal",
+        "call"
+      ],
+      "utterance": "AAL emergency: panic button triggers alarm, auto-calls caretaker after 60s if not confirmed",
+      "elapsed_seconds": 245.5,
+      "cli_invocations": 0,
+      "retries": 0,
+      "tokens": {
+        "input_tokens_est": 0,
+        "output_tokens_est": 0
+      },
+      "model": "gpt-4o"
+    },
+    {
+      "pass": false,
+      "overall_score": 0.3,
+      "weighted_score": 0.45,
+      "xml_valid": true,
+      "validation_pass": true,
+      "validation_errors": 0,
+      "metrics": {
+        "blocks": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "true_positives": 0,
+          "false_positives": 0,
+          "false_negatives": 1
+        },
+        "wiring": {
+          "accuracy": 0.0,
+          "precision": 0.75,
+          "correct": 0,
+          "total": 3,
+          "extra": 1
+        },
+        "params": {
+          "accuracy": 1.0,
+          "correct": 0,
+          "total": 0
+        },
+        "ux": {
+          "score": 1.0,
+          "issues": []
+        }
+      },
+      "simulation": {
+        "case_id": "ua09-lightscene-cycle",
+        "pass": false,
+        "passed_count": 0,
+        "total_count": 1,
+        "scenarios": [
+          {
+            "checks": [
+              {
+                "actual": 0.0,
+                "comparator": ">",
+                "expected": 0.0,
+                "output": "Deckenlampe.I1",
+                "pass": false
+              }
+            ],
+            "name": "should change scene on up trigger",
+            "pass": false
+          }
+        ]
+      },
+      "sim_pass": false,
+      "sim_score": 0.0,
+      "case_id": "ua09-lightscene-cycle",
+      "difficulty": "medium",
+      "patterns": [
+        "lightscene",
+        "cycle",
+        "button"
+      ],
+      "utterance": "Lightscene: cycle through 4 lighting moods with up/down buttons on wall switch",
+      "elapsed_seconds": 191.9,
+      "cli_invocations": 0,
+      "retries": 0,
+      "tokens": {
+        "input_tokens_est": 0,
+        "output_tokens_est": 0
+      },
+      "model": "gpt-4o"
+    },
+    {
+      "pass": false,
+      "overall_score": 0.0,
+      "weighted_score": 0.0,
+      "xml_valid": true,
+      "validation_pass": true,
+      "validation_errors": 0,
+      "metrics": {
+        "blocks": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "true_positives": 0,
+          "false_positives": 3,
+          "false_negatives": 1
+        },
+        "wiring": {
+          "accuracy": 0.0,
+          "precision": 0.3,
+          "correct": 0,
+          "total": 3,
+          "extra": 7
+        },
+        "params": {
+          "accuracy": 0.0,
+          "correct": 0,
+          "total": 1
+        },
+        "ux": {
+          "score": 1.0,
+          "issues": []
+        }
+      },
+      "simulation": {
+        "case_id": "ua10-presence-controller-office",
+        "pass": false,
+        "passed_count": 1,
+        "total_count": 2,
+        "scenarios": [
+          {
+            "checks": [
+              {
+                "actual": 0.0,
+                "comparator": ">",
+                "expected": 0.5,
+                "output": "Büro Licht.I1",
+                "pass": false
+              }
+            ],
+            "name": "should activate light on motion",
+            "pass": false
+          },
+          {
+            "checks": [
+              {
+                "actual": 0.0,
+                "comparator": "<",
+                "expected": 0.5,
+                "output": "Büro Licht.I1",
+                "pass": true
+              }
+            ],
+            "name": "should NOT activate without motion",
+            "pass": true
+          }
+        ]
+      },
+      "sim_pass": false,
+      "sim_score": 0.5,
+      "case_id": "ua10-presence-controller-office",
+      "difficulty": "hard",
+      "patterns": [
+        "presence",
+        "brightness",
+        "office"
+      ],
+      "utterance": "PresenceController: detect motion and ambient light to control office lighting with 10 min timeout",
+      "elapsed_seconds": 186.4,
+      "cli_invocations": 0,
+      "retries": 0,
+      "tokens": {
+        "input_tokens_est": 0,
+        "output_tokens_est": 0
+      },
+      "model": "gpt-4o"
+    },
+    {
+      "pass": false,
+      "overall_score": 0.6,
+      "weighted_score": 0.9,
+      "xml_valid": true,
+      "validation_pass": true,
+      "validation_errors": 0,
+      "metrics": {
+        "blocks": {
+          "precision": 0.25,
+          "recall": 0.5,
+          "f1": 0.333,
+          "true_positives": 1,
+          "false_positives": 3,
+          "false_negatives": 1
+        },
+        "wiring": {
+          "accuracy": 0.5,
+          "precision": 0.5,
+          "correct": 2,
+          "total": 4,
+          "extra": 4
+        },
+        "params": {
+          "accuracy": 1.0,
+          "correct": 0,
+          "total": 0
+        },
+        "ux": {
+          "score": 1.0,
+          "issues": []
+        }
+      },
+      "simulation": {
+        "case_id": "ua11-eib-jalousie-buttons",
+        "pass": false,
+        "passed_count": 1,
+        "total_count": 2,
+        "scenarios": [
+          {
+            "checks": [
+              {
+                "actual": 0.0,
+                "comparator": ">",
+                "expected": 0.5,
+                "output": "EIBJalousie.InputTriggerUp",
+                "pass": false
+              }
+            ],
+            "name": "should allow up when wind safe",
+            "pass": false
+          },
+          {
+            "checks": [
+              {
+                "actual": 0.0,
+                "comparator": "<",
+                "expected": 0.5,
+                "output": "EIBJalousie.InputTriggerUp",
+                "pass": true
+              }
+            ],
+            "name": "should block up when wind unsafe",
+            "pass": true
+          }
+        ]
+      },
+      "sim_pass": false,
+      "sim_score": 0.5,
+      "case_id": "ua11-eib-jalousie-buttons",
+      "difficulty": "medium",
+      "patterns": [
+        "knx",
+        "jalousie",
+        "button-control"
+      ],
+      "utterance": "EIB Jalousie: wall buttons control KNX blind up/down with safety wind sensor lock",
+      "elapsed_seconds": 110.3,
+      "cli_invocations": 0,
+      "retries": 0,
+      "tokens": {
+        "input_tokens_est": 0,
+        "output_tokens_est": 0
+      },
+      "model": "gpt-4o"
+    },
+    {
+      "pass": true,
+      "overall_score": 0.9,
+      "weighted_score": 1.35,
+      "xml_valid": true,
+      "validation_pass": true,
+      "validation_errors": 0,
+      "metrics": {
+        "blocks": {
+          "precision": 0.5,
+          "recall": 1.0,
+          "f1": 0.667,
+          "true_positives": 1,
+          "false_positives": 1,
+          "false_negatives": 0
+        },
+        "wiring": {
+          "accuracy": 1.0,
+          "precision": 0.5,
+          "correct": 1,
+          "total": 1,
+          "extra": 1
+        },
+        "params": {
+          "accuracy": 1.0,
+          "correct": 0,
+          "total": 0
+        },
+        "ux": {
+          "score": 1.0,
+          "issues": []
+        }
+      },
+      "simulation": {
+        "case_id": "ua12-mail-on-access-denied",
+        "pass": false,
+        "passed_count": 1,
+        "total_count": 2,
+        "scenarios": [
+          {
+            "checks": [
+              {
+                "actual": 0.0,
+                "comparator": ">",
+                "expected": 0.5,
+                "output": "MailGen.Trigger",
+                "pass": false
+              }
+            ],
+            "name": "should send mail on denied access",
+            "pass": false
+          },
+          {
+            "checks": [
+              {
+                "actual": 0.0,
+                "comparator": "<",
+                "expected": 0.5,
+                "output": "MailGen.Trigger",
+                "pass": true
+              }
+            ],
+            "name": "should NOT send mail on valid access",
+            "pass": true
+          }
+        ]
+      },
+      "sim_pass": false,
+      "sim_score": 0.5,
+      "case_id": "ua12-mail-on-access-denied",
+      "difficulty": "medium",
+      "patterns": [
+        "access",
+        "mail",
+        "security"
+      ],
+      "utterance": "Send email notification when access is denied at front door NFC reader",
+      "elapsed_seconds": 94.4,
+      "cli_invocations": 0,
+      "retries": 0,
+      "tokens": {
+        "input_tokens_est": 0,
+        "output_tokens_est": 0
+      },
+      "model": "gpt-4o"
+    },
+    {
+      "pass": false,
+      "overall_score": 0.3,
+      "weighted_score": 0.3,
+      "xml_valid": true,
+      "validation_pass": true,
+      "validation_errors": 0,
+      "metrics": {
+        "blocks": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "true_positives": 0,
+          "false_positives": 6,
+          "false_negatives": 1
+        },
+        "wiring": {
+          "accuracy": 0.0,
+          "precision": 0.188,
+          "correct": 0,
+          "total": 3,
+          "extra": 13
+        },
+        "params": {
+          "accuracy": 1.0,
+          "correct": 0,
+          "total": 0
+        },
+        "ux": {
+          "score": 1.0,
+          "issues": []
+        }
+      },
+      "simulation": {
+        "case_id": "ua13-meter-daily-export",
+        "pass": false,
+        "passed_count": 0,
+        "total_count": 1,
+        "scenarios": [
+          {
+            "checks": [
+              {
+                "actual": 0.0,
+                "comparator": ">",
+                "expected": 0.0,
+                "output": "Anzeige Import.I1",
+                "pass": false
+              }
+            ],
+            "name": "should pass power reading through",
+            "pass": false
+          }
+        ]
+      },
+      "sim_pass": false,
+      "sim_score": 0.0,
+      "case_id": "ua13-meter-daily-export",
+      "difficulty": "easy",
+      "patterns": [
+        "metering",
+        "bidirectional",
+        "solar"
+      ],
+      "utterance": "Bidirectional meter: track solar export and import separately, display on visualization",
+      "elapsed_seconds": 129.0,
+      "cli_invocations": 0,
+      "retries": 0,
+      "tokens": {
+        "input_tokens_est": 0,
+        "output_tokens_est": 0
+      },
+      "model": "gpt-4o"
+    },
+    {
+      "pass": false,
+      "overall_score": 0.417,
+      "weighted_score": 0.833,
+      "xml_valid": true,
+      "validation_pass": true,
+      "validation_errors": 0,
+      "metrics": {
+        "blocks": {
+          "precision": 0.333,
+          "recall": 1.0,
+          "f1": 0.5,
+          "true_positives": 1,
+          "false_positives": 2,
+          "false_negatives": 0
+        },
+        "wiring": {
+          "accuracy": 0.667,
+          "precision": 0.6,
+          "correct": 2,
+          "total": 3,
+          "extra": 2
+        },
+        "params": {
+          "accuracy": 0.0,
+          "correct": 0,
+          "total": 1
+        },
+        "ux": {
+          "score": 1.0,
+          "issues": []
+        }
+      },
+      "simulation": {
+        "case_id": "ua14-learnable-lightscene",
+        "pass": false,
+        "passed_count": 0,
+        "total_count": 1,
+        "scenarios": [
+          {
+            "checks": [
+              {
+                "actual": 0.0,
+                "comparator": ">",
+                "expected": 0.0,
+                "output": "Lampe 1.I1",
+                "pass": false
+              }
+            ],
+            "name": "should recall stored scene",
+            "pass": false
+          }
+        ]
+      },
+      "sim_pass": false,
+      "sim_score": 0.0,
+      "case_id": "ua14-learnable-lightscene",
+      "difficulty": "hard",
+      "patterns": [
+        "lightscene",
+        "learn",
+        "store"
+      ],
+      "utterance": "Learnable light scene: store current dimmer values as preset, recall with select buttons",
+      "elapsed_seconds": 288.6,
+      "cli_invocations": 0,
+      "retries": 0,
+      "tokens": {
+        "input_tokens_est": 0,
+        "output_tokens_est": 0
+      },
+      "model": "gpt-4o"
+    },
+    {
+      "pass": false,
+      "overall_score": 0.4,
+      "weighted_score": 1.2,
+      "xml_valid": true,
+      "validation_pass": true,
+      "validation_errors": 0,
+      "metrics": {
+        "blocks": {
+          "precision": 0.5,
+          "recall": 1.0,
+          "f1": 0.667,
+          "true_positives": 1,
+          "false_positives": 1,
+          "false_negatives": 0
+        },
+        "wiring": {
+          "accuracy": 0.5,
+          "precision": 0.5,
+          "correct": 2,
+          "total": 4,
+          "extra": 4
+        },
+        "params": {
+          "accuracy": 0.0,
+          "correct": 0,
+          "total": 2
+        },
+        "ux": {
+          "score": 1.0,
+          "issues": []
+        }
+      },
+      "simulation": {
+        "case_id": "ua15-tpf-presence-display",
+        "pass": false,
+        "passed_count": 1,
+        "total_count": 2,
+        "scenarios": [
+          {
+            "checks": [
+              {
+                "actual": 0.0,
+                "comparator": ">",
+                "expected": 0.5,
+                "output": "Raumregler.Move",
+                "pass": false
+              }
+            ],
+            "name": "should forward presence to HVAC",
+            "pass": false
+          },
+          {
+            "checks": [
+              {
+                "actual": 0.0,
+                "comparator": "<",
+                "expected": 0.5,
+                "output": "Raumregler.Move",
+                "pass": true
+              }
+            ],
+            "name": "should NOT forward without presence",
+            "pass": true
+          }
+        ]
+      },
+      "sim_pass": false,
+      "sim_score": 0.5,
+      "case_id": "ua15-tpf-presence-display",
+      "difficulty": "expert",
+      "patterns": [
+        "tpf",
+        "presence",
+        "setpoint"
+      ],
+      "utterance": "Touch Pure Flex: show room presence on display and forward setpoint changes to HVAC",
+      "elapsed_seconds": 518.6,
+      "cli_invocations": 0,
+      "retries": 0,
+      "tokens": {
+        "input_tokens_est": 0,
+        "output_tokens_est": 0
+      },
+      "model": "gpt-4o"
+    },
+    {
+      "pass": false,
+      "overall_score": 0.6,
+      "weighted_score": 0.9,
+      "xml_valid": true,
+      "validation_pass": true,
+      "validation_errors": 0,
+      "metrics": {
+        "blocks": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "true_positives": 1,
+          "false_positives": 0,
+          "false_negatives": 0
+        },
+        "wiring": {
+          "accuracy": 0.0,
+          "precision": 0.25,
+          "correct": 0,
+          "total": 1,
+          "extra": 3
+        },
+        "params": {
+          "accuracy": 1.0,
+          "correct": 2,
+          "total": 2
+        },
+        "ux": {
+          "score": 1.0,
+          "issues": []
+        }
+      },
+      "simulation": {
+        "case_id": "ch-001",
+        "pass": false,
+        "passed_count": 0,
+        "total_count": 2,
+        "scenarios": [
+          {
+            "checks": [
+              {
+                "actual": 0.0,
+                "comparator": "==",
+                "expected": 22.0,
+                "output": "Set Setpoint.AQ",
+                "pass": false
+              }
+            ],
+            "name": "occupied room gets comfort setpoint 22",
+            "pass": false
+          },
+          {
+            "checks": [
+              {
+                "actual": 0.0,
+                "comparator": "==",
+                "expected": 18.0,
+                "output": "Set Setpoint.AQ",
+                "pass": false
+              }
+            ],
+            "name": "empty room gets eco setpoint 18",
+            "pass": false
+          }
+        ]
+      },
+      "sim_pass": false,
+      "sim_score": 0.0,
+      "case_id": "ch-001",
+      "difficulty": "medium",
+      "patterns": [
+        "heating-mode-setpoints",
+        "analog-multiplexer",
+        "setpoint-switch"
+      ],
+      "utterance": "Set up comfort/eco setpoint switching for the Wohnzimmer: use an AnalogMultiplexer to select 22°C when the room is occupied and 18°C when empty, and wire the output to the Raumregler setpoint input",
+      "elapsed_seconds": 291.0,
+      "cli_invocations": 0,
+      "retries": 0,
+      "tokens": {
+        "input_tokens_est": 0,
+        "output_tokens_est": 0
+      },
+      "model": "gpt-4o"
+    },
+    {
+      "case_id": "ch-002",
+      "pass": false,
+      "sim_pass": false,
+      "sim_score": 0,
+      "overall_score": 0,
+      "error": "Agent timed out after 600s",
+      "difficulty": "hard",
+      "patterns": [
+        "heating-mode-setpoints",
+        "occupancy-mode",
+        "irc-cascade"
+      ],
+      "utterance": "Build a 3-mode occupancy setpoint selector for the Wohnzimmer Raumregler: AnalogMultiplexer with comfort=22°C, eco=18°C, off=15°C. Wire a NotEqual block to detect when the mode is not 'off', and feed the multiplexer output to the IRC setpoint",
+      "elapsed_seconds": 600.0,
+      "metrics": {
+        "blocks": {
+          "precision": 0,
+          "recall": 0,
+          "f1": 0,
+          "true_positives": 0,
+          "false_positives": 0,
+          "false_negatives": 0
+        },
+        "wiring": {
+          "accuracy": 0,
+          "precision": 0,
+          "correct": 0,
+          "total": 0,
+          "extra": 0
+        },
+        "params": {
+          "accuracy": 0,
+          "correct": 0,
+          "total": 0
+        },
+        "ux": {
+          "score": 0,
+          "issues": []
+        }
+      },
+      "cli_invocations": 0,
+      "retries": 0,
+      "tokens": {
+        "input_tokens_est": 0,
+        "output_tokens_est": 0
+      },
+      "model": "gpt-4o"
+    },
+    {
+      "pass": false,
+      "overall_score": 0.2,
+      "weighted_score": 0.3,
+      "xml_valid": true,
+      "validation_pass": true,
+      "validation_errors": 0,
+      "metrics": {
+        "blocks": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "true_positives": 0,
+          "false_positives": 1,
+          "false_negatives": 1
+        },
+        "wiring": {
+          "accuracy": 0.5,
+          "precision": 0.5,
+          "correct": 1,
+          "total": 2,
+          "extra": 2
+        },
+        "params": {
+          "accuracy": 0.0,
+          "correct": 0,
+          "total": 1
+        },
+        "ux": {
+          "score": 1.0,
+          "issues": []
+        }
+      },
+      "simulation": {
+        "case_id": "ch-003",
+        "pass": true,
+        "passed_count": 1,
+        "total_count": 1,
+        "scenarios": [
+          {
+            "checks": [
+              {
+                "actual": 1.0,
+                "comparator": ">",
+                "expected": 0.5,
+                "output": "Raumregler [Wohnzimmer].Window",
+                "pass": true
+              }
+            ],
+            "name": "window open immediately inhibits heating",
+            "pass": true
+          }
+        ]
+      },
+      "sim_pass": true,
+      "sim_score": 1.0,
+      "case_id": "ch-003",
+      "difficulty": "medium",
+      "patterns": [
+        "window-heating-inhibit",
+        "window-sensor",
+        "debounce"
+      ],
+      "utterance": "Add a 2-minute window-close delay before re-enabling heating: when Fensterkontakt Wohnzimmer goes low, start an OnDelay, and only clear Raumregler.Window after 2 minutes so the heating doesn't cycle rapidly",
+      "elapsed_seconds": 66.5,
+      "cli_invocations": 0,
+      "retries": 0,
+      "tokens": {
+        "input_tokens_est": 0,
+        "output_tokens_est": 0
+      },
+      "model": "gpt-4o"
+    },
+    {
+      "pass": false,
+      "overall_score": 0.75,
+      "weighted_score": 1.5,
+      "xml_valid": true,
+      "validation_pass": true,
+      "validation_errors": 0,
+      "metrics": {
+        "blocks": {
+          "precision": 0.5,
+          "recall": 0.5,
+          "f1": 0.5,
+          "true_positives": 1,
+          "false_positives": 1,
+          "false_negatives": 1
+        },
+        "wiring": {
+          "accuracy": 0.75,
+          "precision": 0.5,
+          "correct": 3,
+          "total": 4,
+          "extra": 4
+        },
+        "params": {
+          "accuracy": 1.0,
+          "correct": 0,
+          "total": 0
+        },
+        "ux": {
+          "score": 1.0,
+          "issues": []
+        }
+      },
+      "simulation": {
+        "case_id": "ch-004",
+        "pass": false,
+        "passed_count": 1,
+        "total_count": 3,
+        "scenarios": [
+          {
+            "checks": [
+              {
+                "actual": 0.0,
+                "comparator": ">",
+                "expected": 0.5,
+                "output": "Window State.Q",
+                "pass": false
+              }
+            ],
+            "name": "window open latches inhibit",
+            "pass": false
+          },
+          {
+            "checks": [
+              {
+                "actual": 0.0,
+                "comparator": ">",
+                "expected": 0.5,
+                "output": "Window State.Q",
+                "pass": false
+              }
+            ],
+            "name": "door open also latches inhibit",
+            "pass": false
+          },
+          {
+            "checks": [
+              {
+                "actual": 0.0,
+                "comparator": "<",
+                "expected": 0.5,
+                "output": "Fenster offen.Q",
+                "pass": true
+              }
+            ],
+            "name": "no inhibit when both closed",
+            "pass": true
+          }
+        ]
+      },
+      "sim_pass": false,
+      "sim_score": 0.3333333333333333,
+      "case_id": "ch-004",
+      "difficulty": "hard",
+      "patterns": [
+        "window-heating-inhibit",
+        "and-gate",
+        "memory"
+      ],
+      "utterance": "Combine the Wohnzimmer window and door contacts into a single heating inhibit signal: wire both Fensterkontakt Wohnzimmer and Türkontakt Wohnzimmer through an Or gate, then into a Memory block to latch the 'window open' state, and connect Memory.Q to Raumregler.Window",
+      "elapsed_seconds": 157.5,
+      "cli_invocations": 0,
+      "retries": 0,
+      "tokens": {
+        "input_tokens_est": 0,
+        "output_tokens_est": 0
+      },
+      "model": "gpt-4o"
+    },
+    {
+      "pass": true,
+      "overall_score": 1.0,
+      "weighted_score": 1.5,
+      "xml_valid": true,
+      "validation_pass": true,
+      "validation_errors": 0,
+      "metrics": {
+        "blocks": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "true_positives": 1,
+          "false_positives": 0,
+          "false_negatives": 0
+        },
+        "wiring": {
+          "accuracy": 1.0,
+          "precision": 0.5,
+          "correct": 2,
+          "total": 2,
+          "extra": 2
+        },
+        "params": {
+          "accuracy": 1.0,
+          "correct": 1,
+          "total": 1
+        },
+        "ux": {
+          "score": 1.0,
+          "issues": []
+        }
+      },
+      "simulation": {
+        "case_id": "ch-005",
+        "pass": true,
+        "passed_count": 2,
+        "total_count": 2,
+        "scenarios": [
+          {
+            "checks": [
+              {
+                "actual": 1.0,
+                "comparator": ">",
+                "expected": 0.5,
+                "output": "Raumregler [Wohnzimmer].Window",
+                "pass": true
+              }
+            ],
+            "name": "window open activates inhibit immediately",
+            "pass": true
+          },
+          {
+            "checks": [
+              {
+                "actual": 1.0,
+                "comparator": ">",
+                "expected": 0.5,
+                "output": "Raumregler [Wohnzimmer].Window",
+                "pass": true
+              }
+            ],
+            "name": "window close holds inhibit via off-delay",
+            "pass": true
+          }
+        ]
+      },
+      "sim_pass": true,
+      "sim_score": 1.0,
+      "case_id": "ch-005",
+      "difficulty": "medium",
+      "patterns": [
+        "window-heating-inhibit",
+        "off-delay",
+        "re-enable"
+      ],
+      "utterance": "When the Wohnzimmer Fensterkontakt goes from open to closed, use an OffDelay of 2 minutes to keep the Raumregler.Window inhibit active a bit longer, preventing rapid heating cycling after closing the window",
+      "elapsed_seconds": 66.7,
+      "cli_invocations": 0,
+      "retries": 0,
+      "tokens": {
+        "input_tokens_est": 0,
+        "output_tokens_est": 0
+      },
+      "model": "gpt-4o"
+    },
+    {
+      "pass": true,
+      "overall_score": 1.0,
+      "weighted_score": 1.5,
+      "xml_valid": true,
+      "validation_pass": true,
+      "validation_errors": 0,
+      "metrics": {
+        "blocks": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "true_positives": 1,
+          "false_positives": 0,
+          "false_negatives": 0
+        },
+        "wiring": {
+          "accuracy": 1.0,
+          "precision": 0.5,
+          "correct": 3,
+          "total": 3,
+          "extra": 3
+        },
+        "params": {
+          "accuracy": 1.0,
+          "correct": 0,
+          "total": 0
+        },
+        "ux": {
+          "score": 1.0,
+          "issues": []
+        }
+      },
+      "simulation": {
+        "case_id": "ch-006",
+        "pass": false,
+        "passed_count": 1,
+        "total_count": 2,
+        "scenarios": [
+          {
+            "checks": [
+              {
+                "actual": 0.0,
+                "comparator": ">",
+                "expected": 0.0,
+                "output": "Raumregler Bad.AQh",
+                "pass": false
+              }
+            ],
+            "name": "cold bathroom demands heat",
+            "pass": false
+          },
+          {
+            "checks": [
+              {
+                "actual": 0.0,
+                "comparator": "==",
+                "expected": 0.0,
+                "output": "Raumregler Bad.AQh",
+                "pass": true
+              }
+            ],
+            "name": "window open inhibits heating",
+            "pass": true
+          }
+        ]
+      },
+      "sim_pass": false,
+      "sim_score": 0.5,
+      "case_id": "ch-006",
+      "difficulty": "medium",
+      "patterns": [
+        "bathroom-heating",
+        "irc-zone",
+        "window-inhibit"
+      ],
+      "utterance": "Configure the Bad as a heating zone: add a Raumregler (IRC), wire Raumtemperatur Bad to the Temp input, Raumfeuchtigkeit Bad to InHumid, and Fensterkontakt Bad to the Window inhibit input",
+      "elapsed_seconds": 55.8,
+      "cli_invocations": 0,
+      "retries": 0,
+      "tokens": {
+        "input_tokens_est": 0,
+        "output_tokens_est": 0
+      },
+      "model": "gpt-4o"
+    },
+    {
+      "pass": false,
+      "overall_score": 0.283,
+      "weighted_score": 0.567,
+      "xml_valid": true,
+      "validation_pass": true,
+      "validation_errors": 0,
+      "metrics": {
+        "blocks": {
+          "precision": 0.5,
+          "recall": 0.5,
+          "f1": 0.5,
+          "true_positives": 1,
+          "false_positives": 1,
+          "false_negatives": 1
+        },
+        "wiring": {
+          "accuracy": 0.333,
+          "precision": 1.0,
+          "correct": 1,
+          "total": 3,
+          "extra": 0
+        },
+        "params": {
+          "accuracy": 0.0,
+          "correct": 0,
+          "total": 2
+        },
+        "ux": {
+          "score": 1.0,
+          "issues": []
+        }
+      },
+      "simulation": {
+        "case_id": "ch-007",
+        "pass": false,
+        "passed_count": 0,
+        "total_count": 2,
+        "scenarios": [
+          {
+            "checks": [
+              {
+                "actual": 0.0,
+                "comparator": "==",
+                "expected": 22.0,
+                "output": "Rtd Irr Mode.AQ",
+                "pass": false
+              }
+            ],
+            "name": "comfort mode selected",
+            "pass": false
+          },
+          {
+            "checks": [
+              {
+                "actual": 0.0,
+                "comparator": "==",
+                "expected": 20.0,
+                "output": "Rtd Irr Mode.AQ",
+                "pass": false
+              }
+            ],
+            "name": "eco mode selected",
+            "pass": false
+          }
+        ]
+      },
+      "sim_pass": false,
+      "sim_score": 0.0,
+      "case_id": "ch-007",
+      "difficulty": "hard",
+      "patterns": [
+        "bathroom-heating",
+        "analog-multiplexer",
+        "mode-select"
+      ],
+      "utterance": "Add an AnalogMultiplexer for bathroom IRC mode selection: Input1=comfort (22°C), Input2=eco (20°C). Wire the output to Raumregler Bad.AMode to switch the IRC operating mode based on room occupancy",
+      "elapsed_seconds": 153.0,
+      "cli_invocations": 0,
+      "retries": 0,
+      "tokens": {
+        "input_tokens_est": 0,
+        "output_tokens_est": 0
+      },
+      "model": "gpt-4o"
+    },
+    {
+      "pass": false,
+      "overall_score": 0.3,
+      "weighted_score": 0.3,
+      "xml_valid": true,
+      "validation_pass": true,
+      "validation_errors": 0,
+      "metrics": {
+        "blocks": {
+          "precision": 0.0,
+          "recall": 1.0,
+          "f1": 0.0,
+          "true_positives": 0,
+          "false_positives": 2,
+          "false_negatives": 0
+        },
+        "wiring": {
+          "accuracy": 0.0,
+          "precision": 0.167,
+          "correct": 0,
+          "total": 1,
+          "extra": 5
+        },
+        "params": {
+          "accuracy": 1.0,
+          "correct": 0,
+          "total": 0
+        },
+        "ux": {
+          "score": 1.0,
+          "issues": []
+        }
+      },
+      "simulation": {
+        "case_id": "ch-008",
+        "pass": false,
+        "passed_count": 0,
+        "total_count": 2,
+        "scenarios": [
+          {
+            "checks": [
+              {
+                "actual": 0.0,
+                "comparator": "==",
+                "expected": 5.0,
+                "output": "Klimaanlage [Wohnzimmer].Temp",
+                "pass": false
+              }
+            ],
+            "name": "cold outdoor temp routes to AC sensor",
+            "pass": false
+          },
+          {
+            "checks": [
+              {
+                "actual": 0.0,
+                "comparator": "==",
+                "expected": 30.0,
+                "output": "Klimaanlage [Wohnzimmer].Temp",
+                "pass": false
+              }
+            ],
+            "name": "warm outdoor temp routes to AC sensor",
+            "pass": false
+          }
+        ]
+      },
+      "sim_pass": false,
+      "sim_score": 0.0,
+      "case_id": "ch-008",
+      "difficulty": "easy",
+      "patterns": [
+        "hvac-central-mode",
+        "outdoor-temp",
+        "heating-cooling-switch"
+      ],
+      "utterance": "Set up the central heating/cooling mode switch: wire the Außentemperatur sensor to the Klimaanlage to determine whether the building should be in heating or cooling mode based on outdoor temperature",
+      "elapsed_seconds": 170.8,
+      "cli_invocations": 0,
+      "retries": 0,
+      "tokens": {
+        "input_tokens_est": 0,
+        "output_tokens_est": 0
+      },
+      "model": "gpt-4o"
+    },
+    {
+      "pass": true,
+      "overall_score": 0.8,
+      "weighted_score": 1.2,
+      "xml_valid": true,
+      "validation_pass": true,
+      "validation_errors": 0,
+      "metrics": {
+        "blocks": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "true_positives": 1,
+          "false_positives": 0,
+          "false_negatives": 0
+        },
+        "wiring": {
+          "accuracy": 0.5,
+          "precision": 0.5,
+          "correct": 1,
+          "total": 2,
+          "extra": 2
+        },
+        "params": {
+          "accuracy": 1.0,
+          "correct": 1,
+          "total": 1
+        },
+        "ux": {
+          "score": 1.0,
+          "issues": []
+        }
+      },
+      "simulation": {
+        "case_id": "ch-009",
+        "pass": false,
+        "passed_count": 1,
+        "total_count": 2,
+        "scenarios": [
+          {
+            "checks": [
+              {
+                "actual": 0.0,
+                "comparator": ">",
+                "expected": 0.5,
+                "output": "Outdoor Threshold.Q",
+                "pass": false
+              }
+            ],
+            "name": "warm outdoor enables cooling",
+            "pass": false
+          },
+          {
+            "checks": [
+              {
+                "actual": 0.0,
+                "comparator": "<",
+                "expected": 0.5,
+                "output": "Outdoor Threshold.Q",
+                "pass": true
+              }
+            ],
+            "name": "cold outdoor disables cooling",
+            "pass": true
+          }
+        ]
+      },
+      "sim_pass": false,
+      "sim_score": 0.5,
+      "case_id": "ch-009",
+      "difficulty": "medium",
+      "patterns": [
+        "hvac-central-mode",
+        "threshold",
+        "enable-switch"
+      ],
+      "utterance": "Switch between heating and cooling mode based on outdoor temperature: use a GreaterEqual threshold at 20°C on the Außentemperatur, wire to the Klimaanlage enable input so cooling only activates when it's warm outside",
+      "elapsed_seconds": 71.2,
+      "cli_invocations": 0,
+      "retries": 0,
+      "tokens": {
+        "input_tokens_est": 0,
+        "output_tokens_est": 0
+      },
+      "model": "gpt-4o"
+    },
+    {
+      "pass": true,
+      "overall_score": 1.0,
+      "weighted_score": 2.0,
+      "xml_valid": true,
+      "validation_pass": true,
+      "validation_errors": 0,
+      "metrics": {
+        "blocks": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "true_positives": 1,
+          "false_positives": 0,
+          "false_negatives": 0
+        },
+        "wiring": {
+          "accuracy": 1.0,
+          "precision": 0.571,
+          "correct": 4,
+          "total": 4,
+          "extra": 3
+        },
+        "params": {
+          "accuracy": 1.0,
+          "correct": 0,
+          "total": 0
+        },
+        "ux": {
+          "score": 1.0,
+          "issues": []
+        }
+      },
+      "simulation": {
+        "case_id": "ch-010",
+        "pass": false,
+        "passed_count": 1,
+        "total_count": 3,
+        "scenarios": [
+          {
+            "checks": [
+              {
+                "actual": 0.0,
+                "comparator": ">",
+                "expected": 0.0,
+                "output": "Status Hzg.AQ",
+                "pass": false
+              }
+            ],
+            "name": "heating demand shows state 1",
+            "pass": false
+          },
+          {
+            "checks": [
+              {
+                "actual": 0.0,
+                "comparator": ">",
+                "expected": 0.0,
+                "output": "Status Hzg.AQ",
+                "pass": false
+              }
+            ],
+            "name": "window open changes state",
+            "pass": false
+          },
+          {
+            "checks": [
+              {
+                "actual": 0.0,
+                "comparator": "==",
+                "expected": 0.0,
+                "output": "Status Hzg.AQ",
+                "pass": true
+              }
+            ],
+            "name": "idle state shows 0",
+            "pass": true
+          }
+        ]
+      },
+      "sim_pass": false,
+      "sim_score": 0.3333333333333333,
+      "case_id": "ch-010",
+      "difficulty": "hard",
+      "patterns": [
+        "heating-status-display",
+        "state-block",
+        "multi-input"
+      ],
+      "utterance": "Build a heating status display with a 4-input State block in the Wohnzimmer: I1=heating demand from Raumregler.AQh, I2=cooling demand from Raumregler.AQc, I3=window open from Fensterkontakt Wohnzimmer, I4=door open from Türkontakt Wohnzimmer",
+      "elapsed_seconds": 63.7,
+      "cli_invocations": 0,
+      "retries": 0,
+      "tokens": {
+        "input_tokens_est": 0,
+        "output_tokens_est": 0
+      },
+      "model": "gpt-4o"
+    },
+    {
+      "pass": true,
+      "overall_score": 0.867,
+      "weighted_score": 2.6,
+      "xml_valid": true,
+      "validation_pass": true,
+      "validation_errors": 0,
+      "metrics": {
+        "blocks": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "true_positives": 3,
+          "false_positives": 0,
+          "false_negatives": 0
+        },
+        "wiring": {
+          "accuracy": 0.667,
+          "precision": 0.857,
+          "correct": 4,
+          "total": 6,
+          "extra": 1
+        },
+        "params": {
+          "accuracy": 1.0,
+          "correct": 0,
+          "total": 0
+        },
+        "ux": {
+          "score": 1.0,
+          "issues": []
+        }
+      },
+      "simulation": {
+        "case_id": "ch-011",
+        "pass": true,
+        "passed_count": 2,
+        "total_count": 2,
+        "scenarios": [
+          {
+            "checks": [
+              {
+                "actual": 8.0,
+                "comparator": ">",
+                "expected": 0.0,
+                "output": "Heizen.AQ",
+                "pass": true
+              }
+            ],
+            "name": "heating valve scales correctly",
+            "pass": true
+          },
+          {
+            "checks": [
+              {
+                "actual": 6.999999999999999,
+                "comparator": ">",
+                "expected": 0.0,
+                "output": "Kühlen.AQ",
+                "pass": true
+              }
+            ],
+            "name": "cooling valve scales correctly",
+            "pass": true
+          }
+        ]
+      },
+      "sim_pass": true,
+      "sim_score": 1.0,
+      "case_id": "ch-011",
+      "difficulty": "expert",
+      "patterns": [
+        "heating-status-display",
+        "analog-scaler",
+        "valve-output"
+      ],
+      "utterance": "Add AnalogScaler blocks for the Wohnzimmer IRC valve outputs: wire Raumregler.AQh through an AnalogScaler 'Heizen' (0-100%) and Raumregler.AQc through another AnalogScaler 'Kühlen' (0-100%), then feed both scaler outputs into a State block I3 and I4 to display valve positions",
+      "elapsed_seconds": 125.9,
+      "cli_invocations": 0,
+      "retries": 0,
+      "tokens": {
+        "input_tokens_est": 0,
+        "output_tokens_est": 0
+      },
+      "model": "gpt-4o"
+    },
+    {
+      "pass": false,
+      "overall_score": 0.7,
+      "weighted_score": 0.7,
+      "xml_valid": true,
+      "validation_pass": true,
+      "validation_errors": 0,
+      "metrics": {
+        "blocks": {
+          "precision": 0.0,
+          "recall": 1.0,
+          "f1": 0.0,
+          "true_positives": 0,
+          "false_positives": 2,
+          "false_negatives": 0
+        },
+        "wiring": {
+          "accuracy": 1.0,
+          "precision": 0.375,
+          "correct": 3,
+          "total": 3,
+          "extra": 5
+        },
+        "params": {
+          "accuracy": 1.0,
+          "correct": 0,
+          "total": 0
+        },
+        "ux": {
+          "score": -0.5,
+          "issues": [
+            "InputRef 'Raumfeuchtigkeit Wohnzimmer' has no position (Px/Py)",
+            "VirtualIn 'Raumfeuchtigkeit Wohnzimmer' has no page",
+            "VirtualIn 'Raumfeuchtigkeit Wohnzimmer' has no position (Px/Py)"
+          ]
+        }
+      },
+      "simulation": {
+        "case_id": "ch-012",
+        "pass": true,
+        "passed_count": 1,
+        "total_count": 1,
+        "scenarios": [
+          {
+            "checks": [
+              {
+                "actual": -5.0,
+                "comparator": "==",
+                "expected": -5.0,
+                "output": "Raumregler [Wohnzimmer].TempO",
+                "pass": true
+              }
+            ],
+            "name": "outdoor temp feeds weather compensation",
+            "pass": true
+          }
+        ]
+      },
+      "sim_pass": true,
+      "sim_score": 1.0,
+      "case_id": "ch-012",
+      "difficulty": "easy",
+      "patterns": [
+        "heating-mode-setpoints",
+        "irc-cascade",
+        "weather-compensation"
+      ],
+      "utterance": "Create an IRC cascade: wire the Außentemperatur sensor to the Wohnzimmer Raumregler.TempO for weather compensation, the Raumtemperatur Wohnzimmer to .Temp for room feedback, and the Raumfeuchtigkeit Wohnzimmer to .InHumid for humidity monitoring",
+      "elapsed_seconds": 141.5,
+      "cli_invocations": 0,
+      "retries": 0,
+      "tokens": {
+        "input_tokens_est": 0,
+        "output_tokens_est": 0
+      },
+      "model": "gpt-4o"
+    },
+    {
+      "pass": true,
+      "overall_score": 1.0,
+      "weighted_score": 1.0,
+      "xml_valid": true,
+      "validation_pass": true,
+      "validation_errors": 0,
+      "metrics": {
+        "blocks": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "true_positives": 1,
+          "false_positives": 0,
+          "false_negatives": 0
+        },
+        "wiring": {
+          "accuracy": 1.0,
+          "precision": 1.0,
+          "correct": 1,
+          "total": 1,
+          "extra": 0
+        },
+        "params": {
+          "accuracy": 1.0,
+          "correct": 0,
+          "total": 0
+        },
+        "ux": {
+          "score": 1.0,
+          "issues": []
+        }
+      },
+      "simulation": {
+        "case_id": "ch-013",
+        "pass": false,
+        "passed_count": 0,
+        "total_count": 1,
+        "scenarios": [
+          {
+            "checks": [
+              {
+                "actual": 0.0,
+                "comparator": "==",
+                "expected": 22.0,
+                "output": "HCm Zimmer.AQ",
+                "pass": false
+              }
+            ],
+            "name": "setpoint value displayed",
+            "pass": false
+          }
+        ]
+      },
+      "sim_pass": false,
+      "sim_score": 0.0,
+      "case_id": "ch-013",
+      "difficulty": "easy",
+      "patterns": [
+        "heating-status-display",
+        "state-v",
+        "room-display"
+      ],
+      "utterance": "Add a StateV block 'HCm Zimmer' to show the Wohnzimmer IRC setpoint on the room display: wire Raumregler.AQs (setpoint output) to StateV.I so guests can see the current target temperature",
+      "elapsed_seconds": 100.6,
+      "cli_invocations": 0,
+      "retries": 0,
+      "tokens": {
+        "input_tokens_est": 0,
+        "output_tokens_est": 0
+      },
+      "model": "gpt-4o"
+    },
+    {
+      "pass": true,
+      "overall_score": 0.84,
+      "weighted_score": 2.52,
+      "xml_valid": true,
+      "validation_pass": true,
+      "validation_errors": 0,
+      "metrics": {
+        "blocks": {
+          "precision": 1.0,
+          "recall": 0.667,
+          "f1": 0.8,
+          "true_positives": 2,
+          "false_positives": 0,
+          "false_negatives": 1
+        },
+        "wiring": {
+          "accuracy": 0.75,
+          "precision": 0.5,
+          "correct": 3,
+          "total": 4,
+          "extra": 4
+        },
+        "params": {
+          "accuracy": 1.0,
+          "correct": 0,
+          "total": 0
+        },
+        "ux": {
+          "score": 1.0,
+          "issues": []
+        }
+      },
+      "simulation": {
+        "case_id": "ch-014",
+        "pass": false,
+        "passed_count": 1,
+        "total_count": 2,
+        "scenarios": [
+          {
+            "checks": [
+              {
+                "actual": 0.0,
+                "comparator": ">",
+                "expected": 0.5,
+                "output": "Light Flex On/Off.RisingEdge",
+                "pass": false
+              }
+            ],
+            "name": "door opening triggers edge and button",
+            "pass": false
+          },
+          {
+            "checks": [
+              {
+                "actual": 1.0,
+                "comparator": ">",
+                "expected": 0.5,
+                "output": "Status Türe.I1",
+                "pass": true
+              }
+            ],
+            "name": "window open shows in status I1",
+            "pass": true
+          }
+        ]
+      },
+      "sim_pass": false,
+      "sim_score": 0.5,
+      "case_id": "ch-014",
+      "difficulty": "expert",
+      "patterns": [
+        "heating-status-display",
+        "door-state",
+        "edge-detection"
+      ],
+      "utterance": "Build a door state display: wire Fensterkontakt Wohnzimmer to State 'Status Türe'.I1 and add an EdgeDetection on Türkontakt Wohnzimmer so the rising edge triggers an AC flex button via PushButton, with the button output going to State.I2 for combined display",
+      "elapsed_seconds": 89.8,
+      "cli_invocations": 0,
+      "retries": 0,
+      "tokens": {
+        "input_tokens_est": 0,
+        "output_tokens_est": 0
+      },
+      "model": "gpt-4o"
+    },
+    {
+      "pass": true,
+      "overall_score": 0.823,
+      "weighted_score": 2.469,
+      "xml_valid": true,
+      "validation_pass": true,
+      "validation_errors": 0,
+      "metrics": {
+        "blocks": {
+          "precision": 0.5,
+          "recall": 0.75,
+          "f1": 0.6,
+          "true_positives": 3,
+          "false_positives": 3,
+          "false_negatives": 1
+        },
+        "wiring": {
+          "accuracy": 0.857,
+          "precision": 0.35,
+          "correct": 6,
+          "total": 7,
+          "extra": 13
+        },
+        "params": {
+          "accuracy": 1.0,
+          "correct": 0,
+          "total": 0
+        },
+        "ux": {
+          "score": 1.0,
+          "issues": []
+        }
+      },
+      "simulation": {
+        "case_id": "ch-015",
+        "pass": false,
+        "passed_count": 1,
+        "total_count": 3,
+        "scenarios": [
+          {
+            "checks": [
+              {
+                "actual": 0.0,
+                "comparator": ">",
+                "expected": 0.0,
+                "output": "Status Hzg.AQ",
+                "pass": false
+              },
+              {
+                "actual": 8.0,
+                "comparator": ">",
+                "expected": 0.0,
+                "output": "Heizen.AQ",
+                "pass": true
+              }
+            ],
+            "name": "heating active shows in state and scaler",
+            "pass": false
+          },
+          {
+            "checks": [
+              {
+                "actual": 6.0,
+                "comparator": ">",
+                "expected": 0.0,
+                "output": "Kühlen.AQ",
+                "pass": true
+              },
+              {
+                "actual": 0.0,
+                "comparator": ">",
+                "expected": 0.0,
+                "output": "Status Hzg.AQ",
+                "pass": false
+              }
+            ],
+            "name": "cooling active shows in state and scaler",
+            "pass": false
+          },
+          {
+            "checks": [
+              {
+                "actual": 0.0,
+                "comparator": "==",
+                "expected": 0.0,
+                "output": "Status Hzg.AQ",
+                "pass": true
+              }
+            ],
+            "name": "idle shows zero state",
+            "pass": true
+          }
+        ]
+      },
+      "sim_pass": false,
+      "sim_score": 0.3333333333333333,
+      "case_id": "ch-015",
+      "difficulty": "expert",
+      "patterns": [
+        "heating-mode-setpoints",
+        "heating-status-display",
+        "full-hvac-chain"
+      ],
+      "utterance": "Build the complete HVAC status chain for Wohnzimmer: wire Raumregler.AQh and .AQc through AnalogScaler blocks (Heizen/Kühlen), feed raw and scaled outputs into a State block 'Status Hzg' (I1=heat demand, I2=cool demand, I3=heat valve%, I4=cool valve%), then wire the State.AQ through an AnalogMultiplexer that selects between the status value and a ventilation setpoint based on a fan-on signal",
+      "elapsed_seconds": 293.4,
+      "cli_invocations": 0,
+      "retries": 0,
+      "tokens": {
+        "input_tokens_est": 0,
+        "output_tokens_est": 0
+      },
+      "model": "gpt-4o"
+    }
+  ],
+  "meta": {
+    "note": "Consolidated wave4"
+  }
+}
