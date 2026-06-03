@@ -923,17 +923,17 @@
           "steps": [
             {
               "inputs": {
-                "Bewässerung Manuell.Q": 0.0
+                "Schalter 1.Q": 0.0
               },
-              "ticks": 30,
-              "dt": 0.1
+              "ticks": 5,
+              "dt": 0.5
             },
             {
               "inputs": {
-                "Bewässerung Manuell.Q": 1.0
+                "Schalter 1.Q": 1.0
               },
-              "ticks": 30,
-              "dt": 0.1,
+              "ticks": 10,
+              "dt": 0.5,
               "expected_outputs": {
                 "Bewässerungsventil.I1": {
                   ">": 0.5
@@ -943,7 +943,8 @@
           ]
         }
       ]
-    }
+    },
+    "hint": "Step-by-step plan:\n1. lox config add --type SequenceController --title 'Bewässerung Sequenz' --room Garten FILE\n2. wire FILE 'Bewässerung Sequenz.ATrigger' 'Bewässerung Manuell.Q'\n3. wire FILE 'Bewässerungsventil.I1' 'Bewässerung Sequenz.AQ1'\n4. CRITICAL — write the program:\n   lox config set-program FILE 'Bewässerung Sequenz' \"sequence 1\nset AQ1 = 1\nsleep 15 m\nset AQ1 = 0\nset AQ2 = 1\nsleep 15 m\nset AQ2 = 0\nset AQ3 = 1\nsleep 15 m\nset AQ3 = 0\nset AQ4 = 1\nsleep 15 m\nset AQ4 = 0\""
   },
   {
     "id": "ns13-debounce-reed-switch",

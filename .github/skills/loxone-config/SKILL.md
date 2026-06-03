@@ -395,11 +395,35 @@ lox config wire-connector config.Loxone "Heizung.Input" "Raumtemperatur Wohnzimm
 - **Outputs:** `AQ` (hours), `Q` (threshold exceeded)
 - **Params:** `Maintenance` (hour threshold)
 
-#### SequenceController — Step through outputs in sequence
+#### SequenceController — Text-programmable sequence automation
 
-- **Inputs:** `InputTrigger` (advance), `InputReset`
-- **Outputs:** `Q1`–`Q8` (one active at a time), `AQ` (current step)
-- **Params:** `Steps`, `Time` (per step)
+The SequenceController executes a text program line-by-line. Use it for multi-step processes (irrigation zones, heating sequences, startup procedures).
+
+- **Inputs:** `Trigger1`–`Trigger8` (start sequence 1-8), `AI1`–`AI8` (analog inputs), `ATrigger` (select sequence by number), `Off` (reset/lock)
+- **Outputs:** `AQ1`–`AQ8` (analog outputs), `OutputCurrSequence`, `OutputCurrLine`, `TQ` (text)
+- **Params:** `Interval` (execution speed, default 500ms)
+
+**⚠ CRITICAL: A SequenceController without a program does NOTHING.** After creating the block, you MUST write a program:
+
+```bash
+lox config set-program FILE "Block Title" "sequence 1
+set AQ1 = 1
+sleep 15 m
+set AQ1 = 0
+set AQ2 = 1
+sleep 15 m
+set AQ2 = 0"
+```
+
+**Program commands:**
+- `set AQ1 = AI1 + 3` — set output/variable to expression
+- `sleep 15 m` or `sleep 300 s` — wait (minutes or seconds)
+- `waitcondition AI1 > 5` — wait until condition is true
+- `if AQ1 > 3` ... `endif` — conditional block
+- `goto 1` — jump to line
+- `startsequence 2` / `return` — call another sequence
+- `setpulse AQ1` — one-tick pulse
+- `// comment` — documentation
 
 #### MultiClick — Detect single/double/triple clicks
 

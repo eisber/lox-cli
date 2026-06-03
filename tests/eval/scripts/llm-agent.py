@@ -389,7 +389,10 @@ def run_case(case, work_dir: Path, client, model: str, verbose: bool = False):
             if not sim_result.get("pass", True):
                 # Auto-repair broken chains before retrying with LLM
                 repair_cmds = _auto_repair_chains(str(config_path))
-                print(f"    [auto-repair] found {len(repair_cmds)} chain breaks", file=sys.stderr)
+                # Auto-generate programs for empty SequenceControllers
+                seq_cmds = _auto_program_sequence_controllers(str(config_path))
+                repair_cmds.extend(seq_cmds)
+                print(f"    [auto-repair] found {len(repair_cmds)} fixes", file=sys.stderr)
                 if repair_cmds:
                     repair_outputs = execute_commands(repair_cmds, tracker, cwd=str(work_dir))
                     for ro in repair_outputs:
@@ -681,6 +684,83 @@ def _auto_repair_chains(config_path: str) -> list[str]:
             break
 
     return commands
+
+
+def _auto_program_sequence_controllers(config_path: str) -> list[str]:
+    """Auto-generate programs for empty SequenceControllers with wired AQ outputs.
+
+    Detects SequenceController blocks that have wired outputs but no program,
+    then generates a cycling sequence that activates each wired AQ in turn.
+    """
+    lox = _find_lox()
+    lox_sim = _find_lox_sim()
+    try:
+        r = subprocess.run(
+            lox_sim + ["dump", config_path, "--json"],
+            capture_output=True, text=True, timeout=30
+        )
+        if not r.stdout.strip():
+            return []
+        data = json.loads(r.stdout)
+    except Exception:
+        return []
+
+    # Check for program text
+    r2 = subprocess.run(
+        lox + ["config", "get-program", config_path, "--json"],
+        capture_output=True, text=True, timeout=10
+    )
+
+    commands = []
+    blocks = data.get("blocks", [])
+    for b in blocks:
+        if b.get("type") != "SequenceController":
+            continue
+
+        # Check if any AQ outputs are wired
+        wired_aqs = []
+        for o in b.get("outputs", []):
+            if o["key"].startswith("AQ") and o["key"][2:].isdigit() and o.get("wired_to"):
+                wired_aqs.append(int(o["key"][2:]))
+
+        if not wired_aqs:
+            continue
+
+        # Check if block has a program already
+        name = b["name"]
+        room = b.get("room", "")
+        qname = f"{name} [{room}]" if room else name
+        r3 = subprocess.run(
+            lox + ["config", "get-program", config_path, qname, "--json"],
+            capture_output=True, text=True, timeout=10
+        )
+        has_program = False
+        if r3.returncode == 0 and r3.stdout.strip():
+            try:
+                prog = json.loads(r3.stdout)
+                has_program = prog.get("lines", 0) > 0
+            except json.JSONDecodeError:
+                pass
+
+        if has_program:
+            continue
+
+        # Generate a cycling program for the wired AQ outputs
+        # Default: 15 minutes per zone (900 seconds)
+        lines = ["sequence 1"]
+        for aq in sorted(wired_aqs):
+            lines.append(f"set AQ{aq} = 1")
+            lines.append("sleep 15 m")
+            lines.append(f"set AQ{aq} = 0")
+
+        program = "\n".join(lines)
+        cmd = f'{lox[0]} config set-program {config_path} "{qname}" "{program}"'
+        commands.append(cmd)
+        print(f"    [auto-program] generated {len(lines)}-line program for '{qname}' "
+              f"({len(wired_aqs)} zones)", file=sys.stderr)
+
+    return commands
+
 
 def main():
     parser = argparse.ArgumentParser(description="LLM-powered Loxone Eval Agent")
