@@ -1,0 +1,178 @@
+{
+  "summary": {
+    "total": 1,
+    "passed": 1,
+    "failed": 0,
+    "pass_rate": 1.0,
+    "sim_passed": 1,
+    "sim_total": 1,
+    "sim_rate": 1.0,
+    "xml_valid": 1,
+    "validation_pass": 1,
+    "avg_overall_score": 1.0,
+    "avg_weighted_score": 1.5,
+    "avg_block_f1": 1.0,
+    "avg_wiring_accuracy": 1.0,
+    "avg_wiring_precision": 0.667,
+    "avg_param_accuracy": 1.0,
+    "avg_ux_score": 1.0,
+    "total_cli_invocations": 0,
+    "total_retries": 0,
+    "total_tokens_input": 0,
+    "total_tokens_output": 0,
+    "avg_cli_per_case": 0.0,
+    "avg_tokens_per_case": 0.0
+  },
+  "by_difficulty": {
+    "medium": {
+      "count": 1,
+      "passed": 1,
+      "sim_passed": 1,
+      "sim_total": 1,
+      "avg_score": 1.0,
+      "avg_block_f1": 1.0,
+      "avg_params": 1.0,
+      "avg_cli_invocations": 0.0,
+      "avg_tokens": 0.0
+    }
+  },
+  "by_pattern": {
+    "cistern": {
+      "count": 1,
+      "passed": 1,
+      "sim_passed": 1,
+      "sim_total": 1,
+      "avg_score": 1.0
+    },
+    "water-level": {
+      "count": 1,
+      "passed": 1,
+      "sim_passed": 1,
+      "sim_total": 1,
+      "avg_score": 1.0
+    },
+    "threshold": {
+      "count": 1,
+      "passed": 1,
+      "sim_passed": 1,
+      "sim_total": 1,
+      "avg_score": 1.0
+    },
+    "fallback": {
+      "count": 1,
+      "passed": 1,
+      "sim_passed": 1,
+      "sim_total": 1,
+      "avg_score": 1.0
+    }
+  },
+  "cases": [
+    {
+      "pass": false,
+      "overall_score": 1.0,
+      "weighted_score": 1.5,
+      "xml_valid": true,
+      "validation_pass": true,
+      "validation_errors": 0,
+      "metrics": {
+        "blocks": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "true_positives": 1,
+          "false_positives": 0,
+          "false_negatives": 0
+        },
+        "wiring": {
+          "accuracy": 1.0,
+          "precision": 0.667,
+          "correct": 2,
+          "total": 2,
+          "extra": 1
+        },
+        "params": {
+          "accuracy": 1.0,
+          "correct": 1,
+          "total": 1
+        },
+        "ux": {
+          "score": 1.0,
+          "issues": []
+        }
+      },
+      "simulation": {
+        "case_id": "no-006-cistern-mains-fallback",
+        "pass": true,
+        "passed_count": 2,
+        "total_count": 2,
+        "scenarios": [
+          {
+            "checks": [
+              {
+                "actual": 1.0,
+                "comparator": ">",
+                "expected": 0.5,
+                "output": "Bewässerungsventil.I1",
+                "pass": true
+              }
+            ],
+            "name": "should switch to mains when cistern low",
+            "pass": true
+          },
+          {
+            "checks": [
+              {
+                "actual": 0.0,
+                "comparator": "<",
+                "expected": 0.5,
+                "output": "Bewässerungsventil.I1",
+                "pass": true
+              }
+            ],
+            "name": "should stay on cistern when level adequate",
+            "pass": true
+          }
+        ]
+      },
+      "sim_pass": true,
+      "sim_score": 1.0,
+      "trace_judge": {
+        "pass": false,
+        "behavior_map": {},
+        "summary": "No actuator responses detected for any sensor probe.",
+        "sensor_probes": 50,
+        "responding_sensors": 0,
+        "trace_judge": {
+          "pass": false,
+          "verdict": "no",
+          "prompt": "The user asked: \"When the Pegelsensor (cistern level) drops below 20%, switch from cistern to mains water: wire the Pegelsensor through a Less block (threshold 20) and use its output to activate the Bewässerungsventil as mains water fallback.\"\n\nThe agent built a circuit that behaves like this:\nNo actuator responses detected for any sensor probe.\n\nDoes this circuit correctly implement what the user asked for? Answer YES or NO on the first line, then a brief explanation.",
+          "explanation": "NO\n\nThe circuit is non-functional — no actuator responds to any sensor input. The user asked for a working pipeline: Pegelsensor → Less block (threshold 20%) → Bewässerungsventil. The simulation shows zero signal propagation, meaning the wiring between blocks is missing or broken. The Less block's output should go high when the cistern level drops below 20%, which should then activate the mains water valve. None of this is happening."
+        }
+      },
+      "case_id": "no-006-cistern-mains-fallback",
+      "difficulty": "medium",
+      "patterns": [
+        "cistern",
+        "water-level",
+        "threshold",
+        "fallback"
+      ],
+      "utterance": "When the Pegelsensor (cistern level) drops below 20%, switch from cistern to mains water: wire the Pegelsensor through a Less block (threshold 20) and use its output to activate the Bewässerungsventil as mains water fallback.",
+      "elapsed_seconds": 71.5,
+      "cli_invocations": 0,
+      "retries": 0,
+      "tokens": {
+        "input_tokens_est": 0,
+        "output_tokens_est": 0
+      },
+      "model": "gpt-4o"
+    }
+  ],
+  "meta": {
+    "agent": "copilot",
+    "model": "gpt-4o",
+    "timeout_seconds": 600,
+    "parallel": 1,
+    "timestamp": "2026-06-02T06:38:13Z"
+  }
+}

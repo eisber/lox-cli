@@ -1,0 +1,1468 @@
+{
+  "summary": {
+    "total": 15,
+    "passed": 3,
+    "failed": 12,
+    "pass_rate": 0.2,
+    "sim_passed": 3,
+    "sim_total": 15,
+    "sim_rate": 0.2,
+    "xml_valid": 15,
+    "validation_pass": 11,
+    "avg_overall_score": 0.384,
+    "avg_weighted_score": 0.907,
+    "avg_block_f1": 0.379,
+    "avg_wiring_accuracy": 0.367,
+    "avg_wiring_precision": 0.221,
+    "avg_param_accuracy": 0.411,
+    "avg_ux_score": 0.598,
+    "total_cli_invocations": 0,
+    "total_retries": 0,
+    "total_tokens_input": 0,
+    "total_tokens_output": 0,
+    "avg_cli_per_case": 0.0,
+    "avg_tokens_per_case": 0.0
+  },
+  "by_difficulty": {
+    "hard": {
+      "count": 8,
+      "passed": 1,
+      "sim_passed": 1,
+      "sim_total": 8,
+      "avg_score": 0.457,
+      "avg_block_f1": 0.565,
+      "avg_params": 0.5,
+      "avg_cli_invocations": 0.0,
+      "avg_tokens": 0.0
+    },
+    "expert": {
+      "count": 7,
+      "passed": 2,
+      "sim_passed": 2,
+      "sim_total": 7,
+      "avg_score": 0.3,
+      "avg_block_f1": 0.167,
+      "avg_params": 0.31,
+      "avg_cli_invocations": 0.0,
+      "avg_tokens": 0.0
+    }
+  },
+  "by_pattern": {
+    "daytimer": {
+      "count": 3,
+      "passed": 0,
+      "sim_passed": 0,
+      "sim_total": 3,
+      "avg_score": 0.567
+    },
+    "and": {
+      "count": 3,
+      "passed": 2,
+      "sim_passed": 2,
+      "sim_total": 3,
+      "avg_score": 0.66
+    },
+    "multi-click": {
+      "count": 2,
+      "passed": 0,
+      "sim_passed": 0,
+      "sim_total": 2,
+      "avg_score": 0.0
+    },
+    "memory": {
+      "count": 2,
+      "passed": 1,
+      "sim_passed": 1,
+      "sim_total": 2,
+      "avg_score": 0.2
+    },
+    "alarm": {
+      "count": 2,
+      "passed": 0,
+      "sim_passed": 0,
+      "sim_total": 2,
+      "avg_score": 0.2
+    },
+    "threshold": {
+      "count": 2,
+      "passed": 2,
+      "sim_passed": 2,
+      "sim_total": 2,
+      "avg_score": 0.49
+    },
+    "central-light": {
+      "count": 1,
+      "passed": 0,
+      "sim_passed": 0,
+      "sim_total": 1,
+      "avg_score": 0.0
+    },
+    "long-press": {
+      "count": 1,
+      "passed": 0,
+      "sim_passed": 0,
+      "sim_total": 1,
+      "avg_score": 0.0
+    },
+    "goodnight": {
+      "count": 1,
+      "passed": 0,
+      "sim_passed": 0,
+      "sim_total": 1,
+      "avg_score": 0.0
+    },
+    "brightness-control": {
+      "count": 1,
+      "passed": 1,
+      "sim_passed": 1,
+      "sim_total": 1,
+      "avg_score": 0.2
+    },
+    "subtraction": {
+      "count": 1,
+      "passed": 1,
+      "sim_passed": 1,
+      "sim_total": 1,
+      "avg_score": 0.2
+    },
+    "daylight": {
+      "count": 1,
+      "passed": 0,
+      "sim_passed": 0,
+      "sim_total": 1,
+      "avg_score": 0.5
+    },
+    "color-temperature": {
+      "count": 1,
+      "passed": 0,
+      "sim_passed": 0,
+      "sim_total": 1,
+      "avg_score": 0.5
+    },
+    "ramp": {
+      "count": 1,
+      "passed": 0,
+      "sim_passed": 0,
+      "sim_total": 1,
+      "avg_score": 0.4
+    },
+    "wake-up": {
+      "count": 1,
+      "passed": 0,
+      "sim_passed": 0,
+      "sim_total": 1,
+      "avg_score": 0.4
+    },
+    "radio-button": {
+      "count": 1,
+      "passed": 0,
+      "sim_passed": 0,
+      "sim_total": 1,
+      "avg_score": 0.075
+    },
+    "heating": {
+      "count": 1,
+      "passed": 0,
+      "sim_passed": 0,
+      "sim_total": 1,
+      "avg_score": 0.075
+    },
+    "mode-select": {
+      "count": 1,
+      "passed": 0,
+      "sim_passed": 0,
+      "sim_total": 1,
+      "avg_score": 0.075
+    },
+    "step-selector": {
+      "count": 1,
+      "passed": 0,
+      "sim_passed": 0,
+      "sim_total": 1,
+      "avg_score": 0.7
+    },
+    "fan": {
+      "count": 1,
+      "passed": 0,
+      "sim_passed": 0,
+      "sim_total": 1,
+      "avg_score": 0.7
+    },
+    "cycle": {
+      "count": 1,
+      "passed": 0,
+      "sim_passed": 0,
+      "sim_total": 1,
+      "avg_score": 0.7
+    },
+    "multi-function": {
+      "count": 1,
+      "passed": 0,
+      "sim_passed": 0,
+      "sim_total": 1,
+      "avg_score": 0.0
+    },
+    "short-long-double": {
+      "count": 1,
+      "passed": 0,
+      "sim_passed": 0,
+      "sim_total": 1,
+      "avg_score": 0.0
+    },
+    "conditional": {
+      "count": 1,
+      "passed": 0,
+      "sim_passed": 0,
+      "sim_total": 1,
+      "avg_score": 0.8
+    },
+    "presence": {
+      "count": 1,
+      "passed": 0,
+      "sim_passed": 0,
+      "sim_total": 1,
+      "avg_score": 0.8
+    },
+    "ventilation": {
+      "count": 1,
+      "passed": 1,
+      "sim_passed": 1,
+      "sim_total": 1,
+      "avg_score": 0.78
+    },
+    "media": {
+      "count": 1,
+      "passed": 0,
+      "sim_passed": 0,
+      "sim_total": 1,
+      "avg_score": 0.8
+    },
+    "and-gate": {
+      "count": 1,
+      "passed": 0,
+      "sim_passed": 0,
+      "sim_total": 1,
+      "avg_score": 0.8
+    },
+    "multi-output": {
+      "count": 1,
+      "passed": 0,
+      "sim_passed": 0,
+      "sim_total": 1,
+      "avg_score": 0.8
+    },
+    "vacation": {
+      "count": 1,
+      "passed": 0,
+      "sim_passed": 0,
+      "sim_total": 1,
+      "avg_score": 0.4
+    },
+    "random": {
+      "count": 1,
+      "passed": 0,
+      "sim_passed": 0,
+      "sim_total": 1,
+      "avg_score": 0.4
+    },
+    "on-delay": {
+      "count": 1,
+      "passed": 0,
+      "sim_passed": 0,
+      "sim_total": 1,
+      "avg_score": 0.7
+    },
+    "cascade": {
+      "count": 1,
+      "passed": 0,
+      "sim_passed": 0,
+      "sim_total": 1,
+      "avg_score": 0.7
+    },
+    "startup": {
+      "count": 1,
+      "passed": 0,
+      "sim_passed": 0,
+      "sim_total": 1,
+      "avg_score": 0.7
+    },
+    "pulse-gen": {
+      "count": 1,
+      "passed": 1,
+      "sim_passed": 1,
+      "sim_total": 1,
+      "avg_score": 0.4
+    },
+    "reminder": {
+      "count": 1,
+      "passed": 1,
+      "sim_passed": 1,
+      "sim_total": 1,
+      "avg_score": 0.4
+    }
+  },
+  "cases": [
+    {
+      "case_id": "nc01-double-click-all-lights",
+      "pass": false,
+      "sim_pass": false,
+      "sim_score": 0,
+      "overall_score": 0,
+      "error": "Agent timed out after 600s",
+      "difficulty": "hard",
+      "patterns": [
+        "multi-click",
+        "central-light"
+      ],
+      "utterance": "When I double-click the hallway button, toggle all lights in the house on or off; wire the double-click output to Lichtsteuerung [Flur]",
+      "elapsed_seconds": 569.8,
+      "metrics": {
+        "blocks": {
+          "precision": 0,
+          "recall": 0,
+          "f1": 0,
+          "true_positives": 0,
+          "false_positives": 0,
+          "false_negatives": 0
+        },
+        "wiring": {
+          "accuracy": 0,
+          "precision": 0,
+          "correct": 0,
+          "total": 0,
+          "extra": 0
+        },
+        "params": {
+          "accuracy": 0,
+          "correct": 0,
+          "total": 0
+        },
+        "ux": {
+          "score": 0,
+          "issues": []
+        }
+      },
+      "cli_invocations": 0,
+      "retries": 0,
+      "tokens": {
+        "input_tokens_est": 0,
+        "output_tokens_est": 0
+      },
+      "model": "gpt-4o"
+    },
+    {
+      "case_id": "nc02-long-press-goodnight",
+      "pass": false,
+      "sim_pass": false,
+      "sim_score": 0,
+      "overall_score": 0,
+      "error": "Agent timed out after 600s",
+      "difficulty": "expert",
+      "patterns": [
+        "long-press",
+        "goodnight",
+        "memory"
+      ],
+      "utterance": "If I hold the bedroom button for 2 seconds, activate a goodnight mode that turns off all bedroom lights and lowers the blinds; wire the long-press output to Jalousie 1 [Schlafzimmer]",
+      "elapsed_seconds": 569.8,
+      "metrics": {
+        "blocks": {
+          "precision": 0,
+          "recall": 0,
+          "f1": 0,
+          "true_positives": 0,
+          "false_positives": 0,
+          "false_negatives": 0
+        },
+        "wiring": {
+          "accuracy": 0,
+          "precision": 0,
+          "correct": 0,
+          "total": 0,
+          "extra": 0
+        },
+        "params": {
+          "accuracy": 0,
+          "correct": 0,
+          "total": 0
+        },
+        "ux": {
+          "score": 0,
+          "issues": []
+        }
+      },
+      "cli_invocations": 0,
+      "retries": 0,
+      "tokens": {
+        "input_tokens_est": 0,
+        "output_tokens_est": 0
+      },
+      "model": "gpt-4o"
+    },
+    {
+      "case_id": "nc03-triple-click-alarm-toggle",
+      "pass": false,
+      "sim_pass": false,
+      "sim_score": 0,
+      "overall_score": 0,
+      "error": "Agent timed out after 600s",
+      "difficulty": "hard",
+      "patterns": [
+        "multi-click",
+        "alarm"
+      ],
+      "utterance": "Triple-clicking the garage button should arm or disarm the alarm system; wire the triple-click output to Alarmanlage",
+      "elapsed_seconds": 571.4,
+      "metrics": {
+        "blocks": {
+          "precision": 0,
+          "recall": 0,
+          "f1": 0,
+          "true_positives": 0,
+          "false_positives": 0,
+          "false_negatives": 0
+        },
+        "wiring": {
+          "accuracy": 0,
+          "precision": 0,
+          "correct": 0,
+          "total": 0,
+          "extra": 0
+        },
+        "params": {
+          "accuracy": 0,
+          "correct": 0,
+          "total": 0
+        },
+        "ux": {
+          "score": 0,
+          "issues": []
+        }
+      },
+      "cli_invocations": 0,
+      "retries": 0,
+      "tokens": {
+        "input_tokens_est": 0,
+        "output_tokens_est": 0
+      },
+      "model": "gpt-4o"
+    },
+    {
+      "pass": true,
+      "overall_score": 0.2,
+      "weighted_score": 0.6,
+      "xml_valid": true,
+      "validation_pass": true,
+      "validation_errors": 0,
+      "metrics": {
+        "blocks": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "true_positives": 0,
+          "false_positives": 1,
+          "false_negatives": 2
+        },
+        "wiring": {
+          "accuracy": 0.5,
+          "precision": 0.5,
+          "correct": 1,
+          "total": 2,
+          "extra": 2
+        },
+        "params": {
+          "accuracy": 0.0,
+          "correct": 0,
+          "total": 1
+        },
+        "ux": {
+          "score": 1.0,
+          "issues": []
+        }
+      },
+      "simulation": {
+        "case_id": "nc04-auto-dim-ambient-brightness",
+        "pass": true,
+        "passed_count": 2,
+        "total_count": 2,
+        "scenarios": [
+          {
+            "checks": [
+              {
+                "actual": 1.0,
+                "comparator": ">",
+                "expected": 0.5,
+                "output": "Jalousie 1 [Wohnzimmer].InputTriggerDown",
+                "pass": true
+              }
+            ],
+            "name": "bright sunlight exceeds target",
+            "pass": true
+          },
+          {
+            "checks": [
+              {
+                "actual": 0.0,
+                "comparator": "<",
+                "expected": 0.5,
+                "output": "Jalousie 1 [Wohnzimmer].InputTriggerDown",
+                "pass": true
+              }
+            ],
+            "name": "dim conditions below target",
+            "pass": true
+          }
+        ]
+      },
+      "sim_pass": true,
+      "sim_score": 1.0,
+      "case_id": "nc04-auto-dim-ambient-brightness",
+      "difficulty": "expert",
+      "patterns": [
+        "brightness-control",
+        "threshold",
+        "subtraction"
+      ],
+      "utterance": "Automatically dim the living room lights when there's enough natural light — try to maintain about 300 lux in the room; wire the brightness threshold output to Jalousie 1 [Wohnzimmer].InputTriggerDown",
+      "elapsed_seconds": 72.4,
+      "cli_invocations": 0,
+      "retries": 0,
+      "tokens": {
+        "input_tokens_est": 0,
+        "output_tokens_est": 0
+      },
+      "model": "gpt-4o"
+    },
+    {
+      "pass": false,
+      "overall_score": 0.5,
+      "weighted_score": 1.0,
+      "xml_valid": true,
+      "validation_pass": true,
+      "validation_errors": 0,
+      "metrics": {
+        "blocks": {
+          "precision": 0.5,
+          "recall": 1.0,
+          "f1": 0.667,
+          "true_positives": 1,
+          "false_positives": 1,
+          "false_negatives": 0
+        },
+        "wiring": {
+          "accuracy": 0.0,
+          "precision": 0.167,
+          "correct": 0,
+          "total": 1,
+          "extra": 5
+        },
+        "params": {
+          "accuracy": 1.0,
+          "correct": 0,
+          "total": 0
+        },
+        "ux": {
+          "score": 1.0,
+          "issues": []
+        }
+      },
+      "simulation": {
+        "case_id": "nc05-color-temp-daytime",
+        "pass": false,
+        "passed_count": 1,
+        "total_count": 2,
+        "scenarios": [
+          {
+            "checks": [
+              {
+                "actual": 0.0,
+                "comparator": ">",
+                "expected": 0.5,
+                "output": "Lichtsteuerung.I1",
+                "pass": false
+              }
+            ],
+            "name": "evening timer active",
+            "pass": false
+          },
+          {
+            "checks": [
+              {
+                "actual": 0.0,
+                "comparator": "<",
+                "expected": 0.5,
+                "output": "Lichtsteuerung.I1",
+                "pass": true
+              }
+            ],
+            "name": "morning timer inactive",
+            "pass": true
+          }
+        ]
+      },
+      "sim_pass": false,
+      "sim_score": 0.5,
+      "case_id": "nc05-color-temp-daytime",
+      "difficulty": "hard",
+      "patterns": [
+        "daylight",
+        "daytimer",
+        "color-temperature"
+      ],
+      "utterance": "In the evening after 8 PM, switch the living room lights to warm white, and during the morning keep them cool white",
+      "elapsed_seconds": 258.3,
+      "cli_invocations": 0,
+      "retries": 0,
+      "tokens": {
+        "input_tokens_est": 0,
+        "output_tokens_est": 0
+      },
+      "model": "gpt-4o"
+    },
+    {
+      "pass": false,
+      "overall_score": 0.4,
+      "weighted_score": 1.2,
+      "xml_valid": true,
+      "validation_pass": true,
+      "validation_errors": 0,
+      "metrics": {
+        "blocks": {
+          "precision": 0.5,
+          "recall": 1.0,
+          "f1": 0.667,
+          "true_positives": 1,
+          "false_positives": 1,
+          "false_negatives": 0
+        },
+        "wiring": {
+          "accuracy": 0.0,
+          "precision": 0.25,
+          "correct": 0,
+          "total": 1,
+          "extra": 3
+        },
+        "params": {
+          "accuracy": 0.667,
+          "correct": 2,
+          "total": 3
+        },
+        "ux": {
+          "score": 1.0,
+          "issues": []
+        }
+      },
+      "simulation": {
+        "case_id": "nc06-wakeup-ramp-light",
+        "pass": false,
+        "passed_count": 1,
+        "total_count": 2,
+        "scenarios": [
+          {
+            "checks": [
+              {
+                "actual": 0.0,
+                "comparator": ">",
+                "expected": 0.0,
+                "output": "Lichtsteuerung [Schlafzimmer].I1",
+                "pass": false
+              }
+            ],
+            "name": "ramp enabled increases output",
+            "pass": false
+          },
+          {
+            "checks": [
+              {
+                "actual": 0.0,
+                "comparator": "<",
+                "expected": 0.5,
+                "output": "Lichtsteuerung [Schlafzimmer].I1",
+                "pass": true
+              }
+            ],
+            "name": "ramp disabled stays at zero",
+            "pass": true
+          }
+        ]
+      },
+      "sim_pass": false,
+      "sim_score": 0.5,
+      "case_id": "nc06-wakeup-ramp-light",
+      "difficulty": "expert",
+      "patterns": [
+        "ramp",
+        "alarm",
+        "wake-up"
+      ],
+      "utterance": "15 minutes before my alarm goes off, slowly ramp the bedroom light from 0% to 100% like a sunrise; wire the ramp output to Lichtsteuerung [Schlafzimmer]",
+      "elapsed_seconds": 180.8,
+      "cli_invocations": 0,
+      "retries": 0,
+      "tokens": {
+        "input_tokens_est": 0,
+        "output_tokens_est": 0
+      },
+      "model": "gpt-4o"
+    },
+    {
+      "pass": false,
+      "overall_score": 0.075,
+      "weighted_score": 0.15,
+      "xml_valid": true,
+      "validation_pass": true,
+      "validation_errors": 0,
+      "metrics": {
+        "blocks": {
+          "precision": 0.143,
+          "recall": 1.0,
+          "f1": 0.25,
+          "true_positives": 1,
+          "false_positives": 6,
+          "false_negatives": 0
+        },
+        "wiring": {
+          "accuracy": 0.0,
+          "precision": 0.071,
+          "correct": 0,
+          "total": 1,
+          "extra": 13
+        },
+        "params": {
+          "accuracy": 0.0,
+          "correct": 0,
+          "total": 1
+        },
+        "ux": {
+          "score": -0.286,
+          "issues": [
+            "InputRef 'Eco' has no position (Px/Py)",
+            "VirtualIn 'Frostschutz' has no page",
+            "VirtualIn 'Frostschutz' has no position (Px/Py)",
+            "InputRef 'Komfort' has no position (Px/Py)",
+            "VirtualIn 'Eco' has no page",
+            "VirtualIn 'Eco' has no position (Px/Py)",
+            "VirtualIn 'Komfort' has no page",
+            "VirtualIn 'Komfort' has no position (Px/Py)",
+            "InputRef 'Frostschutz' has no position (Px/Py)"
+          ]
+        }
+      },
+      "simulation": {
+        "case_id": "nc07-radio-heating-modes",
+        "pass": false,
+        "passed_count": 1,
+        "total_count": 2,
+        "scenarios": [
+          {
+            "checks": [
+              {
+                "actual": 0.0,
+                "comparator": ">",
+                "expected": 0.5,
+                "output": "Raumregler.Input",
+                "pass": false
+              }
+            ],
+            "name": "selecting mode 1 activates Q1",
+            "pass": false
+          },
+          {
+            "checks": [
+              {
+                "actual": 0.0,
+                "comparator": "<",
+                "expected": 0.5,
+                "output": "Raumregler.Input",
+                "pass": true
+              }
+            ],
+            "name": "no input means no active mode",
+            "pass": true
+          }
+        ]
+      },
+      "sim_pass": false,
+      "sim_score": 0.5,
+      "case_id": "nc07-radio-heating-modes",
+      "difficulty": "hard",
+      "patterns": [
+        "radio-button",
+        "heating",
+        "mode-select"
+      ],
+      "utterance": "Set up three buttons in the living room to choose between comfort, eco, and frost-protection heating — only one mode should be active at a time; wire the mode selection output to Raumregler.Input",
+      "elapsed_seconds": 539.6,
+      "cli_invocations": 0,
+      "retries": 0,
+      "tokens": {
+        "input_tokens_est": 0,
+        "output_tokens_est": 0
+      },
+      "model": "gpt-4o"
+    },
+    {
+      "pass": false,
+      "overall_score": 0.7,
+      "weighted_score": 1.4,
+      "xml_valid": true,
+      "validation_pass": true,
+      "validation_errors": 0,
+      "metrics": {
+        "blocks": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "true_positives": 1,
+          "false_positives": 0,
+          "false_negatives": 0
+        },
+        "wiring": {
+          "accuracy": 1.0,
+          "precision": 0.25,
+          "correct": 1,
+          "total": 1,
+          "extra": 3
+        },
+        "params": {
+          "accuracy": 0.0,
+          "correct": 0,
+          "total": 1
+        },
+        "ux": {
+          "score": 1.0,
+          "issues": []
+        }
+      },
+      "simulation": {
+        "case_id": "nc08-stepsel-fan-speed",
+        "pass": false,
+        "passed_count": 1,
+        "total_count": 2,
+        "scenarios": [
+          {
+            "checks": [
+              {
+                "actual": 0.0,
+                "comparator": ">",
+                "expected": 0.0,
+                "output": "Lüfter Bad.I1",
+                "pass": false
+              }
+            ],
+            "name": "trigger advances step",
+            "pass": false
+          },
+          {
+            "checks": [
+              {
+                "actual": 0.0,
+                "comparator": "<",
+                "expected": 0.5,
+                "output": "Lüfter Bad.I1",
+                "pass": true
+              }
+            ],
+            "name": "no trigger stays at current step",
+            "pass": true
+          }
+        ]
+      },
+      "sim_pass": false,
+      "sim_score": 0.5,
+      "case_id": "nc08-stepsel-fan-speed",
+      "difficulty": "hard",
+      "patterns": [
+        "step-selector",
+        "fan",
+        "cycle"
+      ],
+      "utterance": "Use a single button in the bathroom to cycle through 4 fan speeds: off, low, medium, and high — each press goes to the next speed and wraps around; wire the fan speed output to Lüfter Bad",
+      "elapsed_seconds": 468.3,
+      "cli_invocations": 0,
+      "retries": 0,
+      "tokens": {
+        "input_tokens_est": 0,
+        "output_tokens_est": 0
+      },
+      "model": "gpt-4o"
+    },
+    {
+      "case_id": "nc09-multifunc-button-kitchen",
+      "pass": false,
+      "sim_pass": false,
+      "sim_score": 0,
+      "overall_score": 0,
+      "error": "Agent timed out after 600s",
+      "difficulty": "expert",
+      "patterns": [
+        "multi-function",
+        "short-long-double"
+      ],
+      "utterance": "Make the kitchen button multi-purpose: a short press toggles the kitchen light, a long press closes the kitchen blinds, and a double-click turns off everything in the kitchen; wire the short-press output to Lichtsteuerung [Küche] and the double-click output to Jalousie 1 [Küche]",
+      "elapsed_seconds": 571.7,
+      "metrics": {
+        "blocks": {
+          "precision": 0,
+          "recall": 0,
+          "f1": 0,
+          "true_positives": 0,
+          "false_positives": 0,
+          "false_negatives": 0
+        },
+        "wiring": {
+          "accuracy": 0,
+          "precision": 0,
+          "correct": 0,
+          "total": 0,
+          "extra": 0
+        },
+        "params": {
+          "accuracy": 0,
+          "correct": 0,
+          "total": 0
+        },
+        "ux": {
+          "score": 0,
+          "issues": []
+        }
+      },
+      "cli_invocations": 0,
+      "retries": 0,
+      "tokens": {
+        "input_tokens_est": 0,
+        "output_tokens_est": 0
+      },
+      "model": "gpt-4o"
+    },
+    {
+      "pass": false,
+      "overall_score": 0.8,
+      "weighted_score": 1.6,
+      "xml_valid": true,
+      "validation_pass": true,
+      "validation_errors": 0,
+      "metrics": {
+        "blocks": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "true_positives": 2,
+          "false_positives": 0,
+          "false_negatives": 0
+        },
+        "wiring": {
+          "accuracy": 0.5,
+          "precision": 0.4,
+          "correct": 1,
+          "total": 2,
+          "extra": 3
+        },
+        "params": {
+          "accuracy": 1.0,
+          "correct": 0,
+          "total": 0
+        },
+        "ux": {
+          "score": 1.0,
+          "issues": []
+        }
+      },
+      "simulation": {
+        "case_id": "nc10-bathroom-floor-heat-morning",
+        "pass": false,
+        "passed_count": 1,
+        "total_count": 2,
+        "scenarios": [
+          {
+            "checks": [
+              {
+                "actual": 0.0,
+                "comparator": ">",
+                "expected": 0.5,
+                "output": "Heizkörper Bad.I1",
+                "pass": false
+              }
+            ],
+            "name": "morning and presence activates heating",
+            "pass": false
+          },
+          {
+            "checks": [
+              {
+                "actual": 0.0,
+                "comparator": "<",
+                "expected": 0.5,
+                "output": "Heizkörper Bad.I1",
+                "pass": true
+              }
+            ],
+            "name": "no presence keeps heating off",
+            "pass": true
+          }
+        ]
+      },
+      "sim_pass": false,
+      "sim_score": 0.5,
+      "case_id": "nc10-bathroom-floor-heat-morning",
+      "difficulty": "hard",
+      "patterns": [
+        "conditional",
+        "presence",
+        "daytimer",
+        "and"
+      ],
+      "utterance": "Only turn on the bathroom floor heating when someone is in the bathroom AND it's between 6 AM and 9 AM; wire the heating gate output to Heizkörper Bad",
+      "elapsed_seconds": 100.3,
+      "cli_invocations": 0,
+      "retries": 0,
+      "tokens": {
+        "input_tokens_est": 0,
+        "output_tokens_est": 0
+      },
+      "model": "gpt-4o"
+    },
+    {
+      "pass": true,
+      "overall_score": 0.78,
+      "weighted_score": 1.56,
+      "xml_valid": true,
+      "validation_pass": true,
+      "validation_errors": 0,
+      "metrics": {
+        "blocks": {
+          "precision": 0.429,
+          "recall": 1.0,
+          "f1": 0.6,
+          "true_positives": 3,
+          "false_positives": 4,
+          "false_negatives": 0
+        },
+        "wiring": {
+          "accuracy": 0.75,
+          "precision": 0.143,
+          "correct": 3,
+          "total": 4,
+          "extra": 24
+        },
+        "params": {
+          "accuracy": 1.0,
+          "correct": 1,
+          "total": 1
+        },
+        "ux": {
+          "score": 1.0,
+          "issues": []
+        }
+      },
+      "simulation": {
+        "case_id": "nc11-co2-window-ventilation",
+        "pass": true,
+        "passed_count": 2,
+        "total_count": 2,
+        "scenarios": [
+          {
+            "checks": [
+              {
+                "actual": 1.0,
+                "comparator": ">",
+                "expected": 0.5,
+                "output": "Lüfter Bad.I1",
+                "pass": true
+              }
+            ],
+            "name": "high CO2 and closed window triggers ventilation",
+            "pass": true
+          },
+          {
+            "checks": [
+              {
+                "actual": 0.0,
+                "comparator": "<",
+                "expected": 0.5,
+                "output": "Lüfter Bad.I1",
+                "pass": true
+              }
+            ],
+            "name": "low CO2 does not trigger ventilation",
+            "pass": true
+          }
+        ]
+      },
+      "sim_pass": true,
+      "sim_score": 1.0,
+      "case_id": "nc11-co2-window-ventilation",
+      "difficulty": "hard",
+      "patterns": [
+        "threshold",
+        "and",
+        "ventilation"
+      ],
+      "utterance": "If the CO2 level goes above 800 and all windows are closed, automatically open the kitchen window motor to ventilate; wire the ventilation trigger to Lüfter Bad",
+      "elapsed_seconds": 232.6,
+      "cli_invocations": 0,
+      "retries": 0,
+      "tokens": {
+        "input_tokens_est": 0,
+        "output_tokens_est": 0
+      },
+      "model": "gpt-4o"
+    },
+    {
+      "pass": false,
+      "overall_score": 0.8,
+      "weighted_score": 1.6,
+      "xml_valid": true,
+      "validation_pass": true,
+      "validation_errors": 0,
+      "metrics": {
+        "blocks": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "true_positives": 1,
+          "false_positives": 0,
+          "false_negatives": 0
+        },
+        "wiring": {
+          "accuracy": 0.5,
+          "precision": 0.333,
+          "correct": 1,
+          "total": 2,
+          "extra": 4
+        },
+        "params": {
+          "accuracy": 1.0,
+          "correct": 0,
+          "total": 0
+        },
+        "ux": {
+          "score": 1.0,
+          "issues": []
+        }
+      },
+      "simulation": {
+        "case_id": "nc12-media-room-blinds-dim",
+        "pass": false,
+        "passed_count": 1,
+        "total_count": 2,
+        "scenarios": [
+          {
+            "checks": [
+              {
+                "actual": 0.0,
+                "comparator": ">",
+                "expected": 0.5,
+                "output": "Jalousie 1 [Wohnzimmer].InputTriggerDown",
+                "pass": false
+              }
+            ],
+            "name": "TV on triggers blinds and dim",
+            "pass": false
+          },
+          {
+            "checks": [
+              {
+                "actual": 0.0,
+                "comparator": "<",
+                "expected": 0.5,
+                "output": "Jalousie 1 [Wohnzimmer].InputTriggerDown",
+                "pass": true
+              }
+            ],
+            "name": "TV off resets",
+            "pass": true
+          }
+        ]
+      },
+      "sim_pass": false,
+      "sim_score": 0.5,
+      "case_id": "nc12-media-room-blinds-dim",
+      "difficulty": "hard",
+      "patterns": [
+        "media",
+        "and-gate",
+        "multi-output"
+      ],
+      "utterance": "When I turn on the TV in the living room, automatically close the blinds and switch the lights to the dim scene; wire the FlipFlop output to Jalousie 1 [Wohnzimmer] to trigger blind close",
+      "elapsed_seconds": 164.9,
+      "cli_invocations": 0,
+      "retries": 0,
+      "tokens": {
+        "input_tokens_est": 0,
+        "output_tokens_est": 0
+      },
+      "model": "gpt-4o"
+    },
+    {
+      "pass": false,
+      "overall_score": 0.4,
+      "weighted_score": 1.2,
+      "xml_valid": true,
+      "validation_pass": true,
+      "validation_errors": 0,
+      "metrics": {
+        "blocks": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "true_positives": 0,
+          "false_positives": 5,
+          "false_negatives": 5
+        },
+        "wiring": {
+          "accuracy": 1.0,
+          "precision": 0.111,
+          "correct": 2,
+          "total": 2,
+          "extra": 16
+        },
+        "params": {
+          "accuracy": 0.0,
+          "correct": 0,
+          "total": 2
+        },
+        "ux": {
+          "score": 1.0,
+          "issues": []
+        }
+      },
+      "simulation": {
+        "case_id": "nc13-vacation-random-lights",
+        "pass": false,
+        "passed_count": 1,
+        "total_count": 2,
+        "scenarios": [
+          {
+            "checks": [
+              {
+                "actual": 0.0,
+                "comparator": ">",
+                "expected": 0.5,
+                "output": "Lichtsteuerung [Wohnzimmer].I1",
+                "pass": false
+              }
+            ],
+            "name": "evening timer enables random gen",
+            "pass": false
+          },
+          {
+            "checks": [
+              {
+                "actual": 0.0,
+                "comparator": "<",
+                "expected": 0.5,
+                "output": "Lichtsteuerung [Wohnzimmer].I1",
+                "pass": true
+              }
+            ],
+            "name": "daytime keeps lights off",
+            "pass": true
+          }
+        ]
+      },
+      "sim_pass": false,
+      "sim_score": 0.5,
+      "case_id": "nc13-vacation-random-lights",
+      "difficulty": "expert",
+      "patterns": [
+        "vacation",
+        "random",
+        "daytimer"
+      ],
+      "utterance": "While we're away, randomly turn different lights on and off in the evening between 6 PM and 11 PM to make it look like someone's home — use separate random timers for the hallway and kitchen; wire the evening gate to Lichtsteuerung [Wohnzimmer]",
+      "elapsed_seconds": 119.1,
+      "cli_invocations": 0,
+      "retries": 0,
+      "tokens": {
+        "input_tokens_est": 0,
+        "output_tokens_est": 0
+      },
+      "model": "gpt-4o"
+    },
+    {
+      "pass": false,
+      "overall_score": 0.7,
+      "weighted_score": 2.1,
+      "xml_valid": true,
+      "validation_pass": true,
+      "validation_errors": 0,
+      "metrics": {
+        "blocks": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "true_positives": 0,
+          "false_positives": 4,
+          "false_negatives": 2
+        },
+        "wiring": {
+          "accuracy": 1.0,
+          "precision": 0.083,
+          "correct": 1,
+          "total": 1,
+          "extra": 11
+        },
+        "params": {
+          "accuracy": 1.0,
+          "correct": 1,
+          "total": 1
+        },
+        "ux": {
+          "score": 0.25,
+          "issues": [
+            "VirtualIn 'Startup Signal' has no page",
+            "VirtualIn 'Startup Signal' has no position (Px/Py)",
+            "InputRef 'Startup Signal' has no position (Px/Py)"
+          ]
+        }
+      },
+      "simulation": {
+        "case_id": "nc14-staggered-startup-delays",
+        "pass": false,
+        "passed_count": 1,
+        "total_count": 2,
+        "scenarios": [
+          {
+            "checks": [
+              {
+                "actual": 0.0,
+                "comparator": ">",
+                "expected": 0.5,
+                "output": "Lichtsteuerung [Küche].I1",
+                "pass": false
+              }
+            ],
+            "name": "trigger starts delay chain",
+            "pass": false
+          },
+          {
+            "checks": [
+              {
+                "actual": 0.0,
+                "comparator": "<",
+                "expected": 0.5,
+                "output": "Lichtsteuerung [Küche].I1",
+                "pass": true
+              }
+            ],
+            "name": "no trigger keeps outputs off",
+            "pass": true
+          }
+        ]
+      },
+      "sim_pass": false,
+      "sim_score": 0.5,
+      "case_id": "nc14-staggered-startup-delays",
+      "difficulty": "expert",
+      "patterns": [
+        "on-delay",
+        "cascade",
+        "startup"
+      ],
+      "utterance": "After a power outage, don't turn everything on at once — start the kitchen lights first, then after 30 seconds the hallway lights, and 30 seconds later the garden lights; wire the delayed output to Lichtsteuerung [Küche]",
+      "elapsed_seconds": 193.0,
+      "cli_invocations": 0,
+      "retries": 0,
+      "tokens": {
+        "input_tokens_est": 0,
+        "output_tokens_est": 0
+      },
+      "model": "gpt-4o"
+    },
+    {
+      "pass": true,
+      "overall_score": 0.4,
+      "weighted_score": 1.2,
+      "xml_valid": true,
+      "validation_pass": true,
+      "validation_errors": 0,
+      "metrics": {
+        "blocks": {
+          "precision": 1.0,
+          "recall": 0.333,
+          "f1": 0.5,
+          "true_positives": 1,
+          "false_positives": 0,
+          "false_negatives": 2
+        },
+        "wiring": {
+          "accuracy": 0.25,
+          "precision": 1.0,
+          "correct": 1,
+          "total": 4,
+          "extra": 0
+        },
+        "params": {
+          "accuracy": 0.5,
+          "correct": 1,
+          "total": 2
+        },
+        "ux": {
+          "score": 1.0,
+          "issues": []
+        }
+      },
+      "simulation": {
+        "case_id": "nc15-door-unlocked-reminder-blink",
+        "pass": true,
+        "passed_count": 2,
+        "total_count": 2,
+        "scenarios": [
+          {
+            "checks": [
+              {
+                "actual": 1.0,
+                "comparator": ">",
+                "expected": 0.5,
+                "output": "Lichtsteuerung [Flur].I1",
+                "pass": true
+              }
+            ],
+            "name": "unlocked door and pulse triggers reminder",
+            "pass": true
+          },
+          {
+            "checks": [
+              {
+                "actual": 0.0,
+                "comparator": "<",
+                "expected": 0.5,
+                "output": "Lichtsteuerung [Flur].I1",
+                "pass": true
+              }
+            ],
+            "name": "locked door suppresses reminder",
+            "pass": true
+          }
+        ]
+      },
+      "sim_pass": true,
+      "sim_score": 1.0,
+      "case_id": "nc15-door-unlocked-reminder-blink",
+      "difficulty": "expert",
+      "patterns": [
+        "pulse-gen",
+        "memory",
+        "and",
+        "reminder"
+      ],
+      "utterance": "If the front door has been left unlocked, blink the hallway light every 30 minutes as a reminder until someone locks it again; wire the reminder signal to Lichtsteuerung [Flur]",
+      "elapsed_seconds": 127.8,
+      "cli_invocations": 0,
+      "retries": 0,
+      "tokens": {
+        "input_tokens_est": 0,
+        "output_tokens_est": 0
+      },
+      "model": "gpt-4o"
+    }
+  ],
+  "meta": {
+    "agent": "copilot",
+    "model": "gpt-4o",
+    "timeout_seconds": 600,
+    "parallel": 1,
+    "timestamp": "2026-05-13T09:26:30Z"
+  }
+}

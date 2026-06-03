@@ -1,0 +1,1358 @@
+{
+  "summary": {
+    "total": 14,
+    "passed": 11,
+    "failed": 3,
+    "pass_rate": 0.786,
+    "sim_passed": 11,
+    "sim_total": 14,
+    "sim_rate": 0.786,
+    "xml_valid": 14,
+    "validation_pass": 14,
+    "avg_overall_score": 0.501,
+    "avg_weighted_score": 0.805,
+    "avg_block_f1": 0.779,
+    "avg_wiring_accuracy": 0.107,
+    "avg_wiring_precision": 0.899,
+    "avg_param_accuracy": 0.75,
+    "avg_ux_score": 1.0,
+    "total_cli_invocations": 0,
+    "total_retries": 0,
+    "total_tokens_input": 0,
+    "total_tokens_output": 0,
+    "avg_cli_per_case": 0.0,
+    "avg_tokens_per_case": 0.0
+  },
+  "by_difficulty": {
+    "easy": {
+      "count": 6,
+      "passed": 6,
+      "sim_passed": 6,
+      "sim_total": 6,
+      "avg_score": 0.6,
+      "avg_block_f1": 1.0,
+      "avg_params": 1.0,
+      "avg_cli_invocations": 0.0,
+      "avg_tokens": 0.0
+    },
+    "medium": {
+      "count": 2,
+      "passed": 1,
+      "sim_passed": 1,
+      "sim_total": 2,
+      "avg_score": 0.366,
+      "avg_block_f1": 0.5,
+      "avg_params": 0.5,
+      "avg_cli_invocations": 0.0,
+      "avg_tokens": 0.0
+    },
+    "hard": {
+      "count": 4,
+      "passed": 2,
+      "sim_passed": 2,
+      "sim_total": 4,
+      "avg_score": 0.371,
+      "avg_block_f1": 0.475,
+      "avg_params": 0.375,
+      "avg_cli_invocations": 0.0,
+      "avg_tokens": 0.0
+    },
+    "expert": {
+      "count": 2,
+      "passed": 2,
+      "sim_passed": 2,
+      "sim_total": 2,
+      "avg_score": 0.6,
+      "avg_block_f1": 1.0,
+      "avg_params": 1.0,
+      "avg_cli_invocations": 0.0,
+      "avg_tokens": 0.0
+    }
+  },
+  "by_pattern": {
+    "threshold": {
+      "count": 6,
+      "passed": 6,
+      "sim_passed": 6,
+      "sim_total": 6,
+      "avg_score": 0.572
+    },
+    "combined-condition": {
+      "count": 3,
+      "passed": 3,
+      "sim_passed": 3,
+      "sim_total": 3,
+      "avg_score": 0.6
+    },
+    "negation": {
+      "count": 3,
+      "passed": 2,
+      "sim_passed": 2,
+      "sim_total": 3,
+      "avg_score": 0.444
+    },
+    "timed-switch": {
+      "count": 2,
+      "passed": 2,
+      "sim_passed": 2,
+      "sim_total": 2,
+      "avg_score": 0.6
+    },
+    "time-window": {
+      "count": 2,
+      "passed": 0,
+      "sim_passed": 0,
+      "sim_total": 2,
+      "avg_score": 0.167
+    },
+    "delayed-action": {
+      "count": 2,
+      "passed": 1,
+      "sim_passed": 1,
+      "sim_total": 2,
+      "avg_score": 0.343
+    },
+    "dimming": {
+      "count": 1,
+      "passed": 0,
+      "sim_passed": 0,
+      "sim_total": 1,
+      "avg_score": 0.2
+    },
+    "override": {
+      "count": 1,
+      "passed": 1,
+      "sim_passed": 1,
+      "sim_total": 1,
+      "avg_score": 0.6
+    },
+    "fan-out": {
+      "count": 1,
+      "passed": 1,
+      "sim_passed": 1,
+      "sim_total": 1,
+      "avg_score": 0.6
+    },
+    "presence": {
+      "count": 1,
+      "passed": 1,
+      "sim_passed": 1,
+      "sim_total": 1,
+      "avg_score": 0.6
+    },
+    "climate": {
+      "count": 1,
+      "passed": 1,
+      "sim_passed": 1,
+      "sim_total": 1,
+      "avg_score": 0.6
+    }
+  },
+  "cases": [
+    {
+      "pass": false,
+      "overall_score": 0.6,
+      "weighted_score": 1.2,
+      "xml_valid": true,
+      "validation_pass": true,
+      "validation_errors": 0,
+      "metrics": {
+        "blocks": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "true_positives": 3,
+          "false_positives": 0,
+          "false_negatives": 0
+        },
+        "wiring": {
+          "accuracy": 0.0,
+          "precision": 0.833,
+          "correct": 0,
+          "total": 5,
+          "extra": 1
+        },
+        "params": {
+          "accuracy": 1.0,
+          "correct": 1,
+          "total": 1
+        },
+        "ux": {
+          "score": 1.0,
+          "issues": []
+        }
+      },
+      "simulation": {
+        "case_id": "s07-irrigate-not-raining",
+        "pass": true,
+        "passed_count": 2,
+        "total_count": 2,
+        "scenarios": [
+          {
+            "checks": [
+              {
+                "actual": 1.0,
+                "comparator": ">",
+                "expected": 0.5,
+                "output": "Bewässerungsventil",
+                "pass": true
+              }
+            ],
+            "name": "irrigation on when dry and no rain",
+            "pass": true
+          },
+          {
+            "checks": [
+              {
+                "actual": 0.0,
+                "comparator": "<",
+                "expected": 0.5,
+                "output": "Bewässerungsventil",
+                "pass": true
+              }
+            ],
+            "name": "irrigation off when raining",
+            "pass": true
+          }
+        ]
+      },
+      "sim_pass": true,
+      "sim_score": 1.0,
+      "case_id": "s07-irrigate-not-raining",
+      "difficulty": "hard",
+      "patterns": [
+        "combined-condition",
+        "negation"
+      ],
+      "utterance": "Water the garden when soil moisture is below 30% but NOT when it's raining",
+      "elapsed_seconds": 309.2,
+      "cli_invocations": 0,
+      "retries": 0,
+      "tokens": {
+        "input_tokens_est": 0,
+        "output_tokens_est": 0
+      },
+      "model": "gpt-4o"
+    },
+    {
+      "pass": false,
+      "overall_score": 0.6,
+      "weighted_score": 0.6,
+      "xml_valid": true,
+      "validation_pass": true,
+      "validation_errors": 0,
+      "metrics": {
+        "blocks": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "true_positives": 1,
+          "false_positives": 0,
+          "false_negatives": 0
+        },
+        "wiring": {
+          "accuracy": 0.0,
+          "precision": 1.0,
+          "correct": 0,
+          "total": 2,
+          "extra": 0
+        },
+        "params": {
+          "accuracy": 1.0,
+          "correct": 1,
+          "total": 1
+        },
+        "ux": {
+          "score": 1.0,
+          "issues": []
+        }
+      },
+      "simulation": {
+        "case_id": "s08-stairway-light",
+        "pass": true,
+        "passed_count": 2,
+        "total_count": 2,
+        "scenarios": [
+          {
+            "checks": [
+              {
+                "actual": 1.0,
+                "comparator": ">",
+                "expected": 0.5,
+                "output": "Garagenlicht",
+                "pass": true
+              }
+            ],
+            "name": "garage light on when door opens",
+            "pass": true
+          },
+          {
+            "checks": [
+              {
+                "actual": 0.0,
+                "comparator": "<",
+                "expected": 0.5,
+                "output": "Garagenlicht",
+                "pass": true
+              }
+            ],
+            "name": "garage light off without trigger",
+            "pass": true
+          }
+        ]
+      },
+      "sim_pass": true,
+      "sim_score": 1.0,
+      "case_id": "s08-stairway-light",
+      "difficulty": "easy",
+      "patterns": [
+        "timed-switch"
+      ],
+      "utterance": "Turn on the garage light for 5 minutes when the door opens",
+      "elapsed_seconds": 352.6,
+      "cli_invocations": 0,
+      "retries": 0,
+      "tokens": {
+        "input_tokens_est": 0,
+        "output_tokens_est": 0
+      },
+      "model": "gpt-4o"
+    },
+    {
+      "pass": false,
+      "overall_score": 0.2,
+      "weighted_score": 0.4,
+      "xml_valid": true,
+      "validation_pass": true,
+      "validation_errors": 0,
+      "metrics": {
+        "blocks": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "true_positives": 0,
+          "false_positives": 1,
+          "false_negatives": 3
+        },
+        "wiring": {
+          "accuracy": 0.5,
+          "precision": 1.0,
+          "correct": 1,
+          "total": 2,
+          "extra": 0
+        },
+        "params": {
+          "accuracy": 0.0,
+          "correct": 0,
+          "total": 2
+        },
+        "ux": {
+          "score": 1.0,
+          "issues": []
+        }
+      },
+      "simulation": {
+        "case_id": "s09-bedroom-dim-night",
+        "pass": false,
+        "passed_count": 1,
+        "total_count": 2,
+        "scenarios": [
+          {
+            "checks": [
+              {
+                "actual": 20.0,
+                "comparator": ">=",
+                "expected": 15.0,
+                "output": "Lichtsteuerung.Brightness",
+                "pass": true
+              },
+              {
+                "actual": 20.0,
+                "comparator": "<=",
+                "expected": 25.0,
+                "output": "Lichtsteuerung.Brightness",
+                "pass": true
+              }
+            ],
+            "name": "should trigger when all conditions met",
+            "pass": true
+          },
+          {
+            "checks": [
+              {
+                "actual": 20.0,
+                "comparator": "<",
+                "expected": 0.5,
+                "output": "Lichtsteuerung.Brightness",
+                "pass": false
+              }
+            ],
+            "name": "should NOT trigger when condition not met",
+            "pass": false
+          }
+        ]
+      },
+      "sim_pass": false,
+      "sim_score": 0.5,
+      "case_id": "s09-bedroom-dim-night",
+      "difficulty": "hard",
+      "patterns": [
+        "time-window",
+        "dimming"
+      ],
+      "utterance": "Set bedroom light brightness to 20% between midnight and 7am",
+      "elapsed_seconds": 39.8,
+      "cli_invocations": 0,
+      "retries": 0,
+      "tokens": {
+        "input_tokens_est": 0,
+        "output_tokens_est": 0
+      },
+      "model": "gpt-4o"
+    },
+    {
+      "pass": false,
+      "overall_score": 0.6,
+      "weighted_score": 0.6,
+      "xml_valid": true,
+      "validation_pass": true,
+      "validation_errors": 0,
+      "metrics": {
+        "blocks": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "true_positives": 1,
+          "false_positives": 0,
+          "false_negatives": 0
+        },
+        "wiring": {
+          "accuracy": 0.0,
+          "precision": 0.5,
+          "correct": 0,
+          "total": 1,
+          "extra": 1
+        },
+        "params": {
+          "accuracy": 1.0,
+          "correct": 1,
+          "total": 1
+        },
+        "ux": {
+          "score": 1.0,
+          "issues": []
+        }
+      },
+      "simulation": {
+        "case_id": "s10-co2-ventilation",
+        "pass": true,
+        "passed_count": 2,
+        "total_count": 2,
+        "scenarios": [
+          {
+            "checks": [
+              {
+                "actual": 1.0,
+                "comparator": ">",
+                "expected": 0.5,
+                "output": "Jalousie 1 [Küche].InputTriggerDown",
+                "pass": true
+              }
+            ],
+            "name": "should trigger when condition met",
+            "pass": true
+          },
+          {
+            "checks": [
+              {
+                "actual": 0.0,
+                "comparator": "<",
+                "expected": 0.5,
+                "output": "Jalousie 1 [Küche].InputTriggerDown",
+                "pass": true
+              }
+            ],
+            "name": "should NOT trigger when condition not met",
+            "pass": true
+          }
+        ]
+      },
+      "sim_pass": true,
+      "sim_score": 1.0,
+      "case_id": "s10-co2-ventilation",
+      "difficulty": "easy",
+      "patterns": [
+        "threshold"
+      ],
+      "utterance": "Open the kitchen window when CO2 level exceeds 1000 ppm",
+      "elapsed_seconds": 49.5,
+      "cli_invocations": 0,
+      "retries": 0,
+      "tokens": {
+        "input_tokens_est": 0,
+        "output_tokens_est": 0
+      },
+      "model": "gpt-4o"
+    },
+    {
+      "pass": false,
+      "overall_score": 0.6,
+      "weighted_score": 0.6,
+      "xml_valid": true,
+      "validation_pass": true,
+      "validation_errors": 0,
+      "metrics": {
+        "blocks": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "true_positives": 0,
+          "false_positives": 0,
+          "false_negatives": 0
+        },
+        "wiring": {
+          "accuracy": 0.0,
+          "precision": 1.0,
+          "correct": 0,
+          "total": 1,
+          "extra": 0
+        },
+        "params": {
+          "accuracy": 1.0,
+          "correct": 0,
+          "total": 0
+        },
+        "ux": {
+          "score": 1.0,
+          "issues": []
+        }
+      },
+      "simulation": {
+        "case_id": "s11-override-blinds",
+        "pass": true,
+        "passed_count": 2,
+        "total_count": 2,
+        "scenarios": [
+          {
+            "checks": [
+              {
+                "actual": 1.0,
+                "comparator": ">",
+                "expected": 0.5,
+                "output": "Jalousie 1.InputDisable",
+                "pass": true
+              }
+            ],
+            "name": "should activate on trigger",
+            "pass": true
+          },
+          {
+            "checks": [
+              {
+                "actual": 0.0,
+                "comparator": "<",
+                "expected": 0.5,
+                "output": "Jalousie 1.InputDisable",
+                "pass": true
+              }
+            ],
+            "name": "should NOT activate without trigger",
+            "pass": true
+          }
+        ]
+      },
+      "sim_pass": true,
+      "sim_score": 1.0,
+      "case_id": "s11-override-blinds",
+      "difficulty": "easy",
+      "patterns": [
+        "override"
+      ],
+      "utterance": "Add a switch to disable automatic blind control in the living room",
+      "elapsed_seconds": 44.9,
+      "cli_invocations": 0,
+      "retries": 0,
+      "tokens": {
+        "input_tokens_est": 0,
+        "output_tokens_est": 0
+      },
+      "model": "gpt-4o"
+    },
+    {
+      "pass": false,
+      "overall_score": 0.6,
+      "weighted_score": 1.8,
+      "xml_valid": true,
+      "validation_pass": true,
+      "validation_errors": 0,
+      "metrics": {
+        "blocks": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "true_positives": 2,
+          "false_positives": 0,
+          "false_negatives": 0
+        },
+        "wiring": {
+          "accuracy": 0.0,
+          "precision": 0.5,
+          "correct": 0,
+          "total": 7,
+          "extra": 7
+        },
+        "params": {
+          "accuracy": 1.0,
+          "correct": 1,
+          "total": 1
+        },
+        "ux": {
+          "score": 1.0,
+          "issues": []
+        }
+      },
+      "simulation": {
+        "case_id": "s12-hot-and-sunny-close-all",
+        "pass": true,
+        "passed_count": 2,
+        "total_count": 2,
+        "scenarios": [
+          {
+            "checks": [
+              {
+                "actual": 1.0,
+                "comparator": ">",
+                "expected": 0.5,
+                "output": "Jalousie 1.InputTriggerDown",
+                "pass": true
+              }
+            ],
+            "name": "should trigger when all conditions met",
+            "pass": true
+          },
+          {
+            "checks": [
+              {
+                "actual": 0.0,
+                "comparator": "<",
+                "expected": 0.5,
+                "output": "Jalousie 1.InputTriggerDown",
+                "pass": true
+              }
+            ],
+            "name": "should NOT trigger when only partial conditions met",
+            "pass": true
+          }
+        ]
+      },
+      "sim_pass": true,
+      "sim_score": 1.0,
+      "case_id": "s12-hot-and-sunny-close-all",
+      "difficulty": "expert",
+      "patterns": [
+        "threshold",
+        "combined-condition",
+        "fan-out"
+      ],
+      "utterance": "When temperature exceeds 25°C AND it's sunny, close ALL blinds in the entire house",
+      "elapsed_seconds": 83.9,
+      "cli_invocations": 0,
+      "retries": 0,
+      "tokens": {
+        "input_tokens_est": 0,
+        "output_tokens_est": 0
+      },
+      "model": "gpt-4o"
+    },
+    {
+      "pass": false,
+      "overall_score": 0.6,
+      "weighted_score": 0.9,
+      "xml_valid": true,
+      "validation_pass": true,
+      "validation_errors": 0,
+      "metrics": {
+        "blocks": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "true_positives": 1,
+          "false_positives": 0,
+          "false_negatives": 0
+        },
+        "wiring": {
+          "accuracy": 0.0,
+          "precision": 1.0,
+          "correct": 0,
+          "total": 2,
+          "extra": 0
+        },
+        "params": {
+          "accuracy": 1.0,
+          "correct": 1,
+          "total": 1
+        },
+        "ux": {
+          "score": 1.0,
+          "issues": []
+        }
+      },
+      "simulation": {
+        "case_id": "s13-garden-motion-light",
+        "pass": true,
+        "passed_count": 2,
+        "total_count": 2,
+        "scenarios": [
+          {
+            "checks": [
+              {
+                "actual": 1.0,
+                "comparator": ">",
+                "expected": 0.5,
+                "output": "Gartenbeleuchtung.I1",
+                "pass": true
+              }
+            ],
+            "name": "should activate on trigger",
+            "pass": true
+          },
+          {
+            "checks": [
+              {
+                "actual": 0.0,
+                "comparator": "<",
+                "expected": 0.5,
+                "output": "Gartenbeleuchtung.I1",
+                "pass": true
+              }
+            ],
+            "name": "should NOT activate without trigger",
+            "pass": true
+          }
+        ]
+      },
+      "sim_pass": true,
+      "sim_score": 1.0,
+      "case_id": "s13-garden-motion-light",
+      "difficulty": "medium",
+      "patterns": [
+        "timed-switch",
+        "presence"
+      ],
+      "utterance": "Turn on the garden lights for 3 minutes when motion is detected outside",
+      "elapsed_seconds": 384.6,
+      "cli_invocations": 0,
+      "retries": 0,
+      "tokens": {
+        "input_tokens_est": 0,
+        "output_tokens_est": 0
+      },
+      "model": "gpt-4o"
+    },
+    {
+      "pass": false,
+      "overall_score": 0.6,
+      "weighted_score": 0.6,
+      "xml_valid": true,
+      "validation_pass": true,
+      "validation_errors": 0,
+      "metrics": {
+        "blocks": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "true_positives": 0,
+          "false_positives": 0,
+          "false_negatives": 0
+        },
+        "wiring": {
+          "accuracy": 0.0,
+          "precision": 1.0,
+          "correct": 0,
+          "total": 1,
+          "extra": 0
+        },
+        "params": {
+          "accuracy": 1.0,
+          "correct": 0,
+          "total": 0
+        },
+        "ux": {
+          "score": 1.0,
+          "issues": []
+        }
+      },
+      "simulation": {
+        "case_id": "s14-rain-close-blinds",
+        "pass": true,
+        "passed_count": 2,
+        "total_count": 2,
+        "scenarios": [
+          {
+            "checks": [
+              {
+                "actual": 1.0,
+                "comparator": ">",
+                "expected": 0.5,
+                "output": "Jalousie 1.InputTriggerDown",
+                "pass": true
+              }
+            ],
+            "name": "should trigger when condition met",
+            "pass": true
+          },
+          {
+            "checks": [
+              {
+                "actual": 0.0,
+                "comparator": "<",
+                "expected": 0.5,
+                "output": "Jalousie 1.InputTriggerDown",
+                "pass": true
+              }
+            ],
+            "name": "should NOT trigger when condition not met",
+            "pass": true
+          }
+        ]
+      },
+      "sim_pass": true,
+      "sim_score": 1.0,
+      "case_id": "s14-rain-close-blinds",
+      "difficulty": "easy",
+      "patterns": [
+        "threshold"
+      ],
+      "utterance": "Close bedroom blinds when it starts raining",
+      "elapsed_seconds": 32.6,
+      "cli_invocations": 0,
+      "retries": 0,
+      "tokens": {
+        "input_tokens_est": 0,
+        "output_tokens_est": 0
+      },
+      "model": "gpt-4o"
+    },
+    {
+      "pass": false,
+      "overall_score": 0.433,
+      "weighted_score": 0.867,
+      "xml_valid": true,
+      "validation_pass": true,
+      "validation_errors": 0,
+      "metrics": {
+        "blocks": {
+          "precision": 0.5,
+          "recall": 0.5,
+          "f1": 0.5,
+          "true_positives": 1,
+          "false_positives": 1,
+          "false_negatives": 1
+        },
+        "wiring": {
+          "accuracy": 0.333,
+          "precision": 1.0,
+          "correct": 1,
+          "total": 3,
+          "extra": 0
+        },
+        "params": {
+          "accuracy": 0.5,
+          "correct": 1,
+          "total": 2
+        },
+        "ux": {
+          "score": 1.0,
+          "issues": []
+        }
+      },
+      "simulation": {
+        "case_id": "s15-humidity-vent",
+        "pass": true,
+        "passed_count": 2,
+        "total_count": 2,
+        "scenarios": [
+          {
+            "checks": [
+              {
+                "actual": 1.0,
+                "comparator": ">",
+                "expected": 0.5,
+                "output": "Lüfter Bad.I1",
+                "pass": true
+              }
+            ],
+            "name": "should trigger fan when humidity exceeds 70%",
+            "pass": true
+          },
+          {
+            "checks": [
+              {
+                "actual": 0.0,
+                "comparator": "<",
+                "expected": 0.5,
+                "output": "Lüfter Bad.I1",
+                "pass": true
+              }
+            ],
+            "name": "should NOT trigger fan when humidity below 70%",
+            "pass": true
+          }
+        ]
+      },
+      "sim_pass": true,
+      "sim_score": 1.0,
+      "case_id": "s15-humidity-vent",
+      "difficulty": "hard",
+      "patterns": [
+        "threshold",
+        "delayed-action"
+      ],
+      "utterance": "Turn on bathroom fan when humidity exceeds 70%, keep running for 15 minutes after it drops",
+      "elapsed_seconds": 43.7,
+      "cli_invocations": 0,
+      "retries": 0,
+      "tokens": {
+        "input_tokens_est": 0,
+        "output_tokens_est": 0
+      },
+      "model": "gpt-4o"
+    },
+    {
+      "pass": false,
+      "overall_score": 0.6,
+      "weighted_score": 0.6,
+      "xml_valid": true,
+      "validation_pass": true,
+      "validation_errors": 0,
+      "metrics": {
+        "blocks": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "true_positives": 0,
+          "false_positives": 0,
+          "false_negatives": 0
+        },
+        "wiring": {
+          "accuracy": 0.0,
+          "precision": 1.0,
+          "correct": 0,
+          "total": 1,
+          "extra": 0
+        },
+        "params": {
+          "accuracy": 1.0,
+          "correct": 0,
+          "total": 0
+        },
+        "ux": {
+          "score": 1.0,
+          "issues": []
+        }
+      },
+      "simulation": {
+        "case_id": "s16-temp-to-thermostat",
+        "pass": true,
+        "passed_count": 2,
+        "total_count": 2,
+        "scenarios": [
+          {
+            "checks": [
+              {
+                "actual": 22.0,
+                "comparator": ">=",
+                "expected": 21.5,
+                "output": "Raumregler.Temp",
+                "pass": true
+              },
+              {
+                "actual": 22.0,
+                "comparator": "<=",
+                "expected": 22.5,
+                "output": "Raumregler.Temp",
+                "pass": true
+              }
+            ],
+            "name": "should trigger when condition met",
+            "pass": true
+          },
+          {
+            "checks": [
+              {
+                "actual": 12.0,
+                "comparator": "<",
+                "expected": 21.5,
+                "output": "Raumregler.Temp",
+                "pass": true
+              }
+            ],
+            "name": "should NOT trigger when condition not met",
+            "pass": true
+          }
+        ]
+      },
+      "sim_pass": true,
+      "sim_score": 1.0,
+      "case_id": "s16-temp-to-thermostat",
+      "difficulty": "easy",
+      "patterns": [
+        "climate"
+      ],
+      "utterance": "Use the outside temperature for the living room thermostat",
+      "elapsed_seconds": 45.8,
+      "cli_invocations": 0,
+      "retries": 0,
+      "tokens": {
+        "input_tokens_est": 0,
+        "output_tokens_est": 0
+      },
+      "model": "gpt-4o"
+    },
+    {
+      "pass": false,
+      "overall_score": 0.6,
+      "weighted_score": 1.8,
+      "xml_valid": true,
+      "validation_pass": true,
+      "validation_errors": 0,
+      "metrics": {
+        "blocks": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "true_positives": 3,
+          "false_positives": 0,
+          "false_negatives": 0
+        },
+        "wiring": {
+          "accuracy": 0.0,
+          "precision": 1.0,
+          "correct": 0,
+          "total": 6,
+          "extra": 0
+        },
+        "params": {
+          "accuracy": 1.0,
+          "correct": 1,
+          "total": 1
+        },
+        "ux": {
+          "score": 1.0,
+          "issues": []
+        }
+      },
+      "simulation": {
+        "case_id": "s17-sunny-warm-no-rain",
+        "pass": true,
+        "passed_count": 2,
+        "total_count": 2,
+        "scenarios": [
+          {
+            "checks": [
+              {
+                "actual": 1.0,
+                "comparator": ">",
+                "expected": 0.5,
+                "output": "Jalousie 1.InputTriggerDown",
+                "pass": true
+              }
+            ],
+            "name": "should trigger when sunny, warm, and not raining",
+            "pass": true
+          },
+          {
+            "checks": [
+              {
+                "actual": 0.0,
+                "comparator": "<",
+                "expected": 0.5,
+                "output": "Jalousie 1.InputTriggerDown",
+                "pass": true
+              }
+            ],
+            "name": "should NOT trigger when raining",
+            "pass": true
+          }
+        ]
+      },
+      "sim_pass": true,
+      "sim_score": 1.0,
+      "case_id": "s17-sunny-warm-no-rain",
+      "difficulty": "expert",
+      "patterns": [
+        "threshold",
+        "combined-condition",
+        "negation"
+      ],
+      "utterance": "Lower kitchen blinds when it's sunny and above 22°C but NOT when it's raining",
+      "elapsed_seconds": 43.3,
+      "cli_invocations": 0,
+      "retries": 0,
+      "tokens": {
+        "input_tokens_est": 0,
+        "output_tokens_est": 0
+      },
+      "model": "gpt-4o"
+    },
+    {
+      "pass": false,
+      "overall_score": 0.253,
+      "weighted_score": 0.507,
+      "xml_valid": true,
+      "validation_pass": true,
+      "validation_errors": 0,
+      "metrics": {
+        "blocks": {
+          "precision": 0.333,
+          "recall": 0.5,
+          "f1": 0.4,
+          "true_positives": 1,
+          "false_positives": 2,
+          "false_negatives": 1
+        },
+        "wiring": {
+          "accuracy": 0.333,
+          "precision": 0.75,
+          "correct": 1,
+          "total": 3,
+          "extra": 1
+        },
+        "params": {
+          "accuracy": 0.0,
+          "correct": 0,
+          "total": 1
+        },
+        "ux": {
+          "score": 1.0,
+          "issues": []
+        }
+      },
+      "simulation": {
+        "case_id": "s18-door-open-warning",
+        "pass": false,
+        "passed_count": 1,
+        "total_count": 2,
+        "scenarios": [
+          {
+            "checks": [
+              {
+                "actual": 0.0,
+                "comparator": ">",
+                "expected": 0.5,
+                "output": "Lichtsteuerung.I1",
+                "pass": false
+              }
+            ],
+            "name": "should activate when condition met",
+            "pass": false
+          },
+          {
+            "checks": [
+              {
+                "actual": 0.0,
+                "comparator": "<",
+                "expected": 0.5,
+                "output": "Lichtsteuerung.I1",
+                "pass": true
+              }
+            ],
+            "name": "should NOT activate when condition not met",
+            "pass": true
+          }
+        ]
+      },
+      "sim_pass": false,
+      "sim_score": 0.5,
+      "case_id": "s18-door-open-warning",
+      "difficulty": "hard",
+      "patterns": [
+        "delayed-action"
+      ],
+      "utterance": "Flash the hallway light 3 times if the front door has been open for more than 5 minutes",
+      "elapsed_seconds": 467.0,
+      "cli_invocations": 0,
+      "retries": 0,
+      "tokens": {
+        "input_tokens_est": 0,
+        "output_tokens_est": 0
+      },
+      "model": "gpt-4o"
+    },
+    {
+      "pass": false,
+      "overall_score": 0.6,
+      "weighted_score": 0.6,
+      "xml_valid": true,
+      "validation_pass": true,
+      "validation_errors": 0,
+      "metrics": {
+        "blocks": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "true_positives": 1,
+          "false_positives": 0,
+          "false_negatives": 0
+        },
+        "wiring": {
+          "accuracy": 0.0,
+          "precision": 1.0,
+          "correct": 0,
+          "total": 2,
+          "extra": 0
+        },
+        "params": {
+          "accuracy": 1.0,
+          "correct": 1,
+          "total": 1
+        },
+        "ux": {
+          "score": 1.0,
+          "issues": []
+        }
+      },
+      "simulation": {
+        "case_id": "s19-bright-blind-auto",
+        "pass": true,
+        "passed_count": 2,
+        "total_count": 2,
+        "scenarios": [
+          {
+            "checks": [
+              {
+                "actual": 1.0,
+                "comparator": ">",
+                "expected": 0.5,
+                "output": "Jalousie 1.InputTriggerDown",
+                "pass": true
+              }
+            ],
+            "name": "should trigger when condition met",
+            "pass": true
+          },
+          {
+            "checks": [
+              {
+                "actual": 0.0,
+                "comparator": "<",
+                "expected": 0.5,
+                "output": "Jalousie 1.InputTriggerDown",
+                "pass": true
+              }
+            ],
+            "name": "should NOT trigger when condition not met",
+            "pass": true
+          }
+        ]
+      },
+      "sim_pass": true,
+      "sim_score": 1.0,
+      "case_id": "s19-bright-blind-auto",
+      "difficulty": "easy",
+      "patterns": [
+        "threshold"
+      ],
+      "utterance": "Lower living room blinds when outside brightness exceeds 40000 lux",
+      "elapsed_seconds": 36.9,
+      "cli_invocations": 0,
+      "retries": 0,
+      "tokens": {
+        "input_tokens_est": 0,
+        "output_tokens_est": 0
+      },
+      "model": "gpt-4o"
+    },
+    {
+      "pass": false,
+      "overall_score": 0.133,
+      "weighted_score": 0.2,
+      "xml_valid": true,
+      "validation_pass": true,
+      "validation_errors": 0,
+      "metrics": {
+        "blocks": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "true_positives": 0,
+          "false_positives": 2,
+          "false_negatives": 3
+        },
+        "wiring": {
+          "accuracy": 0.333,
+          "precision": 1.0,
+          "correct": 1,
+          "total": 3,
+          "extra": 0
+        },
+        "params": {
+          "accuracy": 0.0,
+          "correct": 0,
+          "total": 2
+        },
+        "ux": {
+          "score": 1.0,
+          "issues": []
+        }
+      },
+      "simulation": {
+        "case_id": "s20-night-garden-off",
+        "pass": false,
+        "passed_count": 1,
+        "total_count": 2,
+        "scenarios": [
+          {
+            "checks": [
+              {
+                "actual": 0.0,
+                "comparator": ">",
+                "expected": 0.5,
+                "output": "Gartenbeleuchtung.I1",
+                "pass": false
+              }
+            ],
+            "name": "should disable garden lights during night hours",
+            "pass": false
+          },
+          {
+            "checks": [
+              {
+                "actual": 0.0,
+                "comparator": "<",
+                "expected": 0.5,
+                "output": "Gartenbeleuchtung.I1",
+                "pass": true
+              }
+            ],
+            "name": "should NOT disable garden lights during day",
+            "pass": true
+          }
+        ]
+      },
+      "sim_pass": false,
+      "sim_score": 0.5,
+      "case_id": "s20-night-garden-off",
+      "difficulty": "medium",
+      "patterns": [
+        "time-window",
+        "negation"
+      ],
+      "utterance": "Make sure garden lights are always off between 11pm and 5am",
+      "elapsed_seconds": 127.3,
+      "cli_invocations": 0,
+      "retries": 0,
+      "tokens": {
+        "input_tokens_est": 0,
+        "output_tokens_est": 0
+      },
+      "model": "gpt-4o"
+    }
+  ],
+  "meta": {
+    "agent": "copilot",
+    "model": "gpt-4o",
+    "timeout_seconds": 600,
+    "timestamp": "2026-04-23T10:27:24Z"
+  }
+}

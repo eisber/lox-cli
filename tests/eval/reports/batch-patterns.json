@@ -1,0 +1,959 @@
+{
+  "summary": {
+    "total": 10,
+    "passed": 8,
+    "failed": 2,
+    "pass_rate": 0.8,
+    "sim_passed": 8,
+    "sim_total": 10,
+    "sim_rate": 0.8,
+    "xml_valid": 10,
+    "validation_pass": 10,
+    "avg_overall_score": 0.382,
+    "avg_weighted_score": 0.637,
+    "avg_block_f1": 0.517,
+    "avg_wiring_accuracy": 0.342,
+    "avg_wiring_precision": 0.853,
+    "avg_param_accuracy": 0.3,
+    "avg_ux_score": 1.0,
+    "total_cli_invocations": 0,
+    "total_retries": 0,
+    "total_tokens_input": 0,
+    "total_tokens_output": 0,
+    "avg_cli_per_case": 0.0,
+    "avg_tokens_per_case": 0.0
+  },
+  "by_difficulty": {
+    "medium": {
+      "count": 6,
+      "passed": 4,
+      "sim_passed": 4,
+      "sim_total": 6,
+      "avg_score": 0.467,
+      "avg_block_f1": 0.5,
+      "avg_params": 0.5,
+      "avg_cli_invocations": 0.0,
+      "avg_tokens": 0.0
+    },
+    "hard": {
+      "count": 3,
+      "passed": 3,
+      "sim_passed": 3,
+      "sim_total": 3,
+      "avg_score": 0.294,
+      "avg_block_f1": 0.722,
+      "avg_params": 0.0,
+      "avg_cli_invocations": 0.0,
+      "avg_tokens": 0.0
+    },
+    "expert": {
+      "count": 1,
+      "passed": 1,
+      "sim_passed": 1,
+      "sim_total": 1,
+      "avg_score": 0.133,
+      "avg_block_f1": 0.0,
+      "avg_params": 0.0,
+      "avg_cli_invocations": 0.0,
+      "avg_tokens": 0.0
+    }
+  },
+  "by_pattern": {
+    "door-access": {
+      "count": 3,
+      "passed": 3,
+      "sim_passed": 3,
+      "sim_total": 3,
+      "avg_score": 0.261
+    },
+    "monoflop": {
+      "count": 3,
+      "passed": 3,
+      "sim_passed": 3,
+      "sim_total": 3,
+      "avg_score": 0.261
+    },
+    "temperature-setpoint": {
+      "count": 3,
+      "passed": 1,
+      "sim_passed": 1,
+      "sim_total": 3,
+      "avg_score": 0.311
+    },
+    "memory": {
+      "count": 3,
+      "passed": 1,
+      "sim_passed": 1,
+      "sim_total": 3,
+      "avg_score": 0.311
+    },
+    "radiator-boost": {
+      "count": 3,
+      "passed": 3,
+      "sim_passed": 3,
+      "sim_total": 3,
+      "avg_score": 0.5
+    },
+    "stairway": {
+      "count": 3,
+      "passed": 3,
+      "sim_passed": 3,
+      "sim_total": 3,
+      "avg_score": 0.5
+    },
+    "heating-reset": {
+      "count": 1,
+      "passed": 1,
+      "sim_passed": 1,
+      "sim_total": 1,
+      "avg_score": 0.133
+    },
+    "pool-automation": {
+      "count": 1,
+      "passed": 1,
+      "sim_passed": 1,
+      "sim_total": 1,
+      "avg_score": 0.6
+    },
+    "thresholds": {
+      "count": 1,
+      "passed": 1,
+      "sim_passed": 1,
+      "sim_total": 1,
+      "avg_score": 0.6
+    }
+  },
+  "cases": [
+    {
+      "pass": false,
+      "overall_score": 0.2,
+      "weighted_score": 0.3,
+      "xml_valid": true,
+      "validation_pass": true,
+      "validation_errors": 0,
+      "metrics": {
+        "blocks": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "true_positives": 0,
+          "false_positives": 1,
+          "false_negatives": 1
+        },
+        "wiring": {
+          "accuracy": 0.5,
+          "precision": 1.0,
+          "correct": 1,
+          "total": 2,
+          "extra": 0
+        },
+        "params": {
+          "accuracy": 0.0,
+          "correct": 0,
+          "total": 1
+        },
+        "ux": {
+          "score": 1.0,
+          "issues": []
+        }
+      },
+      "simulation": {
+        "case_id": "kp01-doorbell-unlock",
+        "pass": true,
+        "passed_count": 2,
+        "total_count": 2,
+        "scenarios": [
+          {
+            "checks": [
+              {
+                "actual": 1.0,
+                "comparator": ">",
+                "expected": 0.5,
+                "output": "Türöffner.I1",
+                "pass": true
+              }
+            ],
+            "name": "should trigger when condition met",
+            "pass": true
+          },
+          {
+            "checks": [
+              {
+                "actual": 0.0,
+                "comparator": "<",
+                "expected": 0.5,
+                "output": "Türöffner.I1",
+                "pass": true
+              }
+            ],
+            "name": "should NOT trigger when condition not met",
+            "pass": true
+          }
+        ]
+      },
+      "sim_pass": true,
+      "sim_score": 1.0,
+      "case_id": "kp01-doorbell-unlock",
+      "difficulty": "medium",
+      "patterns": [
+        "door-access",
+        "monoflop"
+      ],
+      "utterance": "When the doorbell rings, unlock the front door for 3 seconds",
+      "elapsed_seconds": 92.3,
+      "cli_invocations": 0,
+      "retries": 0,
+      "tokens": {
+        "input_tokens_est": 0,
+        "output_tokens_est": 0
+      },
+      "model": "gpt-4o"
+    },
+    {
+      "pass": false,
+      "overall_score": 0.25,
+      "weighted_score": 0.5,
+      "xml_valid": true,
+      "validation_pass": true,
+      "validation_errors": 0,
+      "metrics": {
+        "blocks": {
+          "precision": 0.5,
+          "recall": 0.5,
+          "f1": 0.5,
+          "true_positives": 1,
+          "false_positives": 1,
+          "false_negatives": 1
+        },
+        "wiring": {
+          "accuracy": 0.25,
+          "precision": 1.0,
+          "correct": 1,
+          "total": 4,
+          "extra": 0
+        },
+        "params": {
+          "accuracy": 0.0,
+          "correct": 0,
+          "total": 1
+        },
+        "ux": {
+          "score": 1.0,
+          "issues": []
+        }
+      },
+      "simulation": {
+        "case_id": "kp02-doorbell-or-manual-unlock",
+        "pass": true,
+        "passed_count": 2,
+        "total_count": 2,
+        "scenarios": [
+          {
+            "checks": [
+              {
+                "actual": 1.0,
+                "comparator": ">",
+                "expected": 0.5,
+                "output": "Türöffner.I1",
+                "pass": true
+              }
+            ],
+            "name": "should trigger when all conditions met",
+            "pass": true
+          },
+          {
+            "checks": [
+              {
+                "actual": 0.0,
+                "comparator": "<",
+                "expected": 0.5,
+                "output": "Türöffner.I1",
+                "pass": true
+              }
+            ],
+            "name": "should NOT trigger when condition not met",
+            "pass": true
+          }
+        ]
+      },
+      "sim_pass": true,
+      "sim_score": 1.0,
+      "case_id": "kp02-doorbell-or-manual-unlock",
+      "difficulty": "hard",
+      "patterns": [
+        "door-access",
+        "monoflop"
+      ],
+      "utterance": "Unlock the front door for 3 seconds when either the doorbell rings or switch 1 is pressed",
+      "elapsed_seconds": 85.0,
+      "cli_invocations": 0,
+      "retries": 0,
+      "tokens": {
+        "input_tokens_est": 0,
+        "output_tokens_est": 0
+      },
+      "model": "gpt-4o"
+    },
+    {
+      "pass": false,
+      "overall_score": 0.333,
+      "weighted_score": 0.667,
+      "xml_valid": true,
+      "validation_pass": true,
+      "validation_errors": 0,
+      "metrics": {
+        "blocks": {
+          "precision": 1.0,
+          "recall": 0.5,
+          "f1": 0.667,
+          "true_positives": 1,
+          "false_positives": 0,
+          "false_negatives": 1
+        },
+        "wiring": {
+          "accuracy": 0.333,
+          "precision": 1.0,
+          "correct": 1,
+          "total": 3,
+          "extra": 0
+        },
+        "params": {
+          "accuracy": 0.0,
+          "correct": 0,
+          "total": 2
+        },
+        "ux": {
+          "score": 1.0,
+          "issues": []
+        }
+      },
+      "simulation": {
+        "case_id": "kp03-verzoegerter-tueroeffner",
+        "pass": true,
+        "passed_count": 2,
+        "total_count": 2,
+        "scenarios": [
+          {
+            "checks": [
+              {
+                "actual": 1.0,
+                "comparator": ">",
+                "expected": 0.5,
+                "output": "Türöffner [Flur].I1",
+                "pass": true
+              }
+            ],
+            "name": "door opens after delay (test at t=2s during pulse)",
+            "pass": true
+          },
+          {
+            "checks": [
+              {
+                "actual": 0.0,
+                "comparator": "<",
+                "expected": 0.5,
+                "output": "Türöffner [Flur].I1",
+                "pass": true
+              }
+            ],
+            "name": "door stays closed without trigger",
+            "pass": true
+          }
+        ]
+      },
+      "sim_pass": true,
+      "sim_score": 1.0,
+      "case_id": "kp03-verzoegerter-tueroeffner",
+      "difficulty": "hard",
+      "patterns": [
+        "door-access",
+        "monoflop"
+      ],
+      "utterance": "Wenn die Türklingel klingelt, öffne die Tür nach 1 Sekunde für 3 Sekunden",
+      "elapsed_seconds": 105.0,
+      "cli_invocations": 0,
+      "retries": 0,
+      "tokens": {
+        "input_tokens_est": 0,
+        "output_tokens_est": 0
+      },
+      "model": "gpt-4o"
+    },
+    {
+      "pass": false,
+      "overall_score": 0.4,
+      "weighted_score": 0.6,
+      "xml_valid": true,
+      "validation_pass": true,
+      "validation_errors": 0,
+      "metrics": {
+        "blocks": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "true_positives": 0,
+          "false_positives": 1,
+          "false_negatives": 1
+        },
+        "wiring": {
+          "accuracy": 1.0,
+          "precision": 1.0,
+          "correct": 1,
+          "total": 1,
+          "extra": 0
+        },
+        "params": {
+          "accuracy": 0.0,
+          "correct": 0,
+          "total": 1
+        },
+        "ux": {
+          "score": 1.0,
+          "issues": []
+        }
+      },
+      "simulation": {
+        "case_id": "kp04-memory-living-room-21c",
+        "pass": false,
+        "passed_count": 0,
+        "total_count": 1,
+        "scenarios": [
+          {
+            "checks": [
+              {
+                "actual": 0.0,
+                "comparator": ">=",
+                "expected": 18.0,
+                "output": "Raumregler [Wohnzimmer].Temp",
+                "pass": false
+              }
+            ],
+            "name": "thermostat receives stored value",
+            "pass": false
+          }
+        ]
+      },
+      "sim_pass": false,
+      "sim_score": 0.0,
+      "case_id": "kp04-memory-living-room-21c",
+      "difficulty": "medium",
+      "patterns": [
+        "temperature-setpoint",
+        "memory"
+      ],
+      "utterance": "Remember the living room temperature setting as 21°C",
+      "elapsed_seconds": 65.1,
+      "cli_invocations": 0,
+      "retries": 0,
+      "tokens": {
+        "input_tokens_est": 0,
+        "output_tokens_est": 0
+      },
+      "model": "gpt-4o"
+    },
+    {
+      "pass": false,
+      "overall_score": 0.4,
+      "weighted_score": 0.6,
+      "xml_valid": true,
+      "validation_pass": true,
+      "validation_errors": 0,
+      "metrics": {
+        "blocks": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "true_positives": 0,
+          "false_positives": 2,
+          "false_negatives": 1
+        },
+        "wiring": {
+          "accuracy": 1.0,
+          "precision": 0.1,
+          "correct": 1,
+          "total": 1,
+          "extra": 9
+        },
+        "params": {
+          "accuracy": 0.0,
+          "correct": 0,
+          "total": 1
+        },
+        "ux": {
+          "score": 1.0,
+          "issues": []
+        }
+      },
+      "simulation": {
+        "case_id": "kp05-memory-living-room-eco",
+        "pass": false,
+        "passed_count": 0,
+        "total_count": 1,
+        "scenarios": [
+          {
+            "checks": [
+              {
+                "actual": 0.0,
+                "comparator": ">=",
+                "expected": 15.0,
+                "output": "Raumregler [Wohnzimmer].Temp",
+                "pass": false
+              }
+            ],
+            "name": "thermostat receives eco setting",
+            "pass": false
+          }
+        ]
+      },
+      "sim_pass": false,
+      "sim_score": 0.0,
+      "case_id": "kp05-memory-living-room-eco",
+      "difficulty": "medium",
+      "patterns": [
+        "temperature-setpoint",
+        "memory"
+      ],
+      "utterance": "Save an eco temperature setting of 18°C for the living room thermostat",
+      "elapsed_seconds": 472.2,
+      "cli_invocations": 0,
+      "retries": 0,
+      "tokens": {
+        "input_tokens_est": 0,
+        "output_tokens_est": 0
+      },
+      "model": "gpt-4o"
+    },
+    {
+      "pass": false,
+      "overall_score": 0.133,
+      "weighted_score": 0.4,
+      "xml_valid": true,
+      "validation_pass": true,
+      "validation_errors": 0,
+      "metrics": {
+        "blocks": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "true_positives": 0,
+          "false_positives": 2,
+          "false_negatives": 1
+        },
+        "wiring": {
+          "accuracy": 0.333,
+          "precision": 0.429,
+          "correct": 1,
+          "total": 3,
+          "extra": 4
+        },
+        "params": {
+          "accuracy": 0.0,
+          "correct": 0,
+          "total": 1
+        },
+        "ux": {
+          "score": 1.0,
+          "issues": []
+        }
+      },
+      "simulation": {
+        "case_id": "kp06-reset-heating-and-ac",
+        "pass": true,
+        "passed_count": 2,
+        "total_count": 2,
+        "scenarios": [
+          {
+            "checks": [
+              {
+                "actual": 21.0,
+                "comparator": ">",
+                "expected": 0.5,
+                "output": "Raumregler.Temp",
+                "pass": true
+              }
+            ],
+            "name": "should latch on when set",
+            "pass": true
+          },
+          {
+            "checks": [
+              {
+                "actual": 0.0,
+                "comparator": "<",
+                "expected": 0.5,
+                "output": "Raumregler.Temp",
+                "pass": true
+              }
+            ],
+            "name": "should NOT latch without trigger",
+            "pass": true
+          }
+        ]
+      },
+      "sim_pass": true,
+      "sim_score": 1.0,
+      "case_id": "kp06-reset-heating-and-ac",
+      "difficulty": "expert",
+      "patterns": [
+        "temperature-setpoint",
+        "heating-reset",
+        "memory"
+      ],
+      "utterance": "When switch 1 is pressed, reset the living room climate back to the saved 21°C setting and switch the AC on if it is off or off if it is on",
+      "elapsed_seconds": 218.3,
+      "cli_invocations": 0,
+      "retries": 0,
+      "tokens": {
+        "input_tokens_est": 0,
+        "output_tokens_est": 0
+      },
+      "model": "gpt-4o"
+    },
+    {
+      "pass": false,
+      "overall_score": 0.6,
+      "weighted_score": 0.9,
+      "xml_valid": true,
+      "validation_pass": true,
+      "validation_errors": 0,
+      "metrics": {
+        "blocks": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "true_positives": 1,
+          "false_positives": 0,
+          "false_negatives": 0
+        },
+        "wiring": {
+          "accuracy": 0.0,
+          "precision": 1.0,
+          "correct": 0,
+          "total": 2,
+          "extra": 0
+        },
+        "params": {
+          "accuracy": 1.0,
+          "correct": 1,
+          "total": 1
+        },
+        "ux": {
+          "score": 1.0,
+          "issues": []
+        }
+      },
+      "simulation": {
+        "case_id": "kp07-bath-radiator-boost-30m",
+        "pass": true,
+        "passed_count": 2,
+        "total_count": 2,
+        "scenarios": [
+          {
+            "checks": [
+              {
+                "actual": 1.0,
+                "comparator": ">",
+                "expected": 0.5,
+                "output": "Heizkörper Bad.I1",
+                "pass": true
+              }
+            ],
+            "name": "should activate on trigger",
+            "pass": true
+          },
+          {
+            "checks": [
+              {
+                "actual": 0.0,
+                "comparator": "<",
+                "expected": 0.5,
+                "output": "Heizkörper Bad.I1",
+                "pass": true
+              }
+            ],
+            "name": "should NOT activate without trigger",
+            "pass": true
+          }
+        ]
+      },
+      "sim_pass": true,
+      "sim_score": 1.0,
+      "case_id": "kp07-bath-radiator-boost-30m",
+      "difficulty": "medium",
+      "patterns": [
+        "radiator-boost",
+        "stairway"
+      ],
+      "utterance": "Turn on the bathroom radiator for 30 minutes when I press switch 1",
+      "elapsed_seconds": 70.6,
+      "cli_invocations": 0,
+      "retries": 0,
+      "tokens": {
+        "input_tokens_est": 0,
+        "output_tokens_est": 0
+      },
+      "model": "gpt-4o"
+    },
+    {
+      "pass": false,
+      "overall_score": 0.6,
+      "weighted_score": 0.9,
+      "xml_valid": true,
+      "validation_pass": true,
+      "validation_errors": 0,
+      "metrics": {
+        "blocks": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "true_positives": 1,
+          "false_positives": 0,
+          "false_negatives": 0
+        },
+        "wiring": {
+          "accuracy": 0.0,
+          "precision": 1.0,
+          "correct": 0,
+          "total": 2,
+          "extra": 0
+        },
+        "params": {
+          "accuracy": 1.0,
+          "correct": 1,
+          "total": 1
+        },
+        "ux": {
+          "score": 1.0,
+          "issues": []
+        }
+      },
+      "simulation": {
+        "case_id": "kp08-bad-heizkoerper-kurzboost",
+        "pass": true,
+        "passed_count": 2,
+        "total_count": 2,
+        "scenarios": [
+          {
+            "checks": [
+              {
+                "actual": 1.0,
+                "comparator": ">",
+                "expected": 0.5,
+                "output": "Heizkörper Bad.I1",
+                "pass": true
+              }
+            ],
+            "name": "should activate on trigger",
+            "pass": true
+          },
+          {
+            "checks": [
+              {
+                "actual": 0.0,
+                "comparator": "<",
+                "expected": 0.5,
+                "output": "Heizkörper Bad.I1",
+                "pass": true
+              }
+            ],
+            "name": "should NOT activate without trigger",
+            "pass": true
+          }
+        ]
+      },
+      "sim_pass": true,
+      "sim_score": 1.0,
+      "case_id": "kp08-bad-heizkoerper-kurzboost",
+      "difficulty": "medium",
+      "patterns": [
+        "radiator-boost",
+        "stairway"
+      ],
+      "utterance": "Wenn ich Schalter 1 drücke, aktiviere den Badheizkörper für 15 Minuten",
+      "elapsed_seconds": 43.0,
+      "cli_invocations": 0,
+      "retries": 0,
+      "tokens": {
+        "input_tokens_est": 0,
+        "output_tokens_est": 0
+      },
+      "model": "gpt-4o"
+    },
+    {
+      "pass": false,
+      "overall_score": 0.3,
+      "weighted_score": 0.6,
+      "xml_valid": true,
+      "validation_pass": true,
+      "validation_errors": 0,
+      "metrics": {
+        "blocks": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "true_positives": 1,
+          "false_positives": 0,
+          "false_negatives": 0
+        },
+        "wiring": {
+          "accuracy": 0.0,
+          "precision": 1.0,
+          "correct": 0,
+          "total": 3,
+          "extra": 0
+        },
+        "params": {
+          "accuracy": 0.0,
+          "correct": 0,
+          "total": 1
+        },
+        "ux": {
+          "score": 1.0,
+          "issues": []
+        }
+      },
+      "simulation": {
+        "case_id": "kp09-bath-radiator-and-fan-boost",
+        "pass": true,
+        "passed_count": 2,
+        "total_count": 2,
+        "scenarios": [
+          {
+            "checks": [
+              {
+                "actual": 1.0,
+                "comparator": ">",
+                "expected": 0.5,
+                "output": "Heizkörper Bad.I1",
+                "pass": true
+              }
+            ],
+            "name": "should activate on trigger",
+            "pass": true
+          },
+          {
+            "checks": [
+              {
+                "actual": 0.0,
+                "comparator": "<",
+                "expected": 0.5,
+                "output": "Heizkörper Bad.I1",
+                "pass": true
+              }
+            ],
+            "name": "should NOT activate without trigger",
+            "pass": true
+          }
+        ]
+      },
+      "sim_pass": true,
+      "sim_score": 1.0,
+      "case_id": "kp09-bath-radiator-and-fan-boost",
+      "difficulty": "hard",
+      "patterns": [
+        "radiator-boost",
+        "stairway"
+      ],
+      "utterance": "Pressing switch 1 should run the bathroom radiator and bathroom fan together for 30 minutes",
+      "elapsed_seconds": 51.1,
+      "cli_invocations": 0,
+      "retries": 0,
+      "tokens": {
+        "input_tokens_est": 0,
+        "output_tokens_est": 0
+      },
+      "model": "gpt-4o"
+    },
+    {
+      "pass": false,
+      "overall_score": 0.6,
+      "weighted_score": 0.9,
+      "xml_valid": true,
+      "validation_pass": true,
+      "validation_errors": 0,
+      "metrics": {
+        "blocks": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "true_positives": 1,
+          "false_positives": 0,
+          "false_negatives": 0
+        },
+        "wiring": {
+          "accuracy": 0.0,
+          "precision": 1.0,
+          "correct": 0,
+          "total": 2,
+          "extra": 0
+        },
+        "params": {
+          "accuracy": 1.0,
+          "correct": 1,
+          "total": 1
+        },
+        "ux": {
+          "score": 1.0,
+          "issues": []
+        }
+      },
+      "simulation": {
+        "case_id": "kp10-pool-pump-cold-water",
+        "pass": true,
+        "passed_count": 2,
+        "total_count": 2,
+        "scenarios": [
+          {
+            "checks": [
+              {
+                "actual": 1.0,
+                "comparator": ">",
+                "expected": 0.5,
+                "output": "Poolpumpe.I1",
+                "pass": true
+              }
+            ],
+            "name": "should trigger when condition met",
+            "pass": true
+          },
+          {
+            "checks": [
+              {
+                "actual": 0.0,
+                "comparator": "<",
+                "expected": 0.5,
+                "output": "Poolpumpe.I1",
+                "pass": true
+              }
+            ],
+            "name": "should NOT trigger when condition not met",
+            "pass": true
+          }
+        ]
+      },
+      "sim_pass": true,
+      "sim_score": 1.0,
+      "case_id": "kp10-pool-pump-cold-water",
+      "difficulty": "medium",
+      "patterns": [
+        "pool-automation",
+        "thresholds"
+      ],
+      "utterance": "Turn on the pool pump when the pool temperature drops below 15°C",
+      "elapsed_seconds": 43.3,
+      "cli_invocations": 0,
+      "retries": 0,
+      "tokens": {
+        "input_tokens_est": 0,
+        "output_tokens_est": 0
+      },
+      "model": "gpt-4o"
+    }
+  ],
+  "meta": {
+    "agent": "copilot",
+    "model": "gpt-4o",
+    "timeout_seconds": 600,
+    "timestamp": "2026-04-23T15:51:05Z"
+  }
+}

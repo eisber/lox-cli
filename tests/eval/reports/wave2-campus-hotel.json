@@ -1,0 +1,1241 @@
+{
+  "summary": {
+    "total": 15,
+    "passed": 6,
+    "failed": 9,
+    "pass_rate": 0.4,
+    "sim_passed": 6,
+    "sim_total": 15,
+    "sim_rate": 0.4,
+    "xml_valid": 15,
+    "validation_pass": 13,
+    "avg_overall_score": 0.529,
+    "avg_weighted_score": 0.908,
+    "avg_block_f1": 0.398,
+    "avg_wiring_accuracy": 0.476,
+    "avg_wiring_precision": 0.358,
+    "avg_param_accuracy": 0.733,
+    "avg_ux_score": 0.76,
+    "total_cli_invocations": 0,
+    "total_retries": 0,
+    "total_tokens_input": 0,
+    "total_tokens_output": 0,
+    "avg_cli_per_case": 0.0,
+    "avg_tokens_per_case": 0.0
+  },
+  "by_difficulty": {
+    "medium": {
+      "count": 6,
+      "passed": 2,
+      "sim_passed": 2,
+      "sim_total": 6,
+      "avg_score": 0.756,
+      "avg_block_f1": 0.686,
+      "avg_params": 0.833,
+      "avg_cli_invocations": 0.0,
+      "avg_tokens": 0.0
+    },
+    "hard": {
+      "count": 8,
+      "passed": 4,
+      "sim_passed": 4,
+      "sim_total": 8,
+      "avg_score": 0.426,
+      "avg_block_f1": 0.231,
+      "avg_params": 0.75,
+      "avg_cli_invocations": 0.0,
+      "avg_tokens": 0.0
+    },
+    "expert": {
+      "count": 1,
+      "passed": 0,
+      "sim_passed": 0,
+      "sim_total": 1,
+      "avg_score": 0.0,
+      "avg_block_f1": 0.0,
+      "avg_params": 0.0,
+      "avg_cli_invocations": 0.0,
+      "avg_tokens": 0.0
+    }
+  },
+  "by_pattern": {
+    "checkout-sequence": {
+      "count": 8,
+      "passed": 3,
+      "sim_passed": 3,
+      "sim_total": 8,
+      "avg_score": 0.388
+    },
+    "cleaning-notification": {
+      "count": 3,
+      "passed": 1,
+      "sim_passed": 1,
+      "sim_total": 3,
+      "avg_score": 0.525
+    },
+    "central-light-off": {
+      "count": 3,
+      "passed": 2,
+      "sim_passed": 2,
+      "sim_total": 3,
+      "avg_score": 0.38
+    },
+    "night-mode-timer": {
+      "count": 3,
+      "passed": 0,
+      "sim_passed": 0,
+      "sim_total": 3,
+      "avg_score": 0.667
+    },
+    "bedroom-presence": {
+      "count": 3,
+      "passed": 2,
+      "sim_passed": 2,
+      "sim_total": 3,
+      "avg_score": 0.518
+    },
+    "nfc-checkout": {
+      "count": 2,
+      "passed": 0,
+      "sim_passed": 0,
+      "sim_total": 2,
+      "avg_score": 0.216
+    },
+    "central-music-off": {
+      "count": 2,
+      "passed": 2,
+      "sim_passed": 2,
+      "sim_total": 2,
+      "avg_score": 0.56
+    },
+    "bathroom-presence-light-fan": {
+      "count": 1,
+      "passed": 0,
+      "sim_passed": 0,
+      "sim_total": 1,
+      "avg_score": 0.575
+    },
+    "wc-light-fan": {
+      "count": 1,
+      "passed": 0,
+      "sim_passed": 0,
+      "sim_total": 1,
+      "avg_score": 0.7
+    },
+    "bedroom-light-checkout": {
+      "count": 1,
+      "passed": 0,
+      "sim_passed": 0,
+      "sim_total": 1,
+      "avg_score": 1.0
+    },
+    "heating-mode-setpoints": {
+      "count": 1,
+      "passed": 0,
+      "sim_passed": 0,
+      "sim_total": 1,
+      "avg_score": 0.62
+    }
+  },
+  "cases": [
+    {
+      "case_id": "ch-001",
+      "pass": false,
+      "sim_pass": false,
+      "sim_score": 0,
+      "overall_score": 0,
+      "error": "Agent timed out after 600s",
+      "difficulty": "hard",
+      "patterns": [
+        "checkout-sequence",
+        "nfc-checkout"
+      ],
+      "utterance": "When a guest checks out by removing their NFC card from the reader, turn off all lights in the Schlafzimmer, pause audio, and reset the heating to eco mode",
+      "elapsed_seconds": 600.0,
+      "metrics": {
+        "blocks": {
+          "precision": 0,
+          "recall": 0,
+          "f1": 0,
+          "true_positives": 0,
+          "false_positives": 0,
+          "false_negatives": 0
+        },
+        "wiring": {
+          "accuracy": 0,
+          "precision": 0,
+          "correct": 0,
+          "total": 0,
+          "extra": 0
+        },
+        "params": {
+          "accuracy": 0,
+          "correct": 0,
+          "total": 0
+        },
+        "ux": {
+          "score": 0,
+          "issues": []
+        }
+      },
+      "cli_invocations": 0,
+      "retries": 0,
+      "tokens": {
+        "input_tokens_est": 0,
+        "output_tokens_est": 0
+      },
+      "model": "gpt-4o"
+    },
+    {
+      "pass": false,
+      "overall_score": 0.433,
+      "weighted_score": 0.867,
+      "xml_valid": true,
+      "validation_pass": true,
+      "validation_errors": 0,
+      "metrics": {
+        "blocks": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "true_positives": 0,
+          "false_positives": 0,
+          "false_negatives": 1
+        },
+        "wiring": {
+          "accuracy": 0.333,
+          "precision": 0.75,
+          "correct": 1,
+          "total": 3,
+          "extra": 1
+        },
+        "params": {
+          "accuracy": 1.0,
+          "correct": 0,
+          "total": 0
+        },
+        "ux": {
+          "score": 1.0,
+          "issues": []
+        }
+      },
+      "simulation": {
+        "case_id": "ch-002",
+        "pass": false,
+        "passed_count": 0,
+        "total_count": 1,
+        "scenarios": [
+          {
+            "checks": [
+              {
+                "actual": 0.0,
+                "comparator": ">",
+                "expected": 0.5,
+                "output": "Lichtsteuerung [Flur].Presence",
+                "pass": false
+              }
+            ],
+            "name": "should activate presence on card insert (rising edge)",
+            "pass": false
+          }
+        ]
+      },
+      "sim_pass": false,
+      "sim_score": 0.0,
+      "case_id": "ch-002",
+      "difficulty": "hard",
+      "patterns": [
+        "nfc-checkout",
+        "checkout-sequence"
+      ],
+      "utterance": "When the NFC card is inserted at the door reader, activate the presence detector in the Flur and trigger a welcome lighting scene",
+      "elapsed_seconds": 139.3,
+      "cli_invocations": 0,
+      "retries": 0,
+      "tokens": {
+        "input_tokens_est": 0,
+        "output_tokens_est": 0
+      },
+      "model": "gpt-4o"
+    },
+    {
+      "pass": false,
+      "overall_score": 0.3,
+      "weighted_score": 0.6,
+      "xml_valid": true,
+      "validation_pass": true,
+      "validation_errors": 0,
+      "metrics": {
+        "blocks": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "true_positives": 0,
+          "false_positives": 1,
+          "false_negatives": 2
+        },
+        "wiring": {
+          "accuracy": 0.0,
+          "precision": 0.5,
+          "correct": 0,
+          "total": 2,
+          "extra": 2
+        },
+        "params": {
+          "accuracy": 1.0,
+          "correct": 0,
+          "total": 0
+        },
+        "ux": {
+          "score": 1.0,
+          "issues": []
+        }
+      },
+      "simulation": {
+        "case_id": "ch-003",
+        "pass": true,
+        "passed_count": 1,
+        "total_count": 1,
+        "scenarios": [
+          {
+            "checks": [],
+            "name": "should latch cleaning mode on button press",
+            "pass": true
+          }
+        ]
+      },
+      "sim_pass": true,
+      "sim_score": 1.0,
+      "case_id": "ch-003",
+      "difficulty": "hard",
+      "patterns": [
+        "cleaning-notification"
+      ],
+      "utterance": "When the cleaning staff presses the button at the door, set the room to cleaning mode and send a notification. Show a cleaning indicator on the Flur push button display",
+      "elapsed_seconds": 302.6,
+      "cli_invocations": 0,
+      "retries": 0,
+      "tokens": {
+        "input_tokens_est": 0,
+        "output_tokens_est": 0
+      },
+      "model": "gpt-4o"
+    },
+    {
+      "pass": false,
+      "overall_score": 0.64,
+      "weighted_score": 0.96,
+      "xml_valid": true,
+      "validation_pass": true,
+      "validation_errors": 0,
+      "metrics": {
+        "blocks": {
+          "precision": 0.667,
+          "recall": 1.0,
+          "f1": 0.8,
+          "true_positives": 2,
+          "false_positives": 1,
+          "false_negatives": 0
+        },
+        "wiring": {
+          "accuracy": 1.0,
+          "precision": 0.333,
+          "correct": 2,
+          "total": 2,
+          "extra": 4
+        },
+        "params": {
+          "accuracy": 0.0,
+          "correct": 0,
+          "total": 1
+        },
+        "ux": {
+          "score": 1.0,
+          "issues": []
+        }
+      },
+      "simulation": {
+        "case_id": "ch-004",
+        "pass": true,
+        "passed_count": 1,
+        "total_count": 1,
+        "scenarios": [
+          {
+            "checks": [],
+            "name": "should trigger central light off after leave delay",
+            "pass": true
+          }
+        ]
+      },
+      "sim_pass": true,
+      "sim_score": 1.0,
+      "case_id": "ch-004",
+      "difficulty": "medium",
+      "patterns": [
+        "central-light-off"
+      ],
+      "utterance": "When the guest leaves the room, turn off all lights across every room after a 2-second delay using a central light-off block",
+      "elapsed_seconds": 168.9,
+      "cli_invocations": 0,
+      "retries": 0,
+      "tokens": {
+        "input_tokens_est": 0,
+        "output_tokens_est": 0
+      },
+      "model": "gpt-4o"
+    },
+    {
+      "pass": false,
+      "overall_score": 0.62,
+      "weighted_score": 0.93,
+      "xml_valid": true,
+      "validation_pass": true,
+      "validation_errors": 0,
+      "metrics": {
+        "blocks": {
+          "precision": 0.333,
+          "recall": 0.5,
+          "f1": 0.4,
+          "true_positives": 1,
+          "false_positives": 2,
+          "false_negatives": 1
+        },
+        "wiring": {
+          "accuracy": 0.5,
+          "precision": 0.333,
+          "correct": 1,
+          "total": 2,
+          "extra": 4
+        },
+        "params": {
+          "accuracy": 1.0,
+          "correct": 0,
+          "total": 0
+        },
+        "ux": {
+          "score": 1.0,
+          "issues": []
+        }
+      },
+      "simulation": {
+        "case_id": "ch-005",
+        "pass": true,
+        "passed_count": 1,
+        "total_count": 1,
+        "scenarios": [
+          {
+            "checks": [],
+            "name": "should pause audio when presence memory resets",
+            "pass": true
+          }
+        ]
+      },
+      "sim_pass": true,
+      "sim_score": 1.0,
+      "case_id": "ch-005",
+      "difficulty": "medium",
+      "patterns": [
+        "central-music-off"
+      ],
+      "utterance": "Pause all audio playback when the guest leaves the room, using a central music-off wired to the presence memory",
+      "elapsed_seconds": 106.8,
+      "cli_invocations": 0,
+      "retries": 0,
+      "tokens": {
+        "input_tokens_est": 0,
+        "output_tokens_est": 0
+      },
+      "model": "gpt-4o"
+    },
+    {
+      "pass": true,
+      "overall_score": 1.0,
+      "weighted_score": 1.5,
+      "xml_valid": true,
+      "validation_pass": true,
+      "validation_errors": 0,
+      "metrics": {
+        "blocks": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "true_positives": 1,
+          "false_positives": 0,
+          "false_negatives": 0
+        },
+        "wiring": {
+          "accuracy": 1.0,
+          "precision": 0.5,
+          "correct": 1,
+          "total": 1,
+          "extra": 1
+        },
+        "params": {
+          "accuracy": 1.0,
+          "correct": 0,
+          "total": 0
+        },
+        "ux": {
+          "score": 1.0,
+          "issues": []
+        }
+      },
+      "simulation": {
+        "case_id": "ch-006",
+        "pass": false,
+        "passed_count": 1,
+        "total_count": 2,
+        "scenarios": [
+          {
+            "checks": [
+              {
+                "actual": 1.0,
+                "comparator": ">",
+                "expected": 0.5,
+                "output": "Lichtsteuerung [Schlafzimmer].Sel2",
+                "pass": true
+              }
+            ],
+            "name": "should select dim scene when night timer active",
+            "pass": true
+          },
+          {
+            "checks": [
+              {
+                "actual": 1.0,
+                "comparator": "<",
+                "expected": 0.5,
+                "output": "Lichtsteuerung [Schlafzimmer].Sel2",
+                "pass": false
+              }
+            ],
+            "name": "should NOT select dim scene during day",
+            "pass": false
+          }
+        ]
+      },
+      "sim_pass": false,
+      "sim_score": 0.5,
+      "case_id": "ch-006",
+      "difficulty": "medium",
+      "patterns": [
+        "night-mode-timer"
+      ],
+      "utterance": "Between 22:00 and 06:00, switch the Schlafzimmer lights to the dim 'Gemütlich' scene using a DayTimer block",
+      "elapsed_seconds": 182.2,
+      "cli_invocations": 0,
+      "retries": 0,
+      "tokens": {
+        "input_tokens_est": 0,
+        "output_tokens_est": 0
+      },
+      "model": "gpt-4o"
+    },
+    {
+      "pass": false,
+      "overall_score": 0.609,
+      "weighted_score": 1.218,
+      "xml_valid": true,
+      "validation_pass": true,
+      "validation_errors": 0,
+      "metrics": {
+        "blocks": {
+          "precision": 0.25,
+          "recall": 0.667,
+          "f1": 0.364,
+          "true_positives": 2,
+          "false_positives": 6,
+          "false_negatives": 1
+        },
+        "wiring": {
+          "accuracy": 0.5,
+          "precision": 0.087,
+          "correct": 2,
+          "total": 4,
+          "extra": 42
+        },
+        "params": {
+          "accuracy": 1.0,
+          "correct": 0,
+          "total": 0
+        },
+        "ux": {
+          "score": 0.25,
+          "issues": [
+            "InputRef 'NFC Checkin' has no position (Px/Py)",
+            "VirtualIn 'NFC Checkout' has no page",
+            "VirtualIn 'NFC Checkout' has no position (Px/Py)",
+            "VirtualIn 'NFC Checkin' has no page",
+            "VirtualIn 'NFC Checkin' has no position (Px/Py)",
+            "InputRef 'NFC Checkout' has no position (Px/Py)"
+          ]
+        }
+      },
+      "simulation": {
+        "case_id": "ch-007",
+        "pass": true,
+        "passed_count": 2,
+        "total_count": 2,
+        "scenarios": [
+          {
+            "checks": [],
+            "name": "should latch on card removal",
+            "pass": true
+          },
+          {
+            "checks": [],
+            "name": "should reset latch on new card insert",
+            "pass": true
+          }
+        ]
+      },
+      "sim_pass": true,
+      "sim_score": 1.0,
+      "case_id": "ch-007",
+      "difficulty": "hard",
+      "patterns": [
+        "checkout-sequence",
+        "bedroom-presence"
+      ],
+      "utterance": "Add a checkout memory latch that prevents re-triggering the all-off sequence until a new guest checks in with their NFC card",
+      "elapsed_seconds": 350.6,
+      "cli_invocations": 0,
+      "retries": 0,
+      "tokens": {
+        "input_tokens_est": 0,
+        "output_tokens_est": 0
+      },
+      "model": "gpt-4o"
+    },
+    {
+      "pass": false,
+      "overall_score": 0.575,
+      "weighted_score": 0.862,
+      "xml_valid": true,
+      "validation_pass": true,
+      "validation_errors": 0,
+      "metrics": {
+        "blocks": {
+          "precision": 0.143,
+          "recall": 1.0,
+          "f1": 0.25,
+          "true_positives": 1,
+          "false_positives": 6,
+          "false_negatives": 0
+        },
+        "wiring": {
+          "accuracy": 0.5,
+          "precision": 0.143,
+          "correct": 1,
+          "total": 2,
+          "extra": 12
+        },
+        "params": {
+          "accuracy": 1.0,
+          "correct": 1,
+          "total": 1
+        },
+        "ux": {
+          "score": 0.143,
+          "issues": [
+            "InputRef 'Checkout' has no position (Px/Py)",
+            "VirtualIn 'Bewegungsmelder Bad' has no page",
+            "VirtualIn 'Bewegungsmelder Bad' has no position (Px/Py)",
+            "VirtualIn 'Checkout' has no page",
+            "VirtualIn 'Checkout' has no position (Px/Py)",
+            "InputRef 'Bewegungsmelder Bad' has no position (Px/Py)"
+          ]
+        }
+      },
+      "simulation": {
+        "case_id": "ch-008",
+        "pass": false,
+        "passed_count": 0,
+        "total_count": 2,
+        "scenarios": [
+          {
+            "checks": [
+              {
+                "actual": 0.0,
+                "comparator": ">",
+                "expected": 0.5,
+                "output": "Lichtsteuerung [Bad].Presence",
+                "pass": false
+              }
+            ],
+            "name": "should keep lights on after motion stops",
+            "pass": false
+          },
+          {
+            "checks": [
+              {
+                "actual": 0.0,
+                "comparator": ">",
+                "expected": 0.5,
+                "output": "Lichtsteuerung [Bad].Presence",
+                "pass": false
+              }
+            ],
+            "name": "should activate lights when motion detected",
+            "pass": false
+          }
+        ]
+      },
+      "sim_pass": false,
+      "sim_score": 0.0,
+      "case_id": "ch-008",
+      "difficulty": "medium",
+      "patterns": [
+        "bathroom-presence-light-fan",
+        "cleaning-notification"
+      ],
+      "utterance": "In the Bad, turn on the ceiling light when motion is detected and keep it on for 5 minutes after motion stops. Reset everything on checkout",
+      "elapsed_seconds": 228.6,
+      "cli_invocations": 0,
+      "retries": 0,
+      "tokens": {
+        "input_tokens_est": 0,
+        "output_tokens_est": 0
+      },
+      "model": "gpt-4o"
+    },
+    {
+      "pass": false,
+      "overall_score": 0.5,
+      "weighted_score": 1.0,
+      "xml_valid": true,
+      "validation_pass": true,
+      "validation_errors": 0,
+      "metrics": {
+        "blocks": {
+          "precision": 0.5,
+          "recall": 0.25,
+          "f1": 0.333,
+          "true_positives": 1,
+          "false_positives": 1,
+          "false_negatives": 3
+        },
+        "wiring": {
+          "accuracy": 0.25,
+          "precision": 0.4,
+          "correct": 1,
+          "total": 4,
+          "extra": 6
+        },
+        "params": {
+          "accuracy": 1.0,
+          "correct": 1,
+          "total": 1
+        },
+        "ux": {
+          "score": 1.0,
+          "issues": []
+        }
+      },
+      "simulation": {
+        "case_id": "ch-009",
+        "pass": true,
+        "passed_count": 1,
+        "total_count": 1,
+        "scenarios": [
+          {
+            "checks": [],
+            "name": "should trigger both central-off blocks on checkout",
+            "pass": true
+          }
+        ]
+      },
+      "sim_pass": true,
+      "sim_score": 1.0,
+      "case_id": "ch-009",
+      "difficulty": "hard",
+      "patterns": [
+        "checkout-sequence",
+        "central-light-off",
+        "central-music-off"
+      ],
+      "utterance": "On checkout, fire both a central all-lights-off and a central music pause with a 1-second pulse delay so the guest sees the lights fade before full shutoff",
+      "elapsed_seconds": 289.0,
+      "cli_invocations": 0,
+      "retries": 0,
+      "tokens": {
+        "input_tokens_est": 0,
+        "output_tokens_est": 0
+      },
+      "model": "gpt-4o"
+    },
+    {
+      "pass": false,
+      "overall_score": 0.4,
+      "weighted_score": 0.8,
+      "xml_valid": true,
+      "validation_pass": true,
+      "validation_errors": 0,
+      "metrics": {
+        "blocks": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "true_positives": 0,
+          "false_positives": 1,
+          "false_negatives": 2
+        },
+        "wiring": {
+          "accuracy": 0.25,
+          "precision": 0.667,
+          "correct": 1,
+          "total": 4,
+          "extra": 2
+        },
+        "params": {
+          "accuracy": 1.0,
+          "correct": 0,
+          "total": 0
+        },
+        "ux": {
+          "score": 1.0,
+          "issues": []
+        }
+      },
+      "simulation": {
+        "case_id": "ch-010",
+        "pass": false,
+        "passed_count": 1,
+        "total_count": 2,
+        "scenarios": [
+          {
+            "checks": [
+              {
+                "actual": 0.0,
+                "comparator": ">",
+                "expected": 0.5,
+                "output": "Raumregler [Wohnzimmer].Move",
+                "pass": false
+              }
+            ],
+            "name": "should set comfort mode when card inserted",
+            "pass": false
+          },
+          {
+            "checks": [
+              {
+                "actual": 0.0,
+                "comparator": "<",
+                "expected": 0.5,
+                "output": "Raumregler [Wohnzimmer].Move",
+                "pass": true
+              }
+            ],
+            "name": "should switch to eco when card removed",
+            "pass": true
+          }
+        ]
+      },
+      "sim_pass": false,
+      "sim_score": 0.5,
+      "case_id": "ch-010",
+      "difficulty": "hard",
+      "patterns": [
+        "bedroom-presence",
+        "checkout-sequence"
+      ],
+      "utterance": "Track room occupancy with a presence memory: card-in sets occupied, card-out clears it. Wire the occupancy state to the Raumregler in Wohnzimmer so heating switches to eco when the room is vacant",
+      "elapsed_seconds": 90.2,
+      "cli_invocations": 0,
+      "retries": 0,
+      "tokens": {
+        "input_tokens_est": 0,
+        "output_tokens_est": 0
+      },
+      "model": "gpt-4o"
+    },
+    {
+      "pass": false,
+      "overall_score": 0.7,
+      "weighted_score": 1.05,
+      "xml_valid": true,
+      "validation_pass": true,
+      "validation_errors": 0,
+      "metrics": {
+        "blocks": {
+          "precision": 0.5,
+          "recall": 1.0,
+          "f1": 0.667,
+          "true_positives": 1,
+          "false_positives": 1,
+          "false_negatives": 0
+        },
+        "wiring": {
+          "accuracy": 0.5,
+          "precision": 0.4,
+          "correct": 1,
+          "total": 2,
+          "extra": 3
+        },
+        "params": {
+          "accuracy": 1.0,
+          "correct": 0,
+          "total": 0
+        },
+        "ux": {
+          "score": 1.0,
+          "issues": []
+        }
+      },
+      "simulation": {
+        "case_id": "ch-011",
+        "pass": false,
+        "passed_count": 1,
+        "total_count": 2,
+        "scenarios": [
+          {
+            "checks": [
+              {
+                "actual": 0.0,
+                "comparator": ">",
+                "expected": 0.5,
+                "output": "Lichtsteuerung [Bad].EnMove",
+                "pass": false
+              }
+            ],
+            "name": "should enable manual light control when cleaning active and door open",
+            "pass": false
+          },
+          {
+            "checks": [
+              {
+                "actual": 0.0,
+                "comparator": "<",
+                "expected": 0.5,
+                "output": "Lichtsteuerung [Bad].EnMove",
+                "pass": true
+              }
+            ],
+            "name": "should NOT enable manual control when door is closed",
+            "pass": true
+          }
+        ]
+      },
+      "sim_pass": false,
+      "sim_score": 0.5,
+      "case_id": "ch-011",
+      "difficulty": "medium",
+      "patterns": [
+        "wc-light-fan",
+        "cleaning-notification"
+      ],
+      "utterance": "In the Bad, wire the door contact to enable manual light control only during cleaning mode. Normal guests should have motion-only lighting",
+      "elapsed_seconds": 162.3,
+      "cli_invocations": 0,
+      "retries": 0,
+      "tokens": {
+        "input_tokens_est": 0,
+        "output_tokens_est": 0
+      },
+      "model": "gpt-4o"
+    },
+    {
+      "pass": true,
+      "overall_score": 1.0,
+      "weighted_score": 1.5,
+      "xml_valid": true,
+      "validation_pass": true,
+      "validation_errors": 0,
+      "metrics": {
+        "blocks": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "true_positives": 1,
+          "false_positives": 0,
+          "false_negatives": 0
+        },
+        "wiring": {
+          "accuracy": 1.0,
+          "precision": 0.5,
+          "correct": 1,
+          "total": 1,
+          "extra": 1
+        },
+        "params": {
+          "accuracy": 1.0,
+          "correct": 0,
+          "total": 0
+        },
+        "ux": {
+          "score": 1.0,
+          "issues": []
+        }
+      },
+      "simulation": {
+        "case_id": "ch-012",
+        "pass": false,
+        "passed_count": 1,
+        "total_count": 2,
+        "scenarios": [
+          {
+            "checks": [
+              {
+                "actual": 1.0,
+                "comparator": ">",
+                "expected": 0.5,
+                "output": "Lichtsteuerung [Flur].Sel6",
+                "pass": true
+              }
+            ],
+            "name": "should select dim path-light during night hours",
+            "pass": true
+          },
+          {
+            "checks": [
+              {
+                "actual": 1.0,
+                "comparator": "<",
+                "expected": 0.5,
+                "output": "Lichtsteuerung [Flur].Sel6",
+                "pass": false
+              }
+            ],
+            "name": "should use default scene during day",
+            "pass": false
+          }
+        ]
+      },
+      "sim_pass": false,
+      "sim_score": 0.5,
+      "case_id": "ch-012",
+      "difficulty": "medium",
+      "patterns": [
+        "night-mode-timer",
+        "bedroom-light-checkout"
+      ],
+      "utterance": "Create a DayTimer for night mode (22:00–06:00) and wire it to select light scene 6 on the Flur light controller, so the hallway uses a dim path-light at night",
+      "elapsed_seconds": 84.7,
+      "cli_invocations": 0,
+      "retries": 0,
+      "tokens": {
+        "input_tokens_est": 0,
+        "output_tokens_est": 0
+      },
+      "model": "gpt-4o"
+    },
+    {
+      "pass": false,
+      "overall_score": 0.545,
+      "weighted_score": 1.09,
+      "xml_valid": true,
+      "validation_pass": true,
+      "validation_errors": 0,
+      "metrics": {
+        "blocks": {
+          "precision": 0.6,
+          "recall": 1.0,
+          "f1": 0.75,
+          "true_positives": 3,
+          "false_positives": 2,
+          "false_negatives": 0
+        },
+        "wiring": {
+          "accuracy": 0.8,
+          "precision": 0.417,
+          "correct": 4,
+          "total": 5,
+          "extra": 7
+        },
+        "params": {
+          "accuracy": 0.0,
+          "correct": 0,
+          "total": 1
+        },
+        "ux": {
+          "score": 1.0,
+          "issues": []
+        }
+      },
+      "simulation": {
+        "case_id": "ch-013",
+        "pass": true,
+        "passed_count": 2,
+        "total_count": 2,
+        "scenarios": [
+          {
+            "checks": [],
+            "name": "should fire leave impulse when no presence and card out",
+            "pass": true
+          },
+          {
+            "checks": [
+              {
+                "actual": 0.0,
+                "comparator": "<",
+                "expected": 0.5,
+                "output": "Lichtsteuerung [Schlafzimmer].Reset",
+                "pass": true
+              }
+            ],
+            "name": "should NOT fire leave impulse when card still inserted",
+            "pass": true
+          }
+        ]
+      },
+      "sim_pass": true,
+      "sim_score": 1.0,
+      "case_id": "ch-013",
+      "difficulty": "hard",
+      "patterns": [
+        "checkout-sequence",
+        "bedroom-presence"
+      ],
+      "utterance": "When the Flur presence detector goes inactive and the room card is out, send a leave impulse after 30 seconds that triggers the central all-off sequence",
+      "elapsed_seconds": 239.7,
+      "cli_invocations": 0,
+      "retries": 0,
+      "tokens": {
+        "input_tokens_est": 0,
+        "output_tokens_est": 0
+      },
+      "model": "gpt-4o"
+    },
+    {
+      "pass": false,
+      "overall_score": 0.62,
+      "weighted_score": 1.24,
+      "xml_valid": true,
+      "validation_pass": true,
+      "validation_errors": 0,
+      "metrics": {
+        "blocks": {
+          "precision": 0.333,
+          "recall": 0.5,
+          "f1": 0.4,
+          "true_positives": 1,
+          "false_positives": 2,
+          "false_negatives": 1
+        },
+        "wiring": {
+          "accuracy": 0.5,
+          "precision": 0.333,
+          "correct": 2,
+          "total": 4,
+          "extra": 8
+        },
+        "params": {
+          "accuracy": 1.0,
+          "correct": 0,
+          "total": 0
+        },
+        "ux": {
+          "score": 1.0,
+          "issues": []
+        }
+      },
+      "simulation": {
+        "case_id": "ch-014",
+        "pass": false,
+        "passed_count": 1,
+        "total_count": 2,
+        "scenarios": [
+          {
+            "checks": [
+              {
+                "actual": 0.0,
+                "comparator": ">",
+                "expected": 0.5,
+                "output": "Raumregler [Wohnzimmer].RtD",
+                "pass": false
+              }
+            ],
+            "name": "should reset thermostat when checkout and no presence",
+            "pass": false
+          },
+          {
+            "checks": [
+              {
+                "actual": 0.0,
+                "comparator": "<",
+                "expected": 0.5,
+                "output": "Raumregler [Wohnzimmer].RtD",
+                "pass": true
+              }
+            ],
+            "name": "should NOT reset when guest still present",
+            "pass": true
+          }
+        ]
+      },
+      "sim_pass": false,
+      "sim_score": 0.5,
+      "case_id": "ch-014",
+      "difficulty": "hard",
+      "patterns": [
+        "heating-mode-setpoints",
+        "checkout-sequence"
+      ],
+      "utterance": "Reset the Wohnzimmer room controller to default setpoint on checkout using an And gate that combines the checkout memory and presence absence",
+      "elapsed_seconds": 119.6,
+      "cli_invocations": 0,
+      "retries": 0,
+      "tokens": {
+        "input_tokens_est": 0,
+        "output_tokens_est": 0
+      },
+      "model": "gpt-4o"
+    },
+    {
+      "case_id": "ch-015",
+      "pass": false,
+      "sim_pass": false,
+      "sim_score": 0,
+      "overall_score": 0,
+      "error": "Agent timed out after 600s",
+      "difficulty": "expert",
+      "patterns": [
+        "checkout-sequence",
+        "central-light-off",
+        "night-mode-timer"
+      ],
+      "utterance": "Set up the full hotel room checkout flow: when the card is removed, wait 10 seconds, then reset all Küche lights, close both Küche blinds, and select the night scene if the DayTimer says it's after 22:00",
+      "elapsed_seconds": 600.0,
+      "metrics": {
+        "blocks": {
+          "precision": 0,
+          "recall": 0,
+          "f1": 0,
+          "true_positives": 0,
+          "false_positives": 0,
+          "false_negatives": 0
+        },
+        "wiring": {
+          "accuracy": 0,
+          "precision": 0,
+          "correct": 0,
+          "total": 0,
+          "extra": 0
+        },
+        "params": {
+          "accuracy": 0,
+          "correct": 0,
+          "total": 0
+        },
+        "ux": {
+          "score": 0,
+          "issues": []
+        }
+      },
+      "cli_invocations": 0,
+      "retries": 0,
+      "tokens": {
+        "input_tokens_est": 0,
+        "output_tokens_est": 0
+      },
+      "model": "gpt-4o"
+    }
+  ],
+  "meta": {
+    "agent": "copilot",
+    "model": "gpt-4o",
+    "timeout_seconds": 600,
+    "parallel": 1,
+    "timestamp": "2026-05-12T10:43:45Z"
+  }
+}

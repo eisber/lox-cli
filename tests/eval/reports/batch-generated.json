@@ -1,0 +1,1035 @@
+{
+  "summary": {
+    "total": 10,
+    "passed": 5,
+    "failed": 5,
+    "pass_rate": 0.5,
+    "sim_passed": 5,
+    "sim_total": 10,
+    "sim_rate": 0.5,
+    "xml_valid": 10,
+    "validation_pass": 8,
+    "avg_overall_score": 0.346,
+    "avg_weighted_score": 0.982,
+    "avg_block_f1": 0.463,
+    "avg_wiring_accuracy": 0.239,
+    "avg_wiring_precision": 0.696,
+    "avg_param_accuracy": 0.373,
+    "avg_ux_score": 0.8,
+    "total_cli_invocations": 0,
+    "total_retries": 0,
+    "total_tokens_input": 0,
+    "total_tokens_output": 0,
+    "avg_cli_per_case": 0.0,
+    "avg_tokens_per_case": 0.0
+  },
+  "by_difficulty": {
+    "hard": {
+      "count": 1,
+      "passed": 1,
+      "sim_passed": 1,
+      "sim_total": 1,
+      "avg_score": 0.58,
+      "avg_block_f1": 0.667,
+      "avg_params": 1.0,
+      "avg_cli_invocations": 0.0,
+      "avg_tokens": 0.0
+    },
+    "expert": {
+      "count": 9,
+      "passed": 4,
+      "sim_passed": 4,
+      "sim_total": 9,
+      "avg_score": 0.32,
+      "avg_block_f1": 0.44,
+      "avg_params": 0.304,
+      "avg_cli_invocations": 0.0,
+      "avg_tokens": 0.0
+    }
+  },
+  "by_pattern": {
+    "dimming": {
+      "count": 2,
+      "passed": 2,
+      "sim_passed": 2,
+      "sim_total": 2,
+      "avg_score": 0.45
+    },
+    "humidity": {
+      "count": 2,
+      "passed": 2,
+      "sim_passed": 2,
+      "sim_total": 2,
+      "avg_score": 0.394
+    },
+    "night-dim": {
+      "count": 2,
+      "passed": 2,
+      "sim_passed": 2,
+      "sim_total": 2,
+      "avg_score": 0.533
+    },
+    "threshold": {
+      "count": 1,
+      "passed": 1,
+      "sim_passed": 1,
+      "sim_total": 1,
+      "avg_score": 0.58
+    },
+    "day-night": {
+      "count": 1,
+      "passed": 1,
+      "sim_passed": 1,
+      "sim_total": 1,
+      "avg_score": 0.58
+    },
+    "sun-protection": {
+      "count": 1,
+      "passed": 1,
+      "sim_passed": 1,
+      "sim_total": 1,
+      "avg_score": 0.32
+    },
+    "temperature": {
+      "count": 1,
+      "passed": 0,
+      "sim_passed": 0,
+      "sim_total": 1,
+      "avg_score": 0.36
+    },
+    "sun": {
+      "count": 1,
+      "passed": 0,
+      "sim_passed": 0,
+      "sim_total": 1,
+      "avg_score": 0.36
+    },
+    "hvac": {
+      "count": 1,
+      "passed": 0,
+      "sim_passed": 0,
+      "sim_total": 1,
+      "avg_score": 0.36
+    },
+    "wind-protection": {
+      "count": 1,
+      "passed": 0,
+      "sim_passed": 0,
+      "sim_total": 1,
+      "avg_score": 0.352
+    },
+    "sun-delay": {
+      "count": 1,
+      "passed": 0,
+      "sim_passed": 0,
+      "sim_total": 1,
+      "avg_score": 0.352
+    },
+    "dark-light": {
+      "count": 1,
+      "passed": 0,
+      "sim_passed": 0,
+      "sim_total": 1,
+      "avg_score": 0.352
+    },
+    "presence": {
+      "count": 1,
+      "passed": 0,
+      "sim_passed": 0,
+      "sim_total": 1,
+      "avg_score": 0.0
+    },
+    "door-contact": {
+      "count": 1,
+      "passed": 0,
+      "sim_passed": 0,
+      "sim_total": 1,
+      "avg_score": 0.0
+    },
+    "blind-cycle": {
+      "count": 1,
+      "passed": 0,
+      "sim_passed": 0,
+      "sim_total": 1,
+      "avg_score": 0.0
+    },
+    "irrigation": {
+      "count": 1,
+      "passed": 0,
+      "sim_passed": 0,
+      "sim_total": 1,
+      "avg_score": 0.0
+    },
+    "manual-override": {
+      "count": 1,
+      "passed": 0,
+      "sim_passed": 0,
+      "sim_total": 1,
+      "avg_score": 0.0
+    },
+    "motion-light": {
+      "count": 1,
+      "passed": 0,
+      "sim_passed": 0,
+      "sim_total": 1,
+      "avg_score": 0.0
+    },
+    "gate-sensor": {
+      "count": 1,
+      "passed": 0,
+      "sim_passed": 0,
+      "sim_total": 1,
+      "avg_score": 0.393
+    },
+    "manual-toggle": {
+      "count": 1,
+      "passed": 0,
+      "sim_passed": 0,
+      "sim_total": 1,
+      "avg_score": 0.393
+    },
+    "night-trigger": {
+      "count": 1,
+      "passed": 0,
+      "sim_passed": 0,
+      "sim_total": 1,
+      "avg_score": 0.393
+    },
+    "german": {
+      "count": 1,
+      "passed": 1,
+      "sim_passed": 1,
+      "sim_total": 1,
+      "avg_score": 0.6
+    },
+    "co2": {
+      "count": 1,
+      "passed": 1,
+      "sim_passed": 1,
+      "sim_total": 1,
+      "avg_score": 0.6
+    },
+    "cold-weather": {
+      "count": 1,
+      "passed": 1,
+      "sim_passed": 1,
+      "sim_total": 1,
+      "avg_score": 0.392
+    },
+    "daylight": {
+      "count": 1,
+      "passed": 1,
+      "sim_passed": 1,
+      "sim_total": 1,
+      "avg_score": 0.392
+    },
+    "heating": {
+      "count": 1,
+      "passed": 1,
+      "sim_passed": 1,
+      "sim_total": 1,
+      "avg_score": 0.392
+    },
+    "manual-boost": {
+      "count": 1,
+      "passed": 1,
+      "sim_passed": 1,
+      "sim_total": 1,
+      "avg_score": 0.467
+    }
+  },
+  "cases": [
+    {
+      "pass": false,
+      "overall_score": 0.58,
+      "weighted_score": 1.16,
+      "xml_valid": true,
+      "validation_pass": true,
+      "validation_errors": 0,
+      "metrics": {
+        "blocks": {
+          "precision": 0.667,
+          "recall": 0.667,
+          "f1": 0.667,
+          "true_positives": 2,
+          "false_positives": 1,
+          "false_negatives": 1
+        },
+        "wiring": {
+          "accuracy": 0.2,
+          "precision": 0.625,
+          "correct": 1,
+          "total": 5,
+          "extra": 3
+        },
+        "params": {
+          "accuracy": 1.0,
+          "correct": 1,
+          "total": 1
+        },
+        "ux": {
+          "score": 1.0,
+          "issues": []
+        }
+      },
+      "simulation": {
+        "case_id": "a01-bedroom-night-routine",
+        "pass": true,
+        "passed_count": 2,
+        "total_count": 2,
+        "scenarios": [
+          {
+            "checks": [
+              {
+                "actual": 20.0,
+                "comparator": ">",
+                "expected": 0.5,
+                "output": "Lichtsteuerung.Brightness",
+                "pass": true
+              }
+            ],
+            "name": "should trigger when condition met",
+            "pass": true
+          },
+          {
+            "checks": [
+              {
+                "actual": 0.0,
+                "comparator": "<",
+                "expected": 0.5,
+                "output": "Lichtsteuerung.Brightness",
+                "pass": true
+              }
+            ],
+            "name": "should NOT trigger when condition not met",
+            "pass": true
+          }
+        ]
+      },
+      "sim_pass": true,
+      "sim_score": 1.0,
+      "case_id": "a01-bedroom-night-routine",
+      "difficulty": "hard",
+      "patterns": [
+        "threshold",
+        "day-night",
+        "dimming"
+      ],
+      "utterance": "Set up the bedroom so the light drops to 20% when it gets dark, both blinds close after sunset, and they open again in the morning.",
+      "elapsed_seconds": 155.9,
+      "cli_invocations": 0,
+      "retries": 0,
+      "tokens": {
+        "input_tokens_est": 0,
+        "output_tokens_est": 0
+      },
+      "model": "gpt-4o"
+    },
+    {
+      "pass": false,
+      "overall_score": 0.32,
+      "weighted_score": 0.96,
+      "xml_valid": true,
+      "validation_pass": true,
+      "validation_errors": 0,
+      "metrics": {
+        "blocks": {
+          "precision": 1.0,
+          "recall": 0.333,
+          "f1": 0.5,
+          "true_positives": 2,
+          "false_positives": 0,
+          "false_negatives": 4
+        },
+        "wiring": {
+          "accuracy": 0.3,
+          "precision": 1.0,
+          "correct": 3,
+          "total": 10,
+          "extra": 0
+        },
+        "params": {
+          "accuracy": 0.167,
+          "correct": 1,
+          "total": 6
+        },
+        "ux": {
+          "score": 1.0,
+          "issues": []
+        }
+      },
+      "simulation": {
+        "case_id": "a02-bathroom-humidity-sun",
+        "pass": true,
+        "passed_count": 2,
+        "total_count": 2,
+        "scenarios": [
+          {
+            "checks": [
+              {
+                "actual": 1.0,
+                "comparator": ">",
+                "expected": 0.5,
+                "output": "Lüfter Bad.I1",
+                "pass": true
+              }
+            ],
+            "name": "should trigger when condition met",
+            "pass": true
+          },
+          {
+            "checks": [
+              {
+                "actual": 0.0,
+                "comparator": "<",
+                "expected": 0.5,
+                "output": "Lüfter Bad.I1",
+                "pass": true
+              }
+            ],
+            "name": "should NOT trigger when condition not met",
+            "pass": true
+          }
+        ]
+      },
+      "sim_pass": true,
+      "sim_score": 1.0,
+      "case_id": "a02-bathroom-humidity-sun",
+      "difficulty": "expert",
+      "patterns": [
+        "humidity",
+        "dimming",
+        "sun-protection"
+      ],
+      "utterance": "Set up the bathroom so the fan starts when humidity goes above 70%, the light only comes on at 30% when it is dark, and both blinds go down when sunshine is strong.",
+      "elapsed_seconds": 110.5,
+      "cli_invocations": 0,
+      "retries": 0,
+      "tokens": {
+        "input_tokens_est": 0,
+        "output_tokens_est": 0
+      },
+      "model": "gpt-4o"
+    },
+    {
+      "pass": false,
+      "overall_score": 0.36,
+      "weighted_score": 1.08,
+      "xml_valid": true,
+      "validation_pass": true,
+      "validation_errors": 0,
+      "metrics": {
+        "blocks": {
+          "precision": 0.667,
+          "recall": 0.333,
+          "f1": 0.444,
+          "true_positives": 2,
+          "false_positives": 1,
+          "false_negatives": 4
+        },
+        "wiring": {
+          "accuracy": 0.417,
+          "precision": 1.0,
+          "correct": 5,
+          "total": 12,
+          "extra": 0
+        },
+        "params": {
+          "accuracy": 0.2,
+          "correct": 1,
+          "total": 5
+        },
+        "ux": {
+          "score": 1.0,
+          "issues": []
+        }
+      },
+      "simulation": {
+        "case_id": "a03-living-room-summer-cooling",
+        "pass": false,
+        "passed_count": 0,
+        "total_count": 2,
+        "scenarios": [
+          {
+            "checks": [
+              {
+                "actual": 0.0,
+                "comparator": ">",
+                "expected": 0.5,
+                "output": "Jalousie 1.InputTriggerDown",
+                "pass": false
+              }
+            ],
+            "name": "should trigger when all conditions met",
+            "pass": false
+          },
+          {
+            "checks": [
+              {
+                "actual": 1.0,
+                "comparator": "<",
+                "expected": 0.5,
+                "output": "Jalousie 1.InputTriggerDown",
+                "pass": false
+              }
+            ],
+            "name": "should NOT trigger when only partial conditions met",
+            "pass": false
+          }
+        ]
+      },
+      "sim_pass": false,
+      "sim_score": 0.0,
+      "case_id": "a03-living-room-summer-cooling",
+      "difficulty": "expert",
+      "patterns": [
+        "temperature",
+        "sun",
+        "hvac"
+      ],
+      "utterance": "Configure the living room for summer: if the outside temperature is above 26 and sunshine is high, close both blinds and start the AC, then reopen the blinds when it cools down again.",
+      "elapsed_seconds": 65.8,
+      "cli_invocations": 0,
+      "retries": 0,
+      "tokens": {
+        "input_tokens_est": 0,
+        "output_tokens_est": 0
+      },
+      "model": "gpt-4o"
+    },
+    {
+      "pass": false,
+      "overall_score": 0.352,
+      "weighted_score": 1.057,
+      "xml_valid": true,
+      "validation_pass": true,
+      "validation_errors": 0,
+      "metrics": {
+        "blocks": {
+          "precision": 0.8,
+          "recall": 0.571,
+          "f1": 0.667,
+          "true_positives": 4,
+          "false_positives": 1,
+          "false_negatives": 3
+        },
+        "wiring": {
+          "accuracy": 0.231,
+          "precision": 1.0,
+          "correct": 3,
+          "total": 13,
+          "extra": 0
+        },
+        "params": {
+          "accuracy": 0.2,
+          "correct": 1,
+          "total": 5
+        },
+        "ux": {
+          "score": 1.0,
+          "issues": []
+        }
+      },
+      "simulation": {
+        "case_id": "a04-kitchen-weather-setup",
+        "pass": false,
+        "passed_count": 1,
+        "total_count": 2,
+        "scenarios": [
+          {
+            "checks": [
+              {
+                "actual": 1.0,
+                "comparator": ">",
+                "expected": 0.5,
+                "output": "Lichtsteuerung.I1",
+                "pass": true
+              }
+            ],
+            "name": "should trigger when all conditions met",
+            "pass": true
+          },
+          {
+            "checks": [
+              {
+                "actual": 1.0,
+                "comparator": "<",
+                "expected": 0.5,
+                "output": "Lichtsteuerung.I1",
+                "pass": false
+              }
+            ],
+            "name": "should NOT trigger when only partial conditions met",
+            "pass": false
+          }
+        ]
+      },
+      "sim_pass": false,
+      "sim_score": 0.5,
+      "case_id": "a04-kitchen-weather-setup",
+      "difficulty": "expert",
+      "patterns": [
+        "wind-protection",
+        "sun-delay",
+        "dark-light"
+      ],
+      "utterance": "Set up the kitchen so the light comes on when it gets dark, both blinds go up in strong wind, and they only go down after five minutes of strong sunshine if there is no wind.",
+      "elapsed_seconds": 299.5,
+      "cli_invocations": 0,
+      "retries": 0,
+      "tokens": {
+        "input_tokens_est": 0,
+        "output_tokens_est": 0
+      },
+      "model": "gpt-4o"
+    },
+    {
+      "case_id": "a05-hallway-entry-and-blinds",
+      "pass": false,
+      "sim_pass": false,
+      "sim_score": 0,
+      "overall_score": 0,
+      "error": "Agent timed out after 600s",
+      "difficulty": "expert",
+      "patterns": [
+        "presence",
+        "door-contact",
+        "blind-cycle"
+      ],
+      "utterance": "Set up the hallway so motion in the dark brings the light to 35%, the front door contact also triggers the light for 90 seconds, and both blinds close when it gets dark and reopen when it gets bright again.",
+      "elapsed_seconds": 600.0,
+      "metrics": {
+        "blocks": {
+          "precision": 0,
+          "recall": 0,
+          "f1": 0,
+          "true_positives": 0,
+          "false_positives": 0,
+          "false_negatives": 0
+        },
+        "wiring": {
+          "accuracy": 0,
+          "precision": 0,
+          "correct": 0,
+          "total": 0,
+          "extra": 0
+        },
+        "params": {
+          "accuracy": 0,
+          "correct": 0,
+          "total": 0
+        },
+        "ux": {
+          "score": 0,
+          "issues": []
+        }
+      },
+      "cli_invocations": 0,
+      "retries": 0,
+      "tokens": {
+        "input_tokens_est": 0,
+        "output_tokens_est": 0
+      },
+      "model": "gpt-4o"
+    },
+    {
+      "case_id": "a06-garden-irrigation-and-light",
+      "pass": false,
+      "sim_pass": false,
+      "sim_score": 0,
+      "overall_score": 0,
+      "error": "Agent timed out after 600s",
+      "difficulty": "expert",
+      "patterns": [
+        "irrigation",
+        "manual-override",
+        "motion-light"
+      ],
+      "utterance": "Configure the garden so motion after dark switches on the garden light, irrigation runs automatically when soil moisture is below 20% and it is not raining, and the manual watering switch still works.",
+      "elapsed_seconds": 605.0,
+      "metrics": {
+        "blocks": {
+          "precision": 0,
+          "recall": 0,
+          "f1": 0,
+          "true_positives": 0,
+          "false_positives": 0,
+          "false_negatives": 0
+        },
+        "wiring": {
+          "accuracy": 0,
+          "precision": 0,
+          "correct": 0,
+          "total": 0,
+          "extra": 0
+        },
+        "params": {
+          "accuracy": 0,
+          "correct": 0,
+          "total": 0
+        },
+        "ux": {
+          "score": 0,
+          "issues": []
+        }
+      },
+      "cli_invocations": 0,
+      "retries": 0,
+      "tokens": {
+        "input_tokens_est": 0,
+        "output_tokens_est": 0
+      },
+      "model": "gpt-4o"
+    },
+    {
+      "pass": false,
+      "overall_score": 0.393,
+      "weighted_score": 1.18,
+      "xml_valid": true,
+      "validation_pass": true,
+      "validation_errors": 0,
+      "metrics": {
+        "blocks": {
+          "precision": 0.667,
+          "recall": 0.333,
+          "f1": 0.444,
+          "true_positives": 2,
+          "false_positives": 1,
+          "false_negatives": 4
+        },
+        "wiring": {
+          "accuracy": 0.4,
+          "precision": 1.0,
+          "correct": 4,
+          "total": 10,
+          "extra": 0
+        },
+        "params": {
+          "accuracy": 0.333,
+          "correct": 1,
+          "total": 3
+        },
+        "ux": {
+          "score": 1.0,
+          "issues": []
+        }
+      },
+      "simulation": {
+        "case_id": "a07-garage-light-and-gate",
+        "pass": false,
+        "passed_count": 1,
+        "total_count": 2,
+        "scenarios": [
+          {
+            "checks": [
+              {
+                "actual": 0.0,
+                "comparator": ">",
+                "expected": 0.5,
+                "output": "Garagentor.I1",
+                "pass": false
+              }
+            ],
+            "name": "should trigger when all conditions met",
+            "pass": false
+          },
+          {
+            "checks": [
+              {
+                "actual": 0.0,
+                "comparator": "<",
+                "expected": 0.5,
+                "output": "Garagentor.I1",
+                "pass": true
+              }
+            ],
+            "name": "should NOT trigger when only partial conditions met",
+            "pass": true
+          }
+        ]
+      },
+      "sim_pass": false,
+      "sim_score": 0.5,
+      "case_id": "a07-garage-light-and-gate",
+      "difficulty": "expert",
+      "patterns": [
+        "gate-sensor",
+        "manual-toggle",
+        "night-trigger"
+      ],
+      "utterance": "Set up the garage so the light stays on for five minutes when the garage door sensor trips, Schalter 2 switches the garage door opener on and off, and at night that same sensor should also bring the light on immediately.",
+      "elapsed_seconds": 392.1,
+      "cli_invocations": 0,
+      "retries": 0,
+      "tokens": {
+        "input_tokens_est": 0,
+        "output_tokens_est": 0
+      },
+      "model": "gpt-4o"
+    },
+    {
+      "pass": false,
+      "overall_score": 0.6,
+      "weighted_score": 1.8,
+      "xml_valid": true,
+      "validation_pass": true,
+      "validation_errors": 0,
+      "metrics": {
+        "blocks": {
+          "precision": 0.5,
+          "recall": 0.25,
+          "f1": 0.333,
+          "true_positives": 1,
+          "false_positives": 1,
+          "false_negatives": 3
+        },
+        "wiring": {
+          "accuracy": 0.5,
+          "precision": 0.333,
+          "correct": 1,
+          "total": 2,
+          "extra": 4
+        },
+        "params": {
+          "accuracy": 1.0,
+          "correct": 1,
+          "total": 1
+        },
+        "ux": {
+          "score": 1.0,
+          "issues": []
+        }
+      },
+      "simulation": {
+        "case_id": "a08-schlafzimmer-co2-tag-nacht",
+        "pass": true,
+        "passed_count": 2,
+        "total_count": 2,
+        "scenarios": [
+          {
+            "checks": [
+              {
+                "actual": 1.0,
+                "comparator": ">",
+                "expected": 0.5,
+                "output": "Jalousie 1.InputTriggerUp",
+                "pass": true
+              }
+            ],
+            "name": "should trigger when all conditions met",
+            "pass": true
+          },
+          {
+            "checks": [
+              {
+                "actual": 0.0,
+                "comparator": "<",
+                "expected": 0.5,
+                "output": "Jalousie 1.InputTriggerUp",
+                "pass": true
+              }
+            ],
+            "name": "should NOT trigger when only partial conditions met",
+            "pass": true
+          }
+        ]
+      },
+      "sim_pass": true,
+      "sim_score": 1.0,
+      "case_id": "a08-schlafzimmer-co2-tag-nacht",
+      "difficulty": "expert",
+      "patterns": [
+        "german",
+        "co2",
+        "night-dim"
+      ],
+      "utterance": "Mach im Schlafzimmer bitte Folgendes: bei CO2 über 1000 sollen beide Jalousien hochfahren, nachts das Licht nur auf 15%, und bei viel Sonne tagsüber die Jalousien wieder runter.",
+      "elapsed_seconds": 204.2,
+      "cli_invocations": 0,
+      "retries": 0,
+      "tokens": {
+        "input_tokens_est": 0,
+        "output_tokens_est": 0
+      },
+      "model": "gpt-4o"
+    },
+    {
+      "pass": false,
+      "overall_score": 0.392,
+      "weighted_score": 1.177,
+      "xml_valid": true,
+      "validation_pass": true,
+      "validation_errors": 0,
+      "metrics": {
+        "blocks": {
+          "precision": 0.8,
+          "recall": 0.571,
+          "f1": 0.667,
+          "true_positives": 4,
+          "false_positives": 1,
+          "false_negatives": 3
+        },
+        "wiring": {
+          "accuracy": 0.231,
+          "precision": 1.0,
+          "correct": 3,
+          "total": 13,
+          "extra": 0
+        },
+        "params": {
+          "accuracy": 0.333,
+          "correct": 2,
+          "total": 6
+        },
+        "ux": {
+          "score": 1.0,
+          "issues": []
+        }
+      },
+      "simulation": {
+        "case_id": "a09-living-room-winter-evening",
+        "pass": true,
+        "passed_count": 2,
+        "total_count": 2,
+        "scenarios": [
+          {
+            "checks": [
+              {
+                "actual": 1.0,
+                "comparator": ">",
+                "expected": 0.5,
+                "output": "Jalousie 1.InputTriggerUp",
+                "pass": true
+              }
+            ],
+            "name": "should trigger when all conditions met",
+            "pass": true
+          },
+          {
+            "checks": [
+              {
+                "actual": 0.0,
+                "comparator": "<",
+                "expected": 0.5,
+                "output": "Jalousie 1.InputTriggerUp",
+                "pass": true
+              }
+            ],
+            "name": "should NOT trigger when only partial conditions met",
+            "pass": true
+          }
+        ]
+      },
+      "sim_pass": true,
+      "sim_score": 1.0,
+      "case_id": "a09-living-room-winter-evening",
+      "difficulty": "expert",
+      "patterns": [
+        "cold-weather",
+        "daylight",
+        "heating"
+      ],
+      "utterance": "Configure the living room for winter evenings: if the outside temperature falls below 5, open both blinds during daylight, close them again when it gets dark, and start the living room climate control when it drops below 2.",
+      "elapsed_seconds": 486.0,
+      "cli_invocations": 0,
+      "retries": 0,
+      "tokens": {
+        "input_tokens_est": 0,
+        "output_tokens_est": 0
+      },
+      "model": "gpt-4o"
+    },
+    {
+      "pass": false,
+      "overall_score": 0.467,
+      "weighted_score": 1.402,
+      "xml_valid": true,
+      "validation_pass": true,
+      "validation_errors": 0,
+      "metrics": {
+        "blocks": {
+          "precision": 1.0,
+          "recall": 0.833,
+          "f1": 0.909,
+          "true_positives": 5,
+          "false_positives": 0,
+          "false_negatives": 1
+        },
+        "wiring": {
+          "accuracy": 0.111,
+          "precision": 1.0,
+          "correct": 1,
+          "total": 9,
+          "extra": 0
+        },
+        "params": {
+          "accuracy": 0.5,
+          "correct": 2,
+          "total": 4
+        },
+        "ux": {
+          "score": 1.0,
+          "issues": []
+        }
+      },
+      "simulation": {
+        "case_id": "a10-bathroom-fan-boost-switch",
+        "pass": true,
+        "passed_count": 2,
+        "total_count": 2,
+        "scenarios": [
+          {
+            "checks": [
+              {
+                "actual": 1.0,
+                "comparator": ">",
+                "expected": 0.5,
+                "output": "Lüfter Bad.I1",
+                "pass": true
+              }
+            ],
+            "name": "should trigger when all conditions met",
+            "pass": true
+          },
+          {
+            "checks": [
+              {
+                "actual": 0.0,
+                "comparator": "<",
+                "expected": 0.5,
+                "output": "Lüfter Bad.I1",
+                "pass": true
+              }
+            ],
+            "name": "should NOT trigger when condition not met",
+            "pass": true
+          }
+        ]
+      },
+      "sim_pass": true,
+      "sim_score": 1.0,
+      "case_id": "a10-bathroom-fan-boost-switch",
+      "difficulty": "expert",
+      "patterns": [
+        "manual-boost",
+        "humidity",
+        "night-dim"
+      ],
+      "utterance": "Set up the bathroom so Schalter 1 turns fan boost on if it is off and off if it is on, humidity above 75 starts the fan automatically, and the light stays at 25% whenever it is dark.",
+      "elapsed_seconds": 145.8,
+      "cli_invocations": 0,
+      "retries": 0,
+      "tokens": {
+        "input_tokens_est": 0,
+        "output_tokens_est": 0
+      },
+      "model": "gpt-4o"
+    }
+  ],
+  "meta": {
+    "agent": "copilot",
+    "model": "gpt-4o",
+    "timeout_seconds": 600,
+    "timestamp": "2026-04-23T16:42:10Z"
+  }
+}

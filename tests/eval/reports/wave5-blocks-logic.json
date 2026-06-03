@@ -1,0 +1,1460 @@
+{
+  "summary": {
+    "total": 15,
+    "passed": 1,
+    "failed": 14,
+    "pass_rate": 0.067,
+    "sim_passed": 1,
+    "sim_total": 15,
+    "sim_rate": 0.067,
+    "xml_valid": 15,
+    "validation_pass": 13,
+    "avg_overall_score": 0.653,
+    "avg_weighted_score": 0.885,
+    "avg_block_f1": 0.456,
+    "avg_wiring_accuracy": 0.767,
+    "avg_wiring_precision": 0.224,
+    "avg_param_accuracy": 0.7,
+    "avg_ux_score": 0.867,
+    "total_cli_invocations": 0,
+    "total_retries": 0,
+    "total_tokens_input": 0,
+    "total_tokens_output": 0,
+    "avg_cli_per_case": 0.0,
+    "avg_tokens_per_case": 0.0
+  },
+  "by_difficulty": {
+    "easy": {
+      "count": 3,
+      "passed": 0,
+      "sim_passed": 0,
+      "sim_total": 3,
+      "avg_score": 0.95,
+      "avg_block_f1": 0.833,
+      "avg_params": 1.0,
+      "avg_cli_invocations": 0.0,
+      "avg_tokens": 0.0
+    },
+    "medium": {
+      "count": 10,
+      "passed": 1,
+      "sim_passed": 1,
+      "sim_total": 10,
+      "avg_score": 0.695,
+      "avg_block_f1": 0.433,
+      "avg_params": 0.75,
+      "avg_cli_invocations": 0.0,
+      "avg_tokens": 0.0
+    },
+    "hard": {
+      "count": 2,
+      "passed": 0,
+      "sim_passed": 0,
+      "sim_total": 2,
+      "avg_score": 0.0,
+      "avg_block_f1": 0.0,
+      "avg_params": 0.0,
+      "avg_cli_invocations": 0.0,
+      "avg_tokens": 0.0
+    }
+  },
+  "by_pattern": {
+    "2point": {
+      "count": 1,
+      "passed": 0,
+      "sim_passed": 0,
+      "sim_total": 1,
+      "avg_score": 0.85
+    },
+    "heating": {
+      "count": 1,
+      "passed": 0,
+      "sim_passed": 0,
+      "sim_total": 1,
+      "avg_score": 0.85
+    },
+    "hysteresis": {
+      "count": 1,
+      "passed": 0,
+      "sim_passed": 0,
+      "sim_total": 1,
+      "avg_score": 0.85
+    },
+    "counter": {
+      "count": 1,
+      "passed": 0,
+      "sim_passed": 0,
+      "sim_total": 1,
+      "avg_score": 0.4
+    },
+    "updown": {
+      "count": 1,
+      "passed": 0,
+      "sim_passed": 0,
+      "sim_total": 1,
+      "avg_score": 0.4
+    },
+    "door": {
+      "count": 1,
+      "passed": 0,
+      "sim_passed": 0,
+      "sim_total": 1,
+      "avg_score": 0.4
+    },
+    "brightness": {
+      "count": 1,
+      "passed": 0,
+      "sim_passed": 0,
+      "sim_total": 1,
+      "avg_score": 0.5
+    },
+    "lux": {
+      "count": 1,
+      "passed": 0,
+      "sim_passed": 0,
+      "sim_total": 1,
+      "avg_score": 0.5
+    },
+    "constant-light": {
+      "count": 1,
+      "passed": 0,
+      "sim_passed": 0,
+      "sim_total": 1,
+      "avg_score": 0.5
+    },
+    "code": {
+      "count": 1,
+      "passed": 0,
+      "sim_passed": 0,
+      "sim_total": 1,
+      "avg_score": 0.0
+    },
+    "access": {
+      "count": 1,
+      "passed": 0,
+      "sim_passed": 0,
+      "sim_total": 1,
+      "avg_score": 0.0
+    },
+    "jalousie": {
+      "count": 1,
+      "passed": 0,
+      "sim_passed": 0,
+      "sim_total": 1,
+      "avg_score": 0.0
+    },
+    "stepper": {
+      "count": 1,
+      "passed": 1,
+      "sim_passed": 1,
+      "sim_total": 1,
+      "avg_score": 1.0
+    },
+    "fan": {
+      "count": 1,
+      "passed": 1,
+      "sim_passed": 1,
+      "sim_total": 1,
+      "avg_score": 1.0
+    },
+    "up-down": {
+      "count": 1,
+      "passed": 1,
+      "sim_passed": 1,
+      "sim_total": 1,
+      "avg_score": 1.0
+    },
+    "3point": {
+      "count": 1,
+      "passed": 0,
+      "sim_passed": 0,
+      "sim_total": 1,
+      "avg_score": 0.7
+    },
+    "valve": {
+      "count": 1,
+      "passed": 0,
+      "sim_passed": 0,
+      "sim_total": 1,
+      "avg_score": 0.7
+    },
+    "hvac": {
+      "count": 1,
+      "passed": 0,
+      "sim_passed": 0,
+      "sim_total": 1,
+      "avg_score": 0.7
+    },
+    "watchdog": {
+      "count": 1,
+      "passed": 0,
+      "sim_passed": 0,
+      "sim_total": 1,
+      "avg_score": 0.4
+    },
+    "water": {
+      "count": 1,
+      "passed": 0,
+      "sim_passed": 0,
+      "sim_total": 1,
+      "avg_score": 0.4
+    },
+    "alarm": {
+      "count": 1,
+      "passed": 0,
+      "sim_passed": 0,
+      "sim_total": 1,
+      "avg_score": 0.4
+    },
+    "comparator": {
+      "count": 1,
+      "passed": 0,
+      "sim_passed": 0,
+      "sim_total": 1,
+      "avg_score": 0.9
+    },
+    "solar": {
+      "count": 1,
+      "passed": 0,
+      "sim_passed": 0,
+      "sim_total": 1,
+      "avg_score": 0.9
+    },
+    "pump": {
+      "count": 1,
+      "passed": 0,
+      "sim_passed": 0,
+      "sim_total": 1,
+      "avg_score": 0.9
+    },
+    "edge-wiping": {
+      "count": 1,
+      "passed": 0,
+      "sim_passed": 0,
+      "sim_total": 1,
+      "avg_score": 1.0
+    },
+    "toggle": {
+      "count": 1,
+      "passed": 0,
+      "sim_passed": 0,
+      "sim_total": 1,
+      "avg_score": 1.0
+    },
+    "light": {
+      "count": 1,
+      "passed": 0,
+      "sim_passed": 0,
+      "sim_total": 1,
+      "avg_score": 1.0
+    },
+    "shift": {
+      "count": 1,
+      "passed": 0,
+      "sim_passed": 0,
+      "sim_total": 1,
+      "avg_score": 0.0
+    },
+    "register": {
+      "count": 1,
+      "passed": 0,
+      "sim_passed": 0,
+      "sim_total": 1,
+      "avg_score": 0.0
+    },
+    "sequence": {
+      "count": 1,
+      "passed": 0,
+      "sim_passed": 0,
+      "sim_total": 1,
+      "avg_score": 0.0
+    },
+    "time-minmax": {
+      "count": 1,
+      "passed": 0,
+      "sim_passed": 0,
+      "sim_total": 1,
+      "avg_score": 0.85
+    },
+    "temperature": {
+      "count": 1,
+      "passed": 0,
+      "sim_passed": 0,
+      "sim_total": 1,
+      "avg_score": 0.85
+    },
+    "tracking": {
+      "count": 1,
+      "passed": 0,
+      "sim_passed": 0,
+      "sim_total": 1,
+      "avg_score": 0.85
+    },
+    "daylight": {
+      "count": 1,
+      "passed": 0,
+      "sim_passed": 0,
+      "sim_total": 1,
+      "avg_score": 0.7
+    },
+    "color-temperature": {
+      "count": 1,
+      "passed": 0,
+      "sim_passed": 0,
+      "sim_total": 1,
+      "avg_score": 0.7
+    },
+    "circadian": {
+      "count": 1,
+      "passed": 0,
+      "sim_passed": 0,
+      "sim_total": 1,
+      "avg_score": 0.7
+    },
+    "diff-trigger": {
+      "count": 1,
+      "passed": 0,
+      "sim_passed": 0,
+      "sim_total": 1,
+      "avg_score": 0.9
+    },
+    "frost": {
+      "count": 1,
+      "passed": 0,
+      "sim_passed": 0,
+      "sim_total": 1,
+      "avg_score": 0.9
+    },
+    "protection": {
+      "count": 1,
+      "passed": 0,
+      "sim_passed": 0,
+      "sim_total": 1,
+      "avg_score": 0.9
+    },
+    "push-dimmer": {
+      "count": 1,
+      "passed": 0,
+      "sim_passed": 0,
+      "sim_total": 1,
+      "avg_score": 0.6
+    },
+    "dimming": {
+      "count": 1,
+      "passed": 0,
+      "sim_passed": 0,
+      "sim_total": 1,
+      "avg_score": 0.6
+    },
+    "press-hold": {
+      "count": 1,
+      "passed": 0,
+      "sim_passed": 0,
+      "sim_total": 1,
+      "avg_score": 0.6
+    },
+    "bin-encoder": {
+      "count": 1,
+      "passed": 0,
+      "sim_passed": 0,
+      "sim_total": 1,
+      "avg_score": 1.0
+    },
+    "mode-select": {
+      "count": 1,
+      "passed": 0,
+      "sim_passed": 0,
+      "sim_total": 1,
+      "avg_score": 1.0
+    },
+    "binary": {
+      "count": 1,
+      "passed": 0,
+      "sim_passed": 0,
+      "sim_total": 1,
+      "avg_score": 1.0
+    }
+  },
+  "cases": [
+    {
+      "pass": false,
+      "overall_score": 0.85,
+      "weighted_score": 1.275,
+      "xml_valid": true,
+      "validation_pass": true,
+      "validation_errors": 0,
+      "metrics": {
+        "blocks": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "true_positives": 1,
+          "false_positives": 0,
+          "false_negatives": 0
+        },
+        "wiring": {
+          "accuracy": 1.0,
+          "precision": 0.25,
+          "correct": 1,
+          "total": 1,
+          "extra": 3
+        },
+        "params": {
+          "accuracy": 0.5,
+          "correct": 1,
+          "total": 2
+        },
+        "ux": {
+          "score": 1.0,
+          "issues": []
+        }
+      },
+      "simulation": {
+        "case_id": "bl01-2point-floor-heating",
+        "pass": false,
+        "passed_count": 1,
+        "total_count": 2,
+        "scenarios": [
+          {
+            "checks": [
+              {
+                "actual": 1.0,
+                "comparator": ">",
+                "expected": 0.5,
+                "output": "Heizkörper Bad.I1",
+                "pass": true
+              }
+            ],
+            "name": "heating on when cold",
+            "pass": true
+          },
+          {
+            "checks": [
+              {
+                "actual": 1.0,
+                "comparator": "<",
+                "expected": 0.5,
+                "output": "Heizkörper Bad.I1",
+                "pass": false
+              }
+            ],
+            "name": "heating off when warm",
+            "pass": false
+          }
+        ]
+      },
+      "sim_pass": false,
+      "sim_score": 0.5,
+      "case_id": "bl01-2point-floor-heating",
+      "difficulty": "medium",
+      "patterns": [
+        "2point",
+        "heating",
+        "hysteresis"
+      ],
+      "utterance": "Add a 2-point controller for floor heating in Wohnzimmer: turn on when temperature drops below 19°C, turn off above 21°C; wire the heating output to Heizkörper Bad",
+      "elapsed_seconds": 391.3,
+      "cli_invocations": 0,
+      "retries": 0,
+      "tokens": {
+        "input_tokens_est": 0,
+        "output_tokens_est": 0
+      },
+      "model": "gpt-4o"
+    },
+    {
+      "pass": false,
+      "overall_score": 0.4,
+      "weighted_score": 0.6,
+      "xml_valid": true,
+      "validation_pass": true,
+      "validation_errors": 0,
+      "metrics": {
+        "blocks": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "true_positives": 0,
+          "false_positives": 2,
+          "false_negatives": 1
+        },
+        "wiring": {
+          "accuracy": 1.0,
+          "precision": 0.167,
+          "correct": 1,
+          "total": 1,
+          "extra": 5
+        },
+        "params": {
+          "accuracy": 0.0,
+          "correct": 0,
+          "total": 2
+        },
+        "ux": {
+          "score": 1.0,
+          "issues": []
+        }
+      },
+      "simulation": {
+        "case_id": "bl02-updowncounter-door",
+        "pass": false,
+        "passed_count": 0,
+        "total_count": 1,
+        "error": "WARNING: Unknown block type 'VirtualInCaption' is not implemented; falling back to PassThrough\nWARNING: Unknown block type 'WeatherServer' is not implemented; falling back to PassThrough\nWARNING: Unknown block type 'LightscenesC' is not implemented; falling back to PassThrough\nWARNING: Unknown block type 'LightsceneC' is not implemented; falling back to PassThrough\nwarning: could not set input 'Türsensor Eingang.Q'\n\nthread 'main' (12579) panicked at /rustc/e408947bfd200af42db322daf0fadfe7e26d3bd",
+        "scenarios": []
+      },
+      "sim_pass": false,
+      "sim_score": 0.0,
+      "case_id": "bl02-updowncounter-door",
+      "difficulty": "medium",
+      "patterns": [
+        "counter",
+        "updown",
+        "door"
+      ],
+      "utterance": "Use an UpDownCounter to count door openings in Eingang, reset at midnight via a DayTimer pulse; wire the counter output to Statusblock",
+      "elapsed_seconds": 540.4,
+      "cli_invocations": 0,
+      "retries": 0,
+      "tokens": {
+        "input_tokens_est": 0,
+        "output_tokens_est": 0
+      },
+      "model": "gpt-4o"
+    },
+    {
+      "pass": false,
+      "overall_score": 0.5,
+      "weighted_score": 0.75,
+      "xml_valid": true,
+      "validation_pass": true,
+      "validation_errors": 0,
+      "metrics": {
+        "blocks": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "true_positives": 0,
+          "false_positives": 1,
+          "false_negatives": 1
+        },
+        "wiring": {
+          "accuracy": 0.5,
+          "precision": 0.5,
+          "correct": 1,
+          "total": 2,
+          "extra": 2
+        },
+        "params": {
+          "accuracy": 1.0,
+          "correct": 1,
+          "total": 1
+        },
+        "ux": {
+          "score": 1.0,
+          "issues": []
+        }
+      },
+      "simulation": {
+        "case_id": "bl03-brightness-control",
+        "pass": false,
+        "passed_count": 0,
+        "total_count": 1,
+        "scenarios": [
+          {
+            "checks": [
+              {
+                "actual": 0.0,
+                "comparator": ">",
+                "expected": 0.0,
+                "output": "Lichtsteuerung [Wohnzimmer].I1",
+                "pass": false
+              }
+            ],
+            "name": "output increases when dark",
+            "pass": false
+          }
+        ]
+      },
+      "sim_pass": false,
+      "sim_score": 0.0,
+      "case_id": "bl03-brightness-control",
+      "difficulty": "medium",
+      "patterns": [
+        "brightness",
+        "lux",
+        "constant-light"
+      ],
+      "utterance": "BrightnessControl: maintain 300 lux in the living room using the Helligkeit sensor to adjust light output; wire the brightness output to Lichtsteuerung [Wohnzimmer]",
+      "elapsed_seconds": 118.4,
+      "cli_invocations": 0,
+      "retries": 0,
+      "tokens": {
+        "input_tokens_est": 0,
+        "output_tokens_est": 0
+      },
+      "model": "gpt-4o"
+    },
+    {
+      "case_id": "bl04-code4-access",
+      "pass": false,
+      "sim_pass": false,
+      "sim_score": 0,
+      "overall_score": 0,
+      "error": "Agent timed out after 600s",
+      "difficulty": "hard",
+      "patterns": [
+        "code",
+        "access",
+        "jalousie"
+      ],
+      "utterance": "4-digit access code: unlock Jalousie 1 in Wohnzimmer when correct code is entered via digital inputs",
+      "elapsed_seconds": 571.6,
+      "metrics": {
+        "blocks": {
+          "precision": 0,
+          "recall": 0,
+          "f1": 0,
+          "true_positives": 0,
+          "false_positives": 0,
+          "false_negatives": 0
+        },
+        "wiring": {
+          "accuracy": 0,
+          "precision": 0,
+          "correct": 0,
+          "total": 0,
+          "extra": 0
+        },
+        "params": {
+          "accuracy": 0,
+          "correct": 0,
+          "total": 0
+        },
+        "ux": {
+          "score": 0,
+          "issues": []
+        }
+      },
+      "cli_invocations": 0,
+      "retries": 0,
+      "tokens": {
+        "input_tokens_est": 0,
+        "output_tokens_est": 0
+      },
+      "model": "gpt-4o"
+    },
+    {
+      "pass": true,
+      "overall_score": 1.0,
+      "weighted_score": 1.5,
+      "xml_valid": true,
+      "validation_pass": true,
+      "validation_errors": 0,
+      "metrics": {
+        "blocks": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "true_positives": 1,
+          "false_positives": 0,
+          "false_negatives": 0
+        },
+        "wiring": {
+          "accuracy": 1.0,
+          "precision": 0.0,
+          "correct": 0,
+          "total": 0,
+          "extra": 4
+        },
+        "params": {
+          "accuracy": 1.0,
+          "correct": 2,
+          "total": 2
+        },
+        "ux": {
+          "score": 1.0,
+          "issues": []
+        }
+      },
+      "simulation": {
+        "case_id": "bl05-analog-stepper-fan",
+        "pass": true,
+        "passed_count": 1,
+        "total_count": 1,
+        "scenarios": [
+          {
+            "checks": [
+              {
+                "actual": 25.0,
+                "comparator": ">",
+                "expected": 0.0,
+                "output": "Lüfter Bad.I1",
+                "pass": true
+              }
+            ],
+            "name": "step up from zero",
+            "pass": true
+          }
+        ]
+      },
+      "sim_pass": true,
+      "sim_score": 1.0,
+      "case_id": "bl05-analog-stepper-fan",
+      "difficulty": "medium",
+      "patterns": [
+        "stepper",
+        "fan",
+        "up-down"
+      ],
+      "utterance": "AnalogStepper: adjust fan speed with up/down buttons in 25% steps, range 0–100; wire the fan output to Lüfter Bad",
+      "elapsed_seconds": 168.0,
+      "cli_invocations": 0,
+      "retries": 0,
+      "tokens": {
+        "input_tokens_est": 0,
+        "output_tokens_est": 0
+      },
+      "model": "gpt-4o"
+    },
+    {
+      "pass": false,
+      "overall_score": 0.7,
+      "weighted_score": 1.05,
+      "xml_valid": true,
+      "validation_pass": true,
+      "validation_errors": 0,
+      "metrics": {
+        "blocks": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "true_positives": 0,
+          "false_positives": 1,
+          "false_negatives": 1
+        },
+        "wiring": {
+          "accuracy": 1.0,
+          "precision": 0.167,
+          "correct": 1,
+          "total": 1,
+          "extra": 5
+        },
+        "params": {
+          "accuracy": 1.0,
+          "correct": 2,
+          "total": 2
+        },
+        "ux": {
+          "score": 1.0,
+          "issues": []
+        }
+      },
+      "simulation": {
+        "case_id": "bl06-3point-valve",
+        "pass": false,
+        "passed_count": 1,
+        "total_count": 2,
+        "scenarios": [
+          {
+            "checks": [
+              {
+                "actual": 0.0,
+                "comparator": ">",
+                "expected": 0.5,
+                "output": "Heizkörper Bad.I1",
+                "pass": false
+              }
+            ],
+            "name": "Q1 on when cold",
+            "pass": false
+          },
+          {
+            "checks": [
+              {
+                "actual": 1.0,
+                "comparator": ">",
+                "expected": 0.5,
+                "output": "Lüfter Bad.I1",
+                "pass": true
+              }
+            ],
+            "name": "Q2 on when hot",
+            "pass": true
+          }
+        ]
+      },
+      "sim_pass": false,
+      "sim_score": 0.5,
+      "case_id": "bl06-3point-valve",
+      "difficulty": "medium",
+      "patterns": [
+        "3point",
+        "valve",
+        "hvac"
+      ],
+      "utterance": "Use a 3-point controller for the mixing valve in Heizraum: heat when below 40°C, cool when above 50°C; wire Q1 (heat) to Heizkörper Bad and Q2 (cool) to Lüfter Bad",
+      "elapsed_seconds": 348.3,
+      "cli_invocations": 0,
+      "retries": 0,
+      "tokens": {
+        "input_tokens_est": 0,
+        "output_tokens_est": 0
+      },
+      "model": "gpt-4o"
+    },
+    {
+      "pass": false,
+      "overall_score": 0.4,
+      "weighted_score": 0.6,
+      "xml_valid": true,
+      "validation_pass": true,
+      "validation_errors": 0,
+      "metrics": {
+        "blocks": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "true_positives": 0,
+          "false_positives": 1,
+          "false_negatives": 1
+        },
+        "wiring": {
+          "accuracy": 1.0,
+          "precision": 0.333,
+          "correct": 1,
+          "total": 1,
+          "extra": 2
+        },
+        "params": {
+          "accuracy": 0.0,
+          "correct": 0,
+          "total": 2
+        },
+        "ux": {
+          "score": 1.0,
+          "issues": []
+        }
+      },
+      "simulation": {
+        "case_id": "bl07-analog-watchdog-water",
+        "pass": false,
+        "passed_count": 0,
+        "total_count": 1,
+        "scenarios": [
+          {
+            "checks": [
+              {
+                "actual": 0.0,
+                "comparator": ">",
+                "expected": 0.5,
+                "output": "Alarmanlage.I1",
+                "pass": false
+              }
+            ],
+            "name": "alarm when pressure too low",
+            "pass": false
+          }
+        ]
+      },
+      "sim_pass": false,
+      "sim_score": 0.0,
+      "case_id": "bl07-analog-watchdog-water",
+      "difficulty": "medium",
+      "patterns": [
+        "watchdog",
+        "water",
+        "alarm"
+      ],
+      "utterance": "AnalogWatchdog: trigger alarm when water pressure drops below 1.5 bar or exceeds 4.0 bar in Technikraum; wire the alarm output to Alarmanlage",
+      "elapsed_seconds": 198.2,
+      "cli_invocations": 0,
+      "retries": 0,
+      "tokens": {
+        "input_tokens_est": 0,
+        "output_tokens_est": 0
+      },
+      "model": "gpt-4o"
+    },
+    {
+      "pass": false,
+      "overall_score": 0.9,
+      "weighted_score": 1.35,
+      "xml_valid": true,
+      "validation_pass": true,
+      "validation_errors": 0,
+      "metrics": {
+        "blocks": {
+          "precision": 1.0,
+          "recall": 0.5,
+          "f1": 0.667,
+          "true_positives": 1,
+          "false_positives": 0,
+          "false_negatives": 1
+        },
+        "wiring": {
+          "accuracy": 1.0,
+          "precision": 0.167,
+          "correct": 1,
+          "total": 1,
+          "extra": 5
+        },
+        "params": {
+          "accuracy": 1.0,
+          "correct": 1,
+          "total": 1
+        },
+        "ux": {
+          "score": 1.0,
+          "issues": []
+        }
+      },
+      "simulation": {
+        "case_id": "bl08-analog-comparator-solar",
+        "pass": false,
+        "passed_count": 0,
+        "total_count": 1,
+        "scenarios": [
+          {
+            "checks": [
+              {
+                "actual": 0.0,
+                "comparator": ">",
+                "expected": 0.5,
+                "output": "Poolpumpe.I1",
+                "pass": false
+              }
+            ],
+            "name": "pump on when collector hotter",
+            "pass": false
+          }
+        ]
+      },
+      "sim_pass": false,
+      "sim_score": 0.0,
+      "case_id": "bl08-analog-comparator-solar",
+      "difficulty": "medium",
+      "patterns": [
+        "comparator",
+        "solar",
+        "pump"
+      ],
+      "utterance": "AnalogComparator: enable solar pump when collector temperature exceeds tank temperature by 5°C; wire the comparator output to Poolpumpe",
+      "elapsed_seconds": 111.0,
+      "cli_invocations": 0,
+      "retries": 0,
+      "tokens": {
+        "input_tokens_est": 0,
+        "output_tokens_est": 0
+      },
+      "model": "gpt-4o"
+    },
+    {
+      "pass": false,
+      "overall_score": 1.0,
+      "weighted_score": 1.0,
+      "xml_valid": true,
+      "validation_pass": true,
+      "validation_errors": 0,
+      "metrics": {
+        "blocks": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "true_positives": 1,
+          "false_positives": 0,
+          "false_negatives": 0
+        },
+        "wiring": {
+          "accuracy": 1.0,
+          "precision": 0.25,
+          "correct": 1,
+          "total": 1,
+          "extra": 3
+        },
+        "params": {
+          "accuracy": 1.0,
+          "correct": 1,
+          "total": 1
+        },
+        "ux": {
+          "score": 1.0,
+          "issues": []
+        }
+      },
+      "simulation": {
+        "case_id": "bl09-edge-wiping-relay",
+        "pass": false,
+        "passed_count": 0,
+        "total_count": 1,
+        "scenarios": [
+          {
+            "checks": [
+              {
+                "actual": 0.0,
+                "comparator": ">",
+                "expected": 0.5,
+                "output": "Lichtsteuerung [Flur].I1",
+                "pass": false
+              }
+            ],
+            "name": "toggle on",
+            "pass": false
+          }
+        ]
+      },
+      "sim_pass": false,
+      "sim_score": 0.0,
+      "case_id": "bl09-edge-wiping-relay",
+      "difficulty": "easy",
+      "patterns": [
+        "edge-wiping",
+        "toggle",
+        "light"
+      ],
+      "utterance": "EdgeWipingRelay: toggle stairway light with a push button, auto-off after 5 minutes; wire the light output to Lichtsteuerung [Flur]",
+      "elapsed_seconds": 75.3,
+      "cli_invocations": 0,
+      "retries": 0,
+      "tokens": {
+        "input_tokens_est": 0,
+        "output_tokens_est": 0
+      },
+      "model": "gpt-4o"
+    },
+    {
+      "case_id": "bl10-shift-register-sequence",
+      "pass": false,
+      "sim_pass": false,
+      "sim_score": 0,
+      "overall_score": 0,
+      "error": "Agent timed out after 600s",
+      "difficulty": "hard",
+      "patterns": [
+        "shift",
+        "register",
+        "sequence"
+      ],
+      "utterance": "Shift register to create a 4-step LED chase sequence triggered by a clock pulse in Wohnzimmer",
+      "elapsed_seconds": 570.5,
+      "metrics": {
+        "blocks": {
+          "precision": 0,
+          "recall": 0,
+          "f1": 0,
+          "true_positives": 0,
+          "false_positives": 0,
+          "false_negatives": 0
+        },
+        "wiring": {
+          "accuracy": 0,
+          "precision": 0,
+          "correct": 0,
+          "total": 0,
+          "extra": 0
+        },
+        "params": {
+          "accuracy": 0,
+          "correct": 0,
+          "total": 0
+        },
+        "ux": {
+          "score": 0,
+          "issues": []
+        }
+      },
+      "cli_invocations": 0,
+      "retries": 0,
+      "tokens": {
+        "input_tokens_est": 0,
+        "output_tokens_est": 0
+      },
+      "model": "gpt-4o"
+    },
+    {
+      "pass": false,
+      "overall_score": 0.85,
+      "weighted_score": 0.85,
+      "xml_valid": true,
+      "validation_pass": true,
+      "validation_errors": 0,
+      "metrics": {
+        "blocks": {
+          "precision": 0.333,
+          "recall": 1.0,
+          "f1": 0.5,
+          "true_positives": 1,
+          "false_positives": 2,
+          "false_negatives": 0
+        },
+        "wiring": {
+          "accuracy": 1.0,
+          "precision": 0.2,
+          "correct": 1,
+          "total": 1,
+          "extra": 4
+        },
+        "params": {
+          "accuracy": 1.0,
+          "correct": 0,
+          "total": 0
+        },
+        "ux": {
+          "score": 1.0,
+          "issues": []
+        }
+      },
+      "simulation": {
+        "case_id": "bl11-time-minmax-temperature",
+        "pass": false,
+        "passed_count": 0,
+        "total_count": 1,
+        "scenarios": [
+          {
+            "checks": [
+              {
+                "actual": 0.0,
+                "comparator": ">",
+                "expected": 20.0,
+                "output": "Statusblock.I1",
+                "pass": false
+              }
+            ],
+            "name": "tracks max value",
+            "pass": false
+          }
+        ]
+      },
+      "sim_pass": false,
+      "sim_score": 0.0,
+      "case_id": "bl11-time-minmax-temperature",
+      "difficulty": "easy",
+      "patterns": [
+        "time-minmax",
+        "temperature",
+        "tracking"
+      ],
+      "utterance": "TimeMinmax: track daily min/max outdoor temperature with reset at midnight in Wohnzimmer; wire the max output to Statusblock",
+      "elapsed_seconds": 180.0,
+      "cli_invocations": 0,
+      "retries": 0,
+      "tokens": {
+        "input_tokens_est": 0,
+        "output_tokens_est": 0
+      },
+      "model": "gpt-4o"
+    },
+    {
+      "pass": false,
+      "overall_score": 0.7,
+      "weighted_score": 1.05,
+      "xml_valid": true,
+      "validation_pass": true,
+      "validation_errors": 0,
+      "metrics": {
+        "blocks": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "true_positives": 0,
+          "false_positives": 1,
+          "false_negatives": 1
+        },
+        "wiring": {
+          "accuracy": 1.0,
+          "precision": 0.0,
+          "correct": 0,
+          "total": 0,
+          "extra": 6
+        },
+        "params": {
+          "accuracy": 1.0,
+          "correct": 2,
+          "total": 2
+        },
+        "ux": {
+          "score": 1.0,
+          "issues": []
+        }
+      },
+      "simulation": {
+        "case_id": "bl12-daylight-controller",
+        "pass": false,
+        "passed_count": 0,
+        "total_count": 1,
+        "scenarios": [
+          {
+            "checks": [
+              {
+                "actual": 0.0,
+                "comparator": ">",
+                "expected": 0.0,
+                "output": "Lichtsteuerung [Wohnzimmer].I1",
+                "pass": false
+              }
+            ],
+            "name": "outputs color temperature",
+            "pass": false
+          }
+        ]
+      },
+      "sim_pass": false,
+      "sim_score": 0.0,
+      "case_id": "bl12-daylight-controller",
+      "difficulty": "medium",
+      "patterns": [
+        "daylight",
+        "color-temperature",
+        "circadian"
+      ],
+      "utterance": "DaylightController: adjust LED color temperature from warm 2700K at night to cool 5000K at midday; wire the color temperature output to Lichtsteuerung [Wohnzimmer]",
+      "elapsed_seconds": 323.7,
+      "cli_invocations": 0,
+      "retries": 0,
+      "tokens": {
+        "input_tokens_est": 0,
+        "output_tokens_est": 0
+      },
+      "model": "gpt-4o"
+    },
+    {
+      "pass": false,
+      "overall_score": 0.9,
+      "weighted_score": 1.35,
+      "xml_valid": true,
+      "validation_pass": true,
+      "validation_errors": 0,
+      "metrics": {
+        "blocks": {
+          "precision": 0.5,
+          "recall": 1.0,
+          "f1": 0.667,
+          "true_positives": 1,
+          "false_positives": 1,
+          "false_negatives": 0
+        },
+        "wiring": {
+          "accuracy": 1.0,
+          "precision": 0.0,
+          "correct": 0,
+          "total": 0,
+          "extra": 8
+        },
+        "params": {
+          "accuracy": 1.0,
+          "correct": 2,
+          "total": 2
+        },
+        "ux": {
+          "score": 1.0,
+          "issues": []
+        }
+      },
+      "simulation": {
+        "case_id": "bl13-analog-diff-trigger-frost",
+        "pass": false,
+        "passed_count": 0,
+        "total_count": 1,
+        "scenarios": [
+          {
+            "checks": [
+              {
+                "actual": 0.0,
+                "comparator": ">",
+                "expected": 0.5,
+                "output": "Heizkörper Bad.I1",
+                "pass": false
+              }
+            ],
+            "name": "triggers on large diff",
+            "pass": false
+          }
+        ]
+      },
+      "sim_pass": false,
+      "sim_score": 0.0,
+      "case_id": "bl13-analog-diff-trigger-frost",
+      "difficulty": "medium",
+      "patterns": [
+        "diff-trigger",
+        "frost",
+        "protection"
+      ],
+      "utterance": "AnalogDiffTrigger: enable frost protection when floor surface temperature is more than 3°C below air temperature; wire the frost protection output to Heizkörper Bad",
+      "elapsed_seconds": 168.9,
+      "cli_invocations": 0,
+      "retries": 0,
+      "tokens": {
+        "input_tokens_est": 0,
+        "output_tokens_est": 0
+      },
+      "model": "gpt-4o"
+    },
+    {
+      "pass": false,
+      "overall_score": 0.6,
+      "weighted_score": 0.9,
+      "xml_valid": true,
+      "validation_pass": true,
+      "validation_errors": 0,
+      "metrics": {
+        "blocks": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "true_positives": 1,
+          "false_positives": 0,
+          "false_negatives": 0
+        },
+        "wiring": {
+          "accuracy": 0.0,
+          "precision": 1.0,
+          "correct": 0,
+          "total": 2,
+          "extra": 0
+        },
+        "params": {
+          "accuracy": 1.0,
+          "correct": 3,
+          "total": 3
+        },
+        "ux": {
+          "score": 1.0,
+          "issues": []
+        }
+      },
+      "simulation": {
+        "case_id": "bl14-push-dimmer",
+        "pass": false,
+        "passed_count": 0,
+        "total_count": 1,
+        "scenarios": [
+          {
+            "checks": [
+              {
+                "actual": 0.0,
+                "comparator": ">",
+                "expected": 0.0,
+                "output": "Lichtsteuerung [Schlafzimmer].I1",
+                "pass": false
+              }
+            ],
+            "name": "dimmer outputs value on trigger",
+            "pass": false
+          }
+        ]
+      },
+      "sim_pass": false,
+      "sim_score": 0.0,
+      "case_id": "bl14-push-dimmer",
+      "difficulty": "medium",
+      "patterns": [
+        "push-dimmer",
+        "dimming",
+        "press-hold"
+      ],
+      "utterance": "PushDimmer: press-and-hold dimmer for bedroom ceiling light, 10% steps between 5% and 100%; wire the dimmer output to Lichtsteuerung [Schlafzimmer]",
+      "elapsed_seconds": 166.7,
+      "cli_invocations": 0,
+      "retries": 0,
+      "tokens": {
+        "input_tokens_est": 0,
+        "output_tokens_est": 0
+      },
+      "model": "gpt-4o"
+    },
+    {
+      "pass": false,
+      "overall_score": 1.0,
+      "weighted_score": 1.0,
+      "xml_valid": true,
+      "validation_pass": true,
+      "validation_errors": 0,
+      "metrics": {
+        "blocks": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "true_positives": 1,
+          "false_positives": 0,
+          "false_negatives": 0
+        },
+        "wiring": {
+          "accuracy": 1.0,
+          "precision": 0.333,
+          "correct": 2,
+          "total": 2,
+          "extra": 4
+        },
+        "params": {
+          "accuracy": 1.0,
+          "correct": 0,
+          "total": 0
+        },
+        "ux": {
+          "score": 1.0,
+          "issues": []
+        }
+      },
+      "simulation": {
+        "case_id": "bl15-bin-encoder-mode",
+        "pass": false,
+        "passed_count": 1,
+        "total_count": 2,
+        "scenarios": [
+          {
+            "checks": [
+              {
+                "actual": 0.0,
+                "comparator": "<",
+                "expected": 0.5,
+                "output": "Raumregler.Input",
+                "pass": true
+              }
+            ],
+            "name": "both off gives 0",
+            "pass": true
+          },
+          {
+            "checks": [
+              {
+                "actual": 0.0,
+                "comparator": ">",
+                "expected": 0.5,
+                "output": "Raumregler.Input",
+                "pass": false
+              }
+            ],
+            "name": "first on gives 1",
+            "pass": false
+          }
+        ]
+      },
+      "sim_pass": false,
+      "sim_score": 0.5,
+      "case_id": "bl15-bin-encoder-mode",
+      "difficulty": "easy",
+      "patterns": [
+        "bin-encoder",
+        "mode-select",
+        "binary"
+      ],
+      "utterance": "BinEncoder: convert two HVAC mode switches into a single analog mode value for the climate controller; wire the encoded mode value to Raumregler.Input",
+      "elapsed_seconds": 83.6,
+      "cli_invocations": 0,
+      "retries": 0,
+      "tokens": {
+        "input_tokens_est": 0,
+        "output_tokens_est": 0
+      },
+      "model": "gpt-4o"
+    }
+  ],
+  "meta": {
+    "agent": "copilot",
+    "model": "gpt-4o",
+    "timeout_seconds": 600,
+    "parallel": 1,
+    "timestamp": "2026-05-13T08:06:35Z"
+  }
+}

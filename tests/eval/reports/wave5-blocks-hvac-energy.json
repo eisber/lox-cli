@@ -1,0 +1,1509 @@
+{
+  "summary": {
+    "total": 15,
+    "passed": 6,
+    "failed": 9,
+    "pass_rate": 0.4,
+    "sim_passed": 0,
+    "sim_total": 9,
+    "sim_rate": 0.0,
+    "xml_valid": 15,
+    "validation_pass": 14,
+    "avg_overall_score": 0.365,
+    "avg_weighted_score": 0.517,
+    "avg_block_f1": 0.336,
+    "avg_wiring_accuracy": 0.361,
+    "avg_wiring_precision": 0.253,
+    "avg_param_accuracy": 0.4,
+    "avg_ux_score": 0.893,
+    "total_cli_invocations": 0,
+    "total_retries": 0,
+    "total_tokens_input": 0,
+    "total_tokens_output": 0,
+    "avg_cli_per_case": 0.0,
+    "avg_tokens_per_case": 0.0
+  },
+  "by_difficulty": {
+    "easy": {
+      "count": 4,
+      "passed": 4,
+      "sim_passed": 0,
+      "sim_total": 0,
+      "avg_score": 0.562,
+      "avg_block_f1": 0.375,
+      "avg_params": 1.0,
+      "avg_cli_invocations": 0.0,
+      "avg_tokens": 0.0
+    },
+    "medium": {
+      "count": 7,
+      "passed": 2,
+      "sim_passed": 0,
+      "sim_total": 5,
+      "avg_score": 0.27,
+      "avg_block_f1": 0.281,
+      "avg_params": 0.286,
+      "avg_cli_invocations": 0.0,
+      "avg_tokens": 0.0
+    },
+    "hard": {
+      "count": 4,
+      "passed": 0,
+      "sim_passed": 0,
+      "sim_total": 4,
+      "avg_score": 0.335,
+      "avg_block_f1": 0.393,
+      "avg_params": 0.0,
+      "avg_cli_invocations": 0.0,
+      "avg_tokens": 0.0
+    }
+  },
+  "by_pattern": {
+    "safety": {
+      "count": 4,
+      "passed": 2,
+      "sim_passed": 0,
+      "sim_total": 2,
+      "avg_score": 0.46
+    },
+    "solar": {
+      "count": 3,
+      "passed": 0,
+      "sim_passed": 0,
+      "sim_total": 3,
+      "avg_score": 0.247
+    },
+    "temperature": {
+      "count": 3,
+      "passed": 2,
+      "sim_passed": 0,
+      "sim_total": 1,
+      "avg_score": 0.124
+    },
+    "threshold": {
+      "count": 2,
+      "passed": 0,
+      "sim_passed": 0,
+      "sim_total": 2,
+      "avg_score": 0.185
+    },
+    "or-gate": {
+      "count": 2,
+      "passed": 0,
+      "sim_passed": 0,
+      "sim_total": 2,
+      "avg_score": 0.537
+    },
+    "pump": {
+      "count": 1,
+      "passed": 0,
+      "sim_passed": 0,
+      "sim_total": 1,
+      "avg_score": 0.0
+    },
+    "differential": {
+      "count": 1,
+      "passed": 0,
+      "sim_passed": 0,
+      "sim_total": 1,
+      "avg_score": 0.0
+    },
+    "ev-charger": {
+      "count": 1,
+      "passed": 0,
+      "sim_passed": 0,
+      "sim_total": 1,
+      "avg_score": 0.39
+    },
+    "logic": {
+      "count": 1,
+      "passed": 0,
+      "sim_passed": 0,
+      "sim_total": 1,
+      "avg_score": 0.39
+    },
+    "and-gate": {
+      "count": 1,
+      "passed": 0,
+      "sim_passed": 0,
+      "sim_total": 1,
+      "avg_score": 0.39
+    },
+    "pool": {
+      "count": 1,
+      "passed": 0,
+      "sim_passed": 0,
+      "sim_total": 1,
+      "avg_score": 0.371
+    },
+    "daytimer": {
+      "count": 1,
+      "passed": 0,
+      "sim_passed": 0,
+      "sim_total": 1,
+      "avg_score": 0.371
+    },
+    "roof-window": {
+      "count": 1,
+      "passed": 0,
+      "sim_passed": 0,
+      "sim_total": 1,
+      "avg_score": 0.84
+    },
+    "rain": {
+      "count": 1,
+      "passed": 0,
+      "sim_passed": 0,
+      "sim_total": 1,
+      "avg_score": 0.84
+    },
+    "wind": {
+      "count": 1,
+      "passed": 0,
+      "sim_passed": 0,
+      "sim_total": 1,
+      "avg_score": 0.84
+    },
+    "central-heating": {
+      "count": 1,
+      "passed": 0,
+      "sim_passed": 0,
+      "sim_total": 1,
+      "avg_score": 0.235
+    },
+    "multi-room": {
+      "count": 1,
+      "passed": 0,
+      "sim_passed": 0,
+      "sim_total": 1,
+      "avg_score": 0.235
+    },
+    "heat-demand": {
+      "count": 1,
+      "passed": 0,
+      "sim_passed": 0,
+      "sim_total": 1,
+      "avg_score": 0.235
+    },
+    "fronius": {
+      "count": 1,
+      "passed": 1,
+      "sim_passed": 0,
+      "sim_total": 0,
+      "avg_score": 0.65
+    },
+    "solar-inverter": {
+      "count": 1,
+      "passed": 1,
+      "sim_passed": 0,
+      "sim_total": 0,
+      "avg_score": 0.65
+    },
+    "energy-tracking": {
+      "count": 1,
+      "passed": 1,
+      "sim_passed": 0,
+      "sim_total": 0,
+      "avg_score": 0.65
+    },
+    "shade-roof": {
+      "count": 1,
+      "passed": 0,
+      "sim_passed": 0,
+      "sim_total": 1,
+      "avg_score": 0.7
+    },
+    "wind-protection": {
+      "count": 1,
+      "passed": 0,
+      "sim_passed": 0,
+      "sim_total": 1,
+      "avg_score": 0.7
+    },
+    "central-alarm": {
+      "count": 1,
+      "passed": 1,
+      "sim_passed": 0,
+      "sim_total": 0,
+      "avg_score": 0.3
+    },
+    "broadcast": {
+      "count": 1,
+      "passed": 1,
+      "sim_passed": 0,
+      "sim_total": 0,
+      "avg_score": 0.3
+    },
+    "sauna": {
+      "count": 1,
+      "passed": 1,
+      "sim_passed": 0,
+      "sim_total": 0,
+      "avg_score": 0.0
+    },
+    "timer": {
+      "count": 1,
+      "passed": 1,
+      "sim_passed": 0,
+      "sim_total": 0,
+      "avg_score": 0.0
+    },
+    "hvac-ac": {
+      "count": 1,
+      "passed": 1,
+      "sim_passed": 0,
+      "sim_total": 0,
+      "avg_score": 0.0
+    },
+    "setpoint": {
+      "count": 1,
+      "passed": 1,
+      "sim_passed": 0,
+      "sim_total": 0,
+      "avg_score": 0.0
+    },
+    "cooling": {
+      "count": 1,
+      "passed": 1,
+      "sim_passed": 0,
+      "sim_total": 0,
+      "avg_score": 0.0
+    },
+    "car-charger": {
+      "count": 1,
+      "passed": 0,
+      "sim_passed": 0,
+      "sim_total": 1,
+      "avg_score": 0.35
+    },
+    "energy-management": {
+      "count": 1,
+      "passed": 0,
+      "sim_passed": 0,
+      "sim_total": 1,
+      "avg_score": 0.35
+    },
+    "central-presence": {
+      "count": 1,
+      "passed": 0,
+      "sim_passed": 0,
+      "sim_total": 1,
+      "avg_score": 0.0
+    },
+    "reset": {
+      "count": 1,
+      "passed": 0,
+      "sim_passed": 0,
+      "sim_total": 1,
+      "avg_score": 0.0
+    },
+    "occupancy": {
+      "count": 1,
+      "passed": 0,
+      "sim_passed": 0,
+      "sim_total": 1,
+      "avg_score": 0.0
+    },
+    "pv-forecast": {
+      "count": 1,
+      "passed": 1,
+      "sim_passed": 0,
+      "sim_total": 0,
+      "avg_score": 1.0
+    },
+    "energy-planning": {
+      "count": 1,
+      "passed": 1,
+      "sim_passed": 0,
+      "sim_total": 0,
+      "avg_score": 1.0
+    },
+    "leaf": {
+      "count": 1,
+      "passed": 0,
+      "sim_passed": 0,
+      "sim_total": 1,
+      "avg_score": 0.342
+    },
+    "garden": {
+      "count": 1,
+      "passed": 0,
+      "sim_passed": 0,
+      "sim_total": 1,
+      "avg_score": 0.342
+    },
+    "irrigation": {
+      "count": 1,
+      "passed": 0,
+      "sim_passed": 0,
+      "sim_total": 1,
+      "avg_score": 0.342
+    },
+    "humidity": {
+      "count": 1,
+      "passed": 0,
+      "sim_passed": 0,
+      "sim_total": 1,
+      "avg_score": 0.342
+    },
+    "jalousie-motor": {
+      "count": 1,
+      "passed": 1,
+      "sim_passed": 0,
+      "sim_total": 0,
+      "avg_score": 0.3
+    },
+    "window-open": {
+      "count": 1,
+      "passed": 1,
+      "sim_passed": 0,
+      "sim_total": 0,
+      "avg_score": 0.3
+    },
+    "safety-lock": {
+      "count": 1,
+      "passed": 1,
+      "sim_passed": 0,
+      "sim_total": 0,
+      "avg_score": 0.3
+    }
+  },
+  "cases": [
+    {
+      "pass": false,
+      "overall_score": 0.0,
+      "weighted_score": 0.0,
+      "xml_valid": true,
+      "validation_pass": true,
+      "validation_errors": 0,
+      "metrics": {
+        "blocks": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "true_positives": 0,
+          "false_positives": 2,
+          "false_negatives": 1
+        },
+        "wiring": {
+          "accuracy": 0.0,
+          "precision": 0.25,
+          "correct": 0,
+          "total": 2,
+          "extra": 6
+        },
+        "params": {
+          "accuracy": 0.0,
+          "correct": 0,
+          "total": 2
+        },
+        "ux": {
+          "score": 1.0,
+          "issues": []
+        }
+      },
+      "simulation": {
+        "case_id": "bhe-001-solar-pump-diff",
+        "pass": false,
+        "passed_count": 1,
+        "total_count": 2,
+        "scenarios": [
+          {
+            "checks": [
+              {
+                "actual": 0.0,
+                "comparator": ">",
+                "expected": 0.5,
+                "output": "Poolpumpe.I1",
+                "pass": false
+              }
+            ],
+            "name": "pump activates when collector exceeds storage by 8°C",
+            "pass": false
+          },
+          {
+            "checks": [
+              {
+                "actual": 0.0,
+                "comparator": "<",
+                "expected": 0.5,
+                "output": "Poolpumpe.I1",
+                "pass": true
+              }
+            ],
+            "name": "pump stays off when difference is small",
+            "pass": true
+          }
+        ]
+      },
+      "sim_pass": false,
+      "sim_score": 0.5,
+      "case_id": "bhe-001-solar-pump-diff",
+      "difficulty": "medium",
+      "patterns": [
+        "solar",
+        "pump",
+        "threshold",
+        "differential"
+      ],
+      "utterance": "Solar pump: activate when collector temp exceeds storage by 8°C, stop when difference drops below 3°C; wire the pump output to Poolpumpe",
+      "elapsed_seconds": 172.6,
+      "cli_invocations": 0,
+      "retries": 0,
+      "tokens": {
+        "input_tokens_est": 0,
+        "output_tokens_est": 0
+      },
+      "model": "gpt-4o"
+    },
+    {
+      "pass": false,
+      "overall_score": 0.39,
+      "weighted_score": 0.78,
+      "xml_valid": true,
+      "validation_pass": true,
+      "validation_errors": 0,
+      "metrics": {
+        "blocks": {
+          "precision": 0.5,
+          "recall": 0.5,
+          "f1": 0.5,
+          "true_positives": 2,
+          "false_positives": 2,
+          "false_negatives": 2
+        },
+        "wiring": {
+          "accuracy": 0.6,
+          "precision": 0.357,
+          "correct": 3,
+          "total": 5,
+          "extra": 9
+        },
+        "params": {
+          "accuracy": 0.0,
+          "correct": 0,
+          "total": 2
+        },
+        "ux": {
+          "score": 1.0,
+          "issues": []
+        }
+      },
+      "simulation": {
+        "case_id": "bhe-002-ev-solar-only",
+        "pass": false,
+        "passed_count": 2,
+        "total_count": 3,
+        "scenarios": [
+          {
+            "checks": [
+              {
+                "actual": 0.0,
+                "comparator": ">",
+                "expected": 0.5,
+                "output": "Wallbox.I1",
+                "pass": false
+              }
+            ],
+            "name": "charges when solar > 3kW and no grid import",
+            "pass": false
+          },
+          {
+            "checks": [
+              {
+                "actual": 0.0,
+                "comparator": "<",
+                "expected": 0.5,
+                "output": "Wallbox.I1",
+                "pass": true
+              }
+            ],
+            "name": "does NOT charge when solar is low",
+            "pass": true
+          },
+          {
+            "checks": [
+              {
+                "actual": 0.0,
+                "comparator": "<",
+                "expected": 0.5,
+                "output": "Wallbox.I1",
+                "pass": true
+              }
+            ],
+            "name": "does NOT charge when grid importing",
+            "pass": true
+          }
+        ]
+      },
+      "sim_pass": false,
+      "sim_score": 0.6666666666666666,
+      "case_id": "bhe-002-ev-solar-only",
+      "difficulty": "hard",
+      "patterns": [
+        "ev-charger",
+        "solar",
+        "logic",
+        "and-gate"
+      ],
+      "utterance": "EV charging: enable only when solar production exceeds 3kW AND grid import is zero; wire the solar-only gate output to Wallbox",
+      "elapsed_seconds": 140.2,
+      "cli_invocations": 0,
+      "retries": 0,
+      "tokens": {
+        "input_tokens_est": 0,
+        "output_tokens_est": 0
+      },
+      "model": "gpt-4o"
+    },
+    {
+      "pass": false,
+      "overall_score": 0.371,
+      "weighted_score": 0.743,
+      "xml_valid": true,
+      "validation_pass": true,
+      "validation_errors": 0,
+      "metrics": {
+        "blocks": {
+          "precision": 0.667,
+          "recall": 0.5,
+          "f1": 0.571,
+          "true_positives": 2,
+          "false_positives": 1,
+          "false_negatives": 2
+        },
+        "wiring": {
+          "accuracy": 0.5,
+          "precision": 0.5,
+          "correct": 2,
+          "total": 4,
+          "extra": 4
+        },
+        "params": {
+          "accuracy": 0.0,
+          "correct": 0,
+          "total": 1
+        },
+        "ux": {
+          "score": 1.0,
+          "issues": []
+        }
+      },
+      "simulation": {
+        "case_id": "bhe-003-pool-temp-limit",
+        "pass": false,
+        "passed_count": 1,
+        "total_count": 2,
+        "scenarios": [
+          {
+            "checks": [
+              {
+                "actual": 0.0,
+                "comparator": ">",
+                "expected": 0.5,
+                "output": "Poolpumpe.I1",
+                "pass": false
+              }
+            ],
+            "name": "pump runs when scheduled and temp below 28",
+            "pass": false
+          },
+          {
+            "checks": [
+              {
+                "actual": 0.0,
+                "comparator": "<",
+                "expected": 0.5,
+                "output": "Poolpumpe.I1",
+                "pass": true
+              }
+            ],
+            "name": "pump off when temp exceeds 28",
+            "pass": true
+          }
+        ]
+      },
+      "sim_pass": false,
+      "sim_score": 0.5,
+      "case_id": "bhe-003-pool-temp-limit",
+      "difficulty": "hard",
+      "patterns": [
+        "pool",
+        "daytimer",
+        "temperature",
+        "threshold"
+      ],
+      "utterance": "Pool pump schedule: run 10:00-16:00 via DayTimer, disable when water temp exceeds 28°C; wire the pump enable gate to Poolpumpe",
+      "elapsed_seconds": 103.9,
+      "cli_invocations": 0,
+      "retries": 0,
+      "tokens": {
+        "input_tokens_est": 0,
+        "output_tokens_est": 0
+      },
+      "model": "gpt-4o"
+    },
+    {
+      "pass": false,
+      "overall_score": 0.84,
+      "weighted_score": 1.26,
+      "xml_valid": true,
+      "validation_pass": true,
+      "validation_errors": 0,
+      "metrics": {
+        "blocks": {
+          "precision": 1.0,
+          "recall": 0.667,
+          "f1": 0.8,
+          "true_positives": 2,
+          "false_positives": 0,
+          "false_negatives": 1
+        },
+        "wiring": {
+          "accuracy": 0.75,
+          "precision": 0.5,
+          "correct": 3,
+          "total": 4,
+          "extra": 4
+        },
+        "params": {
+          "accuracy": 1.0,
+          "correct": 1,
+          "total": 1
+        },
+        "ux": {
+          "score": 1.0,
+          "issues": []
+        }
+      },
+      "simulation": {
+        "case_id": "bhe-004-roof-window-weather",
+        "pass": false,
+        "passed_count": 1,
+        "total_count": 3,
+        "scenarios": [
+          {
+            "checks": [
+              {
+                "actual": 0.0,
+                "comparator": ">",
+                "expected": 0.5,
+                "output": "Jalousie 1 [Wohnzimmer].Safety",
+                "pass": false
+              }
+            ],
+            "name": "closes on rain",
+            "pass": false
+          },
+          {
+            "checks": [
+              {
+                "actual": 0.0,
+                "comparator": ">",
+                "expected": 0.5,
+                "output": "Jalousie 1 [Wohnzimmer].Safety",
+                "pass": false
+              }
+            ],
+            "name": "closes on high wind",
+            "pass": false
+          },
+          {
+            "checks": [
+              {
+                "actual": 0.0,
+                "comparator": "<",
+                "expected": 0.5,
+                "output": "Jalousie 1 [Wohnzimmer].Safety",
+                "pass": true
+              }
+            ],
+            "name": "stays open when calm and dry",
+            "pass": true
+          }
+        ]
+      },
+      "sim_pass": false,
+      "sim_score": 0.3333333333333333,
+      "case_id": "bhe-004-roof-window-weather",
+      "difficulty": "medium",
+      "patterns": [
+        "roof-window",
+        "rain",
+        "wind",
+        "or-gate",
+        "safety"
+      ],
+      "utterance": "Roof window auto-close on rain OR wind above 40 km/h; wire the weather-unsafe output to Jalousie 1 [Wohnzimmer].Safety",
+      "elapsed_seconds": 143.0,
+      "cli_invocations": 0,
+      "retries": 0,
+      "tokens": {
+        "input_tokens_est": 0,
+        "output_tokens_est": 0
+      },
+      "model": "gpt-4o"
+    },
+    {
+      "pass": false,
+      "overall_score": 0.235,
+      "weighted_score": 0.47,
+      "xml_valid": true,
+      "validation_pass": true,
+      "validation_errors": 0,
+      "metrics": {
+        "blocks": {
+          "precision": 0.25,
+          "recall": 0.25,
+          "f1": 0.25,
+          "true_positives": 1,
+          "false_positives": 3,
+          "false_negatives": 3
+        },
+        "wiring": {
+          "accuracy": 0.4,
+          "precision": 0.556,
+          "correct": 2,
+          "total": 5,
+          "extra": 4
+        },
+        "params": {
+          "accuracy": 0.0,
+          "correct": 0,
+          "total": 3
+        },
+        "ux": {
+          "score": 1.0,
+          "issues": []
+        }
+      },
+      "simulation": {
+        "case_id": "bhe-005-central-heating-or",
+        "pass": false,
+        "passed_count": 1,
+        "total_count": 2,
+        "scenarios": [
+          {
+            "checks": [
+              {
+                "actual": 0.0,
+                "comparator": ">",
+                "expected": 0.5,
+                "output": "Heizkörper Bad.I1",
+                "pass": false
+              }
+            ],
+            "name": "pump on when any room demands heat",
+            "pass": false
+          },
+          {
+            "checks": [
+              {
+                "actual": 0.0,
+                "comparator": "<",
+                "expected": 0.5,
+                "output": "Heizkörper Bad.I1",
+                "pass": true
+              }
+            ],
+            "name": "pump off when no room demands heat",
+            "pass": true
+          }
+        ]
+      },
+      "sim_pass": false,
+      "sim_score": 0.5,
+      "case_id": "bhe-005-central-heating-or",
+      "difficulty": "hard",
+      "patterns": [
+        "central-heating",
+        "or-gate",
+        "multi-room",
+        "heat-demand"
+      ],
+      "utterance": "Central heating: enable pump when any room calls for heat (Or gate from 3 IRC AQh outputs); wire the heat-call output to Heizkörper Bad",
+      "elapsed_seconds": 242.8,
+      "cli_invocations": 0,
+      "retries": 0,
+      "tokens": {
+        "input_tokens_est": 0,
+        "output_tokens_est": 0
+      },
+      "model": "gpt-4o"
+    },
+    {
+      "pass": false,
+      "overall_score": 0.65,
+      "weighted_score": 0.65,
+      "xml_valid": true,
+      "validation_pass": true,
+      "validation_errors": 0,
+      "metrics": {
+        "blocks": {
+          "precision": 0.333,
+          "recall": 1.0,
+          "f1": 0.5,
+          "true_positives": 1,
+          "false_positives": 2,
+          "false_negatives": 0
+        },
+        "wiring": {
+          "accuracy": 0.5,
+          "precision": 0.25,
+          "correct": 1,
+          "total": 2,
+          "extra": 6
+        },
+        "params": {
+          "accuracy": 1.0,
+          "correct": 0,
+          "total": 0
+        },
+        "ux": {
+          "score": 1.0,
+          "issues": []
+        }
+      },
+      "simulation": {
+        "case_id": "bhe-006-fronius-daily-tracking",
+        "pass": true,
+        "passed_count": 0,
+        "total_count": 0,
+        "scenarios": []
+      },
+      "sim_pass": null,
+      "sim_score": null,
+      "case_id": "bhe-006-fronius-daily-tracking",
+      "difficulty": "easy",
+      "patterns": [
+        "fronius",
+        "solar-inverter",
+        "energy-tracking"
+      ],
+      "utterance": "Connect a Fronius solar inverter to track daily production and total production",
+      "elapsed_seconds": 133.5,
+      "cli_invocations": 0,
+      "retries": 0,
+      "tokens": {
+        "input_tokens_est": 0,
+        "output_tokens_est": 0
+      },
+      "model": "gpt-4o"
+    },
+    {
+      "pass": false,
+      "overall_score": 0.7,
+      "weighted_score": 1.05,
+      "xml_valid": true,
+      "validation_pass": true,
+      "validation_errors": 0,
+      "metrics": {
+        "blocks": {
+          "precision": 1.0,
+          "recall": 0.5,
+          "f1": 0.667,
+          "true_positives": 1,
+          "false_positives": 0,
+          "false_negatives": 1
+        },
+        "wiring": {
+          "accuracy": 0.5,
+          "precision": 0.5,
+          "correct": 1,
+          "total": 2,
+          "extra": 2
+        },
+        "params": {
+          "accuracy": 1.0,
+          "correct": 1,
+          "total": 1
+        },
+        "ux": {
+          "score": 1.0,
+          "issues": []
+        }
+      },
+      "simulation": {
+        "case_id": "bhe-007-shade-roof-wind",
+        "pass": false,
+        "passed_count": 1,
+        "total_count": 2,
+        "scenarios": [
+          {
+            "checks": [
+              {
+                "actual": 0.0,
+                "comparator": ">",
+                "expected": 0.5,
+                "output": "Jalousie 1 [Wohnzimmer].Safety",
+                "pass": false
+              }
+            ],
+            "name": "retracts when wind is high",
+            "pass": false
+          },
+          {
+            "checks": [
+              {
+                "actual": 0.0,
+                "comparator": "<",
+                "expected": 0.5,
+                "output": "Jalousie 1 [Wohnzimmer].Safety",
+                "pass": true
+              }
+            ],
+            "name": "stays deployed when wind is calm",
+            "pass": true
+          }
+        ]
+      },
+      "sim_pass": false,
+      "sim_score": 0.5,
+      "case_id": "bhe-007-shade-roof-wind",
+      "difficulty": "medium",
+      "patterns": [
+        "shade-roof",
+        "wind-protection",
+        "safety"
+      ],
+      "utterance": "Retract the terrace awning automatically when wind exceeds 35 km/h; wire the wind limit output to Jalousie 1 [Wohnzimmer].Safety",
+      "elapsed_seconds": 111.5,
+      "cli_invocations": 0,
+      "retries": 0,
+      "tokens": {
+        "input_tokens_est": 0,
+        "output_tokens_est": 0
+      },
+      "model": "gpt-4o"
+    },
+    {
+      "pass": false,
+      "overall_score": 0.3,
+      "weighted_score": 0.3,
+      "xml_valid": true,
+      "validation_pass": true,
+      "validation_errors": 0,
+      "metrics": {
+        "blocks": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "true_positives": 0,
+          "false_positives": 1,
+          "false_negatives": 1
+        },
+        "wiring": {
+          "accuracy": 0.0,
+          "precision": 0.062,
+          "correct": 0,
+          "total": 1,
+          "extra": 15
+        },
+        "params": {
+          "accuracy": 1.0,
+          "correct": 0,
+          "total": 0
+        },
+        "ux": {
+          "score": 1.0,
+          "issues": []
+        }
+      },
+      "simulation": {
+        "case_id": "bhe-008-central-alarm-trigger",
+        "pass": true,
+        "passed_count": 0,
+        "total_count": 0,
+        "scenarios": []
+      },
+      "sim_pass": null,
+      "sim_score": null,
+      "case_id": "bhe-008-central-alarm-trigger",
+      "difficulty": "easy",
+      "patterns": [
+        "central-alarm",
+        "broadcast",
+        "safety"
+      ],
+      "utterance": "Set up a central alarm that broadcasts to all rooms when a smoke detector triggers",
+      "elapsed_seconds": 110.4,
+      "cli_invocations": 0,
+      "retries": 0,
+      "tokens": {
+        "input_tokens_est": 0,
+        "output_tokens_est": 0
+      },
+      "model": "gpt-4o"
+    },
+    {
+      "pass": false,
+      "overall_score": 0.0,
+      "weighted_score": 0.0,
+      "xml_valid": true,
+      "validation_pass": true,
+      "validation_errors": 0,
+      "metrics": {
+        "blocks": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "true_positives": 0,
+          "false_positives": 3,
+          "false_negatives": 1
+        },
+        "wiring": {
+          "accuracy": 0.0,
+          "precision": 0.1,
+          "correct": 0,
+          "total": 1,
+          "extra": 9
+        },
+        "params": {
+          "accuracy": 0.0,
+          "correct": 0,
+          "total": 2
+        },
+        "ux": {
+          "score": 1.0,
+          "issues": []
+        }
+      },
+      "simulation": {
+        "case_id": "bhe-009-sauna-safety-timer",
+        "pass": true,
+        "passed_count": 0,
+        "total_count": 0,
+        "scenarios": []
+      },
+      "sim_pass": null,
+      "sim_score": null,
+      "case_id": "bhe-009-sauna-safety-timer",
+      "difficulty": "medium",
+      "patterns": [
+        "sauna",
+        "safety",
+        "temperature",
+        "timer"
+      ],
+      "utterance": "Configure a sauna with 85°C target temperature and automatic shutdown after 60 minutes",
+      "elapsed_seconds": 272.0,
+      "cli_invocations": 0,
+      "retries": 0,
+      "tokens": {
+        "input_tokens_est": 0,
+        "output_tokens_est": 0
+      },
+      "model": "gpt-4o"
+    },
+    {
+      "pass": false,
+      "overall_score": 0.0,
+      "weighted_score": 0.0,
+      "xml_valid": true,
+      "validation_pass": true,
+      "validation_errors": 0,
+      "metrics": {
+        "blocks": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "true_positives": 0,
+          "false_positives": 1,
+          "false_negatives": 1
+        },
+        "wiring": {
+          "accuracy": 0.0,
+          "precision": 0.167,
+          "correct": 0,
+          "total": 1,
+          "extra": 5
+        },
+        "params": {
+          "accuracy": 0.0,
+          "correct": 0,
+          "total": 1
+        },
+        "ux": {
+          "score": 1.0,
+          "issues": []
+        }
+      },
+      "simulation": {
+        "case_id": "bhe-010-hvac-ac-setpoint",
+        "pass": true,
+        "passed_count": 0,
+        "total_count": 0,
+        "scenarios": []
+      },
+      "sim_pass": null,
+      "sim_score": null,
+      "case_id": "bhe-010-hvac-ac-setpoint",
+      "difficulty": "medium",
+      "patterns": [
+        "hvac-ac",
+        "temperature",
+        "setpoint",
+        "cooling"
+      ],
+      "utterance": "Set up an HVAC AC controller that cools when room temperature exceeds 24°C setpoint",
+      "elapsed_seconds": 148.9,
+      "cli_invocations": 0,
+      "retries": 0,
+      "tokens": {
+        "input_tokens_est": 0,
+        "output_tokens_est": 0
+      },
+      "model": "gpt-4o"
+    },
+    {
+      "pass": false,
+      "overall_score": 0.35,
+      "weighted_score": 0.525,
+      "xml_valid": true,
+      "validation_pass": true,
+      "validation_errors": 0,
+      "metrics": {
+        "blocks": {
+          "precision": 0.5,
+          "recall": 0.5,
+          "f1": 0.5,
+          "true_positives": 1,
+          "false_positives": 1,
+          "false_negatives": 1
+        },
+        "wiring": {
+          "accuracy": 0.5,
+          "precision": 0.25,
+          "correct": 1,
+          "total": 2,
+          "extra": 6
+        },
+        "params": {
+          "accuracy": 0.0,
+          "correct": 0,
+          "total": 1
+        },
+        "ux": {
+          "score": 1.0,
+          "issues": []
+        }
+      },
+      "simulation": {
+        "case_id": "bhe-011-car-charger-solar-excess",
+        "pass": false,
+        "passed_count": 1,
+        "total_count": 2,
+        "scenarios": [
+          {
+            "checks": [
+              {
+                "actual": 0.0,
+                "comparator": ">",
+                "expected": 0.5,
+                "output": "Wallbox.I1",
+                "pass": false
+              }
+            ],
+            "name": "charges when solar excess available",
+            "pass": false
+          },
+          {
+            "checks": [
+              {
+                "actual": 0.0,
+                "comparator": "<",
+                "expected": 0.5,
+                "output": "Wallbox.I1",
+                "pass": true
+              }
+            ],
+            "name": "does not charge when solar too low",
+            "pass": true
+          }
+        ]
+      },
+      "sim_pass": false,
+      "sim_score": 0.5,
+      "case_id": "bhe-011-car-charger-solar-excess",
+      "difficulty": "medium",
+      "patterns": [
+        "car-charger",
+        "solar",
+        "energy-management"
+      ],
+      "utterance": "Configure an EV car charger that only charges from solar excess — wire Fronius production output to the charger enable; wire the solar excess gate to Wallbox",
+      "elapsed_seconds": 173.5,
+      "cli_invocations": 0,
+      "retries": 0,
+      "tokens": {
+        "input_tokens_est": 0,
+        "output_tokens_est": 0
+      },
+      "model": "gpt-4o"
+    },
+    {
+      "case_id": "bhe-012-central-presence-reset",
+      "pass": false,
+      "sim_pass": false,
+      "sim_score": 0,
+      "overall_score": 0,
+      "error": "Agent timed out after 600s",
+      "difficulty": "medium",
+      "patterns": [
+        "central-presence",
+        "reset",
+        "occupancy"
+      ],
+      "utterance": "Set up a central presence controller with 30-minute absence timeout that resets all rooms on departure",
+      "elapsed_seconds": 571.0,
+      "metrics": {
+        "blocks": {
+          "precision": 0,
+          "recall": 0,
+          "f1": 0,
+          "true_positives": 0,
+          "false_positives": 0,
+          "false_negatives": 0
+        },
+        "wiring": {
+          "accuracy": 0,
+          "precision": 0,
+          "correct": 0,
+          "total": 0,
+          "extra": 0
+        },
+        "params": {
+          "accuracy": 0,
+          "correct": 0,
+          "total": 0
+        },
+        "ux": {
+          "score": 0,
+          "issues": []
+        }
+      },
+      "cli_invocations": 0,
+      "retries": 0,
+      "tokens": {
+        "input_tokens_est": 0,
+        "output_tokens_est": 0
+      },
+      "model": "gpt-4o"
+    },
+    {
+      "pass": true,
+      "overall_score": 1.0,
+      "weighted_score": 1.0,
+      "xml_valid": true,
+      "validation_pass": true,
+      "validation_errors": 0,
+      "metrics": {
+        "blocks": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "true_positives": 1,
+          "false_positives": 0,
+          "false_negatives": 0
+        },
+        "wiring": {
+          "accuracy": 1.0,
+          "precision": 0.0,
+          "correct": 0,
+          "total": 0,
+          "extra": 2
+        },
+        "params": {
+          "accuracy": 1.0,
+          "correct": 0,
+          "total": 0
+        },
+        "ux": {
+          "score": 1.0,
+          "issues": []
+        }
+      },
+      "simulation": {
+        "case_id": "bhe-013-pv-forecast",
+        "pass": true,
+        "passed_count": 0,
+        "total_count": 0,
+        "scenarios": []
+      },
+      "sim_pass": null,
+      "sim_score": null,
+      "case_id": "bhe-013-pv-forecast",
+      "difficulty": "easy",
+      "patterns": [
+        "pv-forecast",
+        "energy-planning"
+      ],
+      "utterance": "Add a PV production forecast block to estimate next-day solar yield",
+      "elapsed_seconds": 91.2,
+      "cli_invocations": 0,
+      "retries": 0,
+      "tokens": {
+        "input_tokens_est": 0,
+        "output_tokens_est": 0
+      },
+      "model": "gpt-4o"
+    },
+    {
+      "pass": false,
+      "overall_score": 0.342,
+      "weighted_score": 0.683,
+      "xml_valid": true,
+      "validation_pass": true,
+      "validation_errors": 0,
+      "metrics": {
+        "blocks": {
+          "precision": 0.2,
+          "recall": 0.333,
+          "f1": 0.25,
+          "true_positives": 1,
+          "false_positives": 4,
+          "false_negatives": 2
+        },
+        "wiring": {
+          "accuracy": 0.667,
+          "precision": 0.25,
+          "correct": 2,
+          "total": 3,
+          "extra": 9
+        },
+        "params": {
+          "accuracy": 0.0,
+          "correct": 0,
+          "total": 1
+        },
+        "ux": {
+          "score": 0.4,
+          "issues": [
+            "VirtualIn 'Blattfeuchtesensor' has no page",
+            "VirtualIn 'Blattfeuchtesensor' has no position (Px/Py)",
+            "InputRef 'Blattfeuchtesensor' has no position (Px/Py)"
+          ]
+        }
+      },
+      "simulation": {
+        "case_id": "bhe-014-leaf-garden-irrigation",
+        "pass": false,
+        "passed_count": 1,
+        "total_count": 2,
+        "scenarios": [
+          {
+            "checks": [
+              {
+                "actual": 0.0,
+                "comparator": ">",
+                "expected": 0.5,
+                "output": "Bewässerungsventil.I1",
+                "pass": false
+              }
+            ],
+            "name": "irrigates when dry and scheduled",
+            "pass": false
+          },
+          {
+            "checks": [
+              {
+                "actual": 0.0,
+                "comparator": "<",
+                "expected": 0.5,
+                "output": "Bewässerungsventil.I1",
+                "pass": true
+              }
+            ],
+            "name": "inhibits irrigation when wet",
+            "pass": true
+          }
+        ]
+      },
+      "sim_pass": false,
+      "sim_score": 0.5,
+      "case_id": "bhe-014-leaf-garden-irrigation",
+      "difficulty": "hard",
+      "patterns": [
+        "leaf",
+        "garden",
+        "irrigation",
+        "humidity"
+      ],
+      "utterance": "Use a Leaf wetness sensor to inhibit garden irrigation when leaf moisture is already high; wire the irrigation gate output to Bewässerungsventil",
+      "elapsed_seconds": 129.6,
+      "cli_invocations": 0,
+      "retries": 0,
+      "tokens": {
+        "input_tokens_est": 0,
+        "output_tokens_est": 0
+      },
+      "model": "gpt-4o"
+    },
+    {
+      "pass": false,
+      "overall_score": 0.3,
+      "weighted_score": 0.3,
+      "xml_valid": true,
+      "validation_pass": true,
+      "validation_errors": 0,
+      "metrics": {
+        "blocks": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "true_positives": 0,
+          "false_positives": 0,
+          "false_negatives": 1
+        },
+        "wiring": {
+          "accuracy": 0.0,
+          "precision": 0.05,
+          "correct": 0,
+          "total": 1,
+          "extra": 19
+        },
+        "params": {
+          "accuracy": 1.0,
+          "correct": 0,
+          "total": 0
+        },
+        "ux": {
+          "score": 1.0,
+          "issues": []
+        }
+      },
+      "simulation": {
+        "case_id": "bhe-015-jalousie-motor-disable",
+        "pass": true,
+        "passed_count": 0,
+        "total_count": 0,
+        "scenarios": []
+      },
+      "sim_pass": null,
+      "sim_score": null,
+      "case_id": "bhe-015-jalousie-motor-disable",
+      "difficulty": "easy",
+      "patterns": [
+        "jalousie-motor",
+        "window-open",
+        "safety-lock"
+      ],
+      "utterance": "Lock the Jalousiemotor when the window is open — wire window sensor to InputDisable",
+      "elapsed_seconds": 98.8,
+      "cli_invocations": 0,
+      "retries": 0,
+      "tokens": {
+        "input_tokens_est": 0,
+        "output_tokens_est": 0
+      },
+      "model": "gpt-4o"
+    }
+  ],
+  "meta": {
+    "agent": "copilot",
+    "model": "gpt-4o",
+    "timeout_seconds": 600,
+    "parallel": 1,
+    "timestamp": "2026-05-13T10:11:33Z"
+  }
+}

@@ -1,0 +1,616 @@
+{
+  "summary": {
+    "total": 10,
+    "passed": 0,
+    "failed": 10,
+    "pass_rate": 0.0,
+    "xml_valid": 10,
+    "validation_pass": 10,
+    "avg_overall_score": 0.075,
+    "avg_weighted_score": 0.082,
+    "avg_block_f1": 0.15,
+    "avg_wiring_accuracy": 0.0,
+    "avg_wiring_precision": 1.0,
+    "avg_param_accuracy": 0.1,
+    "avg_ux_score": 1.0,
+    "total_cli_invocations": 79,
+    "total_retries": 0,
+    "total_tokens_input": 11041,
+    "total_tokens_output": 3207,
+    "avg_cli_per_case": 7.9,
+    "avg_tokens_per_case": 1425.0
+  },
+  "by_difficulty": {
+    "easy": {
+      "count": 3,
+      "passed": 0,
+      "avg_score": 0.2,
+      "avg_block_f1": 0.333,
+      "avg_wiring": 0.0,
+      "avg_params": 0.333,
+      "avg_cli_invocations": 5.7,
+      "avg_tokens": 219.0
+    },
+    "medium": {
+      "count": 4,
+      "passed": 0,
+      "avg_score": 0.037,
+      "avg_block_f1": 0.125,
+      "avg_wiring": 0.0,
+      "avg_params": 0.0,
+      "avg_cli_invocations": 8.8,
+      "avg_tokens": 354.0
+    },
+    "hard": {
+      "count": 3,
+      "passed": 0,
+      "avg_score": 0.0,
+      "avg_block_f1": 0.0,
+      "avg_wiring": 0.0,
+      "avg_params": 0.0,
+      "avg_cli_invocations": 9.0,
+      "avg_tokens": 377.0
+    }
+  },
+  "by_pattern": {
+    "threshold": {
+      "count": 4,
+      "passed": 0,
+      "avg_score": 0.037
+    },
+    "combined-condition": {
+      "count": 2,
+      "passed": 0,
+      "avg_score": 0.075
+    },
+    "time-window": {
+      "count": 2,
+      "passed": 0,
+      "avg_score": 0.0
+    },
+    "dimming": {
+      "count": 2,
+      "passed": 0,
+      "avg_score": 0.0
+    },
+    "negation": {
+      "count": 2,
+      "passed": 0,
+      "avg_score": 0.0
+    },
+    "fan-out": {
+      "count": 1,
+      "passed": 0,
+      "avg_score": 0.0
+    },
+    "delayed-action": {
+      "count": 1,
+      "passed": 0,
+      "avg_score": 0.0
+    },
+    "presence": {
+      "count": 1,
+      "passed": 0,
+      "avg_score": 0.6
+    },
+    "timed-switch": {
+      "count": 1,
+      "passed": 0,
+      "avg_score": 0.0
+    }
+  },
+  "cases": [
+    {
+      "pass": false,
+      "overall_score": 0.15,
+      "weighted_score": 0.225,
+      "xml_valid": true,
+      "validation_pass": true,
+      "validation_errors": 0,
+      "metrics": {
+        "blocks": {
+          "precision": 0.5,
+          "recall": 0.5,
+          "f1": 0.5,
+          "true_positives": 1,
+          "false_positives": 1,
+          "false_negatives": 1
+        },
+        "wiring": {
+          "accuracy": 0.0,
+          "precision": 1.0,
+          "correct": 0,
+          "total": 4,
+          "extra": 0
+        },
+        "params": {
+          "accuracy": 0.0,
+          "correct": 0,
+          "total": 1
+        },
+        "ux": {
+          "score": 1.0,
+          "issues": []
+        }
+      },
+      "case_id": "s01-piano-protection",
+      "difficulty": "medium",
+      "patterns": [
+        "threshold",
+        "combined-condition"
+      ],
+      "utterance": "Lower blinds in the living room when it's sunny and above 20 degrees to protect the piano",
+      "cli_invocations": 11,
+      "retries": 0,
+      "validation_runs": 1,
+      "tokens": {
+        "input_tokens_est": 1105,
+        "output_tokens_est": 431,
+        "input_chars": 4420,
+        "output_chars": 1724
+      },
+      "model": "gpt-4o"
+    },
+    {
+      "pass": false,
+      "overall_score": 0.0,
+      "weighted_score": 0.0,
+      "xml_valid": true,
+      "validation_pass": true,
+      "validation_errors": 0,
+      "metrics": {
+        "blocks": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "true_positives": 0,
+          "false_positives": 0,
+          "false_negatives": 4
+        },
+        "wiring": {
+          "accuracy": 0.0,
+          "precision": 1.0,
+          "correct": 0,
+          "total": 4,
+          "extra": 0
+        },
+        "params": {
+          "accuracy": 0.0,
+          "correct": 0,
+          "total": 3
+        },
+        "ux": {
+          "score": 1.0,
+          "issues": []
+        }
+      },
+      "case_id": "s02-night-hallway-dim",
+      "difficulty": "hard",
+      "patterns": [
+        "time-window",
+        "dimming"
+      ],
+      "utterance": "Dim the hallway light to 30% between 10pm and 6am",
+      "cli_invocations": 9,
+      "retries": 0,
+      "validation_runs": 1,
+      "tokens": {
+        "input_tokens_est": 1109,
+        "output_tokens_est": 386,
+        "input_chars": 4436,
+        "output_chars": 1544
+      },
+      "model": "gpt-4o"
+    },
+    {
+      "pass": false,
+      "overall_score": 0.0,
+      "weighted_score": 0.0,
+      "xml_valid": true,
+      "validation_pass": true,
+      "validation_errors": 0,
+      "metrics": {
+        "blocks": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "true_positives": 0,
+          "false_positives": 0,
+          "false_negatives": 1
+        },
+        "wiring": {
+          "accuracy": 0.0,
+          "precision": 1.0,
+          "correct": 0,
+          "total": 3,
+          "extra": 0
+        },
+        "params": {
+          "accuracy": 0.0,
+          "correct": 0,
+          "total": 1
+        },
+        "ux": {
+          "score": 1.0,
+          "issues": []
+        }
+      },
+      "case_id": "s03-wind-all-blinds",
+      "difficulty": "medium",
+      "patterns": [
+        "threshold",
+        "fan-out"
+      ],
+      "utterance": "Close all blinds in the living room when wind speed exceeds 40 km/h",
+      "cli_invocations": 7,
+      "retries": 0,
+      "validation_runs": 1,
+      "tokens": {
+        "input_tokens_est": 1105,
+        "output_tokens_est": 299,
+        "input_chars": 4420,
+        "output_chars": 1196
+      },
+      "model": "gpt-4o"
+    },
+    {
+      "pass": false,
+      "overall_score": 0.0,
+      "weighted_score": 0.0,
+      "xml_valid": true,
+      "validation_pass": true,
+      "validation_errors": 0,
+      "metrics": {
+        "blocks": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "true_positives": 0,
+          "false_positives": 0,
+          "false_negatives": 1
+        },
+        "wiring": {
+          "accuracy": 0.0,
+          "precision": 1.0,
+          "correct": 0,
+          "total": 2,
+          "extra": 0
+        },
+        "params": {
+          "accuracy": 0.0,
+          "correct": 0,
+          "total": 1
+        },
+        "ux": {
+          "score": 1.0,
+          "issues": []
+        }
+      },
+      "case_id": "s04-bathroom-vent-delay",
+      "difficulty": "medium",
+      "patterns": [
+        "delayed-action"
+      ],
+      "utterance": "Run the bathroom ventilation fan for 10 minutes after the light turns off",
+      "cli_invocations": 7,
+      "retries": 0,
+      "validation_runs": 1,
+      "tokens": {
+        "input_tokens_est": 1107,
+        "output_tokens_est": 286,
+        "input_chars": 4428,
+        "output_chars": 1144
+      },
+      "model": "gpt-4o"
+    },
+    {
+      "pass": false,
+      "overall_score": 0.6,
+      "weighted_score": 0.6,
+      "xml_valid": true,
+      "validation_pass": true,
+      "validation_errors": 0,
+      "metrics": {
+        "blocks": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "true_positives": 0,
+          "false_positives": 0,
+          "false_negatives": 0
+        },
+        "wiring": {
+          "accuracy": 0.0,
+          "precision": 1.0,
+          "correct": 0,
+          "total": 1,
+          "extra": 0
+        },
+        "params": {
+          "accuracy": 1.0,
+          "correct": 0,
+          "total": 0
+        },
+        "ux": {
+          "score": 1.0,
+          "issues": []
+        }
+      },
+      "case_id": "s05-presence-hallway",
+      "difficulty": "easy",
+      "patterns": [
+        "presence"
+      ],
+      "utterance": "Turn on hallway light when motion is detected",
+      "cli_invocations": 4,
+      "retries": 0,
+      "validation_runs": 1,
+      "tokens": {
+        "input_tokens_est": 1098,
+        "output_tokens_est": 151,
+        "input_chars": 4392,
+        "output_chars": 604
+      },
+      "model": "gpt-4o"
+    },
+    {
+      "pass": false,
+      "overall_score": 0.0,
+      "weighted_score": 0.0,
+      "xml_valid": true,
+      "validation_pass": true,
+      "validation_errors": 0,
+      "metrics": {
+        "blocks": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "true_positives": 0,
+          "false_positives": 0,
+          "false_negatives": 1
+        },
+        "wiring": {
+          "accuracy": 0.0,
+          "precision": 1.0,
+          "correct": 0,
+          "total": 2,
+          "extra": 0
+        },
+        "params": {
+          "accuracy": 0.0,
+          "correct": 0,
+          "total": 1
+        },
+        "ux": {
+          "score": 1.0,
+          "issues": []
+        }
+      },
+      "case_id": "s06-frost-blinds-up",
+      "difficulty": "medium",
+      "patterns": [
+        "threshold",
+        "negation"
+      ],
+      "utterance": "Open all blinds when temperature drops below 0 degrees (frost protection)",
+      "cli_invocations": 10,
+      "retries": 0,
+      "validation_runs": 1,
+      "tokens": {
+        "input_tokens_est": 1104,
+        "output_tokens_est": 401,
+        "input_chars": 4416,
+        "output_chars": 1604
+      },
+      "model": "gpt-4o"
+    },
+    {
+      "pass": false,
+      "overall_score": 0.0,
+      "weighted_score": 0.0,
+      "xml_valid": true,
+      "validation_pass": true,
+      "validation_errors": 0,
+      "metrics": {
+        "blocks": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "true_positives": 0,
+          "false_positives": 0,
+          "false_negatives": 3
+        },
+        "wiring": {
+          "accuracy": 0.0,
+          "precision": 1.0,
+          "correct": 0,
+          "total": 5,
+          "extra": 0
+        },
+        "params": {
+          "accuracy": 0.0,
+          "correct": 0,
+          "total": 1
+        },
+        "ux": {
+          "score": 1.0,
+          "issues": []
+        }
+      },
+      "case_id": "s07-irrigate-not-raining",
+      "difficulty": "hard",
+      "patterns": [
+        "combined-condition",
+        "negation"
+      ],
+      "utterance": "Water the garden when soil moisture is below 30% but NOT when it's raining",
+      "cli_invocations": 7,
+      "retries": 0,
+      "validation_runs": 1,
+      "tokens": {
+        "input_tokens_est": 1109,
+        "output_tokens_est": 289,
+        "input_chars": 4436,
+        "output_chars": 1156
+      },
+      "model": "gpt-4o"
+    },
+    {
+      "pass": false,
+      "overall_score": 0.0,
+      "weighted_score": 0.0,
+      "xml_valid": true,
+      "validation_pass": true,
+      "validation_errors": 0,
+      "metrics": {
+        "blocks": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "true_positives": 0,
+          "false_positives": 0,
+          "false_negatives": 1
+        },
+        "wiring": {
+          "accuracy": 0.0,
+          "precision": 1.0,
+          "correct": 0,
+          "total": 2,
+          "extra": 0
+        },
+        "params": {
+          "accuracy": 0.0,
+          "correct": 0,
+          "total": 1
+        },
+        "ux": {
+          "score": 1.0,
+          "issues": []
+        }
+      },
+      "case_id": "s08-stairway-light",
+      "difficulty": "easy",
+      "patterns": [
+        "timed-switch"
+      ],
+      "utterance": "Turn on the garage light for 5 minutes when the door opens",
+      "cli_invocations": 7,
+      "retries": 0,
+      "validation_runs": 1,
+      "tokens": {
+        "input_tokens_est": 1100,
+        "output_tokens_est": 265,
+        "input_chars": 4400,
+        "output_chars": 1060
+      },
+      "model": "gpt-4o"
+    },
+    {
+      "pass": false,
+      "overall_score": 0.0,
+      "weighted_score": 0.0,
+      "xml_valid": true,
+      "validation_pass": true,
+      "validation_errors": 0,
+      "metrics": {
+        "blocks": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "true_positives": 0,
+          "false_positives": 0,
+          "false_negatives": 3
+        },
+        "wiring": {
+          "accuracy": 0.0,
+          "precision": 1.0,
+          "correct": 0,
+          "total": 2,
+          "extra": 0
+        },
+        "params": {
+          "accuracy": 0.0,
+          "correct": 0,
+          "total": 2
+        },
+        "ux": {
+          "score": 1.0,
+          "issues": []
+        }
+      },
+      "case_id": "s09-bedroom-dim-night",
+      "difficulty": "hard",
+      "patterns": [
+        "time-window",
+        "dimming"
+      ],
+      "utterance": "Set bedroom light brightness to 20% between midnight and 7am",
+      "cli_invocations": 11,
+      "retries": 0,
+      "validation_runs": 1,
+      "tokens": {
+        "input_tokens_est": 1101,
+        "output_tokens_est": 457,
+        "input_chars": 4404,
+        "output_chars": 1828
+      },
+      "model": "gpt-4o"
+    },
+    {
+      "pass": false,
+      "overall_score": 0.0,
+      "weighted_score": 0.0,
+      "xml_valid": true,
+      "validation_pass": true,
+      "validation_errors": 0,
+      "metrics": {
+        "blocks": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "true_positives": 0,
+          "false_positives": 0,
+          "false_negatives": 1
+        },
+        "wiring": {
+          "accuracy": 0.0,
+          "precision": 1.0,
+          "correct": 0,
+          "total": 1,
+          "extra": 0
+        },
+        "params": {
+          "accuracy": 0.0,
+          "correct": 0,
+          "total": 1
+        },
+        "ux": {
+          "score": 1.0,
+          "issues": []
+        }
+      },
+      "case_id": "s10-co2-ventilation",
+      "difficulty": "easy",
+      "patterns": [
+        "threshold"
+      ],
+      "utterance": "Open the kitchen window when CO2 level exceeds 1000 ppm",
+      "cli_invocations": 6,
+      "retries": 0,
+      "validation_runs": 1,
+      "tokens": {
+        "input_tokens_est": 1103,
+        "output_tokens_est": 242,
+        "input_chars": 4412,
+        "output_chars": 968
+      },
+      "model": "gpt-4o"
+    }
+  ],
+  "meta": {
+    "model": "gpt-4o",
+    "agent": "llm-agent",
+    "max_retries": 3,
+    "timestamp": "2026-04-22T13:06:14Z"
+  }
+}

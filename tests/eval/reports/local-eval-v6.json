@@ -1,0 +1,348 @@
+{
+  "summary": {
+    "total": 3,
+    "passed": 0,
+    "failed": 3,
+    "pass_rate": 0.0,
+    "xml_valid": 3,
+    "validation_pass": 3,
+    "avg_overall_score": 0.456,
+    "avg_weighted_score": 0.717,
+    "avg_block_f1": 0.444,
+    "avg_wiring_accuracy": 0.306,
+    "avg_wiring_precision": 0.933,
+    "avg_param_accuracy": 0.667,
+    "avg_ux_score": 1.0,
+    "total_cli_invocations": 25,
+    "total_retries": 0,
+    "total_tokens_input": 5116,
+    "total_tokens_output": 1009,
+    "avg_cli_per_case": 8.3,
+    "avg_tokens_per_case": 2042.0
+  },
+  "by_difficulty": {
+    "medium": {
+      "count": 2,
+      "passed": 0,
+      "avg_score": 0.583,
+      "avg_block_f1": 0.5,
+      "avg_wiring": 0.334,
+      "avg_params": 1.0,
+      "avg_cli_invocations": 8.5,
+      "avg_tokens": 340.0
+    },
+    "hard": {
+      "count": 1,
+      "passed": 0,
+      "avg_score": 0.2,
+      "avg_block_f1": 0.333,
+      "avg_wiring": 0.25,
+      "avg_params": 0.0,
+      "avg_cli_invocations": 8.0,
+      "avg_tokens": 329.0
+    }
+  },
+  "by_pattern": {
+    "threshold": {
+      "count": 2,
+      "passed": 0,
+      "avg_score": 0.583
+    },
+    "combined-condition": {
+      "count": 1,
+      "passed": 0,
+      "avg_score": 0.6
+    },
+    "time-window": {
+      "count": 1,
+      "passed": 0,
+      "avg_score": 0.2
+    },
+    "dimming": {
+      "count": 1,
+      "passed": 0,
+      "avg_score": 0.2
+    },
+    "fan-out": {
+      "count": 1,
+      "passed": 0,
+      "avg_score": 0.567
+    }
+  },
+  "cases": [
+    {
+      "pass": false,
+      "overall_score": 0.6,
+      "weighted_score": 0.9,
+      "xml_valid": true,
+      "validation_pass": true,
+      "validation_errors": 0,
+      "metrics": {
+        "blocks": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "true_positives": 2,
+          "false_positives": 0,
+          "false_negatives": 0
+        },
+        "wiring": {
+          "accuracy": 0.0,
+          "precision": 0.8,
+          "correct": 0,
+          "total": 4,
+          "extra": 1
+        },
+        "params": {
+          "accuracy": 1.0,
+          "correct": 1,
+          "total": 1
+        },
+        "ux": {
+          "score": 1.0,
+          "issues": []
+        }
+      },
+      "simulation": {
+        "case_id": "s01-piano-protection",
+        "pass": true,
+        "passed_count": 2,
+        "total_count": 2,
+        "scenarios": [
+          {
+            "checks": [
+              {
+                "actual": 1.0,
+                "comparator": ">",
+                "expected": 0.5,
+                "output": "Jalousie 1.InputTriggerDown",
+                "pass": true
+              }
+            ],
+            "name": "should trigger when condition met",
+            "pass": true
+          },
+          {
+            "checks": [
+              {
+                "actual": 0.0,
+                "comparator": "<",
+                "expected": 0.5,
+                "output": "Jalousie 1.InputTriggerDown",
+                "pass": true
+              }
+            ],
+            "name": "should NOT trigger when condition not met",
+            "pass": true
+          }
+        ]
+      },
+      "sim_pass": true,
+      "sim_score": 1.0,
+      "case_id": "s01-piano-protection",
+      "difficulty": "medium",
+      "patterns": [
+        "threshold",
+        "combined-condition"
+      ],
+      "utterance": "Lower blinds in the living room when it's sunny and above 20 degrees to protect the piano",
+      "cli_invocations": 10,
+      "retries": 0,
+      "validation_runs": 1,
+      "tokens": {
+        "input_tokens_est": 1705,
+        "output_tokens_est": 407,
+        "input_chars": 6820,
+        "output_chars": 1628
+      },
+      "model": "gpt-4o"
+    },
+    {
+      "pass": false,
+      "overall_score": 0.2,
+      "weighted_score": 0.4,
+      "xml_valid": true,
+      "validation_pass": true,
+      "validation_errors": 0,
+      "metrics": {
+        "blocks": {
+          "precision": 0.5,
+          "recall": 0.25,
+          "f1": 0.333,
+          "true_positives": 1,
+          "false_positives": 1,
+          "false_negatives": 3
+        },
+        "wiring": {
+          "accuracy": 0.25,
+          "precision": 1.0,
+          "correct": 1,
+          "total": 4,
+          "extra": 0
+        },
+        "params": {
+          "accuracy": 0.0,
+          "correct": 0,
+          "total": 3
+        },
+        "ux": {
+          "score": 1.0,
+          "issues": []
+        }
+      },
+      "simulation": {
+        "case_id": "s02-night-hallway-dim",
+        "pass": false,
+        "passed_count": 1,
+        "total_count": 2,
+        "scenarios": [
+          {
+            "checks": [
+              {
+                "actual": 0.0,
+                "comparator": ">=",
+                "expected": 25.0,
+                "output": "Lichtsteuerung.Brightness",
+                "pass": false
+              },
+              {
+                "actual": 0.0,
+                "comparator": "<=",
+                "expected": 35.0,
+                "output": "Lichtsteuerung.Brightness",
+                "pass": true
+              }
+            ],
+            "name": "should scale output when active",
+            "pass": false
+          },
+          {
+            "checks": [
+              {
+                "actual": 0.0,
+                "comparator": "<",
+                "expected": 0.5,
+                "output": "Lichtsteuerung.Brightness",
+                "pass": true
+              }
+            ],
+            "name": "should produce no output when inactive",
+            "pass": true
+          }
+        ]
+      },
+      "sim_pass": false,
+      "sim_score": 0.5,
+      "case_id": "s02-night-hallway-dim",
+      "difficulty": "hard",
+      "patterns": [
+        "time-window",
+        "dimming"
+      ],
+      "utterance": "Dim the hallway light to 30% between 10pm and 6am",
+      "cli_invocations": 8,
+      "retries": 0,
+      "validation_runs": 1,
+      "tokens": {
+        "input_tokens_est": 1707,
+        "output_tokens_est": 329,
+        "input_chars": 6828,
+        "output_chars": 1316
+      },
+      "model": "gpt-4o"
+    },
+    {
+      "pass": false,
+      "overall_score": 0.567,
+      "weighted_score": 0.85,
+      "xml_valid": true,
+      "validation_pass": true,
+      "validation_errors": 0,
+      "metrics": {
+        "blocks": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "true_positives": 0,
+          "false_positives": 1,
+          "false_negatives": 1
+        },
+        "wiring": {
+          "accuracy": 0.667,
+          "precision": 1.0,
+          "correct": 2,
+          "total": 3,
+          "extra": 0
+        },
+        "params": {
+          "accuracy": 1.0,
+          "correct": 1,
+          "total": 1
+        },
+        "ux": {
+          "score": 1.0,
+          "issues": []
+        }
+      },
+      "simulation": {
+        "case_id": "s03-wind-all-blinds",
+        "pass": true,
+        "passed_count": 2,
+        "total_count": 2,
+        "scenarios": [
+          {
+            "checks": [
+              {
+                "actual": 1.0,
+                "comparator": ">",
+                "expected": 0.5,
+                "output": "Jalousie 1.InputTriggerDown",
+                "pass": true
+              }
+            ],
+            "name": "should trigger when condition met",
+            "pass": true
+          },
+          {
+            "checks": [
+              {
+                "actual": 0.0,
+                "comparator": "<",
+                "expected": 0.5,
+                "output": "Jalousie 1.InputTriggerDown",
+                "pass": true
+              }
+            ],
+            "name": "should NOT trigger when condition not met",
+            "pass": true
+          }
+        ]
+      },
+      "sim_pass": true,
+      "sim_score": 1.0,
+      "case_id": "s03-wind-all-blinds",
+      "difficulty": "medium",
+      "patterns": [
+        "threshold",
+        "fan-out"
+      ],
+      "utterance": "Close all blinds in the living room when wind speed exceeds 40 km/h",
+      "cli_invocations": 7,
+      "retries": 0,
+      "validation_runs": 1,
+      "tokens": {
+        "input_tokens_est": 1704,
+        "output_tokens_est": 273,
+        "input_chars": 6816,
+        "output_chars": 1092
+      },
+      "model": "gpt-4o"
+    }
+  ],
+  "meta": {
+    "model": "gpt-4o",
+    "agent": "llm-agent",
+    "max_retries": 3,
+    "timestamp": "2026-04-22T15:15:44Z"
+  }
+}

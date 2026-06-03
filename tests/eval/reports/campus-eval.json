@@ -1,0 +1,1861 @@
+{
+  "summary": {
+    "total": 19,
+    "passed": 8,
+    "failed": 11,
+    "pass_rate": 0.421,
+    "sim_passed": 8,
+    "sim_total": 19,
+    "sim_rate": 0.421,
+    "xml_valid": 19,
+    "validation_pass": 18,
+    "avg_overall_score": 0.626,
+    "avg_weighted_score": 0.768,
+    "avg_block_f1": 0.684,
+    "avg_wiring_accuracy": 0.421,
+    "avg_wiring_precision": 0.904,
+    "avg_param_accuracy": 0.842,
+    "avg_ux_score": 0.947,
+    "total_cli_invocations": 0,
+    "total_retries": 0,
+    "total_tokens_input": 0,
+    "total_tokens_output": 0,
+    "avg_cli_per_case": 0.0,
+    "avg_tokens_per_case": 0.0
+  },
+  "by_difficulty": {
+    "easy": {
+      "count": 9,
+      "passed": 6,
+      "sim_passed": 6,
+      "sim_total": 9,
+      "avg_score": 0.789,
+      "avg_block_f1": 0.889,
+      "avg_params": 1.0,
+      "avg_cli_invocations": 0.0,
+      "avg_tokens": 0.0
+    },
+    "medium": {
+      "count": 8,
+      "passed": 2,
+      "sim_passed": 2,
+      "sim_total": 8,
+      "avg_score": 0.525,
+      "avg_block_f1": 0.5,
+      "avg_params": 0.75,
+      "avg_cli_invocations": 0.0,
+      "avg_tokens": 0.0
+    },
+    "hard": {
+      "count": 2,
+      "passed": 0,
+      "sim_passed": 0,
+      "sim_total": 2,
+      "avg_score": 0.3,
+      "avg_block_f1": 0.5,
+      "avg_params": 0.5,
+      "avg_cli_invocations": 0.0,
+      "avg_tokens": 0.0
+    }
+  },
+  "by_pattern": {
+    "window-curtain": {
+      "count": 4,
+      "passed": 3,
+      "sim_passed": 3,
+      "sim_total": 4,
+      "avg_score": 0.758
+    },
+    "presence": {
+      "count": 4,
+      "passed": 0,
+      "sim_passed": 0,
+      "sim_total": 4,
+      "avg_score": 0.375
+    },
+    "hvac": {
+      "count": 4,
+      "passed": 3,
+      "sim_passed": 3,
+      "sim_total": 4,
+      "avg_score": 0.45
+    },
+    "lighting": {
+      "count": 4,
+      "passed": 2,
+      "sim_passed": 2,
+      "sim_total": 4,
+      "avg_score": 0.725
+    },
+    "door-state": {
+      "count": 3,
+      "passed": 0,
+      "sim_passed": 0,
+      "sim_total": 3,
+      "avg_score": 0.889
+    },
+    "state-machine": {
+      "count": 2,
+      "passed": 0,
+      "sim_passed": 0,
+      "sim_total": 2,
+      "avg_score": 0.45
+    },
+    "door-sensor": {
+      "count": 1,
+      "passed": 1,
+      "sim_passed": 1,
+      "sim_total": 1,
+      "avg_score": 1.0
+    },
+    "window-tilt": {
+      "count": 1,
+      "passed": 0,
+      "sim_passed": 0,
+      "sim_total": 1,
+      "avg_score": 0.6
+    },
+    "shade-block": {
+      "count": 1,
+      "passed": 1,
+      "sim_passed": 1,
+      "sim_total": 1,
+      "avg_score": 1.0
+    },
+    "join-window": {
+      "count": 1,
+      "passed": 1,
+      "sim_passed": 1,
+      "sim_total": 1,
+      "avg_score": 0.433
+    },
+    "off-delay": {
+      "count": 1,
+      "passed": 0,
+      "sim_passed": 0,
+      "sim_total": 1,
+      "avg_score": 0.0
+    },
+    "welcome-scene": {
+      "count": 1,
+      "passed": 0,
+      "sim_passed": 0,
+      "sim_total": 1,
+      "avg_score": 0.6
+    },
+    "multi-input": {
+      "count": 1,
+      "passed": 0,
+      "sim_passed": 0,
+      "sim_total": 1,
+      "avg_score": 0.6
+    },
+    "window-integration": {
+      "count": 1,
+      "passed": 1,
+      "sim_passed": 1,
+      "sim_total": 1,
+      "avg_score": 1.0
+    },
+    "window-delay": {
+      "count": 1,
+      "passed": 1,
+      "sim_passed": 1,
+      "sim_total": 1,
+      "avg_score": 0.2
+    },
+    "status-display": {
+      "count": 1,
+      "passed": 0,
+      "sim_passed": 0,
+      "sim_total": 1,
+      "avg_score": 0.0
+    },
+    "humidity": {
+      "count": 1,
+      "passed": 1,
+      "sim_passed": 1,
+      "sim_total": 1,
+      "avg_score": 0.6
+    },
+    "presence-mood": {
+      "count": 1,
+      "passed": 0,
+      "sim_passed": 0,
+      "sim_total": 1,
+      "avg_score": 1.0
+    },
+    "reading-light": {
+      "count": 1,
+      "passed": 1,
+      "sim_passed": 1,
+      "sim_total": 1,
+      "avg_score": 0.6
+    },
+    "presence-off": {
+      "count": 1,
+      "passed": 0,
+      "sim_passed": 0,
+      "sim_total": 1,
+      "avg_score": 0.7
+    },
+    "presence-auto": {
+      "count": 1,
+      "passed": 1,
+      "sim_passed": 1,
+      "sim_total": 1,
+      "avg_score": 0.6
+    },
+    "memory": {
+      "count": 1,
+      "passed": 0,
+      "sim_passed": 0,
+      "sim_total": 1,
+      "avg_score": 0.867
+    },
+    "state-display": {
+      "count": 1,
+      "passed": 0,
+      "sim_passed": 0,
+      "sim_total": 1,
+      "avg_score": 1.0
+    },
+    "combined-state": {
+      "count": 1,
+      "passed": 0,
+      "sim_passed": 0,
+      "sim_total": 1,
+      "avg_score": 0.8
+    }
+  },
+  "cases": [
+    {
+      "pass": true,
+      "overall_score": 1.0,
+      "weighted_score": 1.0,
+      "xml_valid": true,
+      "validation_pass": true,
+      "validation_errors": 0,
+      "metrics": {
+        "blocks": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "true_positives": 0,
+          "false_positives": 0,
+          "false_negatives": 0
+        },
+        "wiring": {
+          "accuracy": 1.0,
+          "precision": 1.0,
+          "correct": 2,
+          "total": 2,
+          "extra": 0
+        },
+        "params": {
+          "accuracy": 1.0,
+          "correct": 0,
+          "total": 0
+        },
+        "ux": {
+          "score": 1.0,
+          "issues": []
+        }
+      },
+      "simulation": {
+        "case_id": "campus-001",
+        "pass": true,
+        "passed_count": 2,
+        "total_count": 2,
+        "scenarios": [
+          {
+            "checks": [
+              {
+                "actual": 1.0,
+                "comparator": ">",
+                "expected": 0.5,
+                "output": "Jalousie 1 [Schlafzimmer].InputTriggerDown",
+                "pass": true
+              },
+              {
+                "actual": 1.0,
+                "comparator": ">",
+                "expected": 0.5,
+                "output": "Jalousie 2 [Schlafzimmer].InputTriggerDown",
+                "pass": true
+              }
+            ],
+            "name": "should close curtains when door opens",
+            "pass": true
+          },
+          {
+            "checks": [
+              {
+                "actual": 0.0,
+                "comparator": "<",
+                "expected": 0.5,
+                "output": "Jalousie 2 [Schlafzimmer].InputTriggerDown",
+                "pass": true
+              },
+              {
+                "actual": 0.0,
+                "comparator": "<",
+                "expected": 0.5,
+                "output": "Jalousie 1 [Schlafzimmer].InputTriggerDown",
+                "pass": true
+              }
+            ],
+            "name": "should NOT close curtains when door is closed",
+            "pass": true
+          }
+        ]
+      },
+      "sim_pass": true,
+      "sim_score": 1.0,
+      "case_id": "campus-001",
+      "difficulty": "easy",
+      "patterns": [
+        "window-curtain",
+        "door-sensor"
+      ],
+      "utterance": "Close both curtains in the Schlafzimmer when the terrace door opens",
+      "elapsed_seconds": 84.1,
+      "cli_invocations": 0,
+      "retries": 0,
+      "tokens": {
+        "input_tokens_est": 0,
+        "output_tokens_est": 0
+      },
+      "model": "gpt-4o"
+    },
+    {
+      "pass": false,
+      "overall_score": 0.6,
+      "weighted_score": 0.6,
+      "xml_valid": true,
+      "validation_pass": true,
+      "validation_errors": 0,
+      "metrics": {
+        "blocks": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "true_positives": 0,
+          "false_positives": 0,
+          "false_negatives": 0
+        },
+        "wiring": {
+          "accuracy": 0.0,
+          "precision": 1.0,
+          "correct": 0,
+          "total": 2,
+          "extra": 0
+        },
+        "params": {
+          "accuracy": 1.0,
+          "correct": 0,
+          "total": 0
+        },
+        "ux": {
+          "score": 1.0,
+          "issues": []
+        }
+      },
+      "simulation": {
+        "case_id": "campus-002",
+        "pass": false,
+        "passed_count": 1,
+        "total_count": 2,
+        "scenarios": [
+          {
+            "checks": [
+              {
+                "actual": 0.0,
+                "comparator": ">",
+                "expected": 0.5,
+                "output": "Jalousie 1 [Schlafzimmer].Stop",
+                "pass": false
+              },
+              {
+                "actual": 0.0,
+                "comparator": ">",
+                "expected": 0.5,
+                "output": "Jalousie 2 [Schlafzimmer].Stop",
+                "pass": false
+              }
+            ],
+            "name": "should stop blinds when window tilted",
+            "pass": false
+          },
+          {
+            "checks": [
+              {
+                "actual": 0.0,
+                "comparator": "<",
+                "expected": 0.5,
+                "output": "Jalousie 2 [Schlafzimmer].Stop",
+                "pass": true
+              },
+              {
+                "actual": 0.0,
+                "comparator": "<",
+                "expected": 0.5,
+                "output": "Jalousie 1 [Schlafzimmer].Stop",
+                "pass": true
+              }
+            ],
+            "name": "should NOT stop blinds when window closed",
+            "pass": true
+          }
+        ]
+      },
+      "sim_pass": false,
+      "sim_score": 0.5,
+      "case_id": "campus-002",
+      "difficulty": "easy",
+      "patterns": [
+        "window-curtain",
+        "window-tilt"
+      ],
+      "utterance": "Stop the blinds in Schlafzimmer when the window is tilted open",
+      "elapsed_seconds": 87.1,
+      "cli_invocations": 0,
+      "retries": 0,
+      "tokens": {
+        "input_tokens_est": 0,
+        "output_tokens_est": 0
+      },
+      "model": "gpt-4o"
+    },
+    {
+      "pass": true,
+      "overall_score": 1.0,
+      "weighted_score": 1.0,
+      "xml_valid": true,
+      "validation_pass": true,
+      "validation_errors": 0,
+      "metrics": {
+        "blocks": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "true_positives": 0,
+          "false_positives": 0,
+          "false_negatives": 0
+        },
+        "wiring": {
+          "accuracy": 1.0,
+          "precision": 1.0,
+          "correct": 2,
+          "total": 2,
+          "extra": 0
+        },
+        "params": {
+          "accuracy": 1.0,
+          "correct": 0,
+          "total": 0
+        },
+        "ux": {
+          "score": 1.0,
+          "issues": []
+        }
+      },
+      "simulation": {
+        "case_id": "campus-003",
+        "pass": true,
+        "passed_count": 2,
+        "total_count": 2,
+        "scenarios": [
+          {
+            "checks": [
+              {
+                "actual": 1.0,
+                "comparator": ">",
+                "expected": 0.5,
+                "output": "Jalousie 1 [Schlafzimmer].InputDisable",
+                "pass": true
+              },
+              {
+                "actual": 1.0,
+                "comparator": ">",
+                "expected": 0.5,
+                "output": "Jalousie 2 [Schlafzimmer].InputDisable",
+                "pass": true
+              }
+            ],
+            "name": "should disable blinds when door open",
+            "pass": true
+          },
+          {
+            "checks": [
+              {
+                "actual": 0.0,
+                "comparator": "<",
+                "expected": 0.5,
+                "output": "Jalousie 1 [Schlafzimmer].InputDisable",
+                "pass": true
+              },
+              {
+                "actual": 0.0,
+                "comparator": "<",
+                "expected": 0.5,
+                "output": "Jalousie 2 [Schlafzimmer].InputDisable",
+                "pass": true
+              }
+            ],
+            "name": "should NOT disable when door closed",
+            "pass": true
+          }
+        ]
+      },
+      "sim_pass": true,
+      "sim_score": 1.0,
+      "case_id": "campus-003",
+      "difficulty": "easy",
+      "patterns": [
+        "window-curtain",
+        "shade-block"
+      ],
+      "utterance": "Block automatic shading on bedroom blinds whenever the terrace door is open",
+      "elapsed_seconds": 67.8,
+      "cli_invocations": 0,
+      "retries": 0,
+      "tokens": {
+        "input_tokens_est": 0,
+        "output_tokens_est": 0
+      },
+      "model": "gpt-4o"
+    },
+    {
+      "pass": false,
+      "overall_score": 0.433,
+      "weighted_score": 0.65,
+      "xml_valid": true,
+      "validation_pass": true,
+      "validation_errors": 0,
+      "metrics": {
+        "blocks": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "true_positives": 0,
+          "false_positives": 1,
+          "false_negatives": 1
+        },
+        "wiring": {
+          "accuracy": 0.333,
+          "precision": 1.0,
+          "correct": 1,
+          "total": 3,
+          "extra": 0
+        },
+        "params": {
+          "accuracy": 1.0,
+          "correct": 0,
+          "total": 0
+        },
+        "ux": {
+          "score": 1.0,
+          "issues": []
+        }
+      },
+      "simulation": {
+        "case_id": "campus-004",
+        "pass": true,
+        "passed_count": 3,
+        "total_count": 3,
+        "scenarios": [
+          {
+            "checks": [
+              {
+                "actual": 1.0,
+                "comparator": ">",
+                "expected": 0.5,
+                "output": "Jalousie 1 [Schlafzimmer].InputDisable",
+                "pass": true
+              }
+            ],
+            "name": "should disable jalousie when window open",
+            "pass": true
+          },
+          {
+            "checks": [
+              {
+                "actual": 1.0,
+                "comparator": ">",
+                "expected": 0.5,
+                "output": "Jalousie 1 [Schlafzimmer].InputDisable",
+                "pass": true
+              }
+            ],
+            "name": "should disable jalousie when door open",
+            "pass": true
+          },
+          {
+            "checks": [
+              {
+                "actual": 0.0,
+                "comparator": "<",
+                "expected": 0.5,
+                "output": "Jalousie 1 [Schlafzimmer].InputDisable",
+                "pass": true
+              }
+            ],
+            "name": "should NOT disable when all closed",
+            "pass": true
+          }
+        ]
+      },
+      "sim_pass": true,
+      "sim_score": 1.0,
+      "case_id": "campus-004",
+      "difficulty": "medium",
+      "patterns": [
+        "window-curtain",
+        "join-window"
+      ],
+      "utterance": "Set up a combined window sensor for the Schlafzimmer that merges window contact and door contact, and wire it to disable Jalousie 1",
+      "elapsed_seconds": 62.7,
+      "cli_invocations": 0,
+      "retries": 0,
+      "tokens": {
+        "input_tokens_est": 0,
+        "output_tokens_est": 0
+      },
+      "model": "gpt-4o"
+    },
+    {
+      "pass": false,
+      "overall_score": 0.3,
+      "weighted_score": 0.45,
+      "xml_valid": true,
+      "validation_pass": true,
+      "validation_errors": 0,
+      "metrics": {
+        "blocks": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "true_positives": 0,
+          "false_positives": 1,
+          "false_negatives": 1
+        },
+        "wiring": {
+          "accuracy": 0.0,
+          "precision": 1.0,
+          "correct": 0,
+          "total": 1,
+          "extra": 0
+        },
+        "params": {
+          "accuracy": 1.0,
+          "correct": 0,
+          "total": 0
+        },
+        "ux": {
+          "score": 1.0,
+          "issues": []
+        }
+      },
+      "simulation": {
+        "case_id": "campus-005",
+        "pass": false,
+        "passed_count": 0,
+        "total_count": 1,
+        "scenarios": [
+          {
+            "checks": [
+              {
+                "actual": 0.0,
+                "comparator": ">",
+                "expected": 0.5,
+                "output": "FlipFlop.Q",
+                "pass": false
+              }
+            ],
+            "name": "should latch occupancy on presence",
+            "pass": false
+          }
+        ]
+      },
+      "sim_pass": false,
+      "sim_score": 0.0,
+      "case_id": "campus-005",
+      "difficulty": "medium",
+      "patterns": [
+        "presence",
+        "state-machine"
+      ],
+      "utterance": "Track room occupancy in the Flur: latch the presence sensor output into a memory block so occupancy stays high after motion stops",
+      "elapsed_seconds": 73.3,
+      "cli_invocations": 0,
+      "retries": 0,
+      "tokens": {
+        "input_tokens_est": 0,
+        "output_tokens_est": 0
+      },
+      "model": "gpt-4o"
+    },
+    {
+      "pass": false,
+      "overall_score": 0.0,
+      "weighted_score": 0.0,
+      "xml_valid": true,
+      "validation_pass": true,
+      "validation_errors": 0,
+      "metrics": {
+        "blocks": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "true_positives": 0,
+          "false_positives": 1,
+          "false_negatives": 2
+        },
+        "wiring": {
+          "accuracy": 0.0,
+          "precision": 1.0,
+          "correct": 0,
+          "total": 3,
+          "extra": 0
+        },
+        "params": {
+          "accuracy": 0.0,
+          "correct": 0,
+          "total": 1
+        },
+        "ux": {
+          "score": 1.0,
+          "issues": []
+        }
+      },
+      "simulation": {
+        "case_id": "campus-006",
+        "pass": false,
+        "passed_count": 1,
+        "total_count": 2,
+        "scenarios": [
+          {
+            "checks": [
+              {
+                "actual": 0.0,
+                "comparator": ">",
+                "expected": 0.5,
+                "output": "Lichtsteuerung [Flur].Reset",
+                "pass": false
+              }
+            ],
+            "name": "should reset lights when presence drops",
+            "pass": false
+          },
+          {
+            "checks": [
+              {
+                "actual": 0.0,
+                "comparator": "<",
+                "expected": 0.5,
+                "output": "Lichtsteuerung [Flur].Reset",
+                "pass": true
+              }
+            ],
+            "name": "should NOT reset lights while presence active",
+            "pass": true
+          }
+        ]
+      },
+      "sim_pass": false,
+      "sim_score": 0.5,
+      "case_id": "campus-006",
+      "difficulty": "medium",
+      "patterns": [
+        "presence",
+        "off-delay"
+      ],
+      "utterance": "Turn off the Flur lights 5 minutes after the presence sensor goes inactive",
+      "elapsed_seconds": 60.8,
+      "cli_invocations": 0,
+      "retries": 0,
+      "tokens": {
+        "input_tokens_est": 0,
+        "output_tokens_est": 0
+      },
+      "model": "gpt-4o"
+    },
+    {
+      "pass": false,
+      "overall_score": 0.6,
+      "weighted_score": 0.9,
+      "xml_valid": true,
+      "validation_pass": true,
+      "validation_errors": 0,
+      "metrics": {
+        "blocks": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "true_positives": 1,
+          "false_positives": 0,
+          "false_negatives": 0
+        },
+        "wiring": {
+          "accuracy": 0.0,
+          "precision": 1.0,
+          "correct": 0,
+          "total": 2,
+          "extra": 0
+        },
+        "params": {
+          "accuracy": 1.0,
+          "correct": 0,
+          "total": 0
+        },
+        "ux": {
+          "score": 1.0,
+          "issues": []
+        }
+      },
+      "simulation": {
+        "case_id": "campus-007",
+        "pass": false,
+        "passed_count": 0,
+        "total_count": 1,
+        "scenarios": [
+          {
+            "checks": [
+              {
+                "actual": 0.0,
+                "comparator": ">",
+                "expected": 0.5,
+                "output": "Lichtsteuerung [Flur].Sel1",
+                "pass": false
+              }
+            ],
+            "name": "should trigger welcome scene on rising edge of presence",
+            "pass": false
+          }
+        ]
+      },
+      "sim_pass": false,
+      "sim_score": 0.0,
+      "case_id": "campus-007",
+      "difficulty": "medium",
+      "patterns": [
+        "presence",
+        "welcome-scene"
+      ],
+      "utterance": "Trigger the welcome light scene (Sel1) on the Flur Lichtsteuerung when the presence sensor first detects motion",
+      "elapsed_seconds": 343.8,
+      "cli_invocations": 0,
+      "retries": 0,
+      "tokens": {
+        "input_tokens_est": 0,
+        "output_tokens_est": 0
+      },
+      "model": "gpt-4o"
+    },
+    {
+      "pass": false,
+      "overall_score": 0.6,
+      "weighted_score": 1.2,
+      "xml_valid": true,
+      "validation_pass": true,
+      "validation_errors": 0,
+      "metrics": {
+        "blocks": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "true_positives": 1,
+          "false_positives": 0,
+          "false_negatives": 0
+        },
+        "wiring": {
+          "accuracy": 0.0,
+          "precision": 0.667,
+          "correct": 0,
+          "total": 2,
+          "extra": 1
+        },
+        "params": {
+          "accuracy": 1.0,
+          "correct": 0,
+          "total": 0
+        },
+        "ux": {
+          "score": 1.0,
+          "issues": []
+        }
+      },
+      "simulation": {
+        "case_id": "campus-008",
+        "pass": false,
+        "passed_count": 1,
+        "total_count": 3,
+        "scenarios": [
+          {
+            "checks": [
+              {
+                "actual": 0.0,
+                "comparator": ">",
+                "expected": 0.0,
+                "output": "State.AQ",
+                "pass": false
+              }
+            ],
+            "name": "should show state 1 on presence only",
+            "pass": false
+          },
+          {
+            "checks": [
+              {
+                "actual": 0.0,
+                "comparator": ">",
+                "expected": 0.0,
+                "output": "State.AQ",
+                "pass": false
+              }
+            ],
+            "name": "should show different state on card + presence",
+            "pass": false
+          },
+          {
+            "checks": [
+              {
+                "actual": 0.0,
+                "comparator": "==",
+                "expected": 0.0,
+                "output": "State.AQ",
+                "pass": true
+              }
+            ],
+            "name": "should show 0 state when no inputs active",
+            "pass": true
+          }
+        ]
+      },
+      "sim_pass": false,
+      "sim_score": 0.3333333333333333,
+      "case_id": "campus-008",
+      "difficulty": "hard",
+      "patterns": [
+        "presence",
+        "state-machine",
+        "multi-input"
+      ],
+      "utterance": "Create a 3-input state machine for room occupancy: I1 from the Flur presence sensor, I2 from the PushButton (card reader), and display the state as an analog value",
+      "elapsed_seconds": 206.3,
+      "cli_invocations": 0,
+      "retries": 0,
+      "tokens": {
+        "input_tokens_est": 0,
+        "output_tokens_est": 0
+      },
+      "model": "gpt-4o"
+    },
+    {
+      "pass": true,
+      "overall_score": 1.0,
+      "weighted_score": 1.0,
+      "xml_valid": true,
+      "validation_pass": true,
+      "validation_errors": 0,
+      "metrics": {
+        "blocks": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "true_positives": 0,
+          "false_positives": 0,
+          "false_negatives": 0
+        },
+        "wiring": {
+          "accuracy": 1.0,
+          "precision": 1.0,
+          "correct": 1,
+          "total": 1,
+          "extra": 0
+        },
+        "params": {
+          "accuracy": 1.0,
+          "correct": 0,
+          "total": 0
+        },
+        "ux": {
+          "score": 1.0,
+          "issues": []
+        }
+      },
+      "simulation": {
+        "case_id": "campus-009",
+        "pass": true,
+        "passed_count": 2,
+        "total_count": 2,
+        "scenarios": [
+          {
+            "checks": [
+              {
+                "actual": 1.0,
+                "comparator": ">",
+                "expected": 0.5,
+                "output": "Raumregler.Window",
+                "pass": true
+              }
+            ],
+            "name": "should signal window open to heating controller",
+            "pass": true
+          },
+          {
+            "checks": [
+              {
+                "actual": 0.0,
+                "comparator": "<",
+                "expected": 0.5,
+                "output": "Raumregler.Window",
+                "pass": true
+              }
+            ],
+            "name": "should NOT signal when window closed",
+            "pass": true
+          }
+        ]
+      },
+      "sim_pass": true,
+      "sim_score": 1.0,
+      "case_id": "campus-009",
+      "difficulty": "easy",
+      "patterns": [
+        "hvac",
+        "window-integration"
+      ],
+      "utterance": "Disable the Wohnzimmer heating when the window is open by wiring Fensterkontakt Wohnzimmer to the Raumregler window input",
+      "elapsed_seconds": 50.3,
+      "cli_invocations": 0,
+      "retries": 0,
+      "tokens": {
+        "input_tokens_est": 0,
+        "output_tokens_est": 0
+      },
+      "model": "gpt-4o"
+    },
+    {
+      "pass": false,
+      "overall_score": 0.2,
+      "weighted_score": 0.3,
+      "xml_valid": true,
+      "validation_pass": true,
+      "validation_errors": 0,
+      "metrics": {
+        "blocks": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "true_positives": 0,
+          "false_positives": 1,
+          "false_negatives": 1
+        },
+        "wiring": {
+          "accuracy": 0.5,
+          "precision": 1.0,
+          "correct": 1,
+          "total": 2,
+          "extra": 0
+        },
+        "params": {
+          "accuracy": 0.0,
+          "correct": 0,
+          "total": 1
+        },
+        "ux": {
+          "score": 1.0,
+          "issues": []
+        }
+      },
+      "simulation": {
+        "case_id": "campus-010",
+        "pass": true,
+        "passed_count": 1,
+        "total_count": 1,
+        "scenarios": [
+          {
+            "checks": [
+              {
+                "actual": 1.0,
+                "comparator": ">",
+                "expected": 0.5,
+                "output": "Raumregler.Window",
+                "pass": true
+              }
+            ],
+            "name": "should keep window signal high during delay after closing",
+            "pass": true
+          }
+        ]
+      },
+      "sim_pass": true,
+      "sim_score": 1.0,
+      "case_id": "campus-010",
+      "difficulty": "medium",
+      "patterns": [
+        "hvac",
+        "window-delay"
+      ],
+      "utterance": "Resume Wohnzimmer heating only after the window has been closed for at least 2 minutes, using a delayed window signal to the Raumregler",
+      "elapsed_seconds": 80.2,
+      "cli_invocations": 0,
+      "retries": 0,
+      "tokens": {
+        "input_tokens_est": 0,
+        "output_tokens_est": 0
+      },
+      "model": "gpt-4o"
+    },
+    {
+      "case_id": "campus-011",
+      "pass": false,
+      "sim_pass": false,
+      "sim_score": 0,
+      "overall_score": 0,
+      "error": "Agent timed out after 600s",
+      "difficulty": "hard",
+      "patterns": [
+        "hvac",
+        "status-display"
+      ],
+      "utterance": "Create a 4-state heating status display: wire the Raumregler heating output, cooling output, economy flag, and comfort flag to a State block with 4 inputs",
+      "elapsed_seconds": 616.1,
+      "metrics": {
+        "blocks": {
+          "precision": 0,
+          "recall": 0,
+          "f1": 0,
+          "true_positives": 0,
+          "false_positives": 0,
+          "false_negatives": 0
+        },
+        "wiring": {
+          "accuracy": 0,
+          "precision": 0,
+          "correct": 0,
+          "total": 0,
+          "extra": 0
+        },
+        "params": {
+          "accuracy": 0,
+          "correct": 0,
+          "total": 0
+        },
+        "ux": {
+          "score": 0,
+          "issues": []
+        }
+      },
+      "cli_invocations": 0,
+      "retries": 0,
+      "tokens": {
+        "input_tokens_est": 0,
+        "output_tokens_est": 0
+      },
+      "model": "gpt-4o"
+    },
+    {
+      "pass": false,
+      "overall_score": 0.6,
+      "weighted_score": 0.6,
+      "xml_valid": true,
+      "validation_pass": true,
+      "validation_errors": 0,
+      "metrics": {
+        "blocks": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "true_positives": 0,
+          "false_positives": 0,
+          "false_negatives": 0
+        },
+        "wiring": {
+          "accuracy": 0.0,
+          "precision": 1.0,
+          "correct": 0,
+          "total": 1,
+          "extra": 0
+        },
+        "params": {
+          "accuracy": 1.0,
+          "correct": 0,
+          "total": 0
+        },
+        "ux": {
+          "score": 1.0,
+          "issues": []
+        }
+      },
+      "simulation": {
+        "case_id": "campus-012",
+        "pass": true,
+        "passed_count": 2,
+        "total_count": 2,
+        "scenarios": [
+          {
+            "checks": [
+              {
+                "actual": 75.0,
+                "comparator": ">",
+                "expected": 50.0,
+                "output": "Raumregler.InHumid",
+                "pass": true
+              }
+            ],
+            "name": "should pass humidity value to room controller",
+            "pass": true
+          },
+          {
+            "checks": [
+              {
+                "actual": 30.0,
+                "comparator": "<",
+                "expected": 50.0,
+                "output": "Raumregler.InHumid",
+                "pass": true
+              }
+            ],
+            "name": "should pass low humidity correctly",
+            "pass": true
+          }
+        ]
+      },
+      "sim_pass": true,
+      "sim_score": 1.0,
+      "case_id": "campus-012",
+      "difficulty": "easy",
+      "patterns": [
+        "hvac",
+        "humidity"
+      ],
+      "utterance": "Feed the bathroom humidity sensor into the Wohnzimmer Raumregler humidity input so it can adjust ventilation",
+      "elapsed_seconds": 47.6,
+      "cli_invocations": 0,
+      "retries": 0,
+      "tokens": {
+        "input_tokens_est": 0,
+        "output_tokens_est": 0
+      },
+      "model": "gpt-4o"
+    },
+    {
+      "pass": true,
+      "overall_score": 1.0,
+      "weighted_score": 1.5,
+      "xml_valid": true,
+      "validation_pass": true,
+      "validation_errors": 0,
+      "metrics": {
+        "blocks": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "true_positives": 0,
+          "false_positives": 0,
+          "false_negatives": 0
+        },
+        "wiring": {
+          "accuracy": 1.0,
+          "precision": 1.0,
+          "correct": 1,
+          "total": 1,
+          "extra": 0
+        },
+        "params": {
+          "accuracy": 1.0,
+          "correct": 0,
+          "total": 0
+        },
+        "ux": {
+          "score": 1.0,
+          "issues": []
+        }
+      },
+      "simulation": {
+        "case_id": "campus-013",
+        "pass": false,
+        "passed_count": 1,
+        "total_count": 2,
+        "scenarios": [
+          {
+            "checks": [
+              {
+                "actual": 0.0,
+                "comparator": ">",
+                "expected": 0.5,
+                "output": "Lichtsteuerung [Flur].Sel5",
+                "pass": false
+              }
+            ],
+            "name": "should select night light mood on warning",
+            "pass": false
+          },
+          {
+            "checks": [
+              {
+                "actual": 0.0,
+                "comparator": "<",
+                "expected": 0.5,
+                "output": "Lichtsteuerung [Flur].Sel5",
+                "pass": true
+              }
+            ],
+            "name": "should NOT select night light when no warning",
+            "pass": true
+          }
+        ]
+      },
+      "sim_pass": false,
+      "sim_score": 0.5,
+      "case_id": "campus-013",
+      "difficulty": "medium",
+      "patterns": [
+        "lighting",
+        "presence-mood"
+      ],
+      "utterance": "Switch the Flur Lichtsteuerung to night light mood (Sel5) when the presence sensor warning output fires, indicating the room is about to go idle",
+      "elapsed_seconds": 143.8,
+      "cli_invocations": 0,
+      "retries": 0,
+      "tokens": {
+        "input_tokens_est": 0,
+        "output_tokens_est": 0
+      },
+      "model": "gpt-4o"
+    },
+    {
+      "pass": false,
+      "overall_score": 0.6,
+      "weighted_score": 0.6,
+      "xml_valid": true,
+      "validation_pass": true,
+      "validation_errors": 0,
+      "metrics": {
+        "blocks": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "true_positives": 0,
+          "false_positives": 0,
+          "false_negatives": 0
+        },
+        "wiring": {
+          "accuracy": 0.0,
+          "precision": 1.0,
+          "correct": 0,
+          "total": 1,
+          "extra": 0
+        },
+        "params": {
+          "accuracy": 1.0,
+          "correct": 0,
+          "total": 0
+        },
+        "ux": {
+          "score": 1.0,
+          "issues": []
+        }
+      },
+      "simulation": {
+        "case_id": "campus-014",
+        "pass": true,
+        "passed_count": 2,
+        "total_count": 2,
+        "scenarios": [
+          {
+            "checks": [
+              {
+                "actual": 1.0,
+                "comparator": ">",
+                "expected": 0.5,
+                "output": "Lichtsteuerung [Schlafzimmer].Sel6",
+                "pass": true
+              }
+            ],
+            "name": "should select reading light on button press",
+            "pass": true
+          },
+          {
+            "checks": [
+              {
+                "actual": 0.0,
+                "comparator": "<",
+                "expected": 0.5,
+                "output": "Lichtsteuerung [Schlafzimmer].Sel6",
+                "pass": true
+              }
+            ],
+            "name": "should NOT select when button not pressed",
+            "pass": true
+          }
+        ]
+      },
+      "sim_pass": true,
+      "sim_score": 1.0,
+      "case_id": "campus-014",
+      "difficulty": "easy",
+      "patterns": [
+        "lighting",
+        "reading-light"
+      ],
+      "utterance": "Wire the Flur PushButton to select reading light mood (Sel6) on the Schlafzimmer Lichtsteuerung, like a bedside reading switch",
+      "elapsed_seconds": 55.2,
+      "cli_invocations": 0,
+      "retries": 0,
+      "tokens": {
+        "input_tokens_est": 0,
+        "output_tokens_est": 0
+      },
+      "model": "gpt-4o"
+    },
+    {
+      "pass": false,
+      "overall_score": 0.7,
+      "weighted_score": 0.7,
+      "xml_valid": true,
+      "validation_pass": true,
+      "validation_errors": 0,
+      "metrics": {
+        "blocks": {
+          "precision": 0.0,
+          "recall": 1.0,
+          "f1": 0.0,
+          "true_positives": 0,
+          "false_positives": 1,
+          "false_negatives": 0
+        },
+        "wiring": {
+          "accuracy": 1.0,
+          "precision": 0.5,
+          "correct": 1,
+          "total": 1,
+          "extra": 1
+        },
+        "params": {
+          "accuracy": 1.0,
+          "correct": 0,
+          "total": 0
+        },
+        "ux": {
+          "score": 1.0,
+          "issues": []
+        }
+      },
+      "simulation": {
+        "case_id": "campus-015",
+        "pass": false,
+        "passed_count": 0,
+        "total_count": 2,
+        "scenarios": [
+          {
+            "checks": [
+              {
+                "actual": 0.0,
+                "comparator": ">",
+                "expected": 0.5,
+                "output": "Lichtsteuerung [Flur].Reset",
+                "pass": false
+              }
+            ],
+            "name": "should reset lights when presence off fires",
+            "pass": false
+          },
+          {
+            "checks": [
+              {
+                "actual": 1.0,
+                "comparator": "<",
+                "expected": 0.5,
+                "output": "Lichtsteuerung [Flur].Reset",
+                "pass": false
+              }
+            ],
+            "name": "should NOT reset while presence off is inactive",
+            "pass": false
+          }
+        ]
+      },
+      "sim_pass": false,
+      "sim_score": 0.0,
+      "case_id": "campus-015",
+      "difficulty": "easy",
+      "patterns": [
+        "lighting",
+        "presence-off"
+      ],
+      "utterance": "Reset the Flur Lichtsteuerung to default when the presence sensor turns off, so lights return to base state when the guest leaves",
+      "elapsed_seconds": 105.5,
+      "cli_invocations": 0,
+      "retries": 0,
+      "tokens": {
+        "input_tokens_est": 0,
+        "output_tokens_est": 0
+      },
+      "model": "gpt-4o"
+    },
+    {
+      "pass": false,
+      "overall_score": 0.6,
+      "weighted_score": 0.6,
+      "xml_valid": true,
+      "validation_pass": true,
+      "validation_errors": 0,
+      "metrics": {
+        "blocks": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "true_positives": 0,
+          "false_positives": 0,
+          "false_negatives": 0
+        },
+        "wiring": {
+          "accuracy": 0.0,
+          "precision": 1.0,
+          "correct": 0,
+          "total": 1,
+          "extra": 0
+        },
+        "params": {
+          "accuracy": 1.0,
+          "correct": 0,
+          "total": 0
+        },
+        "ux": {
+          "score": 1.0,
+          "issues": []
+        }
+      },
+      "simulation": {
+        "case_id": "campus-016",
+        "pass": true,
+        "passed_count": 2,
+        "total_count": 2,
+        "scenarios": [
+          {
+            "checks": [
+              {
+                "actual": 1.0,
+                "comparator": ">",
+                "expected": 0.5,
+                "output": "Lichtsteuerung [Flur].Presence",
+                "pass": true
+              }
+            ],
+            "name": "should activate presence-based lighting on motion",
+            "pass": true
+          },
+          {
+            "checks": [
+              {
+                "actual": 0.0,
+                "comparator": "<",
+                "expected": 0.5,
+                "output": "Lichtsteuerung [Flur].Presence",
+                "pass": true
+              }
+            ],
+            "name": "should deactivate when no motion",
+            "pass": true
+          }
+        ]
+      },
+      "sim_pass": true,
+      "sim_score": 1.0,
+      "case_id": "campus-016",
+      "difficulty": "easy",
+      "patterns": [
+        "lighting",
+        "presence-auto"
+      ],
+      "utterance": "Wire the hallway presence sensor to the Flur Lichtsteuerung presence input so the light controller handles motion-based lighting automatically",
+      "elapsed_seconds": 46.9,
+      "cli_invocations": 0,
+      "retries": 0,
+      "tokens": {
+        "input_tokens_est": 0,
+        "output_tokens_est": 0
+      },
+      "model": "gpt-4o"
+    },
+    {
+      "pass": true,
+      "overall_score": 0.867,
+      "weighted_score": 1.3,
+      "xml_valid": true,
+      "validation_pass": true,
+      "validation_errors": 0,
+      "metrics": {
+        "blocks": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "true_positives": 2,
+          "false_positives": 0,
+          "false_negatives": 0
+        },
+        "wiring": {
+          "accuracy": 0.667,
+          "precision": 1.0,
+          "correct": 2,
+          "total": 3,
+          "extra": 0
+        },
+        "params": {
+          "accuracy": 1.0,
+          "correct": 0,
+          "total": 0
+        },
+        "ux": {
+          "score": 1.0,
+          "issues": []
+        }
+      },
+      "simulation": {
+        "case_id": "campus-017",
+        "pass": false,
+        "passed_count": 1,
+        "total_count": 2,
+        "scenarios": [
+          {
+            "checks": [
+              {
+                "actual": 0.0,
+                "comparator": ">",
+                "expected": 0.5,
+                "output": "FlipFlop.Q",
+                "pass": false
+              }
+            ],
+            "name": "should latch door-open state",
+            "pass": false
+          },
+          {
+            "checks": [
+              {
+                "actual": 0.0,
+                "comparator": "<",
+                "expected": 0.5,
+                "output": "FlipFlop.Q",
+                "pass": true
+              }
+            ],
+            "name": "should reset when door closes",
+            "pass": true
+          }
+        ]
+      },
+      "sim_pass": false,
+      "sim_score": 0.5,
+      "case_id": "campus-017",
+      "difficulty": "medium",
+      "patterns": [
+        "door-state",
+        "memory"
+      ],
+      "utterance": "Track the Wohnzimmer terrace door open/closed state with a FlipFlop memory block: set on door open, reset on door close via an inverted signal",
+      "elapsed_seconds": 77.4,
+      "cli_invocations": 0,
+      "retries": 0,
+      "tokens": {
+        "input_tokens_est": 0,
+        "output_tokens_est": 0
+      },
+      "model": "gpt-4o"
+    },
+    {
+      "pass": true,
+      "overall_score": 1.0,
+      "weighted_score": 1.0,
+      "xml_valid": true,
+      "validation_pass": true,
+      "validation_errors": 0,
+      "metrics": {
+        "blocks": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "true_positives": 1,
+          "false_positives": 0,
+          "false_negatives": 0
+        },
+        "wiring": {
+          "accuracy": 1.0,
+          "precision": 1.0,
+          "correct": 1,
+          "total": 1,
+          "extra": 0
+        },
+        "params": {
+          "accuracy": 1.0,
+          "correct": 0,
+          "total": 0
+        },
+        "ux": {
+          "score": 1.0,
+          "issues": []
+        }
+      },
+      "simulation": {
+        "case_id": "campus-018",
+        "pass": false,
+        "passed_count": 1,
+        "total_count": 2,
+        "scenarios": [
+          {
+            "checks": [
+              {
+                "actual": 0.0,
+                "comparator": ">",
+                "expected": 0.0,
+                "output": "State.AQ",
+                "pass": false
+              }
+            ],
+            "name": "should show state when door open",
+            "pass": false
+          },
+          {
+            "checks": [
+              {
+                "actual": 0.0,
+                "comparator": "==",
+                "expected": 0.0,
+                "output": "State.AQ",
+                "pass": true
+              }
+            ],
+            "name": "should show zero when door closed",
+            "pass": true
+          }
+        ]
+      },
+      "sim_pass": false,
+      "sim_score": 0.5,
+      "case_id": "campus-018",
+      "difficulty": "easy",
+      "patterns": [
+        "door-state",
+        "state-display"
+      ],
+      "utterance": "Create a State block that shows the terrace door status in the Wohnzimmer: wire Türkontakt Wohnzimmer to I1 so the state output reflects door open or closed",
+      "elapsed_seconds": 373.0,
+      "cli_invocations": 0,
+      "retries": 0,
+      "tokens": {
+        "input_tokens_est": 0,
+        "output_tokens_est": 0
+      },
+      "model": "gpt-4o"
+    },
+    {
+      "pass": true,
+      "overall_score": 0.8,
+      "weighted_score": 1.2,
+      "xml_valid": true,
+      "validation_pass": true,
+      "validation_errors": 0,
+      "metrics": {
+        "blocks": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "true_positives": 1,
+          "false_positives": 0,
+          "false_negatives": 0
+        },
+        "wiring": {
+          "accuracy": 0.5,
+          "precision": 1.0,
+          "correct": 1,
+          "total": 2,
+          "extra": 0
+        },
+        "params": {
+          "accuracy": 1.0,
+          "correct": 0,
+          "total": 0
+        },
+        "ux": {
+          "score": 1.0,
+          "issues": []
+        }
+      },
+      "simulation": {
+        "case_id": "campus-019",
+        "pass": false,
+        "passed_count": 1,
+        "total_count": 3,
+        "scenarios": [
+          {
+            "checks": [
+              {
+                "actual": 0.0,
+                "comparator": ">",
+                "expected": 0.0,
+                "output": "State.AQ",
+                "pass": false
+              }
+            ],
+            "name": "should show door-only state",
+            "pass": false
+          },
+          {
+            "checks": [
+              {
+                "actual": 0.0,
+                "comparator": ">",
+                "expected": 0.0,
+                "output": "State.AQ",
+                "pass": false
+              }
+            ],
+            "name": "should show combined state when both active",
+            "pass": false
+          },
+          {
+            "checks": [
+              {
+                "actual": 0.0,
+                "comparator": "==",
+                "expected": 0.0,
+                "output": "State.AQ",
+                "pass": true
+              }
+            ],
+            "name": "should show zero when both inactive",
+            "pass": true
+          }
+        ]
+      },
+      "sim_pass": false,
+      "sim_score": 0.3333333333333333,
+      "case_id": "campus-019",
+      "difficulty": "medium",
+      "patterns": [
+        "door-state",
+        "combined-state"
+      ],
+      "utterance": "Build a combined door and AC state machine: wire Türkontakt Wohnzimmer to I1 and the Klimaanlage status to I2 of a State block, so you can see both states at a glance",
+      "elapsed_seconds": 54.6,
+      "cli_invocations": 0,
+      "retries": 0,
+      "tokens": {
+        "input_tokens_est": 0,
+        "output_tokens_est": 0
+      },
+      "model": "gpt-4o"
+    }
+  ],
+  "meta": {
+    "agent": "copilot",
+    "model": "gpt-4o",
+    "parallel": 2,
+    "progress": "19/19",
+    "timestamp": "2026-05-11T12:53:35Z"
+  }
+}

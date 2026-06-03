@@ -1,0 +1,1557 @@
+{
+  "summary": {
+    "total": 15,
+    "passed": 0,
+    "failed": 15,
+    "pass_rate": 0.0,
+    "sim_passed": 0,
+    "sim_total": 15,
+    "sim_rate": 0.0,
+    "xml_valid": 15,
+    "validation_pass": 14,
+    "avg_overall_score": 0.363,
+    "avg_weighted_score": 0.612,
+    "avg_block_f1": 0.344,
+    "avg_wiring_accuracy": 0.25,
+    "avg_wiring_precision": 0.398,
+    "avg_param_accuracy": 0.533,
+    "avg_ux_score": 0.933,
+    "total_cli_invocations": 0,
+    "total_retries": 0,
+    "total_tokens_input": 0,
+    "total_tokens_output": 0,
+    "avg_cli_per_case": 0.0,
+    "avg_tokens_per_case": 0.0
+  },
+  "by_difficulty": {
+    "easy": {
+      "count": 1,
+      "passed": 0,
+      "sim_passed": 0,
+      "sim_total": 1,
+      "avg_score": 0.3,
+      "avg_block_f1": 0.0,
+      "avg_params": 1.0,
+      "avg_cli_invocations": 0.0,
+      "avg_tokens": 0.0
+    },
+    "medium": {
+      "count": 7,
+      "passed": 0,
+      "sim_passed": 0,
+      "sim_total": 7,
+      "avg_score": 0.519,
+      "avg_block_f1": 0.429,
+      "avg_params": 0.857,
+      "avg_cli_invocations": 0.0,
+      "avg_tokens": 0.0
+    },
+    "hard": {
+      "count": 6,
+      "passed": 0,
+      "sim_passed": 0,
+      "sim_total": 6,
+      "avg_score": 0.186,
+      "avg_block_f1": 0.25,
+      "avg_params": 0.167,
+      "avg_cli_invocations": 0.0,
+      "avg_tokens": 0.0
+    },
+    "expert": {
+      "count": 1,
+      "passed": 0,
+      "sim_passed": 0,
+      "sim_total": 1,
+      "avg_score": 0.4,
+      "avg_block_f1": 0.667,
+      "avg_params": 0.0,
+      "avg_cli_invocations": 0.0,
+      "avg_tokens": 0.0
+    }
+  },
+  "by_pattern": {
+    "presence": {
+      "count": 3,
+      "passed": 0,
+      "sim_passed": 0,
+      "sim_total": 3,
+      "avg_score": 0.333
+    },
+    "timer": {
+      "count": 2,
+      "passed": 0,
+      "sim_passed": 0,
+      "sim_total": 2,
+      "avg_score": 0.0
+    },
+    "knx": {
+      "count": 2,
+      "passed": 0,
+      "sim_passed": 0,
+      "sim_total": 2,
+      "avg_score": 0.3
+    },
+    "metering": {
+      "count": 2,
+      "passed": 0,
+      "sim_passed": 0,
+      "sim_total": 2,
+      "avg_score": 0.475
+    },
+    "lightscene": {
+      "count": 2,
+      "passed": 0,
+      "sim_passed": 0,
+      "sim_total": 2,
+      "avg_score": 0.358
+    },
+    "alarm": {
+      "count": 1,
+      "passed": 0,
+      "sim_passed": 0,
+      "sim_total": 1,
+      "avg_score": 0.0
+    },
+    "pre-alarm": {
+      "count": 1,
+      "passed": 0,
+      "sim_passed": 0,
+      "sim_total": 1,
+      "avg_score": 0.0
+    },
+    "dimmer": {
+      "count": 1,
+      "passed": 0,
+      "sim_passed": 0,
+      "sim_total": 1,
+      "avg_score": 0.0
+    },
+    "step-control": {
+      "count": 1,
+      "passed": 0,
+      "sim_passed": 0,
+      "sim_total": 1,
+      "avg_score": 0.0
+    },
+    "access-control": {
+      "count": 1,
+      "passed": 0,
+      "sim_passed": 0,
+      "sim_total": 1,
+      "avg_score": 0.583
+    },
+    "code": {
+      "count": 1,
+      "passed": 0,
+      "sim_passed": 0,
+      "sim_total": 1,
+      "avg_score": 0.583
+    },
+    "monoflop": {
+      "count": 1,
+      "passed": 0,
+      "sim_passed": 0,
+      "sim_total": 1,
+      "avg_score": 0.583
+    },
+    "media": {
+      "count": 1,
+      "passed": 0,
+      "sim_passed": 0,
+      "sim_total": 1,
+      "avg_score": 0.6
+    },
+    "auto-pause": {
+      "count": 1,
+      "passed": 0,
+      "sim_passed": 0,
+      "sim_total": 1,
+      "avg_score": 0.6
+    },
+    "threshold": {
+      "count": 1,
+      "passed": 0,
+      "sim_passed": 0,
+      "sim_total": 1,
+      "avg_score": 0.65
+    },
+    "notification": {
+      "count": 1,
+      "passed": 0,
+      "sim_passed": 0,
+      "sim_total": 1,
+      "avg_score": 0.65
+    },
+    "sequencer": {
+      "count": 1,
+      "passed": 0,
+      "sim_passed": 0,
+      "sim_total": 1,
+      "avg_score": 0.0
+    },
+    "irrigation": {
+      "count": 1,
+      "passed": 0,
+      "sim_passed": 0,
+      "sim_total": 1,
+      "avg_score": 0.0
+    },
+    "rgb-scene": {
+      "count": 1,
+      "passed": 0,
+      "sim_passed": 0,
+      "sim_total": 1,
+      "avg_score": 0.7
+    },
+    "radio-button": {
+      "count": 1,
+      "passed": 0,
+      "sim_passed": 0,
+      "sim_total": 1,
+      "avg_score": 0.7
+    },
+    "color-preset": {
+      "count": 1,
+      "passed": 0,
+      "sim_passed": 0,
+      "sim_total": 1,
+      "avg_score": 0.7
+    },
+    "emergency": {
+      "count": 1,
+      "passed": 0,
+      "sim_passed": 0,
+      "sim_total": 1,
+      "avg_score": 0.0
+    },
+    "aal": {
+      "count": 1,
+      "passed": 0,
+      "sim_passed": 0,
+      "sim_total": 1,
+      "avg_score": 0.0
+    },
+    "call": {
+      "count": 1,
+      "passed": 0,
+      "sim_passed": 0,
+      "sim_total": 1,
+      "avg_score": 0.0
+    },
+    "cycle": {
+      "count": 1,
+      "passed": 0,
+      "sim_passed": 0,
+      "sim_total": 1,
+      "avg_score": 0.3
+    },
+    "button": {
+      "count": 1,
+      "passed": 0,
+      "sim_passed": 0,
+      "sim_total": 1,
+      "avg_score": 0.3
+    },
+    "brightness": {
+      "count": 1,
+      "passed": 0,
+      "sim_passed": 0,
+      "sim_total": 1,
+      "avg_score": 0.0
+    },
+    "office": {
+      "count": 1,
+      "passed": 0,
+      "sim_passed": 0,
+      "sim_total": 1,
+      "avg_score": 0.0
+    },
+    "jalousie": {
+      "count": 1,
+      "passed": 0,
+      "sim_passed": 0,
+      "sim_total": 1,
+      "avg_score": 0.6
+    },
+    "button-control": {
+      "count": 1,
+      "passed": 0,
+      "sim_passed": 0,
+      "sim_total": 1,
+      "avg_score": 0.6
+    },
+    "access": {
+      "count": 1,
+      "passed": 0,
+      "sim_passed": 0,
+      "sim_total": 1,
+      "avg_score": 0.9
+    },
+    "mail": {
+      "count": 1,
+      "passed": 0,
+      "sim_passed": 0,
+      "sim_total": 1,
+      "avg_score": 0.9
+    },
+    "security": {
+      "count": 1,
+      "passed": 0,
+      "sim_passed": 0,
+      "sim_total": 1,
+      "avg_score": 0.9
+    },
+    "bidirectional": {
+      "count": 1,
+      "passed": 0,
+      "sim_passed": 0,
+      "sim_total": 1,
+      "avg_score": 0.3
+    },
+    "solar": {
+      "count": 1,
+      "passed": 0,
+      "sim_passed": 0,
+      "sim_total": 1,
+      "avg_score": 0.3
+    },
+    "learn": {
+      "count": 1,
+      "passed": 0,
+      "sim_passed": 0,
+      "sim_total": 1,
+      "avg_score": 0.417
+    },
+    "store": {
+      "count": 1,
+      "passed": 0,
+      "sim_passed": 0,
+      "sim_total": 1,
+      "avg_score": 0.417
+    },
+    "tpf": {
+      "count": 1,
+      "passed": 0,
+      "sim_passed": 0,
+      "sim_total": 1,
+      "avg_score": 0.4
+    },
+    "setpoint": {
+      "count": 1,
+      "passed": 0,
+      "sim_passed": 0,
+      "sim_total": 1,
+      "avg_score": 0.4
+    }
+  },
+  "cases": [
+    {
+      "pass": false,
+      "overall_score": 0.0,
+      "weighted_score": 0.0,
+      "xml_valid": true,
+      "validation_pass": true,
+      "validation_errors": 0,
+      "metrics": {
+        "blocks": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "true_positives": 0,
+          "false_positives": 4,
+          "false_negatives": 1
+        },
+        "wiring": {
+          "accuracy": 0.0,
+          "precision": 0.214,
+          "correct": 0,
+          "total": 3,
+          "extra": 11
+        },
+        "params": {
+          "accuracy": 0.0,
+          "correct": 0,
+          "total": 2
+        },
+        "ux": {
+          "score": 1.0,
+          "issues": []
+        }
+      },
+      "simulation": {
+        "case_id": "ua01-smart-alarm-arm-trigger",
+        "pass": false,
+        "passed_count": 1,
+        "total_count": 2,
+        "scenarios": [
+          {
+            "checks": [
+              {
+                "actual": 0.0,
+                "comparator": ">",
+                "expected": 0.5,
+                "output": "Sirene.I1",
+                "pass": false
+              }
+            ],
+            "name": "should raise alarm level 2 after trigger during armed state",
+            "pass": false
+          },
+          {
+            "checks": [
+              {
+                "actual": 0.0,
+                "comparator": "<",
+                "expected": 0.5,
+                "output": "Sirene.I1",
+                "pass": true
+              }
+            ],
+            "name": "should NOT alarm when not armed",
+            "pass": true
+          }
+        ]
+      },
+      "sim_pass": false,
+      "sim_score": 0.5,
+      "case_id": "ua01-smart-alarm-arm-trigger",
+      "difficulty": "hard",
+      "patterns": [
+        "alarm",
+        "pre-alarm",
+        "timer"
+      ],
+      "utterance": "Smart alarm: arm via button, trigger with 30s pre-alarm, then full alarm after timeout",
+      "elapsed_seconds": 259.7,
+      "cli_invocations": 0,
+      "retries": 0,
+      "tokens": {
+        "input_tokens_est": 0,
+        "output_tokens_est": 0
+      },
+      "model": "gpt-4o"
+    },
+    {
+      "case_id": "ua02-knx-dimmer-up-down",
+      "pass": false,
+      "sim_pass": false,
+      "sim_score": 0,
+      "overall_score": 0,
+      "error": "Agent timed out after 600s",
+      "difficulty": "medium",
+      "patterns": [
+        "dimmer",
+        "knx",
+        "step-control"
+      ],
+      "utterance": "KNX dimmer: up/down buttons adjust brightness in 10% steps, min 5% max 100%",
+      "elapsed_seconds": 600.0,
+      "metrics": {
+        "blocks": {
+          "precision": 0,
+          "recall": 0,
+          "f1": 0,
+          "true_positives": 0,
+          "false_positives": 0,
+          "false_negatives": 0
+        },
+        "wiring": {
+          "accuracy": 0,
+          "precision": 0,
+          "correct": 0,
+          "total": 0,
+          "extra": 0
+        },
+        "params": {
+          "accuracy": 0,
+          "correct": 0,
+          "total": 0
+        },
+        "ux": {
+          "score": 0,
+          "issues": []
+        }
+      },
+      "cli_invocations": 0,
+      "retries": 0,
+      "tokens": {
+        "input_tokens_est": 0,
+        "output_tokens_est": 0
+      },
+      "model": "gpt-4o"
+    },
+    {
+      "pass": false,
+      "overall_score": 0.583,
+      "weighted_score": 0.875,
+      "xml_valid": true,
+      "validation_pass": true,
+      "validation_errors": 0,
+      "metrics": {
+        "blocks": {
+          "precision": 0.5,
+          "recall": 0.5,
+          "f1": 0.5,
+          "true_positives": 1,
+          "false_positives": 1,
+          "false_negatives": 1
+        },
+        "wiring": {
+          "accuracy": 0.333,
+          "precision": 0.75,
+          "correct": 1,
+          "total": 3,
+          "extra": 1
+        },
+        "params": {
+          "accuracy": 1.0,
+          "correct": 1,
+          "total": 1
+        },
+        "ux": {
+          "score": 1.0,
+          "issues": []
+        }
+      },
+      "simulation": {
+        "case_id": "ua03-access-code-unlock",
+        "pass": false,
+        "passed_count": 1,
+        "total_count": 2,
+        "scenarios": [
+          {
+            "checks": [
+              {
+                "actual": 0.0,
+                "comparator": ">",
+                "expected": 0.5,
+                "output": "Türschloss.I1",
+                "pass": false
+              }
+            ],
+            "name": "should unlock door on valid code",
+            "pass": false
+          },
+          {
+            "checks": [
+              {
+                "actual": 0.0,
+                "comparator": "<",
+                "expected": 0.5,
+                "output": "Türschloss.I1",
+                "pass": true
+              }
+            ],
+            "name": "should remain locked without code",
+            "pass": true
+          }
+        ]
+      },
+      "sim_pass": false,
+      "sim_score": 0.5,
+      "case_id": "ua03-access-code-unlock",
+      "difficulty": "medium",
+      "patterns": [
+        "access-control",
+        "code",
+        "monoflop"
+      ],
+      "utterance": "Access control: 4-digit code on Code4 → unlock door for 10 seconds via Monoflop",
+      "elapsed_seconds": 100.4,
+      "cli_invocations": 0,
+      "retries": 0,
+      "tokens": {
+        "input_tokens_est": 0,
+        "output_tokens_est": 0
+      },
+      "model": "gpt-4o"
+    },
+    {
+      "pass": false,
+      "overall_score": 0.6,
+      "weighted_score": 0.9,
+      "xml_valid": true,
+      "validation_pass": true,
+      "validation_errors": 0,
+      "metrics": {
+        "blocks": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "true_positives": 1,
+          "false_positives": 0,
+          "false_negatives": 0
+        },
+        "wiring": {
+          "accuracy": 0.0,
+          "precision": 0.5,
+          "correct": 0,
+          "total": 2,
+          "extra": 2
+        },
+        "params": {
+          "accuracy": 1.0,
+          "correct": 0,
+          "total": 0
+        },
+        "ux": {
+          "score": 1.0,
+          "issues": []
+        }
+      },
+      "simulation": {
+        "case_id": "ua04-media-auto-pause",
+        "pass": false,
+        "passed_count": 1,
+        "total_count": 2,
+        "scenarios": [
+          {
+            "checks": [
+              {
+                "actual": 0.0,
+                "comparator": ">",
+                "expected": 0.5,
+                "output": "Media Player.Pause",
+                "pass": false
+              }
+            ],
+            "name": "should pause when room empty",
+            "pass": false
+          },
+          {
+            "checks": [
+              {
+                "actual": 0.0,
+                "comparator": "<",
+                "expected": 0.5,
+                "output": "Media Player.Pause",
+                "pass": true
+              }
+            ],
+            "name": "should NOT pause when occupied",
+            "pass": true
+          }
+        ]
+      },
+      "sim_pass": false,
+      "sim_score": 0.5,
+      "case_id": "ua04-media-auto-pause",
+      "difficulty": "medium",
+      "patterns": [
+        "media",
+        "presence",
+        "auto-pause"
+      ],
+      "utterance": "Media control: wire presence sensor to auto-pause media player when room empties",
+      "elapsed_seconds": 141.9,
+      "cli_invocations": 0,
+      "retries": 0,
+      "tokens": {
+        "input_tokens_est": 0,
+        "output_tokens_est": 0
+      },
+      "model": "gpt-4o"
+    },
+    {
+      "pass": false,
+      "overall_score": 0.65,
+      "weighted_score": 0.975,
+      "xml_valid": true,
+      "validation_pass": true,
+      "validation_errors": 0,
+      "metrics": {
+        "blocks": {
+          "precision": 1.0,
+          "recall": 0.333,
+          "f1": 0.5,
+          "true_positives": 1,
+          "false_positives": 0,
+          "false_negatives": 2
+        },
+        "wiring": {
+          "accuracy": 0.5,
+          "precision": 0.5,
+          "correct": 1,
+          "total": 2,
+          "extra": 2
+        },
+        "params": {
+          "accuracy": 1.0,
+          "correct": 1,
+          "total": 1
+        },
+        "ux": {
+          "score": 1.0,
+          "issues": []
+        }
+      },
+      "simulation": {
+        "case_id": "ua05-power-meter-threshold",
+        "pass": false,
+        "passed_count": 1,
+        "total_count": 2,
+        "scenarios": [
+          {
+            "checks": [
+              {
+                "actual": 0.0,
+                "comparator": ">",
+                "expected": 0.5,
+                "output": "MailGen.Trigger",
+                "pass": false
+              }
+            ],
+            "name": "should trigger notification above 5kW",
+            "pass": false
+          },
+          {
+            "checks": [
+              {
+                "actual": 0.0,
+                "comparator": "<",
+                "expected": 0.5,
+                "output": "MailGen.Trigger",
+                "pass": true
+              }
+            ],
+            "name": "should NOT trigger below 5kW",
+            "pass": true
+          }
+        ]
+      },
+      "sim_pass": false,
+      "sim_score": 0.5,
+      "case_id": "ua05-power-meter-threshold",
+      "difficulty": "medium",
+      "patterns": [
+        "metering",
+        "threshold",
+        "notification"
+      ],
+      "utterance": "Power meter: trigger notification when import exceeds 5kW threshold",
+      "elapsed_seconds": 69.9,
+      "cli_invocations": 0,
+      "retries": 0,
+      "tokens": {
+        "input_tokens_est": 0,
+        "output_tokens_est": 0
+      },
+      "model": "gpt-4o"
+    },
+    {
+      "pass": false,
+      "overall_score": 0.0,
+      "weighted_score": 0.0,
+      "xml_valid": true,
+      "validation_pass": true,
+      "validation_errors": 0,
+      "metrics": {
+        "blocks": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "true_positives": 0,
+          "false_positives": 8,
+          "false_negatives": 2
+        },
+        "wiring": {
+          "accuracy": 0.0,
+          "precision": 0.125,
+          "correct": 0,
+          "total": 2,
+          "extra": 14
+        },
+        "params": {
+          "accuracy": 0.0,
+          "correct": 0,
+          "total": 2
+        },
+        "ux": {
+          "score": 1.0,
+          "issues": []
+        }
+      },
+      "simulation": {
+        "case_id": "ua06-sequencer-garden-zones",
+        "pass": false,
+        "passed_count": 1,
+        "total_count": 2,
+        "scenarios": [
+          {
+            "checks": [
+              {
+                "actual": 0.0,
+                "comparator": ">",
+                "expected": 0.5,
+                "output": "Ventil Zone 1.I1",
+                "pass": false
+              }
+            ],
+            "name": "should activate first zone on trigger",
+            "pass": false
+          },
+          {
+            "checks": [
+              {
+                "actual": 0.0,
+                "comparator": "<",
+                "expected": 0.5,
+                "output": "Ventil Zone 1.I1",
+                "pass": true
+              }
+            ],
+            "name": "should remain off without trigger",
+            "pass": true
+          }
+        ]
+      },
+      "sim_pass": false,
+      "sim_score": 0.5,
+      "case_id": "ua06-sequencer-garden-zones",
+      "difficulty": "hard",
+      "patterns": [
+        "sequencer",
+        "irrigation",
+        "timer"
+      ],
+      "utterance": "Sequencer: step through 4 garden zones on each button press, 15 min per zone",
+      "elapsed_seconds": 374.8,
+      "cli_invocations": 0,
+      "retries": 0,
+      "tokens": {
+        "input_tokens_est": 0,
+        "output_tokens_est": 0
+      },
+      "model": "gpt-4o"
+    },
+    {
+      "pass": false,
+      "overall_score": 0.7,
+      "weighted_score": 1.4,
+      "xml_valid": true,
+      "validation_pass": true,
+      "validation_errors": 0,
+      "metrics": {
+        "blocks": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "true_positives": 2,
+          "false_positives": 0,
+          "false_negatives": 0
+        },
+        "wiring": {
+          "accuracy": 0.25,
+          "precision": 0.4,
+          "correct": 1,
+          "total": 4,
+          "extra": 6
+        },
+        "params": {
+          "accuracy": 1.0,
+          "correct": 0,
+          "total": 0
+        },
+        "ux": {
+          "score": 1.0,
+          "issues": []
+        }
+      },
+      "simulation": {
+        "case_id": "ua07-rgb-scene-radio-select",
+        "pass": false,
+        "passed_count": 0,
+        "total_count": 1,
+        "scenarios": [
+          {
+            "checks": [
+              {
+                "actual": 0.0,
+                "comparator": ">",
+                "expected": 0.0,
+                "output": "RGB Lampe.I1",
+                "pass": false
+              }
+            ],
+            "name": "should select scene on radio button press",
+            "pass": false
+          }
+        ]
+      },
+      "sim_pass": false,
+      "sim_score": 0.0,
+      "case_id": "ua07-rgb-scene-radio-select",
+      "difficulty": "hard",
+      "patterns": [
+        "rgb-scene",
+        "radio-button",
+        "color-preset"
+      ],
+      "utterance": "RGB scene: select between 4 color presets via Radio2 button group",
+      "elapsed_seconds": 549.1,
+      "cli_invocations": 0,
+      "retries": 0,
+      "tokens": {
+        "input_tokens_est": 0,
+        "output_tokens_est": 0
+      },
+      "model": "gpt-4o"
+    },
+    {
+      "pass": false,
+      "overall_score": 0.0,
+      "weighted_score": 0.0,
+      "xml_valid": true,
+      "validation_pass": true,
+      "validation_errors": 0,
+      "metrics": {
+        "blocks": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "true_positives": 0,
+          "false_positives": 3,
+          "false_negatives": 2
+        },
+        "wiring": {
+          "accuracy": 0.0,
+          "precision": 0.143,
+          "correct": 0,
+          "total": 2,
+          "extra": 12
+        },
+        "params": {
+          "accuracy": 0.0,
+          "correct": 0,
+          "total": 1
+        },
+        "ux": {
+          "score": 1.0,
+          "issues": []
+        }
+      },
+      "simulation": {
+        "case_id": "ua08-emergency-call-trigger",
+        "pass": false,
+        "passed_count": 1,
+        "total_count": 2,
+        "scenarios": [
+          {
+            "checks": [
+              {
+                "actual": 0.0,
+                "comparator": ">",
+                "expected": 0.5,
+                "output": "CallGen.Trigger",
+                "pass": false
+              }
+            ],
+            "name": "should trigger alarm on panic button",
+            "pass": false
+          },
+          {
+            "checks": [
+              {
+                "actual": 0.0,
+                "comparator": "<",
+                "expected": 0.5,
+                "output": "CallGen.Trigger",
+                "pass": true
+              }
+            ],
+            "name": "should NOT trigger without button press",
+            "pass": true
+          }
+        ]
+      },
+      "sim_pass": false,
+      "sim_score": 0.5,
+      "case_id": "ua08-emergency-call-trigger",
+      "difficulty": "hard",
+      "patterns": [
+        "emergency",
+        "aal",
+        "call"
+      ],
+      "utterance": "AAL emergency: panic button triggers alarm, auto-calls caretaker after 60s if not confirmed",
+      "elapsed_seconds": 245.5,
+      "cli_invocations": 0,
+      "retries": 0,
+      "tokens": {
+        "input_tokens_est": 0,
+        "output_tokens_est": 0
+      },
+      "model": "gpt-4o"
+    },
+    {
+      "pass": false,
+      "overall_score": 0.3,
+      "weighted_score": 0.45,
+      "xml_valid": true,
+      "validation_pass": true,
+      "validation_errors": 0,
+      "metrics": {
+        "blocks": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "true_positives": 0,
+          "false_positives": 0,
+          "false_negatives": 1
+        },
+        "wiring": {
+          "accuracy": 0.0,
+          "precision": 0.75,
+          "correct": 0,
+          "total": 3,
+          "extra": 1
+        },
+        "params": {
+          "accuracy": 1.0,
+          "correct": 0,
+          "total": 0
+        },
+        "ux": {
+          "score": 1.0,
+          "issues": []
+        }
+      },
+      "simulation": {
+        "case_id": "ua09-lightscene-cycle",
+        "pass": false,
+        "passed_count": 0,
+        "total_count": 1,
+        "scenarios": [
+          {
+            "checks": [
+              {
+                "actual": 0.0,
+                "comparator": ">",
+                "expected": 0.0,
+                "output": "Deckenlampe.I1",
+                "pass": false
+              }
+            ],
+            "name": "should change scene on up trigger",
+            "pass": false
+          }
+        ]
+      },
+      "sim_pass": false,
+      "sim_score": 0.0,
+      "case_id": "ua09-lightscene-cycle",
+      "difficulty": "medium",
+      "patterns": [
+        "lightscene",
+        "cycle",
+        "button"
+      ],
+      "utterance": "Lightscene: cycle through 4 lighting moods with up/down buttons on wall switch",
+      "elapsed_seconds": 191.9,
+      "cli_invocations": 0,
+      "retries": 0,
+      "tokens": {
+        "input_tokens_est": 0,
+        "output_tokens_est": 0
+      },
+      "model": "gpt-4o"
+    },
+    {
+      "pass": false,
+      "overall_score": 0.0,
+      "weighted_score": 0.0,
+      "xml_valid": true,
+      "validation_pass": true,
+      "validation_errors": 0,
+      "metrics": {
+        "blocks": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "true_positives": 0,
+          "false_positives": 3,
+          "false_negatives": 1
+        },
+        "wiring": {
+          "accuracy": 0.0,
+          "precision": 0.3,
+          "correct": 0,
+          "total": 3,
+          "extra": 7
+        },
+        "params": {
+          "accuracy": 0.0,
+          "correct": 0,
+          "total": 1
+        },
+        "ux": {
+          "score": 1.0,
+          "issues": []
+        }
+      },
+      "simulation": {
+        "case_id": "ua10-presence-controller-office",
+        "pass": false,
+        "passed_count": 1,
+        "total_count": 2,
+        "scenarios": [
+          {
+            "checks": [
+              {
+                "actual": 0.0,
+                "comparator": ">",
+                "expected": 0.5,
+                "output": "Büro Licht.I1",
+                "pass": false
+              }
+            ],
+            "name": "should activate light on motion",
+            "pass": false
+          },
+          {
+            "checks": [
+              {
+                "actual": 0.0,
+                "comparator": "<",
+                "expected": 0.5,
+                "output": "Büro Licht.I1",
+                "pass": true
+              }
+            ],
+            "name": "should NOT activate without motion",
+            "pass": true
+          }
+        ]
+      },
+      "sim_pass": false,
+      "sim_score": 0.5,
+      "case_id": "ua10-presence-controller-office",
+      "difficulty": "hard",
+      "patterns": [
+        "presence",
+        "brightness",
+        "office"
+      ],
+      "utterance": "PresenceController: detect motion and ambient light to control office lighting with 10 min timeout",
+      "elapsed_seconds": 186.4,
+      "cli_invocations": 0,
+      "retries": 0,
+      "tokens": {
+        "input_tokens_est": 0,
+        "output_tokens_est": 0
+      },
+      "model": "gpt-4o"
+    },
+    {
+      "pass": false,
+      "overall_score": 0.6,
+      "weighted_score": 0.9,
+      "xml_valid": true,
+      "validation_pass": true,
+      "validation_errors": 0,
+      "metrics": {
+        "blocks": {
+          "precision": 0.25,
+          "recall": 0.5,
+          "f1": 0.333,
+          "true_positives": 1,
+          "false_positives": 3,
+          "false_negatives": 1
+        },
+        "wiring": {
+          "accuracy": 0.5,
+          "precision": 0.5,
+          "correct": 2,
+          "total": 4,
+          "extra": 4
+        },
+        "params": {
+          "accuracy": 1.0,
+          "correct": 0,
+          "total": 0
+        },
+        "ux": {
+          "score": 1.0,
+          "issues": []
+        }
+      },
+      "simulation": {
+        "case_id": "ua11-eib-jalousie-buttons",
+        "pass": false,
+        "passed_count": 1,
+        "total_count": 2,
+        "scenarios": [
+          {
+            "checks": [
+              {
+                "actual": 0.0,
+                "comparator": ">",
+                "expected": 0.5,
+                "output": "EIBJalousie.InputTriggerUp",
+                "pass": false
+              }
+            ],
+            "name": "should allow up when wind safe",
+            "pass": false
+          },
+          {
+            "checks": [
+              {
+                "actual": 0.0,
+                "comparator": "<",
+                "expected": 0.5,
+                "output": "EIBJalousie.InputTriggerUp",
+                "pass": true
+              }
+            ],
+            "name": "should block up when wind unsafe",
+            "pass": true
+          }
+        ]
+      },
+      "sim_pass": false,
+      "sim_score": 0.5,
+      "case_id": "ua11-eib-jalousie-buttons",
+      "difficulty": "medium",
+      "patterns": [
+        "knx",
+        "jalousie",
+        "button-control"
+      ],
+      "utterance": "EIB Jalousie: wall buttons control KNX blind up/down with safety wind sensor lock",
+      "elapsed_seconds": 110.3,
+      "cli_invocations": 0,
+      "retries": 0,
+      "tokens": {
+        "input_tokens_est": 0,
+        "output_tokens_est": 0
+      },
+      "model": "gpt-4o"
+    },
+    {
+      "pass": true,
+      "overall_score": 0.9,
+      "weighted_score": 1.35,
+      "xml_valid": true,
+      "validation_pass": true,
+      "validation_errors": 0,
+      "metrics": {
+        "blocks": {
+          "precision": 0.5,
+          "recall": 1.0,
+          "f1": 0.667,
+          "true_positives": 1,
+          "false_positives": 1,
+          "false_negatives": 0
+        },
+        "wiring": {
+          "accuracy": 1.0,
+          "precision": 0.5,
+          "correct": 1,
+          "total": 1,
+          "extra": 1
+        },
+        "params": {
+          "accuracy": 1.0,
+          "correct": 0,
+          "total": 0
+        },
+        "ux": {
+          "score": 1.0,
+          "issues": []
+        }
+      },
+      "simulation": {
+        "case_id": "ua12-mail-on-access-denied",
+        "pass": false,
+        "passed_count": 1,
+        "total_count": 2,
+        "scenarios": [
+          {
+            "checks": [
+              {
+                "actual": 0.0,
+                "comparator": ">",
+                "expected": 0.5,
+                "output": "MailGen.Trigger",
+                "pass": false
+              }
+            ],
+            "name": "should send mail on denied access",
+            "pass": false
+          },
+          {
+            "checks": [
+              {
+                "actual": 0.0,
+                "comparator": "<",
+                "expected": 0.5,
+                "output": "MailGen.Trigger",
+                "pass": true
+              }
+            ],
+            "name": "should NOT send mail on valid access",
+            "pass": true
+          }
+        ]
+      },
+      "sim_pass": false,
+      "sim_score": 0.5,
+      "case_id": "ua12-mail-on-access-denied",
+      "difficulty": "medium",
+      "patterns": [
+        "access",
+        "mail",
+        "security"
+      ],
+      "utterance": "Send email notification when access is denied at front door NFC reader",
+      "elapsed_seconds": 94.4,
+      "cli_invocations": 0,
+      "retries": 0,
+      "tokens": {
+        "input_tokens_est": 0,
+        "output_tokens_est": 0
+      },
+      "model": "gpt-4o"
+    },
+    {
+      "pass": false,
+      "overall_score": 0.3,
+      "weighted_score": 0.3,
+      "xml_valid": true,
+      "validation_pass": true,
+      "validation_errors": 0,
+      "metrics": {
+        "blocks": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "true_positives": 0,
+          "false_positives": 6,
+          "false_negatives": 1
+        },
+        "wiring": {
+          "accuracy": 0.0,
+          "precision": 0.188,
+          "correct": 0,
+          "total": 3,
+          "extra": 13
+        },
+        "params": {
+          "accuracy": 1.0,
+          "correct": 0,
+          "total": 0
+        },
+        "ux": {
+          "score": 1.0,
+          "issues": []
+        }
+      },
+      "simulation": {
+        "case_id": "ua13-meter-daily-export",
+        "pass": false,
+        "passed_count": 0,
+        "total_count": 1,
+        "scenarios": [
+          {
+            "checks": [
+              {
+                "actual": 0.0,
+                "comparator": ">",
+                "expected": 0.0,
+                "output": "Anzeige Import.I1",
+                "pass": false
+              }
+            ],
+            "name": "should pass power reading through",
+            "pass": false
+          }
+        ]
+      },
+      "sim_pass": false,
+      "sim_score": 0.0,
+      "case_id": "ua13-meter-daily-export",
+      "difficulty": "easy",
+      "patterns": [
+        "metering",
+        "bidirectional",
+        "solar"
+      ],
+      "utterance": "Bidirectional meter: track solar export and import separately, display on visualization",
+      "elapsed_seconds": 129.0,
+      "cli_invocations": 0,
+      "retries": 0,
+      "tokens": {
+        "input_tokens_est": 0,
+        "output_tokens_est": 0
+      },
+      "model": "gpt-4o"
+    },
+    {
+      "pass": false,
+      "overall_score": 0.417,
+      "weighted_score": 0.833,
+      "xml_valid": true,
+      "validation_pass": true,
+      "validation_errors": 0,
+      "metrics": {
+        "blocks": {
+          "precision": 0.333,
+          "recall": 1.0,
+          "f1": 0.5,
+          "true_positives": 1,
+          "false_positives": 2,
+          "false_negatives": 0
+        },
+        "wiring": {
+          "accuracy": 0.667,
+          "precision": 0.6,
+          "correct": 2,
+          "total": 3,
+          "extra": 2
+        },
+        "params": {
+          "accuracy": 0.0,
+          "correct": 0,
+          "total": 1
+        },
+        "ux": {
+          "score": 1.0,
+          "issues": []
+        }
+      },
+      "simulation": {
+        "case_id": "ua14-learnable-lightscene",
+        "pass": false,
+        "passed_count": 0,
+        "total_count": 1,
+        "scenarios": [
+          {
+            "checks": [
+              {
+                "actual": 0.0,
+                "comparator": ">",
+                "expected": 0.0,
+                "output": "Lampe 1.I1",
+                "pass": false
+              }
+            ],
+            "name": "should recall stored scene",
+            "pass": false
+          }
+        ]
+      },
+      "sim_pass": false,
+      "sim_score": 0.0,
+      "case_id": "ua14-learnable-lightscene",
+      "difficulty": "hard",
+      "patterns": [
+        "lightscene",
+        "learn",
+        "store"
+      ],
+      "utterance": "Learnable light scene: store current dimmer values as preset, recall with select buttons",
+      "elapsed_seconds": 288.6,
+      "cli_invocations": 0,
+      "retries": 0,
+      "tokens": {
+        "input_tokens_est": 0,
+        "output_tokens_est": 0
+      },
+      "model": "gpt-4o"
+    },
+    {
+      "pass": false,
+      "overall_score": 0.4,
+      "weighted_score": 1.2,
+      "xml_valid": true,
+      "validation_pass": true,
+      "validation_errors": 0,
+      "metrics": {
+        "blocks": {
+          "precision": 0.5,
+          "recall": 1.0,
+          "f1": 0.667,
+          "true_positives": 1,
+          "false_positives": 1,
+          "false_negatives": 0
+        },
+        "wiring": {
+          "accuracy": 0.5,
+          "precision": 0.5,
+          "correct": 2,
+          "total": 4,
+          "extra": 4
+        },
+        "params": {
+          "accuracy": 0.0,
+          "correct": 0,
+          "total": 2
+        },
+        "ux": {
+          "score": 1.0,
+          "issues": []
+        }
+      },
+      "simulation": {
+        "case_id": "ua15-tpf-presence-display",
+        "pass": false,
+        "passed_count": 1,
+        "total_count": 2,
+        "scenarios": [
+          {
+            "checks": [
+              {
+                "actual": 0.0,
+                "comparator": ">",
+                "expected": 0.5,
+                "output": "Raumregler.Move",
+                "pass": false
+              }
+            ],
+            "name": "should forward presence to HVAC",
+            "pass": false
+          },
+          {
+            "checks": [
+              {
+                "actual": 0.0,
+                "comparator": "<",
+                "expected": 0.5,
+                "output": "Raumregler.Move",
+                "pass": true
+              }
+            ],
+            "name": "should NOT forward without presence",
+            "pass": true
+          }
+        ]
+      },
+      "sim_pass": false,
+      "sim_score": 0.5,
+      "case_id": "ua15-tpf-presence-display",
+      "difficulty": "expert",
+      "patterns": [
+        "tpf",
+        "presence",
+        "setpoint"
+      ],
+      "utterance": "Touch Pure Flex: show room presence on display and forward setpoint changes to HVAC",
+      "elapsed_seconds": 518.6,
+      "cli_invocations": 0,
+      "retries": 0,
+      "tokens": {
+        "input_tokens_est": 0,
+        "output_tokens_est": 0
+      },
+      "model": "gpt-4o"
+    }
+  ],
+  "meta": {
+    "agent": "copilot",
+    "model": "gpt-4o",
+    "timeout_seconds": 600,
+    "parallel": 1,
+    "timestamp": "2026-05-12T15:16:47Z"
+  }
+}

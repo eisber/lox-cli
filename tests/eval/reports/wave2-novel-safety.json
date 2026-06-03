@@ -1,0 +1,1554 @@
+{
+  "summary": {
+    "total": 15,
+    "passed": 1,
+    "failed": 14,
+    "pass_rate": 0.067,
+    "sim_passed": 1,
+    "sim_total": 15,
+    "sim_rate": 0.067,
+    "xml_valid": 15,
+    "validation_pass": 12,
+    "avg_overall_score": 0.481,
+    "avg_weighted_score": 1.008,
+    "avg_block_f1": 0.357,
+    "avg_wiring_accuracy": 0.411,
+    "avg_wiring_precision": 0.393,
+    "avg_param_accuracy": 0.7,
+    "avg_ux_score": 0.8,
+    "total_cli_invocations": 0,
+    "total_retries": 0,
+    "total_tokens_input": 0,
+    "total_tokens_output": 0,
+    "avg_cli_per_case": 0.0,
+    "avg_tokens_per_case": 0.0
+  },
+  "by_difficulty": {
+    "medium": {
+      "count": 4,
+      "passed": 0,
+      "sim_passed": 0,
+      "sim_total": 4,
+      "avg_score": 0.642,
+      "avg_block_f1": 0.25,
+      "avg_params": 1.0,
+      "avg_cli_invocations": 0.0,
+      "avg_tokens": 0.0
+    },
+    "hard": {
+      "count": 7,
+      "passed": 0,
+      "sim_passed": 0,
+      "sim_total": 7,
+      "avg_score": 0.384,
+      "avg_block_f1": 0.4,
+      "avg_params": 0.5,
+      "avg_cli_invocations": 0.0,
+      "avg_tokens": 0.0
+    },
+    "expert": {
+      "count": 4,
+      "passed": 1,
+      "sim_passed": 1,
+      "sim_total": 4,
+      "avg_score": 0.491,
+      "avg_block_f1": 0.388,
+      "avg_params": 0.75,
+      "avg_cli_invocations": 0.0,
+      "avg_tokens": 0.0
+    }
+  },
+  "by_pattern": {
+    "threshold": {
+      "count": 3,
+      "passed": 0,
+      "sim_passed": 0,
+      "sim_total": 3,
+      "avg_score": 0.609
+    },
+    "timer": {
+      "count": 3,
+      "passed": 0,
+      "sim_passed": 0,
+      "sim_total": 3,
+      "avg_score": 0.38
+    },
+    "multi-zone": {
+      "count": 3,
+      "passed": 1,
+      "sim_passed": 1,
+      "sim_total": 3,
+      "avg_score": 0.34
+    },
+    "analog": {
+      "count": 3,
+      "passed": 0,
+      "sim_passed": 0,
+      "sim_total": 3,
+      "avg_score": 0.562
+    },
+    "edge-case": {
+      "count": 3,
+      "passed": 0,
+      "sim_passed": 0,
+      "sim_total": 3,
+      "avg_score": 0.625
+    },
+    "monitoring": {
+      "count": 2,
+      "passed": 0,
+      "sim_passed": 0,
+      "sim_total": 2,
+      "avg_score": 0.571
+    },
+    "macro": {
+      "count": 2,
+      "passed": 1,
+      "sim_passed": 1,
+      "sim_total": 2,
+      "avg_score": 0.45
+    },
+    "fan-out": {
+      "count": 2,
+      "passed": 1,
+      "sim_passed": 1,
+      "sim_total": 2,
+      "avg_score": 0.45
+    },
+    "sequence": {
+      "count": 2,
+      "passed": 0,
+      "sim_passed": 0,
+      "sim_total": 2,
+      "avg_score": 0.06
+    },
+    "counter": {
+      "count": 2,
+      "passed": 0,
+      "sim_passed": 0,
+      "sim_total": 2,
+      "avg_score": 0.5
+    },
+    "analog-watchdog": {
+      "count": 1,
+      "passed": 0,
+      "sim_passed": 0,
+      "sim_total": 1,
+      "avg_score": 0.283
+    },
+    "safety": {
+      "count": 1,
+      "passed": 0,
+      "sim_passed": 0,
+      "sim_total": 1,
+      "avg_score": 0.5
+    },
+    "leak-detection": {
+      "count": 1,
+      "passed": 0,
+      "sim_passed": 0,
+      "sim_total": 1,
+      "avg_score": 0.5
+    },
+    "instant-alarm": {
+      "count": 1,
+      "passed": 0,
+      "sim_passed": 0,
+      "sim_total": 1,
+      "avg_score": 0.5
+    },
+    "escalation": {
+      "count": 1,
+      "passed": 0,
+      "sim_passed": 0,
+      "sim_total": 1,
+      "avg_score": 0.858
+    },
+    "alarm-clock": {
+      "count": 1,
+      "passed": 0,
+      "sim_passed": 0,
+      "sim_total": 1,
+      "avg_score": 0.12
+    },
+    "scene": {
+      "count": 1,
+      "passed": 0,
+      "sim_passed": 0,
+      "sim_total": 1,
+      "avg_score": 0.6
+    },
+    "scaler": {
+      "count": 1,
+      "passed": 0,
+      "sim_passed": 0,
+      "sim_total": 1,
+      "avg_score": 1.0
+    },
+    "display": {
+      "count": 1,
+      "passed": 0,
+      "sim_passed": 0,
+      "sim_total": 1,
+      "avg_score": 1.0
+    },
+    "multiplexer": {
+      "count": 1,
+      "passed": 0,
+      "sim_passed": 0,
+      "sim_total": 1,
+      "avg_score": 0.0
+    },
+    "mode-select": {
+      "count": 1,
+      "passed": 0,
+      "sim_passed": 0,
+      "sim_total": 1,
+      "avg_score": 0.0
+    },
+    "averaging": {
+      "count": 1,
+      "passed": 0,
+      "sim_passed": 0,
+      "sim_total": 1,
+      "avg_score": 0.687
+    },
+    "maintenance": {
+      "count": 1,
+      "passed": 0,
+      "sim_passed": 0,
+      "sim_total": 1,
+      "avg_score": 1.0
+    },
+    "hour-counter": {
+      "count": 1,
+      "passed": 0,
+      "sim_passed": 0,
+      "sim_total": 1,
+      "avg_score": 1.0
+    },
+    "daily-reset": {
+      "count": 1,
+      "passed": 0,
+      "sim_passed": 0,
+      "sim_total": 1,
+      "avg_score": 0.0
+    },
+    "statistics": {
+      "count": 1,
+      "passed": 0,
+      "sim_passed": 0,
+      "sim_total": 1,
+      "avg_score": 0.0
+    },
+    "irrigation": {
+      "count": 1,
+      "passed": 0,
+      "sim_passed": 0,
+      "sim_total": 1,
+      "avg_score": 0.0
+    },
+    "debounce": {
+      "count": 1,
+      "passed": 0,
+      "sim_passed": 0,
+      "sim_total": 1,
+      "avg_score": 0.5
+    },
+    "filter": {
+      "count": 1,
+      "passed": 0,
+      "sim_passed": 0,
+      "sim_total": 1,
+      "avg_score": 0.5
+    },
+    "priority": {
+      "count": 1,
+      "passed": 0,
+      "sim_passed": 0,
+      "sim_total": 1,
+      "avg_score": 0.567
+    },
+    "override": {
+      "count": 1,
+      "passed": 0,
+      "sim_passed": 0,
+      "sim_total": 1,
+      "avg_score": 0.567
+    },
+    "hysteresis": {
+      "count": 1,
+      "passed": 0,
+      "sim_passed": 0,
+      "sim_total": 1,
+      "avg_score": 0.807
+    },
+    "hvac": {
+      "count": 1,
+      "passed": 0,
+      "sim_passed": 0,
+      "sim_total": 1,
+      "avg_score": 0.807
+    },
+    "flipflop": {
+      "count": 1,
+      "passed": 0,
+      "sim_passed": 0,
+      "sim_total": 1,
+      "avg_score": 0.807
+    }
+  },
+  "cases": [
+    {
+      "pass": false,
+      "overall_score": 0.283,
+      "weighted_score": 0.567,
+      "xml_valid": true,
+      "validation_pass": true,
+      "validation_errors": 0,
+      "metrics": {
+        "blocks": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "true_positives": 0,
+          "false_positives": 3,
+          "false_negatives": 3
+        },
+        "wiring": {
+          "accuracy": 0.333,
+          "precision": 0.6,
+          "correct": 1,
+          "total": 3,
+          "extra": 2
+        },
+        "params": {
+          "accuracy": 0.5,
+          "correct": 1,
+          "total": 2
+        },
+        "ux": {
+          "score": 1.0,
+          "issues": []
+        }
+      },
+      "simulation": {
+        "case_id": "ns01-freezer-temp-alarm",
+        "pass": false,
+        "passed_count": 1,
+        "total_count": 2,
+        "scenarios": [
+          {
+            "checks": [
+              {
+                "actual": 0.0,
+                "comparator": ">",
+                "expected": 0.5,
+                "output": "OnDelay.Q",
+                "pass": false
+              }
+            ],
+            "name": "temp above threshold triggers alarm after delay",
+            "pass": false
+          },
+          {
+            "checks": [
+              {
+                "actual": 0.0,
+                "comparator": "<",
+                "expected": 0.5,
+                "output": "OnDelay.Q",
+                "pass": true
+              }
+            ],
+            "name": "temp below threshold no alarm",
+            "pass": true
+          }
+        ]
+      },
+      "sim_pass": false,
+      "sim_score": 0.5,
+      "case_id": "ns01-freezer-temp-alarm",
+      "difficulty": "hard",
+      "patterns": [
+        "monitoring",
+        "threshold",
+        "timer",
+        "analog-watchdog"
+      ],
+      "utterance": "Monitor the freezer temperature sensor (Raumtemperatur Küche) — if it rises above -15°C for more than 10 minutes continuously, trigger a notification via a virtual output alarm block",
+      "elapsed_seconds": 228.9,
+      "cli_invocations": 0,
+      "retries": 0,
+      "tokens": {
+        "input_tokens_est": 0,
+        "output_tokens_est": 0
+      },
+      "model": "gpt-4o"
+    },
+    {
+      "pass": false,
+      "overall_score": 0.5,
+      "weighted_score": 0.75,
+      "xml_valid": true,
+      "validation_pass": true,
+      "validation_errors": 0,
+      "metrics": {
+        "blocks": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "true_positives": 0,
+          "false_positives": 0,
+          "false_negatives": 1
+        },
+        "wiring": {
+          "accuracy": 0.5,
+          "precision": 1.0,
+          "correct": 1,
+          "total": 2,
+          "extra": 0
+        },
+        "params": {
+          "accuracy": 1.0,
+          "correct": 0,
+          "total": 0
+        },
+        "ux": {
+          "score": 1.0,
+          "issues": []
+        }
+      },
+      "simulation": {
+        "case_id": "ns02-water-leak-instant-alarm",
+        "pass": false,
+        "passed_count": 1,
+        "total_count": 2,
+        "scenarios": [
+          {
+            "checks": [
+              {
+                "actual": 0.0,
+                "comparator": ">",
+                "expected": 0.5,
+                "output": "VirtualOut.I",
+                "pass": false
+              }
+            ],
+            "name": "leak detected triggers alarm and valve",
+            "pass": false
+          },
+          {
+            "checks": [
+              {
+                "actual": 0.0,
+                "comparator": "<",
+                "expected": 0.5,
+                "output": "VirtualOut.I",
+                "pass": true
+              }
+            ],
+            "name": "no leak no alarm",
+            "pass": true
+          }
+        ]
+      },
+      "sim_pass": false,
+      "sim_score": 0.5,
+      "case_id": "ns02-water-leak-instant-alarm",
+      "difficulty": "medium",
+      "patterns": [
+        "safety",
+        "leak-detection",
+        "instant-alarm"
+      ],
+      "utterance": "Wire the Wassersensor in the bathroom so that if it detects a leak, it instantly triggers an alarm output and also closes the main water valve (Schalter 2 acts as the valve relay)",
+      "elapsed_seconds": 467.2,
+      "cli_invocations": 0,
+      "retries": 0,
+      "tokens": {
+        "input_tokens_est": 0,
+        "output_tokens_est": 0
+      },
+      "model": "gpt-4o"
+    },
+    {
+      "pass": true,
+      "overall_score": 0.858,
+      "weighted_score": 2.575,
+      "xml_valid": true,
+      "validation_pass": true,
+      "validation_errors": 0,
+      "metrics": {
+        "blocks": {
+          "precision": 0.75,
+          "recall": 0.75,
+          "f1": 0.75,
+          "true_positives": 3,
+          "false_positives": 1,
+          "false_negatives": 1
+        },
+        "wiring": {
+          "accuracy": 0.833,
+          "precision": 0.5,
+          "correct": 5,
+          "total": 6,
+          "extra": 6
+        },
+        "params": {
+          "accuracy": 1.0,
+          "correct": 2,
+          "total": 2
+        },
+        "ux": {
+          "score": 1.0,
+          "issues": []
+        }
+      },
+      "simulation": {
+        "case_id": "ns03-server-room-cooling-escalation",
+        "pass": false,
+        "passed_count": 1,
+        "total_count": 3,
+        "scenarios": [
+          {
+            "checks": [
+              {
+                "actual": 0.0,
+                "comparator": ">",
+                "expected": 0.5,
+                "output": "GreaterEqual.Q",
+                "pass": false
+              }
+            ],
+            "name": "high temp activates cooling immediately",
+            "pass": false
+          },
+          {
+            "checks": [
+              {
+                "actual": 0.0,
+                "comparator": ">",
+                "expected": 0.5,
+                "output": "And.Q",
+                "pass": false
+              }
+            ],
+            "name": "sustained high temp fires escalation alarm",
+            "pass": false
+          },
+          {
+            "checks": [
+              {
+                "actual": 0.0,
+                "comparator": "<",
+                "expected": 0.5,
+                "output": "And.Q",
+                "pass": true
+              }
+            ],
+            "name": "normal temp no alarm",
+            "pass": true
+          }
+        ]
+      },
+      "sim_pass": false,
+      "sim_score": 0.3333333333333333,
+      "case_id": "ns03-server-room-cooling-escalation",
+      "difficulty": "expert",
+      "patterns": [
+        "monitoring",
+        "threshold",
+        "timer",
+        "escalation"
+      ],
+      "utterance": "Use the Raumtemperatur Wohnzimmer as server room temp sensor: if it goes above 30°C, immediately activate the Klimaanlage for cooling. If temp is still above 30°C after 5 minutes, also fire an alarm output using an And gate combining the threshold with the OnDelay",
+      "elapsed_seconds": 171.3,
+      "cli_invocations": 0,
+      "retries": 0,
+      "tokens": {
+        "input_tokens_est": 0,
+        "output_tokens_est": 0
+      },
+      "model": "gpt-4o"
+    },
+    {
+      "pass": false,
+      "overall_score": 0.3,
+      "weighted_score": 0.9,
+      "xml_valid": true,
+      "validation_pass": true,
+      "validation_errors": 0,
+      "metrics": {
+        "blocks": {
+          "precision": 0.0,
+          "recall": 1.0,
+          "f1": 0.0,
+          "true_positives": 0,
+          "false_positives": 1,
+          "false_negatives": 0
+        },
+        "wiring": {
+          "accuracy": 0.0,
+          "precision": 0.318,
+          "correct": 0,
+          "total": 7,
+          "extra": 15
+        },
+        "params": {
+          "accuracy": 1.0,
+          "correct": 0,
+          "total": 0
+        },
+        "ux": {
+          "score": 1.0,
+          "issues": []
+        }
+      },
+      "simulation": {
+        "case_id": "ns04-goodnight-all-rooms-reset",
+        "pass": true,
+        "passed_count": 2,
+        "total_count": 2,
+        "scenarios": [
+          {
+            "checks": [
+              {
+                "actual": 1.0,
+                "comparator": ">",
+                "expected": 0.5,
+                "output": "Lichtsteuerung [Schlafzimmer].Reset",
+                "pass": true
+              },
+              {
+                "actual": 1.0,
+                "comparator": ">",
+                "expected": 0.5,
+                "output": "Lichtsteuerung [Wohnzimmer].Reset",
+                "pass": true
+              }
+            ],
+            "name": "goodnight resets all lights",
+            "pass": true
+          },
+          {
+            "checks": [
+              {
+                "actual": 1.0,
+                "comparator": ">",
+                "expected": 0.5,
+                "output": "Jalousie 1 [Schlafzimmer].InputTriggerDown",
+                "pass": true
+              },
+              {
+                "actual": 1.0,
+                "comparator": ">",
+                "expected": 0.5,
+                "output": "Jalousie 1 [Wohnzimmer].InputTriggerDown",
+                "pass": true
+              }
+            ],
+            "name": "goodnight closes all blinds",
+            "pass": true
+          }
+        ]
+      },
+      "sim_pass": true,
+      "sim_score": 1.0,
+      "case_id": "ns04-goodnight-all-rooms-reset",
+      "difficulty": "expert",
+      "patterns": [
+        "multi-zone",
+        "macro",
+        "fan-out"
+      ],
+      "utterance": "Create a goodnight macro: when Schalter 1 is pressed, reset lights in every room (Wohnzimmer, Schlafzimmer, Küche, Flur) to off, close all blinds (Jalousie 1 in each room), and set the Raumregler to eco mode by sending a low setpoint of 16°C",
+      "elapsed_seconds": 189.1,
+      "cli_invocations": 0,
+      "retries": 0,
+      "tokens": {
+        "input_tokens_est": 0,
+        "output_tokens_est": 0
+      },
+      "model": "gpt-4o"
+    },
+    {
+      "pass": false,
+      "overall_score": 0.12,
+      "weighted_score": 0.24,
+      "xml_valid": true,
+      "validation_pass": true,
+      "validation_errors": 0,
+      "metrics": {
+        "blocks": {
+          "precision": 0.333,
+          "recall": 0.5,
+          "f1": 0.4,
+          "true_positives": 1,
+          "false_positives": 2,
+          "false_negatives": 1
+        },
+        "wiring": {
+          "accuracy": 0.0,
+          "precision": 0.375,
+          "correct": 0,
+          "total": 3,
+          "extra": 5
+        },
+        "params": {
+          "accuracy": 0.0,
+          "correct": 0,
+          "total": 1
+        },
+        "ux": {
+          "score": 1.0,
+          "issues": []
+        }
+      },
+      "simulation": {
+        "case_id": "ns05-wakeup-blinds-light-sequence",
+        "pass": false,
+        "passed_count": 0,
+        "total_count": 2,
+        "scenarios": [
+          {
+            "checks": [
+              {
+                "actual": 0.0,
+                "comparator": ">",
+                "expected": 0.5,
+                "output": "Jalousie 1 [Schlafzimmer].InputTriggerUp",
+                "pass": false
+              }
+            ],
+            "name": "alarm opens blinds immediately",
+            "pass": false
+          },
+          {
+            "checks": [
+              {
+                "actual": 0.0,
+                "comparator": ">",
+                "expected": 0.5,
+                "output": "OnDelay.Q",
+                "pass": false
+              }
+            ],
+            "name": "kitchen light delayed",
+            "pass": false
+          }
+        ]
+      },
+      "sim_pass": false,
+      "sim_score": 0.0,
+      "case_id": "ns05-wakeup-blinds-light-sequence",
+      "difficulty": "hard",
+      "patterns": [
+        "multi-zone",
+        "alarm-clock",
+        "sequence"
+      ],
+      "utterance": "Set up a wake-up sequence: when the AlarmClock fires its wake output (QTa), open the Schlafzimmer blinds (Jalousie 1) and after a 2-minute delay turn on the Küche light at 30% brightness using its Brightness input",
+      "elapsed_seconds": 254.4,
+      "cli_invocations": 0,
+      "retries": 0,
+      "tokens": {
+        "input_tokens_est": 0,
+        "output_tokens_est": 0
+      },
+      "model": "gpt-4o"
+    },
+    {
+      "pass": false,
+      "overall_score": 0.6,
+      "weighted_score": 1.2,
+      "xml_valid": true,
+      "validation_pass": true,
+      "validation_errors": 0,
+      "metrics": {
+        "blocks": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "true_positives": 0,
+          "false_positives": 0,
+          "false_negatives": 0
+        },
+        "wiring": {
+          "accuracy": 0.0,
+          "precision": 0.357,
+          "correct": 0,
+          "total": 5,
+          "extra": 9
+        },
+        "params": {
+          "accuracy": 1.0,
+          "correct": 0,
+          "total": 0
+        },
+        "ux": {
+          "score": 1.0,
+          "issues": []
+        }
+      },
+      "simulation": {
+        "case_id": "ns06-party-mode-all-rooms-sel3",
+        "pass": false,
+        "passed_count": 1,
+        "total_count": 2,
+        "scenarios": [
+          {
+            "checks": [
+              {
+                "actual": 0.0,
+                "comparator": ">",
+                "expected": 0.5,
+                "output": "Gartenbeleuchtung.On",
+                "pass": false
+              },
+              {
+                "actual": 1.0,
+                "comparator": ">",
+                "expected": 0.5,
+                "output": "Lichtsteuerung [Wohnzimmer].Sel3",
+                "pass": true
+              },
+              {
+                "actual": 1.0,
+                "comparator": ">",
+                "expected": 0.5,
+                "output": "Jalousie 1 [Wohnzimmer].InputTriggerDown",
+                "pass": true
+              },
+              {
+                "actual": 1.0,
+                "comparator": ">",
+                "expected": 0.5,
+                "output": "Lichtsteuerung [Küche].Sel3",
+                "pass": true
+              }
+            ],
+            "name": "party mode activates scenes and closes blinds",
+            "pass": false
+          },
+          {
+            "checks": [
+              {
+                "actual": 0.0,
+                "comparator": "<",
+                "expected": 0.5,
+                "output": "Lichtsteuerung [Wohnzimmer].Sel3",
+                "pass": true
+              }
+            ],
+            "name": "no party when switch off",
+            "pass": true
+          }
+        ]
+      },
+      "sim_pass": false,
+      "sim_score": 0.5,
+      "case_id": "ns06-party-mode-all-rooms-sel3",
+      "difficulty": "hard",
+      "patterns": [
+        "multi-zone",
+        "macro",
+        "scene",
+        "fan-out"
+      ],
+      "utterance": "Create a party mode button on Schalter 2: when pressed, select scene 3 (Sel3) on all LightControllers in Wohnzimmer and Küche, close all blinds in Wohnzimmer and Schlafzimmer, and turn on the Gartenbeleuchtung",
+      "elapsed_seconds": 107.7,
+      "cli_invocations": 0,
+      "retries": 0,
+      "tokens": {
+        "input_tokens_est": 0,
+        "output_tokens_est": 0
+      },
+      "model": "gpt-4o"
+    },
+    {
+      "pass": true,
+      "overall_score": 1.0,
+      "weighted_score": 1.5,
+      "xml_valid": true,
+      "validation_pass": true,
+      "validation_errors": 0,
+      "metrics": {
+        "blocks": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "true_positives": 1,
+          "false_positives": 0,
+          "false_negatives": 0
+        },
+        "wiring": {
+          "accuracy": 1.0,
+          "precision": 0.25,
+          "correct": 1,
+          "total": 1,
+          "extra": 3
+        },
+        "params": {
+          "accuracy": 1.0,
+          "correct": 4,
+          "total": 4
+        },
+        "ux": {
+          "score": 1.0,
+          "issues": []
+        }
+      },
+      "simulation": {
+        "case_id": "ns07-analog-scaler-sensor-percent",
+        "pass": false,
+        "passed_count": 1,
+        "total_count": 2,
+        "scenarios": [
+          {
+            "checks": [
+              {
+                "actual": 0.0,
+                "comparator": ">=",
+                "expected": 49.0,
+                "output": "AnalogScaler.AQ",
+                "pass": false
+              }
+            ],
+            "name": "mid-range input scales correctly",
+            "pass": false
+          },
+          {
+            "checks": [
+              {
+                "actual": 0.0,
+                "comparator": "<",
+                "expected": 1.0,
+                "output": "AnalogScaler.AQ",
+                "pass": true
+              }
+            ],
+            "name": "zero input maps to zero",
+            "pass": true
+          }
+        ]
+      },
+      "sim_pass": false,
+      "sim_score": 0.5,
+      "case_id": "ns07-analog-scaler-sensor-percent",
+      "difficulty": "medium",
+      "patterns": [
+        "analog",
+        "scaler",
+        "display"
+      ],
+      "utterance": "Add an AnalogScaler block to convert the CO2 Sensor reading from its raw 0-10V range to a 0-100% display value, with source range 0-10 mapping to destination range 0-100",
+      "elapsed_seconds": 95.0,
+      "cli_invocations": 0,
+      "retries": 0,
+      "tokens": {
+        "input_tokens_est": 0,
+        "output_tokens_est": 0
+      },
+      "model": "gpt-4o"
+    },
+    {
+      "case_id": "ns08-analog-mux-garage-setpoints",
+      "pass": false,
+      "sim_pass": false,
+      "sim_score": 0,
+      "overall_score": 0,
+      "error": "Agent timed out after 600s",
+      "difficulty": "hard",
+      "patterns": [
+        "analog",
+        "multiplexer",
+        "mode-select"
+      ],
+      "utterance": "Add an AnalogMultiplexer in the Garage to select between three temperature setpoints: Input1=22 (comfort when occupied), Input2=10 (frost protection when away), Input3=18 (standby). Use the KNX Schalter Garage to cycle the Select parameter",
+      "elapsed_seconds": 600.1,
+      "metrics": {
+        "blocks": {
+          "precision": 0,
+          "recall": 0,
+          "f1": 0,
+          "true_positives": 0,
+          "false_positives": 0,
+          "false_negatives": 0
+        },
+        "wiring": {
+          "accuracy": 0,
+          "precision": 0,
+          "correct": 0,
+          "total": 0,
+          "extra": 0
+        },
+        "params": {
+          "accuracy": 0,
+          "correct": 0,
+          "total": 0
+        },
+        "ux": {
+          "score": 0,
+          "issues": []
+        }
+      },
+      "cli_invocations": 0,
+      "retries": 0,
+      "tokens": {
+        "input_tokens_est": 0,
+        "output_tokens_est": 0
+      },
+      "model": "gpt-4o"
+    },
+    {
+      "pass": false,
+      "overall_score": 0.687,
+      "weighted_score": 1.373,
+      "xml_valid": true,
+      "validation_pass": true,
+      "validation_errors": 0,
+      "metrics": {
+        "blocks": {
+          "precision": 0.5,
+          "recall": 0.333,
+          "f1": 0.4,
+          "true_positives": 1,
+          "false_positives": 1,
+          "false_negatives": 2
+        },
+        "wiring": {
+          "accuracy": 0.667,
+          "precision": 0.5,
+          "correct": 2,
+          "total": 3,
+          "extra": 3
+        },
+        "params": {
+          "accuracy": 1.0,
+          "correct": 2,
+          "total": 2
+        },
+        "ux": {
+          "score": 1.0,
+          "issues": []
+        }
+      },
+      "simulation": {
+        "case_id": "ns09-avg-smooth-threshold",
+        "pass": false,
+        "passed_count": 1,
+        "total_count": 2,
+        "scenarios": [
+          {
+            "checks": [
+              {
+                "actual": 0.0,
+                "comparator": ">",
+                "expected": 0.5,
+                "output": "GreaterEqual.Q",
+                "pass": false
+              }
+            ],
+            "name": "high temp triggers after averaging",
+            "pass": false
+          },
+          {
+            "checks": [
+              {
+                "actual": 0.0,
+                "comparator": "<",
+                "expected": 0.5,
+                "output": "GreaterEqual.Q",
+                "pass": true
+              }
+            ],
+            "name": "cool temp no alarm",
+            "pass": true
+          }
+        ]
+      },
+      "sim_pass": false,
+      "sim_score": 0.5,
+      "case_id": "ns09-avg-smooth-threshold",
+      "difficulty": "hard",
+      "patterns": [
+        "analog",
+        "averaging",
+        "threshold"
+      ],
+      "utterance": "Feed the Pool Temperatur sensor through an Avg block to compute a smoothed 10-sample average, then wire the averaged output to a GreaterEqual threshold at 28°C that triggers a notification output when the pool is too warm",
+      "elapsed_seconds": 223.9,
+      "cli_invocations": 0,
+      "retries": 0,
+      "tokens": {
+        "input_tokens_est": 0,
+        "output_tokens_est": 0
+      },
+      "model": "gpt-4o"
+    },
+    {
+      "pass": true,
+      "overall_score": 1.0,
+      "weighted_score": 2.0,
+      "xml_valid": true,
+      "validation_pass": true,
+      "validation_errors": 0,
+      "metrics": {
+        "blocks": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "true_positives": 1,
+          "false_positives": 0,
+          "false_negatives": 0
+        },
+        "wiring": {
+          "accuracy": 1.0,
+          "precision": 0.5,
+          "correct": 1,
+          "total": 1,
+          "extra": 1
+        },
+        "params": {
+          "accuracy": 1.0,
+          "correct": 1,
+          "total": 1
+        },
+        "ux": {
+          "score": 1.0,
+          "issues": []
+        }
+      },
+      "simulation": {
+        "case_id": "ns10-hour-counter-pump-maintenance",
+        "pass": false,
+        "passed_count": 1,
+        "total_count": 2,
+        "scenarios": [
+          {
+            "checks": [
+              {
+                "actual": 0.0,
+                "comparator": ">",
+                "expected": 0.0,
+                "output": "HourCounter.AQ",
+                "pass": false
+              }
+            ],
+            "name": "counter increments when pump enabled",
+            "pass": false
+          },
+          {
+            "checks": [
+              {
+                "actual": 0.0,
+                "comparator": "<",
+                "expected": 0.01,
+                "output": "HourCounter.AQ",
+                "pass": true
+              }
+            ],
+            "name": "counter idle when pump off",
+            "pass": true
+          }
+        ]
+      },
+      "sim_pass": false,
+      "sim_score": 0.5,
+      "case_id": "ns10-hour-counter-pump-maintenance",
+      "difficulty": "hard",
+      "patterns": [
+        "counter",
+        "maintenance",
+        "hour-counter"
+      ],
+      "utterance": "Add an HourCounter to track operating hours of the Garten irrigation pump (use Bewässerung Manuell as the enable signal). Set the maintenance threshold to 1000 hours so the Q output fires when service is needed",
+      "elapsed_seconds": 95.0,
+      "cli_invocations": 0,
+      "retries": 0,
+      "tokens": {
+        "input_tokens_est": 0,
+        "output_tokens_est": 0
+      },
+      "model": "gpt-4o"
+    },
+    {
+      "case_id": "ns11-counter-door-openings-daily",
+      "pass": false,
+      "sim_pass": false,
+      "sim_score": 0,
+      "overall_score": 0,
+      "error": "Agent timed out after 600s",
+      "difficulty": "hard",
+      "patterns": [
+        "counter",
+        "daily-reset",
+        "statistics"
+      ],
+      "utterance": "Count how many times the Türkontakt Eingang opens each day using a Counter block. Wire the door contact rising edge to the Counter trigger, and add a DayTimer configured for midnight to reset the counter daily",
+      "elapsed_seconds": 600.0,
+      "metrics": {
+        "blocks": {
+          "precision": 0,
+          "recall": 0,
+          "f1": 0,
+          "true_positives": 0,
+          "false_positives": 0,
+          "false_negatives": 0
+        },
+        "wiring": {
+          "accuracy": 0,
+          "precision": 0,
+          "correct": 0,
+          "total": 0,
+          "extra": 0
+        },
+        "params": {
+          "accuracy": 0,
+          "correct": 0,
+          "total": 0
+        },
+        "ux": {
+          "score": 0,
+          "issues": []
+        }
+      },
+      "cli_invocations": 0,
+      "retries": 0,
+      "tokens": {
+        "input_tokens_est": 0,
+        "output_tokens_est": 0
+      },
+      "model": "gpt-4o"
+    },
+    {
+      "case_id": "ns12-sequence-controller-irrigation-zones",
+      "pass": false,
+      "sim_pass": false,
+      "sim_score": 0,
+      "overall_score": 0,
+      "error": "Agent timed out after 600s",
+      "difficulty": "expert",
+      "patterns": [
+        "sequence",
+        "irrigation",
+        "timer"
+      ],
+      "utterance": "Set up a SequenceController to step through 4 irrigation zones in sequence — wire the Bewässerung Manuell switch to the ATrigger input to start the sequence, with each zone (AQ1 through AQ4) running for 15 minutes before advancing to the next",
+      "elapsed_seconds": 600.1,
+      "metrics": {
+        "blocks": {
+          "precision": 0,
+          "recall": 0,
+          "f1": 0,
+          "true_positives": 0,
+          "false_positives": 0,
+          "false_negatives": 0
+        },
+        "wiring": {
+          "accuracy": 0,
+          "precision": 0,
+          "correct": 0,
+          "total": 0,
+          "extra": 0
+        },
+        "params": {
+          "accuracy": 0,
+          "correct": 0,
+          "total": 0
+        },
+        "ux": {
+          "score": 0,
+          "issues": []
+        }
+      },
+      "cli_invocations": 0,
+      "retries": 0,
+      "tokens": {
+        "input_tokens_est": 0,
+        "output_tokens_est": 0
+      },
+      "model": "gpt-4o"
+    },
+    {
+      "pass": false,
+      "overall_score": 0.5,
+      "weighted_score": 0.75,
+      "xml_valid": true,
+      "validation_pass": true,
+      "validation_errors": 0,
+      "metrics": {
+        "blocks": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "true_positives": 0,
+          "false_positives": 1,
+          "false_negatives": 2
+        },
+        "wiring": {
+          "accuracy": 0.5,
+          "precision": 0.5,
+          "correct": 1,
+          "total": 2,
+          "extra": 2
+        },
+        "params": {
+          "accuracy": 1.0,
+          "correct": 1,
+          "total": 1
+        },
+        "ux": {
+          "score": 1.0,
+          "issues": []
+        }
+      },
+      "simulation": {
+        "case_id": "ns13-debounce-reed-switch",
+        "pass": false,
+        "passed_count": 1,
+        "total_count": 2,
+        "scenarios": [
+          {
+            "checks": [
+              {
+                "actual": 0.0,
+                "comparator": ">",
+                "expected": 0.5,
+                "output": "OnDelay.Q",
+                "pass": false
+              }
+            ],
+            "name": "sustained signal passes through",
+            "pass": false
+          },
+          {
+            "checks": [
+              {
+                "actual": 0.0,
+                "comparator": "<",
+                "expected": 0.5,
+                "output": "OnDelay.Q",
+                "pass": true
+              }
+            ],
+            "name": "brief glitch filtered out",
+            "pass": true
+          }
+        ]
+      },
+      "sim_pass": false,
+      "sim_score": 0.5,
+      "case_id": "ns13-debounce-reed-switch",
+      "difficulty": "medium",
+      "patterns": [
+        "edge-case",
+        "debounce",
+        "filter"
+      ],
+      "utterance": "The Garagentor Sensor reed switch is noisy and triggers false alarms. Add an OnDelay of 0.5 seconds to debounce it before wiring the filtered signal to a VirtualOut alarm block — only sustained contact closure should trigger",
+      "elapsed_seconds": 118.9,
+      "cli_invocations": 0,
+      "retries": 0,
+      "tokens": {
+        "input_tokens_est": 0,
+        "output_tokens_est": 0
+      },
+      "model": "gpt-4o"
+    },
+    {
+      "pass": false,
+      "overall_score": 0.567,
+      "weighted_score": 0.85,
+      "xml_valid": true,
+      "validation_pass": true,
+      "validation_errors": 0,
+      "metrics": {
+        "blocks": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "true_positives": 0,
+          "false_positives": 2,
+          "false_negatives": 1
+        },
+        "wiring": {
+          "accuracy": 0.667,
+          "precision": 0.75,
+          "correct": 2,
+          "total": 3,
+          "extra": 1
+        },
+        "params": {
+          "accuracy": 1.0,
+          "correct": 0,
+          "total": 0
+        },
+        "ux": {
+          "score": 1.0,
+          "issues": []
+        }
+      },
+      "simulation": {
+        "case_id": "ns14-manual-override-bypass",
+        "pass": false,
+        "passed_count": 1,
+        "total_count": 3,
+        "scenarios": [
+          {
+            "checks": [
+              {
+                "actual": 0.0,
+                "comparator": ">",
+                "expected": 0.5,
+                "output": "Or.Q",
+                "pass": false
+              }
+            ],
+            "name": "manual switch overrides automation off",
+            "pass": false
+          },
+          {
+            "checks": [
+              {
+                "actual": 0.0,
+                "comparator": ">",
+                "expected": 0.5,
+                "output": "Or.Q",
+                "pass": false
+              }
+            ],
+            "name": "presence alone activates light",
+            "pass": false
+          },
+          {
+            "checks": [
+              {
+                "actual": 0.0,
+                "comparator": "<",
+                "expected": 0.5,
+                "output": "Or.Q",
+                "pass": true
+              }
+            ],
+            "name": "both off keeps light off",
+            "pass": true
+          }
+        ]
+      },
+      "sim_pass": false,
+      "sim_score": 0.3333333333333333,
+      "case_id": "ns14-manual-override-bypass",
+      "difficulty": "medium",
+      "patterns": [
+        "edge-case",
+        "priority",
+        "override"
+      ],
+      "utterance": "Create a manual override for the Garagenlicht: wire both the Präsenzmelder [Garage] automatic output and the KNX Schalter Garage manual switch into an Or gate. The manual switch should always be able to turn on the light regardless of automation state, bypassing the presence detector logic",
+      "elapsed_seconds": 85.4,
+      "cli_invocations": 0,
+      "retries": 0,
+      "tokens": {
+        "input_tokens_est": 0,
+        "output_tokens_est": 0
+      },
+      "model": "gpt-4o"
+    },
+    {
+      "pass": true,
+      "overall_score": 0.807,
+      "weighted_score": 2.42,
+      "xml_valid": true,
+      "validation_pass": true,
+      "validation_errors": 0,
+      "metrics": {
+        "blocks": {
+          "precision": 0.8,
+          "recall": 0.8,
+          "f1": 0.8,
+          "true_positives": 4,
+          "false_positives": 1,
+          "false_negatives": 1
+        },
+        "wiring": {
+          "accuracy": 0.667,
+          "precision": 0.25,
+          "correct": 2,
+          "total": 3,
+          "extra": 9
+        },
+        "params": {
+          "accuracy": 1.0,
+          "correct": 1,
+          "total": 1
+        },
+        "ux": {
+          "score": 1.0,
+          "issues": []
+        }
+      },
+      "simulation": {
+        "case_id": "ns15-hysteresis-heating-flipflop",
+        "pass": false,
+        "passed_count": 1,
+        "total_count": 2,
+        "scenarios": [
+          {
+            "checks": [
+              {
+                "actual": 0.0,
+                "comparator": ">",
+                "expected": 0.5,
+                "output": "FlipFlop.Q",
+                "pass": false
+              }
+            ],
+            "name": "cold temp turns heating on",
+            "pass": false
+          },
+          {
+            "checks": [
+              {
+                "actual": 0.0,
+                "comparator": "<",
+                "expected": 0.5,
+                "output": "FlipFlop.Q",
+                "pass": true
+              }
+            ],
+            "name": "hot temp turns heating off",
+            "pass": true
+          }
+        ]
+      },
+      "sim_pass": false,
+      "sim_score": 0.5,
+      "case_id": "ns15-hysteresis-heating-flipflop",
+      "difficulty": "expert",
+      "patterns": [
+        "edge-case",
+        "hysteresis",
+        "hvac",
+        "flipflop"
+      ],
+      "utterance": "Implement heating hysteresis for the Schlafzimmer using the Raumtemperatur Schlafzimmer sensor: add two GreaterEqual thresholds — one at 19°C and one at 21°C. Wire them to a FlipFlop so heating turns on when temp drops below 19°C (inverted >=19 goes to Set) and turns off when it rises above 21°C (>=21 goes to Reset). Connect the FlipFlop output to a VirtualOut heating relay",
+      "elapsed_seconds": 258.9,
+      "cli_invocations": 0,
+      "retries": 0,
+      "tokens": {
+        "input_tokens_est": 0,
+        "output_tokens_est": 0
+      },
+      "model": "gpt-4o"
+    }
+  ],
+  "meta": {
+    "agent": "copilot",
+    "model": "gpt-4o",
+    "timeout_seconds": 600,
+    "parallel": 1,
+    "timestamp": "2026-05-12T10:50:57Z"
+  }
+}
