@@ -2232,6 +2232,73 @@ pub fn cmd_config(ctx: &RunContext, action: ConfigCmd) -> Result<()> {
                 }
             }
         }
+        ConfigCmd::GetProgram { file, selector } => {
+            let data = fs::read(&file).with_context(|| format!("Cannot read {}", file))?;
+            let editor = ConfigEditor::load(&data)?;
+            let text = editor.get_program_text(&selector)?;
+
+            if ctx.json {
+                let lines = lox_sim::blocks::sequence::count_program_lines(&text);
+                let seqs = lox_sim::blocks::sequence::count_sequences(&text);
+                emit_json(
+                    ctx,
+                    serde_json::json!({
+                        "program": text,
+                        "lines": lines,
+                        "sequences": seqs,
+                    }),
+                );
+            } else if text.is_empty() {
+                println!("(no program text)");
+            } else {
+                for (i, line) in text.lines().enumerate() {
+                    println!("  {:>3} | {}", i + 1, line);
+                }
+            }
+        }
+        ConfigCmd::SetProgram {
+            file,
+            selector,
+            program,
+            program_file,
+            save_as,
+        } => {
+            let program_text = match (program, program_file) {
+                (Some(text), None) => text,
+                (None, Some(path)) => fs::read_to_string(&path)
+                    .with_context(|| format!("Cannot read program file '{}'", path))?,
+                (Some(_), Some(_)) => {
+                    bail!("Specify either inline program text or --file, not both");
+                }
+                (None, None) => {
+                    bail!("Provide program text as argument or use --file to read from a file");
+                }
+            };
+
+            let data = fs::read(&file).with_context(|| format!("Cannot read {}", file))?;
+            let mut editor = ConfigEditor::load(&data)?;
+            let summary = editor.set_program_text(&selector, &program_text)?;
+
+            if ctx.json {
+                let lines = lox_sim::blocks::sequence::count_program_lines(&program_text);
+                let seqs = lox_sim::blocks::sequence::count_sequences(&program_text);
+                let path = editor.require_one(&selector)?;
+                let elem = editor.get_element(&path);
+                let title = elem.attributes.get("Title").cloned().unwrap_or_default();
+                emit_json(
+                    ctx,
+                    serde_json::json!({
+                        "ok": true,
+                        "block": title,
+                        "lines": lines,
+                        "sequences": seqs,
+                    }),
+                );
+            } else {
+                println!("{}", summary);
+            }
+            save_edited(&editor, &file, save_as.as_deref())?;
+        }
         ConfigCmd::Describe { file, room } => {
             let data = fs::read(&file).with_context(|| format!("Cannot read {}", file))?;
             let editor = ConfigEditor::load(&data)?;
@@ -4491,6 +4558,209 @@ mod tests {
             },
         );
         assert!(result.is_ok());
+    }
+
+    #[test]
+    fn test_cmd_set_and_get_program() {
+        let dir = TempDir::new().unwrap();
+        let path = dir.path().join("seq.Loxone");
+        let xml = r#"<?xml version="1.0" encoding="utf-8"?>
+<ControlList Version="267">
+  <C Type="Page" V="175" U="p-0001" Title="Page1" WF="16384">
+    <C Type="SequenceController" V="175" U="seq-0001" Title="TestSeq" WF="16384">
+      <Co K="S1" U="seq-s1"/>
+      <Co K="AQ1" U="seq-aq1"/>
+    </C>
+  </C>
+</ControlList>"#;
+        fs::write(&path, xml).unwrap();
+        let file = path.to_str().unwrap().to_string();
+
+        // Set a valid program
+        let result = cmd_config(
+            &ctx(),
+            ConfigCmd::SetProgram {
+                file: file.clone(),
+                selector: "TestSeq".to_string(),
+                program: Some("sequence 1\nset AQ1 = 1\nsleep 5 s\nset AQ1 = 0".to_string()),
+                program_file: None,
+                save_as: None,
+            },
+        );
+        assert!(result.is_ok());
+
+        // Get it back
+        let result = cmd_config(
+            &ctx(),
+            ConfigCmd::GetProgram {
+                file: file.clone(),
+                selector: "TestSeq".to_string(),
+            },
+        );
+        assert!(result.is_ok());
+
+        // Verify the XML has the program text
+        let data = fs::read_to_string(&file).unwrap();
+        assert!(data.contains("set AQ1 = 1"));
+        assert!(data.contains("sleep 5 s"));
+    }
+
+    #[test]
+    fn test_cmd_set_program_invalid_syntax() {
+        let dir = TempDir::new().unwrap();
+        let path = dir.path().join("seq2.Loxone");
+        let xml = r#"<?xml version="1.0" encoding="utf-8"?>
+<ControlList Version="267">
+  <C Type="Page" V="175" U="p-0001" Title="Page1" WF="16384">
+    <C Type="SequenceController" V="175" U="seq-0002" Title="BadSeq" WF="16384">
+      <Co K="S1" U="seq2-s1"/>
+    </C>
+  </C>
+</ControlList>"#;
+        fs::write(&path, xml).unwrap();
+        let file = path.to_str().unwrap().to_string();
+
+        // Try to set an invalid program
+        let result = cmd_config(
+            &ctx(),
+            ConfigCmd::SetProgram {
+                file,
+                selector: "BadSeq".to_string(),
+                program: Some("seet AQ1 = 5\nsleep".to_string()),
+                program_file: None,
+                save_as: None,
+            },
+        );
+        assert!(result.is_err());
+        let err = result.unwrap_err().to_string();
+        assert!(err.contains("syntax error"), "error: {}", err);
+    }
+
+    #[test]
+    fn test_cmd_set_program_wrong_type() {
+        let (_dir, file) = fixture_file();
+        let result = cmd_config(
+            &ctx(),
+            ConfigCmd::SetProgram {
+                file,
+                selector: "TestAnd".to_string(),
+                program: Some("set AQ1 = 1".to_string()),
+                program_file: None,
+                save_as: None,
+            },
+        );
+        assert!(result.is_err());
+        let err = result.unwrap_err().to_string();
+        assert!(
+            err.contains("only for SequenceController"),
+            "error: {}",
+            err
+        );
+    }
+
+    #[test]
+    fn test_cmd_get_program_empty() {
+        let dir = TempDir::new().unwrap();
+        let path = dir.path().join("seq3.Loxone");
+        let xml = r#"<?xml version="1.0" encoding="utf-8"?>
+<ControlList Version="267">
+  <C Type="Page" V="175" U="p-0001" Title="Page1" WF="16384">
+    <C Type="SequenceController" V="175" U="seq-0003" Title="EmptySeq" WF="16384"/>
+  </C>
+</ControlList>"#;
+        fs::write(&path, xml).unwrap();
+        let file = path.to_str().unwrap().to_string();
+
+        let result = cmd_config(
+            &ctx(),
+            ConfigCmd::GetProgram {
+                file,
+                selector: "EmptySeq".to_string(),
+            },
+        );
+        assert!(result.is_ok());
+    }
+
+    #[test]
+    fn test_check_sequence_controller_no_program() {
+        let dir = TempDir::new().unwrap();
+        let path = dir.path().join("seq4.Loxone");
+        let xml = r#"<?xml version="1.0" encoding="utf-8"?>
+<ControlList Version="267">
+  <C Type="Page" V="175" U="p-0001" Title="Page1" WF="16384">
+    <C Type="SequenceController" V="175" U="seq-0004" Title="NoProgSeq" WF="16384">
+      <Co K="S1" U="seq4-s1"/>
+    </C>
+  </C>
+</ControlList>"#;
+        fs::write(&path, xml).unwrap();
+        let file = path.to_str().unwrap().to_string();
+
+        let result = cmd_config(
+            &ctx(),
+            ConfigCmd::Check {
+                file,
+                selector: None,
+            },
+        );
+        assert!(result.is_ok());
+    }
+
+    #[test]
+    fn test_check_sequence_controller_with_valid_program() {
+        let dir = TempDir::new().unwrap();
+        let path = dir.path().join("seq5.Loxone");
+        let xml = r#"<?xml version="1.0" encoding="utf-8"?>
+<ControlList Version="267">
+  <C Type="Page" V="175" U="p-0001" Title="Page1" WF="16384">
+    <C Type="SequenceController" V="175" U="seq-0005" Title="GoodSeq" WF="16384">
+      <Co K="S1" U="seq5-s1"/>
+      <Field Name="Configuration">sequence 1
+set AQ1 = 1
+sleep 5 s
+set AQ1 = 0</Field>
+    </C>
+  </C>
+</ControlList>"#;
+        fs::write(&path, xml).unwrap();
+        let file = path.to_str().unwrap().to_string();
+
+        let result = cmd_config(
+            &ctx(),
+            ConfigCmd::Check {
+                file,
+                selector: None,
+            },
+        );
+        assert!(result.is_ok());
+    }
+
+    #[test]
+    fn test_check_sequence_controller_with_bad_program() {
+        let dir = TempDir::new().unwrap();
+        let path = dir.path().join("seq6.Loxone");
+        let xml = r#"<?xml version="1.0" encoding="utf-8"?>
+<ControlList Version="267">
+  <C Type="Page" V="175" U="p-0001" Title="Page1" WF="16384">
+    <C Type="SequenceController" V="175" U="seq-0006" Title="BadProgSeq" WF="16384">
+      <Co K="S1" U="seq6-s1"/>
+      <Field Name="Configuration">seet AQ1 = 5
+sleep</Field>
+    </C>
+  </C>
+</ControlList>"#;
+        fs::write(&path, xml).unwrap();
+        let file = path.to_str().unwrap().to_string();
+
+        // Check should report errors (and bail because errors > 0)
+        let result = cmd_config(
+            &ctx(),
+            ConfigCmd::Check {
+                file,
+                selector: None,
+            },
+        );
+        assert!(result.is_err(), "check should fail with bad program");
     }
 
     #[test]

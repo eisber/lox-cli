@@ -349,6 +349,540 @@ fn parse_varref(s: &str) -> Option<VarRef> {
 }
 
 // ============================================================================
+// Validation — rich error reporting for program text
+// ============================================================================
+
+/// A syntax or semantic error found in program text.
+#[derive(Debug, Clone)]
+pub struct ProgramError {
+    /// 1-based line number within the full program text.
+    pub line: usize,
+    /// 1-based column of the error (0 if unknown).
+    pub column: usize,
+    /// Human-readable error message.
+    pub message: String,
+    /// The offending source line text.
+    pub context: String,
+}
+
+impl std::fmt::Display for ProgramError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "line {}: {}", self.line, self.message)?;
+        write!(f, "\n  {} | {}", self.line, self.context)?;
+        if self.column > 0 {
+            let pad = format!("{}", self.line).len() + 3;
+            let pointer_offset = self.column - 1;
+            write!(
+                f,
+                "\n{:pad$}{:>offset$}",
+                "",
+                "^",
+                pad = pad,
+                offset = pointer_offset + 1
+            )?;
+        }
+        Ok(())
+    }
+}
+
+/// Known command names for fuzzy matching suggestions.
+const KNOWN_COMMANDS: &[&str] = &[
+    "sleep",
+    "set",
+    "setpulse",
+    "waitcondition",
+    "goto",
+    "if",
+    "endif",
+    "startsequence",
+    "return",
+    "sequence",
+];
+
+/// Simple Levenshtein distance for "did you mean?" suggestions.
+fn levenshtein(a: &str, b: &str) -> usize {
+    let a = a.as_bytes();
+    let b = b.as_bytes();
+    let mut prev: Vec<usize> = (0..=b.len()).collect();
+    let mut curr = vec![0; b.len() + 1];
+    for (i, &ca) in a.iter().enumerate() {
+        curr[0] = i + 1;
+        for (j, &cb) in b.iter().enumerate() {
+            let cost = if ca == cb { 0 } else { 1 };
+            curr[j + 1] = (prev[j] + cost).min(prev[j + 1] + 1).min(curr[j] + 1);
+        }
+        std::mem::swap(&mut prev, &mut curr);
+    }
+    prev[b.len()]
+}
+
+fn suggest_command(word: &str) -> Option<&'static str> {
+    let lower = word.to_lowercase();
+    KNOWN_COMMANDS
+        .iter()
+        .filter(|cmd| levenshtein(&lower, cmd) <= 2)
+        .min_by_key(|cmd| levenshtein(&lower, cmd))
+        .copied()
+}
+
+/// Validate program text and return all errors found.
+///
+/// Checks for syntax errors, unknown commands, missing operators,
+/// unmatched if/endif, and other common mistakes.
+pub fn validate_program(text: &str) -> Vec<ProgramError> {
+    let mut errors = Vec::new();
+    let mut line_num: usize = 0;
+    let mut if_stack: Vec<usize> = Vec::new(); // line numbers of unmatched `if`s
+    let mut in_sequence = false;
+
+    for raw_line in text.lines() {
+        line_num += 1;
+        let trimmed = raw_line.trim();
+
+        if trimmed.is_empty() || trimmed.starts_with("//") || trimmed.starts_with('#') {
+            continue;
+        }
+
+        let lower = trimmed.to_lowercase();
+
+        // Sequence header
+        if let Some(rest) = lower.strip_prefix("sequence") {
+            // Check unmatched ifs from previous sequence
+            for &if_line in &if_stack {
+                errors.push(ProgramError {
+                    line: if_line,
+                    column: 1,
+                    message: "'if' without matching 'endif'".to_string(),
+                    context: String::new(), // filled below
+                });
+            }
+            if_stack.clear();
+
+            let rest = rest.trim();
+            if rest.is_empty() {
+                errors.push(ProgramError {
+                    line: line_num,
+                    column: "sequence ".len() + 1,
+                    message: "sequence missing number — use 'sequence 1' through 'sequence 8'"
+                        .to_string(),
+                    context: trimmed.to_string(),
+                });
+            } else if let Ok(n) = rest.parse::<usize>() {
+                if !(1..=8).contains(&n) {
+                    errors.push(ProgramError {
+                        line: line_num,
+                        column: "sequence ".len() + 1,
+                        message: format!(
+                            "sequence number {} out of range — must be 1 through 8",
+                            n
+                        ),
+                        context: trimmed.to_string(),
+                    });
+                }
+            } else {
+                errors.push(ProgramError {
+                    line: line_num,
+                    column: "sequence ".len() + 1,
+                    message: format!("invalid sequence number '{}'", rest),
+                    context: trimmed.to_string(),
+                });
+            }
+            in_sequence = true;
+            continue;
+        }
+
+        // From here, validate each command type
+        if let Some(rest) = lower.strip_prefix("sleep") {
+            validate_sleep(rest.trim(), trimmed, line_num, &mut errors);
+        } else if lower.starts_with("setpulse") {
+            let rest = lower.strip_prefix("setpulse").unwrap().trim();
+            validate_set_target(rest, trimmed, line_num, "setpulse", false, &mut errors);
+        } else if let Some(rest) = lower.strip_prefix("set") {
+            // Must have whitespace after "set" to avoid matching "setpulse" partially
+            if lower.len() > 3 && !lower.as_bytes()[3].is_ascii_whitespace() {
+                // Not actually "set", try as unknown command
+                let word = lower.split_whitespace().next().unwrap_or(&lower);
+                let mut msg = format!("unknown command '{}'", word);
+                if let Some(suggestion) = suggest_command(word) {
+                    msg.push_str(&format!(" — did you mean '{}'?", suggestion));
+                }
+                errors.push(ProgramError {
+                    line: line_num,
+                    column: 1,
+                    message: msg,
+                    context: trimmed.to_string(),
+                });
+            } else {
+                validate_set_target(rest.trim(), trimmed, line_num, "set", true, &mut errors);
+            }
+        } else if let Some(rest) = lower.strip_prefix("waitcondition") {
+            validate_condition(rest.trim(), trimmed, line_num, "waitcondition", &mut errors);
+        } else if let Some(rest) = lower.strip_prefix("goto") {
+            validate_goto(rest.trim(), trimmed, line_num, &mut errors);
+        } else if let Some(rest) = lower.strip_prefix("if ") {
+            validate_condition(rest.trim(), trimmed, line_num, "if", &mut errors);
+            if_stack.push(line_num);
+        } else if lower == "if" {
+            errors.push(ProgramError {
+                line: line_num,
+                column: 3,
+                message: "'if' without comparison — use 'if AQ1 > 3'".to_string(),
+                context: trimmed.to_string(),
+            });
+            if_stack.push(line_num);
+        } else if lower.starts_with("endif") {
+            if if_stack.pop().is_none() {
+                errors.push(ProgramError {
+                    line: line_num,
+                    column: 1,
+                    message: "'endif' without matching 'if'".to_string(),
+                    context: trimmed.to_string(),
+                });
+            }
+        } else if let Some(rest) = lower.strip_prefix("startsequence") {
+            validate_startsequence(rest.trim(), trimmed, line_num, &mut errors);
+        } else if lower == "return" {
+            // valid
+        } else {
+            // Unknown command
+            let word = lower.split_whitespace().next().unwrap_or(&lower);
+            let mut msg = format!("unknown command '{}'", word);
+            if let Some(suggestion) = suggest_command(word) {
+                msg.push_str(&format!(" — did you mean '{}'?", suggestion));
+            }
+            errors.push(ProgramError {
+                line: line_num,
+                column: 1,
+                message: msg,
+                context: trimmed.to_string(),
+            });
+        }
+    }
+
+    // Check for unmatched ifs at end of program
+    for &if_line in &if_stack {
+        errors.push(ProgramError {
+            line: if_line,
+            column: 1,
+            message: "'if' without matching 'endif'".to_string(),
+            context: String::new(),
+        });
+    }
+
+    // Fill in context for errors that have empty context (if-stack errors).
+    // Re-scan lines to fill them in.
+    if errors.iter().any(|e| e.context.is_empty()) {
+        let lines: Vec<&str> = text.lines().collect();
+        for err in &mut errors {
+            if err.context.is_empty() && err.line > 0 && err.line <= lines.len() {
+                err.context = lines[err.line - 1].trim().to_string();
+            }
+        }
+    }
+
+    // Sort errors by line number
+    errors.sort_by_key(|e| (e.line, e.column));
+
+    // Deduplicate (same line + same message)
+    errors.dedup_by(|a, b| a.line == b.line && a.message == b.message);
+
+    // Suppress in_sequence warning — it's valid to have bare lines without `sequence N`
+    let _ = in_sequence;
+
+    errors
+}
+
+fn validate_sleep(rest: &str, context: &str, line: usize, errors: &mut Vec<ProgramError>) {
+    if rest.is_empty() {
+        errors.push(ProgramError {
+            line,
+            column: "sleep".len() + 1,
+            message: "sleep missing time value — use 'sleep 10 s' or 'sleep 5 m'".to_string(),
+            context: context.to_string(),
+        });
+        return;
+    }
+    let parts: Vec<&str> = rest.split_whitespace().collect();
+    let time_str = parts[0].trim_end_matches(|c: char| c.is_alphabetic());
+    match time_str.parse::<f64>() {
+        Ok(v) if v < 0.0 => {
+            errors.push(ProgramError {
+                line,
+                column: context.to_lowercase().find("sleep").unwrap_or(0) + "sleep ".len() + 1,
+                message: format!("sleep time cannot be negative ({})", v),
+                context: context.to_string(),
+            });
+        }
+        Ok(v) if v.is_nan() => {
+            errors.push(ProgramError {
+                line,
+                column: context.to_lowercase().find("sleep").unwrap_or(0) + "sleep ".len() + 1,
+                message: "sleep time is not a valid number".to_string(),
+                context: context.to_string(),
+            });
+        }
+        Ok(_) => {
+            // Check for unit
+            if parts.len() == 1 && !parts[0].ends_with('s') && !parts[0].ends_with('m') {
+                errors.push(ProgramError {
+                    line,
+                    column: context.len(),
+                    message: "sleep missing time unit — use 'sleep 10 s' or 'sleep 5 m'"
+                        .to_string(),
+                    context: context.to_string(),
+                });
+            }
+        }
+        Err(_) => {
+            errors.push(ProgramError {
+                line,
+                column: context.to_lowercase().find("sleep").unwrap_or(0) + "sleep ".len() + 1,
+                message: format!("invalid sleep time '{}'", parts[0]),
+                context: context.to_string(),
+            });
+        }
+    }
+}
+
+fn validate_set_target(
+    rest: &str,
+    context: &str,
+    line: usize,
+    cmd: &str,
+    require_eq: bool,
+    errors: &mut Vec<ProgramError>,
+) {
+    if rest.is_empty() {
+        errors.push(ProgramError {
+            line,
+            column: cmd.len() + 1,
+            message: format!("{} missing target — use '{} AQ1 = 5'", cmd, cmd),
+            context: context.to_string(),
+        });
+        return;
+    }
+
+    if let Some(eq_pos) = rest.find('=') {
+        let target_str = rest[..eq_pos].trim();
+        let expr_str = rest[eq_pos + 1..].trim();
+
+        // Check target is valid
+        if parse_varref(target_str).is_none() {
+            let mut msg = format!(
+                "invalid {} target '{}' — use AI1-AI8, AQ1-AQ8, or value1-value5",
+                cmd, target_str
+            );
+            // AI is read-only for set
+            if target_str.starts_with("ai") && cmd == "set" {
+                msg = format!(
+                    "cannot set AI input '{}' — AI1-AI8 are read-only, use AQ1-AQ8",
+                    target_str
+                );
+            }
+            errors.push(ProgramError {
+                line,
+                column: cmd.len() + 2,
+                message: msg,
+                context: context.to_string(),
+            });
+        }
+
+        // Check expression
+        if expr_str.is_empty() {
+            errors.push(ProgramError {
+                line,
+                column: context.find('=').unwrap_or(0) + 2,
+                message: format!("{} missing value after '='", cmd),
+                context: context.to_string(),
+            });
+        } else if parse_expr(expr_str).is_none() {
+            // Try to give a more specific error
+            let msg = validate_expr_detail(expr_str, cmd);
+            errors.push(ProgramError {
+                line,
+                column: context.find('=').unwrap_or(0) + 2,
+                message: msg,
+                context: context.to_string(),
+            });
+        }
+    } else if require_eq {
+        // "set AQ1" without "="
+        errors.push(ProgramError {
+            line,
+            column: cmd.len() + rest.len() + 2,
+            message: format!("{} missing '=' operator — use '{} AQ1 = 5'", cmd, cmd),
+            context: context.to_string(),
+        });
+    } else {
+        // setpulse without '=' is valid (e.g., "setpulse AQ1")
+        if parse_varref(rest).is_none() {
+            errors.push(ProgramError {
+                line,
+                column: cmd.len() + 2,
+                message: format!(
+                    "invalid {} target '{}' — use AQ1-AQ8 or value1-value5",
+                    cmd, rest
+                ),
+                context: context.to_string(),
+            });
+        }
+    }
+}
+
+fn validate_expr_detail(expr_str: &str, cmd: &str) -> String {
+    let tokens: Vec<&str> = expr_str.split_whitespace().collect();
+    // Check for leading operator
+    if let Some(first) = tokens.first() {
+        if *first == "+" || *first == "-" || *first == "*" || *first == "/" {
+            return format!(
+                "expression starts with operator '{}' — needs a value before it",
+                first
+            );
+        }
+    }
+    // Check for unknown variable references
+    for token in &tokens {
+        if token.chars().next().is_some_and(|c| c.is_alphabetic())
+            && parse_varref(token).is_none()
+            && !["s", "m"].contains(token)
+        {
+            return format!(
+                "unknown variable '{}' in {} expression — use AI1-AI8, AQ1-AQ8, or value1-value5",
+                token, cmd
+            );
+        }
+    }
+    format!("invalid expression '{}' in {} command", expr_str, cmd)
+}
+
+fn validate_condition(
+    rest: &str,
+    context: &str,
+    line: usize,
+    cmd: &str,
+    errors: &mut Vec<ProgramError>,
+) {
+    if rest.is_empty() {
+        errors.push(ProgramError {
+            line,
+            column: cmd.len() + 1,
+            message: format!("{} missing comparison — use '{} AQ1 > 3'", cmd, cmd),
+            context: context.to_string(),
+        });
+        return;
+    }
+
+    if parse_comparison(rest).is_none() {
+        // Check if there's a comparison operator at all
+        let has_cmp = rest.contains(">=")
+            || rest.contains("<=")
+            || rest.contains("!=")
+            || rest.contains('>')
+            || rest.contains('<')
+            || rest.contains('=');
+        if !has_cmp {
+            errors.push(ProgramError {
+                line,
+                column: cmd.len() + 2,
+                message: format!(
+                    "{} missing comparison operator — use >, <, >=, <=, =, or !=",
+                    cmd
+                ),
+                context: context.to_string(),
+            });
+        } else {
+            errors.push(ProgramError {
+                line,
+                column: cmd.len() + 2,
+                message: format!("invalid {} expression '{}'", cmd, rest),
+                context: context.to_string(),
+            });
+        }
+    }
+}
+
+fn validate_goto(rest: &str, context: &str, line: usize, errors: &mut Vec<ProgramError>) {
+    if rest.is_empty() {
+        errors.push(ProgramError {
+            line,
+            column: "goto".len() + 1,
+            message: "goto missing line number — use 'goto 5'".to_string(),
+            context: context.to_string(),
+        });
+        return;
+    }
+    match rest.parse::<usize>() {
+        Ok(0) => {
+            errors.push(ProgramError {
+                line,
+                column: "goto ".len() + 1,
+                message: "goto line number must be 1 or greater".to_string(),
+                context: context.to_string(),
+            });
+        }
+        Ok(_) => {} // valid
+        Err(_) => {
+            errors.push(ProgramError {
+                line,
+                column: "goto ".len() + 1,
+                message: format!("invalid goto target '{}' — must be a line number", rest),
+                context: context.to_string(),
+            });
+        }
+    }
+}
+
+fn validate_startsequence(rest: &str, context: &str, line: usize, errors: &mut Vec<ProgramError>) {
+    if rest.is_empty() {
+        errors.push(ProgramError {
+            line,
+            column: "startsequence".len() + 1,
+            message:
+                "startsequence missing number — use 'startsequence 1' through 'startsequence 8'"
+                    .to_string(),
+            context: context.to_string(),
+        });
+        return;
+    }
+    match rest.parse::<usize>() {
+        Ok(n) if !(1..=8).contains(&n) => {
+            errors.push(ProgramError {
+                line,
+                column: "startsequence ".len() + 1,
+                message: format!(
+                    "startsequence number {} out of range — must be 1 through 8",
+                    n
+                ),
+                context: context.to_string(),
+            });
+        }
+        Ok(_) => {} // valid
+        Err(_) => {
+            errors.push(ProgramError {
+                line,
+                column: "startsequence ".len() + 1,
+                message: format!("invalid startsequence number '{}'", rest),
+                context: context.to_string(),
+            });
+        }
+    }
+}
+
+/// Count the number of non-empty sequences in program text.
+pub fn count_sequences(text: &str) -> usize {
+    let programs = parse_programs(text);
+    programs.iter().filter(|p| !p.is_empty()).count()
+}
+
+/// Count lines of code (non-blank, non-comment, non-header).
+pub fn count_program_lines(text: &str) -> usize {
+    text.lines()
+        .map(|l| l.trim())
+        .filter(|l| !l.is_empty() && !l.starts_with("//") && !l.starts_with('#'))
+        .count()
+}
+
+// ============================================================================
 // Block implementation
 // ============================================================================
 
@@ -1189,5 +1723,169 @@ mod tests {
         let out = block.eval(&trig, &[], 0.0, &idle);
         assert_eq!(out[0], 0.0);
         assert_eq!(out[8], 0.0, "no sequence running");
+    }
+
+    // --- Validation tests ---
+
+    #[test]
+    fn validate_valid_program() {
+        let text = "sequence 1\nset AQ1 = 1\nsleep 5 s\nset AQ1 = 0";
+        let errors = validate_program(text);
+        assert!(errors.is_empty(), "expected no errors, got: {:?}", errors);
+    }
+
+    #[test]
+    fn validate_unknown_command() {
+        let errors = validate_program("seet AQ1 = 5");
+        assert_eq!(errors.len(), 1);
+        assert!(errors[0].message.contains("unknown command"));
+        assert!(errors[0].message.contains("did you mean 'set'"));
+    }
+
+    #[test]
+    fn validate_set_without_equals() {
+        let errors = validate_program("set AQ1 5");
+        assert_eq!(errors.len(), 1);
+        assert!(errors[0].message.contains("missing '='"));
+    }
+
+    #[test]
+    fn validate_set_invalid_target() {
+        let errors = validate_program("set FOOBAR = 5");
+        assert_eq!(errors.len(), 1);
+        assert!(errors[0].message.contains("invalid set target"));
+    }
+
+    #[test]
+    fn validate_sleep_no_value() {
+        let errors = validate_program("sleep");
+        assert_eq!(errors.len(), 1);
+        assert!(errors[0].message.contains("missing time value"));
+    }
+
+    #[test]
+    fn validate_sleep_no_unit() {
+        let errors = validate_program("sleep 300");
+        assert_eq!(errors.len(), 1);
+        assert!(errors[0].message.contains("missing time unit"));
+    }
+
+    #[test]
+    fn validate_sleep_invalid_time() {
+        let errors = validate_program("sleep abc s");
+        assert_eq!(errors.len(), 1);
+        assert!(errors[0].message.contains("invalid sleep time"));
+    }
+
+    #[test]
+    fn validate_goto_invalid() {
+        let errors = validate_program("goto abc");
+        assert_eq!(errors.len(), 1);
+        assert!(errors[0].message.contains("invalid goto target"));
+    }
+
+    #[test]
+    fn validate_goto_zero() {
+        let errors = validate_program("goto 0");
+        assert_eq!(errors.len(), 1);
+        assert!(errors[0].message.contains("must be 1 or greater"));
+    }
+
+    #[test]
+    fn validate_unmatched_endif() {
+        let errors = validate_program("endif");
+        assert_eq!(errors.len(), 1);
+        assert!(errors[0].message.contains("without matching 'if'"));
+    }
+
+    #[test]
+    fn validate_unmatched_if() {
+        let errors = validate_program("if AQ1 > 3\nset AQ1 = 0");
+        assert_eq!(errors.len(), 1);
+        assert!(errors[0].message.contains("without matching 'endif'"));
+    }
+
+    #[test]
+    fn validate_if_missing_comparison() {
+        let errors = validate_program("if AQ1 3\nendif");
+        assert_eq!(errors.len(), 1);
+        assert!(errors[0].message.contains("comparison operator"));
+    }
+
+    #[test]
+    fn validate_startsequence_out_of_range() {
+        let errors = validate_program("startsequence 9");
+        assert_eq!(errors.len(), 1);
+        assert!(errors[0].message.contains("out of range"));
+    }
+
+    #[test]
+    fn validate_expression_error() {
+        let errors = validate_program("set AQ1 = + 3");
+        assert_eq!(errors.len(), 1);
+        assert!(errors[0].message.contains("starts with operator"));
+    }
+
+    #[test]
+    fn validate_unknown_variable() {
+        let errors = validate_program("set AQ1 = FOOBAR");
+        assert_eq!(errors.len(), 1);
+        assert!(errors[0].message.contains("unknown variable"));
+    }
+
+    #[test]
+    fn validate_waitcondition_missing_operator() {
+        let errors = validate_program("waitcondition AQ1 3");
+        assert_eq!(errors.len(), 1);
+        assert!(errors[0].message.contains("comparison operator"));
+    }
+
+    #[test]
+    fn validate_multiple_errors() {
+        let text = "seet AQ1 = 5\nsleep\ngoto abc";
+        let errors = validate_program(text);
+        assert_eq!(errors.len(), 3);
+    }
+
+    #[test]
+    fn validate_if_endif_across_sequences() {
+        let text = "sequence 1\nif AQ1 > 3\nset AQ1 = 0\nsequence 2\nset AQ2 = 1";
+        let errors = validate_program(text);
+        assert!(
+            errors
+                .iter()
+                .any(|e| e.message.contains("without matching 'endif'")),
+            "expected unmatched if error"
+        );
+    }
+
+    #[test]
+    fn validate_display_format() {
+        let errors = validate_program("seet AQ1 = 5");
+        let formatted = format!("{}", errors[0]);
+        assert!(formatted.contains("line 1:"));
+        assert!(formatted.contains("seet AQ1 = 5"));
+    }
+
+    #[test]
+    fn validate_count_sequences() {
+        assert_eq!(count_sequences("set AQ1 = 1"), 1);
+        assert_eq!(
+            count_sequences("sequence 1\nset AQ1 = 1\nsequence 2\nset AQ2 = 2"),
+            2
+        );
+        assert_eq!(count_sequences(""), 0);
+    }
+
+    #[test]
+    fn validate_count_lines() {
+        assert_eq!(
+            count_program_lines("set AQ1 = 1\nsleep 5 s\nset AQ1 = 0"),
+            3
+        );
+        assert_eq!(
+            count_program_lines("// comment\nset AQ1 = 1\n\nsleep 5 s"),
+            2
+        );
     }
 }

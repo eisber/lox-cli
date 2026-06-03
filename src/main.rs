@@ -739,6 +739,29 @@ pub(crate) enum ConfigCmd {
         /// Block selector (title or "uuid:...")
         selector: String,
     },
+    /// Read the program text from a SequenceController block
+    #[command(name = "get-program")]
+    GetProgram {
+        /// Path to a .Loxone XML file
+        file: String,
+        /// Block selector (title or "uuid:...")
+        selector: String,
+    },
+    /// Write program text to a SequenceController block (validates syntax first)
+    #[command(name = "set-program")]
+    SetProgram {
+        /// Path to a .Loxone XML file
+        file: String,
+        /// Block selector (title or "uuid:...")
+        selector: String,
+        /// Program text (inline). Mutually exclusive with --file.
+        program: Option<String>,
+        /// Read program text from a file instead of inline argument
+        #[arg(long = "file", name = "program_file")]
+        program_file: Option<String>,
+        #[arg(long)]
+        save_as: Option<String>,
+    },
     /// Apply a room template (standard presets for common room types)
     #[command(name = "template")]
     Template {

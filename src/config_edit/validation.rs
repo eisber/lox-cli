@@ -377,6 +377,67 @@ impl ConfigEditor {
                             ));
                         }
                     }
+
+                    // SequenceController program validation
+                    if etype == "SequenceController" {
+                        let program_text = elem.children.iter().find_map(|child| {
+                            let f = child.as_element()?;
+                            if f.name == "Field"
+                                && f.attributes
+                                    .get("Name")
+                                    .map(|n| n == "Configuration")
+                                    .unwrap_or(false)
+                            {
+                                Some(
+                                    f.children
+                                        .iter()
+                                        .filter_map(|c| {
+                                            if let xmltree::XMLNode::Text(t) = c {
+                                                Some(t.as_str())
+                                            } else {
+                                                None
+                                            }
+                                        })
+                                        .collect::<Vec<_>>()
+                                        .join(""),
+                                )
+                            } else {
+                                None
+                            }
+                        });
+
+                        match program_text {
+                            None => {
+                                results.push(format!(
+                                    "⚠ {etype} '{title}': has no program — it will do nothing"
+                                ));
+                            }
+                            Some(ref text) if text.trim().is_empty() => {
+                                results.push(format!(
+                                    "⚠ {etype} '{title}': has no program — it will do nothing"
+                                ));
+                            }
+                            Some(ref text) => {
+                                let errors = lox_sim::blocks::sequence::validate_program(text);
+                                if errors.is_empty() {
+                                    let lines =
+                                        lox_sim::blocks::sequence::count_program_lines(text);
+                                    let seqs = lox_sim::blocks::sequence::count_sequences(text);
+                                    results.push(format!(
+                                        "✓ {etype} '{title}': program OK ({} line{}, {} sequence{})",
+                                        lines,
+                                        if lines == 1 { "" } else { "s" },
+                                        seqs,
+                                        if seqs == 1 { "" } else { "s" },
+                                    ));
+                                } else {
+                                    for err in &errors {
+                                        results.push(format!("✗ {etype} '{title}': {}", err));
+                                    }
+                                }
+                            }
+                        }
+                    }
                 }
             }
 
