@@ -466,15 +466,15 @@ class EvalTUI:
         fd = sys.stdin.fileno()
         old_term = termios.tcgetattr(fd)
         try:
-            with Live(self.render_dashboard(), console=self.console, screen=True, refresh_per_second=10) as live:
+            with Live(self.render_dashboard(), console=self.console, screen=True, auto_refresh=False) as live:
                 while True:
                     try:
                         render = {"dashboard": self.render_dashboard, "detail": self.render_detail,
                                   "sim_rerun": self.render_sim}
                         if self.view == "sim_rerun" and not self.sim_output:
-                            live.update(self.render_sim())
+                            live.update(self.render_sim(), refresh=True)
                             self.sim_output = self._run_sim(self.selected["case_id"])
-                        live.update(render[self.view]())
+                        live.update(render[self.view](), refresh=True)
                         if not self.handle_key(readkey(), live):
                             break
                     except KeyboardInterrupt:
