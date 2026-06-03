@@ -59,13 +59,23 @@ HELP_FULL = {
     ],
     "detail": [
         ("↑ / ↓", "Scroll content"),
+        ("PgUp / PgDn", "Scroll one page"),
         ("g / G", "Jump to top / bottom"),
         ("1 / 2 / 3", "Switch tab: Circuit / Conversation / Commands"),
         ("n", "Jump to next failing case"),
         ("p", "Jump to previous failing case"),
         ("c", "Copy case summary to clipboard"),
         ("r", "Re-run simulation live"),
+        ("t", "Open sim trace stepper"),
         ("Esc  q", "Back to dashboard"),
+        ("?  h", "Show this help"),
+    ],
+    "sim_trace": [
+        ("↑ / ↓", "Scroll content"),
+        ("PgUp / PgDn", "Scroll one page"),
+        ("← / →", "Previous / next scenario"),
+        ("g / G", "Jump to top / bottom"),
+        ("Esc  q", "Back to detail view"),
         ("?  h", "Show this help"),
     ],
     "sim_rerun": [
@@ -91,7 +101,11 @@ def readkey():
         if ch == "\x1b":
             ch2 = sys.stdin.read(1)
             if ch2 == "[":
-                return {"A": "up", "B": "down", "C": "right", "D": "left"}.get(sys.stdin.read(1), "")
+                ch3 = sys.stdin.read(1)
+                if ch3 in ("5", "6"):
+                    sys.stdin.read(1)  # consume trailing '~'
+                    return "page_up" if ch3 == "5" else "page_down"
+                return {"A": "up", "B": "down", "C": "right", "D": "left"}.get(ch3, "")
             return "esc"
         return ch
     finally:
@@ -374,6 +388,10 @@ class EvalTUI:
         self._status_msg = ""
         self._help_from = ""
         self.detail_scroll = 0
+        # Sim trace state
+        self.trace_data = None
+        self.trace_scenario_idx = 0
+        self.trace_scroll = 0
         # Report picker state
         self.reports_dir = str(REPORTS_DIR)
         self.available_reports = []
@@ -684,22 +702,29 @@ class EvalTUI:
 
         if not messages:
             P.append(Text(""))
-            P.append(Text("Not available — re-run with latest agent to capture.", style="dim italic"))
-            P.append(Text(""))
-            P.append(Text("The conversation log requires the eval agent to record", style="dim"))
-            P.append(Text("messages in the report JSON under each case's", style="dim"))
-            P.append(Text("'conversation' or 'messages' key.", style="dim"))
+            # Check if there's an error message
+            error = rc.get("error", "") if rc else ""
+            if error:
+                P.append(Text("⚠ Case errored during execution:", style="bold red"))
+                P.append(Text(f"  {error}", style="red"))
+                P.append(Text(""))
+            else:
+                P.append(Text("Not available — re-run with latest agent to capture.", style="dim italic"))
+                P.append(Text(""))
             return P
 
-        for msg in messages:
+        turn = 0
+        for i, msg in enumerate(messages):
             role = msg.get("role", "unknown")
             content = msg.get("content", "")
             label_text = msg.get("label", "")
 
             if role in ("user", "human"):
-                icon, label, style = "🧑", f" USER{f' ({label_text})' if label_text else ''}", "bold cyan"
+                turn += 1
+                turn_label = "initial prompt" if turn == 1 else f"retry {turn - 1}"
+                icon, label, style = "🧑", f" USER ({turn_label})", "bold cyan"
             elif role in ("assistant", "ai"):
-                icon, label, style = "🤖", " ASSISTANT", "bold green"
+                icon, label, style = "🤖", f" ASSISTANT (turn {turn})", "bold green"
             else:
                 icon, label, style = "📎", f" {role.upper()}", "bold"
 
@@ -735,22 +760,25 @@ class EvalTUI:
             return P
 
         total = len(commands)
-        retries = sum(1 for c in commands if c.get("retry", False))
-        P.append(Text(f"Commands ({total} total, {retries} retries)", style="bold"))
+        retries = sum(1 for i, c in enumerate(commands)
+                      if i > 0 and "config check" in c.get("command", c.get("cmd", "")))
+        P.append(Text(f"Commands ({total} total)", style="bold"))
         P.append(Text(""))
         for cmd in commands:
             cmd_str = cmd.get("command", cmd.get("cmd", ""))
             exit_code = cmd.get("exit_code", cmd.get("returncode", "?"))
-            output = cmd.get("output", cmd.get("stdout", ""))
-            is_retry = cmd.get("retry", False)
-            prefix = "  ↻ $" if is_retry else "  $"
-            P.append(Text(f"{prefix} {cmd_str}", style="bold" if not is_retry else "yellow"))
+            stdout = cmd.get("output", cmd.get("stdout", ""))
+            stderr = cmd.get("stderr", "")
+            P.append(Text(f"  $ {cmd_str}", style="bold"))
             if exit_code == 0:
-                summary = output.split("\n")[0][:60] if output else ""
+                summary = stdout.split("\n")[0][:80] if stdout else ""
                 P.append(Text(f"    → exit 0: ✓ {summary}", style="green"))
             else:
-                summary = output.split("\n")[0][:60] if output else ""
-                P.append(Text(f"    → exit {exit_code}: ✗ {summary}", style="red"))
+                # Show stderr on failure (that's where the actual error is)
+                err_msg = stderr.split("\n")[0][:80] if stderr else ""
+                out_msg = stdout.split("\n")[0][:80] if stdout else ""
+                msg = err_msg or out_msg or "(no output)"
+                P.append(Text(f"    → exit {exit_code}: ✗ {msg}", style="red"))
             P.append(Text(""))
         return P
 
@@ -784,6 +812,202 @@ class EvalTUI:
         subtitle = Text.assemble(("Press any key to close", "dim"))
         return Panel(t, title=f"[bold]Help — {view}[/bold]",
                      subtitle=subtitle, border_style="bright_cyan")
+
+    def _run_trace(self, case_id):
+        """Run sim with trace=true for each scenario, return structured trace data."""
+        spec = self.selected.get("spec", {})
+        sim_specs = spec.get("expected", {}).get("simulation", [])
+        cfg = self.configs_dir / f"{case_id}.Loxone"
+        if not cfg.exists():
+            return None
+        if not sim_specs:
+            return None
+
+        scenarios = []
+        for sc in sim_specs:
+            traced = dict(sc, trace=True)
+            steps = sc.get("steps", [sc] if "inputs" in sc else [])
+            scenario_result = {"name": sc.get("name", "unnamed"), "steps": [], "raw_output": ""}
+            try:
+                res = subprocess.run(
+                    [str(LOX_BIN), "sim", "run", str(cfg), "--sim", json.dumps(traced)],
+                    capture_output=True, text=True, timeout=60,
+                )
+                scenario_result["raw_output"] = res.stdout
+
+                parsed = None
+                for ln in res.stdout.splitlines():
+                    ln = ln.strip()
+                    if ln.startswith("{"):
+                        try:
+                            parsed = json.loads(ln)
+                            break
+                        except json.JSONDecodeError:
+                            pass
+
+                parsed_scenarios = parsed.get("scenarios", []) if parsed else []
+                parsed_sc = parsed_scenarios[0] if parsed_scenarios else {}
+                traces = parsed_sc.get("traces", [])
+                checks = parsed_sc.get("checks", [])
+
+                for i, step in enumerate(steps):
+                    step_data = {
+                        "index": i,
+                        "inputs": step.get("inputs", {}),
+                        "ticks": step.get("ticks", 10),
+                        "dt": step.get("dt", 0.1),
+                        "signals": {},
+                        "checks": [],
+                    }
+                    if i < len(traces):
+                        step_data["signals"] = traces[i] if isinstance(traces[i], dict) else {}
+                    # Attach checks to the last step
+                    if i == len(steps) - 1:
+                        step_data["checks"] = checks
+                    scenario_result["steps"].append(step_data)
+
+                # If no steps were parsed but we have trace data, create a single step
+                if not scenario_result["steps"] and traces:
+                    step_data = {
+                        "index": 0,
+                        "inputs": sc.get("inputs", {}),
+                        "ticks": sc.get("ticks", 10),
+                        "dt": sc.get("dt", 0.1),
+                        "signals": traces[0] if isinstance(traces[0], dict) else {},
+                        "checks": checks,
+                    }
+                    scenario_result["steps"].append(step_data)
+                elif not scenario_result["steps"]:
+                    # Fallback: show raw step info even without trace
+                    for i, step in enumerate(steps):
+                        step_data = {
+                            "index": i,
+                            "inputs": step.get("inputs", {}),
+                            "ticks": step.get("ticks", 10),
+                            "dt": step.get("dt", 0.1),
+                            "signals": {},
+                            "checks": checks if i == len(steps) - 1 else [],
+                        }
+                        scenario_result["steps"].append(step_data)
+
+            except subprocess.TimeoutExpired:
+                scenario_result["steps"] = [{"index": 0, "inputs": {}, "ticks": 0, "dt": 0,
+                                             "signals": {}, "checks": [],
+                                             "error": "Simulation timed out"}]
+            except Exception as e:
+                scenario_result["steps"] = [{"index": 0, "inputs": {}, "ticks": 0, "dt": 0,
+                                             "signals": {}, "checks": [],
+                                             "error": str(e)}]
+            scenarios.append(scenario_result)
+
+        return scenarios if scenarios else None
+
+    def render_trace(self):
+        """Render the sim trace stepper view."""
+        r = self.selected
+        if not r:
+            return Panel("No case selected", border_style="red")
+        cid = r["case_id"]
+
+        if self.trace_data is None:
+            return Panel(Text("Running sim with trace…", style="bold yellow"),
+                         title=f"[bold]Sim Trace: {cid}[/bold]",
+                         border_style="bright_magenta")
+
+        if not self.trace_data:
+            return Panel(Text("No simulation specs or config not found.", style="red"),
+                         title=f"[bold]Sim Trace: {cid}[/bold]",
+                         border_style="red")
+
+        idx = max(0, min(self.trace_scenario_idx, len(self.trace_data) - 1))
+        sc = self.trace_data[idx]
+        sc_name = sc.get("name", "unnamed")
+
+        P = []
+        P.append(Text(f"Scenario {idx + 1}/{len(self.trace_data)}: {sc_name}", style="bold"))
+        P.append(Text(""))
+
+        for step in sc.get("steps", []):
+            si = step["index"]
+            P.append(Text(f"── Step {si} " + "─" * 40, style="bold cyan"))
+
+            if step.get("error"):
+                P.append(Text(f"  ⚠ {step['error']}", style="bold red"))
+                P.append(Text(""))
+                continue
+
+            # Inject line
+            inputs = step.get("inputs", {})
+            if inputs:
+                inj = ", ".join(f"{k} = {v}" for k, v in inputs.items())
+                P.append(Text(f"  Inject: {inj}"))
+
+            ticks = step.get("ticks", 10)
+            dt = step.get("dt", 0.1)
+            total_t = ticks * dt
+            P.append(Text(f"  Ticks: {ticks} × {dt}s = {total_t:.1f}s"))
+            P.append(Text(""))
+
+            # Signals (non-zero)
+            signals = step.get("signals", {})
+            non_zero = {k: v for k, v in signals.items() if v != 0 and v != 0.0}
+            if non_zero:
+                P.append(Text("  Signals (non-zero):", style="dim"))
+                # Find check targets for annotation
+                check_outputs = {ch.get("output", ""): ch for ch in step.get("checks", [])}
+                max_key_len = max((len(k) for k in non_zero), default=0)
+                for k, v in sorted(non_zero.items()):
+                    val_str = f"{v:>8.1f}" if isinstance(v, float) else f"{v!s:>8}"
+                    # Check if this signal is a check target
+                    # Match by checking if any check output is a substring of the signal key
+                    annotation = ""
+                    for co in check_outputs:
+                        if co and co in k:
+                            annotation = "  ← target"
+                            break
+                    P.append(Text(f"    {k:<{max_key_len}}  {val_str}{annotation}",
+                                  style="bold" if annotation else ""))
+            else:
+                P.append(Text("  Signals: (all zero)", style="dim"))
+            P.append(Text(""))
+
+            # Checks
+            checks = step.get("checks", [])
+            if checks:
+                P.append(Text("  Checks:", style="dim"))
+                for ch in checks:
+                    icon = "✓" if ch.get("pass") else "✗"
+                    style = "green" if ch.get("pass") else "red"
+                    out = ch.get("output", "?")
+                    actual = ch.get("actual", "?")
+                    comp = ch.get("comparator", "?")
+                    exp = ch.get("expected", "?")
+                    P.append(Text(f"    {icon} {out}: {actual} (expected {comp} {exp})", style=style))
+                P.append(Text(""))
+
+        # Scrolling
+        try:
+            vis_height = os.get_terminal_size().lines - 6
+        except (ValueError, OSError):
+            vis_height = 30
+        total_lines = len(P)
+        scroll_info = ""
+        if total_lines > vis_height:
+            self.trace_scroll = max(0, min(self.trace_scroll, total_lines - vis_height))
+            P = P[self.trace_scroll:self.trace_scroll + vis_height]
+            scroll_info = f"  [{self.trace_scroll + 1}–{min(self.trace_scroll + vis_height, total_lines)}/{total_lines}]"
+        else:
+            self.trace_scroll = 0
+
+        nav = Text.assemble(
+            ("[↑↓]", "bold"), " Scroll  ",
+            ("[PgUp/PgDn]", "bold"), " Page  ",
+            ("[←→]", "bold"), " Prev/Next scenario  ",
+            ("[Esc]", "bold"), " Back")
+
+        return Panel(Text("\n").join(P),
+                     title=f"[bold]Sim Trace: {cid}[/bold]  │  {sc_name}{scroll_info}",
+                     subtitle=nav, border_style="bright_magenta")
 
     def _get_dump(self, case_id):
         if case_id in self._dump_cache:
@@ -916,7 +1140,7 @@ class EvalTUI:
                 return False
             elif self.view == "detail":
                 self.view = "dashboard"
-            elif self.view == "sim_rerun":
+            elif self.view in ("sim_rerun", "sim_trace"):
                 self.view = "detail"
             return True
         if self.view == "report_picker":
@@ -984,6 +1208,18 @@ class EvalTUI:
                 self.detail_scroll = max(0, self.detail_scroll - 1)
             elif key == "down":
                 self.detail_scroll += 1
+            elif key == "page_up":
+                try:
+                    page_size = os.get_terminal_size().lines - 6
+                except (ValueError, OSError):
+                    page_size = 24
+                self.detail_scroll = max(0, self.detail_scroll - page_size)
+            elif key == "page_down":
+                try:
+                    page_size = os.get_terminal_size().lines - 6
+                except (ValueError, OSError):
+                    page_size = 24
+                self.detail_scroll += page_size
             elif key == "n" and self.rows:
                 self._jump_fail(1)
                 self.selected = self.rows[self.cursor]
@@ -995,6 +1231,11 @@ class EvalTUI:
             elif key == "r":
                 self.view = "sim_rerun"
                 self.sim_output = ""
+            elif key == "t":
+                self.trace_data = None
+                self.trace_scenario_idx = 0
+                self.trace_scroll = 0
+                self.view = "sim_trace"
             elif key in ("1", "2", "3"):
                 self.detail_tab = int(key)
                 self.detail_scroll = 0
@@ -1007,6 +1248,35 @@ class EvalTUI:
         elif self.view == "sim_rerun":
             if key in ("\x1b", "esc"):
                 self.view = "detail"
+        elif self.view == "sim_trace":
+            if key in ("\x1b", "esc"):
+                self.view = "detail"
+            elif key == "up":
+                self.trace_scroll = max(0, self.trace_scroll - 1)
+            elif key == "down":
+                self.trace_scroll += 1
+            elif key == "page_up":
+                try:
+                    page_size = os.get_terminal_size().lines - 6
+                except (ValueError, OSError):
+                    page_size = 24
+                self.trace_scroll = max(0, self.trace_scroll - page_size)
+            elif key == "page_down":
+                try:
+                    page_size = os.get_terminal_size().lines - 6
+                except (ValueError, OSError):
+                    page_size = 24
+                self.trace_scroll += page_size
+            elif key == "left" and self.trace_data:
+                self.trace_scenario_idx = max(0, self.trace_scenario_idx - 1)
+                self.trace_scroll = 0
+            elif key == "right" and self.trace_data:
+                self.trace_scenario_idx = min(len(self.trace_data) - 1, self.trace_scenario_idx + 1)
+                self.trace_scroll = 0
+            elif key == "g":
+                self.trace_scroll = 0
+            elif key == "G":
+                self.trace_scroll = 9999
         return True
 
     def run(self):
@@ -1022,10 +1292,13 @@ class EvalTUI:
                     try:
                         render = {"dashboard": self.render_dashboard, "detail": self.render_detail,
                                   "sim_rerun": self.render_sim, "report_picker": self.render_report_picker,
-                                  "help": self.render_help}
+                                  "help": self.render_help, "sim_trace": self.render_trace}
                         if self.view == "sim_rerun" and not self.sim_output:
                             live.update(self.render_sim(), refresh=True)
                             self.sim_output = self._run_sim(self.selected["case_id"])
+                        if self.view == "sim_trace" and self.trace_data is None:
+                            live.update(self.render_trace(), refresh=True)
+                            self.trace_data = self._run_trace(self.selected["case_id"]) or []
                         live.update(render[self.view](), refresh=True)
                         if not self.handle_key(readkey(), live):
                             break

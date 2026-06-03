@@ -972,3 +972,258 @@ class TestFindReportCase:
     def test_returns_none_when_no_report(self, tmp_path):
         t = EvalTUI(None, str(tmp_path), str(tmp_path))
         assert t._find_report_case("anything") is None
+
+
+# ── Page Up/Down tests ──
+
+
+class TestPageUpDown:
+    def test_readkey_page_up_sequence(self):
+        """readkey() should parse \\x1b[5~ as page_up."""
+        import inspect
+        source = inspect.getsource(eval_tui.readkey)
+        assert "page_up" in source
+        assert "page_down" in source
+
+    def test_page_down_detail_scroll(self, tui):
+        tui.view = "detail"
+        tui.selected = tui.all_rows[0]
+        tui.detail_scroll = 0
+        tui.handle_key("page_down", None)
+        assert tui.detail_scroll > 0
+
+    def test_page_up_detail_scroll(self, tui):
+        tui.view = "detail"
+        tui.selected = tui.all_rows[0]
+        tui.detail_scroll = 50
+        tui.handle_key("page_up", None)
+        assert tui.detail_scroll < 50
+
+    def test_page_up_clamps_to_zero(self, tui):
+        tui.view = "detail"
+        tui.selected = tui.all_rows[0]
+        tui.detail_scroll = 3
+        tui.handle_key("page_up", None)
+        assert tui.detail_scroll == 0
+
+    def test_help_includes_pgupdown(self):
+        bindings = eval_tui.HELP_FULL["detail"]
+        keys = [k for k, _ in bindings]
+        assert "PgUp / PgDn" in keys
+
+
+# ── Sim Trace tests ──
+
+
+class TestSimTrace:
+    def test_t_key_enters_trace_view(self, tui):
+        tui.view = "detail"
+        tui.selected = tui.all_rows[0]
+        tui.handle_key("t", None)
+        assert tui.view == "sim_trace"
+        assert tui.trace_data is None
+        assert tui.trace_scenario_idx == 0
+        assert tui.trace_scroll == 0
+
+    def test_esc_returns_to_detail(self, tui):
+        tui.view = "sim_trace"
+        tui.selected = tui.all_rows[0]
+        tui.handle_key("esc", None)
+        assert tui.view == "detail"
+
+    def test_q_returns_to_detail(self, tui):
+        tui.view = "sim_trace"
+        tui.selected = tui.all_rows[0]
+        result = tui.handle_key("q", None)
+        assert result is True
+        assert tui.view == "detail"
+
+    def test_scroll_up_down(self, tui):
+        tui.view = "sim_trace"
+        tui.selected = tui.all_rows[0]
+        tui.trace_scroll = 5
+        tui.handle_key("up", None)
+        assert tui.trace_scroll == 4
+        tui.handle_key("down", None)
+        assert tui.trace_scroll == 5
+
+    def test_scroll_clamps_zero(self, tui):
+        tui.view = "sim_trace"
+        tui.selected = tui.all_rows[0]
+        tui.trace_scroll = 0
+        tui.handle_key("up", None)
+        assert tui.trace_scroll == 0
+
+    def test_page_up_down_in_trace(self, tui):
+        tui.view = "sim_trace"
+        tui.selected = tui.all_rows[0]
+        tui.trace_scroll = 0
+        tui.handle_key("page_down", None)
+        assert tui.trace_scroll > 0
+        prev = tui.trace_scroll
+        tui.handle_key("page_up", None)
+        assert tui.trace_scroll == 0
+
+    def test_left_right_navigation(self, tui):
+        tui.view = "sim_trace"
+        tui.selected = tui.all_rows[0]
+        tui.trace_data = [
+            {"name": "sc1", "steps": []},
+            {"name": "sc2", "steps": []},
+        ]
+        tui.trace_scenario_idx = 0
+        tui.handle_key("right", None)
+        assert tui.trace_scenario_idx == 1
+        tui.handle_key("left", None)
+        assert tui.trace_scenario_idx == 0
+
+    def test_left_clamps_to_zero(self, tui):
+        tui.view = "sim_trace"
+        tui.selected = tui.all_rows[0]
+        tui.trace_data = [{"name": "sc1", "steps": []}]
+        tui.trace_scenario_idx = 0
+        tui.handle_key("left", None)
+        assert tui.trace_scenario_idx == 0
+
+    def test_right_clamps_to_max(self, tui):
+        tui.view = "sim_trace"
+        tui.selected = tui.all_rows[0]
+        tui.trace_data = [{"name": "sc1", "steps": []}, {"name": "sc2", "steps": []}]
+        tui.trace_scenario_idx = 1
+        tui.handle_key("right", None)
+        assert tui.trace_scenario_idx == 1
+
+    def test_g_G_in_trace(self, tui):
+        tui.view = "sim_trace"
+        tui.selected = tui.all_rows[0]
+        tui.trace_scroll = 50
+        tui.handle_key("g", None)
+        assert tui.trace_scroll == 0
+        tui.handle_key("G", None)
+        assert tui.trace_scroll == 9999
+
+    def test_right_resets_scroll(self, tui):
+        tui.view = "sim_trace"
+        tui.selected = tui.all_rows[0]
+        tui.trace_data = [{"name": "sc1", "steps": []}, {"name": "sc2", "steps": []}]
+        tui.trace_scenario_idx = 0
+        tui.trace_scroll = 50
+        tui.handle_key("right", None)
+        assert tui.trace_scroll == 0
+
+    def test_render_trace_no_selection(self, tui):
+        tui.selected = None
+        buf = io.StringIO()
+        console = Console(width=120, force_terminal=True, file=buf)
+        console.print(tui.render_trace())
+        assert "No case selected" in buf.getvalue()
+
+    def test_render_trace_loading(self, tui):
+        tui.selected = tui.all_rows[0]
+        tui.trace_data = None
+        buf = io.StringIO()
+        console = Console(width=120, force_terminal=True, file=buf)
+        console.print(tui.render_trace())
+        assert "Running sim with trace" in buf.getvalue()
+
+    def test_render_trace_empty(self, tui):
+        tui.selected = tui.all_rows[0]
+        tui.trace_data = []
+        buf = io.StringIO()
+        console = Console(width=120, force_terminal=True, file=buf)
+        console.print(tui.render_trace())
+        assert "No simulation specs" in buf.getvalue()
+
+    def test_render_trace_with_data(self, tui):
+        tui.selected = tui.all_rows[0]
+        tui.trace_data = [{
+            "name": "pump runs when scheduled",
+            "steps": [{
+                "index": 0,
+                "inputs": {"Vorlauftemperatur.AQ": 60.0},
+                "ticks": 10, "dt": 0.1,
+                "signals": {"Vorlauftemperatur.AQ": 60.0, "Poolpumpe.Q": 1.0, "Empty.X": 0.0},
+                "checks": [
+                    {"pass": True, "output": "Poolpumpe.I1", "actual": 1.0,
+                     "comparator": ">", "expected": 0.5},
+                ],
+            }],
+        }]
+        tui.trace_scenario_idx = 0
+        buf = io.StringIO()
+        console = Console(width=120, force_terminal=True, file=buf)
+        console.print(tui.render_trace())
+        output = buf.getvalue()
+        assert "pump runs when scheduled" in output
+        assert "Step 0" in output
+        assert "Inject" in output
+        assert "Ticks" in output
+        assert "Signals" in output
+        assert "Checks" in output
+
+    def test_render_trace_filters_zero_signals(self, tui):
+        tui.selected = tui.all_rows[0]
+        tui.trace_data = [{
+            "name": "test",
+            "steps": [{
+                "index": 0, "inputs": {}, "ticks": 10, "dt": 0.1,
+                "signals": {"A": 1.0, "B": 0.0, "C": 0},
+                "checks": [],
+            }],
+        }]
+        tui.trace_scenario_idx = 0
+        buf = io.StringIO()
+        console = Console(width=120, force_terminal=True, file=buf)
+        console.print(tui.render_trace())
+        output = buf.getvalue()
+        assert "A" in output
+
+    def test_render_trace_error_step(self, tui):
+        tui.selected = tui.all_rows[0]
+        tui.trace_data = [{
+            "name": "test",
+            "steps": [{
+                "index": 0, "inputs": {}, "ticks": 0, "dt": 0,
+                "signals": {}, "checks": [],
+                "error": "Simulation timed out",
+            }],
+        }]
+        buf = io.StringIO()
+        console = Console(width=120, force_terminal=True, file=buf)
+        console.print(tui.render_trace())
+        output = buf.getvalue()
+        assert "timed out" in output
+
+    def test_render_trace_all_zero_signals(self, tui):
+        tui.selected = tui.all_rows[0]
+        tui.trace_data = [{
+            "name": "test",
+            "steps": [{
+                "index": 0, "inputs": {}, "ticks": 10, "dt": 0.1,
+                "signals": {"A": 0, "B": 0.0},
+                "checks": [],
+            }],
+        }]
+        buf = io.StringIO()
+        console = Console(width=120, force_terminal=True, file=buf)
+        console.print(tui.render_trace())
+        output = buf.getvalue()
+        assert "all zero" in output
+
+    def test_help_full_has_sim_trace(self):
+        assert "sim_trace" in eval_tui.HELP_FULL
+        keys = [k for k, _ in eval_tui.HELP_FULL["sim_trace"]]
+        assert "← / →" in keys
+        assert "PgUp / PgDn" in keys
+
+    def test_run_trace_no_config(self, tui, tmp_path):
+        tui.selected = tui.all_rows[0]
+        tui.configs_dir = tmp_path / "nonexistent"
+        result = tui._run_trace("t001-easy")
+        assert result is None
+
+    def test_run_trace_no_sim_specs(self, tui, tmp_path):
+        tui.selected = {"spec": {"expected": {}}}
+        tui.configs_dir = tmp_path
+        result = tui._run_trace("t001-easy")
+        assert result is None
