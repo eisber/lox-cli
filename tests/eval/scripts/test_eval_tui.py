@@ -905,7 +905,7 @@ class TestHelpBar:
         console.print(tui.render_detail())
         output = buf.getvalue()
         assert "Tabs" in output
-        assert "Next/Prev" in output
+        assert "Fails" in output
 
     def test_report_picker_help(self, tui, tmp_path):
         tui.reports_dir = str(tmp_path)
