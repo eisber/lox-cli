@@ -24,6 +24,9 @@ scan_reports = eval_tui.scan_reports
 build_wiring_dag = eval_tui.build_wiring_dag
 render_wiring_diagram = eval_tui.render_wiring_diagram
 _topo_sort = eval_tui._topo_sort
+_parse_signal_key = eval_tui._parse_signal_key
+_build_block_states = eval_tui._build_block_states
+BlockState = eval_tui.BlockState
 EvalTUI = eval_tui.EvalTUI
 
 
@@ -1023,6 +1026,7 @@ class TestSimTrace:
         assert tui.view == "sim_trace"
         assert tui.trace_data is None
         assert tui.trace_scenario_idx == 0
+        assert tui.trace_step_idx == 0
         assert tui.trace_scroll == 0
 
     def test_esc_returns_to_detail(self, tui):
@@ -1064,34 +1068,72 @@ class TestSimTrace:
         tui.handle_key("page_up", None)
         assert tui.trace_scroll == 0
 
-    def test_left_right_navigation(self, tui):
+    def test_left_right_step_navigation(self, tui):
+        """Left/right now navigate steps within a scenario."""
+        tui.view = "sim_trace"
+        tui.selected = tui.all_rows[0]
+        tui.trace_data = [{
+            "name": "sc1",
+            "steps": [
+                {"index": 0, "inputs": {}, "ticks": 10, "dt": 0.1, "signals": {}, "checks": []},
+                {"index": 1, "inputs": {}, "ticks": 10, "dt": 0.1, "signals": {}, "checks": []},
+            ],
+        }]
+        tui.trace_step_idx = 0
+        tui.handle_key("right", None)
+        assert tui.trace_step_idx == 1
+        tui.handle_key("left", None)
+        assert tui.trace_step_idx == 0
+
+    def test_left_step_clamps_to_zero(self, tui):
+        tui.view = "sim_trace"
+        tui.selected = tui.all_rows[0]
+        tui.trace_data = [{"name": "sc1", "steps": [
+            {"index": 0, "inputs": {}, "ticks": 10, "dt": 0.1, "signals": {}, "checks": []},
+        ]}]
+        tui.trace_step_idx = 0
+        tui.handle_key("left", None)
+        assert tui.trace_step_idx == 0
+
+    def test_right_step_clamps_to_max(self, tui):
+        tui.view = "sim_trace"
+        tui.selected = tui.all_rows[0]
+        tui.trace_data = [{"name": "sc1", "steps": [
+            {"index": 0, "inputs": {}, "ticks": 10, "dt": 0.1, "signals": {}, "checks": []},
+            {"index": 1, "inputs": {}, "ticks": 10, "dt": 0.1, "signals": {}, "checks": []},
+        ]}]
+        tui.trace_step_idx = 1
+        tui.handle_key("right", None)
+        assert tui.trace_step_idx == 1
+
+    def test_bracket_scenario_navigation(self, tui):
+        """[ and ] navigate between scenarios."""
         tui.view = "sim_trace"
         tui.selected = tui.all_rows[0]
         tui.trace_data = [
-            {"name": "sc1", "steps": []},
-            {"name": "sc2", "steps": []},
+            {"name": "sc1", "steps": [
+                {"index": 0, "inputs": {}, "ticks": 10, "dt": 0.1, "signals": {}, "checks": []},
+            ]},
+            {"name": "sc2", "steps": [
+                {"index": 0, "inputs": {}, "ticks": 10, "dt": 0.1, "signals": {}, "checks": []},
+            ]},
         ]
         tui.trace_scenario_idx = 0
-        tui.handle_key("right", None)
+        tui.handle_key("]", None)
         assert tui.trace_scenario_idx == 1
-        tui.handle_key("left", None)
+        assert tui.trace_step_idx == 0
+        tui.handle_key("[", None)
         assert tui.trace_scenario_idx == 0
 
-    def test_left_clamps_to_zero(self, tui):
+    def test_bracket_clamps(self, tui):
         tui.view = "sim_trace"
         tui.selected = tui.all_rows[0]
         tui.trace_data = [{"name": "sc1", "steps": []}]
         tui.trace_scenario_idx = 0
-        tui.handle_key("left", None)
+        tui.handle_key("[", None)
         assert tui.trace_scenario_idx == 0
-
-    def test_right_clamps_to_max(self, tui):
-        tui.view = "sim_trace"
-        tui.selected = tui.all_rows[0]
-        tui.trace_data = [{"name": "sc1", "steps": []}, {"name": "sc2", "steps": []}]
-        tui.trace_scenario_idx = 1
-        tui.handle_key("right", None)
-        assert tui.trace_scenario_idx == 1
+        tui.handle_key("]", None)
+        assert tui.trace_scenario_idx == 0
 
     def test_g_G_in_trace(self, tui):
         tui.view = "sim_trace"
@@ -1103,10 +1145,14 @@ class TestSimTrace:
         assert tui.trace_scroll == 9999
 
     def test_right_resets_scroll(self, tui):
+        """Stepping right resets scroll position."""
         tui.view = "sim_trace"
         tui.selected = tui.all_rows[0]
-        tui.trace_data = [{"name": "sc1", "steps": []}, {"name": "sc2", "steps": []}]
-        tui.trace_scenario_idx = 0
+        tui.trace_data = [{"name": "sc1", "steps": [
+            {"index": 0, "inputs": {}, "ticks": 10, "dt": 0.1, "signals": {}, "checks": []},
+            {"index": 1, "inputs": {}, "ticks": 10, "dt": 0.1, "signals": {}, "checks": []},
+        ]}]
+        tui.trace_step_idx = 0
         tui.trace_scroll = 50
         tui.handle_key("right", None)
         assert tui.trace_scroll == 0
@@ -1125,6 +1171,7 @@ class TestSimTrace:
         console = Console(width=120, force_terminal=True, file=buf)
         console.print(tui.render_trace())
         assert "Running sim with trace" in buf.getvalue()
+        assert "Sim Debugger" in buf.getvalue()
 
     def test_render_trace_empty(self, tui):
         tui.selected = tui.all_rows[0]
@@ -1150,16 +1197,18 @@ class TestSimTrace:
             }],
         }]
         tui.trace_scenario_idx = 0
+        tui.trace_step_idx = 0
         buf = io.StringIO()
         console = Console(width=120, force_terminal=True, file=buf)
         console.print(tui.render_trace())
         output = buf.getvalue()
-        assert "pump runs when scheduled" in output
-        assert "Step 0" in output
+        # Single scenario: name not shown; debugger title shown instead
+        assert "Sim Debugger" in output
+        assert "Step 1/1" in output
         assert "Inject" in output
-        assert "Ticks" in output
-        assert "Signals" in output
-        assert "Checks" in output
+        # Flat signal fallback (no dump) shows signals
+        assert "Signals" in output or "Vorlauftemperatur" in output
+        assert "Check" in output
 
     def test_render_trace_filters_zero_signals(self, tui):
         tui.selected = tui.all_rows[0]
@@ -1214,6 +1263,7 @@ class TestSimTrace:
         assert "sim_trace" in eval_tui.HELP_FULL
         keys = [k for k, _ in eval_tui.HELP_FULL["sim_trace"]]
         assert "← / →" in keys
+        assert "[ / ]" in keys
         assert "PgUp / PgDn" in keys
 
     def test_run_trace_no_config(self, tui, tmp_path):
@@ -1227,3 +1277,261 @@ class TestSimTrace:
         tui.configs_dir = tmp_path
         result = tui._run_trace("t001-easy")
         assert result is None
+
+
+class TestParseSignalKey:
+    def test_simple(self):
+        assert _parse_signal_key("Sensor.AQ") == ("Sensor", "", "AQ")
+
+    def test_with_room(self):
+        assert _parse_signal_key("Sensor [Bad].AQ") == ("Sensor", "Bad", "AQ")
+
+    def test_multi_word_name(self):
+        name, room, conn = _parse_signal_key("Temp Diff [Garten].AQ")
+        assert name == "Temp Diff"
+        assert room == "Garten"
+        assert conn == "AQ"
+
+    def test_no_dot(self):
+        name, room, conn = _parse_signal_key("NoDot")
+        assert name == "NoDot"
+
+    def test_room_with_spaces(self):
+        name, room, conn = _parse_signal_key("Light [Living Room].Q")
+        assert name == "Light"
+        assert room == "Living Room"
+        assert conn == "Q"
+
+
+class TestBuildBlockStates:
+    def _make_dump(self, blocks_spec, wires):
+        """Build a dump with blocks and wiring.
+
+        blocks_spec: list of (name, type, room, input_keys, output_keys)
+        wires: list of (src_idx, src_out_key, dst_idx, dst_in_key)
+        """
+        blocks = []
+        for i, (name, btype, room, in_keys, out_keys) in enumerate(blocks_spec):
+            inputs = [{"cid": f"in-{i}-{j}", "key": k} for j, k in enumerate(in_keys)]
+            outputs = [{"cid": f"out-{i}-{j}", "key": k, "wired_to": []}
+                       for j, k in enumerate(out_keys)]
+            blocks.append({"name": name, "type": btype, "room": room,
+                           "inputs": inputs, "outputs": outputs})
+        for src_idx, src_key, dst_idx, dst_key in wires:
+            # Find src output cid
+            src_out = next(o for o in blocks[src_idx]["outputs"] if o["key"] == src_key)
+            dst_in = next(i for i in blocks[dst_idx]["inputs"] if i["key"] == dst_key)
+            src_out["wired_to"].append(dst_in["cid"])
+            dst_in["wired_from"] = src_out["cid"]
+        return {"blocks": blocks}
+
+    def test_empty_dump(self):
+        result = _build_block_states(None, {}, [], set())
+        assert result == []
+
+    def test_empty_blocks(self):
+        result = _build_block_states({"blocks": []}, {}, [], set())
+        assert result == []
+
+    def test_linear_chain(self):
+        dump = self._make_dump([
+            ("Sensor", "TreeAsensor", "Bad", [], ["AQ"]),
+            ("Gate", "GreaterEqual", "Garten", ["Input", "Input2"], ["Q"]),
+            ("Output", "VirtualOut", "Garten", ["I1"], ["Q"]),
+        ], [
+            (0, "AQ", 1, "Input"),
+            (1, "Q", 2, "I1"),
+        ])
+        signals = {"Sensor.AQ": 60.0, "Gate.Q": 1.0, "Output.Q": 1.0}
+        checks = [{"pass": True, "output": "Output.I1", "actual": 1.0,
+                    "comparator": ">", "expected": 0.5}]
+
+        result = _build_block_states(dump, signals, checks, {"Sensor.AQ"})
+        assert len(result) >= 2  # At least Sensor, Gate, Output
+        names = [bs.name for bs in result]
+        assert "Sensor" in names
+        assert "Gate" in names
+        # Topological order: Sensor before Gate
+        assert names.index("Sensor") < names.index("Gate")
+
+    def test_signal_values_populated(self):
+        dump = self._make_dump([
+            ("Sensor", "TreeAsensor", "Bad", [], ["AQ"]),
+        ], [])
+        signals = {"Sensor.AQ": 42.0}
+        result = _build_block_states(dump, signals, [], set())
+        assert len(result) == 1
+        assert result[0].outputs["AQ"] == 42.0
+
+    def test_source_target_resolved(self):
+        dump = self._make_dump([
+            ("Sensor", "TreeAsensor", "Bad", [], ["AQ"]),
+            ("Gate", "Sub", "Garten", ["I1"], ["AQ"]),
+        ], [
+            (0, "AQ", 1, "I1"),
+        ])
+        signals = {"Sensor.AQ": 60.0, "Gate.AQ": 20.0}
+        result = _build_block_states(dump, signals, [], set())
+        gate = next(bs for bs in result if bs.name == "Gate")
+        assert gate.sources.get("I1") == "Sensor.AQ"
+        sensor = next(bs for bs in result if bs.name == "Sensor")
+        assert sensor.targets.get("AQ") == "Gate.I1"
+
+    def test_injected_flag(self):
+        dump = self._make_dump([
+            ("Sensor", "TreeAsensor", "Bad", [], ["AQ"]),
+        ], [])
+        signals = {"Sensor.AQ": 60.0}
+        result = _build_block_states(dump, signals, [], {"Sensor.AQ"})
+        assert result[0].injected is True
+
+    def test_check_annotation(self):
+        dump = self._make_dump([
+            ("Pump", "VirtualOut", "Garten", ["I1"], ["Q"]),
+        ], [])
+        signals = {"Pump.Q": 1.0}
+        checks = [{"pass": True, "output": "Pump.Q", "actual": 1.0,
+                    "comparator": "==", "expected": 1.0}]
+        result = _build_block_states(dump, signals, checks, set())
+        assert "Q" in result[0].checked
+
+    def test_skip_types_filtered(self):
+        dump = self._make_dump([
+            ("Caption", "VirtualInCaption", "", [], ["AQ"]),
+            ("Real", "And", "R1", ["I1"], ["Q"]),
+        ], [])
+        signals = {"Caption.AQ": 1.0, "Real.Q": 1.0}
+        result = _build_block_states(dump, signals, [], set())
+        names = [bs.name for bs in result]
+        assert "Caption" not in names
+        assert "Real" in names
+
+    def test_zero_signals_filtered(self):
+        dump = self._make_dump([
+            ("Active", "And", "R1", [], ["Q"]),
+            ("Idle", "Or", "R1", [], ["Q"]),
+        ], [])
+        signals = {"Active.Q": 1.0, "Idle.Q": 0.0}
+        result = _build_block_states(dump, signals, [], set())
+        names = [bs.name for bs in result]
+        assert "Active" in names
+        # Idle has zero-only signals and no connection to active blocks
+        assert "Idle" not in names
+
+    def test_signal_with_room_qualifier(self):
+        dump = self._make_dump([
+            ("Sensor", "TreeAsensor", "Bad", [], ["AQ"]),
+        ], [])
+        signals = {"Sensor [Bad].AQ": 50.0}
+        result = _build_block_states(dump, signals, [], set())
+        assert len(result) == 1
+        assert result[0].outputs["AQ"] == 50.0
+
+
+class TestBlockBoxRendering:
+    def test_render_with_dump(self, tui):
+        """When dump data is present, block boxes are rendered."""
+        tui.selected = tui.all_rows[0]
+        dump = {
+            "blocks": [
+                {"name": "Sensor", "type": "TreeAsensor", "room": "Bad",
+                 "inputs": [], "outputs": [{"cid": "o1", "key": "AQ", "wired_to": ["i1"]}]},
+                {"name": "Pump", "type": "VirtualOut", "room": "Garten",
+                 "inputs": [{"cid": "i1", "key": "I1", "wired_from": "o1"}],
+                 "outputs": [{"cid": "o2", "key": "Q", "wired_to": []}]},
+            ]
+        }
+        tui.trace_data = [{
+            "name": "test",
+            "dump": dump,
+            "steps": [{
+                "index": 0,
+                "inputs": {"Sensor.AQ": 60.0},
+                "ticks": 10, "dt": 0.1,
+                "signals": {"Sensor.AQ": 60.0, "Pump.Q": 1.0},
+                "checks": [{"pass": True, "output": "Pump.Q", "actual": 1.0,
+                             "comparator": "==", "expected": 1.0}],
+            }],
+        }]
+        tui.trace_step_idx = 0
+        buf = io.StringIO()
+        console = Console(width=120, force_terminal=True, file=buf)
+        console.print(tui.render_trace())
+        output = buf.getvalue()
+        # Block boxes should contain block names and box-drawing chars
+        assert "Sensor" in output
+        assert "Pump" in output
+        assert "┌" in output
+        assert "└" in output
+        assert "CHECK" in output
+
+    def test_render_flat_fallback_no_dump(self, tui):
+        """Without dump data, falls back to flat signal list."""
+        tui.selected = tui.all_rows[0]
+        tui.trace_data = [{
+            "name": "test",
+            "steps": [{
+                "index": 0, "inputs": {}, "ticks": 10, "dt": 0.1,
+                "signals": {"X.Q": 5.0},
+                "checks": [],
+            }],
+        }]
+        tui.trace_step_idx = 0
+        buf = io.StringIO()
+        console = Console(width=120, force_terminal=True, file=buf)
+        console.print(tui.render_trace())
+        output = buf.getvalue()
+        assert "Signals" in output
+        assert "X.Q" in output
+
+    def test_multi_step_rendering(self, tui):
+        """Step navigation shows different data per step."""
+        tui.selected = tui.all_rows[0]
+        tui.trace_data = [{
+            "name": "multi",
+            "steps": [
+                {"index": 0, "inputs": {"A.Q": 10}, "ticks": 5, "dt": 0.1,
+                 "signals": {"A.Q": 10.0}, "checks": []},
+                {"index": 1, "inputs": {"A.Q": 20}, "ticks": 5, "dt": 0.1,
+                 "signals": {"A.Q": 20.0}, "checks": []},
+            ],
+        }]
+        # Step 1
+        tui.trace_step_idx = 0
+        buf1 = io.StringIO()
+        Console(width=120, force_terminal=True, file=buf1).print(tui.render_trace())
+        assert "Step 1/2" in buf1.getvalue()
+
+        # Step 2
+        tui.trace_step_idx = 1
+        buf2 = io.StringIO()
+        Console(width=120, force_terminal=True, file=buf2).print(tui.render_trace())
+        assert "Step 2/2" in buf2.getvalue()
+
+    def test_scenario_name_shown_for_multiple(self, tui):
+        """Scenario name is shown when there are multiple scenarios."""
+        tui.selected = tui.all_rows[0]
+        tui.trace_data = [
+            {"name": "scenario-A", "steps": [
+                {"index": 0, "inputs": {}, "ticks": 1, "dt": 0.1,
+                 "signals": {}, "checks": []}]},
+            {"name": "scenario-B", "steps": [
+                {"index": 0, "inputs": {}, "ticks": 1, "dt": 0.1,
+                 "signals": {}, "checks": []}]},
+        ]
+        tui.trace_scenario_idx = 0
+        tui.trace_step_idx = 0
+        buf = io.StringIO()
+        Console(width=120, force_terminal=True, file=buf).print(tui.render_trace())
+        output = buf.getvalue()
+        assert "Scenario 1/2" in output
+        assert "scenario-A" in output
+
+    def test_no_steps_message(self, tui):
+        """Empty steps list shows message."""
+        tui.selected = tui.all_rows[0]
+        tui.trace_data = [{"name": "empty", "steps": []}]
+        tui.trace_scenario_idx = 0
+        buf = io.StringIO()
+        Console(width=120, force_terminal=True, file=buf).print(tui.render_trace())
+        assert "No steps" in buf.getvalue()

@@ -3,12 +3,14 @@
 import argparse
 import json
 import os
+import re
 import shutil
 import subprocess
 import sys
 import termios
 import tty
 from collections import defaultdict
+from dataclasses import dataclass, field
 from pathlib import Path
 from rich.console import Console
 from rich.layout import Layout
@@ -74,7 +76,8 @@ HELP_FULL = {
     "sim_trace": [
         ("↑ / ↓", "Scroll content"),
         ("PgUp / PgDn", "Scroll one page"),
-        ("← / →", "Previous / next scenario"),
+        ("← / →", "Previous / next step"),
+        ("[ / ]", "Previous / next scenario"),
         ("g / G", "Jump to top / bottom"),
         ("Esc  q", "Back to detail view"),
         ("?  h", "Show this help"),
@@ -350,6 +353,204 @@ def render_wiring_diagram(dump, max_width=70):
 
 SKIP_TYPES = {"VirtualInCaption", "WeatherServer", "LightscenesC", "LightsceneC"}
 
+_SIG_RE = re.compile(r"^(.+?)(?:\s+\[(.+?)\])?\.([A-Za-z0-9_]+)$")
+
+
+@dataclass
+class BlockState:
+    name: str
+    block_type: str
+    room: str
+    inputs: dict = field(default_factory=dict)   # connector_key → value
+    outputs: dict = field(default_factory=dict)   # connector_key → value
+    sources: dict = field(default_factory=dict)   # input_key → "SourceBlock.OutputKey"
+    targets: dict = field(default_factory=dict)   # output_key → "TargetBlock.InputKey"
+    checked: dict = field(default_factory=dict)   # output_key → check dict
+    injected: bool = False
+
+
+def _parse_signal_key(sig_key):
+    """Parse 'Name [Room].Connector' or 'Name.Connector' → (name, room, connector)."""
+    m = _SIG_RE.match(sig_key)
+    if m:
+        return m.group(1), m.group(2) or "", m.group(3)
+    # Fallback: split on last '.'
+    dot = sig_key.rfind(".")
+    if dot > 0:
+        return sig_key[:dot], "", sig_key[dot + 1:]
+    return sig_key, "", ""
+
+
+def _build_block_states(dump, signals, checks, injected_keys):
+    """Build topologically ordered BlockState list from dump + trace signals.
+
+    Args:
+        dump: Block graph from `lox sim dump --json`
+        signals: Dict of signal_key → value from trace
+        checks: List of check dicts with 'output', 'pass', etc.
+        injected_keys: Set of injected input keys (e.g. "Sensor.AQ")
+    Returns:
+        List of BlockState in topological order, filtered to active blocks.
+    """
+    if not dump:
+        return []
+
+    blocks = dump.get("blocks", [])
+    if not blocks:
+        return []
+
+    # Build cid→(block_idx, key, direction) and cid→"Name.Key" maps
+    cid_to_info = {}
+    cid_to_label = {}
+    for i, blk in enumerate(blocks):
+        bname = blk.get("name", "?")
+        broom = blk.get("room", "")
+        for inp in blk.get("inputs", []):
+            cid_to_info[inp["cid"]] = (i, inp["key"], "in")
+            cid_to_label[inp["cid"]] = f"{bname}.{inp['key']}"
+        for out in blk.get("outputs", []):
+            cid_to_info[out["cid"]] = (i, out["key"], "out")
+            cid_to_label[out["cid"]] = f"{bname}.{out['key']}"
+
+    # Build block name/room → block_idx lookup
+    name_to_idx = {}
+    for i, blk in enumerate(blocks):
+        bname = blk.get("name", "?")
+        broom = blk.get("room", "")
+        name_to_idx[(bname, broom)] = i
+        name_to_idx[(bname, "")] = i  # allow room-less match
+
+    # Map signals to blocks: signal_key → (block_idx, connector_key, value)
+    sig_map = []
+    for sig_key, val in signals.items():
+        sname, sroom, sconn = _parse_signal_key(sig_key)
+        idx = name_to_idx.get((sname, sroom)) or name_to_idx.get((sname, ""))
+        if idx is not None:
+            sig_map.append((idx, sconn, val))
+
+    # Build check output → check map
+    check_map = {}
+    for ch in checks:
+        co = ch.get("output", "")
+        if co:
+            check_map[co] = ch
+
+    # Build injected block names
+    injected_names = set()
+    for ik in injected_keys:
+        iname, _, _ = _parse_signal_key(ik)
+        injected_names.add(iname)
+
+    # Build BlockState for each block
+    block_states = []
+    active_indices = set()
+    for i, blk in enumerate(blocks):
+        if blk.get("type", "") in SKIP_TYPES:
+            continue
+        bname = blk.get("name", "?")
+        btype = blk.get("type", "?")
+        broom = blk.get("room", "")
+
+        bs = BlockState(name=bname, block_type=btype, room=broom)
+        bs.injected = bname in injected_names
+
+        # Populate connector values from signals
+        for idx, conn, val in sig_map:
+            if idx == i:
+                # Determine if input or output
+                in_keys = {inp["key"] for inp in blk.get("inputs", [])}
+                out_keys = {out["key"] for out in blk.get("outputs", [])}
+                if conn in out_keys:
+                    bs.outputs[conn] = val
+                elif conn in in_keys:
+                    bs.inputs[conn] = val
+                else:
+                    # Default to output
+                    bs.outputs[conn] = val
+
+        # Resolve source names for inputs (wired_from)
+        for inp in blk.get("inputs", []):
+            wf = inp.get("wired_from")
+            if wf and wf in cid_to_label:
+                bs.sources[inp["key"]] = cid_to_label[wf]
+
+        # Resolve target names for outputs (wired_to)
+        for out in blk.get("outputs", []):
+            for tgt_cid in out.get("wired_to", []):
+                if tgt_cid in cid_to_label:
+                    bs.targets[out["key"]] = cid_to_label[tgt_cid]
+
+        # Attach check annotations
+        for out_key in bs.outputs:
+            full_key = f"{bname}.{out_key}"
+            if full_key in check_map:
+                bs.checked[out_key] = check_map[full_key]
+            # Also match partial (check output may omit room)
+            for co, ch in check_map.items():
+                cname, _, cconn = _parse_signal_key(co)
+                if cname == bname and cconn == out_key:
+                    bs.checked[out_key] = ch
+
+        # Track active (has non-zero signals)
+        has_nonzero = any(v != 0 and v != 0.0 for v in bs.inputs.values()) or \
+                      any(v != 0 and v != 0.0 for v in bs.outputs.values())
+        if has_nonzero or bs.injected:
+            active_indices.add(i)
+
+        block_states.append((i, bs))
+
+    # Expand active set: include blocks wired to/from active blocks
+    expanded = set(active_indices)
+    for i, blk in enumerate(blocks):
+        if i in expanded:
+            continue
+        for inp in blk.get("inputs", []):
+            wf = inp.get("wired_from")
+            if wf and wf in cid_to_info:
+                src_idx = cid_to_info[wf][0]
+                if src_idx in active_indices:
+                    expanded.add(i)
+                    break
+        if i not in expanded:
+            for out in blk.get("outputs", []):
+                for tgt_cid in out.get("wired_to", []):
+                    if tgt_cid in cid_to_info:
+                        dst_idx = cid_to_info[tgt_cid][0]
+                        if dst_idx in active_indices:
+                            expanded.add(i)
+                            break
+                if i in expanded:
+                    break
+
+    # Filter to active blocks
+    filtered = [(i, bs) for i, bs in block_states if i in expanded]
+    if not filtered:
+        return []
+
+    # Topological sort
+    idx_set = {i for i, _ in filtered}
+    idx_remap = {old: new for new, old in enumerate(sorted(idx_set))}
+    edges = []
+    for i, blk in enumerate(blocks):
+        if i not in idx_set:
+            continue
+        for inp in blk.get("inputs", []):
+            wf = inp.get("wired_from")
+            if wf and wf in cid_to_info:
+                src_idx = cid_to_info[wf][0]
+                if src_idx in idx_set and src_idx != i:
+                    edges.append((idx_remap[src_idx], idx_remap[i], "", ""))
+
+    order = _topo_sort(len(idx_remap), edges)
+    if order is None:
+        # Cycle: just use original order
+        return [bs for _, bs in filtered]
+
+    remap_to_orig = {v: k for k, v in idx_remap.items()}
+    orig_order = [remap_to_orig[o] for o in order]
+    idx_to_bs = {i: bs for i, bs in filtered}
+    return [idx_to_bs[i] for i in orig_order if i in idx_to_bs]
+
 
 class EvalTUI:
     _dump_cache = {}
@@ -392,6 +593,7 @@ class EvalTUI:
         # Sim trace state
         self.trace_data = None
         self.trace_scenario_idx = 0
+        self.trace_step_idx = 0
         self.trace_scroll = 0
         # Report picker state
         self.reports_dir = str(REPORTS_DIR)
@@ -824,11 +1026,14 @@ class EvalTUI:
         if not sim_specs:
             return None
 
+        dump = self._get_dump(case_id)
+
         scenarios = []
         for sc in sim_specs:
             traced = dict(sc, trace=True)
             steps = sc.get("steps", [sc] if "inputs" in sc else [])
-            scenario_result = {"name": sc.get("name", "unnamed"), "steps": [], "raw_output": ""}
+            scenario_result = {"name": sc.get("name", "unnamed"), "steps": [],
+                               "raw_output": "", "dump": dump}
             try:
                 res = subprocess.run(
                     [str(LOX_BIN), "sim", "run", str(cfg), "--sim", json.dumps(traced)],
@@ -904,7 +1109,7 @@ class EvalTUI:
         return scenarios if scenarios else None
 
     def render_trace(self):
-        """Render the sim trace stepper view."""
+        """Render the debugger-style block inspector view."""
         r = self.selected
         if not r:
             return Panel("No case selected", border_style="red")
@@ -912,70 +1117,66 @@ class EvalTUI:
 
         if self.trace_data is None:
             return Panel(Text("Running sim with trace…", style="bold yellow"),
-                         title=f"[bold]Sim Trace: {cid}[/bold]",
+                         title=f"[bold]Sim Debugger: {cid}[/bold]",
                          border_style="bright_magenta")
 
         if not self.trace_data:
             return Panel(Text("No simulation specs or config not found.", style="red"),
-                         title=f"[bold]Sim Trace: {cid}[/bold]",
+                         title=f"[bold]Sim Debugger: {cid}[/bold]",
                          border_style="red")
 
-        idx = max(0, min(self.trace_scenario_idx, len(self.trace_data) - 1))
-        sc = self.trace_data[idx]
+        sc_idx = max(0, min(self.trace_scenario_idx, len(self.trace_data) - 1))
+        sc = self.trace_data[sc_idx]
         sc_name = sc.get("name", "unnamed")
+        steps = sc.get("steps", [])
+        dump = sc.get("dump")
+
+        if not steps:
+            return Panel(Text("No steps in scenario.", style="dim"),
+                         title=f"[bold]Sim Debugger: {cid}[/bold]  │  {sc_name}",
+                         subtitle=self._trace_nav_bar(), border_style="bright_magenta")
+
+        step_idx = max(0, min(self.trace_step_idx, len(steps) - 1))
+        step = steps[step_idx]
+
+        ticks = step.get("ticks", 10)
+        dt = step.get("dt", 0.1)
+        total_t = ticks * dt
 
         P = []
-        P.append(Text(f"Scenario {idx + 1}/{len(self.trace_data)}: {sc_name}", style="bold"))
-        P.append(Text(""))
+        # Scenario info (if multiple)
+        if len(self.trace_data) > 1:
+            P.append(Text(f"Scenario {sc_idx + 1}/{len(self.trace_data)}: {sc_name}",
+                          style="bold"))
+            P.append(Text(""))
 
-        for step in sc.get("steps", []):
-            si = step["index"]
-            P.append(Text(f"── Step {si} " + "─" * 40, style="bold cyan"))
-
-            if step.get("error"):
-                P.append(Text(f"  ⚠ {step['error']}", style="bold red"))
-                P.append(Text(""))
-                continue
-
+        if step.get("error"):
+            P.append(Text(f"  ⚠ {step['error']}", style="bold red"))
+            P.append(Text(""))
+        else:
             # Inject line
             inputs = step.get("inputs", {})
             if inputs:
-                inj = ", ".join(f"{k} = {v}" for k, v in inputs.items())
-                P.append(Text(f"  Inject: {inj}"))
+                inj = ", ".join(f"{k}={v}" for k, v in inputs.items())
+                P.append(Text(f" ── Inject: {inj} ──", style="bold cyan"))
+                P.append(Text(""))
 
-            ticks = step.get("ticks", 10)
-            dt = step.get("dt", 0.1)
-            total_t = ticks * dt
-            P.append(Text(f"  Ticks: {ticks} × {dt}s = {total_t:.1f}s"))
-            P.append(Text(""))
-
-            # Signals (non-zero)
             signals = step.get("signals", {})
-            non_zero = {k: v for k, v in signals.items() if v != 0 and v != 0.0}
-            if non_zero:
-                P.append(Text("  Signals (non-zero):", style="dim"))
-                # Find check targets for annotation
-                check_outputs = {ch.get("output", ""): ch for ch in step.get("checks", [])}
-                max_key_len = max((len(k) for k in non_zero), default=0)
-                for k, v in sorted(non_zero.items()):
-                    val_str = f"{v:>8.1f}" if isinstance(v, float) else f"{v!s:>8}"
-                    # Check if this signal is a check target
-                    # Match by checking if any check output is a substring of the signal key
-                    annotation = ""
-                    for co in check_outputs:
-                        if co and co in k:
-                            annotation = "  ← target"
-                            break
-                    P.append(Text(f"    {k:<{max_key_len}}  {val_str}{annotation}",
-                                  style="bold" if annotation else ""))
-            else:
-                P.append(Text("  Signals: (all zero)", style="dim"))
-            P.append(Text(""))
-
-            # Checks
             checks = step.get("checks", [])
+            injected_keys = set(inputs.keys())
+
+            # Build block states from dump + signals
+            block_states = _build_block_states(dump, signals, checks, injected_keys)
+
+            if block_states:
+                self._render_block_boxes(P, block_states)
+            else:
+                # Fallback: flat signal list when no dump available
+                self._render_flat_signals(P, signals, checks)
+
+            # Checks summary at bottom
             if checks:
-                P.append(Text("  Checks:", style="dim"))
+                P.append(Text(""))
                 for ch in checks:
                     icon = "✓" if ch.get("pass") else "✗"
                     style = "green" if ch.get("pass") else "red"
@@ -983,8 +1184,8 @@ class EvalTUI:
                     actual = ch.get("actual", "?")
                     comp = ch.get("comparator", "?")
                     exp = ch.get("expected", "?")
-                    P.append(Text(f"    {icon} {out}: {actual} (expected {comp} {exp})", style=style))
-                P.append(Text(""))
+                    P.append(Text(f" ── Check: {icon} {out} = {actual} (expected {comp} {exp}) ──",
+                                  style=style))
 
         # Scrolling
         try:
@@ -1000,15 +1201,106 @@ class EvalTUI:
         else:
             self.trace_scroll = 0
 
-        nav = Text.assemble(
+        step_label = f"Step {step_idx + 1}/{len(steps)}  Tick {ticks}/{ticks}  t={total_t:.1f}s"
+        return Panel(Text("\n").join(P),
+                     title=f"[bold]Sim Debugger: {cid}[/bold]  │  {step_label}{scroll_info}",
+                     subtitle=self._trace_nav_bar(), border_style="bright_magenta")
+
+    def _trace_nav_bar(self):
+        return Text.assemble(
+            ("[←→]", "bold"), " Step  ",
+            ("[\\[\\]]", "bold"), " Scenario  ",
             ("[↑↓]", "bold"), " Scroll  ",
-            ("[PgUp/PgDn]", "bold"), " Page  ",
-            ("[←→]", "bold"), " Prev/Next scenario  ",
             ("[Esc]", "bold"), " Back")
 
-        return Panel(Text("\n").join(P),
-                     title=f"[bold]Sim Trace: {cid}[/bold]  │  {sc_name}{scroll_info}",
-                     subtitle=nav, border_style="bright_magenta")
+    def _render_block_boxes(self, P, block_states):
+        """Render block-centric debugger boxes with wiring arrows."""
+        for pos, bs in enumerate(block_states):
+            # Arrow between blocks
+            if pos > 0:
+                P.append(Text("                          │", style="dim"))
+                P.append(Text("                          ▼", style="dim"))
+
+            # Block header
+            room_str = f" [{bs.room}]" if bs.room else ""
+            header = f" {bs.name} ({bs.block_type}){room_str} "
+            box_w = max(len(header) + 2, 40)
+            pad = " "
+
+            # Check if any output is checked
+            has_check = bool(bs.checked)
+            check_label = ""
+            if has_check:
+                all_pass = all(ch.get("pass", False) for ch in bs.checked.values())
+                check_label = " ✓ CHECK" if all_pass else " ✗ CHECK"
+
+            P.append(Text(f"{pad}┌─{header}{'─' * max(0, box_w - len(header) - 2)}┐"))
+
+            # Inputs
+            if bs.inputs or bs.sources:
+                all_keys = sorted(set(list(bs.inputs.keys()) + list(bs.sources.keys())))
+                for k in all_keys:
+                    val = bs.inputs.get(k, 0.0)
+                    val_str = f"{val:.1f}" if isinstance(val, float) else str(val)
+                    src = bs.sources.get(k, "")
+                    if bs.injected and not src:
+                        src_str = "(injected)"
+                    elif src:
+                        src_str = f"← {src}"
+                    else:
+                        src_str = ""
+                    line = f"  in:  {k} = {val_str}  {src_str}"
+                    line_padded = line.ljust(box_w)[:box_w]
+                    P.append(Text(f"{pad}│{line_padded}│"))
+            elif bs.injected:
+                line = "  in:  (injected)".ljust(box_w)[:box_w]
+                P.append(Text(f"{pad}│{line}│"))
+
+            # Outputs
+            for k, v in sorted(bs.outputs.items()):
+                val_str = f"{v:.1f}" if isinstance(v, float) else str(v)
+                tgt = bs.targets.get(k, "")
+                tgt_str = f"──→  {tgt}" if tgt else ""
+                chk = ""
+                if k in bs.checked:
+                    ch = bs.checked[k]
+                    chk = " ✓" if ch.get("pass", False) else " ✗"
+                line = f"  out: {k} = {val_str}  {tgt_str}{chk}"
+                line_padded = line.ljust(box_w)[:box_w]
+                if k in bs.checked:
+                    check_ann = check_label
+                    P.append(Text.assemble(
+                        (f"{pad}│{line_padded}│", ""),
+                        (check_ann, "bold green" if "✓" in check_ann else "bold red")))
+                else:
+                    P.append(Text(f"{pad}│{line_padded}│"))
+
+            # If no inputs and no outputs shown
+            if not bs.inputs and not bs.sources and not bs.outputs and not bs.injected:
+                line = "  (no signals)".ljust(box_w)[:box_w]
+                P.append(Text(f"{pad}│{line}│", style="dim"))
+
+            P.append(Text(f"{pad}└{'─' * box_w}┘"))
+
+    def _render_flat_signals(self, P, signals, checks):
+        """Fallback: flat signal list when dump is unavailable."""
+        non_zero = {k: v for k, v in signals.items() if v != 0 and v != 0.0}
+        if non_zero:
+            P.append(Text("  Signals (non-zero):", style="dim"))
+            check_outputs = {ch.get("output", ""): ch for ch in checks}
+            max_key_len = max((len(k) for k in non_zero), default=0)
+            for k, v in sorted(non_zero.items()):
+                val_str = f"{v:>8.1f}" if isinstance(v, float) else f"{v!s:>8}"
+                annotation = ""
+                for co in check_outputs:
+                    if co and co in k:
+                        annotation = "  ← target"
+                        break
+                P.append(Text(f"    {k:<{max_key_len}}  {val_str}{annotation}",
+                              style="bold" if annotation else ""))
+        else:
+            P.append(Text("  Signals: (all zero)", style="dim"))
+        P.append(Text(""))
 
     def _get_dump(self, case_id):
         if case_id in self._dump_cache:
@@ -1235,6 +1527,7 @@ class EvalTUI:
             elif key == "t":
                 self.trace_data = None
                 self.trace_scenario_idx = 0
+                self.trace_step_idx = 0
                 self.trace_scroll = 0
                 self.view = "sim_trace"
             elif key in ("1", "2", "3"):
@@ -1269,11 +1562,29 @@ class EvalTUI:
                     page_size = 24
                 self.trace_scroll += page_size
             elif key == "left" and self.trace_data:
-                self.trace_scenario_idx = max(0, self.trace_scenario_idx - 1)
-                self.trace_scroll = 0
+                # Step back within current scenario
+                if self.trace_step_idx > 0:
+                    self.trace_step_idx -= 1
+                    self.trace_scroll = 0
             elif key == "right" and self.trace_data:
-                self.trace_scenario_idx = min(len(self.trace_data) - 1, self.trace_scenario_idx + 1)
-                self.trace_scroll = 0
+                # Step forward within current scenario
+                sc_idx = max(0, min(self.trace_scenario_idx, len(self.trace_data) - 1))
+                n_steps = len(self.trace_data[sc_idx].get("steps", []))
+                if self.trace_step_idx < n_steps - 1:
+                    self.trace_step_idx += 1
+                    self.trace_scroll = 0
+            elif key == "[" and self.trace_data:
+                # Previous scenario
+                if self.trace_scenario_idx > 0:
+                    self.trace_scenario_idx -= 1
+                    self.trace_step_idx = 0
+                    self.trace_scroll = 0
+            elif key == "]" and self.trace_data:
+                # Next scenario
+                if self.trace_scenario_idx < len(self.trace_data) - 1:
+                    self.trace_scenario_idx += 1
+                    self.trace_step_idx = 0
+                    self.trace_scroll = 0
             elif key == "g":
                 self.trace_scroll = 0
             elif key == "G":
