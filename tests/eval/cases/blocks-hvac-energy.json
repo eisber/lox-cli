@@ -877,23 +877,30 @@
       ],
       "simulation": [
         {
-          "name": "departure triggers reset",
+          "name": "departure triggers reset after timeout",
           "steps": [
             {
               "inputs": {
                 "Bewegungsmelder.OutputPresence": 1.0
               },
               "ticks": 5,
-              "dt": 0.1
+              "dt": 10.0
             },
             {
               "inputs": {
                 "Bewegungsmelder.OutputPresence": 0.0
               },
-              "ticks": 20,
-              "dt": 100.0,
+              "ticks": 180,
+              "dt": 10.0
+            },
+            {
+              "inputs": {
+                "Bewegungsmelder.OutputPresence": 0.0
+              },
+              "ticks": 1,
+              "dt": 10.0,
               "expected_outputs": {
-                "Statusblock.I": {
+                "Statusblock.AQ": {
                   ">": 0.0
                 }
               }
@@ -902,7 +909,7 @@
         }
       ]
     },
-    "hint": "Step-by-step plan:\n1. lox config add --type Or --title 'Abwesenheit Oder' --room Flur FILE\n2. Wire all presence detectors to the Or gate: wire FILE 'Abwesenheit Oder.I1' 'Bewegungsmelder.OutputPresence'\n3. lox config add --type Not --title 'Keine Anwesenheit' --room Flur FILE\n4. wire FILE 'Keine Anwesenheit.I' 'Abwesenheit Oder.Q'\n5. lox config add --type OffDelay --title 'Abwesenheit Timer' --room Flur FILE\n6. set-param FILE 'Abwesenheit Timer' Time 1800\n7. wire FILE 'Abwesenheit Timer.Input' 'Keine Anwesenheit.Q'\n8. lox config add --type EdgeDetection --title 'Abgang Puls' --room Flur FILE\n9. wire FILE 'Abgang Puls.Input' 'Abwesenheit Timer.Q'\n10. wire FILE 'Statusblock.I' 'Abgang Puls.RisingEdge'"
+    "hint": "Step-by-step plan:\n1. lox config add --type Or --title 'Anwesenheit Oder' --room Flur FILE\n2. wire FILE 'Anwesenheit Oder.I1' 'Bewegungsmelder.OutputPresence'\n3. wire FILE 'Anwesenheit Oder.I2' 'Bewegungsmelder Garten.OutputPresence'\n4. lox config add --type OffDelay --title 'Abwesenheit Timer' --room Flur FILE\n5. set-param FILE 'Abwesenheit Timer' Time 1800\n6. wire FILE 'Abwesenheit Timer.Input' 'Anwesenheit Oder.Q'\n7. lox config add --type EdgeDetection --title 'Abgang Puls' --room Flur FILE\n8. wire FILE 'Abgang Puls.Input' 'Abwesenheit Timer.Q'\n9. wire FILE 'Statusblock.I' 'Abgang Puls.FallingEdge'"
   },
   {
     "id": "bhe-013-pv-forecast",
