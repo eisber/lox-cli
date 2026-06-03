@@ -832,8 +832,15 @@ class EvalTUI:
         self._status_msg = f"Copied {cid} to clipboard"
 
     def handle_key(self, key, live):
+        # q only quits from dashboard/report picker; elsewhere it goes back
         if key == "q":
-            return False
+            if self.view in ("dashboard", "report_picker"):
+                return False
+            elif self.view == "detail":
+                self.view = "dashboard"
+            elif self.view == "sim_rerun":
+                self.view = "detail"
+            return True
         if self.view == "report_picker":
             if key == "up" and self.report_cursor > 0:
                 self.report_cursor -= 1
