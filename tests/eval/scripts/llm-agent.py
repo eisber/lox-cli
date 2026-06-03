@@ -956,12 +956,15 @@ def main():
             print(f"\033[33m⚠ ERROR\033[0m  {e}")
 
     # ── Generate report ──
+    run_id = f"eval-{time.strftime('%Y%m%d-%H%M%S')}-{args.model.replace('/', '-')}"
     report = generate_report(results)
     report["meta"] = {
+        "run_id": run_id,
         "model": args.model,
         "agent": "llm-agent",
         "max_retries": MAX_RETRIES,
         "timestamp": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+        "work_dir": str(work_dir),
     }
 
     out_path = Path(args.output)

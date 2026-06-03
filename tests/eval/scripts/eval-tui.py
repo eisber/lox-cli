@@ -36,8 +36,8 @@ HELP_DASHBOARD = Text.assemble(
 
 HELP_DETAIL = Text.assemble(
     ("[1-3]", "bold"), " Tabs  ", ("[n/p]", "bold"), " Next/Prev fail  ",
-    ("[r]", "bold"), " Re-run sim  ", ("[Esc]", "bold"), " Back  ",
-    ("[q]", "bold"), " Quit")
+    ("[c]", "bold"), " Copy  ", ("[r]", "bold"), " Re-run sim  ",
+    ("[Esc]", "bold"), " Back  ", ("[q]", "bold"), " Quit")
 
 HELP_REPORTS = Text.assemble(
     ("[↑↓]", "bold"), " Navigate  ", ("[Enter]", "bold"), " Select  ",
@@ -333,6 +333,7 @@ class EvalTUI:
         self.filt_status, self.filt_diff, self.filt_pat = "all", None, ""
         self.sim_output = ""
         self.detail_tab = 1
+        self._status_msg = ""
         # Report picker state
         self.reports_dir = str(REPORTS_DIR)
         self.available_reports = []
@@ -517,8 +518,13 @@ class EvalTUI:
 
         P = [tab_bar, Text("")]
         P.extend(content)
+        subtitle = HELP_DETAIL
+        if self._status_msg:
+            subtitle = Text.assemble(("✓ ", "green"), (self._status_msg, "green bold"), ("  ", ""), *HELP_DETAIL._spans) if hasattr(HELP_DETAIL, '_spans') else HELP_DETAIL
+            subtitle = Text.assemble(("✓ ", "green"), (self._status_msg, "green bold"), ("  │  ", "dim")) + HELP_DETAIL
+            self._status_msg = ""
         return Panel(Text("\n").join(P), title=f"[bold]{cid}[/bold] — {utt}",
-                     subtitle=HELP_DETAIL, border_style="bright_blue")
+                     subtitle=subtitle, border_style="bright_blue")
 
     def _render_circuit_tab(self, r):
         """Render the circuit/blocks detail tab."""
@@ -777,6 +783,54 @@ class EvalTUI:
                 self.cursor = idx
                 return
 
+    def _copy_to_clipboard(self, text):
+        """Copy text to clipboard via OSC 52 escape sequence (works in most terminals)."""
+        import base64
+        encoded = base64.b64encode(text.encode()).decode()
+        sys.stdout.write(f"\033]52;c;{encoded}\a")
+        sys.stdout.flush()
+
+    def _copy_case_summary(self):
+        """Build a shareable summary of the current case and copy to clipboard."""
+        r = self.selected
+        if not r:
+            return
+        cid = r["case_id"]
+        report_name = Path(self.report_path).name if self.report_path else "live-sim"
+        run_id = ""
+        if self.report:
+            run_id = self.report.get("meta", {}).get("run_id", "")
+
+        lines = [
+            f"## Eval Case: {cid}",
+            f"Run: {run_id or report_name}",
+            f"Utterance: {r.get('utterance', '')}",
+            f"Difficulty: {r.get('difficulty', '?')}",
+            f"Result: {'PASS' if r['pass'] else 'FAIL'}  Sim: {r['sim_passed']}/{r['sim_total']}",
+            f"Block F1: {r['block_f1']:.0%}  Wiring: {r['wiring_acc']:.0%}  Params: {r['param_acc']:.0%}",
+        ]
+
+        # Add sim check details
+        scenarios = r.get("simulation_detail", {}).get("scenarios", [])
+        if scenarios:
+            lines.append("")
+            for sc in scenarios:
+                icon = "✓" if sc.get("pass") else "✗"
+                lines.append(f"{icon} {sc.get('name', '?')}")
+                for ch in sc.get("checks", []):
+                    ci = "✓" if ch.get("pass") else "✗"
+                    lines.append(f"  {ci} {ch.get('output','?')}: {ch.get('actual','?')} "
+                                 f"(expected {ch.get('comparator','?')} {ch.get('expected','?')})")
+
+        # Add hint if present
+        hint = r.get("spec", {}).get("hint", "")
+        if hint:
+            lines.append(f"\nHint: {hint[:200]}")
+
+        text = "\n".join(lines)
+        self._copy_to_clipboard(text)
+        self._status_msg = f"Copied {cid} to clipboard"
+
     def handle_key(self, key, live):
         if key == "q":
             return False
@@ -852,6 +906,8 @@ class EvalTUI:
                 self.sim_output = ""
             elif key in ("1", "2", "3"):
                 self.detail_tab = int(key)
+            elif key == "c":
+                self._copy_case_summary()
         elif self.view == "sim_rerun":
             if key in ("\x1b", "esc"):
                 self.view = "detail"
