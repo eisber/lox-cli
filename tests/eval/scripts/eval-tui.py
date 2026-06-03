@@ -58,6 +58,8 @@ HELP_FULL = {
         ("q", "Quit"),
     ],
     "detail": [
+        ("↑ / ↓", "Scroll content"),
+        ("g / G", "Jump to top / bottom"),
         ("1 / 2 / 3", "Switch tab: Circuit / Conversation / Commands"),
         ("n", "Jump to next failing case"),
         ("p", "Jump to previous failing case"),
@@ -371,6 +373,7 @@ class EvalTUI:
         self.detail_tab = 1
         self._status_msg = ""
         self._help_from = ""
+        self.detail_scroll = 0
         # Report picker state
         self.reports_dir = str(REPORTS_DIR)
         self.available_reports = []
@@ -555,12 +558,26 @@ class EvalTUI:
 
         P = [tab_bar, Text("")]
         P.extend(content)
+
+        # Apply scroll offset — slice visible lines to fit terminal
+        try:
+            vis_height = os.get_terminal_size().lines - 6  # panel border + title + subtitle + tab bar
+        except (ValueError, OSError):
+            vis_height = 30
+        total_lines = len(P)
+        if total_lines > vis_height:
+            self.detail_scroll = max(0, min(self.detail_scroll, total_lines - vis_height))
+            P = P[self.detail_scroll:self.detail_scroll + vis_height]
+            scroll_info = f"  [{self.detail_scroll + 1}–{min(self.detail_scroll + vis_height, total_lines)}/{total_lines}]"
+        else:
+            self.detail_scroll = 0
+            scroll_info = ""
+
         subtitle = HELP_DETAIL
         if self._status_msg:
-            subtitle = Text.assemble(("✓ ", "green"), (self._status_msg, "green bold"), ("  ", ""), *HELP_DETAIL._spans) if hasattr(HELP_DETAIL, '_spans') else HELP_DETAIL
             subtitle = Text.assemble(("✓ ", "green"), (self._status_msg, "green bold"), ("  │  ", "dim")) + HELP_DETAIL
             self._status_msg = ""
-        return Panel(Text("\n").join(P), title=f"[bold]{cid}[/bold] — {utt}",
+        return Panel(Text("\n").join(P), title=f"[bold]{cid}[/bold] — {utt}{scroll_info}",
                      subtitle=subtitle, border_style="bright_blue")
 
     def _render_circuit_tab(self, r):
@@ -688,13 +705,15 @@ class EvalTUI:
 
             P.append(Text(f"{icon}{label}", style=style))
             lines = content.split("\n") if isinstance(content, str) else [str(content)]
-            box_w = min(max((len(ln) for ln in lines), default=40) + 2, 60)
+            term_w = self._get_term_width() - 8  # panel borders + padding
+            box_w = min(max((len(ln) for ln in lines[:50]), default=40) + 2, term_w)
             P.append(Text(f"  ┌{'─' * box_w}┐"))
-            for line in lines[:20]:
+            max_lines = 80 if role in ("user", "human") else 40
+            for line in lines[:max_lines]:
                 padded = line[:box_w].ljust(box_w)
                 P.append(Text(f"  │{padded}│", style="dim"))
-            if len(lines) > 20:
-                trunc = f"… {len(lines) - 20} more lines"
+            if len(lines) > max_lines:
+                trunc = f"… {len(lines) - max_lines} more lines"
                 P.append(Text(f"  │{trunc.ljust(box_w)}│", style="dim"))
             P.append(Text(f"  └{'─' * box_w}┘"))
             P.append(Text(""))
@@ -961,17 +980,28 @@ class EvalTUI:
         elif self.view == "detail":
             if key in ("\x1b", "esc"):
                 self.view = "dashboard"
+            elif key == "up":
+                self.detail_scroll = max(0, self.detail_scroll - 1)
+            elif key == "down":
+                self.detail_scroll += 1
             elif key == "n" and self.rows:
                 self._jump_fail(1)
                 self.selected = self.rows[self.cursor]
+                self.detail_scroll = 0
             elif key == "p" and self.rows:
                 self._jump_fail(-1)
                 self.selected = self.rows[self.cursor]
+                self.detail_scroll = 0
             elif key == "r":
                 self.view = "sim_rerun"
                 self.sim_output = ""
             elif key in ("1", "2", "3"):
                 self.detail_tab = int(key)
+                self.detail_scroll = 0
+            elif key == "g":
+                self.detail_scroll = 0
+            elif key == "G":
+                self.detail_scroll = 9999
             elif key == "c":
                 self._copy_case_summary()
         elif self.view == "sim_rerun":
