@@ -118,21 +118,21 @@ def merge_data(report, specs, configs_dir):
     # Fallback: scan saved configs and run sims to populate results
     rows = []
     configs_path = Path(configs_dir) if configs_dir else DEFAULT_CONFIGS
-    lox_sim = None
-    for candidate in ["./target/release/lox-sim", "lox-sim"]:
+    lox_bin = None
+    for candidate in ["./target/release/lox", "lox"]:
         if Path(candidate).exists() or shutil.which(candidate):
-            lox_sim = candidate
+            lox_bin = candidate
             break
 
     for cid, spec in sorted(specs.items()):
         config = configs_path / f"{cid}.Loxone"
         rc = {"case_id": cid}
-        if config.exists() and lox_sim:
+        if config.exists() and lox_bin:
             sims = spec.get("expected", {}).get("simulation", [])
             if sims:
                 try:
                     r = subprocess.run(
-                        [lox_sim, "run", str(config), "--sim", json.dumps(sims)],
+                        [lox_bin, "sim", "run", str(config), "--sim", json.dumps(sims)],
                         capture_output=True, text=True, timeout=60,
                     )
                     if r.stdout.strip():

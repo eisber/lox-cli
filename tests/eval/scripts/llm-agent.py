@@ -49,26 +49,18 @@ MAX_RETRIES = 5
 
 
 def _find_lox_sim():
-    """Find the lox sim binary (prefers main lox binary with sim subcommand)."""
-    # Prefer the unified binary
+    """Find the lox binary with sim subcommand."""
     for candidate in ["lox", "./target/release/lox", str(EVAL_DIR.parent.parent / "target" / "release" / "lox")]:
         if shutil.which(candidate):
             return [candidate, "sim"]
         p = Path(candidate)
         if p.exists():
             return [str(p), "sim"]
-    # Fall back to standalone lox-sim
-    for candidate in ["lox-sim", "./target/release/lox-sim", str(EVAL_DIR.parent.parent / "target" / "release" / "lox-sim")]:
-        if shutil.which(candidate):
-            return [candidate]
-        p = Path(candidate)
-        if p.exists():
-            return [str(p)]
-    return ["lox", "sim"]  # hope lox is on PATH
+    return ["lox", "sim"]
 
 
 def run_simulation(case_id: str, case: dict, config_path: str) -> dict:
-    """Run simulation specs via Rust lox-sim binary."""
+    """Run simulation specs via lox sim subcommand."""
     sims = case.get("expected", {}).get("simulation", [])
     if not sims:
         return {"case_id": case_id, "pass": True, "passed_count": 0, "total_count": 0, "scenarios": []}
