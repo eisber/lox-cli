@@ -1,6 +1,12 @@
 #!/usr/bin/env python3
 """Beautiful terminal UI for inspecting Loxone eval results."""
-import argparse, json, shutil, subprocess, sys, tty, termios
+import argparse
+import json
+import shutil
+import subprocess
+import sys
+import termios
+import tty
 from pathlib import Path
 from rich.console import Console
 from rich.layout import Layout
@@ -225,8 +231,9 @@ class EvalTUI:
 
     def render_detail(self):
         r = self.selected
-        if not r: return Panel("No case selected", border_style="red")
-        spec, expected = r.get("spec", {}), r.get("spec", {}).get("expected", {})
+        if not r:
+            return Panel("No case selected", border_style="red")
+        expected = r.get("spec", {}).get("expected", {})
         cid = r["case_id"]
         utt = (r["utterance"][:77] + "…") if len(r["utterance"]) > 80 else r["utterance"]
         dc = DIFF_COLORS.get(r["difficulty"], "white")
@@ -287,7 +294,7 @@ class EvalTUI:
                 if unwired and any(i.get("wired_from") for i in blk["inputs"]):
                     P.append(Text(f"    ⚠ unwired: {', '.join(unwired[:5])}", style="red"))
                 elif unwired and not any(i.get("wired_from") for i in blk["inputs"]):
-                    P.append(Text(f"    ⚠ ALL inputs unwired!", style="bold red"))
+                    P.append(Text("    ⚠ ALL inputs unwired!", style="bold red"))
                 for out in blk["outputs"]:
                     for tgt in out.get("wired_to", []):
                         dst = cid_map.get(tgt, f"cid:{tgt}")
@@ -391,45 +398,70 @@ class EvalTUI:
         for i in range(1, n):
             idx = (self.cursor + i * d) % n
             if not self.rows[idx]["pass"]:
-                self.cursor = idx; return
+                self.cursor = idx
+                return
 
     def handle_key(self, key, live):
-        if key == "q": return False
+        if key == "q":
+            return False
         if self.view == "dashboard":
-            if key == "up" and self.cursor > 0: self.cursor -= 1
-            elif key == "down" and self.cursor < len(self.rows) - 1: self.cursor += 1
+            if key == "up" and self.cursor > 0:
+                self.cursor -= 1
+            elif key == "down" and self.cursor < len(self.rows) - 1:
+                self.cursor += 1
             elif key in ("\r", "\n") and self.rows:
-                self.selected = self.rows[self.cursor]; self.view = "detail"
+                self.selected = self.rows[self.cursor]
+                self.view = "detail"
             elif key == "s":
                 self.sort_key = SORT_KEYS[(SORT_KEYS.index(self.sort_key) + 1) % len(SORT_KEYS)]
                 self._apply_sort()
-            elif key == "r": self.sort_rev = not self.sort_rev; self._apply_sort()
+            elif key == "r":
+                self.sort_rev = not self.sort_rev
+                self._apply_sort()
             elif key == "f":
                 c = ["all", "pass", "fail"]
-                self.filt_status = c[(c.index(self.filt_status) + 1) % 3]; self._apply_filters()
+                self.filt_status = c[(c.index(self.filt_status) + 1) % 3]
+                self._apply_filters()
             elif key == "d":
                 ds = [None, "easy", "medium", "hard", "expert"]
-                self.filt_diff = ds[(ds.index(self.filt_diff) + 1) % 5] if self.filt_diff in ds \
-                    else ds[1]; self._apply_filters()
+                if self.filt_diff in ds:
+                    self.filt_diff = ds[(ds.index(self.filt_diff) + 1) % 5]
+                else:
+                    self.filt_diff = ds[1]
+                self._apply_filters()
             elif key == "/":
                 live.stop()
-                try: self.filt_pat = input("Filter pattern (empty=clear): ").strip()
-                except (EOFError, KeyboardInterrupt): self.filt_pat = ""
-                live.start(); self._apply_filters()
-            elif key == "G": self.cursor = max(0, len(self.rows) - 1)
-            elif key == "g": self.cursor = 0
+                try:
+                    self.filt_pat = input("Filter pattern (empty=clear): ").strip()
+                except (EOFError, KeyboardInterrupt):
+                    self.filt_pat = ""
+                live.start()
+                self._apply_filters()
+            elif key == "G":
+                self.cursor = max(0, len(self.rows) - 1)
+            elif key == "g":
+                self.cursor = 0
         elif self.view == "detail":
-            if key in ("\x1b", "esc"): self.view = "dashboard"
-            elif key == "n" and self.rows: self._jump_fail(1); self.selected = self.rows[self.cursor]
-            elif key == "p" and self.rows: self._jump_fail(-1); self.selected = self.rows[self.cursor]
-            elif key == "r": self.view = "sim_rerun"; self.sim_output = ""
+            if key in ("\x1b", "esc"):
+                self.view = "dashboard"
+            elif key == "n" and self.rows:
+                self._jump_fail(1)
+                self.selected = self.rows[self.cursor]
+            elif key == "p" and self.rows:
+                self._jump_fail(-1)
+                self.selected = self.rows[self.cursor]
+            elif key == "r":
+                self.view = "sim_rerun"
+                self.sim_output = ""
         elif self.view == "sim_rerun":
-            if key in ("\x1b", "esc"): self.view = "detail"
+            if key in ("\x1b", "esc"):
+                self.view = "detail"
         return True
 
     def run(self):
         if not self.rows:
-            self.console.print("[red]No data found. Check --report and --cases paths.[/red]"); return
+            self.console.print("[red]No data found. Check --report and --cases paths.[/red]")
+            return
         self.console.print(f"[dim]Loaded {len(self.all_rows)} cases. Starting TUI…[/dim]")
         fd = sys.stdin.fileno()
         old_term = termios.tcgetattr(fd)
@@ -443,7 +475,8 @@ class EvalTUI:
                             live.update(self.render_sim())
                             self.sim_output = self._run_sim(self.selected["case_id"])
                         live.update(render[self.view]())
-                        if not self.handle_key(readkey(), live): break
+                        if not self.handle_key(readkey(), live):
+                            break
                     except KeyboardInterrupt:
                         break
         finally:
