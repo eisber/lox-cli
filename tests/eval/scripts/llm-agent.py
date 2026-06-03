@@ -299,7 +299,7 @@ def run_case(case, work_dir: Path, client, model: str, verbose: bool = False):
 
     Loop: build → check → sim test → fix → repeat (up to MAX_RETRIES)
 
-    Returns: (result_path, tracker, token_usage)
+    Returns: (result_path, tracker, token_usage, command_log, messages)
     """
     lox_cmd = _find_lox()
     tracker = CLITracker()
@@ -313,6 +313,7 @@ def run_case(case, work_dir: Path, client, model: str, verbose: bool = False):
     total_input_tokens = 0
     total_output_tokens = 0
     all_commands_run: list[str] = []
+    command_log: list[dict] = []
 
     for attempt in range(1 + MAX_RETRIES):
         if verbose:
@@ -338,12 +339,14 @@ def run_case(case, work_dir: Path, client, model: str, verbose: bool = False):
         # Execute all commands
         outputs = execute_commands(commands, tracker, cwd=str(work_dir))
         all_commands_run.extend(commands)
+        command_log.extend(outputs)
 
         # Run check (always)
         check_cmd = f"lox config check {config_path}"
         if not any("config check" in c for c in commands):
             check_out = execute_commands([check_cmd], tracker, cwd=str(work_dir))
             all_commands_run.append(check_cmd)
+            command_log.extend(check_out)
         else:
             check_out = [o for o in outputs if "config check" in o.get("command", "")]
 
@@ -395,6 +398,7 @@ def run_case(case, work_dir: Path, client, model: str, verbose: bool = False):
                 print(f"    [auto-repair] found {len(repair_cmds)} fixes", file=sys.stderr)
                 if repair_cmds:
                     repair_outputs = execute_commands(repair_cmds, tracker, cwd=str(work_dir))
+                    command_log.extend(repair_outputs)
                     for ro in repair_outputs:
                         print(f"      {ro.get('command','')[:80]} → rc={ro.get('returncode')}", file=sys.stderr)
                     all_commands_run.extend(repair_cmds)
@@ -420,7 +424,7 @@ def run_case(case, work_dir: Path, client, model: str, verbose: bool = False):
         "output_chars": total_output_tokens * 4,
     }
 
-    return config_path, tracker, token_usage
+    return config_path, tracker, token_usage, command_log, messages
 
 
 def _build_sim_feedback(sim_result: dict, commands_run: list[str], config_path: str) -> str:
@@ -832,7 +836,7 @@ def main():
         sys.stdout.flush()
 
         try:
-            result_path, tracker, tokens = run_case(
+            result_path, tracker, tokens, command_log, conversation = run_case(
                 case, work_dir, client, args.model, verbose=args.verbose
             )
 
@@ -862,6 +866,29 @@ def main():
             eval_result["validation_runs"] = tracker.summary()["validation_runs"]
             eval_result["tokens"] = tokens
             eval_result["model"] = args.model
+
+            # Truncate command stdout/stderr to keep report size reasonable
+            truncated_commands = []
+            for entry in command_log:
+                truncated_commands.append({
+                    "command": entry.get("command", ""),
+                    "returncode": entry.get("returncode", -1),
+                    "stdout": (entry.get("stdout") or "")[:500],
+                    "stderr": (entry.get("stderr") or "")[:500],
+                })
+            eval_result["commands"] = truncated_commands
+
+            # Save conversation; truncate the first user message (contains SKILL.md)
+            truncated_conversation = []
+            for j, msg in enumerate(conversation):
+                content = msg.get("content", "")
+                if j == 0 and msg.get("role") == "user" and len(content) > 2000:
+                    content = content[:2000] + "\n… [truncated]"
+                truncated_conversation.append({
+                    "role": msg.get("role", ""),
+                    "content": content,
+                })
+            eval_result["conversation"] = truncated_conversation
 
             results.append(eval_result)
 
@@ -930,6 +957,8 @@ def main():
                     "retries": 0,
                     "tokens": {"input_tokens_est": 0, "output_tokens_est": 0},
                     "model": args.model,
+                    "commands": [],
+                    "conversation": [],
                 }
             )
             print(f"\033[33m⚠ ERROR\033[0m  {e}")
