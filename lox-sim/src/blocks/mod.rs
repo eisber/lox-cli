@@ -13,6 +13,7 @@ pub mod math;
 pub mod misc;
 pub mod schedule;
 pub mod security;
+pub mod sequence;
 pub mod state;
 pub mod timers;
 
@@ -51,15 +52,16 @@ pub use misc::{
     Intercom, Irrigation, Leaf, LightControllerH, Lightscene, LightsceneLearn, LightsceneRGB,
     LongClick, MPGroup, MailBox, MailGen, Media, MediaClient, MeterAbsSt, MeterPSt, MultiClick,
     MultiFuncSW, MusicPlayer, Nevo, NfcCodeTouch, PButtonT, Ping, Power, PowerUnit, PulseBy,
-    PushDimmer, Radio, Radio2, Ramp, Rand, RandomGen, RoofWindow, Roomcontrol, SequenceController,
-    Sequencer, ShadeRoof, SpotOpt, StatusMonitor, SteakThermo, StepSel, SysVar, Tablet,
-    TextGenerator, TimeMinmax, TpfController, Validator, Weed, Wind, WindowsMonitor, EFM, WBEM,
+    PushDimmer, Radio, Radio2, Ramp, Rand, RandomGen, RoofWindow, Roomcontrol, Sequencer,
+    ShadeRoof, SpotOpt, StatusMonitor, SteakThermo, StepSel, SysVar, Tablet, TextGenerator,
+    TimeMinmax, TpfController, Validator, Weed, Wind, WindowsMonitor, EFM, WBEM,
 };
 pub use schedule::{AlarmClock, Calendar, DayTimer, DayTimerEntry, PulseAt};
 pub use security::{
     AalEmergency, AalSmartAlarm, Access, Alarm, AlarmChain, CentralAlarm, JoinWindowSensor,
     Presence, PresenceController, PresenceDetector, SmokeAlarm,
 };
+pub use sequence::SequenceController;
 pub use state::{
     AMemory, Counter, FlipFlop, HourCounter, Memory, PushButton, PushButton2, RSFlipFlop,
     SampleHold, Shift, State, StateV, UpDownCounter,
@@ -553,7 +555,7 @@ pub fn create_block(block_type: &str) -> Box<dyn Block> {
 
         // Group D — Misc: Sequencer
         "Sequencer" => Box::new(Sequencer::new()),
-        "SequenceController" => Box::new(SequenceController),
+        "SequenceController" => Box::new(SequenceController::new("", 500.0)),
 
         // Group D — Misc: Central controllers
         "CentralLight" => Box::new(CentralLight),

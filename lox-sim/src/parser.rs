@@ -6,7 +6,7 @@ use std::path::Path;
 
 use xmltree::Element;
 
-use crate::blocks::{create_block, Block, DayTimer, DayTimerEntry};
+use crate::blocks::{create_block, Block, DayTimer, DayTimerEntry, SequenceController};
 use crate::graph::SimGraph;
 use crate::types::ConnectorDir;
 
@@ -26,6 +26,7 @@ struct ParsedBlock {
     room: Option<String>,
     connectors: Vec<ParsedConnector>,
     daytimer_entries: Vec<DayTimerEntry>,
+    program_text: Option<String>,
 }
 
 /// Parse a `.Loxone` XML file from disk into a [`SimGraph`].
@@ -67,6 +68,15 @@ pub fn parse_element(root: &Element) -> Result<SimGraph, String> {
 
         let block: Box<dyn Block> = if parsed.block_type == "DayTimer" {
             Box::new(DayTimer::new(parsed.daytimer_entries.clone()))
+        } else if parsed.block_type == "SequenceController" {
+            let program = parsed.program_text.as_deref().unwrap_or("");
+            let interval = parsed
+                .connectors
+                .iter()
+                .find(|c| c.key == "Interval")
+                .map(|c| c.default_value)
+                .unwrap_or(500.0);
+            Box::new(SequenceController::new(program, interval))
         } else {
             create_block(&parsed.block_type)
         };
@@ -212,6 +222,7 @@ fn walk_blocks_with_room(elem: &Element, out: &mut Vec<ParsedBlock>, current_roo
                     room: room.map(|s| s.to_string()),
                     connectors: parse_connectors(block_type, elem),
                     daytimer_entries: parse_daytimer_entries(elem),
+                    program_text: parse_field_text(elem, "Configuration"),
                 });
             }
         }
@@ -314,6 +325,34 @@ fn parse_daytimer_entries(elem: &Element) -> Vec<DayTimerEntry> {
             })
         })
         .collect()
+}
+
+/// Extract text content from a `<Field Name="...">` child element,
+/// or from an attribute with the same name on the block element itself.
+fn parse_field_text(elem: &Element, field_name: &str) -> Option<String> {
+    // Try <Field Name="Configuration">text</Field> child element
+    for child in &elem.children {
+        if let Some(child_elem) = child.as_element() {
+            if child_elem.name == "Field"
+                && child_elem.attributes.get("Name").map(|s| s.as_str()) == Some(field_name)
+            {
+                // Text content may be in get_text() or Value attribute
+                if let Some(text) = child_elem.get_text() {
+                    let text = text.trim().to_string();
+                    if !text.is_empty() {
+                        return Some(text);
+                    }
+                }
+                if let Some(val) = child_elem.attributes.get("Value") {
+                    if !val.is_empty() {
+                        return Some(val.clone());
+                    }
+                }
+            }
+        }
+    }
+    // Fallback: attribute on the block element itself
+    elem.attributes.get(field_name).cloned()
 }
 
 fn connector_direction(block_type: &str, key: &str, has_explicit_input: bool) -> ConnectorDir {
@@ -1552,9 +1591,25 @@ fn block_signature(
             &["Mode"],
         ),
         "SequenceController" => (
-            &["Trigger1", "Trigger2", "AI1", "AI2", "ATrigger"],
-            &["AQ1", "AQ2", "OutputCurrSequence", "OutputCurrLine", "TQ"],
-            &[],
+            &[
+                "Trigger1", "Trigger2", "Trigger3", "Trigger4", "Trigger5", "Trigger6", "Trigger7",
+                "Trigger8", "AI1", "AI2", "AI3", "AI4", "AI5", "AI6", "AI7", "AI8", "ATrigger",
+                "Off",
+            ],
+            &[
+                "AQ1",
+                "AQ2",
+                "AQ3",
+                "AQ4",
+                "AQ5",
+                "AQ6",
+                "AQ7",
+                "AQ8",
+                "OutputCurrSequence",
+                "OutputCurrLine",
+                "TQ",
+            ],
+            &["Interval"],
         ),
         // Counters / timers
         "HourCounter" => (

@@ -1226,14 +1226,6 @@ impl Block for Sequencer {
     }
 }
 
-// WARNING: Block type 'SequenceController' behavior unknown — using pass-through stub.
-// Actual Loxone behavior not documented. Will be validated later.
-stub_block!(
-    /// Sequence controller — pass-through stub.
-    SequenceController,
-    "SequenceController"
-);
-
 // ===========================================================================
 // Meter variants (stat-based)
 // ===========================================================================
