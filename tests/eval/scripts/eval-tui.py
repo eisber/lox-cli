@@ -43,6 +43,42 @@ HELP_REPORTS = Text.assemble(
     ("[↑↓]", "bold"), " Navigate  ", ("[Enter]", "bold"), " Select  ",
     ("[Esc]", "bold"), " Back  ", ("[q]", "bold"), " Quit")
 
+HELP_FULL = {
+    "dashboard": [
+        ("↑ / ↓", "Navigate cases"),
+        ("Enter", "Open case detail"),
+        ("f", "Cycle filter: all → pass → fail"),
+        ("d", "Cycle difficulty: all → easy → medium → hard → expert"),
+        ("s", "Cycle sort: case_id → difficulty → sim → block → tokens"),
+        ("r", "Reverse sort order"),
+        ("/ ", "Search by text (case ID, utterance, pattern)"),
+        ("g / G", "Jump to first / last case"),
+        ("R", "Open report picker (switch eval runs)"),
+        ("?  h", "Show this help"),
+        ("q", "Quit"),
+    ],
+    "detail": [
+        ("1 / 2 / 3", "Switch tab: Circuit / Conversation / Commands"),
+        ("n", "Jump to next failing case"),
+        ("p", "Jump to previous failing case"),
+        ("c", "Copy case summary to clipboard"),
+        ("r", "Re-run simulation live"),
+        ("Esc  q", "Back to dashboard"),
+        ("?  h", "Show this help"),
+    ],
+    "sim_rerun": [
+        ("Esc  q", "Back to detail view"),
+        ("?  h", "Show this help"),
+    ],
+    "report_picker": [
+        ("↑ / ↓", "Navigate reports"),
+        ("Enter", "Load selected report"),
+        ("g / G", "Jump to first / last report"),
+        ("Esc  q", "Quit"),
+        ("?  h", "Show this help"),
+    ],
+}
+
 
 def readkey():
     fd = sys.stdin.fileno()
@@ -334,6 +370,7 @@ class EvalTUI:
         self.sim_output = ""
         self.detail_tab = 1
         self._status_msg = ""
+        self._help_from = ""
         # Report picker state
         self.reports_dir = str(REPORTS_DIR)
         self.available_reports = []
@@ -716,6 +753,19 @@ class EvalTUI:
         return Panel(body, title=f"[bold]Sim Re-run: {r['case_id']}[/bold]",
                      subtitle=nav, border_style="bright_yellow")
 
+    def render_help(self):
+        """Render a help overlay showing all keybindings for the previous view."""
+        view = self._help_from or "dashboard"
+        bindings = HELP_FULL.get(view, HELP_FULL["dashboard"])
+        t = Table(show_header=False, box=None, padding=(0, 2))
+        t.add_column("Key", style="bold cyan", min_width=12)
+        t.add_column("Action")
+        for key, desc in bindings:
+            t.add_row(key, desc)
+        subtitle = Text.assemble(("Press any key to close", "dim"))
+        return Panel(t, title=f"[bold]Help — {view}[/bold]",
+                     subtitle=subtitle, border_style="bright_cyan")
+
     def _get_dump(self, case_id):
         if case_id in self._dump_cache:
             return self._dump_cache[case_id]
@@ -832,6 +882,15 @@ class EvalTUI:
         self._status_msg = f"Copied {cid} to clipboard"
 
     def handle_key(self, key, live):
+        # Help overlay: any key dismisses it
+        if self.view == "help":
+            self.view = self._help_from or "dashboard"
+            return True
+        # ? or h shows help from current view
+        if key in ("?", "h") and self.view != "help":
+            self._help_from = self.view
+            self.view = "help"
+            return True
         # q only quits from dashboard/report picker; elsewhere it goes back
         if key == "q":
             if self.view in ("dashboard", "report_picker"):
@@ -932,7 +991,8 @@ class EvalTUI:
                 while True:
                     try:
                         render = {"dashboard": self.render_dashboard, "detail": self.render_detail,
-                                  "sim_rerun": self.render_sim, "report_picker": self.render_report_picker}
+                                  "sim_rerun": self.render_sim, "report_picker": self.render_report_picker,
+                                  "help": self.render_help}
                         if self.view == "sim_rerun" and not self.sim_output:
                             live.update(self.render_sim(), refresh=True)
                             self.sim_output = self._run_sim(self.selected["case_id"])
