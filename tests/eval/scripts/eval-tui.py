@@ -381,7 +381,7 @@ def _parse_signal_key(sig_key):
     return sig_key, "", ""
 
 
-def _build_block_states(dump, signals, checks, injected_keys):
+def _build_block_states(dump, signals, checks, injected_keys, injected_values=None):
     """Build topologically ordered BlockState list from dump + trace signals.
 
     Args:
@@ -389,9 +389,12 @@ def _build_block_states(dump, signals, checks, injected_keys):
         signals: Dict of signal_key → value from trace
         checks: List of check dicts with 'output', 'pass', etc.
         injected_keys: Set of injected input keys (e.g. "Sensor.AQ")
+        injected_values: Dict of injected input keys → values
     Returns:
         List of BlockState in topological order, filtered to active blocks.
     """
+    if injected_values is None:
+        injected_values = {}
     if not dump:
         return []
 
@@ -453,6 +456,18 @@ def _build_block_states(dump, signals, checks, injected_keys):
 
         bs = BlockState(name=bname, block_type=btype, room=broom)
         bs.injected = bname in injected_names
+
+        # For injected blocks, populate their output values from injected_values
+        if bs.injected and injected_values:
+            for ik, iv in injected_values.items():
+                ik_name, _, ik_conn = _parse_signal_key(ik)
+                if ik_name == bname:
+                    if ik_conn:
+                        bs.outputs[ik_conn] = iv
+                    else:
+                        # Bare name injection → set first output
+                        for out in blk.get("outputs", [])[:1]:
+                            bs.outputs[out["key"]] = iv
 
         # Populate connector values from signals
         for idx, conn, val in sig_map:
@@ -1150,6 +1165,35 @@ class EvalTUI:
                           style="bold"))
             P.append(Text(""))
 
+        # Timeline bar showing all steps with current highlighted
+        if len(steps) > 1:
+            timeline_parts = []
+            cumulative_t = 0.0
+            for si, s in enumerate(steps):
+                s_ticks = s.get("ticks", 10)
+                s_dt = s.get("dt", 0.1)
+                s_total = s_ticks * s_dt
+                # Build label
+                inj_keys = list(s.get("inputs", {}).keys())
+                label = f"t={cumulative_t:.0f}s"
+                if inj_keys:
+                    short = inj_keys[0].split(".")[-1][:8]
+                    label += f" {short}={s.get('inputs',{}).get(inj_keys[0],'')}"
+                has_check = bool(s.get("expected_outputs", s.get("checks")))
+                if has_check:
+                    label += " ✓?"
+
+                if si == step_idx:
+                    timeline_parts.append(("▶ ", "bold yellow"))
+                    timeline_parts.append((f"[{label}]", "bold yellow underline"))
+                else:
+                    timeline_parts.append(("  ", ""))
+                    timeline_parts.append((f"[{label}]", "dim"))
+                timeline_parts.append((" ─── ", "dim"))
+                cumulative_t += s_total
+            P.append(Text.assemble(*timeline_parts))
+            P.append(Text(""))
+
         if step.get("error"):
             P.append(Text(f"  ⚠ {step['error']}", style="bold red"))
             P.append(Text(""))
@@ -1166,7 +1210,7 @@ class EvalTUI:
             injected_keys = set(inputs.keys())
 
             # Build block states from dump + signals
-            block_states = _build_block_states(dump, signals, checks, injected_keys)
+            block_states = _build_block_states(dump, signals, checks, injected_keys, inputs)
 
             if block_states:
                 self._render_block_boxes(P, block_states)
@@ -1253,8 +1297,15 @@ class EvalTUI:
                     line_padded = line.ljust(box_w)[:box_w]
                     P.append(Text(f"{pad}│{line_padded}│"))
             elif bs.injected:
-                line = "  in:  (injected)".ljust(box_w)[:box_w]
-                P.append(Text(f"{pad}│{line}│"))
+                # Show injected values from outputs
+                if bs.outputs:
+                    for k, v in sorted(bs.outputs.items()):
+                        val_str = f"{v:.1f}" if isinstance(v, float) else str(v)
+                        line = f"  in:  {k} = {val_str}  (injected)".ljust(box_w)[:box_w]
+                        P.append(Text(f"{pad}│{line}│", style="bold cyan"))
+                else:
+                    line = "  in:  (injected)".ljust(box_w)[:box_w]
+                    P.append(Text(f"{pad}│{line}│"))
 
             # Outputs
             for k, v in sorted(bs.outputs.items()):
