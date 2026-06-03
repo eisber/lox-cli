@@ -2,11 +2,13 @@
 """Beautiful terminal UI for inspecting Loxone eval results."""
 import argparse
 import json
+import os
 import shutil
 import subprocess
 import sys
 import termios
 import tty
+from collections import defaultdict
 from pathlib import Path
 from rich.console import Console
 from rich.layout import Layout
@@ -20,10 +22,26 @@ REPO = SCRIPT_DIR.parent.parent.parent
 DEFAULT_REPORT = REPO / "tests/eval/reports/llm-report.json"
 DEFAULT_CASES = REPO / "tests/eval/cases"
 DEFAULT_CONFIGS = Path("/tmp/lox-eval-agent-z98dvmgk")
+REPORTS_DIR = REPO / "tests/eval/reports"
 LOX_BIN = REPO / "target/release/lox"
 DIFF_COLORS = {"easy": "green", "medium": "yellow", "hard": "red", "expert": "magenta"}
 SORT_KEYS = ["case_id", "difficulty", "sim", "block_f1", "wiring", "tokens"]
 DIFF_ORDER = {"easy": 0, "medium": 1, "hard": 2, "expert": 3}
+
+HELP_DASHBOARD = Text.assemble(
+    ("[↑↓]", "bold"), " Navigate  ", ("[Enter]", "bold"), " Detail  ",
+    ("[f]", "bold"), " Filter  ", ("[d]", "bold"), " Difficulty  ",
+    ("[s]", "bold"), " Sort  ", ("[R]", "bold"), " Reports  ",
+    ("[/]", "bold"), " Search  ", ("[q]", "bold"), " Quit")
+
+HELP_DETAIL = Text.assemble(
+    ("[1-3]", "bold"), " Tabs  ", ("[n/p]", "bold"), " Next/Prev fail  ",
+    ("[r]", "bold"), " Re-run sim  ", ("[Esc]", "bold"), " Back  ",
+    ("[q]", "bold"), " Quit")
+
+HELP_REPORTS = Text.assemble(
+    ("[↑↓]", "bold"), " Navigate  ", ("[Enter]", "bold"), " Select  ",
+    ("[Esc]", "bold"), " Back  ", ("[q]", "bold"), " Quit")
 
 
 def readkey():
@@ -133,6 +151,150 @@ def merge_data(report, specs, configs_dir):
     return rows
 
 
+def scan_reports(reports_dir):
+    """Scan a directory for report JSON files and return metadata sorted newest first."""
+    results = []
+    d = Path(reports_dir)
+    if not d.exists():
+        return results
+    for f in sorted(d.glob("*.json")):
+        try:
+            data = json.loads(f.read_text())
+            if not isinstance(data, dict):
+                continue
+            cases = data.get("cases", [])
+            meta = data.get("meta", {})
+            total = len(cases)
+            passed = sum(1 for c in cases if c.get("pass"))
+            rate = (passed / total * 100) if total else 0
+            results.append({
+                "path": str(f),
+                "filename": f.name,
+                "timestamp": meta.get("timestamp", ""),
+                "mtime": f.stat().st_mtime,
+                "cases": total,
+                "passed": passed,
+                "pass_rate": rate,
+                "model": meta.get("model", ""),
+                "work_dir": meta.get("work_dir", ""),
+            })
+        except (json.JSONDecodeError, KeyError, OSError):
+            pass
+    results.sort(key=lambda r: r["mtime"], reverse=True)
+    return results
+
+
+def build_wiring_dag(dump):
+    """Build a DAG from dump data. Returns (blocks, edges)."""
+    if not dump:
+        return [], []
+    blocks = [b for b in dump.get("blocks", []) if b.get("type", "") not in SKIP_TYPES]
+    cid_to_block = {}
+    for i, blk in enumerate(blocks):
+        for inp in blk.get("inputs", []):
+            cid_to_block[inp["cid"]] = (i, inp["key"], "in")
+        for out in blk.get("outputs", []):
+            cid_to_block[out["cid"]] = (i, out["key"], "out")
+
+    edges = set()
+    for i, blk in enumerate(blocks):
+        for inp in blk.get("inputs", []):
+            wf = inp.get("wired_from")
+            if wf and wf in cid_to_block:
+                src_idx, src_key, _ = cid_to_block[wf]
+                if src_idx != i:
+                    edges.add((src_idx, i, src_key, inp["key"]))
+        for out in blk.get("outputs", []):
+            for tgt_cid in out.get("wired_to", []):
+                if tgt_cid in cid_to_block:
+                    dst_idx, dst_key, _ = cid_to_block[tgt_cid]
+                    if i != dst_idx:
+                        edges.add((i, dst_idx, out["key"], dst_key))
+    return blocks, list(edges)
+
+
+def _topo_sort(n_nodes, edges):
+    """Topological sort via Kahn's algorithm. Returns sorted indices or None if cyclic."""
+    adj = defaultdict(list)
+    in_deg = [0] * n_nodes
+    for s, d, _, _ in edges:
+        adj[s].append(d)
+        in_deg[d] += 1
+    queue = sorted([i for i in range(n_nodes) if in_deg[i] == 0])
+    result = []
+    while queue:
+        node = queue.pop(0)
+        result.append(node)
+        for nb in sorted(adj[node]):
+            in_deg[nb] -= 1
+            if in_deg[nb] == 0:
+                queue.append(nb)
+    return result if len(result) == n_nodes else None
+
+
+def render_wiring_diagram(dump, max_width=70):
+    """Render an ASCII wiring diagram. Returns list of Text lines, or None if too complex."""
+    blocks, edges = build_wiring_dag(dump)
+    if not blocks or not edges:
+        return None
+    wired = set()
+    for s, d, _, _ in edges:
+        wired.add(s)
+        wired.add(d)
+    if len(wired) > 8:
+        return None
+
+    order = _topo_sort(len(blocks), edges)
+    if not order:
+        return None
+
+    ordered_wired = [i for i in order if i in wired]
+    if not ordered_wired:
+        return None
+
+    in_edges = defaultdict(list)
+    out_edges = defaultdict(list)
+    for s, d, sk, dk in edges:
+        in_edges[d].append((s, sk, dk))
+        out_edges[s].append((d, sk, dk))
+
+    lines = []
+    for pos, idx in enumerate(ordered_wired):
+        blk = blocks[idx]
+        name = blk.get("name", "?")
+        btype = blk.get("type", "?")
+        room = blk.get("room", "")
+
+        incoming = in_edges.get(idx, [])
+        if incoming and pos > 0:
+            for src_idx, src_key, dst_key in incoming:
+                src_name = blocks[src_idx].get("name", "?")
+                lines.append(Text(f"  {src_name}.{src_key}", style="dim"))
+            lines.append(Text("                    │", style="dim"))
+            lines.append(Text("                    ▼", style="bold"))
+
+        label = name
+        type_str = f"({btype})"
+        room_str = f"[{room}]" if room else ""
+        box_w = max(len(label) + 2, len(type_str) + 2, len(room_str) + 2 if room_str else 0, 15)
+        box_w = min(box_w, max_width - 16)
+        pad = " " * 12
+
+        lines.append(Text(f"{pad}┌{'─' * box_w}┐"))
+        lines.append(Text.assemble((f"{pad}│", ""), (label.center(box_w), "bold"), ("│", "")))
+        lines.append(Text(f"{pad}│{type_str.center(box_w)}│", style="dim"))
+        if room:
+            lines.append(Text(f"{pad}│{room_str.center(box_w)}│", style="dim"))
+        lines.append(Text(f"{pad}└{'─' * (box_w // 2)}┬{'─' * (box_w - box_w // 2 - 1)}┘"))
+
+        outgoing = out_edges.get(idx, [])
+        if outgoing and pos < len(ordered_wired) - 1:
+            out_keys = sorted(set(sk for _, sk, _ in outgoing))
+            lines.append(Text(f"{pad}{' ' * (box_w // 2)}.{','.join(out_keys)}  │", style="dim"))
+
+    return lines if lines else None
+
+
 SKIP_TYPES = {"VirtualInCaption", "WeatherServer", "LightscenesC", "LightsceneC"}
 
 
@@ -143,8 +305,17 @@ class EvalTUI:
         self.console = Console(highlight=False)
         self.specs = load_cases(cases_dir)
         self.report = load_report(report_path)
-        self.configs_dir = Path(configs_dir) if configs_dir else DEFAULT_CONFIGS
-        self.all_rows = merge_data(self.report, self.specs, configs_dir)
+        self.report_path = report_path
+        self.cases_dir = cases_dir
+        # Resolve configs dir: prefer report meta.work_dir if it exists on disk
+        meta_wd = None
+        if self.report:
+            meta_wd = self.report.get("meta", {}).get("work_dir")
+        if meta_wd and Path(meta_wd).exists():
+            self.configs_dir = Path(meta_wd)
+        else:
+            self.configs_dir = Path(configs_dir) if configs_dir else DEFAULT_CONFIGS
+        self.all_rows = merge_data(self.report, self.specs, str(self.configs_dir))
         self.rows = list(self.all_rows)
         self.view = "dashboard"
         self.cursor = self.scroll_offset = 0
@@ -152,7 +323,20 @@ class EvalTUI:
         self.sort_key, self.sort_rev = "case_id", False
         self.filt_status, self.filt_diff, self.filt_pat = "all", None, ""
         self.sim_output = ""
+        self.detail_tab = 1
+        # Report picker state
+        self.reports_dir = str(REPORTS_DIR)
+        self.available_reports = []
+        self.report_cursor = 0
+        self.report_scroll = 0
         self._apply_sort()
+
+    def _get_term_width(self):
+        """Get current terminal width."""
+        try:
+            return os.get_terminal_size().columns
+        except (ValueError, OSError):
+            return self.console.size.width
 
     def _apply_filters(self):
         self.rows = list(self.all_rows)
@@ -176,6 +360,61 @@ class EvalTUI:
               "wiring": lambda r: r["wiring_acc"], "tokens": lambda r: r["tokens_total"]}
         self.rows.sort(key=km.get(self.sort_key, km["case_id"]), reverse=self.sort_rev)
 
+    def _load_report(self, report_info):
+        """Load a report from picker selection and refresh data."""
+        self.report_path = report_info["path"]
+        self.report = load_report(self.report_path)
+        meta_wd = None
+        if self.report:
+            meta_wd = self.report.get("meta", {}).get("work_dir")
+        if meta_wd and Path(meta_wd).exists():
+            self.configs_dir = Path(meta_wd)
+        self.all_rows = merge_data(self.report, self.specs, str(self.configs_dir))
+        self.rows = list(self.all_rows)
+        self.cursor = self.scroll_offset = 0
+        self.selected = None
+        self.filt_status, self.filt_diff, self.filt_pat = "all", None, ""
+        self._apply_sort()
+
+    def render_report_picker(self):
+        """Render report selector view."""
+        if not self.available_reports:
+            self.available_reports = scan_reports(self.reports_dir)
+        reports = self.available_reports
+        t = Table(show_header=True, header_style="bold cyan", expand=True, padding=(0, 1))
+        t.add_column("", width=2, justify="center")
+        t.add_column("Report", ratio=3, no_wrap=True)
+        t.add_column("Date", width=20)
+        t.add_column("Cases", width=7, justify="right")
+        t.add_column("Pass%", width=7, justify="right")
+        t.add_column("Model", width=12)
+
+        vis = max(5, self.console.size.height - 8)
+        if self.report_cursor < self.report_scroll:
+            self.report_scroll = self.report_cursor
+        elif self.report_cursor >= self.report_scroll + vis:
+            self.report_scroll = self.report_cursor - vis + 1
+
+        for i, r in enumerate(reports):
+            if i < self.report_scroll or i >= self.report_scroll + vis:
+                continue
+            sel = i == self.report_cursor
+            ts = r["timestamp"][:19] if r["timestamp"] else "—"
+            rate_s = f"{r['pass_rate']:.1f}%"
+            rate_style = "green" if r["pass_rate"] >= 80 else "yellow" if r["pass_rate"] >= 50 else "red"
+            style = "on dark_blue" if sel else ""
+            t.add_row(
+                "▸" if sel else " ",
+                Text(r["filename"], style="bold" if sel else ""),
+                ts, str(r["cases"]),
+                Text(rate_s, style=rate_style),
+                r["model"] or "—",
+                style=style)
+
+        return Panel(Layout(t, name="t"),
+                     title=f"[bold]Select Report — {len(reports)} available[/bold]",
+                     subtitle=HELP_REPORTS, border_style="bright_blue")
+
     def render_dashboard(self):
         total, passed = len(self.all_rows), sum(1 for r in self.all_rows if r["pass"])
         rate = (passed / total * 100) if total else 0
@@ -189,13 +428,18 @@ class EvalTUI:
         filt = ("  │  " + " ".join(fp)) if fp else ""
         sort_s = f"sort={self.sort_key}{'↓' if self.sort_rev else '↑'}"
 
+        width = self._get_term_width()
+        narrow = width < 80
+
         t = Table(show_header=True, header_style="bold cyan", expand=True, show_lines=False, padding=(0, 1))
         t.add_column("", width=2, justify="center")
         t.add_column("Case ID", ratio=3, no_wrap=True)
         t.add_column("Diff", width=7, justify="center")
         t.add_column("Sim", width=7, justify="center")
-        for c in ("Block", "Wire", "Param"):
-            t.add_column(c, width=6, justify="right")
+        t.add_column("Block", width=6, justify="right")
+        if not narrow:
+            t.add_column("Wire", width=6, justify="right")
+            t.add_column("Param", width=6, justify="right")
         t.add_column("Tokens", width=8, justify="right")
 
         vis = max(5, self.console.size.height - 8)
@@ -213,29 +457,57 @@ class EvalTUI:
             st = ("on dark_green" if sel else "green") if r["pass"] else \
                  ("on dark_goldenrod" if sel else "yellow") if partial else \
                  ("on dark_red" if sel else "red")
-            t.add_row(
+            row_data = [
                 "▸" if sel else " ",
                 Text(r["case_id"], style="bold" if sel else ""),
                 Text(r["difficulty"], style=f"bold {dc}"),
                 f"{r['sim_passed']}/{r['sim_total']}",
-                f"{r['block_f1']:.0%}", f"{r['wiring_acc']:.0%}", f"{r['param_acc']:.0%}",
-                f"{r['tokens_total']:,}" if r["tokens_total"] else "—",
-                style=st)
+                f"{r['block_f1']:.0%}",
+            ]
+            if not narrow:
+                row_data.extend([f"{r['wiring_acc']:.0%}", f"{r['param_acc']:.0%}"])
+            row_data.append(f"{r['tokens_total']:,}" if r["tokens_total"] else "—")
+            t.add_row(*row_data, style=st)
 
-        nav = Text.assemble(("  [↑↓]", "bold"), " Navigate  ", ("[Enter]", "bold"), " Detail  ",
-                            ("[f]", "bold"), " Filter  ", ("[s]", "bold"), " Sort  ",
-                            ("[r]", "bold"), " Reverse  ", ("[q]", "bold"), " Quit")
-        hdr = f"Eval Dashboard — {passed}/{total} pass ({rate:.1f}%){filt}  │  {sort_s}"
+        rname = ""
+        if self.report_path:
+            rname = f"  │  {Path(self.report_path).name}"
+        hdr = f"Eval Dashboard — {passed}/{total} pass ({rate:.1f}%){filt}  │  {sort_s}{rname}"
         return Panel(Layout(t, name="t"), title=f"[bold]{hdr}[/bold]  showing {len(self.rows)}/{total}",
-                     subtitle=nav, border_style="bright_blue")
+                     subtitle=HELP_DASHBOARD, border_style="bright_blue")
 
     def render_detail(self):
         r = self.selected
         if not r:
             return Panel("No case selected", border_style="red")
-        expected = r.get("spec", {}).get("expected", {})
         cid = r["case_id"]
         utt = (r["utterance"][:77] + "…") if len(r["utterance"]) > 80 else r["utterance"]
+
+        # Tab bar
+        tabs = []
+        for num, label in [(1, "Circuit"), (2, "Conversation"), (3, "Commands")]:
+            if num == self.detail_tab:
+                tabs.append(Text.assemble(("[", "dim"), (f"{num}", "bold"), (f"] {label}", "bold underline")))
+            else:
+                tabs.append(Text.assemble(("[", "dim"), (f"{num}", ""), (f"] {label}", "dim")))
+        tab_bar = Text("  ").join(tabs)
+
+        if self.detail_tab == 2:
+            content = self._render_conversation_tab(r)
+        elif self.detail_tab == 3:
+            content = self._render_commands_tab(r)
+        else:
+            content = self._render_circuit_tab(r)
+
+        P = [tab_bar, Text("")]
+        P.extend(content)
+        return Panel(Text("\n").join(P), title=f"[bold]{cid}[/bold] — {utt}",
+                     subtitle=HELP_DETAIL, border_style="bright_blue")
+
+    def _render_circuit_tab(self, r):
+        """Render the circuit/blocks detail tab."""
+        expected = r.get("spec", {}).get("expected", {})
+        cid = r["case_id"]
         dc = DIFF_COLORS.get(r["difficulty"], "white")
         ss = "bold green" if r["sim_pass"] else "bold red"
         si = "✓" if r["sim_pass"] else "✗"
@@ -261,10 +533,14 @@ class EvalTUI:
                 dr = f" [{w['to_room']}]" if w.get("to_room") else ""
                 P.append(Text(f"  → {s}.{w.get('from_connector','?')} → {d}{dr}.{w.get('to_connector','?')}"))
             P.append(Text(""))
-        # Agent-built
+        # Agent-built: try wiring diagram first, then text fallback
         dump = self._get_dump(cid)
-        if dump:
-            # Build cid→name map for readable wiring
+        diagram = render_wiring_diagram(dump) if dump else None
+        if diagram:
+            P.append(Text("─── Agent Built (Wiring Diagram) ───", style="bold green"))
+            P.extend(diagram)
+            P.append(Text(""))
+        elif dump:
             cid_map = {}
             for blk in dump.get("blocks", []):
                 for io in ("inputs", "outputs"):
@@ -290,7 +566,6 @@ class EvalTUI:
                         P.append(Text(f"    in:  {inp['key']} ← {src}", style="dim"))
                     else:
                         unwired.append(inp["key"])
-                # Show unwired only for blocks that have SOME wiring (partial = interesting)
                 if unwired and any(i.get("wired_from") for i in blk["inputs"]):
                     P.append(Text(f"    ⚠ unwired: {', '.join(unwired[:5])}", style="red"))
                 elif unwired and not any(i.get("wired_from") for i in blk["inputs"]):
@@ -323,11 +598,92 @@ class EvalTUI:
         P.append(Text("─── Efficiency ───", style="bold dim"))
         P.append(Text(f"  CLI: {r['cli_invocations']} cmds  Retries: {r['retries']}  "
                       f"Tokens: {r['tokens_total']:,} (in: {ti}, out: {to})"))
-        nav = Text.assemble(("[Esc]", "bold"), " Back  ", ("[n]", "bold"), " Next fail  ",
-                            ("[p]", "bold"), " Prev fail  ", ("[r]", "bold"), " Re-run sim  ",
-                            ("[q]", "bold"), " Quit")
-        return Panel(Text("\n").join(P), title=f"[bold]{cid}[/bold] — {utt}",
-                     subtitle=nav, border_style="bright_blue")
+        return P
+
+    def _render_conversation_tab(self, r):
+        """Render the conversation tab showing LLM messages."""
+        P = []
+        rc = self._find_report_case(r["case_id"])
+        messages = rc.get("conversation", rc.get("messages", [])) if rc else []
+
+        if not messages:
+            P.append(Text(""))
+            P.append(Text("Not available — re-run with latest agent to capture.", style="dim italic"))
+            P.append(Text(""))
+            P.append(Text("The conversation log requires the eval agent to record", style="dim"))
+            P.append(Text("messages in the report JSON under each case's", style="dim"))
+            P.append(Text("'conversation' or 'messages' key.", style="dim"))
+            return P
+
+        for msg in messages:
+            role = msg.get("role", "unknown")
+            content = msg.get("content", "")
+            label_text = msg.get("label", "")
+
+            if role in ("user", "human"):
+                icon, label, style = "🧑", f" USER{f' ({label_text})' if label_text else ''}", "bold cyan"
+            elif role in ("assistant", "ai"):
+                icon, label, style = "🤖", " ASSISTANT", "bold green"
+            else:
+                icon, label, style = "📎", f" {role.upper()}", "bold"
+
+            P.append(Text(f"{icon}{label}", style=style))
+            lines = content.split("\n") if isinstance(content, str) else [str(content)]
+            box_w = min(max((len(ln) for ln in lines), default=40) + 2, 60)
+            P.append(Text(f"  ┌{'─' * box_w}┐"))
+            for line in lines[:20]:
+                padded = line[:box_w].ljust(box_w)
+                P.append(Text(f"  │{padded}│", style="dim"))
+            if len(lines) > 20:
+                trunc = f"… {len(lines) - 20} more lines"
+                P.append(Text(f"  │{trunc.ljust(box_w)}│", style="dim"))
+            P.append(Text(f"  └{'─' * box_w}┘"))
+            P.append(Text(""))
+        return P
+
+    def _render_commands_tab(self, r):
+        """Render the commands tab showing CLI invocations."""
+        P = []
+        rc = self._find_report_case(r["case_id"])
+        commands = rc.get("commands", rc.get("cli_commands", [])) if rc else []
+
+        if not commands:
+            P.append(Text(""))
+            P.append(Text("Not available — re-run with latest agent to capture.", style="dim italic"))
+            P.append(Text(""))
+            P.append(Text("The commands log requires the eval agent to record", style="dim"))
+            P.append(Text("CLI invocations in the report JSON under each case's", style="dim"))
+            P.append(Text("'commands' or 'cli_commands' key.", style="dim"))
+            return P
+
+        total = len(commands)
+        retries = sum(1 for c in commands if c.get("retry", False))
+        P.append(Text(f"Commands ({total} total, {retries} retries)", style="bold"))
+        P.append(Text(""))
+        for cmd in commands:
+            cmd_str = cmd.get("command", cmd.get("cmd", ""))
+            exit_code = cmd.get("exit_code", cmd.get("returncode", "?"))
+            output = cmd.get("output", cmd.get("stdout", ""))
+            is_retry = cmd.get("retry", False)
+            prefix = "  ↻ $" if is_retry else "  $"
+            P.append(Text(f"{prefix} {cmd_str}", style="bold" if not is_retry else "yellow"))
+            if exit_code == 0:
+                summary = output.split("\n")[0][:60] if output else ""
+                P.append(Text(f"    → exit 0: ✓ {summary}", style="green"))
+            else:
+                summary = output.split("\n")[0][:60] if output else ""
+                P.append(Text(f"    → exit {exit_code}: ✗ {summary}", style="red"))
+            P.append(Text(""))
+        return P
+
+    def _find_report_case(self, case_id):
+        """Find the raw report case dict for a given case_id."""
+        if not self.report or "cases" not in self.report:
+            return None
+        for rc in self.report["cases"]:
+            if rc.get("case_id") == case_id:
+                return rc
+        return None
 
     def render_sim(self):
         r = self.selected
@@ -404,13 +760,29 @@ class EvalTUI:
     def handle_key(self, key, live):
         if key == "q":
             return False
-        if self.view == "dashboard":
+        if self.view == "report_picker":
+            if key == "up" and self.report_cursor > 0:
+                self.report_cursor -= 1
+            elif key == "down" and self.report_cursor < len(self.available_reports) - 1:
+                self.report_cursor += 1
+            elif key in ("\r", "\n") and self.available_reports:
+                self._load_report(self.available_reports[self.report_cursor])
+                self.view = "dashboard"
+            elif key in ("\x1b", "esc"):
+                if self.all_rows:
+                    self.view = "dashboard"
+            elif key == "G":
+                self.report_cursor = max(0, len(self.available_reports) - 1)
+            elif key == "g":
+                self.report_cursor = 0
+        elif self.view == "dashboard":
             if key == "up" and self.cursor > 0:
                 self.cursor -= 1
             elif key == "down" and self.cursor < len(self.rows) - 1:
                 self.cursor += 1
             elif key in ("\r", "\n") and self.rows:
                 self.selected = self.rows[self.cursor]
+                self.detail_tab = 1
                 self.view = "detail"
             elif key == "s":
                 self.sort_key = SORT_KEYS[(SORT_KEYS.index(self.sort_key) + 1) % len(SORT_KEYS)]
@@ -418,6 +790,11 @@ class EvalTUI:
             elif key == "r":
                 self.sort_rev = not self.sort_rev
                 self._apply_sort()
+            elif key == "R":
+                self.available_reports = scan_reports(self.reports_dir)
+                self.report_cursor = 0
+                self.report_scroll = 0
+                self.view = "report_picker"
             elif key == "f":
                 c = ["all", "pass", "fail"]
                 self.filt_status = c[(c.index(self.filt_status) + 1) % 3]
@@ -453,6 +830,8 @@ class EvalTUI:
             elif key == "r":
                 self.view = "sim_rerun"
                 self.sim_output = ""
+            elif key in ("1", "2", "3"):
+                self.detail_tab = int(key)
         elif self.view == "sim_rerun":
             if key in ("\x1b", "esc"):
                 self.view = "detail"
@@ -470,7 +849,7 @@ class EvalTUI:
                 while True:
                     try:
                         render = {"dashboard": self.render_dashboard, "detail": self.render_detail,
-                                  "sim_rerun": self.render_sim}
+                                  "sim_rerun": self.render_sim, "report_picker": self.render_report_picker}
                         if self.view == "sim_rerun" and not self.sim_output:
                             live.update(self.render_sim(), refresh=True)
                             self.sim_output = self._run_sim(self.selected["case_id"])

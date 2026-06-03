@@ -20,6 +20,10 @@ load_cases = eval_tui.load_cases
 load_report = eval_tui.load_report
 _make_row = eval_tui._make_row
 merge_data = eval_tui.merge_data
+scan_reports = eval_tui.scan_reports
+build_wiring_dag = eval_tui.build_wiring_dag
+render_wiring_diagram = eval_tui.render_wiring_diagram
+_topo_sort = eval_tui._topo_sort
 EvalTUI = eval_tui.EvalTUI
 
 
@@ -461,3 +465,510 @@ class TestEdgeCases:
         t = EvalTUI(None, str(tmp_path), str(tmp_path / "no-configs"))
         assert len(t.all_rows) == 1
         assert t.all_rows[0]["sim_passed"] == 0
+
+
+# ── scan_reports tests ──
+
+
+class TestScanReports:
+    def test_scan_empty_dir(self, tmp_path):
+        results = scan_reports(str(tmp_path))
+        assert results == []
+
+    def test_scan_nonexistent_dir(self, tmp_path):
+        results = scan_reports(str(tmp_path / "nope"))
+        assert results == []
+
+    def test_scan_with_reports(self, tmp_path):
+        for i, (name, cases, passed) in enumerate([
+            ("a.json", 10, 8), ("b.json", 5, 5), ("c.json", 20, 3),
+        ]):
+            report = {
+                "cases": [{"case_id": f"c{j}", "pass": j < passed} for j in range(cases)],
+                "meta": {"timestamp": f"2026-01-0{i+1}T00:00:00Z", "model": "gpt-4o"},
+            }
+            (tmp_path / name).write_text(json.dumps(report))
+        results = scan_reports(str(tmp_path))
+        assert len(results) == 3
+        # Newest first (by mtime, which will be in write order)
+        assert all("filename" in r for r in results)
+        assert all("pass_rate" in r for r in results)
+
+    def test_scan_skips_invalid_json(self, tmp_path):
+        (tmp_path / "good.json").write_text(json.dumps({"cases": []}))
+        (tmp_path / "bad.json").write_text("not json{{{")
+        results = scan_reports(str(tmp_path))
+        assert len(results) == 1
+
+    def test_scan_sorted_newest_first(self, tmp_path):
+        import time
+        (tmp_path / "old.json").write_text(json.dumps({"cases": []}))
+        time.sleep(0.05)
+        (tmp_path / "new.json").write_text(json.dumps({"cases": []}))
+        results = scan_reports(str(tmp_path))
+        assert results[0]["filename"] == "new.json"
+        assert results[1]["filename"] == "old.json"
+
+    def test_scan_real_reports_dir(self):
+        """Smoke test: scan actual reports directory."""
+        real_dir = Path(__file__).resolve().parent.parent / "reports"
+        if not real_dir.exists():
+            pytest.skip("Real reports dir not found")
+        results = scan_reports(str(real_dir))
+        assert len(results) > 0
+        assert all(r["filename"].endswith(".json") for r in results)
+
+    def test_report_metadata_fields(self, tmp_path):
+        report = {
+            "cases": [{"case_id": "x1", "pass": True}, {"case_id": "x2", "pass": False}],
+            "meta": {"timestamp": "2026-06-01T12:00:00Z", "model": "sonnet", "work_dir": "/tmp/test"},
+        }
+        (tmp_path / "r.json").write_text(json.dumps(report))
+        results = scan_reports(str(tmp_path))
+        assert len(results) == 1
+        r = results[0]
+        assert r["cases"] == 2
+        assert r["passed"] == 1
+        assert r["pass_rate"] == 50.0
+        assert r["model"] == "sonnet"
+        assert r["work_dir"] == "/tmp/test"
+        assert r["timestamp"] == "2026-06-01T12:00:00Z"
+
+
+# ── Wiring DAG tests ──
+
+
+class TestBuildWiringDag:
+    def _make_dump(self, blocks, wires):
+        """Helper: create a dump dict with blocks that have wired connections."""
+        block_list = []
+        for i, (name, btype) in enumerate(blocks):
+            inputs = [{"cid": f"in-{i}-0", "key": "I1"}]
+            outputs = [{"cid": f"out-{i}-0", "key": "Q", "wired_to": []}]
+            block_list.append({"name": name, "type": btype, "room": "R1",
+                               "inputs": inputs, "outputs": outputs})
+        # Apply wiring: wires is list of (src_block, dst_block)
+        for src, dst in wires:
+            src_out_cid = f"out-{src}-0"
+            dst_in_cid = f"in-{dst}-0"
+            block_list[src]["outputs"][0]["wired_to"].append(dst_in_cid)
+            block_list[dst]["inputs"][0]["wired_from"] = src_out_cid
+        return {"blocks": block_list}
+
+    def test_empty_dump(self):
+        blocks, edges = build_wiring_dag(None)
+        assert blocks == [] and edges == []
+
+    def test_no_blocks(self):
+        blocks, edges = build_wiring_dag({"blocks": []})
+        assert blocks == [] and edges == []
+
+    def test_linear_chain(self):
+        dump = self._make_dump([("A", "And"), ("B", "Not"), ("C", "Or")], [(0, 1), (1, 2)])
+        blocks, edges = build_wiring_dag(dump)
+        assert len(blocks) == 3
+        assert len(edges) >= 2
+
+    def test_skips_excluded_types(self):
+        dump = self._make_dump([("A", "And"), ("V", "VirtualInCaption")], [(0, 1)])
+        blocks, edges = build_wiring_dag(dump)
+        # VirtualInCaption should be filtered out
+        assert all(b["type"] != "VirtualInCaption" for b in blocks)
+
+    def test_no_self_loops(self):
+        dump = self._make_dump([("A", "And"), ("B", "Not")], [(0, 1)])
+        blocks, edges = build_wiring_dag(dump)
+        for s, d, _, _ in edges:
+            assert s != d
+
+
+class TestTopoSort:
+    def test_linear(self):
+        result = _topo_sort(3, [(0, 1, "Q", "I1"), (1, 2, "Q", "I1")])
+        assert result == [0, 1, 2]
+
+    def test_diamond(self):
+        edges = [(0, 1, "Q", "I1"), (0, 2, "Q", "I1"), (1, 3, "Q", "I1"), (2, 3, "Q", "I2")]
+        result = _topo_sort(4, edges)
+        assert result is not None
+        assert result[0] == 0
+        assert result[-1] == 3
+
+    def test_cycle_returns_none(self):
+        edges = [(0, 1, "Q", "I1"), (1, 0, "Q", "I1")]
+        result = _topo_sort(2, edges)
+        assert result is None
+
+    def test_single_node(self):
+        result = _topo_sort(1, [])
+        assert result == [0]
+
+
+class TestRenderWiringDiagram:
+    def _make_dump(self, blocks, wires):
+        block_list = []
+        for i, (name, btype) in enumerate(blocks):
+            inputs = [{"cid": f"in-{i}-0", "key": "I1"}]
+            outputs = [{"cid": f"out-{i}-0", "key": "Q", "wired_to": []}]
+            block_list.append({"name": name, "type": btype, "room": "R1",
+                               "inputs": inputs, "outputs": outputs})
+        for src, dst in wires:
+            block_list[src]["outputs"][0]["wired_to"].append(f"in-{dst}-0")
+            block_list[dst]["inputs"][0]["wired_from"] = f"out-{src}-0"
+        return {"blocks": block_list}
+
+    def test_none_dump(self):
+        assert render_wiring_diagram(None) is None
+
+    def test_no_edges(self):
+        dump = {"blocks": [{"name": "A", "type": "And", "inputs": [{"cid": "i1", "key": "I1"}],
+                             "outputs": [{"cid": "o1", "key": "Q", "wired_to": []}]}]}
+        assert render_wiring_diagram(dump) is None
+
+    def test_linear_chain_renders(self):
+        dump = self._make_dump([("Sensor", "And"), ("Gate", "Not"), ("Output", "Or")],
+                               [(0, 1), (1, 2)])
+        result = render_wiring_diagram(dump)
+        assert result is not None
+        assert len(result) > 0
+        text = "\n".join(str(line) for line in result)
+        assert "Sensor" in text
+        assert "Gate" in text
+        assert "Output" in text
+
+    def test_too_many_blocks_returns_none(self):
+        # 10 blocks in a chain → too complex (>8)
+        blocks = [(f"B{i}", "And") for i in range(10)]
+        wires = [(i, i + 1) for i in range(9)]
+        dump = self._make_dump(blocks, wires)
+        assert render_wiring_diagram(dump) is None
+
+    def test_box_drawing_chars(self):
+        dump = self._make_dump([("A", "And"), ("B", "Not")], [(0, 1)])
+        result = render_wiring_diagram(dump)
+        assert result is not None
+        text = "\n".join(str(line) for line in result)
+        assert "┌" in text
+        assert "└" in text
+        assert "│" in text
+
+
+# ── Report picker tests ──
+
+
+class TestReportPicker:
+    def _render_to_string(self, tui):
+        buf = io.StringIO()
+        console = Console(width=120, force_terminal=True, file=buf)
+        console.print(tui.render_report_picker())
+        return buf.getvalue()
+
+    def test_renders_empty(self, tui):
+        tui.available_reports = []
+        tui.reports_dir = "/tmp/nonexistent-reports-xyz"
+        output = self._render_to_string(tui)
+        assert "Select Report" in output
+
+    def test_renders_with_reports(self, tmp_path, tui):
+        rdir = tmp_path / "reports"
+        rdir.mkdir()
+        for name in ("r1.json", "r2.json"):
+            (rdir / name).write_text(json.dumps({
+                "cases": [{"case_id": "c1", "pass": True}],
+                "meta": {"timestamp": "2026-01-01T00:00:00Z", "model": "gpt-4o"},
+            }))
+        tui.reports_dir = str(rdir)
+        tui.available_reports = []  # Force rescan
+        output = self._render_to_string(tui)
+        assert "Select Report" in output
+        assert "2 available" in output
+
+    def test_R_key_opens_picker(self, tui, tmp_path):
+        rdir = tmp_path / "reports"
+        rdir.mkdir()
+        (rdir / "r.json").write_text(json.dumps({"cases": []}))
+        tui.reports_dir = str(rdir)
+        tui.handle_key("R", None)
+        assert tui.view == "report_picker"
+
+    def test_picker_navigation(self, tui, tmp_path):
+        tui.available_reports = [
+            {"path": "/a", "filename": "a.json", "timestamp": "", "mtime": 1, "cases": 1,
+             "passed": 1, "pass_rate": 100, "model": "", "work_dir": ""},
+            {"path": "/b", "filename": "b.json", "timestamp": "", "mtime": 2, "cases": 2,
+             "passed": 0, "pass_rate": 0, "model": "", "work_dir": ""},
+        ]
+        tui.view = "report_picker"
+        tui.report_cursor = 0
+        tui.handle_key("down", None)
+        assert tui.report_cursor == 1
+        tui.handle_key("up", None)
+        assert tui.report_cursor == 0
+
+    def test_picker_esc_returns_to_dashboard(self, tui):
+        tui.view = "report_picker"
+        tui.handle_key("esc", None)
+        assert tui.view == "dashboard"
+
+    def test_picker_select_loads_report(self, tui, tmp_path, tmp_cases):
+        report = {"cases": [{"case_id": "t001-easy", "pass": True,
+                             "simulation": {"passed_count": 1, "total_count": 1},
+                             "tokens": {"input_tokens_est": 10, "output_tokens_est": 5},
+                             "metrics": {"blocks": {"f1": 1.0}, "wiring": {"accuracy": 1.0},
+                                         "params": {"accuracy": 1.0}}}]}
+        rpath = tmp_path / "pick.json"
+        rpath.write_text(json.dumps(report))
+        tui.available_reports = [
+            {"path": str(rpath), "filename": "pick.json", "timestamp": "", "mtime": 1,
+             "cases": 1, "passed": 1, "pass_rate": 100, "model": "", "work_dir": ""},
+        ]
+        tui.view = "report_picker"
+        tui.report_cursor = 0
+        tui.handle_key("\r", None)
+        assert tui.view == "dashboard"
+        assert len(tui.all_rows) == 1
+
+    def test_picker_g_G_navigation(self, tui):
+        tui.view = "report_picker"
+        tui.available_reports = [{"path": f"/{i}"} for i in range(10)]
+        tui.report_cursor = 5
+        tui.handle_key("g", None)
+        assert tui.report_cursor == 0
+        tui.handle_key("G", None)
+        assert tui.report_cursor == 9
+
+
+# ── Detail tabs tests ──
+
+
+class TestDetailTabs:
+    def _render_to_string(self, tui):
+        buf = io.StringIO()
+        console = Console(width=120, force_terminal=True, file=buf)
+        console.print(tui.render_detail())
+        return buf.getvalue()
+
+    def test_default_tab_is_circuit(self, tui):
+        tui.selected = tui.all_rows[0]
+        tui.detail_tab = 1
+        output = self._render_to_string(tui)
+        assert "Circuit" in output
+        assert "Efficiency" in output
+
+    def test_tab_switching_keys(self, tui):
+        tui.view = "detail"
+        tui.selected = tui.all_rows[0]
+        tui.handle_key("2", None)
+        assert tui.detail_tab == 2
+        tui.handle_key("3", None)
+        assert tui.detail_tab == 3
+        tui.handle_key("1", None)
+        assert tui.detail_tab == 1
+
+    def test_conversation_tab_no_data(self, tui):
+        tui.selected = tui.all_rows[0]
+        tui.detail_tab = 2
+        output = self._render_to_string(tui)
+        assert "Not available" in output
+
+    def test_commands_tab_no_data(self, tui):
+        tui.selected = tui.all_rows[0]
+        tui.detail_tab = 3
+        output = self._render_to_string(tui)
+        assert "Not available" in output
+
+    def test_conversation_tab_with_data(self, tmp_path, tmp_cases):
+        report = {
+            "cases": [{
+                "case_id": "t001-easy", "pass": True, "difficulty": "easy",
+                "patterns": ["threshold"], "utterance": "turn on light",
+                "simulation": {"passed_count": 1, "total_count": 1},
+                "tokens": {"input_tokens_est": 10, "output_tokens_est": 5},
+                "metrics": {"blocks": {"f1": 1.0}, "wiring": {"accuracy": 1.0}, "params": {"accuracy": 1.0}},
+                "cli_invocations": 1, "retries": 0,
+                "conversation": [
+                    {"role": "user", "content": "Build a light controller", "label": "initial prompt"},
+                    {"role": "assistant", "content": "lox config add --type LightController2"},
+                ],
+            }]
+        }
+        rpath = tmp_path / "conv.json"
+        rpath.write_text(json.dumps(report))
+        t = EvalTUI(str(rpath), str(tmp_cases), str(tmp_path))
+        t.selected = t.all_rows[0]
+        t.detail_tab = 2
+        buf = io.StringIO()
+        console = Console(width=120, force_terminal=True, file=buf)
+        console.print(t.render_detail())
+        output = buf.getvalue()
+        assert "USER" in output
+        assert "ASSISTANT" in output
+
+    def test_commands_tab_with_data(self, tmp_path, tmp_cases):
+        report = {
+            "cases": [{
+                "case_id": "t001-easy", "pass": True, "difficulty": "easy",
+                "patterns": ["threshold"], "utterance": "turn on light",
+                "simulation": {"passed_count": 1, "total_count": 1},
+                "tokens": {"input_tokens_est": 10, "output_tokens_est": 5},
+                "metrics": {"blocks": {"f1": 1.0}, "wiring": {"accuracy": 1.0}, "params": {"accuracy": 1.0}},
+                "cli_invocations": 2, "retries": 0,
+                "commands": [
+                    {"command": "lox config add --type And", "exit_code": 0, "output": "Added And"},
+                    {"command": "lox config wire-connector ...", "exit_code": 1, "output": "Error", "retry": True},
+                ],
+            }]
+        }
+        rpath = tmp_path / "cmds.json"
+        rpath.write_text(json.dumps(report))
+        t = EvalTUI(str(rpath), str(tmp_cases), str(tmp_path))
+        t.selected = t.all_rows[0]
+        t.detail_tab = 3
+        buf = io.StringIO()
+        console = Console(width=120, force_terminal=True, file=buf)
+        console.print(t.render_detail())
+        output = buf.getvalue()
+        assert "Commands" in output
+        assert "2 total" in output
+
+    def test_enter_detail_resets_tab(self, tui):
+        """Entering detail view should reset to tab 1."""
+        tui.detail_tab = 3
+        tui.handle_key("\r", None)
+        assert tui.view == "detail"
+        assert tui.detail_tab == 1
+
+    def test_tab_bar_rendering(self, tui):
+        """Tab bar should show all three tabs."""
+        tui.selected = tui.all_rows[0]
+        for tab in (1, 2, 3):
+            tui.detail_tab = tab
+            buf = io.StringIO()
+            console = Console(width=120, force_terminal=True, file=buf)
+            console.print(tui.render_detail())
+            output = buf.getvalue()
+            assert "Circuit" in output
+            assert "Conversation" in output
+            assert "Commands" in output
+
+
+# ── Terminal resize tests ──
+
+
+class TestTerminalResize:
+    def test_narrow_hides_columns(self, tui):
+        """When terminal is narrow (<80), Wire and Param columns should be hidden."""
+        tui._get_term_width = lambda: 60  # Mock narrow terminal
+        buf = io.StringIO()
+        console = Console(width=60, force_terminal=True, file=buf)
+        console.print(tui.render_dashboard())
+        output = buf.getvalue()
+        assert "Eval Dashboard" in output
+        # Block column should still be visible
+        assert "Block" in output
+
+    def test_wide_shows_all_columns(self, tui):
+        """When terminal is wide (>=80), all columns should be shown."""
+        tui._get_term_width = lambda: 120
+        buf = io.StringIO()
+        console = Console(width=120, force_terminal=True, file=buf)
+        console.print(tui.render_dashboard())
+        output = buf.getvalue()
+        assert "Wire" in output
+        assert "Param" in output
+
+    def test_get_term_width_fallback(self, tui):
+        """_get_term_width should not crash when no terminal is available."""
+        # In test environment, os.get_terminal_size() may fail
+        width = tui._get_term_width()
+        assert isinstance(width, int)
+        assert width > 0
+
+
+# ── Help bar tests ──
+
+
+class TestHelpBar:
+    def test_dashboard_help(self, tui):
+        buf = io.StringIO()
+        console = Console(width=120, force_terminal=True, file=buf)
+        console.print(tui.render_dashboard())
+        output = buf.getvalue()
+        assert "Reports" in output
+        assert "Search" in output
+        assert "Difficulty" in output
+
+    def test_detail_help(self, tui):
+        tui.selected = tui.all_rows[0]
+        buf = io.StringIO()
+        console = Console(width=120, force_terminal=True, file=buf)
+        console.print(tui.render_detail())
+        output = buf.getvalue()
+        assert "Tabs" in output
+        assert "Next/Prev" in output
+
+    def test_report_picker_help(self, tui, tmp_path):
+        tui.reports_dir = str(tmp_path)
+        tui.available_reports = []
+        buf = io.StringIO()
+        console = Console(width=120, force_terminal=True, file=buf)
+        console.print(tui.render_report_picker())
+        output = buf.getvalue()
+        assert "Select" in output
+        assert "Back" in output
+
+
+# ── Meta work_dir resolution tests ──
+
+
+class TestWorkDirResolution:
+    def test_meta_work_dir_used_when_exists(self, tmp_path, tmp_cases):
+        work_dir = tmp_path / "work"
+        work_dir.mkdir()
+        report = {
+            "cases": [{"case_id": "t001-easy", "pass": True,
+                        "simulation": {"passed_count": 1, "total_count": 1},
+                        "tokens": {}, "metrics": {}}],
+            "meta": {"work_dir": str(work_dir)},
+        }
+        rpath = tmp_path / "r.json"
+        rpath.write_text(json.dumps(report))
+        t = EvalTUI(str(rpath), str(tmp_cases), str(tmp_path / "fallback"))
+        assert t.configs_dir == work_dir
+
+    def test_meta_work_dir_fallback_when_missing(self, tmp_path, tmp_cases):
+        report = {
+            "cases": [{"case_id": "t001-easy", "pass": True,
+                        "simulation": {}, "tokens": {}, "metrics": {}}],
+            "meta": {"work_dir": "/tmp/nonexistent-xyz-12345"},
+        }
+        rpath = tmp_path / "r.json"
+        rpath.write_text(json.dumps(report))
+        fallback = tmp_path / "fallback"
+        t = EvalTUI(str(rpath), str(tmp_cases), str(fallback))
+        assert t.configs_dir == fallback
+
+    def test_no_meta_uses_configs_arg(self, tmp_path, tmp_cases):
+        report = {"cases": [{"case_id": "t001-easy", "pass": True,
+                              "simulation": {}, "tokens": {}, "metrics": {}}]}
+        rpath = tmp_path / "r.json"
+        rpath.write_text(json.dumps(report))
+        t = EvalTUI(str(rpath), str(tmp_cases), str(tmp_path))
+        assert t.configs_dir == tmp_path
+
+
+# ── _find_report_case tests ──
+
+
+class TestFindReportCase:
+    def test_finds_existing_case(self, tui):
+        rc = tui._find_report_case("t001-easy")
+        assert rc is not None
+        assert rc["case_id"] == "t001-easy"
+
+    def test_returns_none_for_missing(self, tui):
+        assert tui._find_report_case("nonexistent") is None
+
+    def test_returns_none_when_no_report(self, tmp_path):
+        t = EvalTUI(None, str(tmp_path), str(tmp_path))
+        assert t._find_report_case("anything") is None
