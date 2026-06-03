@@ -890,14 +890,7 @@
               "inputs": {
                 "Bewegungsmelder.OutputPresence": 0.0
               },
-              "ticks": 180,
-              "dt": 10.0
-            },
-            {
-              "inputs": {
-                "Bewegungsmelder.OutputPresence": 0.0
-              },
-              "ticks": 1,
+              "ticks": 181,
               "dt": 10.0,
               "expected_outputs": {
                 "Statusblock.AQ": {
@@ -909,7 +902,7 @@
         }
       ]
     },
-    "hint": "Step-by-step plan:\n1. lox config add --type Or --title 'Anwesenheit Oder' --room Flur FILE\n2. wire FILE 'Anwesenheit Oder.I1' 'Bewegungsmelder.OutputPresence'\n3. wire FILE 'Anwesenheit Oder.I2' 'Bewegungsmelder Garten.OutputPresence'\n4. lox config add --type OffDelay --title 'Abwesenheit Timer' --room Flur FILE\n5. set-param FILE 'Abwesenheit Timer' Time 1800\n6. wire FILE 'Abwesenheit Timer.Input' 'Anwesenheit Oder.Q'\n7. lox config add --type EdgeDetection --title 'Abgang Puls' --room Flur FILE\n8. wire FILE 'Abgang Puls.Input' 'Abwesenheit Timer.Q'\n9. wire FILE 'Statusblock.I' 'Abgang Puls.FallingEdge'"
+    "hint": "Step-by-step plan (3-block circuit):\n1. lox config add --type Or --title 'Anwesenheit' --room Flur FILE\n2. wire FILE 'Anwesenheit.I1' 'Bewegungsmelder.OutputPresence'\n3. wire FILE 'Anwesenheit.I2' 'Bewegungsmelder Garten.OutputPresence'\n4. lox config add --type OffDelay --title 'Abwesenheit Timer' --room Flur FILE\n5. set-param FILE 'Abwesenheit Timer' Time 1800\n6. wire FILE 'Abwesenheit Timer.InputTrigger' 'Anwesenheit.Q'\n   ⚠ Wire from Or.Q DIRECTLY — do NOT add a Not between Or and OffDelay!\n7. lox config add --type Not --title 'Abgang Signal' --room Flur FILE\n8. wire FILE 'Abgang Signal.I' 'Abwesenheit Timer.Q'\n9. wire FILE 'Statusblock.I' 'Abgang Signal.Q'"
   },
   {
     "id": "bhe-013-pv-forecast",

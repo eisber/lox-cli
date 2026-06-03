@@ -324,6 +324,10 @@ lox config wire-connector config.Loxone "Raumregler.Setpoint" "Temp Speicher.AQ"
     - General rule: trace the signal back to a physical sensor (SysVar, TreeSensor, TreeAsensor, VirtualIn) — don't create intermediate blocks between sensor and your logic
 14. **⚠ DayTimer requires schedule**: A DayTimer block without `timer-schedule` entries outputs 0 forever. Always add at least one schedule entry after creating a DayTimer.
 15. **⚠ Verify EVERY target actuator has a wire**: After building logic, check that every target actuator (VirtualOut, Jalousie, LightController2, etc.) has at least one input wired. Run `lox config check FILE` — errors on unwired inputs mean the circuit is incomplete.
+16. **⚠ OffDelay for absence timeout — CRITICAL**: To detect "nobody home for 30 minutes", wire OffDelay from the PRESENCE signal directly (Or.Q), NOT from an inverted absence signal. OffDelay keeps output HIGH for `Time` seconds after input drops to 0 — that's the timeout. Use `EdgeDetection.FallingEdge` on the OffDelay output to fire a pulse when the timeout expires.
+    - Correct: `Or(presence) → OffDelay(1800s) → EdgeDetection.FallingEdge → target`
+    - Wrong: `Or(presence) → Not → OffDelay` — this inverts the signal so OffDelay never times out
+    - Simpler alternative: `Or(presence) → OffDelay(1800s) → Not → target` (3 blocks, no EdgeDetection needed)
 
 ## Short Aliases
 
