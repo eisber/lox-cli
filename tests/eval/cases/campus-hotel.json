@@ -141,14 +141,14 @@
           "steps": [
             {
               "inputs": {
-                "Türkontakt Schlafzimmer.Q": 0.0
+                "Gäste NFC.Q1": 0.0
               },
-              "ticks": 10,
+              "ticks": 5,
               "dt": 0.1
             },
             {
               "inputs": {
-                "Türkontakt Schlafzimmer.Q": 1.0
+                "Gäste NFC.Q1": 1.0
               },
               "ticks": 10,
               "dt": 0.1,
@@ -162,7 +162,7 @@
         }
       ]
     },
-    "hint": "Step-by-step plan:\n1. The fixture has 'Gäste NFC' (NfcCodeTouch) in Schlafzimmer and 'Bewegungsmelder' (PresenceDetector) in Flur\n2. lox config add --type EdgeDetection --title 'Karte Erkennung' --room Flur FILE\n3. wire FILE 'Karte Erkennung.Input' 'Gäste NFC.Q1'\n4. wire FILE 'Lichtsteuerung [Flur].Presence' 'Karte Erkennung.RisingEdge'\n5. wire FILE 'Lichtsteuerung [Flur].Sel2' 'Karte Erkennung.RisingEdge'"
+    "hint": "Step-by-step plan:\n1. lox config add --type EdgeDetection --title 'Karte Erkennung' --room Flur FILE\n2. ⚠ CRITICAL: wire FILE 'Karte Erkennung.Input' 'Gäste NFC.Q1'\n3. wire FILE 'Lichtsteuerung [Flur].Presence' 'Karte Erkennung.RisingEdge'\n4. wire FILE 'Lichtsteuerung [Flur].Sel2' 'Karte Erkennung.RisingEdge'"
   },
   {
     "id": "ch-003",
