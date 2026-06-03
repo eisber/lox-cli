@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Beautiful terminal UI for inspecting Loxone eval results."""
-import argparse, json, subprocess, sys, tty, termios
+import argparse, json, shutil, subprocess, sys, tty, termios
 from pathlib import Path
 from rich.console import Console
 from rich.layout import Layout
@@ -53,6 +53,8 @@ def load_cases(cases_dir):
 
 
 def load_report(path):
+    if not path:
+        return None
     p = Path(path)
     if not p.exists():
         return None
@@ -84,10 +86,45 @@ def _make_row(rc, spec):
     }
 
 
-def merge_data(report, specs):
+def merge_data(report, specs, configs_dir):
+    """Merge report data with case specs. If no report, run sims on saved configs."""
     if report and "cases" in report:
         return [_make_row(rc, specs.get(rc.get("case_id", ""), {})) for rc in report["cases"]]
-    return [_make_row({"case_id": cid}, spec) for cid, spec in sorted(specs.items())]
+
+    # Fallback: scan saved configs and run sims to populate results
+    rows = []
+    configs_path = Path(configs_dir) if configs_dir else DEFAULT_CONFIGS
+    lox_sim = None
+    for candidate in ["./target/release/lox-sim", "lox-sim"]:
+        if Path(candidate).exists() or shutil.which(candidate):
+            lox_sim = candidate
+            break
+
+    for cid, spec in sorted(specs.items()):
+        config = configs_path / f"{cid}.Loxone"
+        rc = {"case_id": cid}
+        if config.exists() and lox_sim:
+            sims = spec.get("expected", {}).get("simulation", [])
+            if sims:
+                try:
+                    r = subprocess.run(
+                        [lox_sim, "run", str(config), "--sim", json.dumps(sims)],
+                        capture_output=True, text=True, timeout=60,
+                    )
+                    if r.stdout.strip():
+                        result = json.loads(r.stdout)
+                        rc["sim_pass"] = result.get("pass", False)
+                        rc["pass"] = result.get("pass", False)
+                        rc["simulation"] = {
+                            "passed_count": result.get("passed", 0),
+                            "total_count": result.get("total", 0),
+                            "scenarios": result.get("scenarios", []),
+                        }
+                except Exception:
+                    pass
+            rc["_has_config"] = True
+        rows.append(_make_row(rc, spec))
+    return rows
 
 
 SKIP_TYPES = {"VirtualInCaption", "WeatherServer", "LightscenesC", "LightsceneC"}
@@ -101,7 +138,7 @@ class EvalTUI:
         self.specs = load_cases(cases_dir)
         self.report = load_report(report_path)
         self.configs_dir = Path(configs_dir) if configs_dir else DEFAULT_CONFIGS
-        self.all_rows = merge_data(self.report, self.specs)
+        self.all_rows = merge_data(self.report, self.specs, configs_dir)
         self.rows = list(self.all_rows)
         self.view = "dashboard"
         self.cursor = self.scroll_offset = 0
@@ -213,6 +250,14 @@ class EvalTUI:
         # Agent-built
         dump = self._get_dump(cid)
         if dump:
+            # Build cid→name map for readable wiring
+            cid_map = {}
+            for blk in dump.get("blocks", []):
+                for io in ("inputs", "outputs"):
+                    for c in blk.get(io, []):
+                        rm = f" [{blk['room']}]" if blk.get("room") else ""
+                        cid_map[c["cid"]] = f"{blk['name']}{rm}.{c['key']}"
+
             P.append(Text("─── Agent Built ───", style="bold green"))
             cnt = 0
             for blk in dump.get("blocks", []):
@@ -222,14 +267,22 @@ class EvalTUI:
                 if not has_w: continue
                 rm = f" [{blk['room']}]" if blk.get("room") else ""
                 P.append(Text.assemble(("  ", ""), (blk["name"], "bold"), (f" ({blk['type']}){rm}", "dim")))
+                unwired = []
                 for inp in blk["inputs"]:
                     if inp.get("wired_from"):
-                        P.append(Text(f"    in:  {inp['key']} ← {inp['wired_from']}", style="dim"))
+                        src = cid_map.get(inp["wired_from"], f"cid:{inp['wired_from']}")
+                        P.append(Text(f"    in:  {inp['key']} ← {src}", style="dim"))
                     else:
-                        P.append(Text(f"    ⚠ {inp['key']}: NOT WIRED", style="red"))
+                        unwired.append(inp["key"])
+                # Show unwired only for blocks that have SOME wiring (partial = interesting)
+                if unwired and any(i.get("wired_from") for i in blk["inputs"]):
+                    P.append(Text(f"    ⚠ unwired: {', '.join(unwired[:5])}", style="red"))
+                elif unwired and not any(i.get("wired_from") for i in blk["inputs"]):
+                    P.append(Text(f"    ⚠ ALL inputs unwired!", style="bold red"))
                 for out in blk["outputs"]:
                     for tgt in out.get("wired_to", []):
-                        P.append(Text(f"    out: {out['key']} → {tgt}", style="dim"))
+                        dst = cid_map.get(tgt, f"cid:{tgt}")
+                        P.append(Text(f"    out: {out['key']} → {dst}", style="dim"))
                 cnt += 1
                 if cnt >= 15:
                     P.append(Text("    … and more", style="dim")); break
