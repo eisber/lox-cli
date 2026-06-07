@@ -76,20 +76,31 @@ subcmd_help!(help_color_decode, "color", "decode");
 
 #[test]
 fn color_encode_rgb_composite() {
+    // value = R + G*1000 + B*1000000  → 255 for pure red
     lox()
         .args(["color", "encode", "--rgb", "255,0,0"])
         .assert()
         .success()
-        .stdout(predicate::str::contains("16711680"));
+        .stdout(predicate::str::contains("255"));
+}
+
+#[test]
+fn color_encode_rgb_base1000_packing() {
+    // 100,40,0 → 40100 (regression: NOT 24-bit 0xRRGGBB)
+    lox()
+        .args(["color", "encode", "--rgb", "100,40,0"])
+        .assert()
+        .success()
+        .stdout(predicate::str::contains("40100"));
 }
 
 #[test]
 fn color_decode_composite_to_rgb() {
     lox()
-        .args(["color", "decode", "16711680"])
+        .args(["color", "decode", "40100"])
         .assert()
         .success()
-        .stdout(predicate::str::contains("255,0,0"));
+        .stdout(predicate::str::contains("100,40,0"));
 }
 
 #[test]

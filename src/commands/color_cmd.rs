@@ -2,11 +2,11 @@
 //!
 //! Loxone represents colours in two ways:
 //!
-//! * **RGB composite integer** (the `<v.col>` display unit used by RGBW actor
-//!   colour inputs): `value = red * 65536 + green * 256 + blue` with each
-//!   channel in `0..=255` (i.e. plain 24-bit `0xRRGGBB`). This is the integer you
-//!   wire/`set-param` into a numeric colour input, and the value the Miniserver
-//!   accepts directly via `/dev/sps/io/<uuid>/<value>`.
+//! * **RGB composite integer** (the `<v.col>` analog colour value used by RGBW
+//!   actor colour inputs): `value = red + green * 1000 + blue * 1000000` with each
+//!   channel in `0..=255`. This is a base-1000 packing (NOT 24-bit `0xRRGGBB`):
+//!   e.g. `100,40,0` → `40100`. This is the integer you wire/`set-param` into a
+//!   numeric colour input, and the value the Miniserver expects for that input.
 //! * **Tunable-white / colour-temperature**: the official ColorPickerV2 API uses
 //!   the *string* command `temp(<brightness>,<kelvin>)` (brightness `0..=100`,
 //!   kelvin e.g. `2700..=6500`). There is no portable composite integer for
@@ -21,7 +21,28 @@ use serde_json::json;
 
 use crate::commands::RunContext;
 
-const RGB_MAX: i64 = 0xFF_FFFF;
+/// Maximum valid RGB composite (`255 + 255*1000 + 255*1000000`).
+const RGB_MAX: i64 = 255 + 255 * 1_000 + 255 * 1_000_000;
+
+/// Pack an RGB triple (each channel `0..=255`) into the Loxone analog colour
+/// value: `red + green * 1000 + blue * 1000000`.
+fn rgb_to_composite(r: u8, g: u8, b: u8) -> i64 {
+    r as i64 + (g as i64) * 1_000 + (b as i64) * 1_000_000
+}
+
+/// Unpack a Loxone analog colour value into `(red, green, blue)` channels.
+/// Returns an error if any channel is outside `0..=255`.
+fn composite_to_rgb(n: i64) -> Result<(u8, u8, u8)> {
+    let r = n % 1_000;
+    let g = (n / 1_000) % 1_000;
+    let b = (n / 1_000_000) % 1_000;
+    for (name, c) in [("red", r), ("green", g), ("blue", b)] {
+        if !(0..=255).contains(&c) {
+            bail!("composite {n} has {name} channel {c} outside 0..255 — not a valid RGB value");
+        }
+    }
+    Ok((r as u8, g as u8, b as u8))
+}
 
 #[derive(Subcommand)]
 pub enum ColorCmd {
@@ -42,7 +63,7 @@ pub enum ColorCmd {
     },
     /// Decode a Loxone color value: integer composite, hsv(...) or temp(...) string
     Decode {
-        /// The value to decode (e.g. "16711680", "hsv(0,100,100)", "temp(15,2700)")
+        /// The value to decode (e.g. "40100", "hsv(0,100,100)", "temp(15,2700)")
         value: String,
     },
 }
@@ -127,7 +148,7 @@ fn encode(
         b = (b as f64 * scale).round() as u8;
     }
 
-    let composite = (r as i64) << 16 | (g as i64) << 8 | (b as i64);
+    let composite = rgb_to_composite(r, g, b);
     let (h, s, v) = rgb_to_hsv(r, g, b);
     let hsv_cmd = format!(
         "hsv({},{},{})",
@@ -166,7 +187,7 @@ fn decode(ctx: &RunContext, value: &str) -> Result<()> {
     if let Some(args) = strip_call(v, "hsv") {
         let (h, s, val) = parse_triple(&args, "hsv(H,S,V)")?;
         let (r, g, b) = hsv_to_rgb(h, s / 100.0, val / 100.0);
-        let composite = (r as i64) << 16 | (g as i64) << 8 | (b as i64);
+        let composite = rgb_to_composite(r, g, b);
         if ctx.json {
             println!(
                 "{}",
@@ -211,9 +232,7 @@ fn decode(ctx: &RunContext, value: &str) -> Result<()> {
         .parse()
         .map_err(|_| anyhow::anyhow!("'{v}' is not a number or a hsv(...)/temp(...) command"))?;
     if (0..=RGB_MAX).contains(&n) {
-        let r = ((n >> 16) & 0xFF) as u8;
-        let g = ((n >> 8) & 0xFF) as u8;
-        let b = (n & 0xFF) as u8;
+        let (r, g, b) = composite_to_rgb(n)?;
         let (h, s, val) = rgb_to_hsv(r, g, b);
         let hsv_cmd = format!(
             "hsv({},{},{})",
@@ -241,7 +260,7 @@ fn decode(ctx: &RunContext, value: &str) -> Result<()> {
         Ok(())
     } else {
         bail!(
-            "value {n} is outside the 24-bit RGB range (0..{RGB_MAX}); color-temperature \
+            "value {n} is outside the RGB composite range (0..{RGB_MAX}); color-temperature \
              values use the temp(brightness,kelvin) command string, not an integer"
         )
     }
@@ -360,26 +379,26 @@ mod tests {
     use super::*;
 
     #[test]
-    fn rgb_roundtrip_primary_colors() {
+    fn rgb_composite_roundtrip() {
+        // value = R + G*1000 + B*1000000 (each channel 0..255)
         for (rgb, comp) in [
-            ((255u8, 0u8, 0u8), 0xFF0000i64),
-            ((0, 255, 0), 0x00FF00),
-            ((0, 0, 255), 0x0000FF),
-            ((255, 255, 255), 0xFFFFFF),
-            ((0, 0, 0), 0x000000),
+            ((255u8, 0u8, 0u8), 255i64),
+            ((0, 255, 0), 255_000),
+            ((0, 0, 255), 255_000_000),
+            ((255, 255, 255), 255_255_255),
+            ((0, 0, 0), 0),
+            ((100, 40, 0), 40_100),
         ] {
             let (r, g, b) = rgb;
-            let c = (r as i64) << 16 | (g as i64) << 8 | (b as i64);
-            assert_eq!(c, comp, "rgb {rgb:?}");
-            assert_eq!(
-                (
-                    ((c >> 16) & 0xFF) as u8,
-                    ((c >> 8) & 0xFF) as u8,
-                    (c & 0xFF) as u8
-                ),
-                rgb
-            );
+            assert_eq!(rgb_to_composite(r, g, b), comp, "rgb {rgb:?}");
+            assert_eq!(composite_to_rgb(comp).unwrap(), rgb, "composite {comp}");
         }
+    }
+
+    #[test]
+    fn composite_rejects_out_of_range_channel() {
+        // 999 → red channel 999, which is > 255
+        assert!(composite_to_rgb(999).is_err());
     }
 
     #[test]

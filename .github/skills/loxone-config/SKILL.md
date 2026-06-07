@@ -97,24 +97,24 @@ lox sim run FILE --sim '{"inputs":{"Sensor.AQ":value},"ticks":10,"dt":0.1,"expec
 
 ### Color values (RGBW actors, `<v.col>`)
 
-Loxone colour inputs (display unit `<v.col>`, e.g. the "Smartaktor RGBW" colour input) take a
+Loxone colour inputs (analog colour value `<v.col>`, e.g. the "Smartaktor RGBW" colour input) take a
 **composite integer**. Use `lox color` to compute/inspect it instead of guessing:
 
 ```
-lox color encode --rgb 255,100,0                 # → composite 16737280, hsv(24,100,100)
+lox color encode --rgb 100,40,0                  # → composite 40100, hsv(24,100,16)
 lox color encode --rgb 255,100,0 --brightness 15 # warm amber dimmed to 15%
 lox color encode --hsv 24,100,100                # from HSV
 lox color encode --kelvin 2700 --brightness 15   # tunable white → temp(15,2700) command
-lox color decode 16711680                        # → 255,0,0  #FF0000
+lox color decode 40100                           # → 100,40,0
 lox color decode "hsv(0,100,100)"                # parse a command string
 ```
 
 Encodings:
 
-- **RGB composite integer** = `red*65536 + green*256 + blue` (each channel `0..255`, i.e. plain
-  24-bit `0xRRGGBB`). This is the integer you `set-param`/`wire` into a numeric colour input, and
-  what the Miniserver accepts directly at `/jdev/sps/io/<uuid>/<integer>`. `--brightness P` scales
-  the channels to `P%`.
+- **RGB composite integer** = `red + green*1000 + blue*1000000` (each channel `0..255`). This is a
+  base-1000 packing — **NOT** 24-bit `0xRRGGBB`. E.g. `100,40,0` → `40100`. This is the integer you
+  `set-param`/`wire` into a numeric colour input, and the value the Miniserver expects for that
+  input. `--brightness P` scales the channels to `P%`.
 - **HSV** is accepted/printed as the ColorPickerV2 command string `hsv(<hue 0..360>,<sat 0..100>,<val 0..100>)`.
 - **Tunable white / colour temperature** uses the command string `temp(<brightness 0..100>,<kelvin>)`
   (there is no portable composite integer for colour temperature — send the `temp(...)` string to the
