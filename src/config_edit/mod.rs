@@ -70,6 +70,20 @@ pub struct DescribeConnectorEntry {
     pub default: Option<String>,
 }
 
+/// A light scene / "mood" defined on a LightController2.
+#[derive(Debug, Clone, serde::Serialize)]
+pub struct MoodInfo {
+    pub name: String,
+    pub uuid: String,
+    /// Scene ID used to select the mood (e.g. via jdev `changeTo/<sid>`).
+    pub sid: Option<i64>,
+    pub cid: Option<i64>,
+    /// Raw value of output 1 (`Q1`) — for a single RGBW actor this carries the
+    /// packed scene colour value (a Loxone-internal encoding, not the simple
+    /// `lox color` composite).
+    pub q1: Option<String>,
+}
+
 /// Resolved endpoint for a config-wide wire.
 #[derive(Debug, Clone, PartialEq, Eq, serde::Serialize)]
 pub struct ConfigWireEndpoint {
@@ -785,6 +799,59 @@ mod tests {
         let xml = String::from_utf8(editor.to_bytes().unwrap()).unwrap();
         assert!(xml.contains(r#"Input="co-wd1-aq""#));
         assert!(xml.contains(r#"Input="co-wd2-aq""#));
+    }
+
+    #[test]
+    fn test_splice_actor_repoints_outputref_ai() {
+        const SAMPLE: &[u8] = br#"<?xml version="1.0" encoding="utf-8"?>
+<ControlList Version="267">
+  <C Type="OutputRef" U="oref-1" Title="RGBW">
+    <Co K="AI" U="oref-1-ai" Nc="1"><In Input="lc-aq1"/></Co>
+    <Co K="AQ" U="oref-1-aq"/>
+  </C>
+  <C Type="LoxAIRAactor" U="actor-1" Title="RGBW Actor">
+    <Co K="I" U="actor-1-i" Nc="1"><In Input="oref-1-aq"/></Co>
+  </C>
+</ControlList>"#;
+
+        // Splice via the actor selector — the driving OutputRef is found
+        // automatically (actor.I ← OutputRef.AQ).
+        let mut editor = ConfigEditor::load(SAMPLE).unwrap();
+        let oref = editor.splice_actor("uuid:actor-1", "newsrc").unwrap();
+        assert_eq!(oref, "oref-1");
+        let xml = String::from_utf8(editor.to_bytes().unwrap()).unwrap();
+        assert!(xml.contains(r#"Input="newsrc""#));
+        assert!(!xml.contains(r#"Input="lc-aq1""#));
+
+        // Splice via the OutputRef block directly also works.
+        let mut editor = ConfigEditor::load(SAMPLE).unwrap();
+        editor.splice_actor("uuid:oref-1", "uuid:other").unwrap();
+        let xml = String::from_utf8(editor.to_bytes().unwrap()).unwrap();
+        assert!(xml.contains(r#"Input="other""#));
+        assert!(!xml.contains(r#"Input="lc-aq1""#));
+    }
+
+    #[test]
+    fn test_list_moods() {
+        const SAMPLE: &[u8] = br#"<?xml version="1.0" encoding="utf-8"?>
+<ControlList Version="267">
+  <C Type="LightController2" U="lc-1" Title="Lichtsteuerung">
+    <LightscenesC FC="0040FFFF" Outputs="1" Num="2">
+      <LightsceneC Name="Entspannen" UUID="m-1" SID="1" CID="8" Q1="1613645813"/>
+      <LightsceneC Name="Aus" UUID="m-2" SID="778" CID="7" Q1="0"/>
+    </LightscenesC>
+  </C>
+</ControlList>"#;
+        let editor = ConfigEditor::load(SAMPLE).unwrap();
+        let moods = editor.list_moods("uuid:lc-1").unwrap();
+        assert_eq!(moods.len(), 2);
+        assert_eq!(moods[0].name, "Entspannen");
+        assert_eq!(moods[0].sid, Some(1));
+        assert_eq!(moods[1].name, "Aus");
+        assert_eq!(moods[1].sid, Some(778));
+        // Non-light-controller selector is an error.
+        let editor2 = ConfigEditor::load(SAMPLE_XML).unwrap();
+        assert!(editor2.list_moods("uuid:wd-1").is_err());
     }
 
     #[test]

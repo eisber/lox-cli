@@ -1,4 +1,4 @@
-use super::{ConfigEditor, MqttTopic, WireInfo};
+use super::{ConfigEditor, MoodInfo, MqttTopic, WireInfo};
 use anyhow::Result;
 use xmltree::Element;
 
@@ -935,6 +935,130 @@ impl ConfigEditor {
             }
         }
         last_page
+    }
+
+    /// Re-point an actor's `OutputRef.AI` to a new source ("detach" the actor
+    /// from its owning LightController so a value source — mux / VirtualIn —
+    /// can drive it directly).
+    ///
+    /// `selector` may resolve to the `OutputRef` block itself, or to the device
+    /// actor (`LoxAIRAactor`/`TreeAactor`) whose input `I` is fed by the
+    /// OutputRef's `AQ` — in which case the driving OutputRef is found
+    /// automatically. The OutputRef's `AI` source is replaced with `source_uuid`.
+    pub fn splice_actor(&mut self, selector: &str, source_uuid: &str) -> Result<String> {
+        let path = self.require_one(selector)?;
+        let elem = self.get_element(&path);
+        let block_type = elem.attributes.get("Type").cloned().unwrap_or_default();
+
+        let outputref_uuid = if block_type == "OutputRef" {
+            elem.attributes
+                .get("U")
+                .cloned()
+                .ok_or_else(|| anyhow::anyhow!("OutputRef '{selector}' has no UUID"))?
+        } else {
+            // Find the actor's driving input source (the OutputRef's AQ uuid).
+            let aq_source = elem
+                .children
+                .iter()
+                .filter_map(|c| c.as_element())
+                .filter(|e| e.name == "Co")
+                .filter(|e| {
+                    matches!(
+                        e.attributes.get("K").map(String::as_str),
+                        Some("I") | Some("AI")
+                    )
+                })
+                .find_map(|co| {
+                    co.children
+                        .iter()
+                        .filter_map(|c| c.as_element())
+                        .find_map(|inn| {
+                            if inn.name == "In" {
+                                inn.attributes.get("Input").cloned()
+                            } else {
+                                None
+                            }
+                        })
+                })
+                .ok_or_else(|| {
+                    anyhow::anyhow!(
+                        "'{selector}' (type {block_type}) has no wired I/AI input — \
+                         pass the OutputRef block directly"
+                    )
+                })?;
+            self.find_block_owning_connector(&aq_source, "AQ")
+                .ok_or_else(|| {
+                    anyhow::anyhow!(
+                        "could not find an OutputRef whose AQ ({aq_source}) drives '{selector}'"
+                    )
+                })?
+        };
+
+        let sel = format!("uuid:{outputref_uuid}");
+        self.wire_connector(&sel, "AI", source_uuid, false)?;
+        Ok(outputref_uuid)
+    }
+
+    /// Find the UUID of the block (`C`) that owns a connector with the given
+    /// connector UUID and key.
+    fn find_block_owning_connector(&self, connector_uuid: &str, key: &str) -> Option<String> {
+        fn search(elem: &Element, target: &str, key: &str) -> Option<String> {
+            if elem.name == "C" {
+                for child in &elem.children {
+                    if let Some(co) = child.as_element()
+                        && co.name == "Co"
+                        && co.attributes.get("K").map(|k| k == key).unwrap_or(false)
+                        && co.attributes.get("U").map(|u| u == target).unwrap_or(false)
+                    {
+                        return elem.attributes.get("U").cloned();
+                    }
+                }
+            }
+            for child in &elem.children {
+                if let Some(e) = child.as_element()
+                    && let Some(found) = search(e, target, key)
+                {
+                    return Some(found);
+                }
+            }
+            None
+        }
+        search(&self.root, connector_uuid, key)
+    }
+
+    /// List the light scenes ("moods") defined on a LightController2.
+    ///
+    /// Moods are stored as `<LightsceneC>` children of the controller's
+    /// `<LightscenesC>` element. Each carries a `Name`, `UUID`, scene id (`SID`)
+    /// and the per-output values `Q1..Qn`.
+    pub fn list_moods(&self, selector: &str) -> Result<Vec<MoodInfo>> {
+        let path = self.require_one(selector)?;
+        let elem = self.get_element(&path);
+        let block_type = elem.attributes.get("Type").cloned().unwrap_or_default();
+        if block_type != "LightController2" {
+            anyhow::bail!(
+                "'{selector}' is a {block_type}, not a LightController2 — moods only exist on light controllers"
+            );
+        }
+        let mut moods = Vec::new();
+        fn collect(elem: &Element, out: &mut Vec<MoodInfo>) {
+            if elem.name == "LightsceneC" {
+                out.push(MoodInfo {
+                    name: elem.attributes.get("Name").cloned().unwrap_or_default(),
+                    uuid: elem.attributes.get("UUID").cloned().unwrap_or_default(),
+                    sid: elem.attributes.get("SID").and_then(|s| s.parse().ok()),
+                    cid: elem.attributes.get("CID").and_then(|s| s.parse().ok()),
+                    q1: elem.attributes.get("Q1").cloned(),
+                });
+            }
+            for child in &elem.children {
+                if let Some(e) = child.as_element() {
+                    collect(e, out);
+                }
+            }
+        }
+        collect(elem, &mut moods);
+        Ok(moods)
     }
 
     /// Find which Page contains a connector UUID.

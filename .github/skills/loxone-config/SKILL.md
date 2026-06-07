@@ -64,6 +64,51 @@ lox config wire-connector FILE "TargetBlock.InputConnector" "SourceBlock.OutputC
 - Use room qualifier for ambiguous names: `"Jalousie 1 [Wohnzimmer].InputTriggerDown"`
 - The TARGET may also be addressed by UUID: `"uuid:<actor>.<connectorKey>"` (e.g.
   `"uuid:0f8e1234-….AI1"`) — useful for device actors that aren't easily named.
+- The SOURCE may be passed bare or `uuid:`-prefixed (the prefix is stripped).
+- Re-wiring a connector that already has a source **replaces** it by default.
+  Pass `--add` to append an additional source instead. A warning is printed if
+  the source is not a real output connector.
+
+### Detach a device actor (re-point OutputRef.AI)
+
+To drive an RGBW/colour actor with a free value (a mux / VirtualIn colour
+composite) you must **detach** it from its owning LightController by re-pointing
+the actor's `OutputRef.AI` away from `LightController.AQ1`:
+
+```
+lox config splice-actor FILE "uuid:<outputref-or-actor>" --source "uuid:<new-source>"
+```
+
+- The selector may be the `OutputRef` block itself, or the device actor it drives
+  (the driving OutputRef is found automatically via `actor.I ← OutputRef.AQ`).
+- Equivalent low-level form: `wire-connector FILE "uuid:<outputref>.AI" "uuid:<source>"`.
+
+### List a LightController2's moods
+
+```
+lox config moods FILE "uuid:<lightcontroller>"
+```
+
+- Lists the predefined light scenes ("moods"): `Name`, `SID`, `CID`, `UUID`.
+- Select one live with `lox live set <controller> changeTo/<SID> --write`.
+- **Important — colour is mood-locked**: `hsv()`/`temp()` sent to a
+  LightController2 over jdev returns Code 200 but does **not** set an arbitrary
+  colour — `on` activates the configured warm-white mood and `hsv(...)` is
+  ignored. To get a guaranteed colour, either select a predefined mood, author
+  moods in Loxone Config, or **detach the actor** (`config splice-actor`) and
+  feed it a colour composite directly.
+
+### Add a Virtual Input (HTTP/jdev push target)
+
+```
+lox config add --type virtual-input --title "Teams Color" --analog [--min N --max N --unit "<v>"] FILE
+```
+
+- Emits a valid `VirtualIn` (plus its `InputRef` converter), auto-assigns the
+  next free `IName`, and wires `IoData Pr/Cr`. Push values via
+  `/jdev/sps/io/<uuid>/<value>`; wire blocks FROM its `InputRef.AQ`.
+- Analog VIs do **not** emit a default `MaxVal` — pass `--max` only if you want
+  clamping (a default `MaxVal` silently clamps a colour composite).
 
 ### Add a schedule to a DayTimer block
 
@@ -119,6 +164,19 @@ Encodings:
 - **Tunable white / colour temperature** uses the command string `temp(<brightness 0..100>,<kelvin>)`
   (there is no portable composite integer for colour temperature — send the `temp(...)` string to the
   ColorPickerV2 control). Older firmware also accepts `lumitech(brightness,kelvin)`.
+
+### Live read / write against a running Miniserver
+
+```
+lox live get  "uuid:<control>"            # read current state (read-only)
+lox live set  "uuid:<control>" on --write # send a jdev command (needs --write)
+lox live time                             # Miniserver clock
+```
+
+- `lox live` wraps `/jdev/sps/io/<uuid>/<cmd>`. It is **read-only by default** —
+  state-changing commands require the explicit `--write` flag.
+- Use it to verify a deployed circuit (e.g. select a mood:
+  `lox live set "uuid:<lc>" changeTo/<SID> --write`).
 
 ## Block Discovery
 
@@ -528,15 +586,20 @@ set AQ2 = 0"
 
 - **Inputs:** `Input1`, `Input2`, `Input3`, `Input4`
 - **Outputs:** `AQ`
-- **Params:** `Select` (which input to pass through, range 0–4)
+- **Params/Select:** **1-based** — `0` → output 0 (off), `1` → Input1, … `4` → Input4.
 - **Use case:** 3+ mode setpoint selection (comfort/eco/off)
 
 #### AnalogMultiplexer2 — Select between 2 analog inputs
 
 - **Inputs:** `Input1`, `Input2`
 - **Outputs:** `AQ`
-- **Params:** `Select` (which input to pass through)
+- **Select is 1-based** (matches AnalogMultiplexer): `0` → output 0 (off),
+  `1` → Input1, `2` → Input2. **Foot-gun:** a digital 0/1 signal selects
+  off/Input1, never Input2 — feed `Select = override ? 2 : 1` to switch between
+  the two inputs. The simulator prints a warning when a `Select` input is wired,
+  as a reminder of the 1-based convention.
 - **Note:** Only 2 inputs. For 3+ modes, use AnalogMultiplexer (4-way)
+
 
 #### Ramp — Gradual value change
 

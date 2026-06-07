@@ -754,6 +754,27 @@ pub(crate) enum ConfigCmd {
         #[arg(long)]
         save_as: Option<String>,
     },
+    /// List the light scenes ("moods") of a LightController2
+    #[command(name = "moods")]
+    Moods {
+        /// Path to a .Loxone XML file
+        file: String,
+        /// LightController2 selector (title or "uuid:...")
+        selector: String,
+    },
+    /// Detach a device actor by re-pointing its OutputRef.AI to a new source
+    #[command(name = "splice-actor")]
+    SpliceActor {
+        /// Path to a .Loxone XML file
+        file: String,
+        /// Selector for the OutputRef block, or the actor it drives
+        selector: String,
+        /// New source connector UUID for OutputRef.AI (bare or "uuid:" prefixed)
+        #[arg(long)]
+        source: String,
+        #[arg(long)]
+        save_as: Option<String>,
+    },
     /// Set a parameter on a block (sets Def= on the connector)
     #[command(name = "set-param", visible_alias = "set")]
     SetParam {

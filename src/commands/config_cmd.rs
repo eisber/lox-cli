@@ -2181,6 +2181,63 @@ pub fn cmd_config(ctx: &RunContext, action: ConfigCmd) -> Result<()> {
             }
             save_edited(&editor, &file, save_as.as_deref())?;
         }
+        ConfigCmd::Moods { file, selector } => {
+            let data = fs::read(&file).with_context(|| format!("Cannot read {}", file))?;
+            let editor = ConfigEditor::load(&data)?;
+            let moods = editor.list_moods(&selector)?;
+            if ctx.json {
+                emit_json(ctx, serde_json::json!({ "moods": moods }));
+            } else {
+                println!("  {:<24} {:>4} {:>4}  UUID", "Mood", "SID", "CID");
+                println!("  {}", "─".repeat(60));
+                for m in &moods {
+                    println!(
+                        "  {:<24} {:>4} {:>4}  {}",
+                        m.name,
+                        m.sid.map(|s| s.to_string()).unwrap_or_default(),
+                        m.cid.map(|c| c.to_string()).unwrap_or_default(),
+                        m.uuid
+                    );
+                }
+                println!("\n{} mood(s)", moods.len());
+                println!(
+                    "Select live with: lox live set {} changeTo/<SID> --write",
+                    selector
+                );
+                println!(
+                    "Note: hsv()/temp() sent to a LightController2 does NOT set an arbitrary\n\
+                     color — it only re-colors a mood that allows it. Predefine moods (in\n\
+                     Loxone Config) or detach the actor (`config splice-actor`) for free color."
+                );
+            }
+        }
+        ConfigCmd::SpliceActor {
+            file,
+            selector,
+            source,
+            save_as,
+        } => {
+            let data = fs::read(&file).with_context(|| format!("Cannot read {}", file))?;
+            let mut editor = ConfigEditor::load(&data)?;
+            let outputref = editor.splice_actor(&selector, &source)?;
+            if ctx.json {
+                emit_json(
+                    ctx,
+                    serde_json::json!({
+                        "ok": true,
+                        "outputref": outputref,
+                        "source": source.strip_prefix("uuid:").unwrap_or(&source),
+                    }),
+                );
+            } else if !ctx.quiet {
+                println!(
+                    "✓ Spliced OutputRef {} — AI ← {}",
+                    outputref,
+                    source.strip_prefix("uuid:").unwrap_or(&source)
+                );
+            }
+            save_edited(&editor, &file, save_as.as_deref())?;
+        }
         ConfigCmd::SetParam {
             file,
             selector,

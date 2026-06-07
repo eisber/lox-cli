@@ -77,6 +77,19 @@ lox sim check FILE
 ```
 
 Quick structural check: reports number of blocks and connectors in the config.
+The footer categorizes warnings as **simulated** (fully modeled),
+**passthrough-unreliable** (device/weather sinks mirrored but not physically
+verifiable), or **structural** (graph issues). Pass `--strict` to make any
+warning a non-zero exit (useful in CI).
+
+### Block behavior notes
+
+- **AnalogMultiplexer2 `Select` is 1-based**: `0`→off, `1`→Input1, `2`→Input2
+  (matching AnalogMultiplexer). A bare digital 0/1 never selects Input2 — feed
+  `Select = override ? 2 : 1`. The sim warns when a `Select` input is wired.
+- **LightController2** emits a 5th output `OutputReset` — a momentary pulse
+  (1.0 for one tick) on the rising edge of its `Reset` input. Assert it with a
+  pulse-style check after toggling `Reset`.
 
 ## Simulation Spec Format
 
