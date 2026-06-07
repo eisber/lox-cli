@@ -35,9 +35,10 @@ pub use energy::{
     MeterPBi, MeterPUni, PVProductionForecast, Wallbox,
 };
 pub use io::{
-    DigitalIn, EIBPush, EIBactor, EIBextactor, EIBsensor, EibDimmer, InputRef, LoxAIRAsensor,
-    LoxAIRsensor, OutputRef, OutputRefLM, TreeAsensor, TreeSensor, VirtualIn, VirtualOut,
-    VirtualState, VoltageIn,
+    DigitalIn, EIBPush, EIBactor, EIBextactor, EIBsensor, EibDimmer, GenTActor, GenTSensor,
+    InputRef, LoxAIRAactor, LoxAIRAsensor, LoxAIRactor, LoxAIRsensor, OutputRef, OutputRefLM,
+    TreeAactor, TreeActor, TreeAsensor, TreeSensor, VirtualIn, VirtualOut, VirtualState, VoltageIn,
+    WeatherData,
 };
 pub use logic::{Equal, Nand, Nor, Not, NotEqual, Or, Xor};
 pub use math::{
@@ -602,6 +603,15 @@ pub fn create_block(block_type: &str) -> Box<dyn Block> {
         "TreeAsensor" => Box::new(TreeAsensor),
         "LoxAIRsensor" => Box::new(LoxAIRsensor),
         "LoxAIRAsensor" => Box::new(LoxAIRAsensor),
+        // Group D — I/O: Tree / Air hardware actors (input mirrored to output)
+        "LoxAIRAactor" => Box::new(LoxAIRAactor),
+        "LoxAIRactor" => Box::new(LoxAIRactor),
+        "TreeAactor" => Box::new(TreeAactor),
+        "TreeActor" => Box::new(TreeActor),
+        // Group D — I/O: Weather / generic MQTT sources & sinks
+        "WeatherData" => Box::new(WeatherData),
+        "GenTSensor" => Box::new(GenTSensor),
+        "GenTActor" => Box::new(GenTActor),
         // Group D — I/O: Hardware analog/digital inputs
         "VoltageIn" => Box::new(VoltageIn),
         "DigitalIn" => Box::new(DigitalIn),

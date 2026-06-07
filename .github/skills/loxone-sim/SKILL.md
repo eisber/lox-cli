@@ -132,6 +132,24 @@ The simulator resolves sensor/block names in this order:
 
 Always use room qualification when a block name exists in multiple rooms (e.g. "Jalousie 1", "Lichtsteuerung").
 
+### Weather, sensor & device-actor blocks
+
+These I/O block types are simulated as **value sources** and **sinks**, so weather/threshold
+circuits and device outputs can be tested:
+
+| Block type | Role | How to drive / assert |
+|------------|------|-----------------------|
+| `WeatherData` | Weather-service source (one quantity per block: wind, temp, sunshine, …) | inject `"<name>.AQ": value` — the reading persists across ticks |
+| `GenTSensor` | Generic MQTT sensor source | inject `"<name>.AQ": value` |
+| `TreeAsensor` / `LoxAIRAsensor` | Wired/wireless analog sensor | inject `"<name>.AQ": value` |
+| `LoxAIRAactor` / `TreeAactor` | Analog device actor (sink) | assert `"<name>.AQ"` — mirrors the delivered input |
+| `LoxAIRactor` / `TreeActor` | Digital device actor (sink) | assert `"<name>.Q"` — mirrors the delivered input |
+| `GenTActor` | Generic MQTT publish actor (sink) | assert `"<name>.AQ"` — mirrors the `Text` input |
+
+Device actors are terminal in real configs (no output connector); the simulator mirrors the value
+delivered to their `I` input onto a synthesized output (`AQ` for analog `A`-actors, `Q` for digital
+actors) so you can assert on what the physical device would emit.
+
 ### Multiple Scenarios
 
 Pass an array for multiple test scenarios in one run:

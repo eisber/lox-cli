@@ -1718,6 +1718,17 @@ fn block_signature(
             &["AQ", "AQg", "AQm", "Q"],
             &["Time", "Factor", "Warn"],
         ),
+        // Weather-service data point & generic MQTT sensor — analog sources on
+        // AQ (inject readings with `set_input("<name>.AQ", value)`).
+        "WeatherData" => (&[], &["AQ"], &[]),
+        "GenTSensor" => (&["Text"], &["AQ"], &[]),
+        // Generic MQTT publish actor — sink that mirrors Text onto AQ.
+        "GenTActor" => (&["Text"], &["AQ"], &[]),
+        // Tree / Air device actors — terminal sinks; the `I` input value is
+        // mirrored onto a synthesized output so a sim can assert it. Analog
+        // (`A`) actors emit AQ; digital actors emit Q.
+        "LoxAIRAactor" | "TreeAactor" => (&["I"], &["AQ"], &[]),
+        "LoxAIRactor" | "TreeActor" => (&["I"], &["Q"], &[]),
         // Network
         "Ping" => (
             &["InputDisable"],
@@ -2229,6 +2240,42 @@ mod tests {
         let gate_a = graph.find_block_by_name("GateA").unwrap();
         let i1 = graph.find_connector(gate_a, "I1").unwrap();
         assert!(graph.input_source_of(i1).is_none());
+    }
+
+    #[test]
+    fn weather_actor_connector_directions() {
+        // WeatherData is an analog source (AQ output); device actors expose the
+        // `I` input plus a synthesized mirrored output (AQ analog / Q digital).
+        let xml = r#"<?xml version="1.0" encoding="utf-8"?>
+<ControlList>
+  <C Type="WeatherData" U="wd" Title="Wind">
+    <Co K="AQ" U="wd-aq"/>
+  </C>
+  <C Type="LoxAIRAactor" U="aa" Title="Dimmer">
+    <Co K="I" U="aa-i"/>
+  </C>
+  <C Type="LoxAIRactor" U="da" Title="Relay">
+    <Co K="I" U="da-i"/>
+  </C>
+</ControlList>"#;
+        let graph = parse_bytes(xml.as_bytes()).expect("parse failed");
+
+        let wd = graph.find_block_by_name("Wind").unwrap();
+        assert_eq!(graph.block_impls[wd].block_type(), "WeatherData");
+        let aq = graph.find_connector(wd, "AQ").unwrap();
+        assert_eq!(graph.connector(aq).dir, ConnectorDir::Output);
+
+        let aa = graph.find_block_by_name("Dimmer").unwrap();
+        let ai = graph.find_connector(aa, "I").unwrap();
+        assert_eq!(graph.connector(ai).dir, ConnectorDir::Input);
+        // Analog actor synthesizes a mirrored AQ output.
+        let amir = graph.find_connector(aa, "AQ").unwrap();
+        assert_eq!(graph.connector(amir).dir, ConnectorDir::Output);
+
+        // Digital actor synthesizes a mirrored Q output.
+        let da = graph.find_block_by_name("Relay").unwrap();
+        let qmir = graph.find_connector(da, "Q").unwrap();
+        assert_eq!(graph.connector(qmir).dir, ConnectorDir::Output);
     }
 
     #[test]

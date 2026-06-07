@@ -1791,6 +1791,83 @@ mod tests {
         );
     }
 
+    #[test]
+    fn weather_source_injection_persists_across_ticks() {
+        // WeatherData is an analog source. Injecting its AQ output must persist
+        // across ticks (the override survives because its block_type is not in
+        // the source-passthrough exclusion list) so threshold logic downstream
+        // sees a stable reading.
+        let xml = r#"<?xml version="1.0" encoding="utf-8"?>
+<C Type="Document" Title="Test" V="175">
+  <C Type="Program" Title="Test">
+    <C Type="Page" Title="Test">
+      <C Type="WeatherData" U="wd" Title="Wind">
+        <Co K="AQ" U="wd-aq"/>
+      </C>
+      <C Type="Greater" U="gt" Title="StrongWind">
+        <Co K="Input1" U="gt-i1"><In Input="Wind.AQ"/></Co>
+        <Co K="Input2" U="gt-i2" Def="20"/>
+        <Co K="Q" U="gt-q"/>
+      </C>
+    </C>
+  </C>
+</C>"#;
+        let graph =
+            crate::parser::parse_bytes(xml.as_bytes()).expect("XML should parse successfully");
+        let mut e = SimEngine::new(graph);
+
+        e.set_input("Wind.AQ", 30.0);
+        for _ in 0..5 {
+            e.tick(0.1);
+        }
+        assert!(
+            (e.get_output("Wind.AQ") - 30.0).abs() < f64::EPSILON,
+            "injected weather reading must persist, got {}",
+            e.get_output("Wind.AQ")
+        );
+        assert!(
+            (e.get_output("StrongWind") - 1.0).abs() < f64::EPSILON,
+            "wind 30 > 20 should fire the threshold"
+        );
+
+        e.set_input("Wind.AQ", 10.0);
+        for _ in 0..5 {
+            e.tick(0.1);
+        }
+        assert!(
+            e.get_output("StrongWind").abs() < f64::EPSILON,
+            "wind 10 < 20 should clear the threshold"
+        );
+    }
+
+    #[test]
+    fn device_actor_mirrors_input_to_output_in_engine() {
+        let xml = r#"<?xml version="1.0" encoding="utf-8"?>
+<C Type="Document" Title="Test" V="175">
+  <C Type="Program" Title="Test">
+    <C Type="Page" Title="Test">
+      <C Type="VirtualIn" U="vi" Title="Cmd">
+        <Co K="Q" U="vi-q"/>
+      </C>
+      <C Type="LoxAIRAactor" U="act" Title="Dimmer">
+        <Co K="I" U="act-i"><In Input="Cmd.Q"/></Co>
+      </C>
+    </C>
+  </C>
+</C>"#;
+        let graph =
+            crate::parser::parse_bytes(xml.as_bytes()).expect("XML should parse successfully");
+        let mut e = SimEngine::new(graph);
+
+        e.set_input("Cmd", 75.0);
+        e.tick(0.1);
+        assert!(
+            (e.get_output("Dimmer.AQ") - 75.0).abs() < f64::EPSILON,
+            "actor output AQ should mirror the delivered input, got {}",
+            e.get_output("Dimmer.AQ")
+        );
+    }
+
     // -- name-based wire resolution from parsed XML --------------------------
 
     #[test]

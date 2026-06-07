@@ -171,6 +171,71 @@ passthrough_io_block!(
 );
 
 // ---------------------------------------------------------------------------
+// Tree / Air hardware actors (device outputs)
+//
+// Actors are terminal: in real configs their `I` input carries the value
+// delivered to the physical device and they expose no output. To let a sim
+// assert on what the actor would emit, these mirror the input onto a
+// synthesized output (`AQ` for the analog `A`-actors, `Q` for digital actors —
+// see `block_signature`). They carry a real `block_type()` so they classify as
+// Simulated (not an unreliable PassThrough fallback).
+// ---------------------------------------------------------------------------
+
+passthrough_io_block!(
+    /// Air analog actor — wireless analog output (input mirrored to AQ).
+    LoxAIRAactor,
+    "LoxAIRAactor"
+);
+
+passthrough_io_block!(
+    /// Air digital actor — wireless digital output (input mirrored to Q).
+    LoxAIRactor,
+    "LoxAIRactor"
+);
+
+passthrough_io_block!(
+    /// Tree analog actor — wired analog output (input mirrored to AQ).
+    TreeAactor,
+    "TreeAactor"
+);
+
+passthrough_io_block!(
+    /// Tree digital actor — wired digital output (input mirrored to Q).
+    TreeActor,
+    "TreeActor"
+);
+
+// ---------------------------------------------------------------------------
+// Weather / generic (MQTT) sources and sinks
+//
+// `WeatherData` (Loxone weather service) and `GenTSensor` (generic MQTT
+// subscription) are value *sources*: each instance represents one quantity
+// (wind speed, temperature, sunshine, …) on its analog output. A sim injects a
+// reading with `set_input("<name>.AQ", value)`; the override persists across
+// ticks because the real `block_type()` is not in the source-passthrough
+// exclusion list. `GenTActor` (generic MQTT publish) is a *sink* that mirrors
+// its `Text` input onto `AQ` so the published value can be asserted.
+// ---------------------------------------------------------------------------
+
+passthrough_io_block!(
+    /// Loxone weather-service data point — analog source on `AQ`.
+    WeatherData,
+    "WeatherData"
+);
+
+passthrough_io_block!(
+    /// Generic MQTT sensor subscription — analog source on `AQ`.
+    GenTSensor,
+    "GenTSensor"
+);
+
+passthrough_io_block!(
+    /// Generic MQTT publish actor — mirrors `Text` input onto `AQ`.
+    GenTActor,
+    "GenTActor"
+);
+
+// ---------------------------------------------------------------------------
 // Hardware analog/digital inputs
 // ---------------------------------------------------------------------------
 
@@ -193,7 +258,7 @@ passthrough_io_block!(
 #[cfg(test)]
 mod tests {
     use super::*;
-
+    use crate::blocks::create_block;
     #[test]
     fn input_ref_passthrough() {
         let mut block = InputRef;
@@ -243,7 +308,6 @@ mod tests {
 
     #[test]
     fn factory_creates_all_io_types() {
-        use crate::blocks::create_block;
         for name in &[
             "InputRef",
             "OutputRef",
@@ -258,9 +322,43 @@ mod tests {
             "VirtualState",
             "VoltageIn",
             "DigitalIn",
+            "LoxAIRAactor",
+            "LoxAIRactor",
+            "TreeAactor",
+            "TreeActor",
+            "WeatherData",
+            "GenTSensor",
+            "GenTActor",
         ] {
             let block = create_block(name);
             assert_eq!(block.block_type(), *name, "Factory mismatch for {name}");
+        }
+    }
+
+    #[test]
+    fn device_actors_mirror_input_to_output() {
+        // Actors are terminal sinks; the `I` input value is mirrored onto the
+        // synthesized output so a sim can assert what the device would emit.
+        for name in &["LoxAIRAactor", "LoxAIRactor", "TreeAactor", "TreeActor"] {
+            let mut block = create_block(name);
+            assert_eq!(block.eval(&[42.0], &[], 0.0, &[]), vec![42.0], "{name}");
+            assert_eq!(block.eval(&[0.0], &[], 0.0, &[]), vec![0.0], "{name}");
+        }
+    }
+
+    #[test]
+    fn weather_and_generic_sources_are_simulated() {
+        use crate::blocks::{block_support, BlockSupport};
+        // Sources/sinks must classify as Simulated (not unreliable PassThrough)
+        // so injected output overrides persist and `sim check` does not flag
+        // them.
+        for name in &["WeatherData", "GenTSensor", "GenTActor"] {
+            assert_eq!(create_block(name).block_type(), *name);
+            assert_eq!(
+                block_support(name),
+                BlockSupport::Simulated,
+                "{name} should be Simulated"
+            );
         }
     }
 }

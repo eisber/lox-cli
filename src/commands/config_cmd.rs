@@ -2245,17 +2245,22 @@ pub fn cmd_config(ctx: &RunContext, action: ConfigCmd) -> Result<()> {
                 .map(|(_, _, t)| t.clone())
                 .unwrap_or_default();
 
-            // Direction fallback when the type isn't in the connector map.
-            let infer_dir = |k: &str, wired: bool| -> String {
+            // Direction fallback when a connector isn't in the type's I/O map.
+            // Co (connector) elements are always inputs or outputs (parameters are
+            // stored as block attributes), so anything that isn't output-shaped is
+            // an input. Output keys follow the Q*/AQ*/Output* naming convention.
+            let infer_dir = |k: &str, _wired: bool| -> String {
                 if let Some(d) = types.get(k) {
                     return d.clone();
                 }
-                if matches!(k, "Q" | "AQ" | "AQm" | "AQmt" | "Qon" | "Qoff" | "AQs") {
+                let is_output = matches!(k, "Q" | "AQ" | "AQm" | "AQmt" | "Qon" | "Qoff" | "AQs")
+                    || k.starts_with("Output")
+                    || k.starts_with("AQ")
+                    || (k.starts_with('Q') && k.len() > 1);
+                if is_output {
                     "O".to_string()
-                } else if wired {
-                    "I".to_string()
                 } else {
-                    "?".to_string()
+                    "I".to_string()
                 }
             };
 
