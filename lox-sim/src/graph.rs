@@ -82,6 +82,9 @@ pub struct SimGraph {
     pub(crate) input_source: HashMap<ConnectorId, ConnectorId>,
     block_by_name: HashMap<String, BlockId>,
     blocks_by_name: HashMap<String, Vec<BlockId>>,
+    /// Non-fatal diagnostics collected during graph construction (e.g. wires
+    /// that could not be honored because the source was not an output).
+    warnings: Vec<String>,
 }
 
 impl SimGraph {
@@ -94,6 +97,7 @@ impl SimGraph {
             input_source: HashMap::new(),
             block_by_name: HashMap::new(),
             blocks_by_name: HashMap::new(),
+            warnings: Vec::new(),
         }
     }
 
@@ -286,6 +290,34 @@ impl SimGraph {
     }
     pub fn wires(&self) -> &[(ConnectorId, ConnectorId)] {
         &self.wires
+    }
+
+    /// Non-fatal diagnostics collected during graph construction.
+    pub fn warnings(&self) -> &[String] {
+        &self.warnings
+    }
+
+    /// Record a non-fatal diagnostic (e.g. a wire that could not be honored).
+    pub fn push_warning(&mut self, message: impl Into<String>) {
+        self.warnings.push(message.into());
+    }
+
+    /// Describe a connector as `"<block title> (<Type>).<key> [uuid:<uuid>]"`
+    /// for human-readable diagnostics. `uuid` may be empty if unknown.
+    pub fn describe_connector(&self, cid: ConnectorId, uuid: &str) -> String {
+        if cid >= self.connectors.len() {
+            return format!("connector#{cid}");
+        }
+        let conn = &self.connectors[cid];
+        let block = &self.blocks[conn.block_id];
+        if uuid.is_empty() {
+            format!("'{}' ({}).{}", block.name, block.block_type, conn.key)
+        } else {
+            format!(
+                "'{}' ({}).{} [uuid:{}]",
+                block.name, block.block_type, conn.key, uuid
+            )
+        }
     }
 
     pub fn input_source_of(&self, input_cid: ConnectorId) -> Option<ConnectorId> {

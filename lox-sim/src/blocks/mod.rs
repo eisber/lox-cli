@@ -113,12 +113,89 @@ pub(crate) fn deserialize_f64s(bytes: &[u8], count: usize) -> Option<Vec<f64>> {
 }
 
 static BLOCK_WARNING_CACHE: OnceLock<Mutex<HashSet<String>>> = OnceLock::new();
+static BLOCK_WARNINGS_ENABLED: std::sync::atomic::AtomicBool =
+    std::sync::atomic::AtomicBool::new(true);
+
+/// Enable or disable the one-time per-type `WARNING:` lines emitted by
+/// [`create_block`] for unimplemented/stub blocks. Returns the previous value.
+///
+/// Callers that present their own categorized summary (e.g. `lox sim check`)
+/// disable these so the raw, un-ranked spam does not bury the real diagnostics.
+pub fn set_block_warnings(enabled: bool) -> bool {
+    BLOCK_WARNINGS_ENABLED.swap(enabled, Ordering::Relaxed)
+}
 
 pub(crate) fn warn_block_once(key: &str, message: &str) {
+    if !BLOCK_WARNINGS_ENABLED.load(Ordering::Relaxed) {
+        return;
+    }
     let cache = BLOCK_WARNING_CACHE.get_or_init(|| Mutex::new(HashSet::new()));
     let mut warned = cache.lock().expect("block warning cache poisoned");
     if warned.insert(key.to_string()) {
         eprintln!("WARNING: {message}");
+    }
+}
+
+/// Simulation-fidelity classification for a Loxone block type.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum BlockSupport {
+    /// A real behavioral implementation (or an intentional, acceptable stub).
+    Simulated,
+    /// Structural / caption / metadata block — correctly a no-op pass-through.
+    Structural,
+    /// No implementation: silently falls back to PassThrough, so any value it
+    /// produces is unreliable.
+    Unimplemented,
+}
+
+/// Block types that are structural, captions, or pure metadata. They carry no
+/// runtime behavior, so mapping them to PassThrough is correct (not a gap).
+pub fn is_benign_structural(block_type: &str) -> bool {
+    if block_type.ends_with("Caption") {
+        return true;
+    }
+    matches!(
+        block_type,
+        "User"
+            | "UserGroup"
+            | "Permission"
+            | "RightGroup"
+            | "CalendarEntry"
+            | "PuDe"
+            | "Mode"
+            | "GlobalStates"
+            | "RemoteControls"
+            | "Category"
+            | "Place"
+            | "Page"
+            | "Document"
+            | "Program"
+            | "LoxLIVE"
+            | "MessageCenter"
+    )
+}
+
+/// Classify how faithfully a block type is simulated. Used to produce the
+/// `sim check` summary footer and to drive `--strict`.
+pub fn block_support(block_type: &str) -> BlockSupport {
+    if is_benign_structural(block_type) {
+        return BlockSupport::Structural;
+    }
+    // Time/astro blocks are driven from the simulated clock by the engine even
+    // though they have no standalone Block impl.
+    if crate::engine::TimeKind::from_block_type(block_type).is_some() {
+        return BlockSupport::Simulated;
+    }
+    // create_block returns a PassThrough impl *only* for the unimplemented
+    // fallback arm; every recognized type (including aliases) returns a block
+    // whose own block_type() is never "PassThrough" unless asked for literally.
+    let prev = set_block_warnings(false);
+    let impl_type = create_block(block_type).block_type().to_string();
+    set_block_warnings(prev);
+    if impl_type == "PassThrough" && block_type != "PassThrough" {
+        BlockSupport::Unimplemented
+    } else {
+        BlockSupport::Simulated
     }
 }
 

@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Sanitized multi-room Gen-2 export fixture for regression-testing the SPS
+  simulator. Exercises: a clock-driven night-gating schedule (Time ->
+  GreaterEqual/Less -> And -> Mult), an Air device actor endpoint, weather
+  inputs, and a deliberately malformed wire (an input used as a wire source)
+  that must degrade gracefully instead of aborting the parse.
+-->
+<C Type="Document" U="doc-root" Title="Project">
+  <C Type="Place" U="room-dg" Title="DG Schlafzimmer">
+    <C Type="Time" U="t-clock" Title="Minuten seit Mitternacht">
+      <Co K="AQ" U="t-clock-aq"/>
+    </C>
+    <C Type="GreaterEqual" U="ge1" Title="After 05:00">
+      <Co K="Input1" U="ge1-i1"><In Input="t-clock-aq"/></Co>
+      <Co K="Input2" U="ge1-i2" Def="300"/>
+      <Co K="Q" U="ge1-q"/>
+    </C>
+    <C Type="Less" U="lt1" Title="Before 22:00">
+      <Co K="Input1" U="lt1-i1"><In Input="t-clock-aq"/></Co>
+      <Co K="Input2" U="lt1-i2" Def="1320"/>
+      <Co K="Q" U="lt1-q"/>
+    </C>
+    <C Type="And" U="and1" Title="Daytime">
+      <Co K="I1" U="and1-i1"><In Input="ge1-q"/></Co>
+      <Co K="I2" U="and1-i2"><In Input="lt1-q"/></Co>
+      <Co K="Q" U="and1-q"/>
+    </C>
+    <C Type="Mult" U="mult1" Title="Brightness">
+      <Co K="Input1" U="mult1-i1"><In Input="and1-q"/></Co>
+      <Co K="Input2" U="mult1-i2" Def="30"/>
+      <Co K="AQ" U="mult1-aq"/>
+    </C>
+    <C Type="LoxAIRDevice" U="dev-touch" Title="Touch Nightlight Air">
+      <C Type="LoxAIRAactor" U="actor-rgbw" Title="Smartaktor RGBW">
+        <Co K="AI1" U="actor-rgbw-ai1"><In Input="mult1-aq"/></Co>
+        <Co K="I" U="actor-rgbw-6652-00ff"/>
+      </C>
+    </C>
+    <C Type="WeatherData" U="weather1" Title="Wetterdaten">
+      <Co K="AQ" U="weather1-aq"/>
+    </C>
+  </C>
+  <C Type="Place" U="room-eg" Title="EG Wohnzimmer">
+    <C Type="Sunrise" U="sr1" Title="Sonnenaufgang">
+      <Co K="AQ" U="sr1-aq"/>
+    </C>
+    <C Type="NightTime" U="nt1" Title="Nacht">
+      <Co K="Q" U="nt1-q"/>
+    </C>
+    <!-- Malformed: "shared-bad" is an *input*, used as a wire source below. -->
+    <C Type="And" U="bad-a" Title="GateA">
+      <Co K="I1" U="bad-a-i1"><In Input="shared-bad"/></Co>
+      <Co K="I2" U="bad-a-i2" Def="1"/>
+      <Co K="Q" U="bad-a-q"/>
+    </C>
+    <C Type="And" U="bad-b" Title="GateB">
+      <Co K="I1" U="shared-bad"/>
+      <Co K="I2" U="bad-b-i2" Def="1"/>
+      <Co K="Q" U="bad-b-q"/>
+    </C>
+  </C>
+</C>

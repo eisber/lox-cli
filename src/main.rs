@@ -259,6 +259,11 @@ pub(crate) enum Cmd {
         #[arg(long)]
         list: bool,
     },
+    /// Encode/decode Loxone composite color values (RGB ↔ integer, color temperature)
+    Color {
+        #[command(subcommand)]
+        action: commands::color_cmd::ColorCmd,
+    },
 }
 
 #[derive(Subcommand)]
@@ -570,7 +575,7 @@ pub(crate) enum ConfigCmd {
     /// Add a control element with type-aware defaults
     Add {
         file: String,
-        /// Control type: light, switch, presence, alarm-clock, memory, timer, mqtt-sub, mqtt-pub, calendar, autopilot
+        /// Control type: light, switch, presence, alarm-clock, memory, timer, mqtt-sub, mqtt-pub, calendar, autopilot. Use --device to bind device-bound types (e.g. alarm-clock) to a LoxAIRDevice.
         #[arg(long = "type")]
         control_type: String,
         /// Element title
@@ -588,6 +593,9 @@ pub(crate) enum ConfigCmd {
         /// Page name to place block on (for visual layout in UX)
         #[arg(long)]
         page: Option<String>,
+        /// Bind to a hardware device (selector for a LoxAIRDevice/TreeDevice); emits Dev=
+        #[arg(long)]
+        device: Option<String>,
         /// MQTT topic (for mqtt-sub, mqtt-pub)
         #[arg(long)]
         topic: Option<String>,
@@ -737,6 +745,14 @@ pub(crate) enum ConfigCmd {
         /// Path to a .Loxone XML file
         file: String,
         /// Block selector (title or "uuid:...")
+        selector: String,
+    },
+    /// List every connector of a control (key, uuid, direction, wired, source)
+    #[command(name = "connectors", visible_alias = "conns")]
+    Connectors {
+        /// Path to a .Loxone XML file
+        file: String,
+        /// Block selector (title, "uuid:...", "Type:...", or "gid:...")
         selector: String,
     },
     /// Read the program text from a SequenceController block
@@ -1069,6 +1085,7 @@ fn command_name(cmd: &Cmd) -> String {
         Cmd::Sim { .. } => "sim".into(),
         Cmd::Blocks { .. } => "blocks".into(),
         Cmd::Docs { .. } => "docs".into(),
+        Cmd::Color { .. } => "color".into(),
     }
 }
 
@@ -1158,6 +1175,7 @@ fn run(cli: Cli) -> Result<()> {
             schema,
             list,
         } => cmd_docs(&ctx, query, datasheet, schema, list),
+        Cmd::Color { action } => commands::color_cmd::cmd_color(&ctx, action),
     }
 }
 

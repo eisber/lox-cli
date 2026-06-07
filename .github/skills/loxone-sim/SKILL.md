@@ -196,6 +196,30 @@ lox sim run config.Loxone --sim '{"name":"motion triggers light","inputs":{"Bewe
 lox sim run config.Loxone --sim '{"name":"no motion","inputs":{"Bewegungsmelder.OutputPresence":0},"ticks":10,"dt":0.1,"expected_outputs":{"Treppenlicht.Q":{"==":0}}}'
 ```
 
+## Example: Testing a Time-of-Day Schedule (simulated clock)
+
+Time/astro source blocks (`Time`, `Hour`, `Minute`, `Sunrise`, `Sunset`, `NightTime`, …) are
+driven by a **simulated wall-clock**. Add a `clock` object to the spec — the simulator sets the
+clock before the run and advances it by `dt` each tick. This lets you verify day/night gating
+*offline*, without waiting for real time to pass.
+
+`clock` fields (all optional): `time` (`"HH:MM"` / `"HH:MM:SS"`), `date` (`"YYYY-MM-DD"`),
+`minutes_since_midnight`, `latitude`, `longitude` (lat/lon affect sunrise/sunset; default Vienna).
+
+For a config that dims a light to 30% during the day and 0% at night
+(`Hour → GreaterEqual/Less → And → Mult → Brightness`):
+
+```bash
+# Daytime: noon → brightness 30
+lox sim run config.Loxone --sim '{"name":"noon","clock":{"time":"12:00"},"ticks":5,"dt":1,"expected_outputs":{"Brightness.AQ":{"==":30}}}'
+
+# Night: 23:00 → brightness 0
+lox sim run config.Loxone --sim '{"name":"night","clock":{"time":"23:00"},"ticks":5,"dt":1,"expected_outputs":{"Brightness.AQ":{"==":0}}}'
+```
+
+Per-step clocks also work in `lox sim step` specs: give each step its own `clock` to sweep across
+the day and watch an output flip at the threshold hour.
+
 ## Debugging Workflow
 
 1. **Run sim** → if it fails:

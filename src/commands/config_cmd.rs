@@ -1356,6 +1356,7 @@ pub fn cmd_config(ctx: &RunContext, action: ConfigCmd) -> Result<()> {
             category,
             parent,
             page,
+            device,
             topic,
             save_as,
         } => {
@@ -1370,6 +1371,20 @@ pub fn cmd_config(ctx: &RunContext, action: ConfigCmd) -> Result<()> {
 
             let data = fs::read(&file).with_context(|| format!("Cannot read {}", file))?;
             let mut editor = ConfigEditor::load(&data)?;
+
+            // Resolve optional device binding (Dev=<deviceUuid>).
+            let device_uuid = if let Some(ref d) = device {
+                let path = editor.require_one(d)?;
+                let u = editor
+                    .get_element(&path)
+                    .attributes
+                    .get("U")
+                    .cloned()
+                    .ok_or_else(|| anyhow::anyhow!("device '{d}' has no UUID"))?;
+                Some(u)
+            } else {
+                None
+            };
 
             let room_uuid = if let Some(ref r) = room {
                 Some(editor.find_room_uuid(r)?)
@@ -1754,6 +1769,23 @@ pub fn cmd_config(ctx: &RunContext, action: ConfigCmd) -> Result<()> {
                     }
                 }
             }
+            // Apply device binding (Dev=) to the block we just added.
+            if let Some(ref dev_uuid) = device_uuid {
+                let type_sel = format!("Type:{}", xml_type);
+                let added_path = editor
+                    .find_elements(&type_sel)
+                    .into_iter()
+                    .find(|p| editor.get_element(p).attributes.get("Title") == Some(&title));
+                if let Some(p) = added_path {
+                    editor
+                        .get_element_mut(&p)
+                        .attributes
+                        .insert("Dev".to_string(), dev_uuid.clone());
+                    if !ctx.json {
+                        println!("  device binding: Dev={dev_uuid}");
+                    }
+                }
+            }
             save_edited(&editor, &file, save_as.as_deref())?;
         }
         ConfigCmd::Validate { file } => {
@@ -1854,6 +1886,11 @@ pub fn cmd_config(ctx: &RunContext, action: ConfigCmd) -> Result<()> {
                     println!("{}", r);
                 }
                 println!("\n{} ok, {} warnings, {} errors", ok, warn, err);
+                println!(
+                    "Note: this is structural validation only. For behavioral validation\n\
+                     (signal propagation, time/logic), run: lox sim check {}",
+                    file
+                );
             }
             if err > 0 {
                 anyhow::bail!("{} error(s) found in config check", err);
@@ -2161,6 +2198,148 @@ pub fn cmd_config(ctx: &RunContext, action: ConfigCmd) -> Result<()> {
                 );
             }
             save_edited(&editor, &file, save_as.as_deref())?;
+        }
+        ConfigCmd::Connectors { file, selector } => {
+            let data = fs::read(&file).with_context(|| format!("Cannot read {}", file))?;
+            let editor = ConfigEditor::load(&data)?;
+
+            // Build a uuid -> "Title.Key (Type)" index across every connector so
+            // wired sources can be resolved to a human-readable endpoint.
+            let mut uuid_index: std::collections::HashMap<String, String> =
+                std::collections::HashMap::new();
+            fn index_connectors(
+                elem: &xmltree::Element,
+                idx: &mut std::collections::HashMap<String, String>,
+            ) {
+                if elem.name == "C" {
+                    let title = elem.attributes.get("Title").cloned().unwrap_or_default();
+                    let btype = elem.attributes.get("Type").cloned().unwrap_or_default();
+                    for child in &elem.children {
+                        if let Some(co) = child.as_element()
+                            && co.name == "Co"
+                            && let Some(u) = co.attributes.get("U")
+                        {
+                            let k = co.attributes.get("K").cloned().unwrap_or_default();
+                            idx.insert(u.clone(), format!("{title}.{k} ({btype})"));
+                        }
+                    }
+                }
+                for child in &elem.children {
+                    if let Some(c) = child.as_element() {
+                        index_connectors(c, idx);
+                    }
+                }
+            }
+            index_connectors(&editor.root, &mut uuid_index);
+
+            let path = editor.require_one(&selector)?;
+            let elem = editor.get_element(&path);
+            let title = elem.attributes.get("Title").cloned().unwrap_or_default();
+            let block_type = elem.attributes.get("Type").cloned().unwrap_or_default();
+            let uuid = elem.attributes.get("U").cloned().unwrap_or_default();
+            let dev = elem.attributes.get("Dev").cloned();
+
+            let cmap = ConfigEditor::connector_map();
+            let types = cmap
+                .get(&block_type)
+                .map(|(_, _, t)| t.clone())
+                .unwrap_or_default();
+
+            // Direction fallback when the type isn't in the connector map.
+            let infer_dir = |k: &str, wired: bool| -> String {
+                if let Some(d) = types.get(k) {
+                    return d.clone();
+                }
+                if matches!(k, "Q" | "AQ" | "AQm" | "AQmt" | "Qon" | "Qoff" | "AQs") {
+                    "O".to_string()
+                } else if wired {
+                    "I".to_string()
+                } else {
+                    "?".to_string()
+                }
+            };
+
+            #[allow(clippy::type_complexity)]
+            let connectors: Vec<(
+                String,
+                String,
+                String,
+                bool,
+                Option<String>,
+                Option<String>,
+            )> = elem
+                .children
+                .iter()
+                .filter_map(|c| c.as_element())
+                .filter(|e| e.name == "Co")
+                .map(|co| {
+                    let k = co.attributes.get("K").cloned().unwrap_or_default();
+                    let co_uuid = co.attributes.get("U").cloned().unwrap_or_default();
+                    let source = co
+                        .children
+                        .iter()
+                        .filter_map(|c| c.as_element())
+                        .find(|e| e.name == "In")
+                        .and_then(|inp| inp.attributes.get("Input").cloned());
+                    let wired = source.is_some();
+                    let dir = infer_dir(&k, wired);
+                    let source_label = source
+                        .as_ref()
+                        .map(|s| uuid_index.get(s).cloned().unwrap_or_else(|| s.clone()));
+                    (k, co_uuid, dir, wired, source, source_label)
+                })
+                .collect();
+
+            if ctx.json {
+                let dev_label = dev
+                    .as_ref()
+                    .map(|d| uuid_index.get(d).cloned().unwrap_or_else(|| d.clone()));
+                let conns: Vec<serde_json::Value> = connectors
+                    .iter()
+                    .map(|(k, u, dir, wired, src, src_label)| {
+                        serde_json::json!({
+                            "key": k,
+                            "uuid": u,
+                            "direction": dir,
+                            "wired": wired,
+                            "source_uuid": src,
+                            "source": src_label,
+                        })
+                    })
+                    .collect();
+                println!(
+                    "{}",
+                    serde_json::json!({
+                        "title": title,
+                        "type": block_type,
+                        "uuid": uuid,
+                        "device": dev,
+                        "device_binding": dev_label,
+                        "connectors": conns,
+                    })
+                );
+            } else {
+                println!("{title} ({block_type})  uuid:{uuid}");
+                if let Some(d) = &dev {
+                    let label = uuid_index.get(d).cloned().unwrap_or_default();
+                    if label.is_empty() {
+                        println!("  device binding: Dev={d}");
+                    } else {
+                        println!("  device binding: {label}  [Dev={d}]");
+                    }
+                }
+                if connectors.is_empty() {
+                    println!("  (no connectors)");
+                }
+                for (k, u, dir, wired, _src, src_label) in &connectors {
+                    let wire = match (wired, src_label) {
+                        (true, Some(label)) => format!("  <- {label}"),
+                        (true, None) => "  <- (wired)".to_string(),
+                        (false, _) => String::new(),
+                    };
+                    println!("  [{dir}] {k}  uuid:{u}{wire}");
+                }
+            }
         }
         ConfigCmd::GetParams { file, selector } => {
             let data = fs::read(&file).with_context(|| format!("Cannot read {}", file))?;
@@ -4493,6 +4672,7 @@ mod tests {
                 category: Some("Beleuchtung".to_string()),
                 parent: None,
                 page: None,
+                device: None,
                 topic: None,
                 save_as: None,
             },
@@ -4516,6 +4696,7 @@ mod tests {
                 category: None,
                 parent: None,
                 page: None,
+                device: None,
                 topic: None,
                 save_as: Some(out.to_str().unwrap().to_string()),
             },

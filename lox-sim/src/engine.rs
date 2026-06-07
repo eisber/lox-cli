@@ -3,10 +3,85 @@ use std::time::Instant;
 
 use crate::autodiff::DualNumber;
 use crate::blocks::Block;
+use crate::clock::SimClock;
 use crate::graph::SimGraph;
 use crate::profiler::{ProfileReport, SimProfiler};
 use crate::trace::{self, TraceResult};
 use crate::types::*;
+
+/// A clock-derived quantity that a time/astro block emits on its output(s).
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum TimeKind {
+    MinutesSinceMidnight,
+    Hour,
+    Minute,
+    Second,
+    DayOfMonth,
+    DayOfWeek,
+    DayOfYear,
+    Week,
+    Month,
+    Year,
+    SunriseMinutes,
+    SunsetMinutes,
+    NightTime,
+    Daylight,
+}
+
+impl TimeKind {
+    /// Map a Loxone block type to the clock quantity it represents, if any.
+    pub fn from_block_type(block_type: &str) -> Option<TimeKind> {
+        Some(match block_type {
+            "Time" => TimeKind::MinutesSinceMidnight,
+            "Hour" => TimeKind::Hour,
+            "Minute" => TimeKind::Minute,
+            "Second" => TimeKind::Second,
+            "Day" | "Day2009" => TimeKind::DayOfMonth,
+            "DayOfWeek" => TimeKind::DayOfWeek,
+            "Week" => TimeKind::Week,
+            "Month" => TimeKind::Month,
+            "Year" => TimeKind::Year,
+            "Sunrise" => TimeKind::SunriseMinutes,
+            "Sunset" => TimeKind::SunsetMinutes,
+            "NightTime" => TimeKind::NightTime,
+            "Daylight" | "Daylight2" => TimeKind::Daylight,
+            _ => return None,
+        })
+    }
+
+    /// Evaluate this quantity against a clock.
+    pub fn value(&self, clock: &SimClock) -> f64 {
+        match self {
+            TimeKind::MinutesSinceMidnight => clock.minutes_since_midnight(),
+            TimeKind::Hour => clock.hour() as f64,
+            TimeKind::Minute => clock.minute() as f64,
+            TimeKind::Second => clock.second() as f64,
+            TimeKind::DayOfMonth => clock.day_of_month() as f64,
+            // Loxone day-of-week is 1=Monday .. 7=Sunday.
+            TimeKind::DayOfWeek => (clock.day_of_week() + 1) as f64,
+            TimeKind::DayOfYear => clock.day_of_year() as f64,
+            TimeKind::Week => clock.week_of_year() as f64,
+            TimeKind::Month => clock.month() as f64,
+            TimeKind::Year => clock.year() as f64,
+            TimeKind::SunriseMinutes => clock.sunrise_minutes(),
+            TimeKind::SunsetMinutes => clock.sunset_minutes(),
+            TimeKind::NightTime => {
+                if clock.is_nighttime() {
+                    1.0
+                } else {
+                    0.0
+                }
+            }
+            TimeKind::Daylight => {
+                if clock.is_nighttime() {
+                    0.0
+                } else {
+                    1.0
+                }
+            }
+        }
+    }
+}
 
 // ---------------------------------------------------------------------------
 // Pre-computed per-block evaluation info (avoids borrowing graph during tick)
@@ -51,6 +126,15 @@ pub struct SimEngine {
     /// Persistent output overrides: after block eval, these replace computed values.
     output_overrides: HashMap<ConnectorId, f64>,
     profiler: Option<SimProfiler>,
+    /// Simulated wall-clock. When set, time/astro blocks are driven from it
+    /// each tick, and DayTimer/AlarmClock time inputs are kept in sync.
+    clock: Option<SimClock>,
+    /// Output connectors of time/astro source blocks, with the quantity they emit.
+    time_outputs: Vec<(ConnectorId, TimeKind)>,
+    /// Input connectors named `minutes_since_midnight` (driven from the clock).
+    clock_minute_inputs: Vec<ConnectorId>,
+    /// Input connectors named `day_of_week` (driven from the clock).
+    clock_dow_inputs: Vec<ConnectorId>,
 }
 
 impl SimEngine {
@@ -181,6 +265,30 @@ impl SimEngine {
             }
         }
 
+        // Identify clock-driven blocks. Time/astro source blocks (Time, Hour,
+        // Sunrise, …) have their outputs driven from the simulated clock; any
+        // block exposing `minutes_since_midnight` / `day_of_week` inputs
+        // (DayTimer, AlarmClock) is kept in sync so schedules are testable.
+        let mut time_outputs: Vec<(ConnectorId, TimeKind)> = Vec::new();
+        let mut clock_minute_inputs: Vec<ConnectorId> = Vec::new();
+        let mut clock_dow_inputs: Vec<ConnectorId> = Vec::new();
+        #[allow(clippy::needless_range_loop)]
+        for bid in 0..n_blocks {
+            let info = graph.block_info(bid);
+            if let Some(kind) = TimeKind::from_block_type(&info.block_type) {
+                for &cid in &info.outputs {
+                    time_outputs.push((cid, kind));
+                }
+            }
+            for &cid in &info.inputs {
+                match graph.connector(cid).key.as_str() {
+                    "minutes_since_midnight" => clock_minute_inputs.push(cid),
+                    "day_of_week" => clock_dow_inputs.push(cid),
+                    _ => {}
+                }
+            }
+        }
+
         SimEngine {
             graph,
             blocks,
@@ -196,6 +304,10 @@ impl SimEngine {
             named_outputs,
             output_overrides: HashMap::new(),
             profiler: None,
+            clock: None,
+            time_outputs,
+            clock_minute_inputs,
+            clock_dow_inputs,
         }
     }
 
@@ -320,6 +432,46 @@ impl SimEngine {
         }
     }
 
+    /// Install a simulated wall-clock. Time/astro blocks (Time, Hour, Sunrise,
+    /// NightTime, …) are then driven from it, and DayTimer/AlarmClock time
+    /// inputs are kept in sync, every tick. The clock advances by `dt` per tick.
+    pub fn set_clock(&mut self, clock: SimClock) {
+        self.clock = Some(clock);
+        self.apply_clock();
+    }
+
+    /// Whether a simulated clock is installed.
+    pub fn has_clock(&self) -> bool {
+        self.clock.is_some()
+    }
+
+    /// Drive all clock-derived signals from the current clock value.
+    fn apply_clock(&mut self) {
+        let Some(clock) = self.clock.as_ref() else {
+            return;
+        };
+        for &(cid, kind) in &self.time_outputs {
+            let val = kind.value(clock);
+            self.output_overrides.insert(cid, val);
+            self.signals[cid] = val;
+            let block_id = self.graph.connector(cid).block_id;
+            self.dirty[block_id] = true;
+            for &ds in &self.downstream[block_id] {
+                self.dirty[ds] = true;
+            }
+        }
+        let minutes = clock.minutes_since_midnight();
+        let dow = (clock.day_of_week() + 1) as f64; // Loxone 1=Mon..7=Sun
+        for &cid in &self.clock_minute_inputs {
+            self.signals[cid] = minutes;
+            self.dirty[self.graph.connector(cid).block_id] = true;
+        }
+        for &cid in &self.clock_dow_inputs {
+            self.signals[cid] = dow;
+            self.dirty[self.graph.connector(cid).block_id] = true;
+        }
+    }
+
     /// Read a named output connector value.
     ///
     /// Names are resolved as `"BlockName"` (first output) or `"BlockName.Key"`.
@@ -352,6 +504,12 @@ impl SimEngine {
     /// Evaluates blocks in topological order, skipping clean blocks whose
     /// inputs have not changed (dirty-flag optimisation).
     pub fn tick(&mut self, dt: f64) {
+        // Advance the simulated clock (if any) and refresh clock-derived signals.
+        if let Some(clock) = self.clock.as_mut() {
+            clock.advance(dt);
+            self.apply_clock();
+        }
+
         let profiling_enabled = self.profiler.is_some();
         let tick_start = profiling_enabled.then(Instant::now);
         let mut blocks_evaluated = 0usize;

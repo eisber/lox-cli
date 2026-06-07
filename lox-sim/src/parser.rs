@@ -52,6 +52,8 @@ pub fn parse_element(root: &Element) -> Result<SimGraph, String> {
     let mut uuid_to_connector = HashMap::new();
     let mut shared_uuid_map: HashMap<String, Vec<(ConnectorDir, usize)>> = HashMap::new();
     let mut explicit_wires = Vec::new();
+    // Reverse map: connector id -> its XML uuid, for human-readable diagnostics.
+    let mut cid_uuid: HashMap<usize, String> = HashMap::new();
 
     for parsed in &parsed_blocks {
         // Get the canonical connector order from block_signature.
@@ -109,6 +111,7 @@ pub fn parse_element(root: &Element) -> Result<SimGraph, String> {
                     )
                 })?;
             graph.connectors[cid].default_value = connector.default_value;
+            cid_uuid.insert(cid, connector.uuid.clone());
             // Track first occurrence for explicit wire resolution
             uuid_to_connector
                 .entry(connector.uuid.clone())
@@ -130,9 +133,16 @@ pub fn parse_element(root: &Element) -> Result<SimGraph, String> {
     for (source_ref, dest_cid) in &explicit_wires {
         if let Some(&from) = uuid_to_connector.get(source_ref) {
             if wired_inputs.insert(*dest_cid) {
-                graph
-                    .add_wire(from, *dest_cid)
-                    .map_err(|error| error.to_string())?;
+                if let Err(error) = graph.add_wire(from, *dest_cid) {
+                    // Degrade gracefully: skip the offending wire instead of
+                    // aborting the whole parse, and name the endpoints.
+                    wired_inputs.remove(dest_cid);
+                    let from_uuid = cid_uuid.get(&from).cloned().unwrap_or_default();
+                    let to_uuid = cid_uuid.get(dest_cid).cloned().unwrap_or_default();
+                    let from_desc = graph.describe_connector(from, &from_uuid);
+                    let to_desc = graph.describe_connector(*dest_cid, &to_uuid);
+                    graph.push_warning(format!("skipped wire {from_desc} -> {to_desc}: {error}"));
+                }
             }
         }
     }
@@ -168,7 +178,12 @@ pub fn parse_element(root: &Element) -> Result<SimGraph, String> {
         // Try name-based resolution
         if let Some(&from) = name_to_output.get(source_ref) {
             if wired_inputs.insert(*dest_cid) {
-                let _ = graph.add_wire(from, *dest_cid);
+                if let Err(error) = graph.add_wire(from, *dest_cid) {
+                    wired_inputs.remove(dest_cid);
+                    let to_uuid = cid_uuid.get(dest_cid).cloned().unwrap_or_default();
+                    let to_desc = graph.describe_connector(*dest_cid, &to_uuid);
+                    graph.push_warning(format!("skipped wire {source_ref} -> {to_desc}: {error}"));
+                }
             }
         }
     }
@@ -184,9 +199,16 @@ pub fn parse_element(root: &Element) -> Result<SimGraph, String> {
                 .filter(|(dir, _)| *dir == ConnectorDir::Input)
             {
                 if wired_inputs.insert(*dest_cid) {
-                    graph
-                        .add_wire(source_cid, *dest_cid)
-                        .map_err(|error| error.to_string())?;
+                    if let Err(error) = graph.add_wire(source_cid, *dest_cid) {
+                        wired_inputs.remove(dest_cid);
+                        let from_uuid = cid_uuid.get(&source_cid).cloned().unwrap_or_default();
+                        let to_uuid = cid_uuid.get(dest_cid).cloned().unwrap_or_default();
+                        let from_desc = graph.describe_connector(source_cid, &from_uuid);
+                        let to_desc = graph.describe_connector(*dest_cid, &to_uuid);
+                        graph.push_warning(format!(
+                            "skipped wire {from_desc} -> {to_desc}: {error}"
+                        ));
+                    }
                 }
             }
         }
@@ -2086,6 +2108,11 @@ fn block_signature(
                 "TCCelvin",
             ],
         ),
+        // Time / astro source blocks — driven from the simulated clock by the
+        // engine. Analog quantities emit "AQ"; binary states emit "Q".
+        "Time" | "Hour" | "Minute" | "Second" | "Day" | "Day2009" | "DayOfWeek" | "Week"
+        | "Month" | "Year" | "Sunrise" | "Sunset" => (&[], &["AQ"], &[]),
+        "NightTime" | "Daylight" | "Daylight2" => (&[], &["Q"], &[]),
         _ => (&[], &[], &[]),
     }
 }
@@ -2171,6 +2198,37 @@ mod tests {
 </ControlList>"#;
         let graph = parse_bytes(xml.as_bytes()).expect("parse failed");
         assert_eq!(graph.wires().len(), 1);
+    }
+
+    #[test]
+    fn wire_from_non_output_degrades_gracefully() {
+        // Two inputs share a UUID with no output producer. A naive builder
+        // would try to wire input->input and abort with "is not an output".
+        // The parser must skip the wire, keep parsing, and record a warning.
+        let xml = r#"<?xml version="1.0" encoding="utf-8"?>
+<ControlList>
+  <C Type="And" U="a" Title="GateA">
+    <Co K="I1" U="a-i1"><In Input="shared-in"/></Co>
+    <Co K="I2" U="a-i2" Def="1"/>
+    <Co K="Q" U="a-q"/>
+  </C>
+  <C Type="And" U="b" Title="GateB">
+    <Co K="I1" U="shared-in"/>
+    <Co K="I2" U="b-i2" Def="1"/>
+    <Co K="Q" U="b-q"/>
+  </C>
+</ControlList>"#;
+        let graph = parse_bytes(xml.as_bytes()).expect("parse must not abort");
+        assert_eq!(graph.block_count(), 2);
+        assert!(
+            graph.warnings().iter().any(|w| w.contains("skipped wire")),
+            "expected a skipped-wire warning, got {:?}",
+            graph.warnings()
+        );
+        // The bad wire was not created.
+        let gate_a = graph.find_block_by_name("GateA").unwrap();
+        let i1 = graph.find_connector(gate_a, "I1").unwrap();
+        assert!(graph.input_source_of(i1).is_none());
     }
 
     #[test]

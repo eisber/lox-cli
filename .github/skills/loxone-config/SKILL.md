@@ -29,6 +29,20 @@ lox config add --type TYPE --title TITLE --room ROOM --page PAGE FILE
 - `ROOM`: room name exactly as it exists in the config
 - `PAGE`: page name for the programming layout (usually same as room)
 - `FILE`: path to the `.Loxone` config file
+- `--device SELECTOR`: bind a device-bound control (e.g. `--type alarm-clock`) to a
+  `LoxAIRDevice`/`TreeDevice`. Emits `Dev=<deviceUuid>`. SELECTOR may be a title, `uuid:…`, or `Type:…`.
+
+### Inspect a block's connectors
+
+```
+lox config connectors FILE "SelectorOrUuid"
+```
+
+- Lists **every** connector (input/output/parameter) with its direction, whether it's wired, and the
+  source it's wired from — including **unwired inputs** that `lox config wires` hides.
+- Also surfaces the device binding (`Dev=`) when present.
+- Selector may be a title (fuzzy), `uuid:…`, `Type:…`, or `gid:…`. Alias: `lox config conns`.
+- Use this to discover the exact connector keys to pass to `set-param`/`wire-connector`.
 
 ### Set a parameter on a block
 
@@ -48,6 +62,8 @@ lox config wire-connector FILE "TargetBlock.InputConnector" "SourceBlock.OutputC
 - **FIRST argument is the TARGET (input), SECOND is the SOURCE (output)**
 - Signal flows: Source.Output → Target.Input
 - Use room qualifier for ambiguous names: `"Jalousie 1 [Wohnzimmer].InputTriggerDown"`
+- The TARGET may also be addressed by UUID: `"uuid:<actor>.<connectorKey>"` (e.g.
+  `"uuid:0f8e1234-….AI1"`) — useful for device actors that aren't easily named.
 
 ### Add a schedule to a DayTimer block
 
@@ -78,6 +94,31 @@ lox sim run FILE --sim '{"inputs":{"Sensor.AQ":value},"ticks":10,"dt":0.1,"expec
 - Use AFTER wiring to verify the circuit works
 - Outputs JSON with pass/fail and actual values
 - Comparators: `>`, `>=`, `<`, `<=`, `==`, `~=` (±5%)
+
+### Color values (RGBW actors, `<v.col>`)
+
+Loxone colour inputs (display unit `<v.col>`, e.g. the "Smartaktor RGBW" colour input) take a
+**composite integer**. Use `lox color` to compute/inspect it instead of guessing:
+
+```
+lox color encode --rgb 255,100,0                 # → composite 16737280, hsv(24,100,100)
+lox color encode --rgb 255,100,0 --brightness 15 # warm amber dimmed to 15%
+lox color encode --hsv 24,100,100                # from HSV
+lox color encode --kelvin 2700 --brightness 15   # tunable white → temp(15,2700) command
+lox color decode 16711680                        # → 255,0,0  #FF0000
+lox color decode "hsv(0,100,100)"                # parse a command string
+```
+
+Encodings:
+
+- **RGB composite integer** = `red*65536 + green*256 + blue` (each channel `0..255`, i.e. plain
+  24-bit `0xRRGGBB`). This is the integer you `set-param`/`wire` into a numeric colour input, and
+  what the Miniserver accepts directly at `/jdev/sps/io/<uuid>/<integer>`. `--brightness P` scales
+  the channels to `P%`.
+- **HSV** is accepted/printed as the ColorPickerV2 command string `hsv(<hue 0..360>,<sat 0..100>,<val 0..100>)`.
+- **Tunable white / colour temperature** uses the command string `temp(<brightness 0..100>,<kelvin>)`
+  (there is no portable composite integer for colour temperature — send the `temp(...)` string to the
+  ColorPickerV2 control). Older firmware also accepts `lumitech(brightness,kelvin)`.
 
 ## Block Discovery
 

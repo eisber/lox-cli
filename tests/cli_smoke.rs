@@ -68,6 +68,38 @@ subcmd_help!(help_completions, "completions");
 subcmd_help!(help_docs, "docs");
 subcmd_help!(help_schema, "schema");
 subcmd_help!(help_telemetry, "telemetry");
+subcmd_help!(help_color, "color");
+subcmd_help!(help_color_encode, "color", "encode");
+subcmd_help!(help_color_decode, "color", "decode");
+
+// ── color encode/decode functional ─────────────────────────────────────────
+
+#[test]
+fn color_encode_rgb_composite() {
+    lox()
+        .args(["color", "encode", "--rgb", "255,0,0"])
+        .assert()
+        .success()
+        .stdout(predicate::str::contains("16711680"));
+}
+
+#[test]
+fn color_decode_composite_to_rgb() {
+    lox()
+        .args(["color", "decode", "16711680"])
+        .assert()
+        .success()
+        .stdout(predicate::str::contains("255,0,0"));
+}
+
+#[test]
+fn color_encode_kelvin_emits_temp_command() {
+    lox()
+        .args(["color", "encode", "--kelvin", "2700", "--brightness", "15"])
+        .assert()
+        .success()
+        .stdout(predicate::str::contains("temp(15,2700)"));
+}
 
 // ── Global flags accepted with subcommands ─────────────────────────────────
 

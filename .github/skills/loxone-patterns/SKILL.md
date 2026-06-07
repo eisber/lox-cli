@@ -328,6 +328,55 @@ lox config wire-connector config.Loxone "Poolpumpe.I1" "Pool Temp OK.Q"
 
 ---
 
+## 14. Touch Nightlight Air — dim/off at night
+
+**When**: Bring a newly-added Touch Nightlight Air (device-bound `AlarmClock`) in line with its
+siblings — the display nightlight should dim (or go off) during night hours and return to normal
+during the day. This mirrors the factory wiring of the existing devices.
+
+**Blocks**: device-bound `AlarmClock` + the day-gating chain `Time → GreaterEqual/Less → And → Mult`
+
+**Circuit**: a time-of-day source gates a day window (`≥ start AND < end`); the AND result scales a
+brightness via `Mult`, whose output drives the AlarmClock's `BrightInact` (display brightness while
+inactive). Bind the AlarmClock to the physical device with `--device` so it emits `Dev=`.
+
+```bash
+# 1. Create the AlarmClock and bind it to the Touch Nightlight Air device (emits Dev=)
+lox config add --type alarm-clock --title "DG Nachtlicht" --device "Touch Nightlight Air" config.Loxone
+
+# 2. Day window: 07:00 ≤ now < 22:00  (uses the simulated Hour-of-day source)
+lox config add --type Hour --title "Stunde" --page NachtPage config.Loxone
+lox config add --type GreaterEqual --title "Ab 7 Uhr" --page NachtPage config.Loxone
+lox config set-param config.Loxone "Ab 7 Uhr" Input2 7
+lox config wire-connector config.Loxone "Ab 7 Uhr.Input1" "Stunde.AQ"
+lox config add --type Less --title "Vor 22 Uhr" --page NachtPage config.Loxone
+lox config set-param config.Loxone "Vor 22 Uhr" Input2 22
+lox config wire-connector config.Loxone "Vor 22 Uhr.Input1" "Stunde.AQ"
+lox config add --type And --title "Tagfenster" --page NachtPage config.Loxone
+lox config wire-connector config.Loxone "Tagfenster.I1" "Ab 7 Uhr.Q"
+lox config wire-connector config.Loxone "Tagfenster.I2" "Vor 22 Uhr.Q"
+
+# 3. Scale to a daytime display brightness (e.g. 50%), then drive BrightInact
+lox config add --type Mult --title "Display Helligkeit" --page NachtPage config.Loxone
+lox config set-param config.Loxone "Display Helligkeit" Input2 50
+lox config wire-connector config.Loxone "Display Helligkeit.Input1" "Tagfenster.Q"
+lox config wire-connector config.Loxone "DG Nachtlicht.BrightInact" "Display Helligkeit.AQ"
+```
+
+**Sim test** (the simulator advances a virtual clock — see the loxone-sim skill):
+
+```bash
+# Daytime → display at 50%
+lox sim run config.Loxone --sim '{"name":"day","clock":{"time":"12:00"},"ticks":5,"dt":1,"expected_outputs":{"Display Helligkeit.AQ":{"==":50}}}'
+# Night → display off
+lox sim run config.Loxone --sim '{"name":"night","clock":{"time":"23:00"},"ticks":5,"dt":1,"expected_outputs":{"Display Helligkeit.AQ":{"==":0}}}'
+```
+
+**Note**: `--device` accepts any selector (title, `uuid:…`, `Type:…`). It writes `Dev=<deviceUuid>`
+on the new block, which is what binds the `AlarmClock` to a specific `LoxAIRDevice`/`TreeDevice`.
+
+---
+
 ## Pattern Selection Guide
 
 | I want to... | Use pattern |
@@ -345,3 +394,4 @@ lox config wire-connector config.Loxone "Poolpumpe.I1" "Pool Temp OK.Q"
 | Air quality control | #11 CO2 Ventilation |
 | Humidity management | #12 Humidity Ventilation |
 | Range-based control | #13 Pool Temperature |
+| Device-bound night dimming | #14 Touch Nightlight Air |

@@ -118,6 +118,48 @@ impl SimClock {
         self.longitude = longitude;
     }
 
+    /// Parse a clock from optional `"HH:MM"` (or `"HH:MM:SS"`) time and
+    /// `"YYYY-MM-DD"` date strings. Missing date defaults to 2026-01-01,
+    /// missing time to 00:00.
+    pub fn parse(time: Option<&str>, date: Option<&str>) -> Result<Self, String> {
+        let (mut year, mut month, mut day) = (2026u32, 1u32, 1u32);
+        if let Some(d) = date {
+            let parts: Vec<&str> = d.split('-').collect();
+            if parts.len() != 3 {
+                return Err(format!("invalid date '{d}', expected YYYY-MM-DD"));
+            }
+            year = parts[0]
+                .parse()
+                .map_err(|_| format!("invalid year in '{d}'"))?;
+            month = parts[1]
+                .parse()
+                .map_err(|_| format!("invalid month in '{d}'"))?;
+            day = parts[2]
+                .parse()
+                .map_err(|_| format!("invalid day in '{d}'"))?;
+            if !(1..=12).contains(&month) || !(1..=31).contains(&day) {
+                return Err(format!("date out of range '{d}'"));
+            }
+        }
+        let (mut hour, mut min) = (0u32, 0u32);
+        if let Some(t) = time {
+            let parts: Vec<&str> = t.split(':').collect();
+            if parts.len() < 2 {
+                return Err(format!("invalid time '{t}', expected HH:MM"));
+            }
+            hour = parts[0]
+                .parse()
+                .map_err(|_| format!("invalid hour in '{t}'"))?;
+            min = parts[1]
+                .parse()
+                .map_err(|_| format!("invalid minute in '{t}'"))?;
+            if hour > 23 || min > 59 {
+                return Err(format!("time out of range '{t}'"));
+            }
+        }
+        Ok(Self::new(year, month, day, hour, min))
+    }
+
     /// Advance the simulation clock by `dt` seconds.
     pub fn advance(&mut self, dt: f64) {
         self.elapsed_secs += dt;
@@ -177,6 +219,21 @@ impl SimClock {
     /// Current month (1–12).
     pub fn month(&self) -> u32 {
         self.current_datetime().1
+    }
+
+    /// Current day of month (1–31).
+    pub fn day_of_month(&self) -> u32 {
+        self.current_datetime().2
+    }
+
+    /// Current year (e.g. 2026).
+    pub fn year(&self) -> u32 {
+        self.current_datetime().0
+    }
+
+    /// ISO-ish week of year (1-based, simple day_of_year/7 model).
+    pub fn week_of_year(&self) -> u32 {
+        (self.day_of_year() - 1) / 7 + 1
     }
 
     /// Sunrise time as minutes since midnight, using simplified solar calculation.

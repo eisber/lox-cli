@@ -13,6 +13,10 @@ pub enum SimCmd {
     Check {
         /// Path to .Loxone config file
         file: String,
+        /// Exit non-zero if any block is unimplemented (unreliable) or a wire
+        /// could not be honored.
+        #[arg(long)]
+        strict: bool,
     },
     /// Execute simulation specs and check expected outputs
     Run {
@@ -62,6 +66,11 @@ struct SimSpec {
     /// Automatically injected into ALL DayTimer blocks.
     #[serde(default)]
     time: Option<f64>,
+    /// Optional simulated wall-clock. Drives time/astro blocks (Time, Hour,
+    /// Sunrise, NightTime, …) and DayTimer/AlarmClock time inputs, advancing
+    /// by `dt` each tick.
+    #[serde(default)]
+    clock: Option<ClockSpec>,
     /// Optional multi-step sequence. Each step sets new inputs, ticks forward,
     /// then checks outputs. Enables temporal flow testing (e.g. heat rises,
     /// then cools, then re-triggers).
@@ -84,7 +93,48 @@ struct SimStep {
     #[serde(default)]
     time: Option<f64>,
     #[serde(default)]
+    clock: Option<ClockSpec>,
+    #[serde(default)]
     expected_outputs: HashMap<String, HashMap<String, f64>>,
+}
+
+/// Simulated wall-clock specification (see [`SimSpec::clock`]).
+#[derive(Debug, Clone, serde::Deserialize)]
+struct ClockSpec {
+    /// Wall-clock time, `"HH:MM"` or `"HH:MM:SS"`.
+    #[serde(default)]
+    time: Option<String>,
+    /// Calendar date, `"YYYY-MM-DD"`.
+    #[serde(default)]
+    date: Option<String>,
+    /// Minutes since midnight (alternative to `time`).
+    #[serde(default)]
+    minutes_since_midnight: Option<f64>,
+    /// Latitude for sunrise/sunset (defaults to Vienna).
+    #[serde(default)]
+    latitude: Option<f64>,
+    /// Longitude for sunrise/sunset (defaults to Vienna).
+    #[serde(default)]
+    longitude: Option<f64>,
+}
+
+impl ClockSpec {
+    fn build(&self) -> Result<lox_sim::clock::SimClock> {
+        use lox_sim::clock::SimClock;
+        let mut clock = if let Some(m) = self.minutes_since_midnight {
+            let mut c = SimClock::parse(None, self.date.as_deref())
+                .map_err(|e| anyhow::anyhow!("invalid clock: {e}"))?;
+            c.advance(m * 60.0);
+            c
+        } else {
+            SimClock::parse(self.time.as_deref(), self.date.as_deref())
+                .map_err(|e| anyhow::anyhow!("invalid clock: {e}"))?
+        };
+        if let (Some(lat), Some(lon)) = (self.latitude, self.longitude) {
+            clock.set_location(lat, lon);
+        }
+        Ok(clock)
+    }
 }
 
 fn default_ticks() -> usize {
@@ -143,7 +193,82 @@ fn load_sim_json(sim: Option<&str>, sim_file: Option<&str>) -> Result<String> {
 
 fn parse_graph(file: &str) -> Result<SimGraph> {
     let path = PathBuf::from(file);
+    // Suppress the raw, un-ranked per-type "Unknown block type" spam; we
+    // present a categorized summary instead (see `sim_diagnostics`).
+    lox_sim::blocks::set_block_warnings(false);
     parser::parse_file(&path).map_err(|e| anyhow::anyhow!("parse_failed: {e}"))
+}
+
+/// Categorized simulation-fidelity summary for a parsed graph.
+struct SimDiagnostics {
+    simulated: usize,
+    structural: usize,
+    /// Unimplemented block type -> count of instances.
+    unimplemented: std::collections::BTreeMap<String, usize>,
+    /// Non-fatal wire diagnostics from the parser (e.g. skipped wires).
+    wire_warnings: Vec<String>,
+}
+
+impl SimDiagnostics {
+    fn collect(graph: &SimGraph) -> Self {
+        use lox_sim::blocks::{BlockSupport, block_support};
+        let mut simulated = 0;
+        let mut structural = 0;
+        let mut unimplemented: std::collections::BTreeMap<String, usize> = Default::default();
+        for bid in 0..graph.block_count() {
+            let bt = &graph.block_info(bid).block_type;
+            match block_support(bt) {
+                BlockSupport::Simulated => simulated += 1,
+                BlockSupport::Structural => structural += 1,
+                BlockSupport::Unimplemented => {
+                    *unimplemented.entry(bt.clone()).or_default() += 1;
+                }
+            }
+        }
+        SimDiagnostics {
+            simulated,
+            structural,
+            unimplemented,
+            wire_warnings: graph.warnings().to_vec(),
+        }
+    }
+
+    fn unreliable_count(&self) -> usize {
+        self.unimplemented.values().sum()
+    }
+
+    /// Print the human-readable summary to stderr. Returns `true` if the config
+    /// is fully reliable (no unimplemented blocks and no skipped wires).
+    fn report(&self, graph: &SimGraph) -> bool {
+        for w in &self.wire_warnings {
+            eprintln!("warning: {w}");
+        }
+        if !self.unimplemented.is_empty() {
+            // Rank unimplemented types by impact (instance count, desc).
+            let mut ranked: Vec<(&String, &usize)> = self.unimplemented.iter().collect();
+            ranked.sort_by(|a, b| b.1.cmp(a.1).then(a.0.cmp(b.0)));
+            eprintln!(
+                "warning: {} block(s) across {} type(s) are not implemented and \
+                 fall back to PassThrough (results unreliable):",
+                self.unreliable_count(),
+                self.unimplemented.len()
+            );
+            for (bt, count) in ranked.iter().take(15) {
+                eprintln!("    {bt} ×{count}");
+            }
+            if ranked.len() > 15 {
+                eprintln!("    … and {} more type(s)", ranked.len() - 15);
+            }
+        }
+        eprintln!(
+            "summary: {} blocks, {} simulated, {} passthrough (unreliable), {} structural",
+            graph.block_count(),
+            self.simulated,
+            self.unreliable_count(),
+            self.structural,
+        );
+        self.unimplemented.is_empty() && self.wire_warnings.is_empty()
+    }
 }
 
 fn resolve_output(engine: &SimEngine, graph: &SimGraph, output_key: &str) -> f64 {
@@ -245,6 +370,13 @@ fn run_one(graph: &SimGraph, spec: &SimSpec) -> ScenarioResult {
     let mut checks = Vec::new();
     let mut all_pass = true;
 
+    // Install a simulated wall-clock if specified (drives time/astro blocks).
+    if let Some(clock_spec) = &spec.clock {
+        match clock_spec.build() {
+            Ok(clock) => engine.set_clock(clock),
+            Err(e) => eprintln!("warning: {e}"),
+        }
+    }
     // Inject time into all DayTimer blocks if specified
     if let Some(minutes) = spec.time {
         engine.set_time(minutes);
@@ -267,6 +399,12 @@ fn run_one(graph: &SimGraph, spec: &SimSpec) -> ScenarioResult {
 
     // Multi-step: run each step, check outputs after each one
     for step in &spec.steps {
+        if let Some(clock_spec) = &step.clock {
+            match clock_spec.build() {
+                Ok(clock) => engine.set_clock(clock),
+                Err(e) => eprintln!("warning: {e}"),
+            }
+        }
         if let Some(minutes) = step.time {
             engine.set_time(minutes);
         }
@@ -372,7 +510,7 @@ fn check_outputs(
 
 pub fn cmd_sim(ctx: &super::RunContext, action: SimCmd) -> Result<()> {
     match action {
-        SimCmd::Check { file } => cmd_check(&file),
+        SimCmd::Check { file, strict } => cmd_check(&file, strict),
         SimCmd::Run {
             file,
             sim,
@@ -387,14 +525,27 @@ pub fn cmd_sim(ctx: &super::RunContext, action: SimCmd) -> Result<()> {
     }
 }
 
-fn cmd_check(file: &str) -> Result<()> {
+fn cmd_check(file: &str, strict: bool) -> Result<()> {
     let graph = parse_graph(file)?;
+    let diag = SimDiagnostics::collect(&graph);
     let output = serde_json::json!({
         "status": "ok",
         "blocks": graph.block_count(),
         "connectors": graph.connector_count(),
+        "simulated": diag.simulated,
+        "passthrough_unreliable": diag.unreliable_count(),
+        "structural": diag.structural,
+        "skipped_wires": diag.wire_warnings.len(),
     });
     println!("{output}");
+    let reliable = diag.report(&graph);
+    if strict && !reliable {
+        bail!(
+            "strict: config is not fully simulatable ({} unreliable block(s), {} skipped wire(s))",
+            diag.unreliable_count(),
+            diag.wire_warnings.len()
+        );
+    }
     Ok(())
 }
 
@@ -473,6 +624,13 @@ fn cmd_step(file: &str, sim: Option<&str>, sim_file: Option<&str>) -> Result<()>
 
     let mut engine = SimEngine::new(graph.clone());
 
+    // Install a simulated wall-clock if specified.
+    if let Some(clock_spec) = &spec.clock {
+        match clock_spec.build() {
+            Ok(clock) => engine.set_clock(clock),
+            Err(e) => eprintln!("warning: {e}"),
+        }
+    }
     // Inject time into all DayTimer blocks if specified
     if let Some(minutes) = spec.time {
         engine.set_time(minutes);
