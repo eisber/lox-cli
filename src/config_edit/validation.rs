@@ -601,8 +601,14 @@ impl ConfigEditor {
                 let title = elem.attributes.get("Title").cloned().unwrap_or_default();
                 let uuid = elem.attributes.get("U").cloned().unwrap_or_default();
 
-                // Check UUID format (must contain serial suffix)
-                if !uuid.is_empty() && !serial.is_empty() && !uuid.contains(serial) {
+                // Check UUID format (must contain serial suffix). Skip known
+                // system/mode/registered-device short-form UUIDs — these
+                // legitimately lack the serial in every Gen-2 export.
+                if !uuid.is_empty()
+                    && !serial.is_empty()
+                    && !uuid.contains(serial)
+                    && !is_system_short_uuid(&uuid)
+                {
                     uuid_warnings.push(format!(
                         "{} '{}': UUID '{}' missing serial suffix '{}'",
                         elem_type,
@@ -628,7 +634,11 @@ impl ConfigEditor {
                         && co.name == "Co"
                     {
                         let co_uuid = co.attributes.get("U").cloned().unwrap_or_default();
-                        if !co_uuid.is_empty() && !serial.is_empty() && !co_uuid.contains(serial) {
+                        if !co_uuid.is_empty()
+                            && !serial.is_empty()
+                            && !co_uuid.contains(serial)
+                            && !is_system_short_uuid(&co_uuid)
+                        {
                             uuid_warnings.push(format!(
                                 "{} '{}' connector {}: UUID missing serial suffix",
                                 elem_type,
@@ -918,5 +928,22 @@ impl ConfigEditor {
                 );
             }
         }
+    }
+}
+
+/// Returns true for known system / operating-mode / registered-device short-form
+/// UUIDs that legitimately lack the Miniserver serial suffix in every Gen-2
+/// export (e.g. `00000000-0000-0002-1` operating modes, `205d5330-…-f`
+/// registered devices). These should be treated as informational, not errors.
+fn is_system_short_uuid(uuid: &str) -> bool {
+    // All-zero prefixed system/state UUIDs.
+    if uuid.starts_with("00000000-0000-") {
+        return true;
+    }
+    // Short-form UUIDs: the final dash-segment is shorter than a serial-bearing
+    // segment (normal connector UUIDs end with `ffff` + a 12-hex serial = 16).
+    match uuid.rsplit_once('-') {
+        Some((_, last)) => last.len() < 12,
+        None => false,
     }
 }

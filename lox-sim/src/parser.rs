@@ -214,7 +214,36 @@ pub fn parse_element(root: &Element) -> Result<SimGraph, String> {
         }
     }
 
+    warn_analog_multiplexer2_selectors(&mut graph);
+
     Ok(graph)
+}
+
+/// Warn when an `AnalogMultiplexer2`'s `Select` input is wired. Loxone's
+/// selector is 1-based (`0=off, 1=Input1, 2=Input2`), so driving it from a
+/// digital `0/1` signal is a common foot-gun (`Select=0` means *off*, not
+/// "pass Input1"). Suggest `Select = sel ? 2 : 1`.
+fn warn_analog_multiplexer2_selectors(graph: &mut SimGraph) {
+    let mut messages = Vec::new();
+    for bid in 0..graph.block_count() {
+        let info = graph.block_info(bid);
+        if info.block_type != "AnalogMultiplexer2" {
+            continue;
+        }
+        let name = info.name.clone();
+        for &cid in &info.inputs {
+            if graph.connector(cid).key == "Select" && graph.input_source_of(cid).is_some() {
+                messages.push(format!(
+                    "AnalogMultiplexer2 '{name}' has a wired Select input: it is 1-based \
+                     (0=off, 1=Input1, 2=Input2). If driving from a digital 0/1 signal, \
+                     use Select = sel ? 2 : 1 (a raw 0/1 makes Select=0 mean off)."
+                ));
+            }
+        }
+    }
+    for m in messages {
+        graph.push_warning(m);
+    }
 }
 
 fn walk_blocks(elem: &Element, out: &mut Vec<ParsedBlock>) {
@@ -604,7 +633,7 @@ fn block_signature(
                 "Reset",
                 "InputDisable",
             ],
-            &["AQ1", "AQ2", "Scene", "PresenceActive"],
+            &["AQ1", "AQ2", "Scene", "PresenceActive", "OutputReset"],
             &["FadingTime", "SceneMixTime"],
         ),
         "LightController" | "LightControllerH" => (

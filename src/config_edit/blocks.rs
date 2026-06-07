@@ -2,6 +2,20 @@ use super::{ConfigEditor, ConnectorMap, remove_by_uuid};
 use anyhow::Result;
 use xmltree::Element;
 
+/// Options for [`ConfigEditor::add_virtual_in`].
+#[derive(Default, Clone)]
+pub struct VirtualInOpts {
+    /// Analog (true) vs digital (false) Virtual Input.
+    pub analog: bool,
+    /// Optional minimum value (analog only). When unset, no `MinVal` is emitted.
+    pub min: Option<f64>,
+    /// Optional maximum value (analog only). When unset, **no** `MaxVal` is
+    /// emitted so the input does not silently clamp (e.g. a color composite).
+    pub max: Option<f64>,
+    /// Optional display unit format string (e.g. `"<v>"`, `"<v.1>°C"`).
+    pub unit: Option<String>,
+}
+
 impl ConfigEditor {
     /// Add a child element under a parent. Returns the generated UUID.
     #[allow(clippy::too_many_arguments)]
@@ -220,9 +234,10 @@ impl ConfigEditor {
     pub fn add_virtual_in(
         &mut self,
         title: &str,
-        analog: bool,
+        opts: &VirtualInOpts,
         parent_selector: &str,
     ) -> Result<String> {
+        let analog = opts.analog;
         let parent_path = self.require_one(parent_selector)?;
 
         // Extract Miniserver serial from existing UUIDs (last 12 hex chars after "ffff")
@@ -272,8 +287,14 @@ impl ConfigEditor {
                 .insert("MinChange".to_string(), "0.25".to_string());
             elem.attributes
                 .insert("MinTime".to_string(), "1000".to_string());
-            elem.attributes
-                .insert("MaxVal".to_string(), "1000".to_string());
+            if let Some(min) = opts.min {
+                elem.attributes.insert("MinVal".to_string(), fmt_num(min));
+            }
+            // Only emit MaxVal when explicitly requested — a default MaxVal
+            // silently clamps values such as a color composite.
+            if let Some(max) = opts.max {
+                elem.attributes.insert("MaxVal".to_string(), fmt_num(max));
+            }
         }
 
         // Add Q connector
@@ -342,9 +363,10 @@ impl ConfigEditor {
 
         // Add Display
         let mut display = Element::new("Display");
+        let unit = opts.unit.as_deref().unwrap_or("<v>");
         display
             .attributes
-            .insert("Unit".to_string(), "<v>".to_string());
+            .insert("Unit".to_string(), unit.to_string());
         display
             .attributes
             .insert("StateOnly".to_string(), "true".to_string());
@@ -557,5 +579,15 @@ impl ConfigEditor {
             // Logic/math blocks also need Nio but NOT IName
             _ => None,
         }
+    }
+}
+
+/// Format an f64 without a trailing `.0` for whole numbers (Loxone prefers
+/// `100` over `100.0` for integer-valued attributes).
+fn fmt_num(v: f64) -> String {
+    if v.fract() == 0.0 {
+        format!("{}", v as i64)
+    } else {
+        format!("{v}")
     }
 }

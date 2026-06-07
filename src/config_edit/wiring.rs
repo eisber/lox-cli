@@ -729,12 +729,38 @@ impl ConfigEditor {
 
     /// Wire a connector by adding `<In Input="source_uuid"/>` to target connector.
     /// Uses exact title match to avoid ambiguity.
+    ///
+    /// `source_uuid` may be passed bare or with a `uuid:` prefix (the prefix is
+    /// stripped). By default an existing single source is **replaced**; pass
+    /// `append = true` to add an additional source instead.
     pub fn wire_connector(
         &mut self,
         block_selector: &str,
         conn_key: &str,
         source_uuid: &str,
+        append: bool,
     ) -> Result<()> {
+        // Accept (and strip) a `uuid:` prefix on the source — the wire stores a
+        // bare connector UUID, never the selector form.
+        let source_uuid = source_uuid
+            .strip_prefix("uuid:")
+            .unwrap_or(source_uuid)
+            .trim();
+
+        // Validate the source is a real output connector (warn, don't fail —
+        // cross-file references and synthesized sources are legitimate).
+        match self.connector_dir_by_uuid(source_uuid) {
+            Some(true) => {}
+            Some(false) => eprintln!(
+                "⚠ Warning: source '{}' is an INPUT connector — wires flow FROM outputs TO inputs",
+                source_uuid
+            ),
+            None => eprintln!(
+                "⚠ Warning: source '{}' is not a known connector in this file (dangling reference?)",
+                source_uuid
+            ),
+        }
+
         // Use standard selector matching (supports uuid:, gid:, Type:, and title)
         let path = self.require_one(block_selector)?;
 
@@ -859,7 +885,12 @@ impl ConfigEditor {
                 )
             })?;
 
-        // Add <In Input="source_uuid"/> child, with FLG="2" for cross-page wiring
+        // Add <In Input="source_uuid"/> child, with FLG="2" for cross-page wiring.
+        // By default replace any existing source(s); only keep them when appending.
+        if !append {
+            co.children
+                .retain(|c| c.as_element().map(|e| e.name != "In").unwrap_or(true));
+        }
         let mut in_elem = Element::new("In");
         in_elem
             .attributes
@@ -941,5 +972,42 @@ impl ConfigEditor {
             None
         }
         search(&self.root, connector_uuid, &None)
+    }
+
+    /// Determine the direction of a connector by its UUID.
+    /// Returns `Some(true)` if it is an output, `Some(false)` if an input/param,
+    /// or `None` if no connector with that UUID exists in the file.
+    fn connector_dir_by_uuid(&self, uuid: &str) -> Option<bool> {
+        fn search(elem: &Element, target: &str) -> Option<bool> {
+            if elem.name == "C" {
+                let block_type = elem.attributes.get("Type").cloned().unwrap_or_default();
+                for child in &elem.children {
+                    if let Some(co) = child.as_element()
+                        && co.name == "Co"
+                        && co.attributes.get("U").map(|u| u == target).unwrap_or(false)
+                    {
+                        let key = co.attributes.get("K").cloned().unwrap_or_default();
+                        let is_output = ConfigEditor::connector_io_type(&block_type, &key)
+                            .map(|t| t == "O")
+                            .unwrap_or_else(|| {
+                                // Fall back to naming convention when the type is unknown.
+                                key.starts_with('Q')
+                                    || key.starts_with("AQ")
+                                    || key.starts_with("Output")
+                            });
+                        return Some(is_output);
+                    }
+                }
+            }
+            for child in &elem.children {
+                if let Some(e) = child.as_element()
+                    && let Some(found) = search(e, target)
+                {
+                    return Some(found);
+                }
+            }
+            None
+        }
+        search(&self.root, uuid)
     }
 }

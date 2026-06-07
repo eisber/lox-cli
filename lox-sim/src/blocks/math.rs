@@ -657,13 +657,16 @@ impl Block for AnalogMultiplexer {
     }
 }
 
-/// 2-input selector: output = I1 when selector is low, I2 when selector is high.
+/// 2-input selector. Loxone's `AnalogMultiplexer2` uses a **1-based** selector,
+/// identical to the 4-way `AnalogMultiplexer`: `Select=0` outputs 0 (off),
+/// `Select=1` passes Input1, `Select=2` passes Input2.
 ///
 /// Inputs: [I1, I2, InputDisable, Select]
 ///
-/// // WARNING: Assumed behavior — Loxone internal implementation unknown.
-/// // Assumption: Digital threshold on selector input; I1 when low, I2 when high.
-/// // TODO: Validate against real Miniserver behavior
+/// Note: a common foot-gun is driving `Select` with a digital `0/1` signal,
+/// which makes `Select=0` mean *off* (not "pass Input1"). To pick between the
+/// two inputs from a boolean `sel`, wire `Select = sel ? 2 : 1`. `sim check`
+/// warns when an `AnalogMultiplexer2` selector is wired (see parser).
 #[derive(Clone, Copy)]
 pub struct AnalogMultiplexer2;
 
@@ -677,9 +680,15 @@ impl Block for AnalogMultiplexer2 {
     ) -> Vec<Signal> {
         let i1 = inputs.first().copied().unwrap_or(0.0);
         let i2 = inputs.get(1).copied().unwrap_or(0.0);
-        // Select is last input (index 3: Input1, Input2, InputDisable, Select)
-        let selector = inputs.last().copied().unwrap_or(0.0);
-        vec![if is_high(selector) { i2 } else { i1 }]
+        // Select is last input (index 3: Input1, Input2, InputDisable, Select).
+        // 1-based: 0 => off, 1 => Input1, 2 => Input2.
+        let select = inputs.last().copied().unwrap_or(0.0).floor() as i64;
+        let out = match select {
+            1 => i1,
+            s if s >= 2 => i2,
+            _ => 0.0,
+        };
+        vec![out]
     }
 
     fn state(&self) -> Option<Vec<u8>> {
@@ -961,10 +970,21 @@ mod tests {
     }
 
     #[test]
-    fn analog_multiplexer2_selects_by_digital() {
+    fn analog_multiplexer2_selects_by_index() {
         let mut block = AnalogMultiplexer2;
-        assert_eq!(block.eval(&[10.0, 20.0, 0.0], &[], 0.0, &[]), vec![10.0]);
-        assert_eq!(block.eval(&[10.0, 20.0, 1.0], &[], 0.0, &[]), vec![20.0]);
+        // 1-based selector: 0 => off, 1 => Input1, 2 => Input2
+        assert_eq!(
+            block.eval(&[10.0, 20.0, 0.0, 0.0], &[], 0.0, &[]),
+            vec![0.0]
+        );
+        assert_eq!(
+            block.eval(&[10.0, 20.0, 0.0, 1.0], &[], 0.0, &[]),
+            vec![10.0]
+        );
+        assert_eq!(
+            block.eval(&[10.0, 20.0, 0.0, 2.0], &[], 0.0, &[]),
+            vec![20.0]
+        );
     }
 
     #[test]

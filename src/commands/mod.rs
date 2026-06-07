@@ -2,6 +2,7 @@ pub mod blocks_cmd;
 pub mod color_cmd;
 pub mod config_cmd;
 pub mod ctx;
+pub mod live_cmd;
 pub mod sim_cmd;
 
 pub struct RunContext {

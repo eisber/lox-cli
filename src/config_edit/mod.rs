@@ -23,6 +23,8 @@ mod validation;
 mod wiring;
 mod write;
 
+pub use blocks::VirtualInOpts;
+
 use anyhow::{Context, Result, bail};
 use std::collections::HashMap;
 use std::io::{BufReader, Cursor};
@@ -759,6 +761,33 @@ mod tests {
     }
 
     #[test]
+    fn test_wire_connector_replaces_and_strips_uuid_prefix() {
+        let mut editor = ConfigEditor::load(SAMPLE_XML).unwrap();
+        // Wire SysVar.AI ← WeatherData(Temperatur).AQ
+        editor
+            .wire_connector("uuid:sv-1", "AI", "co-wd1-aq", false)
+            .unwrap();
+        // Re-wire with a uuid: prefixed source, default (replace) mode.
+        editor
+            .wire_connector("uuid:sv-1", "AI", "uuid:co-wd2-aq", false)
+            .unwrap();
+        let xml = String::from_utf8(editor.to_bytes().unwrap()).unwrap();
+        // The prefix is stripped and the old source replaced (single In).
+        assert!(xml.contains(r#"Input="co-wd2-aq""#));
+        assert!(!xml.contains("uuid:co-wd2-aq"));
+        assert!(!xml.contains(r#"Input="co-wd1-aq""#));
+        assert_eq!(xml.matches(r#"Input="co-wd2-aq""#).count(), 1);
+
+        // --add appends an additional source rather than replacing.
+        editor
+            .wire_connector("uuid:sv-1", "AI", "co-wd1-aq", true)
+            .unwrap();
+        let xml = String::from_utf8(editor.to_bytes().unwrap()).unwrap();
+        assert!(xml.contains(r#"Input="co-wd1-aq""#));
+        assert!(xml.contains(r#"Input="co-wd2-aq""#));
+    }
+
+    #[test]
     fn test_list_wires() {
         let editor = ConfigEditor::load(SAMPLE_XML).unwrap();
         // WeatherData has 1 connector (AQ)
@@ -1165,7 +1194,7 @@ mod tests {
     fn test_add_virtual_in_places_inputref_on_page() {
         let mut editor = ConfigEditor::load(SAMPLE_WITH_PAGE).unwrap();
         let aq_uuid = editor
-            .add_virtual_in("TestVI", false, "Type:VirtualInCaption")
+            .add_virtual_in("TestVI", &VirtualInOpts::default(), "Type:VirtualInCaption")
             .unwrap();
         assert!(!aq_uuid.is_empty());
 

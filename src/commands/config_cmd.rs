@@ -8,7 +8,7 @@ use std::time::Duration;
 use crate::client::{LOXONE_EPOCH_SECS, LoxClient, USER_AGENT};
 use crate::commands::RunContext;
 use crate::config::Config;
-use crate::config_edit::ConfigEditor;
+use crate::config_edit::{ConfigEditor, VirtualInOpts};
 use crate::token;
 use crate::{
     CacheCmd, Cli, ConfigCmd, ControlCmd, MqttConfigCmd, RoomCmd, SetupCmd, TokenCmd, XmlEditCmd,
@@ -1129,10 +1129,13 @@ pub fn cmd_config(ctx: &RunContext, action: ConfigCmd) -> Result<()> {
                     }),
                 );
             } else {
-                println!("✓ Config uploaded as sps_new.zip");
+                println!("✓ Config uploaded as sps_new.zip (NOT yet applied)");
                 println!(
-                    "Apply with: lox config push --file {} --reboot --force",
+                    "  Apply now with: lox config push {} --reboot --force",
                     file
+                );
+                println!(
+                    "  (the first upload stages the config; re-run with --reboot to trigger the fast /wsx reload)"
                 );
             }
         }
@@ -1358,8 +1361,49 @@ pub fn cmd_config(ctx: &RunContext, action: ConfigCmd) -> Result<()> {
             page,
             device,
             topic,
+            analog,
+            min,
+            max,
+            unit,
             save_as,
         } => {
+            // Virtual inputs have a dedicated builder (InputRef converter, IName,
+            // IoData Pr/Cr, non-clamping analog defaults).
+            if matches!(control_type.as_str(), "virtual-input" | "virtual-in" | "vi") {
+                let data = fs::read(&file).with_context(|| format!("Cannot read {}", file))?;
+                let mut editor = ConfigEditor::load(&data)?;
+                let parent_sel = parent
+                    .as_deref()
+                    .or_else(|| room.as_deref().map(|_| "Type:VirtualInCaption"))
+                    .unwrap_or("Type:VirtualInCaption");
+                let opts = VirtualInOpts {
+                    analog,
+                    min,
+                    max,
+                    unit: unit.clone(),
+                };
+                let uuid = editor.add_virtual_in(&title, &opts, parent_sel)?;
+                if ctx.json {
+                    emit_json(
+                        ctx,
+                        serde_json::json!({
+                            "ok": true,
+                            "type": "VirtualIn",
+                            "uuid": uuid,
+                            "title": title,
+                            "analog": analog,
+                        }),
+                    );
+                } else if !ctx.quiet {
+                    println!("✓ Created VirtualIn \"{}\" (UUID: {})", title, uuid);
+                    println!(
+                        "  Push via: /jdev/sps/io/{}/<value>  (wire blocks from its InputRef.AQ)",
+                        uuid
+                    );
+                }
+                save_edited(&editor, &file, save_as.as_deref())?;
+                return Ok(());
+            }
             let (xml_type_owned, default_parent) = resolve_block_type(&control_type)?;
             let xml_type = xml_type_owned.as_str();
 
@@ -2075,6 +2119,9 @@ pub fn cmd_config(ctx: &RunContext, action: ConfigCmd) -> Result<()> {
             file,
             title,
             analog,
+            min,
+            max,
+            unit,
             parent,
             save_as,
         } => {
@@ -2082,7 +2129,13 @@ pub fn cmd_config(ctx: &RunContext, action: ConfigCmd) -> Result<()> {
             let mut editor = ConfigEditor::load(&data)?;
 
             let parent_sel = parent.as_deref().unwrap_or("Type:VirtualInCaption");
-            let aq_uuid = editor.add_virtual_in(&title, analog, parent_sel)?;
+            let opts = VirtualInOpts {
+                analog,
+                min,
+                max,
+                unit,
+            };
+            let aq_uuid = editor.add_virtual_in(&title, &opts, parent_sel)?;
             if ctx.json {
                 println!(
                     "{}",
@@ -2103,6 +2156,7 @@ pub fn cmd_config(ctx: &RunContext, action: ConfigCmd) -> Result<()> {
             file,
             target,
             source_uuid,
+            add,
             save_as,
         } => {
             let data = fs::read(&file).with_context(|| format!("Cannot read {}", file))?;
@@ -2112,7 +2166,7 @@ pub fn cmd_config(ctx: &RunContext, action: ConfigCmd) -> Result<()> {
             let (block_title, conn_key) = target
                 .rsplit_once('.')
                 .ok_or_else(|| anyhow::anyhow!("Target must be 'BlockTitle.ConnectorKey'"))?;
-            editor.wire_connector(block_title, conn_key, &source_uuid)?;
+            editor.wire_connector(block_title, conn_key, &source_uuid, add)?;
             if ctx.json {
                 emit_json(
                     ctx,
@@ -4679,6 +4733,10 @@ mod tests {
                 page: None,
                 device: None,
                 topic: None,
+                analog: false,
+                min: None,
+                max: None,
+                unit: None,
                 save_as: None,
             },
         );
@@ -4703,6 +4761,10 @@ mod tests {
                 page: None,
                 device: None,
                 topic: None,
+                analog: false,
+                min: None,
+                max: None,
+                unit: None,
                 save_as: Some(out.to_str().unwrap().to_string()),
             },
         );
@@ -5066,6 +5128,9 @@ sleep</Field>
                 file: file.clone(),
                 title: "TestVIn".to_string(),
                 analog: false,
+                min: None,
+                max: None,
+                unit: None,
                 parent: Some("Type:Page".to_string()),
                 save_as: None,
             },
@@ -5086,6 +5151,7 @@ sleep</Field>
                 file: file.clone(),
                 target: "TestAnd.I2".to_string(),
                 source_uuid: "i-0001-0001-0001-ffff000000000001".to_string(),
+                add: false,
                 save_as: None,
             },
         );

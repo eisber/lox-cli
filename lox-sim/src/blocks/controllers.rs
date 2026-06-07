@@ -49,7 +49,11 @@ impl LightController2 {
 impl Block for LightController2 {
     /// Inputs: [I1, Presence, Brightness, Move, Sel1..Sel8, Reset, InputDisable]
     /// Params: [presence_timeout]
-    /// Outputs: [AQ1, AQ2, Scene, PresenceActive]
+    /// Outputs: [AQ1, AQ2, Scene, PresenceActive, OutputReset]
+    ///
+    /// `OutputReset` is a momentary pulse (high for the single tick) emitted when
+    /// the controller is switched off via a rising edge on `Reset` (the Touch
+    /// "leave room" / double-tap gesture). It is otherwise low.
     fn eval(
         &mut self,
         inputs: &[Signal],
@@ -82,12 +86,13 @@ impl Block for LightController2 {
             self.active_scene = 0.0;
             self.brightness = 0.0;
             self.presence_timer = 0.0;
-            return vec![0.0, 0.0, 0.0, 0.0];
+            // OutputReset pulses high on the reset edge.
+            return vec![0.0, 0.0, 0.0, 0.0, 1.0];
         }
 
         if is_high(disabled) {
             self.presence_timer = 0.0;
-            return vec![0.0, 0.0, self.active_scene, 0.0];
+            return vec![0.0, 0.0, self.active_scene, 0.0, 0.0];
         }
 
         if scene > 0.0 && (scene - self.active_scene).abs() > f64::EPSILON {
@@ -120,6 +125,7 @@ impl Block for LightController2 {
             effective_brightness,
             self.active_scene,
             presence_active,
+            0.0,
         ]
     }
 
@@ -1738,6 +1744,25 @@ mod tests {
     use super::*;
 
     // -- LightController2 --------------------------------------------------
+
+    #[test]
+    fn lc2_output_reset_pulses_on_reset_edge() {
+        let mut lc2 = LightController2::new();
+        // Turn the controller on first.
+        let on = lc2.eval(&[1.0, 0.0, 0.8, 0.0], &[10.0], 0.1, &[0.0; 4]);
+        assert_eq!(on.len(), 5);
+        assert_eq!(on[4], 0.0); // no reset pulse yet
+                                // Rising edge on Reset (index sel_start + 8 = 12). Build a 14-wide input.
+        let mut inputs = vec![0.0; 14];
+        inputs[12] = 1.0; // Reset high
+        let prev = vec![0.0; 14]; // Reset was low
+        let out = lc2.eval(&inputs, &[10.0], 0.1, &prev);
+        assert_eq!(out[4], 1.0); // OutputReset pulses high on the edge
+        assert_eq!(out[0], 0.0); // brightness off
+                                 // Held high (no new edge) → pulse returns low.
+        let out2 = lc2.eval(&inputs, &[10.0], 0.1, &inputs);
+        assert_eq!(out2[4], 0.0);
+    }
 
     #[test]
     fn lc2_scene_selection() {

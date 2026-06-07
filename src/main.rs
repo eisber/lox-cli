@@ -264,6 +264,11 @@ pub(crate) enum Cmd {
         #[command(subcommand)]
         action: commands::color_cmd::ColorCmd,
     },
+    /// Read/write live Miniserver state over jdev/sps/io (read-only by default)
+    Live {
+        #[command(subcommand)]
+        action: commands::live_cmd::LiveCmd,
+    },
 }
 
 #[derive(Subcommand)]
@@ -575,7 +580,7 @@ pub(crate) enum ConfigCmd {
     /// Add a control element with type-aware defaults
     Add {
         file: String,
-        /// Control type: light, switch, presence, alarm-clock, memory, timer, mqtt-sub, mqtt-pub, calendar, autopilot. Use --device to bind device-bound types (e.g. alarm-clock) to a LoxAIRDevice.
+        /// Control type: light, switch, presence, alarm-clock, memory, timer, mqtt-sub, mqtt-pub, calendar, autopilot, virtual-input. Use --device to bind device-bound types (e.g. alarm-clock) to a LoxAIRDevice.
         #[arg(long = "type")]
         control_type: String,
         /// Element title
@@ -599,6 +604,18 @@ pub(crate) enum ConfigCmd {
         /// MQTT topic (for mqtt-sub, mqtt-pub)
         #[arg(long)]
         topic: Option<String>,
+        /// Analog mode (virtual-input only)
+        #[arg(long)]
+        analog: bool,
+        /// Minimum value (analog virtual-input only)
+        #[arg(long)]
+        min: Option<f64>,
+        /// Maximum value (analog virtual-input only; omit to avoid clamping)
+        #[arg(long)]
+        max: Option<f64>,
+        /// Display unit format (virtual-input only, e.g. "<v>")
+        #[arg(long)]
+        unit: Option<String>,
         #[arg(long)]
         save_as: Option<String>,
     },
@@ -707,6 +724,15 @@ pub(crate) enum ConfigCmd {
         /// Use analog mode (default: digital)
         #[arg(long)]
         analog: bool,
+        /// Minimum value (analog only)
+        #[arg(long)]
+        min: Option<f64>,
+        /// Maximum value (analog only; omit to avoid clamping, e.g. color composites)
+        #[arg(long)]
+        max: Option<f64>,
+        /// Display unit format (e.g. "<v>", "<v.1>°C")
+        #[arg(long)]
+        unit: Option<String>,
         /// Parent element selector (default: VirtualInCaption)
         #[arg(long)]
         parent: Option<String>,
@@ -720,8 +746,11 @@ pub(crate) enum ConfigCmd {
         file: String,
         /// Target: "BlockTitle.ConnectorKey" (e.g. "CatA_And.I1")
         target: String,
-        /// Source connector UUID to wire from
+        /// Source connector UUID to wire from (bare or "uuid:" prefixed)
         source_uuid: String,
+        /// Append an additional source instead of replacing the existing one
+        #[arg(long)]
+        add: bool,
         #[arg(long)]
         save_as: Option<String>,
     },
@@ -1086,6 +1115,7 @@ fn command_name(cmd: &Cmd) -> String {
         Cmd::Blocks { .. } => "blocks".into(),
         Cmd::Docs { .. } => "docs".into(),
         Cmd::Color { .. } => "color".into(),
+        Cmd::Live { .. } => "live".into(),
     }
 }
 
@@ -1176,6 +1206,7 @@ fn run(cli: Cli) -> Result<()> {
             list,
         } => cmd_docs(&ctx, query, datasheet, schema, list),
         Cmd::Color { action } => commands::color_cmd::cmd_color(&ctx, action),
+        Cmd::Live { action } => commands::live_cmd::cmd_live(&ctx, action),
     }
 }
 
