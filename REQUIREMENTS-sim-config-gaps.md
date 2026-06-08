@@ -12,6 +12,44 @@ raw-XML workarounds · **P2** nice-to-have.
 
 ---
 
+## P0-0 · `config add` blocks lack layout coords → Loxone Config "repairs" them on first open and SILENTLY DROPS WIRES  ⚠️ caused a live outage
+
+**Highest-impact gap found this session.** Every block created by `config add` (verified for
+`Mult`, `Add`, `Sub`, `GreaterEqual`, `And`, `Formula`) is emitted **without any canvas layout
+attributes** — no `Px`/`Py`/`Px2`/`Py2`/`Cl` — and for multi-IO blocks with an inconsistent
+`Nio` (see P0-5: `Formula` gets `Nio="4"` + only Input1/Input2). A pushed config with such
+blocks **runs fine on the Miniserver** (the runtime ignores layout), so it passes the
+edit→sim→push loop and looks done.
+
+**The landmine:** the moment a human opens that config in **Loxone Config (the UX)** and saves,
+the editor "repairs" each malformed block — it assigns layout coords, recomputes `Nio`, and
+**regenerates connectors with fresh UUIDs**. For `Formula` it forced `Nio=6` and **regenerated
+Input3 AND Input4 with new UUIDs, silently discarding every wire attached to them.**
+
+Concrete incident (this session): two CLI-built `Formula` blocks driving a live light. After one
+UX save, three wires were gone — `Farbe.Input3←Kamera`, `SID.Input3←Wochentag`,
+`SID.Input4←Online`. With `Online` unwired the gate formula collapsed to the off-mood (778) and
+**the light got stuck OFF** (also lost camera→red and weekday gating). Diff of the same block
+before/after the UX save:
+
+```
+before (config add):  Nio="4"  (no Px2/Py2/Cl)  Co: AQ,TQ,Input1,Input2,Input3        Valid absent
+after (UX save):      Nio="6"  Px2/Py2/Cl set   Co: Input1,Input2,Input3,Input4,AQ,TQ  Valid set
+                                                    ^Input3/Input4 = NEW uuids, wires dropped
+```
+
+**Requirement**
+- `config add` must emit UX-valid blocks: sensible default `Px`/`Py`/`Px2`/`Py2`/`Cl`
+  (e.g. auto-place on the target page with a grid offset so blocks don't overlap), a **correct
+  `Nio`** for the block type, **all** of the block's standard connectors in the UX's canonical
+  order (inputs first, then outputs), and `Valid="true"` once configured.
+- At minimum, `config check`/`validate` should **warn** when a block has no layout coords or an
+  `Nio`/connector-count mismatch — i.e. "this will be mangled by Loxone Config on first save."
+- Bonus: a `config layout`/auto-arrange pass that assigns non-overlapping coords to any
+  coordinate-less blocks before push.
+
+---
+
 ## P0-1 · `sim check`/`sim run` hard-fails on a real downloaded config
 
 `lox sim check <real>.Loxone` aborts with:
