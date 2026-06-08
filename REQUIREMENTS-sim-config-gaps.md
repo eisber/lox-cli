@@ -140,6 +140,16 @@ how the two sibling devices are set up. But:
 
 ## P0-4 · `Formula` block: expression is neither settable (CLI) nor simulated
 
+> **UPDATE 2026-06-08 (lox-cli @ b7186fd): the SIMULATOR half is RESOLVED.** `lox-sim` now
+> reads the `Formula="…"` C-attribute and evaluates the full documented grammar
+> (`+ - * / ^`, `IF(c;a;b)`, the six comparisons, `MIN MAX INT SIGN ABS SQRT` + trig, `;`
+> separators, German decimal comma, `&gt;=`/`&lt;=` XML entities decode correctly). Verified
+> live this session: a 3-input colour formula `(2+I1+2*I1*I2)+I3*(4-(2+I1+2*I1*I2))` and a
+> 4-input nested-IF gate `IF(I2>=1020;IF(I3<=5;IF(I4>=1;I1;778);778);778)` both simulate
+> exactly, and the same expressions deployed live and evaluate identically on the Miniserver
+> (collapsed a 14-block arithmetic network into 2 Formula blocks). **The CONFIG-side gaps below
+> remain.**
+
 Found while building a native "Teams-status → nightlight colour" automation (one `Formula`
 that maps three 0/1 flags + an `armed` gate to a mood SID would replace ~15 discrete
 blocks). Two independent gaps make the `Formula` block effectively unusable in the
@@ -149,32 +159,64 @@ edit→simulate→push loop:
    `Input%d` (input default values) and outputs `AQ (R)` / `TQ (Error)` — there is **no
    parameter for the formula string itself**. `config add --type Formula` scaffolds a block
    with no expression, and `config set-param` has no key to write one. The expression has to
-   be hand-injected into the raw XML, and the attribute/property name it lives in is not
-   documented anywhere in the CLI, skills, or `blocks info`. (For reference, the real
-   Miniserver syntax per Loxone docs: inputs `I1..I4`; operators `+ - * / ^`; functions
+   be hand-injected into the raw XML. **Confirmed still missing @ b7186fd**: the expression
+   lives in the **`Formula="…"` attribute on the `<C Type="Formula" …>` opening tag**
+   (e.g. `Formula="IF(I2&gt;=1020;…)"`; XML-escape `<`/`>` as `&lt;`/`&gt;`). For reference,
+   the real Miniserver syntax per Loxone docs: inputs `I1..I4`; operators `+ - * / ^`; functions
    `PI ABS SQRT LN LOG EXP SIN COS TAN ARCSIN ARCCOS ARCTAN SINH COSH TANH RAD DEG SIGN INT
    IF MIN MAX`; comparisons `== != > >= < <=`; conditional `IF(cond; a; b)`; **no boolean
    `&&`/`||`/`!`** — combine via nested `IF` or arithmetic. Decimal separator in Loxone's own
-   examples is a comma.)
+   examples is a comma.
 
-2. **The simulator ignores the expression.** `lox-sim/src/parser.rs` builds every block via
-   `create_block(block_type)`, and `blocks/mod.rs` maps `"Formula" => Formula::new("I1")` —
-   a hard-coded pass-through of input 1. The actual expression from the XML is never read, so
-   `sim run` reports a `Formula` output equal to `I1` regardless of the formula. (The impl in
-   `blocks/math.rs` does have a real arithmetic evaluator — `+ - * / %`, parens, `min/max/
-   abs/sqrt`, with `I1..I4` substitution — but it is only reachable via `Formula::new(expr)`
-   in unit tests, never from a parsed config. It also lacks `IF`, comparisons, and `^`.)
+2. ~~The simulator ignores the expression.~~ **RESOLVED @ b7186fd** (see update box above).
 
 **Requirement**
 - Expose the Formula expression to the CLI: surface it in `blocks info Formula`, allow
   `config set-param <file> <selector> Formula "<expr>"` (or a dedicated
-  `config set-formula`), and document the XML attribute/property it maps to.
-- Have the parser read that expression and pass it to `Formula::new(expr)` so `sim run`
-  evaluates the real formula.
-- Extend the evaluator to match the documented Miniserver feature set: `IF(c;a;b)`, the six
-  comparison operators (returning 1/0), `^`, and the missing functions — so a formula written
-  for the real MS simulates identically. Add a fixture asserting e.g.
-  `IF(I1>0; I2; I3)` and a nested-`IF` colour-selector.
+  `config set-formula`) writing the `Formula=` attribute (auto-escaping `<`/`>`).
+- ~~Have the parser read that expression~~ **DONE.**
+- ~~Extend the evaluator to match the documented Miniserver feature set~~ **DONE** (b7186fd).
+
+---
+
+## P0-5 · `config add --type Formula` scaffolds only Input1/Input2 (max 4 needed)
+
+Like `Add4`, a freshly-added `Formula` gets only `<Co K="Input1">`/`<Co K="Input2">` connectors,
+but the block supports `I1..I4`. To use `I3`/`I4` you must hand-insert
+`<Co K="Input3" U="…"/>` / `<Co K="Input4" U="…"/>` into the block before wiring/set-param
+(`set-param Input3` errors `Parameter 'Input3' not found`). **Requirement:** scaffold all four
+input connectors (or honour a `--inputs N` flag) for `Formula`/`Add4`/multi-input math blocks.
+
+---
+
+## P0-6 · `wire-connector` with a `uuid:<block>.<Conn>` source writes a MALFORMED reference
+
+`config wire-connector <file> "uuid:<TARGETBLK>.<In>" "uuid:<SRCBLK>.AQ"` does **not** resolve
+the source block's `AQ` connector — it writes a literal `<In Input="<SRCBLK-uuid>.AQ"/>`
+(the connector key appended to the *block* UUID). The wire then silently fails to resolve
+(`config wires` omits it; the input reads 0 live). The **only** working source form is the
+**raw output-connector UUID** (e.g. the `<Co K="AQ" U="…">` UUID), so for block→block analog
+wiring you must first grep the source block's `AQ` connector UUID out of the XML and pass that.
+**Requirement:** make `wire-connector` accept `uuid:<block>.<ConnectorKey>` (and plain block
+name + key) as a source and resolve it to the connector UUID, OR error loudly instead of
+writing an unresolvable `<block-uuid>.<key>` reference. (This bit the Formula refactor: both
+`Farbe.AQ→SID.Input1` and `SID.AQ→Controller.Select` wires had to be repaired by hand.)
+
+---
+
+## P0-7 · `sim` cannot inject `Formula` (and `GenTSensor`) inputs by connector/name
+
+The sim models `Formula` with `ins=0`/`outs=2` (`dump` shows no input connectors): `I1..I4` are
+read from the connector **`Def=` values only**, so a wired analog input doesn't propagate in
+sim and `--sim {"inputs":{"MyFormula.Input1":x}}` warns `could not set input` and falls back to
+the Def. Same class as the `GenTSensor` (MQTT-sub) blocks, which parse `ins=0/outs=0` so their
+downstream wires show "unwired" in-sim even when the live config is correctly wired. **Workaround
+that works:** to sim-verify a Formula expression, set the input **`Def=`** values per scenario
+(on a throwaway copy) and assert `AQ`; chained Formula→Formula can't be simulated end-to-end
+(stage 2 reads its own Def, not stage 1's `AQ`) — verify each stage independently + check the
+wire with `config wires`. **Requirement:** let the sim treat wired Formula/GenTSensor inputs as
+settable (propagate the wire, or accept `--sim` overrides by connector key/name) so a wired
+multi-stage Formula network is offline-verifiable as a whole.
 
 ---
 
