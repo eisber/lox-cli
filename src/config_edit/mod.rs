@@ -710,6 +710,64 @@ mod tests {
     }
 
     #[test]
+    fn test_check_blocks_warns_on_missing_layout() {
+        // A page block without canvas coordinates should be flagged, because
+        // Loxone Config will "repair" it on first save and may drop wires.
+        let xml = br#"<?xml version="1.0" encoding="utf-8"?>
+<C Type="Document" V="175" U="doc-1" Title="Root">
+  <C Type="Page" V="175" U="page-1" Title="Logic" WF="16384">
+    <C Type="And" V="175" U="and-nocoords" Title="No Coords" Nio="3">
+      <Co K="I1" U="and-nc-i1" Def="1"/>
+      <Co K="I2" U="and-nc-i2" Def="1"/>
+      <Co K="Q" U="and-nc-q"/>
+    </C>
+    <C Type="And" V="175" U="and-coords" Title="Has Coords" Nio="3" Px="7392" Py="576" Px2="8736" Py2="1272" Cl="0,0,0">
+      <Co K="I1" U="and-c-i1" Def="1"/>
+      <Co K="I2" U="and-c-i2" Def="1"/>
+      <Co K="Q" U="and-c-q"/>
+    </C>
+  </C>
+</C>"#;
+        let editor = ConfigEditor::load(xml).unwrap();
+
+        let no_coords = editor.check_blocks(Some("No Coords"));
+        assert!(
+            no_coords
+                .iter()
+                .any(|r| r.contains("missing canvas layout")),
+            "expected layout warning, got: {no_coords:?}"
+        );
+
+        let has_coords = editor.check_blocks(Some("Has Coords"));
+        assert!(
+            !has_coords
+                .iter()
+                .any(|r| r.contains("missing canvas layout")),
+            "block with coords should not warn, got: {has_coords:?}"
+        );
+    }
+
+    #[test]
+    fn test_check_blocks_warns_on_nio_mismatch() {
+        let xml = br#"<?xml version="1.0" encoding="utf-8"?>
+<C Type="Document" V="175" U="doc-1" Title="Root">
+  <C Type="Page" V="175" U="page-1" Title="Logic" WF="16384">
+    <C Type="And" V="175" U="and-bad-nio" Title="Bad Nio" Nio="7" Px="7392" Py="576" Px2="8736" Py2="1272" Cl="0,0,0">
+      <Co K="I1" U="and-bn-i1" Def="1"/>
+      <Co K="I2" U="and-bn-i2" Def="1"/>
+      <Co K="Q" U="and-bn-q"/>
+    </C>
+  </C>
+</C>"#;
+        let editor = ConfigEditor::load(xml).unwrap();
+        let results = editor.check_blocks(Some("Bad Nio"));
+        assert!(
+            results.iter().any(|r| r.contains("Nio=7 but 3 connectors")),
+            "expected Nio mismatch warning, got: {results:?}"
+        );
+    }
+
+    #[test]
     fn test_add_element() {
         let mut editor = ConfigEditor::load(SAMPLE_XML).unwrap();
         let uuid = editor
@@ -729,6 +787,51 @@ mod tests {
         assert_eq!(desc.element_type, "GenTSensor");
         assert_eq!(desc.title, "New Sensor");
         assert_eq!(desc.properties["mqtt_topic"].value, "test/topic");
+    }
+
+    #[test]
+    fn test_add_element_emits_layout_and_ordered_connectors() {
+        let mut editor = ConfigEditor::load(SAMPLE_XML).unwrap();
+        let uuid = editor
+            .add_element("gid:Mqtt", "Formula", "Tank Level", None, None, None, &[])
+            .unwrap();
+        let xml = String::from_utf8(editor.to_bytes().unwrap()).unwrap();
+
+        // Isolate the new Formula block.
+        let start = xml.find(&format!("U=\"{}\"", uuid)).unwrap();
+        let block_open = xml[..start].rfind("<C ").unwrap();
+        let block_end = xml[start..].find("</C>").unwrap() + start;
+        let block = &xml[block_open..block_end];
+
+        // Layout coordinates must be present so Loxone Config doesn't "repair"
+        // the block (and drop wires) on first save.
+        for attr in ["Px=", "Py=", "Px2=", "Py2=", "Cl="] {
+            assert!(block.contains(attr), "missing {attr} in: {block}");
+        }
+        assert!(block.contains("Nio=\"4\""), "Nio should be 4: {block}");
+
+        // Connectors must be inputs/params first, then outputs.
+        let pos = |k: &str| block.find(&format!("K=\"{k}\"")).unwrap();
+        assert!(pos("Input1") < pos("AQ"), "Input1 before AQ");
+        assert!(pos("Input2") < pos("AQ"), "Input2 before AQ");
+        assert!(pos("AQ") < pos("TQ"), "AQ before TQ");
+    }
+
+    #[test]
+    fn test_order_connectors_inputs_first() {
+        let mut types = std::collections::HashMap::new();
+        types.insert("AQ".to_string(), "O".to_string());
+        types.insert("TQ".to_string(), "O".to_string());
+        types.insert("Input1".to_string(), "P".to_string());
+        types.insert("Input2".to_string(), "P".to_string());
+        let raw = vec![
+            "AQ".to_string(),
+            "TQ".to_string(),
+            "Input1".to_string(),
+            "Input2".to_string(),
+        ];
+        let ordered = ConfigEditor::order_connectors(&raw, &types);
+        assert_eq!(ordered, vec!["Input1", "Input2", "AQ", "TQ"]);
     }
 
     #[test]

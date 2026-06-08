@@ -49,9 +49,12 @@ impl ConfigEditor {
             elem.attributes.insert("IName".to_string(), iname);
         }
 
-        // Auto-create connectors from embedded connector map (190 types, 2384 connectors)
+        // Auto-create connectors from embedded connector map (190 types, 2384 connectors).
+        // Loxone Config regenerates connectors (with fresh UUIDs, dropping wires) for
+        // blocks whose connector set/order is non-canonical, so emit them inputs/params
+        // first, then outputs — the order the desktop editor expects.
         let connector_map = Self::connector_map();
-        let connectors: Vec<String> = connector_map
+        let raw_connectors: Vec<String> = connector_map
             .get(element_type)
             .map(|(conns, _, _)| conns.clone())
             .unwrap_or_default();
@@ -59,6 +62,11 @@ impl ConfigEditor {
             .get(element_type)
             .map(|(_, defs, _)| defs.clone())
             .unwrap_or_default();
+        let types: std::collections::HashMap<String, String> = connector_map
+            .get(element_type)
+            .map(|(_, _, t)| t.clone())
+            .unwrap_or_default();
+        let connectors = Self::order_connectors(&raw_connectors, &types);
 
         if !connectors.is_empty() {
             elem.attributes
@@ -77,6 +85,22 @@ impl ConfigEditor {
             // Generic I/O types without specific connector layout
             elem.attributes.insert("Nio".to_string(), "1".to_string());
         }
+
+        // Emit default canvas coordinates so Loxone Config does not "repair" a
+        // coordinate-less block on first save (which regenerates connectors and
+        // drops wires). Blocks are stacked vertically on the parent page; run
+        // `lox config layout` afterwards for a tidy arrangement.
+        let (px, py) = self.next_block_origin(&parent_path);
+        let (w, h) = super::layout::block_size(element_type);
+        elem.attributes.insert("Px".to_string(), px.to_string());
+        elem.attributes.insert("Py".to_string(), py.to_string());
+        elem.attributes
+            .insert("Px2".to_string(), (px + w).to_string());
+        elem.attributes
+            .insert("Py2".to_string(), (py + h).to_string());
+        elem.attributes
+            .entry("Cl".to_string())
+            .or_insert_with(|| "0,0,0".to_string());
 
         // Type-specific attributes
         if element_type == "StateV" {
@@ -196,14 +220,15 @@ impl ConfigEditor {
             elem.children.push(xmltree::XMLNode::Element(set));
         }
 
-        // Auto-create connectors from embedded connector map
+        // Auto-create connectors from embedded connector map (inputs/params first)
         let connector_map = Self::connector_map();
-        if let Some((connectors, defaults, _)) = connector_map.get(element_type)
+        if let Some((connectors, defaults, types)) = connector_map.get(element_type)
             && !connectors.is_empty()
         {
+            let ordered = Self::order_connectors(connectors, types);
             elem.attributes
-                .insert("Nio".to_string(), connectors.len().to_string());
-            for conn_key in connectors {
+                .insert("Nio".to_string(), ordered.len().to_string());
+            for conn_key in &ordered {
                 let mut co = Element::new("Co");
                 co.attributes.insert("K".to_string(), conn_key.clone());
                 co.attributes
@@ -499,6 +524,48 @@ impl ConfigEditor {
         let map = Self::connector_map();
         map.get(block_type)
             .and_then(|(_, _, types)| types.get(connector_key).cloned())
+    }
+
+    /// Order connector keys the way Loxone Config expects: inputs and parameters
+    /// first (preserving their given order), then outputs. Connectors with an
+    /// unknown type are treated as input-side. A non-canonical order makes the
+    /// desktop editor regenerate connectors and silently drop attached wires.
+    pub(crate) fn order_connectors(
+        keys: &[String],
+        types: &std::collections::HashMap<String, String>,
+    ) -> Vec<String> {
+        let mut inputs = Vec::new();
+        let mut outputs = Vec::new();
+        for k in keys {
+            if types.get(k).map(|s| s.as_str()) == Some("O") {
+                outputs.push(k.clone());
+            } else {
+                inputs.push(k.clone());
+            }
+        }
+        inputs.extend(outputs);
+        inputs
+    }
+
+    /// Compute a default origin `(Px, Py)` for a new block on `parent_path`,
+    /// stacking it below the lowest existing block so it doesn't overlap.
+    fn next_block_origin(&self, parent_path: &[usize]) -> (i32, i32) {
+        let parent = self.get_element(parent_path);
+        let mut max_py2: Option<i32> = None;
+        for child in &parent.children {
+            if let Some(e) = child.as_element()
+                && e.name == "C"
+                && let Some(py2) = e.attributes.get("Py2").and_then(|s| s.parse::<i32>().ok())
+            {
+                max_py2 = Some(max_py2.map_or(py2, |m| m.max(py2)));
+            }
+        }
+        // Center column (X=7392) matches grid_layout; stack with a 168-unit gap.
+        let py = match max_py2 {
+            Some(m) => m + 168,
+            None => 576,
+        };
+        (7392, py)
     }
 
     /// Extract Miniserver serial from existing UUIDs in the config.

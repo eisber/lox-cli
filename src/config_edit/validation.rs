@@ -170,6 +170,7 @@ impl ConfigEditor {
             selector: Option<&str>,
             ctx: &CheckCtx<'_>,
             results: &mut Vec<String>,
+            on_page: bool,
         ) {
             let etype = elem
                 .attributes
@@ -296,6 +297,46 @@ impl ConfigEditor {
                     }
 
                     // ── Sub-element completeness checks ──
+
+                    // Canvas layout / connector-count check. Blocks placed on a
+                    // page without coordinates (or with a stale Nio that doesn't
+                    // match the connector count) get "repaired" by Loxone Config
+                    // on first save — it assigns coords, recomputes Nio, and
+                    // regenerates connectors with fresh UUIDs, silently dropping
+                    // every attached wire. Warn before that footgun fires.
+                    if on_page {
+                        let co_count = elem
+                            .children
+                            .iter()
+                            .filter(|child| {
+                                child.as_element().is_some_and(|c| {
+                                    c.name == "Co"
+                                        || c.attributes.get("Type").map(|s| s.as_str())
+                                            == Some("Co")
+                                })
+                            })
+                            .count();
+                        if co_count > 0 {
+                            let missing_coords = ["Px", "Py", "Px2", "Py2"]
+                                .iter()
+                                .any(|a| !elem.attributes.contains_key(*a));
+                            if missing_coords {
+                                results.push(format!(
+                                    "⚠ {etype} '{title}': missing canvas layout (Px/Py/Px2/Py2) — Loxone Config will repair this block on first save and may drop wires; run `lox config layout`"
+                                ));
+                            }
+                            if let Some(nio) = elem
+                                .attributes
+                                .get("Nio")
+                                .and_then(|s| s.parse::<usize>().ok())
+                                && nio != co_count
+                            {
+                                results.push(format!(
+                                    "⚠ {etype} '{title}': Nio={nio} but {co_count} connectors — mismatch may cause Loxone Config to regenerate connectors and drop wires"
+                                ));
+                            }
+                        }
+                    }
 
                     // LightController2 needs LightscenesC with scenes
                     if etype == "LightController2" {
@@ -443,7 +484,8 @@ impl ConfigEditor {
 
             for child in &elem.children {
                 if let Some(c) = child.as_element() {
-                    walk_blocks(c, selector, ctx, results);
+                    let child_on_page = on_page || etype == "Page";
+                    walk_blocks(c, selector, ctx, results, child_on_page);
                 }
             }
         }
@@ -461,7 +503,7 @@ impl ConfigEditor {
             connector_map: &cmap,
         };
 
-        walk_blocks(&self.root, selector, &ctx, &mut results);
+        walk_blocks(&self.root, selector, &ctx, &mut results, false);
 
         if results.is_empty() {
             results.push("✓ No automation blocks found (or none match selector)".to_string());

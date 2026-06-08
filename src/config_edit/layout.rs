@@ -1,6 +1,20 @@
 use super::ConfigEditor;
 use anyhow::{Context, Result, bail};
 
+/// Canvas size (width, height) in Loxone layout units for a block type.
+/// Used both by the auto-layout passes and by `add_element` to emit sensible
+/// default `Px2`/`Py2` so Loxone Config doesn't "repair" coordinate-less blocks.
+pub(crate) fn block_size(block_type: &str) -> (i32, i32) {
+    match block_type {
+        "InputRef" | "OutputRef" | "Memory" => (2112, 192),
+        "LightController2" => (2688, 1848),
+        "AlarmClock" => (2688, 1272),
+        "PresenceDetector" | "Presence" => (2688, 1272),
+        "Thermostat" | "JalousieUpDown2" | "Ventilation2" => (2688, 1272),
+        _ => (1344, 696),
+    }
+}
+
 impl ConfigEditor {
     /// Auto-layout blocks on a Page using ELK (Eclipse Layout Kernel).
     #[allow(dead_code)]
@@ -205,17 +219,6 @@ impl ConfigEditor {
 
         let input_types = ["InputRef"];
         let output_types = ["OutputRef", "Memory"];
-
-        fn block_size(block_type: &str) -> (i32, i32) {
-            match block_type {
-                "InputRef" | "OutputRef" | "Memory" => (2112, 192),
-                "LightController2" => (2688, 1848),
-                "AlarmClock" => (2688, 1272),
-                "PresenceDetector" | "Presence" => (2688, 1272),
-                "Thermostat" | "JalousieUpDown2" | "Ventilation2" => (2688, 1272),
-                _ => (1344, 696),
-            }
-        }
 
         let page = self.get_element(&page_path);
         let mut left: Vec<(usize, i32, i32)> = Vec::new();
