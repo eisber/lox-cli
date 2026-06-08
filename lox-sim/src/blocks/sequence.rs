@@ -14,6 +14,7 @@ enum VarRef {
     AI(usize),    // 0-based index into AI1..AI8
     AQ(usize),    // 0-based index into AQ1..AQ8
     Value(usize), // 0-based index into value1..value5
+    Tq,           // TQ text output (numeric value in the simulator)
 }
 
 #[derive(Debug, Clone, Copy, PartialEq)]
@@ -59,6 +60,26 @@ enum SeqLine {
 // Parser
 // ============================================================================
 
+/// Strip a trailing `//` line comment, respecting double-quoted strings so
+/// that a `//` inside a quoted TQ string is preserved. Returns the slice of
+/// `line` before the comment marker (caller should trim).
+fn strip_inline_comment(line: &str) -> &str {
+    let bytes = line.as_bytes();
+    let mut in_str = false;
+    let mut i = 0;
+    while i < bytes.len() {
+        match bytes[i] {
+            b'"' => in_str = !in_str,
+            b'/' if !in_str && i + 1 < bytes.len() && bytes[i + 1] == b'/' => {
+                return &line[..i];
+            }
+            _ => {}
+        }
+        i += 1;
+    }
+    line
+}
+
 /// Parse a multi-line program text. Each sequence is separated by
 /// `sequence N` headers. If no header, everything is sequence 1.
 fn parse_programs(text: &str) -> Vec<Vec<SeqLine>> {
@@ -66,8 +87,8 @@ fn parse_programs(text: &str) -> Vec<Vec<SeqLine>> {
     let mut current_seq: usize = 0; // 0-based
 
     for raw_line in text.lines() {
-        let line = raw_line.trim();
-        if line.is_empty() || line.starts_with("//") || line.starts_with('#') {
+        let line = strip_inline_comment(raw_line).trim();
+        if line.is_empty() || line.starts_with('#') {
             // If we're in a sequence, add a Comment line to preserve line numbering
             if !programs[current_seq].is_empty() || current_seq > 0 {
                 programs[current_seq].push(SeqLine::Comment);
@@ -195,12 +216,41 @@ fn parse_set(s: &str) -> SeqLine {
         let target_str = s[..eq_pos].trim();
         let expr_str = s[eq_pos + 1..].trim();
         if let Some(target) = parse_varref(target_str) {
+            // TQ accepts text output: `set TQ = "label" AQ2`. In the numeric
+            // simulator we drop quoted string literals and evaluate the
+            // remaining numeric/IO tokens (matching the documented value).
+            if target == VarRef::Tq {
+                return SeqLine::Set {
+                    target,
+                    expr: parse_tq_value(expr_str),
+                };
+            }
             if let Some(expr) = parse_expr(expr_str) {
                 return SeqLine::Set { target, expr };
             }
         }
     }
     SeqLine::Comment
+}
+
+/// Parse the right-hand side of `set TQ = ...`. Quoted string literals are
+/// stripped (they carry no numeric value in the simulator); whatever numeric
+/// expression remains is evaluated, defaulting to 0 when only text is present.
+fn parse_tq_value(expr_str: &str) -> Expr {
+    let mut numeric = String::new();
+    let mut in_str = false;
+    for c in expr_str.chars() {
+        match c {
+            '"' => in_str = !in_str,
+            _ if !in_str => numeric.push(c),
+            _ => {}
+        }
+    }
+    let numeric = numeric.trim();
+    if numeric.is_empty() {
+        return Expr::Lit(0.0);
+    }
+    parse_expr(numeric).unwrap_or(Expr::Lit(0.0))
 }
 
 fn parse_waitcondition(s: &str) -> SeqLine {
@@ -345,6 +395,10 @@ fn parse_varref(s: &str) -> Option<VarRef> {
             }
         }
     }
+    // TQ text output
+    if s == "tq" {
+        return Some(VarRef::Tq);
+    }
     None
 }
 
@@ -437,9 +491,9 @@ pub fn validate_program(text: &str) -> Vec<ProgramError> {
 
     for raw_line in text.lines() {
         line_num += 1;
-        let trimmed = raw_line.trim();
+        let trimmed = strip_inline_comment(raw_line).trim();
 
-        if trimmed.is_empty() || trimmed.starts_with("//") || trimmed.starts_with('#') {
+        if trimmed.is_empty() || trimmed.starts_with('#') {
             continue;
         }
 
@@ -695,6 +749,8 @@ fn validate_set_target(
                 message: format!("{} missing value after '='", cmd),
                 context: context.to_string(),
             });
+        } else if target_str == "tq" && expr_str.contains('"') {
+            // `set TQ = "text" ...` — quoted text output is valid; skip numeric check.
         } else if parse_expr(expr_str).is_none() {
             // Try to give a more specific error
             let msg = validate_expr_detail(expr_str, cmd);
@@ -906,6 +962,7 @@ pub struct SequenceController {
     prev_triggers: [f64; 8], // for rising edge detection on S1-S8
     prev_off: f64,
     skipping_if: usize, // depth of false-if blocks being skipped
+    tq: f64,            // TQ text/value output (last value set by a sequence)
 }
 
 impl SequenceController {
@@ -930,6 +987,7 @@ impl SequenceController {
             prev_triggers: [0.0; 8],
             prev_off: 0.0,
             skipping_if: 0,
+            tq: 0.0,
         }
     }
 
@@ -954,6 +1012,7 @@ impl SequenceController {
         self.pulse_active = [false; 8];
         self.skipping_if = 0;
         self.time_since_step = 0.0;
+        self.tq = 0.0;
     }
 
     fn eval_expr(&self, expr: &Expr, ai: &[f64; 8]) -> f64 {
@@ -984,6 +1043,7 @@ impl SequenceController {
             VarRef::AI(i) => ai[*i],
             VarRef::AQ(i) => self.outputs[*i],
             VarRef::Value(i) => self.variables[*i],
+            VarRef::Tq => self.tq,
         }
     }
 
@@ -991,6 +1051,7 @@ impl SequenceController {
         match vr {
             VarRef::AQ(i) => self.outputs[*i] = val,
             VarRef::Value(i) => self.variables[*i] = val,
+            VarRef::Tq => self.tq = val,
             VarRef::AI(_) => {} // AI inputs are read-only
         }
     }
@@ -1215,7 +1276,7 @@ impl Block for SequenceController {
             let mut out = self.outputs.to_vec();
             out.push(0.0); // current sequence
             out.push(0.0); // current line
-            out.push(0.0); // TQ
+            out.push(self.tq); // TQ
             self.prev_triggers = triggers;
             return out;
         }
@@ -1278,7 +1339,7 @@ impl Block for SequenceController {
         } else {
             0.0
         });
-        out.push(0.0); // TQ — not implemented
+        out.push(self.tq); // TQ — last value/text assigned by a sequence
 
         out
     }
@@ -1294,13 +1355,14 @@ impl Block for SequenceController {
             bool_signal(self.waiting),
             self.time_since_step,
             self.interval,
+            self.tq,
         ]));
         Some(state)
     }
 
     fn restore(&mut self, state: &[u8]) {
-        // 8 outputs + 5 variables + 6 state fields = 19 f64s
-        if let Some(values) = deserialize_f64s(state, 19) {
+        // 8 outputs + 5 variables + 7 state fields = 20 f64s
+        if let Some(values) = deserialize_f64s(state, 20) {
             self.outputs.copy_from_slice(&values[0..8]);
             self.variables.copy_from_slice(&values[8..13]);
             self.current_seq = values[13] as usize;
@@ -1309,6 +1371,7 @@ impl Block for SequenceController {
             self.waiting = values[16] > 0.5;
             self.time_since_step = values[17];
             self.interval = values[18];
+            self.tq = values[19];
         }
     }
 
@@ -1887,5 +1950,123 @@ mod tests {
             count_program_lines("// comment\nset AQ1 = 1\n\nsleep 5 s"),
             2
         );
+    }
+
+    // --- Inline comments & TQ output ---
+
+    #[test]
+    fn parse_inline_comment_keeps_command() {
+        // A trailing `// ...` comment must not swallow the command.
+        let programs = parse_programs("waitcondition AI2 > AI4 // wait until AI2 > AI4");
+        assert!(
+            matches!(&programs[0][0], SeqLine::WaitCondition { .. }),
+            "inline comment should be stripped, leaving the waitcondition"
+        );
+    }
+
+    #[test]
+    fn parse_inline_comment_on_set() {
+        let programs = parse_programs("set AQ1 = 5 // set output high");
+        assert!(matches!(
+            &programs[0][0],
+            SeqLine::Set {
+                target: VarRef::AQ(0),
+                ..
+            }
+        ));
+    }
+
+    #[test]
+    fn parse_full_line_comment_still_skipped() {
+        // `// command` disables the whole line — nothing is parsed.
+        let programs = parse_programs("// set AQ1 = 5");
+        assert!(
+            programs[0].is_empty(),
+            "full-line comment should be skipped"
+        );
+    }
+
+    #[test]
+    fn strip_inline_comment_respects_quotes() {
+        // `//` inside a quoted string is preserved.
+        assert_eq!(
+            strip_inline_comment("set TQ = \"a//b\" // real comment").trim(),
+            "set TQ = \"a//b\""
+        );
+        assert_eq!(strip_inline_comment("set AQ1 = 5").trim(), "set AQ1 = 5");
+    }
+
+    #[test]
+    fn parse_tq_numeric() {
+        let programs = parse_programs("set TQ = AI1 + 1");
+        match &programs[0][0] {
+            SeqLine::Set { target, .. } => assert_eq!(*target, VarRef::Tq),
+            _ => panic!("expected Set TQ"),
+        }
+    }
+
+    #[test]
+    fn parse_varref_tq() {
+        assert_eq!(parse_varref("tq"), Some(VarRef::Tq));
+        assert_eq!(parse_varref("TQ"), Some(VarRef::Tq));
+    }
+
+    #[test]
+    fn sequence_controller_tq_numeric_output() {
+        // set TQ = AI1 * 2 → TQ output (index 10) tracks the value.
+        let mut block = SequenceController::new("set TQ = AI1 * 2", 100.0);
+        let mut ai = no_ai();
+        ai[0] = 13.5;
+        let idle = make_inputs(&no_triggers(), &ai, 0.0, 0.0);
+        let trig = make_inputs(&trigger_seq(1), &ai, 0.0, 0.0);
+        let out = block.eval(&trig, &[], 0.0, &idle);
+        assert_eq!(out[10], 27.0, "TQ output should be AI1*2");
+    }
+
+    #[test]
+    fn sequence_controller_tq_text_output_uses_numeric_token() {
+        // set TQ = "Value at AQ2 is" AQ2 → numeric part (AQ2) drives TQ.
+        let mut block =
+            SequenceController::new("set AQ2 = 7\nset TQ = \"Value at AQ2 is\" AQ2", 100.0);
+        let idle = make_inputs(&no_triggers(), &no_ai(), 0.0, 0.0);
+        let trig = make_inputs(&trigger_seq(1), &no_ai(), 0.0, 0.0);
+        let out = block.eval(&trig, &[], 0.0, &idle);
+        assert_eq!(out[10], 7.0, "TQ should carry the numeric token value");
+    }
+
+    #[test]
+    fn sequence_controller_tq_pure_text_is_zero() {
+        // Pure text with no numeric token → TQ stays 0 but the line is valid.
+        let mut block = SequenceController::new("set TQ = \"hello world\"", 100.0);
+        assert!(matches!(&block.programs[0][0], SeqLine::Set { .. }));
+        let idle = make_inputs(&no_triggers(), &no_ai(), 0.0, 0.0);
+        let trig = make_inputs(&trigger_seq(1), &no_ai(), 0.0, 0.0);
+        let out = block.eval(&trig, &[], 0.0, &idle);
+        assert_eq!(out[10], 0.0);
+    }
+
+    #[test]
+    fn validate_inline_comment_is_clean() {
+        // A command with a trailing comment must not produce validation errors.
+        let errors = validate_program("set AQ1 = 5 // make it bright");
+        assert!(errors.is_empty(), "got: {:?}", errors);
+    }
+
+    #[test]
+    fn validate_tq_text_assignment_ok() {
+        let errors = validate_program("set TQ = \"Value is\" AQ2");
+        assert!(errors.is_empty(), "got: {:?}", errors);
+    }
+
+    #[test]
+    fn sequence_controller_tq_state_roundtrip() {
+        let mut block = SequenceController::new("set TQ = 42", 100.0);
+        let idle = make_inputs(&no_triggers(), &no_ai(), 0.0, 0.0);
+        let trig = make_inputs(&trigger_seq(1), &no_ai(), 0.0, 0.0);
+        block.eval(&trig, &[], 0.0, &idle);
+        let saved = block.state().expect("state");
+        let mut restored = SequenceController::new("set TQ = 42", 100.0);
+        restored.restore(&saved);
+        assert_eq!(restored.tq, 42.0);
     }
 }

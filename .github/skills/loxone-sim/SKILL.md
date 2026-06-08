@@ -95,6 +95,15 @@ warning a non-zero exit (useful in CI).
   with `== != > >= < <=`, and `PI ABS SQRT LN LOG EXP SIN COS TAN ARCSIN ARCCOS
   ARCTAN SINH COSH TANH RAD DEG SIGN INT MIN MAX` (case-insensitive; trig in
   radians). Outputs `AQ` (result) and `TQ` (1.0 on error, e.g. divide-by-zero).
+- **SequenceController** ("Ablaufsteuerung"/Seco) runs the text program from the
+  `<Configuration>` field line-by-line. Commands: `sleep N s|m`, `set IO = expr`,
+  `setpulse IO [= expr]`, `waitcondition L op R`, `if … endif`, `goto N`,
+  `startsequence N`, `return`. IOs: `AI1-8` (read-only), `AQ1-8`, `value1-5`,
+  `TQ`. Trailing `// comment` is stripped (quote-aware); a leading `//` disables
+  the whole line. `set TQ = "text" AQ2` is accepted — quoted strings are dropped
+  and the remaining numeric token drives the numeric `TQ` output (index 10:
+  after AQ1-8, current-sequence, current-line). Triggers S1-8 start a sequence
+  on a rising edge; `Off` resets/locks.
 
 ## Simulation Spec Format
 
