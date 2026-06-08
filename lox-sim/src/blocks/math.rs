@@ -1109,6 +1109,110 @@ mod tests {
     }
 
     #[test]
+    fn formula_all_functions() {
+        let e = std::f64::consts::E;
+        let half_pi = std::f64::consts::FRAC_PI_2;
+        let pi = std::f64::consts::PI;
+        let cases: &[(&str, f64, f64)] = &[
+            ("ABS(I1)", -3.0, 3.0),
+            ("SQRT(I1)", 9.0, 3.0),
+            ("LN(I1)", e, 1.0),
+            ("LOG(I1)", 1000.0, 3.0),
+            ("EXP(I1)", 0.0, 1.0),
+            ("SIN(I1)", 0.0, 0.0),
+            ("COS(I1)", 0.0, 1.0),
+            ("TAN(I1)", 0.0, 0.0),
+            ("ARCSIN(I1)", 1.0, half_pi),
+            ("ARCCOS(I1)", 1.0, 0.0),
+            ("ARCTAN(I1)", 0.0, 0.0),
+            ("SINH(I1)", 0.0, 0.0),
+            ("COSH(I1)", 0.0, 1.0),
+            ("TANH(I1)", 0.0, 0.0),
+            ("RAD(I1)", 180.0, pi),
+            ("DEG(I1)", pi, 180.0),
+            ("SIGN(I1)", 5.0, 1.0), // positive branch
+            ("SIGN(I1)", -5.0, -1.0),
+            ("INT(I1)", 3.9, 3.0),
+            ("MIN(I1;2)", 5.0, 2.0),
+            ("MAX(I1;2)", 5.0, 5.0),
+        ];
+        for (expr, i1, expected) in cases {
+            let mut b = Formula::new(expr);
+            let got = b.eval(&[], &[*i1], 0.0, &[])[0];
+            assert!(
+                (got - expected).abs() < 1e-9,
+                "{expr} with I1={i1} => {got}, want {expected}"
+            );
+        }
+    }
+
+    #[test]
+    fn formula_all_comparisons_and_operators() {
+        let cases: &[(&str, f64, f64, f64)] = &[
+            ("IF(I1<I2;1;0)", 1.0, 2.0, 1.0),  // Lt true
+            ("IF(I1<I2;1;0)", 3.0, 2.0, 0.0),  // Lt false
+            ("IF(I1>I2;1;0)", 3.0, 2.0, 1.0),  // Gt
+            ("IF(I1<=I2;1;0)", 2.0, 2.0, 1.0), // Le
+            ("IF(I1>=I2;1;0)", 2.0, 2.0, 1.0), // Ge
+            ("IF(I1==I2;1;0)", 2.0, 2.0, 1.0), // Eq via ==
+            ("IF(I1!=I2;1;0)", 2.0, 3.0, 1.0), // Ne
+            ("I1-I2", 5.0, 3.0, 2.0),          // subtraction
+            ("I1%I2", 7.0, 3.0, 1.0),          // modulo
+        ];
+        for (expr, i1, i2, expected) in cases {
+            let mut b = Formula::new(expr);
+            let got = b.eval(&[], &[*i1, *i2], 0.0, &[])[0];
+            assert!(
+                (got - expected).abs() < 1e-9,
+                "{expr} => {got}, want {expected}"
+            );
+        }
+        // A single '=' is accepted as equality.
+        let mut b = Formula::new("IF(I1=5;1;0)");
+        assert_eq!(b.eval(&[], &[5.0], 0.0, &[])[0], 1.0);
+    }
+
+    #[test]
+    fn formula_error_paths() {
+        // Each expression must flag an error: result 0.0, error 1.0.
+        // The malformed sub-expressions also exercise the `?` None-propagation
+        // path at every parse site (comparison/additive/multiplicative/unary/
+        // power/primary RHS and function-argument parsing).
+        for expr in [
+            "5 5",      // trailing tokens
+            "I1 ! I2",  // bare '!' without '='
+            "(I1 + I2", // unclosed parenthesis
+            "SIN",      // function name without '('
+            "SIN(I1",   // function without closing ')'
+            "FOO(I1)",  // unknown function
+            "IF(I1;1)", // IF with the wrong number of arguments
+            "@I1",      // unknown character
+            "1>",       // comparison with no right-hand side
+            "1+",       // additive with no right-hand side
+            "1*",       // multiplicative with no right-hand side
+            "2^",       // power with no exponent
+            "-",        // unary minus with no operand
+            "()",       // empty parentheses
+            "SIN()",    // function with no argument
+            "MIN(1;)",  // function with a missing trailing argument
+            ".",        // lone '.' — number parse fails (.ok()? → None)
+        ] {
+            let mut b = Formula::new(expr);
+            let out = b.eval(&[], &[1.0, 2.0], 0.0, &[]);
+            assert_eq!(out, vec![0.0, 1.0], "expected error for {expr}");
+        }
+    }
+
+    #[test]
+    fn formula_state_and_restore_are_noops() {
+        let mut b = Formula::new("I1");
+        assert!(b.state().is_none());
+        b.restore(&[1, 2, 3]); // must not panic
+        assert_eq!(b.eval(&[], &[42.0], 0.0, &[])[0], 42.0);
+        assert_eq!(b.block_type(), "Formula");
+    }
+
+    #[test]
     fn analog_scaler_linear_map() {
         let mut block = AnalogScaler;
         // Map [0,10] → [0,100]
