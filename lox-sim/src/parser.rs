@@ -6,7 +6,7 @@ use std::path::Path;
 
 use xmltree::Element;
 
-use crate::blocks::{create_block, Block, DayTimer, DayTimerEntry, SequenceController};
+use crate::blocks::{create_block, Block, DayTimer, DayTimerEntry, Formula, SequenceController};
 use crate::graph::SimGraph;
 use crate::types::ConnectorDir;
 
@@ -27,6 +27,7 @@ struct ParsedBlock {
     connectors: Vec<ParsedConnector>,
     daytimer_entries: Vec<DayTimerEntry>,
     program_text: Option<String>,
+    formula: Option<String>,
 }
 
 /// Parse a `.Loxone` XML file from disk into a [`SimGraph`].
@@ -70,6 +71,8 @@ pub fn parse_element(root: &Element) -> Result<SimGraph, String> {
 
         let block: Box<dyn Block> = if parsed.block_type == "DayTimer" {
             Box::new(DayTimer::new(parsed.daytimer_entries.clone()))
+        } else if parsed.block_type == "Formula" {
+            Box::new(Formula::new(parsed.formula.as_deref().unwrap_or("0")))
         } else if parsed.block_type == "SequenceController" {
             let program = parsed.program_text.as_deref().unwrap_or("");
             let interval = parsed
@@ -274,6 +277,7 @@ fn walk_blocks_with_room(elem: &Element, out: &mut Vec<ParsedBlock>, current_roo
                     connectors: parse_connectors(block_type, elem),
                     daytimer_entries: parse_daytimer_entries(elem),
                     program_text: parse_field_text(elem, "Configuration"),
+                    formula: elem.attributes.get("Formula").cloned(),
                 });
             }
         }
@@ -1679,7 +1683,11 @@ fn block_signature(
         "RandomGen" => (&["InputEnable"], &["Q"], &["TimeOn", "TimeOff"]),
         "Rand" => (&["Input", "InputEnable"], &["AQ"], &["Minimum", "Maximum"]),
         // Math / formula
-        "Formula" => (&[], &["AQ", "TQ"], &["Input1", "Input2"]),
+        "Formula" => (
+            &[],
+            &["AQ", "TQ"],
+            &["Input1", "Input2", "Input3", "Input4"],
+        ),
         "Average" => (&[], &["AQ"], &["Input1", "Input2"]),
         "Avg" => (&["Input", "Reset"], &["AQ"], &["Time", "Max"]),
         "Int" => (&[], &["AQ"], &["Input", "Mode"]),
@@ -2305,6 +2313,48 @@ mod tests {
         let da = graph.find_block_by_name("Relay").unwrap();
         let qmir = graph.find_connector(da, "Q").unwrap();
         assert_eq!(graph.connector(qmir).dir, ConnectorDir::Output);
+    }
+
+    #[test]
+    fn parse_formula_reads_expression_and_simulates() {
+        // The real FreeAir2Lox "Filterwechsel" block:
+        // Formula="IF(I1>=8760;1;0)", I1 wired/parameterized via Input1.
+        let xml = r#"<?xml version="1.0" encoding="utf-8"?>
+<ControlList>
+  <C Type="Formula" U="f1" Title="Filterwechsel" Formula="IF(I1&gt;=8760;1;0)">
+    <Co K="Input1" U="f1-i1" Def="8760"/>
+    <Co K="Input2" U="f1-i2"/>
+    <Co K="Input3" U="f1-i3"/>
+    <Co K="Input4" U="f1-i4"/>
+    <Co K="AQ" U="f1-aq"/>
+    <Co K="TQ" U="f1-tq"/>
+  </C>
+</ControlList>"#;
+        let graph = parse_xml(xml);
+        let block = graph.find_block_by_name("Filterwechsel").unwrap();
+        assert_eq!(graph.block_impls[block].block_type(), "Formula");
+
+        let mut e = crate::engine::SimEngine::new(graph);
+        e.tick(0.1);
+        // I1 == 8760 → result 1.0 on AQ (first output).
+        assert!((e.get_output("Filterwechsel") - 1.0).abs() < 1e-9);
+    }
+
+    #[test]
+    fn parse_formula_missing_attribute_is_inert() {
+        // No Formula attribute → expression "0", no panic.
+        let xml = r#"<?xml version="1.0" encoding="utf-8"?>
+<ControlList>
+  <C Type="Formula" U="f2" Title="Empty">
+    <Co K="Input1" U="f2-i1"/>
+    <Co K="AQ" U="f2-aq"/>
+    <Co K="TQ" U="f2-tq"/>
+  </C>
+</ControlList>"#;
+        let graph = parse_xml(xml);
+        let mut e = crate::engine::SimEngine::new(graph);
+        e.tick(0.1);
+        assert_eq!(e.get_output("Empty"), 0.0);
     }
 
     #[test]

@@ -462,7 +462,7 @@ pub fn create_block(block_type: &str) -> Box<dyn Block> {
         "EdgeWipingRelay" => Box::new(EdgeWipingRelay::new()),
         "Equal" => Box::new(Equal),
         "FlipFlop" | "SRFlipFlop" => Box::new(FlipFlop::new()),
-        "Formula" => Box::new(Formula::new("I1")),
+        "Formula" => Box::new(Formula::new("0")),
         "Gain" => Box::new(Gain),
         // Compare
         "Greater" => Box::new(Greater),

@@ -298,17 +298,27 @@ impl Block for AMinmax {
     }
 }
 
-/// Expression evaluator: computes a formula string with I1–I4 substituted.
+/// Loxone "Formel" (Formula) block — evaluates a mathematical expression of up
+/// to four analog values I1–I4, exposing the result on `AQ` (R / Result) and an
+/// error flag on `TQ` (E / Error).
 ///
-/// Params: param[0..4] correspond to I1–I4 default values.
-/// The formula is set at construction time.
+/// The expression string comes from the block's `Formula="…"` XML attribute and
+/// is set at construction time. I1–I4 are taken from the block's parameters
+/// (XML connectors `Input1`–`Input4`), which may be wired or carry fixed values.
 ///
-/// Supported operators: +, -, *, /, parentheses, and functions: min, max, abs, sqrt.
+/// Implements the documented Loxone grammar
+/// (<https://www.loxone.com/enen/kb/formula/>):
+/// - operators: `+ - * /` and `^` (power, right-associative);
+/// - functions (case-insensitive): `PI ABS SQRT LN LOG EXP SIN COS TAN ARCSIN
+///   ARCCOS ARCTAN SINH COSH TANH RAD DEG SIGN INT IF MIN MAX`;
+/// - `IF(cond;then;else)` with comparison operators `== != > >= < <=`;
+/// - trigonometric functions operate in radians (use `RAD()` to convert degrees);
+/// - arguments are separated by `;` (a `,` between digits is a decimal point,
+///   matching the German `0,005` notation; elsewhere `,` is also accepted as a
+///   separator).
 ///
-/// // WARNING: Assumed behavior — Loxone internal implementation unknown.
-/// // Assumption: Formula supports basic arithmetic (+,-,*,/) with parentheses
-/// //   and functions min(), max(), abs(), sqrt(). Variables are I1-I4.
-/// // TODO: Validate against real Miniserver formula syntax
+/// On a parse failure or a non-finite result (e.g. division by zero, `SQRT` of a
+/// negative, `LN(0)`) the result is `0.0` and the error output is `1.0`.
 #[derive(Clone)]
 pub struct Formula {
     expression: String,
@@ -321,110 +331,117 @@ impl Formula {
         }
     }
 
-    fn evaluate_expr(expr: &str, vars: &[f64; 4]) -> f64 {
-        let replaced = expr
-            .replace("I1", &vars[0].to_string())
-            .replace("I2", &vars[1].to_string())
-            .replace("I3", &vars[2].to_string())
-            .replace("I4", &vars[3].to_string());
-        Self::parse_expression(&replaced).unwrap_or(0.0)
-    }
-
-    fn parse_expression(expr: &str) -> Option<f64> {
-        let tokens = Self::tokenize(expr)?;
-        let mut pos = 0;
-        let result = Self::parse_additive(&tokens, &mut pos)?;
-        if pos == tokens.len() {
-            Some(result)
-        } else {
-            None
+    /// Returns `(result, error_flag)` for the configured expression and the
+    /// four input values I1–I4.
+    fn evaluate_expr(expr: &str, vars: &[f64; 4]) -> (f64, f64) {
+        let value = Self::tokenize(expr).and_then(|tokens| {
+            let mut pos = 0;
+            let result = Self::parse_comparison(&tokens, &mut pos, vars)?;
+            if pos == tokens.len() {
+                Some(result)
+            } else {
+                None
+            }
+        });
+        match value {
+            Some(v) if v.is_finite() => (v, 0.0),
+            _ => (0.0, 1.0),
         }
     }
 
     fn tokenize(expr: &str) -> Option<Vec<Token>> {
         let mut tokens = Vec::new();
-        let mut chars = expr.chars().peekable();
-        while let Some(&ch) = chars.peek() {
+        let chars: Vec<char> = expr.chars().collect();
+        let mut i = 0;
+        while i < chars.len() {
+            let ch = chars[i];
             match ch {
-                ' ' | '\t' => {
-                    chars.next();
-                }
-                '+' => {
-                    tokens.push(Token::Op('+'));
-                    chars.next();
-                }
-                '-' => {
-                    // Unary minus: at start, after '(' or after operator
-                    let is_unary = tokens.is_empty()
-                        || matches!(
-                            tokens.last(),
-                            Some(Token::Op(_)) | Some(Token::LParen) | Some(Token::Comma)
-                        );
-                    if is_unary {
-                        chars.next();
-                        // Read the number
-                        let mut num_str = String::from("-");
-                        while let Some(&c) = chars.peek() {
-                            if c.is_ascii_digit() || c == '.' {
-                                num_str.push(c);
-                                chars.next();
-                            } else {
-                                break;
-                            }
-                        }
-                        tokens.push(Token::Num(num_str.parse().ok()?));
-                    } else {
-                        tokens.push(Token::Op('-'));
-                        chars.next();
-                    }
-                }
-                '*' => {
-                    tokens.push(Token::Op('*'));
-                    chars.next();
-                }
-                '/' => {
-                    tokens.push(Token::Op('/'));
-                    chars.next();
-                }
-                '%' => {
-                    tokens.push(Token::Op('%'));
-                    chars.next();
+                ' ' | '\t' | '\r' | '\n' => i += 1,
+                '+' | '-' | '*' | '/' | '^' | '%' => {
+                    tokens.push(Token::Op(ch));
+                    i += 1;
                 }
                 '(' => {
                     tokens.push(Token::LParen);
-                    chars.next();
+                    i += 1;
                 }
                 ')' => {
                     tokens.push(Token::RParen);
-                    chars.next();
+                    i += 1;
+                }
+                ';' => {
+                    tokens.push(Token::ArgSep);
+                    i += 1;
                 }
                 ',' => {
-                    tokens.push(Token::Comma);
-                    chars.next();
+                    // A comma flanked by digits is consumed as a decimal point
+                    // by the number reader below; reaching here it is an
+                    // argument separator.
+                    tokens.push(Token::ArgSep);
+                    i += 1;
+                }
+                '=' => {
+                    if chars.get(i + 1) == Some(&'=') {
+                        i += 2;
+                    } else {
+                        i += 1;
+                    }
+                    tokens.push(Token::Cmp(CmpOp::Eq));
+                }
+                '!' => {
+                    if chars.get(i + 1) == Some(&'=') {
+                        tokens.push(Token::Cmp(CmpOp::Ne));
+                        i += 2;
+                    } else {
+                        return None;
+                    }
+                }
+                '<' => {
+                    if chars.get(i + 1) == Some(&'=') {
+                        tokens.push(Token::Cmp(CmpOp::Le));
+                        i += 2;
+                    } else {
+                        tokens.push(Token::Cmp(CmpOp::Lt));
+                        i += 1;
+                    }
+                }
+                '>' => {
+                    if chars.get(i + 1) == Some(&'=') {
+                        tokens.push(Token::Cmp(CmpOp::Ge));
+                        i += 2;
+                    } else {
+                        tokens.push(Token::Cmp(CmpOp::Gt));
+                        i += 1;
+                    }
                 }
                 c if c.is_ascii_digit() || c == '.' => {
-                    let mut num_str = String::new();
-                    while let Some(&c) = chars.peek() {
-                        if c.is_ascii_digit() || c == '.' {
-                            num_str.push(c);
-                            chars.next();
-                        } else {
-                            break;
+                    let mut num = String::new();
+                    while i < chars.len() && chars[i].is_ascii_digit() {
+                        num.push(chars[i]);
+                        i += 1;
+                    }
+                    // Decimal point: '.' or a ',' flanked by digits.
+                    let is_decimal_comma = i < chars.len()
+                        && chars[i] == ','
+                        && i + 1 < chars.len()
+                        && chars[i + 1].is_ascii_digit();
+                    if i < chars.len() && (chars[i] == '.' || is_decimal_comma) {
+                        num.push('.');
+                        i += 1;
+                        while i < chars.len() && chars[i].is_ascii_digit() {
+                            num.push(chars[i]);
+                            i += 1;
                         }
                     }
-                    tokens.push(Token::Num(num_str.parse().ok()?));
+                    tokens.push(Token::Num(num.parse().ok()?));
                 }
                 c if c.is_ascii_alphabetic() => {
                     let mut name = String::new();
-                    while let Some(&c) = chars.peek() {
-                        if c.is_ascii_alphanumeric() || c == '_' {
-                            name.push(c);
-                            chars.next();
-                        } else {
-                            break;
-                        }
+                    while i < chars.len() && (chars[i].is_ascii_alphanumeric() || chars[i] == '_') {
+                        name.push(chars[i]);
+                        i += 1;
                     }
-                    tokens.push(Token::Func(name));
+                    tokens.push(Token::Ident(name.to_ascii_uppercase()));
                 }
                 _ => return None,
             }
@@ -432,57 +449,84 @@ impl Formula {
         Some(tokens)
     }
 
-    fn parse_additive(tokens: &[Token], pos: &mut usize) -> Option<f64> {
-        let mut left = Self::parse_multiplicative(tokens, pos)?;
-        while *pos < tokens.len() {
-            match tokens.get(*pos) {
-                Some(Token::Op('+')) => {
-                    *pos += 1;
-                    left += Self::parse_multiplicative(tokens, pos)?;
-                }
-                Some(Token::Op('-')) => {
-                    *pos += 1;
-                    left -= Self::parse_multiplicative(tokens, pos)?;
-                }
-                _ => break,
-            }
+    /// Lowest precedence: a single comparison yields 1.0 / 0.0.
+    fn parse_comparison(tokens: &[Token], pos: &mut usize, vars: &[f64; 4]) -> Option<f64> {
+        let left = Self::parse_additive(tokens, pos, vars)?;
+        if let Some(Token::Cmp(op)) = tokens.get(*pos) {
+            let op = *op;
+            *pos += 1;
+            let right = Self::parse_additive(tokens, pos, vars)?;
+            let result = match op {
+                CmpOp::Eq => left == right,
+                CmpOp::Ne => left != right,
+                CmpOp::Gt => left > right,
+                CmpOp::Ge => left >= right,
+                CmpOp::Lt => left < right,
+                CmpOp::Le => left <= right,
+            };
+            Some(if result { 1.0 } else { 0.0 })
+        } else {
+            Some(left)
+        }
+    }
+
+    fn parse_additive(tokens: &[Token], pos: &mut usize, vars: &[f64; 4]) -> Option<f64> {
+        let mut left = Self::parse_multiplicative(tokens, pos, vars)?;
+        while let Some(Token::Op(op @ ('+' | '-'))) = tokens.get(*pos) {
+            let op = *op;
+            *pos += 1;
+            let right = Self::parse_multiplicative(tokens, pos, vars)?;
+            left = if op == '+' {
+                left + right
+            } else {
+                left - right
+            };
         }
         Some(left)
     }
 
-    fn parse_multiplicative(tokens: &[Token], pos: &mut usize) -> Option<f64> {
-        let mut left = Self::parse_primary(tokens, pos)?;
-        while *pos < tokens.len() {
-            match tokens.get(*pos) {
-                Some(Token::Op('*')) => {
-                    *pos += 1;
-                    left *= Self::parse_primary(tokens, pos)?;
-                }
-                Some(Token::Op('/')) => {
-                    *pos += 1;
-                    let right = Self::parse_primary(tokens, pos)?;
-                    left = if right.abs() <= f64::EPSILON {
-                        0.0
-                    } else {
-                        left / right
-                    };
-                }
-                Some(Token::Op('%')) => {
-                    *pos += 1;
-                    let right = Self::parse_primary(tokens, pos)?;
-                    left = if right.abs() <= f64::EPSILON {
-                        0.0
-                    } else {
-                        left % right
-                    };
-                }
-                _ => break,
-            }
+    fn parse_multiplicative(tokens: &[Token], pos: &mut usize, vars: &[f64; 4]) -> Option<f64> {
+        let mut left = Self::parse_unary(tokens, pos, vars)?;
+        while let Some(Token::Op(op @ ('*' | '/' | '%'))) = tokens.get(*pos) {
+            let op = *op;
+            *pos += 1;
+            let right = Self::parse_unary(tokens, pos, vars)?;
+            left = match op {
+                '*' => left * right,
+                '/' => left / right,
+                _ => left % right,
+            };
         }
         Some(left)
     }
 
-    fn parse_primary(tokens: &[Token], pos: &mut usize) -> Option<f64> {
+    fn parse_unary(tokens: &[Token], pos: &mut usize, vars: &[f64; 4]) -> Option<f64> {
+        match tokens.get(*pos) {
+            Some(Token::Op('-')) => {
+                *pos += 1;
+                Some(-Self::parse_unary(tokens, pos, vars)?)
+            }
+            Some(Token::Op('+')) => {
+                *pos += 1;
+                Self::parse_unary(tokens, pos, vars)
+            }
+            _ => Self::parse_power(tokens, pos, vars),
+        }
+    }
+
+    fn parse_power(tokens: &[Token], pos: &mut usize, vars: &[f64; 4]) -> Option<f64> {
+        let base = Self::parse_primary(tokens, pos, vars)?;
+        if matches!(tokens.get(*pos), Some(Token::Op('^'))) {
+            *pos += 1;
+            // Right-associative; a unary sign may follow (e.g. 2^-2).
+            let exp = Self::parse_unary(tokens, pos, vars)?;
+            Some(base.powf(exp))
+        } else {
+            Some(base)
+        }
+    }
+
+    fn parse_primary(tokens: &[Token], pos: &mut usize, vars: &[f64; 4]) -> Option<f64> {
         match tokens.get(*pos)? {
             Token::Num(n) => {
                 let val = *n;
@@ -491,70 +535,129 @@ impl Formula {
             }
             Token::LParen => {
                 *pos += 1;
-                let val = Self::parse_additive(tokens, pos)?;
-                if matches!(tokens.get(*pos), Some(Token::RParen)) {
-                    *pos += 1;
+                let val = Self::parse_comparison(tokens, pos, vars)?;
+                if !matches!(tokens.get(*pos), Some(Token::RParen)) {
+                    return None;
                 }
+                *pos += 1;
                 Some(val)
             }
-            Token::Func(name) => {
-                let func_name = name.clone();
+            Token::Ident(name) => {
+                let name = name.clone();
                 *pos += 1;
-                // Expect '('
+                // Variables I1–I4.
+                if let Some(idx) = name
+                    .strip_prefix('I')
+                    .and_then(|d| d.parse::<usize>().ok())
+                    .filter(|&n| (1..=4).contains(&n))
+                {
+                    return Some(vars[idx - 1]);
+                }
+                // PI is a constant (no parentheses).
+                if name == "PI" {
+                    return Some(std::f64::consts::PI);
+                }
+                // Otherwise a function call: NAME( arg ; arg ; … )
                 if !matches!(tokens.get(*pos), Some(Token::LParen)) {
                     return None;
                 }
                 *pos += 1;
-                let mut args = vec![Self::parse_additive(tokens, pos)?];
-                while matches!(tokens.get(*pos), Some(Token::Comma)) {
+                let mut args = vec![Self::parse_comparison(tokens, pos, vars)?];
+                while matches!(tokens.get(*pos), Some(Token::ArgSep)) {
                     *pos += 1;
-                    args.push(Self::parse_additive(tokens, pos)?);
+                    args.push(Self::parse_comparison(tokens, pos, vars)?);
                 }
-                // Expect ')'
-                if matches!(tokens.get(*pos), Some(Token::RParen)) {
-                    *pos += 1;
+                if !matches!(tokens.get(*pos), Some(Token::RParen)) {
+                    return None;
                 }
-                match func_name.as_str() {
-                    "min" => Some(args.into_iter().fold(f64::INFINITY, |a, b| a.min(b))),
-                    "max" => Some(args.into_iter().fold(f64::NEG_INFINITY, |a, b| a.max(b))),
-                    "abs" => Some(args.first().copied().unwrap_or(0.0).abs()),
-                    "sqrt" => {
-                        let v = args.first().copied().unwrap_or(0.0);
-                        Some(if v < 0.0 { 0.0 } else { v.sqrt() })
-                    }
-                    _ => None,
-                }
+                *pos += 1;
+                Self::apply_func(&name, &args)
             }
             _ => None,
         }
     }
+
+    fn apply_func(name: &str, args: &[f64]) -> Option<f64> {
+        let a0 = args.first().copied().unwrap_or(0.0);
+        match name {
+            "ABS" => Some(a0.abs()),
+            "SQRT" => Some(a0.sqrt()),
+            "LN" => Some(a0.ln()),
+            "LOG" => Some(a0.log10()),
+            "EXP" => Some(a0.exp()),
+            "SIN" => Some(a0.sin()),
+            "COS" => Some(a0.cos()),
+            "TAN" => Some(a0.tan()),
+            "ARCSIN" => Some(a0.asin()),
+            "ARCCOS" => Some(a0.acos()),
+            "ARCTAN" => Some(a0.atan()),
+            "SINH" => Some(a0.sinh()),
+            "COSH" => Some(a0.cosh()),
+            "TANH" => Some(a0.tanh()),
+            "RAD" => Some(a0.to_radians()),
+            "DEG" => Some(a0.to_degrees()),
+            "SIGN" => Some(if a0 > 0.0 {
+                1.0
+            } else if a0 < 0.0 {
+                -1.0
+            } else {
+                0.0
+            }),
+            "INT" => Some(a0.trunc()),
+            "IF" => {
+                if args.len() == 3 {
+                    Some(if args[0] != 0.0 { args[1] } else { args[2] })
+                } else {
+                    None
+                }
+            }
+            "MIN" => Some(args.iter().copied().fold(f64::INFINITY, f64::min)),
+            "MAX" => Some(args.iter().copied().fold(f64::NEG_INFINITY, f64::max)),
+            _ => None,
+        }
+    }
+}
+
+#[derive(Clone, Copy, Debug)]
+enum CmpOp {
+    Eq,
+    Ne,
+    Gt,
+    Ge,
+    Lt,
+    Le,
 }
 
 #[derive(Clone, Debug)]
 enum Token {
     Num(f64),
     Op(char),
+    Cmp(CmpOp),
+    Ident(String),
     LParen,
     RParen,
-    Comma,
-    Func(String),
+    ArgSep,
 }
 
 impl Block for Formula {
     fn eval(
         &mut self,
         inputs: &[Signal],
-        _params: &[Signal],
+        params: &[Signal],
         _dt: f64,
         _prev: &[Signal],
     ) -> Vec<Signal> {
+        // I1–I4 come from the block's parameters (XML `Input1`–`Input4`). Fall
+        // back to positional inputs so direct/unit-test callers still work.
+        let src: &[Signal] = if params.is_empty() { inputs } else { params };
         let vars = [
-            inputs.first().copied().unwrap_or(0.0),
-            inputs.get(1).copied().unwrap_or(0.0),
-            inputs.get(2).copied().unwrap_or(0.0),
-            inputs.get(3).copied().unwrap_or(0.0),
+            src.first().copied().unwrap_or(0.0),
+            src.get(1).copied().unwrap_or(0.0),
+            src.get(2).copied().unwrap_or(0.0),
+            src.get(3).copied().unwrap_or(0.0),
         ];
-        vec![Self::evaluate_expr(&self.expression, &vars)]
+        let (result, error) = Self::evaluate_expr(&self.expression, &vars);
+        vec![result, error]
     }
 
     fn state(&self) -> Option<Vec<u8>> {
@@ -887,37 +990,122 @@ mod tests {
     #[test]
     fn formula_basic_arithmetic() {
         let mut block = Formula::new("I1 + I2 * I3");
-        let result = block.eval(&[1.0, 2.0, 3.0], &[], 0.0, &[]);
+        // I1–I4 come from params.
+        let result = block.eval(&[], &[1.0, 2.0, 3.0], 0.0, &[]);
         assert!((result[0] - 7.0).abs() < 1e-10);
+        assert_eq!(result[1], 0.0); // no error
     }
 
     #[test]
     fn formula_with_functions() {
-        let mut block = Formula::new("min(I1, I2)");
-        assert_eq!(block.eval(&[5.0, 3.0], &[], 0.0, &[]), vec![3.0]);
+        let mut block = Formula::new("MIN(I1;I2)");
+        assert_eq!(block.eval(&[], &[5.0, 3.0], 0.0, &[])[0], 3.0);
 
-        let mut block = Formula::new("max(I1, I2)");
-        assert_eq!(block.eval(&[5.0, 3.0], &[], 0.0, &[]), vec![5.0]);
+        let mut block = Formula::new("MAX(I1;I2)");
+        assert_eq!(block.eval(&[], &[5.0, 3.0], 0.0, &[])[0], 5.0);
 
-        let mut block = Formula::new("abs(I1)");
-        assert_eq!(block.eval(&[-7.0], &[], 0.0, &[]), vec![7.0]);
+        let mut block = Formula::new("ABS(I1)");
+        assert_eq!(block.eval(&[], &[-7.0], 0.0, &[])[0], 7.0);
 
-        let mut block = Formula::new("sqrt(I1)");
-        let result = block.eval(&[16.0], &[], 0.0, &[]);
+        let mut block = Formula::new("SQRT(I1)");
+        let result = block.eval(&[], &[16.0], 0.0, &[]);
         assert!((result[0] - 4.0).abs() < 1e-10);
+    }
+
+    #[test]
+    fn formula_case_insensitive_and_comma_args() {
+        // Lowercase function names and comma argument separators still work.
+        let mut block = Formula::new("min(I1, I2)");
+        assert_eq!(block.eval(&[], &[5.0, 3.0], 0.0, &[])[0], 3.0);
+        let mut block = Formula::new("max(I1, I2)");
+        assert_eq!(block.eval(&[], &[5.0, 3.0], 0.0, &[])[0], 5.0);
     }
 
     #[test]
     fn formula_parentheses() {
         let mut block = Formula::new("(I1 + I2) * I3");
-        let result = block.eval(&[1.0, 2.0, 3.0], &[], 0.0, &[]);
+        let result = block.eval(&[], &[1.0, 2.0, 3.0], 0.0, &[]);
         assert!((result[0] - 9.0).abs() < 1e-10);
     }
 
     #[test]
-    fn formula_division_by_zero() {
+    fn formula_division_by_zero_sets_error() {
         let mut block = Formula::new("I1 / I2");
-        assert_eq!(block.eval(&[10.0, 0.0], &[], 0.0, &[]), vec![0.0]);
+        let out = block.eval(&[], &[10.0, 0.0], 0.0, &[]);
+        assert_eq!(out[0], 0.0); // result clamped on non-finite
+        assert_eq!(out[1], 1.0); // error flagged
+    }
+
+    #[test]
+    fn formula_power_operator() {
+        let mut block = Formula::new("I1^I2");
+        assert_eq!(block.eval(&[], &[2.0, 10.0], 0.0, &[])[0], 1024.0);
+        // Right-associative: 2^3^2 = 2^9 = 512.
+        let mut block = Formula::new("2^3^2");
+        assert_eq!(block.eval(&[], &[], 0.0, &[])[0], 512.0);
+        // Unary minus binds looser than power: -2^2 = -4.
+        let mut block = Formula::new("-2^2");
+        assert_eq!(block.eval(&[], &[], 0.0, &[])[0], -4.0);
+        // Negative exponent.
+        let mut block = Formula::new("2^-2");
+        assert_eq!(block.eval(&[], &[], 0.0, &[])[0], 0.25);
+    }
+
+    #[test]
+    fn formula_if_with_comparisons() {
+        // IF(I1>=8760;1;0) — the real FreeAir2Lox "Filterwechsel" formula.
+        let mut block = Formula::new("IF(I1>=8760;1;0)");
+        assert_eq!(block.eval(&[], &[8760.0], 0.0, &[])[0], 1.0);
+        assert_eq!(block.eval(&[], &[100.0], 0.0, &[])[0], 0.0);
+
+        for (expr, i1, expected) in [
+            ("IF(I1>0;1;0)", 5.0, 1.0),
+            ("IF(I1>0;1;0)", -1.0, 0.0),
+            ("IF(I1==0;7;9)", 0.0, 7.0),
+            ("IF(I1!=0;7;9)", 0.0, 9.0),
+            ("IF(I1<=3;1;0)", 3.0, 1.0),
+        ] {
+            let mut b = Formula::new(expr);
+            assert_eq!(b.eval(&[], &[i1], 0.0, &[])[0], expected, "{expr}");
+        }
+    }
+
+    #[test]
+    fn formula_trig_and_constants() {
+        // SIN(RAD(90)) == 1, using PI indirectly via RAD.
+        let mut block = Formula::new("SIN(RAD(I1))");
+        let r = block.eval(&[], &[90.0], 0.0, &[])[0];
+        assert!((r - 1.0).abs() < 1e-9);
+
+        // PI constant.
+        let mut block = Formula::new("PI");
+        assert!((block.eval(&[], &[], 0.0, &[])[0] - std::f64::consts::PI).abs() < 1e-12);
+
+        // DEG(PI) == 180.
+        let mut block = Formula::new("DEG(PI)");
+        assert!((block.eval(&[], &[], 0.0, &[])[0] - 180.0).abs() < 1e-9);
+
+        // SIGN / INT.
+        let mut block = Formula::new("SIGN(I1)");
+        assert_eq!(block.eval(&[], &[-3.0], 0.0, &[])[0], -1.0);
+        assert_eq!(block.eval(&[], &[0.0], 0.0, &[])[0], 0.0);
+        let mut block = Formula::new("INT(I1)");
+        assert_eq!(block.eval(&[], &[3.9], 0.0, &[])[0], 3.0);
+    }
+
+    #[test]
+    fn formula_german_decimal_comma() {
+        // (I1+(I2*0,005)) — decimal comma must be a decimal point, not a sep.
+        let mut block = Formula::new("I1+(I2*0,005)");
+        let r = block.eval(&[], &[1.0, 200.0], 0.0, &[])[0];
+        assert!((r - 2.0).abs() < 1e-9, "got {r}");
+    }
+
+    #[test]
+    fn formula_invalid_expression_sets_error() {
+        let mut block = Formula::new("I1 + + *");
+        let out = block.eval(&[], &[1.0], 0.0, &[]);
+        assert_eq!(out, vec![0.0, 1.0]);
     }
 
     #[test]

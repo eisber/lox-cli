@@ -138,6 +138,46 @@ how the two sibling devices are set up. But:
 
 ---
 
+## P0-4 · `Formula` block: expression is neither settable (CLI) nor simulated
+
+Found while building a native "Teams-status → nightlight colour" automation (one `Formula`
+that maps three 0/1 flags + an `armed` gate to a mood SID would replace ~15 discrete
+blocks). Two independent gaps make the `Formula` block effectively unusable in the
+edit→simulate→push loop:
+
+1. **No CLI way to set the expression.** `lox blocks info Formula` exposes only
+   `Input%d` (input default values) and outputs `AQ (R)` / `TQ (Error)` — there is **no
+   parameter for the formula string itself**. `config add --type Formula` scaffolds a block
+   with no expression, and `config set-param` has no key to write one. The expression has to
+   be hand-injected into the raw XML, and the attribute/property name it lives in is not
+   documented anywhere in the CLI, skills, or `blocks info`. (For reference, the real
+   Miniserver syntax per Loxone docs: inputs `I1..I4`; operators `+ - * / ^`; functions
+   `PI ABS SQRT LN LOG EXP SIN COS TAN ARCSIN ARCCOS ARCTAN SINH COSH TANH RAD DEG SIGN INT
+   IF MIN MAX`; comparisons `== != > >= < <=`; conditional `IF(cond; a; b)`; **no boolean
+   `&&`/`||`/`!`** — combine via nested `IF` or arithmetic. Decimal separator in Loxone's own
+   examples is a comma.)
+
+2. **The simulator ignores the expression.** `lox-sim/src/parser.rs` builds every block via
+   `create_block(block_type)`, and `blocks/mod.rs` maps `"Formula" => Formula::new("I1")` —
+   a hard-coded pass-through of input 1. The actual expression from the XML is never read, so
+   `sim run` reports a `Formula` output equal to `I1` regardless of the formula. (The impl in
+   `blocks/math.rs` does have a real arithmetic evaluator — `+ - * / %`, parens, `min/max/
+   abs/sqrt`, with `I1..I4` substitution — but it is only reachable via `Formula::new(expr)`
+   in unit tests, never from a parsed config. It also lacks `IF`, comparisons, and `^`.)
+
+**Requirement**
+- Expose the Formula expression to the CLI: surface it in `blocks info Formula`, allow
+  `config set-param <file> <selector> Formula "<expr>"` (or a dedicated
+  `config set-formula`), and document the XML attribute/property it maps to.
+- Have the parser read that expression and pass it to `Formula::new(expr)` so `sim run`
+  evaluates the real formula.
+- Extend the evaluator to match the documented Miniserver feature set: `IF(c;a;b)`, the six
+  comparison operators (returning 1/0), `^`, and the missing functions — so a formula written
+  for the real MS simulates identically. Add a fixture asserting e.g.
+  `IF(I1>0; I2; I3)` and a nested-`IF` colour-selector.
+
+---
+
 ## P1-3 · RGBW / color value encoding is undocumented and has no helper
 
 The "Smartaktor RGBW" input uses display unit `<v.col>` (a composite Loxone color value).

@@ -90,6 +90,11 @@ warning a non-zero exit (useful in CI).
 - **LightController2** emits a 5th output `OutputReset` — a momentary pulse
   (1.0 for one tick) on the rising edge of its `Reset` input. Assert it with a
   pulse-style check after toggling `Reset`.
+- **Formula** ("Formel") evaluates its `Formula="…"` expression over the four
+  parameters I1–I4 (XML `Input1`–`Input4`). Supports `+ - * / ^`, `IF(c;a;b)`
+  with `== != > >= < <=`, and `PI ABS SQRT LN LOG EXP SIN COS TAN ARCSIN ARCCOS
+  ARCTAN SINH COSH TANH RAD DEG SIGN INT MIN MAX` (case-insensitive; trig in
+  radians). Outputs `AQ` (result) and `TQ` (1.0 on error, e.g. divide-by-zero).
 
 ## Simulation Spec Format
 
