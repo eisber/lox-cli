@@ -24,10 +24,67 @@ use crate::commands::RunContext;
 /// Maximum valid RGB composite (`255 + 255*1000 + 255*1000000`).
 const RGB_MAX: i64 = 255 + 255 * 1_000 + 255 * 1_000_000;
 
+/// Mood-type prefix for a `LightController2` `LightsceneC` per-output value
+/// (`Q1..Qn`). A mood value packs **percent** channels (`0..=100`) plus this
+/// prefix — distinct from the actor `<v.col>` composite which uses `0..=255`.
+const MOOD_PREFIX: i64 = 0x6000_0000;
+
 /// Pack an RGB triple (each channel `0..=255`) into the Loxone analog colour
 /// value: `red + green * 1000 + blue * 1000000`.
 fn rgb_to_composite(r: u8, g: u8, b: u8) -> i64 {
     r as i64 + (g as i64) * 1_000 + (b as i64) * 1_000_000
+}
+
+/// Channel value `0..=255` → percent `0..=100`.
+fn chan_to_pct(c: u8) -> i64 {
+    ((c as f64 / 255.0) * 100.0).round() as i64
+}
+
+/// Pack an RGB triple (each channel `0..=255`) into a `LightsceneC` mood value:
+/// `0x60000000 + (R% + G%*1000 + B%*1000000)` with each channel in **percent**.
+fn rgb_to_mood(r: u8, g: u8, b: u8) -> i64 {
+    MOOD_PREFIX + chan_to_pct(r) + chan_to_pct(g) * 1_000 + chan_to_pct(b) * 1_000_000
+}
+
+/// Unpack a mood value into percent channels `(r%, g%, b%)`.
+fn mood_to_pct(n: i64) -> Result<(i64, i64, i64)> {
+    let v = n - MOOD_PREFIX;
+    let r = v % 1_000;
+    let g = (v / 1_000) % 1_000;
+    let b = (v / 1_000_000) % 1_000;
+    for (name, c) in [("red", r), ("green", g), ("blue", b)] {
+        if !(0..=100).contains(&c) {
+            bail!("mood value {n} has {name} channel {c}% outside 0..100 — not a valid mood color");
+        }
+    }
+    Ok((r, g, b))
+}
+
+/// Parse a colour spec (`hsv(...)`, `rgb(...)`, or a raw mood/composite integer)
+/// into a `LightsceneC` mood value. Used by `config set-mood-color`.
+pub(crate) fn parse_color_to_mood(spec: &str) -> Result<i64> {
+    let s = spec.trim();
+    if let Some(args) = strip_call(s, "hsv") {
+        let (h, sat, val) = parse_triple(&args, "hsv(H,S,V)")?;
+        let (r, g, b) = hsv_to_rgb(h, sat / 100.0, val / 100.0);
+        return Ok(rgb_to_mood(r, g, b));
+    }
+    if let Some(args) = strip_call(s, "rgb") {
+        let (r, g, b) = parse_rgb(&args)?;
+        return Ok(rgb_to_mood(r, g, b));
+    }
+    let n: i64 = s.parse().map_err(|_| {
+        anyhow::anyhow!("'{s}' is not hsv(...), rgb(...), or an integer mood value")
+    })?;
+    if n >= MOOD_PREFIX {
+        // Already a mood value — validate and pass through.
+        mood_to_pct(n)?;
+        Ok(n)
+    } else {
+        // Treat as an actor composite (0..255 channels) and convert to mood.
+        let (r, g, b) = composite_to_rgb(n)?;
+        Ok(rgb_to_mood(r, g, b))
+    }
 }
 
 /// Unpack a Loxone analog colour value into `(red, green, blue)` channels.
@@ -60,6 +117,10 @@ pub enum ColorCmd {
         /// Brightness 0..100 — scales RGB, or sets brightness for --kelvin
         #[arg(long)]
         brightness: Option<f64>,
+        /// Emit the LightController2 mood (LightsceneC Qn) value instead of the
+        /// actor `<v.col>` composite — percent channels + 0x60000000 prefix
+        #[arg(long)]
+        mood: bool,
     },
     /// Decode a Loxone color value: integer composite, hsv(...) or temp(...) string
     Decode {
@@ -75,7 +136,8 @@ pub fn cmd_color(ctx: &RunContext, action: ColorCmd) -> Result<()> {
             hsv,
             kelvin,
             brightness,
-        } => encode(ctx, rgb, hsv, kelvin, brightness),
+            mood,
+        } => encode(ctx, rgb, hsv, kelvin, brightness, mood),
         ColorCmd::Decode { value } => decode(ctx, &value),
     }
 }
@@ -88,6 +150,7 @@ fn encode(
     hsv: Option<String>,
     kelvin: Option<u32>,
     brightness: Option<f64>,
+    mood: bool,
 ) -> Result<()> {
     let modes = rgb.is_some() as u8 + hsv.is_some() as u8 + kelvin.is_some() as u8;
     if modes == 0 {
@@ -95,6 +158,9 @@ fn encode(
     }
     if modes > 1 {
         bail!("--rgb, --hsv and --kelvin are mutually exclusive");
+    }
+    if mood && kelvin.is_some() {
+        bail!("--mood applies to RGB/HSV colors, not --kelvin (tunable white)");
     }
 
     if let Some(kelvin) = kelvin {
@@ -156,6 +222,34 @@ fn encode(
         (s * 100.0).round() as i64,
         (v * 100.0).round() as i64
     );
+
+    if mood {
+        let mood_value = rgb_to_mood(r, g, b);
+        let (rp, gp, bp) = mood_to_pct(mood_value)?;
+        if ctx.json {
+            println!(
+                "{}",
+                serde_json::to_string_pretty(&json!({
+                    "mode": "mood",
+                    "rgb": [r, g, b],
+                    "percent": [rp, gp, bp],
+                    "mood_value": mood_value,
+                    "command": hsv_cmd,
+                }))?
+            );
+        } else {
+            println!("LightController2 mood value (LightsceneC Qn)");
+            println!("  rgb:        {r},{g},{b}");
+            println!("  percent:    {rp},{gp},{bp}");
+            println!("  mood_value: {mood_value}   ← set-mood-color writes this into Qn");
+            println!("  command:    {hsv_cmd}");
+            println!(
+                "\nNote: this is the mood packing (percent + 0x60000000), NOT the\n\
+                 actor <v.col> composite ({composite}). Use `config set-mood-color`."
+            );
+        }
+        return Ok(());
+    }
 
     if ctx.json {
         println!(
@@ -231,6 +325,39 @@ fn decode(ctx: &RunContext, value: &str) -> Result<()> {
     let n: i64 = v
         .parse()
         .map_err(|_| anyhow::anyhow!("'{v}' is not a number or a hsv(...)/temp(...) command"))?;
+    // Mood value (LightsceneC Qn): percent channels + 0x60000000 prefix.
+    if n >= MOOD_PREFIX {
+        let (rp, gp, bp) = mood_to_pct(n)?;
+        // Reconstruct an approximate hsv from the percent channels.
+        let (r, g, b) = (
+            ((rp as f64 / 100.0) * 255.0).round() as u8,
+            ((gp as f64 / 100.0) * 255.0).round() as u8,
+            ((bp as f64 / 100.0) * 255.0).round() as u8,
+        );
+        let (h, s, val) = rgb_to_hsv(r, g, b);
+        let hsv_cmd = format!(
+            "hsv({},{},{})",
+            h.round() as i64,
+            (s * 100.0).round() as i64,
+            (val * 100.0).round() as i64
+        );
+        if ctx.json {
+            println!(
+                "{}",
+                serde_json::to_string_pretty(&json!({
+                    "mode": "mood",
+                    "mood_value": n,
+                    "percent": [rp, gp, bp],
+                    "command": hsv_cmd,
+                }))?
+            );
+        } else {
+            println!("LightController2 mood value {n}");
+            println!("  percent: {rp},{gp},{bp}");
+            println!("  command: {hsv_cmd}");
+        }
+        return Ok(());
+    }
     if (0..=RGB_MAX).contains(&n) {
         let (r, g, b) = composite_to_rgb(n)?;
         let (h, s, val) = rgb_to_hsv(r, g, b);
@@ -422,5 +549,33 @@ mod tests {
         let scale = 50.0_f64 / 100.0;
         let r = (255.0 * scale).round() as u8;
         assert_eq!(r, 128);
+    }
+
+    #[test]
+    fn mood_packing_matches_documented_values() {
+        // green @ 10% = 0x60000000 + 10000 = 1610622736 (hsv(120,100,10))
+        let (r, g, b) = hsv_to_rgb(120.0, 1.0, 0.10);
+        assert_eq!(rgb_to_mood(r, g, b), 1_610_622_736);
+        // round-trip percent channels
+        assert_eq!(mood_to_pct(1_610_622_736).unwrap(), (0, 10, 0));
+        // orange-ish R5 G2 B1 = 0x60000000 + 1002005
+        assert_eq!(mood_to_pct(1_611_614_741).unwrap(), (5, 2, 1));
+    }
+
+    #[test]
+    fn parse_color_to_mood_accepts_forms() {
+        assert_eq!(
+            parse_color_to_mood("hsv(120,100,10)").unwrap(),
+            1_610_622_736
+        );
+        assert_eq!(parse_color_to_mood("rgb(0,26,0)").unwrap(), 1_610_622_736);
+        // raw mood value passes through
+        assert_eq!(parse_color_to_mood("1610622736").unwrap(), 1_610_622_736);
+    }
+
+    #[test]
+    fn mood_value_rejects_out_of_range_channel() {
+        // green channel 200% is invalid
+        assert!(mood_to_pct(MOOD_PREFIX + 200_000).is_err());
     }
 }

@@ -419,6 +419,32 @@ impl ConfigEditor {
                         }
                     }
 
+                    // VirtualIn analog range sanity: a too-low MaxVal silently
+                    // clamps incoming values to 0. The classic foot-gun is a
+                    // pressure VI left at the stock MaxVal=1000 (or any value
+                    // <= 1013) while real sea-level pressure is ~1024 hPa — it
+                    // reads 0 with no error.
+                    if etype == "VirtualIn"
+                        && elem.attributes.get("Analog").map(|s| s.as_str()) == Some("true")
+                        && let Some(maxval_str) = elem.attributes.get("MaxVal")
+                        && let Ok(maxval) = maxval_str.parse::<f64>()
+                    {
+                        let unit = elem
+                            .attributes
+                            .get("Unit")
+                            .map(|s| s.to_ascii_lowercase())
+                            .unwrap_or_default();
+                        let title_l = title.to_ascii_lowercase();
+                        let looks_pressure = ["druck", "press", "hpa", "mbar"]
+                            .iter()
+                            .any(|kw| title_l.contains(kw) || unit.contains(kw));
+                        if looks_pressure && maxval <= 1013.0 {
+                            results.push(format!(
+                                "⚠ {etype} '{title}': MaxVal={maxval_str} is below normal sea-level pressure (~1024 hPa) — values clamp to 0; raise MaxVal to >1100"
+                            ));
+                        }
+                    }
+
                     // SequenceController program validation
                     if etype == "SequenceController" {
                         let program_text = elem.children.iter().find_map(|child| {
@@ -504,6 +530,36 @@ impl ConfigEditor {
         };
 
         walk_blocks(&self.root, selector, &ctx, &mut results, false);
+
+        // Program-block (PicoC) limit. A Miniserver executes only the first 8
+        // Program blocks (Code1/Code4/Code8/Code16); any beyond that are
+        // silently ignored. Loxone Config warns about this on save — surface it
+        // here too so it isn't a deploy-time surprise.
+        if selector.is_none() {
+            const PROGRAM_LIMIT: usize = 8;
+            let mut programs: Vec<String> = Vec::new();
+            for elem in self.iter_elements(&self.root) {
+                if matches!(
+                    elem.attributes.get("Type").map(|s| s.as_str()),
+                    Some("Code1" | "Code4" | "Code8" | "Code16")
+                ) {
+                    programs.push(
+                        elem.attributes
+                            .get("Title")
+                            .cloned()
+                            .unwrap_or_else(|| "<untitled>".to_string()),
+                    );
+                }
+            }
+            if programs.len() > PROGRAM_LIMIT {
+                let ignored = &programs[PROGRAM_LIMIT..];
+                results.push(format!(
+                    "⚠ {} Program (Code) blocks present — the Miniserver executes only the first {PROGRAM_LIMIT}; these will be ignored: {}",
+                    programs.len(),
+                    ignored.join(", ")
+                ));
+            }
+        }
 
         if results.is_empty() {
             results.push("✓ No automation blocks found (or none match selector)".to_string());

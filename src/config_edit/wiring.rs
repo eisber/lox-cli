@@ -1061,6 +1061,65 @@ impl ConfigEditor {
         Ok(moods)
     }
 
+    /// Rewrite the color of an existing mood (`LightsceneC`) on a
+    /// `LightController2` by setting its per-output value `Q{output}`.
+    ///
+    /// `mood_ref` matches the mood by `SID` (numeric scene id) or `Name`.
+    /// `value` is the packed mood value (percent channels + `0x60000000`),
+    /// e.g. from `lox color encode --mood`. `output` is the 1-based Q index
+    /// (default 1 — the first/color output).
+    pub fn set_mood_color(
+        &mut self,
+        selector: &str,
+        mood_ref: &str,
+        output: usize,
+        value: i64,
+    ) -> Result<String> {
+        let path = self.require_one(selector)?;
+        let elem = self.get_element_mut(&path);
+        let block_type = elem.attributes.get("Type").cloned().unwrap_or_default();
+        if block_type != "LightController2" {
+            anyhow::bail!(
+                "'{selector}' is a {block_type}, not a LightController2 — moods only exist on light controllers"
+            );
+        }
+        let controller_title = elem.attributes.get("Title").cloned().unwrap_or_default();
+        let qkey = format!("Q{output}");
+
+        fn set_on_match(elem: &mut Element, mref: &str, qkey: &str, value: &str) -> bool {
+            if elem.name == "LightsceneC" {
+                let sid = elem.attributes.get("SID").map(|s| s.as_str()).unwrap_or("");
+                let name = elem
+                    .attributes
+                    .get("Name")
+                    .map(|s| s.as_str())
+                    .unwrap_or("");
+                if sid == mref || name == mref {
+                    elem.attributes.insert(qkey.to_string(), value.to_string());
+                    return true;
+                }
+            }
+            for child in &mut elem.children {
+                if let Some(e) = child.as_mut_element()
+                    && set_on_match(e, mref, qkey, value)
+                {
+                    return true;
+                }
+            }
+            false
+        }
+
+        if set_on_match(elem, mood_ref, &qkey, &value.to_string()) {
+            Ok(format!(
+                "Set {qkey}={value} on mood '{mood_ref}' of LightController2 '{controller_title}'"
+            ))
+        } else {
+            anyhow::bail!(
+                "mood '{mood_ref}' not found on LightController2 '{controller_title}' (match by SID or Name)"
+            )
+        }
+    }
+
     /// Find which Page contains a connector UUID.
     fn find_page_for_connector(&self, connector_uuid: &str) -> Option<String> {
         fn search(elem: &Element, target: &str, current_page: &Option<String>) -> Option<String> {

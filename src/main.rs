@@ -762,6 +762,25 @@ pub(crate) enum ConfigCmd {
         /// LightController2 selector (title or "uuid:...")
         selector: String,
     },
+    /// Set the color/brightness of a LightController2 mood (rewrites Qn)
+    #[command(name = "set-mood-color")]
+    SetMoodColor {
+        /// Path to a .Loxone XML file
+        file: String,
+        /// LightController2 selector (title or "uuid:...")
+        selector: String,
+        /// Mood to edit — match by SID (scene id) or Name
+        #[arg(long)]
+        mood: String,
+        /// Color: hsv(H,S,V), rgb(R,G,B), or a raw mood value
+        #[arg(long)]
+        color: String,
+        /// 1-based output index to set (Q1 by default — the first/color output)
+        #[arg(long = "output-index", default_value_t = 1)]
+        output_index: usize,
+        #[arg(long)]
+        save_as: Option<String>,
+    },
     /// Detach a device actor by re-pointing its OutputRef.AI to a new source
     #[command(name = "splice-actor")]
     SpliceActor {

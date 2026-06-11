@@ -187,3 +187,51 @@ lox config push <f> --force                       # uploads sps_new.zip, does NO
 lox config push --file <f> --reboot --force       # ERROR: unexpected argument '--file'
 lox config push <f> --reboot --force              # OK: fast /wsx reload (~4s)
 ```
+
+---
+
+## Wave 3 (2026-06-11) — follow-ups from a live Teams-nightlight brightness change + weather VI fix
+
+Context: changed Markus's 4 Teams moods from 5%→10% brightness, and fixed a weather VI that read 0. Both required **raw-XML edits** despite the relevant verbs now existing.
+
+### W3-1 · `config moods` is read-only — no way to EDIT a mood's stored color/brightness (extends P0-2)
+`config moods <file> <selector>` now **lists** moods (good), and `splice-actor` + the fixed `lox color` base-1000 encoder landed — but there is still **no command to change an existing mood's color/brightness**. To re-brightness the 4 Teams moods 5%→10% I had to hand-edit the `Q1` attribute of each `<LightsceneC>` on the `LightController2`.
+
+**Crucial implementation fact (please bake into any `set-mood-color`/`add-mood`):** a mood's per-output value is **NOT** the same scale as the actor `<v.col>` composite that `color_cmd.rs` documents (`R+G*1000+B*1000000`, channels **0..255**). The `LightsceneC` `Q1` packing is **percent channels (0..100)** plus a mood-type prefix:
+
+```
+Q1 = 0x60000000 + (R% + G%*1000 + B%*1000000)     # each channel 0..100
+  green @ 5%  = 0x60000000 + 5000    = 1610617736   (hsv(120,100,5))
+  green @ 10% = 0x60000000 + 10000   = 1610622736   (hsv(120,100,10))
+  orange@~5%  = 0x60000000 + 1002005 = 1611614741   (R5 G2 B1)
+```
+Scaling all channels x2 cleanly doubles V while preserving hue/sat. Verified live via the WS state read (`activeMoods.color` -> `hsv(120,100,10)` after the edit).
+
+**Requirement**
+- `lox config set-mood-color <file> <controller-selector> --mood <SID|name> --color hsv(...)|rgb(...)` that rewrites the mood's `Q1..Qn` using the **percent + `0x60000000`** packing.
+- `lox color` should optionally emit the **mood** form (percent + prefix), not only the 0..255 actor composite — they are different and easy to confuse.
+
+**✅ Resolved (2026-06-11).** Both landed:
+- `lox config set-mood-color <file> <selector> --mood <SID|Name> --color hsv(...)|rgb(...) [--output-index N]` rewrites the matched `<LightsceneC>`'s `Q{N}` (default Q1) using the percent + `0x60000000` packing. Verified: TeamsGruen 5%→10% rewrote `Q1="1610617736"`→`"1610622736"`.
+- `lox color encode --mood` emits the mood form (`mood_value`, percent channels), and `lox color decode <mood_value>` recognises the `0x60000000` prefix. Matches the documented examples exactly (green@10% = 1610622736, orange = R5/G2/B1). The note clarifies mood-form ≠ actor `<v.col>` composite.
+- `config moods` already shows the live-select hint (`lox live set <ctrl> changeTo/<SID> --write`).
+- `config add-mood` (create a brand-new mood) is **still open** — needs a real LightController2 export to validate SID/CID/`uuidSeqencing` assignment before it can be authored safely.
+
+### W3-2 · Can't `set-param` an existing `VirtualIn`'s analog range (MaxVal/MinVal) — clamps silently (extends P1-1)
+Real second instance of the P1-1 clamping hazard: the weather pressure VI (`pressure_msl`) had the stock `MaxVal="1000"`, but real sea-level pressure is ~1024 hPa -> **out of range -> the VI read `0`**. Fix required a raw-XML edit of `MaxVal="1000"->"1100"` because **`config set-param` cannot target `MaxVal`/`MinVal`/`MinChange` on a `VirtualIn`** (grep of `src/commands/*.rs` shows no `MaxVal`/`MinVal` handling at all).
+
+**Requirement**
+- Let `config set-param <file> <vi-selector> MaxVal 1100` (and `MinVal`, `MinChange`, `MinTime`) work on `VirtualIn`/analog inputs.
+- `config check` lint: warn on an analog `VirtualIn` whose `MaxVal` is implausibly low for its purpose (esp. a pressure VI with `MaxVal <= 1013` — guaranteed to read 0 at normal sea-level pressure). Silent, hard-to-spot failure.
+
+**✅ Resolved (2026-06-11).** Both landed:
+- `ConfigEditor::set_param` now falls back to setting an element **attribute** when the param isn't a `<Co>` connector and is one of `MaxVal`/`MinVal`/`MinChange`/`MinTime`/`Step`. So `config set-param <vi> MaxVal 1100` works; unknown params still error.
+- `config check` warns when an analog `VirtualIn` whose title/`Unit` looks like pressure (`druck`/`press`/`hpa`/`mbar`) has `MaxVal <= 1013`.
+
+### W3-4 · (new, 2026-06-11) `config check` warns when a config exceeds the Program-block limit
+Adding a sample "hello world" Program (Code) block surfaced the Miniserver limit: only the **first 8 Program blocks** (`Code1/Code4/Code8/Code16`) are executed; the rest are silently ignored (Loxone Config warns about this on save).
+
+**✅ Resolved (2026-06-11).** `config check` now counts `Code1/4/8/16` blocks and warns when there are more than 8, naming the blocks that will be ignored.
+
+### W3-3 · (positive) push hint is now correct
+The staged-push hint now prints the **positional** apply form (`lox config push <file> --reboot --force`), not the broken `--file` form from P2.

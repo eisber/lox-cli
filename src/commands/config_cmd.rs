@@ -2211,6 +2211,33 @@ pub fn cmd_config(ctx: &RunContext, action: ConfigCmd) -> Result<()> {
                 );
             }
         }
+        ConfigCmd::SetMoodColor {
+            file,
+            selector,
+            mood,
+            color,
+            output_index,
+            save_as,
+        } => {
+            let data = fs::read(&file).with_context(|| format!("Cannot read {}", file))?;
+            let mut editor = ConfigEditor::load(&data)?;
+            let value = crate::commands::color_cmd::parse_color_to_mood(&color)?;
+            let msg = editor.set_mood_color(&selector, &mood, output_index, value)?;
+            if ctx.json {
+                emit_json(
+                    ctx,
+                    serde_json::json!({
+                        "ok": true,
+                        "mood": mood,
+                        "output": output_index,
+                        "value": value,
+                    }),
+                );
+            } else if !ctx.quiet {
+                println!("✓ {msg}");
+            }
+            save_edited(&editor, &file, save_as.as_deref())?;
+        }
         ConfigCmd::SpliceActor {
             file,
             selector,

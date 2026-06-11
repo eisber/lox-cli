@@ -768,6 +768,45 @@ mod tests {
     }
 
     #[test]
+    fn test_check_blocks_warns_on_low_pressure_maxval() {
+        let xml = br#"<?xml version="1.0" encoding="utf-8"?>
+<C Type="Document" V="175" U="doc-1" Title="Root">
+  <C Type="VirtualIn" V="175" U="vi-druck" Title="Luftdruck" Analog="true" MaxVal="1000" Unit="hPa">
+    <Co K="Q" U="vi-druck-q"/>
+  </C>
+</C>"#;
+        let editor = ConfigEditor::load(xml).unwrap();
+        let results = editor.check_blocks(None);
+        assert!(
+            results
+                .iter()
+                .any(|r| r.contains("below normal sea-level pressure")),
+            "expected low-MaxVal pressure warning, got: {results:?}"
+        );
+    }
+
+    #[test]
+    fn test_check_blocks_warns_on_too_many_programs() {
+        let mut xml = String::from(
+            "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<C Type=\"Document\" V=\"175\" U=\"doc-1\" Title=\"Root\">\n",
+        );
+        for i in 0..9 {
+            xml.push_str(&format!(
+                "  <C Type=\"Code1\" V=\"175\" U=\"code-{i}\" Title=\"Prog{i}\"><Co K=\"AI\" U=\"c-{i}-ai\"/><Co K=\"AQ\" U=\"c-{i}-aq\"/></C>\n"
+            ));
+        }
+        xml.push_str("</C>");
+        let editor = ConfigEditor::load(xml.as_bytes()).unwrap();
+        let results = editor.check_blocks(None);
+        assert!(
+            results
+                .iter()
+                .any(|r| r.contains("executes only the first 8") && r.contains("Prog8")),
+            "expected program-limit warning naming the 9th block, got: {results:?}"
+        );
+    }
+
+    #[test]
     fn test_add_element() {
         let mut editor = ConfigEditor::load(SAMPLE_XML).unwrap();
         let uuid = editor
@@ -955,6 +994,54 @@ mod tests {
         // Non-light-controller selector is an error.
         let editor2 = ConfigEditor::load(SAMPLE_XML).unwrap();
         assert!(editor2.list_moods("uuid:wd-1").is_err());
+    }
+
+    #[test]
+    fn test_set_mood_color() {
+        const SAMPLE: &[u8] = br#"<?xml version="1.0" encoding="utf-8"?>
+<ControlList Version="267">
+  <C Type="LightController2" U="lc-1" Title="Lichtsteuerung">
+    <LightscenesC FC="0040FFFF" Outputs="1" Num="2">
+      <LightsceneC Name="TeamsGruen" UUID="m-1" SID="1" CID="8" Q1="1610617736"/>
+      <LightsceneC Name="Aus" UUID="m-2" SID="778" CID="7" Q1="0"/>
+    </LightscenesC>
+  </C>
+</ControlList>"#;
+        // Match by Name, set Q1.
+        let mut editor = ConfigEditor::load(SAMPLE).unwrap();
+        editor
+            .set_mood_color("uuid:lc-1", "TeamsGruen", 1, 1_610_622_736)
+            .unwrap();
+        let xml = String::from_utf8(editor.to_bytes().unwrap()).unwrap();
+        assert!(xml.contains(r#"Q1="1610622736""#));
+        assert!(!xml.contains(r#"Q1="1610617736""#));
+
+        // Match by SID.
+        let mut editor = ConfigEditor::load(SAMPLE).unwrap();
+        editor.set_mood_color("uuid:lc-1", "778", 1, 42).unwrap();
+        let xml = String::from_utf8(editor.to_bytes().unwrap()).unwrap();
+        assert!(xml.contains(r#"SID="778" CID="7" Q1="42""#) || xml.contains(r#"Q1="42""#));
+
+        // Unknown mood is an error.
+        let mut editor = ConfigEditor::load(SAMPLE).unwrap();
+        assert!(editor.set_mood_color("uuid:lc-1", "Nope", 1, 1).is_err());
+    }
+
+    #[test]
+    fn test_set_param_attribute_fallback() {
+        const SAMPLE: &[u8] = br#"<?xml version="1.0" encoding="utf-8"?>
+<ControlList Version="267">
+  <C Type="VirtualIn" U="vi-1" Title="Druck" Analog="true" MaxVal="1000">
+    <Co K="Q" U="vi-1-q"/>
+  </C>
+</ControlList>"#;
+        let mut editor = ConfigEditor::load(SAMPLE).unwrap();
+        editor.set_param("uuid:vi-1", "MaxVal", "1100").unwrap();
+        let xml = String::from_utf8(editor.to_bytes().unwrap()).unwrap();
+        assert!(xml.contains(r#"MaxVal="1100""#));
+        // A non-connector, non-attribute param still errors.
+        let mut editor = ConfigEditor::load(SAMPLE).unwrap();
+        assert!(editor.set_param("uuid:vi-1", "Bogus", "1").is_err());
     }
 
     #[test]

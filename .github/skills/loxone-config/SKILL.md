@@ -52,6 +52,9 @@ lox config set-param FILE "BlockTitle" ParamName Value
 
 - `ParamName`: connector key (e.g. `Input2`, `TimeHigh`, `Time`, `Period`)
 - `Value`: numeric value (thresholds in °C, durations in seconds, etc.)
+- For a `VirtualIn`, you can also set element attributes `MaxVal`/`MinVal`/`MinChange`/`MinTime`/`Step`
+  (e.g. `set-param FILE "Druck" MaxVal 1100`). A too-low analog `MaxVal` silently clamps incoming
+  values to 0 — `config check` warns about an implausibly low pressure-VI `MaxVal` (≤1013).
 
 ### Wire two connectors together
 
@@ -97,6 +100,21 @@ lox config moods FILE "uuid:<lightcontroller>"
   ignored. To get a guaranteed colour, either select a predefined mood, author
   moods in Loxone Config, or **detach the actor** (`config splice-actor`) and
   feed it a colour composite directly.
+
+### Change an existing mood's colour / brightness
+
+```
+lox config set-mood-color FILE "uuid:<lightcontroller>" --mood <SID|Name> --color "hsv(120,100,10)"
+```
+
+- Rewrites the matched `<LightsceneC>`'s `Q1` (use `--output-index N` for `Qn`).
+- `--color` accepts `hsv(...)`, `rgb(...)`, or a raw mood value.
+- **Mood values use a different packing than the actor `<v.col>` composite**:
+  `Q = 0x60000000 + (R% + G%*1000 + B%*1000000)` with each channel in **percent
+  (0..100)**, not 0..255. Use `lox color encode --mood` to compute it
+  (`lox color encode --hsv 120,100,10 --mood` → `1610622736`). Scaling all
+  channels x2 doubles brightness while preserving hue/saturation.
+- Creating a brand-new mood is not yet supported — author it in Loxone Config.
 
 ### Add a Virtual Input (HTTP/jdev push target)
 
@@ -149,8 +167,10 @@ Loxone colour inputs (analog colour value `<v.col>`, e.g. the "Smartaktor RGBW" 
 lox color encode --rgb 100,40,0                  # → composite 40100, hsv(24,100,16)
 lox color encode --rgb 255,100,0 --brightness 15 # warm amber dimmed to 15%
 lox color encode --hsv 24,100,100                # from HSV
+lox color encode --hsv 120,100,10 --mood         # → mood value 1610622736 (LightsceneC Qn)
 lox color encode --kelvin 2700 --brightness 15   # tunable white → temp(15,2700) command
 lox color decode 40100                           # → 100,40,0
+lox color decode 1610622736                      # → mood value: percent 0,10,0 / hsv(120,100,10)
 lox color decode "hsv(0,100,100)"                # parse a command string
 ```
 
@@ -160,6 +180,9 @@ Encodings:
   base-1000 packing — **NOT** 24-bit `0xRRGGBB`. E.g. `100,40,0` → `40100`. This is the integer you
   `set-param`/`wire` into a numeric colour input, and the value the Miniserver expects for that
   input. `--brightness P` scales the channels to `P%`.
+- **Mood value** (`--mood`) = `0x60000000 + (R% + G%*1000 + B%*1000000)` with **percent** channels
+  (`0..100`). This is the `LightsceneC` `Qn` packing — distinct from the actor composite above — used
+  by `config set-mood-color`. Do not confuse the two.
 - **HSV** is accepted/printed as the ColorPickerV2 command string `hsv(<hue 0..360>,<sat 0..100>,<val 0..100>)`.
 - **Tunable white / colour temperature** uses the command string `temp(<brightness 0..100>,<kelvin>)`
   (there is no portable composite integer for colour temperature — send the `temp(...)` string to the
