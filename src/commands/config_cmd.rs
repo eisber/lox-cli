@@ -2238,6 +2238,39 @@ pub fn cmd_config(ctx: &RunContext, action: ConfigCmd) -> Result<()> {
             }
             save_edited(&editor, &file, save_as.as_deref())?;
         }
+        ConfigCmd::AddMood {
+            file,
+            selector,
+            name,
+            color,
+            sid,
+            cid,
+            save_as,
+        } => {
+            let data = fs::read(&file).with_context(|| format!("Cannot read {}", file))?;
+            let mut editor = ConfigEditor::load(&data)?;
+            let value = crate::commands::color_cmd::parse_color_to_mood(&color)?;
+            let (mood_name, uuid, new_sid, new_cid) =
+                editor.add_mood(&selector, &name, value, sid, cid)?;
+            if ctx.json {
+                emit_json(
+                    ctx,
+                    serde_json::json!({
+                        "ok": true,
+                        "mood": mood_name,
+                        "uuid": uuid,
+                        "sid": new_sid,
+                        "cid": new_cid,
+                        "value": value,
+                    }),
+                );
+            } else if !ctx.quiet {
+                println!(
+                    "✓ Added mood '{mood_name}' (SID={new_sid}, CID={new_cid}, Q1={value})\n  UUID: {uuid}\n  Recall live with: lox live set {selector} changeTo/{new_sid} --write"
+                );
+            }
+            save_edited(&editor, &file, save_as.as_deref())?;
+        }
         ConfigCmd::SpliceActor {
             file,
             selector,

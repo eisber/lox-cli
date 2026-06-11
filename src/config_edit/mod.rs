@@ -1028,6 +1028,58 @@ mod tests {
     }
 
     #[test]
+    fn test_add_mood() {
+        const SAMPLE: &[u8] = br#"<?xml version="1.0" encoding="utf-8"?>
+<ControlList Version="267">
+  <C Type="LightController2" U="lc-1" Title="Lichtsteuerung">
+    <LightscenesC FC="0040FFFF" Outputs="3" Num="3">
+      <LightsceneC Name="Entspannen" UUID="m-1" SID="1" CID="8" Q1="1613645813" Q2="0" Q3="0"/>
+      <LightsceneC Name="Aus" UUID="m-2" SID="778" CID="7" Q1="0" Q2="0" Q3="0"/>
+      <LightsceneC Name="Green" UUID="m-3" SID="2" CID="9" Q1="1610617736" Q2="0" Q3="0"/>
+    </LightscenesC>
+  </C>
+</ControlList>"#;
+
+        // Default SID/CID = next free custom (3 / 10); Q1 set, Q2..Q3 zeroed.
+        let mut editor = ConfigEditor::load(SAMPLE).unwrap();
+        let (name, uuid, sid, cid) = editor
+            .add_mood("uuid:lc-1", "Purple", 1_640_612_766, None, None)
+            .unwrap();
+        assert_eq!(name, "Purple");
+        assert!(!uuid.is_empty());
+        assert_eq!(sid, 3);
+        assert_eq!(cid, 10);
+        let xml = String::from_utf8(editor.to_bytes().unwrap()).unwrap();
+        assert!(xml.contains(r#"Name="Purple""#));
+        assert!(xml.contains(r#"SID="3""#));
+        assert!(xml.contains(r#"CID="10""#));
+        assert!(xml.contains(r#"Q1="1640612766""#));
+        // Num bumped 3 -> 4.
+        assert!(xml.contains(r#"Num="4""#));
+        // Mirrors container Outputs (3) — Q1..Q3 present.
+        assert!(xml.contains(r#"Q3="0""#));
+
+        // Explicit SID/CID overrides.
+        let mut editor = ConfigEditor::load(SAMPLE).unwrap();
+        let (_, _, sid, cid) = editor
+            .add_mood("uuid:lc-1", "Custom", 42, Some(20), Some(99))
+            .unwrap();
+        assert_eq!((sid, cid), (20, 99));
+
+        // Duplicate name is an error.
+        let mut editor = ConfigEditor::load(SAMPLE).unwrap();
+        assert!(
+            editor
+                .add_mood("uuid:lc-1", "Green", 1, None, None)
+                .is_err()
+        );
+
+        // Duplicate explicit SID is an error.
+        let mut editor = ConfigEditor::load(SAMPLE).unwrap();
+        assert!(editor.add_mood("uuid:lc-1", "X", 1, Some(2), None).is_err());
+    }
+
+    #[test]
     fn test_set_param_attribute_fallback() {
         const SAMPLE: &[u8] = br#"<?xml version="1.0" encoding="utf-8"?>
 <ControlList Version="267">

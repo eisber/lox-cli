@@ -1120,6 +1120,134 @@ impl ConfigEditor {
         }
     }
 
+    /// Create a brand-new mood (`LightsceneC`) on a `LightController2`.
+    ///
+    /// Mirrors how Loxone Config appends a scene: a fresh `LightsceneC` is
+    /// added to the controller's `<LightscenesC>` container with a generated
+    /// UUID, the next free custom scene id (`SID`) and color id (`CID`), and
+    /// per-output values `Q1..Qn` (Q1 set to `value`, the rest 0). The
+    /// container's `Num` count is incremented.
+    ///
+    /// Reserved SIDs (1/776/777/778 = Entspannen/Wecker/Viel Licht/Aus) are
+    /// skipped; custom moods start at SID=2 / CID=9. Pass `sid`/`cid` to
+    /// override. Returns `(name, uuid, sid, cid)`.
+    pub fn add_mood(
+        &mut self,
+        selector: &str,
+        name: &str,
+        value: i64,
+        sid: Option<i64>,
+        cid: Option<i64>,
+    ) -> Result<(String, String, i64, i64)> {
+        const RESERVED_SIDS: [i64; 4] = [1, 776, 777, 778];
+
+        // Validate the target is a LightController2 and gather existing moods
+        // (immutable borrow) before mutating.
+        let existing = self.list_moods(selector)?;
+        if existing.iter().any(|m| m.name == name) {
+            anyhow::bail!(
+                "a mood named '{name}' already exists on this LightController2 — \
+                 use 'config set-mood-color' to change its color"
+            );
+        }
+
+        // Next free custom SID: max custom SID + 1 (base 2).
+        let new_sid = match sid {
+            Some(s) => s,
+            None => existing
+                .iter()
+                .filter_map(|m| m.sid)
+                .filter(|s| !RESERVED_SIDS.contains(s))
+                .max()
+                .map(|m| m + 1)
+                .unwrap_or(2),
+        };
+        // Next free custom CID: max custom CID + 1 (base 9).
+        let new_cid = match cid {
+            Some(c) => c,
+            None => existing
+                .iter()
+                .filter(|m| m.sid.map(|s| !RESERVED_SIDS.contains(&s)).unwrap_or(true))
+                .filter_map(|m| m.cid)
+                .max()
+                .map(|m| m + 1)
+                .unwrap_or(9),
+        };
+        if existing.iter().any(|m| m.sid == Some(new_sid)) {
+            anyhow::bail!("SID {new_sid} is already in use on this LightController2");
+        }
+
+        let serial = self.find_miniserver_serial().unwrap_or_default();
+        let uuid = Self::loxone_uuid(&serial);
+
+        let path = self.require_one(selector)?;
+        let elem = self.get_element_mut(&path);
+
+        // Locate the <LightscenesC> container, read its Outputs count, append
+        // the new scene and bump Num.
+        fn append_scene(
+            elem: &mut Element,
+            name: &str,
+            uuid: &str,
+            sid: i64,
+            cid: i64,
+            value: i64,
+        ) -> bool {
+            if elem.name == "LightscenesC" {
+                let outputs: usize = elem
+                    .attributes
+                    .get("Outputs")
+                    .and_then(|s| s.parse().ok())
+                    .unwrap_or(18);
+                let mut scene = Element::new("LightsceneC");
+                scene
+                    .attributes
+                    .insert("Name".to_string(), name.to_string());
+                scene
+                    .attributes
+                    .insert("UUID".to_string(), uuid.to_string());
+                scene
+                    .attributes
+                    .insert("Outputs".to_string(), outputs.to_string());
+                scene.attributes.insert("SID".to_string(), sid.to_string());
+                scene.attributes.insert("CID".to_string(), cid.to_string());
+                for q in 1..=outputs.max(1) {
+                    let v = if q == 1 {
+                        value.to_string()
+                    } else {
+                        "0".to_string()
+                    };
+                    scene.attributes.insert(format!("Q{q}"), v);
+                }
+                elem.children.push(xmltree::XMLNode::Element(scene));
+                let num: i64 = elem
+                    .attributes
+                    .get("Num")
+                    .and_then(|s| s.parse().ok())
+                    .unwrap_or(0);
+                elem.attributes
+                    .insert("Num".to_string(), (num + 1).to_string());
+                return true;
+            }
+            for child in &mut elem.children {
+                if let Some(e) = child.as_mut_element()
+                    && append_scene(e, name, uuid, sid, cid, value)
+                {
+                    return true;
+                }
+            }
+            false
+        }
+
+        if append_scene(elem, name, &uuid, new_sid, new_cid, value) {
+            Ok((name.to_string(), uuid, new_sid, new_cid))
+        } else {
+            anyhow::bail!(
+                "could not find a <LightscenesC> scene container on LightController2 '{selector}'"
+            )
+        }
+    }
+
     /// Find which Page contains a connector UUID.
     fn find_page_for_connector(&self, connector_uuid: &str) -> Option<String> {
         fn search(elem: &Element, target: &str, current_page: &Option<String>) -> Option<String> {

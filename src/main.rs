@@ -781,6 +781,28 @@ pub(crate) enum ConfigCmd {
         #[arg(long)]
         save_as: Option<String>,
     },
+    /// Create a new mood (LightsceneC) on a LightController2
+    #[command(name = "add-mood")]
+    AddMood {
+        /// Path to a .Loxone XML file
+        file: String,
+        /// LightController2 selector (title or "uuid:...")
+        selector: String,
+        /// Name for the new mood
+        #[arg(long)]
+        name: String,
+        /// Color: hsv(H,S,V), rgb(R,G,B), or a raw mood value
+        #[arg(long)]
+        color: String,
+        /// Override the scene id (SID); default = next free custom SID
+        #[arg(long)]
+        sid: Option<i64>,
+        /// Override the color id (CID); default = next free custom CID
+        #[arg(long)]
+        cid: Option<i64>,
+        #[arg(long)]
+        save_as: Option<String>,
+    },
     /// Detach a device actor by re-pointing its OutputRef.AI to a new source
     #[command(name = "splice-actor")]
     SpliceActor {

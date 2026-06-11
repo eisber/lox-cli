@@ -116,6 +116,19 @@ lox config set-mood-color FILE "uuid:<lightcontroller>" --mood <SID|Name> --colo
   channels x2 doubles brightness while preserving hue/saturation.
 - Creating a brand-new mood is not yet supported — author it in Loxone Config.
 
+### Create a brand-new mood
+
+```
+lox config add-mood FILE "uuid:<lightcontroller>" --name "Teams purple" --color "hsv(300,100,30)"
+```
+
+- Appends a fresh `<LightsceneC>` to the controller's `<LightscenesC>` container:
+  generated UUID, next free custom `SID` (base 2, skipping reserved 1/776/777/778)
+  and `CID` (base 9), `Outputs` mirrored from the container, `Q1` = packed mood
+  value, `Q2..Qn` = 0, and `Num` incremented.
+- `--sid N` / `--cid N` override the auto-assigned ids. Duplicate name or SID is rejected.
+- Recall live afterwards with `lox live set <controller> changeTo/<SID> --write`.
+
 ### Add a Virtual Input (HTTP/jdev push target)
 
 ```

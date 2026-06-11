@@ -215,7 +215,17 @@ Scaling all channels x2 cleanly doubles V while preserving hue/sat. Verified liv
 - `lox config set-mood-color <file> <selector> --mood <SID|Name> --color hsv(...)|rgb(...) [--output-index N]` rewrites the matched `<LightsceneC>`'s `Q{N}` (default Q1) using the percent + `0x60000000` packing. Verified: TeamsGruen 5%→10% rewrote `Q1="1610617736"`→`"1610622736"`.
 - `lox color encode --mood` emits the mood form (`mood_value`, percent channels), and `lox color decode <mood_value>` recognises the `0x60000000` prefix. Matches the documented examples exactly (green@10% = 1610622736, orange = R5/G2/B1). The note clarifies mood-form ≠ actor `<v.col>` composite.
 - `config moods` already shows the live-select hint (`lox live set <ctrl> changeTo/<SID> --write`).
-- `config add-mood` (create a brand-new mood) is **still open** — needs a real LightController2 export to validate SID/CID/`uuidSeqencing` assignment before it can be authored safely.
+- `config add-mood` (create a brand-new mood) is now **✅ Resolved (2026-06-12)** — see W3-5 below.
+
+### W3-5 · `config add-mood` — author a brand-new LightController2 mood
+
+**✅ Resolved (2026-06-12).** `lox config add-mood <file> <controller-selector> --name <name> --color hsv(...)|rgb(...) [--sid N] [--cid N]` appends a fresh `<LightsceneC>` to the controller's `<LightscenesC>` container with:
+- a generated Loxone-format UUID (correct Miniserver serial suffix),
+- the next free **custom** scene id (`SID`, base 2 — reserved 1/776/777/778 skipped) and color id (`CID`, base 9),
+- `Outputs` mirrored from the container, `Q1` = packed mood value, `Q2..Qn` = 0,
+- the container's `Num` count incremented.
+
+Validated against the real config (`sps_0267_20260611184427.Loxone`, Markus controller): adding `TeamsPurple` after `TeamsYellow` (SID 5 / CID 12) correctly produced SID 6 / CID 13, matching Loxone's own numbering. `--sid`/`--cid` override the defaults; duplicate name or SID is rejected.
 
 ### W3-2 · Can't `set-param` an existing `VirtualIn`'s analog range (MaxVal/MinVal) — clamps silently (extends P1-1)
 Real second instance of the P1-1 clamping hazard: the weather pressure VI (`pressure_msl`) had the stock `MaxVal="1000"`, but real sea-level pressure is ~1024 hPa -> **out of range -> the VI read `0`**. Fix required a raw-XML edit of `MaxVal="1000"->"1100"` because **`config set-param` cannot target `MaxVal`/`MinVal`/`MinChange` on a `VirtualIn`** (grep of `src/commands/*.rs` shows no `MaxVal`/`MinVal` handling at all).
