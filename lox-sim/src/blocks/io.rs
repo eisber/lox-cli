@@ -46,7 +46,12 @@ macro_rules! passthrough_io_block {
 // ---------------------------------------------------------------------------
 
 /// Input reference — proxy that forwards named inputs to the block graph.
-/// I→Q (digital) and AI→AQ (analog).
+///
+/// A ref is fed on exactly one side (I or AI) but the Miniserver mirrors the
+/// signal on BOTH outputs: consumers routinely read Q from an AI-fed ref
+/// (r50 corpus: `ref.AI <- mem.AQ` with `monoflop.InputTrigger: ref.Q`).
+/// Q is the digital view (non-zero → 1), AQ the analog value; the unfed
+/// side idles at 0, so combining the two inputs is lossless.
 #[derive(Clone, Copy)]
 pub struct InputRef;
 
@@ -60,7 +65,9 @@ impl Block for InputRef {
     ) -> Vec<Signal> {
         let i = inputs.first().copied().unwrap_or(0.0);
         let ai = inputs.get(1).copied().unwrap_or(0.0);
-        vec![i, ai]
+        let q = if i != 0.0 || ai != 0.0 { 1.0 } else { 0.0 };
+        let aq = if ai != 0.0 { ai } else { i };
+        vec![q, aq]
     }
 
     fn block_type(&self) -> &str {
@@ -260,12 +267,12 @@ mod tests {
     use super::*;
     use crate::blocks::create_block;
     #[test]
-    fn input_ref_passthrough() {
+    fn input_ref_mirrors_fed_side_to_both_outputs() {
         let mut block = InputRef;
-        // I=42, AI=0 → Q=42, AQ=0
-        assert_eq!(block.eval(&[42.0], &[], 0.0, &[]), vec![42.0, 0.0]);
-        // I=0, AI=99 → Q=0, AQ=99
-        assert_eq!(block.eval(&[0.0, 99.0], &[], 0.0, &[]), vec![0.0, 99.0]);
+        // I=42, AI unfed → Q=1 (digital view), AQ=42
+        assert_eq!(block.eval(&[42.0], &[], 0.0, &[]), vec![1.0, 42.0]);
+        // I unfed, AI=99 → Q=1, AQ=99 (AI-fed refs serve Q consumers)
+        assert_eq!(block.eval(&[0.0, 99.0], &[], 0.0, &[]), vec![1.0, 99.0]);
         // empty → Q=0, AQ=0
         assert_eq!(block.eval(&[], &[], 0.0, &[]), vec![0.0, 0.0]);
     }

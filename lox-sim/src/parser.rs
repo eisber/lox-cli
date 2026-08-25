@@ -574,7 +574,7 @@ fn block_signature(
             &["Q1", "Q2", "Q3", "Q4", "AQ"],
             &["Time", "V1", "V2", "V3", "V4"],
         ),
-        "Monoflop" => (&["InputTrigger"], &["Q"], &["Time"]),
+        "Monoflop" => (&["InputTrigger", "Reset"], &["Q"], &["Time"]),
         "Minmax" => (
             &["Input1", "Input2", "Input3", "Input4"],
             &["AQmin", "AQmax"],

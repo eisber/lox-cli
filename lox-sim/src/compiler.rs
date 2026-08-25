@@ -137,6 +137,8 @@ pub enum EvalStep {
     Monoflop {
         trigger: usize,
         prev_trigger: usize,
+        /// Reset signal slot; `usize::MAX` when the block has no Reset wire.
+        reset: usize,
         param_duration: usize,
         output: usize,
         state_idx: usize,
@@ -524,6 +526,7 @@ impl CompiledGraph {
                     EvalStep::Monoflop {
                         trigger: resolved_inputs.first().copied().unwrap_or(0),
                         prev_trigger: prev_inputs.first().copied().unwrap_or(0),
+                        reset: resolved_inputs.get(1).copied().unwrap_or(usize::MAX),
                         param_duration: params.first().copied().unwrap_or(0),
                         output: outputs[0],
                         state_idx: si,
@@ -975,18 +978,22 @@ impl CompiledGraph {
                 EvalStep::Monoflop {
                     trigger,
                     prev_trigger,
+                    reset,
                     param_duration,
                     output,
                     state_idx,
                 } => {
                     let trig = self.signals[*trigger];
                     let prev_trig = self.prev_signals[*prev_trigger];
+                    let rst = self.signals.get(*reset).copied().unwrap_or(0.0);
                     let duration = self.signals[*param_duration].max(0.0);
                     let out = *output;
                     let si = *state_idx;
 
                     if let BlockState::Timer { remaining, .. } = &mut self.state[si] {
-                        if prev_trig < 0.5 && trig >= 0.5 {
+                        if rst >= 0.5 {
+                            *remaining = 0.0;
+                        } else if prev_trig < 0.5 && trig >= 0.5 {
                             *remaining = duration.max(dt);
                         }
                         let q = *remaining > 0.0;
