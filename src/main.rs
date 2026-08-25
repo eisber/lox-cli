@@ -637,13 +637,18 @@ pub(crate) enum ConfigCmd {
         #[arg(long)]
         strict: bool,
     },
-    /// Auto-arrange blocks on a Page using ELK layout engine
+    /// Auto-arrange blocks on a Page. Default re-arranges the whole page; with
+    /// `--only-new` it positions only blocks that have no coordinates yet and leaves
+    /// existing blocks untouched (layered layout along the wiring).
     #[command(name = "layout")]
     Layout {
         file: String,
         /// Page selector (default: first Page)
         #[arg(long)]
         page: Option<String>,
+        /// Only place blocks without a canvas position; keep positioned blocks as-is
+        #[arg(long)]
+        only_new: bool,
         #[arg(long)]
         save_as: Option<String>,
     },
