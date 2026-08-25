@@ -605,12 +605,12 @@ fn block_signature(
             &["TimeHigh", "TimeLow"],
         ),
         "PushButton" | "PushButton2" | "PushButton2Sel" => (
-            &["InputTrigger", "On"],
+            &["InputTrigger", "On", "Reset", "InputDisable"],
             &["Q", "Qoff", "Qon", "AQ"],
             &["Min", "Max"],
         ),
         "PushButtonSel" => (
-            &["InputTrigger", "InputPos", "Reset"],
+            &["InputTrigger", "InputPos", "Reset", "InputDisable"],
             &["AQ"],
             &["Min", "Max", "Step", "Repeat", "Def"],
         ),
