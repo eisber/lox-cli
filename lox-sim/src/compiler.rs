@@ -390,11 +390,13 @@ impl CompiledGraph {
         // For feedback wires, we'll read from prev_signals instead.
         let feedback_wires = &topo.feedback_wires;
 
-        // Build input source map: for each input connector, where does its value come from?
+        // Build input source map: for each input or parameter connector,
+        // where does its value come from? (Parameters can be wire-driven
+        // too, e.g. Formula Input1-Input4.)
         let mut input_source: Vec<(usize, bool)> = vec![(0, false); n_conn];
         for (cid, src) in input_source.iter_mut().enumerate() {
-            let is_input = graph.connector(cid).dir == ConnectorDir::Input;
-            if is_input {
+            let is_sink = graph.connector(cid).dir != ConnectorDir::Output;
+            if is_sink {
                 match graph.input_source_of(cid) {
                     Some(from) => {
                         let is_fb = feedback_wires.contains(&(from, cid));
@@ -426,7 +428,9 @@ impl CompiledGraph {
             let prev_inputs: Vec<usize> = resolved_inputs.clone();
 
             let outputs = &info.outputs;
-            let params = &info.params;
+            // Wired parameters read their driving output's signal; unwired
+            // ones read their own connector (holding the Def= value).
+            let params: Vec<usize> = info.params.iter().map(|&cid| input_source[cid].0).collect();
 
             let step = match block_type {
                 "And" => EvalStep::And {
