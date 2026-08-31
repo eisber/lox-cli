@@ -92,8 +92,10 @@ struct BlockEvalInfo {
     input_sources: Vec<(ConnectorId, bool)>,
     /// Connector IDs for outputs.
     output_cids: Vec<ConnectorId>,
-    /// Connector IDs for parameters.
-    param_cids: Vec<ConnectorId>,
+    /// `(source_cid, is_feedback)` for each parameter connector. A wired
+    /// parameter resolves to its driving output; an unwired one resolves
+    /// to itself (holding the Def= value).
+    param_sources: Vec<(ConnectorId, bool)>,
     /// Whether the block uses prev_inputs for edge detection.
     edge_sensitive: bool,
     /// Whether the block has time-dependent state (timers, counters) that
@@ -167,13 +169,28 @@ impl SimEngine {
                         }
                     })
                     .collect();
+                // Parameters resolve through wires exactly like inputs: a
+                // wired parameter (Formula Input1, comparator Input2)
+                // reads its source's signal; an unwired one reads its own
+                // connector (the Def= value).
+                let param_sources: Vec<(ConnectorId, bool)> = info
+                    .params
+                    .iter()
+                    .map(|&cid| match graph.input_source_of(cid) {
+                        Some(src) => {
+                            let is_fb = topo.feedback_wires.contains(&(src, cid));
+                            (src, is_fb)
+                        }
+                        None => (cid, false),
+                    })
+                    .collect();
                 let n_inputs = input_sources.len();
                 let edge_sensitive = blocks[bid].is_edge_sensitive();
                 let time_dependent = blocks[bid].is_time_dependent();
                 BlockEvalInfo {
                     input_sources,
                     output_cids: info.outputs.clone(),
-                    param_cids: info.params.clone(),
+                    param_sources,
                     edge_sensitive,
                     time_dependent,
                     last_prev_inputs: vec![0.0; n_inputs],
@@ -550,8 +567,18 @@ impl SimEngine {
                 })
                 .collect();
 
-            // Gather params.
-            let params: Vec<f64> = ei.param_cids.iter().map(|&cid| self.signals[cid]).collect();
+            // Gather params (wired parameters read their source's signal).
+            let params: Vec<f64> = ei
+                .param_sources
+                .iter()
+                .map(|&(src, is_fb)| {
+                    if is_fb {
+                        self.prev_signals[src]
+                    } else {
+                        self.signals[src]
+                    }
+                })
+                .collect();
 
             // Gather previous-tick inputs (for edge detection).
             let prev_inputs: Vec<f64> = ei
@@ -782,8 +809,17 @@ impl SimEngine {
                 })
                 .collect();
 
-            let param_duals: Vec<DualNumber> =
-                ei.param_cids.iter().map(|&cid| dual_signals[cid]).collect();
+            let param_duals: Vec<DualNumber> = ei
+                .param_sources
+                .iter()
+                .map(|&(src, is_fb)| {
+                    if is_fb {
+                        DualNumber::constant(self.prev_signals[src])
+                    } else {
+                        dual_signals[src]
+                    }
+                })
+                .collect();
 
             // Compute dual outputs using the block type's semantics.
             let out_duals =
