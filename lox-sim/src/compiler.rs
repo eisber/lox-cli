@@ -137,6 +137,8 @@ pub enum EvalStep {
     Monoflop {
         trigger: usize,
         prev_trigger: usize,
+        /// Reset signal slot; `usize::MAX` when the block has no Reset wire.
+        reset: usize,
         param_duration: usize,
         output: usize,
         state_idx: usize,
@@ -217,6 +219,10 @@ pub enum EvalStep {
         trigger: usize,
         prev_trigger: usize,
         force_on: usize,
+        /// Reset/InputDisable signal slots; `usize::MAX` when the block has
+        /// no such connector (PushButtonSel layouts vary).
+        reset: usize,
+        disable: usize,
         /// outputs: [Q, Qoff, Qon]
         outputs: [usize; 3],
         state_idx: usize,
@@ -520,6 +526,7 @@ impl CompiledGraph {
                     EvalStep::Monoflop {
                         trigger: resolved_inputs.first().copied().unwrap_or(0),
                         prev_trigger: prev_inputs.first().copied().unwrap_or(0),
+                        reset: resolved_inputs.get(1).copied().unwrap_or(usize::MAX),
                         param_duration: params.first().copied().unwrap_or(0),
                         output: outputs[0],
                         state_idx: si,
@@ -662,6 +669,8 @@ impl CompiledGraph {
                         trigger: resolved_inputs.first().copied().unwrap_or(0),
                         prev_trigger: prev_inputs.first().copied().unwrap_or(0),
                         force_on: resolved_inputs.get(1).copied().unwrap_or(0),
+                        reset: resolved_inputs.get(2).copied().unwrap_or(usize::MAX),
+                        disable: resolved_inputs.get(3).copied().unwrap_or(usize::MAX),
                         outputs: [
                             *outputs.first().unwrap_or(&0),
                             *outputs.get(1).unwrap_or(&0),
@@ -969,18 +978,22 @@ impl CompiledGraph {
                 EvalStep::Monoflop {
                     trigger,
                     prev_trigger,
+                    reset,
                     param_duration,
                     output,
                     state_idx,
                 } => {
                     let trig = self.signals[*trigger];
                     let prev_trig = self.prev_signals[*prev_trigger];
+                    let rst = self.signals.get(*reset).copied().unwrap_or(0.0);
                     let duration = self.signals[*param_duration].max(0.0);
                     let out = *output;
                     let si = *state_idx;
 
                     if let BlockState::Timer { remaining, .. } = &mut self.state[si] {
-                        if prev_trig < 0.5 && trig >= 0.5 {
+                        if rst >= 0.5 {
+                            *remaining = 0.0;
+                        } else if prev_trig < 0.5 && trig >= 0.5 {
                             *remaining = duration.max(dt);
                         }
                         let q = *remaining > 0.0;
@@ -1315,20 +1328,26 @@ impl CompiledGraph {
                     trigger,
                     prev_trigger,
                     force_on,
+                    reset,
+                    disable,
                     outputs,
                     state_idx,
                 } => {
                     let trig = self.signals[*trigger];
                     let prev_trig = self.prev_signals[*prev_trigger];
                     let force = self.signals[*force_on];
+                    let rst = self.signals.get(*reset).copied().unwrap_or(0.0);
+                    let dis = self.signals.get(*disable).copied().unwrap_or(0.0);
                     let outs = *outputs;
                     let si = *state_idx;
 
                     if let BlockState::PushButton { is_on } = &mut self.state[si] {
                         let previous = *is_on;
-                        if force >= 0.5 {
+                        if rst >= 0.5 {
+                            *is_on = false;
+                        } else if force >= 0.5 {
                             *is_on = true;
-                        } else if prev_trig < 0.5 && trig >= 0.5 {
+                        } else if dis < 0.5 && prev_trig < 0.5 && trig >= 0.5 {
                             *is_on = !*is_on;
                         }
                         let qon = !previous && *is_on;

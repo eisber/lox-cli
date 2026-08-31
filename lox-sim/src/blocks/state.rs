@@ -252,12 +252,18 @@ impl Block for PushButton {
     ) -> Vec<Signal> {
         let trigger = inputs.first().copied().unwrap_or(0.0);
         let force_on = inputs.get(1).copied().unwrap_or(0.0);
+        let reset = inputs.get(2).copied().unwrap_or(0.0);
+        let disable = inputs.get(3).copied().unwrap_or(0.0);
         let prev_trigger = prev_inputs.first().copied().unwrap_or(0.0);
         let previous = self.is_on;
 
-        if is_high(force_on) {
+        // WARNING: Assumed behavior — not validated against Miniserver.
+        // Assumption: Reset dominates On; InputDisable gates only the trigger.
+        if is_high(reset) {
+            self.is_on = false;
+        } else if is_high(force_on) {
             self.is_on = true;
-        } else if !is_high(prev_trigger) && is_high(trigger) {
+        } else if !is_high(disable) && !is_high(prev_trigger) && is_high(trigger) {
             self.is_on = !self.is_on;
         }
 
@@ -329,10 +335,20 @@ impl Block for PushButton2 {
         prev_inputs: &[Signal],
     ) -> Vec<Signal> {
         let trigger = inputs.first().copied().unwrap_or(0.0);
+        let reset = inputs.get(2).copied().unwrap_or(0.0);
+        let disable = inputs.get(3).copied().unwrap_or(0.0);
         let prev_trigger = prev_inputs.first().copied().unwrap_or(0.0);
         let dc_window = params.first().copied().unwrap_or(0.4).max(0.0);
         let previous = self.is_on;
-        let rising = !is_high(prev_trigger) && is_high(trigger);
+        // WARNING: Assumed behavior — not validated against Miniserver.
+        // Assumption: Reset dominates and cancels a pending double-click;
+        // InputDisable gates only the trigger.
+        if is_high(reset) {
+            self.is_on = false;
+            self.awaiting_second = false;
+        }
+        let rising =
+            !is_high(reset) && !is_high(disable) && !is_high(prev_trigger) && is_high(trigger);
         let mut double_click = false;
 
         if self.awaiting_second {
