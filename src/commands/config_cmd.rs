@@ -1965,14 +1965,24 @@ pub fn cmd_config(ctx: &RunContext, action: ConfigCmd) -> Result<()> {
         ConfigCmd::Layout {
             file,
             page,
+            only_new,
             save_as,
         } => {
             let data = fs::read(&file).with_context(|| format!("Cannot read {}", file))?;
             let mut editor = ConfigEditor::load(&data)?;
             let page_sel = page.as_deref().unwrap_or("Type:Page");
 
-            let count = editor.grid_layout(page_sel)?;
-            println!("✓ Laid out {} elements", count);
+            if only_new {
+                let count = editor.incremental_layout(page_sel)?;
+                if count == 0 {
+                    println!("✓ No unpositioned blocks — nothing to place");
+                } else {
+                    println!("✓ Placed {} new block(s), existing layout untouched", count);
+                }
+            } else {
+                let count = editor.grid_layout(page_sel)?;
+                println!("✓ Laid out {} elements", count);
+            }
 
             save_edited(&editor, &file, save_as.as_deref())?;
         }
