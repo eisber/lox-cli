@@ -1,0 +1,57 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-09-07T20:31:04.157Z",
+  "totals": {
+    "threads": 1760,
+    "source_records": 3074,
+    "live_jobs": 1760,
+    "stored_objects": 61,
+    "stored_bytes": 10968735,
+    "discovered_attachments": 0
+  },
+  "sources": [
+    {
+      "source_type": "common-crawl:CC-MAIN-2026-34",
+      "captures": 28,
+      "threads": 16
+    },
+    {
+      "source_type": "rss",
+      "captures": 15,
+      "threads": 15
+    },
+    {
+      "source_type": "wayback",
+      "captures": 3031,
+      "threads": 1739
+    }
+  ],
+  "live_jobs": [
+    {
+      "state": "blocked",
+      "count": 1
+    },
+    {
+      "state": "queued",
+      "count": 1759
+    }
+  ],
+  "wayback_jobs": [
+    {
+      "state": "challenge_capture",
+      "count": 63
+    },
+    {
+      "state": "completed",
+      "count": 61
+    },
+    {
+      "state": "failed",
+      "count": 1
+    },
+    {
+      "state": "queued",
+      "count": 2906
+    }
+  ]
+}

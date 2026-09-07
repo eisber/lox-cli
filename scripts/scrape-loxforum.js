@@ -344,10 +344,14 @@ if (require.main === module) {
 module.exports = {
   assertFeedResponse,
   decodeXml,
+  evaluate,
   extractPostId,
   extractThreadId,
+  findForumPage,
   parseArgs,
   parseRss,
+  randomDelay,
+  sleep,
   updateState,
   writeJsonAtomic,
 };

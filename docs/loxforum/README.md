@@ -33,3 +33,41 @@ file. The browser profile must remain outside the repository.
 
 Forum material should only be incorporated after review. Prefer attributed
 summaries and independently authored tests or examples over copying post text.
+
+## Historical inventory and crawl ledger
+
+The larger crawl uses a local SQLite ledger and content-addressed object store.
+Both default to `%LOCALAPPDATA%\loxforum-scraper` on Windows and remain outside
+Git. Only aggregate progress in `inventory-summary.json` is committed.
+
+Build the inventory without requesting pages from loxforum.com:
+
+```powershell
+node scripts/loxforum-crawl.js inventory
+node scripts/loxforum-crawl.js archive-pilot --limit 100
+```
+
+The inventory combines RSS metadata with Internet Archive and Common Crawl
+indexes. `archive-pilot` retrieves snapshots from the Internet Archive, not
+from loxforum.com.
+
+After opening the authenticated browser described above, a live pilot can
+process at most 25 pages:
+
+```powershell
+node scripts/loxforum-crawl.js pilot --limit 25
+```
+
+Live requests are serialized with randomized 45-90 second delays. HTTP 403,
+HTTP 429, CAPTCHA, BotGuard, or hCaptcha content blocks the current job and
+stops the run immediately. After manually restoring access, explicitly resume:
+
+```powershell
+node scripts/loxforum-crawl.js unblock
+node scripts/loxforum-crawl.js pilot --limit 25
+```
+
+Expired leases are recovered automatically after 30 minutes. Server failures
+receive no immediate retry: they become eligible after 15 minutes, then 60
+minutes, and fail permanently after the third attempt. Attachment URLs are
+inventoried but attachment bodies are not downloaded.
