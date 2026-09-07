@@ -10,6 +10,10 @@ replies. The collector makes one feed request after a randomized 12-20 second
 delay. It does not open topics or download attachments, and it refuses to
 update state if the response looks like a security challenge.
 
+This manually triggered RSS refresh is the only automated request made directly
+to loxforum.com. Historical archive retrieval uses third-party archives, and
+live topic capture never requests or navigates a forum page.
+
 ## Refresh
 
 1. Start Chrome with a dedicated profile outside the repository:
@@ -51,20 +55,25 @@ The inventory combines RSS metadata with Internet Archive and Common Crawl
 indexes. `archive-pilot` retrieves snapshots from the Internet Archive, not
 from loxforum.com.
 
-After opening the authenticated browser described above, a live pilot can
-process at most 25 pages:
+Automated page retrieval is intentionally disabled because both background
+fetches and DevTools-driven navigation trigger the forum's bot protection.
+Live intake is assisted: ask for the next URLs, navigate to one normally in the
+authenticated browser, then capture its already-loaded DOM without another
+request:
 
 ```powershell
-node scripts/loxforum-crawl.js pilot --limit 25
+node scripts/loxforum-crawl.js next --limit 25
+node scripts/loxforum-crawl.js capture-open
 ```
 
-Live requests are serialized with randomized 45-90 second delays. HTTP 403,
-HTTP 429, CAPTCHA, BotGuard, or hCaptcha content blocks the current job and
-stops the run immediately. After manually restoring access, explicitly resume:
+`capture-open` never navigates and never submits a forum request. CAPTCHA,
+BotGuard, or hCaptcha content is rejected without advancing the job. After
+manually restoring access, capture the open page; `unblock` is available when a
+previous automated canary left a job blocked:
 
 ```powershell
 node scripts/loxforum-crawl.js unblock
-node scripts/loxforum-crawl.js pilot --limit 25
+node scripts/loxforum-crawl.js capture-open
 ```
 
 Expired leases are recovered automatically after 30 minutes. Server failures

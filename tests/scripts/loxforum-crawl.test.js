@@ -14,7 +14,9 @@ const {
   discoverAttachments,
   discoverPageUrls,
   importDiscoveries,
+  listNextJobs,
   openLedger,
+  pageNumberFromUrl,
   recordArchiveSuccess,
   releaseLock,
   storeObject,
@@ -39,6 +41,21 @@ test("canonicalizes topic, pagination, and post URLs to one thread", () => {
       "https://www.loxforum.com/forum/faqs-tutorials-howto-s/300117-tutorial/page16",
     ),
     expected,
+  );
+  assert.equal(
+    threadFromUrl("https://www.loxforum.com/member/300117-tutorial"),
+    null,
+  );
+});
+
+test("extracts root and paginated page numbers", () => {
+  assert.equal(
+    pageNumberFromUrl("https://www.loxforum.com/forum/german/42-example"),
+    1,
+  );
+  assert.equal(
+    pageNumberFromUrl("https://www.loxforum.com/forum/german/42-example/page16"),
+    16,
   );
 });
 
@@ -98,17 +115,62 @@ test("discovers only same-thread pages and records attachment metadata", () => {
   }]);
 });
 
-test("prevents concurrent live pilot processes", () => {
+test("prevents concurrent live capture processes", () => {
   const directory = fs.mkdtempSync(path.join(os.tmpdir(), "loxforum-lock-"));
   const db = openLedger(directory);
   try {
-    acquireLock(db, "live-pilot", "first");
+    acquireLock(db, "live-capture", "first");
     assert.throws(
-      () => acquireLock(db, "live-pilot", "second"),
+      () => acquireLock(db, "live-capture", "second"),
       /already running/,
     );
-    releaseLock(db, "live-pilot", "first");
-    acquireLock(db, "live-pilot", "second");
+    releaseLock(db, "live-capture", "first");
+    acquireLock(db, "live-capture", "second");
+  } finally {
+    db.close();
+    fs.rmSync(directory, { recursive: true, force: true });
+  }
+});
+
+test("lists blocked jobs before queued jobs", () => {
+  const directory = fs.mkdtempSync(path.join(os.tmpdir(), "loxforum-next-"));
+  const db = openLedger(directory);
+  try {
+    importDiscoveries(db, [
+      {
+        threadId: 42,
+        canonicalUrl: "https://www.loxforum.com/forum/german/42-example",
+        sourceType: "rss",
+        captureUrl: "https://www.loxforum.com/forum/german/42-example",
+        capturedAt: "2026-09-01T00:00:00.000Z",
+        digest: "",
+        priority: 100,
+      },
+      {
+        threadId: 43,
+        canonicalUrl: "https://www.loxforum.com/forum/german/43-example",
+        sourceType: "wayback",
+        captureUrl: "https://www.loxforum.com/forum/german/43-example",
+        capturedAt: "2026-09-01T00:00:00.000Z",
+        digest: "",
+        priority: 20,
+      },
+      {
+        threadId: 44,
+        canonicalUrl: "https://www.loxforum.com/forum/german/44-example",
+        sourceType: "wayback",
+        captureUrl: "https://www.loxforum.com/forum/german/44-example",
+        capturedAt: "2026-09-01T00:00:00.000Z",
+        digest: "",
+        priority: 20,
+      },
+    ]);
+    db.prepare("UPDATE jobs SET state = 'blocked' WHERE thread_id = 43").run();
+    db.prepare("UPDATE jobs SET state = 'retry_wait' WHERE thread_id = 44").run();
+    assert.deepEqual(
+      listNextJobs(db, 2).map((job) => job.thread_id),
+      [43, 42],
+    );
   } finally {
     db.close();
     fs.rmSync(directory, { recursive: true, force: true });

@@ -31,8 +31,6 @@ const DEFAULT_HIGH_WATER_PATH = path.join(
   "high-water.json",
 );
 const DEFAULT_CDP_URL = "http://127.0.0.1:9222";
-const LIVE_MIN_DELAY_MS = 45_000;
-const LIVE_MAX_DELAY_MS = 90_000;
 const ARCHIVE_MIN_DELAY_MS = 1_000;
 const ARCHIVE_MAX_DELAY_MS = 3_000;
 const LIVE_LIMIT = 25;
@@ -54,9 +52,18 @@ function defaultDataDir() {
 
 function parseArgs(argv) {
   const command = argv[0];
-  if (!["inventory", "archive-pilot", "pilot", "status", "unblock"].includes(command)) {
+  if (
+    ![
+      "inventory",
+      "archive-pilot",
+      "next",
+      "capture-open",
+      "status",
+      "unblock",
+    ].includes(command)
+  ) {
     throw new Error(
-      "Usage: node scripts/loxforum-crawl.js <inventory|archive-pilot|pilot|status|unblock> [options]",
+      "Usage: node scripts/loxforum-crawl.js <inventory|archive-pilot|next|capture-open|status|unblock> [options]",
     );
   }
 
@@ -66,11 +73,9 @@ function parseArgs(argv) {
     summaryPath: DEFAULT_SUMMARY_PATH,
     highWaterPath: DEFAULT_HIGH_WATER_PATH,
     cdpUrl: DEFAULT_CDP_URL,
-    limit: command === "pilot" ? LIVE_LIMIT : ARCHIVE_LIMIT,
-    minDelayMs:
-      command === "pilot" ? LIVE_MIN_DELAY_MS : ARCHIVE_MIN_DELAY_MS,
-    maxDelayMs:
-      command === "pilot" ? LIVE_MAX_DELAY_MS : ARCHIVE_MAX_DELAY_MS,
+    limit: command === "next" ? LIVE_LIMIT : ARCHIVE_LIMIT,
+    minDelayMs: ARCHIVE_MIN_DELAY_MS,
+    maxDelayMs: ARCHIVE_MAX_DELAY_MS,
   };
   const values = {
     "--data-dir": "dataDir",
@@ -104,8 +109,8 @@ function parseArgs(argv) {
       "Limit and delays must be integers with limit >= 1 and 0 <= min <= max",
     );
   }
-  if (command === "pilot" && options.limit > LIVE_LIMIT) {
-    throw new Error(`Live pilot limit cannot exceed ${LIVE_LIMIT} requests`);
+  if (command === "next" && options.limit > LIVE_LIMIT) {
+    throw new Error(`Next-page listing cannot exceed ${LIVE_LIMIT} entries`);
   }
   return options;
 }
@@ -186,6 +191,7 @@ function openLedger(dataDir) {
       ON sources(source_type, archive_state, captured_at DESC);
   `);
   migrateLedger(db);
+  recoverExpiredLeases(db);
   reclassifyStoredChallenges(db, dataDir);
   return db;
 }
@@ -301,6 +307,13 @@ function threadFromUrl(input) {
     const url = new URL(input);
     let pathname = url.pathname.replace(/\/page\d+\/?$/i, "");
     pathname = pathname.replace(/\/$/, "");
+    if (
+      url.protocol !== "https:" ||
+      url.origin !== FORUM_ORIGIN ||
+      !pathname.startsWith("/forum/")
+    ) {
+      return null;
+    }
     const match = pathname.match(/\/(\d+)-([^/]+)$/);
     if (!match) return null;
     const threadId = Number.parseInt(match[1], 10);
@@ -560,58 +573,11 @@ function acquireLock(db, name, owner) {
   }
 }
 
-function renewLock(db, name, owner) {
-  const result = db.prepare(`
-    UPDATE crawl_locks SET lease_until = ?
-    WHERE name = ? AND owner = ?
-  `).run(new Date(Date.now() + LEASE_MS).toISOString(), name, owner);
-  if (result.changes !== 1) {
-    throw new Error(`Lost the ${name} process lock`);
-  }
-}
-
 function releaseLock(db, name, owner) {
   db.prepare("DELETE FROM crawl_locks WHERE name = ? AND owner = ?").run(
     name,
     owner,
   );
-}
-
-function leaseLiveJob(db) {
-  recoverExpiredLeases(db);
-  begin(db);
-  try {
-    const now = new Date().toISOString();
-    const job = db.prepare(`
-      SELECT * FROM jobs
-      WHERE state = 'queued'
-         OR (state = 'retry_wait' AND available_at <= ?)
-      ORDER BY priority DESC, thread_id DESC, page_number ASC
-      LIMIT 1
-    `).get(now);
-    if (!job) {
-      commit(db);
-      return null;
-    }
-    db.prepare(`
-      UPDATE jobs
-      SET state = 'in_progress', lease_until = ?, updated_at = ?
-      WHERE id = ?
-    `).run(new Date(Date.now() + LEASE_MS).toISOString(), now, job.id);
-    commit(db);
-    return { ...job };
-  } catch (error) {
-    rollback(db);
-    throw error;
-  }
-}
-
-function markLiveAttempt(db, job) {
-  const now = new Date().toISOString();
-  db.prepare(`
-    UPDATE jobs SET attempts = attempts + 1, updated_at = ? WHERE id = ?
-  `).run(now, job.id);
-  return { ...job, attempts: job.attempts + 1 };
 }
 
 function storeObject(dataDir, content, contentType) {
@@ -700,23 +666,25 @@ function assertLivePage(response) {
   }
 }
 
-async function fetchLivePage(tab, url) {
-  const expression = `(
-    async () => {
-      const response = await fetch(${JSON.stringify(url)}, {
-        credentials: "include",
-        headers: {"Accept": "text/html,application/xhtml+xml"}
-      });
-      return JSON.stringify({
-        status: response.status,
-        contentType: response.headers.get("content-type") || "",
-        finalUrl: response.url,
-        text: await response.text()
-      });
-    }
-  )()`;
+function pageNumberFromUrl(input) {
+  try {
+    const match = new URL(input).pathname.match(/\/page(\d+)\/?$/i);
+    return match ? Number.parseInt(match[1], 10) : 1;
+  } catch {
+    return null;
+  }
+}
+
+async function readLoadedPage(tab, status = 200) {
+  const expression = `JSON.stringify({
+    status: ${JSON.stringify(status)},
+    contentType: document.contentType || "",
+    finalUrl: location.href,
+    title: document.title,
+    text: document.documentElement.outerHTML
+  })`;
   const value = await evaluate(tab, expression);
-  if (typeof value !== "string") throw new Error("Browser returned no page response");
+  if (typeof value !== "string") throw new Error("Browser returned no page DOM");
   return JSON.parse(value);
 }
 
@@ -776,38 +744,6 @@ function recordLiveSuccess(db, dataDir, job, response) {
     `).run(object.sha256, error.message, now, job.id);
     throw error;
   }
-}
-
-function recordLiveFailure(db, job, error) {
-  const now = new Date().toISOString();
-  if (error instanceof ChallengeError) {
-    db.prepare(`
-      UPDATE jobs
-      SET state = 'blocked', lease_until = NULL, last_error = ?, updated_at = ?
-      WHERE id = ?
-    `).run(error.message, now, job.id);
-    return;
-  }
-  if (error.retryable && job.attempts < 3) {
-    const delayMinutes = job.attempts === 1 ? 15 : 60;
-    db.prepare(`
-      UPDATE jobs
-      SET state = 'retry_wait', lease_until = NULL, available_at = ?,
-          last_error = ?, updated_at = ?
-      WHERE id = ?
-    `).run(
-      new Date(Date.now() + delayMinutes * 60_000).toISOString(),
-      error.message,
-      now,
-      job.id,
-    );
-    return;
-  }
-  db.prepare(`
-    UPDATE jobs
-    SET state = 'failed', lease_until = NULL, last_error = ?, updated_at = ?
-    WHERE id = ?
-  `).run(error.message, now, job.id);
 }
 
 function leaseWaybackSource(db) {
@@ -996,40 +932,67 @@ async function runArchivePilot(db, options) {
   return completed;
 }
 
-async function runLivePilot(db, options) {
-  const lockName = "live-pilot";
+function listNextJobs(db, limit) {
+  return db.prepare(`
+    SELECT thread_id, page_number, url, state, priority
+    FROM jobs
+    WHERE state IN ('blocked', 'queued')
+    ORDER BY
+      CASE state WHEN 'blocked' THEN 0 ELSE 1 END,
+      priority DESC,
+      thread_id DESC,
+      page_number ASC
+    LIMIT ?
+  `).all(limit);
+}
+
+async function captureOpenPage(db, options) {
+  const lockName = "live-capture";
   const owner = crypto.randomUUID();
   acquireLock(db, lockName, owner);
   try {
     const tab = await findForumPage(options.cdpUrl);
-    let completed = 0;
-    for (; completed < options.limit; completed += 1) {
-      renewLock(db, lockName, owner);
-      const job = leaseLiveJob(db);
-      if (!job) break;
-      const delay = randomDelay(options.minDelayMs, options.maxDelayMs);
-      console.log(
-        `[${completed + 1}/${options.limit}] waiting ${delay} ms before thread ${job.thread_id}, page ${job.page_number}`,
-      );
-      await sleep(delay);
-      renewLock(db, lockName, owner);
-      const attemptedJob = markLiveAttempt(db, job);
-      try {
-        const response = await fetchLivePage(tab, attemptedJob.url);
-        assertLivePage(response);
-        recordLiveSuccess(db, options.dataDir, attemptedJob, response);
-        console.log(
-          `[${completed + 1}/${options.limit}] stored thread ${attemptedJob.thread_id}, page ${attemptedJob.page_number}`,
-        );
-      } catch (error) {
-        recordLiveFailure(db, attemptedJob, error);
-        if (error instanceof ChallengeError) throw error;
-        console.error(
-          `[${completed + 1}/${options.limit}] thread ${attemptedJob.thread_id}: ${error.message}`,
-        );
-      }
+    const response = await readLoadedPage(tab);
+    assertLivePage(response);
+    const thread = threadFromUrl(response.finalUrl);
+    const pageNumber = pageNumberFromUrl(response.finalUrl);
+    if (!thread || pageNumber === null) {
+      throw new Error("The open tab is not a recognizable loxforum thread page");
     }
-    return completed;
+
+    let job = db.prepare(`
+      SELECT * FROM jobs WHERE thread_id = ? AND page_number = ?
+    `).get(thread.threadId, pageNumber);
+    if (!job) {
+      upsertDiscovery(db, {
+        ...thread,
+        title: response.title?.replace(/\s+-\s+loxforum\.com$/i, "") || null,
+        sourceType: "manual",
+        captureUrl: response.finalUrl,
+        capturedAt: new Date().toISOString(),
+        digest: "",
+        priority: 100,
+      });
+      job = db.prepare(`
+        SELECT * FROM jobs WHERE thread_id = ? AND page_number = ?
+      `).get(thread.threadId, pageNumber);
+    }
+    if (job.state === "completed") {
+      console.log(`Thread ${job.thread_id}, page ${job.page_number} is already captured.`);
+      return 0;
+    }
+    db.prepare(`
+      UPDATE jobs
+      SET state = 'in_progress', lease_until = ?, updated_at = ?
+      WHERE id = ?
+    `).run(
+      new Date(Date.now() + LEASE_MS).toISOString(),
+      new Date().toISOString(),
+      job.id,
+    );
+    recordLiveSuccess(db, options.dataDir, job, response);
+    console.log(`Captured open thread ${job.thread_id}, page ${job.page_number}.`);
+    return 1;
   } finally {
     releaseLock(db, lockName, owner);
   }
@@ -1057,8 +1020,10 @@ async function main() {
         await runInventory(db, options);
       } else if (options.command === "archive-pilot") {
         await runArchivePilot(db, options);
-      } else if (options.command === "pilot") {
-        await runLivePilot(db, options);
+      } else if (options.command === "next") {
+        console.log(JSON.stringify(listNextJobs(db, options.limit), null, 2));
+      } else if (options.command === "capture-open") {
+        await captureOpenPage(db, options);
       } else if (options.command === "unblock") {
         const result = db.prepare(`
           UPDATE jobs
@@ -1091,11 +1056,14 @@ module.exports = {
   acquireLock,
   assertArchivePage,
   assertLivePage,
+  captureOpenPage,
   discoverAttachments,
   discoverPageUrls,
   importDiscoveries,
   isoFromCdxTimestamp,
+  listNextJobs,
   openLedger,
+  pageNumberFromUrl,
   parseArgs,
   recordArchiveSuccess,
   releaseLock,

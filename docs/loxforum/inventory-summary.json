@@ -1,12 +1,12 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-09-07T20:31:04.157Z",
+  "generated_at": "2026-09-07T21:16:19.999Z",
   "totals": {
     "threads": 1760,
     "source_records": 3074,
     "live_jobs": 1760,
-    "stored_objects": 61,
-    "stored_bytes": 10968735,
+    "stored_objects": 62,
+    "stored_bytes": 11106819,
     "discovered_attachments": 0
   },
   "sources": [
@@ -32,8 +32,12 @@
       "count": 1
     },
     {
+      "state": "completed",
+      "count": 1
+    },
+    {
       "state": "queued",
-      "count": 1759
+      "count": 1758
     }
   ],
   "wayback_jobs": [
