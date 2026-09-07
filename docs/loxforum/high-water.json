@@ -1,0 +1,133 @@
+{
+  "schema_version": 1,
+  "source_feed": "https://www.loxforum.com/external?type=rss2",
+  "updated_at": "2026-09-07T19:39:53.479Z",
+  "highest_thread_id": 491192,
+  "latest_published_at": "2026-09-07T18:57:24.000Z",
+  "last_run": {
+    "items_seen": 15,
+    "new_threads": 15
+  },
+  "recent_items": [
+    {
+      "post_id": null,
+      "thread_id": 491192,
+      "title": "Automatikbeschattung seltsames Phänomen",
+      "url": "https://www.loxforum.com/forum/german/software-konfiguration-programm-und-visualisierung/491192-automatikbeschattung-seltsames-phänomen",
+      "guid": "https://www.loxforum.com/forum/german/software-konfiguration-programm-und-visualisierung/491192-automatikbeschattung-seltsames-phänomen",
+      "published_at": "2026-09-07T18:57:24.000Z"
+    },
+    {
+      "post_id": null,
+      "thread_id": 491187,
+      "title": "Wallbox 11 KW Zähler aktivieren",
+      "url": "https://www.loxforum.com/forum/projektforen/loxberry/allgemeines-aa/491187-wallbox-11-kw-zähler-aktivieren",
+      "guid": "https://www.loxforum.com/forum/projektforen/loxberry/allgemeines-aa/491187-wallbox-11-kw-zähler-aktivieren",
+      "published_at": "2026-09-07T17:44:37.000Z"
+    },
+    {
+      "post_id": null,
+      "thread_id": 491175,
+      "title": "Vestel EVC04 in Loxone integrieren (inkl. Phasenumschaltung)",
+      "url": "https://www.loxforum.com/forum/hardware-zubehör-sensorik/491175-vestel-evc04-in-loxone-integrieren-inkl-phasenumschaltung",
+      "guid": "https://www.loxforum.com/forum/hardware-zubehör-sensorik/491175-vestel-evc04-in-loxone-integrieren-inkl-phasenumschaltung",
+      "published_at": "2026-09-07T13:35:26.000Z"
+    },
+    {
+      "post_id": null,
+      "thread_id": 491141,
+      "title": "Loxone Musikserver und Spotify funktionert das bei Euch im Moment",
+      "url": "https://www.loxforum.com/forum/hardware-zubehör-sensorik/491141-loxone-musikserver-und-spotify-funktionert-das-bei-euch-im-moment",
+      "guid": "https://www.loxforum.com/forum/hardware-zubehör-sensorik/491141-loxone-musikserver-und-spotify-funktionert-das-bei-euch-im-moment",
+      "published_at": "2026-09-07T06:20:08.000Z"
+    },
+    {
+      "post_id": null,
+      "thread_id": 491130,
+      "title": "Tree Turbo und 24V über RJ45 Stecker",
+      "url": "https://www.loxforum.com/forum/verkabelung-installation/491130-tree-turbo-und-24v-über-rj45-stecker",
+      "guid": "https://www.loxforum.com/forum/verkabelung-installation/491130-tree-turbo-und-24v-über-rj45-stecker",
+      "published_at": "2026-09-06T17:09:08.000Z"
+    },
+    {
+      "post_id": null,
+      "thread_id": 491102,
+      "title": "MQTT Werte werden abgelehnt",
+      "url": "https://www.loxforum.com/forum/projektforen/loxberry/allgemeines-aa/491102-mqtt-werte-werden-abgelehnt",
+      "guid": "https://www.loxforum.com/forum/projektforen/loxberry/allgemeines-aa/491102-mqtt-werte-werden-abgelehnt",
+      "published_at": "2026-09-06T07:17:52.000Z"
+    },
+    {
+      "post_id": null,
+      "thread_id": 491088,
+      "title": "Statusanzeige mehrer Störmeldungen",
+      "url": "https://www.loxforum.com/forum/german/software-konfiguration-programm-und-visualisierung/491088-statusanzeige-mehrer-störmeldungen",
+      "guid": "https://www.loxforum.com/forum/german/software-konfiguration-programm-und-visualisierung/491088-statusanzeige-mehrer-störmeldungen",
+      "published_at": "2026-09-05T16:55:48.000Z"
+    },
+    {
+      "post_id": null,
+      "thread_id": 491066,
+      "title": "Logik für Door Lock Air",
+      "url": "https://www.loxforum.com/forum/german/software-konfiguration-programm-und-visualisierung/491066-logik-für-door-lock-air",
+      "guid": "https://www.loxforum.com/forum/german/software-konfiguration-programm-und-visualisierung/491066-logik-für-door-lock-air",
+      "published_at": "2026-09-05T08:28:30.000Z"
+    },
+    {
+      "post_id": null,
+      "thread_id": 491051,
+      "title": "Plugin: Kia2Lox",
+      "url": "https://www.loxforum.com/forum/projektforen/loxberry/plugins/491051-plugin-kia2lox",
+      "guid": "https://www.loxforum.com/forum/projektforen/loxberry/plugins/491051-plugin-kia2lox",
+      "published_at": "2026-09-04T23:16:18.000Z"
+    },
+    {
+      "post_id": null,
+      "thread_id": 491047,
+      "title": "Loxone Klingel über HomePod ausgeben",
+      "url": "https://www.loxforum.com/forum/hardware-zubehör-sensorik/491047-loxone-klingel-über-homepod-ausgeben",
+      "guid": "https://www.loxforum.com/forum/hardware-zubehör-sensorik/491047-loxone-klingel-über-homepod-ausgeben",
+      "published_at": "2026-09-04T20:33:55.000Z"
+    },
+    {
+      "post_id": null,
+      "thread_id": 491028,
+      "title": "Hörmann Tree Modul keine Kommunikation.",
+      "url": "https://www.loxforum.com/forum/hardware-zubehör-sensorik/491028-hörmann-tree-modul-keine-kommunikation",
+      "guid": "https://www.loxforum.com/forum/hardware-zubehör-sensorik/491028-hörmann-tree-modul-keine-kommunikation",
+      "published_at": "2026-09-04T12:27:25.000Z"
+    },
+    {
+      "post_id": null,
+      "thread_id": 491004,
+      "title": "Anzeigemodus Tablet App.",
+      "url": "https://www.loxforum.com/forum/german/software-konfiguration-programm-und-visualisierung/491004-anzeigemodus-tablet-app",
+      "guid": "https://www.loxforum.com/forum/german/software-konfiguration-programm-und-visualisierung/491004-anzeigemodus-tablet-app",
+      "published_at": "2026-09-04T07:12:43.000Z"
+    },
+    {
+      "post_id": null,
+      "thread_id": 490996,
+      "title": "ZIgbee2MQTT Friendly Name",
+      "url": "https://www.loxforum.com/forum/projektforen/loxberry/plugins/490996-zigbee2mqtt-friendly-name",
+      "guid": "https://www.loxforum.com/forum/projektforen/loxberry/plugins/490996-zigbee2mqtt-friendly-name",
+      "published_at": "2026-09-03T20:27:53.000Z"
+    },
+    {
+      "post_id": null,
+      "thread_id": 490971,
+      "title": "Kann Digitaler Eingang bei Miniserver Compact nur softwareseitig belegt werden?",
+      "url": "https://www.loxforum.com/forum/hardware-zubehör-sensorik/490971-kann-digitaler-eingang-bei-miniserver-compact-nur-softwareseitig-belegt-werden",
+      "guid": "https://www.loxforum.com/forum/hardware-zubehör-sensorik/490971-kann-digitaler-eingang-bei-miniserver-compact-nur-softwareseitig-belegt-werden",
+      "published_at": "2026-09-03T13:12:39.000Z"
+    },
+    {
+      "post_id": null,
+      "thread_id": 490966,
+      "title": "[SUCHE]Motion oder Presence Melder Air und Tree gesucht",
+      "url": "https://www.loxforum.com/forum/marktplatz/490966-motion-oder-presence-melder-air-und-tree-gesucht",
+      "guid": "https://www.loxforum.com/forum/marktplatz/490966-motion-oder-presence-melder-air-und-tree-gesucht",
+      "published_at": "2026-09-03T10:18:44.000Z"
+    }
+  ]
+}
