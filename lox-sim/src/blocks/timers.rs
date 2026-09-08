@@ -980,6 +980,23 @@ mod tests {
     }
 
     #[test]
+    fn monoflop_reset_aborts_and_blocks_retrigger() {
+        let mut block = Monoflop::new();
+        assert_eq!(
+            block.eval(&[1.0, 0.0], &[1.0], 0.25, &[0.0, 0.0]),
+            vec![1.0]
+        );
+        assert_eq!(
+            block.eval(&[1.0, 1.0], &[1.0], 0.25, &[1.0, 0.0]),
+            vec![0.0]
+        );
+        assert_eq!(
+            block.eval(&[1.0, 1.0], &[1.0], 0.25, &[0.0, 1.0]),
+            vec![0.0]
+        );
+    }
+
+    #[test]
     fn on_pulse_delay_emits_delayed_pulse() {
         let mut block = OnPulseDelay::new();
         assert_eq!(block.eval(&[1.0], &[0.5, 0.5], 0.25, &[0.0]), vec![0.0]);

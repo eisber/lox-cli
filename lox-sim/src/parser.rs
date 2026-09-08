@@ -2190,6 +2190,19 @@ fn is_structural_type(block_type: &str) -> bool {
 mod tests {
     use super::*;
 
+    #[test]
+    fn reset_and_disable_connectors_have_canonical_positions() {
+        assert_eq!(block_signature("Monoflop").0, &["InputTrigger", "Reset"]);
+        assert_eq!(
+            block_signature("PushButton").0,
+            &["InputTrigger", "On", "Reset", "InputDisable"]
+        );
+        assert_eq!(
+            block_signature("PushButton2").0,
+            &["InputTrigger", "On", "Reset", "InputDisable"]
+        );
+    }
+
     fn parse_xml(xml: &str) -> SimGraph {
         parse_bytes(xml.as_bytes()).expect("parse failed")
     }
