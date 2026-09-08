@@ -321,7 +321,7 @@ impl ConfigEditor {
         ((v as f64 / 96.0).round() as i32) * 96
     }
 
-    /// Place ONLY blocks that have no canvas position yet (`Px` unset), leaving every
+    /// Place ONLY blocks that do not have a complete canvas position yet, leaving every
     /// already-positioned block untouched. Uses a Sugiyama-style layered layout so the
     /// new blocks flow left→right along their wiring, snapped to the 96-grid, anchored
     /// in the free area to the right of the page's existing content.
@@ -342,7 +342,7 @@ impl ConfigEditor {
             idx: usize,
             uuid: String,
             btype: String,
-            has_px: bool,
+            positioned: bool,
             ins: Vec<String>, // source connector UUIDs this block consumes
         }
         let mut nodes: Vec<Node> = Vec::new();
@@ -365,14 +365,28 @@ impl ConfigEditor {
             if btype.is_empty() {
                 continue;
             }
-            let has_px = elem.attributes.contains_key("Px");
-            if has_px {
-                if let Some(px2) = elem.attributes.get("Px2").and_then(|v| v.parse::<i32>().ok()) {
+            let positioned = ["Px", "Py", "Px2", "Py2"]
+                .iter()
+                .all(|attr| elem.attributes.contains_key(*attr));
+            if positioned {
+                if let Some(px2) = elem
+                    .attributes
+                    .get("Px2")
+                    .and_then(|v| v.parse::<i32>().ok())
+                {
                     max_px2 = max_px2.max(px2);
-                } else if let Some(px) = elem.attributes.get("Px").and_then(|v| v.parse::<i32>().ok()) {
+                } else if let Some(px) = elem
+                    .attributes
+                    .get("Px")
+                    .and_then(|v| v.parse::<i32>().ok())
+                {
                     max_px2 = max_px2.max(px);
                 }
-                if let Some(py) = elem.attributes.get("Py").and_then(|v| v.parse::<i32>().ok()) {
+                if let Some(py) = elem
+                    .attributes
+                    .get("Py")
+                    .and_then(|v| v.parse::<i32>().ok())
+                {
                     min_py = min_py.min(py);
                 }
             }
@@ -394,16 +408,25 @@ impl ConfigEditor {
                     }
                 }
             }
-            nodes.push(Node { idx: i, uuid, btype, has_px, ins });
+            nodes.push(Node {
+                idx: i,
+                uuid,
+                btype,
+                positioned,
+                ins,
+            });
         }
 
         // indices (into `nodes`) of the blocks we must place
-        let new_ids: Vec<usize> = (0..nodes.len()).filter(|&n| !nodes[n].has_px).collect();
+        let new_ids: Vec<usize> = (0..nodes.len()).filter(|&n| !nodes[n].positioned).collect();
         if new_ids.is_empty() {
             return Ok(0);
         }
-        let uuid_to_node: HashMap<String, usize> =
-            nodes.iter().enumerate().map(|(n, nd)| (nd.uuid.clone(), n)).collect();
+        let uuid_to_node: HashMap<String, usize> = nodes
+            .iter()
+            .enumerate()
+            .map(|(n, nd)| (nd.uuid.clone(), n))
+            .collect();
         let new_set: HashSet<usize> = new_ids.iter().copied().collect();
 
         // predecessors among NEW blocks only: which new nodes feed node n
@@ -440,7 +463,11 @@ impl ConfigEditor {
             let l = if ps.is_empty() {
                 0
             } else {
-                1 + ps.iter().map(|&p| calc(p, preds, layer, seen)).max().unwrap_or(0)
+                1 + ps
+                    .iter()
+                    .map(|&p| calc(p, preds, layer, seen))
+                    .max()
+                    .unwrap_or(0)
             };
             seen.pop();
             layer.insert(n, l);
@@ -470,9 +497,15 @@ impl ConfigEditor {
                             .iter()
                             .filter_map(|p| row.get(p).map(|&r| r as f64))
                             .collect();
-                        if rs.is_empty() { 0.0 } else { rs.iter().sum::<f64>() / rs.len() as f64 }
+                        if rs.is_empty() {
+                            0.0
+                        } else {
+                            rs.iter().sum::<f64>() / rs.len() as f64
+                        }
                     };
-                    bary(a).partial_cmp(&bary(b)).unwrap_or(std::cmp::Ordering::Equal)
+                    bary(a)
+                        .partial_cmp(&bary(b))
+                        .unwrap_or(std::cmp::Ordering::Equal)
                 });
             }
             for (r, &n) in lst.iter().enumerate() {
@@ -483,19 +516,28 @@ impl ConfigEditor {
 
         // --- coordinates ---
         // base: free area to the right of existing content (fallback to editor origin)
-        let base_x = if max_px2 == i32::MIN { 576 } else { Self::snap96(max_px2 + 576) };
-        let base_y = if min_py == i32::MAX { 576 } else { Self::snap96(min_py) };
-        const COL_STEP: i32 = 2688; // widest block + gap (28 * 96)
-        const ROW_STEP: i32 = 960; // 10 * 96
+        let base_x = if max_px2 == i32::MIN {
+            576
+        } else {
+            Self::snap96(max_px2 + 576)
+        };
+        let base_y = if min_py == i32::MAX {
+            576
+        } else {
+            Self::snap96(min_py)
+        };
+        const COL_STEP: i32 = 2880; // widest block + 2-grid gap
+        const ROW_GAP: i32 = 192; // 2 * 96
 
         // resolve target coordinates per new node
         let mut targets: Vec<(usize, i32, i32, i32, i32)> = Vec::new(); // (child idx, Px, Py, Px2, Py2)
         for &l in &layers {
+            let mut py = base_y;
             for &n in &by_layer[&l] {
                 let (w, h) = block_size(&nodes[n].btype);
                 let px = Self::snap96(base_x + l * COL_STEP);
-                let py = Self::snap96(base_y + row[&n] as i32 * ROW_STEP);
                 targets.push((nodes[n].idx, px, py, px + w, py + h));
+                py += h + ROW_GAP;
             }
         }
 
@@ -513,7 +555,6 @@ impl ConfigEditor {
         }
         Ok(count)
     }
-
 }
 
 #[cfg(test)]
@@ -538,12 +579,17 @@ mod incremental_tests {
 </C>\n";
 
     fn px_of(xml: &str, uuid: &str) -> Option<i32> {
-        // crude: find `U="uuid"` then the following `Px="..."` within the same tag
+        attr_of(xml, uuid, "Px")
+    }
+
+    fn attr_of(xml: &str, uuid: &str, attr: &str) -> Option<i32> {
         let key = format!("U=\"{uuid}\"");
-        let start = xml.find(&key)?;
-        let tag_end = xml[start..].find('>')? + start;
-        let seg = &xml[start..tag_end];
-        let p = seg.find("Px=\"")? + 4;
+        let uuid_start = xml.find(&key)?;
+        let tag_start = xml[..uuid_start].rfind('<')?;
+        let tag_end = xml[uuid_start..].find('>')? + uuid_start;
+        let seg = &xml[tag_start..tag_end];
+        let attr_key = format!("{attr}=\"");
+        let p = seg.find(&attr_key)? + attr_key.len();
         let end = seg[p..].find('"')? + p;
         seg[p..end].parse().ok()
     }
@@ -561,7 +607,10 @@ mod incremental_tests {
         let ax = px_of(&out, "a").expect("A positioned");
         let bx = px_of(&out, "b").expect("B positioned");
         // B (fed by A) sits in a later layer → strictly further right
-        assert!(bx > ax, "B (layer 1) must be right of A (layer 0): ax={ax} bx={bx}");
+        assert!(
+            bx > ax,
+            "B (layer 1) must be right of A (layer 0): ax={ax} bx={bx}"
+        );
         // grid-snapped
         assert_eq!(ax % 96, 0, "A.Px snapped to 96-grid");
         assert_eq!(bx % 96, 0, "B.Px snapped to 96-grid");
@@ -569,7 +618,6 @@ mod incremental_tests {
 
     #[test]
     fn incremental_noop_when_all_positioned() {
-        // strip the two unpositioned gates → nothing to place
         let only_src = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n\
 <C Type=\"Page\" U=\"page-1\" Title=\"P\">\n\
 \t<C Type=\"Switch\" U=\"src\" Title=\"Src\" Px=\"1000\" Py=\"1000\" Px2=\"2344\" Py2=\"1696\">\n\
@@ -578,5 +626,48 @@ mod incremental_tests {
 </C>\n";
         let mut editor = ConfigEditor::load(only_src.as_bytes()).unwrap();
         assert_eq!(editor.incremental_layout("Type:Page").unwrap(), 0);
+    }
+
+    #[test]
+    fn incremental_repairs_incomplete_coordinates() {
+        let xml = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n\
+<C Type=\"Page\" U=\"page-1\" Title=\"P\">\n\
+\t<C Type=\"And\" U=\"partial\" Title=\"Partial\" Px=\"1000\">\n\
+\t\t<Co K=\"Q\" U=\"q-partial\"/>\n\
+\t</C>\n\
+</C>\n";
+        let mut editor = ConfigEditor::load(xml.as_bytes()).unwrap();
+        assert_eq!(editor.incremental_layout("Type:Page").unwrap(), 1);
+
+        let out = String::from_utf8(editor.to_bytes().unwrap()).unwrap();
+        for attr in ["Px", "Py", "Px2", "Py2"] {
+            assert!(
+                attr_of(&out, "partial", attr).is_some(),
+                "{attr} should be populated"
+            );
+        }
+    }
+
+    #[test]
+    fn incremental_stacks_tall_blocks_without_overlap() {
+        let xml = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n\
+<C Type=\"Page\" U=\"page-1\" Title=\"P\">\n\
+\t<C Type=\"LightController2\" U=\"a\" Title=\"A\">\n\
+\t\t<Co K=\"Q\" U=\"q-a\"/>\n\
+\t</C>\n\
+\t<C Type=\"LightController2\" U=\"b\" Title=\"B\">\n\
+\t\t<Co K=\"Q\" U=\"q-b\"/>\n\
+\t</C>\n\
+</C>\n";
+        let mut editor = ConfigEditor::load(xml.as_bytes()).unwrap();
+        assert_eq!(editor.incremental_layout("Type:Page").unwrap(), 2);
+
+        let out = String::from_utf8(editor.to_bytes().unwrap()).unwrap();
+        let a_bottom = attr_of(&out, "a", "Py2").expect("A.Py2");
+        let b_top = attr_of(&out, "b", "Py").expect("B.Py");
+        assert!(
+            b_top > a_bottom,
+            "blocks in the same layer must not overlap: A.Py2={a_bottom} B.Py={b_top}"
+        );
     }
 }
