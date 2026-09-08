@@ -165,7 +165,10 @@ impl SimGraph {
         if self.connectors[from].dir != ConnectorDir::Output {
             return Err(GraphError::ConnectorNotOutput(from));
         }
-        if self.connectors[to].dir != ConnectorDir::Input {
+        // Parameter connectors accept wires too: Loxone lets any parameter
+        // (e.g. Formula Input1-Input4, comparator Input2) be driven by a
+        // wire instead of a fixed value.
+        if self.connectors[to].dir == ConnectorDir::Output {
             return Err(GraphError::ConnectorNotInput(to));
         }
         if self.input_source.contains_key(&to) {

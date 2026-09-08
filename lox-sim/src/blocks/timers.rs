@@ -30,10 +30,16 @@ impl Block for Monoflop {
         prev_inputs: &[Signal],
     ) -> Vec<Signal> {
         let trigger = inputs.first().copied().unwrap_or(0.0);
+        let reset = inputs.get(1).copied().unwrap_or(0.0);
         let prev_trigger = prev_inputs.first().copied().unwrap_or(0.0);
         let duration = params.first().copied().unwrap_or(1.0).max(0.0);
 
-        if !is_high(prev_trigger) && is_high(trigger) {
+        // WARNING: Assumed behavior — not validated against Miniserver.
+        // Assumption: Reset aborts the running pulse and blocks retriggering
+        // while held.
+        if is_high(reset) {
+            self.remaining = 0.0;
+        } else if !is_high(prev_trigger) && is_high(trigger) {
             self.remaining = duration.max(dt);
         }
 

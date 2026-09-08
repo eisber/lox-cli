@@ -333,7 +333,7 @@ impl Formula {
 
     /// Returns `(result, error_flag)` for the configured expression and the
     /// four input values I1–I4.
-    fn evaluate_expr(expr: &str, vars: &[f64; 4]) -> (f64, f64) {
+    pub(crate) fn evaluate_expr(expr: &str, vars: &[f64; 4]) -> (f64, f64) {
         let value = Self::tokenize(expr).and_then(|tokens| {
             let mut pos = 0;
             let result = Self::parse_comparison(&tokens, &mut pos, vars)?;
@@ -668,6 +668,10 @@ impl Block for Formula {
 
     fn block_type(&self) -> &str {
         "Formula"
+    }
+
+    fn formula_expression(&self) -> Option<&str> {
+        Some(&self.expression)
     }
 }
 
