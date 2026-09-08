@@ -221,6 +221,12 @@ impl Clone for Box<dyn Block> {
 
 /// Core block trait — all simulation blocks implement this.
 pub trait Block: Send + Sync + BlockClone {
+    /// Configure which input connectors are wired before the first tick.
+    ///
+    /// Most blocks only depend on input values. Blocks whose semantics depend
+    /// on connector presence can override this hook.
+    fn configure_input_connections(&mut self, _connected: &[bool]) {}
+
     /// Evaluate the block for one tick.
     fn eval(
         &mut self,
@@ -591,7 +597,7 @@ pub fn create_block(block_type: &str) -> Box<dyn Block> {
         "JoinWindowSensor" => Box::new(JoinWindowSensor),
 
         // Group D — I/O
-        "InputRef" => Box::new(InputRef),
+        "InputRef" => Box::new(InputRef::new()),
         "OutputRef" => Box::new(OutputRef),
         "OutputRefLM" => Box::new(OutputRefLM),
         "EIBPush" => Box::new(EIBPush),

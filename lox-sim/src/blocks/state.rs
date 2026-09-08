@@ -257,14 +257,16 @@ impl Block for PushButton {
         let prev_trigger = prev_inputs.first().copied().unwrap_or(0.0);
         let previous = self.is_on;
 
-        // WARNING: Assumed behavior — not validated against Miniserver.
-        // Assumption: Reset dominates On; InputDisable gates only the trigger.
-        if is_high(reset) {
-            self.is_on = false;
-        } else if is_high(force_on) {
-            self.is_on = true;
-        } else if !is_high(disable) && !is_high(prev_trigger) && is_high(trigger) {
-            self.is_on = !self.is_on;
+        // InputDisable disables every peripheral input; Reset dominates On
+        // when peripheral control is enabled.
+        if !is_high(disable) {
+            if is_high(reset) {
+                self.is_on = false;
+            } else if is_high(force_on) {
+                self.is_on = true;
+            } else if !is_high(prev_trigger) && is_high(trigger) {
+                self.is_on = !self.is_on;
+            }
         }
 
         let qon = !previous && self.is_on;
@@ -335,20 +337,23 @@ impl Block for PushButton2 {
         prev_inputs: &[Signal],
     ) -> Vec<Signal> {
         let trigger = inputs.first().copied().unwrap_or(0.0);
+        let force_on = inputs.get(1).copied().unwrap_or(0.0);
         let reset = inputs.get(2).copied().unwrap_or(0.0);
         let disable = inputs.get(3).copied().unwrap_or(0.0);
         let prev_trigger = prev_inputs.first().copied().unwrap_or(0.0);
         let dc_window = params.first().copied().unwrap_or(0.4).max(0.0);
         let previous = self.is_on;
-        // WARNING: Assumed behavior — not validated against Miniserver.
-        // Assumption: Reset dominates and cancels a pending double-click;
-        // InputDisable gates only the trigger.
-        if is_high(reset) {
-            self.is_on = false;
-            self.awaiting_second = false;
+        let mut rising = false;
+        if !is_high(disable) {
+            if is_high(reset) {
+                self.is_on = false;
+                self.awaiting_second = false;
+            } else if is_high(force_on) {
+                self.is_on = true;
+            } else {
+                rising = !is_high(prev_trigger) && is_high(trigger);
+            }
         }
-        let rising =
-            !is_high(reset) && !is_high(disable) && !is_high(prev_trigger) && is_high(trigger);
         let mut double_click = false;
 
         if self.awaiting_second {
@@ -938,6 +943,56 @@ mod tests {
             block.eval(&[1.0, 0.0], &[], 0.0, &[0.0, 0.0]),
             vec![0.0, 1.0, 0.0]
         );
+    }
+
+    #[test]
+    fn pushbutton_reset_dominates_on_when_enabled() {
+        let mut block = PushButton::new();
+        assert_eq!(
+            block.eval(&[1.0, 1.0, 1.0, 0.0], &[], 0.0, &[0.0, 0.0, 0.0, 0.0]),
+            vec![0.0, 0.0, 0.0]
+        );
+    }
+
+    #[test]
+    fn pushbutton_disable_blocks_all_inputs() {
+        let mut block = PushButton::new();
+        block.eval(&[1.0, 0.0, 0.0, 0.0], &[], 0.0, &[0.0, 0.0, 0.0, 0.0]);
+
+        assert_eq!(
+            block.eval(&[0.0, 0.0, 1.0, 1.0], &[], 0.0, &[1.0, 0.0, 0.0, 0.0]),
+            vec![1.0, 0.0, 0.0],
+            "disabled Reset must not change the state"
+        );
+
+        let mut off = PushButton::new();
+        assert_eq!(
+            off.eval(&[1.0, 1.0, 0.0, 1.0], &[], 0.0, &[0.0, 0.0, 0.0, 1.0]),
+            vec![0.0, 0.0, 0.0],
+            "disabled Trigger and On must not change the state"
+        );
+    }
+
+    #[test]
+    fn pushbutton2_disable_blocks_reset_and_trigger() {
+        let mut block = PushButton2::new();
+        block.eval(&[1.0, 0.0, 0.0, 0.0], &[0.5], 0.0, &[0.0, 0.0, 0.0, 0.0]);
+        let out = block.eval(&[0.0, 0.0, 1.0, 1.0], &[0.5], 0.1, &[1.0, 0.0, 0.0, 0.0]);
+        assert_eq!(out[0], 1.0);
+        assert_eq!(out[1], 0.0);
+    }
+
+    #[test]
+    fn pushbutton2_on_forces_output_unless_disabled() {
+        let mut block = PushButton2::new();
+        let out = block.eval(&[0.0, 1.0, 0.0, 0.0], &[0.5], 0.1, &[0.0; 4]);
+        assert_eq!(out[0], 1.0);
+        assert_eq!(out[2], 1.0);
+
+        let mut disabled = PushButton2::new();
+        let out = disabled.eval(&[0.0, 1.0, 0.0, 1.0], &[0.5], 0.1, &[0.0; 4]);
+        assert_eq!(out[0], 0.0);
+        assert_eq!(out[2], 0.0);
     }
 
     #[test]

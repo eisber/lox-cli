@@ -143,9 +143,19 @@ impl SimEngine {
     /// Build an engine from a fully-wired graph.
     pub fn new(mut graph: SimGraph) -> Self {
         let topo = graph.topological_order();
-        let blocks = graph.take_block_impls();
+        let mut blocks = graph.take_block_impls();
         let n_conn = graph.connector_count();
         let n_blocks = graph.block_count();
+
+        for (bid, block) in blocks.iter_mut().enumerate() {
+            let connected: Vec<bool> = graph
+                .block_info(bid)
+                .inputs
+                .iter()
+                .map(|&cid| graph.input_source_of(cid).is_some())
+                .collect();
+            block.configure_input_connections(&connected);
+        }
 
         // Initialise signals with connector defaults.
         let signals: Vec<f64> = (0..n_conn)
