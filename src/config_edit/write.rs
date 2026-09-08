@@ -134,10 +134,7 @@ impl ConfigEditor {
         }
 
         // Loxone expands attribute-less empty elements but keeps attributed empties closed.
-        if name_end + 2 == bytes.len()
-            && bytes[name_end] == b'/'
-            && bytes[name_end + 1] == b'>'
-        {
+        if name_end + 2 == bytes.len() && bytes[name_end] == b'/' && bytes[name_end + 1] == b'>' {
             let name = &tag[1..name_end];
             return format!("<{name}></{name}>");
         }
@@ -188,9 +185,18 @@ mod tests {
         let editor = ConfigEditor::load(xml.as_bytes()).unwrap();
         let out = String::from_utf8(editor.to_bytes().unwrap()).unwrap();
         assert!(!out.contains(" />"), "no padded self-close");
-        assert!(out.contains("<IoData></IoData>"), "attr-less empty stays expanded");
-        assert!(out.contains(r#"<Co K="Q" U="b"/>"#), "attributed empty self-closes");
-        assert!(out.contains("line1\nline2"), "literal newline in attr value");
+        assert!(
+            out.contains("<IoData></IoData>"),
+            "attr-less empty stays expanded"
+        );
+        assert!(
+            out.contains(r#"<Co K="Q" U="b"/>"#),
+            "attributed empty self-closes"
+        );
+        assert!(
+            out.contains("line1\nline2"),
+            "literal newline in attr value"
+        );
         assert!(!out.contains("&#xA;"), "no escaped newline");
         assert!(out.ends_with('\n'), "trailing newline");
     }
