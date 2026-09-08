@@ -239,6 +239,11 @@ pub trait Block: Send + Sync + BlockClone {
     /// Block type name.
     fn block_type(&self) -> &str;
 
+    /// Formula source used by the compiled evaluator.
+    fn formula_expression(&self) -> Option<&str> {
+        None
+    }
+
     /// Whether the block's output depends on `prev_inputs`.
     fn is_edge_sensitive(&self) -> bool {
         false
