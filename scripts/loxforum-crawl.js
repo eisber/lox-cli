@@ -9,7 +9,6 @@ const { DatabaseSync } = require("node:sqlite");
 
 const {
   evaluate,
-  findForumPage,
   randomDelay,
   sleep,
   writeJsonAtomic,
@@ -36,6 +35,7 @@ const ARCHIVE_MAX_DELAY_MS = 3_000;
 const LIVE_LIMIT = 25;
 const ARCHIVE_LIMIT = 100;
 const LEASE_MS = 30 * 60 * 1_000;
+const DEFAULT_WATCH_POLL_MS = 2_000;
 
 class ChallengeError extends Error {}
 
@@ -50,6 +50,25 @@ function defaultDataDir() {
   );
 }
 
+function validateCdpUrl(value) {
+  let url;
+  try {
+    url = new URL(value);
+  } catch {
+    throw new Error("Chrome DevTools URL must be a valid loopback HTTP URL");
+  }
+  const loopbackHosts = new Set(["localhost", "127.0.0.1", "::1", "[::1]"]);
+  if (
+    url.protocol !== "http:" ||
+    !loopbackHosts.has(url.hostname) ||
+    url.username ||
+    url.password
+  ) {
+    throw new Error("Chrome DevTools URL must use HTTP on a loopback host");
+  }
+  return url.href.replace(/\/$/, "");
+}
+
 function parseArgs(argv) {
   const command = argv[0];
   if (
@@ -58,12 +77,13 @@ function parseArgs(argv) {
       "archive-pilot",
       "next",
       "capture-open",
+      "watch",
       "status",
       "unblock",
     ].includes(command)
   ) {
     throw new Error(
-      "Usage: node scripts/loxforum-crawl.js <inventory|archive-pilot|next|capture-open|status|unblock> [options]",
+      "Usage: node scripts/loxforum-crawl.js <inventory|archive-pilot|next|capture-open|watch|status|unblock> [options]",
     );
   }
 
@@ -76,6 +96,7 @@ function parseArgs(argv) {
     limit: command === "next" ? LIVE_LIMIT : ARCHIVE_LIMIT,
     minDelayMs: ARCHIVE_MIN_DELAY_MS,
     maxDelayMs: ARCHIVE_MAX_DELAY_MS,
+    pollMs: DEFAULT_WATCH_POLL_MS,
   };
   const values = {
     "--data-dir": "dataDir",
@@ -85,6 +106,7 @@ function parseArgs(argv) {
     "--limit": "limit",
     "--min-delay-ms": "minDelayMs",
     "--max-delay-ms": "maxDelayMs",
+    "--poll-ms": "pollMs",
   };
 
   for (let i = 1; i < argv.length; i += 1) {
@@ -92,7 +114,7 @@ function parseArgs(argv) {
     if (!key || i + 1 >= argv.length) {
       throw new Error(`Unknown or incomplete argument: ${argv[i]}`);
     }
-    options[key] = ["limit", "minDelayMs", "maxDelayMs"].includes(key)
+    options[key] = ["limit", "minDelayMs", "maxDelayMs", "pollMs"].includes(key)
       ? Number(argv[++i])
       : argv[++i];
   }
@@ -102,16 +124,19 @@ function parseArgs(argv) {
     options.limit < 1 ||
     !Number.isInteger(options.minDelayMs) ||
     !Number.isInteger(options.maxDelayMs) ||
+    !Number.isInteger(options.pollMs) ||
     options.minDelayMs < 0 ||
-    options.maxDelayMs < options.minDelayMs
+    options.maxDelayMs < options.minDelayMs ||
+    options.pollMs < 500
   ) {
     throw new Error(
-      "Limit and delays must be integers with limit >= 1 and 0 <= min <= max",
+      "Limit and delays must be integers with limit >= 1, 0 <= min <= max, and poll >= 500 ms",
     );
   }
   if (command === "next" && options.limit > LIVE_LIMIT) {
     throw new Error(`Next-page listing cannot exceed ${LIVE_LIMIT} entries`);
   }
+  options.cdpUrl = validateCdpUrl(options.cdpUrl);
   return options;
 }
 
@@ -580,6 +605,16 @@ function releaseLock(db, name, owner) {
   );
 }
 
+function renewLock(db, name, owner) {
+  const result = db.prepare(`
+    UPDATE crawl_locks SET lease_until = ?
+    WHERE name = ? AND owner = ?
+  `).run(new Date(Date.now() + LEASE_MS).toISOString(), name, owner);
+  if (result.changes !== 1) {
+    throw new Error(`Lost the ${name} process lock`);
+  }
+}
+
 function storeObject(dataDir, content, contentType) {
   const bytes = Buffer.from(content, "utf8");
   const sha256 = crypto.createHash("sha256").update(bytes).digest("hex");
@@ -656,12 +691,13 @@ function assertLivePage(response) {
     throw error;
   }
   if (
-    response.status !== 200 ||
+    ![0, 200].includes(response.status) ||
     !/^text\/html\b/i.test(response.contentType) ||
-    response.text.length < 2_000
+    response.text.length < 2_000 ||
+    (response.threadMarkers || 0) < 1
   ) {
     throw new Error(
-      `Unexpected live response (HTTP ${response.status}, ${response.contentType || "no content type"}, ${response.text.length} bytes)`,
+      `Unexpected live response (HTTP ${response.status}, ${response.contentType || "no content type"}, ${response.text.length} bytes, ${response.threadMarkers || 0} thread markers)`,
     );
   }
 }
@@ -675,17 +711,40 @@ function pageNumberFromUrl(input) {
   }
 }
 
-async function readLoadedPage(tab, status = 200) {
-  const expression = `JSON.stringify({
-    status: ${JSON.stringify(status)},
-    contentType: document.contentType || "",
-    finalUrl: location.href,
-    title: document.title,
-    text: document.documentElement.outerHTML
-  })`;
-  const value = await evaluate(tab, expression);
+async function readLoadedPage(tab, signal) {
+  const expression = `(() => {
+    const navigation = performance.getEntriesByType("navigation")[0];
+    return JSON.stringify({
+      status: navigation?.responseStatus || 0,
+      contentType: document.contentType || "",
+      finalUrl: location.href,
+      title: document.title,
+      readyState: document.readyState,
+      threadMarkers: document.querySelectorAll("[data-node-id]").length,
+      text: document.documentElement.outerHTML
+    });
+  })()`;
+  const value = await evaluate(tab, expression, { signal, timeoutMs: 10_000 });
   if (typeof value !== "string") throw new Error("Browser returned no page DOM");
   return JSON.parse(value);
+}
+
+async function listForumTabs(cdpUrl) {
+  const localCdpUrl = validateCdpUrl(cdpUrl);
+  const response = await fetch(`${localCdpUrl}/json/list`, {
+    redirect: "error",
+    signal: AbortSignal.timeout(5_000),
+  });
+  if (!response.ok) {
+    throw new Error(`Cannot inspect Chrome DevTools tabs: HTTP ${response.status}`);
+  }
+  const tabs = await response.json();
+  return tabs.filter(
+    (tab) =>
+      tab.type === "page" &&
+      tab.url.startsWith(`${FORUM_ORIGIN}/`) &&
+      tab.webSocketDebuggerUrl,
+  );
 }
 
 function recordLiveSuccess(db, dataDir, job, response) {
@@ -946,55 +1005,184 @@ function listNextJobs(db, limit) {
   `).all(limit);
 }
 
+function captureLoadedResponse(db, dataDir, response) {
+  if (response.readyState && response.readyState !== "complete") {
+    return { state: "loading" };
+  }
+  assertLivePage(response);
+  const thread = threadFromUrl(response.finalUrl);
+  const pageNumber = pageNumberFromUrl(response.finalUrl);
+  if (!thread || pageNumber === null) {
+    return { state: "ignored" };
+  }
+
+  let job = db.prepare(`
+    SELECT * FROM jobs WHERE thread_id = ? AND page_number = ?
+  `).get(thread.threadId, pageNumber);
+  if (!job) {
+    upsertDiscovery(db, {
+      ...thread,
+      title: response.title?.replace(/\s+-\s+loxforum\.com$/i, "") || null,
+      sourceType: "manual",
+      captureUrl: response.finalUrl,
+      capturedAt: "",
+      digest: "",
+      priority: 100,
+    });
+    if (pageNumber !== 1) {
+      db.prepare(`
+        INSERT OR IGNORE INTO jobs(
+          thread_id, page_number, url, priority, updated_at
+        ) VALUES (?, ?, ?, 100, ?)
+      `).run(
+        thread.threadId,
+        pageNumber,
+        response.finalUrl,
+        new Date().toISOString(),
+      );
+    }
+    job = db.prepare(`
+      SELECT * FROM jobs WHERE thread_id = ? AND page_number = ?
+    `).get(thread.threadId, pageNumber);
+  }
+  if (job.state === "completed") {
+    return {
+      state: "already_captured",
+      threadId: job.thread_id,
+      pageNumber: job.page_number,
+    };
+  }
+
+  const now = new Date().toISOString();
+  db.prepare(`
+    UPDATE jobs
+    SET state = 'in_progress', lease_until = ?, updated_at = ?
+    WHERE id = ?
+  `).run(new Date(Date.now() + LEASE_MS).toISOString(), now, job.id);
+  recordLiveSuccess(db, dataDir, job, response);
+  return {
+    state: "captured",
+    threadId: job.thread_id,
+    pageNumber: job.page_number,
+  };
+}
+
 async function captureOpenPage(db, options) {
   const lockName = "live-capture";
   const owner = crypto.randomUUID();
   acquireLock(db, lockName, owner);
   try {
-    const tab = await findForumPage(options.cdpUrl);
-    const response = await readLoadedPage(tab);
-    assertLivePage(response);
-    const thread = threadFromUrl(response.finalUrl);
-    const pageNumber = pageNumberFromUrl(response.finalUrl);
-    if (!thread || pageNumber === null) {
-      throw new Error("The open tab is not a recognizable loxforum thread page");
+    const tabs = await listForumTabs(options.cdpUrl);
+    for (const tab of tabs) {
+      if (!threadFromUrl(tab.url)) continue;
+      const result = captureLoadedResponse(
+        db,
+        options.dataDir,
+        await readLoadedPage(tab),
+      );
+      if (result.state === "captured") {
+        console.log(
+          `Captured open thread ${result.threadId}, page ${result.pageNumber}.`,
+        );
+        return 1;
+      }
+      if (result.state === "already_captured") {
+        console.log(
+          `Thread ${result.threadId}, page ${result.pageNumber} is already captured.`,
+        );
+        return 0;
+      }
     }
-
-    let job = db.prepare(`
-      SELECT * FROM jobs WHERE thread_id = ? AND page_number = ?
-    `).get(thread.threadId, pageNumber);
-    if (!job) {
-      upsertDiscovery(db, {
-        ...thread,
-        title: response.title?.replace(/\s+-\s+loxforum\.com$/i, "") || null,
-        sourceType: "manual",
-        captureUrl: response.finalUrl,
-        capturedAt: new Date().toISOString(),
-        digest: "",
-        priority: 100,
-      });
-      job = db.prepare(`
-        SELECT * FROM jobs WHERE thread_id = ? AND page_number = ?
-      `).get(thread.threadId, pageNumber);
-    }
-    if (job.state === "completed") {
-      console.log(`Thread ${job.thread_id}, page ${job.page_number} is already captured.`);
-      return 0;
-    }
-    db.prepare(`
-      UPDATE jobs
-      SET state = 'in_progress', lease_until = ?, updated_at = ?
-      WHERE id = ?
-    `).run(
-      new Date(Date.now() + LEASE_MS).toISOString(),
-      new Date().toISOString(),
-      job.id,
-    );
-    recordLiveSuccess(db, options.dataDir, job, response);
-    console.log(`Captured open thread ${job.thread_id}, page ${job.page_number}.`);
-    return 1;
+    throw new Error("No fully loaded loxforum thread page is open");
   } finally {
     releaseLock(db, lockName, owner);
+  }
+}
+
+function watchSignature(response) {
+  return crypto
+    .createHash("sha256")
+    .update(
+      `${response.finalUrl}\0${response.title || ""}\0${response.readyState || ""}\0${response.text}`,
+    )
+    .digest("hex");
+}
+
+async function watchOpenPages(db, options) {
+  const lockName = "live-capture";
+  const owner = crypto.randomUUID();
+  acquireLock(db, lockName, owner);
+  const seen = new Map();
+  let stopping = false;
+  const abortController = new AbortController();
+  const stop = () => {
+    stopping = true;
+    abortController.abort();
+  };
+  process.once("SIGINT", stop);
+  process.once("SIGTERM", stop);
+
+  console.log(
+    `Watching local Chrome every ${options.pollMs} ms. Navigate normally; press Ctrl+C to stop.`,
+  );
+  try {
+    while (!stopping) {
+      renewLock(db, lockName, owner);
+      let tabs;
+      try {
+        tabs = await listForumTabs(options.cdpUrl);
+      } catch (error) {
+        console.error(`Browser unavailable: ${error.message}`);
+        await sleep(options.pollMs);
+        continue;
+      }
+
+      const activeTabIds = new Set(tabs.map((tab) => tab.id));
+      for (const tabId of seen.keys()) {
+        if (!activeTabIds.has(tabId)) seen.delete(tabId);
+      }
+
+      for (const tab of tabs) {
+        if (!threadFromUrl(tab.url)) continue;
+        let signature;
+        try {
+          const response = await readLoadedPage(tab, abortController.signal);
+          if (response.readyState !== "complete") continue;
+          signature = watchSignature(response);
+          if (seen.get(tab.id) === signature) continue;
+
+          const result = captureLoadedResponse(db, options.dataDir, response);
+          if (result.state === "captured") {
+            seen.set(tab.id, signature);
+            console.log(
+              `Captured thread ${result.threadId}, page ${result.pageNumber}.`,
+            );
+            writeSummary(db, options.summaryPath);
+          } else if (result.state === "already_captured") {
+            seen.set(tab.id, signature);
+            console.log(
+              `Already captured thread ${result.threadId}, page ${result.pageNumber}.`,
+            );
+          } else if (result.state === "ignored") {
+            seen.set(tab.id, signature);
+          }
+        } catch (error) {
+          if (error instanceof ChallengeError) {
+            if (signature) seen.set(tab.id, signature);
+            console.error(`Skipped challenged page in tab ${tab.id}.`);
+            continue;
+          }
+          if (stopping && error.message === "Browser evaluation aborted") break;
+          console.error(`Could not inspect tab ${tab.id}: ${error.message}`);
+        }
+      }
+      if (!stopping) await sleep(options.pollMs);
+    }
+  } finally {
+    process.removeListener("SIGINT", stop);
+    process.removeListener("SIGTERM", stop);
+    releaseLock(db, lockName, owner);
+    console.log("Stopped browser capture watcher.");
   }
 }
 
@@ -1024,6 +1212,8 @@ async function main() {
         console.log(JSON.stringify(listNextJobs(db, options.limit), null, 2));
       } else if (options.command === "capture-open") {
         await captureOpenPage(db, options);
+      } else if (options.command === "watch") {
+        await watchOpenPages(db, options);
       } else if (options.command === "unblock") {
         const result = db.prepare(`
           UPDATE jobs
@@ -1056,12 +1246,14 @@ module.exports = {
   acquireLock,
   assertArchivePage,
   assertLivePage,
+  captureLoadedResponse,
   captureOpenPage,
   discoverAttachments,
   discoverPageUrls,
   importDiscoveries,
   isoFromCdxTimestamp,
   listNextJobs,
+  listForumTabs,
   openLedger,
   pageNumberFromUrl,
   parseArgs,
@@ -1070,5 +1262,8 @@ module.exports = {
   reclassifyStoredChallenges,
   storeObject,
   threadFromUrl,
+  validateCdpUrl,
+  watchOpenPages,
+  watchSignature,
   writeSummary,
 };

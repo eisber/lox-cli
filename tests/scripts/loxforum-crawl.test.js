@@ -11,6 +11,7 @@ const {
   acquireLock,
   assertArchivePage,
   assertLivePage,
+  captureLoadedResponse,
   discoverAttachments,
   discoverPageUrls,
   importDiscoveries,
@@ -21,6 +22,7 @@ const {
   releaseLock,
   storeObject,
   threadFromUrl,
+  validateCdpUrl,
   writeSummary,
 } = require("../../scripts/loxforum-crawl.js");
 
@@ -56,6 +58,15 @@ test("extracts root and paginated page numbers", () => {
   assert.equal(
     pageNumberFromUrl("https://www.loxforum.com/forum/german/42-example/page16"),
     16,
+  );
+});
+
+test("accepts only local Chrome DevTools endpoints", () => {
+  assert.equal(validateCdpUrl("http://127.0.0.1:9222/"), "http://127.0.0.1:9222");
+  assert.equal(validateCdpUrl("http://localhost:9222"), "http://localhost:9222");
+  assert.throws(
+    () => validateCdpUrl("https://www.loxforum.com"),
+    /loopback/,
   );
 });
 
@@ -210,6 +221,76 @@ test("archive processing inventories attachments without downloading them", () =
   }
 });
 
+test("captures a loaded page once and discovers pagination", () => {
+  const directory = fs.mkdtempSync(path.join(os.tmpdir(), "loxforum-live-"));
+  const db = openLedger(directory);
+  try {
+    importDiscoveries(db, [{
+      threadId: 42,
+      canonicalUrl: "https://www.loxforum.com/forum/german/42-example",
+      sourceType: "rss",
+      captureUrl: "https://www.loxforum.com/forum/german/42-example",
+      capturedAt: "2026-09-01T00:00:00.000Z",
+      digest: "",
+      priority: 100,
+    }]);
+    const html = `
+      <html>
+        <title>Example - loxforum.com</title>
+        <body>${"content".repeat(300)}
+          <a href="/forum/german/42-example/page2">Next</a>
+        </body>
+      </html>
+    `;
+    const response = {
+      status: 200,
+      contentType: "text/html",
+      finalUrl: "https://www.loxforum.com/forum/german/42-example",
+      title: "Example - loxforum.com",
+      readyState: "complete",
+      threadMarkers: 1,
+      text: html,
+    };
+
+    assert.deepEqual(captureLoadedResponse(db, directory, response), {
+      state: "captured",
+      threadId: 42,
+      pageNumber: 1,
+    });
+    assert.deepEqual(captureLoadedResponse(db, directory, response), {
+      state: "already_captured",
+      threadId: 42,
+      pageNumber: 1,
+    });
+    assert.equal(
+      db.prepare("SELECT COUNT(*) AS count FROM jobs").get().count,
+      2,
+    );
+  } finally {
+    db.close();
+    fs.rmSync(directory, { recursive: true, force: true });
+  }
+});
+
+test("does not capture a page before it finishes loading", () => {
+  const directory = fs.mkdtempSync(path.join(os.tmpdir(), "loxforum-loading-"));
+  const db = openLedger(directory);
+  try {
+    assert.deepEqual(
+      captureLoadedResponse(db, directory, {
+        readyState: "loading",
+        finalUrl: "https://www.loxforum.com/forum/german/42-example",
+        text: "<html></html>",
+      }),
+      { state: "loading" },
+    );
+    assert.equal(db.prepare("SELECT COUNT(*) AS count FROM jobs").get().count, 0);
+  } finally {
+    db.close();
+    fs.rmSync(directory, { recursive: true, force: true });
+  }
+});
+
 test("stores content by hash outside the repository", () => {
   const directory = fs.mkdtempSync(path.join(os.tmpdir(), "loxforum-objects-"));
   try {
@@ -231,6 +312,7 @@ test("treats challenge content as a hard stop", () => {
       assertLivePage({
         status: 200,
         contentType: "text/html",
+        threadMarkers: 0,
         text: `${"<html>".padEnd(2_100, " ")}h-captcha`,
       }),
     ChallengeError,

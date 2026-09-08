@@ -76,6 +76,19 @@ node scripts/loxforum-crawl.js unblock
 node scripts/loxforum-crawl.js capture-open
 ```
 
+For a browsing session, start the passive watcher before navigating:
+
+```powershell
+node scripts/loxforum-crawl.js watch
+```
+
+The watcher polls Chrome's local DevTools endpoint every two seconds and reads
+only fully loaded loxforum thread DOMs. It does not click, navigate, refresh, or
+download attachments. Each thread page is captured once; repeated observations
+and previously completed jobs are ignored. The DevTools endpoint is restricted
+to loopback HTTP and redirects are rejected. Use `--poll-ms` to change the
+local poll interval (minimum 500 ms), and press Ctrl+C for a graceful stop.
+
 Expired leases are recovered automatically after 30 minutes. Server failures
 receive no immediate retry: they become eligible after 15 minutes, then 60
 minutes, and fail permanently after the third attempt. Attachment URLs are

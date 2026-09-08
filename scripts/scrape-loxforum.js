@@ -245,12 +245,45 @@ async function findForumPage(cdpUrl) {
   return tab;
 }
 
-function evaluate(tab, expression) {
+function evaluate(tab, expression, options = {}) {
   return new Promise((resolve, reject) => {
     const socket = new WebSocket(tab.webSocketDebuggerUrl);
     const requestId = 1;
+    const timeoutMs = options.timeoutMs || 10_000;
+    let settled = false;
+    const timeout = setTimeout(() => {
+      finish(new Error(`Browser evaluation timed out after ${timeoutMs} ms`));
+    }, timeoutMs);
+
+    function cleanup() {
+      clearTimeout(timeout);
+      options.signal?.removeEventListener("abort", onAbort);
+      if (socket.readyState === WebSocket.OPEN) socket.close();
+    }
+
+    function finish(error, value) {
+      if (settled) return;
+      settled = true;
+      cleanup();
+      if (error) reject(error);
+      else resolve(value);
+    }
+
+    function onAbort() {
+      finish(new Error("Browser evaluation aborted"));
+    }
+
+    if (options.signal?.aborted) {
+      finish(new Error("Browser evaluation aborted"));
+      return;
+    }
+    options.signal?.addEventListener("abort", onAbort, { once: true });
 
     socket.addEventListener("open", () => {
+      if (settled) {
+        socket.close();
+        return;
+      }
       socket.send(
         JSON.stringify({
           id: requestId,
@@ -264,14 +297,16 @@ function evaluate(tab, expression) {
       );
     });
     socket.addEventListener("error", () => {
-      reject(new Error("Chrome DevTools WebSocket connection failed"));
+      finish(new Error("Chrome DevTools WebSocket connection failed"));
+    });
+    socket.addEventListener("close", () => {
+      finish(new Error("Chrome DevTools WebSocket closed before evaluation completed"));
     });
     socket.addEventListener("message", (event) => {
       const message = JSON.parse(event.data);
       if (message.id !== requestId) return;
-      socket.close();
       if (message.error || message.result?.exceptionDetails) {
-        reject(
+        finish(
           new Error(
             message.error?.message ||
               message.result.exceptionDetails.text ||
@@ -280,7 +315,7 @@ function evaluate(tab, expression) {
         );
         return;
       }
-      resolve(message.result?.result?.value);
+      finish(null, message.result?.result?.value);
     });
   });
 }
