@@ -276,17 +276,12 @@ impl ConfigEditor {
             .children
             .iter_mut()
             .find_map(|c| {
-                c.as_mut_element().and_then(|e| {
-                    if e.name == "Co"
+                c.as_mut_element().filter(|e| {
+                    e.name == "Co"
                         && e.attributes
                             .get("K")
                             .map(|k| k == source_connector)
                             .unwrap_or(false)
-                    {
-                        Some(e)
-                    } else {
-                        None
-                    }
                 })
             })
             .ok_or_else(|| {
@@ -318,17 +313,12 @@ impl ConfigEditor {
             .children
             .iter_mut()
             .find_map(|c| {
-                c.as_mut_element().and_then(|e| {
-                    if e.name == "Co"
+                c.as_mut_element().filter(|e| {
+                    e.name == "Co"
                         && e.attributes
                             .get("K")
                             .map(|k| k == connector_name)
                             .unwrap_or(false)
-                    {
-                        Some(e)
-                    } else {
-                        None
-                    }
                 })
             })
             .ok_or_else(|| {
@@ -863,17 +853,12 @@ impl ConfigEditor {
             .children
             .iter_mut()
             .find_map(|c| {
-                c.as_mut_element().and_then(|e| {
-                    if e.name == "Co"
+                c.as_mut_element().filter(|e| {
+                    e.name == "Co"
                         && e.attributes
                             .get("K")
                             .map(|k| k == conn_key)
                             .unwrap_or(false)
-                    {
-                        Some(e)
-                    } else {
-                        None
-                    }
                 })
             })
             .ok_or_else(|| {
