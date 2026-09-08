@@ -103,8 +103,7 @@ impl Rc6Key {
             data.len().is_multiple_of(16),
             "data must be a multiple of 16 bytes"
         );
-        for chunk in data.chunks_exact_mut(16) {
-            let block: &mut [u8; 16] = chunk.try_into().unwrap();
+        for block in data.as_chunks_mut::<16>().0 {
             self.encrypt_block(block);
         }
     }
@@ -115,8 +114,7 @@ impl Rc6Key {
             data.len().is_multiple_of(16),
             "data must be a multiple of 16 bytes"
         );
-        for chunk in data.chunks_exact_mut(16) {
-            let block: &mut [u8; 16] = chunk.try_into().unwrap();
+        for block in data.as_chunks_mut::<16>().0 {
             self.decrypt_block(block);
         }
     }

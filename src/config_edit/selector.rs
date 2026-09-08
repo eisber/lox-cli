@@ -6,12 +6,11 @@ impl ConfigEditor {
     /// Find all elements matching a selector.
     pub fn find_elements(&self, selector: &str) -> Vec<Vec<usize>> {
         let mut results = Vec::new();
-        self.find_recursive(&self.root, selector, &mut Vec::new(), &mut results);
+        Self::find_recursive(&self.root, selector, &mut Vec::new(), &mut results);
         results
     }
 
     fn find_recursive(
-        &self,
         elem: &Element,
         selector: &str,
         path: &mut Vec<usize>,
@@ -23,7 +22,7 @@ impl ConfigEditor {
         for (i, child) in elem.children.iter().enumerate() {
             if let Some(child_elem) = child.as_element() {
                 path.push(i);
-                self.find_recursive(child_elem, selector, path, results);
+                Self::find_recursive(child_elem, selector, path, results);
                 path.pop();
             }
         }
@@ -158,7 +157,6 @@ impl ConfigEditor {
 
     #[allow(dead_code)]
     fn find_exact_title(
-        &self,
         elem: &Element,
         title: &str,
         path: &mut Vec<usize>,
@@ -176,7 +174,7 @@ impl ConfigEditor {
         for (i, child) in elem.children.iter().enumerate() {
             if let Some(child_elem) = child.as_element() {
                 path.push(i);
-                self.find_exact_title(child_elem, title, path, results);
+                Self::find_exact_title(child_elem, title, path, results);
                 path.pop();
             }
         }
