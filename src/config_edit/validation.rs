@@ -131,7 +131,7 @@ impl ConfigEditor {
         // Resolve title-based wiring ("BlockTitle.ConnKey") to UUIDs so output
         // connectivity checks work for both UUID and title-based references.
         let mut title_conn_to_uuid: HashMap<String, String> = HashMap::new();
-        for elem in self.iter_elements(&self.root) {
+        for elem in Self::iter_elements(&self.root) {
             if let Some(title) = elem.attributes.get("Title") {
                 for child in &elem.children {
                     if let Some(co) = child.as_element()
@@ -538,7 +538,7 @@ impl ConfigEditor {
         if selector.is_none() {
             const PROGRAM_LIMIT: usize = 8;
             let mut programs: Vec<String> = Vec::new();
-            for elem in self.iter_elements(&self.root) {
+            for elem in Self::iter_elements(&self.root) {
                 if matches!(
                     elem.attributes.get("Type").map(|s| s.as_str()),
                     Some("Code1" | "Code4" | "Code8" | "Code16")
@@ -574,17 +574,17 @@ impl ConfigEditor {
 
         // Collect all Place UUIDs
         let mut place_uuids = std::collections::HashSet::new();
-        self.collect_typed_uuids(&self.root, "Place", &mut place_uuids);
+        Self::collect_typed_uuids(&self.root, "Place", &mut place_uuids);
 
         // Collect all Category UUIDs
         let mut category_uuids = std::collections::HashSet::new();
-        self.collect_typed_uuids(&self.root, "Category", &mut category_uuids);
+        Self::collect_typed_uuids(&self.root, "Category", &mut category_uuids);
 
         // Check IoData references
         let mut bad_rooms = Vec::new();
         let mut bad_cats = Vec::new();
         let mut unconnected = Vec::new();
-        self.validate_recursive(
+        Self::validate_recursive(
             &self.root,
             &place_uuids,
             &category_uuids,
@@ -965,7 +965,6 @@ impl ConfigEditor {
     }
 
     fn collect_typed_uuids(
-        &self,
         elem: &Element,
         type_name: &str,
         uuids: &mut std::collections::HashSet<String>,
@@ -979,13 +978,12 @@ impl ConfigEditor {
         }
         for child in &elem.children {
             if let Some(child_elem) = child.as_element() {
-                self.collect_typed_uuids(child_elem, type_name, uuids);
+                Self::collect_typed_uuids(child_elem, type_name, uuids);
             }
         }
     }
 
     fn validate_recursive(
-        &self,
         elem: &Element,
         places: &std::collections::HashSet<String>,
         categories: &std::collections::HashSet<String>,
@@ -1016,7 +1014,7 @@ impl ConfigEditor {
         }
         for child in &elem.children {
             if let Some(child_elem) = child.as_element() {
-                self.validate_recursive(
+                Self::validate_recursive(
                     child_elem,
                     places,
                     categories,

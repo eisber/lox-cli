@@ -391,11 +391,11 @@ impl ConfigEditor {
         current
     }
 
-    fn iter_elements<'a>(&'a self, elem: &'a Element) -> Vec<&'a Element> {
+    fn iter_elements(elem: &Element) -> Vec<&Element> {
         let mut result = vec![elem];
         for child in &elem.children {
             if let Some(e) = child.as_element() {
-                result.extend(self.iter_elements(e));
+                result.extend(Self::iter_elements(e));
             }
         }
         result

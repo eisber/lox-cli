@@ -404,11 +404,11 @@ impl ConfigEditor {
     /// List all MQTT topics (GenTSensor subscriptions + GenTActor publishes).
     pub fn list_mqtt_topics(&self) -> Vec<MqttTopic> {
         let mut topics = Vec::new();
-        self.collect_mqtt_topics(&self.root, &mut topics);
+        Self::collect_mqtt_topics(&self.root, &mut topics);
         topics
     }
 
-    fn collect_mqtt_topics(&self, elem: &Element, topics: &mut Vec<MqttTopic>) {
+    fn collect_mqtt_topics(elem: &Element, topics: &mut Vec<MqttTopic>) {
         if elem.name == "C"
             && let Some(t) = elem.attributes.get("Type")
             && (t == "GenTSensor" || t == "GenTActor")
@@ -449,7 +449,7 @@ impl ConfigEditor {
         }
         for child in &elem.children {
             if let Some(child_elem) = child.as_element() {
-                self.collect_mqtt_topics(child_elem, topics);
+                Self::collect_mqtt_topics(child_elem, topics);
             }
         }
     }
