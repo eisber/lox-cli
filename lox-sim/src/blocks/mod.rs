@@ -107,8 +107,8 @@ pub(crate) fn deserialize_f64s(bytes: &[u8], count: usize) -> Option<Vec<f64>> {
         return None;
     }
     let mut values = Vec::with_capacity(count);
-    for chunk in bytes[..count * 8].chunks_exact(8) {
-        values.push(f64::from_le_bytes(chunk.try_into().ok()?));
+    for chunk in bytes[..count * 8].as_chunks::<8>().0 {
+        values.push(f64::from_le_bytes(*chunk));
     }
     Some(values)
 }
