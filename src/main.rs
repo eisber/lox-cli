@@ -580,7 +580,7 @@ pub(crate) enum ConfigCmd {
     /// Add a control element with type-aware defaults
     Add {
         file: String,
-        /// Control type: light, switch, presence, alarm-clock, memory, timer, mqtt-sub, mqtt-pub, calendar, autopilot, virtual-input. Use --device to bind device-bound types (e.g. alarm-clock) to a LoxAIRDevice.
+        /// Control type. Friendly aliases: light, switch, presence, alarm-clock, memory, timer, mqtt-sub, mqtt-pub, calendar, autopilot, virtual-input. Beyond these, --type accepts ANY block type from `lox-cli blocks list` (PascalCase or kebab-case) — e.g. logic gates And/Or/Not/Xor. Use --device to bind device-bound types (e.g. alarm-clock) to a LoxAIRDevice.
         #[arg(long = "type")]
         control_type: String,
         /// Element title
