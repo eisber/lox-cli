@@ -8,6 +8,9 @@ in the Git-ignored `.reverse-engineering` directory, not in commits or CI
 artifacts. Publish independently implemented interoperability changes and
 synthetic regression fixtures instead of recovered proprietary code.
 
+Run analysis on demand. No scheduled task or background watcher is required or
+installed by the analysis command.
+
 ## Prerequisites
 
 On Windows x64, use Python 3.12+, REA's supported Node.js version, Ghidra 12.1+
@@ -30,13 +33,17 @@ Ghidra and Java are separate caller-installed prerequisites.
 Build the local archive decoder with `cargo build --release` in `lox-cli`
 before the first run; `--lox` can select an existing compatible `lox.exe`.
 
-## Analyze and resume
+## Run manually after an update or interruption
 
 From `E:\work\lox-cli`, using the actual installed provider directories:
 
 ```powershell
 python .\scripts\reverse-loxone.py --rea-root E:\work\rea --ghidra-dir E:\work\lox-cli\.reverse-engineering\tools\ghidra_12.1.4_PUBLIC --java-home E:\work\lox-cli\.reverse-engineering\tools\jdk-21.0.13.0.2+1
 ```
+
+Rerun this same command whenever you want to analyze an installed Config update
+or continue an interrupted export. No separate reset or version-selection step
+is needed. The process runs in your terminal until it finishes or you stop it.
 
 The default target is the installed `LoxoneConfig.exe`. Repeat `--binary` to
 select additional installed vendor PE filenames, for example
@@ -64,9 +71,12 @@ analysis has a two-hour allowance, and individual decompiles have a 60-second
 deadline. Set `--heap`, `--startup-timeout`, and `--decompile-timeout` when
 needed. These are limits, not estimates of runtime.
 
-An interrupted run resumes using REA's append-only export journal and verifies
-existing function files before skipping them. Failed functions remain explicit
-and are retried on the next run. Concurrent runs cannot share the output root.
+An interrupted export resumes using REA's append-only journal and verifies
+existing function files before skipping them. Ghidra's database is ephemeral:
+restarting the process repeats import and auto-analysis, even when exported
+functions can be reused. Interrupting before export begins leaves no function
+journal to resume. Failed functions remain explicit and are retried on the next
+manual run. Concurrent runs cannot share the output root.
 Exit status 0 means the selected discovered functions were exported or
 classified external, 2 means partial results, and 1 means pipeline failure.
 
@@ -104,7 +114,10 @@ Topic matches are leads, not verified behavior. Trace their references and
 control flow through REA before drawing conclusions. Use synthetic configs to
 compare any independent implementation with observed behavior.
 
-## Keep up with installed updates
+## Optional scheduling (explicit opt-in)
+
+Skip this section for manual operation. Only run the registration helper if you
+explicitly want Windows to launch repeated analyses automatically.
 
 ```powershell
 .\scripts\register-loxone-analysis.ps1 -ReaRoot E:\work\rea -GhidraDir E:\work\lox-cli\.reverse-engineering\tools\ghidra_12.1.4_PUBLIC -JavaHome E:\work\lox-cli\.reverse-engineering\tools\jdk-21.0.13.0.2+1
@@ -122,10 +135,12 @@ Unattended output is appended to `.reverse-engineering\scheduled.log`; check
 or changed executable triggers fresh analysis rather than presenting old
 results as current. A failed/interrupted export is resumed on the next check.
 
-To disable the task:
+To stop an active scheduled run and remove its schedule without deleting saved
+analysis:
 
 ```powershell
-Disable-ScheduledTask -TaskName LoxCli-LoxoneConfig-Analysis
+Stop-ScheduledTask -TaskName LoxCli-LoxoneConfig-Analysis
+Unregister-ScheduledTask -TaskName LoxCli-LoxoneConfig-Analysis -Confirm:$false
 ```
 
 ## Resource metadata
