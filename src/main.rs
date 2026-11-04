@@ -896,6 +896,11 @@ pub(crate) enum ConfigCmd {
         #[arg(long)]
         room: Option<String>,
     },
+    /// Inventory attribute names and nested storage paths without exposing values
+    Surfaces {
+        /// Path to a .Loxone XML file
+        file: String,
+    },
     /// Emit the full resolved wire graph as source/target connector edges
     #[command(name = "wires")]
     Wires {

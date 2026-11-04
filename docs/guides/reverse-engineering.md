@@ -168,5 +168,9 @@ coverage only; preserve REA's original limitations and uncertainty.
 Pipeline regression tests use synthetic files and no proprietary executable:
 
 ```powershell
-python -m unittest discover -s scripts -p test_reverse_loxone.py
+python -m unittest discover -s scripts -p "test_*.py"
 ```
+
+For advanced blocks, Qt metadata, native dialog resources, and measured
+configuration-surface gaps, see
+[advanced block UX coverage](../analysis/advanced-block-ux.md).

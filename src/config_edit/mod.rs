@@ -70,6 +70,15 @@ pub struct DescribeConnectorEntry {
     pub default: Option<String>,
 }
 
+/// Value-free storage shapes observed in a configuration, grouped by element type.
+#[derive(Debug, serde::Serialize)]
+pub struct ConfigSurfaceEntry {
+    pub element_type: String,
+    pub occurrences: usize,
+    pub attributes: Vec<String>,
+    pub storage_paths: Vec<String>,
+}
+
 /// A light scene / "mood" defined on a LightController2.
 #[derive(Debug, Clone, serde::Serialize)]
 pub struct MoodInfo {

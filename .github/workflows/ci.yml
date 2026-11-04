@@ -80,7 +80,7 @@ jobs:
         run: cargo test --workspace --release ${{ runner.os == 'Windows' && '--features vendored-openssl' || '' }}
 
       - name: Test local reverse-engineering pipeline
-        run: python3 -m unittest discover -s scripts -p test_reverse_loxone.py
+        run: python3 -m unittest discover -s scripts -p "test_*.py"
 
   coverage:
     name: Coverage

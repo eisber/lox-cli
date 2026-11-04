@@ -68,6 +68,61 @@ fn config_extract_raw_loxcc_and_resources() {
     }
 }
 
+#[test]
+fn config_surfaces_reads_native_attributes_without_exposing_values_or_modifying_source() {
+    let dir = TempDir::new().unwrap();
+    let source = dir.path().join("native.Loxone");
+    let data = br#"<ControlList><C Type="LightController2" Title="DoNotExpose" 12hTF="true">
+        <Co K="Q" Def="123456"/>
+        <LightscenesC><LightsceneC Name="PrivateMood" Q1="987654"/></LightscenesC>
+        <C Type="LightscenesC"><C Type="LightsceneC" U="PrivateUuid"/></C>
+        <SET><option v="PrivateValue"/></SET>
+        </C></ControlList>"#;
+    fs::write(&source, data).unwrap();
+    let output = lox()
+        .args(["-o", "json", "config", "surfaces", source.to_str().unwrap()])
+        .assert()
+        .success()
+        .get_output()
+        .stdout
+        .clone();
+    let output_text = String::from_utf8(output.clone()).unwrap();
+    for private_value in [
+        "DoNotExpose",
+        "PrivateMood",
+        "PrivateValue",
+        "PrivateUuid",
+        "987654",
+        "123456",
+    ] {
+        assert!(!output_text.contains(private_value));
+    }
+    let result: serde_json::Value = serde_json::from_slice(&output).unwrap();
+    let surface = &result["surfaces"][0];
+    assert_eq!(surface["element_type"], "LightController2");
+    let attributes = surface["attributes"].as_array().unwrap();
+    assert!(attributes.iter().any(|value| value == "12hTF"));
+    assert!(!attributes.iter().any(|value| value == "_12hTF"));
+    let paths = surface["storage_paths"].as_array().unwrap();
+    assert!(
+        paths
+            .iter()
+            .any(|value| value == "LightscenesC/LightsceneC/@Q1")
+    );
+    assert!(
+        paths
+            .iter()
+            .any(|value| value == "C[Type=LightscenesC]/C[Type=LightsceneC]/@U")
+    );
+    assert!(paths.iter().any(|value| value == "SET/option/@v"));
+    assert!(
+        !paths
+            .iter()
+            .any(|value| value.as_str().unwrap().starts_with("Co"))
+    );
+    assert_eq!(fs::read(&source).unwrap(), data);
+}
+
 // ── config rooms ────────────────────────────────────────────────────────────
 
 #[test]

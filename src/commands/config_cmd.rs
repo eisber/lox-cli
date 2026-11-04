@@ -2675,6 +2675,36 @@ pub fn cmd_config(ctx: &RunContext, action: ConfigCmd) -> Result<()> {
                 println!("{}", description);
             }
         }
+        ConfigCmd::Surfaces { file } => {
+            let data = fs::read(&file).with_context(|| format!("Cannot read {}", file))?;
+            let editor = ConfigEditor::load(&data)?;
+            let surfaces = editor.configuration_surfaces();
+            if ctx.json {
+                emit_json(ctx, serde_json::json!({ "ok": true, "surfaces": surfaces }));
+            } else {
+                if !ctx.no_header {
+                    println!(
+                        "{:<28} {:>8} {:>10} {:>14}",
+                        "TYPE", "COUNT", "ATTRIBUTES", "STORAGE PATHS"
+                    );
+                }
+                for surface in &surfaces {
+                    println!(
+                        "{:<28} {:>8} {:>10} {:>14}",
+                        surface.element_type,
+                        surface.occurrences,
+                        surface.attributes.len(),
+                        surface.storage_paths.len()
+                    );
+                }
+                if !ctx.quiet {
+                    println!(
+                        "\n{} element types; names only, no configuration values",
+                        surfaces.len()
+                    );
+                }
+            }
+        }
         ConfigCmd::Wires {
             file,
             file_opt,
