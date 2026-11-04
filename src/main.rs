@@ -434,9 +434,9 @@ pub(crate) enum ConfigCmd {
     /// List available configs on the Miniserver
     #[command(alias = "list")]
     Ls,
-    /// Decompress a local config ZIP to .Loxone XML
+    /// Decompress a local ZIP, LoxCC, or LxRes archive to XML
     Extract {
-        /// Path to a config ZIP file
+        /// Path to a config ZIP, raw LoxCC, or LxRes resource file
         file: String,
         /// Custom output filename
         #[arg(long, value_name = "PATH")]

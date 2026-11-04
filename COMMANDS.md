@@ -177,6 +177,8 @@ lox config download --save-as config.zip   # custom output filename
 lox config ls                              # list all configs on the Miniserver
 lox config extract config.zip              # decompress LoxCC → .Loxone XML
 lox config extract config.zip --save-as out.Loxone
+lox config extract config.LoxCC --save-as out.Loxone
+lox config extract tdc_DEV.LxRes --save-as blocks.xml  # installed resource metadata
 lox config compress file.Loxone            # compress .Loxone XML → LoxCC (with CRC32)
 lox config upload config.zip --force       # upload to Miniserver (dangerous)
 lox config diff old.Loxone new.Loxone      # compare two configs (accepts .zip or .Loxone)

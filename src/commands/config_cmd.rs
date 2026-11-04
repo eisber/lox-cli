@@ -416,16 +416,16 @@ pub fn cmd_config(ctx: &RunContext, action: ConfigCmd) -> Result<()> {
             }
         }
         ConfigCmd::Extract { file, save_as } => {
-            let zip_data = fs::read(&file).with_context(|| format!("Cannot read {}", file))?;
-            eprintln!("Extracting sps0.LoxCC...");
-            let xml = loxcc::extract_and_decompress(&zip_data)?;
+            let data = fs::read(&file).with_context(|| format!("Cannot read {}", file))?;
+            eprintln!("Extracting config archive...");
+            let xml = loxcc::extract_and_decompress(&data)?;
             let xml_path = save_as.unwrap_or_else(|| {
                 file.strip_suffix(".zip").unwrap_or(&file).to_string() + ".Loxone"
             });
             fs::write(&xml_path, &xml)?;
             println!(
                 "Decompressed {} KB → {} KB → {}",
-                zip_data.len() / 1024,
+                data.len() / 1024,
                 xml.len() / 1024,
                 xml_path
             );

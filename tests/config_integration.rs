@@ -43,6 +43,31 @@ fn write_fixture(dir: &TempDir) -> String {
     path.to_str().unwrap().to_string()
 }
 
+#[test]
+fn config_extract_raw_loxcc_and_resources() {
+    let dir = TempDir::new().unwrap();
+    let compressed = lz4_flex::block::compress(FIXTURE_XML.as_bytes());
+    let mut archive = Vec::new();
+    archive.extend_from_slice(&0xaabbccee_u32.to_le_bytes());
+    archive.extend_from_slice(&(compressed.len() as u32).to_le_bytes());
+    archive.extend_from_slice(&(FIXTURE_XML.len() as u32).to_le_bytes());
+    archive.extend_from_slice(&crc32fast::hash(FIXTURE_XML.as_bytes()).to_le_bytes());
+    archive.extend_from_slice(&compressed);
+    for extension in ["LoxCC", "LxRes"] {
+        let source = dir.path().join(format!("test.{extension}"));
+        fs::write(&source, &archive).unwrap();
+        lox()
+            .args(["config", "extract", source.to_str().unwrap()])
+            .assert()
+            .success();
+        assert_eq!(fs::read(&source).unwrap(), archive);
+        assert_eq!(
+            fs::read_to_string(source.with_file_name(format!("test.{extension}.Loxone"))).unwrap(),
+            FIXTURE_XML
+        );
+    }
+}
+
 // ── config rooms ────────────────────────────────────────────────────────────
 
 #[test]
