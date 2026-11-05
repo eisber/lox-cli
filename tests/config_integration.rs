@@ -109,7 +109,7 @@ mod energy {
             60
         );
         assert_eq!(inspection["loads"][1]["deadline_label"], "24:00");
-        assert_eq!(inspection["loads"][1]["deadline_gui_verified"], false);
+        assert_eq!(inspection["loads"][1]["deadline_gui_verified"], true);
         assert_eq!(inspection["loads"][0]["attributes"]["Future"], "opaque");
         assert_eq!(inspection["loads"][0]["child_elements"][0], "Extension");
         assert!(
@@ -413,7 +413,7 @@ mod energy {
                 "CLI Energy",
                 FIRST_ID,
                 "--deadline",
-                "sunrise",
+                "00:00",
             ])
             .assert()
             .failure()

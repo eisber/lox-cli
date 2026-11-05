@@ -229,9 +229,9 @@
     },
     {
       "capability_id": "load-daily-deadline",
-      "condition_scope": "Editable Sunset0/Dusk1 and native-only24:00 label for untouched tpR27; Sunrise edit unsupported.",
+      "condition_scope": "All 28 deadline labels map to selectors0..27; Sunset0 is omitted; invalid hourly labels are rejected.",
       "omissions": [
-        "Sunrise/Dawn/hourly GUI-save validation",
+        "fresh combined CLI/GUI proof",
         "invalid native selector acceptance",
         "deadline execution"
       ],
@@ -240,7 +240,7 @@
         "load-daily-deadline.unit_test"
       ],
       "rust_unit_tests": [
-        "config_edit::energy_tests::energy_minutes_seconds_negative_runtime_and_overflow",
+        "config_edit::energy_tests::energy_all_deadlines_and_invalid_hours_are_atomic",
         "config_edit::energy_tests::energy_inspection_distinguishes_omission_and_unknown_binding"
       ]
     },
@@ -596,20 +596,20 @@
       "capability_ids": [
         "load-daily-deadline"
       ],
-      "condition": "Editable Sunset0/Dusk1 and native-only24:00 label for untouched tpR27; Sunrise edit unsupported.",
+      "condition": "All 28 deadline labels map to selectors0..27; Sunset0 is omitted; invalid hourly labels are rejected.",
       "evidence_kind": "implementation",
-      "procedure": "Run tests/ux/energy-manager2/run-cli-cases.py on the built local lox binary: Inspect second row tpR27; set first deadline sunset then dusk; reject sunrise CLI choice.",
-      "expected": "Sunset is omitted/default0, Dusk stores1; tpR27 stays untouched and marked not GUI-verified; sunrise edit cannot write."
+      "procedure": "Run tests/ux/energy-manager2/run-cli-cases.py on the built local lox binary: Set sunset/dusk/sunrise/dawn and hourly01:00..24:00; inspect untouched second-rowtpR27; reject00:00 without writing.",
+      "expected": "All28choices store the mapped selector, with Sunset omission; valid labels are GUI-save-observed, not runtime-verified; invalid00:00 cannot write."
     },
     {
       "id": "load-daily-deadline.unit_test",
       "capability_ids": [
         "load-daily-deadline"
       ],
-      "condition": "Direct Sunset/Dusk edits and inspection of untouched native tpR27.",
+      "condition": "All28deadline edits, invalid parser spellings and atomic rejection of programmatic invalid hours.",
       "evidence_kind": "unit_test",
-      "procedure": "Execute cargo test --bin lox --test config_integration energy_ -- --nocapture; inspect named assertions: config_edit::energy_tests::energy_minutes_seconds_negative_runtime_and_overflow, config_edit::energy_tests::energy_inspection_distinguishes_omission_and_unknown_binding",
-      "expected": "Dusk reads1, Sunset omits/defaults0; native27 displays24:00 and is explicitly not GUI-verified."
+      "procedure": "Execute cargo test --bin lox --test config_integration energy_ -- --nocapture; inspect named assertions: config_edit::energy_tests::energy_all_deadlines_and_invalid_hours_are_atomic, config_edit::energy_tests::energy_inspection_distinguishes_omission_and_unknown_binding",
+      "expected": "Sunset omits/defaults0; Dusk/Sunrise/Dawn and hourly01:00..24:00 mapto1..27; native27 displays24:00; invalid hours leave editorbytes unchanged."
     },
     {
       "id": "load-switch-on-power.implementation",

@@ -68,12 +68,6 @@ pub(crate) enum ModeArg {
     Analog,
 }
 
-#[derive(Debug, Clone, Copy, ValueEnum)]
-pub(crate) enum DeadlineArg {
-    Sunset,
-    Dusk,
-}
-
 #[derive(Subcommand)]
 pub(crate) enum EnergyLoadCmd {
     /// Patch an existing persistent Load Id; untouched storage is preserved
@@ -82,10 +76,10 @@ pub(crate) enum EnergyLoadCmd {
         target: EnergyTarget,
         /// Persistent UUID from inspect, NOT U, name, priority or OIdx
         id: String,
-        /// Native setter marks Ncu; its GUI transition remains unverified
+        /// Mark the name as customized, including an unchanged value
         #[arg(long)]
         name: Option<String>,
-        /// Native setter marks Anc; its GUI transition remains unverified
+        /// Mark the mode as customized, including an unchanged value
         #[arg(long, value_enum)]
         mode: Option<ModeArg>,
         /// Preparation seconds (30..86400), not minimum runtime
@@ -97,9 +91,9 @@ pub(crate) enum EnergyLoadCmd {
         /// Integer minutes/day (0..1440), stored in seconds
         #[arg(long, allow_hyphen_values = true)]
         daily_minutes: Option<i64>,
-        /// Only Sunset and Dusk have GUI-save proof; other choices unsupported
-        #[arg(long, value_enum)]
-        deadline: Option<DeadlineArg>,
+        /// sunset, dusk, sunrise, dawn, or an hourly time 01:00..24:00
+        #[arg(long, value_name = "CHOICE")]
+        deadline: Option<EnergyDeadline>,
         /// Rated kW >=0; zero does not disconnect U
         #[arg(long, allow_hyphen_values = true)]
         rated_power: Option<String>,
@@ -160,10 +154,7 @@ pub(crate) fn run(ctx: &RunContext, action: EnergyCmd) -> Result<()> {
                         preparation_seconds,
                         min_runtime_minutes,
                         daily_minutes,
-                        deadline: deadline.map(|deadline| match deadline {
-                            DeadlineArg::Sunset => EnergyDeadline::Sunset,
-                            DeadlineArg::Dusk => EnergyDeadline::Dusk,
-                        }),
+                        deadline,
                         rated_power,
                         switch_on_power,
                     },

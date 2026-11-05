@@ -69,10 +69,54 @@ pub enum EnergyLoadMode {
     Analog,
 }
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum EnergyDeadline {
     Sunset,
     Dusk,
+    Sunrise,
+    Dawn,
+    Hour(u8),
+}
+
+impl std::str::FromStr for EnergyDeadline {
+    type Err = Diagnostic;
+
+    fn from_str(raw: &str) -> std::result::Result<Self, Self::Err> {
+        match raw {
+            "sunset" => Ok(Self::Sunset),
+            "dusk" => Ok(Self::Dusk),
+            "sunrise" => Ok(Self::Sunrise),
+            "dawn" => Ok(Self::Dawn),
+            _ => raw
+                .strip_suffix(":00")
+                .filter(|hour| hour.len() == 2 && hour.bytes().all(|byte| byte.is_ascii_digit()))
+                .and_then(|hour| hour.parse::<u8>().ok())
+                .filter(|hour| (1..=24).contains(hour))
+                .map(Self::Hour)
+                .ok_or_else(Self::invalid),
+        }
+    }
+}
+
+impl EnergyDeadline {
+    fn invalid() -> Diagnostic {
+        Diagnostic::new(
+            "invalid_deadline",
+            "Load/@tpR",
+            "Use sunset, dusk, sunrise, dawn, or an hourly time 01:00..24:00.",
+        )
+    }
+
+    fn storage(self) -> std::result::Result<i32, Diagnostic> {
+        match self {
+            Self::Sunset => Ok(0),
+            Self::Dusk => Ok(1),
+            Self::Sunrise => Ok(2),
+            Self::Dawn => Ok(3),
+            Self::Hour(hour @ 1..=24) => Ok(i32::from(hour) + 3),
+            Self::Hour(_) => Err(Self::invalid()),
+        }
+    }
 }
 
 #[derive(Debug, Default)]
@@ -384,7 +428,7 @@ impl ConfigEditor {
                 preparation_seconds,
                 min_runtime_seconds,
                 daily_seconds,
-                deadline_gui_verified: matches!(deadline.effective, Some(0 | 1)),
+                deadline_gui_verified: matches!(deadline.effective, Some(0..=27)),
                 deadline,
                 deadline_label,
                 switch_on_power,
@@ -416,8 +460,8 @@ impl ConfigEditor {
             limitations: vec![
                 "Bindings recovered for Config 17.2.10.21; CLI validation is not identical to GUI prefix filtering.",
                 "No load add/delete, U/Id/OIdx/icon editing, live server writes or runtime semantics.",
-                "Only Sunset/Dusk deadline edits; other labels are native-only observations.",
-                "Name/mode setters mark Ncu/Anc; false-to-true marker transitions are native-backed, not GUI-verified.",
+                "All 28 deadline choices have GUI-save observations; deadline/day-cycle execution remains unverified.",
+                "Name/mode setters mark Ncu/Anc, including unchanged values; observed GUI transitions retain customization markers on revert.",
                 "Integer CLI minutes use checked signed 32-bit seconds; fractional/scientific input and GUI overflow are not emulated.",
                 "MaxSpwr=0 runtime meaning remains unverified. Inspection is not an export/reapply format.",
             ],
@@ -541,14 +585,7 @@ impl ConfigEditor {
             set_integer_zero(load, "MDay", minutes_to_seconds(minutes, "Load/@MDay")?);
         }
         if let Some(deadline) = patch.deadline {
-            set_integer_zero(
-                load,
-                "tpR",
-                match deadline {
-                    EnergyDeadline::Sunset => 0,
-                    EnergyDeadline::Dusk => 1,
-                },
-            );
+            set_integer_zero(load, "tpR", deadline.storage()?);
         }
         // Apply rated power first, then explicit switch-on power against that rated value.
         if patch.rated_power.is_some() || patch.switch_on_power.is_some() {

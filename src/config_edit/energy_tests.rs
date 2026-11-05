@@ -63,7 +63,7 @@ fn energy_inspection_distinguishes_omission_and_unknown_binding() {
     assert_eq!(inspection.loads[2].used.effective, Some(false));
     assert_eq!(inspection.loads[2].unused_feedback, Some(true));
     assert_eq!(inspection.loads[1].deadline_label.as_deref(), Some("24:00"));
-    assert!(!inspection.loads[1].deadline_gui_verified);
+    assert!(inspection.loads[1].deadline_gui_verified);
     let path = editor.require_one("Pilot").unwrap();
     editor.get_element_mut(&path).children[0]
         .as_mut_element()
@@ -152,6 +152,55 @@ fn energy_signed_offset_is_parameter_and_bounds_are_atomic() {
     assert_eq!(inspection.loads[0].switch_on_power.stored, None);
     assert_eq!(inspection.loads[0].name.stored, None);
     assert_eq!(inspection.loads[0].attributes["Future"], "opaque");
+}
+
+#[test]
+fn energy_all_deadlines_and_invalid_hours_are_atomic() {
+    let mut editor = editor();
+    let labels: Vec<_> = ["sunset", "dusk", "sunrise", "dawn"]
+        .into_iter()
+        .map(String::from)
+        .chain((1..=24).map(|hour| format!("{hour:02}:00")))
+        .collect();
+    for (value, label) in labels.iter().enumerate() {
+        editor
+            .configure_energy_load(
+                "Pilot",
+                first_id(),
+                &EnergyLoadPatch {
+                    deadline: Some(label.parse().unwrap()),
+                    ..Default::default()
+                },
+            )
+            .unwrap();
+        let inspection = editor.inspect_energy("Pilot").unwrap();
+        assert_eq!(inspection.loads[0].deadline.effective, Some(value as i32));
+        assert_eq!(inspection.loads[0].deadline_label.as_ref(), Some(label));
+        assert!(inspection.loads[0].deadline_gui_verified);
+        if value == 0 {
+            assert!(inspection.loads[0].deadline.stored.is_none());
+        }
+    }
+    for raw in ["00:00", "25:00", "01:30", "1:00", "01:00extra", "sunrisex"] {
+        assert!(raw.parse::<EnergyDeadline>().is_err(), "{raw}");
+    }
+    for hour in [0, 25, u8::MAX] {
+        let before = editor.to_bytes().unwrap();
+        assert!(
+            editor
+                .configure_energy_load(
+                    "Pilot",
+                    first_id(),
+                    &EnergyLoadPatch {
+                        name: Some("must not persist".into()),
+                        deadline: Some(EnergyDeadline::Hour(hour)),
+                        ..Default::default()
+                    },
+                )
+                .is_err()
+        );
+        assert_eq!(editor.to_bytes().unwrap(), before);
+    }
 }
 
 #[test]

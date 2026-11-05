@@ -54,6 +54,13 @@ projects, not a competing XML parser or supported CLI mutation API:
 All observed behavior is version-bound and limited to the exact recorded inputs.
 No SPS runtime, physical output or full configuration-scope completion is claimed.
 
+The CLI now accepts all four named deadlines and hourly `01:00`..`24:00` values.
+`run-cli-cases.py` exercises all 28 mappings against the actual CLI. The committed
+`cli-contract.json` remains the earlier frozen CLI-only snapshot, not a live
+description of current support. Derive a new snapshot from a new runner directory
+with `scripts\snapshot-energy-cli-contract.py`, using unique `--contract` and
+`--results` paths. That operation does not import the separate GUI observations.
+
 ## Critical distinctions
 
 - `O` is offset-grid-power **parameter**, stored in `Co[@K='O']/@Def`.

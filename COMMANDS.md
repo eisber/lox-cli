@@ -95,7 +95,7 @@ validation failure leaves both files and the in-memory editor unchanged.
 
 `inspect` separates exact `stored` spellings/omissions from `effective` values and
 known `default` values. Missing/ambiguous bindings have diagnostics, not guessed
-values. JSON includes all twelve slots, output associations, native-only deadline
+values. JSON includes all twelve slots, output associations, GUI-observed deadline
 labels, unknown attributes/child names, and limitations. It is an inspection
 format, **not an export/reapply patch**: reapplying defaults can change omitted
 storage. Table output summarizes scalars and loads; CSV exposes scalar values and
@@ -121,7 +121,7 @@ priority, or output index. Options:
 | `--preparation-seconds S` | `RT`, integer seconds 30..86400; default 60 |
 | `--min-runtime-minutes M` | `MinRt`, integer minutes converted to signed 32-bit seconds; negatives are permitted |
 | `--daily-minutes M` | `MDay`, integer minutes/day 0..1440 converted to seconds |
-| `--deadline sunset\|dusk` | `tpR`, only these two GUI-save-observed choices are editable |
+| `--deadline CHOICE` | `tpR`: `sunset`, `dusk`, `sunrise`, `dawn`, or hourly `01:00`..`24:00`; all 28 choices GUI-save observed |
 | `--rated-power KW` | `MaxPwr`, finite kW >=0 |
 | `--switch-on-power KW` | `SwPwr`, finite kW >=0; zero substitutes rated power |
 
@@ -145,11 +145,12 @@ for selection/duplicate detection, while the original stored spelling is retaine
 Misplaced dashes are rejected.
 
 This is a version-bound storage subset recovered for Config **17.2.10.21**, not
-complete official GUI or Miniserver runtime parity. Name/mode customization-marker
-transitions are native-backed but not GUI-verified. Sunrise/Dawn/hourly deadlines,
-icon/reference acceptance, structural CRUD, runtime scheduling/storage behavior,
-and full GUI validation remain unverified. Synthetic Rust/CLI tests are not GUI
-oracle evidence; the original GUI observations remain separate.
+complete official GUI or Miniserver runtime parity. Deadline choices and name/mode
+customization-marker transitions have version-bound GUI observations. Icon editing,
+structural CRUD, runtime scheduling/storage behavior, and complete GUI validation
+remain outside this CLI subset. Native malformed-input observations are not proof
+of valid or supported CLI edits. Synthetic Rust/CLI tests are not GUI oracle
+evidence; the original GUI observations remain separate.
 
 To reproduce the offline proof, run
 `python tests/ux/energy-manager2/run-cli-cases.py` with Cargo available (optional

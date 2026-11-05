@@ -111,11 +111,11 @@ DEFINITIONS = [
      ["energy_minutes_seconds_negative_runtime_and_overflow"],
      ["GUI prefix filtering", "day-cycle runtime"]),
     ("load-daily-deadline",
-     "Editable Sunset0/Dusk1 and native-only24:00 label for untouched tpR27; Sunrise edit unsupported.",
-     "Inspect second row tpR27; set first deadline sunset then dusk; reject sunrise CLI choice.",
-     "Sunset is omitted/default0, Dusk stores1; tpR27 stays untouched and marked not GUI-verified; sunrise edit cannot write.",
-     ["energy_minutes_seconds_negative_runtime_and_overflow", "energy_inspection_distinguishes_omission_and_unknown_binding"],
-     ["Sunrise/Dawn/hourly GUI-save validation", "invalid native selector acceptance", "deadline execution"]),
+     "All 28 deadline labels map to selectors0..27; Sunset0 is omitted; invalid hourly labels are rejected.",
+     "Set sunset/dusk/sunrise/dawn and hourly01:00..24:00; inspect untouched second-rowtpR27; reject00:00 without writing.",
+     "All28choices store the mapped selector, with Sunset omission; valid labels are GUI-save-observed, not runtime-verified; invalid00:00 cannot write.",
+     ["energy_all_deadlines_and_invalid_hours_are_atomic", "energy_inspection_distinguishes_omission_and_unknown_binding"],
+     ["fresh combined CLI/GUI proof", "invalid native selector acceptance", "deadline execution"]),
     ("load-switch-on-power",
      "Zero SwPwr substitution, rated-zero switch copy, above-rated values, and positive/negative nonzero-underflow rejection before substitution.",
      "Set rated4 from zero switch; set rated2.5/switch0; set switch2.6; reject negative and +/-('0.'+399 zeros+'1') switch in compound patches.",
@@ -186,8 +186,8 @@ UNIT_CASES = {
         "MDay1440/0 integer minutes accepted; -1/1441 rejected.",
         "1440 stores86400 seconds, zero omits, and invalid daily-minute patches preserve editor bytes."),
     "load-daily-deadline": (
-        "Direct Sunset/Dusk edits and inspection of untouched native tpR27.",
-        "Dusk reads1, Sunset omits/defaults0; native27 displays24:00 and is explicitly not GUI-verified."),
+        "All28deadline edits, invalid parser spellings and atomic rejection of programmatic invalid hours.",
+        "Sunset omits/defaults0; Dusk/Sunrise/Dawn and hourly01:00..24:00 mapto1..27; native27 displays24:00; invalid hours leave editorbytes unchanged."),
     "load-switch-on-power": (
         "Zero-switch copy, zero substitution, above-rated2.6, negative and positive/negative nonzero-underflow compound edits.",
         "Switch4/2.5 substitutions and above-rated2.6 are retained; nonzero-underflow never triggers substitution and failed patches leave identical bytes."),
@@ -327,7 +327,7 @@ class Runner:
             [self.cargo, "test", "--bin", "lox", "--test", "config_integration", "energy_", "--", "--nocapture"],
             parse_json=False,
         )
-        assert "11 passed; 0 failed" in unit_log and "7 passed; 0 failed" in unit_log
+        assert "test result: ok." in unit_log, "Targeted Cargo tests did not report success."
         unit_entry = self.commands[-1]
         sim_log = self.execute("targeted-simulator-parser-tests",
             [self.cargo, "test", "-p", "lox-sim", "--lib", SIM_TEST, "--", "--nocapture"],
@@ -452,17 +452,20 @@ class Runner:
         self.prove(["load-daily-minimum-runtime"], start, "Daily1440/0 minutes saved86400/omitted0 seconds; -1/1441 rejected atomically; no day-cycle runtime asserted.")
 
         start = len(self.commands)
-        for label, value in [("sunset", 0), ("dusk", 1)]:
-            state = self.load("deadline-" + label, path, "--deadline", label)["energy"]
+        labels = ["sunset", "dusk", "sunrise", "dawn"] + [f"{hour:02}:00" for hour in range(1, 25)]
+        for value, label in enumerate(labels):
+            state = self.load("deadline-" + label.replace(":", "-"), path, "--deadline", label)["energy"]
             assert state["loads"][0]["deadline"]["effective"] == value
+            assert state["loads"][0]["deadline_label"] == label
+            assert state["loads"][0]["deadline_gui_verified"]
             if value == 0:
                 assert state["loads"][0]["deadline"]["stored"] is None
         assert state["loads"][1]["deadline"]["stored"] == "27"
-        assert state["loads"][1]["deadline_label"] == "24:00" and not state["loads"][1]["deadline_gui_verified"]
+        assert state["loads"][1]["deadline_label"] == "24:00" and state["loads"][1]["deadline_gui_verified"]
         before = path.read_bytes()
-        self.execute("deadline-unsupported", [self.lox, "--quiet", "config", "energy", "load", "set", str(path), "CLI Energy", FIRST, "--deadline", "sunrise"], 2, False)
+        self.execute("deadline-invalid-hour", [self.lox, "--quiet", "config", "energy", "load", "set", str(path), "CLI Energy", FIRST, "--deadline", "00:00"], 2, False)
         assert path.read_bytes() == before
-        self.prove(["load-daily-deadline"], start, "Only Sunset0 omission/Dusk1 edited; untouched tpR27 remained native-only24:00; Sunrise CLI choice rejected without writing.")
+        self.prove(["load-daily-deadline"], start, "All28deadline labels mappedto0..27 with Sunset omission; untouchedtpR27 retained24:00; invalid00:00 rejected without writing. GUI-observed labels are not runtime execution proof.")
 
         start = len(self.commands)
         state = self.load("rated-four-zero-switch", path, "--rated-power", "4")["energy"]
@@ -561,6 +564,7 @@ class Runner:
             "source_artifacts": [
                 self.snapshot(ROOT / path) for path in [
                     "src/config_edit/energy.rs", "src/config_edit/schema.rs", "src/config_edit/energy_tests.rs",
+                    "src/config_edit/write.rs",
                     "src/commands/config_cmd/energy.rs", "tests/config_integration.rs",
                     "lox-sim/src/parser.rs", "tests/ux/energy-manager2/synthetic.Loxone",
                     "tests/ux/energy-manager2/cli-synthetic.xml", "tests/ux/energy-manager2/run-cli-cases.py",
@@ -609,7 +613,7 @@ def main():
     try:
         runner.run()
     except Exception as error:
-        runner.finish(str(error))
+        runner.finish(f"{type(error).__name__}: {error}")
         return 1
     runner.finish()
     return 0
