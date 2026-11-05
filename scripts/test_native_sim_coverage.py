@@ -343,6 +343,61 @@ class ArtifactTests(unittest.TestCase):
         self.assertEqual(self.invoke()[0], 2)
         self.assertFalse(self.output.exists())
 
+    def captured_manifest(self):
+        source = self.root / "native-runtime.json"
+        self.write_json(source, {"status": "blocked", "post_attach_running": False})
+        pin = manifest(self.raw)
+        pin["capture"] = {
+            "instrumentation_start": "post-start",
+            "startup_coverage": False, "simulation_start_coverage": False,
+            "interval_utc": {"start": "2026-01-01T10:00:00Z",
+                             "end": "2026-01-01T10:00:04Z"},
+            "native_case_status": "blocked", "native_running_verified": False,
+            "run_id": "authored-run", "cleanup_kind": "client-requested-exit-and-dump",
+            "source_artifacts": [{"path": source.name, "sha256": COVERAGE.file_digest(source)}],
+        }
+        return pin
+
+    def test_post_start_context_remains_blocked_despite_confirmed_function_execution(self):
+        self.write_json(self.pin_path, self.captured_manifest())
+        status, _, stderr = self.invoke()
+        self.assertEqual(status, 0, stderr)
+        report = json.loads(self.output.read_text())
+        self.assertEqual(report["observed"]["executed_function_count"], 1)
+        capture = report["measurement"]["capture"]
+        self.assertEqual(capture["native_case_status"], "blocked")
+        self.assertFalse(capture["native_running_verified"])
+        self.assertFalse(capture["startup_coverage"])
+        self.assertFalse(capture["simulation_start_coverage"])
+        source = capture["source_artifacts"][0]
+        self.assertIn(source, report["artifacts"])
+
+    def test_capture_context_refuses_stale_sources_and_invalid_intervals(self):
+        for problem in ("hash", "naive_time", "reversed_time", "outside_root"):
+            pin = self.captured_manifest()
+            capture = pin["capture"]
+            if problem == "hash":
+                capture["source_artifacts"][0]["sha256"] = "b" * 64
+            elif problem == "naive_time":
+                capture["interval_utc"]["start"] = "2026-01-01T10:00:00"
+            elif problem == "reversed_time":
+                capture["interval_utc"]["start"] = "2026-01-01T11:00:00Z"
+            else:
+                capture["source_artifacts"][0]["path"] = "..\\outside.json"
+            self.write_json(self.pin_path, pin)
+            with self.subTest(problem=problem):
+                self.assertEqual(self.invoke()[0], 2)
+                self.assertFalse(self.output.exists())
+
+    def test_capture_context_cannot_claim_excluded_startup_phases(self):
+        for key in ("startup_coverage", "simulation_start_coverage"):
+            pin = self.captured_manifest()
+            pin["capture"][key] = True
+            self.write_json(self.pin_path, pin)
+            with self.subTest(key=key):
+                self.assertEqual(self.invoke()[0], 2)
+                self.assertFalse(self.output.exists())
+
     def test_native_pe_identity_aslr_and_runtime_expansion(self):
         pe_path = self.root / "owned,console.exe"
         pe_data = fixture_pe()

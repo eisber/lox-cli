@@ -92,6 +92,15 @@ class ScorecardTests(unittest.TestCase):
         self.assertFalse(result["gate"]["loop_established"])
         self.assertFalse(result["cases"][0]["repeat_plain"])
 
+    def test_native_replay_agreement_does_not_imply_instrumented_coverage(self):
+        runs = [self.run_record("plain1"), self.run_record("plain2")]
+        result = SCORE.compare(runs, [], self.root)
+        self.assertTrue(result["gate"]["native_replay_established"])
+        self.assertFalse(result["gate"]["loop_established"])
+        self.run_record("plain2", output=0)
+        result = SCORE.compare(runs, [], self.root)
+        self.assertFalse(result["gate"]["native_replay_established"])
+
     def test_output_mismatch_or_blocked_run_stays_incomplete(self):
         for output, status in [(0, "pass"), (1, "blocked")]:
             runs = [self.run_record("plain1"), self.run_record("plain2"),
@@ -146,6 +155,18 @@ class ScorecardTests(unittest.TestCase):
         self.save("run.json", record)
         with self.assertRaisesRegex(SCORE.EvidenceError, "not bound"):
             SCORE.receipt(path, self.root)
+
+    def test_coverage_log_can_name_a_hash_bound_manifest_artifact(self):
+        paths = [self.run_record("plain1"), self.run_record("plain2"), self.run_record("instrumented", "drcov")]
+        record = json.loads(paths[-1].read_text(encoding="utf-8"))
+        record["coverage_logs"] = [self.log["path"]]
+        self.save("instrumented.json", record)
+        result = SCORE.compare(paths, [self.coverage()], self.root)
+        self.assertTrue(result["gate"]["loop_established"])
+        record["coverage_logs"] = ["unbound.log"]
+        self.save("instrumented.json", record)
+        with self.assertRaisesRegex(SCORE.EvidenceError, "not bound"):
+            SCORE.receipt(paths[-1], self.root)
 
     def test_passing_without_observation_or_case_bytes_is_invalid(self):
         path = self.run_record("run")

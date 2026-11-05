@@ -3,6 +3,10 @@
 The official offline simulator is the oracle. `lox-sim` is a separate
 implementation, not a substitute for native observations.
 
+Use the [native replay runner](official-simulator.md) to collect observations
+and the [coverage importer](native-sim-coverage.md) to map genuine recorder
+logs. The scorecard below joins their independently retained evidence.
+
 ## Separate the denominators
 
 | Layer | Measurement | Completion evidence |
@@ -69,6 +73,9 @@ or an unwritable output.
 The gate measures whether a bounded feedback loop works. It always leaves
 `engine_complete: false` and unknown coverage percentages as `null`. Hashes
 establish byte association, not proof against a dishonest evidence producer.
+`native_replay_established` separately reports two passing independent plain
+executions with matching samples; it cannot substitute for instrumented
+agreement and mapped execution in `loop_established`.
 Raw projects, recorder logs, screenshots and vendor code remain private under
 `.reverse-engineering`; only independent tooling and synthetic protocols belong
 in Git.
@@ -93,6 +100,14 @@ must produce exactly `Ein` or `Aus` with confidence at least 90. Other words,
 multiple words, clipping, low confidence and missing identities are blocked;
 there is no fuzzy correction or default-OFF inference. Confidence is an OCR
 engine score, not a calibrated probability.
+
+When Windows OCR cannot identify the English block title exactly, the optional
+`recognize_header` verifies a proposed crop using a separately pinned English
+model (`header_model_path`/`header_model_sha256`). It adds a fixed four-pixel
+anti-clipping margin and requires exactly `Energy` and `Manager`, each at
+confidence at least 90. Its actual word boxes map back into the original image;
+the candidate label is never fuzzily corrected or treated as evidence. Derived
+anchors and admissions are new artifacts, preserving the original OCR result.
 
 Actual positive native captures yielded `Ein` above 95, including an independently
 wired reference and a separate capture. Some negative glyphs yielded exact
@@ -122,6 +137,27 @@ match, false-state decisions, abstention and latency. Pin the model/runtime and
 keep local inference loopback-only for private captures. A model's self-reported
 confidence is not equivalent to the OCR engine score. Model suggestions alone
 must not promote blocked native evidence to a pass.
+
+## Verified first loop
+
+On **2026-11-05**, the pinned `native-storage-at-finite` Energy pilot passed
+two independent plain native executions and one recorded native execution.
+All sampled `OL1=1` after at least 70 seconds. Independent post-attach clock
+images advanced five native seconds across 4,807 ms of capture time.
+The parent scorecard verified `native_replay_established: true` and
+`loop_established: true`, while retaining `engine_complete: false`.
+
+The valid recorded interval contains **26,059 target BB records**, **15,586
+distinct target BBs**, and **1,553 confirmed whole-executable functions**.
+There are **34 unmapped target records**, **zero ambiguous mappings**, and
+**4,576 unknown-module records** retained without attribution. Application
+startup and SimulationStart are excluded. Simulator-owned scope and static
+CFG denominators remain unknown; these counts are not coverage percentages.
+
+This verifies one bounded positive case and its sampled output agreement,
+not universal Energy behavior, full timing equivalence, or engine parity.
+All earlier blocked attempts, original OCR results and their later correlated
+admissions remain separate immutable private evidence.
 
 ## Turning traces into recovered functionality
 

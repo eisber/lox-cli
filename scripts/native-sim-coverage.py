@@ -15,6 +15,7 @@ import re
 import struct
 import sys
 from dataclasses import dataclass
+from datetime import datetime
 
 
 BB_ENTRY = struct.Struct("<IHH")
@@ -354,6 +355,61 @@ def artifact(path, root, kind, known_hash=None):
             "sha256": known_hash or file_digest(path), "bytes": Path(path).stat().st_size}
 
 
+def capture_context(manifest, root):
+    capture = manifest.get("capture") if manifest is not None else None
+    if capture is None:
+        return None, []
+    require(isinstance(capture, dict), "capture context must be an object")
+    mode = capture.get("instrumentation_start")
+    require(mode in ("post-init", "post-start"), "unsupported capture start mode")
+    require(capture.get("startup_coverage") is False,
+            "post-launch capture cannot claim startup coverage")
+    simulation_start = capture.get("simulation_start_coverage")
+    require("simulation_start_coverage" in capture and
+            (type(simulation_start) is bool or simulation_start is None),
+            "invalid SimulationStart coverage assertion")
+    require(mode != "post-start" or simulation_start is False,
+            "post-start capture cannot claim SimulationStart coverage")
+    interval = capture.get("interval_utc")
+    require(isinstance(interval, dict), "capture requires interval_utc")
+    times = []
+    for key in ("start", "end"):
+        value = interval.get(key)
+        require(isinstance(value, str), "capture interval timestamps must be strings")
+        parsed = datetime.fromisoformat(value)
+        require(parsed.tzinfo is not None, "capture timestamps require a timezone")
+        times.append(parsed)
+    require(times[0] < times[1], "capture interval must have positive duration")
+    require(capture.get("native_case_status") in ("pass", "blocked", "failed"),
+            "capture requires native case status")
+    require(type(capture.get("native_running_verified")) is bool,
+            "capture requires explicit native running status")
+    for key in ("run_id", "cleanup_kind"):
+        require(isinstance(capture.get(key), str) and bool(capture[key]),
+                f"capture requires {key}")
+    sources = capture.get("source_artifacts")
+    require(isinstance(sources, list) and bool(sources), "capture requires source artifacts")
+    artifacts = []
+    for source in sources:
+        require(isinstance(source, dict) and isinstance(source.get("path"), str),
+                "invalid capture source artifact")
+        name = source["path"]
+        require(not ntpath.isabs(name) and not Path(name).is_absolute(),
+                "capture source artifact paths must be relative")
+        path = root / name
+        relative_path(path, root)
+        expected = sha256(source.get("sha256"), "capture source artifact SHA-256")
+        require(file_digest(path) == expected, "capture source artifact SHA-256 mismatch")
+        artifacts.append(artifact(path, root, "native-capture-context", expected))
+    result = {key: capture[key] for key in (
+        "instrumentation_start", "startup_coverage", "simulation_start_coverage",
+        "native_case_status", "native_running_verified", "run_id", "cleanup_kind")}
+    result["interval_utc"] = {key: interval[key] for key in ("start", "end")}
+    result["interval_meaning"] = "bounds_on_collection_not_per_BB_timestamps"
+    result["source_artifacts"] = artifacts
+    return result, artifacts
+
+
 def build_report(log, mapper, selected, target_sha256, image_base):
     rows = []
     cached = {}
@@ -498,6 +554,13 @@ def run(args):
     report["inputs"] = {"decompile_index_sha256": index_hash,
                         "module_manifest_sha256": manifest_hash}
     report["artifact_root"] = os.path.relpath(root, args.output.parent.resolve())
+    context, context_artifacts = capture_context(manifest, root)
+    if context is not None:
+        report["measurement"]["capture"] = context
+        context_artifacts = [
+            artifact(args.module_manifest, root, "module-manifest", manifest_hash),
+            *context_artifacts,
+        ]
     if args.tool_receipt is not None:
         receipt, receipt_hash = read_json(args.tool_receipt)
         require(type(receipt.get("schema_version")) is int and receipt["schema_version"] == 1 and
@@ -521,7 +584,10 @@ def run(args):
             created.append(map_path)
             json.dump(bb_map, stream, separators=(",", ":"), ensure_ascii=True)
             stream.write("\n")
-        report["artifacts"] = [raw_artifact, artifact(map_path, root, "basic-block-function-map")]
+        report["artifacts"] = [
+            raw_artifact, artifact(map_path, root, "basic-block-function-map"),
+            *context_artifacts,
+        ]
         with args.output.open("x", encoding="utf-8", newline="\n") as stream:
             created.append(args.output)
             json.dump(report, stream, separators=(",", ":"), ensure_ascii=True)

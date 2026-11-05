@@ -4,7 +4,7 @@ import tempfile
 import unittest
 from unittest.mock import patch
 
-from official_sim_ocr import OCRBlocked, grayscale_pixel, parse_literal_tsv, recognize_literal
+from official_sim_ocr import OCRBlocked, grayscale_pixel, parse_clock_tsv, parse_header_tsv, parse_literal_tsv, recognize_literal
 
 
 HEADER = "level\tleft\ttop\twidth\theight\tconf\ttext\n"
@@ -43,6 +43,22 @@ class NativeOCRTests(unittest.TestCase):
         self.assertEqual(grayscale_pixel((10, 180, 20)), 255)
         self.assertEqual(grayscale_pixel((20, 20, 20)), 20)
         self.assertEqual(grayscale_pixel((100, 80, 200)), 80)
+
+    def test_header_requires_two_actual_exact_high_confidence_words(self):
+        actual = parse_header_tsv(HEADER + word("Energy", 95) + word("Manager", 96), (100, 100))
+        self.assertEqual(actual["text"], "Energy Manager")
+        for rows in [word("Energy") + word("Manage"), word("Energy") + word("Manager", 89),
+                     word("Energy Manager"), word("Energy") + word("Mar-eger")]:
+            with self.subTest(rows=rows), self.assertRaises(OCRBlocked):
+                parse_header_tsv(HEADER + rows, (100, 100))
+
+    def test_native_clock_is_strict_without_time_guessing(self):
+        actual = parse_clock_tsv(HEADER + word("20:00:12"), (100, 100))
+        self.assertEqual(actual["seconds_since_midnight"], 72012)
+        for rows in [word("24:00:00"), word("20:60:00"), word("20:00:60"),
+                     word("2:00:12"), word("20:00:12", 89), word("20:00:12") + word("PM"), ""]:
+            with self.subTest(rows=rows), self.assertRaises(OCRBlocked):
+                parse_clock_tsv(HEADER + rows, (100, 100))
 
     def test_wrong_tool_identity_fails_before_image_processing_or_execution(self):
         with tempfile.TemporaryDirectory() as temporary:

@@ -1,4 +1,4 @@
-"""Fail-closed, file-only OCR for the bounded German native-output pilot."""
+"""Fail-closed, file-only OCR for the bounded native-output pilot."""
 
 import csv
 import hashlib
@@ -8,6 +8,7 @@ import math
 import os
 from pathlib import Path
 import platform
+import re
 import subprocess
 
 
@@ -33,7 +34,7 @@ def grayscale_pixel(rgb):
     return 255 if green > red + 30 and green > blue + 30 else min(rgb)
 
 
-def parse_literal_tsv(text, image_size):
+def _parse_words(text, image_size):
     reader = csv.DictReader(io.StringIO(text), delimiter="\t")
     required = {"level", "left", "top", "width", "height", "conf", "text"}
     _require(reader.fieldnames is not None and required <= set(reader.fieldnames)
@@ -57,11 +58,33 @@ def parse_literal_tsv(text, image_size):
         if isinstance(error, OCRBlocked):
             raise
         raise OCRBlocked("Malformed OCR numeric field.") from error
+    return words
+
+
+def parse_literal_tsv(text, image_size):
+    words = _parse_words(text, image_size)
     _require(len(words) == 1, "Expected exactly one native output word.")
     word = words[0]
     _require(word["text"] in ("Ein", "Aus") and word["confidence"] >= 90,
              "Native output word is unknown or below the confidence threshold.")
     return {**word, "value": {"Ein": 1, "Aus": 0}[word["text"]]}
+
+
+def parse_header_tsv(text, image_size):
+    words = _parse_words(text, image_size)
+    _require([word["text"] for word in words] == ["Energy", "Manager"]
+             and all(word["confidence"] >= 90 for word in words),
+             "Native header is not the exact high-confidence Energy Manager title.")
+    return {"text": "Energy Manager", "confidence": min(word["confidence"] for word in words), "words": words}
+
+
+def parse_clock_tsv(text, image_size):
+    words = _parse_words(text, image_size)
+    _require(len(words) == 1 and words[0]["confidence"] >= 90
+             and re.fullmatch(r"(?:[01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]", words[0]["text"]) is not None,
+             "Native clock is not one exact high-confidence HH:MM:SS value.")
+    hours, minutes, seconds = (int(value) for value in words[0]["text"].split(":"))
+    return {**words[0], "seconds_since_midnight": hours * 3600 + minutes * 60 + seconds}
 
 
 def _prepare_image(image_path, box):
@@ -96,15 +119,14 @@ def _pinned_path(profile, prefix):
     return path, expected
 
 
-def recognize_literal(image_path, box, profile, output_dir):
-    """Return actual recognized text/value, never an expected scenario value."""
+def _recognize(image_path, box, profile, output_dir, language, model_prefix, parse_result, kind):
     _require(isinstance(profile, dict) and type(profile.get("schema_version")) is int
              and profile["schema_version"] == 1
              and profile.get("kind") == "native-tesseract-ocr-profile"
              and profile.get("language") == "deu", "Unsupported native OCR profile.")
     executable, executable_hash = _pinned_path(profile, "executable")
-    model, model_hash = _pinned_path(profile, "model")
-    _require(model.name == "deu.traineddata", "Expected the pinned German OCR model.")
+    model, model_hash = _pinned_path(profile, model_prefix)
+    _require(model.name == language + ".traineddata", "Expected the pinned OCR language model.")
     source = Path(image_path).resolve(strict=True)
     _require(source.is_file() and source.stat().st_size <= 64 * 1024 * 1024, "Native image is missing or oversized.")
     source_hash = _digest(source)
@@ -118,7 +140,7 @@ def recognize_literal(image_path, box, profile, output_dir):
     environment.update({"TMP": str(output), "TEMP": str(output)})
     command = [
         str(executable), str(image), "stdout", "--tessdata-dir", str(model.parent),
-        "-l", "deu", "--psm", "7", "tsv",
+        "-l", language, "--psm", "7", "tsv",
     ]
     try:
         result = subprocess.run(
@@ -133,12 +155,12 @@ def recognize_literal(image_path, box, profile, output_dir):
     stderr.write_bytes(result.stderr)
     _require(result.returncode == 0, f"Native OCR exited {result.returncode}; see {stderr}.")
     _require(_digest(source) == source_hash, "Native source image changed during recognition.")
-    word = parse_literal_tsv(result.stdout.decode("utf-8-sig"), processed.size)
+    word = parse_result(result.stdout.decode("utf-8-sig"), processed.size)
     observation = {
-        "schema_version": 1, "kind": "native-output-ocr",
+        "schema_version": 1, "kind": kind,
         "source": {"path": str(source), "sha256": source_hash, "image_size": original_size, "box": list(box)},
         "engine": {"name": "tesseract", "executable_sha256": executable_hash, "model_sha256": model_hash,
-                   "language": "deu", "recipe": "minimum-rgb-green-wire-cleanup-4x-bicubic-pad24-psm7-v1",
+                   "language": language, "recipe": "minimum-rgb-green-wire-cleanup-4x-bicubic-pad24-psm7-v1",
                    "pillow_version": pillow_version, "python_version": platform.python_version(),
                    "observer_source_sha256": _digest(__file__)},
         **word,
@@ -151,3 +173,25 @@ def recognize_literal(image_path, box, profile, output_dir):
         json.dump(observation, file, indent=2, allow_nan=False)
         file.write("\n")
     return {**observation, "record_path": str(record), "record_sha256": _digest(record)}
+
+
+def recognize_literal(image_path, box, profile, output_dir):
+    """Return actual recognized text/value, never an expected scenario value."""
+    return _recognize(image_path, box, profile, output_dir, "deu", "model",
+                      parse_literal_tsv, "native-output-ocr")
+
+
+def recognize_header(image_path, candidate_box, profile, output_dir):
+    """Verify a proposed title crop independently; never correct a fuzzy OCR label."""
+    _require(len(candidate_box) == 4 and all(type(value) is int for value in candidate_box),
+             "Expected an integer header candidate rectangle.")
+    left, top, right, bottom = candidate_box
+    box = (left - 4, top - 4, right + 4, bottom + 4)
+    return _recognize(image_path, box, profile, output_dir, "eng", "header_model",
+                      parse_header_tsv, "native-header-ocr")
+
+
+def recognize_clock(image_path, box, profile, output_dir):
+    """Read the actual native clock; no expected time or inferred progress."""
+    return _recognize(image_path, box, profile, output_dir, "eng", "header_model",
+                      parse_clock_tsv, "native-clock-ocr")

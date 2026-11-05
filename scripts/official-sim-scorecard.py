@@ -121,6 +121,15 @@ def check_artifact(reference, root):
     return path
 
 
+def bound_artifact(reference, seen, root, message):
+    if isinstance(reference, str):
+        require(reference in seen, message)
+        reference = {"path": reference, "sha256": seen[reference]}
+    check_artifact(reference, root)
+    require(seen.get(reference["path"]) == reference["sha256"], message)
+    return reference
+
+
 def receipt(path, root):
     record = read_json(path)
     require(type(record.get("schema_version")) is int and record["schema_version"] == 1
@@ -171,20 +180,17 @@ def receipt(path, root):
         evidence = source.get("artifacts")
         require(isinstance(evidence, list) and evidence, "Output sample has no source evidence.")
         for reference in evidence:
-            if isinstance(reference, str):
-                require(reference in seen, "Output evidence is not bound to the receipt.")
-                reference = {"path": reference, "sha256": seen[reference]}
-            check_artifact(reference, root)
-            require(seen.get(reference["path"]) == reference["sha256"], "Output evidence is not bound to the receipt.")
+            bound_artifact(reference, seen, root, "Output evidence is not bound to the receipt.")
         phases[phase] = outputs
     if execution["status"] == "pass":
         require(execution.get("native_running_verified") is True and observations,
                 "Passing receipt did not establish actual native execution and output.")
     coverage_logs = record.get("coverage_logs", [])
     require(isinstance(coverage_logs, list), "Coverage log references must be an array.")
-    for reference in coverage_logs:
-        check_artifact(reference, root)
-        require(seen.get(reference["path"]) == reference["sha256"], "Coverage log is not bound to the receipt.")
+    record["coverage_logs"] = [
+        bound_artifact(reference, seen, root, "Coverage log is not bound to the receipt.")
+        for reference in coverage_logs
+    ]
     return record, phases, digest(path)
 
 
@@ -246,6 +252,13 @@ def compare(receipt_paths, coverage_paths, artifact_root):
             for item in items
         }
         repeated = len(plain) >= 2
+        plain_signatures = {
+            json.dumps(item["phases"], sort_keys=True, separators=(",", ":"), allow_nan=False)
+            for item in plain
+        }
+        plain_agrees = repeated and len(plain_signatures) == 1 and all(
+            item["record"]["execution"]["status"] == "pass" for item in plain
+        )
         agrees = bool(instrumented) and passing and len(signatures) == 1
         logs = {ref["sha256"] for item in instrumented for ref in item["record"].get("coverage_logs", [])}
         matching = [
@@ -261,6 +274,7 @@ def compare(receipt_paths, coverage_paths, artifact_root):
             "plain_runs": len(plain),
             "instrumented_runs": len(instrumented),
             "repeat_plain": repeated,
+            "plain_outputs_agree": plain_agrees,
             "sampled_outputs_agree": agrees,
             "mapped_native_coverage": bool(matching),
             "native_coverage_runs": [{
@@ -285,6 +299,7 @@ def compare(receipt_paths, coverage_paths, artifact_root):
         },
         "gate": {
             "input_valid": True,
+            "native_replay_established": bool(outcomes) and all(item["plain_outputs_agree"] for item in outcomes),
             "loop_established": bool(outcomes) and all(item["loop_established"] for item in outcomes),
             "engine_complete": False,
         },
