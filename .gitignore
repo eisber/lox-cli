@@ -39,3 +39,8 @@ __pycache__/
 
 # Local proprietary binaries, recovered code, and analysis tool installations
 .reverse-engineering/
+
+# Beads / Dolt files (added by bd init)
+.beads-credential-key
+.beads/proxieddb/
+*.gate.lock*
