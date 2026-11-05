@@ -13,6 +13,11 @@ Encode observed, version-pinned sequences as bounded recipes rather than repeati
 model-driven clicks, tree dumps and sleeps. Its compact output is an interaction
 optimization, not a substitute for independent GUI/storage evidence.
 
+For the official offline simulator, see
+[recovery and validation metrics](native-simulator-metrics.md). Function exports,
+native execution, simulator scope and behavioral parity have separate
+denominators; an unknown scope must never become a completion percentage.
+
 Run analysis on demand. No scheduled task or background watcher is required or
 installed by the analysis command.
 
