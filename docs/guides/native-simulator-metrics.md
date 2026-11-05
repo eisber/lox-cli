@@ -46,6 +46,9 @@ python scripts\official-sim-scorecard.py compare `
 
 The first-loop gate requires two distinct plain receipts and at least one
 instrumented receipt for the same application, case definition and fixture.
+Each must retain a distinct original native `execution.run_id`. Appending an
+OCR admission does not create another execution, and two analyses of one
+capture cannot count as independent repeats.
 All must report successful native execution and identical output samples at
 the same named phases. Actual elapsed times are retained; this comparison does
 **not** establish full timing or trace equivalence.
@@ -69,6 +72,56 @@ establish byte association, not proof against a dishonest evidence producer.
 Raw projects, recorder logs, screenshots and vendor code remain private under
 `.reverse-engineering`; only independent tooling and synthetic protocols belong
 in Git.
+
+### Bounded file-only output recognition
+
+`scripts\official_sim_ocr.py` supplies `recognize_literal(image_path, box,
+profile, new_output_directory)`. It never accesses a desktop or takes an
+expected scenario value. The caller must establish the actual simulator phase,
+owned screenshot, header anchor and correct value rectangle.
+
+The initial German pilot uses privately extracted Tesseract **5.4.0.20240606**,
+Pillow **11.3.0**, and the official `tesseract-ocr/tessdata_fast` German model
+at revision `87416418657359cb625c412a48b6e1d6d41c29bd`. Both executable and
+model are hash-pinned in a private `native-tesseract-ocr-profile`. Pillow is
+an optional runtime dependency; missing tooling explicitly blocks recognition.
+No global tool installation or image upload is required.
+
+One frozen preprocessing recipe removes green wire pixels, takes minimum RGB,
+enlarges 4x bicubically and adds a white border. German single-line recognition
+must produce exactly `Ein` or `Aus` with confidence at least 90. Other words,
+multiple words, clipping, low confidence and missing identities are blocked;
+there is no fuzzy correction or default-OFF inference. Confidence is an OCR
+engine score, not a calibrated probability.
+
+Actual positive native captures yielded `Ein` above 95, including an independently
+wired reference and a separate capture. Some negative glyphs yielded exact
+`Aus` below 90 and therefore remain **unadmitted**. This is a bounded positive
+pilot, not complete ON/OFF readback coverage. Source image, rectangle, processed
+image, raw TSV, tool/model hashes and observer versions are retained.
+
+### Computer-use and vision models
+
+Computer-use models can locate controls, select useful crops, suggest native
+zoom actions and diagnose dialogs that accessibility APIs cannot expose.
+They are advisory observers, not replacements for native simulation or
+automatically trusted pass/fail judges.
+
+Candidates reviewed against official sources:
+
+| Candidate | Relevant use and limitation |
+|---|---|
+| [Qwen3-VL](https://huggingface.co/Qwen/Qwen3-VL-4B-Instruct) | Local vision, multilingual OCR and PC GUI grounding; first candidate when weights already exist |
+| [UI-TARS](https://github.com/bytedance/UI-TARS) | Screenshot-based native GUI agents; actions still need the owned-process driver guards |
+| [Fara1.5](https://github.com/microsoft/fara) | Open-weight screenshot-based agent family; current model cards focus on browsers, not verified native Qt behavior |
+| [OmniParser](https://github.com/microsoft/OmniParser) | Structured screen-element detection/captioning for navigation; no guarantee of exact tiny-value transcription |
+
+Benchmark on blind native crops without providing expected scenario values.
+Include both state words, blank, clipped and wrong-region controls; retain exact
+match, false-state decisions, abstention and latency. Pin the model/runtime and
+keep local inference loopback-only for private captures. A model's self-reported
+confidence is not equivalent to the OCR engine score. Model suggestions alone
+must not promote blocked native evidence to a pass.
 
 ## Turning traces into recovered functionality
 

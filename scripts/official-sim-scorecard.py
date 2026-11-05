@@ -145,6 +145,9 @@ def receipt(path, root):
     require(definition["sha256"] == case["sha256"], "Case definition bytes do not match the case hash.")
     require(case["fixture_sha256"] in seen.values(), "Fixture bytes are not bound to the run artifacts.")
     execution = object_field(record, "execution")
+    run_id = execution.get("run_id")
+    require(isinstance(run_id, str) and run_id and run_id == run_id.strip(),
+            "Native receipt omitted its original execution run ID.")
     require(execution.get("mode") in ("plain", "drcov")
             and execution.get("status") in ("pass", "fail", "blocked"),
             "Native receipt has an unknown execution mode/status.")
@@ -168,6 +171,9 @@ def receipt(path, root):
         evidence = source.get("artifacts")
         require(isinstance(evidence, list) and evidence, "Output sample has no source evidence.")
         for reference in evidence:
+            if isinstance(reference, str):
+                require(reference in seen, "Output evidence is not bound to the receipt.")
+                reference = {"path": reference, "sha256": seen[reference]}
             check_artifact(reference, root)
             require(seen.get(reference["path"]) == reference["sha256"], "Output evidence is not bound to the receipt.")
         phases[phase] = outputs
@@ -186,12 +192,16 @@ def compare(receipt_paths, coverage_paths, artifact_root):
     root = Path(artifact_root).resolve()
     runs = []
     identities = set()
+    executions = set()
     applications = set()
     groups = defaultdict(list)
     for path in receipt_paths:
         record, phases, identity = receipt(path, root)
         require(identity not in identities, "A duplicate receipt cannot count as an independent replay.")
         identities.add(identity)
+        run_id = record["execution"]["run_id"]
+        require(run_id not in executions, "Duplicate execution run ID: two analyses are not independent replays.")
+        executions.add(run_id)
         applications.add(record["application"]["sha256"])
         key = (record["case"]["id"], record["case"]["sha256"], record["case"]["fixture_sha256"])
         item = {"record": record, "phases": phases, "sha256": identity}

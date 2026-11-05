@@ -44,7 +44,7 @@ class ScorecardTests(unittest.TestCase):
                 "id": "positive", "sha256": self.definition["sha256"],
                 "fixture_sha256": self.fixture["sha256"], "definition": self.definition,
             },
-            "execution": {"mode": mode, "status": status, "native_running_verified": True},
+            "execution": {"run_id": name, "mode": mode, "status": status, "native_running_verified": True},
             "artifacts": [self.definition, self.fixture, self.source, self.log],
             "coverage_logs": [self.log] if mode == "drcov" else [],
             "observations": [{
@@ -104,6 +104,15 @@ class ScorecardTests(unittest.TestCase):
         with self.assertRaisesRegex(SCORE.EvidenceError, "duplicate receipt"):
             SCORE.compare([path, path], [], self.root)
 
+    def test_two_admissions_of_one_native_execution_are_not_independent(self):
+        first = self.run_record("original")
+        second = self.run_record("admission")
+        record = json.loads(second.read_text(encoding="utf-8"))
+        record["execution"]["run_id"] = "original"
+        self.save("admission.json", record)
+        with self.assertRaisesRegex(SCORE.EvidenceError, "Duplicate execution run ID"):
+            SCORE.compare([first, second], [], self.root)
+
     def test_stale_application_and_unbound_coverage_rejected_or_incomplete(self):
         runs = [self.run_record("plain1"), self.run_record("plain2"), self.run_record("instrumented", "drcov")]
         with self.assertRaisesRegex(SCORE.EvidenceError, "different application"):
@@ -126,6 +135,17 @@ class ScorecardTests(unittest.TestCase):
         escaped["path"] = "..\\outside.txt"
         with self.assertRaisesRegex(SCORE.EvidenceError, "escape"):
             SCORE.check_artifact(escaped, self.root)
+
+    def test_source_can_name_an_already_hash_bound_manifest_artifact(self):
+        path = self.run_record("run")
+        record = json.loads(path.read_text(encoding="utf-8"))
+        record["observations"][0]["source"]["artifacts"] = [self.source["path"]]
+        self.save("run.json", record)
+        SCORE.receipt(path, self.root)
+        record["observations"][0]["source"]["artifacts"] = ["unbound-source.png"]
+        self.save("run.json", record)
+        with self.assertRaisesRegex(SCORE.EvidenceError, "not bound"):
+            SCORE.receipt(path, self.root)
 
     def test_passing_without_observation_or_case_bytes_is_invalid(self):
         path = self.run_record("run")
