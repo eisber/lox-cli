@@ -8,6 +8,11 @@ in the Git-ignored `.reverse-engineering` directory, not in commits or CI
 artifacts. Publish independently implemented interoperability changes and
 synthetic regression fixtures instead of recovered proprietary code.
 
+For repeatable GUI procedures, use the [deterministic UX driver](ux-automation.md).
+Encode observed, version-pinned sequences as bounded recipes rather than repeating
+model-driven clicks, tree dumps and sleeps. Its compact output is an interaction
+optimization, not a substitute for independent GUI/storage evidence.
+
 Run analysis on demand. No scheduled task or background watcher is required or
 installed by the analysis command.
 
