@@ -278,19 +278,23 @@
     },
     {
       "capability_id": "load-icon-reference",
-      "condition_scope": "Preservation-only: existing ico reference survives RFC and native-ID load fields/reorder.",
+      "condition_scope": "Bounded exact built-in list/select/clear: 623 loaded filenames/IDs and independent archive provenance; native/RFC case aliases; atomic invalid selection rejection; raw unknown preservation.",
       "omissions": [
-        "icon picker/editing/CRUD",
-        "icon-reference validity"
+        "fresh official GUI explicit-clear/save/reopen proof",
+        "custom selection/import/replace/delete and payload validation",
+        "Qt SVG rendering parity",
+        "full configuration/runtime scope"
       ],
       "required_case_ids": [
         "load-icon-reference.implementation",
         "load-icon-reference.unit_test"
       ],
       "rust_unit_tests": [
-        "config_edit::energy_tests::energy_native_name_mode_markers_preserve_other_storage",
-        "config_edit::energy_tests::energy_reorder_preserves_whole_records_unknown_children_and_wire_spellings",
-        "config_edit::energy_tests::energy_native_ids_and_aliases_preserve_records"
+        "config_edit::energy_tests::energy_builtin_icon_selection_uses_exact_membership_and_canonical_native_id",
+        "config_edit::energy_tests::energy_icon_invalid_selections_fail_transactionally_with_actionable_diagnostics",
+        "config_edit::energy_tests::energy_icon_clear_only_removes_matched_reference_and_preserves_definitions",
+        "config_edit::energy_tests::energy_unknown_icon_spelling_survives_unrelated_edits_and_inspection",
+        "config_edit::energy_tests::energy_icon_catalog_corruption_is_an_explicit_error"
       ]
     },
     {
@@ -656,20 +660,20 @@
       "capability_ids": [
         "load-icon-reference"
       ],
-      "condition": "Preservation-only: existing ico reference survives RFC and native-ID load fields/reorder.",
+      "condition": "Bounded exact built-in list/select/clear: 623 loaded filenames/IDs and independent archive provenance; native/RFC case aliases; atomic invalid selection rejection; raw unknown preservation.",
       "evidence_kind": "implementation",
-      "procedure": "Run tests/ux/energy-manager2/run-cli-cases.py on the built local lox binary: Snapshot ico/unknown fields; configure and reorder complete records in CLI and canonical native fixtures; compare exact reference spellings.",
-      "expected": "The exact original icon UUID remains on the same Id with nested data preserved; no icon edit/reference-validity claim."
+      "procedure": "Run tests/ux/energy-manager2/run-cli-cases.py on the built local lox binary: List JSON/table/CSV with header flags; select electric-fan.svg by filename/native/RFC alias; reject disabled/absent/malformed/empty/zero/custom compound patches; dry-run/save-as; clear only matched ico retaining other references and opaque definitions. Execute named Rust tests and synthetic ZIP generator tests.",
+      "expected": "Exact loaded membership stores canonical native fan ID with version/hash; invalid patches cannot write source/destination; explicit clear omits only matched ico, without decoding/validating custom images or orphan cleanup."
     },
     {
       "id": "load-icon-reference.unit_test",
       "capability_ids": [
         "load-icon-reference"
       ],
-      "condition": "Opaque ico and native canonical ico UUID survive full-record moves and existing slot edits.",
+      "condition": "Exact built-in fan selection by filename/native/RFC case alias; disabled/absent/malformed/empty/zero/custom rejection; clear closure; opaque reference preservation; embedded catalog errors.",
       "evidence_kind": "unit_test",
-      "procedure": "Execute cargo test --bin lox --test config_integration energy_ -- --nocapture; inspect named assertions: config_edit::energy_tests::energy_native_name_mode_markers_preserve_other_storage, config_edit::energy_tests::energy_reorder_preserves_whole_records_unknown_children_and_wire_spellings, config_edit::energy_tests::energy_native_ids_and_aliases_preserve_records",
-      "expected": "Both opaque 'keep-icon' and canonical native ico spellings remain on original Id; reference validity/editing is not tested."
+      "procedure": "Execute cargo test --bin lox --test config_integration energy_ -- --nocapture; inspect named assertions: config_edit::energy_tests::energy_builtin_icon_selection_uses_exact_membership_and_canonical_native_id, config_edit::energy_tests::energy_icon_invalid_selections_fail_transactionally_with_actionable_diagnostics, config_edit::energy_tests::energy_icon_clear_only_removes_matched_reference_and_preserves_definitions, config_edit::energy_tests::energy_unknown_icon_spelling_survives_unrelated_edits_and_inspection, config_edit::energy_tests::energy_icon_catalog_corruption_is_an_explicit_error",
+      "expected": "Only exact loaded members are newly assigned in canonical native spelling; invalid compound patches and corrupt catalogs fail explicitly; clear changes only matched ico, retaining definitions/other references; unknown existing storage is not sanitized. No GUI/custom payload validity is claimed."
     },
     {
       "id": "unused-load-feedback.implementation",

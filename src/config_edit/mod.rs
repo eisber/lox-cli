@@ -17,6 +17,7 @@ mod describe;
 pub mod energy;
 #[cfg(test)]
 mod energy_tests;
+pub mod icons;
 mod layout;
 mod properties;
 mod rooms;

@@ -91,6 +91,253 @@ mod energy {
     }
 
     #[test]
+    fn config_energy_icons_lists_exact_members_and_provenance_without_a_project() {
+        let (dir, _) = fixture();
+        let output = command(&dir)
+            .args(["--json", "config", "energy", "icons"])
+            .assert()
+            .success()
+            .stderr(predicate::str::is_empty())
+            .get_output()
+            .stdout
+            .clone();
+        let result: serde_json::Value = serde_json::from_slice(&output).unwrap();
+        assert_eq!(result["count"], 623);
+        assert_eq!(result["source"], "builtin");
+        assert_eq!(result["catalog"]["version"], "20261009");
+        assert_eq!(
+            result["catalog"]["archive_sha256"],
+            "11656e55212ffbf0153f9075ee21da28da04f8c23d5d5e6efe945f4782391df4"
+        );
+        let icons = result["icons"].as_array().unwrap();
+        let fan = icons
+            .iter()
+            .find(|icon| icon["filename"] == "electric-fan.svg")
+            .unwrap();
+        assert_eq!(fan["native_id"], "00000094-00ff-0000-0000000000000000");
+        assert!(
+            !icons
+                .iter()
+                .any(|icon| icon["filename"] == "awning-close.svg")
+        );
+        for flags in [vec![], vec!["--no-header"]] {
+            let output = command(&dir)
+                .args(["config", "energy", "icons"])
+                .args(&flags)
+                .assert()
+                .success()
+                .get_output()
+                .stdout
+                .clone();
+            let text = String::from_utf8(output).unwrap();
+            assert_eq!(text.starts_with("NAME"), flags.is_empty());
+            assert!(text.contains("electric-fan.svg"));
+            assert!(text.contains("623 built-in icons"));
+            assert!(text.contains("archive SHA256"));
+            let output = command(&dir)
+                .args(["--output", "csv", "config", "energy", "icons"])
+                .args(&flags)
+                .assert()
+                .success()
+                .stderr(predicate::str::is_empty())
+                .get_output()
+                .stdout
+                .clone();
+            let text = String::from_utf8(output).unwrap();
+            assert_eq!(
+                text.starts_with("SOURCE,NAME,NATIVE_ID,CATALOG_VERSION,ARCHIVE_SHA256"),
+                flags.is_empty()
+            );
+            assert_eq!(text.lines().count(), 623 + usize::from(flags.is_empty()));
+            assert!(text.contains("\"builtin\",\"electric-fan.svg\",\"00000094-00ff-0000-0000000000000000\",\"20261009\""));
+        }
+    }
+
+    #[test]
+    fn config_energy_builtin_icon_selection_clear_room_save_as_and_dry_run() {
+        let (dir, file) = fixture();
+        let original = fs::read(&file).unwrap();
+        let baseline = inspect(&dir, &file);
+        assert_eq!(
+            baseline["loads"][0]["icon_resolution"]["status"],
+            "unresolved"
+        );
+        let output = dir.path().join("selected.Loxone");
+        for selector in [
+            "electric-fan.svg",
+            "00000094-00FF-0000-0000000000000000",
+            "00000094-00FF-0000-0000-000000000000",
+        ] {
+            command(&dir)
+                .args([
+                    "--json",
+                    "--dry-run",
+                    "config",
+                    "energy",
+                    "load",
+                    "set",
+                    &file,
+                    "CLI Energy",
+                    FIRST_ID,
+                    "--room",
+                    "Pilot Room",
+                    "--icon",
+                    selector,
+                    "--save-as",
+                    output.to_str().unwrap(),
+                ])
+                .assert()
+                .success()
+                .stdout(predicate::str::contains("\"status\": \"known_builtin\""))
+                .stdout(predicate::str::contains(
+                    "\"filename\": \"electric-fan.svg\"",
+                ))
+                .stdout(predicate::str::contains("\"saved_to\": null"));
+            assert_eq!(fs::read(&file).unwrap(), original);
+            assert!(!output.exists());
+        }
+        command(&dir)
+            .args([
+                "--json",
+                "config",
+                "energy",
+                "load",
+                "set",
+                &file,
+                "CLI Energy [Pilot Room]",
+                FIRST_ID,
+                "--icon",
+                "electric-fan.svg",
+                "--save-as",
+                output.to_str().unwrap(),
+            ])
+            .assert()
+            .success()
+            .stdout(predicate::str::contains("\"builtin_icon_catalog\""));
+        assert_eq!(fs::read(&file).unwrap(), original);
+        let selected = inspect(&dir, output.to_str().unwrap());
+        assert_eq!(
+            selected["loads"][0]["icon"],
+            "00000094-00ff-0000-0000000000000000"
+        );
+        let mut expected = baseline["loads"][0]["attributes"].clone();
+        expected["ico"] = "00000094-00ff-0000-0000000000000000".into();
+        assert_eq!(selected["loads"][0]["attributes"], expected);
+        command(&dir)
+            .args([
+                "--json",
+                "--dry-run",
+                "config",
+                "energy",
+                "load",
+                "set",
+                output.to_str().unwrap(),
+                "CLI Energy",
+                FIRST_ID,
+                "--no-icon",
+            ])
+            .assert()
+            .success()
+            .stdout(predicate::str::contains("\"status\": \"none\""));
+        assert_eq!(
+            inspect(&dir, output.to_str().unwrap())["loads"],
+            selected["loads"]
+        );
+        command(&dir)
+            .args([
+                "--json",
+                "config",
+                "energy",
+                "load",
+                "set",
+                output.to_str().unwrap(),
+                "CLI Energy",
+                FIRST_ID,
+                "--no-icon",
+            ])
+            .assert()
+            .success();
+        let cleared = inspect(&dir, output.to_str().unwrap());
+        expected.as_object_mut().unwrap().remove("ico");
+        assert_eq!(cleared["loads"][0]["attributes"], expected);
+        assert!(cleared["loads"][0]["icon"].is_null());
+        assert_eq!(cleared["loads"][1], baseline["loads"][1]);
+        let bytes = fs::read(&output).unwrap();
+        assert!(bytes.starts_with(&[0xEF, 0xBB, 0xBF]));
+        let text = String::from_utf8(bytes).unwrap();
+        assert!(!text.replace("\r\n", "").contains('\n'));
+        assert!(text.contains("12hTF=\"true\""));
+        assert!(text.contains("<Unknown value=\"nested\"/>"));
+        assert!(text.contains("Input=\"73000000-0000-0000-0000-000000000001\""));
+    }
+
+    #[test]
+    fn config_energy_icon_errors_and_conflicting_clear_flags_do_not_write() {
+        let (dir, file) = fixture();
+        let original = fs::read(&file).unwrap();
+        let output = dir.path().join("must-not-exist.Loxone");
+        for selection in [
+            "",
+            "builtin:",
+            "Electric-fan.svg",
+            "awning-close.svg",
+            "0000001d-00ff-0000-0000000000000000",
+            "000000a0-00ff-0000-0000000000000000",
+            "0000094-000ff-0000-0000000000000000",
+            "00000000-0000-0000-0000000000000000",
+            "project:75000000-0000-0000-0000-000000000001",
+            "75000000-0000-0000-0000-000000000001",
+        ] {
+            command(&dir)
+                .args([
+                    "--json",
+                    "config",
+                    "energy",
+                    "load",
+                    "set",
+                    &file,
+                    "CLI Energy",
+                    FIRST_ID,
+                    "--name",
+                    "discard",
+                    "--rated-power",
+                    "8",
+                    "--icon",
+                    selection,
+                    "--save-as",
+                    output.to_str().unwrap(),
+                ])
+                .assert()
+                .failure()
+                .stdout(predicate::str::contains("\"ok\": false"))
+                .stdout(predicate::str::contains("config energy icons"))
+                .stdout(predicate::str::contains("--no-icon"));
+            assert_eq!(fs::read(&file).unwrap(), original);
+            assert!(!output.exists());
+        }
+        command(&dir)
+            .args([
+                "config",
+                "energy",
+                "load",
+                "set",
+                &file,
+                "CLI Energy",
+                FIRST_ID,
+                "--icon",
+                "electric-fan.svg",
+                "--no-icon",
+                "--save-as",
+                output.to_str().unwrap(),
+            ])
+            .assert()
+            .failure()
+            .stderr(predicate::str::contains("cannot be used with"));
+        assert_eq!(fs::read(&file).unwrap(), original);
+        assert!(!output.exists());
+    }
+
+    #[test]
     fn config_energy_inspect_reports_storage_defaults_and_native_only_choices() {
         let (dir, file) = fixture();
         let original = fs::read(&file).unwrap();

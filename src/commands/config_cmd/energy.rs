@@ -4,8 +4,10 @@ use clap::{Args, Subcommand, ValueEnum};
 use crate::commands::RunContext;
 use crate::config_edit::ConfigEditor;
 use crate::config_edit::energy::{
-    EnergyDeadline, EnergyInspection, EnergyLoadMode, EnergyLoadPatch, EnergyParameter,
+    EnergyDeadline, EnergyIconChange, EnergyInspection, EnergyLoadMode, EnergyLoadPatch,
+    EnergyParameter,
 };
+use crate::config_edit::icons::BuiltinIconCatalog;
 use crate::config_edit::schema::Diagnostic;
 
 #[derive(Args)]
@@ -38,6 +40,8 @@ impl EnergyTarget {
 
 #[derive(Subcommand)]
 pub(crate) enum EnergyCmd {
+    /// List exact loaded built-in icon filenames/IDs and archive provenance (no file required)
+    Icons,
     /// Inspect exact storage, effective defaults and limitations (read-only)
     Inspect {
         #[command(flatten)]
@@ -100,6 +104,12 @@ pub(crate) enum EnergyLoadCmd {
         /// kW >=0; zero substitutes rated power; greater than rated is allowed
         #[arg(long, allow_hyphen_values = true)]
         switch_on_power: Option<String>,
+        /// Exact built-in canonical filename or native/RFC ID; see `config energy icons`
+        #[arg(long, value_name = "BUILTIN", conflicts_with = "no_icon")]
+        icon: Option<String>,
+        /// Remove only this Load's icon reference; retain all definitions and other references
+        #[arg(long)]
+        no_icon: bool,
         #[arg(long, value_name = "PATH")]
         save_as: Option<String>,
     },
@@ -116,6 +126,7 @@ pub(crate) enum EnergyLoadCmd {
 
 pub(crate) fn run(ctx: &RunContext, action: EnergyCmd) -> Result<()> {
     let (target, save_as, edit) = match action {
+        EnergyCmd::Icons => return print_icons(ctx),
         EnergyCmd::Inspect { target } => (target, None, Edit::Inspect),
         EnergyCmd::Set {
             target,
@@ -139,6 +150,8 @@ pub(crate) fn run(ctx: &RunContext, action: EnergyCmd) -> Result<()> {
                 deadline,
                 rated_power,
                 switch_on_power,
+                icon,
+                no_icon,
                 save_as,
             } => (
                 target,
@@ -157,6 +170,11 @@ pub(crate) fn run(ctx: &RunContext, action: EnergyCmd) -> Result<()> {
                         deadline,
                         rated_power,
                         switch_on_power,
+                        icon: match icon {
+                            Some(selection) => EnergyIconChange::SetBuiltin(selection),
+                            None if no_icon => EnergyIconChange::Clear,
+                            None => EnergyIconChange::Preserve,
+                        },
                     },
                 ),
             ),
@@ -220,6 +238,58 @@ enum Edit {
     Move(String, usize),
 }
 
+fn print_icons(ctx: &RunContext) -> Result<()> {
+    let catalog = BuiltinIconCatalog::embedded()?;
+    if ctx.json {
+        let mut result = serde_json::json!({
+            "ok": true,
+            "source": "builtin",
+            "catalog": catalog.catalog,
+            "count": catalog.icons.len(),
+            "icons": catalog.icons,
+            "limitations": [
+                "Exact filled loaded-catalog membership only; not a Qt SVG rendering or full GUI parity oracle.",
+                "Archive version/hash is independent of executable version; a newer user archive may override an installed archive.",
+                "No custom/project icon selection, import, replacement, deletion or decoding. Explicit GUI clear/save/reopen proof is still missing."
+            ],
+        });
+        if let Some(trace_id) = &ctx.trace_id {
+            result["trace_id"] = serde_json::json!(trace_id);
+        }
+        println!("{}", serde_json::to_string_pretty(&result)?);
+    } else if ctx.csv {
+        if !ctx.no_header {
+            println!("SOURCE,NAME,NATIVE_ID,CATALOG_VERSION,ARCHIVE_SHA256");
+        }
+        for icon in &catalog.icons {
+            csv_row(&[
+                "builtin".into(),
+                icon.filename.clone(),
+                icon.native_id.clone(),
+                catalog.catalog.version.clone(),
+                catalog.catalog.archive_sha256.clone(),
+            ]);
+        }
+    } else {
+        if !ctx.no_header {
+            println!("NAME                                     NATIVE_ID");
+            println!(
+                "─────────────────────────────────────────────────────────────────────────────"
+            );
+        }
+        for icon in &catalog.icons {
+            println!("{:<40} {}", icon.filename, icon.native_id);
+        }
+        println!(
+            "\n{} built-in icons\nCatalog {}; archive SHA256 {}",
+            catalog.icons.len(),
+            catalog.catalog.version,
+            catalog.catalog.archive_sha256
+        );
+    }
+    Ok(())
+}
+
 fn print_inspection(ctx: &RunContext, inspection: &EnergyInspection) {
     if ctx.csv {
         if !ctx.no_header {
@@ -271,19 +341,26 @@ fn print_inspection(ctx: &RunContext, inspection: &EnergyInspection) {
             );
         }
         if !ctx.no_header {
-            println!("\nPRIORITY OUTPUT USED  NAME                 ID");
+            println!(
+                "\nPRIORITY OUTPUT USED  NAME                 ID                                   ICON"
+            );
             println!("────────────────────────────────────────────────────────────");
         }
         for load in &inspection.loads {
             println!(
-                "{:<8} {:<6} {:<5} {:<20} {}",
+                "{:<8} {:<6} {:<5} {:<20} {} {}",
                 load.priority,
                 load.output.as_deref().unwrap_or("?"),
                 load.used
                     .effective
                     .map_or("?".into(), |used| used.to_string()),
                 load.name.effective.as_deref().unwrap_or(""),
-                load.id.as_deref().unwrap_or("?")
+                load.id.as_deref().unwrap_or("?"),
+                load.icon_resolution
+                    .filename
+                    .as_deref()
+                    .or(load.icon.as_deref())
+                    .unwrap_or("(none)")
             );
         }
         println!(
@@ -295,6 +372,10 @@ fn print_inspection(ctx: &RunContext, inspection: &EnergyInspection) {
     if !ctx.quiet {
         eprintln!(
             "Verified storage subset only; no complete GUI/runtime parity. See --output json for storage defaults and limitations."
+        );
+        eprintln!(
+            "Built-in icon catalog {}; archive SHA256 {} (independent of Config executable version).",
+            inspection.builtin_icon_catalog.version, inspection.builtin_icon_catalog.archive_sha256
         );
     }
     for diagnostic in &inspection.diagnostics {

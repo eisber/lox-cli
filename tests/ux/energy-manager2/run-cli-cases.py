@@ -8,6 +8,7 @@ import json
 import os
 from pathlib import Path
 import subprocess
+import sys
 import time
 import uuid
 
@@ -129,11 +130,11 @@ DEFINITIONS = [
      ["energy_power_zero_substitution_and_above_rated_are_allowed", "energy_nonzero_decimal_underflow_fails_atomically"],
      ["native all-zero runtime behavior", "GUI filtering"]),
     ("load-icon-reference",
-     "Preservation-only: existing ico reference survives RFC and native-ID load fields/reorder.",
-     "Snapshot ico/unknown fields; configure and reorder complete records in CLI and canonical native fixtures; compare exact reference spellings.",
-     "The exact original icon UUID remains on the same Id with nested data preserved; no icon edit/reference-validity claim.",
-     ["energy_native_name_mode_markers_preserve_other_storage", "energy_reorder_preserves_whole_records_unknown_children_and_wire_spellings", "energy_native_ids_and_aliases_preserve_records"],
-     ["icon picker/editing/CRUD", "icon-reference validity"]),
+     "Bounded exact built-in list/select/clear: 623 loaded filenames/IDs and independent archive provenance; native/RFC case aliases; atomic invalid selection rejection; raw unknown preservation.",
+     "List JSON/table/CSV with header flags; select electric-fan.svg by filename/native/RFC alias; reject disabled/absent/malformed/empty/zero/custom compound patches; dry-run/save-as; clear only matched ico retaining other references and opaque definitions. Execute named Rust tests and synthetic ZIP generator tests.",
+     "Exact loaded membership stores canonical native fan ID with version/hash; invalid patches cannot write source/destination; explicit clear omits only matched ico, without decoding/validating custom images or orphan cleanup.",
+     ["energy_builtin_icon_selection_uses_exact_membership_and_canonical_native_id", "energy_icon_invalid_selections_fail_transactionally_with_actionable_diagnostics", "energy_icon_clear_only_removes_matched_reference_and_preserves_definitions", "energy_unknown_icon_spelling_survives_unrelated_edits_and_inspection", "energy_icon_catalog_corruption_is_an_explicit_error"],
+     ["fresh official GUI explicit-clear/save/reopen proof", "custom selection/import/replace/delete and payload validation", "Qt SVG rendering parity", "full configuration/runtime scope"]),
     ("unused-load-feedback",
      "Storage-derived unused condition !U || MaxPwr<=0 on unused/default and connected rated-zero slots.",
      "Inspect unused rows; set connected first rated0 and inspect U and unused_feedback.",
@@ -195,8 +196,8 @@ UNIT_CASES = {
         "Rated4 zero-switch copy, explicit rated0 with U=true, and positive/negative nonzero-underflow.",
         "Explicit rated0 omits MaxPwr preserving U/SwPwr2.6; nonzero-underflow cannot be mistaken for rated0 and leaves bytes unchanged."),
     "load-icon-reference": (
-        "Opaque ico and native canonical ico UUID survive full-record moves and existing slot edits.",
-        "Both opaque 'keep-icon' and canonical native ico spellings remain on original Id; reference validity/editing is not tested."),
+        "Exact built-in fan selection by filename/native/RFC case alias; disabled/absent/malformed/empty/zero/custom rejection; clear closure; opaque reference preservation; embedded catalog errors.",
+        "Only exact loaded members are newly assigned in canonical native spelling; invalid compound patches and corrupt catalogs fail explicitly; clear changes only matched ico, retaining definitions/other references; unknown existing storage is not sanitized. No GUI/custom payload validity is claimed."),
     "unused-load-feedback": (
         "Inspect false/default-U slots and true-U rated-zero slot.",
         "Both omitted-U slots and connected rated-zero slot expose unused_feedback=true; no GUI rendering assertion."),
@@ -553,7 +554,110 @@ class Runner:
             before = malformed.read_bytes()
             invalid = self.cli(label, ["config", "energy", "load", "move", malformed, block, native_id, "2"], 1)
             assert invalid["error"] == expected and malformed.read_bytes() == before
-        self.prove(["ordered-load-records", "load-identity", "load-output-association", "load-icon-reference"], start, "RFC fixture full12-record preservation/reorder/dry-run passed. Canonical native8-4-4-16 fixture edited and reordered via RFC alias; exact native IDs/OIdx/L1/icon/unknown/wire data preserved, uppercase selector matched lowercase native Id. Malformed dash placement and binary-equivalent native/RFC duplicates rejected atomically. Icon proof remains preservation only.")
+        self.prove(["ordered-load-records", "load-identity", "load-output-association"], start, "RFC fixture full12-record preservation/reorder/dry-run passed. Canonical native8-4-4-16 fixture edited and reordered via RFC alias; exact native IDs/OIdx/L1/icon/unknown/wire data preserved, uppercase selector matched lowercase native Id. Malformed dash placement and binary-equivalent native/RFC duplicates rejected atomically.")
+        self.run_icons()
+
+    def run_icons(self):
+        start = len(self.commands)
+        self.execute("icon-generator-tests",
+            [sys.executable, "-m", "unittest", "discover", "-s", "scripts", "-p", "test_inventory_loxone_icons.py"],
+            parse_json=False)
+        metadata = json.loads((ROOT / "docs" / "schemas" / "loxone-icons.json").read_text())
+        listed = self.cli("icon-list-json", ["config", "energy", "icons"])
+        assert listed["source"] == "builtin" and listed["catalog"] == metadata["catalog"]
+        assert listed["count"] == len(listed["icons"]) == 623
+        assert {"native_id": "00000094-00ff-0000-0000000000000000", "filename": "electric-fan.svg"} in listed["icons"]
+        assert not any(row["filename"] == "awning-close.svg" for row in listed["icons"])
+        for output in ["table", "csv"]:
+            for no_header in [False, True]:
+                text = self.execute(f"icon-list-{output}-header-{not no_header}",
+                    [self.lox, "--quiet", "--output", output, *(["--no-header"] if no_header else []),
+                     "config", "energy", "icons"], parse_json=False)
+                assert text.startswith("NAME" if output == "table" else "SOURCE,NAME,NATIVE_ID") == (not no_header)
+                assert "electric-fan.svg" in text
+                assert listed["catalog"]["archive_sha256"] in text
+                if output == "csv":
+                    assert len(text.splitlines()) == 623 + int(not no_header)
+
+        path = self.fixture("icon-fields")
+        baseline = self.inspect("icon-baseline", path)
+        raw = baseline["loads"][0]["icon"]
+        preserved = self.load("icon-unknown-unrelated-name-edit", path, "--name", "Unrelated")["energy"]
+        assert preserved["loads"][0]["icon"] == raw
+        assert preserved["loads"][0]["icon_resolution"]["status"] == "unresolved"
+        for index, selection in enumerate([
+            "electric-fan.svg", "builtin:electric-fan.svg",
+            "00000094-00FF-0000-0000000000000000", "00000094-00FF-0000-0000-000000000000",
+        ]):
+            before = self.inspect("icon-before-selection-" + str(index), path)
+            state = self.load("icon-selection-" + str(index), path, "--icon", selection)["energy"]
+            expected = dict(before["loads"][0]["attributes"], ico="00000094-00ff-0000-0000000000000000")
+            assert state["loads"][0]["attributes"] == expected
+            assert state["loads"][1:] == before["loads"][1:]
+            assert state["loads"][0]["icon_resolution"]["filename"] == "electric-fan.svg"
+            assert state["builtin_icon_catalog"] == listed["catalog"]
+
+        destination = self.output / "icon-must-not-overwrite.Loxone"
+        destination.write_bytes(b"independent output sentinel, not XML")
+        original_destination = destination.read_bytes()
+        for index, (selection, expected_error) in enumerate([
+            ("", "invalid_icon_selection"), ("builtin:", "invalid_icon_selection"),
+            ("awning-close.svg", "unknown_builtin_icon"),
+            ("0000001d-00ff-0000-0000000000000000", "unknown_builtin_icon"),
+            ("000000a0-00ff-0000-0000000000000000", "unknown_builtin_icon"),
+            ("0000094-000ff-0000-0000000000000000", "unknown_builtin_icon"),
+            ("Electric-fan.svg", "unknown_builtin_icon"),
+            ("00000000-0000-0000-0000000000000000", "explicit_icon_clear_required"),
+            ("project:" + raw, "unsupported_custom_icon"), (raw, "unknown_builtin_icon"),
+        ]):
+            before = path.read_bytes()
+            error = self.load("icon-invalid-" + str(index), path, "--name", "discard",
+                "--rated-power", "8", "--icon", selection, "--save-as", destination, expected_exit=1)
+            assert error["error"] == expected_error and path.read_bytes() == before
+            assert destination.read_bytes() == original_destination
+        self.execute("icon-mutually-exclusive-clear",
+            [self.lox, "--quiet", "config", "energy", "load", "set", str(path),
+             "CLI Energy", FIRST, "--icon", "electric-fan.svg", "--no-icon"], 2, False)
+        assert path.read_bytes() == before
+
+        source = self.fixture("icon-closure")
+        custom = "75000000-0000-0000-0000-000000000001"
+        caption = '<C Type="LoxCaption" CaptionType="5" SubType="5" U="caption">'
+        icon = f'<C Type="Icon" U="{custom}" User="1" Ix="4" Icon="000102" Future="opaque"/>'
+        definition = caption + icon + "</C>"
+        text = source.read_bytes().decode("utf-8-sig").replace(
+            f'<Load Id="{SECOND}" OIdx="1"', f'<Load Id="{SECOND}" OIdx="1" ico="{custom}"'
+        ).replace("</ControlList>", definition + f'<C Type="StateV" U="other" ico="{custom}"/></ControlList>')
+        source.write_bytes(b"\xef\xbb\xbf" + text.encode("utf-8"))
+        original = source.read_bytes()
+        before_state = self.inspect("icon-closure-before", source)
+        output = self.output / "icon-save-as.Loxone"
+        proposed = self.cli("icon-select-dry-run", ["--dry-run", "config", "energy", "load", "set",
+            source, "CLI Energy", FIRST, "--room", "Pilot Room", "--icon", "electric-fan.svg", "--save-as", output])
+        assert proposed["saved_to"] is None and proposed["energy"]["loads"][0]["icon_resolution"]["status"] == "known_builtin"
+        assert source.read_bytes() == original and not output.exists()
+        selected = self.cli("icon-select-save-as", ["config", "energy", "load", "set",
+            source, "CLI Energy [Pilot Room]", FIRST, "--icon", "electric-fan.svg", "--save-as", output])
+        assert source.read_bytes() == original
+        saved = output.read_bytes()
+        proposal = self.cli("icon-clear-dry-run", ["--dry-run", "config", "energy", "load", "set",
+            output, "CLI Energy", FIRST, "--no-icon"])
+        assert proposal["energy"]["loads"][0]["icon"] is None and output.read_bytes() == saved
+        cleared = self.load("icon-explicit-clear", output, "--no-icon")["energy"]
+        expected = dict(before_state["loads"][0]["attributes"])
+        del expected["ico"]
+        assert cleared["loads"][0]["attributes"] == expected
+        assert cleared["loads"][1:] == before_state["loads"][1:]
+        assert cleared["loads"][0]["icon_resolution"]["status"] == "none"
+        assert cleared["builtin_icon_catalog"] == selected["energy"]["builtin_icon_catalog"] == listed["catalog"]
+        saved = output.read_bytes()
+        assert saved.startswith(b"\xef\xbb\xbf") and b"\n" not in saved.replace(b"\r\n", b"")
+        text = saved.decode("utf-8-sig")
+        assert caption in text and icon in text and text.count(custom) == 3  # Definition + two other references.
+        assert 'Input="73000000-0000-0000-0000-000000000001"' in text and '12hTF="true"' in text
+        assert '<Unknown value="nested"/>' in text
+        self.prove(["load-icon-reference"], start,
+            "Actual builtin list JSON/table/CSV/header flags and independent archive version/hash passed; exact fan name/native/RFC aliases stored canonical native ID; disabled/absent/malformed/empty/zero/custom compound edits rejected without changing source/existing destination. Dry-run/save-as/room selectors and explicit clear retained Id/OIdx, children, wires, opaque custom definitions and other references. Synthetic ZIP generator tests passed. No GUI clear/custom-save/reopen, custom payload validation or full-scope/runtime parity is claimed.")
 
     def finish(self, failure=None):
         save_json(self.output / "commands.json", self.commands)
@@ -563,11 +667,12 @@ class Runner:
             "case_definitions": self.snapshot(self.before_definition),
             "source_artifacts": [
                 self.snapshot(ROOT / path) for path in [
-                    "src/config_edit/energy.rs", "src/config_edit/schema.rs", "src/config_edit/energy_tests.rs",
+                    "src/config_edit/energy.rs", "src/config_edit/icons.rs", "src/config_edit/schema.rs", "src/config_edit/energy_tests.rs",
                     "src/config_edit/write.rs",
                     "src/commands/config_cmd/energy.rs", "tests/config_integration.rs",
                     "lox-sim/src/parser.rs", "tests/ux/energy-manager2/synthetic.Loxone",
                     "tests/ux/energy-manager2/cli-synthetic.xml", "tests/ux/energy-manager2/run-cli-cases.py",
+                    "docs/schemas/loxone-icons.json", "scripts/inventory-loxone-icons.py", "scripts/test_inventory_loxone_icons.py",
                 ]
             ],
             "fixture_origin": "independently authored synthetic XML; actual CLI/unit execution, no Config GUI",
@@ -590,7 +695,7 @@ class Runner:
             "runner": "run-cli-cases.py: " + self.cli_version + ", actual offline CLI and cargo unit/integration execution",
             "started_at": self.started_at, "finished_at": datetime.now().astimezone().isoformat(),
             "application": APPLICATION, "synthetic": False, "kind": "cli_execution",
-            "operation": "Actually execute the locally built lox CLI and named Cargo tests against disposable independently authored synthetic fixtures; record narrow implementation/unit outcomes only. The application identity is the recovered Config binding TARGET, not an executed GUI. No GUI observations, past-run merging, server connection/write, reference editing or runtime simulation. See adjacent commands.json and metadata.json for exact invocations/digests" + ("; failed: " + failure if failure else "."),
+            "operation": "Actually execute the locally built lox CLI and named Cargo tests against disposable independently authored synthetic fixtures; record narrow implementation/unit outcomes only, including exact builtin list/select/clear. The application identity is the recovered Config binding TARGET, not an executed GUI. No GUI observations, past-run merging, server connection/write, custom mutation or runtime simulation. See adjacent commands.json and metadata.json for exact invocations/digests" + ("; failed: " + failure if failure else "."),
             "observations": self.observations,
         }
         save_json(self.output / "runner-record.json", record)

@@ -4,10 +4,10 @@ use std::collections::{BTreeMap, HashSet};
 
 use anyhow::Result;
 use serde::Serialize;
-use uuid::Uuid;
 use xmltree::{Element, XMLNode};
 
 use super::ConfigEditor;
+use super::icons::{BuiltinIconCatalog, IconCatalogProvenance, IconResolution, native_identity};
 use super::schema::{Diagnostic, NumericBinding, StoredValue, minutes_to_seconds};
 
 #[derive(Debug, Clone, Copy)]
@@ -129,6 +129,15 @@ pub struct EnergyLoadPatch {
     pub deadline: Option<EnergyDeadline>,
     pub rated_power: Option<String>,
     pub switch_on_power: Option<String>,
+    pub icon: EnergyIconChange,
+}
+
+#[derive(Debug, Default)]
+pub enum EnergyIconChange {
+    #[default]
+    Preserve,
+    SetBuiltin(String),
+    Clear,
 }
 
 #[derive(Debug, Serialize)]
@@ -161,6 +170,7 @@ pub struct EnergyLoad {
     pub rated_power: StoredValue<f64>,
     pub unused_feedback: Option<bool>,
     pub icon: Option<String>,
+    pub icon_resolution: IconResolution,
     /// Inspection only: this is not a replacement/export format for XML records.
     pub attributes: BTreeMap<String, String>,
     pub child_elements: Vec<String>,
@@ -175,6 +185,7 @@ pub struct EnergyInspection {
     pub scalar_parameters: Vec<EnergyScalar>,
     pub loads: Vec<EnergyLoad>,
     pub load_edit_supported: bool,
+    pub builtin_icon_catalog: IconCatalogProvenance,
     pub diagnostics: Vec<Diagnostic>,
     pub limitations: Vec<&'static str>,
 }
@@ -238,19 +249,6 @@ fn load_positions(element: &Element) -> Vec<usize> {
         .collect()
 }
 
-fn load_identity(raw: &str) -> Option<Uuid> {
-    let groups: Vec<_> = raw.split('-').collect();
-    let lengths: Vec<_> = groups.iter().map(|group| group.len()).collect();
-    if !matches!(lengths.as_slice(), [8, 4, 4, 16] | [8, 4, 4, 4, 12])
-        || !groups
-            .iter()
-            .all(|group| group.bytes().all(|byte| byte.is_ascii_hexdigit()))
-    {
-        return None;
-    }
-    Uuid::parse_str(&groups.concat()).ok()
-}
-
 fn shape_diagnostics(element: &Element) -> Vec<Diagnostic> {
     let positions = load_positions(element);
     let mut diagnostics = Vec::new();
@@ -266,7 +264,7 @@ fn shape_diagnostics(element: &Element) -> Vec<Diagnostic> {
     for (priority, position) in positions.into_iter().enumerate() {
         let load = element.children[position].as_element().unwrap();
         let path = format!("EnergyManager2/Load[{}]", priority + 1);
-        match load.attributes.get("Id").and_then(|id| load_identity(id)) {
+        match load.attributes.get("Id").and_then(|id| native_identity(id)) {
             Some(id) if ids.insert(id) => {}
             Some(_) => diagnostics.push(Diagnostic::new("ambiguous_load_id", &format!("{path}/@Id"), "Duplicate persistent load UUID; select an independently verified configuration.")),
             None => diagnostics.push(Diagnostic::new("invalid_load_id", &format!("{path}/@Id"), "Each existing Load must have a hexadecimal native 8-4-4-16 or RFC 8-4-4-4-12 UUID Id; U is a boolean, not an identity.")),
@@ -308,10 +306,14 @@ impl ConfigEditor {
 
     pub fn inspect_energy(&self, selector: &str) -> Result<EnergyInspection> {
         let path = self.energy_path(selector)?;
-        Ok(Self::inspect_energy_element(self.get_element(&path)))
+        let catalog = BuiltinIconCatalog::embedded()?;
+        Ok(Self::inspect_energy_element(
+            self.get_element(&path),
+            &catalog,
+        ))
     }
 
-    fn inspect_energy_element(element: &Element) -> EnergyInspection {
+    fn inspect_energy_element(element: &Element, catalog: &BuiltinIconCatalog) -> EnergyInspection {
         let shape = shape_diagnostics(element);
         let load_edit_supported = shape.is_empty();
         let mut diagnostics = shape;
@@ -435,6 +437,7 @@ impl ConfigEditor {
                 rated_power,
                 unused_feedback,
                 icon: load.attributes.get("ico").cloned(),
+                icon_resolution: catalog.resolve(load.attributes.get("ico").map(String::as_str)),
                 attributes: load
                     .attributes
                     .iter()
@@ -456,10 +459,13 @@ impl ConfigEditor {
             scalar_parameters,
             loads,
             load_edit_supported,
+            builtin_icon_catalog: catalog.catalog.clone(),
             diagnostics,
             limitations: vec![
                 "Bindings recovered for Config 17.2.10.21; CLI validation is not identical to GUI prefix filtering.",
-                "No load add/delete, U/Id/OIdx/icon editing, live server writes or runtime semantics.",
+                "No load add/delete, U/Id/OIdx editing, live server writes or runtime semantics.",
+                "Icon selection is exact versioned built-in membership, not Qt SVG rendering parity. Explicit clear removes only this Load's ico; its GUI clear oracle is still missing.",
+                "Existing unknown icon references are preserved, not validated or sanitized. Project/custom icon selection, creation, import, replacement, deletion and image decoding are unsupported.",
                 "All 28 deadline choices have GUI-save observations; deadline/day-cycle execution remains unverified.",
                 "Name/mode setters mark Ncu/Anc, including unchanged values; observed GUI transitions retain customization markers on revert.",
                 "Integer CLI minutes use checked signed 32-bit seconds; fractional/scientific input and GUI overflow are not emulated.",
@@ -507,10 +513,10 @@ impl ConfigEditor {
         if let Some(diagnostic) = shape_diagnostics(element).into_iter().next() {
             return Err(diagnostic.into());
         }
-        let uuid = load_identity(id.strip_prefix("uuid:").unwrap_or(id))
+        let uuid = native_identity(id.strip_prefix("uuid:").unwrap_or(id))
             .ok_or_else(|| Diagnostic::new("invalid_load_selector", id, "Select a native 8-4-4-16 or RFC 8-4-4-4-12 Load Id from `config energy inspect`, not a priority, name, U flag or malformed dash spelling."))?;
         let position = load_positions(element).into_iter().find(|&index| {
-            element.children[index].as_element().unwrap().attributes.get("Id").and_then(|id| load_identity(id)) == Some(uuid)
+            element.children[index].as_element().unwrap().attributes.get("Id").and_then(|id| native_identity(id)) == Some(uuid)
         }).ok_or_else(|| Diagnostic::new("load_not_found", id, "No existing Load has that Id; inspect the block. Adding slots is unverified and unsupported."))?;
         Ok((path, position))
     }
@@ -530,6 +536,7 @@ impl ConfigEditor {
             && patch.deadline.is_none()
             && patch.rated_power.is_none()
             && patch.switch_on_power.is_none()
+            && matches!(patch.icon, EnergyIconChange::Preserve)
         {
             return Err(Diagnostic::new(
                 "empty_patch",
@@ -607,6 +614,17 @@ impl ConfigEditor {
             if let Some(raw) = &patch.switch_on_power {
                 let value = power("SwPwr").parse(raw, "Load/@SwPwr")?;
                 set_default_zero(load, "SwPwr", if value == 0.0 { rated } else { value });
+            }
+        }
+        match &patch.icon {
+            EnergyIconChange::Preserve => {}
+            EnergyIconChange::Clear => {
+                load.attributes.shift_remove("ico");
+            }
+            EnergyIconChange::SetBuiltin(selection) => {
+                let catalog = BuiltinIconCatalog::embedded()?;
+                let icon = catalog.select(selection)?;
+                load.attributes.insert("ico".into(), icon.native_id.clone());
             }
         }
         *self.get_element_mut(&path) = staged;

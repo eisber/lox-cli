@@ -78,15 +78,19 @@ Arguments: `<FILE> <SELECTOR> <PARAM> <VALUE>`. Selector is a block title or `"u
 ### EnergyManager2 verified storage pilot
 
 ```bash
+lox config energy icons --output json
 lox config energy inspect file.Loxone "Energy" --output json
 lox config energy set file.Loxone "Energy" O -1.25 --save-as edited.Loxone
 lox config energy set file.Loxone "Energy" MinSoc 100 --dry-run
 lox config energy load set file.Loxone "Energy" <LOAD_ID> --rated-power 2.5 --switch-on-power 0
 lox config energy load set file.Loxone "Energy" <LOAD_ID> --preparation-seconds 30 --min-runtime-minutes -1 --daily-minutes 1440 --deadline dusk
 lox config energy load move file.Loxone "Energy" <LOAD_ID> 2 --save-as edited.Loxone
+lox config energy load set file.Loxone "Energy" <LOAD_ID> --icon electric-fan.svg
+lox config energy load set file.Loxone "Energy" <LOAD_ID> --no-icon
 ```
 
-All targets are local files and exactly one **EnergyManager2**, selected by title,
+`icons` lists built-ins without a project file or block selector. Other targets
+are local files and exactly one **EnergyManager2**, selected by title,
 `uuid:…`, or `"Name [Room]"`; `--room/-r` also disambiguates. All commands inherit
 `--output json|table|csv`, `--quiet`, and `--no-header`. Edits support `--save-as`;
 otherwise they overwrite the input. `--dry-run` runs the same validation and
@@ -124,6 +128,8 @@ priority, or output index. Options:
 | `--deadline CHOICE` | `tpR`: `sunset`, `dusk`, `sunrise`, `dawn`, or hourly `01:00`..`24:00`; all 28 choices GUI-save observed |
 | `--rated-power KW` | `MaxPwr`, finite kW >=0 |
 | `--switch-on-power KW` | `SwPwr`, finite kW >=0; zero substitutes rated power |
+| `--icon BUILTIN` | Exact case-sensitive canonical filename or native/RFC ID from `energy icons`; optional `builtin:` prefix |
+| `--no-icon` | Remove only the matched Load's `ico`; mutually exclusive with `--icon` |
 
 Minutes use checked multiplication by 60, not fractional GUI rounding or unknown
 overflow semantics. Zero runtime/daily/deadline/rated fields use omission for their
@@ -138,15 +144,69 @@ shapes fail rather than being repaired. `load move` sets priority **1..12 by XML
 record order**, moves the complete record, and never renumbers `OIdx` (association
 with `L(OIdx+1)`), changes Id, or rewrites connector/wiring/icon references. Unknown
 attributes/children, unused slots, BOM/CRLF and native `12hTF` attributes are
-preserved by ConfigEditor. No add/delete or editing of U/Id/OIdx/icon is provided.
+preserved by ConfigEditor. No add/delete or editing of U/Id/OIdx is provided.
 Load identities accept strict hexadecimal native `8-4-4-16` and RFC `8-4-4-4-12`
 spellings. Native/RFC aliases and letter-case variations resolve the same identity
 for selection/duplicate detection, while the original stored spelling is retained.
 Misplaced dashes are rejected.
 
+#### Built-in icons and manual catalog refresh
+
+`energy icons` lists **623 loaded filled records** from the packaged
+`docs\schemas\loxone-icons.json`: canonical filenames, native IDs and independent
+archive provenance. JSON returns `source`, `catalog.version`,
+`catalog.archive_sha256`, `count`, `icons` and limitations. CSV includes provenance
+on each row; table output includes it after the count. `--no-header` suppresses
+table/CSV headers, and `--quiet` suppresses notices, not list data. There are no
+invented translated display names, fuzzy matches or GUID-prefix/range guesses.
+
+Selection accepts a strict native `8-4-4-16` or RFC `8-4-4-4-12` alias,
+case-insensitively by 128-bit identity, and stores the catalog's canonical native
+ID. For example `electric-fan.svg` maps to
+`00000094-00ff-0000-0000000000000000`. Disabled `awning-close.svg`
+(`0000001d-00ff-0000-0000000000000000`) and absent
+`000000a0-00ff-0000-0000000000000000` are not selectable. Empty, malformed,
+unknown and project/custom selections fail atomically, including compound patches.
+An all-zero ID is rejected: use explicit `--no-icon`. Clearing removes only
+the matched Load's `ico`; definitions, other references, Id/OIdx, children and
+wires remain intact. There is no orphan cleanup.
+
+Inspection retains the raw `icon` and adds `icon_resolution` (`known_builtin`,
+`none`, `unresolved`, or `malformed_id`) plus `builtin_icon_catalog` provenance.
+An unresolved project reference is **not** claimed valid or decoded; unrelated
+edits preserve its exact raw spelling. No project/custom selection, arbitrary GUID
+assignment, creation, import, replacement, deletion or SVG/image authoring is
+supported. Exact catalog membership does not establish Qt SVG renderability.
+The explicit-clear GUI save/reopen oracle remains missing; CLI/unit proof is
+not GUI parity.
+
+The packaged catalog is archive version **20261009**, SHA256
+`11656e55212ffbf0153f9075ee21da28da04f8c23d5d5e6efe945f4782391df4`.
+This is **independent of Config executable version**. Native Config chooses the
+user Documents archive only when its integer `version` is strictly greater than
+the installed ProgramData archive's; ties use the installed archive. A Config
+17.2.10.21 executable therefore does not imply these exact catalog bytes.
+
+Refresh manually from an authorized, locally supplied `IconLibrary.zip`:
+
+```powershell
+python scripts\inventory-loxone-icons.py "PATH\IconLibrary.zip" --output docs\schemas\loxone-icons.json
+python -m unittest discover -s scripts -p test_inventory_loxone_icons.py
+cargo test --bin lox --test config_integration energy_
+```
+
+Choose/freeze the applicable archive explicitly (compare both archives' `version`
+members when needed), review the resulting metadata/provenance diff, then rebuild
+the CLI. The standalone deterministic stdlib generator checks fallback/localized
+identity agreement, unique IDs/filenames, and nonempty loaded asset members.
+It emits **only factual filenames/IDs and archive version/hash**, never absolute
+source paths, localized tags, artwork, image payloads or archives. Keep all raw
+vendor resources ignored. Catalog-only refresh needs neither a decompiler rerun
+nor the bulk reverse-engineering pipeline; there are no scheduled refresh jobs.
+
 This is a version-bound storage subset recovered for Config **17.2.10.21**, not
 complete official GUI or Miniserver runtime parity. Deadline choices and name/mode
-customization-marker transitions have version-bound GUI observations. Icon editing,
+customization-marker transitions have version-bound GUI observations. Custom icons,
 structural CRUD, runtime scheduling/storage behavior, and complete GUI validation
 remain outside this CLI subset. Native malformed-input observations are not proof
 of valid or supported CLI edits. Synthetic Rust/CLI tests are not GUI oracle
@@ -154,8 +214,8 @@ evidence; the original GUI observations remain separate.
 
 To reproduce the offline proof, run
 `python tests/ux/energy-manager2/run-cli-cases.py` with Cargo available (optional
-`--lox PATH`). It executes eleven core Rust unit tests, seven CLI integration
-tests and one simulator-parser regression for O parameter direction/incoming wire,
+`--lox PATH`). It executes the named core Rust/CLI integration tests and one
+simulator-parser regression for O parameter direction/incoming wire,
 then actual CLI assertions, generating `CLI-case-definitions.json` and a new
 ignored `.reverse-engineering/ux/energy-manager2/cli/<run>/` directory containing
 stdout, commands, digests and a CLI-only runner record. It never executes Config

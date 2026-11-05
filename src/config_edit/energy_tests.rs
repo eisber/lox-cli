@@ -34,6 +34,263 @@ fn first_id() -> &'static str {
     "b0000000-0000-0000-0000-000000000000"
 }
 
+#[test]
+fn energy_builtin_icon_selection_uses_exact_membership_and_canonical_native_id() {
+    let mut editor = editor();
+    let path = editor.require_one("Pilot").unwrap();
+    for selection in [
+        "electric-fan.svg",
+        "builtin:electric-fan.svg",
+        "00000094-00FF-0000-0000000000000000",
+        "00000094-00FF-0000-0000-000000000000",
+    ] {
+        let mut expected = editor.root.clone();
+        let block = expected.children[path[0]].as_mut_element().unwrap();
+        let position = load_positions(block)[0];
+        block.children[position]
+            .as_mut_element()
+            .unwrap()
+            .attributes
+            .insert("ico".into(), "00000094-00ff-0000-0000000000000000".into());
+        editor
+            .configure_energy_load(
+                "Pilot",
+                first_id(),
+                &EnergyLoadPatch {
+                    icon: EnergyIconChange::SetBuiltin(selection.into()),
+                    ..Default::default()
+                },
+            )
+            .unwrap();
+        assert_eq!(editor.root, expected);
+        let inspection = editor.inspect_energy("Pilot").unwrap();
+        assert_eq!(inspection.loads[0].icon_resolution.status, "known_builtin");
+        assert_eq!(
+            inspection.loads[0].icon_resolution.filename.as_deref(),
+            Some("electric-fan.svg")
+        );
+        assert_eq!(inspection.builtin_icon_catalog.version, "20261009");
+        let saved = editor.to_bytes().unwrap();
+        let reloaded = ConfigEditor::load(&saved).unwrap();
+        assert_eq!(
+            reloaded.inspect_energy("Pilot").unwrap().loads[0].icon,
+            inspection.loads[0].icon
+        );
+    }
+}
+
+#[test]
+fn energy_icon_invalid_selections_fail_transactionally_with_actionable_diagnostics() {
+    let mut editor = editor();
+    for (selection, code) in [
+        (
+            "0000001d-00ff-0000-0000000000000000",
+            "unknown_builtin_icon",
+        ),
+        ("awning-close.svg", "unknown_builtin_icon"),
+        (
+            "000000a0-00ff-0000-0000000000000000",
+            "unknown_builtin_icon",
+        ),
+        (
+            "0000094-000ff-0000-0000000000000000",
+            "unknown_builtin_icon",
+        ),
+        ("Electric-fan.svg", "unknown_builtin_icon"),
+        ("electric-fan", "unknown_builtin_icon"),
+        (
+            "project:b0000000-0000-0000-0000000000000000",
+            "unsupported_custom_icon",
+        ),
+        (
+            "b0000000-0000-0000-0000000000000000",
+            "unknown_builtin_icon",
+        ),
+        ("", "invalid_icon_selection"),
+        ("builtin:", "invalid_icon_selection"),
+        (
+            "00000000-0000-0000-0000000000000000",
+            "explicit_icon_clear_required",
+        ),
+        (
+            "00000000-0000-0000-0000-000000000000",
+            "explicit_icon_clear_required",
+        ),
+    ] {
+        let before = editor.to_bytes().unwrap();
+        let error = editor
+            .configure_energy_load(
+                "Pilot",
+                first_id(),
+                &EnergyLoadPatch {
+                    name: Some("must not persist".into()),
+                    mode: Some(EnergyLoadMode::Analog),
+                    rated_power: Some("8".into()),
+                    icon: EnergyIconChange::SetBuiltin(selection.into()),
+                    ..Default::default()
+                },
+            )
+            .unwrap_err();
+        let diagnostic = error.downcast_ref::<super::schema::Diagnostic>().unwrap();
+        assert_eq!(diagnostic.code, code, "{selection}");
+        assert!(diagnostic.message.contains("config energy icons"));
+        assert!(diagnostic.message.contains("--no-icon"));
+        assert_eq!(editor.to_bytes().unwrap(), before, "{selection}");
+    }
+    let before = editor.to_bytes().unwrap();
+    assert!(
+        editor
+            .configure_energy_load(
+                "Pilot",
+                first_id(),
+                &EnergyLoadPatch {
+                    preparation_seconds: Some(29),
+                    icon: EnergyIconChange::Clear,
+                    ..Default::default()
+                }
+            )
+            .is_err()
+    );
+    assert_eq!(editor.to_bytes().unwrap(), before);
+}
+
+#[test]
+fn energy_icon_clear_only_removes_matched_reference_and_preserves_definitions() {
+    let xml = String::from_utf8(fixture()).unwrap().replace("</ControlList>",
+        "<C Type=\"LoxCaption\" CaptionType=\"5\" SubType=\"5\" U=\"icon-caption\"><C Type=\"Icon\" U=\"f0000000-0000-0000-0000000000000001\" User=\"1\" Ix=\"4\" Icon=\"000102\" Future=\"opaque\"><Unknown keep=\"all\"/></C></C><C Type=\"StateV\" U=\"other-consumer\" ico=\"f0000000-0000-0000-0000000000000001\"/></ControlList>");
+    let mut editor = ConfigEditor::load(xml.as_bytes()).unwrap();
+    let path = editor.require_one("Pilot").unwrap();
+    let block = editor.get_element_mut(&path);
+    for position in load_positions(block).into_iter().take(2) {
+        block.children[position]
+            .as_mut_element()
+            .unwrap()
+            .attributes
+            .insert("ico".into(), "f0000000-0000-0000-0000000000000001".into());
+    }
+    assert_eq!(
+        editor.inspect_energy("Pilot").unwrap().loads[0]
+            .icon_resolution
+            .status,
+        "unresolved"
+    );
+    let mut expected = editor.root.clone();
+    let block = expected.children[path[0]].as_mut_element().unwrap();
+    let position = load_positions(block)[0];
+    block.children[position]
+        .as_mut_element()
+        .unwrap()
+        .attributes
+        .shift_remove("ico");
+    editor
+        .configure_energy_load(
+            "Pilot",
+            first_id(),
+            &EnergyLoadPatch {
+                icon: EnergyIconChange::Clear,
+                ..Default::default()
+            },
+        )
+        .unwrap();
+    assert_eq!(editor.root, expected);
+    assert!(
+        editor.inspect_energy("Pilot").unwrap().loads[0]
+            .icon
+            .is_none()
+    );
+    let saved = editor.to_bytes().unwrap();
+    let text = String::from_utf8(saved.clone()).unwrap();
+    assert!(saved.starts_with(&[0xEF, 0xBB, 0xBF]));
+    assert!(!text.replace("\r\n", "").contains('\n'));
+    assert!(text.contains("12hTF=\"true\""));
+    assert!(text.contains("Input=\"load-wire\""));
+    let before = editor.to_bytes().unwrap();
+    editor
+        .configure_energy_load(
+            "Pilot",
+            first_id(),
+            &EnergyLoadPatch {
+                icon: EnergyIconChange::Clear,
+                ..Default::default()
+            },
+        )
+        .unwrap();
+    assert_eq!(editor.to_bytes().unwrap(), before);
+}
+
+#[test]
+fn energy_unknown_icon_spelling_survives_unrelated_edits_and_inspection() {
+    for (reference, status) in [
+        ("000000A0-00FF-0000-0000000000000000", "unresolved"),
+        ("f0000000-0000-0000-0000000000000001", "unresolved"),
+        ("keep-icon", "malformed_id"),
+    ] {
+        let mut editor = editor();
+        let path = editor.require_one("Pilot").unwrap();
+        let block = editor.get_element_mut(&path);
+        let position = load_positions(block)[0];
+        block.children[position]
+            .as_mut_element()
+            .unwrap()
+            .attributes
+            .insert("ico".into(), reference.into());
+        let before = editor.to_bytes().unwrap();
+        assert_eq!(
+            editor.inspect_energy("Pilot").unwrap().loads[0]
+                .icon_resolution
+                .status,
+            status
+        );
+        assert_eq!(editor.to_bytes().unwrap(), before);
+        editor
+            .configure_energy_load(
+                "Pilot",
+                first_id(),
+                &EnergyLoadPatch {
+                    name: Some("unrelated edit".into()),
+                    ..Default::default()
+                },
+            )
+            .unwrap();
+        assert_eq!(
+            editor.inspect_energy("Pilot").unwrap().loads[0]
+                .icon
+                .as_deref(),
+            Some(reference)
+        );
+    }
+}
+
+#[test]
+fn energy_icon_catalog_corruption_is_an_explicit_error() {
+    use super::icons::BuiltinIconCatalog;
+    let source = serde_json::json!({
+        "schema_version": 1,
+        "catalog": {"version": "20400103", "archive_sha256": "a".repeat(64)},
+        "icons": [
+            {"native_id": "abcdef01-00ff-0000-0123456789abcdef", "filename": "independent.svg"},
+            {"native_id": "abcdef02-00ff-0000-0123456789abcdef", "filename": "another.svg"}
+        ],
+    });
+    for mutation in 0..7 {
+        let mut invalid = source.clone();
+        match mutation {
+            0 => invalid["schema_version"] = 2.into(),
+            1 => invalid["icons"][1]["native_id"] = "ABCDEF01-00FF-0000-0123456789ABCDEF".into(),
+            2 => invalid["icons"][1]["filename"] = "independent.svg".into(),
+            3 => invalid["icons"][0]["native_id"] = "abcdef01-00ff-0000-0123-456789abcdef".into(),
+            4 => invalid["catalog"]["archive_sha256"] = "not-a-hash".into(),
+            5 => invalid["icons"][0]["filename"] = "../asset.svg".into(),
+            _ => invalid["catalog"]["version"] = "".into(),
+        }
+        let error = BuiltinIconCatalog::parse(&invalid.to_string()).unwrap_err();
+        let diagnostic = error.downcast_ref::<super::schema::Diagnostic>().unwrap();
+        assert_eq!(diagnostic.code, "invalid_icon_catalog");
+        assert!(diagnostic.message.contains("regenerate"));
+    }
+    assert!(BuiltinIconCatalog::parse("{not JSON}").is_err());
+}
+
 fn load_positions(element: &xmltree::Element) -> Vec<usize> {
     element
         .children

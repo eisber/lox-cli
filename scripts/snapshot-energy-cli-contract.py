@@ -95,8 +95,8 @@ def derive(run_directory, contract_path, results_path):
                 "Per-capability condition scopes and omissions are preserved in binding.reason. "
                 "Original GUI requirements remain missing; no old GUI observations are imported. "
                 "Excluded full-scope capabilities: " + ", ".join(excluded)
-                + ". Icon support is preservation only; current deadline condition scope comes "
-                "from this run's definitions. Separate native GUI follow-ups are not imported. "
+                + ". Current icon/deadline condition scopes and explicit omissions come "
+                "from this run's definitions, not an assumed support level. Separate native GUI follow-ups are not imported. "
                 "Runtime dependencies, numeric GUI filtering/overflow equivalence, structural CRUD, "
                 "reference validation, migration and dirty-cancel feedback are not complete. "
                 "Fresh combined GUI/CLI/unit proof is required before any parity claim."

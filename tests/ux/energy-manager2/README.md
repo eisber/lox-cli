@@ -61,6 +61,36 @@ description of current support. Derive a new snapshot from a new runner director
 with `scripts\snapshot-energy-cli-contract.py`, using unique `--contract` and
 `--results` paths. That operation does not import the separate GUI observations.
 
+## Bounded built-in icon list/select/clear
+
+The CLI now lists the **623 loaded filled built-ins** without a project:
+`lox config energy icons --output json`. Existing-load `set` accepts exact
+canonical filenames/native IDs with `--icon`, or explicit `--no-icon` to remove
+only that record's `ico`. It does not clean up definitions or other references.
+Native and RFC ID aliases compare by exact identity, never a GUID range/prefix.
+Inspection preserves raw unknown values and distinguishes known built-ins from
+unresolved/malformed references; it does not claim custom payload validity.
+
+This static catalog is archive version **20261009**, SHA256
+`11656e55212ffbf0153f9075ee21da28da04f8c23d5d5e6efe945f4782391df4`,
+independently versioned from the Config executable. A newer Documents archive can
+override the installed archive. `docs\schemas\loxone-icons.json` contains only
+factual identifiers/filenames and provenance. The frozen raw archive, localized
+tags, artwork, native exports and research report remain ignored under
+`.reverse-engineering\ux\energy-manager2\icon-recovery\20261105T093122Z`.
+See `COMMANDS.md` for the manual standalone generator/refresh runbook; catalog
+refresh does not require rerunning a decompiler or the bulk recovery pipeline.
+
+The generator is tested with independently authored tiny ZIP catalogs, not
+vendor assets. CLI/Rust tests cover exact fan selection, native/RFC case aliases,
+rejected disabled/absent/malformed/empty/zero/custom selections, compound-patch
+rollback, clear closure, unknown preservation and list output/provenance.
+**Missing:** a fresh official GUI explicit-clear save/reopen case, verified custom
+selection/import/replace/delete and full configuration/runtime scope. Exact
+membership is not Qt SVG rendering proof. No custom mutation or image decoding
+is enabled by this slice, and no GUI evidence is imported into its CLI-only run.
+Original contracts/results and old runner directories stay frozen.
+
 ## Critical distinctions
 
 - `O` is offset-grid-power **parameter**, stored in `Co[@K='O']/@Def`.
