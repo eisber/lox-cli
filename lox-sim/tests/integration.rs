@@ -9,9 +9,9 @@ use xmltree::{Element, XMLNode};
 
 fn fixture_path() -> PathBuf {
     Path::new(env!("CARGO_MANIFEST_DIR"))
-        .parent()
-        .expect("lox-sim has repo parent")
-        .join("tests/eval/fixture.Loxone")
+        .join("tests")
+        .join("fixtures")
+        .join("eval.xml")
 }
 
 fn eval_case(name: &str) -> PathBuf {
@@ -230,10 +230,9 @@ fn test_trace_eval_configs() {
     ];
 
     let eval_dir = Path::new("/tmp/eval-llm");
-    let fixture_path = Path::new("../tests/eval/fixture.Loxone");
-    let fixture_size = std::fs::metadata(fixture_path)
-        .map(|m| m.len())
-        .unwrap_or(0);
+    let fixture_size = std::fs::metadata(fixture_path())
+        .expect("packaged eval fixture is readable")
+        .len();
 
     let mut tested = 0;
     let mut passed = 0;
@@ -285,10 +284,9 @@ fn test_trace_eval_configs() {
 fn test_simulate_eval_configs() {
     skip_if_no_corpus!();
     let eval_dir = Path::new("/tmp/eval-llm");
-    let fixture_path = Path::new("../tests/eval/fixture.Loxone");
-    let fixture_size = std::fs::metadata(fixture_path)
-        .map(|m| m.len())
-        .unwrap_or(0);
+    let fixture_size = std::fs::metadata(fixture_path())
+        .expect("packaged eval fixture is readable")
+        .len();
 
     // Simulate configs that we can verify
     let sim_cases: Vec<(&str, Vec<(&str, f64)>, &str, f64, &str)> = vec![

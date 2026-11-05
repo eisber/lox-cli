@@ -23,6 +23,7 @@ jobs:
           lfs: true
 
       - name: Install Rust stable
+        id: rust
         uses: dtolnay/rust-toolchain@stable
         with:
           components: rustfmt, clippy
@@ -34,14 +35,14 @@ jobs:
             ~/.cargo/registry
             ~/.cargo/git
             target
-          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
-          restore-keys: ${{ runner.os }}-cargo-
+          key: ${{ runner.os }}-${{ runner.arch }}-lint-${{ steps.rust.outputs.cachekey }}-${{ hashFiles('Cargo.lock', 'Cargo.toml', 'lox-sim/Cargo.toml', '.cargo/config.toml') }}
+          restore-keys: ${{ runner.os }}-${{ runner.arch }}-lint-${{ steps.rust.outputs.cachekey }}-
 
       - name: fmt
         run: cargo fmt --check --all
 
       - name: clippy
-        run: cargo clippy --workspace -- -D warnings
+        run: cargo clippy --workspace --locked -- -D warnings
 
       - name: Lint eval specs
         run: python3 tests/eval/scripts/lint-specs.py
@@ -61,6 +62,7 @@ jobs:
           lfs: true
 
       - name: Install Rust stable
+        id: rust
         uses: dtolnay/rust-toolchain@stable
 
       - name: Cache cargo
@@ -70,17 +72,46 @@ jobs:
             ~/.cargo/registry
             ~/.cargo/git
             target
-          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
-          restore-keys: ${{ runner.os }}-cargo-
+          key: ${{ runner.os }}-${{ runner.arch }}-test-${{ steps.rust.outputs.cachekey }}-${{ hashFiles('Cargo.lock', 'Cargo.toml', 'lox-sim/Cargo.toml', '.cargo/config.toml') }}
+          restore-keys: ${{ runner.os }}-${{ runner.arch }}-test-${{ steps.rust.outputs.cachekey }}-
 
       - name: build
-        run: cargo build --workspace --release ${{ runner.os == 'Windows' && '--features vendored-openssl' || '' }}
+        run: cargo build --workspace --release --locked ${{ runner.os == 'Windows' && '--features vendored-openssl' || '' }}
 
       - name: test
-        run: cargo test --workspace --release ${{ runner.os == 'Windows' && '--features vendored-openssl' || '' }}
+        run: cargo test --workspace --release --locked ${{ runner.os == 'Windows' && '--features vendored-openssl' || '' }}
 
       - name: Test local reverse-engineering pipeline
         run: python3 -m unittest discover -s scripts -p "test_*.py"
+
+  package:
+    name: Verify source packages
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Rust stable
+        id: rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache cargo
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: ${{ runner.os }}-${{ runner.arch }}-package-${{ steps.rust.outputs.cachekey }}-${{ hashFiles('Cargo.lock', 'Cargo.toml', 'lox-sim/Cargo.toml', '.cargo/config.toml') }}
+          restore-keys: ${{ runner.os }}-${{ runner.arch }}-package-${{ steps.rust.outputs.cachekey }}-
+
+      - name: Build actual workspace packages
+        run: cargo package --workspace --locked
+
+      - name: Check package contents
+        run: python3 scripts/verify-packages.py target/package/*.crate
+
+      - name: Test standalone simulator package
+        run: python3 scripts/test-simulator-package.py --package-dir target/package --work-dir .reverse-engineering/package-tests --target-dir target/package-tests
 
   coverage:
     name: Coverage
