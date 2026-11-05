@@ -14,9 +14,13 @@
 
 mod blocks;
 mod describe;
+pub mod energy;
+#[cfg(test)]
+mod energy_tests;
 mod layout;
 mod properties;
 mod rooms;
+pub mod schema;
 mod selector;
 mod template;
 mod validation;

@@ -1920,10 +1920,10 @@ fn block_signature(
                 "IL6", "IL7", "IL8", "IL9", "IL10", "IL11", "IL12", "Reset",
             ],
             &[
-                "O", "OL1", "OL2", "OL3", "OL4", "OL5", "OL6", "OL7", "OL8", "OL9", "OL10", "OL11",
+                "OL1", "OL2", "OL3", "OL4", "OL5", "OL6", "OL7", "OL8", "OL9", "OL10", "OL11",
                 "OL12", "ONext", "OMinSoc", "API",
             ],
-            &["MinSoc", "MaxSpwr"],
+            &["O", "MinSoc", "MaxSpwr"],
         ),
         "LoadShed" => (
             &[
@@ -2242,6 +2242,31 @@ mod tests {
         let gate = graph.find_block_by_name("Gate").unwrap();
         let input = graph.find_connector(gate, "I1").unwrap();
         assert!(graph.input_source_of(input).is_some());
+    }
+
+    #[test]
+    fn energy_manager_offset_parameter_retains_incoming_wire() {
+        let graph = parse_xml(
+            r#"<ControlList>
+          <C Type="VirtualIn" U="source" Title="Source"><Co K="AQ" U="source-aq"/></C>
+          <C Type="EnergyManager2" U="energy" Title="Energy">
+            <Co K="O" U="energy-offset" Def="-1.25"><In Input="source-aq"/></Co>
+            <Co K="MinSoc" U="energy-soc" Def="100"/>
+            <Co K="OL1" U="energy-load"/>
+          </C>
+        </ControlList>"#,
+        );
+        let energy = graph.find_block_by_name("Energy").unwrap();
+        let source = graph.find_block_by_name("Source").unwrap();
+        let offset = graph.find_connector(energy, "O").unwrap();
+        let source_output = graph.find_connector(source, "AQ").unwrap();
+        assert_eq!(graph.connector(offset).dir, ConnectorDir::Parameter);
+        assert_eq!(graph.connector(offset).default_value, -1.25);
+        assert!(graph.block_info(energy).params.contains(&offset));
+        assert!(!graph.block_info(energy).outputs.contains(&offset));
+        assert_eq!(graph.input_source_of(offset), Some(source_output));
+        assert!(graph.wires().contains(&(source_output, offset)));
+        assert!(graph.warnings().is_empty());
     }
 
     #[test]

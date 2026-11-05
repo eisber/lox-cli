@@ -1,5 +1,35 @@
 # Beads - AI-Native Issue Tracking
 
+## Project persistence
+
+This workspace uses embedded Dolt; no server or scheduled task is required.
+Normal task operations use `bd ready`, `bd update --claim`, and `bd close`,
+with `--json` for programmatic callers. A coordinator manages claims and
+dependencies while workers operate on their assigned files.
+
+From the repository root, export portable issue records with:
+
+```powershell
+python .\scripts\export-beads.py
+git add -f -- .beads\backup\issues.jsonl
+```
+
+The exporter preserves task IDs, dependencies, statuses, assignments and other
+issue fields, but omits the local `owner` routing field. It is not a general
+redactor: task descriptions and evidence references must not contain secrets,
+private user data or recovered vendor code. It never commits or pushes.
+
+Only this JSONL file belongs in Git. The other backup files, embedded database,
+locks and runtime files remain ignored. JSONL is an interchange snapshot, not a
+complete Dolt-history backup. Full local backups can be made explicitly:
+
+```powershell
+bd backup init .reverse-engineering\beads-backup
+bd backup sync
+```
+
+Auto-backup is disabled for this workspace; these operations are manual.
+
 Welcome to Beads! This repository uses **Beads** for issue tracking - a modern, AI-native tool designed to live directly in your codebase alongside your code.
 
 ## What is Beads?

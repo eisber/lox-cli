@@ -43,6 +43,578 @@ fn write_fixture(dir: &TempDir) -> String {
     path.to_str().unwrap().to_string()
 }
 
+mod energy {
+    use super::*;
+
+    const FIRST_ID: &str = "74000000-0000-0000-0000-000000000001";
+    const SECOND_ID: &str = "74000000-0000-0000-0000-000000000002";
+    const XML: &str = include_str!("ux/energy-manager2/cli-synthetic.xml");
+
+    fn fixture() -> (TempDir, String) {
+        let dir = tempfile::Builder::new()
+            .prefix(".energy-cli-")
+            .tempdir_in(env!("CARGO_MANIFEST_DIR"))
+            .unwrap();
+        let path = dir.path().join("energy.Loxone");
+        let mut bytes = vec![0xEF, 0xBB, 0xBF];
+        bytes.extend_from_slice(XML.replace("\r\n", "\n").replace('\n', "\r\n").as_bytes());
+        fs::write(&path, bytes).unwrap();
+        (dir, path.to_str().unwrap().into())
+    }
+
+    fn command(dir: &TempDir) -> Command {
+        let mut command = lox();
+        command
+            .env("LOX_TELEMETRY", "0")
+            .env("LOX_CONFIG", dir.path().join("absent.yaml"))
+            .arg("--quiet");
+        command
+    }
+
+    fn inspect(dir: &TempDir, file: &str) -> serde_json::Value {
+        let output = command(dir)
+            .args([
+                "-o",
+                "json",
+                "config",
+                "energy",
+                "inspect",
+                file,
+                "CLI Energy",
+            ])
+            .assert()
+            .success()
+            .get_output()
+            .stdout
+            .clone();
+        serde_json::from_slice::<serde_json::Value>(&output).unwrap()["energy"].clone()
+    }
+
+    #[test]
+    fn config_energy_inspect_reports_storage_defaults_and_native_only_choices() {
+        let (dir, file) = fixture();
+        let original = fs::read(&file).unwrap();
+        let inspection = inspect(&dir, &file);
+        assert_eq!(inspection["scalar_parameters"][0]["direction"], "parameter");
+        assert!(inspection["scalar_parameters"][0]["value"]["stored"].is_null());
+        assert_eq!(
+            inspection["scalar_parameters"][0]["value"]["effective"],
+            0.0
+        );
+        assert_eq!(inspection["scalar_parameters"][1]["value"]["stored"], "0");
+        assert_eq!(inspection["loads"].as_array().unwrap().len(), 12);
+        assert_eq!(inspection["loads"][0]["used"]["effective"], true);
+        assert_eq!(
+            inspection["loads"][0]["preparation_seconds"]["effective"],
+            60
+        );
+        assert_eq!(inspection["loads"][1]["deadline_label"], "24:00");
+        assert_eq!(inspection["loads"][1]["deadline_gui_verified"], false);
+        assert_eq!(inspection["loads"][0]["attributes"]["Future"], "opaque");
+        assert_eq!(inspection["loads"][0]["child_elements"][0], "Extension");
+        assert!(
+            inspection["verification"]
+                .as_str()
+                .unwrap()
+                .contains("not_complete")
+        );
+        command(&dir)
+            .args([
+                "config",
+                "energy",
+                "inspect",
+                &file,
+                "CLI Energy",
+                "--room",
+                "Pilot Room",
+                "--no-header",
+            ])
+            .assert()
+            .success()
+            .stdout(predicate::str::contains("PRIORITY").not())
+            .stdout(predicate::str::contains("PARAMETER").not());
+        command(&dir)
+            .args([
+                "--output",
+                "csv",
+                "config",
+                "energy",
+                "inspect",
+                &file,
+                "CLI Energy",
+            ])
+            .assert()
+            .success()
+            .stdout(predicate::str::starts_with(
+                "KIND,PRIORITY,ID,FIELD,STORED,EFFECTIVE,UNIT",
+            ));
+        assert_eq!(fs::read(&file).unwrap(), original);
+    }
+
+    #[test]
+    fn config_energy_signed_scalar_save_as_and_parameter_direction() {
+        let (dir, file) = fixture();
+        let original = fs::read(&file).unwrap();
+        let output = dir.path().join("saved.Loxone");
+        command(&dir)
+            .args([
+                "--json",
+                "config",
+                "energy",
+                "set",
+                &file,
+                "CLI Energy",
+                "O",
+                "-1.25",
+                "--save-as",
+                output.to_str().unwrap(),
+            ])
+            .assert()
+            .success()
+            .stderr(predicate::str::is_empty());
+        assert_eq!(fs::read(&file).unwrap(), original);
+        let inspection = inspect(&dir, output.to_str().unwrap());
+        assert_eq!(
+            inspection["scalar_parameters"][0]["value"]["stored"],
+            "-1.25"
+        );
+        assert_eq!(inspection["loads"][0]["attributes"]["Future"], "opaque");
+        assert!(inspection["loads"][0]["switch_on_power"]["stored"].is_null());
+        assert!(inspection["loads"][0]["preparation_seconds"]["stored"].is_null());
+        let bytes = fs::read(&output).unwrap();
+        assert!(bytes.starts_with(&[0xEF, 0xBB, 0xBF]));
+        let text = String::from_utf8(bytes).unwrap();
+        assert!(text.contains("12hTF=\"true\""));
+        assert!(text.contains("<Unknown value=\"nested\"/>"));
+        assert!(text.contains("Input=\"73000000-0000-0000-0000-000000000001\""));
+        assert!(text.contains("not a vendor project"));
+        assert!(!text.replace("\r\n", "").contains('\n'));
+        let result = command(&dir)
+            .args([
+                "-o",
+                "json",
+                "config",
+                "get-params",
+                output.to_str().unwrap(),
+                "CLI Energy",
+            ])
+            .assert()
+            .success()
+            .get_output()
+            .stdout
+            .clone();
+        let value: serde_json::Value = serde_json::from_slice(&result).unwrap();
+        let offset = value["connectors"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .find(|connector| connector["key"] == "O")
+            .unwrap();
+        assert_eq!(offset["direction"], "P");
+    }
+
+    #[test]
+    fn config_energy_load_patch_converts_minutes_and_preserves_connected_zero_power() {
+        let (dir, file) = fixture();
+        command(&dir)
+            .args([
+                "-o",
+                "json",
+                "config",
+                "energy",
+                "load",
+                "set",
+                &file,
+                "CLI Energy",
+                FIRST_ID,
+                "--name",
+                "CLI & renamed",
+                "--mode",
+                "analog",
+                "--preparation-seconds",
+                "30",
+                "--min-runtime-minutes",
+                "-1",
+                "--daily-minutes",
+                "1440",
+                "--deadline",
+                "dusk",
+                "--rated-power",
+                "2.5",
+                "--switch-on-power",
+                "0",
+            ])
+            .assert()
+            .success();
+        let inspection = inspect(&dir, &file);
+        assert_eq!(
+            inspection["loads"][0]["min_runtime_seconds"]["effective"],
+            -60
+        );
+        assert_eq!(inspection["loads"][0]["daily_seconds"]["effective"], 86400);
+        assert_eq!(inspection["loads"][0]["switch_on_power"]["effective"], 2.5);
+        assert_eq!(inspection["loads"][0]["name_customized"]["effective"], true);
+        assert_eq!(inspection["loads"][0]["mode_customized"]["effective"], true);
+        assert_eq!(inspection["loads"][0]["attributes"]["Future"], "opaque");
+        assert_eq!(
+            inspection["loads"][0]["icon"],
+            "75000000-0000-0000-0000-000000000001"
+        );
+        command(&dir)
+            .args([
+                "config",
+                "energy",
+                "load",
+                "set",
+                &file,
+                "CLI Energy",
+                FIRST_ID,
+                "--switch-on-power",
+                "2.6",
+                "--rated-power",
+                "0",
+            ])
+            .assert()
+            .success()
+            .stderr(predicate::str::is_empty());
+        let inspection = inspect(&dir, &file);
+        assert_eq!(inspection["loads"][0]["switch_on_power"]["effective"], 2.6);
+        assert!(inspection["loads"][0]["rated_power"]["stored"].is_null());
+        assert_eq!(inspection["loads"][0]["used"]["stored"], "true");
+        assert_eq!(inspection["loads"][0]["unused_feedback"], true);
+    }
+
+    #[test]
+    fn config_energy_move_keeps_record_identity_association_and_unknown_storage() {
+        let (dir, file) = fixture();
+        let before = inspect(&dir, &file);
+        command(&dir)
+            .args([
+                "-o",
+                "json",
+                "config",
+                "energy",
+                "load",
+                "move",
+                &file,
+                "CLI Energy",
+                FIRST_ID,
+                "2",
+            ])
+            .assert()
+            .success();
+        let after = inspect(&dir, &file);
+        assert_eq!(after["loads"][0]["id"], SECOND_ID);
+        assert_eq!(after["loads"][1]["id"], FIRST_ID);
+        assert_eq!(after["loads"][1]["output"], "L1");
+        assert_eq!(
+            after["loads"][1]["attributes"],
+            before["loads"][0]["attributes"]
+        );
+        assert_eq!(
+            after["loads"][1]["child_elements"],
+            before["loads"][0]["child_elements"]
+        );
+        assert_eq!(
+            after["loads"][0]["attributes"],
+            before["loads"][1]["attributes"]
+        );
+        let text = fs::read_to_string(&file).unwrap();
+        assert!(text.contains("Input=\"73000000-0000-0000-0000-000000000001\""));
+        assert!(text.contains("<Interleaved sentinel=\"position\"/>"));
+        assert!(text.contains("<Unknown value=\"nested\"/>"));
+    }
+
+    #[test]
+    fn config_energy_failure_and_dry_run_do_not_write_source_or_output() {
+        let (dir, file) = fixture();
+        let original = fs::read(&file).unwrap();
+        let output = dir.path().join("must-not-exist.Loxone");
+        for (parameter, value) in [
+            ("MinSoc", "101"),
+            ("MaxSpwr", "-1"),
+            ("O", "NaN"),
+            ("O", "1e3"),
+        ] {
+            command(&dir)
+                .args([
+                    "--json",
+                    "config",
+                    "energy",
+                    "set",
+                    &file,
+                    "CLI Energy",
+                    parameter,
+                    value,
+                    "--save-as",
+                    output.to_str().unwrap(),
+                ])
+                .assert()
+                .failure()
+                .stdout(predicate::str::contains("\"diagnostics\""))
+                .stdout(predicate::str::contains("\"ok\": false"));
+            assert_eq!(fs::read(&file).unwrap(), original);
+            assert!(!output.exists());
+        }
+        command(&dir)
+            .args([
+                "-o",
+                "json",
+                "config",
+                "energy",
+                "load",
+                "set",
+                &file,
+                "CLI Energy",
+                FIRST_ID,
+                "--name",
+                "discard",
+                "--rated-power",
+                "8",
+                "--switch-on-power",
+                "-1",
+                "--save-as",
+                output.to_str().unwrap(),
+            ])
+            .assert()
+            .failure()
+            .stdout(predicate::str::contains("out_of_range"));
+        for tail in [
+            vec!["set", file.as_str(), "CLI Energy", "O", "-1.25"],
+            vec![
+                "load",
+                "set",
+                file.as_str(),
+                "CLI Energy",
+                FIRST_ID,
+                "--min-runtime-minutes",
+                "-1",
+            ],
+            vec!["load", "move", file.as_str(), "CLI Energy", FIRST_ID, "12"],
+        ] {
+            command(&dir)
+                .args(["--dry-run", "-o", "json", "config", "energy"])
+                .args(tail)
+                .args(["--save-as", output.to_str().unwrap()])
+                .assert()
+                .success()
+                .stdout(predicate::str::contains("\"dry_run\": true"))
+                .stdout(predicate::str::contains("\"saved_to\": null"));
+            assert_eq!(fs::read(&file).unwrap(), original);
+            assert!(!output.exists());
+        }
+        command(&dir)
+            .args([
+                "config",
+                "energy",
+                "load",
+                "set",
+                &file,
+                "CLI Energy",
+                FIRST_ID,
+                "--deadline",
+                "sunrise",
+            ])
+            .assert()
+            .failure()
+            .stderr(predicate::str::contains("invalid value"));
+        assert_eq!(fs::read(&file).unwrap(), original);
+        assert!(!output.exists());
+        let tiny = format!("0.{}1", "0".repeat(399));
+        for value in [&tiny, &format!("-{tiny}")] {
+            for parameter in ["O", "MinSoc", "MaxSpwr"] {
+                command(&dir)
+                    .args([
+                        "--json",
+                        "config",
+                        "energy",
+                        "set",
+                        &file,
+                        "CLI Energy",
+                        parameter,
+                        value,
+                        "--save-as",
+                        output.to_str().unwrap(),
+                    ])
+                    .assert()
+                    .failure()
+                    .stdout(predicate::str::contains("numeric_underflow"));
+                assert_eq!(fs::read(&file).unwrap(), original);
+                assert!(!output.exists());
+            }
+            command(&dir)
+                .args([
+                    "--json",
+                    "config",
+                    "energy",
+                    "load",
+                    "set",
+                    &file,
+                    "CLI Energy",
+                    FIRST_ID,
+                    "--name",
+                    "discard",
+                    "--rated-power",
+                    "8",
+                    "--switch-on-power",
+                    value,
+                    "--save-as",
+                    output.to_str().unwrap(),
+                ])
+                .assert()
+                .failure()
+                .stdout(predicate::str::contains("numeric_underflow"));
+            assert_eq!(fs::read(&file).unwrap(), original);
+            assert!(!output.exists());
+        }
+    }
+
+    #[test]
+    fn config_energy_native_fixture_edit_reorder_preserves_native_ids() {
+        let (dir, file) = fixture();
+        let native_xml = include_bytes!("ux/energy-manager2/synthetic.Loxone");
+        fs::write(&file, native_xml).unwrap();
+        let native = "30000000-0000-0000-0000000000000001";
+        let rfc = "30000000-0000-0000-0000-000000000001";
+        let edited = command(&dir)
+            .args([
+                "--json",
+                "config",
+                "energy",
+                "load",
+                "set",
+                &file,
+                "Synthetic Energy",
+                native,
+                "--name",
+                "Native CLI",
+                "--min-runtime-minutes",
+                "-1",
+            ])
+            .assert()
+            .success()
+            .get_output()
+            .stdout
+            .clone();
+        let edited: serde_json::Value = serde_json::from_slice(&edited).unwrap();
+        assert_eq!(edited["energy"]["loads"][0]["id"], native);
+        assert_eq!(
+            edited["energy"]["loads"][0]["min_runtime_seconds"]["effective"],
+            -60
+        );
+        let moved = command(&dir)
+            .args([
+                "--json",
+                "config",
+                "energy",
+                "load",
+                "move",
+                &file,
+                "Synthetic Energy",
+                rfc,
+                "2",
+            ])
+            .assert()
+            .success()
+            .get_output()
+            .stdout
+            .clone();
+        let moved: serde_json::Value = serde_json::from_slice(&moved).unwrap();
+        assert_eq!(moved["energy"]["loads"][1]["id"], native);
+        assert_eq!(
+            moved["energy"]["loads"][1]["attributes"],
+            edited["energy"]["loads"][0]["attributes"]
+        );
+        assert_eq!(moved["energy"]["loads"][1]["output"], "L1");
+        let text = fs::read_to_string(&file).unwrap();
+        assert!(text.contains("Input=\"23000000-0000-0000-0000000000000001\""));
+        assert!(text.contains("PilotUnknown=\"retain\""));
+        let before = fs::read(&file).unwrap();
+        command(&dir)
+            .args([
+                "--json",
+                "config",
+                "energy",
+                "load",
+                "move",
+                &file,
+                "Synthetic Energy",
+                "3000000-00000-0000-0000000000000001",
+                "2",
+            ])
+            .assert()
+            .failure()
+            .stdout(predicate::str::contains("invalid_load_selector"));
+        assert_eq!(fs::read(&file).unwrap(), before);
+    }
+
+    #[test]
+    fn config_energy_unsupported_shape_wrong_type_and_duplicate_ids_are_explicit() {
+        let (dir, file) = fixture();
+        command(&dir)
+            .args([
+                "-o",
+                "json",
+                "config",
+                "energy",
+                "inspect",
+                &file,
+                "CLI Actor",
+            ])
+            .assert()
+            .failure()
+            .stdout(predicate::str::contains("wrong_block_type"));
+        let original = fs::read(&file).unwrap();
+        let duplicate = String::from_utf8(original.clone())
+            .unwrap()
+            .replace(SECOND_ID, FIRST_ID);
+        fs::write(&file, duplicate.as_bytes()).unwrap();
+        command(&dir)
+            .args([
+                "-o",
+                "json",
+                "config",
+                "energy",
+                "load",
+                "move",
+                &file,
+                "CLI Energy",
+                FIRST_ID,
+                "2",
+            ])
+            .assert()
+            .failure()
+            .stdout(predicate::str::contains("ambiguous_load_id"));
+        assert_eq!(fs::read(&file).unwrap(), duplicate.as_bytes());
+        let sparse = XML.replace(
+            "<Load Id=\"74000000-0000-0000-0000-00000000000c\" OIdx=\"11\"/>",
+            "",
+        );
+        fs::write(&file, sparse.as_bytes()).unwrap();
+        let inspection = inspect(&dir, &file);
+        assert_eq!(inspection["load_edit_supported"], false);
+        assert_eq!(inspection["loads"].as_array().unwrap().len(), 11);
+        command(&dir)
+            .args([
+                "-o",
+                "json",
+                "config",
+                "energy",
+                "load",
+                "set",
+                &file,
+                "CLI Energy",
+                FIRST_ID,
+                "--rated-power",
+                "1",
+            ])
+            .assert()
+            .failure()
+            .stdout(predicate::str::contains("unsupported_load_shape"));
+        assert_eq!(fs::read(&file).unwrap(), sparse.as_bytes());
+    }
+}
+
 #[test]
 fn config_extract_raw_loxcc_and_resources() {
     let dir = TempDir::new().unwrap();

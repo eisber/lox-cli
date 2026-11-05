@@ -5,6 +5,8 @@ use reqwest::blocking::Client;
 use std::fs;
 use std::time::Duration;
 
+pub(crate) mod energy;
+
 use crate::client::{LOXONE_EPOCH_SECS, LoxClient, USER_AGENT};
 use crate::commands::RunContext;
 use crate::config::Config;
@@ -349,6 +351,7 @@ pub fn cmd_token(ctx: &RunContext, action: TokenCmd) -> Result<()> {
 
 pub fn cmd_config(ctx: &RunContext, action: ConfigCmd) -> Result<()> {
     match action {
+        ConfigCmd::Energy { action } => energy::run(ctx, action)?,
         ConfigCmd::Ls => {
             let cfg = Config::load()?;
             let backups = ftp::list_backups(&cfg)?;
@@ -3335,6 +3338,15 @@ fn collect_block_connectors(editor: &ConfigEditor, uuid: &str) -> Vec<serde_json
 }
 
 fn save_edited(editor: &ConfigEditor, original_path: &str, save_as: Option<&str>) -> Result<()> {
+    save_edited_with_quiet(editor, original_path, save_as, false)
+}
+
+fn save_edited_with_quiet(
+    editor: &ConfigEditor,
+    original_path: &str,
+    save_as: Option<&str>,
+    quiet: bool,
+) -> Result<()> {
     let output = editor.to_bytes()?;
     let out_path = save_as.unwrap_or(original_path);
 
@@ -3365,7 +3377,9 @@ fn save_edited(editor: &ConfigEditor, original_path: &str, save_as: Option<&str>
             .with_context(|| format!("Failed to clean up temp file: {}", tmp_path.display()))?;
         Ok::<(), anyhow::Error>(())
     })?;
-    eprintln!("✓ Saved to {}", out_path);
+    if !quiet {
+        eprintln!("✓ Saved to {}", out_path);
+    }
     Ok(())
 }
 

@@ -75,6 +75,91 @@ lox config set-param file.Loxone "Night Timer" Duration 300
 
 Arguments: `<FILE> <SELECTOR> <PARAM> <VALUE>`. Selector is a block title or `"uuid:..."`.
 
+### EnergyManager2 verified storage pilot
+
+```bash
+lox config energy inspect file.Loxone "Energy" --output json
+lox config energy set file.Loxone "Energy" O -1.25 --save-as edited.Loxone
+lox config energy set file.Loxone "Energy" MinSoc 100 --dry-run
+lox config energy load set file.Loxone "Energy" <LOAD_ID> --rated-power 2.5 --switch-on-power 0
+lox config energy load set file.Loxone "Energy" <LOAD_ID> --preparation-seconds 30 --min-runtime-minutes -1 --daily-minutes 1440 --deadline dusk
+lox config energy load move file.Loxone "Energy" <LOAD_ID> 2 --save-as edited.Loxone
+```
+
+All targets are local files and exactly one **EnergyManager2**, selected by title,
+`uuid:…`, or `"Name [Room]"`; `--room/-r` also disambiguates. All commands inherit
+`--output json|table|csv`, `--quiet`, and `--no-header`. Edits support `--save-as`;
+otherwise they overwrite the input. `--dry-run` runs the same validation and
+reports the proposed state without writing the source or destination. Any
+validation failure leaves both files and the in-memory editor unchanged.
+
+`inspect` separates exact `stored` spellings/omissions from `effective` values and
+known `default` values. Missing/ambiguous bindings have diagnostics, not guessed
+values. JSON includes all twelve slots, output associations, native-only deadline
+labels, unknown attributes/child names, and limitations. It is an inspection
+format, **not an export/reapply patch**: reapplying defaults can change omitted
+storage. Table output summarizes scalars and loads; CSV exposes scalar values and
+stored load attributes.
+
+Scalar `set` accepts only `O` (signed kW, default 0), `MinSoc` (0..100%, default 0),
+and `MaxSpwr` (kW >=0, default 0). `O` is a **parameter**, not an output.
+Values are finite invariant decimals; decimal commas, scientific/nonfinite input,
+and GUI prefix filtering are intentionally unsupported CLI policies. Explicit
+nonzero decimals that underflow to floating-point zero are rejected before
+default omission or power substitution; this applies to scalar and load power
+edits, for either sign. Explicit
+scalar zero removes `Def`, retaining its default semantics; untouched omissions
+remain omitted. The runtime meaning of `MaxSpwr=0` is unverified.
+
+`load set` configures an **existing persistent Id UUID**, not its `U` flag, name,
+priority, or output index. Options:
+
+| Flag | Meaning |
+|------|---------|
+| `--name NAME` | Set `Na` and native name-customization marker `Ncu` |
+| `--mode digital\|analog` | Set `An` and native mode-customization marker `Anc` |
+| `--preparation-seconds S` | `RT`, integer seconds 30..86400; default 60 |
+| `--min-runtime-minutes M` | `MinRt`, integer minutes converted to signed 32-bit seconds; negatives are permitted |
+| `--daily-minutes M` | `MDay`, integer minutes/day 0..1440 converted to seconds |
+| `--deadline sunset\|dusk` | `tpR`, only these two GUI-save-observed choices are editable |
+| `--rated-power KW` | `MaxPwr`, finite kW >=0 |
+| `--switch-on-power KW` | `SwPwr`, finite kW >=0; zero substitutes rated power |
+
+Minutes use checked multiplication by 60, not fractional GUI rounding or unknown
+overflow semantics. Zero runtime/daily/deadline/rated fields use omission for their
+known zero defaults. Rated power is applied before an explicit switch-on value;
+changing rated power copies it into switch-on power only when the previous
+switch-on value was zero. **Switch-on power greater than rated power is allowed.**
+Rated zero does not clear `U=true`; unused feedback is `!U || MaxPwr<=0`.
+
+Load edits/reordering require exactly twelve direct slots, unique UUID identities,
+and explicit unique output indices 0..11. Unsupported sparse/duplicate/malformed
+shapes fail rather than being repaired. `load move` sets priority **1..12 by XML
+record order**, moves the complete record, and never renumbers `OIdx` (association
+with `L(OIdx+1)`), changes Id, or rewrites connector/wiring/icon references. Unknown
+attributes/children, unused slots, BOM/CRLF and native `12hTF` attributes are
+preserved by ConfigEditor. No add/delete or editing of U/Id/OIdx/icon is provided.
+Load identities accept strict hexadecimal native `8-4-4-16` and RFC `8-4-4-4-12`
+spellings. Native/RFC aliases and letter-case variations resolve the same identity
+for selection/duplicate detection, while the original stored spelling is retained.
+Misplaced dashes are rejected.
+
+This is a version-bound storage subset recovered for Config **17.2.10.21**, not
+complete official GUI or Miniserver runtime parity. Name/mode customization-marker
+transitions are native-backed but not GUI-verified. Sunrise/Dawn/hourly deadlines,
+icon/reference acceptance, structural CRUD, runtime scheduling/storage behavior,
+and full GUI validation remain unverified. Synthetic Rust/CLI tests are not GUI
+oracle evidence; the original GUI observations remain separate.
+
+To reproduce the offline proof, run
+`python tests/ux/energy-manager2/run-cli-cases.py` with Cargo available (optional
+`--lox PATH`). It executes eleven core Rust unit tests, seven CLI integration
+tests and one simulator-parser regression for O parameter direction/incoming wire,
+then actual CLI assertions, generating `CLI-case-definitions.json` and a new
+ignored `.reverse-engineering/ux/energy-manager2/cli/<run>/` directory containing
+stdout, commands, digests and a CLI-only runner record. It never executes Config
+GUI or a server and does not update the original contract or GUI records.
+
 ### Wire connectors
 
 ```bash

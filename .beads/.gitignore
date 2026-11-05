@@ -56,6 +56,10 @@ dolt-server.port
 dolt-server.activity
 dolt-server-config.yaml
 
+# Per-machine full-backup destination and synchronization state
+dolt-backup.json
+dolt-backup-state.json
+
 # Debug-mode pprof artifacts (written when dolt.debug: true in config.yaml)
 dolt-pprof/
 

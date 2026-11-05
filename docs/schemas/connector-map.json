@@ -3913,7 +3913,7 @@
       "IL11": "I",
       "IL12": "I",
       "Reset": "I",
-      "O": "O",
+      "O": "P",
       "MinSoc": "P",
       "MaxSpwr": "P",
       "OL1": "O",

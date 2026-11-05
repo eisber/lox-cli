@@ -422,6 +422,11 @@ pub(crate) enum SetupCmd {
 
 #[derive(Subcommand)]
 pub(crate) enum ConfigCmd {
+    /// Validated EnergyManager2 storage pilot (no full GUI/runtime parity)
+    Energy {
+        #[command(subcommand)]
+        action: commands::config_cmd::energy::EnergyCmd,
+    },
     /// Download the latest Loxone Config from the Miniserver via FTP
     Download {
         /// Custom output filename
@@ -1195,14 +1200,18 @@ fn command_name(cmd: &Cmd) -> String {
 
 fn main() {
     let cli = Cli::parse();
-    let json = cli.output == OutputFormat::Json;
+    let json = cli.output == OutputFormat::Json || cli.json_flag;
     if let Err(e) = run(cli) {
         if json {
-            let envelope = serde_json::json!({
+            let mut envelope = serde_json::json!({
                 "ok": false,
                 "error": categorize_error(&e),
                 "message": format!("{:#}", e),
             });
+            if let Some(diagnostic) = e.downcast_ref::<config_edit::schema::Diagnostic>() {
+                envelope["error"] = serde_json::json!(diagnostic.code);
+                envelope["diagnostics"] = serde_json::json!([diagnostic]);
+            }
             println!(
                 "{}",
                 serde_json::to_string_pretty(&envelope).unwrap_or_else(|_| {

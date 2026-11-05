@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ControlList Version="267">
+  <C Type="Place" U="70000000-0000-0000-0000-000000000001" Title="Pilot Room"/>
+  <C Type="Page" U="70000000-0000-0000-0000-000000000002" Title="Offline CLI">
+    <C Type="EnergyManager2" U="71000000-0000-0000-0000-000000000001" Title="CLI Energy" V="178" 12hTF="true" Future="preserve">
+      <Co K="O" U="72000000-0000-0000-0000-000000000001"/>
+      <Co K="MinSoc" U="72000000-0000-0000-0000-000000000002" Def="0"/>
+      <Co K="MaxSpwr" U="72000000-0000-0000-0000-000000000003"/>
+      <Co K="OL1" U="73000000-0000-0000-0000-000000000001"/>
+      <Load Id="74000000-0000-0000-0000-000000000001" OIdx="0" U="true" Na="Alpha" MaxPwr="2.5" Future="opaque" ico="75000000-0000-0000-0000-000000000001">
+        <Extension marker="keep"><Unknown value="nested"/></Extension>
+      </Load>
+      <Interleaved sentinel="position"/>
+      <Load Id="74000000-0000-0000-0000-000000000002" OIdx="1" U="true" Na="Beta" SwPwr="2.6" MaxPwr="2.5" RT="30" MinRt="600" tpR="27"/>
+      <Load Id="74000000-0000-0000-0000-000000000003" OIdx="2"/>
+      <Load Id="74000000-0000-0000-0000-000000000004" OIdx="3"/>
+      <Load Id="74000000-0000-0000-0000-000000000005" OIdx="4"/>
+      <Load Id="74000000-0000-0000-0000-000000000006" OIdx="5"/>
+      <Load Id="74000000-0000-0000-0000-000000000007" OIdx="6"/>
+      <Load Id="74000000-0000-0000-0000-000000000008" OIdx="7"/>
+      <Load Id="74000000-0000-0000-0000-000000000009" OIdx="8"/>
+      <Load Id="74000000-0000-0000-0000-00000000000a" OIdx="9"/>
+      <Load Id="74000000-0000-0000-0000-00000000000b" OIdx="10"/>
+      <Load Id="74000000-0000-0000-0000-00000000000c" OIdx="11"/>
+      <IoData Pr="70000000-0000-0000-0000-000000000001"/>
+    </C>
+    <C Type="StateV" U="76000000-0000-0000-0000-000000000001" Title="CLI Actor">
+      <Co K="I" U="77000000-0000-0000-0000-000000000001">
+        <In Input="73000000-0000-0000-0000-000000000001"/>
+      </Co>
+    </C>
+    <C Type="Note" U="78000000-0000-0000-0000-000000000001" Title="Independent synthetic sentinel" Text="not a vendor project" 12hTF="true"/>
+  </C>
+</ControlList>
