@@ -19,7 +19,10 @@ import sys
 import uuid
 
 from loxone_ux_transport import MCPClient, UxError, parse_json
-from official_sim_runner import fixture_basename, native_channels, sampling_plan
+from official_sim_runner import (
+    entry_config, fixture_basename, load_entry_module, native_channels, sampling_plan,
+    validate_entry_log, validate_entry_mode, validate_native_entry_readiness, ENTRY_EFFECT,
+)
 
 
 APPLICATION_SHA = "7b55e3ef18401574ab967c5c6a0140cd5a66dc728521ebba04ad53093577d8b3"
@@ -99,6 +102,14 @@ def judge(case, remote):
         return "blocked", "Native simulator execution/progress was not positively verified."
     if remote.get("cleanup", {}).get("status") != "closed":
         return "blocked", "Owned native application cleanup is unverified."
+    if remote.get("mode") == "entry-observer" and remote.get("entry_observation", {}).get("status") != "validated":
+        return "blocked", "Complete actual entry observations were not validated."
+    if remote.get("mode") == "entry-observer":
+        cleanup = remote["cleanup"]
+        if (cleanup.get("effect") != ENTRY_EFFECT
+                or cleanup.get("client_requested_observer_exit_flush_verified") is not True
+                or cleanup.get("forced_termination_may_invalidate_entry_observations") is not False):
+            return "blocked", "The observer's exact owned exit/flush is unverified or required forced cleanup."
     by_phase = {}
     for observation in remote.get("observations", []):
         phase = observation.get("phase")
@@ -149,6 +160,90 @@ def judge(case, remote):
     if case.get("purpose") == "exploratory":
         return "blocked", "Exploratory native observations retained; no reviewed behavioral assertion was declared."
     return "pass", None
+
+
+def validate_mode_options(args, case=None):
+    if args.instrumentation_start in ("post-init", "post-start") and args.mode not in ("drcov", "entry-observer"):
+        raise ValueError("Post-init/post-start instrumentation requires drcov or entry-observer.")
+    if args.observer_mode == "native-win32" and (
+        args.mode not in ("drcov", "entry-observer")
+        or args.instrumentation_start != "post-start" or args.capture_scope != "canvas"
+    ):
+        raise ValueError("Native-win32 requires post-start instrumentation and canvas capture.")
+    if args.instrumentation_start == "post-start" and args.observer_mode != "native-win32":
+        raise ValueError("Post-start attachment requires native-win32.")
+    if args.mode == "entry-observer":
+        if (args.instrumentation_start != "post-start" or args.observer_mode != "native-win32"
+                or args.capture_scope != "canvas" or args.ocr_profile is None
+                or args.instrumentation_profile is None or args.entry_config is None
+                or args.exit_dump_profile is None):
+            raise ValueError("Entry-observer requires post-start/native-win32/canvas/OCR, instrumentation profile, entry config and observer exit profile.")
+        if case is not None:
+            validate_entry_mode({
+                **case, "mode": args.mode, "instrumentation_start": args.instrumentation_start,
+                "observer_mode": args.observer_mode, "capture_scope": args.capture_scope,
+            })
+    elif args.entry_config is not None:
+        raise ValueError("--entry-config is only valid with --mode entry-observer.")
+
+
+def collect_entry_observation(local, root, request, bound=None):
+    """File-only revalidation; remote tool paths are never treated as local files."""
+    binding = request.get("entry_observer", {})
+    result = {"status": "blocked", "expected": binding.get("expected"),
+              "binding_complete": False, "coverage_claim": False}
+    try:
+        def checked(path, expected=None):
+            path = path.resolve()
+            path.relative_to(root)
+            actual = digest(path)
+            if expected is not None and actual != expected:
+                raise ValueError("Entry artifact pin changed: " + path.name)
+            if bound is not None and bound.get(str(path)) != actual:
+                raise ValueError("Entry artifact is not bound by the original native manifest.")
+            return path
+
+        parser_source = checked(local / "native-sim-observe.py", binding["module_sha256"])
+        observer = load_entry_module(parser_source, binding["module_sha256"])
+        profile_path = checked(local / "instrumentation-profile.json", binding["profile_sha256"])
+        profile = read_json(profile_path)
+        if profile != request["instrumentation"]:
+            raise ValueError("Entry profile snapshot differs from its original request.")
+        checked(local / "exit-dump-profile.json", binding["profile_sha256"])
+        configuration = checked(local / "entry" / "observer.cfg", binding["config_sha256"])
+        expected = entry_config(configuration.read_bytes(), observer, request["application"]["sha256"],
+                                profile["client_sha256"])
+        if expected != binding["expected"]:
+            raise ValueError("Entry configuration differs from its requested identities/sites.")
+        remote_entry = local / "remote" / "entry"
+        checked(remote_entry / "observer.cfg", binding["config_sha256"])
+        effective_profile = checked(remote_entry / "profile.json")
+        prepared_path = checked(remote_entry / "prepared.json")
+        prepared = read_json(prepared_path)
+        if (prepared.get("expected") != expected or prepared.get("profile_sha256") != digest(effective_profile)
+                or prepared.get("actual_pe_sections_verified") is not True):
+            raise ValueError("Actual-PE preparation record is missing or inconsistent.")
+        effective = dict(profile)
+        libraries = []
+        components = ("client", "drmgr") if profile.get("backend") == "drmgr-entry" else ("client", "drmgr", "drwrap")
+        for name in components:
+            filename = PureWindowsPath(profile[name + "_path"]).name
+            snapshot = checked(remote_entry / "tools" / filename, profile[name + "_sha256"])
+            libraries.append(artifact(snapshot, root))
+            effective[name + "_path"] = str(PureWindowsPath(request["run_dir"]) / "entry" / "tools" / filename)
+        if read_json(effective_profile) != effective:
+            raise ValueError("Staged entry profile differs from its source pins.")
+        log = checked(remote_entry / "observations.jsonl")
+        result = validate_entry_log(observer, log, expected, profile)
+        result.update(
+            profile=artifact(effective_profile, root), source_profile=artifact(profile_path, root),
+            configuration=artifact(configuration, root), parser_source=artifact(parser_source, root),
+            client=libraries[0], libraries=libraries[1:], log=artifact(log, root),
+        )
+    except (OSError, ValueError, KeyError, TypeError, ImportError) as error:
+        result["status"] = "blocked"
+        result["reason"] = str(error)
+    return result
 
 
 def validate_ocr_profile(path, root):
@@ -624,6 +719,22 @@ def admit_receipt(source_path, root, profile_path):
                 "message": ((source_error.get("message", "") + " ") if source_error else "") + flush_error,
                 "native_error": source_error,
             }
+    if original["execution"]["mode"] == "entry-observer":
+        request_path = local / "request.json"
+        if str(request_path.resolve()) not in bound:
+            raise ValueError("Original entry request is not hash-bound.")
+        request = read_json(request_path)
+        if (request.get("mode") != "entry-observer" or request.get("run_id") != run_id
+                or request["application"]["sha256"] != original["application"]["sha256"]
+                or request["fixture_sha256"] != original["case"]["fixture_sha256"]):
+            raise ValueError("Entry replay request identity changed.")
+        expected_log = str((local / "remote" / "entry" / "observations.jsonl").relative_to(root))
+        if (original.get("entry_logs") != [expected_log]
+                and (original.get("entry_logs") != [] or (root / expected_log).is_file())):
+            raise ValueError("Entry log reference differs from the original owned capture.")
+        entry = collect_entry_observation(local, root, request, bound)
+        receipt["entry_observation"] = entry
+        record.update(mode="entry-observer", entry_observation=entry)
     status, reason = judge(case, record)
     receipt["observations"] = observations
     receipt["execution"].update(status=status, reason=reason)
@@ -708,6 +819,9 @@ def execute(args):
     definition.relative_to(root)
     definition_bytes = definition.read_bytes()
     case = validate_case(parse_json(definition_bytes.decode("utf-8-sig")), fixture)
+    validate_mode_options(args, case)
+    if args.mode == "entry-observer":
+        validate_native_entry_readiness(read_json(args.instrumentation_profile))
     validate_readback_calibration(case, root)
     if args.ocr_profile:
         validate_ocr_profile(args.ocr_profile, root)
@@ -745,9 +859,9 @@ def execute(args):
     if "simulator_start_time" in case:
         request["simulator_start_time"] = case["simulator_start_time"]
         request["simulator_time_edit"] = case.get("simulator_time_edit", "value-pattern")
-    if args.mode == "drcov":
+    if args.mode in ("drcov", "entry-observer"):
         if not args.instrumentation_profile:
-            raise ValueError("drcov mode requires the independently verified launcher profile.")
+            raise ValueError("Instrumented mode requires the independently verified launcher profile.")
         request["instrumentation"] = read_json(args.instrumentation_profile)
         shutil.copyfile(args.instrumentation_profile, local / "instrumentation-profile.json")
     if args.observer_mode == "native-win32":
@@ -755,6 +869,24 @@ def execute(args):
             raise ValueError("Native Win32 observation requires the console-verified exit-and-dump profile.")
         request["exit_dump_method"] = read_json(args.exit_dump_profile)
         shutil.copyfile(args.exit_dump_profile, local / "exit-dump-profile.json")
+    if args.mode == "entry-observer":
+        if digest(local / "exit-dump-profile.json") != digest(local / "instrumentation-profile.json"):
+            raise ValueError("Entry exit-dump profile must be the same observer profile, not a drcov proof.")
+        source = Path(__file__).with_name("native-sim-observe.py")
+        shutil.copyfile(source, local / source.name)
+        observer = load_entry_module(local / source.name, digest(source))
+        (local / "entry").mkdir()
+        configuration = local / "entry" / "observer.cfg"
+        shutil.copyfile(args.entry_config, configuration)
+        expected = entry_config(configuration.read_bytes(), observer, request["application"]["sha256"],
+                                request["instrumentation"]["client_sha256"])
+        if request["instrumentation"].get("supports_return") is False and any(s["post"] for s in expected["sites"]):
+            raise ValueError("Entry-only backend rejects RETURN sites before launch.")
+        request["entry_observer"] = {
+            "module_sha256": digest(local / source.name),
+            "profile_sha256": digest(local / "instrumentation-profile.json"),
+            "config_sha256": digest(configuration), "expected": expected,
+        }
     write_json(local / "request.json", request)
     project = local / fixture_basename(request)
     shutil.copyfile(fixture, project)
@@ -762,15 +894,25 @@ def execute(args):
         raise ValueError("Fixture changed while preparing the immutable run copy.")
     with (local / "case.definition.json").open("xb") as snapshot:
         snapshot.write(definition_bytes)
+    create_entry_directory = (
+        f"New-Item -ItemType Directory -Path {ps_path(remote / 'entry')}|Out-Null;"
+        if args.mode == "entry-observer" else ""
+    )
     client.powershell(
         "$ErrorActionPreference='Stop';$ProgressPreference='SilentlyContinue';"
         f"if(Test-Path -LiteralPath {ps_path(remote)}){{throw 'Run already exists'}};"
         f"New-Item -ItemType Directory -Path {ps_path(remote)}|Out-Null;"
-        "@{created=$true}|ConvertTo-Json -Compress", 30,
+        + create_entry_directory + "@{created=$true}|ConvertTo-Json -Compress", 30,
     )
-    for source in (local / "request.json", project,
-                   Path(__file__).with_name("official_sim_runner.py"), Path(__file__).with_suffix(".ps1")):
-        transfer.push(source, remote / source.name)
+    sources = [(source, remote / source.name) for source in (
+        local / "request.json", project, Path(__file__).with_name("official_sim_runner.py"),
+        Path(__file__).with_suffix(".ps1"))]
+    if args.mode == "entry-observer":
+        sources.extend((local / filename, remote / filename) for filename in (
+            "native-sim-observe.py", "instrumentation-profile.json", "exit-dump-profile.json"))
+        sources.append((configuration, remote / "entry" / "observer.cfg"))
+    for source, destination in sources:
+        transfer.push(source, destination)
     transport_error = None
     try:
         reply = client.powershell(
@@ -831,6 +973,12 @@ def finalize(local, root, case, request, transport_error=None):
         }
         observations.append(observation)
     report["observations"] = observations
+    entry = None
+    if request["mode"] == "entry-observer":
+        entry = collect_entry_observation(local, root, request)
+        report.update(mode="entry-observer", entry_observation=entry)
+        # Only fresh file-only OCR admission can prove the post-attach clock.
+        report["native_running_verified"] = False
     status, reason = judge(case, report)
     artifacts = [artifact(path, root) for path in local.rglob("*") if path.is_file()]
     artifacts.extend(artifact(path, root, "native-raster-calibration") for path in validate_readback_calibration(case, root))
@@ -867,6 +1015,10 @@ def finalize(local, root, case, request, transport_error=None):
             "coverage_scope": report.get("coverage_scope"),
         },
     }
+    if entry is not None:
+        log = remote_dir / "entry" / "observations.jsonl"
+        receipt["entry_logs"] = [str(log.relative_to(root))] if log.is_file() else []
+        receipt["entry_observation"] = entry
     write_json(local / "receipt.json", receipt)
     return {"status": status, "reason": reason, "receipt": str((local / "receipt.json").relative_to(root))}, 0 if status == "pass" else 2
 
@@ -882,8 +1034,9 @@ def main():
     parser.add_argument("--artifact-root", type=Path, default=Path.cwd())
     parser.add_argument("--remote-root", default=r"C:\ProgramData\LoxOracle\native-replay")
     parser.add_argument("--application", default=r"C:\Program Files (x86)\Loxone\LoxoneConfig\LoxoneConfig.exe")
-    parser.add_argument("--mode", choices=("plain", "drcov"), default="plain")
+    parser.add_argument("--mode", choices=("plain", "drcov", "entry-observer"), default="plain")
     parser.add_argument("--instrumentation-profile", type=Path)
+    parser.add_argument("--entry-config", type=Path, help="Pinned canonical OBS1 ASCII; entry-observer only")
     parser.add_argument("--instrumentation-start", choices=("launch", "post-init", "post-start"), default="launch")
     parser.add_argument("--capture-scope", choices=("application", "canvas"), default="application")
     parser.add_argument("--observer-mode", choices=("uia", "native-win32"), default="uia")
@@ -896,20 +1049,17 @@ def main():
             parser.error("--admit-receipt requires --ocr-profile")
     elif any(value is None for value in (args.profile, args.transfer_profile, args.case, args.fixture)):
         parser.error("Replay requires --profile, --transfer-profile, --case and --fixture")
-    elif args.instrumentation_start in ("post-init", "post-start") and args.mode != "drcov":
-        parser.error("Post-init/post-start instrumentation requires --mode drcov")
-    elif args.observer_mode == "native-win32" and (
-        args.mode != "drcov" or args.instrumentation_start != "post-start" or args.capture_scope != "canvas"
-    ):
-        parser.error("--observer-mode native-win32 requires post-start drcov and canvas capture")
-    elif args.instrumentation_start == "post-start" and args.observer_mode != "native-win32":
-        parser.error("Post-start attachment requires the explicit native-win32 observer")
+    if not args.admit_receipt:
+        try:
+            validate_mode_options(args)
+        except ValueError as error:
+            parser.error(str(error))
     try:
         output, code = (
             admit_receipt(args.admit_receipt, args.artifact_root.resolve(), args.ocr_profile)
             if args.admit_receipt else execute(args)
         )
-    except (OSError, ValueError, RuntimeError, ImportError, subprocess.SubprocessError, UxError) as error:
+    except (OSError, ValueError, KeyError, RuntimeError, ImportError, subprocess.SubprocessError, UxError) as error:
         output, code = {"status": "blocked", "reason": str(error)}, 2
     print(json.dumps(output, ensure_ascii=True, separators=(",", ":")))
     return code

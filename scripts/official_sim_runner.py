@@ -5,10 +5,12 @@ import argparse
 import ctypes
 from ctypes import wintypes
 import hashlib
+import importlib.util
 import json
 import os
 from pathlib import Path
 import re
+import shutil
 import subprocess
 import sys
 import time
@@ -21,6 +23,8 @@ ENVIRONMENT = {
     "HOMEPATH", "USERNAME", "USERDOMAIN", "PROCESSOR_ARCHITECTURE",
     "NUMBER_OF_PROCESSORS", "SESSIONNAME",
 }
+ENTRY_EFFECT = "PASSIVE_observer_exit_flush_not_live_snapshot"
+ENTRY_RVAS = {0x371E10, 0x371EF0, 0x15EF30, 0x614600, 0x4B6DE0}
 
 
 def sampling_plan(case):
@@ -128,7 +132,169 @@ def fixture_basename(request, *, allow_legacy=False):
     return value
 
 
+def load_entry_module(path, expected):
+    pinned(path, expected)
+    spec = importlib.util.spec_from_file_location("entry_snapshot_" + expected, path)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    pinned(path, expected)
+    return module
+
+
+def entry_config(payload, observer, target_sha256, client_sha256, pe=None):
+    """Bind the ASCII recipe; only the notebook supplies actual PE section metadata."""
+    expected = observer.read_config(payload)
+    if expected["target_sha256"] != target_sha256 or expected["client_sha256"] != client_sha256:
+        raise ValueError("Entry config target/client pins differ from the request.")
+    if any(s["rva"] not in ENTRY_RVAS or (s["post"] != 0 and s["rva"] != 0x4B6DE0)
+           for s in expected["sites"]):
+        raise ValueError("Use reviewed entry-only RVAs; only the selected clock may opt into RETURN.")
+    if pe is not None:
+        if (pe["sha256"] != target_sha256 or pe["name"] != expected["module"]
+                or pe["size"] != expected["module_size"]
+                or pe["timestamp"] != expected["module_timestamp"]):
+            raise ValueError("Entry config differs from actual pinned PE metadata.")
+        if observer.config_bytes(
+            pe, client_sha256, expected["sites"], expected["max_events"],
+            expected["max_objects"], expected["prefix_bytes"],
+        ) != payload:
+            raise ValueError("Entry config differs from actual-PE regeneration.")
+    return expected
+
+
+def validate_entry_mode(request):
+    if request.get("mode") != "entry-observer":
+        return
+    if (request.get("instrumentation_start") != "post-start"
+            or request.get("observer_mode") != "native-win32"
+            or request.get("capture_scope") != "canvas"):
+        raise ValueError("Entry observation requires post-start/native-win32/canvas.")
+    normalized_legacy = [{"name": "after_first_calculation", "at_seconds": request.get("wait_seconds")}]
+    phases = (
+        sampling_plan({"wait_seconds": request["wait_seconds"]})
+        if request.get("sampling_phases") == normalized_legacy else sampling_plan(request)
+    )
+    if max(p.get("latest_seconds", p["at_seconds"]) for p in phases) > 90:
+        raise ValueError("The first entry-observer case must finish within 90 simulator seconds.")
+
+
+def validate_native_entry_readiness(profile):
+    if profile.get("late_attach_verified") is not True:
+        raise ValueError("Native entry observation requires explicit late_attach_verified=true for every backend; diagnostic-only profiles cannot launch an app.")
+
+
+def entry_inputs(request):
+    """Read-only notebook preflight; no staging, process launch, or attachment."""
+    validate_entry_mode(request)
+    root = Path(request["run_dir"])
+    binding = request["entry_observer"]
+    module = load_entry_module(root / "native-sim-observe.py", binding["module_sha256"])
+    source = root / "instrumentation-profile.json"
+    pinned(source, binding["profile_sha256"])
+    profile = json.loads(source.read_text(encoding="utf-8-sig"))
+    if profile != request["instrumentation"]:
+        raise ValueError("Entry profile snapshot differs from the original request.")
+    validate_native_entry_readiness(profile)
+    module.validate_profile(profile)
+    for key, value in {
+        "nudge_client_id": "00000000", "nudge_argument": "1",
+        "nudge_timeout_ms": 5000, "nudge_outer_timeout_seconds": 8,
+        "nudge_semantics": "process exit and exit-callback flush; not live snapshot",
+    }.items():
+        if type(profile.get(key)) is not type(value) or profile[key] != value:
+            raise ValueError("Unsupported passive-observer exit/flush interface.")
+    exit_profile = root / "exit-dump-profile.json"
+    pinned(exit_profile, binding["profile_sha256"])
+    if request.get("exit_dump_method") != profile:
+        raise ValueError("Entry cleanup requires the same observer profile, not drcov evidence.")
+    config = root / "entry" / "observer.cfg"
+    pinned(config, binding["config_sha256"])
+    expected = entry_config(config.read_bytes(), module, request["application"]["sha256"],
+                            profile["client_sha256"], module.read_pe(request["application"]["path"]))
+    if expected != binding["expected"]:
+        raise ValueError("Entry recipe differs from its immutable requested identities/sites.")
+    if profile.get("supports_return") is False and any(s["post"] for s in expected["sites"]):
+        raise ValueError("Entry-only backend rejects RETURN sites before launch.")
+    return module, profile, expected
+
+
+def entry_context(request, *, stage=False):
+    """Notebook-only actual tool/PE verification; never skip remote profile pins."""
+    module, profile, expected = entry_inputs(request)
+    root = Path(request["run_dir"])
+    directory = root / "entry"
+    effective_path = directory / "profile.json"
+    effective = dict(profile)
+    libraries = ("client", "drmgr") if profile.get("backend") == "drmgr-entry" else ("client", "drmgr", "drwrap")
+    for name in libraries:
+        destination = directory / "tools" / Path(profile[name + "_path"]).name
+        if stage:
+            destination.parent.mkdir(exist_ok=True)
+            with Path(profile[name + "_path"]).open("rb") as src, destination.open("xb") as dst:
+                shutil.copyfileobj(src, dst)
+        pinned(destination, profile[name + "_sha256"])
+        effective[name + "_path"] = str(destination)
+    if stage:
+        with effective_path.open("x", encoding="utf-8") as stream:
+            json.dump(effective, stream)
+        (directory / "dr-config").mkdir()
+        with (directory / "prepared.json").open("x", encoding="utf-8") as stream:
+            json.dump({"expected": expected, "profile_sha256": digest(effective_path),
+                       "actual_pe_sections_verified": True}, stream)
+    if json.loads(effective_path.read_text(encoding="utf-8-sig")) != effective:
+        raise ValueError("Staged observer profile changed.")
+    module.validate_profile(effective)
+    prepared = json.loads((directory / "prepared.json").read_text(encoding="utf-8"))
+    if (prepared.get("expected") != expected or prepared.get("profile_sha256") != digest(effective_path)
+            or prepared.get("actual_pe_sections_verified") is not True):
+        raise ValueError("Entry preparation/PE validation changed.")
+    return module, effective, expected
+
+
+def validate_entry_log(observer, path, expected, profile=None):
+    result = {"status": "blocked", "expected": expected,
+              "binding_complete": False, "coverage_claim": False}
+    try:
+        parsed = observer.parse_log(path, expected)
+        backend = parsed["header"].get("backend", "drwrap")
+        result.update(backend=backend, schema=parsed["header"]["schema"])
+        if profile is not None and backend != profile.get("backend", "drwrap"):
+            raise ValueError("Observation backend differs from the pinned profile.")
+        entries = [event for event in parsed["events"] if event["type"] == "ENTRY"]
+        seen = sorted({event["site"] for event in entries})
+        result.update(
+            summary=parsed["summary"], site_ids_seen=seen,
+            missing_site_ids=sorted({site["id"] for site in expected["sites"]} - set(seen)),
+            entry_count=len(entries), bytes=Path(path).stat().st_size, sha256=parsed["sha256"],
+        )
+        if not entries:
+            raise ValueError("No actual selected ENTRY was observed.")
+        if (parsed["summary"]["context_failures"] != 0 or any(
+                event["context_ok"] is not True or
+                (event["type"] == "ENTRY" and event.get("return_ok") is not True)
+                for event in parsed["events"])):
+            raise ValueError("Entry/return context or caller address is unavailable.")
+        result["status"] = "validated"
+    except (OSError, ValueError, KeyError, TypeError) as error:
+        result["reason"] = str(error)
+    return result
+
+
+def inspect_entry(request):
+    module, profile, expected = entry_context(request)
+    return validate_entry_log(module, Path(request["run_dir"]) / "entry" / "observations.jsonl", expected, profile)
+
+
+def child_environment(request):
+    result = {key: value for key, value in os.environ.items() if key.upper() in ENVIRONMENT}
+    if request["mode"] == "entry-observer":
+        result["DYNAMORIO_CONFIGDIR"] = str(Path(request["run_dir"]) / "entry" / "dr-config")
+    return result
+
+
 def tool_profile(request):
+    if request["mode"] == "entry-observer":
+        return entry_context(request)[1]
     profile = request["instrumentation"]
     for prefix in ("drrun", "client", "runtime", "tool_config"):
         pinned(profile[prefix + "_path"], profile[prefix + "_sha256"])
@@ -141,7 +307,7 @@ def tool_profile(request):
 
 
 def launcher_argv(request, root):
-    if request["mode"] not in ("plain", "drcov"):
+    if request["mode"] not in ("plain", "drcov", "entry-observer"):
         raise ValueError("Unsupported native execution mode.")
     exe = pinned(request["application"]["path"], request["application"]["sha256"])
     project = root / fixture_basename(request, allow_legacy="run_id" not in request)
@@ -206,6 +372,23 @@ def interactive_session(pid):
     return value.value
 
 
+def held_exit_code(kernel, handle):
+    """Inspect only an already-held, signaled process instance, never reopen its PID."""
+    result = {"exit_code_available": False}
+    if kernel.WaitForSingleObject(handle, 0) != 0:
+        return result
+    code = wintypes.DWORD()
+    if kernel.GetExitCodeProcess(handle, ctypes.byref(code)):
+        result.update(
+            exit_code_available=True, exit_code=code.value,
+            exit_code_hex=f"0x{code.value:08x}",
+            exit_code_signed=ctypes.c_int32(code.value).value,
+        )
+    else:
+        result["exit_code_error"] = ctypes.get_last_error()
+    return result
+
+
 def watch_owned(record_path):
     """Keep a handle to this exact instance; PID reuse cannot redirect cleanup."""
     record = json.loads(record_path.read_text(encoding="utf-8-sig"))
@@ -224,6 +407,8 @@ def watch_owned(record_path):
     kernel.WaitForSingleObject.argtypes = [wintypes.HANDLE, wintypes.DWORD]
     kernel.WaitForSingleObject.restype = wintypes.DWORD
     kernel.GetProcessTimes.argtypes = [wintypes.HANDLE] + [ctypes.POINTER(wintypes.FILETIME)] * 4
+    kernel.GetExitCodeProcess.argtypes = [wintypes.HANDLE, ctypes.POINTER(wintypes.DWORD)]
+    kernel.GetExitCodeProcess.restype = wintypes.BOOL
     kernel.TerminateProcess.argtypes = [wintypes.HANDLE, wintypes.UINT]
     kernel.CloseHandle.argtypes = [wintypes.HANDLE]
     handle = kernel.OpenProcess(0x100000 | 0x1000 | 1, False, pid)
@@ -250,9 +435,19 @@ def watch_owned(record_path):
             status = "target_exited"
         else:
             raise OSError("Owned target wait failed.")
+        diagnostics = {
+            "status": status, "pid": pid, "role": record.get("role", "target"),
+            "target_creation_ticks": ticks, "image_sha256": expected["sha256"],
+            "observed_exit_epoch": time.time(), **held_exit_code(kernel, handle),
+        }
+        if kernel.GetProcessTimes(handle, ctypes.byref(created), ctypes.byref(exited),
+                                  ctypes.byref(kernel_time), ctypes.byref(user_time)):
+            exit_ticks = (exited.dwHighDateTime << 32) | exited.dwLowDateTime
+            if exit_ticks:
+                diagnostics["process_exit_ticks"] = exit_ticks
         filename = "attach-watchdog-result.json" if record.get("role") == "attacher" else "watchdog-result.json"
         with (record_path.parent / filename).open("x", encoding="utf-8") as stream:
-            json.dump({"status": status, "pid": pid}, stream)
+            json.dump(diagnostics, stream)
     finally:
         kernel.CloseHandle(handle)
 
@@ -270,9 +465,16 @@ def start_watchdog(root, record_path, prefix):
 
 
 def attach_argv(request, root, target):
-    if request["mode"] != "drcov" or request.get("instrumentation_start") not in ("post-init", "post-start"):
+    if request["mode"] not in ("drcov", "entry-observer") or request.get("instrumentation_start") not in ("post-init", "post-start"):
         raise ValueError("Post-init attachment must be explicitly selected.")
     profile = tool_profile(request)
+    if request["mode"] == "entry-observer":
+        module, _, _ = entry_context(request)
+        return module.launch_argv(
+            profile, root / "entry" / "observer.cfg", root / "entry" / "observations.jsonl",
+            request["entry_observer"]["config_sha256"], root / "target.pid",
+            seconds=120, attach_pid=target,
+        )
     return [
         profile["drrun_path"], "-s", "180", "-attach", str(target),
         "-takeover_sleep", "-takeovers", "32", *profile["args"],
@@ -295,7 +497,7 @@ def attach_owned(request):
     with (root / "attach-stdout.log").open("xb") as out, (root / "attach-stderr.log").open("xb") as err:
         process = subprocess.Popen(
             argv, cwd=root,
-            env={key: value for key, value in os.environ.items() if key.upper() in ENVIRONMENT},
+            env=child_environment(request),
             stdin=subprocess.DEVNULL, stdout=out, stderr=err, close_fds=True,
             creationflags=subprocess.CREATE_NO_WINDOW if os.name == "nt" else 0,
         )
@@ -321,8 +523,12 @@ def attach_owned(request):
         while time.monotonic() < until:
             if creation_ticks(target) != owner["target_creation_ticks"]:
                 raise ValueError("Native target identity changed during attachment.")
-            if list((root / "coverage").glob("*.log")):
+            ready = ((root / "entry" / "observations.jsonl").is_file()
+                     if request["mode"] == "entry-observer"
+                     else bool(list((root / "coverage").glob("*.log"))))
+            if ready:
                 record["status"] = "client_log_opened"
+                record["readiness_only_not_observation_proof"] = True
                 break
             if process.poll() is not None:
                 raise RuntimeError("Instrumentation attacher exited before opening a native log.")
@@ -346,6 +552,10 @@ def attach_owned(request):
 
 
 def exit_dump_argv(request, target):
+    if request["mode"] == "entry-observer":
+        profile = tool_profile(request)
+        return [profile["drconfig_path"], "-nudge_timeout", "5000",
+                "-nudge_pid", str(target), profile["nudge_client_id"], profile["nudge_argument"]]
     profile = request.get("exit_dump_method", {})
     if (profile.get("schema_version") != 1 or profile.get("kind") != "dynamorio-drcov-exit-dump-profile"
             or profile.get("console_runtime_verified") is not True
@@ -383,7 +593,8 @@ def exit_dump_owned(request):
     record = {
         "target_pid": target, "target_creation_ticks": owner["target_creation_ticks"],
         "argv": argv, "independent_timeout_seconds": 8, "start_epoch": time.time(),
-        "effect": "process_exit_and_drcov_dump_not_live_snapshot", "status": "blocked",
+        "effect": ENTRY_EFFECT if request["mode"] == "entry-observer" else "process_exit_and_drcov_dump_not_live_snapshot",
+        "status": "blocked",
     }
     try:
         times = [wintypes.FILETIME() for _ in range(4)]
@@ -393,7 +604,7 @@ def exit_dump_owned(request):
             raise ValueError("Retained exit-and-dump target handle identity changed.")
         result = subprocess.run(
             argv, cwd=root,
-            env={key: value for key, value in os.environ.items() if key.upper() in ENVIRONMENT},
+            env=child_environment(request),
             stdin=subprocess.DEVNULL, capture_output=True, timeout=8, check=False,
             creationflags=subprocess.CREATE_NO_WINDOW if os.name == "nt" else 0,
         )
@@ -401,9 +612,15 @@ def exit_dump_owned(request):
         (root / "exit-dump.stderr.log").write_bytes(result.stderr)
         record["exit_code"] = result.returncode
         record["target_exited"] = kernel.WaitForSingleObject(handle, 5000) == 0
-        record["nonempty_logs"] = [str(file) for file in (root / "coverage").glob("*.log") if file.stat().st_size > 0]
-        if result.returncode == 0 and record["target_exited"] and record["nonempty_logs"]:
-            record["status"] = "exited_and_dumped"
+        if request["mode"] == "entry-observer":
+            record["entry_observation"] = inspect_entry(request)
+            if (result.returncode == 0 and record["target_exited"]
+                    and record["entry_observation"]["status"] == "validated"):
+                record["status"] = "exited_and_observer_flushed"
+        else:
+            record["nonempty_logs"] = [str(file) for file in (root / "coverage").glob("*.log") if file.stat().st_size > 0]
+            if result.returncode == 0 and record["target_exited"] and record["nonempty_logs"]:
+                record["status"] = "exited_and_dumped"
     except (OSError, ValueError, subprocess.SubprocessError) as error:
         record["reason"] = str(error)
     finally:
@@ -416,13 +633,15 @@ def exit_dump_owned(request):
 
 def launch(request):
     root = Path(request["run_dir"])
+    if request["mode"] == "entry-observer":
+        entry_context(request, stage=True)
     argv = launcher_argv(request, root)
     started = time.time()
     with (root / "child-stdout.log").open("xb") as out, (root / "child-stderr.log").open("xb") as err:
         console_launcher = request["mode"] == "drcov" and request.get("instrumentation_start", "launch") == "launch"
         process = subprocess.Popen(
             argv, cwd=root,
-            env={key: value for key, value in os.environ.items() if key.upper() in ENVIRONMENT},
+            env=child_environment(request),
             stdin=subprocess.DEVNULL, stdout=out, stderr=err, close_fds=True,
             creationflags=subprocess.CREATE_NO_WINDOW if os.name == "nt" and console_launcher else 0,
         )
@@ -459,6 +678,64 @@ def launch(request):
     return ownership
 
 
+def record_launcher(request_path):
+    """Capture the existing launcher worker's actual streams/status, including preflight errors."""
+    root = request_path.resolve().parent
+    paths = {name: root / ("sanitized-launcher." + name) for name in (
+        "stdout.log", "stderr.log", "json")}
+    if any(path.exists() for path in paths.values()):
+        raise ValueError("Immutable sanitized-launcher diagnostics already exist.")
+    record = {
+        "schema_version": 1, "kind": "sanitized-native-launcher-diagnostics",
+        "status": "blocked", "exit_code": None, "start_epoch": time.time(),
+        "request_sha256": digest(request_path), "runner_sha256": digest(__file__),
+        "argv": [sys.executable, "-B", str(Path(__file__).resolve()), str(request_path.resolve())],
+    }
+    ownership = None
+    with paths["stdout.log"].open("xb") as out, paths["stderr.log"].open("xb") as err:
+        try:
+            request = json.loads(request_path.read_text(encoding="utf-8-sig"))
+            if Path(request["run_dir"]).resolve() != root:
+                raise ValueError("Launcher diagnostic root differs from its immutable request.")
+            timeout = request["timeout_seconds"]
+            if type(timeout) is not int or not 1 <= timeout <= 300:
+                raise ValueError("Launcher deadline must remain within 300 seconds.")
+            result = subprocess.run(
+                record["argv"], cwd=root, env=child_environment(request),
+                stdin=subprocess.DEVNULL, stdout=out, stderr=err, close_fds=True,
+                timeout=timeout, check=False,
+                creationflags=subprocess.CREATE_NO_WINDOW if os.name == "nt" else 0,
+            )
+            record["exit_code"] = result.returncode
+        except (OSError, ValueError, KeyError, subprocess.SubprocessError) as error:
+            record["reason"] = f"{type(error).__name__}: {error}"
+            record["worker_exception"] = True
+    stdout = paths["stdout.log"].read_text(encoding="utf-8-sig", errors="replace")
+    stderr = paths["stderr.log"].read_text(encoding="utf-8-sig", errors="replace")
+    if record["exit_code"] == 0:
+        try:
+            ownership = json.loads(stdout)
+            if (not isinstance(ownership, dict) or type(ownership.get("target_pid")) is not int
+                    or ownership["target_pid"] <= 0):
+                raise ValueError("Launcher stdout lacks its exact owned target PID.")
+            record["status"] = "launched"
+        except (ValueError, TypeError) as error:
+            record["reason"] = f"Invalid launcher stdout: {error}"
+    elif "reason" not in record:
+        lines = stderr.strip().splitlines() or stdout.strip().splitlines()
+        record["reason"] = lines[-1][-2000:] if lines else "Launcher exited without diagnostic text."
+    record.update(
+        end_epoch=time.time(),
+        stdout={"path": paths["stdout.log"].name, "sha256": digest(paths["stdout.log"]),
+                "bytes": paths["stdout.log"].stat().st_size},
+        stderr={"path": paths["stderr.log"].name, "sha256": digest(paths["stderr.log"]),
+                "bytes": paths["stderr.log"].stat().st_size},
+    )
+    with paths["json"].open("x", encoding="utf-8") as stream:
+        json.dump(record, stream)
+    return {**record, "ownership": ownership}
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("request", type=Path, nargs="?")
@@ -466,7 +743,13 @@ def main():
     parser.add_argument("--attach-owned", type=Path)
     parser.add_argument("--exit-dump-owned", type=Path)
     parser.add_argument("--recovery-dialog", type=Path)
+    parser.add_argument("--inspect-entry", type=Path)
+    parser.add_argument("--record-launch", type=Path)
     args = parser.parse_args()
+    if args.record_launch:
+        record = record_launcher(args.record_launch)
+        print(json.dumps(record))
+        return 0 if record["status"] == "launched" else 2
     if args.watch_owned:
         watch_owned(args.watch_owned)
         return
@@ -477,6 +760,10 @@ def main():
     if args.exit_dump_owned:
         request = json.loads(args.exit_dump_owned.read_text(encoding="utf-8-sig"))
         print(json.dumps(exit_dump_owned(request)))
+        return
+    if args.inspect_entry:
+        request = json.loads(args.inspect_entry.read_text(encoding="utf-8-sig"))
+        print(json.dumps(inspect_entry(request)))
         return
     if args.request is None:
         parser.error("request is required unless --watch-owned is selected")
@@ -489,4 +776,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

@@ -73,6 +73,59 @@ Important rejected leads:
   handler `0x1407b6ca0`; it was not observed in the successful capture. Do not
   confuse an EnergyManager2 fixture with the Energy class.
 
+### Version-bound object UUID layout
+
+For this exact executable, canonical construction and independently decoded
+formatter instructions establish a 16-byte control ID at primary object offset
+`0x8c`. The formatter at `0x1404f23e0` reads a little-endian u32 at `+0x8c`,
+little-endian u16 values at `+0x90` and `+0x92`, then eight bytes in ascending
+address order at `+0x94..+0x9b`. Its display is the native `8-4-4-16` form.
+This is recovered storage/formatting evidence, not an assumed RFC UUID layout.
+
+The EnergyManager2 constructor at `0x140613dd0` calls the common constructor
+at `0x140422e00` before installing its primary vtable. A 256-byte bounded
+entry sample therefore includes the reviewed ID field without following
+arbitrary pointers or scanning process memory.
+
+Static evidence is retained privately under
+`.reverse-engineering\native-simulator\instance-layout`. A live identity claim
+still requires the exact handler entry, class/vtable evidence and decoded ID
+matching the independently inspected fixture. Merely finding GUID-like bytes
+near a pointer is insufficient. New executable versions must re-establish this
+layout; the offsets are not a cross-version ABI.
+
+For the same version, worker instructions load the document pointer from timer
+object `+0x48` before the direct dispatcher call. Its return address is
+`0x140372063`. The two reviewed dispatcher-to-handler calls return at
+`0x14015fb83` and `0x14015fd4c`. These are precise checks for captured return
+addresses, not reconstructed call-stack guesses.
+
+The normal Energy handler receives the static frame at `0x1419ac930` through
+RDX. Its u64 timestamp is at frame `+0x38`, corresponding to `0x1419ac968`.
+This is normal-path clock milliseconds, not a simulator timestep. Minimum-floor,
+accounting and countdown helpers separately read the clock, so their samples
+need not equal this frame timestamp. Live pointer/value associations still
+require an admitted recording; static offsets alone do not establish them.
+
+### Interrupted native entry probe
+
+The first v4 multi-site entry recording captured callback, worker and dispatcher
+entries on one native thread. Callback R8 equalled worker RCX, their captured
+return addresses matched, and both sampled the expected `CSpsTimer` vtable.
+The timer's sampled `+0x48` document pointer equalled dispatcher RCX; its return
+address matched `0x140372063`.
+
+Config then exited before post-attach clock/output admission. A separate
+Energy-only entry probe also exited, without observing its selected entry.
+These preserved register associations are **interrupted-run diagnostics**,
+not proof that the observer is transparent or that a native parity gate passed.
+Energy UUID/frame binding and the cause of the early exits remain open.
+Exact application-error records subsequently locate both vendor access
+violations at dispatcher RVA `0x15ef8f`, a TLS-chain dereference. The entry-only
+v5 alternative also fails a stronger late-attach console TLS control while
+passing normal launch. The fault location is known; the underlying cause and
+a transparent late-attach solution are not.
+
 ## Reproducible local queries
 
 No target execution, GUI, Miniserver, hosted analysis or recurring work is used.

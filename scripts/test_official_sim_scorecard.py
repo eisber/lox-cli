@@ -67,6 +67,138 @@ class ScorecardTests(unittest.TestCase):
         record.update(changes)
         return self.save("coverage.json", record)
 
+    def entry_record(self, name="observed", output=1, mutate=None):
+        expected = {
+            "target_sha256": APP, "client_sha256": "b" * 64,
+            "module": "synthetic.exe", "module_size": 0x3000, "module_timestamp": 123,
+            "max_events": 3, "max_objects": 2, "prefix_bytes": 32,
+            "sites": [{"id": 7, "rva": 0x1000, "post": 0, "mask": 0}],
+        }
+        config = self.artifact(
+            name + ".cfg",
+            (f"OBS1 synthetic.exe 12288 123 3 2 32 {APP} {'b' * 64}\n7 1000 0 0\n").encode(),
+        )
+        expected["config_sha256"] = config["sha256"]
+        profile = self.artifact(name + ".profile.json", json.dumps({
+            "schema": 1, "kind": "passive-entry-observer-profile",
+            "format_schema": "passive-entry-observer-jsonl-v1", "client_sha256": "b" * 64,
+        }).encode())
+        parser_source = self.artifact(
+            name + ".parser.py", Path(SCORE.__file__).with_name("native-sim-observe.py").read_bytes()
+        )
+        events = [
+            {"type": "HEADER", "schema": 1, "kind": "passive-entry-observer",
+             **{key: value for key, value in expected.items() if key != "sites"},
+             "module_base": "0x140000000", "module_seen": True, "module_mismatch": False},
+            {"type": "SITE", **expected["sites"][0], "wrapped": True},
+            {"type": "ENTRY", "seq": 0, "site": 7, "thread": 21, "context_ok": True,
+             "pc": "0x140001000", "rcx": "0x0", "rdx": "0x0", "r8": "0x0", "r9": "0x0",
+             "rsp": "0x100008", "return_ok": False,
+             "samples": [
+                 {"reg": index, "address": "0x0", "status": 0, "size": 0, "bytes": "",
+                  "vtable_status": 0, "vtable_size": 0, "vtable_bytes": ""}
+                 for index in range(4)
+             ]},
+            {"type": "SUMMARY", "events": 1, "unique_objects": 0, "dropped_events": 0,
+             "unreadable_reads": 0, "partial_reads": 0, "truncated_reads": 0,
+             "object_limit_reads": 0, "context_failures": 0, "nudge_exit": True},
+        ]
+        if mutate is not None:
+            mutate(events)
+        log = self.artifact(name + ".events.jsonl", "".join(json.dumps(event) + "\n" for event in events).encode())
+        path = self.run_record(name, "entry-observer", output)
+        record = json.loads(path.read_text(encoding="utf-8"))
+        record["artifacts"].extend([config, profile, parser_source, log])
+        record.update(entry_logs=[log], entry_observation={
+            "status": "validated", "expected": expected,
+            "profile": profile, "configuration": config, "parser_source": parser_source,
+        })
+        return self.save(name + ".json", record)
+
+    def test_entry_equivalence_does_not_claim_basic_block_coverage(self):
+        runs = [self.run_record("plain1"), self.run_record("plain2"), self.entry_record()]
+        result = SCORE.compare(runs, [], self.root)
+        self.assertTrue(result["gate"]["entry_observer_equivalence_established"])
+        self.assertFalse(result["gate"]["loop_established"])
+        self.assertFalse(result["gate"]["engine_complete"])
+        self.assertEqual(result["cases"][0]["entry_observations"][0]["observed_site_ids"], [7])
+        self.assertFalse(result["cases"][0]["mapped_native_coverage"])
+        for gate, code in [("entry-observer", 0), ("drcov-loop", 1)]:
+            command = [
+                sys.executable, "-B", str(Path(SCORE.__file__)), "compare",
+                "--artifact-root", str(self.root), "--gate", gate,
+                "--output", str(self.root / (gate + ".json")),
+            ]
+            for path in runs:
+                command += ["--receipt", str(path)]
+            actual = subprocess.run(command, capture_output=True, text=True, check=False)
+            self.assertEqual(actual.returncode, code, actual.stdout + actual.stderr)
+
+    def test_entry_disagreement_cannot_satisfy_or_invalidate_a_drcov_loop(self):
+        runs = [
+            self.run_record("plain1"), self.run_record("plain2"),
+            self.run_record("instrumented", "drcov"), self.entry_record(output=0),
+        ]
+        result = SCORE.compare(runs, [self.coverage()], self.root)
+        self.assertTrue(result["gate"]["loop_established"])
+        self.assertFalse(result["gate"]["entry_observer_equivalence_established"])
+
+    def test_entry_only_backend_requires_matching_format_and_late_attach_admission(self):
+        path = self.entry_record("entry_v2")
+        record = json.loads(path.read_text(encoding="utf-8"))
+        source = record["entry_logs"][0]
+        events = [json.loads(line) for line in (self.root / source["path"]).read_text().splitlines()]
+        events[0].update(schema=2, backend="drmgr-entry", client_version=5, supports_return=False)
+        events[1].pop("wrapped")
+        events[1].update(selected=True, instrumented=True)
+        log = self.artifact(source["path"], "".join(json.dumps(event) + "\n" for event in events).encode())
+        profile_path = record["entry_observation"]["profile"]["path"]
+        profile_value = {
+            "schema": 1, "kind": "passive-entry-observer-profile",
+            "format_schema": "passive-entry-observer-jsonl-v2", "backend": "drmgr-entry",
+            "supports_return": False, "client_sha256": "b" * 64, "late_attach_verified": True,
+        }
+        for extra, valid in [({}, True), ({"late_attach_verified": False}, False),
+                             ({"backend": "drwrap"}, False),
+                             ({"format_schema": "passive-entry-observer-jsonl-v1"}, False)]:
+            profile = self.artifact(profile_path, json.dumps({**profile_value, **extra}).encode())
+            record["artifacts"] = [
+                ref for ref in record["artifacts"] if ref["path"] not in {log["path"], profile["path"]}
+            ] + [log, profile]
+            record["entry_logs"] = [log]
+            record["entry_observation"]["profile"] = profile
+            self.save(path.name, record)
+            with self.subTest(extra=extra):
+                if valid:
+                    SCORE.receipt(path, self.root)
+                else:
+                    with self.assertRaises(SCORE.EvidenceError):
+                        SCORE.receipt(path, self.root)
+
+    def test_entry_admission_requires_bound_identity_complete_log_and_actual_context(self):
+        changes = [
+            lambda events: events[0].update(client_sha256="f" * 64),
+            lambda events: events[0].update(prefix_bytes=16),
+            lambda events: events[1].update(wrapped=False),
+            lambda events: events[2].update(context_ok=False),
+            lambda events: events.pop(),
+        ]
+        for index, change in enumerate(changes):
+            with self.subTest(index=index), self.assertRaises(ValueError):
+                SCORE.receipt(self.entry_record("bad" + str(index), mutate=change), self.root)
+        path = self.entry_record("misbound")
+        record = json.loads(path.read_text(encoding="utf-8"))
+        record["entry_observation"]["expected"]["target_sha256"] = "f" * 64
+        self.save("misbound.json", record)
+        with self.assertRaisesRegex(SCORE.EvidenceError, "actual configuration"):
+            SCORE.receipt(path, self.root)
+        path = self.entry_record("conflated")
+        record = json.loads(path.read_text(encoding="utf-8"))
+        record["coverage_logs"] = record["entry_logs"]
+        self.save("conflated.json", record)
+        with self.assertRaisesRegex(SCORE.EvidenceError, "basic-block coverage"):
+            SCORE.receipt(path, self.root)
+
     def test_actual_loop_association_never_claims_complete_engine(self):
         runs = [self.run_record("plain1"), self.run_record("plain2"), self.run_record("instrumented", "drcov")]
         result = SCORE.compare(runs, [self.coverage()], self.root)

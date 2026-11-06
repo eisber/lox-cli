@@ -14,6 +14,7 @@ logs. The scorecard below joins their independently retained evidence.
 | Recognized executable | Exported function bodies / recognized nonexternal functions | Version-bound export index and research database |
 | Simulator scope | Reviewed engine, clock, dispatcher, handlers and dependencies | Exact module identities, function ranges, classification evidence and unresolved boundaries |
 | Native execution | Executed basic blocks and intersected function ranges | Genuine recorder logs mapped to the matching binary and analyzed ranges |
+| Passive entry observation | Selected function entries, raw registers and bounded safe reads | Complete, pinned observer log and independent native output/clock evidence; not a coverage denominator |
 | Static coverage | Executed static blocks / reviewed static blocks | Compatible block definitions and an explicit, reviewed CFG denominator |
 | Behavior | Required scenarios with native observations / required scenarios | Case definitions, fixture identity, actual output samples and retained evidence |
 | CLI parity | Implemented and differentially verified capabilities / required capabilities | Implementation, focused tests and matching native behavior/validation/feedback |
@@ -79,6 +80,46 @@ agreement and mapped execution in `loop_established`.
 Raw projects, recorder logs, screenshots and vendor code remain private under
 `.reverse-engineering`; only independent tooling and synthetic protocols belong
 in Git.
+
+### Passive observer equivalence is a separate gate
+
+The opt-in `entry-observer` mode uses the independent
+[passive observer](native-simulator-observer.md), not drcov. Its entry log cannot
+populate `coverage_logs` or satisfy `mapped_native_coverage`/`loop_established`.
+The scorecard independently checks the bound profile, configuration and source
+references, decodes the complete log, and requires an actual application-context
+entry. A producer's `validated` label alone is insufficient.
+
+Two passing plain runs and one passing entry-observer run for the same exact
+case/fixture can establish `entry_observer_equivalence_established` when every
+named output phase agrees. Select that gate explicitly:
+
+```powershell
+python scripts\official-sim-scorecard.py compare --artifact-root . `
+  --receipt .reverse-engineering\native-simulator\plain-1.json `
+  --receipt .reverse-engineering\native-simulator\plain-2.json `
+  --receipt .reverse-engineering\native-simulator\entry-observed.json `
+  --gate entry-observer `
+  --output .reverse-engineering\native-simulator\entry-scorecard-NEW.json
+```
+
+The default exit-status gate remains the mapped drcov loop. Entry equivalence
+does not prove a complete call graph, every requested site's execution, typed
+arguments, object UUID attribution, timing equivalence, or a recovered engine.
+Missing sites and dropped events remain explicit. Observer disagreement cannot
+silently replace or invalidate a separately established drcov comparison.
+
+No native entry-observer equivalence has been admitted. The v4 vendor probes
+terminated before the post-attach clock/output gate; exact application errors
+locate an access violation at the dispatcher's TLS-chain dereference. The
+entry-only v5 alternative passes normal console FP/SIMD/GPR/x87/MXCSR/TLS
+controls, but fails the required late-attach console control with
+`0xc0000005`. The underlying cause remains unknown. These failures are retained,
+not counted as recovered behavior or transparent native instrumentation.
+
+V2 backend/profile identities are checked separately from legacy wrapped-site
+logs. A passing v2 receipt additionally requires explicit admitted late-attach
+transparency; normal-launch success cannot substitute for that prerequisite.
 
 ### Bounded file-only output recognition
 

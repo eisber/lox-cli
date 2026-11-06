@@ -970,6 +970,20 @@ function Stop-OracleNativeObserved {
         Stop-Process -Id $process.Id -Force
         $forced = $true
     }
+    if ($script:OracleRequest.mode -eq 'entry-observer') {
+        $verified = !$forced -and $nudge -and $nudge.status -eq 'exited_and_observer_flushed'
+        $cleanup = @{
+            status=$(if($verified){'closed'}else{'blocked'});pid=$script:OracleTarget.pid;observer_mode='native-win32'
+            exit_dump=$nudge;exit_dump_error=$errorReason;graceful=$false;vendor_graceful_exit_claimed=$false
+            kind=$(if($verified){'PASSIVE-observer-exit-flush'}else{'owned-fallback-cleanup'})
+            effect='PASSIVE_observer_exit_flush_not_live_snapshot'
+            client_requested_observer_exit_flush_verified=[bool]$verified
+            forced_termination_may_invalidate_entry_observations=$forced
+            scope='No post-attach UIA/input; observer-client exit/flush is not a drcov dump or vendor graceful shutdown.'
+        }
+        Write-OracleJson (Join-Path $script:OracleRoot 'native-observer-cleanup.json') $cleanup
+        return $cleanup
+    }
     $cleanup = @{
         status='closed';pid=$script:OracleTarget.pid;observer_mode='native-win32'
         exit_dump=$nudge;exit_dump_error=$errorReason;graceful=$false;vendor_graceful_exit_claimed=$false
@@ -1097,6 +1111,7 @@ function Invoke-OfficialReplay([string]$RequestPath) {
     $attachment = $null
     $preAttachVerified = $false
     $clockProofPending = $false
+    $entryObservation = $null
     $script:OracleNativeAttachAttempted = $false
     $script:OracleObserverCache = $null
     $script:OracleRecoveryHandled = $false
@@ -1128,10 +1143,17 @@ function Invoke-OfficialReplay([string]$RequestPath) {
             $ports.Count -ne 1 -or $ports[0].Protocol -ne 'Any' -or $ports[0].RemotePort -ne 'Any') {
             throw 'Firewall fence does not block all outbound destinations/protocols.'
         }
-        New-Item -ItemType Directory -Path (Join-Path $request.run_dir 'coverage') | Out-Null
-        $launchedText = & python (Join-Path $request.run_dir 'official_sim_runner.py') $RequestPath
-        if ($LASTEXITCODE -ne 0) { throw 'Sanitized native launcher failed.' }
-        $launched = $launchedText | ConvertFrom-Json
+        if ($request.mode -ne 'entry-observer') {
+            New-Item -ItemType Directory -Path (Join-Path $request.run_dir 'coverage') | Out-Null
+        }
+        $launchedText = & python (Join-Path $request.run_dir 'official_sim_runner.py') --record-launch $RequestPath
+        $launcherCode = $LASTEXITCODE
+        $launcherRecord = if ($launchedText) { $launchedText | ConvertFrom-Json } else { $null }
+        if ($launcherCode -ne 0 -or !$launcherRecord -or $launcherRecord.status -ne 'launched') {
+            $reason = if ($launcherRecord.reason) { $launcherRecord.reason } else { 'Launcher helper returned no structured diagnostic record.' }
+            throw "Sanitized native launcher failed (helper exit $launcherCode, child exit $($launcherRecord.exit_code)): $reason; see sanitized-launcher.stdout.log, sanitized-launcher.stderr.log and sanitized-launcher.json."
+        }
+        $launched = $launcherRecord.ownership
         $process = Get-Process -Id $launched.target_pid -ErrorAction Stop
         if ($process.SessionId -ne (Get-Process -Id $PID).SessionId) { throw 'Target is not in this interactive session.' }
         if ($request.mode -eq 'drcov') {
@@ -1250,7 +1272,7 @@ function Invoke-OfficialReplay([string]$RequestPath) {
         if (!$nativeVerified) { throw 'Native simulator progress was not positively verified.' }
         Write-OracleEvent 'native-progress-verified'
         if ($request.observer_mode -eq 'native-win32') {
-            if ($request.mode -ne 'drcov' -or $request.instrumentation_start -ne 'post-start') {
+            if ($request.mode -notin @('drcov','entry-observer') -or $request.instrumentation_start -ne 'post-start') {
                 throw 'Native-only observation requires explicit post-start instrumentation.'
             }
             $preAttachVerified = $nativeVerified
@@ -1292,10 +1314,21 @@ function Invoke-OfficialReplay([string]$RequestPath) {
             Where-Object { $_.Length -gt 0 })
         if (!$logs.Count) { $errorData = @{code='coverage_log_empty';message='No nonempty actual native drcov log was flushed; output success cannot admit instrumentation.'} }
     }
+    if ($request.mode -eq 'entry-observer') {
+        try {
+            $entryText = & python (Join-Path $request.run_dir 'official_sim_runner.py') --inspect-entry $RequestPath
+            if ($LASTEXITCODE -ne 0) { throw 'Entry log/profile/configuration validation helper failed.' }
+            $entryObservation = $entryText | ConvertFrom-Json
+            if ($entryObservation.status -ne 'validated') { throw $entryObservation.reason }
+        } catch {
+            if (!$errorData) { $errorData = @{code='entry_observation_invalid';message=$_.Exception.Message} }
+        }
+    }
     $report = @{
         schema_version=1;kind='official-native-replay-remote';target=$script:OracleTarget
         run_id=$request.run_id
         attachment=$attachment
+        entry_observation=$entryObservation
         observer_mode=$request.observer_mode
         pre_attach_running_verified=[bool]$preAttachVerified;post_attach_clock_proof_pending=[bool]$clockProofPending
         coverage_scope=$(if($request.instrumentation_start -eq 'post-start'){'Application startup and SimulationStart excluded; attachment occurred during an already verified native simulation.'}else{'See attachment metadata.'})

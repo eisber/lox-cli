@@ -1,6 +1,7 @@
 """Offline tests of native evidence admission and safe launch construction."""
 
 import copy
+import ctypes
 import importlib.util
 import json
 from pathlib import Path
@@ -9,6 +10,7 @@ import shutil
 import struct
 import subprocess
 import sys
+from types import SimpleNamespace
 import unittest
 from unittest.mock import patch
 import uuid
@@ -26,6 +28,7 @@ def load(name, file):
 
 REPLAY = load("official_sim", "official-sim.py")
 LAUNCH = load("official_sim_launcher", "official_sim_runner.py")
+ENTRY = load("official_entry_reader", "native-sim-observe.py")
 
 
 class EvidenceTests(unittest.TestCase):
@@ -547,6 +550,31 @@ class LaunchTests(unittest.TestCase):
         finally:
             shutil.rmtree(root)
 
+    def test_held_exit_codes_preserve_unsigned_exception_and_never_reopen_pid(self):
+        class Kernel:
+            def __init__(self, status, code):
+                self.status, self.code, self.reads = status, code, 0
+
+            def WaitForSingleObject(self, handle, milliseconds):
+                return self.status
+
+            def GetExitCodeProcess(self, handle, out):
+                self.reads += 1
+                ctypes.cast(out, ctypes.POINTER(LAUNCH.wintypes.DWORD))[0] = self.code
+                return True
+
+        for value in (0, 259, 0xC0000005):
+            kernel = Kernel(0, value)
+            result = LAUNCH.held_exit_code(kernel, 123)
+            self.assertTrue(result["exit_code_available"])
+            self.assertEqual(result["exit_code"], value)
+            self.assertEqual(result["exit_code_hex"], f"0x{value:08x}")
+            self.assertEqual(result["exit_code_signed"], ctypes.c_int32(value).value)
+            self.assertEqual(kernel.reads, 1)
+        live = Kernel(258, 0xC0000005)
+        self.assertFalse(LAUNCH.held_exit_code(live, 123)["exit_code_available"])
+        self.assertEqual(live.reads, 0)
+
 
 class ReceiptTests(unittest.TestCase):
     def test_recognizer_snapshot_is_fresh_and_uses_its_retained_source_identity(self):
@@ -689,6 +717,424 @@ class ReceiptTests(unittest.TestCase):
         recognized["words"][1]["confidence"] = 86
         with self.assertRaises(ValueError):
             REPLAY.header_anchor_from_recognition(recognized)
+
+
+class EntryObserverIntegrationTests(unittest.TestCase):
+    def setUp(self):
+        self.root = Path(__file__).resolve().parents[1]
+        self.run = self.root / ".reverse-engineering" / "native-simulator" / "observer" / (
+            "integration-test-" + uuid.uuid4().hex)
+        self.run.mkdir(parents=True)
+        self.addCleanup(shutil.rmtree, self.run)
+        (self.run / "entry").mkdir()
+        shutil.copyfile(Path(__file__).with_name("native-sim-observe.py"), self.run / "native-sim-observe.py")
+        original = self.run / "installed"
+        original.mkdir()
+        self.profile = {
+            "schema": 1, "kind": "passive-entry-observer-profile",
+            "late_attach_verified": True,
+            "nudge_client_id": "00000000", "nudge_argument": "1",
+            "nudge_timeout_ms": 5000, "nudge_outer_timeout_seconds": 8,
+            "nudge_semantics": "process exit and exit-callback flush; not live snapshot",
+        }
+        for component, filename in (
+            ("drrun", "drrun.exe"), ("drconfig", "drconfig.exe"),
+            ("runtime", "dynamorio.dll"), ("client", "native_sim_observer.dll"),
+            ("drmgr", "drmgr.dll"), ("drwrap", "drwrap.dll"),
+        ):
+            file = original / filename
+            file.write_bytes(("synthetic " + component).encode())
+            self.profile[component + "_path"] = str(file)
+            self.profile[component + "_sha256"] = ENTRY.sha256(file)
+        for name in ("instrumentation-profile.json", "exit-dump-profile.json"):
+            (self.run / name).write_text(json.dumps(self.profile), encoding="utf-8")
+        app = original / "LoxoneConfig.exe"
+        app.write_bytes(b"synthetic identity only; not an executable")
+        self.pe = {
+            "name": app.name, "sha256": ENTRY.sha256(app), "size": 0x700000,
+            "timestamp": 123,
+            "sections": [(0x15E000, 0x2000, 0, 0, 0x60000020),
+                         (0x371000, 0x2000, 0, 0, 0x60000020),
+                         (0x614000, 0x2000, 0, 0, 0x60000020)],
+        }
+        self.sites = [
+            dict(id=1, rva=0x371E10, post=0, mask=4),
+            dict(id=2, rva=0x371EF0, post=0, mask=1),
+            dict(id=3, rva=0x15EF30, post=0, mask=1),
+            dict(id=4, rva=0x614600, post=0, mask=3),
+        ]
+        self.payload = ENTRY.config_bytes(
+            self.pe, self.profile["client_sha256"], self.sites, 256, 64, 256)
+        (self.run / "entry" / "observer.cfg").write_bytes(self.payload)
+        self.expected = ENTRY.read_config(self.payload)
+        self.request = {
+            "mode": "entry-observer", "run_id": self.run.name, "run_dir": str(self.run),
+            "instrumentation_start": "post-start", "observer_mode": "native-win32",
+            "capture_scope": "canvas", "wait_seconds": 70, "timeout_seconds": 300,
+            "application": {"path": str(app), "sha256": self.pe["sha256"]},
+            "instrumentation": self.profile, "exit_dump_method": self.profile,
+            "entry_observer": {
+                "module_sha256": ENTRY.sha256(self.run / "native-sim-observe.py"),
+                "profile_sha256": ENTRY.sha256(self.run / "instrumentation-profile.json"),
+                "config_sha256": self.expected["config_sha256"], "expected": self.expected,
+            },
+        }
+
+    def synthetic_profile_validation(self, profile):
+        components = ("drrun", "drconfig", "runtime", "client", "drmgr")
+        if profile.get("backend", "drwrap") == "drwrap":
+            components += ("drwrap",)
+        for component in components:
+            LAUNCH.pinned(profile[component + "_path"], profile[component + "_sha256"])
+
+    def stage(self):
+        with patch.object(LAUNCH, "load_entry_module", return_value=ENTRY), \
+                patch.object(ENTRY, "validate_profile", side_effect=self.synthetic_profile_validation) as validate, \
+                patch.object(ENTRY, "read_pe", return_value=self.pe):
+            context = LAUNCH.entry_context(self.request, stage=True)
+        self.assertEqual(validate.call_count, 2)
+        return context
+
+    def write_log(self, directory=None, records=None):
+        directory = directory or self.run / "entry"
+        header = {k: v for k, v in self.expected.items() if k != "sites"}
+        header.update(type="HEADER", schema=1, kind="passive-entry-observer",
+                      module_base="0x140000000", module_seen=True, module_mismatch=False)
+        samples = [
+            dict(reg=i, address="0x1" if i == 2 else "0x0", status=3 if i == 2 else 0,
+                 size=0, bytes="", vtable_status=0, vtable_size=0, vtable_bytes="")
+            for i in range(4)
+        ]
+        entry = dict(
+            type="ENTRY", seq=0, site=1, thread=21, context_ok=True,
+            pc=hex(0x140000000 + self.sites[0]["rva"]), rcx="0x0", rdx="0x0",
+            r8="0x1", r9="0x0", rsp="0x100008", return_ok=True,
+            return_address="0x140100000", samples=samples,
+        )
+        summary = dict(
+            type="SUMMARY", events=1, unique_objects=1, dropped_events=0,
+            unreadable_reads=1, partial_reads=0, truncated_reads=0,
+            object_limit_reads=0, context_failures=0, nudge_exit=True,
+        )
+        if records is None:
+            records = [header, *[dict(type="SITE", wrapped=True, **s) for s in self.sites], entry, summary]
+        path = directory / "observations.jsonl"
+        path.write_text("".join(json.dumps(r) + "\n" for r in records), encoding="utf-8")
+        return path, records
+
+    def test_canonical_recipe_requires_real_pe_sections_and_original_pins(self):
+        for target, client in (("f" * 64, self.profile["client_sha256"]),
+                               (self.pe["sha256"], "f" * 64)):
+            with self.subTest(target=target, client=client), self.assertRaises(ValueError):
+                LAUNCH.entry_config(self.payload, ENTRY, target, client, self.pe)
+        bad_pe = copy.deepcopy(self.pe)
+        bad_pe["sections"] = [(start, size, raw, count, 0)
+                              for start, size, raw, count, _ in bad_pe["sections"]]
+        with self.assertRaisesRegex(ValueError, "executable"):
+            LAUNCH.entry_config(self.payload, ENTRY, self.pe["sha256"],
+                                self.profile["client_sha256"], bad_pe)
+        post_sites = [{**s, "post": 1} for s in self.sites]
+        post_payload = ENTRY.config_bytes(self.pe, self.profile["client_sha256"], post_sites)
+        with self.assertRaisesRegex(ValueError, "entry-only"):
+            LAUNCH.entry_config(post_payload, ENTRY, self.pe["sha256"], self.profile["client_sha256"])
+        clock_pe = copy.deepcopy(self.pe)
+        clock_pe["sections"].append((0x4B6000, 0x2000, 0, 0, 0x60000020))
+        clock_sites = self.sites + [dict(id=5, rva=0x4B6DE0, post=1, mask=0)]
+        clock_payload = ENTRY.config_bytes(clock_pe, self.profile["client_sha256"], clock_sites)
+        self.assertEqual(LAUNCH.entry_config(
+            clock_payload, ENTRY, self.pe["sha256"], self.profile["client_sha256"], clock_pe
+        )["sites"], clock_sites)
+        with self.assertRaises(ValueError):
+            LAUNCH.load_entry_module(self.run / "native-sim-observe.py", "0" * 64)
+
+    def test_notebook_stages_libraries_and_rejects_altered_pins_before_launch(self):
+        _, effective, expected = self.stage()
+        self.assertEqual(expected, self.expected)
+        self.assertNotEqual(effective["client_path"], self.profile["client_path"])
+        self.assertEqual(Path(effective["client_path"]).read_bytes(),
+                         Path(self.profile["client_path"]).read_bytes())
+        self.assertNotIn("args", effective)
+        self.assertNotIn("tool_config_path", effective)
+        Path(self.profile["drwrap_path"]).write_bytes(b"changed")
+        with patch.object(LAUNCH, "load_entry_module", return_value=ENTRY), \
+                patch.object(ENTRY, "validate_profile", side_effect=self.synthetic_profile_validation), \
+                patch.object(ENTRY, "read_pe", return_value=self.pe), \
+                patch.object(LAUNCH.subprocess, "Popen") as process:
+            with self.assertRaises(ValueError):
+                LAUNCH.launch(self.request)
+        process.assert_not_called()
+
+    def test_v5_backend_stages_without_drwrap_and_rejects_post_before_launch(self):
+        self.profile.update(backend="drmgr-entry", client_version=5, supports_return=False,
+                            format_schema="passive-entry-observer-jsonl-v2", late_attach_verified=True)
+        self.profile.pop("drwrap_path")
+        self.profile.pop("drwrap_sha256")
+        for name in ("instrumentation-profile.json", "exit-dump-profile.json"):
+            (self.run / name).write_text(json.dumps(self.profile), encoding="utf-8")
+        self.request["entry_observer"]["profile_sha256"] = ENTRY.sha256(
+            self.run / "instrumentation-profile.json")
+        _, effective, _ = self.stage()
+        self.assertNotIn("drwrap_path", effective)
+        self.assertFalse((self.run / "entry" / "tools" / "drwrap.dll").exists())
+        clock_pe = copy.deepcopy(self.pe)
+        clock_pe["sections"].append((0x4B6000, 0x2000, 0, 0, 0x60000020))
+        payload = ENTRY.config_bytes(clock_pe, self.profile["client_sha256"],
+                                     [dict(id=5, rva=0x4B6DE0, post=1, mask=0)])
+        (self.run / "entry" / "observer.cfg").write_bytes(payload)
+        self.request["entry_observer"].update(
+            config_sha256=ENTRY.sha256(self.run / "entry" / "observer.cfg"),
+            expected=ENTRY.read_config(payload))
+        with patch.object(LAUNCH, "load_entry_module", return_value=ENTRY), \
+                patch.object(ENTRY, "validate_profile", side_effect=self.synthetic_profile_validation), \
+                patch.object(ENTRY, "read_pe", return_value=clock_pe), \
+                patch.object(LAUNCH.subprocess, "Popen") as process:
+            with self.assertRaisesRegex(ValueError, "rejects RETURN"):
+                LAUNCH.launch(self.request)
+        process.assert_not_called()
+
+    def test_unadmitted_v5_profiles_cannot_stage_or_launch(self):
+        self.profile.update(backend="drmgr-entry", client_version=5, supports_return=False,
+                            format_schema="passive-entry-observer-jsonl-v2")
+        for value in (None, False, 1, "true"):
+            if value is None:
+                self.profile.pop("late_attach_verified", None)
+            else:
+                self.profile["late_attach_verified"] = value
+            for name in ("instrumentation-profile.json", "exit-dump-profile.json"):
+                (self.run / name).write_text(json.dumps(self.profile), encoding="utf-8")
+            self.request["entry_observer"]["profile_sha256"] = ENTRY.sha256(
+                self.run / "instrumentation-profile.json")
+            with self.subTest(value=value), patch.object(LAUNCH.subprocess, "Popen") as process:
+                with self.assertRaisesRegex(ValueError, "late_attach_verified=true"):
+                    LAUNCH.launch(self.request)
+                process.assert_not_called()
+                self.assertFalse((self.run / "entry" / "tools").exists())
+        LAUNCH.validate_native_entry_readiness({**self.profile, "late_attach_verified": True})
+        LAUNCH.validate_native_entry_readiness({"backend": "drwrap", "late_attach_verified": True})
+
+    def test_legacy_v4_missing_readiness_flag_cannot_stage_or_launch(self):
+        self.profile.pop("late_attach_verified")
+        for name in ("instrumentation-profile.json", "exit-dump-profile.json"):
+            (self.run / name).write_text(json.dumps(self.profile), encoding="utf-8")
+        self.request["entry_observer"]["profile_sha256"] = ENTRY.sha256(
+            self.run / "instrumentation-profile.json")
+        with patch.object(LAUNCH.subprocess, "Popen") as process:
+            with self.assertRaisesRegex(ValueError, "every backend"):
+                LAUNCH.launch(self.request)
+        process.assert_not_called()
+        self.assertFalse((self.run / "entry" / "tools").exists())
+
+    def test_created_v5_profile_is_unadmitted_by_default(self):
+        output = self.run / "new-unadmitted-profile.json"
+        with patch.object(ENTRY, "sha256", return_value="a" * 64), \
+                patch.object(ENTRY, "validate_profile"):
+            profile = ENTRY.create_profile(self.run, self.run / "client.dll", output)
+        self.assertIs(profile["late_attach_verified"], False)
+        with self.assertRaisesRegex(ValueError, "late_attach_verified=true"):
+            LAUNCH.validate_native_entry_readiness(profile)
+
+    def test_mode_guards_keep_legacy_defaults_and_bound_first_entry_case(self):
+        options = dict(mode="entry-observer", instrumentation_start="post-start",
+                       observer_mode="native-win32", capture_scope="canvas",
+                       ocr_profile=Path("ocr"), instrumentation_profile=Path("profile"),
+                       exit_dump_profile=Path("profile"), entry_config=Path("config"))
+        REPLAY.validate_mode_options(SimpleNamespace(**options), {"wait_seconds": 70})
+        for key, value in (
+            ("instrumentation_start", "launch"), ("observer_mode", "uia"),
+            ("capture_scope", "application"), ("ocr_profile", None),
+            ("entry_config", None), ("instrumentation_profile", None), ("exit_dump_profile", None),
+        ):
+            with self.subTest(key=key), self.assertRaises(ValueError):
+                REPLAY.validate_mode_options(SimpleNamespace(**{**options, key: value}))
+        with self.assertRaisesRegex(ValueError, "90"):
+            REPLAY.validate_mode_options(SimpleNamespace(**options), {"wait_seconds": 91})
+        REPLAY.validate_mode_options(SimpleNamespace(**{
+            **options, "mode": "plain", "instrumentation_start": "launch",
+            "observer_mode": "uia", "capture_scope": "application", "entry_config": None,
+        }))
+
+    def test_exact_controller_normalized_legacy_request_reaches_pinned_staging(self):
+        self.request["sampling_phases"] = LAUNCH.sampling_plan({"wait_seconds": 70})
+        self.assertEqual(self.request["sampling_phases"], [
+            {"name": "after_first_calculation", "at_seconds": 70},
+        ])
+        self.stage()
+        for phases in (
+            [{"name": "named_boundary", "at_seconds": 70}],
+            [{"name": "after_first_calculation", "at_seconds": 71}],
+            [{"name": "named_boundary", "at_seconds": 70, "latest_seconds": 91}],
+        ):
+            with self.subTest(phases=phases), self.assertRaises(ValueError):
+                LAUNCH.validate_entry_mode({**self.request, "sampling_phases": phases})
+        LAUNCH.validate_entry_mode({
+            **self.request, "sampling_phases": [
+                {"name": "named_boundary", "at_seconds": 70, "latest_seconds": 80},
+            ],
+        })
+
+    def test_launcher_failure_retains_actual_worker_streams_code_and_precise_reason(self):
+        request = self.run / "request.json"
+        request.write_text(json.dumps(self.request))
+        stderr = b"Traceback (most recent call last):\nValueError: Each phase requires name, at_seconds and latest_seconds.\n"
+
+        def failed_worker(argv, **kwargs):
+            kwargs["stdout"].write(b"")
+            kwargs["stderr"].write(stderr)
+            self.assertTrue(kwargs["close_fds"])
+            self.assertNotIn("GH_TOKEN", kwargs["env"])
+            self.assertEqual(argv[-1], str(request.resolve()))
+            return SimpleNamespace(returncode=1)
+
+        with patch.object(LAUNCH.subprocess, "run", side_effect=failed_worker) as child:
+            record = LAUNCH.record_launcher(request)
+        child.assert_called_once()
+        self.assertEqual(record["status"], "blocked")
+        self.assertEqual(record["exit_code"], 1)
+        self.assertEqual(record["reason"], stderr.decode().splitlines()[-1])
+        self.assertEqual((self.run / record["stderr"]["path"]).read_bytes(), stderr)
+        stored = json.loads((self.run / "sanitized-launcher.json").read_text())
+        self.assertEqual(stored["exit_code"], 1)
+        before = ENTRY.sha256(self.run / "sanitized-launcher.stderr.log")
+        with self.assertRaisesRegex(ValueError, "Immutable"):
+            LAUNCH.record_launcher(request)
+        self.assertEqual(ENTRY.sha256(self.run / "sanitized-launcher.stderr.log"), before)
+
+    def test_launcher_success_and_transport_errors_keep_distinct_truth(self):
+        request = self.run / "request.json"
+        request.write_text(json.dumps(self.request))
+        ownership = {"target_pid": 4321, "launcher_pid": 4321}
+
+        def successful_worker(argv, **kwargs):
+            kwargs["stdout"].write((json.dumps(ownership) + "\n").encode())
+            return SimpleNamespace(returncode=0)
+
+        with patch.object(LAUNCH.subprocess, "run", side_effect=successful_worker):
+            record = LAUNCH.record_launcher(request)
+        self.assertEqual(record["ownership"], ownership)
+        self.assertEqual(record["status"], "launched")
+        self.assertEqual(record["exit_code"], 0)
+        fresh = self.run / "transport-failure"
+        fresh.mkdir()
+        failed_request = {**self.request, "run_dir": str(fresh)}
+        (fresh / "request.json").write_text(json.dumps(failed_request))
+        with patch.object(LAUNCH.subprocess, "run", side_effect=OSError("test policy denial")):
+            record = LAUNCH.record_launcher(fresh / "request.json")
+        self.assertEqual(record["status"], "blocked")
+        self.assertIsNone(record["exit_code"])
+        self.assertTrue(record["worker_exception"])
+        self.assertIn("test policy denial", record["reason"])
+        self.assertEqual((fresh / record["stdout"]["path"]).read_bytes(), b"")
+        self.assertEqual((fresh / record["stderr"]["path"]).read_bytes(), b"")
+
+    def test_attach_and_exit_argv_use_observer_not_drcov_and_exact_owned_pid(self):
+        with patch.object(LAUNCH, "entry_context", return_value=(ENTRY, self.profile, self.expected)):
+            argv = LAUNCH.attach_argv(self.request, self.run, 4321)
+            nudge = LAUNCH.exit_dump_argv(self.request, 4321)
+        self.assertEqual(argv[argv.index("-attach") + 1], "4321")
+        self.assertEqual(argv[argv.index("-s") + 1], "120")
+        self.assertIn("-c", argv)
+        self.assertNotIn("-t", argv)
+        self.assertNotIn("-logdir", argv)
+        self.assertIn(str(self.run / "entry" / "observations.jsonl"), argv)
+        self.assertEqual(nudge[-6:], ["-nudge_timeout", "5000", "-nudge_pid", "4321", "00000000", "1"])
+        (self.run / "launched.json").write_text(json.dumps({
+            "target_pid": 4321, "target_creation_ticks": 111,
+        }))
+        with patch.object(LAUNCH, "image_path", return_value=self.request["application"]["path"]), \
+                patch.object(LAUNCH, "creation_ticks", return_value=222), \
+                patch.object(LAUNCH, "interactive_session", return_value=1), \
+                patch.object(LAUNCH.subprocess, "run") as process:
+            with self.assertRaisesRegex(ValueError, "identity/session"):
+                LAUNCH.exit_dump_owned(self.request)
+        process.assert_not_called()
+
+    def test_entries_require_complete_known_context_and_report_missing_sites(self):
+        path, records = self.write_log()
+        actual = LAUNCH.validate_entry_log(ENTRY, path, self.expected)
+        self.assertEqual(actual["status"], "validated")
+        self.assertEqual(actual["site_ids_seen"], [1])
+        self.assertEqual(actual["missing_site_ids"], [2, 3, 4])
+        for mutate in (
+            lambda r: r[-2].update(context_ok=False),
+            lambda r: r[-1].update(context_failures=1),
+            lambda r: r[0].update(config_sha256="0" * 64),
+            lambda r: r[1].update(rva=0x371E11),
+        ):
+            changed = copy.deepcopy(records)
+            mutate(changed)
+            self.write_log(records=changed)
+            self.assertEqual(LAUNCH.validate_entry_log(ENTRY, path, self.expected)["status"], "blocked")
+        empty = copy.deepcopy(records[:-2] + records[-1:])
+        empty[-1].update(events=0, unique_objects=0, unreadable_reads=0)
+        self.write_log(records=empty)
+        self.assertEqual(LAUNCH.validate_entry_log(ENTRY, path, self.expected)["status"], "blocked")
+        self.write_log()
+        path.write_bytes(path.read_bytes()[:-3])
+        self.assertEqual(LAUNCH.validate_entry_log(ENTRY, path, self.expected)["status"], "blocked")
+
+    def test_receipt_refs_and_manifest_bind_source_profile_config_and_client(self):
+        self.stage()
+        self.write_log()
+        (self.run / "remote").mkdir()
+        shutil.copytree(self.run / "entry", self.run / "remote" / "entry")
+        (self.run / "request.json").write_text(json.dumps(self.request))
+        observed = REPLAY.collect_entry_observation(self.run, self.root, self.request)
+        self.assertEqual(observed["status"], "validated")
+        self.assertEqual(observed["expected"], self.expected)
+        refs = {name: observed[name] for name in ("profile", "configuration", "parser_source", "client")}
+        bound = {str((self.root / ref["path"]).resolve()): ref["sha256"] for ref in refs.values()}
+        self.assertEqual(REPLAY.collect_entry_observation(
+            self.run, self.root, self.request, bound)["status"], "blocked")
+        full_bound = {str(p.resolve()): ENTRY.sha256(p) for p in self.run.rglob("*") if p.is_file()}
+        self.assertEqual(REPLAY.collect_entry_observation(
+            self.run, self.root, self.request, full_bound)["status"], "validated")
+        case = {
+            "id": "synthetic-entry-case", "application": {"sha256": self.pe["sha256"]},
+            "fixture_sha256": "b" * 64, "wait_seconds": 70,
+            "expected_outputs": {"after_first_calculation": {"OL1": 1}},
+        }
+        (self.run / "case.definition.json").write_text(json.dumps(case))
+        (self.run / "remote" / "remote-report.json").write_text(json.dumps({
+            "native_running_verified": True, "observations": [], "error": None,
+            "cleanup": {"status": "closed"}, "target": None, "timing": "synthetic unit test",
+        }))
+        output, code = REPLAY.finalize(self.run, self.root, case, self.request)
+        receipt = json.loads((self.root / output["receipt"]).read_text())
+        self.assertEqual(code, 2)
+        self.assertFalse(receipt["execution"]["native_running_verified"])
+        self.assertEqual(receipt["execution"]["mode"], "entry-observer")
+        self.assertEqual(receipt["entry_observation"]["status"], "validated")
+        self.assertEqual(receipt["entry_observation"]["expected"], self.expected)
+        manifest = {item["path"]: item["sha256"] for item in receipt["artifacts"]}
+        for ref in refs.values():
+            self.assertEqual(manifest[ref["path"]], ref["sha256"])
+        self.assertEqual(len(receipt["entry_logs"]), 1)
+        self.assertIn(receipt["entry_logs"][0], manifest)
+        (self.run / "entry" / "observer.cfg").write_bytes(self.payload + b"\n")
+        self.assertEqual(REPLAY.collect_entry_observation(
+            self.run, self.root, self.request)["status"], "blocked")
+
+    def test_functional_entry_pass_requires_clock_output_and_own_verified_exit_flush(self):
+        case = {"wait_seconds": 70, "expected_outputs": {"after_first_calculation": {"OL1": 1}}}
+        remote = {
+            "mode": "entry-observer", "native_running_verified": True, "error": None,
+            "entry_observation": {"status": "validated"},
+            "cleanup": {"status": "closed", "effect": LAUNCH.ENTRY_EFFECT,
+                        "client_requested_observer_exit_flush_verified": True,
+                        "forced_termination_may_invalidate_entry_observations": False},
+            "observations": [{
+                "phase": "after_first_calculation", "elapsed_ms": 70000, "outputs": {"OL1": 1},
+                "source": {"kind": "ocr", "artifacts": ["synthetic.png", "synthetic.ocr.json"]},
+            }],
+        }
+        self.assertEqual(REPLAY.judge(case, remote)[0], "pass")
+        for change in (
+            {"native_running_verified": False}, {"entry_observation": {"status": "blocked"}},
+            {"cleanup": {**remote["cleanup"], "client_requested_observer_exit_flush_verified": False}},
+            {"cleanup": {**remote["cleanup"], "forced_termination_may_invalidate_entry_observations": True}},
+        ):
+            with self.subTest(change=change):
+                self.assertEqual(REPLAY.judge(case, {**remote, **change})[0], "blocked")
 
 
 if __name__ == "__main__":

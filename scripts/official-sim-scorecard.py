@@ -5,6 +5,7 @@ import argparse
 from collections import Counter, defaultdict
 from contextlib import closing
 import hashlib
+import importlib.util
 import json
 import math
 from pathlib import Path, PurePosixPath, PureWindowsPath
@@ -137,6 +138,69 @@ def bound_artifact(reference, seen, root, message):
     return reference
 
 
+def validate_entry_observation(record, seen, root):
+    logs = record.get("entry_logs", [])
+    require(isinstance(logs, list) and len(logs) <= 1, "Expected at most one passive entry log.")
+    references = [
+        bound_artifact(reference, seen, root, "Entry log is not bound to the receipt.")
+        for reference in logs
+    ]
+    require(not record.get("coverage_logs"), "Entry observations cannot stand in for basic-block coverage.")
+    if not references:
+        require(record["execution"]["status"] != "pass", "Passing observer run omitted its actual entry log.")
+        return {"status": "not_admitted", "reason": "No actual entry log."}
+    evidence = object_field(record, "entry_observation")
+    sources = {}
+    for name in ("profile", "configuration", "parser_source"):
+        reference = bound_artifact(
+            evidence.get(name), seen, root, "Observer profile/configuration/parser source is not bound."
+        )
+        sources[name] = check_artifact(reference, root)
+    profile = read_json(sources["profile"])
+    require(profile.get("kind") == "passive-entry-observer-profile"
+            and type(profile.get("schema")) is int and profile["schema"] == 1
+            and profile.get("format_schema") in (
+                "passive-entry-observer-jsonl-v1", "passive-entry-observer-jsonl-v2"
+            )
+            and valid_hash(profile.get("client_sha256")),
+            "Unsupported passive observer profile.")
+    specification = importlib.util.spec_from_file_location(
+        "scorecard_entry_parser", Path(__file__).with_name("native-sim-observe.py")
+    )
+    parser = importlib.util.module_from_spec(specification)
+    specification.loader.exec_module(parser)
+    expected = parser.read_config(sources["configuration"])
+    require(expected == evidence.get("expected"), "Observer expected identity differs from its actual configuration.")
+    require(expected["target_sha256"] == record["application"]["sha256"]
+            and expected["client_sha256"] == profile["client_sha256"],
+            "Observer configuration belongs to a different application/client.")
+    parsed = parser.parse_log(check_artifact(references[0], root), expected)
+    schema = 1 if profile["format_schema"].endswith("-v1") else 2
+    require(parsed["header"]["schema"] == schema, "Observer profile and log format differ.")
+    if schema == 2:
+        require(profile.get("backend") == parsed["header"].get("backend") == "drmgr-entry"
+                and profile.get("supports_return") is False,
+                "Observer backend does not match its profile.")
+        if record["execution"]["status"] == "pass":
+            require(profile.get("late_attach_verified") is True,
+                    "Passing observer run used a backend without admitted late-attach transparency.")
+    for name in ("max_events", "max_objects", "prefix_bytes"):
+        require(parsed["header"][name] == expected[name], "Observer budget differs from its configuration.")
+    entries = [event for event in parsed["events"] if event["type"] == "ENTRY" and event["context_ok"]]
+    if record["execution"]["status"] == "pass":
+        require(evidence.get("status") == "validated" and entries,
+                "Passing observer run has no validated application-context entry.")
+    return {
+        "status": "validated" if entries else "not_admitted",
+        "raw_log_sha256": parsed["sha256"],
+        "entry_count": len(entries),
+        "observed_site_ids": sorted({event["site"] for event in entries}),
+        "missing_site_ids": sorted({site["id"] for site in parsed["sites"]} - {event["site"] for event in entries}),
+        "dropped_events": parsed["summary"]["dropped_events"],
+        "scope": "Bounded entry evidence, not basic-block coverage, complete call traces, or instance/UUID attribution.",
+    }
+
+
 def receipt(path, root):
     record = read_json(path)
     require(type(record.get("schema_version")) is int and record["schema_version"] == 1
@@ -172,7 +236,7 @@ def receipt(path, root):
     run_id = execution.get("run_id")
     require(isinstance(run_id, str) and run_id and run_id == run_id.strip(),
             "Native receipt omitted its original execution run ID.")
-    require(execution.get("mode") in ("plain", "drcov")
+    require(execution.get("mode") in ("plain", "drcov", "entry-observer")
             and execution.get("status") in ("pass", "fail", "blocked"),
             "Native receipt has an unknown execution mode/status.")
     observations = record.get("observations", [])
@@ -242,6 +306,10 @@ def receipt(path, root):
         bound_artifact(reference, seen, root, "Coverage log is not bound to the receipt.")
         for reference in coverage_logs
     ]
+    if execution["mode"] == "entry-observer":
+        record["entry_validation"] = validate_entry_observation(record, seen, root)
+    else:
+        require(not record.get("entry_logs"), "Only entry-observer mode may declare passive entry logs.")
     return record, phases, digest(path)
 
 
@@ -297,10 +365,12 @@ def compare(receipt_paths, coverage_paths, artifact_root):
     for key, items in groups.items():
         plain = [item for item in items if item["record"]["execution"]["mode"] == "plain"]
         instrumented = [item for item in items if item["record"]["execution"]["mode"] == "drcov"]
-        passing = all(item["record"]["execution"]["status"] == "pass" for item in items)
+        observed = [item for item in items if item["record"]["execution"]["mode"] == "entry-observer"]
+        coverage_items = plain + instrumented
+        passing = all(item["record"]["execution"]["status"] == "pass" for item in coverage_items)
         signatures = {
             json.dumps(item["phases"], sort_keys=True, separators=(",", ":"), allow_nan=False)
-            for item in items
+            for item in coverage_items
         }
         repeated = len(plain) >= 2
         plain_signatures = {
@@ -311,6 +381,14 @@ def compare(receipt_paths, coverage_paths, artifact_root):
             item["record"]["execution"]["status"] == "pass" for item in plain
         )
         agrees = bool(instrumented) and passing and len(signatures) == 1
+        observer_signatures = {
+            json.dumps(item["phases"], sort_keys=True, separators=(",", ":"), allow_nan=False)
+            for item in plain + observed
+        }
+        observer_agrees = plain_agrees and bool(observed) and len(observer_signatures) == 1 and all(
+            item["record"]["execution"]["status"] == "pass"
+            and item["record"]["entry_validation"]["status"] == "validated" for item in observed
+        )
         logs = {ref["sha256"] for item in instrumented for ref in item["record"].get("coverage_logs", [])}
         matching = [
             item for item in analyses
@@ -324,10 +402,13 @@ def compare(receipt_paths, coverage_paths, artifact_root):
             "fixture_sha256": key[2],
             "plain_runs": len(plain),
             "instrumented_runs": len(instrumented),
+            "entry_observer_runs": len(observed),
             "repeat_plain": repeated,
             "plain_outputs_agree": plain_agrees,
             "sampled_outputs_agree": agrees,
             "mapped_native_coverage": bool(matching),
+            "entry_observer_equivalence_established": observer_agrees,
+            "entry_observations": [item["record"]["entry_validation"] for item in observed],
             "native_coverage_runs": [{
                 "analysis_sha256": item["sha256"],
                 "raw_log_sha256": item["record"]["measurement"]["raw_log_sha256"],
@@ -352,6 +433,9 @@ def compare(receipt_paths, coverage_paths, artifact_root):
             "input_valid": True,
             "native_replay_established": bool(outcomes) and all(item["plain_outputs_agree"] for item in outcomes),
             "loop_established": bool(outcomes) and all(item["loop_established"] for item in outcomes),
+            "entry_observer_equivalence_established": bool(outcomes) and all(
+                item["entry_observer_equivalence_established"] for item in outcomes
+            ),
             "engine_complete": False,
         },
         "trust_boundary": "Artifact hashes prove byte association, not that a dishonest producer really executed the GUI or recorder.",
@@ -376,6 +460,8 @@ def main():
     join.add_argument("--coverage", action="append", type=Path, default=[])
     join.add_argument("--artifact-root", type=Path, required=True)
     join.add_argument("--output", type=Path, required=True)
+    join.add_argument("--gate", choices=("drcov-loop", "entry-observer"), default="drcov-loop",
+                      help="Explicitly select entry equivalence instead of the default mapped-coverage loop")
     args = parser.parse_args()
     try:
         require(not args.output.exists(), "Output exists; preserve the earlier scorecard.")
@@ -389,7 +475,10 @@ def main():
         "gate": result["gate"], "cases": result.get("cases"),
         "export": result.get("export"), "quality_flags": result.get("quality_flags"),
     }, allow_nan=False))
-    return 0 if args.command == "baseline" or result["gate"]["loop_established"] else 1
+    if args.command == "baseline":
+        return 0
+    gate = "loop_established" if args.gate == "drcov-loop" else "entry_observer_equivalence_established"
+    return 0 if result["gate"][gate] else 1
 
 
 if __name__ == "__main__":

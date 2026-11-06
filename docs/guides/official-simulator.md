@@ -87,6 +87,108 @@ verified instrumented recipe. A one-second `WM_NULL` timeout was insufficient
 as a liveness proxy; the native-only recipe requires actual clock advancement
 instead and retains all ownership/foreground/capture guards.
 
+### Experimental passive entry observations
+
+The explicit `--mode entry-observer` uses the independently authored
+[bounded entry client](native-simulator-observer.md), **not drcov**. Its owned
+synthetic-console proof includes normal startup followed by late attachment,
+register/prefix/caller/RAX checks and its own public nudge exit/flush callback.
+That proof does **not** establish vendor compatibility, output/clock parity,
+fixture UUID binding or a complete call chain. No vendor entry-observer case
+has been verified merely by adding this mode.
+
+```powershell
+python scripts\official-sim.py --profile PRIVATE-UX.json `
+  --transfer-profile PRIVATE-TRANSFER.json --case PRIVATE-BOUNDED-CASE.json `
+  --fixture PRIVATE-FIXTURE.Loxone --ocr-profile PRIVATE-OCR.json `
+  --mode entry-observer --instrumentation-start post-start `
+  --observer-mode native-win32 --capture-scope canvas `
+  --instrumentation-profile PRIVATE-OBSERVER-PROFILE.json `
+  --entry-config PRIVATE-CANONICAL-OBS1.cfg `
+  --exit-dump-profile PRIVATE-OBSERVER-PROFILE.json
+```
+
+For this mode, `--exit-dump-profile` must contain the **same observer profile
+bytes** as `--instrumentation-profile`; an old drcov exit-method profile does
+not prove the new client's callback. Plain/drcov defaults and their existing
+exit-method interface are unchanged. The first entry experiment must finish
+its final phase/window within **90 simulator seconds**. Only post-start,
+native-win32, canvas and pinned OCR admission are accepted. Attachment has an
+independent 30-second deadline and a 120-second DR limit, retaining the existing
+exact-instance target/attacher handle watchdogs and all native-only
+foreground/geometry/ROI guards. No UIA or input follows attachment.
+
+The runner copies the observer Python module, exact ASCII configuration and
+source profile into the immutable run. **On the notebook**, it verifies every
+actual tool/client/extension path with `validate_profile`, reads the actual
+pinned AMD64 PE, and requires byte-identical `config_bytes` regeneration.
+`read_config(Path_or_bytes)` is the shared pure decoder for controller,
+launcher and independent receipt readers: it returns a flat dictionary of
+target/client/config hashes, module name/size/timestamp, event/object/prefix
+budgets and ordered `{id,rva,post,mask}` sites. It does not invent executable
+sections. The initial integration accepts only the reviewed callback, worker,
+dispatcher, EnergyManager2 handler and clock entry RVAs, with return hooks
+disabled except an explicitly selected clock RETURN hook. Its RAX remains raw;
+synthetic hook safety is not vendor compatibility or a clock-contract proof.
+Prefixes remain bounded to 256 bytes; selecting an address as a
+read source does not establish its ABI role or UUID layout.
+
+Client and extension DLLs are separately hash-checked and snapshotted beneath
+the run's `entry\tools`; the staged profile retains their pins and points to
+those copies. The profile constructor itself does not copy files. Remote
+profile paths are never treated as readable controller-local paths or bypassed
+during notebook validation.
+
+`official_sim_runner.entry_inputs(request)` is a read-only notebook preflight:
+it verifies the original profile/config/source and actual PE without staging,
+launching or attaching. It accepts the controller's exact normalized legacy
+`after_first_calculation`/`wait_seconds` phase; named phases still require their
+finite `latest_seconds` windows. The 90-second entry-case limit is unchanged.
+
+The V5 `drmgr-entry` prototype uses schema-2 ENTRY-only records and no drwrap
+dependency. Its profile declares `supports_return=false`, so **every post hook,
+including clock RETURN, is rejected before launch**. V4 retains schema 1 and
+its separately documented opt-in clock hook. Normal V5 FP/SIMD/static-TLS
+console checks passed, but both late-attach console attempts failed: V5 is
+**not console-admitted/native-ready**. See the observer guide; no paired vendor
+V5 case or equivalence is claimed.
+
+Native entry replay for **every backend, including V4**, refuses to stage or launch unless the pinned profile contains
+literal `late_attach_verified: true`. Profile creation defaults to `false`;
+the existing diagnostic-only profiles, including ones missing the field, are
+blocked before application launch. **No native-late-admitted V4 or V5 profile exists.** This
+readiness gate does not prevent retaining blocked console/interrupted log
+diagnostics. Legacy V4 log parsing/console diagnostics and plain/drcov remain
+compatible; known-failing V4 native entry launch is no longer exempt.
+
+The PowerShell replay invokes the same existing launcher worker through
+`--record-launch REQUEST.json`. Every new run retains immutable raw
+`sanitized-launcher.stdout.log`, `sanitized-launcher.stderr.log` and
+`sanitized-launcher.json` with the worker's actual exit code, source/request
+hashes and precise failure reason. A worker that cannot start or times out has
+an explicitly unknown exit code, not a fabricated success. These diagnostics
+join the normal artifact manifest; pre-launch failures never imply a target
+was created. Older failed receipts are not rewritten to add missing logs.
+
+`entry\observations.jsonl` is separate from coverage logs. A zero-byte file is
+initialization readiness only. Cleanup uses the observer profile's exact
+client-0/argument-1 nudge with five-second DR and independent eight-second
+helper deadlines, labeled `PASSIVE_observer_exit_flush_not_live_snapshot`.
+This requests observer-client process exit/flush, **not** a drcov dump, live
+snapshot or normal vendor shutdown. Forced cleanup cannot establish a passing
+entry capture.
+
+The original `official-native-replay` identity/run ID and functional sample
+assertions are retained. The receipt adds `entry_logs` and `entry_observation`,
+including the exact `parse_log(expected=...)` identities/sites/budgets,
+validation status, counts, seen/missing site IDs and hash-bound `profile`,
+`configuration` and `parser_source` artifact references. Complete strict
+parsing and at least one actual context-readable ENTRY are required in
+addition to real post-attach clock/output proof. Empty, partial, altered or
+unknown-context observations remain blocked. Missing requested sites are
+explicit even when other entries were captured. Entry observations never
+become BB coverage, drcov `loop_established`, or an automatic UUID-binding claim.
+
 The pinned external launcher interface is supplied by the
 [coverage collector](native-sim-coverage.md). Target PID files, image hashes,
 creation time, session and launcher ancestry are checked; a launcher PID is
