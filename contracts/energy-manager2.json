@@ -233,6 +233,36 @@
       "required_case_ids": ["gui-nonfinite-overflow"]
     },
     {
+      "id": "storage-power-incompleteness",
+      "kind": "feedback",
+      "binding": {
+        "status": "known",
+        "path": "C[@Type='EnergyManager2']/Co[@K='Soc' or @K='MinSoc' or @K='MaxSpwr']/@Nc,@Def",
+        "reason": "Added static-feedback slice, not a rewrite of earlier snapshots: native callback0x140618e80, primary RTTI vtable+0x1358, property421=400+MaxSpwr index21. For valid unique connectors: Soc connected AND MaxSpwr unwired/default0 AND (MinSoc connected OR nonzero default). Soc/Spwr current values do not enter this predicate. CLI reports missing_storage_power without rejecting zero or prohibiting simulation; inconsistent bindings/counts are explicitly unknown. Fresh feedback assertions remain unverified: first case blocked before readback, five not_run; universal runtime-zero semantics remain unknown."
+      },
+      "source_evidence": [
+        {
+          "evidence_kind": "native",
+          "artifacts": [
+            {
+              "path": ".reverse-engineering\\native-simulator\\workstreams\\energy-closeout\\storage-feedback-static-proof-corrected.json",
+              "sha256": "40079d1fb106979b67fdbc59a58e40c369855d44970597eb6166feb5c0f4980f"
+            }
+          ]
+        }
+      ],
+      "required_case_ids": [
+        "cli-storage-power-feedback",
+        "unit-storage-power-feedback",
+        "storage-power-unwired-zero",
+        "storage-power-positive-default",
+        "storage-power-minsoc-unwired-zero",
+        "storage-power-soc-unwired",
+        "storage-power-maxspwr-wired-zero",
+        "storage-power-minsoc-wired-zero"
+      ]
+    },
+    {
       "id": "dirty-cancel-rollback",
       "kind": "feedback",
       "binding": {"status": "unknown", "reason": "Exploratory Cancel closed a dialog, but no accepted dirty edit was cancelled; rollback behavior not verified."},
@@ -264,6 +294,14 @@
     {"id": "gui-cancel-rollback", "capability_ids": ["dirty-cancel-rollback"], "condition": "Accepted dirty edit followed by Cancel", "evidence_kind": "gui_oracle", "procedure": "Future disposable dialog case must accept a changed field, Cancel, save and compare to preceding output.", "expected": "Currently unverified; prior exploratory Cancel is not counted as dirty rollback."},
     {"id": "gui-icon-edit", "capability_ids": ["load-icon-reference"], "condition": "Icon picker changes and invalid icon selection", "evidence_kind": "gui_oracle", "procedure": "Future owned offline icon picker oracle must save an independently identified selected reference.", "expected": "Currently not run; preserved icon identity is not CRUD parity."},
     {"id": "gui-all-deadline-values", "capability_ids": ["load-daily-deadline"], "condition": "Every deadline selector value including hourly values", "evidence_kind": "gui_oracle", "procedure": "Future GUI-save cases must independently bind native enum values2..27 and invalid boundaries.", "expected": "Currently not run beyond Sunset/Dusk; native enumeration is not complete GUI-save evidence."},
-    {"id": "gui-custom-markers", "capability_ids": ["load-name-customization", "load-mode-customization"], "condition": "Initially false Ncu/Anc then name/type edits", "evidence_kind": "gui_oracle", "procedure": "Future safe project must establish false-to-true marker transitions separately from native setter recovery.", "expected": "Currently not run; sample initially true so unchanged flags do not prove transition."}
+    {"id": "gui-custom-markers", "capability_ids": ["load-name-customization", "load-mode-customization"], "condition": "Initially false Ncu/Anc then name/type edits", "evidence_kind": "gui_oracle", "procedure": "Future safe project must establish false-to-true marker transitions separately from native setter recovery.", "expected": "Currently not run; sample initially true so unchanged flags do not prove transition."},
+    {"id": "cli-storage-power-feedback", "capability_ids": ["storage-power-incompleteness"], "condition": "Actual isolated CLI inspection/set/wire operations against synthetic input", "evidence_kind": "implementation", "procedure": "Execute tests\\ux\\energy-manager2\\test_storage_power_feedback.py with an explicitly pinned isolated --binary. Preserve the actual command output separately; do not copy old GUI passes into this snapshot.", "expected": "Read-only inspection reports missing_storage_power only for the dependency; positive/default-zero/wired-zero countercases differ; zero edits remain accepted and warnings do not become runtime prohibitions."},
+    {"id": "unit-storage-power-feedback", "capability_ids": ["storage-power-incompleteness"], "condition": "Native-backed finite-default/connection predicate with invalid/ambiguous storage", "evidence_kind": "unit_test", "procedure": "Execute config_edit::energy_tests::energy_storage_power Rust regressions; retain actual test output and exact source hashes in a newly derived runner, not earlier receipts.", "expected": "Six core countercases differ as recovered; current Soc changes do not alter feedback; omitted zero remains distinct; Nc/In inconsistency, malformed/zero references, duplicated bindings and invalid defaults stay explicitly unknown without speculative warning."},
+    {"id": "storage-power-unwired-zero", "capability_ids": ["storage-power-incompleteness"], "condition": "Soc49 connected, MinSoc50 unwired, MaxSpwr0 unwired, Spwr0", "evidence_kind": "gui_oracle", "procedure": "Two owned GUI launches were blocked before Energy feedback readback: startup recovery, then custom project-tree target unavailable through frozen UX. Resolve the deterministic page/block binding before further execution; retain blocked, not PASS. See tests\\ux\\energy-manager2\\storage-power-feedback-cases.json.", "expected": "MaxSpwr-specific incompleteness feedback is present; simulation is not declared prohibited."},
+    {"id": "storage-power-positive-default", "capability_ids": ["storage-power-incompleteness"], "condition": "Same connected Soc49/MinSoc50 with unwired MaxSpwr3", "evidence_kind": "gui_oracle", "procedure": "Execute the preregistered positive-default case with fresh owned native validation; currently not_run.", "expected": "This specific incompleteness feedback is not triggered; no whole-block completeness claim."},
+    {"id": "storage-power-minsoc-unwired-zero", "capability_ids": ["storage-power-incompleteness"], "condition": "Soc49 connected, MinSoc0 unwired, MaxSpwr0 unwired", "evidence_kind": "gui_oracle", "procedure": "Execute the preregistered legitimate-default-zero case with fresh owned native validation; currently not_run.", "expected": "This specific incompleteness feedback is not triggered; zero is not globally forbidden."},
+    {"id": "storage-power-soc-unwired", "capability_ids": ["storage-power-incompleteness"], "condition": "Soc49 default unwired, MinSoc50 unwired, MaxSpwr0 unwired", "evidence_kind": "gui_oracle", "procedure": "Execute the preregistered Soc-disconnected case with fresh owned native validation; currently not_run.", "expected": "This specific incompleteness feedback is not triggered; stored/current Soc values cannot substitute for a connection."},
+    {"id": "storage-power-maxspwr-wired-zero", "capability_ids": ["storage-power-incompleteness"], "condition": "Soc49 connected, MinSoc50 unwired, MaxSpwr connected to a zero source", "evidence_kind": "gui_oracle", "procedure": "Execute the preregistered wired-MaxSpwr-zero case with fresh owned native validation; currently not_run.", "expected": "This specific incompleteness feedback is not triggered; wired zero differs from unwired default zero."},
+    {"id": "storage-power-minsoc-wired-zero", "capability_ids": ["storage-power-incompleteness"], "condition": "Soc49 connected, MinSoc connected to a zero source, MaxSpwr0 unwired", "evidence_kind": "gui_oracle", "procedure": "Execute the preregistered wired-MinSoc-zero case with fresh owned native validation; currently not_run.", "expected": "This specific incompleteness feedback is present despite the zero current MinSoc source; no runtime-zero sentinel claim."}
   ]
 }

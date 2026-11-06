@@ -1,0 +1,66 @@
+{
+  "schema_version": 1,
+  "id": "energy-storage-power-incompleteness-countercases",
+  "application": {
+    "version": "17.2.10.21",
+    "sha256": "7b55e3ef18401574ab967c5c6a0140cd5a66dc728521ebba04ad53093577d8b3"
+  },
+  "scope": "Preregistered six-case validation batch for one recovered native feedback predicate; not a runtime-zero sentinel study or whole-block parity claim.",
+  "predicate": "With valid unique connectors: Soc connected AND MaxSpwr unconnected/default0 AND (MinSoc connected OR nonzero default). Current Soc and Spwr values do not enter this callback.",
+  "native_basis": "Hash-checked 0x140618e80 callback and on-disk AMD64 bytes; primary EnergyManager2 RTTI vtable+0x1358. Property builder0x14042e610 maps400+index21 to MaxSpwr property421.",
+  "precondition": "Frozen exact helper bytes, authorized interactive notebook actor/console session1, Default input desktop, owned PID/start/executable17.2.10.21/hash, foreground/ROI and foreign overlap checks; offline fence retained. Fixture/CLI/helper hashes must be frozen before each actual run.",
+  "procedure": "Fresh owned disposable copy per case. Before starting simulation, select only Energy Manager through deterministic admitted helpers and capture MaxSpwr/OBJECT NOT COMPLETELY CONFIGURED feedback. Close all owned processes. Do not infer missing feedback from OCR or failed inspection; retain blocked. No guessed clicks or foreign captures.",
+  "maximum_native_executions": 6,
+  "execution_status": "blocked",
+  "actual_gui_launches": 2,
+  "native_simulator_starts": 0,
+  "execution_evidence": {
+    "path": ".reverse-engineering\\native-simulator\\workstreams\\energy-closeout\\native-feedback-attempts.json",
+    "sha256": "02e7323f2aa2cf52d6800a83a28f28feba5b4bce7bb0cef3e854df0880e91e1e"
+  },
+  "blocker": "Explicit private-profile preflight verified the dedicated notebook, actor/console1, Default desktop, exact executable/backend hashes and two outbound fences. First launch hit recovery for a nonunique basename; no recovery input. Second unique fixture loaded the correct public project on Deckblatt, but its custom LxTreeCtrl id24702 exposes no UIA children/TreeItems and the frozen UX helper cannot select Energy Manager. One exact owned Project Trees button was invoked after guarded focus; no guessed clicks, foreign inputs/captures or helper edits. Both owned PIDs closed; lease returned. Coordinator must review a deterministic native page/block target binding before more GUI executions. Earlier actor/backend absence interpretation was erroneous and explicitly corrected in the retained derived proof.",
+  "cases": [
+    {
+      "id": "storage-power-unwired-zero",
+      "inputs": {"Soc_connected": true, "Soc": 49, "Spwr": 0, "MinSoc_connected": false, "MinSoc": 50, "MaxSpwr_connected": false, "MaxSpwr": 0},
+      "expected_feedback": "incomplete",
+      "purpose": "Reproduce the original native failing condition without declaring simulation prohibited.",
+      "status": "blocked"
+    },
+    {
+      "id": "storage-power-positive-default",
+      "inputs": {"Soc_connected": true, "Soc": 49, "Spwr": 0, "MinSoc_connected": false, "MinSoc": 50, "MaxSpwr_connected": false, "MaxSpwr": 3},
+      "expected_feedback": "not_triggered",
+      "purpose": "Positive default control clears this specific warning.",
+      "status": "not_run"
+    },
+    {
+      "id": "storage-power-minsoc-unwired-zero",
+      "inputs": {"Soc_connected": true, "Soc": 49, "Spwr": 0, "MinSoc_connected": false, "MinSoc": 0, "MaxSpwr_connected": false, "MaxSpwr": 0},
+      "expected_feedback": "not_triggered",
+      "purpose": "Legitimate zero defaults are not globally forbidden.",
+      "status": "not_run"
+    },
+    {
+      "id": "storage-power-soc-unwired",
+      "inputs": {"Soc_connected": false, "Soc": 49, "Spwr": 0, "MinSoc_connected": false, "MinSoc": 50, "MaxSpwr_connected": false, "MaxSpwr": 0},
+      "expected_feedback": "not_triggered",
+      "purpose": "Soc connection, not a stored/current numeric state, enables this predicate.",
+      "status": "not_run"
+    },
+    {
+      "id": "storage-power-maxspwr-wired-zero",
+      "inputs": {"Soc_connected": true, "Soc": 49, "Spwr": 0, "MinSoc_connected": false, "MinSoc": 50, "MaxSpwr_connected": true, "MaxSpwr": 0},
+      "expected_feedback": "not_triggered",
+      "purpose": "A wired zero-valued power source differs from an unwired zero default.",
+      "status": "not_run"
+    },
+    {
+      "id": "storage-power-minsoc-wired-zero",
+      "inputs": {"Soc_connected": true, "Soc": 49, "Spwr": 0, "MinSoc_connected": true, "MinSoc": 0, "MaxSpwr_connected": false, "MaxSpwr": 0},
+      "expected_feedback": "incomplete",
+      "purpose": "A connected MinSoc source activates the dependency even if its current value is zero.",
+      "status": "not_run"
+    }
+  ]
+}

@@ -34,6 +34,211 @@ fn first_id() -> &'static str {
     "b0000000-0000-0000-0000-000000000000"
 }
 
+fn storage_feedback_editor(
+    soc_connected: bool,
+    minimum_connected: bool,
+    minimum: &str,
+    maximum_connected: bool,
+    maximum: &str,
+) -> ConfigEditor {
+    let connection = |connected| {
+        if connected {
+            " Nc=\"1\"><In Input=\"c0000000-0000-0000-0000-000000000001\"/></Co>"
+        } else {
+            "/>"
+        }
+    };
+    let xml = String::from_utf8(fixture())
+        .unwrap()
+        .replace(
+            "<Co K=\"MinSoc\" Def=\"0\" U=\"soc-wire\"/>",
+            &format!(
+                "<Co K=\"MinSoc\" Def=\"{minimum}\" U=\"soc-wire\"{}",
+                connection(minimum_connected)
+            ),
+        )
+        .replace(
+            "<Co K=\"MaxSpwr\" U=\"storage-wire\"/>",
+            &format!(
+                "<Co K=\"MaxSpwr\" Def=\"{maximum}\" U=\"storage-wire\"{}\
+                 <Co K=\"Soc\" Def=\"49\" U=\"measured-soc\"{}",
+                connection(maximum_connected),
+                connection(soc_connected)
+            ),
+        )
+        .replace(
+            "</ControlList>",
+            "<C Type=\"Constant\" U=\"constant\"><Co K=\"Q\" Def=\"0\" U=\"c0000000-0000-0000-0000-000000000001\"/></C></ControlList>",
+        );
+    ConfigEditor::load(xml.as_bytes()).unwrap()
+}
+
+#[test]
+fn energy_storage_power_feedback_distinguishes_connections_from_values() {
+    for (soc, min_wire, minimum, max_wire, maximum, expected) in [
+        (
+            true,
+            false,
+            "50",
+            false,
+            "0",
+            EnergyStoragePowerFeedback::Missing,
+        ),
+        (
+            true,
+            false,
+            "50",
+            false,
+            "3",
+            EnergyStoragePowerFeedback::NotTriggered,
+        ),
+        (
+            true,
+            false,
+            "0",
+            false,
+            "0",
+            EnergyStoragePowerFeedback::NotTriggered,
+        ),
+        (
+            false,
+            false,
+            "50",
+            false,
+            "0",
+            EnergyStoragePowerFeedback::NotTriggered,
+        ),
+        (
+            true,
+            false,
+            "50",
+            true,
+            "0",
+            EnergyStoragePowerFeedback::NotTriggered,
+        ),
+        (
+            true,
+            true,
+            "0",
+            false,
+            "0",
+            EnergyStoragePowerFeedback::Missing,
+        ),
+    ] {
+        let mut editor = storage_feedback_editor(soc, min_wire, minimum, max_wire, maximum);
+        let before = editor.to_bytes().unwrap();
+        let inspection = editor.inspect_energy("Pilot").unwrap();
+        assert_eq!(inspection.storage_power_feedback, expected);
+        assert_eq!(
+            inspection
+                .diagnostics
+                .iter()
+                .filter(|diagnostic| diagnostic.code == "missing_storage_power")
+                .count(),
+            usize::from(expected == EnergyStoragePowerFeedback::Missing)
+        );
+        assert_eq!(editor.to_bytes().unwrap(), before);
+        let path = editor.require_one("Pilot").unwrap();
+        let block = editor.get_element_mut(&path);
+        let measured = block
+            .children
+            .iter_mut()
+            .filter_map(|node| node.as_mut_element())
+            .find(|co| co.attributes.get("K").map(String::as_str) == Some("Soc"))
+            .unwrap();
+        measured.attributes.insert("Def".into(), "100".into());
+        assert_eq!(
+            editor
+                .inspect_energy("Pilot")
+                .unwrap()
+                .storage_power_feedback,
+            expected
+        );
+    }
+}
+
+#[test]
+fn energy_storage_power_warning_does_not_ban_zero_or_mutate_connections() {
+    let mut editor = storage_feedback_editor(true, false, "50", false, "3");
+    editor
+        .set_energy_parameter("Pilot", EnergyParameter::MaximumStoragePower, "0")
+        .unwrap();
+    let inspection = editor.inspect_energy("Pilot").unwrap();
+    assert_eq!(
+        inspection.storage_power_feedback,
+        EnergyStoragePowerFeedback::Missing
+    );
+    assert_eq!(inspection.scalar_parameters[2].value.stored, None);
+    let diagnostic = inspection
+        .diagnostics
+        .iter()
+        .find(|diagnostic| diagnostic.code == "missing_storage_power")
+        .unwrap();
+    assert!(
+        diagnostic
+            .message
+            .contains("does not prohibit native simulation")
+    );
+    let saved = editor.to_bytes().unwrap();
+    assert!(
+        String::from_utf8_lossy(&saved).contains("Input=\"c0000000-0000-0000-0000-000000000001\"")
+    );
+    let mut reloaded = ConfigEditor::load(&saved).unwrap();
+    assert_eq!(
+        reloaded
+            .inspect_energy("Pilot")
+            .unwrap()
+            .storage_power_feedback,
+        EnergyStoragePowerFeedback::Missing
+    );
+    reloaded
+        .set_energy_parameter("Pilot", EnergyParameter::MinimumStateOfCharge, "0")
+        .unwrap();
+    assert_eq!(
+        reloaded
+            .inspect_energy("Pilot")
+            .unwrap()
+            .storage_power_feedback,
+        EnergyStoragePowerFeedback::NotTriggered
+    );
+}
+
+#[test]
+fn energy_storage_power_feedback_keeps_ambiguous_storage_explicitly_unknown() {
+    for replacement in [
+        "<Co K=\"MaxSpwr\" Def=\"NaN\" U=\"storage-wire\"/>",
+        "<Co K=\"MaxSpwr\" Def=\"0\" U=\"storage-wire\" Nc=\"-1\"/>",
+        "<Co K=\"MaxSpwr\" Def=\"0\" U=\"storage-wire\" Nc=\"1\"/>",
+        "<Co K=\"MaxSpwr\" Def=\"0\" U=\"storage-wire\"><In Input=\"source\"/></Co>",
+        "<Co K=\"MaxSpwr\" Def=\"0\" U=\"storage-wire\" Nc=\"1\"><In Input=\"source\"/></Co>",
+        "<Co K=\"MaxSpwr\" Def=\"0\" U=\"storage-wire\" Nc=\"1\"><In Input=\"00000000-0000-0000-0000-000000000000\"/></Co>",
+        "<Co K=\"MaxSpwr\" Def=\"0\" U=\"storage-wire\"/><Co K=\"MaxSpwr\" Def=\"3\"/>",
+    ] {
+        let bytes = storage_feedback_editor(true, false, "50", false, "0")
+            .to_bytes()
+            .unwrap();
+        let xml = String::from_utf8(bytes).unwrap();
+        let start = xml.find("<Co K=\"MaxSpwr\"").unwrap();
+        let end = start + xml[start..].find("/>").unwrap() + 2;
+        let mut changed = xml.clone();
+        changed.replace_range(start..end, replacement);
+        let editor = ConfigEditor::load(changed.as_bytes()).unwrap();
+        let before = editor.to_bytes().unwrap();
+        let inspection = editor.inspect_energy("Pilot").unwrap();
+        assert!(matches!(
+            inspection.storage_power_feedback,
+            EnergyStoragePowerFeedback::Unknown(_)
+        ));
+        assert!(
+            !inspection
+                .diagnostics
+                .iter()
+                .any(|diagnostic| diagnostic.code == "missing_storage_power")
+        );
+        assert_eq!(editor.to_bytes().unwrap(), before);
+    }
+}
+
 #[test]
 fn energy_builtin_icon_selection_uses_exact_membership_and_canonical_native_id() {
     let mut editor = editor();

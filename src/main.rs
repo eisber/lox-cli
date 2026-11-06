@@ -422,6 +422,11 @@ pub(crate) enum SetupCmd {
 
 #[derive(Subcommand)]
 pub(crate) enum ConfigCmd {
+    /// Read-only LightController2 storage inspection (no GUI/runtime parity)
+    Lighting {
+        #[command(subcommand)]
+        action: commands::config_cmd::lighting::LightingCmd,
+    },
     /// Validated EnergyManager2 storage pilot (no full GUI/runtime parity)
     Energy {
         #[command(subcommand)]

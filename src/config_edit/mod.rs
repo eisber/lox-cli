@@ -19,6 +19,9 @@ pub mod energy;
 mod energy_tests;
 pub mod icons;
 mod layout;
+pub mod lighting;
+#[cfg(test)]
+mod lighting_tests;
 mod properties;
 mod rooms;
 pub mod schema;

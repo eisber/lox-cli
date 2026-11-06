@@ -6,6 +6,7 @@ use std::fs;
 use std::time::Duration;
 
 pub(crate) mod energy;
+pub(crate) mod lighting;
 
 use crate::client::{LOXONE_EPOCH_SECS, LoxClient, USER_AGENT};
 use crate::commands::RunContext;
@@ -352,6 +353,7 @@ pub fn cmd_token(ctx: &RunContext, action: TokenCmd) -> Result<()> {
 pub fn cmd_config(ctx: &RunContext, action: ConfigCmd) -> Result<()> {
     match action {
         ConfigCmd::Energy { action } => energy::run(ctx, action)?,
+        ConfigCmd::Lighting { action } => lighting::run(ctx, action)?,
         ConfigCmd::Ls => {
             let cfg = Config::load()?;
             let backups = ftp::list_backups(&cfg)?;

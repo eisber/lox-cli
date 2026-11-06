@@ -110,3 +110,69 @@ Original contracts/results and old runner directories stay frozen.
   unverified. Numeric spelling/field cross-products and complete configuration
   scope still require review; the follow-up does not establish general CRUD or
   malformed-input equivalence. No production upload, restart or live call was used.
+
+## Storage-power incompleteness diagnostic
+
+`lox config energy inspect FILE BLOCK --output json` now exposes typed
+`storage_power_feedback` (`missing`, `not_triggered`, or `unknown` with a reason).
+The single `missing_storage_power` diagnostic follows the recovered Config
+17.2.10.21 callback, for valid unique connectors:
+
+```text
+Soc connected
+AND MaxSpwr unconnected, default 0
+AND (MinSoc connected OR MinSoc default nonzero)
+```
+
+This tests **connections and defaults**, not whether the current Soc is below
+MinSoc or what Spwr currently reports. A wired zero-valued MaxSpwr differs from
+an unwired zero default. An unwired zero MinSoc does not trigger the dependency;
+a connected zero-valued MinSoc does. Zero edits remain accepted. This warning
+neither prohibits simulation nor establishes a universal runtime-zero sentinel.
+
+Static proof independently decodes pinned on-disk PE instructions for
+`0x140618e80`, links EnergyManager2's primary RTTI vtable slot `+0x1358`, and
+recovers property ID `400 + connector index21 = 421` from `0x14042e610`.
+Connector `+0x38` is the connection count; `+0x50` is `Co/@Def`.
+The native reader uses `Nc`; inconsistent `Nc/In`, missing/duplicate bindings,
+invalid defaults and malformed/zero source IDs are explicitly unknown. This is
+not a general dangling-reference resolver or whole-block completeness check.
+
+The ignored static proof and freshly prepared six CLI fixture hashes live under
+`.reverse-engineering\native-simulator\workstreams\energy-closeout`. The first
+two prepared fixture hashes exactly match the original native zero-warning and
+positive-control fixtures. Their original receipts remain immutable; they are
+not fresh executions or proof of the additional four countercases.
+`storage-power-feedback-cases.json` declares the six native cases; its original
+preregistered bytes are retained separately in the ignored workstream directory.
+**No fresh feedback assertion passed.** Two GUI launches attempted the first
+case: a nonunique basename hit an owned recovery question without recovery input;
+the corrected unique name loaded the right public project on its cover page.
+After guarded focus and invoking the exact observed Project Trees button, the
+custom `LxTreeCtrl` (`24702`) exposed no UIA selection items or Energy Manager
+property controls. No guessed clicks or helper changes were attempted. The five
+remaining cases are not_run; both owned PIDs closed, no simulator started, and
+the GUI lease was returned. A deterministic native page/block target binding
+needs coordinator review before further GUI execution.
+
+The corrected retained preflight proves actor/console session1, Default desktop,
+the exact executable/backend hashes and two outbound fences on the dedicated
+notebook. An earlier empty-array result was incorrectly interpreted as missing
+backend/actor mismatch; that interpretation is explicitly corrected, not a
+remaining blocker. The original static proof stays immutable; the contract
+references its corrected derived proof and does not claim GUI parity.
+
+The new contract feedback capability references static proof only. Earlier
+capabilities and receipts are not relabeled or merged, and the overall contract
+remains incomplete. Exact new contract bytes require a new actual runner/result;
+old result hashes must not be patched to pretend they cover the new capability.
+
+Focused validation, using a private isolated Cargo target and actual binary:
+
+```powershell
+$env:CARGO_TARGET_DIR = "$PWD\.reverse-engineering\native-simulator\workstreams\energy-closeout\target"
+cargo test config_edit::energy_tests::
+cargo clippy --bin lox -- -D warnings
+cargo build
+python tests\ux\energy-manager2\test_storage_power_feedback.py --binary "$env:CARGO_TARGET_DIR\debug\lox.exe"
+```

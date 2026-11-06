@@ -186,8 +186,102 @@ pub struct EnergyInspection {
     pub loads: Vec<EnergyLoad>,
     pub load_edit_supported: bool,
     pub builtin_icon_catalog: IconCatalogProvenance,
+    pub storage_power_feedback: EnergyStoragePowerFeedback,
     pub diagnostics: Vec<Diagnostic>,
     pub limitations: Vec<&'static str>,
+}
+
+#[derive(Debug, Serialize, PartialEq, Eq)]
+#[serde(tag = "status", content = "reason", rename_all = "snake_case")]
+pub enum EnergyStoragePowerFeedback {
+    NotTriggered,
+    Missing,
+    Unknown(&'static str),
+}
+
+fn energy_connector<'a>(element: &'a Element, key: &str) -> Option<&'a Element> {
+    let mut connectors = element
+        .children
+        .iter()
+        .filter_map(XMLNode::as_element)
+        .filter(|co| co.name == "Co" && co.attributes.get("K").map(String::as_str) == Some(key));
+    let connector = connectors.next()?;
+    connectors.next().is_none().then_some(connector)
+}
+
+fn native_connection_count(connector: &Element) -> Option<usize> {
+    let inputs: Vec<_> = connector
+        .children
+        .iter()
+        .filter_map(XMLNode::as_element)
+        .filter(|child| child.name == "In")
+        .collect();
+    let count = match connector.attributes.get("Nc") {
+        Some(raw) => usize::try_from(raw.parse::<i32>().ok()?).ok()?,
+        None => 0,
+    };
+    // The native reader uses Nc, not the mere presence of In elements.
+    (count == inputs.len()
+        && inputs.iter().all(|input| {
+            input
+                .attributes
+                .get("Input")
+                .and_then(|raw| native_identity(raw))
+                .is_some_and(|id| !id.is_nil())
+        }))
+    .then_some(count)
+}
+
+fn storage_power_feedback(
+    element: &Element,
+    scalars: &[EnergyScalar],
+) -> EnergyStoragePowerFeedback {
+    use EnergyStoragePowerFeedback::{Missing, NotTriggered, Unknown};
+
+    let Some(soc) = energy_connector(element, "Soc") else {
+        return Unknown("Soc connector is absent or duplicated; no native connection is guessed.");
+    };
+    let Some(soc_connections) = native_connection_count(soc) else {
+        return Unknown("Soc Nc/In storage is inconsistent or invalid.");
+    };
+    if soc_connections == 0 {
+        return NotTriggered;
+    }
+    let Some(maximum) = energy_connector(element, "MaxSpwr") else {
+        return Unknown("MaxSpwr connector is absent or duplicated.");
+    };
+    let Some(maximum_connections) = native_connection_count(maximum) else {
+        return Unknown("MaxSpwr Nc/In storage is inconsistent or invalid.");
+    };
+    if maximum_connections > 0 {
+        return NotTriggered;
+    }
+    let scalar = |key: &str| {
+        scalars
+            .iter()
+            .find(|scalar| scalar.key == key)
+            .and_then(|scalar| scalar.value.effective)
+    };
+    let Some(maximum_value) = scalar("MaxSpwr") else {
+        return Unknown("MaxSpwr default is invalid or ambiguous.");
+    };
+    if maximum_value > 0.0 {
+        return NotTriggered;
+    }
+    let Some(minimum) = energy_connector(element, "MinSoc") else {
+        return Unknown("MinSoc connector is absent or duplicated.");
+    };
+    let Some(minimum_connections) = native_connection_count(minimum) else {
+        return Unknown("MinSoc Nc/In storage is inconsistent or invalid.");
+    };
+    if minimum_connections > 0 {
+        return Missing;
+    }
+    match scalar("MinSoc") {
+        Some(0.0) => NotTriggered,
+        Some(_) => Missing,
+        None => Unknown("MinSoc default is invalid or ambiguous."),
+    }
 }
 
 fn stored<T: Clone>(
@@ -350,6 +444,14 @@ impl ConfigEditor {
                 value,
             });
         }
+        let storage_power_feedback = storage_power_feedback(element, &scalar_parameters);
+        if storage_power_feedback == EnergyStoragePowerFeedback::Missing {
+            diagnostics.push(Diagnostic::new(
+                "missing_storage_power",
+                "EnergyManager2/Co[K=MaxSpwr]/@Def",
+                "Soc is connected and MinSoc is connected or nonzero, but MaxSpwr is unconnected and zero. Config 17.2.10.21 marks this incomplete. Set a positive MaxSpwr or connect its power input; zero remains valid otherwise. This feedback does not prohibit native simulation.",
+            ));
+        }
         let mut loads = Vec::new();
         for (priority, position) in load_positions(element).into_iter().enumerate() {
             let load = element.children[position].as_element().unwrap();
@@ -460,6 +562,7 @@ impl ConfigEditor {
             loads,
             load_edit_supported,
             builtin_icon_catalog: catalog.catalog.clone(),
+            storage_power_feedback,
             diagnostics,
             limitations: vec![
                 "Bindings recovered for Config 17.2.10.21; CLI validation is not identical to GUI prefix filtering.",
@@ -470,6 +573,7 @@ impl ConfigEditor {
                 "Name/mode setters mark Ncu/Anc, including unchanged values; observed GUI transitions retain customization markers on revert.",
                 "Integer CLI minutes use checked signed 32-bit seconds; fractional/scientific input and GUI overflow are not emulated.",
                 "MaxSpwr=0 runtime meaning remains unverified. Inspection is not an export/reapply format.",
+                "Storage-power feedback is the recovered Config 17.2.10.21 condition only, not whole-block completeness. It uses connections/defaults, not current Soc or Spwr values; malformed Nc/In or absent/duplicate bindings are explicitly unknown. Fresh native countercases remain pending.",
             ],
         }
     }
