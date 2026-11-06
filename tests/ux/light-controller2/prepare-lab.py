@@ -1,9 +1,16 @@
-"""Prepare an independently authored disposable document; never drives a desktop."""
+"""Prepare authored lighting in a pinned public sample envelope; never drives a desktop.
+
+The former tiny synthetic envelope did not save natively. Keep the public
+default user/permission and periphery structures intact, including their public
+demo password metadata: stripping it can save once but fails native validation
+after reopening. This is not a production connection or a native parity claim.
+"""
 
 import argparse
 import hashlib
 import json
 from pathlib import Path
+import re
 import subprocess
 import sys
 import xml.etree.ElementTree as ET
@@ -12,6 +19,8 @@ import xml.etree.ElementTree as ET
 ROOT = Path(__file__).resolve().parents[3]
 PIN = "f2244a8abcce44cf51955f2f3a4dd30c2aeb4a7c8b52ad14ee0ebb751e49ef99"
 ORIGINAL_FIXTURE_SHA256 = "33dbc7a366e2017ab7f74842b206daf08ecec1ac16dae5188c017857a2b5948f"
+PUBLIC_ENVELOPE = ROOT / "tests" / "eval" / "golden" / "configs" / "Hotwater_Heating_Rod.Loxone"
+PUBLIC_ENVELOPE_SHA256 = "01bdfd27e0d1cf526e1c5bd49784750df22f639f513ae809e8c5c6511b4bac94"
 BLOCK_TITLE = "Lighting Slice Fixture 20261106"
 PAGE_TITLE = "Lighting Slice Page"
 ROOM_TITLE = "Lighting Slice Room"
@@ -25,33 +34,36 @@ def native_id(index):
     return f"1b1e0000-0000-{index:04x}-ffff000000000000"
 
 
-def seed():
-    # This envelope is authored here, not copied from a native or production file.
-    root = ET.Element("ControlList", Version="267", LxAV="84", NextObj="512", NextConst="1")
-    document = ET.SubElement(
-        root, "C", Type="Document", V="17021021", U=native_id(1),
-        Title="Disposable Lighting Slice Lab 20261106", ConfigVersion="17021021",
-        SPSfreq="100", OpenIsHigh="false",
-    )
-    ET.SubElement(document, "C", Type="LoxCaption", V="175", U=native_id(2),
-                  Title="Symbols", WF="16384", CaptionType="5", SubType="5")
-    categories = ET.SubElement(document, "C", Type="CategoryCaption", V="175",
-                               U=native_id(3), Title="Categories", WF="16384")
+def seed(envelope=PUBLIC_ENVELOPE):
+    data = envelope.read_bytes()
+    if hashlib.sha256(data).hexdigest() != PUBLIC_ENVELOPE_SHA256:
+        raise ValueError("Only the pinned public Hotwater sample may supply the envelope.")
+    root = ET.fromstring(data)
+    document = root.find("C")
+    document.set("Title", "Disposable Lighting Slice Lab 20261106")
+    categories = next(n for n in document if n.get("Type") == "CategoryCaption")
     ET.SubElement(categories, "C", Type="Category", V="175", U=native_id(4),
                   Title="Lighting Lab", WF="16384")
-    places = ET.SubElement(document, "C", Type="PlaceCaption", V="175",
-                          U=native_id(5), Title="Rooms", WF="16384")
+    places = next(n for n in document if n.get("Type") == "PlaceCaption")
     ET.SubElement(places, "C", Type="Place", V="175", U=native_id(6),
                   Title=ROOM_TITLE, WF="16384")
-    # All-zero synthetic serial/address: no physical Miniserver, credentials or peers.
-    ET.SubElement(document, "C", Type="LoxLIVE", V="175", U=native_id(7),
-                  Title="Offline Unconnected Lab", WF="16384",
-                  Serial="000000000000", IntAddr="0.0.0.0", ExtAddr="")
+    server = next(n for n in document if n.get("Type") == "LoxLIVE")
+    server.set("IntAddr", "")
+    server.set("ExtAddr", "")
+    for node in list(document):
+        if node.get("Type") == "Program":
+            document.remove(node)
     program = ET.SubElement(document, "C", Type="Program", V="175", U=native_id(8),
-                            Title="Lighting Slice Program", Ref=native_id(7), WF="16384")
+                            Title="Lighting Slice Program", Ref=server.get("U"), WF="16384")
     page = ET.SubElement(program, "C", Type="Page", V="175", U=native_id(9),
                          Title=PAGE_TITLE, WF="16384")
     ET.SubElement(page, "IoData", Pr=native_id(6), Cr=native_id(4))
+    identities = {n.get("U") for n in root.iter() if n.get("U")}
+    for node in root.iter():
+        source = node.get("Input")
+        if source and re.fullmatch(r"[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{16}", source, re.I) and source not in identities:
+            del node.attrib["Input"]
+    document.set("NumO", str(len(list(root.iter("C")))))
     ET.indent(root, space="\t")
     text = '<?xml version="1.0" encoding="utf-8"?>\n' + ET.tostring(root, encoding="unicode")
     return b"\xef\xbb\xbf" + (text + "\n").replace("\n", "\r\n").encode("utf-8")
@@ -147,6 +159,12 @@ def main():
             run("set-mood-color", project, f"uuid:{block_uuid}", "--mood", sid,
                 "--output-index", index, "--color", raw)
     run("layout", project, response="text")
+    tree = ET.fromstring(project.read_bytes().decode("utf-8-sig"))
+    tree.find("C").set("NumO", str(len(list(tree.iter("C")))))
+    ET.indent(tree, space="\t")
+    project.write_bytes(b"\xef\xbb\xbf" + (
+        '<?xml version="1.0" encoding="utf-8"?>\n' + ET.tostring(tree, encoding="unicode") + "\n"
+    ).replace("\n", "\r\n").encode("utf-8"))
     run("validate", project, writes=False)
     inspection = run("lighting", "inspect", project, f"uuid:{block_uuid}", writes=False)
     if inspection["gui_verified"] or inspection["status"] != "read_only_unverified":
@@ -180,8 +198,16 @@ def main():
         "project": {
             "path": str(project), "sha256": digest(project),
             "scaffolding_sha256": scaffolding_sha256,
-            "independently_authored": True, "contains_production_data": False,
-            "document_uuid": native_id(1), "page_uuid": native_id(9),
+            "independently_authored": False, "authored_lighting_program": True,
+            "contains_production_data": False,
+            "public_envelope": {
+                "path": str(PUBLIC_ENVELOPE.relative_to(ROOT)),
+                "sha256": PUBLIC_ENVELOPE_SHA256,
+                "public_demo_password_metadata_preserved": True,
+                "connection_addresses_cleared": True,
+                "exact_new_output_native_roundtrip": "pending-not-verified-by-template-control",
+            },
+            "document_uuid": tree.find("C").get("U"), "page_uuid": native_id(9),
             "block_uuid": block_uuid, "block_title": BLOCK_TITLE,
             "connector_count": len(find("LightController2", BLOCK_TITLE).findall("Co")),
             "mood_count": len(inspection["moods"]),
