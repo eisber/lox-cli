@@ -291,18 +291,21 @@ DR_EXPORT void
 dr_client_main(client_id_t id, int argc, const char *argv[])
 {
     file_t config;
-    char text[CONFIG_BYTES], *line, *next;
+    char *text, *line, *next;
     ssize_t length;
     uint i, fields;
     dr_module_iterator_t *modules;
     if (argc != 4 || strlen(argv[3]) != 64)
         fail("expected CONFIG OUTPUT CONFIG_SHA256");
+    text = dr_global_alloc(CONFIG_BYTES);
+    if (text == NULL)
+        fail("cannot allocate config buffer");
     config = dr_open_file(argv[1], DR_FILE_READ);
     if (config == INVALID_FILE)
         fail("cannot open config");
-    length = dr_read_file(config, text, sizeof(text) - 1);
+    length = dr_read_file(config, text, CONFIG_BYTES - 1);
     dr_close_file(config);
-    if (length <= 0 || length == sizeof(text) - 1)
+    if (length <= 0 || length == CONFIG_BYTES - 1)
         fail("empty or oversized config");
     text[length] = '\0';
     line = text;
@@ -338,6 +341,7 @@ dr_client_main(client_id_t id, int argc, const char *argv[])
     }
     if (site_count == 0)
         fail("no sites");
+    dr_global_free(text, CONFIG_BYTES);
     memcpy(config_sha, argv[3], 65);
     lock = dr_mutex_create();
     if (!drmgr_init())

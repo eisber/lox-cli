@@ -19,7 +19,9 @@ Controller and notebook preflight reject every `post=1` configuration for V5.
 Native entry replay for **every backend, including V4**, requires literal `late_attach_verified: true`
 in the pinned profile **before staging or application launch**. Profile
 creation defaults this field to `false`; missing, false, numeric or string
-values cannot admit native replay. No native-late-admitted V4 or V5 profile currently exists.
+values cannot admit native replay. The original CRT-linked V4/V5 profiles remain
+unadmitted; a separately built CRT-free V5 profile now has a complete console
+proof and one admitted native case.
 An immutable unadmitted profile copy may materialize `false`, but existing
 proof profiles must not be rewritten. Console/file-only diagnostics remain
 available with unadmitted profiles; V4 log parsing/console diagnostics and
@@ -36,12 +38,59 @@ RETURN records are invalid for schema 2. Schema-1 V4 parsing remains separate.
 The new synthetic fixture checks real registers/caller/prefixes plus XMM0
 arguments/results, XMM6–15, nonvolatile GPRs, a live x87 sentinel, MXCSR and
 main/native-timer-thread static TLS. Its normal-launch, bad-read, budget and
-nudge-exit checks passed. **Two late-attach console attempts failed**, the
+nudge-exit checks passed. **Two original late-attach console attempts failed**, the
 diagnostic repeat retaining actual owned target and attacher exit codes
-`0xc0000005`. Thus **V5 is not console-admitted or native-ready**. No vendor
-V5 GUI case is established. The underlying late-attach transparency failure
-remains unresolved; a normal-only proof cannot substitute for the required
-late-attach gate. No protection/security setting was weakened.
+`0xc0000005`. Those receipts remain unadmitted. The isolation work below resolved
+this failure without weakening protection settings or replacing the readiness
+gate. A normal-only proof still cannot substitute for late-attach evidence.
+
+### CRT-free build and verified late attachment
+
+The SDK defaults `DynamoRIO_USE_LIBC` to ON. Its documented OFF setting avoids
+CRT startup and reduces client transparency corner cases. Both custom no-op and
+drmgr-only CRT-linked DLLs cleared `GS:[0x58]` on the fixture's main and native
+timer threads after late attachment. Client-free DynamoRIO and bundled drcov
+completed the same fixture without changing its TLS markers. The custom
+controls built with `DynamoRIO_USE_LIBC OFF` also preserved TLS and completed.
+
+The observer now uses that SDK setting. Its temporary config buffer uses the
+DR heap rather than a large stack array requiring the CRT's `__chkstk`. No stack
+probe, application protection, CFG or CET setting is disabled as a workaround.
+The resulting client has no DLL entry point/CRT startup. Old binaries, sources,
+profiles, failed receipts and the controlled build comparison remain private
+and immutable.
+
+The CRT-free observer passed the complete normal/late console proof: real
+register/caller/prefix checks, FP/SIMD/GPR/x87/MXCSR/TLS controls, read failures,
+event/object limits and public nudge exit/flush. A new profile binds that proof
+before setting `late_attach_verified: true`; the old profile is not rewritten.
+One Config case then passed actual post-attach clock/output admission and the
+independent two-plain/one-observed equivalence gate.
+
+### Repeatable isolation matrix
+
+`scripts\native-sim-isolate.py` runs only the exact pinned independently authored
+console fixture in the authorized notebook's Session 0:
+
+```powershell
+python scripts\native-sim-isolate.py --profile PRIVATE-OBSERVER.json `
+  --clients PRIVATE-ISOLATION-CLIENTS.json --fixture PRIVATE\observer_fixture.exe `
+  --output NEW-PRIVATE-MATRIX-DIRECTORY
+```
+
+It compares native control, client-free DynamoRIO, bundled drcov, a no-op custom
+client, drmgr-only and the observer, each with normal startup and late attach.
+Each case retains actual exit codes from held handles, raw output, bounded TLS
+slot/marker snapshots from both fixture threads, component hashes and cleanup.
+Only the fixture reads the trigger/probe files.
+
+The optional application-side SDK query cannot find the privately loaded DR
+module in these runs. That is explicitly unavailable, not evidence of missing
+instrumentation or a fabricated success. Native/observer cases can pass their
+appropriate controls; other successful fixture cases are labelled `observed`
+without a per-thread code-cache claim. The observer additionally requires exact
+entry/caller/prefix and two-thread FP-entry evidence. No matrix row alone admits
+a vendor GUI case.
 
 The remainder documents the preserved V4 drwrap interface and schema-1
 evidence; it must not be interpreted as V5 RETURN support.

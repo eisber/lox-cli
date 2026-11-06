@@ -149,14 +149,16 @@ The V5 `drmgr-entry` prototype uses schema-2 ENTRY-only records and no drwrap
 dependency. Its profile declares `supports_return=false`, so **every post hook,
 including clock RETURN, is rejected before launch**. V4 retains schema 1 and
 its separately documented opt-in clock hook. Normal V5 FP/SIMD/static-TLS
-console checks passed, but both late-attach console attempts failed: V5 is
-**not console-admitted/native-ready**. See the observer guide; no paired vendor
-V5 case or equivalence is claimed.
+console checks passed, but both original CRT-linked late-attach attempts failed.
+Those profiles remain unadmitted. The separately built CRT-free V5 now passes
+the complete console proof and one native equivalence case; see the observer
+guide for the controlled build comparison and the new proof-bound profile.
 
 Native entry replay for **every backend, including V4**, refuses to stage or launch unless the pinned profile contains
 literal `late_attach_verified: true`. Profile creation defaults to `false`;
 the existing diagnostic-only profiles, including ones missing the field, are
-blocked before application launch. **No native-late-admitted V4 or V5 profile exists.** This
+blocked before application launch. Only a new profile bound to the CRT-free
+console proof is admitted; old diagnostic profiles remain blocked. This
 readiness gate does not prevent retaining blocked console/interrupted log
 diagnostics. Legacy V4 log parsing/console diagnostics and plain/drcov remain
 compatible; known-failing V4 native entry launch is no longer exempt.

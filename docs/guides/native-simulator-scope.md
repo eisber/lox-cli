@@ -126,6 +126,26 @@ v5 alternative also fails a stronger late-attach console TLS control while
 passing normal launch. The fault location is known; the underlying cause and
 a transparent late-attach solution are not.
 
+### Admitted CRT-free native binding
+
+A separately built CRT-free observer resolved the late-attach failure and
+passed the full console proof and one fresh native Energy case. Independent
+plain/observed joining admits sampled output equivalence. The capture verifies
+962 callback-to-worker pointer/tail-return associations and 961 worker-document
+dispatcher associations, using the reviewed timer vtable and call return RVA.
+
+All 19 recorded Energy entries identify one primary object whose decoded UUID
+matches independent inspection of the pinned fixture. Its vtable RVA is
+`0x102dd10`; captured return RVA `0x15fb83` identifies the reviewed `+0x50`
+dispatch site. RDX is the expected frame at RVA `0x19ac930`, and its `+0x38`
+u64 clock advances across the sampled entries. The clock-reader entry is also
+observed, without inventing unsupported RETURN/RAX capture.
+
+The 4,096-event budget drops 22,807 later observations explicitly. These are
+positive witnesses for this one fixture/interval, not complete call traces,
+the second dispatcher callsite's execution, universal object layouts, all
+handler behavior, or engine recovery/coverage.
+
 ## Reproducible local queries
 
 No target execution, GUI, Miniserver, hosted analysis or recurring work is used.

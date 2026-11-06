@@ -109,17 +109,30 @@ arguments, object UUID attribution, timing equivalence, or a recovered engine.
 Missing sites and dropped events remain explicit. Observer disagreement cannot
 silently replace or invalidate a separately established drcov comparison.
 
-No native entry-observer equivalence has been admitted. The v4 vendor probes
+The original v4 vendor probes
 terminated before the post-attach clock/output gate; exact application errors
 locate an access violation at the dispatcher's TLS-chain dereference. The
 entry-only v5 alternative passes normal console FP/SIMD/GPR/x87/MXCSR/TLS
 controls, but fails the required late-attach console control with
-`0xc0000005`. The underlying cause remains unknown. These failures are retained,
+`0xc0000005`. These failures are retained,
 not counted as recovered behavior or transparent native instrumentation.
 
 V2 backend/profile identities are checked separately from legacy wrapped-site
 logs. A passing v2 receipt additionally requires explicit admitted late-attach
 transparency; normal-launch success cannot substitute for that prerequisite.
+
+The CRT-free observer has now passed a complete console proof and one fresh
+native Energy case. Independent joining with the two original plain executions
+establishes `entry_observer_equivalence_established: true`. This remains separate
+from the mapped drcov loop and leaves `engine_complete: false`.
+
+The native interval records 4,096 entries: 962 callback, 962 timer worker, 961
+dispatcher, 1,192 clock-reader and 19 EnergyManager2 entries. The fixed budget
+drops another 22,807 events explicitly; these are not complete invocation totals.
+Sampled timer/document/control/UUID/frame relationships match the reviewed
+layout. The sampled frame clock advances 9,041 ms, and independent post-attach
+clock images advance four native seconds over 3,791 ms. No complete trace,
+all-block behavior or engine coverage percentage is inferred.
 
 ### Bounded file-only output recognition
 
