@@ -70,6 +70,31 @@ def parse_literal_tsv(text, image_size):
     return {**word, "value": {"Ein": 1, "Aus": 0}[word["text"]]}
 
 
+def literal_consensus(candidates):
+    _require(len(candidates) == 2, "Both fixed native literal candidates are required.")
+    words = []
+    for candidate in candidates:
+        rows = candidate["words"]
+        _require(len(rows) <= 1, "A native literal candidate contains multiple words.")
+        if rows:
+            word = rows[0]
+            confidence = word.get("confidence")
+            _require(type(confidence) in (int, float) and math.isfinite(confidence)
+                     and 0 <= confidence <= 100, "Invalid native literal candidate confidence.")
+            _require(word["text"] in ("Ein", "Aus") or word["confidence"] < 90,
+                     "A high-confidence non-state word contradicts literal admission.")
+            words.append(word)
+    known = [word for word in words if word["text"] in ("Ein", "Aus")]
+    _require(len({word["text"] for word in known}) <= 1, "Native literal candidates disagree.")
+    admitted = [word for word in known if word["confidence"] >= 90]
+    _require(admitted, "No exact native literal meets the unchanged confidence threshold.")
+    return {
+        "text": admitted[0]["text"],
+        "confidence": min(word["confidence"] for word in admitted),
+        "value": {"Ein": 1, "Aus": 0}[admitted[0]["text"]],
+    }
+
+
 def parse_header_tsv(text, image_size):
     words = _parse_words(text, image_size)
     _require([word["text"] for word in words] == ["Energy", "Manager"]
@@ -87,7 +112,7 @@ def parse_clock_tsv(text, image_size):
     return {**words[0], "seconds_since_midnight": hours * 3600 + minutes * 60 + seconds}
 
 
-def _prepare_image(image_path, box):
+def _prepare_image(image_path, box, preprocessing="minimum-v1"):
     try:
         from PIL import Image, ImageOps, __version__ as pillow_version
     except ImportError as error:
@@ -101,8 +126,18 @@ def _prepare_image(image_path, box):
                  "Native output rectangle is outside the actual bitmap.")
         _require((right - left) * (bottom - top) <= 100_000, "Native output rectangle is too large.")
         crop = source.crop(tuple(box)).convert("RGB")
+        pixels = list(crop.getdata())
         gray = Image.new("L", crop.size)
-        gray.putdata([grayscale_pixel(pixel) for pixel in crop.getdata()])
+        gray.putdata([grayscale_pixel(pixel) for pixel in pixels])
+        if preprocessing == "luminance75-v2":
+            clean = Image.new("RGB", crop.size)
+            clean.putdata([
+                (255, 255, 255) if green > red + 30 and green > blue + 30 else (red, green, blue)
+                for red, green, blue in pixels
+            ])
+            gray = Image.blend(gray, ImageOps.grayscale(clean), 0.75)
+        else:
+            _require(preprocessing == "minimum-v1", "Unsupported fixed OCR preprocessing.")
         processed = ImageOps.expand(gray.resize(
             (gray.width * 4, gray.height * 4), Image.Resampling.BICUBIC
         ), border=24, fill="white")
@@ -119,7 +154,8 @@ def _pinned_path(profile, prefix):
     return path, expected
 
 
-def _recognize(image_path, box, profile, output_dir, language, model_prefix, parse_result, kind):
+def _recognize(image_path, box, profile, output_dir, language, model_prefix, parse_result, kind,
+               preprocessing="minimum-v1"):
     _require(isinstance(profile, dict) and type(profile.get("schema_version")) is int
              and profile["schema_version"] == 1
              and profile.get("kind") == "native-tesseract-ocr-profile"
@@ -130,7 +166,7 @@ def _recognize(image_path, box, profile, output_dir, language, model_prefix, par
     source = Path(image_path).resolve(strict=True)
     _require(source.is_file() and source.stat().st_size <= 64 * 1024 * 1024, "Native image is missing or oversized.")
     source_hash = _digest(source)
-    processed, original_size, pillow_version = _prepare_image(source, box)
+    processed, original_size, pillow_version = _prepare_image(source, box, preprocessing)
     output = Path(output_dir).resolve()
     output.mkdir(parents=True, exist_ok=False)
     image = output / "processed.png"
@@ -140,7 +176,7 @@ def _recognize(image_path, box, profile, output_dir, language, model_prefix, par
     environment.update({"TMP": str(output), "TEMP": str(output)})
     command = [
         str(executable), str(image), "stdout", "--tessdata-dir", str(model.parent),
-        "-l", language, "--psm", "7", "tsv",
+        "-l", language, "--psm", "7", "-c", "tessedit_create_tsv=1",
     ]
     try:
         result = subprocess.run(
@@ -160,7 +196,10 @@ def _recognize(image_path, box, profile, output_dir, language, model_prefix, par
         "schema_version": 1, "kind": kind,
         "source": {"path": str(source), "sha256": source_hash, "image_size": original_size, "box": list(box)},
         "engine": {"name": "tesseract", "executable_sha256": executable_hash, "model_sha256": model_hash,
-                   "language": language, "recipe": "minimum-rgb-green-wire-cleanup-4x-bicubic-pad24-psm7-v1",
+                   "language": language, "recipe": (
+                       "minimum-rgb-green-wire-cleanup-4x-bicubic-pad24-psm7-v1" if preprocessing == "minimum-v1"
+                       else "luminance75-minimum-rgb-green-wire-cleanup-4x-bicubic-pad24-psm7-v2"),
+                   "preprocessing": preprocessing,
                    "pillow_version": pillow_version, "python_version": platform.python_version(),
                    "observer_source_sha256": _digest(__file__)},
         **word,
@@ -177,8 +216,48 @@ def _recognize(image_path, box, profile, output_dir, language, model_prefix, par
 
 def recognize_literal(image_path, box, profile, output_dir):
     """Return actual recognized text/value, never an expected scenario value."""
-    return _recognize(image_path, box, profile, output_dir, "deu", "model",
-                      parse_literal_tsv, "native-output-ocr")
+    _require(isinstance(profile, dict), "Unsupported native OCR profile.")
+    recipe = profile.get("literal_recipe", "minimum-v1")
+    if recipe == "minimum-v1":
+        return _recognize(image_path, box, profile, output_dir, "deu", "model",
+                          parse_literal_tsv, "native-output-ocr")
+    _require(recipe == "dual-gray-tight-v2", "Unsupported native literal recipe.")
+    _require(len(box) == 4 and all(type(value) is int for value in box),
+             "Expected an integer literal rectangle.")
+    left, top, right, bottom = box
+    _require(right - left in (25, 27) and bottom - top in (17, 18),
+             "The dual-gray pilot requires its calibrated full literal box.")
+    _pinned_path(profile, "executable")
+    _pinned_path(profile, "model")
+    output = Path(output_dir).resolve()
+    output.mkdir(parents=True, exist_ok=False)
+    candidates = []
+    for preprocessing in ("minimum-v1", "luminance75-v2"):
+        candidate = _recognize(
+            image_path, (left, top, right - 3, bottom), profile, output / preprocessing,
+            "deu", "model", lambda text, size: {"words": _parse_words(text, size)},
+            "native-output-ocr-candidate", preprocessing,
+        )
+        candidates.append(candidate)
+    _require(candidates[0]["source"] == candidates[1]["source"],
+             "Native source changed between fixed OCR candidates.")
+    admitted = literal_consensus(candidates)
+    artifacts = []
+    for candidate in candidates:
+        artifacts.extend(candidate["artifacts"])
+        artifacts.append({"path": candidate["record_path"], "sha256": candidate["record_sha256"]})
+    observation = {
+        "schema_version": 1, "kind": "native-output-ocr",
+        "source": {**candidates[0]["source"], "requested_box": list(box), "right_inset_pixels": 3},
+        "engine": {**candidates[0]["engine"], "recipe": recipe,
+                   "fixed_candidates": ["minimum-v1", "luminance75-v2"]},
+        **admitted, "candidates": candidates, "artifacts": artifacts,
+    }
+    record = output / "observation.json"
+    with record.open("x", encoding="utf-8") as file:
+        json.dump(observation, file, indent=2, allow_nan=False)
+        file.write("\n")
+    return {**observation, "record_path": str(record), "record_sha256": _digest(record)}
 
 
 def recognize_header(image_path, candidate_box, profile, output_dir):

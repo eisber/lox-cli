@@ -57,6 +57,13 @@ def finite_scalar(value):
         return False
 
 
+def clock_seconds(value):
+    require(isinstance(value, str) and re.fullmatch(r"(?:[01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]", value),
+            "A declared native clock window requires an actual HH:MM:SS reading.")
+    hours, minutes, seconds = (int(part) for part in value.split(":"))
+    return hours * 3600 + minutes * 60 + seconds
+
+
 def baseline(latest_path):
     latest = read_json(latest_path)
     binary = latest["binaries"]["LoxoneConfig.exe"]
@@ -150,8 +157,16 @@ def receipt(path, root):
         require(name not in seen or seen[name] == reference["sha256"], "Conflicting artifact identity.")
         seen[name] = reference["sha256"]
     definition = case.get("definition")
-    check_artifact(definition, root)
+    definition_path = check_artifact(definition, root)
+    contract = read_json(definition_path)
     require(definition["sha256"] == case["sha256"], "Case definition bytes do not match the case hash.")
+    require(contract.get("id") == case["id"], "Case definition and receipt IDs differ.")
+    if "application" in contract:
+        require(object_field(contract, "application").get("sha256") == application["sha256"],
+                "Case definition belongs to a different application.")
+    if "fixture_sha256" in contract:
+        require(contract["fixture_sha256"] == case["fixture_sha256"],
+                "Case definition belongs to a different fixture.")
     require(case["fixture_sha256"] in seen.values(), "Fixture bytes are not bound to the run artifacts.")
     execution = object_field(record, "execution")
     run_id = execution.get("run_id")
@@ -163,6 +178,7 @@ def receipt(path, root):
     observations = record.get("observations", [])
     require(isinstance(observations, list), "Native observations must be an array.")
     phases = {}
+    samples = {}
     for observation in observations:
         require(isinstance(observation, dict), "Native observation must be an object.")
         phase = observation.get("phase")
@@ -182,9 +198,44 @@ def receipt(path, root):
         for reference in evidence:
             bound_artifact(reference, seen, root, "Output evidence is not bound to the receipt.")
         phases[phase] = outputs
+        samples[phase] = observation
     if execution["status"] == "pass":
         require(execution.get("native_running_verified") is True and observations,
                 "Passing receipt did not establish actual native execution and output.")
+        if "expected_outputs" in contract:
+            expected = object_field(contract, "expected_outputs")
+            require(expected, "A passing case must declare at least one output assertion.")
+            for phase, outputs in expected.items():
+                require(isinstance(phase, str) and phase in phases and isinstance(outputs, dict) and outputs,
+                        "Passing receipt omits a declared assertion phase.")
+                for name, value in outputs.items():
+                    require(isinstance(name, str) and finite_scalar(value)
+                            and name in phases[phase] and phases[phase][name] == value,
+                            "Passing receipt omits or contradicts a declared output assertion.")
+        if "sampling_phases" in contract:
+            windows = contract["sampling_phases"]
+            require(isinstance(windows, list) and windows, "A timing case must declare sampling windows.")
+            names = set()
+            for window in windows:
+                require(isinstance(window, dict) and isinstance(window.get("name"), str),
+                        "Malformed declared sampling window.")
+                name = window["name"]
+                require(name not in names and name in samples, "Passing receipt omits a declared timing phase.")
+                names.add(name)
+                start, end = window.get("at_seconds"), window.get("latest_seconds")
+                require(type(start) in (int, float) and type(end) in (int, float)
+                        and finite_scalar(start) and finite_scalar(end) and 0 <= start <= end,
+                        "Malformed declared sampling interval.")
+                require(start * 1000 <= samples[name]["elapsed_ms"] <= end * 1000,
+                        "Passing receipt sampled outside its declared timing window.")
+                if "simulator_time_window" in window:
+                    clock_window = window["simulator_time_window"]
+                    require(isinstance(clock_window, list) and len(clock_window) == 2,
+                            "Malformed native clock window.")
+                    first, last = (clock_seconds(value) for value in clock_window)
+                    actual = clock_seconds(samples[name].get("simulator_time"))
+                    require(first <= actual <= last if first <= last else actual >= first or actual <= last,
+                            "Passing receipt contradicts its declared native clock window.")
     coverage_logs = record.get("coverage_logs", [])
     require(isinstance(coverage_logs, list), "Coverage log references must be an array.")
     record["coverage_logs"] = [
@@ -291,7 +342,7 @@ def compare(receipt_paths, coverage_paths, artifact_root):
         "application": {"sha256": application},
         "runs": runs,
         "cases": outcomes,
-        "comparison_basis": "Exact output scalars at matching recorded case phases; timestamps are retained but no full timing/trace equivalence is inferred.",
+        "comparison_basis": "Exact output scalars at matching recorded case phases, enforcing declared sampling/native-clock windows when present; no full timing or trace equivalence is inferred.",
         "scope": {
             "engine_scope_status": "unknown",
             "native_basic_block_percentage": None,

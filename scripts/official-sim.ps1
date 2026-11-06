@@ -12,6 +12,31 @@ function Write-OracleEvent([string]$Event) {
         [Text.UTF8Encoding]::new($false))
 }
 
+function Get-OracleSamplingPlan($Request) {
+    $phases = @($Request.sampling_phases)
+    if ($null -eq $Request.sampling_phases) { $phases = @(@{name='after_first_calculation';at_seconds=$Request.wait_seconds}) }
+    if ($phases.Count -lt 1 -or $phases.Count -gt 6) { throw 'Native sampling phase count is not bounded.' }
+    $names = [Collections.Generic.HashSet[string]]::new([StringComparer]::Ordinal)
+    $previousEnd = 0
+    foreach ($phase in $phases) {
+        if ($phase.name -cnotmatch '^[a-z][a-z0-9_]{0,63}$' -or !$names.Add([string]$phase.name) -or
+            ($phase.at_seconds -isnot [int] -and $phase.at_seconds -isnot [long]) -or
+            $phase.at_seconds -lt 20 -or $phase.at_seconds -gt 200 -or $phase.at_seconds -lt $previousEnd) {
+            throw 'Native sampling phase name or time is outside the bounded protocol.'
+        }
+        $previousEnd = $phase.at_seconds
+        if ($null -ne $phase.latest_seconds) {
+            if (($phase.latest_seconds -isnot [int] -and $phase.latest_seconds -isnot [long]) -or
+                $phase.latest_seconds -le $phase.at_seconds -or $phase.latest_seconds -gt 210 -or
+                $phase.latest_seconds -gt $phase.at_seconds+30) {
+                throw 'Native sampling window exceeds its finite end budget.'
+            }
+            $previousEnd = $phase.latest_seconds
+        }
+    }
+    return ,$phases
+}
+
 function Get-OracleMainFromNative($Windows) {
     $found = @()
     foreach ($native in $Windows) {
@@ -224,6 +249,99 @@ function Get-OracleControl([string[]]$Suffixes, [switch]$Optional) {
     if ($found.Count -ne 1) { throw 'Native simulator control binding is not unique.' }
     Assert-UxOwned $found[0]
     return $found[0]
+}
+
+function Read-OracleRecoveryModal($Dialog) {
+    $script:OracleModalText = [Collections.Generic.List[object]]::new()
+    $modalCallback = [LoxUxNative+EnumProc]{
+        param($handle,$unused)
+        [uint32]$owner = 0
+        [void][LoxUxNative]::GetWindowThreadProcessId($handle,[ref]$owner)
+        if ($owner -eq $script:UxProcessId) {
+            $class = [Text.StringBuilder]::new(256)
+            [void][LoxUxNative]::GetClassName($handle,$class,256)
+            $script:OracleModalText.Add(@{
+                handle=$handle.ToInt64();class=$class.ToString();id=[LoxUxNative]::GetDlgCtrlID($handle)
+                text=$(if($class.ToString() -cin @('Static','Button')){[OracleNative]::ReadText($handle)}else{$null})
+            })
+        }
+        return $true
+    }
+    [void][LoxUxNative]::EnumChildWindows([IntPtr]$Dialog.Handle,$modalCallback,[IntPtr]::Zero)
+    $process = Assert-OracleIdentity
+    $fixture = Join-Path $script:OracleRoot $script:OracleRequest.fixture_filename
+    return @{
+        window=$Dialog;root_handle=[OracleNative]::GetAncestor([IntPtr]$Dialog.Handle,2).ToInt64()
+        already_handled=[bool]$script:OracleRecoveryHandled
+        identity=@{
+            owned_pid=$process.Id;session=$process.SessionId;actor_session=(Get-Process -Id $PID).SessionId
+            application_sha256=(Get-FileHash -LiteralPath $process.Path).Hash.ToLowerInvariant()
+            fixture_sha256=(Get-FileHash -LiteralPath $fixture).Hash.ToLowerInvariant()
+        }
+        native_text=@($script:OracleModalText.ToArray())
+    }
+}
+
+function Skip-OracleOwnedRecovery($Dialog, [string]$RequestPath) {
+    if ($script:OracleRequest.recovery_policy -cne 'owned-skip' -or $script:OracleRecoveryHandled) {
+        throw 'An owned startup modal is blocked by policy or repeats a previously handled recovery question.'
+    }
+    $record = Read-OracleRecoveryModal $Dialog
+    $beforePath = Join-Path $script:OracleRoot 'startup-recovery.before-action.json'
+    Write-OracleJson $beforePath $record
+    $validationText = & python (Join-Path $script:OracleRoot 'official_sim_runner.py') $RequestPath --recovery-dialog $beforePath `
+        2> (Join-Path $script:OracleRoot 'startup-recovery.validation.stderr.txt')
+    if ($LASTEXITCODE -ne 0) { throw 'Startup modal is not the exact reviewed owned-fixture recovery question; no action was taken.' }
+    $validation = $validationText | ConvertFrom-Json
+    Write-OracleJson (Join-Path $script:OracleRoot 'startup-recovery.validation.json') $validation
+    if (!$validation.accepted -or $validation.button_id -ne 7 -or $validation.root_handle -ne $Dialog.Handle) {
+        throw 'Owned recovery validation did not authorize the exact No control.'
+    }
+    $element = [Windows.Automation.AutomationElement]::FromHandle([IntPtr]$Dialog.Handle)
+    Assert-UxOwned $element
+    if ($element.Current.ClassName -cne '#32770' -or $element.Current.NativeWindowHandle -ne $Dialog.Handle -or
+        [OracleNative]::GetAncestor([IntPtr]$element.Current.NativeWindowHandle,2).ToInt64() -ne $Dialog.Handle) {
+        throw 'Owned recovery dialog root identity changed before activation.'
+    }
+    $no = Get-UxDialogControl $element @(7) 'Button'
+    [void](Get-UxDialogControl $element @(6) 'Button')
+    if ([OracleNative]::GetAncestor([IntPtr]$no.Current.NativeWindowHandle,2).ToInt64() -ne $Dialog.Handle) {
+        throw 'Actual No button is not a child of the exact owned recovery root.'
+    }
+    Focus-Ux $element
+    Assert-UxWindowForeground $element
+    $fresh = Read-OracleRecoveryModal ([OracleNative]::Describe([IntPtr]$Dialog.Handle))
+    if (($fresh.native_text | ConvertTo-Json -Depth 8 -Compress) -cne ($record.native_text | ConvertTo-Json -Depth 8 -Compress) -or
+        $fresh.identity.fixture_sha256 -cne $script:OracleRequest.fixture_sha256 -or
+        $fresh.identity.session -ne $fresh.identity.actor_session) {
+        throw 'Owned recovery content, fixture bytes or session changed before No; action refused.'
+    }
+    $script:OracleRecoveryHandled = $true
+    Write-OracleJson (Join-Path $script:OracleRoot 'startup-recovery.action-intent.json') @{
+        policy='owned-skip';action='decline_restore';button_id=7;dialog_handle=$Dialog.Handle
+        button=(Read-UxElement $no);foreground_handle=[OracleNative]::GetForegroundWindow().ToInt64()
+        before_fixture_sha256=$fresh.identity.fixture_sha256
+        backup_copy='Not attempted: no exact owned backup path was exposed; no unrelated project/cache search.'
+        scope='Actual native No only. Native UI may clear this lab recovery entry; cache preservation is not claimed.'
+    }
+    Click-Ux $no
+    $until = [DateTime]::UtcNow.AddSeconds(5)
+    do {
+        [void](Assert-OracleIdentity)
+        $windows = @([OracleNative]::Windows([uint32]$script:OracleTarget.pid))
+        if (!@($windows | Where-Object { $_.Handle -eq $Dialog.Handle }).Count) { break }
+        Start-Sleep -Milliseconds 100
+    } while ([DateTime]::UtcNow -lt $until)
+    $afterHash = (Get-FileHash -LiteralPath (Join-Path $script:OracleRoot $script:OracleRequest.fixture_filename)).Hash.ToLowerInvariant()
+    $gone = !@($windows | Where-Object { $_.Handle -eq $Dialog.Handle }).Count
+    Write-OracleJson (Join-Path $script:OracleRoot 'startup-recovery.after-action.json') @{
+        action='decline_restore';button_id=7;dialog_gone=$gone;owned_windows=$windows
+        before_fixture_sha256=$fresh.identity.fixture_sha256;after_fixture_sha256=$afterHash
+    }
+    if (!$gone -or $afterHash -cne $script:OracleRequest.fixture_sha256) {
+        throw 'Native recovery decline did not close the exact dialog with unchanged pinned fixture bytes.'
+    }
+    Write-OracleEvent 'owned-recovery-declined'
 }
 
 function Assert-OracleDesktopReady {
@@ -564,6 +682,140 @@ function Save-OracleSample([string]$Phase) {
     }
 }
 
+function Assert-OracleClockFocus($Clock) {
+    Assert-UxOwned $Clock
+    Assert-UxForeground
+    $main = Get-UxWindow 'CLxMainWindow'
+    $root = [OracleNative]::GetAncestor([IntPtr]$main.Current.NativeWindowHandle,2)
+    if ($root -eq [IntPtr]::Zero -or [OracleNative]::Owner($root) -ne $script:OracleTarget.pid -or
+        [OracleNative]::GetForegroundWindow() -ne $root) { throw 'Clock editing lost the exact owned foreground root.' }
+    $wanted = $Clock.GetRuntimeId() -join ','
+    $focused = [Windows.Automation.AutomationElement]::FocusedElement
+    for ($depth=0;$focused -and $depth -lt 16;$depth++) {
+        Assert-UxOwned $focused
+        if (($focused.GetRuntimeId() -join ',') -ceq $wanted) { return }
+        $focused = Get-UxParent $focused
+    }
+    throw 'Keyboard focus is not the selected native simulator clock or its child.'
+}
+
+function Wait-OracleClockReadback($Clock, [string]$Expected) {
+    $readings = [Collections.Generic.List[object]]::new()
+    $until = [DateTime]::UtcNow.AddSeconds(2)
+    do {
+        $actual = Get-UxValue $Clock
+        $readings.Add(@{utc=[DateTime]::UtcNow.ToString('o');value=$actual})
+        if (($actual -replace '\s','') -ceq $Expected) { break }
+        Start-Sleep -Milliseconds 100
+    } while ([DateTime]::UtcNow -lt $until)
+    return @{actual=$actual;readings=@($readings.ToArray());matched=(($actual -replace '\s','') -ceq $Expected)}
+}
+
+function Set-OracleClockSections($Clock, [string]$Value) {
+    $target = @($Value.Split(':') | ForEach-Object { [int]$_ })
+    Click-Ux $Clock
+    Assert-OracleClockFocus $Clock
+    for ($section=0;$section -lt 3;$section++) {
+        Assert-OracleClockFocus $Clock
+        Send-UxKeys '{HOME}'
+        if ($section) { Assert-OracleClockFocus $Clock; Send-UxKeys ('{RIGHT}'*(3*$section)) }
+        $before = (Get-UxValue $Clock) -replace '\s',''
+        if ($before -cnotmatch '^(?:[01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]$') {
+            throw 'Native clock is not an exact HH:MM:SS value before section editing.'
+        }
+        $parts = @($before.Split(':') | ForEach-Object { [int]$_ })
+        $limit = if($section -eq 0){23}else{59}
+        $probeDelta = if($parts[$section] -eq $limit){-1}else{1}
+        $parts[$section] += $probeDelta
+        $probeExpected = '{0:D2}:{1:D2}:{2:D2}' -f $parts[0],$parts[1],$parts[2]
+        Assert-OracleClockFocus $Clock
+        Send-UxKeys $(if($probeDelta -gt 0){'{UP}'}else{'{DOWN}'})
+        $probe = Wait-OracleClockReadback $Clock $probeExpected
+        Write-OracleJson (Join-Path $script:OracleRoot ('simulator-start-time.section-'+$section+'.probe.json')) @{
+            section=$section;before=$before;expected_probe=$probeExpected;actual_probe=$probe
+            probe_delta=$probeDelta
+            binding='HOME plus 0/3/6 character moves and one nonwrapping arrow probe; only the intended native field may change.'
+        }
+        if (!$probe.matched) { throw 'Native clock keyboard section probe did not change exactly the intended field.' }
+        $delta = $target[$section]-$parts[$section]
+        if ($delta) {
+            Assert-OracleClockFocus $Clock
+            $key = if($delta -gt 0){'{UP}'}else{'{DOWN}'}
+            Send-UxKeys ($key*[Math]::Abs($delta))
+        }
+        $parts[$section] = $target[$section]
+        $expected = '{0:D2}:{1:D2}:{2:D2}' -f $parts[0],$parts[1],$parts[2]
+        $readback = Wait-OracleClockReadback $Clock $expected
+        Write-OracleJson (Join-Path $script:OracleRoot ('simulator-start-time.section-'+$section+'.result.json')) @{
+            section=$section;delta=$delta;expected=$expected;actual=$readback
+        }
+        if (!$readback.matched) { throw 'Native clock section did not reach its declared value with other fields unchanged.' }
+    }
+    return Get-UxValue $Clock
+}
+
+function Set-OracleSimulatorStartTime([string]$Value) {
+    if ($Value -cnotmatch '^(?:[01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]$') {
+        throw 'Simulator-local start time must be exact HH:MM:SS.'
+    }
+    $currentTime = Get-OracleControl @('.CActionSimulationSettings::CActionSimulationSettingsWidget.CSettingEditorCheckBox')
+    $toggle = $null
+    if (!$currentTime.TryGetCurrentPattern([Windows.Automation.TogglePattern]::Pattern,[ref]$toggle)) {
+        throw 'Native simulator current-time checkbox has no verified TogglePattern.'
+    }
+    $beforeToggle = $toggle.Current.ToggleState
+    Write-OracleJson (Join-Path $script:OracleRoot 'simulator-start-time.intent.json') @{
+        requested=$Value;current_time_before=$beforeToggle.ToString();control=(Read-UxElement $currentTime)
+        scope='Owned native simulator-local controls before Start; one guarded checkbox click at most.'
+    }
+    if ($beforeToggle -eq [Windows.Automation.ToggleState]::On) { Click-Ux $currentTime }
+    $toggleReads = [Collections.Generic.List[object]]::new()
+    $until = [DateTime]::UtcNow.AddSeconds(2)
+    do {
+        $actualToggle = $toggle.Current.ToggleState
+        $toggleReads.Add(@{utc=[DateTime]::UtcNow.ToString('o');state=$actualToggle.ToString()})
+        if ($actualToggle -eq [Windows.Automation.ToggleState]::Off) { break }
+        Start-Sleep -Milliseconds 100
+    } while ([DateTime]::UtcNow -lt $until)
+    Write-OracleJson (Join-Path $script:OracleRoot 'simulator-start-time.toggle-readback.json') @{
+        requested_current_time='Off';readings=@($toggleReads.ToArray())
+    }
+    if ($actualToggle -ne [Windows.Automation.ToggleState]::Off) {
+        throw 'Native simulator current-time checkbox is not definitely OFF.'
+    }
+    $clock = Get-OracleControl @('.CSettingEditorTimeFancy.CSettingEditorTime')
+    $before = Get-UxValue $clock
+    $method = $script:OracleRequest.simulator_time_edit
+    if (!$method) { $method='value-pattern' }
+    if ($method -ceq 'verified-sections') {
+        if (!$clock.Current.IsEnabled) { throw 'Native simulator clock is disabled.' }
+        $after = Set-OracleClockSections $clock $Value
+        $readback = @{actual=$after}
+    } elseif ($method -ceq 'value-pattern') {
+        $pattern = $null
+        if (!$clock.Current.IsEnabled -or
+            !$clock.TryGetCurrentPattern([Windows.Automation.ValuePattern]::Pattern,[ref]$pattern) -or
+            $pattern.Current.IsReadOnly) {
+            throw 'Native simulator time editor has no writable ValuePattern; recover a guarded native edit binding.'
+        }
+        Assert-UxOwned $clock
+        Assert-UxForeground
+        $pattern.SetValue($Value)
+        $readback = Wait-OracleClockReadback $clock $Value
+        $after = $readback.actual
+    } else { throw 'Unsupported simulator-local time edit method.' }
+    Write-OracleJson (Join-Path $script:OracleRoot 'simulator-start-time.json') @{
+        requested=$Value;before=$before;after=$after;current_time_before=$beforeToggle.ToString()
+        current_time_after=$toggle.Current.ToggleState.ToString()
+        readback=$readback
+        scope='Native simulator-local time control before Start only; no OS clock/date change.'
+        method=$method;coordinate_policy='Owned controls and verified keyboard navigation; no guessed segment coordinates.'
+    }
+    if (($after -replace '\s','') -cne $Value) {
+        throw 'Actual native simulator start-time readback does not match; no clock setting was inferred.'
+    }
+}
+
 function Hide-OracleDocks {
     $main = Get-UxWindow 'CLxMainWindow'
     foreach ($suffix in @('.DocumentsPage.TreeWindow','.DocumentsPage.PropertyWindow')) {
@@ -735,6 +987,14 @@ function Stop-OracleOwned {
     $process = Get-Process -Id $script:OracleTarget.pid -ErrorAction SilentlyContinue
     if (!$process) { return @{status='already_exited'} }
     $process = Assert-OracleIdentity
+    if ($script:OracleStartupModalBlocked) {
+        Stop-Process -Id $process.Id -Force
+        return @{
+            status='closed';pid=$process.Id;graceful=$false;kind='owned-startup-modal-fallback'
+            forced_termination_may_invalidate_coverage=$true
+            scope='Unreviewed/failed startup modal: exact owned termination only, no generic dialog button or restore input.'
+        }
+    }
     $graceful = $false
     $gracefulError = $null
     $gracefulErrorArtifact = $null
@@ -839,7 +1099,10 @@ function Invoke-OfficialReplay([string]$RequestPath) {
     $clockProofPending = $false
     $script:OracleNativeAttachAttempted = $false
     $script:OracleObserverCache = $null
+    $script:OracleRecoveryHandled = $false
+    $script:OracleStartupModalBlocked = $false
     try {
+        $phases = Get-OracleSamplingPlan $request
         if ([Environment]::UserInteractive -ne $true -or (Get-Process -Id $PID).SessionId -eq 0) {
             throw 'The replay must execute in an authenticated interactive desktop session.'
         }
@@ -902,37 +1165,24 @@ function Invoke-OfficialReplay([string]$RequestPath) {
             $windows = @([OracleNative]::Windows([uint32]$process.Id))
             $dialogs = @($windows | Where-Object { $_.ClassName -eq '#32770' })
             if ($dialogs.Count) {
+                $script:OracleStartupModalBlocked = $true
                 $dialog = $dialogs[0]
                 Write-OracleEvent 'startup-modal-detected'
-                $script:OracleModalText = [Collections.Generic.List[object]]::new()
-                $modalCallback = [LoxUxNative+EnumProc]{
-                    param($handle,$unused)
-                    [uint32]$owner = 0
-                    [void][LoxUxNative]::GetWindowThreadProcessId($handle,[ref]$owner)
-                    if ($owner -eq $script:UxProcessId) {
-                        $class = [Text.StringBuilder]::new(256)
-                        [void][LoxUxNative]::GetClassName($handle,$class,256)
-                        if ($class.ToString() -cin @('Static','Button')) {
-                            $script:OracleModalText.Add(@{
-                                class=$class.ToString();id=[LoxUxNative]::GetDlgCtrlID($handle)
-                                text=[OracleNative]::ReadText($handle)
-                            })
-                        }
-                    }
-                    return $true
-                }
-                [void][LoxUxNative]::EnumChildWindows([IntPtr]$dialog.Handle,$modalCallback,[IntPtr]::Zero)
-                Write-OracleJson (Join-Path $request.run_dir 'startup-modal.native.json') @{
-                    window=$dialog
-                    native_text=@($script:OracleModalText.ToArray())
-                }
+                $label = if($script:OracleRecoveryHandled){'startup-modal-repeat'}else{'startup-modal'}
+                Write-OracleJson (Join-Path $request.run_dir ($label+'.native.json')) (Read-OracleRecoveryModal $dialog)
                 try {
-                    $capture = Save-OracleNativeWindowScreen $dialog (Join-Path $request.run_dir 'startup-modal.png')
-                    Write-OracleJson (Join-Path $request.run_dir 'startup-modal.capture.json') $capture
+                    $capture = Save-OracleNativeWindowScreen $dialog (Join-Path $request.run_dir ($label+'.png'))
+                    Write-OracleJson (Join-Path $request.run_dir ($label+'.capture.json')) $capture
                 } catch {
-                    Write-OracleJson (Join-Path $request.run_dir 'startup-modal.capture-error.json') @{reason=$_.Exception.Message}
+                    Write-OracleJson (Join-Path $request.run_dir ($label+'.capture-error.json')) @{reason=$_.Exception.Message}
+                    throw 'Owned startup modal capture was blocked; no recovery input was attempted.'
                 }
-                throw 'An owned native startup modal blocked project loading; its actual text/capture were retained.'
+                if ($dialogs.Count -ne 1 -or $request.recovery_policy -cne 'owned-skip' -or $script:OracleRecoveryHandled) {
+                    throw 'An owned native startup modal blocked project loading; its actual text/capture were retained.'
+                }
+                Skip-OracleOwnedRecovery $dialog $RequestPath
+                $script:OracleStartupModalBlocked = $false
+                continue
             }
             $main = Get-OracleMainFromNative $windows
             $testing = if ($main) { Get-OracleControl @('.CategoryButtonContainer.Testing') -Optional } else { $null }
@@ -951,6 +1201,7 @@ function Invoke-OfficialReplay([string]$RequestPath) {
         $live = Get-OracleControl @('.Testing.LIVE')
         $pause = Get-OracleControl @('.Testing.CRibbonWidget::CRibbonButton')
         if ($live.Current.IsEnabled -or $pause.Current.IsEnabled) { throw 'Expected disconnected, stopped native simulator.' }
+        if ($request.simulator_start_time) { Set-OracleSimulatorStartTime $request.simulator_start_time }
         try { Initialize-OracleOcr } catch {
             Write-OracleJson (Join-Path $request.run_dir 'ocr-unavailable.json') @{reason=$_.Exception.Message}
         }
@@ -1012,15 +1263,19 @@ function Invoke-OfficialReplay([string]$RequestPath) {
             $observations.Add((Save-OracleNativeSample 'post_attach_clock_1'))
             Start-Sleep -Seconds 3
             $observations.Add((Save-OracleNativeSample 'post_attach_clock_2'))
-            $remaining = $request.wait_seconds - $script:OracleClock.Elapsed.TotalSeconds
-            if ($remaining -gt 0) { Start-Sleep -Milliseconds ([int]($remaining * 1000)) }
-            $observations.Add((Save-OracleNativeSample 'after_first_calculation'))
-        } else {
-            $remaining = $request.wait_seconds - $script:OracleClock.Elapsed.TotalSeconds
-            if ($remaining -gt 0) { Start-Sleep -Milliseconds ([int]($remaining * 1000)) }
-            $observations.Add((Save-OracleSample 'after_first_calculation'))
         }
-        Write-OracleEvent 'after-first-calculation-sampled'
+        foreach ($phase in $phases) {
+            $remaining = $phase.at_seconds - $script:OracleClock.Elapsed.TotalSeconds
+            if ($remaining -gt 0) { Start-Sleep -Milliseconds ([int]($remaining * 1000)) }
+            $sample = if ($request.observer_mode -eq 'native-win32') {
+                Save-OracleNativeSample $phase.name
+            } else { Save-OracleSample $phase.name }
+            $observations.Add($sample)
+            Write-OracleEvent ($phase.name+'-sampled')
+            if ($phase.latest_seconds -and $sample.capture_interval_ms[1] -gt $phase.latest_seconds*1000) {
+                throw 'Actual native capture missed its finite sampling window; retained observation is not a timing pass.'
+            }
+        }
     } catch { $errorData = @{code='native_replay_blocked';message=$_.Exception.Message} }
     finally {
         Write-OracleEvent 'cleanup-started'

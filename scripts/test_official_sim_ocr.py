@@ -4,7 +4,7 @@ import tempfile
 import unittest
 from unittest.mock import patch
 
-from official_sim_ocr import OCRBlocked, grayscale_pixel, parse_clock_tsv, parse_header_tsv, parse_literal_tsv, recognize_literal
+from official_sim_ocr import OCRBlocked, grayscale_pixel, literal_consensus, parse_clock_tsv, parse_header_tsv, parse_literal_tsv, recognize_literal
 
 
 HEADER = "level\tleft\ttop\twidth\theight\tconf\ttext\n"
@@ -77,6 +77,57 @@ class NativeOCRTests(unittest.TestCase):
                     recognize_literal(root / "absent.png", (0, 0, 1, 1), profile, root / "result")
                 run.assert_not_called()
                 self.assertFalse((root / "result").exists())
+
+    def test_fixed_candidates_admit_both_states_without_lowering_threshold(self):
+        on = literal_consensus([
+            {"words": [{"text": "Ein", "confidence": 95}]},
+            {"words": [{"text": "In", "confidence": 43}]},
+        ])
+        off = literal_consensus([
+            {"words": [{"text": "Aus", "confidence": 73}]},
+            {"words": [{"text": "Aus", "confidence": 96}]},
+        ])
+        self.assertEqual((on["value"], off["value"]), (1, 0))
+        self.assertEqual(off["confidence"], 96)
+
+    def test_fixed_candidates_block_disagreement_high_unknown_and_extra_words(self):
+        known = {"words": [{"text": "Ein", "confidence": 95}]}
+        for other in [
+            {"words": [{"text": "Aus", "confidence": 95}]},
+            {"words": [{"text": "Aus", "confidence": 12}]},
+            {"words": [{"text": "Energy", "confidence": 95}]},
+            {"words": [{"text": "Ein", "confidence": 95}, {"text": "extra", "confidence": 1}]},
+        ]:
+            with self.subTest(other=other), self.assertRaises(OCRBlocked):
+                literal_consensus([known, other])
+        for candidates in [[{"words": []}, {"words": []}],
+                           [{"words": [{"text": "Aus", "confidence": 89}]}, {"words": []}]]:
+            with self.assertRaises(OCRBlocked):
+                literal_consensus(candidates)
+        for confidence in (float("nan"), float("inf"), -1, 101, True):
+            with self.subTest(confidence=confidence), self.assertRaises(OCRBlocked):
+                literal_consensus([known, {"words": [{"text": "Ein", "confidence": confidence}]}])
+
+    def test_literal_v2_does_not_skip_the_second_candidate_after_a_positive(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            profile = {"literal_recipe": "dual-gray-tight-v2"}
+            source = {"path": "independent.png", "sha256": "a" * 64}
+            candidates = [
+                {"source": source, "words": [{"text": "Ein", "confidence": 95}]},
+                {"source": source, "words": [{"text": "Aus", "confidence": 95}]},
+            ]
+            with patch("official_sim_ocr._pinned_path"), \
+                    patch("official_sim_ocr._recognize", side_effect=candidates) as run:
+                with self.assertRaisesRegex(OCRBlocked, "disagree"):
+                    recognize_literal("independent.png", (0, 0, 25, 17), profile, Path(temporary) / "read")
+                self.assertEqual(run.call_count, 2)
+
+    def test_literal_v2_rejects_clipped_binding_before_running_ocr(self):
+        with patch("official_sim_ocr._recognize") as run:
+            with self.assertRaisesRegex(OCRBlocked, "calibrated"):
+                recognize_literal("independent.png", (0, 0, 8, 8),
+                                  {"literal_recipe": "dual-gray-tight-v2"}, "unused")
+            run.assert_not_called()
 
 
 if __name__ == "__main__":

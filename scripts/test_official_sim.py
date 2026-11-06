@@ -6,6 +6,8 @@ import json
 from pathlib import Path
 import os
 import shutil
+import struct
+import subprocess
 import sys
 import unittest
 from unittest.mock import patch
@@ -79,6 +81,285 @@ class EvidenceTests(unittest.TestCase):
         self.assertEqual(REPLAY.judge(self.case, self.remote),
                          ("blocked", "Higher-integrity input owner; operator action required."))
 
+    def test_named_multichannel_windows_require_every_actual_channel(self):
+        case = {
+            "channels": ["OL1", "OL2", "OL3"],
+            "sampling_phases": [
+                {"name": "before_deadline", "at_seconds": 20, "latest_seconds": 40,
+                 "simulator_time_window": ["10:58:20", "10:58:40"]},
+                {"name": "after_deadline", "at_seconds": 150, "latest_seconds": 175},
+            ],
+            "expected_outputs": {
+                "before_deadline": {"OL1": 0, "OL2": 1, "OL3": 0},
+                "after_deadline": {"OL1": 1, "OL2": 0, "OL3": 0},
+            },
+        }
+        remote = copy.deepcopy(self.remote)
+        remote["observations"] = [
+            {"phase": phase, "elapsed_ms": elapsed, "simulator_time": clock,
+             "capture_interval_ms": [elapsed - 100, elapsed + 100],
+             "outputs": outputs, "source": {"kind": "ocr", "artifacts": ["actual.png"]}}
+            for phase, elapsed, clock, outputs in (
+                ("before_deadline", 25000, "10:58:25", {"OL1": 0, "OL2": 1, "OL3": 0}),
+                ("after_deadline", 155000, "11:00:35", {"OL1": 1, "OL2": 0, "OL3": 0}),
+            )
+        ]
+        self.assertEqual(REPLAY.judge(case, remote), ("pass", None))
+        for change in (
+            {"elapsed_ms": 41000}, {"capture_interval_ms": [24000, 41000]},
+            {"capture_interval_ms": None},
+            {"simulator_time": None}, {"simulator_time": "10:59:25"},
+            {"simulator_time_after_capture": "10:59:00"},
+            {"outputs": {"OL1": 0, "OL2": 1}}, {"outputs": {"OL1": 0, "OL2": True, "OL3": 0}},
+        ):
+            with self.subTest(change=change):
+                invalid = copy.deepcopy(remote)
+                invalid["observations"][0].update(change)
+                self.assertEqual(REPLAY.judge(case, invalid)[0], "blocked")
+        remote["observations"][1]["outputs"]["OL2"] = 1
+        self.assertEqual(REPLAY.judge(case, remote)[0], "fail")
+
+    def test_exploratory_actuals_are_retained_without_becoming_a_pass(self):
+        case = copy.deepcopy(self.case)
+        case.update(purpose="exploratory", expected_outputs={})
+        status, reason = REPLAY.judge(case, self.remote)
+        self.assertEqual(status, "blocked")
+        self.assertIn("Exploratory", reason)
+        self.assertEqual(self.remote["observations"][0]["outputs"], {"OL1": 1})
+
+
+class CaseContractTests(unittest.TestCase):
+    def test_public_reviewed_protocols_refuse_missing_private_calibration(self):
+        root = Path(__file__).resolve().parents[1]
+        empty = root / ".reverse-engineering" / "native-simulator" / ("portable-test-" + uuid.uuid4().hex)
+        empty.mkdir(parents=True)
+        try:
+            for name in ("energy-multi-original-reviewed.json", "energy-multi-third-first-reviewed.json",
+                         "energy-daily-observer-baseline.json"):
+                with self.subTest(protocol=name):
+                    case = REPLAY.read_json(root / "tests" / "ux" / "native-simulator" / name)
+                    with patch.object(REPLAY, "digest", return_value=case["fixture_sha256"]):
+                        REPLAY.validate_case(case, Path("separately-provided-fixture"))
+                    with self.assertRaises(FileNotFoundError):
+                        REPLAY.validate_readback_calibration(case, empty)
+        finally:
+            shutil.rmtree(empty)
+
+    @unittest.skipUnless(shutil.which("powershell"), "Windows PowerShell is unavailable")
+    def test_clock_section_navigation_requires_actual_field_specific_readback(self):
+        source = str(Path(__file__).with_name("official-sim.ps1")).replace("'", "''")
+        command = f". '{source}';" + r"""
+$script:OracleRoot=(Get-Location).Path
+$script:parts=@(23,59,59);$script:section=1;$script:position=3;$script:wrongHome=$false
+function Click-Ux($Clock) {}
+function Assert-OracleClockFocus($Clock) {}
+function Write-OracleJson($Path,$Value) {}
+function Get-UxValue($Clock) { '{0:D2}:{1:D2}:{2:D2}' -f $script:parts[0],$script:parts[1],$script:parts[2] }
+function Send-UxKeys([string]$Value) {
+    if($Value -ceq '{HOME}'){$script:position=$(if($script:wrongHome){3}else{0});$script:section=[int][Math]::Floor($script:position/3);return}
+    if($Value -match '^(?:\{RIGHT\})+$'){
+        $script:position += [regex]::Matches($Value,'\{RIGHT\}').Count
+        $script:section=[int][Math]::Floor($script:position/3);return
+    }
+    foreach($match in [regex]::Matches($Value,'\{(UP|DOWN)\}')){
+        $mod=if($script:section -eq 0){24}else{60}
+        $delta=if($match.Groups[1].Value -ceq 'UP'){1}else{-1}
+        $script:parts[$script:section]=($script:parts[$script:section]+$delta+$mod)%$mod
+    }
+}
+$actual=Set-OracleClockSections $null '10:58:00'
+if($actual -cne '10:58:00'){throw 'Verified section editing failed'}
+$script:parts=@(23,59,59);$script:wrongHome=$true
+try { Set-OracleClockSections $null '10:58:00';throw 'Wrong section was not rejected' }
+catch {if($_.Exception.Message -cne 'Native clock keyboard section probe did not change exactly the intended field.'){throw}}
+exit 0
+"""
+        result = subprocess.run(["powershell", "-NoProfile", "-NonInteractive", "-Command", command],
+                                capture_output=True, timeout=30)
+        self.assertEqual(result.returncode, 0, (result.stderr + result.stdout).decode(errors="replace"))
+
+    @unittest.skipUnless(shutil.which("powershell"), "Windows PowerShell is unavailable")
+    def test_remote_sampling_preserves_single_phase_array_and_legacy_fallback(self):
+        source = str(Path(__file__).with_name("official-sim.ps1")).replace("'", "''")
+        command = (
+            f". '{source}';"
+            "$a=Get-OracleSamplingPlan ('{\"sampling_phases\":[{\"name\":\"settled\",\"at_seconds\":70,\"latest_seconds\":95}]}'|ConvertFrom-Json);"
+            "$b=Get-OracleSamplingPlan ('{\"wait_seconds\":70}'|ConvertFrom-Json);"
+            "if($a.Count -ne 1 -or $a[0].name -cne 'settled' -or "
+            "$b.Count -ne 1 -or $b[0].name -cne 'after_first_calculation'){throw 'Single native phase was unwrapped'}"
+        )
+        result = subprocess.run(["powershell", "-NoProfile", "-NonInteractive", "-Command", command],
+                                capture_output=True, timeout=30)
+        self.assertEqual(result.returncode, 0, result.stderr.decode(errors="replace"))
+
+    @unittest.skipUnless(shutil.which("powershell"), "Windows PowerShell is unavailable")
+    def test_remote_extended_window_never_exceeds_two_hundred_ten_seconds(self):
+        source = str(Path(__file__).with_name("official-sim.ps1")).replace("'", "''")
+        command = f". '{source}';" + r"""
+$valid=Get-OracleSamplingPlan ('{"sampling_phases":[{"name":"post_minrun","at_seconds":200,"latest_seconds":210}]}'|ConvertFrom-Json)
+if($valid.Count -ne 1 -or $valid[0].at_seconds -ne 200){throw 'Valid bounded extension was rejected'}
+foreach($json in @(
+'{"sampling_phases":[{"name":"late","at_seconds":201,"latest_seconds":210}]}',
+'{"sampling_phases":[{"name":"late","at_seconds":200,"latest_seconds":211}]}',
+'{"sampling_phases":[{"name":"late","at_seconds":200,"latest_seconds":200}]}',
+'{"sampling_phases":[{"name":"late","at_seconds":199.5,"latest_seconds":210}]}',
+'{"sampling_phases":[],"wait_seconds":70}'
+)){
+    $rejected=$false
+    try { [void](Get-OracleSamplingPlan ($json|ConvertFrom-Json)) } catch {$rejected=$true}
+    if(!$rejected){throw 'Unbounded/invalid phase was accepted'}
+}
+exit 0
+"""
+        result = subprocess.run(["powershell", "-NoProfile", "-NonInteractive", "-Command", command],
+                                capture_output=True, timeout=30)
+        self.assertEqual(result.returncode, 0, (result.stderr + result.stdout).decode(errors="replace"))
+
+    def test_extended_window_keeps_phase_count_end_and_order_bounded(self):
+        phases = [
+            {"name": "late_minrun", "at_seconds": 180, "latest_seconds": 200},
+            {"name": "post_minrun", "at_seconds": 200, "latest_seconds": 210},
+        ]
+        self.assertEqual(LAUNCH.sampling_plan({"sampling_phases": phases}), phases)
+        for change in (
+            {"at_seconds": 201}, {"latest_seconds": 211}, {"latest_seconds": 200},
+            {"at_seconds": 199.5}, {"at_seconds": True},
+        ):
+            invalid = copy.deepcopy(phases)
+            invalid[-1].update(change)
+            with self.subTest(change=change), self.assertRaises(ValueError):
+                LAUNCH.sampling_plan({"sampling_phases": invalid})
+
+    def test_expanded_case_requires_separate_complete_expectations(self):
+        case = {
+            "schema_version": 1, "id": "authored-timing",
+            "application": {"sha256": REPLAY.APPLICATION_SHA}, "fixture_sha256": "a" * 64,
+            "channels": ["OL1", "OL2"],
+            "sampling_phases": [{"name": "settled", "at_seconds": 70, "latest_seconds": 90}],
+            "expected_outputs": {"settled": {"OL1": 1, "OL2": 0}},
+        }
+        with patch.object(REPLAY, "digest", return_value="a" * 64):
+            self.assertEqual(REPLAY.validate_case(case, Path("authored")), case)
+            for change in (
+                {"expected_outputs": {"settled": {"OL1": 1}}},
+                {"expected_outputs": {"another_phase": {"OL1": 1, "OL2": 0}}},
+                {"channels": ["OL1", "OL1"]}, {"channels": ["OL4"]},
+                {"simulator_start_time": "25:00:00"}, {"simulator_time_edit": "unsupported"},
+                {"purpose": "exploratory"},
+            ):
+                with self.subTest(change=change), self.assertRaises(ValueError):
+                    REPLAY.validate_case({**case, **change}, Path("authored"))
+            exploratory = {**case, "purpose": "exploratory", "expected_outputs": {}}
+            REPLAY.validate_case(exploratory, Path("authored"))
+
+    def test_phase_plan_rejects_unbounded_ambiguous_and_overlapping_windows(self):
+        phase = {"name": "settled", "at_seconds": 70, "latest_seconds": 90}
+        self.assertEqual(LAUNCH.sampling_plan({"wait_seconds": 70}),
+                         [{"name": "after_first_calculation", "at_seconds": 70}])
+        for phases in (
+            [], [phase] * 2, [phase] * 7,
+            [{**phase, "name": "..\\escape"}], [{**phase, "name": "initial_running"}],
+            [{**phase, "at_seconds": 10}], [{**phase, "at_seconds": True}],
+            [{**phase, "latest_seconds": 500}], [{**phase, "latest_seconds": 70}],
+            [phase, {"name": "later", "at_seconds": 80, "latest_seconds": 100}],
+            [{**phase, "simulator_time_window": ["11:01:00", "11:00:00"]}],
+        ):
+            with self.subTest(phases=phases), self.assertRaises(ValueError):
+                LAUNCH.sampling_plan({"sampling_phases": phases})
+
+    def test_extra_channels_require_distinct_calibrated_reference_pixels(self):
+        with self.assertRaises(ValueError):
+            REPLAY.channel_offsets({"channels": ["OL1", "OL2"]})
+        boxes = {
+            "OL1": {"pin": [10, 10, 35, 27], "wired_reference": [40, 10, 65, 27]},
+            "OL2": {"pin": [10, 40, 35, 57], "wired_reference": [40, 40, 65, 57]},
+        }
+        case = {"channels": ["OL1", "OL2"], "readback": {"channel_boxes": boxes}}
+        self.assertEqual(REPLAY.channel_offsets(case), boxes)
+        with self.assertRaises(ValueError):
+            REPLAY.validate_readback_calibration(case, Path.cwd())
+        boxes["OL2"]["pin"] = boxes["OL1"]["pin"]
+        with self.assertRaises(ValueError):
+            REPLAY.channel_offsets(case)
+        boxes["OL2"]["pin"] = [10, 25, 35, 42]
+        self.assertEqual(REPLAY.channel_offsets(case), boxes)
+        boxes["OL2"]["wired_reference"] = [20, 30, 45, 47]
+        with self.assertRaises(ValueError):
+            REPLAY.channel_offsets(case)
+
+    def test_decoder_observes_each_channel_without_receiving_expectations(self):
+        import official_sim_ocr
+        root = Path(__file__).resolve().parents[1]
+        run = root / ".reverse-engineering" / "native-simulator" / ("decode-test-" + uuid.uuid4().hex)
+        run.mkdir(parents=True)
+        try:
+            image = run / "authored.png"
+            image.write_bytes(b"\x89PNG\r\n\x1a\n" + b"\0\0\0\rIHDR" + struct.pack(">II", 700, 500))
+            anchor = run / "anchor.json"
+            REPLAY.write_json(anchor, {"header": {"text": "Energy Manager", "words": [
+                {"rect": [10, 10, 44, 14]}, {"rect": [59, 10, 58, 14]},
+            ]}})
+            record = run / "authored-read.json"
+            REPLAY.write_json(record, {"synthetic": True})
+            case = {
+                "channels": ["OL1", "OL2"],
+                "readback": {"channel_boxes": {
+                    "OL1": {"pin": [10, 30, 35, 47], "wired_reference": [40, 30, 65, 47]},
+                    "OL2": {"pin": [10, 60, 35, 77], "wired_reference": [40, 60, 65, 77]},
+                }},
+                "expected_outputs": {"unused": {"OL1": 0, "OL2": 1}},
+            }
+            reads = [
+                {"text": word, "value": value, "confidence": confidence, "record_path": str(record)}
+                for word, value, confidence in (("Ein", 1, 96), ("Ein", 1, 95), ("Aus", 0, 94), ("Aus", 0, 91))
+            ]
+            profile = {"executable_sha256": "a" * 64, "model_sha256": "b" * 64}
+            with patch.object(official_sim_ocr, "recognize_literal", side_effect=reads) as recognize:
+                actual = REPLAY.decode_native_image(image, anchor, run / "outputs", profile, root, case)
+            self.assertEqual(actual["outputs"], {"OL1": 1, "OL2": 0})
+            self.assertEqual(recognize.call_count, 4)
+            self.assertTrue(all(call.args[2] is profile for call in recognize.call_args_list))
+            reads[-1]["confidence"] = 89.99
+            with patch.object(official_sim_ocr, "recognize_literal", side_effect=reads):
+                actual = REPLAY.decode_native_image(image, anchor, run / "low-confidence", profile, root, case)
+            self.assertEqual(actual["outputs"], {"OL1": 1})
+        finally:
+            shutil.rmtree(run)
+
+    def test_explicit_calibration_binds_actual_image_anchor_and_in_bounds_rows(self):
+        root = Path(__file__).resolve().parents[1]
+        run = root / ".reverse-engineering" / "native-simulator" / ("calibration-test-" + uuid.uuid4().hex)
+        run.mkdir(parents=True)
+        try:
+            image = run / "authored.png"
+            image.write_bytes(b"\x89PNG\r\n\x1a\n" + b"\0\0\0\rIHDR" + struct.pack(">II", 700, 500))
+            anchor = run / "anchor.json"
+            REPLAY.write_json(anchor, {"header": {"text": "Energy Manager", "words": [
+                {"rect": [10, 10, 44, 14]}, {"rect": [59, 10, 58, 14]},
+            ]}})
+            case = {"channels": ["OL1"], "readback": {
+                "channel_boxes": {"OL1": {"pin": [10, 30, 35, 47], "wired_reference": [40, 30, 65, 47]}},
+                "calibration": {"image": REPLAY.artifact(image, root), "header_anchor": REPLAY.artifact(anchor, root),
+                                "review": "Synthetic protocol test only; not native evidence."},
+            }}
+            self.assertEqual(REPLAY.validate_readback_calibration(case, root), [image, anchor])
+            review = run / "review.json"
+            REPLAY.write_json(review, {"synthetic": True})
+            case["readback"]["calibration"]["evidence"] = [REPLAY.artifact(review, root)]
+            self.assertEqual(REPLAY.validate_readback_calibration(case, root), [image, anchor, review])
+            review.write_text("changed", encoding="utf-8")
+            with self.assertRaises(ValueError):
+                REPLAY.validate_readback_calibration(case, root)
+            case["readback"]["calibration"]["evidence"] = []
+            case["readback"]["channel_boxes"]["OL1"]["pin"] = [800, 30, 825, 47]
+            with self.assertRaises(ValueError):
+                REPLAY.validate_readback_calibration(case, root)
+            image.write_bytes(image.read_bytes() + b"changed")
+            with self.assertRaises(ValueError):
+                REPLAY.validate_readback_calibration(case, root)
+        finally:
+            shutil.rmtree(run)
+
 
 class LaunchTests(unittest.TestCase):
     def request(self):
@@ -124,6 +405,64 @@ class LaunchTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             LAUNCH.fixture_basename({})
         self.assertEqual(LAUNCH.fixture_basename({}, allow_legacy=True), "input.Loxone")
+
+    def test_recovery_skip_requires_exact_opt_in_owned_question_and_no_button(self):
+        request = self.request()
+        request.update(recovery_policy="owned-skip", fixture_filename="input-independent-run.Loxone")
+        record = {
+            "window": {"Handle": 123, "ProcessId": 4321, "ClassName": "#32770"},
+            "root_handle": 123, "already_handled": False,
+            "identity": {"owned_pid": 4321, "session": 1, "actor_session": 1,
+                         "application_sha256": request["application"]["sha256"],
+                         "fixture_sha256": request["fixture_sha256"]},
+            "native_text": [
+                {"class": "Button", "id": 6, "text": "&Yes"},
+                {"class": "Button", "id": 7, "text": "&No"},
+                {"class": "Static", "id": 65535, "text":
+                    "Es wurde eine automatische Sicherung dieses Dokuments gefunden:\n"
+                    "input-independent-run.Loxone 2026-11-05 22:28:57\n\n"
+                    "Soll diese wiederhergestellt werden?"},
+            ],
+        }
+        accepted = LAUNCH.validate_recovery_dialog(request, record)
+        self.assertEqual((accepted["action"], accepted["button_id"]), ("decline_restore", 7))
+        for policy in (None, "block", "skip", True):
+            with self.subTest(policy=policy), self.assertRaises(ValueError):
+                LAUNCH.validate_recovery_dialog({**request, "recovery_policy": policy}, record)
+        invalids = []
+        for key, value in (("root_handle", 999), ("already_handled", True)):
+            invalids.append({**copy.deepcopy(record), key: value})
+        for key, value in (("owned_pid", 999), ("session", 0), ("actor_session", 2),
+                           ("application_sha256", "d" * 64), ("fixture_sha256", "e" * 64)):
+            altered = copy.deepcopy(record)
+            altered["identity"][key] = value
+            invalids.append(altered)
+        for key, value in (("ClassName", "QMessageBox"), ("ProcessId", 999)):
+            altered = copy.deepcopy(record)
+            altered["window"][key] = value
+            invalids.append(altered)
+        for text in (
+            record["native_text"][-1]["text"].replace("independent-run", "another-run"),
+            record["native_text"][-1]["text"] + "\nAdditional question",
+            "Restore this project?", "",
+        ):
+            altered = copy.deepcopy(record)
+            altered["native_text"][-1]["text"] = text
+            invalids.append(altered)
+        for extra in (
+            {"class": "Button", "id": 2, "text": "Cancel"},
+            {"class": "Edit", "id": 4, "text": None},
+            {"class": "Static", "id": 5, "text": "another project"},
+        ):
+            altered = copy.deepcopy(record)
+            altered["native_text"].append(extra)
+            invalids.append(altered)
+        altered = copy.deepcopy(record)
+        altered["native_text"][1]["id"] = 8
+        invalids.append(altered)
+        for altered in invalids:
+            with self.subTest(altered=altered), self.assertRaises(ValueError):
+                LAUNCH.validate_recovery_dialog(request, altered)
 
     def test_child_environment_is_whitelisted_not_secret_filtered(self):
         root = Path(__file__).resolve().parents[1] / ".reverse-engineering" / "native-simulator" / ("launch-test-" + uuid.uuid4().hex)
@@ -210,6 +549,29 @@ class LaunchTests(unittest.TestCase):
 
 
 class ReceiptTests(unittest.TestCase):
+    def test_recognizer_snapshot_is_fresh_and_uses_its_retained_source_identity(self):
+        root = Path(__file__).resolve().parents[1]
+        run = root / ".reverse-engineering" / "native-simulator" / ("snapshot-test-" + uuid.uuid4().hex)
+        run.mkdir(parents=True)
+        try:
+            snapshot = run / "ocr-helper-source.py"
+            snapshot.write_text(
+                "import hashlib\nfrom pathlib import Path\n"
+                "def identity():\n"
+                "    return hashlib.sha256(Path(__file__).read_bytes()).hexdigest()\n"
+                "recognize_literal = identity\nrecognize_header = identity\nrecognize_clock = identity\n",
+                encoding="utf-8",
+            )
+            with patch.dict(sys.modules, {"official_sim_ocr": object()}):
+                first = REPLAY.load_ocr_snapshot(snapshot)
+                second = REPLAY.load_ocr_snapshot(snapshot)
+            self.assertIsNot(first, second)
+            self.assertEqual(Path(first.__file__), snapshot)
+            for name in ("recognize_literal", "recognize_header", "recognize_clock"):
+                self.assertEqual(getattr(first, name)(), REPLAY.digest(snapshot))
+        finally:
+            shutil.rmtree(run)
+
     def test_post_attach_clock_proof_requires_fresh_separated_actual_reads(self):
         samples = [
             {"observer_mode": "native-win32", "native_identity_geometry_verified": True,

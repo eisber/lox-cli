@@ -92,6 +92,36 @@ The pinned external launcher interface is supplied by the
 creation time, session and launcher ancestry are checked; a launcher PID is
 never mistaken for the GUI PID. No instrumentation is installed by the runner.
 
+## Portable reviewed protocols
+
+The following public JSON files are byte-identical aliases of the verified
+private reviewed definitions, preserving their case IDs and definition hashes.
+Their scoped Git attributes retain LF bytes across checkouts:
+
+| Protocol under `tests\ux\native-simulator` | Scenario |
+|---|---|
+| `energy-multi-original-reviewed.json` | Original three-load priority order |
+| `energy-multi-third-first-reviewed.json` | Third Load moved to first priority, Id/U/OIdx retained |
+| `energy-daily-observer-baseline.json` | Single-observer closed-feedback daily OFF/ON/OFF baseline |
+
+They publish factual UUIDs, hashes, expected phases and calibrated rectangles,
+**not** vendor XML, screenshots, models, hostnames or credentials. They are
+portable protocols, not self-contained vendor-project bundles.
+
+Obtain the exact SHA-pinned fixture separately, plus the private calibration
+image/header/evidence files at their declared ignored root-relative paths.
+Preserve those files byte-for-byte when relocating the verified evidence
+bundle below a new artifact root. Tool/model and authenticated notebook/transfer
+profiles are separate private prerequisites; a private operational manifest
+records the exact working argv and paths without copying secret values.
+Missing or altered calibration evidence intentionally blocks **before GUI
+launch**. Do not remove references, edit digests or bypass verification to
+make a clean checkout appear independently runnable. Public/private aliases
+compare by their identical immutable definition bytes; changing an alias
+requires a separately reviewed case version and fresh native evidence.
+Portable relative references do not broaden the pinned application/model or
+raster geometry: an incompatible native layout still blocks.
+
 ## Evidence and limits
 
 Each invocation creates a unique local directory below
@@ -102,10 +132,25 @@ MCP, GitHub and API tokens are not inherited by Config or DynamoRIO.
 Each new run also uses an explicit unique simple project basename,
 `input-<run-id>.Loxone`, recorded in `request.fixture_filename`. The copied
 bytes retain the identical pinned fixture SHA; no XML identities are changed.
-This prevents cross-run `input.Loxone` autosave-name collisions after
-client-requested exit. Historical `input.Loxone` receipts remain readable;
-old backups are neither restored nor deleted. Any unexpected recovery dialog
-still blocks execution rather than being clicked through.
+This avoids cross-run `input.Loxone` basename collisions, but **does not
+guarantee no recovery prompt**: Config also shares a project recovery identity.
+Historical `input.Loxone` receipts remain readable; source fixtures and previous
+run artifacts are never restored, overwritten or deleted.
+
+The default `--recovery-policy block` retains and blocks every startup modal.
+The explicit `--recovery-policy owned-skip` permits one narrowly reviewed
+exception per run: the exact German automatic-backup question naming the
+**current unique `request.fixture_filename`**, on the verified owned
+PID/session/hash/exact `#32770` GA_ROOT, with the actual Yes ID 6 and No ID 7.
+Only that dialog is activated, and only its guarded actual **No** control is
+clicked. Before/after pinned fixture hashes, modal text/pixels, validation,
+foreground/control identity, action intent and disappearance proof are
+retained immutably. Unknown text, another filename, extra/ambiguous controls,
+multiple/repeated dialogs, identity changes or altered fixture bytes block.
+There is no Yes/restore path, backup deletion or unrelated-project search.
+When no exact owned backup path is exposed, the runner does not search for it.
+Native No itself may clear the lab recovery entry; cache preservation is not
+claimed. This opt-in does not authorize security prompts or foreign input.
 
 Receipts bind application, case-definition and fixture hashes; artifact paths
 are relative to the declared local repository root, not notebook paths.
@@ -183,6 +228,26 @@ header on this pinned build/public fixture. Crop positions are relative to that
 actual header, not desktop coordinates. Other geometry is explicitly blocked.
 Low-confidence `Aus` observations remain unadmitted.
 
+The default `literal_recipe: "minimum-v1"` remains unchanged. The explicit
+opt-in `"dual-gray-tight-v2"` supports the bounded OFF expansion: it accepts
+only the calibrated **full** 25/27-pixel-wide, 17/18-pixel-high rectangles,
+internally trims three physical pixels from the right, and always runs both
+fixed minimum-RGB and 25%-minimum/75%-luminance views. Both use the same green
+wire cleanup, 4× bicubic enlargement, white border and German PSM 7. Callers
+must not pretrim again. Exact state words still need confidence ≥90;
+contradictory state words (even a low-confidence contradiction), high-confidence
+unknown words and multiword results block admission. All candidate evidence
+is retained. This is one declared recipe, not expected-state-driven selection.
+File-only holdout validation does not substitute for fresh native executions.
+The bounded Soc49/MinSoc50 counterpart has now produced two independent plain
+runner-admitted native OFF observations and one matching post-start recorded
+observation, each after at least 70 elapsed seconds. Actual pin/reference
+`Aus` confidence was 94.645/93.650. The recorded run's two clock reads exceeded
+92 confidence and advanced six native seconds over 6,475 ms. An earlier
+recorded attempt's low-confidence clock reads remain blocked and retained;
+they were not corrected or relabeled. Recorder mapping and the joined coverage
+gate remain separate from this bounded output admission.
+
 UIA snapshots, application-only physical-pixel captures, header anchors,
 processed crops, raw TSV, tool/model pins, helper source snapshots and actual
 recognizer records are retained. Empty/ambiguous readback produces **blocked**.
@@ -211,6 +276,10 @@ original blocked receipt, capture, or definition. `execution.run_id` remains
 the original actual backend run identity. Two analyses of one run are not
 independent replays. The case definition is copied byte-for-byte before launch,
 and receipts bind that immutable run-local copy—not a mutable public case file.
+Each admission also copies the OCR helper first and loads that retained source
+as a fresh uniquely named module. Literal, header and clock recognition all
+use that same snapshot; a helper cached before a long GUI replay cannot
+silently differ from its recorded `observer_source_sha256`.
 
 `--ocr-profile` performs this admission automatically after a fresh replay has
 closed its owned GUI and fetched its evidence. Instrumented success also
@@ -219,6 +288,156 @@ plain/instrumented comparison remain independent collector/scorecard gates.
 
 This pilot is not complete engine coverage, a universal allocation formula,
 closed physical-plant validation, or a claim of full simulator parity.
+
+## Bounded channel and phase expansion
+
+Legacy schema-1 cases retain their `wait_seconds` (70..120), single `OL1`,
+and `after_first_calculation` behavior. Expanded schema-1 cases instead declare
+`channels` (distinct `OL1`..`OL3`) and one to six `sampling_phases`:
+
+```json
+{
+  "channels": ["OL1", "OL2", "OL3"],
+  "sampling_phases": [
+    {"name": "settled", "at_seconds": 70, "latest_seconds": 95}
+  ],
+  "expected_outputs": {"settled": {"OL1": 1, "OL2": 0, "OL3": 0}}
+}
+```
+
+This is a protocol example, **not an established allocation result**. Each
+phase starts at 20..200 elapsed seconds and ends within 30 seconds, no later
+than 210 seconds. Windows must be ordered and nonoverlapping. Capture intervals
+and their midpoints must fit the declared window; missed windows are blocked,
+not silently shifted. Runs retain a finite 300-second target watchdog
+and 270-second transport budget. Startup, attachment, observation and cleanup
+retain their separate bounds. These windows measure actual native execution;
+they are not an internal dt or an exact native step API.
+
+An optional phase `simulator_time_window: ["10:59:10", "10:59:30"]` additionally
+requires an actual clock observation within those same-day bounds.
+Post-attach named phases use the shared pinned English clock recognizer on
+their separately retained clock PNGs; there are still no post-attach UIA calls.
+`simulator_start_time: "10:58:00"` requests **only the native simulator-local
+control before Start**. The runner unchecks native “Use current time”, requires
+an owned writable ValuePattern, retains requested/before/after values, and
+blocks on unsupported editing or mismatched readback. This edit binding is
+not yet established by a fresh native replay. It never sets the OS clock/date,
+changes a calendar during execution, or synthesizes missing native clock values.
+Native writable-ValuePattern reports have in fact ignored the requested time;
+those attempts remain blocked. An explicit case
+`simulator_time_edit: "verified-sections"` instead uses the owned focused
+clock's HOME plus 0/3/6 character navigation, one nonwrapping arrow probe per
+field, and bounded adjustment/readback. Exactly the intended field must change;
+the other two must remain unchanged. Actual probe/results are retained.
+A prior one-RIGHT-per-section candidate changed the hour instead of the minute
+and was rejected, not inferred successful. The revised 0/3/6 recipe is unit
+tested and has now established exact native 10:58:00 with “Use current time”
+OFF before Start. Actual named captures reached 10:58:20, 10:59:10 and 11:00:30.
+Output admission for that daily fixture remained blocked: its fanned-out OL1
+did not provide an exact readable pin state. Clock/control success alone is
+not an OFF→ON→OFF behavioral pass.
+
+Additional channels are not inferred from evenly spaced rows. A private case
+must supply `readback.channel_boxes`, mapping each channel to distinct
+`pin`/`wired_reference` rectangles `[left, top, right, bottom]` relative to the
+actual header. `readback.calibration` must retain hash-bound `image` and
+`header_anchor` artifact refs plus a nonempty `review` of the actual row/wire
+geometry. Source PNG, exact 107×14 header binding and rectangle bounds are checked before
+launch. Rectangles cannot be reused, and each pin/reference pair must not
+overlap. Neighbouring channel crops may share reviewed blank padding; that
+does not authorize reusing another channel's glyph. Optional hash-bound
+`calibration.evidence` refs retain the source calibration and individual
+reading records. All calibration artifacts join the
+original immutable receipt. Each channel calls the same strict file-only
+recognizer independently and needs pin/reference agreement at confidence ≥90.
+Missing or ambiguous channels block; actual differing digital values fail.
+No expected output is passed to the recognizer.
+
+Use `purpose: "exploratory"` with `expected_outputs: {}` while testing an
+unreviewed timing/priority hypothesis. All declared phase/channel observations
+are still retained, but this purpose **cannot pass** or count toward a feedback
+gate. Preserve the exploratory case/receipts and any contrary evidence when
+authoring a separately versioned reviewed assertion. In particular, a fixed
+`Gpwr` is not a closed plant: multi-load fixtures must explicitly declare grid
+and individual-load feedback assumptions, persistent Load Id/U/OIdx mappings,
+and priority order. Historical daily-plant screenshots and simplified
+`lox sim` behavior do not establish new automated native timing/allocation passes.
+
+### Observed bounded multi-load order
+
+Two privately pinned fixtures now have complete OL1..OL3 pin/Or.I1 agreement:
+an exploratory native execution followed by a separately defined, fresh
+reviewed native assertion for each order. Exploratory receipts remain blocked
+as discoveries; neither original receipt nor case definition was rewritten.
+
+The declared native plant has 4 kW PV, three digital 2.5 kW loads, RT 30 s,
+zero minimum runtime/daily minimum, and native `Or(OLn, 0)` observers feeding
+the individual-load feedback. Native grid math is
+`Gpwr = -4 + 2.5 * sum(observer.Q)` kW, not constant grid power.
+Stable Load Id/U/OIdx and all graph wiring/positions are retained when moving
+the third Load record to first priority.
+
+| Priority order by persistent OIdx | Actual OL1, OL2, OL3 in 70..95 s window |
+|---|---|
+| 0, 1, 2 | 1, 0, 0 |
+| 2, 0, 1 | 0, 0, 1 |
+
+Each reviewed fresh replay matched its preceding discovery. This establishes
+only these sampled native fixture outcomes, not a universal allocation formula,
+all priority/power combinations, physical plant parity, exact transitions or
+zero-delay feedback. Each order now also has **two independent passing plain
+receipts and one passing post-start recorded receipt for the same reviewed
+definition/fixture**, without counting discovery receipts as pass repeats.
+Actual post-attach clock advancement and nonempty flushed logs are retained.
+Independent BB imports/scorecard joins and engine completeness remain separate.
+
+### Observed bounded daily timing
+
+The original daily fixture's fanout/ellipsis readback remains blocked. A new
+private revision gives OL1 only one native `Or.I1` observer (`I2=0`) and fans
+`Or.Q` out to **all** former OL1 consumers: individual-load feedback, grid
+math and State. Existing parallel non-OL1 sources, Energy settings and Load
+Id/U/OIdx are retained. The native plant is no-PV closed feedback:
+`Gpwr=2.5*observer.Q` kW, daily minimum 60 s and deadline 11:00.
+
+Actual new PNGs established independent pin/Or.I1 OFF→ON→OFF readback using
+the unchanged strict recipe. Their discovery/calibration did not retroactively
+pass the initial legacy-ROI receipt. A separate reviewed definition then
+passed a **fresh** plain native replay:
+
+| Named sample | Actual simulator-local clock | OL1 |
+|---|---|---|
+| Before daily window | 10:58:21 | 0 |
+| Daily active window | 10:59:12 | 1 |
+| After deadline window | 11:00:31 | 0 |
+
+That unchanged reviewed definition/fixture now has two independent passing
+plain executions and one passing post-start recorded execution. All three
+state samples and their actual native clock windows were admitted; recorder
+mapping and the independent feedback join remain separate.
+
+Start time was independently read back as 10:58:00 with native “Use current
+time” OFF before Start; the OS clock/date were untouched. These samples bracket
+activity, not an exact transition instant, exact 60-second duty, internal dt,
+continuous day integration or physical-plant validation. Separate MinRt120
+and RT60 fixture versions were then observed without declaring expected
+outputs in advance:
+
+| Variant | Actual sampled OL1 values and simulator-local clocks |
+|---|---|
+| MinRt120, RT30 | 0 at 10:58:21; 1 at 10:59:12; 1 at 11:00:35; 1 at 11:01:01 |
+| MinRt0, RT60 | 0 at 10:58:21; 1 at 10:59:12; 0 at 11:00:32–33 |
+
+Canonical inspection confirms that only the intended MinRt or RT Load storage
+differs between these observer fixtures. These variant receipts remain
+**exploratory observations, not asserted passes**. The MinRt120 release time
+was not captured, continuous ON between samples is not established, and the
+RT60 sample agreement does not recover general preparation-time semantics.
+One separately defined exploratory extension adds a 200..210-second sample
+without changing the original MinRt case. It still observed OL1 ON at
+11:01:21–22 (201.574 elapsed seconds). This is another sampled point, not an
+observed release or proof of complete 120-second minimum-runtime semantics.
 
 Offline tests:
 `python -m unittest discover -s scripts -p "test_official_sim*.py"`.

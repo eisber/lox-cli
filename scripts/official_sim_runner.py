@@ -23,6 +23,86 @@ ENVIRONMENT = {
 }
 
 
+def sampling_plan(case):
+    """Normalize legacy sampling without inventing simulator steps."""
+    phases = case.get("sampling_phases")
+    if phases is None:
+        wait = case.get("wait_seconds")
+        if type(wait) is not int or not 70 <= wait <= 120:
+            raise ValueError("Legacy cases require a 70..120 second native interval.")
+        return [{"name": "after_first_calculation", "at_seconds": wait}]
+    if not isinstance(phases, list) or not 1 <= len(phases) <= 6:
+        raise ValueError("Declare one to six bounded native sampling phases.")
+    names = set()
+    previous = 0
+    for phase in phases:
+        if (not isinstance(phase, dict) or not {"name", "at_seconds", "latest_seconds"} <= set(phase)
+                or set(phase) - {"name", "at_seconds", "latest_seconds", "simulator_time_window"}):
+            raise ValueError("Each phase requires name, at_seconds and latest_seconds.")
+        name, start, end = (phase[key] for key in ("name", "at_seconds", "latest_seconds"))
+        if (not isinstance(name, str) or not re.fullmatch(r"[a-z][a-z0-9_]{0,63}", name)
+                or name in names or name in {"before_start", "initial_running", "progress_running",
+                                             "post_attach_clock_1", "post_attach_clock_2"}
+                or type(start) is not int or type(end) is not int
+                or not 20 <= start <= 200 or not start < end <= min(start + 30, 210)
+                or start < previous):
+            raise ValueError("Sampling phases need unique names and ordered, nonoverlapping 20..210 second windows.")
+        names.add(name)
+        previous = end
+        if "simulator_time_window" in phase:
+            window = phase["simulator_time_window"]
+            if (not isinstance(window, list) or len(window) != 2
+                    or any(not isinstance(value, str) or not re.fullmatch(r"(?:[01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]", value)
+                           for value in window) or window[0] > window[1]):
+                raise ValueError("Native clock windows require ordered exact HH:MM:SS observations within one day.")
+    return [dict(phase) for phase in phases]
+
+
+def native_channels(case):
+    channels = case.get("channels", ["OL1"])
+    if (not isinstance(channels, list) or not 1 <= len(channels) <= 3
+            or any(not isinstance(channel, str) or channel not in {"OL1", "OL2", "OL3"} for channel in channels)
+            or len(set(channels)) != len(channels)):
+        raise ValueError("Declare distinct native digital channels OL1..OL3.")
+    return channels
+
+
+def validate_recovery_dialog(request, record):
+    if request.get("recovery_policy", "block") != "owned-skip":
+        raise ValueError("Unexpected startup recovery remains blocked by default.")
+    filename = fixture_basename(request)
+    window = record.get("window", {})
+    identity = record.get("identity", {})
+    handle, owner = window.get("Handle"), window.get("ProcessId")
+    if (window.get("ClassName") != "#32770" or type(handle) is not int or handle <= 0
+            or type(owner) is not int or owner <= 0 or identity.get("owned_pid") != owner
+            or record.get("root_handle") != handle or identity.get("fixture_sha256") != request["fixture_sha256"]
+            or identity.get("application_sha256") != request["application"]["sha256"]
+            or type(identity.get("session")) is not int or identity["session"] <= 0
+            or identity.get("actor_session") != identity["session"] or record.get("already_handled") is not False):
+        raise ValueError("Recovery dialog lacks exact owned root/session/application/fixture proof, or is repeated.")
+    children = record.get("native_text")
+    if not isinstance(children, list) or any(
+        not isinstance(child, dict) or child.get("class") not in {"Static", "Button"} for child in children
+    ):
+        raise ValueError("Recovery dialog controls are malformed.")
+    buttons = [child for child in children if child.get("class") == "Button"]
+    if (len(buttons) != 2 or {child.get("id") for child in buttons} != {6, 7}
+            or any(child.get("text") not in ({6: {"&Yes", "&Ja"}, 7: {"&No", "&Nein"}}[child["id"]])
+                   for child in buttons)):
+        raise ValueError("Recovery dialog does not have the exact known Yes/No controls.")
+    texts = [child.get("text") for child in children if child.get("class") == "Static" and child.get("text")]
+    expression = (
+        r"Es wurde eine automatische Sicherung dieses Dokuments gefunden:\n"
+        + re.escape(filename) + r" (?P<timestamp>\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})\n\n"
+        + r"Soll diese wiederhergestellt werden\?"
+    )
+    if len(texts) != 1 or not isinstance(texts[0], str) or not re.fullmatch(expression, texts[0].replace("\r\n", "\n")):
+        raise ValueError("Recovery question does not name exactly this unique owned fixture.")
+    return {"accepted": True, "action": "decline_restore", "button_id": 7, "root_handle": handle,
+            "fixture_filename": filename, "scope": "Native No may clear this lab recovery entry; no cache-preservation claim."}
+
+
 def digest(path):
     with Path(path).open("rb") as stream:
         return hashlib.file_digest(stream, "sha256").hexdigest()
@@ -385,6 +465,7 @@ def main():
     parser.add_argument("--watch-owned", type=Path)
     parser.add_argument("--attach-owned", type=Path)
     parser.add_argument("--exit-dump-owned", type=Path)
+    parser.add_argument("--recovery-dialog", type=Path)
     args = parser.parse_args()
     if args.watch_owned:
         watch_owned(args.watch_owned)
@@ -400,6 +481,10 @@ def main():
     if args.request is None:
         parser.error("request is required unless --watch-owned is selected")
     request = json.loads(args.request.read_text(encoding="utf-8-sig"))
+    if args.recovery_dialog:
+        record = json.loads(args.recovery_dialog.read_text(encoding="utf-8-sig"))
+        print(json.dumps(validate_recovery_dialog(request, record)))
+        return
     print(json.dumps(launch(request)))
 
 

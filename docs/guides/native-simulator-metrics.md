@@ -101,6 +101,19 @@ multiple words, clipping, low confidence and missing identities are blocked;
 there is no fuzzy correction or default-OFF inference. Confidence is an OCR
 engine score, not a calibrated probability.
 
+The opt-in `literal_recipe: "dual-gray-tight-v2"` keeps that threshold and
+the default v1 reader unchanged. It removes three calibrated right-edge wire
+pixels and always evaluates two fixed grayscale views: minimum RGB, and a
+25% minimum-RGB / 75% luminance blend. Admission requires at least one exact
+state word at confidence 90 or higher, with no contradictory state word,
+high-confidence unknown word, or multiword result in either view. Every
+candidate and raw TSV is retained; no expected state selects a recipe.
+
+Separate retained captures read `Ein` above 95 and `Aus` above 92, including
+independently wired references. Blank, clipped and wrong-region controls
+were rejected. These are observer-calibration results, not substitutes for
+fresh native negative replay evidence.
+
 When Windows OCR cannot identify the English block title exactly, the optional
 `recognize_header` verifies a proposed crop using a separately pinned English
 model (`header_model_path`/`header_model_sha256`). It adds a fixed four-pixel
@@ -159,7 +172,45 @@ not universal Energy behavior, full timing equivalence, or engine parity.
 All earlier blocked attempts, original OCR results and their later correlated
 admissions remain separate immutable private evidence.
 
+The paired below-SOC case has subsequently passed **two fresh plain executions
+and one recorded execution** with actual `OL1=0`. The opt-in v2 observer read
+the pin/reference at confidence 94.645/93.650. The independently joined OFF
+loop is established; its recording has 14,426 target records, 6,904 distinct
+target BBs and 615 confirmed whole-executable functions. These per-recording
+counts do not establish comparative branch coverage. Timing and multi-load
+allocation are separate obligations, not implied by the ON/OFF pair.
+
+Two reviewed three-load closed-plant cases also passed two independent plain
+and one recorded execution **per priority order**. Original order sampled
+`(OL1, OL2, OL3) = (1,0,0)`; placing the third load first sampled `(0,0,1)`.
+Stable load IDs and output indices were preserved. All six pin/reference
+readings were independently admitted at the unchanged threshold. These
+fixture-specific observations do not establish a universal allocation formula,
+all 12 load slots, or every priority/power combination.
+
+The reviewed daily-obligation fixture also passed two plain executions and
+one recorded execution. Its sampled native windows around the 11:00 deadline
+showed `OL1: OFF -> ON -> OFF`, beginning at native simulator time 10:58:00.
+The scorecard independently checks every declared phase/channel, elapsed
+window and native clock window. This is sparse-window agreement, not an exact
+transition-time, continuous-duty or full-day proof.
+
+The expanded join now contains **five reviewed cases and 15 distinct actual
+executions**, with `loop_established: true` and `engine_complete: false`.
+The daily recording alone observed 16,792 distinct target BBs and 1,615
+confirmed whole-executable functions; simulator scope remains unknown.
+
+Separate exploratory variants were not counted as passes. `MinRt=120`
+remained ON at 201.574 elapsed seconds / native 11:01:21-22; release was not
+observed and must not be inferred as an automatic 120-second shutoff.
+`RT=60` matched the broad daily OFF/ON/OFF samples but does not establish
+general RT semantics. Original hypotheses, records and contrary observations
+remain immutable.
+
 ## Turning traces into recovered functionality
+
+See the [reviewed native function scope](native-simulator-scope.md) for the
+identified dispatcher, clock, timer thunk and primary handler-slot catalog.
 
 1. Compare controlled startup-only and simulation executions to nominate
    candidate functions. A trace difference is a lead, not proof of engine

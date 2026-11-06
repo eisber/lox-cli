@@ -101,6 +101,55 @@ class ScorecardTests(unittest.TestCase):
         result = SCORE.compare(runs, [], self.root)
         self.assertFalse(result["gate"]["native_replay_established"])
 
+    def test_passing_replay_must_satisfy_every_declared_phase_and_channel(self):
+        for expected in [
+            {"after_first_calculation": {"OL1": 1}, "later": {"OL1": 0}},
+            {"after_first_calculation": {"OL1": 1, "OL2": 0}},
+            {"after_first_calculation": {"OL1": 0}},
+            {},
+        ]:
+            self.definition = self.artifact("case.json", json.dumps({
+                "id": "positive", "expected_outputs": expected,
+            }).encode())
+            path = self.run_record("run")
+            with self.subTest(expected=expected), self.assertRaises(SCORE.EvidenceError):
+                SCORE.receipt(path, self.root)
+
+    def test_case_metadata_cannot_be_relabelled_in_a_receipt(self):
+        for extra in [{"id": "other"}, {"application": {"sha256": "b" * 64}},
+                      {"fixture_sha256": "b" * 64}]:
+            contract = {"id": "positive", **extra}
+            self.definition = self.artifact("case.json", json.dumps(contract).encode())
+            path = self.run_record("run")
+            with self.subTest(extra=extra), self.assertRaises(SCORE.EvidenceError):
+                SCORE.receipt(path, self.root)
+
+    def test_timing_case_requires_actual_declared_elapsed_and_clock_windows(self):
+        contract = {
+            "id": "positive", "expected_outputs": {"after_first_calculation": {"OL1": 1}},
+            "sampling_phases": [{"name": "after_first_calculation", "at_seconds": 70,
+                                 "latest_seconds": 80, "simulator_time_window": ["20:00:00", "20:00:30"]}],
+        }
+        self.definition = self.artifact("case.json", json.dumps(contract).encode())
+        path = self.run_record("run")
+        record = json.loads(path.read_text(encoding="utf-8"))
+        record["observations"][0]["simulator_time"] = "20:00:12"
+        self.save("run.json", record)
+        SCORE.receipt(path, self.root)
+        for elapsed, clock in [(69999, "20:00:12"), (80001, "20:00:12"),
+                               (70000, "20:01:00"), (70000, None)]:
+            record["observations"][0].update(elapsed_ms=elapsed, simulator_time=clock)
+            self.save("run.json", record)
+            with self.subTest(elapsed=elapsed, clock=clock), self.assertRaises(SCORE.EvidenceError):
+                SCORE.receipt(path, self.root)
+        contract["sampling_phases"][0]["simulator_time_window"] = ["23:59:50", "00:00:10"]
+        self.definition = self.artifact("case.json", json.dumps(contract).encode())
+        path = self.run_record("overnight")
+        record = json.loads(path.read_text(encoding="utf-8"))
+        record["observations"][0]["simulator_time"] = "00:00:05"
+        self.save("overnight.json", record)
+        SCORE.receipt(path, self.root)
+
     def test_output_mismatch_or_blocked_run_stays_incomplete(self):
         for output, status in [(0, "pass"), (1, "blocked")]:
             runs = [self.run_record("plain1"), self.run_record("plain2"),
