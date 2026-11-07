@@ -324,7 +324,9 @@ impl ConfigEditor {
     /// them on write-back.
     pub fn load(data: &[u8]) -> Result<Self> {
         let had_bom = data.starts_with(UTF8_BOM);
-        let had_crlf = data.windows(2).any(|w| w == b"\r\n");
+        // Prefer the newline after the XML declaration, or the first outside markup
+        // if there is no declaration. Attribute values carry independent line breaks.
+        let had_crlf = Self::has_crlf_line_endings(data);
         let xml_data = if had_bom { &data[3..] } else { data };
 
         let (xml_data_cow, digit_attr_renames) = Self::sanitize_digit_attrs(xml_data);
@@ -339,6 +341,39 @@ impl ConfigEditor {
             had_crlf,
             digit_attr_renames,
         })
+    }
+
+    fn has_crlf_line_endings(data: &[u8]) -> bool {
+        let mut i = 0;
+        while i < data.len() {
+            if data[i] == b'\n' {
+                return i > 0 && data[i - 1] == b'\r';
+            }
+            if data[i] == b'<' {
+                let tail = &data[i..];
+                let end = if tail.starts_with(b"<!--") {
+                    tail.windows(3)
+                        .position(|w| w == b"-->")
+                        .map(|end| i + end + 3)
+                } else if tail.starts_with(b"<![CDATA[") {
+                    tail.windows(3)
+                        .position(|w| w == b"]]>")
+                        .map(|end| i + end + 3)
+                } else if tail.starts_with(b"<?") {
+                    tail.windows(2)
+                        .position(|w| w == b"?>")
+                        .map(|end| i + end + 2)
+                } else {
+                    Self::xml_tag_end(data, i)
+                };
+                if let Some(end) = end {
+                    i = end;
+                    continue;
+                }
+            }
+            i += 1;
+        }
+        false
     }
 
     /// Find attribute names starting with a digit and rename them with an underscore prefix.
@@ -1694,6 +1729,50 @@ Unit='a > b' Unit='a > b'/><部屋 Title='同じ' Title='同じ'/></ControlList>
         let output = editor.to_bytes().unwrap();
         let output_str = String::from_utf8(output).unwrap();
         assert!(output_str.contains("\r\n"));
+    }
+
+    #[test]
+    fn test_crlf_inside_attribute_does_not_make_lf_file_crlf() {
+        // An LF file whose only CRLF sits inside an attribute value (AutoPilot rule JSON).
+        let xml_str = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<ControlList Version=\"1\">\n\t<C U=\"a\" APC=\"{&quot;x&quot;:1,\r\n&quot;y&quot;:2}\"/>\n</ControlList>\n";
+        let editor = ConfigEditor::load(xml_str.as_bytes()).unwrap();
+        assert!(!editor.had_crlf);
+        let output_str = String::from_utf8(editor.to_bytes().unwrap()).unwrap();
+        assert!(output_str.starts_with(
+            "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<ControlList Version=\"1\">\n\t<C "
+        ));
+        assert!(output_str.ends_with("/>\n</ControlList>\n"));
+        assert!(output_str.contains("APC=\"{&quot;x&quot;:1,\r\n&quot;y&quot;:2}\""));
+        assert_eq!(
+            ConfigEditor::load(output_str.as_bytes())
+                .unwrap()
+                .to_bytes()
+                .unwrap(),
+            output_str.as_bytes(),
+            "a second save preserves both newline styles"
+        );
+    }
+
+    #[test]
+    fn test_crlf_detection_without_a_declaration_skips_attribute_newlines() {
+        for (xml, expected_crlf) in [
+            (
+                "<ControlList APC='one\r\ntwo'>\n<C/>\n</ControlList>\n",
+                false,
+            ),
+            (
+                "<ControlList APC='one\ntwo'>\r\n<C/>\r\n</ControlList>\r\n",
+                true,
+            ),
+            ("<ControlList APC='one\r\ntwo'/>", false),
+            ("<!-- one\r\ntwo -->\n<ControlList/>", false),
+        ] {
+            assert_eq!(
+                ConfigEditor::load(xml.as_bytes()).unwrap().had_crlf,
+                expected_crlf,
+                "{xml:?}"
+            );
+        }
     }
 
     // ── Wire edge cases ──────────────────────────────────────────────────

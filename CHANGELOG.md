@@ -18,6 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `lox sim run`: unknown keys in a spec are rejected, and an input that resolves to nothing fails the scenario instead of only printing a warning.
 - Config editing accepts value-identical duplicate attributes emitted by Loxone while still rejecting conflicting values. Comments, CDATA, processing instructions, and declarations are left untouched.
 - Writing a `.Loxone` file preserves line breaks inside attribute values. Loxone keeps bare LF in note text and CRLF in AutoPilot rule JSON; the CRLF post-process previously converted both to the file's line ending. Repeated saves now keep each attribute's own line breaks without accumulating extra carriage returns.
+- Writing a `.Loxone` file keeps the file's own line endings. They are now taken from the newline after the XML declaration (or the first newline outside markup when there is no declaration); before, a single CRLF inside any attribute value (AutoPilot rule JSON) made the editor treat an LF file as CRLF and convert every line of it.
 
 ## [0.14.2] — 2026-05-08
 
