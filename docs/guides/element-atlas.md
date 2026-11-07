@@ -158,6 +158,53 @@ change the 27-layout/134-method metadata assessment or establish an overall
 behavior percentage. Revalidate each factory, object and literal witness
 against the next release's image instead of inheriting these addresses.
 
+### Reviewed BinDecoder extension
+
+A further independently admitted relation adds only catalog row 301, CT339
+`BinDecoder`, to `CControlObjectBinDecoder`. The separate merged snapshot
+proves **164/522 catalog identities (31.42%)**: 81 exact, 83 aliases,
+19 candidates and 339 unresolved, leaving **358 unproven**. It links
+**145/483 native classes (30.02%)**, leaving **338 unlinked**. Its **322**
+factory/XML associations retain all 321 previous associations. The original
+159, Access-only 160 and three-candidate 163 snapshots remain unchanged.
+
+The proof follows the actual allocated root and final primary vtable/COL to
+the registry's `+0xf18` dispatch. Independent control-flow and register
+dataflow checks establish that all selected normal returns reach the explicit
+descriptor-string assignment after 31 loop iterations. The `+0x50` candidate
+does not establish getter semantics. Ordinary Win64 normal-return, successful
+fresh disjoint live allocations, ordinary CRT contracts and synchronous
+object-model conditions remain explicit; register preservation is not proof
+that pointed memory is unchanged. This admits an emitted assignment and
+same-pointer/CT static registration-call relation, not literal persistence
+across later callbacks, a persistent registry, loaded DLL binding, runtime,
+serialization, UX or native behavior.
+
+Independent admission SHA-256:
+`fe8e026af388d6714012fb9624af980eba14723f75afda30350483ecdce6ef94`.
+The original proposal SHA-256 is
+`b89c63cead3f28ca0322213c0a6017b90d4d1f348755414a10aad4ed3b60ec72`.
+Parent replay of the independent checker passed 50 total checks:
+20 positive and 30 negative cases. Its own PE mapper and dataflow checker did not use the
+author's analyzer as a semantic oracle.
+The separately merged opt-in report SHA-256 is
+`efc22928eb4d234740642ed014f5a25f5f26a36f569e380e4cfc24b830fe7d73`.
+
+```powershell
+python scripts\element-native-map.py `
+  --inventory .reverse-engineering\ux\block-ux-coverage.json `
+  --native-catalog .reverse-engineering\native-simulator\scope\17.2.10.21-primary-handler-candidates\catalog.json `
+  --factory-proof .reverse-engineering\element-atlas\factory-bindecoder-reviewed-admission-20261108T0028Z\report.json `
+  --output .reverse-engineering\element-atlas\factory-bindecoder-reviewed-admission-20261108T0028Z\native-map.json
+```
+
+Power, PulseBy, LightControllerH, DaylightController and ShadeRoof remain
+candidates: their selected post-primary-store call effects are not closed.
+Local matching literal sites do not discharge that missing root-memory
+relation. No other candidate, contract, Qt metadata or behavior count changes.
+Keep this extraction opt-in and re-establish the complete chain for a new
+release rather than transferring this image's verdict.
+
 Generate shared UX mechanism leads with:
 
 ```powershell
