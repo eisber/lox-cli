@@ -1,9 +1,10 @@
 # Advanced block configuration and UX coverage
 
 This investigation covers configuration authoring, validation, and feedback,
-not upload fidelity. The baseline is Loxone Config **17.2.10.21**, with
-Qt **6.10.2**, executable SHA-256
+not upload fidelity. The baseline is Loxone Config **17.2.10.21**, executable SHA-256
 `7b55e3ef18401574ab967c5c6a0140cd5a66dc728521ebba04ad53093577d8b3`.
+Qt **6.10.2** is the revision-13 decoder's format reference, not an independently
+verified embedded-library build/version.
 Recovered code, resource payloads, and full reports remain local and Git-ignored.
 The inventory does not access or modify a Miniserver.
 
@@ -39,14 +40,57 @@ Missing or conflicting profiles remain explicit decoding issues without a
 guessed object base. Revision alone does not select a header width. Seven
 reviewed entries demonstrated that the historical scanner's
 `metaobject_address` was eight bytes after the code-returned base; their
-absolute strings/data/dispatcher pointers remain correct. The other 638 entries
-have not received that independent assessment. Do not blanket-shift the frozen
+absolute strings/data/dispatcher pointers remain correct. At that stage, the
+other 638 entries had not received that assessment. Do not blanket-shift the frozen
 645-record snapshot or its address-derived class IDs.
 
 Use a new `--output` directory for normalized extractions: the inventory refuses
 to overwrite an existing `qt-metadata.json`. Corrected addresses produce new
 snapshot identities, not an in-place migration of historical evidence or an
 increase in candidate/runtime coverage.
+
+### Reviewed eight-dialog extension
+
+A later, independently reviewed cohort adds **eight header layouts and 72
+class-local metadata methods** (58 distinct method names). These classes are
+disjoint from the original seven:
+
+| Qt metadata class | Local methods |
+|---|---:|
+| `CEnergyManagerConfigurationDlg` | 5 |
+| `CPresenceDetectorConfigurationDlg` | 16 |
+| `CTargetBrightnessConfigurationDlg` | 13 |
+| `CNanoMotorControllerConfigurationDlg` | 15 |
+| `CLoadManagerConfigurationDlg` | 3 |
+| `CTouchFlexConfigurationDlg` | 8 |
+| `CWallboxManagerConfigurationDlg` | 3 |
+| `CTouchPureDisplayConfigurationDlg` | 9 |
+
+Parent aggregation through the unchanged, source-pinned decoder produces a
+**separate 15-layout, 93-class-local-method snapshot**, leaving **630/645 layouts
+unvalidated**. Every reviewed class/method record matches its original cohort.
+Method names shared across classes are not deduplicated as implementations.
+The frozen 645-row corpus and original seven-class snapshot remain unchanged.
+
+The eight-class witness supplement SHA-256 is
+`be2fd3c6bd6225fa843c42cdb83a874ddb3c7837448764618b0811a638d7bec8`;
+independent admission is
+`84670348b24865d7c9e6300ef56441d228bdd122ebab4e7e86f267b4ac513b2e`.
+The separate aggregate snapshot SHA-256 is
+`906a3ee9d81ce2c9ef9299a03ce632667b39ba0f3c08cdbdb0cba79489865b2c`.
+Its profiles are retained at
+`.reverse-engineering\element-atlas\qt-reviewed-cohorts-20261107T1540Z\reviewed-fifteen-profiles.json`
+(SHA-256 `067a25bdd784268447b6eb0bc80abd590906f48266d647ee9b4bd84f4ad7e491`).
+Use that file with the existing `--qt-layout-profiles` option and a new output
+directory; never overwrite a historical snapshot.
+
+This admission covers revision-13 metadata tables and code-returned header-base
+witnesses only. Five new callback bodies remain absent from the frozen canonical
+index; their callable ABI and implementation remain unknown. All 72 new methods'
+GUI bindings, implementation behavior and runtime connections remain unverified.
+Dialog names do not prove factory/XML/control ownership, and no catalog-identity,
+UX-rule or native-parity count is promoted. The initial future-dated milestone
+was corrected append-only; its historical event time remains unknown.
 
 For release comparisons, retain separate output directories with `--output`.
 Compare control identities, parameter patterns, and Qt class/member signatures,
@@ -70,6 +114,9 @@ remain distinct, such as `C[Type=LightscenesC]`.
 
 ## Baseline findings
 
+The Qt scanner counts below are historical observations, not the independently
+reviewed 15-layout/93-method aggregate above.
+
 | Measurement | Observed |
 |---|---:|
 | Catalog records examined | 522 |
@@ -79,9 +126,9 @@ remain distinct, such as `C[Type=LightscenesC]`.
 | Catalog parameter entries | 757 |
 | Parameter entries associated with existing XML keys | 645 |
 | Configuration fixtures read by the native parser | 36, with no omissions |
-| Recognized revision-13 Qt meta-objects decoded | 645 |
-| Declared Qt methods | 1,892 |
-| Declared Qt properties | 283 |
+| Historical revision-13 Qt candidate rows | 645 |
+| Historical declared Qt method records | 1,892 |
+| Historical declared Qt property records | 283 |
 | Qt dialog/editor/configuration name candidates | 214 |
 | MSVC RTTI dialog/editor name leads | 539 |
 | English Windows dialog templates decoded | 113 |

@@ -126,6 +126,11 @@ excludes 28 metadata-only associations. Its 692 parameter entries are all
 catalog parameters belonging to those 177 records, not recovered GUI fields.
 None of these populations measures verified UX coverage.
 
+Separately reviewed Qt header cohorts now cover 15 layouts and 93 class-local
+metadata methods, with 630/645 layouts still unvalidated; the original frozen
+snapshot is unchanged. See [the reviewed dialog cohort](../analysis/advanced-block-ux.md#reviewed-eight-dialog-extension).
+These metadata counts do not add catalog identities, GUI bindings or runtime passes.
+
 ## Identity and evidence
 
 `catalog_index` is the source record identity, not a numeric ControlType ID.
