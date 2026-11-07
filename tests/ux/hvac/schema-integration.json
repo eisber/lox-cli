@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "status": "core_connector_metadata_integrated",
+  "case_status": "proposed_not_executed",
+  "gui_executions": 0,
+  "native_simulator_executions": 0,
+  "block_type": "HeatIRoomController2",
+  "control_type": 469,
+  "application": {
+    "version": "17.2.10.21",
+    "sha256": "7b55e3ef18401574ab967c5c6a0140cd5a66dc728521ebba04ad53093577d8b3"
+  },
+  "source_proposal": "tests\\ux\\hvac\\missing-connectors-proposal.json",
+  "integrated_file": "docs\\schemas\\connector-map.json",
+  "connectors": {
+    "RtD": "I",
+    "AQh3": "O",
+    "AQc3": "O",
+    "AQhc3": "O"
+  },
+  "expected_native_ordered_connector_count": 56,
+  "regression_test": "tests\\hvac_connectors.rs",
+  "scope": "Fresh CLI block creation, connector direction and third-source wiring only.",
+  "preservation": "Initial seeds, protocols and private fixtures remain unchanged.",
+  "defaults_policy": "No forced serialized Def=0 entries were added.",
+  "remaining_unknowns": [
+    "Physical units and RtD visibility.",
+    "Native serialized-zero spelling or omission.",
+    "Official import/save/reopen and connector UUID preservation.",
+    "Hardware requirements and native behavioral/readback calibration."
+  ]
+}

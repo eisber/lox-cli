@@ -1,0 +1,121 @@
+{
+  "schema_version": 1,
+  "status": "proposed_not_executed",
+  "runner_ready": false,
+  "engine_completion": false,
+  "application": {
+    "version": "17.2.10.21",
+    "sha256": "7b55e3ef18401574ab967c5c6a0140cd5a66dc728521ebba04ad53093577d8b3"
+  },
+  "private_fixture": {
+    "path": ".reverse-engineering\\native-simulator\\families\\shading-hvac\\hvac-minimum.Loxone",
+    "sha256": "8e44a25612f371881a6f5b729d0c061fa0c62ca15ede9aa578d2475df8b49f7d",
+    "block_selector": "Prepared HVAC",
+    "controller_uuid": "cb72b32c-c9de-274f-ffff000000000001",
+    "admission_status": "blocked_native_core_connector_mismatch"
+  },
+  "generation": {
+    "seed": "tests\\ux\\hvac\\seed.Loxone",
+    "cli_path": "target\\release\\lox.exe",
+    "cli_sha256": "3912fc2e9d9537e4495638041095a159411b2114ebf54d319d18335a6abf14cf",
+    "private_command_and_role_manifest": ".reverse-engineering\\native-simulator\\families\\shading-hvac\\fixture-generation.json",
+    "private_command_and_role_manifest_sha256": "4857964179477caad1e7a14e92d5a5caa8cf36320876dfb3f450928bd4a078b5",
+    "add_command": "lox config add --type HeatIRoomController2 --title \"Prepared HVAC\" --room \"HVAC Lab\" --page \"HVAC Lab\" tests\\ux\\hvac\\seed.Loxone --save-as .reverse-engineering\\native-simulator\\families\\shading-hvac\\hvac-minimum.Loxone --json",
+    "authored_parameter_inputs": {
+      "TComfort": 22,
+      "TComfortC": 25,
+      "TComfortHC": 23,
+      "TDiff": 2,
+      "TSaveL": 3,
+      "TSaveU": 3,
+      "TSave": 2,
+      "TShadeHeat": 27,
+      "TShadeCool": 24,
+      "TDeepSleep": 7,
+      "TMax": 29,
+      "TimeMove": 1,
+      "TimeC": 60,
+      "TimeS": 60,
+      "TimeMv": 30,
+      "THCelvin": 90,
+      "TCCelvin": 45,
+      "TPWM": 0,
+      "TWin": 10,
+      "TExcess": 1.25
+    },
+    "set_command_pattern": "lox config set-param <private fixture> \"Prepared HVAC\" <key> <authored value> --json",
+    "uuid_policy": "Do not manufacture missing connectors or accept regenerated UUIDs as preservation. A centrally corrected fixture requires new hashes, role ledger and calibration."
+  },
+  "prerequisites": {
+    "gui_lease": "BLOCKED/QUEUED: coordinator only; no Shading/HVAC desktop access authorized in this phase.",
+    "desktop_identity": "Require the coordinator's explicit lease and the authorized private-profile notebook/actor/active-console identity plus pinned tools. Never infer the GUI actor from the SSH transport account.",
+    "oracle_baseline": ".reverse-engineering\\native-simulator\\workstreams\\054ce95-oracle-baseline\\manifest.json",
+    "connector_schema": "BLOCKED: 56 native registrations versus 52 emitted core connectors; missing RtD/AQh3/AQc3/AQhc3 and differing parameter/numbered-output order.",
+    "mode": "UNKNOWN: record actual official heat-only mode enum and explicit-target semantics; no guessed AMode numeric value.",
+    "temperature_units": "UNKNOWN runtime calibration: catalog degree labels do not establish the active Celsius/Fahrenheit configuration.",
+    "presence": "UNKNOWN: establish Move polarity, presence duration and interactions with Input/Comfort/Save/schedule before interpreting it.",
+    "input_and_readback": "UNKNOWN: existing official simulator input and AQt/AQh/AQc readback path; no private vendor ABI or memory writes.",
+    "clock": "UNKNOWN: official simulator elapsed time, callback progress and actual settling duration; no Energy clock or class-ID assumptions.",
+    "hardware": "UNKNOWN source-capability/receiver/plant dependencies. A bare file has none; missing required dependencies block execution rather than being invented.",
+    "native_instance": "UNKNOWN: independently bind the HVAC primary COL/vtable and +0x50 to the actual admitted fixture."
+  },
+  "clock_plan": {
+    "clock": "official simulator elapsed seconds, contingent on calibration",
+    "time_scale": "real-time 1:1 only after visible calibration",
+    "maximum_wall_seconds_per_case": 120,
+    "maximum_native_settling_seconds": 60,
+    "timeout_result": "incomplete_or_blocked_not_success",
+    "os_clock_changes": false
+  },
+  "cases": [
+    {
+      "id": "hvac.admission-calibration",
+      "status": "proposed_not_executed",
+      "setup": "BLOCKED until central owner resolves native/core shape discrepancy. A replacement fixture must have its own pinned byte hash and preserved UUID/reference role ledger.",
+      "inputs": "No temperature/mode/presence injections until official admission, runtime units, mode and source prerequisites are confirmed.",
+      "clock": "Bounded official simulator start/stop and elapsed-time calibration within the declared wall-time cap.",
+      "procedure": "Compare all native registration keys/order, selected scalar persistence, room/page references and every UUID through save/reopen. Inventory Timer/source/priority dialogs without inventing or editing unknown records.",
+      "expected_bounds": {
+        "pinned_native_connector_count": 56,
+        "current_diagnostic_fixture_connector_count": 52,
+        "permitted_uuid_or_reference_role_changes": 0,
+        "unrelated_xml_changes": 0
+      },
+      "limitations": "PROPOSED and currently BLOCKED. Local config check/validate do not detect this native discrepancy and cannot admit the fixture."
+    },
+    {
+      "id": "hvac.target-feedback",
+      "status": "proposed_not_executed",
+      "setup": "Fresh admitted fixture; calibrated explicit-target heating mode and temperature system; Temp=19.5, Window/Reset/Save/Save2 inactive. AMode uses only its separately confirmed value.",
+      "inputs": [
+        {"elapsed_seconds": 0, "set": {"Input": 22, "Temp": 19.5}},
+        {"elapsed_seconds": 20, "set": {"Input": 23}}
+      ],
+      "clock": "Read official AQt before the second edit at elapsed second 19 and after settling at second 40; require independent native progress.",
+      "expected_bounds": {
+        "proposed_AQt_first": {"minimum": 21.75, "maximum": 22.25},
+        "proposed_AQt_second": {"minimum": 22.75, "maximum": 23.25},
+        "second_target_greater_than_first": true,
+        "measured_Temp_unchanged": 19.5
+      },
+      "limitations": "PROPOSED explicit-target feedback hypothesis, contingent on calibration. Input is not Setpoint; Temp is not TempO. No PI/PWM, cooling, predictive or complete comfort algorithm is asserted."
+    },
+    {
+      "id": "hvac.presence-demand",
+      "status": "proposed_not_executed",
+      "setup": "Fresh admitted fixture; confirmed heat-only mode and positive heating capability; explicit target=22; Window/Reset/Save/Save2/DisMv inactive. Presence polarity and demand units are calibrated.",
+      "inputs": [
+        {"elapsed_seconds": 0, "set": {"Input": 22, "Temp": 19.5, "Move": 1}},
+        {"elapsed_seconds": 30, "set": {"Temp": 24, "Move": 0}}
+      ],
+      "clock": "Read official AQt/AQh/AQc at elapsed seconds 29 and 60. If native settling exceeds the declared bound, report incomplete rather than extending indefinitely.",
+      "expected_bounds": {
+        "proposed_AQt": {"minimum": 21.75, "maximum": 22.25},
+        "proposed_AQh_first": {"strictly_greater_than": 0, "finite": true},
+        "proposed_AQh_second": {"minimum": 0, "no_greater_than_first": true, "finite": true},
+        "proposed_AQc_heat_only": 0
+      },
+      "limitations": "PROPOSED bounded trend only; no arbitrary upper duty range. Changing presence and temperature together is not an isolated presence-parity test. Source-capability absence, unsupported input injection, unknown mode/units or slow adaptation are explicit blockers."
+    }
+  ]
+}

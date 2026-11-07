@@ -14,9 +14,17 @@
 
 mod blocks;
 mod describe;
+pub mod energy;
+#[cfg(test)]
+mod energy_tests;
+pub mod icons;
 mod layout;
+pub mod lighting;
+#[cfg(test)]
+mod lighting_tests;
 mod properties;
 mod rooms;
+pub mod schema;
 mod selector;
 mod template;
 mod validation;
@@ -68,6 +76,15 @@ pub struct DescribeConnectorEntry {
     pub wired: bool,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub default: Option<String>,
+}
+
+/// Value-free storage shapes observed in a configuration, grouped by element type.
+#[derive(Debug, serde::Serialize)]
+pub struct ConfigSurfaceEntry {
+    pub element_type: String,
+    pub occurrences: usize,
+    pub attributes: Vec<String>,
+    pub storage_paths: Vec<String>,
 }
 
 /// A light scene / "mood" defined on a LightController2.
@@ -1927,6 +1944,8 @@ mod tests {
         assert!(text.contains("<In Input=\"a-aq2\""));
         assert!(text.contains("<In Input=\"b-aq2\""));
         assert!(text.contains("U=\"b-q2\""));
+        assert_eq!(editor.resolve_wiring(&live).unwrap(), 0);
+        assert_eq!(editor.to_bytes().unwrap(), out);
     }
 
     #[test]
@@ -1949,5 +1968,35 @@ mod tests {
         let ours = page_with_refs(&[("ref-x", "x-aq", "x-q"), ("ref-y", "y-aq", "y-q")]);
         let mut editor = ConfigEditor::load(&ours).unwrap();
         assert_eq!(editor.resolve_wiring(&live).unwrap(), 0);
+    }
+
+    #[test]
+    fn test_resolve_wiring_keeps_ports_when_live_target_is_ambiguous() {
+        let ours = page_with_refs(&[("ref-old", "old-aq", "old-q")]);
+        let live = page_with_refs(&[("ref-a", "a-aq", "a-q"), ("ref-b", "b-aq", "b-q")]);
+        let mut editor = ConfigEditor::load(&ours).unwrap();
+        let before = editor.to_bytes().unwrap();
+        assert_eq!(editor.resolve_wiring(&live).unwrap(), 0);
+        assert_eq!(editor.to_bytes().unwrap(), before);
+    }
+
+    #[test]
+    fn test_resolve_wiring_does_not_reuse_another_connectors_uuid() {
+        let ours = page_with_refs(&[("ref-a", "a-aq", "a-q")]);
+        let live = page_with_refs(&[("ref-a", "mem-0-in", "a-q")]);
+        let mut editor = ConfigEditor::load(&ours).unwrap();
+        let before = editor.to_bytes().unwrap();
+        assert_eq!(editor.resolve_wiring(&live).unwrap(), 0);
+        assert_eq!(editor.to_bytes().unwrap(), before);
+        assert!(duplicate_connector_uuids(&before).is_empty());
+    }
+
+    #[test]
+    fn test_resolve_wiring_rejects_malformed_live_xml_without_mutation() {
+        let ours = page_with_refs(&[("ref-a", "a-aq", "a-q")]);
+        let mut editor = ConfigEditor::load(&ours).unwrap();
+        let before = editor.to_bytes().unwrap();
+        assert!(editor.resolve_wiring(b"<ControlList><C").is_err());
+        assert_eq!(editor.to_bytes().unwrap(), before);
     }
 }

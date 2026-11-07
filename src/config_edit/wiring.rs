@@ -447,9 +447,8 @@ impl ConfigEditor {
     /// Resolve stale InputRef wiring by updating connector UUIDs
     /// to match the live config from the Miniserver.
     ///
-    /// When Loxone Config UX saves, it regenerates InputRef connector UUIDs.
-    /// Blocks wired to old UUIDs still function (SPS follows VirtualInCaption-level refs)
-    /// but UX won't draw visual wires. This remaps old → current UUIDs.
+    /// If the live config carries different InputRef connector UUIDs, remap
+    /// old → current UUIDs without collapsing mirrors of the same target.
     ///
     /// Several InputRefs may mirror the same target (one per page, or twins
     /// on one page), each with its own output connectors. A port is

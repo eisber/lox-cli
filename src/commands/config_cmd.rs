@@ -5,6 +5,9 @@ use reqwest::blocking::Client;
 use std::fs;
 use std::time::Duration;
 
+pub(crate) mod energy;
+pub(crate) mod lighting;
+
 use crate::client::{LOXONE_EPOCH_SECS, LoxClient, USER_AGENT};
 use crate::commands::RunContext;
 use crate::config::Config;
@@ -349,6 +352,8 @@ pub fn cmd_token(ctx: &RunContext, action: TokenCmd) -> Result<()> {
 
 pub fn cmd_config(ctx: &RunContext, action: ConfigCmd) -> Result<()> {
     match action {
+        ConfigCmd::Energy { action } => energy::run(ctx, action)?,
+        ConfigCmd::Lighting { action } => lighting::run(ctx, action)?,
         ConfigCmd::Ls => {
             let cfg = Config::load()?;
             let backups = ftp::list_backups(&cfg)?;
@@ -416,16 +421,16 @@ pub fn cmd_config(ctx: &RunContext, action: ConfigCmd) -> Result<()> {
             }
         }
         ConfigCmd::Extract { file, save_as } => {
-            let zip_data = fs::read(&file).with_context(|| format!("Cannot read {}", file))?;
-            eprintln!("Extracting sps0.LoxCC...");
-            let xml = loxcc::extract_and_decompress(&zip_data)?;
+            let data = fs::read(&file).with_context(|| format!("Cannot read {}", file))?;
+            eprintln!("Extracting config archive...");
+            let xml = loxcc::extract_and_decompress(&data)?;
             let xml_path = save_as.unwrap_or_else(|| {
                 file.strip_suffix(".zip").unwrap_or(&file).to_string() + ".Loxone"
             });
             fs::write(&xml_path, &xml)?;
             println!(
                 "Decompressed {} KB → {} KB → {}",
-                zip_data.len() / 1024,
+                data.len() / 1024,
                 xml.len() / 1024,
                 xml_path
             );
@@ -1059,8 +1064,7 @@ pub fn cmd_config(ctx: &RunContext, action: ConfigCmd) -> Result<()> {
             eprintln!("Downloading {} as template...", newest.filename);
             let template_zip = ftp::download_backup(&cfg, &newest.filename)?;
 
-            // Resolve stale InputRef wiring: UX regenerates connector UUIDs on save,
-            // so our wiring may point to old UUIDs. Remap to current ones from template.
+            // Resolve stale InputRef ports against their matching live objects.
             let live_xml = loxcc::extract_and_decompress(&template_zip)?;
             let mut editor_for_wiring = ConfigEditor::load(&xml)?;
             let resolved = editor_for_wiring.resolve_wiring(&live_xml)?;
@@ -2675,6 +2679,36 @@ pub fn cmd_config(ctx: &RunContext, action: ConfigCmd) -> Result<()> {
                 println!("{}", description);
             }
         }
+        ConfigCmd::Surfaces { file } => {
+            let data = fs::read(&file).with_context(|| format!("Cannot read {}", file))?;
+            let editor = ConfigEditor::load(&data)?;
+            let surfaces = editor.configuration_surfaces();
+            if ctx.json {
+                emit_json(ctx, serde_json::json!({ "ok": true, "surfaces": surfaces }));
+            } else {
+                if !ctx.no_header {
+                    println!(
+                        "{:<28} {:>8} {:>10} {:>14}",
+                        "TYPE", "COUNT", "ATTRIBUTES", "STORAGE PATHS"
+                    );
+                }
+                for surface in &surfaces {
+                    println!(
+                        "{:<28} {:>8} {:>10} {:>14}",
+                        surface.element_type,
+                        surface.occurrences,
+                        surface.attributes.len(),
+                        surface.storage_paths.len()
+                    );
+                }
+                if !ctx.quiet {
+                    println!(
+                        "\n{} element types; names only, no configuration values",
+                        surfaces.len()
+                    );
+                }
+            }
+        }
         ConfigCmd::Wires {
             file,
             file_opt,
@@ -3305,6 +3339,15 @@ fn collect_block_connectors(editor: &ConfigEditor, uuid: &str) -> Vec<serde_json
 }
 
 fn save_edited(editor: &ConfigEditor, original_path: &str, save_as: Option<&str>) -> Result<()> {
+    save_edited_with_quiet(editor, original_path, save_as, false)
+}
+
+fn save_edited_with_quiet(
+    editor: &ConfigEditor,
+    original_path: &str,
+    save_as: Option<&str>,
+    quiet: bool,
+) -> Result<()> {
     let output = editor.to_bytes()?;
     let out_path = save_as.unwrap_or(original_path);
 
@@ -3335,7 +3378,9 @@ fn save_edited(editor: &ConfigEditor, original_path: &str, save_as: Option<&str>
             .with_context(|| format!("Failed to clean up temp file: {}", tmp_path.display()))?;
         Ok::<(), anyhow::Error>(())
     })?;
-    eprintln!("✓ Saved to {}", out_path);
+    if !quiet {
+        eprintln!("✓ Saved to {}", out_path);
+    }
     Ok(())
 }
 

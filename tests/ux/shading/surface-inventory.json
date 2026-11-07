@@ -1,0 +1,426 @@
+{
+  "schema_version": 1,
+  "status": "static_inventory_not_gui_validated",
+  "application": {
+    "version": "17.2.10.21",
+    "sha256": "7b55e3ef18401574ab967c5c6a0140cd5a66dc728521ebba04ad53093577d8b3",
+    "image_base": "0x140000000"
+  },
+  "xml_type": "JalousieUpDown2",
+  "control_type": 349,
+  "complete": false,
+  "native_executed": false,
+  "engine_completion": false,
+  "native_registration_order": {
+    "inputs": [
+      "InputTriggerUp",
+      "InputTriggerDown",
+      "EndUp",
+      "EndDown",
+      "Shade",
+      "Stop",
+      "ManualPosition",
+      "ManualLamelle",
+      "InputDisable"
+    ],
+    "parameters": [
+      "MinPulse",
+      "TimeEnd",
+      "TimeEndDown",
+      "TimeBlock",
+      "DblClk",
+      "Back",
+      "MinMove",
+      "Type"
+    ],
+    "outputs": [
+      "OutputUp",
+      "OutputDown",
+      "OutputPos",
+      "OutputLPos"
+    ]
+  },
+  "connectors": [
+    {
+      "key": "InputTriggerUp",
+      "direction": "input",
+      "storage_binding": {
+        "status": "known",
+        "path": "C[Type=JalousieUpDown2]/Co[K=InputTriggerUp]",
+        "value_path": "@Def",
+        "authority": "core storage syntax plus pinned native registration; native omission/default rules unverified"
+      },
+      "unit": {
+        "status": "unknown",
+        "label": null,
+        "authority": "catalog label only; runtime scale/temperature-system calibration pending"
+      },
+      "emitted_by_current_core": true,
+      "runtime_binding_status": "unknown"
+    },
+    {
+      "key": "InputTriggerDown",
+      "direction": "input",
+      "storage_binding": {
+        "status": "known",
+        "path": "C[Type=JalousieUpDown2]/Co[K=InputTriggerDown]",
+        "value_path": "@Def",
+        "authority": "core storage syntax plus pinned native registration; native omission/default rules unverified"
+      },
+      "unit": {
+        "status": "unknown",
+        "label": null,
+        "authority": "catalog label only; runtime scale/temperature-system calibration pending"
+      },
+      "emitted_by_current_core": true,
+      "runtime_binding_status": "unknown"
+    },
+    {
+      "key": "EndUp",
+      "direction": "input",
+      "storage_binding": {
+        "status": "known",
+        "path": "C[Type=JalousieUpDown2]/Co[K=EndUp]",
+        "value_path": "@Def",
+        "authority": "core storage syntax plus pinned native registration; native omission/default rules unverified"
+      },
+      "unit": {
+        "status": "unknown",
+        "label": null,
+        "authority": "catalog label only; runtime scale/temperature-system calibration pending"
+      },
+      "emitted_by_current_core": true,
+      "runtime_binding_status": "unknown"
+    },
+    {
+      "key": "EndDown",
+      "direction": "input",
+      "storage_binding": {
+        "status": "known",
+        "path": "C[Type=JalousieUpDown2]/Co[K=EndDown]",
+        "value_path": "@Def",
+        "authority": "core storage syntax plus pinned native registration; native omission/default rules unverified"
+      },
+      "unit": {
+        "status": "unknown",
+        "label": null,
+        "authority": "catalog label only; runtime scale/temperature-system calibration pending"
+      },
+      "emitted_by_current_core": true,
+      "runtime_binding_status": "unknown"
+    },
+    {
+      "key": "Shade",
+      "direction": "input",
+      "storage_binding": {
+        "status": "known",
+        "path": "C[Type=JalousieUpDown2]/Co[K=Shade]",
+        "value_path": "@Def",
+        "authority": "core storage syntax plus pinned native registration; native omission/default rules unverified"
+      },
+      "unit": {
+        "status": "unknown",
+        "label": null,
+        "authority": "catalog label only; runtime scale/temperature-system calibration pending"
+      },
+      "emitted_by_current_core": true,
+      "runtime_binding_status": "unknown"
+    },
+    {
+      "key": "Stop",
+      "direction": "input",
+      "storage_binding": {
+        "status": "known",
+        "path": "C[Type=JalousieUpDown2]/Co[K=Stop]",
+        "value_path": "@Def",
+        "authority": "core storage syntax plus pinned native registration; native omission/default rules unverified"
+      },
+      "unit": {
+        "status": "unknown",
+        "label": null,
+        "authority": "catalog label only; runtime scale/temperature-system calibration pending"
+      },
+      "emitted_by_current_core": true,
+      "runtime_binding_status": "unknown"
+    },
+    {
+      "key": "ManualPosition",
+      "direction": "input",
+      "storage_binding": {
+        "status": "known",
+        "path": "C[Type=JalousieUpDown2]/Co[K=ManualPosition]",
+        "value_path": "@Def",
+        "authority": "core storage syntax plus pinned native registration; native omission/default rules unverified"
+      },
+      "unit": {
+        "status": "unknown",
+        "label": null,
+        "authority": "catalog label only; runtime scale/temperature-system calibration pending"
+      },
+      "emitted_by_current_core": true,
+      "runtime_binding_status": "unknown"
+    },
+    {
+      "key": "ManualLamelle",
+      "direction": "input",
+      "storage_binding": {
+        "status": "known",
+        "path": "C[Type=JalousieUpDown2]/Co[K=ManualLamelle]",
+        "value_path": "@Def",
+        "authority": "core storage syntax plus pinned native registration; native omission/default rules unverified"
+      },
+      "unit": {
+        "status": "unknown",
+        "label": null,
+        "authority": "catalog label only; runtime scale/temperature-system calibration pending"
+      },
+      "emitted_by_current_core": true,
+      "runtime_binding_status": "unknown"
+    },
+    {
+      "key": "InputDisable",
+      "direction": "input",
+      "storage_binding": {
+        "status": "known",
+        "path": "C[Type=JalousieUpDown2]/Co[K=InputDisable]",
+        "value_path": "@Def",
+        "authority": "core storage syntax plus pinned native registration; native omission/default rules unverified"
+      },
+      "unit": {
+        "status": "unknown",
+        "label": null,
+        "authority": "catalog label only; runtime scale/temperature-system calibration pending"
+      },
+      "emitted_by_current_core": true,
+      "runtime_binding_status": "unknown"
+    },
+    {
+      "key": "MinPulse",
+      "direction": "parameter",
+      "storage_binding": {
+        "status": "known",
+        "path": "C[Type=JalousieUpDown2]/Co[K=MinPulse]",
+        "value_path": "@Def",
+        "authority": "core storage syntax plus pinned native registration; native omission/default rules unverified"
+      },
+      "unit": {
+        "status": "unknown",
+        "label": null,
+        "authority": "catalog label only; runtime scale/temperature-system calibration pending"
+      },
+      "emitted_by_current_core": true,
+      "runtime_binding_status": "unknown"
+    },
+    {
+      "key": "TimeEnd",
+      "direction": "parameter",
+      "storage_binding": {
+        "status": "known",
+        "path": "C[Type=JalousieUpDown2]/Co[K=TimeEnd]",
+        "value_path": "@Def",
+        "authority": "core storage syntax plus pinned native registration; native omission/default rules unverified"
+      },
+      "unit": {
+        "status": "unknown",
+        "label": null,
+        "authority": "catalog label only; runtime scale/temperature-system calibration pending"
+      },
+      "emitted_by_current_core": true,
+      "runtime_binding_status": "unknown"
+    },
+    {
+      "key": "TimeEndDown",
+      "direction": "parameter",
+      "storage_binding": {
+        "status": "known",
+        "path": "C[Type=JalousieUpDown2]/Co[K=TimeEndDown]",
+        "value_path": "@Def",
+        "authority": "core storage syntax plus pinned native registration; native omission/default rules unverified"
+      },
+      "unit": {
+        "status": "unknown",
+        "label": null,
+        "authority": "catalog label only; runtime scale/temperature-system calibration pending"
+      },
+      "emitted_by_current_core": true,
+      "runtime_binding_status": "unknown"
+    },
+    {
+      "key": "TimeBlock",
+      "direction": "parameter",
+      "storage_binding": {
+        "status": "known",
+        "path": "C[Type=JalousieUpDown2]/Co[K=TimeBlock]",
+        "value_path": "@Def",
+        "authority": "core storage syntax plus pinned native registration; native omission/default rules unverified"
+      },
+      "unit": {
+        "status": "unknown",
+        "label": null,
+        "authority": "catalog label only; runtime scale/temperature-system calibration pending"
+      },
+      "emitted_by_current_core": true,
+      "runtime_binding_status": "unknown"
+    },
+    {
+      "key": "DblClk",
+      "direction": "parameter",
+      "storage_binding": {
+        "status": "known",
+        "path": "C[Type=JalousieUpDown2]/Co[K=DblClk]",
+        "value_path": "@Def",
+        "authority": "core storage syntax plus pinned native registration; native omission/default rules unverified"
+      },
+      "unit": {
+        "status": "unknown",
+        "label": null,
+        "authority": "catalog label only; runtime scale/temperature-system calibration pending"
+      },
+      "emitted_by_current_core": true,
+      "runtime_binding_status": "unknown"
+    },
+    {
+      "key": "Back",
+      "direction": "parameter",
+      "storage_binding": {
+        "status": "known",
+        "path": "C[Type=JalousieUpDown2]/Co[K=Back]",
+        "value_path": "@Def",
+        "authority": "core storage syntax plus pinned native registration; native omission/default rules unverified"
+      },
+      "unit": {
+        "status": "unknown",
+        "label": null,
+        "authority": "catalog label only; runtime scale/temperature-system calibration pending"
+      },
+      "emitted_by_current_core": true,
+      "runtime_binding_status": "unknown"
+    },
+    {
+      "key": "MinMove",
+      "direction": "parameter",
+      "storage_binding": {
+        "status": "known",
+        "path": "C[Type=JalousieUpDown2]/Co[K=MinMove]",
+        "value_path": "@Def",
+        "authority": "core storage syntax plus pinned native registration; native omission/default rules unverified"
+      },
+      "unit": {
+        "status": "unknown",
+        "label": null,
+        "authority": "catalog label only; runtime scale/temperature-system calibration pending"
+      },
+      "emitted_by_current_core": true,
+      "runtime_binding_status": "unknown"
+    },
+    {
+      "key": "Type",
+      "direction": "parameter",
+      "storage_binding": {
+        "status": "known",
+        "path": "C[Type=JalousieUpDown2]/Co[K=Type]",
+        "value_path": "@Def",
+        "authority": "core storage syntax plus pinned native registration; native omission/default rules unverified"
+      },
+      "unit": {
+        "status": "unknown",
+        "label": null,
+        "authority": "catalog label only; runtime scale/temperature-system calibration pending"
+      },
+      "emitted_by_current_core": true,
+      "runtime_binding_status": "unknown"
+    },
+    {
+      "key": "OutputUp",
+      "direction": "output",
+      "storage_binding": {
+        "status": "known",
+        "path": "C[Type=JalousieUpDown2]/Co[K=OutputUp]",
+        "value_path": "@Def",
+        "authority": "core storage syntax plus pinned native registration; native omission/default rules unverified"
+      },
+      "unit": {
+        "status": "unknown",
+        "label": null,
+        "authority": "catalog label only; runtime scale/temperature-system calibration pending"
+      },
+      "emitted_by_current_core": true,
+      "runtime_binding_status": "unknown"
+    },
+    {
+      "key": "OutputDown",
+      "direction": "output",
+      "storage_binding": {
+        "status": "known",
+        "path": "C[Type=JalousieUpDown2]/Co[K=OutputDown]",
+        "value_path": "@Def",
+        "authority": "core storage syntax plus pinned native registration; native omission/default rules unverified"
+      },
+      "unit": {
+        "status": "unknown",
+        "label": null,
+        "authority": "catalog label only; runtime scale/temperature-system calibration pending"
+      },
+      "emitted_by_current_core": true,
+      "runtime_binding_status": "unknown"
+    },
+    {
+      "key": "OutputPos",
+      "direction": "output",
+      "storage_binding": {
+        "status": "known",
+        "path": "C[Type=JalousieUpDown2]/Co[K=OutputPos]",
+        "value_path": "@Def",
+        "authority": "core storage syntax plus pinned native registration; native omission/default rules unverified"
+      },
+      "unit": {
+        "status": "unknown",
+        "label": null,
+        "authority": "catalog label only; runtime scale/temperature-system calibration pending"
+      },
+      "emitted_by_current_core": true,
+      "runtime_binding_status": "unknown"
+    },
+    {
+      "key": "OutputLPos",
+      "direction": "output",
+      "storage_binding": {
+        "status": "known",
+        "path": "C[Type=JalousieUpDown2]/Co[K=OutputLPos]",
+        "value_path": "@Def",
+        "authority": "core storage syntax plus pinned native registration; native omission/default rules unverified"
+      },
+      "unit": {
+        "status": "unknown",
+        "label": null,
+        "authority": "catalog label only; runtime scale/temperature-system calibration pending"
+      },
+      "emitted_by_current_core": true,
+      "runtime_binding_status": "unknown"
+    }
+  ],
+  "nested_advanced_settings": [
+    {
+      "id": "embedded-serializer",
+      "binding_status": "unknown",
+      "path": null,
+      "reason": "Primary slot +0x40 delegates an embedded object. No subtree names or record encoding established."
+    }
+  ],
+  "source_evidence": [
+    {
+      "path": ".reverse-engineering\\native-simulator\\families\\shading-hvac\\source-ledger.json",
+      "sha256": "eca77bc0f27456786d579cec87e2c173bdbef27bfdb7016c228d9db367ca2b83"
+    },
+    {
+      "path": "docs\\schemas\\loxone-block-types-full.json",
+      "sha256": "48a0e3fd596677e71f66a5c49855e3fe1c5efbaf9ad7fcd7ab600f5aa521f160"
+    }
+  ],
+  "limitations": [
+    "Core emits the same 21 connector keys/order as the pinned native registration. This is not native import evidence.",
+    "EndUp/EndDown register fullup/fulldown command tokens; they are not established physical end-stop sensors.",
+    "Position output bounds and manual-input scale are separate calibration obligations.",
+    "Timing names have no unit label in this catalog; native millisecond scaling is only a lead until clock calibration."
+  ]
+}

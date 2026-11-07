@@ -1,0 +1,1209 @@
+{
+  "schema_version": 1,
+  "status": "static_inventory_not_gui_validated",
+  "application": {
+    "version": "17.2.10.21",
+    "sha256": "7b55e3ef18401574ab967c5c6a0140cd5a66dc728521ebba04ad53093577d8b3",
+    "image_base": "0x140000000"
+  },
+  "xml_type": "HeatIRoomController2",
+  "control_type": 469,
+  "complete": false,
+  "native_executed": false,
+  "engine_completion": false,
+  "native_registration_order": {
+    "inputs": [
+      "AMode",
+      "Input",
+      "Temp",
+      "Window",
+      "Comfort",
+      "Save",
+      "Save2",
+      "Move",
+      "Reset",
+      "DisMv",
+      "RtD",
+      "TempO",
+      "InCo2",
+      "InHumid",
+      "inFan",
+      "inAirDir"
+    ],
+    "parameters": [
+      "TComfort",
+      "TComfortC",
+      "TComfortHC",
+      "TDiff",
+      "TShadeHeat",
+      "TShadeCool",
+      "TSaveL",
+      "TSaveU",
+      "TSave",
+      "TDeepSleep",
+      "TMax",
+      "TimeMove",
+      "TimeC",
+      "TimeS",
+      "TimeMv",
+      "THCelvin",
+      "TCCelvin",
+      "TPWM",
+      "TWin",
+      "TExcess"
+    ],
+    "outputs": [
+      "AQh",
+      "AQc",
+      "AQhc",
+      "AQh1",
+      "AQc1",
+      "AQhc1",
+      "AQh2",
+      "AQc2",
+      "AQhc2",
+      "AQh3",
+      "AQc3",
+      "AQhc3",
+      "Qs",
+      "AQs",
+      "Qe",
+      "Qa",
+      "AQt",
+      "AQhm",
+      "AQtm",
+      "Qb"
+    ]
+  },
+  "connectors": [
+    {
+      "key": "AMode",
+      "direction": "input",
+      "storage_binding": {
+        "status": "known",
+        "path": "C[Type=HeatIRoomController2]/Co[K=AMode]",
+        "value_path": "@Def",
+        "authority": "core storage syntax plus pinned native registration; native omission/default rules unverified"
+      },
+      "unit": {
+        "status": "unknown",
+        "label": null,
+        "authority": "catalog label only; runtime scale/temperature-system calibration pending"
+      },
+      "emitted_by_current_core": true,
+      "runtime_binding_status": "unknown"
+    },
+    {
+      "key": "Input",
+      "direction": "input",
+      "storage_binding": {
+        "status": "known",
+        "path": "C[Type=HeatIRoomController2]/Co[K=Input]",
+        "value_path": "@Def",
+        "authority": "core storage syntax plus pinned native registration; native omission/default rules unverified"
+      },
+      "unit": {
+        "status": "unknown",
+        "label": null,
+        "authority": "catalog label only; runtime scale/temperature-system calibration pending"
+      },
+      "emitted_by_current_core": true,
+      "runtime_binding_status": "unknown"
+    },
+    {
+      "key": "Temp",
+      "direction": "input",
+      "storage_binding": {
+        "status": "known",
+        "path": "C[Type=HeatIRoomController2]/Co[K=Temp]",
+        "value_path": "@Def",
+        "authority": "core storage syntax plus pinned native registration; native omission/default rules unverified"
+      },
+      "unit": {
+        "status": "unknown",
+        "label": null,
+        "authority": "catalog label only; runtime scale/temperature-system calibration pending"
+      },
+      "emitted_by_current_core": true,
+      "runtime_binding_status": "unknown"
+    },
+    {
+      "key": "Window",
+      "direction": "input",
+      "storage_binding": {
+        "status": "known",
+        "path": "C[Type=HeatIRoomController2]/Co[K=Window]",
+        "value_path": "@Def",
+        "authority": "core storage syntax plus pinned native registration; native omission/default rules unverified"
+      },
+      "unit": {
+        "status": "unknown",
+        "label": null,
+        "authority": "catalog label only; runtime scale/temperature-system calibration pending"
+      },
+      "emitted_by_current_core": true,
+      "runtime_binding_status": "unknown"
+    },
+    {
+      "key": "Comfort",
+      "direction": "input",
+      "storage_binding": {
+        "status": "known",
+        "path": "C[Type=HeatIRoomController2]/Co[K=Comfort]",
+        "value_path": "@Def",
+        "authority": "core storage syntax plus pinned native registration; native omission/default rules unverified"
+      },
+      "unit": {
+        "status": "unknown",
+        "label": null,
+        "authority": "catalog label only; runtime scale/temperature-system calibration pending"
+      },
+      "emitted_by_current_core": true,
+      "runtime_binding_status": "unknown"
+    },
+    {
+      "key": "Save",
+      "direction": "input",
+      "storage_binding": {
+        "status": "known",
+        "path": "C[Type=HeatIRoomController2]/Co[K=Save]",
+        "value_path": "@Def",
+        "authority": "core storage syntax plus pinned native registration; native omission/default rules unverified"
+      },
+      "unit": {
+        "status": "unknown",
+        "label": null,
+        "authority": "catalog label only; runtime scale/temperature-system calibration pending"
+      },
+      "emitted_by_current_core": true,
+      "runtime_binding_status": "unknown"
+    },
+    {
+      "key": "Save2",
+      "direction": "input",
+      "storage_binding": {
+        "status": "known",
+        "path": "C[Type=HeatIRoomController2]/Co[K=Save2]",
+        "value_path": "@Def",
+        "authority": "core storage syntax plus pinned native registration; native omission/default rules unverified"
+      },
+      "unit": {
+        "status": "unknown",
+        "label": null,
+        "authority": "catalog label only; runtime scale/temperature-system calibration pending"
+      },
+      "emitted_by_current_core": true,
+      "runtime_binding_status": "unknown"
+    },
+    {
+      "key": "Move",
+      "direction": "input",
+      "storage_binding": {
+        "status": "known",
+        "path": "C[Type=HeatIRoomController2]/Co[K=Move]",
+        "value_path": "@Def",
+        "authority": "core storage syntax plus pinned native registration; native omission/default rules unverified"
+      },
+      "unit": {
+        "status": "unknown",
+        "label": null,
+        "authority": "catalog label only; runtime scale/temperature-system calibration pending"
+      },
+      "emitted_by_current_core": true,
+      "runtime_binding_status": "unknown"
+    },
+    {
+      "key": "Reset",
+      "direction": "input",
+      "storage_binding": {
+        "status": "known",
+        "path": "C[Type=HeatIRoomController2]/Co[K=Reset]",
+        "value_path": "@Def",
+        "authority": "core storage syntax plus pinned native registration; native omission/default rules unverified"
+      },
+      "unit": {
+        "status": "unknown",
+        "label": null,
+        "authority": "catalog label only; runtime scale/temperature-system calibration pending"
+      },
+      "emitted_by_current_core": true,
+      "runtime_binding_status": "unknown"
+    },
+    {
+      "key": "DisMv",
+      "direction": "input",
+      "storage_binding": {
+        "status": "known",
+        "path": "C[Type=HeatIRoomController2]/Co[K=DisMv]",
+        "value_path": "@Def",
+        "authority": "core storage syntax plus pinned native registration; native omission/default rules unverified"
+      },
+      "unit": {
+        "status": "unknown",
+        "label": null,
+        "authority": "catalog label only; runtime scale/temperature-system calibration pending"
+      },
+      "emitted_by_current_core": true,
+      "runtime_binding_status": "unknown"
+    },
+    {
+      "key": "RtD",
+      "direction": "input",
+      "storage_binding": {
+        "status": "known",
+        "path": "C[Type=HeatIRoomController2]/Co[K=RtD]",
+        "value_path": "@Def",
+        "authority": "core storage syntax plus pinned native registration; native omission/default rules unverified"
+      },
+      "unit": {
+        "status": "unknown",
+        "label": null,
+        "authority": "catalog label only; runtime scale/temperature-system calibration pending"
+      },
+      "emitted_by_current_core": false,
+      "runtime_binding_status": "unknown"
+    },
+    {
+      "key": "TempO",
+      "direction": "input",
+      "storage_binding": {
+        "status": "known",
+        "path": "C[Type=HeatIRoomController2]/Co[K=TempO]",
+        "value_path": "@Def",
+        "authority": "core storage syntax plus pinned native registration; native omission/default rules unverified"
+      },
+      "unit": {
+        "status": "unknown",
+        "label": null,
+        "authority": "catalog label only; runtime scale/temperature-system calibration pending"
+      },
+      "emitted_by_current_core": true,
+      "runtime_binding_status": "unknown"
+    },
+    {
+      "key": "InCo2",
+      "direction": "input",
+      "storage_binding": {
+        "status": "known",
+        "path": "C[Type=HeatIRoomController2]/Co[K=InCo2]",
+        "value_path": "@Def",
+        "authority": "core storage syntax plus pinned native registration; native omission/default rules unverified"
+      },
+      "unit": {
+        "status": "unknown",
+        "label": null,
+        "authority": "catalog label only; runtime scale/temperature-system calibration pending"
+      },
+      "emitted_by_current_core": true,
+      "runtime_binding_status": "unknown"
+    },
+    {
+      "key": "InHumid",
+      "direction": "input",
+      "storage_binding": {
+        "status": "known",
+        "path": "C[Type=HeatIRoomController2]/Co[K=InHumid]",
+        "value_path": "@Def",
+        "authority": "core storage syntax plus pinned native registration; native omission/default rules unverified"
+      },
+      "unit": {
+        "status": "unknown",
+        "label": null,
+        "authority": "catalog label only; runtime scale/temperature-system calibration pending"
+      },
+      "emitted_by_current_core": true,
+      "runtime_binding_status": "unknown"
+    },
+    {
+      "key": "inFan",
+      "direction": "input",
+      "storage_binding": {
+        "status": "known",
+        "path": "C[Type=HeatIRoomController2]/Co[K=inFan]",
+        "value_path": "@Def",
+        "authority": "core storage syntax plus pinned native registration; native omission/default rules unverified"
+      },
+      "unit": {
+        "status": "unknown",
+        "label": null,
+        "authority": "catalog label only; runtime scale/temperature-system calibration pending"
+      },
+      "emitted_by_current_core": true,
+      "runtime_binding_status": "unknown"
+    },
+    {
+      "key": "inAirDir",
+      "direction": "input",
+      "storage_binding": {
+        "status": "known",
+        "path": "C[Type=HeatIRoomController2]/Co[K=inAirDir]",
+        "value_path": "@Def",
+        "authority": "core storage syntax plus pinned native registration; native omission/default rules unverified"
+      },
+      "unit": {
+        "status": "unknown",
+        "label": null,
+        "authority": "catalog label only; runtime scale/temperature-system calibration pending"
+      },
+      "emitted_by_current_core": true,
+      "runtime_binding_status": "unknown"
+    },
+    {
+      "key": "TComfort",
+      "direction": "parameter",
+      "storage_binding": {
+        "status": "known",
+        "path": "C[Type=HeatIRoomController2]/Co[K=TComfort]",
+        "value_path": "@Def",
+        "authority": "core storage syntax plus pinned native registration; native omission/default rules unverified"
+      },
+      "unit": {
+        "status": "unknown",
+        "label": null,
+        "authority": "catalog label only; runtime scale/temperature-system calibration pending"
+      },
+      "emitted_by_current_core": true,
+      "runtime_binding_status": "unknown"
+    },
+    {
+      "key": "TComfortC",
+      "direction": "parameter",
+      "storage_binding": {
+        "status": "known",
+        "path": "C[Type=HeatIRoomController2]/Co[K=TComfortC]",
+        "value_path": "@Def",
+        "authority": "core storage syntax plus pinned native registration; native omission/default rules unverified"
+      },
+      "unit": {
+        "status": "unknown",
+        "label": null,
+        "authority": "catalog label only; runtime scale/temperature-system calibration pending"
+      },
+      "emitted_by_current_core": true,
+      "runtime_binding_status": "unknown"
+    },
+    {
+      "key": "TComfortHC",
+      "direction": "parameter",
+      "storage_binding": {
+        "status": "known",
+        "path": "C[Type=HeatIRoomController2]/Co[K=TComfortHC]",
+        "value_path": "@Def",
+        "authority": "core storage syntax plus pinned native registration; native omission/default rules unverified"
+      },
+      "unit": {
+        "status": "unknown",
+        "label": null,
+        "authority": "catalog label only; runtime scale/temperature-system calibration pending"
+      },
+      "emitted_by_current_core": true,
+      "runtime_binding_status": "unknown"
+    },
+    {
+      "key": "TDiff",
+      "direction": "parameter",
+      "storage_binding": {
+        "status": "known",
+        "path": "C[Type=HeatIRoomController2]/Co[K=TDiff]",
+        "value_path": "@Def",
+        "authority": "core storage syntax plus pinned native registration; native omission/default rules unverified"
+      },
+      "unit": {
+        "status": "unknown",
+        "label": null,
+        "authority": "catalog label only; runtime scale/temperature-system calibration pending"
+      },
+      "emitted_by_current_core": true,
+      "runtime_binding_status": "unknown"
+    },
+    {
+      "key": "TShadeHeat",
+      "direction": "parameter",
+      "storage_binding": {
+        "status": "known",
+        "path": "C[Type=HeatIRoomController2]/Co[K=TShadeHeat]",
+        "value_path": "@Def",
+        "authority": "core storage syntax plus pinned native registration; native omission/default rules unverified"
+      },
+      "unit": {
+        "status": "unknown",
+        "label": null,
+        "authority": "catalog label only; runtime scale/temperature-system calibration pending"
+      },
+      "emitted_by_current_core": true,
+      "runtime_binding_status": "unknown"
+    },
+    {
+      "key": "TShadeCool",
+      "direction": "parameter",
+      "storage_binding": {
+        "status": "known",
+        "path": "C[Type=HeatIRoomController2]/Co[K=TShadeCool]",
+        "value_path": "@Def",
+        "authority": "core storage syntax plus pinned native registration; native omission/default rules unverified"
+      },
+      "unit": {
+        "status": "unknown",
+        "label": null,
+        "authority": "catalog label only; runtime scale/temperature-system calibration pending"
+      },
+      "emitted_by_current_core": true,
+      "runtime_binding_status": "unknown"
+    },
+    {
+      "key": "TSaveL",
+      "direction": "parameter",
+      "storage_binding": {
+        "status": "known",
+        "path": "C[Type=HeatIRoomController2]/Co[K=TSaveL]",
+        "value_path": "@Def",
+        "authority": "core storage syntax plus pinned native registration; native omission/default rules unverified"
+      },
+      "unit": {
+        "status": "unknown",
+        "label": null,
+        "authority": "catalog label only; runtime scale/temperature-system calibration pending"
+      },
+      "emitted_by_current_core": true,
+      "runtime_binding_status": "unknown"
+    },
+    {
+      "key": "TSaveU",
+      "direction": "parameter",
+      "storage_binding": {
+        "status": "known",
+        "path": "C[Type=HeatIRoomController2]/Co[K=TSaveU]",
+        "value_path": "@Def",
+        "authority": "core storage syntax plus pinned native registration; native omission/default rules unverified"
+      },
+      "unit": {
+        "status": "unknown",
+        "label": null,
+        "authority": "catalog label only; runtime scale/temperature-system calibration pending"
+      },
+      "emitted_by_current_core": true,
+      "runtime_binding_status": "unknown"
+    },
+    {
+      "key": "TSave",
+      "direction": "parameter",
+      "storage_binding": {
+        "status": "known",
+        "path": "C[Type=HeatIRoomController2]/Co[K=TSave]",
+        "value_path": "@Def",
+        "authority": "core storage syntax plus pinned native registration; native omission/default rules unverified"
+      },
+      "unit": {
+        "status": "unknown",
+        "label": null,
+        "authority": "catalog label only; runtime scale/temperature-system calibration pending"
+      },
+      "emitted_by_current_core": true,
+      "runtime_binding_status": "unknown"
+    },
+    {
+      "key": "TDeepSleep",
+      "direction": "parameter",
+      "storage_binding": {
+        "status": "known",
+        "path": "C[Type=HeatIRoomController2]/Co[K=TDeepSleep]",
+        "value_path": "@Def",
+        "authority": "core storage syntax plus pinned native registration; native omission/default rules unverified"
+      },
+      "unit": {
+        "status": "unknown",
+        "label": null,
+        "authority": "catalog label only; runtime scale/temperature-system calibration pending"
+      },
+      "emitted_by_current_core": true,
+      "runtime_binding_status": "unknown"
+    },
+    {
+      "key": "TMax",
+      "direction": "parameter",
+      "storage_binding": {
+        "status": "known",
+        "path": "C[Type=HeatIRoomController2]/Co[K=TMax]",
+        "value_path": "@Def",
+        "authority": "core storage syntax plus pinned native registration; native omission/default rules unverified"
+      },
+      "unit": {
+        "status": "unknown",
+        "label": null,
+        "authority": "catalog label only; runtime scale/temperature-system calibration pending"
+      },
+      "emitted_by_current_core": true,
+      "runtime_binding_status": "unknown"
+    },
+    {
+      "key": "TimeMove",
+      "direction": "parameter",
+      "storage_binding": {
+        "status": "known",
+        "path": "C[Type=HeatIRoomController2]/Co[K=TimeMove]",
+        "value_path": "@Def",
+        "authority": "core storage syntax plus pinned native registration; native omission/default rules unverified"
+      },
+      "unit": {
+        "status": "unknown",
+        "label": null,
+        "authority": "catalog label only; runtime scale/temperature-system calibration pending"
+      },
+      "emitted_by_current_core": true,
+      "runtime_binding_status": "unknown"
+    },
+    {
+      "key": "TimeC",
+      "direction": "parameter",
+      "storage_binding": {
+        "status": "known",
+        "path": "C[Type=HeatIRoomController2]/Co[K=TimeC]",
+        "value_path": "@Def",
+        "authority": "core storage syntax plus pinned native registration; native omission/default rules unverified"
+      },
+      "unit": {
+        "status": "unknown",
+        "label": null,
+        "authority": "catalog label only; runtime scale/temperature-system calibration pending"
+      },
+      "emitted_by_current_core": true,
+      "runtime_binding_status": "unknown"
+    },
+    {
+      "key": "TimeS",
+      "direction": "parameter",
+      "storage_binding": {
+        "status": "known",
+        "path": "C[Type=HeatIRoomController2]/Co[K=TimeS]",
+        "value_path": "@Def",
+        "authority": "core storage syntax plus pinned native registration; native omission/default rules unverified"
+      },
+      "unit": {
+        "status": "unknown",
+        "label": null,
+        "authority": "catalog label only; runtime scale/temperature-system calibration pending"
+      },
+      "emitted_by_current_core": true,
+      "runtime_binding_status": "unknown"
+    },
+    {
+      "key": "TimeMv",
+      "direction": "parameter",
+      "storage_binding": {
+        "status": "known",
+        "path": "C[Type=HeatIRoomController2]/Co[K=TimeMv]",
+        "value_path": "@Def",
+        "authority": "core storage syntax plus pinned native registration; native omission/default rules unverified"
+      },
+      "unit": {
+        "status": "unknown",
+        "label": null,
+        "authority": "catalog label only; runtime scale/temperature-system calibration pending"
+      },
+      "emitted_by_current_core": true,
+      "runtime_binding_status": "unknown"
+    },
+    {
+      "key": "THCelvin",
+      "direction": "parameter",
+      "storage_binding": {
+        "status": "known",
+        "path": "C[Type=HeatIRoomController2]/Co[K=THCelvin]",
+        "value_path": "@Def",
+        "authority": "core storage syntax plus pinned native registration; native omission/default rules unverified"
+      },
+      "unit": {
+        "status": "unknown",
+        "label": null,
+        "authority": "catalog label only; runtime scale/temperature-system calibration pending"
+      },
+      "emitted_by_current_core": true,
+      "runtime_binding_status": "unknown"
+    },
+    {
+      "key": "TCCelvin",
+      "direction": "parameter",
+      "storage_binding": {
+        "status": "known",
+        "path": "C[Type=HeatIRoomController2]/Co[K=TCCelvin]",
+        "value_path": "@Def",
+        "authority": "core storage syntax plus pinned native registration; native omission/default rules unverified"
+      },
+      "unit": {
+        "status": "unknown",
+        "label": null,
+        "authority": "catalog label only; runtime scale/temperature-system calibration pending"
+      },
+      "emitted_by_current_core": true,
+      "runtime_binding_status": "unknown"
+    },
+    {
+      "key": "TPWM",
+      "direction": "parameter",
+      "storage_binding": {
+        "status": "known",
+        "path": "C[Type=HeatIRoomController2]/Co[K=TPWM]",
+        "value_path": "@Def",
+        "authority": "core storage syntax plus pinned native registration; native omission/default rules unverified"
+      },
+      "unit": {
+        "status": "unknown",
+        "label": null,
+        "authority": "catalog label only; runtime scale/temperature-system calibration pending"
+      },
+      "emitted_by_current_core": true,
+      "runtime_binding_status": "unknown"
+    },
+    {
+      "key": "TWin",
+      "direction": "parameter",
+      "storage_binding": {
+        "status": "known",
+        "path": "C[Type=HeatIRoomController2]/Co[K=TWin]",
+        "value_path": "@Def",
+        "authority": "core storage syntax plus pinned native registration; native omission/default rules unverified"
+      },
+      "unit": {
+        "status": "unknown",
+        "label": null,
+        "authority": "catalog label only; runtime scale/temperature-system calibration pending"
+      },
+      "emitted_by_current_core": true,
+      "runtime_binding_status": "unknown"
+    },
+    {
+      "key": "TExcess",
+      "direction": "parameter",
+      "storage_binding": {
+        "status": "known",
+        "path": "C[Type=HeatIRoomController2]/Co[K=TExcess]",
+        "value_path": "@Def",
+        "authority": "core storage syntax plus pinned native registration; native omission/default rules unverified"
+      },
+      "unit": {
+        "status": "unknown",
+        "label": null,
+        "authority": "catalog label only; runtime scale/temperature-system calibration pending"
+      },
+      "emitted_by_current_core": true,
+      "runtime_binding_status": "unknown"
+    },
+    {
+      "key": "AQh",
+      "direction": "output",
+      "storage_binding": {
+        "status": "known",
+        "path": "C[Type=HeatIRoomController2]/Co[K=AQh]",
+        "value_path": "@Def",
+        "authority": "core storage syntax plus pinned native registration; native omission/default rules unverified"
+      },
+      "unit": {
+        "status": "unknown",
+        "label": null,
+        "authority": "catalog label only; runtime scale/temperature-system calibration pending"
+      },
+      "emitted_by_current_core": true,
+      "runtime_binding_status": "unknown"
+    },
+    {
+      "key": "AQc",
+      "direction": "output",
+      "storage_binding": {
+        "status": "known",
+        "path": "C[Type=HeatIRoomController2]/Co[K=AQc]",
+        "value_path": "@Def",
+        "authority": "core storage syntax plus pinned native registration; native omission/default rules unverified"
+      },
+      "unit": {
+        "status": "unknown",
+        "label": null,
+        "authority": "catalog label only; runtime scale/temperature-system calibration pending"
+      },
+      "emitted_by_current_core": true,
+      "runtime_binding_status": "unknown"
+    },
+    {
+      "key": "AQhc",
+      "direction": "output",
+      "storage_binding": {
+        "status": "known",
+        "path": "C[Type=HeatIRoomController2]/Co[K=AQhc]",
+        "value_path": "@Def",
+        "authority": "core storage syntax plus pinned native registration; native omission/default rules unverified"
+      },
+      "unit": {
+        "status": "unknown",
+        "label": null,
+        "authority": "catalog label only; runtime scale/temperature-system calibration pending"
+      },
+      "emitted_by_current_core": true,
+      "runtime_binding_status": "unknown"
+    },
+    {
+      "key": "AQh1",
+      "direction": "output",
+      "storage_binding": {
+        "status": "known",
+        "path": "C[Type=HeatIRoomController2]/Co[K=AQh1]",
+        "value_path": "@Def",
+        "authority": "core storage syntax plus pinned native registration; native omission/default rules unverified"
+      },
+      "unit": {
+        "status": "unknown",
+        "label": null,
+        "authority": "catalog label only; runtime scale/temperature-system calibration pending"
+      },
+      "emitted_by_current_core": true,
+      "runtime_binding_status": "unknown"
+    },
+    {
+      "key": "AQc1",
+      "direction": "output",
+      "storage_binding": {
+        "status": "known",
+        "path": "C[Type=HeatIRoomController2]/Co[K=AQc1]",
+        "value_path": "@Def",
+        "authority": "core storage syntax plus pinned native registration; native omission/default rules unverified"
+      },
+      "unit": {
+        "status": "unknown",
+        "label": null,
+        "authority": "catalog label only; runtime scale/temperature-system calibration pending"
+      },
+      "emitted_by_current_core": true,
+      "runtime_binding_status": "unknown"
+    },
+    {
+      "key": "AQhc1",
+      "direction": "output",
+      "storage_binding": {
+        "status": "known",
+        "path": "C[Type=HeatIRoomController2]/Co[K=AQhc1]",
+        "value_path": "@Def",
+        "authority": "core storage syntax plus pinned native registration; native omission/default rules unverified"
+      },
+      "unit": {
+        "status": "unknown",
+        "label": null,
+        "authority": "catalog label only; runtime scale/temperature-system calibration pending"
+      },
+      "emitted_by_current_core": true,
+      "runtime_binding_status": "unknown"
+    },
+    {
+      "key": "AQh2",
+      "direction": "output",
+      "storage_binding": {
+        "status": "known",
+        "path": "C[Type=HeatIRoomController2]/Co[K=AQh2]",
+        "value_path": "@Def",
+        "authority": "core storage syntax plus pinned native registration; native omission/default rules unverified"
+      },
+      "unit": {
+        "status": "unknown",
+        "label": null,
+        "authority": "catalog label only; runtime scale/temperature-system calibration pending"
+      },
+      "emitted_by_current_core": true,
+      "runtime_binding_status": "unknown"
+    },
+    {
+      "key": "AQc2",
+      "direction": "output",
+      "storage_binding": {
+        "status": "known",
+        "path": "C[Type=HeatIRoomController2]/Co[K=AQc2]",
+        "value_path": "@Def",
+        "authority": "core storage syntax plus pinned native registration; native omission/default rules unverified"
+      },
+      "unit": {
+        "status": "unknown",
+        "label": null,
+        "authority": "catalog label only; runtime scale/temperature-system calibration pending"
+      },
+      "emitted_by_current_core": true,
+      "runtime_binding_status": "unknown"
+    },
+    {
+      "key": "AQhc2",
+      "direction": "output",
+      "storage_binding": {
+        "status": "known",
+        "path": "C[Type=HeatIRoomController2]/Co[K=AQhc2]",
+        "value_path": "@Def",
+        "authority": "core storage syntax plus pinned native registration; native omission/default rules unverified"
+      },
+      "unit": {
+        "status": "unknown",
+        "label": null,
+        "authority": "catalog label only; runtime scale/temperature-system calibration pending"
+      },
+      "emitted_by_current_core": true,
+      "runtime_binding_status": "unknown"
+    },
+    {
+      "key": "AQh3",
+      "direction": "output",
+      "storage_binding": {
+        "status": "known",
+        "path": "C[Type=HeatIRoomController2]/Co[K=AQh3]",
+        "value_path": "@Def",
+        "authority": "core storage syntax plus pinned native registration; native omission/default rules unverified"
+      },
+      "unit": {
+        "status": "unknown",
+        "label": null,
+        "authority": "catalog label only; runtime scale/temperature-system calibration pending"
+      },
+      "emitted_by_current_core": false,
+      "runtime_binding_status": "unknown"
+    },
+    {
+      "key": "AQc3",
+      "direction": "output",
+      "storage_binding": {
+        "status": "known",
+        "path": "C[Type=HeatIRoomController2]/Co[K=AQc3]",
+        "value_path": "@Def",
+        "authority": "core storage syntax plus pinned native registration; native omission/default rules unverified"
+      },
+      "unit": {
+        "status": "unknown",
+        "label": null,
+        "authority": "catalog label only; runtime scale/temperature-system calibration pending"
+      },
+      "emitted_by_current_core": false,
+      "runtime_binding_status": "unknown"
+    },
+    {
+      "key": "AQhc3",
+      "direction": "output",
+      "storage_binding": {
+        "status": "known",
+        "path": "C[Type=HeatIRoomController2]/Co[K=AQhc3]",
+        "value_path": "@Def",
+        "authority": "core storage syntax plus pinned native registration; native omission/default rules unverified"
+      },
+      "unit": {
+        "status": "unknown",
+        "label": null,
+        "authority": "catalog label only; runtime scale/temperature-system calibration pending"
+      },
+      "emitted_by_current_core": false,
+      "runtime_binding_status": "unknown"
+    },
+    {
+      "key": "Qs",
+      "direction": "output",
+      "storage_binding": {
+        "status": "known",
+        "path": "C[Type=HeatIRoomController2]/Co[K=Qs]",
+        "value_path": "@Def",
+        "authority": "core storage syntax plus pinned native registration; native omission/default rules unverified"
+      },
+      "unit": {
+        "status": "unknown",
+        "label": null,
+        "authority": "catalog label only; runtime scale/temperature-system calibration pending"
+      },
+      "emitted_by_current_core": true,
+      "runtime_binding_status": "unknown"
+    },
+    {
+      "key": "AQs",
+      "direction": "output",
+      "storage_binding": {
+        "status": "known",
+        "path": "C[Type=HeatIRoomController2]/Co[K=AQs]",
+        "value_path": "@Def",
+        "authority": "core storage syntax plus pinned native registration; native omission/default rules unverified"
+      },
+      "unit": {
+        "status": "unknown",
+        "label": null,
+        "authority": "catalog label only; runtime scale/temperature-system calibration pending"
+      },
+      "emitted_by_current_core": true,
+      "runtime_binding_status": "unknown"
+    },
+    {
+      "key": "Qe",
+      "direction": "output",
+      "storage_binding": {
+        "status": "known",
+        "path": "C[Type=HeatIRoomController2]/Co[K=Qe]",
+        "value_path": "@Def",
+        "authority": "core storage syntax plus pinned native registration; native omission/default rules unverified"
+      },
+      "unit": {
+        "status": "unknown",
+        "label": null,
+        "authority": "catalog label only; runtime scale/temperature-system calibration pending"
+      },
+      "emitted_by_current_core": true,
+      "runtime_binding_status": "unknown"
+    },
+    {
+      "key": "Qa",
+      "direction": "output",
+      "storage_binding": {
+        "status": "known",
+        "path": "C[Type=HeatIRoomController2]/Co[K=Qa]",
+        "value_path": "@Def",
+        "authority": "core storage syntax plus pinned native registration; native omission/default rules unverified"
+      },
+      "unit": {
+        "status": "unknown",
+        "label": null,
+        "authority": "catalog label only; runtime scale/temperature-system calibration pending"
+      },
+      "emitted_by_current_core": true,
+      "runtime_binding_status": "unknown"
+    },
+    {
+      "key": "AQt",
+      "direction": "output",
+      "storage_binding": {
+        "status": "known",
+        "path": "C[Type=HeatIRoomController2]/Co[K=AQt]",
+        "value_path": "@Def",
+        "authority": "core storage syntax plus pinned native registration; native omission/default rules unverified"
+      },
+      "unit": {
+        "status": "unknown",
+        "label": null,
+        "authority": "catalog label only; runtime scale/temperature-system calibration pending"
+      },
+      "emitted_by_current_core": true,
+      "runtime_binding_status": "unknown"
+    },
+    {
+      "key": "AQhm",
+      "direction": "output",
+      "storage_binding": {
+        "status": "known",
+        "path": "C[Type=HeatIRoomController2]/Co[K=AQhm]",
+        "value_path": "@Def",
+        "authority": "core storage syntax plus pinned native registration; native omission/default rules unverified"
+      },
+      "unit": {
+        "status": "unknown",
+        "label": null,
+        "authority": "catalog label only; runtime scale/temperature-system calibration pending"
+      },
+      "emitted_by_current_core": true,
+      "runtime_binding_status": "unknown"
+    },
+    {
+      "key": "AQtm",
+      "direction": "output",
+      "storage_binding": {
+        "status": "known",
+        "path": "C[Type=HeatIRoomController2]/Co[K=AQtm]",
+        "value_path": "@Def",
+        "authority": "core storage syntax plus pinned native registration; native omission/default rules unverified"
+      },
+      "unit": {
+        "status": "unknown",
+        "label": null,
+        "authority": "catalog label only; runtime scale/temperature-system calibration pending"
+      },
+      "emitted_by_current_core": true,
+      "runtime_binding_status": "unknown"
+    },
+    {
+      "key": "Qb",
+      "direction": "output",
+      "storage_binding": {
+        "status": "known",
+        "path": "C[Type=HeatIRoomController2]/Co[K=Qb]",
+        "value_path": "@Def",
+        "authority": "core storage syntax plus pinned native registration; native omission/default rules unverified"
+      },
+      "unit": {
+        "status": "unknown",
+        "label": null,
+        "authority": "catalog label only; runtime scale/temperature-system calibration pending"
+      },
+      "emitted_by_current_core": true,
+      "runtime_binding_status": "unknown"
+    }
+  ],
+  "nested_advanced_settings": [
+    {
+      "id": "UUIDTimer",
+      "binding_status": "known",
+      "path": "C[Type=HeatIRoomController2]/@UUIDTimer",
+      "value_shape_status": "unknown",
+      "unit_status": "unknown",
+      "reason": "Pinned +0x40 serializer names this attribute; interpretation, version guards and omission are unverified."
+    },
+    {
+      "id": "Ssh",
+      "binding_status": "known",
+      "path": "C[Type=HeatIRoomController2]/@Ssh",
+      "value_shape_status": "unknown",
+      "unit_status": "unknown",
+      "reason": "Pinned +0x40 serializer names this attribute; interpretation, version guards and omission are unverified."
+    },
+    {
+      "id": "AllS",
+      "binding_status": "known",
+      "path": "C[Type=HeatIRoomController2]/@AllS",
+      "value_shape_status": "unknown",
+      "unit_status": "unknown",
+      "reason": "Pinned +0x40 serializer names this attribute; interpretation, version guards and omission are unverified."
+    },
+    {
+      "id": "AQDig",
+      "binding_status": "known",
+      "path": "C[Type=HeatIRoomController2]/@AQDig",
+      "value_shape_status": "unknown",
+      "unit_status": "unknown",
+      "reason": "Pinned +0x40 serializer names this attribute; interpretation, version guards and omission are unverified."
+    },
+    {
+      "id": "ComfHC",
+      "binding_status": "known",
+      "path": "C[Type=HeatIRoomController2]/@ComfHC",
+      "value_shape_status": "unknown",
+      "unit_status": "unknown",
+      "reason": "Pinned +0x40 serializer names this attribute; interpretation, version guards and omission are unverified."
+    },
+    {
+      "id": "SourceCap",
+      "binding_status": "known",
+      "path": "C[Type=HeatIRoomController2]/@SourceCap",
+      "value_shape_status": "unknown",
+      "unit_status": "unknown",
+      "reason": "Pinned +0x40 serializer names this attribute; interpretation, version guards and omission are unverified."
+    },
+    {
+      "id": "Objects",
+      "binding_status": "known",
+      "path": "C[Type=HeatIRoomController2]/@Objects",
+      "value_shape_status": "unknown",
+      "unit_status": "unknown",
+      "reason": "Pinned +0x40 serializer names this attribute; interpretation, version guards and omission are unverified."
+    },
+    {
+      "id": "PrioH",
+      "binding_status": "known",
+      "path": "C[Type=HeatIRoomController2]/@PrioH",
+      "value_shape_status": "unknown",
+      "unit_status": "unknown",
+      "reason": "Pinned +0x40 serializer names this attribute; interpretation, version guards and omission are unverified."
+    },
+    {
+      "id": "PrioC",
+      "binding_status": "known",
+      "path": "C[Type=HeatIRoomController2]/@PrioC",
+      "value_shape_status": "unknown",
+      "unit_status": "unknown",
+      "reason": "Pinned +0x40 serializer names this attribute; interpretation, version guards and omission are unverified."
+    },
+    {
+      "id": "Cap",
+      "binding_status": "known",
+      "path": "C[Type=HeatIRoomController2]/@Cap",
+      "value_shape_status": "unknown",
+      "unit_status": "unknown",
+      "reason": "Pinned +0x40 serializer names this attribute; interpretation, version guards and omission are unverified."
+    },
+    {
+      "id": "DMtc",
+      "binding_status": "known",
+      "path": "C[Type=HeatIRoomController2]/@DMtc",
+      "value_shape_status": "unknown",
+      "unit_status": "unknown",
+      "reason": "Pinned +0x40 serializer names this attribute; interpretation, version guards and omission are unverified."
+    },
+    {
+      "id": "ExT",
+      "binding_status": "known",
+      "path": "C[Type=HeatIRoomController2]/@ExT",
+      "value_shape_status": "unknown",
+      "unit_status": "unknown",
+      "reason": "Pinned +0x40 serializer names this attribute; interpretation, version guards and omission are unverified."
+    },
+    {
+      "id": "custRU",
+      "binding_status": "known",
+      "path": "C[Type=HeatIRoomController2]/@custRU",
+      "value_shape_status": "unknown",
+      "unit_status": "unknown",
+      "reason": "Pinned +0x40 serializer names this attribute; interpretation, version guards and omission are unverified."
+    },
+    {
+      "id": "custRI",
+      "binding_status": "known",
+      "path": "C[Type=HeatIRoomController2]/@custRI",
+      "value_shape_status": "unknown",
+      "unit_status": "unknown",
+      "reason": "Pinned +0x40 serializer names this attribute; interpretation, version guards and omission are unverified."
+    },
+    {
+      "id": "srcName",
+      "binding_status": "known",
+      "path": "C[Type=HeatIRoomController2]/@srcName",
+      "value_shape_status": "unknown",
+      "unit_status": "unknown",
+      "reason": "Pinned +0x40 serializer names this attribute; interpretation, version guards and omission are unverified."
+    },
+    {
+      "id": "DefFan",
+      "binding_status": "known",
+      "path": "C[Type=HeatIRoomController2]/@DefFan",
+      "value_shape_status": "unknown",
+      "unit_status": "unknown",
+      "reason": "Pinned +0x40 serializer names this attribute; interpretation, version guards and omission are unverified."
+    },
+    {
+      "id": "DefFanNP",
+      "binding_status": "known",
+      "path": "C[Type=HeatIRoomController2]/@DefFanNP",
+      "value_shape_status": "unknown",
+      "unit_status": "unknown",
+      "reason": "Pinned +0x40 serializer names this attribute; interpretation, version guards and omission are unverified."
+    },
+    {
+      "id": "DefAir",
+      "binding_status": "known",
+      "path": "C[Type=HeatIRoomController2]/@DefAir",
+      "value_shape_status": "unknown",
+      "unit_status": "unknown",
+      "reason": "Pinned +0x40 serializer names this attribute; interpretation, version guards and omission are unverified."
+    },
+    {
+      "id": "Timer",
+      "binding_status": "known",
+      "path": "C[Type=HeatIRoomController2]/Timer",
+      "value_shape_status": "unknown",
+      "unit_status": "unknown",
+      "reason": "Nested timer serializer is delegated; schedule record fields and clock prerequisites are not established."
+    },
+    {
+      "id": "other-embedded-serializers",
+      "binding_status": "unknown",
+      "path": null,
+      "reason": "Two embedded serializers are called indirectly; nested paths were not resolved."
+    }
+  ],
+  "source_evidence": [
+    {
+      "path": ".reverse-engineering\\native-simulator\\families\\shading-hvac\\source-ledger.json",
+      "sha256": "eca77bc0f27456786d579cec87e2c173bdbef27bfdb7016c228d9db367ca2b83"
+    },
+    {
+      "path": "docs\\schemas\\loxone-block-types-full.json",
+      "sha256": "48a0e3fd596677e71f66a5c49855e3fe1c5efbaf9ad7fcd7ab600f5aa521f160"
+    }
+  ],
+  "limitations": [
+    "BLOCKED: core emits 52 connectors; pinned registration declares 56. Missing RtD/AQh3/AQc3/AQhc3; parameter and numbered-output ordering also differ.",
+    "Core direction metadata contains additional numbered keys not emitted by the core and not supported by this native registration evidence.",
+    "Setpoint is not a connector here: Input is target temperature; Temp is measured temperature; TempO is outdoor information. Thermostat is not a verified XML alias.",
+    "Catalog labels for AQh/AQc and numeric ranges conflict with other descriptions; output duty units remain unknown.",
+    "No source capability mask, HVAC plant, schedule, mode enumeration or history/receiver dependency is fabricated."
+  ]
+}
