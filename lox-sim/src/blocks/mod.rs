@@ -144,8 +144,8 @@ pub enum BlockSupport {
     Simulated,
     /// Structural / caption / metadata block — correctly a no-op pass-through.
     Structural,
-    /// No implementation: silently falls back to PassThrough, so any value it
-    /// produces is unreliable.
+    /// No implementation: uses an inert placeholder or PassThrough fallback.
+    /// Any values observed at its outputs are unreliable.
     Unimplemented,
 }
 
@@ -179,6 +179,9 @@ pub fn is_benign_structural(block_type: &str) -> bool {
 /// Classify how faithfully a block type is simulated. Used to produce the
 /// `sim check` summary footer and to drive `--strict`.
 pub fn block_support(block_type: &str) -> BlockSupport {
+    if matches!(block_type, "Code1" | "Code4" | "Code8" | "Code16") {
+        return BlockSupport::Unimplemented;
+    }
     if is_benign_structural(block_type) {
         return BlockSupport::Structural;
     }
@@ -668,28 +671,28 @@ pub fn create_block(block_type: &str) -> Box<dyn Block> {
         "Code1" => {
             warn_block_once(
                 "Code1",
-                "PicoC block 'Code1' is not simulated; using pass-through stub",
+                "PicoC block 'Code1' is unsupported; script is not executed and outputs are not evaluated",
             );
             Box::new(Code1)
         }
         "Code4" => {
             warn_block_once(
                 "Code4",
-                "PicoC block 'Code4' is not simulated; using pass-through stub",
+                "PicoC block 'Code4' is unsupported; script is not executed and outputs are not evaluated",
             );
             Box::new(Code4)
         }
         "Code8" => {
             warn_block_once(
                 "Code8",
-                "PicoC block 'Code8' is not simulated; using pass-through stub",
+                "PicoC block 'Code8' is unsupported; script is not executed and outputs are not evaluated",
             );
             Box::new(Code8)
         }
         "Code16" => {
             warn_block_once(
                 "Code16",
-                "PicoC block 'Code16' is not simulated; using pass-through stub",
+                "PicoC block 'Code16' is unsupported; script is not executed and outputs are not evaluated",
             );
             Box::new(Code16)
         }

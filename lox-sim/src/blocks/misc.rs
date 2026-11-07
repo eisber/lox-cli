@@ -44,7 +44,7 @@ macro_rules! stub_block {
     };
 }
 
-/// Creates a pass-through stub that logs a warning (PicoC code blocks).
+/// Creates an inert placeholder for unsupported PicoC code blocks.
 macro_rules! code_block {
     ($(#[$meta:meta])* $name:ident, $type_str:expr) => {
         $(#[$meta])*
@@ -54,14 +54,13 @@ macro_rules! code_block {
         impl Block for $name {
             fn eval(
                 &mut self,
-                inputs: &[Signal],
+                _inputs: &[Signal],
                 _params: &[Signal],
                 _dt: f64,
                 _prev: &[Signal],
             ) -> Vec<Signal> {
-                // WARNING: PicoC code block — user scripts not simulated.
-                // Passes first input to output as a no-op placeholder.
-                vec![inputs.first().copied().unwrap_or(0.0)]
+                // No script is executed and no output is fabricated.
+                Vec::new()
             }
 
             fn state(&self) -> Option<Vec<u8>> {
@@ -2608,15 +2607,15 @@ mod tests {
     // --- Code blocks ---
 
     #[test]
-    fn code_blocks_pass_through() {
-        let mut c1 = Code1;
-        let mut c4 = Code4;
-        let mut c8 = Code8;
-        let mut c16 = Code16;
-        assert_eq!(c1.eval(&[5.0], &[], 0.0, &[]), vec![5.0]);
-        assert_eq!(c4.eval(&[5.0], &[], 0.0, &[]), vec![5.0]);
-        assert_eq!(c8.eval(&[5.0], &[], 0.0, &[]), vec![5.0]);
-        assert_eq!(c16.eval(&[5.0], &[], 0.0, &[]), vec![5.0]);
+    fn picoc_blocks_are_unsupported_and_do_not_fabricate_outputs() {
+        use crate::blocks::{block_support, create_block, BlockSupport};
+
+        for block_type in ["Code1", "Code4", "Code8", "Code16"] {
+            assert_eq!(block_support(block_type), BlockSupport::Unimplemented);
+            let mut block = create_block(block_type);
+            assert!(block.eval(&[5.0], &[], 0.1, &[]).is_empty());
+            assert!(block.eval(&[], &[], 0.1, &[]).is_empty());
+        }
     }
 
     // --- Stub blocks have correct type names ---

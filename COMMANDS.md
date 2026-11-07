@@ -4,6 +4,18 @@ Loxone Config-as-Code CLI. All commands operate on local `.Loxone` XML config fi
 
 Global flags: `--json` (shorthand for `--output json`), `-o`/`--output json|csv|table`, `-q`/`--quiet`, `--no-color` (also respects `NO_COLOR` env var), `--no-header`, `-v`/`--verbose` (request logging, `-vv` for request+response bodies), `--dry-run`, `--non-interactive` (fail instead of prompting; implied by `--json`), `--trace-id <ID>` (correlation ID for agent tracing), `--ctx <name>` (use a specific context)
 
+`--dry-run` never writes local files or live state, uploads configurations, reloads,
+or reboots, even with `--force`, `--write`, or `--save-as`. Existing safe planners
+are available for `config energy` edits and `stats download`; audited read-only
+commands retain their normal output and may make read-only network requests.
+Other commands fail before dispatch with “dry-run not supported” (exit 1;
+JSON: `{"ok":false,"error":"dry_run_not_supported","message":"..."}`), not a
+successful plan. Their inputs are **not** fully validated. This includes all
+configuration deployment commands, other local editing commands, and `live get`
+(name resolution can write the structure cache). Dry runs also skip telemetry,
+including its local first-run/session files. Remove `--dry-run` only to execute
+an unsupported operation.
+
 ---
 
 ## Setup
@@ -375,6 +387,22 @@ lox config report file.Loxone              # anonymised diagnostic report (scan 
 - a fixed pulse (EdgeDetection `PulseTime`, Monoflop `Time`) into a mood input `Sel1..SelN` that reaches the controller's `SceneMixTime` (Mmd, default 1 s) — a long-click can mix the assigned mood in instead of selecting it. Disabled mixing (`SceneMixTime=0`) and dynamically wired durations are not diagnosed from static defaults;
 - a wire taken from the `Q` of a reference to a device or virtual input (only `AQ` is used there; `Q` is valid on Memory flag references).
 
+Both `validate` and `check` warn when a PicoC `Code1`/`Code4`/`Code8`/`Code16`
+block's `Code` attribute has no line breaks and begins with `//` (ignoring leading
+whitespace). The entire source is then a comment, possibly from collapsed line
+breaks. This is a review warning, not a C syntax error; ordinary one-line programs
+are not rejected. XML edits preserve multiline `Code` attributes, including CRLF
+and `&#xD;&#xA;` input.
+
+PicoC scripts are **not executed** by the offline simulator. These four block
+types are unsupported: neither simulation engine copies inputs to outputs.
+Outputs remain at their initial or explicitly injected values, not script results.
+`lox sim check FILE --strict` rejects them. Non-strict inspection/runs remain
+available with unreliable-result diagnostics. `sim check` JSON reports their
+count in `unsupported` and the compatibility field `passthrough_unreliable`.
+Interpreter support remains blocked on an authentic public Code-block XML fixture
+with connector layout and an authoritative Loxone PicoC runtime API contract.
+
 ---
 
 ## Config Management
@@ -398,6 +426,61 @@ lox config push file.Loxone --reboot --force  # ...and reboot Miniserver after u
 lox config push-http ...                   # upload config ZIP via HTTP POST (fsput)
 lox config snapshot file.Loxone            # save a snapshot for evaluation (before/after)
 ```
+
+`config diff` matches controls by UUID, not title or document order, so controls
+with duplicate titles remain distinct. Room assignments come from each control's
+own `IoData Pr` attribute; nested references and unrelated elements do not change
+the control's room.
+
+`download` (including its ZIP) and `pull` incorporate pending App/Web UI controls
+from `/sys/custom/*.LoxCC`. An unchanged, overlay-free ZIP is saved byte-for-byte.
+Failed listings, corrupt fragments, UUID/type mismatches, and new controls with
+no evidenced placement fail explicitly rather than silently dropping changes.
+New `AutopilotRule` controls require exactly one `Page` with `SpNo="1"`.
+
+Downloads and pulls save an adjacent `*.lox-base.json` acquisition baseline,
+bound to the configured host and serial. Keep it with the edited file; offline
+`extract` copies an existing baseline to the extracted XML. It contains the full
+configuration, so protect it like the `.Loxone` file.
+
+Deployment (`push`, `patch`, `upload`, `push-http`, and forced `restore`) reads
+the current effective configuration immediately before preparing the upload.
+With a baseline, a UUID-based three-way merge preserves independent local and
+live changes; conflicting edits/deletions or ambiguous additions are refused.
+Concurrent changes within the same control payload may require manual
+reconciliation even when they affect different attributes. Pending overlays
+without an original baseline are refused: download again and reapply edits,
+or use Loxone Config's **Load from Miniserver** workflow. `--force` does not pick
+an overwrite policy. Legacy files without a baseline retain their existing
+deployment behavior only when no pending runtime overlays are observed.
+
+The saved config and runtime overlays are read twice during acquisition and
+checked again before upload. This detects observed changes, **not an atomic
+transaction**: App edits after the last check or before a deferred reboot can
+still race with deployment. Avoid App edits throughout upload/reload and use
+the supported Loxone Config workflow when that coordination is not possible.
+The existing archive sidecar capability checks still apply to merged changes.
+
+`push` and `patch` preserve the native archive's sidecars, not just its XML.
+They reject edits requiring a new app catalogue or compiled permissions: for
+example, adding/removing controls, changing visible control metadata or native
+state identities, and changing room/category rights or user permissions.
+`--force` does not bypass this guard. Save and deploy those edits with Loxone
+Config instead. XML extraction/compression alone is **not** a complete deployment.
+
+Existing sidecars and unknown native versions are preserved for sidecar-neutral
+edits (save stamps, layout, and parameter/wiring edits on existing unvisualized
+logic/math blocks). This is conservative impact detection, not a sidecar compiler
+or an audit/repair of previously stale native records.
+Raw ZIP uploads must also retain matching native catalogue, permission and
+display sidecars from the trusted backup; identical XML does not make missing or
+replacement sidecars safe. Raw XML/LoxCC is not a complete deployment archive.
+
+Touch Pure Display (`TPDC`, Tree subtype `32811`) modifications are not supported
+for deployment. Their managed API loop, `TPDISP/<UUID>.json` payloads (including
+the separate `/prog/TPDISP` files), and signed `Displayconf` checksums must be
+generated together by Loxone Config. Untouched display artifacts remain opaque
+and are preserved; their presence does not imply validation of screen rendering.
 
 ---
 
@@ -479,6 +562,10 @@ lox blocks info And -o json
 lox blocks list                            # list all block types
 lox blocks list --category logic           # filter by category
 ```
+
+`blocks info` combines the embedded block metadata with the connector map.
+Its `inputs`, `outputs`, and `parameters` JSON arrays include connectors supplied
+by either source, including inputs absent from the primary block metadata.
 
 Categories: `logic`, `math`, `compare`, `timer`, `schedule`, `state`, `lighting`, `shading`, `hvac`, `security`, `energy`, `io`, `button`, `misc`.
 

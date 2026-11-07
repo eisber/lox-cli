@@ -80,7 +80,7 @@ pub fn list_backups(cfg: &Config) -> Result<Vec<BackupInfo>> {
             .with_context(|| format!("Could not connect to {}:21 — is FTP enabled?", host))?;
         ftp.login(&cfg.user, &cfg.pass)
             .context("FTP login failed — check your admin credentials in lox config")?;
-        let listing = ftp.list(Some("/prog")).unwrap_or_default();
+        let listing = ftp.list(Some("/prog")).context("Failed to list /prog")?;
         ftp.quit().ok();
         Ok(listing)
     })?;
@@ -110,10 +110,51 @@ pub fn list_backups(cfg: &Config) -> Result<Vec<BackupInfo>> {
     Ok(backups)
 }
 
+/// List runtime control overlays. A failed/missing directory is not evidence that it is empty.
+pub fn list_custom_changes(cfg: &Config) -> Result<Vec<String>> {
+    let host = ftp_host(cfg);
+    ftp_with_retry(|| {
+        let mut ftp = FtpStream::connect(format!("{}:21", host))
+            .with_context(|| format!("Could not connect to {host}:21 — is FTP enabled?"))?;
+        ftp.login(&cfg.user, &cfg.pass)
+            .context("FTP login failed")?;
+        let listing = ftp.list(Some("/sys/custom")).context(
+            "Cannot list /sys/custom; cannot safely assume there are no runtime changes",
+        )?;
+        let mut names = Vec::new();
+        for line in listing {
+            let name = line
+                .split_whitespace()
+                .last()
+                .context("Malformed /sys/custom FTP listing")?;
+            if name.to_ascii_lowercase().ends_with(".loxcc") {
+                if line.starts_with('d') || line.starts_with('l') || name.contains(['/', '\\']) {
+                    anyhow::bail!("Unsupported runtime overlay listing: {line}");
+                }
+                names.push(name.to_string());
+            }
+        }
+        names.sort();
+        ftp.quit().ok();
+        Ok(names)
+    })
+}
+
+pub fn download_custom_change(cfg: &Config, filename: &str) -> Result<Vec<u8>> {
+    if filename.contains(['/', '\\']) {
+        anyhow::bail!("Invalid runtime overlay filename");
+    }
+    download_path(cfg, &format!("/sys/custom/{filename}"))
+}
+
 /// Download a specific backup file from the Miniserver.
 pub fn download_backup(cfg: &Config, filename: &str) -> Result<Vec<u8>> {
-    let host = ftp_host(cfg);
     let path = format!("/prog/{}", filename);
+    download_path(cfg, &path)
+}
+
+fn download_path(cfg: &Config, path: &str) -> Result<Vec<u8>> {
+    let host = ftp_host(cfg);
     ftp_with_retry(|| {
         let mut ftp = FtpStream::connect(format!("{}:21", host))
             .with_context(|| format!("Could not connect to {}:21 — is FTP enabled?", host))?;
@@ -122,7 +163,7 @@ pub fn download_backup(cfg: &Config, filename: &str) -> Result<Vec<u8>> {
         ftp.transfer_type(suppaftp::types::FileType::Binary)
             .context("Failed to set binary transfer mode")?;
         let cursor = ftp
-            .retr_as_buffer(&path)
+            .retr_as_buffer(path)
             .with_context(|| format!("Failed to download {}", path))?;
         ftp.quit().ok();
         Ok(cursor.into_inner())

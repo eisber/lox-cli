@@ -4,6 +4,8 @@ mod commands;
 #[allow(dead_code)]
 mod config;
 mod config_edit;
+mod custom_overlay;
+mod dry_run;
 mod errors;
 mod ftp;
 mod gitops;
@@ -164,7 +166,7 @@ pub(crate) struct Cli {
     /// Verbose output (-v for requests, -vv for request+response bodies)
     #[arg(short = 'v', long, global = true, action = ArgAction::Count)]
     verbose: u8,
-    /// Validate and resolve inputs without executing commands
+    /// Validate without mutations; fail if a safe dry-run is unavailable
     #[arg(long, global = true)]
     dry_run: bool,
     /// Fail instead of prompting for confirmation (implied by --output json)
@@ -1219,7 +1221,9 @@ pub(crate) enum XmlEditCmd {
 fn categorize_error(e: &anyhow::Error) -> &'static str {
     let msg = format!("{:#}", e);
     let lower = msg.to_lowercase();
-    if lower.contains("no control matching") {
+    if e.is::<dry_run::Unsupported>() {
+        "dry_run_not_supported"
+    } else if lower.contains("no control matching") {
         "control_not_found"
     } else if lower.contains("ambiguous") {
         "ambiguous_control"
@@ -1291,6 +1295,10 @@ fn main() {
 }
 
 fn run(cli: Cli) -> Result<()> {
+    dry_run::dispatch(cli, run_command)
+}
+
+fn run_command(cli: Cli) -> Result<()> {
     // Set context override before any Config::load() calls
     config::set_ctx_override(cli.context.clone());
 
@@ -1317,15 +1325,16 @@ fn run(cli: Cli) -> Result<()> {
         unsafe { std::env::set_var("NO_COLOR", "1") };
     }
 
-    // Show first-run telemetry notice (once only)
-    if !ctx.quiet {
-        telemetry::maybe_show_first_run_notice();
+    // Telemetry creates local markers/session files as well as sending events.
+    if !ctx.dry_run {
+        if !ctx.quiet {
+            telemetry::maybe_show_first_run_notice();
+        }
+        let telem = telemetry::Telemetry::from_config(
+            config::Config::load().ok().and_then(|c| c.telemetry),
+        );
+        telem.track_command(&command_name(&cli.cmd));
     }
-
-    // Track the command name (fire-and-forget, no-op when disabled)
-    let telem =
-        telemetry::Telemetry::from_config(config::Config::load().ok().and_then(|c| c.telemetry));
-    telem.track_command(&command_name(&cli.cmd));
 
     match cli.cmd {
         // ── Configuration commands ────────────────────────────────────
@@ -1389,7 +1398,7 @@ pub(crate) fn build_schema(filter: Option<&str>) -> Result<Value> {
         "global_flags": [
             {"name": "--output", "short": "-o", "type": "enum", "values": ["table", "json", "csv"], "default": "table"},
             {"name": "--quiet", "short": "-q", "type": "bool", "description": "Suppress non-essential output"},
-            {"name": "--dry-run", "type": "bool", "description": "Validate and resolve inputs without executing commands"},
+            {"name": "--dry-run", "type": "bool", "description": "Validate without mutations; fail if a safe dry-run is unavailable"},
             {"name": "--non-interactive", "type": "bool", "description": "Fail instead of prompting for confirmation"},
             {"name": "--trace-id", "type": "string", "description": "Trace ID for correlating agent actions"},
             {"name": "--verbose", "short": "-v", "type": "count", "description": "Verbose output (-v requests, -vv bodies)"},

@@ -1,0 +1,160 @@
+{
+  "provenance": "Actual lox subprocess output; synthetic loopback HTTP mock and local XML.",
+  "playback": "30-second editorial timing; typed commands and line wrapping are rendered.",
+  "deployment": "Push intentionally exits 1 without --force. No upload/reload/FTP.",
+  "requests": [
+    "/health",
+    "/jdev/sys/date",
+    "/jdev/sys/time",
+    "/jdev/sps/io/00000000-0000-0000-0000-000000000001/on",
+    "/jdev/sps/io/00000000-0000-0000-0000-000000000001",
+    "/jdev/sps/io/00000000-0000-0000-0000-000000000001/off",
+    "/jdev/sps/io/00000000-0000-0000-0000-000000000001"
+  ],
+  "scenes": [
+    {
+      "title": "CONNECT / synthetic server clock",
+      "duration_ms": 4000,
+      "commands": [
+        {
+          "argv": [
+            "lox",
+            "live",
+            "time"
+          ],
+          "exit_code": 0,
+          "output": "2026-01-01 12:00:00\n"
+        }
+      ]
+    },
+    {
+      "title": "INSPECT / local synthetic config",
+      "duration_ms": 4000,
+      "commands": [
+        {
+          "argv": [
+            "lox",
+            "config",
+            "controls",
+            "demo.Loxone",
+            "-o",
+            "json"
+          ],
+          "exit_code": 0,
+          "output": "[\n  {\n    \"category\": \"Lighting\",\n    \"control_type\": \"Switch\",\n    \"room\": \"Studio\",\n    \"title\": \"Demo light\",\n    \"uuid\": \"00000000-0000-0000-0000-000000000001\"\n  }\n]\n"
+        }
+      ]
+    },
+    {
+      "title": "SWITCH ON / mock memory only",
+      "duration_ms": 4000,
+      "commands": [
+        {
+          "argv": [
+            "lox",
+            "live",
+            "set",
+            "Demo light",
+            "on",
+            "--write"
+          ],
+          "exit_code": 0,
+          "output": "✓ 00000000-0000-0000-0000-000000000001 ← on  (Code 200)\n  value: 1\n"
+        },
+        {
+          "argv": [
+            "lox",
+            "live",
+            "get",
+            "Demo light"
+          ],
+          "exit_code": 0,
+          "output": "1\n"
+        }
+      ]
+    },
+    {
+      "title": "SWITCH OFF / mock memory only",
+      "duration_ms": 4000,
+      "commands": [
+        {
+          "argv": [
+            "lox",
+            "live",
+            "set",
+            "Demo light",
+            "off",
+            "--write"
+          ],
+          "exit_code": 0,
+          "output": "✓ 00000000-0000-0000-0000-000000000001 ← off  (Code 200)\n  value: 0\n"
+        },
+        {
+          "argv": [
+            "lox",
+            "live",
+            "get",
+            "Demo light"
+          ],
+          "exit_code": 0,
+          "output": "0\n"
+        }
+      ]
+    },
+    {
+      "title": "BUILD / apply a room template locally",
+      "duration_ms": 6000,
+      "commands": [
+        {
+          "argv": [
+            "lox",
+            "config",
+            "template",
+            "demo.Loxone",
+            "hallway",
+            "--room",
+            "Studio"
+          ],
+          "exit_code": 0,
+          "output": "✓ Saved to demo.Loxone\nTemplate 'hallway' applied to room 'Studio':\n  ✓ Studio Licht (LightController2) [FadingTime=0.5, MoveTimeout=120]\n\n1 controls created.\nNext: wire inputs with `lox config wire-connector` and outputs with `lox config device-bind`.\n"
+        }
+      ]
+    },
+    {
+      "title": "DISCOVER / bundled block library",
+      "duration_ms": 4000,
+      "commands": [
+        {
+          "argv": [
+            "lox",
+            "blocks",
+            "ls",
+            "--category",
+            "lighting",
+            "--limit",
+            "3"
+          ],
+          "exit_code": 0,
+          "output": "Category: lighting\n\nTYPE                     NAME                            IN OUT\n────────────────────────────────────────────────────────────────\nLightController2         Lighting Controller             28   4\nLightControllerH         Hotel Lighting Controller       13   6\nBrightnessControl        Daylight Responsive Lighting     3   1\nShowing 3 of 4. Use --limit to see more or --category to filter.\n"
+        }
+      ]
+    },
+    {
+      "title": "DEPLOYMENT GUARD / deliberately no --force",
+      "duration_ms": 4000,
+      "commands": [
+        {
+          "argv": [
+            "lox",
+            "config",
+            "push",
+            "demo.Loxone",
+            "--non-interactive"
+          ],
+          "exit_code": 1,
+          "output": "Error: Destructive operation requires --force flag\n"
+        }
+      ]
+    }
+  ]
+}

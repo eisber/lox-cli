@@ -223,6 +223,10 @@ impl ConfigEditor {
                 };
 
                 if matches_sel {
+                    if let Some(warning) = picoc_code_warning(elem) {
+                        results.push(warning);
+                    }
+
                     // Check required parameters. A parameter counts as set if
                     // it has a constant (Def) OR is wired (at least one <In>).
                     for &(ptype, param_name, description) in ctx.param_checks {
@@ -639,6 +643,11 @@ impl ConfigEditor {
     /// Validate config for common issues.
     pub fn validate_config(&self) -> Vec<String> {
         let mut results = Vec::new();
+        for elem in Self::iter_elements(&self.root) {
+            if let Some(warning) = picoc_code_warning(elem) {
+                results.push(warning);
+            }
+        }
 
         // Collect all Place UUIDs
         let mut place_uuids = std::collections::HashSet::new();
@@ -1328,6 +1337,24 @@ impl ConfigEditor {
             }
         }
     }
+}
+
+fn picoc_code_warning(elem: &Element) -> Option<String> {
+    let block_type = elem.attributes.get("Type")?;
+    if elem.name != "C" || !matches!(block_type.as_str(), "Code1" | "Code4" | "Code8" | "Code16") {
+        return None;
+    }
+    let code = elem.attributes.get("Code")?;
+    if code.contains(['\r', '\n']) || !code.trim_start().starts_with("//") {
+        return None;
+    }
+    let title = elem
+        .attributes
+        .get("Title")
+        .map_or("<untitled>", String::as_str);
+    Some(format!(
+        "⚠ {block_type} '{title}': PicoC Code is a single // comment; possibly collapsed line breaks have commented out the program. Review the source and restore its line breaks before deployment."
+    ))
 }
 
 /// Returns true if `uuid` has the Loxone UUID shape: four dash-separated hex

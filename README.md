@@ -10,8 +10,8 @@
 *"Set up the kitchen so the light comes on when dark, blinds go up in strong wind, and they close after five minutes of sunshine if there's no wind."* → Agent searches block types, adds 5 logic blocks, wires 3 circuits, fixes a pulse duration error after sim feedback, and verifies all 7 test scenarios — in under 5 minutes.
 
 <p align="center">
-  <img src="docs/assets/demo.gif" alt="Demo: AI agent configures kitchen automation" width="662">
-  <br><sub>▶ Click to play — Copilot CLI builds 3 kitchen circuits from a natural language prompt</sub>
+  <img src="docs/assets/demo.gif" alt="30-second lox CLI tour: inspect, switch a mock light, apply a local room template, browse blocks, and refuse an unconfirmed push" width="1140">
+  <br><sub>Simulated sandbox · actual CLI output · no hardware or deployment · <a href="docs/demo.md">Reproduce this 30-second demo</a></sub>
 </p>
 
 ## Why

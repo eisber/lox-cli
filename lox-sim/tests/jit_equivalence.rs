@@ -529,6 +529,32 @@ fn build_test_graph(
     graph
 }
 
+#[test]
+fn picoc_is_inert_in_both_engines() {
+    for block_type in ["Code1", "Code4", "Code8", "Code16"] {
+        let mut graph = SimGraph::new();
+        graph.add_block(
+            "Target",
+            create_block(block_type),
+            &["AI"],
+            &["AQ", "TeQ"],
+            &[],
+        );
+        let mut engine = SimEngine::new(graph.clone());
+        let mut compiled = CompiledGraph::from_graph(&graph);
+        for value in [5.0, -7.0] {
+            assert!(engine.set_input("Target.AI", value));
+            assert!(compiled.set_input("Target.AI", value));
+            engine.tick(0.1);
+            compiled.tick(0.1);
+            for output in ["Target.AQ", "Target.TeQ"] {
+                assert_eq!(engine.get_output(output), 0.0, "{block_type}");
+                assert_eq!(compiled.get_output(output), 0.0, "{block_type}");
+            }
+        }
+    }
+}
+
 /// Default parameter value for a given param key.
 fn default_param_value(pkey: &str) -> f64 {
     match pkey {

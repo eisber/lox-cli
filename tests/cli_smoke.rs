@@ -107,6 +107,50 @@ fn help_mentions_stats() {
         .stdout(predicate::str::contains("  ls "));
 }
 
+#[test]
+fn blocks_info_connector_inputs_from_embedded_schema_forms() {
+    for (block_type, expected_inputs, expected_output, expected_parameter) in [
+        (
+            "LightController2",
+            &["I1", "Move", "Presence", "EnMove", "InputDisable", "Sel8"][..],
+            "Scene",
+            Some("FadingTime"),
+        ),
+        ("And", &["I1", "I2"][..], "Q", None),
+        ("Monoflop", &["InputTrigger"][..], "Q", Some("Time")),
+    ] {
+        let output = lox()
+            .args(["blocks", "info", block_type, "-o", "json"])
+            .assert()
+            .success()
+            .get_output()
+            .stdout
+            .clone();
+        let result: serde_json::Value = serde_json::from_slice(&output).unwrap();
+        let connector_names = |kind: &str| -> Vec<&str> {
+            result[kind]
+                .as_array()
+                .unwrap()
+                .iter()
+                .map(|connector| connector["name"].as_str().unwrap())
+                .collect()
+        };
+        let inputs = connector_names("inputs");
+        for expected in expected_inputs {
+            assert!(
+                inputs.contains(expected),
+                "{block_type} is missing input {expected}: {result}"
+            );
+        }
+        assert!(connector_names("outputs").contains(&expected_output));
+        if let Some(expected) = expected_parameter {
+            assert!(connector_names("parameters").contains(&expected));
+            assert!(!inputs.contains(&expected));
+        }
+        assert!(!inputs.contains(&expected_output));
+    }
+}
+
 // ── color encode/decode functional ─────────────────────────────────────────
 
 #[test]

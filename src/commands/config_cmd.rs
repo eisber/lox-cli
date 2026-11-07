@@ -14,6 +14,7 @@ use crate::config::Config;
 use crate::config_edit::{
     ConfigEditor, PermissionChange, PermissionEdit, PrincipalKind, VirtualInOpts,
 };
+use crate::custom_overlay;
 use crate::token;
 use crate::{
     CacheCmd, Cli, ConfigCmd, ControlCmd, MqttConfigCmd, RoomCmd, SetupCmd, TokenCmd, XmlEditCmd,
@@ -390,30 +391,23 @@ pub fn cmd_config(ctx: &RunContext, action: ConfigCmd) -> Result<()> {
         }
         ConfigCmd::Download { save_as, extract } => {
             let cfg = Config::load()?;
-            let backups = ftp::list_backups(&cfg)?;
-            if backups.is_empty() {
-                bail!("No configs found on the Miniserver.");
-            }
-            let newest = &backups[0];
-            eprintln!(
-                "Downloading {} ({} KB)...",
-                newest.filename,
-                newest.size / 1024
-            );
-            let data = ftp::download_backup(&cfg, &newest.filename)?;
-            let out_path = save_as.unwrap_or_else(|| newest.filename.clone());
+            let snapshot = custom_overlay::acquire(&cfg)?;
+            let data = snapshot.archive;
+            let out_path = save_as.unwrap_or(snapshot.filename);
             fs::write(&out_path, &data)?;
+            custom_overlay::save_baseline(&cfg, std::path::Path::new(&out_path), &snapshot.xml)?;
             println!("Saved to {}", out_path);
 
             if extract {
                 eprintln!("Extracting sps0.LoxCC...");
-                let xml = loxcc::extract_and_decompress(&data)?;
+                let xml = snapshot.xml;
                 let xml_path = out_path
                     .strip_suffix(".zip")
                     .unwrap_or(&out_path)
                     .to_string()
                     + ".Loxone";
                 fs::write(&xml_path, &xml)?;
+                custom_overlay::save_baseline(&cfg, std::path::Path::new(&xml_path), &xml)?;
                 println!(
                     "Decompressed {} KB → {} KB → {}",
                     data.len() / 1024,
@@ -430,6 +424,10 @@ pub fn cmd_config(ctx: &RunContext, action: ConfigCmd) -> Result<()> {
                 file.strip_suffix(".zip").unwrap_or(&file).to_string() + ".Loxone"
             });
             fs::write(&xml_path, &xml)?;
+            custom_overlay::copy_baseline(
+                std::path::Path::new(&file),
+                std::path::Path::new(&xml_path),
+            )?;
             println!(
                 "Decompressed {} KB → {} KB → {}",
                 data.len() / 1024,
@@ -456,11 +454,26 @@ pub fn cmd_config(ctx: &RunContext, action: ConfigCmd) -> Result<()> {
                 bail!("Destructive operation requires --force flag");
             }
             let data = fs::read(&file).with_context(|| format!("Cannot read {}", file))?;
+            loxcc::require_deployable_archive(&data)?;
+            let local = loxcc::extract_and_decompress(&data)?;
+            let prepared = custom_overlay::prepare(&cfg, std::path::Path::new(&file), &local)?;
+            // Validate against the native saved archive, never the reconstructed overlay snapshot.
+            loxcc::validate_archive_deployment(
+                &prepared.snapshot.source_archive,
+                &data,
+                &prepared.xml,
+            )?;
+            let data = if prepared.xml == local {
+                data
+            } else {
+                loxcc::repack_zip(&data, &prepared.xml)?
+            };
             let filename = std::path::Path::new(&file)
                 .file_name()
                 .and_then(|n| n.to_str())
                 .unwrap_or(&file);
             eprintln!("Uploading {} ({} KB)...", filename, data.len() / 1024);
+            custom_overlay::recheck(&cfg, &prepared.snapshot)?;
             ftp::upload_backup(&cfg, filename, &data)?;
             println!("Upload complete.");
             println!("Reboot the Miniserver to apply: lox reboot");
@@ -975,16 +988,8 @@ pub fn cmd_config(ctx: &RunContext, action: ConfigCmd) -> Result<()> {
             let cfg = Config::load()?;
 
             // Download current config
-            let backups = ftp::list_backups(&cfg)?;
-            if backups.is_empty() {
-                bail!("No configs found on the Miniserver.");
-            }
-            let newest = &backups[0];
-            eprintln!("Downloading {}...", newest.filename);
-            let zip_data = ftp::download_backup(&cfg, &newest.filename)?;
-
-            // Extract XML
-            let xml = loxcc::extract_and_decompress(&zip_data)?;
+            let initial = custom_overlay::acquire(&cfg)?;
+            let xml = initial.xml;
             let mut patched = xml.clone();
 
             // Apply replacements
@@ -1025,9 +1030,12 @@ pub fn cmd_config(ctx: &RunContext, action: ConfigCmd) -> Result<()> {
             }
 
             // Repack and upload
-            let new_zip = loxcc::repack_zip(&zip_data, &patched)?;
-            let upload_name = &newest.filename;
+            let live = custom_overlay::acquire(&cfg)?;
+            let patched = custom_overlay::three_way(&xml, &patched, &live.xml)?;
+            let new_zip = loxcc::repack_zip(&live.source_archive, &patched)?;
+            let upload_name = &live.filename;
             eprintln!("Uploading patched config as {}...", upload_name);
+            custom_overlay::recheck(&cfg, &live)?;
             ftp::upload_backup(&cfg, upload_name, &new_zip)?;
             println!("✓ Patched config uploaded.");
 
@@ -1080,18 +1088,14 @@ pub fn cmd_config(ctx: &RunContext, action: ConfigCmd) -> Result<()> {
             }
 
             // Download current backup ZIP as a template (for LoxAPP3.json, permissions.bin, etc.)
-            let backups = ftp::list_backups(&cfg)?;
-            if backups.is_empty() {
-                bail!("No configs found on the Miniserver to use as template.");
-            }
-            let newest = &backups[0];
-            eprintln!("Downloading {} as template...", newest.filename);
-            let template_zip = ftp::download_backup(&cfg, &newest.filename)?;
+            let prepared = custom_overlay::prepare(&cfg, std::path::Path::new(&file), &xml)?;
+            let template_zip = &prepared.snapshot.source_archive;
+            let xml = prepared.xml;
 
             // Resolve stale InputRef ports against their matching live objects.
-            let live_xml = loxcc::extract_and_decompress(&template_zip)?;
+            let live_xml = &prepared.snapshot.xml;
             let mut editor_for_wiring = ConfigEditor::load(&xml)?;
-            let resolved = editor_for_wiring.resolve_wiring(&live_xml)?;
+            let resolved = editor_for_wiring.resolve_wiring(live_xml)?;
             let xml = if resolved > 0 {
                 eprintln!("✓ Resolved {} stale wiring reference(s)", resolved);
                 editor_for_wiring.to_bytes()?
@@ -1100,10 +1104,23 @@ pub fn cmd_config(ctx: &RunContext, action: ConfigCmd) -> Result<()> {
             };
 
             // Repack with our edited XML
-            let new_zip = loxcc::repack_zip(&template_zip, &xml)?;
+            let final_editor = ConfigEditor::load(&xml)?;
+            let final_errors: Vec<_> = final_editor
+                .validate_config()
+                .into_iter()
+                .filter(|issue| issue.starts_with('✗'))
+                .collect();
+            if !final_errors.is_empty() {
+                bail!(
+                    "Merged live config failed validation: {}",
+                    final_errors.join("\n")
+                );
+            }
+            let new_zip = loxcc::repack_zip(template_zip, &xml)?;
 
             // Upload as sps_new.zip (consumed by Miniserver on reload)
             eprintln!("Uploading patched config ({} KB)...", new_zip.len() / 1024);
+            custom_overlay::recheck(&cfg, &prepared.snapshot)?;
             ftp::upload_backup(&cfg, "sps_new.zip", &new_zip)?;
 
             if reboot {
@@ -1185,6 +1202,19 @@ pub fn cmd_config(ctx: &RunContext, action: ConfigCmd) -> Result<()> {
             eprintln!("Read {} ({} KB)", file, zip_data.len() / 1024);
 
             let cfg = Config::load()?;
+            loxcc::require_deployable_archive(&zip_data)?;
+            let local = loxcc::extract_and_decompress(&zip_data)?;
+            let prepared = custom_overlay::prepare(&cfg, std::path::Path::new(&file), &local)?;
+            loxcc::validate_archive_deployment(
+                &prepared.snapshot.source_archive,
+                &zip_data,
+                &prepared.xml,
+            )?;
+            let zip_data = if prepared.xml == local {
+                zip_data
+            } else {
+                loxcc::repack_zip(&zip_data, &prepared.xml)?
+            };
             let verify_ssl = cfg.verify_ssl.unwrap_or(false);
 
             // Build a client with cookie store for session persistence across requests.
@@ -1366,6 +1396,7 @@ pub fn cmd_config(ctx: &RunContext, action: ConfigCmd) -> Result<()> {
                 "{}/dev/fsput/lx/prog/sps_new.zip?autht={}&user={}",
                 https_host, autht, cfg.user
             );
+            custom_overlay::recheck(&cfg, &prepared.snapshot)?;
             let resp = client
                 .post(&upload_url)
                 .header("Content-Type", "application/octet-stream")
@@ -6151,13 +6182,13 @@ sleep</Field>
         let cursor = zip_writer.finish().unwrap();
         let src_zip = cursor.into_inner();
 
-        // Repack with modified XML
-        let modified_xml = FIXTURE_XML.replace("Room1", "ModifiedRoom");
+        // A save revision is sidecar-neutral; renaming a room is not.
+        let modified_xml = FIXTURE_XML.replace("Version=\"267\"", "Version=\"268\"");
         let repacked = loxcc::repack_zip(&src_zip, modified_xml.as_bytes()).unwrap();
 
         // Verify new XML
         let extracted = loxcc::extract_and_decompress(&repacked).unwrap();
-        assert!(String::from_utf8_lossy(&extracted).contains("ModifiedRoom"));
+        assert!(String::from_utf8_lossy(&extracted).contains("Version=\"268\""));
 
         // Verify other entries preserved
         let cursor = std::io::Cursor::new(&repacked);
