@@ -141,6 +141,7 @@ Configuration:
   telemetry                      Manage anonymous usage analytics
   completions                    Generate shell completions
   schema                         Command schema for AI agent discovery
+  stats                          Miniserver statistics (ls/get/download)
 
 {options}{after-help}"
 )]
@@ -268,6 +269,11 @@ pub(crate) enum Cmd {
     Live {
         #[command(subcommand)]
         action: commands::live_cmd::LiveCmd,
+    },
+    /// Read Miniserver statistics: list them, print values, download the monthly XML files
+    Stats {
+        #[command(subcommand)]
+        action: commands::stats_cmd::StatsCmd,
     },
 }
 
@@ -1198,6 +1204,7 @@ fn command_name(cmd: &Cmd) -> String {
         Cmd::Docs { .. } => "docs".into(),
         Cmd::Color { .. } => "color".into(),
         Cmd::Live { .. } => "live".into(),
+        Cmd::Stats { .. } => "stats".into(),
     }
 }
 
@@ -1293,6 +1300,7 @@ fn run(cli: Cli) -> Result<()> {
         } => cmd_docs(&ctx, query, datasheet, schema, list),
         Cmd::Color { action } => commands::color_cmd::cmd_color(&ctx, action),
         Cmd::Live { action } => commands::live_cmd::cmd_live(&ctx, action),
+        Cmd::Stats { action } => commands::stats_cmd::cmd_stats(&ctx, action),
     }
 }
 
