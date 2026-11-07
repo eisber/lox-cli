@@ -1,0 +1,34 @@
+fun countryOnly(properties) {
+    let result := {}
+    for (let key, value in properties ?? {}) {
+        let geographic := substring(key, 1, 7) == '$geoip_' or substring(key, 1, 15) == '$initial_geoip_'
+        let country := has(['$geoip_country_code', '$geoip_country_name', '$initial_geoip_country_code', '$initial_geoip_country_name'], key)
+        if (key != '$ip' and (not geographic or country)) {
+            result[key] := value
+        }
+    }
+    return result
+}
+
+let original := event.properties ?? {}
+let properties := countryOnly(original)
+if (original.$set) {
+    properties.$set := countryOnly(original.$set)
+}
+if (original.$set_once) {
+    properties.$set_once := countryOnly(original.$set_once)
+}
+if (not empty(original.$ip)) {
+    let location := geoipLookup(original.$ip)
+    if (location?.country?.isoCode) {
+        properties.$geoip_country_code := location.country.isoCode
+        properties.$geoip_country_name := location.country.names?.en
+    }
+}
+// Prevent the subsequent standard GeoIP transformation from adding finer detail.
+properties.$geoip_disable := true
+properties.$process_person_profile := false
+let returnEvent := event
+returnEvent.properties := properties
+returnEvent.ip := null
+return returnEvent

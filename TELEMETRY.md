@@ -16,6 +16,7 @@ Automatic usage events contain only anonymous, aggregated data:
 |---------------------|------------------------------|-------------------------------|
 | CLI version         | `0.14.0`                     | Track adoption                |
 | OS + architecture   | `linux / x86_64`             | Platform prioritisation       |
+| Country             | Country code and name       | Regional usage trends         |
 | Command name        | `config add`, `sim run`      | Feature usage                 |
 | Command outcome     | Success / error category    | Find unreliable workflows     |
 | Event source        | `usage`, `eval`, `diagnostic` | Separate real and test usage |
@@ -30,6 +31,7 @@ Automatic usage events contain only anonymous, aggregated data:
 
 - File paths, file contents, config XML
 - IP addresses (PostHog is configured not to store them)
+- City, region, postal code, timezone, latitude, and longitude
 - Usernames, hostnames, Miniserver serial numbers
 - Block titles, room names, UUIDs
 - Command arguments or flag values
@@ -75,7 +77,7 @@ Usage dashboards should filter to `source = usage`; verification/eval charts
 can include the other sources. Older events have no source property.
 
 The maintainer [lox CLI Usage dashboard](https://eu.posthog.com/project/112518/dashboard/1092443)
-shows command trends, popular commands, outcomes, platforms/versions, and a
+shows command trends, popular commands, outcomes, platforms/versions, countries, and a
 separate diagnostic delivery view. Access requires membership in the PostHog project.
 
 ### Check current status
@@ -145,7 +147,17 @@ We have configured PostHog to:
   A short command can therefore take up to two extra seconds when offline.
 - Network errors, timeouts, and HTTP rejections produce a warning on stderr;
   they never change the command's exit code or JSON output.
-- Events explicitly disable GeoIP enrichment and person-profile processing.
+- Events opt into country-only enrichment with `geoip_country_only: true`.
+  The scoped PostHog transformation derives country code/name from the request IP,
+  removes the IP and finer GeoIP fields (including nested person properties),
+  and runs before the standard GeoIP transformation. Its versioned source is
+  [`scripts/posthog-country-only.hog`](scripts/posthog-country-only.hog).
+  Its filter is `geoip_country_only = true`, with execution order `0` before the
+  standard GeoIP step. If the scoped transformation is unavailable, the CLI's
+  full-GeoIP disable flag still prevents detailed location enrichment.
+- Full GeoIP enrichment remains disabled with `$geoip_disable: true`, and
+  person-profile processing remains disabled. No additional geolocation service
+  is called by the CLI. VPN/proxy/CI traffic reflects the exit country's location.
 - There is no durable local usage log or retry queue.
 - Explicit issue feedback waits for delivery and returns an error on failure,
   rather than only warning.

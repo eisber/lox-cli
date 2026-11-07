@@ -307,6 +307,7 @@ fn base_properties(source: &str) -> Value {
         "os": std::env::consts::OS,
         "arch": std::env::consts::ARCH,
         "source": source,
+        "geoip_country_only": true,
         "$geoip_disable": true,
         "$process_person_profile": false,
     })
@@ -354,7 +355,7 @@ pub fn maybe_show_first_run_notice() {
     eprintln!(
         "\n\
          📊 Anonymous usage analytics help improve lox.\n\
-         \x20  What's collected: command names, block types, config stats (no PII).\n\
+         \x20  What's collected: command names, block types, config stats, country.\n\
          \x20  Full details: https://github.com/eisber/lox-cli/blob/main/TELEMETRY.md\n\
          \n\
          \x20  To enable:  lox telemetry enable\n\
@@ -610,7 +611,7 @@ mod tests {
         let server = MockServer::start();
         let capture = server.mock(|when, then| {
             when.method(POST).path("/capture/").json_body_partial(
-                r#"{"event":"command","properties":{"command":"config check","success":false,"error_type":"error","source":"test","$geoip_disable":true,"$process_person_profile":false}}"#,
+                r#"{"event":"command","properties":{"command":"config check","success":false,"error_type":"error","source":"test","geoip_country_only":true,"$geoip_disable":true,"$process_person_profile":false}}"#,
             );
             then.status(200).body(r#"{"status":"Ok"}"#);
         });
