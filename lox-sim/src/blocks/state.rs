@@ -166,15 +166,17 @@ impl Block for RSFlipFlop {
     }
 }
 
-/// Digital memory (latch): captures a digital input on a trigger edge, clears on reset.
+/// Loxone "Merker" (memory flag, ControlType 320): a single `Input`, `AQ`
+/// carries its value and `Q` whether it is non-zero. Other objects read it
+/// through references. (A latch with Trigger/Reset is `AMemory`.)
 #[derive(Clone)]
 pub struct Memory {
-    value: bool,
+    value: f64,
 }
 
 impl Memory {
     pub fn new() -> Self {
-        Self { value: false }
+        Self { value: 0.0 }
     }
 }
 
@@ -185,42 +187,28 @@ impl Default for Memory {
 }
 
 impl Block for Memory {
-    /// inputs: [0] = digital input, [1] = trigger, [2] = reset
+    /// inputs: [Input]; outputs: [AQ, Q]
     fn eval(
         &mut self,
         inputs: &[Signal],
         _params: &[Signal],
         _dt: f64,
-        prev_inputs: &[Signal],
+        _prev: &[Signal],
     ) -> Vec<Signal> {
-        let input = inputs.first().copied().unwrap_or(0.0);
-        let trigger = inputs.get(1).copied().unwrap_or(0.0);
-        let reset = inputs.get(2).copied().unwrap_or(0.0);
-        let prev_trigger = prev_inputs.get(1).copied().unwrap_or(0.0);
-
-        if is_high(reset) {
-            self.value = false;
-        } else if !is_high(prev_trigger) && is_high(trigger) {
-            self.value = is_high(input);
-        }
-
-        vec![bool_signal(self.value)]
+        self.value = inputs.first().copied().unwrap_or(self.value);
+        vec![self.value, bool_signal(self.value != 0.0)]
     }
 
     fn state(&self) -> Option<Vec<u8>> {
-        Some(serialize_bool(self.value))
+        Some(serialize_f64s(&[self.value]))
     }
 
     fn restore(&mut self, state: &[u8]) {
-        self.value = deserialize_bool(state).unwrap_or(false);
+        self.value = deserialize_f64s(state, 1).map_or(0.0, |v| v[0]);
     }
 
     fn block_type(&self) -> &str {
         "Memory"
-    }
-
-    fn is_edge_sensitive(&self) -> bool {
-        true
     }
 }
 
@@ -909,23 +897,11 @@ mod tests {
     }
 
     #[test]
-    fn memory_captures_digital_input() {
+    fn memory_passes_value_and_digital_state() {
         let mut block = Memory::new();
-        // Trigger rising edge with input high
-        assert_eq!(
-            block.eval(&[1.0, 1.0, 0.0], &[], 0.0, &[0.0, 0.0, 0.0]),
-            vec![1.0]
-        );
-        // Holds even when input drops
-        assert_eq!(
-            block.eval(&[0.0, 0.0, 0.0], &[], 0.0, &[1.0, 1.0, 0.0]),
-            vec![1.0]
-        );
-        // Reset clears
-        assert_eq!(
-            block.eval(&[0.0, 0.0, 1.0], &[], 0.0, &[0.0, 0.0, 0.0]),
-            vec![0.0]
-        );
+        assert_eq!(block.eval(&[21.5], &[], 0.0, &[]), vec![21.5, 1.0]);
+        assert_eq!(block.eval(&[0.0], &[], 0.0, &[]), vec![0.0, 0.0]);
+        assert_eq!(block.eval(&[-3.0], &[], 0.0, &[]), vec![-3.0, 1.0]);
     }
 
     #[test]
@@ -1245,13 +1221,11 @@ mod tests {
     #[test]
     fn memory_state_roundtrip() {
         let mut b = Memory::new();
-        b.eval(&[1.0, 1.0, 0.0], &[], 0.0, &[0.0, 0.0, 0.0]);
+        b.eval(&[7.0], &[], 0.0, &[]);
         let state = b.state().unwrap();
         let mut b2 = Memory::new();
         b2.restore(&state);
-        assert_eq!(
-            b2.eval(&[0.0, 0.0, 0.0], &[], 0.0, &[1.0, 1.0, 0.0]),
-            vec![1.0]
-        );
+        // No input: holds the restored value
+        assert_eq!(b2.eval(&[], &[], 0.0, &[]), vec![7.0, 1.0]);
     }
 }
