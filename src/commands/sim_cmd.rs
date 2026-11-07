@@ -915,3 +915,48 @@ fn cmd_dump_json(graph: &SimGraph, _engine: &SimEngine) -> Result<()> {
     println!("{}", serde_json::to_string_pretty(&output)?);
     Ok(())
 }
+
+#[cfg(test)]
+mod strict_spec_tests {
+    use super::*;
+
+    #[test]
+    fn unknown_keys_are_rejected_at_every_spec_level() {
+        for json in [
+            r#"{"expect":{}}"#,
+            r#"{"steps":[{"expect":{}}]}"#,
+            r#"{"clock":{"timezone":"UTC"}}"#,
+            r#"{"steps":[{"clock":{"timezone":"UTC"}}]}"#,
+        ] {
+            let error = serde_json::from_str::<SimSpec>(json).err().unwrap();
+            assert!(error.to_string().contains("unknown field"), "{error}");
+        }
+    }
+
+    #[test]
+    fn unresolved_inputs_fail_initial_and_step_checks() {
+        let graph = lox_sim::parser::parse_bytes(
+            br#"<ControlList><C Type="VirtualIn" U="s" Title="Source"><Co K="Q" U="q"/></C></ControlList>"#,
+        )
+        .unwrap();
+        for json in [
+            r#"{"inputs":{"Missing":1},"expected_outputs":{"Source.Q":{"==":0}}}"#,
+            r#"{"steps":[{"inputs":{"Missing":1},"expected_outputs":{"Source.Q":{"==":0}}}]}"#,
+        ] {
+            let spec: SimSpec = serde_json::from_str(json).unwrap();
+            let result = run_one(&graph, &spec);
+            assert!(!result.pass);
+            assert!(result.checks.iter().any(|check| {
+                check["input"] == "Missing"
+                    && check["pass"] == false
+                    && check["error"] == "could not set input"
+            }));
+            assert!(
+                result
+                    .checks
+                    .iter()
+                    .any(|check| check["output"] == "Source.Q" && check["pass"] == true)
+            );
+        }
+    }
+}

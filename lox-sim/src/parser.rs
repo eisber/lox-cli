@@ -148,14 +148,7 @@ pub fn parse_element(root: &Element) -> Result<SimGraph, String> {
         }
     };
 
-    // First pass: resolve UUID-based wires (source is a UUID)
-    for (source_ref, dest_cid) in &explicit_wires {
-        if let Some(&from) = uuid_to_connector.get(source_ref) {
-            add_source(*dest_cid, from);
-        }
-    }
-
-    // Second pass: resolve name-based wiring ("Title.Connector" format, FLG="2")
+    // Build name-based resolution ("Title.Connector" format, FLG="2").
     let mut name_to_output: HashMap<String, usize> = HashMap::new();
     for bid in 0..graph.block_count() {
         let info = graph.block_info(bid);
@@ -179,12 +172,11 @@ pub fn parse_element(root: &Element) -> Result<SimGraph, String> {
     }
 
     for (source_ref, dest_cid) in &explicit_wires {
-        // Already resolved by UUID above?
-        if uuid_to_connector.contains_key(source_ref) {
-            continue;
-        }
-        // Try name-based resolution
-        if let Some(&from) = name_to_output.get(source_ref) {
+        // Keep XML source order even when UUID and name references are mixed.
+        if let Some(&from) = uuid_to_connector
+            .get(source_ref)
+            .or_else(|| name_to_output.get(source_ref))
+        {
             add_source(*dest_cid, from);
         }
     }
@@ -2081,10 +2073,10 @@ fn block_signature(
                 "IL6", "IL7", "IL8", "IL9", "IL10", "IL11", "IL12", "Reset",
             ],
             &[
-                "O", "OL1", "OL2", "OL3", "OL4", "OL5", "OL6", "OL7", "OL8", "OL9", "OL10", "OL11",
+                "OL1", "OL2", "OL3", "OL4", "OL5", "OL6", "OL7", "OL8", "OL9", "OL10", "OL11",
                 "OL12", "ONext", "OMinSoc", "API",
             ],
-            &["MinSoc", "MaxSpwr"],
+            &["O", "MinSoc", "MaxSpwr"],
         ),
         "LoadShed" => (
             &[
@@ -2403,6 +2395,31 @@ mod tests {
         let gate = graph.find_block_by_name("Gate").unwrap();
         let input = graph.find_connector(gate, "I1").unwrap();
         assert!(graph.input_source_of(input).is_some());
+    }
+
+    #[test]
+    fn energy_manager_offset_parameter_retains_incoming_wire() {
+        let graph = parse_xml(
+            r#"<ControlList>
+          <C Type="VirtualIn" U="source" Title="Source"><Co K="AQ" U="source-aq"/></C>
+          <C Type="EnergyManager2" U="energy" Title="Energy">
+            <Co K="O" U="energy-offset" Def="-1.25"><In Input="source-aq"/></Co>
+            <Co K="MinSoc" U="energy-soc" Def="100"/>
+            <Co K="OL1" U="energy-load"/>
+          </C>
+        </ControlList>"#,
+        );
+        let energy = graph.find_block_by_name("Energy").unwrap();
+        let source = graph.find_block_by_name("Source").unwrap();
+        let offset = graph.find_connector(energy, "O").unwrap();
+        let source_output = graph.find_connector(source, "AQ").unwrap();
+        assert_eq!(graph.connector(offset).dir, ConnectorDir::Parameter);
+        assert_eq!(graph.connector(offset).default_value, -1.25);
+        assert!(graph.block_info(energy).params.contains(&offset));
+        assert!(!graph.block_info(energy).outputs.contains(&offset));
+        assert_eq!(graph.input_source_of(offset), Some(source_output));
+        assert!(graph.wires().contains(&(source_output, offset)));
+        assert!(graph.warnings().is_empty());
     }
 
     #[test]
@@ -2770,6 +2787,25 @@ mod tests {
         e.set_input("B", 1.0);
         e.tick(0.1);
         assert_eq!(e.get_output("Flag.AQ"), 0.0, "second source is not wired");
+    }
+
+    #[test]
+    fn mixed_name_and_uuid_sources_preserve_xml_order() {
+        let xml = r#"<ControlList>
+  <C Type="VirtualIn" U="a" Title="A"><Co K="Q" U="a-q"/></C>
+  <C Type="VirtualIn" U="b" Title="B"><Co K="Q" U="b-q"/></C>
+  <C Type="Memory" U="m" Title="Flag">
+    <Co K="Input" U="m-in" Nc="2"><In Input="A.Q" FLG="2"/><In Input="b-q"/></Co>
+    <Co K="AQ" U="m-aq"/>
+  </C>
+</ControlList>"#;
+        let graph = parse_bytes(xml.as_bytes()).expect("parse");
+        assert_eq!(graph.warnings().len(), 1);
+        let mut engine = crate::engine::SimEngine::new(graph);
+        engine.set_input("A", 7.0);
+        engine.set_input("B", 3.0);
+        engine.tick(0.1);
+        assert_eq!(engine.get_output("Flag.AQ"), 7.0);
     }
 
     #[test]

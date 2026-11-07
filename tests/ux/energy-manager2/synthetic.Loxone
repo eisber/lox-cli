@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<LoxAPP DocumentVersion="178">
+  <C Type="Project" U="10000000-0000-0000-0000000000000001" Title="Synthetic Offline Energy Pilot">
+    <C Type="Page" U="10000000-0000-0000-0000000000000002" Title="Pilot">
+      <C Type="EnergyManager2" V="178" U="20000000-0000-0000-0000000000000001" Title="Synthetic Energy" Nio="37" PilotUnknown="retain">
+        <Co K="O" Def="-1.25" U="21000000-0000-0000-0000000000000001"/>
+        <Co K="MinSoc" Def="100" U="21000000-0000-0000-0000000000000002"/>
+        <Co K="MaxSpwr" Def="5.5" U="21000000-0000-0000-0000000000000003"/>
+        <Co K="IL1" U="22000000-0000-0000-0000000000000001"/>
+        <Co K="IL2" U="22000000-0000-0000-0000000000000002"/>
+        <Co K="OL1" U="23000000-0000-0000-0000000000000001"/>
+        <Co K="OL2" U="23000000-0000-0000-0000000000000002"/>
+        <Load Id="30000000-0000-0000-0000000000000001" U="true" Na="Pilot Alpha" Ncu="true" An="true" Anc="true" OIdx="0" MinRt="120" MDay="300" RT="30" tpR="1" SwPwr="2.5" MaxPwr="2.5" ico="40000000-0000-0000-0000000000000001" PilotUnknown="retain"/>
+        <Load Id="30000000-0000-0000-0000000000000002" U="true" Na="Pilot Beta" Ncu="true" Anc="true" OIdx="1" MinRt="600" RT="60" SwPwr="2.6" MaxPwr="2.5"/>
+        <Load Id="30000000-0000-0000-0000000000000003" Na="" OIdx="2" RT="60"/>
+        <Load Id="30000000-0000-0000-0000000000000004" Na="" OIdx="3" RT="60"/>
+        <Load Id="30000000-0000-0000-0000000000000005" Na="" OIdx="4" RT="60"/>
+        <Load Id="30000000-0000-0000-0000000000000006" Na="" OIdx="5" RT="60"/>
+        <Load Id="30000000-0000-0000-0000000000000007" Na="" OIdx="6" RT="60"/>
+        <Load Id="30000000-0000-0000-0000000000000008" Na="" OIdx="7" RT="60"/>
+        <Load Id="30000000-0000-0000-0000000000000009" Na="" OIdx="8" RT="60"/>
+        <Load Id="30000000-0000-0000-000000000000000a" Na="" OIdx="9" RT="60"/>
+        <Load Id="30000000-0000-0000-000000000000000b" Na="" OIdx="10" RT="60"/>
+        <Load Id="30000000-0000-0000-000000000000000c" Na="" OIdx="11" RT="60"/>
+        <PilotExtension data="preserve unknown direct child"/>
+      </C>
+      <C Type="StateV" U="50000000-0000-0000-0000000000000001" Title="Synthetic Actor">
+        <Co K="I" U="51000000-0000-0000-0000000000000001">
+          <In Input="23000000-0000-0000-0000000000000001"/>
+        </Co>
+      </C>
+      <C Type="Note" U="60000000-0000-0000-0000000000000001" Title="Unrelated synthetic sentinel" Text="Keep me unchanged" 12hTF="true"/>
+    </C>
+  </C>
+</LoxAPP>

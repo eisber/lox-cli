@@ -2106,6 +2106,38 @@ mod tests {
     }
 
     #[test]
+    fn memory_flag_matches_interpreter_and_compiler() {
+        let mut graph = SimGraph::new();
+        let source = graph.add_block("Source", pt(), &["I1"], &["Q"], &[]);
+        let flag = graph.add_block(
+            "Flag",
+            Box::new(blocks::Memory::new()),
+            &["Input"],
+            &["AQ", "Q"],
+            &[],
+        );
+        graph
+            .add_wire(
+                graph.find_connector(source, "Q").unwrap(),
+                graph.find_connector(flag, "Input").unwrap(),
+            )
+            .unwrap();
+        let mut engine = SimEngine::new(graph.clone());
+        let mut compiled = CompiledGraph::from_graph(&graph);
+        for value in [21.5, 0.0, -3.0, 0.001] {
+            engine.set_input("Source", value);
+            compiled.set_input("Source", value);
+            engine.tick(0.1);
+            compiled.tick(0.1);
+            let digital = if value != 0.0 { 1.0 } else { 0.0 };
+            assert_eq!(engine.get_output("Flag.AQ"), value);
+            assert_eq!(compiled.get_output("Flag.AQ"), value);
+            assert_eq!(engine.get_output("Flag.Q"), digital);
+            assert_eq!(compiled.get_output("Flag.Q"), digital);
+        }
+    }
+
+    #[test]
     fn input_ref_mirrors_ai_in_interpreter_and_compiler() {
         let mut g = SimGraph::new();
         let analog = g.add_block("Analog", pt(), &["I1"], &["Q"], &[]);
