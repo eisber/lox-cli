@@ -462,18 +462,37 @@ the supported Loxone Config workflow when that coordination is not possible.
 The existing archive sidecar capability checks still apply to merged changes.
 
 `push` and `patch` preserve the native archive's sidecars, not just its XML.
-They reject edits requiring a new app catalogue or compiled permissions: for
-example, adding/removing controls, changing visible control metadata or native
-state identities, and changing room/category rights or user permissions.
-`--force` does not bypass this guard. Save and deploy those edits with Loxone
-Config instead. XML extraction/compression alone is **not** a complete deployment.
+For a narrow set of edits they also compile the matching `LoxAPP3.json` entries
+and `permissions.bin` records, copying the layout from a native entry of the
+same type that Loxone Config already compiled into the source archive:
+
+- adding a visualized `PushButton2Sel` (app `ValueSelector`), `State`
+  (`TextState`) or `PButtonT` (`Pushbutton`), or a linked `MeterAbsUni`
+  (`Meter`) whose `Rec` is an existing energy manager;
+- renaming those controls (`Title`);
+- adding or renaming load nodes in an energy manager's node tree;
+- changing an existing visualized `Doorcontroller`'s `OutName1`–`OutName3`
+  labels and `linkC` links;
+- adding or removing runtime-only logic/math blocks, which need no sidecar change.
+
+New controls need an existing app room and category, right groups on their
+`Place`/`Category`, and no `RGR` permission overrides. Catalogue changes require
+an advanced Document `Date`, which becomes the catalogue `lastModified`. Untouched
+entries and records are copied byte-for-byte.
+
+Every other sidecar-affecting edit is rejected: for example removing controls,
+changing visible control metadata beyond the above or native state identities,
+and changing room/category rights or user permissions. So is any supported edit
+without a matching native template. `--force` does not bypass this guard. Save
+and deploy those edits with Loxone Config instead. XML extraction/compression
+alone is **not** a complete deployment.
 
 Existing sidecars and unknown native versions are preserved for sidecar-neutral
 edits (save stamps, layout, and parameter/wiring edits on existing unvisualized
-logic/math blocks). This is conservative impact detection, not a sidecar compiler
-or an audit/repair of previously stale native records.
+logic/math blocks). This is not an audit/repair of previously stale native records.
 Raw ZIP uploads must also retain matching native catalogue, permission and
-display sidecars from the trusted backup; identical XML does not make missing or
+display sidecars from the trusted backup, or carry exactly the sidecars lox
+compiles for a supported edit; identical XML does not make missing or
 replacement sidecars safe. Raw XML/LoxCC is not a complete deployment archive.
 
 Touch Pure Display (`TPDC`, Tree subtype `32811`) modifications are not supported
