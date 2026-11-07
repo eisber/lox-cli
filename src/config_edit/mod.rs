@@ -14,9 +14,17 @@
 
 mod blocks;
 mod describe;
+pub mod energy;
+#[cfg(test)]
+mod energy_tests;
+pub mod icons;
 mod layout;
+pub mod lighting;
+#[cfg(test)]
+mod lighting_tests;
 mod properties;
 mod rooms;
+pub mod schema;
 mod selector;
 mod template;
 mod validation;
@@ -68,6 +76,15 @@ pub struct DescribeConnectorEntry {
     pub wired: bool,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub default: Option<String>,
+}
+
+/// Value-free storage shapes observed in a configuration, grouped by element type.
+#[derive(Debug, serde::Serialize)]
+pub struct ConfigSurfaceEntry {
+    pub element_type: String,
+    pub occurrences: usize,
+    pub attributes: Vec<String>,
+    pub storage_paths: Vec<String>,
 }
 
 /// A light scene / "mood" defined on a LightController2.
@@ -1285,6 +1302,20 @@ mod tests {
     }
 
     #[test]
+    fn test_validate_lc2_motion_missing_table() {
+        let results = validate_xml(
+            r#"<C Type="LightController2" U="lc-1" Title="Hall Light">
+                <Co K="Presence" U="lc-presence"><In Input="pir-q"/></Co>
+            </C>"#,
+        );
+        assert_eq!(
+            warnings_containing(&results, "motion table is empty").len(),
+            1,
+            "{results:?}"
+        );
+    }
+
+    #[test]
     fn test_validate_lc2_motion_rule_quiet_when_ok() {
         let pir = r#"<In Input="pir-q"/>"#;
         // Every controller lists the same modes: they may cover the whole day.
@@ -1334,7 +1365,7 @@ mod tests {
   </C>
   <C Type="Monoflop" U="mf-1" Title="Scene Pulse">
     <Co K="Q" U="mf-q"/>
-    <Co K="Time" U="mf-t" Def="0.5"/>
+    <Co K="Time" U="mf-t" Def="1.5"/>
   </C>
   <C Type="EdgeDetection" U="ed-2" Title="Reset Edge">
     <Co K="RisingEdge" U="ed2-rise"/>
@@ -1361,6 +1392,55 @@ mod tests {
   </C>"#
         ));
         assert!(warnings_containing(&results, "long-click").is_empty());
+    }
+
+    #[test]
+    fn test_validate_mood_pulses_respect_configured_mixing_duration() {
+        for (setting, pulse, warns) in [
+            ("", "0.5", false),
+            (r#"Def="0""#, "5", false),
+            (r#"Def="2""#, "1", false),
+            (r#"Def="0.1""#, "0.2", true),
+        ] {
+            let results = validate_xml(&format!(
+                r#"<C Type="LightController2" U="lc" Title="Light">
+                    <Co K="Sel1" U="sel"><In Input="pulse"/></Co>
+                    <Co K="SceneMixTime" U="mix" {setting}/>
+                </C>
+                <C Type="Monoflop" U="mf" Title="Scene Pulse">
+                    <Co K="Q" U="pulse"/>
+                    <Co K="Time" U="time" Def="{pulse}"/>
+                </C>"#
+            ));
+            assert_eq!(
+                !warnings_containing(&results, "long-click").is_empty(),
+                warns,
+                "{results:?}"
+            );
+        }
+    }
+
+    #[test]
+    fn test_validate_mood_pulses_with_dynamic_durations_are_quiet() {
+        for (mix_wire, pulse_wire) in [
+            (r#"<In Input="dynamic"/>"#, ""),
+            ("", r#"<In Input="dynamic"/>"#),
+        ] {
+            let results = validate_xml(&format!(
+                r#"<C Type="LightController2" U="lc" Title="Light">
+                    <Co K="Sel1" U="sel"><In Input="pulse"/></Co>
+                    <Co K="SceneMixTime" U="mix" Def="1">{mix_wire}</Co>
+                </C>
+                <C Type="Monoflop" U="mf" Title="Scene Pulse">
+                    <Co K="Q" U="pulse"/>
+                    <Co K="Time" U="time" Def="2">{pulse_wire}</Co>
+                </C>"#
+            ));
+            assert!(
+                warnings_containing(&results, "long-click").is_empty(),
+                "{results:?}"
+            );
+        }
     }
 
     #[test]
@@ -1424,6 +1504,20 @@ mod tests {
             results
                 .iter()
                 .any(|r| r.starts_with('✓') && r.contains("instead of AQ"))
+        );
+    }
+
+    #[test]
+    fn test_validate_reference_q_managed_links_are_quiet() {
+        let results = validate_xml(&format!(
+            r#"{REF_TARGETS}
+              <C Type="PresenceDetector" U="presence" Title="Presence">
+                <Co K="DeviceActivate" U="activate"><In Input="ref-vi-q" FLG="1"/></Co>
+              </C>"#
+        ));
+        assert!(
+            warnings_containing(&results, "wired from Q").is_empty(),
+            "{results:?}"
         );
     }
 

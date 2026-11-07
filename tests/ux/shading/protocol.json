@@ -1,0 +1,108 @@
+{
+  "schema_version": 1,
+  "status": "proposed_not_executed",
+  "runner_ready": false,
+  "engine_completion": false,
+  "application": {
+    "version": "17.2.10.21",
+    "sha256": "7b55e3ef18401574ab967c5c6a0140cd5a66dc728521ebba04ad53093577d8b3"
+  },
+  "private_fixture": {
+    "path": ".reverse-engineering\\native-simulator\\families\\shading-hvac\\shading-minimum.Loxone",
+    "sha256": "433478d55327235667c23903645e279fc520baf3e6db209cf2fb5186cb67d457",
+    "block_selector": "Prepared Shading",
+    "controller_uuid": "05cbee2b-8e15-fbc5-ffff000000000001"
+  },
+  "generation": {
+    "seed": "tests\\ux\\shading\\seed.Loxone",
+    "cli_path": "target\\release\\lox.exe",
+    "cli_sha256": "3912fc2e9d9537e4495638041095a159411b2114ebf54d319d18335a6abf14cf",
+    "private_command_and_role_manifest": ".reverse-engineering\\native-simulator\\families\\shading-hvac\\fixture-generation.json",
+    "private_command_and_role_manifest_sha256": "4857964179477caad1e7a14e92d5a5caa8cf36320876dfb3f450928bd4a078b5",
+    "add_command": "lox config add --type JalousieUpDown2 --title \"Prepared Shading\" --room \"Shading Lab\" --page \"Shading Lab\" tests\\ux\\shading\\seed.Loxone --save-as .reverse-engineering\\native-simulator\\families\\shading-hvac\\shading-minimum.Loxone --json",
+    "authored_parameter_inputs": {
+      "MinPulse": 1,
+      "TimeEnd": 8,
+      "TimeEndDown": 6,
+      "TimeBlock": 0.5,
+      "DblClk": 0.25,
+      "Back": 0.6,
+      "MinMove": 0.3,
+      "Type": 0
+    },
+    "set_command_pattern": "lox config set-param <private fixture> \"Prepared Shading\" <key> <authored value> --json",
+    "uuid_policy": "Generated UUIDs are nondeterministic. Regeneration creates a different fixture identity and requires new hashes, role ledger and calibration; never reuse these hashes for different bytes."
+  },
+  "prerequisites": {
+    "gui_lease": "BLOCKED/QUEUED: coordinator only; no Shading/HVAC desktop access authorized in this phase.",
+    "desktop_identity": "Require the coordinator's explicit lease and the authorized private-profile notebook/actor/active-console identity plus pinned tools. Never infer the GUI actor from the SSH transport account.",
+    "oracle_baseline": ".reverse-engineering\\native-simulator\\workstreams\\054ce95-oracle-baseline\\manifest.json",
+    "input_path": "UNKNOWN: confirm the official simulator can set this block's registered input connectors without hardware or private ABI calls.",
+    "native_instance": "UNKNOWN: bind this fixture and this class's primary COL/vtable/+0x50 independently. Energy runtime class IDs and frame pointers are not portable evidence.",
+    "initial_position": "UNKNOWN: establish a visible normalized mid-travel position of 0.50 +/- 0.05 through official simulation controls only; do not write application memory.",
+    "clock": "UNKNOWN: record official simulator elapsed time, real-time scaling, reset/restart semantics and timing-parameter units without changing the OS clock.",
+    "sampling": "UNKNOWN: interlock timing requires an approved official observation path with intervals no larger than 0.10 seconds. Coarse screenshots cannot prove an all-cycle interlock.",
+    "hardware": "No devices, sensors or actuators are fabricated. If bare block inputs cannot execute, record the actual missing dependencies and block the cases."
+  },
+  "clock_plan": {
+    "clock": "official simulator elapsed seconds, contingent on calibration",
+    "time_scale": "real-time 1:1 only after visible calibration",
+    "maximum_wall_seconds_per_case": 90,
+    "maximum_output_sample_interval_seconds": 0.1,
+    "os_clock_changes": false
+  },
+  "cases": [
+    {
+      "id": "shading.admission-calibration",
+      "status": "proposed_not_executed",
+      "setup": "Verify all pinned private hashes and desktop identity. Import a disposable copy, select the block and inspect its registered connector labels before saving.",
+      "inputs": "No movement command until official input injection, direction meanings and clock have been calibrated.",
+      "clock": "Record start/stop/restart and elapsed-time evidence, with bounded calibration under the wall-time cap.",
+      "procedure": "Save/reopen unchanged, then make one independently chosen timing edit and restore it. Compare all 21 connector keys/order, UUIDs, room/page references, chosen scalar settings and all untouched XML. Identify any delegated advanced-settings dialog without modifying unknown records.",
+      "expected_bounds": {
+        "connector_count": 21,
+        "uuid_and_reference_role_changes": 0,
+        "unrelated_xml_changes": 0
+      },
+      "limitations": "PROPOSED storage/admission hypothesis only. GUI repairs, unresolved native prerequisites or inadequate timing evidence block later cases."
+    },
+    {
+      "id": "shading.reversal-interlock",
+      "status": "proposed_not_executed",
+      "setup": "Fresh admitted fixture; mid-travel position calibrated; all registered digital commands inactive; Type meaning and timing units recorded.",
+      "inputs": [
+        {"elapsed_seconds": 0, "set": {"EndUp": 1}},
+        {"elapsed_seconds": 0.2, "set": {"EndUp": 0}},
+        {"elapsed_seconds": 1.5, "set": {"EndDown": 1}},
+        {"elapsed_seconds": 1.7, "set": {"EndDown": 0}}
+      ],
+      "clock": "Observe through official elapsed second 5.0; maximum sample interval 0.10 seconds.",
+      "expected_bounds": {
+        "simultaneously_active_OutputUp_and_OutputDown": false,
+        "proposed_reversal_inactive_interval_seconds": {"minimum": 0.4, "maximum": 0.8},
+        "proposed_normalized_OutputPos": {"minimum": 0, "maximum": 1},
+        "must_observe_each_direction_active": true
+      },
+      "limitations": "PROPOSED, not an implemented specification. The configured blocking interval is 0.5 with sampling tolerance. Missing positive movement/native progress or coarse observations make the result incomplete. EndUp/EndDown are full-travel commands, not proven physical end-stop sensors."
+    },
+    {
+      "id": "shading.stop-hold",
+      "status": "proposed_not_executed",
+      "setup": "Fresh admitted fixture; mid-travel position and actual movement calibrated; other commands inactive.",
+      "inputs": [
+        {"elapsed_seconds": 0, "set": {"EndDown": 1}},
+        {"elapsed_seconds": 0.2, "set": {"EndDown": 0}},
+        {"elapsed_seconds": 1.5, "set": {"Stop": 1}},
+        {"elapsed_seconds": 1.7, "set": {"Stop": 0}}
+      ],
+      "clock": "Read official outputs at elapsed seconds 2.5 and 3.5 after independently observing movement.",
+      "expected_bounds": {
+        "OutputUp_after_settle": 0,
+        "OutputDown_after_settle": 0,
+        "proposed_normalized_OutputPos": {"minimum": 0, "maximum": 1},
+        "maximum_position_change_between_readbacks": 0.02
+      },
+      "limitations": "PROPOSED settling and normalized-position hypothesis only; does not prove end-stop, motor, lamella, weather, safety or physical interlock behavior."
+    }
+  ]
+}

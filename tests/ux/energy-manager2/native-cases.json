@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "application": {"version": "17.2.10.21", "sha256": "7b55e3ef18401574ab967c5c6a0140cd5a66dc728521ebba04ad53093577d8b3"},
+  "fixture": "tests\\ux\\energy-manager2\\synthetic.Loxone",
+  "fixture_origin": "independently authored synthetic data; never an official GUI golden project",
+  "evidence_kind": "implementation",
+  "cases": [
+    {"id": "native-scalar-read", "operation": "Read EnergyManager2 scalars", "expected": {"O": -1.25, "MinSoc": 100, "MaxSpwr": 5.5}, "must_classify_O": "parameter"},
+    {"id": "native-scalar-write", "operation": "Set O to 2.75 on a disposable fixture copy", "expected_path": "Co[@K='O']/@Def", "expected_value": "2.75", "preserve": ["Co/@U", "all Load attributes/order", "unknown attributes", "PilotExtension", "StateV input reference", "unrelated Note"]},
+    {"id": "native-scalar-bounds", "operation": "Validate scalar numeric domains", "accept": {"O": [-1.25, 0, 2.75], "MinSoc": [0, 100], "MaxSpwr": [0, 5.5]}, "reject": {"MinSoc": [-1, 101], "MaxSpwr": [-1]}, "note": "CLI rejection is an implementation policy reflecting catalog bounds, not identical GUI input-filter feedback."},
+    {"id": "native-load-read", "operation": "Read all ordered direct Load children including unused slots", "expected_count": 12, "first": {"Id": "30000000-0000-0000-0000000000000001", "OIdx": 0, "An": true, "MinRt": 120, "MDay": 300, "RT": 30, "tpR": 1, "SwPwr": 2.5, "MaxPwr": 2.5}, "second": {"OIdx": 1, "An": false, "SwPwr": 2.6, "MaxPwr": 2.5}},
+    {"id": "native-load-reorder", "operation": "Move first load one priority down", "expected_id_order_prefix": ["30000000-0000-0000-0000000000000002", "30000000-0000-0000-0000000000000001"], "preserve": ["every load attribute by Id", "OIdx association", "Co/@U", "actor input reference", "unused slots", "unknown child and attributes"]},
+    {"id": "native-negative-runtime", "operation": "Read a fixture copy with first MinRt=-60", "expected": "Read raw -60 seconds; GUI accepted this value. Do not relabel it as an independently verified invalid value."},
+    {"id": "native-no-structural-crud-claim", "operation": "Report unsupported add/delete/reference validation honestly", "expected": "No claim of official GUI equivalence for unexecuted creation/deletion or malformed reference cases."}
+  ]
+}

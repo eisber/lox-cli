@@ -1,0 +1,94 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "ux-contract.schema.json",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "application", "block_type", "control_type", "scope", "capabilities", "cases"],
+  "properties": {
+    "schema_version": {"const": 1, "type": "integer"},
+    "application": {"$ref": "#/$defs/application"},
+    "block_type": {"$ref": "#/$defs/text"},
+    "control_type": {"type": "integer", "minimum": 0},
+    "scope": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "description", "source_evidence"],
+      "properties": {
+        "status": {"enum": ["complete", "incomplete", "unknown"]},
+        "description": {"$ref": "#/$defs/text"},
+        "source_evidence": {"$ref": "#/$defs/sources"}
+      }
+    },
+    "capabilities": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "kind", "binding", "source_evidence", "required_case_ids"],
+        "properties": {
+          "id": {"$ref": "#/$defs/text"},
+          "kind": {"enum": ["parameter", "nested_record", "condition", "validation", "feedback"]},
+          "binding": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["status"],
+            "properties": {
+              "status": {"enum": ["known", "unknown", "ambiguous"]},
+              "path": {"$ref": "#/$defs/text"},
+              "reason": {"$ref": "#/$defs/text"}
+            }
+          },
+          "source_evidence": {"$ref": "#/$defs/sources"},
+          "required_case_ids": {"$ref": "#/$defs/ids"}
+        }
+      }
+    },
+    "cases": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "capability_ids", "condition", "evidence_kind", "procedure", "expected"],
+        "properties": {
+          "id": {"$ref": "#/$defs/text"},
+          "capability_ids": {"$ref": "#/$defs/nonempty_ids"},
+          "condition": {"$ref": "#/$defs/text"},
+          "evidence_kind": {"enum": ["implementation", "unit_test", "gui_oracle"]},
+          "procedure": {"$ref": "#/$defs/text"},
+          "expected": {"$ref": "#/$defs/text"}
+        }
+      }
+    }
+  },
+  "$defs": {
+    "text": {"type": "string", "minLength": 1, "pattern": "\\S"},
+    "ids": {"type": "array", "uniqueItems": true, "items": {"$ref": "#/$defs/text"}},
+    "nonempty_ids": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"$ref": "#/$defs/text"}},
+    "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "application": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["version", "sha256"],
+      "properties": {"version": {"$ref": "#/$defs/text"}, "sha256": {"$ref": "#/$defs/sha256"}}
+    },
+    "artifact": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "sha256"],
+      "properties": {"path": {"$ref": "#/$defs/text"}, "sha256": {"$ref": "#/$defs/sha256"}}
+    },
+    "artifacts": {"type": "array", "items": {"$ref": "#/$defs/artifact"}},
+    "sources": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["evidence_kind", "artifacts"],
+        "properties": {
+          "evidence_kind": {"enum": ["catalog", "native", "gui_oracle"]},
+          "artifacts": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/artifact"}}
+        }
+      }
+    }
+  }
+}

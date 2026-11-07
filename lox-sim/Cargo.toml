@@ -6,6 +6,7 @@ description = "Loxone Miniserver SPS simulator — offline circuit testing for 1
 license = "AGPL-3.0-or-later"
 repository = "https://github.com/eisber/lox-cli"
 keywords = ["loxone", "simulator", "smarthome", "sps"]
+include = ["/Cargo.toml", "/Cargo.lock", "/src/**", "/tests/**", "/benches/**"]
 
 [dependencies]
 rayon = "1"

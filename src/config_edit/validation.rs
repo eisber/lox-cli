@@ -910,8 +910,8 @@ impl ConfigEditor {
     ///    (operating mode 778) in its motion table (`LSConfig OpM`), and no row for an
     ///    operating mode that most other motion-wired controllers in the project list
     ///    (e.g. Night missing when every other room has it): motion does nothing then.
-    /// 2. A pulse longer than 0.2 s into a LightController2 mood input (`Sel1..SelN`,
-    ///    T5/x): it counts as a long-click and mixes the mood in instead of selecting it.
+    /// 2. A pulse reaching a LightController2's configured `SceneMixTime` on a mood
+    ///    input (`Sel1..SelN`, T5/x): it can mix the mood in instead of selecting it.
     /// 3. A wire taken from the `Q` output of an InputRef to a device / virtual input:
     ///    Loxone only uses the reference's `AQ` there (`Q` is valid for Memory flags).
     fn check_wiring_semantics(&self, results: &mut Vec<String>) {
@@ -919,8 +919,7 @@ impl ConfigEditor {
 
         /// Motion-table operating mode id for the "All other times" row.
         const ALL_OTHER_TIMES: &str = "778";
-        /// Longest pulse that still counts as a short click on a T5/mood input.
-        const MAX_SELECT_PULSE_SECS: f64 = 0.2;
+        const DEFAULT_SCENE_MIX_TIME: &str = "1";
         /// Loxone defaults when the pulse parameter has no Def (docs/kb, connector-types).
         const EDGE_DETECTION_DEFAULT_PULSE: &str = "1";
         const MONOFLOP_DEFAULT_TIME: &str = "2";
@@ -938,7 +937,7 @@ impl ConfigEditor {
             co.children
                 .iter()
                 .filter_map(|c| c.as_element())
-                .filter(|c| c.name == "In")
+                .filter(|c| c.name == "In" && attr(c, "FLG") != "1")
         }
 
         let elements = Self::iter_elements(&self.root);
@@ -980,18 +979,20 @@ impl ConfigEditor {
                     matches!(attr(co, "K"), "Move" | "Presence") && inputs(co).next().is_some()
                 })
             })
-            .filter_map(|b| {
+            .map(|b| {
                 let ls = b
                     .children
                     .iter()
                     .filter_map(|c| c.as_element())
-                    .find(|c| c.name == "LSConfig")?;
-                let modes = attr(ls, "OpM")
+                    .find(|c| c.name == "LSConfig");
+                let modes = ls
+                    .map(|ls| attr(ls, "OpM"))
+                    .unwrap_or("")
                     .split(',')
                     .map(str::trim)
                     .filter(|m| !m.is_empty())
                     .collect();
-                Some((attr(b, "Title"), modes))
+                (attr(b, "Title"), modes)
             })
             .collect();
         let mut mode_use: HashMap<&str, usize> = HashMap::new();
@@ -1036,7 +1037,18 @@ impl ConfigEditor {
             let title = attr(b, "Title");
 
             if btype == "LightController2" {
-                // Rule 2: pulse > 0.2 s into a mood-select input.
+                let mix_parameter = connectors(b).find(|c| attr(c, "K") == "SceneMixTime");
+                let mix_duration = if mix_parameter.is_some_and(|c| inputs(c).next().is_some()) {
+                    None
+                } else {
+                    mix_parameter
+                        .map(|c| attr(c, "Def"))
+                        .filter(|d| !d.is_empty())
+                        .unwrap_or(DEFAULT_SCENE_MIX_TIME)
+                        .parse::<f64>()
+                        .ok()
+                        .filter(|d| *d > 0.0)
+                };
                 for co in connectors(b) {
                     let key = attr(co, "K");
                     let is_mood_input = key
@@ -1060,16 +1072,19 @@ impl ConfigEditor {
                         } else {
                             MONOFLOP_DEFAULT_TIME
                         };
-                        let def = connectors(src)
-                            .find(|c| attr(c, "K") == param)
+                        let pulse_parameter = connectors(src).find(|c| attr(c, "K") == param);
+                        if pulse_parameter.is_some_and(|c| inputs(c).next().is_some()) {
+                            continue;
+                        }
+                        let def = pulse_parameter
                             .map(|c| attr(c, "Def"))
                             .filter(|d| !d.is_empty())
                             .unwrap_or(default);
-                        if let Ok(secs) = def.parse::<f64>()
-                            && secs > MAX_SELECT_PULSE_SECS
+                        if let (Ok(secs), Some(mix_secs)) = (def.parse::<f64>(), mix_duration)
+                            && secs >= mix_secs
                         {
                             long_pulses.push(format!(
-                                "LightController2 '{title}'.{key}: fed a {def} s pulse by {src_type} '{}' — pulses longer than {MAX_SELECT_PULSE_SECS} s on a mood input count as a long-click and mix the mood in instead of selecting it; set {param} to {MAX_SELECT_PULSE_SECS}",
+                                "LightController2 '{title}'.{key}: fed a {def} s pulse by {src_type} '{}' — reaches SceneMixTime ({mix_secs} s), so a long-click can mix the assigned mood in instead of selecting it; set {param} below SceneMixTime",
                                 attr(src, "Title")
                             ));
                         }
@@ -1114,7 +1129,7 @@ impl ConfigEditor {
             ),
             (
                 long_pulses,
-                "✓ No pulses longer than 0.2 s into LightController2 mood inputs",
+                "✓ No fixed pulses reaching SceneMixTime on LightController2 mood inputs",
             ),
             (
                 q_refs,
