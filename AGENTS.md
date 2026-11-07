@@ -212,6 +212,7 @@ Use `lox config add --type <name>` — fuzzy matching suggests corrections for t
 | `docs/schemas/connector-map.json` | 190 block types with all connectors (25KB) |
 | `docs/schemas/loxone-block-types-full.json` | 221 types from TechDoc with descriptions |
 | `docs/schemas/loxone-config.xsd` | XML schema (309 types, 4892 lines) |
+| `docs/knowledge/config-xml-field-notes.md` | Observed behaviour: save stamp, wire flags, permissions, XML ↔ docs names for Lighting Controller and Automatic Shading, Tracker logs |
 
 ## Agent Workflow
 
