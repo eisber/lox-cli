@@ -430,6 +430,16 @@ fn run_one(graph: &SimGraph, spec: &SimSpec) -> ScenarioResult {
         );
     }
 
+    // A simulation with no output assertions has not verified any behavior.
+    // This also catches trace-only scenarios and steps without expectations.
+    if !checks.iter().any(|check| check.get("output").is_some()) {
+        all_pass = false;
+        checks.push(serde_json::json!({
+            "pass": false,
+            "error": "scenario has no output assertions",
+        }));
+    }
+
     ScenarioResult {
         name: spec.name.clone(),
         pass: all_pass,
@@ -577,18 +587,25 @@ fn cmd_check(file: &str, strict: bool) -> Result<()> {
     Ok(())
 }
 
-fn cmd_run(file: &str, sim: Option<&str>, sim_file: Option<&str>) -> Result<()> {
-    let graph = parse_graph(file)?;
-    let sim_json = load_sim_json(sim, sim_file)?;
-
-    // Decide object vs. array first, so the error names the actual problem
-    // (e.g. an unknown field) instead of "expected a sequence".
-    let value: serde_json::Value = serde_json::from_str(&sim_json).context("invalid sim JSON")?;
+fn parse_sim_specs(json: &str) -> Result<Vec<SimSpec>> {
+    // Choose the JSON shape first: serde permits an empty sequence when
+    // deserializing a struct with defaults, so "[]" could become one spec.
+    let value: serde_json::Value = serde_json::from_str(json).context("invalid sim JSON")?;
     let specs: Vec<SimSpec> = if value.is_array() {
         serde_json::from_value(value).context("invalid sim JSON")?
     } else {
         vec![serde_json::from_value(value).context("invalid sim JSON")?]
     };
+    if specs.is_empty() {
+        bail!("simulation requires at least one scenario");
+    }
+    Ok(specs)
+}
+
+fn cmd_run(file: &str, sim: Option<&str>, sim_file: Option<&str>) -> Result<()> {
+    let graph = parse_graph(file)?;
+    let sim_json = load_sim_json(sim, sim_file)?;
+    let specs = parse_sim_specs(&sim_json)?;
 
     let mut results = Vec::new();
     let mut all_pass = true;
@@ -914,6 +931,69 @@ fn cmd_dump_json(graph: &SimGraph, _engine: &SimEngine) -> Result<()> {
     });
     println!("{}", serde_json::to_string_pretty(&output)?);
     Ok(())
+}
+
+#[cfg(test)]
+mod false_pass_tests {
+    use super::*;
+
+    #[test]
+    fn empty_scenario_list_is_rejected() {
+        let error = parse_sim_specs("[]").err().expect("empty list must fail");
+        assert!(error.to_string().contains("at least one scenario"));
+    }
+
+    #[test]
+    fn scenario_with_no_output_assertions_fails() {
+        let spec = parse_sim_specs("{}").expect("valid JSON").remove(0);
+        let result = run_one(&SimGraph::new(), &spec);
+        assert!(!result.pass);
+        assert!(
+            result
+                .checks
+                .iter()
+                .any(|check| { check["error"] == "scenario has no output assertions" })
+        );
+    }
+
+    #[test]
+    fn trace_only_steps_without_assertions_still_fail() {
+        let json = r#"{"trace":true,"steps":[{"inputs":{},"ticks":1}]}"#;
+        let spec = parse_sim_specs(json).expect("valid JSON").remove(0);
+        let result = run_one(&SimGraph::new(), &spec);
+        assert!(!result.pass);
+        assert!(
+            result
+                .checks
+                .iter()
+                .any(|check| { check["error"] == "scenario has no output assertions" })
+        );
+    }
+
+    #[test]
+    fn empty_comparators_are_not_output_assertions() {
+        let spec = parse_sim_specs(r#"{"expected_outputs":{"Source.Q":{}}}"#)
+            .unwrap()
+            .remove(0);
+        assert!(!run_one(&SimGraph::new(), &spec).pass);
+    }
+
+    #[test]
+    fn assertions_in_steps_can_pass_without_initial_assertions() {
+        let graph = lox_sim::parser::parse_bytes(
+            br#"<ControlList><C Type="VirtualIn" U="s" Title="Source"><Co K="Q" U="q"/></C></ControlList>"#,
+        )
+        .unwrap();
+        let specs = parse_sim_specs(
+            r#"[{"trace":true,"steps":[{"inputs":{"Source":1},"expected_outputs":{"Source.Q":{"==":1}}}]}]"#,
+        )
+        .unwrap();
+        assert_eq!(specs.len(), 1);
+        let result = run_one(&graph, &specs[0]);
+        assert!(result.pass);
+        assert_eq!(result.checks.len(), 1);
+        assert!(!result.trace.is_empty());
+    }
 }
 
 #[cfg(test)]
