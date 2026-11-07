@@ -127,6 +127,8 @@ GET /jdev/lan/txp, txe, txc, txu, rxp, rxo, eof, exh, nob        → LAN stats
 GET /jdev/sys/date, /jdev/sys/time                                 → system clock
 GET /jdev/sps/LoxAPPversion3        → structure file version check
 GET /binstatisticdata/{uuid}/{period} → binary statistics (u32 ts + f64[] values)
+GET /stats/                         → HTML index of statistic files (one per statistic, group and month)
+GET /stats/{file}.xml               → XML: monthly statistic values (<Statistics Outputs=".."><S T=".." V=".." V2=".."/>)
 GET /data/weatheru.bin              → binary weather data (108-byte entries)
 GET /dev/fsget/{path}               → filesystem access
 GET /jdev/sys/checktoken, refreshtoken, killtoken                  → token management
@@ -210,6 +212,7 @@ Use `lox config add --type <name>` — fuzzy matching suggests corrections for t
 | `docs/schemas/connector-map.json` | 190 block types with all connectors (25KB) |
 | `docs/schemas/loxone-block-types-full.json` | 221 types from TechDoc with descriptions |
 | `docs/schemas/loxone-config.xsd` | XML schema (309 types, 4892 lines) |
+| `docs/knowledge/config-xml-field-notes.md` | Observed behaviour: save stamp, wire flags, permissions, XML ↔ docs names for Lighting Controller and Automatic Shading, Tracker logs |
 
 ## Agent Workflow
 

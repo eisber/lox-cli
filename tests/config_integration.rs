@@ -1419,8 +1419,25 @@ fn write_user_fixture() -> (TempDir, String, Vec<u8>) {
     (dir, path.to_str().unwrap().to_string(), data)
 }
 
+fn without_user_save_stamp(data: &[u8]) -> String {
+    let mut xml = std::str::from_utf8(data).unwrap().to_string();
+    let start = xml.find("<C Type=\"Document\"").unwrap();
+    let end = start + xml[start..].find('>').unwrap() + 1;
+    let mut document = xml[start..end].to_string();
+    for key in ["Date", "DateS"] {
+        let prefix = format!(" {key}=\"");
+        if let Some(start) = document.find(&prefix) {
+            let value = start + prefix.len();
+            let end = value + document[value..].find('"').unwrap() + 1;
+            document.replace_range(start..end, "");
+        }
+    }
+    xml.replace_range(start..end, &document);
+    xml
+}
+
 #[test]
-fn config_user_grant_then_revoke_is_byte_identical() {
+fn config_user_grant_then_revoke_only_changes_save_stamp() {
     let (_dir, path, original) = write_user_fixture();
 
     lox()
@@ -1454,7 +1471,12 @@ fn config_user_grant_then_revoke_is_byte_identical() {
         .stdout(predicate::str::contains(
             "Removed permission entry for user 'webhook_api'",
         ));
-    assert_eq!(fs::read(&path).unwrap(), original);
+    let restored = fs::read(&path).unwrap();
+    assert_ne!(restored, original);
+    assert_eq!(
+        without_user_save_stamp(&restored),
+        without_user_save_stamp(&original)
+    );
 }
 
 #[test]
@@ -1531,7 +1553,10 @@ fn config_user_grant_group_and_ambiguous_object() {
         ])
         .assert()
         .success();
-    assert_eq!(fs::read(&path).unwrap(), original);
+    assert_eq!(
+        without_user_save_stamp(&fs::read(&path).unwrap()),
+        without_user_save_stamp(&original)
+    );
 }
 
 #[test]
@@ -1613,7 +1638,11 @@ fn config_user_permission_writes_respect_quiet_and_save_failures() {
             .stdout("")
             .stderr("");
     }
-    assert_eq!(fs::read(&path).unwrap(), original);
+    let before_failed_save = fs::read(&path).unwrap();
+    assert_eq!(
+        without_user_save_stamp(&before_failed_save),
+        without_user_save_stamp(&original)
+    );
 
     let invalid_output = dir.path().join("missing").join("out.Loxone");
     let output = lox()
@@ -1635,7 +1664,7 @@ fn config_user_permission_writes_respect_quiet_and_save_failures() {
         .clone();
     let json: serde_json::Value = serde_json::from_slice(&output).unwrap();
     assert_eq!(json["ok"], false);
-    assert_eq!(fs::read(&path).unwrap(), original);
+    assert_eq!(fs::read(&path).unwrap(), before_failed_save);
 }
 
 #[test]

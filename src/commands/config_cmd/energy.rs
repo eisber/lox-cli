@@ -202,7 +202,7 @@ pub(crate) fn run(ctx: &RunContext, action: EnergyCmd) -> Result<()> {
     let inspection = editor.inspect_energy(&selector)?;
     let saved_to = if changed && !ctx.dry_run {
         super::save_edited_with_quiet(
-            &editor,
+            &mut editor,
             &target.file,
             save_as.as_deref(),
             ctx.quiet || ctx.json || ctx.csv,

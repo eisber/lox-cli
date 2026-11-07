@@ -47,6 +47,32 @@ impl ConfigEditor {
         .copied()
         .collect();
 
+        // Blocks that compute nothing useful without an input signal. Larger
+        // controllers (LightController2, PushButton2, PulseAt, AutoJalousie,
+        // DayTimer, PulseGen …) are legitimately driven from the app, by
+        // time, or by their own parameters, so "no inputs wired" is only
+        // meaningful for these.
+        let needs_signal_types: HashSet<&str> = [
+            "And",
+            "Or",
+            "Not",
+            "Xor",
+            "GreaterEqual",
+            "Less",
+            "Mult",
+            "Add",
+            "Sub",
+            "Div",
+            "StairwayLS",
+            "OnPulseDelay",
+            "OffDelay",
+            "Monoflop",
+            "AnalogThresholdTrigger",
+        ]
+        .iter()
+        .copied()
+        .collect();
+
         let input_keys: HashSet<&str> = [
             "I",
             "I1",
@@ -156,6 +182,7 @@ impl ConfigEditor {
         struct CheckCtx<'a> {
             param_checks: &'a [(&'a str, &'a str, &'a str)],
             logic_types: &'a HashSet<&'a str>,
+            needs_signal_types: &'a HashSet<&'a str>,
             input_keys: &'a HashSet<&'a str>,
             output_keys: &'a HashSet<&'a str>,
             infra_types: &'a HashSet<&'a str>,
@@ -171,7 +198,12 @@ impl ConfigEditor {
             ctx: &CheckCtx<'_>,
             results: &mut Vec<String>,
             on_page: bool,
+            parent_type: &str,
         ) {
+            // Function blocks live directly on a Page. Anything else (devices,
+            // virtual I/O, operating modes, calendar entries, users, Keycodes
+            // inside an NfcCodeTouch …) is configuration, not page wiring.
+            let direct_on_page = parent_type == "Page";
             let etype = elem
                 .attributes
                 .get("Type")
@@ -191,7 +223,8 @@ impl ConfigEditor {
                 };
 
                 if matches_sel {
-                    // Check required parameters
+                    // Check required parameters. A parameter counts as set if
+                    // it has a constant (Def) OR is wired (at least one <In>).
                     for &(ptype, param_name, description) in ctx.param_checks {
                         if etype != ptype {
                             continue;
@@ -202,22 +235,53 @@ impl ConfigEditor {
                             };
                             let is_co = c.name == "Co"
                                 || c.attributes.get("Type").map(|s| s.as_str()) == Some("Co");
-                            is_co
-                                && c.attributes.get("K").map(|s| s.as_str()) == Some(param_name)
-                                && c.attributes.get("Def").is_some_and(|s| !s.is_empty())
+                            if !is_co
+                                || c.attributes.get("K").map(|s| s.as_str()) != Some(param_name)
+                            {
+                                return false;
+                            }
+                            let has_def = c.attributes.get("Def").is_some_and(|s| !s.is_empty());
+                            let has_wire = c
+                                .children
+                                .iter()
+                                .any(|n| n.as_element().is_some_and(|e| e.name == "In"))
+                                || c.attributes
+                                    .get("U")
+                                    .is_some_and(|u| ctx.wired_inputs.contains(u));
+                            has_def || has_wire
                         });
                         if !has_value {
-                            results.push(format!(
-                                "✗ {etype} '{title}': {param_name} not set — needs {description}"
-                            ));
+                            // An empty comparator threshold is 0, which is a valid
+                            // comparison (e.g. "price below 0"), so only warn there.
+                            if matches!(etype, "GreaterEqual" | "Less") {
+                                results.push(format!(
+                                    "⚠ {etype} '{title}': {param_name} not set (no value and not wired) — compares against 0; set the {description} if that isn't intended"
+                                ));
+                            } else {
+                                results.push(format!(
+                                    "✗ {etype} '{title}': {param_name} not set (no value and not wired) — needs {description}"
+                                ));
+                            }
                         }
                     }
 
-                    // Check wiring for all automation blocks (not just logic types)
-                    {
+                    // Check wiring for function blocks placed on a page. Skipped:
+                    // - anything not directly on a Page (devices, modes, …);
+                    // - InputRef/OutputRef: fed by their `Ref` attribute, and
+                    //   their AI link may live on another page;
+                    // - AutoPilot/AutopilotRule: their conditions live in the
+                    //   rule's `APC` JSON, and their inputs are Config-managed
+                    //   links (`<In FLG="1">`), not user wiring.
+                    // Most block inputs are optional, so individually unwired
+                    // inputs are not reported; only blocks that compute nothing
+                    // without a signal are flagged when no input is wired.
+                    let skip_wiring = !direct_on_page
+                        || is_reference_type(etype)
+                        || matches!(etype, "AutoPilot" | "AutopilotRule");
+                    if !skip_wiring {
                         let mut any_input = false;
                         let mut any_output = false;
-                        let mut unwired_inputs = Vec::new();
+                        let mut has_input_connectors = false;
 
                         // Get connector types from the connector map for this block type
                         let cmap_types = ctx
@@ -250,12 +314,11 @@ impl ConfigEditor {
                                 || (direction.is_none() && ctx.output_keys.contains(k));
 
                             if is_input {
+                                has_input_connectors = true;
                                 let has_default =
                                     c.attributes.get("Def").is_some_and(|s| !s.is_empty());
                                 if is_wired || has_default {
                                     any_input = true;
-                                } else {
-                                    unwired_inputs.push(k.to_string());
                                 }
                             }
                             if is_output && is_wired {
@@ -263,26 +326,23 @@ impl ConfigEditor {
                             }
                         }
 
-                        // Only report if block actually has input connectors
-                        let has_input_connectors = any_input || !unwired_inputs.is_empty();
-                        if has_input_connectors {
-                            if !any_input {
-                                if any_output {
-                                    // Block has outputs wired but no inputs — circuit is incomplete
-                                    results.push(format!(
-                                        "✗ {etype} '{title}': no inputs wired — block has no signal source"
-                                    ));
-                                } else {
-                                    // Standalone block, no wiring at all — just a warning
-                                    results.push(format!(
-                                        "⚠ {etype} '{title}': no inputs wired — may need signal source"
-                                    ));
-                                }
-                            } else if !unwired_inputs.is_empty() {
-                                // Partially wired — some inputs missing
+                        // Controllers (LightController2, PushButton2, PulseAt,
+                        // central/device-bound blocks …) may legitimately be
+                        // operated from the app, by time, by parameters or via
+                        // their device binding, so only pure logic blocks are
+                        // reported when nothing feeds them.
+                        if has_input_connectors
+                            && !any_input
+                            && ctx.needs_signal_types.contains(etype)
+                        {
+                            if any_output {
+                                // Output is used but nothing feeds the block
                                 results.push(format!(
-                                    "✗ {etype} '{title}': unwired inputs: {} — wire signal sources to complete the circuit",
-                                    unwired_inputs.join(", ")
+                                    "✗ {etype} '{title}': no inputs wired — block has no signal source"
+                                ));
+                            } else {
+                                results.push(format!(
+                                    "⚠ {etype} '{title}': no inputs wired — may need signal source"
                                 ));
                             }
                         }
@@ -291,7 +351,7 @@ impl ConfigEditor {
                                 "⚠ {etype} '{title}': output not connected — block result goes nowhere"
                             ));
                         }
-                        if has_input_connectors && any_input && unwired_inputs.is_empty() {
+                        if has_input_connectors && any_input {
                             results.push(format!("✓ {etype} '{title}': inputs and outputs wired"));
                         }
                     }
@@ -317,10 +377,17 @@ impl ConfigEditor {
                             })
                             .count();
                         if co_count > 0 {
+                            // Only blocks drawn on the page canvas need coords:
+                            // direct Page children, except hidden references
+                            // (InputRef/OutputRef whose WF lacks the "placed on
+                            // page" bit). Nested elements such as Keycodes in an
+                            // NfcCodeTouch never carry coordinates.
+                            let needs_coords = direct_on_page
+                                && (!is_reference_type(etype) || wf_placed_on_page(elem));
                             let missing_coords = ["Px", "Py", "Px2", "Py2"]
                                 .iter()
                                 .any(|a| !elem.attributes.contains_key(*a));
-                            if missing_coords {
+                            if needs_coords && missing_coords {
                                 results.push(format!(
                                     "⚠ {etype} '{title}': missing canvas layout (Px/Py/Px2/Py2) — Loxone Config will repair this block on first save and may drop wires; run `lox config layout`"
                                 ));
@@ -511,7 +578,7 @@ impl ConfigEditor {
             for child in &elem.children {
                 if let Some(c) = child.as_element() {
                     let child_on_page = on_page || etype == "Page";
-                    walk_blocks(c, selector, ctx, results, child_on_page);
+                    walk_blocks(c, selector, ctx, results, child_on_page, etype);
                 }
             }
         }
@@ -520,6 +587,7 @@ impl ConfigEditor {
         let ctx = CheckCtx {
             param_checks: &param_checks,
             logic_types: &logic_types,
+            needs_signal_types: &needs_signal_types,
             input_keys: &input_keys,
             output_keys: &output_keys,
             infra_types: &infra_types,
@@ -529,7 +597,7 @@ impl ConfigEditor {
             connector_map: &cmap,
         };
 
-        walk_blocks(&self.root, selector, &ctx, &mut results, false);
+        walk_blocks(&self.root, selector, &ctx, &mut results, false, "");
 
         // Program-block (PicoC) limit. A Miniserver executes only the first 8
         // Program blocks (Code1/Code4/Code8/Code16); any beyond that are
@@ -654,9 +722,6 @@ impl ConfigEditor {
 
         // ── Loxone-specific validation rules ──────────────────────────────
 
-        // Extract Miniserver serial from existing UUIDs
-        let serial = self.find_miniserver_serial().unwrap_or_default();
-
         // I/O types that require IName
         let iname_types: std::collections::HashSet<&str> = [
             "VirtualIn",
@@ -687,7 +752,6 @@ impl ConfigEditor {
 
         fn check_elements(
             elem: &Element,
-            serial: &str,
             iname_types: &std::collections::HashSet<&str>,
             uuid_warnings: &mut Vec<String>,
             iname_errors: &mut Vec<String>,
@@ -699,20 +763,14 @@ impl ConfigEditor {
                 let title = elem.attributes.get("Title").cloned().unwrap_or_default();
                 let uuid = elem.attributes.get("U").cloned().unwrap_or_default();
 
-                // Check UUID format (must contain serial suffix). Skip known
-                // system/mode/registered-device short-form UUIDs — these
-                // legitimately lack the serial in every Gen-2 export.
-                if !uuid.is_empty()
-                    && !serial.is_empty()
-                    && !uuid.contains(serial)
-                    && !is_system_short_uuid(&uuid)
-                {
+                // Check UUID shape only. The last group identifies the Loxone
+                // Config installation that created the element (not the
+                // Miniserver serial), so projects edited on several PCs or
+                // built from templates legitimately mix many suffixes.
+                if !uuid.is_empty() && !is_well_formed_uuid(&uuid) {
                     uuid_warnings.push(format!(
-                        "{} '{}': UUID '{}' missing serial suffix '{}'",
-                        elem_type,
-                        title,
-                        &uuid[..std::cmp::min(20, uuid.len())],
-                        serial
+                        "{} '{}': malformed UUID '{}' (expected 8-4-4-16 hex digits)",
+                        elem_type, title, uuid
                     ));
                 }
 
@@ -732,16 +790,13 @@ impl ConfigEditor {
                         && co.name == "Co"
                     {
                         let co_uuid = co.attributes.get("U").cloned().unwrap_or_default();
-                        if !co_uuid.is_empty()
-                            && !serial.is_empty()
-                            && !co_uuid.contains(serial)
-                            && !is_system_short_uuid(&co_uuid)
-                        {
+                        if !co_uuid.is_empty() && !is_well_formed_uuid(&co_uuid) {
                             uuid_warnings.push(format!(
-                                "{} '{}' connector {}: UUID missing serial suffix",
+                                "{} '{}' connector {}: malformed UUID '{}' (expected 8-4-4-16 hex digits)",
                                 elem_type,
                                 title,
-                                co.attributes.get("K").cloned().unwrap_or_default()
+                                co.attributes.get("K").cloned().unwrap_or_default(),
+                                co_uuid
                             ));
                         }
                     }
@@ -785,7 +840,6 @@ impl ConfigEditor {
                 if let Some(child_elem) = child.as_element() {
                     check_elements(
                         child_elem,
-                        serial,
                         iname_types,
                         uuid_warnings,
                         iname_errors,
@@ -798,7 +852,6 @@ impl ConfigEditor {
 
         check_elements(
             &self.root,
-            &serial,
             &iname_types,
             &mut uuid_warnings,
             &mut iname_errors,
@@ -807,17 +860,14 @@ impl ConfigEditor {
         );
 
         if uuid_warnings.is_empty() {
-            results.push(format!(
-                "✓ All UUIDs use Miniserver serial suffix ({}...)",
-                &serial[..std::cmp::min(6, serial.len())]
-            ));
+            results.push("✓ All UUIDs are well-formed".to_string());
         } else {
             for e in &uuid_warnings[..std::cmp::min(5, uuid_warnings.len())] {
                 results.push(format!("⚠ {}", e));
             }
             if uuid_warnings.len() > 5 {
                 results.push(format!(
-                    "  ...and {} more UUID errors",
+                    "  ...and {} more malformed UUIDs",
                     uuid_warnings.len() - 5
                 ));
             }
@@ -856,11 +906,19 @@ impl ConfigEditor {
                         && co.name == "Co"
                     {
                         let k = co.attributes.get("K").cloned().unwrap_or_default();
-                        let has_in = co
-                            .children
-                            .iter()
-                            .any(|c| c.as_element().map(|e| e.name == "In").unwrap_or(false));
+                        // `<In FLG="1">` is a link Loxone Config manages
+                        // itself, not user wiring — don't judge its direction.
+                        let has_in = co.children.iter().any(|c| {
+                            c.as_element().is_some_and(|e| {
+                                e.name == "In"
+                                    && e.attributes.get("FLG").map(|s| s.as_str()) != Some("1")
+                            })
+                        });
+                        // API connectors are bidirectional: they take command text
+                        // in (e.g. from a virtual text input) and report status out.
+                        let is_api = matches!(k.as_str(), "API" | "OutputAPI");
                         if has_in
+                            && !is_api
                             && let Some(io) = types.get(&k)
                             && io == "O"
                         {
@@ -897,7 +955,252 @@ impl ConfigEditor {
             }
         }
 
+        // ── Wiring-semantics checks (silent no-ops in Loxone) ─────────────
+        self.check_wiring_semantics(&mut results);
+
         results
+    }
+
+    /// Rules for wiring that Loxone Config accepts but that silently does nothing (or
+    /// the wrong thing) on the Miniserver:
+    ///
+    /// 1. LightController2 with motion/presence wired, no "All other times" row
+    ///    (operating mode 778) in its motion table (`LSConfig OpM`), and no row for an
+    ///    operating mode that most other motion-wired controllers in the project list
+    ///    (e.g. Night missing when every other room has it): motion does nothing then.
+    /// 2. A pulse reaching a LightController2's configured `SceneMixTime` on a mood
+    ///    input (`Sel1..SelN`, T5/x): it can mix the mood in instead of selecting it.
+    /// 3. A wire taken from the `Q` output of an InputRef to a device / virtual input:
+    ///    Loxone only uses the reference's `AQ` there (`Q` is valid for Memory flags).
+    fn check_wiring_semantics(&self, results: &mut Vec<String>) {
+        use std::collections::HashMap;
+
+        /// Motion-table operating mode id for the "All other times" row.
+        const ALL_OTHER_TIMES: &str = "778";
+        const DEFAULT_SCENE_MIX_TIME: &str = "1";
+        /// Loxone defaults when the pulse parameter has no Def (docs/kb, connector-types).
+        const EDGE_DETECTION_DEFAULT_PULSE: &str = "1";
+        const MONOFLOP_DEFAULT_TIME: &str = "2";
+
+        fn attr<'a>(e: &'a Element, name: &str) -> &'a str {
+            e.attributes.get(name).map(|s| s.as_str()).unwrap_or("")
+        }
+        fn connectors(e: &Element) -> impl Iterator<Item = &Element> {
+            e.children
+                .iter()
+                .filter_map(|c| c.as_element())
+                .filter(|c| c.name == "Co")
+        }
+        fn inputs(co: &Element) -> impl Iterator<Item = &Element> {
+            co.children
+                .iter()
+                .filter_map(|c| c.as_element())
+                .filter(|c| c.name == "In" && attr(c, "FLG") != "1")
+        }
+
+        let elements = Self::iter_elements(&self.root);
+        let blocks: Vec<&Element> = elements.iter().copied().filter(|e| e.name == "C").collect();
+
+        // Block UUID → block, connector UUID → (owning block, connector key),
+        // operating-mode id → mode title.
+        let mut block_by_uuid: HashMap<&str, &Element> = HashMap::new();
+        let mut co_owner: HashMap<&str, (&Element, &str)> = HashMap::new();
+        let mut mode_names: HashMap<&str, &str> = HashMap::new();
+        for &b in &blocks {
+            let u = attr(b, "U");
+            if !u.is_empty() {
+                block_by_uuid.insert(u, b);
+            }
+            for co in connectors(b) {
+                let cu = attr(co, "U");
+                if !cu.is_empty() {
+                    co_owner.insert(cu, (b, attr(co, "K")));
+                }
+            }
+            if attr(b, "Type") == "Mode" && !attr(b, "Mode").is_empty() {
+                mode_names.insert(attr(b, "Mode"), attr(b, "Title"));
+            }
+        }
+
+        let mut no_catch_all = Vec::new();
+        let mut long_pulses = Vec::new();
+        let mut q_refs = Vec::new();
+
+        // Rule 1: motion-wired controllers and the operating modes of their motion rows.
+        // A controller without an "All other times" row is only flagged for modes most
+        // of its peers cover, because a project's own modes may cover the whole day.
+        let motion_tables: Vec<(&str, Vec<&str>)> = blocks
+            .iter()
+            .filter(|b| attr(b, "Type") == "LightController2")
+            .filter(|b| {
+                connectors(b).any(|co| {
+                    matches!(attr(co, "K"), "Move" | "Presence") && inputs(co).next().is_some()
+                })
+            })
+            .map(|b| {
+                let ls = b
+                    .children
+                    .iter()
+                    .filter_map(|c| c.as_element())
+                    .find(|c| c.name == "LSConfig");
+                let modes = ls
+                    .map(|ls| attr(ls, "OpM"))
+                    .unwrap_or("")
+                    .split(',')
+                    .map(str::trim)
+                    .filter(|m| !m.is_empty())
+                    .collect();
+                (attr(b, "Title"), modes)
+            })
+            .collect();
+        let mut mode_use: HashMap<&str, usize> = HashMap::new();
+        for (_, modes) in &motion_tables {
+            for m in modes.iter().filter(|m| **m != ALL_OTHER_TIMES) {
+                *mode_use.entry(m).or_default() += 1;
+            }
+        }
+        let mode_label = |m: &str| match mode_names.get(m) {
+            Some(name) if !name.is_empty() => format!("{name} ({m})"),
+            _ => m.to_string(),
+        };
+        for (title, modes) in &motion_tables {
+            if modes.contains(&ALL_OTHER_TIMES) {
+                continue;
+            }
+            let peers = motion_tables.len() - 1;
+            let mut missing: Vec<&str> = mode_use
+                .iter()
+                .filter(|(m, n)| !modes.contains(m) && peers > 0 && 2 * **n >= peers)
+                .map(|(m, _)| *m)
+                .collect();
+            missing.sort_unstable();
+            if modes.is_empty() {
+                no_catch_all.push(format!(
+                    "LightController2 '{title}': motion/presence is wired but the motion table is empty — motion never switches the lights on"
+                ));
+            } else if !missing.is_empty() {
+                let missing = missing
+                    .iter()
+                    .map(|m| mode_label(m))
+                    .collect::<Vec<_>>()
+                    .join(", ");
+                no_catch_all.push(format!(
+                    "LightController2 '{title}': no motion row for {missing} (most other motion-wired controllers have one) and no \"All other times\" row (LSConfig OpM {ALL_OTHER_TIMES}) — motion does nothing while that mode is active"
+                ));
+            }
+        }
+
+        for &b in &blocks {
+            let btype = attr(b, "Type");
+            let title = attr(b, "Title");
+
+            if btype == "LightController2" {
+                let mix_parameter = connectors(b).find(|c| attr(c, "K") == "SceneMixTime");
+                let mix_duration = if mix_parameter.is_some_and(|c| inputs(c).next().is_some()) {
+                    None
+                } else {
+                    mix_parameter
+                        .map(|c| attr(c, "Def"))
+                        .filter(|d| !d.is_empty())
+                        .unwrap_or(DEFAULT_SCENE_MIX_TIME)
+                        .parse::<f64>()
+                        .ok()
+                        .filter(|d| *d > 0.0)
+                };
+                for co in connectors(b) {
+                    let key = attr(co, "K");
+                    let is_mood_input = key
+                        .strip_prefix("Sel")
+                        .is_some_and(|n| !n.is_empty() && n.bytes().all(|c| c.is_ascii_digit()));
+                    if !is_mood_input {
+                        continue;
+                    }
+                    for inp in inputs(co) {
+                        let Some(&(src, _)) = co_owner.get(attr(inp, "Input")) else {
+                            continue;
+                        };
+                        let src_type = attr(src, "Type");
+                        let param = match src_type {
+                            "EdgeDetection" => "PulseTime",
+                            "Monoflop" => "Time",
+                            _ => continue,
+                        };
+                        let default = if src_type == "EdgeDetection" {
+                            EDGE_DETECTION_DEFAULT_PULSE
+                        } else {
+                            MONOFLOP_DEFAULT_TIME
+                        };
+                        let pulse_parameter = connectors(src).find(|c| attr(c, "K") == param);
+                        if pulse_parameter.is_some_and(|c| inputs(c).next().is_some()) {
+                            continue;
+                        }
+                        let def = pulse_parameter
+                            .map(|c| attr(c, "Def"))
+                            .filter(|d| !d.is_empty())
+                            .unwrap_or(default);
+                        if let (Ok(secs), Some(mix_secs)) = (def.parse::<f64>(), mix_duration)
+                            && secs >= mix_secs
+                        {
+                            long_pulses.push(format!(
+                                "LightController2 '{title}'.{key}: fed a {def} s pulse by {src_type} '{}' — reaches SceneMixTime ({mix_secs} s), so a long-click can mix the assigned mood in instead of selecting it; set {param} below SceneMixTime",
+                                attr(src, "Title")
+                            ));
+                        }
+                    }
+                }
+            }
+
+            // Rule 3: wire taken from an InputRef's Q (only valid for Memory flags).
+            // Wires into notification references (OutputRefLM: Caller/Mailer/Logger)
+            // legitimately use Q, so they are not flagged.
+            if btype == "OutputRefLM" {
+                continue;
+            }
+            for co in connectors(b) {
+                for inp in inputs(co) {
+                    let Some(&(src, src_key)) = co_owner.get(attr(inp, "Input")) else {
+                        continue;
+                    };
+                    if src_key != "Q" || attr(src, "Type") != "InputRef" {
+                        continue;
+                    }
+                    let Some(target) = block_by_uuid.get(attr(src, "Ref")) else {
+                        continue;
+                    };
+                    let target_type = attr(target, "Type");
+                    if target_type == "Memory" {
+                        continue;
+                    }
+                    q_refs.push(format!(
+                        "{btype} '{title}'.{}: wired from Q of the reference to {target_type} '{}' — Loxone only uses wires from AQ on device/virtual-input references, this wire does nothing; re-wire from AQ",
+                        attr(co, "K"),
+                        attr(src, "Title")
+                    ));
+                }
+            }
+        }
+
+        let groups = [
+            (
+                no_catch_all,
+                "✓ All motion-wired LightController2 blocks have motion rows for the project's operating modes",
+            ),
+            (
+                long_pulses,
+                "✓ No fixed pulses reaching SceneMixTime on LightController2 mood inputs",
+            ),
+            (
+                q_refs,
+                "✓ No device/virtual-input reference wires taken from Q instead of AQ",
+            ),
+        ];
+        for (issues, ok) in groups {
+            if issues.is_empty() {
+                results.push(ok.to_string());
+            } else {
+                results.extend(issues.into_iter().map(|i| format!("⚠ {i}")));
+            }
+        }
     }
 
     /// Validate Tree/Air hardware sensor blocks for completeness.
@@ -1027,19 +1330,42 @@ impl ConfigEditor {
     }
 }
 
-/// Returns true for known system / operating-mode / registered-device short-form
-/// UUIDs that legitimately lack the Miniserver serial suffix in every Gen-2
-/// export (e.g. `00000000-0000-0002-1` operating modes, `205d5330-…-f`
-/// registered devices). These should be treated as informational, not errors.
-fn is_system_short_uuid(uuid: &str) -> bool {
-    // All-zero prefixed system/state UUIDs.
-    if uuid.starts_with("00000000-0000-") {
-        return true;
-    }
-    // Short-form UUIDs: the final dash-segment is shorter than a serial-bearing
-    // segment (normal connector UUIDs end with `ffff` + a 12-hex serial = 16).
-    match uuid.rsplit_once('-') {
-        Some((_, last)) => last.len() < 12,
-        None => false,
-    }
+/// Returns true if `uuid` has the Loxone UUID shape: four dash-separated hex
+/// groups of 8-4-4-16 digits (e.g. `1fbf3415-030f-bc7d-ffff9bb3c1479539`).
+///
+/// The last group is NOT checked against the Miniserver serial: it identifies
+/// the Loxone Config installation that created the element, and connector
+/// UUIDs use other patterns (`-00ff…`, `-01ff…`). System / operating-mode /
+/// registered-device UUIDs use a shortened last group (e.g.
+/// `00000000-0000-0002-1`), so 1–16 digits are accepted there.
+fn is_well_formed_uuid(uuid: &str) -> bool {
+    let groups: Vec<&str> = uuid.split('-').collect();
+    let [a, b, c, d] = groups.as_slice() else {
+        return false;
+    };
+    let hex = |s: &str| s.chars().all(|ch| ch.is_ascii_hexdigit());
+    a.len() == 8
+        && b.len() == 4
+        && c.len() == 4
+        && (1..=16).contains(&d.len())
+        && hex(a)
+        && hex(b)
+        && hex(c)
+        && hex(d)
+}
+
+/// InputRef / OutputRef (incl. `OutputRefLM`) blocks are fed by their `Ref`
+/// attribute, not by wires on their own page.
+fn is_reference_type(etype: &str) -> bool {
+    etype.starts_with("InputRef") || etype.starts_with("OutputRef")
+}
+
+/// WF bit 0x20000: the element is drawn on its page. Hidden references (e.g.
+/// InputRef with WF="22528", OutputRef with WF="20480") lack it and have no
+/// canvas coordinates by design.
+fn wf_placed_on_page(elem: &Element) -> bool {
+    elem.attributes
+        .get("WF")
+        .and_then(|s| s.parse::<u64>().ok())
+        .is_some_and(|wf| wf & 0x20000 != 0)
 }

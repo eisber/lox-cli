@@ -53,6 +53,8 @@ lox config mode-list file.Loxone                  # list operating modes
 
 ## Config Editing
 
+Every editing command that changes the file also bumps the Document save stamp (`Date` / `DateS` on `<C Type="Document">`) to the current time, or one second past its previous value if that is later. This keeps rapid successive edits distinct even within one second or after a clock adjustment. Loxone Config compares this stamp, not the content, to decide whether the opened file is the program already on the Miniserver — without the bump it would treat the edited file as identical and load the Miniserver's old program instead. Commands that end up changing nothing leave the stamp as is.
+
 ### Add blocks
 
 ```bash
@@ -310,7 +312,8 @@ Syntax: `lox config user-grant <FILE> <USER> <OBJECT> [--group] [--act <N>] [--s
 - Revoke **removes** the direct entry; it does not create a deny or remove inherited access.
   Removing an explicit deny can therefore expose access allowed by a group. Use Loxone Config's
   "Show All Permissions" to verify effective access.
-- Only the `<PH>` block changes: grant appends `<PRM REF="<uuid>" ACT="3"/>` and updates `NUM`
+- Permission edits change the `<PH>` block and the Document save stamp described above:
+  grant appends `<PRM REF="<uuid>" ACT="3"/>` and updates `NUM`
   (creating `<PH>` if needed); revoke removes the entry and drops an emptied `<PH>`.
   Password hashes (`<HP>`) are never touched. The editor preserves native Loxone formatting,
   BOM, and line endings; a pre-existing empty `<PH>` is not recreated after revoke.
@@ -366,6 +369,12 @@ lox config scan file.Loxone --strict       # exit with error code if PII found (
 lox config report file.Loxone              # anonymised diagnostic report (scan + stats + check)
 ```
 
+`validate` also flags wiring that Loxone Config accepts but that silently misbehaves:
+
+- a Lighting Controller with motion/presence wired whose motion table has neither an "All other times" row nor a row for an operating mode most other motion-wired controllers list (motion does nothing while that mode is active), or no rows at all;
+- a fixed pulse (EdgeDetection `PulseTime`, Monoflop `Time`) into a mood input `Sel1..SelN` that reaches the controller's `SceneMixTime` (Mmd, default 1 s) — a long-click can mix the assigned mood in instead of selecting it. Disabled mixing (`SceneMixTime=0`) and dynamically wired durations are not diagnosed from static defaults;
+- a wire taken from the `Q` of a reference to a device or virtual input (only `AQ` is used there; `Q` is valid on Memory flag references).
+
 ---
 
 ## Config Management
@@ -412,7 +421,7 @@ The `pull` workflow: FTP download → LoxCC decompress → semantic diff → git
 ```bash
 lox sim check file.Loxone                  # parse config and report block/connector counts
 
-lox sim run file.Loxone --sim '{"inputs":{"Sensor.Q":1},"expect":{"Light.AQ":1}}'
+lox sim run file.Loxone --sim '{"inputs":{"Sensor.Q":1},"expected_outputs":{"Light.AQ":{"==":1}}}'
 lox sim run file.Loxone --sim-file test.json  # run sim spec(s) from a JSON file
 
 lox sim step file.Loxone --sim '{"inputs":{"Sensor.Q":1}}'
@@ -424,6 +433,37 @@ lox sim dump file.Loxone -o json           # JSON output
 ```
 
 `--sim` accepts inline JSON (single object or array). `--sim-file` loads from a file.
+Unknown scenario, step, or clock keys are rejected. An input that cannot be resolved fails its scenario.
+`sim run` requires at least one scenario, and each scenario needs an output assertion
+in `expected_outputs` or a step's `expected_outputs`. An empty comparator map or
+trace-only scenario does not count as verification and fails. Use `sim step` or
+`sim dump` to explore a circuit without assertions.
+
+---
+
+## Statistics
+
+Reads the statistics the Miniserver logs to its SD card. These commands need a Miniserver connection (`lox setup`). All read-only.
+
+```bash
+lox stats ls                               # every statistic file: name, group, month, uuid, label
+lox stats ls --filter kitchen              # case-insensitive substring on the label
+lox stats ls --month 2026-10               # one month only
+lox stats ls --latest                      # one row per statistic and group, newest month
+
+lox stats get "Heat Pump" --group 2        # values of one statistic, all available months
+lox stats get Kitchen --from 2026-09 --to 2026-10 -o csv   # month range (YYYY-MM, inclusive)
+lox stats get <uuid> -o json               # {name, group, outputs, rows:[{t, values}]}
+
+lox stats download --dir ./stats           # mirror the monthly XML files, incrementally
+lox stats download --dir ./stats --from 2026-01 --filter energy
+lox stats download --dir ./stats --force   # refetch files that already exist
+lox stats download --dir ./stats --dry-run # list what would be fetched
+```
+
+`ls` also accepts `list` as an alias. `get` resolves the name case-insensitively (exact match first, then substring) or takes the uuid, including historical months saved under an earlier name. A name shared by several statistics is reported as ambiguous with each uuid; a grouped statistic (e.g. a meter) needs `--group`, and the error lists the groups and their outputs. Timestamps are printed as the Miniserver writes them, without timezone conversion; the row a month file shares with the next month is printed once. Duplicate output labels cannot be represented by the JSON values object; use CSV or table output to preserve all columns in that case. Malformed XML and non-finite values are errors rather than partial data or JSON nulls.
+
+`download` always refetches the current month, which is still growing. An existing file of an earlier month is kept only when it was saved at least one day after that month ended; an older copy may be incomplete and is refetched. With `-o csv`, it reports `FILE,STATUS` rows (`downloaded`, `skipped`, or `would_download` for a dry run); `--no-header` suppresses the header.
 
 ---
 

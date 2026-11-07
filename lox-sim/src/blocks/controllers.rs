@@ -1403,34 +1403,179 @@ impl Block for ThreePoint {
 }
 
 // ---------------------------------------------------------------------------
-// PID
+// PID / PI
 // ---------------------------------------------------------------------------
 
-// WARNING: Simplified model — real Loxone behavior may differ.
-// Assumption: Standard PID: output = Kp*e + Ki*∫e·dt + Kd*de/dt.
-// Integral is clamped to [-1000, 1000] to prevent windup.
-// Validate against Miniserver.
+// Loxone help (PI: ControlType 409, PID: 410), e = Target - Input:
+//   CO = Kp*e + Ki*Σe*SampleTime [+ Kd*(e - e_prev)/SampleTime]
+// A new CO is computed every SampleTime seconds, and only when |e| reaches
+// the Trigger threshold; otherwise CO holds. Auto = 0 outputs MV, Off (reset)
+// switches the output off.
+// Assumptions not covered by the help — validate against a Miniserver:
+// - an unwired Auto input counts as automatic,
+// - the first evaluation always computes CO,
+// - the I term Ki*Σe*SampleTime is accumulated sample by sample (the same for
+//   constant Ki/SampleTime) and only grows until CO reaches Min/Max.
 
-/// PID controller.
-#[derive(Clone, Default)]
-pub struct Pid {
-    integral: f64,
-    prev_error: f64,
+/// PI/PID parameters, read in `block_signature` order.
+struct PidParams {
+    target: f64,
+    sample_time: f64,
+    threshold: f64,
+    kp: f64,
+    ki: f64,
+    kd: f64,
+    manual: f64,
+    min: f64,
+    max: f64,
 }
 
-impl Pid {
-    pub fn new() -> Self {
+impl PidParams {
+    /// PI: `[Target, SampleTime, Trigger, P, I, MV, Min, Max]`;
+    /// PID adds `D` after `I`. Defaults are Loxone's.
+    fn read(params: &[Signal], with_d: bool) -> Self {
+        let get = |index: usize, default: f64| params.get(index).copied().unwrap_or(default);
+        let shift = usize::from(with_d);
         Self {
-            integral: 0.0,
-            prev_error: 0.0,
+            target: get(0, 5.0),
+            sample_time: get(1, 1.0),
+            threshold: get(2, 1.0),
+            kp: get(3, 2.0),
+            ki: get(4, 1.0),
+            kd: if with_d { get(5, 0.0) } else { 0.0 },
+            manual: get(5 + shift, 5.0),
+            min: get(6 + shift, 0.0),
+            max: get(7 + shift, 10.0),
         }
     }
 }
 
+/// State and evaluation shared by [`Pi`] and [`Pid`].
+#[derive(Clone, Default)]
+struct PidCore {
+    /// I term, Ki*Σe*SampleTime over the computed samples.
+    integral: f64,
+    prev_error: f64,
+    /// Time since the last computed sample.
+    elapsed: f64,
+    /// Current CO, held between samples.
+    output: f64,
+    started: bool,
+    auto_wired: bool,
+}
+
+impl PidCore {
+    /// Inputs: `[Input (PV), InputAuto, InputReset]`.
+    fn eval(&mut self, inputs: &[Signal], p: &PidParams, dt: f64) -> Signal {
+        let value = inputs.first().copied().unwrap_or(0.0);
+        let auto = !self.auto_wired || is_high(inputs.get(1).copied().unwrap_or(0.0));
+        let off = is_high(inputs.get(2).copied().unwrap_or(0.0));
+
+        if off {
+            *self = Self {
+                auto_wired: self.auto_wired,
+                ..Self::default()
+            };
+            return 0.0;
+        }
+        if !auto {
+            self.output = p.manual;
+            return self.output;
+        }
+
+        self.elapsed += dt;
+        let sample_time = p.sample_time.max(0.0);
+        // The epsilon keeps accumulated float ticks (10 × 0.1 s) on schedule.
+        if self.started && self.elapsed + 1e-9 < sample_time {
+            return self.output;
+        }
+        self.elapsed = 0.0;
+
+        let error = p.target - value;
+        if self.started && error.abs() < p.threshold {
+            return self.output;
+        }
+
+        // SampleTime 0 means "every tick".
+        let step = if sample_time > 0.0 { sample_time } else { dt };
+        let derivative = if self.started && step > 0.0 {
+            p.kd * (error - self.prev_error) / step
+        } else {
+            0.0
+        };
+        let (low, high) = if p.min <= p.max {
+            (p.min, p.max)
+        } else {
+            (p.max, p.min)
+        };
+
+        let proportional = p.kp * error;
+        let candidate = self.integral + p.ki * error * step;
+        let unclamped = proportional + candidate + derivative;
+        // Anti-windup: grow the I term at most until CO touches the limit,
+        // and never unwind it here.
+        self.integral = if unclamped > high && candidate > self.integral {
+            (high - proportional - derivative)
+                .max(self.integral)
+                .min(candidate)
+        } else if unclamped < low && candidate < self.integral {
+            (low - proportional - derivative)
+                .min(self.integral)
+                .max(candidate)
+        } else {
+            candidate
+        };
+
+        self.prev_error = error;
+        self.started = true;
+        // max/min instead of clamp: no panic for NaN or reversed limits.
+        self.output = (proportional + self.integral + derivative)
+            .max(low)
+            .min(high);
+        self.output
+    }
+
+    fn state(&self) -> Vec<u8> {
+        serialize_f64s(&[
+            self.integral,
+            self.prev_error,
+            self.elapsed,
+            self.output,
+            f64::from(u8::from(self.started)),
+        ])
+    }
+
+    fn restore(&mut self, state: &[u8]) {
+        if let Some(v) = deserialize_f64s(state, 5) {
+            self.integral = v[0];
+            self.prev_error = v[1];
+            self.elapsed = v[2];
+            self.output = v[3];
+            self.started = v[4] != 0.0;
+        }
+    }
+}
+
+/// PID controller.
+#[derive(Clone, Default)]
+pub struct Pid {
+    core: PidCore,
+}
+
+impl Pid {
+    pub fn new() -> Self {
+        Self::default()
+    }
+}
+
 impl Block for Pid {
-    /// Inputs: [measured_value, setpoint]
-    /// Params: [Kp, Ki, Kd, output_min, output_max]
-    /// Outputs: [control_output]
+    fn configure_input_connections(&mut self, connected: &[bool]) {
+        self.core.auto_wired = connected.get(1).copied().unwrap_or(false);
+    }
+
+    /// Inputs: [Input (PV), InputAuto, InputReset]
+    /// Params: [Target, SampleTime, Trigger, P, I, D, MV, Min, Max]
+    /// Outputs: [AQ (CO)]
     fn eval(
         &mut self,
         inputs: &[Signal],
@@ -1438,71 +1583,46 @@ impl Block for Pid {
         dt: f64,
         _prev: &[Signal],
     ) -> Vec<Signal> {
-        let value = inputs.first().copied().unwrap_or(0.0);
-        let setpoint = inputs.get(1).copied().unwrap_or(0.0);
-        let kp = params.first().copied().unwrap_or(1.0);
-        let ki = params.get(1).copied().unwrap_or(0.0);
-        let kd = params.get(2).copied().unwrap_or(0.0);
-        let out_min = params.get(3).copied().unwrap_or(-100.0);
-        let out_max = params.get(4).copied().unwrap_or(100.0);
-
-        let error = setpoint - value;
-
-        if dt > 0.0 {
-            self.integral = (self.integral + error * dt).clamp(-1000.0, 1000.0);
-        }
-
-        let derivative = if dt > 0.0 {
-            (error - self.prev_error) / dt
-        } else {
-            0.0
-        };
-        self.prev_error = error;
-
-        let output = (kp * error + ki * self.integral + kd * derivative).clamp(out_min, out_max);
-        vec![output]
+        vec![self.core.eval(inputs, &PidParams::read(params, true), dt)]
     }
 
     fn state(&self) -> Option<Vec<u8>> {
-        Some(serialize_f64s(&[self.integral, self.prev_error]))
+        Some(self.core.state())
     }
 
     fn restore(&mut self, state: &[u8]) {
-        if let Some(v) = deserialize_f64s(state, 2) {
-            self.integral = v[0];
-            self.prev_error = v[1];
-        }
+        self.core.restore(state);
     }
 
     fn block_type(&self) -> &str {
         "PID"
     }
+
+    fn is_time_dependent(&self) -> bool {
+        true
+    }
 }
-
-// ---------------------------------------------------------------------------
-// PI
-// ---------------------------------------------------------------------------
-
-// WARNING: Simplified model — real Loxone behavior may differ.
-// Assumption: PI controller (PID without derivative term).
-// Validate against Miniserver.
 
 /// PI controller (PID without derivative).
 #[derive(Clone, Default)]
 pub struct Pi {
-    integral: f64,
+    core: PidCore,
 }
 
 impl Pi {
     pub fn new() -> Self {
-        Self { integral: 0.0 }
+        Self::default()
     }
 }
 
 impl Block for Pi {
-    /// Inputs: [measured_value, setpoint]
-    /// Params: [Kp, Ki, output_min, output_max]
-    /// Outputs: [control_output]
+    fn configure_input_connections(&mut self, connected: &[bool]) {
+        self.core.auto_wired = connected.get(1).copied().unwrap_or(false);
+    }
+
+    /// Inputs: [Input (PV), InputAuto, InputReset]
+    /// Params: [Target, SampleTime, Trigger, P, I, MV, Min, Max]
+    /// Outputs: [AQ (CO)]
     fn eval(
         &mut self,
         inputs: &[Signal],
@@ -1510,35 +1630,23 @@ impl Block for Pi {
         dt: f64,
         _prev: &[Signal],
     ) -> Vec<Signal> {
-        let value = inputs.first().copied().unwrap_or(0.0);
-        let setpoint = inputs.get(1).copied().unwrap_or(0.0);
-        let kp = params.first().copied().unwrap_or(1.0);
-        let ki = params.get(1).copied().unwrap_or(0.0);
-        let out_min = params.get(2).copied().unwrap_or(-100.0);
-        let out_max = params.get(3).copied().unwrap_or(100.0);
-
-        let error = setpoint - value;
-
-        if dt > 0.0 {
-            self.integral = (self.integral + error * dt).clamp(-1000.0, 1000.0);
-        }
-
-        let output = (kp * error + ki * self.integral).clamp(out_min, out_max);
-        vec![output]
+        vec![self.core.eval(inputs, &PidParams::read(params, false), dt)]
     }
 
     fn state(&self) -> Option<Vec<u8>> {
-        Some(serialize_f64s(&[self.integral]))
+        Some(self.core.state())
     }
 
     fn restore(&mut self, state: &[u8]) {
-        if let Some(v) = deserialize_f64s(state, 1) {
-            self.integral = v[0];
-        }
+        self.core.restore(state);
     }
 
     fn block_type(&self) -> &str {
         "PI"
+    }
+
+    fn is_time_dependent(&self) -> bool {
+        true
     }
 }
 
@@ -2103,42 +2211,179 @@ mod tests {
 
     // -- PID ----------------------------------------------------------------
 
+    // Inputs: [Input, InputAuto, InputReset]
+    // Params: [Target, SampleTime, Trigger, P, I, D, MV, Min, Max]
+
     #[test]
     fn pid_proportional() {
         let mut pid = Pid::new();
-        // value=18, setpoint=21, Kp=2, Ki=0, Kd=0 → 2*3 = 6
-        let out = pid.eval(&[18.0, 21.0], &[2.0, 0.0, 0.0], 0.1, &[]);
+        // PV=18, Target=21, Kp=2 → 2*3 = 6
+        let params = [21.0, 1.0, 0.0, 2.0, 0.0, 0.0, 5.0, 0.0, 100.0];
+        let out = pid.eval(&[18.0, 0.0, 0.0], &params, 0.1, &[]);
         assert!((out[0] - 6.0).abs() < 0.01);
     }
 
     #[test]
     fn pid_integral_accumulates() {
         let mut pid = Pid::new();
-        // error=3, Ki=1, dt=1 → integral after 2 steps = 3+3 = 6
-        pid.eval(&[18.0, 21.0], &[0.0, 1.0, 0.0], 1.0, &[]);
-        let out = pid.eval(&[18.0, 21.0], &[0.0, 1.0, 0.0], 1.0, &[]);
+        // e=3, Ki=1, SampleTime=1 s, dt=1 s → Ki*Σe*St = 3, then 6
+        let params = [21.0, 1.0, 0.0, 0.0, 1.0, 0.0, 5.0, 0.0, 100.0];
+        pid.eval(&[18.0, 0.0, 0.0], &params, 1.0, &[]);
+        let out = pid.eval(&[18.0, 0.0, 0.0], &params, 1.0, &[]);
         assert!((out[0] - 6.0).abs() < 0.01);
+    }
+
+    #[test]
+    fn pid_derivative() {
+        let mut pid = Pid::new();
+        // Kp=1, Kd=2, St=1: e goes 3 → 1 → P 1 + D 2*(1-3)/1 = -3
+        let params = [21.0, 1.0, 0.0, 1.0, 0.0, 2.0, 5.0, -100.0, 100.0];
+        pid.eval(&[18.0, 0.0, 0.0], &params, 1.0, &[]);
+        let out = pid.eval(&[20.0, 0.0, 0.0], &params, 1.0, &[]);
+        assert!((out[0] + 3.0).abs() < 0.01);
+    }
+
+    #[test]
+    fn pid_p_above_i_does_not_panic() {
+        // Reading params by the old positions made P/I the output limits:
+        // clamp(5.0, 0.2) panicked.
+        let mut pid = Pid::new();
+        let params = [22.0, 10.0, 1.0, 5.0, 0.2, 0.0, 0.0, 0.0, 100.0];
+        let out = pid.eval(&[20.0, 0.0, 0.0], &params, 0.1, &[]);
+        assert!((out[0] - 14.0).abs() < 0.01); // 5*2 + 0.2*2*10
     }
 
     #[test]
     fn pid_state_roundtrip() {
         let mut pid = Pid::new();
-        pid.eval(&[18.0, 21.0], &[1.0, 0.5, 0.1], 1.0, &[]);
+        let params = [21.0, 1.0, 0.0, 1.0, 0.5, 0.1, 5.0, 0.0, 100.0];
+        pid.eval(&[18.0, 0.0, 0.0], &params, 1.0, &[]);
+        pid.eval(&[19.0, 0.0, 0.0], &params, 0.5, &[]);
         let state = pid.state().unwrap();
         let mut pid2 = Pid::new();
         pid2.restore(&state);
-        assert_eq!(pid2.integral, pid.integral);
-        assert_eq!(pid2.prev_error, pid.prev_error);
+        assert_eq!(pid2.core.integral, pid.core.integral);
+        assert_eq!(pid2.core.prev_error, pid.core.prev_error);
+        assert_eq!(pid2.core.elapsed, pid.core.elapsed);
+        assert_eq!(pid2.core.output, pid.core.output);
+        assert_eq!(pid2.core.started, pid.core.started);
     }
 
     // -- PI -----------------------------------------------------------------
 
+    // Inputs: [Input, InputAuto, InputReset]
+    // Params: [Target, SampleTime, Trigger, P, I, MV, Min, Max]
+
     #[test]
     fn pi_control() {
         let mut pi = Pi::new();
-        let out = pi.eval(&[18.0, 21.0], &[2.0, 0.5], 1.0, &[]);
-        // Kp*3 + Ki*3*1 = 6 + 1.5 = 7.5
+        let params = [21.0, 1.0, 0.0, 2.0, 0.5, 5.0, 0.0, 100.0];
+        let out = pi.eval(&[18.0, 0.0, 0.0], &params, 1.0, &[]);
+        // Kp*3 + Ki*3*St = 6 + 1.5 = 7.5
         assert!((out[0] - 7.5).abs() < 0.01);
+    }
+
+    #[test]
+    fn pi_p_below_trigger_does_not_panic() {
+        // Reading params by the old positions made Trigger/P the output
+        // limits: clamp(1.0, 0.5) panicked.
+        let mut pi = Pi::new();
+        let params = [22.0, 10.0, 1.0, 0.5, 0.0, 0.0, 0.0, 100.0];
+        let out = pi.eval(&[20.0, 0.0, 0.0], &params, 0.1, &[]);
+        assert!((out[0] - 1.0).abs() < 0.01); // 0.5 * (22 - 20)
+    }
+
+    #[test]
+    fn pi_negative_gain_cools() {
+        // PV above Target with a negative Kp raises the output.
+        let mut pi = Pi::new();
+        let params = [40.0, 5.0, 1.0, -12.0, 0.0, 0.0, 20.0, 80.0];
+        let out = pi.eval(&[45.0, 0.0, 0.0], &params, 0.1, &[]);
+        assert!((out[0] - 60.0).abs() < 0.01);
+    }
+
+    #[test]
+    fn pi_reversed_limits_do_not_panic() {
+        let mut pi = Pi::new();
+        let params = [100.0, 1.0, 0.0, 1.0, 0.0, 0.0, 80.0, 20.0];
+        let out = pi.eval(&[0.0, 0.0, 0.0], &params, 0.1, &[]);
+        assert!((out[0] - 80.0).abs() < 0.01);
+    }
+
+    #[test]
+    fn pi_threshold_holds_output() {
+        let mut pi = Pi::new();
+        // SampleTime 0 → every tick; Trigger 2
+        let params = [21.0, 0.0, 2.0, 1.0, 0.0, 0.0, -100.0, 100.0];
+        let first = pi.eval(&[11.0, 0.0, 0.0], &params, 0.1, &[]);
+        assert!((first[0] - 10.0).abs() < 0.01);
+        let held = pi.eval(&[20.0, 0.0, 0.0], &params, 0.1, &[]); // |e| = 1 < 2
+        assert!((held[0] - 10.0).abs() < 0.01);
+        let next = pi.eval(&[18.0, 0.0, 0.0], &params, 0.1, &[]); // |e| = 3
+        assert!((next[0] - 3.0).abs() < 0.01);
+    }
+
+    #[test]
+    fn pi_sample_time_holds_between_samples() {
+        let mut pi = Pi::new();
+        let params = [21.0, 1.0, 0.0, 1.0, 0.0, 0.0, -100.0, 100.0];
+        pi.eval(&[18.0, 0.0, 0.0], &params, 0.1, &[]); // first sample: 3
+        let held = pi.eval(&[11.0, 0.0, 0.0], &params, 0.5, &[]);
+        assert!((held[0] - 3.0).abs() < 0.01);
+        let sampled = pi.eval(&[11.0, 0.0, 0.0], &params, 0.5, &[]); // 1 s later
+        assert!((sampled[0] - 10.0).abs() < 0.01);
+    }
+
+    #[test]
+    fn pi_manual_outputs_mv_only_when_auto_is_wired() {
+        let params = [21.0, 0.0, 0.0, 1.0, 0.0, 7.0, 0.0, 100.0];
+
+        let mut unwired = Pi::new();
+        unwired.configure_input_connections(&[true, false, false]);
+        let out = unwired.eval(&[18.0, 0.0, 0.0], &params, 0.1, &[]);
+        assert!(
+            (out[0] - 3.0).abs() < 0.01,
+            "unwired Auto counts as automatic"
+        );
+
+        let mut wired = Pi::new();
+        wired.configure_input_connections(&[true, true, false]);
+        let out = wired.eval(&[18.0, 0.0, 0.0], &params, 0.1, &[]);
+        assert!((out[0] - 7.0).abs() < 0.01, "Auto = 0 outputs MV");
+        let out = wired.eval(&[18.0, 1.0, 0.0], &params, 0.1, &[]);
+        assert!((out[0] - 3.0).abs() < 0.01);
+    }
+
+    #[test]
+    fn pi_reset_switches_off_and_clears_integral() {
+        let mut pi = Pi::new();
+        // SampleTime 0 → step = dt = 1 s
+        let params = [21.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 100.0];
+        pi.eval(&[18.0, 0.0, 0.0], &params, 1.0, &[]);
+        let off = pi.eval(&[18.0, 0.0, 1.0], &params, 1.0, &[]);
+        assert_eq!(off[0], 0.0);
+        let out = pi.eval(&[18.0, 0.0, 0.0], &params, 1.0, &[]);
+        assert!((out[0] - 3.0).abs() < 0.01);
+    }
+
+    #[test]
+    fn pi_integral_stops_at_max() {
+        let mut pi = Pi::new();
+        let params = [21.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 10.0];
+        let mut out = 0.0;
+        for _ in 0..20 {
+            out = pi.eval(&[18.0, 0.0, 0.0], &params, 1.0, &[])[0]; // +3 per sample
+        }
+        assert!((out - 10.0).abs() < 0.01);
+        // No wind-up beyond Max: one sample with e = -3 leaves the limit.
+        let out = pi.eval(&[24.0, 0.0, 0.0], &params, 1.0, &[]);
+        assert!((out[0] - 7.0).abs() < 0.01);
+    }
+
+    #[test]
+    fn pi_is_time_dependent() {
+        assert!(Pi::new().is_time_dependent());
+        assert!(Pid::new().is_time_dependent());
     }
 
     // -- PoolController -----------------------------------------------------

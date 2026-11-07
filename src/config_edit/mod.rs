@@ -326,11 +326,16 @@ impl ConfigEditor {
     /// them on write-back.
     pub fn load(data: &[u8]) -> Result<Self> {
         let had_bom = data.starts_with(UTF8_BOM);
-        let had_crlf = data.windows(2).any(|w| w == b"\r\n");
+        // Prefer the newline after the XML declaration, or the first outside markup
+        // if there is no declaration. Attribute values carry independent line breaks.
+        let had_crlf = Self::has_crlf_line_endings(data);
         let xml_data = if had_bom { &data[3..] } else { data };
 
         let (xml_data_cow, digit_attr_renames) = Self::sanitize_digit_attrs(xml_data);
-        let reader = BufReader::new(Cursor::new(xml_data_cow.as_ref()));
+        // Loxone emits the same attribute twice on some elements (value-identical).
+        // A strict parser rejects that; drop the redundant copy losslessly before parsing.
+        let deduped = Self::dedupe_duplicate_attrs(xml_data_cow.as_ref());
+        let reader = BufReader::new(Cursor::new(deduped.as_ref()));
         let root = Element::parse(reader).context("Failed to parse Loxone XML")?;
         Ok(ConfigEditor {
             root,
@@ -338,6 +343,39 @@ impl ConfigEditor {
             had_crlf,
             digit_attr_renames,
         })
+    }
+
+    fn has_crlf_line_endings(data: &[u8]) -> bool {
+        let mut i = 0;
+        while i < data.len() {
+            if data[i] == b'\n' {
+                return i > 0 && data[i - 1] == b'\r';
+            }
+            if data[i] == b'<' {
+                let tail = &data[i..];
+                let end = if tail.starts_with(b"<!--") {
+                    tail.windows(3)
+                        .position(|w| w == b"-->")
+                        .map(|end| i + end + 3)
+                } else if tail.starts_with(b"<![CDATA[") {
+                    tail.windows(3)
+                        .position(|w| w == b"]]>")
+                        .map(|end| i + end + 3)
+                } else if tail.starts_with(b"<?") {
+                    tail.windows(2)
+                        .position(|w| w == b"?>")
+                        .map(|end| i + end + 2)
+                } else {
+                    Self::xml_tag_end(data, i)
+                };
+                if let Some(end) = end {
+                    i = end;
+                    continue;
+                }
+            }
+            i += 1;
+        }
+        false
     }
 
     /// Find attribute names starting with a digit and rename them with an underscore prefix.
@@ -390,6 +428,152 @@ impl ConfigEditor {
             result = result.replace(&from, &to);
         }
         (std::borrow::Cow::Owned(result.into_bytes()), renames)
+    }
+
+    /// Remove **value-identical** duplicate attributes from element start tags.
+    ///
+    /// Loxone Config emits the same attribute twice on some elements (observed on API
+    /// Connector elements: `Title` appears twice with the same value). A strict XML parser
+    /// rejects that ("Attribute 'Title' is redefined"). Since the duplicates are
+    /// value-identical, dropping the redundant copy is lossless. Duplicates with *different*
+    /// values are left untouched so a genuine conflict still surfaces at parse time.
+    ///
+    /// Both XML quote styles are supported; non-element markup is left untouched.
+    fn dedupe_duplicate_attrs(data: &[u8]) -> std::borrow::Cow<'_, [u8]> {
+        let text = match std::str::from_utf8(data) {
+            Ok(s) => s,
+            Err(_) => return std::borrow::Cow::Borrowed(data),
+        };
+        let bytes = text.as_bytes();
+        let len = bytes.len();
+        let ws = |b: u8| matches!(b, b' ' | b'\t' | b'\r' | b'\n');
+        let mut deletes: Vec<(usize, usize)> = Vec::new();
+        let mut i = 0;
+        while i < len {
+            if bytes[i] != b'<' {
+                i += 1;
+                continue;
+            }
+            let tail = &text[i..];
+            let skipped_end = if tail.starts_with("<!--") {
+                tail.find("-->").map(|end| i + end + 3)
+            } else if tail.starts_with("<![CDATA[") {
+                tail.find("]]>").map(|end| i + end + 3)
+            } else if tail.starts_with("<?") {
+                tail.find("?>").map(|end| i + end + 2)
+            } else if tail.starts_with("<!") {
+                // A declaration can contain an internal subset with tag-like text.
+                let mut quote = None;
+                let mut depth: usize = 0;
+                let mut end = None;
+                for (offset, &byte) in bytes.iter().enumerate().skip(i + 2) {
+                    if let Some(delimiter) = quote {
+                        if byte == delimiter {
+                            quote = None;
+                        }
+                    } else {
+                        match byte {
+                            b'"' | b'\'' => quote = Some(byte),
+                            b'[' => depth += 1,
+                            b']' => depth = depth.saturating_sub(1),
+                            b'>' if depth == 0 => {
+                                end = Some(offset + 1);
+                                break;
+                            }
+                            _ => {}
+                        }
+                    }
+                }
+                end
+            } else if tail.starts_with("</") {
+                Self::xml_tag_end(bytes, i)
+            } else {
+                None
+            };
+            if let Some(end) = skipped_end {
+                i = end;
+                continue;
+            }
+            if i + 1 < len && !matches!(bytes[i + 1], b'/' | b'?' | b'!') {
+                // Skip the element name.
+                let mut j = i + 1;
+                while j < len && !ws(bytes[j]) && !matches!(bytes[j], b'>' | b'/') {
+                    j += 1;
+                }
+                // Scan attributes until the end of the start tag.
+                let mut seen: Vec<(&str, &str)> = Vec::new();
+                loop {
+                    while j < len && ws(bytes[j]) {
+                        j += 1;
+                    }
+                    if j >= len || matches!(bytes[j], b'>' | b'/') {
+                        break;
+                    }
+                    let name_start = j;
+                    while j < len && !ws(bytes[j]) && !matches!(bytes[j], b'=' | b'>' | b'/') {
+                        j += 1;
+                    }
+                    let name_end = j;
+                    while j < len && ws(bytes[j]) {
+                        j += 1;
+                    }
+                    if j >= len || bytes[j] != b'=' {
+                        break; // not `name=…`, stop scanning this tag
+                    }
+                    j += 1;
+                    while j < len && ws(bytes[j]) {
+                        j += 1;
+                    }
+                    if j >= len || !matches!(bytes[j], b'"' | b'\'') {
+                        break;
+                    }
+                    let delimiter = bytes[j];
+                    let val_start = j + 1;
+                    j = val_start;
+                    while j < len && bytes[j] != delimiter {
+                        j += 1;
+                    }
+                    if j >= len {
+                        break;
+                    }
+                    let val_end = j;
+                    j += 1; // past closing quote
+                    let attr_end = j;
+                    let name = &text[name_start..name_end];
+                    let value = &text[val_start..val_end];
+                    if let Some(&(_, prev)) = seen.iter().find(|(n, _)| *n == name) {
+                        if prev == value {
+                            // Redundant copy → delete it plus one leading whitespace char.
+                            let del_start = if name_start > 0 && ws(bytes[name_start - 1]) {
+                                name_start - 1
+                            } else {
+                                name_start
+                            };
+                            deletes.push((del_start, attr_end));
+                        }
+                        // Different value: leave it, let the parser flag the conflict.
+                    } else {
+                        seen.push((name, value));
+                    }
+                }
+                i = j;
+                continue;
+            }
+            i += 1;
+        }
+        if deletes.is_empty() {
+            return std::borrow::Cow::Borrowed(data);
+        }
+        let mut out = String::with_capacity(text.len());
+        let mut last = 0;
+        for (s, e) in deletes {
+            if s >= last {
+                out.push_str(&text[last..s]);
+                last = e;
+            }
+        }
+        out.push_str(&text[last..]);
+        std::borrow::Cow::Owned(out.into_bytes())
     }
 
     /// Get a mutable reference to an element by path.
@@ -589,6 +773,69 @@ mod tests {
         let output = editor.to_bytes().unwrap();
         // Verify it's valid XML
         let _ = ConfigEditor::load(&output).unwrap();
+    }
+
+    #[test]
+    fn test_dedupe_value_identical_duplicate_attr() {
+        // Loxone emits the same attribute twice, value-identical → must parse, redundant copy dropped.
+        let xml = br#"<?xml version="1.0" encoding="utf-8"?>
+<ControlList Version="267">
+  <C Type="Place" U="room-1" Title="Kitchen" WF="16384" Title="Kitchen"/>
+</ControlList>"#;
+        let editor = ConfigEditor::load(xml).unwrap();
+        let out = String::from_utf8(editor.to_bytes().unwrap()).unwrap();
+        assert_eq!(out.matches(r#"Title="Kitchen""#).count(), 1);
+    }
+
+    #[test]
+    fn test_dedupe_leaves_conflicting_duplicate() {
+        // Different values = a real conflict; must still surface at parse time.
+        let xml = br#"<ControlList><C U="x" Title="A" Title="B"/></ControlList>"#;
+        assert!(ConfigEditor::load(xml).is_err());
+    }
+
+    #[test]
+    fn test_dedupe_is_quote_aware() {
+        // A value may contain escaped angle brackets (e.g. Unit="&lt;v&gt;%"); tag scanning
+        // must not be confused, and an unrelated value-identical dup still collapses.
+        let xml = br#"<ControlList>
+  <C U="x" Unit="&lt;v&gt;%" Nio="1" Nio="1"/>
+</ControlList>"#;
+        let editor = ConfigEditor::load(xml).unwrap();
+        let out = String::from_utf8(editor.to_bytes().unwrap()).unwrap();
+        assert_eq!(out.matches(r#"Nio="1""#).count(), 1);
+        assert!(out.contains("&lt;v&gt;%"));
+    }
+
+    #[test]
+    fn test_dedupe_supports_both_quotes_and_xml_names() {
+        let xml = "<ControlList><C.entry Title='Küche' Title=\"Küche\" \
+Unit='a > b' Unit='a > b'/><部屋 Title='同じ' Title='同じ'/></ControlList>";
+        let editor = ConfigEditor::load(xml.as_bytes()).unwrap();
+        let child = editor.root.get_child("C.entry").unwrap();
+        assert_eq!(child.attributes["Title"], "Küche");
+        assert_eq!(child.attributes["Unit"], "a > b");
+        assert_eq!(
+            editor.root.get_child("部屋").unwrap().attributes["Title"],
+            "同じ"
+        );
+        assert!(ConfigEditor::load(b"<C Title='A' Title=\"B\"/>").is_err());
+    }
+
+    #[test]
+    fn test_dedupe_preserves_non_element_markup() {
+        let xml = br#"<?xml version="1.0"?>
+<!DOCTYPE C [<!ENTITY example '<C A="x" A="x"/>'>]>
+<C A="x" A="x">
+<!-- <C A="x" A="x"/> -->
+<![CDATA[<C A="x" A="x"/>]]>
+<?test <C A="x" A="x"/>?>
+</C>"#;
+        let out = ConfigEditor::dedupe_duplicate_attrs(xml);
+        let expected = String::from_utf8(xml.to_vec())
+            .unwrap()
+            .replace("\n<C A=\"x\" A=\"x\">", "\n<C A=\"x\">");
+        assert_eq!(out.as_ref(), expected.as_bytes());
     }
 
     #[test]
@@ -822,6 +1069,319 @@ mod tests {
                 .iter()
                 .any(|r| r.contains("executes only the first 8") && r.contains("Prog8")),
             "expected program-limit warning naming the 9th block, got: {results:?}"
+        );
+    }
+
+    #[test]
+    fn test_check_blocks_layout_skips_hidden_refs_and_nested_elements() {
+        // Hidden refs (WF without the 0x20000 "placed on page" bit), Keycodes
+        // nested in an NfcCodeTouch and elements outside any Page have no
+        // canvas coordinates by design. A placed ref or a normal block that
+        // lacks coords is still a real problem.
+        let xml = br#"<?xml version="1.0" encoding="utf-8"?>
+<C Type="Document" V="175" U="doc-1" Title="Root">
+  <C Type="VirtualIn" V="175" U="vi-1" Title="Off Page VI">
+    <Co K="Q" U="vi-1-q"/>
+  </C>
+  <C Type="Page" V="175" U="page-1" Title="Logic" WF="16384">
+    <C Type="InputRef" V="175" U="ir-hidden" Title="Hidden In" WF="22528" Ref="vi-1" Nio="4">
+      <Co K="AI" U="ir-h-ai"/><Co K="I" U="ir-h-i"/><Co K="AQ" U="ir-h-aq"/><Co K="Q" U="ir-h-q"/>
+    </C>
+    <C Type="OutputRef" V="175" U="or-hidden" Title="Hidden Out" WF="20480" Ref="vi-1" Nio="2">
+      <Co K="AI" U="or-h-ai"/><Co K="AQ" U="or-h-aq"/>
+    </C>
+    <C Type="InputRef" V="175" U="ir-placed" Title="Placed In" WF="155648" Ref="vi-1" Nio="4">
+      <Co K="AI" U="ir-p-ai"/><Co K="I" U="ir-p-i"/><Co K="AQ" U="ir-p-aq"/><Co K="Q" U="ir-p-q"/>
+    </C>
+    <C Type="NfcCodeTouch" V="175" U="nfc-1" Title="Door Keypad" Nio="1" Px="100" Py="100" Px2="200" Py2="200">
+      <Co K="Disable" U="nfc-1-dis"/>
+      <C Type="Keycode" V="175" U="kc-1" Title="Guest Code" WF="20480">
+        <Co K="Q" U="kc-1-q"/>
+      </C>
+    </C>
+    <C Type="And" V="175" U="and-nocoords" Title="Unplaced And" Nio="3">
+      <Co K="I1" U="and-i1" Def="1"/><Co K="I2" U="and-i2" Def="1"/><Co K="Q" U="and-q"/>
+    </C>
+  </C>
+</C>"#;
+        let editor = ConfigEditor::load(xml).unwrap();
+        let results = editor.check_blocks(None);
+        let layout: Vec<&String> = results
+            .iter()
+            .filter(|r| r.contains("missing canvas layout"))
+            .collect();
+        for quiet in ["Hidden In", "Hidden Out", "Guest Code", "Off Page VI"] {
+            assert!(
+                !layout.iter().any(|r| r.contains(quiet)),
+                "{quiet} should not get a layout warning, got: {layout:?}"
+            );
+        }
+        for loud in ["Placed In", "Unplaced And"] {
+            assert!(
+                layout.iter().any(|r| r.contains(loud)),
+                "{loud} should get a layout warning, got: {layout:?}"
+            );
+        }
+    }
+
+    #[test]
+    fn test_check_blocks_optional_unwired_inputs_are_not_errors() {
+        // Most block inputs are optional: a partially wired State block or a
+        // PushButton2 driven only from the app is normal. A pure logic block
+        // whose output is used but has no input is still an error.
+        let xml = br#"<?xml version="1.0" encoding="utf-8"?>
+<C Type="Document" V="175" U="doc-1" Title="Root">
+  <C Type="Page" V="175" U="page-1" Title="Logic" WF="16384">
+    <C Type="VirtualIn" V="175" U="src" Title="Source" Px="1" Py="1" Px2="2" Py2="2" Nio="1">
+      <Co K="Q" U="src-q"/>
+    </C>
+    <C Type="State" V="175" U="st-1" Title="Partly Wired State" Nio="4" Px="1" Py="1" Px2="2" Py2="2">
+      <Co K="I1" U="st-i1"><In Input="src-q"/></Co>
+      <Co K="I2" U="st-i2"/>
+      <Co K="TQ" U="st-tq"/>
+      <Co K="AQ" U="st-aq"/>
+    </C>
+    <C Type="PushButton2" V="175" U="pb-1" Title="App Button" Nio="3" Px="1" Py="1" Px2="2" Py2="2">
+      <Co K="InputTriggerOn" U="pb-on"/>
+      <Co K="InputTriggerOff" U="pb-off"/>
+      <Co K="Q" U="pb-q"/>
+    </C>
+    <C Type="Not" V="175" U="not-1" Title="Consumer" Nio="2" Px="1" Py="1" Px2="2" Py2="2">
+      <Co K="I" U="not-i"><In Input="pb-q"/></Co>
+      <Co K="Q" U="not-q"/>
+    </C>
+    <C Type="And" V="175" U="and-1" Title="Starved And" Nio="3" Px="1" Py="1" Px2="2" Py2="2">
+      <Co K="I1" U="and-i1"/>
+      <Co K="I2" U="and-i2"/>
+      <Co K="Q" U="and-q"/>
+    </C>
+    <C Type="Or" V="175" U="or-1" Title="And Consumer" Nio="2" Px="1" Py="1" Px2="2" Py2="2">
+      <Co K="I1" U="or-i1"><In Input="and-q"/></Co>
+      <Co K="Q" U="or-q"/>
+    </C>
+  </C>
+</C>"#;
+        let editor = ConfigEditor::load(xml).unwrap();
+        let results = editor.check_blocks(None);
+        assert!(
+            !results.iter().any(|r| r.contains("unwired inputs")),
+            "optional unwired inputs must not be reported, got: {results:?}"
+        );
+        for quiet in ["Partly Wired State", "App Button"] {
+            assert!(
+                !results
+                    .iter()
+                    .any(|r| r.starts_with('✗') && r.contains(quiet)),
+                "{quiet} should not be an error, got: {results:?}"
+            );
+        }
+        assert!(
+            results.iter().any(|r| r.starts_with('✗')
+                && r.contains("Starved And")
+                && r.contains("no inputs wired")),
+            "logic block with used output and no input must still be an error, got: {results:?}"
+        );
+    }
+
+    #[test]
+    fn test_check_blocks_refs_not_reported_as_unconnected() {
+        // An InputRef is fed by its Ref attribute; its AI link may live on
+        // another page, so missing page wires do not make it unconnected.
+        let xml = br#"<?xml version="1.0" encoding="utf-8"?>
+<C Type="Document" V="175" U="doc-1" Title="Root">
+  <C Type="Page" V="175" U="page-1" Title="Logic" WF="16384">
+    <C Type="InputRef" V="175" U="ir-1" Title="Remote Sensor" WF="155648" Ref="elsewhere" Nio="4" Px="1" Py="1" Px2="2" Py2="2">
+      <Co K="AI" U="ir-ai"/><Co K="I" U="ir-i"/><Co K="AQ" U="ir-aq"/><Co K="Q" U="ir-q"/>
+    </C>
+    <C Type="OutputRef" V="175" U="or-1" Title="Remote Actor" WF="139264" Ref="elsewhere" Nio="2" Px="1" Py="1" Px2="2" Py2="2">
+      <Co K="AI" U="or-ai"/><Co K="AQ" U="or-aq"/>
+    </C>
+  </C>
+</C>"#;
+        let editor = ConfigEditor::load(xml).unwrap();
+        let results = editor.check_blocks(None);
+        assert!(
+            !results
+                .iter()
+                .any(|r| r.contains("Remote Sensor") || r.contains("Remote Actor")),
+            "refs must not be reported, got: {results:?}"
+        );
+    }
+
+    #[test]
+    fn test_check_blocks_comparator_input_set_by_wire_or_def() {
+        let xml = br#"<?xml version="1.0" encoding="utf-8"?>
+<C Type="Document" V="175" U="doc-1" Title="Root">
+  <C Type="Page" V="175" U="page-1" Title="Logic" WF="16384">
+    <C Type="VirtualIn" V="175" U="src" Title="Source" Px="1" Py="1" Px2="2" Py2="2" Nio="1">
+      <Co K="Q" U="src-q"/>
+    </C>
+    <C Type="GreaterEqual" V="175" U="ge-wired" Title="Wired Threshold" Nio="3" Px="1" Py="1" Px2="2" Py2="2">
+      <Co K="Input1" U="gw-1"><In Input="src-q"/></Co>
+      <Co K="Input2" U="gw-2"><In Input="src-q" FLG="2"/></Co>
+      <Co K="Q" U="gw-q"/>
+    </C>
+    <C Type="GreaterEqual" V="175" U="ge-def" Title="Constant Threshold" Nio="3" Px="1" Py="1" Px2="2" Py2="2">
+      <Co K="Input1" U="gd-1"><In Input="src-q"/></Co>
+      <Co K="Input2" U="gd-2" Def="21"/>
+      <Co K="Q" U="gd-q"/>
+    </C>
+    <C Type="GreaterEqual" V="175" U="ge-none" Title="Missing Threshold" Nio="3" Px="1" Py="1" Px2="2" Py2="2">
+      <Co K="Input1" U="gn-1"><In Input="src-q"/></Co>
+      <Co K="Input2" U="gn-2"/>
+      <Co K="Q" U="gn-q"/>
+    </C>
+  </C>
+</C>"#;
+        let editor = ConfigEditor::load(xml).unwrap();
+        let results = editor.check_blocks(None);
+        let not_set: Vec<&String> = results
+            .iter()
+            .filter(|r| r.contains("Input2 not set"))
+            .collect();
+        assert!(
+            !not_set
+                .iter()
+                .any(|r| r.contains("Wired Threshold") || r.contains("Constant Threshold")),
+            "wired or constant Input2 counts as set, got: {not_set:?}"
+        );
+        assert!(
+            not_set
+                .iter()
+                .any(|r| r.starts_with('⚠') && r.contains("Missing Threshold")),
+            "Input2 with neither Def nor wire must be reported as a warning, got: {results:?}"
+        );
+    }
+
+    #[test]
+    fn test_validate_api_connector_with_input_is_not_flagged() {
+        // A virtual text input feeding a block's API connector sends it commands.
+        let xml = br#"<?xml version="1.0" encoding="utf-8"?>
+<ControlList Version="267">
+  <C Type="VirtualTextIn" U="vti-1" Title="Webhook">
+    <Co K="AQ" U="vti-aq"/>
+  </C>
+  <C Type="Doorcontroller" U="dc-1" Title="Front Door">
+    <Co K="Q1" U="dc-q1"/>
+    <Co K="OutputAPI" U="dc-api"><In Input="vti-aq"/></Co>
+  </C>
+</ControlList>"#;
+        let results = ConfigEditor::load(xml).unwrap().validate_config();
+        assert!(
+            !results
+                .iter()
+                .any(|r| r.contains("wired TO an Output connector")),
+            "{results:?}"
+        );
+    }
+
+    #[test]
+    fn test_validate_direction_still_checks_user_wires_alongside_managed_links() {
+        for (extra, warns) in [("", false), (r#"<In Input="user-source"/>"#, true)] {
+            let xml = format!(
+                r#"<ControlList>
+                  <C Type="And" U="gate" Title="Gate">
+                    <Co K="Q" U="output">
+                      <In Input="managed-source" FLG="1"/>{extra}
+                    </Co>
+                  </C>
+                </ControlList>"#
+            );
+            let results = ConfigEditor::load(xml.as_bytes())
+                .unwrap()
+                .validate_config();
+            assert_eq!(
+                results
+                    .iter()
+                    .any(|r| r.contains("wired TO an Output connector")),
+                warns,
+                "{results:?}"
+            );
+        }
+    }
+
+    #[test]
+    fn test_check_and_validate_ignore_autopilot_managed_inputs() {
+        // AutoPilot conditions live in the rule's APC JSON; its inputs are
+        // Config-managed (FLG="1") links. Nothing here is a wiring problem.
+        let xml = br#"<?xml version="1.0" encoding="utf-8"?>
+<C Type="Document" V="175" U="doc-1" Title="Root">
+  <C Type="AutoPilot" V="175" U="ap-1" Title="Automatic Rules" WF="16384" Nio="2">
+    <Co K="Input" U="ap-in"/>
+    <Co K="output" U="ap-out"/>
+  </C>
+  <C Type="Page" V="175" U="page-1" Title="Logic" WF="16384">
+    <C Type="AutopilotRule" V="175" U="apr-1" Title="Night Rule" APC="{&quot;conditions&quot;:[]}" Nio="6" Px="1" Py="1" Px2="2" Py2="2">
+      <Co K="InputTrigger" U="apr-trig"/>
+      <Co K="Reset" U="apr-reset"><In Input="ap-out" FLG="1"/></Co>
+      <Co K="On" U="apr-on"/>
+      <Co K="Run" U="apr-run"/>
+      <Co K="Q" U="apr-q"><In Input="ap-out" FLG="1"/></Co>
+      <Co K="A" U="apr-a"/>
+    </C>
+  </C>
+</C>"#;
+        let editor = ConfigEditor::load(xml).unwrap();
+        let check = editor.check_blocks(None);
+        assert!(
+            !check
+                .iter()
+                .any(|r| (r.starts_with('✗') || r.starts_with('⚠'))
+                    && (r.contains("Night Rule") || r.contains("Automatic Rules"))),
+            "AutoPilot must not be reported by check, got: {check:?}"
+        );
+        let validate = editor.validate_config();
+        assert!(
+            !validate.iter().any(|r| r.contains("wired TO an Output")),
+            "FLG=1 links are Config-managed, got: {validate:?}"
+        );
+    }
+
+    #[test]
+    fn test_validate_config_uuid_suffixes_are_not_serials() {
+        // The last UUID group identifies the Config installation that created
+        // the element; projects legitimately mix many suffixes.
+        let xml = br#"<?xml version="1.0" encoding="utf-8"?>
+<ControlList Version="267">
+  <C Type="Document" U="1fbf3415-030f-bc7d-ffff5ff4953f8cf6" Title="Doc">
+    <C Type="Page" U="2a3b4c5d-0001-0002-ffffa2b891a5bde7" Title="Page">
+      <C Type="And" U="3a3b4c5d-0001-0002-ffff123456789abc" Title="Gate">
+        <Co K="I1" U="3a3b4c5d-0001-0003-00ff1748ea0f73fe"/>
+        <Co K="Q" U="3a3b4c5d-0001-0004-01ff1748ea0f73fe"/>
+      </C>
+    </C>
+    <C Type="Mode" U="00000000-0000-0002-1" Title="Mode"/>
+  </C>
+</ControlList>"#;
+        let editor = ConfigEditor::load(xml).unwrap();
+        let results = editor.validate_config();
+        assert!(
+            !results
+                .iter()
+                .any(|r| r.contains("serial") || r.contains("malformed UUID")),
+            "mixed suffixes must not be flagged, got: {results:?}"
+        );
+        assert!(results.iter().any(|r| r == "✓ All UUIDs are well-formed"));
+
+        let bad = br#"<?xml version="1.0" encoding="utf-8"?>
+<ControlList Version="267">
+  <C Type="And" U="3a3b4c5d-0001-0002-zzzz123456789abc" Title="Broken">
+    <Co K="Q" U="not-a-uuid"/>
+  </C>
+</ControlList>"#;
+        let editor = ConfigEditor::load(bad).unwrap();
+        let results = editor.validate_config();
+        assert!(
+            results.iter().any(|r| r.starts_with('⚠')
+                && r.contains("Broken")
+                && r.contains("malformed UUID")),
+            "malformed element UUID must be reported, got: {results:?}"
+        );
+        assert!(
+            results
+                .iter()
+                .any(|r| r.contains("connector Q") && r.contains("malformed UUID")),
+            "malformed connector UUID must be reported, got: {results:?}"
         );
     }
 
@@ -1241,6 +1801,288 @@ mod tests {
         assert!(results.iter().all(|r| !r.contains("✗")));
     }
 
+    fn validate_xml(body: &str) -> Vec<String> {
+        let xml = format!(
+            "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<ControlList Version=\"267\">\n{body}\n</ControlList>"
+        );
+        ConfigEditor::load(xml.as_bytes())
+            .unwrap()
+            .validate_config()
+    }
+
+    fn warnings_containing<'a>(results: &'a [String], needle: &str) -> Vec<&'a String> {
+        results
+            .iter()
+            .filter(|r| r.starts_with('⚠') && r.contains(needle))
+            .collect()
+    }
+
+    const LC2_MODES: &str = r#"
+  <C Type="Mode" U="m-7" Title="Evening" Mode="-7"/>
+  <C Type="Mode" U="m-8" Title="Nighttime" Mode="-8"/>
+  <C Type="DigitalIn" U="pir-1" Title="PIR">
+    <Co K="Q" U="pir-q"/>
+  </C>"#;
+
+    fn lc2(id: &str, title: &str, wire: &str, op_m: &str) -> String {
+        format!(
+            r#"
+  <C Type="LightController2" U="{id}" Title="{title}">
+    <Co K="Move" U="{id}-move">{wire}</Co>
+    <LSConfig OpM="{op_m}" ScMv="3" ScAc="0"/>
+  </C>"#
+        )
+    }
+
+    #[test]
+    fn test_validate_lc2_motion_missing_mode_its_peers_cover() {
+        // Two rooms have a Nighttime row, the third lacks it and has no 778 row.
+        let pir = r#"<In Input="pir-q"/>"#;
+        let results = validate_xml(&format!(
+            "{LC2_MODES}{}{}{}",
+            lc2("lc-1", "Hall Light", pir, "-7,-8"),
+            lc2("lc-2", "Landing Light", pir, "-7,-8"),
+            lc2("lc-3", "Bedroom Spots", pir, "-7"),
+        ));
+        let w = warnings_containing(&results, "All other times");
+        assert_eq!(w.len(), 1, "{results:?}");
+        assert!(w[0].contains("'Bedroom Spots'"));
+        assert!(w[0].contains("no motion row for Nighttime (-8)"));
+    }
+
+    #[test]
+    fn test_validate_lc2_motion_empty_table() {
+        let results = validate_xml(&format!(
+            "{LC2_MODES}{}",
+            lc2("lc-1", "Hall Light", r#"<In Input="pir-q"/>"#, "")
+        ));
+        assert_eq!(
+            warnings_containing(&results, "motion table is empty").len(),
+            1,
+            "{results:?}"
+        );
+    }
+
+    #[test]
+    fn test_validate_lc2_motion_missing_table() {
+        let results = validate_xml(
+            r#"<C Type="LightController2" U="lc-1" Title="Hall Light">
+                <Co K="Presence" U="lc-presence"><In Input="pir-q"/></Co>
+            </C>"#,
+        );
+        assert_eq!(
+            warnings_containing(&results, "motion table is empty").len(),
+            1,
+            "{results:?}"
+        );
+    }
+
+    #[test]
+    fn test_validate_lc2_motion_rule_quiet_when_ok() {
+        let pir = r#"<In Input="pir-q"/>"#;
+        // Every controller lists the same modes: they may cover the whole day.
+        let same_modes = validate_xml(&format!(
+            "{LC2_MODES}{}{}",
+            lc2("lc-1", "Hall Light", pir, "-7,-8"),
+            lc2("lc-2", "Landing Light", pir, "-7,-8"),
+        ));
+        assert!(warnings_containing(&same_modes, "All other times").is_empty());
+        // Fewer modes but a 778 row → no warning.
+        let with_row = validate_xml(&format!(
+            "{LC2_MODES}{}{}",
+            lc2("lc-1", "Hall Light", pir, "-7,-8"),
+            lc2("lc-2", "Landing Light", pir, "-7,778"),
+        ));
+        assert!(warnings_containing(&with_row, "All other times").is_empty());
+        // Missing mode but no motion/presence wiring → not checked.
+        let unwired = validate_xml(&format!(
+            "{LC2_MODES}{}{}{}",
+            lc2("lc-1", "Hall Light", pir, "-7,-8"),
+            lc2("lc-2", "Landing Light", pir, "-7,-8"),
+            lc2("lc-3", "Bedroom Spots", "", "-7"),
+        ));
+        assert!(warnings_containing(&unwired, "All other times").is_empty());
+        assert!(
+            unwired
+                .iter()
+                .any(|r| r.starts_with('✓') && r.contains("motion rows"))
+        );
+    }
+
+    const PULSE_LC2: &str = r#"
+  <C Type="LightController2" U="lc-1" Title="Lounge Light">
+    <Co K="Sel1" U="lc-sel1"><In Input="ed-rise"/></Co>
+    <Co K="Sel2" U="lc-sel2"><In Input="mf-q"/></Co>
+    <Co K="Reset" U="lc-reset"><In Input="ed2-rise"/></Co>
+    <LSConfig OpM="778" ScMv="1" ScAc="0"/>
+  </C>"#;
+
+    #[test]
+    fn test_validate_long_pulse_into_mood_input() {
+        let results = validate_xml(&format!(
+            r#"{PULSE_LC2}
+  <C Type="EdgeDetection" U="ed-1" Title="Scene Edge">
+    <Co K="RisingEdge" U="ed-rise"/>
+    <Co K="PulseTime" U="ed-pt" Def="1"/>
+  </C>
+  <C Type="Monoflop" U="mf-1" Title="Scene Pulse">
+    <Co K="Q" U="mf-q"/>
+    <Co K="Time" U="mf-t" Def="1.5"/>
+  </C>
+  <C Type="EdgeDetection" U="ed-2" Title="Reset Edge">
+    <Co K="RisingEdge" U="ed2-rise"/>
+    <Co K="PulseTime" U="ed2-pt" Def="5"/>
+  </C>"#
+        ));
+        let w = warnings_containing(&results, "long-click");
+        assert_eq!(w.len(), 2, "{results:?}");
+        assert!(w[0].contains("'Lounge Light'.Sel1") && w[0].contains("'Scene Edge'"));
+        assert!(w[1].contains("'Lounge Light'.Sel2") && w[1].contains("'Scene Pulse'"));
+    }
+
+    #[test]
+    fn test_validate_short_pulse_into_mood_input_is_quiet() {
+        let results = validate_xml(&format!(
+            r#"{PULSE_LC2}
+  <C Type="EdgeDetection" U="ed-1" Title="Scene Edge">
+    <Co K="RisingEdge" U="ed-rise"/>
+    <Co K="PulseTime" U="ed-pt" Def="0.2"/>
+  </C>
+  <C Type="Monoflop" U="mf-1" Title="Scene Pulse">
+    <Co K="Q" U="mf-q"/>
+    <Co K="Time" U="mf-t" Def="0.1"/>
+  </C>"#
+        ));
+        assert!(warnings_containing(&results, "long-click").is_empty());
+    }
+
+    #[test]
+    fn test_validate_mood_pulses_respect_configured_mixing_duration() {
+        for (setting, pulse, warns) in [
+            ("", "0.5", false),
+            (r#"Def="0""#, "5", false),
+            (r#"Def="2""#, "1", false),
+            (r#"Def="0.1""#, "0.2", true),
+        ] {
+            let results = validate_xml(&format!(
+                r#"<C Type="LightController2" U="lc" Title="Light">
+                    <Co K="Sel1" U="sel"><In Input="pulse"/></Co>
+                    <Co K="SceneMixTime" U="mix" {setting}/>
+                </C>
+                <C Type="Monoflop" U="mf" Title="Scene Pulse">
+                    <Co K="Q" U="pulse"/>
+                    <Co K="Time" U="time" Def="{pulse}"/>
+                </C>"#
+            ));
+            assert_eq!(
+                !warnings_containing(&results, "long-click").is_empty(),
+                warns,
+                "{results:?}"
+            );
+        }
+    }
+
+    #[test]
+    fn test_validate_mood_pulses_with_dynamic_durations_are_quiet() {
+        for (mix_wire, pulse_wire) in [
+            (r#"<In Input="dynamic"/>"#, ""),
+            ("", r#"<In Input="dynamic"/>"#),
+        ] {
+            let results = validate_xml(&format!(
+                r#"<C Type="LightController2" U="lc" Title="Light">
+                    <Co K="Sel1" U="sel"><In Input="pulse"/></Co>
+                    <Co K="SceneMixTime" U="mix" Def="1">{mix_wire}</Co>
+                </C>
+                <C Type="Monoflop" U="mf" Title="Scene Pulse">
+                    <Co K="Q" U="pulse"/>
+                    <Co K="Time" U="time" Def="2">{pulse_wire}</Co>
+                </C>"#
+            ));
+            assert!(
+                warnings_containing(&results, "long-click").is_empty(),
+                "{results:?}"
+            );
+        }
+    }
+
+    #[test]
+    fn test_validate_default_pulse_into_mood_input() {
+        // No Def: Loxone defaults are 1 s (EdgeDetection) and 2 s (Monoflop).
+        let results = validate_xml(&format!(
+            r#"{PULSE_LC2}
+  <C Type="EdgeDetection" U="ed-1" Title="Scene Edge">
+    <Co K="RisingEdge" U="ed-rise"/>
+    <Co K="PulseTime" U="ed-pt"/>
+  </C>
+  <C Type="Monoflop" U="mf-1" Title="Scene Pulse">
+    <Co K="Q" U="mf-q"/>
+    <Co K="Time" U="mf-t"/>
+  </C>"#
+        ));
+        let w = warnings_containing(&results, "long-click");
+        assert_eq!(w.len(), 2, "{results:?}");
+        assert!(w.iter().any(|m| m.contains("fed a 1 s pulse")));
+        assert!(w.iter().any(|m| m.contains("fed a 2 s pulse")));
+    }
+
+    const REF_TARGETS: &str = r#"
+  <C Type="VirtualIn" U="vi-1" Title="Unlock Webhook" IName="VI1"/>
+  <C Type="Memory" U="mem-1" Title="Night Flag"/>
+  <C Type="InputRef" U="ref-vi" Title="Unlock Webhook" Ref="vi-1">
+    <Co K="AQ" U="ref-vi-aq"/>
+    <Co K="Q" U="ref-vi-q"/>
+  </C>
+  <C Type="InputRef" U="ref-mem" Title="Night Flag" Ref="mem-1">
+    <Co K="AQ" U="ref-mem-aq"/>
+    <Co K="Q" U="ref-mem-q"/>
+  </C>"#;
+
+    #[test]
+    fn test_validate_reference_wired_from_q() {
+        let results = validate_xml(&format!(
+            r#"{REF_TARGETS}
+  <C Type="Door" U="door-1" Title="Front Door">
+    <Co K="Open" U="door-open"><In Input="ref-vi-q"/></Co>
+    <Co K="Close" U="door-close"><In Input="ref-mem-q"/></Co>
+    <Co K="Lock" U="door-lock"><In Input="ref-vi-aq"/></Co>
+  </C>"#
+        ));
+        let w = warnings_containing(&results, "wired from Q");
+        assert_eq!(w.len(), 1, "{results:?}");
+        assert!(w[0].contains("Door 'Front Door'.Open"));
+        assert!(w[0].contains("VirtualIn 'Unlock Webhook'"));
+    }
+
+    #[test]
+    fn test_validate_reference_q_into_notification_is_quiet() {
+        let results = validate_xml(&format!(
+            r#"{REF_TARGETS}
+  <C Type="OutputRefLM" U="lm-1" Title="Notify" Ref="caller-1">
+    <Co K="AI" U="lm-ai"><In Input="ref-vi-q"/></Co>
+  </C>"#
+        ));
+        assert!(warnings_containing(&results, "wired from Q").is_empty());
+        assert!(
+            results
+                .iter()
+                .any(|r| r.starts_with('✓') && r.contains("instead of AQ"))
+        );
+    }
+
+    #[test]
+    fn test_validate_reference_q_managed_links_are_quiet() {
+        let results = validate_xml(&format!(
+            r#"{REF_TARGETS}
+              <C Type="PresenceDetector" U="presence" Title="Presence">
+                <Co K="DeviceActivate" U="activate"><In Input="ref-vi-q" FLG="1"/></Co>
+              </C>"#
+        ));
+        assert!(
+            warnings_containing(&results, "wired from Q").is_empty(),
+            "{results:?}"
+        );
+    }
+
     // ── User CRUD tests ──────────────────────────────────────────────────
 
     #[test]
@@ -1484,6 +2326,50 @@ mod tests {
         let output = editor.to_bytes().unwrap();
         let output_str = String::from_utf8(output).unwrap();
         assert!(output_str.contains("\r\n"));
+    }
+
+    #[test]
+    fn test_crlf_inside_attribute_does_not_make_lf_file_crlf() {
+        // An LF file whose only CRLF sits inside an attribute value (AutoPilot rule JSON).
+        let xml_str = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<ControlList Version=\"1\">\n\t<C U=\"a\" APC=\"{&quot;x&quot;:1,\r\n&quot;y&quot;:2}\"/>\n</ControlList>\n";
+        let editor = ConfigEditor::load(xml_str.as_bytes()).unwrap();
+        assert!(!editor.had_crlf);
+        let output_str = String::from_utf8(editor.to_bytes().unwrap()).unwrap();
+        assert!(output_str.starts_with(
+            "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<ControlList Version=\"1\">\n\t<C "
+        ));
+        assert!(output_str.ends_with("/>\n</ControlList>\n"));
+        assert!(output_str.contains("APC=\"{&quot;x&quot;:1,\r\n&quot;y&quot;:2}\""));
+        assert_eq!(
+            ConfigEditor::load(output_str.as_bytes())
+                .unwrap()
+                .to_bytes()
+                .unwrap(),
+            output_str.as_bytes(),
+            "a second save preserves both newline styles"
+        );
+    }
+
+    #[test]
+    fn test_crlf_detection_without_a_declaration_skips_attribute_newlines() {
+        for (xml, expected_crlf) in [
+            (
+                "<ControlList APC='one\r\ntwo'>\n<C/>\n</ControlList>\n",
+                false,
+            ),
+            (
+                "<ControlList APC='one\ntwo'>\r\n<C/>\r\n</ControlList>\r\n",
+                true,
+            ),
+            ("<ControlList APC='one\r\ntwo'/>", false),
+            ("<!-- one\r\ntwo -->\n<ControlList/>", false),
+        ] {
+            assert_eq!(
+                ConfigEditor::load(xml.as_bytes()).unwrap().had_crlf,
+                expected_crlf,
+                "{xml:?}"
+            );
+        }
     }
 
     // ── Wire edge cases ──────────────────────────────────────────────────
@@ -1875,5 +2761,131 @@ mod tests {
     fn test_no_digit_attrs_is_noop() {
         let editor = ConfigEditor::load(SAMPLE_XML).unwrap();
         assert!(editor.digit_attr_renames.is_empty());
+    }
+
+    // ── resolve_wiring: InputRef twins ──────────────────────────────────
+
+    /// A page with InputRefs (`(object uuid, AQ uuid, Q uuid)`, all
+    /// mirroring `vi-1`) and one consumer block wired to each ref's AQ.
+    fn page_with_refs(refs: &[(&str, &str, &str)]) -> Vec<u8> {
+        let mut xml = String::from(
+            "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<ControlList Version=\"267\">\n\
+             <C Type=\"VirtualIn\" U=\"vi-1\" Title=\"Taster\"><Co K=\"AQ\" U=\"vi-1-aq\"/></C>\n\
+             <C Type=\"Page\" U=\"page-1\" Title=\"Seite\">\n",
+        );
+        for (i, (obj, aq, q)) in refs.iter().enumerate() {
+            xml.push_str(&format!(
+                "<C Type=\"InputRef\" U=\"{obj}\" Ref=\"vi-1\">\
+                 <Co K=\"AI\" U=\"{obj}-ai\"><In Input=\"vi-1-aq\"/></Co>\
+                 <Co K=\"AQ\" U=\"{aq}\"/><Co K=\"Q\" U=\"{q}\"/></C>\n\
+                 <C Type=\"Memory\" U=\"mem-{i}\" Title=\"Halter {i}\">\
+                 <Co K=\"Input\" U=\"mem-{i}-in\"><In Input=\"{aq}\"/></Co></C>\n"
+            ));
+        }
+        xml.push_str("</C>\n</ControlList>");
+        xml.into_bytes()
+    }
+
+    /// Connector UUIDs that occur more than once.
+    fn duplicate_connector_uuids(xml: &[u8]) -> Vec<String> {
+        let text = std::str::from_utf8(xml).unwrap();
+        let mut seen = std::collections::HashMap::<&str, usize>::new();
+        for part in text.split("<Co ").skip(1) {
+            if let Some(at) = part.find(" U=\"") {
+                let rest = &part[at + 4..];
+                *seen.entry(&rest[..rest.find('"').unwrap()]).or_default() += 1;
+            }
+        }
+        seen.into_iter()
+            .filter(|&(_, n)| n > 1)
+            .map(|(u, _)| u.to_string())
+            .collect()
+    }
+
+    #[test]
+    fn test_resolve_wiring_keeps_twin_refs_apart() {
+        // Two mirrors of one target, unchanged since the download: nothing
+        // is stale. Keyed by target alone, both twins collapsed onto the
+        // last one's ports — duplicate connector UUIDs, which Loxone
+        // Config re-mints on its next open.
+        let refs = [("ref-a", "a-aq", "a-q"), ("ref-b", "b-aq", "b-q")];
+        let xml = page_with_refs(&refs);
+        let mut editor = ConfigEditor::load(&xml).unwrap();
+        assert_eq!(editor.resolve_wiring(&xml).unwrap(), 0);
+        let out = editor.to_bytes().unwrap();
+        assert!(duplicate_connector_uuids(&out).is_empty());
+        let text = std::str::from_utf8(&out).unwrap();
+        assert!(text.contains("<In Input=\"a-aq\""));
+        assert!(text.contains("<In Input=\"b-aq\""));
+    }
+
+    #[test]
+    fn test_resolve_wiring_remaps_regenerated_ports_per_ref() {
+        // Loxone Config regenerated both twins' ports: each maps to its
+        // own InputRef's new UUIDs.
+        let ours = page_with_refs(&[("ref-a", "a-aq", "a-q"), ("ref-b", "b-aq", "b-q")]);
+        let live = page_with_refs(&[("ref-a", "a-aq2", "a-q2"), ("ref-b", "b-aq2", "b-q2")]);
+        let mut editor = ConfigEditor::load(&ours).unwrap();
+        assert_eq!(editor.resolve_wiring(&live).unwrap(), 2);
+        let out = editor.to_bytes().unwrap();
+        assert!(duplicate_connector_uuids(&out).is_empty());
+        let text = std::str::from_utf8(&out).unwrap();
+        assert!(text.contains("<In Input=\"a-aq2\""));
+        assert!(text.contains("<In Input=\"b-aq2\""));
+        assert!(text.contains("U=\"b-q2\""));
+        assert_eq!(editor.resolve_wiring(&live).unwrap(), 0);
+        assert_eq!(editor.to_bytes().unwrap(), out);
+    }
+
+    #[test]
+    fn test_resolve_wiring_target_fallback_only_when_unique() {
+        // The InputRef's own UUID changed too: a single mirror of the
+        // target still resolves through `Ref=` ...
+        let ours = page_with_refs(&[("ref-old", "a-aq", "a-q")]);
+        let live = page_with_refs(&[("ref-new", "n-aq", "n-q")]);
+        let mut editor = ConfigEditor::load(&ours).unwrap();
+        assert_eq!(editor.resolve_wiring(&live).unwrap(), 1);
+        let out = editor.to_bytes().unwrap();
+        assert!(
+            std::str::from_utf8(&out)
+                .unwrap()
+                .contains("<In Input=\"n-aq\"")
+        );
+
+        // ... but with several mirrors there is no telling which is which:
+        // left alone rather than guessed.
+        let ours = page_with_refs(&[("ref-x", "x-aq", "x-q"), ("ref-y", "y-aq", "y-q")]);
+        let mut editor = ConfigEditor::load(&ours).unwrap();
+        assert_eq!(editor.resolve_wiring(&live).unwrap(), 0);
+    }
+
+    #[test]
+    fn test_resolve_wiring_keeps_ports_when_live_target_is_ambiguous() {
+        let ours = page_with_refs(&[("ref-old", "old-aq", "old-q")]);
+        let live = page_with_refs(&[("ref-a", "a-aq", "a-q"), ("ref-b", "b-aq", "b-q")]);
+        let mut editor = ConfigEditor::load(&ours).unwrap();
+        let before = editor.to_bytes().unwrap();
+        assert_eq!(editor.resolve_wiring(&live).unwrap(), 0);
+        assert_eq!(editor.to_bytes().unwrap(), before);
+    }
+
+    #[test]
+    fn test_resolve_wiring_does_not_reuse_another_connectors_uuid() {
+        let ours = page_with_refs(&[("ref-a", "a-aq", "a-q")]);
+        let live = page_with_refs(&[("ref-a", "mem-0-in", "a-q")]);
+        let mut editor = ConfigEditor::load(&ours).unwrap();
+        let before = editor.to_bytes().unwrap();
+        assert_eq!(editor.resolve_wiring(&live).unwrap(), 0);
+        assert_eq!(editor.to_bytes().unwrap(), before);
+        assert!(duplicate_connector_uuids(&before).is_empty());
+    }
+
+    #[test]
+    fn test_resolve_wiring_rejects_malformed_live_xml_without_mutation() {
+        let ours = page_with_refs(&[("ref-a", "a-aq", "a-q")]);
+        let mut editor = ConfigEditor::load(&ours).unwrap();
+        let before = editor.to_bytes().unwrap();
+        assert!(editor.resolve_wiring(b"<ControlList><C").is_err());
+        assert_eq!(editor.to_bytes().unwrap(), before);
     }
 }
