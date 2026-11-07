@@ -124,7 +124,10 @@ impl<'a> Document<'a> {
                         let value = attr.unescape_value()?.into_owned();
                         attrs.insert(key, value);
                     }
-                    if let Some(id) = attrs.get("U")
+                    // Only definitions own identities; other U attributes include
+                    // boolean flags (MO/AF/FS) and references to definitions (SObj).
+                    if matches!(e.name().as_ref(), b"C" | b"Co")
+                        && let Some(id) = attrs.get("U")
                         && (id.is_empty() || !ids.insert(identity(id)))
                     {
                         bail!("Empty or duplicate UUID {id:?} in config XML.");
@@ -735,6 +738,47 @@ mod tests {
         let mut truncated = overlay(A, &control(A, "App"));
         truncated.values_mut().next().unwrap().pop();
         assert!(merge_overlays(&xml, &truncated).is_err());
+    }
+
+    #[test]
+    fn native_flags_and_references_preserve_upload_and_overlay_edits() {
+        for metadata in [
+            r#"<MO U="true"/><AF U="true"/><FS U="true"/>"#.to_string(),
+            format!(r#"<SObj U="{A}"/><SObj U="{A}"/><SObj U="{RULE}"/>"#),
+        ] {
+            let before = format!(
+                r#"<Root>{metadata}<C Type="DayTimer" U="{A}" Title="before"><Co U="{RULE}" K="I"/></C></Root>"#
+            );
+            let edited = before.replace("Title=\"before\"", "Title=\"edited\"");
+            let prepared = prepare_with_base(
+                None,
+                edited.as_bytes(),
+                snapshot(before.as_bytes(), BTreeMap::new()),
+            )
+            .unwrap();
+            assert_eq!(prepared.xml, edited.as_bytes());
+
+            let fragment =
+                format!(r#"<C Type="DayTimer" U="{A}" Title="edited"><Co U="{RULE}" K="I"/></C>"#);
+            assert_eq!(
+                merge_overlays(before.as_bytes(), &overlay(A, &fragment)).unwrap(),
+                edited.as_bytes()
+            );
+        }
+    }
+
+    #[test]
+    fn empty_control_and_connector_uuids_block_upload_preparation() {
+        let base = config("before", "keep");
+        for invalid in [
+            r#"<Root><C Type="DayTimer" U=""/></Root>"#.to_string(),
+            format!(r#"<Root><C Type="DayTimer" U="{A}"><Co K="I" U=""/></C></Root>"#),
+        ] {
+            let error =
+                prepare_with_base(None, invalid.as_bytes(), snapshot(&base, BTreeMap::new()))
+                    .unwrap_err();
+            assert!(error.to_string().contains("Empty or duplicate UUID"));
+        }
     }
 
     #[test]
