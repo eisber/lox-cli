@@ -1170,6 +1170,7 @@ mod tests {
             no_header: false,
             non_interactive: true,
             trace_id: None,
+            telemetry: None,
         }
     }
 

@@ -15,4 +15,15 @@ pub struct RunContext {
     #[allow(dead_code)]
     pub non_interactive: bool,
     pub trace_id: Option<String>,
+    pub telemetry: Option<std::cell::RefCell<crate::telemetry::Telemetry>>,
+}
+
+impl RunContext {
+    pub fn track_telemetry(&self, track: impl FnOnce(&mut crate::telemetry::Telemetry)) {
+        if !self.dry_run
+            && let Some(telemetry) = &self.telemetry
+        {
+            track(&mut telemetry.borrow_mut());
+        }
+    }
 }

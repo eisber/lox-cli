@@ -22,7 +22,7 @@ mod ws;
 mod wsx;
 
 use anyhow::{Context, Result, bail};
-use clap::{ArgAction, CommandFactory, Parser, Subcommand, ValueEnum};
+use clap::{ArgAction, CommandFactory, FromArgMatches, Parser, Subcommand, ValueEnum};
 use clap_complete::{Shell, generate};
 use dirs::home_dir;
 use serde_json::Value;
@@ -1246,31 +1246,23 @@ fn categorize_error(e: &anyhow::Error) -> &'static str {
 }
 
 /// Extract a privacy-safe command name from the CLI invocation (no arguments).
-fn command_name(cmd: &Cmd) -> String {
-    match cmd {
-        Cmd::Setup { .. } => "setup".into(),
-        Cmd::Cache { .. } => "cache".into(),
-        Cmd::Token { .. } => "token".into(),
-        Cmd::Telemetry { .. } => "telemetry".into(),
-        Cmd::Config { .. } => "config".into(),
-        Cmd::Ctx { .. } => "ctx".into(),
-        Cmd::Completions { .. } => "completions".into(),
-        Cmd::Schema { .. } => "schema".into(),
-        Cmd::Sim { .. } => "sim".into(),
-        Cmd::Blocks { .. } => "blocks".into(),
-        Cmd::Docs { .. } => "docs".into(),
-        Cmd::Color { .. } => "color".into(),
-        Cmd::Live { .. } => "live".into(),
-        Cmd::Stats { .. } => "stats".into(),
+fn command_name(mut matches: &clap::ArgMatches) -> String {
+    let mut names = Vec::new();
+    while let Some((name, subcommand)) = matches.subcommand() {
+        names.push(name);
+        matches = subcommand;
     }
+    names.join(" ")
 }
 
 // ── Main ──────────────────────────────────────────────────────────────────────
 
 fn main() {
-    let cli = Cli::parse();
+    let matches = Cli::command().get_matches();
+    let command = command_name(&matches);
+    let cli = Cli::from_arg_matches(&matches).unwrap_or_else(|error| error.exit());
     let json = cli.output == OutputFormat::Json || cli.json_flag;
-    if let Err(e) = run(cli) {
+    if let Err(e) = run(cli, &command) {
         if json {
             let mut envelope = serde_json::json!({
                 "ok": false,
@@ -1294,16 +1286,16 @@ fn main() {
     }
 }
 
-fn run(cli: Cli) -> Result<()> {
-    dry_run::dispatch(cli, run_command)
+fn run(cli: Cli, command: &str) -> Result<()> {
+    dry_run::dispatch(cli, |cli| run_command(cli, command))
 }
 
-fn run_command(cli: Cli) -> Result<()> {
+fn run_command(cli: Cli, command: &str) -> Result<()> {
     // Set context override before any Config::load() calls
     config::set_ctx_override(cli.context.clone());
 
     client::set_verbose(cli.verbose);
-    let ctx = commands::RunContext {
+    let mut ctx = commands::RunContext {
         json: cli.output == OutputFormat::Json || cli.json_flag,
         quiet: cli.quiet,
         csv: cli.output == OutputFormat::Csv,
@@ -1311,6 +1303,7 @@ fn run_command(cli: Cli) -> Result<()> {
         no_header: cli.no_header,
         non_interactive: cli.non_interactive,
         trace_id: cli.trace_id.clone(),
+        telemetry: None,
     };
 
     if let Some(tid) = &ctx.trace_id
@@ -1326,17 +1319,24 @@ fn run_command(cli: Cli) -> Result<()> {
     }
 
     // Telemetry creates local markers/session files as well as sending events.
-    if !ctx.dry_run {
+    if !ctx.dry_run
+        && !matches!(
+            &cli.cmd,
+            Cmd::Telemetry {
+                action: TelemetryCmd::Disable
+            }
+        )
+    {
         if !ctx.quiet {
             telemetry::maybe_show_first_run_notice();
         }
         let telem = telemetry::Telemetry::from_config(
             config::Config::load().ok().and_then(|c| c.telemetry),
         );
-        telem.track_command(&command_name(&cli.cmd));
+        ctx.telemetry = Some(std::cell::RefCell::new(telem));
     }
 
-    match cli.cmd {
+    let result = match cli.cmd {
         // ── Configuration commands ────────────────────────────────────
         Cmd::Setup { action } => commands::config_cmd::cmd_setup(&ctx, action),
         Cmd::Cache { action } => commands::config_cmd::cmd_cache(&ctx, action),
@@ -1363,7 +1363,11 @@ fn run_command(cli: Cli) -> Result<()> {
         Cmd::Color { action } => commands::color_cmd::cmd_color(&ctx, action),
         Cmd::Live { action } => commands::live_cmd::cmd_live(&ctx, action),
         Cmd::Stats { action } => commands::stats_cmd::cmd_stats(&ctx, action),
-    }
+    };
+    ctx.track_telemetry(|telemetry| {
+        telemetry.track_command(command, result.as_ref().err().map(categorize_error));
+    });
+    result
 }
 
 // ── Schema introspection ─────────────────────────────────────────────────────
@@ -1902,6 +1906,40 @@ fn find_docs_dir() -> Result<std::path::PathBuf> {
 mod tests {
     use super::*;
     use client::is_uuid;
+
+    #[test]
+    fn telemetry_command_names_exclude_private_arguments_and_normalize_aliases() {
+        run_with_large_stack(|| {
+            for (args, expected) in [
+                (
+                    vec![
+                        "lox",
+                        "--ctx",
+                        "private-context",
+                        "config",
+                        "validate",
+                        "private.Loxone",
+                    ],
+                    "config validate",
+                ),
+                (vec!["lox", "config", "list"], "config ls"),
+                (
+                    vec![
+                        "lox",
+                        "config",
+                        "room",
+                        "add",
+                        "private.Loxone",
+                        "Private Room",
+                    ],
+                    "config room add",
+                ),
+            ] {
+                let matches = Cli::command().try_get_matches_from(args).unwrap();
+                assert_eq!(command_name(&matches), expected);
+            }
+        });
+    }
 
     fn run_with_large_stack<F: FnOnce() + Send + 'static>(f: F) {
         std::thread::Builder::new()

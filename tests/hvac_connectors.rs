@@ -2,6 +2,7 @@ use std::process::Command;
 
 fn run(args: &[&str]) {
     let output = Command::new(assert_cmd::cargo::cargo_bin!("lox"))
+        .env("LOX_TELEMETRY", "0")
         .args(args)
         .output()
         .expect("run lox");
@@ -56,6 +57,7 @@ fn newly_created_room_controller_exposes_and_wires_third_source_ports() {
         );
     }
     let output = Command::new(assert_cmd::cargo::cargo_bin!("lox"))
+        .env("LOX_TELEMETRY", "0")
         .args(["config", "connectors", path, "Controller", "-o", "json"])
         .output()
         .unwrap();
