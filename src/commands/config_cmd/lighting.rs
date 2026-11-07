@@ -122,6 +122,16 @@ mod tests {
 
     #[test]
     fn lighting_cli_preserves_dispatch_and_room_guards() {
+        // Parsing the full CLI exceeds the default test-thread stack in debug builds.
+        std::thread::Builder::new()
+            .stack_size(8 * 1024 * 1024)
+            .spawn(lighting_cli_dispatch)
+            .unwrap()
+            .join()
+            .unwrap();
+    }
+
+    fn lighting_cli_dispatch() {
         let cli = crate::Cli::try_parse_from([
             "lox",
             "config",

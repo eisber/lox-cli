@@ -13,6 +13,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `lox config user-grant` / `user-revoke` edit a user's (or, with `--group`, a user group's) object permissions (`<PH>`/`<PRM>`) in a `.Loxone` file — e.g. to let an API user call `/dev/sps/io/<input>/...` without HTTP 403. Idempotent; permission edits preserve unrelated content and update the Document save stamp.
 - `lox config user-perms` lists direct permission entries (not effective inherited access); `lox config users` shows a direct permission count and, with `-o json`, each user's `uuid` and resolved `permissions`.
 - `--grant <USER>` on `lox config add --type virtual-input` and `lox config add-virtual-in`.
+- Config deployment compiles `LoxAPP3.json` and `permissions.bin` for template-verified additions of visualized `PushButton2Sel`, `State` and `PButtonT` controls and linked energy meters, for renames, `linkC` links and removal of catalogued controls, energy-manager load nodes and intercom action labels. Edits outside the app (unvisualized, unlinked blocks absent from the catalogue), input wiring of compiled control types, status texts, light moods, intercom video settings and user credentials deploy without sidecar changes. Untouched entries and records stay byte-for-byte, and every other sidecar-affecting edit is still rejected.
+- `lox config repack` compiles a deployable backup ZIP offline from a native backup and edited XML.
 
 ### Fixed
 - Reject unsupported `--dry-run` operations before startup or mutation, even with `--force` or `--write`; retain supported planners and audited read-only commands without cache or telemetry writes.
