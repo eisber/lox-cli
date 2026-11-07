@@ -107,7 +107,7 @@ impl ConfigEditor {
         out
     }
 
-    fn xml_tag_end(bytes: &[u8], start: usize) -> Option<usize> {
+    pub(super) fn xml_tag_end(bytes: &[u8], start: usize) -> Option<usize> {
         let mut quote = None;
         for (i, &byte) in bytes.iter().enumerate().skip(start + 1) {
             if let Some(delimiter) = quote {
