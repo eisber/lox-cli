@@ -55,6 +55,19 @@ subcmd_help!(help_config_users, "config", "users");
 subcmd_help!(help_config_devices, "config", "devices");
 subcmd_help!(help_config_wires, "config", "wires");
 subcmd_help!(help_config_diff, "config", "diff");
+
+#[test]
+fn config_add_help_describes_block_type_discovery() {
+    lox()
+        .args(["config", "add", "--help"])
+        .assert()
+        .success()
+        .stdout(predicate::str::contains("Friendly aliases"))
+        .stdout(predicate::str::contains("lox blocks list"))
+        .stdout(predicate::str::contains("And/Or/Not/Xor"))
+        .stdout(predicate::str::contains("lox-cli blocks list").not());
+}
+
 subcmd_help!(help_ctx, "ctx");
 subcmd_help!(help_ctx_add, "ctx", "add");
 subcmd_help!(help_ctx_use, "ctx", "use");
