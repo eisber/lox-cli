@@ -23,9 +23,11 @@ Miniserver's copy, so the edits are silently lost. Bump both values whenever you
 write an edited file.
 
 ### Formatting
-- UTF-8 BOM, CRLF line endings, but newlines *inside* attribute values (note
-  text, AutoPilot JSON) stay as they were (bare LF / CRLF). See the write-back
-  code in `src/config_edit/write.rs`.
+- Loxone's format uses a UTF-8 BOM and CRLF line endings, while attribute values
+  (note text, AutoPilot JSON) can contain bare LF or CRLF. Preserve those
+  attribute newlines independently of structural line endings. The write-back
+  code is in `src/config_edit/write.rs`; versions that convert every LF to CRLF
+  also change bare LF inside attributes, so check mixed-newline round-trips.
 - Config 17.2 shows **"INVALID FORMULA"** in the block's tooltip on formulas that
   work, including long-running ones. Judge a formula by its Liveview output, not
   by that label. Keeping constants decimal-free (`875/100` rather than `8.75`)
@@ -67,9 +69,11 @@ Object permissions live inside the user (or user group):
 ```
 
 An HTTP call such as `/dev/sps/io/<virtual input>/pulse` by a non-admin user
-needs a `PRM` entry for that input. Without one the Miniserver answers
-`Code="403"` (forbidden); a wrong password gives `401`. So a new virtual input
-for a webhook needs a permission entry for the webhook's user.
+needs effective permission for that input. If no inherited group/room/category
+permission grants access, a direct `PRM` entry is one way to grant it; explicit
+denies still take precedence. Without effective access the Miniserver answers
+`Code="403"` (forbidden); a wrong password gives `401`. A webhook user that
+otherwise lacks access therefore needs permission for a new virtual input.
 
 ---
 
@@ -83,17 +87,23 @@ XML connector names vs. the abbreviations in `docs/kb/lighting-controller.md`:
 | `Presence` | P | Presence: mood stays on while 1; after manual operation, off after Met |
 | `EnMove` | DisP | Disable motion/presence when 1 (despite the name) |
 | `Reset` | Off | Pulse switches off. Does **not** start the Pto pause |
-| `Sel1`…`Sel8` | T5/1…8 | Select mood ID x |
+| `Sel1`…`Sel8` | T5/1…8 | Select the mood assigned to that input, not necessarily mood ID x |
 | `Brightness` / `BrightnessLimit` | Br / Brt | Lux input / threshold |
-| `MoveTimeout` | Moet | Motion extend time |
-| `MoveOn` | Met | Manual extend time. Lights go off after the shorter of Met and Moet |
+| `MoveOn` | Moet | Motion extend time. For motion, the shorter of Met and Moet applies |
+| `MoveTimeout` | Met | Manual operation extend time |
 | `MoveIgnore` | Pto | Motion pause after a manual switch-off |
 
-- **Mood pulses must be short.** A pulse into `Sel<x>` selects mood x, but a
-  pulse longer than about 0.2 s counts as a long-click and **mixes** the mood in
-  (logged as e.g. `"Dim All,Dim Wall"`) instead of switching to it. Use
-  `PulseTime` ≤ 0.2 on edge-detection blocks feeding these inputs. Further
-  pulses within 30 s step to the next mood; that is normal T5 behaviour.
+- **Mood pulses should be short.** In the observed project, pulses longer than
+  about 0.2 s into `Sel<x>` caused long-click behaviour and **mixed** the assigned
+  mood in (logged as e.g. `"Dim All,Dim Wall"`) instead of switching to it.
+  `PulseTime` ≤ 0.2 was a safe choice on edge-detection blocks feeding these
+  inputs, not a universal mixing threshold: `SceneMixTime` (Mmd, documented
+  default 1 s) and the input's mood/presence settings control the action.
+  Further pulses within 30 s step to the next mood; that is normal T5 behaviour.
+- The `MoveOn` / `MoveTimeout` mapping above follows
+  `docs/schemas/loxone-block-types-full.json`; the similar XML names are easy to
+  confuse. `ScMv` mood IDs below are stored XML IDs, not the public API's
+  built-in mood numbers (0 = Off, 99 = All on).
 - **Motion mood per operating mode** is the child
   `<LSConfig OpM="-7,-10,-8,778" ScMv="3,3,3,777" ScAc="0,0,0,0"/>`: `OpM` lists
   operating-mode IDs (negative IDs are the project's own modes), `ScMv` the mood
@@ -103,7 +113,7 @@ XML connector names vs. the abbreviations in `docs/kb/lighting-controller.md`:
   stops working at night".
 - Mood IDs: `777` is the built-in all-on mood, `778` is Off.
 - A presence-sensor pulse into `Presence` plus a manual mood change makes the
-  lights switch off after `MoveOn` (Met). That's a common cause of "lights go
+  lights switch off after `MoveTimeout` (Met). That's a common cause of "lights go
   off by themselves".
 
 ---

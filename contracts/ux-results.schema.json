@@ -1,0 +1,44 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "ux-results.schema.json",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "contract_sha256", "application", "block_type", "control_type", "run", "cases"],
+  "properties": {
+    "schema_version": {"const": 1, "type": "integer"},
+    "contract_sha256": {"$ref": "ux-contract.schema.json#/$defs/sha256"},
+    "application": {"$ref": "ux-contract.schema.json#/$defs/application"},
+    "block_type": {"$ref": "ux-contract.schema.json#/$defs/text"},
+    "control_type": {"type": "integer", "minimum": 0},
+    "run": {"$ref": "#/$defs/run"},
+    "cases": {"type": "array", "items": {"$ref": "#/$defs/observation"}}
+  },
+  "$defs": {
+    "run": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "runner", "started_at", "finished_at", "application", "synthetic", "record"],
+      "properties": {
+        "id": {"$ref": "ux-contract.schema.json#/$defs/text"},
+        "runner": {"$ref": "ux-contract.schema.json#/$defs/text"},
+        "started_at": {"$ref": "ux-contract.schema.json#/$defs/text"},
+        "finished_at": {"$ref": "ux-contract.schema.json#/$defs/text"},
+        "application": {"$ref": "ux-contract.schema.json#/$defs/application"},
+        "synthetic": {"type": "boolean"},
+        "record": {"$ref": "ux-contract.schema.json#/$defs/artifact"}
+      }
+    },
+    "observation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "outcome", "evidence_kind", "actual", "artifacts"],
+      "properties": {
+        "id": {"$ref": "ux-contract.schema.json#/$defs/text"},
+        "outcome": {"enum": ["pass", "fail", "not_run"]},
+        "evidence_kind": {"enum": ["implementation", "unit_test", "gui_oracle"]},
+        "actual": {"$ref": "ux-contract.schema.json#/$defs/text"},
+        "artifacts": {"$ref": "ux-contract.schema.json#/$defs/artifacts"}
+      }
+    }
+  }
+}

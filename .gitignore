@@ -14,6 +14,8 @@
 sps_*.zip
 # Exception: eval test fixture (no PII)
 !tests/eval/fixture.Loxone
+# Independently authored, credential-free UX pilot fixture
+!tests/ux/energy-manager2/synthetic.Loxone
 # Exception: golden configs tracked via git-lfs
 !tests/eval/golden/configs/*.Loxone
 !tests/eval/golden/configs/*.loxone
@@ -36,3 +38,11 @@ mempalace.yaml
 node_modules/
 package-lock.json
 __pycache__/
+
+# Local proprietary binaries, recovered code, and analysis tool installations
+.reverse-engineering/
+
+# Beads / Dolt files (added by bd init)
+.beads-credential-key
+.beads/proxieddb/
+*.gate.lock*

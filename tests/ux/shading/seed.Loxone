@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ControlList LxAV="84" Version="267" NextObj="3">
+  <C Type="Document" V="175" U="71000001-0001-0001-ffff000000000001" Title="Offline Shading Preparation" WF="16384"/>
+  <C Type="Place" V="175" U="71000002-0002-0001-ffff000000000001" Title="Shading Lab" WF="16384"/>
+  <C Type="Page" V="175" U="71000003-0003-0001-ffff000000000001" Title="Shading Lab" WF="16384"/>
+</ControlList>

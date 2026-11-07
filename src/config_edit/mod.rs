@@ -14,9 +14,17 @@
 
 mod blocks;
 mod describe;
+pub mod energy;
+#[cfg(test)]
+mod energy_tests;
+pub mod icons;
 mod layout;
+pub mod lighting;
+#[cfg(test)]
+mod lighting_tests;
 mod properties;
 mod rooms;
+pub mod schema;
 mod selector;
 mod template;
 mod validation;
@@ -68,6 +76,15 @@ pub struct DescribeConnectorEntry {
     pub wired: bool,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub default: Option<String>,
+}
+
+/// Value-free storage shapes observed in a configuration, grouped by element type.
+#[derive(Debug, serde::Serialize)]
+pub struct ConfigSurfaceEntry {
+    pub element_type: String,
+    pub occurrences: usize,
+    pub attributes: Vec<String>,
+    pub storage_paths: Vec<String>,
 }
 
 /// A light scene / "mood" defined on a LightController2.

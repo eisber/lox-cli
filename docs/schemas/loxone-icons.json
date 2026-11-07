@@ -1,0 +1,2501 @@
+{
+  "schema_version": 1,
+  "catalog": {
+    "version": "20261009",
+    "archive_sha256": "11656e55212ffbf0153f9075ee21da28da04f8c23d5d5e6efe945f4782391df4"
+  },
+  "icons": [
+    {
+      "native_id": "00000001-00ff-0000-0000000000000000",
+      "filename": "8-ball.svg"
+    },
+    {
+      "native_id": "00000002-00ff-0000-0000000000000000",
+      "filename": "aal-alarm-2.svg"
+    },
+    {
+      "native_id": "00000003-00ff-0000-0000000000000000",
+      "filename": "aal-alarm.svg"
+    },
+    {
+      "native_id": "00000004-00ff-0000-0000000000000000",
+      "filename": "add-1.svg"
+    },
+    {
+      "native_id": "00000005-00ff-0000-0000000000000000",
+      "filename": "add-circle-1.svg"
+    },
+    {
+      "native_id": "00000006-00ff-0000-0000000000000000",
+      "filename": "air-conditioner.svg"
+    },
+    {
+      "native_id": "00000007-00ff-0000-0000000000000000",
+      "filename": "air-heater.svg"
+    },
+    {
+      "native_id": "00000008-00ff-0000-0000000000000000",
+      "filename": "alarm-1.svg"
+    },
+    {
+      "native_id": "00000009-00ff-0000-0000000000000000",
+      "filename": "alarm-2.svg"
+    },
+    {
+      "native_id": "0000000a-00ff-0000-0000000000000000",
+      "filename": "alarm-afci.svg"
+    },
+    {
+      "native_id": "0000000b-00ff-0000-0000000000000000",
+      "filename": "alarm-clock.svg"
+    },
+    {
+      "native_id": "0000000c-00ff-0000-0000000000000000",
+      "filename": "alarm-fire.svg"
+    },
+    {
+      "native_id": "0000000d-00ff-0000-0000000000000000",
+      "filename": "alarm-water.svg"
+    },
+    {
+      "native_id": "0000000e-00ff-0000-0000000000000000",
+      "filename": "arrow-down-1.svg"
+    },
+    {
+      "native_id": "0000000f-00ff-0000-0000000000000000",
+      "filename": "arrow-down-2.svg"
+    },
+    {
+      "native_id": "00000010-00ff-0000-0000000000000000",
+      "filename": "arrow-down-3.svg"
+    },
+    {
+      "native_id": "00000011-00ff-0000-0000000000000000",
+      "filename": "arrow-left-1.svg"
+    },
+    {
+      "native_id": "00000012-00ff-0000-0000000000000000",
+      "filename": "arrow-left-2.svg"
+    },
+    {
+      "native_id": "00000013-00ff-0000-0000000000000000",
+      "filename": "arrow-left-3.svg"
+    },
+    {
+      "native_id": "00000014-00ff-0000-0000000000000000",
+      "filename": "arrow-right-1.svg"
+    },
+    {
+      "native_id": "00000015-00ff-0000-0000000000000000",
+      "filename": "arrow-right-2.svg"
+    },
+    {
+      "native_id": "00000016-00ff-0000-0000000000000000",
+      "filename": "arrow-right-3.svg"
+    },
+    {
+      "native_id": "00000017-00ff-0000-0000000000000000",
+      "filename": "arrow-up-1.svg"
+    },
+    {
+      "native_id": "00000018-00ff-0000-0000000000000000",
+      "filename": "arrow-up-2.svg"
+    },
+    {
+      "native_id": "00000019-00ff-0000-0000000000000000",
+      "filename": "arrow-up-3.svg"
+    },
+    {
+      "native_id": "0000001a-00ff-0000-0000000000000000",
+      "filename": "attic.svg"
+    },
+    {
+      "native_id": "0000001b-00ff-0000-0000000000000000",
+      "filename": "automatic.svg"
+    },
+    {
+      "native_id": "0000001c-00ff-0000-0000000000000000",
+      "filename": "away-mode.svg"
+    },
+    {
+      "native_id": "00000021-00ff-0000-0000000000000000",
+      "filename": "baby-bed.svg"
+    },
+    {
+      "native_id": "00000022-00ff-0000-0000000000000000",
+      "filename": "baby-hanging-toy.svg"
+    },
+    {
+      "native_id": "00000023-00ff-0000-0000000000000000",
+      "filename": "baby.svg"
+    },
+    {
+      "native_id": "00000024-00ff-0000-0000000000000000",
+      "filename": "ball-badminton.svg"
+    },
+    {
+      "native_id": "00000025-00ff-0000-0000000000000000",
+      "filename": "ball-basketball.svg"
+    },
+    {
+      "native_id": "00000026-00ff-0000-0000000000000000",
+      "filename": "ball-football.svg"
+    },
+    {
+      "native_id": "00000027-00ff-0000-0000000000000000",
+      "filename": "ball-soccer.svg"
+    },
+    {
+      "native_id": "00000028-00ff-0000-0000000000000000",
+      "filename": "ball-volleyball.svg"
+    },
+    {
+      "native_id": "00000029-00ff-0000-0000000000000000",
+      "filename": "barbecue-stove.svg"
+    },
+    {
+      "native_id": "0000002a-00ff-0000-0000000000000000",
+      "filename": "barn.svg"
+    },
+    {
+      "native_id": "0000002b-00ff-0000-0000000000000000",
+      "filename": "baseball.svg"
+    },
+    {
+      "native_id": "0000002c-00ff-0000-0000000000000000",
+      "filename": "bathtub.svg"
+    },
+    {
+      "native_id": "0000002d-00ff-0000-0000000000000000",
+      "filename": "battery-charge-1.svg"
+    },
+    {
+      "native_id": "0000002e-00ff-0000-0000000000000000",
+      "filename": "battery-charge.svg"
+    },
+    {
+      "native_id": "0000002f-00ff-0000-0000000000000000",
+      "filename": "battery-full.svg"
+    },
+    {
+      "native_id": "00000030-00ff-0000-0000000000000000",
+      "filename": "battery-high.svg"
+    },
+    {
+      "native_id": "00000031-00ff-0000-0000000000000000",
+      "filename": "battery-low.svg"
+    },
+    {
+      "native_id": "00000032-00ff-0000-0000000000000000",
+      "filename": "battery-medium.svg"
+    },
+    {
+      "native_id": "00000033-00ff-0000-0000000000000000",
+      "filename": "bed-double.svg"
+    },
+    {
+      "native_id": "00000034-00ff-0000-0000000000000000",
+      "filename": "bed-single.svg"
+    },
+    {
+      "native_id": "00000035-00ff-0000-0000000000000000",
+      "filename": "beer-glass-1.svg"
+    },
+    {
+      "native_id": "00000036-00ff-0000-0000000000000000",
+      "filename": "bell.svg"
+    },
+    {
+      "native_id": "00000037-00ff-0000-0000000000000000",
+      "filename": "bin-1.svg"
+    },
+    {
+      "native_id": "00000038-00ff-0000-0000000000000000",
+      "filename": "binders.svg"
+    },
+    {
+      "native_id": "00000039-00ff-0000-0000000000000000",
+      "filename": "birthday-cake.svg"
+    },
+    {
+      "native_id": "0000003a-00ff-0000-0000000000000000",
+      "filename": "blinds-down.svg"
+    },
+    {
+      "native_id": "0000003b-00ff-0000-0000000000000000",
+      "filename": "blinds-half-closed.svg"
+    },
+    {
+      "native_id": "0000003c-00ff-0000-0000000000000000",
+      "filename": "blinds-opened.svg"
+    },
+    {
+      "native_id": "0000003d-00ff-0000-0000000000000000",
+      "filename": "blinds-shading-2.svg"
+    },
+    {
+      "native_id": "0000003e-00ff-0000-0000000000000000",
+      "filename": "blinds-up-down.svg"
+    },
+    {
+      "native_id": "0000003f-00ff-0000-0000000000000000",
+      "filename": "blinds-up.svg"
+    },
+    {
+      "native_id": "00000040-00ff-0000-0000000000000000",
+      "filename": "bottle-3.svg"
+    },
+    {
+      "native_id": "00000041-00ff-0000-0000000000000000",
+      "filename": "bottle-4.svg"
+    },
+    {
+      "native_id": "00000042-00ff-0000-0000000000000000",
+      "filename": "bowling.svg"
+    },
+    {
+      "native_id": "00000043-00ff-0000-0000000000000000",
+      "filename": "bus-2.svg"
+    },
+    {
+      "native_id": "00000044-00ff-0000-0000000000000000",
+      "filename": "cactus.svg"
+    },
+    {
+      "native_id": "00000045-00ff-0000-0000000000000000",
+      "filename": "camera-pause.svg"
+    },
+    {
+      "native_id": "00000046-00ff-0000-0000000000000000",
+      "filename": "camera-play.svg"
+    },
+    {
+      "native_id": "00000047-00ff-0000-0000000000000000",
+      "filename": "camera-previous.svg"
+    },
+    {
+      "native_id": "00000048-00ff-0000-0000000000000000",
+      "filename": "camera-record.svg"
+    },
+    {
+      "native_id": "00000049-00ff-0000-0000000000000000",
+      "filename": "camera-rewind.svg"
+    },
+    {
+      "native_id": "0000004a-00ff-0000-0000000000000000",
+      "filename": "camera-stop.svg"
+    },
+    {
+      "native_id": "0000004b-00ff-0000-0000000000000000",
+      "filename": "camper-trailer.svg"
+    },
+    {
+      "native_id": "0000004c-00ff-0000-0000000000000000",
+      "filename": "car-key.svg"
+    },
+    {
+      "native_id": "0000004d-00ff-0000-0000000000000000",
+      "filename": "car.svg"
+    },
+    {
+      "native_id": "0000004e-00ff-0000-0000000000000000",
+      "filename": "cc-camera.svg"
+    },
+    {
+      "native_id": "0000004f-00ff-0000-0000000000000000",
+      "filename": "ceiling-lights.svg"
+    },
+    {
+      "native_id": "00000050-00ff-0000-0000000000000000",
+      "filename": "celsius.svg"
+    },
+    {
+      "native_id": "00000051-00ff-0000-0000000000000000",
+      "filename": "cellar.svg"
+    },
+    {
+      "native_id": "00000052-00ff-0000-0000000000000000",
+      "filename": "central.svg"
+    },
+    {
+      "native_id": "00000053-00ff-0000-0000000000000000",
+      "filename": "chair-1.svg"
+    },
+    {
+      "native_id": "00000054-00ff-0000-0000000000000000",
+      "filename": "chair-2.svg"
+    },
+    {
+      "native_id": "00000055-00ff-0000-0000000000000000",
+      "filename": "chair-6.svg"
+    },
+    {
+      "native_id": "00000056-00ff-0000-0000000000000000",
+      "filename": "chair-office.svg"
+    },
+    {
+      "native_id": "00000057-00ff-0000-0000000000000000",
+      "filename": "chairs-umbrella.svg"
+    },
+    {
+      "native_id": "00000058-00ff-0000-0000000000000000",
+      "filename": "chandeliers.svg"
+    },
+    {
+      "native_id": "00000059-00ff-0000-0000000000000000",
+      "filename": "check-circle-2.svg"
+    },
+    {
+      "native_id": "0000005a-00ff-0000-0000000000000000",
+      "filename": "chef-hat.svg"
+    },
+    {
+      "native_id": "0000005b-00ff-0000-0000000000000000",
+      "filename": "christmas-tree.svg"
+    },
+    {
+      "native_id": "0000005c-00ff-0000-0000000000000000",
+      "filename": "circulation-pump.svg"
+    },
+    {
+      "native_id": "0000005d-00ff-0000-0000000000000000",
+      "filename": "clock-3.svg"
+    },
+    {
+      "native_id": "0000005e-00ff-0000-0000000000000000",
+      "filename": "clock.svg"
+    },
+    {
+      "native_id": "0000005f-00ff-0000-0000000000000000",
+      "filename": "close-2.svg"
+    },
+    {
+      "native_id": "00000060-00ff-0000-0000000000000000",
+      "filename": "close.svg"
+    },
+    {
+      "native_id": "00000061-00ff-0000-0000000000000000",
+      "filename": "cloth-hanger-towel.svg"
+    },
+    {
+      "native_id": "00000062-00ff-0000-0000000000000000",
+      "filename": "clothes-hanger.svg"
+    },
+    {
+      "native_id": "00000063-00ff-0000-0000000000000000",
+      "filename": "cocktail.svg"
+    },
+    {
+      "native_id": "00000064-00ff-0000-0000000000000000",
+      "filename": "coffee-bean-jar.svg"
+    },
+    {
+      "native_id": "00000065-00ff-0000-0000000000000000",
+      "filename": "coffee-cup-2.svg"
+    },
+    {
+      "native_id": "00000066-00ff-0000-0000000000000000",
+      "filename": "coffee-mug-1.svg"
+    },
+    {
+      "native_id": "00000067-00ff-0000-0000000000000000",
+      "filename": "coffee-mug-2.svg"
+    },
+    {
+      "native_id": "00000068-00ff-0000-0000000000000000",
+      "filename": "cog-double.svg"
+    },
+    {
+      "native_id": "00000069-00ff-0000-0000000000000000",
+      "filename": "cog.svg"
+    },
+    {
+      "native_id": "0000006a-00ff-0000-0000000000000000",
+      "filename": "computer-chip-fire.svg"
+    },
+    {
+      "native_id": "0000006b-00ff-0000-0000000000000000",
+      "filename": "computer-chip-flash.svg"
+    },
+    {
+      "native_id": "0000006c-00ff-0000-0000000000000000",
+      "filename": "computer-imac-1.svg"
+    },
+    {
+      "native_id": "0000006d-00ff-0000-0000000000000000",
+      "filename": "computer-notebook.svg"
+    },
+    {
+      "native_id": "0000006e-00ff-0000-0000000000000000",
+      "filename": "computer-screen-2.svg"
+    },
+    {
+      "native_id": "0000006f-00ff-0000-0000000000000000",
+      "filename": "computer.svg"
+    },
+    {
+      "native_id": "00000070-00ff-0000-0000000000000000",
+      "filename": "cooker-hood.svg"
+    },
+    {
+      "native_id": "00000071-00ff-0000-0000000000000000",
+      "filename": "crate-trolley-1.svg"
+    },
+    {
+      "native_id": "00000072-00ff-0000-0000000000000000",
+      "filename": "curtain-close-1.svg"
+    },
+    {
+      "native_id": "00000073-00ff-0000-0000000000000000",
+      "filename": "curtain-close-2.svg"
+    },
+    {
+      "native_id": "00000074-00ff-0000-0000000000000000",
+      "filename": "curtain-close-3.svg"
+    },
+    {
+      "native_id": "00000075-00ff-0000-0000000000000000",
+      "filename": "curtain-closed.svg"
+    },
+    {
+      "native_id": "00000076-00ff-0000-0000000000000000",
+      "filename": "curtain-open-1.svg"
+    },
+    {
+      "native_id": "00000077-00ff-0000-0000000000000000",
+      "filename": "curtain-open-2.svg"
+    },
+    {
+      "native_id": "00000078-00ff-0000-0000000000000000",
+      "filename": "curtain-open-3.svg"
+    },
+    {
+      "native_id": "00000079-00ff-0000-0000000000000000",
+      "filename": "curtain-opened-1.svg"
+    },
+    {
+      "native_id": "0000007a-00ff-0000-0000000000000000",
+      "filename": "curtain-opened-2.svg"
+    },
+    {
+      "native_id": "0000007b-00ff-0000-0000000000000000",
+      "filename": "curtain-opened-3.svg"
+    },
+    {
+      "native_id": "0000007c-00ff-0000-0000000000000000",
+      "filename": "cycling-energy.svg"
+    },
+    {
+      "native_id": "0000007d-00ff-0000-0000000000000000",
+      "filename": "day-cloud.svg"
+    },
+    {
+      "native_id": "0000007e-00ff-0000-0000000000000000",
+      "filename": "deep-sleep-mode.svg"
+    },
+    {
+      "native_id": "0000007f-00ff-0000-0000000000000000",
+      "filename": "delete-1.svg"
+    },
+    {
+      "native_id": "00000080-00ff-0000-0000000000000000",
+      "filename": "delete-2.svg"
+    },
+    {
+      "native_id": "00000081-00ff-0000-0000000000000000",
+      "filename": "disable-sign.svg"
+    },
+    {
+      "native_id": "00000082-00ff-0000-0000000000000000",
+      "filename": "dog-house.svg"
+    },
+    {
+      "native_id": "00000083-00ff-0000-0000000000000000",
+      "filename": "door-enter.svg"
+    },
+    {
+      "native_id": "00000084-00ff-0000-0000000000000000",
+      "filename": "door-exit.svg"
+    },
+    {
+      "native_id": "00000085-00ff-0000-0000000000000000",
+      "filename": "door-lock.svg"
+    },
+    {
+      "native_id": "00000086-00ff-0000-0000000000000000",
+      "filename": "door-open.svg"
+    },
+    {
+      "native_id": "00000087-00ff-0000-0000000000000000",
+      "filename": "door-sign.svg"
+    },
+    {
+      "native_id": "00000088-00ff-0000-0000000000000000",
+      "filename": "drawer-2.svg"
+    },
+    {
+      "native_id": "00000089-00ff-0000-0000000000000000",
+      "filename": "drawer-3.svg"
+    },
+    {
+      "native_id": "0000008a-00ff-0000-0000000000000000",
+      "filename": "dress.svg"
+    },
+    {
+      "native_id": "0000008b-00ff-0000-0000000000000000",
+      "filename": "drop.svg"
+    },
+    {
+      "native_id": "0000008c-00ff-0000-0000000000000000",
+      "filename": "dumbbell-2.svg"
+    },
+    {
+      "native_id": "0000008d-00ff-0000-0000000000000000",
+      "filename": "dumbbell.svg"
+    },
+    {
+      "native_id": "0000008e-00ff-0000-0000000000000000",
+      "filename": "eco-car-charge.svg"
+    },
+    {
+      "native_id": "0000008f-00ff-0000-0000000000000000",
+      "filename": "eco-energy-1.svg"
+    },
+    {
+      "native_id": "00000090-00ff-0000-0000000000000000",
+      "filename": "eco-energy-2.svg"
+    },
+    {
+      "native_id": "00000091-00ff-0000-0000000000000000",
+      "filename": "eco-lightbulb.svg"
+    },
+    {
+      "native_id": "00000092-00ff-0000-0000000000000000",
+      "filename": "eject-button.svg"
+    },
+    {
+      "native_id": "00000093-00ff-0000-0000000000000000",
+      "filename": "electric-car.svg"
+    },
+    {
+      "native_id": "00000094-00ff-0000-0000000000000000",
+      "filename": "electric-fan.svg"
+    },
+    {
+      "native_id": "00000095-00ff-0000-0000000000000000",
+      "filename": "electric-pole.svg"
+    },
+    {
+      "native_id": "00000096-00ff-0000-0000000000000000",
+      "filename": "electricity-outlet-1.svg"
+    },
+    {
+      "native_id": "00000097-00ff-0000-0000000000000000",
+      "filename": "electricity-outlet-2.svg"
+    },
+    {
+      "native_id": "00000098-00ff-0000-0000000000000000",
+      "filename": "electricity-outlet-3.svg"
+    },
+    {
+      "native_id": "00000099-00ff-0000-0000000000000000",
+      "filename": "electricity-outlet-4.svg"
+    },
+    {
+      "native_id": "0000009a-00ff-0000-0000000000000000",
+      "filename": "electricity-outlet-5.svg"
+    },
+    {
+      "native_id": "0000009b-00ff-0000-0000000000000000",
+      "filename": "elevator-2.svg"
+    },
+    {
+      "native_id": "0000009c-00ff-0000-0000000000000000",
+      "filename": "email.svg"
+    },
+    {
+      "native_id": "0000009d-00ff-0000-0000000000000000",
+      "filename": "emergency-alarm.svg"
+    },
+    {
+      "native_id": "0000009e-00ff-0000-0000000000000000",
+      "filename": "espresso-machine-2.svg"
+    },
+    {
+      "native_id": "0000009f-00ff-0000-0000000000000000",
+      "filename": "fahrenheit.svg"
+    },
+    {
+      "native_id": "00000100-00ff-0000-0000000000000000",
+      "filename": "fan-1.svg"
+    },
+    {
+      "native_id": "00000101-00ff-0000-0000000000000000",
+      "filename": "fast-forward-button.svg"
+    },
+    {
+      "native_id": "00000102-00ff-0000-0000000000000000",
+      "filename": "finger-tapping.svg"
+    },
+    {
+      "native_id": "00000103-00ff-0000-0000000000000000",
+      "filename": "fire-extinguisher.svg"
+    },
+    {
+      "native_id": "00000104-00ff-0000-0000000000000000",
+      "filename": "fireplace.svg"
+    },
+    {
+      "native_id": "00000105-00ff-0000-0000000000000000",
+      "filename": "fitness-center.svg"
+    },
+    {
+      "native_id": "00000106-00ff-0000-0000000000000000",
+      "filename": "flame.svg"
+    },
+    {
+      "native_id": "00000107-00ff-0000-0000000000000000",
+      "filename": "flash-1.svg"
+    },
+    {
+      "native_id": "00000108-00ff-0000-0000000000000000",
+      "filename": "flash-2.svg"
+    },
+    {
+      "native_id": "00000109-00ff-0000-0000000000000000",
+      "filename": "flood.svg"
+    },
+    {
+      "native_id": "0000010a-00ff-0000-0000000000000000",
+      "filename": "florida-room.svg"
+    },
+    {
+      "native_id": "0000010b-00ff-0000-0000000000000000",
+      "filename": "flower-2.svg"
+    },
+    {
+      "native_id": "0000010c-00ff-0000-0000000000000000",
+      "filename": "flower.svg"
+    },
+    {
+      "native_id": "0000010d-00ff-0000-0000000000000000",
+      "filename": "folding-door-left-closed.svg"
+    },
+    {
+      "native_id": "0000010e-00ff-0000-0000000000000000",
+      "filename": "folding-door-left-opened.svg"
+    },
+    {
+      "native_id": "0000010f-00ff-0000-0000000000000000",
+      "filename": "folding-door-right-closed.svg"
+    },
+    {
+      "native_id": "00000110-00ff-0000-0000000000000000",
+      "filename": "folding-door-right-opened.svg"
+    },
+    {
+      "native_id": "00000111-00ff-0000-0000000000000000",
+      "filename": "food-dome-serving-2.svg"
+    },
+    {
+      "native_id": "00000112-00ff-0000-0000000000000000",
+      "filename": "food-trolley.svg"
+    },
+    {
+      "native_id": "00000113-00ff-0000-0000000000000000",
+      "filename": "forest-1.svg"
+    },
+    {
+      "native_id": "00000114-00ff-0000-0000000000000000",
+      "filename": "forest-2.svg"
+    },
+    {
+      "native_id": "00000115-00ff-0000-0000000000000000",
+      "filename": "forklift.svg"
+    },
+    {
+      "native_id": "00000116-00ff-0000-0000000000000000",
+      "filename": "french-press.svg"
+    },
+    {
+      "native_id": "00000117-00ff-0000-0000000000000000",
+      "filename": "frying-machine.svg"
+    },
+    {
+      "native_id": "00000118-00ff-0000-0000000000000000",
+      "filename": "garage-close.svg"
+    },
+    {
+      "native_id": "00000119-00ff-0000-0000000000000000",
+      "filename": "garage-closed.svg"
+    },
+    {
+      "native_id": "0000011a-00ff-0000-0000000000000000",
+      "filename": "garage-open-close.svg"
+    },
+    {
+      "native_id": "0000011b-00ff-0000-0000000000000000",
+      "filename": "garage-open.svg"
+    },
+    {
+      "native_id": "0000011c-00ff-0000-0000000000000000",
+      "filename": "garage-opened.svg"
+    },
+    {
+      "native_id": "0000011d-00ff-0000-0000000000000000",
+      "filename": "garage.svg"
+    },
+    {
+      "native_id": "0000011e-00ff-0000-0000000000000000",
+      "filename": "gas-burner.svg"
+    },
+    {
+      "native_id": "0000011f-00ff-0000-0000000000000000",
+      "filename": "gate-closed-1.svg"
+    },
+    {
+      "native_id": "00000120-00ff-0000-0000000000000000",
+      "filename": "gate-closed-2.svg"
+    },
+    {
+      "native_id": "00000121-00ff-0000-0000000000000000",
+      "filename": "gate-closed-3.svg"
+    },
+    {
+      "native_id": "00000122-00ff-0000-0000000000000000",
+      "filename": "gate-open-1.svg"
+    },
+    {
+      "native_id": "00000123-00ff-0000-0000000000000000",
+      "filename": "gate-open-2.svg"
+    },
+    {
+      "native_id": "00000124-00ff-0000-0000000000000000",
+      "filename": "gate-open-3.svg"
+    },
+    {
+      "native_id": "00000125-00ff-0000-0000000000000000",
+      "filename": "gauge.svg"
+    },
+    {
+      "native_id": "00000126-00ff-0000-0000000000000000",
+      "filename": "glass-water.svg"
+    },
+    {
+      "native_id": "00000127-00ff-0000-0000000000000000",
+      "filename": "globe-2.svg"
+    },
+    {
+      "native_id": "00000128-00ff-0000-0000000000000000",
+      "filename": "graph-bar-2.svg"
+    },
+    {
+      "native_id": "00000129-00ff-0000-0000000000000000",
+      "filename": "graph-line-3.svg"
+    },
+    {
+      "native_id": "0000012a-00ff-0000-0000000000000000",
+      "filename": "grill.svg"
+    },
+    {
+      "native_id": "0000012b-00ff-0000-0000000000000000",
+      "filename": "hair-dryer.svg"
+    },
+    {
+      "native_id": "0000012c-00ff-0000-0000000000000000",
+      "filename": "hallway.svg"
+    },
+    {
+      "native_id": "0000012d-00ff-0000-0000000000000000",
+      "filename": "navigation-drawer.svg"
+    },
+    {
+      "native_id": "0000012e-00ff-0000-0000000000000000",
+      "filename": "hand-bag-2.svg"
+    },
+    {
+      "native_id": "0000012f-00ff-0000-0000000000000000",
+      "filename": "hanging-lamp-1.svg"
+    },
+    {
+      "native_id": "00000130-00ff-0000-0000000000000000",
+      "filename": "hanging-lamp-2.svg"
+    },
+    {
+      "native_id": "00000131-00ff-0000-0000000000000000",
+      "filename": "hanging-lamp-3.svg"
+    },
+    {
+      "native_id": "00000132-00ff-0000-0000000000000000",
+      "filename": "heat-pump.svg"
+    },
+    {
+      "native_id": "00000133-00ff-0000-0000000000000000",
+      "filename": "home-3.svg"
+    },
+    {
+      "native_id": "00000134-00ff-0000-0000000000000000",
+      "filename": "home-4.svg"
+    },
+    {
+      "native_id": "00000135-00ff-0000-0000000000000000",
+      "filename": "home-5.svg"
+    },
+    {
+      "native_id": "00000136-00ff-0000-0000000000000000",
+      "filename": "home-fire-1.svg"
+    },
+    {
+      "native_id": "00000137-00ff-0000-0000000000000000",
+      "filename": "home-hurricane.svg"
+    },
+    {
+      "native_id": "00000138-00ff-0000-0000000000000000",
+      "filename": "honeycomb.svg"
+    },
+    {
+      "native_id": "00000139-00ff-0000-0000000000000000",
+      "filename": "hourglass.svg"
+    },
+    {
+      "native_id": "0000013a-00ff-0000-0000000000000000",
+      "filename": "house-add.svg"
+    },
+    {
+      "native_id": "0000013b-00ff-0000-0000000000000000",
+      "filename": "house-block.svg"
+    },
+    {
+      "native_id": "0000013c-00ff-0000-0000000000000000",
+      "filename": "house-check.svg"
+    },
+    {
+      "native_id": "0000013d-00ff-0000-0000000000000000",
+      "filename": "house-information.svg"
+    },
+    {
+      "native_id": "0000013e-00ff-0000-0000000000000000",
+      "filename": "house-key.svg"
+    },
+    {
+      "native_id": "0000013f-00ff-0000-0000000000000000",
+      "filename": "house-location-pin.svg"
+    },
+    {
+      "native_id": "00000140-00ff-0000-0000000000000000",
+      "filename": "house-present.svg"
+    },
+    {
+      "native_id": "00000141-00ff-0000-0000000000000000",
+      "filename": "house-remove.svg"
+    },
+    {
+      "native_id": "00000142-00ff-0000-0000000000000000",
+      "filename": "house-setting.svg"
+    },
+    {
+      "native_id": "00000143-00ff-0000-0000000000000000",
+      "filename": "house-subtract.svg"
+    },
+    {
+      "native_id": "00000144-00ff-0000-0000000000000000",
+      "filename": "house-warning.svg"
+    },
+    {
+      "native_id": "00000145-00ff-0000-0000000000000000",
+      "filename": "hurricane.svg"
+    },
+    {
+      "native_id": "00000147-00ff-0000-0000000000000000",
+      "filename": "information-circle.svg"
+    },
+    {
+      "native_id": "00000148-00ff-0000-0000000000000000",
+      "filename": "iron.svg"
+    },
+    {
+      "native_id": "00000149-00ff-0000-0000000000000000",
+      "filename": "key-2.svg"
+    },
+    {
+      "native_id": "0000014a-00ff-0000-0000000000000000",
+      "filename": "keys.svg"
+    },
+    {
+      "native_id": "0000014b-00ff-0000-0000000000000000",
+      "filename": "knife-fork.svg"
+    },
+    {
+      "native_id": "0000014c-00ff-0000-0000000000000000",
+      "filename": "lamp-2.svg"
+    },
+    {
+      "native_id": "0000014d-00ff-0000-0000000000000000",
+      "filename": "lamp-4.svg"
+    },
+    {
+      "native_id": "0000014e-00ff-0000-0000000000000000",
+      "filename": "lamp-5.svg"
+    },
+    {
+      "native_id": "0000014f-00ff-0000-0000000000000000",
+      "filename": "lamp-cabinet.svg"
+    },
+    {
+      "native_id": "00000150-00ff-0000-0000000000000000",
+      "filename": "lamp-lava.svg"
+    },
+    {
+      "native_id": "00000151-00ff-0000-0000000000000000",
+      "filename": "letter-blocks.svg"
+    },
+    {
+      "native_id": "00000152-00ff-0000-0000000000000000",
+      "filename": "lightbulb-2.svg"
+    },
+    {
+      "native_id": "00000153-00ff-0000-0000000000000000",
+      "filename": "lightbulb-3.svg"
+    },
+    {
+      "native_id": "00000154-00ff-0000-0000000000000000",
+      "filename": "location-barn.svg"
+    },
+    {
+      "native_id": "00000155-00ff-0000-0000000000000000",
+      "filename": "location-pin-add-2.svg"
+    },
+    {
+      "native_id": "00000156-00ff-0000-0000000000000000",
+      "filename": "location-pin-favorite-2.svg"
+    },
+    {
+      "native_id": "00000157-00ff-0000-0000000000000000",
+      "filename": "location-pin-globe-2.svg"
+    },
+    {
+      "native_id": "00000158-00ff-0000-0000000000000000",
+      "filename": "location-pin-remove-2.svg"
+    },
+    {
+      "native_id": "00000159-00ff-0000-0000000000000000",
+      "filename": "location-pin-subtract-2.svg"
+    },
+    {
+      "native_id": "0000015a-00ff-0000-0000000000000000",
+      "filename": "location-pin-unknown-2.svg"
+    },
+    {
+      "native_id": "0000015b-00ff-0000-0000000000000000",
+      "filename": "location-pin-user-2.svg"
+    },
+    {
+      "native_id": "0000015c-00ff-0000-0000000000000000",
+      "filename": "location-pin.svg"
+    },
+    {
+      "native_id": "0000015d-00ff-0000-0000000000000000",
+      "filename": "lock-close-1.svg"
+    },
+    {
+      "native_id": "0000015e-00ff-0000-0000000000000000",
+      "filename": "lock-door.svg"
+    },
+    {
+      "native_id": "0000015f-00ff-0000-0000000000000000",
+      "filename": "lock-open-1.svg"
+    },
+    {
+      "native_id": "00000160-00ff-0000-0000000000000000",
+      "filename": "lock-open-2.svg"
+    },
+    {
+      "native_id": "00000161-00ff-0000-0000000000000000",
+      "filename": "lockers.svg"
+    },
+    {
+      "native_id": "00000162-00ff-0000-0000000000000000",
+      "filename": "login-key.svg"
+    },
+    {
+      "native_id": "00000163-00ff-0000-0000000000000000",
+      "filename": "login.svg"
+    },
+    {
+      "native_id": "00000164-00ff-0000-0000000000000000",
+      "filename": "mailbox-1.svg"
+    },
+    {
+      "native_id": "00000165-00ff-0000-0000000000000000",
+      "filename": "mailbox-3.svg"
+    },
+    {
+      "native_id": "00000166-00ff-0000-0000000000000000",
+      "filename": "martial-art-robe.svg"
+    },
+    {
+      "native_id": "00000167-00ff-0000-0000000000000000",
+      "filename": "meeting.svg"
+    },
+    {
+      "native_id": "00000168-00ff-0000-0000000000000000",
+      "filename": "megaphone.svg"
+    },
+    {
+      "native_id": "00000169-00ff-0000-0000000000000000",
+      "filename": "meter.svg"
+    },
+    {
+      "native_id": "0000016a-00ff-0000-0000000000000000",
+      "filename": "mixing-machine.svg"
+    },
+    {
+      "native_id": "0000016b-00ff-0000-0000000000000000",
+      "filename": "monitor.svg"
+    },
+    {
+      "native_id": "0000016c-00ff-0000-0000000000000000",
+      "filename": "moonrise.svg"
+    },
+    {
+      "native_id": "0000016d-00ff-0000-0000000000000000",
+      "filename": "moonset.svg"
+    },
+    {
+      "native_id": "0000016e-00ff-0000-0000000000000000",
+      "filename": "motorbike-1.svg"
+    },
+    {
+      "native_id": "0000016f-00ff-0000-0000000000000000",
+      "filename": "music-note.svg"
+    },
+    {
+      "native_id": "00000170-00ff-0000-0000000000000000",
+      "filename": "next-button.svg"
+    },
+    {
+      "native_id": "00000171-00ff-0000-0000000000000000",
+      "filename": "night-mode.svg"
+    },
+    {
+      "native_id": "00000172-00ff-0000-0000000000000000",
+      "filename": "no-alarm-1.svg"
+    },
+    {
+      "native_id": "00000173-00ff-0000-0000000000000000",
+      "filename": "no-alarm-2.svg"
+    },
+    {
+      "native_id": "00000174-00ff-0000-0000000000000000",
+      "filename": "no-fan-1.svg"
+    },
+    {
+      "native_id": "00000175-00ff-0000-0000000000000000",
+      "filename": "onnoff.svg"
+    },
+    {
+      "native_id": "00000176-00ff-0000-0000000000000000",
+      "filename": "open-2.svg"
+    },
+    {
+      "native_id": "00000177-00ff-0000-0000000000000000",
+      "filename": "open.svg"
+    },
+    {
+      "native_id": "00000178-00ff-0000-0000000000000000",
+      "filename": "oven.svg"
+    },
+    {
+      "native_id": "00000179-00ff-0000-0000000000000000",
+      "filename": "party-hat.svg"
+    },
+    {
+      "native_id": "0000017a-00ff-0000-0000000000000000",
+      "filename": "party-mode.svg"
+    },
+    {
+      "native_id": "0000017b-00ff-0000-0000000000000000",
+      "filename": "pause-button.svg"
+    },
+    {
+      "native_id": "0000017c-00ff-0000-0000000000000000",
+      "filename": "pet-cat.svg"
+    },
+    {
+      "native_id": "0000017d-00ff-0000-0000000000000000",
+      "filename": "pet-dog-walk.svg"
+    },
+    {
+      "native_id": "0000017e-00ff-0000-0000000000000000",
+      "filename": "pet-goldfish.svg"
+    },
+    {
+      "native_id": "0000017f-00ff-0000-0000000000000000",
+      "filename": "phone-4.svg"
+    },
+    {
+      "native_id": "00000180-00ff-0000-0000000000000000",
+      "filename": "phone-hang-up.svg"
+    },
+    {
+      "native_id": "00000181-00ff-0000-0000000000000000",
+      "filename": "phone-pick-up.svg"
+    },
+    {
+      "native_id": "00000182-00ff-0000-0000000000000000",
+      "filename": "phone-signal-full.svg"
+    },
+    {
+      "native_id": "00000183-00ff-0000-0000000000000000",
+      "filename": "phone-signal-high.svg"
+    },
+    {
+      "native_id": "00000184-00ff-0000-0000000000000000",
+      "filename": "phone-signal-low.svg"
+    },
+    {
+      "native_id": "00000185-00ff-0000-0000000000000000",
+      "filename": "phone-signal-medium.svg"
+    },
+    {
+      "native_id": "00000186-00ff-0000-0000000000000000",
+      "filename": "phone-signal-none.svg"
+    },
+    {
+      "native_id": "00000187-00ff-0000-0000000000000000",
+      "filename": "phone-signal-very-low.svg"
+    },
+    {
+      "native_id": "00000188-00ff-0000-0000000000000000",
+      "filename": "photocopy-machine.svg"
+    },
+    {
+      "native_id": "00000189-00ff-0000-0000000000000000",
+      "filename": "pingpong.svg"
+    },
+    {
+      "native_id": "0000018a-00ff-0000-0000000000000000",
+      "filename": "plant.svg"
+    },
+    {
+      "native_id": "0000018b-00ff-0000-0000000000000000",
+      "filename": "play-button-2.svg"
+    },
+    {
+      "native_id": "0000018c-00ff-0000-0000000000000000",
+      "filename": "playlist-3.svg"
+    },
+    {
+      "native_id": "0000018d-00ff-0000-0000000000000000",
+      "filename": "plug-1.svg"
+    },
+    {
+      "native_id": "0000018e-00ff-0000-0000000000000000",
+      "filename": "pool.svg"
+    },
+    {
+      "native_id": "0000018f-00ff-0000-0000000000000000",
+      "filename": "porch.svg"
+    },
+    {
+      "native_id": "00000190-00ff-0000-0000000000000000",
+      "filename": "power-grid.svg"
+    },
+    {
+      "native_id": "00000191-00ff-0000-0000000000000000",
+      "filename": "presence.svg"
+    },
+    {
+      "native_id": "00000192-00ff-0000-0000000000000000",
+      "filename": "previous-button.svg"
+    },
+    {
+      "native_id": "00000193-00ff-0000-0000000000000000",
+      "filename": "print-text.svg"
+    },
+    {
+      "native_id": "00000194-00ff-0000-0000000000000000",
+      "filename": "projector-front.svg"
+    },
+    {
+      "native_id": "00000195-00ff-0000-0000000000000000",
+      "filename": "projector.svg"
+    },
+    {
+      "native_id": "00000196-00ff-0000-0000000000000000",
+      "filename": "radiator.svg"
+    },
+    {
+      "native_id": "00000198-00ff-0000-0000000000000000",
+      "filename": "recharge-energy.svg"
+    },
+    {
+      "native_id": "00000199-00ff-0000-0000000000000000",
+      "filename": "record-button.svg"
+    },
+    {
+      "native_id": "0000019a-00ff-0000-0000000000000000",
+      "filename": "refresh.svg"
+    },
+    {
+      "native_id": "0000019b-00ff-0000-0000000000000000",
+      "filename": "refrigerator.svg"
+    },
+    {
+      "native_id": "0000019c-00ff-0000-0000000000000000",
+      "filename": "remote-television.svg"
+    },
+    {
+      "native_id": "0000019d-00ff-0000-0000000000000000",
+      "filename": "remove-circle-1.svg"
+    },
+    {
+      "native_id": "0000019e-00ff-0000-0000000000000000",
+      "filename": "report-problem-circle.svg"
+    },
+    {
+      "native_id": "0000019f-00ff-0000-0000000000000000",
+      "filename": "report-problem-diamond.svg"
+    },
+    {
+      "native_id": "00000200-00ff-0000-0000000000000000",
+      "filename": "restore.svg"
+    },
+    {
+      "native_id": "00000201-00ff-0000-0000000000000000",
+      "filename": "rewind-button.svg"
+    },
+    {
+      "native_id": "00000202-00ff-0000-0000000000000000",
+      "filename": "rock.svg"
+    },
+    {
+      "native_id": "00000203-00ff-0000-0000000000000000",
+      "filename": "sauna.svg"
+    },
+    {
+      "native_id": "00000204-00ff-0000-0000000000000000",
+      "filename": "server-3.svg"
+    },
+    {
+      "native_id": "00000205-00ff-0000-0000000000000000",
+      "filename": "server-refresh-1.svg"
+    },
+    {
+      "native_id": "00000206-00ff-0000-0000000000000000",
+      "filename": "server-remove-1.svg"
+    },
+    {
+      "native_id": "00000207-00ff-0000-0000000000000000",
+      "filename": "server-setting-1.svg"
+    },
+    {
+      "native_id": "00000208-00ff-0000-0000000000000000",
+      "filename": "server-timeout-1.svg"
+    },
+    {
+      "native_id": "00000209-00ff-0000-0000000000000000",
+      "filename": "server-warning-1.svg"
+    },
+    {
+      "native_id": "0000020a-00ff-0000-0000000000000000",
+      "filename": "server.svg"
+    },
+    {
+      "native_id": "0000020b-00ff-0000-0000000000000000",
+      "filename": "settings-3.svg"
+    },
+    {
+      "native_id": "0000020c-00ff-0000-0000000000000000",
+      "filename": "shield-afci.svg"
+    },
+    {
+      "native_id": "0000020d-00ff-0000-0000000000000000",
+      "filename": "shield-cross.svg"
+    },
+    {
+      "native_id": "0000020e-00ff-0000-0000000000000000",
+      "filename": "shield-fire.svg"
+    },
+    {
+      "native_id": "0000020f-00ff-0000-0000000000000000",
+      "filename": "shield-frost.svg"
+    },
+    {
+      "native_id": "00000210-00ff-0000-0000000000000000",
+      "filename": "shield-ok.svg"
+    },
+    {
+      "native_id": "00000211-00ff-0000-0000000000000000",
+      "filename": "shield-storm.svg"
+    },
+    {
+      "native_id": "00000212-00ff-0000-0000000000000000",
+      "filename": "shield-water.svg"
+    },
+    {
+      "native_id": "00000213-00ff-0000-0000000000000000",
+      "filename": "shield.svg"
+    },
+    {
+      "native_id": "00000214-00ff-0000-0000000000000000",
+      "filename": "shirt-folded.svg"
+    },
+    {
+      "native_id": "00000215-00ff-0000-0000000000000000",
+      "filename": "shirt.svg"
+    },
+    {
+      "native_id": "00000216-00ff-0000-0000000000000000",
+      "filename": "shoe-1.svg"
+    },
+    {
+      "native_id": "00000217-00ff-0000-0000000000000000",
+      "filename": "shoe-2.svg"
+    },
+    {
+      "native_id": "00000218-00ff-0000-0000000000000000",
+      "filename": "shower-1.svg"
+    },
+    {
+      "native_id": "00000219-00ff-0000-0000000000000000",
+      "filename": "shower-2.svg"
+    },
+    {
+      "native_id": "0000021a-00ff-0000-0000000000000000",
+      "filename": "sign-spa-2.svg"
+    },
+    {
+      "native_id": "0000021b-00ff-0000-0000000000000000",
+      "filename": "sign-toilet-1.svg"
+    },
+    {
+      "native_id": "0000021c-00ff-0000-0000000000000000",
+      "filename": "sign-toilet-2.svg"
+    },
+    {
+      "native_id": "0000021d-00ff-0000-0000000000000000",
+      "filename": "singing-vocal.svg"
+    },
+    {
+      "native_id": "0000021e-00ff-0000-0000000000000000",
+      "filename": "skylight-1.svg"
+    },
+    {
+      "native_id": "0000021f-00ff-0000-0000000000000000",
+      "filename": "snowflake.svg"
+    },
+    {
+      "native_id": "00000220-00ff-0000-0000000000000000",
+      "filename": "sofa-1.svg"
+    },
+    {
+      "native_id": "00000221-00ff-0000-0000000000000000",
+      "filename": "sofa-2.svg"
+    },
+    {
+      "native_id": "00000222-00ff-0000-0000000000000000",
+      "filename": "sofa-3.svg"
+    },
+    {
+      "native_id": "00000223-00ff-0000-0000000000000000",
+      "filename": "solar-panel.svg"
+    },
+    {
+      "native_id": "00000224-00ff-0000-0000000000000000",
+      "filename": "sound-equalizer.svg"
+    },
+    {
+      "native_id": "00000225-00ff-0000-0000000000000000",
+      "filename": "spa-vapor.svg"
+    },
+    {
+      "native_id": "00000226-00ff-0000-0000000000000000",
+      "filename": "speakers-1.svg"
+    },
+    {
+      "native_id": "00000227-00ff-0000-0000000000000000",
+      "filename": "speakers-4.svg"
+    },
+    {
+      "native_id": "00000228-00ff-0000-0000000000000000",
+      "filename": "speakers.svg"
+    },
+    {
+      "native_id": "00000229-00ff-0000-0000000000000000",
+      "filename": "sprinkler.svg"
+    },
+    {
+      "native_id": "0000022a-00ff-0000-0000000000000000",
+      "filename": "staircase-down-1.svg"
+    },
+    {
+      "native_id": "0000022b-00ff-0000-0000000000000000",
+      "filename": "staircase-up-1.svg"
+    },
+    {
+      "native_id": "0000022c-00ff-0000-0000000000000000",
+      "filename": "stairwell-1.svg"
+    },
+    {
+      "native_id": "0000022d-00ff-0000-0000000000000000",
+      "filename": "stairwell-2.svg"
+    },
+    {
+      "native_id": "0000022e-00ff-0000-0000000000000000",
+      "filename": "stop-button.svg"
+    },
+    {
+      "native_id": "0000022f-00ff-0000-0000000000000000",
+      "filename": "store.svg"
+    },
+    {
+      "native_id": "00000230-00ff-0000-0000000000000000",
+      "filename": "stove.svg"
+    },
+    {
+      "native_id": "00000231-00ff-0000-0000000000000000",
+      "filename": "substract-1.svg"
+    },
+    {
+      "native_id": "00000232-00ff-0000-0000000000000000",
+      "filename": "subtract-circle-1.svg"
+    },
+    {
+      "native_id": "00000233-00ff-0000-0000000000000000",
+      "filename": "suit.svg"
+    },
+    {
+      "native_id": "00000234-00ff-0000-0000000000000000",
+      "filename": "sun-bath.svg"
+    },
+    {
+      "native_id": "00000235-00ff-0000-0000000000000000",
+      "filename": "sun.svg"
+    },
+    {
+      "native_id": "00000236-00ff-0000-0000000000000000",
+      "filename": "sunrise.svg"
+    },
+    {
+      "native_id": "00000237-00ff-0000-0000000000000000",
+      "filename": "sunset.svg"
+    },
+    {
+      "native_id": "00000238-00ff-0000-0000000000000000",
+      "filename": "swtich-down.svg"
+    },
+    {
+      "native_id": "00000239-00ff-0000-0000000000000000",
+      "filename": "swtich-up.svg"
+    },
+    {
+      "native_id": "0000023a-00ff-0000-0000000000000000",
+      "filename": "t-shirt.svg"
+    },
+    {
+      "native_id": "0000023b-00ff-0000-0000000000000000",
+      "filename": "tank-top.svg"
+    },
+    {
+      "native_id": "0000023c-00ff-0000-0000000000000000",
+      "filename": "tap-single.svg"
+    },
+    {
+      "native_id": "0000023d-00ff-0000-0000000000000000",
+      "filename": "teddy-bear.svg"
+    },
+    {
+      "native_id": "0000023e-00ff-0000-0000000000000000",
+      "filename": "television-stand.svg"
+    },
+    {
+      "native_id": "0000023f-00ff-0000-0000000000000000",
+      "filename": "temperature-decrease.svg"
+    },
+    {
+      "native_id": "00000240-00ff-0000-0000000000000000",
+      "filename": "temperature-increase.svg"
+    },
+    {
+      "native_id": "00000242-00ff-0000-0000000000000000",
+      "filename": "thermometer-cold.svg"
+    },
+    {
+      "native_id": "00000243-00ff-0000-0000000000000000",
+      "filename": "thermometer-hot.svg"
+    },
+    {
+      "native_id": "00000244-00ff-0000-0000000000000000",
+      "filename": "thermometer-negative.svg"
+    },
+    {
+      "native_id": "00000245-00ff-0000-0000000000000000",
+      "filename": "thermometer-positive.svg"
+    },
+    {
+      "native_id": "00000246-00ff-0000-0000000000000000",
+      "filename": "thermometer.svg"
+    },
+    {
+      "native_id": "00000247-00ff-0000-0000000000000000",
+      "filename": "thunderstorm.svg"
+    },
+    {
+      "native_id": "00000248-00ff-0000-0000000000000000",
+      "filename": "tickmark.svg"
+    },
+    {
+      "native_id": "00000249-00ff-0000-0000000000000000",
+      "filename": "tissue.svg"
+    },
+    {
+      "native_id": "0000024a-00ff-0000-0000000000000000",
+      "filename": "toilet-seat.svg"
+    },
+    {
+      "native_id": "0000024b-00ff-0000-0000000000000000",
+      "filename": "toilet-sink.svg"
+    },
+    {
+      "native_id": "0000024c-00ff-0000-0000000000000000",
+      "filename": "toilet.svg"
+    },
+    {
+      "native_id": "0000024d-00ff-0000-0000000000000000",
+      "filename": "toolbox.svg"
+    },
+    {
+      "native_id": "0000024e-00ff-0000-0000000000000000",
+      "filename": "tools-driller.svg"
+    },
+    {
+      "native_id": "0000024f-00ff-0000-0000000000000000",
+      "filename": "tools-gardening.svg"
+    },
+    {
+      "native_id": "00000250-00ff-0000-0000000000000000",
+      "filename": "tools-wood-saw.svg"
+    },
+    {
+      "native_id": "00000251-00ff-0000-0000000000000000",
+      "filename": "transfer-circle.svg"
+    },
+    {
+      "native_id": "00000252-00ff-0000-0000000000000000",
+      "filename": "transmission-tower-1.svg"
+    },
+    {
+      "native_id": "00000253-00ff-0000-0000000000000000",
+      "filename": "tree.svg"
+    },
+    {
+      "native_id": "00000254-00ff-0000-0000000000000000",
+      "filename": "trigger.svg"
+    },
+    {
+      "native_id": "00000255-00ff-0000-0000000000000000",
+      "filename": "truck-2.svg"
+    },
+    {
+      "native_id": "00000256-00ff-0000-0000000000000000",
+      "filename": "turntable.svg"
+    },
+    {
+      "native_id": "00000257-00ff-0000-0000000000000000",
+      "filename": "umbrella-open.svg"
+    },
+    {
+      "native_id": "00000258-00ff-0000-0000000000000000",
+      "filename": "undershirt.svg"
+    },
+    {
+      "native_id": "00000259-00ff-0000-0000000000000000",
+      "filename": "vacuum-cleaner.svg"
+    },
+    {
+      "native_id": "0000025a-00ff-0000-0000000000000000",
+      "filename": "valve-actuator-1.svg"
+    },
+    {
+      "native_id": "0000025b-00ff-0000-0000000000000000",
+      "filename": "valve-actuator-2.svg"
+    },
+    {
+      "native_id": "0000025c-00ff-0000-0000000000000000",
+      "filename": "vespa.svg"
+    },
+    {
+      "native_id": "0000025d-00ff-0000-0000000000000000",
+      "filename": "video-camera.svg"
+    },
+    {
+      "native_id": "0000025e-00ff-0000-0000000000000000",
+      "filename": "video-clip.svg"
+    },
+    {
+      "native_id": "0000025f-00ff-0000-0000000000000000",
+      "filename": "washing-machine.svg"
+    },
+    {
+      "native_id": "00000260-00ff-0000-0000000000000000",
+      "filename": "water-drop.svg"
+    },
+    {
+      "native_id": "00000261-00ff-0000-0000000000000000",
+      "filename": "water-drops.svg"
+    },
+    {
+      "native_id": "00000262-00ff-0000-0000000000000000",
+      "filename": "water-faucet-1.svg"
+    },
+    {
+      "native_id": "00000263-00ff-0000-0000000000000000",
+      "filename": "water-faucet-2.svg"
+    },
+    {
+      "native_id": "00000264-00ff-0000-0000000000000000",
+      "filename": "water-hose-2.svg"
+    },
+    {
+      "native_id": "00000265-00ff-0000-0000000000000000",
+      "filename": "water-hose.svg"
+    },
+    {
+      "native_id": "00000266-00ff-0000-0000000000000000",
+      "filename": "water-level-down.svg"
+    },
+    {
+      "native_id": "00000267-00ff-0000-0000000000000000",
+      "filename": "water-level-up.svg"
+    },
+    {
+      "native_id": "00000268-00ff-0000-0000000000000000",
+      "filename": "weather-cock.svg"
+    },
+    {
+      "native_id": "00000269-00ff-0000-0000000000000000",
+      "filename": "whiskey.svg"
+    },
+    {
+      "native_id": "0000026a-00ff-0000-0000000000000000",
+      "filename": "wifi-modem-2.svg"
+    },
+    {
+      "native_id": "0000026b-00ff-0000-0000000000000000",
+      "filename": "wifi-modem-3.svg"
+    },
+    {
+      "native_id": "0000026c-00ff-0000-0000000000000000",
+      "filename": "wind-fan.svg"
+    },
+    {
+      "native_id": "0000026d-00ff-0000-0000000000000000",
+      "filename": "wind-turbine.svg"
+    },
+    {
+      "native_id": "0000026e-00ff-0000-0000000000000000",
+      "filename": "windbag.svg"
+    },
+    {
+      "native_id": "0000026f-00ff-0000-0000000000000000",
+      "filename": "window-1.svg"
+    },
+    {
+      "native_id": "00000270-00ff-0000-0000000000000000",
+      "filename": "window-2.svg"
+    },
+    {
+      "native_id": "00000271-00ff-0000-0000000000000000",
+      "filename": "window-3.svg"
+    },
+    {
+      "native_id": "00000272-00ff-0000-0000000000000000",
+      "filename": "window-4.svg"
+    },
+    {
+      "native_id": "00000273-00ff-0000-0000000000000000",
+      "filename": "window-code-2.svg"
+    },
+    {
+      "native_id": "00000274-00ff-0000-0000000000000000",
+      "filename": "window-code-3.svg"
+    },
+    {
+      "native_id": "00000275-00ff-0000-0000000000000000",
+      "filename": "window-state-closed.svg"
+    },
+    {
+      "native_id": "00000276-00ff-0000-0000000000000000",
+      "filename": "window-state-open-1.svg"
+    },
+    {
+      "native_id": "00000277-00ff-0000-0000000000000000",
+      "filename": "window-state-open-2.svg"
+    },
+    {
+      "native_id": "00000278-00ff-0000-0000000000000000",
+      "filename": "wine-bottle-glass-sparkling.svg"
+    },
+    {
+      "native_id": "00000279-00ff-0000-0000000000000000",
+      "filename": "wine-bucket-sparkling.svg"
+    },
+    {
+      "native_id": "0000027a-00ff-0000-0000000000000000",
+      "filename": "wine-sparkling-cheers.svg"
+    },
+    {
+      "native_id": "0000027b-00ff-0000-0000000000000000",
+      "filename": "wrench-screwdriver.svg"
+    },
+    {
+      "native_id": "0000027c-00ff-0000-0000000000000000",
+      "filename": "wrench.svg"
+    },
+    {
+      "native_id": "0000027d-00ff-0000-0000000000000000",
+      "filename": "control-next.svg"
+    },
+    {
+      "native_id": "0000027e-00ff-0000-0000000000000000",
+      "filename": "control-previous.svg"
+    },
+    {
+      "native_id": "0000027f-00ff-0000-0000000000000000",
+      "filename": "playlist-4.svg"
+    },
+    {
+      "native_id": "00000280-00ff-0000-0000000000000000",
+      "filename": "control-stop.svg"
+    },
+    {
+      "native_id": "00000281-00ff-0000-0000000000000000",
+      "filename": "control-play.svg"
+    },
+    {
+      "native_id": "00000282-00ff-0000-0000000000000000",
+      "filename": "control-pause.svg"
+    },
+    {
+      "native_id": "00000283-00ff-0000-0000000000000000",
+      "filename": "volume-min.svg"
+    },
+    {
+      "native_id": "00000284-00ff-0000-0000000000000000",
+      "filename": "volume-max.svg"
+    },
+    {
+      "native_id": "00000285-00ff-0000-0000000000000000",
+      "filename": "volume-mute.svg"
+    },
+    {
+      "native_id": "00000286-00ff-0000-0000000000000000",
+      "filename": "volume-up.svg"
+    },
+    {
+      "native_id": "00000287-00ff-0000-0000000000000000",
+      "filename": "volume-down.svg"
+    },
+    {
+      "native_id": "00000288-00ff-0000-0000000000000000",
+      "filename": "folding-door-left-close.svg"
+    },
+    {
+      "native_id": "00000289-00ff-0000-0000000000000000",
+      "filename": "folding-door-left-open.svg"
+    },
+    {
+      "native_id": "0000028a-00ff-0000-0000000000000000",
+      "filename": "folding-door-left-open-close.svg"
+    },
+    {
+      "native_id": "0000028b-00ff-0000-0000000000000000",
+      "filename": "folding-door-right-close.svg"
+    },
+    {
+      "native_id": "0000028c-00ff-0000-0000000000000000",
+      "filename": "folding-door-right-open.svg"
+    },
+    {
+      "native_id": "0000028d-00ff-0000-0000000000000000",
+      "filename": "folding-door-right-open-close.svg"
+    },
+    {
+      "native_id": "0000028e-00ff-0000-0000000000000000",
+      "filename": "no-bell.svg"
+    },
+    {
+      "native_id": "0000028f-00ff-0000-0000000000000000",
+      "filename": "music-note-2.svg"
+    },
+    {
+      "native_id": "00000290-00ff-0000-0000000000000000",
+      "filename": "bed-sleep.svg"
+    },
+    {
+      "native_id": "00000291-00ff-0000-0000000000000000",
+      "filename": "sunrise-sunset.svg"
+    },
+    {
+      "native_id": "00000292-00ff-0000-0000000000000000",
+      "filename": "tv-screen-1.svg"
+    },
+    {
+      "native_id": "00000293-00ff-0000-0000000000000000",
+      "filename": "tv-screen-2.svg"
+    },
+    {
+      "native_id": "00000294-00ff-0000-0000000000000000",
+      "filename": "projector-screen.svg"
+    },
+    {
+      "native_id": "00000295-00ff-0000-0000000000000000",
+      "filename": "play-pause-button.svg"
+    },
+    {
+      "native_id": "00000296-00ff-0000-0000000000000000",
+      "filename": "tv-screen-3.svg"
+    },
+    {
+      "native_id": "00000297-00ff-0000-0000000000000000",
+      "filename": "control-play-pause.svg"
+    },
+    {
+      "native_id": "00000298-00ff-0000-0000000000000000",
+      "filename": "bluetooth.svg"
+    },
+    {
+      "native_id": "00000299-00ff-0000-0000000000000000",
+      "filename": "temperature-increase-decrease.svg"
+    },
+    {
+      "native_id": "0000029a-00ff-0000-0000000000000000",
+      "filename": "spray-bottle.svg"
+    },
+    {
+      "native_id": "0000029b-00ff-0000-0000000000000000",
+      "filename": "park.svg"
+    },
+    {
+      "native_id": "0000029c-00ff-0000-0000000000000000",
+      "filename": "staircase-down-2.svg"
+    },
+    {
+      "native_id": "0000029d-00ff-0000-0000000000000000",
+      "filename": "staircase-up-2.svg"
+    },
+    {
+      "native_id": "0000029e-00ff-0000-0000000000000000",
+      "filename": "tools-box.svg"
+    },
+    {
+      "native_id": "0000029f-00ff-0000-0000000000000000",
+      "filename": "tree-big-3.svg"
+    },
+    {
+      "native_id": "00000300-00ff-0000-0000000000000000",
+      "filename": "tree-big-4.svg"
+    },
+    {
+      "native_id": "00000301-00ff-0000-0000000000000000",
+      "filename": "video-meeting-laptop.svg"
+    },
+    {
+      "native_id": "00000302-00ff-0000-0000000000000000",
+      "filename": "luggage-carrier.svg"
+    },
+    {
+      "native_id": "00000303-00ff-0000-0000000000000000",
+      "filename": "gameboy.svg"
+    },
+    {
+      "native_id": "00000304-00ff-0000-0000000000000000",
+      "filename": "game-controller-3.svg"
+    },
+    {
+      "native_id": "00000305-00ff-0000-0000000000000000",
+      "filename": "coconut-juice.svg"
+    },
+    {
+      "native_id": "00000306-00ff-0000-0000000000000000",
+      "filename": "burger.svg"
+    },
+    {
+      "native_id": "00000307-00ff-0000-0000000000000000",
+      "filename": "park-sign.svg"
+    },
+    {
+      "native_id": "00000308-00ff-0000-0000000000000000",
+      "filename": "car-park.svg"
+    },
+    {
+      "native_id": "00000309-00ff-0000-0000000000000000",
+      "filename": "car-gate.svg"
+    },
+    {
+      "native_id": "0000030a-00ff-0000-0000000000000000",
+      "filename": "camera-tripod.svg"
+    },
+    {
+      "native_id": "0000030b-00ff-0000-0000000000000000",
+      "filename": "beach.svg"
+    },
+    {
+      "native_id": "0000030c-00ff-0000-0000000000000000",
+      "filename": "bench.svg"
+    },
+    {
+      "native_id": "0000030d-00ff-0000-0000000000000000",
+      "filename": "beer-glass-2.svg"
+    },
+    {
+      "native_id": "0000030e-00ff-0000-0000000000000000",
+      "filename": "barrel-ale.svg"
+    },
+    {
+      "native_id": "0000030f-00ff-0000-0000000000000000",
+      "filename": "video-meeting-group.svg"
+    },
+    {
+      "native_id": "00000310-00ff-0000-0000000000000000",
+      "filename": "sauna-oven.svg"
+    },
+    {
+      "native_id": "00000311-00ff-0000-0000000000000000",
+      "filename": "wall-plant.svg"
+    },
+    {
+      "native_id": "00000312-00ff-0000-0000000000000000",
+      "filename": "pie.svg"
+    },
+    {
+      "native_id": "00000313-00ff-0000-0000000000000000",
+      "filename": "reception-table-2.svg"
+    },
+    {
+      "native_id": "00000314-00ff-0000-0000000000000000",
+      "filename": "timer.svg"
+    },
+    {
+      "native_id": "00000315-00ff-0000-0000000000000000",
+      "filename": "timer-2.svg"
+    },
+    {
+      "native_id": "00000316-00ff-0000-0000000000000000",
+      "filename": "speech-stand.svg"
+    },
+    {
+      "native_id": "00000317-00ff-0000-0000000000000000",
+      "filename": "speech-stand-2.svg"
+    },
+    {
+      "native_id": "00000318-00ff-0000-0000000000000000",
+      "filename": "star.svg"
+    },
+    {
+      "native_id": "00000319-00ff-0000-0000000000000000",
+      "filename": "shield-2.svg"
+    },
+    {
+      "native_id": "0000031a-00ff-0000-0000000000000000",
+      "filename": "shield-cancel-2.svg"
+    },
+    {
+      "native_id": "0000031b-00ff-0000-0000000000000000",
+      "filename": "shield-cancel.svg"
+    },
+    {
+      "native_id": "0000031c-00ff-0000-0000000000000000",
+      "filename": "shield-ok-2.svg"
+    },
+    {
+      "native_id": "0000031d-00ff-0000-0000000000000000",
+      "filename": "shield-time.svg"
+    },
+    {
+      "native_id": "0000031e-00ff-0000-0000000000000000",
+      "filename": "no-shield.svg"
+    },
+    {
+      "native_id": "0000031f-00ff-0000-0000000000000000",
+      "filename": "pool-round-cover-close.svg"
+    },
+    {
+      "native_id": "00000320-00ff-0000-0000000000000000",
+      "filename": "pool-round-cover-open-close.svg"
+    },
+    {
+      "native_id": "00000321-00ff-0000-0000000000000000",
+      "filename": "pool-round-cover-open.svg"
+    },
+    {
+      "native_id": "00000322-00ff-0000-0000000000000000",
+      "filename": "pool-round.svg"
+    },
+    {
+      "native_id": "00000324-00ff-0000-0000000000000000",
+      "filename": "presentation-screen.svg"
+    },
+    {
+      "native_id": "00000325-00ff-0000-0000000000000000",
+      "filename": "shading.svg"
+    },
+    {
+      "native_id": "00000326-00ff-0000-0000000000000000",
+      "filename": "person-1.svg"
+    },
+    {
+      "native_id": "00000327-00ff-0000-0000000000000000",
+      "filename": "person-2.svg"
+    },
+    {
+      "native_id": "00000328-00ff-0000-0000000000000000",
+      "filename": "pool-cover-close.svg"
+    },
+    {
+      "native_id": "00000329-00ff-0000-0000000000000000",
+      "filename": "pool-cover-open-close.svg"
+    },
+    {
+      "native_id": "0000032a-00ff-0000-0000000000000000",
+      "filename": "pool-cover-open.svg"
+    },
+    {
+      "native_id": "0000032b-00ff-0000-0000000000000000",
+      "filename": "bubble-chat.svg"
+    },
+    {
+      "native_id": "0000032c-00ff-0000-0000000000000000",
+      "filename": "lamp-3.svg"
+    },
+    {
+      "native_id": "0000032d-00ff-0000-0000000000000000",
+      "filename": "lamp-table.svg"
+    },
+    {
+      "native_id": "0000032e-00ff-0000-0000000000000000",
+      "filename": "balcony-1.svg"
+    },
+    {
+      "native_id": "0000032f-00ff-0000-0000000000000000",
+      "filename": "balcony-2.svg"
+    },
+    {
+      "native_id": "00000330-00ff-0000-0000000000000000",
+      "filename": "balcony-3.svg"
+    },
+    {
+      "native_id": "00000331-00ff-0000-0000000000000000",
+      "filename": "balcony-4.svg"
+    },
+    {
+      "native_id": "00000332-00ff-0000-0000000000000000",
+      "filename": "brightness-increase.svg"
+    },
+    {
+      "native_id": "00000333-00ff-0000-0000000000000000",
+      "filename": "brightness-decrease.svg"
+    },
+    {
+      "native_id": "00000334-00ff-0000-0000000000000000",
+      "filename": "automatic-2.svg"
+    },
+    {
+      "native_id": "00000335-00ff-0000-0000000000000000",
+      "filename": "alarm-time.svg"
+    },
+    {
+      "native_id": "00000336-00ff-0000-0000000000000000",
+      "filename": "alarm-snooze.svg"
+    },
+    {
+      "native_id": "00000337-00ff-0000-0000000000000000",
+      "filename": "alarm-stop.svg"
+    },
+    {
+      "native_id": "00000338-00ff-0000-0000000000000000",
+      "filename": "alarm-ok.svg"
+    },
+    {
+      "native_id": "00000339-00ff-0000-0000000000000000",
+      "filename": "alarm-clock-settings.svg"
+    },
+    {
+      "native_id": "00000349-00ff-0000-0000000000000000",
+      "filename": "mode-1.svg"
+    },
+    {
+      "native_id": "0000034a-00ff-0000-0000000000000000",
+      "filename": "mode-2.svg"
+    },
+    {
+      "native_id": "0000034b-00ff-0000-0000000000000000",
+      "filename": "button-switch-on-off.svg"
+    },
+    {
+      "native_id": "0000034c-00ff-0000-0000000000000000",
+      "filename": "toggle.svg"
+    },
+    {
+      "native_id": "0000034d-00ff-0000-0000000000000000",
+      "filename": "humidity.svg"
+    },
+    {
+      "native_id": "0000034e-00ff-0000-0000000000000000",
+      "filename": "lightbulb-1.svg"
+    },
+    {
+      "native_id": "0000034f-00ff-0000-0000000000000000",
+      "filename": "circle.svg"
+    },
+    {
+      "native_id": "00000350-00ff-0000-0000000000000000",
+      "filename": "flame-2.svg"
+    },
+    {
+      "native_id": "00000351-00ff-0000-0000000000000000",
+      "filename": "globe-3.svg"
+    },
+    {
+      "native_id": "00000352-00ff-0000-0000000000000000",
+      "filename": "onnoff-circle.svg"
+    },
+    {
+      "native_id": "00000353-00ff-0000-0000000000000000",
+      "filename": "report-problem-triangle.svg"
+    },
+    {
+      "native_id": "00000354-00ff-0000-0000000000000000",
+      "filename": "storage-empty.svg"
+    },
+    {
+      "native_id": "00000355-00ff-0000-0000000000000000",
+      "filename": "storage-full.svg"
+    },
+    {
+      "native_id": "00000356-00ff-0000-0000000000000000",
+      "filename": "awning-extend.svg"
+    },
+    {
+      "native_id": "00000357-00ff-0000-0000000000000000",
+      "filename": "awning-extend-2.svg"
+    },
+    {
+      "native_id": "00000358-00ff-0000-0000000000000000",
+      "filename": "awning-extend-retract.svg"
+    },
+    {
+      "native_id": "00000359-00ff-0000-0000000000000000",
+      "filename": "awning-extended.svg"
+    },
+    {
+      "native_id": "0000035a-00ff-0000-0000000000000000",
+      "filename": "awning-retract.svg"
+    },
+    {
+      "native_id": "0000035b-00ff-0000-0000000000000000",
+      "filename": "awning-retract-2.svg"
+    },
+    {
+      "native_id": "0000035c-00ff-0000-0000000000000000",
+      "filename": "awning-retracted.svg"
+    },
+    {
+      "native_id": "0000035d-00ff-0000-0000000000000000",
+      "filename": "electricity-outlet-6.svg"
+    },
+    {
+      "native_id": "0000035e-00ff-0000-0000000000000000",
+      "filename": "garage-closed-2.svg"
+    },
+    {
+      "native_id": "0000035f-00ff-0000-0000000000000000",
+      "filename": "shoe-3.svg"
+    },
+    {
+      "native_id": "00000360-00ff-0000-0000000000000000",
+      "filename": "garage-open-2.svg"
+    },
+    {
+      "native_id": "00000361-00ff-0000-0000000000000000",
+      "filename": "window-state-unknown.svg"
+    },
+    {
+      "native_id": "00000362-00ff-0000-0000000000000000",
+      "filename": "window-state-open-3.svg"
+    },
+    {
+      "native_id": "00000363-00ff-0000-0000000000000000",
+      "filename": "window-state-closed-unsecured.svg"
+    },
+    {
+      "native_id": "00000364-00ff-0000-0000000000000000",
+      "filename": "window-state-closed-secured.svg"
+    },
+    {
+      "native_id": "00000365-00ff-0000-0000000000000000",
+      "filename": "ceiling-spot.svg"
+    },
+    {
+      "native_id": "00000366-00ff-0000-0000000000000000",
+      "filename": "led-spot.svg"
+    },
+    {
+      "native_id": "00000367-00ff-0000-0000000000000000",
+      "filename": "led-ceiling-light.svg"
+    },
+    {
+      "native_id": "00000368-00ff-0000-0000000000000000",
+      "filename": "led-strip-2.svg"
+    },
+    {
+      "native_id": "00000369-00ff-0000-0000000000000000",
+      "filename": "led-strip.svg"
+    },
+    {
+      "native_id": "0000036a-00ff-0000-0000000000000000",
+      "filename": "eiffel-tower.svg"
+    },
+    {
+      "native_id": "0000036b-00ff-0000-0000000000000000",
+      "filename": "3d-printer.svg"
+    },
+    {
+      "native_id": "0000036c-00ff-0000-0000000000000000",
+      "filename": "salt.svg"
+    },
+    {
+      "native_id": "0000036d-00ff-0000-0000000000000000",
+      "filename": "sewage.svg"
+    },
+    {
+      "native_id": "0000036e-00ff-0000-0000000000000000",
+      "filename": "drainage.svg"
+    },
+    {
+      "native_id": "0000036f-00ff-0000-0000000000000000",
+      "filename": "tube.svg"
+    },
+    {
+      "native_id": "00000370-00ff-0000-0000000000000000",
+      "filename": "ph.svg"
+    },
+    {
+      "native_id": "00000371-00ff-0000-0000000000000000",
+      "filename": "pool-jet.svg"
+    },
+    {
+      "native_id": "00000372-00ff-0000-0000000000000000",
+      "filename": "pool-round-cover-closed.svg"
+    },
+    {
+      "native_id": "00000373-00ff-0000-0000000000000000",
+      "filename": "pool-cover-closed.svg"
+    },
+    {
+      "native_id": "00000374-00ff-0000-0000000000000000",
+      "filename": "projector-screen-open.svg"
+    },
+    {
+      "native_id": "00000375-00ff-0000-0000000000000000",
+      "filename": "projector-screen-close.svg"
+    },
+    {
+      "native_id": "00000376-00ff-0000-0000000000000000",
+      "filename": "ceiling-speaker.svg"
+    },
+    {
+      "native_id": "00000377-00ff-0000-0000000000000000",
+      "filename": "bluetooth-02.svg"
+    },
+    {
+      "native_id": "00000378-00ff-0000-0000000000000000",
+      "filename": "no-vacuum-cleaner.svg"
+    },
+    {
+      "native_id": "00000379-00ff-0000-0000000000000000",
+      "filename": "pool-lights.svg"
+    },
+    {
+      "native_id": "0000037a-00ff-0000-0000000000000000",
+      "filename": "outdoor-dining.svg"
+    },
+    {
+      "native_id": "0000037b-00ff-0000-0000000000000000",
+      "filename": "make-up-room.svg"
+    },
+    {
+      "native_id": "0000037c-00ff-0000-0000000000000000",
+      "filename": "terrace.svg"
+    },
+    {
+      "native_id": "0000037d-00ff-0000-0000000000000000",
+      "filename": "picture-frame.svg"
+    },
+    {
+      "native_id": "0000037e-00ff-0000-0000000000000000",
+      "filename": "sofa-outside.svg"
+    },
+    {
+      "native_id": "0000037f-00ff-0000-0000000000000000",
+      "filename": "sun-bath-2.svg"
+    },
+    {
+      "native_id": "00000380-00ff-0000-0000000000000000",
+      "filename": "outdoor-dining-2.svg"
+    },
+    {
+      "native_id": "00000381-00ff-0000-0000000000000000",
+      "filename": "outdoor-shower.svg"
+    },
+    {
+      "native_id": "00000382-00ff-0000-0000000000000000",
+      "filename": "golf-hole.svg"
+    },
+    {
+      "native_id": "00000383-00ff-0000-0000000000000000",
+      "filename": "arrows-up-down.svg"
+    },
+    {
+      "native_id": "00000384-00ff-0000-0000000000000000",
+      "filename": "usb-flash-drive.svg"
+    },
+    {
+      "native_id": "00000385-00ff-0000-0000000000000000",
+      "filename": "usb-port.svg"
+    },
+    {
+      "native_id": "00000386-00ff-0000-0000000000000000",
+      "filename": "audio-input-stereo-minijack.svg"
+    },
+    {
+      "native_id": "00000387-00ff-0000-0000000000000000",
+      "filename": "audio-input-rca.svg"
+    },
+    {
+      "native_id": "00000388-00ff-0000-0000000000000000",
+      "filename": "audio-input-xlr.svg"
+    },
+    {
+      "native_id": "00000389-00ff-0000-0000000000000000",
+      "filename": "hdmi-port.svg"
+    },
+    {
+      "native_id": "0000038a-00ff-0000-0000000000000000",
+      "filename": "sliding-window-right-open.svg"
+    },
+    {
+      "native_id": "0000038b-00ff-0000-0000000000000000",
+      "filename": "sliding-window-right-closed.svg"
+    },
+    {
+      "native_id": "0000038c-00ff-0000-0000000000000000",
+      "filename": "sliding-window-left-closed.svg"
+    },
+    {
+      "native_id": "0000038d-00ff-0000-0000000000000000",
+      "filename": "sliding-window-left-open.svg"
+    },
+    {
+      "native_id": "0000038e-00ff-0000-0000000000000000",
+      "filename": "sliding-window-middle-closed.svg"
+    },
+    {
+      "native_id": "0000038f-00ff-0000-0000000000000000",
+      "filename": "sliding-window-middle-open.svg"
+    },
+    {
+      "native_id": "00000390-00ff-0000-0000000000000000",
+      "filename": "brightness.svg"
+    },
+    {
+      "native_id": "00000391-00ff-0000-0000000000000000",
+      "filename": "close-3.svg"
+    },
+    {
+      "native_id": "00000392-00ff-0000-0000000000000000",
+      "filename": "open-3.svg"
+    },
+    {
+      "native_id": "00000393-00ff-0000-0000000000000000",
+      "filename": "arrows-close-vertical.svg"
+    },
+    {
+      "native_id": "00000394-00ff-0000-0000000000000000",
+      "filename": "arrows-open-horizontal.svg"
+    },
+    {
+      "native_id": "00000395-00ff-0000-0000000000000000",
+      "filename": "arrows-open-vertical.svg"
+    },
+    {
+      "native_id": "00000396-00ff-0000-0000000000000000",
+      "filename": "arrows-close-horizontal.svg"
+    },
+    {
+      "native_id": "00000397-00ff-0000-0000000000000000",
+      "filename": "arrow-up-narrow.svg"
+    },
+    {
+      "native_id": "00000398-00ff-0000-0000000000000000",
+      "filename": "arrow-right-narrow.svg"
+    },
+    {
+      "native_id": "00000399-00ff-0000-0000000000000000",
+      "filename": "arrow-left-narrow.svg"
+    },
+    {
+      "native_id": "0000039a-00ff-0000-0000000000000000",
+      "filename": "arrow-down-narrow.svg"
+    },
+    {
+      "native_id": "0000039b-00ff-0000-0000000000000000",
+      "filename": "audio-equalizer.svg"
+    },
+    {
+      "native_id": "0000039c-00ff-0000-0000000000000000",
+      "filename": "door-closed.svg"
+    },
+    {
+      "native_id": "0000039d-00ff-0000-0000000000000000",
+      "filename": "on.svg"
+    },
+    {
+      "native_id": "0000039e-00ff-0000-0000000000000000",
+      "filename": "off.svg"
+    },
+    {
+      "native_id": "0000039f-00ff-0000-0000000000000000",
+      "filename": "nature-garden-grass.svg"
+    },
+    {
+      "native_id": "000003a0-00ff-0000-0000000000000000",
+      "filename": "water-fountain.svg"
+    },
+    {
+      "native_id": "000003a1-00ff-0000-0000000000000000",
+      "filename": "robotic-lawn-mower.svg"
+    },
+    {
+      "native_id": "000003a2-00ff-0000-0000000000000000",
+      "filename": "house-fence.svg"
+    },
+    {
+      "native_id": "000003a3-00ff-0000-0000000000000000",
+      "filename": "carrot.svg"
+    },
+    {
+      "native_id": "000003a4-00ff-0000-0000000000000000",
+      "filename": "swing.svg"
+    },
+    {
+      "native_id": "000003a5-00ff-0000-0000000000000000",
+      "filename": "watering-can.svg"
+    },
+    {
+      "native_id": "000003a6-00ff-0000-0000000000000000",
+      "filename": "sun-2.svg"
+    }
+  ]
+}

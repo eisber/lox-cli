@@ -1,0 +1,106 @@
+{
+  "schema_version": 1,
+  "application": {
+    "version": "17.2.10.21",
+    "sha256": "7b55e3ef18401574ab967c5c6a0140cd5a66dc728521ebba04ad53093577d8b3"
+  },
+  "block_type": "HeatIRoomController2",
+  "control_type": 469,
+  "scope": {
+    "status": "incomplete",
+    "description": "Preparation only, BLOCKED by native/core connector-shape disagreement and unverified isolated desktop identity. No GUI/native case has run. Neither Thermostat nor Setpoint is a verified alias. Every case remains PROPOSED.",
+    "source_evidence": [
+      {
+        "evidence_kind": "catalog",
+        "artifacts": [
+          {
+            "path": "tests\\ux\\hvac\\surface-inventory.json",
+            "sha256": "761592d01f014a3782cf415f025bbae37fdb5f7b79039f32ef607e8b061b860e"
+          },
+          {
+            "path": "docs\\schemas\\loxone-config.xsd",
+            "sha256": "61fd3b3184a70ede594911bc416dc64f89552f98dfae7de2923477602716079b"
+          }
+        ]
+      },
+      {
+        "evidence_kind": "native",
+        "artifacts": [
+          {
+            "path": ".reverse-engineering\\native-simulator\\families\\shading-hvac\\source-ledger.json",
+            "sha256": "eca77bc0f27456786d579cec87e2c173bdbef27bfdb7016c228d9db367ca2b83"
+          }
+        ]
+      }
+    ]
+  },
+  "capabilities": [
+    {
+      "id": "hvac.connector-admission",
+      "kind": "validation",
+      "binding": {
+        "status": "ambiguous",
+        "reason": "Pinned native registration has 56 connectors; the pinned CLI/core emits 52, omitting RtD/AQh3/AQc3/AQhc3 and differing in order. GUI regeneration is not preservation."
+      },
+      "source_evidence": [],
+      "required_case_ids": ["hvac.admission-calibration"]
+    },
+    {
+      "id": "hvac.target-measured-feedback",
+      "kind": "feedback",
+      "binding": {
+        "status": "unknown",
+        "reason": "Input is the registered target-temperature connector; Temp is measured feedback, TempO outdoor information. Runtime AQt meaning/scale and mode prerequisites are uncalibrated."
+      },
+      "source_evidence": [],
+      "required_case_ids": ["hvac.target-feedback"]
+    },
+    {
+      "id": "hvac.mode-presence-demand",
+      "kind": "feedback",
+      "binding": {
+        "status": "unknown",
+        "reason": "AMode/Move/AQh/AQc are registered. Mode enum, duty units, source capabilities, plant and schedule dependencies are unresolved."
+      },
+      "source_evidence": [],
+      "required_case_ids": ["hvac.presence-demand"]
+    },
+    {
+      "id": "hvac.advanced-storage",
+      "kind": "nested_record",
+      "binding": {
+        "status": "known",
+        "path": "C[Type=HeatIRoomController2]/Timer",
+        "reason": "The native serializer names Timer and source/priority attributes. Record encoding, omission and clock semantics are unknown; no synthetic hardware records are fabricated."
+      },
+      "source_evidence": [],
+      "required_case_ids": []
+    }
+  ],
+  "cases": [
+    {
+      "id": "hvac.admission-calibration",
+      "capability_ids": ["hvac.connector-admission"],
+      "condition": "PROPOSED and BLOCKED: the core/native connector discrepancy is resolved by the central owner and isolated desktop identity is verified.",
+      "evidence_kind": "gui_oracle",
+      "procedure": "Follow tests\\ux\\hvac\\protocol.json. Verify exact connector keys/order, UUID/reference roles, temperature units, mode enumeration and source dependencies before any native case.",
+      "expected": "PROPOSED: save/reopen preserves an admitted exact native shape and selected scalar settings. The current generated fixture is diagnostic only and cannot meet this expectation."
+    },
+    {
+      "id": "hvac.target-feedback",
+      "capability_ids": ["hvac.target-measured-feedback"],
+      "condition": "PROPOSED: admission, explicit-target semantics, source capability and official input/readback calibration are complete.",
+      "evidence_kind": "gui_oracle",
+      "procedure": "Apply only the queued target/room-temperature sequence; compare official target feedback at fixed measured temperature using the predeclared bounds.",
+      "expected": "PROPOSED: target feedback changes monotonically with explicit target changes and does not masquerade as measured temperature. No demand algorithm is asserted."
+    },
+    {
+      "id": "hvac.presence-demand",
+      "capability_ids": ["hvac.mode-presence-demand"],
+      "condition": "PROPOSED: heat-only mode, presence polarity, target temperature and source prerequisites are independently calibrated without hardware fabrication.",
+      "evidence_kind": "gui_oracle",
+      "procedure": "Compare the queued presence/temperature cases using the declared simulator-clock observations and bounded waits.",
+      "expected": "PROPOSED: a colder room with confirmed comfort demand yields positive finite heating feedback without simultaneous cooling. Missing plant capabilities or unresolved units are BLOCKED, not simulated successes."
+    }
+  ]
+}
