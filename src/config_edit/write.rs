@@ -97,13 +97,13 @@ impl ConfigEditor {
             let Some(end) = Self::xml_tag_end(bytes, i) else {
                 break;
             };
-            out.push_str(&s[last..i].replace('\n', "\r\n"));
+            out.push_str(&s[last..i].replace("\r\n", "\n").replace('\n', "\r\n"));
             out.push_str(&s[i..end]);
             i = end;
             last = i;
         }
 
-        out.push_str(&s[last..].replace('\n', "\r\n"));
+        out.push_str(&s[last..].replace("\r\n", "\n").replace('\n', "\r\n"));
         out
     }
 
@@ -284,6 +284,21 @@ mod tests {
     }
 
     #[test]
+    fn test_crlf_conversion_preserves_attrs_and_opaque_markup() {
+        let xml = "<?xml version=\"1.0\"?>\r\n\
+<C Text='one\ntwo' APC=\"one\r\ntwo\">\r\n\
+<!-- <C A=\"x\"> one\r\ntwo -->\r\n\
+<![CDATA[<C A=\"x\"> one\r\ntwo]]>\r\n\
+<?test <C A=\"x\"> one\r\ntwo?>\r\n\
+</C>\r\n";
+        assert_eq!(ConfigEditor::to_crlf_outside_attrs(xml), xml);
+        assert_eq!(
+            ConfigEditor::to_crlf_outside_attrs("<C Text='one\ntwo'>\n</C>\n"),
+            "<C Text='one\ntwo'>\r\n</C>\r\n"
+        );
+    }
+
+    #[test]
     fn test_write_preserves_comment_and_cdata_payloads() {
         let xml = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n\
 <ControlList Version=\"1\">\n\
@@ -295,5 +310,51 @@ mod tests {
 
         assert!(out.contains("<!-- preserve <IoData/> and &#xA; literally -->"));
         assert!(out.contains("<![CDATA[preserve <IoData/> and &#xA; literally]]>"));
+    }
+
+    #[test]
+    fn test_repeated_writes_preserve_multiline_attributes_and_line_endings() {
+        for newline in ["\n", "\r\n"] {
+            let note = format!("first{newline}second{newline}third");
+            let xml = format!(
+                "<?xml version=\"1.0\" encoding=\"utf-8\"?>{newline}\
+<ControlList Version=\"1\">{newline}\
+\t<C Type=\"Text\" Title=\"Note\" Text=\"{note}\"/>{newline}\
+</ControlList>{newline}"
+            );
+            let mut bytes = super::UTF8_BOM.to_vec();
+            bytes.extend_from_slice(xml.as_bytes());
+            for edit in 0..3 {
+                let mut editor = ConfigEditor::load(&bytes).unwrap();
+                editor
+                    .root
+                    .attributes
+                    .insert("Unrelated".into(), edit.to_string());
+                bytes = editor.to_bytes().unwrap();
+                assert!(bytes.starts_with(super::UTF8_BOM));
+                let text = std::str::from_utf8(&bytes).unwrap();
+                assert!(text.contains(&format!("Text=\"{note}\"")));
+                assert!(!text.contains("&#xD;"));
+                assert!(!text.contains("\r\r\n"));
+                if newline == "\r\n" {
+                    assert!(!text.replace("\r\n", "").contains('\n'));
+                }
+            }
+        }
+    }
+
+    #[test]
+    fn test_write_preserves_lone_attribute_cr_and_literal_entity_text() {
+        let xml = b"<ControlList><C Text=\"left&#13;right\" Literal=\"&amp;#xD;\"/></ControlList>";
+        let editor = ConfigEditor::load(xml).unwrap();
+        let bytes = editor.to_bytes().unwrap();
+        let text = std::str::from_utf8(&bytes).unwrap();
+        assert!(text.contains("Text=\"left\rright\""));
+        assert!(text.contains("Literal=\"&amp;#xD;\""));
+        let reloaded = ConfigEditor::load(&bytes).unwrap();
+        assert_eq!(
+            reloaded.root.get_child("C").unwrap().attributes,
+            editor.root.get_child("C").unwrap().attributes
+        );
     }
 }

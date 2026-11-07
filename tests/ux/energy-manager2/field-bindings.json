@@ -1,0 +1,101 @@
+{
+  "schema_version": 1,
+  "application": {
+    "version": "17.2.10.21",
+    "sha256": "7b55e3ef18401574ab967c5c6a0140cd5a66dc728521ebba04ad53093577d8b3"
+  },
+  "block_type": "EnergyManager2",
+  "control_type": 515,
+  "status": "verified_subset_not_complete_gui_parity",
+  "scalar_storage": "C[@Type='EnergyManager2']/Co[@K='<key>']/@Def; absent Def uses catalog default 0. Co/@U is the connector identity, not the parameter value.",
+  "scalars": {
+    "O": {
+      "role": "parameter",
+      "meaning": "Offset grid power: zero targets no grid/storage import or export; positive permits grid/storage draw; negative reserves generated power for grid export/storage charging.",
+      "unit": "kW",
+      "default": 0,
+      "catalog_min": null,
+      "catalog_max": null,
+      "gui_verified_values": [-1.25, 0, 2.75],
+      "encoding": "Invariant decimal in Co/@Def; GUI used decimal comma in this Windows session.",
+      "evidence": ["catalog ControlType=515 Parameter Id=1", "selected-energy.png", "locale-output.Loxone", "scalar-lower-output.Loxone"],
+      "warning": "The existing release get-params direction heuristic incorrectly labels key O as output; do not reuse that classification."
+    },
+    "MinSoc": {
+      "role": "parameter",
+      "meaning": "Minimum storage state of charge; greater than zero prioritizes storage charging until its state of charge is reached.",
+      "unit": "%",
+      "default": 0,
+      "catalog_min": 0,
+      "catalog_max": 100,
+      "gui_verified_values": [0, 100],
+      "gui_invalid_attempt": "Typing 101 while starting from 100 left 100; this is GUI input filtering, not proof of a CLI error contract.",
+      "runtime_dependency": "Soc, Spwr and MaxSpwr; documented behavior is not an executed SPS oracle.",
+      "evidence": ["catalog ControlType=515 Parameter Id=2", "minsoc-upper.uia.txt", "minsoc-over.uia.txt", "scalar-lower-output.Loxone"]
+    },
+    "MaxSpwr": {
+      "role": "parameter",
+      "meaning": "Maximum charging power of the storage.",
+      "unit": "kW",
+      "default": 0,
+      "catalog_min": 0,
+      "catalog_max": null,
+      "gui_verified_values": [0, 5.5],
+      "gui_invalid_attempt": "Typing -1 from 5.5 produced 0, saved by omission of Def.",
+      "zero_runtime_meaning": "unverified; zero is accepted/default storage, not evidence of unlimited charging or disabled storage",
+      "evidence": ["catalog ControlType=515 Parameter Id=3", "maxspwr-comma.uia.txt", "maxspwr-negative.uia.txt", "scalar-lower-output.Loxone"]
+    }
+  },
+  "loads": {
+    "container": "Twelve direct Load children in priority order, including unused slots. GUI displays priorities 1..12; OIdx binds output L(OIdx+1), not priority.",
+    "fields": {
+      "Id": {"type": "uuid", "meaning": "Persistent load identity; preserved when GUI changes priority.", "gui_editable": false},
+      "U": {"type": "boolean", "default": false, "meaning": "Output connected/used flag, not enable checkbox; remains true when an already connected load is assigned zero rated power.", "gui_editable": false},
+      "Na": {"type": "string", "default": "", "meaning": "Editable load name."},
+      "Ncu": {"type": "boolean", "default": false, "meaning": "Name customization marker; native name setter sets this to 1."},
+      "An": {"type": "boolean", "default": false, "meaning": "False/absent Digital; true Analog. GUI and saved XML independently verified."},
+      "Anc": {"type": "boolean", "default": false, "meaning": "Type customization marker; native type setter sets this to 1."},
+      "OIdx": {"type": "integer", "meaning": "Zero-based stable output association, 0..11 for L1..L12; NOT load priority. Do not renumber when reordering."},
+      "RT": {"type": "integer", "unit": "s", "default": 60, "gui_min": 30, "gui_max": 86400, "meaning": "Preparation time; not minimum runtime.", "gui_verified_values": [30, 60, 86400], "native_setter": "Clamp values below 30 to 30; GUI attempted 0 retained previous 30."},
+      "MinRt": {"type": "integer", "unit": "s", "default": 0, "gui_unit": "min", "meaning": "Minimum run-time. GUI input is converted via QVariant::toInt then multiplied by 60; 1,5 rounds to 2 min => 120 s.", "gui_verified_values_seconds": [-60, 120, 600], "warning": "Negative -1 min is accepted and saves -60. Do not invent a nonnegative validity rule or treat the native max-double editor bound as a safe integer conversion bound."},
+      "MDay": {"type": "integer", "unit": "s", "default": 0, "gui_unit": "min/day", "gui_min": 0, "gui_max": 1440, "meaning": "Daily minimum run-time; integer minute conversion multiplied by 60.", "gui_verified_values_seconds": [0, 300, 86400], "gui_invalid_attempt": "Typing 1441 produced accepted prefix 144 minutes (8640 seconds), not an error and not clamping to 1440."},
+      "tpR": {"type": "integer", "default": 0, "meaning": "Deadline selector for daily minimum runtime.", "native_choices": {"0": "Sunset", "1": "Dusk", "2": "Sunrise", "3": "Dawn", "4..27": "01:00..24:00"}, "gui_verified_choices": {"0": "Sunset", "1": "Dusk"}, "unknown": "Invalid selector and daily-cycle/timing execution not verified."},
+      "SwPwr": {"type": "double", "unit": "kW", "default": 0, "gui_min": 0, "meaning": "Switch-on power.", "native_zero_behavior": "Setting zero substitutes current MaxPwr. Setting MaxPwr also copies it into SwPwr when SwPwr is zero.", "gui_verified_zero_behavior": "With MaxPwr=2.5, entering zero saves SwPwr=2.5.", "cross_field_note": "SwPwr > MaxPwr is permitted (official sample 2.6 > 2.5), not a universal invalid relation."},
+      "MaxPwr": {"type": "double", "unit": "kW", "default": 0, "gui_min": 0, "meaning": "Rated power.", "gui_verified_zero_behavior": "Zero is accepted, XML omits MaxPwr, existing U=true is preserved and the GUI row is pink."},
+      "ico": {"type": "uuid", "meaning": "Icon reference, preserved by the tested edits and reordering.", "unknown": "Icon picker CRUD/reference validity is not GUI-tested."}
+    },
+    "operations": {
+      "read": "All 12 records visible, including empty/pink unused rows.",
+      "update": "Name, mode, preparation, minimum runtime, daily minimum, deadline and power fields edited and saved in an owned offline official sample.",
+      "reorder": "GUI down swaps direct Load record order with complete Id/attribute records; OIdx remains 0/1 on its original load. Co/@U and all input/reference UUID spellings remain unchanged.",
+      "add_delete": "No add/delete buttons in the observed dialog. Dynamic creation/removal and duplicate/dangling-reference acceptance remain unverified; do not claim CRUD parity.",
+      "unused_feedback": "GUI explicitly says unconnected outputs are unused and red; native pink condition is U==0 OR MaxPwr<=0. Zero-rated connected case independently observed.",
+      "preservation": "Retain empty slots, Load identities, output indices, icon references, all connector/wire UUIDs, unknown attributes and children. Preserve unrelated production/user/alarm data and original fixture bytes. Do not sanitize digit-prefixed 12hTF attributes or strip UUIDs."
+    },
+    "native_anchors": {
+      "registration": "0x140617d90",
+      "load_constructor": "0x140613ef0",
+      "load_xml_reader": "0x14061c8e0",
+      "column_text": "0x140615680",
+      "column_types": "0x1406160c0",
+      "minimum": "0x140616400",
+      "maximum": "0x1406163d0",
+      "precision": "0x1406163b0",
+      "setter": "0x14061b060",
+      "row_feedback": "0x1406152e0",
+      "sort_down": "0x140939e90",
+      "sort_up": "0x140939ee0",
+      "sort_swap": "0x140939b10",
+      "sort_buttons": "0x140939f30",
+      "qt_metacall": "0x140c08540",
+      "shared_dispatcher_not_exported": "0x140c084d0"
+    }
+  },
+  "raw_evidence_directory": ".reverse-engineering\\ux\\energy-manager2",
+  "blockers": [
+    "No GUI-executed SPS storage-priority, deadline/day-cycle or MaxSpwr=0 runtime oracle; offline editing is not runtime parity.",
+    "Non-finite/scientific numeric input, integer overflow, duplicate Id/OIdx, dangling icon/reference and structural add/delete behavior unverified.",
+    "Only Dusk/Sunset deadline values are GUI-save verified; remaining selector labels come from native enumeration and visible popup leads.",
+    "All evidence is version-bound to the stated executable; synthetic fixtures are native/implementation cases only, not GUI golden projects."
+  ]
+}

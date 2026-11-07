@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "name": "Open the owned offline Config quick search",
+  "requires": {
+    "exe_sha256": "7b55e3ef18401574ab967c5c6a0140cd5a66dc728521ebba04ad53093577d8b3"
+  },
+  "steps": [
+    {"op": "focus", "window_class": "CLxMainWindow"},
+    {"op": "invoke", "window_class": "CLxMainWindow", "selector": {"automation_id_suffix": ".CategoryButtonContainer.QuickSearch"}},
+    {"op": "windows"}
+  ]
+}

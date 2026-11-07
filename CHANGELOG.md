@@ -8,7 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Fixed
-- Writing a `.Loxone` file no longer adds a carriage return to every line break inside attribute values. Loxone keeps bare LF in note text and CRLF in AutoPilot rule JSON; the CRLF post-process converted those too, and each save re-emitted the extra CR as `&#xD;`, so notes and AutoPilot rules grew one `&#xD;` per line break per save. Saving an unedited real-world config is now byte-identical.
+- Writing a `.Loxone` file preserves line breaks inside attribute values. Loxone keeps bare LF in note text and CRLF in AutoPilot rule JSON; the CRLF post-process previously converted both to the file's line ending. Repeated saves now keep each attribute's own line breaks without accumulating extra carriage returns.
 
 ## [0.14.2] — 2026-05-08
 
