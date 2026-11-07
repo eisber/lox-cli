@@ -16,7 +16,7 @@ struct ParsedConnector {
     key: String,
     dir: ConnectorDir,
     default_value: f64,
-    explicit_source_uuid: Option<String>,
+    explicit_source_uuids: Vec<String>,
 }
 
 #[derive(Debug, Clone)]
@@ -120,8 +120,8 @@ pub fn parse_element(root: &Element) -> Result<SimGraph, String> {
                 .entry(connector.uuid.clone())
                 .or_insert(cid);
             // Also track per-block for shared-UUID wiring
-            // If this connector has an explicit source, record the wire with THIS cid
-            if let Some(source_ref) = &connector.explicit_source_uuid {
+            // If this connector has explicit sources, record the wires with THIS cid
+            for source_ref in &connector.explicit_source_uuids {
                 explicit_wires.push((source_ref.clone(), cid));
             }
             shared_uuid_map
@@ -132,25 +132,23 @@ pub fn parse_element(root: &Element) -> Result<SimGraph, String> {
     }
 
     let mut wired_inputs = HashSet::new();
-    // First pass: resolve UUID-based wires (source is a UUID)
-    for (source_ref, dest_cid) in &explicit_wires {
-        if let Some(&from) = uuid_to_connector.get(source_ref) {
-            if wired_inputs.insert(*dest_cid) {
-                if let Err(error) = graph.add_wire(from, *dest_cid) {
-                    // Degrade gracefully: skip the offending wire instead of
-                    // aborting the whole parse, and name the endpoints.
-                    wired_inputs.remove(dest_cid);
-                    let from_uuid = cid_uuid.get(&from).cloned().unwrap_or_default();
-                    let to_uuid = cid_uuid.get(dest_cid).cloned().unwrap_or_default();
-                    let from_desc = graph.describe_connector(from, &from_uuid);
-                    let to_desc = graph.describe_connector(*dest_cid, &to_uuid);
-                    graph.push_warning(format!("skipped wire {from_desc} -> {to_desc}: {error}"));
-                }
-            }
+    // Explicit wires are collected per input before wiring: Loxone Config lets
+    // several lines end on one input (`Nc="2"`, one `<In>` per line). How they
+    // combine depends on the destination block, see `fan_in_block_type`.
+    let mut sources_by_input: Vec<(usize, Vec<usize>)> = Vec::new();
+    let mut input_slot: HashMap<usize, usize> = HashMap::new();
+    let mut add_source = |dest_cid: usize, from: usize| {
+        let slot = *input_slot.entry(dest_cid).or_insert_with(|| {
+            sources_by_input.push((dest_cid, Vec::new()));
+            sources_by_input.len() - 1
+        });
+        let sources = &mut sources_by_input[slot].1;
+        if !sources.contains(&from) {
+            sources.push(from);
         }
-    }
+    };
 
-    // Second pass: resolve name-based wiring ("Title.Connector" format, FLG="2")
+    // Build name-based resolution ("Title.Connector" format, FLG="2").
     let mut name_to_output: HashMap<String, usize> = HashMap::new();
     for bid in 0..graph.block_count() {
         let info = graph.block_info(bid);
@@ -174,20 +172,51 @@ pub fn parse_element(root: &Element) -> Result<SimGraph, String> {
     }
 
     for (source_ref, dest_cid) in &explicit_wires {
-        // Already resolved by UUID above?
-        if uuid_to_connector.contains_key(source_ref) {
-            continue;
+        // Keep XML source order even when UUID and name references are mixed.
+        if let Some(&from) = uuid_to_connector
+            .get(source_ref)
+            .or_else(|| name_to_output.get(source_ref))
+        {
+            add_source(*dest_cid, from);
         }
-        // Try name-based resolution
-        if let Some(&from) = name_to_output.get(source_ref) {
-            if wired_inputs.insert(*dest_cid) {
-                if let Err(error) = graph.add_wire(from, *dest_cid) {
-                    wired_inputs.remove(dest_cid);
-                    let to_uuid = cid_uuid.get(dest_cid).cloned().unwrap_or_default();
-                    let to_desc = graph.describe_connector(*dest_cid, &to_uuid);
-                    graph.push_warning(format!("skipped wire {source_ref} -> {to_desc}: {error}"));
+    }
+
+    for (dest_cid, sources) in &sources_by_input {
+        // Sources that are not outputs cannot be wired; report them like any
+        // other skipped wire instead of letting them count as a source.
+        let valid: Vec<usize> = sources
+            .iter()
+            .copied()
+            .filter(|&from| wire_source_is_valid(&mut graph, &cid_uuid, from, *dest_cid))
+            .collect();
+        let wired = match valid.as_slice() {
+            [] => false,
+            [from] => wire_or_warn(&mut graph, &cid_uuid, *from, *dest_cid),
+            _ => {
+                let dest_type = graph
+                    .block_info(graph.connector(*dest_cid).block_id)
+                    .block_type
+                    .clone();
+                match fan_in_block_type(&dest_type) {
+                    Some(fan_in_type) => {
+                        wire_fan_in(&mut graph, &cid_uuid, &valid, *dest_cid, fan_in_type)
+                    }
+                    None => {
+                        // Not modelled: keep the first line, as before, but say so.
+                        let to_uuid = cid_uuid.get(dest_cid).cloned().unwrap_or_default();
+                        let to_desc = graph.describe_connector(*dest_cid, &to_uuid);
+                        graph.push_warning(format!(
+                            "{to_desc} has {} sources; combining several sources on one \
+                             {dest_type} input is not modelled, only the first one is used",
+                            valid.len()
+                        ));
+                        wire_or_warn(&mut graph, &cid_uuid, valid[0], *dest_cid)
+                    }
                 }
             }
+        };
+        if wired {
+            wired_inputs.insert(*dest_cid);
         }
     }
 
@@ -220,6 +249,96 @@ pub fn parse_element(root: &Element) -> Result<SimGraph, String> {
     warn_analog_multiplexer2_selectors(&mut graph);
 
     Ok(graph)
+}
+
+/// Add a wire, or record a warning naming both endpoints if it is invalid.
+/// Returns whether the wire was added.
+fn wire_or_warn(
+    graph: &mut SimGraph,
+    cid_uuid: &HashMap<usize, String>,
+    from: usize,
+    to: usize,
+) -> bool {
+    match graph.add_wire(from, to) {
+        Ok(()) => true,
+        Err(error) => {
+            // Degrade gracefully: skip the offending wire instead of
+            // aborting the whole parse, and name the endpoints.
+            let from_uuid = cid_uuid.get(&from).cloned().unwrap_or_default();
+            let to_uuid = cid_uuid.get(&to).cloned().unwrap_or_default();
+            let from_desc = graph.describe_connector(from, &from_uuid);
+            let to_desc = graph.describe_connector(to, &to_uuid);
+            graph.push_warning(format!("skipped wire {from_desc} -> {to_desc}: {error}"));
+            false
+        }
+    }
+}
+
+/// Whether `from` can drive an input. Records the usual "skipped wire"
+/// warning when it cannot (e.g. an input connector used as a source).
+fn wire_source_is_valid(
+    graph: &mut SimGraph,
+    cid_uuid: &HashMap<usize, String>,
+    from: usize,
+    to: usize,
+) -> bool {
+    if graph.connector(from).dir == ConnectorDir::Output {
+        return true;
+    }
+    // add_wire rejects the source before touching the graph, so this only
+    // produces the warning.
+    wire_or_warn(graph, cid_uuid, from, to);
+    false
+}
+
+/// Block type that combines several lines ending on one input of a
+/// `dest_block_type` block, as documented in the Loxone help: And ANDs them,
+/// Or and Xor OR them. `None` for every other block: Add, Add4, Average,
+/// Minmax and Mult take several values per input since Config 14.5, and for
+/// the rest the behaviour is not documented, so it is not guessed.
+fn fan_in_block_type(dest_block_type: &str) -> Option<&'static str> {
+    match dest_block_type {
+        "And" => Some("And"),
+        "Or" | "Xor" => Some("Or"),
+        _ => None,
+    }
+}
+
+/// Wire several sources into one input through a synthetic `block_type`
+/// block (from `fan_in_block_type`) named `"<block>.<input> (fan-in)"`.
+/// Returns whether the input got wired.
+fn wire_fan_in(
+    graph: &mut SimGraph,
+    cid_uuid: &HashMap<usize, String>,
+    sources: &[usize],
+    dest_cid: usize,
+    block_type: &str,
+) -> bool {
+    let dest_block = graph.block_info(graph.connector(dest_cid).block_id);
+    let name = format!(
+        "{}.{} (fan-in)",
+        dest_block.name,
+        graph.connector(dest_cid).key
+    );
+    let room = dest_block.room.clone();
+    let input_keys: Vec<String> = (1..=sources.len()).map(|i| format!("I{i}")).collect();
+    let input_refs: Vec<&str> = input_keys.iter().map(|s| s.as_str()).collect();
+    let fan_in_id = graph.add_block_with_type(
+        name,
+        create_block(block_type),
+        &input_refs,
+        &["Q"],
+        &[],
+        block_type,
+    );
+    graph.blocks[fan_in_id].room = room;
+
+    let fan_in_inputs = graph.block_info(fan_in_id).inputs.clone();
+    let fan_in_output = graph.block_info(fan_in_id).outputs[0];
+    for (&from, &to) in sources.iter().zip(&fan_in_inputs) {
+        wire_or_warn(graph, cid_uuid, from, to);
+    }
+    wire_or_warn(graph, cid_uuid, fan_in_output, dest_cid)
 }
 
 /// Warn when an `AnalogMultiplexer2`'s `Select` input is wired. Loxone's
@@ -329,24 +448,26 @@ fn parse_connectors(block_type: &str, elem: &Element) -> Vec<ParsedConnector> {
         .filter_map(|connector| {
             let key = connector.attributes.get("K")?.clone();
             let uuid = connector.attributes.get("U")?.clone();
-            let explicit_source_uuid = connector
+            // One `<In>` per line drawn into this connector (`Nc` counts them).
+            let explicit_source_uuids: Vec<String> = connector
                 .children
                 .iter()
                 .filter_map(|child| child.as_element())
-                .find(|child| child.name == "In")
-                .and_then(|input| input.attributes.get("Input").cloned());
+                .filter(|child| child.name == "In")
+                .filter_map(|input| input.attributes.get("Input").cloned())
+                .collect();
             let default_value = connector
                 .attributes
                 .get("Def")
                 .and_then(|value| value.replace(',', ".").parse::<f64>().ok())
                 .unwrap_or(0.0);
-            let dir = connector_direction(block_type, &key, explicit_source_uuid.is_some());
+            let dir = connector_direction(block_type, &key, !explicit_source_uuids.is_empty());
             Some(ParsedConnector {
                 uuid,
                 key,
                 dir,
                 default_value,
-                explicit_source_uuid,
+                explicit_source_uuids,
             })
         })
         .collect();
@@ -464,7 +585,17 @@ fn normalize_connectors(block_type: &str, explicit: Vec<ParsedConnector>) -> Vec
                     key: (*key).to_string(),
                     dir,
                     default_value: 0.0,
-                    explicit_source_uuid: None,
+                    explicit_source_uuids: Vec::new(),
+                });
+            } else if let Some(default_value) = positional_param_default(block_type, key) {
+                // These blocks read params by signature position, so a
+                // missing one would shift all that follow it.
+                normalized.push(ParsedConnector {
+                    uuid: format!("__synthetic__{block_type}__{key}"),
+                    key: (*key).to_string(),
+                    dir,
+                    default_value,
+                    explicit_source_uuids: Vec::new(),
                 });
             }
         }
@@ -472,6 +603,26 @@ fn normalize_connectors(block_type: &str, explicit: Vec<ParsedConnector>) -> Vec
 
     normalized.extend(by_key.into_values());
     normalized
+}
+
+/// Loxone's defaults for the parameters of blocks that index `params` by
+/// signature position (PI, PID). `None` for every other block or key.
+fn positional_param_default(block_type: &str, key: &str) -> Option<f64> {
+    if !matches!(block_type, "PI" | "PID") {
+        return None;
+    }
+    Some(match key {
+        "Target" => 5.0,
+        "SampleTime" => 1.0,
+        "Trigger" => 1.0,
+        "P" => 2.0,
+        "I" => 1.0,
+        "D" => 0.0,
+        "MV" => 5.0,
+        "Min" => 0.0,
+        "Max" => 10.0,
+        _ => return None,
+    })
 }
 
 fn block_signature(
@@ -587,6 +738,8 @@ fn block_signature(
         "OnOffDelay" => (&["InputTrigger"], &["Q"], &["TimeOn", "TimeOff"]),
         "OnPulseDelay" => (&["InputTrigger"], &["Q"], &["Delay", "Time"]),
         "Or" => (&["I1", "I2"], &["Q"], &[]),
+        // Merker: AQ carries the value, Q whether it is non-zero
+        "Memory" => (&["Input"], &["AQ", "Q"], &[]),
         "PassThrough" => (&["I1", "Input"], &["Q", "AQ"], &[]),
         "PresenceDetector" => (
             &["InputActivate", "InputExtend", "InputTrigger", "InputReset"],
@@ -2529,5 +2682,238 @@ mod tests {
         assert!(has_i1, "LightController2 should have I1 connector");
         assert!(has_reset, "LightController2 should have Reset connector");
         assert!(has_aq1, "LightController2 should have AQ1 connector");
+    }
+
+    /// Gate of `gate_type` with sources A and B both on I1 and I2 at `i2`.
+    fn two_sources_on_i1(gate_type: &str, i2: &str) -> SimGraph {
+        // Config writes one <In> per line drawn into a connector (Nc="2").
+        let xml = format!(
+            r#"<?xml version="1.0" encoding="utf-8"?>
+<ControlList>
+  <C Type="VirtualIn" U="a" Title="A"><Co K="Q" U="a-q"/></C>
+  <C Type="VirtualIn" U="b" Title="B"><Co K="Q" U="b-q"/></C>
+  <C Type="{gate_type}" U="g" Title="Gate">
+    <Co K="I1" U="g-i1" Nc="2"><In Input="a-q"/><In Input="b-q"/></Co>
+    <Co K="I2" U="g-i2" Def="{i2}"/>
+    <Co K="Q" U="g-q"/>
+  </C>
+</ControlList>"#
+        );
+        parse_bytes(xml.as_bytes()).expect("parse")
+    }
+
+    /// Check `Gate.Q` for the four combinations of A and B.
+    fn assert_truth_table(graph: SimGraph, expected: [f64; 4]) {
+        let mut e = crate::engine::SimEngine::new(graph);
+        for ((a, b), want) in [(0.0, 0.0), (1.0, 0.0), (0.0, 1.0), (1.0, 1.0)]
+            .into_iter()
+            .zip(expected)
+        {
+            e.set_input("A", a);
+            e.set_input("B", b);
+            e.tick(0.1);
+            assert_eq!(e.get_output("Gate.Q"), want, "A={a} B={b}");
+        }
+    }
+
+    fn fan_in_type_of_i1(graph: &SimGraph) -> String {
+        let gate = graph.find_block_by_name("Gate").unwrap();
+        let i1 = graph.find_connector(gate, "I1").unwrap();
+        let src = graph.input_source_of(i1).expect("I1 wired");
+        let fan_in = graph.block_info(graph.connector(src).block_id);
+        assert_eq!(fan_in.name, "Gate.I1 (fan-in)");
+        assert_eq!(fan_in.inputs.len(), 2);
+        fan_in.block_type.clone()
+    }
+
+    #[test]
+    fn several_sources_on_an_and_input_are_anded() {
+        // Loxone help, And: lines on one input are AND-linked as well.
+        let graph = two_sources_on_i1("And", "1");
+        assert!(graph.warnings().is_empty(), "{:?}", graph.warnings());
+        assert_eq!(fan_in_type_of_i1(&graph), "And");
+        assert_truth_table(graph, [0.0, 0.0, 0.0, 1.0]);
+    }
+
+    #[test]
+    fn several_sources_on_an_or_input_are_ored() {
+        // Loxone help, Or: lines on one input are OR-linked as well.
+        let graph = two_sources_on_i1("Or", "0");
+        assert!(graph.warnings().is_empty(), "{:?}", graph.warnings());
+        assert_eq!(fan_in_type_of_i1(&graph), "Or");
+        assert_truth_table(graph, [0.0, 1.0, 1.0, 1.0]);
+    }
+
+    #[test]
+    fn several_sources_on_a_xor_input_are_ored() {
+        // Loxone help, Xor: lines on one input are OR-linked with each other.
+        let graph = two_sources_on_i1("Xor", "0");
+        assert!(graph.warnings().is_empty(), "{:?}", graph.warnings());
+        assert_eq!(fan_in_type_of_i1(&graph), "Or");
+        assert_truth_table(graph, [0.0, 1.0, 1.0, 1.0]);
+    }
+
+    #[test]
+    fn several_sources_on_other_inputs_keep_the_first_and_warn() {
+        // How e.g. a Merker combines two lines is not documented: wire the
+        // first one as before and report it instead of assuming OR.
+        let xml = r#"<?xml version="1.0" encoding="utf-8"?>
+<ControlList>
+  <C Type="VirtualIn" U="a" Title="A"><Co K="Q" U="a-q"/></C>
+  <C Type="VirtualIn" U="b" Title="B"><Co K="Q" U="b-q"/></C>
+  <C Type="Memory" U="m" Title="Flag">
+    <Co K="Input" Nc="2" U="m-in"><In Input="a-q"/><In Input="b-q"/></Co>
+    <Co K="AQ" U="m-aq"/>
+    <Co K="Q" U="m-q"/>
+  </C>
+</ControlList>"#;
+        let graph = parse_bytes(xml.as_bytes()).expect("parse");
+        assert_eq!(graph.block_count(), 3, "no fan-in block");
+        assert!(
+            graph
+                .warnings()
+                .iter()
+                .any(|w| w.contains("'Flag' (Memory).Input")
+                    && w.contains("has 2 sources")
+                    && w.contains("only the first one is used")),
+            "{:?}",
+            graph.warnings()
+        );
+        let mut e = crate::engine::SimEngine::new(graph);
+        e.set_input("A", 1.0);
+        e.tick(0.1);
+        assert_eq!(e.get_output("Flag.AQ"), 1.0);
+        e.set_input("A", 0.0);
+        e.set_input("B", 1.0);
+        e.tick(0.1);
+        assert_eq!(e.get_output("Flag.AQ"), 0.0, "second source is not wired");
+    }
+
+    #[test]
+    fn mixed_name_and_uuid_sources_preserve_xml_order() {
+        let xml = r#"<ControlList>
+  <C Type="VirtualIn" U="a" Title="A"><Co K="Q" U="a-q"/></C>
+  <C Type="VirtualIn" U="b" Title="B"><Co K="Q" U="b-q"/></C>
+  <C Type="Memory" U="m" Title="Flag">
+    <Co K="Input" U="m-in" Nc="2"><In Input="A.Q" FLG="2"/><In Input="b-q"/></Co>
+    <Co K="AQ" U="m-aq"/>
+  </C>
+</ControlList>"#;
+        let graph = parse_bytes(xml.as_bytes()).expect("parse");
+        assert_eq!(graph.warnings().len(), 1);
+        let mut engine = crate::engine::SimEngine::new(graph);
+        engine.set_input("A", 7.0);
+        engine.set_input("B", 3.0);
+        engine.tick(0.1);
+        assert_eq!(engine.get_output("Flag.AQ"), 7.0);
+    }
+
+    #[test]
+    fn single_source_is_wired_directly() {
+        let xml = r#"<?xml version="1.0" encoding="utf-8"?>
+<ControlList>
+  <C Type="VirtualIn" U="a" Title="MotionA"><Co K="Q" U="a-q"/></C>
+  <C Type="Or" U="g" Title="Gate">
+    <Co K="I1" U="g-i1" Nc="1"><In Input="a-q"/></Co>
+    <Co K="Q" U="g-q"/>
+  </C>
+</ControlList>"#;
+        let graph = parse_bytes(xml.as_bytes()).expect("parse");
+        assert_eq!(graph.block_count(), 2, "no fan-in block for one source");
+    }
+
+    #[test]
+    fn invalid_extra_source_is_skipped_with_warning() {
+        // One valid source plus an input connector used as a source: the
+        // valid one is wired directly, the other one is reported.
+        let xml = r#"<?xml version="1.0" encoding="utf-8"?>
+<ControlList>
+  <C Type="VirtualIn" U="a" Title="MotionA"><Co K="Q" U="a-q"/></C>
+  <C Type="And" U="x" Title="Other"><Co K="I1" U="x-i1"/><Co K="Q" U="x-q"/></C>
+  <C Type="Or" U="g" Title="Gate">
+    <Co K="I1" U="g-i1" Nc="2"><In Input="a-q"/><In Input="x-i1"/></Co>
+    <Co K="Q" U="g-q"/>
+  </C>
+</ControlList>"#;
+        let graph = parse_bytes(xml.as_bytes()).expect("parse");
+        assert!(graph.warnings().iter().any(|w| w.contains("skipped wire")));
+        assert_eq!(
+            graph.block_count(),
+            3,
+            "no fan-in block for one valid source"
+        );
+        let gate = graph.find_block_by_name("Gate").unwrap();
+        let i1 = graph.find_connector(gate, "I1").unwrap();
+        assert!(graph.input_source_of(i1).is_some());
+    }
+
+    #[test]
+    fn pi_params_keep_their_positions_when_missing_in_xml() {
+        // No Trigger/MV connectors: the remaining params must not shift
+        // into their slots.
+        let xml = r#"<?xml version="1.0" encoding="utf-8"?>
+<ControlList>
+  <C Type="VirtualIn" U="t" Title="RoomTemp"><Co K="Q" U="t-q"/></C>
+  <C Type="PI" U="pi" Title="Heating PI">
+    <Co K="Input" U="pi-in"><In Input="t-q"/></Co>
+    <Co K="Target" U="pi-t" Def="22"/>
+    <Co K="P" U="pi-p" Def="0.5"/>
+    <Co K="I" U="pi-i"/>
+    <Co K="SampleTime" U="pi-st" Def="10"/>
+    <Co K="Min" U="pi-min" Def="0"/>
+    <Co K="Max" U="pi-max" Def="100"/>
+    <Co K="AQ" U="pi-aq"/>
+  </C>
+</ControlList>"#;
+        let graph = parse_bytes(xml.as_bytes()).expect("parse");
+        let pi = graph.find_block_by_name("Heating PI").unwrap();
+        let keys: Vec<&str> = graph
+            .block_info(pi)
+            .params
+            .iter()
+            .map(|&cid| graph.connector(cid).key.as_str())
+            .collect();
+        assert_eq!(
+            keys,
+            [
+                "Target",
+                "SampleTime",
+                "Trigger",
+                "P",
+                "I",
+                "MV",
+                "Min",
+                "Max"
+            ]
+        );
+
+        let mut e = crate::engine::SimEngine::new(graph);
+        e.set_input("RoomTemp", 20.0);
+        e.tick(0.1);
+        // Kp 0.5 * (22 - 20), Ki 0 (no Def), Trigger default 1 <= |e|
+        assert!((e.get_output("Heating PI.AQ") - 1.0).abs() < 1e-9);
+    }
+
+    #[test]
+    fn memory_flag_passes_its_input() {
+        // A Merker written from one place, read through AQ/Q.
+        let xml = r#"<?xml version="1.0" encoding="utf-8"?>
+<ControlList>
+  <C Type="VirtualIn" U="b" Title="Triple click"><Co K="Q" U="b-q"/></C>
+  <C Type="Memory" U="m" Title="Leaving home">
+    <Co K="Input" Nc="1" U="m-in"><In Input="b-q"/></Co>
+    <Co K="AQ" U="m-aq"/>
+    <Co K="Q" U="m-q"/>
+  </C>
+</ControlList>"#;
+        let graph = parse_bytes(xml.as_bytes()).expect("parse");
+        let mut e = crate::engine::SimEngine::new(graph);
+        e.set_input("Triple click", 1.0);
+        e.tick(0.1);
+        assert_eq!(e.get_output("Leaving home.AQ"), 1.0);
+        assert_eq!(e.get_output("Leaving home.Q"), 1.0);
+        e.set_input("Triple click", 0.0);
+        e.tick(0.1);
+        assert_eq!(e.get_output("Leaving home.Q"), 0.0);
     }
 }

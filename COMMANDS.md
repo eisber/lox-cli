@@ -358,7 +358,7 @@ The `pull` workflow: FTP download → LoxCC decompress → semantic diff → git
 ```bash
 lox sim check file.Loxone                  # parse config and report block/connector counts
 
-lox sim run file.Loxone --sim '{"inputs":{"Sensor.Q":1},"expect":{"Light.AQ":1}}'
+lox sim run file.Loxone --sim '{"inputs":{"Sensor.Q":1},"expected_outputs":{"Light.AQ":{"==":1}}}'
 lox sim run file.Loxone --sim-file test.json  # run sim spec(s) from a JSON file
 
 lox sim step file.Loxone --sim '{"inputs":{"Sensor.Q":1}}'
@@ -370,6 +370,7 @@ lox sim dump file.Loxone -o json           # JSON output
 ```
 
 `--sim` accepts inline JSON (single object or array). `--sim-file` loads from a file.
+Unknown scenario, step, or clock keys are rejected. An input that cannot be resolved fails its scenario.
 `sim run` requires at least one scenario, and each scenario needs an output assertion
 in `expected_outputs` or a step's `expected_outputs`. An empty comparator map or
 trace-only scenario does not count as verification and fails. Use `sim step` or
