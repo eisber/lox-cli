@@ -17,6 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `lox sim`: `Memory` is modelled as the Loxone memory flag (Input -> AQ, Q) instead of a trigger/reset latch that never passed its input on.
 - `lox sim run`: unknown keys in a spec are rejected, and an input that resolves to nothing fails the scenario instead of only printing a warning.
 - Config editing accepts value-identical duplicate attributes emitted by Loxone while still rejecting conflicting values. Comments, CDATA, processing instructions, and declarations are left untouched.
+- Writing a `.Loxone` file preserves line breaks inside attribute values. Loxone keeps bare LF in note text and CRLF in AutoPilot rule JSON; the CRLF post-process previously converted both to the file's line ending. Repeated saves now keep each attribute's own line breaks without accumulating extra carriage returns.
 
 ## [0.14.2] — 2026-05-08
 
