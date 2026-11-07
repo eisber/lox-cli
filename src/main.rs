@@ -130,6 +130,7 @@ pub(crate) fn install_completions(shell: Shell, cmd: &mut clap::Command) -> Resu
     version,
     infer_subcommands = true,
     disable_help_subcommand = true,
+    after_help = errors::REPORT_HINT,
     help_template = "\
 {about-with-newline}
 {usage-heading} {usage}
@@ -141,6 +142,7 @@ Configuration:
   ctx                            Manage multiple Miniserver contexts
   config                         Loxone Config files (download/inspect/edit/push)
   telemetry                      Manage anonymous usage analytics
+  report                         Report CLI bugs (GitHub, then telemetry)
   completions                    Generate shell completions
   schema                         Command schema for AI agent discovery
   stats                          Miniserver statistics (ls/get/download)
@@ -214,6 +216,13 @@ pub(crate) enum Cmd {
     Telemetry {
         #[command(subcommand)]
         action: TelemetryCmd,
+    },
+    /// Report a CLI bug to GitHub, falling back to telemetry when enabled
+    Report(commands::report_cmd::ReportArgs),
+    #[command(hide = true)]
+    Feedback {
+        #[command(subcommand)]
+        action: commands::report_cmd::LegacyFeedbackCmd,
     },
     /// Download, inspect, and manage Loxone Config files
     Config {
@@ -1247,6 +1256,9 @@ fn categorize_error(e: &anyhow::Error) -> &'static str {
 
 /// Extract a privacy-safe command name from the CLI invocation (no arguments).
 fn command_name(mut matches: &clap::ArgMatches) -> String {
+    if matches.subcommand_name() == Some("feedback") {
+        return "report".into();
+    }
     let mut names = Vec::new();
     while let Some((name, subcommand)) = matches.subcommand() {
         names.push(name);
@@ -1258,17 +1270,19 @@ fn command_name(mut matches: &clap::ArgMatches) -> String {
 // ── Main ──────────────────────────────────────────────────────────────────────
 
 fn main() {
-    let matches = Cli::command().get_matches();
+    let args: Vec<std::ffi::OsString> = std::env::args_os().collect();
+    let requested_json = errors::json_output_requested(&args[1..]);
+    errors::install_panic_hook(requested_json);
+    let matches = Cli::command()
+        .try_get_matches_from(args)
+        .unwrap_or_else(|error| errors::exit_argument_error(error, requested_json));
     let command = command_name(&matches);
-    let cli = Cli::from_arg_matches(&matches).unwrap_or_else(|error| error.exit());
+    let cli = Cli::from_arg_matches(&matches)
+        .unwrap_or_else(|error| errors::exit_argument_error(error, requested_json));
     let json = cli.output == OutputFormat::Json || cli.json_flag;
     if let Err(e) = run(cli, &command) {
         if json {
-            let mut envelope = serde_json::json!({
-                "ok": false,
-                "error": categorize_error(&e),
-                "message": format!("{:#}", e),
-            });
+            let mut envelope = errors::error_envelope(categorize_error(&e), &format!("{:#}", e));
             if let Some(diagnostic) = e.downcast_ref::<config_edit::schema::Diagnostic>() {
                 envelope["error"] = serde_json::json!(diagnostic.code);
                 envelope["diagnostics"] = serde_json::json!([diagnostic]);
@@ -1281,6 +1295,7 @@ fn main() {
             );
         } else {
             eprintln!("Error: {:#}", e);
+            eprintln!("\n{}", errors::REPORT_HINT);
         }
         std::process::exit(1);
     }
@@ -1318,6 +1333,15 @@ fn run_command(cli: Cli, command: &str) -> Result<()> {
         unsafe { std::env::set_var("NO_COLOR", "1") };
     }
 
+    let telemetry_preference = match config::Config::telemetry_preference() {
+        Ok(preference) => preference,
+        Err(error) => {
+            eprintln!(
+                "Warning: {error:#}. Telemetry defaults to disabled unless LOX_TELEMETRY overrides it."
+            );
+            Some(false)
+        }
+    };
     // Telemetry creates local markers/session files as well as sending events.
     if !ctx.dry_run
         && !matches!(
@@ -1330,9 +1354,7 @@ fn run_command(cli: Cli, command: &str) -> Result<()> {
         if !ctx.quiet {
             telemetry::maybe_show_first_run_notice();
         }
-        let telem = telemetry::Telemetry::from_config(
-            config::Config::load().ok().and_then(|c| c.telemetry),
-        );
+        let telem = telemetry::Telemetry::from_config(telemetry_preference);
         ctx.telemetry = Some(std::cell::RefCell::new(telem));
     }
 
@@ -1346,6 +1368,17 @@ fn run_command(cli: Cli, command: &str) -> Result<()> {
             TelemetryCmd::Disable => telemetry::cmd_telemetry_disable(),
             TelemetryCmd::Status => telemetry::cmd_telemetry_status(),
         },
+        Cmd::Report(args)
+        | Cmd::Feedback {
+            action: commands::report_cmd::LegacyFeedbackCmd::Report(args),
+        } => {
+            if let Some(telemetry) = &ctx.telemetry {
+                commands::report_cmd::cmd_report(&ctx, args, &telemetry.borrow())
+            } else {
+                let preview_telemetry = telemetry::Telemetry::from_config(telemetry_preference);
+                commands::report_cmd::cmd_report(&ctx, args, &preview_telemetry)
+            }
+        }
         Cmd::Config { action } => commands::config_cmd::cmd_config(&ctx, *action),
         Cmd::Ctx { action } => commands::ctx::cmd_ctx(&ctx, action),
         Cmd::Completions { shell, install } => {
@@ -1386,7 +1419,9 @@ pub(crate) fn build_schema(filter: Option<&str>) -> Result<Value> {
                 name
             );
         };
-        return Ok(describe_command(sub, true));
+        let mut schema = describe_command(sub, true);
+        schema["report_hint"] = serde_json::json!(errors::REPORT_HINT);
+        return Ok(schema);
     }
 
     let commands: Vec<Value> = cmd
@@ -1399,6 +1434,7 @@ pub(crate) fn build_schema(filter: Option<&str>) -> Result<Value> {
         "name": "lox",
         "version": env!("CARGO_PKG_VERSION"),
         "description": "Loxone Config-as-Code CLI",
+        "report_hint": errors::REPORT_HINT,
         "global_flags": [
             {"name": "--output", "short": "-o", "type": "enum", "values": ["table", "json", "csv"], "default": "table"},
             {"name": "--quiet", "short": "-q", "type": "bool", "description": "Suppress non-essential output"},
@@ -1430,8 +1466,8 @@ pub(crate) fn describe_command(cmd: &clap::Command, _detailed: bool) -> Value {
             if let Some(short) = a.get_short() {
                 arg["short"] = Value::String(format!("-{}", short));
             }
-            if a.get_long().is_some() {
-                arg["long"] = Value::String(format!("--{}", a.get_id()));
+            if let Some(long) = a.get_long() {
+                arg["long"] = Value::String(format!("--{}", long));
             }
             if a.get_num_args().is_some_and(|r| r.max_values() == 0) {
                 arg["type"] = Value::String("bool".to_string());
@@ -1923,6 +1959,29 @@ mod tests {
                     "config validate",
                 ),
                 (vec!["lox", "config", "list"], "config ls"),
+                (
+                    vec![
+                        "lox",
+                        "report",
+                        "--title",
+                        "Synthetic",
+                        "--body",
+                        "Synthetic",
+                    ],
+                    "report",
+                ),
+                (
+                    vec![
+                        "lox",
+                        "feedback",
+                        "report",
+                        "--title",
+                        "Synthetic",
+                        "--body",
+                        "Synthetic",
+                    ],
+                    "report",
+                ),
                 (
                     vec![
                         "lox",

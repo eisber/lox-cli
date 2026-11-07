@@ -4,6 +4,78 @@
 //! provide actionable feedback with "did you mean?" suggestions, available
 //! options, and links to relevant documentation.
 
+pub const REPORT_HINT: &str = "Correct input/setup errors first. If documented usage still fails or lox panics, \
+     use `lox report --help` to report sanitized reproduction steps and expected/actual \
+     behavior. Never include secrets or private configuration.";
+
+pub fn error_envelope(error: &str, message: &str) -> serde_json::Value {
+    serde_json::json!({
+        "ok": false,
+        "error": error,
+        "message": message,
+        "report_hint": REPORT_HINT,
+    })
+}
+
+pub fn exit_argument_error(error: clap::Error, json: bool) -> ! {
+    if !error.use_stderr() {
+        error.exit();
+    }
+    if json {
+        println!(
+            "{}",
+            error_envelope("invalid_arguments", &error.to_string())
+        );
+    } else {
+        error.print().expect("Cannot print argument error");
+        eprintln!("\n{REPORT_HINT}");
+    }
+    std::process::exit(error.exit_code());
+}
+
+/// Detect output flags even when clap cannot finish parsing the invocation.
+pub fn json_output_requested(args: &[std::ffi::OsString]) -> bool {
+    let mut args = args.iter().take_while(|arg| *arg != "--").peekable();
+    while let Some(arg) = args.next() {
+        if arg == "--json" || arg == "--output=json" {
+            return true;
+        }
+        if arg == "--output" || arg == "-o" {
+            if args.peek().is_some_and(|value| *value == "json") {
+                return true;
+            }
+        } else if let Some(shorts) = arg.to_str().and_then(|arg| arg.strip_prefix('-'))
+            && !shorts.starts_with('-')
+            && let Some((_, value)) = shorts.split_once('o')
+            && (value == "json"
+                || (value.is_empty() && args.peek().is_some_and(|value| *value == "json")))
+        {
+            return true;
+        }
+    }
+    false
+}
+
+pub fn install_panic_hook(json: bool) {
+    use std::io::Write;
+
+    let original = std::panic::take_hook();
+    let main_thread = std::thread::current().id();
+    std::panic::set_hook(Box::new(move |info| {
+        original(info);
+        // A closed output pipe must not cause another panic inside the hook.
+        let mut stderr = std::io::stderr().lock();
+        let _ = writeln!(stderr, "\n{REPORT_HINT}");
+        if json && std::thread::current().id() == main_thread {
+            let envelope =
+                error_envelope("panic", "lox panicked. No automatic crash report was sent.");
+            if let Err(error) = writeln!(std::io::stdout().lock(), "{envelope}") {
+                let _ = writeln!(stderr, "Cannot write JSON crash details: {error}");
+            }
+        }
+    }));
+}
+
 /// Compute Levenshtein distance between two strings (case-insensitive).
 #[allow(clippy::needless_range_loop)]
 pub fn levenshtein(a: &str, b: &str) -> usize {
@@ -171,6 +243,68 @@ pub fn type_to_doc_slug(control_type: &str) -> Option<&'static str> {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn output_detection_handles_global_json_flags_without_crossing_double_dash() {
+        for (args, expected) in [
+            (vec!["--json"], true),
+            (vec!["--output", "json"], true),
+            (vec!["--output=json"], true),
+            (vec!["-ojson"], true),
+            (vec!["-qo", "json"], true),
+            (vec!["-qvojson"], true),
+            (vec!["--output", "--json"], true),
+            (vec!["--output", "table"], false),
+            (vec!["--body=--json"], false),
+            (vec!["--", "--json"], false),
+            (vec!["--", "-ojson"], false),
+        ] {
+            let args = args
+                .into_iter()
+                .map(std::ffi::OsString::from)
+                .collect::<Vec<_>>();
+            assert_eq!(json_output_requested(&args), expected, "{args:?}");
+        }
+    }
+
+    #[test]
+    fn panic_hook_preserves_diagnostics_and_exposes_reporting_guidance() {
+        const CHILD: &str = "LOX_TEST_REPORT_PANIC";
+        if let Ok(format) = std::env::var(CHILD) {
+            install_panic_hook(format == "json");
+            panic!("synthetic panic for reporting test");
+        }
+        for format in ["table", "json"] {
+            let output = std::process::Command::new(std::env::current_exe().unwrap())
+                .args([
+                    "--exact",
+                    "errors::tests::panic_hook_preserves_diagnostics_and_exposes_reporting_guidance",
+                    "--nocapture",
+                ])
+                .env(CHILD, format)
+                .output()
+                .unwrap();
+            assert!(!output.status.success());
+            let stderr = String::from_utf8_lossy(&output.stderr);
+            assert!(
+                stderr.contains("synthetic panic for reporting test"),
+                "{stderr}"
+            );
+            assert!(stderr.contains("lox report --help"), "{stderr}");
+            let stdout = String::from_utf8_lossy(&output.stdout);
+            let envelope = stdout
+                .lines()
+                .filter_map(|line| serde_json::from_str::<serde_json::Value>(line).ok())
+                .find(|value| value["error"] == "panic");
+            if format == "json" {
+                let envelope = envelope.expect("Panic must return a JSON error envelope");
+                assert_eq!(envelope["ok"], false);
+                assert_eq!(envelope["report_hint"], REPORT_HINT);
+            } else {
+                assert!(envelope.is_none());
+            }
+        }
+    }
 
     #[test]
     fn test_levenshtein_identical() {

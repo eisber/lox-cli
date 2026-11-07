@@ -276,6 +276,24 @@ Error: Block 'Threshold' not found.
   Did you mean: GreaterEqual, LessEqual, AnalogThresholdTrigger?
 ```
 
+Agents can report CLI problems without a Miniserver connection:
+
+```bash
+lox report --title "Short issue summary" --body "Sanitized reproduction, expected and actual behavior" --json
+```
+
+Creates a public GitHub issue using `gh` when available; otherwise submits the
+supplied title/body through PostHog, respecting telemetry opt-outs. Returns a
+delivery receipt or a nonzero error. Use `--body-file -` for stdin or `--dry-run`
+to preview. Never include secrets or private configuration. See
+[issue reporting](COMMANDS.md#issue-reporting) and [telemetry](TELEMETRY.md).
+
+Help, command schemas, and failures point agents to `lox report --help`.
+JSON errors include `report_hint`, including invalid arguments; Rust panics
+preserve their diagnostics and show the same guidance. Fix input/setup mistakes
+first; report reproducible CLI bugs, not every failed command. No issue reports
+are sent automatically.
+
 ### Multiple Miniservers
 
 ```bash

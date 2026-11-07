@@ -1,11 +1,12 @@
-//! Anonymous usage telemetry for improving `lox`.
+//! Anonymous usage telemetry and explicit issue reporting for improving `lox`.
 //!
 //! **Default: ON** — opt out with `lox telemetry disable`, `telemetry: false`
 //! in the config, or `LOX_TELEMETRY=0`.
 //!
-//! Only anonymous, aggregated data is collected — never file paths, room names,
-//! UUIDs, usernames, or any other PII.  See TELEMETRY.md for full details.
+//! Usage events exclude private data. Explicit feedback reports additionally
+//! include the supplied issue title and body. See TELEMETRY.md for details.
 
+use anyhow::{Context, Result, bail};
 use chrono::Utc;
 use serde_json::{Value, json};
 use std::path::PathBuf;
@@ -62,7 +63,7 @@ fn session_file_dir() -> PathBuf {
 
 // ── Telemetry ───────────────────────────────────────────────────────────────
 
-/// Lightweight, opt-in, anonymous telemetry client.
+/// Lightweight anonymous telemetry client.
 pub struct Telemetry {
     enabled: bool,
     source: &'static str,
@@ -76,8 +77,8 @@ impl Telemetry {
     ///
     /// Resolution order (first match wins):
     /// 1. `LOX_TELEMETRY` env var: `"0"` / `"false"` → disabled; `"1"` / `"true"` → enabled.
-    /// 2. Config file `telemetry:` field.
-    /// 3. `DO_NOT_TRACK` disables telemetry when no explicit override is set.
+    /// 2. `DO_NOT_TRACK` disables telemetry.
+    /// 3. Config file `telemetry:` field.
     /// 4. Default: **enabled**.
     pub fn from_config(telemetry_opt: Option<bool>) -> Self {
         let mut enabled = resolve_enabled(telemetry_opt);
@@ -103,6 +104,10 @@ impl Telemetry {
             timeout: TIMEOUT,
             pending: Vec::new(),
         }
+    }
+
+    pub fn is_enabled(&self) -> bool {
+        self.enabled
     }
 
     /// Track a named event with arbitrary properties.
@@ -140,6 +145,35 @@ impl Telemetry {
             Ok(worker) => self.pending.push(worker),
             Err(error) => eprintln!("Warning: could not start telemetry sender: {error}"),
         }
+    }
+
+    /// Submit explicit feedback synchronously so delivery failures reach the caller.
+    pub fn report_issue(&self, report_id: &str, title: &str, body: &str) -> Result<()> {
+        if !self.enabled {
+            bail!(
+                "Telemetry is disabled. Enable it with `lox telemetry enable` \
+                 and remove any telemetry opt-out environment override to allow fallback reports"
+            );
+        }
+        let mut properties = base_properties(self.source);
+        properties["report_id"] = json!(report_id);
+        properties["title"] = json!(title);
+        properties["body"] = json!(body);
+        let response = post_event(
+            &self.endpoint,
+            &json!({
+                "api_key": POSTHOG_API_KEY,
+                "event": "issue_report",
+                "properties": properties,
+                "timestamp": Utc::now().format("%Y-%m-%dT00:00:00Z").to_string(),
+            }),
+            self.timeout,
+        )
+        .context("PostHog did not accept the issue report")?;
+        if !response.status().is_success() {
+            bail!("PostHog returned HTTP {}", response.status());
+        }
+        Ok(())
     }
 
     /// Track canonical command names and outcomes, never arguments or error text.
@@ -267,6 +301,9 @@ fn base_properties(source: &str) -> Value {
     json!({
         "distinct_id": daily_session_id(),
         "cli_version": env!("CARGO_PKG_VERSION"),
+        "source": "test",
+        "$geoip_disable": true,
+        "$process_person_profile": false,
         "os": std::env::consts::OS,
         "arch": std::env::consts::ARCH,
         "source": source,
@@ -281,16 +318,24 @@ fn send_event(
     body: &Value,
     timeout: std::time::Duration,
 ) -> Result<(), reqwest::Error> {
+    post_event(endpoint, body, timeout)?.error_for_status()?;
+    Ok(())
+}
+
+fn post_event(
+    endpoint: &str,
+    body: &Value,
+    timeout: std::time::Duration,
+) -> Result<reqwest::blocking::Response, reqwest::Error> {
     let client = reqwest::blocking::Client::builder()
         .timeout(timeout)
+        .redirect(reqwest::redirect::Policy::none())
         .build()?;
     client
         .post(endpoint)
         .header("Content-Type", "application/json")
         .json(body)
-        .send()?
-        .error_for_status()?;
-    Ok(())
+        .send()
 }
 
 // ── First-run notice ────────────────────────────────────────────────────────
@@ -342,7 +387,7 @@ pub fn cmd_telemetry_disable() -> anyhow::Result<()> {
 pub fn cmd_telemetry_status() -> anyhow::Result<()> {
     use crate::config::Config;
 
-    let config_val = Config::load().ok().and_then(|c| c.telemetry);
+    let config_val = Config::telemetry_preference()?;
 
     let env_override = std::env::var("LOX_TELEMETRY").ok();
     let effective = resolve_enabled(config_val);
@@ -467,6 +512,60 @@ mod tests {
         t.track_check_result(10, 2, 0);
         t.track_block_created("And");
         t.track_scan_result(0, 1);
+    }
+
+    #[test]
+    fn issue_report_waits_for_acceptance_and_includes_only_explicit_content() {
+        use httpmock::prelude::*;
+
+        let server = MockServer::start();
+        let mock = server.mock(|when, then| {
+            when.method(POST).path("/capture/").json_body_partial(
+                json!({
+                    "event": "issue_report",
+                    "properties": {
+                        "report_id": "synthetic-report",
+                        "title": "Synthetic issue",
+                        "body": "Expected 1, got 0",
+                        "cli_version": env!("CARGO_PKG_VERSION"),
+                    },
+                })
+                .to_string(),
+            );
+            then.status(200).json_body(json!({"status": 1}));
+        });
+        Telemetry::for_test(server.url("/capture/"))
+            .report_issue("synthetic-report", "Synthetic issue", "Expected 1, got 0")
+            .unwrap();
+        mock.assert();
+    }
+
+    #[test]
+    fn issue_report_respects_opt_out_without_network_request() {
+        let mut telemetry = Telemetry::for_test("not a URL".into());
+        telemetry.enabled = false;
+        let error = telemetry.report_issue("id", "title", "body").unwrap_err();
+        assert!(error.to_string().contains("Telemetry is disabled"));
+    }
+
+    #[test]
+    fn issue_report_rejects_http_errors_and_redirects() {
+        use httpmock::prelude::*;
+
+        let server = MockServer::start();
+        for status in [302, 400, 503] {
+            let path = format!("/{status}");
+            let mock = server.mock(|when, then| {
+                when.method(POST).path(&path);
+                then.status(status)
+                    .header("Location", server.url("/unexpected"));
+            });
+            let error = Telemetry::for_test(server.url(&path))
+                .report_issue("id", "title", "body")
+                .unwrap_err();
+            assert!(format!("{error:#}").contains(&status.to_string()));
+            mock.assert();
+        }
     }
 
     #[test]

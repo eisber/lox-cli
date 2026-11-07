@@ -90,6 +90,10 @@ fn has_non_mutating_path(cmd: &Cmd) -> bool {
             } | Cmd::Ctx {
                 action: CtxCmd::List | CtxCmd::Current
             } | Cmd::Completions { install: false, .. }
+                | Cmd::Report(_)
+                | Cmd::Feedback {
+                    action: crate::commands::report_cmd::LegacyFeedbackCmd::Report(_)
+                }
                 | Cmd::Schema { .. }
                 | Cmd::Sim {
                     action: SimCmd::Check { .. }

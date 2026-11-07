@@ -86,6 +86,7 @@ subcmd_help!(help_completions, "completions");
 subcmd_help!(help_docs, "docs");
 subcmd_help!(help_schema, "schema");
 subcmd_help!(help_telemetry, "telemetry");
+subcmd_help!(help_report, "report");
 subcmd_help!(help_color, "color");
 subcmd_help!(help_color_encode, "color", "encode");
 subcmd_help!(help_color_decode, "color", "decode");
@@ -107,6 +108,362 @@ fn help_mentions_stats() {
         .assert()
         .success()
         .stdout(predicate::str::contains("  ls "));
+}
+
+mod reporting {
+    use super::*;
+    use serde_json::Value;
+
+    fn command() -> Command {
+        let mut command = lox();
+        command
+            .env("LOX_TELEMETRY", "0")
+            .args(["--quiet", "--json"]);
+        command
+    }
+
+    #[test]
+    fn agent_schema_advertises_the_actual_body_file_flag() {
+        let output = command()
+            .args(["schema", "report"])
+            .assert()
+            .success()
+            .get_output()
+            .stdout
+            .clone();
+        let schema: Value = serde_json::from_slice(&output).unwrap();
+        let args = schema["args"].as_array().unwrap();
+        let body_file = args.iter().find(|arg| arg["name"] == "body_file").unwrap();
+        assert_eq!(body_file["long"], "--body-file");
+    }
+
+    #[test]
+    fn dry_run_previews_inline_body_without_github_or_telemetry() {
+        let dir = tempfile::tempdir().unwrap();
+        let output = command()
+            .env("PATH", dir.path())
+            .args([
+                "report",
+                "--title",
+                "Synthetic issue",
+                "--body",
+                "Repro steps",
+                "--dry-run",
+                "--trace-id",
+                "local-trace",
+            ])
+            .assert()
+            .success()
+            .get_output()
+            .stdout
+            .clone();
+        let result: Value = serde_json::from_slice(&output).unwrap();
+        assert_eq!(result["dry_run"], true);
+        assert_eq!(result["repository"], "eisber/lox-cli");
+        assert_eq!(result["title"], "Synthetic issue");
+        assert!(result["body"].as_str().unwrap().starts_with("Repro steps"));
+        assert_eq!(result["telemetry_fallback_enabled"], false);
+        assert_eq!(result["trace_id"], "local-trace");
+    }
+
+    #[test]
+    fn report_accepts_file_or_stdin_body() {
+        let dir = tempfile::tempdir().unwrap();
+        let path = dir.path().join("report.txt");
+        let body = "Synthetic reproduction\nExpected 1, got 0";
+        std::fs::write(&path, body).unwrap();
+        for from_stdin in [false, true] {
+            let mut command = command();
+            command.args([
+                "report",
+                "--title",
+                "Synthetic issue",
+                "--dry-run",
+                "--body-file",
+            ]);
+            if from_stdin {
+                command.arg("-").write_stdin(body);
+            } else {
+                command.arg(&path);
+            }
+            let output = command.assert().success().get_output().stdout.clone();
+            let result: Value = serde_json::from_slice(&output).unwrap();
+            assert!(result["body"].as_str().unwrap().starts_with(body));
+        }
+    }
+
+    #[test]
+    fn missing_github_and_opt_out_returns_json_error() {
+        let dir = tempfile::tempdir().unwrap();
+        let output = command()
+            .env("PATH", dir.path())
+            .args([
+                "report",
+                "--title",
+                "Synthetic issue",
+                "--body",
+                "Synthetic details",
+            ])
+            .assert()
+            .failure()
+            .get_output()
+            .stdout
+            .clone();
+        let result: Value = serde_json::from_slice(&output).unwrap();
+        assert_eq!(result["ok"], false);
+        let message = result["message"].as_str().unwrap();
+        assert!(message.contains("Cannot run GitHub CLI"));
+        assert!(message.contains("Telemetry is disabled"));
+        assert!(message.contains("No delivery was confirmed"));
+    }
+
+    #[test]
+    fn config_opt_out_does_not_require_connection_settings_or_active_context() {
+        let dir = tempfile::tempdir().unwrap();
+        let config = dir.path().join("config.yaml");
+        std::fs::write(&config, "telemetry: false\ncontexts: {}\n").unwrap();
+        let output = command()
+            .env_remove("LOX_TELEMETRY")
+            .env_remove("DO_NOT_TRACK")
+            .env("LOX_CONFIG", &config)
+            .env("PATH", dir.path())
+            .args([
+                "report",
+                "--title",
+                "Synthetic issue",
+                "--body",
+                "Synthetic details",
+            ])
+            .assert()
+            .failure()
+            .get_output()
+            .stdout
+            .clone();
+        let result: Value = serde_json::from_slice(&output).unwrap();
+        assert!(
+            result["message"]
+                .as_str()
+                .unwrap()
+                .contains("Telemetry is disabled")
+        );
+        lox()
+            .env_remove("LOX_TELEMETRY")
+            .env_remove("DO_NOT_TRACK")
+            .env("LOX_CONFIG", &config)
+            .args(["telemetry", "status", "--quiet"])
+            .assert()
+            .success()
+            .stdout(predicate::str::contains("Effective:        disabled"));
+    }
+
+    #[test]
+    fn malformed_telemetry_settings_warn_and_disable_fallback() {
+        let dir = tempfile::tempdir().unwrap();
+        let config = dir.path().join("config.yaml");
+        std::fs::write(&config, "telemetry: [not a boolean]\n").unwrap();
+        command()
+            .env_remove("LOX_TELEMETRY")
+            .env_remove("DO_NOT_TRACK")
+            .env("LOX_CONFIG", &config)
+            .env("PATH", dir.path())
+            .args([
+                "report",
+                "--title",
+                "Synthetic issue",
+                "--body",
+                "Synthetic details",
+            ])
+            .assert()
+            .failure()
+            .stdout(predicate::str::contains("Telemetry is disabled"))
+            .stderr(predicate::str::contains(
+                "Cannot parse telemetry preference",
+            ));
+    }
+
+    #[test]
+    fn report_rejects_missing_conflicting_empty_or_unreadable_body() {
+        let dir = tempfile::tempdir().unwrap();
+        for args in [
+            vec![],
+            vec!["--body", "details", "--body-file", "-"],
+            vec!["--body", " \n"],
+        ] {
+            command()
+                .args(["report", "--title", "Synthetic issue", "--dry-run"])
+                .args(args)
+                .assert()
+                .failure();
+        }
+        command()
+            .args([
+                "report",
+                "--title",
+                "Synthetic issue",
+                "--dry-run",
+                "--body-file",
+            ])
+            .arg(dir.path().join("missing.txt"))
+            .assert()
+            .failure()
+            .stdout(predicate::str::contains("Cannot read issue report"));
+    }
+
+    #[test]
+    fn report_is_discoverable_without_advertising_legacy_nesting() {
+        lox()
+            .arg("--help")
+            .assert()
+            .success()
+            .stdout(predicate::str::contains("  report "))
+            .stdout(predicate::str::contains("feedback").not());
+        lox()
+            .args(["report", "--help"])
+            .assert()
+            .success()
+            .stdout(predicate::str::contains("--body-file"))
+            .stdout(predicate::str::contains("GitHub issues are public"));
+        let output = command()
+            .arg("schema")
+            .assert()
+            .success()
+            .get_output()
+            .stdout
+            .clone();
+        let schema: Value = serde_json::from_slice(&output).unwrap();
+        let names = schema["commands"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .map(|command| command["name"].as_str().unwrap())
+            .collect::<Vec<_>>();
+        assert!(names.contains(&"report"));
+        assert!(!names.contains(&"feedback"));
+        assert!(
+            schema["report_hint"]
+                .as_str()
+                .unwrap()
+                .contains("lox report --help")
+        );
+        for shell in ["bash", "zsh", "fish", "powershell", "elvish"] {
+            lox()
+                .env("LOX_TELEMETRY", "0")
+                .args(["completions", shell, "--quiet"])
+                .assert()
+                .success()
+                .stdout(predicate::str::contains("report"))
+                .stdout(predicate::str::contains("feedback").not());
+        }
+    }
+
+    #[test]
+    fn legacy_feedback_report_still_uses_the_canonical_handler() {
+        let output = command()
+            .args([
+                "feedback",
+                "report",
+                "--title",
+                "Synthetic issue",
+                "--body",
+                "Synthetic details",
+                "--dry-run",
+            ])
+            .assert()
+            .success()
+            .get_output()
+            .stdout
+            .clone();
+        let result: Value = serde_json::from_slice(&output).unwrap();
+        assert!(
+            result["body"]
+                .as_str()
+                .unwrap()
+                .contains("Reported via `lox report`")
+        );
+    }
+
+    #[test]
+    fn parameter_errors_return_json_and_reporting_guidance_for_each_output_spelling() {
+        for flags in [
+            vec!["--json"],
+            vec!["--output", "json"],
+            vec!["--output=json"],
+            vec!["-o", "json"],
+            vec!["-ojson"],
+            vec!["-qojson"],
+        ] {
+            let output = lox()
+                .env("LOX_TELEMETRY", "0")
+                .args(["color", "encode", "--brightness", "not-a-number"])
+                .args(flags)
+                .assert()
+                .code(2)
+                .stderr("")
+                .get_output()
+                .stdout
+                .clone();
+            let result: Value = serde_json::from_slice(&output).unwrap();
+            assert_eq!(result["error"], "invalid_arguments");
+            assert_eq!(result["ok"], false);
+            assert!(result["message"].as_str().unwrap().contains("not-a-number"));
+            assert!(
+                result["report_hint"]
+                    .as_str()
+                    .unwrap()
+                    .contains("Correct input/setup errors first")
+            );
+        }
+    }
+
+    #[test]
+    fn human_argument_errors_preserve_usage_and_hint_even_when_quiet() {
+        lox()
+            .args(["--quiet", "report", "--unknown-flag"])
+            .assert()
+            .code(2)
+            .stdout("")
+            .stderr(predicate::str::contains("unexpected argument"))
+            .stderr(predicate::str::contains("Usage:"))
+            .stderr(predicate::str::contains("lox report --help"));
+    }
+
+    #[test]
+    fn runtime_errors_include_guidance_in_json_and_human_output() {
+        let output = command()
+            .args(["color", "decode", "invalid"])
+            .assert()
+            .code(1)
+            .get_output()
+            .stdout
+            .clone();
+        let result: Value = serde_json::from_slice(&output).unwrap();
+        assert_eq!(result["ok"], false);
+        assert!(
+            result["report_hint"]
+                .as_str()
+                .unwrap()
+                .contains("lox report --help")
+        );
+        lox()
+            .env("LOX_TELEMETRY", "0")
+            .args(["--quiet", "color", "decode", "invalid"])
+            .assert()
+            .code(1)
+            .stdout("")
+            .stderr(predicate::str::contains("lox report --help"));
+    }
+
+    #[test]
+    fn help_and_version_are_not_json_errors() {
+        for flag in ["--help", "--version"] {
+            command()
+                .arg(flag)
+                .assert()
+                .success()
+                .stderr("")
+                .stdout(predicate::str::contains("\"ok\":false").not());
+        }
+    }
 }
 
 #[test]

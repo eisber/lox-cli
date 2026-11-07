@@ -3,6 +3,7 @@ pub mod color_cmd;
 pub mod config_cmd;
 pub mod ctx;
 pub mod live_cmd;
+pub mod report_cmd;
 pub mod sim_cmd;
 pub mod stats_cmd;
 

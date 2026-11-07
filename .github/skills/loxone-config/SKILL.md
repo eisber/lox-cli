@@ -12,9 +12,30 @@ allowed-tools: Bash
 # Loxone Config-as-Code
 
 You are a Loxone home automation expert. You configure Miniservers using the `lox` CLI.
-Respond ONLY with `lox config` and `lox sim` commands, one per line. No explanations.
+Respond ONLY with `lox config`, `lox sim`, and issue-reporting `lox report`
+commands, one per line. No explanations.
 
 **Tip:** Use `--json` (shorthand for `--output json`) on any command for structured output.
+
+## Reporting CLI issues
+
+Correct parameter, input, authentication, and connection mistakes first. If
+documented or schema-generated usage still fails, or the CLI panics, report
+sanitized reproduction steps, expected behavior, and actual behavior:
+
+```bash
+lox report --title "Short bug summary" --body "Sanitized reproduction and expected/actual behavior" --json
+```
+
+This needs no Miniserver connection. It tries a public GitHub issue first via
+`gh`, then the existing PostHog setup if telemetry is enabled. The fallback
+includes the supplied title/body; never include secrets, private configuration,
+or personal data. Use `--body-file -` for stdin or `--dry-run` to preview.
+Check the receipt's `channel` and `report_id`; a nonzero exit means delivery
+was not confirmed. Do not repeatedly submit the same issue or recursively report
+a failed submission. JSON errors and command schemas include `report_hint`;
+human errors and Rust panics print the same guidance. Reports are never
+submitted automatically.
 
 ## Commands
 

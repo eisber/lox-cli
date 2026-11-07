@@ -645,9 +645,62 @@ lox token clear                            # delete local token file
 
 ```bash
 lox telemetry status                       # show current telemetry setting
-lox telemetry enable                       # opt in to anonymous usage analytics
+lox telemetry enable                       # enable anonymous usage analytics (default)
 lox telemetry disable                      # opt out
 ```
+
+Usage telemetry sends anonymous command names and aggregate statistics to
+PostHog's EU endpoint. See [TELEMETRY.md](TELEMETRY.md) for collection details
+and environment overrides.
+
+---
+
+## Issue Reporting
+
+```bash
+lox report --title "Simulator issue" --body "Sanitized reproduction steps" --json
+lox report --title "Simulator issue" --body-file report.txt --json
+lox report --title "Simulator issue" --body-file - --json  # read stdin
+lox report --title "Simulator issue" --body "Details" --dry-run --json
+```
+
+Non-interactive; no Miniserver configuration or connection is required. Attempts
+to create a **public** issue in `eisber/lox-cli` using an authenticated `gh` CLI.
+If GitHub is unavailable, sends an `issue_report` event through the existing
+PostHog telemetry setup, **including the explicitly supplied title and body**.
+Telemetry fallback respects `lox telemetry disable`, `LOX_TELEMETRY` and
+`DO_NOT_TRACK`; it never enables telemetry automatically.
+
+Only supply sanitized issue details: reproduction steps, expected behavior, and
+actual behavior. Do not include credentials, private configuration, personal
+data, or raw logs containing those details. No files or logs are attached
+automatically. Version, OS, architecture, and a random report ID are added.
+
+JSON receipts include `ok`, `channel` (`github` or `telemetry`), `report_id`,
+and `url` (null for telemetry). A telemetry receipt also includes `github_error`
+explaining the fallback. Telemetry reporting waits up to two seconds for an
+HTTP acknowledgement; failures return a nonzero exit code and the usual JSON
+error envelope rather than claiming success. `--dry-run` previews the report
+without submitting it; `--quiet` suppresses confirmations, not JSON receipts.
+
+### Reporting from an agent
+
+`lox --help`, `lox report --help`, and `lox schema` expose reporting guidance.
+Both runtime errors and argument-parsing errors return a `report_hint` in JSON
+mode and a hint on stderr in human mode. Argument errors retain exit code 2;
+runtime errors retain exit code 1. `--help` and `--version` still exit normally.
+Rust panics retain their original stderr diagnostics and reporting guidance;
+panics on the main thread also emit a JSON error when JSON output was requested.
+
+Correct parameter, input, authentication, and connection mistakes first. If
+documented or schema-generated usage still fails, or the CLI panics, use
+`lox report` with a minimal sanitized reproduction and expected/actual behavior.
+No issue reports are submitted automatically on errors or panics. Check the
+delivery receipt; do not repeatedly report the same problem or recursively
+report a failed submission.
+
+`lox config report FILE` is different: it generates configuration diagnostics.
+Inspect and sanitize any diagnostic content before including it in an issue.
 
 ---
 

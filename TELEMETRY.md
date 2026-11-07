@@ -1,7 +1,8 @@
 # Telemetry
 
 `lox` includes anonymous usage telemetry to help us understand which
-features are used and where to focus development effort.
+features are used and where to focus development effort. Explicit issue
+feedback is a separate event type described below.
 
 ## Default: ON
 
@@ -9,13 +10,13 @@ Telemetry is **enabled by default** to help improve the tool. You can easily opt
 
 ## What is collected
 
-Only anonymous, aggregated data:
+Automatic usage events contain only anonymous, aggregated data:
 
 | Data                | Example                      | Purpose                       |
 |---------------------|------------------------------|-------------------------------|
 | CLI version         | `0.14.0`                     | Track adoption                |
 | OS + architecture   | `linux / x86_64`             | Platform prioritisation       |
-| Command name        | `config add`, `blind`        | Feature usage                 |
+| Command name        | `config add`, `sim run`      | Feature usage                 |
 | Command outcome     | Success / error category    | Find unreliable workflows     |
 | Event source        | `usage`, `eval`, `diagnostic` | Separate real and test usage |
 | Block types created | `And`, `LightController2`    | Template / wizard priorities  |
@@ -25,7 +26,7 @@ Only anonymous, aggregated data:
 | Session ID          | Random UUID, rotated daily   | Group events within a day     |
 | Timestamp           | Day granularity only         | Usage trends                  |
 
-## What is NEVER collected
+## What automatic usage events NEVER collect
 
 - File paths, file contents, config XML
 - IP addresses (PostHog is configured not to store them)
@@ -52,7 +53,9 @@ export LOX_TELEMETRY=0   # disable
 export LOX_TELEMETRY=1   # enable
 ```
 
-`DO_NOT_TRACK` also disables telemetry when `LOX_TELEMETRY` is not set.
+`LOX_TELEMETRY` takes precedence over other settings. If it is unset, the
+presence of `DO_NOT_TRACK` disables telemetry; otherwise the config preference
+applies, defaulting to enabled.
 Dry runs and `lox telemetry disable` never send events.
 
 ### Tests, evals, and delivery verification
@@ -96,6 +99,31 @@ their HTTP capture API. PostHog is an open-source product analytics platform.
 - Timeout: 2 seconds per request; pending requests run concurrently and finish
   before the process exits, including command failures
 
+## Explicit issue feedback
+
+`lox report --title "..." --body "..." --json` first attempts to
+create a public issue in `eisber/lox-cli` using `gh`. When that fails and
+telemetry is enabled, it sends a PostHog `issue_report` event containing:
+
+- The **explicitly supplied title and body**, which are not anonymous aggregates
+- A random report ID and the standard anonymous version/platform/session fields
+
+Only send sanitized descriptions, reproduction steps, and expected/actual
+behavior. Never include credentials, private configuration, personal data, or
+unsanitized logs. There are no automatic log/config attachments. Use
+`--body-file FILE` or `--body-file -` to provide the body from a file or stdin.
+`--dry-run` previews the report without submission.
+
+Unlike usage telemetry, feedback delivery is synchronous and checks the HTTP
+response. A receipt identifies the channel and report ID; unsuccessful delivery
+returns a nonzero error. Opting out of telemetry disables this fallback, but
+does not prevent explicitly requested GitHub issue creation.
+
+Argument errors, runtime errors, and Rust panics expose reporting guidance, but
+never automatically submit an issue report or its raw error/crash contents.
+Agents should fix input/setup errors first, then report reproducible bugs with
+sanitized details.
+
 ## PostHog privacy
 
 PostHog's privacy policy: <https://posthog.com/privacy>
@@ -109,7 +137,7 @@ We have configured PostHog to:
 
 - Session IDs are random UUIDs, rotated daily, stored in
   `~/.lox/.telemetry_session`. They are **not** tied to any user identity.
-- Telemetry sends the full canonical command path and a success/error category,
+- Usage telemetry sends the full canonical command path and a success/error category,
   never argument values or raw error messages. Help/version exits are not tracked.
 - `config add` tracks newly created block types (not idempotent no-ops);
   `config stats`, `config check`, and `config scan` send aggregate counts.
@@ -118,6 +146,9 @@ We have configured PostHog to:
 - Network errors, timeouts, and HTTP rejections produce a warning on stderr;
   they never change the command's exit code or JSON output.
 - Events explicitly disable GeoIP enrichment and person-profile processing.
+- There is no durable local usage log or retry queue.
+- Explicit issue feedback waits for delivery and returns an error on failure,
+  rather than only warning.
 - The PostHog API key is a *public* project key (safe to embed in source).
 
 ## Source code

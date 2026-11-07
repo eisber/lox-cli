@@ -15,6 +15,38 @@ use tempfile::TempDir;
 const ENERGY_XML: &str = include_str!("ux/energy-manager2/cli-synthetic.xml");
 const STAT_FILE: &str = "91000000-0000-0000-0000000000000001.202610.xml";
 
+#[test]
+fn report_preview_has_no_filesystem_or_network_side_effects() {
+    let sandbox = Sandbox::new();
+    let backend = sandbox.server.mock(|when, then| {
+        when.any_request();
+        then.status(500);
+    });
+    for spelling in [vec!["report"], vec!["feedback", "report"]] {
+        let before = snapshot(sandbox.dir.path());
+        let output = sandbox
+            .command(&["--dry-run", "--json"])
+            .env("PATH", sandbox.dir.path())
+            .args(spelling)
+            .args([
+                "--title",
+                "Synthetic issue",
+                "--body",
+                "Synthetic reproduction",
+            ])
+            .assert()
+            .success()
+            .stderr("")
+            .get_output()
+            .stdout
+            .clone();
+        let result: Value = serde_json::from_slice(&output).unwrap();
+        assert_eq!(result["dry_run"], true);
+        assert_eq!(snapshot(sandbox.dir.path()), before);
+    }
+    backend.assert_hits(0);
+}
+
 struct Sandbox {
     dir: TempDir,
     server: MockServer,

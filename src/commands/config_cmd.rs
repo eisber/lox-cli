@@ -3149,29 +3149,12 @@ fn cmd_config_report(
             serde_json::to_string_pretty(&report)?
         );
 
-        // Try gh CLI first
-        let gh_result = std::process::Command::new("gh")
-            .args([
-                "issue",
-                "create",
-                "--repo",
-                "eisber/lox-cli",
-                "--title",
-                title,
-                "--body",
-                &body,
-            ])
-            .output();
-
-        match gh_result {
-            Ok(output) if output.status.success() => {
-                let url = String::from_utf8_lossy(&output.stdout);
-                println!("✓ GitHub issue created: {}", url.trim());
+        match super::report_cmd::create_github_issue(title, &body) {
+            Ok(url) => {
+                println!("✓ GitHub issue created: {}", url);
             }
-            _ => {
-                eprintln!(
-                    "⚠ Could not create GitHub issue (install `gh` CLI and run `gh auth login`)."
-                );
+            Err(error) => {
+                eprintln!("⚠ Could not create GitHub issue: {error:#}");
                 eprintln!("  Copy the JSON report above and file manually at:");
                 eprintln!("  https://github.com/eisber/lox-cli/issues/new");
             }
@@ -4130,7 +4113,17 @@ pub fn cmd_completions(
     let Some(sh) = detected else {
         bail!("Could not detect shell. Specify one: lox completions bash|zsh|fish");
     };
-    let mut cmd = Cli::command();
+    // clap_complete includes hidden commands, so omit compatibility routes.
+    let cli = Cli::command();
+    let mut cmd = clap::Command::new("lox")
+        .version(env!("CARGO_PKG_VERSION"))
+        .disable_help_subcommand(true)
+        .args(cli.get_arguments().cloned())
+        .subcommands(
+            cli.get_subcommands()
+                .filter(|cmd| !cmd.is_hide_set())
+                .cloned(),
+        );
     if install {
         install_completions(sh, &mut cmd)?;
     } else {

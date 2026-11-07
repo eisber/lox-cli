@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- `lox report` submits sanitized CLI bug reports to GitHub with an acknowledged PostHog fallback. Help, schemas, errors, and Rust panics expose reporting guidance; errors and panics never automatically submit reports.
 - Reproducible README terminal demo using an explicitly labeled loopback sandbox, with recording instructions and regression tests.
 - `lox stats ls` (alias `list`), `lox stats get` and `lox stats download` read the statistics the Miniserver logs (`/stats/` index and monthly XML files): list them, print values as table, CSV or JSON across a month range, and mirror the raw files into a folder incrementally.
 - `lox config user-grant` / `user-revoke` edit a user's (or, with `--group`, a user group's) object permissions (`<PH>`/`<PRM>`) in a `.Loxone` file — e.g. to let an API user call `/dev/sps/io/<input>/...` without HTTP 403. Idempotent; permission edits preserve unrelated content and update the Document save stamp.
@@ -15,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `--grant <USER>` on `lox config add --type virtual-input` and `lox config add-virtual-in`.
 
 ### Fixed
+- JSON output flags now apply to argument-parsing errors as well as runtime errors; parser errors retain exit code 2 and help/version remain normal successful output.
 - Reject unsupported `--dry-run` operations before startup or mutation, even with `--force` or `--write`; retain supported planners and audited read-only commands without cache or telemetry writes.
 - Preserve live `/sys/custom/*.LoxCC` changes during download/pull and use stored baselines, three-way conflict checks, and pre-upload snapshot rechecks for deployment.
 - Reject unsupported catalogue, permission, and TPDC changes instead of silently preserving stale compiled sidecars; validate supplied ZIP sidecars as well as the original archive.
@@ -29,6 +31,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Config editing accepts value-identical duplicate attributes emitted by Loxone while still rejecting conflicting values. Comments, CDATA, processing instructions, and declarations are left untouched.
 - Writing a `.Loxone` file preserves line breaks inside attribute values. Loxone keeps bare LF in note text and CRLF in AutoPilot rule JSON; the CRLF post-process previously converted both to the file's line ending. Repeated saves now keep each attribute's own line breaks without accumulating extra carriage returns.
 - Writing a `.Loxone` file keeps the file's own line endings. They are now taken from the newline after the XML declaration (or the first newline outside markup when there is no declaration); before, a single CRLF inside any attribute value (AutoPilot rule JSON) made the editor treat an LF file as CRLF and convert every line of it.
+
+### Changed
+- `lox report` replaces the preliminary `lox feedback report` spelling, which remains a hidden compatibility path.
 
 ## [0.14.2] — 2026-05-08
 
