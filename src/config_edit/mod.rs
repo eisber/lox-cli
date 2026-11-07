@@ -1873,4 +1873,130 @@ mod tests {
         let editor = ConfigEditor::load(SAMPLE_XML).unwrap();
         assert!(editor.digit_attr_renames.is_empty());
     }
+
+    // ── resolve_wiring: InputRef twins ──────────────────────────────────
+
+    /// A page with InputRefs (`(object uuid, AQ uuid, Q uuid)`, all
+    /// mirroring `vi-1`) and one consumer block wired to each ref's AQ.
+    fn page_with_refs(refs: &[(&str, &str, &str)]) -> Vec<u8> {
+        let mut xml = String::from(
+            "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<ControlList Version=\"267\">\n\
+             <C Type=\"VirtualIn\" U=\"vi-1\" Title=\"Taster\"><Co K=\"AQ\" U=\"vi-1-aq\"/></C>\n\
+             <C Type=\"Page\" U=\"page-1\" Title=\"Seite\">\n",
+        );
+        for (i, (obj, aq, q)) in refs.iter().enumerate() {
+            xml.push_str(&format!(
+                "<C Type=\"InputRef\" U=\"{obj}\" Ref=\"vi-1\">\
+                 <Co K=\"AI\" U=\"{obj}-ai\"><In Input=\"vi-1-aq\"/></Co>\
+                 <Co K=\"AQ\" U=\"{aq}\"/><Co K=\"Q\" U=\"{q}\"/></C>\n\
+                 <C Type=\"Memory\" U=\"mem-{i}\" Title=\"Halter {i}\">\
+                 <Co K=\"Input\" U=\"mem-{i}-in\"><In Input=\"{aq}\"/></Co></C>\n"
+            ));
+        }
+        xml.push_str("</C>\n</ControlList>");
+        xml.into_bytes()
+    }
+
+    /// Connector UUIDs that occur more than once.
+    fn duplicate_connector_uuids(xml: &[u8]) -> Vec<String> {
+        let text = std::str::from_utf8(xml).unwrap();
+        let mut seen = std::collections::HashMap::<&str, usize>::new();
+        for part in text.split("<Co ").skip(1) {
+            if let Some(at) = part.find(" U=\"") {
+                let rest = &part[at + 4..];
+                *seen.entry(&rest[..rest.find('"').unwrap()]).or_default() += 1;
+            }
+        }
+        seen.into_iter()
+            .filter(|&(_, n)| n > 1)
+            .map(|(u, _)| u.to_string())
+            .collect()
+    }
+
+    #[test]
+    fn test_resolve_wiring_keeps_twin_refs_apart() {
+        // Two mirrors of one target, unchanged since the download: nothing
+        // is stale. Keyed by target alone, both twins collapsed onto the
+        // last one's ports — duplicate connector UUIDs, which Loxone
+        // Config re-mints on its next open.
+        let refs = [("ref-a", "a-aq", "a-q"), ("ref-b", "b-aq", "b-q")];
+        let xml = page_with_refs(&refs);
+        let mut editor = ConfigEditor::load(&xml).unwrap();
+        assert_eq!(editor.resolve_wiring(&xml).unwrap(), 0);
+        let out = editor.to_bytes().unwrap();
+        assert!(duplicate_connector_uuids(&out).is_empty());
+        let text = std::str::from_utf8(&out).unwrap();
+        assert!(text.contains("<In Input=\"a-aq\""));
+        assert!(text.contains("<In Input=\"b-aq\""));
+    }
+
+    #[test]
+    fn test_resolve_wiring_remaps_regenerated_ports_per_ref() {
+        // Loxone Config regenerated both twins' ports: each maps to its
+        // own InputRef's new UUIDs.
+        let ours = page_with_refs(&[("ref-a", "a-aq", "a-q"), ("ref-b", "b-aq", "b-q")]);
+        let live = page_with_refs(&[("ref-a", "a-aq2", "a-q2"), ("ref-b", "b-aq2", "b-q2")]);
+        let mut editor = ConfigEditor::load(&ours).unwrap();
+        assert_eq!(editor.resolve_wiring(&live).unwrap(), 2);
+        let out = editor.to_bytes().unwrap();
+        assert!(duplicate_connector_uuids(&out).is_empty());
+        let text = std::str::from_utf8(&out).unwrap();
+        assert!(text.contains("<In Input=\"a-aq2\""));
+        assert!(text.contains("<In Input=\"b-aq2\""));
+        assert!(text.contains("U=\"b-q2\""));
+        assert_eq!(editor.resolve_wiring(&live).unwrap(), 0);
+        assert_eq!(editor.to_bytes().unwrap(), out);
+    }
+
+    #[test]
+    fn test_resolve_wiring_target_fallback_only_when_unique() {
+        // The InputRef's own UUID changed too: a single mirror of the
+        // target still resolves through `Ref=` ...
+        let ours = page_with_refs(&[("ref-old", "a-aq", "a-q")]);
+        let live = page_with_refs(&[("ref-new", "n-aq", "n-q")]);
+        let mut editor = ConfigEditor::load(&ours).unwrap();
+        assert_eq!(editor.resolve_wiring(&live).unwrap(), 1);
+        let out = editor.to_bytes().unwrap();
+        assert!(
+            std::str::from_utf8(&out)
+                .unwrap()
+                .contains("<In Input=\"n-aq\"")
+        );
+
+        // ... but with several mirrors there is no telling which is which:
+        // left alone rather than guessed.
+        let ours = page_with_refs(&[("ref-x", "x-aq", "x-q"), ("ref-y", "y-aq", "y-q")]);
+        let mut editor = ConfigEditor::load(&ours).unwrap();
+        assert_eq!(editor.resolve_wiring(&live).unwrap(), 0);
+    }
+
+    #[test]
+    fn test_resolve_wiring_keeps_ports_when_live_target_is_ambiguous() {
+        let ours = page_with_refs(&[("ref-old", "old-aq", "old-q")]);
+        let live = page_with_refs(&[("ref-a", "a-aq", "a-q"), ("ref-b", "b-aq", "b-q")]);
+        let mut editor = ConfigEditor::load(&ours).unwrap();
+        let before = editor.to_bytes().unwrap();
+        assert_eq!(editor.resolve_wiring(&live).unwrap(), 0);
+        assert_eq!(editor.to_bytes().unwrap(), before);
+    }
+
+    #[test]
+    fn test_resolve_wiring_does_not_reuse_another_connectors_uuid() {
+        let ours = page_with_refs(&[("ref-a", "a-aq", "a-q")]);
+        let live = page_with_refs(&[("ref-a", "mem-0-in", "a-q")]);
+        let mut editor = ConfigEditor::load(&ours).unwrap();
+        let before = editor.to_bytes().unwrap();
+        assert_eq!(editor.resolve_wiring(&live).unwrap(), 0);
+        assert_eq!(editor.to_bytes().unwrap(), before);
+        assert!(duplicate_connector_uuids(&before).is_empty());
+    }
+
+    #[test]
+    fn test_resolve_wiring_rejects_malformed_live_xml_without_mutation() {
+        let ours = page_with_refs(&[("ref-a", "a-aq", "a-q")]);
+        let mut editor = ConfigEditor::load(&ours).unwrap();
+        let before = editor.to_bytes().unwrap();
+        assert!(editor.resolve_wiring(b"<ControlList><C").is_err());
+        assert_eq!(editor.to_bytes().unwrap(), before);
+    }
 }
