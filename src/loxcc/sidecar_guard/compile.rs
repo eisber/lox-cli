@@ -53,27 +53,72 @@ enum Kind {
     Meter,
     Intercom,
     EnergyManager,
+    LightController,
+    IntercomDevice,
+    /// Any other control that already has a compiled catalogue entry.
+    Catalogued,
 }
 
 impl Kind {
-    fn app_type(self) -> &'static str {
+    fn app_type(self) -> Option<&'static str> {
         match self {
-            Kind::Selector => "ValueSelector",
-            Kind::TextState => "TextState",
-            Kind::Pushbutton => "Pushbutton",
-            Kind::Meter => "Meter",
-            Kind::Intercom => "Intercom",
-            Kind::EnergyManager => "EFM",
+            Kind::Selector => Some("ValueSelector"),
+            Kind::TextState => Some("TextState"),
+            Kind::Pushbutton => Some("Pushbutton"),
+            Kind::Meter => Some("Meter"),
+            Kind::Intercom => Some("Intercom"),
+            Kind::EnergyManager => Some("EFM"),
+            Kind::LightController => Some("LightControllerV2"),
+            Kind::IntercomDevice | Kind::Catalogued => None,
         }
     }
 
-    /// XML attributes and child elements this compiler reconciles for an existing control.
+    fn label(self) -> &'static str {
+        self.app_type().unwrap_or("catalogue")
+    }
+
+    /// XML attributes this compiler reconciles, and child elements that the
+    /// catalogue does not depend on (reconciled or runtime-only), for an existing control.
     fn reconciled(self) -> (&'static [&'static str], &'static [&'static str]) {
         match self {
-            Kind::Selector | Kind::TextState | Kind::Pushbutton | Kind::Meter => (&["Title"], &[]),
+            Kind::Selector | Kind::Pushbutton | Kind::Meter | Kind::Catalogued => {
+                (&["Title", "linkC"], &[])
+            }
+            // Status texts are runtime text events (Structure File: TextState states).
+            Kind::TextState => (&["Title", "linkC"], &["StateTexts"]),
+            // Moods are runtime states (Structure File: LightControllerV2 moodList).
+            Kind::LightController => (&["Title", "linkC"], &["LightscenesC"]),
             Kind::Intercom => (&["OutName1", "OutName2", "OutName3", "linkC"], &[]),
+            // Video and audio settings are secured details, fetched at runtime
+            // (Structure File: Intercom, since 8.1); the address is a runtime state.
+            Kind::IntercomDevice => (
+                &[
+                    "IntAlertImage",
+                    "IntAudioHost",
+                    "IntVideoUrl",
+                    "VideoUser",
+                    "VideoPwd",
+                    "linkC",
+                ],
+                &[],
+            ),
             Kind::EnergyManager => (&[], &["root"]),
         }
+    }
+
+    /// Whether input wiring and connector parameters are absent from this control's entry.
+    ///
+    /// These catalogue entries derive only from block attributes and connector identities.
+    /// Unknown types can expose input connections in their details, so they stay protected.
+    fn wiring_neutral(self) -> bool {
+        matches!(
+            self,
+            Kind::Selector
+                | Kind::TextState
+                | Kind::Pushbutton
+                | Kind::Meter
+                | Kind::LightController
+        )
     }
 
     fn can_add(self) -> bool {
@@ -208,10 +253,12 @@ struct Project<'a> {
     blocks: Vec<&'a Element>,
     objects: HashMap<&'a str, &'a Element>,
     managers: BTreeSet<&'a str>,
+    /// Block identities with a compiled catalogue entry.
+    catalogued: BTreeSet<String>,
 }
 
 impl<'a> Project<'a> {
-    fn new(root: &'a Element) -> Self {
+    fn new(root: &'a Element, catalogued: BTreeSet<String>) -> Self {
         let mut blocks = Vec::new();
         descendants(root, "C", &mut blocks);
         let objects = blocks
@@ -227,6 +274,7 @@ impl<'a> Project<'a> {
             blocks,
             objects,
             managers,
+            catalogued,
         }
     }
 
@@ -242,6 +290,15 @@ impl<'a> Project<'a> {
                 Some(Kind::Meter)
             }
             "EFM" => Some(Kind::EnergyManager),
+            "LightController2" if visible(block) => Some(Kind::LightController),
+            "IntercomDevice"
+                if attribute(block, "U").is_some_and(|uuid| self.catalogued.contains(uuid)) =>
+            {
+                Some(Kind::IntercomDevice)
+            }
+            _ if attribute(block, "U").is_some_and(|uuid| self.catalogued.contains(uuid)) => {
+                Some(Kind::Catalogued)
+            }
             _ => None,
         }
     }
@@ -303,12 +360,24 @@ enum Edit {
 }
 
 /// Classify every changed control, rejecting anything outside the supported edits.
-fn classify<'a>(project: &Project<'a>, changes: &[Change<'a>]) -> Result<BTreeMap<&'a str, Edit>> {
+/// Classified edits, existing controls whose `linkC` changed, and removed catalogued controls.
+type Classified<'a> = (BTreeMap<&'a str, Edit>, BTreeSet<&'a str>, Vec<&'a Element>);
+
+fn classify<'a>(project: &Project<'a>, changes: &[Change<'a>]) -> Result<Classified<'a>> {
     let mut edits = BTreeMap::new();
+    let mut relinked = BTreeSet::new();
+    let mut removed = Vec::new();
     for change in changes {
-        let (parent, block) = change
-            .after
-            .with_context(|| format!("removing control {} is unsupported", change.key))?;
+        let Some((parent, block)) = change.after else {
+            let (_, old) = change.before.context("invalid sidecar change")?;
+            ensure!(
+                attribute(old, "U").is_some_and(|uuid| project.catalogued.contains(uuid)),
+                "removing control {} is unsupported",
+                change.key
+            );
+            removed.push(old);
+            continue;
+        };
         let uuid = required(block, "U")?;
         let kind = project.kind(block);
         let edit = match change.before {
@@ -335,6 +404,18 @@ fn classify<'a>(project: &Project<'a>, changes: &[Change<'a>]) -> Result<BTreeMa
                             .as_element()
                             .is_none_or(|child| !elements.contains(&child.name.as_str()))
                     });
+                    if kind.wiring_neutral() {
+                        for co in element
+                            .children
+                            .iter_mut()
+                            .filter_map(XMLNode::as_mut_element)
+                            .filter(|child| child.name == "Co")
+                        {
+                            co.attributes
+                                .retain(|key, _| matches!(key.as_str(), "K" | "U"));
+                            co.children.clear();
+                        }
+                    }
                     shape(&element, true)
                 };
                 ensure!(
@@ -342,12 +423,21 @@ fn classify<'a>(project: &Project<'a>, changes: &[Change<'a>]) -> Result<BTreeMa
                     "changing control {uuid} beyond its {} is unsupported",
                     [attributes, elements].concat().join("/")
                 );
+                if attribute(old, "linkC") != attribute(block, "linkC") {
+                    ensure!(
+                        attributes.contains(&"linkC"),
+                        "changing links of control {uuid} is unsupported"
+                    );
+                    if kind != Kind::Intercom {
+                        relinked.insert(uuid);
+                    }
+                }
                 Edit::Modified
             }
         };
         edits.insert(uuid, edit);
     }
-    Ok(edits)
+    Ok((edits, relinked, removed))
 }
 
 pub(super) fn compile(
@@ -356,15 +446,25 @@ pub(super) fn compile(
     app: &[u8],
     permissions: Option<&[u8]>,
 ) -> Result<super::Sidecars> {
-    let project = Project::new(after);
-    let edits = classify(&project, changes)?;
-
     let mut data: Value = serde_json::from_slice(app).context("invalid LoxAPP3.json")?;
+    let catalogued = catalogue(&data)?
+        .keys()
+        .map(|key| key.strip_prefix("U:").unwrap_or(key).to_string())
+        .collect();
+    let project = Project::new(after, catalogued);
+    let (edits, relinked, removed) = classify(&project, changes)?;
+
     let original = data.clone();
     render_selectors(&mut data, &project, &edits)?;
     render_energy(&mut data, &project, &edits)?;
     render_status(&mut data, &project, &edits)?;
     render_intercoms(&mut data, &project, &edits)?;
+    render_renames(&mut data, &project, &edits)?;
+    for uuid in &relinked {
+        let block = project.objects[uuid];
+        set_links(&mut data, block)?;
+    }
+    remove_entries(&mut data, &removed)?;
     let app = if data == original {
         app.to_vec()
     } else {
@@ -384,11 +484,12 @@ pub(super) fn compile(
         bytes
     };
 
-    let permissions = if edits.values().any(|edit| *edit == Edit::Added) {
+    let permissions = if edits.values().any(|edit| *edit == Edit::Added) || !removed.is_empty() {
         let source = permissions
             .filter(|data| !data.is_empty())
             .context("source permissions.bin is missing or empty")?;
         let mut records = parse_records(source)?;
+        remove_records(&mut records, &removed)?;
         let controls = catalogue(&data)?;
         add_meter_permissions(&mut records, controls, &project, &edits)?;
         add_status_permissions(&mut records, controls, &project, &edits)?;
@@ -438,12 +539,53 @@ fn category_icon(data: &Value, category: &str) -> Result<Value> {
 /// Rename an existing native entry without touching its other metadata.
 fn rename(data: &mut Value, block: &Element, kind: Kind) -> Result<()> {
     let uuid = required(block, "U")?;
+    let expected = kind.app_type();
     let entry = catalogue_mut(data)?
         .get_mut(&format!("U:{uuid}"))
         .and_then(Value::as_object_mut)
-        .filter(|entry| entry.get("type").and_then(Value::as_str) == Some(kind.app_type()))
-        .with_context(|| format!("an existing native {} entry is required", kind.app_type()))?;
+        .filter(|entry| expected.is_none() || entry.get("type").and_then(Value::as_str) == expected)
+        .with_context(|| {
+            format!(
+                "an existing native {} entry is required",
+                expected.unwrap_or("catalogue")
+            )
+        })?;
     entry.insert("name".into(), json!(required(block, "Title")?));
+    Ok(())
+}
+
+/// Rename controls whose entries the type-specific renderers do not own.
+fn render_renames(data: &mut Value, project: &Project, edits: &BTreeMap<&str, Edit>) -> Result<()> {
+    for kind in [Kind::LightController, Kind::Catalogued] {
+        for (block, _) in project.edited(kind, edits) {
+            rename(data, block, kind)?;
+        }
+    }
+    Ok(())
+}
+
+/// Mirror `linkC` into `links`; every linked control must already be in the catalogue.
+fn set_links(data: &mut Value, block: &Element) -> Result<()> {
+    let uuid = required(block, "U")?;
+    let links: Vec<&str> = attribute(block, "linkC")
+        .map(|links| links.split(',').filter(|link| !link.is_empty()).collect())
+        .unwrap_or_default();
+    let controls = catalogue_mut(data)?;
+    for link in &links {
+        ensure!(
+            controls.contains_key(&format!("U:{link}")),
+            "linked control {link} has no catalogue entry; generating linked-only entries is unsupported"
+        );
+    }
+    let entry = controls
+        .get_mut(&format!("U:{uuid}"))
+        .and_then(Value::as_object_mut)
+        .with_context(|| format!("control {uuid} has no catalogue entry for its links"))?;
+    if links.is_empty() {
+        entry.shift_remove("links");
+    } else {
+        entry.insert("links".into(), json!(links));
+    }
     Ok(())
 }
 
@@ -513,6 +655,9 @@ fn render_selectors(
         entry.insert("isSecured".into(), json!(false));
         entry.shift_remove("links");
         catalogue_mut(data)?.insert(key, Value::Object(entry));
+        if attribute(block, "linkC").is_some() {
+            set_links(data, block)?;
+        }
     }
     Ok(())
 }
@@ -795,11 +940,11 @@ fn render_status(data: &mut Value, project: &Project, edits: &BTreeMap<&str, Edi
             catalogue(data)?
                 .values()
                 .any(
-                    |entry| entry.get("type").and_then(Value::as_str) == Some(kind.app_type())
+                    |entry| entry.get("type").and_then(Value::as_str) == kind.app_type()
                         && project.same_block_version(entry, block)
                 ),
             "a native {} catalogue template of the same block version is required",
-            kind.app_type()
+            kind.label()
         );
         let io = block
             .get_child("IoData")
@@ -811,7 +956,7 @@ fn render_status(data: &mut Value, project: &Project, edits: &BTreeMap<&str, Edi
         let (room, category) = require_location(data, io)?;
         let mut entry = Map::new();
         entry.insert("name".into(), json!(required(block, "Title")?));
-        entry.insert("type".into(), json!(kind.app_type()));
+        entry.insert("type".into(), json!(kind.label()));
         entry.insert("uuidAction".into(), json!(uuid));
         entry.insert("room".into(), json!(room));
         entry.insert("cat".into(), json!(category));
@@ -879,6 +1024,80 @@ fn render_intercoms(
                 entry.shift_remove("links");
             }
         }
+    }
+    Ok(())
+}
+
+/// The identities of a block and its connectors, as compiled sidecars reference them.
+fn block_identities(block: &Element) -> Vec<&str> {
+    std::iter::once(block)
+        .chain(children(block, "Co"))
+        .filter_map(|element| attribute(element, "U"))
+        .collect()
+}
+
+fn catalogue_identities(value: &Value, result: &mut BTreeSet<String>) {
+    let identity = |value: &str| {
+        value
+            .strip_prefix("U:")
+            .unwrap_or(value)
+            .to_ascii_lowercase()
+    };
+    match value {
+        Value::Object(object) => {
+            for (key, value) in object {
+                result.insert(identity(key));
+                catalogue_identities(value, result);
+            }
+        }
+        Value::Array(values) => values
+            .iter()
+            .for_each(|value| catalogue_identities(value, result)),
+        Value::String(value) => {
+            result.insert(identity(value));
+        }
+        _ => {}
+    }
+}
+
+/// Drop removed controls' entries; nothing else in the catalogue may still reference them.
+fn remove_entries(data: &mut Value, removed: &[&Element]) -> Result<()> {
+    if removed.is_empty() {
+        return Ok(());
+    }
+    let controls = catalogue_mut(data)?;
+    for block in removed {
+        controls.shift_remove(&format!("U:{}", required(block, "U")?));
+    }
+    let mut remaining = BTreeSet::new();
+    catalogue_identities(data, &mut remaining);
+    for block in removed {
+        for uuid in block_identities(block) {
+            ensure!(
+                !remaining.contains(&uuid.to_ascii_lowercase()),
+                "removed control {} is still referenced by the catalogue (links, energy nodes \
+                 or other entries); unlink it in the same edit",
+                required(block, "U")?
+            );
+        }
+    }
+    Ok(())
+}
+
+/// Drop removed controls' permission records; no other record may reference their identities.
+fn remove_records(records: &mut Vec<Record>, removed: &[&Element]) -> Result<()> {
+    for block in removed {
+        let action = native_uuid(required(block, "U")?)?;
+        records.retain(|record| record[0] != action);
+        let tokens = block_identities(block)
+            .into_iter()
+            .map(native_uuid)
+            .collect::<Result<BTreeSet<_>>>()?;
+        ensure!(
+            !records.iter().flatten().any(|token| tokens.contains(token)),
+            "removed control {} is still referenced by permissions.bin",
+            required(block, "U")?
+        );
     }
     Ok(())
 }
@@ -1028,7 +1247,7 @@ fn add_status_permissions(
         let mut template = false;
         for candidate in controls
             .values()
-            .filter(|entry| entry.get("type").and_then(Value::as_str) == Some(kind.app_type()))
+            .filter(|entry| entry.get("type").and_then(Value::as_str) == kind.app_type())
         {
             let Some(candidate_action) = candidate.get("uuidAction").and_then(Value::as_str) else {
                 continue;
@@ -1049,7 +1268,7 @@ fn add_status_permissions(
         ensure!(
             template,
             "a matching native {} permission template is required",
-            kind.app_type()
+            kind.label()
         );
         let mut record = vec![action, ACTION_END];
         record.extend(state_tokens(entry(controls, block)?, keys)?);

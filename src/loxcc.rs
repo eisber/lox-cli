@@ -379,6 +379,22 @@ fn repack_archive(src_zip: &[u8], xml: &[u8], sidecars: Option<&Sidecars>) -> Re
     Ok(out.into_inner())
 }
 
+/// Read a root archive member by case-insensitive name, if present.
+pub(crate) fn archive_member(zip_data: &[u8], name: &str) -> Result<Option<Vec<u8>>> {
+    let mut archive = zip::ZipArchive::new(Cursor::new(zip_data)).context("Invalid ZIP")?;
+    let index = (0..archive.len()).find(|index| {
+        archive
+            .name_for_index(*index)
+            .is_some_and(|member| member.eq_ignore_ascii_case(name))
+    });
+    let Some(index) = index else {
+        return Ok(None);
+    };
+    let mut data = Vec::new();
+    archive.by_index(index)?.read_to_end(&mut data)?;
+    Ok(Some(data))
+}
+
 pub(crate) fn require_deployable_archive(data: &[u8]) -> Result<()> {
     if !data.starts_with(b"PK") {
         bail!(

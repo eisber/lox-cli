@@ -418,6 +418,7 @@ lox config extract config.LoxCC --save-as out.Loxone
 lox config extract tdc_DEV.LxRes --save-as blocks.xml  # installed resource metadata
 lox config surfaces file.Loxone -o json     # field names and nested storage, without values
 lox config compress file.Loxone            # compress .Loxone XML → LoxCC (with CRC32)
+lox config repack backup.zip edited.Loxone --save-as sps_new.zip  # compile a deployable ZIP offline
 lox config upload config.zip --force       # upload to Miniserver (dangerous)
 lox config diff old.Loxone new.Loxone      # compare two configs (accepts .zip or .Loxone)
 lox config patch ...                       # download, patch, recompress, and upload in one step
@@ -462,34 +463,53 @@ the supported Loxone Config workflow when that coordination is not possible.
 The existing archive sidecar capability checks still apply to merged changes.
 
 `push` and `patch` preserve the native archive's sidecars, not just its XML.
-For a narrow set of edits they also compile the matching `LoxAPP3.json` entries
-and `permissions.bin` records, copying the layout from a native entry of the
-same type that Loxone Config already compiled into the source archive:
+They also compile the matching `LoxAPP3.json` entries and `permissions.bin`
+records for these edits, copying layouts only from native entries of the same
+type and block version that Loxone Config already compiled into the source archive:
 
 - adding a visualized `PushButton2Sel` (app `ValueSelector`), `State`
   (`TextState`) or `PButtonT` (`Pushbutton`), or a linked `MeterAbsUni`
   (`Meter`) whose `Rec` is an existing energy manager;
-- renaming those controls (`Title`);
+- renaming any control that already has a catalogue entry (`Title` → `name`);
+- changing `linkC` of a catalogued control (`links`; every linked control must
+  already have an entry);
+- removing a catalogued control (its entry and permission record; nothing else
+  may still reference it);
 - adding or renaming load nodes in an energy manager's node tree;
-- changing an existing visualized `Doorcontroller`'s `OutName1`–`OutName3`
-  labels and `linkC` links;
-- adding or removing runtime-only logic/math blocks, which need no sidecar change.
+- changing an existing visualized `Doorcontroller`'s `OutName1`–`OutName3` labels.
+
+These edits need no sidecar change and pass unchanged:
+
+- any edit, addition or removal of a block outside the app: not visualized
+  (`Visu="true"`), not linked through `linkC` or an energy node, and absent from
+  the compiled catalogue. Additions and removals also require `IoData` or a known
+  logic type; types that join the catalogue implicitly (meters, energy managers,
+  autopilot, operating modes, notifications, intercom devices) stay protected;
+- input wiring and connector parameters of selectors, status controls,
+  pushbuttons, meters and lighting controllers, `State` status texts and
+  `LightController2` moods (runtime states in the Structure File);
+- `IntercomDevice` video/audio settings and credentials (runtime secured details);
+- `User` credential changes (`HP`, `UnsP`, `LastEdit`) with unchanged rights;
+- save stamps (`Date`, `DateS`, `NumO`) and layout.
 
 New controls need an existing app room and category, right groups on their
 `Place`/`Category`, and no `RGR` permission overrides. Catalogue changes require
 an advanced Document `Date`, which becomes the catalogue `lastModified`. Untouched
 entries and records are copied byte-for-byte.
 
-Every other sidecar-affecting edit is rejected: for example removing controls,
-changing visible control metadata beyond the above or native state identities,
-and changing room/category rights or user permissions. So is any supported edit
-without a matching native template. `--force` does not bypass this guard. Save
-and deploy those edits with Loxone Config instead. XML extraction/compression
-alone is **not** a complete deployment.
+Every other sidecar-affecting edit is rejected, for example adding other
+visualized control types, changing visible control metadata or native state
+identities, linking a control outside the catalogue, and changing room/category
+rights or user permissions. So is any supported edit without a matching native
+template. `--force` does not bypass this guard. Save and deploy those edits with
+Loxone Config instead. XML extraction/compression alone is **not** a complete deployment.
 
-Existing sidecars and unknown native versions are preserved for sidecar-neutral
-edits (save stamps, layout, and parameter/wiring edits on existing unvisualized
-logic/math blocks). This is not an audit/repair of previously stale native records.
+`lox config repack <backup.zip> <edited.Loxone> --save-as <new.zip>` applies the
+same checks and compilation offline, so a wrapper can review the compiled
+sidecars before deploying the result with `config upload`. It never overwrites
+an existing output file.
+
+This is not an audit/repair of previously stale native records.
 Raw ZIP uploads must also retain matching native catalogue, permission and
 display sidecars from the trusted backup, or carry exactly the sidecars lox
 compiles for a supported edit; identical XML does not make missing or
