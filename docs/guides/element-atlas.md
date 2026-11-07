@@ -118,6 +118,37 @@ Original inventory CLI/UX observations are retained as historical snapshots.
 Current connector metadata is separately digest-pinned repository data, not a
 claim that every associated CLI operation or native behavior works.
 
+## Reviewed evidence outside atlas stages
+
+Two later assessments for the pinned 17.2.10.21 executable are retained
+separately from the atlas's declared capability snapshots:
+
+| Assessment | Established | Not established |
+|---|---|---|
+| Seven dispatcher exceptions (`lox-fck`) | 7/7 are distinct leaf tail-dispatcher code entries, with bounded control-flow and Qt-pointer evidence | Why the analyzer omitted them, their dynamic virtual destinations, widget behavior or additional verified controls |
+| Repaired Lighting fixture (`lox-8xh`) | A fresh official process reopened the first native save and resaved it, preserving all 882 baseline identities, 75 Lighting connectors, four moods and the authored Program | Whole-project no-op, nested editing, simulator behavior or full Lighting-family parity |
+
+The dispatcher report is
+`.reverse-engineering\element-atlas\dispatcher-classification\report.json`
+(SHA-256 `5e76b9a65e07498f1d0bbe754c063f188e120afb10f8acebd9b3fe4ac1a28327`).
+The seven entries remain absent from the canonical census; classifying their
+entry kind does not supply missing canonical body inputs or change the atlas's
+raw census diagnostics. Virtual destinations remain a separate recovery task.
+
+Lighting evidence is retained under
+`.reverse-engineering\native-simulator\workstreams\lighting-envelope-recovery\visual-continuation-20261107\portable-lighting-roundtrip-evidence.json`
+(SHA-256 `47a711c9f7c8afcf6e1684c1108891c1b5211f0fdfb293bce40294abfd537979`).
+The producer is pinned to commit `0c9f259`. Initial native import added
+identities/connectors and normalized mood CIDs; those migrations are recorded,
+not waived. The fresh native-baseline resave preserved the Lighting graph but
+changed one permission `WF` from `6307840` to `16384`. That exact project delta
+remains explicit. Earlier failed fixtures and refused attempts remain separate
+historical counterexamples.
+
+These assessments do not automatically advance contract stages or the overall
+completion percentage. Raw projects, bytes, disassembly and workstation
+receipts remain ignored and private.
+
 ## Repeating after an update
 
 First regenerate the version-matched raw corpus and UX inventory using the

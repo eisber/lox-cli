@@ -328,7 +328,10 @@ impl ConfigEditor {
         let xml_data = if had_bom { &data[3..] } else { data };
 
         let (xml_data_cow, digit_attr_renames) = Self::sanitize_digit_attrs(xml_data);
-        let reader = BufReader::new(Cursor::new(xml_data_cow.as_ref()));
+        // Loxone emits the same attribute twice on some elements (value-identical).
+        // A strict parser rejects that; drop the redundant copy losslessly before parsing.
+        let deduped = Self::dedupe_duplicate_attrs(xml_data_cow.as_ref());
+        let reader = BufReader::new(Cursor::new(deduped.as_ref()));
         let root = Element::parse(reader).context("Failed to parse Loxone XML")?;
         Ok(ConfigEditor {
             root,
@@ -388,6 +391,152 @@ impl ConfigEditor {
             result = result.replace(&from, &to);
         }
         (std::borrow::Cow::Owned(result.into_bytes()), renames)
+    }
+
+    /// Remove **value-identical** duplicate attributes from element start tags.
+    ///
+    /// Loxone Config emits the same attribute twice on some elements (observed on API
+    /// Connector elements: `Title` appears twice with the same value). A strict XML parser
+    /// rejects that ("Attribute 'Title' is redefined"). Since the duplicates are
+    /// value-identical, dropping the redundant copy is lossless. Duplicates with *different*
+    /// values are left untouched so a genuine conflict still surfaces at parse time.
+    ///
+    /// Both XML quote styles are supported; non-element markup is left untouched.
+    fn dedupe_duplicate_attrs(data: &[u8]) -> std::borrow::Cow<'_, [u8]> {
+        let text = match std::str::from_utf8(data) {
+            Ok(s) => s,
+            Err(_) => return std::borrow::Cow::Borrowed(data),
+        };
+        let bytes = text.as_bytes();
+        let len = bytes.len();
+        let ws = |b: u8| matches!(b, b' ' | b'\t' | b'\r' | b'\n');
+        let mut deletes: Vec<(usize, usize)> = Vec::new();
+        let mut i = 0;
+        while i < len {
+            if bytes[i] != b'<' {
+                i += 1;
+                continue;
+            }
+            let tail = &text[i..];
+            let skipped_end = if tail.starts_with("<!--") {
+                tail.find("-->").map(|end| i + end + 3)
+            } else if tail.starts_with("<![CDATA[") {
+                tail.find("]]>").map(|end| i + end + 3)
+            } else if tail.starts_with("<?") {
+                tail.find("?>").map(|end| i + end + 2)
+            } else if tail.starts_with("<!") {
+                // A declaration can contain an internal subset with tag-like text.
+                let mut quote = None;
+                let mut depth: usize = 0;
+                let mut end = None;
+                for (offset, &byte) in bytes.iter().enumerate().skip(i + 2) {
+                    if let Some(delimiter) = quote {
+                        if byte == delimiter {
+                            quote = None;
+                        }
+                    } else {
+                        match byte {
+                            b'"' | b'\'' => quote = Some(byte),
+                            b'[' => depth += 1,
+                            b']' => depth = depth.saturating_sub(1),
+                            b'>' if depth == 0 => {
+                                end = Some(offset + 1);
+                                break;
+                            }
+                            _ => {}
+                        }
+                    }
+                }
+                end
+            } else if tail.starts_with("</") {
+                Self::xml_tag_end(bytes, i)
+            } else {
+                None
+            };
+            if let Some(end) = skipped_end {
+                i = end;
+                continue;
+            }
+            if i + 1 < len && !matches!(bytes[i + 1], b'/' | b'?' | b'!') {
+                // Skip the element name.
+                let mut j = i + 1;
+                while j < len && !ws(bytes[j]) && !matches!(bytes[j], b'>' | b'/') {
+                    j += 1;
+                }
+                // Scan attributes until the end of the start tag.
+                let mut seen: Vec<(&str, &str)> = Vec::new();
+                loop {
+                    while j < len && ws(bytes[j]) {
+                        j += 1;
+                    }
+                    if j >= len || matches!(bytes[j], b'>' | b'/') {
+                        break;
+                    }
+                    let name_start = j;
+                    while j < len && !ws(bytes[j]) && !matches!(bytes[j], b'=' | b'>' | b'/') {
+                        j += 1;
+                    }
+                    let name_end = j;
+                    while j < len && ws(bytes[j]) {
+                        j += 1;
+                    }
+                    if j >= len || bytes[j] != b'=' {
+                        break; // not `name=…`, stop scanning this tag
+                    }
+                    j += 1;
+                    while j < len && ws(bytes[j]) {
+                        j += 1;
+                    }
+                    if j >= len || !matches!(bytes[j], b'"' | b'\'') {
+                        break;
+                    }
+                    let delimiter = bytes[j];
+                    let val_start = j + 1;
+                    j = val_start;
+                    while j < len && bytes[j] != delimiter {
+                        j += 1;
+                    }
+                    if j >= len {
+                        break;
+                    }
+                    let val_end = j;
+                    j += 1; // past closing quote
+                    let attr_end = j;
+                    let name = &text[name_start..name_end];
+                    let value = &text[val_start..val_end];
+                    if let Some(&(_, prev)) = seen.iter().find(|(n, _)| *n == name) {
+                        if prev == value {
+                            // Redundant copy → delete it plus one leading whitespace char.
+                            let del_start = if name_start > 0 && ws(bytes[name_start - 1]) {
+                                name_start - 1
+                            } else {
+                                name_start
+                            };
+                            deletes.push((del_start, attr_end));
+                        }
+                        // Different value: leave it, let the parser flag the conflict.
+                    } else {
+                        seen.push((name, value));
+                    }
+                }
+                i = j;
+                continue;
+            }
+            i += 1;
+        }
+        if deletes.is_empty() {
+            return std::borrow::Cow::Borrowed(data);
+        }
+        let mut out = String::with_capacity(text.len());
+        let mut last = 0;
+        for (s, e) in deletes {
+            if s >= last {
+                out.push_str(&text[last..s]);
+                last = e;
+            }
+        }
+        out.push_str(&text[last..]);
+        std::borrow::Cow::Owned(out.into_bytes())
     }
 
     /// Get a mutable reference to an element by path.
@@ -587,6 +736,69 @@ mod tests {
         let output = editor.to_bytes().unwrap();
         // Verify it's valid XML
         let _ = ConfigEditor::load(&output).unwrap();
+    }
+
+    #[test]
+    fn test_dedupe_value_identical_duplicate_attr() {
+        // Loxone emits the same attribute twice, value-identical → must parse, redundant copy dropped.
+        let xml = br#"<?xml version="1.0" encoding="utf-8"?>
+<ControlList Version="267">
+  <C Type="Place" U="room-1" Title="Kitchen" WF="16384" Title="Kitchen"/>
+</ControlList>"#;
+        let editor = ConfigEditor::load(xml).unwrap();
+        let out = String::from_utf8(editor.to_bytes().unwrap()).unwrap();
+        assert_eq!(out.matches(r#"Title="Kitchen""#).count(), 1);
+    }
+
+    #[test]
+    fn test_dedupe_leaves_conflicting_duplicate() {
+        // Different values = a real conflict; must still surface at parse time.
+        let xml = br#"<ControlList><C U="x" Title="A" Title="B"/></ControlList>"#;
+        assert!(ConfigEditor::load(xml).is_err());
+    }
+
+    #[test]
+    fn test_dedupe_is_quote_aware() {
+        // A value may contain escaped angle brackets (e.g. Unit="&lt;v&gt;%"); tag scanning
+        // must not be confused, and an unrelated value-identical dup still collapses.
+        let xml = br#"<ControlList>
+  <C U="x" Unit="&lt;v&gt;%" Nio="1" Nio="1"/>
+</ControlList>"#;
+        let editor = ConfigEditor::load(xml).unwrap();
+        let out = String::from_utf8(editor.to_bytes().unwrap()).unwrap();
+        assert_eq!(out.matches(r#"Nio="1""#).count(), 1);
+        assert!(out.contains("&lt;v&gt;%"));
+    }
+
+    #[test]
+    fn test_dedupe_supports_both_quotes_and_xml_names() {
+        let xml = "<ControlList><C.entry Title='Küche' Title=\"Küche\" \
+Unit='a > b' Unit='a > b'/><部屋 Title='同じ' Title='同じ'/></ControlList>";
+        let editor = ConfigEditor::load(xml.as_bytes()).unwrap();
+        let child = editor.root.get_child("C.entry").unwrap();
+        assert_eq!(child.attributes["Title"], "Küche");
+        assert_eq!(child.attributes["Unit"], "a > b");
+        assert_eq!(
+            editor.root.get_child("部屋").unwrap().attributes["Title"],
+            "同じ"
+        );
+        assert!(ConfigEditor::load(b"<C Title='A' Title=\"B\"/>").is_err());
+    }
+
+    #[test]
+    fn test_dedupe_preserves_non_element_markup() {
+        let xml = br#"<?xml version="1.0"?>
+<!DOCTYPE C [<!ENTITY example '<C A="x" A="x"/>'>]>
+<C A="x" A="x">
+<!-- <C A="x" A="x"/> -->
+<![CDATA[<C A="x" A="x"/>]]>
+<?test <C A="x" A="x"/>?>
+</C>"#;
+        let out = ConfigEditor::dedupe_duplicate_attrs(xml);
+        let expected = String::from_utf8(xml.to_vec())
+            .unwrap()
+            .replace("\n<C A=\"x\" A=\"x\">", "\n<C A=\"x\">");
+        assert_eq!(out.as_ref(), expected.as_bytes());
     }
 
     #[test]
@@ -1872,5 +2084,131 @@ mod tests {
     fn test_no_digit_attrs_is_noop() {
         let editor = ConfigEditor::load(SAMPLE_XML).unwrap();
         assert!(editor.digit_attr_renames.is_empty());
+    }
+
+    // ── resolve_wiring: InputRef twins ──────────────────────────────────
+
+    /// A page with InputRefs (`(object uuid, AQ uuid, Q uuid)`, all
+    /// mirroring `vi-1`) and one consumer block wired to each ref's AQ.
+    fn page_with_refs(refs: &[(&str, &str, &str)]) -> Vec<u8> {
+        let mut xml = String::from(
+            "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<ControlList Version=\"267\">\n\
+             <C Type=\"VirtualIn\" U=\"vi-1\" Title=\"Taster\"><Co K=\"AQ\" U=\"vi-1-aq\"/></C>\n\
+             <C Type=\"Page\" U=\"page-1\" Title=\"Seite\">\n",
+        );
+        for (i, (obj, aq, q)) in refs.iter().enumerate() {
+            xml.push_str(&format!(
+                "<C Type=\"InputRef\" U=\"{obj}\" Ref=\"vi-1\">\
+                 <Co K=\"AI\" U=\"{obj}-ai\"><In Input=\"vi-1-aq\"/></Co>\
+                 <Co K=\"AQ\" U=\"{aq}\"/><Co K=\"Q\" U=\"{q}\"/></C>\n\
+                 <C Type=\"Memory\" U=\"mem-{i}\" Title=\"Halter {i}\">\
+                 <Co K=\"Input\" U=\"mem-{i}-in\"><In Input=\"{aq}\"/></Co></C>\n"
+            ));
+        }
+        xml.push_str("</C>\n</ControlList>");
+        xml.into_bytes()
+    }
+
+    /// Connector UUIDs that occur more than once.
+    fn duplicate_connector_uuids(xml: &[u8]) -> Vec<String> {
+        let text = std::str::from_utf8(xml).unwrap();
+        let mut seen = std::collections::HashMap::<&str, usize>::new();
+        for part in text.split("<Co ").skip(1) {
+            if let Some(at) = part.find(" U=\"") {
+                let rest = &part[at + 4..];
+                *seen.entry(&rest[..rest.find('"').unwrap()]).or_default() += 1;
+            }
+        }
+        seen.into_iter()
+            .filter(|&(_, n)| n > 1)
+            .map(|(u, _)| u.to_string())
+            .collect()
+    }
+
+    #[test]
+    fn test_resolve_wiring_keeps_twin_refs_apart() {
+        // Two mirrors of one target, unchanged since the download: nothing
+        // is stale. Keyed by target alone, both twins collapsed onto the
+        // last one's ports — duplicate connector UUIDs, which Loxone
+        // Config re-mints on its next open.
+        let refs = [("ref-a", "a-aq", "a-q"), ("ref-b", "b-aq", "b-q")];
+        let xml = page_with_refs(&refs);
+        let mut editor = ConfigEditor::load(&xml).unwrap();
+        assert_eq!(editor.resolve_wiring(&xml).unwrap(), 0);
+        let out = editor.to_bytes().unwrap();
+        assert!(duplicate_connector_uuids(&out).is_empty());
+        let text = std::str::from_utf8(&out).unwrap();
+        assert!(text.contains("<In Input=\"a-aq\""));
+        assert!(text.contains("<In Input=\"b-aq\""));
+    }
+
+    #[test]
+    fn test_resolve_wiring_remaps_regenerated_ports_per_ref() {
+        // Loxone Config regenerated both twins' ports: each maps to its
+        // own InputRef's new UUIDs.
+        let ours = page_with_refs(&[("ref-a", "a-aq", "a-q"), ("ref-b", "b-aq", "b-q")]);
+        let live = page_with_refs(&[("ref-a", "a-aq2", "a-q2"), ("ref-b", "b-aq2", "b-q2")]);
+        let mut editor = ConfigEditor::load(&ours).unwrap();
+        assert_eq!(editor.resolve_wiring(&live).unwrap(), 2);
+        let out = editor.to_bytes().unwrap();
+        assert!(duplicate_connector_uuids(&out).is_empty());
+        let text = std::str::from_utf8(&out).unwrap();
+        assert!(text.contains("<In Input=\"a-aq2\""));
+        assert!(text.contains("<In Input=\"b-aq2\""));
+        assert!(text.contains("U=\"b-q2\""));
+        assert_eq!(editor.resolve_wiring(&live).unwrap(), 0);
+        assert_eq!(editor.to_bytes().unwrap(), out);
+    }
+
+    #[test]
+    fn test_resolve_wiring_target_fallback_only_when_unique() {
+        // The InputRef's own UUID changed too: a single mirror of the
+        // target still resolves through `Ref=` ...
+        let ours = page_with_refs(&[("ref-old", "a-aq", "a-q")]);
+        let live = page_with_refs(&[("ref-new", "n-aq", "n-q")]);
+        let mut editor = ConfigEditor::load(&ours).unwrap();
+        assert_eq!(editor.resolve_wiring(&live).unwrap(), 1);
+        let out = editor.to_bytes().unwrap();
+        assert!(
+            std::str::from_utf8(&out)
+                .unwrap()
+                .contains("<In Input=\"n-aq\"")
+        );
+
+        // ... but with several mirrors there is no telling which is which:
+        // left alone rather than guessed.
+        let ours = page_with_refs(&[("ref-x", "x-aq", "x-q"), ("ref-y", "y-aq", "y-q")]);
+        let mut editor = ConfigEditor::load(&ours).unwrap();
+        assert_eq!(editor.resolve_wiring(&live).unwrap(), 0);
+    }
+
+    #[test]
+    fn test_resolve_wiring_keeps_ports_when_live_target_is_ambiguous() {
+        let ours = page_with_refs(&[("ref-old", "old-aq", "old-q")]);
+        let live = page_with_refs(&[("ref-a", "a-aq", "a-q"), ("ref-b", "b-aq", "b-q")]);
+        let mut editor = ConfigEditor::load(&ours).unwrap();
+        let before = editor.to_bytes().unwrap();
+        assert_eq!(editor.resolve_wiring(&live).unwrap(), 0);
+        assert_eq!(editor.to_bytes().unwrap(), before);
+    }
+
+    #[test]
+    fn test_resolve_wiring_does_not_reuse_another_connectors_uuid() {
+        let ours = page_with_refs(&[("ref-a", "a-aq", "a-q")]);
+        let live = page_with_refs(&[("ref-a", "mem-0-in", "a-q")]);
+        let mut editor = ConfigEditor::load(&ours).unwrap();
+        let before = editor.to_bytes().unwrap();
+        assert_eq!(editor.resolve_wiring(&live).unwrap(), 0);
+        assert_eq!(editor.to_bytes().unwrap(), before);
+        assert!(duplicate_connector_uuids(&before).is_empty());
+    }
+
+    #[test]
+    fn test_resolve_wiring_rejects_malformed_live_xml_without_mutation() {
+        let ours = page_with_refs(&[("ref-a", "a-aq", "a-q")]);
+        let mut editor = ConfigEditor::load(&ours).unwrap();
+        let before = editor.to_bytes().unwrap();
+        assert!(editor.resolve_wiring(b"<ControlList><C").is_err());
+        assert_eq!(editor.to_bytes().unwrap(), before);
     }
 }

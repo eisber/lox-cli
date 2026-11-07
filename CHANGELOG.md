@@ -7,7 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- `lox stats ls` (alias `list`), `lox stats get` and `lox stats download` read the statistics the Miniserver logs (`/stats/` index and monthly XML files): list them, print values as table, CSV or JSON across a month range, and mirror the raw files into a folder incrementally.
+
 ### Fixed
+- `lox sim run` no longer reports a passing simulation for an empty scenario array or a scenario with no output assertions (including trace-only runs).
+- `lox sim`: inputs with several `<In>` sources (`Nc="2"`, ...) on `And`, `Or` and `Xor` keep all of them and combine them as the Loxone help describes (AND on And, OR on Or and Xor). On other blocks the first source is still the only one wired, but a warning now names the input; previously the other sources were dropped silently.
+- `lox sim`: PI/PID read their parameters in signature order and follow the Loxone formula (SampleTime, Trigger threshold, Auto/MV, Off) instead of using Trigger/P as output limits, which panicked with "min > max".
+- `lox sim`: `Memory` is modelled as the Loxone memory flag (Input -> AQ, Q) instead of a trigger/reset latch that never passed its input on.
+- `lox sim run`: unknown keys in a spec are rejected, and an input that resolves to nothing fails the scenario instead of only printing a warning.
+- Config editing accepts value-identical duplicate attributes emitted by Loxone while still rejecting conflicting values. Comments, CDATA, processing instructions, and declarations are left untouched.
 - Writing a `.Loxone` file preserves line breaks inside attribute values. Loxone keeps bare LF in note text and CRLF in AutoPilot rule JSON; the CRLF post-process previously converted both to the file's line ending. Repeated saves now keep each attribute's own line breaks without accumulating extra carriage returns.
 
 ## [0.14.2] — 2026-05-08
