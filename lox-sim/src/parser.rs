@@ -733,7 +733,7 @@ fn block_signature(
         ),
         "Mult" => (&["Input1", "Input2"], &["AQ", "Q"], &[]),
         "Not" => (&["I", "I1"], &["Q"], &[]),
-        "OffDelay" => (&["InputTrigger"], &["Q"], &["Time"]),
+        "OffDelay" => (&["InputTrigger", "Reset"], &["Q"], &["Time"]),
         "OnDelay" => (&["InputTrigger"], &["Q"], &["Time"]),
         "OnOffDelay" => (&["InputTrigger"], &["Q"], &["TimeOn", "TimeOff"]),
         "OnPulseDelay" => (&["InputTrigger"], &["Q"], &["Delay", "Time"]),
@@ -2395,6 +2395,78 @@ mod tests {
         let gate = graph.find_block_by_name("Gate").unwrap();
         let input = graph.find_connector(gate, "I1").unwrap();
         assert!(graph.input_source_of(input).is_some());
+    }
+
+    #[test]
+    fn parse_offdelay_reset_preserves_input_slots_and_wiring() {
+        let graph = parse_xml(
+            r#"<ControlList>
+          <C Type="VirtualIn" U="trigger" Title="Trigger"><Co K="Q" U="trigger-q"/></C>
+          <C Type="VirtualIn" U="reset" Title="Reset"><Co K="Q" U="reset-q"/></C>
+          <C Type="OffDelay" U="od" Title="OD">
+            <Co K="Reset" U="od-reset"><In Input="reset-q"/></Co>
+            <Co K="Remanence" U="od-remanence" Def="1"/>
+            <Co K="Time" U="od-time" Def="4"/>
+            <Co K="Q" U="od-q"/>
+            <Co K="InputTrigger" U="od-trigger"><In Input="trigger-q"/></Co>
+          </C>
+          <C Type="OffDelay" U="plain" Title="Plain">
+            <Co K="InputTrigger" U="plain-trigger"><In Input="trigger-q"/></Co>
+            <Co K="Time" U="plain-time" Def="0.5"/>
+          </C>
+        </ControlList>"#,
+        );
+        let od = graph.find_block_by_name("OD").unwrap();
+        let reset_source = graph.find_block_by_name("Reset").unwrap();
+        let reset = graph.find_connector(od, "Reset").unwrap();
+        assert_eq!(
+            graph
+                .block_info(od)
+                .inputs
+                .iter()
+                .map(|&cid| graph.connector(cid).key.as_str())
+                .collect::<Vec<_>>(),
+            ["InputTrigger", "Reset"]
+        );
+        assert_eq!(
+            graph.input_source_of(reset),
+            graph.find_connector(reset_source, "Q")
+        );
+        let remanence = graph.find_connector(od, "Remanence").unwrap();
+        assert_eq!(graph.connector(remanence).dir, ConnectorDir::Parameter);
+        assert_eq!(graph.connector(remanence).default_value, 1.0);
+        let time = graph.block_info(od).params[0];
+        assert_eq!(graph.connector(time).key, "Time");
+        assert_eq!(graph.connector(time).default_value, 4.0);
+        let plain = graph.find_block_by_name("Plain").unwrap();
+        let plain_reset = graph.find_connector(plain, "Reset").unwrap();
+        assert_eq!(graph.connector(plain_reset).dir, ConnectorDir::Input);
+        assert_eq!(graph.connector(plain_reset).default_value, 0.0);
+        assert_eq!(graph.input_source_of(plain_reset), None);
+        assert!(graph.warnings().is_empty());
+
+        let mut compiled = crate::compiler::CompiledGraph::from_graph(&graph);
+        let mut interpreted = crate::engine::SimEngine::new(graph);
+        for (reset, expected) in [(0.0, 1.0), (1.0, 0.0), (1.0, 0.0), (0.0, 1.0)] {
+            assert!(compiled.set_input("Trigger", 1.0));
+            assert!(compiled.set_input("Reset", reset));
+            assert!(interpreted.set_input("Trigger", 1.0));
+            assert!(interpreted.set_input("Reset", reset));
+            compiled.tick(0.25);
+            interpreted.tick(0.25);
+            assert_eq!(compiled.get_output("OD"), expected);
+            assert_eq!(interpreted.get_output("OD"), expected);
+            assert_eq!(compiled.get_output("Plain"), 1.0);
+            assert_eq!(interpreted.get_output("Plain"), 1.0);
+        }
+        assert!(compiled.set_input("Trigger", 0.0));
+        assert!(interpreted.set_input("Trigger", 0.0));
+        for expected in [1.0, 1.0, 0.0] {
+            compiled.tick(0.25);
+            interpreted.tick(0.25);
+            assert_eq!(compiled.get_output("Plain"), expected);
+            assert_eq!(interpreted.get_output("Plain"), expected);
+        }
     }
 
     #[test]

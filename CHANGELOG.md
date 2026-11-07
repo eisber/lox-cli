@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `--grant <USER>` on `lox config add --type virtual-input` and `lox config add-virtual-in`.
 
 ### Fixed
+- `lox sim`: OffDelay now honors Reset in both evaluators, cancels pending expiry, and preserves trigger/reset wiring regardless of XML connector order.
 - JSON output flags now apply to argument-parsing errors as well as runtime errors; parser errors retain exit code 2 and help/version remain normal successful output.
 - Reject unsupported `--dry-run` operations before startup or mutation, even with `--force` or `--write`; retain supported planners and audited read-only commands without cache or telemetry writes.
 - Preserve live `/sys/custom/*.LoxCC` changes during download/pull and use stored baselines, three-way conflict checks, and pre-upload snapshot rechecks for deployment.

@@ -165,6 +165,7 @@ impl Block for OnPulseDelay {
 }
 
 /// Switch-off delay: output remains high for Time seconds after the trigger falls.
+/// Reset overrides the trigger and cancels the pending switch-off delay.
 #[derive(Clone)]
 pub struct OffDelay {
     remaining: f64,
@@ -191,14 +192,20 @@ impl Block for OffDelay {
         prev_inputs: &[Signal],
     ) -> Vec<Signal> {
         let trigger = inputs.first().copied().unwrap_or(0.0);
+        let reset = inputs.get(1).copied().unwrap_or(0.0);
         let prev_trigger = prev_inputs.first().copied().unwrap_or(0.0);
+        let prev_reset = prev_inputs.get(1).copied().unwrap_or(0.0);
         let delay = params.first().copied().unwrap_or(1.0).max(0.0);
 
-        let q = if is_high(trigger) {
+        let q = if is_high(reset) {
+            self.remaining = 0.0;
+            false
+        } else if is_high(trigger) {
             self.remaining = 0.0;
             true
         } else {
-            if is_high(prev_trigger) && !is_high(trigger) {
+            // Releasing Reset with a falling trigger must not revive the cleared delay.
+            if is_high(prev_trigger) && !is_high(trigger) && !is_high(prev_reset) {
                 self.remaining = delay.max(dt);
             }
             let active = self.remaining > 0.0;
@@ -1012,6 +1019,43 @@ mod tests {
         assert_eq!(block.eval(&[0.0], &[0.5], 0.25, &[1.0]), vec![1.0]);
         assert_eq!(block.eval(&[0.0], &[0.5], 0.25, &[0.0]), vec![1.0]);
         assert_eq!(block.eval(&[0.0], &[0.5], 0.25, &[0.0]), vec![0.0]);
+    }
+
+    #[test]
+    fn off_delay_reset_dominates_held_trigger_and_release_restores_output() {
+        let mut block = OffDelay::new();
+        let mut prev = [0.0, 0.0];
+        // TC01 static predicate at 0x1407f6790, not a native execution.
+        for (inputs, expected) in [
+            ([1.0, 0.0], 1.0),
+            ([1.0, 1.0], 0.0),
+            ([1.0, 1.0], 0.0),
+            ([1.0, 0.0], 1.0),
+        ] {
+            assert_eq!(block.eval(&inputs, &[4.0], 0.25, &prev), vec![expected]);
+            prev = inputs;
+        }
+    }
+
+    #[test]
+    fn off_delay_reset_cancels_pending_expiry_without_phantom_retrigger() {
+        let mut block = OffDelay::new();
+        let mut prev = [0.0, 0.0];
+        for (inputs, expected) in [
+            ([1.0, 0.0], 1.0),
+            ([0.0, 0.0], 1.0),
+            ([0.0, 1.0], 0.0),
+            ([0.0, 1.0], 0.0),
+            ([0.0, 0.0], 0.0),
+            ([0.0, 0.0], 0.0),
+            ([1.0, 1.0], 0.0),
+            ([0.0, 0.0], 0.0),
+            ([1.0, 0.0], 1.0),
+            ([0.0, 0.0], 1.0),
+        ] {
+            assert_eq!(block.eval(&inputs, &[4.0], 0.25, &prev), vec![expected]);
+            prev = inputs;
+        }
     }
 
     #[test]

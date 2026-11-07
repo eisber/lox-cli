@@ -152,6 +152,7 @@ pub enum EvalStep {
     OffDelay {
         trigger: usize,
         prev_trigger: usize,
+        reset: Option<usize>,
         param_time: usize,
         output: usize,
         state_idx: usize,
@@ -570,6 +571,7 @@ impl CompiledGraph {
                     EvalStep::OffDelay {
                         trigger: resolved_inputs.first().copied().unwrap_or(0),
                         prev_trigger: prev_inputs.first().copied().unwrap_or(0),
+                        reset: resolved_inputs.get(1).copied(),
                         param_time: params.first().copied().unwrap_or(0),
                         output: outputs[0],
                         state_idx: si,
@@ -1080,22 +1082,28 @@ impl CompiledGraph {
                 EvalStep::OffDelay {
                     trigger,
                     prev_trigger,
+                    reset,
                     param_time,
                     output,
                     state_idx,
                 } => {
                     let trig = self.signals[*trigger];
                     let prev_trig = self.prev_signals[*prev_trigger];
+                    let reset_high = reset.is_some_and(|index| self.signals[index] >= 0.5);
+                    let was_reset_high = reset.is_some_and(|index| self.prev_signals[index] >= 0.5);
                     let delay = self.signals[*param_time].max(0.0);
                     let out = *output;
                     let si = *state_idx;
 
                     if let BlockState::Timer { remaining, .. } = &mut self.state[si] {
-                        let q = if trig >= 0.5 {
+                        let q = if reset_high {
+                            *remaining = 0.0;
+                            false
+                        } else if trig >= 0.5 {
                             *remaining = 0.0;
                             true
                         } else {
-                            if prev_trig >= 0.5 && trig < 0.5 {
+                            if prev_trig >= 0.5 && trig < 0.5 && !was_reset_high {
                                 *remaining = delay.max(dt);
                             }
                             let active = *remaining > 0.0;
@@ -2439,6 +2447,83 @@ mod tests {
     }
 
     // -- OffDelay timing --
+
+    fn offdelay_reset_graph() -> SimGraph {
+        let mut g = SimGraph::new();
+        let trig = g.add_block("Trig", pt(), &["I1"], &["Q"], &[]);
+        let reset = g.add_block("Reset", pt(), &["I1"], &["Q"], &[]);
+        let od = g.add_block(
+            "OD",
+            Box::new(blocks::OffDelay::new()),
+            &["InputTrigger", "Reset"],
+            &["Q"],
+            &["Time"],
+        );
+        g.add_wire(
+            g.find_connector(trig, "Q").unwrap(),
+            g.find_connector(od, "InputTrigger").unwrap(),
+        )
+        .unwrap();
+        g.add_wire(
+            g.find_connector(reset, "Q").unwrap(),
+            g.find_connector(od, "Reset").unwrap(),
+        )
+        .unwrap();
+        let time = g.find_connector(od, "Time").unwrap();
+        g.connectors[time].default_value = 4.0;
+        g
+    }
+
+    #[test]
+    fn compiled_offdelay_reset_dominates_held_trigger() {
+        let g = offdelay_reset_graph();
+        let mut compiled = CompiledGraph::from_graph(&g);
+        let mut interpreted = SimEngine::new(g);
+        // TC01 static predicate at 0x1407f6790, not a native execution.
+        for (trigger, reset, expected) in [
+            (1.0, 0.0, 1.0),
+            (1.0, 1.0, 0.0),
+            (1.0, 1.0, 0.0),
+            (1.0, 0.0, 1.0),
+        ] {
+            compiled.set_input("Trig", trigger);
+            compiled.set_input("Reset", reset);
+            interpreted.set_input("Trig", trigger);
+            interpreted.set_input("Reset", reset);
+            compiled.tick(0.25);
+            interpreted.tick(0.25);
+            assert_eq!(compiled.get_output("OD"), expected);
+            assert_eq!(interpreted.get_output("OD"), expected);
+        }
+    }
+
+    #[test]
+    fn compiled_offdelay_reset_cancels_expiry_without_phantom_retrigger() {
+        let g = offdelay_reset_graph();
+        let mut compiled = CompiledGraph::from_graph(&g);
+        let mut interpreted = SimEngine::new(g);
+        for (trigger, reset, expected) in [
+            (1.0, 0.0, 1.0),
+            (0.0, 0.0, 1.0),
+            (0.0, 1.0, 0.0),
+            (0.0, 1.0, 0.0),
+            (0.0, 0.0, 0.0),
+            (0.0, 0.0, 0.0),
+            (1.0, 1.0, 0.0),
+            (0.0, 0.0, 0.0),
+            (1.0, 0.0, 1.0),
+            (0.0, 0.0, 1.0),
+        ] {
+            compiled.set_input("Trig", trigger);
+            compiled.set_input("Reset", reset);
+            interpreted.set_input("Trig", trigger);
+            interpreted.set_input("Reset", reset);
+            compiled.tick(0.25);
+            interpreted.tick(0.25);
+            assert_eq!(compiled.get_output("OD"), expected);
+            assert_eq!(interpreted.get_output("OD"), expected);
+        }
+    }
 
     #[test]
     fn compiled_offdelay_timing() {
