@@ -14,9 +14,17 @@
 
 mod blocks;
 mod describe;
+pub mod energy;
+#[cfg(test)]
+mod energy_tests;
+pub mod icons;
 mod layout;
+pub mod lighting;
+#[cfg(test)]
+mod lighting_tests;
 mod properties;
 mod rooms;
+pub mod schema;
 mod selector;
 mod template;
 mod validation;
@@ -68,6 +76,15 @@ pub struct DescribeConnectorEntry {
     pub wired: bool,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub default: Option<String>,
+}
+
+/// Value-free storage shapes observed in a configuration, grouped by element type.
+#[derive(Debug, serde::Serialize)]
+pub struct ConfigSurfaceEntry {
+    pub element_type: String,
+    pub occurrences: usize,
+    pub attributes: Vec<String>,
+    pub storage_paths: Vec<String>,
 }
 
 /// A light scene / "mood" defined on a LightController2.
@@ -307,12 +324,9 @@ impl ConfigEditor {
     /// them on write-back.
     pub fn load(data: &[u8]) -> Result<Self> {
         let had_bom = data.starts_with(UTF8_BOM);
-        // The file's line ending is the XML declaration's. Attribute values carry their
-        // own line breaks (CRLF in AutoPilot rule JSON) and must not decide it.
-        let had_crlf = data
-            .iter()
-            .position(|&b| b == b'\n')
-            .is_some_and(|i| i > 0 && data[i - 1] == b'\r');
+        // Prefer the newline after the XML declaration, or the first outside markup
+        // if there is no declaration. Attribute values carry independent line breaks.
+        let had_crlf = Self::has_crlf_line_endings(data);
         let xml_data = if had_bom { &data[3..] } else { data };
 
         let (xml_data_cow, digit_attr_renames) = Self::sanitize_digit_attrs(xml_data);
@@ -324,6 +338,39 @@ impl ConfigEditor {
             had_crlf,
             digit_attr_renames,
         })
+    }
+
+    fn has_crlf_line_endings(data: &[u8]) -> bool {
+        let mut i = 0;
+        while i < data.len() {
+            if data[i] == b'\n' {
+                return i > 0 && data[i - 1] == b'\r';
+            }
+            if data[i] == b'<' {
+                let tail = &data[i..];
+                let end = if tail.starts_with(b"<!--") {
+                    tail.windows(3)
+                        .position(|w| w == b"-->")
+                        .map(|end| i + end + 3)
+                } else if tail.starts_with(b"<![CDATA[") {
+                    tail.windows(3)
+                        .position(|w| w == b"]]>")
+                        .map(|end| i + end + 3)
+                } else if tail.starts_with(b"<?") {
+                    tail.windows(2)
+                        .position(|w| w == b"?>")
+                        .map(|end| i + end + 2)
+                } else {
+                    Self::xml_tag_end(data, i)
+                };
+                if let Some(end) = end {
+                    i = end;
+                    continue;
+                }
+            }
+            i += 1;
+        }
+        false
     }
 
     /// Find attribute names starting with a digit and rename them with an underscore prefix.
@@ -1483,6 +1530,37 @@ mod tests {
             "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<ControlList Version=\"1\">\n\t<C "
         ));
         assert!(output_str.ends_with("/>\n</ControlList>\n"));
+        assert!(output_str.contains("APC=\"{&quot;x&quot;:1,\r\n&quot;y&quot;:2}\""));
+        assert_eq!(
+            ConfigEditor::load(output_str.as_bytes())
+                .unwrap()
+                .to_bytes()
+                .unwrap(),
+            output_str.as_bytes(),
+            "a second save preserves both newline styles"
+        );
+    }
+
+    #[test]
+    fn test_crlf_detection_without_a_declaration_skips_attribute_newlines() {
+        for (xml, expected_crlf) in [
+            (
+                "<ControlList APC='one\r\ntwo'>\n<C/>\n</ControlList>\n",
+                false,
+            ),
+            (
+                "<ControlList APC='one\ntwo'>\r\n<C/>\r\n</ControlList>\r\n",
+                true,
+            ),
+            ("<ControlList APC='one\r\ntwo'/>", false),
+            ("<!-- one\r\ntwo -->\n<ControlList/>", false),
+        ] {
+            assert_eq!(
+                ConfigEditor::load(xml.as_bytes()).unwrap().had_crlf,
+                expected_crlf,
+                "{xml:?}"
+            );
+        }
     }
 
     // ── Wire edge cases ──────────────────────────────────────────────────

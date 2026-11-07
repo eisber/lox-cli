@@ -9,9 +9,9 @@ use lox_sim::parser::parse_file;
 
 fn fixture_path() -> PathBuf {
     Path::new(env!("CARGO_MANIFEST_DIR"))
-        .parent()
-        .expect("lox-sim has repo parent")
-        .join("tests/eval/fixture.Loxone")
+        .join("tests")
+        .join("fixtures")
+        .join("eval.xml")
 }
 
 fn bench_tick_performance(c: &mut Criterion) {

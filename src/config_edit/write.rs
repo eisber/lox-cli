@@ -55,7 +55,7 @@ impl ConfigEditor {
         // Post-process: restore CRLF line endings
         if self.had_crlf {
             let s = String::from_utf8(buf).context("XML is not valid UTF-8")?;
-            buf = s.replace('\n', "\r\n").into_bytes();
+            buf = s.replace("\r\n", "\n").replace('\n', "\r\n").into_bytes();
         }
 
         Ok(buf)
@@ -107,7 +107,7 @@ impl ConfigEditor {
         out
     }
 
-    fn xml_tag_end(bytes: &[u8], start: usize) -> Option<usize> {
+    pub(super) fn xml_tag_end(bytes: &[u8], start: usize) -> Option<usize> {
         let mut quote = None;
         for (i, &byte) in bytes.iter().enumerate().skip(start + 1) {
             if let Some(delimiter) = quote {
@@ -149,6 +149,13 @@ impl ConfigEditor {
                 if bytes[i..].starts_with(b"&#xA;") {
                     out.push_str(&tag[last..i]);
                     out.push('\n');
+                    i += 5;
+                    last = i;
+                    continue;
+                }
+                if bytes[i..].starts_with(b"&#xD;") {
+                    out.push_str(&tag[last..i]);
+                    out.push('\r');
                     i += 5;
                     last = i;
                     continue;
@@ -213,5 +220,51 @@ mod tests {
 
         assert!(out.contains("<!-- preserve <IoData/> and &#xA; literally -->"));
         assert!(out.contains("<![CDATA[preserve <IoData/> and &#xA; literally]]>"));
+    }
+
+    #[test]
+    fn test_repeated_writes_preserve_multiline_attributes_and_line_endings() {
+        for newline in ["\n", "\r\n"] {
+            let note = format!("first{newline}second{newline}third");
+            let xml = format!(
+                "<?xml version=\"1.0\" encoding=\"utf-8\"?>{newline}\
+<ControlList Version=\"1\">{newline}\
+\t<C Type=\"Text\" Title=\"Note\" Text=\"{note}\"/>{newline}\
+</ControlList>{newline}"
+            );
+            let mut bytes = super::UTF8_BOM.to_vec();
+            bytes.extend_from_slice(xml.as_bytes());
+            for edit in 0..3 {
+                let mut editor = ConfigEditor::load(&bytes).unwrap();
+                editor
+                    .root
+                    .attributes
+                    .insert("Unrelated".into(), edit.to_string());
+                bytes = editor.to_bytes().unwrap();
+                assert!(bytes.starts_with(super::UTF8_BOM));
+                let text = std::str::from_utf8(&bytes).unwrap();
+                assert!(text.contains(&format!("Text=\"{note}\"")));
+                assert!(!text.contains("&#xD;"));
+                assert!(!text.contains("\r\r\n"));
+                if newline == "\r\n" {
+                    assert!(!text.replace("\r\n", "").contains('\n'));
+                }
+            }
+        }
+    }
+
+    #[test]
+    fn test_write_preserves_lone_attribute_cr_and_literal_entity_text() {
+        let xml = b"<ControlList><C Text=\"left&#13;right\" Literal=\"&amp;#xD;\"/></ControlList>";
+        let editor = ConfigEditor::load(xml).unwrap();
+        let bytes = editor.to_bytes().unwrap();
+        let text = std::str::from_utf8(&bytes).unwrap();
+        assert!(text.contains("Text=\"left\rright\""));
+        assert!(text.contains("Literal=\"&amp;#xD;\""));
+        let reloaded = ConfigEditor::load(&bytes).unwrap();
+        assert_eq!(
+            reloaded.root.get_child("C").unwrap().attributes,
+            editor.root.get_child("C").unwrap().attributes
+        );
     }
 }
