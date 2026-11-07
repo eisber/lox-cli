@@ -1270,6 +1270,7 @@ fn command_name(mut matches: &clap::ArgMatches) -> String {
 // ── Main ──────────────────────────────────────────────────────────────────────
 
 fn main() {
+    telemetry::prepare_error_backtraces();
     let args: Vec<std::ffi::OsString> = std::env::args_os().collect();
     let requested_json = errors::json_output_requested(&args[1..]);
     errors::install_panic_hook(requested_json);
@@ -1358,6 +1359,12 @@ fn run_command(cli: Cli, command: &str) -> Result<()> {
         ctx.telemetry = Some(std::cell::RefCell::new(telem));
     }
 
+    if let Some(telemetry) = &ctx.telemetry {
+        telemetry
+            .borrow()
+            .install_panic_hook(command, std::time::Instant::now());
+    }
+    let started = std::time::Instant::now();
     let result = match cli.cmd {
         // ── Configuration commands ────────────────────────────────────
         Cmd::Setup { action } => commands::config_cmd::cmd_setup(&ctx, action),
@@ -1397,8 +1404,22 @@ fn run_command(cli: Cli, command: &str) -> Result<()> {
         Cmd::Live { action } => commands::live_cmd::cmd_live(&ctx, action),
         Cmd::Stats { action } => commands::stats_cmd::cmd_stats(&ctx, action),
     };
+    let duration = started.elapsed();
     ctx.track_telemetry(|telemetry| {
-        telemetry.track_command(command, result.as_ref().err().map(categorize_error));
+        telemetry.track_command(
+            command,
+            result.as_ref().err().map(categorize_error),
+            duration,
+        );
+        if let Err(error) = &result {
+            telemetry.track_exception(
+                command,
+                categorize_error(error),
+                true,
+                error.backtrace(),
+                duration,
+            );
+        }
     });
     result
 }

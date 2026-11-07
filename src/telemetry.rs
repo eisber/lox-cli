@@ -9,9 +9,11 @@
 use anyhow::{Context, Result, bail};
 use chrono::Utc;
 use serde_json::{Value, json};
+use std::backtrace::{Backtrace, BacktraceStatus};
 use std::path::PathBuf;
 use std::sync::OnceLock;
 use std::thread::JoinHandle;
+use std::time::{Duration, Instant};
 
 /// PostHog capture endpoint.
 const POSTHOG_ENDPOINT: &str = "https://eu.i.posthog.com/capture/";
@@ -177,15 +179,89 @@ impl Telemetry {
     }
 
     /// Track canonical command names and outcomes, never arguments or error text.
-    pub fn track_command(&mut self, command: &str, error_type: Option<&str>) {
+    pub fn track_command(&mut self, command: &str, error_type: Option<&str>, duration: Duration) {
         self.track(
             "command",
             json!({
                 "command": command,
                 "success": error_type.is_none(),
                 "error_type": error_type,
+                "duration_ms": duration.as_secs_f64() * 1000.0,
             }),
         );
+    }
+
+    pub fn track_exception(
+        &mut self,
+        command: &str,
+        error_type: &str,
+        handled: bool,
+        backtrace: &Backtrace,
+        duration: Duration,
+    ) {
+        if !self.enabled {
+            return;
+        }
+        let frames = stack_frames(&backtrace.to_string());
+        if frames.is_empty() && backtrace.status() == BacktraceStatus::Captured {
+            eprintln!("Warning: exception backtrace contained no safe symbol frames.");
+        }
+        let mut exception = json!({
+            "type": if handled { "RustError" } else { "RustPanic" },
+            "value": format!("{command}: {error_type}"),
+            "mechanism": {
+                "type": "generic",
+                "handled": handled,
+                "synthetic": false,
+            },
+        });
+        if !frames.is_empty() {
+            exception["stacktrace"] = json!({ "type": "raw", "frames": frames });
+        }
+        self.track(
+            "$exception",
+            json!({
+                "command": command,
+                "error_type": error_type,
+                "duration_ms": duration.as_secs_f64() * 1000.0,
+                "$exception_level": "error",
+                "$exception_list": [exception],
+            }),
+        );
+    }
+
+    pub fn install_panic_hook(&self, command: &str, started: Instant) {
+        if !self.enabled {
+            return;
+        }
+        // Initialize the ID before a hook could reenter its OnceLock initializer.
+        daily_session_id();
+        let source = self.source;
+        let endpoint = self.endpoint.clone();
+        let timeout = self.timeout;
+        let command = command.to_owned();
+        let command_thread = std::thread::current().id();
+        let original = std::panic::take_hook();
+        std::panic::set_hook(Box::new(move |info| {
+            if std::thread::current().name() != Some("lox-telemetry") {
+                let duration = started.elapsed();
+                let backtrace = Backtrace::force_capture();
+                let mut telemetry = Self {
+                    enabled: true,
+                    source,
+                    endpoint: endpoint.clone(),
+                    timeout,
+                    pending: Vec::new(),
+                };
+                if std::thread::current().id() == command_thread {
+                    telemetry.track_command(&command, Some("panic"), duration);
+                }
+                telemetry.track_exception(&command, "panic", false, &backtrace, duration);
+                // Drop waits for the bounded sends before the original panic continues.
+                drop(telemetry);
+            }
+            original(info);
+        }));
     }
 
     /// Track anonymised config statistics.
@@ -268,6 +344,58 @@ impl Drop for Telemetry {
 }
 
 // ── Helpers ─────────────────────────────────────────────────────────────────
+
+pub fn prepare_error_backtraces() {
+    if std::env::var_os("RUST_LIB_BACKTRACE").is_none() && resolve_enabled(None) {
+        // Called before threads/config parsing can create and cache the first backtrace.
+        // Upload still uses the resolved config preference, even if it disables telemetry.
+        unsafe { std::env::set_var("RUST_LIB_BACKTRACE", "1") };
+    }
+}
+
+fn stack_frames(backtrace: &str) -> Vec<Value> {
+    // Stable Backtrace exposes text, not structured frames. Accept numbered symbol
+    // lines only; never transmit source-location lines or the original error text.
+    let frames: Vec<_> = backtrace
+        .lines()
+        .filter_map(|line| {
+            let (index, symbol) = line.trim().split_once(':')?;
+            index.parse::<usize>().ok()?;
+            let mut symbol = symbol.trim();
+            if let Some((address, name)) = symbol.split_once(" - ")
+                && address.strip_prefix("0x").is_some_and(|value| {
+                    !value.is_empty() && value.chars().all(|c| c.is_ascii_hexdigit())
+                })
+            {
+                symbol = name;
+            }
+            if let Some((name, hash)) = symbol.rsplit_once("::h")
+                && hash.len() == 16
+                && hash.chars().all(|c| c.is_ascii_hexdigit())
+            {
+                symbol = name;
+            }
+            if symbol.is_empty()
+                || symbol == "<unknown>"
+                || symbol.starts_with("0x")
+                || symbol.contains(['/', '\\'])
+                || symbol.contains("::telemetry::Telemetry::")
+                || symbol.starts_with("std::backtrace")
+                || symbol.starts_with("backtrace::")
+            {
+                return None;
+            }
+            Some(json!({
+                "platform": "custom",
+                "lang": "rust",
+                "function": symbol.chars().take(512).collect::<String>(),
+                "in_app": symbol.starts_with("lox::"),
+            }))
+        })
+        .take(64)
+        .collect();
+    frames.into_iter().rev().collect()
+}
 
 /// Resolve whether telemetry should be enabled.
 fn resolve_enabled(config_opt: Option<bool>) -> bool {
@@ -355,7 +483,7 @@ pub fn maybe_show_first_run_notice() {
     eprintln!(
         "\n\
          📊 Anonymous usage analytics help improve lox.\n\
-         \x20  What's collected: command names, block types, config stats, country.\n\
+         \x20  What's collected: commands, timings, sanitized error stacks, country.\n\
          \x20  Full details: https://github.com/eisber/lox-cli/blob/main/TELEMETRY.md\n\
          \n\
          \x20  To enable:  lox telemetry enable\n\
@@ -508,11 +636,19 @@ mod tests {
         t.enabled = false;
         // Should not panic or make network calls
         t.track("test_event", json!({"key": "value"}));
-        t.track_command("test", None);
+        t.track_command("test", None, Duration::ZERO);
         t.track_config_stats(5, 100, 200);
         t.track_check_result(10, 2, 0);
         t.track_block_created("And");
         t.track_scan_result(0, 1);
+        t.track_exception(
+            "test",
+            "error",
+            true,
+            &Backtrace::force_capture(),
+            Duration::ZERO,
+        );
+        assert!(t.pending.is_empty());
     }
 
     #[test]
@@ -611,13 +747,13 @@ mod tests {
         let server = MockServer::start();
         let capture = server.mock(|when, then| {
             when.method(POST).path("/capture/").json_body_partial(
-                r#"{"event":"command","properties":{"command":"config check","success":false,"error_type":"error","source":"test","geoip_country_only":true,"$geoip_disable":true,"$process_person_profile":false}}"#,
+                r#"{"event":"command","properties":{"command":"config check","success":false,"error_type":"error","duration_ms":125.0,"source":"test","geoip_country_only":true,"$geoip_disable":true,"$process_person_profile":false}}"#,
             );
             then.status(200).body(r#"{"status":"Ok"}"#);
         });
         {
             let mut telemetry = Telemetry::for_test(server.url("/capture/"));
-            telemetry.track_command("config check", Some("error"));
+            telemetry.track_command("config check", Some("error"), Duration::from_millis(125));
         }
         capture.assert_hits(1);
     }
@@ -632,7 +768,7 @@ mod tests {
             then.status(400).body("invalid event");
         });
         let mut telemetry = Telemetry::for_test(server.url("/capture/"));
-        telemetry.track_command("config check", None);
+        telemetry.track_command("config check", None, Duration::ZERO);
         assert!(telemetry.flush().unwrap_err().to_string().contains("400"));
         capture.assert_hits(1);
     }
@@ -649,10 +785,134 @@ mod tests {
         });
         let mut telemetry = Telemetry::for_test(server.url("/capture/"));
         telemetry.timeout = std::time::Duration::from_millis(50);
-        telemetry.track_command("config check", None);
+        telemetry.track_command("config check", None, Duration::ZERO);
         let start = std::time::Instant::now();
         let error = telemetry.flush().unwrap_err();
         assert!(error.downcast_ref::<reqwest::Error>().unwrap().is_timeout());
         assert!(start.elapsed() < std::time::Duration::from_secs(2));
+    }
+
+    #[test]
+    fn exception_frames_exclude_paths_addresses_and_build_hashes() {
+        let frames = stack_frames(
+            "0: lox::commands::config_cmd::load::h1234567890abcdef\n\
+             at C:\\Users\\PRIVATE\\secret.Loxone:22\n\
+             1: 0x1234 - lox::run_command\n\
+             2: /home/PRIVATE/project/src/main.rs\n\
+             3: C:\\Users\\PRIVATE\\source.rs\n\
+             4: lox::telemetry::Telemetry::track_exception\n\
+             5: <unknown>\n\
+             6: 0x1234\n",
+        );
+        let names: Vec<_> = frames
+            .iter()
+            .map(|frame| frame["function"].as_str().unwrap())
+            .collect();
+        assert_eq!(
+            names,
+            ["lox::run_command", "lox::commands::config_cmd::load"]
+        );
+        let payload = serde_json::to_string(&frames).unwrap();
+        assert!(!payload.contains("PRIVATE"));
+        assert!(!payload.contains("0x1234"));
+        assert!(!payload.contains("h1234567890abcdef"));
+    }
+
+    #[test]
+    fn exception_events_capture_error_origins_and_panics_without_messages() {
+        use httpmock::prelude::*;
+
+        for mode in ["error", "panic", "worker_panic"] {
+            let server = MockServer::start();
+            let exception = server.mock(|when, then| {
+                when.method(POST).matches(|request| {
+                    let Some(body) = request.body.as_deref() else {
+                        return false;
+                    };
+                    let Ok(body) = std::str::from_utf8(body) else {
+                        return false;
+                    };
+                    let Ok(event) = serde_json::from_str::<Value>(body) else {
+                        return false;
+                    };
+                    let list = &event["properties"]["$exception_list"];
+                    let frames = list[0]["stacktrace"]["frames"].as_array();
+                    event["event"] == "$exception"
+                        && event["properties"]["source"] == "test"
+                        && !body.contains("PRIVATE")
+                        && frames.is_some_and(|frames| {
+                            frames.iter().any(|frame| {
+                                frame["function"]
+                                    .as_str()
+                                    .is_some_and(|name| name.contains("failure_origin"))
+                            })
+                        })
+                });
+                then.status(200);
+            });
+            let command = server.mock(|when, then| {
+                when.method(POST)
+                    .json_body_partial(r#"{"event":"command","properties":{"success":false}}"#);
+                then.status(200);
+            });
+            let output = std::process::Command::new(std::env::current_exe().unwrap())
+                .args([
+                    "--ignored",
+                    "--exact",
+                    "telemetry::tests::exception_subprocess",
+                    "--nocapture",
+                ])
+                .env("LOX_EXCEPTION_TEST_MODE", mode)
+                .env("LOX_EXCEPTION_TEST_ENDPOINT", server.url("/capture/"))
+                .env("RUST_LIB_BACKTRACE", "1")
+                .env("RUST_BACKTRACE", "0")
+                .output()
+                .unwrap();
+            assert_eq!(
+                output.status.success(),
+                mode != "panic",
+                "{}",
+                String::from_utf8_lossy(&output.stderr)
+            );
+            exception.assert_hits(1);
+            command.assert_hits(1);
+        }
+    }
+
+    #[test]
+    #[ignore = "subprocess fixture for exception transport and panic hooks"]
+    fn exception_subprocess() {
+        #[inline(never)]
+        fn failure_origin(panic: bool) -> Result<()> {
+            if panic {
+                panic!("PRIVATE C:\\Users\\PRIVATE\\secret.Loxone token=PRIVATE");
+            }
+            bail!("PRIVATE C:\\Users\\PRIVATE\\secret.Loxone token=PRIVATE")
+        }
+
+        let mode = std::env::var("LOX_EXCEPTION_TEST_MODE").unwrap();
+        let mut telemetry =
+            Telemetry::for_test(std::env::var("LOX_EXCEPTION_TEST_ENDPOINT").unwrap());
+        let started = Instant::now();
+        if mode == "panic" {
+            telemetry.install_panic_hook("config check", started);
+            let _ = failure_origin(true);
+        } else if mode == "worker_panic" {
+            telemetry.install_panic_hook("config check", started);
+            assert!(
+                std::thread::spawn(|| {
+                    let _ = failure_origin(true);
+                })
+                .join()
+                .is_err()
+            );
+            telemetry.track_command("config check", Some("error"), started.elapsed());
+        } else {
+            assert_eq!(mode, "error");
+            let error = failure_origin(false).unwrap_err();
+            let duration = started.elapsed();
+            telemetry.track_command("config check", Some("error"), duration);
+            telemetry.track_exception("config check", "error", true, error.backtrace(), duration);
+        }
     }
 }

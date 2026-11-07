@@ -19,6 +19,8 @@ Automatic usage events contain only anonymous, aggregated data:
 | Country             | Country code and name       | Regional usage trends         |
 | Command name        | `config add`, `sim run`      | Feature usage                 |
 | Command outcome     | Success / error category    | Find unreliable workflows     |
+| Command duration    | `duration_ms: 125.4`        | Find slow operations          |
+| Exception stack     | Code function names only    | Diagnose failures and panics   |
 | Event source        | `usage`, `eval`, `diagnostic` | Separate real and test usage |
 | Block types created | `And`, `LightController2`    | Template / wizard priorities  |
 | Config stats        | 12 rooms, 87 blocks, 34 wires | Complexity profiles          |
@@ -35,6 +37,7 @@ Automatic usage events contain only anonymous, aggregated data:
 - Usernames, hostnames, Miniserver serial numbers
 - Block titles, room names, UUIDs
 - Command arguments or flag values
+- Raw exception/panic messages, source file paths, and code context
 - Any PII from `config scan` results
 
 ## How to opt in / opt out
@@ -77,8 +80,9 @@ Usage dashboards should filter to `source = usage`; verification/eval charts
 can include the other sources. Older events have no source property.
 
 The maintainer [lox CLI Usage dashboard](https://eu.posthog.com/project/112518/dashboard/1092443)
-shows command trends, popular commands, outcomes, platforms/versions, countries, and a
-separate diagnostic delivery view. Access requires membership in the PostHog project.
+shows command trends, durations, exceptions, popular commands, outcomes,
+platforms/versions, countries, and a separate diagnostic delivery view.
+Access requires membership in the PostHog project.
 
 ### Check current status
 ```bash
@@ -123,8 +127,29 @@ does not prevent explicitly requested GitHub issue creation.
 
 Argument errors, runtime errors, and Rust panics expose reporting guidance, but
 never automatically submit an issue report or its raw error/crash contents.
+Runtime failures and panics do emit the sanitized exception events described below.
 Agents should fix input/setup errors first, then report reproducible bugs with
 sanitized details.
+
+## Command timings and exception traces
+
+Command events include `duration_ms`: monotonic wall time for command execution,
+measured before telemetry upload/flush. It is not a precise wall-clock timestamp.
+
+Failed commands also emit native PostHog `$exception` events. These contain the
+canonical command name, error category, handled/unhandled status, and a bounded
+stack of code function symbols. Returned errors use anyhow's error-origin
+backtrace; panics capture a stack before unwinding and preserve normal panic output.
+Arguments, raw error/panic messages, filesystem paths, memory addresses, and
+source code context are not sent. Build hashes are removed from function names.
+This intentionally provides less context than a full unsanitized crash dump.
+
+The CLI enables local anyhow backtrace capture early when no
+`RUST_LIB_BACKTRACE` override is set. An explicit `RUST_LIB_BACKTRACE=0` can
+disable error-origin stacks; error categories are still sent. Uploads and panic
+reporting respect the normal telemetry opt-out and dry-run rules. Panic events
+use the same bounded delivery and exclude failures inside the telemetry sender
+itself to prevent recursive crash reporting.
 
 ## PostHog privacy
 
@@ -139,7 +164,7 @@ We have configured PostHog to:
 
 - Session IDs are random UUIDs, rotated daily, stored in
   `~/.lox/.telemetry_session`. They are **not** tied to any user identity.
-- Usage telemetry sends the full canonical command path and a success/error category,
+- Usage telemetry sends the full canonical command path, execution duration, and a success/error category,
   never argument values or raw error messages. Help/version exits are not tracked.
 - `config add` tracks newly created block types (not idempotent no-ops);
   `config stats`, `config check`, and `config scan` send aggregate counts.

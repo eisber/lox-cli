@@ -67,8 +67,10 @@ pub fn install_panic_hook(json: bool) {
         let mut stderr = std::io::stderr().lock();
         let _ = writeln!(stderr, "\n{REPORT_HINT}");
         if json && std::thread::current().id() == main_thread {
-            let envelope =
-                error_envelope("panic", "lox panicked. No automatic crash report was sent.");
+            let envelope = error_envelope(
+                "panic",
+                "lox panicked. Use the reporting guidance to submit reproduction details.",
+            );
             if let Err(error) = writeln!(std::io::stdout().lock(), "{envelope}") {
                 let _ = writeln!(stderr, "Cannot write JSON crash details: {error}");
             }
