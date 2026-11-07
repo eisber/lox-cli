@@ -1405,7 +1405,7 @@ pub fn cmd_config(ctx: &RunContext, action: ConfigCmd) -> Result<()> {
                         uuid
                     );
                 }
-                save_edited(&editor, &file, save_as.as_deref())?;
+                save_edited(&mut editor, &file, save_as.as_deref())?;
                 return Ok(());
             }
             let (xml_type_owned, default_parent) = resolve_block_type(&control_type)?;
@@ -1834,7 +1834,7 @@ pub fn cmd_config(ctx: &RunContext, action: ConfigCmd) -> Result<()> {
                     }
                 }
             }
-            save_edited(&editor, &file, save_as.as_deref())?;
+            save_edited(&mut editor, &file, save_as.as_deref())?;
         }
         ConfigCmd::Validate { file } => {
             let data = fs::read(&file).with_context(|| format!("Cannot read {}", file))?;
@@ -1988,7 +1988,7 @@ pub fn cmd_config(ctx: &RunContext, action: ConfigCmd) -> Result<()> {
                 println!("✓ Laid out {} elements", count);
             }
 
-            save_edited(&editor, &file, save_as.as_deref())?;
+            save_edited(&mut editor, &file, save_as.as_deref())?;
         }
         ConfigCmd::UserAdd {
             file,
@@ -1999,7 +1999,7 @@ pub fn cmd_config(ctx: &RunContext, action: ConfigCmd) -> Result<()> {
             let mut editor = ConfigEditor::load(&data)?;
             let uuid = editor.add_user(&name)?;
             println!("✓ Added user '{}' (UUID: {})", name, uuid);
-            save_edited(&editor, &file, save_as.as_deref())?;
+            save_edited(&mut editor, &file, save_as.as_deref())?;
         }
         ConfigCmd::UserRemove {
             file,
@@ -2010,7 +2010,7 @@ pub fn cmd_config(ctx: &RunContext, action: ConfigCmd) -> Result<()> {
             let mut editor = ConfigEditor::load(&data)?;
             let uuid = editor.remove_user(&name)?;
             println!("✓ Removed user '{}' (UUID: {})", name, uuid);
-            save_edited(&editor, &file, save_as.as_deref())?;
+            save_edited(&mut editor, &file, save_as.as_deref())?;
         }
         ConfigCmd::DeviceBind {
             file,
@@ -2023,7 +2023,7 @@ pub fn cmd_config(ctx: &RunContext, action: ConfigCmd) -> Result<()> {
             let mut editor = ConfigEditor::load(&data)?;
             let msg = editor.create_output_ref(&control, &output_conn, &device)?;
             println!("{}", msg);
-            save_edited(&editor, &file, save_as.as_deref())?;
+            save_edited(&mut editor, &file, save_as.as_deref())?;
         }
         ConfigCmd::AutopilotList { file } => {
             let data = fs::read(&file).with_context(|| format!("Cannot read {}", file))?;
@@ -2060,7 +2060,7 @@ pub fn cmd_config(ctx: &RunContext, action: ConfigCmd) -> Result<()> {
             let uuid =
                 editor.add_element_to_root("AutoPilot", &name, room_uuid.as_deref(), None, &[])?;
             println!("✓ Added AutoPilot '{}' (UUID: {})", name, uuid);
-            save_edited(&editor, &file, save_as.as_deref())?;
+            save_edited(&mut editor, &file, save_as.as_deref())?;
         }
         ConfigCmd::CalendarAdd {
             file,
@@ -2078,7 +2078,7 @@ pub fn cmd_config(ctx: &RunContext, action: ConfigCmd) -> Result<()> {
             let uuid =
                 editor.add_element_to_root("Calendar", &name, room_uuid.as_deref(), None, &[])?;
             println!("✓ Added Calendar '{}' (UUID: {})", name, uuid);
-            save_edited(&editor, &file, save_as.as_deref())?;
+            save_edited(&mut editor, &file, save_as.as_deref())?;
         }
         ConfigCmd::TimerSchedule {
             file,
@@ -2113,7 +2113,7 @@ pub fn cmd_config(ctx: &RunContext, action: ConfigCmd) -> Result<()> {
                 "✓ Added schedule {}-{} (value={}) to '{}'",
                 start_str, end_str, value, selector
             );
-            save_edited(&editor, &file, save_as.as_deref())?;
+            save_edited(&mut editor, &file, save_as.as_deref())?;
         }
         ConfigCmd::ModeList { file } => {
             let data = fs::read(&file).with_context(|| format!("Cannot read {}", file))?;
@@ -2164,7 +2164,7 @@ pub fn cmd_config(ctx: &RunContext, action: ConfigCmd) -> Result<()> {
                 println!("✓ Created VirtualIn \"{}\" (UUID: {})", title, aq_uuid);
                 println!("  AQ connector: {}", aq_uuid);
             }
-            save_edited(&editor, &file, save_as.as_deref())?;
+            save_edited(&mut editor, &file, save_as.as_deref())?;
         }
         ConfigCmd::WireConnector {
             file,
@@ -2193,7 +2193,7 @@ pub fn cmd_config(ctx: &RunContext, action: ConfigCmd) -> Result<()> {
             } else if !ctx.quiet {
                 println!("✓ Wired {}.{} ← {}", block_title, conn_key, source_uuid);
             }
-            save_edited(&editor, &file, save_as.as_deref())?;
+            save_edited(&mut editor, &file, save_as.as_deref())?;
         }
         ConfigCmd::Moods { file, selector } => {
             let data = fs::read(&file).with_context(|| format!("Cannot read {}", file))?;
@@ -2250,7 +2250,7 @@ pub fn cmd_config(ctx: &RunContext, action: ConfigCmd) -> Result<()> {
             } else if !ctx.quiet {
                 println!("✓ {msg}");
             }
-            save_edited(&editor, &file, save_as.as_deref())?;
+            save_edited(&mut editor, &file, save_as.as_deref())?;
         }
         ConfigCmd::AddMood {
             file,
@@ -2283,7 +2283,7 @@ pub fn cmd_config(ctx: &RunContext, action: ConfigCmd) -> Result<()> {
                     "✓ Added mood '{mood_name}' (SID={new_sid}, CID={new_cid}, Q1={value})\n  UUID: {uuid}\n  Recall live with: lox live set {selector} changeTo/{new_sid} --write"
                 );
             }
-            save_edited(&editor, &file, save_as.as_deref())?;
+            save_edited(&mut editor, &file, save_as.as_deref())?;
         }
         ConfigCmd::SpliceActor {
             file,
@@ -2310,7 +2310,7 @@ pub fn cmd_config(ctx: &RunContext, action: ConfigCmd) -> Result<()> {
                     source.strip_prefix("uuid:").unwrap_or(&source)
                 );
             }
-            save_edited(&editor, &file, save_as.as_deref())?;
+            save_edited(&mut editor, &file, save_as.as_deref())?;
         }
         ConfigCmd::SetParam {
             file,
@@ -2382,7 +2382,7 @@ pub fn cmd_config(ctx: &RunContext, action: ConfigCmd) -> Result<()> {
                     block_type
                 );
             }
-            save_edited(&editor, &file, save_as.as_deref())?;
+            save_edited(&mut editor, &file, save_as.as_deref())?;
         }
         ConfigCmd::Connectors { file, selector } => {
             let data = fs::read(&file).with_context(|| format!("Cannot read {}", file))?;
@@ -2666,7 +2666,7 @@ pub fn cmd_config(ctx: &RunContext, action: ConfigCmd) -> Result<()> {
             } else {
                 println!("{}", summary);
             }
-            save_edited(&editor, &file, save_as.as_deref())?;
+            save_edited(&mut editor, &file, save_as.as_deref())?;
         }
         ConfigCmd::Describe { file, room } => {
             let data = fs::read(&file).with_context(|| format!("Cannot read {}", file))?;
@@ -2766,7 +2766,7 @@ pub fn cmd_config(ctx: &RunContext, action: ConfigCmd) -> Result<()> {
             let data = fs::read(&file).with_context(|| format!("Cannot read {}", file))?;
             let mut editor = ConfigEditor::load(&data)?;
             let plan = editor.apply_template(&template, &room)?;
-            save_edited(&editor, &file, save_as.as_deref())?;
+            save_edited(&mut editor, &file, save_as.as_deref())?;
 
             if ctx.json {
                 let blocks: Vec<_> = plan
@@ -3338,17 +3338,43 @@ fn collect_block_connectors(editor: &ConfigEditor, uuid: &str) -> Vec<serde_json
     }
 }
 
-fn save_edited(editor: &ConfigEditor, original_path: &str, save_as: Option<&str>) -> Result<()> {
+/// True when `output` differs from what an unedited round-trip of `original_path` writes.
+/// An unreadable/unparseable original counts as changed.
+fn content_changed(original_path: &str, output: &[u8]) -> bool {
+    let Ok(original) = fs::read(original_path) else {
+        return true;
+    };
+    match ConfigEditor::load(&original).and_then(|e| e.to_bytes()) {
+        Ok(baseline) => baseline != output,
+        Err(_) => true,
+    }
+}
+
+/// Write an edited config back to disk (atomically via a temp file).
+///
+/// If the edit actually changed the program, the Document save stamp (`Date`/`DateS`)
+/// is bumped to now first — otherwise Loxone Config treats the file as identical to the
+/// Miniserver's program and loads the old one instead of the edits.
+fn save_edited(
+    editor: &mut ConfigEditor,
+    original_path: &str,
+    save_as: Option<&str>,
+) -> Result<()> {
     save_edited_with_quiet(editor, original_path, save_as, false)
 }
 
 fn save_edited_with_quiet(
-    editor: &ConfigEditor,
+    editor: &mut ConfigEditor,
     original_path: &str,
     save_as: Option<&str>,
     quiet: bool,
 ) -> Result<()> {
-    let output = editor.to_bytes()?;
+    let mut output = editor.to_bytes()?;
+    if content_changed(original_path, &output)
+        && editor.stamp_document(&chrono::Local::now().fixed_offset())
+    {
+        output = editor.to_bytes()?;
+    }
     let out_path = save_as.unwrap_or(original_path);
 
     // Resolve to canonical parent dir to prevent path traversal via ".." in out_path
@@ -3395,7 +3421,7 @@ fn cmd_room(_ctx: &RunContext, action: RoomCmd) -> Result<()> {
             let mut editor = ConfigEditor::load(&data)?;
             let uuid = editor.add_room(&name)?;
             println!("✓ Added room '{}' (UUID: {})", name, uuid);
-            save_edited(&editor, &file, save_as.as_deref())?;
+            save_edited(&mut editor, &file, save_as.as_deref())?;
         }
         RoomCmd::Rename {
             file,
@@ -3425,7 +3451,7 @@ fn cmd_room(_ctx: &RunContext, action: RoomCmd) -> Result<()> {
                 &new_name,
             )?;
             println!("✓ {}", msg);
-            save_edited(&editor, &file, save_as.as_deref())?;
+            save_edited(&mut editor, &file, save_as.as_deref())?;
         }
     }
     Ok(())
@@ -3471,7 +3497,7 @@ fn cmd_control(ctx: &RunContext, action: ControlCmd) -> Result<()> {
                 bail!("Specify --type or --title to select controls to move");
             }
 
-            save_edited(&editor, &file, save_as.as_deref())?;
+            save_edited(&mut editor, &file, save_as.as_deref())?;
         }
         ControlCmd::Rename {
             file,
@@ -3483,7 +3509,7 @@ fn cmd_control(ctx: &RunContext, action: ControlCmd) -> Result<()> {
             let mut editor = ConfigEditor::load(&data)?;
             let msg = editor.set_attribute(&selector, "Title", &new_name)?;
             println!("✓ {}", msg);
-            save_edited(&editor, &file, save_as.as_deref())?;
+            save_edited(&mut editor, &file, save_as.as_deref())?;
         }
         ControlCmd::Describe { file, selector } => {
             let data = fs::read(&file).with_context(|| format!("Cannot read {}", file))?;
@@ -3550,7 +3576,7 @@ fn cmd_control(ctx: &RunContext, action: ControlCmd) -> Result<()> {
 
             let msg = editor.wire(src_sel, src_co, tgt_sel, tgt_co)?;
             println!("✓ {}", msg);
-            save_edited(&editor, &file, save_as.as_deref())?;
+            save_edited(&mut editor, &file, save_as.as_deref())?;
         }
         ControlCmd::Unwire {
             file,
@@ -3569,7 +3595,7 @@ fn cmd_control(ctx: &RunContext, action: ControlCmd) -> Result<()> {
 
             let msg = editor.unwire(sel, co_name)?;
             println!("✓ {}", msg);
-            save_edited(&editor, &file, save_as.as_deref())?;
+            save_edited(&mut editor, &file, save_as.as_deref())?;
         }
         ControlCmd::Wires { file, selector } => {
             let data = fs::read(&file).with_context(|| format!("Cannot read {}", file))?;
@@ -3663,7 +3689,7 @@ fn cmd_mqtt_config(ctx: &RunContext, action: MqttConfigCmd) -> Result<()> {
             }
 
             println!("✓ MQTT configured");
-            save_edited(&editor, &file, save_as.as_deref())?;
+            save_edited(&mut editor, &file, save_as.as_deref())?;
         }
         MqttConfigCmd::List { file } => {
             let data = fs::read(&file).with_context(|| format!("Cannot read {}", file))?;
@@ -3747,7 +3773,7 @@ fn cmd_xml_edit(_ctx: &RunContext, action: XmlEditCmd) -> Result<()> {
             let mut editor = ConfigEditor::load(&data)?;
             let msg = editor.set_property(&selector, &property, &value, &r#type)?;
             println!("✓ {}", msg);
-            save_edited(&editor, &file, save_as.as_deref())?;
+            save_edited(&mut editor, &file, save_as.as_deref())?;
         }
         XmlEditCmd::SetAttr {
             file,
@@ -3760,7 +3786,7 @@ fn cmd_xml_edit(_ctx: &RunContext, action: XmlEditCmd) -> Result<()> {
             let mut editor = ConfigEditor::load(&data)?;
             let msg = editor.set_attribute(&selector, &attr, &value)?;
             println!("✓ {}", msg);
-            save_edited(&editor, &file, save_as.as_deref())?;
+            save_edited(&mut editor, &file, save_as.as_deref())?;
         }
         XmlEditCmd::Move {
             file,
@@ -3775,7 +3801,7 @@ fn cmd_xml_edit(_ctx: &RunContext, action: XmlEditCmd) -> Result<()> {
                 "✓ Moved {} {} items to '{}' ({})",
                 count, type_filter, to_room, uuid
             );
-            save_edited(&editor, &file, save_as.as_deref())?;
+            save_edited(&mut editor, &file, save_as.as_deref())?;
         }
         XmlEditCmd::Add {
             file,
@@ -3820,7 +3846,7 @@ fn cmd_xml_edit(_ctx: &RunContext, action: XmlEditCmd) -> Result<()> {
                 &props,
             )?;
             println!("✓ Added {} '{}' (UUID: {})", element_type, title, uuid);
-            save_edited(&editor, &file, save_as.as_deref())?;
+            save_edited(&mut editor, &file, save_as.as_deref())?;
         }
         XmlEditCmd::Remove {
             file,
@@ -3831,7 +3857,7 @@ fn cmd_xml_edit(_ctx: &RunContext, action: XmlEditCmd) -> Result<()> {
             let mut editor = ConfigEditor::load(&data)?;
             let title = editor.remove_element(&uuid)?;
             println!("✓ Removed '{}' (UUID: {})", title, uuid);
-            save_edited(&editor, &file, save_as.as_deref())?;
+            save_edited(&mut editor, &file, save_as.as_deref())?;
         }
     }
     Ok(())
@@ -5402,13 +5428,51 @@ sleep</Field>
         let dir = TempDir::new().unwrap();
         let path = dir.path().join("test.Loxone");
         fs::write(&path, FIXTURE_XML).unwrap();
-        let editor = ConfigEditor::load(FIXTURE_XML.as_bytes()).unwrap();
-        save_edited(&editor, path.to_str().unwrap(), None).unwrap();
+        let mut editor = ConfigEditor::load(FIXTURE_XML.as_bytes()).unwrap();
+        save_edited(&mut editor, path.to_str().unwrap(), None).unwrap();
         // Verify no .tmp file left behind
         assert!(!dir.path().join("test.Loxone.tmp").exists());
         // Verify content is valid
         let data = fs::read(&path).unwrap();
         assert!(String::from_utf8_lossy(&data).contains("ControlList"));
+    }
+
+    const STAMPED_XML: &str = r#"<?xml version="1.0" encoding="utf-8"?>
+<ControlList Version="254">
+	<C Type="Document" U="doc-1" Title="Home" Date="2025-06-10 09:02:40" CDate="" DateS="518770960">
+		<C Type="Place" U="room-1" Title="Kitchen"/>
+	</C>
+</ControlList>
+"#;
+
+    #[test]
+    fn test_save_edited_bumps_document_stamp_on_change() {
+        let dir = TempDir::new().unwrap();
+        let path = dir.path().join("test.Loxone");
+        fs::write(&path, STAMPED_XML).unwrap();
+        let mut editor = ConfigEditor::load(STAMPED_XML.as_bytes()).unwrap();
+        editor
+            .set_attribute("uuid:room-1", "Title", "Kitchen 2")
+            .unwrap();
+        save_edited(&mut editor, path.to_str().unwrap(), None).unwrap();
+        let out = fs::read_to_string(&path).unwrap();
+        assert!(out.contains("Kitchen 2"));
+        assert!(!out.contains("DateS=\"518770960\""), "DateS must be bumped");
+        assert!(
+            !out.contains("Date=\"2025-06-10 09:02:40\""),
+            "Date must be bumped"
+        );
+        assert!(out.contains("CDate=\"\""), "other attributes untouched");
+    }
+
+    #[test]
+    fn test_save_edited_keeps_stamp_when_unchanged() {
+        let dir = TempDir::new().unwrap();
+        let path = dir.path().join("test.Loxone");
+        fs::write(&path, STAMPED_XML).unwrap();
+        let mut editor = ConfigEditor::load(STAMPED_XML.as_bytes()).unwrap();
+        save_edited(&mut editor, path.to_str().unwrap(), None).unwrap();
+        assert_eq!(fs::read_to_string(&path).unwrap(), STAMPED_XML);
     }
 
     #[test]

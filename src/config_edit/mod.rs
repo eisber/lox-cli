@@ -1486,6 +1486,288 @@ Unit='a > b' Unit='a > b'/><部屋 Title='同じ' Title='同じ'/></ControlList>
         assert!(results.iter().all(|r| !r.contains("✗")));
     }
 
+    fn validate_xml(body: &str) -> Vec<String> {
+        let xml = format!(
+            "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<ControlList Version=\"267\">\n{body}\n</ControlList>"
+        );
+        ConfigEditor::load(xml.as_bytes())
+            .unwrap()
+            .validate_config()
+    }
+
+    fn warnings_containing<'a>(results: &'a [String], needle: &str) -> Vec<&'a String> {
+        results
+            .iter()
+            .filter(|r| r.starts_with('⚠') && r.contains(needle))
+            .collect()
+    }
+
+    const LC2_MODES: &str = r#"
+  <C Type="Mode" U="m-7" Title="Evening" Mode="-7"/>
+  <C Type="Mode" U="m-8" Title="Nighttime" Mode="-8"/>
+  <C Type="DigitalIn" U="pir-1" Title="PIR">
+    <Co K="Q" U="pir-q"/>
+  </C>"#;
+
+    fn lc2(id: &str, title: &str, wire: &str, op_m: &str) -> String {
+        format!(
+            r#"
+  <C Type="LightController2" U="{id}" Title="{title}">
+    <Co K="Move" U="{id}-move">{wire}</Co>
+    <LSConfig OpM="{op_m}" ScMv="3" ScAc="0"/>
+  </C>"#
+        )
+    }
+
+    #[test]
+    fn test_validate_lc2_motion_missing_mode_its_peers_cover() {
+        // Two rooms have a Nighttime row, the third lacks it and has no 778 row.
+        let pir = r#"<In Input="pir-q"/>"#;
+        let results = validate_xml(&format!(
+            "{LC2_MODES}{}{}{}",
+            lc2("lc-1", "Hall Light", pir, "-7,-8"),
+            lc2("lc-2", "Landing Light", pir, "-7,-8"),
+            lc2("lc-3", "Bedroom Spots", pir, "-7"),
+        ));
+        let w = warnings_containing(&results, "All other times");
+        assert_eq!(w.len(), 1, "{results:?}");
+        assert!(w[0].contains("'Bedroom Spots'"));
+        assert!(w[0].contains("no motion row for Nighttime (-8)"));
+    }
+
+    #[test]
+    fn test_validate_lc2_motion_empty_table() {
+        let results = validate_xml(&format!(
+            "{LC2_MODES}{}",
+            lc2("lc-1", "Hall Light", r#"<In Input="pir-q"/>"#, "")
+        ));
+        assert_eq!(
+            warnings_containing(&results, "motion table is empty").len(),
+            1,
+            "{results:?}"
+        );
+    }
+
+    #[test]
+    fn test_validate_lc2_motion_missing_table() {
+        let results = validate_xml(
+            r#"<C Type="LightController2" U="lc-1" Title="Hall Light">
+                <Co K="Presence" U="lc-presence"><In Input="pir-q"/></Co>
+            </C>"#,
+        );
+        assert_eq!(
+            warnings_containing(&results, "motion table is empty").len(),
+            1,
+            "{results:?}"
+        );
+    }
+
+    #[test]
+    fn test_validate_lc2_motion_rule_quiet_when_ok() {
+        let pir = r#"<In Input="pir-q"/>"#;
+        // Every controller lists the same modes: they may cover the whole day.
+        let same_modes = validate_xml(&format!(
+            "{LC2_MODES}{}{}",
+            lc2("lc-1", "Hall Light", pir, "-7,-8"),
+            lc2("lc-2", "Landing Light", pir, "-7,-8"),
+        ));
+        assert!(warnings_containing(&same_modes, "All other times").is_empty());
+        // Fewer modes but a 778 row → no warning.
+        let with_row = validate_xml(&format!(
+            "{LC2_MODES}{}{}",
+            lc2("lc-1", "Hall Light", pir, "-7,-8"),
+            lc2("lc-2", "Landing Light", pir, "-7,778"),
+        ));
+        assert!(warnings_containing(&with_row, "All other times").is_empty());
+        // Missing mode but no motion/presence wiring → not checked.
+        let unwired = validate_xml(&format!(
+            "{LC2_MODES}{}{}{}",
+            lc2("lc-1", "Hall Light", pir, "-7,-8"),
+            lc2("lc-2", "Landing Light", pir, "-7,-8"),
+            lc2("lc-3", "Bedroom Spots", "", "-7"),
+        ));
+        assert!(warnings_containing(&unwired, "All other times").is_empty());
+        assert!(
+            unwired
+                .iter()
+                .any(|r| r.starts_with('✓') && r.contains("motion rows"))
+        );
+    }
+
+    const PULSE_LC2: &str = r#"
+  <C Type="LightController2" U="lc-1" Title="Lounge Light">
+    <Co K="Sel1" U="lc-sel1"><In Input="ed-rise"/></Co>
+    <Co K="Sel2" U="lc-sel2"><In Input="mf-q"/></Co>
+    <Co K="Reset" U="lc-reset"><In Input="ed2-rise"/></Co>
+    <LSConfig OpM="778" ScMv="1" ScAc="0"/>
+  </C>"#;
+
+    #[test]
+    fn test_validate_long_pulse_into_mood_input() {
+        let results = validate_xml(&format!(
+            r#"{PULSE_LC2}
+  <C Type="EdgeDetection" U="ed-1" Title="Scene Edge">
+    <Co K="RisingEdge" U="ed-rise"/>
+    <Co K="PulseTime" U="ed-pt" Def="1"/>
+  </C>
+  <C Type="Monoflop" U="mf-1" Title="Scene Pulse">
+    <Co K="Q" U="mf-q"/>
+    <Co K="Time" U="mf-t" Def="1.5"/>
+  </C>
+  <C Type="EdgeDetection" U="ed-2" Title="Reset Edge">
+    <Co K="RisingEdge" U="ed2-rise"/>
+    <Co K="PulseTime" U="ed2-pt" Def="5"/>
+  </C>"#
+        ));
+        let w = warnings_containing(&results, "long-click");
+        assert_eq!(w.len(), 2, "{results:?}");
+        assert!(w[0].contains("'Lounge Light'.Sel1") && w[0].contains("'Scene Edge'"));
+        assert!(w[1].contains("'Lounge Light'.Sel2") && w[1].contains("'Scene Pulse'"));
+    }
+
+    #[test]
+    fn test_validate_short_pulse_into_mood_input_is_quiet() {
+        let results = validate_xml(&format!(
+            r#"{PULSE_LC2}
+  <C Type="EdgeDetection" U="ed-1" Title="Scene Edge">
+    <Co K="RisingEdge" U="ed-rise"/>
+    <Co K="PulseTime" U="ed-pt" Def="0.2"/>
+  </C>
+  <C Type="Monoflop" U="mf-1" Title="Scene Pulse">
+    <Co K="Q" U="mf-q"/>
+    <Co K="Time" U="mf-t" Def="0.1"/>
+  </C>"#
+        ));
+        assert!(warnings_containing(&results, "long-click").is_empty());
+    }
+
+    #[test]
+    fn test_validate_mood_pulses_respect_configured_mixing_duration() {
+        for (setting, pulse, warns) in [
+            ("", "0.5", false),
+            (r#"Def="0""#, "5", false),
+            (r#"Def="2""#, "1", false),
+            (r#"Def="0.1""#, "0.2", true),
+        ] {
+            let results = validate_xml(&format!(
+                r#"<C Type="LightController2" U="lc" Title="Light">
+                    <Co K="Sel1" U="sel"><In Input="pulse"/></Co>
+                    <Co K="SceneMixTime" U="mix" {setting}/>
+                </C>
+                <C Type="Monoflop" U="mf" Title="Scene Pulse">
+                    <Co K="Q" U="pulse"/>
+                    <Co K="Time" U="time" Def="{pulse}"/>
+                </C>"#
+            ));
+            assert_eq!(
+                !warnings_containing(&results, "long-click").is_empty(),
+                warns,
+                "{results:?}"
+            );
+        }
+    }
+
+    #[test]
+    fn test_validate_mood_pulses_with_dynamic_durations_are_quiet() {
+        for (mix_wire, pulse_wire) in [
+            (r#"<In Input="dynamic"/>"#, ""),
+            ("", r#"<In Input="dynamic"/>"#),
+        ] {
+            let results = validate_xml(&format!(
+                r#"<C Type="LightController2" U="lc" Title="Light">
+                    <Co K="Sel1" U="sel"><In Input="pulse"/></Co>
+                    <Co K="SceneMixTime" U="mix" Def="1">{mix_wire}</Co>
+                </C>
+                <C Type="Monoflop" U="mf" Title="Scene Pulse">
+                    <Co K="Q" U="pulse"/>
+                    <Co K="Time" U="time" Def="2">{pulse_wire}</Co>
+                </C>"#
+            ));
+            assert!(
+                warnings_containing(&results, "long-click").is_empty(),
+                "{results:?}"
+            );
+        }
+    }
+
+    #[test]
+    fn test_validate_default_pulse_into_mood_input() {
+        // No Def: Loxone defaults are 1 s (EdgeDetection) and 2 s (Monoflop).
+        let results = validate_xml(&format!(
+            r#"{PULSE_LC2}
+  <C Type="EdgeDetection" U="ed-1" Title="Scene Edge">
+    <Co K="RisingEdge" U="ed-rise"/>
+    <Co K="PulseTime" U="ed-pt"/>
+  </C>
+  <C Type="Monoflop" U="mf-1" Title="Scene Pulse">
+    <Co K="Q" U="mf-q"/>
+    <Co K="Time" U="mf-t"/>
+  </C>"#
+        ));
+        let w = warnings_containing(&results, "long-click");
+        assert_eq!(w.len(), 2, "{results:?}");
+        assert!(w.iter().any(|m| m.contains("fed a 1 s pulse")));
+        assert!(w.iter().any(|m| m.contains("fed a 2 s pulse")));
+    }
+
+    const REF_TARGETS: &str = r#"
+  <C Type="VirtualIn" U="vi-1" Title="Unlock Webhook" IName="VI1"/>
+  <C Type="Memory" U="mem-1" Title="Night Flag"/>
+  <C Type="InputRef" U="ref-vi" Title="Unlock Webhook" Ref="vi-1">
+    <Co K="AQ" U="ref-vi-aq"/>
+    <Co K="Q" U="ref-vi-q"/>
+  </C>
+  <C Type="InputRef" U="ref-mem" Title="Night Flag" Ref="mem-1">
+    <Co K="AQ" U="ref-mem-aq"/>
+    <Co K="Q" U="ref-mem-q"/>
+  </C>"#;
+
+    #[test]
+    fn test_validate_reference_wired_from_q() {
+        let results = validate_xml(&format!(
+            r#"{REF_TARGETS}
+  <C Type="Door" U="door-1" Title="Front Door">
+    <Co K="Open" U="door-open"><In Input="ref-vi-q"/></Co>
+    <Co K="Close" U="door-close"><In Input="ref-mem-q"/></Co>
+    <Co K="Lock" U="door-lock"><In Input="ref-vi-aq"/></Co>
+  </C>"#
+        ));
+        let w = warnings_containing(&results, "wired from Q");
+        assert_eq!(w.len(), 1, "{results:?}");
+        assert!(w[0].contains("Door 'Front Door'.Open"));
+        assert!(w[0].contains("VirtualIn 'Unlock Webhook'"));
+    }
+
+    #[test]
+    fn test_validate_reference_q_into_notification_is_quiet() {
+        let results = validate_xml(&format!(
+            r#"{REF_TARGETS}
+  <C Type="OutputRefLM" U="lm-1" Title="Notify" Ref="caller-1">
+    <Co K="AI" U="lm-ai"><In Input="ref-vi-q"/></Co>
+  </C>"#
+        ));
+        assert!(warnings_containing(&results, "wired from Q").is_empty());
+        assert!(
+            results
+                .iter()
+                .any(|r| r.starts_with('✓') && r.contains("instead of AQ"))
+        );
+    }
+
+    #[test]
+    fn test_validate_reference_q_managed_links_are_quiet() {
+        let results = validate_xml(&format!(
+            r#"{REF_TARGETS}
+              <C Type="PresenceDetector" U="presence" Title="Presence">
+                <Co K="DeviceActivate" U="activate"><In Input="ref-vi-q" FLG="1"/></Co>
+              </C>"#
+        ));
+        assert!(
+            warnings_containing(&results, "wired from Q").is_empty(),
+            "{results:?}"
+        );
+    }
+
     // ── User CRUD tests ──────────────────────────────────────────────────
 
     #[test]

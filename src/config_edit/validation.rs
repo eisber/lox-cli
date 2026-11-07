@@ -897,7 +897,252 @@ impl ConfigEditor {
             }
         }
 
+        // ── Wiring-semantics checks (silent no-ops in Loxone) ─────────────
+        self.check_wiring_semantics(&mut results);
+
         results
+    }
+
+    /// Rules for wiring that Loxone Config accepts but that silently does nothing (or
+    /// the wrong thing) on the Miniserver:
+    ///
+    /// 1. LightController2 with motion/presence wired, no "All other times" row
+    ///    (operating mode 778) in its motion table (`LSConfig OpM`), and no row for an
+    ///    operating mode that most other motion-wired controllers in the project list
+    ///    (e.g. Night missing when every other room has it): motion does nothing then.
+    /// 2. A pulse reaching a LightController2's configured `SceneMixTime` on a mood
+    ///    input (`Sel1..SelN`, T5/x): it can mix the mood in instead of selecting it.
+    /// 3. A wire taken from the `Q` output of an InputRef to a device / virtual input:
+    ///    Loxone only uses the reference's `AQ` there (`Q` is valid for Memory flags).
+    fn check_wiring_semantics(&self, results: &mut Vec<String>) {
+        use std::collections::HashMap;
+
+        /// Motion-table operating mode id for the "All other times" row.
+        const ALL_OTHER_TIMES: &str = "778";
+        const DEFAULT_SCENE_MIX_TIME: &str = "1";
+        /// Loxone defaults when the pulse parameter has no Def (docs/kb, connector-types).
+        const EDGE_DETECTION_DEFAULT_PULSE: &str = "1";
+        const MONOFLOP_DEFAULT_TIME: &str = "2";
+
+        fn attr<'a>(e: &'a Element, name: &str) -> &'a str {
+            e.attributes.get(name).map(|s| s.as_str()).unwrap_or("")
+        }
+        fn connectors(e: &Element) -> impl Iterator<Item = &Element> {
+            e.children
+                .iter()
+                .filter_map(|c| c.as_element())
+                .filter(|c| c.name == "Co")
+        }
+        fn inputs(co: &Element) -> impl Iterator<Item = &Element> {
+            co.children
+                .iter()
+                .filter_map(|c| c.as_element())
+                .filter(|c| c.name == "In" && attr(c, "FLG") != "1")
+        }
+
+        let elements = Self::iter_elements(&self.root);
+        let blocks: Vec<&Element> = elements.iter().copied().filter(|e| e.name == "C").collect();
+
+        // Block UUID → block, connector UUID → (owning block, connector key),
+        // operating-mode id → mode title.
+        let mut block_by_uuid: HashMap<&str, &Element> = HashMap::new();
+        let mut co_owner: HashMap<&str, (&Element, &str)> = HashMap::new();
+        let mut mode_names: HashMap<&str, &str> = HashMap::new();
+        for &b in &blocks {
+            let u = attr(b, "U");
+            if !u.is_empty() {
+                block_by_uuid.insert(u, b);
+            }
+            for co in connectors(b) {
+                let cu = attr(co, "U");
+                if !cu.is_empty() {
+                    co_owner.insert(cu, (b, attr(co, "K")));
+                }
+            }
+            if attr(b, "Type") == "Mode" && !attr(b, "Mode").is_empty() {
+                mode_names.insert(attr(b, "Mode"), attr(b, "Title"));
+            }
+        }
+
+        let mut no_catch_all = Vec::new();
+        let mut long_pulses = Vec::new();
+        let mut q_refs = Vec::new();
+
+        // Rule 1: motion-wired controllers and the operating modes of their motion rows.
+        // A controller without an "All other times" row is only flagged for modes most
+        // of its peers cover, because a project's own modes may cover the whole day.
+        let motion_tables: Vec<(&str, Vec<&str>)> = blocks
+            .iter()
+            .filter(|b| attr(b, "Type") == "LightController2")
+            .filter(|b| {
+                connectors(b).any(|co| {
+                    matches!(attr(co, "K"), "Move" | "Presence") && inputs(co).next().is_some()
+                })
+            })
+            .map(|b| {
+                let ls = b
+                    .children
+                    .iter()
+                    .filter_map(|c| c.as_element())
+                    .find(|c| c.name == "LSConfig");
+                let modes = ls
+                    .map(|ls| attr(ls, "OpM"))
+                    .unwrap_or("")
+                    .split(',')
+                    .map(str::trim)
+                    .filter(|m| !m.is_empty())
+                    .collect();
+                (attr(b, "Title"), modes)
+            })
+            .collect();
+        let mut mode_use: HashMap<&str, usize> = HashMap::new();
+        for (_, modes) in &motion_tables {
+            for m in modes.iter().filter(|m| **m != ALL_OTHER_TIMES) {
+                *mode_use.entry(m).or_default() += 1;
+            }
+        }
+        let mode_label = |m: &str| match mode_names.get(m) {
+            Some(name) if !name.is_empty() => format!("{name} ({m})"),
+            _ => m.to_string(),
+        };
+        for (title, modes) in &motion_tables {
+            if modes.contains(&ALL_OTHER_TIMES) {
+                continue;
+            }
+            let peers = motion_tables.len() - 1;
+            let mut missing: Vec<&str> = mode_use
+                .iter()
+                .filter(|(m, n)| !modes.contains(m) && peers > 0 && 2 * **n >= peers)
+                .map(|(m, _)| *m)
+                .collect();
+            missing.sort_unstable();
+            if modes.is_empty() {
+                no_catch_all.push(format!(
+                    "LightController2 '{title}': motion/presence is wired but the motion table is empty — motion never switches the lights on"
+                ));
+            } else if !missing.is_empty() {
+                let missing = missing
+                    .iter()
+                    .map(|m| mode_label(m))
+                    .collect::<Vec<_>>()
+                    .join(", ");
+                no_catch_all.push(format!(
+                    "LightController2 '{title}': no motion row for {missing} (most other motion-wired controllers have one) and no \"All other times\" row (LSConfig OpM {ALL_OTHER_TIMES}) — motion does nothing while that mode is active"
+                ));
+            }
+        }
+
+        for &b in &blocks {
+            let btype = attr(b, "Type");
+            let title = attr(b, "Title");
+
+            if btype == "LightController2" {
+                let mix_parameter = connectors(b).find(|c| attr(c, "K") == "SceneMixTime");
+                let mix_duration = if mix_parameter.is_some_and(|c| inputs(c).next().is_some()) {
+                    None
+                } else {
+                    mix_parameter
+                        .map(|c| attr(c, "Def"))
+                        .filter(|d| !d.is_empty())
+                        .unwrap_or(DEFAULT_SCENE_MIX_TIME)
+                        .parse::<f64>()
+                        .ok()
+                        .filter(|d| *d > 0.0)
+                };
+                for co in connectors(b) {
+                    let key = attr(co, "K");
+                    let is_mood_input = key
+                        .strip_prefix("Sel")
+                        .is_some_and(|n| !n.is_empty() && n.bytes().all(|c| c.is_ascii_digit()));
+                    if !is_mood_input {
+                        continue;
+                    }
+                    for inp in inputs(co) {
+                        let Some(&(src, _)) = co_owner.get(attr(inp, "Input")) else {
+                            continue;
+                        };
+                        let src_type = attr(src, "Type");
+                        let param = match src_type {
+                            "EdgeDetection" => "PulseTime",
+                            "Monoflop" => "Time",
+                            _ => continue,
+                        };
+                        let default = if src_type == "EdgeDetection" {
+                            EDGE_DETECTION_DEFAULT_PULSE
+                        } else {
+                            MONOFLOP_DEFAULT_TIME
+                        };
+                        let pulse_parameter = connectors(src).find(|c| attr(c, "K") == param);
+                        if pulse_parameter.is_some_and(|c| inputs(c).next().is_some()) {
+                            continue;
+                        }
+                        let def = pulse_parameter
+                            .map(|c| attr(c, "Def"))
+                            .filter(|d| !d.is_empty())
+                            .unwrap_or(default);
+                        if let (Ok(secs), Some(mix_secs)) = (def.parse::<f64>(), mix_duration)
+                            && secs >= mix_secs
+                        {
+                            long_pulses.push(format!(
+                                "LightController2 '{title}'.{key}: fed a {def} s pulse by {src_type} '{}' — reaches SceneMixTime ({mix_secs} s), so a long-click can mix the assigned mood in instead of selecting it; set {param} below SceneMixTime",
+                                attr(src, "Title")
+                            ));
+                        }
+                    }
+                }
+            }
+
+            // Rule 3: wire taken from an InputRef's Q (only valid for Memory flags).
+            // Wires into notification references (OutputRefLM: Caller/Mailer/Logger)
+            // legitimately use Q, so they are not flagged.
+            if btype == "OutputRefLM" {
+                continue;
+            }
+            for co in connectors(b) {
+                for inp in inputs(co) {
+                    let Some(&(src, src_key)) = co_owner.get(attr(inp, "Input")) else {
+                        continue;
+                    };
+                    if src_key != "Q" || attr(src, "Type") != "InputRef" {
+                        continue;
+                    }
+                    let Some(target) = block_by_uuid.get(attr(src, "Ref")) else {
+                        continue;
+                    };
+                    let target_type = attr(target, "Type");
+                    if target_type == "Memory" {
+                        continue;
+                    }
+                    q_refs.push(format!(
+                        "{btype} '{title}'.{}: wired from Q of the reference to {target_type} '{}' — Loxone only uses wires from AQ on device/virtual-input references, this wire does nothing; re-wire from AQ",
+                        attr(co, "K"),
+                        attr(src, "Title")
+                    ));
+                }
+            }
+        }
+
+        let groups = [
+            (
+                no_catch_all,
+                "✓ All motion-wired LightController2 blocks have motion rows for the project's operating modes",
+            ),
+            (
+                long_pulses,
+                "✓ No fixed pulses reaching SceneMixTime on LightController2 mood inputs",
+            ),
+            (
+                q_refs,
+                "✓ No device/virtual-input reference wires taken from Q instead of AQ",
+            ),
+        ];
+        for (issues, ok) in groups {
+            if issues.is_empty() {
+                results.push(ok.to_string());
+            } else {
+                results.extend(issues.into_iter().map(|i| format!("⚠ {i}")));
+            }
+        }
     }
 
     /// Validate Tree/Air hardware sensor blocks for completeness.

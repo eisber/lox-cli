@@ -53,6 +53,8 @@ lox config mode-list file.Loxone                  # list operating modes
 
 ## Config Editing
 
+Every editing command that changes the file also bumps the Document save stamp (`Date` / `DateS` on `<C Type="Document">`) to the current time, or one second past its previous value if that is later. This keeps rapid successive edits distinct even within one second or after a clock adjustment. Loxone Config compares this stamp, not the content, to decide whether the opened file is the program already on the Miniserver — without the bump it would treat the edited file as identical and load the Miniserver's old program instead. Commands that end up changing nothing leave the stamp as is.
+
 ### Add blocks
 
 ```bash
@@ -311,6 +313,12 @@ lox config scan file.Loxone                # scan for PII, secrets, and credenti
 lox config scan file.Loxone --strict       # exit with error code if PII found (for CI)
 lox config report file.Loxone              # anonymised diagnostic report (scan + stats + check)
 ```
+
+`validate` also flags wiring that Loxone Config accepts but that silently misbehaves:
+
+- a Lighting Controller with motion/presence wired whose motion table has neither an "All other times" row nor a row for an operating mode most other motion-wired controllers list (motion does nothing while that mode is active), or no rows at all;
+- a fixed pulse (EdgeDetection `PulseTime`, Monoflop `Time`) into a mood input `Sel1..SelN` that reaches the controller's `SceneMixTime` (Mmd, default 1 s) — a long-click can mix the assigned mood in instead of selecting it. Disabled mixing (`SceneMixTime=0`) and dynamically wired durations are not diagnosed from static defaults;
+- a wire taken from the `Q` of a reference to a device or virtual input (only `AQ` is used there; `Q` is valid on Memory flag references).
 
 ---
 
