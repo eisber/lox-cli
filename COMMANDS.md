@@ -558,9 +558,43 @@ lox token clear                            # delete local token file
 
 ```bash
 lox telemetry status                       # show current telemetry setting
-lox telemetry enable                       # opt in to anonymous usage analytics
+lox telemetry enable                       # enable anonymous usage analytics (default)
 lox telemetry disable                      # opt out
 ```
+
+Usage telemetry sends anonymous command names and aggregate statistics to
+PostHog's EU endpoint. See [TELEMETRY.md](TELEMETRY.md) for collection details
+and environment overrides.
+
+---
+
+## Issue Feedback
+
+```bash
+lox feedback report --title "Simulator issue" --body "Sanitized reproduction steps" --json
+lox feedback report --title "Simulator issue" --body-file report.txt --json
+lox feedback report --title "Simulator issue" --body-file - --json  # read stdin
+lox feedback report --title "Simulator issue" --body "Details" --dry-run --json
+```
+
+Non-interactive; no Miniserver configuration or connection is required. Attempts
+to create a **public** issue in `eisber/lox-cli` using an authenticated `gh` CLI.
+If GitHub is unavailable, sends an `issue_report` event through the existing
+PostHog telemetry setup, **including the explicitly supplied title and body**.
+Telemetry fallback respects `lox telemetry disable`, `LOX_TELEMETRY` and
+`DO_NOT_TRACK`; it never enables telemetry automatically.
+
+Only supply sanitized issue details: reproduction steps, expected behavior, and
+actual behavior. Do not include credentials, private configuration, personal
+data, or raw logs containing those details. No files or logs are attached
+automatically. Version, OS, architecture, and a random report ID are added.
+
+JSON receipts include `ok`, `channel` (`github` or `telemetry`), `report_id`,
+and `url` (null for telemetry). A telemetry receipt also includes `github_error`
+explaining the fallback. Telemetry reporting waits up to two seconds for an
+HTTP acknowledgement; failures return a nonzero exit code and the usual JSON
+error envelope rather than claiming success. `--dry-run` previews the report
+without submitting it; `--quiet` suppresses confirmations, not JSON receipts.
 
 ---
 

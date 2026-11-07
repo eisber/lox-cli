@@ -139,6 +139,7 @@ Configuration:
   ctx                            Manage multiple Miniserver contexts
   config                         Loxone Config files (download/inspect/edit/push)
   telemetry                      Manage anonymous usage analytics
+  feedback                       Report CLI issues (GitHub, then telemetry)
   completions                    Generate shell completions
   schema                         Command schema for AI agent discovery
   stats                          Miniserver statistics (ls/get/download)
@@ -212,6 +213,11 @@ pub(crate) enum Cmd {
     Telemetry {
         #[command(subcommand)]
         action: TelemetryCmd,
+    },
+    /// Report CLI issues without a Miniserver connection
+    Feedback {
+        #[command(subcommand)]
+        action: commands::feedback_cmd::FeedbackCmd,
     },
     /// Download, inspect, and manage Loxone Config files
     Config {
@@ -1248,6 +1254,7 @@ fn command_name(cmd: &Cmd) -> String {
         Cmd::Cache { .. } => "cache".into(),
         Cmd::Token { .. } => "token".into(),
         Cmd::Telemetry { .. } => "telemetry".into(),
+        Cmd::Feedback { .. } => "feedback".into(),
         Cmd::Config { .. } => "config".into(),
         Cmd::Ctx { .. } => "ctx".into(),
         Cmd::Completions { .. } => "completions".into(),
@@ -1323,8 +1330,16 @@ fn run(cli: Cli) -> Result<()> {
     }
 
     // Track the command name (fire-and-forget, no-op when disabled)
-    let telem =
-        telemetry::Telemetry::from_config(config::Config::load().ok().and_then(|c| c.telemetry));
+    let telemetry_preference = match config::Config::telemetry_preference() {
+        Ok(preference) => preference,
+        Err(error) => {
+            eprintln!(
+                "Warning: {error:#}. Telemetry defaults to disabled unless LOX_TELEMETRY overrides it."
+            );
+            Some(false)
+        }
+    };
+    let telem = telemetry::Telemetry::from_config(telemetry_preference);
     telem.track_command(&command_name(&cli.cmd));
 
     match cli.cmd {
@@ -1337,6 +1352,7 @@ fn run(cli: Cli) -> Result<()> {
             TelemetryCmd::Disable => telemetry::cmd_telemetry_disable(),
             TelemetryCmd::Status => telemetry::cmd_telemetry_status(),
         },
+        Cmd::Feedback { action } => commands::feedback_cmd::cmd_feedback(&ctx, action, &telem),
         Cmd::Config { action } => commands::config_cmd::cmd_config(&ctx, *action),
         Cmd::Ctx { action } => commands::ctx::cmd_ctx(&ctx, action),
         Cmd::Completions { shell, install } => {
@@ -1417,8 +1433,8 @@ pub(crate) fn describe_command(cmd: &clap::Command, _detailed: bool) -> Value {
             if let Some(short) = a.get_short() {
                 arg["short"] = Value::String(format!("-{}", short));
             }
-            if a.get_long().is_some() {
-                arg["long"] = Value::String(format!("--{}", a.get_id()));
+            if let Some(long) = a.get_long() {
+                arg["long"] = Value::String(format!("--{}", long));
             }
             if a.get_num_args().is_some_and(|r| r.max_values() == 0) {
                 arg["type"] = Value::String("bool".to_string());

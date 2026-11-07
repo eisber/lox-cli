@@ -57,7 +57,7 @@ pub struct Config {
     /// Path to a git repository for config version tracking (`lox config init`)
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub config_repo: Option<String>,
-    /// Opt-in anonymous usage telemetry (`lox telemetry enable`)
+    /// Anonymous usage telemetry (enabled by default; `lox telemetry disable` to opt out)
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub telemetry: Option<bool>,
 
@@ -86,7 +86,7 @@ pub struct GlobalConfig {
     pub active_context: Option<String>,
     #[serde(default, skip_serializing_if = "HashMap::is_empty")]
     pub contexts: HashMap<String, ContextEntry>,
-    /// Opt-in anonymous usage telemetry (global, not per-context)
+    /// Anonymous usage telemetry (global, not per-context; enabled by default)
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub telemetry: Option<bool>,
 }
@@ -170,6 +170,36 @@ impl Config {
     /// Scenes directory for this config.
     pub fn scenes_dir(&self) -> PathBuf {
         self.data_dir.join("scenes")
+    }
+
+    /// Read telemetry preferences without requiring connection settings or an active context.
+    pub fn telemetry_preference() -> Result<Option<bool>> {
+        let path = std::env::var_os("LOX_CONFIG")
+            .map(PathBuf::from)
+            .or_else(|| {
+                if ctx_override().is_none() {
+                    find_local_lox_dir().map(|dir| dir.join("config.yaml"))
+                } else {
+                    None
+                }
+            })
+            .unwrap_or_else(Self::path);
+        let content = match fs::read_to_string(&path) {
+            Ok(content) => content,
+            Err(error) if error.kind() == std::io::ErrorKind::NotFound => return Ok(None),
+            Err(error) => {
+                return Err(error).with_context(|| {
+                    format!("Cannot read telemetry preference at {}", path.display())
+                });
+            }
+        };
+        #[derive(Deserialize)]
+        struct Preferences {
+            telemetry: Option<bool>,
+        }
+        let preferences: Preferences = serde_yaml::from_str(&content)
+            .with_context(|| format!("Cannot parse telemetry preference at {}", path.display()))?;
+        Ok(preferences.telemetry)
     }
 
     /// Load the effective config, considering context resolution:

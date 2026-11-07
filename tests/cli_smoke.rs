@@ -84,6 +84,8 @@ subcmd_help!(help_completions, "completions");
 subcmd_help!(help_docs, "docs");
 subcmd_help!(help_schema, "schema");
 subcmd_help!(help_telemetry, "telemetry");
+subcmd_help!(help_feedback, "feedback");
+subcmd_help!(help_feedback_report, "feedback", "report");
 subcmd_help!(help_color, "color");
 subcmd_help!(help_color_encode, "color", "encode");
 subcmd_help!(help_color_decode, "color", "decode");
@@ -105,6 +107,218 @@ fn help_mentions_stats() {
         .assert()
         .success()
         .stdout(predicate::str::contains("  ls "));
+}
+
+mod feedback {
+    use super::*;
+    use serde_json::Value;
+
+    fn command() -> Command {
+        let mut command = lox();
+        command
+            .env("LOX_TELEMETRY", "0")
+            .args(["--quiet", "--json"]);
+        command
+    }
+
+    #[test]
+    fn agent_schema_advertises_the_actual_body_file_flag() {
+        let output = command()
+            .args(["schema", "feedback"])
+            .assert()
+            .success()
+            .get_output()
+            .stdout
+            .clone();
+        let schema: Value = serde_json::from_slice(&output).unwrap();
+        let args = schema["subcommands"][0]["args"].as_array().unwrap();
+        let body_file = args.iter().find(|arg| arg["name"] == "body_file").unwrap();
+        assert_eq!(body_file["long"], "--body-file");
+    }
+
+    #[test]
+    fn dry_run_previews_inline_body_without_github_or_telemetry() {
+        let dir = tempfile::tempdir().unwrap();
+        let output = command()
+            .env("PATH", dir.path())
+            .args([
+                "feedback",
+                "report",
+                "--title",
+                "Synthetic issue",
+                "--body",
+                "Repro steps",
+                "--dry-run",
+                "--trace-id",
+                "local-trace",
+            ])
+            .assert()
+            .success()
+            .get_output()
+            .stdout
+            .clone();
+        let result: Value = serde_json::from_slice(&output).unwrap();
+        assert_eq!(result["dry_run"], true);
+        assert_eq!(result["repository"], "eisber/lox-cli");
+        assert_eq!(result["title"], "Synthetic issue");
+        assert!(result["body"].as_str().unwrap().starts_with("Repro steps"));
+        assert_eq!(result["telemetry_fallback_enabled"], false);
+        assert_eq!(result["trace_id"], "local-trace");
+    }
+
+    #[test]
+    fn report_accepts_file_or_stdin_body() {
+        let dir = tempfile::tempdir().unwrap();
+        let path = dir.path().join("report.txt");
+        let body = "Synthetic reproduction\nExpected 1, got 0";
+        std::fs::write(&path, body).unwrap();
+        for from_stdin in [false, true] {
+            let mut command = command();
+            command.args([
+                "feedback",
+                "report",
+                "--title",
+                "Synthetic issue",
+                "--dry-run",
+                "--body-file",
+            ]);
+            if from_stdin {
+                command.arg("-").write_stdin(body);
+            } else {
+                command.arg(&path);
+            }
+            let output = command.assert().success().get_output().stdout.clone();
+            let result: Value = serde_json::from_slice(&output).unwrap();
+            assert!(result["body"].as_str().unwrap().starts_with(body));
+        }
+    }
+
+    #[test]
+    fn missing_github_and_opt_out_returns_json_error() {
+        let dir = tempfile::tempdir().unwrap();
+        let output = command()
+            .env("PATH", dir.path())
+            .args([
+                "feedback",
+                "report",
+                "--title",
+                "Synthetic issue",
+                "--body",
+                "Synthetic details",
+            ])
+            .assert()
+            .failure()
+            .get_output()
+            .stdout
+            .clone();
+        let result: Value = serde_json::from_slice(&output).unwrap();
+        assert_eq!(result["ok"], false);
+        let message = result["message"].as_str().unwrap();
+        assert!(message.contains("Cannot run GitHub CLI"));
+        assert!(message.contains("Telemetry is disabled"));
+        assert!(message.contains("No delivery was confirmed"));
+    }
+
+    #[test]
+    fn config_opt_out_does_not_require_connection_settings_or_active_context() {
+        let dir = tempfile::tempdir().unwrap();
+        let config = dir.path().join("config.yaml");
+        std::fs::write(&config, "telemetry: false\ncontexts: {}\n").unwrap();
+        let output = command()
+            .env_remove("LOX_TELEMETRY")
+            .env_remove("DO_NOT_TRACK")
+            .env("LOX_CONFIG", &config)
+            .env("PATH", dir.path())
+            .args([
+                "feedback",
+                "report",
+                "--title",
+                "Synthetic issue",
+                "--body",
+                "Synthetic details",
+            ])
+            .assert()
+            .failure()
+            .get_output()
+            .stdout
+            .clone();
+        let result: Value = serde_json::from_slice(&output).unwrap();
+        assert!(
+            result["message"]
+                .as_str()
+                .unwrap()
+                .contains("Telemetry is disabled")
+        );
+        lox()
+            .env_remove("LOX_TELEMETRY")
+            .env_remove("DO_NOT_TRACK")
+            .env("LOX_CONFIG", &config)
+            .args(["telemetry", "status", "--quiet"])
+            .assert()
+            .success()
+            .stdout(predicate::str::contains("Effective:        disabled"));
+    }
+
+    #[test]
+    fn malformed_telemetry_settings_warn_and_disable_fallback() {
+        let dir = tempfile::tempdir().unwrap();
+        let config = dir.path().join("config.yaml");
+        std::fs::write(&config, "telemetry: [not a boolean]\n").unwrap();
+        command()
+            .env_remove("LOX_TELEMETRY")
+            .env_remove("DO_NOT_TRACK")
+            .env("LOX_CONFIG", &config)
+            .env("PATH", dir.path())
+            .args([
+                "feedback",
+                "report",
+                "--title",
+                "Synthetic issue",
+                "--body",
+                "Synthetic details",
+            ])
+            .assert()
+            .failure()
+            .stdout(predicate::str::contains("Telemetry is disabled"))
+            .stderr(predicate::str::contains(
+                "Cannot parse telemetry preference",
+            ));
+    }
+
+    #[test]
+    fn report_rejects_missing_conflicting_empty_or_unreadable_body() {
+        let dir = tempfile::tempdir().unwrap();
+        for args in [
+            vec![],
+            vec!["--body", "details", "--body-file", "-"],
+            vec!["--body", " \n"],
+        ] {
+            command()
+                .args([
+                    "feedback",
+                    "report",
+                    "--title",
+                    "Synthetic issue",
+                    "--dry-run",
+                ])
+                .args(args)
+                .assert()
+                .failure();
+        }
+        command()
+            .args([
+                "feedback",
+                "report",
+                "--title",
+                "Synthetic issue",
+                "--dry-run",
+                "--body-file",
+            ])
+            .arg(dir.path().join("missing.txt"))
+            .assert()
+            .failure()
+            .stdout(predicate::str::contains("Cannot read issue report"));
+    }
 }
 
 // ── color encode/decode functional ─────────────────────────────────────────
