@@ -702,6 +702,11 @@ report a failed submission.
 `lox config report FILE` is different: it generates configuration diagnostics.
 Inspect and sanitize any diagnostic content before including it in an issue.
 
+For receipt-based feedback lookup, dashboard access, and native exception
+investigation, see the [maintainer access and triage guide](TELEMETRY.md#maintainer-guide-access-learn-and-fix).
+Automatic sanitized `$exception` events are separate from explicit feedback;
+they do not automatically create issue reports.
+
 ---
 
 ## Shell Completions

@@ -294,6 +294,11 @@ preserve their diagnostics and show the same guidance. Fix input/setup mistakes
 first; report reproducible CLI bugs, not every failed command. No issue reports
 are sent automatically.
 
+Maintainers: use the [telemetry access and triage guide](TELEMETRY.md#maintainer-guide-access-learn-and-fix)
+for dashboard links, report/feedback lookup, sanitized exception stacks, and the
+reproduce/fix/verify workflow. Access requires PostHog project membership;
+credentials are not stored in the repository.
+
 ### Multiple Miniservers
 
 ```bash

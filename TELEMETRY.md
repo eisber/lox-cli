@@ -82,7 +82,8 @@ can include the other sources. Older events have no source property.
 The maintainer [lox CLI Usage dashboard](https://eu.posthog.com/project/112518/dashboard/1092443)
 shows command trends, durations, exceptions, popular commands, outcomes,
 platforms/versions, countries, and a separate diagnostic delivery view.
-Access requires membership in the PostHog project.
+See the [maintainer guide](#maintainer-guide-access-learn-and-fix) for access,
+feedback lookup, exception triage, and delivery troubleshooting.
 
 ### Check current status
 ```bash
@@ -151,6 +152,145 @@ reporting respect the normal telemetry opt-out and dry-run rules. Panic events
 use the same bounded delivery and exclude failures inside the telemetry sender
 itself to prevent recursive crash reporting.
 
+## Maintainer guide: access, learn, and fix
+
+### Access and locations
+
+Sign in to **PostHog EU** at `https://eu.posthog.com` and select project
+**112518**, currently named **Default project**. Ask a project administrator for
+membership and permission to view the dashboard, events, and Error Tracking.
+These are authenticated project links, not public dashboard shares. If a link
+is denied, check the selected project and request access rather than copying
+another maintainer's credentials.
+
+| Location | Use it for |
+|----------|------------|
+| [lox CLI Usage dashboard](https://eu.posthog.com/project/112518/dashboard/1092443) | Start here: adoption, outcomes, latency, exceptions, platforms, countries, diagnostic delivery |
+| [Median / p95 duration](https://eu.posthog.com/project/112518/insights/0oq9Jy2G) | Spot latency changes, split by source |
+| [Slowest commands](https://eu.posthog.com/project/112518/insights/ZVLcXMdN) | Find command-level performance work |
+| [Exceptions by command and source](https://eu.posthog.com/project/112518/insights/FFxSS16r) | Identify failing workflows without counting diagnostics as usage |
+| [Error Tracking](https://eu.posthog.com/project/112518/error-tracking) | Open native issues, inspect occurrences and function stacks, verify fixes |
+| [SQL workspace](https://eu.posthog.com/project/112518/sql) | Retrieve fallback `issue_report` feedback and inspect stored event properties |
+| [GitHub reports](https://github.com/eisber/lox-cli/issues) | Read reports delivered successfully by `lox report` |
+
+Agents can use the authorized PostHog MCP connection at
+`https://mcp.posthog.com/mcp`, selecting the same EU project. Authorization belongs
+in the local MCP client or credential store, **not** in repository files.
+Dashboard/project IDs and these links are non-secret; personal API tokens,
+OAuth credentials, and session cookies must not be copied into docs, reports,
+queries, or commits. The capture endpoint is for ingestion, not dashboard login.
+
+### Find report / feedback content
+
+Start with the receipt from [`lox report`](COMMANDS.md#issue-reporting):
+
+- `channel = github`: follow `url`. The public issue body contains `Report ID`.
+  Successful GitHub delivery does **not** also send an `issue_report` event.
+- `channel = telemetry`: open the SQL workspace and find event `issue_report`
+  with `properties.report_id` equal to the receipt's `report_id`. Read
+  `properties.title` and `properties.body`; these are explicitly submitted text,
+  not sanitized automatic exception fields. `url` is null and `github_error`
+  in the receipt explains why fallback was used.
+- A nonzero submission result means no delivery was confirmed. Check existing
+  reports before retrying, to avoid duplicates. A `command` event named
+  `report` alone does not prove that the feedback body was delivered.
+
+For example, replace the placeholder with the receipt ID and adjust the date
+range if needed:
+
+```sql
+SELECT timestamp, properties.report_id AS report_id,
+       properties.title AS title, properties.body AS body,
+       properties.cli_version AS cli_version,
+       properties.os AS os, properties.arch AS arch,
+       properties.source AS source
+FROM events
+WHERE event = 'issue_report'
+  AND timestamp >= now() - INTERVAL 7 DAY
+  AND properties.report_id = 'REPLACE_WITH_REPORT_ID'
+LIMIT 20
+```
+
+For an intake review without a receipt, remove the report-ID predicate and
+order by `timestamp DESC` before `LIMIT`. A fallback capture acknowledgement
+is not an automatically created GitHub issue, Beads task, or Error Tracking
+issue; maintainers must review it and track actionable work in `bd`.
+Inspect supplied text before quoting it into a public issue or regression fixture.
+`lox config report FILE` is a separate configuration-diagnostics command, not
+the feedback inbox. No raw logs or configuration files are attached automatically.
+
+### Learn from signals and close the loop
+
+1. **Review usage and failures together.** Start with the dashboard over complete
+   UTC days, normally the last 7 or 30 days. Use `source = usage` for real usage;
+   examine `diagnostic`, `test`, and `eval` separately. Compare command failures
+   with total executions, version, OS, and architecture before prioritizing.
+   Pair median/p95 changes with sample volume; a few fast diagnostic commands
+   do not establish production performance.
+2. **Inspect an actual exception.** Open Error Tracking, narrow to CLI events
+   using `command`, `cli_version`, and `source`, then inspect an occurrence's
+   application function frames and error category. `RustError` is a returned
+   error (`handled = true`); `RustPanic` is a panic (`handled = false`), which
+   does not by itself prove the whole process exited. Panics in worker threads
+   can be caught by their caller. A `$exception` is not a full log, distributed
+   trace, Session Replay, or automatically submitted feedback report.
+3. **Reproduce before diagnosing.** Combine the function stack with sanitized
+   feedback reproduction steps and expected/actual behavior. Ordinary input,
+   authentication, and connection failures are not automatically CLI bugs.
+   Reports and exception occurrences have no automatic report-ID join; matching
+   command/version/platform/day is supporting evidence, not proof of identity.
+   Request a minimal sanitized reproduction when needed instead of enabling
+   raw-message or configuration uploads.
+4. **Track and fix.** Deduplicate findings, record actionable work in `bd`, and
+   include the report ID or GitHub URL, native Error Tracking issue URL, affected
+   command/version/platform, reproduction, and expected behavior. Add a regression
+   test that fails before the fix. Keep sensitive feedback out of public tracking.
+5. **Verify the outcome.** Run the reproduction against the fixed build. Keep
+   normal tests opted out; use `source = diagnostic` for an intentional live check.
+   Verify stored command outcome/duration and, for an intentional failure, native
+   issue linkage plus useful sanitized frames. Record the fix commit/version,
+   close the Beads task and resolve the native issue when the fix is verified,
+   then watch `source = usage` for recurrence. Resolve deliberate diagnostic
+   issues after checking them; do not suppress a fingerprint merely to hide a test.
+
+Daily anonymous IDs rotate and timestamps are rounded to UTC midnight.
+PostHog's "users" count is therefore **not** a count of known people or persistent
+installations; do not infer an exact execution sequence or hour-level incident
+timeline. Repeated failures from one loop can inflate occurrence counts.
+Older events may lack source, duration, or exception fields; missing data is not
+zero latency or evidence of no failures. The dashboard description records known
+baseline contamination and must be preserved when editing charts.
+
+### If charts or traces look empty
+
+Check `lox telemetry status`, config and environment overrides, the CLI build,
+the selected EU project, date range, and source filters. Help/version, argument
+parsing failures, dry runs, opted-out commands, and normal tests/evals are not
+expected to populate runtime telemetry. A report delivered via GitHub is not
+expected in the fallback feedback query.
+
+For a harmless delivery probe, run in a **temporary PowerShell session**:
+
+```powershell
+$env:LOX_TELEMETRY = '1'
+$env:LOX_TELEMETRY_SOURCE = 'diagnostic'
+lox telemetry status
+```
+
+Refresh the diagnostic delivery view and inspect the stored `command` event,
+including `duration_ms`. Telemetry warnings on stderr indicate sender, TLS,
+timeout, or HTTP rejection problems; ordinary telemetry failures do not change
+the command's exit code. Allow for ingestion delay and refresh again before
+concluding delivery failed; property discovery can lag freshly stored events.
+Do not test delivery by publishing a dummy GitHub report.
+
+For a deliberate exception probe, validate a known-nonexistent dummy file in
+that same diagnostic session. Check the nonzero exit, `$exception`, native issue,
+and sanitized application frames, then resolve the diagnostic issue.
+If the exception has no stack, check `RUST_LIB_BACKTRACE` and symbol availability;
+`RUST_LIB_BACKTRACE=0` disables error-origin capture. Categories without frames
+are possible and are not grounds for uploading raw errors or filesystem paths.
+
 ## PostHog privacy
 
 PostHog's privacy policy: <https://posthog.com/privacy>
@@ -190,9 +330,11 @@ We have configured PostHog to:
 
 ## Source code
 
-The telemetry implementation is in
-[`src/telemetry.rs`](src/telemetry.rs) — about 250 lines of Rust. We
-encourage you to review it.
+Delivery, privacy metadata, duration/exception payloads, and regression tests:
+[`src/telemetry.rs`](src/telemetry.rs). Command dispatch and outcome capture:
+[`src/main.rs`](src/main.rs). Report routing and receipts:
+[`src/commands/report_cmd.rs`](src/commands/report_cmd.rs). Error envelopes and
+reporting guidance: [`src/errors.rs`](src/errors.rs).
 
 ## Questions?
 
