@@ -370,6 +370,10 @@ lox sim dump file.Loxone -o json           # JSON output
 ```
 
 `--sim` accepts inline JSON (single object or array). `--sim-file` loads from a file.
+`sim run` requires at least one scenario, and each scenario needs an output assertion
+in `expected_outputs` or a step's `expected_outputs`. An empty comparator map or
+trace-only scenario does not count as verification and fails. Use `sim step` or
+`sim dump` to explore a circuit without assertions.
 
 ---
 

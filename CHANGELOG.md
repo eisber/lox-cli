@@ -10,6 +10,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - `lox stats ls` (alias `list`), `lox stats get` and `lox stats download` read the statistics the Miniserver logs (`/stats/` index and monthly XML files): list them, print values as table, CSV or JSON across a month range, and mirror the raw files into a folder incrementally.
 
+### Fixed
+- `lox sim run` no longer reports a passing simulation for an empty scenario array or a scenario with no output assertions (including trace-only runs).
+
 ## [0.14.2] — 2026-05-08
 
 ### Fixed
