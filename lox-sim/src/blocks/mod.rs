@@ -107,8 +107,8 @@ pub(crate) fn deserialize_f64s(bytes: &[u8], count: usize) -> Option<Vec<f64>> {
         return None;
     }
     let mut values = Vec::with_capacity(count);
-    for chunk in bytes[..count * 8].chunks_exact(8) {
-        values.push(f64::from_le_bytes(chunk.try_into().ok()?));
+    for chunk in bytes[..count * 8].as_chunks::<8>().0 {
+        values.push(f64::from_le_bytes(*chunk));
     }
     Some(values)
 }
@@ -221,6 +221,12 @@ impl Clone for Box<dyn Block> {
 
 /// Core block trait — all simulation blocks implement this.
 pub trait Block: Send + Sync + BlockClone {
+    /// Configure which input connectors are wired before the first tick.
+    ///
+    /// Most blocks only depend on input values. Blocks whose semantics depend
+    /// on connector presence can override this hook.
+    fn configure_input_connections(&mut self, _connected: &[bool]) {}
+
     /// Evaluate the block for one tick.
     fn eval(
         &mut self,
@@ -238,6 +244,11 @@ pub trait Block: Send + Sync + BlockClone {
 
     /// Block type name.
     fn block_type(&self) -> &str;
+
+    /// Formula source used by the compiled evaluator.
+    fn formula_expression(&self) -> Option<&str> {
+        None
+    }
 
     /// Whether the block's output depends on `prev_inputs`.
     fn is_edge_sensitive(&self) -> bool {
@@ -586,7 +597,7 @@ pub fn create_block(block_type: &str) -> Box<dyn Block> {
         "JoinWindowSensor" => Box::new(JoinWindowSensor),
 
         // Group D — I/O
-        "InputRef" => Box::new(InputRef),
+        "InputRef" => Box::new(InputRef::new()),
         "OutputRef" => Box::new(OutputRef),
         "OutputRefLM" => Box::new(OutputRefLM),
         "EIBPush" => Box::new(EIBPush),

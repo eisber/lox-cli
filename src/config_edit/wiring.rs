@@ -276,17 +276,12 @@ impl ConfigEditor {
             .children
             .iter_mut()
             .find_map(|c| {
-                c.as_mut_element().and_then(|e| {
-                    if e.name == "Co"
+                c.as_mut_element().filter(|e| {
+                    e.name == "Co"
                         && e.attributes
                             .get("K")
                             .map(|k| k == source_connector)
                             .unwrap_or(false)
-                    {
-                        Some(e)
-                    } else {
-                        None
-                    }
                 })
             })
             .ok_or_else(|| {
@@ -318,17 +313,12 @@ impl ConfigEditor {
             .children
             .iter_mut()
             .find_map(|c| {
-                c.as_mut_element().and_then(|e| {
-                    if e.name == "Co"
+                c.as_mut_element().filter(|e| {
+                    e.name == "Co"
                         && e.attributes
                             .get("K")
                             .map(|k| k == connector_name)
                             .unwrap_or(false)
-                    {
-                        Some(e)
-                    } else {
-                        None
-                    }
                 })
             })
             .ok_or_else(|| {
@@ -404,11 +394,11 @@ impl ConfigEditor {
     /// List all MQTT topics (GenTSensor subscriptions + GenTActor publishes).
     pub fn list_mqtt_topics(&self) -> Vec<MqttTopic> {
         let mut topics = Vec::new();
-        self.collect_mqtt_topics(&self.root, &mut topics);
+        Self::collect_mqtt_topics(&self.root, &mut topics);
         topics
     }
 
-    fn collect_mqtt_topics(&self, elem: &Element, topics: &mut Vec<MqttTopic>) {
+    fn collect_mqtt_topics(elem: &Element, topics: &mut Vec<MqttTopic>) {
         if elem.name == "C"
             && let Some(t) = elem.attributes.get("Type")
             && (t == "GenTSensor" || t == "GenTActor")
@@ -449,7 +439,7 @@ impl ConfigEditor {
         }
         for child in &elem.children {
             if let Some(child_elem) = child.as_element() {
-                self.collect_mqtt_topics(child_elem, topics);
+                Self::collect_mqtt_topics(child_elem, topics);
             }
         }
     }
@@ -863,17 +853,12 @@ impl ConfigEditor {
             .children
             .iter_mut()
             .find_map(|c| {
-                c.as_mut_element().and_then(|e| {
-                    if e.name == "Co"
+                c.as_mut_element().filter(|e| {
+                    e.name == "Co"
                         && e.attributes
                             .get("K")
                             .map(|k| k == conn_key)
                             .unwrap_or(false)
-                    {
-                        Some(e)
-                    } else {
-                        None
-                    }
                 })
             })
             .ok_or_else(|| {

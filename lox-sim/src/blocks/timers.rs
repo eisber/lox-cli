@@ -30,10 +30,16 @@ impl Block for Monoflop {
         prev_inputs: &[Signal],
     ) -> Vec<Signal> {
         let trigger = inputs.first().copied().unwrap_or(0.0);
+        let reset = inputs.get(1).copied().unwrap_or(0.0);
         let prev_trigger = prev_inputs.first().copied().unwrap_or(0.0);
         let duration = params.first().copied().unwrap_or(1.0).max(0.0);
 
-        if !is_high(prev_trigger) && is_high(trigger) {
+        // WARNING: Assumed behavior — not validated against Miniserver.
+        // Assumption: Reset aborts the running pulse and blocks retriggering
+        // while held.
+        if is_high(reset) {
+            self.remaining = 0.0;
+        } else if !is_high(prev_trigger) && is_high(trigger) {
             self.remaining = duration.max(dt);
         }
 
@@ -971,6 +977,23 @@ mod tests {
         assert_eq!(block.eval(&[0.0], &[1.0], 0.25, &[0.0]), vec![1.0]);
         assert_eq!(block.eval(&[0.0], &[1.0], 0.25, &[0.0]), vec![1.0]);
         assert_eq!(block.eval(&[0.0], &[1.0], 0.25, &[0.0]), vec![0.0]);
+    }
+
+    #[test]
+    fn monoflop_reset_aborts_and_blocks_retrigger() {
+        let mut block = Monoflop::new();
+        assert_eq!(
+            block.eval(&[1.0, 0.0], &[1.0], 0.25, &[0.0, 0.0]),
+            vec![1.0]
+        );
+        assert_eq!(
+            block.eval(&[1.0, 1.0], &[1.0], 0.25, &[1.0, 0.0]),
+            vec![0.0]
+        );
+        assert_eq!(
+            block.eval(&[1.0, 1.0], &[1.0], 0.25, &[0.0, 1.0]),
+            vec![0.0]
+        );
     }
 
     #[test]

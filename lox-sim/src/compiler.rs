@@ -9,6 +9,7 @@ use std::collections::HashMap;
 use smallvec::SmallVec;
 
 use crate::blocks::schedule::DayTimerEntry;
+use crate::blocks::Formula;
 use crate::graph::SimGraph;
 use crate::types::*;
 
@@ -132,11 +133,18 @@ pub enum EvalStep {
         params: SmallVec<[usize; 4]>,
         output: usize,
     },
+    Formula {
+        expression: String,
+        params: [usize; 4],
+        outputs: [usize; 2],
+    },
 
     // -- Stateful timers --
     Monoflop {
         trigger: usize,
         prev_trigger: usize,
+        /// Reset signal slot; `usize::MAX` when the block has no Reset wire.
+        reset: usize,
         param_duration: usize,
         output: usize,
         state_idx: usize,
@@ -217,6 +225,10 @@ pub enum EvalStep {
         trigger: usize,
         prev_trigger: usize,
         force_on: usize,
+        /// Reset/InputDisable signal slots; `usize::MAX` when the block has
+        /// no such connector (PushButtonSel layouts vary).
+        reset: usize,
+        disable: usize,
         /// outputs: [Q, Qoff, Qon]
         outputs: [usize; 3],
         state_idx: usize,
@@ -232,6 +244,11 @@ pub enum EvalStep {
     Copy {
         src: usize,
         dst: usize,
+    },
+    InputRef {
+        src: usize,
+        output_q: Option<usize>,
+        output_aq: Option<usize>,
     },
 
     // -- Constant (from parameter) --
@@ -376,19 +393,15 @@ impl CompiledGraph {
             .map(|i| graph.connector(i).default_value)
             .collect();
 
-        // Previous-tick signals start at zero so that constant defaults
-        // (e.g. Trigger=1 on AMemory) produce a rising edge on the first tick.
-        let prev_signals = vec![0.0; n_conn];
-
-        // Helper: resolve an input connector to the source signal index.
-        // For feedback wires, we'll read from prev_signals instead.
         let feedback_wires = &topo.feedback_wires;
 
-        // Build input source map: for each input connector, where does its value come from?
+        // Build input source map: for each input or parameter connector,
+        // where does its value come from? (Parameters can be wire-driven
+        // too, e.g. Formula Input1-Input4.)
         let mut input_source: Vec<(usize, bool)> = vec![(0, false); n_conn];
         for (cid, src) in input_source.iter_mut().enumerate() {
-            let is_input = graph.connector(cid).dir == ConnectorDir::Input;
-            if is_input {
+            let is_sink = graph.connector(cid).dir != ConnectorDir::Output;
+            if is_sink {
                 match graph.input_source_of(cid) {
                     Some(from) => {
                         let is_fb = feedback_wires.contains(&(from, cid));
@@ -400,6 +413,10 @@ impl CompiledGraph {
                 }
             }
         }
+
+        // Previous-tick signals start at zero so that constant defaults
+        // (e.g. Trigger=1 on AMemory) produce a rising edge on the first tick.
+        let prev_signals = vec![0.0; n_conn];
 
         let mut steps = Vec::with_capacity(n_blocks);
         let mut state = Vec::new();
@@ -420,7 +437,9 @@ impl CompiledGraph {
             let prev_inputs: Vec<usize> = resolved_inputs.clone();
 
             let outputs = &info.outputs;
-            let params = &info.params;
+            // Wired parameters read their driving output's signal; unwired
+            // ones read their own connector (holding the Def= value).
+            let params: Vec<usize> = info.params.iter().map(|&cid| input_source[cid].0).collect();
 
             let step = match block_type {
                 "And" => EvalStep::And {
@@ -511,6 +530,22 @@ impl CompiledGraph {
                     params: params.iter().copied().collect(),
                     output: outputs[0],
                 },
+                "Formula" => EvalStep::Formula {
+                    expression: graph.block_impls[block_id]
+                        .formula_expression()
+                        .unwrap_or("0")
+                        .to_owned(),
+                    params: [
+                        *params.first().unwrap_or(&0),
+                        *params.get(1).unwrap_or(&0),
+                        *params.get(2).unwrap_or(&0),
+                        *params.get(3).unwrap_or(&0),
+                    ],
+                    outputs: [
+                        *outputs.first().unwrap_or(&0),
+                        *outputs.get(1).unwrap_or(&0),
+                    ],
+                },
                 "Monoflop" => {
                     let si = state.len();
                     state.push(BlockState::Timer {
@@ -520,6 +555,7 @@ impl CompiledGraph {
                     EvalStep::Monoflop {
                         trigger: resolved_inputs.first().copied().unwrap_or(0),
                         prev_trigger: prev_inputs.first().copied().unwrap_or(0),
+                        reset: resolved_inputs.get(1).copied().unwrap_or(usize::MAX),
                         param_duration: params.first().copied().unwrap_or(0),
                         output: outputs[0],
                         state_idx: si,
@@ -662,12 +698,26 @@ impl CompiledGraph {
                         trigger: resolved_inputs.first().copied().unwrap_or(0),
                         prev_trigger: prev_inputs.first().copied().unwrap_or(0),
                         force_on: resolved_inputs.get(1).copied().unwrap_or(0),
+                        reset: resolved_inputs.get(2).copied().unwrap_or(usize::MAX),
+                        disable: resolved_inputs.get(3).copied().unwrap_or(usize::MAX),
                         outputs: [
                             *outputs.first().unwrap_or(&0),
                             *outputs.get(1).unwrap_or(&0),
                             *outputs.get(2).unwrap_or(&0),
                         ],
                         state_idx: si,
+                    }
+                }
+                "InputRef" => {
+                    let analog_connected = info
+                        .inputs
+                        .get(1)
+                        .is_some_and(|&cid| graph.input_source_of(cid).is_some());
+                    let source_index = usize::from(analog_connected);
+                    EvalStep::InputRef {
+                        src: resolved_inputs.get(source_index).copied().unwrap_or(0),
+                        output_q: outputs.first().copied(),
+                        output_aq: outputs.get(1).copied(),
                     }
                 }
                 "Counter" => {
@@ -877,6 +927,19 @@ impl CompiledGraph {
                     let high_count = inputs.iter().filter(|&&i| self.signals[i] >= 0.5).count();
                     self.signals[*output] = bool_f64(high_count % 2 == 1);
                 }
+                EvalStep::InputRef {
+                    src,
+                    output_q,
+                    output_aq,
+                } => {
+                    let value = self.signals[*src];
+                    if let Some(output) = output_q {
+                        self.signals[*output] = bool_f64(value != 0.0);
+                    }
+                    if let Some(output) = output_aq {
+                        self.signals[*output] = value;
+                    }
+                }
 
                 // -- Comparisons --
                 EvalStep::GreaterEqual {
@@ -964,23 +1027,37 @@ impl CompiledGraph {
                     });
                     self.signals[*output] = result.unwrap_or(0.0);
                 }
+                EvalStep::Formula {
+                    expression,
+                    params,
+                    outputs,
+                } => {
+                    let vars = params.map(|param| self.signals[param]);
+                    let (result, error) = Formula::evaluate_expr(expression, &vars);
+                    self.signals[outputs[0]] = result;
+                    self.signals[outputs[1]] = error;
+                }
 
                 // -- Monoflop --
                 EvalStep::Monoflop {
                     trigger,
                     prev_trigger,
+                    reset,
                     param_duration,
                     output,
                     state_idx,
                 } => {
                     let trig = self.signals[*trigger];
                     let prev_trig = self.prev_signals[*prev_trigger];
+                    let rst = self.signals.get(*reset).copied().unwrap_or(0.0);
                     let duration = self.signals[*param_duration].max(0.0);
                     let out = *output;
                     let si = *state_idx;
 
                     if let BlockState::Timer { remaining, .. } = &mut self.state[si] {
-                        if prev_trig < 0.5 && trig >= 0.5 {
+                        if rst >= 0.5 {
+                            *remaining = 0.0;
+                        } else if prev_trig < 0.5 && trig >= 0.5 {
                             *remaining = duration.max(dt);
                         }
                         let q = *remaining > 0.0;
@@ -1315,21 +1392,29 @@ impl CompiledGraph {
                     trigger,
                     prev_trigger,
                     force_on,
+                    reset,
+                    disable,
                     outputs,
                     state_idx,
                 } => {
                     let trig = self.signals[*trigger];
                     let prev_trig = self.prev_signals[*prev_trigger];
                     let force = self.signals[*force_on];
+                    let rst = self.signals.get(*reset).copied().unwrap_or(0.0);
+                    let dis = self.signals.get(*disable).copied().unwrap_or(0.0);
                     let outs = *outputs;
                     let si = *state_idx;
 
                     if let BlockState::PushButton { is_on } = &mut self.state[si] {
                         let previous = *is_on;
-                        if force >= 0.5 {
-                            *is_on = true;
-                        } else if prev_trig < 0.5 && trig >= 0.5 {
-                            *is_on = !*is_on;
+                        if dis < 0.5 {
+                            if rst >= 0.5 {
+                                *is_on = false;
+                            } else if force >= 0.5 {
+                                *is_on = true;
+                            } else if prev_trig < 0.5 && trig >= 0.5 {
+                                *is_on = !*is_on;
+                            }
                         }
                         let qon = !previous && *is_on;
                         let qoff = previous && !*is_on;
@@ -1363,7 +1448,6 @@ impl CompiledGraph {
                 EvalStep::Copy { src, dst } => {
                     self.signals[*dst] = self.signals[*src];
                 }
-
                 // -- Constant --
                 EvalStep::Const { param, output } => {
                     self.signals[*output] = self.signals[*param];
@@ -1732,6 +1816,7 @@ fn daytimer_value_at(
 mod tests {
     use super::*;
     use crate::blocks::{self, And, Block, PassThrough};
+    use crate::engine::SimEngine;
     use crate::graph::SimGraph;
 
     fn pt() -> Box<dyn Block> {
@@ -1901,6 +1986,187 @@ mod tests {
         assert_eq!(c.get_output("Mono"), 0.0, "tick 5: should be low");
     }
 
+    #[test]
+    fn compiled_monoflop_reset_aborts_and_blocks_retrigger() {
+        let mut g = SimGraph::new();
+        let trig = g.add_block("Trig", pt(), &["I1"], &["Q"], &[]);
+        let reset = g.add_block("Reset", pt(), &["I1"], &["Q"], &[]);
+        let mono = g.add_block(
+            "Mono",
+            Box::new(blocks::Monoflop::new()),
+            &["InputTrigger", "Reset"],
+            &["Q"],
+            &["Time"],
+        );
+        g.add_wire(
+            g.find_connector(trig, "Q").unwrap(),
+            g.find_connector(mono, "InputTrigger").unwrap(),
+        )
+        .unwrap();
+        g.add_wire(
+            g.find_connector(reset, "Q").unwrap(),
+            g.find_connector(mono, "Reset").unwrap(),
+        )
+        .unwrap();
+
+        let mut c = CompiledGraph::from_graph(&g);
+        c.set_param("Mono", "Time", 1.0);
+        c.set_input("Trig", 1.0);
+        c.tick(0.25);
+        assert_eq!(c.get_output("Mono"), 1.0);
+
+        c.set_input("Reset", 1.0);
+        c.tick(0.25);
+        assert_eq!(c.get_output("Mono"), 0.0);
+        c.tick(0.25);
+        assert_eq!(c.get_output("Mono"), 0.0);
+    }
+
+    #[test]
+    fn compiled_pushbutton_disable_blocks_all_inputs() {
+        let mut g = SimGraph::new();
+        let trigger = g.add_block("Trigger", pt(), &["I1"], &["Q"], &[]);
+        let on = g.add_block("On", pt(), &["I1"], &["Q"], &[]);
+        let reset = g.add_block("Reset", pt(), &["I1"], &["Q"], &[]);
+        let disable = g.add_block("Disable", pt(), &["I1"], &["Q"], &[]);
+        let button = g.add_block(
+            "Button",
+            Box::new(blocks::PushButton::new()),
+            &["InputTrigger", "On", "Reset", "InputDisable"],
+            &["Q", "Qoff", "Qon"],
+            &[],
+        );
+        for (source, input) in [
+            (trigger, "InputTrigger"),
+            (on, "On"),
+            (reset, "Reset"),
+            (disable, "InputDisable"),
+        ] {
+            g.add_wire(
+                g.find_connector(source, "Q").unwrap(),
+                g.find_connector(button, input).unwrap(),
+            )
+            .unwrap();
+        }
+
+        let mut c = CompiledGraph::from_graph(&g);
+        c.set_input("Trigger", 1.0);
+        c.tick(0.1);
+        assert_eq!(c.get_output("Button"), 1.0);
+
+        c.set_input("Trigger", 0.0);
+        c.set_input("Reset", 1.0);
+        c.set_input("Disable", 1.0);
+        c.tick(0.1);
+        assert_eq!(c.get_output("Button"), 1.0);
+
+        c.set_input("Disable", 0.0);
+        c.tick(0.1);
+        assert_eq!(c.get_output("Button"), 0.0);
+
+        c.set_input("Reset", 0.0);
+        c.set_input("On", 1.0);
+        c.set_input("Disable", 1.0);
+        c.tick(0.1);
+        assert_eq!(c.get_output("Button"), 0.0);
+    }
+
+    #[test]
+    fn pushbutton2_on_matches_interpreter_and_compiler() {
+        let mut g = SimGraph::new();
+        let on = g.add_block("On", pt(), &["I1"], &["Q"], &[]);
+        let button = g.add_block(
+            "Button",
+            Box::new(blocks::PushButton2::new()),
+            &["InputTrigger", "On", "Reset", "InputDisable"],
+            &["Q", "Qoff", "Qon", "QDoubleClick"],
+            &["DoubleClickTime"],
+        );
+        g.add_wire(
+            g.find_connector(on, "Q").unwrap(),
+            g.find_connector(button, "On").unwrap(),
+        )
+        .unwrap();
+
+        let mut engine = SimEngine::new(g.clone());
+        let mut compiled = CompiledGraph::from_graph(&g);
+        engine.set_input("On", 1.0);
+        compiled.set_input("On", 1.0);
+        engine.tick(0.1);
+        compiled.tick(0.1);
+
+        assert_eq!(engine.get_output("Button"), 1.0);
+        assert_eq!(compiled.get_output("Button"), 1.0);
+    }
+
+    #[test]
+    fn input_ref_mirrors_ai_in_interpreter_and_compiler() {
+        let mut g = SimGraph::new();
+        let analog = g.add_block("Analog", pt(), &["I1"], &["Q"], &[]);
+        let input_ref = g.add_block(
+            "Ref",
+            Box::new(blocks::InputRef::new()),
+            &["I", "AI"],
+            &["Q", "AQ"],
+            &[],
+        );
+        g.add_wire(
+            g.find_connector(analog, "Q").unwrap(),
+            g.find_connector(input_ref, "AI").unwrap(),
+        )
+        .unwrap();
+
+        let mut engine = SimEngine::new(g.clone());
+        let mut compiled = CompiledGraph::from_graph(&g);
+        engine.set_input("Analog", 99.0);
+        compiled.set_input("Analog", 99.0);
+        engine.tick(0.1);
+        compiled.tick(0.1);
+
+        assert_eq!(engine.get_output("Ref.Q"), 1.0);
+        assert_eq!(engine.get_output("Ref.AQ"), 99.0);
+        assert_eq!(compiled.get_output("Ref.Q"), 1.0);
+        assert_eq!(compiled.get_output("Ref.AQ"), 99.0);
+    }
+
+    #[test]
+    fn input_ref_preserves_connected_analog_zero() {
+        let mut g = SimGraph::new();
+        let digital = g.add_block("Digital", pt(), &["I1"], &["Q"], &[]);
+        let analog = g.add_block("Analog", pt(), &["I1"], &["Q"], &[]);
+        let input_ref = g.add_block(
+            "Ref",
+            Box::new(blocks::InputRef::new()),
+            &["I", "AI"],
+            &["Q", "AQ"],
+            &[],
+        );
+        g.add_wire(
+            g.find_connector(digital, "Q").unwrap(),
+            g.find_connector(input_ref, "I").unwrap(),
+        )
+        .unwrap();
+        g.add_wire(
+            g.find_connector(analog, "Q").unwrap(),
+            g.find_connector(input_ref, "AI").unwrap(),
+        )
+        .unwrap();
+
+        let mut engine = SimEngine::new(g.clone());
+        let mut compiled = CompiledGraph::from_graph(&g);
+        engine.set_input("Digital", 1.0);
+        compiled.set_input("Digital", 1.0);
+        engine.set_input("Analog", 0.0);
+        compiled.set_input("Analog", 0.0);
+        engine.tick(0.1);
+        compiled.tick(0.1);
+
+        assert_eq!(engine.get_output("Ref.Q"), 0.0);
+        assert_eq!(engine.get_output("Ref.AQ"), 0.0);
+        assert_eq!(compiled.get_output("Ref.Q"), 0.0);
+        assert_eq!(compiled.get_output("Ref.AQ"), 0.0);
+    }
+
     // -- FlipFlop --
 
     #[test]
@@ -1995,8 +2261,6 @@ mod tests {
 
     #[test]
     fn compiled_matches_interpreter() {
-        use crate::engine::SimEngine;
-
         // Build graph with a mix of blocks.
         fn build_graph() -> SimGraph {
             let mut g = SimGraph::new();
@@ -2268,6 +2532,66 @@ mod tests {
         c.set_input("B", 1.0);
         c.tick(0.1);
         assert_eq!(c.get_output("XOR"), 0.0);
+    }
+
+    #[test]
+    fn compiled_input_ref_mirrors_analog_input_to_both_outputs() {
+        let mut g = SimGraph::new();
+        let source = g.add_block("Source", pt(), &["I"], &["Q"], &[]);
+        let input_ref = g.add_block(
+            "Reference",
+            Box::new(blocks::InputRef::new()),
+            &["I", "AI"],
+            &["Q", "AQ"],
+            &[],
+        );
+        g.add_wire(
+            g.find_connector(source, "Q").unwrap(),
+            g.find_connector(input_ref, "AI").unwrap(),
+        )
+        .unwrap();
+
+        let mut interpreted = SimEngine::new(g.clone());
+        let mut compiled = CompiledGraph::from_graph(&g);
+        interpreted.set_input("Source", 42.0);
+        compiled.set_input("Source", 42.0);
+        interpreted.tick(0.1);
+        compiled.tick(0.1);
+
+        assert_eq!(interpreted.get_output("Reference.Q"), 1.0);
+        assert_eq!(interpreted.get_output("Reference.AQ"), 42.0);
+        assert_eq!(compiled.get_output("Reference.Q"), 1.0);
+        assert_eq!(compiled.get_output("Reference.AQ"), 42.0);
+    }
+
+    #[test]
+    fn compiled_formula_uses_wired_parameter_sources() {
+        let mut g = SimGraph::new();
+        let source = g.add_block("Source", pt(), &["I"], &["Q"], &[]);
+        let formula = g.add_block(
+            "Formula",
+            Box::new(blocks::Formula::new("I1*2")),
+            &[],
+            &["AQ", "TQ"],
+            &["Input1", "Input2", "Input3", "Input4"],
+        );
+        g.add_wire(
+            g.find_connector(source, "Q").unwrap(),
+            g.find_connector(formula, "Input1").unwrap(),
+        )
+        .unwrap();
+
+        let mut interpreted = SimEngine::new(g.clone());
+        let mut compiled = CompiledGraph::from_graph(&g);
+        interpreted.set_input("Source", 5.0);
+        compiled.set_input("Source", 5.0);
+        interpreted.tick(0.1);
+        compiled.tick(0.1);
+
+        assert_eq!(interpreted.get_output("Formula.AQ"), 10.0);
+        assert_eq!(interpreted.get_output("Formula.TQ"), 0.0);
+        assert_eq!(compiled.get_output("Formula.AQ"), 10.0);
+        assert_eq!(compiled.get_output("Formula.TQ"), 0.0);
     }
 
     // -- Compiled step/state counts --

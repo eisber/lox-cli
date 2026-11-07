@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "id": "synthetic-example-not-executed",
+  "runner": "Format example only",
+  "started_at": "2026-11-05T07:00:00+00:00",
+  "finished_at": "2026-11-05T07:00:00+00:00",
+  "application": {
+    "version": "17.2.10.21",
+    "sha256": "7b55e3ef18401574ab967c5c6a0140cd5a66dc728521ebba04ad53093577d8b3"
+  },
+  "synthetic": true,
+  "kind": "synthetic",
+  "operation": "Execution is mocked/not run. synthetic=true describes execution, not input origin; real official GUI runs must use safe generated/public-sample projects and set synthetic=false.",
+  "observations": [
+    {
+      "id": "example.scalar.roundtrip",
+      "outcome": "not_run",
+      "evidence_kind": "gui_oracle",
+      "actual": "Not executed. This mocked record proves no behavior; a real GUI run on a safe synthetic project can provide valid oracle evidence.",
+      "artifacts": []
+    }
+  ]
+}

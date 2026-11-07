@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "name": "Owned fixture value roundtrip",
+  "steps": [
+    {"op": "focus", "selector": {"name": "Lox UX owned fixture", "control_type": "Window"}},
+    {"op": "set_value", "selector": {"name": "Fixture value", "control_type": "Edit"}, "value": "100% {literal}+ caf\u00e9"},
+    {"op": "inspect", "selector": {"name": "Fixture value", "control_type": "Edit"}, "limit": 1, "depth": 0},
+    {"op": "invoke", "selector": {"name": "Record value", "control_type": "Button"}}
+  ]
+}

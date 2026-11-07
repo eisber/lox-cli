@@ -1,0 +1,1095 @@
+{
+  "schema_version": 1,
+  "application": {
+    "version": "17.2.10.21",
+    "sha256": "7b55e3ef18401574ab967c5c6a0140cd5a66dc728521ebba04ad53093577d8b3"
+  },
+  "block_type": "EnergyManager2",
+  "control_type": 515,
+  "scope": {
+    "status": "incomplete",
+    "description": "Separate CLI/unit snapshot of 19 precisely mapped capabilities, not the full EnergyManager2 contract. Actual offline CLI/unit execution uses disposable independently authored input; the Config application identity is a recovered binding TARGET, not an executed GUI. Per-capability condition scopes and omissions are preserved in binding.reason. Original GUI requirements remain missing; no old GUI observations are imported. Excluded full-scope capabilities: priority-button-state, gui-baseline-migration, storage-priority-runtime, storage-zero-runtime-sentinel, daily-cycle-runtime, structural-load-crud, invalid-reference-validation, nonfinite-overflow-validation, dirty-cancel-rollback. Icon support is preservation only; deadlines support Sunset/Dusk edits and native-only 24:00 inspection; customization markers lack fresh GUI transitions. Runtime dependencies, numeric GUI filtering/overflow equivalence, structural CRUD, reference validation, migration and dirty-cancel feedback are not complete. Fresh combined GUI/CLI/unit proof is required before any parity claim.",
+    "source_evidence": [
+      {
+        "evidence_kind": "catalog",
+        "artifacts": [
+          {
+            "path": ".reverse-engineering\\ux\\energy-manager2\\catalog-evidence.json",
+            "sha256": "9e6e28f27fa8d290f237d5564b63ea96359bb9f70782618ec222443ef61175c8"
+          }
+        ]
+      },
+      {
+        "evidence_kind": "native",
+        "artifacts": [
+          {
+            "path": ".reverse-engineering\\ux\\energy-manager2\\native-recovery.json",
+            "sha256": "05c043cdb95ccc5cdf659d9b7766e33bbc73a90585baf9c9181d53f0e293eb29"
+          }
+        ]
+      }
+    ]
+  },
+  "capabilities": [
+    {
+      "id": "offset-grid-power",
+      "kind": "parameter",
+      "binding": {
+        "status": "known",
+        "path": "C[@Type='EnergyManager2']/Co[@K='O']/@Def",
+        "reason": "O is Offset grid power parameter, not output; kW, default 0, signed values. Positive permits import/storage draw; negative reserves export/storage charge. Invariant decimal XML; decimal-comma GUI verified -1.25 and 2.75. CLI snapshot condition scope: Signed O values -1.25/2.75 and explicit zero; parameter direction; positive/negative nonzero decimal underflow; invalid NaN/scientific input; dry-run. CLI subset omissions: scientific/GUI numeric input equivalence; storage/import/export runtime behavior. Original GUI recovery is separate and is not imported as this run's evidence."
+      },
+      "source_evidence": [
+        {
+          "evidence_kind": "catalog",
+          "artifacts": [
+            {
+              "path": ".reverse-engineering\\ux\\energy-manager2\\catalog-evidence.json",
+              "sha256": "9e6e28f27fa8d290f237d5564b63ea96359bb9f70782618ec222443ef61175c8"
+            }
+          ]
+        },
+        {
+          "evidence_kind": "native",
+          "artifacts": [
+            {
+              "path": ".reverse-engineering\\ux\\energy-manager2\\native-recovery.json",
+              "sha256": "05c043cdb95ccc5cdf659d9b7766e33bbc73a90585baf9c9181d53f0e293eb29"
+            }
+          ]
+        }
+      ],
+      "required_case_ids": [
+        "gui-defaults",
+        "gui-offset-signed",
+        "offset-grid-power.implementation",
+        "offset-grid-power.unit_test"
+      ]
+    },
+    {
+      "id": "minimum-state-of-charge",
+      "kind": "parameter",
+      "binding": {
+        "status": "known",
+        "path": "C[@Type='EnergyManager2']/Co[@K='MinSoc']/@Def",
+        "reason": "Percent; default 0, catalog 0..100 inclusive; GUI 0/100 verified. Values above zero document storage-charge priority, but runtime dependency execution is separately unknown. CLI snapshot condition scope: MinSoc zero/100 endpoints, omitted versus explicit-zero inspection, rejection of -1/101 and positive/negative nonzero decimal underflow. CLI subset omissions: GUI prefix filtering; Soc/Spwr storage-priority runtime. Original GUI recovery is separate and is not imported as this run's evidence."
+      },
+      "source_evidence": [
+        {
+          "evidence_kind": "catalog",
+          "artifacts": [
+            {
+              "path": ".reverse-engineering\\ux\\energy-manager2\\catalog-evidence.json",
+              "sha256": "9e6e28f27fa8d290f237d5564b63ea96359bb9f70782618ec222443ef61175c8"
+            }
+          ]
+        },
+        {
+          "evidence_kind": "native",
+          "artifacts": [
+            {
+              "path": ".reverse-engineering\\ux\\energy-manager2\\native-recovery.json",
+              "sha256": "05c043cdb95ccc5cdf659d9b7766e33bbc73a90585baf9c9181d53f0e293eb29"
+            }
+          ]
+        }
+      ],
+      "required_case_ids": [
+        "gui-defaults",
+        "gui-minsoc-bounds",
+        "minimum-state-of-charge.implementation",
+        "minimum-state-of-charge.unit_test"
+      ]
+    },
+    {
+      "id": "maximum-storage-power",
+      "kind": "parameter",
+      "binding": {
+        "status": "known",
+        "path": "C[@Type='EnergyManager2']/Co[@K='MaxSpwr']/@Def",
+        "reason": "Maximum storage charging power, kW; default/minimum 0, no catalog upper bound. 5.5 and 0 saved. Zero runtime sentinel meaning is separately unknown. CLI snapshot condition scope: MaxSpwr5.5/0 storage; negative and positive/negative nonzero-underflow rejection without zero-runtime interpretation. CLI subset omissions: MaxSpwr=0 runtime semantics; GUI negative input filtering. Original GUI recovery is separate and is not imported as this run's evidence."
+      },
+      "source_evidence": [
+        {
+          "evidence_kind": "catalog",
+          "artifacts": [
+            {
+              "path": ".reverse-engineering\\ux\\energy-manager2\\catalog-evidence.json",
+              "sha256": "9e6e28f27fa8d290f237d5564b63ea96359bb9f70782618ec222443ef61175c8"
+            }
+          ]
+        },
+        {
+          "evidence_kind": "native",
+          "artifacts": [
+            {
+              "path": ".reverse-engineering\\ux\\energy-manager2\\native-recovery.json",
+              "sha256": "05c043cdb95ccc5cdf659d9b7766e33bbc73a90585baf9c9181d53f0e293eb29"
+            }
+          ]
+        }
+      ],
+      "required_case_ids": [
+        "gui-defaults",
+        "gui-maxspwr-bounds",
+        "maximum-storage-power.implementation",
+        "maximum-storage-power.unit_test"
+      ]
+    },
+    {
+      "id": "ordered-load-records",
+      "kind": "nested_record",
+      "binding": {
+        "status": "known",
+        "path": "C[@Type='EnergyManager2']/Load",
+        "reason": "Twelve direct records including unused slots; XML order is priority 1..12. Reorder whole records without renumbering OIdx or changing Id/references. Structural add/delete remains unknown. CLI snapshot condition scope: Twelve direct existing slots including canonical native 8-4-4-16 IDs; full-record move to2; sparse shape rejection; dry-run. CLI subset omissions: structural add/delete acceptance; sparse/>12-row native acceptance. Original GUI recovery is separate and is not imported as this run's evidence."
+      },
+      "source_evidence": [
+        {
+          "evidence_kind": "native",
+          "artifacts": [
+            {
+              "path": ".reverse-engineering\\ux\\energy-manager2\\native-recovery.json",
+              "sha256": "05c043cdb95ccc5cdf659d9b7766e33bbc73a90585baf9c9181d53f0e293eb29"
+            }
+          ]
+        }
+      ],
+      "required_case_ids": [
+        "gui-load-table",
+        "gui-priority-move",
+        "ordered-load-records.implementation",
+        "ordered-load-records.unit_test"
+      ]
+    },
+    {
+      "id": "load-identity",
+      "kind": "nested_record",
+      "binding": {
+        "status": "known",
+        "path": "Load/@Id",
+        "reason": "Persistent UUID preserved with record attributes during priority moves. Missing/duplicate identity validation is not claimed. CLI snapshot condition scope: Native 8-4-4-16/RFC 8-4-4-4-12 identity aliases, case-insensitive selection, exact spelling preservation, duplicate and misplaced-dash rejection. CLI subset omissions: native malformed/dangling identity acceptance. Original GUI recovery is separate and is not imported as this run's evidence."
+      },
+      "source_evidence": [
+        {
+          "evidence_kind": "native",
+          "artifacts": [
+            {
+              "path": ".reverse-engineering\\ux\\energy-manager2\\native-recovery.json",
+              "sha256": "05c043cdb95ccc5cdf659d9b7766e33bbc73a90585baf9c9181d53f0e293eb29"
+            }
+          ]
+        }
+      ],
+      "required_case_ids": [
+        "gui-priority-move",
+        "load-identity.implementation",
+        "load-identity.unit_test"
+      ]
+    },
+    {
+      "id": "load-output-used",
+      "kind": "nested_record",
+      "binding": {
+        "status": "known",
+        "path": "Load/@U",
+        "reason": "Boolean output-connected/used flag; absent false. Not an enable checkbox: connected load retains U=true at rated power zero. CLI snapshot condition scope: U=true survives rated-zero edits and reorder; unused slots retain omitted U/false. CLI subset omissions: GUI connected-state changes; U editing. Original GUI recovery is separate and is not imported as this run's evidence."
+      },
+      "source_evidence": [
+        {
+          "evidence_kind": "native",
+          "artifacts": [
+            {
+              "path": ".reverse-engineering\\ux\\energy-manager2\\native-recovery.json",
+              "sha256": "05c043cdb95ccc5cdf659d9b7766e33bbc73a90585baf9c9181d53f0e293eb29"
+            }
+          ]
+        }
+      ],
+      "required_case_ids": [
+        "gui-load-table",
+        "gui-rated-zero",
+        "load-output-used.implementation",
+        "load-output-used.unit_test"
+      ]
+    },
+    {
+      "id": "load-name",
+      "kind": "nested_record",
+      "binding": {
+        "status": "known",
+        "path": "Load/@Na",
+        "reason": "Editable load name string; native name setter marks Ncu. GUI renamed the same L1 identity to Pilot Alpha. CLI snapshot condition scope: Existing name changes to CLI & renamed with XML escaping and intact unknown/icon/wire data. CLI subset omissions: complete GUI text-input validation. Original GUI recovery is separate and is not imported as this run's evidence."
+      },
+      "source_evidence": [
+        {
+          "evidence_kind": "native",
+          "artifacts": [
+            {
+              "path": ".reverse-engineering\\ux\\energy-manager2\\native-recovery.json",
+              "sha256": "05c043cdb95ccc5cdf659d9b7766e33bbc73a90585baf9c9181d53f0e293eb29"
+            }
+          ]
+        }
+      ],
+      "required_case_ids": [
+        "gui-load-edit",
+        "load-name.implementation",
+        "load-name.unit_test"
+      ]
+    },
+    {
+      "id": "load-name-customization",
+      "kind": "nested_record",
+      "binding": {
+        "status": "known",
+        "path": "Load/@Ncu",
+        "reason": "Boolean customization marker: recovered native name setter sets it to 1. GUI sample already had true; false-to-true transition is explicitly not verified. CLI snapshot condition scope: Native-backed name setter changes absent Ncu to true; not GUI transition proof. CLI subset omissions: false-to-true official GUI transition. Original GUI recovery is separate and is not imported as this run's evidence."
+      },
+      "source_evidence": [
+        {
+          "evidence_kind": "native",
+          "artifacts": [
+            {
+              "path": ".reverse-engineering\\ux\\energy-manager2\\native-recovery.json",
+              "sha256": "05c043cdb95ccc5cdf659d9b7766e33bbc73a90585baf9c9181d53f0e293eb29"
+            }
+          ]
+        }
+      ],
+      "required_case_ids": [
+        "gui-load-edit",
+        "gui-custom-markers",
+        "load-name-customization.implementation",
+        "load-name-customization.unit_test"
+      ]
+    },
+    {
+      "id": "load-analog-mode",
+      "kind": "nested_record",
+      "binding": {
+        "status": "known",
+        "path": "Load/@An",
+        "reason": "Boolean false/absent Digital; true Analog. GUI selector and saved XML independently verified. Not inferred from abbreviation. CLI snapshot condition scope: Analog setter and digital/default omission on an existing slot. CLI subset omissions: other type/mode options. Original GUI recovery is separate and is not imported as this run's evidence."
+      },
+      "source_evidence": [
+        {
+          "evidence_kind": "native",
+          "artifacts": [
+            {
+              "path": ".reverse-engineering\\ux\\energy-manager2\\native-recovery.json",
+              "sha256": "05c043cdb95ccc5cdf659d9b7766e33bbc73a90585baf9c9181d53f0e293eb29"
+            }
+          ]
+        }
+      ],
+      "required_case_ids": [
+        "gui-load-edit",
+        "load-analog-mode.implementation",
+        "load-analog-mode.unit_test"
+      ]
+    },
+    {
+      "id": "load-mode-customization",
+      "kind": "nested_record",
+      "binding": {
+        "status": "known",
+        "path": "Load/@Anc",
+        "reason": "Boolean customization marker: native type setter sets it to 1. Sample initially true; false-to-true GUI transition unverified. CLI snapshot condition scope: Native-backed mode setter changes absent Anc to true; not GUI transition proof. CLI subset omissions: false-to-true official GUI transition. Original GUI recovery is separate and is not imported as this run's evidence."
+      },
+      "source_evidence": [
+        {
+          "evidence_kind": "native",
+          "artifacts": [
+            {
+              "path": ".reverse-engineering\\ux\\energy-manager2\\native-recovery.json",
+              "sha256": "05c043cdb95ccc5cdf659d9b7766e33bbc73a90585baf9c9181d53f0e293eb29"
+            }
+          ]
+        }
+      ],
+      "required_case_ids": [
+        "gui-load-edit",
+        "gui-custom-markers",
+        "load-mode-customization.implementation",
+        "load-mode-customization.unit_test"
+      ]
+    },
+    {
+      "id": "load-output-association",
+      "kind": "nested_record",
+      "binding": {
+        "status": "known",
+        "path": "Load/@OIdx",
+        "reason": "Integer zero-based output L(OIdx+1), 0..11 in twelve-slot model. NOT priority; original OIdx stays with its load during GUI sorting. CLI snapshot condition scope: OIdx remains0 when native/RFC identity is moved to priority2; twelve explicit unique associations required. CLI subset omissions: native missing/duplicate output-index acceptance. Original GUI recovery is separate and is not imported as this run's evidence."
+      },
+      "source_evidence": [
+        {
+          "evidence_kind": "native",
+          "artifacts": [
+            {
+              "path": ".reverse-engineering\\ux\\energy-manager2\\native-recovery.json",
+              "sha256": "05c043cdb95ccc5cdf659d9b7766e33bbc73a90585baf9c9181d53f0e293eb29"
+            }
+          ]
+        }
+      ],
+      "required_case_ids": [
+        "gui-priority-move",
+        "load-output-association.implementation",
+        "load-output-association.unit_test"
+      ]
+    },
+    {
+      "id": "load-preparation-time",
+      "kind": "nested_record",
+      "binding": {
+        "status": "known",
+        "path": "Load/@RT",
+        "reason": "Integer seconds, default 60; preparation time GUI 30..86400. Native setter clamps below 30. GUI accepted/saved both endpoints; attempted zero retained previous 30. CLI snapshot condition scope: Default RT60 omission, edits30/86400 seconds, rejection29/86401. CLI subset omissions: GUI clamping/prefix filtering equivalence. Original GUI recovery is separate and is not imported as this run's evidence."
+      },
+      "source_evidence": [
+        {
+          "evidence_kind": "native",
+          "artifacts": [
+            {
+              "path": ".reverse-engineering\\ux\\energy-manager2\\native-recovery.json",
+              "sha256": "05c043cdb95ccc5cdf659d9b7766e33bbc73a90585baf9c9181d53f0e293eb29"
+            }
+          ]
+        }
+      ],
+      "required_case_ids": [
+        "gui-preparation-bounds",
+        "load-preparation-time.implementation",
+        "load-preparation-time.unit_test"
+      ]
+    },
+    {
+      "id": "load-minimum-runtime",
+      "kind": "nested_record",
+      "binding": {
+        "status": "known",
+        "path": "Load/@MinRt",
+        "reason": "Integer seconds, absent 0; GUI minutes convert via QVariant::toInt then x60. 1,5 rounds to 2 =>120; -1 min accepted/saved -60. No invented nonnegative validator; overflow domain unverified. CLI snapshot condition scope: Integer2 and -1 minutes to120/-60 seconds; zero omission; checked overflow; dry-run. CLI subset omissions: fractional GUI rounding; native overflow/scientific-input semantics; runtime scheduling. Original GUI recovery is separate and is not imported as this run's evidence."
+      },
+      "source_evidence": [
+        {
+          "evidence_kind": "native",
+          "artifacts": [
+            {
+              "path": ".reverse-engineering\\ux\\energy-manager2\\native-recovery.json",
+              "sha256": "05c043cdb95ccc5cdf659d9b7766e33bbc73a90585baf9c9181d53f0e293eb29"
+            }
+          ]
+        }
+      ],
+      "required_case_ids": [
+        "gui-runtime-conversion",
+        "load-minimum-runtime.implementation",
+        "load-minimum-runtime.unit_test"
+      ]
+    },
+    {
+      "id": "load-daily-minimum-runtime",
+      "kind": "nested_record",
+      "binding": {
+        "status": "known",
+        "path": "Load/@MDay",
+        "reason": "Integer seconds, absent 0; GUI minutes/day 0..1440, integer conversion x60. 5=>300 and 1440=>86400 saved. Attempt 1441 became 144=>8640 by prefix filtering. CLI snapshot condition scope: Daily0/1440 integer minutes to omitted0/86400 seconds; reject -1/1441. CLI subset omissions: GUI prefix filtering; day-cycle runtime. Original GUI recovery is separate and is not imported as this run's evidence."
+      },
+      "source_evidence": [
+        {
+          "evidence_kind": "native",
+          "artifacts": [
+            {
+              "path": ".reverse-engineering\\ux\\energy-manager2\\native-recovery.json",
+              "sha256": "05c043cdb95ccc5cdf659d9b7766e33bbc73a90585baf9c9181d53f0e293eb29"
+            }
+          ]
+        }
+      ],
+      "required_case_ids": [
+        "gui-daily-runtime",
+        "load-daily-minimum-runtime.implementation",
+        "load-daily-minimum-runtime.unit_test"
+      ]
+    },
+    {
+      "id": "load-daily-deadline",
+      "kind": "nested_record",
+      "binding": {
+        "status": "known",
+        "path": "Load/@tpR",
+        "reason": "Integer selector default0; native 0 Sunset,1 Dusk,2 Sunrise,3 Dawn,4..27 01:00..24:00. Only Sunset/Dusk GUI-save verified; daily-cycle runtime and all remaining selections separately unverified. CLI snapshot condition scope: Editable Sunset0/Dusk1 and native-only24:00 label for untouched tpR27; Sunrise edit unsupported. CLI subset omissions: Sunrise/Dawn/hourly GUI-save validation; invalid native selector acceptance; deadline execution. Original GUI recovery is separate and is not imported as this run's evidence."
+      },
+      "source_evidence": [
+        {
+          "evidence_kind": "native",
+          "artifacts": [
+            {
+              "path": ".reverse-engineering\\ux\\energy-manager2\\native-recovery.json",
+              "sha256": "05c043cdb95ccc5cdf659d9b7766e33bbc73a90585baf9c9181d53f0e293eb29"
+            }
+          ]
+        }
+      ],
+      "required_case_ids": [
+        "gui-daily-runtime",
+        "gui-all-deadline-values",
+        "load-daily-deadline.implementation",
+        "load-daily-deadline.unit_test"
+      ]
+    },
+    {
+      "id": "load-switch-on-power",
+      "kind": "nested_record",
+      "binding": {
+        "status": "known",
+        "path": "Load/@SwPwr",
+        "reason": "Double kW, default/minimum0. Setting zero substitutes current MaxPwr. Digital SwPwr>MaxPwr is allowed. Native setter and GUI 0->2.5 with rated2.5 verified. CLI snapshot condition scope: Zero SwPwr substitution, rated-zero switch copy, above-rated values, and positive/negative nonzero-underflow rejection before substitution. CLI subset omissions: runtime switching behavior; GUI filtering. Original GUI recovery is separate and is not imported as this run's evidence."
+      },
+      "source_evidence": [
+        {
+          "evidence_kind": "native",
+          "artifacts": [
+            {
+              "path": ".reverse-engineering\\ux\\energy-manager2\\native-recovery.json",
+              "sha256": "05c043cdb95ccc5cdf659d9b7766e33bbc73a90585baf9c9181d53f0e293eb29"
+            }
+          ]
+        }
+      ],
+      "required_case_ids": [
+        "gui-power-zero",
+        "load-switch-on-power.implementation",
+        "load-switch-on-power.unit_test"
+      ]
+    },
+    {
+      "id": "load-rated-power",
+      "kind": "nested_record",
+      "binding": {
+        "status": "known",
+        "path": "Load/@MaxPwr",
+        "reason": "Double kW, default/minimum0. Zero accepted and omitted in XML; existing U=true remains; row pink. Native rated setter substitutes its value into SwPwr if SwPwr was zero. CLI snapshot condition scope: Rated4 zero-switch copy, explicit rated0 omission with U=true, and positive/negative nonzero-underflow rejection. CLI subset omissions: native all-zero runtime behavior; GUI filtering. Original GUI recovery is separate and is not imported as this run's evidence."
+      },
+      "source_evidence": [
+        {
+          "evidence_kind": "native",
+          "artifacts": [
+            {
+              "path": ".reverse-engineering\\ux\\energy-manager2\\native-recovery.json",
+              "sha256": "05c043cdb95ccc5cdf659d9b7766e33bbc73a90585baf9c9181d53f0e293eb29"
+            }
+          ]
+        }
+      ],
+      "required_case_ids": [
+        "gui-power-zero",
+        "gui-rated-zero",
+        "load-rated-power.implementation",
+        "load-rated-power.unit_test"
+      ]
+    },
+    {
+      "id": "load-icon-reference",
+      "kind": "nested_record",
+      "binding": {
+        "status": "known",
+        "path": "Load/@ico",
+        "reason": "UUID icon reference preserved during tested record edits/reordering. Picker CRUD/reference validation is explicitly not GUI-tested. CLI snapshot condition scope: Preservation-only: existing ico reference survives RFC and native-ID load fields/reorder. CLI subset omissions: icon picker/editing/CRUD; icon-reference validity. Original GUI recovery is separate and is not imported as this run's evidence."
+      },
+      "source_evidence": [
+        {
+          "evidence_kind": "native",
+          "artifacts": [
+            {
+              "path": ".reverse-engineering\\ux\\energy-manager2\\native-recovery.json",
+              "sha256": "05c043cdb95ccc5cdf659d9b7766e33bbc73a90585baf9c9181d53f0e293eb29"
+            }
+          ]
+        }
+      ],
+      "required_case_ids": [
+        "gui-priority-move",
+        "gui-icon-edit",
+        "load-icon-reference.implementation",
+        "load-icon-reference.unit_test"
+      ]
+    },
+    {
+      "id": "unused-load-feedback",
+      "kind": "feedback",
+      "binding": {
+        "status": "known",
+        "path": "Load/@U,Load/@MaxPwr",
+        "reason": "Observed unused rows pink and connected zero-rated row pink. Native pink condition is U==0 OR MaxPwr<=0; GUI label explicitly identifies unconnected outputs as unused. CLI snapshot condition scope: Storage-derived unused condition !U || MaxPwr<=0 on unused/default and connected rated-zero slots. CLI subset omissions: GUI rendering equivalence; connection-state mutation. Original GUI recovery is separate and is not imported as this run's evidence."
+      },
+      "source_evidence": [
+        {
+          "evidence_kind": "native",
+          "artifacts": [
+            {
+              "path": ".reverse-engineering\\ux\\energy-manager2\\native-recovery.json",
+              "sha256": "05c043cdb95ccc5cdf659d9b7766e33bbc73a90585baf9c9181d53f0e293eb29"
+            }
+          ]
+        }
+      ],
+      "required_case_ids": [
+        "gui-load-table",
+        "gui-rated-zero",
+        "unused-load-feedback.implementation",
+        "unused-load-feedback.unit_test"
+      ]
+    }
+  ],
+  "cases": [
+    {
+      "id": "offset-grid-power.implementation",
+      "capability_ids": [
+        "offset-grid-power"
+      ],
+      "condition": "Signed O values -1.25/2.75 and explicit zero; parameter direction; positive/negative nonzero decimal underflow; invalid NaN/scientific input; dry-run.",
+      "evidence_kind": "implementation",
+      "procedure": "Run tests/ux/energy-manager2/run-cli-cases.py on the built local lox binary: Set O=-1.25,2.75,0; inspect get-params direction; reject NaN/1e3 and +/-('0.'+399 zeros+'1') with source snapshots; run dry-run. Execute the separate parser regression for incoming parameter wire retention.",
+      "expected": "O is parameter/P; signed values persist; explicit zero omits Def; nonzero underflow is rejected before omission; unrelated data survives and rejected/dry-run edits write no file. Parser proof is direction/wire retention only, not runtime behavior."
+    },
+    {
+      "id": "offset-grid-power.unit_test",
+      "capability_ids": [
+        "offset-grid-power"
+      ],
+      "condition": "Scalar API signed/zero O, metadata=P, positive/negative nonzero-underflow rejection, duplicate bindings; simulator parser O parameter incoming wire.",
+      "evidence_kind": "unit_test",
+      "procedure": "Execute cargo test --bin lox --test config_integration energy_ -- --nocapture and cargo test -p lox-sim --lib parser::tests::energy_manager_offset_parameter_retains_incoming_wire -- --nocapture; inspect named assertions: config_edit::energy_tests::energy_signed_offset_is_parameter_and_bounds_are_atomic, config_edit::energy_tests::energy_scalar_edits_preserve_entire_other_records_and_fail_ambiguous_bindings, config_edit::energy_tests::energy_nonzero_decimal_underflow_fails_atomically, parser::tests::energy_manager_offset_parameter_retains_incoming_wire",
+      "expected": "Signed O/default omission roundtrip; +/-('0.'+399 zeros+'1') fails numeric_underflow without DOM mutation; parser O is Parameter retaining -1.25 default and Source.AQ incoming wire, without runtime simulation."
+    },
+    {
+      "id": "minimum-state-of-charge.implementation",
+      "capability_ids": [
+        "minimum-state-of-charge"
+      ],
+      "condition": "MinSoc zero/100 endpoints, omitted versus explicit-zero inspection, rejection of -1/101 and positive/negative nonzero decimal underflow.",
+      "evidence_kind": "implementation",
+      "procedure": "Run tests/ux/energy-manager2/run-cli-cases.py on the built local lox binary: Inspect baseline; set MinSoc=100 then0; reject -1/101 and +/-('0.'+399 zeros+'1') with byte snapshots.",
+      "expected": "Stored0 differs from omission;100 persists and zero omits Def; out-of-range and nonzero-underflow inputs fail without mutation or default omission."
+    },
+    {
+      "id": "minimum-state-of-charge.unit_test",
+      "capability_ids": [
+        "minimum-state-of-charge"
+      ],
+      "condition": "MinSoc0/100, -1/101, omitted storage and positive/negative nonzero-underflow.",
+      "evidence_kind": "unit_test",
+      "procedure": "Execute cargo test --bin lox --test config_integration energy_ -- --nocapture; inspect named assertions: config_edit::energy_tests::energy_signed_offset_is_parameter_and_bounds_are_atomic, config_edit::energy_tests::energy_inspection_distinguishes_omission_and_unknown_binding, config_edit::energy_tests::energy_nonzero_decimal_underflow_fails_atomically",
+      "expected": "Endpoints succeed, invalid bounds/nonzero-underflow preserve bytes, and stored0 remains distinct from omitted default0."
+    },
+    {
+      "id": "maximum-storage-power.implementation",
+      "capability_ids": [
+        "maximum-storage-power"
+      ],
+      "condition": "MaxSpwr5.5/0 storage; negative and positive/negative nonzero-underflow rejection without zero-runtime interpretation.",
+      "evidence_kind": "implementation",
+      "procedure": "Run tests/ux/energy-manager2/run-cli-cases.py on the built local lox binary: Set MaxSpwr5.5 then0; reject -1 and +/-('0.'+399 zeros+'1') against byte snapshots.",
+      "expected": "Nonnegative power persists; explicit zero omits Def; negative/nonzero-underflow input cannot mutate or become a zero sentinel. No runtime meaning is inferred."
+    },
+    {
+      "id": "maximum-storage-power.unit_test",
+      "capability_ids": [
+        "maximum-storage-power"
+      ],
+      "condition": "MaxSpwr5.5/0, negative input and positive/negative nonzero-underflow.",
+      "evidence_kind": "unit_test",
+      "procedure": "Execute cargo test --bin lox --test config_integration energy_ -- --nocapture; inspect named assertions: config_edit::energy_tests::energy_signed_offset_is_parameter_and_bounds_are_atomic, config_edit::energy_tests::energy_nonzero_decimal_underflow_fails_atomically",
+      "expected": "5.5 reads back, explicit0 omits; negative/nonzero-underflow fail without changing bytes or applying a zero sentinel; runtime remains untested."
+    },
+    {
+      "id": "ordered-load-records.implementation",
+      "capability_ids": [
+        "ordered-load-records"
+      ],
+      "condition": "Twelve direct existing slots including canonical native 8-4-4-16 IDs; full-record move to2; sparse shape rejection; dry-run.",
+      "evidence_kind": "implementation",
+      "procedure": "Run tests/ux/energy-manager2/run-cli-cases.py on the built local lox binary: Inspect12 rows in RFC and canonical synthetic.Loxone native fixtures; edit an existing native Id and move using its RFC alias; compare whole attributes/wires; reject malformed/duplicate/sparse shapes and dry-run move.",
+      "expected": "Priority follows XML order; complete records/unknown nested children/interleaved node/wire UUIDs survive; no rows created/deleted; unsafe or dry-run edits do not write."
+    },
+    {
+      "id": "ordered-load-records.unit_test",
+      "capability_ids": [
+        "ordered-load-records"
+      ],
+      "condition": "Complete record moves around interleaved nodes plus canonical native fixture edit and native/RFC alias reorder; invalid shapes.",
+      "evidence_kind": "unit_test",
+      "procedure": "Execute cargo test --bin lox --test config_integration energy_ -- --nocapture; inspect named assertions: config_edit::energy_tests::energy_reorder_preserves_whole_records_unknown_children_and_wire_spellings, config_edit::energy_tests::energy_unsupported_shapes_and_ambiguous_ids_do_not_mutate, config_edit::energy_tests::energy_native_ids_and_aliases_preserve_records",
+      "expected": "Full XMLNodes/attributes/native Id spellings retain identity and OIdx; reverse reorder restores bytes; malformed/mixed-duplicate/sparse edits cannot mutate."
+    },
+    {
+      "id": "load-identity.implementation",
+      "capability_ids": [
+        "load-identity"
+      ],
+      "condition": "Native 8-4-4-16/RFC 8-4-4-4-12 identity aliases, case-insensitive selection, exact spelling preservation, duplicate and misplaced-dash rejection.",
+      "evidence_kind": "implementation",
+      "procedure": "Run tests/ux/energy-manager2/run-cli-cases.py on the built local lox binary: Use canonical native fixture: edit native Id, reorder through RFC alias, select uppercase hex alias and reject a mixed native/RFC duplicate plus7-5-4-16 malformed selector.",
+      "expected": "Both strict spellings select the same binary identity; stored native spelling remains exact; mixed-spelling duplicates/malformed dash placement fail atomically. U is never identity."
+    },
+    {
+      "id": "load-identity.unit_test",
+      "capability_ids": [
+        "load-identity"
+      ],
+      "condition": "Canonical native Id selected natively, by RFC alias and uppercase hex; malformed7-5-4-16 and mixed native/RFC duplicate rejection.",
+      "evidence_kind": "unit_test",
+      "procedure": "Execute cargo test --bin lox --test config_integration energy_ -- --nocapture; inspect named assertions: config_edit::energy_tests::energy_reorder_preserves_whole_records_unknown_children_and_wire_spellings, config_edit::energy_tests::energy_unsupported_shapes_and_ambiguous_ids_do_not_mutate, config_edit::energy_tests::energy_native_ids_and_aliases_preserve_records",
+      "expected": "Accepted aliases resolve one persistent identity while native spelling remains exact; malformed dash placement and binary-equivalent duplicates reject atomically."
+    },
+    {
+      "id": "load-output-used.implementation",
+      "capability_ids": [
+        "load-output-used"
+      ],
+      "condition": "U=true survives rated-zero edits and reorder; unused slots retain omitted U/false.",
+      "evidence_kind": "implementation",
+      "procedure": "Run tests/ux/energy-manager2/run-cli-cases.py on the built local lox binary: Inspect unused slots; configure first load, set rated power0 and reorder it.",
+      "expected": "U stays exact true on connected zero-rated load, unused rows remain false/omitted, and U is not offered as an enable setter."
+    },
+    {
+      "id": "load-output-used.unit_test",
+      "capability_ids": [
+        "load-output-used"
+      ],
+      "condition": "Connected U=true remains after MaxPwr0; omitted U becomes effective false; UUID-valued U shape is rejected.",
+      "evidence_kind": "unit_test",
+      "procedure": "Execute cargo test --bin lox --test config_integration energy_ -- --nocapture; inspect named assertions: config_edit::energy_tests::energy_power_zero_substitution_and_above_rated_are_allowed, config_edit::energy_tests::energy_unsupported_shapes_and_ambiguous_ids_do_not_mutate",
+      "expected": "Used true spelling survives rated-zero edit, omission remains false, and invalid U cannot mutate the editor."
+    },
+    {
+      "id": "load-name.implementation",
+      "capability_ids": [
+        "load-name"
+      ],
+      "condition": "Existing name changes to CLI & renamed with XML escaping and intact unknown/icon/wire data.",
+      "evidence_kind": "implementation",
+      "procedure": "Run tests/ux/energy-manager2/run-cli-cases.py on the built local lox binary: Set --name 'CLI & renamed' on the existing Id, then reload/inspect saved XML and reorder.",
+      "expected": "Na retains the requested string; XML escapes it; other attributes, icon, nested extension and references remain intact."
+    },
+    {
+      "id": "load-name.unit_test",
+      "capability_ids": [
+        "load-name"
+      ],
+      "condition": "Native API sets 'Native CLI & <name>' and reloads serialized XML; invalid XML NUL text is rejected.",
+      "evidence_kind": "unit_test",
+      "procedure": "Execute cargo test --bin lox --test config_integration energy_ -- --nocapture; inspect named assertions: config_edit::energy_tests::energy_native_name_mode_markers_preserve_other_storage",
+      "expected": "The exact name roundtrips XML escaping; unknown child/icon attributes remain; NUL name fails without changing bytes."
+    },
+    {
+      "id": "load-name-customization.implementation",
+      "capability_ids": [
+        "load-name-customization"
+      ],
+      "condition": "Native-backed name setter changes absent Ncu to true; not GUI transition proof.",
+      "evidence_kind": "implementation",
+      "procedure": "Run tests/ux/energy-manager2/run-cli-cases.py on the built local lox binary: Set a name on a row whose Ncu is omitted, then inspect stored/effective marker.",
+      "expected": "Ncu is true after the name setter; only this native/CLI behavior is demonstrated, not the outstanding GUI transition."
+    },
+    {
+      "id": "load-name-customization.unit_test",
+      "capability_ids": [
+        "load-name-customization"
+      ],
+      "condition": "Direct native name setter starts from omitted Ncu.",
+      "evidence_kind": "unit_test",
+      "procedure": "Execute cargo test --bin lox --test config_integration energy_ -- --nocapture; inspect named assertions: config_edit::energy_tests::energy_native_name_mode_markers_preserve_other_storage",
+      "expected": "Ncu becomes effective true after the name edit; this is a Rust/native setter assertion, not a GUI transition observation."
+    },
+    {
+      "id": "load-analog-mode.implementation",
+      "capability_ids": [
+        "load-analog-mode"
+      ],
+      "condition": "Analog setter and digital/default omission on an existing slot.",
+      "evidence_kind": "implementation",
+      "procedure": "Run tests/ux/energy-manager2/run-cli-cases.py on the built local lox binary: Set --mode analog, inspect An=true; set digital, inspect An omission/false; restore analog.",
+      "expected": "Analog is true and digital is false/omitted, without changing U, Id, OIdx or icon."
+    },
+    {
+      "id": "load-analog-mode.unit_test",
+      "capability_ids": [
+        "load-analog-mode"
+      ],
+      "condition": "Direct native setter switches omitted/digital->analog->digital.",
+      "evidence_kind": "unit_test",
+      "procedure": "Execute cargo test --bin lox --test config_integration energy_ -- --nocapture; inspect named assertions: config_edit::energy_tests::energy_native_name_mode_markers_preserve_other_storage",
+      "expected": "Analog effective true serializes, then digital removes An and restores default false while preserving unrelated storage."
+    },
+    {
+      "id": "load-mode-customization.implementation",
+      "capability_ids": [
+        "load-mode-customization"
+      ],
+      "condition": "Native-backed mode setter changes absent Anc to true; not GUI transition proof.",
+      "evidence_kind": "implementation",
+      "procedure": "Run tests/ux/energy-manager2/run-cli-cases.py on the built local lox binary: Set analog on a row whose Anc is omitted and inspect marker.",
+      "expected": "Anc becomes true after the mode setter; original references survive; no GUI false-to-true proof is asserted."
+    },
+    {
+      "id": "load-mode-customization.unit_test",
+      "capability_ids": [
+        "load-mode-customization"
+      ],
+      "condition": "Direct native mode setter starts from omitted Anc.",
+      "evidence_kind": "unit_test",
+      "procedure": "Execute cargo test --bin lox --test config_integration energy_ -- --nocapture; inspect named assertions: config_edit::energy_tests::energy_native_name_mode_markers_preserve_other_storage",
+      "expected": "Anc becomes effective true after setting analog; no official GUI transition is tested."
+    },
+    {
+      "id": "load-output-association.implementation",
+      "capability_ids": [
+        "load-output-association"
+      ],
+      "condition": "OIdx remains0 when native/RFC identity is moved to priority2; twelve explicit unique associations required.",
+      "evidence_kind": "implementation",
+      "procedure": "Run tests/ux/energy-manager2/run-cli-cases.py on the built local lox binary: Move first Id to2 in RFC and canonical native fixtures using native/RFC selectors; compare OIdx per Id and reject duplicate OIdx.",
+      "expected": "First identity still maps to L1 with OIdx0, not priority2; no OIdx renumbering or reference rewriting occurs."
+    },
+    {
+      "id": "load-output-association.unit_test",
+      "capability_ids": [
+        "load-output-association"
+      ],
+      "condition": "Priority moves in RFC/canonical native fixtures retain OIdx; duplicate/missing/out-of-range association fails.",
+      "evidence_kind": "unit_test",
+      "procedure": "Execute cargo test --bin lox --test config_integration energy_ -- --nocapture; inspect named assertions: config_edit::energy_tests::energy_reorder_preserves_whole_records_unknown_children_and_wire_spellings, config_edit::energy_tests::energy_unsupported_shapes_and_ambiguous_ids_do_not_mutate, config_edit::energy_tests::energy_native_ids_and_aliases_preserve_records",
+      "expected": "OIdx0/L1 remains on original native Id after selection via RFC alias and reorder; no association renumbering or invalid-shape mutation."
+    },
+    {
+      "id": "load-preparation-time.implementation",
+      "capability_ids": [
+        "load-preparation-time"
+      ],
+      "condition": "Default RT60 omission, edits30/86400 seconds, rejection29/86401.",
+      "evidence_kind": "implementation",
+      "procedure": "Run tests/ux/energy-manager2/run-cli-cases.py on the built local lox binary: Inspect omitted RT; set30 then86400; reject29/86401 with byte snapshots.",
+      "expected": "RT defaults to60 while retaining omission; accepted endpoints serialize integer seconds; invalid edits leave source unchanged."
+    },
+    {
+      "id": "load-preparation-time.unit_test",
+      "capability_ids": [
+        "load-preparation-time"
+      ],
+      "condition": "RT omission defaults60, 30/86400 seconds accepted,29/86401 rejected.",
+      "evidence_kind": "unit_test",
+      "procedure": "Execute cargo test --bin lox --test config_integration energy_ -- --nocapture; inspect named assertions: config_edit::energy_tests::energy_minutes_seconds_negative_runtime_and_overflow, config_edit::energy_tests::energy_inspection_distinguishes_omission_and_unknown_binding",
+      "expected": "Both endpoints read back as integer seconds and invalid preparation patches leave bytes unchanged, even after a staged name edit."
+    },
+    {
+      "id": "load-minimum-runtime.implementation",
+      "capability_ids": [
+        "load-minimum-runtime"
+      ],
+      "condition": "Integer2 and -1 minutes to120/-60 seconds; zero omission; checked overflow; dry-run.",
+      "evidence_kind": "implementation",
+      "procedure": "Run tests/ux/energy-manager2/run-cli-cases.py on the built local lox binary: Set2 then-1 then0 integer minutes, reject overflow2147483647 minutes, and dry-run -1 minutes.",
+      "expected": "MinRt stores120/-60 seconds; negative is allowed; zero omits; overflowing/dry-run edits leave source/output unchanged."
+    },
+    {
+      "id": "load-minimum-runtime.unit_test",
+      "capability_ids": [
+        "load-minimum-runtime"
+      ],
+      "condition": "MinRt -1/0 minutes and upper checked integer-minute conversion, including i64 and signed32 overflow.",
+      "evidence_kind": "unit_test",
+      "procedure": "Execute cargo test --bin lox --test config_integration energy_ -- --nocapture; inspect named assertions: config_edit::energy_tests::energy_minutes_seconds_negative_runtime_and_overflow",
+      "expected": "-1 stores-60, zero omits,35791394 minutes stores2147483640 seconds;35791395/i64 extrema fail atomically without a nonnegative rule."
+    },
+    {
+      "id": "load-daily-minimum-runtime.implementation",
+      "capability_ids": [
+        "load-daily-minimum-runtime"
+      ],
+      "condition": "Daily0/1440 integer minutes to omitted0/86400 seconds; reject -1/1441.",
+      "evidence_kind": "implementation",
+      "procedure": "Run tests/ux/energy-manager2/run-cli-cases.py on the built local lox binary: Set1440 then0 then1440 daily minutes; reject -1/1441 against byte snapshots.",
+      "expected": "MDay uses checked integer seconds, zero omission and 0..1440 minute bounds; invalid edits are atomic."
+    },
+    {
+      "id": "load-daily-minimum-runtime.unit_test",
+      "capability_ids": [
+        "load-daily-minimum-runtime"
+      ],
+      "condition": "MDay1440/0 integer minutes accepted; -1/1441 rejected.",
+      "evidence_kind": "unit_test",
+      "procedure": "Execute cargo test --bin lox --test config_integration energy_ -- --nocapture; inspect named assertions: config_edit::energy_tests::energy_minutes_seconds_negative_runtime_and_overflow",
+      "expected": "1440 stores86400 seconds, zero omits, and invalid daily-minute patches preserve editor bytes."
+    },
+    {
+      "id": "load-daily-deadline.implementation",
+      "capability_ids": [
+        "load-daily-deadline"
+      ],
+      "condition": "Editable Sunset0/Dusk1 and native-only24:00 label for untouched tpR27; Sunrise edit unsupported.",
+      "evidence_kind": "implementation",
+      "procedure": "Run tests/ux/energy-manager2/run-cli-cases.py on the built local lox binary: Inspect second row tpR27; set first deadline sunset then dusk; reject sunrise CLI choice.",
+      "expected": "Sunset is omitted/default0, Dusk stores1; tpR27 stays untouched and marked not GUI-verified; sunrise edit cannot write."
+    },
+    {
+      "id": "load-daily-deadline.unit_test",
+      "capability_ids": [
+        "load-daily-deadline"
+      ],
+      "condition": "Direct Sunset/Dusk edits and inspection of untouched native tpR27.",
+      "evidence_kind": "unit_test",
+      "procedure": "Execute cargo test --bin lox --test config_integration energy_ -- --nocapture; inspect named assertions: config_edit::energy_tests::energy_minutes_seconds_negative_runtime_and_overflow, config_edit::energy_tests::energy_inspection_distinguishes_omission_and_unknown_binding",
+      "expected": "Dusk reads1, Sunset omits/defaults0; native27 displays24:00 and is explicitly not GUI-verified."
+    },
+    {
+      "id": "load-switch-on-power.implementation",
+      "capability_ids": [
+        "load-switch-on-power"
+      ],
+      "condition": "Zero SwPwr substitution, rated-zero switch copy, above-rated values, and positive/negative nonzero-underflow rejection before substitution.",
+      "evidence_kind": "implementation",
+      "procedure": "Run tests/ux/energy-manager2/run-cli-cases.py on the built local lox binary: Set rated4 from zero switch; set rated2.5/switch0; set switch2.6; reject negative and +/-('0.'+399 zeros+'1') switch in compound patches.",
+      "expected": "Switch becomes4/2.5;2.6 above rated2.5 stays; nonzero underflow is never treated as switch0/substitution; rejected patches are atomic."
+    },
+    {
+      "id": "load-switch-on-power.unit_test",
+      "capability_ids": [
+        "load-switch-on-power"
+      ],
+      "condition": "Zero-switch copy, zero substitution, above-rated2.6, negative and positive/negative nonzero-underflow compound edits.",
+      "evidence_kind": "unit_test",
+      "procedure": "Execute cargo test --bin lox --test config_integration energy_ -- --nocapture; inspect named assertions: config_edit::energy_tests::energy_power_zero_substitution_and_above_rated_are_allowed, config_edit::energy_tests::energy_nonzero_decimal_underflow_fails_atomically",
+      "expected": "Switch4/2.5 substitutions and above-rated2.6 are retained; nonzero-underflow never triggers substitution and failed patches leave identical bytes."
+    },
+    {
+      "id": "load-rated-power.implementation",
+      "capability_ids": [
+        "load-rated-power"
+      ],
+      "condition": "Rated4 zero-switch copy, explicit rated0 omission with U=true, and positive/negative nonzero-underflow rejection.",
+      "evidence_kind": "implementation",
+      "procedure": "Run tests/ux/energy-manager2/run-cli-cases.py on the built local lox binary: Set rated4 then2.5; set switch2.6/rated0; reject +/-('0.'+399 zeros+'1') rated power with staged name and byte snapshots.",
+      "expected": "Rated-zero omission preserves U=true/SwPwr2.6; nonzero underflow cannot be omitted as rated0; rejected edits are atomic."
+    },
+    {
+      "id": "load-rated-power.unit_test",
+      "capability_ids": [
+        "load-rated-power"
+      ],
+      "condition": "Rated4 zero-switch copy, explicit rated0 with U=true, and positive/negative nonzero-underflow.",
+      "evidence_kind": "unit_test",
+      "procedure": "Execute cargo test --bin lox --test config_integration energy_ -- --nocapture; inspect named assertions: config_edit::energy_tests::energy_power_zero_substitution_and_above_rated_are_allowed, config_edit::energy_tests::energy_nonzero_decimal_underflow_fails_atomically",
+      "expected": "Explicit rated0 omits MaxPwr preserving U/SwPwr2.6; nonzero-underflow cannot be mistaken for rated0 and leaves bytes unchanged."
+    },
+    {
+      "id": "load-icon-reference.implementation",
+      "capability_ids": [
+        "load-icon-reference"
+      ],
+      "condition": "Preservation-only: existing ico reference survives RFC and native-ID load fields/reorder.",
+      "evidence_kind": "implementation",
+      "procedure": "Run tests/ux/energy-manager2/run-cli-cases.py on the built local lox binary: Snapshot ico/unknown fields; configure and reorder complete records in CLI and canonical native fixtures; compare exact reference spellings.",
+      "expected": "The exact original icon UUID remains on the same Id with nested data preserved; no icon edit/reference-validity claim."
+    },
+    {
+      "id": "load-icon-reference.unit_test",
+      "capability_ids": [
+        "load-icon-reference"
+      ],
+      "condition": "Opaque ico and native canonical ico UUID survive full-record moves and existing slot edits.",
+      "evidence_kind": "unit_test",
+      "procedure": "Execute cargo test --bin lox --test config_integration energy_ -- --nocapture; inspect named assertions: config_edit::energy_tests::energy_native_name_mode_markers_preserve_other_storage, config_edit::energy_tests::energy_reorder_preserves_whole_records_unknown_children_and_wire_spellings, config_edit::energy_tests::energy_native_ids_and_aliases_preserve_records",
+      "expected": "Both opaque 'keep-icon' and canonical native ico spellings remain on original Id; reference validity/editing is not tested."
+    },
+    {
+      "id": "unused-load-feedback.implementation",
+      "capability_ids": [
+        "unused-load-feedback"
+      ],
+      "condition": "Storage-derived unused condition !U || MaxPwr<=0 on unused/default and connected rated-zero slots.",
+      "evidence_kind": "implementation",
+      "procedure": "Run tests/ux/energy-manager2/run-cli-cases.py on the built local lox binary: Inspect unused rows; set connected first rated0 and inspect U and unused_feedback.",
+      "expected": "Omitted U/false slots and connected zero-rated first slot report unused true; U=true is retained. No GUI color rendering occurs."
+    },
+    {
+      "id": "unused-load-feedback.unit_test",
+      "capability_ids": [
+        "unused-load-feedback"
+      ],
+      "condition": "Inspect false/default-U slots and true-U rated-zero slot.",
+      "evidence_kind": "unit_test",
+      "procedure": "Execute cargo test --bin lox --test config_integration energy_ -- --nocapture; inspect named assertions: config_edit::energy_tests::energy_power_zero_substitution_and_above_rated_are_allowed, config_edit::energy_tests::energy_inspection_distinguishes_omission_and_unknown_binding",
+      "expected": "Both omitted-U slots and connected rated-zero slot expose unused_feedback=true; no GUI rendering assertion."
+    },
+    {
+      "id": "gui-defaults",
+      "capability_ids": [
+        "offset-grid-power",
+        "minimum-state-of-charge",
+        "maximum-storage-power"
+      ],
+      "condition": "Public offline sample, all scalar defaults",
+      "evidence_kind": "gui_oracle",
+      "procedure": "Open owned disposable project, select Energy Manager, inspect widgets, save baseline, inspect Co Def storage.",
+      "expected": "All three widgets 0; baseline omits Def and preserves scalar connector identities."
+    },
+    {
+      "id": "gui-offset-signed",
+      "capability_ids": [
+        "offset-grid-power"
+      ],
+      "condition": "Signed fractional O with locale-correct decimal separator",
+      "evidence_kind": "gui_oracle",
+      "procedure": "Enter -1,25 then later 2,75 in owned GUI O widget; save and independently inspect invariant Def.",
+      "expected": "O is Offset grid power parameter; saved Def -1.25 and 2.75."
+    },
+    {
+      "id": "gui-minsoc-bounds",
+      "capability_ids": [
+        "minimum-state-of-charge"
+      ],
+      "condition": "MinSoc zero, upper endpoint and attempted over-bound entry",
+      "evidence_kind": "gui_oracle",
+      "procedure": "Enter100, attempt101 while previous100, then enter0; save and record actual widget/storage feedback.",
+      "expected": "100 and0 accepted; attempt101 remains100 in observed session; zero Def omitted. Do not substitute CLI rejection text for GUI filtering."
+    },
+    {
+      "id": "gui-maxspwr-bounds",
+      "capability_ids": [
+        "maximum-storage-power"
+      ],
+      "condition": "Storage power positive fractional, zero/default and attempted negative",
+      "evidence_kind": "gui_oracle",
+      "procedure": "Enter5,5 then attempt-1; capture widget and saved scalar Def.",
+      "expected": "5.5 saved; attempted-1 produces0 and saved Def omission. Runtime-zero semantics not covered."
+    },
+    {
+      "id": "gui-load-table",
+      "capability_ids": [
+        "ordered-load-records",
+        "load-output-used",
+        "unused-load-feedback"
+      ],
+      "condition": "Three connected loads plus nine unused fixed slots",
+      "evidence_kind": "gui_oracle",
+      "procedure": "Open actual Edit Energy Manager dialog; enumerate all headers, rows and controls and inspect screenshot.",
+      "expected": "12 rows,11 headers, empty unused rows pink, no add/delete controls; outputs differ from priority indices."
+    },
+    {
+      "id": "gui-load-edit",
+      "capability_ids": [
+        "load-name",
+        "load-name-customization",
+        "load-analog-mode",
+        "load-mode-customization"
+      ],
+      "condition": "Rename and Digital-to-Analog edit of existing customized load",
+      "evidence_kind": "gui_oracle",
+      "procedure": "Rename L1 to Pilot Alpha, choose Analog, accept/save, compare field values and identity.",
+      "expected": "Na Pilot Alpha and An=true; Id/OIdx/icon unchanged; Ncu/Anc stay true, not evidence of false-to-true transition."
+    },
+    {
+      "id": "gui-preparation-bounds",
+      "capability_ids": [
+        "load-preparation-time"
+      ],
+      "condition": "Preparation-time endpoints and attempted zero",
+      "evidence_kind": "gui_oracle",
+      "procedure": "Set30, attempt0 from30, set86400; save and inspect RT.",
+      "expected": "30/86400 saved seconds; attempted0 retains30; no confusion with MinRt minutes."
+    },
+    {
+      "id": "gui-runtime-conversion",
+      "capability_ids": [
+        "load-minimum-runtime"
+      ],
+      "condition": "Minimum runtime whole, negative and fractional minute entry",
+      "evidence_kind": "gui_oracle",
+      "procedure": "Set2 min, -1 min and locale-correct1,5 min in separate saved observations.",
+      "expected": "MinRt=120,-60,120 respectively; actual negative accepted, fractional rounds via integer conversion."
+    },
+    {
+      "id": "gui-daily-runtime",
+      "capability_ids": [
+        "load-daily-minimum-runtime",
+        "load-daily-deadline"
+      ],
+      "condition": "Daily5/1440-minute values, attempted1441 and Dusk selector",
+      "evidence_kind": "gui_oracle",
+      "procedure": "Set5 min/day and Dusk; save. Set1440, attempt1441 and capture prefix filtering; separately save1440.",
+      "expected": "MDay300,tpR1; attempted1441 becomes144=>8640; saved1440=>86400. Baseline Sunset tpR omitted."
+    },
+    {
+      "id": "gui-power-zero",
+      "capability_ids": [
+        "load-switch-on-power",
+        "load-rated-power"
+      ],
+      "condition": "Switch-on zero with positive rated power and allowed greater-than-rated switch-on",
+      "evidence_kind": "gui_oracle",
+      "procedure": "Record original digital2.6/2.5; set switch-on0 at rated2.5, accept/save.",
+      "expected": "SwPwr2.5 substituted. Existing SwPwr2.6>MaxPwr2.5 is accepted, not invalid universal relation."
+    },
+    {
+      "id": "gui-rated-zero",
+      "capability_ids": [
+        "load-rated-power",
+        "load-output-used",
+        "unused-load-feedback"
+      ],
+      "condition": "Already-connected analog load assigned zero rated power",
+      "evidence_kind": "gui_oracle",
+      "procedure": "Enter rated0, inspect actual row color and saved Load attributes.",
+      "expected": "MaxPwr omitted (zero); U=true/SwPwr2.5 retained; actual row pink."
+    },
+    {
+      "id": "gui-priority-move",
+      "capability_ids": [
+        "ordered-load-records",
+        "load-identity",
+        "load-output-association",
+        "load-icon-reference"
+      ],
+      "condition": "Move first priority down with real existing wire and icon references",
+      "evidence_kind": "gui_oracle",
+      "procedure": "Select first load, press Down, accept/save; compare ordered complete Load dictionaries by Id and all UUID spellings against preceding GUI-saved output.",
+      "expected": "First two records exchange order only; Id/OIdx/icon/complete attributes and non-Load subtree/wire identities unchanged."
+    },
+    {
+      "id": "gui-icon-edit",
+      "capability_ids": [
+        "load-icon-reference"
+      ],
+      "condition": "Icon picker changes and invalid icon selection",
+      "evidence_kind": "gui_oracle",
+      "procedure": "Future owned offline icon picker oracle must save an independently identified selected reference.",
+      "expected": "Currently not run; preserved icon identity is not CRUD parity."
+    },
+    {
+      "id": "gui-all-deadline-values",
+      "capability_ids": [
+        "load-daily-deadline"
+      ],
+      "condition": "Every deadline selector value including hourly values",
+      "evidence_kind": "gui_oracle",
+      "procedure": "Future GUI-save cases must independently bind native enum values2..27 and invalid boundaries.",
+      "expected": "Currently not run beyond Sunset/Dusk; native enumeration is not complete GUI-save evidence."
+    },
+    {
+      "id": "gui-custom-markers",
+      "capability_ids": [
+        "load-name-customization",
+        "load-mode-customization"
+      ],
+      "condition": "Initially false Ncu/Anc then name/type edits",
+      "evidence_kind": "gui_oracle",
+      "procedure": "Future safe project must establish false-to-true marker transitions separately from native setter recovery.",
+      "expected": "Currently not run; sample initially true so unchanged flags do not prove transition."
+    }
+  ]
+}

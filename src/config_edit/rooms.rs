@@ -16,7 +16,7 @@ impl ConfigEditor {
 
         // Collect paths to matching elements
         let mut paths = Vec::new();
-        self.collect_typed_with_iodata(
+        Self::collect_typed_with_iodata(
             &self.root,
             type_filter,
             exclude_types,
@@ -45,7 +45,7 @@ impl ConfigEditor {
     pub fn find_room_uuid(&self, room_name: &str) -> Result<String> {
         let lower = room_name.to_lowercase();
         let mut found = Vec::new();
-        self.walk_rooms(&self.root, &lower, &mut found);
+        Self::walk_rooms(&self.root, &lower, &mut found);
         match found.len() {
             0 => bail!("Room '{}' not found in config", room_name),
             1 => Ok(found.into_iter().next().unwrap().0),
@@ -68,7 +68,7 @@ impl ConfigEditor {
         }
     }
 
-    fn walk_rooms(&self, elem: &Element, name_lower: &str, found: &mut Vec<(String, String)>) {
+    fn walk_rooms(elem: &Element, name_lower: &str, found: &mut Vec<(String, String)>) {
         if elem.name == "C"
             && let Some(t) = elem.attributes.get("Type")
             && t == "Place"
@@ -80,7 +80,7 @@ impl ConfigEditor {
         }
         for child in &elem.children {
             if let Some(child_elem) = child.as_element() {
-                self.walk_rooms(child_elem, name_lower, found);
+                Self::walk_rooms(child_elem, name_lower, found);
             }
         }
     }
@@ -151,7 +151,7 @@ impl ConfigEditor {
     pub fn find_category_uuid(&self, cat_name: &str) -> Result<String> {
         let lower = cat_name.to_lowercase();
         let mut found = Vec::new();
-        self.walk_categories(&self.root, &lower, &mut found);
+        Self::walk_categories(&self.root, &lower, &mut found);
         match found.len() {
             0 => bail!("Category '{}' not found in config", cat_name),
             1 => Ok(found.into_iter().next().unwrap().0),
@@ -173,7 +173,7 @@ impl ConfigEditor {
         }
     }
 
-    fn walk_categories(&self, elem: &Element, name_lower: &str, found: &mut Vec<(String, String)>) {
+    fn walk_categories(elem: &Element, name_lower: &str, found: &mut Vec<(String, String)>) {
         if elem.name == "C"
             && let Some(t) = elem.attributes.get("Type")
             && t == "Category"
@@ -185,13 +185,12 @@ impl ConfigEditor {
         }
         for child in &elem.children {
             if let Some(child_elem) = child.as_element() {
-                self.walk_categories(child_elem, name_lower, found);
+                Self::walk_categories(child_elem, name_lower, found);
             }
         }
     }
 
     fn collect_typed_with_iodata(
-        &self,
         elem: &Element,
         type_filter: &str,
         exclude_types: &[&str],
@@ -215,7 +214,7 @@ impl ConfigEditor {
         for (i, child) in elem.children.iter().enumerate() {
             if let Some(child_elem) = child.as_element() {
                 path.push(i);
-                self.collect_typed_with_iodata(
+                Self::collect_typed_with_iodata(
                     child_elem,
                     type_filter,
                     exclude_types,
@@ -231,7 +230,7 @@ impl ConfigEditor {
     pub fn add_room(&mut self, name: &str) -> Result<String> {
         // Check if room already exists
         let mut existing = Vec::new();
-        self.walk_rooms(&self.root, &name.to_lowercase(), &mut existing);
+        Self::walk_rooms(&self.root, &name.to_lowercase(), &mut existing);
         if !existing.is_empty() {
             bail!("Room '{}' already exists", name);
         }
@@ -329,7 +328,7 @@ impl ConfigEditor {
     pub fn add_user(&mut self, name: &str) -> Result<String> {
         // Check if user already exists
         let mut exists = false;
-        self.walk_users(&self.root, &mut |title| {
+        Self::walk_users(&self.root, &mut |title| {
             if title.eq_ignore_ascii_case(name) {
                 exists = true;
             }
@@ -377,7 +376,7 @@ impl ConfigEditor {
         }
     }
 
-    fn walk_users(&self, elem: &Element, cb: &mut dyn FnMut(&str)) {
+    fn walk_users(elem: &Element, cb: &mut dyn FnMut(&str)) {
         if elem.name == "C"
             && let Some(t) = elem.attributes.get("Type")
             && t == "User"
@@ -387,20 +386,16 @@ impl ConfigEditor {
         }
         for child in &elem.children {
             if let Some(child_elem) = child.as_element() {
-                self.walk_users(child_elem, cb);
+                Self::walk_users(child_elem, cb);
             }
         }
     }
 
     fn find_user_caption(&self) -> Option<Vec<usize>> {
-        self.find_user_caption_recursive(&self.root, &mut Vec::new())
+        Self::find_user_caption_recursive(&self.root, &mut Vec::new())
     }
 
-    fn find_user_caption_recursive(
-        &self,
-        elem: &Element,
-        path: &mut Vec<usize>,
-    ) -> Option<Vec<usize>> {
+    fn find_user_caption_recursive(elem: &Element, path: &mut Vec<usize>) -> Option<Vec<usize>> {
         if elem.name == "C"
             && let Some(t) = elem.attributes.get("Type")
             && t == "UserCaption"
@@ -410,7 +405,7 @@ impl ConfigEditor {
         for (i, child) in elem.children.iter().enumerate() {
             if let Some(child_elem) = child.as_element() {
                 path.push(i);
-                if let Some(result) = self.find_user_caption_recursive(child_elem, path) {
+                if let Some(result) = Self::find_user_caption_recursive(child_elem, path) {
                     return Some(result);
                 }
                 path.pop();
