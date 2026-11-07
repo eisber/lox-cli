@@ -2,7 +2,9 @@
 //!
 //! No catalogue, permissions, or Touch Pure Display compiler is implemented here.
 
-use anyhow::{Context, Result, bail};
+use anyhow::{Context, Result, anyhow, bail};
+
+mod compile;
 use serde_json::Value;
 use std::collections::{BTreeMap, BTreeSet};
 use xmltree::{Element, XMLNode};
@@ -132,16 +134,15 @@ fn runtime_only(element: &Element, app_ids: &BTreeSet<String>) -> bool {
     )
 }
 
-fn projection(
-    root: &Element,
-    app_ids: &BTreeSet<String>,
-) -> Result<BTreeMap<String, (String, Shape)>> {
-    fn visit(
-        element: &Element,
+/// A native control with its parent identity, keyed like the sidecar projection.
+type Controls<'a> = BTreeMap<String, (String, &'a Element)>;
+
+fn controls(root: &Element) -> Result<Controls<'_>> {
+    fn visit<'a>(
+        element: &'a Element,
         parent: &str,
         path: &str,
-        app_ids: &BTreeSet<String>,
-        result: &mut BTreeMap<String, (String, Shape)>,
+        result: &mut Controls<'a>,
     ) -> Result<()> {
         let mut next_parent = parent.to_string();
         if element.name == "C" {
@@ -151,13 +152,7 @@ fn projection(
                 .map(|uuid| identity(uuid))
                 .unwrap_or_else(|| format!("unidentified:{path}"));
             if result
-                .insert(
-                    key.clone(),
-                    (
-                        parent.to_string(),
-                        shape(element, !runtime_only(element, app_ids)),
-                    ),
-                )
+                .insert(key.clone(), (parent.to_string(), element))
                 .is_some()
             {
                 bail!("Cannot check deployment sidecars: duplicate native control identity {key}");
@@ -170,19 +165,31 @@ fn projection(
             .filter_map(XMLNode::as_element)
             .enumerate()
         {
-            visit(
-                child,
-                &next_parent,
-                &format!("{path}/{index}"),
-                app_ids,
-                result,
-            )?;
+            visit(child, &next_parent, &format!("{path}/{index}"), result)?;
         }
         Ok(())
     }
     let mut result = BTreeMap::new();
-    visit(root, "", "", app_ids, &mut result)?;
+    visit(root, "", "", &mut result)?;
     Ok(result)
+}
+
+fn projection(
+    controls: &Controls<'_>,
+    app_ids: &BTreeSet<String>,
+) -> BTreeMap<String, (String, Shape)> {
+    controls
+        .iter()
+        .map(|(key, (parent, element))| {
+            (
+                key.clone(),
+                (
+                    parent.clone(),
+                    shape(element, !runtime_only(element, app_ids)),
+                ),
+            )
+        })
+        .collect()
 }
 
 fn has_display(element: &Element) -> bool {
@@ -205,12 +212,23 @@ fn has_visualization(element: &Element) -> bool {
             .any(has_visualization)
 }
 
+/// Sidecars compiled for a supported XML edit, replacing the source archive's members.
+#[derive(Debug, PartialEq, Eq)]
+pub(crate) struct Sidecars {
+    pub(crate) app: Vec<u8>,
+    /// `None` when the edit leaves the source permissions untouched.
+    pub(crate) permissions: Option<Vec<u8>>,
+}
+
+/// Check an XML edit against the compiled source and compile supported sidecar changes.
+///
+/// Returns `None` for sidecar-neutral edits, whose native sidecars stay untouched.
 pub(super) fn validate(
     before: &[u8],
     after: &[u8],
     app: Option<&[u8]>,
     permissions: Option<&[u8]>,
-) -> Result<()> {
+) -> Result<Option<Sidecars>> {
     let before =
         Element::parse(before).context("Cannot check sidecars: invalid source project XML")?;
     let after =
@@ -253,8 +271,10 @@ pub(super) fn validate(
         }
     }
 
-    let before_shape = projection(&before, &app_ids)?;
-    let after_shape = projection(&after, &app_ids)?;
+    let before_controls = controls(&before)?;
+    let after_controls = controls(&after)?;
+    let before_shape = projection(&before_controls, &app_ids);
+    let after_shape = projection(&after_controls, &app_ids);
     let root_shape = |root: &Element| {
         let mut result = shape(root, true);
         result.attributes.retain(|key, _| {
@@ -265,27 +285,65 @@ pub(super) fn validate(
         });
         result
     };
-    if before_shape != after_shape || root_shape(&before) != root_shape(&after) {
-        if has_display(&before) || has_display(&after) {
-            bail!(
-                "Deployment requires native sidecar compilation, including TPDC/Touch Pure Display \
-                 TPDISP payloads, Displayconf checksums and managed API wiring. \
-                 lox cannot safely generate or validate those device artifacts. \
-                 Save and deploy this edit with Loxone Config; --force cannot bypass this check."
-            );
-        }
-        let missing = match (app, permissions) {
-            (None, _) => " (source LoxAPP3.json is missing)",
-            (_, None | Some([])) => " (source permissions.bin is missing or empty)",
-            _ => "",
-        };
+    if before_shape == after_shape && root_shape(&before) == root_shape(&after) {
+        return Ok(None);
+    }
+    if has_display(&before) || has_display(&after) {
         bail!(
-            "Deployment would change the app catalogue or native permission identities{missing}. \
-             lox does not compile LoxAPP3.json or permissions.bin and will not upload stale sidecars. \
+            "Deployment requires native sidecar compilation, including TPDC/Touch Pure Display \
+             TPDISP payloads, Displayconf checksums and managed API wiring. \
+             lox cannot safely generate or validate those device artifacts. \
              Save and deploy this edit with Loxone Config; --force cannot bypass this check."
         );
     }
-    Ok(())
+    let missing = match (app, permissions) {
+        (None, _) => " (source LoxAPP3.json is missing)",
+        (_, None | Some([])) => " (source permissions.bin is missing or empty)",
+        _ => "",
+    };
+    let unsupported = |reason: anyhow::Error| {
+        anyhow!(
+            "Deployment would change the app catalogue or native permission identities{missing}: \
+             {reason:#}. lox compiles LoxAPP3.json and permissions.bin only for template-verified \
+             additions of visualized PushButton2Sel, State, PButtonT and linked MeterAbsUni \
+             controls, and for their renames, energy-manager load nodes and intercom action labels; \
+             it will not upload stale sidecars. \
+             Save and deploy this edit with Loxone Config; --force cannot bypass this check."
+        )
+    };
+    if root_shape(&before) != root_shape(&after) {
+        return Err(unsupported(anyhow!("the project root settings changed")));
+    }
+    let keys: BTreeSet<&String> = before_shape.keys().chain(after_shape.keys()).collect();
+    let mut changes = Vec::new();
+    for key in keys {
+        if before_shape.get(key) == after_shape.get(key) {
+            continue;
+        }
+        let before = before_controls
+            .get(key)
+            .map(|(parent, element)| (parent.as_str(), *element));
+        let after = after_controls
+            .get(key)
+            .map(|(parent, element)| (parent.as_str(), *element));
+        // Added or removed runtime-only logic never appears in the app or its permissions.
+        if let (Some((_, element)), None) | (None, Some((_, element))) = (before, after)
+            && runtime_only(element, &app_ids)
+        {
+            continue;
+        }
+        changes.push(compile::Change {
+            key: key.clone(),
+            before,
+            after,
+        });
+    }
+    let Some(app) = app else {
+        return Err(unsupported(anyhow!("there is no catalogue to compile")));
+    };
+    compile::compile(&after, &changes, app, permissions)
+        .map(Some)
+        .map_err(unsupported)
 }
 
 #[cfg(test)]

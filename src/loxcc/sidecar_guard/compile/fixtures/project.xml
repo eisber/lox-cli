@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ControlList Version="178" NextObj="100">
+  <C Type="Document" U="0f000000-0000-0001-ffff000000000000" Title="Synthetic project" Date="2026-01-01 00:00:00" DateS="1"/>
+  <C Type="RightGroup" U="1a000000-0000-0001-ffff000000000000" Title="Room rights"/>
+  <C Type="RightGroup" U="1a000000-0000-0002-ffff000000000000" Title="Category rights"/>
+  <C Type="Place" U="1b000000-0000-0001-ffff000000000000" Title="Room" RGR="1a000000-0000-0001-ffff000000000000"/>
+  <C Type="Category" U="1c000000-0000-0001-ffff000000000000" Title="Category" RGR="1a000000-0000-0002-ffff000000000000"/>
+  <C Type="Page" U="1d000000-0000-0002-ffff000000000000" Title="Other page"/>
+  <C Type="Page" U="1d000000-0000-0001-ffff000000000000" Title="Page">
+    <C Type="PushButton2Sel" V="178" U="2a000000-0000-0001-ffff000000000000" Title="Existing level">
+      <Co K="Reset" U="2a000000-0000-0002-ffff000000000000"/>
+      <Co K="Min" U="2a000000-0000-0003-ffff000000000000"/>
+      <Co K="Max" U="2a000000-0000-0004-ffff000000000000"/>
+      <Co K="Step" U="2a000000-0000-0005-ffff000000000000"/>
+      <Co K="AQ" U="2a000000-0000-0006-ffff000000000000"/>
+      <IoData Visu="true" Pr="1b000000-0000-0001-ffff000000000000" Cr="1c000000-0000-0001-ffff000000000000"/>
+      <Display Unit="&lt;v.1&gt; %"/>
+    </C>
+    <C Type="State" V="178" U="3a000000-0000-0001-ffff000000000000" Title="Existing status">
+      <Co K="I1" U="3a000000-0000-0002-ffff000000000000"/>
+      <IoData Visu="true" Pr="1b000000-0000-0001-ffff000000000000" Cr="1c000000-0000-0001-ffff000000000000"/>
+    </C>
+    <C Type="PButtonT" V="178" U="4a000000-0000-0001-ffff000000000000" Title="Existing button">
+      <Co K="Reset" U="4a000000-0000-0002-ffff000000000000"/>
+      <Co K="Q" U="4a000000-0000-0003-ffff000000000000"/>
+      <IoData Visu="true" Pr="1b000000-0000-0001-ffff000000000000" Cr="1c000000-0000-0001-ffff000000000000"/>
+    </C>
+    <C Type="EFM" V="178" U="5a000000-0000-0001-ffff000000000000" Title="Energy">
+      <IoData Pr="1b000000-0000-0001-ffff000000000000" Cr="1c000000-0000-0001-ffff000000000000"/>
+      <root>
+        <nd u="5b000000-0000-0001-ffff000000000000" tit="Group" t="0">
+          <nd u="5b000000-0000-0002-ffff000000000000" tit="Existing meter" t="1" ctrlUuid="6a000000-0000-0001-ffff000000000000"/>
+        </nd>
+      </root>
+    </C>
+    <C Type="MeterAbsUni" V="178" U="6a000000-0000-0001-ffff000000000000" Title="Existing meter" Rec="5a000000-0000-0001-ffff000000000000" PwrN="3" Un1="W" Un2="Wh" StatsType="1">
+      <Co K="R" U="6a000000-0000-0002-ffff000000000000"/>
+      <Co K="OPf" U="6a000000-0000-0003-ffff000000000000"/>
+      <Co K="OMr" U="6a000000-0000-0004-ffff000000000000"/>
+      <Co K="ORd" U="6a000000-0000-0005-ffff000000000000"/>
+      <Co K="ORw" U="6a000000-0000-0006-ffff000000000000"/>
+      <Co K="ORm" U="6a000000-0000-0007-ffff000000000000"/>
+      <Co K="ORy" U="6a000000-0000-0008-ffff000000000000"/>
+      <IoData Pr="1b000000-0000-0001-ffff000000000000" Cr="1c000000-0000-0001-ffff000000000000"/>
+      <statGrp T="1" Def="1"/>
+    </C>
+    <C Type="Doorcontroller" V="178" U="7a000000-0000-0001-ffff000000000000" Title="Door" OutName1="Lock" OutName2="Unlock" OutName3="Open">
+      <IoData Visu="true" Pr="1b000000-0000-0001-ffff000000000000" Cr="1c000000-0000-0001-ffff000000000000"/>
+    </C>
+    <C Type="And" U="8a000000-0000-0001-ffff000000000000" Title="Gate">
+      <Co K="I1" U="8a000000-0000-0002-ffff000000000000"/>
+    </C>
+  </C>
+</ControlList>
