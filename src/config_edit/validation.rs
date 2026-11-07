@@ -47,6 +47,32 @@ impl ConfigEditor {
         .copied()
         .collect();
 
+        // Blocks that compute nothing useful without an input signal. Larger
+        // controllers (LightController2, PushButton2, PulseAt, AutoJalousie,
+        // DayTimer, PulseGen …) are legitimately driven from the app, by
+        // time, or by their own parameters, so "no inputs wired" is only
+        // meaningful for these.
+        let needs_signal_types: HashSet<&str> = [
+            "And",
+            "Or",
+            "Not",
+            "Xor",
+            "GreaterEqual",
+            "Less",
+            "Mult",
+            "Add",
+            "Sub",
+            "Div",
+            "StairwayLS",
+            "OnPulseDelay",
+            "OffDelay",
+            "Monoflop",
+            "AnalogThresholdTrigger",
+        ]
+        .iter()
+        .copied()
+        .collect();
+
         let input_keys: HashSet<&str> = [
             "I",
             "I1",
@@ -156,6 +182,7 @@ impl ConfigEditor {
         struct CheckCtx<'a> {
             param_checks: &'a [(&'a str, &'a str, &'a str)],
             logic_types: &'a HashSet<&'a str>,
+            needs_signal_types: &'a HashSet<&'a str>,
             input_keys: &'a HashSet<&'a str>,
             output_keys: &'a HashSet<&'a str>,
             infra_types: &'a HashSet<&'a str>,
@@ -171,7 +198,12 @@ impl ConfigEditor {
             ctx: &CheckCtx<'_>,
             results: &mut Vec<String>,
             on_page: bool,
+            parent_type: &str,
         ) {
+            // Function blocks live directly on a Page. Anything else (devices,
+            // virtual I/O, operating modes, calendar entries, users, Keycodes
+            // inside an NfcCodeTouch …) is configuration, not page wiring.
+            let direct_on_page = parent_type == "Page";
             let etype = elem
                 .attributes
                 .get("Type")
@@ -191,7 +223,8 @@ impl ConfigEditor {
                 };
 
                 if matches_sel {
-                    // Check required parameters
+                    // Check required parameters. A parameter counts as set if
+                    // it has a constant (Def) OR is wired (at least one <In>).
                     for &(ptype, param_name, description) in ctx.param_checks {
                         if etype != ptype {
                             continue;
@@ -202,22 +235,53 @@ impl ConfigEditor {
                             };
                             let is_co = c.name == "Co"
                                 || c.attributes.get("Type").map(|s| s.as_str()) == Some("Co");
-                            is_co
-                                && c.attributes.get("K").map(|s| s.as_str()) == Some(param_name)
-                                && c.attributes.get("Def").is_some_and(|s| !s.is_empty())
+                            if !is_co
+                                || c.attributes.get("K").map(|s| s.as_str()) != Some(param_name)
+                            {
+                                return false;
+                            }
+                            let has_def = c.attributes.get("Def").is_some_and(|s| !s.is_empty());
+                            let has_wire = c
+                                .children
+                                .iter()
+                                .any(|n| n.as_element().is_some_and(|e| e.name == "In"))
+                                || c.attributes
+                                    .get("U")
+                                    .is_some_and(|u| ctx.wired_inputs.contains(u));
+                            has_def || has_wire
                         });
                         if !has_value {
-                            results.push(format!(
-                                "✗ {etype} '{title}': {param_name} not set — needs {description}"
-                            ));
+                            // An empty comparator threshold is 0, which is a valid
+                            // comparison (e.g. "price below 0"), so only warn there.
+                            if matches!(etype, "GreaterEqual" | "Less") {
+                                results.push(format!(
+                                    "⚠ {etype} '{title}': {param_name} not set (no value and not wired) — compares against 0; set the {description} if that isn't intended"
+                                ));
+                            } else {
+                                results.push(format!(
+                                    "✗ {etype} '{title}': {param_name} not set (no value and not wired) — needs {description}"
+                                ));
+                            }
                         }
                     }
 
-                    // Check wiring for all automation blocks (not just logic types)
-                    {
+                    // Check wiring for function blocks placed on a page. Skipped:
+                    // - anything not directly on a Page (devices, modes, …);
+                    // - InputRef/OutputRef: fed by their `Ref` attribute, and
+                    //   their AI link may live on another page;
+                    // - AutoPilot/AutopilotRule: their conditions live in the
+                    //   rule's `APC` JSON, and their inputs are Config-managed
+                    //   links (`<In FLG="1">`), not user wiring.
+                    // Most block inputs are optional, so individually unwired
+                    // inputs are not reported; only blocks that compute nothing
+                    // without a signal are flagged when no input is wired.
+                    let skip_wiring = !direct_on_page
+                        || is_reference_type(etype)
+                        || matches!(etype, "AutoPilot" | "AutopilotRule");
+                    if !skip_wiring {
                         let mut any_input = false;
                         let mut any_output = false;
-                        let mut unwired_inputs = Vec::new();
+                        let mut has_input_connectors = false;
 
                         // Get connector types from the connector map for this block type
                         let cmap_types = ctx
@@ -250,12 +314,11 @@ impl ConfigEditor {
                                 || (direction.is_none() && ctx.output_keys.contains(k));
 
                             if is_input {
+                                has_input_connectors = true;
                                 let has_default =
                                     c.attributes.get("Def").is_some_and(|s| !s.is_empty());
                                 if is_wired || has_default {
                                     any_input = true;
-                                } else {
-                                    unwired_inputs.push(k.to_string());
                                 }
                             }
                             if is_output && is_wired {
@@ -263,26 +326,23 @@ impl ConfigEditor {
                             }
                         }
 
-                        // Only report if block actually has input connectors
-                        let has_input_connectors = any_input || !unwired_inputs.is_empty();
-                        if has_input_connectors {
-                            if !any_input {
-                                if any_output {
-                                    // Block has outputs wired but no inputs — circuit is incomplete
-                                    results.push(format!(
-                                        "✗ {etype} '{title}': no inputs wired — block has no signal source"
-                                    ));
-                                } else {
-                                    // Standalone block, no wiring at all — just a warning
-                                    results.push(format!(
-                                        "⚠ {etype} '{title}': no inputs wired — may need signal source"
-                                    ));
-                                }
-                            } else if !unwired_inputs.is_empty() {
-                                // Partially wired — some inputs missing
+                        // Controllers (LightController2, PushButton2, PulseAt,
+                        // central/device-bound blocks …) may legitimately be
+                        // operated from the app, by time, by parameters or via
+                        // their device binding, so only pure logic blocks are
+                        // reported when nothing feeds them.
+                        if has_input_connectors
+                            && !any_input
+                            && ctx.needs_signal_types.contains(etype)
+                        {
+                            if any_output {
+                                // Output is used but nothing feeds the block
                                 results.push(format!(
-                                    "✗ {etype} '{title}': unwired inputs: {} — wire signal sources to complete the circuit",
-                                    unwired_inputs.join(", ")
+                                    "✗ {etype} '{title}': no inputs wired — block has no signal source"
+                                ));
+                            } else {
+                                results.push(format!(
+                                    "⚠ {etype} '{title}': no inputs wired — may need signal source"
                                 ));
                             }
                         }
@@ -291,7 +351,7 @@ impl ConfigEditor {
                                 "⚠ {etype} '{title}': output not connected — block result goes nowhere"
                             ));
                         }
-                        if has_input_connectors && any_input && unwired_inputs.is_empty() {
+                        if has_input_connectors && any_input {
                             results.push(format!("✓ {etype} '{title}': inputs and outputs wired"));
                         }
                     }
@@ -317,10 +377,17 @@ impl ConfigEditor {
                             })
                             .count();
                         if co_count > 0 {
+                            // Only blocks drawn on the page canvas need coords:
+                            // direct Page children, except hidden references
+                            // (InputRef/OutputRef whose WF lacks the "placed on
+                            // page" bit). Nested elements such as Keycodes in an
+                            // NfcCodeTouch never carry coordinates.
+                            let needs_coords = direct_on_page
+                                && (!is_reference_type(etype) || wf_placed_on_page(elem));
                             let missing_coords = ["Px", "Py", "Px2", "Py2"]
                                 .iter()
                                 .any(|a| !elem.attributes.contains_key(*a));
-                            if missing_coords {
+                            if needs_coords && missing_coords {
                                 results.push(format!(
                                     "⚠ {etype} '{title}': missing canvas layout (Px/Py/Px2/Py2) — Loxone Config will repair this block on first save and may drop wires; run `lox config layout`"
                                 ));
@@ -511,7 +578,7 @@ impl ConfigEditor {
             for child in &elem.children {
                 if let Some(c) = child.as_element() {
                     let child_on_page = on_page || etype == "Page";
-                    walk_blocks(c, selector, ctx, results, child_on_page);
+                    walk_blocks(c, selector, ctx, results, child_on_page, etype);
                 }
             }
         }
@@ -520,6 +587,7 @@ impl ConfigEditor {
         let ctx = CheckCtx {
             param_checks: &param_checks,
             logic_types: &logic_types,
+            needs_signal_types: &needs_signal_types,
             input_keys: &input_keys,
             output_keys: &output_keys,
             infra_types: &infra_types,
@@ -529,7 +597,7 @@ impl ConfigEditor {
             connector_map: &cmap,
         };
 
-        walk_blocks(&self.root, selector, &ctx, &mut results, false);
+        walk_blocks(&self.root, selector, &ctx, &mut results, false, "");
 
         // Program-block (PicoC) limit. A Miniserver executes only the first 8
         // Program blocks (Code1/Code4/Code8/Code16); any beyond that are
@@ -654,9 +722,6 @@ impl ConfigEditor {
 
         // ── Loxone-specific validation rules ──────────────────────────────
 
-        // Extract Miniserver serial from existing UUIDs
-        let serial = self.find_miniserver_serial().unwrap_or_default();
-
         // I/O types that require IName
         let iname_types: std::collections::HashSet<&str> = [
             "VirtualIn",
@@ -687,7 +752,6 @@ impl ConfigEditor {
 
         fn check_elements(
             elem: &Element,
-            serial: &str,
             iname_types: &std::collections::HashSet<&str>,
             uuid_warnings: &mut Vec<String>,
             iname_errors: &mut Vec<String>,
@@ -699,20 +763,14 @@ impl ConfigEditor {
                 let title = elem.attributes.get("Title").cloned().unwrap_or_default();
                 let uuid = elem.attributes.get("U").cloned().unwrap_or_default();
 
-                // Check UUID format (must contain serial suffix). Skip known
-                // system/mode/registered-device short-form UUIDs — these
-                // legitimately lack the serial in every Gen-2 export.
-                if !uuid.is_empty()
-                    && !serial.is_empty()
-                    && !uuid.contains(serial)
-                    && !is_system_short_uuid(&uuid)
-                {
+                // Check UUID shape only. The last group identifies the Loxone
+                // Config installation that created the element (not the
+                // Miniserver serial), so projects edited on several PCs or
+                // built from templates legitimately mix many suffixes.
+                if !uuid.is_empty() && !is_well_formed_uuid(&uuid) {
                     uuid_warnings.push(format!(
-                        "{} '{}': UUID '{}' missing serial suffix '{}'",
-                        elem_type,
-                        title,
-                        &uuid[..std::cmp::min(20, uuid.len())],
-                        serial
+                        "{} '{}': malformed UUID '{}' (expected 8-4-4-16 hex digits)",
+                        elem_type, title, uuid
                     ));
                 }
 
@@ -732,16 +790,13 @@ impl ConfigEditor {
                         && co.name == "Co"
                     {
                         let co_uuid = co.attributes.get("U").cloned().unwrap_or_default();
-                        if !co_uuid.is_empty()
-                            && !serial.is_empty()
-                            && !co_uuid.contains(serial)
-                            && !is_system_short_uuid(&co_uuid)
-                        {
+                        if !co_uuid.is_empty() && !is_well_formed_uuid(&co_uuid) {
                             uuid_warnings.push(format!(
-                                "{} '{}' connector {}: UUID missing serial suffix",
+                                "{} '{}' connector {}: malformed UUID '{}' (expected 8-4-4-16 hex digits)",
                                 elem_type,
                                 title,
-                                co.attributes.get("K").cloned().unwrap_or_default()
+                                co.attributes.get("K").cloned().unwrap_or_default(),
+                                co_uuid
                             ));
                         }
                     }
@@ -785,7 +840,6 @@ impl ConfigEditor {
                 if let Some(child_elem) = child.as_element() {
                     check_elements(
                         child_elem,
-                        serial,
                         iname_types,
                         uuid_warnings,
                         iname_errors,
@@ -798,7 +852,6 @@ impl ConfigEditor {
 
         check_elements(
             &self.root,
-            &serial,
             &iname_types,
             &mut uuid_warnings,
             &mut iname_errors,
@@ -807,17 +860,14 @@ impl ConfigEditor {
         );
 
         if uuid_warnings.is_empty() {
-            results.push(format!(
-                "✓ All UUIDs use Miniserver serial suffix ({}...)",
-                &serial[..std::cmp::min(6, serial.len())]
-            ));
+            results.push("✓ All UUIDs are well-formed".to_string());
         } else {
             for e in &uuid_warnings[..std::cmp::min(5, uuid_warnings.len())] {
                 results.push(format!("⚠ {}", e));
             }
             if uuid_warnings.len() > 5 {
                 results.push(format!(
-                    "  ...and {} more UUID errors",
+                    "  ...and {} more malformed UUIDs",
                     uuid_warnings.len() - 5
                 ));
             }
@@ -856,11 +906,19 @@ impl ConfigEditor {
                         && co.name == "Co"
                     {
                         let k = co.attributes.get("K").cloned().unwrap_or_default();
-                        let has_in = co
-                            .children
-                            .iter()
-                            .any(|c| c.as_element().map(|e| e.name == "In").unwrap_or(false));
+                        // `<In FLG="1">` is a link Loxone Config manages
+                        // itself, not user wiring — don't judge its direction.
+                        let has_in = co.children.iter().any(|c| {
+                            c.as_element().is_some_and(|e| {
+                                e.name == "In"
+                                    && e.attributes.get("FLG").map(|s| s.as_str()) != Some("1")
+                            })
+                        });
+                        // API connectors are bidirectional: they take command text
+                        // in (e.g. from a virtual text input) and report status out.
+                        let is_api = matches!(k.as_str(), "API" | "OutputAPI");
                         if has_in
+                            && !is_api
                             && let Some(io) = types.get(&k)
                             && io == "O"
                         {
@@ -1272,19 +1330,42 @@ impl ConfigEditor {
     }
 }
 
-/// Returns true for known system / operating-mode / registered-device short-form
-/// UUIDs that legitimately lack the Miniserver serial suffix in every Gen-2
-/// export (e.g. `00000000-0000-0002-1` operating modes, `205d5330-…-f`
-/// registered devices). These should be treated as informational, not errors.
-fn is_system_short_uuid(uuid: &str) -> bool {
-    // All-zero prefixed system/state UUIDs.
-    if uuid.starts_with("00000000-0000-") {
-        return true;
-    }
-    // Short-form UUIDs: the final dash-segment is shorter than a serial-bearing
-    // segment (normal connector UUIDs end with `ffff` + a 12-hex serial = 16).
-    match uuid.rsplit_once('-') {
-        Some((_, last)) => last.len() < 12,
-        None => false,
-    }
+/// Returns true if `uuid` has the Loxone UUID shape: four dash-separated hex
+/// groups of 8-4-4-16 digits (e.g. `1fbf3415-030f-bc7d-ffff9bb3c1479539`).
+///
+/// The last group is NOT checked against the Miniserver serial: it identifies
+/// the Loxone Config installation that created the element, and connector
+/// UUIDs use other patterns (`-00ff…`, `-01ff…`). System / operating-mode /
+/// registered-device UUIDs use a shortened last group (e.g.
+/// `00000000-0000-0002-1`), so 1–16 digits are accepted there.
+fn is_well_formed_uuid(uuid: &str) -> bool {
+    let groups: Vec<&str> = uuid.split('-').collect();
+    let [a, b, c, d] = groups.as_slice() else {
+        return false;
+    };
+    let hex = |s: &str| s.chars().all(|ch| ch.is_ascii_hexdigit());
+    a.len() == 8
+        && b.len() == 4
+        && c.len() == 4
+        && (1..=16).contains(&d.len())
+        && hex(a)
+        && hex(b)
+        && hex(c)
+        && hex(d)
+}
+
+/// InputRef / OutputRef (incl. `OutputRefLM`) blocks are fed by their `Ref`
+/// attribute, not by wires on their own page.
+fn is_reference_type(etype: &str) -> bool {
+    etype.starts_with("InputRef") || etype.starts_with("OutputRef")
+}
+
+/// WF bit 0x20000: the element is drawn on its page. Hidden references (e.g.
+/// InputRef with WF="22528", OutputRef with WF="20480") lack it and have no
+/// canvas coordinates by design.
+fn wf_placed_on_page(elem: &Element) -> bool {
+    elem.attributes
+        .get("WF")
+        .and_then(|s| s.parse::<u64>().ok())
+        .is_some_and(|wf| wf & 0x20000 != 0)
 }

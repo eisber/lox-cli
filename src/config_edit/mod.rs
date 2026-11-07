@@ -1071,6 +1071,319 @@ Unit='a > b' Unit='a > b'/><部屋 Title='同じ' Title='同じ'/></ControlList>
     }
 
     #[test]
+    fn test_check_blocks_layout_skips_hidden_refs_and_nested_elements() {
+        // Hidden refs (WF without the 0x20000 "placed on page" bit), Keycodes
+        // nested in an NfcCodeTouch and elements outside any Page have no
+        // canvas coordinates by design. A placed ref or a normal block that
+        // lacks coords is still a real problem.
+        let xml = br#"<?xml version="1.0" encoding="utf-8"?>
+<C Type="Document" V="175" U="doc-1" Title="Root">
+  <C Type="VirtualIn" V="175" U="vi-1" Title="Off Page VI">
+    <Co K="Q" U="vi-1-q"/>
+  </C>
+  <C Type="Page" V="175" U="page-1" Title="Logic" WF="16384">
+    <C Type="InputRef" V="175" U="ir-hidden" Title="Hidden In" WF="22528" Ref="vi-1" Nio="4">
+      <Co K="AI" U="ir-h-ai"/><Co K="I" U="ir-h-i"/><Co K="AQ" U="ir-h-aq"/><Co K="Q" U="ir-h-q"/>
+    </C>
+    <C Type="OutputRef" V="175" U="or-hidden" Title="Hidden Out" WF="20480" Ref="vi-1" Nio="2">
+      <Co K="AI" U="or-h-ai"/><Co K="AQ" U="or-h-aq"/>
+    </C>
+    <C Type="InputRef" V="175" U="ir-placed" Title="Placed In" WF="155648" Ref="vi-1" Nio="4">
+      <Co K="AI" U="ir-p-ai"/><Co K="I" U="ir-p-i"/><Co K="AQ" U="ir-p-aq"/><Co K="Q" U="ir-p-q"/>
+    </C>
+    <C Type="NfcCodeTouch" V="175" U="nfc-1" Title="Door Keypad" Nio="1" Px="100" Py="100" Px2="200" Py2="200">
+      <Co K="Disable" U="nfc-1-dis"/>
+      <C Type="Keycode" V="175" U="kc-1" Title="Guest Code" WF="20480">
+        <Co K="Q" U="kc-1-q"/>
+      </C>
+    </C>
+    <C Type="And" V="175" U="and-nocoords" Title="Unplaced And" Nio="3">
+      <Co K="I1" U="and-i1" Def="1"/><Co K="I2" U="and-i2" Def="1"/><Co K="Q" U="and-q"/>
+    </C>
+  </C>
+</C>"#;
+        let editor = ConfigEditor::load(xml).unwrap();
+        let results = editor.check_blocks(None);
+        let layout: Vec<&String> = results
+            .iter()
+            .filter(|r| r.contains("missing canvas layout"))
+            .collect();
+        for quiet in ["Hidden In", "Hidden Out", "Guest Code", "Off Page VI"] {
+            assert!(
+                !layout.iter().any(|r| r.contains(quiet)),
+                "{quiet} should not get a layout warning, got: {layout:?}"
+            );
+        }
+        for loud in ["Placed In", "Unplaced And"] {
+            assert!(
+                layout.iter().any(|r| r.contains(loud)),
+                "{loud} should get a layout warning, got: {layout:?}"
+            );
+        }
+    }
+
+    #[test]
+    fn test_check_blocks_optional_unwired_inputs_are_not_errors() {
+        // Most block inputs are optional: a partially wired State block or a
+        // PushButton2 driven only from the app is normal. A pure logic block
+        // whose output is used but has no input is still an error.
+        let xml = br#"<?xml version="1.0" encoding="utf-8"?>
+<C Type="Document" V="175" U="doc-1" Title="Root">
+  <C Type="Page" V="175" U="page-1" Title="Logic" WF="16384">
+    <C Type="VirtualIn" V="175" U="src" Title="Source" Px="1" Py="1" Px2="2" Py2="2" Nio="1">
+      <Co K="Q" U="src-q"/>
+    </C>
+    <C Type="State" V="175" U="st-1" Title="Partly Wired State" Nio="4" Px="1" Py="1" Px2="2" Py2="2">
+      <Co K="I1" U="st-i1"><In Input="src-q"/></Co>
+      <Co K="I2" U="st-i2"/>
+      <Co K="TQ" U="st-tq"/>
+      <Co K="AQ" U="st-aq"/>
+    </C>
+    <C Type="PushButton2" V="175" U="pb-1" Title="App Button" Nio="3" Px="1" Py="1" Px2="2" Py2="2">
+      <Co K="InputTriggerOn" U="pb-on"/>
+      <Co K="InputTriggerOff" U="pb-off"/>
+      <Co K="Q" U="pb-q"/>
+    </C>
+    <C Type="Not" V="175" U="not-1" Title="Consumer" Nio="2" Px="1" Py="1" Px2="2" Py2="2">
+      <Co K="I" U="not-i"><In Input="pb-q"/></Co>
+      <Co K="Q" U="not-q"/>
+    </C>
+    <C Type="And" V="175" U="and-1" Title="Starved And" Nio="3" Px="1" Py="1" Px2="2" Py2="2">
+      <Co K="I1" U="and-i1"/>
+      <Co K="I2" U="and-i2"/>
+      <Co K="Q" U="and-q"/>
+    </C>
+    <C Type="Or" V="175" U="or-1" Title="And Consumer" Nio="2" Px="1" Py="1" Px2="2" Py2="2">
+      <Co K="I1" U="or-i1"><In Input="and-q"/></Co>
+      <Co K="Q" U="or-q"/>
+    </C>
+  </C>
+</C>"#;
+        let editor = ConfigEditor::load(xml).unwrap();
+        let results = editor.check_blocks(None);
+        assert!(
+            !results.iter().any(|r| r.contains("unwired inputs")),
+            "optional unwired inputs must not be reported, got: {results:?}"
+        );
+        for quiet in ["Partly Wired State", "App Button"] {
+            assert!(
+                !results
+                    .iter()
+                    .any(|r| r.starts_with('✗') && r.contains(quiet)),
+                "{quiet} should not be an error, got: {results:?}"
+            );
+        }
+        assert!(
+            results.iter().any(|r| r.starts_with('✗')
+                && r.contains("Starved And")
+                && r.contains("no inputs wired")),
+            "logic block with used output and no input must still be an error, got: {results:?}"
+        );
+    }
+
+    #[test]
+    fn test_check_blocks_refs_not_reported_as_unconnected() {
+        // An InputRef is fed by its Ref attribute; its AI link may live on
+        // another page, so missing page wires do not make it unconnected.
+        let xml = br#"<?xml version="1.0" encoding="utf-8"?>
+<C Type="Document" V="175" U="doc-1" Title="Root">
+  <C Type="Page" V="175" U="page-1" Title="Logic" WF="16384">
+    <C Type="InputRef" V="175" U="ir-1" Title="Remote Sensor" WF="155648" Ref="elsewhere" Nio="4" Px="1" Py="1" Px2="2" Py2="2">
+      <Co K="AI" U="ir-ai"/><Co K="I" U="ir-i"/><Co K="AQ" U="ir-aq"/><Co K="Q" U="ir-q"/>
+    </C>
+    <C Type="OutputRef" V="175" U="or-1" Title="Remote Actor" WF="139264" Ref="elsewhere" Nio="2" Px="1" Py="1" Px2="2" Py2="2">
+      <Co K="AI" U="or-ai"/><Co K="AQ" U="or-aq"/>
+    </C>
+  </C>
+</C>"#;
+        let editor = ConfigEditor::load(xml).unwrap();
+        let results = editor.check_blocks(None);
+        assert!(
+            !results
+                .iter()
+                .any(|r| r.contains("Remote Sensor") || r.contains("Remote Actor")),
+            "refs must not be reported, got: {results:?}"
+        );
+    }
+
+    #[test]
+    fn test_check_blocks_comparator_input_set_by_wire_or_def() {
+        let xml = br#"<?xml version="1.0" encoding="utf-8"?>
+<C Type="Document" V="175" U="doc-1" Title="Root">
+  <C Type="Page" V="175" U="page-1" Title="Logic" WF="16384">
+    <C Type="VirtualIn" V="175" U="src" Title="Source" Px="1" Py="1" Px2="2" Py2="2" Nio="1">
+      <Co K="Q" U="src-q"/>
+    </C>
+    <C Type="GreaterEqual" V="175" U="ge-wired" Title="Wired Threshold" Nio="3" Px="1" Py="1" Px2="2" Py2="2">
+      <Co K="Input1" U="gw-1"><In Input="src-q"/></Co>
+      <Co K="Input2" U="gw-2"><In Input="src-q" FLG="2"/></Co>
+      <Co K="Q" U="gw-q"/>
+    </C>
+    <C Type="GreaterEqual" V="175" U="ge-def" Title="Constant Threshold" Nio="3" Px="1" Py="1" Px2="2" Py2="2">
+      <Co K="Input1" U="gd-1"><In Input="src-q"/></Co>
+      <Co K="Input2" U="gd-2" Def="21"/>
+      <Co K="Q" U="gd-q"/>
+    </C>
+    <C Type="GreaterEqual" V="175" U="ge-none" Title="Missing Threshold" Nio="3" Px="1" Py="1" Px2="2" Py2="2">
+      <Co K="Input1" U="gn-1"><In Input="src-q"/></Co>
+      <Co K="Input2" U="gn-2"/>
+      <Co K="Q" U="gn-q"/>
+    </C>
+  </C>
+</C>"#;
+        let editor = ConfigEditor::load(xml).unwrap();
+        let results = editor.check_blocks(None);
+        let not_set: Vec<&String> = results
+            .iter()
+            .filter(|r| r.contains("Input2 not set"))
+            .collect();
+        assert!(
+            !not_set
+                .iter()
+                .any(|r| r.contains("Wired Threshold") || r.contains("Constant Threshold")),
+            "wired or constant Input2 counts as set, got: {not_set:?}"
+        );
+        assert!(
+            not_set
+                .iter()
+                .any(|r| r.starts_with('⚠') && r.contains("Missing Threshold")),
+            "Input2 with neither Def nor wire must be reported as a warning, got: {results:?}"
+        );
+    }
+
+    #[test]
+    fn test_validate_api_connector_with_input_is_not_flagged() {
+        // A virtual text input feeding a block's API connector sends it commands.
+        let xml = br#"<?xml version="1.0" encoding="utf-8"?>
+<ControlList Version="267">
+  <C Type="VirtualTextIn" U="vti-1" Title="Webhook">
+    <Co K="AQ" U="vti-aq"/>
+  </C>
+  <C Type="Doorcontroller" U="dc-1" Title="Front Door">
+    <Co K="Q1" U="dc-q1"/>
+    <Co K="OutputAPI" U="dc-api"><In Input="vti-aq"/></Co>
+  </C>
+</ControlList>"#;
+        let results = ConfigEditor::load(xml).unwrap().validate_config();
+        assert!(
+            !results
+                .iter()
+                .any(|r| r.contains("wired TO an Output connector")),
+            "{results:?}"
+        );
+    }
+
+    #[test]
+    fn test_validate_direction_still_checks_user_wires_alongside_managed_links() {
+        for (extra, warns) in [("", false), (r#"<In Input="user-source"/>"#, true)] {
+            let xml = format!(
+                r#"<ControlList>
+                  <C Type="And" U="gate" Title="Gate">
+                    <Co K="Q" U="output">
+                      <In Input="managed-source" FLG="1"/>{extra}
+                    </Co>
+                  </C>
+                </ControlList>"#
+            );
+            let results = ConfigEditor::load(xml.as_bytes())
+                .unwrap()
+                .validate_config();
+            assert_eq!(
+                results
+                    .iter()
+                    .any(|r| r.contains("wired TO an Output connector")),
+                warns,
+                "{results:?}"
+            );
+        }
+    }
+
+    #[test]
+    fn test_check_and_validate_ignore_autopilot_managed_inputs() {
+        // AutoPilot conditions live in the rule's APC JSON; its inputs are
+        // Config-managed (FLG="1") links. Nothing here is a wiring problem.
+        let xml = br#"<?xml version="1.0" encoding="utf-8"?>
+<C Type="Document" V="175" U="doc-1" Title="Root">
+  <C Type="AutoPilot" V="175" U="ap-1" Title="Automatic Rules" WF="16384" Nio="2">
+    <Co K="Input" U="ap-in"/>
+    <Co K="output" U="ap-out"/>
+  </C>
+  <C Type="Page" V="175" U="page-1" Title="Logic" WF="16384">
+    <C Type="AutopilotRule" V="175" U="apr-1" Title="Night Rule" APC="{&quot;conditions&quot;:[]}" Nio="6" Px="1" Py="1" Px2="2" Py2="2">
+      <Co K="InputTrigger" U="apr-trig"/>
+      <Co K="Reset" U="apr-reset"><In Input="ap-out" FLG="1"/></Co>
+      <Co K="On" U="apr-on"/>
+      <Co K="Run" U="apr-run"/>
+      <Co K="Q" U="apr-q"><In Input="ap-out" FLG="1"/></Co>
+      <Co K="A" U="apr-a"/>
+    </C>
+  </C>
+</C>"#;
+        let editor = ConfigEditor::load(xml).unwrap();
+        let check = editor.check_blocks(None);
+        assert!(
+            !check
+                .iter()
+                .any(|r| (r.starts_with('✗') || r.starts_with('⚠'))
+                    && (r.contains("Night Rule") || r.contains("Automatic Rules"))),
+            "AutoPilot must not be reported by check, got: {check:?}"
+        );
+        let validate = editor.validate_config();
+        assert!(
+            !validate.iter().any(|r| r.contains("wired TO an Output")),
+            "FLG=1 links are Config-managed, got: {validate:?}"
+        );
+    }
+
+    #[test]
+    fn test_validate_config_uuid_suffixes_are_not_serials() {
+        // The last UUID group identifies the Config installation that created
+        // the element; projects legitimately mix many suffixes.
+        let xml = br#"<?xml version="1.0" encoding="utf-8"?>
+<ControlList Version="267">
+  <C Type="Document" U="1fbf3415-030f-bc7d-ffff5ff4953f8cf6" Title="Doc">
+    <C Type="Page" U="2a3b4c5d-0001-0002-ffffa2b891a5bde7" Title="Page">
+      <C Type="And" U="3a3b4c5d-0001-0002-ffff123456789abc" Title="Gate">
+        <Co K="I1" U="3a3b4c5d-0001-0003-00ff1748ea0f73fe"/>
+        <Co K="Q" U="3a3b4c5d-0001-0004-01ff1748ea0f73fe"/>
+      </C>
+    </C>
+    <C Type="Mode" U="00000000-0000-0002-1" Title="Mode"/>
+  </C>
+</ControlList>"#;
+        let editor = ConfigEditor::load(xml).unwrap();
+        let results = editor.validate_config();
+        assert!(
+            !results
+                .iter()
+                .any(|r| r.contains("serial") || r.contains("malformed UUID")),
+            "mixed suffixes must not be flagged, got: {results:?}"
+        );
+        assert!(results.iter().any(|r| r == "✓ All UUIDs are well-formed"));
+
+        let bad = br#"<?xml version="1.0" encoding="utf-8"?>
+<ControlList Version="267">
+  <C Type="And" U="3a3b4c5d-0001-0002-zzzz123456789abc" Title="Broken">
+    <Co K="Q" U="not-a-uuid"/>
+  </C>
+</ControlList>"#;
+        let editor = ConfigEditor::load(bad).unwrap();
+        let results = editor.validate_config();
+        assert!(
+            results.iter().any(|r| r.starts_with('⚠')
+                && r.contains("Broken")
+                && r.contains("malformed UUID")),
+            "malformed element UUID must be reported, got: {results:?}"
+        );
+        assert!(
+            results
+                .iter()
+                .any(|r| r.contains("connector Q") && r.contains("malformed UUID")),
+            "malformed connector UUID must be reported, got: {results:?}"
+        );
+    }
+
+    #[test]
     fn test_add_element() {
         let mut editor = ConfigEditor::load(SAMPLE_XML).unwrap();
         let uuid = editor
