@@ -1461,6 +1461,7 @@ pub fn cmd_config(ctx: &RunContext, action: ConfigCmd) -> Result<()> {
                     None => None,
                 };
                 save_edited_with_quiet(&mut editor, &file, save_as.as_deref(), ctx.quiet)?;
+                ctx.track_telemetry(|telemetry| telemetry.track_block_created("VirtualIn"));
                 if ctx.json {
                     let mut obj = serde_json::json!({
                         "ok": true,
@@ -1918,6 +1919,7 @@ pub fn cmd_config(ctx: &RunContext, action: ConfigCmd) -> Result<()> {
                 }
             }
             save_edited(&mut editor, &file, save_as.as_deref())?;
+            ctx.track_telemetry(|telemetry| telemetry.track_block_created(xml_type));
         }
         ConfigCmd::Validate { file } => {
             let data = fs::read(&file).with_context(|| format!("Cannot read {}", file))?;
@@ -2023,6 +2025,7 @@ pub fn cmd_config(ctx: &RunContext, action: ConfigCmd) -> Result<()> {
                     file
                 );
             }
+            ctx.track_telemetry(|telemetry| telemetry.track_check_result(ok, warn, err));
             if err > 0 {
                 anyhow::bail!("{} error(s) found in config check", err);
             }
@@ -2038,6 +2041,7 @@ pub fn cmd_config(ctx: &RunContext, action: ConfigCmd) -> Result<()> {
 
             let issues = findings.iter().filter(|f| f.starts_with('✗')).count();
             let warnings = findings.iter().filter(|f| f.starts_with('⚠')).count();
+            ctx.track_telemetry(|telemetry| telemetry.track_scan_result(issues, warnings));
 
             if issues == 0 && warnings == 0 {
                 println!("\n✓ No PII or secrets found — safe to commit");
@@ -2319,6 +2323,7 @@ pub fn cmd_config(ctx: &RunContext, action: ConfigCmd) -> Result<()> {
                 None => None,
             };
             save_edited_with_quiet(&mut editor, &file, save_as.as_deref(), ctx.quiet)?;
+            ctx.track_telemetry(|telemetry| telemetry.track_block_created("VirtualIn"));
             if ctx.json {
                 let mut obj = serde_json::json!({
                     "uuid": aq_uuid,
@@ -2929,6 +2934,13 @@ pub fn cmd_config(ctx: &RunContext, action: ConfigCmd) -> Result<()> {
             let data = fs::read(&file).with_context(|| format!("Cannot read {}", file))?;
             let editor = ConfigEditor::load(&data)?;
             let stats = editor.config_stats();
+            ctx.track_telemetry(|telemetry| {
+                telemetry.track_config_stats(
+                    stats.room_count,
+                    stats.block_types.iter().map(|(_, count)| count).sum(),
+                    stats.wiring_total,
+                );
+            });
             if ctx.json {
                 println!("{}", serde_json::to_string_pretty(&stats)?);
             } else {
@@ -2945,6 +2957,11 @@ pub fn cmd_config(ctx: &RunContext, action: ConfigCmd) -> Result<()> {
             let mut editor = ConfigEditor::load(&data)?;
             let plan = editor.apply_template(&template, &room)?;
             save_edited(&mut editor, &file, save_as.as_deref())?;
+            ctx.track_telemetry(|telemetry| {
+                for (block_type, _, _) in &plan {
+                    telemetry.track_block_created(block_type);
+                }
+            });
 
             if ctx.json {
                 let blocks: Vec<_> = plan
@@ -4644,6 +4661,7 @@ mod tests {
             no_header: false,
             non_interactive: false,
             trace_id: None,
+            telemetry: None,
         }
     }
 
@@ -4763,9 +4781,46 @@ mod tests {
             no_header: false,
             non_interactive: false,
             trace_id: None,
+            telemetry: None,
         };
         let result = cmd_config(&json_ctx, ConfigCmd::Stats { file });
         assert!(result.is_ok());
+    }
+
+    #[test]
+    fn config_feature_telemetry_delivers_only_aggregate_results() {
+        use httpmock::prelude::*;
+
+        let server = MockServer::start();
+        let stats = server.mock(|when, then| {
+            when.method(POST).json_body_partial(
+                r#"{"event":"config_stats","properties":{"rooms":2,"source":"test"}}"#,
+            );
+            then.status(200);
+        });
+        let scan = server.mock(|when, then| {
+            when.method(POST)
+                .json_body_partial(r#"{"event":"config_scan","properties":{"source":"test"}}"#);
+            then.status(200);
+        });
+        let (_dir, file) = fixture_file();
+        {
+            let mut context = ctx();
+            context.telemetry = Some(std::cell::RefCell::new(
+                crate::telemetry::Telemetry::for_test(server.url("/capture/")),
+            ));
+            cmd_config(&context, ConfigCmd::Stats { file: file.clone() }).unwrap();
+            cmd_config(
+                &context,
+                ConfigCmd::Scan {
+                    file,
+                    strict: false,
+                },
+            )
+            .unwrap();
+        }
+        stats.assert_hits(1);
+        scan.assert_hits(1);
     }
 
     #[test]
@@ -4806,6 +4861,7 @@ mod tests {
             no_header: false,
             non_interactive: false,
             trace_id: None,
+            telemetry: None,
         };
         let result = cmd_config(
             &json_ctx,

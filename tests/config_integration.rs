@@ -33,7 +33,9 @@ const FIXTURE_XML: &str = r#"<?xml version="1.0" encoding="utf-8"?>
 "#;
 
 fn lox() -> Command {
-    Command::cargo_bin("lox").unwrap()
+    let mut command = Command::cargo_bin("lox").unwrap();
+    command.env("LOX_TELEMETRY", "0");
+    command
 }
 
 /// Write the fixture XML to a temp dir and return (dir_handle, path).

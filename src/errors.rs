@@ -17,6 +17,22 @@ pub fn error_envelope(error: &str, message: &str) -> serde_json::Value {
     })
 }
 
+pub fn exit_argument_error(error: clap::Error, json: bool) -> ! {
+    if !error.use_stderr() {
+        error.exit();
+    }
+    if json {
+        println!(
+            "{}",
+            error_envelope("invalid_arguments", &error.to_string())
+        );
+    } else {
+        error.print().expect("Cannot print argument error");
+        eprintln!("\n{REPORT_HINT}");
+    }
+    std::process::exit(error.exit_code());
+}
+
 /// Detect output flags even when clap cannot finish parsing the invocation.
 pub fn json_output_requested(args: &[std::ffi::OsString]) -> bool {
     let mut args = args.iter().take_while(|arg| *arg != "--").peekable();

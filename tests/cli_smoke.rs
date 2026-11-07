@@ -2,7 +2,9 @@ use assert_cmd::Command;
 use predicates::prelude::*;
 
 fn lox() -> Command {
-    Command::cargo_bin("lox").unwrap()
+    let mut command = Command::cargo_bin("lox").unwrap();
+    command.env("LOX_TELEMETRY", "0");
+    command
 }
 
 // ── Top-level --help and --version ─────────────────────────────────────────
