@@ -141,6 +141,7 @@ Configuration:
   telemetry                      Manage anonymous usage analytics
   completions                    Generate shell completions
   schema                         Command schema for AI agent discovery
+  stats                          Miniserver statistics (ls/get/download)
 
 {options}{after-help}"
 )]
@@ -268,6 +269,11 @@ pub(crate) enum Cmd {
     Live {
         #[command(subcommand)]
         action: commands::live_cmd::LiveCmd,
+    },
+    /// Read Miniserver statistics: list them, print values, download the monthly XML files
+    Stats {
+        #[command(subcommand)]
+        action: commands::stats_cmd::StatsCmd,
     },
 }
 
@@ -590,7 +596,7 @@ pub(crate) enum ConfigCmd {
     /// Add a control element with type-aware defaults
     Add {
         file: String,
-        /// Control type: light, switch, presence, alarm-clock, memory, timer, mqtt-sub, mqtt-pub, calendar, autopilot, virtual-input. Use --device to bind device-bound types (e.g. alarm-clock) to a LoxAIRDevice.
+        /// Control type. Friendly aliases: light, switch, presence, alarm-clock, memory, timer, mqtt-sub, mqtt-pub, calendar, autopilot, virtual-input. Beyond these, --type accepts any block type from `lox blocks list` (PascalCase or kebab-case), e.g. logic gates And/Or/Not/Xor. Use --device to bind device-bound types (e.g. alarm-clock) to a LoxAIRDevice.
         #[arg(long = "type")]
         control_type: String,
         /// Element title
@@ -1198,6 +1204,7 @@ fn command_name(cmd: &Cmd) -> String {
         Cmd::Docs { .. } => "docs".into(),
         Cmd::Color { .. } => "color".into(),
         Cmd::Live { .. } => "live".into(),
+        Cmd::Stats { .. } => "stats".into(),
     }
 }
 
@@ -1293,6 +1300,7 @@ fn run(cli: Cli) -> Result<()> {
         } => cmd_docs(&ctx, query, datasheet, schema, list),
         Cmd::Color { action } => commands::color_cmd::cmd_color(&ctx, action),
         Cmd::Live { action } => commands::live_cmd::cmd_live(&ctx, action),
+        Cmd::Stats { action } => commands::stats_cmd::cmd_stats(&ctx, action),
     }
 }
 

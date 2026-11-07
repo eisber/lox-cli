@@ -127,6 +127,8 @@ GET /jdev/lan/txp, txe, txc, txu, rxp, rxo, eof, exh, nob        → LAN stats
 GET /jdev/sys/date, /jdev/sys/time                                 → system clock
 GET /jdev/sps/LoxAPPversion3        → structure file version check
 GET /binstatisticdata/{uuid}/{period} → binary statistics (u32 ts + f64[] values)
+GET /stats/                         → HTML index of statistic files (one per statistic, group and month)
+GET /stats/{file}.xml               → XML: monthly statistic values (<Statistics Outputs=".."><S T=".." V=".." V2=".."/>)
 GET /data/weatheru.bin              → binary weather data (108-byte entries)
 GET /dev/fsget/{path}               → filesystem access
 GET /jdev/sys/checktoken, refreshtoken, killtoken                  → token management

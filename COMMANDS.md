@@ -377,6 +377,32 @@ trace-only scenario does not count as verification and fails. Use `sim step` or
 
 ---
 
+## Statistics
+
+Reads the statistics the Miniserver logs to its SD card. These commands need a Miniserver connection (`lox setup`). All read-only.
+
+```bash
+lox stats ls                               # every statistic file: name, group, month, uuid, label
+lox stats ls --filter kitchen              # case-insensitive substring on the label
+lox stats ls --month 2026-10               # one month only
+lox stats ls --latest                      # one row per statistic and group, newest month
+
+lox stats get "Heat Pump" --group 2        # values of one statistic, all available months
+lox stats get Kitchen --from 2026-09 --to 2026-10 -o csv   # month range (YYYY-MM, inclusive)
+lox stats get <uuid> -o json               # {name, group, outputs, rows:[{t, values}]}
+
+lox stats download --dir ./stats           # mirror the monthly XML files, incrementally
+lox stats download --dir ./stats --from 2026-01 --filter energy
+lox stats download --dir ./stats --force   # refetch files that already exist
+lox stats download --dir ./stats --dry-run # list what would be fetched
+```
+
+`ls` also accepts `list` as an alias. `get` resolves the name case-insensitively (exact match first, then substring) or takes the uuid, including historical months saved under an earlier name. A name shared by several statistics is reported as ambiguous with each uuid; a grouped statistic (e.g. a meter) needs `--group`, and the error lists the groups and their outputs. Timestamps are printed as the Miniserver writes them, without timezone conversion; the row a month file shares with the next month is printed once. Duplicate output labels cannot be represented by the JSON values object; use CSV or table output to preserve all columns in that case. Malformed XML and non-finite values are errors rather than partial data or JSON nulls.
+
+`download` always refetches the current month, which is still growing. An existing file of an earlier month is kept only when it was saved at least one day after that month ended; an older copy may be incomplete and is refetched. With `-o csv`, it reports `FILE,STATUS` rows (`downloaded`, `skipped`, or `would_download` for a dry run); `--no-header` suppresses the header.
+
+---
+
 ## Block Library
 
 ```bash
