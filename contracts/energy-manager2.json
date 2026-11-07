@@ -1,0 +1,307 @@
+{
+  "schema_version": 1,
+  "application": {
+    "version": "17.2.10.21",
+    "sha256": "7b55e3ef18401574ab967c5c6a0140cd5a66dc728521ebba04ad53093577d8b3"
+  },
+  "block_type": "EnergyManager2",
+  "control_type": 515,
+  "scope": {
+    "status": "incomplete",
+    "description": "Version-bound pilot: three scalar parameters, fourteen Load attributes and their ordered container independently recovered from cached native exports and an actual owned offline official GUI. Fourteen genuine GUI cases passed; runtime dependencies/sentinels, structural CRUD, malformed references, overflow, icon edits, all deadline values, dirty-cancel rollback and customization-flag transitions remain unverified. Synthetic fixtures are implementation data only. No claim of whole-file byte parity or production/live execution. See tests\\ux\\energy-manager2\\field-bindings.json for units, encodings, observed limits and preservation rules.",
+    "source_evidence": [
+      {
+        "evidence_kind": "catalog",
+        "artifacts": [{"path": ".reverse-engineering\\ux\\energy-manager2\\catalog-evidence.json", "sha256": "9e6e28f27fa8d290f237d5564b63ea96359bb9f70782618ec222443ef61175c8"}]
+      },
+      {
+        "evidence_kind": "native",
+        "artifacts": [{"path": ".reverse-engineering\\ux\\energy-manager2\\native-recovery.json", "sha256": "05c043cdb95ccc5cdf659d9b7766e33bbc73a90585baf9c9181d53f0e293eb29"}]
+      },
+      {
+        "evidence_kind": "gui_oracle",
+        "artifacts": [
+          {"path": ".reverse-engineering\\ux\\energy-manager2\\runner-record.json", "sha256": "b1ee95d14d8f53a581f5de229a05940e9dde9a175702dc49cae305836bbfc3f3"},
+          {"path": ".reverse-engineering\\ux\\energy-manager2\\locale-output.Loxone", "sha256": "a6c64e45cfdf5f648183e35237ef3832dbf6d5d93a3bf29ed4a122e242ddd2a4"}
+        ]
+      }
+    ]
+  },
+  "capabilities": [
+    {
+      "id": "offset-grid-power",
+      "kind": "parameter",
+      "binding": {"status": "known", "path": "C[@Type='EnergyManager2']/Co[@K='O']/@Def", "reason": "O is Offset grid power parameter, not output; kW, default 0, signed values. Positive permits import/storage draw; negative reserves export/storage charge. Invariant decimal XML; decimal-comma GUI verified -1.25 and 2.75."},
+      "source_evidence": [
+        {"evidence_kind": "catalog", "artifacts": [{"path": ".reverse-engineering\\ux\\energy-manager2\\catalog-evidence.json", "sha256": "9e6e28f27fa8d290f237d5564b63ea96359bb9f70782618ec222443ef61175c8"}]},
+        {"evidence_kind": "native", "artifacts": [{"path": ".reverse-engineering\\ux\\energy-manager2\\native-recovery.json", "sha256": "05c043cdb95ccc5cdf659d9b7766e33bbc73a90585baf9c9181d53f0e293eb29"}]}
+      ],
+      "required_case_ids": ["gui-defaults", "gui-offset-signed"]
+    },
+    {
+      "id": "minimum-state-of-charge",
+      "kind": "parameter",
+      "binding": {"status": "known", "path": "C[@Type='EnergyManager2']/Co[@K='MinSoc']/@Def", "reason": "Percent; default 0, catalog 0..100 inclusive; GUI 0/100 verified. Values above zero document storage-charge priority, but runtime dependency execution is separately unknown."},
+      "source_evidence": [
+        {"evidence_kind": "catalog", "artifacts": [{"path": ".reverse-engineering\\ux\\energy-manager2\\catalog-evidence.json", "sha256": "9e6e28f27fa8d290f237d5564b63ea96359bb9f70782618ec222443ef61175c8"}]},
+        {"evidence_kind": "native", "artifacts": [{"path": ".reverse-engineering\\ux\\energy-manager2\\native-recovery.json", "sha256": "05c043cdb95ccc5cdf659d9b7766e33bbc73a90585baf9c9181d53f0e293eb29"}]}
+      ],
+      "required_case_ids": ["gui-defaults", "gui-minsoc-bounds"]
+    },
+    {
+      "id": "maximum-storage-power",
+      "kind": "parameter",
+      "binding": {"status": "known", "path": "C[@Type='EnergyManager2']/Co[@K='MaxSpwr']/@Def", "reason": "Maximum storage charging power, kW; default/minimum 0, no catalog upper bound. 5.5 and 0 saved. Zero runtime sentinel meaning is separately unknown."},
+      "source_evidence": [
+        {"evidence_kind": "catalog", "artifacts": [{"path": ".reverse-engineering\\ux\\energy-manager2\\catalog-evidence.json", "sha256": "9e6e28f27fa8d290f237d5564b63ea96359bb9f70782618ec222443ef61175c8"}]},
+        {"evidence_kind": "native", "artifacts": [{"path": ".reverse-engineering\\ux\\energy-manager2\\native-recovery.json", "sha256": "05c043cdb95ccc5cdf659d9b7766e33bbc73a90585baf9c9181d53f0e293eb29"}]}
+      ],
+      "required_case_ids": ["gui-defaults", "gui-maxspwr-bounds"]
+    },
+    {
+      "id": "ordered-load-records",
+      "kind": "nested_record",
+      "binding": {"status": "known", "path": "C[@Type='EnergyManager2']/Load", "reason": "Twelve direct records including unused slots; XML order is priority 1..12. Reorder whole records without renumbering OIdx or changing Id/references. Structural add/delete remains unknown."},
+      "source_evidence": [{"evidence_kind": "native", "artifacts": [{"path": ".reverse-engineering\\ux\\energy-manager2\\native-recovery.json", "sha256": "05c043cdb95ccc5cdf659d9b7766e33bbc73a90585baf9c9181d53f0e293eb29"}]}],
+      "required_case_ids": ["gui-load-table", "gui-priority-move"]
+    },
+    {
+      "id": "load-identity",
+      "kind": "nested_record",
+      "binding": {"status": "known", "path": "Load/@Id", "reason": "Persistent UUID preserved with record attributes during priority moves. Missing/duplicate identity validation is not claimed."},
+      "source_evidence": [{"evidence_kind": "native", "artifacts": [{"path": ".reverse-engineering\\ux\\energy-manager2\\native-recovery.json", "sha256": "05c043cdb95ccc5cdf659d9b7766e33bbc73a90585baf9c9181d53f0e293eb29"}]}],
+      "required_case_ids": ["gui-priority-move"]
+    },
+    {
+      "id": "load-output-used",
+      "kind": "nested_record",
+      "binding": {"status": "known", "path": "Load/@U", "reason": "Boolean output-connected/used flag; absent false. Not an enable checkbox: connected load retains U=true at rated power zero."},
+      "source_evidence": [{"evidence_kind": "native", "artifacts": [{"path": ".reverse-engineering\\ux\\energy-manager2\\native-recovery.json", "sha256": "05c043cdb95ccc5cdf659d9b7766e33bbc73a90585baf9c9181d53f0e293eb29"}]}],
+      "required_case_ids": ["gui-load-table", "gui-rated-zero"]
+    },
+    {
+      "id": "load-name",
+      "kind": "nested_record",
+      "binding": {"status": "known", "path": "Load/@Na", "reason": "Editable load name string; native name setter marks Ncu. GUI renamed the same L1 identity to Pilot Alpha."},
+      "source_evidence": [{"evidence_kind": "native", "artifacts": [{"path": ".reverse-engineering\\ux\\energy-manager2\\native-recovery.json", "sha256": "05c043cdb95ccc5cdf659d9b7766e33bbc73a90585baf9c9181d53f0e293eb29"}]}],
+      "required_case_ids": ["gui-load-edit"]
+    },
+    {
+      "id": "load-name-customization",
+      "kind": "nested_record",
+      "binding": {"status": "known", "path": "Load/@Ncu", "reason": "Boolean customization marker: recovered native name setter sets it to 1. GUI sample already had true; false-to-true transition is explicitly not verified."},
+      "source_evidence": [{"evidence_kind": "native", "artifacts": [{"path": ".reverse-engineering\\ux\\energy-manager2\\native-recovery.json", "sha256": "05c043cdb95ccc5cdf659d9b7766e33bbc73a90585baf9c9181d53f0e293eb29"}]}],
+      "required_case_ids": ["gui-load-edit", "gui-custom-markers"]
+    },
+    {
+      "id": "load-analog-mode",
+      "kind": "nested_record",
+      "binding": {"status": "known", "path": "Load/@An", "reason": "Boolean false/absent Digital; true Analog. GUI selector and saved XML independently verified. Not inferred from abbreviation."},
+      "source_evidence": [{"evidence_kind": "native", "artifacts": [{"path": ".reverse-engineering\\ux\\energy-manager2\\native-recovery.json", "sha256": "05c043cdb95ccc5cdf659d9b7766e33bbc73a90585baf9c9181d53f0e293eb29"}]}],
+      "required_case_ids": ["gui-load-edit"]
+    },
+    {
+      "id": "load-mode-customization",
+      "kind": "nested_record",
+      "binding": {"status": "known", "path": "Load/@Anc", "reason": "Boolean customization marker: native type setter sets it to 1. Sample initially true; false-to-true GUI transition unverified."},
+      "source_evidence": [{"evidence_kind": "native", "artifacts": [{"path": ".reverse-engineering\\ux\\energy-manager2\\native-recovery.json", "sha256": "05c043cdb95ccc5cdf659d9b7766e33bbc73a90585baf9c9181d53f0e293eb29"}]}],
+      "required_case_ids": ["gui-load-edit", "gui-custom-markers"]
+    },
+    {
+      "id": "load-output-association",
+      "kind": "nested_record",
+      "binding": {"status": "known", "path": "Load/@OIdx", "reason": "Integer zero-based output L(OIdx+1), 0..11 in twelve-slot model. NOT priority; original OIdx stays with its load during GUI sorting."},
+      "source_evidence": [{"evidence_kind": "native", "artifacts": [{"path": ".reverse-engineering\\ux\\energy-manager2\\native-recovery.json", "sha256": "05c043cdb95ccc5cdf659d9b7766e33bbc73a90585baf9c9181d53f0e293eb29"}]}],
+      "required_case_ids": ["gui-priority-move"]
+    },
+    {
+      "id": "load-preparation-time",
+      "kind": "nested_record",
+      "binding": {"status": "known", "path": "Load/@RT", "reason": "Integer seconds, default 60; preparation time GUI 30..86400. Native setter clamps below 30. GUI accepted/saved both endpoints; attempted zero retained previous 30."},
+      "source_evidence": [{"evidence_kind": "native", "artifacts": [{"path": ".reverse-engineering\\ux\\energy-manager2\\native-recovery.json", "sha256": "05c043cdb95ccc5cdf659d9b7766e33bbc73a90585baf9c9181d53f0e293eb29"}]}],
+      "required_case_ids": ["gui-preparation-bounds"]
+    },
+    {
+      "id": "load-minimum-runtime",
+      "kind": "nested_record",
+      "binding": {"status": "known", "path": "Load/@MinRt", "reason": "Integer seconds, absent 0; GUI minutes convert via QVariant::toInt then x60. 1,5 rounds to 2 =>120; -1 min accepted/saved -60. No invented nonnegative validator; overflow domain unverified."},
+      "source_evidence": [{"evidence_kind": "native", "artifacts": [{"path": ".reverse-engineering\\ux\\energy-manager2\\native-recovery.json", "sha256": "05c043cdb95ccc5cdf659d9b7766e33bbc73a90585baf9c9181d53f0e293eb29"}]}],
+      "required_case_ids": ["gui-runtime-conversion"]
+    },
+    {
+      "id": "load-daily-minimum-runtime",
+      "kind": "nested_record",
+      "binding": {"status": "known", "path": "Load/@MDay", "reason": "Integer seconds, absent 0; GUI minutes/day 0..1440, integer conversion x60. 5=>300 and 1440=>86400 saved. Attempt 1441 became 144=>8640 by prefix filtering."},
+      "source_evidence": [{"evidence_kind": "native", "artifacts": [{"path": ".reverse-engineering\\ux\\energy-manager2\\native-recovery.json", "sha256": "05c043cdb95ccc5cdf659d9b7766e33bbc73a90585baf9c9181d53f0e293eb29"}]}],
+      "required_case_ids": ["gui-daily-runtime"]
+    },
+    {
+      "id": "load-daily-deadline",
+      "kind": "nested_record",
+      "binding": {"status": "known", "path": "Load/@tpR", "reason": "Integer selector default0; native 0 Sunset,1 Dusk,2 Sunrise,3 Dawn,4..27 01:00..24:00. Only Sunset/Dusk GUI-save verified; daily-cycle runtime and all remaining selections separately unverified."},
+      "source_evidence": [{"evidence_kind": "native", "artifacts": [{"path": ".reverse-engineering\\ux\\energy-manager2\\native-recovery.json", "sha256": "05c043cdb95ccc5cdf659d9b7766e33bbc73a90585baf9c9181d53f0e293eb29"}]}],
+      "required_case_ids": ["gui-daily-runtime", "gui-all-deadline-values"]
+    },
+    {
+      "id": "load-switch-on-power",
+      "kind": "nested_record",
+      "binding": {"status": "known", "path": "Load/@SwPwr", "reason": "Double kW, default/minimum0. Setting zero substitutes current MaxPwr. Digital SwPwr>MaxPwr is allowed. Native setter and GUI 0->2.5 with rated2.5 verified."},
+      "source_evidence": [{"evidence_kind": "native", "artifacts": [{"path": ".reverse-engineering\\ux\\energy-manager2\\native-recovery.json", "sha256": "05c043cdb95ccc5cdf659d9b7766e33bbc73a90585baf9c9181d53f0e293eb29"}]}],
+      "required_case_ids": ["gui-power-zero"]
+    },
+    {
+      "id": "load-rated-power",
+      "kind": "nested_record",
+      "binding": {"status": "known", "path": "Load/@MaxPwr", "reason": "Double kW, default/minimum0. Zero accepted and omitted in XML; existing U=true remains; row pink. Native rated setter substitutes its value into SwPwr if SwPwr was zero."},
+      "source_evidence": [{"evidence_kind": "native", "artifacts": [{"path": ".reverse-engineering\\ux\\energy-manager2\\native-recovery.json", "sha256": "05c043cdb95ccc5cdf659d9b7766e33bbc73a90585baf9c9181d53f0e293eb29"}]}],
+      "required_case_ids": ["gui-power-zero", "gui-rated-zero"]
+    },
+    {
+      "id": "load-icon-reference",
+      "kind": "nested_record",
+      "binding": {"status": "known", "path": "Load/@ico", "reason": "UUID icon reference preserved during tested record edits/reordering. Picker CRUD/reference validation is explicitly not GUI-tested."},
+      "source_evidence": [{"evidence_kind": "native", "artifacts": [{"path": ".reverse-engineering\\ux\\energy-manager2\\native-recovery.json", "sha256": "05c043cdb95ccc5cdf659d9b7766e33bbc73a90585baf9c9181d53f0e293eb29"}]}],
+      "required_case_ids": ["gui-priority-move", "gui-icon-edit"]
+    },
+    {
+      "id": "priority-button-state",
+      "kind": "feedback",
+      "binding": {"status": "known", "path": "CEnergyManagerConfigurationDlg/m_btnSortUp,m_btnSortDown", "reason": "Actual first-row Up disabled and Down enabled; native checks selected index against 0 and record count minus1."},
+      "source_evidence": [{"evidence_kind": "native", "artifacts": [{"path": ".reverse-engineering\\ux\\energy-manager2\\native-recovery.json", "sha256": "05c043cdb95ccc5cdf659d9b7766e33bbc73a90585baf9c9181d53f0e293eb29"}]}],
+      "required_case_ids": ["gui-priority-buttons"]
+    },
+    {
+      "id": "unused-load-feedback",
+      "kind": "feedback",
+      "binding": {"status": "known", "path": "Load/@U,Load/@MaxPwr", "reason": "Observed unused rows pink and connected zero-rated row pink. Native pink condition is U==0 OR MaxPwr<=0; GUI label explicitly identifies unconnected outputs as unused."},
+      "source_evidence": [{"evidence_kind": "native", "artifacts": [{"path": ".reverse-engineering\\ux\\energy-manager2\\native-recovery.json", "sha256": "05c043cdb95ccc5cdf659d9b7766e33bbc73a90585baf9c9181d53f0e293eb29"}]}],
+      "required_case_ids": ["gui-load-table", "gui-rated-zero"]
+    },
+    {
+      "id": "gui-baseline-migration",
+      "kind": "feedback",
+      "binding": {"status": "known", "path": "C/@V,C/@Cl,Co/In/@CF,Co/In/@FLG", "reason": "Actual first save upgraded V172->178, colors and CF=true->FLG=2. Entire file bytes/UUID multiset differ. Reorder preservation comparisons are against the GUI-saved baseline, never globally stripped UUIDs."},
+      "source_evidence": [{
+        "evidence_kind": "gui_oracle",
+        "artifacts": [
+          {"path": ".reverse-engineering\\ux\\energy-manager2\\runner-record.json", "sha256": "b1ee95d14d8f53a581f5de229a05940e9dde9a175702dc49cae305836bbfc3f3"},
+          {"path": ".reverse-engineering\\ux\\energy-manager2\\baseline-output.Loxone", "sha256": "2a22ffad12756f922c1f14abe5592b9aa588d65ea179bf0f635bfac6ea3ae469"}
+        ]
+      }],
+      "required_case_ids": ["gui-migration-baseline"]
+    },
+    {
+      "id": "storage-priority-runtime",
+      "kind": "condition",
+      "binding": {"status": "unknown", "reason": "Documented Soc/Spwr/MinSoc priority behavior was not exercised by an offline GUI SPS oracle."},
+      "source_evidence": [],
+      "required_case_ids": ["gui-runtime-storage-priority"]
+    },
+    {
+      "id": "storage-zero-runtime-sentinel",
+      "kind": "condition",
+      "binding": {"status": "unknown", "reason": "MaxSpwr zero/default accepted; runtime zero interpretation not verified. Do not assume unlimited charging or disabled storage."},
+      "source_evidence": [],
+      "required_case_ids": ["gui-runtime-maxspwr-zero"]
+    },
+    {
+      "id": "daily-cycle-runtime",
+      "kind": "condition",
+      "binding": {"status": "unknown", "reason": "Deadline/day-cycle output behavior not executed; no production schedules or alarms touched."},
+      "source_evidence": [],
+      "required_case_ids": ["gui-runtime-daily-cycle"]
+    },
+    {
+      "id": "structural-load-crud",
+      "kind": "validation",
+      "binding": {"status": "unknown", "reason": "No add/delete controls observed; dynamic/sparse/missing/>12-row acceptance and structural CRUD not executed."},
+      "source_evidence": [],
+      "required_case_ids": ["gui-structural-crud"]
+    },
+    {
+      "id": "invalid-reference-validation",
+      "kind": "validation",
+      "binding": {"status": "unknown", "reason": "Duplicate load Id/OIdx and dangling connector/icon reference diagnostics not executed."},
+      "source_evidence": [],
+      "required_case_ids": ["gui-invalid-references"]
+    },
+    {
+      "id": "nonfinite-overflow-validation",
+      "kind": "validation",
+      "binding": {"status": "unknown", "reason": "Scientific/non-finite/overflow inputs and integer conversion overflow not executed; typed-prefix filtering is not a complete CLI parser policy."},
+      "source_evidence": [],
+      "required_case_ids": ["gui-nonfinite-overflow"]
+    },
+    {
+      "id": "storage-power-incompleteness",
+      "kind": "feedback",
+      "binding": {
+        "status": "known",
+        "path": "C[@Type='EnergyManager2']/Co[@K='Soc' or @K='MinSoc' or @K='MaxSpwr']/@Nc,@Def",
+        "reason": "Added static-feedback slice, not a rewrite of earlier snapshots: native callback0x140618e80, primary RTTI vtable+0x1358, property421=400+MaxSpwr index21. For valid unique connectors: Soc connected AND MaxSpwr unwired/default0 AND (MinSoc connected OR nonzero default). Soc/Spwr current values do not enter this predicate. CLI reports missing_storage_power without rejecting zero or prohibiting simulation; inconsistent bindings/counts are explicitly unknown. Fresh feedback assertions remain unverified: first case blocked before readback, five not_run; universal runtime-zero semantics remain unknown."
+      },
+      "source_evidence": [
+        {
+          "evidence_kind": "native",
+          "artifacts": [
+            {
+              "path": ".reverse-engineering\\native-simulator\\workstreams\\energy-closeout\\storage-feedback-static-proof-corrected.json",
+              "sha256": "40079d1fb106979b67fdbc59a58e40c369855d44970597eb6166feb5c0f4980f"
+            }
+          ]
+        }
+      ],
+      "required_case_ids": [
+        "cli-storage-power-feedback",
+        "unit-storage-power-feedback",
+        "storage-power-unwired-zero",
+        "storage-power-positive-default",
+        "storage-power-minsoc-unwired-zero",
+        "storage-power-soc-unwired",
+        "storage-power-maxspwr-wired-zero",
+        "storage-power-minsoc-wired-zero"
+      ]
+    },
+    {
+      "id": "dirty-cancel-rollback",
+      "kind": "feedback",
+      "binding": {"status": "unknown", "reason": "Exploratory Cancel closed a dialog, but no accepted dirty edit was cancelled; rollback behavior not verified."},
+      "source_evidence": [],
+      "required_case_ids": ["gui-cancel-rollback"]
+    }
+  ],
+  "cases": [
+    {"id": "gui-defaults", "capability_ids": ["offset-grid-power", "minimum-state-of-charge", "maximum-storage-power"], "condition": "Public offline sample, all scalar defaults", "evidence_kind": "gui_oracle", "procedure": "Open owned disposable project, select Energy Manager, inspect widgets, save baseline, inspect Co Def storage.", "expected": "All three widgets 0; baseline omits Def and preserves scalar connector identities."},
+    {"id": "gui-offset-signed", "capability_ids": ["offset-grid-power"], "condition": "Signed fractional O with locale-correct decimal separator", "evidence_kind": "gui_oracle", "procedure": "Enter -1,25 then later 2,75 in owned GUI O widget; save and independently inspect invariant Def.", "expected": "O is Offset grid power parameter; saved Def -1.25 and 2.75."},
+    {"id": "gui-minsoc-bounds", "capability_ids": ["minimum-state-of-charge"], "condition": "MinSoc zero, upper endpoint and attempted over-bound entry", "evidence_kind": "gui_oracle", "procedure": "Enter100, attempt101 while previous100, then enter0; save and record actual widget/storage feedback.", "expected": "100 and0 accepted; attempt101 remains100 in observed session; zero Def omitted. Do not substitute CLI rejection text for GUI filtering."},
+    {"id": "gui-maxspwr-bounds", "capability_ids": ["maximum-storage-power"], "condition": "Storage power positive fractional, zero/default and attempted negative", "evidence_kind": "gui_oracle", "procedure": "Enter5,5 then attempt-1; capture widget and saved scalar Def.", "expected": "5.5 saved; attempted-1 produces0 and saved Def omission. Runtime-zero semantics not covered."},
+    {"id": "gui-load-table", "capability_ids": ["ordered-load-records", "load-output-used", "unused-load-feedback"], "condition": "Three connected loads plus nine unused fixed slots", "evidence_kind": "gui_oracle", "procedure": "Open actual Edit Energy Manager dialog; enumerate all headers, rows and controls and inspect screenshot.", "expected": "12 rows,11 headers, empty unused rows pink, no add/delete controls; outputs differ from priority indices."},
+    {"id": "gui-load-edit", "capability_ids": ["load-name", "load-name-customization", "load-analog-mode", "load-mode-customization"], "condition": "Rename and Digital-to-Analog edit of existing customized load", "evidence_kind": "gui_oracle", "procedure": "Rename L1 to Pilot Alpha, choose Analog, accept/save, compare field values and identity.", "expected": "Na Pilot Alpha and An=true; Id/OIdx/icon unchanged; Ncu/Anc stay true, not evidence of false-to-true transition."},
+    {"id": "gui-preparation-bounds", "capability_ids": ["load-preparation-time"], "condition": "Preparation-time endpoints and attempted zero", "evidence_kind": "gui_oracle", "procedure": "Set30, attempt0 from30, set86400; save and inspect RT.", "expected": "30/86400 saved seconds; attempted0 retains30; no confusion with MinRt minutes."},
+    {"id": "gui-runtime-conversion", "capability_ids": ["load-minimum-runtime"], "condition": "Minimum runtime whole, negative and fractional minute entry", "evidence_kind": "gui_oracle", "procedure": "Set2 min, -1 min and locale-correct1,5 min in separate saved observations.", "expected": "MinRt=120,-60,120 respectively; actual negative accepted, fractional rounds via integer conversion."},
+    {"id": "gui-daily-runtime", "capability_ids": ["load-daily-minimum-runtime", "load-daily-deadline"], "condition": "Daily5/1440-minute values, attempted1441 and Dusk selector", "evidence_kind": "gui_oracle", "procedure": "Set5 min/day and Dusk; save. Set1440, attempt1441 and capture prefix filtering; separately save1440.", "expected": "MDay300,tpR1; attempted1441 becomes144=>8640; saved1440=>86400. Baseline Sunset tpR omitted."},
+    {"id": "gui-power-zero", "capability_ids": ["load-switch-on-power", "load-rated-power"], "condition": "Switch-on zero with positive rated power and allowed greater-than-rated switch-on", "evidence_kind": "gui_oracle", "procedure": "Record original digital2.6/2.5; set switch-on0 at rated2.5, accept/save.", "expected": "SwPwr2.5 substituted. Existing SwPwr2.6>MaxPwr2.5 is accepted, not invalid universal relation."},
+    {"id": "gui-rated-zero", "capability_ids": ["load-rated-power", "load-output-used", "unused-load-feedback"], "condition": "Already-connected analog load assigned zero rated power", "evidence_kind": "gui_oracle", "procedure": "Enter rated0, inspect actual row color and saved Load attributes.", "expected": "MaxPwr omitted (zero); U=true/SwPwr2.5 retained; actual row pink."},
+    {"id": "gui-priority-move", "capability_ids": ["ordered-load-records", "load-identity", "load-output-association", "load-icon-reference"], "condition": "Move first priority down with real existing wire and icon references", "evidence_kind": "gui_oracle", "procedure": "Select first load, press Down, accept/save; compare ordered complete Load dictionaries by Id and all UUID spellings against preceding GUI-saved output.", "expected": "First two records exchange order only; Id/OIdx/icon/complete attributes and non-Load subtree/wire identities unchanged."},
+    {"id": "gui-priority-buttons", "capability_ids": ["priority-button-state"], "condition": "First-row selection and one downward move", "evidence_kind": "gui_oracle", "procedure": "Select first row, capture button enabled states, press Down and capture actual priority/output association.", "expected": "Up disabled, Down enabled; same L1 load moves to priority2, L2 to priority1."},
+    {"id": "gui-migration-baseline", "capability_ids": ["gui-baseline-migration"], "condition": "Public V172 sample first saved by actual version-bound GUI", "evidence_kind": "gui_oracle", "procedure": "Save disposable project and compare exact input/output without sanitizing XML or globally stripping UUIDs.", "expected": "Observed V172->178/color/CF->FLG conversion; full file identity not claimed. All Energy Load dictionaries and connector identities unchanged."},
+    {"id": "gui-runtime-storage-priority", "capability_ids": ["storage-priority-runtime"], "condition": "Soc below/at/above MinSoc with storage inputs", "evidence_kind": "gui_oracle", "procedure": "Future safe offline SPS oracle must independently execute storage priority, not just open an edit dialog.", "expected": "Record actual output behavior and diagnostics; currently not run."},
+    {"id": "gui-runtime-maxspwr-zero", "capability_ids": ["storage-zero-runtime-sentinel"], "condition": "MaxSpwr zero while storage priority active", "evidence_kind": "gui_oracle", "procedure": "Future offline SPS oracle must distinguish zero/default behavior without assuming a sentinel meaning.", "expected": "Currently unverified; no unlimited/disabled-storage guess."},
+    {"id": "gui-runtime-daily-cycle", "capability_ids": ["daily-cycle-runtime"], "condition": "Daily minimum runtime before/after deadline and day rollover", "evidence_kind": "gui_oracle", "procedure": "Future disposable offline SPS oracle with controlled synthetic time only; never household alarm/schedule mutation.", "expected": "Actual daily-cycle output and feedback; currently not run."},
+    {"id": "gui-structural-crud", "capability_ids": ["structural-load-crud"], "condition": "Structural add/remove or missing/sparse/excess fixed records", "evidence_kind": "gui_oracle", "procedure": "Future safe offline projects must establish real supported structural operations and feedback.", "expected": "Currently unverified; fixed-row edit/reorder does not establish dynamic CRUD."},
+    {"id": "gui-invalid-references", "capability_ids": ["invalid-reference-validation"], "condition": "Duplicate load identities/output associations or dangling references", "evidence_kind": "gui_oracle", "procedure": "Future disposable offline cases must capture exact acceptance/rejection/diagnostics while preserving unrelated references.", "expected": "Currently unverified; successful reference preservation does not establish invalid-reference diagnostics."},
+    {"id": "gui-nonfinite-overflow", "capability_ids": ["nonfinite-overflow-validation"], "condition": "Non-finite/scientific/overflow numeric values", "evidence_kind": "gui_oracle", "procedure": "Future bounded offline numeric oracle must establish parser/precision/conversion behavior.", "expected": "Currently unverified; catalog infinity means no stated finite bound, not permission to serialize NaN/Infinity."},
+    {"id": "gui-cancel-rollback", "capability_ids": ["dirty-cancel-rollback"], "condition": "Accepted dirty edit followed by Cancel", "evidence_kind": "gui_oracle", "procedure": "Future disposable dialog case must accept a changed field, Cancel, save and compare to preceding output.", "expected": "Currently unverified; prior exploratory Cancel is not counted as dirty rollback."},
+    {"id": "gui-icon-edit", "capability_ids": ["load-icon-reference"], "condition": "Icon picker changes and invalid icon selection", "evidence_kind": "gui_oracle", "procedure": "Future owned offline icon picker oracle must save an independently identified selected reference.", "expected": "Currently not run; preserved icon identity is not CRUD parity."},
+    {"id": "gui-all-deadline-values", "capability_ids": ["load-daily-deadline"], "condition": "Every deadline selector value including hourly values", "evidence_kind": "gui_oracle", "procedure": "Future GUI-save cases must independently bind native enum values2..27 and invalid boundaries.", "expected": "Currently not run beyond Sunset/Dusk; native enumeration is not complete GUI-save evidence."},
+    {"id": "gui-custom-markers", "capability_ids": ["load-name-customization", "load-mode-customization"], "condition": "Initially false Ncu/Anc then name/type edits", "evidence_kind": "gui_oracle", "procedure": "Future safe project must establish false-to-true marker transitions separately from native setter recovery.", "expected": "Currently not run; sample initially true so unchanged flags do not prove transition."},
+    {"id": "cli-storage-power-feedback", "capability_ids": ["storage-power-incompleteness"], "condition": "Actual isolated CLI inspection/set/wire operations against synthetic input", "evidence_kind": "implementation", "procedure": "Execute tests\\ux\\energy-manager2\\test_storage_power_feedback.py with an explicitly pinned isolated --binary. Preserve the actual command output separately; do not copy old GUI passes into this snapshot.", "expected": "Read-only inspection reports missing_storage_power only for the dependency; positive/default-zero/wired-zero countercases differ; zero edits remain accepted and warnings do not become runtime prohibitions."},
+    {"id": "unit-storage-power-feedback", "capability_ids": ["storage-power-incompleteness"], "condition": "Native-backed finite-default/connection predicate with invalid/ambiguous storage", "evidence_kind": "unit_test", "procedure": "Execute config_edit::energy_tests::energy_storage_power Rust regressions; retain actual test output and exact source hashes in a newly derived runner, not earlier receipts.", "expected": "Six core countercases differ as recovered; current Soc changes do not alter feedback; omitted zero remains distinct; Nc/In inconsistency, malformed/zero references, duplicated bindings and invalid defaults stay explicitly unknown without speculative warning."},
+    {"id": "storage-power-unwired-zero", "capability_ids": ["storage-power-incompleteness"], "condition": "Soc49 connected, MinSoc50 unwired, MaxSpwr0 unwired, Spwr0", "evidence_kind": "gui_oracle", "procedure": "Two owned GUI launches were blocked before Energy feedback readback: startup recovery, then custom project-tree target unavailable through frozen UX. Resolve the deterministic page/block binding before further execution; retain blocked, not PASS. See tests\\ux\\energy-manager2\\storage-power-feedback-cases.json.", "expected": "MaxSpwr-specific incompleteness feedback is present; simulation is not declared prohibited."},
+    {"id": "storage-power-positive-default", "capability_ids": ["storage-power-incompleteness"], "condition": "Same connected Soc49/MinSoc50 with unwired MaxSpwr3", "evidence_kind": "gui_oracle", "procedure": "Execute the preregistered positive-default case with fresh owned native validation; currently not_run.", "expected": "This specific incompleteness feedback is not triggered; no whole-block completeness claim."},
+    {"id": "storage-power-minsoc-unwired-zero", "capability_ids": ["storage-power-incompleteness"], "condition": "Soc49 connected, MinSoc0 unwired, MaxSpwr0 unwired", "evidence_kind": "gui_oracle", "procedure": "Execute the preregistered legitimate-default-zero case with fresh owned native validation; currently not_run.", "expected": "This specific incompleteness feedback is not triggered; zero is not globally forbidden."},
+    {"id": "storage-power-soc-unwired", "capability_ids": ["storage-power-incompleteness"], "condition": "Soc49 default unwired, MinSoc50 unwired, MaxSpwr0 unwired", "evidence_kind": "gui_oracle", "procedure": "Execute the preregistered Soc-disconnected case with fresh owned native validation; currently not_run.", "expected": "This specific incompleteness feedback is not triggered; stored/current Soc values cannot substitute for a connection."},
+    {"id": "storage-power-maxspwr-wired-zero", "capability_ids": ["storage-power-incompleteness"], "condition": "Soc49 connected, MinSoc50 unwired, MaxSpwr connected to a zero source", "evidence_kind": "gui_oracle", "procedure": "Execute the preregistered wired-MaxSpwr-zero case with fresh owned native validation; currently not_run.", "expected": "This specific incompleteness feedback is not triggered; wired zero differs from unwired default zero."},
+    {"id": "storage-power-minsoc-wired-zero", "capability_ids": ["storage-power-incompleteness"], "condition": "Soc49 connected, MinSoc connected to a zero source, MaxSpwr0 unwired", "evidence_kind": "gui_oracle", "procedure": "Execute the preregistered wired-MinSoc-zero case with fresh owned native validation; currently not_run.", "expected": "This specific incompleteness feedback is present despite the zero current MinSoc source; no runtime-zero sentinel claim."}
+  ]
+}

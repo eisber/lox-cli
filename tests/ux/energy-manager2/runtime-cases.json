@@ -1,0 +1,100 @@
+{
+  "schema_version": 1,
+  "id": "energy-manager2-bounded-native-runtime",
+  "application": {
+    "version": "17.2.10.21",
+    "sha256": "7b55e3ef18401574ab967c5c6a0140cd5a66dc728521ebba04ad53093577d8b3"
+  },
+  "block_type": "EnergyManager2",
+  "control_type": 515,
+  "scope": "Independent manual native-simulator protocols, not full configuration/runtime parity or a pre-registered study. Expectations come from the public Energy Manager knowledge base; zero-power semantics are an observational question. Execution records must remain separate.",
+  "safety": "Only owned official Config GUI and disconnected disposable copies of the public heating-rod sample. Testing > Start Simulation is distinct from disabled LIVE and Connect to Miniserver. Never connect, transfer, deploy, invoke lox live, alter the host clock, or use lox sim as an independent oracle.",
+  "preparation": "Use ConfigEditor/CLI-owned valid changes, exact inspected source connector UUIDs, and native GUI load editing. Retain twelve original Load records, their Id/OIdx and original output wires. Native digit-prefixed attributes must not pass through a competing XML sanitizer.",
+  "controls": {
+    "power_units": "kW",
+    "Gpwr_sign": "Negative export, positive grid import.",
+    "Spwr_sign": "Negative storage charging.",
+    "Soc_units": "%",
+    "offset_O": 0,
+    "load_L1": "Original connected digital L1; rated/switch-on power 2.5 kW, preparation RT=30 s, MinRt=0.",
+    "other_loads": "Original connected L2/L3 retained but rated/switch-on power zero to isolate L1. Nine originally unused slots remain unused.",
+    "storage_feedback": "IL1/IL2/IL3 explicitly wired to zero (reported OFF), not unconnected automatic load-demand feedback. Static grid/production inputs model a pre-allocation state, not a closed physical plant.",
+    "daily_feedback": "IL1 wired to OL1. A native Mult computes Gpwr=2.5*OL1, giving grid0 when off and import2.5 when on. Ppwr=Spwr=0, Soc=100, MinSoc=MaxSpwr=0. Other feedback inputs remain zero. No physical actuator is operated.",
+    "time": "Only the official simulator's Use current time/date/time/pause/resume controls. Record actual readbacks and output snapshots. Internal simulation dt is not exposed; wall waits only allow native calculations to run. A paused date jump is not continuous 24-hour integration.",
+    "sampling": "Storage: run beyond the initial 60-second countdown, e.g. 70 s. Daily: start simulated 10:58:00, sample near +5,+70,+150 s. Screenshot capture adds overhead; record actual displayed times rather than treating nominal waits as exact."
+  },
+  "cases": [
+    {
+      "id": "native-offline-energy-execution",
+      "capability_ids": ["offline-runtime"],
+      "condition": "Disconnected official public-sample copy, LIVE disabled, separate Start Simulation enabled.",
+      "evidence_kind": "gui_oracle",
+      "procedure": "Capture the Testing ribbon before starting; click Start Simulation only; observe block values and Next countdown, then stop.",
+      "expected": "Owned official offline simulator executes EnergyManager2 with changing runtime state/countdown without a Miniserver connection."
+    },
+    {
+      "id": "native-storage-below-finite",
+      "capability_ids": ["storage-priority"],
+      "condition": "Gpwr=-4, Ppwr=4, Spwr=0, Soc=49, MinSoc=50, MaxSpwr=3; MDay=0.",
+      "evidence_kind": "gui_oracle",
+      "procedure": "Start a fresh native simulation of this static pre-allocation state; record inputs and L1 after the first calculation interval.",
+      "expected": "Charging priority leaves insufficient surplus for the 2.5 kW digital L1; compare OFF with the otherwise identical at-threshold case."
+    },
+    {
+      "id": "native-storage-at-finite",
+      "capability_ids": ["storage-priority"],
+      "condition": "Same as below-finite except Soc=50, exactly MinSoc.",
+      "evidence_kind": "gui_oracle",
+      "procedure": "Start a fresh native simulation; record actual Soc, parameter values and L1 after the first calculation interval.",
+      "expected": "Storage priority no longer withholds the finite charging allocation and L1 can turn ON with 4 kW export."
+    },
+    {
+      "id": "native-storage-below-zero",
+      "capability_ids": ["max-storage-zero"],
+      "condition": "Same as below-finite except MaxSpwr=0.",
+      "evidence_kind": "gui_oracle",
+      "procedure": "Observe L1 in a fresh native simulation after the first calculation interval and capture any native configuration feedback.",
+      "expected": "Obtain the actual output and any warning; discriminate from finite MaxSpwr without presupposing zero means unlimited charging or disabled storage."
+    },
+    {
+      "id": "native-maxspwr-zero-general-meaning",
+      "capability_ids": ["max-storage-zero"],
+      "condition": "A general interpretation of zero across charging/discharging, connected storage and configuration validation.",
+      "evidence_kind": "gui_oracle",
+      "procedure": "Only claim a universal meaning after an independently reviewed, valid and discriminating runtime batch; otherwise retain not_run.",
+      "expected": "One state, especially one with native incomplete-configuration feedback, does not establish a universal zero-power semantic."
+    },
+    {
+      "id": "native-daily-closed-feedback",
+      "capability_ids": ["daily-minimum"],
+      "condition": "Closed daily-feedback plant, MDay=60 s, deadline 11:00 (tpR=14), no PV surplus.",
+      "evidence_kind": "gui_oracle",
+      "procedure": "Select 11:00 in the official load dialog and save. Start simulator-local date/time at 2026-11-05 10:58:00. Sample before the daily window, during activation and after the deadline; capture actual grid, load feedback and L1.",
+      "expected": "Native daily-minimum scheduling activates L1 despite no surplus and later releases it. Sampling bounds transitions; it does not prove exact one-second deadline accuracy."
+    },
+    {
+      "id": "native-daily-next-cycle",
+      "capability_ids": ["daily-cycle"],
+      "condition": "Same native simulation has already completed the first daily minimum and switched L1 off.",
+      "evidence_kind": "gui_oracle",
+      "procedure": "Pause, use the official simulator calendar to select 2026-11-06 and simulator time 10:58:00, then resume without stop/start, reopening or reload. Sample off/on/off around the second day's 11:00 deadline.",
+      "expected": "The same native runtime rearms the daily load on the next simulated date. State the explicit clock jump; do not describe it as a continuously integrated 24-hour cycle."
+    },
+    {
+      "id": "native-daily-first-activation-after-deadline",
+      "capability_ids": ["daily-minimum"],
+      "condition": "First activation of a fresh native runtime occurs after its daily deadline.",
+      "evidence_kind": "gui_oracle",
+      "procedure": "In a separately bounded batch, start the closed daily-feedback plant after 11:00 and record activation and release; otherwise retain not_run.",
+      "expected": "The public KB describes immediate activation, but metadata and the before-deadline cases cannot substitute for executing this condition."
+    },
+    {
+      "id": "native-daily-continuous-full-day",
+      "capability_ids": ["daily-cycle"],
+      "condition": "Continuous native integration across an entire day without a calendar jump or restart.",
+      "evidence_kind": "gui_oracle",
+      "procedure": "Requires a separately authorized bounded native time-acceleration method or full-duration manual run. Do not change the host clock or create recurring jobs.",
+      "expected": "Keep not_run unless every intervening interval is genuinely exercised by the native simulator; host wall-time passage or a paused calendar jump is insufficient."
+    }
+  ]
+}

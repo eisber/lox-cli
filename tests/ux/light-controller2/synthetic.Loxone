@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ControlList Version="267">
+  <C Type="Document" U="document" ConfigVersion="unverified-fixture">
+    <C Type="Place" U="room" Title="Study"/>
+    <C Type="Page" U="page" Title="Study">
+      <C Type="LightController2" U="lighting" Title="Fixture Lighting" NameAI0="Unverified role" CapAI0="31" PresM0="65535" FutureAttribute="retain">
+        <IoData Pr="room"/>
+        <Co K="AQ10" U="output-10"/>
+        <Co K="AQ2" U="output-2"/>
+        <Co K="AQ1" U="output-1"/>
+        <LightscenesC Outputs="18" Num="2" FC="0040FFFF">
+          <LightsceneC Name="First" UUID="mood-1" SID="2" CID="9" Outputs="18" Q1="1610622736" Q2="37" Q10="-1" FutureMood="opaque"/>
+          <LightsceneC Name="Second" UUID="mood-2" SID="3" CID="10" Outputs="18" Q1="0" Q18="future-encoding"/>
+        </LightscenesC>
+        <LSConfig OpM="2" ScAc="3" ScMv="2"/>
+        <HCL Future="opaque"><Unknown Id="keep"/></HCL>
+        <PSD Future="opaque"/>
+        <UnknownLighting Id="retain"/>
+      </C>
+      <C Type="OutputRef" U="target" Title="Fixture Actor">
+        <Co K="AI" U="target-ai"><In Input="output-2" FLG="2" FutureWire="retain"/></Co>
+      </C>
+    </C>
+  </C>
+</ControlList>

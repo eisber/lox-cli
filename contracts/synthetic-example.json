@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "application": {
+    "version": "17.2.10.21",
+    "sha256": "7b55e3ef18401574ab967c5c6a0140cd5a66dc728521ebba04ad53093577d8b3"
+  },
+  "block_type": "SyntheticExample",
+  "control_type": 0,
+  "scope": {
+    "status": "unknown",
+    "description": "Format example only; no real block contract or Loxone validation.",
+    "source_evidence": []
+  },
+  "capabilities": [
+    {
+      "id": "example.scalar",
+      "kind": "parameter",
+      "binding": {"status": "unknown", "reason": "Storage has not been recovered."},
+      "source_evidence": [],
+      "required_case_ids": ["example.scalar.roundtrip"]
+    }
+  ],
+  "cases": [
+    {
+      "id": "example.scalar.roundtrip",
+      "capability_ids": ["example.scalar"],
+      "condition": "Example changed value",
+      "evidence_kind": "gui_oracle",
+      "procedure": "Describe an actual edit, save, reopen and observable comparison.",
+      "expected": "State the expected serialized and visible outcomes; this example has no result."
+    }
+  ]
+}

@@ -941,4 +941,29 @@ mod false_pass_tests {
                 .any(|check| { check["error"] == "scenario has no output assertions" })
         );
     }
+
+    #[test]
+    fn empty_comparators_are_not_output_assertions() {
+        let spec = parse_sim_specs(r#"{"expected_outputs":{"Source.Q":{}}}"#)
+            .unwrap()
+            .remove(0);
+        assert!(!run_one(&SimGraph::new(), &spec).pass);
+    }
+
+    #[test]
+    fn assertions_in_steps_can_pass_without_initial_assertions() {
+        let graph = lox_sim::parser::parse_bytes(
+            br#"<ControlList><C Type="VirtualIn" U="s" Title="Source"><Co K="Q" U="q"/></C></ControlList>"#,
+        )
+        .unwrap();
+        let specs = parse_sim_specs(
+            r#"[{"trace":true,"steps":[{"inputs":{"Source":1},"expected_outputs":{"Source.Q":{"==":1}}}]}]"#,
+        )
+        .unwrap();
+        assert_eq!(specs.len(), 1);
+        let result = run_one(&graph, &specs[0]);
+        assert!(result.pass);
+        assert_eq!(result.checks.len(), 1);
+        assert!(!result.trace.is_empty());
+    }
 }
