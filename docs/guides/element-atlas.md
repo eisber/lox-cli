@@ -105,6 +105,59 @@ witness, not a claim about a loaded DLL. There is no Access UX-rule, native
 simulation or behavioral-parity admission. Historical reports remain unchanged;
 three producer snapshots are digest-addressed beside the extension.
 
+### Reviewed three-candidate extension
+
+The next independently admitted cohort adds exactly these static identities:
+
+| Catalog row | ControlType | Existing XML type | Native class |
+|---|---|---|---|
+| 359 | 412 | `2Point` | `CControlObject2Point` |
+| 361 | 414 | `3Point` | `CControlObject3Point` |
+| 452 | 505 | `EdgeDetection` | `CControlObjectEdgeDetection` |
+
+The separate merged snapshot proves **163/522 catalog identities (31.23%)**:
+80 exact, 83 aliases, 20 candidates and 339 unresolved, leaving **359 unproven**.
+It links **144/483 native classes (29.81%)**, leaving **339 unlinked**. Its
+**321 factory/XML associations** retain every previous association and add only
+these three. The original 159 and Access-only 160 snapshots remain unchanged;
+Category and Place are still not admitted.
+
+The proof connects each selected numeric factory case to its actual allocated
+root, final primary vtable and offset-zero COL, then the same table's `+0xf18`
+descriptor-literal assignment. The old `+0x50` candidates and matching class
+names are not identity getters or sufficient proof. The claim is conditional
+on the independently reviewed ordinary Win64 normal-return, successful fresh
+allocation and synchronous object-model assumptions for these exact chains.
+It does not prove a loaded MFC DLL, allocation success, bytes surviving later
+callbacks, persistent registry contents, serialization, UX or native behavior.
+
+Independent admission SHA-256:
+`9f97912870f92313585960afdcab77488def098e7e92016ea0a68ed0f619739f`.
+The original proposal SHA-256 is
+`65c1940f1c7d854542e72bc17ad25de334dbe710d213e858aee93ec88b46831a`.
+The separately merged opt-in report SHA-256 is
+`28e47977b739ec151f67fdccae4c9a012d4adfe1da59395704a592f9779825e8`.
+Parent replay of the independent raw-PE checker passed 66 checks, including
+51 flagged negative cases. No prior proof checker was used as its semantic
+oracle.
+
+Use the existing opt-in flag with the new separate report and output:
+
+```powershell
+python scripts\element-native-map.py `
+  --inventory .reverse-engineering\ux\block-ux-coverage.json `
+  --native-catalog .reverse-engineering\native-simulator\scope\17.2.10.21-primary-handler-candidates\catalog.json `
+  --factory-proof .reverse-engineering\element-atlas\factory-three-reviewed-admission-20261108T0003Z\report.json `
+  --output .reverse-engineering\element-atlas\factory-three-reviewed-admission-20261108T0003Z\native-map.json
+```
+
+Default four-proof extraction is unchanged; the general recognizer is not
+broadened to admit other candidates. Generate the atlas in another new output
+directory, never over the historical reports. These identity counts do not
+change the 27-layout/134-method metadata assessment or establish an overall
+behavior percentage. Revalidate each factory, object and literal witness
+against the next release's image instead of inheriting these addresses.
+
 Generate shared UX mechanism leads with:
 
 ```powershell

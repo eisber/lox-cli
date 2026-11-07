@@ -134,6 +134,72 @@ def ingest_fixture(inventory, native, report, files, baseline=(), reviewed=True,
     return proofs, sources
 
 
+def three_identity_factory_fixture():
+    inventory, native, report, files = factory_fixture()
+    for offset, (xml, ct) in enumerate(
+            (("2Point", "412"), ("3Point", "414"), ("EdgeDetection", "505")), start=1):
+        index = len(inventory["blocks"])
+        native_index = len(native["classes"])
+        descriptor, vtable, target = (hex(0x1000 + offset), hex(0x2000 + offset),
+                                      hex(0x3000 + offset))
+        inventory["blocks"].append({
+            "catalog_index": index, "xml_type": xml, "control_type": ct, "name": xml})
+        native["classes"].append({
+            "type": {"address": descriptor, "display_name": "CControlObject" + xml},
+            "primary_tables": [{
+                "validated_candidate": True, "target": target, "vtable": vtable,
+                "exact_owners": [target], "target_is_canonical_entry": True,
+                "object_offset": 0, "primary_root_compatible": True,
+            }],
+            "secondary_loci": [], "xml_type_name": None, "simulator_supported": None,
+        })
+        native["handlers"].append({"address": target, "role_status": "candidate"})
+        report["successes"].append({
+            **proof(xml, ct, descriptor), "native_class": "CControlObject" + xml,
+            "native_source_index": native_index, "primary_vtable": vtable,
+            "factory": NATIVE.FACTORY,
+            "allocation_mode": "inline_derived_construction_after_base_constructor",
+            "constructor": None, "base_constructor": "0x4000",
+            "registrations": [{"slot_offset": "0xf18", "xml_type": xml}],
+            "normal_return_conditions": ["ordinary_normal_return", "fresh_disjoint_storage"],
+        })
+        report["catalog_joins"].append({
+            "catalog_index": index, "control_type": ct, "xml_type": xml,
+            "type_descriptor": descriptor, "native_class": "CControlObject" + xml,
+            "status": "exact", "proof_index": offset,
+        })
+    for xml in (None, "Other"):
+        inventory["blocks"].append({
+            "catalog_index": len(inventory["blocks"]), "xml_type": xml,
+            "control_type": "412", "name": "Nonmatching record"})
+    inventory["summary"].update(catalog_records=8, explicit_xml_types=5)
+    native["summary"].update(
+        class_count=5, classes_with_validated_primary_candidate=4, unique_handler_count=4)
+    report["catalog_records"] = [
+        {"catalog_index": b["catalog_index"], "control_type": b["control_type"],
+         "xml_type": b["xml_type"], "source_record": copy.deepcopy(b)}
+        for b in inventory["blocks"]]
+    report["native_class_ledger"] = [
+        {"source_index": i, "type_descriptor": c["type"]["address"],
+         "native_class": c["type"]["display_name"]}
+        for i, c in enumerate(native["classes"])]
+    report["catalog_join_rejections"] = [{"catalog_index": i} for i in (6, 7)]
+    report["summary"].update(
+        catalog_records=8, native_classes=5, proven_factory_CT_class_XML_associations=4,
+        proven_catalog_records=5, distinct_native_classes_proven_joined_to_catalog=4,
+        catalog_rows_with_factory_proof_not_admitted_as_XML_join=2,
+        catalog_record_status={"exact": 5, "unresolved": 3})
+    for item, value in zip(report["sources"][:2], (inventory, native)):
+        files[item["path"]] = json.dumps(value).encode()
+        item.update(sha256=NATIVE.digest(files[item["path"]]), bytes=len(files[item["path"]]))
+    path = ".reverse-engineering\\synthetic\\independent-review.json"
+    files[path] = b"synthetic independently reviewed conditional identity evidence"
+    report["sources"].append({
+        "path": path, "sha256": NATIVE.digest(files[path]),
+        "bytes": len(files[path]), "role": "independent-review"})
+    return inventory, native, report, files
+
+
 class NativeMapTests(unittest.TestCase):
     def test_duplicate_numeric_ids_preserve_all_source_records(self):
         inventory, native, sources = fixture()
@@ -425,6 +491,51 @@ class NativeMapTests(unittest.TestCase):
             mutate(report)
             with self.subTest(joins=report["catalog_joins"]), self.assertRaises(ValueError):
                 ingest_fixture(inventory, native, report, files)
+
+    def test_reviewed_inline_three_identity_cohort_is_explicit_and_append_only(self):
+        inventory, native, report, files = three_identity_factory_fixture()
+        baseline = [proof()]
+        before = NATIVE.build_map(inventory, native, fixture()[2], baseline)
+        proofs, sources = ingest_fixture(inventory, native, report, files, baseline)
+        after = NATIVE.build_map(inventory, native, list(sources.items.values()), proofs)
+        self.assertEqual(baseline[0], proofs[0])
+        self.assertEqual([3, 4, 5], [
+            old["catalog_index"] for old, new in zip(
+                before["catalog_records"], after["catalog_records"]) if old != new])
+        self.assertEqual(["candidate"] * 3,
+                         [before["catalog_records"][i]["status"] for i in (3, 4, 5)])
+        self.assertEqual(["exact"] * 3,
+                         [after["catalog_records"][i]["status"] for i in (3, 4, 5)])
+        self.assertEqual(["unresolved", "unresolved"],
+                         [after["catalog_records"][i]["status"] for i in (6, 7)])
+        self.assertEqual(["/successes/1", "/successes/2", "/successes/3"],
+                         [p["evidence"][0]["pointer"] for p in proofs[1:]])
+        self.assertEqual(before["classes"], after["classes"])
+        self.assertTrue(all(c.get("simulator_supported") is None for c in after["classes"]))
+        with self.assertRaisesRegex(ValueError, "Unreviewed factory proof SHA-256"):
+            ingest_fixture(inventory, native, report, files, baseline, reviewed=False)
+
+    def test_reviewed_three_identity_cohort_rejects_extra_joins_and_identity_pin_mutations(self):
+        inventory, native, original, files = three_identity_factory_fixture()
+        extra = {**original["catalog_joins"][2], "catalog_index": 6}
+        for mutate in (
+            lambda r: r["catalog_joins"].append(extra),
+            lambda r: r["catalog_joins"][2].update(control_type="414"),
+            lambda r: r["catalog_joins"][2].update(xml_type="3Point"),
+            lambda r: r["successes"][1].update(type_descriptor="0x1002"),
+            lambda r: r["successes"][1].update(primary_vtable="0x2002"),
+            lambda r: r["catalog_joins"][2].update(proof_index=2),
+            lambda r: r["catalog_join_rejections"].pop(),
+            lambda r: r["sources"][-1].update(sha256="0" * 64),
+        ):
+            report = copy.deepcopy(original)
+            mutate(report)
+            with self.subTest(report=report), self.assertRaises(ValueError):
+                ingest_fixture(inventory, native, report, files, [proof()])
+        changed = dict(files)
+        changed[".reverse-engineering\\synthetic\\independent-review.json"] += b"changed"
+        with self.assertRaisesRegex(ValueError, "Source hash mismatch"):
+            ingest_fixture(inventory, native, original, changed, [proof()])
 
 
 if __name__ == "__main__":

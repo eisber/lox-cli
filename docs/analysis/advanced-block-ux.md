@@ -213,6 +213,35 @@ header profile, method indices, dispatcher paths and destinations against that
 release's image hash. Do not reuse these indices or addresses as proof, or make
 the old receipt accept a changed image.
 
+### Reviewed Load Manager emitted dispatch
+
+The same pinned release also has three independently replayed emitted-dispatch
+bindings for `CLoadManagerConfigurationDlg`:
+
+| Local index | Qt metadata method | Emitted destination |
+|---|---|---|
+| 0 | `OnUpdateButtons` | `0x140b4f210` |
+| 1 | `OnSortDown` | `0x140b4f110` |
+| 2 | `OnSortUp` | `0x140b4f190` |
+
+Callback `0x140d280a0` preserves `RCX` on these selected paths. This is **3/3
+class-local emitted bindings**, not control/XML ownership, delivered widget
+input, reordering, persistence or runtime behavior. Only each selected immediate
+handler body was inspected; shared calls do not establish method equivalence.
+The receipt's `native_trace_stopped_at_verdict` label denotes static
+native-machine-code investigation, not a live debugger trace.
+
+Local receipt:
+`.reverse-engineering\element-atlas\load-manager-dialog-dispatch-20261107T2118Z`.
+Report SHA-256:
+`81956355c2d3ee02cef24607e6c67d4d7174ea0fd1c2def203114cb91d1bcfa8`;
+manifest SHA-256:
+`06ba99936b4e15438f996594b445daafee2ea6a4012e5c7edd0d685751c4bbd3`.
+Parent replay covered 34 focused checks and byte-identical reconstruction.
+These three edges add no layouts or methods to the 27/134 metadata aggregate;
+618/645 layouts remain unvalidated. They are separate from catalog identity
+admissions and add no native pass.
+
 For release comparisons, retain separate output directories with `--output`.
 Compare control identities, parameter patterns, and Qt class/member signatures,
 not native addresses, which can move between builds. A changed control identity
