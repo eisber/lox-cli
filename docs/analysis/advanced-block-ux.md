@@ -136,6 +136,59 @@ receiver ownership remain unknown. Qt 6.10.2 is a format reference, not a
 verified embedded library version. No catalog identity, native behavior or
 parity count is promoted.
 
+### Reviewed Energy Manager emitted dispatch
+
+For the pinned **17.2.10.21** executable, one metadata-to-code relation is
+independently replayed from the original PE bytes and canonical function index:
+
+| Metadata method | Emitted path | Admission |
+|---|---|---|
+| `CEnergyManagerConfigurationDlg::OnSortDown`, local index 1 | `0x140c084d0` -> `0x140c08500` -> `0x140939e90` | Static emitted dispatch only |
+
+With `EDX=0` and `R8D=1`, the dispatcher takes that direct tail transfer without
+changing `RCX`. The destination is a canonical, non-thunk function. The dispatcher
+itself has no exact-address entry in the frozen canonical index; its absence
+does not establish an analyzer failure or an additional canonical body.
+
+The handler passes a returned value `n` in `EDX` and `n+1` in `R8D` to
+`0x140939b10`, with its entry object in `RCX`. That helper was not followed in
+this receipt. Actual reordering, model mutation, persistence, widget delivery
+and native block behavior remain unknown; neither the method name nor these
+register facts prove them. This is not a GUI-widget connection, control/XML
+identity or runtime receiver proof. The 27/134 metadata aggregate and all
+catalog/native-behavior denominators remain unchanged.
+
+Local receipt:
+`.reverse-engineering\element-atlas\energy-sortdown-native-binding-20261107T2046Z`.
+Report SHA-256:
+`a1cf6c68f4020367f98745ea6b7d64c645d3ff616d3c17d93080f399bf7838e5`;
+manifest SHA-256:
+`556e35f97b89ed85feb7a6cea573e8034cc357be64663fa9e8a0e9b96301171b`.
+The receipt's `python -B analyze.py --verify` checks its pinned inputs and
+reconstructs the report in memory; parent replay covered five positive and
+nine negative checks without rewriting the original evidence.
+
+A separately scoped inspection of `0x140939b10` remains **UNKNOWN**: calls at
+`0x140939cb7` and `0x140939cd4` are indirect through slot `+0xe0`, without
+concrete receiver/vptr targets. The helper conditionally writes dword `1` to its
+entry object at `+0x1548` after bounds checks and returning calls. That store does
+not identify a modified flag, prove reordering, or establish persistence.
+No further callee was inspected.
+
+That separate receipt is
+`.reverse-engineering\element-atlas\energy-sortdown-helper-operation-20261107T2052Z`.
+Its report SHA-256 is
+`c965f09ca50d408f207348be62f457de5e27cdf7996ac5a3ac57e4889a5c8f6c`;
+manifest SHA-256 is
+`47ccc68c65511636a1628888031cc8304b9f72d5146ab98677d4846f6509a86c`.
+Parent replay covered five positive and 14 negative checks, preserving the
+earlier no-helper-followed receipt and its narrower admission.
+
+For another release, rediscover the class/method signature and review its
+header profile, method index, dispatcher path and destination against that
+release's image hash. Do not reuse index 1 or these addresses as proof, or make
+the old receipt accept a changed image.
+
 For release comparisons, retain separate output directories with `--output`.
 Compare control identities, parameter patterns, and Qt class/member signatures,
 not native addresses, which can move between builds. A changed control identity
