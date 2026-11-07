@@ -26,7 +26,7 @@ fn shape(element: &Element, include_content: bool) -> Shape {
                 return false;
             }
             if element.attributes.get("Type").map(String::as_str) == Some("Document")
-                && matches!(key.as_str(), "Date" | "DateS")
+                && matches!(key.as_str(), "Date" | "DateS" | "NumO")
             {
                 return false;
             }
@@ -174,6 +174,148 @@ fn controls(root: &Element) -> Result<Controls<'_>> {
     Ok(result)
 }
 
+/// Logic blocks that never carry `IoData`, so they can only reach the app through links.
+const LOGIC: &[&str] = &[
+    "AMemory",
+    "AMinmax",
+    "Add",
+    "Add4",
+    "AnalogMultiplexer",
+    "AnalogMultiplexer2",
+    "AnalogScaler",
+    "AnalogThresholdTrigger",
+    "Average",
+    "BinDecoder",
+    "CmdRecognition",
+    "EdgeDetection",
+    "EdgeWipingRelay",
+    "Formula",
+    "InputRef",
+    "Monoflop",
+    "OffDelay",
+    "OnDelay",
+    "OnOffDelay",
+    "OnPulseDelay",
+    "OutputRef",
+    "PWM",
+    "PuDe",
+    "RSFlipFlop",
+    "SwitchingTimer",
+    "Text",
+    "Validator",
+    // Usually carries IoData, but command children of a virtual output may not.
+    "VirtualOutCmd",
+];
+
+/// Types that enter the catalogue or its permissions without explicit visualization.
+fn implicitly_catalogued(kind: &str) -> bool {
+    kind.starts_with("Meter")
+        || matches!(
+            kind,
+            "AutopilotRule"
+                | "AutoPilot"
+                | "Mode"
+                | "EFM"
+                | "Caller"
+                | "CallerVirtualIn"
+                | "Mailer"
+                | "Notification"
+                | "MessageCenter"
+                | "WeatherServer"
+                | "IntercomDevice"
+                | "Doorcontroller"
+                | "TreeDevice"
+        )
+}
+
+/// Whether adding or removing a block cannot reach the catalogue.
+///
+/// Controls that can be visualized carry `IoData`; visualized ones set `Visu="true"`.
+/// Without `IoData`, only logic types known to lack a visualization qualify, so
+/// controls whose default visualization needs no `IoData` stay protected.
+fn addable(element: &Element, app_ids: &BTreeSet<String>) -> bool {
+    let kind = element
+        .attributes
+        .get("Type")
+        .map(String::as_str)
+        .unwrap_or_default();
+    !implicitly_catalogued(kind)
+        && (element.get_child("IoData").is_some()
+            || LOGIC.contains(&kind)
+            || runtime_only(element, app_ids))
+}
+
+/// User edits limited to credentials leave rights, and so `permissions.bin`, untouched.
+fn credentials_only(before: &Element, after: &Element) -> bool {
+    let strip = |element: &Element| {
+        let mut element = element.clone();
+        element
+            .attributes
+            .retain(|key, _| !matches!(key.as_str(), "LastEdit" | "UnsP"));
+        element
+            .children
+            .retain(|child| child.as_element().is_none_or(|child| child.name != "HP"));
+        shape(&element, true)
+    };
+    before
+        .attributes
+        .get("Type")
+        .is_some_and(|kind| kind == "User")
+        && after
+            .attributes
+            .get("Type")
+            .is_some_and(|kind| kind == "User")
+        && strip(before) == strip(after)
+}
+
+/// Identities that make a block part of the app through another control.
+fn references(root: &Element, result: &mut BTreeSet<String>) {
+    for (key, value) in &root.attributes {
+        if matches!(key.as_str(), "linkC" | "ctrlUuid") {
+            result.extend(
+                value
+                    .split(',')
+                    .filter(|uuid| !uuid.is_empty())
+                    .map(identity),
+            );
+        }
+    }
+    for child in root.children.iter().filter_map(XMLNode::as_element) {
+        references(child, result);
+    }
+}
+
+/// A block outside the app whose content cannot affect the catalogue or its permissions.
+///
+/// Existing blocks are judged against the compiled catalogue: their identities, and
+/// their connectors' identities, must not appear anywhere in it.
+fn app_neutral(element: &Element, app_ids: &BTreeSet<String>, linked: &BTreeSet<String>) -> bool {
+    let identities = std::iter::once(element)
+        .chain(
+            element
+                .children
+                .iter()
+                .filter_map(XMLNode::as_element)
+                .filter(|child| child.name == "Co"),
+        )
+        .filter_map(|element| element.attributes.get("U"))
+        .map(|uuid| identity(uuid));
+    let visualized = element
+        .get_child("IoData")
+        .and_then(|io| io.attributes.get("Visu"))
+        .is_some_and(|visu| visu == "true");
+    !visualized
+        && !identities
+            .into_iter()
+            .any(|uuid| app_ids.contains(&uuid) || linked.contains(&uuid))
+        && !element.attributes.contains_key("RightGroup")
+        && !element.attributes.contains_key("RGR")
+        && !matches!(
+            element.attributes.get("Type").map(String::as_str),
+            Some("Document" | "User" | "UserGroup" | "Place" | "Category" | "RightGroup" | "TPDC")
+        )
+}
+
 fn projection(
     controls: &Controls<'_>,
     app_ids: &BTreeSet<String>,
@@ -314,6 +456,9 @@ pub(super) fn validate(
     if root_shape(&before) != root_shape(&after) {
         return Err(unsupported(anyhow!("the project root settings changed")));
     }
+    let mut linked = BTreeSet::new();
+    references(&before, &mut linked);
+    references(&after, &mut linked);
     let keys: BTreeSet<&String> = before_shape.keys().chain(after_shape.keys()).collect();
     let mut changes = Vec::new();
     for key in keys {
@@ -326,11 +471,21 @@ pub(super) fn validate(
         let after = after_controls
             .get(key)
             .map(|(parent, element)| (parent.as_str(), *element));
-        // Added or removed runtime-only logic never appears in the app or its permissions.
-        if let (Some((_, element)), None) | (None, Some((_, element))) = (before, after)
-            && runtime_only(element, &app_ids)
-        {
-            continue;
+        let neutral = |element: &Element| app_neutral(element, &app_ids, &linked);
+        match (before, after) {
+            // Edits outside the app never reach its catalogue or permissions.
+            (Some((_, old)), Some((_, new)))
+                if (neutral(old) && neutral(new)) || credentials_only(old, new) =>
+            {
+                continue;
+            }
+            // Additions and removals that cannot reach the catalogue.
+            (Some((_, element)), None) | (None, Some((_, element)))
+                if neutral(element) && addable(element, &app_ids) =>
+            {
+                continue;
+            }
+            _ => {}
         }
         changes.push(compile::Change {
             key: key.clone(),

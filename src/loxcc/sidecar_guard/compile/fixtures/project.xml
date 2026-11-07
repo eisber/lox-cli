@@ -47,6 +47,18 @@
     <C Type="Doorcontroller" V="178" U="7a000000-0000-0001-ffff000000000000" Title="Door" OutName1="Lock" OutName2="Unlock" OutName3="Open">
       <IoData Visu="true" Pr="1b000000-0000-0001-ffff000000000000" Cr="1c000000-0000-0001-ffff000000000000"/>
     </C>
+    <C Type="LightController2" V="178" U="9a000000-0000-0001-ffff000000000000" Title="Lights">
+      <Co K="Mv" U="9a000000-0000-0002-ffff000000000000"/>
+      <IoData Visu="true" Pr="1b000000-0000-0001-ffff000000000000" Cr="1c000000-0000-0001-ffff000000000000"/>
+      <LightscenesC><Ls Id="1" Name="Bright"/></LightscenesC>
+    </C>
+    <C Type="VirtualOutCmd" V="178" U="9b000000-0000-0001-ffff000000000000" Title="Command" CmdOn="/on">
+      <Co K="I" U="9b000000-0000-0002-ffff000000000000"/>
+      <IoData Pr="1b000000-0000-0001-ffff000000000000" Cr="1c000000-0000-0001-ffff000000000000"/>
+    </C>
+    <C Type="Formula" V="178" U="9c000000-0000-0001-ffff000000000000" Title="Formula" Desc="I1*2">
+      <Co K="I1" U="9c000000-0000-0002-ffff000000000000"/>
+    </C>
     <C Type="And" U="8a000000-0000-0001-ffff000000000000" Title="Gate">
       <Co K="I1" U="8a000000-0000-0002-ffff000000000000"/>
     </C>

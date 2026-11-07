@@ -360,7 +360,10 @@ fn new_status_controls_and_meter_extend_catalogue_permissions_and_energy_tree() 
     let controls = result["controls"].as_object().unwrap();
     // Meters render before status controls, each in document order.
     assert_eq!(
-        controls.keys().skip(6).collect::<Vec<_>>(),
+        controls
+            .keys()
+            .skip(source["controls"].as_object().unwrap().len())
+            .collect::<Vec<_>>(),
         [
             "U:6b000000-0000-0001-ffff000000000000",
             "U:3b000000-0000-0001-ffff000000000000",
@@ -509,13 +512,9 @@ fn unsupported_or_unverifiable_edits_fail_closed() {
     let cases = [
         // Not a supported addition.
         (
-            edited(r#"    <C Type="Switch" U="9b000000-0000-0001-ffff000000000000" Title="Switch"><IoData Visu="true" Pr="1b000000-0000-0001-ffff000000000000" Cr="1c000000-0000-0001-ffff000000000000"/></C>
+            edited(r#"    <C Type="Switch" U="a1000000-0000-0001-ffff000000000000" Title="Switch"><IoData Visu="true" Pr="1b000000-0000-0001-ffff000000000000" Cr="1c000000-0000-0001-ffff000000000000"/></C>
 "#),
             "adding Switch",
-        ),
-        (
-            edited(&NEW_SELECTOR.replace("Visu=\"true\" ", "")),
-            "adding PushButton2Sel",
         ),
         // Edits beyond the reconciled attributes.
         (
@@ -628,4 +627,158 @@ fn new_controls_need_matching_native_templates_and_no_stale_records() {
     permissions.extend(record(&uuid("2b", 1), &[], &[&[]]));
     let source = archive(PROJECT, CATALOGUE, &permissions);
     assert!(rejection_from(&source, &xml).contains("stale record"));
+}
+
+fn unchanged(xml: &str) {
+    let repacked = deploy(xml);
+    assert_eq!(member(&repacked, "LoxAPP3.json"), CATALOGUE.as_bytes());
+    assert_eq!(member(&repacked, "permissions.bin"), source_permissions());
+}
+
+#[test]
+fn plumbing_outside_the_app_deploys_without_sidecar_changes() {
+    // Additions, edits and removals of logic and I/O plumbing, as in real projects.
+    unchanged(&edited(
+        r#"    <C Type="InputRef" V="178" U="9d000000-0000-0001-ffff000000000000" Ref="2a000000-0000-0006-ffff000000000000">
+      <Co K="AQ" U="9d000000-0000-0002-ffff000000000000"/>
+    </C>
+    <C Type="OutputRef" V="178" U="9e000000-0000-0001-ffff000000000000">
+      <Co K="AI" U="9e000000-0000-0002-ffff000000000000"><In Input="9d000000-0000-0002-ffff000000000000"/></Co>
+    </C>
+    <C Type="VirtualOutCmd" V="178" U="9f000000-0000-0001-ffff000000000000" Title="New command" CmdOn="/new">
+      <IoData Pr="1b000000-0000-0001-ffff000000000000" Cr="1c000000-0000-0001-ffff000000000000"/>
+    </C>
+"#,
+    ));
+    unchanged(
+        &PROJECT
+            .replace("CmdOn=\"/on\"", "CmdOn=\"/changed\" CmdOnPost=\"x\"")
+            .replace("Desc=\"I1*2\"", "Desc=\"I1*3\""),
+    );
+    unchanged(&PROJECT.replace(
+        "    <C Type=\"Formula\" V=\"178\" U=\"9c000000-0000-0001-ffff000000000000\" Title=\"Formula\" Desc=\"I1*2\">\n      <Co K=\"I1\" U=\"9c000000-0000-0002-ffff000000000000\"/>\n    </C>\n",
+        "",
+    ));
+    // Controls that are not visualized or linked stay outside the app.
+    unchanged(&edited(&NEW_SELECTOR.replace("Visu=\"true\" ", "")));
+    // Save counters are metadata.
+    unchanged(&PROJECT.replace(
+        "Title=\"Synthetic project\"",
+        "Title=\"Synthetic project\" NumO=\"42\"",
+    ));
+}
+
+#[test]
+fn catalogue_neutral_edits_of_visualized_controls_need_no_sidecar_changes() {
+    // Input wiring and connector parameters of compiled control types.
+    unchanged(&PROJECT.replace(
+        "<Co K=\"Min\" U=\"2a000000-0000-0003-ffff000000000000\"/>",
+        "<Co K=\"Min\" U=\"2a000000-0000-0003-ffff000000000000\" V=\"5\"><In Input=\"9c000000-0000-0002-ffff000000000000\"/></Co>",
+    ));
+    unchanged(&PROJECT.replace(
+        "<Co K=\"Q\" U=\"4a000000-0000-0003-ffff000000000000\"/>",
+        "<Co K=\"Q\" U=\"4a000000-0000-0003-ffff000000000000\" Nc=\"1\"/>",
+    ));
+    // Status texts and light moods are runtime states.
+    unchanged(&PROJECT.replace(
+        "<Co K=\"I1\" U=\"3a000000-0000-0002-ffff000000000000\"/>",
+        "<Co K=\"I1\" U=\"3a000000-0000-0002-ffff000000000000\"/>\n      <StateTexts><St T=\"Open\"/></StateTexts>",
+    ));
+    unchanged(&PROJECT.replace(
+        "<Ls Id=\"1\" Name=\"Bright\"/>",
+        "<Ls Id=\"1\" Name=\"Bright\"/><Ls Id=\"2\" Name=\"Candle\"/>",
+    ));
+    unchanged(&PROJECT.replace(
+        "<Co K=\"Mv\" U=\"9a000000-0000-0002-ffff000000000000\"/>",
+        "<Co K=\"Mv\" U=\"9a000000-0000-0002-ffff000000000000\"><In Input=\"9b000000-0000-0002-ffff000000000000\"/></Co>",
+    ));
+}
+
+#[test]
+fn links_and_renames_update_existing_entries() {
+    let xml = PROJECT
+        .replace(DATE, NEW_DATE)
+        .replace(
+            "Title=\"Existing status\"",
+            "Title=\"Existing status\" linkC=\"4a000000-0000-0001-ffff000000000000,9a000000-0000-0001-ffff000000000000\"",
+        )
+        .replace("Title=\"Lights\"", "Title=\"Ceiling lights\"");
+    let repacked = deploy(&xml);
+    let result = app(&repacked);
+    let mut expected: Value = serde_json::from_str(CATALOGUE).unwrap();
+    expected["lastModified"] = json!("2026-02-01 00:00:00");
+    expected["controls"]["U:3a000000-0000-0001-ffff000000000000"]["links"] =
+        json!([uuid("4a", 1), uuid("9a", 1)]);
+    expected["controls"]["U:9a000000-0000-0001-ffff000000000000"]["name"] = json!("Ceiling lights");
+    assert_eq!(result, expected);
+    assert_eq!(member(&repacked, "permissions.bin"), source_permissions());
+    // Removing every link removes the key.
+    let unlinked = xml
+        .replace(NEW_DATE, "Date=\"2026-03-01 00:00:00\"")
+        .replace(
+            " linkC=\"4a000000-0000-0001-ffff000000000000,9a000000-0000-0001-ffff000000000000\"",
+            "",
+        );
+    let result = app(&repack_zip(&repacked, unlinked.as_bytes()).unwrap());
+    assert!(
+        result["controls"]["U:3a000000-0000-0001-ffff000000000000"]
+            .get("links")
+            .is_none()
+    );
+}
+
+#[test]
+fn edits_that_reach_the_app_stay_protected() {
+    let cases = [
+        // A link to a control outside the catalogue needs a linked-only entry.
+        (
+            PROJECT.replace(DATE, NEW_DATE).replace(
+                "Title=\"Existing status\"",
+                "Title=\"Existing status\" linkC=\"9b000000-0000-0001-ffff000000000000\"",
+            ),
+            "linked control 9b000000",
+        ),
+        // Plumbing referenced by another control's links joins the app.
+        (
+            edited(r#"    <C Type="VirtualIn" V="178" U="9d000000-0000-0001-ffff000000000000" Title="Linked"/>
+"#)
+            .replace(
+                "Title=\"Existing status\"",
+                "Title=\"Existing status\" linkC=\"9d000000-0000-0001-ffff000000000000\"",
+            ),
+            "adding VirtualIn",
+        ),
+        // New visualized plumbing, and new blocks of types outside the verified set.
+        (
+            edited(r#"    <C Type="VirtualIn" V="178" U="9d000000-0000-0001-ffff000000000000" Title="Visible"><IoData Visu="true" Pr="1b000000-0000-0001-ffff000000000000" Cr="1c000000-0000-0001-ffff000000000000"/></C>
+"#),
+            "adding VirtualIn",
+        ),
+        (
+            edited(r#"    <C Type="Mode" V="178" U="9d000000-0000-0001-ffff000000000000" Title="Mode"/>
+"#),
+            "adding Mode",
+        ),
+        // Wiring of light controllers is neutral, but their circuits are not verified.
+        (
+            PROJECT.replace(
+                "<Co K=\"Mv\" U=\"9a000000-0000-0002-ffff000000000000\"/>",
+                "<Co K=\"Mv\" U=\"9a000000-0000-0002-ffff000000000000\"/><Co K=\"AQ1\" U=\"9a000000-0000-0004-ffff000000000000\"/>",
+            ),
+            "changing control 9a000000",
+        ),
+        // Visualizing existing plumbing.
+        (
+            PROJECT.replace(
+                "Title=\"Command\" CmdOn=\"/on\">\n      <Co K=\"I\" U=\"9b000000-0000-0002-ffff000000000000\"/>\n      <IoData Pr",
+                "Title=\"Command\" CmdOn=\"/on\">\n      <Co K=\"I\" U=\"9b000000-0000-0002-ffff000000000000\"/>\n      <IoData Visu=\"true\" Pr",
+            ),
+            "changing control 9b000000",
+        ),
+    ];
+    for (xml, expected) in cases {
+        assert_ne!(xml, PROJECT);
+        let error = rejection(&xml);
+        assert!(error.contains(expected), "{expected}: {error}");
+    }
 }
