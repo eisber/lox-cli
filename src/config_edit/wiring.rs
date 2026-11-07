@@ -447,30 +447,62 @@ impl ConfigEditor {
     /// Resolve stale InputRef wiring by updating connector UUIDs
     /// to match the live config from the Miniserver.
     ///
-    /// When Loxone Config UX saves, it regenerates InputRef connector UUIDs.
-    /// Blocks wired to old UUIDs still function (SPS follows VirtualInCaption-level refs)
-    /// but UX won't draw visual wires. This remaps old → current UUIDs.
+    /// If the live config carries different InputRef connector UUIDs, remap
+    /// old → current UUIDs without collapsing mirrors of the same target.
+    ///
+    /// Several InputRefs may mirror the same target (one per page, or twins
+    /// on one page), each with its own output connectors. A port is
+    /// therefore matched by its InputRef's own UUID first; the mirrored
+    /// target (`Ref=`) only identifies it when exactly one InputRef of that
+    /// target exists on both sides. A remap never targets a connector UUID
+    /// the config already carries — that would give two connectors one
+    /// identity, which Loxone Config "heals" on its next open by re-minting
+    /// one of them, silently moving its wires.
     pub fn resolve_wiring(&mut self, live_xml: &[u8]) -> Result<usize> {
+        use std::collections::{HashMap, HashSet};
+
         let live = ConfigEditor::load(live_xml)?;
+        let mut live_ports = Vec::new();
+        Self::collect_inputref_ports(&live.root, &mut live_ports);
+        let mut our_ports = Vec::new();
+        Self::collect_inputref_ports(&self.root, &mut our_ports);
 
-        // From live config: map VirtualIn UUID → current AQ/Q connector UUID
-        let mut live_vi_to_aq: std::collections::HashMap<String, String> =
-            std::collections::HashMap::new();
-        Self::collect_inputref_aq(&live.root, &mut live_vi_to_aq);
-
-        // From our config: map old AQ UUID → VirtualIn UUID
-        let mut our_aq_to_vi: std::collections::HashMap<String, String> =
-            std::collections::HashMap::new();
-        Self::collect_inputref_aq_reverse(&self.root, &mut our_aq_to_vi);
+        // Live config: current AQ/Q connector UUID by InputRef object, and
+        // all of them by mirrored target.
+        let mut live_by_object: HashMap<(&str, &str), &str> = HashMap::new();
+        let mut live_by_target: HashMap<(&str, &str), Vec<&str>> = HashMap::new();
+        for p in &live_ports {
+            live_by_object.insert((&p.object, &p.key), &p.uuid);
+            live_by_target
+                .entry((&p.target, &p.key))
+                .or_default()
+                .push(&p.uuid);
+        }
+        let mut our_per_target: HashMap<(&str, &str), usize> = HashMap::new();
+        for p in &our_ports {
+            *our_per_target.entry((&p.target, &p.key)).or_default() += 1;
+        }
+        let mut taken: HashSet<String> = HashSet::new();
+        Self::collect_connector_uuids(&self.root, &mut taken);
 
         // Build old→new replacement map
-        let mut replacements: std::collections::HashMap<String, String> =
-            std::collections::HashMap::new();
-        for (old_aq, vi_uuid) in &our_aq_to_vi {
-            if let Some(new_aq) = live_vi_to_aq.get(vi_uuid)
-                && old_aq != new_aq
+        let mut replacements: HashMap<String, String> = HashMap::new();
+        for p in &our_ports {
+            let current = live_by_object
+                .get(&(p.object.as_str(), p.key.as_str()))
+                .copied()
+                .or_else(|| {
+                    let key = (p.target.as_str(), p.key.as_str());
+                    match live_by_target.get(&key).map(Vec::as_slice) {
+                        Some([only]) if our_per_target[&key] == 1 => Some(*only),
+                        _ => None,
+                    }
+                });
+            if let Some(new_uuid) = current
+                && new_uuid != p.uuid
+                && taken.insert(new_uuid.to_string())
             {
-                replacements.insert(old_aq.clone(), new_aq.clone());
+                replacements.insert(p.uuid.clone(), new_uuid.to_string());
             }
         }
 
@@ -487,16 +519,16 @@ impl ConfigEditor {
         Ok(count)
     }
 
-    fn collect_inputref_aq(
-        elem: &Element,
-        vi_to_aq: &mut std::collections::HashMap<String, String>,
-    ) {
+    /// Every InputRef output connector (AQ/Q), with the InputRef's own UUID
+    /// and the target it mirrors.
+    fn collect_inputref_ports(elem: &Element, out: &mut Vec<InputRefPort>) {
         if elem
             .attributes
             .get("Type")
             .map(|t| t == "InputRef")
             .unwrap_or(false)
-            && let Some(ref_uuid) = elem.attributes.get("Ref")
+            && let (Some(object), Some(target)) =
+                (elem.attributes.get("U"), elem.attributes.get("Ref"))
         {
             for child in &elem.children {
                 if let Some(co) = child.as_element()
@@ -506,45 +538,32 @@ impl ConfigEditor {
                     if let Some(u) = co.attributes.get("U")
                         && (k == "AQ" || k == "Q")
                     {
-                        vi_to_aq.insert(format!("{}:{}", ref_uuid, k), u.clone());
+                        out.push(InputRefPort {
+                            object: object.clone(),
+                            target: target.clone(),
+                            key: k.to_string(),
+                            uuid: u.clone(),
+                        });
                     }
                 }
             }
         }
         for child in &elem.children {
             if let Some(e) = child.as_element() {
-                Self::collect_inputref_aq(e, vi_to_aq);
+                Self::collect_inputref_ports(e, out);
             }
         }
     }
 
-    fn collect_inputref_aq_reverse(
-        elem: &Element,
-        aq_to_vi: &mut std::collections::HashMap<String, String>,
-    ) {
-        if elem
-            .attributes
-            .get("Type")
-            .map(|t| t == "InputRef")
-            .unwrap_or(false)
-            && let Some(ref_uuid) = elem.attributes.get("Ref")
+    fn collect_connector_uuids(elem: &Element, out: &mut std::collections::HashSet<String>) {
+        if elem.name == "Co"
+            && let Some(u) = elem.attributes.get("U")
         {
-            for child in &elem.children {
-                if let Some(co) = child.as_element()
-                    && co.name == "Co"
-                {
-                    let k = co.attributes.get("K").map(|s| s.as_str()).unwrap_or("");
-                    if let Some(u) = co.attributes.get("U")
-                        && (k == "AQ" || k == "Q")
-                    {
-                        aq_to_vi.insert(u.clone(), format!("{}:{}", ref_uuid, k));
-                    }
-                }
-            }
+            out.insert(u.clone());
         }
         for child in &elem.children {
             if let Some(e) = child.as_element() {
-                Self::collect_inputref_aq_reverse(e, aq_to_vi);
+                Self::collect_connector_uuids(e, out);
             }
         }
     }
@@ -1306,4 +1325,14 @@ impl ConfigEditor {
         }
         search(&self.root, uuid)
     }
+}
+
+/// One AQ/Q connector of an InputRef, as seen by [`ConfigEditor::resolve_wiring`].
+struct InputRefPort {
+    /// The InputRef's own object UUID.
+    object: String,
+    /// The mirrored object (`Ref=`).
+    target: String,
+    key: String,
+    uuid: String,
 }

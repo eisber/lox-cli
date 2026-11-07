@@ -669,6 +669,12 @@ impl CompiledGraph {
                         state_idx: si,
                     }
                 }
+                // Merker: AQ = Input, Q = Input != 0 (same as a reference)
+                "Memory" => EvalStep::InputRef {
+                    src: resolved_inputs.first().copied().unwrap_or(0),
+                    output_q: outputs.get(1).copied(),
+                    output_aq: outputs.first().copied(),
+                },
                 "AMemory" => {
                     let si = state.len();
                     state.push(BlockState::Latch { value: 0.0 });
@@ -2097,6 +2103,38 @@ mod tests {
 
         assert_eq!(engine.get_output("Button"), 1.0);
         assert_eq!(compiled.get_output("Button"), 1.0);
+    }
+
+    #[test]
+    fn memory_flag_matches_interpreter_and_compiler() {
+        let mut graph = SimGraph::new();
+        let source = graph.add_block("Source", pt(), &["I1"], &["Q"], &[]);
+        let flag = graph.add_block(
+            "Flag",
+            Box::new(blocks::Memory::new()),
+            &["Input"],
+            &["AQ", "Q"],
+            &[],
+        );
+        graph
+            .add_wire(
+                graph.find_connector(source, "Q").unwrap(),
+                graph.find_connector(flag, "Input").unwrap(),
+            )
+            .unwrap();
+        let mut engine = SimEngine::new(graph.clone());
+        let mut compiled = CompiledGraph::from_graph(&graph);
+        for value in [21.5, 0.0, -3.0, 0.001] {
+            engine.set_input("Source", value);
+            compiled.set_input("Source", value);
+            engine.tick(0.1);
+            compiled.tick(0.1);
+            let digital = if value != 0.0 { 1.0 } else { 0.0 };
+            assert_eq!(engine.get_output("Flag.AQ"), value);
+            assert_eq!(compiled.get_output("Flag.AQ"), value);
+            assert_eq!(engine.get_output("Flag.Q"), digital);
+            assert_eq!(compiled.get_output("Flag.Q"), digital);
+        }
     }
 
     #[test]

@@ -1064,8 +1064,7 @@ pub fn cmd_config(ctx: &RunContext, action: ConfigCmd) -> Result<()> {
             eprintln!("Downloading {} as template...", newest.filename);
             let template_zip = ftp::download_backup(&cfg, &newest.filename)?;
 
-            // Resolve stale InputRef wiring: UX regenerates connector UUIDs on save,
-            // so our wiring may point to old UUIDs. Remap to current ones from template.
+            // Resolve stale InputRef ports against their matching live objects.
             let live_xml = loxcc::extract_and_decompress(&template_zip)?;
             let mut editor_for_wiring = ConfigEditor::load(&xml)?;
             let resolved = editor_for_wiring.resolve_wiring(&live_xml)?;

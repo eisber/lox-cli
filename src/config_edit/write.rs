@@ -55,10 +55,56 @@ impl ConfigEditor {
         // Post-process: restore CRLF line endings
         if self.had_crlf {
             let s = String::from_utf8(buf).context("XML is not valid UTF-8")?;
-            buf = s.replace("\r\n", "\n").replace('\n', "\r\n").into_bytes();
+            buf = Self::to_crlf_outside_attrs(&s).into_bytes();
         }
 
         Ok(buf)
+    }
+
+    /// Convert LF to CRLF everywhere except inside start tags.
+    ///
+    /// Loxone terminates lines with CRLF but writes newlines inside attribute values
+    /// (note text, AutoPilot JSON) as bare LF. Converting those too would plant a CR
+    /// in the value that xml-rs reads back literally and re-emits as `&#xD;`, adding
+    /// one more CR per newline on every save.
+    fn to_crlf_outside_attrs(s: &str) -> String {
+        let bytes = s.as_bytes();
+        let mut out = String::with_capacity(bytes.len() + bytes.len() / 32);
+        let mut last = 0;
+        let mut i = 0;
+
+        while i < bytes.len() {
+            if bytes[i] != b'<' {
+                i += 1;
+                continue;
+            }
+
+            let tail = &s[i..];
+            let opaque_end = if tail.starts_with("<!--") {
+                tail.find("-->").map(|end| i + end + 3)
+            } else if tail.starts_with("<![CDATA[") {
+                tail.find("]]>").map(|end| i + end + 3)
+            } else if tail.starts_with("<?") {
+                tail.find("?>").map(|end| i + end + 2)
+            } else {
+                None
+            };
+            if let Some(end) = opaque_end {
+                i = end;
+                continue;
+            }
+
+            let Some(end) = Self::xml_tag_end(bytes, i) else {
+                break;
+            };
+            out.push_str(&s[last..i].replace("\r\n", "\n").replace('\n', "\r\n"));
+            out.push_str(&s[i..end]);
+            i = end;
+            last = i;
+        }
+
+        out.push_str(&s[last..].replace("\r\n", "\n").replace('\n', "\r\n"));
+        out
     }
 
     /// Match Loxone's empty-element and attribute-newline formatting.
@@ -139,23 +185,24 @@ impl ConfigEditor {
             return format!("<{name}></{name}>");
         }
 
-        // xml-rs escapes newlines in attributes; Loxone writes them literally.
+        // xml-rs escapes CR and LF in attributes; Loxone writes them literally (bare LF
+        // in note text, CRLF in AutoPilot JSON), so restore whichever was read.
         let mut out = String::with_capacity(tag.len());
         let mut quote = None;
         let mut last = 0;
         let mut i = name_end;
         while i < bytes.len() {
             if let Some(delimiter) = quote {
-                if bytes[i..].starts_with(b"&#xA;") {
+                let literal = if bytes[i..].starts_with(b"&#xA;") {
+                    Some('\n')
+                } else if bytes[i..].starts_with(b"&#xD;") {
+                    Some('\r')
+                } else {
+                    None
+                };
+                if let Some(c) = literal {
                     out.push_str(&tag[last..i]);
-                    out.push('\n');
-                    i += 5;
-                    last = i;
-                    continue;
-                }
-                if bytes[i..].starts_with(b"&#xD;") {
-                    out.push_str(&tag[last..i]);
-                    out.push('\r');
+                    out.push(c);
                     i += 5;
                     last = i;
                     continue;
@@ -206,6 +253,49 @@ mod tests {
         );
         assert!(!out.contains("&#xA;"), "no escaped newline");
         assert!(out.ends_with('\n'), "trailing newline");
+    }
+
+    #[test]
+    fn test_crlf_file_keeps_lf_in_attr_values_across_saves() {
+        // Loxone: CRLF line endings, bare LF in note text, CRLF in AutoPilot JSON.
+        let xml = "\u{feff}<?xml version=\"1.0\" encoding=\"utf-8\"?>\r\n\
+<ControlList Version=\"1\">\r\n\
+\t<C Type=\"Text\" U=\"a\" Text=\"line1\nline2\" APC=\"{&quot;a&quot;:1},\r\n {&quot;b&quot;:2}\">\r\n\
+\t\t<Co K=\"Q\" U=\"b\"/>\r\n\
+\t</C>\r\n\
+</ControlList>\r\n";
+        let first = ConfigEditor::load(xml.as_bytes())
+            .unwrap()
+            .to_bytes()
+            .unwrap();
+        let second = ConfigEditor::load(&first).unwrap().to_bytes().unwrap();
+        let out = String::from_utf8(second.clone()).unwrap();
+
+        assert_eq!(String::from_utf8(first.clone()).unwrap(), xml, "byte-clean");
+        assert_eq!(first, second, "save is idempotent");
+        assert!(out.contains("},\r\n {"), "attr CRLF stays CRLF");
+        assert!(!out.contains("&#xD;"), "no CR planted in attr values");
+        assert!(
+            out.contains("Text=\"line1\nline2\""),
+            "attr newline stays LF"
+        );
+        assert!(out.contains("\t</C>\r\n"), "line endings stay CRLF");
+        assert!(!out.contains("\r\r"));
+    }
+
+    #[test]
+    fn test_crlf_conversion_preserves_attrs_and_opaque_markup() {
+        let xml = "<?xml version=\"1.0\"?>\r\n\
+<C Text='one\ntwo' APC=\"one\r\ntwo\">\r\n\
+<!-- <C A=\"x\"> one\r\ntwo -->\r\n\
+<![CDATA[<C A=\"x\"> one\r\ntwo]]>\r\n\
+<?test <C A=\"x\"> one\r\ntwo?>\r\n\
+</C>\r\n";
+        assert_eq!(ConfigEditor::to_crlf_outside_attrs(xml), xml);
+        assert_eq!(
+            ConfigEditor::to_crlf_outside_attrs("<C Text='one\ntwo'>\n</C>\n"),
+            "<C Text='one\ntwo'>\r\n</C>\r\n"
+        );
     }
 
     #[test]
