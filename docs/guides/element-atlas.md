@@ -145,7 +145,7 @@ claim that every associated CLI operation or native behavior works.
 
 ## Reviewed evidence outside atlas stages
 
-Five later assessments for the pinned 17.2.10.21 executable are retained
+Later assessments for the pinned 17.2.10.21 executable are retained
 separately from the atlas's declared capability snapshots:
 
 | Assessment | Established | Not established |
@@ -155,6 +155,7 @@ separately from the atlas's declared capability snapshots:
 | Repaired Lighting fixture (`lox-8xh`) | A fresh official process reopened the first native save and resaved it, preserving all 882 baseline identities, 75 Lighting connectors, four moods and the authored Program | Whole-project no-op, nested editing, simulator behavior or full Lighting-family parity |
 | Initial official Lighting simulation (`lox-4tk`) | One disconnected native run started, progressed and stopped; three channel displays and their wired digital observers were bound and captured | ON/OFF input behavior, current mood, packed numeric values, repeated/recorded runs or Rust parity |
 | Explicit digital-source fixture (`lox-u6b`) | A separate variant reused two public digital sources and passed native save/reopen/resave, preserving 882 baseline identities and adding ten | Public input delivery, ON/Reset behavior or parity; the first failed variant remains a failure |
+| Visible digital-source switch (`lox-45q`) | One disconnected run delivered `On` source and independent controller input `Aus -> Ein -> Aus` through two complete clicks on the visible internal switch; three outputs turned on and remained on after `On` fell | Explicit Reset/all-off, raw packed values, current mood, timing, repeatability or Rust parity |
 
 The dispatcher report is
 `.reverse-engineering\element-atlas\dispatcher-classification\report.json`
@@ -189,7 +190,7 @@ three digital observers displayed `Aus`, not packed numeric lighting values.
 The visible clock progressed while running and remained unchanged across two
 stopped samples; this does not recover internal `dt`. Control-preemption
 boundaries remain explicit, with no continuous-behavior inference across them.
-Public input delivery and expected behavior remain unverified.
+That initial run did not verify public input delivery or expected behavior.
 
 The optional fixture producer mode `--harness digital-sources --baseline FILE`
 uses the immutable native-resaved baseline rather than changing the default
@@ -205,6 +206,30 @@ treated as a whole-project no-op. The first representation lost its references
 on native save and is retained as a failed counterexample. Regenerated files
 must receive their own native validation rather than inherit this exact file's
 readiness result.
+
+The later bounded input-delivery report is
+`.reverse-engineering\native-simulator\workstreams\st2-glyph-native-probe-20261107\followup-20261107T0958Z\portable-st2-glyph-selection-followup-result.json`
+(SHA-256 `f945a5e86fc4811fdd55d93c2b5a1c468c3ea9908dbc8e03b4f78b08ad2a6429`).
+Parent review verified all 103 manifest artifacts and the unchanged admitted
+fixture. A separate earlier zero-runtime-click visibility blocker and its 95
+artifacts remain unchanged; it is not retroactively a successful test.
+
+Ordinary source-name/body selection made the small simulation switch immediately
+left of the `VI` capsule visibly distinguishable against the selected background.
+Selection was navigation, not input delivery, and does not prove a selection gate
+or bitmap-cache cause. Each subsequent complete left click targeted a freshly
+visible, physically owned switch, not an inferred rectangle or historical pixels.
+This exercised the statically recovered `IoData St=2` public switch route; the
+native observation does not isolate mouse-down from mouse-release timing.
+
+Independent source and controller `On` readbacks changed `Aus -> Ein -> Aus`.
+Channel displays changed from `WW(0%)` to `WW(29%)`, `WW(31%)` and `WW(33%)`;
+their three digital observers changed from `Aus` to `Ein`. These outputs remained
+on at the sampled `On`-low readback, so lowering `On` is not an all-off result.
+Explicit Reset was not attempted because its own switch was not visibly bound.
+Raw packed values, current mood, timing, repeated runs and Rust parity remain
+unverified. These are bounded observations on this exact fixture, not a general
+native-input selector or whole-family behavioral proof.
 
 These assessments do not automatically advance contract stages or the overall
 completion percentage. Raw projects, bytes, disassembly and workstation
