@@ -34,6 +34,43 @@ write an edited file.
   avoids decimal-comma questions in localised Configs.
 - Config replaces `%` in titles with `_` on save.
 
+### Generated identities and native counters
+
+`lox config` intentionally generates random 64-bit UUID prefixes in the
+`8-4-4-16` hex layout, reusing an existing `ffff` suffix for blocks **and**
+connectors. The legacy helper name `find_miniserver_serial` does not prove that
+the suffix is a hardware serial: native projects can contain identifiers from
+multiple Config installations. With no existing suffix, generation uses
+`ffff000000000000`. Random identifiers make collisions unlikely, not impossible;
+they are not a proven disjoint namespace from native identifiers.
+
+The CLI preserves `ControlList`'s `NextObj` and `NextMem`; it does not attempt to
+emulate the desktop editor's unverified allocation algorithm. These fields must
+not be reset to element counts or compared with an assumed UUID segment index.
+For example, the public native fixtures under `tests/eval/golden/configs/` have:
+
+| Fixture | `NextObj` | `NextMem` | `C` elements | `Co` elements | Largest UUID second group (hex decoded) |
+|---------|-----------|-----------|--------------|---------------|----------------------------------------|
+| `Cleaning Mode Activated by NFC.Loxone` | 29 | 1 | 429 | 410 | 854 |
+| `Network Monitoring.Loxone` | 1 | 1 | 327 | 198 | 690 |
+
+Neither these snapshots nor the permissive project XSD establish a native
+counter-to-UUID derivation. `lox config validate` checks UUID shape and reference
+integrity, not a speculative counter lower bound. Synthetic edit/save/reload
+tests cover generated block/connector uniqueness and suffix preservation; this
+is **not** evidence of a native-editor or Miniserver round-trip. Matching native
+allocation remains deferred until the encoding and round-trip are verified.
+
+### Virtual input registration
+
+`add-virtual-in` (also `add --type virtual-input`) emits `WF="16400"`, `Idx="-1"`
+and `IoData` room/category references. Each nonempty parent `Pr`/`Cr` is
+preserved independently; a missing or empty reference falls back to the first
+corresponding `Place`/`Category`, when available. Create rooms/categories first
+if the project has none. When a programming `Page` exists, the `InputRef`
+converter is placed there, never inside the `VirtualIn`. Page-free projects
+retain their existing behavior: the virtual input is added without a converter.
+
 ---
 
 ## 2. Wires

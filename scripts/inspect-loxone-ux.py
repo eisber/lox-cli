@@ -279,14 +279,18 @@ def audit_catalog(catalog, schemas, storage, native, minimum_parameters=8):
     return result
 
 
-def inspect(state_path, output, repo, lox, rea_root=None):
+def inspect(state_path, output, repo, lox, rea_root=None, qt_layout_profiles=None):
+    if (output / "qt-metadata.json").exists():
+        raise ValueError("Refusing to overwrite an existing Qt snapshot; select a new --output directory")
     state = load_json(state_path)
     if state["status"] != "complete":
         raise ValueError("A completed bulk analysis is required; do not interrupt an active run")
     analysis = Path(state["analysis_directory"])
     version = Path(state["version_directory"])
     source = version / "source" / "LoxoneConfig.exe"
-    qt = recover_qt_metadata(source)
+    qt = recover_qt_metadata(
+        source, layout_profiles=load_json(qt_layout_profiles) if qt_layout_profiles else None,
+    )
     rtti = msvc_dialog_types(source)
     export = state["binaries"]["LoxoneConfig.exe"]
     if qt["source"]["sha256"] != export["export"]["target_sha256"]:
@@ -431,11 +435,14 @@ if __name__ == "__main__":
                         help="Built CLI providing the read-only config surfaces command")
     parser.add_argument("--rea-root", type=Path,
                         help="Also inspect native dialog resources using this local REA checkout")
+    parser.add_argument("--qt-layout-profiles", type=Path,
+                        help="Source-pinned reviewed per-object Qt header/base profiles; unprofiled objects remain issues")
     args = parser.parse_args()
     try:
         report = inspect(
             args.state.resolve(), args.output.resolve(), ROOT, args.lox.resolve(strict=True),
             args.rea_root.resolve(strict=True) if args.rea_root else None,
+            args.qt_layout_profiles.resolve(strict=True) if args.qt_layout_profiles else None,
         )
         summary = report["summary"]
         if (report["fixture_omissions"] or summary["qt_decoding_issues"]

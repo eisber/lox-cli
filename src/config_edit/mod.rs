@@ -2319,6 +2319,101 @@ Unit='a > b' Unit='a > b'/><部屋 Title='同じ' Title='同じ'/></ControlList>
     // ── CRLF line endings ────────────────────────────────────────────────
 
     #[test]
+    fn test_picoc_multiline_code_survives_mutation_and_repeated_roundtrips() {
+        let code = "// public synthetic header\r\nint x = 1;\r\nif (x < 2) { x = x + 1; }\r\n";
+        for block_type in ["Code1", "Code4", "Code8", "Code16"] {
+            for encoded in [false, true] {
+                for file_newline in ["\n", "\r\n"] {
+                    let attribute = code.replace('<', "&lt;");
+                    let attribute = if encoded {
+                        attribute.replace('\r', "&#xD;").replace('\n', "&#xA;")
+                    } else {
+                        attribute
+                    };
+                    let xml = format!(
+                        "<?xml version=\"1.0\" encoding=\"utf-8\"?>{file_newline}<ControlList>{file_newline}<C Type=\"{block_type}\" U=\"code-1\" Title=\"Synthetic\" Code=\"{attribute}\"/>{file_newline}</ControlList>{file_newline}"
+                    );
+                    let mut editor = ConfigEditor::load(xml.as_bytes()).unwrap();
+                    editor
+                        .set_attribute("uuid:code-1", "Title", "Edited")
+                        .unwrap();
+                    let mut previous_bytes = None;
+                    for _ in 0..3 {
+                        let path = editor.require_one("uuid:code-1").unwrap();
+                        assert_eq!(editor.get_element(&path).attributes["Code"], code);
+                        assert!(
+                            warnings_containing(&editor.validate_config(), "PicoC Code").is_empty()
+                        );
+                        let bytes = editor.to_bytes().unwrap();
+                        assert!(
+                            bytes.starts_with(
+                                format!("<?xml version=\"1.0\" encoding=\"utf-8\"?>{file_newline}")
+                                    .as_bytes()
+                            )
+                        );
+                        assert!(
+                            String::from_utf8_lossy(&bytes).contains(
+                                "// public synthetic header\r\nint x = 1;\r\nif (x &lt; 2)"
+                            )
+                        );
+                        if let Some(previous) = previous_bytes {
+                            assert_eq!(bytes, previous, "{block_type}, encoded={encoded}");
+                        }
+                        editor = ConfigEditor::load(&bytes).unwrap();
+                        previous_bytes = Some(bytes);
+                    }
+                }
+            }
+        }
+    }
+
+    #[test]
+    fn test_picoc_collapsed_comment_warns_in_validate_and_check() {
+        for block_type in ["Code1", "Code4", "Code8", "Code16"] {
+            let xml = format!(
+                r#"<ControlList><C Type="{block_type}" U="00000000-0000-0000-ffff000000000001" Title="Synthetic" Code="  // header int x = 1; while (1) {{ x = x + 1; }}"/></ControlList>"#
+            );
+            let editor = ConfigEditor::load(xml.as_bytes()).unwrap();
+            for results in [editor.validate_config(), editor.check_blocks(None)] {
+                let warnings = warnings_containing(&results, "PicoC Code");
+                assert_eq!(warnings.len(), 1, "{block_type}: {results:?}");
+                assert!(warnings[0].contains("restore its line breaks"));
+                assert!(!results.iter().any(|r| r.starts_with('✗')));
+            }
+            assert!(
+                warnings_containing(&editor.check_blocks(Some("Other")), "PicoC Code").is_empty()
+            );
+        }
+    }
+
+    #[test]
+    fn test_picoc_ordinary_single_line_and_multiline_code_do_not_warn() {
+        for block_type in ["Code1", "Code4", "Code8", "Code16", "Other"] {
+            for code in [
+                "",
+                "int x = 1;",
+                "char *url = &quot;http://example.invalid&quot;;",
+                "// header&#xD;&#xA;int x = 1;&#xD;&#xA;",
+                "// header&#xA;int x = 1;",
+                "// header&#xD;int x = 1;",
+            ] {
+                let xml = format!(
+                    r#"<ControlList><C Type="{block_type}" U="code-1" Title="Synthetic" Code="{code}"/></ControlList>"#
+                );
+                let editor = ConfigEditor::load(xml.as_bytes()).unwrap();
+                for results in [editor.validate_config(), editor.check_blocks(None)] {
+                    assert!(
+                        warnings_containing(&results, "PicoC Code").is_empty(),
+                        "{block_type}: {code}: {results:?}"
+                    );
+                }
+            }
+        }
+        let results = validate_xml(r#"<C Type="Other" Code="// not PicoC"/>"#);
+        assert!(warnings_containing(&results, "PicoC Code").is_empty());
+    }
+
+    #[test]
     fn test_crlf_preservation() {
         let xml_str = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\r\n<ControlList Version=\"267\">\r\n  <C Type=\"Place\" U=\"r-1\" Title=\"Room1\"/>\r\n</ControlList>";
         let editor = ConfigEditor::load(xml_str.as_bytes()).unwrap();

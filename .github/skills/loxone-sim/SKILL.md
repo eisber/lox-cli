@@ -12,6 +12,13 @@ allowed-tools: Bash
 
 Test automation circuits by injecting sensor values and checking that expected outputs appear. Use after wiring a circuit to validate correctness.
 
+If documented simulator behavior is reproducibly wrong or the CLI panics,
+use `lox report --title "..." --body "Sanitized reproduction and expected/actual behavior" --json`.
+Fix invalid parameters, wiring, and assertions first; a failed assertion is not
+by itself a CLI bug. Follow the returned `report_hint` or `lox report --help`.
+Never include secrets/private configuration, duplicate a report, or recursively
+report a failed submission. Reports are not submitted automatically.
+
 ## Commands
 
 ### Run simulation (pass/fail)

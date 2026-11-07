@@ -3,9 +3,11 @@
 
 import copy
 import importlib.util
+import io
 import json
 from pathlib import Path
 import unittest
+from unittest import mock
 
 
 SPEC = importlib.util.spec_from_file_location(
@@ -51,6 +53,85 @@ def proof(xml="Demo", ct="9", descriptor="0x100"):
     return {"xml_type": xml, "control_type": ct, "type_descriptor": descriptor,
             "basis": "factory_constructor_and_xml_registration",
             "evidence": [{"role": "synthetic", "fact": "synthetic_registration"}]}
+
+
+class MemorySources(NATIVE.Sources):
+    def __init__(self, files):
+        super().__init__()
+        self.files = files
+
+    def add(self, path, role, expected=None):
+        relative = str(Path(path).resolve().relative_to(self.root)).replace("/", "\\")
+        if relative not in self.files:
+            raise OSError(f"Missing synthetic source: {relative}")
+        data = self.files[relative]
+        checksum = NATIVE.digest(data)
+        if expected is not None and checksum != expected:
+            raise ValueError(f"Source hash mismatch: {relative}")
+        self.items[(role, relative)] = {"path": relative, "sha256": checksum, "role": role}
+        return data
+
+
+def factory_fixture():
+    inventory, native, _ = fixture()
+    native["classes"][0]["primary_tables"][0].update(
+        object_offset=0, primary_root_compatible=True)
+    report = {
+        "schema_version": 1, "kind": "private-static-bulk-factory-identity-proof",
+        "application": {"version": NATIVE.VERSION, "sha256": NATIVE.TARGET,
+                        "image_base": "0x140000000"},
+        "successes": [{
+            **proof(), "native_class": "CControlObjectDemo", "native_source_index": 0,
+            "primary_vtable": "0x300", "factory": NATIVE.FACTORY,
+            "registrations": [{"slot_offset": "0xf18", "xml_type": "Demo"}],
+        }],
+        "catalog_records": [
+            {"catalog_index": b["catalog_index"], "control_type": b["control_type"],
+             "xml_type": b["xml_type"], "source_record": copy.deepcopy(b)}
+            for b in inventory["blocks"]],
+        "native_class_ledger": [
+            {"source_index": i, "type_descriptor": c["type"]["address"],
+             "native_class": c["type"]["display_name"]}
+            for i, c in enumerate(native["classes"])],
+        "catalog_joins": [
+            {"catalog_index": index, "control_type": "9", "xml_type": "Demo",
+             "type_descriptor": "0x100", "native_class": "CControlObjectDemo",
+             "status": "exact", "proof_index": 0} for index in (1, 2)],
+        "catalog_join_rejections": [],
+        "summary": {
+            "catalog_records": 3, "native_classes": 2,
+            "proven_factory_CT_class_XML_associations": 1, "proven_catalog_records": 2,
+            "distinct_native_classes_proven_joined_to_catalog": 1,
+            "catalog_rows_with_factory_proof_not_admitted_as_XML_join": 0,
+            "catalog_record_status": {"exact": 2, "unresolved": 1},
+        },
+    }
+    files = {
+        ".reverse-engineering\\synthetic\\inventory.json": json.dumps(inventory).encode(),
+        ".reverse-engineering\\synthetic\\native.json": json.dumps(native).encode(),
+        ".reverse-engineering\\synthetic\\image.bin": b"synthetic, not executable vendor bytes",
+    }
+    report["sources"] = [
+        {"path": path, "sha256": NATIVE.digest(data), "bytes": len(data), "role": role}
+        for (path, data), role in zip(files.items(),
+                                     ("inventory", "native-catalog", "baseline-executable"))]
+    return inventory, native, report, files
+
+
+def ingest_fixture(inventory, native, report, files, baseline=(), reviewed=True, historical=()):
+    report_path = NATIVE.ROOT / ".reverse-engineering" / "synthetic" / "report.json"
+    data = json.dumps(report).encode()
+    sources = MemorySources({**files, ".reverse-engineering\\synthetic\\report.json": data})
+    for role, name in (("inventory", "inventory.json"), ("native_catalog", "native.json"),
+                       ("executable", "image.bin")):
+        sources.add(report_path.parent / name, role)
+    policy = ({NATIVE.digest(data): {
+        "version": NATIVE.VERSION, "sha256": NATIVE.TARGET,
+        "historical_sources": set(historical)}} if reviewed else {})
+    with mock.patch.dict(NATIVE.REVIEWED_FACTORY_PROOFS, policy, clear=True):
+        proofs = NATIVE.reviewed_factory_proofs(
+            report_path, inventory, native, sources, baseline)
+    return proofs, sources
 
 
 class NativeMapTests(unittest.TestCase):
@@ -212,6 +293,138 @@ class NativeMapTests(unittest.TestCase):
         second = NATIVE.build_map(inventory, native, list(reversed(sources)), [proof()])
         self.assertEqual(json.dumps(first), json.dumps(second))
         self.assertEqual(before, (inventory, native, sources))
+
+    def test_reviewed_factory_ingestion_preserves_duplicates_nulls_and_native_unknowns(self):
+        inventory, native, report, files = factory_fixture()
+        before = copy.deepcopy((inventory, native, report))
+        proofs, sources = ingest_fixture(inventory, native, report, files)
+        result = NATIVE.build_map(inventory, native, list(sources.items.values()), proofs)
+        self.assertEqual(["unresolved", "exact", "exact"],
+                         [r["status"] for r in result["catalog_records"]])
+        self.assertIsNone(result["catalog_records"][0]["xml_type"])
+        self.assertIsNone(result["classes"][0]["simulator_supported"])
+        self.assertEqual(native["classes"][0]["secondary_loci"],
+                         result["classes"][0]["secondary_loci"])
+        self.assertEqual(1, len(result["unjoined_class_ids"]))
+        self.assertEqual(before, (inventory, native, report))
+        second, second_sources = ingest_fixture(inventory, native, report, files)
+        self.assertEqual(json.dumps(result), json.dumps(NATIVE.build_map(
+            inventory, native, list(second_sources.items.values()), second)))
+
+    def test_reviewed_factory_keeps_baseline_evidence_and_rejects_contradictions(self):
+        inventory, native, report, files = factory_fixture()
+        baseline = [proof()]
+        proofs, _ = ingest_fixture(inventory, native, report, files, baseline)
+        self.assertEqual(baseline, proofs)
+        for bad in ([proof(descriptor="0x101")], [proof(ct="10")]):
+            with self.subTest(bad=bad), self.assertRaisesRegex(ValueError, "baseline proof"):
+                ingest_fixture(inventory, native, report, files, bad)
+
+    def test_factory_association_does_not_fill_a_null_XML_catalog_record(self):
+        inventory, native, report, files = factory_fixture()
+        inventory["blocks"][0].update(control_type="9", record_kind="project_documentation")
+        report["catalog_records"][0].update(
+            control_type="9", source_record=copy.deepcopy(inventory["blocks"][0]))
+        report["catalog_join_rejections"] = [{"catalog_index": 0}]
+        report["summary"]["catalog_rows_with_factory_proof_not_admitted_as_XML_join"] = 1
+        path = ".reverse-engineering\\synthetic\\inventory.json"
+        files[path] = json.dumps(inventory).encode()
+        report["sources"][0].update(
+            sha256=NATIVE.digest(files[path]), bytes=len(files[path]))
+        proofs, sources = ingest_fixture(inventory, native, report, files)
+        result = NATIVE.build_map(inventory, native, list(sources.items.values()), proofs)
+        self.assertEqual("unresolved", result["catalog_records"][0]["status"])
+        self.assertIsNone(result["catalog_records"][0]["xml_type"])
+        self.assertEqual("project_documentation", inventory["blocks"][0]["record_kind"])
+        report["catalog_join_rejections"] = []
+        with self.assertRaisesRegex(ValueError, "nonadmitted catalog records"):
+            ingest_fixture(inventory, native, report, files)
+
+    def test_factory_digest_admission_is_required_before_semantic_claims(self):
+        with self.assertRaisesRegex(ValueError, "Unreviewed factory proof SHA-256"):
+            ingest_fixture(*factory_fixture(), reviewed=False)
+
+    def test_factory_proof_flag_cannot_overwrite_its_input(self):
+        report = str(NATIVE.ROOT / ".reverse-engineering" / "synthetic" / "report.json")
+        with mock.patch.object(NATIVE, "extract") as extract, \
+                mock.patch.object(NATIVE.sys, "stderr", io.StringIO()):
+            result = NATIVE.main([
+                "--inventory", "inventory.json", "--native-catalog", "native.json",
+                "--factory-proof", report, "--output", report])
+        self.assertEqual(2, result)
+        extract.assert_not_called()
+
+    def test_reviewed_factory_sources_fail_closed_on_stale_bytes_missing_pins_and_paths(self):
+        inventory, native, original, files = factory_fixture()
+        for mutate in (
+            lambda r: r["sources"][0].update(sha256="0" * 64),
+            lambda r: r["sources"][0].update(bytes=1),
+            lambda r: r["sources"][0].update(path="..\\inventory.json"),
+            lambda r: r["sources"].pop(0),
+        ):
+            report = copy.deepcopy(original)
+            mutate(report)
+            with self.subTest(report=report["sources"]), self.assertRaises(ValueError):
+                ingest_fixture(inventory, native, report, files)
+        changed = dict(files)
+        changed[".reverse-engineering\\synthetic\\image.bin"] += b"stale"
+        with self.assertRaisesRegex(ValueError, "Source hash mismatch"):
+            ingest_fixture(inventory, native, original, changed)
+
+    def test_only_reviewed_historical_sources_can_use_a_verified_digest_archive(self):
+        inventory, native, report, files = factory_fixture()
+        old = b"synthetic historical producer"
+        checksum = NATIVE.digest(old)
+        path = ".reverse-engineering\\synthetic\\producer.py"
+        report["sources"].append(
+            {"path": path, "sha256": checksum, "bytes": len(old), "role": "historical-producer"})
+        files[path] = b"updated producer"
+        files[".reverse-engineering\\synthetic\\sources\\" + checksum] = old
+        with self.assertRaisesRegex(ValueError, "Source hash mismatch"):
+            ingest_fixture(inventory, native, report, files)
+        proofs, sources = ingest_fixture(inventory, native, report, files,
+                                        historical={(path, checksum)})
+        self.assertEqual(1, len(proofs))
+        self.assertTrue(any(s["path"].endswith(checksum) for s in sources.items.values()))
+        files[".reverse-engineering\\synthetic\\sources\\" + checksum] += b"corrupt"
+        with self.assertRaisesRegex(ValueError, "Source hash mismatch"):
+            ingest_fixture(inventory, native, report, files, historical={(path, checksum)})
+
+    def test_reviewed_factory_rejects_mismatched_application_and_native_associations(self):
+        inventory, native, original, files = factory_fixture()
+        for mutate in (
+            lambda r: r["application"].update(sha256="0" * 64),
+            lambda r: r["successes"][0].update(type_descriptor="0x999"),
+            lambda r: r["successes"][0].update(native_class="Other"),
+            lambda r: r["successes"][0].update(native_source_index=True),
+            lambda r: r["successes"][0].update(primary_vtable="0x999"),
+            lambda r: r["successes"][0]["registrations"][0].update(slot_offset="0x370"),
+            lambda r: r["successes"].append(copy.deepcopy(r["successes"][0])),
+            lambda r: r["native_class_ledger"].pop(),
+        ):
+            report = copy.deepcopy(original)
+            mutate(report)
+            with self.subTest(report=report["successes"]), self.assertRaises(ValueError):
+                ingest_fixture(inventory, native, report, files)
+
+    def test_reviewed_factory_rejects_join_claims_without_exact_record_CT_XML_membership(self):
+        inventory, native, original, files = factory_fixture()
+        for mutate in (
+            lambda r: r["catalog_records"].pop(),
+            lambda r: r["catalog_records"][1]["source_record"].update(name="Changed kind/record"),
+            lambda r: r["catalog_joins"][0].update(catalog_index=0),
+            lambda r: r["catalog_joins"][0].update(control_type="10"),
+            lambda r: r["catalog_joins"][0].update(xml_type="Other"),
+            lambda r: r["catalog_joins"][0].update(type_descriptor="0x101"),
+            lambda r: r["catalog_joins"][0].update(proof_index=-1),
+            lambda r: r["catalog_joins"].append(copy.deepcopy(r["catalog_joins"][0])),
+            lambda r: r["catalog_joins"].pop(),
+            lambda r: r["summary"]["catalog_record_status"].update(exact=3),
+        ):
+            report = copy.deepcopy(original)
+            mutate(report)
+            with self.subTest(joins=report["catalog_joins"]), self.assertRaises(ValueError):
+                ingest_fixture(inventory, native, report, files)
 
 
 if __name__ == "__main__":

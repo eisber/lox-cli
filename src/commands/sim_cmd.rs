@@ -253,8 +253,8 @@ impl SimDiagnostics {
             let mut ranked: Vec<(&String, &usize)> = self.unimplemented.iter().collect();
             ranked.sort_by(|a, b| b.1.cmp(a.1).then(a.0.cmp(b.0)));
             eprintln!(
-                "warning: {} block(s) across {} type(s) are not implemented and \
-                 fall back to PassThrough (results unreliable):",
+                "warning: {} block(s) across {} type(s) are not implemented \
+                 (results unreliable; PicoC outputs are not evaluated, other unknown types use PassThrough):",
                 self.unreliable_count(),
                 self.unimplemented.len()
             );
@@ -266,7 +266,7 @@ impl SimDiagnostics {
             }
         }
         eprintln!(
-            "summary: {} blocks, {} simulated, {} passthrough (unreliable), {} structural",
+            "summary: {} blocks, {} simulated, {} unsupported (unreliable), {} structural",
             graph.block_count(),
             self.simulated,
             self.unreliable_count(),
@@ -571,6 +571,7 @@ fn cmd_check(file: &str, strict: bool) -> Result<()> {
         "blocks": graph.block_count(),
         "connectors": graph.connector_count(),
         "simulated": diag.simulated,
+        "unsupported": diag.unreliable_count(),
         "passthrough_unreliable": diag.unreliable_count(),
         "structural": diag.structural,
         "skipped_wires": diag.wire_warnings.len(),
@@ -604,6 +605,7 @@ fn parse_sim_specs(json: &str) -> Result<Vec<SimSpec>> {
 
 fn cmd_run(file: &str, sim: Option<&str>, sim_file: Option<&str>) -> Result<()> {
     let graph = parse_graph(file)?;
+    SimDiagnostics::collect(&graph).report(&graph);
     let sim_json = load_sim_json(sim, sim_file)?;
     let specs = parse_sim_specs(&sim_json)?;
 
@@ -667,6 +669,7 @@ fn cmd_run(file: &str, sim: Option<&str>, sim_file: Option<&str>) -> Result<()> 
 
 fn cmd_step(file: &str, sim: Option<&str>, sim_file: Option<&str>) -> Result<()> {
     let graph = parse_graph(file)?;
+    SimDiagnostics::collect(&graph).report(&graph);
     let sim_json = load_sim_json(sim, sim_file)?;
 
     let spec: SimSpec = serde_json::from_str(&sim_json).context("invalid sim JSON")?;
@@ -781,6 +784,7 @@ fn cmd_step(file: &str, sim: Option<&str>, sim_file: Option<&str>) -> Result<()>
 
 fn cmd_dump(file: &str, sim: Option<&str>, json_output: bool) -> Result<()> {
     let graph = parse_graph(file)?;
+    SimDiagnostics::collect(&graph).report(&graph);
     let mut engine = SimEngine::new(graph.clone());
 
     if let Some(sim_json) = sim
@@ -999,6 +1003,28 @@ mod false_pass_tests {
 #[cfg(test)]
 mod strict_spec_tests {
     use super::*;
+
+    #[test]
+    fn picoc_is_unreliable_and_rejected_by_strict_check() {
+        use std::io::Write;
+
+        for block_type in ["Code1", "Code4", "Code8", "Code16"] {
+            let xml = format!(
+                r#"<ControlList><C Type="{block_type}" U="code-1" Title="Synthetic" Code="int x = 1;"/></ControlList>"#
+            );
+            let graph = parser::parse_bytes(xml.as_bytes()).unwrap();
+            let diag = SimDiagnostics::collect(&graph);
+            assert_eq!(diag.simulated, 0);
+            assert_eq!(diag.unreliable_count(), 1);
+            assert_eq!(diag.unimplemented.get(block_type), Some(&1));
+            let mut file = tempfile::NamedTempFile::new_in(".").unwrap();
+            file.write_all(xml.as_bytes()).unwrap();
+            let path = file.path().to_str().unwrap();
+            assert!(cmd_check(path, false).is_ok());
+            let error = cmd_check(path, true).unwrap_err();
+            assert!(error.to_string().contains("1 unreliable block(s)"));
+        }
+    }
 
     #[test]
     fn unknown_keys_are_rejected_at_every_spec_level() {

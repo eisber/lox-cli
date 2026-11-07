@@ -1,5 +1,5 @@
 use anyhow::{Context, Result, bail};
-use clap::Subcommand;
+use clap::{Args, Subcommand};
 use serde_json::{Value, json};
 use std::io::{Read, Write};
 use std::path::PathBuf;
@@ -10,27 +10,29 @@ use crate::telemetry::Telemetry;
 
 const REPOSITORY: &str = "eisber/lox-cli";
 
-#[derive(Subcommand)]
-pub enum FeedbackCmd {
-    /// Report a CLI issue to GitHub, falling back to telemetry when enabled
-    #[command(
-        after_help = "Only send sanitized issue details. Do not include credentials, private configuration, or personal data. GitHub issues are public; telemetry fallback includes the supplied title and body."
+#[derive(Args)]
+#[command(
+    after_help = "Report reproducible CLI bugs, not ordinary input, authentication, or connection errors. Include sanitized reproduction steps and expected/actual behavior. GitHub issues are public; telemetry fallback includes the supplied title and body. Never include secrets or private configuration."
+)]
+pub struct ReportArgs {
+    /// Short issue summary
+    #[arg(long)]
+    title: String,
+    /// Sanitized reproduction steps, expected behavior, and actual behavior
+    #[arg(
+        long,
+        required_unless_present = "body_file",
+        conflicts_with = "body_file"
     )]
-    Report {
-        /// Short issue summary
-        #[arg(long)]
-        title: String,
-        /// Sanitized reproduction steps, expected behavior, and actual behavior
-        #[arg(
-            long,
-            required_unless_present = "body_file",
-            conflicts_with = "body_file"
-        )]
-        body: Option<String>,
-        /// Read the report body from a UTF-8 file, or - for stdin
-        #[arg(long, required_unless_present = "body", conflicts_with = "body")]
-        body_file: Option<PathBuf>,
-    },
+    body: Option<String>,
+    /// Read the report body from a UTF-8 file, or - for stdin
+    #[arg(long, required_unless_present = "body", conflicts_with = "body")]
+    body_file: Option<PathBuf>,
+}
+
+#[derive(Subcommand)]
+pub enum LegacyFeedbackCmd {
+    Report(ReportArgs),
 }
 
 struct Report {
@@ -55,7 +57,7 @@ impl Report {
 
     fn github_body(&self) -> String {
         format!(
-            "{}\n\n---\nReported via `lox feedback report`\n\
+            "{}\n\n---\nReported via `lox report`\n\
              lox {} | {} / {}\nReport ID: {}",
             self.body,
             env!("CARGO_PKG_VERSION"),
@@ -66,12 +68,12 @@ impl Report {
     }
 }
 
-pub fn cmd_feedback(ctx: &RunContext, action: FeedbackCmd, telemetry: &Telemetry) -> Result<()> {
-    let FeedbackCmd::Report {
+pub fn cmd_report(ctx: &RunContext, args: ReportArgs, telemetry: &Telemetry) -> Result<()> {
+    let ReportArgs {
         title,
         body,
         body_file,
-    } = action;
+    } = args;
     let body = match (body, body_file) {
         (Some(body), None) => body,
         (None, Some(path)) if path.as_os_str() == "-" => {

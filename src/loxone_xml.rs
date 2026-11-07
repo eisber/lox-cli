@@ -242,17 +242,20 @@ pub fn parse_config_summary(xml: &[u8]) -> Result<ConfigSummary> {
     let mut rooms: HashMap<String, String> = HashMap::new();
     let mut categories: HashMap<String, String> = HashMap::new();
     let mut users: Vec<String> = Vec::new();
-    // Track the last control UUID we saw so we can attach IoData Pr= to it
-    let mut last_control_uuid: Option<String> = None;
+    // IoData belongs to its parent element, not the last control in document order.
+    let mut element_controls: Vec<Option<String>> = Vec::new();
 
     loop {
-        match reader.read_event_into(&mut buf) {
+        let event = reader.read_event_into(&mut buf);
+        let opens_element = matches!(&event, Ok(Event::Start(_)));
+        match event {
             Ok(Event::Start(ref e) | Event::Empty(ref e)) => {
+                let mut control_uuid = None;
                 let tag = e.name();
                 if tag.as_ref() == b"ControlList" {
                     version = attr_value_or(e, b"Version", "");
                 } else if tag.as_ref() == b"IoData" {
-                    if let Some(ref uuid) = last_control_uuid
+                    if let Some(Some(uuid)) = element_controls.last()
                         && let Some(pr) = attr_value(e, b"Pr")
                         && let Some(entry) = controls.get_mut(uuid)
                     {
@@ -288,7 +291,7 @@ pub fn parse_config_summary(xml: &[u8]) -> Result<ConfigSummary> {
                                 (attr_value(e, b"U"), attr_value(e, b"Title"))
                                 && !t.is_empty()
                             {
-                                last_control_uuid = Some(u.clone());
+                                control_uuid = Some(u.clone());
                                 controls.insert(
                                     u,
                                     ControlEntry {
@@ -302,6 +305,12 @@ pub fn parse_config_summary(xml: &[u8]) -> Result<ConfigSummary> {
                         _ => {}
                     }
                 }
+                if opens_element {
+                    element_controls.push(control_uuid);
+                }
+            }
+            Ok(Event::End(_)) => {
+                element_controls.pop();
             }
             Ok(Event::Eof) => break,
             Err(e) => return Err(e).context("Failed to parse XML"),
@@ -1136,6 +1145,103 @@ mod tests {
 </ControlList>"#;
         let s = parse_config_summary(xml).unwrap();
         assert_eq!(s.controls["sw-1"].room_uuid, "room-1");
+    }
+
+    #[test]
+    fn test_diff_duplicate_titles_ignores_structural_iodata_and_order() {
+        let old = br#"<ControlList>
+          <C Type="Place" U="r1" Title="Kitchen"/>
+          <C Type="Place" U="r2" Title="Bedroom"/>
+          <C Type="Switch" U="a" Title="Light"><IoData Pr="r1"/></C>
+          <C Type="Switch" U="b" Title="Light"><IoData Pr="r2"/></C>
+          <C Type="Page" U="page" Title="Page"><IoData Pr="r1"/></C>
+        </ControlList>"#;
+        let new = br#"<ControlList>
+          <C Type="Place" U="r2" Title="Bedroom"/>
+          <C Type="Place" U="r1" Title="Kitchen"/>
+          <C Type="Switch" U="b" Title="Light"><IoData Pr="r2"/></C>
+          <C Type="Page" U="page" Title="Page"><IoData Pr="r1"/></C>
+          <C Type="Switch" U="a" Title="Light"><IoData Pr="r1"/></C>
+        </ControlList>"#;
+        let old = parse_config_summary(old).unwrap();
+        let new = parse_config_summary(new).unwrap();
+        assert_eq!(old.controls.len(), 2);
+        assert_eq!(new.controls.len(), 2);
+        assert_eq!(old.controls["a"].room_uuid, "r1");
+        assert_eq!(old.controls["b"].room_uuid, "r2");
+        assert!(!diff_configs(&old, &new).has_changes());
+    }
+
+    #[test]
+    fn test_parse_config_summary_iodata_belongs_to_direct_parent() {
+        let xml = br#"<ControlList>
+          <C Type="Switch" U="a" Title="Light">
+            <IoData Pr="r1"/>
+            <C Type="InputRef" U="ref" Title="Reference"><IoData Pr="r2"/></C>
+          </C>
+          <C Type="Switch" U="b" Title="Light"/>
+          <IoData Pr="r3"/>
+          <C Type="Switch" U="c" Title="Light">
+            <C Type="Switch" U="d" Title="Nested"><IoData Pr="r4"/></C>
+            <IoData Pr="r5"/>
+          </C>
+          <C Type="Switch" U="e" Title="Light">
+            <Co K="I1"><IoData Pr="r6"/></Co>
+          </C>
+        </ControlList>"#;
+        let summary = parse_config_summary(xml).unwrap();
+        assert_eq!(summary.controls.len(), 5);
+        assert_eq!(summary.controls["a"].room_uuid, "r1");
+        assert_eq!(summary.controls["b"].room_uuid, "");
+        assert_eq!(summary.controls["c"].room_uuid, "r5");
+        assert_eq!(summary.controls["d"].room_uuid, "r4");
+        assert_eq!(summary.controls["e"].room_uuid, "");
+    }
+
+    #[test]
+    fn test_diff_duplicate_titles_preserves_real_changes_by_uuid() {
+        let old = br#"<ControlList>
+          <C Type="Place" U="r1" Title="Kitchen"/>
+          <C Type="Place" U="r2" Title="Bedroom"/>
+          <C Type="Switch" U="a" Title="Light"><IoData Pr="r1"/></C>
+          <C Type="Switch" U="b" Title="Light"><IoData Pr="r2"/></C>
+          <C Type="Switch" U="removed" Title="Light"><IoData Pr="r1"/></C>
+        </ControlList>"#;
+        let new = br#"<ControlList>
+          <C Type="Place" U="r1" Title="Kitchen"/>
+          <C Type="Place" U="r2" Title="Bedroom"/>
+          <C Type="Switch" U="added" Title="Light"><IoData Pr="r1"/></C>
+          <C Type="Switch" U="b" Title="Light"><IoData Pr="r1"/></C>
+          <C Type="Switch" U="a" Title="Renamed"><IoData Pr="r1"/></C>
+        </ControlList>"#;
+        let old = parse_config_summary(old).unwrap();
+        let new = parse_config_summary(new).unwrap();
+        assert_eq!(old.controls.len(), 3);
+        assert_eq!(new.controls.len(), 3);
+        assert!(old.controls.contains_key("removed"));
+        assert!(new.controls.contains_key("added"));
+        let diff = diff_configs(&old, &new);
+        assert_eq!(diff.controls_added.len(), 1);
+        assert_eq!(diff.controls_removed.len(), 1);
+        assert_eq!(diff.controls_added[0].name, "Light");
+        assert_eq!(diff.controls_removed[0].name, "Light");
+        assert_eq!(diff.controls_changed.len(), 2);
+        let rename = diff
+            .controls_changed
+            .iter()
+            .find(|change| change.field == "name")
+            .unwrap();
+        assert_eq!(rename.name, "Renamed");
+        assert_eq!(rename.old_value, "Light");
+        assert_eq!(rename.new_value, "Renamed");
+        let room_move = diff
+            .controls_changed
+            .iter()
+            .find(|change| change.field == "room")
+            .unwrap();
+        assert_eq!(room_move.name, "Light");
+        assert_eq!(room_move.old_value, "Bedroom");
+        assert_eq!(room_move.new_value, "Kitchen");
     }
 
     #[test]

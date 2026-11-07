@@ -84,8 +84,7 @@ subcmd_help!(help_completions, "completions");
 subcmd_help!(help_docs, "docs");
 subcmd_help!(help_schema, "schema");
 subcmd_help!(help_telemetry, "telemetry");
-subcmd_help!(help_feedback, "feedback");
-subcmd_help!(help_feedback_report, "feedback", "report");
+subcmd_help!(help_report, "report");
 subcmd_help!(help_color, "color");
 subcmd_help!(help_color_encode, "color", "encode");
 subcmd_help!(help_color_decode, "color", "decode");
@@ -109,7 +108,7 @@ fn help_mentions_stats() {
         .stdout(predicate::str::contains("  ls "));
 }
 
-mod feedback {
+mod reporting {
     use super::*;
     use serde_json::Value;
 
@@ -124,14 +123,14 @@ mod feedback {
     #[test]
     fn agent_schema_advertises_the_actual_body_file_flag() {
         let output = command()
-            .args(["schema", "feedback"])
+            .args(["schema", "report"])
             .assert()
             .success()
             .get_output()
             .stdout
             .clone();
         let schema: Value = serde_json::from_slice(&output).unwrap();
-        let args = schema["subcommands"][0]["args"].as_array().unwrap();
+        let args = schema["args"].as_array().unwrap();
         let body_file = args.iter().find(|arg| arg["name"] == "body_file").unwrap();
         assert_eq!(body_file["long"], "--body-file");
     }
@@ -142,7 +141,6 @@ mod feedback {
         let output = command()
             .env("PATH", dir.path())
             .args([
-                "feedback",
                 "report",
                 "--title",
                 "Synthetic issue",
@@ -175,7 +173,6 @@ mod feedback {
         for from_stdin in [false, true] {
             let mut command = command();
             command.args([
-                "feedback",
                 "report",
                 "--title",
                 "Synthetic issue",
@@ -199,7 +196,6 @@ mod feedback {
         let output = command()
             .env("PATH", dir.path())
             .args([
-                "feedback",
                 "report",
                 "--title",
                 "Synthetic issue",
@@ -230,7 +226,6 @@ mod feedback {
             .env("LOX_CONFIG", &config)
             .env("PATH", dir.path())
             .args([
-                "feedback",
                 "report",
                 "--title",
                 "Synthetic issue",
@@ -270,7 +265,6 @@ mod feedback {
             .env("LOX_CONFIG", &config)
             .env("PATH", dir.path())
             .args([
-                "feedback",
                 "report",
                 "--title",
                 "Synthetic issue",
@@ -294,20 +288,13 @@ mod feedback {
             vec!["--body", " \n"],
         ] {
             command()
-                .args([
-                    "feedback",
-                    "report",
-                    "--title",
-                    "Synthetic issue",
-                    "--dry-run",
-                ])
+                .args(["report", "--title", "Synthetic issue", "--dry-run"])
                 .args(args)
                 .assert()
                 .failure();
         }
         command()
             .args([
-                "feedback",
                 "report",
                 "--title",
                 "Synthetic issue",
@@ -318,6 +305,206 @@ mod feedback {
             .assert()
             .failure()
             .stdout(predicate::str::contains("Cannot read issue report"));
+    }
+
+    #[test]
+    fn report_is_discoverable_without_advertising_legacy_nesting() {
+        lox()
+            .arg("--help")
+            .assert()
+            .success()
+            .stdout(predicate::str::contains("  report "))
+            .stdout(predicate::str::contains("feedback").not());
+        lox()
+            .args(["report", "--help"])
+            .assert()
+            .success()
+            .stdout(predicate::str::contains("--body-file"))
+            .stdout(predicate::str::contains("GitHub issues are public"));
+        let output = command()
+            .arg("schema")
+            .assert()
+            .success()
+            .get_output()
+            .stdout
+            .clone();
+        let schema: Value = serde_json::from_slice(&output).unwrap();
+        let names = schema["commands"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .map(|command| command["name"].as_str().unwrap())
+            .collect::<Vec<_>>();
+        assert!(names.contains(&"report"));
+        assert!(!names.contains(&"feedback"));
+        assert!(
+            schema["report_hint"]
+                .as_str()
+                .unwrap()
+                .contains("lox report --help")
+        );
+        for shell in ["bash", "zsh", "fish", "powershell", "elvish"] {
+            lox()
+                .env("LOX_TELEMETRY", "0")
+                .args(["completions", shell, "--quiet"])
+                .assert()
+                .success()
+                .stdout(predicate::str::contains("report"))
+                .stdout(predicate::str::contains("feedback").not());
+        }
+    }
+
+    #[test]
+    fn legacy_feedback_report_still_uses_the_canonical_handler() {
+        let output = command()
+            .args([
+                "feedback",
+                "report",
+                "--title",
+                "Synthetic issue",
+                "--body",
+                "Synthetic details",
+                "--dry-run",
+            ])
+            .assert()
+            .success()
+            .get_output()
+            .stdout
+            .clone();
+        let result: Value = serde_json::from_slice(&output).unwrap();
+        assert!(
+            result["body"]
+                .as_str()
+                .unwrap()
+                .contains("Reported via `lox report`")
+        );
+    }
+
+    #[test]
+    fn parameter_errors_return_json_and_reporting_guidance_for_each_output_spelling() {
+        for flags in [
+            vec!["--json"],
+            vec!["--output", "json"],
+            vec!["--output=json"],
+            vec!["-o", "json"],
+            vec!["-ojson"],
+            vec!["-qojson"],
+        ] {
+            let output = lox()
+                .env("LOX_TELEMETRY", "0")
+                .args(["color", "encode", "--brightness", "not-a-number"])
+                .args(flags)
+                .assert()
+                .code(2)
+                .stderr("")
+                .get_output()
+                .stdout
+                .clone();
+            let result: Value = serde_json::from_slice(&output).unwrap();
+            assert_eq!(result["error"], "invalid_arguments");
+            assert_eq!(result["ok"], false);
+            assert!(result["message"].as_str().unwrap().contains("not-a-number"));
+            assert!(
+                result["report_hint"]
+                    .as_str()
+                    .unwrap()
+                    .contains("Correct input/setup errors first")
+            );
+        }
+    }
+
+    #[test]
+    fn human_argument_errors_preserve_usage_and_hint_even_when_quiet() {
+        lox()
+            .args(["--quiet", "report", "--unknown-flag"])
+            .assert()
+            .code(2)
+            .stdout("")
+            .stderr(predicate::str::contains("unexpected argument"))
+            .stderr(predicate::str::contains("Usage:"))
+            .stderr(predicate::str::contains("lox report --help"));
+    }
+
+    #[test]
+    fn runtime_errors_include_guidance_in_json_and_human_output() {
+        let output = command()
+            .args(["color", "decode", "invalid"])
+            .assert()
+            .code(1)
+            .get_output()
+            .stdout
+            .clone();
+        let result: Value = serde_json::from_slice(&output).unwrap();
+        assert_eq!(result["ok"], false);
+        assert!(
+            result["report_hint"]
+                .as_str()
+                .unwrap()
+                .contains("lox report --help")
+        );
+        lox()
+            .env("LOX_TELEMETRY", "0")
+            .args(["--quiet", "color", "decode", "invalid"])
+            .assert()
+            .code(1)
+            .stdout("")
+            .stderr(predicate::str::contains("lox report --help"));
+    }
+
+    #[test]
+    fn help_and_version_are_not_json_errors() {
+        for flag in ["--help", "--version"] {
+            command()
+                .arg(flag)
+                .assert()
+                .success()
+                .stderr("")
+                .stdout(predicate::str::contains("\"ok\":false").not());
+        }
+    }
+}
+
+#[test]
+fn blocks_info_connector_inputs_from_embedded_schema_forms() {
+    for (block_type, expected_inputs, expected_output, expected_parameter) in [
+        (
+            "LightController2",
+            &["I1", "Move", "Presence", "EnMove", "InputDisable", "Sel8"][..],
+            "Scene",
+            Some("FadingTime"),
+        ),
+        ("And", &["I1", "I2"][..], "Q", None),
+        ("Monoflop", &["InputTrigger"][..], "Q", Some("Time")),
+    ] {
+        let output = lox()
+            .args(["blocks", "info", block_type, "-o", "json"])
+            .assert()
+            .success()
+            .get_output()
+            .stdout
+            .clone();
+        let result: serde_json::Value = serde_json::from_slice(&output).unwrap();
+        let connector_names = |kind: &str| -> Vec<&str> {
+            result[kind]
+                .as_array()
+                .unwrap()
+                .iter()
+                .map(|connector| connector["name"].as_str().unwrap())
+                .collect()
+        };
+        let inputs = connector_names("inputs");
+        for expected in expected_inputs {
+            assert!(
+                inputs.contains(expected),
+                "{block_type} is missing input {expected}: {result}"
+            );
+        }
+        assert!(connector_names("outputs").contains(&expected_output));
+        if let Some(expected) = expected_parameter {
+            assert!(connector_names("parameters").contains(&expected));
+            assert!(!inputs.contains(&expected));
+        }
+        assert!(!inputs.contains(&expected_output));
     }
 }
 

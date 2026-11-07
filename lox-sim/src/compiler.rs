@@ -857,6 +857,8 @@ impl CompiledGraph {
                         state_idx: si,
                     }
                 }
+                // PicoC is unsupported in both engines: leave outputs unevaluated.
+                "Code1" | "Code4" | "Code8" | "Code16" => continue,
                 // Default: PassThrough / unknown → copy first input to first output
                 _ => EvalStep::Copy {
                     src: resolved_inputs.first().copied().unwrap_or(0),

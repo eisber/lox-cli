@@ -10,8 +10,8 @@
 *"Set up the kitchen so the light comes on when dark, blinds go up in strong wind, and they close after five minutes of sunshine if there's no wind."* → Agent searches block types, adds 5 logic blocks, wires 3 circuits, fixes a pulse duration error after sim feedback, and verifies all 7 test scenarios — in under 5 minutes.
 
 <p align="center">
-  <img src="docs/assets/demo.gif" alt="Demo: AI agent configures kitchen automation" width="662">
-  <br><sub>▶ Click to play — Copilot CLI builds 3 kitchen circuits from a natural language prompt</sub>
+  <img src="docs/assets/demo.gif" alt="30-second lox CLI tour: inspect, switch a mock light, apply a local room template, browse blocks, and refuse an unconfirmed push" width="1140">
+  <br><sub>Simulated sandbox · actual CLI output · no hardware or deployment · <a href="docs/demo.md">Reproduce this 30-second demo</a></sub>
 </p>
 
 ## Why
@@ -279,14 +279,20 @@ Error: Block 'Threshold' not found.
 Agents can report CLI problems without a Miniserver connection:
 
 ```bash
-lox feedback report --title "Short issue summary" --body "Sanitized reproduction, expected and actual behavior" --json
+lox report --title "Short issue summary" --body "Sanitized reproduction, expected and actual behavior" --json
 ```
 
 Creates a public GitHub issue using `gh` when available; otherwise submits the
 supplied title/body through PostHog, respecting telemetry opt-outs. Returns a
 delivery receipt or a nonzero error. Use `--body-file -` for stdin or `--dry-run`
 to preview. Never include secrets or private configuration. See
-[issue feedback](COMMANDS.md#issue-feedback) and [telemetry](TELEMETRY.md).
+[issue reporting](COMMANDS.md#issue-reporting) and [telemetry](TELEMETRY.md).
+
+Help, command schemas, and failures point agents to `lox report --help`.
+JSON errors include `report_hint`, including invalid arguments; Rust panics
+preserve their diagnostics and show the same guidance. Fix input/setup mistakes
+first; report reproducible CLI bugs, not every failed command. No issue reports
+are sent automatically.
 
 ### Multiple Miniservers
 

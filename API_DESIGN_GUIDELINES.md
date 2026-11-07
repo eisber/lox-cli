@@ -16,6 +16,8 @@ Commands follow three patterns depending on context:
 - New device-type commands → pattern 2 (`lox <device> <target> <action>`)
 - New admin/management commands → pattern 3 (`lox <noun> <subcommand>`)
 - Only add pattern 1 for truly universal operations (on/off/get are the only ones)
+- Single-purpose CLI utilities (`report`, `schema`, `completions`) stay top-level.
+  Do not introduce a noun/subcommand layer without distinct operations.
 
 ## Global Flags
 

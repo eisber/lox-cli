@@ -4,6 +4,8 @@ mod commands;
 #[allow(dead_code)]
 mod config;
 mod config_edit;
+mod custom_overlay;
+mod dry_run;
 mod errors;
 mod ftp;
 mod gitops;
@@ -128,6 +130,7 @@ pub(crate) fn install_completions(shell: Shell, cmd: &mut clap::Command) -> Resu
     version,
     infer_subcommands = true,
     disable_help_subcommand = true,
+    after_help = errors::REPORT_HINT,
     help_template = "\
 {about-with-newline}
 {usage-heading} {usage}
@@ -139,7 +142,7 @@ Configuration:
   ctx                            Manage multiple Miniserver contexts
   config                         Loxone Config files (download/inspect/edit/push)
   telemetry                      Manage anonymous usage analytics
-  feedback                       Report CLI issues (GitHub, then telemetry)
+  report                         Report CLI bugs (GitHub, then telemetry)
   completions                    Generate shell completions
   schema                         Command schema for AI agent discovery
   stats                          Miniserver statistics (ls/get/download)
@@ -165,7 +168,7 @@ pub(crate) struct Cli {
     /// Verbose output (-v for requests, -vv for request+response bodies)
     #[arg(short = 'v', long, global = true, action = ArgAction::Count)]
     verbose: u8,
-    /// Validate and resolve inputs without executing commands
+    /// Validate without mutations; fail if a safe dry-run is unavailable
     #[arg(long, global = true)]
     dry_run: bool,
     /// Fail instead of prompting for confirmation (implied by --output json)
@@ -214,10 +217,12 @@ pub(crate) enum Cmd {
         #[command(subcommand)]
         action: TelemetryCmd,
     },
-    /// Report CLI issues without a Miniserver connection
+    /// Report a CLI bug to GitHub, falling back to telemetry when enabled
+    Report(commands::report_cmd::ReportArgs),
+    #[command(hide = true)]
     Feedback {
         #[command(subcommand)]
-        action: commands::feedback_cmd::FeedbackCmd,
+        action: commands::report_cmd::LegacyFeedbackCmd,
     },
     /// Download, inspect, and manage Loxone Config files
     Config {
@@ -1225,7 +1230,9 @@ pub(crate) enum XmlEditCmd {
 fn categorize_error(e: &anyhow::Error) -> &'static str {
     let msg = format!("{:#}", e);
     let lower = msg.to_lowercase();
-    if lower.contains("no control matching") {
+    if e.is::<dry_run::Unsupported>() {
+        "dry_run_not_supported"
+    } else if lower.contains("no control matching") {
         "control_not_found"
     } else if lower.contains("ambiguous") {
         "ambiguous_control"
@@ -1254,7 +1261,7 @@ fn command_name(cmd: &Cmd) -> String {
         Cmd::Cache { .. } => "cache".into(),
         Cmd::Token { .. } => "token".into(),
         Cmd::Telemetry { .. } => "telemetry".into(),
-        Cmd::Feedback { .. } => "feedback".into(),
+        Cmd::Report(_) | Cmd::Feedback { .. } => "report".into(),
         Cmd::Config { .. } => "config".into(),
         Cmd::Ctx { .. } => "ctx".into(),
         Cmd::Completions { .. } => "completions".into(),
@@ -1271,15 +1278,29 @@ fn command_name(cmd: &Cmd) -> String {
 // ── Main ──────────────────────────────────────────────────────────────────────
 
 fn main() {
-    let cli = Cli::parse();
+    let args: Vec<std::ffi::OsString> = std::env::args_os().collect();
+    let requested_json = errors::json_output_requested(&args[1..]);
+    errors::install_panic_hook(requested_json);
+    let cli = match Cli::try_parse_from(args) {
+        Ok(cli) => cli,
+        Err(error) if !error.use_stderr() => error.exit(),
+        Err(error) => {
+            if requested_json {
+                println!(
+                    "{}",
+                    errors::error_envelope("invalid_arguments", &error.to_string())
+                );
+            } else {
+                error.print().expect("Cannot print argument error");
+                eprintln!("\n{}", errors::REPORT_HINT);
+            }
+            std::process::exit(error.exit_code());
+        }
+    };
     let json = cli.output == OutputFormat::Json || cli.json_flag;
     if let Err(e) = run(cli) {
         if json {
-            let mut envelope = serde_json::json!({
-                "ok": false,
-                "error": categorize_error(&e),
-                "message": format!("{:#}", e),
-            });
+            let mut envelope = errors::error_envelope(categorize_error(&e), &format!("{:#}", e));
             if let Some(diagnostic) = e.downcast_ref::<config_edit::schema::Diagnostic>() {
                 envelope["error"] = serde_json::json!(diagnostic.code);
                 envelope["diagnostics"] = serde_json::json!([diagnostic]);
@@ -1292,12 +1313,17 @@ fn main() {
             );
         } else {
             eprintln!("Error: {:#}", e);
+            eprintln!("\n{}", errors::REPORT_HINT);
         }
         std::process::exit(1);
     }
 }
 
 fn run(cli: Cli) -> Result<()> {
+    dry_run::dispatch(cli, run_command)
+}
+
+fn run_command(cli: Cli) -> Result<()> {
     // Set context override before any Config::load() calls
     config::set_ctx_override(cli.context.clone());
 
@@ -1324,12 +1350,6 @@ fn run(cli: Cli) -> Result<()> {
         unsafe { std::env::set_var("NO_COLOR", "1") };
     }
 
-    // Show first-run telemetry notice (once only)
-    if !ctx.quiet {
-        telemetry::maybe_show_first_run_notice();
-    }
-
-    // Track the command name (fire-and-forget, no-op when disabled)
     let telemetry_preference = match config::Config::telemetry_preference() {
         Ok(preference) => preference,
         Err(error) => {
@@ -1340,7 +1360,13 @@ fn run(cli: Cli) -> Result<()> {
         }
     };
     let telem = telemetry::Telemetry::from_config(telemetry_preference);
-    telem.track_command(&command_name(&cli.cmd));
+    // Telemetry creates local markers/session files as well as sending events.
+    if !ctx.dry_run {
+        if !ctx.quiet {
+            telemetry::maybe_show_first_run_notice();
+        }
+        telem.track_command(&command_name(&cli.cmd));
+    }
 
     match cli.cmd {
         // ── Configuration commands ────────────────────────────────────
@@ -1352,7 +1378,10 @@ fn run(cli: Cli) -> Result<()> {
             TelemetryCmd::Disable => telemetry::cmd_telemetry_disable(),
             TelemetryCmd::Status => telemetry::cmd_telemetry_status(),
         },
-        Cmd::Feedback { action } => commands::feedback_cmd::cmd_feedback(&ctx, action, &telem),
+        Cmd::Report(args)
+        | Cmd::Feedback {
+            action: commands::report_cmd::LegacyFeedbackCmd::Report(args),
+        } => commands::report_cmd::cmd_report(&ctx, args, &telem),
         Cmd::Config { action } => commands::config_cmd::cmd_config(&ctx, *action),
         Cmd::Ctx { action } => commands::ctx::cmd_ctx(&ctx, action),
         Cmd::Completions { shell, install } => {
@@ -1389,7 +1418,9 @@ pub(crate) fn build_schema(filter: Option<&str>) -> Result<Value> {
                 name
             );
         };
-        return Ok(describe_command(sub, true));
+        let mut schema = describe_command(sub, true);
+        schema["report_hint"] = serde_json::json!(errors::REPORT_HINT);
+        return Ok(schema);
     }
 
     let commands: Vec<Value> = cmd
@@ -1402,10 +1433,11 @@ pub(crate) fn build_schema(filter: Option<&str>) -> Result<Value> {
         "name": "lox",
         "version": env!("CARGO_PKG_VERSION"),
         "description": "Loxone Config-as-Code CLI",
+        "report_hint": errors::REPORT_HINT,
         "global_flags": [
             {"name": "--output", "short": "-o", "type": "enum", "values": ["table", "json", "csv"], "default": "table"},
             {"name": "--quiet", "short": "-q", "type": "bool", "description": "Suppress non-essential output"},
-            {"name": "--dry-run", "type": "bool", "description": "Validate and resolve inputs without executing commands"},
+            {"name": "--dry-run", "type": "bool", "description": "Validate without mutations; fail if a safe dry-run is unavailable"},
             {"name": "--non-interactive", "type": "bool", "description": "Fail instead of prompting for confirmation"},
             {"name": "--trace-id", "type": "string", "description": "Trace ID for correlating agent actions"},
             {"name": "--verbose", "short": "-v", "type": "count", "description": "Verbose output (-v requests, -vv bodies)"},

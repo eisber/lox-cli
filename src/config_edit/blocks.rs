@@ -353,39 +353,43 @@ impl ConfigEditor {
             .iter()
             .find_map(|c| c.as_element().filter(|e| e.name == "IoData"))
         {
-            if let Some(pr) = parent_iodata.attributes.get("Pr") {
-                iodata.attributes.insert("Pr".to_string(), pr.clone());
-            }
-            if let Some(cr) = parent_iodata.attributes.get("Cr") {
-                iodata.attributes.insert("Cr".to_string(), cr.clone());
+            for reference in ["Pr", "Cr"] {
+                if let Some(value) = parent_iodata
+                    .attributes
+                    .get(reference)
+                    .filter(|value| !value.is_empty())
+                {
+                    iodata
+                        .attributes
+                        .insert(reference.to_string(), value.clone());
+                }
             }
         }
         // Fallback: find first room and category from the config
-        if !iodata.attributes.contains_key("Pr") {
-            fn find_first(elem: &Element, type_name: &str) -> Option<String> {
-                if elem.name == "C"
-                    && elem
-                        .attributes
-                        .get("Type")
-                        .map(|t| t == type_name)
-                        .unwrap_or(false)
+        fn find_first(elem: &Element, type_name: &str) -> Option<String> {
+            if elem.name == "C"
+                && elem
+                    .attributes
+                    .get("Type")
+                    .map(|t| t == type_name)
+                    .unwrap_or(false)
+            {
+                return elem.attributes.get("U").cloned();
+            }
+            for child in &elem.children {
+                if let Some(e) = child.as_element()
+                    && let Some(u) = find_first(e, type_name)
                 {
-                    return elem.attributes.get("U").cloned();
+                    return Some(u);
                 }
-                for child in &elem.children {
-                    if let Some(e) = child.as_element()
-                        && let Some(u) = find_first(e, type_name)
-                    {
-                        return Some(u);
-                    }
-                }
-                None
             }
-            if let Some(room) = find_first(&self.root, "Place") {
-                iodata.attributes.insert("Pr".to_string(), room);
-            }
-            if let Some(cat) = find_first(&self.root, "Category") {
-                iodata.attributes.insert("Cr".to_string(), cat);
+            None
+        }
+        for (reference, type_name) in [("Pr", "Place"), ("Cr", "Category")] {
+            if !iodata.attributes.contains_key(reference)
+                && let Some(uuid) = find_first(&self.root, type_name)
+            {
+                iodata.attributes.insert(reference.to_string(), uuid);
             }
         }
         elem.children.push(xmltree::XMLNode::Element(iodata));
@@ -572,17 +576,16 @@ impl ConfigEditor {
         (7392, py)
     }
 
-    /// Extract Miniserver serial from existing UUIDs in the config.
-    /// Looks for UUIDs with "ffff" pattern and extracts the 12-char serial suffix.
+    /// Extract the existing 12-hex identity suffix after the final `-ffff`.
+    /// The legacy name does not imply the suffix is a hardware serial.
     pub fn find_miniserver_serial(&self) -> Option<String> {
         fn scan(elem: &Element) -> Option<String> {
             if let Some(u) = elem.attributes.get("U")
-                && let Some(pos) = u.find("ffff")
+                && let Some((_, serial)) = u.rsplit_once("-ffff")
+                && serial.len() >= 12
+                && serial.chars().all(|c| c.is_ascii_hexdigit())
             {
-                let serial = &u[pos + 4..];
-                if serial.len() >= 12 && serial.chars().all(|c| c.is_ascii_hexdigit()) {
-                    return Some(serial[..12].to_string());
-                }
+                return Some(serial[..12].to_string());
             }
             for child in &elem.children {
                 if let xmltree::XMLNode::Element(c) = child
@@ -660,5 +663,204 @@ fn fmt_num(v: f64) -> String {
         format!("{}", v as i64)
     } else {
         format!("{v}")
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::collections::HashSet;
+
+    fn virtual_input_fixture(parent_iodata: &str) -> ConfigEditor {
+        ConfigEditor::load(
+            format!(
+                r#"<ControlList NextObj="29" NextMem="1">
+  <C Type="Document" U="ffffabcd-1234-5678-ffffaabbccddeeff">
+    <C Type="Place" U="room-first"/>
+    <C Type="Place" U="room-parent"/>
+    <C Type="Category" U="cat-first"/>
+    <C Type="Category" U="cat-parent"/>
+    <C Type="VirtualInCaption" U="caption">{parent_iodata}
+      <C Type="VirtualIn" U="old-vi" IName="VI7"/>
+    </C>
+    <C Type="Program" U="program">
+      <C Type="Page" U="page" Title="Program"/>
+    </C>
+  </C>
+</ControlList>"#
+            )
+            .as_bytes(),
+        )
+        .unwrap()
+    }
+
+    fn connector<'a>(element: &'a Element, key: &str) -> &'a Element {
+        element
+            .children
+            .iter()
+            .filter_map(|child| child.as_element())
+            .find(|child| child.name == "Co" && child.attributes.get("K").is_some_and(|k| k == key))
+            .unwrap()
+    }
+
+    #[test]
+    fn virtual_input_registration_inherits_each_reference_independently() {
+        for (iodata, room, category) in [
+            (
+                r#"<IoData Pr="room-parent" Cr="cat-parent"/>"#,
+                "room-parent",
+                "cat-parent",
+            ),
+            (r#"<IoData Pr="room-parent"/>"#, "room-parent", "cat-first"),
+            (r#"<IoData Cr="cat-parent"/>"#, "room-first", "cat-parent"),
+            ("", "room-first", "cat-first"),
+            (r#"<IoData Pr="" Cr=""/>"#, "room-first", "cat-first"),
+            (
+                r#"<IoData Pr="room-parent" Cr=""/>"#,
+                "room-parent",
+                "cat-first",
+            ),
+            (
+                r#"<IoData Pr="" Cr="cat-parent"/>"#,
+                "room-first",
+                "cat-parent",
+            ),
+        ] {
+            for analog in [false, true] {
+                let mut editor = virtual_input_fixture(iodata);
+                let (vi_uuid, aq_uuid) = editor
+                    .add_virtual_in(
+                        "New input",
+                        &VirtualInOpts {
+                            analog,
+                            ..Default::default()
+                        },
+                        "uuid:caption",
+                    )
+                    .unwrap();
+                let reloaded = ConfigEditor::load(&editor.to_bytes().unwrap()).unwrap();
+                let vi_path = reloaded.require_one(&format!("uuid:{vi_uuid}")).unwrap();
+                let vi = reloaded.get_element(&vi_path);
+                let io = vi.get_child("IoData").unwrap();
+                assert_eq!(io.attributes.get("Pr").unwrap(), room, "{iodata}");
+                assert_eq!(io.attributes.get("Cr").unwrap(), category, "{iodata}");
+                assert_eq!(vi.attributes["WF"], "16400");
+                assert_eq!(vi.attributes["Idx"], "-1");
+                assert_eq!(vi.attributes["IName"], "VI8");
+                assert_eq!(vi.attributes["Analog"], analog.to_string());
+                assert!(!vi.attributes.contains_key("MaxVal"));
+                assert!(!vi.children.iter().any(|child| {
+                    child
+                        .as_element()
+                        .is_some_and(|e| e.attributes.get("Type").is_some_and(|t| t == "InputRef"))
+                }));
+
+                let page = reloaded.get_element(&reloaded.require_one("Type:Page").unwrap());
+                let input_ref = page
+                    .children
+                    .iter()
+                    .filter_map(|child| child.as_element())
+                    .find(|child| {
+                        child
+                            .attributes
+                            .get("Type")
+                            .is_some_and(|t| t == "InputRef")
+                    })
+                    .unwrap();
+                assert_eq!(input_ref.attributes["Ref"], vi_uuid);
+                assert_eq!(connector(input_ref, "AQ").attributes["U"], aq_uuid);
+                for (input, output) in [("AI", "Q"), ("I", "Qm")] {
+                    assert_eq!(
+                        connector(input_ref, input)
+                            .get_child("In")
+                            .unwrap()
+                            .attributes["Input"],
+                        connector(vi, output).attributes["U"]
+                    );
+                }
+                assert!(!reloaded.validate_config().iter().any(|line| {
+                    line.starts_with('✗') && (line.contains("Pr=") || line.contains("Cr="))
+                }));
+            }
+        }
+    }
+
+    #[test]
+    fn identity_suffix_is_not_confused_with_ffff_in_uuid_prefix() {
+        for uuid in [
+            "ffffabcd-1234-5678-ffffaabbccddeeff",
+            "01234567-ffff-5678-ffffaabbccddeeff",
+            "01234567-1234-ffff-ffffaabbccddeeff",
+            "01234567-1234-5678-ffffaabbffffeeff",
+        ] {
+            let editor = ConfigEditor::load(
+                format!(r#"<ControlList><C U="{uuid}"/></ControlList>"#).as_bytes(),
+            )
+            .unwrap();
+            let suffix = &uuid[uuid.len() - 12..];
+            assert_eq!(editor.find_miniserver_serial().as_deref(), Some(suffix));
+        }
+    }
+
+    #[test]
+    fn generated_block_and_connector_identities_preserve_native_counters_and_suffix() {
+        let mut editor = virtual_input_fixture("");
+        let existing: HashSet<_> = ConfigEditor::iter_elements(&editor.root)
+            .into_iter()
+            .filter_map(|element| element.attributes.get("U").cloned())
+            .collect();
+        let existing_warnings: Vec<_> = editor
+            .validate_config()
+            .into_iter()
+            .filter(|line| line.contains("malformed UUID"))
+            .collect();
+        editor
+            .add_element("uuid:page", "And", "Logic", None, None, None, &[])
+            .unwrap();
+        editor
+            .add_element_to_root("Or", "Root logic", None, None, &[])
+            .unwrap();
+        editor
+            .add_virtual_in("New input", &VirtualInOpts::default(), "uuid:caption")
+            .unwrap();
+        let reloaded = ConfigEditor::load(&editor.to_bytes().unwrap()).unwrap();
+        let mut identities = HashSet::new();
+        let mut new_connectors = 0;
+        for element in ConfigEditor::iter_elements(&reloaded.root) {
+            let Some(uuid) = element.attributes.get("U") else {
+                continue;
+            };
+            assert!(identities.insert(uuid), "duplicate identity: {uuid}");
+            if !existing.contains(uuid) {
+                assert!(uuid.ends_with("-ffffaabbccddeeff"), "{uuid}");
+                let groups: Vec<_> = uuid.split('-').collect();
+                assert_eq!(
+                    groups.iter().map(|g| g.len()).collect::<Vec<_>>(),
+                    [8, 4, 4, 16]
+                );
+                assert!(
+                    groups
+                        .iter()
+                        .all(|g| g.chars().all(|c| c.is_ascii_hexdigit()))
+                );
+                if element.name == "Co" {
+                    new_connectors += 1;
+                }
+            }
+        }
+        assert!(
+            new_connectors > 6,
+            "logic and VirtualIn connectors were checked"
+        );
+        assert_eq!(reloaded.root.attributes["NextObj"], "29");
+        assert_eq!(reloaded.root.attributes["NextMem"], "1");
+        assert_eq!(
+            reloaded
+                .validate_config()
+                .into_iter()
+                .filter(|line| line.contains("malformed UUID"))
+                .collect::<Vec<_>>(),
+            existing_warnings
+        );
     }
 }

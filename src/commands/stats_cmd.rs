@@ -1814,6 +1814,56 @@ mod tests {
     }
 
     #[test]
+    fn download_dry_run_keeps_missing_named_context_data_cold() {
+        let server = MockServer::start();
+        let mocks = serve_download(&server);
+        let unexpected = server.mock(|when, then| {
+            when.any_request();
+            then.status(400);
+        });
+        let root = tempfile::Builder::new()
+            .prefix(".stats-cold-context-")
+            .tempdir_in(env!("CARGO_MANIFEST_DIR"))
+            .unwrap();
+        let data_dir = root.path().join("contexts").join("cold");
+        let host = server.base_url().replace("127.0.0.1", "2130706433");
+        assert!(!host.contains("127.0.0.1") && !host.contains("localhost"));
+        let lox = LoxClient::new(Config {
+            host,
+            user: "synthetic".into(),
+            pass: "synthetic".into(),
+            data_dir: data_dir.clone(),
+            context_name: Some("cold".into()),
+            ..Default::default()
+        })
+        .unwrap();
+        let mut ctx = run_ctx(true, false);
+        ctx.dry_run = true;
+        let opts = DownloadOpts {
+            dir: root.path().join("stats"),
+            filter: Some("Kitchen".into()),
+            range: MonthRange {
+                from: Some("2026-10".into()),
+                to: Some("2026-10".into()),
+            },
+            force: true,
+        };
+        let mut out = Vec::new();
+        download(&ctx, &lox, &opts, now(), &mut out).unwrap();
+        let plan: serde_json::Value = serde_json::from_slice(&out).unwrap();
+        assert_eq!(
+            plan["would_download"],
+            serde_json::json!([format!("{KITCHEN}.202610.xml")])
+        );
+        assert!(!data_dir.exists());
+        assert_eq!(std::fs::read_dir(root.path()).unwrap().count(), 0);
+        mocks.kitchen_sep.assert_hits(0);
+        mocks.kitchen_oct.assert_hits(0);
+        mocks.heat_pump_oct.assert_hits(0);
+        unexpected.assert_hits(0);
+    }
+
+    #[test]
     fn download_csv_reports_files_and_skips_without_human_summary() {
         let server = MockServer::start();
         let mocks = serve_download(&server);

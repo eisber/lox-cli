@@ -8,12 +8,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- `lox report` submits sanitized CLI bug reports to GitHub with an acknowledged PostHog fallback. Help, schemas, errors, and Rust panics expose reporting guidance; errors and panics never automatically submit reports.
+- Reproducible README terminal demo using an explicitly labeled loopback sandbox, with recording instructions and regression tests.
 - `lox stats ls` (alias `list`), `lox stats get` and `lox stats download` read the statistics the Miniserver logs (`/stats/` index and monthly XML files): list them, print values as table, CSV or JSON across a month range, and mirror the raw files into a folder incrementally.
 - `lox config user-grant` / `user-revoke` edit a user's (or, with `--group`, a user group's) object permissions (`<PH>`/`<PRM>`) in a `.Loxone` file — e.g. to let an API user call `/dev/sps/io/<input>/...` without HTTP 403. Idempotent; permission edits preserve unrelated content and update the Document save stamp.
 - `lox config user-perms` lists direct permission entries (not effective inherited access); `lox config users` shows a direct permission count and, with `-o json`, each user's `uuid` and resolved `permissions`.
 - `--grant <USER>` on `lox config add --type virtual-input` and `lox config add-virtual-in`.
 
 ### Fixed
+- JSON output flags now apply to argument-parsing errors as well as runtime errors; parser errors retain exit code 2 and help/version remain normal successful output.
+- Reject unsupported `--dry-run` operations before startup or mutation, even with `--force` or `--write`; retain supported planners and audited read-only commands without cache or telemetry writes.
+- Preserve live `/sys/custom/*.LoxCC` changes during download/pull and use stored baselines, three-way conflict checks, and pre-upload snapshot rechecks for deployment.
+- Reject unsupported catalogue, permission, and TPDC changes instead of silently preserving stale compiled sidecars; validate supplied ZIP sidecars as well as the original archive.
+- Correct VirtualIn room/category fallback and UUID serial-suffix detection while retaining existing UUID allocation and native counters.
+- Scope control room metadata to its owning XML element so duplicate titles and nested elements do not cause false configuration diffs.
+- Mark PicoC simulation as unsupported and inert; preserve multiline Code attributes and warn about suspicious collapsed leading-comment programs.
 - `lox sim run` no longer reports a passing simulation for an empty scenario array or a scenario with no output assertions (including trace-only runs).
 - `lox sim`: inputs with several `<In>` sources (`Nc="2"`, ...) on `And`, `Or` and `Xor` keep all of them and combine them as the Loxone help describes (AND on And, OR on Or and Xor). On other blocks the first source is still the only one wired, but a warning now names the input; previously the other sources were dropped silently.
 - `lox sim`: PI/PID read their parameters in signature order and follow the Loxone formula (SampleTime, Trigger threshold, Auto/MV, Off) instead of using Trigger/P as output limits, which panicked with "min > max".
@@ -22,6 +31,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Config editing accepts value-identical duplicate attributes emitted by Loxone while still rejecting conflicting values. Comments, CDATA, processing instructions, and declarations are left untouched.
 - Writing a `.Loxone` file preserves line breaks inside attribute values. Loxone keeps bare LF in note text and CRLF in AutoPilot rule JSON; the CRLF post-process previously converted both to the file's line ending. Repeated saves now keep each attribute's own line breaks without accumulating extra carriage returns.
 - Writing a `.Loxone` file keeps the file's own line endings. They are now taken from the newline after the XML declaration (or the first newline outside markup when there is no declaration); before, a single CRLF inside any attribute value (AutoPilot rule JSON) made the editor treat an LF file as CRLF and convert every line of it.
+
+### Changed
+- `lox report` replaces the preliminary `lox feedback report` spelling, which remains a hidden compatibility path.
 
 ## [0.14.2] — 2026-05-08
 

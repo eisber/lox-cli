@@ -7,7 +7,7 @@
 //! - `restore` — check out an earlier config and optionally push it back
 
 use crate::config::Config;
-use crate::loxcc::decompress_loxcc;
+use crate::custom_overlay;
 use anyhow::{Context, Result, bail};
 use std::fs;
 use std::path::{Path, PathBuf};
@@ -142,65 +142,6 @@ fn git_status_code(repo: &Path, args: &[&str]) -> Result<(i32, String)> {
 }
 
 // ---------------------------------------------------------------------------
-// HTTP helpers
-// ---------------------------------------------------------------------------
-
-/// Build a blocking HTTP client that accepts self-signed certs (Miniservers
-/// use self-signed TLS).
-fn http_client() -> Result<reqwest::blocking::Client> {
-    reqwest::blocking::Client::builder()
-        .danger_accept_invalid_certs(true)
-        .timeout(std::time::Duration::from_secs(30))
-        .user_agent("lox-cli")
-        .build()
-        .context("failed to build HTTP client")
-}
-
-/// Download the raw LoxCC config archive from the Miniserver.
-fn download_loxcc(cfg: &Config) -> Result<Vec<u8>> {
-    let url = format!(
-        "{}/dev/fsget/prog/{}.LoxCC",
-        cfg.host.trim_end_matches('/'),
-        cfg.serial,
-    );
-    let client = http_client()?;
-    let resp = client
-        .get(&url)
-        .basic_auth(&cfg.user, Some(&cfg.pass))
-        .send()
-        .with_context(|| format!("HTTP request to {url} failed"))?;
-
-    if !resp.status().is_success() {
-        bail!("download failed: HTTP {} from {}", resp.status(), url,);
-    }
-
-    resp.bytes()
-        .map(|b| b.to_vec())
-        .context("failed to read response body")
-}
-
-/// Upload a compressed LoxCC config to the Miniserver.
-fn upload_config(cfg: &Config, data: &[u8]) -> Result<()> {
-    let url = format!(
-        "{}/dev/fsput/prog/{}.LoxCC",
-        cfg.host.trim_end_matches('/'),
-        cfg.serial,
-    );
-    let client = http_client()?;
-    let resp = client
-        .post(&url)
-        .basic_auth(&cfg.user, Some(&cfg.pass))
-        .body(data.to_vec())
-        .send()
-        .with_context(|| format!("upload to {url} failed"))?;
-
-    if !resp.status().is_success() {
-        bail!("upload failed: HTTP {} from {}", resp.status(), url);
-    }
-    Ok(())
-}
-
-// ---------------------------------------------------------------------------
 // Public API
 // ---------------------------------------------------------------------------
 
@@ -286,14 +227,18 @@ pub fn pull(repo: &Path, cfg: &Config, quiet: bool) -> Result<bool> {
     if !quiet {
         eprintln!("Downloading config from {} …", cfg.host);
     }
-    let raw = download_loxcc(cfg)?;
-    let xml_bytes = decompress_loxcc(&raw).context("failed to decompress LoxCC")?;
-    let xml = String::from_utf8(xml_bytes).context("config XML is not valid UTF-8")?;
+    let snapshot = custom_overlay::acquire(cfg)?;
+    let xml = String::from_utf8(snapshot.xml).context("config XML is not valid UTF-8")?;
+    record_snapshot(repo, cfg, quiet, xml)
+}
 
+fn record_snapshot(repo: &Path, cfg: &Config, quiet: bool, xml: String) -> Result<bool> {
+    let ms_dir = repo.join(&cfg.serial);
     // 2. Compare with the current version on disk
     let config_path = ms_dir.join("config.Loxone");
-    let existing = fs::read_to_string(&config_path).unwrap_or_default();
-    if xml == existing {
+    let existing = fs::read_to_string(&config_path).context("failed to read tracked config")?;
+    let baseline_changed = custom_overlay::save_baseline(cfg, &config_path, xml.as_bytes())?;
+    if xml == existing && !baseline_changed {
         if !quiet {
             eprintln!("No changes detected.");
         }
@@ -310,6 +255,10 @@ pub fn pull(repo: &Path, cfg: &Config, quiet: bool) -> Result<bool> {
 
     // 5. Stage and commit
     git(repo, &["add", "-A"])?;
+    let (code, _) = git_status_code(repo, &["diff", "--cached", "--quiet"])?;
+    if code == 0 {
+        return Ok(false);
+    }
 
     let message = meta.summary();
     git(repo, &["commit", "-m", &message])?;
@@ -362,6 +311,16 @@ pub fn restore(repo: &Path, cfg: &Config, commit: &str, force: bool) -> Result<(
     let show_out = git(repo, &["log", "--oneline", "-1", commit])?;
     eprintln!("Restoring: {}", show_out.trim());
 
+    let config_path = ms_dir.join("config.Loxone");
+    let prepared = if force {
+        let xml = git(repo, &["show", &format!("{commit}:{config_rel}")])?;
+        let prepared = custom_overlay::prepare(cfg, &config_path, xml.as_bytes())?;
+        let archive = crate::loxcc::repack_zip(&prepared.snapshot.source_archive, &prepared.xml)?;
+        Some((prepared.snapshot, archive))
+    } else {
+        None
+    };
+
     // Checkout the file at that revision
     git(repo, &["checkout", commit, "--", &config_rel])?;
 
@@ -389,9 +348,9 @@ pub fn restore(repo: &Path, cfg: &Config, commit: &str, force: bool) -> Result<(
     // Upload to Miniserver if --force
     if force {
         eprintln!("Uploading restored config to {} …", cfg.host);
-        let xml_bytes = fs::read(&config_path)?;
-        let compressed = crate::loxcc::compress_loxcc(&xml_bytes);
-        upload_config(cfg, &compressed)?;
+        let (snapshot, archive) = prepared.context("missing deployment preflight")?;
+        custom_overlay::recheck(cfg, &snapshot)?;
+        crate::ftp::upload_backup(cfg, "sps_new.zip", &archive)?;
         eprintln!("Upload complete. Reboot the Miniserver to apply.");
     } else {
         eprintln!("Restored locally. Use --force to upload to the Miniserver.");
@@ -421,6 +380,55 @@ mod tests {
   <Wire U="0a1b2c3d-2002-0000-ffff-aabbccddeeff"/>
 </LoxoneConfig>
 "#;
+
+    #[test]
+    fn pull_snapshot_records_runtime_overlay_and_original_acquisition_base() {
+        let dir = tempfile::Builder::new()
+            .prefix("overlay-git-test-")
+            .tempdir_in(".")
+            .unwrap();
+        let repo = dir.path();
+        git(repo, &["init"]).unwrap();
+        git(repo, &["config", "user.name", "Synthetic overlay test"]).unwrap();
+        git(
+            repo,
+            &["config", "user.email", "overlay-test@example.invalid"],
+        )
+        .unwrap();
+        git(repo, &["config", "commit.gpgsign", "false"]).unwrap();
+        git(
+            repo,
+            &["config", "core.hooksPath", "nonexistent-test-hooks"],
+        )
+        .unwrap();
+        let cfg = Config {
+            host: "http://synthetic".into(),
+            serial: "TEST".into(),
+            ..Default::default()
+        };
+        let ms_dir = init(repo, &cfg).unwrap();
+        assert!(record_snapshot(repo, &cfg, true, SAMPLE_XML.into()).unwrap());
+        assert!(!record_snapshot(repo, &cfg, true, SAMPLE_XML.into()).unwrap());
+        let id = "0a1b2c3d-1001-0000-ffff-aabbccddeeff";
+        let fragment = format!(r#"<C Type="LightController2" U="{id}" Title="App scene edit"/>"#);
+        let overlays = std::collections::BTreeMap::from([(
+            format!("{id}.LoxCC"),
+            crate::loxcc::compress_loxcc(fragment.as_bytes()),
+        )]);
+        let effective = custom_overlay::merge_overlays(SAMPLE_XML.as_bytes(), &overlays).unwrap();
+        let effective = String::from_utf8(effective).unwrap();
+        assert!(record_snapshot(repo, &cfg, true, effective.clone()).unwrap());
+        assert_eq!(
+            fs::read_to_string(ms_dir.join("config.Loxone")).unwrap(),
+            effective
+        );
+        let baseline: serde_json::Value =
+            serde_json::from_slice(&fs::read(ms_dir.join("config.Loxone.lox-base.json")).unwrap())
+                .unwrap();
+        assert_eq!(baseline["xml"], effective);
+        assert!(git(repo, &["status", "--porcelain"]).unwrap().is_empty());
+        assert!(!record_snapshot(repo, &cfg, true, effective).unwrap());
+    }
 
     #[test]
     fn parse_metadata_from_xml() {

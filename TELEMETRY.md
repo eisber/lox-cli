@@ -77,7 +77,7 @@ their HTTP capture API. PostHog is an open-source product analytics platform.
 
 ## Explicit issue feedback
 
-`lox feedback report --title "..." --body "..." --json` first attempts to
+`lox report --title "..." --body "..." --json` first attempts to
 create a public issue in `eisber/lox-cli` using `gh`. When that fails and
 telemetry is enabled, it sends a PostHog `issue_report` event containing:
 
@@ -94,6 +94,11 @@ Unlike usage telemetry, feedback delivery is synchronous and checks the HTTP
 response. A receipt identifies the channel and report ID; unsuccessful delivery
 returns a nonzero error. Opting out of telemetry disables this fallback, but
 does not prevent explicitly requested GitHub issue creation.
+
+Argument errors, runtime errors, and Rust panics expose reporting guidance, but
+never automatically submit an issue report or its raw error/crash contents.
+Agents should fix input/setup errors first, then report reproducible bugs with
+sanitized details.
 
 ## PostHog privacy
 
