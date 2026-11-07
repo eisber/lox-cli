@@ -76,6 +76,12 @@ Config ready to deploy: lox config push config.Loxone --reboot
 
 The CLI handles LoxCC compression, CRC32 checksums, UUID generation, connector maps for 221 block types, and wiring validation. All commands support `--json` (or `-o json`) for agent consumption.
 
+`lox config energy` provides a validated **EnergyManager2 storage pilot**: inspect
+stored/effective values, set three scalar parameters, and configure/reorder its
+twelve existing load slots. It preserves full records and wiring, supports
+`--dry-run`/`--save-as`, and does **not** claim complete GUI or runtime parity.
+See [EnergyManager2 commands](COMMANDS.md#energymanager2-verified-storage-pilot).
+
 ---
 
 ## Config-as-Code

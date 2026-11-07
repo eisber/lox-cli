@@ -5,6 +5,9 @@ use reqwest::blocking::Client;
 use std::fs;
 use std::time::Duration;
 
+pub(crate) mod energy;
+pub(crate) mod lighting;
+
 use crate::client::{LOXONE_EPOCH_SECS, LoxClient, USER_AGENT};
 use crate::commands::RunContext;
 use crate::config::Config;
@@ -351,6 +354,8 @@ pub fn cmd_token(ctx: &RunContext, action: TokenCmd) -> Result<()> {
 
 pub fn cmd_config(ctx: &RunContext, action: ConfigCmd) -> Result<()> {
     match action {
+        ConfigCmd::Energy { action } => energy::run(ctx, action)?,
+        ConfigCmd::Lighting { action } => lighting::run(ctx, action)?,
         ConfigCmd::Ls => {
             let cfg = Config::load()?;
             let backups = ftp::list_backups(&cfg)?;
@@ -418,16 +423,16 @@ pub fn cmd_config(ctx: &RunContext, action: ConfigCmd) -> Result<()> {
             }
         }
         ConfigCmd::Extract { file, save_as } => {
-            let zip_data = fs::read(&file).with_context(|| format!("Cannot read {}", file))?;
-            eprintln!("Extracting sps0.LoxCC...");
-            let xml = loxcc::extract_and_decompress(&zip_data)?;
+            let data = fs::read(&file).with_context(|| format!("Cannot read {}", file))?;
+            eprintln!("Extracting config archive...");
+            let xml = loxcc::extract_and_decompress(&data)?;
             let xml_path = save_as.unwrap_or_else(|| {
                 file.strip_suffix(".zip").unwrap_or(&file).to_string() + ".Loxone"
             });
             fs::write(&xml_path, &xml)?;
             println!(
                 "Decompressed {} KB → {} KB → {}",
-                zip_data.len() / 1024,
+                data.len() / 1024,
                 xml.len() / 1024,
                 xml_path
             );
@@ -507,7 +512,9 @@ pub fn cmd_config(ctx: &RunContext, action: ConfigCmd) -> Result<()> {
                 println!("{}", serde_json::to_string_pretty(&obj)?);
             } else {
                 let nfc_count = users.iter().filter(|u| u.nfc).count();
-                println!("  {:<26} {:<6} {:<6} Description", "Name", "NFC", "Perms");
+                if !ctx.no_header {
+                    println!("  {:<26} {:<6} {:<6} DESCRIPTION", "NAME", "NFC", "DIRECT");
+                }
                 for u in users.iter().take(display_limit) {
                     println!(
                         "  {:<26} {:<6} {:<6} {}",
@@ -1423,6 +1430,7 @@ pub fn cmd_config(ctx: &RunContext, action: ConfigCmd) -> Result<()> {
                     )?),
                     None => None,
                 };
+                save_edited_with_quiet(&editor, &file, save_as.as_deref(), ctx.quiet)?;
                 if ctx.json {
                     let mut obj = serde_json::json!({
                         "ok": true,
@@ -1440,7 +1448,7 @@ pub fn cmd_config(ctx: &RunContext, action: ConfigCmd) -> Result<()> {
                     println!("✓ Created VirtualIn \"{}\" (UUID: {})", title, uuid);
                     if let Some(ref g) = granted {
                         println!(
-                            "✓ Granted user '{}' access to VirtualIn uuid:{} [ACT={}]",
+                            "✓ Added permission entry for user '{}' on VirtualIn uuid:{} [ACT={}]",
                             g.principal.title,
                             vi_uuid,
                             g.act.as_deref().unwrap_or("-")
@@ -1451,7 +1459,6 @@ pub fn cmd_config(ctx: &RunContext, action: ConfigCmd) -> Result<()> {
                         uuid
                     );
                 }
-                save_edited(&editor, &file, save_as.as_deref())?;
                 return Ok(());
             }
             let (xml_type_owned, default_parent) = resolve_block_type(&control_type)?;
@@ -2071,10 +2078,10 @@ pub fn cmd_config(ctx: &RunContext, action: ConfigCmd) -> Result<()> {
             let kind = principal_kind(group);
             let act = act.map(|a| a.to_string());
             let edit = editor.grant_permission(&user, kind, &object, act.as_deref())?;
-            report_permission_edit(ctx, "grant", &edit);
             if edit.changed() || save_as.is_some() {
-                save_edited(&editor, &file, save_as.as_deref())?;
+                save_edited_with_quiet(&editor, &file, save_as.as_deref(), ctx.quiet)?;
             }
+            report_permission_edit(ctx, "grant", &edit);
         }
         ConfigCmd::UserRevoke {
             file,
@@ -2086,10 +2093,10 @@ pub fn cmd_config(ctx: &RunContext, action: ConfigCmd) -> Result<()> {
             let data = fs::read(&file).with_context(|| format!("Cannot read {}", file))?;
             let mut editor = ConfigEditor::load(&data)?;
             let edit = editor.revoke_permission(&user, principal_kind(group), &object)?;
-            report_permission_edit(ctx, "revoke", &edit);
             if edit.changed() || save_as.is_some() {
-                save_edited(&editor, &file, save_as.as_deref())?;
+                save_edited_with_quiet(&editor, &file, save_as.as_deref(), ctx.quiet)?;
             }
+            report_permission_edit(ctx, "revoke", &edit);
         }
         ConfigCmd::UserPerms { file, user, group } => {
             let data = fs::read(&file).with_context(|| format!("Cannot read {}", file))?;
@@ -2097,6 +2104,20 @@ pub fn cmd_config(ctx: &RunContext, action: ConfigCmd) -> Result<()> {
             let perms = editor.principal_permissions(&user, principal_kind(group))?;
             if ctx.json {
                 emit_json(ctx, serde_json::to_value(&perms)?);
+            } else if ctx.csv {
+                let field = |value: &str| format!("\"{}\"", value.replace('"', "\"\""));
+                if !ctx.no_header {
+                    println!("TITLE,TYPE,ACT,UUID");
+                }
+                for p in &perms.permissions {
+                    println!(
+                        "{},{},{},{}",
+                        field(p.title.as_deref().unwrap_or("")),
+                        field(p.element_type.as_deref().unwrap_or("")),
+                        field(p.act.as_deref().unwrap_or("")),
+                        field(&p.uuid),
+                    );
+                }
             } else {
                 if !ctx.no_header {
                     println!("  {:<32} {:<22} {:<4} UUID", "TITLE", "TYPE", "ACT");
@@ -2112,7 +2133,7 @@ pub fn cmd_config(ctx: &RunContext, action: ConfigCmd) -> Result<()> {
                     );
                 }
                 println!(
-                    "\n{} permission(s) for {} '{}'",
+                    "\n{} direct permission(s) for {} '{}'",
                     perms.permissions.len(),
                     perms.kind.noun().to_lowercase(),
                     perms.title
@@ -2267,6 +2288,7 @@ pub fn cmd_config(ctx: &RunContext, action: ConfigCmd) -> Result<()> {
                 )?),
                 None => None,
             };
+            save_edited_with_quiet(&editor, &file, save_as.as_deref(), ctx.quiet)?;
             if ctx.json {
                 let mut obj = serde_json::json!({
                     "uuid": aq_uuid,
@@ -2278,20 +2300,19 @@ pub fn cmd_config(ctx: &RunContext, action: ConfigCmd) -> Result<()> {
                     obj["virtual_in_uuid"] = serde_json::Value::String(vi_uuid.clone());
                     obj["granted"] = serde_json::to_value(&g.principal)?;
                 }
-                println!("{}", obj);
-            } else {
+                emit_json(ctx, obj);
+            } else if !ctx.quiet {
                 println!("✓ Created VirtualIn \"{}\" (UUID: {})", title, aq_uuid);
                 println!("  AQ connector: {}", aq_uuid);
                 if let Some(ref g) = granted {
                     println!(
-                        "✓ Granted user '{}' access to VirtualIn uuid:{} [ACT={}]",
+                        "✓ Added permission entry for user '{}' on VirtualIn uuid:{} [ACT={}]",
                         g.principal.title,
                         vi_uuid,
                         g.act.as_deref().unwrap_or("-")
                     );
                 }
             }
-            save_edited(&editor, &file, save_as.as_deref())?;
         }
         ConfigCmd::WireConnector {
             file,
@@ -2804,6 +2825,36 @@ pub fn cmd_config(ctx: &RunContext, action: ConfigCmd) -> Result<()> {
             } else {
                 let description = editor.describe_config(room.as_deref());
                 println!("{}", description);
+            }
+        }
+        ConfigCmd::Surfaces { file } => {
+            let data = fs::read(&file).with_context(|| format!("Cannot read {}", file))?;
+            let editor = ConfigEditor::load(&data)?;
+            let surfaces = editor.configuration_surfaces();
+            if ctx.json {
+                emit_json(ctx, serde_json::json!({ "ok": true, "surfaces": surfaces }));
+            } else {
+                if !ctx.no_header {
+                    println!(
+                        "{:<28} {:>8} {:>10} {:>14}",
+                        "TYPE", "COUNT", "ATTRIBUTES", "STORAGE PATHS"
+                    );
+                }
+                for surface in &surfaces {
+                    println!(
+                        "{:<28} {:>8} {:>10} {:>14}",
+                        surface.element_type,
+                        surface.occurrences,
+                        surface.attributes.len(),
+                        surface.storage_paths.len()
+                    );
+                }
+                if !ctx.quiet {
+                    println!(
+                        "\n{} element types; names only, no configuration values",
+                        surfaces.len()
+                    );
+                }
             }
         }
         ConfigCmd::Wires {
@@ -3467,33 +3518,47 @@ fn report_permission_edit(ctx: &RunContext, action: &str, edit: &PermissionEdit)
     match edit.change {
         PermissionChange::Added => {
             println!(
-                "✓ Granted {} access to {} [ACT={}]",
+                "✓ Added permission entry for {} on {} [ACT={}]",
                 who,
                 what,
                 act(&edit.act)
             )
         }
         PermissionChange::Updated => println!(
-            "✓ Updated {} access to {} [ACT {} → {}]",
+            "✓ Updated permission entry for {} on {} [ACT {} → {}]",
             who,
             what,
             act(&edit.previous_act),
             act(&edit.act)
         ),
         PermissionChange::Unchanged => println!(
-            "✓ {} already has access to {} [ACT={}] — no change",
+            "✓ {} already has a direct permission entry on {} [ACT={}] — no change",
             who_cap,
             what,
             act(&edit.act)
         ),
-        PermissionChange::Removed => println!("✓ Revoked {} access to {}", who, what),
+        PermissionChange::Removed => {
+            println!("✓ Removed permission entry for {} on {}", who, what)
+        }
         PermissionChange::Absent => {
-            println!("✓ {} has no permission on {} — no change", who_cap, what)
+            println!(
+                "✓ {} has no direct permission entry on {} — no change",
+                who_cap, what
+            )
         }
     }
 }
 
 fn save_edited(editor: &ConfigEditor, original_path: &str, save_as: Option<&str>) -> Result<()> {
+    save_edited_with_quiet(editor, original_path, save_as, false)
+}
+
+fn save_edited_with_quiet(
+    editor: &ConfigEditor,
+    original_path: &str,
+    save_as: Option<&str>,
+    quiet: bool,
+) -> Result<()> {
     let output = editor.to_bytes()?;
     let out_path = save_as.unwrap_or(original_path);
 
@@ -3524,7 +3589,9 @@ fn save_edited(editor: &ConfigEditor, original_path: &str, save_as: Option<&str>
             .with_context(|| format!("Failed to clean up temp file: {}", tmp_path.display()))?;
         Ok::<(), anyhow::Error>(())
     })?;
-    eprintln!("✓ Saved to {}", out_path);
+    if !quiet {
+        eprintln!("✓ Saved to {}", out_path);
+    }
     Ok(())
 }
 

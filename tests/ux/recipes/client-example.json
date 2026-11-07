@@ -1,0 +1,9 @@
+{
+  "schema_version": 1,
+  "name": "Independent read-only client example, not GUI parity evidence",
+  "steps": [
+    {"op": "status"},
+    {"op": "windows"},
+    {"op": "inspect", "limit": 8, "depth": 1}
+  ]
+}

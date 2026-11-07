@@ -1,0 +1,100 @@
+{
+  "schema_version": 1,
+  "kind": "queued-lighting-configuration-roundtrip",
+  "status": "queued-not-granted",
+  "maximum_gui_executions": 4,
+  "desktop_calls_performed": 0,
+  "application": {
+    "version": "17.2.10.21",
+    "sha256": "7b55e3ef18401574ab967c5c6a0140cd5a66dc728521ebba04ad53093577d8b3"
+  },
+  "fixture_preparation": {
+    "generator": "tests\\ux\\light-controller2\\prepare-lab.py",
+    "manifest": ".reverse-engineering\\native-simulator\\workstreams\\lighting-preparation\\batch-02\\manifest.json",
+    "project": ".reverse-engineering\\native-simulator\\workstreams\\lighting-preparation\\batch-02\\Lighting-Slice-Lab-20261106.Loxone",
+    "project_sha256": "3bffa18c0636f954649dc603c5fad8249db47ff397d700c73d88f150dd033d2c",
+    "document_uuid": "1b1e0000-0000-0001-ffff000000000000",
+    "page_uuid": "1b1e0000-0000-0009-ffff000000000000",
+    "block_uuid": "bc370d00-7e60-1f2a-ffff000000000000",
+    "block_title": "Lighting Slice Fixture 20261106",
+    "native_loadability": "pending-fresh-GUI-open",
+    "shape": "ControlList/Document with CategoryCaption, PlaceCaption, unconnected all-zero-serial LoxLIVE, Program referencing that LoxLIVE, room-linked Page, CLI-created LightController2 with 71 connectors, three CLI-created/wired StateV observers, four prior-art CLI-created moods, BOM and CRLF",
+    "production_data": false,
+    "original_public_synthetic_fixture": "unchanged"
+  },
+  "pins": {
+    "cli_path": ".reverse-engineering\\native-simulator\\workstreams\\lighting-preparation\\batch-02\\lox-pinned.exe",
+    "cli_sha256": "f2244a8abcce44cf51955f2f3a4dd30c2aeb4a7c8b52ad14ee0ebb751e49ef99",
+    "shared_helper_baseline": ".reverse-engineering\\native-simulator\\workstreams\\054ce95-oracle-baseline\\manifest.json",
+    "profile": "C:\\Users\\marcozo\\.copilot\\session-state\\fcc0d66f-c200-4b65-be6e-a752786f57fa\\files\\loxone-ux-profile.json",
+    "frozen_checkpoint": ".reverse-engineering\\native-simulator\\workstreams\\lighting-preparation\\batch-02\\checkpoint.json",
+    "policy": "Pin actual copied CLI and actual staged helper bytes per run. Do not label current source snapshots as historical compiled source."
+  },
+  "dedicated_identity_gate": {
+    "actor_requirement": "Parent-approved dedicated notebook actor/session matched to the actual active console; never infer a GUI username from SSH.",
+    "last_report_source": "Energy sibling; Lighting performed no remote preflight",
+    "last_report": "Corrected preflight verifies the authorized private-profile notebook/actor/active-console identity and both pinned backend/application paths. Earlier absence/actor-mismatch claims were incorrect. The SSH transport account does not establish the GUI actor; concrete environment identities remain private.",
+    "configured_backend": "C:\\ProgramData\\LoxOracle\\tools\\loxone-ux.ps1",
+    "configured_artifact_root": "C:\\ProgramData\\LoxOracle\\ux-runs",
+    "resolution_by_parent": [
+      "After Energy explicitly returns and before granting Lighting, bind the lease to freshly verified private-profile notebook/actor/active-console evidence. A username alone is not a blocker or proof of desktop ownership. Do not bypass or relax PID/hash/start/session/foreground/overlap guards.",
+      "No desktop or tunnel repair is indicated by the corrected report. This stream must not create accounts, modify global desktop state, repair tunnels, or probe the desktop while Energy owns the lease.",
+      "Verify that the actual staged helpers match the frozen baseline and the configured artifact directory is usable. If replacement is needed, the parent stages exact copies through the existing approved transfer route. Never alter the shared helpers.",
+      "Establish the existing offline fence, launch only the disposable authored project with exact executable hash, and capture owned PID/start/session/foreground/overlap identity. Absence of another Lox process is not a lease.",
+      "Grant a new explicit Lighting lease only after Energy closes and that actual identity is satisfied. The prepared document resolves offline fixture identity only; native loadability and all GUI results remain pending."
+    ]
+  },
+  "executions": [
+    {
+      "id": "lighting-01-load-inventory-noop",
+      "purpose": "Native loadability gate plus fresh nested mood/channel inventory",
+      "steps": [
+        "Parent/authorized lifecycle opens an owned disposable copy under the established fence; verify exact owned PID/hash/start/session and foreground/overlap guards.",
+        "Use frozen loxone-ux.py status/windows/inspect on that PID. Discover actual accessible dialog/element identities; do not guess lighting selectors, coordinates, units or capabilities.",
+        "Open only the owned LightController2 configuration dialog using discovered guarded selectors; record actual mood IDs and displayed channel/value forms for Slice A/Slice B. Keep XML Qn values as raw storage; do not equate packed integers with native GUI units.",
+        "Accept without editing, save-as a new owned output, reopen and retrieve that XML through the approved transfer path. Compare UUID/SID/CID/Outputs, all Qn, connector IDs and In references. Record all native normalizations explicitly."
+      ],
+      "stop": "Unexpected dialog, missing target, UUID regeneration, external connection attempt or ambiguous readback blocks later executions. Do not claim the candidate project was loadable merely because CLI validation passed."
+    },
+    {
+      "id": "lighting-02-existing-Q2-roundtrip",
+      "purpose": "Prior-art command isolation, not promotion of a new edit API",
+      "input_variant": "Lighting-Slice-Q2-43-20261106.Loxone",
+      "input_sha256": "a27d60e919379b1dd1a1fe7d6d1683b109019c9269310e1cf4e543cb210f6728",
+      "edit": "Pinned CLI set-mood-color on Slice A SID=2, output-index=2, --color 43. Actual owned XML changes only Q2 from 1610612751 to 1610612753. Small numeric color arguments use the existing color conversion; they are not raw Qn integers.",
+      "steps": [
+        "Open the new owned variant with the same fence/identity guards. Match the observed channel/mood via recorded UUID/SID and fresh dialog readback, not row position.",
+        "Save-as/reopen a new owned output, compare all non-Q2 fields and references with the immediately preceding input. Unknown role/encoding remains unknown.",
+        "If execution 01 normalized any relevant storage, create a NEW variant from that actual saved output and record its new hashes; never relabel the predeclared input variant or assume its old IDs survived."
+      ]
+    },
+    {
+      "id": "lighting-03-sparse-output-countercase",
+      "purpose": "Distinguish absent storage from explicit zero and unrelated channel values",
+      "input_variant": "Lighting-Slice-Missing-Q10-20261106.Loxone",
+      "input_sha256": "2fa03dfe8abdf29c3c8731a8fea0984ba544c3d5e53dc6c007adcf6d06961f1b",
+      "edit": "Independent copy omits only Slice B SID=3 @Q10, whose observed stored spelling is 1610612762; no zero is inserted.",
+      "steps": [
+        "Compare CLI raw inspection before open with actual guarded GUI inventory, then save-as/reopen and compare XML.",
+        "Q1/Q2/Q10 are deliberately distinct in other moods. Record whether native serialization adds a value; do not assert a native zero or infer a role from the absent field.",
+        "Unknown actuator/encoding cases remain unsupported, and any native transformation is retained as observed evidence rather than converted to a fabricated expected output."
+      ]
+    },
+    {
+      "id": "lighting-04-cancel-noop",
+      "purpose": "Canceled dialog must not be represented as a successful setting edit",
+      "steps": [
+        "Open a fresh copy of the accepted execution-01 native baseline; use discovered guarded selectors to enter its lighting dialog.",
+        "Change only a discovered local mood field, then cancel. Do not choose an unverified field or bypass an inaccessible widget.",
+        "Save-as/reopen, transfer exact output XML and compare against the native baseline. Expect no relevant setting/ID/reference changes; separately explain document timestamps/serialization changes if observed."
+      ]
+    }
+  ],
+  "run_bounds": {
+    "max_recipe_steps_per_execution": 64,
+    "native_entry_observer": "none; no runtime reader exists for lighting",
+    "energy_reader": "never reused or weakened",
+    "forbidden": "production/Miniserver connection, private ABI/app memory writes, primary-desktop input, OS clock/DPI/protection/Synergy/MCP frame changes, recurring jobs, global cleanup/recovery"
+  },
+  "promotion": "Only read-only raw inspection is implemented. GUI results are presently absent. No full family contract, role binding, nested edit support or runtime parity can be promoted from this preparation."
+}

@@ -1,0 +1,15 @@
+{
+  "schema_version": 1,
+  "id": "native-storage-below-finite",
+  "application": {
+    "version": "17.2.10.21",
+    "sha256": "7b55e3ef18401574ab967c5c6a0140cd5a66dc728521ebba04ad53093577d8b3"
+  },
+  "fixture_sha256": "b1be3ad04700004907b63e82f28efd7a35f7e7f1494291abbc5593f37c489603",
+  "inputs": {"Gpwr": -4, "Ppwr": 4, "Spwr": 0, "Soc": 49, "IL1": 0, "IL2": 0, "IL3": 0},
+  "settings": {"MinSoc": 50, "MaxSpwr": 3, "O": 0, "L1_rated_kW": 2.5, "L1_switch_on_kW": 2.5, "RT_seconds": 30, "MDay_seconds": 0},
+  "wait_seconds": 70,
+  "expected_outputs": {"after_first_calculation": {"OL1": 0}},
+  "readback": {"block_header": "Energy Manager", "output": "OL1"},
+  "scope": "Paired negative condition; an OFF result alone cannot prove native execution. Requires independent positive native-progress evidence."
+}

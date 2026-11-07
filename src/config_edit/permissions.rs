@@ -15,8 +15,11 @@
 //!
 //! `NUM` is the number of `PRM` children; `REF` is the `U` of the permitted object and
 //! `ACT` the access level (Loxone Config writes `3` for control access to inputs and
-//! blocks). Calling an input through `/dev/sps/io/<input>/...` with a user that has no
-//! entry for it is answered with HTTP 403.
+//! blocks). An otherwise unauthorized user calling `/dev/sps/io/<input>/...`
+//! receives HTTP 403.
+//!
+//! These are direct entries, not effective permissions: inherited grants and denies
+//! are not evaluated. Removing an entry does not add an explicit deny.
 
 use super::ConfigEditor;
 use anyhow::{Result, bail};
@@ -356,7 +359,7 @@ impl ConfigEditor {
         Ok(self.collect_permissions(&path, kind, &self.uuid_index()))
     }
 
-    /// Grant `principal` access to the object matched by `object_selector`.
+    /// Add or update `principal`'s direct permission entry for the matched object.
     ///
     /// Appends `<PRM REF="<uuid>" ACT="<act>"/>` to the principal's `<PH>` (created if
     /// missing) and updates `NUM`. Idempotent: an existing entry is left alone unless
@@ -437,12 +440,12 @@ impl ConfigEditor {
         })
     }
 
-    /// Revoke `principal`'s access to the object matched by `object_selector`.
+    /// Remove `principal`'s direct permission entry for the matched object.
     ///
-    /// Removes the matching `<PRM>` entry and updates `NUM`; an emptied `<PH>` is removed
-    /// so grant followed by revoke restores the original element. A `uuid:<uuid>`
+    /// Removes the matching `<PRM>` entry and updates `NUM`; an emptied `<PH>` is removed.
+    /// A `uuid:<uuid>`
     /// selector also works for entries whose object no longer exists in the file.
-    /// Idempotent: revoking a permission that is not present changes nothing.
+    /// Does not deny inherited access. Idempotent: an absent entry changes nothing.
     pub fn revoke_permission(
         &mut self,
         principal: &str,
@@ -596,6 +599,84 @@ mod tests {
         assert_eq!(edit.previous_act.as_deref(), Some("3"));
         assert!(
             text(&editor).contains("<PH NUM=\"1\">\r\n\t\t\t\t\t<PRM REF=\"vi-2\" ACT=\"1\"/>")
+        );
+    }
+
+    #[test]
+    fn grant_preserves_existing_raw_act_and_schedule() {
+        let data = String::from_utf8(fixture())
+            .unwrap()
+            .replace(
+                r#"<PRM REF="vi-2" ACT="3"/>"#,
+                r#"<PRM REF="vi-2" TIM="schedule-1" ACT="0"/>"#,
+            )
+            .into_bytes();
+        let mut editor = ConfigEditor::load(&data).unwrap();
+        let edit = editor
+            .grant_permission("uuid:user-1", PrincipalKind::User, "uuid:vi-2", None)
+            .unwrap();
+        assert_eq!(edit.change, PermissionChange::Unchanged);
+        assert_eq!(edit.act.as_deref(), Some("0"));
+        assert_eq!(editor.to_bytes().unwrap(), data);
+
+        editor
+            .grant_permission("webhook_api", PrincipalKind::User, "uuid:vi-2", Some("1"))
+            .unwrap();
+        assert!(text(&editor).contains(r#"<PRM REF="vi-2" TIM="schedule-1" ACT="1"/>"#));
+        editor
+            .grant_permission("webhook_api", PrincipalKind::User, "UniFi Doorbell", None)
+            .unwrap();
+        let perms = editor
+            .principal_permissions("webhook_api", PrincipalKind::User)
+            .unwrap();
+        assert_eq!(perms.permissions.len(), 2);
+        assert_eq!(perms.permissions[0].tim.as_deref(), Some("schedule-1"));
+        assert_eq!(perms.permissions[0].act.as_deref(), Some("1"));
+    }
+
+    #[test]
+    fn revoke_only_removes_direct_entry_not_group_permissions() {
+        let (_, mut editor) = load();
+        editor
+            .grant_permission("Webhooks", PrincipalKind::UserGroup, "UniFi Gate", None)
+            .unwrap();
+        editor
+            .revoke_permission("webhook_api", PrincipalKind::User, "UniFi Gate")
+            .unwrap();
+        let user = editor
+            .principal_permissions("webhook_api", PrincipalKind::User)
+            .unwrap();
+        let group = editor
+            .principal_permissions("Webhooks", PrincipalKind::UserGroup)
+            .unwrap();
+        assert!(user.permissions.is_empty());
+        assert_eq!(group.permissions.len(), 1);
+        assert_eq!(group.permissions[0].uuid, "vi-2");
+    }
+
+    #[test]
+    fn ambiguous_principal_is_rejected_without_changes() {
+        let data = String::from_utf8(fixture())
+            .unwrap()
+            .replace(r#"Title="Guest""#, r#"Title="WEBHOOK_API""#)
+            .into_bytes();
+        let mut editor = ConfigEditor::load(&data).unwrap();
+        let err = editor
+            .grant_permission("webhook_api", PrincipalKind::User, "UniFi Doorbell", None)
+            .unwrap_err()
+            .to_string();
+        assert!(err.contains("expected 1"), "{err}");
+        assert_eq!(editor.to_bytes().unwrap(), data);
+        editor
+            .grant_permission("uuid:user-2", PrincipalKind::User, "UniFi Doorbell", None)
+            .unwrap();
+        assert_eq!(
+            editor
+                .principal_permissions("uuid:user-1", PrincipalKind::User)
+                .unwrap()
+                .permissions
+                .len(),
+            1
         );
     }
 
