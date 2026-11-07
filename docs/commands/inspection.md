@@ -166,9 +166,9 @@ lox weather --forecast                # 7-day forecast
 Reads the statistics the Miniserver logs to its SD card (read-only).
 
 ```bash
-lox stats list                        # every statistic file: name, group, month, uuid, label
-lox stats list --filter kitchen       # case-insensitive substring on the label
-lox stats list --latest               # newest month per statistic and group
+lox stats ls                          # every statistic file: name, group, month, uuid, label
+lox stats ls --filter kitchen         # case-insensitive substring on the label
+lox stats ls --latest                 # newest month per statistic and group
 lox stats get "Heat Pump" --group 2   # logged values across all available months
 lox stats get Kitchen --from 2026-09 --to 2026-10 -o csv
 lox stats download --dir ./stats      # mirror the monthly XML files (incremental)

@@ -1,0 +1,106 @@
+{
+  "schema_version": 1,
+  "application": {
+    "version": "17.2.10.21",
+    "sha256": "7b55e3ef18401574ab967c5c6a0140cd5a66dc728521ebba04ad53093577d8b3"
+  },
+  "block_type": "JalousieUpDown2",
+  "control_type": 349,
+  "scope": {
+    "status": "incomplete",
+    "description": "Preparation only. Value-free storage inventory and statically proven primary COL/vtable linkage; no native fixture execution, GUI admission, hardware parity or engine-completion claim. Every case remains PROPOSED.",
+    "source_evidence": [
+      {
+        "evidence_kind": "catalog",
+        "artifacts": [
+          {
+            "path": "tests\\ux\\shading\\surface-inventory.json",
+            "sha256": "908ae6e9d3e58c0657e72f29061dfb62687f85dc0dd718bd447d4a4aae76073e"
+          },
+          {
+            "path": "docs\\schemas\\loxone-config.xsd",
+            "sha256": "61fd3b3184a70ede594911bc416dc64f89552f98dfae7de2923477602716079b"
+          }
+        ]
+      },
+      {
+        "evidence_kind": "native",
+        "artifacts": [
+          {
+            "path": ".reverse-engineering\\native-simulator\\families\\shading-hvac\\source-ledger.json",
+            "sha256": "eca77bc0f27456786d579cec87e2c173bdbef27bfdb7016c228d9db367ca2b83"
+          }
+        ]
+      }
+    ]
+  },
+  "capabilities": [
+    {
+      "id": "shading.scalar-storage",
+      "kind": "parameter",
+      "binding": {
+        "status": "known",
+        "path": "C[Type=JalousieUpDown2]/Co[K=<registered parameter>]/@Def",
+        "reason": "Core storage syntax and native registration agree on keys/order. Units, omission and effective defaults require calibration."
+      },
+      "source_evidence": [],
+      "required_case_ids": ["shading.admission-calibration"]
+    },
+    {
+      "id": "shading.direction-interlock",
+      "kind": "feedback",
+      "binding": {
+        "status": "unknown",
+        "reason": "OutputUp/OutputDown are registered. Native instance ownership, input injection and runtime feedback have not been measured."
+      },
+      "source_evidence": [],
+      "required_case_ids": ["shading.reversal-interlock"]
+    },
+    {
+      "id": "shading.stop-position",
+      "kind": "feedback",
+      "binding": {
+        "status": "unknown",
+        "reason": "Stop/OutputPos are registered; position scale, clock and sample ordering remain uncalibrated."
+      },
+      "source_evidence": [],
+      "required_case_ids": ["shading.stop-hold"]
+    },
+    {
+      "id": "shading.advanced-settings",
+      "kind": "nested_record",
+      "binding": {
+        "status": "unknown",
+        "reason": "Primary serializer delegates an embedded object; its XML subtree and record fields are unresolved."
+      },
+      "source_evidence": [],
+      "required_case_ids": []
+    }
+  ],
+  "cases": [
+    {
+      "id": "shading.admission-calibration",
+      "capability_ids": ["shading.scalar-storage"],
+      "condition": "PROPOSED: isolated import and timing/position calibration prerequisites are met.",
+      "evidence_kind": "gui_oracle",
+      "procedure": "Execute only the queued admission-calibration procedure in tests\\ux\\shading\\protocol.json after the coordinator grants a verified isolated desktop lease.",
+      "expected": "PROPOSED: the exact registered connector order and every UUID/reference role survive save/reopen; declared timing edits persist without unrelated changes. No result currently exists."
+    },
+    {
+      "id": "shading.reversal-interlock",
+      "capability_ids": ["shading.direction-interlock"],
+      "condition": "PROPOSED: admitted fixture, calibrated direction commands and independent native progress evidence.",
+      "evidence_kind": "gui_oracle",
+      "procedure": "Apply the predeclared up/down sequence using the calibrated official input path; record both outputs and position against the declared clock.",
+      "expected": "PROPOSED: opposite direction outputs are never active together; reversal includes the configured blocking interval. Reject inadequate sampling rather than reporting success."
+    },
+    {
+      "id": "shading.stop-hold",
+      "capability_ids": ["shading.stop-position"],
+      "condition": "PROPOSED: admitted fixture and independently observable movement.",
+      "evidence_kind": "gui_oracle",
+      "procedure": "Apply the predeclared movement/Stop sequence and read the official outputs after the calibrated settling interval.",
+      "expected": "PROPOSED: both direction outputs become inactive and normalized position remains bounded and stable. This does not validate physical end stops."
+    }
+  ]
+}

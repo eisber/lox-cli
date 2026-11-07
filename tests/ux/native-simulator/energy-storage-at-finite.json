@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "id": "native-storage-at-finite",
+  "application": {
+    "version": "17.2.10.21",
+    "sha256": "7b55e3ef18401574ab967c5c6a0140cd5a66dc728521ebba04ad53093577d8b3"
+  },
+  "fixture_sha256": "c534128a394927c10c43beaa5eaf5e71244b7b956ea23fb42896ff99f2a68f02",
+  "inputs": {"Gpwr": -4, "Ppwr": 4, "Spwr": 0, "Soc": 50, "IL1": 0, "IL2": 0, "IL3": 0},
+  "settings": {"MinSoc": 50, "MaxSpwr": 3, "O": 0, "L1_rated_kW": 2.5, "L1_switch_on_kW": 2.5, "RT_seconds": 30, "MDay_seconds": 0},
+  "wait_seconds": 70,
+  "expected_outputs": {"after_first_calculation": {"OL1": 1}},
+  "readback": {
+    "block_header": "Energy Manager",
+    "output": "OL1",
+    "source": "Actual official simulator output; no default-OFF inference or lox-sim evaluation."
+  },
+  "scope": "A static pre-allocation storage-priority sample. Inputs do not form a closed physical plant. Internal native dt and exact transition time are not claimed."
+}

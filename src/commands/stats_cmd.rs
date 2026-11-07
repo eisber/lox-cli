@@ -21,7 +21,7 @@ use crate::config::Config;
 #[derive(Subcommand)]
 pub enum StatsCmd {
     /// List the statistics the Miniserver keeps: GET /stats/
-    #[command(alias = "ls")]
+    #[command(name = "ls", alias = "list")]
     List {
         /// Case-insensitive substring match on the label
         #[arg(long)]
@@ -159,6 +159,8 @@ fn download(
                 "skipped": skipped,
             });
             writeln!(out, "{}", serde_json::to_string_pretty(&doc)?)?;
+        } else if ctx.csv {
+            write_download_csv(ctx, &fetch, &skipped, true, out)?;
         } else {
             for f in &fetch {
                 writeln!(out, "{f}")?;
@@ -192,8 +194,34 @@ fn download(
     if ctx.json {
         let doc = serde_json::json!({ "downloaded": fetch, "skipped": skipped });
         writeln!(out, "{}", serde_json::to_string_pretty(&doc)?)?;
+    } else if ctx.csv {
+        write_download_csv(ctx, &fetch, &skipped, false, out)?;
     } else if !ctx.quiet {
         writeln!(out, "{} downloaded, {} skipped", fetch.len(), skipped.len())?;
+    }
+    Ok(())
+}
+
+fn write_download_csv(
+    ctx: &RunContext,
+    fetch: &[String],
+    skipped: &[String],
+    dry_run: bool,
+    out: &mut dyn Write,
+) -> Result<()> {
+    if !ctx.no_header {
+        writeln!(out, "FILE,STATUS")?;
+    }
+    let status = if dry_run {
+        "would_download"
+    } else {
+        "downloaded"
+    };
+    for file in fetch {
+        writeln!(out, "{},{status}", csv_field(file))?;
+    }
+    for file in skipped {
+        writeln!(out, "{},skipped", csv_field(file))?;
     }
     Ok(())
 }
@@ -409,7 +437,7 @@ fn resolve<'a>(entries: &'a [StatEntry], query: &str) -> Result<Vec<&'a StatEntr
             "Statistic",
             query,
             &names,
-            "lox stats list",
+            "lox stats ls",
         ));
     }
     let uuids: HashSet<&str> = matches.iter().map(|e| e.uuid.as_str()).collect();
@@ -430,7 +458,8 @@ fn resolve<'a>(entries: &'a [StatEntry], query: &str) -> Result<Vec<&'a StatEntr
             lines.join("\n")
         );
     }
-    Ok(matches)
+    let uuid = matches[0].uuid.as_str();
+    Ok(entries.iter().filter(|e| e.uuid == uuid).collect())
 }
 
 fn get(
@@ -507,6 +536,12 @@ fn get(
 
 fn write_series(ctx: &RunContext, series: &StatSeries, out: &mut dyn Write) -> Result<()> {
     if ctx.json {
+        if series.outputs.iter().collect::<HashSet<_>>().len() != series.outputs.len() {
+            bail!(
+                "Statistic '{}' has duplicate output labels; use -o csv or -o table to preserve every value",
+                series.name
+            );
+        }
         let rows: Vec<serde_json::Value> = series
             .rows
             .iter()
@@ -536,7 +571,7 @@ fn write_series(ctx: &RunContext, series: &StatSeries, out: &mut dyn Write) -> R
         }
         for (t, values) in &series.rows {
             let values: Vec<String> = values.iter().map(|v| v.to_string()).collect();
-            writeln!(out, "{t},{}", values.join(","))?;
+            writeln!(out, "{},{}", csv_field(t), values.join(","))?;
         }
     } else {
         let widths: Vec<usize> = series
@@ -645,9 +680,10 @@ pub fn parse_index(html: &str) -> Vec<StatEntry> {
             .unwrap_or(decoded.trim())
             .trim_end()
             .to_string();
-        let name = label
-            .split_once(" (")
-            .map_or(label.as_str(), |(n, _)| n)
+        let name = strip_label_suffix(&label);
+        let name = group
+            .and_then(|g| name.strip_suffix(&format!(" (Statistic Group: {g})")))
+            .unwrap_or(name)
             .trim()
             .to_string();
         entries.push(StatEntry {
@@ -660,6 +696,29 @@ pub fn parse_index(html: &str) -> Vec<StatEntry> {
         });
     }
     entries
+}
+
+fn strip_label_suffix(label: &str) -> &str {
+    if !label.ends_with(')') {
+        return label;
+    }
+    let mut depth = 0usize;
+    for (i, c) in label.char_indices().rev() {
+        match c {
+            ')' => depth += 1,
+            '(' => {
+                let Some(next) = depth.checked_sub(1) else {
+                    return label;
+                };
+                depth = next;
+                if depth == 0 {
+                    return label[..i].strip_suffix(' ').unwrap_or(label);
+                }
+            }
+            _ => {}
+        }
+    }
+    label
 }
 
 /// Read an attribute as an entity-decoded string.
@@ -677,12 +736,27 @@ fn attr(e: &BytesStart, name: &[u8]) -> Result<Option<String>> {
 pub fn parse_series(xml: &str) -> Result<StatSeries> {
     let mut reader = Reader::from_str(xml);
     let mut series: Option<StatSeries> = None;
+    let mut depth = 0usize;
     // Attribute names holding the values, in output order: V, V2, V3, ...
     let mut value_attrs: Vec<String> = Vec::new();
     loop {
-        match reader.read_event().context("parsing statistics XML")? {
+        let event = reader.read_event().context("parsing statistics XML")?;
+        match &event {
+            Event::Start(_) => depth += 1,
+            Event::End(_) => {
+                depth = depth
+                    .checked_sub(1)
+                    .context("unexpected closing element in statistics XML")?;
+            }
+            Event::Eof if depth != 0 => bail!("truncated statistics XML: unclosed element"),
+            _ => {}
+        }
+        match event {
             Event::Start(e) | Event::Empty(e) => match e.name().as_ref() {
                 b"Statistics" => {
+                    if series.is_some() {
+                        bail!("multiple <Statistics> elements in statistics file");
+                    }
                     let name = attr(&e, b"Name")?.unwrap_or_default();
                     let group = match attr(&e, b"StatsGroup")? {
                         Some(g) => Some(
@@ -732,6 +806,9 @@ pub fn parse_series(xml: &str) -> Result<StatSeries> {
                             .trim()
                             .parse::<f64>()
                             .with_context(|| format!("row {t}: {a}='{raw}' is not a number"))?;
+                        if !v.is_finite() {
+                            bail!("row {t}: {a}='{raw}' is not a finite number");
+                        }
                         values.push(v);
                     }
                     s.rows.push((t, values));
@@ -853,6 +930,30 @@ mod tests {
     }
 
     #[test]
+    fn index_preserves_parentheses_in_names_and_room_names() {
+        let html = format!(
+            "<ul>{}{}{}</ul>",
+            li(
+                &format!("{UUID_A}_2.202610.xml"),
+                "Heat Pump (Grid) (Statistic Group: 2) (Energy, Utility (North)) 202610"
+            ),
+            li(
+                &format!("{UUID_B}.202610.xml"),
+                "Kitchen (Wall) (Climate, Kitchen) 202610"
+            ),
+            li(
+                &format!("{UUID_A}_1.202610.xml"),
+                "Heat Pump (Grid) (Statistic Group: 1) 202610"
+            )
+        );
+        let names: Vec<_> = parse_index(&html).into_iter().map(|e| e.name).collect();
+        assert_eq!(
+            names,
+            ["Heat Pump (Grid)", "Kitchen (Wall)", "Heat Pump (Grid)"]
+        );
+    }
+
+    #[test]
     fn index_skips_malformed_entry_and_continues() {
         let html = format!(
             "<ul>\n\
@@ -929,6 +1030,45 @@ mod tests {
         let err = parse_series(xml).unwrap_err().to_string();
         assert!(err.contains("warm"), "{err}");
         assert!(err.contains("2026-10-01 00:00:00"), "{err}");
+    }
+
+    #[test]
+    fn series_rejects_truncated_xml() {
+        let xml = r#"<Statistics Name="Kitchen" NumOutputs="1" Outputs="Temperature">
+<S T="2026-10-01 00:00:00" V="21"/>"#;
+        assert!(parse_series(xml).is_err());
+    }
+
+    #[test]
+    fn series_rejects_non_finite_values_instead_of_exporting_json_null() {
+        for value in ["NaN", "inf", "-inf"] {
+            let xml = format!(
+                r#"<Statistics Name="Kitchen" NumOutputs="1" Outputs="Temperature">
+<S T="2026-10-01 00:00:00" V="{value}"/></Statistics>"#
+            );
+            let err = parse_series(&xml).unwrap_err().to_string();
+            assert!(err.contains(value), "{err}");
+            assert!(err.contains("2026-10-01 00:00:00"), "{err}");
+        }
+    }
+
+    #[test]
+    fn json_rejects_duplicate_output_labels_without_losing_values() {
+        let xml = r#"<Statistics Name="Kitchen" NumOutputs="2" Outputs="Temperature,Temperature">
+<S T="2026-10-01 00:00:00" V="21" V2="22"/></Statistics>"#;
+        let s = parse_series(xml).unwrap();
+        let mut out = Vec::new();
+        let err = write_series(&run_ctx(true, false), &s, &mut out)
+            .unwrap_err()
+            .to_string();
+        assert!(err.contains("duplicate output labels"), "{err}");
+        assert!(err.contains("-o csv"), "{err}");
+        assert!(out.is_empty());
+        write_series(&run_ctx(false, true), &s, &mut out).unwrap();
+        assert_eq!(
+            String::from_utf8(out).unwrap(),
+            "T,Temperature,Temperature\n2026-10-01 00:00:00,21,22\n"
+        );
     }
 
     // ── merge_months ─────────────────────────────────────────────────────────
@@ -1103,6 +1243,39 @@ mod tests {
              2026-10-01 00:00:00,21.25,49\n\
              2026-10-01 00:30:00,21,50.5\n"
         );
+    }
+
+    #[test]
+    fn get_name_includes_history_before_the_statistic_was_renamed() {
+        let server = MockServer::start();
+        serve_body(
+            &server,
+            format!(
+                "<ul>{}{}</ul>",
+                li(
+                    &format!("{KITCHEN}.202609.xml"),
+                    "Old Kitchen (Climate, Kitchen) 202609"
+                ),
+                li(
+                    &format!("{KITCHEN}.202610.xml"),
+                    "Kitchen (Climate, Kitchen) 202610"
+                )
+            ),
+        );
+        serve_file(
+            &server,
+            &format!("{KITCHEN}.202609.xml"),
+            &kitchen_xml(&[("2026-09-30 23:30:00", 21.5)]).replace("Kitchen", "Old Kitchen"),
+        );
+        serve_file(
+            &server,
+            &format!("{KITCHEN}.202610.xml"),
+            &kitchen_xml(&[("2026-10-01 00:30:00", 21.0)]),
+        );
+        let by_name = run_get(&server, &run_ctx(false, true), "Kitchen", None, None, None).unwrap();
+        let by_uuid = run_get(&server, &run_ctx(false, true), KITCHEN, None, None, None).unwrap();
+        assert_eq!(by_name, by_uuid);
+        assert_eq!(by_name.lines().count(), 3);
     }
 
     #[test]
@@ -1638,5 +1811,45 @@ mod tests {
         assert!(!dir.exists(), "dry run must not create the folder");
         assert!(out.contains(&format!("{KITCHEN}.202609.xml")), "{out}");
         assert!(out.contains("3 would be downloaded, 0 skipped"), "{out}");
+    }
+
+    #[test]
+    fn download_csv_reports_files_and_skips_without_human_summary() {
+        let server = MockServer::start();
+        let mocks = serve_download(&server);
+        let tmp = tempfile::tempdir().unwrap();
+        run_download(&server, tmp.path(), false, false);
+        let lox = mock_client(&server);
+        let mut ctx = run_ctx(false, true);
+        ctx.dry_run = true;
+        let opts = DownloadOpts {
+            dir: tmp.path().to_path_buf(),
+            filter: Some("Kitchen".into()),
+            range: MonthRange {
+                from: Some("2026-09".into()),
+                to: Some("2026-10".into()),
+            },
+            force: false,
+        };
+        let mut out = Vec::new();
+        download(&ctx, &lox, &opts, now(), &mut out).unwrap();
+        assert_eq!(
+            String::from_utf8(out).unwrap(),
+            format!(
+                "FILE,STATUS\n{KITCHEN}.202610.xml,would_download\n{KITCHEN}.202609.xml,skipped\n"
+            )
+        );
+        mocks.kitchen_oct.assert_hits(1);
+        ctx.dry_run = false;
+        ctx.no_header = true;
+        ctx.quiet = true;
+        let mut out = Vec::new();
+        download(&ctx, &lox, &opts, now(), &mut out).unwrap();
+        assert_eq!(
+            String::from_utf8(out).unwrap(),
+            format!("{KITCHEN}.202610.xml,downloaded\n{KITCHEN}.202609.xml,skipped\n")
+        );
+        mocks.kitchen_sep.assert_hits(1);
+        mocks.kitchen_oct.assert_hits(2);
     }
 }

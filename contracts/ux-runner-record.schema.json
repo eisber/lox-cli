@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "ux-runner-record.schema.json",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "id", "runner", "started_at", "finished_at", "application", "synthetic", "kind", "operation", "observations"],
+  "properties": {
+    "schema_version": {"const": 1, "type": "integer"},
+    "id": {"$ref": "ux-contract.schema.json#/$defs/text"},
+    "runner": {"$ref": "ux-contract.schema.json#/$defs/text"},
+    "started_at": {"$ref": "ux-contract.schema.json#/$defs/text"},
+    "finished_at": {"$ref": "ux-contract.schema.json#/$defs/text"},
+    "application": {"$ref": "ux-contract.schema.json#/$defs/application"},
+    "synthetic": {"type": "boolean"},
+    "kind": {"enum": ["gui_observation", "cli_execution", "unit_test", "synthetic"]},
+    "operation": {"$ref": "ux-contract.schema.json#/$defs/text"},
+    "observations": {"type": "array", "items": {"$ref": "ux-results.schema.json#/$defs/observation"}}
+  }
+}

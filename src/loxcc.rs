@@ -154,9 +154,13 @@ pub fn decompress_loxcc(data: &[u8]) -> Result<Vec<u8>> {
     Ok(output)
 }
 
-/// Extract `sps0.LoxCC` from a backup ZIP, then decompress to XML.
-pub fn extract_and_decompress(zip_data: &[u8]) -> Result<Vec<u8>> {
-    let cursor = Cursor::new(zip_data);
+/// Decompress raw LoxCC/LxRes data or extract `sps0.LoxCC` from a backup ZIP.
+pub fn extract_and_decompress(data: &[u8]) -> Result<Vec<u8>> {
+    if data.starts_with(&LOXCC_MAGIC.to_le_bytes()) {
+        return decompress_loxcc(data);
+    }
+
+    let cursor = Cursor::new(data);
     let mut archive = zip::ZipArchive::new(cursor).context("Invalid ZIP archive")?;
 
     // Look for sps0.LoxCC (case-insensitive)
@@ -349,6 +353,18 @@ mod tests {
 
         let err = extract_and_decompress(&zip_data).unwrap_err();
         assert!(err.to_string().contains("sps0.LoxCC"));
+    }
+
+    #[test]
+    fn test_extract_raw_container() {
+        let xml = b"<?xml version=\"1.0\"?><Resources><Block Name=\"Example\"/></Resources>";
+        assert_eq!(extract_and_decompress(&make_loxcc(xml)).unwrap(), xml);
+    }
+
+    #[test]
+    fn test_extract_truncated_raw_header() {
+        let err = extract_and_decompress(&LOXCC_MAGIC.to_le_bytes()).unwrap_err();
+        assert!(err.to_string().contains("too short"));
     }
 
     #[test]

@@ -8,7 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
-- `lox stats list`, `lox stats get` and `lox stats download` read the statistics the Miniserver logs (`/stats/` index and monthly XML files): list them, print values as table, CSV or JSON across a month range, and mirror the raw files into a folder incrementally.
+- `lox stats ls` (alias `list`), `lox stats get` and `lox stats download` read the statistics the Miniserver logs (`/stats/` index and monthly XML files): list them, print values as table, CSV or JSON across a month range, and mirror the raw files into a folder incrementally.
 
 ## [0.14.2] — 2026-05-08
 
