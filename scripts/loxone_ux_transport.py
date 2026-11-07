@@ -2,7 +2,14 @@
 
 import http.client
 import json
+import math
+import os
+from pathlib import Path
 import re
+import subprocess
+import sys
+import threading
+import time
 import urllib.error
 import urllib.request
 
@@ -17,6 +24,7 @@ class UxError(Exception):
         self.code = code
         self.metrics = None
         self.artifact_dir = None
+        self.details = None
 
 
 def parse_json(data):
@@ -42,13 +50,14 @@ class _NoRedirect(urllib.request.HTTPRedirectHandler):
 class MCPClient:
     """No discovery, retries, redirects, proxy inheritance, or raw response logging."""
 
-    def __init__(self, url, token, *, opener=None):
+    def __init__(self, url, token, *, opener=None, progress=None):
         self.url = url
         self._token = token
         self._open = opener or urllib.request.build_opener(
             urllib.request.ProxyHandler({}), _NoRedirect()
         ).open
         self._next_id = 0
+        self._progress = progress
         self.metrics = {
             "http_requests": 0, "rpc_calls": 0, "notifications": 0,
             "mcp_tool_calls": 0, "request_bytes": 0, "response_bytes": 0,
@@ -85,6 +94,8 @@ class MCPClient:
         })
         self.metrics["http_requests"] += 1
         self.metrics["request_bytes"] += len(body)
+        if self._progress is not None:
+            self._progress(method, self.metrics)
         try:
             with self._open(query, timeout=timeout) as response:
                 status = response.status
@@ -186,3 +197,125 @@ class MCPClient:
         except (ValueError, RecursionError):
             raise UxError("backend_json", "PowerShell stdout was not one backend JSON response.") from None
         return reply
+
+
+def validate_deadline(value):
+    if type(value) not in (int, float) or not math.isfinite(value) or value <= 0:
+        raise UxError("deadline_value", "Local deadline must be a finite positive number of seconds.")
+    return value
+
+
+def powershell_bounded(url, token, command, timeout, *, deadline=300):
+    """Bound the entire local MCP exchange; never infer remote cancellation."""
+    validate_deadline(deadline)
+    began = time.monotonic()
+    # Leave cleanup time inside the caller's budget, rather than adding a grace
+    # period to a network wait that has already consumed the entire deadline.
+    until = began + deadline - min(1, deadline / 10)
+    data = json.dumps({
+        "url": url, "token": token, "command": command, "timeout": timeout,
+    }, ensure_ascii=True, allow_nan=False).encode("ascii")
+    try:
+        process = subprocess.Popen(
+            [sys.executable, "-B", str(Path(__file__).resolve())],
+            stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL,
+            close_fds=True, shell=False,
+            creationflags=subprocess.CREATE_NO_WINDOW if os.name == "nt" else 0,
+        )
+    except OSError:
+        raise UxError("client_process", "Cannot start the owned local MCP client; check Python access.") from None
+    state = {"stage": "starting", "metrics": {}}
+    finished = {}
+
+    def exchange():
+        try:
+            with process.stdin:
+                process.stdin.write(data)
+            # Only this owned worker writes the pipe. Allow JSON escaping overhead;
+            # the HTTP/SSE response itself still has its original 8 MiB cap.
+            limit = MAX_RESPONSE_BYTES * 6 + 65536
+            with process.stdout:
+                while True:
+                    line = process.stdout.readline(limit + 1)
+                    if not line:
+                        break
+                    if len(line) > limit:
+                        finished["invalid"] = True
+                        return
+                    message = parse_json(line)
+                    if not isinstance(message, dict):
+                        finished["invalid"] = True
+                        return
+                    state.update(message)
+            finished["done"] = True
+        except (OSError, ValueError, UnicodeError, RecursionError):
+            finished["invalid"] = True
+
+    reader = threading.Thread(target=exchange, name="loxone-ux-owned-client")
+    try:
+        reader.start()
+        reader.join(max(0, until - time.monotonic()))
+        remaining = until - time.monotonic()
+        if reader.is_alive() or remaining <= 0:
+            raise _deadline_error(state, deadline)
+        try:
+            process.wait(timeout=remaining)
+        except subprocess.TimeoutExpired:
+            raise _deadline_error(state, deadline) from None
+        if process.returncode != 0 or not finished.get("done") or finished.get("invalid"):
+            raise UxError(
+                "client_process", "Owned local MCP client failed; no success or remote cancellation was inferred."
+            )
+        if "error" in state:
+            error = UxError(state["error"]["code"], state["error"]["message"])
+            error.metrics = state["metrics"]
+            raise error
+        if "reply" not in state:
+            raise UxError("client_process", "Owned local MCP client omitted its result; inspect the owned run.")
+        return state["reply"], state["metrics"]
+    finally:
+        if process.poll() is None:
+            process.kill()
+        process.wait()
+        if reader.ident is not None:
+            reader.join()
+        process.stdin.close()
+        process.stdout.close()
+
+
+def _deadline_error(state, deadline):
+    error = UxError(
+        "deadline",
+        "Local MCP caller deadline reached its cleanup reserve; only the owned local client is stopped. "
+        "Remote completion is UNKNOWN; inspect the owned run before any separately admitted retry.",
+    )
+    error.details = {
+        "stage": state["stage"], "deadline_seconds": deadline,
+        "remoteCompletion": "UNKNOWN", "metrics_complete": False,
+    }
+    error.metrics = dict(state["metrics"])
+    return error
+
+
+def _worker():
+    def emit(message):
+        sys.stdout.buffer.write(
+            (json.dumps(message, ensure_ascii=True, allow_nan=False) + "\n").encode("ascii")
+        )
+        sys.stdout.buffer.flush()
+
+    def progress(stage, metrics):
+        emit({"stage": stage, "metrics": metrics})
+
+    request = parse_json(sys.stdin.buffer.read())
+    client = MCPClient(request["url"], request["token"], progress=progress)
+    try:
+        client.initialize()
+        reply = client.powershell(request["command"], request["timeout"])
+        emit({"reply": reply, "metrics": client.metrics})
+    except UxError as error:
+        emit({"error": {"code": error.code, "message": str(error)}, "metrics": client.metrics})
+
+
+if __name__ == "__main__":
+    _worker()

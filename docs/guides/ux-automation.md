@@ -63,10 +63,45 @@ Keep profiles, projects, and backend artifacts out of commits.
 
 ## Short commands and recipes
 
-Common flags `--profile`, `--pid`, `--expected-sha`, and `--verbose` may appear
+Common flags `--profile`, `--pid`, `--expected-sha`, `--deadline-seconds`, and `--verbose` may appear
 before or after the subcommand. `--profile` overrides `LOX_UX_PROFILE`; a PID is
 always explicit. `--expected-sha` overrides the profile pin, never a conflicting
 recipe pin.
+
+`--deadline-seconds` is a finite positive **total local caller** budget (default
+300 seconds), not a backend timeout. After local profile/token validation, one
+monotonic budget covers owned client startup, MCP initialization, the initialized
+notification, all response/SSE reads, and the PowerShell tool call. For a
+separately admitted bounded check, for example:
+
+```powershell
+python scripts\loxone-ux.py --pid $ownedPid status --deadline-seconds 90
+```
+
+An owned local Python child performs the exchange; its bearer token and command
+travel only through stdin, not process arguments or logs. At the deadline the
+supervisor kills only that local child by its process handle and waits for
+cleanup. Ten percent of the budget, capped at one second, is reserved for
+local cleanup, so network work stops slightly before the total deadline.
+Trickle responses and blocked open/read calls cannot extend the
+network wait. OS process creation, termination/reaping and scheduling are not
+real-time guarantees; elapsed metrics include their actual overhead. Local
+profile/token file reads precede this transport budget.
+
+Deadline failures exit 1 with `error.code: "deadline"`, the last reported
+`stage`, `deadline_seconds`, and `remoteCompletion: "UNKNOWN"`. Metrics on this
+failure are last-reported lower bounds (`metrics_complete: false`), not proof
+of bytes consumed or requests completed. **Local cancellation does not prove
+the remote command stopped**, and no retries or follow-up calls are automatic.
+Inspect the owned run through a separately admitted path before further action.
+Existing per-request socket and backend timeouts remain unchanged inside the
+total budget. Direct `MCPClient` methods retain their per-request semantics;
+Python callers wanting the total bound use `powershell_bounded`.
+
+This helper path does not change the host SDK or diagnose prior SDK timeouts.
+It is not a readiness/health assertion: server-owned source/native, physical
+control, foreground and ownership guards remain mandatory. Timeout,
+`CONTROL_UNAVAILABLE`, and `USER_CONTROL` do not authorize a retry or override.
 
 | Commands | Arguments |
 |---|---|
@@ -200,7 +235,8 @@ TCP framing, model tokens, and imagined speedups are **not** counted. A normal
 batch has 3 HTTP requests: initialize, initialized notification, one tool call;
 that is 2 JSON-RPC calls, 1 notification, and 1 MCP tool call.
 
-Run the offline regression tests without contacting any endpoint:
+Run the synthetic regression tests (in-memory peers and local loopback servers
+only; no configured endpoint, profile token, GUI or remote host):
 
 ```powershell
 python -B -m unittest discover -s scripts -p test_loxone_ux.py -v

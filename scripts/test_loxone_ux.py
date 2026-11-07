@@ -1,4 +1,4 @@
-"""Offline tests: no GUI, filesystem scratch directories, credentials, or endpoint access."""
+"""Synthetic tests: no GUI, credentials, or non-loopback endpoint access."""
 
 import base64
 import contextlib
@@ -9,10 +9,14 @@ import json
 import os
 from pathlib import Path, PureWindowsPath
 import re
+import subprocess
+import threading
+import time
 from types import SimpleNamespace
 import unittest
 from unittest.mock import patch
 import urllib.error
+from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
 import loxone_ux_transport as TRANSPORT
 
@@ -105,6 +109,7 @@ class TransportTests(unittest.TestCase):
             "initialize", "notifications/initialized", "tools/call",
         ])
         self.assertNotIn("id", payloads[1])
+        self.assertEqual([kwargs["timeout"] for _query, kwargs in wire.requests], [90, 90, 135])
         self.assertEqual(payloads[2]["params"], {
             "name": "PowerShell", "arguments": {"command": "data-only-command", "timeout": 120},
         })
@@ -207,6 +212,145 @@ class TransportTests(unittest.TestCase):
         self.assertIsNone(redirects.redirect_request(None, None, 302, "", {}, "https://other.invalid"))
 
 
+@contextlib.contextmanager
+def loopback_peer(mode):
+    class Handler(BaseHTTPRequestHandler):
+        def log_message(self, *_args):
+            pass
+
+        def do_POST(self):
+            body = self.rfile.read(int(self.headers["Content-Length"]))
+            payload = json.loads(body)
+            self.server.requests.append((payload, self.headers.get("Authorization")))
+            method = payload["method"]
+            if mode == "forbidden":
+                self.send_response(403)
+                self.send_header("Content-Length", "0")
+                self.end_headers()
+                return
+            if mode == "cumulative":
+                self.server.stop.wait(0.5 if method == "tools/call" else 0.1)
+            stalled = (
+                (mode == "initialize" and method == "initialize")
+                or (mode == "notification" and method == "notifications/initialized")
+                or (mode == "tool" and method == "tools/call")
+            )
+            if stalled:
+                self.server.stop.wait(3)
+                return
+            if method == "notifications/initialized":
+                data = b""
+            elif method == "initialize":
+                data = json.dumps(rpc({"protocolVersion": TRANSPORT.PROTOCOL})).encode()
+            else:
+                data = json.dumps(rpc(tool_result({"ok": True}), request_id=2)).encode()
+            try:
+                self.send_response(202 if method == "notifications/initialized" else 200)
+                sse = mode in ("sse", "trickle") and method == "initialize"
+                self.send_header("Content-Type", "text/event-stream" if sse else "application/json")
+                if not sse:
+                    self.send_header("Content-Length", str(len(data)))
+                self.end_headers()
+                if sse:
+                    # No matching response or completed line; socket timeouts alone cannot bound this.
+                    while not self.server.stop.wait(0.03):
+                        self.wfile.write(b":" if mode == "trickle" else b": keepalive\n\n")
+                        self.wfile.flush()
+                else:
+                    self.wfile.write(data)
+            except (BrokenPipeError, ConnectionResetError, ConnectionAbortedError):
+                pass
+
+    server = ThreadingHTTPServer(("127.0.0.1", 0), Handler)
+    server.daemon_threads = True
+    server.stop = threading.Event()
+    server.requests = []
+    thread = threading.Thread(target=server.serve_forever, kwargs={"poll_interval": 0.02})
+    thread.start()
+    try:
+        yield server, f"http://127.0.0.1:{server.server_port}/mcp"
+    finally:
+        server.stop.set()
+        server.shutdown()
+        server.server_close()
+        thread.join(timeout=2)
+        if thread.is_alive():
+            raise AssertionError("Synthetic loopback server did not stop.")
+
+
+class DeadlineTests(unittest.TestCase):
+    def test_total_deadline_stops_owned_client_across_all_blocking_stages(self):
+        real_popen = subprocess.Popen
+        for mode, stage, count in (
+            ("initialize", "initialize", 1),
+            ("notification", "notifications/initialized", 2),
+            ("sse", "initialize", 1),
+            ("trickle", "initialize", 1),
+            ("tool", "tools/call", 3),
+            ("cumulative", "tools/call", 3),
+        ):
+            children = []
+
+            def start_child(*args, **kwargs):
+                self.assertNotIn(TOKEN, repr(args))
+                child = real_popen(*args, **kwargs)
+                children.append(child)
+                return child
+
+            with self.subTest(mode=mode), loopback_peer(mode) as (server, url):
+                began = time.monotonic()
+                with patch.object(TRANSPORT.subprocess, "Popen", side_effect=start_child):
+                    with self.assertRaises(TRANSPORT.UxError) as raised:
+                        TRANSPORT.powershell_bounded(url, TOKEN, "synthetic", 20, deadline=0.65)
+                elapsed = time.monotonic() - began
+                self.assertEqual(raised.exception.code, "deadline")
+                self.assertEqual(raised.exception.details["stage"], stage)
+                self.assertEqual(raised.exception.details["deadline_seconds"], 0.65)
+                self.assertEqual(raised.exception.details["remoteCompletion"], "UNKNOWN")
+                self.assertNotIn(TOKEN, str(raised.exception))
+                self.assertGreaterEqual(elapsed, 0.5)
+                self.assertLess(elapsed, 1.65)
+                self.assertEqual(len(children), 1)
+                self.assertIsNotNone(children[0].poll())
+                self.assertEqual(len(server.requests), count)
+                self.assertTrue(all(auth == "Bearer " + TOKEN for _payload, auth in server.requests))
+
+    def test_success_and_metrics_unchanged_and_child_reaped(self):
+        with loopback_peer("success") as (server, url):
+            reply, metrics = TRANSPORT.powershell_bounded(
+                url, TOKEN, "synthetic", 20, deadline=3,
+            )
+        self.assertEqual(reply, {"ok": True})
+        self.assertEqual(metrics["http_requests"], 3)
+        self.assertEqual(metrics["rpc_calls"], 2)
+        self.assertEqual(metrics["notifications"], 1)
+        self.assertEqual(metrics["mcp_tool_calls"], 1)
+        self.assertEqual([payload["method"] for payload, _auth in server.requests], [
+            "initialize", "notifications/initialized", "tools/call",
+        ])
+        self.assertEqual(server.requests[-1][0]["params"]["arguments"]["timeout"], 20)
+        self.assertNotIn(TOKEN, json.dumps((reply, metrics)))
+
+    def test_worker_failure_is_preserved_without_retry_or_success_fallback(self):
+        with loopback_peer("forbidden") as (server, url):
+            with self.assertRaises(TRANSPORT.UxError) as raised:
+                TRANSPORT.powershell_bounded(url, TOKEN, "synthetic", 20, deadline=3)
+        self.assertEqual(raised.exception.code, "http_status")
+        self.assertEqual(raised.exception.metrics["http_requests"], 1)
+        self.assertEqual(len(server.requests), 1)
+        self.assertNotIn(TOKEN, str(raised.exception))
+
+    def test_invalid_deadlines_fail_before_starting_a_child(self):
+        with patch.object(TRANSPORT.subprocess, "Popen") as child:
+            for value in (0, -1, float("nan"), float("inf"), True, "bad"):
+                with self.subTest(value=value), self.assertRaises(TRANSPORT.UxError) as raised:
+                    TRANSPORT.powershell_bounded(
+                        "http://127.0.0.1:1/mcp", TOKEN, "synthetic", 20, deadline=value,
+                    )
+                self.assertEqual(raised.exception.code, "deadline_value")
+            child.assert_not_called()
+
+
 class RecipeTests(unittest.TestCase):
     def test_closed_recipe_validation_rejects_before_network(self):
         base = {"schema_version": 1, "name": "Synthetic", "steps": [{"op": "status"}]}
@@ -233,7 +377,7 @@ class RecipeTests(unittest.TestCase):
             {"op": "save_as", "path": r"C:\private\..\escape.Loxone"},
         ]
         invalid.extend({**base, "steps": [step]} for step in invalid_steps)
-        with patch.object(UX, "MCPClient") as remote:
+        with patch.object(UX, "powershell_bounded") as remote:
             for recipe in invalid:
                 with self.subTest(recipe=recipe):
                     with patch.object(Path, "read_bytes", return_value=json.dumps(recipe).encode()):
@@ -306,7 +450,7 @@ class RecipeTests(unittest.TestCase):
         ])
         with patch.object(UX, "command_steps", return_value=([{"op": "status"}], OTHER_PIN)):
             with patch.object(Path, "read_bytes", return_value=json.dumps(profile()).encode()):
-                with patch.object(Path, "read_text") as token_read, patch.object(UX, "MCPClient") as remote:
+                with patch.object(Path, "read_text") as token_read, patch.object(UX, "powershell_bounded") as remote:
                     with self.assertRaises(UX.UxError) as raised:
                         UX.execute(args)
         self.assertEqual(raised.exception.code, "version_pin")
@@ -333,10 +477,16 @@ class CliTests(unittest.TestCase):
             Response(b"", status=202), backend,
         ])
         output = io.StringIO()
-        original_client = TRANSPORT.MCPClient
+
+        def bounded(url, token, command, timeout, *, deadline):
+            self.assertEqual(deadline, 300)
+            client = TRANSPORT.MCPClient(url, token, opener=wire)
+            client.initialize()
+            return client.powershell(command, timeout), client.metrics
+
         with patch.object(Path, "read_bytes", return_value=json.dumps(profile()).encode()):
             with patch.object(Path, "read_text", return_value=TOKEN):
-                with patch.object(UX, "MCPClient", side_effect=lambda url, token: original_client(url, token, opener=wire)):
+                with patch.object(UX, "powershell_bounded", side_effect=bounded):
                     with contextlib.redirect_stdout(output):
                         code = UX.main(["--profile", "private-profile.json", "--pid", "123", *command])
         return code, output.getvalue(), wire, calls
@@ -356,6 +506,31 @@ class CliTests(unittest.TestCase):
         self.assertEqual(output["transport_metrics"]["request_bytes"],
                          sum(len(query.data) for query, _kwargs in wire.requests))
         self.assertEqual(output["transport_metrics"]["response_bytes"], wire.response_bytes)
+
+    def test_deadline_option_and_structured_error_reach_cli_without_secret_output(self):
+        for argv in (
+            ["--deadline-seconds", "0.5", "status"],
+            ["status", "--deadline-seconds", "0.5"],
+        ):
+            error = TRANSPORT._deadline_error({"stage": "tools/call", "metrics": {}}, 0.5)
+            output = io.StringIO()
+            with patch.object(Path, "read_bytes", return_value=json.dumps(profile()).encode()):
+                with patch.object(Path, "read_text", return_value=TOKEN):
+                    with patch.object(UX, "powershell_bounded", side_effect=error) as bounded:
+                        with contextlib.redirect_stdout(output):
+                            code = UX.main(["--profile", "private.json", "--pid", "123", *argv])
+            result = json.loads(output.getvalue())
+            self.assertEqual(code, 1)
+            self.assertEqual(bounded.call_args.kwargs["deadline"], 0.5)
+            self.assertEqual(result["error"]["stage"], "tools/call")
+            self.assertEqual(result["error"]["remoteCompletion"], "UNKNOWN")
+            self.assertIn("requested_artifact_dir", result)
+            self.assertNotIn(TOKEN, output.getvalue())
+        with patch.object(UX, "powershell_bounded") as bounded:
+            for value in ("nan", "inf", "-1", "0", "bad"):
+                with contextlib.redirect_stdout(io.StringIO()):
+                    self.assertEqual(UX.main(["status", "--deadline-seconds", value]), 1)
+            bounded.assert_not_called()
 
     def test_backend_false_preserves_partial_progress_and_stops_without_retry(self):
         args = UX.make_parser().parse_args([
@@ -433,7 +608,7 @@ class CliTests(unittest.TestCase):
     def test_invalid_token_is_a_redacted_local_error(self):
         with patch.object(Path, "read_bytes", return_value=json.dumps(profile()).encode()):
             with patch.object(Path, "read_text", return_value="Bearer " + TOKEN):
-                with patch.object(UX, "MCPClient") as remote:
+                with patch.object(UX, "powershell_bounded") as remote:
                     output = io.StringIO()
                     with contextlib.redirect_stdout(output):
                         code = UX.main(["--profile", "private.json", "--pid", "123", "status"])

@@ -15,7 +15,7 @@ import time
 from urllib.parse import urlsplit
 import uuid
 
-from loxone_ux_transport import MCPClient, UxError, parse_json
+from loxone_ux_transport import UxError, parse_json, powershell_bounded, validate_deadline
 
 
 MAX_STEPS = 64
@@ -315,12 +315,23 @@ def energy_column(value):
     return column
 
 
+def deadline_seconds(value):
+    try:
+        return validate_deadline(float(value))
+    except ValueError:
+        raise argparse.ArgumentTypeError("Local deadline must be a finite positive number of seconds.") from None
+
+
 def make_parser():
     common = argparse.ArgumentParser(add_help=False)
     common.add_argument("--profile", default=argparse.SUPPRESS, help="Private JSON profile, or LOX_UX_PROFILE")
     common.add_argument("--pid", type=int, default=argparse.SUPPRESS, help="Explicit owned Loxone Config PID")
     common.add_argument("--expected-sha", default=argparse.SUPPRESS, help="Executable SHA-256 pin")
     common.add_argument("--verbose", action="store_true", default=argparse.SUPPRESS, help="Return the full backend reply")
+    common.add_argument(
+        "--deadline-seconds", type=deadline_seconds, default=argparse.SUPPRESS,
+        help="Total local MCP caller budget, including initialization (default: 300 seconds)",
+    )
     parser = Parser(description=__doc__, parents=[common])
     commands = parser.add_subparsers(dest="command", required=True, parser_class=Parser)
     for command in ("status", "windows", "energy-open", "energy-accept", "energy-cancel"):
@@ -378,6 +389,7 @@ def command_steps(args):
 
 
 def execute(args):
+    deadline = validate_deadline(getattr(args, "deadline_seconds", 300))
     steps, recipe_pin = command_steps(args)
     profile_path = getattr(args, "profile", None) or os.environ.get("LOX_UX_PROFILE")
     if not profile_path:
@@ -392,20 +404,21 @@ def execute(args):
         fail("Cannot read the bearer token file; check its private local permissions/path.", "auth")
     if len(token) > 16384 or not re.fullmatch(r"[A-Za-z0-9._~+/\-]+=*", token):
         fail("Bearer token file must contain one nonempty token, not headers or JSON.", "auth")
-    client = MCPClient(profile["mcp_url"], token)
     start = time.monotonic()
+    metrics = {}
     try:
-        client.initialize()
         timeout = max(120, 60 + math.ceil(sum(step.get("timeout_ms", 0) for step in steps) / 1000))
-        reply = validate_reply(client.powershell(
-            powershell_command(profile["backend_path"], request), timeout,
-        ), request)
+        reply, metrics = powershell_bounded(
+            profile["mcp_url"], token, powershell_command(profile["backend_path"], request),
+            timeout, deadline=deadline,
+        )
+        reply = validate_reply(reply, request)
         output = reply.copy() if getattr(args, "verbose", False) else compact_reply(reply)
-        output["transport_metrics"] = dict(client.metrics)
+        output["transport_metrics"] = dict(metrics)
         output["transport_metrics"]["elapsed_ms"] = round((time.monotonic() - start) * 1000, 3)
         return output, 0 if reply["ok"] else 1
     except UxError as error:
-        error.metrics = dict(client.metrics)
+        error.metrics = dict(error.metrics if error.metrics is not None else metrics)
         error.metrics["elapsed_ms"] = round((time.monotonic() - start) * 1000, 3)
         error.artifact_dir = request["artifact_dir"]
         raise
@@ -416,6 +429,8 @@ def main(argv=None):
         output, code = execute(make_parser().parse_args(argv))
     except UxError as error:
         output = {"ok": False, "error": {"code": error.code, "message": str(error)}}
+        if error.details is not None:
+            output["error"].update(error.details)
         if error.metrics is not None:
             output["transport_metrics"] = error.metrics
         if error.artifact_dir is not None:
