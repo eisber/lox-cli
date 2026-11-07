@@ -92,6 +92,50 @@ Dialog names do not prove factory/XML/control ownership, and no catalog-identity
 UX-rule or native-parity count is promoted. The initial future-dated milestone
 was corrected append-only; its historical event time remains unknown.
 
+### Reviewed twelve-dialog extension
+
+A disjoint independently reviewed cohort adds **12 header layouts and 41
+class-local metadata methods** (30 distinct names):
+
+| Qt metadata class | Local methods |
+|---|---:|
+| `CClimateCtrlSelectionDlg` | 3 |
+| `CDatabaseConnectorConfigurationDlg` | 1 |
+| `CDatabaseConnectorTableConfigurationDlg` | 6 |
+| `CObjectTypeConfigurationDialog` | 1 |
+| `CPlayerGroupConfigurationDialog` | 1 |
+| `CAppLocationSelectionDlg` | 4 |
+| `CNodeConfigurationWidget` | 12 |
+| `CTrustConfigurationDlg` | 3 |
+| `CIrrigationConfigurationDlg` | 0 |
+| `CPriorityConfigurationDlg` | 5 |
+| `CControlLinkingSelectionDlg` | 3 |
+| `CControlSelectionDlg` | 2 |
+
+Parent replay of 639 independent PE-span assertions and 190 negative checks,
+followed by explicit aggregation through the unchanged decoder, produces a new
+**27-layout, 134-class-local-method snapshot**. **618/645 layouts remain
+unvalidated**. Every old and new class/method record matches its source cohort;
+the original 645-row corpus and earlier 7/21 and 15/93 snapshots are unchanged.
+A zero-method layout is not an implementation or behavior result.
+
+Independent admission SHA-256:
+`cb930dd09ed845448b353566b112543c9694db57e168159e2f1119fa304e997e`.
+The new snapshot SHA-256 is
+`9f4911dbc96a19f68eacaa03c906d1ef84c18ed5b74c24db85e5031e9b7dd237`;
+its profiles are
+`.reverse-engineering\element-atlas\qt-reviewed-cohorts-20261107T1832Z\reviewed-twenty-seven-profiles.json`
+(SHA-256 `0a8f8f25b6ca93857d1cf2b48eeb4caa8f8134c31432bdac28e142165c7aca3d`).
+Use these profiles with `--qt-layout-profiles` and a new output directory.
+The parent aggregation receipt SHA-256 is
+`a1a4bb3aee1143685b8ea0c6accae62b518cffb158dfed878b6e175e3e31f8f0`.
+
+This remains static metadata-layout admission only. Eight new callback bodies,
+all 41 implementation/GUI/runtime bindings, all 12 dynamic getter paths and
+receiver ownership remain unknown. Qt 6.10.2 is a format reference, not a
+verified embedded library version. No catalog identity, native behavior or
+parity count is promoted.
+
 For release comparisons, retain separate output directories with `--output`.
 Compare control identities, parameter patterns, and Qt class/member signatures,
 not native addresses, which can move between builds. A changed control identity
@@ -115,7 +159,7 @@ remain distinct, such as `C[Type=LightscenesC]`.
 ## Baseline findings
 
 The Qt scanner counts below are historical observations, not the independently
-reviewed 15-layout/93-method aggregate above.
+reviewed 27-layout/134-method aggregate above.
 
 | Measurement | Observed |
 |---|---:|

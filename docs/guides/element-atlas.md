@@ -126,9 +126,10 @@ excludes 28 metadata-only associations. Its 692 parameter entries are all
 catalog parameters belonging to those 177 records, not recovered GUI fields.
 None of these populations measures verified UX coverage.
 
-Separately reviewed Qt header cohorts now cover 15 layouts and 93 class-local
-metadata methods, with 630/645 layouts still unvalidated; the original frozen
-snapshot is unchanged. See [the reviewed dialog cohort](../analysis/advanced-block-ux.md#reviewed-eight-dialog-extension).
+Separately reviewed Qt header cohorts now cover 27 layouts and 134 class-local
+metadata methods, with 618/645 layouts still unvalidated; the original frozen
+snapshot and earlier 7/21 and 15/93 snapshots are unchanged.
+See [the reviewed dialog cohort](../analysis/advanced-block-ux.md#reviewed-twelve-dialog-extension).
 These metadata counts do not add catalog identities, GUI bindings or runtime passes.
 
 ## Identity and evidence
