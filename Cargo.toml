@@ -14,6 +14,24 @@ keywords = ["loxone", "smarthome", "home-automation", "cli", "config-as-code"]
 categories = ["command-line-utilities", "network-programming"]
 license = "AGPL-3.0-or-later AND LicenseRef-Commercial"
 readme = "README.md"
+include = [
+    "/Cargo.toml",
+    "/Cargo.lock",
+    "/build.rs",
+    "/.cargo/config.toml",
+    "/src/**",
+    "/docs/**",
+    "/contracts/**",
+    "/tests/*.rs",
+    "/tests/ux/**",
+    "/tests/eval/cases/**",
+    "/tests/eval/fixture.Loxone",
+    "/README.md",
+    "/LICENSE",
+    "/LICENSE-AGPL",
+    "/LICENSE-COMMERCIAL",
+    "/NOTICE",
+]
 
 [[bin]]
 name = "lox"

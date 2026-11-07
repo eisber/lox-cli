@@ -422,6 +422,16 @@ pub(crate) enum SetupCmd {
 
 #[derive(Subcommand)]
 pub(crate) enum ConfigCmd {
+    /// Read-only LightController2 storage inspection (no GUI/runtime parity)
+    Lighting {
+        #[command(subcommand)]
+        action: commands::config_cmd::lighting::LightingCmd,
+    },
+    /// Validated EnergyManager2 storage pilot (no full GUI/runtime parity)
+    Energy {
+        #[command(subcommand)]
+        action: commands::config_cmd::energy::EnergyCmd,
+    },
     /// Download the latest Loxone Config from the Miniserver via FTP
     Download {
         /// Custom output filename
@@ -434,9 +444,9 @@ pub(crate) enum ConfigCmd {
     /// List available configs on the Miniserver
     #[command(alias = "list")]
     Ls,
-    /// Decompress a local config ZIP to .Loxone XML
+    /// Decompress a local ZIP, LoxCC, or LxRes archive to XML
     Extract {
-        /// Path to a config ZIP file
+        /// Path to a config ZIP, raw LoxCC, or LxRes resource file
         file: String,
         /// Custom output filename
         #[arg(long, value_name = "PATH")]
@@ -896,6 +906,11 @@ pub(crate) enum ConfigCmd {
         #[arg(long)]
         room: Option<String>,
     },
+    /// Inventory attribute names and nested storage paths without exposing values
+    Surfaces {
+        /// Path to a .Loxone XML file
+        file: String,
+    },
     /// Emit the full resolved wire graph as source/target connector edges
     #[command(name = "wires")]
     Wires {
@@ -1190,14 +1205,18 @@ fn command_name(cmd: &Cmd) -> String {
 
 fn main() {
     let cli = Cli::parse();
-    let json = cli.output == OutputFormat::Json;
+    let json = cli.output == OutputFormat::Json || cli.json_flag;
     if let Err(e) = run(cli) {
         if json {
-            let envelope = serde_json::json!({
+            let mut envelope = serde_json::json!({
                 "ok": false,
                 "error": categorize_error(&e),
                 "message": format!("{:#}", e),
             });
+            if let Some(diagnostic) = e.downcast_ref::<config_edit::schema::Diagnostic>() {
+                envelope["error"] = serde_json::json!(diagnostic.code);
+                envelope["diagnostics"] = serde_json::json!([diagnostic]);
+            }
             println!(
                 "{}",
                 serde_json::to_string_pretty(&envelope).unwrap_or_else(|_| {

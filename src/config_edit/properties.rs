@@ -1,6 +1,6 @@
-use super::{ConfigEditor, ConnectorInfo, ElementDescription, PropertyValue};
+use super::{ConfigEditor, ConfigSurfaceEntry, ConnectorInfo, ElementDescription, PropertyValue};
 use anyhow::{Result, bail};
-use std::collections::HashMap;
+use std::collections::{BTreeMap, BTreeSet, HashMap};
 use xmltree::Element;
 
 impl ConfigEditor {
@@ -182,6 +182,79 @@ impl ConfigEditor {
             connectors,
             children,
         })
+    }
+
+    /// Describe field names and nested storage without exposing configuration values.
+    pub fn configuration_surfaces(&self) -> Vec<ConfigSurfaceEntry> {
+        fn original_attribute<'a>(name: &'a str, renames: &'a [(String, String)]) -> &'a str {
+            renames
+                .iter()
+                .find_map(|(sanitized, original)| (sanitized == name).then_some(original.as_str()))
+                .unwrap_or(name)
+        }
+
+        fn collect_paths(
+            element: &Element,
+            prefix: &str,
+            paths: &mut BTreeSet<String>,
+            renames: &[(String, String)],
+        ) {
+            for child in element.children.iter().filter_map(|node| node.as_element()) {
+                let kind = child
+                    .attributes
+                    .get("Type")
+                    .map(String::as_str)
+                    .unwrap_or(child.name.as_str());
+                if matches!(kind, "Co" | "IoData" | "In") {
+                    continue;
+                }
+                let component = if child.name == "C" && child.attributes.contains_key("Type") {
+                    format!("C[Type={kind}]")
+                } else {
+                    child.name.clone()
+                };
+                let path = if prefix.is_empty() {
+                    component
+                } else {
+                    format!("{prefix}/{component}")
+                };
+                paths.insert(path.clone());
+                for attribute in child.attributes.keys() {
+                    let attribute = original_attribute(attribute, renames);
+                    paths.insert(format!("{path}/@{attribute}"));
+                }
+                collect_paths(child, &path, paths, renames);
+            }
+        }
+
+        let mut surfaces: BTreeMap<String, (usize, BTreeSet<String>, BTreeSet<String>)> =
+            BTreeMap::new();
+        for element in Self::iter_elements(&self.root) {
+            let Some(kind) = element.attributes.get("Type") else {
+                continue;
+            };
+            if matches!(kind.as_str(), "Co" | "IoData" | "In") {
+                continue;
+            }
+            let (count, attributes, paths) = surfaces.entry(kind.clone()).or_default();
+            *count += 1;
+            for attribute in element.attributes.keys() {
+                attributes
+                    .insert(original_attribute(attribute, &self.digit_attr_renames).to_string());
+            }
+            collect_paths(element, "", paths, &self.digit_attr_renames);
+        }
+        surfaces
+            .into_iter()
+            .map(
+                |(element_type, (occurrences, attributes, storage_paths))| ConfigSurfaceEntry {
+                    element_type,
+                    occurrences,
+                    attributes: attributes.into_iter().collect(),
+                    storage_paths: storage_paths.into_iter().collect(),
+                },
+            )
+            .collect()
     }
 
     /// Read the program text from a SequenceController block's

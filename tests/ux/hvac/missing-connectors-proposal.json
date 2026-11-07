@@ -1,0 +1,113 @@
+{
+  "schema_version": 1,
+  "status": "structural_patch_proposal_not_applied",
+  "case_status": "proposed_not_executed",
+  "gui_executions": 0,
+  "native_simulator_executions": 0,
+  "engine_completion": false,
+  "application": {
+    "version": "17.2.10.21",
+    "sha256": "7b55e3ef18401574ab967c5c6a0140cd5a66dc728521ebba04ad53093577d8b3"
+  },
+  "block_type": "HeatIRoomController2",
+  "control_type": 469,
+  "four_fields": [
+    {
+      "key": "RtD",
+      "direction": "input",
+      "io_type": "I",
+      "native_effective_default": 0,
+      "default_status": "confirmed_native_descriptor_not_serialized_omission",
+      "unit_status": "unknown",
+      "unit": null,
+      "evidence": "Native registration names RtD at PE address 0x141003dd8 and registers resettodefault with the same non-index flag class as resource-documented Reset/DisMv inputs. This block has no RtD IO row in pinned ENU TechDoc."
+    },
+    {
+      "key": "AQh3",
+      "direction": "output",
+      "io_type": "O",
+      "native_effective_default": 0,
+      "default_status": "confirmed_native_descriptor_and_resource",
+      "unit_status": "not_declared_in_pinned_resource",
+      "unit": null,
+      "resource_path": "TechDoc/FunctionBlock[@LxType='HeatIRoomController2'][@ControlType='469']/IOGroup[@Type='Output']/IO[@Name='AQh%d']",
+      "evidence": "Native formatted-name loop executes indices 1, 2, 3; pinned output row independently declares Combines=3 and Default=0. Unit/UnitId are absent; physical units are unknown."
+    },
+    {
+      "key": "AQc3",
+      "direction": "output",
+      "io_type": "O",
+      "native_effective_default": 0,
+      "default_status": "confirmed_native_descriptor_and_resource",
+      "unit_status": "not_declared_in_pinned_resource",
+      "unit": null,
+      "resource_path": "TechDoc/FunctionBlock[@LxType='HeatIRoomController2'][@ControlType='469']/IOGroup[@Type='Output']/IO[@Name='AQc%d']",
+      "evidence": "Native formatted-name loop executes indices 1, 2, 3; pinned output row independently declares Combines=3 and Default=0. Unit/UnitId are absent; physical units are unknown."
+    },
+    {
+      "key": "AQhc3",
+      "direction": "output",
+      "io_type": "O",
+      "native_effective_default": 0,
+      "default_status": "confirmed_native_descriptor_and_resource",
+      "unit_status": "not_declared_in_pinned_resource",
+      "unit": null,
+      "resource_path": "TechDoc/FunctionBlock[@LxType='HeatIRoomController2'][@ControlType='469']/IOGroup[@Type='Output']/IO[@Name='AQhc%d']",
+      "evidence": "Native formatted-name loop executes indices 1, 2, 3; pinned output row independently declares Combines=3 and Default=0. Unit/UnitId are absent; physical units are unknown."
+    }
+  ],
+  "source_evidence": [
+    {
+      "path": ".reverse-engineering\\native-simulator\\families\\shading-hvac\\hvac-four-connectors-ledger.json",
+      "sha256": "7c95384350f9d55ce0c852c6d5722727d30ce112d164b84e5614ad801dad97bd",
+      "kind": "private_exact_PE_windows_body_hashes_and_resource_paths"
+    },
+    {
+      "path": ".reverse-engineering\\versions\\a3003005776b327f5e666a072a64f5c569182b86174c0f578d5be3267ce28f85\\source\\tdc_ENU.LxRes",
+      "sha256": "58e10de394396aa63f3c1695bff1a6554947e9b12b8587d6f5d0c9d04b8a17d4",
+      "kind": "private_version_pinned_resource"
+    },
+    {
+      "path": ".reverse-engineering\\versions\\a3003005776b327f5e666a072a64f5c569182b86174c0f578d5be3267ce28f85\\analysis\\6a0520329af17d7b9fdaafe69398c62c454d9da838fc9f9c8d0bdd8d17bb15ae\\resources\\tdc_ENU.LxRes.xml",
+      "sha256": "e6bd6b41b5c93d59782a5a324d3422ecb1e7546adb432e97ab0391f29344589c",
+      "kind": "private_extracted_resource"
+    }
+  ],
+  "patch_proposal": {
+    "path": ".reverse-engineering\\native-simulator\\families\\shading-hvac\\hvac-four-connectors-proposed.patch",
+    "sha256": "c51ccfe498153024147fec0859b91faf8d5e53c3bdc99a35970c585cd71887b2",
+    "base_file": "docs\\schemas\\connector-map.json",
+    "base_sha256": "8d165ae3c4b88b2e952e3a80df03c8a5111aff54e138edc1814a641ff7031ee2",
+    "applied": false,
+    "scope": "Only HeatIRoomController2 c list and t.RtD. Add four proven keys, align the native parameter and interleaved output order, set RtD=I; existing third-output t entries already equal O.",
+    "default_policy": "Do not add d entries forcing Co/@Def=0. Descriptor effective zero is proven; required serialized spelling/omission is not.",
+    "templates_policy": "No docs\\templates.json change: this type is absent, so a full template would invent unrelated fields or reuse an unverified old fallback."
+  },
+  "initial_public_paths": {
+    "contracts": ["contracts\\shading-recovery.json", "contracts\\hvac-recovery.json"],
+    "protocols": ["tests\\ux\\shading\\protocol.json", "tests\\ux\\hvac\\protocol.json"],
+    "seeds_to_force_add_by_parent": [
+      {
+        "path": "tests\\ux\\shading\\seed.Loxone",
+        "sha256": "9669155f44bacc4150211176af121a3a6b11eb519a170b9bdf7b92927bf88dfc"
+      },
+      {
+        "path": "tests\\ux\\hvac\\seed.Loxone",
+        "sha256": "a83074976fa765a0960caaba909015f346b264f9980d2587d53160f97b6be829"
+      }
+    ],
+    "provenance": "Both seeds were independently authored as credential-free document/room/page shells. Their fixed lab UUIDs are synthetic markers, not vendor-project or production IDs. Controllers/connectors in ignored disposable fixtures were generated by the pinned CLI; no vendor project XML or code was copied into the seeds.",
+    "generation_manifest": ".reverse-engineering\\native-simulator\\families\\shading-hvac\\fixture-generation.json",
+    "generation_manifest_sha256": "4857964179477caad1e7a14e92d5a5caa8cf36320876dfb3f450928bd4a078b5",
+    "revised_seed_created": false,
+    "reason": "Shared schema and CLI integration belong to the parent. Initial seeds, protocols and disposable fixtures stay byte-identical; a later corrected CLI must generate a separately hashed fixture."
+  },
+  "queued_gui_requirements": {
+    "lease": "Energy-only; Lighting queued; no Shading/HVAC GUI permission.",
+    "correction_to_initial_protocol_environment_notes": "The later preflight correction verifies the authorized private-profile notebook/actor/active-console identity and both pinned backend/application paths. Earlier missing-backend/GUI-actor-mismatch claims were incorrect. The SSH transport account does not establish the GUI actor. Coordinator must verify the actual admitted profile; this proposal grants no desktop access.",
+    "hvac.admission-calibration": "After central integration, verify all 56 keys/order and every UUID/reference role through disposable save/reopen. Confirm RtD visibility/name, inactive default and omission behavior without activating production equipment. Inspect third-source output labels, units and requirements; do not infer a physical unit from catalog bounds.",
+    "hvac.target-feedback": "Retains its PROPOSED status and requires separately confirmed official input/target readback and runtime temperature system.",
+    "hvac.presence-demand": "Retains its PROPOSED status. Third-source behavior needs genuine heating/cooling/source capabilities; if unavailable, mark blocked rather than fabricate hardware."
+  },
+  "completion_boundary": "Structural evidence supports the unapplied connector-list proposal only. Units, serialized omission, GUI admission and native behavior remain unknown. Do not close either family or claim native PASS from local checks."
+}

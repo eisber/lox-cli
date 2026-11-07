@@ -1,0 +1,116 @@
+{
+  "schema_version": 1,
+  "xml_type": "LightController2",
+  "scope": "initial-read-only-storage-inspection",
+  "capabilities": {
+    "inspect_stored_mood_outputs": true,
+    "inspect_output_connector_references": true,
+    "inspect_unknown_nested_attributes": true,
+    "new_nested_edits": false,
+    "gui_roundtrip_verified": false,
+    "runtime_parity": false,
+    "full_family_contract": false
+  },
+  "provenance": {
+    "version": "17.2.10.21",
+    "target_sha256": "7b55e3ef18401574ab967c5c6a0140cd5a66dc728521ebba04ad53093577d8b3",
+    "image_base": "0x140000000",
+    "analysis_id": "6a0520329af17d7b9fdaafe69398c62c454d9da838fc9f9c8d0bdd8d17bb15ae",
+    "decompile_index_sha256": "129c5d4e8683dd3c9c4a44622681f8d8bb76fe58c72d0b834a2c7bb76415cf40",
+    "canonical_written_bodies": 53088,
+    "raw_vendor_artifacts": "private-and-ignored"
+  },
+  "static_bindings": [
+    {
+      "purpose": "exact XML type registration",
+      "address": "0x1405c4cc0",
+      "sha256": "ca7ceba7a5528a264f18132d85a31c249005688e113f11612d14f391d7e28023",
+      "observation": "Registers exact LightController2 XML Type; on-disk pointer at primary vtable offset 0xf18, not an RTTI-prefix match."
+    },
+    {
+      "purpose": "primary object construction",
+      "address": "0x1405b8ae0",
+      "sha256": "2afe2df0a57139036621044fc5b25a46c3ada093869bcee549c7068a271145c2",
+      "observation": "Constructs CControlObjectLightController2; primary COL 0x14167c7d0 has object offset 0 and vtable 0x14101a190."
+    },
+    {
+      "purpose": "channel metadata XML binder",
+      "address": "0x1405c9740",
+      "sha256": "4fca9e47230208412c4b3091206385beb40d7a68da0571ce59eac9146949fd50",
+      "observation": "Primary vtable offset 0x1180 binds NameAI%d, CapAI%d, PresM%d indices 0..17; nested calls use object offsets 0x1c78/+0x30 and 0x2218/+0x28. Names, capability masks and presence masks are not interpreted."
+    },
+    {
+      "purpose": "mood collection XML binder",
+      "address": "0x1405b8390",
+      "sha256": "050b32685453a02e4e52db3a69e0752e54399287bfa9c21c9a121ec8fd89a750",
+      "observation": "CLightScenesController vtable 0x141019578/+0x30 binds LightscenesC FC/Num/Outputs; serializes scene entries by nested +0x10 call."
+    },
+    {
+      "purpose": "per-mood XML binder",
+      "address": "0x1405b7df0",
+      "sha256": "9f0ff6bd3dcc724a599e3324483c9b584f1e1128c4a3d6bf9604ecc328bf9d58",
+      "observation": "CLightSceneController vtable 0x141019558/+0x10 binds LightsceneC Name/SName/UUID/Move/ReadOnly/Outputs/SkipNext/MixMod/Sequencing/SID/CID/IID and Q%d one-based storage. SeqConf is nested and unsupported."
+    },
+    {
+      "purpose": "selection XML binder",
+      "address": "0x1405b8240",
+      "sha256": "b9825e3f7b336aeccbf4a2f5d739cc98e7e9c1b6a2b3826e21b402702aa8c280",
+      "observation": "Vtable 0x1410194e0/+0x28 binds LSConfig OpM/ScMv/ScAc. GUI meaning and mutation remain unsupported."
+    },
+    {
+      "purpose": "primary handler candidate only",
+      "address": "0x1405bb7b0",
+      "sha256": "017817f4556605d896dcae2aefe29615b9ec213d2478228b19ccf3bceaad9f2e",
+      "observation": "Exact primary vtable +0x50 candidate; no new native execution, branch/runtime admission or full handler claim."
+    }
+  ],
+  "storage_policy": {
+    "missing_values": "null-or-absent-never-zero-default",
+    "q_values": "raw-spelling-with-unknown-unit",
+    "channel_roles": "unknown-no-AQn-to-Qn-or-NameAI-index-join",
+    "document_versions": "raw-serialized-metadata-not-authentication",
+    "unknown_xml": "read-only-structured-element-and-attribute-inventory",
+    "file_writes": "none",
+    "existing_mood_commands": "unchanged-list_moods-set_mood_color-add_mood-prior-art-not-newly-verified"
+  },
+  "authored_fixture": {
+    "path": "tests/ux/light-controller2/synthetic.Loxone",
+    "sha256": "33dbc7a366e2017ab7f74842b206daf08ecec1ac16dae5188c017857a2b5948f",
+    "native_evidence": false,
+    "purpose": "distinct sparse Q1/Q2/Q10/Q18 values, downstream IDs and opaque nested attributes",
+    "integration_note": "Independently authored public fixture; repository-wide .Loxone ignore requires explicit force-add by coordinator."
+  },
+  "inventory": {
+    "current_template": "docs/templates.json LightController2: 2 samples, 71 connectors, zero named properties; many directions unknown",
+    "named_parameters": [
+      "MaxP", "Steptime", "Min", "Max", "Wrap", "NoLast", "MoveOn", "MoveIgnore",
+      "MoveScene", "MoveTimeout", "RGBalt", "SceneMixTime", "FadingTime",
+      "AlarmClockPeriod", "AlarmPeriod", "AlarmBrightness", "BrightnessLimit",
+      "DayMinTemp", "DayMaxTemp"
+    ],
+    "unnamed_or_ambiguous_entries": "connector-map/template direction guesses and unlabeled binary DAT references are not promoted to settings",
+    "nested_unverified": ["HCL", "PSD", "LSConfig", "SeqConf", "FC", "NameAI", "CapAI", "PresM"],
+    "schema_limit": "XSD comments expose only AQ1..4; supplied templates include AQ1..20. No 18-or-20 maximum is imposed by read-only inspection."
+  },
+  "gui_queue": {
+    "status": "initial-batch-closed-blocked-lease-returned",
+    "exact_protocol": "tests\\ux\\light-controller2\\gui-protocol.json",
+    "prepared_disposable_project": ".reverse-engineering\\native-simulator\\workstreams\\lighting-preparation\\batch-02\\manifest.json",
+    "maximum_executions": 4,
+    "actual_native_launches": 1,
+    "simulator_starts": 0,
+    "last_attempt_receipt": ".reverse-engineering\\native-simulator\\workstreams\\lighting-preparation\\gui-batch-20261106T132251Z-receipt.json",
+    "last_attempt_receipt_sha256": "24cd5a2c4d62dc7f6d2117eaafe2fbab1de5b9c279eed51a729345c762a22124",
+    "required_host": "Parent-approved dedicated notebook computer/actor/active-console identity; never infer GUI username from SSH actor",
+    "baseline": ".reverse-engineering/native-simulator/workstreams/054ce95-oracle-baseline/manifest.json",
+    "blocker": "The explicitly leased owned run proved the unique disposable document caption, but native Save As produced no requested output, including observed semantic Save/Enter alternatives. Post-close exact owned-folder inventory contains only unchanged input XML, so native container/channel/UUID preservation and reopen remain unverified. PID16104 was identity-checked closed with forced cleanup recorded; no PASS or new native capability. The original actor/backend blocker was incorrect and is not the current issue.",
+    "protocol": [
+      "Owned authored fixture open -> inspect actual version/hash identity; fresh mood/channel dialog inventory; save without changes and compare exact owned before/after XML with normalization explained. No input until parent grants lease.",
+      "On owned copy, change exactly Q2 in one existing mood using prior-art set-mood-color pinned isolated CLI; verify actual mood and channel GUI readback, save/reopen and compare all UUID/SID/CID/Outputs/other Qn/wires/unknown records.",
+      "Countercase: distinct Q1/Q2/Q10 and a missing Qn must not become a default zero or wrong channel; incompatible actuator/unknown encoding stays unsupported.",
+      "Countercase: cancel GUI dialog then save/reopen; unchanged owned XML and IDs. No capability promotion until these fresh version-bound results exist."
+    ],
+    "guards": "exact PID/hash/start/session/foreground/overlap/offline fence; source helper snapshots per run; 64px inset; unexpected dialog abort; no production connection, private ABI, memory writes, clock/DPI changes or recurring jobs",
+    "native_behavior": "unadmitted; current official reader is EnergyManager OL1..3 only and must not be repurposed"
+  }
+}
