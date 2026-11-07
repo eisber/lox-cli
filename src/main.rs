@@ -11,6 +11,7 @@ mod loxcc;
 mod loxone_xml;
 #[allow(dead_code)]
 mod rc6;
+mod sidecars;
 mod telemetry;
 #[allow(dead_code)]
 mod token;

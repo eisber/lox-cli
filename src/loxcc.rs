@@ -208,31 +208,58 @@ pub fn compress_loxcc(data: &[u8]) -> Vec<u8> {
 
 /// Repack a backup ZIP, replacing `sps0.LoxCC` with recompressed XML.
 ///
-/// All other entries (LoxAPP3.json, permissions.bin, etc.) are preserved
-/// from the source ZIP.
+/// Independently verified V178 PushButton2Sel/ValueSelector sidecars are
+/// reconciled when both LoxAPP3.json and permissions.bin are present.
+/// Unrelated archive entries are preserved from the source ZIP.
 pub fn repack_zip(src_zip: &[u8], xml: &[u8]) -> Result<Vec<u8>> {
     let new_loxcc = compress_loxcc(xml);
     let cursor = Cursor::new(src_zip);
     let mut archive = zip::ZipArchive::new(cursor).context("Invalid source ZIP")?;
 
+    let mut entries: Vec<(String, Vec<u8>)> = Vec::with_capacity(archive.len());
+    for i in 0..archive.len() {
+        let mut file = archive.by_index(i)?;
+        let name = file.name().to_string();
+        let mut data = Vec::new();
+        file.read_to_end(&mut data)?;
+        entries.push((name, data));
+    }
+
+    let loxcc_index = entries
+        .iter()
+        .position(|(name, _)| name.eq_ignore_ascii_case("sps0.LoxCC"))
+        .context("Source ZIP does not contain sps0.LoxCC")?;
+    let live_xml = decompress_loxcc(&entries[loxcc_index].1)?;
+
+    let app_index = entries
+        .iter()
+        .position(|(name, _)| name.eq_ignore_ascii_case("LoxAPP3.json"));
+    let permissions_index = entries
+        .iter()
+        .position(|(name, _)| name.eq_ignore_ascii_case("permissions.bin"));
+
+    if let (Some(app_index), Some(permissions_index)) = (app_index, permissions_index) {
+        let app = entries[app_index].1.clone();
+        let permissions = entries[permissions_index].1.clone();
+        let (app, permissions, changed) =
+            crate::sidecars::reconcile_pushbutton2sel_sidecars(&live_xml, xml, &app, &permissions)?;
+        if changed > 0 {
+            entries[app_index].1 = app;
+            entries[permissions_index].1 = permissions;
+        }
+    }
+
+    entries[loxcc_index].1 = new_loxcc;
+
     let buf = Vec::new();
     let out = Cursor::new(buf);
     let mut writer = zip::ZipWriter::new(out);
 
-    for i in 0..archive.len() {
-        let mut file = archive.by_index(i)?;
-        let name = file.name().to_string();
+    for (name, data) in entries {
         let options = zip::write::SimpleFileOptions::default()
             .compression_method(zip::CompressionMethod::Deflated);
-
         writer.start_file(&name, options)?;
-        if name.to_lowercase() == "sps0.loxcc" {
-            writer.write_all(&new_loxcc)?;
-        } else {
-            let mut data = Vec::new();
-            file.read_to_end(&mut data)?;
-            writer.write_all(&data)?;
-        }
+        writer.write_all(&data)?;
     }
 
     let out = writer.finish()?;
