@@ -14,9 +14,17 @@
 
 mod blocks;
 mod describe;
+pub mod energy;
+#[cfg(test)]
+mod energy_tests;
+pub mod icons;
 mod layout;
+pub mod lighting;
+#[cfg(test)]
+mod lighting_tests;
 mod properties;
 mod rooms;
+pub mod schema;
 mod selector;
 mod template;
 mod validation;
@@ -68,6 +76,15 @@ pub struct DescribeConnectorEntry {
     pub wired: bool,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub default: Option<String>,
+}
+
+/// Value-free storage shapes observed in a configuration, grouped by element type.
+#[derive(Debug, serde::Serialize)]
+pub struct ConfigSurfaceEntry {
+    pub element_type: String,
+    pub occurrences: usize,
+    pub attributes: Vec<String>,
+    pub storage_paths: Vec<String>,
 }
 
 /// A light scene / "mood" defined on a LightController2.
@@ -384,8 +401,7 @@ impl ConfigEditor {
     /// value-identical, dropping the redundant copy is lossless. Duplicates with *different*
     /// values are left untouched so a genuine conflict still surfaces at parse time.
     ///
-    /// Quote-aware: attribute values may legitimately contain `<`, `>` and `=`
-    /// (e.g. `Unit="<v>%"`), so tag boundaries are found respecting `"…"`.
+    /// Both XML quote styles are supported; non-element markup is left untouched.
     fn dedupe_duplicate_attrs(data: &[u8]) -> std::borrow::Cow<'_, [u8]> {
         let text = match std::str::from_utf8(data) {
             Ok(s) => s,
@@ -397,14 +413,54 @@ impl ConfigEditor {
         let mut deletes: Vec<(usize, usize)> = Vec::new();
         let mut i = 0;
         while i < len {
-            // Start of an element tag: '<' not followed by '/', '?' or '!'.
-            if bytes[i] == b'<' && i + 1 < len && !matches!(bytes[i + 1], b'/' | b'?' | b'!') {
+            if bytes[i] != b'<' {
+                i += 1;
+                continue;
+            }
+            let tail = &text[i..];
+            let skipped_end = if tail.starts_with("<!--") {
+                tail.find("-->").map(|end| i + end + 3)
+            } else if tail.starts_with("<![CDATA[") {
+                tail.find("]]>").map(|end| i + end + 3)
+            } else if tail.starts_with("<?") {
+                tail.find("?>").map(|end| i + end + 2)
+            } else if tail.starts_with("<!") {
+                // A declaration can contain an internal subset with tag-like text.
+                let mut quote = None;
+                let mut depth: usize = 0;
+                let mut end = None;
+                for (offset, &byte) in bytes.iter().enumerate().skip(i + 2) {
+                    if let Some(delimiter) = quote {
+                        if byte == delimiter {
+                            quote = None;
+                        }
+                    } else {
+                        match byte {
+                            b'"' | b'\'' => quote = Some(byte),
+                            b'[' => depth += 1,
+                            b']' => depth = depth.saturating_sub(1),
+                            b'>' if depth == 0 => {
+                                end = Some(offset + 1);
+                                break;
+                            }
+                            _ => {}
+                        }
+                    }
+                }
+                end
+            } else if tail.starts_with("</") {
+                Self::xml_tag_end(bytes, i)
+            } else {
+                None
+            };
+            if let Some(end) = skipped_end {
+                i = end;
+                continue;
+            }
+            if i + 1 < len && !matches!(bytes[i + 1], b'/' | b'?' | b'!') {
                 // Skip the element name.
                 let mut j = i + 1;
-                while j < len
-                    && (bytes[j].is_ascii_alphanumeric()
-                        || matches!(bytes[j], b'_' | b':' | b'-'))
-                {
+                while j < len && !ws(bytes[j]) && !matches!(bytes[j], b'>' | b'/') {
                     j += 1;
                 }
                 // Scan attributes until the end of the start tag.
@@ -431,12 +487,13 @@ impl ConfigEditor {
                     while j < len && ws(bytes[j]) {
                         j += 1;
                     }
-                    if j >= len || bytes[j] != b'"' {
+                    if j >= len || !matches!(bytes[j], b'"' | b'\'') {
                         break;
                     }
+                    let delimiter = bytes[j];
                     let val_start = j + 1;
                     j = val_start;
-                    while j < len && bytes[j] != b'"' {
+                    while j < len && bytes[j] != delimiter {
                         j += 1;
                     }
                     if j >= len {
@@ -500,11 +557,11 @@ impl ConfigEditor {
         current
     }
 
-    fn iter_elements<'a>(&'a self, elem: &'a Element) -> Vec<&'a Element> {
+    fn iter_elements(elem: &Element) -> Vec<&Element> {
         let mut result = vec![elem];
         for child in &elem.children {
             if let Some(e) = child.as_element() {
-                result.extend(self.iter_elements(e));
+                result.extend(Self::iter_elements(e));
             }
         }
         result
@@ -711,6 +768,37 @@ mod tests {
         let out = String::from_utf8(editor.to_bytes().unwrap()).unwrap();
         assert_eq!(out.matches(r#"Nio="1""#).count(), 1);
         assert!(out.contains("&lt;v&gt;%"));
+    }
+
+    #[test]
+    fn test_dedupe_supports_both_quotes_and_xml_names() {
+        let xml = "<ControlList><C.entry Title='Küche' Title=\"Küche\" \
+Unit='a > b' Unit='a > b'/><部屋 Title='同じ' Title='同じ'/></ControlList>";
+        let editor = ConfigEditor::load(xml.as_bytes()).unwrap();
+        let child = editor.root.get_child("C.entry").unwrap();
+        assert_eq!(child.attributes["Title"], "Küche");
+        assert_eq!(child.attributes["Unit"], "a > b");
+        assert_eq!(
+            editor.root.get_child("部屋").unwrap().attributes["Title"],
+            "同じ"
+        );
+        assert!(ConfigEditor::load(b"<C Title='A' Title=\"B\"/>").is_err());
+    }
+
+    #[test]
+    fn test_dedupe_preserves_non_element_markup() {
+        let xml = br#"<?xml version="1.0"?>
+<!DOCTYPE C [<!ENTITY example '<C A="x" A="x"/>'>]>
+<C A="x" A="x">
+<!-- <C A="x" A="x"/> -->
+<![CDATA[<C A="x" A="x"/>]]>
+<?test <C A="x" A="x"/>?>
+</C>"#;
+        let out = ConfigEditor::dedupe_duplicate_attrs(xml);
+        let expected = String::from_utf8(xml.to_vec())
+            .unwrap()
+            .replace("\n<C A=\"x\" A=\"x\">", "\n<C A=\"x\">");
+        assert_eq!(out.as_ref(), expected.as_bytes());
     }
 
     #[test]

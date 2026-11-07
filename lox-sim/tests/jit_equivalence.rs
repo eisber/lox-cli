@@ -293,7 +293,7 @@ fn block_connectors(block_type: &str) -> (Vec<&'static str>, Vec<&'static str>, 
         "Greater" | "GreaterEqual" | "Less" | "LessEqual" | "Equal" | "NotEqual" => {
             (vec!["Input1", "Input2"], vec!["Q"], vec![])
         }
-        "Monoflop" => (vec!["InputTrigger"], vec!["Q"], vec!["Time"]),
+        "Monoflop" => (vec!["InputTrigger", "Reset"], vec!["Q"], vec!["Time"]),
         "Mult" => (vec!["Input1", "Input2"], vec!["AQ", "Q"], vec![]),
         "Not" => (vec!["I", "I1"], vec!["Q"], vec![]),
         "OffDelay" => (vec!["InputTrigger"], vec!["Q"], vec!["Time"]),
@@ -308,7 +308,7 @@ fn block_connectors(block_type: &str) -> (Vec<&'static str>, Vec<&'static str>, 
             vec!["TimeHigh", "TimeLow"],
         ),
         "PushButton" | "PushButton2" | "PushButtonSel" | "PushButton2Sel" => (
-            vec!["InputTrigger", "On"],
+            vec!["InputTrigger", "On", "Reset", "InputDisable"],
             vec!["Q", "Qoff", "Qon", "AQ"],
             vec!["Min", "Max"],
         ),
@@ -448,7 +448,8 @@ fn block_connectors(block_type: &str) -> (Vec<&'static str>, Vec<&'static str>, 
             vec!["Kp", "Ki", "Kd"],
         ),
         "Wallbox" => (vec!["Input"], vec!["AQ"], vec![]),
-        "InputRef" | "OutputRef" | "OutputRefLM" => (vec!["I1"], vec!["Q"], vec![]),
+        "InputRef" => (vec!["I", "AI"], vec!["Q", "AQ"], vec![]),
+        "OutputRef" | "OutputRefLM" => (vec!["I1"], vec!["Q"], vec![]),
         "EIBPush" | "EIBsensor" | "EIBactor" | "EIBextactor" | "EibDimmer" => {
             (vec!["I1"], vec!["Q"], vec![])
         }

@@ -1107,7 +1107,7 @@ fn resolve_source_endpoint<'a>(
 impl ConfigEditor {
     fn room_names(&self) -> HashMap<String, String> {
         let mut room_names = HashMap::new();
-        for e in self.iter_elements(&self.root) {
+        for e in Self::iter_elements(&self.root) {
             if e.attributes.get("Type").map(|s| s.as_str()) == Some("Place")
                 && let (Some(u), Some(t)) = (e.attributes.get("U"), e.attributes.get("Title"))
             {
@@ -1126,7 +1126,7 @@ impl ConfigEditor {
             std::collections::HashMap::new();
         let mut cat_names: std::collections::HashMap<String, String> =
             std::collections::HashMap::new();
-        for e in self.iter_elements(&self.root) {
+        for e in Self::iter_elements(&self.root) {
             match e.attributes.get("Type").map(|s| s.as_str()) {
                 Some("Place") => {
                     if let (Some(u), Some(t)) = (e.attributes.get("U"), e.attributes.get("Title")) {
@@ -1196,7 +1196,7 @@ impl ConfigEditor {
             "CommDMX",
         ];
 
-        for e in self.iter_elements(&self.root) {
+        for e in Self::iter_elements(&self.root) {
             let etype = e.attributes.get("Type").cloned().unwrap_or_default();
             if skip_types.contains(&etype.as_str()) || etype.is_empty() {
                 continue;
@@ -1307,7 +1307,7 @@ impl ConfigEditor {
     pub fn describe_config_structured(&self, room_filter: Option<&str>) -> Vec<DescribeRoomEntry> {
         // Build room UUID → name map
         let mut room_names: HashMap<String, String> = HashMap::new();
-        for e in self.iter_elements(&self.root) {
+        for e in Self::iter_elements(&self.root) {
             if e.attributes.get("Type").map(|s| s.as_str()) == Some("Place")
                 && let (Some(u), Some(t)) = (e.attributes.get("U"), e.attributes.get("Title"))
             {
@@ -1367,7 +1367,7 @@ impl ConfigEditor {
 
         let mut by_room: HashMap<String, Vec<DescribeBlockEntry>> = HashMap::new();
 
-        for e in self.iter_elements(&self.root) {
+        for e in Self::iter_elements(&self.root) {
             let etype = e.attributes.get("Type").cloned().unwrap_or_default();
             if skip_types.contains(&etype.as_str()) || etype.is_empty() {
                 continue;
@@ -1453,7 +1453,7 @@ impl ConfigEditor {
         let connector_map = Self::connector_map();
         let mut endpoints_by_uuid: HashMap<String, Vec<ConnectorLookupEntry>> = HashMap::new();
 
-        for block in self.iter_elements(&self.root) {
+        for block in Self::iter_elements(&self.root) {
             if block.name != "C" {
                 continue;
             }
@@ -1502,7 +1502,7 @@ impl ConfigEditor {
 
         let mut wires = Vec::new();
 
-        for block in self.iter_elements(&self.root) {
+        for block in Self::iter_elements(&self.root) {
             if block.name != "C" {
                 continue;
             }
@@ -1672,7 +1672,7 @@ impl ConfigEditor {
         // Device bus: "Tree" | "Air" | "Network" → Vec<device_name>
         let mut device_bus: HashMap<String, Vec<String>> = HashMap::new();
 
-        for elem in self.iter_elements(&self.root) {
+        for elem in Self::iter_elements(&self.root) {
             // Count wiring: Co elements don't have Type, handle before type check
             if elem.name == "Co" {
                 let in_children: Vec<&Element> = elem

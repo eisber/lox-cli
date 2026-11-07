@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "name": "Owned Energy load edit and accept",
+  "requires": {
+    "exe_sha256": "7b55e3ef18401574ab967c5c6a0140cd5a66dc728521ebba04ad53093577d8b3"
+  },
+  "steps": [
+    {"op": "energy.open"},
+    {"op": "focus", "window_class": "CEnergyManagerConfigurationDlg"},
+    {"op": "energy.set", "row": 1, "column": 4, "value": "UX saved verification"},
+    {"op": "energy.select", "row": 1, "column": 8, "index": 27},
+    {"op": "energy.accept"}
+  ]
+}

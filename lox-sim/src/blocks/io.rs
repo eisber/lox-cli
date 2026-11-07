@@ -46,11 +46,45 @@ macro_rules! passthrough_io_block {
 // ---------------------------------------------------------------------------
 
 /// Input reference — proxy that forwards named inputs to the block graph.
-/// I→Q (digital) and AI→AQ (analog).
+///
+/// The Miniserver mirrors the fed input on BOTH outputs: consumers routinely
+/// read Q from an AI-fed ref (r50 corpus: `ref.AI <- mem.AQ` with
+/// `monoflop.InputTrigger: ref.Q`). Q is the digital view (non-zero -> 1), AQ
+/// the analog value. When both inputs are wired, AI is authoritative.
 #[derive(Clone, Copy)]
-pub struct InputRef;
+pub struct InputRef {
+    source: InputRefSource,
+}
+
+#[derive(Clone, Copy)]
+enum InputRefSource {
+    Digital,
+    Analog,
+}
+
+impl InputRef {
+    pub fn new() -> Self {
+        Self {
+            source: InputRefSource::Digital,
+        }
+    }
+}
+
+impl Default for InputRef {
+    fn default() -> Self {
+        Self::new()
+    }
+}
 
 impl Block for InputRef {
+    fn configure_input_connections(&mut self, connected: &[bool]) {
+        self.source = if connected.get(1).copied().unwrap_or(false) {
+            InputRefSource::Analog
+        } else {
+            InputRefSource::Digital
+        };
+    }
+
     fn eval(
         &mut self,
         inputs: &[Signal],
@@ -58,9 +92,11 @@ impl Block for InputRef {
         _dt: f64,
         _prev: &[Signal],
     ) -> Vec<Signal> {
-        let i = inputs.first().copied().unwrap_or(0.0);
-        let ai = inputs.get(1).copied().unwrap_or(0.0);
-        vec![i, ai]
+        let value = match self.source {
+            InputRefSource::Digital => inputs.first().copied().unwrap_or(0.0),
+            InputRefSource::Analog => inputs.get(1).copied().unwrap_or(0.0),
+        };
+        vec![if value != 0.0 { 1.0 } else { 0.0 }, value]
     }
 
     fn block_type(&self) -> &str {
@@ -260,14 +296,23 @@ mod tests {
     use super::*;
     use crate::blocks::create_block;
     #[test]
-    fn input_ref_passthrough() {
-        let mut block = InputRef;
-        // I=42, AI=0 → Q=42, AQ=0
-        assert_eq!(block.eval(&[42.0], &[], 0.0, &[]), vec![42.0, 0.0]);
-        // I=0, AI=99 → Q=0, AQ=99
-        assert_eq!(block.eval(&[0.0, 99.0], &[], 0.0, &[]), vec![0.0, 99.0]);
+    fn input_ref_mirrors_fed_side_to_both_outputs() {
+        let mut block = InputRef::new();
+        // I=42, AI unfed → Q=1 (digital view), AQ=42
+        assert_eq!(block.eval(&[42.0], &[], 0.0, &[]), vec![1.0, 42.0]);
+        block.configure_input_connections(&[false, true]);
+        // I unfed, AI=99 → Q=1, AQ=99 (AI-fed refs serve Q consumers)
+        assert_eq!(block.eval(&[0.0, 99.0], &[], 0.0, &[]), vec![1.0, 99.0]);
+        // Both present, AI=0 → the analog zero remains authoritative.
+        assert_eq!(block.eval(&[1.0, 0.0], &[], 0.0, &[]), vec![0.0, 0.0]);
         // empty → Q=0, AQ=0
         assert_eq!(block.eval(&[], &[], 0.0, &[]), vec![0.0, 0.0]);
+
+        block.configure_input_connections(&[true, false]);
+        assert_eq!(block.eval(&[42.0, 99.0], &[], 0.0, &[]), vec![1.0, 42.0]);
+
+        block.configure_input_connections(&[true, true]);
+        assert_eq!(block.eval(&[1.0, 0.0], &[], 0.0, &[]), vec![0.0, 0.0]);
     }
 
     #[test]
