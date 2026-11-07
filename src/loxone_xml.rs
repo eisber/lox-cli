@@ -9,6 +9,7 @@ use std::collections::HashMap;
 #[derive(Debug, Serialize)]
 pub struct LoxUser {
     pub name: String,
+    pub uuid: String,
     pub nfc: bool,
     pub description: String,
 }
@@ -158,6 +159,7 @@ pub fn parse_users(xml: &[u8]) -> Result<Vec<LoxUser>> {
                 let desc = attr_value_or(e, b"Desc", "").replace('_', " ");
                 users.push(LoxUser {
                     name,
+                    uuid: attr_value_or(e, b"U", ""),
                     nfc: !nfc_arr.is_empty(),
                     description: desc,
                 });

@@ -39,7 +39,7 @@ lox config controls file.Loxone                   # list controls with type/room
 lox config controls file.Loxone -t WeatherData    # filter by type
 lox config controls file.Loxone -r "Zentral"      # filter by room
 lox config controls file.Loxone --limit 10        # limit number of results
-lox config users file.Loxone                      # list user accounts
+lox config users file.Loxone                      # list user accounts (with permission count; -o json lists permitted objects)
 lox config devices file.Loxone                    # list hardware devices (Tree/Air/Network)
 lox config devices file.Loxone --ports            # show I/O ports with used/free status
 
@@ -264,7 +264,13 @@ Arguments: `<FILE> <SELECTOR> <RANGE>`. Range format: `HH:MM-HH:MM`. `--value` s
 lox config add-virtual-in file.Loxone "Sensor Feed"                               # alias: lox config add-vi
 lox config add-virtual-in file.Loxone "Analog Sensor" --analog
 lox config add-virtual-in file.Loxone "Custom Input" --parent "VirtualInCaption"
+lox config add-virtual-in file.Loxone "UniFi Webhook" --grant webhook_api         # also grant an API user access
+lox config add file.Loxone --type virtual-input --title "UniFi Webhook" --grant webhook_api
 ```
+
+A user calling `/dev/sps/io/<input>/...` needs permission for that input, otherwise the
+Miniserver answers HTTP 403 (a wrong password gives 401). Use `--grant` or `lox config user-grant`
+to add a direct permission entry; inherited denies still apply.
 
 ### Room, control, and MQTT management
 
@@ -279,6 +285,55 @@ lox config mqtt <SUBCOMMAND> ...           # manage MQTT plugin configuration
 ```bash
 lox config user-add file.Loxone ...        # add a user account
 lox config user-remove file.Loxone ...     # remove a user account
+
+# Object permissions (the user's <PH>/<PRM> list in the .Loxone file)
+lox config user-perms file.Loxone webhook_api                          # direct permission entries
+lox config user-grant file.Loxone webhook_api "UniFi Doorbell"         # grant control access (ACT=3)
+lox config user-grant file.Loxone webhook_api uuid:16e2a4e7-...        # exact object by UUID
+lox config user-grant file.Loxone Webhooks "UniFi Doorbell" --group  # grant a user group instead
+lox config user-revoke file.Loxone webhook_api "UniFi Doorbell"        # remove the permission
+```
+
+Syntax: `lox config user-grant <FILE> <USER> <OBJECT> [--group] [--act <N>] [--save-as <PATH>]`,
+`lox config user-revoke <FILE> <USER> <OBJECT> [--group] [--save-as <PATH>]`,
+`lox config user-perms <FILE> <USER> [--group]`.
+
+- `<USER>` is the exact user (or `--group` user group) title, case-insensitive, or `uuid:<uuid>`.
+  No fuzzy matching, so the wrong account is never edited.
+- `<OBJECT>` uses the element selector (fuzzy title, `"Title [Room]"`, `uuid:<uuid>`, `Type:<type>`)
+  and must match exactly one element. `user-revoke` also accepts `uuid:<uuid>` of an object that no
+  longer exists in the file.
+- Granting an existing permission, or revoking a missing one, is a no-op and leaves the file untouched.
+  `--act` changes the access value of an existing entry (default `3` = control access; Loxone
+  Config also writes `1` for some Door/Notification entries).
+- These commands edit/list **direct `<PH>` entries**, not effective access. They do not evaluate
+  group membership, room/category grants, or explicit denies. Existing raw `ACT` values (including
+  restrictions) and `TIM` schedules are preserved unless `--act` is supplied.
+- Revoke **removes** the direct entry; it does not create a deny or remove inherited access.
+  Removing an explicit deny can therefore expose access allowed by a group. Use Loxone Config's
+  "Show All Permissions" to verify effective access.
+- Permission edits change the `<PH>` block and the Document save stamp described above:
+  grant appends `<PRM REF="<uuid>" ACT="3"/>` and updates `NUM`
+  (creating `<PH>` if needed); revoke removes the entry and drops an emptied `<PH>`.
+  Password hashes (`<HP>`) are never touched. The editor preserves native Loxone formatting,
+  BOM, and line endings; a pre-existing empty `<PH>` is not recreated after revoke.
+- `user-perms` supports `-o json` and `-o csv`; `--no-header` suppresses table/CSV headers.
+- `-o json` on `user-grant`/`user-revoke` returns `{principal, object, change, changed, act, previous_act}`
+  where `change` is `added`, `updated`, `unchanged`, `removed` or `absent`.
+
+```
+$ lox config user-grant sps.Loxone webhook_api "UniFi Doorbell"
+✓ Saved to sps.Loxone
+✓ Added permission entry for user 'webhook_api' on VirtualIn 'UniFi Doorbell' (uuid:vi-1-ffff504f94a010d0) [ACT=3]
+$ lox config user-grant sps.Loxone webhook_api "UniFi Doorbell"
+✓ User 'webhook_api' already has a direct permission entry on VirtualIn 'UniFi Doorbell' (uuid:vi-1-ffff504f94a010d0) [ACT=3] — no change
+$ lox config user-perms sps.Loxone webhook_api
+  TITLE                            TYPE                   ACT  UUID
+  ────────────────────────────────────────────────────────────────────────────────────────────────
+  UniFi Gate                       VirtualIn              3    vi-2-ffff504f94a010d0
+  UniFi Doorbell                   VirtualIn              3    vi-1-ffff504f94a010d0
+
+2 direct permission(s) for user 'webhook_api'
 ```
 
 ### Autopilot and calendar

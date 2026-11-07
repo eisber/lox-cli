@@ -1384,3 +1384,346 @@ fn config_add_idempotent_different_type_creates_new() {
     let content = fs::read_to_string(&out).unwrap();
     assert!(content.contains("TestAnd"), "New block should be created");
 }
+
+// ── config user-grant / user-revoke / user-perms ────────────────────────────
+
+/// Loxone-formatted fixture (BOM, CRLF, tab indentation) with a user, a group and
+/// two virtual inputs. It round-trips byte-identically through the editor.
+fn write_user_fixture() -> (TempDir, String, Vec<u8>) {
+    let dir = tempfile::Builder::new()
+        .prefix(".user-cli-")
+        .tempdir_in(env!("CARGO_MANIFEST_DIR"))
+        .unwrap();
+    let xml = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n\
+<ControlList Version=\"267\">\n\
+\t<C Type=\"Document\" V=\"178\" U=\"doc-1\" Title=\"Test\">\n\
+\t\t<C Type=\"VirtualInCaption\" V=\"178\" U=\"vic-1\" Title=\"Virtual Inputs\">\n\
+\t\t\t<C Type=\"VirtualIn\" V=\"178\" U=\"vi-1-ffff504f94a010d0\" Title=\"UniFi Doorbell\" WF=\"16384\"/>\n\
+\t\t\t<C Type=\"VirtualIn\" V=\"178\" U=\"vi-2-ffff504f94a010d0\" Title=\"UniFi Gate\" WF=\"16384\"/>\n\
+\t\t</C>\n\
+\t\t<C Type=\"UserCaption\" V=\"178\" U=\"uc-1\" Title=\"Users\">\n\
+\t\t\t<C Type=\"User\" V=\"178\" U=\"user-1\" Title=\"webhook_api\" WF=\"16384\">\n\
+\t\t\t\t<HP H=\"h\" Sc=\"2\" S=\"s\" Alg=\"1\"/>\n\
+\t\t\t\t<PH NUM=\"1\">\n\
+\t\t\t\t\t<PRM REF=\"vi-2-ffff504f94a010d0\" ACT=\"3\"/>\n\
+\t\t\t\t</PH>\n\
+\t\t\t</C>\n\
+\t\t\t<C Type=\"UserGroup\" V=\"178\" U=\"grp-1\" Title=\"Webhooks\" WF=\"16384\" User=\"\"/>\n\
+\t\t</C>\n\
+\t</C>\n\
+</ControlList>\n";
+    let mut data = vec![0xEF, 0xBB, 0xBF];
+    data.extend_from_slice(xml.replace('\n', "\r\n").as_bytes());
+    let path = dir.path().join("users.Loxone");
+    fs::write(&path, &data).unwrap();
+    (dir, path.to_str().unwrap().to_string(), data)
+}
+
+fn without_user_save_stamp(data: &[u8]) -> String {
+    let mut xml = std::str::from_utf8(data).unwrap().to_string();
+    let start = xml.find("<C Type=\"Document\"").unwrap();
+    let end = start + xml[start..].find('>').unwrap() + 1;
+    let mut document = xml[start..end].to_string();
+    for key in ["Date", "DateS"] {
+        let prefix = format!(" {key}=\"");
+        if let Some(start) = document.find(&prefix) {
+            let value = start + prefix.len();
+            let end = value + document[value..].find('"').unwrap() + 1;
+            document.replace_range(start..end, "");
+        }
+    }
+    xml.replace_range(start..end, &document);
+    xml
+}
+
+#[test]
+fn config_user_grant_then_revoke_only_changes_save_stamp() {
+    let (_dir, path, original) = write_user_fixture();
+
+    lox()
+        .args([
+            "config",
+            "user-grant",
+            &path,
+            "webhook_api",
+            "UniFi Doorbell",
+        ])
+        .assert()
+        .success()
+        .stdout(predicate::str::contains(
+            "Added permission entry for user 'webhook_api' on VirtualIn 'UniFi Doorbell'",
+        ));
+    let granted = fs::read_to_string(&path).unwrap();
+    assert!(granted.contains(
+        "<PH NUM=\"2\">\r\n\t\t\t\t\t<PRM REF=\"vi-2-ffff504f94a010d0\" ACT=\"3\"/>\r\n\t\t\t\t\t<PRM REF=\"vi-1-ffff504f94a010d0\" ACT=\"3\"/>\r\n"
+    ));
+
+    lox()
+        .args([
+            "config",
+            "user-revoke",
+            &path,
+            "webhook_api",
+            "UniFi Doorbell",
+        ])
+        .assert()
+        .success()
+        .stdout(predicate::str::contains(
+            "Removed permission entry for user 'webhook_api'",
+        ));
+    let restored = fs::read(&path).unwrap();
+    assert_ne!(restored, original);
+    assert_eq!(
+        without_user_save_stamp(&restored),
+        without_user_save_stamp(&original)
+    );
+}
+
+#[test]
+fn config_user_grant_is_idempotent() {
+    let (_dir, path, original) = write_user_fixture();
+
+    let output = lox()
+        .args([
+            "-o",
+            "json",
+            "config",
+            "user-grant",
+            &path,
+            "webhook_api",
+            "uuid:vi-2-ffff504f94a010d0",
+        ])
+        .assert()
+        .success()
+        .get_output()
+        .stdout
+        .clone();
+    let json: serde_json::Value = serde_json::from_slice(&output).unwrap();
+    assert_eq!(json["changed"], false);
+    assert_eq!(json["change"], "unchanged");
+    assert_eq!(json["object"]["title"], "UniFi Gate");
+    assert_eq!(fs::read(&path).unwrap(), original);
+
+    lox()
+        .args([
+            "config",
+            "user-revoke",
+            &path,
+            "webhook_api",
+            "UniFi Doorbell",
+        ])
+        .assert()
+        .success()
+        .stdout(predicate::str::contains("no change"));
+    assert_eq!(fs::read(&path).unwrap(), original);
+}
+
+#[test]
+fn config_user_grant_group_and_ambiguous_object() {
+    let (_dir, path, original) = write_user_fixture();
+
+    // "UniFi" matches several elements → must be rejected, file untouched
+    lox()
+        .args(["config", "user-grant", &path, "webhook_api", "UniFi"])
+        .assert()
+        .failure()
+        .stderr(predicate::str::contains("expected 1"));
+    assert_eq!(fs::read(&path).unwrap(), original);
+
+    lox()
+        .args([
+            "config",
+            "user-grant",
+            &path,
+            "Webhooks",
+            "UniFi Gate",
+            "--group",
+        ])
+        .assert()
+        .success()
+        .stdout(predicate::str::contains("user group 'Webhooks'"));
+    lox()
+        .args([
+            "config",
+            "user-revoke",
+            &path,
+            "Webhooks",
+            "UniFi Gate",
+            "--group",
+        ])
+        .assert()
+        .success();
+    assert_eq!(
+        without_user_save_stamp(&fs::read(&path).unwrap()),
+        without_user_save_stamp(&original)
+    );
+}
+
+#[test]
+fn config_user_perms_and_users_list_permissions() {
+    let (_dir, path, _) = write_user_fixture();
+
+    lox()
+        .args(["config", "user-perms", &path, "webhook_api"])
+        .assert()
+        .success()
+        .stdout(predicate::str::contains("UniFi Gate"))
+        .stdout(predicate::str::contains("VirtualIn"))
+        .stdout(predicate::str::contains("1 direct permission(s)"));
+
+    let output = lox()
+        .args(["-o", "json", "config", "users", &path])
+        .assert()
+        .success()
+        .get_output()
+        .stdout
+        .clone();
+    let json: serde_json::Value = serde_json::from_slice(&output).unwrap();
+    let perms = &json[0]["permissions"];
+    assert_eq!(perms[0]["uuid"], "vi-2-ffff504f94a010d0");
+    assert_eq!(perms[0]["title"], "UniFi Gate");
+    assert_eq!(perms[0]["type"], "VirtualIn");
+}
+
+#[test]
+fn config_user_add_virtual_input_with_grant() {
+    let (_dir, path, _) = write_user_fixture();
+
+    let output = lox()
+        .args([
+            "-o",
+            "json",
+            "config",
+            "add",
+            &path,
+            "--type",
+            "virtual-input",
+            "--title",
+            "UniFi Webhook",
+            "--grant",
+            "webhook_api",
+        ])
+        .assert()
+        .success()
+        .get_output()
+        .stdout
+        .clone();
+    let json: serde_json::Value = serde_json::from_slice(&output).unwrap();
+    let uuid = json["virtual_in_uuid"].as_str().unwrap().to_string();
+    assert_eq!(json["granted"]["title"], "webhook_api");
+
+    let content = fs::read_to_string(&path).unwrap();
+    assert!(content.contains("<PH NUM=\"2\">"));
+    assert!(content.contains(&format!("<PRM REF=\"{uuid}\" ACT=\"3\"/>")));
+    assert!(content.contains(&format!(
+        "Type=\"VirtualIn\" IName=\"VI0\" V=\"175\" U=\"{uuid}\""
+    )));
+}
+
+#[test]
+fn config_user_permission_writes_respect_quiet_and_save_failures() {
+    let (dir, path, original) = write_user_fixture();
+    for action in ["user-grant", "user-revoke"] {
+        lox()
+            .args([
+                "--quiet",
+                "config",
+                action,
+                &path,
+                "webhook_api",
+                "UniFi Doorbell",
+            ])
+            .assert()
+            .success()
+            .stdout("")
+            .stderr("");
+    }
+    let before_failed_save = fs::read(&path).unwrap();
+    assert_eq!(
+        without_user_save_stamp(&before_failed_save),
+        without_user_save_stamp(&original)
+    );
+
+    let invalid_output = dir.path().join("missing").join("out.Loxone");
+    let output = lox()
+        .args([
+            "-o",
+            "json",
+            "config",
+            "user-grant",
+            &path,
+            "webhook_api",
+            "UniFi Doorbell",
+            "--save-as",
+            invalid_output.to_str().unwrap(),
+        ])
+        .assert()
+        .failure()
+        .get_output()
+        .stdout
+        .clone();
+    let json: serde_json::Value = serde_json::from_slice(&output).unwrap();
+    assert_eq!(json["ok"], false);
+    assert_eq!(fs::read(&path).unwrap(), before_failed_save);
+}
+
+#[test]
+fn config_user_add_virtual_input_grant_is_atomic_and_quiet() {
+    for dedicated in [false, true] {
+        let (_dir, path, original) = write_user_fixture();
+        let args = if dedicated {
+            vec!["config", "add-virtual-in", &path, "Webhook"]
+        } else {
+            vec![
+                "config",
+                "add",
+                &path,
+                "--type",
+                "virtual-input",
+                "--title",
+                "Webhook",
+            ]
+        };
+        lox()
+            .args(&args)
+            .args(["--grant", "missing-user"])
+            .assert()
+            .failure();
+        assert_eq!(fs::read(&path).unwrap(), original);
+        lox()
+            .args(["--quiet"])
+            .args(&args)
+            .args(["--grant", "webhook_api"])
+            .assert()
+            .success()
+            .stdout("")
+            .stderr("");
+        let content = fs::read_to_string(&path).unwrap();
+        assert!(content.contains("Title=\"Webhook\""));
+        assert!(content.contains("<PH NUM=\"2\">"));
+    }
+}
+
+#[test]
+fn config_user_perms_csv_quotes_fields_and_respects_no_header() {
+    let (_dir, path, _) = write_user_fixture();
+    let content = fs::read_to_string(&path)
+        .unwrap()
+        .replace("UniFi Gate", "Gate, &quot;North&quot;");
+    fs::write(&path, content).unwrap();
+    for no_header in [false, true] {
+        let mut command = lox();
+        command.args(["-o", "csv", "config", "user-perms", &path, "webhook_api"]);
+        if no_header {
+            command.arg("--no-header");
+        }
+        let header = if no_header {
+            ""
+        } else {
+            "TITLE,TYPE,ACT,UUID\n"
+        };
+        command.assert().success().stdout(format!(
+            "{header}\"Gate, \"\"North\"\"\",\"VirtualIn\",\"3\",\"vi-2-ffff504f94a010d0\"\n"
+        ));
+    }
+}

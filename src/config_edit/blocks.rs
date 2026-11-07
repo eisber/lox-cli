@@ -255,13 +255,17 @@ impl ConfigEditor {
         remove_by_uuid(&mut self.root.children, uuid)
     }
 
-    /// Create a VirtualIn element under the given parent. Returns the block UUID.
+    /// Create a VirtualIn element under the given parent.
+    ///
+    /// Returns `(virtual_in_uuid, input_ref_aq_uuid)`: the VirtualIn element's own UUID
+    /// (what user permissions, `PRM REF`, refer to) and the UUID of its InputRef's AQ
+    /// output (what blocks wire from).
     pub fn add_virtual_in(
         &mut self,
         title: &str,
         opts: &VirtualInOpts,
         parent_selector: &str,
-    ) -> Result<String> {
+    ) -> Result<(String, String)> {
         let analog = opts.analog;
         let parent_path = self.require_one(parent_selector)?;
 
@@ -486,8 +490,8 @@ impl ConfigEditor {
             page.children.push(xmltree::XMLNode::Element(input_ref));
         }
 
-        // Return InputRef AQ UUID — this is what blocks should wire from
-        Ok(ref_aq_uuid)
+        // InputRef AQ UUID is what blocks should wire from
+        Ok((block_uuid, ref_aq_uuid))
     }
 
     /// Load the embedded connector map (190 types, 2384 connectors from TechDoc + real XML).

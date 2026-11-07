@@ -109,6 +109,12 @@ lox config template config.Loxone bedroom --room "DG Schlafzimmer"
 # Creates LightController2, JalousieUpDown2, Thermostat with sensible defaults
 ```
 
+User permissions (fixes HTTP 403 when an API user calls a new virtual input):
+```bash
+lox config user-grant config.Loxone webhook_api "UniFi Doorbell"   # idempotent; user-revoke undoes it
+lox config user-perms config.Loxone webhook_api                    # list permitted objects
+```
+
 GitOps versioning:
 ```bash
 lox config pull    # Download → diff → semantic commit message

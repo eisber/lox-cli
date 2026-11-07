@@ -135,10 +135,10 @@ mod tests {
             "json",
         ])
         .unwrap();
-        let crate::Cmd::Config {
-            action: crate::ConfigCmd::Lighting { action },
-        } = cli.cmd
-        else {
+        let crate::Cmd::Config { action } = cli.cmd else {
+            panic!("config inspection was not dispatched");
+        };
+        let crate::ConfigCmd::Lighting { action } = *action else {
             panic!("lighting inspection was not dispatched");
         };
         let LightingCmd::Inspect { target } = action;
