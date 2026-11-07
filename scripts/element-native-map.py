@@ -31,6 +31,17 @@ FACTORY = "0x140432790"
 FACTORY_SHA256 = "ff55a98ab896be192c361b63eb28f61b22853b55e4a74f32e13b30920dfe8f83"
 # Adding a report digest is an explicit static-identity review, not producer trust.
 REVIEWED_FACTORY_PROOFS = {
+    "9771b8a288f333d9e3c93f77e0af7e540de895387b90bcdc169d19436309ce97": {
+        "version": VERSION, "sha256": TARGET,
+        "historical_sources": {
+            ("scripts\\element-native-map.py",
+             "bb60a1452ac7ddd09a757b43f8c6f21fec0ae7a18d8fdc6ea41619d2513b1096"),
+            (".reverse-engineering\\element-atlas\\native-map.json",
+             "44c73370477203133c4eb8a906ed455946dbfe745c2e4150db32251d4c761627"),
+            ("scripts\\element-native-map.py",
+             "3ef8019b714f27a3208f20b4029e4f25532fefef82368bc2a918dd9fed97baa1"),
+        },
+    },
     "c6f1ec984727cfe373a54cf0efbb2079a886e988e7ba3928398a2ebbd2d32d7b": {
         "version": VERSION, "sha256": TARGET,
         "historical_sources": {

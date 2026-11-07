@@ -67,12 +67,43 @@ catalog, executable and evidence sources must match. Two historical producer
 inputs are retained beside this report under `sources\<SHA256>`, not silently
 substituted with later producer bytes.
 
-The reviewed snapshot proves 159/522 catalog identities (30.46%): 76 exact and
+The original reviewed snapshot proves 159/522 catalog identities (30.46%): 76 exact and
 83 aliases, with 24 candidates and 339 unresolved records. Thus 363 records
 still lack proven identity. It joins 140/483 native classes to catalog records,
 leaving 343 without that proof. Its 317 factory/XML associations are a separate
 population, including configuration/project objects; none of these numbers is
 simulator behavior coverage or overall completion.
+
+The later Access-only extension proves **160/522 catalog identities (30.65%)**:
+77 exact, 83 aliases, 23 candidates and 339 unresolved, leaving **362 unproven**.
+It links **141/483 native classes**, leaving **342 unlinked**. Its **318**
+factory/XML associations retain all 317 original associations and add only
+CT454 `Access` (`CControlObjectAccess`, catalog row 396). The broader three-chain
+proposal's Category and Place associations are not admitted; its proposed
+320-association count is not this reviewed snapshot's count.
+
+Use the existing optional flag with the separate Access-only report:
+
+```powershell
+python scripts\element-native-map.py `
+  --inventory .reverse-engineering\ux\block-ux-coverage.json `
+  --native-catalog .reverse-engineering\native-simulator\scope\17.2.10.21-primary-handler-candidates\catalog.json `
+  --factory-proof .reverse-engineering\element-atlas\factory-access-only-admission-20261107T1442Z\report.json `
+  --output .reverse-engineering\element-atlas\factory-access-only-admission-20261107T1442Z\native-map-reviewed.json
+```
+
+The admitted report SHA-256 is
+`9771b8a288f333d9e3c93f77e0af7e540de895387b90bcdc169d19436309ce97`.
+It derives only the independently endorsed Access association from supplement
+`35e97bf952e8b6ff2977b22dfac7dad1b8f44c40b31d01a7d56a471ac1508bff`;
+independent sign-off is
+`672ca55af3cc8e4e3c31b5584797b12763ace8aabd0677e58e04f7efc11ea7d9`.
+Parent replay passed 123 static checks and 121 proof byte-span assertions.
+The normal-return identity assumes the documented Win64 preservation and
+ordinary fresh-allocation contracts, supported by a pinned static runtime
+witness, not a claim about a loaded DLL. There is no Access UX-rule, native
+simulation or behavioral-parity admission. Historical reports remain unchanged;
+three producer snapshots are digest-addressed beside the extension.
 
 Generate shared UX mechanism leads with:
 
@@ -152,6 +183,7 @@ separately from the atlas's declared capability snapshots:
 |---|---|---|
 | Seven dispatcher exceptions (`lox-fck`) | 7/7 are distinct leaf tail-dispatcher code entries, with bounded control-flow and Qt-pointer evidence | Why the analyzer omitted them, their dynamic virtual destinations, widget behavior or additional verified controls |
 | Bulk factory/XML proof (`lox-td6`) | Reviewed allocation, constructor, primary-vtable and XML-registration chains admit 159 catalog records | The remaining identities, simulator callback roles or behavioral/CLI parity |
+| Access-only extension (`lox-2to`) | Independent instruction-anchor and bounded ABI review adds only CT454 Access, reaching 160 catalog identities and 141 linked classes | Category/Place admission, unconditional allocator behavior, Access UX rules or native/parity coverage |
 | Repaired Lighting fixture (`lox-8xh`) | A fresh official process reopened the first native save and resaved it, preserving all 882 baseline identities, 75 Lighting connectors, four moods and the authored Program | Whole-project no-op, nested editing, simulator behavior or full Lighting-family parity |
 | Initial official Lighting simulation (`lox-4tk`) | One disconnected native run started, progressed and stopped; three channel displays and their wired digital observers were bound and captured | ON/OFF input behavior, current mood, packed numeric values, repeated/recorded runs or Rust parity |
 | Explicit digital-source fixture (`lox-u6b`) | A separate variant reused two public digital sources and passed native save/reopen/resave, preserving 882 baseline identities and adding ten | Public input delivery, ON/Reset behavior or parity; the first failed variant remains a failure |
