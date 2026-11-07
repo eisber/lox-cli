@@ -49,6 +49,31 @@ other stripped-class-name matches remain candidates. The native table retains
 all classes, with primary vtable and `+0x50` candidate addresses, even when no
 catalog association exists.
 
+To opt into the later reviewed bulk factory proof, generate a separate sidecar:
+
+```powershell
+python scripts\element-native-map.py `
+  --inventory .reverse-engineering\ux\block-ux-coverage.json `
+  --native-catalog .reverse-engineering\native-simulator\scope\17.2.10.21-primary-handler-candidates\catalog.json `
+  --factory-proof .reverse-engineering\element-atlas\factory-identity\report.json `
+  --output .reverse-engineering\element-atlas\factory-identity\native-map-reviewed.json
+```
+
+Use that output as the atlas's `--native-map`, with a separate report directory
+such as `.reverse-engineering\element-atlas\report-reviewed-factory-20261107`.
+Without `--factory-proof`, the original four-proof behavior is unchanged.
+Only explicitly reviewed report digests are admitted; live inventory, native
+catalog, executable and evidence sources must match. Two historical producer
+inputs are retained beside this report under `sources\<SHA256>`, not silently
+substituted with later producer bytes.
+
+The reviewed snapshot proves 159/522 catalog identities (30.46%): 76 exact and
+83 aliases, with 24 candidates and 339 unresolved records. Thus 363 records
+still lack proven identity. It joins 140/483 native classes to catalog records,
+leaving 343 without that proof. Its 317 factory/XML associations are a separate
+population, including configuration/project objects; none of these numbers is
+simulator behavior coverage or overall completion.
+
 Generate shared UX mechanism leads with:
 
 ```powershell
@@ -120,13 +145,16 @@ claim that every associated CLI operation or native behavior works.
 
 ## Reviewed evidence outside atlas stages
 
-Two later assessments for the pinned 17.2.10.21 executable are retained
+Five later assessments for the pinned 17.2.10.21 executable are retained
 separately from the atlas's declared capability snapshots:
 
 | Assessment | Established | Not established |
 |---|---|---|
 | Seven dispatcher exceptions (`lox-fck`) | 7/7 are distinct leaf tail-dispatcher code entries, with bounded control-flow and Qt-pointer evidence | Why the analyzer omitted them, their dynamic virtual destinations, widget behavior or additional verified controls |
+| Bulk factory/XML proof (`lox-td6`) | Reviewed allocation, constructor, primary-vtable and XML-registration chains admit 159 catalog records | The remaining identities, simulator callback roles or behavioral/CLI parity |
 | Repaired Lighting fixture (`lox-8xh`) | A fresh official process reopened the first native save and resaved it, preserving all 882 baseline identities, 75 Lighting connectors, four moods and the authored Program | Whole-project no-op, nested editing, simulator behavior or full Lighting-family parity |
+| Initial official Lighting simulation (`lox-4tk`) | One disconnected native run started, progressed and stopped; three channel displays and their wired digital observers were bound and captured | ON/OFF input behavior, current mood, packed numeric values, repeated/recorded runs or Rust parity |
+| Explicit digital-source fixture (`lox-u6b`) | A separate variant reused two public digital sources and passed native save/reopen/resave, preserving 882 baseline identities and adding ten | Public input delivery, ON/Reset behavior or parity; the first failed variant remains a failure |
 
 The dispatcher report is
 `.reverse-engineering\element-atlas\dispatcher-classification\report.json`
@@ -134,6 +162,14 @@ The dispatcher report is
 The seven entries remain absent from the canonical census; classifying their
 entry kind does not supply missing canonical body inputs or change the atlas's
 raw census diagnostics. Virtual destinations remain a separate recovery task.
+
+The reviewed factory report is
+`.reverse-engineering\element-atlas\factory-identity\report.json`
+(SHA-256 `c6f1ec984727cfe373a54cf0efbb2079a886e988e7ba3928398a2ebbd2d32d7b`).
+Catalog admission requires both ControlType and the existing explicit XML name
+to match; 164 catalog rows with other factory leads remain unadmitted.
+The 148 rejected/unknown factory cases are preserved rather than filled from
+names or the unrelated `+0x370` descriptor slot.
 
 Lighting evidence is retained under
 `.reverse-engineering\native-simulator\workstreams\lighting-envelope-recovery\visual-continuation-20261107\portable-lighting-roundtrip-evidence.json`
@@ -144,6 +180,31 @@ not waived. The fresh native-baseline resave preserved the Lighting graph but
 changed one permission `WF` from `6307840` to `16384`. That exact project delta
 remains explicit. Earlier failed fixtures and refused attempts remain separate
 historical counterexamples.
+
+The initial simulator observation report is
+`.reverse-engineering\native-simulator\workstreams\lighting-native-oracle-20261107\portable-lighting-native-observations-final.json`
+(SHA-256 `c5d9cab0b616bd11aa4a1717623d4fcd2edd2d1991a4c73199923e0be6e9f588`).
+The unchanged fixture's `AQ1`, `AQ2` and `AQ10` displayed `WW(0%)`; their
+three digital observers displayed `Aus`, not packed numeric lighting values.
+The visible clock progressed while running and remained unchanged across two
+stopped samples; this does not recover internal `dt`. Control-preemption
+boundaries remain explicit, with no continuous-behavior inference across them.
+Public input delivery and expected behavior remain unverified.
+
+The optional fixture producer mode `--harness digital-sources --baseline FILE`
+uses the immutable native-resaved baseline rather than changing the default
+fixture. Its reviewed readiness report is
+`.reverse-engineering\native-simulator\workstreams\lighting-digital-source-fixture-20261107\portable-lighting-digital-source-fixture-result.json`
+(SHA-256 `bc93afb94e32532327e1f5220e5fcef80b4f68e7d1c44d1b3d9ec5f21833c5e0`).
+The accepted native file has SHA-256
+`674905cda0c10ffff853e7090507f696747c8b0fb8f3149479b96cff924823ce`.
+Its existing digital `VI4`/`VI5` sources reach separate `On` and `Reset` inputs
+through native-preserved references. All 75 Lighting connectors, moods and
+three observers remain intact; native normalizations are enumerated, not
+treated as a whole-project no-op. The first representation lost its references
+on native save and is retained as a failed counterexample. Regenerated files
+must receive their own native validation rather than inherit this exact file's
+readiness result.
 
 These assessments do not automatically advance contract stages or the overall
 completion percentage. Raw projects, bytes, disassembly and workstation

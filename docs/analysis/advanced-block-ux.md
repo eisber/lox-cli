@@ -25,6 +25,29 @@ and records that part as uninspected. No task, watcher, or schedule is created.
 Exit 1 is an inventory failure; exit 2 retains a partial inventory with explicit
 fixture omissions, unsupported Qt objects, or decoding issues.
 
+New extractions also require reviewed per-object Qt header-layout profiles via
+`--qt-layout-profiles FILE`. The profile JSON declares `source_sha256`,
+`format: "PE32+/AMD64"`, `metadata_revision: 13`, and an `objects` list. Each
+object binds a `pointer_triple_address` to either `qt6-superdata-one-word` or
+`qt6-superdata-two-word`, plus an independently reviewed `base_return_address`
+and `base_return_sha256`. The witness is an eight-byte AMD64 static
+`LEA RAX, [RIP+disp32]; RET` sequence returning the object base. Its bytes and
+the header shape are checked against the pinned source; the witness does not
+establish a function entry, receiver type or runtime behavior.
+
+Missing or conflicting profiles remain explicit decoding issues without a
+guessed object base. Revision alone does not select a header width. Seven
+reviewed entries demonstrated that the historical scanner's
+`metaobject_address` was eight bytes after the code-returned base; their
+absolute strings/data/dispatcher pointers remain correct. The other 638 entries
+have not received that independent assessment. Do not blanket-shift the frozen
+645-record snapshot or its address-derived class IDs.
+
+Use a new `--output` directory for normalized extractions: the inventory refuses
+to overwrite an existing `qt-metadata.json`. Corrected addresses produce new
+snapshot identities, not an in-place migration of historical evidence or an
+increase in candidate/runtime coverage.
+
 For release comparisons, retain separate output directories with `--output`.
 Compare control identities, parameter patterns, and Qt class/member signatures,
 not native addresses, which can move between builds. A changed control identity

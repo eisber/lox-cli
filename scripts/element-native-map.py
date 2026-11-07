@@ -6,6 +6,9 @@ Usage:
 
 The four reviewed factory cases are deliberately bounded. All other exact
 stripped-class-name matches remain candidates, not XML or execution proof.
+--factory-proof optionally admits an explicitly reviewed, digest-pinned report.
+Reviewed historical producer inputs live beside that report in sources\\<SHA256>;
+all live application/corpus inputs must still match their original source pins.
 Every UX source record remains in catalog_records, even without a join.
 """
 
@@ -26,6 +29,18 @@ VERSION = "17.2.10.21"
 TARGET = "7b55e3ef18401574ab967c5c6a0140cd5a66dc728521ebba04ad53093577d8b3"
 FACTORY = "0x140432790"
 FACTORY_SHA256 = "ff55a98ab896be192c361b63eb28f61b22853b55e4a74f32e13b30920dfe8f83"
+# Adding a report digest is an explicit static-identity review, not producer trust.
+REVIEWED_FACTORY_PROOFS = {
+    "c6f1ec984727cfe373a54cf0efbb2079a886e988e7ba3928398a2ebbd2d32d7b": {
+        "version": VERSION, "sha256": TARGET,
+        "historical_sources": {
+            ("scripts\\element-native-map.py",
+             "bb60a1452ac7ddd09a757b43f8c6f21fec0ae7a18d8fdc6ea41619d2513b1096"),
+            (".reverse-engineering\\element-atlas\\native-map.json",
+             "44c73370477203133c4eb8a906ed455946dbfe745c2e4150db32251d4c761627"),
+        },
+    },
+}
 ANCHORS = (
     ("JalousieUpDown2", "349", "CControlObjectPush2Jalousie2",
      "0x1407fd870", None, "0x1407ff450", 0xf18, "14041dd00"),
@@ -93,6 +108,13 @@ def expect_list(value, label):
 def check_count(summary, key, actual, label):
     if key in summary and (type(summary[key]) is not int or summary[key] != actual):
         fail(f"{label}.{key} disagrees with records: {summary[key]!r} != {actual}")
+
+
+def source_path(value):
+    if (not isinstance(value, str) or not value or "/" in value or ":" in value or
+            value.startswith("\\") or ".." in value.split("\\")):
+        fail("Every source path must be root-relative with Windows separators")
+    return Path(*value.split("\\"))
 
 
 def validate_inputs(inventory, native):
@@ -250,9 +272,7 @@ def build_map(inventory, native, sources, proofs=()):
     source_roles = {}
     for source in sources:
         path = source.get("path")
-        if (not isinstance(path, str) or not path or "/" in path or
-                ":" in path or path.startswith("\\") or ".." in path.split("\\")):
-            fail("Every source path must be root-relative with Windows separators")
+        source_path(path)
         if not re.fullmatch(r"[0-9a-f]{64}", source.get("sha256", "")):
             fail("Every source needs an exact SHA-256 digest")
         source_roles.setdefault(source["role"], []).append(source)
@@ -366,6 +386,170 @@ class Sources:
         return data
 
 
+def factory_proof_joins(report, inventory, native, baseline):
+    blocks, classes, _ = validate_inputs(inventory, native)
+    if (type(report.get("schema_version")) is not int or report["schema_version"] != 1 or
+            report.get("kind") != "private-static-bulk-factory-identity-proof" or
+            report.get("application") != {
+                "version": VERSION, "sha256": TARGET, "image_base": "0x140000000"}):
+        fail("Reviewed factory proof schema/application mismatch")
+    by_descriptor = {address(c["type"]["address"]): (i, c) for i, c in enumerate(classes)}
+    by_index = {b["catalog_index"]: b for b in blocks}
+    associations, proofs = {}, []
+    successes = expect_list(report.get("successes"), "factory successes")
+    for i, item in enumerate(successes):
+        expect_object(item, "factory association")
+        ct = control_type(item.get("control_type"))
+        descriptor = address(item.get("type_descriptor"))
+        if ct in associations:
+            fail(f"Duplicate or contradictory factory ControlType: {ct}")
+        if descriptor not in by_descriptor:
+            fail("Factory proof references an absent native RTTI identity")
+        index, record = by_descriptor[descriptor]
+        if (type(item.get("native_source_index")) is not int or
+                item["native_source_index"] != index or
+                item.get("native_class") != record["type"]["display_name"] or
+                item.get("basis") != "factory_constructor_and_xml_registration" or
+                item.get("factory") != FACTORY or
+                not isinstance(item.get("xml_type"), str) or not item["xml_type"]):
+            fail("Factory association/native class identity mismatch")
+        if not any(address(t["vtable"]) == address(item.get("primary_vtable")) and
+                   t.get("object_offset") == 0 and t.get("primary_root_compatible") is True
+                   for t in record["primary_tables"]):
+            fail("Factory association primary vtable mismatch")
+        registrations = expect_list(item.get("registrations"), "factory XML registrations")
+        if not registrations or any(r.get("slot_offset") != "0xf18" or
+                                    r.get("xml_type") != item["xml_type"] for r in registrations):
+            fail("Factory association lacks its reviewed XML registration")
+        associations[ct] = item
+        proofs.append({
+            "xml_type": item["xml_type"], "control_type": ct, "type_descriptor": descriptor,
+            "basis": item["basis"],
+            "evidence": [{"role": "reviewed_factory_proof", "pointer": f"/successes/{i}",
+                          "fact": "reviewed_static_factory_primary_vtable_and_XML_registration"}],
+        })
+    records = expect_list(report.get("catalog_records"), "factory catalog records")
+    seen = set()
+    for item in records:
+        index = item.get("catalog_index")
+        if type(index) is not int or index not in by_index or index in seen:
+            fail("Factory catalog record membership mismatch")
+        block = by_index[index]
+        if (item.get("source_record") != block or
+                control_type(item.get("control_type")) != control_type(block["control_type"]) or
+                item.get("xml_type") != block["xml_type"]):
+            fail("Factory catalog record identity mismatch")
+        seen.add(index)
+    if seen != set(by_index):
+        fail("Factory report dropped catalog records")
+    ledger = expect_list(report.get("native_class_ledger"), "factory native class ledger")
+    if len(ledger) != len(classes):
+        fail("Factory report dropped native classes")
+    for i, (item, record) in enumerate(zip(ledger, classes)):
+        if (type(item.get("source_index")) is not int or item["source_index"] != i or
+                address(item.get("type_descriptor")) != address(record["type"]["address"]) or
+                item.get("native_class") != record["type"]["display_name"]):
+            fail("Factory native class ledger identity mismatch")
+    expected = {}
+    rejected = set()
+    for block in blocks:
+        item = associations.get(control_type(block["control_type"]))
+        if item is None:
+            continue
+        if block["xml_type"] is None or block["xml_type"] != item["xml_type"]:
+            rejected.add(block["catalog_index"])
+        else:
+            expected[block["catalog_index"]] = item
+    seen = set()
+    joins = expect_list(report.get("catalog_joins"), "factory catalog joins")
+    for item in joins:
+        index = item.get("catalog_index")
+        if type(index) is not int or index not in expected or index in seen:
+            fail("Factory catalog join membership mismatch")
+        association = expected[index]
+        status = ("exact" if association["native_class"] == "CControlObject" + association["xml_type"]
+                  else "alias")
+        if (control_type(item.get("control_type")) != control_type(association["control_type"]) or
+                item.get("xml_type") != association["xml_type"] or
+                address(item.get("type_descriptor")) != address(association["type_descriptor"]) or
+                item.get("native_class") != association["native_class"] or
+                item.get("status") != status or
+                type(item.get("proof_index")) is not int or
+                not 0 <= item["proof_index"] < len(successes) or
+                successes[item["proof_index"]] != association):
+            fail("Factory catalog join identity mismatch")
+        seen.add(index)
+    if seen != set(expected):
+        fail("Factory report dropped admissible catalog joins")
+    rejections = expect_list(report.get("catalog_join_rejections"), "factory catalog rejections")
+    rejection_indices = [r.get("catalog_index") for r in rejections]
+    if (any(type(i) is not int for i in rejection_indices) or
+            len(set(rejection_indices)) != len(rejection_indices) or
+            set(rejection_indices) != rejected):
+        fail("Factory report dropped nonadmitted catalog records")
+    merged = list(baseline)
+    baseline_by_key = {(p["xml_type"], control_type(p["control_type"])): p for p in baseline}
+    for item in baseline:
+        match = associations.get(control_type(item["control_type"]))
+        if (match is None or match["xml_type"] != item["xml_type"] or
+                address(match["type_descriptor"]) != address(item["type_descriptor"])):
+            fail("Factory report contradicts or omits a baseline proof")
+    merged.extend(p for p in proofs if (p["xml_type"], p["control_type"]) not in baseline_by_key)
+    summary = expect_object(report.get("summary"), "factory summary")
+    for key, actual in (
+            ("catalog_records", len(blocks)), ("native_classes", len(classes)),
+            ("proven_factory_CT_class_XML_associations", len(successes)),
+            ("proven_catalog_records", len(joins)),
+            ("distinct_native_classes_proven_joined_to_catalog",
+             len({item["type_descriptor"] for item in expected.values()})),
+            ("catalog_rows_with_factory_proof_not_admitted_as_XML_join", len(rejections))):
+        if key not in summary:
+            fail(f"Factory summary missing {key}")
+        check_count(summary, key, actual, "factory summary")
+    return merged
+
+
+def reviewed_factory_proofs(path, inventory, native, sources, baseline):
+    data = sources.add(path, "reviewed_factory_proof")
+    policy = REVIEWED_FACTORY_PROOFS.get(digest(data))
+    if policy is None:
+        fail("Unreviewed factory proof SHA-256; explicit static-identity review is required")
+    report = decode_json(data)
+    application = expect_object(report.get("application"), "factory application")
+    if any(application.get(key) != policy[key] for key in ("version", "sha256")):
+        fail("Reviewed factory proof application mismatch")
+    current = {s["role"]: s for s in sources.items.values()
+               if s["role"] in {"inventory", "native_catalog", "executable"}}
+    pins = {}
+    for item in expect_list(report.get("sources"), "factory sources"):
+        expect_object(item, "factory source")
+        relative = source_path(item.get("path"))
+        checksum = item.get("sha256")
+        if (not isinstance(checksum, str) or not re.fullmatch(r"[0-9a-f]{64}", checksum) or
+                type(item.get("bytes")) is not int or item["bytes"] < 0):
+            fail("Invalid reviewed factory source digest/byte count")
+        if (item["path"], checksum) in policy.get("historical_sources", set()):
+            # Historical producers are not live inputs or an output-overwrite dependency.
+            content = sources.add(Path(path).resolve().parent / "sources" / checksum,
+                                  "reviewed_factory_source", checksum)
+        else:
+            content = sources.add(sources.root / relative, "reviewed_factory_source", checksum)
+        if len(content) != item["bytes"]:
+            fail("Reviewed factory source byte count mismatch")
+        pins.setdefault(item.get("role"), []).append(item)
+    for role, input_role in (("inventory", "inventory"), ("native-catalog", "native_catalog"),
+                             ("baseline-executable", "executable")):
+        if (len(pins.get(role, [])) != 1 or input_role not in current or
+                pins[role][0]["sha256"] != current[input_role]["sha256"]):
+            fail(f"Reviewed factory proof/input source mismatch: {input_role}")
+    merged = factory_proof_joins(report, inventory, native, baseline)
+    trial = build_map(inventory, native, list(sources.items.values()), merged)
+    actual = {k: v for k, v in trial["summary"]["catalog_records_by_status"].items() if v}
+    if report["summary"].get("catalog_record_status") != actual:
+        fail("Reviewed factory catalog status counts mismatch")
+    return merged
+
+
 def bounded_proofs(corpus, image, native, sources, helper):
     factory_path, factory_text = corpus.body(FACTORY)
     sources.add(factory_path, "canonical_factory_body", FACTORY_SHA256)
@@ -420,7 +604,7 @@ def bounded_proofs(corpus, image, native, sources, helper):
     return proofs
 
 
-def extract(inventory_path, native_path, latest_path):
+def extract(inventory_path, native_path, latest_path, factory_proof=None):
     sources = Sources()
     inventory = decode_json(sources.add(inventory_path, "inventory"))
     native = decode_json(sources.add(native_path, "native_catalog"))
@@ -460,7 +644,14 @@ def extract(inventory_path, native_path, latest_path):
     if image.sha256 != TARGET:
         fail("Executable image SHA-256 mismatch")
     proofs = bounded_proofs(corpus, image, native, sources, helper)
-    return build_map(inventory, native, list(sources.items.values()), proofs)
+    if factory_proof is not None:
+        proofs = reviewed_factory_proofs(factory_proof, inventory, native, sources, proofs)
+    result = build_map(inventory, native, list(sources.items.values()), proofs)
+    if factory_proof is not None:
+        result["limitations"][2] = (
+            "Only baseline proofs and the explicitly reviewed digest-pinned factory report "
+            "are promoted beyond name candidates; this is static identity, not runtime proof.")
+    return result
 
 
 def main(argv=None):
@@ -468,6 +659,8 @@ def main(argv=None):
     parser.add_argument("--inventory", type=Path, required=True)
     parser.add_argument("--native-catalog", type=Path, required=True)
     parser.add_argument("--latest", type=Path, default=ROOT / ".reverse-engineering" / "latest.json")
+    parser.add_argument("--factory-proof", type=Path,
+                        help="Optional explicitly reviewed, digest-pinned static factory report")
     parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args(argv)
     try:
@@ -475,9 +668,12 @@ def main(argv=None):
         private = (ROOT / ".reverse-engineering").resolve()
         if not output.is_relative_to(private):
             fail("Generated native metadata must remain under .reverse-engineering")
-        if output in {args.inventory.resolve(), args.native_catalog.resolve(), args.latest.resolve()}:
+        inputs = {args.inventory.resolve(), args.native_catalog.resolve(), args.latest.resolve()}
+        if args.factory_proof is not None:
+            inputs.add(args.factory_proof.resolve())
+        if output in inputs:
             fail("Output must not overwrite an input")
-        result = extract(args.inventory, args.native_catalog, args.latest)
+        result = extract(args.inventory, args.native_catalog, args.latest, args.factory_proof)
         if output in {ROOT / source["path"] for source in result["sources"]}:
             fail("Output must not overwrite any source evidence")
         data = (json.dumps(result, indent=2, ensure_ascii=True, allow_nan=False) + "\n").encode("utf-8")

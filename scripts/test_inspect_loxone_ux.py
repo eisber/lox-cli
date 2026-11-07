@@ -23,6 +23,19 @@ def block(xml_type="Example", control_type="10", **io):
 
 
 class CoverageTests(unittest.TestCase):
+    def test_existing_qt_snapshot_is_not_overwritten_during_layout_migration(self):
+        private = Path(__file__).resolve().parents[1] / ".reverse-engineering"
+        private.mkdir(exist_ok=True)
+        with tempfile.TemporaryDirectory(dir=private) as temporary:
+            output = Path(temporary)
+            snapshot = output / "qt-metadata.json"
+            snapshot.write_text("historical address-derived identities", encoding="utf-8")
+            with patch.object(UX, "load_json") as load:
+                with self.assertRaisesRegex(ValueError, "existing Qt snapshot"):
+                    UX.inspect(Path("unused.json"), output, Path("."), Path("lox.exe"))
+            load.assert_not_called()
+            self.assertEqual(snapshot.read_text(encoding="utf-8"), "historical address-derived identities")
+
     def test_only_exact_name_and_control_identity_map_parameter_keys(self):
         schema = {
             "control_type": "10", "connectors": [

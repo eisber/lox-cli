@@ -8,6 +8,10 @@ from pathlib import Path
 
 QT_SOURCE = "https://github.com/qt/qtbase/tree/v6.10.2/src/corelib/kernel"
 CLASS_NAME = re.compile(r"[A-Za-z_][A-Za-z_0-9:<> ,]*")
+HEADER_LAYOUTS = {
+    "qt6-superdata-one-word": 1,
+    "qt6-superdata-two-word": 2,
+}
 
 
 class PeImage:
@@ -169,10 +173,96 @@ class QtMetaObject:
         }
 
 
-def recover_qt_metadata(path):
+def layout_bindings(profiles, source_sha256):
+    """Admit only reviewed per-object profiles pinned to this image and revision."""
+    if profiles is None:
+        return {}
+    if not isinstance(profiles, dict):
+        raise ValueError("Qt header-layout profiles must be an object")
+    if (profiles.get("source_sha256") != source_sha256
+            or profiles.get("format") != "PE32+/AMD64"
+            or profiles.get("metadata_revision") != 13):
+        raise ValueError("Qt header-layout profiles must match source SHA-256, format and revision 13")
+    objects = profiles.get("objects")
+    if not isinstance(objects, list):
+        raise ValueError("Qt header-layout profiles require an objects list")
+    bindings = {}
+    for row in objects:
+        if not isinstance(row, dict):
+            raise ValueError("Qt header-layout object profile must be an object")
+        name = row.get("profile")
+        if not isinstance(name, str) or name not in HEADER_LAYOUTS:
+            raise ValueError("Unknown Qt header-layout profile")
+        for field in ("pointer_triple_address", "base_return_address"):
+            if not isinstance(row.get(field), str) or not re.fullmatch(r"0x[0-9a-fA-F]+", row[field]):
+                raise ValueError(f"Invalid Qt header-layout {field}")
+        if not isinstance(row.get("base_return_sha256"), str) or not re.fullmatch(
+                r"[0-9a-f]{64}", row["base_return_sha256"]):
+            raise ValueError("Qt header-layout profiles require a base-return byte hash")
+        bindings.setdefault(int(row["pointer_triple_address"], 16), []).append(row)
+    return bindings
+
+
+def resolve_header_layout(image, triple_address, profiles):
+    if not profiles:
+        raise ValueError("Unvalidated Qt header layout: no source-pinned profile for pointer triple")
+    validated = []
+    failures = []
+    for profile in profiles:
+        try:
+            words = HEADER_LAYOUTS[profile["profile"]]
+            address = triple_address - words * 8
+            _, offset = image.mapping(address, (words + 6) * 8)
+            header = image.unpack(f"<{words}Q", offset)
+            for i, pointer in enumerate(header):
+                if pointer:
+                    section, _ = image.mapping(pointer)
+                    if bool(section["flags"] & 0x20000000) != (i == 1):
+                        raise ValueError("SuperData direct/indirect pointer section does not match profile")
+            return_address = int(profile["base_return_address"], 16)
+            section, return_offset = image.mapping(return_address, 8)
+            raw = image.read(return_offset, 8)
+            if not section["flags"] & 0x20000000:
+                raise ValueError("Base-return witness is not executable code")
+            if hashlib.sha256(raw).hexdigest() != profile["base_return_sha256"]:
+                raise ValueError("Base-return witness byte hash mismatch")
+            if raw[:3] != b"\x48\x8d\x05" or raw[7:] != b"\xc3":
+                raise ValueError("Unsupported base-return witness; expected AMD64 LEA RAX, [RIP+disp32]; RET")
+            returned = return_address + 7 + struct.unpack("<i", raw[3:7])[0]
+            if returned != address:
+                raise ValueError("Base-return witness disagrees with header-layout base")
+            validated.append((address, {
+                "profile": profile["profile"],
+                "pointer_triple_address": hex(triple_address),
+                "callback_pointer_address": hex(triple_address + 16),
+                "callback_offset": words * 8 + 16,
+                "base_return_address": hex(return_address),
+                "base_return_sha256": profile["base_return_sha256"],
+                "validation": "source-pinned-reviewed-return-witness-and-header-shape",
+            }))
+        except ValueError as error:
+            failures.append(str(error))
+    if len(validated) > 1:
+        raise ValueError("Ambiguous Qt header layout: multiple validated profiles for pointer triple")
+    if not validated:
+        raise ValueError("Unvalidated Qt header layout: " + "; ".join(failures))
+    return validated[0]
+
+
+def recover_qt_metadata(path, *, layout_profiles=None):
+    """Decode only objects with an explicit, source-pinned header/base witness.
+
+    layout_profiles declares source_sha256, format, metadata_revision and objects.
+    Each object names a HEADER_LAYOUTS profile, pointer_triple_address, and an
+    independently reviewed eight-byte base_return_address/base_return_sha256.
+    The return sequence validates the base; it does not prove a function entry,
+    receiver type, or runtime behavior. Missing/conflicting profiles stay issues.
+    """
     path = Path(path)
     data = path.read_bytes()
     image = PeImage(data)
+    source_sha256 = hashlib.sha256(data).hexdigest()
+    bindings = layout_bindings(layout_profiles, source_sha256)
     classes = []
     issues = []
     unsupported = []
@@ -197,10 +287,8 @@ def recover_qt_metadata(path):
             # Qt 6 uses a different string carrier from Qt 5. Recognize only Qt 6.
             if header[0] < 9 or header[1] != 0:
                 continue
-            address = image.base + section["rva"] + position - start - 8
-            if image.pointer_offset(address, 56) is None:
-                continue
-            obj = QtMetaObject(image, address, strings, metadata, callback)
+            triple_address = image.base + section["rva"] + position - start
+            obj = QtMetaObject(image, None, strings, metadata, callback)
             try:
                 name = obj.string(header[1])
                 if not CLASS_NAME.fullmatch(name):
@@ -210,20 +298,24 @@ def recover_qt_metadata(path):
             examined += 1
             if header[0] != 13:
                 unsupported.append({
-                    "class_name": name, "metaobject_address": hex(address),
+                    "class_name": name, "pointer_triple_address": hex(triple_address),
                     "revision": header[0],
                 })
                 continue
             try:
-                classes.append(obj.decode())
+                address, layout = resolve_header_layout(image, triple_address, bindings.get(triple_address))
+                obj.address = address
+                decoded = obj.decode()
+                decoded["header_layout"] = layout
+                classes.append(decoded)
             except (ValueError, UnicodeDecodeError) as error:
                 issues.append({
-                    "class_name": name, "metaobject_address": hex(address),
+                    "class_name": name, "pointer_triple_address": hex(triple_address),
                     "reason": str(error),
                 })
     return {
         "schema_version": 1,
-        "source": {"path": str(path.resolve()), "sha256": hashlib.sha256(data).hexdigest()},
+        "source": {"path": str(path.resolve()), "sha256": source_sha256},
         "format": "PE32+/AMD64",
         "layout_reference": QT_SOURCE,
         "supported_revisions": [13],
@@ -239,6 +331,8 @@ def recover_qt_metadata(path):
         "limitations": [
             "Static metadata identifies declared names and a shared dispatcher, not each method's implementation address.",
             "Only revision-13 Qt 6.9/6.10 metadata in native AMD64 PE images is decoded.",
+            "Object base addresses require per-object source-pinned header profiles and independently reviewed static return witnesses; no default header width is assumed.",
+            "Normalized addresses are a new snapshot identity, not an in-place migration of historical address-derived class IDs.",
             "Dynamically built or unidentified meta-objects, inherited members, ordinary non-moc C++ methods and MFC dialogs are outside this inventory.",
             "Enum values and constructor signatures are not decoded; original source, validation semantics and runtime signal connections are not recovered.",
         ],
