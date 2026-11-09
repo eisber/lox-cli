@@ -113,3 +113,62 @@ fn lighting_inspection_rejects_wrong_type_and_reports_missing_storage() {
             .any(|diagnostic| diagnostic.code == "missing_identity")
     );
 }
+
+#[test]
+fn lighting_mood_edit_preserves_nonzero_edits_of_sparse_moods() {
+    let fixture = std::str::from_utf8(FIXTURE).unwrap();
+    for (mood_ref, output, marker) in [
+        ("First", 3, "FutureMood=\"opaque\""),
+        ("3", 2, "Q18=\"future-encoding\""),
+    ] {
+        let mut editor = ConfigEditor::load(FIXTURE).unwrap();
+        editor
+            .set_mood_color("uuid:lighting", mood_ref, output, 42)
+            .unwrap();
+        let expected = fixture.replace(marker, &format!("{marker} Q{output}=\"42\""));
+        let expected = ConfigEditor::load(expected.as_bytes()).unwrap();
+        assert_eq!(editor.to_bytes().unwrap(), expected.to_bytes().unwrap());
+    }
+}
+
+#[test]
+fn lighting_mood_edit_rejects_zero_output_even_when_raw_storage_contains_q0() {
+    let fixture = std::str::from_utf8(FIXTURE).unwrap();
+    for xml in [
+        fixture.to_string(),
+        fixture.replace("Q2=\"37\"", "Q0=\"unknown\" Q2=\"37\""),
+    ] {
+        let mut editor = ConfigEditor::load(xml.as_bytes()).unwrap();
+        let before = editor.to_bytes().unwrap();
+        assert!(
+            editor
+                .set_mood_color("uuid:lighting", "First", 0, 42)
+                .is_err()
+        );
+        assert_eq!(editor.to_bytes().unwrap(), before);
+    }
+}
+
+#[test]
+fn lighting_mood_edit_preserves_everything_except_the_selected_stored_value() {
+    let xml = std::str::from_utf8(FIXTURE).unwrap().replace(
+        "FutureMood=\"opaque\"/>",
+        "FutureMood=\"opaque\" Q01=\"opaque\" Q99=\"future-value\"><SeqConf Future=\"retain\"><Unknown Q2=\"nested\"/></SeqConf></LightsceneC>",
+    );
+    for (mood_ref, output, old_value) in [("First", 2, "37"), ("2", 99, "future-value")] {
+        let mut editor = ConfigEditor::load(xml.as_bytes()).unwrap();
+        editor
+            .set_mood_color("uuid:lighting", mood_ref, output, 42)
+            .unwrap();
+        let expected = xml.replace(
+            &format!("Q{output}=\"{old_value}\""),
+            &format!("Q{output}=\"42\""),
+        );
+        let expected = ConfigEditor::load(expected.as_bytes()).unwrap();
+        assert_eq!(editor.to_bytes().unwrap(), expected.to_bytes().unwrap());
+        let moods = editor.inspect_lighting("uuid:lighting").unwrap().moods;
+        assert!(!moods[0].attributes.contains_key("Q3"));
+        assert_eq!(moods[0].attributes["Q01"], "opaque");
+        assert_eq!(moods[1].attributes["Q1"], "0");
+    }
+}

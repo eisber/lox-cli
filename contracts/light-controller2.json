@@ -71,7 +71,29 @@
     "document_versions": "raw-serialized-metadata-not-authentication",
     "unknown_xml": "read-only-structured-element-and-attribute-inventory",
     "file_writes": "none",
-    "existing_mood_commands": "unchanged-list_moods-set_mood_color-add_mood-prior-art-not-newly-verified"
+    "existing_mood_commands": "prior-art-not-newly-GUI-verified;set_mood_color-rejects-zero-index-only;positive-index-behavior-unchanged"
+  },
+  "existing_mood_edit_validation": {
+    "surface": "config set-mood-color --output-index",
+    "rule": "Reject output index zero before any XML mutation, including when opaque raw Q0 storage already exists. Native mood Qn indices are one-based.",
+    "source_premise": {
+      "binder": "0x1405b7df0",
+      "binder_sha256": "9f0ff6bd3dcc724a599e3324483c9b584f1e1128c4a3d6bf9604ecc328bf9d58",
+      "observation": "Both serializer branches format Q%d from the loop index plus one. The Q%d literal at 0x140fee8e4 was checked directly against the frozen target PE identified in provenance.",
+      "scope": "Serialized field naming only, not channel roles, configured output limits or runtime behavior."
+    },
+    "compatibility": [
+      "Nonzero edits may explicitly set an absent Qn; attribute absence alone does not establish an invalid or unconfigured output.",
+      "No maximum is inferred from Outputs, channel metadata or a Qn suffix.",
+      "Accepted edits preserve every other stored attribute, identity, nested record, reference and output spelling/order.",
+      "Generic raw XML set-attr remains unchanged and lossless; existing opaque Q0 data is not removed or normalized."
+    ],
+    "regressions": "src/config_edit/lighting_tests.rs: lighting_mood_edit_*; tests/config_integration.rs: config_set_mood_color_rejects_zero_index_without_writing; independently authored XML, not native fixtures",
+    "later_storage_evidence": {
+      "receipt": ".reverse-engineering\\native-simulator\\workstreams\\lighting-envelope-recovery\\visual-continuation-20261107\\portable-lighting-roundtrip-evidence.json",
+      "sha256": "47a711c9f7c8afcf6e1684c1108891c1b5211f0fdfb293bce40294abfd537979",
+      "scope": "Later native-baseline Lighting stored-graph preservation with explicit project delta; not an edited-mood roundtrip, whole-project no-op or family/runtime parity. Initial failed snapshots below remain historical failures."
+    }
   },
   "authored_fixture": {
     "path": "tests/ux/light-controller2/synthetic.Loxone",

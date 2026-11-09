@@ -571,7 +571,7 @@ impl ConfigEditor {
                 "Existing unknown icon references are preserved, not validated or sanitized. Project/custom icon selection, creation, import, replacement, deletion and image decoding are unsupported.",
                 "All 28 deadline choices have GUI-save observations; deadline/day-cycle execution remains unverified.",
                 "Name/mode setters mark Ncu/Anc, including unchanged values; observed GUI transitions retain customization markers on revert.",
-                "Integer CLI minutes use checked signed 32-bit seconds; fractional/scientific input and GUI overflow are not emulated.",
+                "Minimum-runtime CLI decimals round half away from zero to whole minutes before checked signed 32-bit seconds; daily CLI minutes remain integers. Scientific input and GUI overflow are not emulated.",
                 "MaxSpwr=0 runtime meaning remains unverified. Inspection is not an export/reapply format.",
                 "Storage-power feedback is the recovered Config 17.2.10.21 condition only, not whole-block completeness. It uses connections/defaults, not current Soc or Spwr values; malformed Nc/In or absent/duplicate bindings are explicitly unknown. Fresh native countercases remain pending.",
             ],
