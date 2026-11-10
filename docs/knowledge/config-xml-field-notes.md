@@ -153,6 +153,25 @@ XML connector names vs. the abbreviations in `docs/kb/lighting-controller.md`:
   lights switch off after `MoveTimeout` (Met). That's a common cause of "lights go
   off by themselves".
 
+### Native mood-output storage observation
+
+One Windows Loxone Config **17.2.10.21** case preserved a CLI-authored
+`LightsceneC Q2="1610622736"` for the same controller, mood UUID, SID and CID
+through ordinary **Save As, full process close, and fresh-process reopen**.
+The saved and reopened files were byte-identical; the original input remained
+unchanged. This qualifies storage preservation for that case, not native mood
+editing, every `Qn`, the `Qn`/`AQn` mapping, or actuator/runtime colour behavior.
+
+Save As itself was **not byte-preserving**: the complete retained diff included
+94 `Title` changes from German labels to English labels and two `WF` changes.
+The cause and generality of those rewrites remain unqualified. Do not copy
+them into the CLI as normalization rules or ignore them in native comparisons.
+
+Private evidence: `vm122-saveas-pauseaware-20261110`,
+strict raw manifest SHA-256
+`533bc7454b2a921c3309cc13a10c03c69b08bccc5e7c620315f1e33777efdf1f`.
+No raw vendor project is published with this observation.
+
 ---
 
 ## 5. Automatic Shading (`AutoJalousie`)
