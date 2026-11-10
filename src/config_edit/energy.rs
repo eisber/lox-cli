@@ -161,6 +161,7 @@ pub struct EnergyLoad {
     pub name_customized: StoredValue<bool>,
     pub analog: StoredValue<bool>,
     pub mode_customized: StoredValue<bool>,
+    pub inheritance: EnergyLoadInheritance,
     pub preparation_seconds: StoredValue<i32>,
     pub min_runtime_seconds: StoredValue<i32>,
     pub daily_seconds: StoredValue<i32>,
@@ -175,6 +176,56 @@ pub struct EnergyLoad {
     /// Inspection only: this is not a replacement/export format for XML records.
     pub attributes: BTreeMap<String, String>,
     pub child_elements: Vec<String>,
+}
+
+#[derive(Debug, Serialize, PartialEq, Eq)]
+pub struct EnergyLoadInheritance {
+    pub mode_refresh: EnergyInheritanceGate,
+    pub name_refresh: EnergyInheritanceGate,
+}
+
+#[derive(Debug, Clone, Copy, Serialize, PartialEq, Eq)]
+#[serde(rename_all = "snake_case")]
+pub enum EnergyInheritanceGate {
+    SourceUnresolved,
+    BlockedByModeCustomization,
+    BlockedByNameCustomization,
+    UnknownModeCustomization,
+    UnknownNameCustomization,
+}
+
+impl EnergyInheritanceGate {
+    pub fn label(self) -> &'static str {
+        match self {
+            Self::SourceUnresolved => "source_unresolved",
+            Self::BlockedByModeCustomization => "blocked_by_mode_customization",
+            Self::BlockedByNameCustomization => "blocked_by_name_customization",
+            Self::UnknownModeCustomization => "unknown_mode_customization",
+            Self::UnknownNameCustomization => "unknown_name_customization",
+        }
+    }
+}
+
+fn inheritance_gates(mode: Option<bool>, name: Option<bool>) -> EnergyLoadInheritance {
+    use EnergyInheritanceGate::*;
+
+    let mode_refresh = match mode {
+        Some(true) => BlockedByModeCustomization,
+        Some(false) => SourceUnresolved,
+        None => UnknownModeCustomization,
+    };
+    // Native refresh gates name inheritance on Anc as well as Ncu.
+    let name_refresh = match (mode, name) {
+        (Some(true), _) => BlockedByModeCustomization,
+        (_, Some(true)) => BlockedByNameCustomization,
+        (None, _) => UnknownModeCustomization,
+        (Some(false), None) => UnknownNameCustomization,
+        (Some(false), Some(false)) => SourceUnresolved,
+    };
+    EnergyLoadInheritance {
+        mode_refresh,
+        name_refresh,
+    }
 }
 
 #[derive(Debug, Serialize)]
@@ -469,6 +520,8 @@ impl ConfigEditor {
             let name_customized = read_bool("Ncu");
             let analog = read_bool("An");
             let mode_customized = read_bool("Anc");
+            let inheritance =
+                inheritance_gates(mode_customized.effective, name_customized.effective);
             let mut read_int = |key: &str, default| {
                 stored(
                     load.attributes.get(key),
@@ -530,6 +583,7 @@ impl ConfigEditor {
                 name_customized,
                 analog,
                 mode_customized,
+                inheritance,
                 preparation_seconds,
                 min_runtime_seconds,
                 daily_seconds,
@@ -572,6 +626,8 @@ impl ConfigEditor {
                 "Existing unknown icon references are preserved, not validated or sanitized. Project/custom icon selection, creation, import, replacement, deletion and image decoding are unsupported.",
                 "All 28 deadline choices have GUI-save observations; deadline/day-cycle execution remains unverified.",
                 "Name/mode setters mark Ncu/Anc, including unchanged values. Explicit name clear stores an empty customized name, not inherited naming; Digital does not reset mode customization. Reset-to-inherited naming/mode is unsupported.",
+                "Load inheritance reports customization gates only, not resolved connected values. Anc blocks both mode and name refresh; Ncu additionally blocks name refresh. Stored/default name and mode values are not predictions of native refresh.",
+                "No intentional caller clearing Ncu/Anc has been recovered. Native refresh uses the first downstream output-connection record: mode comes from its input connector, and name from its owner or owner's +0xc8 reference (nonempty Desc, otherwise Title). Connection ordering, reference binding and dynamic mode fallback are not resolved from this XML; no reset mutation is offered.",
                 "Minimum-runtime CLI decimals round half away from zero to whole minutes before checked signed 32-bit seconds; daily CLI minutes remain integers. Scientific input and GUI overflow are not emulated.",
                 "MaxSpwr=0 runtime meaning remains unverified. Inspection is not an export/reapply format.",
                 "Storage-power feedback is the recovered Config 17.2.10.21 condition only, not whole-block completeness. It uses connections/defaults, not current Soc or Spwr values; malformed Nc/In or absent/duplicate bindings are explicitly unknown. Fresh native countercases remain pending.",

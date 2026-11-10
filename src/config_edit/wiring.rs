@@ -1,6 +1,53 @@
+use super::schema::Diagnostic;
 use super::{ConfigEditor, MoodInfo, MqttTopic, WireInfo};
 use anyhow::Result;
 use xmltree::Element;
+
+fn native_mood_output_defaults(collection: &Element) -> Result<[i32; 18]> {
+    let mut defaults = [0; 18];
+    let Some(source) = collection
+        .children
+        .iter()
+        .filter_map(|node| node.as_element())
+        .find(|scene| scene.name == "LightsceneC")
+    else {
+        return Ok(defaults);
+    };
+    let width = match source.attributes.get("Outputs") {
+        None => 12,
+        Some(raw) => match raw.parse::<i32>() {
+            Ok(0) => 12,
+            Ok(width) if width > 0 => width as usize,
+            _ => {
+                return Err(Diagnostic::new(
+                    "unsupported_mood_output_width",
+                    "LightscenesC/LightsceneC[1]/@Outputs",
+                    "Cannot derive native-style defaults: the first mood's Outputs must be a nonnegative signed-32-bit integer, or absent. Existing storage was not changed.",
+                )
+                .into());
+            }
+        },
+    };
+    for (offset, value) in defaults.iter_mut().enumerate().skip(1) {
+        let index = offset + 1;
+        if index > width {
+            continue;
+        }
+        let key = format!("Q{index}");
+        if let Some(raw) = source.attributes.get(&key) {
+            let stored = raw.parse::<i32>().map_err(|_| {
+                Diagnostic::new(
+                    "unsupported_mood_output_value",
+                    &format!("LightscenesC/LightsceneC[1]/@{key}"),
+                    "Cannot derive native-style defaults from this output: expected a signed-32-bit decimal. Opaque, malformed and out-of-range values are not guessed or replaced.",
+                )
+            })?;
+            // Native append preserves the encoded high nibble (0xf0000000).
+            *value = stored & -0x1000_0000;
+        }
+    }
+    Ok(defaults)
+}
 
 impl ConfigEditor {
     /// Create an OutputRef to wire a control's output to a physical device.
@@ -1134,9 +1181,10 @@ impl ConfigEditor {
     /// A fresh `LightsceneC` is
     /// added to the controller's `<LightscenesC>` container with a generated
     /// UUID, the next free custom scene id (`SID`) and color id (`CID`), and
-    /// per-output values `Q1..Qn` (Q1 set to `value`, the rest 0). The
+    /// 18 outputs for the recovered native append path. Q1 is set to `value`;
+    /// other outputs retain the first mood's encoded type nibble. The
     /// container's `Num` is set to the resulting direct scene count.
-    /// Output initialization remains the existing CLI policy, not native parity.
+    /// This does not reproduce native import, ID allocation or whole-editor behavior.
     ///
     /// Reserved SIDs (1/776/777/778 = Entspannen/Wecker/Viel Licht/Aus) are
     /// skipped; custom moods start at SID=2 / CID=9. Pass `sid`/`cid` to
@@ -1191,64 +1239,54 @@ impl ConfigEditor {
         let uuid = Self::loxone_uuid(&serial);
 
         let path = self.require_one(selector)?;
-        let elem = self.get_element_mut(&path);
-
-        fn append_scene(
-            elem: &mut Element,
-            name: &str,
-            uuid: &str,
-            sid: i64,
-            cid: i64,
-            value: i64,
-        ) -> bool {
-            if elem.name == "LightscenesC" {
-                let outputs: usize = elem
-                    .attributes
-                    .get("Outputs")
-                    .and_then(|s| s.parse().ok())
-                    .unwrap_or(18);
-                let mut scene = Element::new("LightsceneC");
-                scene
-                    .attributes
-                    .insert("Name".to_string(), name.to_string());
-                scene
-                    .attributes
-                    .insert("UUID".to_string(), uuid.to_string());
-                scene
-                    .attributes
-                    .insert("Outputs".to_string(), outputs.to_string());
-                scene.attributes.insert("SID".to_string(), sid.to_string());
-                scene.attributes.insert("CID".to_string(), cid.to_string());
-                for q in 1..=outputs.max(1) {
-                    let v = if q == 1 {
-                        value.to_string()
-                    } else {
-                        "0".to_string()
-                    };
-                    scene.attributes.insert(format!("Q{q}"), v);
-                }
-                elem.children.push(xmltree::XMLNode::Element(scene));
-                let num = super::lighting::direct_mood_count(elem);
-                elem.attributes.insert("Num".to_string(), num.to_string());
-                return true;
-            }
-            for child in &mut elem.children {
-                if let Some(e) = child.as_mut_element()
-                    && append_scene(e, name, uuid, sid, cid, value)
-                {
-                    return true;
-                }
-            }
-            false
-        }
-
-        if append_scene(elem, name, &uuid, new_sid, new_cid, value) {
-            Ok((name.to_string(), uuid, new_sid, new_cid))
-        } else {
-            anyhow::bail!(
-                "could not find a <LightscenesC> scene container on LightController2 '{selector}'"
+        let block = self.get_element(&path);
+        let collections: Vec<_> = block
+            .children
+            .iter()
+            .enumerate()
+            .filter_map(|(index, node)| {
+                node.as_element()
+                    .filter(|collection| collection.name == "LightscenesC")
+                    .map(|collection| (index, collection))
+            })
+            .collect();
+        let [(collection_index, collection)] = collections.as_slice() else {
+            return Err(Diagnostic::new(
+                "unsupported_mood_container_shape",
+                selector,
+                "Adding a mood requires exactly one direct LightscenesC collection. Inspect the XML before editing.",
             )
+            .into());
+        };
+        let defaults = native_mood_output_defaults(collection)?;
+        let collection_index = *collection_index;
+        let mut scene = Element::new("LightsceneC");
+        for (key, value) in [
+            ("Name", name.to_string()),
+            ("UUID", uuid.clone()),
+            ("Outputs", defaults.len().to_string()),
+            ("SID", new_sid.to_string()),
+            ("CID", new_cid.to_string()),
+        ] {
+            scene.attributes.insert(key.into(), value);
         }
+        for (offset, default) in defaults.into_iter().enumerate() {
+            scene.attributes.insert(
+                format!("Q{}", offset + 1),
+                if offset == 0 {
+                    value.to_string()
+                } else {
+                    default.to_string()
+                },
+            );
+        }
+        let collection = self.get_element_mut(&path).children[collection_index]
+            .as_mut_element()
+            .unwrap();
+        collection.children.push(xmltree::XMLNode::Element(scene));
+        let num = super::lighting::direct_mood_count(collection);
+        collection.attributes.insert("Num".into(), num.to_string());
+        Ok((name.to_string(), uuid, new_sid, new_cid))
     }
 
     /// Find which Page contains a connector UUID.

@@ -135,7 +135,7 @@ lox config set-mood-color FILE "uuid:<lightcontroller>" --mood <SID|Name> --colo
   (0..100)**, not 0..255. Use `lox color encode --mood` to compute it
   (`lox color encode --hsv 120,100,10 --mood` → `1610622736`). Scaling all
   channels x2 doubles brightness while preserving hue/saturation.
-- Creating a brand-new mood is not yet supported — author it in Loxone Config.
+- Create a new mood with `config add-mood`; see below.
 
 ### Create a brand-new mood
 
@@ -145,8 +145,17 @@ lox config add-mood FILE "uuid:<lightcontroller>" --name "Teams purple" --color 
 
 - Appends a fresh `<LightsceneC>` to the controller's `<LightscenesC>` container:
   generated UUID, next free custom `SID` (base 2, skipping reserved 1/776/777/778)
-  and `CID` (base 9), `Outputs` mirrored from the container, `Q1` = packed mood
-  value, `Q2..Qn` = 0, and `Num` incremented.
+  and `CID` (base 9), `Outputs=18`, and `Q1` = the explicit packed mood value.
+  `Q2..Q18` preserve only the first direct mood's encoded type nibble
+  (`value & 0xf0000000`), with remaining value bits cleared. Missing values or
+  values outside that source mood's `Outputs` bound initialize to zero;
+  missing/zero source `Outputs` means 12. `Num` is recounted from direct records.
+- This intentionally replaces container-width/zero-fill defaults with the recovered
+  Config 17.2.10.21 append-path initialization; 18 is not a universal maximum.
+  Existing moods, collection `Outputs`, sparse values and unknown data stay intact.
+  Needed opaque/out-of-range source values or unsupported collection shapes fail
+  before writing, rather than being guessed. Full native ID allocation, GUI
+  roundtrip, sequence handling and runtime parity are not claimed.
 - `--sid N` / `--cid N` override the auto-assigned ids. Duplicate name or SID is rejected.
 - Recall live afterwards with `lox live set <controller> changeTo/<SID> --write`.
 

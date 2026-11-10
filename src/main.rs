@@ -866,7 +866,7 @@ pub(crate) enum ConfigCmd {
         #[arg(long)]
         save_as: Option<String>,
     },
-    /// Create a new mood (LightsceneC) on a LightController2
+    /// Create a new mood with native-style 18-output initialization
     #[command(name = "add-mood")]
     AddMood {
         /// Path to a .Loxone XML file
@@ -876,7 +876,7 @@ pub(crate) enum ConfigCmd {
         /// Name for the new mood
         #[arg(long)]
         name: String,
-        /// Color: hsv(H,S,V), rgb(R,G,B), or a raw mood value
+        /// Q1 color: hsv(H,S,V), rgb(R,G,B), or a raw mood value
         #[arg(long)]
         color: String,
         /// Override the scene id (SID); default = next free custom SID

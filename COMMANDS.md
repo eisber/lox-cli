@@ -120,6 +120,15 @@ format, **not an export/reapply patch**: reapplying defaults can change omitted
 storage. Table output summarizes scalars and loads; CSV exposes scalar values and
 stored load attributes.
 
+Per-load `inheritance.mode_refresh` and `inheritance.name_refresh` report native
+customization gates, not derived values. `Anc=true` blocks both refreshes;
+`Ncu=true` independently blocks name refresh. Open gates report
+`source_unresolved`, not a guessed connected name/type or proof of a connection.
+Invalid markers remain explicitly unknown unless another known marker blocks
+the gate. Table/CSV expose the same statuses. No intentional restore-inherited
+caller has been established, so inspection does not clear markers or refresh
+stored values.
+
 Scalar `set` accepts only `O` (signed kW, default 0), `MinSoc` (0..100%, default 0),
 and `MaxSpwr` (kW >=0, default 0). `O` is a **parameter**, not an output.
 Values are finite invariant decimals; decimal commas, scientific/nonfinite input,
@@ -261,6 +270,15 @@ output references without inferred channel roles, and reports
 `inconsistent_mood_count` when `LightscenesC/@Num` differs from the direct
 `LightsceneC` record count.
 
+Inspection also reports version-bound native reconciliation risks:
+`native_empty_mood_collection_reinitialized` for an explicitly empty `Num=0`
+collection, and `native_zero_mood_sid_reconciled` for a supported loaded scene
+with explicit `SID=0`. Config 17.2.10.21 can initialize default scenes or replace
+zero scene IDs after nested serialization; this is not a prediction that the
+current save already contains those changes. The inspector does not generate
+IDs, normalize output values or simulate saving. Diagnostics remain visible in
+JSON or on stderr for table/CSV, including with `--quiet`.
+
 `recount-moods` repairs only that `Num`, including missing, invalid, negative or
 stale counts. It requires exactly one direct collection and ignores nested
 lookalike records. It does not normalize either `Outputs` field, fill missing
@@ -273,11 +291,34 @@ update the document save stamp after a content change. JSON returns `before`,
 either file is written.
 
 Existing `config add-mood` also sets `Num` from the resulting direct scene count,
-instead of incrementing a possibly stale stored count. Its output initialization
-policy is unchanged and is not full native append parity. Count repair can expose
-previously under-counted records on native import; an empty collection's native
-roundtrip, output widths, color/sequence semantics and runtime behavior are not
-established by these source-backed storage changes. See
+instead of incrementing a possibly stale stored count. Its default output
+initialization now follows the recovered Config 17.2.10.21 append path:
+
+```bash
+lox config add-mood file.Loxone "Lighting" --name "Evening" --color "hsv(30,80,20)" --save-as edited.Loxone
+```
+
+New moods have `Outputs=18` and `Q1..Q18`; this is the observed construction
+width, **not a universal channel maximum**. `--color` sets `Q1`. Other values
+inherit only the first direct mood's encoded type nibble (`value & 0xf0000000`),
+with brightness/value bits cleared. The first mood's stored `Outputs` bounds
+those source values; missing/zero means 12 on the recovered reader path.
+Missing or out-of-bound source values initialize to zero. An empty collection
+has no inherited types. Neither collection `Outputs` nor any existing scene's
+width, sparse values, sequence data, identities or unknown fields are rewritten.
+
+This intentionally replaces the previous container-width/zero-fill defaults.
+Exactly one direct collection is required. Source widths and needed type values
+must be supported signed-32-bit decimals; malformed, opaque or out-of-range
+values fail before either file is written rather than being guessed. Opaque
+`Q1` is untouched because the new scene's color is explicit; values outside the
+source bound or new construction width are preserved without interpretation.
+Existing `--sid`/`--cid` overrides and CLI ID-selection policy are unchanged,
+not newly claimed native allocation parity.
+
+Count repair can expose previously under-counted records on native import.
+Neither command reproduces default-scene injection, sequence normalization,
+whole-document save/cancel or runtime behavior. See
 `contracts/light-controller2.json` for the recovered paths and exact dependencies.
 
 ### Wire connectors

@@ -271,7 +271,9 @@ impl ConfigEditor {
                 .attributes
                 .get("Num")
                 .and_then(|raw| raw.parse::<i32>().ok());
-            if stored.and_then(|count| usize::try_from(count).ok()) != Some(scenes) {
+            let count_matches =
+                stored.and_then(|count| usize::try_from(count).ok()) == Some(scenes);
+            if !count_matches {
                 diagnostics.push(Diagnostic::new(
                     "inconsistent_mood_count",
                     "LightscenesC/@Num",
@@ -279,6 +281,35 @@ impl ConfigEditor {
                         "Stored Num does not match {scenes} direct LightsceneC records. Use `lox config lighting recount-moods FILE BLOCK` to repair only Num; Outputs and sparse Qn remain untouched."
                     ),
                 ));
+            }
+            if stored == Some(0) && scenes == 0 {
+                diagnostics.push(Diagnostic::new(
+                    "native_empty_mood_collection_reinitialized",
+                    "LightscenesC",
+                    "Config 17.2.10.21 reconciles an empty native scene vector after nested serialization on both read and write, creating default scenes in memory. An empty Num=0 collection is not a native load/save no-op. Inspection leaves all stored data unchanged.",
+                ));
+            }
+            if count_matches {
+                for (index, scene) in collection
+                    .children
+                    .iter()
+                    .filter_map(XMLNode::as_element)
+                    .filter(|element| element.name == "LightsceneC")
+                    .enumerate()
+                {
+                    if scene
+                        .attributes
+                        .get("SID")
+                        .and_then(|raw| raw.parse::<i32>().ok())
+                        == Some(0)
+                    {
+                        diagnostics.push(Diagnostic::new(
+                            "native_zero_mood_sid_reconciled",
+                            &format!("LightscenesC/LightsceneC[{}]/@SID", index + 1),
+                            "Stored Num matches the direct scene count. Config 17.2.10.21 can replace a loaded zero SID during reconciliation after nested serialization on both read and write. The allocator searches 1..99 and can return zero when exhausted; this inspector neither allocates an ID nor simulates native saving.",
+                        ));
+                    }
+                }
             }
         }
         check_identity(block, "U", selector, &mut diagnostics);

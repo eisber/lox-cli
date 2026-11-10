@@ -1,3 +1,5 @@
 tests/eval/golden/configs/*.Loxone filter=lfs diff=lfs merge=lfs -text
 tests/eval/golden/configs/*.loxone filter=lfs diff=lfs merge=lfs -text
 tests/ux/energy-manager2/load-customization-source.json text eol=lf
+tests/ux/energy-manager2/load-inheritance-source.json text eol=lf
+contracts/light-controller2.json text eol=lf

@@ -188,6 +188,126 @@ const RECOUNT_XML: &str = r#"<ControlList Version="267">
 </ControlList>"#;
 
 #[test]
+fn lighting_transaction_inspection_warns_on_explicit_zero_sid_without_allocating_ids() {
+    let xml = r#"<ControlList><C Type="LightController2" U="lighting">
+      <LightscenesC Num="2" Outputs="2">
+        <LightsceneC UUID="first" SID="+0" Outputs="1" Q1="00037">
+          <SeqConf Num="0" Future="retain"/>
+        </LightsceneC>
+        <Unknown><LightsceneC SID="0"/></Unknown>
+        <LightsceneC UUID="second" SID="000" Q9="future"/>
+      </LightscenesC>
+    </C></ControlList>"#;
+    let editor = ConfigEditor::load(xml.as_bytes()).unwrap();
+    let before = editor.to_bytes().unwrap();
+    let inspection = editor.inspect_lighting("uuid:lighting").unwrap();
+    let warnings: Vec<_> = inspection
+        .diagnostics
+        .iter()
+        .filter(|diagnostic| diagnostic.code == "native_zero_mood_sid_reconciled")
+        .map(|diagnostic| diagnostic.path.as_str())
+        .collect();
+    assert_eq!(
+        warnings,
+        [
+            "LightscenesC/LightsceneC[1]/@SID",
+            "LightscenesC/LightsceneC[2]/@SID"
+        ]
+    );
+    assert_eq!(inspection.moods[0].attributes["SID"], "+0");
+    assert_eq!(inspection.moods[0].attributes["Q1"], "00037");
+    assert!(!inspection.moods[0].attributes.contains_key("Q2"));
+    assert_eq!(editor.to_bytes().unwrap(), before);
+}
+
+#[test]
+fn lighting_transaction_inspection_warns_only_for_explicit_empty_zero_count() {
+    for (count, children, expected) in [
+        ("0", "", true),
+        ("+000", "<Unknown><LightsceneC SID=\"0\"/></Unknown>", true),
+        ("", "", false),
+        ("bad", "", false),
+        ("-1", "", false),
+        ("1", "", false),
+        ("0", "<LightsceneC SID=\"2\"/>", false),
+    ] {
+        let num = if count.is_empty() {
+            String::new()
+        } else {
+            format!("Num=\"{count}\"")
+        };
+        let xml = format!(
+            "<ControlList><C Type=\"LightController2\" U=\"lighting\"><LightscenesC {num} Outputs=\"2\">{children}</LightscenesC></C></ControlList>"
+        );
+        let editor = ConfigEditor::load(xml.as_bytes()).unwrap();
+        let before = editor.to_bytes().unwrap();
+        let inspection = editor.inspect_lighting("uuid:lighting").unwrap();
+        assert_eq!(
+            inspection
+                .diagnostics
+                .iter()
+                .any(|diagnostic| diagnostic.code == "native_empty_mood_collection_reinitialized"),
+            expected,
+            "{num} {children}"
+        );
+        assert_eq!(editor.to_bytes().unwrap(), before);
+    }
+}
+
+#[test]
+fn lighting_transaction_zero_sid_warning_requires_a_known_matching_native_count() {
+    for (num, expected) in [
+        ("", false),
+        ("Num=\"bad\"", false),
+        ("Num=\"4294967296\"", false),
+        ("Num=\"-1\"", false),
+        ("Num=\"0\"", false),
+        ("Num=\"1\"", false),
+        ("Num=\"3\"", false),
+        ("Num=\"2\"", true),
+        ("Num=\"+0002\"", true),
+    ] {
+        let xml = format!(
+            "<ControlList><C Type=\"LightController2\" U=\"lighting\"><LightscenesC {num}><LightsceneC UUID=\"first\" SID=\"0\"/><LightsceneC UUID=\"second\" SID=\"0\"/></LightscenesC></C></ControlList>"
+        );
+        let editor = ConfigEditor::load(xml.as_bytes()).unwrap();
+        let before = editor.to_bytes().unwrap();
+        let inspection = editor.inspect_lighting("uuid:lighting").unwrap();
+        let warnings = inspection
+            .diagnostics
+            .iter()
+            .filter(|diagnostic| diagnostic.code == "native_zero_mood_sid_reconciled")
+            .count();
+        assert_eq!(warnings, if expected { 2 } else { 0 }, "{num}");
+        assert_eq!(editor.to_bytes().unwrap(), before);
+    }
+}
+
+#[test]
+fn lighting_transaction_inspection_does_not_infer_zero_from_unknown_or_missing_sid() {
+    for sid in [
+        "",
+        "SID=\"bad\"",
+        "SID=\"4294967296\"",
+        "SID=\"-1\"",
+        "SID=\"2\"",
+    ] {
+        let xml = format!(
+            "<ControlList><C Type=\"LightController2\" U=\"lighting\"><LightscenesC Num=\"1\"><LightsceneC {sid}/></LightscenesC></C></ControlList>"
+        );
+        let editor = ConfigEditor::load(xml.as_bytes()).unwrap();
+        let inspection = editor.inspect_lighting("uuid:lighting").unwrap();
+        assert!(
+            !inspection
+                .diagnostics
+                .iter()
+                .any(|diagnostic| diagnostic.code == "native_zero_mood_sid_reconciled"),
+            "{sid}"
+        );
+    }
+}
+
+#[test]
 fn lighting_add_mood_recounts_direct_records_instead_of_incrementing_stale_num() {
     for replacement in [
         "",
@@ -197,7 +317,9 @@ fn lighting_add_mood_recounts_direct_records_instead_of_incrementing_stale_num()
         "Num=\"-1\"",
         "Num=\"9223372036854775807\"",
     ] {
-        let xml = RECOUNT_XML.replace("Num=\"99\"", replacement);
+        let xml = RECOUNT_XML
+            .replace("Num=\"99\"", replacement)
+            .replace("Outputs=\"3\"", "Outputs=\"2\"");
         let mut editor = ConfigEditor::load(xml.as_bytes()).unwrap();
         editor
             .add_mood("uuid:lighting", "Third", 42, None, None)
@@ -218,6 +340,122 @@ fn lighting_add_mood_recounts_direct_records_instead_of_incrementing_stale_num()
                 .iter()
                 .any(|diagnostic| diagnostic.code == "inconsistent_mood_count")
         );
+    }
+}
+
+#[test]
+fn lighting_native_append_uses_first_direct_mood_types_and_preserves_existing_storage() {
+    let xml = r#"<ControlList><C Type="LightController2" U="lighting">
+      <LightscenesC Num="99" Outputs="00020" Future="retain">
+        <Unknown><LightsceneC Name="Nested" Q2="-1"/></Unknown>
+        <LightsceneC UUID="first" Name="First" SID="2" CID="9" Outputs="3"
+          Q1="opaque-selected-output" Q2="1610612778" Q3="-1" Q18="future">
+          <SeqConf Future="retain"/>
+        </LightsceneC>
+        <LightsceneC UUID="second" Name="Second" SID="3" CID="10" Q2="0"/>
+      </LightscenesC>
+    </C></ControlList>"#;
+    let mut editor = ConfigEditor::load(xml.as_bytes()).unwrap();
+    let before = editor.inspect_lighting("uuid:lighting").unwrap();
+    editor
+        .add_mood("uuid:lighting", "New", 42, None, None)
+        .unwrap();
+    let after = editor.inspect_lighting("uuid:lighting").unwrap();
+    for (old, unchanged) in before.moods.iter().zip(&after.moods) {
+        assert_eq!(
+            serde_json::to_value(old).unwrap(),
+            serde_json::to_value(unchanged).unwrap()
+        );
+    }
+    let new = after.moods.last().unwrap();
+    assert_eq!(new.attributes["Outputs"], "18");
+    assert_eq!(new.outputs.len(), 18);
+    assert_eq!(new.attributes["Q1"], "42");
+    assert_eq!(new.attributes["Q2"], "1610612736");
+    assert_eq!(new.attributes["Q3"], "-268435456");
+    assert_eq!(new.attributes["Q18"], "0");
+    let collection = after
+        .nested_storage
+        .iter()
+        .find(|storage| storage.element == "LightscenesC")
+        .unwrap();
+    assert_eq!(collection.attributes["Outputs"], "00020");
+    assert_eq!(collection.attributes["Future"], "retain");
+    assert_eq!(collection.attributes["Num"], "3");
+}
+
+#[test]
+fn lighting_native_append_respects_source_read_bound_without_guessing_a_channel_maximum() {
+    for (width, expected_q2, expected_q13) in [
+        ("", "-2147483648", "0"),
+        ("Outputs=\"0\"", "-2147483648", "0"),
+        ("Outputs=\"20\"", "-2147483648", "1610612736"),
+        ("Outputs=\"1\"", "0", "0"),
+    ] {
+        let xml = format!(
+            "<ControlList><C Type=\"LightController2\" U=\"lighting\"><LightscenesC Outputs=\"future\" Num=\"1\"><LightsceneC Name=\"First\" {width} Q2=\"-2147483648\" Q13=\"1610612778\" Q19=\"opaque\"/></LightscenesC></C></ControlList>"
+        );
+        let mut editor = ConfigEditor::load(xml.as_bytes()).unwrap();
+        editor
+            .add_mood("uuid:lighting", "New", 42, None, None)
+            .unwrap();
+        let inspection = editor.inspect_lighting("uuid:lighting").unwrap();
+        let new = inspection.moods.last().unwrap();
+        assert_eq!(new.attributes["Outputs"], "18");
+        assert_eq!(new.attributes["Q2"], expected_q2, "{width}");
+        assert_eq!(new.attributes["Q13"], expected_q13, "{width}");
+        assert!(!new.attributes.contains_key("Q19"));
+        assert_eq!(inspection.moods[0].attributes["Q19"], "opaque");
+    }
+    let mut editor = ConfigEditor::load(
+        br#"<ControlList><C Type="LightController2" U="lighting"><LightscenesC Outputs="future" Num="0"><Unknown/></LightscenesC></C></ControlList>"#,
+    )
+    .unwrap();
+    editor
+        .add_mood("uuid:lighting", "New", 42, None, None)
+        .unwrap();
+    let inspection = editor.inspect_lighting("uuid:lighting").unwrap();
+    let new = &inspection.moods[0];
+    assert_eq!(new.attributes["Outputs"], "18");
+    assert_eq!(new.attributes["Q2"], "0");
+    assert_eq!(new.attributes["Q18"], "0");
+}
+
+#[test]
+fn lighting_native_append_rejects_unsupported_source_values_and_shapes_atomically() {
+    for fields in [
+        "Outputs=\"future\"",
+        "Outputs=\"-1\"",
+        "Outputs=\"2147483648\"",
+        "Outputs=\"2\" Q2=\"opaque\"",
+        "Outputs=\"2\" Q2=\"2147483648\"",
+    ] {
+        let xml = format!(
+            "<ControlList><C Type=\"LightController2\" U=\"lighting\"><LightscenesC Num=\"99\"><LightsceneC Name=\"First\" {fields}/></LightscenesC></C></ControlList>"
+        );
+        let mut editor = ConfigEditor::load(xml.as_bytes()).unwrap();
+        let before = editor.to_bytes().unwrap();
+        let error = editor
+            .add_mood("uuid:lighting", "New", 42, None, None)
+            .unwrap_err();
+        assert!(error.downcast_ref::<super::schema::Diagnostic>().is_some());
+        assert_eq!(editor.to_bytes().unwrap(), before);
+    }
+    for collections in [
+        "<Unknown><LightscenesC/></Unknown>",
+        "<LightscenesC/><LightscenesC/>",
+    ] {
+        let xml = format!(
+            "<ControlList><C Type=\"LightController2\" U=\"lighting\">{collections}</C></ControlList>"
+        );
+        let mut editor = ConfigEditor::load(xml.as_bytes()).unwrap();
+        let before = editor.to_bytes().unwrap();
+        assert!(
+            editor
+                .add_mood("uuid:lighting", "New", 42, None, None)
+                .is_err()
+        );
+        assert_eq!(editor.to_bytes().unwrap(), before);
     }
 }
 

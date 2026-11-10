@@ -346,6 +346,20 @@ fn print_inspection(ctx: &RunContext, inspection: &EnergyInspection) {
                     String::new(),
                 ]);
             }
+            for (field, gate) in [
+                ("mode_refresh_gate", load.inheritance.mode_refresh),
+                ("name_refresh_gate", load.inheritance.name_refresh),
+            ] {
+                csv_row(&[
+                    "inheritance".into(),
+                    load.priority.to_string(),
+                    load.id.clone().unwrap_or_default(),
+                    field.into(),
+                    String::new(),
+                    gate.label().into(),
+                    String::new(),
+                ]);
+            }
         }
     } else {
         if !ctx.no_header {
@@ -385,6 +399,18 @@ fn print_inspection(ctx: &RunContext, inspection: &EnergyInspection) {
                     .as_deref()
                     .or(load.icon.as_deref())
                     .unwrap_or("(none)")
+            );
+        }
+        if !ctx.no_header {
+            println!("\nINHERITANCE GATES (not resolved values; restore operation not recovered)");
+            println!("PRIORITY MODE                              NAME");
+        }
+        for load in &inspection.loads {
+            println!(
+                "{:<8} {:<33} {}",
+                load.priority,
+                load.inheritance.mode_refresh.label(),
+                load.inheritance.name_refresh.label()
             );
         }
         println!(

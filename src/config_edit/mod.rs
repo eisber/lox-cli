@@ -1619,7 +1619,7 @@ Unit='a > b' Unit='a > b'/><部屋 Title='同じ' Title='同じ'/></ControlList>
   </C>
 </ControlList>"#;
 
-        // Default SID/CID = next free custom (3 / 10); Q1 set, Q2..Q3 zeroed.
+        // Default SID/CID = next free custom (3 / 10); Q1 set explicitly.
         let mut editor = ConfigEditor::load(SAMPLE).unwrap();
         let (name, uuid, sid, cid) = editor
             .add_mood("uuid:lc-1", "Purple", 1_640_612_766, None, None)
@@ -1635,7 +1635,9 @@ Unit='a > b' Unit='a > b'/><部屋 Title='同じ' Title='同じ'/></ControlList>
         assert!(xml.contains(r#"Q1="1640612766""#));
         // Num bumped 3 -> 4.
         assert!(xml.contains(r#"Num="4""#));
-        // Mirrors container Outputs (3) — Q1..Q3 present.
+        // New native-style width is independent of the stored collection width.
+        assert!(xml.contains(r#"Outputs="18""#));
+        assert!(xml.contains(r#"Q18="0""#));
         assert!(xml.contains(r#"Q3="0""#));
 
         // Explicit SID/CID overrides.

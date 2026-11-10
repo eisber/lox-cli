@@ -115,6 +115,20 @@
       "required_case_ids": ["gui-load-edit", "gui-custom-markers"]
     },
     {
+      "id": "load-inheritance-gates",
+      "kind": "feedback",
+      "binding": {"status": "known", "path": "Load/@Anc,Load/@Ncu", "reason": "Source-backed read-only inspection, not an inherited-value resolver: Anc=true blocks BOTH mode and name refresh, while Ncu=true independently blocks name. Absent/false markers leave the relevant source unresolved; invalid markers remain explicitly unknown unless another known marker already blocks the gate. Native0x14061c6b0 selects the first downstream output-connection record by OIdx. Mode comes from its input connector virtual+0x68 (standard0x14045ee90: descriptor analog bit or owner virtual+0x498). Name comes from the connected owner or its optional+0xc8 referenced object, preferring nonempty Desc(+0x2b8), otherwise Title(+0x58). CLI does not infer those instance-specific values, reorder connections, refresh Na/An, or clear markers. No new GUI observation."},
+      "source_evidence": [{"evidence_kind": "native", "artifacts": [{"path": "tests\\ux\\energy-manager2\\load-inheritance-source.json", "sha256": "717c841e683355b5e3d2717408cd7a4ba6114a51a544d56c9b33762bbf81fe6c"}]}],
+      "required_case_ids": ["unit-load-inheritance-gates", "cli-load-inheritance-gates"]
+    },
+    {
+      "id": "load-restore-inherited",
+      "kind": "condition",
+      "binding": {"status": "unknown", "reason": "No explicit restore-inherited operation or intentional marker-clear caller is recovered; this is NOT proof that the UX is absent. Need an actual existing-load caller deliberately zeroing CLoad+0xac(Anc) and/or+0x68(Ncu) before0x14061c6b0, and the precise restored-field scope. Constructor0x140613ef0 zero initialization, payload-copy0x140614f40 and sort0x140939b10 do not establish that operation. Inspected direct-refresh callers0x14019de60,0x1406145e0 and0x1406199d0 do not establish it either. Resolved source expressions still require native first-connection ordering, optional owner+0xc8 reference binding and dynamic mode fallback owner virtual+0x498 for the selected instance. Therefore no restore mutation or guessed default is offered; direct clear/custom setters remain unchanged."},
+      "source_evidence": [{"evidence_kind": "native", "artifacts": [{"path": "tests\\ux\\energy-manager2\\load-inheritance-source.json", "sha256": "717c841e683355b5e3d2717408cd7a4ba6114a51a544d56c9b33762bbf81fe6c"}]}],
+      "required_case_ids": ["gui-load-restore-inherited"]
+    },
+    {
       "id": "load-output-association",
       "kind": "nested_record",
       "binding": {"status": "known", "path": "Load/@OIdx", "reason": "Integer zero-based output L(OIdx+1), 0..11 in twelve-slot model. NOT priority; original OIdx stays with its load during GUI sorting."},
@@ -278,6 +292,9 @@
     }
   ],
   "cases": [
+    {"id": "unit-load-inheritance-gates", "capability_ids": ["load-inheritance-gates"], "condition": "Absent/false/true/invalid Anc and Ncu, including custom mode with uncustomized name and a connected consumer", "evidence_kind": "unit_test", "procedure": "Execute config_edit::energy_tests::energy_inheritance_inspection regressions on independently authored synthetic records.", "expected": "Anc blocks both refresh gates even when Ncu=false. Ncu independently blocks name; otherwise invalid values remain unknown and open gates report source_unresolved. Do not derive a name/mode from a nearby connected consumer, U, constructor defaults or record priority. Exact storage and editor serialization are unchanged."},
+    {"id": "cli-load-inheritance-gates", "capability_ids": ["load-inheritance-gates"], "condition": "Actual CLI inspect in JSON, table and CSV formats on the existing independent synthetic project", "evidence_kind": "implementation", "procedure": "Execute tests\\energy_inheritance_source.rs; inspect the same fixture in all three output formats.", "expected": "Per-load mode/name gate status is visible, source_unresolved does not imply a derived value or restore support, saved_to is null and exact input bytes are unchanged."},
+    {"id": "gui-load-restore-inherited", "capability_ids": ["load-restore-inherited"], "condition": "Future validation of a source-backed restore operation, only if an intentional existing-load caller is recovered", "evidence_kind": "gui_oracle", "procedure": "First recover the intentional marker-clearing caller, restored-field scope and connected instance dataflow. Then validate that specific operation in an owned offline GUI save/reopen case; do not substitute construction, copied zero flags or opaque helper effects. This does not block the current source-backed gate inspection.", "expected": "Not run; the restore caller remains unresolved. No restore CLI mutation, guessed Na/An values or claim that an unobserved restore UX is absent."},
     {"id": "gui-defaults", "capability_ids": ["offset-grid-power", "minimum-state-of-charge", "maximum-storage-power"], "condition": "Public offline sample, all scalar defaults", "evidence_kind": "gui_oracle", "procedure": "Open owned disposable project, select Energy Manager, inspect widgets, save baseline, inspect Co Def storage.", "expected": "All three widgets 0; baseline omits Def and preserves scalar connector identities."},
     {"id": "gui-offset-signed", "capability_ids": ["offset-grid-power"], "condition": "Signed fractional O with locale-correct decimal separator", "evidence_kind": "gui_oracle", "procedure": "Enter -1,25 then later 2,75 in owned GUI O widget; save and independently inspect invariant Def.", "expected": "O is Offset grid power parameter; saved Def -1.25 and 2.75."},
     {"id": "gui-minsoc-bounds", "capability_ids": ["minimum-state-of-charge"], "condition": "MinSoc zero, upper endpoint and attempted over-bound entry", "evidence_kind": "gui_oracle", "procedure": "Enter100, attempt101 while previous100, then enter0; save and record actual widget/storage feedback.", "expected": "100 and0 accepted; attempt101 remains100 in observed session; zero Def omitted. Do not substitute CLI rejection text for GUI filtering."},

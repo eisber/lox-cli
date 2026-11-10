@@ -1,0 +1,160 @@
+{
+  "schema_version": 1,
+  "issue": "lox-mhkk",
+  "parent_batch": "lox-3c7i",
+  "application": {
+    "version": "17.2.10.21",
+    "architecture": "AMD64",
+    "sha256": "7b55e3ef18401574ab967c5c6a0140cd5a66dc728521ebba04ad53093577d8b3"
+  },
+  "corpus": {
+    "installation_sha256": "a3003005776b327f5e666a072a64f5c569182b86174c0f578d5be3267ce28f85",
+    "analysis_id": "6a0520329af17d7b9fdaafe69398c62c454d9da838fc9f9c8d0bdd8d17bb15ae",
+    "function_path_rule": ".reverse-engineering\\versions\\<installation_sha256>\\analysis\\<analysis_id>\\LoxoneConfig.exe\\code\\functions\\<function>.c"
+  },
+  "question": "Is there an explicit restore-inherited operation for EnergyManager2 load name/mode, which caller intentionally clears customization markers, and which connected object supplies inherited values?",
+  "evidence_kind": "native",
+  "scope": "New static semantic summary only. Historical field bindings, setter evidence, sealed receipts and GUI observations are unchanged. No vendor bodies or vendor fixture are published.",
+  "answer": {
+    "explicit_restore_operation": "not_recovered",
+    "absence_claim": false,
+    "intentional_marker_clear_caller": "unresolved",
+    "mutation_supported": false,
+    "reason": "The inspected Energy setter, dialog-copy/sort and direct-refresh callers do not establish an intentional restore operation. Constructor initialization and copying a record that already has zero markers are not such operations.",
+    "cli_delivery": "config energy inspect now reports per-load inheritance.mode_refresh and inheritance.name_refresh customization gates, without clearing markers, resolving a connected value, or writing the input file."
+  },
+  "anchors": [
+    {
+      "function": "0x14061c6b0",
+      "export_sha256": "8d02b9932fc80fe7db5a6060e14014cb6ad765161831a0c998467c34f3ca1cf2",
+      "lines": [32, 113],
+      "relation": "For connector indices22..33, find the Load by OIdx, not record priority. When an output connector has a nonnull first output-connection record and Anc(+0xac)==0, refresh mode from its connected input connector virtual+0x68. Name additionally requires Ncu(+0x68)==0 and a nonnull connected owner. Prefer that owner's +0xc8 referenced object when present, then its nonempty string+0x2b8, otherwise string+0x58. Assign only if the selected name differs. No marker is cleared by this function."
+    },
+    {
+      "function": "0x140446520",
+      "export_sha256": "44f7aed889630332c824ba7572cf2dfc30679904c2d2345262f5bdc5c209dcd0",
+      "lines": [13, 20],
+      "relation": "The standard Energy block vtable+0x4b0 getter indexes the connector pointer array at block+0x1f8 with count+0x200; out-of-range returns null."
+    },
+    {
+      "function": "0x14042e550",
+      "export_sha256": "521b803e774c53e01b915215b1ccfaa67c805f0f7fc480e39fc6c46413bbe7a5",
+      "lines": [13, 37],
+      "relation": "Build an output-connection record with +8=connected owner and +0x10=IoConnection, then insert into the output connector's array at+0x118. Some owner types append while others prepend. Therefore native first-connection order is not guessed from a nearby XML node."
+    },
+    {
+      "function": "0x14042f6a0",
+      "export_sha256": "cd072783ce0abcb55c7dd51c9d3c76187eb34c6d83c24115125617095294145c",
+      "lines": [13, 28],
+      "relation": "The standard connector add-connection virtual+0x28 writes IoConnection+0x20=this connector before inserting the input connection. The Energy refresh reads this connected input connector, not an arbitrary producer, to derive mode."
+    },
+    {
+      "function": "0x14045ee90",
+      "export_sha256": "67830e0e71a39b7b6ce5582e99e8f9d22c894e93347c2f58971a519690e6354f",
+      "lines": [13, 32],
+      "relation": "Standard CControlObjectConnector virtual+0x68: if metadata exists and metadata flags+0x10 have mask0x03000000 nonzero, return mask0x20000000. Otherwise return0 if owner+0x18 is null, or dispatch owner virtual+0x498 with this connector. This dynamic fallback and alternate connector vtables are not resolved as one universal boolean default."
+    },
+    {
+      "function": "0x14047e260",
+      "export_sha256": "324b61caabd1aa8c0529020bbf3df31c502ef5a7f3763655ceb15be3e53dbb6b",
+      "lines": [65, 185],
+      "relation": "Common control XML transfer binds object+0x2b8 to Desc (static key0x141633a90) and object+0x58 to Title. These are the fields selected by the Energy name refresh; the optional referenced object at+0xc8 still requires instance-specific resolution."
+    },
+    {
+      "function": "0x14019de60",
+      "export_sha256": "c10b26a56014eb1b4fac6378deef6935e3bb39ca27fda83c168860af2d627f0b",
+      "lines": [935, 976],
+      "relation": "EnergyManager2 branch0x203 refreshes before populating twelve dialog records. It copies complete load payloads into the dialog; only accepted exec result1 copies them back, followed by refresh. There is no explicit customization-marker-zero store in this branch."
+    },
+    {
+      "function": "0x140614f40",
+      "export_sha256": "ebbe09c411c9e98301abade08a93a41aef42decbe2c1e6410f218e5848a9cfd3",
+      "lines": [22, 50],
+      "relation": "Load payload copy includes Ncu(+0x68), Anc(+0xac), name and mode. Copy-back or sort of an already inherited record is not an explicit restore action."
+    },
+    {
+      "function": "0x1406145e0",
+      "export_sha256": "0a7041d41b2e974fc738824fc4992e5014d3f48b06f5428dbdeb7ede85619c15",
+      "lines": [13, 19],
+      "relation": "Calls the base helper0x1404317f0 then Energy refresh. Its decompiler explicitly models the refresh call as terminal; this summary assumes ordinary successful return when describing the call sequence, not a native execution observation."
+    },
+    {
+      "function": "0x1404317f0",
+      "export_sha256": "294ccf94e203c90c72691a34aa0742bfc8bfbf6e4d9f4cd39baa49c2561e6f3f",
+      "lines": [13, 18],
+      "relation": "Clears bit0x40000000 of the block flags at+0x2e8, not either Load customization marker."
+    },
+    {
+      "function": "0x1406199d0",
+      "export_sha256": "54e61228162a47a9b7194cee9959fcf81befd4c8a65cab5b0fbdb15bf3b715a8",
+      "lines": [13, 148],
+      "relation": "Initializes runtime block/load state and then invokes refresh. Explicit zero stores in this body do not target the Load+0x68/+0xac customization markers. Its base and virtual calls are not asserted generally heap-pure."
+    },
+    {
+      "function": "0x140613ef0",
+      "export_sha256": "88d34d6eabaafda303ca505286c6e10c5ffa82b0766cfe6058491dbbf21ea1b8",
+      "lines": [17, 56],
+      "relation": "Constructor initializes Ncu and Anc to zero in a new CLoad. It is not evidence of an intentional restore operation on an existing load."
+    },
+    {
+      "function": "0x140939b10",
+      "export_sha256": "a8cbc4cb9fc6d3a9126ea362d37f4540634fdd8222f49ce57ba93eacfcb4edf4",
+      "lines": [70, 99],
+      "relation": "Energy2 sorting copies an existing record into a constructed temporary, then swaps complete payloads using0x140614f40. Temporary construction does not reset the existing rows' customization markers."
+    },
+    {
+      "function": "0x140615a40",
+      "export_sha256": "824659726205f921d5a1dd22bd57d73c412dec98e92e94dd27d8b757397f8c5a",
+      "lines": [29, 57],
+      "relation": "The recovered direct mode-choice builder offers values0 and1, not a third inherited/reset value. This bounded observation does not prove that no other UX can exist."
+    }
+  ],
+  "static_byte_pins": [
+    {
+      "address": "0x14102e1c0",
+      "length": 8,
+      "sha256": "88e791e13709985736cf6e81c15b65c059da2ff86289e43848853beda526a2b2",
+      "relation": "EnergyManager2 vtable+0x4b0 entry points to0x140446520."
+    },
+    {
+      "address": "0x140ec3a88",
+      "length": 8,
+      "sha256": "3c1106697650ecca835894976f1aac801769cc9de6d2c2c946dd553e90bfb301",
+      "relation": "CControlObjectConnector vtable+0x28 entry points to0x14042f6a0."
+    },
+    {
+      "address": "0x140ec3ac8",
+      "length": 8,
+      "sha256": "537011579ab19f17891a68ecf5da198754f955b492ae34158031b71086d27250",
+      "relation": "CControlObjectConnector vtable+0x68 entry points to0x14045ee90."
+    },
+    {
+      "address": "0x141633a90",
+      "length": 5,
+      "sha256": "d16f8e3d94e4b082c065bd6b9a1d1f98a8c3a5ead5708fac1e73be59996cc053",
+      "relation": "NUL-terminated ASCII XML key Desc."
+    }
+  ],
+  "inspection_contract": {
+    "scope": "Customization gates only. An open gate does not prove a connection exists, a value can be derived, or refresh will change storage. U is not used as a substitute for native connection resolution.",
+    "mode_refresh": "Anc=true -> blocked_by_mode_customization; absent/false -> source_unresolved; invalid storage -> unknown_mode_customization.",
+    "name_refresh": "Anc=true blocks regardless of Ncu. Otherwise Ncu=true independently blocks. Otherwise invalid Anc or Ncu stays explicitly unknown; both absent/false -> source_unresolved.",
+    "preservation": "Inspection preserves exact Na/An/Ncu/Anc storage, all other attributes/children/order and input file bytes. StoredValue effective/default members remain storage interpretations, not the native connected refresh result."
+  },
+  "remaining_dependency": {
+    "intentional_operation": "Identify an actual operation/caller that deliberately zeroes CLoad+0xac and/or+0x68 on an existing load before0x14061c6b0, and establish which fields the operation restores. Neither a fresh constructor nor opaque helper side effects nor copied zero flags suffice.",
+    "connected_values": "Resolve native first output-connection order for the selected OIdx, its connected owner and optional owner+0xc8 reference, and its input connector's actual virtual+0x68 receiver. Where0x14045ee90 takes the dynamic branch, resolve the owner virtual+0x498 result for that instance/type.",
+    "not_a_prerequisite": "The old lox-09p wrapper+0xb8 caller theorem and native GUI validation are not prerequisites for these direct field reads or the read-only CLI gate report."
+  },
+  "normal_return_assumptions": [
+    "Valid Energy block, CLoad, connector and connection records at the stated reads; the source pointers continue to designate the same live connected objects through the relevant helper calls.",
+    "The stated standard virtual-table destinations apply when claiming their direct implementations; alternate dynamic receivers and owner virtual+0x498 remain unresolved.",
+    "String conversion/comparison/copy and relevant helper calls return successfully. No general heap-purity, arbitrary alias/lifetime, exception rollback or GUI signal-delivery theorem is claimed.",
+    "No native execution, accepted edit, GUI-save/reopen observation or proof that a restore UX is absent is inferred."
+  ],
+  "tests": [
+    "config_edit::energy_tests::energy_inheritance_inspection_respects_coupled_customization_gates_without_editing",
+    "config_edit::energy_tests::energy_inheritance_inspection_does_not_infer_values_from_connected_consumers",
+    "energy_inheritance_cli_inspection_reports_gates_without_resolving_or_writing"
+  ]
+}

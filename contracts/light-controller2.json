@@ -6,6 +6,8 @@
     "inspect_stored_mood_outputs": true,
     "inspect_output_connector_references": true,
     "inspect_unknown_nested_attributes": true,
+    "inspect_native_mood_reconciliation_risks": true,
+    "author_native_style_mood_output_defaults": true,
     "repair_stored_mood_count": true,
     "new_nested_edits": true,
     "gui_roundtrip_verified": false,
@@ -72,7 +74,7 @@
     "document_versions": "raw-serialized-metadata-not-authentication",
     "unknown_xml": "read-only-structured-element-and-attribute-inventory",
     "file_writes": "explicit lighting recount-moods changes only collection Num; existing writer may update Document Date/DateS when content changes; inspection remains read-only",
-    "existing_mood_commands": "prior-art-not-newly-GUI-verified;set_mood_color-rejects-zero-index-only;positive-index-behavior-unchanged;add_mood-sets-Num-from-resulting-direct-scene-count"
+    "existing_mood_commands": "not-newly-GUI-verified;set_mood_color-positive-index-behavior-unchanged;add_mood-recounts-and-uses-source-backed-18-output-type-defaults;CLI-ID-policy-unchanged"
   },
   "mood_count_repair": {
     "command": "lox config lighting recount-moods FILE BLOCK [--room ROOM] [--save-as PATH]",
@@ -140,7 +142,7 @@
       "copy_observation": "The frozen PE pointer resolves collection +0x28 to this copier. For copy mode 0 it assigns destination Num from source vector size and copies collection Outputs separately from source +0x50, then copies each scene. It does not derive scene Outputs from collection Outputs as a final invariant.",
       "scene_copy": "0x1405b4bc0",
       "scene_copy_sha256": "0474ef4d60b41e52680e9178c50e2defb4ce3e351ed432116c0f7413fb37218a",
-      "scene_copy_observation": "Copies per-scene Outputs from source +0x9c, identities/flags and both integer vectors. The optional SeqConf indirect-copy branch is not fully recovered here; no sequence preservation/parity proof is promoted."
+      "scene_copy_observation": "Copies per-scene Outputs from source +0x9c, identities/flags and both integer vectors. The optional SeqConf copy branch is resolved in recovered_edit_save_transaction below; full sequence preservation/parity remains unclaimed."
     },
     "sparse_native_read": {
       "binder": "0x1405b7df0",
@@ -167,9 +169,103 @@
       }
     ],
     "remaining_dependencies": [
-      "Existing add_mood in src/config_edit/wiring.rs now assigns Num from the resulting direct scene count. It still uses parsed collection Outputs or fallback 18 and zero-fills Q2..Qn; changing append width/default encoding/IDs requires a separately coordinated edit of that existing method and its command contract.",
-      "A complete edit-to-disk/cancel transaction still requires post-copy hooks 0x1401483a0(root owner, block) and 0x140469a90(block) in caller 0x14019de60, plus the save dispatch to reader/writer 0x1405d1580. The collection +0x28 copy-back target itself is now pinned, not an unresolved dependency.",
+      "Existing add_mood now assigns Num from the resulting direct scene count and uses native_style_mood_initialization below. Its selected Q1 color and CLI SID/CID policy remain explicit CLI behavior, not full native append/import parity.",
+      "The named post-copy hooks, save dispatch and optional SeqConf copy are recovered in recovered_edit_save_transaction below. Whole-document cancel/no-op behavior, pre-modal migration and unrelated UI/runtime callbacks are not covered by that bounded transaction.",
       "No universal channel maximum, AQn/Qn/NameAI role mapping, full RGB/sequence edit semantics, arbitrary malformed-number behavior or full-family/runtime parity is established."
+    ]
+  },
+  "native_style_mood_initialization": {
+    "issue": "lox-zuo1",
+    "command": "lox config add-mood FILE BLOCK --name NAME --color COLOR [--sid SID] [--cid CID] [--save-as PATH]",
+    "compatibility": "Intentional new default: use the recovered 17.2.10.21 append-path output initialization instead of mirroring collection Outputs and zero-filling unselected outputs. Explicit user-selected Q1 and existing CLI SID/CID policies are unchanged.",
+    "source_basis": [
+      {"address": "0x1405b48e0", "sha256": "09d4870c352d9621c32403f1fe1651967205f7b78c3bdc74866370f7714b14db", "fact": "Constructs a scene with width 0x12, appends it, and initializes each primary slot from the first scene's corresponding value masked with 0xf0000000; outside-source-vector values become zero."},
+      {"address": "0x1405b7df0", "sha256": "9f0ff6bd3dcc724a599e3324483c9b584f1e1128c4a3d6bf9604ecc328bf9d58", "fact": "Reader uses per-scene Outputs, with missing/zero mapped to 0x0c, and reads only that Qn bound. Missing in-range values reconstruct zero on the previously recovered helper chain."},
+      {"address": "0x1405d1580", "sha256": "16512152985127a4f4455e3002399b715a8a9743455ee61c3fa27a954fbde0e6", "fact": "Reader-only later width normalization to 0x12 does not re-read higher stored Qn skipped by the earlier scene bound."}
+    ],
+    "rules": [
+      "Require exactly one direct LightscenesC and choose its first direct LightsceneC, ignoring nested lookalike records.",
+      "Create Outputs=18 and Q1..Q18. This is the recovered construction width, not a universal maximum or an AQn/Qn role join.",
+      "The explicit selected color replaces Q1; its source spelling/value is not interpreted. For Q2..Q18 preserve only the signed-32-bit source value's high nibble, after applying the first scene's reader bound. Missing values or positions outside that bound initialize zero.",
+      "Missing/zero first-scene Outputs means 12. Positive widths must fit signed 32 bits; invalid/negative/out-of-range widths and needed opaque/out-of-range values are rejected atomically instead of guessed.",
+      "An empty collection has no inherited types. Existing records, sequence/unknown data, widths and the raw collection Outputs remain unchanged.",
+      "CLI authoring operates on existing direct XML records and recounts the resulting records even if stored Num was stale; it does not simulate native import discarding records or injecting built-in scenes."
+    ],
+    "tests": ["src/config_edit/lighting_tests.rs: lighting_native_append_*", "tests/lighting_native_append.rs"],
+    "limits": "Source-backed output initialization and synthetic/CLI persistence only. No new native GUI observation, whole-load/save transaction, native ID allocator, universal channel limit, full color/sequence or runtime parity."
+  },
+  "recovered_edit_save_transaction": {
+    "issue": "lox-tp6y",
+    "named_question": "After accepted Lighting dialog copy-back, which post-copy/save/SeqConf operations can change scene count, widths or Qn values, and what differs on cancel?",
+    "assumptions": [
+      "Frozen 17.2.10.21 AMD64 static normal-return dataflow; valid distinct objects, successful allocations and ordinary member/string/vector helper behavior.",
+      "Resolved connector getters and graph traversal/label helpers operate on their indicated objects, without reentrant scene edits or aliasing scene vectors to unrelated members.",
+      "No generic heap-purity or factory-ownership proof, native ABI execution, GUI verification, disk-commit guarantee or runtime parity is claimed.",
+      "The accepted branch is not itself a save. Serializer order below applies when the common XML dispatcher reaches the recovered virtual call."
+    ],
+    "accepted_vs_cancel": {
+      "caller": "0x14019de60",
+      "reused_copy_targets": ["0x1405b4e50", "0x1405b4bc0"],
+      "accepted": "Modal return 1 copies the temporary scene collection and selection data back, copies channel metadata, then runs owner notifications/refresh, 0x1401483a0(owner,block) and 0x140469a90(block). Existing copy-back recounts Num from the source vector and copies collection Outputs and each scene's Outputs/Q vectors independently.",
+      "cancel": "Other modal returns at this site skip that copy-back and the accepted-only post-copy hooks, then destroy the temporary dialog. This is not a whole-document byte-for-byte cancel guarantee: the pre-modal call 0x1404ca730(owner+0x198,block,0,-1), conditional dirty notification and any later independent save are outside that claim.",
+      "conditional_refresh": "Accepted-only primary +0xf20 resolves to 0x1405c80a0 when the owner flags permit it; its explicit work resets controller/connector/runtime state and reads scene values, not Num, scene Outputs or the primary Q vector. Its base refresh callbacks are subject to the stated ordinary-helper assumption."
+    },
+    "post_copy_hooks": [
+      {
+        "address": "0x1401483a0",
+        "sha256": "8f376f2d8164a3c8064bede1819ebd15877c8c7e0a7fb3973126acb5a75a8450",
+        "observation": "Finds references through 0x1404fa990, copies the block's +0x58 string to referencing objects and invokes 0x1401484c0 on references and the original block. That helper traverses connectors and refreshes labels of linked type-0x139/0x13a objects through 0x1406f1840. No direct scene count, width or Q-vector assignment is present on these recovered paths."
+      },
+      {
+        "address": "0x140469a90",
+        "sha256": "c5418e1b07d7ea6918c93f6164e6e8248dd94a61c5424c8d6d5769fe36d99665",
+        "observation": "Conditionally sets block +0x2e8 bit 0x20000000, enumerates connectors through primary +0x4b0 (0x140446520), collects connected objects with 0x1404462d0 and recursively marks them. It does not directly assign Num, either Outputs field or Q values. This is graph dirty propagation, not a second scene copier or width normalizer."
+      }
+    ],
+    "save_dispatch": {
+      "common_serializer": "0x14047e260",
+      "common_serializer_sha256": "324b61caabd1aa8c0529020bbf3df31c502ef5a7f3763655ceb15be3e53dbb6b",
+      "callsite": "0x14047f66c",
+      "primary_vtable": "0x14101a190",
+      "slot_offset": "0x40",
+      "slot_pointer_address": "0x14101a1d0",
+      "target": "0x1405d1580",
+      "target_sha256": "16512152985127a4f4455e3002399b715a8a9743455ee61c3fa27a954fbde0e6",
+      "order": [
+        "Invoke primary +0x1180 -> 0x1405c9740. Its nested collection binder serializes collection Num/Outputs and scenes first; collection Outputs is then assigned 0x12 in memory.",
+        "Bind the separate root+0x1cd0 IoData member, then call 0x1405c6770 without a reader/writer-mode guard.",
+        "Reconciliation assigns every zero in-memory scene SID from 0x1405b5560, then Num from the actual scene-vector size. The allocator searches free 1..99 and can return zero when exhausted; this is not the CLI append-ID policy.",
+        "If the actual scene vector is empty, reconciliation sets collection Outputs to 0x12 and calls 0x1405c4ac0, which appends the two missing built-in SID 0x309/0x30a scenes. The first is initialized through 0x1405ccb60, including primary Q values. This is a genuine count/width/value-changing path, not merely recounting.",
+        "Only on the reader branch, after those steps, 0x1405b70e0(scene,0x12) assigns each counted scene Outputs and resizes both integer vectors; it does not re-read fields skipped by the earlier reader bound."
+      ],
+      "writer_consequence": "On the writer path, collection/scene serialization precedes reconciliation. Later in-memory Num/SID/default-scene changes are not retroactively emitted by the already completed nested calls; a later serialization can observe them. The writer does not take the reader-only scene-width normalization branch, and scene Qn serialization uses the actual primary vector size, not collection Outputs.",
+      "scope": "Recovered member-level serialization order, not an assertion about every Save UI entry point, whole-document normalization, physical file replacement or malformed documents."
+    },
+    "optional_seqconf_copy": {
+      "scene_member_offset": "0xb0",
+      "factory": "0x1405b5220",
+      "factory_sha256": "ee907ba9c7e8723a949b315c45ab987f06bd888a372d79e7c27d5ee9461c3d27",
+      "vtable": "0x141019538",
+      "copy_slot_offset": "0x8",
+      "copy_slot_pointer_address": "0x141019540",
+      "copy_target": "0x1405b50c0",
+      "copy_target_sha256": "ba7d3a60937c932d9dad8a9591ef622f1c1fb2dcd521f8a2545f368d86f69007",
+      "entry_copy": "0x1405b4f70",
+      "entry_copy_sha256": "b5169d839f6fd8cd019f9ee878e6d7d5fcce24685b9a4a96e55ad61729a7bbf0",
+      "observation": "Scene copy enters this optional branch only when source +0xb0 exists. It counts source sequence entries having a nonzero payload-vector size; if any exists, the resolved config copier clears destination entries and copies all nonnull source entries at their indices via 0x1405b4810. Static bytes confirm the source entry is the third (R8) argument omitted from that helper call in pseudocode. Entry copy duplicates its color payloads and selected metadata; 0x1405b4810 resets entry +0x10. With no nonempty source entry the optional config is not copied. This path does not write collection Num, either Outputs field or either already copied Q vector.",
+      "serialization": "Config binder 0x1405b88e0 emits no SeqConf when every sequence payload is empty, and emits seqN records only for nonempty entries. Entry binder 0x1405b8610 can normalize its IpType storage to 4 unless it is 4 or 5, on either read or write. These are nested sequence effects, not a Qn role/encoding model or full sequence-preservation promise."
+    },
+    "inspection_diagnostics": {
+      "command": "lox config lighting inspect FILE BLOCK",
+      "native_empty_mood_collection_reinitialized": "Warn only for exactly one direct collection with an explicitly parsed signed-32-bit Num=0 and no direct scene records. Do not equate missing/invalid Num or nested-only records with a known native empty vector.",
+      "native_zero_mood_sid_reconciled": "Warn only when exactly one direct collection has an explicitly parsed nonnegative signed-32-bit Num matching its actual direct scene count, and a direct scene has an explicitly parsed signed-32-bit zero SID. Native loading iterates Num; missing/invalid/negative/under-counted/over-counted Num therefore suppresses this diagnostic rather than assuming every stored scene is loaded. Missing, malformed or out-of-range SID is not inferred to be zero, and no replacement ID is generated.",
+      "preservation": "Read-only in JSON/table/CSV, including --quiet: retain BOM/line endings, identities, sparse/opaque Qn, Outputs, unknown nested data and all original bytes. No native save simulation or append/default policy change.",
+      "tests": ["src/config_edit/lighting_tests.rs: lighting_transaction_*", "tests/lighting_transaction_capability.rs"]
+    },
+    "remaining_dependencies": [
+      "Whole-dialog cancel purity would additionally require the pre-modal 0x1404ca730 effect and unrelated owner/UI callback/reentrancy contracts. The named post-copy hooks, save virtual target and optional sequence copy target are resolved, not remaining unknown targets.",
+      "No mutation reproduces default-scene creation, zero-SID allocation or sequence normalization. The separately approved lox-zuo1 output initialization is implemented above; CLI identity allocation and selected Q1 behavior remain outside that native transaction claim.",
+      "No complete sequence/color semantics, universal channel limit, AQn/Qn/NameAI role mapping, malformed-number behavior or full editor/GUI/runtime parity."
     ]
   },
   "existing_mood_edit_validation": {

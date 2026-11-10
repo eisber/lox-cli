@@ -34,6 +34,117 @@ fn first_id() -> &'static str {
     "b0000000-0000-0000-0000-000000000000"
 }
 
+#[test]
+fn energy_inheritance_inspection_respects_coupled_customization_gates_without_editing() {
+    use EnergyInheritanceGate::*;
+
+    for (mode, name, expected_mode, expected_name) in [
+        (None, None, SourceUnresolved, SourceUnresolved),
+        (Some("false"), Some("0"), SourceUnresolved, SourceUnresolved),
+        (
+            Some("true"),
+            Some("false"),
+            BlockedByModeCustomization,
+            BlockedByModeCustomization,
+        ),
+        (
+            Some("0"),
+            Some("1"),
+            SourceUnresolved,
+            BlockedByNameCustomization,
+        ),
+        (
+            Some("1"),
+            Some("true"),
+            BlockedByModeCustomization,
+            BlockedByModeCustomization,
+        ),
+        (
+            Some("invalid"),
+            Some("false"),
+            UnknownModeCustomization,
+            UnknownModeCustomization,
+        ),
+        (
+            Some("false"),
+            Some("invalid"),
+            SourceUnresolved,
+            UnknownNameCustomization,
+        ),
+        (
+            Some("true"),
+            Some("invalid"),
+            BlockedByModeCustomization,
+            BlockedByModeCustomization,
+        ),
+        (
+            Some("invalid"),
+            Some("true"),
+            UnknownModeCustomization,
+            BlockedByNameCustomization,
+        ),
+    ] {
+        let mut editor = editor();
+        let path = editor.require_one("Pilot").unwrap();
+        let load = editor
+            .get_element_mut(&path)
+            .children
+            .iter_mut()
+            .filter_map(|node| node.as_mut_element())
+            .find(|child| child.name == "Load")
+            .unwrap();
+        load.attributes
+            .insert("Na".into(), "Stored custom text".into());
+        load.attributes.insert("An".into(), "true".into());
+        for (key, value) in [("Anc", mode), ("Ncu", name)] {
+            if let Some(value) = value {
+                load.attributes.insert(key.into(), value.into());
+            }
+        }
+        let before = editor.to_bytes().unwrap();
+        let inspection = editor.inspect_energy("Pilot").unwrap();
+        let load = &inspection.loads[0];
+        assert_eq!(load.inheritance.mode_refresh, expected_mode);
+        assert_eq!(load.inheritance.name_refresh, expected_name);
+        assert_eq!(load.name.stored.as_deref(), Some("Stored custom text"));
+        assert_eq!(load.analog.stored.as_deref(), Some("true"));
+        assert_eq!(load.mode_customized.stored.as_deref(), mode);
+        assert_eq!(load.name_customized.stored.as_deref(), name);
+        assert_eq!(editor.to_bytes().unwrap(), before);
+    }
+}
+
+#[test]
+fn energy_inheritance_inspection_does_not_infer_values_from_connected_consumers() {
+    let mut editor = editor();
+    let path = editor.require_one("Pilot").unwrap();
+    let block = editor.get_element_mut(&path);
+    let load = block
+        .children
+        .iter_mut()
+        .filter_map(|node| node.as_mut_element())
+        .find(|child| child.name == "Load")
+        .unwrap();
+    load.attributes.insert("Na".into(), "Saved name".into());
+    load.attributes.insert("An".into(), "false".into());
+    let before = editor.to_bytes().unwrap();
+    // The fixture already connects an actor to this output. U or a nearby name/type
+    // does not establish native connection order, reference binding or virtual mode.
+    let inspection = editor.inspect_energy("Pilot").unwrap();
+    let load = &inspection.loads[0];
+    assert_eq!(
+        load.inheritance,
+        EnergyLoadInheritance {
+            mode_refresh: EnergyInheritanceGate::SourceUnresolved,
+            name_refresh: EnergyInheritanceGate::SourceUnresolved,
+        }
+    );
+    assert_eq!(load.name.stored.as_deref(), Some("Saved name"));
+    assert_eq!(load.analog.stored.as_deref(), Some("false"));
+    assert_eq!(load.attributes.get("U").map(String::as_str), Some("true"));
+    assert_eq!(editor.to_bytes().unwrap(), before);
+}
+
 fn storage_feedback_editor(
     soc_connected: bool,
     minimum_connected: bool,
