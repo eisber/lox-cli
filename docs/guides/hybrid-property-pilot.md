@@ -52,6 +52,12 @@ bytes and grant expiry. Scheduling admission still uses the existing real
 resource receipt and TTL; an allowed boolean, old sample or local clock
 extension never creates fresh admission.
 
+When ownership uses a Beads issue lease, the active case controller renews its
+own lease with `bd --actor <owner> heartbeat <issue> --json` and checks the
+canonical `bd show` receipt. Repeating `update --claim` is idempotent and does
+not renew an existing lease. The read-only authority verifier must reject an
+expired lease, not renew it or invent a later expiry.
+
 Before any launch, the separately accepted source-pinned authority must expose:
 
 ```python
