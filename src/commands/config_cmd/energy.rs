@@ -81,8 +81,11 @@ pub(crate) enum EnergyLoadCmd {
         /// Persistent UUID from inspect, NOT U, name, priority or OIdx
         id: String,
         /// Mark the name as customized, including an unchanged value
-        #[arg(long)]
+        #[arg(long, conflicts_with = "no_name")]
         name: Option<String>,
+        /// Store an empty customized name (Ncu=true), not inherited naming
+        #[arg(long)]
+        no_name: bool,
         /// Mark the mode as customized, including an unchanged value
         #[arg(long, value_enum)]
         mode: Option<ModeArg>,
@@ -162,6 +165,7 @@ pub(crate) fn run(ctx: &RunContext, action: EnergyCmd) -> Result<()> {
                 target,
                 id,
                 name,
+                no_name,
                 mode,
                 preparation_seconds,
                 min_runtime_minutes,
@@ -179,6 +183,7 @@ pub(crate) fn run(ctx: &RunContext, action: EnergyCmd) -> Result<()> {
                     id,
                     EnergyLoadPatch {
                         name,
+                        clear_name: no_name,
                         mode: mode.map(|mode| match mode {
                             ModeArg::Digital => EnergyLoadMode::Digital,
                             ModeArg::Analog => EnergyLoadMode::Analog,
@@ -422,6 +427,32 @@ mod tests {
     struct EnergyCli {
         #[command(subcommand)]
         action: EnergyCmd,
+    }
+
+    #[test]
+    fn energy_explicit_name_clear_needs_no_empty_shell_argument() {
+        let args = [
+            "energy",
+            "load",
+            "set",
+            "synthetic.Loxone",
+            "Synthetic Energy",
+            "30000000-0000-0000-0000000000000002",
+            "--no-name",
+        ];
+        let parsed = EnergyCli::try_parse_from(args).unwrap();
+        let EnergyCmd::Load {
+            action: EnergyLoadCmd::Set { name, no_name, .. },
+        } = parsed.action
+        else {
+            panic!("expected load set");
+        };
+        assert!(no_name);
+        assert!(name.is_none());
+        let error = EnergyCli::try_parse_from(args.into_iter().chain(["--name", "conflicting"]))
+            .err()
+            .unwrap();
+        assert_eq!(error.kind(), clap::error::ErrorKind::ArgumentConflict);
     }
 
     #[test]

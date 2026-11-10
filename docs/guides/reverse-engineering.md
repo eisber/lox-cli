@@ -124,6 +124,43 @@ Topic matches are leads, not verified behavior. Trace their references and
 control flow through REA before drawing conclusions. Use synthetic configs to
 compare any independent implementation with observed behavior.
 
+## Recover a capability, not another automation prerequisite
+
+Start each bounded recovery with a named behavioral question and the existing
+[element atlas](element-atlas.md), versioned function corpus and relevant
+`contracts` entry. Reuse earlier field bindings and traces before requesting a
+new extraction or desktop recovery. For example: which customization flags does
+an Energy load setter change, or how does adding a Lighting mood update its
+stored count and output values?
+
+Trace the concrete reader, setter, caller or serializer needed to answer that
+question. Retain exact version, function addresses, raw source digests, data
+flow and assumptions privately. A class name or matching string is a lead;
+a direct setter or serialization path can support a narrow storage contract
+without proving every GUI dispatch or runtime behavior.
+
+Every recovery task ends with one of these deliverables:
+
+- A justified CLI capability or fix, its updated contract and focused,
+  independently authored regression cases.
+- A precise recovered contract, including its scope and source references,
+  when the existing implementation already matches or mutation is not yet
+  justified.
+- A specific unresolved dependency: the function, caller, field or native
+  observation still needed to answer the named question. Do not substitute
+  generic desktop readiness for that dependency.
+
+Native GUI runs validate those findings where needed; they are not a blanket
+prerequisite for source-backed implementation. Keep static storage guarantees,
+synthetic regressions, native save/reopen observations and runtime parity
+separate in contracts. Missing native validation remains explicit rather than
+being reported as a pass or blocking unrelated capabilities.
+
+When working in parallel, keep one bounded infrastructure lane and put the
+other lanes on capability tracing and implementation. Infrastructure recovery
+must answer its own named question and stop at its agreed deliverable; an
+unavailable desktop must not halt file-only recovery.
+
 ## Optional scheduling (explicit opt-in)
 
 Skip this section for manual operation. Only run the registration helper if you

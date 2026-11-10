@@ -40,10 +40,51 @@ pub(crate) enum LightingCmd {
         #[command(flatten)]
         target: LightingTarget,
     },
+    /// Repair only Num from direct mood records; preserve Outputs and sparse Qn
+    RecountMoods {
+        #[command(flatten)]
+        target: LightingTarget,
+        #[arg(long, value_name = "PATH")]
+        save_as: Option<String>,
+    },
 }
 
 pub(crate) fn run(ctx: &RunContext, action: LightingCmd) -> Result<()> {
-    let LightingCmd::Inspect { target } = action;
+    let target = match action {
+        LightingCmd::Inspect { target } => target,
+        LightingCmd::RecountMoods { target, save_as } => {
+            let selector = target.selector()?;
+            let mut editor = ConfigEditor::load(&crate::load_config_xml(&target.file)?)?;
+            let edit = editor.recount_lighting_moods(&selector)?;
+            if edit.changed || save_as.is_some() {
+                super::save_edited_with_quiet(&mut editor, &target.file, save_as.as_deref(), true)?;
+            }
+            if ctx.json {
+                let mut value = serde_json::to_value(&edit)?;
+                if let Some(trace_id) = &ctx.trace_id {
+                    value["trace_id"] = trace_id.clone().into();
+                }
+                println!("{}", serde_json::to_string_pretty(&value)?);
+            } else if ctx.csv {
+                if !ctx.no_header {
+                    println!("BEFORE,AFTER,SCENES,CHANGED");
+                }
+                println!(
+                    "{},{},{},{}",
+                    csv(edit.before.as_deref().unwrap_or("")),
+                    csv(&edit.after),
+                    edit.scenes,
+                    edit.changed
+                );
+            } else if !ctx.quiet {
+                println!(
+                    "✓  {selector}: Num={} ({} direct moods; Outputs and Qn unchanged)",
+                    edit.after, edit.scenes
+                );
+            }
+            return Ok(());
+        }
+    };
     let selector = target.selector()?;
     let editor = ConfigEditor::load(&crate::load_config_xml(&target.file)?)?;
     let inspection = editor.inspect_lighting(&selector)?;
@@ -141,7 +182,9 @@ mod tests {
         let crate::ConfigCmd::Lighting { action } = *action else {
             panic!("lighting inspection was not dispatched");
         };
-        let LightingCmd::Inspect { target } = action;
+        let LightingCmd::Inspect { target } = action else {
+            panic!("lighting inspection was not dispatched");
+        };
         assert_eq!(target.selector().unwrap(), "Lamp [Study]");
         let conflicting = LightingTarget {
             file: target.file,

@@ -101,6 +101,7 @@ lox config energy load set file.Loxone "Energy" <LOAD_ID> --preparation-seconds 
 lox config energy load move file.Loxone "Energy" <LOAD_ID> 2 --save-as edited.Loxone
 lox config energy load set file.Loxone "Energy" <LOAD_ID> --icon electric-fan.svg
 lox config energy load set file.Loxone "Energy" <LOAD_ID> --no-icon
+lox config energy load set file.Loxone "Energy" <LOAD_ID> --no-name
 ```
 
 `icons` lists built-ins without a project file or block selector. Other targets
@@ -135,6 +136,7 @@ priority, or output index. Options:
 | Flag | Meaning |
 |------|---------|
 | `--name NAME` | Set `Na` and native name-customization marker `Ncu` |
+| `--no-name` | Store an empty `Na` and set `Ncu=true`; mutually exclusive with `--name`, not inherited naming |
 | `--mode digital\|analog` | Set `An` and native mode-customization marker `Anc` |
 | `--preparation-seconds S` | `RT`, integer seconds 30..86400; default 60 |
 | `--min-runtime-minutes M` | `MinRt`, integer minutes converted to signed 32-bit seconds; negatives are permitted |
@@ -144,6 +146,12 @@ priority, or output index. Options:
 | `--switch-on-power KW` | `SwPwr`, finite kW >=0; zero substitutes rated power |
 | `--icon BUILTIN` | Exact case-sensitive canonical filename or native/RFC ID from `energy icons`; optional `builtin:` prefix |
 | `--no-icon` | Remove only the matched Load's `ico`; mutually exclusive with `--icon` |
+
+Name and mode edits set their customization markers even for unchanged values.
+Clearing a name leaves it explicitly customized; selecting Digital retains
+`Anc=true`. Neither restores inheritance. Icon clearing leaves both markers
+untouched. Reset-to-inherited naming/mode is unsupported; these setter/storage
+contracts are source-backed, not new GUI save/reopen observations.
 
 Minutes use checked multiplication by 60, not fractional GUI rounding or unknown
 overflow semantics. Zero runtime/daily/deadline/rated fields use omission for their
@@ -234,6 +242,43 @@ then actual CLI assertions, generating `CLI-case-definitions.json` and a new
 ignored `.reverse-engineering/ux/energy-manager2/cli/<run>/` directory containing
 stdout, commands, digests and a CLI-only runner record. It never executes Config
 GUI or a server and does not update the original contract or GUI records.
+
+### Lighting stored inspection and mood-count repair
+
+```bash
+lox config lighting inspect file.Loxone "Lighting" --output json
+lox config lighting recount-moods file.Loxone "Lighting" --save-as edited.Loxone
+lox config lighting recount-moods file.Loxone "Lighting" --room "Study" --output json
+```
+
+Targets are local files and exactly one **LightController2**, selected by title,
+`uuid:...` or a room-qualified name. `--room/-r` disambiguates names; do not
+combine it with a bracket room qualifier. Both commands support JSON/CSV/table,
+`--quiet`, and `--no-header`; neither contacts a Miniserver.
+
+`inspect` preserves stored spellings and omissions, lists mood `Qn` values and
+output references without inferred channel roles, and reports
+`inconsistent_mood_count` when `LightscenesC/@Num` differs from the direct
+`LightsceneC` record count.
+
+`recount-moods` repairs only that `Num`, including missing, invalid, negative or
+stale counts. It requires exactly one direct collection and ignores nested
+lookalike records. It does not normalize either `Outputs` field, fill missing
+`Qn`, change identities, reorder records or repair references. An equivalent
+signed-32-bit spelling such as `0002` or `+2` is preserved, and an in-place no-op
+does not rewrite the file. Otherwise the command overwrites the input unless
+`--save-as` is supplied; the existing writer preserves BOM/line endings and may
+update the document save stamp after a content change. JSON returns `before`,
+`after`, `scenes` and `changed`. Invalid target/container shapes fail before
+either file is written.
+
+Existing `config add-mood` also sets `Num` from the resulting direct scene count,
+instead of incrementing a possibly stale stored count. Its output initialization
+policy is unchanged and is not full native append parity. Count repair can expose
+previously under-counted records on native import; an empty collection's native
+roundtrip, output widths, color/sequence semantics and runtime behavior are not
+established by these source-backed storage changes. See
+`contracts/light-controller2.json` for the recovered paths and exact dependencies.
 
 ### Wire connectors
 

@@ -172,3 +172,137 @@ fn lighting_mood_edit_preserves_everything_except_the_selected_stored_value() {
         assert_eq!(moods[1].attributes["Q1"], "0");
     }
 }
+
+const RECOUNT_XML: &str = r#"<ControlList Version="267">
+  <C Type="LightController2" U="lighting" Title="Lamp">
+    <Co K="AQ2" U="output-2"><In Input="source" FutureWire="retain"/></Co>
+    <LightscenesC Num="99" Outputs="0002" FC="opaque" Future="retain">
+      <LightsceneC UUID="first" Name="First" SID="2" CID="9" Outputs="3" Q1="00037" Q3="future-value">
+        <SeqConf Future="keep"><Unknown Q2="nested"/></SeqConf>
+      </LightsceneC>
+      <Unknown><LightsceneC UUID="not-a-direct-mood" Num="71"/></Unknown>
+      <LightsceneC UUID="second" Name="Second" SID="3" CID="10" Q2="-1" Q01="opaque"/>
+    </LightscenesC>
+    <FutureStorage Outputs="91" Num="84"/>
+  </C>
+</ControlList>"#;
+
+#[test]
+fn lighting_add_mood_recounts_direct_records_instead_of_incrementing_stale_num() {
+    for replacement in [
+        "",
+        "Num=\"99\"",
+        "Num=\"1\"",
+        "Num=\"invalid\"",
+        "Num=\"-1\"",
+        "Num=\"9223372036854775807\"",
+    ] {
+        let xml = RECOUNT_XML.replace("Num=\"99\"", replacement);
+        let mut editor = ConfigEditor::load(xml.as_bytes()).unwrap();
+        editor
+            .add_mood("uuid:lighting", "Third", 42, None, None)
+            .unwrap();
+        let inspection = editor.inspect_lighting("uuid:lighting").unwrap();
+        let collection = inspection
+            .nested_storage
+            .iter()
+            .find(|storage| storage.element == "LightscenesC")
+            .unwrap();
+        assert_eq!(collection.attributes["Num"], "3", "{replacement}");
+        assert_eq!(collection.attributes["Outputs"], "0002");
+        assert!(!inspection.moods[0].attributes.contains_key("Q2"));
+        assert_eq!(inspection.moods[0].attributes["Q3"], "future-value");
+        assert!(
+            !inspection
+                .diagnostics
+                .iter()
+                .any(|diagnostic| diagnostic.code == "inconsistent_mood_count")
+        );
+    }
+}
+
+#[test]
+fn lighting_recount_repairs_only_num_and_counts_direct_moods_not_outputs_or_nested_records() {
+    let mut editor = ConfigEditor::load(RECOUNT_XML.as_bytes()).unwrap();
+    assert!(
+        editor
+            .inspect_lighting("uuid:lighting")
+            .unwrap()
+            .diagnostics
+            .iter()
+            .any(|diagnostic| diagnostic.code == "inconsistent_mood_count")
+    );
+    let edit = editor.recount_lighting_moods("uuid:lighting").unwrap();
+    assert_eq!(edit.before.as_deref(), Some("99"));
+    assert_eq!(edit.after, "2");
+    assert_eq!(edit.scenes, 2);
+    assert!(edit.changed);
+    let expected =
+        ConfigEditor::load(RECOUNT_XML.replace("Num=\"99\"", "Num=\"2\"").as_bytes()).unwrap();
+    assert_eq!(editor.to_bytes().unwrap(), expected.to_bytes().unwrap());
+    assert!(
+        !editor
+            .inspect_lighting("uuid:lighting")
+            .unwrap()
+            .diagnostics
+            .iter()
+            .any(|diagnostic| diagnostic.code == "inconsistent_mood_count")
+    );
+}
+
+#[test]
+fn lighting_recount_handles_missing_invalid_and_negative_num_without_output_defaults() {
+    for replacement in ["", "Num=\"invalid\"", "Num=\"-1\"", "Num=\"0\""] {
+        let xml = RECOUNT_XML
+            .replace("Num=\"99\"", replacement)
+            .replace(" Outputs=\"0002\"", "");
+        let mut editor = ConfigEditor::load(xml.as_bytes()).unwrap();
+        let edit = editor.recount_lighting_moods("uuid:lighting").unwrap();
+        assert_eq!(edit.after, "2");
+        assert!(edit.changed);
+        let inspection = editor.inspect_lighting("uuid:lighting").unwrap();
+        let collection = inspection
+            .nested_storage
+            .iter()
+            .find(|storage| storage.element == "LightscenesC")
+            .unwrap();
+        assert!(!collection.attributes.contains_key("Outputs"));
+        assert!(!inspection.moods[0].attributes.contains_key("Q2"));
+        assert_eq!(inspection.moods[0].attributes["Q3"], "future-value");
+    }
+}
+
+#[test]
+fn lighting_recount_preserves_equivalent_raw_num_and_can_count_an_empty_collection() {
+    for raw in ["2", "0002", "+2"] {
+        let xml = RECOUNT_XML.replace("Num=\"99\"", &format!("Num=\"{raw}\""));
+        let mut editor = ConfigEditor::load(xml.as_bytes()).unwrap();
+        let before = editor.to_bytes().unwrap();
+        let edit = editor.recount_lighting_moods("uuid:lighting").unwrap();
+        assert!(!edit.changed);
+        assert_eq!(edit.after, raw);
+        assert_eq!(editor.to_bytes().unwrap(), before);
+    }
+    let mut editor = ConfigEditor::load(
+        br#"<ControlList><C Type="LightController2" U="empty"><LightscenesC Num="17" Outputs="future"><Unknown/></LightscenesC></C></ControlList>"#,
+    )
+    .unwrap();
+    let edit = editor.recount_lighting_moods("uuid:empty").unwrap();
+    assert_eq!(edit.scenes, 0);
+    assert_eq!(edit.after, "0");
+    assert!(edit.changed);
+}
+
+#[test]
+fn lighting_recount_rejects_ambiguous_or_missing_direct_collection_before_mutating() {
+    for xml in [
+        r#"<ControlList><C Type="LightController2" U="lighting"><LightscenesC Num="99"/><LightscenesC Num="71"/></C></ControlList>"#,
+        r#"<ControlList><C Type="LightController2" U="lighting"><Unknown><LightscenesC Num="99"/></Unknown></C></ControlList>"#,
+        r#"<ControlList><C Type="And" U="lighting"><LightscenesC Num="99"/></C></ControlList>"#,
+    ] {
+        let mut editor = ConfigEditor::load(xml.as_bytes()).unwrap();
+        let before = editor.to_bytes().unwrap();
+        assert!(editor.recount_lighting_moods("uuid:lighting").is_err());
+        assert_eq!(editor.to_bytes().unwrap(), before);
+    }
+}

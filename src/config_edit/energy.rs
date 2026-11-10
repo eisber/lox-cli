@@ -122,6 +122,7 @@ impl EnergyDeadline {
 #[derive(Debug, Default)]
 pub struct EnergyLoadPatch {
     pub name: Option<String>,
+    pub clear_name: bool,
     pub mode: Option<EnergyLoadMode>,
     pub preparation_seconds: Option<i64>,
     pub min_runtime_minutes: Option<i64>,
@@ -570,7 +571,7 @@ impl ConfigEditor {
                 "Icon selection is exact versioned built-in membership, not Qt SVG rendering parity. Explicit clear removes only this Load's ico; its GUI clear oracle is still missing.",
                 "Existing unknown icon references are preserved, not validated or sanitized. Project/custom icon selection, creation, import, replacement, deletion and image decoding are unsupported.",
                 "All 28 deadline choices have GUI-save observations; deadline/day-cycle execution remains unverified.",
-                "Name/mode setters mark Ncu/Anc, including unchanged values; observed GUI transitions retain customization markers on revert.",
+                "Name/mode setters mark Ncu/Anc, including unchanged values. Explicit name clear stores an empty customized name, not inherited naming; Digital does not reset mode customization. Reset-to-inherited naming/mode is unsupported.",
                 "Minimum-runtime CLI decimals round half away from zero to whole minutes before checked signed 32-bit seconds; daily CLI minutes remain integers. Scientific input and GUI overflow are not emulated.",
                 "MaxSpwr=0 runtime meaning remains unverified. Inspection is not an export/reapply format.",
                 "Storage-power feedback is the recovered Config 17.2.10.21 condition only, not whole-block completeness. It uses connections/defaults, not current Soc or Spwr values; malformed Nc/In or absent/duplicate bindings are explicitly unknown. Fresh native countercases remain pending.",
@@ -633,6 +634,7 @@ impl ConfigEditor {
     ) -> Result<()> {
         let (path, position) = self.editable_load(selector, id)?;
         if patch.name.is_none()
+            && !patch.clear_name
             && patch.mode.is_none()
             && patch.preparation_seconds.is_none()
             && patch.min_runtime_minutes.is_none()
@@ -649,9 +651,22 @@ impl ConfigEditor {
             )
             .into());
         }
+        if patch.clear_name && patch.name.is_some() {
+            return Err(Diagnostic::new(
+                "conflicting_name_change",
+                "Load/@Na",
+                "Choose a name or explicit name clear, not both; clearing keeps Ncu=true and does not restore inherited naming.",
+            )
+            .into());
+        }
         let mut staged = self.get_element(&path).clone();
         let load = staged.children[position].as_mut_element().unwrap();
-        if let Some(name) = &patch.name {
+        let name = if patch.clear_name {
+            Some("")
+        } else {
+            patch.name.as_deref()
+        };
+        if let Some(name) = name {
             if name.chars().any(|character| {
                 !matches!(character, '\t' | '\n' | '\r' | '\u{20}'..='\u{D7FF}' | '\u{E000}'..='\u{FFFD}' | '\u{10000}'..='\u{10FFFF}')
             }) {
@@ -661,7 +676,7 @@ impl ConfigEditor {
                     "Name contains a character that cannot be stored in XML 1.0.",
                 ).into());
             }
-            load.attributes.insert("Na".into(), name.clone());
+            load.attributes.insert("Na".into(), name.into());
             load.attributes.insert("Ncu".into(), "true".into());
         }
         if let Some(mode) = patch.mode {

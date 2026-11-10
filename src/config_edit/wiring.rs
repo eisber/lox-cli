@@ -1131,11 +1131,12 @@ impl ConfigEditor {
 
     /// Create a brand-new mood (`LightsceneC`) on a `LightController2`.
     ///
-    /// Mirrors how Loxone Config appends a scene: a fresh `LightsceneC` is
+    /// A fresh `LightsceneC` is
     /// added to the controller's `<LightscenesC>` container with a generated
     /// UUID, the next free custom scene id (`SID`) and color id (`CID`), and
     /// per-output values `Q1..Qn` (Q1 set to `value`, the rest 0). The
-    /// container's `Num` count is incremented.
+    /// container's `Num` is set to the resulting direct scene count.
+    /// Output initialization remains the existing CLI policy, not native parity.
     ///
     /// Reserved SIDs (1/776/777/778 = Entspannen/Wecker/Viel Licht/Aus) are
     /// skipped; custom moods start at SID=2 / CID=9. Pass `sid`/`cid` to
@@ -1192,8 +1193,6 @@ impl ConfigEditor {
         let path = self.require_one(selector)?;
         let elem = self.get_element_mut(&path);
 
-        // Locate the <LightscenesC> container, read its Outputs count, append
-        // the new scene and bump Num.
         fn append_scene(
             elem: &mut Element,
             name: &str,
@@ -1229,13 +1228,8 @@ impl ConfigEditor {
                     scene.attributes.insert(format!("Q{q}"), v);
                 }
                 elem.children.push(xmltree::XMLNode::Element(scene));
-                let num: i64 = elem
-                    .attributes
-                    .get("Num")
-                    .and_then(|s| s.parse().ok())
-                    .unwrap_or(0);
-                elem.attributes
-                    .insert("Num".to_string(), (num + 1).to_string());
+                let num = super::lighting::direct_mood_count(elem);
+                elem.attributes.insert("Num".to_string(), num.to_string());
                 return true;
             }
             for child in &mut elem.children {

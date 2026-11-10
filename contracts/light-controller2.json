@@ -1,12 +1,13 @@
 {
   "schema_version": 1,
   "xml_type": "LightController2",
-  "scope": "initial-read-only-storage-inspection",
+  "scope": "stored-inspection-and-source-backed-mood-count-repair",
   "capabilities": {
     "inspect_stored_mood_outputs": true,
     "inspect_output_connector_references": true,
     "inspect_unknown_nested_attributes": true,
-    "new_nested_edits": false,
+    "repair_stored_mood_count": true,
+    "new_nested_edits": true,
     "gui_roundtrip_verified": false,
     "runtime_parity": false,
     "full_family_contract": false
@@ -70,8 +71,106 @@
     "channel_roles": "unknown-no-AQn-to-Qn-or-NameAI-index-join",
     "document_versions": "raw-serialized-metadata-not-authentication",
     "unknown_xml": "read-only-structured-element-and-attribute-inventory",
-    "file_writes": "none",
-    "existing_mood_commands": "prior-art-not-newly-GUI-verified;set_mood_color-rejects-zero-index-only;positive-index-behavior-unchanged"
+    "file_writes": "explicit lighting recount-moods changes only collection Num; existing writer may update Document Date/DateS when content changes; inspection remains read-only",
+    "existing_mood_commands": "prior-art-not-newly-GUI-verified;set_mood_color-rejects-zero-index-only;positive-index-behavior-unchanged;add_mood-sets-Num-from-resulting-direct-scene-count"
+  },
+  "mood_count_repair": {
+    "command": "lox config lighting recount-moods FILE BLOCK [--room ROOM] [--save-as PATH]",
+    "purpose": "Repair a missing, invalid or stale LightscenesC Num from the number of direct LightsceneC records, not stored Num+1, an Outputs field, a Qn suffix or recursive descendants.",
+    "source_basis": [
+      {
+        "address": "0x1405b48e0",
+        "sha256": "09d4870c352d9621c32403f1fe1651967205f7b78c3bdc74866370f7714b14db",
+        "fact": "Successful scene append assigns collection +0x08 (Num) from scene-vector +0x20 size."
+      },
+      {
+        "address": "0x1405c6770",
+        "sha256": "0efeb2b4cecbacfd6fe9b5c9ff3bba036871f853d94f737bd8cd212595d5af15",
+        "fact": "LightController2 reconciliation independently assigns root+0x1c80 (collection Num) from root+0x1c98 (scene-vector size). This function also has other work which this count-only command does not reproduce."
+      },
+      {
+        "address": "0x1404b3b40",
+        "sha256": "f344e348a36af28aba2f72e242388dd348e977112af59e201601bca47825f0c2",
+        "fact": "Pointer-vector insertion grows logical size through 0x1404b3e70 when appending at the current size."
+      }
+    ],
+    "rules": [
+      "Require exact LightController2 and exactly one direct LightscenesC; reject absent, nested-only or duplicate direct containers before mutation.",
+      "Count direct LightsceneC children only, including distinct records with duplicate IDs; do not generate or repair identities.",
+      "Preserve an equivalent signed-32-bit decimal Num spelling such as 0002 or +2; an in-place no-op does not rewrite the file.",
+      "Explicitly replacing Num may expose previously under-counted records on native import; this is a requested storage repair, not native import simulation.",
+      "Leave both Outputs fields, absent Qn, opaque values, every unselected attribute, nested record, ID, reference and record order untouched.",
+      "An empty collection can be counted as zero, but native LightController2 import may subsequently create default scenes; no empty native-roundtrip claim.",
+      "Support JSON/CSV/table, --quiet, --no-header, room qualification and --save-as through the existing local-file writer."
+    ],
+    "inspection_diagnostic": "inconsistent_mood_count",
+    "tests": [
+      "src/config_edit/lighting_tests.rs: lighting_recount_*",
+      "src/config_edit/lighting_tests.rs: lighting_add_mood_recounts_direct_records_instead_of_incrementing_stale_num",
+      "tests/lighting_source_capability.rs: lighting_recount_cli_*"
+    ],
+    "validation_scope": "Independently authored XML tests only; no new native execution, GUI verification or runtime parity."
+  },
+  "recovered_count_and_output_contract": {
+    "named_question": "How do LightscenesC Num/Outputs and LightsceneC Outputs/Qn change when a mood is added or an output value edited, including sparse/missing values?",
+    "assumptions": "Version-pinned static normal-return dataflow on valid objects and successful allocation/helper calls. Not a complete heap-purity proof, all-callers proof, runtime result or channel-role model.",
+    "collection_layout": "Collection +0x08 is Num; +0x20 is scene-vector size; +0x50 is separately serialized Outputs. Binder 0x1405b8390 loops over Num, not the largest Qn or either Outputs field.",
+    "native_append": {
+      "caller": "0x1400e5b80",
+      "caller_sha256": "235e57ad9bb7a35282a090efe287656301dae8ff1b70d4bbdc1709f564af64f3",
+      "callee": "0x1405b48e0",
+      "observation": "The Lighting dialog passes its collection at dialog+0x130. Append constructs a scene with argument 0x12, appends the pointer, initializes each new primary output from the first scene's corresponding stored value masked with 0xf0000000 (or zero when outside that source vector), and assigns Num from actual vector size. This is not zero-filling every remaining output and is not evidence that collection Outputs controls scene width.",
+      "constructor": "0x1405b3940",
+      "constructor_sha256": "365a8a5e0bc05163fab3b2547924119c7731291b550d9e33fb2df9614ebe4155",
+      "constructor_observation": "The constructor assigns scene+0x9c (Outputs) from its argument and sizes primary +0x48 and secondary +0x68 integer vectors. The observed append argument 0x12 is this path's construction width, not a universal maximum."
+    },
+    "native_value_edit": {
+      "address": "0x1400e6460",
+      "sha256": "e3bbb93c4599b98a3d7a5986dcf68dd17facb3a53f319f2bc296af1c8c7eea7d",
+      "observation": "This specific numeric dialog handler clamps its control value to 0..100 and replaces the selected existing primary-vector slot with (old & 0xf0000000) | value. Its body does not assign Num, either Outputs field, or resize the vector. This is not a generic color/sequence handler or an admission that every Qn is a percentage."
+    },
+    "dialog_copy_back": {
+      "caller": "0x14019de60",
+      "caller_sha256": "c10b26a56014eb1b4fac6378deef6935e3bb39ca27fda83c168860af2d627f0b",
+      "observation": "The LightController2 branch copies root+0x1c78 into the dialog's temporary collection. On modal return value 1 it invokes that original collection's +0x28 slot with the temporary collection; the other branch at this site does not copy it back.",
+      "collection_copy": "0x1405b4e50",
+      "collection_copy_sha256": "66970d9b503110b317d922ffa6d3f3b957f70e17252de67287df9e663afd7f32",
+      "slot_pointer_address": "0x1410195a0",
+      "slot_pointer_sha256": "35d35c522183e90a2e54c35edf702c0af5f5e0c670d258198d02e83e6c30c569",
+      "copy_observation": "The frozen PE pointer resolves collection +0x28 to this copier. For copy mode 0 it assigns destination Num from source vector size and copies collection Outputs separately from source +0x50, then copies each scene. It does not derive scene Outputs from collection Outputs as a final invariant.",
+      "scene_copy": "0x1405b4bc0",
+      "scene_copy_sha256": "0474ef4d60b41e52680e9178c50e2defb4ce3e351ed432116c0f7413fb37218a",
+      "scene_copy_observation": "Copies per-scene Outputs from source +0x9c, identities/flags and both integer vectors. The optional SeqConf indirect-copy branch is not fully recovered here; no sequence preservation/parity proof is promoted."
+    },
+    "sparse_native_read": {
+      "binder": "0x1405b7df0",
+      "observation": "On the reader branch, a zero/missing per-scene Outputs becomes 0x0c before primary/secondary vector sizing; Q1..QOutputs are read individually. The common attribute dispatcher clears its string, missing attribute lookup returns null, and type-5 numeric parsing of the resulting empty string returns zero. Thus an absent in-range Qn is reconstructed as zero on this particular native reader path, not known zero stored XML. Fields beyond that read bound are not loaded by this loop.",
+      "helper_pins": [
+        {"address": "0x1404c52f0", "sha256": "057c5670bc1b4a95f3b6ae5720f34f057330ba62605c4d0211ac7565de681262"},
+        {"address": "0x1404c0750", "sha256": "3eda925fe12187eb5e3c87544abca343040c659c4f68b89127dd45f5307214f9"},
+        {"address": "0x140421440", "sha256": "0138afa4ef15c51c4d545bfbbb8fc241b6651aec045cbe66b9a483822654af3f"},
+        {"address": "0x14041fe40", "sha256": "f8e4d298ee8a61db7d0db1a440b15791378452073dcaecec4ca1c8988b683092"},
+        {"address": "0x140422760", "sha256": "361f5c3173c2b395766f14baa7a142bc2c1f734f9c04c21be691eb3169ff591d"}
+      ],
+      "stored_inspection_policy_unchanged": "Missing Qn remains absent/null; inspection and count repair never synthesize the native reader's zero."
+    },
+    "caller_specific_width_normalization": [
+      {
+        "address": "0x1405c9740",
+        "sha256": "4fca9e47230208412c4b3091206385beb40d7a68da0571ce59eac9146949fd50",
+        "observation": "Calls the collection binder, then assigns root+0x1cc8 (collection Outputs) to 0x12. This is after the nested serialization call, not equality inferred from a metadata loop."
+      },
+      {
+        "address": "0x1405d1580",
+        "sha256": "16512152985127a4f4455e3002399b715a8a9743455ee61c3fa27a954fbde0e6",
+        "observation": "Calls primary +0x1180, then on the reader branch calls 0x1405b70e0(scene,0x12) for each counted scene. That helper separately assigns scene Outputs and resizes both vectors. This subsequent normalization does not restore higher Qn fields skipped by the earlier per-scene read loop."
+      }
+    ],
+    "remaining_dependencies": [
+      "Existing add_mood in src/config_edit/wiring.rs now assigns Num from the resulting direct scene count. It still uses parsed collection Outputs or fallback 18 and zero-fills Q2..Qn; changing append width/default encoding/IDs requires a separately coordinated edit of that existing method and its command contract.",
+      "A complete edit-to-disk/cancel transaction still requires post-copy hooks 0x1401483a0(root owner, block) and 0x140469a90(block) in caller 0x14019de60, plus the save dispatch to reader/writer 0x1405d1580. The collection +0x28 copy-back target itself is now pinned, not an unresolved dependency.",
+      "No universal channel maximum, AQn/Qn/NameAI role mapping, full RGB/sequence edit semantics, arbitrary malformed-number behavior or full-family/runtime parity is established."
+    ]
   },
   "existing_mood_edit_validation": {
     "surface": "config set-mood-color --output-index",

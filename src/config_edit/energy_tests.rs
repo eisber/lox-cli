@@ -957,6 +957,89 @@ fn energy_unsupported_shapes_and_ambiguous_ids_do_not_mutate() {
 }
 
 #[test]
+fn energy_explicit_name_clear_is_custom_empty_not_inherited_and_preserves_storage() {
+    let source = String::from_utf8(fixture()).unwrap();
+    let original = "U=\"true\" MaxPwr=\"2.5\" ico=\"keep-icon\" Future=\"opaque\"";
+    let expected_fields = format!("{original} An=\"true\" Anc=\"1\" Na=\"\" Ncu=\"true\"");
+    let expected = ConfigEditor::load(source.replace(original, &expected_fields).as_bytes())
+        .unwrap()
+        .to_bytes()
+        .unwrap();
+    for fields in [
+        "",
+        " Na=\"old name\" Ncu=\"false\"",
+        " Na=\"old name\" Ncu=\"true\"",
+        " Na=\"\" Ncu=\"true\"",
+    ] {
+        let input = source.replace(
+            original,
+            &format!("{original} An=\"true\" Anc=\"1\"{fields}"),
+        );
+        let mut editor = ConfigEditor::load(input.as_bytes()).unwrap();
+        editor
+            .configure_energy_load(
+                "Pilot",
+                first_id(),
+                &EnergyLoadPatch {
+                    clear_name: true,
+                    ..Default::default()
+                },
+            )
+            .unwrap();
+        let saved = editor.to_bytes().unwrap();
+        assert_eq!(saved, expected, "{fields}: only Na and Ncu may change");
+        let mut reloaded = ConfigEditor::load(&saved).unwrap();
+        let first = reloaded.inspect_energy("Pilot").unwrap().loads.remove(0);
+        assert_eq!(first.name.stored.as_deref(), Some(""));
+        assert_eq!(first.name_customized.effective, Some(true));
+        assert_eq!(first.mode_customized.stored.as_deref(), Some("1"));
+        reloaded
+            .configure_energy_load(
+                "Pilot",
+                first_id(),
+                &EnergyLoadPatch {
+                    clear_name: true,
+                    ..Default::default()
+                },
+            )
+            .unwrap();
+        assert_eq!(reloaded.to_bytes().unwrap(), saved);
+    }
+}
+
+#[test]
+fn energy_explicit_name_clear_conflicts_and_invalid_patches_are_atomic() {
+    for patch in [
+        EnergyLoadPatch {
+            clear_name: true,
+            name: Some("conflicting".into()),
+            ..Default::default()
+        },
+        EnergyLoadPatch {
+            clear_name: true,
+            preparation_seconds: Some(0),
+            ..Default::default()
+        },
+    ] {
+        let mut editor = editor();
+        let before = editor.to_bytes().unwrap();
+        let error = editor
+            .configure_energy_load("Pilot", first_id(), &patch)
+            .unwrap_err();
+        let diagnostic = error.downcast_ref::<super::schema::Diagnostic>().unwrap();
+        assert_eq!(
+            diagnostic.code,
+            if patch.name.is_some() {
+                "conflicting_name_change"
+            } else {
+                "out_of_range"
+            }
+        );
+        assert_eq!(editor.to_bytes().unwrap(), before);
+    }
+}
+
+#[test]
 fn energy_native_name_mode_markers_preserve_other_storage() {
     let mut editor = editor();
     editor

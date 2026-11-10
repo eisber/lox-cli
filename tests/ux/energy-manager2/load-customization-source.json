@@ -1,0 +1,73 @@
+{
+  "schema_version": 1,
+  "application": {
+    "version": "17.2.10.21",
+    "architecture": "AMD64",
+    "sha256": "7b55e3ef18401574ab967c5c6a0140cd5a66dc728521ebba04ad53093577d8b3"
+  },
+  "question": "How do EnergyManager2 load name/mode/icon setters update value, customization flags and explicit reset/clear state?",
+  "evidence_kind": "native",
+  "scope": "Semantic summaries of frozen decompilation, not original vendor source, GUI execution, runtime parity or proof of dialog ownership.",
+  "anchors": [
+    {
+      "function": "0x14061b060",
+      "export_sha256": "ed85b70cdc52ac5edb4e6422a186d1ff684b186f65e07f0a5f0f8a7e36253044",
+      "lines": [51, 101],
+      "relation": "CLoad setter: column2 writes mode at +0x94 if changed and unconditionally sets Anc at +0xac to1; column4 assigns name at +0x50 and unconditionally sets Ncu at +0x68 to1. Column3 parses icon into +0x98..+0xa7; an available buffer with a nonmatching UUID clears those16 bytes. No icon customization marker is written by this branch."
+    },
+    {
+      "function": "0x14041db10",
+      "export_sha256": "9c9401eea49aacce0a946837e3043a8831a7f6e3b7df458cb682e7122e036b61",
+      "lines": [13, 89],
+      "relation": "Name assignment converts QString to UTF8 and copies the string, including a successfully converted empty string. No inferred inherited name is substituted."
+    },
+    {
+      "function": "0x14061c8e0",
+      "export_sha256": "0b391400e02e169594caf06a39e9e80954b09d287c7c7247635fbd2cb6519635",
+      "lines": [65, 123],
+      "relation": "Load XML transfer binds Na/Ncu/An/Anc/ico to CLoad +0x50/+0x68/+0x94/+0xac/+0x98. Na uses string type15 with omit-empty argument0. Boolean markers and icon use omit-default argument1."
+    },
+    {
+      "function": "0x1404c52f0",
+      "export_sha256": "057c5670bc1b4a95f3b6ae5720f34f057330ba62605c4d0211ac7565de681262",
+      "lines": [682, 687],
+      "relation": "Writer string type15 returns early for an empty string only when argument6 is nonzero. Therefore the Energy Na binding retains Na=\"\" on clear."
+    },
+    {
+      "function": "0x1404c52f0",
+      "export_sha256": "057c5670bc1b4a95f3b6ae5720f34f057330ba62605c4d0211ac7565de681262",
+      "lines": [967, 982],
+      "relation": "Writer UUID type25 omits the nil UUID when argument6 is nonzero; the Energy icon binding sets that argument. Explicit CLI icon clear therefore removes only ico, not name/mode flags or icon definitions."
+    },
+    {
+      "function": "0x14061c6b0",
+      "export_sha256": "8d02b9932fc80fe7db5a6060e14014cb6ad765161831a0c998467c34f3ca1cf2",
+      "lines": [59, 106],
+      "relation": "Connected-output refresh enters mode/name inheritance only when Anc at +0xac is0; name refresh additionally requires Ncu at +0x68 to be0. Clearing a name or selecting Digital through the direct setter does not satisfy those gates."
+    }
+  ],
+  "clear_contract": {
+    "cli": "lox config energy load set FILE BLOCK LOAD_ID --no-name",
+    "name": "Store Na=\"\" and Ncu=\"true\". Omitted name action preserves existing storage. --name and --no-name conflict, including an explicit empty --name.",
+    "mode": "Selecting Digital makes An false/omitted but retains Anc=true, including an unchanged Digital selection; this is not inherited-mode reset.",
+    "icon": "Explicit --no-icon omits ico and preserves Na/Ncu/An/Anc. Omitted icon action preserves the exact existing reference, including unknown references.",
+    "reset_to_inherited": "Unsupported. Do not clear Ncu/Anc by guessing a default name or mode."
+  },
+  "assumptions": [
+    "The direct function receives a valid CLoad receiver and the stated column identifier.",
+    "Normal successful Qt/string conversion and allocation; allocation-failure behavior is not reproduced by the CLI.",
+    "Native UUID parser behavior is summarized conditionally on a nonnull parser buffer; the CLI still rejects malformed icon selections instead of silently clearing."
+  ],
+  "remaining_dependency": {
+    "function": "0x14061c6b0",
+    "fields": ["CLoad+0xac (Anc)", "CLoad+0x68 (Ncu)"],
+    "caller_dependency": "A dedicated restore-inherited operation would need an identified caller that explicitly clears those markers before the connected-output refresh, plus a resolved connected source for its virtual mode and name reads. No such reset caller is established by this slice.",
+    "native_validation_question": "In an owned offline Config project, does an accepted empty-name edit save/reopen as Na=\"\" with Ncu=true while preserving all load identities, mode customization and icon references? This is follow-up validation, not an implementation prerequisite."
+  },
+  "tests": [
+    "config_edit::energy_tests::energy_explicit_name_clear_is_custom_empty_not_inherited_and_preserves_storage",
+    "config_edit::energy_tests::energy_explicit_name_clear_conflicts_and_invalid_patches_are_atomic",
+    "commands::config_cmd::energy::tests::energy_explicit_name_clear_needs_no_empty_shell_argument",
+    "energy_explicit_name_clear_cli_dry_run_keeps_customization_and_source"
+  ]
+}

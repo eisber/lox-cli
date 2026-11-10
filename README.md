@@ -78,9 +78,17 @@ The CLI handles LoxCC compression, CRC32 checksums, UUID generation, connector m
 
 `lox config energy` provides a validated **EnergyManager2 storage pilot**: inspect
 stored/effective values, set three scalar parameters, and configure/reorder its
-twelve existing load slots. It preserves full records and wiring, supports
+twelve existing load slots, including explicit customized-name clearing with
+`--no-name`. It preserves full records and wiring, supports
 `--dry-run`/`--save-as`, and does **not** claim complete GUI or runtime parity.
 See [EnergyManager2 commands](COMMANDS.md#energymanager2-verified-storage-pilot).
+
+`lox config lighting` inspects stored **LightController2** moods and output
+references. Its source-backed `recount-moods` repairs only the stored scene count,
+preserving output widths, sparse values and unknown data; existing `add-mood`
+also recounts instead of incrementing a stale count. These storage guarantees
+are not native GUI/runtime parity. See
+[Lighting commands](COMMANDS.md#lighting-stored-inspection-and-mood-count-repair).
 
 ---
 
