@@ -36,6 +36,18 @@ def main(argv=None):
         if (len(events) != 1 or campaign.definition_hash(handoff) != events[0]["handoff_sha256"]
                 or handoff["authority_source_sha256"] != args.authority_sha256):
             raise ValueError("Immutable handoff/source pin mismatch.")
+        if catalog.get("selection_method") == "hybrid-image-inspector-v1":
+            recorded = handoff["argv"]
+            for name in ("queue", "catalog", "handoff", "profile", "authority", "artifact-root",
+                         "run-id", "authority-sha256"):
+                flag = "--" + name
+                if recorded.count(flag) != 1 or recorded.index(flag) + 1 >= len(recorded):
+                    raise ValueError("Malformed immutable hybrid execution argv.")
+                value = recorded[recorded.index(flag) + 1]
+                actual = getattr(args, name.replace("-", "_"))
+                if (Path(value).resolve() != actual.resolve() if isinstance(actual, Path)
+                        else value != actual):
+                    raise ValueError("Hybrid CLI argument differs from its immutable handoff: " + flag)
         gui = campaign.load_tool("loxone-ux")
         stage = "profile"
         profile = gui.validate_profile(campaign.read_json(args.profile))

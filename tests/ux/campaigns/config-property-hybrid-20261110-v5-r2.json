@@ -1,0 +1,335 @@
+{
+  "schema_version": 1,
+  "kind": "ux-property-pilot",
+  "id": "config-property-hybrid-20261110-v5-r2",
+  "application": {
+    "version": "17.2.10.21",
+    "sha256": "7b55e3ef18401574ab967c5c6a0140cd5a66dc728521ebba04ad53093577d8b3"
+  },
+  "mix": {
+    "configuration": 5,
+    "simulator": 0
+  },
+  "executor_sources": [
+    {
+      "path": "scripts\\ux_property_executor.py",
+      "sha256": "ed02161c887a97bd56f2a6b9ba990215f3fd55d39364591643ea2a34c0871f0c",
+      "digest_kind": "sha256-lf-source-bytes"
+    },
+    {
+      "path": "scripts\\ux-experiment.py",
+      "sha256": "e8ef25d3bd0eb7993f130c63b336962fdeb0d0b9277411fd63cfecd81f78f784",
+      "digest_kind": "sha256-lf-source-bytes"
+    },
+    {
+      "path": "scripts\\ux-campaign.py",
+      "sha256": "d08a98962de51038d1d7c6dd3b08cc86484475f9ca4413841023f6bc9cb7414c",
+      "digest_kind": "sha256-lf-source-bytes"
+    },
+    {
+      "path": "scripts\\loxone-ux.py",
+      "sha256": "2c048b06195398c443fad1178959188decd5cdc9d9c2ac3c427bad5254a9fb6a",
+      "digest_kind": "sha256-lf-source-bytes"
+    },
+    {
+      "path": "scripts\\loxone_ux_transport.py",
+      "sha256": "527e4743b0bae46fc25a8318d4504dc0b25a7872d256e22ab843248ac4cb3334",
+      "digest_kind": "sha256-lf-source-bytes"
+    },
+    {
+      "path": "scripts\\ux_hybrid_selection.py",
+      "sha256": "816b7843a8f2a603682c42ff6590b04d1527e51115a26bd1404c712ccf1414ae",
+      "digest_kind": "sha256-lf-source-bytes"
+    }
+  ],
+  "native_qualification": "UNKNOWN; private live authority and per-worker canary required.",
+  "whole_product_behavior_percentage": null,
+  "cases": [
+    {
+      "id": "pilot-title-ascii-20261110-v5-r2",
+      "phase": "configuration",
+      "family": "EnergyManager2",
+      "application": {
+        "version": "17.2.10.21",
+        "sha256": "7b55e3ef18401574ab967c5c6a0140cd5a66dc728521ebba04ad53093577d8b3"
+      },
+      "adapter": "sdk-property-hybrid-v1",
+      "executor_compatible": true,
+      "canary_for": "sdk-property-hybrid-v1",
+      "needed_capabilities": [
+        "sdk-property-roundtrip",
+        "guarded-native-input",
+        "owned-capture",
+        "hybrid-image-inspector-v1"
+      ],
+      "fixture_alias": "property-baseline",
+      "fixture_sha256": "abae2176099bdeefd59999883a892f9a407f83d1738cf5ce938e649f1a31d080",
+      "timeout_seconds": 300,
+      "field_bindings": [
+        "@Title"
+      ],
+      "property": {
+        "uuid": "1ea20af3-0284-bf5d-ffff741afa8d2a84",
+        "type": "EnergyManager2",
+        "attribute": "Title",
+        "before": "Energy Manager",
+        "after": "Energy ManagerPilot"
+      },
+      "selectors": {
+        "target": {
+          "role": "rendered-body",
+          "method": "hybrid-image-inspector-v1"
+        },
+        "property": {
+          "role": "inspector-editor"
+        },
+        "value": {
+          "role": "inspector-value",
+          "control_type": "Edit"
+        }
+      },
+      "expectation": "Observe Title persistence only; all unrelated XML changes remain unexplained.",
+      "definition_sha256": "5cd23d1f4551469df372424d92751f2e30ed9d203b5da3cc1b2930194f02824f",
+      "native_capture_contract": "printwindow-native-result-v1",
+      "selection": {
+        "method": "hybrid-image-inspector-v1",
+        "strategy": "exact-stable-body-v1",
+        "xml_correlation": "globally-unique-title-type-to-uuid-v1"
+      },
+      "selection_source": {
+        "path": "scripts\\ux_hybrid_selection.py",
+        "sha256": "816b7843a8f2a603682c42ff6590b04d1527e51115a26bd1404c712ccf1414ae",
+        "digest_kind": "sha256-lf-source-bytes"
+      }
+    },
+    {
+      "id": "pilot-title-unicode-20261110-v5-r2",
+      "phase": "configuration",
+      "family": "EnergyManager2",
+      "application": {
+        "version": "17.2.10.21",
+        "sha256": "7b55e3ef18401574ab967c5c6a0140cd5a66dc728521ebba04ad53093577d8b3"
+      },
+      "adapter": "sdk-property-hybrid-v1",
+      "executor_compatible": true,
+      "canary_for": null,
+      "needed_capabilities": [
+        "sdk-property-roundtrip",
+        "guarded-native-input",
+        "owned-capture",
+        "hybrid-image-inspector-v1"
+      ],
+      "fixture_alias": "property-baseline",
+      "fixture_sha256": "abae2176099bdeefd59999883a892f9a407f83d1738cf5ce938e649f1a31d080",
+      "timeout_seconds": 300,
+      "field_bindings": [
+        "@Title"
+      ],
+      "property": {
+        "uuid": "1ea20af3-0284-bf5d-ffff741afa8d2a84",
+        "type": "EnergyManager2",
+        "attribute": "Title",
+        "before": "Energy Manager",
+        "after": "Energy Manager W\u00e4rme"
+      },
+      "selectors": {
+        "target": {
+          "role": "rendered-body",
+          "method": "hybrid-image-inspector-v1"
+        },
+        "property": {
+          "role": "inspector-editor"
+        },
+        "value": {
+          "role": "inspector-value",
+          "control_type": "Edit"
+        }
+      },
+      "expectation": "Observe Title persistence only; all unrelated XML changes remain unexplained.",
+      "definition_sha256": "b700ec18c0a632c53c84f7128937d66dca6120a37f4e27bc30027ae6adc396bc",
+      "native_capture_contract": "printwindow-native-result-v1",
+      "selection": {
+        "method": "hybrid-image-inspector-v1",
+        "strategy": "exact-stable-body-v1",
+        "xml_correlation": "globally-unique-title-type-to-uuid-v1"
+      },
+      "selection_source": {
+        "path": "scripts\\ux_hybrid_selection.py",
+        "sha256": "816b7843a8f2a603682c42ff6590b04d1527e51115a26bd1404c712ccf1414ae",
+        "digest_kind": "sha256-lf-source-bytes"
+      }
+    },
+    {
+      "id": "pilot-title-spaces-20261110-v5-r2",
+      "phase": "configuration",
+      "family": "EnergyManager2",
+      "application": {
+        "version": "17.2.10.21",
+        "sha256": "7b55e3ef18401574ab967c5c6a0140cd5a66dc728521ebba04ad53093577d8b3"
+      },
+      "adapter": "sdk-property-hybrid-v1",
+      "executor_compatible": true,
+      "canary_for": null,
+      "needed_capabilities": [
+        "sdk-property-roundtrip",
+        "guarded-native-input",
+        "owned-capture",
+        "hybrid-image-inspector-v1"
+      ],
+      "fixture_alias": "property-baseline",
+      "fixture_sha256": "abae2176099bdeefd59999883a892f9a407f83d1738cf5ce938e649f1a31d080",
+      "timeout_seconds": 300,
+      "field_bindings": [
+        "@Title"
+      ],
+      "property": {
+        "uuid": "1ea20af3-0284-bf5d-ffff741afa8d2a84",
+        "type": "EnergyManager2",
+        "attribute": "Title",
+        "before": "Energy Manager",
+        "after": "Energy Manager Pilot Room"
+      },
+      "selectors": {
+        "target": {
+          "role": "rendered-body",
+          "method": "hybrid-image-inspector-v1"
+        },
+        "property": {
+          "role": "inspector-editor"
+        },
+        "value": {
+          "role": "inspector-value",
+          "control_type": "Edit"
+        }
+      },
+      "expectation": "Observe Title persistence only; all unrelated XML changes remain unexplained.",
+      "definition_sha256": "d47db5169a0c3faa4bed5568b7add99046fcedd8c4d0aa218657c37d544bfdf7",
+      "native_capture_contract": "printwindow-native-result-v1",
+      "selection": {
+        "method": "hybrid-image-inspector-v1",
+        "strategy": "exact-stable-body-v1",
+        "xml_correlation": "globally-unique-title-type-to-uuid-v1"
+      },
+      "selection_source": {
+        "path": "scripts\\ux_hybrid_selection.py",
+        "sha256": "816b7843a8f2a603682c42ff6590b04d1527e51115a26bd1404c712ccf1414ae",
+        "digest_kind": "sha256-lf-source-bytes"
+      }
+    },
+    {
+      "id": "pilot-title-punctuation-20261110-v5-r2",
+      "phase": "configuration",
+      "family": "EnergyManager2",
+      "application": {
+        "version": "17.2.10.21",
+        "sha256": "7b55e3ef18401574ab967c5c6a0140cd5a66dc728521ebba04ad53093577d8b3"
+      },
+      "adapter": "sdk-property-hybrid-v1",
+      "executor_compatible": true,
+      "canary_for": null,
+      "needed_capabilities": [
+        "sdk-property-roundtrip",
+        "guarded-native-input",
+        "owned-capture",
+        "hybrid-image-inspector-v1"
+      ],
+      "fixture_alias": "property-baseline",
+      "fixture_sha256": "abae2176099bdeefd59999883a892f9a407f83d1738cf5ce938e649f1a31d080",
+      "timeout_seconds": 300,
+      "field_bindings": [
+        "@Title"
+      ],
+      "property": {
+        "uuid": "1ea20af3-0284-bf5d-ffff741afa8d2a84",
+        "type": "EnergyManager2",
+        "attribute": "Title",
+        "before": "Energy Manager",
+        "after": "Energy Manager (Pilot-4)"
+      },
+      "selectors": {
+        "target": {
+          "role": "rendered-body",
+          "method": "hybrid-image-inspector-v1"
+        },
+        "property": {
+          "role": "inspector-editor"
+        },
+        "value": {
+          "role": "inspector-value",
+          "control_type": "Edit"
+        }
+      },
+      "expectation": "Observe Title persistence only; all unrelated XML changes remain unexplained.",
+      "definition_sha256": "59c021905ba9cc5965c64e364b27be326561c6353dc96cbb5a62598f9882965c",
+      "native_capture_contract": "printwindow-native-result-v1",
+      "selection": {
+        "method": "hybrid-image-inspector-v1",
+        "strategy": "exact-stable-body-v1",
+        "xml_correlation": "globally-unique-title-type-to-uuid-v1"
+      },
+      "selection_source": {
+        "path": "scripts\\ux_hybrid_selection.py",
+        "sha256": "816b7843a8f2a603682c42ff6590b04d1527e51115a26bd1404c712ccf1414ae",
+        "digest_kind": "sha256-lf-source-bytes"
+      }
+    },
+    {
+      "id": "pilot-title-long-20261110-v5-r2",
+      "phase": "configuration",
+      "family": "EnergyManager2",
+      "application": {
+        "version": "17.2.10.21",
+        "sha256": "7b55e3ef18401574ab967c5c6a0140cd5a66dc728521ebba04ad53093577d8b3"
+      },
+      "adapter": "sdk-property-hybrid-v1",
+      "executor_compatible": true,
+      "canary_for": null,
+      "needed_capabilities": [
+        "sdk-property-roundtrip",
+        "guarded-native-input",
+        "owned-capture",
+        "hybrid-image-inspector-v1"
+      ],
+      "fixture_alias": "property-baseline",
+      "fixture_sha256": "abae2176099bdeefd59999883a892f9a407f83d1738cf5ce938e649f1a31d080",
+      "timeout_seconds": 300,
+      "field_bindings": [
+        "@Title"
+      ],
+      "property": {
+        "uuid": "1ea20af3-0284-bf5d-ffff741afa8d2a84",
+        "type": "EnergyManager2",
+        "attribute": "Title",
+        "before": "Energy Manager",
+        "after": "Energy Manager Pilot Persistence Observation Five"
+      },
+      "selectors": {
+        "target": {
+          "role": "rendered-body",
+          "method": "hybrid-image-inspector-v1"
+        },
+        "property": {
+          "role": "inspector-editor"
+        },
+        "value": {
+          "role": "inspector-value",
+          "control_type": "Edit"
+        }
+      },
+      "expectation": "Observe Title persistence only; all unrelated XML changes remain unexplained.",
+      "definition_sha256": "6faeb94e5cf2b18d40b2ae103262f3ba5738c3342cd92eab0b16b239d5393aa2",
+      "native_capture_contract": "printwindow-native-result-v1",
+      "selection": {
+        "method": "hybrid-image-inspector-v1",
+        "strategy": "exact-stable-body-v1",
+        "xml_correlation": "globally-unique-title-type-to-uuid-v1"
+      },
+      "selection_source": {
+        "path": "scripts\\ux_hybrid_selection.py",
+        "sha256": "816b7843a8f2a603682c42ff6590b04d1527e51115a26bd1404c712ccf1414ae",
+        "digest_kind": "sha256-lf-source-bytes"
+      }
+    }
+  ],
+  "selection_method": "hybrid-image-inspector-v1"
+}

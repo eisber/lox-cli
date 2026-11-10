@@ -22,6 +22,8 @@ from loxone_ux_transport import parse_json
 
 
 ADAPTER = "sdk-property-roundtrip-v1"
+HYBRID_ADAPTER = "sdk-property-hybrid-v1"
+HYBRID_METHOD = "hybrid-image-inspector-v1"
 OUTCOMES = {"complete", "reject", "fail", "blocked", "UNKNOWN"}
 MAX_ENCODED_COMMAND_CHARACTERS = 30000
 COMMAND_LINE_OVERHEAD_CHARACTERS = 2048
@@ -337,7 +339,8 @@ def property_value(raw, target):
 
 
 def validate_case(case):
-    if case.get("adapter") != ADAPTER or case.get("phase") != "configuration":
+    hybrid = case.get("adapter") == HYBRID_ADAPTER
+    if case.get("adapter") not in {ADAPTER, HYBRID_ADAPTER} or case.get("phase") != "configuration":
         raise ValueError("Only the separately declared property pilot is supported.")
     target = case["property"]
     if (set(target) != {"uuid", "type", "attribute", "before", "after"}
@@ -348,11 +351,19 @@ def validate_case(case):
         raise ValueError("Pilot requires a single nonempty UUID/type-bound Title change.")
     if set(case["selectors"]) != {"target", "property", "value"} or any(
         not isinstance(selector, dict) or not selector
-        or set(selector) - {"name", "automation_id", "control_type", "xml_uuid", "role"}
+        or set(selector) - ({"name", "automation_id", "control_type", "xml_uuid", "role"}
+                           | ({"method"} if hybrid else set()))
         or any(not isinstance(value, str) or not value for value in selector.values())
         for selector in case["selectors"].values()
     ):
         raise ValueError("Three declarative selector bindings are required, not coordinates.")
+    if hybrid and (case.get("selection") != {
+        "method": HYBRID_METHOD, "strategy": "exact-stable-body-v1",
+        "xml_correlation": "globally-unique-title-type-to-uuid-v1",
+    } or case["selectors"]["target"] != {"role": "rendered-body", "method": HYBRID_METHOD}):
+        raise ValueError("Explicit versioned hybrid body/inspector selection is required.")
+    if hybrid and case.get("native_capture_contract") != "printwindow-native-result-v1":
+        raise ValueError("Explicit reviewed raw native capture result version is required.")
     if not re.fullmatch(r"[a-f0-9]{64}", case["fixture_sha256"]):
         raise ValueError("Raw fixture pin is required.")
     if not 1 <= case["timeout_seconds"] <= 600:
@@ -361,48 +372,52 @@ def validate_case(case):
 
 
 def pilot_catalog(campaign):
-    """Five authored inputs, zero native executions; never modify mixed100."""
-    cases = []
-    for suffix, value in (
-        ("ascii", "Energy ManagerPilot"),
-        ("unicode", "Energy Manager Wärme"),
-        ("spaces", "Energy Manager Pilot Room"),
-        ("punctuation", "Energy Manager (Pilot-4)"),
-        ("long", "Energy Manager Pilot Persistence Observation Five"),
-    ):
-        case = {
-            "id": "pilot-title-" + suffix + "-20261110-v4",
-            "phase": "configuration", "family": "EnergyManager2",
-            "application": dict(campaign.APP), "adapter": ADAPTER,
-            "executor_compatible": True,
-            "canary_for": ADAPTER if suffix == "ascii" else None,
-            "needed_capabilities": ["sdk-property-roundtrip", "guarded-native-input", "owned-capture"],
-            "fixture_alias": "property-baseline",
-            "fixture_sha256": "56df38960f6c6b27bb12bb00d7de78e552bb77588da2f380fcf15742711901b9",
-            "timeout_seconds": 300, "field_bindings": ["@Title"],
-            "property": {"uuid": "1ea20af3-0284-bf5d-ffff741afa8d2a84",
-                         "type": "EnergyManager2", "attribute": "Title",
-                         "before": "Energy Manager", "after": value},
-            "selectors": {
-                "target": {"role": "target-block",
-                           "xml_uuid": "1ea20af3-0284-bf5d-ffff741afa8d2a84"},
-                "property": {"role": "property-label", "name": "Bezeichnung"},
-                "value": {"role": "property-value", "control_type": "Edit"},
-            },
-            "expectation": "Observe Title persistence only; all unrelated XML changes remain unexplained.",
+    """Read historical v4 verbatim, never regenerate/rebind its source pins."""
+    return campaign.read_json(campaign.ROOT / "tests" / "ux" / "campaigns" /
+                              "config-property-pilot-20261110-v4.json")
+
+
+def hybrid_catalog(campaign):
+    catalog = pilot_catalog(campaign)
+    catalog.update(id="config-property-hybrid-20261110-v5-r2", selection_method=HYBRID_METHOD)
+    catalog["executor_sources"] = [campaign.source("scripts\\" + name) for name in (
+        "ux_property_executor.py", "ux-experiment.py", "ux-campaign.py",
+        "loxone-ux.py", "loxone_ux_transport.py", "ux_hybrid_selection.py")]
+    for case in catalog["cases"]:
+        case["id"] = case["id"].replace("-v4", "-v5-r2")
+        case["native_capture_contract"] = "printwindow-native-result-v1"
+        case["adapter"] = HYBRID_ADAPTER
+        case["canary_for"] = HYBRID_ADAPTER if case["canary_for"] else None
+        case["needed_capabilities"].append(HYBRID_METHOD)
+        case["fixture_sha256"] = "abae2176099bdeefd59999883a892f9a407f83d1738cf5ce938e649f1a31d080"
+        case["selection"] = {
+            "method": HYBRID_METHOD, "strategy": "exact-stable-body-v1",
+            "xml_correlation": "globally-unique-title-type-to-uuid-v1",
         }
-        case["definition_sha256"] = campaign.definition_hash(case)
-        cases.append(case)
-    return {
-        "schema_version": 1, "kind": "ux-property-pilot",
-        "id": "config-property-pilot-20261110-v4", "application": dict(campaign.APP),
-        "mix": {"configuration": 5, "simulator": 0},
-        "executor_sources": [campaign.source("scripts\\" + name) for name in (
-            "ux_property_executor.py", "ux-experiment.py", "ux-campaign.py",
-            "loxone-ux.py", "loxone_ux_transport.py")],
-        "native_qualification": "UNKNOWN; private live authority and per-worker canary required.",
-        "whole_product_behavior_percentage": None, "cases": cases,
-    }
+        case["selection_source"] = campaign.source("scripts\\ux_hybrid_selection.py")
+        case["selectors"] = {
+            "target": {"role": "rendered-body", "method": HYBRID_METHOD},
+            "property": {"role": "inspector-editor"},
+            "value": {"role": "inspector-value", "control_type": "Edit"},
+        }
+        case["definition_sha256"] = campaign.definition_hash(
+            {key: value for key, value in case.items() if key != "definition_sha256"})
+    return catalog
+
+
+def selection_helper(catalog):
+    descriptors = [item for item in catalog["executor_sources"]
+                   if item["path"] == "scripts\\ux_hybrid_selection.py"]
+    if len(descriptors) != 1 or descriptors[0].get("digest_kind") != "sha256-lf-source-bytes":
+        raise ValueError("Hybrid selection source closure is missing.")
+    path = Path(__file__).with_name("ux_hybrid_selection.py")
+    raw = path.read_bytes()
+    if sha(raw.replace(b"\r\n", b"\n")) != descriptors[0]["sha256"]:
+        raise ValueError("Hybrid selection source changed.")
+    spec = importlib.util.spec_from_file_location("checked_hybrid_selection", path)
+    module = importlib.util.module_from_spec(spec)
+    exec(compile(raw, str(path), "exec"), module.__dict__)
+    return module
 
 
 def load_authority(path, expected_sha):
@@ -430,6 +445,13 @@ class Executor:
         self.root = self.queue_tool().private_destination(artifact_root)
         self.run = queue.state()[1][run_id]
         self.case = validate_case(queue.cases[self.run["case_id"]])
+        self.hybrid = selection_helper(queue.catalog) if self.case["adapter"] == HYBRID_ADAPTER else None
+        if self.hybrid:
+            handoff_events = [event for event in queue.events()
+                              if event["type"] == "handoff" and event["run_id"] == run_id]
+            self.binding_anchor = handoff_events[0].get("execution_binding_sha256") if len(handoff_events) == 1 else None
+        self.expected_title = self.case["property"]["before"]
+        self.before_xml = self.saved_xml = None
         self.context = {key: self.run[key] for key in (
             "run_id", "worker", "physical_identity_sha256", "definition_sha256")}
         self.context["application"] = queue.catalog["application"]
@@ -444,6 +466,29 @@ class Executor:
         self.old = self.fresh = None
         self.stage = "constructed"
         self.directory = self.root / ("property-" + run_id)
+
+    structured_json = staticmethod(parse_json)
+    canonical_json = staticmethod(canonical)
+
+    def bound_bytes(self, descriptor):
+        raw = self.queue_tool().checked_artifact(self.root, descriptor).read_bytes()
+        if sha(raw) != descriptor["sha256"]:
+            raise Stop("reject", "checked-hybrid-artifact-changed-during-read")
+        return raw
+
+    def correlate_xml(self, raw, expected_title):
+        root, _ = xml_nodes(raw)
+        matches = [node for node in root.iter() if node.get("Title") == expected_title]
+        if (len(matches) != 1 or matches[0].get("Type") != self.case["property"]["type"]
+                or matches[0].get("U") != self.case["property"]["uuid"]):
+            raise Stop("reject", "globally-unique-xml-title-type-uuid-required")
+
+    def hybrid_check(self, operation, *args, **kwargs):
+        try:
+            return getattr(self.hybrid, operation)(self, *args, **kwargs)
+        except (ValueError, KeyError) as error:
+            raise Stop("blocked" if operation == "preflight" else "reject",
+                       "hybrid-" + operation + "-refused", {"reason": str(error)}) from error
 
     def event(self, kind, **fields):
         with self.queue.locked():
@@ -507,6 +552,8 @@ class Executor:
         return parse_json(match.group(1))
 
     def facts(self, stage, expected=None, intent=None):
+        if self.hybrid:
+            self.hybrid_check("read_bound")
         control = self.structured(self.tool("ControlStatus", {}))
         if control.get("state") not in {"ready", "ai"}:
             raise Stop("blocked", "USER_CONTROL")
@@ -515,18 +562,23 @@ class Executor:
         # not a caller-written admission flag. It must revalidate real policy,
         # identity, source guards and ownership and retain its native receipt.
         self.stage = "authority." + stage
+        observation_context = dict(self.context)
+        if self.hybrid:
+            observation_context.update(expected_title=self.expected_title,
+                                       selection_method=HYBRID_METHOD)
         descriptor = self.authority.snapshot(
-            self.client, dict(self.context), stage, expected, control, display, intent)
+            self.client, observation_context, stage, expected, control, display, intent)
         receipt_path = self.queue_tool().checked_artifact(self.root, descriptor)
         raw = receipt_path.read_bytes()
         receipt = parse_json(raw)
-        required = {**self.context, "stage": stage, "input": intent,
+        required = {**observation_context, "stage": stage, "input": intent,
                     "display_inventory_sha256": sha(canonical(display))}
         if any(receipt.get(key) != value for key, value in required.items()):
             raise Stop("reject", "authority-case-worker-version-binding")
         observed = datetime.fromisoformat(receipt["source_utc"])
         if observed.tzinfo is None or not 0 <= (utc() - observed).total_seconds() <= 5:
             raise Stop("reject", "stale-live-authority-receipt")
+        self.last_observation_utc = observed
         if (not receipt.get("source_guards") or not receipt.get("policy")
                 or receipt.get("control_state") != control["state"]):
             raise Stop("reject", "missing-live-source-policy-control")
@@ -541,6 +593,7 @@ class Executor:
                                  raw, "authority-receipt")
         self.event("checkpoint", stage=stage, facts=retained)
         facts = receipt["facts"]
+        self.display_hash = required["display_inventory_sha256"]
         if expected is not None and facts.get("identity") != expected:
             raise Stop("reject", "target-process-or-root-changed")
         return facts
@@ -601,11 +654,28 @@ class Executor:
             and foreground.get("session") == identity["session"]
         ):
             raise Stop("blocked", "foreground-changed-no-forced-focus")
-        if selector is not None:
+        editor = None
+        if self.hybrid and selector != "target":
+            editor = self.hybrid_check("inspector", facts, identity, focused=tool == "Type")
+            if tool in {"Type", "Shortcut"}:
+                focus = facts.get("input_focus", {})
+                if (focus.get("identity") != identity or type(focus.get("hwnd")) is not int
+                        or focus["hwnd"] <= 0 or focus.get("thread_active_root") != identity["root"]
+                        or focus.get("visible") is not True or focus.get("enabled") is not True):
+                    raise Stop("blocked", "hybrid-actual-keyboard-focus-not-proved")
+        if self.hybrid and selector == "target":
+            arguments = {**arguments, "loc": self.hybrid_check("select", facts, identity)}
+        elif selector is not None:
             matches = facts.get("selectors", {}).get(selector, [])
             if (len(matches) != 1 or matches[0].get("binding") != self.case["selectors"][selector]
                     or not matches[0].get("selector") or matches[0].get("visible") is not True):
                 raise Stop("reject", "uia-selector-not-unique")
+            if editor is not None and (
+                matches[0].get("runtime_id") != editor.get("runtime_id")
+                or matches[0].get("selector") != editor.get("selector")
+                or matches[0].get("physical_bounds") != editor.get("physical_bounds")
+            ):
+                raise Stop("reject", "hybrid-inspector-input-target-changed")
             bounds = matches[0]["physical_bounds"]
             if (len(bounds) != 4 or any(type(v) not in (int, float)
                                       or not math.isfinite(v) for v in bounds)
@@ -617,7 +687,13 @@ class Executor:
             if facts.get("hit") != {"physical_point": point, "identity": identity}:
                 raise Stop("reject", "physical-hit-root-changed")
             arguments = {**arguments, "loc": point}
+        if self.hybrid:
+            self.hybrid_check("read_bound")
+            if not 0 <= (utc() - self.last_observation_utc).total_seconds() <= 5:
+                raise Stop("blocked", "hybrid-live-observation-expired-before-input")
         self.tool(tool, arguments, effect=True)
+        if self.hybrid and tool == "Type":
+            self.expected_title = self.case["property"]["after"]
 
     def read_xml(self, stage):
         self.facts("guard", self.fresh or self.old)
@@ -630,7 +706,16 @@ class Executor:
         self.artifact(stage + ".Loxone", raw, stage + "-xml")
         return raw
 
-    def screenshot(self, stage):
+    def screenshot(self, stage, identity=None):
+        if self.hybrid:
+            identity = identity or self.fresh or self.old
+            facts = self.facts("capture", identity)
+            raw, proof = self.hybrid_check("capture", facts, identity)
+            self.artifact(stage + ".png", raw, "screenshot")
+            self.artifact(stage + "-capture-ack.json", self.bound_bytes(proof["capture_ack"]),
+                          "owned-capture-ack")
+            self.artifact(stage + "-capture.json", canonical(proof), "owned-capture-proof")
+            return
         reply = self.tool("Screenshot", {})
         images = [item for item in reply.get("content", [])
                   if item.get("type") == "image" and item.get("mimeType") == "image/png"]
@@ -659,16 +744,21 @@ class Executor:
         if (identity["pid"] != launched["pid"]
                 or loaded.get("document_path") != self.handoff["document_path"]):
             raise Stop("reject", "ordinary-launch-document-or-pid-mismatch")
-        self.screenshot(stage)
+        self.screenshot(stage, identity)
         return identity
 
     def perform(self):
+        if self.hybrid:
+            self.hybrid_check("preflight")
         baseline_path = self.queue_tool().checked_artifact(self.root, self.handoff["before_xml"])
         before = baseline_path.read_bytes()
         if sha(before) != self.case["fixture_sha256"]:
             raise Stop("reject", "raw-fixture-pin-mismatch")
         if property_value(before, self.case["property"]) != self.case["property"]["before"]:
             raise Stop("reject", "baseline-property-mismatch")
+        self.before_xml = before
+        if self.hybrid:
+            self.correlate_xml(before, self.expected_title)
         self.artifact("before.Loxone", before, "before-xml")
         self.old = self.launch("initial-open")
         if self.read_xml("opened") != before:
@@ -679,6 +769,7 @@ class Executor:
                             "clear": True, "press_enter": True}, self.old, "value")
         self.input("Shortcut", {"shortcut": "ctrl+s"}, self.old)
         saved = self.read_xml("saved")
+        self.saved_xml = saved
         self.screenshot("saved")
         self.input("Shortcut", {"shortcut": "alt+f4"}, self.old)
         closed = self.facts("closed")
@@ -693,6 +784,8 @@ class Executor:
         self.input("Click", {"button": "left", "clicks": 1}, self.fresh, "property")
         reopened = self.read_xml("reopened")
         value = self.facts("value", self.fresh)
+        if self.hybrid:
+            self.hybrid_check("inspector", value, self.fresh)
         self.screenshot("reopened")
         diff = compare_xml(before, saved)
         self.artifact("xml-diff.json", canonical(diff), "xml-diff")
@@ -739,6 +832,11 @@ class Executor:
                 "evidence_origin": self.origin or "unknown", "automatic_retry": False,
                 "steps_acknowledged": len(self.steps),
             })
+            if self.hybrid:
+                result["execution_binding"] = self.handoff["execution_binding"]
+                result["executable_path"] = self.handoff["executable_path"]
+                result["document_path"] = self.handoff["document_path"]
+                result["authority_source_sha256"] = self.handoff["authority_source_sha256"]
             receipt = self.artifact("result.json", canonical(result), "native-receipt")
             capture = {
                 "schema_version": 1, "kind": "ux-campaign-capture",
@@ -930,6 +1028,10 @@ def validate_capture(case, run, capture, root, events, queue_module):
                 if event["facts"]["sha256"] not in retained:
                     raise ValueError("Authority checkpoint was replaced.")
                 queue_module.checked_artifact(root, event["facts"])
+        if case["adapter"] == HYBRID_ADAPTER:
+            helper = selection_helper({"executor_sources": [case["selection_source"]]})
+            helper.validate_capture(case, result, root, events, facts, handoffs[0], queue_module,
+                                    before, saved, by_kind, xml_nodes)
         # This observes persistence only, never behavioral equivalence.
         return "observed", True
     return {"reject": "blocked", "fail": "verified-fail",
