@@ -301,6 +301,32 @@ def generate_catalog():
 
 
 def validate_catalog(catalog):
+    if catalog.get("kind") == "ux-property-pilot":
+        from ux_property_executor import validate_case, ADAPTER
+        if (catalog.get("schema_version") != 1 or catalog.get("application") != APP
+                or not catalog.get("cases") or len(catalog["cases"]) > 5
+                or catalog.get("mix") != {"configuration": len(catalog["cases"]), "simulator": 0}):
+            raise ValueError("Invalid separate bounded property pilot.")
+        if len({case["id"] for case in catalog["cases"]}) != len(catalog["cases"]):
+            raise ValueError("Pilot identities must be unique.")
+        expected_sources = {"scripts\\" + name for name in (
+            "ux_property_executor.py", "ux-experiment.py", "ux-campaign.py",
+            "loxone-ux.py", "loxone_ux_transport.py")}
+        if {item["path"] for item in catalog["executor_sources"]} != expected_sources:
+            raise ValueError("Pilot must pin all actual executor sources.")
+        for descriptor in catalog["executor_sources"]:
+            if (descriptor.get("digest_kind") != "sha256-lf-source-bytes"
+                    or source_digest(repo_path(descriptor["path"])) != descriptor["sha256"]):
+                raise ValueError("Pilot executor source drift.")
+        for case in catalog["cases"]:
+            validate_case(case)
+            body = {key: value for key, value in case.items() if key != "definition_sha256"}
+            if (case["definition_sha256"] != definition_hash(body) or case["application"] != APP
+                    or not case["id"].startswith("pilot-title-")
+                    or case["executor_compatible"] is not True
+                    or case["canary_for"] not in (None, ADAPTER)):
+                raise ValueError("Pilot definition/application binding changed.")
+        return catalog
     if catalog.get("schema_version") != 1 or catalog.get("application") != APP:
         raise ValueError("Unsupported campaign schema/application pin.")
     cases = catalog.get("cases", [])
@@ -633,6 +659,21 @@ class Queue:
                     "--expected-sha", APP["sha256"], "--deadline-seconds", str(case["timeout_seconds"]),
                     "--verbose", "run", str(recipe_file)]
             load_tool("loxone-ux").make_parser().parse_args(argv[2:])
+        elif case["adapter"] == "sdk-property-roundtrip-v1":
+            gui = load_tool("loxone-ux")
+            for key in ("executable_path", "document_path"):
+                gui.windows_path(private[key], key)
+            before_xml = checked_artifact(private["artifact_root"], private["before_xml"])
+            if digest(before_xml) != fixture_sha:
+                raise ValueError("Pilot baseline descriptor does not match fixture.")
+            if digest(private["authority_module"]) != private["authority_source_sha256"]:
+                raise ValueError("Private authority source pin changed.")
+            argv = [sys.executable, str(ROOT / "scripts" / "ux-experiment.py"),
+                    "--queue", str(self.path), "--catalog", str(private["catalog_path"]),
+                    "--run-id", run_id, "--handoff", str(destination / "handoff.json"),
+                    "--profile", private["ux_profile"], "--authority", private["authority_module"],
+                    "--authority-sha256", private["authority_source_sha256"],
+                    "--artifact-root", private["artifact_root"]]
         else:
             # official-sim requires --case to reside below its artifact root.
             native_case_dir = (Path(private["artifact_root"]) / ".reverse-engineering" /
@@ -657,6 +698,9 @@ class Queue:
             "authority": "DATA ONLY. Existing guarded worker must independently admit every input/lifecycle action.",
             "collection": "Retain actual native receipt/request, guard+PID/path/hash/start/session/fence proof, XML/diff, owned screenshots and observations.",
         }
+        if case["adapter"] == "sdk-property-roundtrip-v1":
+            handoff.update({key: private[key] for key in (
+                "executable_path", "document_path", "before_xml", "authority_source_sha256")})
         write_new(destination / "handoff.json", handoff)
         self.append("handoff", run_id=run_id, handoff_sha256=definition_hash(handoff),
                     fixture_sha256=fixture_sha, expected_target_pid=expected_target_pid)
@@ -664,11 +708,62 @@ class Queue:
 
     def unknown(self, run_id, reason):
         with self.locked():
-            _, runs, _, _ = self.state()
-            if runs[run_id]["status"] != "dispatched":
-                raise ValueError("Dispatch already terminal; no retry/requeue.")
-            return self.append("unknown", run_id=run_id, status="UNKNOWN", reason=reason,
-                               native_started=False, park=True)
+            return self._unknown(run_id, reason)
+
+    def _unknown(self, run_id, reason):
+        _, runs, _, _ = self.state()
+        if runs[run_id]["status"] != "dispatched":
+            raise ValueError("Dispatch already terminal; no retry/requeue.")
+        started = False
+        if self.cases[runs[run_id]["case_id"]]["adapter"] == "sdk-property-roundtrip-v1":
+            own = [event for event in self.events() if event.get("run_id") == run_id]
+            results = [event for event in own if event["type"] == "execution-result"]
+            started = (results[-1].get("actual_native_start") if results else
+                       None if any(event["type"] == "step-intent" and event.get("effect")
+                                   for event in own) else False)
+            if results and started is True and results[-1].get("evidence_origin") != "native-config-ui":
+                started = None
+        return self.append("unknown", run_id=run_id, status="UNKNOWN", reason=reason,
+                           native_started=started, park=True)
+
+    def _execution_run(self, run_id):
+        workers, runs, _, _ = self.state()
+        run = runs[run_id]
+        worker = workers[run["worker"]]
+        if (run["status"] != "dispatched" or worker["parked"]
+                or worker["active"] != run_id):
+            raise ValueError("Current dispatch is terminal, quarantined or not owned; no execution.")
+        if datetime.fromisoformat(worker["binding"]["valid_until"]) <= datetime.now(timezone.utc):
+            raise ValueError("Current worker admission expired; no execution.")
+        return run
+
+    def execution_start(self, run_id, handoff):
+        with self.locked():
+            run = self._execution_run(run_id)
+            own = [event for event in self.events() if event.get("run_id") == run_id]
+            if any(event["type"] == "execution-start" for event in own):
+                self._unknown(run_id, "Executor was previously entered; inspect, never replay.")
+                raise ValueError("Recovery is audit-only; prior execution is never replayed.")
+            handoffs = [event for event in own if event["type"] == "handoff"]
+            handoff_sha = definition_hash(handoff)
+            if (handoff.get("run_id") != run_id or len(handoffs) != 1
+                    or handoffs[0]["handoff_sha256"] != handoff_sha):
+                raise ValueError("Immutable execution handoff mismatch.")
+            lock = self.path / ("desktop-" + run["physical_identity_sha256"] + ".lock")
+            fd = os.open(lock, os.O_CREAT | os.O_EXCL | os.O_WRONLY, 0o600)
+            try:
+                os.write(fd, run_id.encode("ascii"))
+                os.fsync(fd)
+                self.append("execution-start", run_id=run_id, handoff_sha256=handoff_sha)
+            except BaseException:
+                os.close(fd)
+                raise
+            return run, fd
+
+    def execution_intent(self, run_id, **fields):
+        with self.locked():
+            self._execution_run(run_id)
+            return self.append("step-intent", run_id=run_id, **fields)
 
     def collect(self, run_id, capture, artifact_root):
         with self.locked():
@@ -682,21 +777,32 @@ class Queue:
                     return previous  # Read-only batch audit, not another attempt or promotion.
                 raise ValueError("Dispatch already terminal; append-only evidence cannot retry it.")
             case = self.cases[run["case_id"]]
+            pilot = case["adapter"] == "sdk-property-roundtrip-v1"
             try:
                 status, started = validate_capture(case, run, capture, artifact_root, self.events())
+                if pilot and status == "observed":
+                    lock = self.path / ("desktop-" + run["physical_identity_sha256"] + ".lock")
+                    if lock.read_text(encoding="ascii") != run_id:
+                        raise ValueError("Physical execution reservation changed.")
             except (ValueError, KeyError, OSError, TypeError, UxError) as error:
                 return self.append("unknown", run_id=run_id, status="UNKNOWN", reason=str(error),
-                                   native_started=False, park=True,
+                                   native_started=None if pilot else False, park=True,
                                    rejected_capture_sha256=definition_hash(capture))
             error = capture.get("terminal_error")
-            return self.append("result", run_id=run_id, status=status, native_started=started,
-                               park=error in TERMINAL_CONTROL or status in {"UNKNOWN", "blocked"},
+            result = self.append("result", run_id=run_id, status=status, native_started=started,
+                               park=(error in TERMINAL_CONTROL or status in {"UNKNOWN", "blocked"}
+                                     or (pilot and status != "observed")),
                                terminal_error=error, capture_sha256=definition_hash(capture),
                                native_run_id=capture.get("native_run_id"),
                                native_receipt_sha256=next(
                                    (item["sha256"] for item in capture["artifacts"] if item["kind"] == "native-receipt"), None),
                                artifacts=capture["artifacts"], worker=run["worker"],
                                physical_identity_sha256=workers[run["worker"]]["binding"]["physical_identity_sha256"])
+            if pilot and status == "observed":
+                lock = self.path / ("desktop-" + run["physical_identity_sha256"] + ".lock")
+                if lock.read_text(encoding="ascii") == run_id:
+                    lock.unlink()
+            return result
 
     def collect_file(self, run_id, capture_path, artifact_root):
         try:
@@ -812,6 +918,12 @@ class Queue:
 
 
 def validate_capture(case, run, capture, root, events):
+    if case.get("adapter") == "sdk-property-roundtrip-v1":
+        from ux_property_executor import validate_capture as validate_property_capture
+        # The adapter's collector is file-only; it never constructs a client.
+        return validate_property_capture(case, run, capture, root, events,
+                                         sys.modules[__name__] if __name__ in sys.modules
+                                         else load_tool("ux-campaign"))
     if not isinstance(capture, dict):
         raise ValueError("Expected an actual native capture envelope object.")
     if capture.get("kind") != "ux-campaign-capture" or capture.get("schema_version") != 1:
@@ -964,6 +1076,7 @@ def main(argv=None):
     sub = parser.add_subparsers(dest="command", required=True)
     build = sub.add_parser("catalog", help="Deterministically generate a new catalog, never overwrite")
     build.add_argument("--write", type=Path)
+    build.add_argument("--pilot", action="store_true", help="Separate five-input property pilot, not mixed100")
     sub.add_parser("validate")
     sub.add_parser("plan")
     for name in ("init", "stats", "admit", "claim", "handoff", "collect", "collect-batch",
@@ -996,7 +1109,11 @@ def main(argv=None):
     args = parser.parse_args(argv)
     try:
         if args.command == "catalog":
-            catalog = validate_catalog(generate_catalog())
+            if args.pilot:
+                from ux_property_executor import pilot_catalog
+                catalog = validate_catalog(pilot_catalog(load_tool("ux-campaign")))
+            else:
+                catalog = validate_catalog(generate_catalog())
             if args.write:
                 args.write.parent.mkdir(parents=True, exist_ok=True)
                 write_new(args.write, catalog)
@@ -1009,7 +1126,8 @@ def main(argv=None):
                 result = {"definitions": len(catalog["cases"]), "mix": catalog["mix"],
                           "executor_compatible": sum(c["executor_compatible"] for c in catalog["cases"]),
                           "native_executed": 0, "qualification": "external-guard-required",
-                          "first_canary": CANARY,
+                          "first_canary": next(
+                              case["id"] for case in catalog["cases"] if case.get("canary_for")),
                           "qualification_canaries": qualification_definitions(catalog),
                           "whole_product_behavior_percentage": None}
             else:
