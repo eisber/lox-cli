@@ -1,0 +1,242 @@
+{
+  "schema_version": 1,
+  "issue": "lox-mhkk",
+  "parent_batch": "lox-a7o1",
+  "application": {
+    "version": "17.2.10.21",
+    "architecture": "AMD64",
+    "sha256": "7b55e3ef18401574ab967c5c6a0140cd5a66dc728521ebba04ad53093577d8b3"
+  },
+  "corpus": {
+    "installation_sha256": "a3003005776b327f5e666a072a64f5c569182b86174c0f578d5be3267ce28f85",
+    "analysis_id": "6a0520329af17d7b9fdaafe69398c62c454d9da838fc9f9c8d0bdd8d17bb15ae",
+    "function_path_rule": ".reverse-engineering\\versions\\<installation_sha256>\\analysis\\<analysis_id>\\LoxoneConfig.exe\\code\\functions\\<function>.c"
+  },
+  "question": "Which native connection ordering, reference binding and OutputRef mode fallback must an EnergyManager2 inheritance resolver preserve?",
+  "evidence_kind": "native",
+  "scope": "Independently written static semantics only, using existing canonical exports and frozen PE byte ranges. This is a new binding contract, not new executable behavior, native execution, a GUI receipt, or a restore-inherited operation. Historical source summaries are unchanged.",
+  "answer": {
+    "named_result": "connected_binding_contract_recovered_restore_blocked",
+    "explicit_restore_operation": "not_recovered",
+    "absence_claim": false,
+    "mutation_supported": false,
+    "native_execution": false,
+    "new_vs_shipped_gates": [
+      "Exact output-connection append class set and prepend/append ordering law, including the optimized append argument omitted by the decompiler.",
+      "Serialized Ref UUID binding to the cached owner reference, and the distinction between resolving a reference and following it recursively.",
+      "CControlObjectXfer owner virtual+0x498 dispatch and the concrete OutputRef input fallback to its cached mode bit.",
+      "Reference attachment can populate that cached mode from the referenced object's virtual+0x470; the name and mode paths therefore need different provenance.",
+      "Native Title read-side normalization prevents treating an empty serialized Title as necessarily the effective native fallback string."
+    ]
+  },
+  "binding_contract": {
+    "selection_context": "The already recovered Energy refresh selects a load by OIdx and reads only the first output-connection record. It does not search for a better record if that first record has missing mode/name pointers. Existing Anc/Ncu gates remain unchanged.",
+    "connection_insertion": {
+      "owner_type_field": "Connected downstream owner's integer at +0x88, not the Energy block type or the load's priority.",
+      "append_owner_types_hex": ["0x137", "0x138", "0x13a", "0x140"],
+      "append_owner_types_decimal": [311, 312, 314, 320],
+      "other_owner_types": "Insert one new record at index zero, shifting existing entries right.",
+      "record_payload": "The inserted record retains the downstream owner at +8 and IoConnection at +0x10 in both branches.",
+      "ordering_law": "Starting with an empty list, after a sequence of successful insertions and no intervening list mutation: all prepend-class records occur first in reverse insertion order, followed by append-class records in insertion order. Thus the first record is the last inserted prepend-class record, or the first inserted append-class record when no prepend-class record exists.",
+      "rebuild_scope": "The inspected rebuild clears output-connection lists, then visits native control-tree/input-connection arrays and calls the insertion helper. Native child/sibling/ancestor traversal is explicit; equality to raw XML encounter order is not established. Incremental attachment, deletion or a different traversal can change the insertion sequence.",
+      "unsupported_inference": "Do not choose the first XML consumer, sort by title/UUID, select an analog consumer preferentially, or use Load order/U as a substitute for the live first record."
+    },
+    "reference_name": {
+      "serialized_binding": "Common control XML transfer binds Ref to the UUID at owner+0x304. For current-format controls, U binds the target object's UUID at +0x8c.",
+      "reference_classes": "The inspected binding path applies to types0x136/0x137 and, with its argument1 enabled,0x139/0x13a. The symbolic type builder identifies0x136 as InputRef and0x137 as OutputRef.",
+      "cache_binding_path": "In0x14066cca0, a null cached owner+0xc8 or a cached target whose UUID differs from owner+0x304 causes a lookup by that Ref UUID and stores the result at owner+0xc8.0x1404ffa00 returns null for an all-zero UUID; otherwise it tries the document UUID map, then the native control traversal when its fallback argument is enabled.",
+      "name_selection": "Energy uses the connected owner's cached +0xc8 object when nonnull, otherwise the connected owner itself. It then prefers the selected object's nonempty Desc, otherwise its effective Title.",
+      "reference_depth": "Exactly one optional +0xc8 dereference in Energy refresh. A selected referenced object's own +0xc8 is not followed again by this body.",
+      "normalization": "The common Title read branch can create a nonempty native fallback when the read-side Title is still empty. Consequently literal empty/absent XML Title is not enough to reconstruct the effective native name.",
+      "unsupported_inference": "An XML Ref attribute alone does not prove a live cached target. Do not recursively chase Ref chains, choose a duplicate UUID target, fall back from an existing first record to a later consumer, or synthesize the native normalized Title."
+    },
+    "outputref_mode": {
+      "dynamic_type": "The0x136/0x137 factory installs CControlObjectXfer's primary vtable. Its virtual+0x498 slot points to0x1404645f0 in the frozen PE.",
+      "input_descriptor": "The OutputRef type builder constructs AI metadata with flags formed from low12 bits plus0x20000000. The descriptor constructor stores those flags at +0x10. The0x03000000 selector mask tested by standard connector0x14045ee90 is therefore zero for that metadata: its analog bit alone does not bypass owner fallback.",
+      "fallback_result": "For owner type0x136/0x137 in0x1404645f0, unless metadata has both masked kind0x04000000 and field+0x14 equal1, the result is bit0 of owner+0xde8. The inspected OutputRef AI metadata does not satisfy that exception. The exception returns zero at this function's common exit.",
+      "reference_attachment": "For OutputRef in0x1404756e0, attachment updates that cached bit0 from whether the referenced object's virtual+0x470 result is nonzero, while separately updating another bit from virtual+0x468 and binding +0xc8/+0x304. This is one concrete cache-population path, not proof that all instances reached it or that no other path changes the cache.",
+      "name_mode_separation": "Energy mode still queries the connected input connector with its original owner. Energy name can substitute the referenced object. Do not replace mode dispatch with the referenced object's arbitrary connector flags, its Title/Desc, or a literal XML Analog attribute.",
+      "unresolved_instance_data": "A per-file mode resolver still needs actual connector/descriptor identity, cache state or the relevant attachment/refresh path, and the selected referenced type's virtual+0x470 behavior. Other owner and connector implementations remain outside this narrow binding."
+    }
+  },
+  "anchors": [
+    {
+      "function": "0x14061c6b0",
+      "export_sha256": "8d02b9932fc80fe7db5a6060e14014cb6ad765161831a0c998467c34f3ca1cf2",
+      "line_ranges": [[32, 71], [72, 106]],
+      "relation": "Existing Energy consumer: first record only; original input-connector mode dispatch; one optional owner reference for name, not recursive reference traversal."
+    },
+    {
+      "function": "0x14042e550",
+      "export_sha256": "521b803e774c53e01b915215b1ccfaa67c805f0f7fc480e39fc6c46413bbe7a5",
+      "line_ranges": [[13, 37]],
+      "relation": "Output-connection owner/IoConnection payload and exact owner-type branch. Optimized append payload argument is additionally byte-pinned."
+    },
+    {
+      "function": "0x1404b3600",
+      "export_sha256": "6417a1928400a1029209d55a31cdb7313679f3331331e7dfdab0697ae7ec20fa",
+      "line_ranges": [[13, 46]],
+      "relation": "Insertion at index0 shifts old entries and writes the new pointer; count1 is passed by the output insertion caller."
+    },
+    {
+      "function": "0x1404b3b40",
+      "export_sha256": "f344e348a36af28aba2f72e242388dd348e977112af59e201601bca47825f0c2",
+      "line_ranges": [[13, 23]],
+      "relation": "Writing at the previous count grows the array by one and stores the supplied record."
+    },
+    {
+      "function": "0x1404f0930",
+      "export_sha256": "4174c21f90df1b8fdd1a6ff9744b735a19a62e242de78d83b8485cd6682099f9",
+      "line_ranges": [[26, 29], [43, 49], [129, 157]],
+      "relation": "Rebuild clears output lists then enumerates native controls, connector indices and existing input-connection arrays. It does not sort consumers by XML title or UUID."
+    },
+    {
+      "function": "0x14046ebf0",
+      "export_sha256": "6b5a0975167cb41a345c53d7e7d5403664e07c00b2223b4ccf752d1707496c95",
+      "line_ranges": [[27, 35], [56, 72]],
+      "relation": "For the inspected standard connectors, deletion of existing output records is followed by list resize to zero."
+    },
+    {
+      "function": "0x140454650",
+      "export_sha256": "9707059047a1be0f822f47f67b54f57ca7acfc53bb353e9431de537ce01737b8",
+      "line_ranges": [[13, 32]],
+      "relation": "Native traversal prefers child+0xb8 when requested, otherwise next+0xb0 or an ancestor's next link. Raw XML equivalence is not assumed."
+    },
+    {
+      "function": "0x14066cca0",
+      "export_sha256": "03b88269a7b2501b5f6f541afaff96e28b8021a0881766842c2fe0bc09bc5561",
+      "line_ranges": [[25, 35], [36, 70]],
+      "relation": "Reference UUID/cache comparison and lookup precede connector binding/rebuild on this path."
+    },
+    {
+      "function": "0x140464b40",
+      "export_sha256": "8bdb39dcc85cbd6eb7121c45c94b400903b87f82a1f33f283797c911e7d708c4",
+      "line_ranges": [[13, 26]],
+      "relation": "Exact class predicate used by the inspected reference-cache binding path."
+    },
+    {
+      "function": "0x1404ffa00",
+      "export_sha256": "184599241fc2531408bfce3651724c8c2a15769c46127f63521b0c5ea67ecc30",
+      "line_ranges": [[13, 47]],
+      "relation": "Zero UUID refusal, document map lookup, and optional native traversal fallback comparing both target UUID halves."
+    },
+    {
+      "function": "0x14047e260",
+      "export_sha256": "324b61caabd1aa8c0529020bbf3df31c502ef5a7f3763655ceb15be3e53dbb6b",
+      "line_ranges": [[69, 74], [162, 195], [354, 368], [477, 480]],
+      "relation": "Desc transfer, current-format U identity, Title read-side normalization, and Ref UUID transfer at+0x304 in both serialization directions."
+    },
+    {
+      "function": "0x140432790",
+      "export_sha256": "ff55a98ab896be192c361b63eb28f61b22853b55e4a74f32e13b30920dfe8f83",
+      "line_ranges": [[2337, 2346]],
+      "relation": "Type0x136/0x137 objects use the CControlObjectXfer primary vtable."
+    },
+    {
+      "function": "0x14082ab20",
+      "export_sha256": "8adc327c0f0dd4b8b186f5719e295f2ef358507852ef9d073afe96bb4eeb8a81",
+      "line_ranges": [[22, 24], [56, 68]],
+      "relation": "InputRef/OutputRef symbolic type identity and OutputRef AI descriptor flag construction."
+    },
+    {
+      "function": "0x1404ba170",
+      "export_sha256": "2501397fe44a4807d74bfc7bd826da203fbe924eff841ba3f051ca87a4f537d9",
+      "line_ranges": [[13, 35]],
+      "relation": "Descriptor constructor stores the supplied flag word at+0x10 and initializes+0x14 to zero."
+    },
+    {
+      "function": "0x14045ee90",
+      "export_sha256": "67830e0e71a39b7b6ce5582e99e8f9d22c894e93347c2f58971a519690e6354f",
+      "line_ranges": [[13, 32]],
+      "relation": "Standard connector metadata gate and owner virtual+0x498 dispatch; retained conditional rather than assumed universally analog."
+    },
+    {
+      "function": "0x1404645f0",
+      "export_sha256": "e223a0049c1b7b3eba630d0190918edc6d5578ab7878c81595a0b382d919ba32",
+      "line_ranges": [[13, 23], [157, 175], [204, 206]],
+      "relation": "Concrete type0x136/0x137 fallback and exceptional metadata branch. Other cases are not promoted to a universal resolver."
+    },
+    {
+      "function": "0x1404756e0",
+      "export_sha256": "b23c263be95104791ee53c4a173feb2f676b9b3c063f9f851b0131e1962c17c8",
+      "line_ranges": [[26, 53], [55, 95]],
+      "relation": "Reference detach/attach and the OutputRef cache-bit update from referenced-object virtual+0x470, with reference identity storage."
+    }
+  ],
+  "static_byte_pins": [
+    {
+      "address": "0x14042e550",
+      "length": 180,
+      "sha256": "eeef0ea3785858909189527e6d81101023cb8d5c4764f2797e234f5c75dfa8d9",
+      "relation": "Entire frozen insertion body. New record pointer is held in r8 and survives both branch epilogues; append tail-jumps to0x1404b3b40 with rcx=list, edx=old count, r8=record. This recovers the third argument omitted in the canonical decompilation's append call."
+    },
+    {
+      "address": "0x140fee760",
+      "length": 4,
+      "sha256": "748f7609b18470821e34864f4049acec5823558a0f0ac479563a37a1f15b7d6b",
+      "relation": "NUL-terminated ASCII Ref key."
+    },
+    {
+      "address": "0x141619ecc",
+      "length": 2,
+      "sha256": "b7e75e0d252b497b1b394c5bc94268da14c734ef4cd6c6af4764588deba1b5b7",
+      "relation": "NUL-terminated ASCII U key used by current-format control UUID transfer."
+    },
+    {
+      "address": "0x141945dd0",
+      "length": 25,
+      "sha256": "6a59aefcf49014db26cf3f650cc8590d881ea88769efcadd5cb508fc527cb586",
+      "relation": "RTTI type name CControlObjectXfer at type descriptor0x141945dc0+0x10."
+    },
+    {
+      "address": "0x14166fa18",
+      "length": 24,
+      "sha256": "63648e5a9655d9b016893a9c95334b6a7816371916e2003dbaac0b9d43c5c088",
+      "relation": "X64 complete-object locator with signature1, offset0, type RVA0x1945dc0 and self RVA0x166fa18."
+    },
+    {
+      "address": "0x140fb8088",
+      "length": 8,
+      "sha256": "8c6d22ebb408b1645f1958aef54f76679c38f1621622de1a03139e23afc7f3a1",
+      "relation": "Primary vtable[-1] references that locator; primary table begins0x140fb8090."
+    },
+    {
+      "address": "0x140fb8528",
+      "length": 8,
+      "sha256": "6b077eda930e6881a368960747638d4615bb767e9ebb17e34577f768d852265e",
+      "relation": "CControlObjectXfer primary vtable+0x498 points to0x1404645f0."
+    },
+    {
+      "address": "0x140ec3ac8",
+      "length": 8,
+      "sha256": "537011579ab19f17891a68ecf5da198754f955b492ae34158031b71086d27250",
+      "relation": "Previously established standard connector vtable+0x68 points to0x14045ee90; no alternate receiver is assumed."
+    },
+    {
+      "address": "0x1416328e4",
+      "length": 4,
+      "sha256": "746debf1a18b126f8894312bab69f689884bf7174805c22f030080e29e248036",
+      "relation": "AI descriptor key used by OutputRef metadata construction."
+    },
+    {
+      "address": "0x140475930",
+      "length": 220,
+      "sha256": "268f5d463d905c6ba6524eaf934aac6616736b5cfc99d8e8e4ec547b7c538e68",
+      "relation": "Frozen OutputRef attachment branch loads referenced-object vtable+0x470, sets rcx to that object, calls indirectly, then writes the cached bit. Receiver is explicit despite omitted decompiler call arguments."
+    }
+  ],
+  "normal_return_assumptions": [
+    "Valid live objects, lists, metadata and string storage at the stated reads; successful allocations/list growth and relevant calls returning normally.",
+    "The ordering theorem is conditional on the specified insertion sequence, initial empty list and absence of intervening list mutation; it is not an alias-purity or XML-loader ordering theorem.",
+    "RTTI/vtable pins bind the named frozen standard implementations only. Actual dynamic receivers and selected instance cache state must still be established.",
+    "A reference attachment call is not a claim that an existing project took that path, that its callbacks have no other effects, or that its referenced type's virtual+0x470 result is already resolved.",
+    "Canonical terminal-call annotations remain limitations of the static recovery. No GUI event delivery, native normal return, accepted edit, save/reopen, runtime parity or absence of other UX is inferred."
+  ],
+  "remaining_dependency": {
+    "intentional_restore": "Still identify an actual operation deliberately zeroing CLoad+0xac(Anc) and/or+0x68(Ncu) on an EXISTING load before Energy refresh, and establish restored-field scope. Nothing in this binding contract supplies that operation.",
+    "instance_connection": "Establish the native insertion/traversal sequence or the actual first live record for the selected OIdx, with pointer/UUID identity continuity. Exact class insertion policy alone does not establish that sequence.",
+    "instance_reference": "Establish the selected owner's cached+0xc8 or resolved Ref target and effective post-load Desc/Title, including missing/duplicate UUID and native normalization behavior. Follow only the single optional reference used by Energy.",
+    "instance_mode": "For the concrete OutputRef path, establish its actual AI/descriptor receiver and cached+0xde8 bit0 or the relevant population path plus referenced-object virtual+0x470. Other receiver/type branches require their own binding.",
+    "gui_validation": "Not run. Only validate a specific recovered operation later; never substitute constructor/copy/sort, customized empty name, or this static binding contract for restore support."
+  }
+}

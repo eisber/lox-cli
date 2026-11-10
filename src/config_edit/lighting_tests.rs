@@ -308,6 +308,36 @@ fn lighting_transaction_inspection_does_not_infer_zero_from_unknown_or_missing_s
 }
 
 #[test]
+fn lighting_native_identity_errors_leave_the_editor_unchanged() {
+    let occupied = (1..=99)
+        .map(|sid| format!(r#"<LightsceneC SID="{sid}" CID="0"/>"#))
+        .collect::<String>();
+    for (scenes, code) in [
+        (occupied.as_str(), "mood_identity_exhausted"),
+        (
+            r#"<LightsceneC SID="future"/>"#,
+            "unsupported_mood_identity_value",
+        ),
+        (
+            r#"<LightsceneC SID="2" CID="future"/>"#,
+            "unsupported_mood_identity_value",
+        ),
+    ] {
+        let xml = format!(
+            r#"<ControlList><C Type="LightController2" U="lighting"><LightscenesC Num="1">{scenes}</LightscenesC></C></ControlList>"#
+        );
+        let mut editor = ConfigEditor::load(xml.as_bytes()).unwrap();
+        let before = editor.to_bytes().unwrap();
+        let error = editor
+            .add_mood("uuid:lighting", "New", 42, None, None)
+            .unwrap_err();
+        let diagnostic = error.downcast_ref::<super::schema::Diagnostic>().unwrap();
+        assert_eq!(diagnostic.code, code);
+        assert_eq!(editor.to_bytes().unwrap(), before);
+    }
+}
+
+#[test]
 fn lighting_add_mood_recounts_direct_records_instead_of_incrementing_stale_num() {
     for replacement in [
         "",

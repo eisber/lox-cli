@@ -1,0 +1,197 @@
+{
+  "schema_version": 1,
+  "artifact_kind": "independently-authored-source-semantics",
+  "issue": "lox-1ao7",
+  "question": "How does the selected native Lighting append path allocate and validate SID/CID, including gaps, exhaustion, duplicate explicit requests and special IDs?",
+  "provenance": {
+    "version": "17.2.10.21",
+    "architecture": "AMD64",
+    "target_sha256": "7b55e3ef18401574ab967c5c6a0140cd5a66dc728521ebba04ad53093577d8b3",
+    "analysis_id": "6a0520329af17d7b9fdaafe69398c62c454d9da838fc9f9c8d0bdd8d17bb15ae",
+    "method": "Frozen canonical decompilation and selected on-disk PE bytes; no new extraction.",
+    "vendor_function_text": "Not included."
+  },
+  "validation_scope": {
+    "native_execution_performed": false,
+    "gui_execution_performed": false,
+    "gui_validation": "unrun",
+    "runtime_parity": false,
+    "static_examples_executed_natively": false,
+    "assumptions": "Normal returns, successful allocation and append helpers, valid collection objects with ordinary non-null scene records. Not a heap-purity or all-callers proof."
+  },
+  "source_bindings": [
+    {
+      "role": "selected dialog append caller",
+      "address": "0x1400e5b80",
+      "sha256": "235e57ad9bb7a35282a090efe287656301dae8ff1b70d4bbdc1709f564af64f3",
+      "lines": [29, 33],
+      "fact": "Passes dialog+0x130, owner+0x8c and explicit third argument zero to append. Reads the returned SID for selection."
+    },
+    {
+      "role": "append identity allocation",
+      "address": "0x1405b48e0",
+      "sha256": "09d4870c352d9621c32403f1fe1651967205f7b78c3bdc74866370f7714b14db",
+      "lines": [35, 149],
+      "fact": "Appends the newly constructed scene before identity allocation. Performs its own SID scan and conditional CID assignment; does not call 0x1405b5560."
+    },
+    {
+      "role": "initial zero identities",
+      "address": "0x1405b3940",
+      "sha256": "365a8a5e0bc05163fab3b2547924119c7731291b550d9e33fb2df9614ebe4155",
+      "lines": [47, 52],
+      "fact": "Zeroes the eight-byte members at scene+0xa0 and scene+0xa8, including SID at +0xa4 and CID at +0xa8."
+    },
+    {
+      "role": "XML identity field binding",
+      "address": "0x1405b7df0",
+      "sha256": "9f0ff6bd3dcc724a599e3324483c9b584f1e1128c4a3d6bf9604ecc328bf9d58",
+      "lines": [39, 41],
+      "fact": "Binds type-5 numeric fields +0xa4/+0xa8/+0xac using the frozen SID/CID/IID labels."
+    },
+    {
+      "role": "separate free-SID helper",
+      "address": "0x1405b5560",
+      "sha256": "6f23850965c63d01665578f0322da41367d39464dd28bc9bdc1995e1e8b0ead6",
+      "lines": [22, 43],
+      "fact": "Returns the lowest unused SID in 1..99 or zero when none remains; used separately by reconciliation and CID editing, not called by append."
+    },
+    {
+      "role": "separate CID edit handler",
+      "address": "0x1400e6200",
+      "sha256": "3f5eea80e65d5d7def68dc9730f413d2e8dbc1884ab71b4552f1ba3e887199ca",
+      "lines": [23, 71],
+      "fact": "Finds a selected scene by supplied SID and an existing scene by requested CID. Nonzero occupied CID swaps the selected scene's previous CID to the other record. CID zero is assigned without that swap. Subsequently handles CID22/SID777 and CID24/SID776 role mapping and conditional free-SID allocation; this is not append's override API."
+    },
+    {
+      "role": "SID lookup used by CID editing",
+      "address": "0x1405b57b0",
+      "sha256": "7eb7ba32c069738fc422f69fc0ba03c9ce4022e4e5ed2812dcba2d52858f28ab",
+      "lines": [20, 32],
+      "fact": "Returns the first record with scene+0xa4 equal to the supplied second argument."
+    },
+    {
+      "role": "CID lookup used by CID editing",
+      "address": "0x1405b5860",
+      "sha256": "f85cc2a3de21e8dda42c44b75ecc77194da72615df42aa96b64282455aea1b20",
+      "lines": [20, 32],
+      "fact": "Returns the first record with scene+0xa8 equal to the supplied second argument."
+    },
+    {
+      "role": "default special scenes",
+      "address": "0x1405c4ac0",
+      "sha256": "dfb9925b593cad305a58829defbb9bff21bfc0f68405e27c0337f5249071902e",
+      "lines": [24, 49],
+      "fact": "Creates missing SID777/CID22 and SID778/CID11 records using explicit append requests, then assigns the role CID and flags itself."
+    },
+    {
+      "role": "later reconciliation",
+      "address": "0x1405c6770",
+      "sha256": "0efeb2b4cecbacfd6fe9b5c9ff3bba036871f853d94f737bd8cd212595d5af15",
+      "lines": [23, 47],
+      "fact": "Revisits zero SIDs with the separate free-SID helper. If all 1..99 remain occupied, the helper still returns zero. This does not turn append exhaustion into an atomic error."
+    }
+  ],
+  "static_byte_pins": [
+    {
+      "address": "0x141019674",
+      "length": 12,
+      "sha256": "5b02abe09c0c0f9114b44fb0488185b45f7ff73ab954061d2d458c5b4b161e3e",
+      "interpretation": "Consecutive NUL-terminated SID, CID and IID labels resolve the binder's otherwise anonymous data addresses."
+    },
+    {
+      "address": "0x1400e5b99",
+      "length": 29,
+      "sha256": "a53495b3ca80829cec725ecda2f8c11a49b6e4a8ee56074affe3ce181343e092",
+      "interpretation": "Loads the owner, zeroes R8D, adjusts RDX by 0x8c and RCX by 0x130, then directly calls 0x1405b48e0."
+    },
+    {
+      "address": "0x1400e6200",
+      "length": 60,
+      "sha256": "2496978564339a7b41d3d5b114cc005f9f60f8ac9111590192dfe7385a18aa8c",
+      "interpretation": "The first SID lookup retains inbound RDX as its second argument despite the decompiler omitting that argument; the next CID lookup receives the saved inbound R8D."
+    }
+  ],
+  "append_identity_rules": [
+    "The selected dialog always requests automatic allocation: param3=0. A newly appended scene starts with SID=0 and CID=0.",
+    "Automatic SID selection scans upward from 1 and uses the first integer in 1..99 not equal to any existing record's SID. It fills gaps, rather than choosing a maximum plus one.",
+    "If every SID in 1..99 is occupied, the appended record is retained with SID=0. This body returns the scene, not an exhaustion error.",
+    "A nonzero param3 not already present is assigned directly as SID, leaving CID=0. This branch does not impose the automatic scan's 99 bound or reject named special IDs.",
+    "An already occupied nonzero param3 takes the same automatic-allocation branch as zero. It does not reject the request or create another record with that requested SID.",
+    "Only automatic allocation with resulting SID at most 8 considers CID=SID+11. It assigns that single candidate only if no record already uses it; a collision leaves CID=0 and does not search for another CID.",
+    "On automatic exhaustion, SID=0 follows that same arithmetic: CID11 is assigned if available, otherwise CID remains zero. For automatic SID9..99, CID remains zero.",
+    "The append API has no explicit CID parameter. A CLI --cid duplicate cannot be classified as native append validation; the separate CID edit handler instead has swap/role-remapping behavior.",
+    "SID1 is a normal automatic candidate when unused. SID776/777/778 are special in specific role/default handlers, not an append-level universally forbidden set. The scan bound alone establishes neither a global SID maximum nor a reserved-ID policy."
+  ],
+  "static_examples": [
+    {
+      "existing": [{"sid": 777, "cid": 22}, {"sid": 778, "cid": 11}],
+      "requested_sid": 0,
+      "derived_new_identity": {"sid": 1, "cid": 12},
+      "reason": "Special built-in SIDs do not consume candidate 1."
+    },
+    {
+      "existing": [{"sid": 1, "cid": 12}, {"sid": 3, "cid": 14}],
+      "requested_sid": 0,
+      "derived_new_identity": {"sid": 2, "cid": 13},
+      "reason": "A gap below the maximum is reused."
+    },
+    {
+      "existing": [{"sid": 1, "cid": 12}, {"sid": 50, "cid": 13}],
+      "requested_sid": 0,
+      "derived_new_identity": {"sid": 2, "cid": 0},
+      "reason": "The single CID13 candidate is occupied; no alternate is allocated."
+    },
+    {
+      "existing_sids_inclusive_range": [1, 8],
+      "requested_sid": 0,
+      "derived_new_identity": {"sid": 9, "cid": 0},
+      "reason": "Automatic SID above 8 bypasses CID assignment."
+    },
+    {
+      "existing_sids_inclusive_range": [1, 99],
+      "existing_cids_all_zero": true,
+      "requested_sid": 0,
+      "derived_new_identity": {"sid": 0, "cid": 11},
+      "reason": "SID exhaustion retains the append; CID11 is unoccupied."
+    },
+    {
+      "existing_sids_inclusive_range": [1, 99],
+      "existing_includes_cid": 11,
+      "requested_sid": 0,
+      "derived_new_identity": {"sid": 0, "cid": 0},
+      "reason": "SID exhaustion and occupied CID11 leave both zero."
+    },
+    {
+      "existing": [{"sid": 1, "cid": 12}],
+      "requested_sid": 1,
+      "derived_new_identity": {"sid": 2, "cid": 13},
+      "reason": "Duplicate explicit SID falls back to the automatic gap scan."
+    },
+    {
+      "existing": [],
+      "requested_sid": 100,
+      "derived_new_identity": {"sid": 100, "cid": 0},
+      "reason": "The automatic search bound is not an explicit-SID maximum."
+    },
+    {
+      "existing": [],
+      "requested_sid": 776,
+      "derived_new_identity": {"sid": 776, "cid": 0},
+      "reason": "No append-level rejection of an unused special-role SID."
+    }
+  ],
+  "cli_compatibility": {
+    "native_identity_default_adopted": true,
+    "integration_decision": "Separately approved native-default-safe: with neither CLI ID override, use lowest-free SID1..99 and the native conditional CID candidate. Reject exhaustion atomically instead of appending SID0.",
+    "preserved_overrides": "Either --sid or --cid retains the complete legacy override path: omitted partner max-custom-plus-one/base2/base9, duplicate-SID errors and accepted duplicate CID overrides. Existing IDs and records are untouched.",
+    "supported_storage": "Allocate from direct stored scene records, not a simulated Num-limited import. Absent IDs reserve no candidate; present needed IDs require signed-32-bit decimals. CID is not interpreted when the new SID exceeds8. Unsupported needed values fail before mutation.",
+    "safety_change": "Both automatic SID exhaustion and signed-64-bit legacy partner-successor overflow return mood_identity_exhausted atomically. Native zero-SID exhaustion is intentionally not reproduced.",
+    "focused_regressions": "tests/lighting_identity_source.rs covers gap reuse, SID1, conditional CID/collision, exhaustion, unsupported values, legacy overrides and byte preservation. The static examples above are source reasoning, not executable native cases.",
+    "receipt_scope": "Canonical source and byte pins are unchanged from the private source-lane receipt. This CLI compatibility metadata was updated during parent integration after the explicit policy decision."
+  },
+  "remaining_dependencies": [
+    "No unresolved callee blocks this bounded append-identity result.",
+    "The separately approved CLI default is a bounded native-style authoring policy, not reproduction of duplicate native requests, zero-SID exhaustion or CID edit swapping/role remapping.",
+    "A full dialog/load/save/role-normalization model, invalid heap objects, arbitrary malformed-number behavior and GUI/runtime parity remain outside scope."
+  ]
+}

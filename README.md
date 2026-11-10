@@ -86,8 +86,9 @@ See [EnergyManager2 commands](COMMANDS.md#energymanager2-verified-storage-pilot)
 `lox config lighting` inspects stored **LightController2** moods and output
 references. Its source-backed `recount-moods` repairs only the stored scene count,
 preserving output widths, sparse values and unknown data; existing `add-mood`
-also recounts and now uses the recovered 18-output/type-preserving initialization
-instead of container-width/zero-fill defaults. These storage guarantees
+also recounts and uses the recovered 18-output/type-preserving initialization
+and native-style automatic SID/CID selection, with atomic exhaustion errors.
+Explicit ID options retain their legacy behavior. These storage guarantees
 are not native GUI/runtime parity. See
 [Lighting commands](COMMANDS.md#lighting-stored-inspection-and-mood-count-repair).
 

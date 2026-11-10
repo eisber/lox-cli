@@ -1,0 +1,130 @@
+{
+  "schema_version": 1,
+  "issue": "lox-1gnb",
+  "parent_batch": "lox-a7o1",
+  "classification": "independently authored static source semantics; not an executable or GUI case",
+  "named_question": "Can the LightController2 pre-modal preparation change scene or other persisted members even when the subsequent dialog is cancelled?",
+  "answer": "Yes, conditionally. The preparation writes the original controller, not only the temporary dialog. It can assign channel names, capabilities and the name mask, retag existing scene Q values, and reinitialize a channel of an existing SID 777 scene. These operations precede the dialog snapshot and modal result. Cancel skipping accepted-only copy-back is not a whole-document no-op guarantee.",
+  "frozen_target": {
+    "version": "17.2.10.21",
+    "architecture": "AMD64",
+    "pe_sha256": "7b55e3ef18401574ab967c5c6a0140cd5a66dc728521ebba04ad53093577d8b3",
+    "installation_sha256": "a3003005776b327f5e666a072a64f5c569182b86174c0f578d5be3267ce28f85",
+    "analysis_id": "6a0520329af17d7b9fdaafe69398c62c454d9da838fc9f9c8d0bdd8d17bb15ae",
+    "canonical_function_suffix": "LoxoneConfig.exe\\code\\functions\\<address>.c",
+    "source_hash_kind": "SHA256 of original canonical file bytes, without newline normalization"
+  },
+  "scope": {
+    "caller": "0x14019de60",
+    "preparation": "0x1404ca730",
+    "controller_type_id": "0x1e4",
+    "call_arguments": "The value stored at owner+0x198, the original LightController2, null, and -1.",
+    "channel_indices": "0 through 17 on this native path; not a universal lighting channel limit",
+    "persistence_meaning": "In-memory members bound to XML fields. The pre-modal call is not a disk save.",
+    "whole_document_cancel_noop": "not established",
+    "native_gui_validation": "unrun",
+    "native_abi_execution": "unrun",
+    "runtime_parity": "unclaimed"
+  },
+  "transaction_order": [
+    "Construct the temporary dialog.",
+    "Run preparation against the original controller.",
+    "If preparation returns nonzero, call the owner notification at virtual offset +0x238 before the modal call.",
+    "Copy the now-prepared controller names, scene collection and other selected data into the dialog.",
+    "Run the modal dialog.",
+    "Reuse the previously recovered accepted-only copy-back/post-hook contract. Other modal returns skip that copy-back; this callsite has no explicit restoration of the preparation's original-member writes.",
+    "A later independent save may serialize the prepared members; no save or successful disk persistence is implied by preparation or cancel."
+  ],
+  "member_bindings": [
+    {
+      "member": "controller+0x11f0+24*i",
+      "xml": "NameAI<i>",
+      "source": "0x1405c9740",
+      "lines": [33, 55]
+    },
+    {
+      "member": "controller+0x20e8+2*i",
+      "xml": "CapAI<i>",
+      "source": "0x1405c9740",
+      "lines": [33, 55],
+      "qualification": "The binder emits this field inside its nonempty-name/write guard."
+    },
+    {
+      "member": "controller+0x1f28",
+      "xml": "COName",
+      "source": "0x1405d1580",
+      "lines": [84, 100]
+    },
+    {
+      "member": "scene primary vector at +0x50, length +0x58, index i",
+      "xml": "LightsceneC Q<i+1>",
+      "source": "0x1405b7df0",
+      "lines": [42, 58],
+      "qualification": "This binds storage indices to serialized Q names, not an AQ/output-role mapping."
+    }
+  ],
+  "conditional_effects": {
+    "common_gate": "For index i, find the controller output connector and a referencing object through 0x140453870 and 0x1404ff730. Enter the update body only when a referencing object exists and either the stored channel name is empty or the connector exists with its 32-bit member +0x128 equal to zero.",
+    "ordinary_unparented_object": "With no object at reference+0xc8 and reference type neither 0x140 nor 0x163, this call's -1 mode assigns the reference label at +0x2b8, falling back to +0x58 when empty. This branch does not execute its nonnegative-mode scene retagging or SID 777 initializer.",
+    "special_unparented_type_0x163": "Assign the same label/fallback. If the connector+0x128 gate is true and the reference's virtual +0x4b0(0) connection list contains the identity returned by controller virtual +0x4b0(0x33+i), replace the top nibble of each in-range existing scene Q with 4, preserving its low 28 bits. This branch does not call the SID 777 initializer.",
+    "parent_or_type_0x140": "Use the object at reference+0xc8 when present, otherwise the type-0x140 reference itself. Compute a candidate label through 0x1405c1380. If the current channel name is empty, assign that label and, when its classification result is zero, OR bit i into COName. Regardless of whether the name was empty, assign CapAI<i> from reference virtual +0x7a8, retag each in-range existing scene Q with the low four bits returned by the selected object's virtual +0xc68, then call 0x1405ccb60(controller,i). The initial common gate still applies.",
+    "existing_sid_777": "The last helper searches the existing scene vector for SID 777. If found and index i is in its primary vector, it replaces that one Q value with a type-dependent default payload and the scene's current top nibble. It does not create SID 777. Thus this branch can change the low 28 bits too, not only retag a scene.",
+    "other_members": "No explicit scene-count, scene-Outputs, identity, primary-vector resize, secondary-vector or SeqConf write was found in the preparation body or its inspected SID 777 initializer. This is a bounded explicit-write observation under the helper assumptions, not heap purity.",
+    "return_value": "A nonzero result reports an update path, not a byte-difference proof: an assignment can write a value equal to its previous value."
+  },
+  "assumptions": [
+    "Frozen static normal-return dataflow; valid objects, successful allocations and consistent in-range vectors.",
+    "Member/string/vector helpers operate on their indicated objects; the stack-local reference-count vector passed to 0x1404e56e0 is not a controller scene vector.",
+    "Graph traversal, label classification and virtual getter callbacks return normally, with no reentrant document edits or unexpected aliases into scene storage.",
+    "Ordinary dialog destruction is cleanup, not an undisclosed rollback of the original controller. No claim is made about unrelated owner/UI callbacks.",
+    "No global heap-purity, reentrancy-safety, complete native graph/XML equivalence, GUI behavior, successful save, or runtime parity is established.",
+    "Export completeness describes available recovered functions, not semantic or GUI parity."
+  ],
+  "remaining_dependencies_for_xml_diagnostics": [
+    "Establish which actual XML graph yields the reference selected by 0x1404ff730, including object+0xc8 parent identity and native traversal/first-match behavior.",
+    "Establish the exact native output-connector instance/alias and XML/default initialization supplying its +0x128 word; no diagnostic infers the common gate from an empty XML name alone.",
+    "Resolve the concrete runtime-class targets/results of reference virtual +0x7a8 and selected-object virtual +0xc68 for any proposed XML diagnostic.",
+    "For the type-0x163 countercase, establish the runtime +0x4b0 connection lists and identity equality checked against controller slot 0x33+i.",
+    "These dependencies bound XML prediction, not the recovered fact that direct original-member writes precede the modal result."
+  ],
+  "cli_decision": {
+    "behavior_change": "none",
+    "new_diagnostic": "none",
+    "reason": "The native conditional stored-member effects are established, but complete XML-to-native graph/alias preconditions are not. A broad cancel-risk diagnostic would overclaim.",
+    "new_rust_tests": "none; no new CLI behavior was introduced and evidence-only assertions of prose/constants would not validate native effects"
+  },
+  "canonical_sources": [
+    {"address": "0x14019de60", "sha256": "c10b26a56014eb1b4fac6378deef6935e3bb39ca27fda83c168860af2d627f0b", "lines": [1320, 1400]},
+    {"address": "0x1404ca730", "sha256": "00c3d55427a49177cb16bd73b0730bcc066f5b877e84d7a14551de882e051697", "lines": [46, 282]},
+    {"address": "0x1404e56e0", "sha256": "ca6a22d890ccb0f21cce03cf566b8867a6634ef1714eb231b1462f30f5edb2e5", "lines": [31, 77]},
+    {"address": "0x1404ff730", "sha256": "26f7dc6423b2f144553249208753fcbf615d7f30b8aee197860117e4e281d506", "lines": [28, 69]},
+    {"address": "0x140453870", "sha256": "39c268b7c24bf7c24555010bf5c6e4ab785b8b88a476accc55ad94f4f5e9d530", "lines": [13, 26]},
+    {"address": "0x14041fdc0", "sha256": "f4b03cf9dd740852cbcd1075ceac3469192f68bfd889b5529437112ac1daeb7e", "lines": [13, 16]},
+    {"address": "0x14041d880", "sha256": "70ff0a876bd3b5b2070eeb178fe7e920e4a9e3c71b97f3ff651564ba9fcc17f6", "lines": [13, 43]},
+    {"address": "0x1405c1380", "sha256": "5e394c9e133ea489a493dd049cdd28b858d22618589bd1fc14050ac970ffa3d3", "lines": [13, 104]},
+    {"address": "0x1405c4280", "sha256": "52f07c901b4cc3aa38a8c1d187d698bbe4cc09d35efc333b5de277e26a71ec6a", "lines": [13, 19]},
+    {"address": "0x1405ccb60", "sha256": "8aaf93058b5badd0a2028bbc3da29dbf0a98db8f683a0f096f570c8dfeb15d65", "lines": [35, 79]},
+    {"address": "0x1405c1870", "sha256": "4a093bb689229a9a7abfd8bb2664dbd9a55238b680b3103724ab0a4d5c776420", "lines": [13, 40]},
+    {"address": "0x1405b55e0", "sha256": "980bb9f2bb6712c1ca44e9c172e7a22b2d4957031450fe0f2bf1fec24fb93494", "lines": [13, 27]},
+    {"address": "0x1405b55b0", "sha256": "bea66fdd9dc31bc810ff6e4cd3785fa7cd598688506ef81204e28659397d82c0", "lines": [13, 22]},
+    {"address": "0x1405b5620", "sha256": "8331855d1ec484700e52062dac29307147b69bef574f90a2785cbeb3aa7981c1", "lines": [13, 22]},
+    {"address": "0x1405b57b0", "sha256": "7eb7ba32c069738fc422f69fc0ba03c9ce4022e4e5ed2812dcba2d52858f28ab", "lines": [13, 32]},
+    {"address": "0x1405c9740", "sha256": "4fca9e47230208412c4b3091206385beb40d7a68da0571ce59eac9146949fd50", "lines": [33, 58]},
+    {"address": "0x1405b7df0", "sha256": "9f0ff6bd3dcc724a599e3324483c9b584f1e1128c4a3d6bf9604ecc328bf9d58", "lines": [28, 58]},
+    {"address": "0x1405d1580", "sha256": "16512152985127a4f4455e3002399b715a8a9743455ee61c3fa27a954fbde0e6", "lines": [84, 100]}
+  ],
+  "static_byte_pins": [
+    {"address": "0x1401a0269", "length": 50, "sha256": "7f393469dfdff66540c5b1e80f1ca6a86cbd542cf6f49d85323cfa1bd8664728", "meaning": "Original controller argument, null third argument, -1 fourth argument, pre-modal call, conditional owner notification."},
+    {"address": "0x1404ca81b", "length": 35, "sha256": "681962bfeb25d197014f5049eb8f3bc42273eaec06d0d19f96554471cb97fabf", "meaning": "Hidden third argument to 0x1404e56e0 is the stack-local vector, not scene storage."},
+    {"address": "0x1404ca891", "length": 21, "sha256": "8d491838a6f4221b2b99be9ba8c7883484a330f601f72d30fa413e13b3bd6c76", "meaning": "Output connector returned by 0x140453870 becomes the hidden second argument to 0x1404ff730."},
+    {"address": "0x1404ca9e5", "length": 25, "sha256": "e64879aaee0ef6e039d0aa43d4b76ec497f9f51dcac66f3bd5c37c91757a54fb", "meaning": "Special-type identity lookup calls controller virtual +0x4b0 with index 0x33+i."},
+    {"address": "0x1404cac69", "length": 13, "sha256": "10920e14e5493c9e68121567c94f39d9d587fc96037e7fcd8b42bee544751607", "meaning": "Hidden string-copy source is the locally computed label, destination is the controller's name member."},
+    {"address": "0x1404cac81", "length": 21, "sha256": "26e1e58c9ddd5b8f1c18404392be71ac162b0cd61ec8f7fc73ee0fe56251712f", "meaning": "Reference virtual +0x7a8 result is stored directly in controller capability member."},
+    {"address": "0x1404cac96", "length": 19, "sha256": "1a4b01caf7e82622177630e4c7cf98dc333e7c0ba348bd65a86412ca88d12510", "meaning": "Selected-object virtual +0xc68 result supplies the shifted scene tag."},
+    {"address": "0x1404cacc5", "length": 27, "sha256": "605b7b3ca5142f4c1c303937dc96dd9430bce677fad674deeba98679b4dd4557", "meaning": "Bounds-checked direct write of retagged primary Q value, retaining low 28 bits."},
+    {"address": "0x1404caa74", "length": 28, "sha256": "7049e5f6727c9ca2d3158456c486cdd05176ca062e3038c4e906a726fb8b23a2", "meaning": "Special-type direct Q retagging sets tag 4."},
+    {"address": "0x1404cad01", "length": 5, "sha256": "5c139821141329b8eb5078ba3496b814055a5e81319f1bdb79720e5a9a196648", "meaning": "Parent/type-0x140 branch directly calls existing SID 777 initializer."},
+    {"address": "0x140fee8e4", "length": 4, "sha256": "07cca28216860daada73c28322f413102bacfd4334dd6ee1f544ff45f79023dd", "meaning": "Q-format data used by the scene binder."},
+    {"address": "0x141019674", "length": 4, "sha256": "e1e958811365502f6a142b86110ae7d32bca17fec12dd52261a07076c6c3ab29", "meaning": "SID field-name data at scene+0xa4, used by the existing-scene search."}
+  ]
+}

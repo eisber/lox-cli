@@ -866,7 +866,7 @@ pub(crate) enum ConfigCmd {
         #[arg(long)]
         save_as: Option<String>,
     },
-    /// Create a new mood with native-style 18-output initialization
+    /// Create a mood with native-style automatic IDs and 18-output initialization
     #[command(name = "add-mood")]
     AddMood {
         /// Path to a .Loxone XML file
@@ -879,10 +879,10 @@ pub(crate) enum ConfigCmd {
         /// Q1 color: hsv(H,S,V), rgb(R,G,B), or a raw mood value
         #[arg(long)]
         color: String,
-        /// Override the scene id (SID); default = next free custom SID
+        /// Explicit SID; either ID override retains legacy partner allocation
         #[arg(long)]
         sid: Option<i64>,
-        /// Override the color id (CID); default = next free custom CID
+        /// Explicit CID; with no ID overrides use native automatic allocation
         #[arg(long)]
         cid: Option<i64>,
         #[arg(long)]

@@ -3,6 +3,50 @@ use super::{ConfigEditor, MoodInfo, MqttTopic, WireInfo};
 use anyhow::Result;
 use xmltree::Element;
 
+fn native_mood_identities(collection: &Element) -> Result<(i64, i64)> {
+    let scenes: Vec<_> = collection
+        .children
+        .iter()
+        .filter_map(|node| node.as_element())
+        .filter(|scene| scene.name == "LightsceneC")
+        .collect();
+    let stored_ids = |field: &str| -> Result<Vec<i32>> {
+        scenes
+            .iter()
+            .enumerate()
+            .filter_map(|(index, scene)| {
+                scene.attributes.get(field).map(|raw| (index, raw))
+            })
+            .map(|(index, raw)| {
+                raw.parse::<i32>().map_err(|_| {
+                    Diagnostic::new(
+                        "unsupported_mood_identity_value",
+                        &format!("LightscenesC/LightsceneC[{}]/@{field}", index + 1),
+                        "Cannot derive native-style IDs: a needed stored identity is not a signed-32-bit decimal. Existing moods were not changed; inspect the XML or supply explicit --sid/--cid overrides.",
+                    )
+                    .into()
+                })
+            })
+            .collect()
+    };
+    let used_sids = stored_ids("SID")?;
+    let sid = (1..=99)
+        .find(|candidate| !used_sids.contains(candidate))
+        .ok_or_else(|| {
+            Diagnostic::new(
+                "mood_identity_exhausted",
+                "LightscenesC/@SID",
+                "Cannot add a mood: all automatic SIDs in 1..99 are occupied. Existing moods were not changed. Supply an unused --sid explicitly.",
+            )
+        })?;
+    let cid = if sid <= 8 && !stored_ids("CID")?.contains(&(sid + 11)) {
+        sid + 11
+    } else {
+        0
+    };
+    Ok((i64::from(sid), i64::from(cid)))
+}
+
 fn native_mood_output_defaults(collection: &Element) -> Result<[i32; 18]> {
     let mut defaults = [0; 18];
     let Some(source) = collection
@@ -1180,15 +1224,17 @@ impl ConfigEditor {
     ///
     /// A fresh `LightsceneC` is
     /// added to the controller's `<LightscenesC>` container with a generated
-    /// UUID, the next free custom scene id (`SID`) and color id (`CID`), and
+    /// UUID, native-style automatic scene id (`SID`) and color id (`CID`), and
     /// 18 outputs for the recovered native append path. Q1 is set to `value`;
     /// other outputs retain the first mood's encoded type nibble. The
     /// container's `Num` is set to the resulting direct scene count.
-    /// This does not reproduce native import, ID allocation or whole-editor behavior.
+    /// This does not reproduce native import or whole-editor behavior.
     ///
-    /// Reserved SIDs (1/776/777/778 = Entspannen/Wecker/Viel Licht/Aus) are
-    /// skipped; custom moods start at SID=2 / CID=9. Pass `sid`/`cid` to
-    /// override. Returns `(name, uuid, sid, cid)`.
+    /// With no overrides, choose the lowest free SID in 1..99 and try only
+    /// CID=SID+11 for SID<=8; otherwise CID is zero. Exhaustion is an atomic
+    /// error, unlike native append's zero SID. Either override retains the
+    /// CLI's legacy max-custom-plus-one/base2/base9 allocation for its absent
+    /// partner. Returns `(name, uuid, sid, cid)`.
     pub fn add_mood(
         &mut self,
         selector: &str,
@@ -1208,35 +1254,6 @@ impl ConfigEditor {
                  use 'config set-mood-color' to change its color"
             );
         }
-
-        // Next free custom SID: max custom SID + 1 (base 2).
-        let new_sid = match sid {
-            Some(s) => s,
-            None => existing
-                .iter()
-                .filter_map(|m| m.sid)
-                .filter(|s| !RESERVED_SIDS.contains(s))
-                .max()
-                .map(|m| m + 1)
-                .unwrap_or(2),
-        };
-        // Next free custom CID: max custom CID + 1 (base 9).
-        let new_cid = match cid {
-            Some(c) => c,
-            None => existing
-                .iter()
-                .filter(|m| m.sid.map(|s| !RESERVED_SIDS.contains(&s)).unwrap_or(true))
-                .filter_map(|m| m.cid)
-                .max()
-                .map(|m| m + 1)
-                .unwrap_or(9),
-        };
-        if existing.iter().any(|m| m.sid == Some(new_sid)) {
-            anyhow::bail!("SID {new_sid} is already in use on this LightController2");
-        }
-
-        let serial = self.find_miniserver_serial().unwrap_or_default();
-        let uuid = Self::loxone_uuid(&serial);
 
         let path = self.require_one(selector)?;
         let block = self.get_element(&path);
@@ -1258,8 +1275,56 @@ impl ConfigEditor {
             )
             .into());
         };
+        let (new_sid, new_cid) = if sid.is_none() && cid.is_none() {
+            native_mood_identities(collection)?
+        } else {
+            let new_sid = match sid {
+            Some(s) => s,
+            None => existing
+                .iter()
+                .filter_map(|m| m.sid)
+                .filter(|s| !RESERVED_SIDS.contains(s))
+                .max()
+                .map(|m| {
+                    m.checked_add(1).ok_or_else(|| {
+                        Diagnostic::new(
+                            "mood_identity_exhausted",
+                            "LightscenesC/@SID",
+                            "Cannot add a mood: the CLI SID successor exceeds the supported integer range. Supply an unused --sid explicitly; existing moods were not changed.",
+                        )
+                    })
+                })
+                .transpose()?
+                .unwrap_or(2),
+            };
+            let new_cid = match cid {
+            Some(c) => c,
+            None => existing
+                .iter()
+                .filter(|m| m.sid.map(|s| !RESERVED_SIDS.contains(&s)).unwrap_or(true))
+                .filter_map(|m| m.cid)
+                .max()
+                .map(|m| {
+                    m.checked_add(1).ok_or_else(|| {
+                        Diagnostic::new(
+                            "mood_identity_exhausted",
+                            "LightscenesC/@CID",
+                            "Cannot add a mood: the CLI CID successor exceeds the supported integer range. Supply --cid explicitly; existing moods were not changed.",
+                        )
+                    })
+                })
+                .transpose()?
+                .unwrap_or(9),
+            };
+            if existing.iter().any(|m| m.sid == Some(new_sid)) {
+                anyhow::bail!("SID {new_sid} is already in use on this LightController2");
+            }
+            (new_sid, new_cid)
+        };
         let defaults = native_mood_output_defaults(collection)?;
         let collection_index = *collection_index;
+        let serial = self.find_miniserver_serial().unwrap_or_default();
+        let uuid = Self::loxone_uuid(&serial);
         let mut scene = Element::new("LightsceneC");
         for (key, value) in [
             ("Name", name.to_string()),

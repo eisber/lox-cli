@@ -1619,7 +1619,7 @@ Unit='a > b' Unit='a > b'/><部屋 Title='同じ' Title='同じ'/></ControlList>
   </C>
 </ControlList>"#;
 
-        // Default SID/CID = next free custom (3 / 10); Q1 set explicitly.
+        // Native automatic SID/CID = lowest free SID and its available CID candidate.
         let mut editor = ConfigEditor::load(SAMPLE).unwrap();
         let (name, uuid, sid, cid) = editor
             .add_mood("uuid:lc-1", "Purple", 1_640_612_766, None, None)
@@ -1627,11 +1627,11 @@ Unit='a > b' Unit='a > b'/><部屋 Title='同じ' Title='同じ'/></ControlList>
         assert_eq!(name, "Purple");
         assert!(!uuid.is_empty());
         assert_eq!(sid, 3);
-        assert_eq!(cid, 10);
+        assert_eq!(cid, 14);
         let xml = String::from_utf8(editor.to_bytes().unwrap()).unwrap();
         assert!(xml.contains(r#"Name="Purple""#));
         assert!(xml.contains(r#"SID="3""#));
-        assert!(xml.contains(r#"CID="10""#));
+        assert!(xml.contains(r#"CID="14""#));
         assert!(xml.contains(r#"Q1="1640612766""#));
         // Num bumped 3 -> 4.
         assert!(xml.contains(r#"Num="4""#));

@@ -144,8 +144,9 @@ lox config add-mood FILE "uuid:<lightcontroller>" --name "Teams purple" --color 
 ```
 
 - Appends a fresh `<LightsceneC>` to the controller's `<LightscenesC>` container:
-  generated UUID, next free custom `SID` (base 2, skipping reserved 1/776/777/778)
-  and `CID` (base 9), `Outputs=18`, and `Q1` = the explicit packed mood value.
+  generated UUID, lowest unused `SID` in 1..99, `Outputs=18`, and
+  `Q1` = the explicit packed mood value. For SID 1..8, try only `CID=SID+11`;
+  use CID 0 if occupied or if SID is above 8. Exhaustion is an atomic error.
   `Q2..Q18` preserve only the first direct mood's encoded type nibble
   (`value & 0xf0000000`), with remaining value bits cleared. Missing values or
   values outside that source mood's `Outputs` bound initialize to zero;
@@ -154,9 +155,12 @@ lox config add-mood FILE "uuid:<lightcontroller>" --name "Teams purple" --color 
   Config 17.2.10.21 append-path initialization; 18 is not a universal maximum.
   Existing moods, collection `Outputs`, sparse values and unknown data stay intact.
   Needed opaque/out-of-range source values or unsupported collection shapes fail
-  before writing, rather than being guessed. Full native ID allocation, GUI
+  before writing, rather than being guessed. Full native dialog/load/save, GUI
   roundtrip, sequence handling and runtime parity are not claimed.
-- `--sid N` / `--cid N` override the auto-assigned ids. Duplicate name or SID is rejected.
+- Supplying either `--sid N` or `--cid N` retains the legacy override path:
+  the omitted partner uses max-custom-plus-one (base SID 2 / CID 9, with
+  SID 1/776/777/778 excluded from maxima). Duplicate name or SID is rejected;
+  duplicate explicit CID remains accepted. Existing scene IDs are untouched.
 - Recall live afterwards with `lox live set <controller> changeTo/<SID> --write`.
 
 ### Add a Virtual Input (HTTP/jdev push target)

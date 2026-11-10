@@ -8,6 +8,7 @@
     "inspect_unknown_nested_attributes": true,
     "inspect_native_mood_reconciliation_risks": true,
     "author_native_style_mood_output_defaults": true,
+    "author_native_style_mood_ids": true,
     "repair_stored_mood_count": true,
     "new_nested_edits": true,
     "gui_roundtrip_verified": false,
@@ -169,15 +170,15 @@
       }
     ],
     "remaining_dependencies": [
-      "Existing add_mood now assigns Num from the resulting direct scene count and uses native_style_mood_initialization below. Its selected Q1 color and CLI SID/CID policy remain explicit CLI behavior, not full native append/import parity.",
-      "The named post-copy hooks, save dispatch and optional SeqConf copy are recovered in recovered_edit_save_transaction below. Whole-document cancel/no-op behavior, pre-modal migration and unrelated UI/runtime callbacks are not covered by that bounded transaction.",
+      "Existing add_mood assigns Num from the resulting direct scene count and uses native_style_mood_initialization plus the separately approved default in recovered_mood_identity_allocation. Selected Q1 and explicit-ID overrides remain CLI behavior, not full native append/import parity.",
+      "Named post-copy hooks, save dispatch and optional SeqConf copy are recovered in recovered_edit_save_transaction. Conditional pre-modal original-member writes are recovered in recovered_pre_modal_cancel_effects. Whole-document cancel/no-op behavior and unrelated UI/runtime callbacks remain outside scope.",
       "No universal channel maximum, AQn/Qn/NameAI role mapping, full RGB/sequence edit semantics, arbitrary malformed-number behavior or full-family/runtime parity is established."
     ]
   },
   "native_style_mood_initialization": {
     "issue": "lox-zuo1",
     "command": "lox config add-mood FILE BLOCK --name NAME --color COLOR [--sid SID] [--cid CID] [--save-as PATH]",
-    "compatibility": "Intentional new default: use the recovered 17.2.10.21 append-path output initialization instead of mirroring collection Outputs and zero-filling unselected outputs. Explicit user-selected Q1 and existing CLI SID/CID policies are unchanged.",
+    "compatibility": "Use the recovered 17.2.10.21 append-path output initialization instead of mirroring collection Outputs and zero-filling unselected outputs. Explicit user-selected Q1 is preserved. The separately approved identity default and preserved explicit overrides are defined in recovered_mood_identity_allocation.",
     "source_basis": [
       {"address": "0x1405b48e0", "sha256": "09d4870c352d9621c32403f1fe1651967205f7b78c3bdc74866370f7714b14db", "fact": "Constructs a scene with width 0x12, appends it, and initializes each primary slot from the first scene's corresponding value masked with 0xf0000000; outside-source-vector values become zero."},
       {"address": "0x1405b7df0", "sha256": "9f0ff6bd3dcc724a599e3324483c9b584f1e1128c4a3d6bf9604ecc328bf9d58", "fact": "Reader uses per-scene Outputs, with missing/zero mapped to 0x0c, and reads only that Qn bound. Missing in-range values reconstruct zero on the previously recovered helper chain."},
@@ -192,7 +193,7 @@
       "CLI authoring operates on existing direct XML records and recounts the resulting records even if stored Num was stale; it does not simulate native import discarding records or injecting built-in scenes."
     ],
     "tests": ["src/config_edit/lighting_tests.rs: lighting_native_append_*", "tests/lighting_native_append.rs"],
-    "limits": "Source-backed output initialization and synthetic/CLI persistence only. No new native GUI observation, whole-load/save transaction, native ID allocator, universal channel limit, full color/sequence or runtime parity."
+    "limits": "This section covers source-backed output initialization and synthetic/CLI persistence only; identity policy is defined separately below. No new native GUI observation, whole-load/save transaction, universal channel limit, full color/sequence or runtime parity."
   },
   "recovered_edit_save_transaction": {
     "issue": "lox-tp6y",
@@ -207,7 +208,7 @@
       "caller": "0x14019de60",
       "reused_copy_targets": ["0x1405b4e50", "0x1405b4bc0"],
       "accepted": "Modal return 1 copies the temporary scene collection and selection data back, copies channel metadata, then runs owner notifications/refresh, 0x1401483a0(owner,block) and 0x140469a90(block). Existing copy-back recounts Num from the source vector and copies collection Outputs and each scene's Outputs/Q vectors independently.",
-      "cancel": "Other modal returns at this site skip that copy-back and the accepted-only post-copy hooks, then destroy the temporary dialog. This is not a whole-document byte-for-byte cancel guarantee: the pre-modal call 0x1404ca730(owner+0x198,block,0,-1), conditional dirty notification and any later independent save are outside that claim.",
+      "cancel": "Other modal returns skip that copy-back and the accepted-only post-copy hooks, then destroy the temporary dialog. As recovered in recovered_pre_modal_cancel_effects, preparation can conditionally write original XML-bound members before the dialog snapshot, with no explicit rollback at this cancel branch. This is not a whole-document cancel/no-op or disk-persistence guarantee.",
       "conditional_refresh": "Accepted-only primary +0xf20 resolves to 0x1405c80a0 when the owner flags permit it; its explicit work resets controller/connector/runtime state and reads scene values, not Num, scene Outputs or the primary Q vector. Its base refresh callbacks are subject to the stated ordinary-helper assumption."
     },
     "post_copy_hooks": [
@@ -234,7 +235,7 @@
       "order": [
         "Invoke primary +0x1180 -> 0x1405c9740. Its nested collection binder serializes collection Num/Outputs and scenes first; collection Outputs is then assigned 0x12 in memory.",
         "Bind the separate root+0x1cd0 IoData member, then call 0x1405c6770 without a reader/writer-mode guard.",
-        "Reconciliation assigns every zero in-memory scene SID from 0x1405b5560, then Num from the actual scene-vector size. The allocator searches free 1..99 and can return zero when exhausted; this is not the CLI append-ID policy.",
+        "Reconciliation assigns every zero in-memory scene SID from 0x1405b5560, then Num from the actual scene-vector size. This separate helper searches free 1..99 and can return zero when exhausted; CLI append deliberately rejects exhaustion instead.",
         "If the actual scene vector is empty, reconciliation sets collection Outputs to 0x12 and calls 0x1405c4ac0, which appends the two missing built-in SID 0x309/0x30a scenes. The first is initialized through 0x1405ccb60, including primary Q values. This is a genuine count/width/value-changing path, not merely recounting.",
         "Only on the reader branch, after those steps, 0x1405b70e0(scene,0x12) assigns each counted scene Outputs and resizes both integer vectors; it does not re-read fields skipped by the earlier reader bound."
       ],
@@ -263,10 +264,75 @@
       "tests": ["src/config_edit/lighting_tests.rs: lighting_transaction_*", "tests/lighting_transaction_capability.rs"]
     },
     "remaining_dependencies": [
-      "Whole-dialog cancel purity would additionally require the pre-modal 0x1404ca730 effect and unrelated owner/UI callback/reentrancy contracts. The named post-copy hooks, save virtual target and optional sequence copy target are resolved, not remaining unknown targets.",
-      "No mutation reproduces default-scene creation, zero-SID allocation or sequence normalization. The separately approved lox-zuo1 output initialization is implemented above; CLI identity allocation and selected Q1 behavior remain outside that native transaction claim.",
+      "The named pre-modal preparation's conditional original-member effects are recovered in recovered_pre_modal_cancel_effects. Whole-document cancellation, unrelated owner/UI callbacks and reentrancy/alias safety remain outside scope. Concrete XML prediction needs the selected connector/reference/parent identities and virtual results listed in its source summary.",
+      "No mutation reproduces default-scene creation, existing zero-SID reconciliation or sequence normalization. Output initialization and identity authoring policies are defined separately; selected Q1 remains explicit CLI behavior.",
       "No complete sequence/color semantics, universal channel limit, AQn/Qn/NameAI role mapping, malformed-number behavior or full editor/GUI/runtime parity."
     ]
+  },
+  "recovered_mood_identity_allocation": {
+    "issue": "lox-1ao7",
+    "named_question": "How does the selected native Lighting append allocate and validate SID/CID, including gaps, exhaustion, duplicate explicit requests and special IDs?",
+    "semantic_summary": {
+      "path": "tests/ux/light-controller2/mood-identity-source.json",
+      "sha256": "f87fd01748a506bffe068c761faaaa16d1928f214f06179a4786cb9f63cc101e",
+      "encoding": "UTF-8 without BOM, LF",
+      "kind": "independently-authored-source-semantics",
+      "native_execution_performed": false,
+      "gui_validation": "unrun"
+    },
+    "selected_dataflow": {
+      "caller": "0x1400e5b80",
+      "append": "0x1405b48e0",
+      "selection": "The caller passes dialog+0x130, owner+0x8c and param3=0. The constructor zeroes SID/CID before insertion. The append body has its own allocator, not a call to 0x1405b5560.",
+      "field_binding": "Binder 0x1405b7df0 and frozen SID/CID labels at 0x141019674/0x141019678 identify scene+0xa4 as SID and +0xa8 as CID.",
+      "static_proof": "Canonical function hashes, exact line ranges and direct-call/string/omitted-parameter byte pins are recorded in the semantic summary; private source paths are not published."
+    },
+    "native_append": {
+      "automatic_sid": "Lowest unused SID in 1..99, filling gaps. If all are occupied, retain the appended scene with SID0; this path does not return an exhaustion error.",
+      "explicit_sid": "An unused nonzero param3 is stored directly with CID0, including values above99 or special-role SIDs. An occupied nonzero request falls back to automatic allocation instead of failing.",
+      "automatic_cid": "For automatic SID1..8, try only CID=SID+11. If occupied, leave CID0; do not search another CID. Automatic SID9..99 leaves CID0. Exhaustion SID0 tries CID11 under the same collision rule.",
+      "explicit_cid": "Not an argument to this append function. A different dialog handler, 0x1400e6200, swaps a nonzero occupied requested CID with the selected scene's previous CID, then applies SID role/remapping logic. CID0 does not trigger the swap. This is not equivalent to CLI --cid.",
+      "special_ids": "SID1 is a normal automatic candidate. Separate handlers create SID777/CID22 and SID778/CID11 defaults and map CID24 to SID776. None establishes a universal append-forbidden set or a global maximum; the automatic scan bound is not an explicit-SID limit.",
+      "later_reconciliation": "0x1405c6770 uses separate helper 0x1405b5560 for zero SIDs. That helper also returns zero if 1..99 remain occupied. It is not evidence that native append exhaustion is atomic."
+    },
+    "cli_compatibility": {
+      "native_identity_default_adopted": true,
+      "approved_policy": "Separately approved native-default-safe: with neither --sid nor --cid, use lowest-free SID1..99 and the single native CID candidate. If all99 SIDs are occupied, return mood_identity_exhausted before mutation instead of native SID0.",
+      "storage_scope": "Use actual direct stored scenes, not native Num-limited import. Absent IDs reserve no candidate; present needed identities must be signed-32-bit decimals or fail atomically with unsupported_mood_identity_value. CID is not interpreted for a new SID above8. Existing spellings, IDs and records are not normalized.",
+      "preserved_overrides": "Supplying either --sid or --cid preserves the legacy override path: omitted partner max-custom-plus-one/base2/base9 with SID1/776/777/778 excluded from maxima, duplicate-SID errors, and accepted duplicate CID overrides. This is not native explicit-request fallback or CID swapping.",
+      "safety_improvement": "An overflowing signed-64-bit legacy partner successor returns mood_identity_exhausted before mutation rather than panic/wrap. Output initialization and recounting are unchanged.",
+      "focused_tests": "tests/lighting_identity_source.rs and src/config_edit/lighting_tests.rs cover native gap/CID rules, atomic exhaustion/unsupported identities, legacy overrides/overflow, and persistence/in-memory preservation."
+    },
+    "limits": "Version-pinned static normal-return result on valid objects and successful helpers. The semantic examples are not native executable cases. No new extraction, GUI/native execution, full load/save/role-normalization model or runtime parity; no unresolved callee blocks this bounded identity result."
+  },
+  "recovered_pre_modal_cancel_effects": {
+    "issue": "lox-1gnb",
+    "semantic_summary": {
+      "path": "tests/ux/light-controller2/pre-modal-source.json",
+      "sha256": "b7f02b855a66d5efb1d79ee2156dc7315824d0c120829768806fafbf03fed4bf",
+      "kind": "independently-authored-source-semantics",
+      "native_execution_performed": false,
+      "gui_validation": "unrun"
+    },
+    "caller": "0x14019de60",
+    "preparation": "0x1404ca730",
+    "scope": "Frozen17.2.10.21 AMD64, original LightController2 type0x1e4, null third argument and mode-1, native indices0..17 only.",
+    "order": "Construct dialog; prepare original controller; conditionally notify owner; snapshot prepared values into dialog; run modal; accepted-only copy-back remains the previous contract.",
+    "gate": "A referencing object is found, and either the original NameAI<i> string is empty or the corresponding native output connector exists with its 32-bit +0x128 word equal to zero.",
+    "ordinary_reference": "Unparented types other than0x140/0x163 assign the reference label/fallback. At this -1 callsite they bypass nonnegative-mode scene retagging and default initialization.",
+    "special_reference": "For unparented type0x163, connector+0x128 zero and matching virtual+0x4b0 connection identity permit retagging in-range existing primary Q values to tag4, preserving low28 bits. No SID777 initialization on that branch.",
+    "parent_or_0x140_reference": "The selected parent/self branch conditionally fills an empty NameAI<i> and ORs the COName bit when classification is zero, writes CapAI<i> from reference+0x7a8, retags existing in-range primary Q using selected-object+0xc68, then calls the existing SID777 initializer. All remain subject to the common gate; Q/capability writes do not separately require an empty name.",
+    "default_scene": "0x1405ccb60 finds existing SID777, if any, and replaces that channel's in-range Q payload with a type-dependent default, retaining its current tag. No scene is created by this helper.",
+    "cancel": "These original-member writes precede the modal result. The non-accepted branch skips dialog copy-back and has no explicit rollback of the preparation writes. Cancel does not imply a whole-document no-op. Equal-value assignments are possible, so a nonzero preparation result is not proof of a byte difference.",
+    "persistence": "Written members bind to NameAI<i>, CapAI<i>, COName and LightsceneC Q<i+1>. This is in-memory persisted-model state, not immediate disk persistence or a guaranteed later save.",
+    "explicit_write_bounds": "No explicit Num, scene Outputs, identity, primary-vector resize, secondary-vector or SeqConf write was found in preparation or the inspected SID777 initializer. This is not global purity.",
+    "assumptions": [
+      "Valid native objects, consistent vectors, successful allocations and ordinary member/string/vector helpers.",
+      "Graph/label/virtual getters operate on indicated objects, with no unexpected scene-storage aliases or reentrant document edits.",
+      "Ordinary dialog destruction is cleanup, not an undisclosed original-controller rollback; unrelated UI callbacks remain outside scope."
+    ],
+    "cli_decision": "Evidence-only: no new diagnostic or mutation. Actual XML-to-native connector/parent/lookup aliases and concrete virtual-class results must be established before predicting this risk for a document.",
+    "native_validation": "unrun"
   },
   "existing_mood_edit_validation": {
     "surface": "config set-mood-color --output-index",
@@ -325,7 +391,7 @@
       "Owned authored fixture open -> inspect actual version/hash identity; fresh mood/channel dialog inventory; save without changes and compare exact owned before/after XML with normalization explained. No input until parent grants lease.",
       "On owned copy, change exactly Q2 in one existing mood using prior-art set-mood-color pinned isolated CLI; verify actual mood and channel GUI readback, save/reopen and compare all UUID/SID/CID/Outputs/other Qn/wires/unknown records.",
       "Countercase: distinct Q1/Q2/Q10 and a missing Qn must not become a default zero or wrong channel; incompatible actuator/unknown encoding stays unsupported.",
-      "Countercase: cancel GUI dialog then save/reopen; unchanged owned XML and IDs. No capability promotion until these fresh version-bound results exist."
+      "Countercase: capture original/prepared state, cancel GUI dialog, then independently save/reopen and attribute differences to the recovered preparation versus accepted-only edits. Do not assume Cancel is a whole-document no-op. No capability promotion until fresh version-bound results exist."
     ],
     "guards": "exact PID/hash/start/session/foreground/overlap/offline fence; source helper snapshots per run; 64px inset; unexpected dialog abort; no production connection, private ABI, memory writes, clock/DPI changes or recurring jobs",
     "native_behavior": "unadmitted; current official reader is EnergyManager OL1..3 only and must not be repurposed"

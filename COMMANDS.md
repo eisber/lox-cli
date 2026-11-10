@@ -129,6 +129,11 @@ the gate. Table/CSV expose the same statuses. No intentional restore-inherited
 caller has been established, so inspection does not clear markers or refresh
 stored values.
 
+The source contract additionally records connection insertion ordering, one-hop
+`Ref` binding and an OutputRef cached-mode fallback. These are not a per-document
+resolver: raw XML order or an arbitrary connector's `Analog` flag cannot establish
+the selected inherited values. See `contracts/energy-manager2.json`.
+
 Scalar `set` accepts only `O` (signed kW, default 0), `MinSoc` (0..100%, default 0),
 and `MaxSpwr` (kW >=0, default 0). `O` is a **parameter**, not an output.
 Values are finite invariant decimals; decimal commas, scientific/nonfinite input,
@@ -313,13 +318,35 @@ must be supported signed-32-bit decimals; malformed, opaque or out-of-range
 values fail before either file is written rather than being guessed. Opaque
 `Q1` is untouched because the new scene's color is explicit; values outside the
 source bound or new construction width are preserved without interpretation.
-Existing `--sid`/`--cid` overrides and CLI ID-selection policy are unchanged,
-not newly claimed native allocation parity.
+Without `--sid` or `--cid`, IDs now follow the recovered native automatic path:
+the smallest unused `SID` in 1..99, filling gaps (including SID 1). For SID 1..8,
+try only `CID=SID+11`; if that CID is already occupied, use 0. SID 9..99 also uses
+CID 0. Unlike native append's zero-SID exhaustion sentinel, the CLI fails
+atomically when all 99 automatic SIDs are occupied.
+
+Automatic allocation considers the actual direct stored records, not native
+import's `Num`-limited vector. Absent IDs reserve no stored candidate; present
+needed IDs must be signed-32-bit decimals or the operation fails without writing.
+CID values are not interpreted when the new SID is above 8.
+
+Supplying **either** `--sid` or `--cid` retains the legacy explicit-override path:
+the omitted partner uses max-custom-plus-one (base SID 2 / CID 9), with
+SID 1/776/777/778 excluded from those maxima. Duplicate explicit SID remains
+an error; duplicate explicit CID remains accepted, not swapped. An overflowing
+partner successor is an atomic `mood_identity_exhausted` error. Existing scene
+IDs are never reassigned by `add-mood`.
 
 Count repair can expose previously under-counted records on native import.
 Neither command reproduces default-scene injection, sequence normalization,
 whole-document save/cancel or runtime behavior. See
 `contracts/light-controller2.json` for the recovered paths and exact dependencies.
+
+Recovered native pre-modal preparation can conditionally change the original
+model's channel names/capabilities, `COName` and scene `Qn`, including an existing
+SID 777 payload, before copying values into the dialog. Cancel skips accepted-only
+copy-back but does not explicitly roll back those preparation writes. This is
+not immediate disk persistence or a document-specific CLI risk prediction;
+native GUI validation remains unrun.
 
 ### Wire connectors
 
