@@ -1,0 +1,56 @@
+{
+  "schema_version": 1,
+  "issue": "lox-w9xu.4",
+  "named_question": "Does the mood IID field represent an input binding or the icon selected by native grid column3?",
+  "frozen_target": {
+    "version": "17.2.10.21",
+    "pe_sha256": "7b55e3ef18401574ab967c5c6a0140cd5a66dc728521ebba04ad53093577d8b3",
+    "analysis_id": "6a0520329af17d7b9fdaafe69398c62c454d9da838fc9f9c8d0bdd8d17bb15ae",
+    "new_extractions": 0
+  },
+  "canonical_sources": [
+    {"address": "0x1400ea4d0", "sha256": "7889492ba869cfaf42c99f85fa67ec0310fb45610db3a54660a5ec4f60de8c0e", "lines": [53, 90]},
+    {"address": "0x140925c80", "sha256": "fe62c1e981edca83953d5fab4ecdd399a42acb5e7d2ffde9ad1c9b84fa8dcabf", "lines": [35, 55]},
+    {"address": "0x1409269e0", "sha256": "2f806e9dbd08c2bb7c720e0ad5a5ed1dae138911faace5a2c7b70b0dc34c0750", "lines": [21, 47]},
+    {"address": "0x1405fe610", "sha256": "303141ca32460a55179abfc148c76b1a99b615b222cbc3cb6b3ff75a1e6c2d68", "lines": [19, 24]},
+    {"address": "0x1405fe640", "sha256": "b96c8e25e47b83bab227a1ecf4737693bb98a70827440203cbf41232b2dded5c", "lines": [19, 24]},
+    {"address": "0x1405b7df0", "sha256": "9f0ff6bd3dcc724a599e3324483c9b584f1e1128c4a3d6bf9604ecc328bf9d58", "lines": [39, 41]},
+    {"address": "0x1405b3940", "sha256": "365a8a5e0bc05163fab3b2547924119c7731291b550d9e33fb2df9614ebe4155", "lines": [44, 53]}
+  ],
+  "static_byte_pins": [
+    {"address": "0x14101967c", "length": 4, "sha256": "3437288e5cfd340eefa02fec69c8ee59f0b9ecfda17ffcab2682334e119fa60d", "purpose": "Exact IID XML binding label."},
+    {"address": "0x140925c80", "length": 133, "sha256": "70fef91fdc7eaca7f1d916d7d4cb293cbaf20c036156f790a6661c04931e9718", "purpose": "Actual caller's dialog constructor installs the CIconDlg vtables, not an input-selection dialog."},
+    {"address": "0x1400ea62d", "length": 73, "sha256": "02f06730273c9860090903e2c3115fa493a6bb8cfa4fce7482119c89c6c118c2", "purpose": "Accepted dialog selection UUID is resolved through the same manager; record+0x70 or lookup-miss0 is stored in selected mood+0xac, then grid rebuilt."},
+    {"address": "0x1405b39ff", "length": 7, "sha256": "f2351035cf048a1a8311903cd7339b5270c234ae93123c88712de7a760850f40", "purpose": "Zero initialization at+0xa8 includes numeric IID+0xac."}
+  ],
+  "reused_contract": {
+    "artifact": "tests/ux/light-controller2/mood-cid-edit-source.json",
+    "sha256": "117c546935895b222d66df22140c3a9139befca625aa63eee280fbcdc242a647",
+    "fact": "Reuse common integer type5 omitted-reader default0. IID uses the same binder type/flags and constructor default, but is a different member and meaning."
+  },
+  "source_contract": {
+    "correction": "The input-binding hypothesis is disconfirmed. Actual grid column3 opens CIconDlg, initializes it from stored IID through integer lookup, obtains a selected icon UUID, resolves that UUID back to a numeric ID and stores IID. No input/hardware assignment is established by this path.",
+    "catalog_boundary": "The integer IID is not a native GUID catalog identity. Existing Energy ico/GUID catalog selection cannot be applied directly to it; manager registration/mapping is a separate dependency.",
+    "zero_boundary": "Constructor/reader model default0 is established. Accepted lookup-miss0 is an observed source branch, not proof of a user-reachable accepted clear choice or a claim that every rendered default icon is absent."
+  },
+  "CLI_policy": {
+    "command": "lox config lighting inspect-mood-options FILE BLOCK --mood SID_OR_NAME",
+    "icon_id": "Report IID stored/effective/default0 using a conservative signed32 decimal interpretation. Preserve omitted raw null; unsupported explicit data stays unresolved with diagnostics rather than becoming0.",
+    "resolution": "Always report unresolved_catalog_mapping; do not infer builtin/project SVG, hardware/input role, rendered image, default-icon appearance or validity of a numeric ID.",
+    "formats": "JSON adds icon_id and icon_resolution; table/seven-column CSV add IID with explicit stored presence and icon_reference_unresolved projection.",
+    "preservation": "Read-only. No IID, input, CID, SID, image catalog, Qn, flags, counts, references, HCL or unknown data changed.",
+    "tests": "src/config_edit/lighting_metadata_tests.rs and tests/lighting_metadata_cli.rs: lighting_metadata_*option*"
+  },
+  "unimplemented_dependency": {
+    "issue": "lox-w9xu.6",
+    "scope": "User-reachable accepted empty/clear selection and builtin/project UUID-to-numeric-IID registration/copyback",
+    "decision": "No clear-mood-input command and no raw integer icon assignment/clear. Publish corrected inspection/contract, park mutation at this bound and continue independent source operations."
+  },
+  "validation_scope": {
+    "native_execution_performed_for_this_surface": false,
+    "gui_execution_performed_for_this_surface": false,
+    "runtime_parity": false,
+    "full_dialog_acceptance": false,
+    "vendor_function_text": "Not included."
+  }
+}

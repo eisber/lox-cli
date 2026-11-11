@@ -267,6 +267,9 @@ lox config lighting set-mood-display-name FILE "uuid:<lightcontroller>" --mood <
   inverse cycling and bounded mix projection. Role-dependent checked state
   stays unknown. ReadOnly is stored metadata, not full GUI permission.
   Unsupported explicit flags stay unresolved; no default insertion occurs.
+  IID is a numeric icon reference, not an input binding. Catalog/image mapping
+  remains unresolved; never use its integer as an Energy icon GUID or infer
+  an input-clear/icon-clear operation from its model default0.
 - Inspection reports numeric duplicate positive SIDs/nonzero CIDs in one
   direct collection; repeated CID0 is allowed. No normalization/repair or
   complete import/editability admission follows from these diagnostics.

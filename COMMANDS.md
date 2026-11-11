@@ -495,6 +495,11 @@ projections, **not** GUI permissions, import/row visibility or write admission.
 JSON includes diagnostics; table/CSV retain limitation diagnostics even with
 quiet/no-header. CSV includes `STORED_PRESENT` to distinguish absent from empty
 text. See `tests/ux/light-controller2/mood-option-inspection-source.json`.
+The additional `IID` row is a **numeric icon reference**, not an input binding.
+It reports stored/effective/default0 and explicit unresolved catalog mapping;
+unsupported explicit IDs are retained, not defaulted. The integer is not a
+built-in icon GUID. No icon assignment/clear or input mutation is implied.
+See `tests/ux/light-controller2/mood-icon-id-source.json`.
 
 Both metadata commands require exactly one direct collection and one
 unambiguous direct mood selected by exact stored SID or case-sensitive Name.

@@ -41,7 +41,7 @@ pub(crate) enum LightingCmd {
         #[command(flatten)]
         target: LightingTarget,
     },
-    /// Inspect one stored mood's flags/defaults and bounded checkbox projections
+    /// Inspect stored mood flags, display text, icon ID and bounded checkbox projections
     InspectMoodOptions {
         #[command(flatten)]
         target: LightingTarget,
@@ -291,8 +291,28 @@ pub(crate) fn run(ctx: &RunContext, action: LightingCmd) -> Result<()> {
                         name.effective.as_deref().unwrap_or("")
                     );
                 }
+                let icon = &inspection.icon_id;
+                let icon_value = icon.effective.map(|v| v.to_string()).unwrap_or_default();
+                if ctx.csv {
+                    println!(
+                        "\"IID\",{},{},{},\"0\",,\"icon_reference_unresolved\"",
+                        icon.stored.is_some(),
+                        csv(icon.stored.as_deref().unwrap_or("")),
+                        csv(&icon_value)
+                    );
+                } else {
+                    println!(
+                        "IID  {}  {}  0  <unknown>  icon_reference_unresolved",
+                        icon.stored.as_deref().unwrap_or("<absent>"),
+                        if icon_value.is_empty() {
+                            "<unresolved>"
+                        } else {
+                            &icon_value
+                        }
+                    );
+                }
                 if !ctx.csv && !ctx.quiet {
-                    println!("\n{} options", inspection.flags.len() + 1);
+                    println!("\n{} options", inspection.flags.len() + 2);
                 }
                 for d in &inspection.diagnostics {
                     eprintln!("{} at {}: {}", d.code, d.path, d.message);

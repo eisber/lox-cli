@@ -369,6 +369,10 @@ fn lighting_metadata_option_inspection_preserves_raw_defaults_and_special_row_pr
     assert_eq!(mix.checkbox_checked, None);
     assert_eq!(options.display_name.stored, None);
     assert_eq!(options.display_name.effective.as_deref(), Some(""));
+    assert_eq!(options.icon_id.stored, None);
+    assert_eq!(options.icon_id.effective, Some(0));
+    assert_eq!(options.icon_id.default, Some(0));
+    assert_eq!(options.icon_resolution, "unresolved_catalog_mapping");
     assert_eq!(editor.to_bytes().unwrap(), before);
 }
 
@@ -383,6 +387,8 @@ fn lighting_metadata_option_inspection_keeps_role_and_unsupported_value_unresolv
     let mix = options.flags.iter().find(|f| f.key == "MixMod").unwrap();
     assert_eq!(mix.projection, "role_dependent");
     assert_eq!(mix.checkbox_checked, None);
+    assert_eq!(options.icon_id.stored.as_deref(), Some("7"));
+    assert_eq!(options.icon_id.effective, Some(7));
     let skip = options.flags.iter().find(|f| f.key == "SkipNext").unwrap();
     assert_eq!(skip.value.stored.as_deref(), Some("future"));
     assert_eq!(skip.value.effective, None);
@@ -394,6 +400,26 @@ fn lighting_metadata_option_inspection_keeps_role_and_unsupported_value_unresolv
             .diagnostics
             .iter()
             .any(|d| d.code == "unsupported_mood_option_value")
+    );
+    assert_eq!(editor.to_bytes().unwrap(), before);
+}
+
+#[test]
+fn lighting_metadata_option_icon_retains_unsupported_storage_without_input_inference() {
+    let xml = METADATA_XML.replace("IID=\"7\"", "IID=\"future\"");
+    let editor = ConfigEditor::load(xml.as_bytes()).unwrap();
+    let before = editor.to_bytes().unwrap();
+    let options = editor
+        .inspect_lighting_mood_options("uuid:lighting", "First")
+        .unwrap();
+    assert_eq!(options.icon_id.stored.as_deref(), Some("future"));
+    assert_eq!(options.icon_id.effective, None);
+    assert_eq!(options.icon_id.default, Some(0));
+    assert!(
+        options
+            .diagnostics
+            .iter()
+            .any(|d| d.code == "unsupported_mood_icon_id")
     );
     assert_eq!(editor.to_bytes().unwrap(), before);
 }

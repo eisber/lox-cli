@@ -76,6 +76,8 @@ pub struct LightingMoodOptions {
     pub read_only: bool,
     pub flags: Vec<LightingMoodFlag>,
     pub display_name: StoredValue<String>,
+    pub icon_id: StoredValue<i32>,
+    pub icon_resolution: &'static str,
     pub diagnostics: Vec<Diagnostic>,
 }
 
@@ -90,7 +92,7 @@ impl ConfigEditor {
         let mut diagnostics = vec![Diagnostic::new(
             "stored_mood_options_only",
             mood_ref,
-            "Stored values and recovered checkbox projections only, not loaded-row/import, current graph/role state or GUI permissions. Each edit operation independently validates its target.",
+            "Stored values and recovered checkbox projections only, not loaded-row/import, current graph/role state or GUI permissions. IID is a numeric icon reference, not an input binding; catalog/image resolution is not established. Each edit operation independently validates its target.",
         )];
         let mut flags = Vec::new();
         for key in ["SkipNext", "MixMod", "ReadOnly", "Sequencing", "Move"] {
@@ -108,10 +110,9 @@ impl ConfigEditor {
                         .attributes
                         .get("SID")
                         .and_then(|raw| raw.parse::<i32>().ok());
-                    let cid = match mood.attributes.get("CID") {
-                        None => Some(0),
-                        Some(raw) => raw.parse::<i32>().ok().filter(|cid| *cid >= 0),
-                    };
+                    let cid = Self::stored_mood_integer(mood, "CID")
+                        .effective
+                        .filter(|cid| *cid >= 0);
                     match (sid, cid) {
                         (Some(sid), _) if sid > 31 => ("not_checkbox_row", None),
                         (Some(sid), Some(cid)) if sid > 0 => {
@@ -147,6 +148,13 @@ impl ConfigEditor {
             });
         }
         let stored = mood.attributes.get("SName").cloned();
+        let icon_id = Self::stored_mood_integer(mood, "IID");
+        if icon_id.effective.is_none() {
+            diagnostics.push(Diagnostic::new(
+                "unsupported_mood_icon_id", &format!("{mood_ref}.IID"),
+                "Stored IID is not a supported signed32 decimal. It is retained and unresolved, not defaulted or treated as an input binding.",
+            ));
+        }
         Ok(LightingMoodOptions {
             mood: LightingMoodIdentity::from_element(mood),
             read_only: true,
@@ -156,6 +164,8 @@ impl ConfigEditor {
                 stored,
                 default: Some(String::new()),
             },
+            icon_id,
+            icon_resolution: "unresolved_catalog_mapping",
             diagnostics,
         })
     }
@@ -393,6 +403,19 @@ impl ConfigEditor {
             stored,
             effective,
             default: Some(false),
+        }
+    }
+
+    fn stored_mood_integer(mood: &Element, key: &str) -> StoredValue<i32> {
+        let stored = mood.attributes.get(key).cloned();
+        let effective = match stored.as_deref() {
+            None => Some(0),
+            Some(raw) => raw.parse::<i32>().ok(),
+        };
+        StoredValue {
+            stored,
+            effective,
+            default: Some(0),
         }
     }
 

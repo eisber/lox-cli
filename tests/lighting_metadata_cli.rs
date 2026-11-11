@@ -65,6 +65,9 @@ fn lighting_metadata_cli_options_are_readonly_and_expose_projection_limits_in_al
             assert_eq!(skip["checkbox_checked"], true);
             assert_eq!(value["display_name"]["stored"], "alias");
             assert_eq!(value["read_only"], true);
+            assert_eq!(value["icon_id"]["stored"], serde_json::Value::Null);
+            assert_eq!(value["icon_id"]["effective"], 0);
+            assert_eq!(value["icon_resolution"], "unresolved_catalog_mapping");
         } else {
             let stdout = String::from_utf8(output.stdout).unwrap();
             assert!(
@@ -81,6 +84,10 @@ fn lighting_metadata_cli_options_are_readonly_and_expose_projection_limits_in_al
                     )
                 );
                 assert!(stdout.contains("\"SName\",true,\"alias\""));
+                assert!(
+                    stdout
+                        .contains("\"IID\",false,\"\",\"0\",\"0\",,\"icon_reference_unresolved\"")
+                );
             }
             assert!(
                 String::from_utf8(output.stderr)
