@@ -29,6 +29,42 @@ fn assert_error_unchanged(editor: &ConfigEditor, before: &[u8], error: anyhow::E
 }
 
 #[test]
+fn lighting_metadata_display_name_ascii_is_explicit_and_does_not_trim_or_transliterate() {
+    let mut editor = ConfigEditor::load(METADATA_XML.as_bytes()).unwrap();
+    let before = editor.to_bytes().unwrap();
+    assert!(
+        editor
+            .set_lighting_mood_display_name("uuid:lighting", "First", "Late Evening 2")
+            .is_err()
+    );
+    assert_eq!(editor.to_bytes().unwrap(), before);
+    let edit = editor
+        .set_lighting_mood_display_name_ascii("uuid:lighting", "First", "Late Evening 2")
+        .unwrap();
+    assert_eq!(edit.after, "LATE EVENING 2");
+    assert_eq!(edit.normalized_from.as_deref(), Some("Late Evening 2"));
+    assert_xml(
+        &editor,
+        &METADATA_XML.replacen("SName=\"alias\"", "SName=\"LATE EVENING 2\"", 1),
+    );
+    let before = editor.to_bytes().unwrap();
+    assert!(
+        !editor
+            .set_lighting_mood_display_name_ascii("uuid:lighting", "First", "late evening 2")
+            .unwrap()
+            .changed
+    );
+    for name in [" Late Evening", "Late Evening ", "Late_Evening", "Grün"] {
+        assert!(
+            editor
+                .set_lighting_mood_display_name_ascii("uuid:lighting", "First", name)
+                .is_err()
+        );
+        assert_eq!(editor.to_bytes().unwrap(), before);
+    }
+}
+
+#[test]
 fn lighting_metadata_rename_changes_only_selected_name_and_preserves_noop() {
     let mut editor = ConfigEditor::load(METADATA_XML.as_bytes()).unwrap();
     let edit = editor

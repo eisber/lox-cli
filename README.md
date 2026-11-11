@@ -114,8 +114,10 @@ not an input binding or a raw icon-assignment surface.
 the native checkbox's inverse state. Omitted `SkipNext` means false; no-op
 requests preserve omission, and unsupported explicit values fail atomically.
 `lighting set-mood-display-name` edits only SName (uppercase ASCII or explicit
-clear), separately from Name. Inspection warns about numerically duplicated
-positive SIDs and nonzero CIDs without rewriting stored identities.
+clear), separately from Name. `--normalize-ascii` explicitly enables recovered
+lowercase ASCII conversion; default validation stays strict, without silent
+transliteration. Inspection warns about numerically duplicated positive SIDs
+and nonzero CIDs without rewriting stored identities.
 `lighting set-mood-sid` supports ordinary SID1..90 reassignment and explicit
 occupied-ID exchange (`--swap`), including ordered selection-reference remaps.
 Free SID32..90 with positive CID requires `--allow-cid-clear`; occupied/no-op

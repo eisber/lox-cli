@@ -157,6 +157,9 @@ pub(crate) enum LightingCmd {
         /// Clear SName, not Name; no inherited-label or hardware-display claim
         #[arg(long, required_unless_present = "name", conflicts_with = "name")]
         clear: bool,
+        /// Explicitly apply native ASCII lowercase-to-uppercase conversion; no transliteration
+        #[arg(long, requires = "name", conflicts_with = "clear")]
+        normalize_ascii: bool,
         #[arg(long, value_name = "PATH")]
         save_as: Option<String>,
     },
@@ -325,15 +328,17 @@ pub(crate) fn run(ctx: &RunContext, action: LightingCmd) -> Result<()> {
             mood,
             name,
             clear: _,
+            normalize_ascii,
             save_as,
         } => {
             let selector = target.selector()?;
             let mut editor = ConfigEditor::load(&crate::load_config_xml(&target.file)?)?;
-            let edit = editor.set_lighting_mood_display_name(
-                &selector,
-                &mood,
-                name.as_deref().unwrap_or(""),
-            )?;
+            let name = name.as_deref().unwrap_or("");
+            let edit = if normalize_ascii {
+                editor.set_lighting_mood_display_name_ascii(&selector, &mood, name)?
+            } else {
+                editor.set_lighting_mood_display_name(&selector, &mood, name)?
+            };
             if edit.changed || save_as.is_some() {
                 super::save_edited_with_quiet(&mut editor, &target.file, save_as.as_deref(), true)?;
             }

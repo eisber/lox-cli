@@ -264,6 +264,9 @@ lox config lighting set-mood-display-name FILE "uuid:<lightcontroller>" --mood <
   letters/digits with internal spaces and alphanumeric edges, or `--clear`.
   Never silently uppercase/transliterate unsupported input. Clear is explicit
   empty storage, not inherited-label or hardware-display parity.
+  `--normalize-ascii` explicitly enables native lowercase ASCII conversion only;
+  JSON reports `normalized_from`. No trim/punctuation/Unicode approximation,
+  no combination with --clear, and equivalent normalized no-op preserves bytes.
 - Option inspection is read-only: raw/effective/default flag/text values,
   inverse cycling and bounded mix projection. Role-dependent checked state
   stays unknown. ReadOnly is stored metadata, not full GUI permission.

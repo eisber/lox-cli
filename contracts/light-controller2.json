@@ -19,6 +19,7 @@
     "set_mood_mix_with_omitted_cid": true,
     "set_mood_cycling_exclusion": true,
     "edit_mood_display_name_ascii_subset": true,
+    "normalize_mood_display_name_ascii_opt_in": true,
     "inspect_numeric_mood_identity_duplicates": true,
     "inspect_selected_stored_mood_options": true,
     "inspect_numeric_mood_icon_reference": true,
@@ -142,11 +143,14 @@
     "limits": "Source-backed selected-field transaction, not full GUI permissions, import reconciliation, accepted native save/reopen, physical cycling behavior or runtime parity."
   },
   "per_mood_display_name_edit": {
-    "command": "lox config lighting set-mood-display-name FILE BLOCK --mood SID_OR_NAME (--name NAME | --clear) [--room ROOM] [--save-as PATH]",
+    "command": "lox config lighting set-mood-display-name FILE BLOCK --mood SID_OR_NAME (--name NAME [--normalize-ascii] | --clear) [--room ROOM] [--save-as PATH]",
     "source_artifact": "tests/ux/light-controller2/mood-display-name-source.json",
     "source_sha256": "4ea43e1b3df825dcfb1c16417c18f6998dc0846194977c7a3fe0358f019ed9ae",
+    "ascii_extension_artifact": "tests/ux/light-controller2/mood-display-name-ascii-source.json",
+    "ascii_extension_sha256": "a233e3139a247fde8527d5aa9b75cfc0e889940b7022da1d68f9c2b06d5e1351",
     "native_selected_field": "Grid column7 commit normalizes then unconditionally copies to record+0x30, bound as SName. Unlike column0 Name, an empty result is copied and clears the model string.",
     "validation": "Reuse exact direct-record metadata selection. New names contain uppercase ASCII letters/digits and ordinary internal spaces with alphanumeric edges; other input fails instead of silently applying native transliteration, uppercase conversion or replacement.",
+    "ascii_opt_in": "Explicit --normalize-ascii permits lowercase ASCII via recovered native uppercase conversion then the same strict validation. No trimming, punctuation replacement or Unicode transliteration. Requires nonempty --name and conflicts with --clear. JSON normalized_from records supplied text when converted; after is actual storage, including a byte-preserving normalized no-op. Default strict API/output columns remain compatible.",
     "clear": "Explicit --clear, mutually exclusive with nonempty --name. Change only a nonempty SName to explicit empty storage. Missing/already-empty is an exact-byte no-op; omission stays omitted. Empty optional native serialization can instead omit SName; no native-save byte equality or inherited-label semantics is claimed.",
     "preservation": "Only selected SName changes. Name, all other records/fields, IDs, flags, outputs, widths/counts/order, LSConfig, HCL, capabilities, sequences and unknown storage remain unchanged.",
     "tests": "tests/lighting_metadata_cli.rs: lighting_metadata_cli_display_name_*",

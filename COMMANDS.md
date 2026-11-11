@@ -272,6 +272,7 @@ lox config lighting rename-mood file.Loxone "Lighting" --mood "Evening" --name "
 lox config lighting set-mood-mix file.Loxone "Lighting" --mood "Unbound scene" --no-mix --save-as unmixed.Loxone
 lox config lighting set-mood-skip file.Loxone "Lighting" --mood "Evening" --skip --save-as skipped.Loxone
 lox config lighting set-mood-display-name file.Loxone "Lighting" --mood "Evening" --name "EVENING"
+lox config lighting set-mood-display-name file.Loxone "Lighting" --mood "Evening" --name "Late Evening" --normalize-ascii
 lox config lighting set-mood-display-name file.Loxone "Lighting" --mood "Evening" --clear
 ```
 
@@ -541,6 +542,13 @@ absent/already-empty value is an exact-byte in-place no-op. Native optional
 serialization can omit empty SName, so this is not byte-identical native-save
 or physical display parity. No inherited-label semantics are inferred.
 See `tests/ux/light-controller2/mood-display-name-source.json`.
+Explicit `--normalize-ascii` permits lowercase ASCII and applies recovered
+native uppercase conversion before the same validation. JSON `normalized_from`
+shows supplied text when converted; `after` is actual stored uppercase.
+Default validation stays strict. This does not trim, transliterate, replace
+punctuation or accept arbitrary Unicode, and cannot be combined with `--clear`.
+Equivalent normalized storage is a byte-preserving no-op.
+See `tests/ux/light-controller2/mood-display-name-ascii-source.json`.
 
 Inspection emits `duplicate_mood_sid` / `duplicate_mood_cid` for numerically
 equivalent positive signed-32-bit SIDs / nonzero signed-32-bit CIDs in one

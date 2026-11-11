@@ -100,6 +100,64 @@ fn lighting_metadata_cli_options_are_readonly_and_expose_projection_limits_in_al
 }
 
 #[test]
+fn lighting_metadata_cli_display_name_ascii_optin_reports_conversion_and_preserves_noop() {
+    let dir = tempfile::tempdir().unwrap();
+    let input = dir.path().join("input.Loxone");
+    fs::write(&input, bytes(XML)).unwrap();
+    let result = command()
+        .args(["config", "lighting", "set-mood-display-name"])
+        .arg(&input)
+        .args([
+            "uuid:lighting",
+            "--mood",
+            "A",
+            "--name",
+            "Late Evening",
+            "--normalize-ascii",
+            "-o",
+            "json",
+        ])
+        .assert()
+        .success()
+        .get_output()
+        .stdout
+        .clone();
+    let result: serde_json::Value = serde_json::from_slice(&result).unwrap();
+    assert_eq!(result["normalized_from"], "Late Evening");
+    assert_eq!(result["after"], "LATE EVENING");
+    let after = bytes(&XML.replace("SName=\"alias\"", "SName=\"LATE EVENING\""));
+    assert_eq!(fs::read(&input).unwrap(), after);
+    command()
+        .args(["config", "lighting", "set-mood-display-name"])
+        .arg(&input)
+        .args([
+            "uuid:lighting",
+            "--mood",
+            "A",
+            "--name",
+            "late evening",
+            "--normalize-ascii",
+            "--quiet",
+        ])
+        .assert()
+        .success();
+    assert_eq!(fs::read(&input).unwrap(), after);
+    command()
+        .args(["config", "lighting", "set-mood-display-name"])
+        .arg(&input)
+        .args([
+            "uuid:lighting",
+            "--mood",
+            "A",
+            "--clear",
+            "--normalize-ascii",
+        ])
+        .assert()
+        .code(2);
+    assert_eq!(fs::read(&input).unwrap(), after);
+}
+
+#[test]
 fn lighting_metadata_cli_display_name_is_separate_and_clear_is_explicit() {
     let dir = tempfile::tempdir().unwrap();
     let input = dir.path().join("input.Loxone");

@@ -19,6 +19,7 @@ tests/ux/light-controller2/mood-option-inspection-source.json text eol=lf
 tests/ux/light-controller2/mood-icon-id-source.json text eol=lf
 tests/ux/light-controller2/mood-skip-source.json text eol=lf
 tests/ux/light-controller2/mood-display-name-source.json text eol=lf
+tests/ux/light-controller2/mood-display-name-ascii-source.json text eol=lf
 tests/ux/light-controller2/identity-ambiguity-source.json text eol=lf
 tests/ux/light-controller2/mood-sid-edit-source.json text eol=lf
 tests/ux/light-controller2/mood-higher-sid-source.json text eol=lf

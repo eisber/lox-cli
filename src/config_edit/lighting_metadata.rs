@@ -38,6 +38,7 @@ pub struct LightingMoodDisplayNameEdit {
     pub before: Option<String>,
     pub after: String,
     pub changed: bool,
+    pub normalized_from: Option<String>,
 }
 
 #[derive(Debug, Serialize)]
@@ -187,7 +188,7 @@ impl ConfigEditor {
             return Err(Diagnostic::new(
                 "unsupported_mood_display_name",
                 "name",
-                "Use uppercase ASCII letters/digits with ordinary internal spaces and a letter/digit at each end, or explicitly clear the display name. Native transliteration, case conversion and punctuation replacement are not silently approximated.",
+                "Use uppercase ASCII letters/digits with ordinary internal spaces and alphanumeric edges, or explicitly clear. --normalize-ascii opts into recovered lowercase ASCII conversion only; transliteration, trimming and punctuation replacement are not approximated.",
             )
             .into());
         }
@@ -206,7 +207,20 @@ impl ConfigEditor {
             before,
             after: name.into(),
             changed,
+            normalized_from: None,
         })
+    }
+
+    pub fn set_lighting_mood_display_name_ascii(
+        &mut self,
+        selector: &str,
+        mood_ref: &str,
+        name: &str,
+    ) -> Result<LightingMoodDisplayNameEdit> {
+        let normalized = name.to_ascii_uppercase();
+        let mut edit = self.set_lighting_mood_display_name(selector, mood_ref, &normalized)?;
+        edit.normalized_from = (normalized != name).then(|| name.to_string());
+        Ok(edit)
     }
 
     /// Set only SkipNext; the native cycling checkbox displays its inverse.
