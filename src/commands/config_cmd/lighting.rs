@@ -119,11 +119,71 @@ pub(crate) enum LightingCmd {
         #[arg(long, value_name = "PATH")]
         save_as: Option<String>,
     },
+    /// Set only SName (display name), using uppercase ASCII; or explicitly clear it
+    SetMoodDisplayName {
+        #[command(flatten)]
+        target: LightingTarget,
+        #[arg(long)]
+        mood: String,
+        /// Uppercase ASCII letters/digits and internal spaces, with alphanumeric edges
+        #[arg(long, required_unless_present = "clear", conflicts_with = "clear",
+            value_parser = clap::builder::NonEmptyStringValueParser::new())]
+        name: Option<String>,
+        /// Clear SName, not Name; no inherited-label or hardware-display claim
+        #[arg(long, required_unless_present = "name", conflicts_with = "name")]
+        clear: bool,
+        #[arg(long, value_name = "PATH")]
+        save_as: Option<String>,
+    },
 }
 
 pub(crate) fn run(ctx: &RunContext, action: LightingCmd) -> Result<()> {
     let target = match action {
         LightingCmd::Inspect { target } => target,
+        LightingCmd::SetMoodDisplayName {
+            target,
+            mood,
+            name,
+            clear: _,
+            save_as,
+        } => {
+            let selector = target.selector()?;
+            let mut editor = ConfigEditor::load(&crate::load_config_xml(&target.file)?)?;
+            let edit = editor.set_lighting_mood_display_name(
+                &selector,
+                &mood,
+                name.as_deref().unwrap_or(""),
+            )?;
+            if edit.changed || save_as.is_some() {
+                super::save_edited_with_quiet(&mut editor, &target.file, save_as.as_deref(), true)?;
+            }
+            if ctx.json {
+                let mut value = serde_json::to_value(&edit)?;
+                if let Some(trace_id) = &ctx.trace_id {
+                    value["trace_id"] = trace_id.clone().into();
+                }
+                println!("{}", serde_json::to_string_pretty(&value)?);
+            } else if ctx.csv {
+                if !ctx.no_header {
+                    println!("UUID,SID,CID,BEFORE,AFTER,CHANGED");
+                }
+                println!(
+                    "{},{},{},{},{},{}",
+                    csv(edit.mood.uuid.as_deref().unwrap_or("")),
+                    csv(edit.mood.sid.as_deref().unwrap_or("")),
+                    csv(edit.mood.cid.as_deref().unwrap_or("")),
+                    csv(edit.before.as_deref().unwrap_or("")),
+                    csv(&edit.after),
+                    edit.changed
+                );
+            } else if !ctx.quiet {
+                println!(
+                    "✓  {selector}: mood '{mood}' SName='{}' (Name and other storage unchanged)",
+                    edit.after
+                );
+            }
+            return Ok(());
+        }
         LightingCmd::RecountMoods { target, save_as } => {
             let selector = target.selector()?;
             let mut editor = ConfigEditor::load(&crate::load_config_xml(&target.file)?)?;

@@ -268,6 +268,8 @@ lox config lighting set-mood-cid file.Loxone "Lighting" --mood "Evening" --cid 1
 lox config lighting rename-mood file.Loxone "Lighting" --mood "Evening" --name "Late Evening" --save-as renamed.Loxone
 lox config lighting set-mood-mix file.Loxone "Lighting" --mood "Unbound scene" --no-mix --save-as unmixed.Loxone
 lox config lighting set-mood-skip file.Loxone "Lighting" --mood "Evening" --skip --save-as skipped.Loxone
+lox config lighting set-mood-display-name file.Loxone "Lighting" --mood "Evening" --name "EVENING"
+lox config lighting set-mood-display-name file.Loxone "Lighting" --mood "Evening" --clear
 ```
 
 Targets are local files and exactly one **LightController2**, selected by title,
@@ -471,6 +473,24 @@ SIDs. Unlike MixMod, this checkbox is not restricted to SID1..31 or by
 CID12..19. No other flags, IDs, outputs, references or HCL are normalized.
 This is a source-backed selected-field edit, not native/runtime cycling
 parity. See `tests/ux/light-controller2/mood-skip-source.json`.
+
+`lighting set-mood-display-name` edits **SName**, not `Name`, with exactly one
+of `--name NAME` / `--clear`. New names use uppercase ASCII letters/digits and
+ordinary internal spaces with alphanumeric edges. Lowercase, punctuation,
+edge-space and Unicode inputs fail rather than being silently normalized.
+Clear writes an explicit empty SName only when previously nonempty; an
+absent/already-empty value is an exact-byte in-place no-op. Native optional
+serialization can omit empty SName, so this is not byte-identical native-save
+or physical display parity. No inherited-label semantics are inferred.
+See `tests/ux/light-controller2/mood-display-name-source.json`.
+
+Inspection emits `duplicate_mood_sid` / `duplicate_mood_cid` for numerically
+equivalent positive signed-32-bit SIDs / nonzero signed-32-bit CIDs in one
+direct collection, including zero-padded/plus spellings. Repeated CID0 is
+allowed; nested or separate collections are never joined. Raw unsupported
+identities remain untouched. Diagnostics appear in JSON or on stderr for
+table/CSV even with `--quiet` / `--no-header`. No duplicates does **not** mean
+valid native import or editability. See `identity-ambiguity-source.json`.
 
 One bounded Config 17.2.10.21 observation completed CLI mood creation, Q2 edit,
 native Save As to a new file, normal exit and fresh reopen. The new SID 1 /

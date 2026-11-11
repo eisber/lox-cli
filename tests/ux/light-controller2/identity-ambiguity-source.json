@@ -1,0 +1,37 @@
+{
+  "schema_version": 1,
+  "issue": "lox-g0vo.4",
+  "named_question": "Which numerically duplicated stored mood identities make native first-match lookup ambiguous?",
+  "frozen_target": {
+    "version": "17.2.10.21",
+    "pe_sha256": "7b55e3ef18401574ab967c5c6a0140cd5a66dc728521ebba04ad53093577d8b3",
+    "analysis_id": "6a0520329af17d7b9fdaafe69398c62c454d9da838fc9f9c8d0bdd8d17bb15ae",
+    "new_extractions": 0
+  },
+  "canonical_sources": [
+    {"address": "0x1405b57b0", "sha256": "7eb7ba32c069738fc422f69fc0ba03c9ce4022e4e5ed2812dcba2d52858f28ab", "lines": [20, 32]},
+    {"address": "0x1405b5860", "sha256": "f85cc2a3de21e8dda42c44b75ecc77194da72615df42aa96b64282455aea1b20", "lines": [20, 32]},
+    {"address": "0x1405b7df0", "sha256": "9f0ff6bd3dcc724a599e3324483c9b584f1e1128c4a3d6bf9604ecc328bf9d58", "lines": [28, 41]}
+  ],
+  "static_byte_pins": [
+    {"address": "0x1405b57b0", "length": 47, "sha256": "c527a203fda5755900c1e495b313fa96010c912bd536751882d01cbc5ebe4855", "purpose": "SID lookup walks record pointers in order and returns the first signed32 +0xa4 match."},
+    {"address": "0x1405b5860", "length": 47, "sha256": "771f39fa4ef0ec896f04632bd7a5432b71dd241de6a7598e3e1884ec889277a2", "purpose": "CID lookup walks the same collection and returns the first signed32 +0xa8 match."}
+  ],
+  "CLI_policy": {
+    "command": "lox config lighting inspect FILE BLOCK",
+    "diagnostics": "duplicate_mood_sid for repeated positive signed32 SIDs; duplicate_mood_cid for repeated nonzero signed32 CIDs. Compare numeric values, including plus/zero-padded equivalent spellings; identify the extra record's exact path and first matching direct record.",
+    "scope": "Only direct LightsceneC records in exactly one direct LightscenesC. Never join separate containers, nested decoys or other blocks. Count mismatch does not hide a stored duplicate; this is not a loaded/imported-record prediction.",
+    "zero": "Repeated CID0 and zero SID are excluded. Existing zero-SID reconciliation diagnostics remain separate. Missing, opaque and out-of-signed32 storage is retained and outside this duplicate check.",
+    "formats": "Structured diagnostics in JSON and visible diagnostics on stderr for table/CSV, including --quiet/--no-header.",
+    "preservation": "Read-only. No normalization, renumbering, default insertion, repair or file writes.",
+    "admission_limit": "Absence of duplicate diagnostics is not uniqueness across unsupported values, valid import, full GUI editability or transaction admission.",
+    "tests": "src/config_edit/lighting_tests.rs and tests/lighting_source_capability.rs: lighting_identity_inspection_*"
+  },
+  "validation_scope": {
+    "native_execution_performed": false,
+    "gui_execution_performed": false,
+    "runtime_parity": false,
+    "full_dialog_acceptance": false,
+    "vendor_function_text": "Not included."
+  }
+}

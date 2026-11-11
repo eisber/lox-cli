@@ -106,6 +106,9 @@ role-forced checkbox states are rejected, not silently approximated.
 `lighting set-mood-skip` changes only the cycling exclusion flag and reports
 the native checkbox's inverse state. Omitted `SkipNext` means false; no-op
 requests preserve omission, and unsupported explicit values fail atomically.
+`lighting set-mood-display-name` edits only SName (uppercase ASCII or explicit
+clear), separately from Name. Inspection warns about numerically duplicated
+positive SIDs and nonzero CIDs without rewriting stored identities.
 
 ---
 

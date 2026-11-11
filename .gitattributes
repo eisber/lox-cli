@@ -14,4 +14,6 @@ tests/ux/light-controller2/mood-cid-edit-source.json text eol=lf
 tests/ux/light-controller2/mood-name-source.json text eol=lf
 tests/ux/light-controller2/mood-mix-source.json text eol=lf
 tests/ux/light-controller2/mood-skip-source.json text eol=lf
+tests/ux/light-controller2/mood-display-name-source.json text eol=lf
+tests/ux/light-controller2/identity-ambiguity-source.json text eol=lf
 tests/ux/light-controller2/pre-modal-graph-lookup-source.json text eol=lf

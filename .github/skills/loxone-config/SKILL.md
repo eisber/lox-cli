@@ -221,6 +221,7 @@ lox config lighting set-mood-cid FILE "uuid:<lightcontroller>" --mood <SID|Name>
 lox config lighting rename-mood FILE "uuid:<lightcontroller>" --mood <SID|Name> --name "Late Evening"
 lox config lighting set-mood-mix FILE "uuid:<lightcontroller>" --mood <SID|Name> --no-mix
 lox config lighting set-mood-skip FILE "uuid:<lightcontroller>" --mood <SID|Name> --skip
+lox config lighting set-mood-display-name FILE "uuid:<lightcontroller>" --mood <SID|Name> --name "LATE EVENING"
 ```
 
 - Rename supports ASCII letters/digits with ordinary internal spaces and a
@@ -236,9 +237,16 @@ lox config lighting set-mood-skip FILE "uuid:<lightcontroller>" --mood <SID|Name
   Omission means false and stays omitted on no-op; unsupported explicit values
   fail instead of defaulting. Requires a unique positive numeric selected SID;
   MixMod's SID1..31/CID12..19 restrictions do not apply to this checkbox.
-- Only the selected Name, MixMod or SkipNext changes. No Q1/HCL, ID, output, sequence or
+- Only the requested selected field changes. No Q1/HCL, ID, output, sequence or
   role normalization; raw packed-color editing stays a separate operation.
   `--room`/`--save-as` and JSON/CSV are supported.
+- Display-name editing changes only SName, not Name. Use uppercase ASCII
+  letters/digits with internal spaces and alphanumeric edges, or `--clear`.
+  Never silently uppercase/transliterate unsupported input. Clear is explicit
+  empty storage, not inherited-label or hardware-display parity.
+- Inspection reports numeric duplicate positive SIDs/nonzero CIDs in one
+  direct collection; repeated CID0 is allowed. No normalization/repair or
+  complete import/editability admission follows from these diagnostics.
 
 ### Add a Virtual Input (HTTP/jdev push target)
 

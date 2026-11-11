@@ -29,6 +29,84 @@ fn command() -> Command {
 }
 
 #[test]
+fn lighting_metadata_cli_display_name_is_separate_and_clear_is_explicit() {
+    let dir = tempfile::tempdir().unwrap();
+    let input = dir.path().join("input.Loxone");
+    let before = bytes(XML);
+    fs::write(&input, &before).unwrap();
+    command()
+        .args(["config", "lighting", "set-mood-display-name"])
+        .arg(&input)
+        .args([
+            "uuid:lighting",
+            "--mood",
+            "A",
+            "--name",
+            "LATE EVENING",
+            "--quiet",
+        ])
+        .assert()
+        .success()
+        .stdout("");
+    assert_eq!(
+        fs::read(&input).unwrap(),
+        bytes(&XML.replace("SName=\"alias\"", "SName=\"LATE EVENING\""))
+    );
+    let output = command()
+        .args(["config", "lighting", "set-mood-display-name"])
+        .arg(&input)
+        .args(["uuid:lighting", "--mood", "A", "--clear", "-o", "json"])
+        .assert()
+        .success()
+        .get_output()
+        .stdout
+        .clone();
+    let output: serde_json::Value = serde_json::from_slice(&output).unwrap();
+    assert_eq!(output["before"], "LATE EVENING");
+    assert_eq!(output["after"], "");
+    let cleared = bytes(&XML.replace("SName=\"alias\"", "SName=\"\""));
+    assert_eq!(fs::read(&input).unwrap(), cleared);
+    command()
+        .args(["config", "lighting", "set-mood-display-name"])
+        .arg(&input)
+        .args(["uuid:lighting", "--mood", "B", "--clear", "--quiet"])
+        .assert()
+        .success();
+    assert_eq!(fs::read(&input).unwrap(), cleared);
+}
+
+#[test]
+fn lighting_metadata_cli_display_name_rejects_transformations_and_bad_flag_combinations() {
+    let dir = tempfile::tempdir().unwrap();
+    let input = dir.path().join("input.Loxone");
+    let output = dir.path().join("output.Loxone");
+    for (flags, code) in [
+        (vec![], 2),
+        (vec!["--name", ""], 2),
+        (vec!["--name", "ABC", "--clear"], 2),
+        (vec!["--name", "Mixed Case"], 1),
+        (vec!["--name", "BAD_NAME"], 1),
+        (vec!["--name", " ABC"], 1),
+        (vec!["--name", "Ä"], 1),
+    ] {
+        let before = bytes(XML);
+        fs::write(&input, &before).unwrap();
+        fs::write(&output, b"existing output").unwrap();
+        command()
+            .args(["config", "lighting", "set-mood-display-name"])
+            .arg(&input)
+            .args(["uuid:lighting", "--mood", "A"])
+            .args(flags)
+            .arg("--save-as")
+            .arg(&output)
+            .assert()
+            .code(code);
+        assert_eq!(fs::read(&input).unwrap(), before);
+        assert_eq!(fs::read(&output).unwrap(), b"existing output");
+    }
+}
+
+#[test]
 fn lighting_metadata_cli_skip_preserves_absence_then_changes_only_selected_flag() {
     let dir = tempfile::tempdir().unwrap();
     let input = dir.path().join("input.Loxone");

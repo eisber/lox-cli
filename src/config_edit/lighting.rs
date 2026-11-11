@@ -493,6 +493,7 @@ impl ConfigEditor {
                 format!("Expected one direct LightscenesC container, found {containers}; discovered mood records remain raw read-only data."),
             ));
         } else if let Some(collection) = block.get_child("LightscenesC") {
+            inspect_duplicate_mood_ids(collection, &mut diagnostics);
             let scenes = direct_mood_count(collection);
             let stored = collection
                 .attributes
@@ -718,6 +719,43 @@ fn nonempty(element: &Element, key: &str) -> Option<String> {
         .get(key)
         .filter(|value| !value.is_empty())
         .cloned()
+}
+
+fn inspect_duplicate_mood_ids(collection: &Element, diagnostics: &mut Vec<Diagnostic>) {
+    for (key, code) in [("SID", "duplicate_mood_sid"), ("CID", "duplicate_mood_cid")] {
+        let mut first_records = BTreeMap::new();
+        for (index, mood) in collection
+            .children
+            .iter()
+            .filter_map(XMLNode::as_element)
+            .filter(|element| element.name == "LightsceneC")
+            .enumerate()
+        {
+            let Some((raw, value)) = mood.attributes.get(key).and_then(|raw| {
+                raw.parse::<i32>()
+                    .ok()
+                    .filter(|value| {
+                        if key == "SID" {
+                            *value > 0
+                        } else {
+                            *value != 0
+                        }
+                    })
+                    .map(|value| (raw, value))
+            }) else {
+                continue;
+            };
+            if let Some(first) = first_records.get(&value) {
+                diagnostics.push(Diagnostic::new(
+                    code,
+                    &format!("LightscenesC/LightsceneC[{}]/@{key}", index + 1),
+                    format!("Stored {key}='{raw}' is numerically equal to {key}={value} on direct mood {first}. Native lookup returns the first matching record; selection/exchange may be ambiguous. Raw values are retained, not repaired. This check covers positive signed-32-bit SIDs and nonzero signed-32-bit CIDs only; absence of duplicates is not import or editability admission."),
+                ));
+            } else {
+                first_records.insert(value, index + 1);
+            }
+        }
+    }
 }
 
 fn check_identity(element: &Element, key: &str, path: &str, diagnostics: &mut Vec<Diagnostic>) {

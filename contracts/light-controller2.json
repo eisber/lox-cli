@@ -15,6 +15,8 @@
     "rename_existing_mood_ascii_subset": true,
     "set_role_independent_mood_mix": true,
     "set_mood_cycling_exclusion": true,
+    "edit_mood_display_name_ascii_subset": true,
+    "inspect_numeric_mood_identity_duplicates": true,
     "set_role_dependent_mood_mix": false,
     "repair_stored_mood_count": true,
     "new_nested_edits": true,
@@ -112,6 +114,29 @@
     "preservation": "Only selected SkipNext changes. Keep all other records/flags, Qn, identities/spellings, count/width/order, SName, LSConfig, HCL, capabilities, sequences and unknown data. No incidental Q1/HCL or full-dialog normalization.",
     "tests": "src/config_edit/lighting_metadata_tests.rs and tests/lighting_metadata_cli.rs: lighting_metadata_*skip*",
     "limits": "Source-backed selected-field transaction, not full GUI permissions, import reconciliation, accepted native save/reopen, physical cycling behavior or runtime parity."
+  },
+  "per_mood_display_name_edit": {
+    "command": "lox config lighting set-mood-display-name FILE BLOCK --mood SID_OR_NAME (--name NAME | --clear) [--room ROOM] [--save-as PATH]",
+    "source_artifact": "tests/ux/light-controller2/mood-display-name-source.json",
+    "source_sha256": "4ea43e1b3df825dcfb1c16417c18f6998dc0846194977c7a3fe0358f019ed9ae",
+    "native_selected_field": "Grid column7 commit normalizes then unconditionally copies to record+0x30, bound as SName. Unlike column0 Name, an empty result is copied and clears the model string.",
+    "validation": "Reuse exact direct-record metadata selection. New names contain uppercase ASCII letters/digits and ordinary internal spaces with alphanumeric edges; other input fails instead of silently applying native transliteration, uppercase conversion or replacement.",
+    "clear": "Explicit --clear, mutually exclusive with nonempty --name. Change only a nonempty SName to explicit empty storage. Missing/already-empty is an exact-byte no-op; omission stays omitted. Empty optional native serialization can instead omit SName; no native-save byte equality or inherited-label semantics is claimed.",
+    "preservation": "Only selected SName changes. Name, all other records/fields, IDs, flags, outputs, widths/counts/order, LSConfig, HCL, capabilities, sequences and unknown storage remain unchanged.",
+    "tests": "tests/lighting_metadata_cli.rs: lighting_metadata_cli_display_name_*",
+    "limits": "Selected model/storage edit only, not full Unicode normalization, dialog permissions, physical display behavior, native accepted-dialog save/reopen or runtime parity."
+  },
+  "numeric_identity_ambiguity_inspection": {
+    "command": "lox config lighting inspect FILE BLOCK",
+    "source_artifact": "tests/ux/light-controller2/identity-ambiguity-source.json",
+    "source_sha256": "b983fc55d96d5f54284736197f9f663f16f29b3f6a5f4d675b8c4e4de041766e",
+    "native_behavior": "SID and CID lookups return the first record with an equal signed32 member, independent of stored decimal spelling.",
+    "diagnostics": "Report duplicate_mood_sid for repeated positive signed32 SIDs and duplicate_mood_cid for repeated nonzero signed32 CIDs in exactly one direct collection. Identify the duplicate path and first matching direct record. Equivalent plus/zero-padded decimal spellings compare equal.",
+    "boundaries": "Repeated CID0 is allowed. Zero SID, missing, opaque and out-of-signed32 values are outside this duplicate check; existing diagnostics remain separate. Never join nested decoys or separate collections. No stored-duplicate warning is a prediction of Num-limited import.",
+    "formats": "Structured JSON diagnostics, or visible stderr for table/CSV including quiet/no-header.",
+    "preservation": "Read-only; preserve all raw values and file bytes without renumbering, default insertion, normalization or repair.",
+    "tests": "src/config_edit/lighting_tests.rs and tests/lighting_source_capability.rs: lighting_identity_inspection_*",
+    "limits": "Absence of duplicate diagnostics is not full uniqueness/import/editability or runtime admission."
   },
   "pre_modal_graph_lookup": {
     "issue": "lox-yqzp",

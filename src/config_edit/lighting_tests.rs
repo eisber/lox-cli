@@ -14,6 +14,55 @@ const LEVEL_XML: &str = r#"<ControlList><C Type="LightController2" U="lighting" 
 </C></ControlList>"#;
 
 #[test]
+fn lighting_identity_inspection_reports_numeric_duplicates_without_repairing_raw_storage() {
+    let xml = r#"<ControlList><C Type="LightController2" U="lighting"><LightscenesC Num="5">
+      <LightsceneC UUID="a" SID="+0002" CID="09"/>
+      <LightsceneC UUID="b" SID="2" CID="+9"/>
+      <LightsceneC UUID="c" SID="3" CID="0"/>
+      <LightsceneC UUID="d" SID="4" CID="+00"/>
+      <LightsceneC UUID="e" SID="future" CID="2147483648"><Unknown SID="2" CID="9"/></LightsceneC>
+    </LightscenesC></C></ControlList>"#;
+    let editor = ConfigEditor::load(xml.as_bytes()).unwrap();
+    let before = editor.to_bytes().unwrap();
+    let result = editor.inspect_lighting("uuid:lighting").unwrap();
+    for code in ["duplicate_mood_sid", "duplicate_mood_cid"] {
+        let diagnostics: Vec<_> = result
+            .diagnostics
+            .iter()
+            .filter(|d| d.code == code)
+            .collect();
+        assert_eq!(diagnostics.len(), 1);
+        assert!(diagnostics[0].path.contains("LightsceneC[2]"));
+        assert!(diagnostics[0].message.contains("direct mood 1"));
+    }
+    assert_eq!(result.moods[0].attributes["SID"], "+0002");
+    assert_eq!(result.moods[1].attributes["CID"], "+9");
+    assert_eq!(editor.to_bytes().unwrap(), before);
+}
+
+#[test]
+fn lighting_identity_inspection_never_joins_nested_or_separate_collections() {
+    for collections in [
+        r#"<LightscenesC Num="1"><LightsceneC UUID="a" SID="2" CID="9"><LightsceneC UUID="nested" SID="2" CID="9"/></LightsceneC></LightscenesC>"#,
+        r#"<LightscenesC Num="1"><LightsceneC UUID="a" SID="2" CID="9"/></LightscenesC><LightscenesC Num="1"><LightsceneC UUID="b" SID="2" CID="9"/></LightscenesC>"#,
+        r#"<LightscenesC Num="2"><LightsceneC SID="0" CID="0"/><LightsceneC SID="+00" CID="+00"/></LightscenesC>"#,
+    ] {
+        let xml = format!(
+            "<ControlList><C Type=\"LightController2\" U=\"lighting\">{collections}</C></ControlList>"
+        );
+        let editor = ConfigEditor::load(xml.as_bytes()).unwrap();
+        assert!(
+            !editor
+                .inspect_lighting("uuid:lighting")
+                .unwrap()
+                .diagnostics
+                .iter()
+                .any(|d| d.code == "duplicate_mood_sid" || d.code == "duplicate_mood_cid")
+        );
+    }
+}
+
+#[test]
 fn lighting_editor_inspection_distinguishes_selected_tags_capabilities_and_numeric_edit() {
     for (stored, capability, kind) in [
         ("1610622736", None, LightingEditorKind::Numeric),

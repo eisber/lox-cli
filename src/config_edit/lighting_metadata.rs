@@ -33,6 +33,14 @@ pub struct LightingMoodRenameEdit {
 }
 
 #[derive(Debug, Serialize)]
+pub struct LightingMoodDisplayNameEdit {
+    pub mood: LightingMoodIdentity,
+    pub before: Option<String>,
+    pub after: String,
+    pub changed: bool,
+}
+
+#[derive(Debug, Serialize)]
 pub struct LightingMoodMixEdit {
     pub mood: LightingMoodIdentity,
     pub scope: &'static str,
@@ -53,6 +61,44 @@ pub struct LightingMoodSkipEdit {
 }
 
 impl ConfigEditor {
+    /// Set SName using a no-normalization uppercase ASCII subset; empty clears it.
+    pub fn set_lighting_mood_display_name(
+        &mut self,
+        selector: &str,
+        mood_ref: &str,
+        name: &str,
+    ) -> Result<LightingMoodDisplayNameEdit> {
+        let alphanumeric = |byte: &u8| byte.is_ascii_uppercase() || byte.is_ascii_digit();
+        if !name.is_empty()
+            && (!name.as_bytes().first().is_some_and(alphanumeric)
+                || !name.as_bytes().last().is_some_and(alphanumeric)
+                || !name.bytes().all(|byte| alphanumeric(&byte) || byte == b' '))
+        {
+            return Err(Diagnostic::new(
+                "unsupported_mood_display_name",
+                "name",
+                "Use uppercase ASCII letters/digits with ordinary internal spaces and a letter/digit at each end, or explicitly clear the display name. Native transliteration, case conversion and punctuation replacement are not silently approximated.",
+            )
+            .into());
+        }
+        let path = self.lighting_metadata_mood_path(selector, mood_ref)?;
+        let mood = self.get_element(&path);
+        let identity = LightingMoodIdentity::from_element(mood);
+        let before = mood.attributes.get("SName").cloned();
+        let changed = before.as_deref().unwrap_or("") != name;
+        if changed {
+            self.get_element_mut(&path)
+                .attributes
+                .insert("SName".into(), name.into());
+        }
+        Ok(LightingMoodDisplayNameEdit {
+            mood: identity,
+            before,
+            after: name.into(),
+            changed,
+        })
+    }
+
     /// Set only SkipNext; the native cycling checkbox displays its inverse.
     pub fn set_lighting_mood_skip(
         &mut self,

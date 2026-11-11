@@ -1,0 +1,51 @@
+{
+  "schema_version": 1,
+  "issue": "lox-g0vo.3",
+  "named_question": "How does the native display-name cell modify SName, and which input subset and explicit clear can be supported without approximating normalization?",
+  "frozen_target": {
+    "version": "17.2.10.21",
+    "pe_sha256": "7b55e3ef18401574ab967c5c6a0140cd5a66dc728521ebba04ad53093577d8b3",
+    "analysis_id": "6a0520329af17d7b9fdaafe69398c62c454d9da838fc9f9c8d0bdd8d17bb15ae",
+    "new_extractions": 0
+  },
+  "canonical_sources": [
+    {"address": "0x1400ea790", "sha256": "e4a7229adfe6b18d853f18bdb656cbe10c8a33e91749a033bad7a90a7282cdc4", "lines": [49, 225]},
+    {"address": "0x1405b7df0", "sha256": "9f0ff6bd3dcc724a599e3324483c9b584f1e1128c4a3d6bf9604ecc328bf9d58", "lines": [28, 41]},
+    {"address": "0x14055d300", "sha256": "a303cbcf014d873ddd36e81d948430d0c457bccaecdcac9a7a280b9c9def5d95", "lines": [20, 35]},
+    {"address": "0x140904a70", "sha256": "51b07b8e86c9f1a92ec41b449eb568daece5950fc2792de85d4b083548ee7ad3", "lines": [25, 85]},
+    {"address": "0x140420b50", "sha256": "7722a0901d1e63c6565e3353ed70a235ef97074d5cefae89f0c9230525806881", "lines": [23, 59]},
+    {"address": "0x140422430", "sha256": "efcbe939abc3fb20e38de5c2eecaf149a696c8679217ee2b0907d5be6735fe51", "lines": [18, 38]},
+    {"address": "0x1404d2710", "sha256": "4a8a7b5589ef7371526f4a52a4bdcea4abf2097ae00b59e837a69efbe19ef2af", "lines": [30, 123]},
+    {"address": "0x14041d880", "sha256": "70ff0a876bd3b5b2070eeb178fe7e920e4a9e3c71b97f3ff651564ba9fcc17f6", "lines": [23, 45]},
+    {"address": "0x1404c52f0", "sha256": "057c5670bc1b4a95f3b6ae5720f34f057330ba62605c4d0211ac7565de681262", "lines": [73, 174]},
+    {"address": "0x1404c52f0", "sha256": "057c5670bc1b4a95f3b6ae5720f34f057330ba62605c4d0211ac7565de681262", "lines": [682, 687]}
+  ],
+  "static_byte_pins": [
+    {"address": "0x14055d300", "length": 188, "sha256": "fdc416c729d8a2b38ea0e03dc54bb822329c32f932e6dd3cebeffa978861b68a", "purpose": "Complete SName-specific normalizer: nonempty guard, transliteration, case conversion and character replacements."},
+    {"address": "0x140422430", "length": 113, "sha256": "fbe950731d6a08791d57608eef38bdda641da89a01663c6fb7c2d1eebfa783e2", "purpose": "Exact case conversion: ASCII lowercase is changed to uppercase; uppercase ASCII letters, digits and spaces are unchanged."},
+    {"address": "0x1400ea867", "length": 43, "sha256": "1df06f2262504f69c1cbe389444626b400e90b896912782896723abbee4ffa46", "purpose": "Full generic-normalizer argument tuple before all column-specific branches."},
+    {"address": "0x1400ea7c4", "length": 97, "sha256": "437cc843a0c01bb316b163c6b194f2789e4e562ec5ae83c0bf5eccb645d4604b", "purpose": "Actual row/cell data supplies the selected record, retained in R15."}
+  ],
+  "source_contract": {
+    "selected_field": "Grid column7 commit calls the SName-specific normalizer and copies its result to selected record+0x30, separately bound as SName. Name at +0x18 is a different field.",
+    "normalization": "The common text normalizer runs first. The additional helper transliterates non-ASCII through a frozen table, applies uppercase conversion, replaces several punctuation bytes, and converts a degree representation. ASCII uppercase letters/digits and ordinary internal spaces avoid these transformations.",
+    "clear": "Unlike column0 Name, column7 copies the result without a nonempty guard. Empty input therefore clears the stored model string. The common type15 attribute reader copies its cleared temporary on missing input, so omission reads as empty, not inherited text.",
+    "native_save_boundary": "The native optional-string writer can omit empty SName. CLI clearing a nonempty SName stores an explicit empty attribute through the existing writer; either representation reads as empty. No byte-identical native serialization or hardware-display behavior is claimed."
+  },
+  "CLI_policy": {
+    "command": "lox config lighting set-mood-display-name FILE BLOCK --mood SID_OR_NAME (--name NAME | --clear) [--room ROOM] [--save-as PATH]",
+    "selection": "Reuse exact direct-record metadata selection; no fuzzy matching, numeric-name ambiguity or nested decoys.",
+    "new_name": "Uppercase ASCII letters/digits with ordinary internal spaces and alphanumeric edges. Reject lowercase, edge spaces, punctuation/control and Unicode rather than silently uppercase, transliterate or sanitize.",
+    "clear": "CLI requires explicit --clear; --name must be nonempty. Clear changes only a nonempty SName to the empty string. Missing/already-empty SName is an exact-byte no-op in place; omission stays omitted.",
+    "preservation": "Only selected SName changes. Keep Name, all other records/attributes, IDs, flags, Qn, count/width/order, LSConfig, HCL, capabilities, sequences and unknown storage. Existing writer formatting and Document stamps retain normal behavior.",
+    "tests": "tests/lighting_metadata_cli.rs: lighting_metadata_cli_display_name_*"
+  },
+  "validation_scope": {
+    "native_execution_performed": false,
+    "gui_execution_performed": false,
+    "runtime_parity": false,
+    "full_dialog_acceptance": false,
+    "assumptions": "Normal returns and valid objects. Selected-field transaction only, not complete Unicode normalization, dialog permissions, display inheritance, physical Touch Pure Flex rendering or accepted native save/reopen.",
+    "vendor_function_text": "Not included."
+  }
+}

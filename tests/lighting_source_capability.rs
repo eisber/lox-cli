@@ -42,6 +42,41 @@ const LEVEL_XML: &str = r#"<?xml version="1.0" encoding="utf-8"?>
 "#;
 
 #[test]
+fn lighting_identity_inspection_cli_keeps_diagnostics_in_all_formats_without_writes() {
+    let dir = tempfile::tempdir().unwrap();
+    let input = dir.path().join("input.Loxone");
+    let before = fixture_bytes(&XML.replace("SID=\"3\" CID=\"10\"", "SID=\"+02\" CID=\"+09\""));
+    fs::write(&input, &before).unwrap();
+    for format in ["json", "table", "csv"] {
+        let result = lox()
+            .args(["config", "lighting", "inspect"])
+            .arg(&input)
+            .args(["uuid:lighting", "-o", format, "--no-header", "--quiet"])
+            .assert()
+            .success()
+            .get_output()
+            .clone();
+        if format == "json" {
+            let value: serde_json::Value = serde_json::from_slice(&result.stdout).unwrap();
+            for code in ["duplicate_mood_sid", "duplicate_mood_cid"] {
+                assert!(
+                    value["diagnostics"]
+                        .as_array()
+                        .unwrap()
+                        .iter()
+                        .any(|d| d["code"] == code)
+                );
+            }
+            assert_eq!(value["moods"][1]["attributes"]["SID"], "+02");
+        } else {
+            let stderr = String::from_utf8(result.stderr).unwrap();
+            assert!(stderr.contains("duplicate_mood_sid") && stderr.contains("duplicate_mood_cid"));
+        }
+        assert_eq!(fs::read(&input).unwrap(), before);
+    }
+}
+
+#[test]
 fn lighting_editor_inspection_cli_is_read_only_and_exposes_operation_boundary() {
     let dir = tempfile::tempdir().unwrap();
     let input = dir.path().join("input.Loxone");
