@@ -196,6 +196,25 @@ lox config add-mood FILE "uuid:<lightcontroller>" --name "Teams purple" --color 
   duplicate explicit CID remains accepted. Existing scene IDs are untouched.
 - Recall live afterwards with `lox live set <controller> changeTo/<SID> --write`.
 
+### Change an existing mood CID binding
+
+```
+lox config lighting set-mood-cid FILE "uuid:<lightcontroller>" --mood <SID|Name> --cid 13 --save-as rebound.Loxone
+```
+
+- Performs the recovered existing-record CID transaction, not append override
+  allocation. Nonzero occupied CID swaps; CID0 does not swap. CID22/24 map
+  SID roles to777/776; other affected special SIDs may receive free1..99 IDs.
+- Reports every affected identity and ordered `LSConfig/ScMv` remap. Native
+  remaps can cascade; do not treat them as simultaneous UUID renames.
+- Requires matching `Num`, unambiguous positive SIDs/nonzero CIDs and supported
+  needed selection lists. Absent CID means effective0 and remains absent when
+  unchanged. Unsupported identities, role collisions and exhaustion fail before
+  writing; no automatic repair or zero-SID sentinel.
+- Preserves Qn/type flags, widths/counts, HCL, sequences and unknown data.
+  Existing `add-mood --sid/--cid` and raw packed-color operations are unchanged.
+  Native save/reopen validation remains a separately queued admission dependency.
+
 ### Add a Virtual Input (HTTP/jdev push target)
 
 ```

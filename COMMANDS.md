@@ -264,6 +264,7 @@ lox config lighting inspect file.Loxone "Lighting" --output json
 lox config lighting recount-moods file.Loxone "Lighting" --save-as edited.Loxone
 lox config lighting recount-moods file.Loxone "Lighting" --room "Study" --output json
 lox config lighting set-mood-level file.Loxone "Lighting" --mood "Evening" --output-index 2 --level 37 --save-as edited.Loxone
+lox config lighting set-mood-cid file.Loxone "Lighting" --mood "Evening" --cid 13 --save-as rebound.Loxone
 ```
 
 Targets are local files and exactly one **LightController2**, selected by title,
@@ -394,6 +395,34 @@ SID 1/776/777/778 excluded from those maxima. Duplicate explicit SID remains
 an error; duplicate explicit CID remains accepted, not swapped. An overflowing
 partner successor is an atomic `mood_identity_exhausted` error. Existing scene
 IDs are never reassigned by `add-mood`.
+
+`lighting set-mood-cid` edits an **existing** mood binding, separately from
+append overrides. It follows the recovered handler's collision swap and SID
+role transaction: an occupied nonzero CID swaps the other record to the selected
+record's former CID; CID 0 does not swap. CID 22 maps to SID 777 and CID 24 to
+SID 776. Other affected special SIDs at least 776 use a free SID in 1..99.
+The first existing CID0 record can also be role-normalized, even without a swap.
+Affected identity records and ordered `LSConfig/ScMv` remaps are reported.
+The native early SID allocation and subsequent reference remaps retain their
+exact order, including cascades; they are not a simultaneous UUID-based rename.
+
+This command requires one direct collection, matching `Num`, one exact
+unambiguous Name/SID target, distinct positive signed-32-bit SIDs and unique
+nonzero CIDs. Absent CID has the recovered effective value 0; its omission is
+preserved when unchanged. Present malformed/negative/out-of-range identities,
+needed unsupported selection lists, exhausted allocation and final role-ID
+collisions are atomic errors. No native zero-SID exhaustion sentinel is written.
+Needed selection lists support comma-separated signed-32-bit decimals;
+unvisited `ScMv` tail tokens, `OpM`, `ScAc` and unknown data stay intact.
+Missing/empty selection vectors cause no reference writes.
+
+Only affected IDs and required `ScMv` tokens change, plus the existing writer's
+normal formatting/save stamps. Qn, flags, widths/counts, HCL, record order,
+sequence data and unrelated references are not normalized. JSON includes
+`identities`, ordered `selection_remaps`, optional `selection_refs` and `changed`;
+CSV includes mood and consulted-selection rows. Native validation is separately
+queued and currently blocked on desktop admission, not claimed by local tests.
+See `tests/ux/light-controller2/mood-cid-edit-source.json`.
 
 One bounded Config 17.2.10.21 observation completed CLI mood creation, Q2 edit,
 native Save As to a new file, normal exit and fresh reopen. The new SID 1 /

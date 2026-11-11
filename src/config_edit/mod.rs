@@ -20,6 +20,7 @@ mod energy_tests;
 pub mod icons;
 mod layout;
 pub mod lighting;
+pub mod lighting_cid;
 #[cfg(test)]
 mod lighting_tests;
 mod permissions;

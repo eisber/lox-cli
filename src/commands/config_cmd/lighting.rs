@@ -63,6 +63,19 @@ pub(crate) enum LightingCmd {
         #[arg(long, value_name = "PATH")]
         save_as: Option<String>,
     },
+    /// Edit an existing CID with collision swaps and source-backed SID/ref remapping
+    SetMoodCid {
+        #[command(flatten)]
+        target: LightingTarget,
+        /// Exact stored SID or Name of one existing direct mood
+        #[arg(long)]
+        mood: String,
+        /// Nonnegative signed-32-bit CID; 22/24 invoke native SID role handling
+        #[arg(long)]
+        cid: u32,
+        #[arg(long, value_name = "PATH")]
+        save_as: Option<String>,
+    },
 }
 
 pub(crate) fn run(ctx: &RunContext, action: LightingCmd) -> Result<()> {
@@ -138,6 +151,76 @@ pub(crate) fn run(ctx: &RunContext, action: LightingCmd) -> Result<()> {
                     "✓  {selector}: mood '{}' {}={} (numeric level {}; type tag {} preserved)",
                     edit.mood, edit.output, edit.after, edit.level, edit.type_tag
                 );
+            }
+            return Ok(());
+        }
+        LightingCmd::SetMoodCid {
+            target,
+            mood,
+            cid,
+            save_as,
+        } => {
+            let selector = target.selector()?;
+            let mut editor = ConfigEditor::load(&crate::load_config_xml(&target.file)?)?;
+            let edit = editor.set_lighting_mood_cid(&selector, &mood, cid)?;
+            if edit.changed || save_as.is_some() {
+                super::save_edited_with_quiet(&mut editor, &target.file, save_as.as_deref(), true)?;
+            }
+            if ctx.json {
+                let mut value = serde_json::to_value(&edit)?;
+                if let Some(trace_id) = &ctx.trace_id {
+                    value["trace_id"] = trace_id.clone().into();
+                }
+                println!("{}", serde_json::to_string_pretty(&value)?);
+            } else if ctx.csv {
+                if !ctx.no_header {
+                    println!(
+                        "RECORD,UUID,SID_BEFORE,SID_AFTER,CID_BEFORE,CID_AFTER,SCMV_BEFORE,SCMV_AFTER"
+                    );
+                }
+                for change in &edit.identities {
+                    println!(
+                        "mood,{},{},{},{},{},,",
+                        csv(change.uuid.as_deref().unwrap_or("")),
+                        csv(&change.before_sid),
+                        csv(&change.after_sid),
+                        csv(change.before_cid.as_deref().unwrap_or("")),
+                        csv(change.after_cid.as_deref().unwrap_or(""))
+                    );
+                }
+                if let Some(selection) = &edit.selection_refs {
+                    println!(
+                        "selection,,,,,,{},{}",
+                        csv(&selection.before),
+                        csv(&selection.after)
+                    );
+                }
+            } else if !ctx.quiet {
+                println!(
+                    "✓  {selector}: mood '{mood}' CID={} ({} identity records changed; {} ordered SID remaps)",
+                    edit.requested_cid,
+                    edit.identities.len(),
+                    edit.selection_remaps.len()
+                );
+                if !ctx.no_header && !edit.identities.is_empty() {
+                    println!("RECORD  UUID  SID BEFORE→AFTER  CID BEFORE→AFTER");
+                }
+                for change in &edit.identities {
+                    println!(
+                        "{}  {}  {}→{}  {}→{}",
+                        change.record,
+                        change.uuid.as_deref().unwrap_or("<missing>"),
+                        change.before_sid,
+                        change.after_sid,
+                        change.before_cid.as_deref().unwrap_or("<absent>"),
+                        change.after_cid.as_deref().unwrap_or("<absent>")
+                    );
+                }
+                if let Some(selection) = &edit.selection_refs
+                    && selection.changed
+                {
+                    println!("LSConfig ScMv: {} → {}", selection.before, selection.after);
+                }
             }
             return Ok(());
         }

@@ -1,0 +1,59 @@
+{
+  "schema_version": 1,
+  "issue": "lox-7vu1",
+  "batch": "lox-t5t3",
+  "named_question": "How does editing an existing mood CID swap bindings, normalize special SIDs and update selection references without conflating append overrides?",
+  "frozen_target": {
+    "version": "17.2.10.21",
+    "pe_sha256": "7b55e3ef18401574ab967c5c6a0140cd5a66dc728521ebba04ad53093577d8b3",
+    "analysis_id": "6a0520329af17d7b9fdaafe69398c62c454d9da838fc9f9c8d0bdd8d17bb15ae",
+    "new_extractions": 0
+  },
+  "canonical_sources": [
+    {"address": "0x1400ea790", "sha256": "e4a7229adfe6b18d853f18bdb656cbe10c8a33e91749a033bad7a90a7282cdc4", "lines": [88, 118]},
+    {"address": "0x1400e6200", "sha256": "3f5eea80e65d5d7def68dc9730f413d2e8dbc1884ab71b4552f1ba3e887199ca", "lines": [1, 74]},
+    {"address": "0x1405b57b0", "sha256": "7eb7ba32c069738fc422f69fc0ba03c9ce4022e4e5ed2812dcba2d52858f28ab", "lines": [1, 34]},
+    {"address": "0x1405b5860", "sha256": "f85cc2a3de21e8dda42c44b75ecc77194da72615df42aa96b64282455aea1b20", "lines": [1, 34]},
+    {"address": "0x1405b5560", "sha256": "6f23850965c63d01665578f0322da41367d39464dd28bc9bdc1995e1e8b0ead6", "lines": [1, 45]},
+    {"address": "0x1405b6c00", "sha256": "b5fbbec343c8a988213793ceaa71494cc54d8e55627ceefa3cc5f64985ff7d03", "lines": [1, 38]},
+    {"address": "0x1405b8240", "sha256": "b9825e3f7b336aeccbf4a2f5d739cc98e7e9c1b6a2b3826e21b402702aa8c280", "lines": [1, 51]},
+    {"address": "0x1404c52f0", "sha256": "057c5670bc1b4a95f3b6ae5720f34f057330ba62605c4d0211ac7565de681262", "lines": [479, 493]},
+    {"address": "0x1405b3940", "sha256": "365a8a5e0bc05163fab3b2547924119c7731291b550d9e33fb2df9614ebe4155", "lines": [1, 55]},
+    {"address": "0x1405b7df0", "sha256": "9f0ff6bd3dcc724a599e3324483c9b584f1e1128c4a3d6bf9604ecc328bf9d58", "lines": [1, 99]}
+  ],
+  "static_byte_pins": [
+    {"address": "0x1400e6200", "length": 325, "sha256": "e0682c935eeb9f8a1dcd745ab3129e0ae488b8eb0d6368f794b9c263d2482577", "purpose": "Complete handler, including omitted selected-SID argument, early SID write and ordered remapping calls."},
+    {"address": "0x1400eac09", "length": 18, "sha256": "e3140e5560228c2d536fd818c8ab880410a4ccf32e23b0183e8b1c6ea8f3a111", "purpose": "Grid caller passes selected record SID and requested CID to the handler."},
+    {"address": "0x1410196b4", "length": 17, "sha256": "cc1deb68440fcc4f33ec060f33491ee4a76d56bc429fdc08732fd59b525559f5", "purpose": "OpM, ScMv and ScAc binding labels."},
+    {"address": "0x14160f184", "length": 2, "sha256": "d8fa32dd40b181d8250a4ecde2f2f17bd7bfdf2793278d06ea5afc647f3d5762", "purpose": "Comma delimiter in the type18 integer-vector reader."}
+  ],
+  "caller": "Grid-edit callback0x1400ea790 column1 derives CID from the displayed input, then calls0x1400e6200(dialog, selected-record SID, CID). The handler looks up the selected record by SID and the first existing record with requested CID. The subsequent GUI grid refresh is not reproduced.",
+  "ordered_transaction": [
+    "If requested CID is occupied by a different record and is nonzero, give that record the selected record's previous CID, then assign requested CID to the selected record. Otherwise assign the selected CID without a swap.",
+    "In the occupied-nonzero swap branch, if the other record SID is at least776, first assign the selected record the lowest free SID1..99. This early write does not call the selection-reference remapper.",
+    "Normalize the selected record: CID22 forces SID777; CID24 forces SID776; otherwise a SID at least776 becomes the lowest free SID1..99. When this step changes SID, remap references from this step's previous SID to the new SID.",
+    "If the initial CID lookup found a record, normalize that same record by the same rules using its current values, including when requested CID is0 or when it is the selected record. Remap its changed SID afterward.",
+    "Apply reference remaps in that exact sequence. Do not combine them into a simultaneous UUID-based rename map: a later remap can intentionally match the result of an earlier one."
+  ],
+  "selection_reference_binding": {
+    "record": "Dialog+0x188 is LSConfig copied from original controller+0x2218.",
+    "vectors": "OpM binds base+8, ScMv base+0x28 and ScAc base+0x48. The remapper0x1405b6c00 iterates the OpM length and replaces matching SID values only in in-range ScMv entries.",
+    "codec": "The reused type18 attribute codec reads comma-delimited integers. CLI supports signed-32-bit decimal tokens with ASCII surrounding whitespace and no empty tokens, rather than copying native truncation/default parsing.",
+    "preservation": "Missing/empty OpM or ScMv produces no reference writes. Needed ScMv prefix is bounded by both vector lengths; unvisited tail tokens, ScAc, OpM spellings and all other data remain untouched."
+  },
+  "CLI_policy": {
+    "command": "lox config lighting set-mood-cid FILE BLOCK --mood SID_OR_NAME --cid N [--room ROOM] [--save-as PATH]",
+    "bounds": "Nonnegative signed-32-bit requested CID, exactly one direct collection, explicit signed-32-bit Num equal to direct scene count, one unambiguous exact Name/SID target, explicit distinct positive signed-32-bit SIDs and unique nonzero CIDs. Repeated CID0 uses first stored match. Absent CID has source-backed effective0 and retains omission when unchanged; present malformed/negative/out-of-range identities fail.",
+    "atomicity": "Plan all identity and needed reference writes before mutation. Reject exhausted SID1..99 allocation and final SID collisions instead of native SID0 or ambiguous role states. Unsupported needed LSConfig shapes/lists fail without changing input or save-as destination.",
+    "report": "JSON reports affected identity records with exact before/after spellings, ordered selection_remaps, optional ScMv comparison and changed. Table/CSV expose cohort changes; no-op in-place preserves original bytes.",
+    "preservation": "Only affected SID/CID attributes and required ScMv tokens change. Existing writer formatting and Document stamps retain normal behavior. Do not recount, resize, edit Qn/color/type flags, refresh HCL, reorder records or normalize unrelated data.",
+    "compatibility": "Existing add-mood --sid/--cid overrides and raw set-mood-color behavior are unchanged. This is a separate existing-record transaction, not append override allocation."
+  },
+  "regressions": "src/config_edit/lighting_cid.rs and tests/lighting_cid_source.rs: ordinary swaps, role promotions/demotions, ordered reference cascades, CID0 first-match behavior, omitted-CID preservation, equivalent-spelling no-op and atomic invalid/ambiguous/exhausted failures.",
+  "native_validation": {
+    "status": "blocked-not-run",
+    "case": "lox-t5t3.6",
+    "dependency": "Notebook authenticated transport was unreachable at the batch's single readiness assessment. Native packet is independent; no previous machine result is reused.",
+    "limits": "Source-backed handler transaction and local CLI persistence only. Not a complete native grid vocabulary, import model, post-refresh/save transaction, hardware mapping, native GUI or runtime parity."
+  }
+}

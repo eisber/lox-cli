@@ -97,6 +97,9 @@ color/unsupported modes and out-of-range values instead of clamping or RGB-packi
 One accepted native numeric edit/save/reopen confirms its selected encoding,
 not the native dialog's unrelated output/HCL normalization. See
 [Lighting commands](COMMANDS.md#lighting-stored-inspection-and-mood-count-repair).
+`lighting set-mood-cid` separately supports existing-record CID swaps and
+source-backed ordered SID/selection-reference updates, with atomic ambiguity
+and exhaustion errors; it does not change `add-mood` override behavior.
 
 ---
 

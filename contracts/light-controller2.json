@@ -11,6 +11,7 @@
     "author_native_style_mood_output_defaults": true,
     "author_native_style_mood_ids": true,
     "author_numeric_mood_levels": true,
+    "edit_existing_mood_cid_transaction": true,
     "repair_stored_mood_count": true,
     "new_nested_edits": true,
     "gui_roundtrip_verified": false,
@@ -55,6 +56,19 @@
     "preservation": "Change only requested Qn; retain its tag, every other output, IDs/order, widths/counts, HCL, capabilities, sequences, references and unknown data. Preserve equivalent spelling/no-op bytes. Existing writer formatting and Document stamps retain normal behavior.",
     "tests": "src/config_edit/lighting_tests.rs and tests/lighting_source_capability.rs: lighting_numeric_level_*",
     "limits": "Not graph-dependent pre-modal refresh prediction, complete dialog editability/permissions, Num-limited import, special-scene normalization, color/dynamic-white/sequence edits, physical channel mapping or runtime/family parity."
+  },
+  "existing_mood_cid_edit": {
+    "command": "lox config lighting set-mood-cid FILE BLOCK --mood SID_OR_NAME --cid N [--room ROOM] [--save-as PATH]",
+    "source_artifact": "tests/ux/light-controller2/mood-cid-edit-source.json",
+    "source_sha256": "117c546935895b222d66df22140c3a9139befca625aa63eee280fbcdc242a647",
+    "caller": "Grid callback0x1400ea790 column1 passes selected record SID and requested CID to0x1400e6200. Follow only this handler's transaction, not subsequent GUI refresh normalization.",
+    "ordered_effects": "Occupied nonzero CID swaps the other record to the selected record's prior CID. Reserved other SID>=776 triggers an early selected-SID allocation with no reference remap. Selected then initial lookup record normalize: CID22->SID777, CID24->SID776, other affected SID>=776->free1..99. Each later SID change invokes ScMv remapping in native order, allowing cascades. CID0 does not swap but can normalize the initial first zero-CID record.",
+    "selection_refs": "LSConfig ScMv SID values are replaced only in the prefix bounded by OpM length and available ScMv length. Needed supported integer tokens are remapped sequentially; unvisited tail, OpM, ScAc and other data are preserved. Missing/empty vectors cause no reference writes.",
+    "guarded_domain": "One direct collection and exact unambiguous direct mood; signed-32-bit Num matches record count; explicit unique positive SIDs and unique nonzero CIDs, with repeated CID0 using first match. Missing CID uses source-backed effective0 without filling unchanged omission. Requested CID is nonnegative signed32. Unsupported identities, needed selection shapes/lists, final SID collisions and allocation exhaustion fail atomically.",
+    "compatibility": "Distinct from existing add-mood explicit overrides. Native first-match ambiguity and zero-SID exhaustion are deliberately rejected; no automatic role repair, import simulation, incidental normalization or raw-color behavior change.",
+    "tests": "src/config_edit/lighting_cid.rs and tests/lighting_cid_source.rs: lighting_cid_*",
+    "native_validation": "Case lox-t5t3.6 queued independently; blocked at the initial Notebook transport admission, not run or credited.",
+    "limits": "Source-backed existing-record transaction and local persistence only; not full grid vocabulary, post-refresh/save, GUI or runtime parity."
   },
   "stored_mood_editor_inspection": {
     "command": "lox config lighting inspect FILE BLOCK",
