@@ -439,7 +439,7 @@ pub(crate) enum SetupCmd {
 
 #[derive(Subcommand)]
 pub(crate) enum ConfigCmd {
-    /// Read-only LightController2 storage inspection (no GUI/runtime parity)
+    /// Inspect LightController2 storage and make bounded validated mood edits
     Lighting {
         #[command(subcommand)]
         action: commands::config_cmd::lighting::LightingCmd,

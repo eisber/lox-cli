@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "xml_type": "LightController2",
-  "scope": "stored-inspection-and-source-backed-mood-count-repair",
+  "scope": "stored-inspection-and-source-backed-mood-edits",
   "capabilities": {
     "inspect_stored_mood_outputs": true,
     "inspect_output_connector_references": true,
@@ -9,6 +9,7 @@
     "inspect_native_mood_reconciliation_risks": true,
     "author_native_style_mood_output_defaults": true,
     "author_native_style_mood_ids": true,
+    "author_numeric_mood_levels": true,
     "repair_stored_mood_count": true,
     "new_nested_edits": true,
     "gui_roundtrip_verified": false,
@@ -26,6 +27,14 @@
   },
   "bounded_native_observations": [
     {
+      "case_id": "lighting-accepted-numeric-37-20261111",
+      "artifact": "tests/ux/light-controller2/numeric-edit-save-reopen-20261111.json",
+      "sha256": "05ba6aec088d8860cc952e6afdd03c8ed85c3c3400c982f724ab14e31b0dd4cf",
+      "result": "Accepted native Q2 numeric37 saved1610612773, preserving tag6, and a fresh native process reopened its numeric control as37. The CLI numeric operation on the exact same input produces the same selected value.",
+      "incidental_deltas": "The native accepted-edit workflow also changed Q1 to a numeric100 payload and HCL T/TMIN/FROM/TO, plus Document stamps. All eight actual attribute deltas are retained; all remaining raw bytes are exact. The CLI intentionally leaves Q1/HCL untouched.",
+      "capability_policy": "Selected scalar-encoding observation only. Aggregate gui_roundtrip_verified, runtime_parity and full_family_contract remain false; no whole accepted-dialog equality or physical channel mapping."
+    },
+    {
       "case_id": "lighting-create-edit-saveas-reopen-20261111-lox-ue95",
       "artifact": "tests/ux/light-controller2/create-edit-saveas-reopen-20261111.json",
       "sha256": "c4d1d119d0ac0385159bdf349f486b34764b49b0d3153589296171fc0b58c49a",
@@ -34,6 +43,18 @@
       "capability_policy": "Scoped observation only. Aggregate gui_roundtrip_verified, runtime_parity and full_family_contract remain false; historical source-only cases and failed native attempts keep their own unchanged status."
     }
   ],
+  "numeric_mood_level_edit": {
+    "command": "lox config lighting set-mood-level FILE BLOCK --mood SID_OR_NAME --output-index N --level 0..100 [--room ROOM] [--save-as PATH]",
+    "source_artifact": "tests/ux/light-controller2/numeric-mood-level-source.json",
+    "source_sha256": "6626d2876679e4615ccf0242feb055f840ca4dd76828eea176b07e5fe4b89c1b",
+    "per_mood_kind": "Selected Qn high nibble selects the renderer. Tags1/2/3/7 are numeric. Tag6 uses CapAI<n-1>: bit0x40 selects color branch9; otherwise all low three bits set selects color branch6; otherwise numeric branch7. Missing CapAI has recovered reader default0, distinct from stored omission.",
+    "separate_global_mode": "Do not replace selected-mood dispatch with0x1405c1870: that helper starts from the first scene and additionally prioritizes capability0x20->8. These stored classifications are not a physical/runtime channel-role model.",
+    "scalar_encoding": "Native0x1400e6460 stores (oldQ & 0xf0000000) | clamp(level,0,100). CLI accepts only integers0..100 and never clamps. Existing packed-color storage editing is separate and unchanged.",
+    "validation": "Require exact LightController2, one direct collection and one unambiguous direct mood, supported existing signed-32-bit Qn within its stored reader width, output index1..18 for this path, and a supported numeric branch. Needed explicit CapAI must be a nonnegative16-bit decimal; no truncation/defaulting of unsupported stored values. All validation precedes mutation/file writes.",
+    "preservation": "Change only requested Qn; retain its tag, every other output, IDs/order, widths/counts, HCL, capabilities, sequences, references and unknown data. Preserve equivalent spelling/no-op bytes. Existing writer formatting and Document stamps retain normal behavior.",
+    "tests": "src/config_edit/lighting_tests.rs and tests/lighting_source_capability.rs: lighting_numeric_level_*",
+    "limits": "Not graph-dependent pre-modal refresh prediction, complete dialog editability/permissions, Num-limited import, special-scene normalization, color/dynamic-white/sequence edits, physical channel mapping or runtime/family parity."
+  },
   "static_bindings": [
     {
       "purpose": "exact XML type registration",
@@ -84,7 +105,7 @@
     "channel_roles": "unknown-no-AQn-to-Qn-or-NameAI-index-join",
     "document_versions": "raw-serialized-metadata-not-authentication",
     "unknown_xml": "read-only-structured-element-and-attribute-inventory",
-    "file_writes": "explicit lighting recount-moods changes only collection Num; existing writer may update Document Date/DateS when content changes; inspection remains read-only",
+    "file_writes": "Explicit lighting recount-moods changes only collection Num; set-mood-level changes only selected numeric Qn payload and preserves its tag. Existing writer formatting and Document Date/DateS updates retain normal behavior; inspection remains read-only.",
     "existing_mood_commands": "One bounded CLI-create/Q2-edit/native-SaveAs/reopen storage observation is recorded above, not generic GUI-edit or color/runtime parity. Positive-index set_mood_color behavior is unchanged; add_mood recounts direct scenes and uses source-backed 18-output defaults and the separately approved automatic-ID policy; explicit-ID overrides remain legacy behavior."
   },
   "mood_count_repair": {

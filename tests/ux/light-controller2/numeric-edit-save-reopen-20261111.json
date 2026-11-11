@@ -1,0 +1,78 @@
+{
+  "schema_version": 1,
+  "evidence_kind": "bounded-native-storage-observation",
+  "case_id": "lighting-accepted-numeric-37-20261111",
+  "issue": "lox-cwl0",
+  "status": "accepted-saved-reopened-and-compared-with-CLI",
+  "native_version": "17.2.10.21",
+  "native_executable_sha256": "7b55e3ef18401574ab967c5c6a0140cd5a66dc728521ebba04ad53093577d8b3",
+  "provenance": {
+    "private_report_sha256": "4ab91b0d4e72049480f5ba9327f900405a7bd6a82958eb2524464b21fbe0c4ab",
+    "private_reopened_capture_sha256": "cc36cebf1e9210925dd6b6cb333ff457982acd6efb8e2fba6f574199366f08ed",
+    "tested_CLI_debug_executable_sha256": "1c3cc37be960b504e324b6714338fd41fcd8b869b5822d812d233cf2baf9be36",
+    "raw_evidence": "Private case retains exact input/native/CLI projects, raw standard SDK intents/replies, actual readbacks, screenshots, every changed native line and source pins. Initial readiness/focus observations and read-only timeouts are retained in the originating session. No private endpoints, vendor project, screenshot or credentials are published."
+  },
+  "file_hashes": {
+    "input_sha256": "1c834c0bf092f27fb50614b7b0ebc756ea68f6b1777b9cb0a25e4926e4fdae32",
+    "native_accepted_saved_sha256": "a04039133848195f38e314bf895a6a1cec7853bc96c31a3c450c52b4cb147f0d",
+    "after_reopen_observation_and_exit_sha256": "a04039133848195f38e314bf895a6a1cec7853bc96c31a3c450c52b4cb147f0d",
+    "CLI_saved_sha256": "1cfb19271c65aaca8cc016e21630f151982259144cb8fcb41de0ac67712a9440"
+  },
+  "accepted_edit": {
+    "mood_UUID": "59fc4d58-9165-35fc-ffff741afa8d2a84",
+    "SID": "1",
+    "CID": "12",
+    "output": "Q2",
+    "stored_tag": 6,
+    "CapAI1": "absent; recovered native-reader default0",
+    "before_raw": "1610622736",
+    "before_native_display": "100",
+    "entered_numeric_value": 37,
+    "focused_actual_text_verified_before_OK": "37",
+    "native_saved_raw": "1610612773",
+    "CLI_numeric_edit_raw": "1610612773",
+    "encoding": "0x60000000 | 37",
+    "reopened_actual_native_text": "37"
+  },
+  "all_native_attribute_deltas": [
+    {"object": "Document", "field": "Date", "before": "2026-11-11 00:14:26", "after": "2026-11-11 09:48:47"},
+    {"object": "Document", "field": "DateS", "before": "563584466", "after": "563618927"},
+    {"object": "selected mood", "field": "Q1", "before": "1640612766", "after": "1610612836"},
+    {"object": "selected mood", "field": "Q2", "before": "1610622736", "after": "1610612773"},
+    {"object": "HCL", "field": "T", "before": "2", "after": "4"},
+    {"object": "HCL", "field": "TMIN", "before": "2000", "after": "2700"},
+    {"object": "HCL", "field": "FROM", "before": "0", "after": "24109"},
+    {"object": "HCL", "field": "TO", "before": "0", "after": "67563"}
+  ],
+  "preservation_comparison": {
+    "native": "Exact full-file equality after precisely the eight listed substitutions. All remaining bytes, IDs, ordering, output widths, Q tags, existing moods, references, sequences and unknown data are unchanged. No general timestamp/HCL/output ignore list.",
+    "CLI": "Exact full-file equality after only selected Q2 and its two individually retained Document stamp substitutions. Q1 and HCL remain untouched.",
+    "whole_native_file_equals_CLI": false,
+    "matched_contract": "Selected numeric payload and preserved type nibble agree. Whole accepted-dialog serialization parity does not.",
+    "incidental_effect_origin": "The accepted-edit workflow changed Q1 to a numeric100 payload and HCL fields. The precise event/caller responsible for each incidental change was not isolated."
+  },
+  "lifecycle": {
+    "first_owned_Config_PID": 100,
+    "normal_exit_and_count_zero_before_reopen": true,
+    "fresh_reopen_PID": 1852,
+    "actual_saved_file_argv_verified": true,
+    "native_editor_numeric37_verified": true,
+    "observation_cancelled_without_subsequent_save": true,
+    "final_Config_count": 0,
+    "original_input_and_saved_output_hashes_unchanged_after_reopen": true,
+    "offline_fence_retained": true
+  },
+  "execution_disclosures": [
+    "Initial read-only SDK wait/snapshot timed out. The existing exact MCP process chain was restarted once; the owned Config and input survived. No numeric input preceded recovery.",
+    "A user handoff and a standard SDK window switch resolved a hidden MCP-launcher foreground observation; no custom forced-focus API or gate/policy change.",
+    "Type(clear=True) did not select the MFC numeric text as assumed. Actual text31007 was observed and not accepted as the target result. Ordinary Home/Shift+End/Backspace normalized to0; ordinary digit keys then produced independently verified37 before OK.",
+    "Failed read-only assertions/assembly loading, an early asynchronous-exit check and a reopened App not-found/no-dispatch response are retained. They are not relabeled passes, hidden retries or native encoding failures.",
+    "This is one manual native case, not a generic executor completion or platform qualification."
+  ],
+  "limits": [
+    "One selected numeric37 edit in one nonempty18-output fixture; other source-backed branches remain separately unrun.",
+    "No RGB/dynamic-white rendering, physical channel mapping, runtime, whole-dialog normalization or full-family parity.",
+    "Cancelling the reopened observation is not a whole-model rollback claim; no save followed and actual disk bytes remained unchanged.",
+    "No extraction campaign, new parity framework or generic automation rewrite."
+  ]
+}

@@ -28,6 +28,138 @@ fn fixture_bytes(xml: &str) -> Vec<u8> {
     bytes
 }
 
+const LEVEL_XML: &str = r#"<?xml version="1.0" encoding="utf-8"?>
+<ControlList>
+	<C Type="LightController2" U="lighting" Title="Lamp" CapAI0="7">
+		<LightscenesC Num="1" Outputs="18" Future="keep">
+			<LightsceneC Name="Evening" SID="1" CID="12" UUID="mood" Outputs="18" Q1="1640612766" Q2="1610622736" Q10="1610612736">
+				<SeqConf Future="retain"/>
+			</LightsceneC>
+		</LightscenesC>
+		<HCL T="2" TMIN="2000" FROM="0" TO="0"/>
+	</C>
+</ControlList>
+"#;
+
+#[test]
+fn lighting_numeric_level_cli_matches_native_selected_value_and_preserves_every_other_byte() {
+    let dir = tempfile::tempdir().unwrap();
+    let input = dir.path().join("input.Loxone");
+    let output = dir.path().join("output.Loxone");
+    let before = fixture_bytes(LEVEL_XML);
+    fs::write(&input, &before).unwrap();
+    let result = lox()
+        .env("LOX_CONFIG", dir.path().join("absent.yaml"))
+        .args(["config", "lighting", "set-mood-level"])
+        .arg(&input)
+        .args([
+            "uuid:lighting",
+            "--mood",
+            "Evening",
+            "--output-index",
+            "2",
+            "--level",
+            "37",
+            "--save-as",
+        ])
+        .arg(&output)
+        .args(["-o", "json", "--quiet"])
+        .assert()
+        .success()
+        .get_output()
+        .stdout
+        .clone();
+    let result: serde_json::Value = serde_json::from_slice(&result).unwrap();
+    assert_eq!(result["before"], "1610622736");
+    assert_eq!(result["after"], "1610612773");
+    assert_eq!(result["type_tag"], 6);
+    assert_eq!(result["capability"]["stored"], serde_json::Value::Null);
+    assert_eq!(result["capability"]["effective"], 0);
+    assert_eq!(fs::read(&input).unwrap(), before);
+    assert_eq!(
+        fs::read(&output).unwrap(),
+        fixture_bytes(&LEVEL_XML.replace("Q2=\"1610622736\"", "Q2=\"1610612773\""))
+    );
+}
+
+#[test]
+fn lighting_numeric_level_cli_noop_preserves_spelling_and_has_csv_output() {
+    let dir = tempfile::tempdir().unwrap();
+    let input = dir.path().join("input.Loxone");
+    let before = fixture_bytes(&LEVEL_XML.replace("Q2=\"1610622736\"", "Q2=\"+01610612773\""));
+    fs::write(&input, &before).unwrap();
+    lox()
+        .env("LOX_CONFIG", dir.path().join("absent.yaml"))
+        .args(["config", "lighting", "set-mood-level"])
+        .arg(&input)
+        .args([
+            "uuid:lighting",
+            "--mood",
+            "1",
+            "--output-index",
+            "2",
+            "--level",
+            "37",
+            "-o",
+            "csv",
+            "--no-header",
+        ])
+        .assert()
+        .success()
+        .stdout("\"1\",Q2,\"+01610612773\",\"+01610612773\",37,6,false\n");
+    assert_eq!(fs::read(&input).unwrap(), before);
+}
+
+#[test]
+fn lighting_numeric_level_cli_failures_preserve_input_and_existing_save_as() {
+    let dir = tempfile::tempdir().unwrap();
+    let input = dir.path().join("input.Loxone");
+    let output = dir.path().join("output.Loxone");
+    for (xml, level, code) in [
+        (LEVEL_XML.to_string(), "101", "mood_level_out_of_range"),
+        (
+            LEVEL_XML.replace("CapAI0=\"7\"", "CapAI0=\"7\" CapAI1=\"7\""),
+            "37",
+            "incompatible_mood_output_kind",
+        ),
+        (
+            LEVEL_XML.replace("CapAI0=\"7\"", "CapAI0=\"7\" CapAI1=\"opaque\""),
+            "37",
+            "unsupported_mood_capability",
+        ),
+    ] {
+        for save_as in [false, true] {
+            let before = fixture_bytes(&xml);
+            fs::write(&input, &before).unwrap();
+            fs::write(&output, b"existing destination").unwrap();
+            let mut command = lox();
+            command
+                .env("LOX_CONFIG", dir.path().join("absent.yaml"))
+                .args(["config", "lighting", "set-mood-level"])
+                .arg(&input)
+                .args([
+                    "uuid:lighting",
+                    "--mood",
+                    "Evening",
+                    "--output-index",
+                    "2",
+                    "--level",
+                    level,
+                    "-o",
+                    "json",
+                ]);
+            if save_as {
+                command.arg("--save-as").arg(&output);
+            }
+            let result = command.assert().failure().get_output().stdout.clone();
+            let result: serde_json::Value = serde_json::from_slice(&result).unwrap();
+            assert_eq!(result["error"], code);
+            assert_eq!(fs::read(&input).unwrap(), before);
+            assert_eq!(fs::read(&output).unwrap(), b"existing destination");
+        }
+    }
+}
+
 #[test]
 fn lighting_recount_cli_repairs_num_in_place_or_save_as_without_filling_sparse_values() {
     let dir = tempfile::Builder::new()

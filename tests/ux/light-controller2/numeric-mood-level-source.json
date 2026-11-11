@@ -1,0 +1,65 @@
+{
+  "schema_version": 1,
+  "issue": "lox-cwl0",
+  "named_question": "Which stored mode and capability select the per-mood numeric editor rather than packed-color controls, and how does its accepted scalar encode?",
+  "frozen_target": {
+    "version": "17.2.10.21",
+    "pe_sha256": "7b55e3ef18401574ab967c5c6a0140cd5a66dc728521ebba04ad53093577d8b3",
+    "analysis_id": "6a0520329af17d7b9fdaafe69398c62c454d9da838fc9f9c8d0bdd8d17bb15ae",
+    "new_extractions": 0
+  },
+  "canonical_sources": [
+    {"address": "0x1400e4d60", "sha256": "b36a97c9b7f6526fff278d633605272c1b3f670db30d00248e4b4f6e5f9ca331", "lines": [330, 385]},
+    {"address": "0x1400e6460", "sha256": "e3bbb93c4599b98a3d7a5986dcf68dd17facb3a53f319f2bc296af1c8c7eea7d", "lines": [1, 64]},
+    {"address": "0x1405c03d0", "sha256": "7b96e6ec3756fefde00071f298efe24c159236f8e77e3a4de464be33e2b96dc7", "lines": [1, 29]},
+    {"address": "0x1405c9740", "sha256": "4fca9e47230208412c4b3091206385beb40d7a68da0571ce59eac9146949fd50", "lines": [1, 88]},
+    {"address": "0x1404c52f0", "sha256": "057c5670bc1b4a95f3b6ae5720f34f057330ba62605c4d0211ac7565de681262", "lines": [80, 151]},
+    {"address": "0x140422760", "sha256": "361f5c3173c2b395766f14baa7a142bc2c1f734f9c04c21be691eb3169ff591d", "lines": [1, 49]},
+    {"address": "0x1405b55b0", "sha256": "bea66fdd9dc31bc810ff6e4cd3785fa7cd598688506ef81204e28659397d82c0", "lines": [1, 24]},
+    {"address": "0x1405b5620", "sha256": "8331855d1ec484700e52062dac29307147b69bef574f90a2785cbeb3aa7981c1", "lines": [1, 24]},
+    {"address": "0x1405c1870", "sha256": "4a093bb689229a9a7abfd8bb2664dbd9a55238b680b3103724ab0a4d5c776420", "lines": [1, 42]},
+    {"address": "0x1405b55e0", "sha256": "980bb9f2bb6712c1ca44e9c172e7a22b2d4957031450fe0f2bf1fec24fb93494", "lines": [1, 29]},
+    {"address": "0x1400e6590", "sha256": "4d8065c701c812258c0b8a1fb407c731bb25490c686fb22b031a8de9a6c84ff0", "lines": [1, 67]},
+    {"address": "0x14043ab40", "sha256": "6177348a839e915bd33a19ade1245b133c9611367dc45398a6963358080206b6", "lines": [1, 30]},
+    {"address": "0x14043ae60", "sha256": "e391ad0f8b5f95dad9ba7089269d74dff08a8d7b5c942c6531a690622f308487", "lines": [1, 28]}
+  ],
+  "static_byte_pins": [
+    {"address": "0x1400e54de", "length": 81, "sha256": "94687152221bf2dc996aff33765fff977755a5843dfcd2d55dcb7b7a663b37b0", "purpose": "Restores the omitted channel-index argument to CapAI getter and binds the 0x40/low-three-bit dispatch and numeric display clamp."},
+    {"address": "0x1400e64d9", "length": 110, "sha256": "38a8a0d82d19712b4277f2d286f4cc68367686076e3369861ddfd0bfc753700c", "purpose": "Binds control scalar clamp, selected scene lookup, output bounds, high-nibble preservation and low-payload replacement."}
+  ],
+  "storage_bindings": {
+    "selected_tag": "The selected mood's Qn high nibble, not an unconditional RGB flag or a physical actuator classification.",
+    "payload": "The selected primary-vector slot masked with 0x0fffffff.",
+    "capability": "For Qn, CapAI<n-1> binds controller+0x20e8+2*(n-1). The getter reads that unsigned 16-bit slot.",
+    "missing_capability": "The reader visits capability bindings independently of the nonempty-name write guard. Common attribute read clears its temporary string; absent attribute with this binding's param7=0 reaches type3 conversion, whose empty decimal parse returns0. Inspection still reports raw omission; numeric editing can use the recovered reader default0.",
+    "prior_width_binding": "Reuse recovered_count_and_output_contract.sparse_native_read in contracts/light-controller2.json: absent/zero per-scene Outputs means12 on that reader. Stored Qn outside the read width is not used to invent a loaded mode."
+  },
+  "per_mood_dialog_dispatch": [
+    {"stored_tag": "1,2,3,7", "capability": "Not consulted for this decision", "editor": "numeric scalar"},
+    {"stored_tag": "6", "capability": "(CapAI & 0x40) != 0", "editor": "color-control branch9"},
+    {"stored_tag": "6", "capability": "0x40 clear and (CapAI & 7) == 7", "editor": "color-control branch6"},
+    {"stored_tag": "6", "capability": "0x40 clear and (CapAI & 7) != 7", "editor": "numeric scalar branch7; displayed low payload capped at100"},
+    {"stored_tag": "4,5,9", "capability": "No tag6 remapping at this site", "editor": "color controls"},
+    {"stored_tag": "all other tags", "capability": "No numeric support claimed", "editor": "switch-style/default or unsupported"}
+  ],
+  "numeric_edit": {
+    "handler": "0x1400e6460",
+    "rule": "Native scalar clamps to0..100 then stores (oldQ & 0xf0000000) | scalar in the selected existing primary-vector slot. It does not RGB-pack that scalar, change the type tag or resize the vector.",
+    "color_distinction": "Separate color handler0x1400e6590 preserves the old tag and uses0x14043ab40. Its ordinary RGB branch packs percent R + G*1000 + B*1000000; an alternate extended branch and sequence changes also exist. Numeric37 is not RGB37%green or a new type-0 raw37."
+  },
+  "separate_effective_mode_helper": "Do not replace dialog dispatch with0x1405c1870. That helper starts from the first scene's tag and, for tag6, prioritizes capability0x20->8, then0x40->9, then low-three-bit selection6/7. The per-mood renderer instead starts from the selected scene and does not test0x20 in its tag6 branch. No shared physical/runtime channel-role model is inferred.",
+  "CLI_policy": {
+    "command": "lox config lighting set-mood-level FILE BLOCK --mood SID_OR_NAME --output-index N --level 0..100 [--room ROOM] [--save-as PATH]",
+    "selection": "Exactly one LightController2, one direct LightscenesC and one direct mood matching exact stored SID spelling or Name. Ambiguous/missing matches fail before mutation.",
+    "supported_inputs": "This specific recovered editor's indices1..18, selected stored signed-32-bit Qn within its reader width, and a supported numeric branch. Needed explicit capabilities must be nonnegative16-bit decimals; malformed, negative or out-of-range values are rejected rather than natively truncated. Unneeded capabilities on direct numeric tags are untouched.",
+    "mutation": "Reject level outside0..100; never clamp. Preserve old high nibble and replace only selected low payload. Preserve equivalent spelling/no-op bytes, other Qn, IDs, Outputs, Num, sequences, HCL, capabilities, references and unknown data. Existing writer formatting and Document stamps retain their normal behavior.",
+    "compatibility": "Existing set-mood-color remains an explicit packed/raw storage edit, not a channel-appropriate numeric operation. No silent change to its previous behavior."
+  },
+  "native_validation": "The separate numeric-edit-save-reopen-20261111.json records one actually accepted numeric37 edit and fresh native reopen; source rules beyond that case are not relabeled GUI-tested.",
+  "limits": [
+    "Stored per-mood editor-kind validation, not a prediction of graph-dependent pre-modal retagging/capability refresh or physical channel roles.",
+    "No complete dialog editability/permission, Num-limited import, special-scene, sequence, dynamic-white, hardware or runtime parity.",
+    "Do not reproduce native incidental normalization of other outputs/HCL. Accepted-dialog whole-file equality with a one-field CLI edit is not claimed.",
+    "Normal-return source dataflow assumes valid objects, successful helper calls and no unexpected aliases/reentrancy."
+  ]
+}

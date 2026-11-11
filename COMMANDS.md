@@ -263,12 +263,13 @@ GUI or a server and does not update the original contract or GUI records.
 lox config lighting inspect file.Loxone "Lighting" --output json
 lox config lighting recount-moods file.Loxone "Lighting" --save-as edited.Loxone
 lox config lighting recount-moods file.Loxone "Lighting" --room "Study" --output json
+lox config lighting set-mood-level file.Loxone "Lighting" --mood "Evening" --output-index 2 --level 37 --save-as edited.Loxone
 ```
 
 Targets are local files and exactly one **LightController2**, selected by title,
 `uuid:...` or a room-qualified name. `--room/-r` disambiguates names; do not
-combine it with a bracket room qualifier. Both commands support JSON/CSV/table,
-`--quiet`, and `--no-header`; neither contacts a Miniserver.
+combine it with a bracket room qualifier. These commands support JSON/CSV/table,
+`--quiet`, and `--no-header`; none contacts a Miniserver.
 
 `inspect` preserves stored spellings and omissions, lists mood `Qn` values and
 output references without inferred channel roles, and reports
@@ -294,6 +295,38 @@ does not rewrite the file. Otherwise the command overwrites the input unless
 update the document save stamp after a content change. JSON returns `before`,
 `after`, `scenes` and `changed`. Invalid target/container shapes fail before
 either file is written.
+
+`set-mood-level` is a numeric edit, **not RGB packing**. It preserves the
+selected Qn's high type nibble and replaces its low payload with an integer
+in `0..100`; values outside that range are rejected, never clamped.
+It requires one direct mood matching exact stored SID spelling or Name,
+an existing signed-32-bit Qn within the stored reader width, and a supported
+numeric editor kind. Missing/zero scene `Outputs` means 12 on that reader;
+the recovered editor path supports indices 1..18, not a universal maximum.
+Missing Qn, ambiguous matches and unsupported widths fail before writing.
+
+The Config 17.2.10.21 per-mood renderer uses tags 1/2/3/7 directly as numeric.
+Tag 6 is capability-dependent: for Qn it reads `CapAI<n-1>`. With bit `0x40`
+clear and `(CapAI & 7) != 7`, it selects a numeric control; otherwise it selects
+color controls. Missing capability has the recovered reader default 0,
+reported separately from its raw omission in JSON. Needed explicit capabilities
+must be nonnegative 16-bit decimals; unsupported values are not truncated.
+Color, switch and unresolved modes are rejected by this command.
+These are stored editor-kind checks, not inferred actuator roles or a simulation
+of graph-dependent pre-modal capability/type refresh.
+
+One accepted native numeric edit of Q2 to 37 saved `1610612773`
+(`0x60000000 | 37`) and reopened as 37; the new CLI command produces that same
+selected encoding. The native workflow also changed Q1 to a numeric 100 payload
+and normalized HCL fields. Those differences are retained in
+`tests/ux/light-controller2/numeric-edit-save-reopen-20261111.json`, not ignored.
+The CLI intentionally changes only the requested Qn: it does not normalize other
+outputs, HCL, IDs, widths, counts, sequences or unknown data. An equivalent
+existing value retains its spelling and an in-place no-op retains original bytes.
+Otherwise the existing writer's formatting and Document stamps still apply.
+JSON includes `before`, `after`, `level`, `type_tag`, needed `capability` and
+`changed`. Existing `set-mood-color` remains a packed/raw storage operation;
+do not use `hsv(...)` as numeric dimmer brightness.
 
 Existing `config add-mood` also sets `Num` from the resulting direct scene count,
 instead of incrementing a possibly stale stored count. Its default output

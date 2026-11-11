@@ -2,6 +2,129 @@ use super::ConfigEditor;
 
 const FIXTURE: &[u8] = include_bytes!("../../tests/ux/light-controller2/synthetic.Loxone");
 
+const LEVEL_XML: &str = r#"<ControlList><C Type="LightController2" U="lighting" Title="Lamp" CapAI0="7">
+  <LightscenesC Num="2" Outputs="18" Future="retain">
+    <LightsceneC Name="First" SID="2" UUID="first" Outputs="18" Q1="1640612766" Q2="1610622736" Q10="1610612736" Future="opaque">
+      <SeqConf Future="keep"><Unknown Q2="nested"/></SeqConf>
+    </LightsceneC>
+    <LightsceneC Name="Second" SID="3" UUID="second" Outputs="18" Q2="future"/>
+  </LightscenesC>
+  <HCL T="2" TMIN="2000" FROM="0" TO="0"/>
+</C></ControlList>"#;
+
+#[test]
+fn lighting_numeric_level_matches_native_encoding_without_incidental_normalization() {
+    let mut editor = ConfigEditor::load(LEVEL_XML.as_bytes()).unwrap();
+    let edit = editor
+        .set_lighting_mood_level("uuid:lighting", "First", 2, 37)
+        .unwrap();
+    assert_eq!(edit.after, "1610612773");
+    assert_eq!(edit.type_tag, 6);
+    let capability = edit.capability.unwrap();
+    assert_eq!(capability.stored, None);
+    assert_eq!(capability.effective, Some(0));
+    let expected = LEVEL_XML.replace("Q2=\"1610622736\"", "Q2=\"1610612773\"");
+    assert_eq!(
+        editor.to_bytes().unwrap(),
+        ConfigEditor::load(expected.as_bytes())
+            .unwrap()
+            .to_bytes()
+            .unwrap()
+    );
+    let xml = LEVEL_XML.replace("Q2=\"1610622736\"", "Q2=\"+01610612773\"");
+    let mut editor = ConfigEditor::load(xml.as_bytes()).unwrap();
+    let before = editor.to_bytes().unwrap();
+    let edit = editor
+        .set_lighting_mood_level("uuid:lighting", "2", 2, 37)
+        .unwrap();
+    assert!(!edit.changed);
+    assert_eq!(edit.after, "+01610612773");
+    assert_eq!(editor.to_bytes().unwrap(), before);
+}
+
+#[test]
+fn lighting_numeric_level_uses_selected_tag_and_zero_based_capability_not_color_packing() {
+    for (stored, capability, expected) in [
+        ("268435465", "opaque-unused", "268435493"),
+        ("536870921", "opaque-unused", "536870949"),
+        ("805306377", "opaque-unused", "805306405"),
+        ("1879048201", "opaque-unused", "1879048229"),
+        ("1610622736", "6", "1610612773"),
+        ("1610622736", "32", "1610612773"),
+    ] {
+        let xml = LEVEL_XML
+            .replace(
+                "CapAI0=\"7\"",
+                &format!("CapAI0=\"7\" CapAI1=\"{capability}\""),
+            )
+            .replace("Q2=\"1610622736\"", &format!("Q2=\"{stored}\""));
+        let mut editor = ConfigEditor::load(xml.as_bytes()).unwrap();
+        let edit = editor
+            .set_lighting_mood_level("uuid:lighting", "First", 2, 37)
+            .unwrap();
+        assert_eq!(edit.after, expected, "{stored}/{capability}");
+    }
+}
+
+#[test]
+fn lighting_numeric_level_rejects_unsupported_inputs_before_any_mutation() {
+    let mut cases: Vec<(String, usize, u32)> = [
+        ("CapAI1=\"7\"", "1610622736"),
+        ("CapAI1=\"64\"", "1610622736"),
+        ("CapAI1=\"71\"", "1610622736"),
+        ("CapAI1=\"opaque\"", "1610622736"),
+        ("CapAI1=\"65536\"", "1610622736"),
+        ("CapAI1=\"-1\"", "1610622736"),
+        ("", "1073741824"),
+        ("", "1342177280"),
+        ("", "-1"),
+        ("", "0"),
+        ("", "future"),
+        ("", "2147483648"),
+    ]
+    .into_iter()
+    .map(|(capability, stored)| {
+        (
+            LEVEL_XML
+                .replace("CapAI0=\"7\"", capability)
+                .replace("Q2=\"1610622736\"", &format!("Q2=\"{stored}\"")),
+            2,
+            37,
+        )
+    })
+    .collect();
+    cases.extend([
+        (LEVEL_XML.into(), 0, 37),
+        (LEVEL_XML.into(), 19, 37),
+        (LEVEL_XML.into(), 2, 101),
+        (LEVEL_XML.into(), 2, u32::MAX),
+        (LEVEL_XML.replace("Q2=\"1610622736\"", ""), 2, 37),
+        (LEVEL_XML.replace("Outputs=\"18\"", "Outputs=\"1\""), 2, 37),
+        (
+            LEVEL_XML.replace("Outputs=\"18\"", "Outputs=\"bad\""),
+            2,
+            37,
+        ),
+        (
+            LEVEL_XML.replace("Name=\"Second\"", "Name=\"First\""),
+            2,
+            37,
+        ),
+        (LEVEL_XML.replace("</C>", "<LightscenesC/></C>"), 2, 37),
+    ]);
+    for (xml, output, level) in cases {
+        let mut editor = ConfigEditor::load(xml.as_bytes()).unwrap();
+        let before = editor.to_bytes().unwrap();
+        assert!(
+            editor
+                .set_lighting_mood_level("uuid:lighting", "First", output, level)
+                .is_err(),
+            "{xml}/{output}/{level}"
+        );
+        assert_eq!(editor.to_bytes().unwrap(), before);
+    }
+}
+
 #[test]
 fn lighting_inspection_exposes_all_stored_outputs_without_defaults_or_roles() {
     let editor = ConfigEditor::load(FIXTURE).unwrap();

@@ -122,7 +122,7 @@ lox config moods FILE "uuid:<lightcontroller>"
   moods in Loxone Config, or **detach the actor** (`config splice-actor`) and
   feed it a colour composite directly.
 
-### Change an existing mood's colour / brightness
+### Change an existing mood's packed colour
 
 ```
 lox config set-mood-color FILE "uuid:<lightcontroller>" --mood <SID|Name> --color "hsv(120,100,10)"
@@ -136,6 +136,27 @@ lox config set-mood-color FILE "uuid:<lightcontroller>" --mood <SID|Name> --colo
   (`lox color encode --hsv 120,100,10 --mood` → `1610622736`). Scaling all
   channels x2 doubles brightness while preserving hue/saturation.
 - Create a new mood with `config add-mood`; see below.
+- This is packed/raw storage, not channel-appropriate numeric dimming.
+
+### Change a numeric mood level
+
+```
+lox config lighting set-mood-level FILE "uuid:<lightcontroller>" --mood <SID|Name> --output-index 2 --level 37
+```
+
+- Validates the stored per-mood numeric editor kind, then writes
+  `(oldQ & 0xf0000000) | level`. Preserves the type tag; does not RGB-pack a level.
+- Requires one direct matching mood and an existing supported Q1..Q18 within
+  its stored reader width. Numeric tags 1/2/3/7 are supported; tag 6 additionally
+  requires `CapAI<n-1>` with bit 0x40 clear and low three bits not all set.
+  Missing capability uses recovered reader default 0; needed explicit values
+  must be supported nonnegative 16-bit decimals.
+- Rejects out-of-range levels, color/switch/unsupported kinds, missing/opaque
+  Qn and ambiguous targets before writing; never silently clamps or converts.
+  `--room` and `--save-as` are supported.
+- Native accepted numeric 37 saved and reopened with the same selected encoding.
+  Unlike that native dialog workflow, the CLI does not normalize other outputs
+  or HCL. No physical channel or runtime parity is implied.
 
 ### Create a brand-new mood
 

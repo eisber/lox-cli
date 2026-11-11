@@ -89,7 +89,11 @@ preserving output widths, sparse values and unknown data; existing `add-mood`
 also recounts and uses the recovered 18-output/type-preserving initialization
 and native-style automatic SID/CID selection, with atomic exhaustion errors.
 Explicit ID options retain their legacy behavior. These storage guarantees
-are not native GUI/runtime parity. See
+are not native GUI/runtime parity. `lighting set-mood-level` validates the stored
+numeric editor kind and writes a type-preserving level in 0..100, rejecting
+color/unsupported modes and out-of-range values instead of clamping or RGB-packing.
+One accepted native numeric edit/save/reopen confirms its selected encoding,
+not the native dialog's unrelated output/HCL normalization. See
 [Lighting commands](COMMANDS.md#lighting-stored-inspection-and-mood-count-repair).
 
 ---

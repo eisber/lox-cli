@@ -6,7 +6,7 @@ use anyhow::Result;
 use serde::Serialize;
 use xmltree::{Element, XMLNode};
 
-use super::schema::Diagnostic;
+use super::schema::{Diagnostic, StoredValue};
 use super::{ConfigEditor, MoodInfo};
 
 type Attributes = BTreeMap<String, String>;
@@ -38,6 +38,18 @@ pub struct LightingMoodCountEdit {
     pub before: Option<String>,
     pub after: String,
     pub scenes: usize,
+    pub changed: bool,
+}
+
+#[derive(Debug, Serialize)]
+pub struct LightingMoodLevelEdit {
+    pub mood: String,
+    pub output: String,
+    pub before: String,
+    pub after: String,
+    pub level: u8,
+    pub type_tag: i32,
+    pub capability: Option<StoredValue<u16>>,
     pub changed: bool,
 }
 
@@ -79,6 +91,157 @@ pub struct LightingInspection {
 }
 
 impl ConfigEditor {
+    /// Encode a numeric mood level without copying the native dialog's other edits.
+    pub fn set_lighting_mood_level(
+        &mut self,
+        selector: &str,
+        mood_ref: &str,
+        output: usize,
+        level: u32,
+    ) -> Result<LightingMoodLevelEdit> {
+        let level = u8::try_from(level)
+            .ok()
+            .filter(|level| *level <= 100)
+            .ok_or_else(|| {
+                Diagnostic::new(
+                    "mood_level_out_of_range",
+                    "level",
+                    "Numeric mood levels must be integers in 0..100. No value was clamped or written.",
+                )
+            })?;
+        if !(1..=18).contains(&output) {
+            return Err(Diagnostic::new(
+                "unsupported_mood_output_index",
+                "output-index",
+                "This recovered numeric editor path supports Q1..Q18. Use a 1-based --output-index within that bound.",
+            )
+            .into());
+        }
+        let path = self.require_one(selector)?;
+        let block = self.get_element(&path);
+        if block.attributes.get("Type").map(String::as_str) != Some("LightController2") {
+            return Err(Diagnostic::new(
+                "wrong_block_type",
+                selector,
+                "Numeric mood edits require LightController2. Inspect the selected block before editing.",
+            )
+            .into());
+        }
+        let collections: Vec<_> = block
+            .children
+            .iter()
+            .enumerate()
+            .filter_map(|(index, node)| {
+                node.as_element()
+                    .filter(|element| element.name == "LightscenesC")
+                    .map(|element| (index, element))
+            })
+            .collect();
+        let [(collection_index, collection)] = collections.as_slice() else {
+            return Err(Diagnostic::new(
+                "unsupported_mood_container_shape",
+                selector,
+                "Numeric mood edits require exactly one direct LightscenesC container. Inspect the XML before editing.",
+            )
+            .into());
+        };
+        let matches: Vec<_> = collection
+            .children
+            .iter()
+            .enumerate()
+            .filter_map(|(index, node)| {
+                node.as_element()
+                    .filter(|element| {
+                        element.name == "LightsceneC"
+                            && ["SID", "Name"].iter().any(|key| {
+                                element.attributes.get(*key).map(String::as_str) == Some(mood_ref)
+                            })
+                    })
+                    .map(|element| (index, element))
+            })
+            .collect();
+        let [(mood_index, mood)] = matches.as_slice() else {
+            return Err(Diagnostic::new(
+                "ambiguous_or_missing_mood",
+                mood_ref,
+                format!(
+                    "Expected one direct mood matching SID or Name, found {}. Choose an unambiguous stored mood.",
+                    matches.len()
+                ),
+            )
+            .into());
+        };
+        let width = match mood.attributes.get("Outputs") {
+            None => 12,
+            Some(raw) => match raw.parse::<i32>() {
+                Ok(0) => 12,
+                Ok(width) if width > 0 => width,
+                _ => {
+                    return Err(Diagnostic::new(
+                        "unsupported_mood_output_width",
+                        mood_ref,
+                        "Outputs must be a nonnegative signed-32-bit decimal or absent. No width was inferred from Qn fields.",
+                    )
+                    .into());
+                }
+            },
+        };
+        let key = format!("Q{output}");
+        let before = mood.attributes.get(&key).cloned().ok_or_else(|| {
+            Diagnostic::new(
+                "unsupported_mood_output_value",
+                &key,
+                "The selected Qn must already be stored. Missing values are not synthesized by a numeric edit.",
+            )
+        })?;
+        let stored = before.parse::<i32>().map_err(|_| {
+            Diagnostic::new(
+                "unsupported_mood_output_value",
+                &key,
+                "Expected a stored signed-32-bit decimal. Opaque or out-of-range values are not interpreted.",
+            )
+        })?;
+        if i32::try_from(output)? > width {
+            return Err(Diagnostic::new(
+                "unsupported_mood_output_width",
+                &key,
+                "Selected Qn lies outside the stored native reader width. No output vector was resized.",
+            )
+            .into());
+        }
+        let type_tag = (stored >> 28) & 15;
+        let capability = Self::numeric_mood_capability(block, output, type_tag)?;
+        // Native numeric handler 0x1400e6460 preserves the tag, not RGB packing.
+        let encoded = (stored & -0x1000_0000) | i32::from(level);
+        let changed = encoded != stored;
+        let after = if changed {
+            encoded.to_string()
+        } else {
+            before.clone()
+        };
+        let collection_index = *collection_index;
+        let mood_index = *mood_index;
+        if changed {
+            let mood = self.get_element_mut(&path).children[collection_index]
+                .as_mut_element()
+                .unwrap()
+                .children[mood_index]
+                .as_mut_element()
+                .unwrap();
+            mood.attributes.insert(key.clone(), after.clone());
+        }
+        Ok(LightingMoodLevelEdit {
+            mood: mood_ref.into(),
+            output: key,
+            before,
+            after,
+            level,
+            type_tag,
+            capability,
+            changed,
+        })
+    }
+
     /// Set only the direct collection's Num to its direct scene-record count.
     ///
     /// Native append (0x1405b48e0) and reconciliation (0x1405c6770) assign
@@ -143,6 +306,45 @@ impl ConfigEditor {
             scenes,
             changed,
         })
+    }
+
+    fn numeric_mood_capability(
+        block: &Element,
+        output: usize,
+        type_tag: i32,
+    ) -> Result<Option<StoredValue<u16>>> {
+        if matches!(type_tag, 1..=3 | 7) {
+            return Ok(None);
+        }
+        if type_tag == 6 {
+            let key = format!("CapAI{}", output - 1);
+            let stored = block.attributes.get(&key).cloned();
+            let effective = match stored.as_deref() {
+                None => 0,
+                Some(raw) => raw.parse::<u16>().map_err(|_| {
+                    Diagnostic::new(
+                        "unsupported_mood_capability",
+                        &key,
+                        "Numeric tag-6 edits require a supported nonnegative 16-bit capability mask. Malformed or out-of-range values are not truncated.",
+                    )
+                })?,
+            };
+            if effective & 0x40 == 0 && effective & 7 != 7 {
+                return Ok(Some(StoredValue {
+                    stored,
+                    effective: Some(effective),
+                    default: Some(0),
+                }));
+            }
+        }
+        Err(Diagnostic::new(
+            "incompatible_mood_output_kind",
+            &format!("Q{output}"),
+            format!(
+                "Stored type tag {type_tag} and its needed capability do not select the recovered numeric editor. Inspect the channel settings; packed-color, switch and unresolved modes are not converted to numeric levels."
+            ),
+        )
+        .into())
     }
 
     pub fn inspect_lighting(&self, selector: &str) -> Result<LightingInspection> {

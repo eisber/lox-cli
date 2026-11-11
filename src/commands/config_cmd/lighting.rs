@@ -47,6 +47,22 @@ pub(crate) enum LightingCmd {
         #[arg(long, value_name = "PATH")]
         save_as: Option<String>,
     },
+    /// Set a numeric mood level, preserving its type tag; reject other editor kinds
+    SetMoodLevel {
+        #[command(flatten)]
+        target: LightingTarget,
+        /// Exact stored SID or Name of one direct mood
+        #[arg(long)]
+        mood: String,
+        /// 1-based Q index in the recovered 18-output editor path
+        #[arg(long, default_value_t = 1)]
+        output_index: usize,
+        /// Integer level in 0..100; never clamped or packed as RGB
+        #[arg(long)]
+        level: u32,
+        #[arg(long, value_name = "PATH")]
+        save_as: Option<String>,
+    },
 }
 
 pub(crate) fn run(ctx: &RunContext, action: LightingCmd) -> Result<()> {
@@ -80,6 +96,47 @@ pub(crate) fn run(ctx: &RunContext, action: LightingCmd) -> Result<()> {
                 println!(
                     "✓  {selector}: Num={} ({} direct moods; Outputs and Qn unchanged)",
                     edit.after, edit.scenes
+                );
+            }
+            return Ok(());
+        }
+        LightingCmd::SetMoodLevel {
+            target,
+            mood,
+            output_index,
+            level,
+            save_as,
+        } => {
+            let selector = target.selector()?;
+            let mut editor = ConfigEditor::load(&crate::load_config_xml(&target.file)?)?;
+            let edit = editor.set_lighting_mood_level(&selector, &mood, output_index, level)?;
+            if edit.changed || save_as.is_some() {
+                super::save_edited_with_quiet(&mut editor, &target.file, save_as.as_deref(), true)?;
+            }
+            if ctx.json {
+                let mut value = serde_json::to_value(&edit)?;
+                if let Some(trace_id) = &ctx.trace_id {
+                    value["trace_id"] = trace_id.clone().into();
+                }
+                println!("{}", serde_json::to_string_pretty(&value)?);
+            } else if ctx.csv {
+                if !ctx.no_header {
+                    println!("MOOD,OUTPUT,BEFORE,AFTER,LEVEL,TYPE_TAG,CHANGED");
+                }
+                println!(
+                    "{},{},{},{},{},{},{}",
+                    csv(&edit.mood),
+                    edit.output,
+                    csv(&edit.before),
+                    csv(&edit.after),
+                    edit.level,
+                    edit.type_tag,
+                    edit.changed
+                );
+            } else if !ctx.quiet {
+                println!(
+                    "✓  {selector}: mood '{}' {}={} (numeric level {}; type tag {} preserved)",
+                    edit.mood, edit.output, edit.after, edit.level, edit.type_tag
                 );
             }
             return Ok(());
