@@ -1,0 +1,50 @@
+{
+  "schema_version": 1,
+  "issue": "lox-w9xu.8",
+  "observation_kind": "bounded_actual_native_selected_widget_not_completed_case",
+  "original_case": "lox-t5t3.9",
+  "derived_run": "lox-t5t3.9-sdk9f707-v1",
+  "observed_phase": "VM122 same-reservation capacity continuation 2026-11-11T23:14:04Z..23:22:10Z",
+  "frozen_target": {
+    "version": "17.2.10.21",
+    "architecture": "AMD64",
+    "pe_sha256": "7b55e3ef18401574ab967c5c6a0140cd5a66dc728521ebba04ad53093577d8b3",
+    "SDK_service_sha256": "9f70717b37abdb138ac49743df11b5fe274f3cedc2c342e70609a51e332ecf06"
+  },
+  "pins": {
+    "original_definition_sha256": "b171f48f88095ad600ec5c10c64dc9958a334001e18cab63db2b28c450590e3b",
+    "input_sha256": "468bfa348dca6d6259e1c7d79991047f784b1c9cb22adfc8f3a6d4d097a72d2f",
+    "immutable_CLI_sha256": "4274d421ff722bb344d70fa265be4b2a7f903ed92219cfbd1e6aa4c7486d83de",
+    "sealed_private_report_sha256": "9bf69bc376a3c2ab0807be354c60188abb340f2da6ca63b22e8ce8d077f0d5a8",
+    "sealed_private_manifest_sha256": "7cd77def437e1efbc9a41f051a21ada5646a1d1d2a5e803e2e6943350e97e09b"
+  },
+  "actual_observation": {
+    "machine": "VM122 independently admitted; not Notebook",
+    "selected_mood_sid": 1,
+    "selected_output": "Q1 / Lc1",
+    "stimulus": "Ordinary native mood-grid selection of the prescribed exact SID1 row, then its actual Q1 dropdown Click.",
+    "result": "Actual native Color Picker opened with color/white/sequence controls. Standard Cancel acknowledged; no color edit accepted.",
+    "not_substituted": "Earlier initial special LabOn/ID99 widget was not credited as the requested mood; the later actual selected SID1 observation is distinct.",
+    "CLI_relation": "Consistent with the immutable CLI stored per-mood color classification on the exact initial tag6/CapAI0=7 input variant.",
+    "causal_limit": "No claim that native pre-modal graph preparation preserved the initial tag/capability or that the stored classifier predicts all native loaded state."
+  },
+  "persistence_and_scope": {
+    "accepted_storage_edit": false,
+    "native_saved_output": null,
+    "normal_exit_fresh_reopen_verified": false,
+    "case_complete": false,
+    "original_run_credit": false,
+    "all_native_saved_deltas": "Unavailable: no native save in this sealed phase. In-memory Document/Q1/HCL/flags/CapAI changes are not asserted absent, ignored or normalized.",
+    "pause": "Current host/worker admission reclosed before further effects. Earlier waits explicitly reported iowait_sustained; the final installed-wrapper receipt omitted the host reason, so it is not fabricated from old data.",
+    "later_phases": "A separate persistence-priority continuation may add evidence; it does not rewrite this historical bounded observation."
+  },
+  "capability_policy": {
+    "native_widget_observed": true,
+    "gui_roundtrip_verified": false,
+    "runtime_parity": false,
+    "full_family_contract": false,
+    "whole_file_parity": false,
+    "source_or_normalization_behavior_changed": false
+  },
+  "private_evidence_policy": "Raw projects, screenshots, endpoints, credentials and proprietary function text are not included."
+}

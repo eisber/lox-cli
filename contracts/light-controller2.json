@@ -41,6 +41,15 @@
   },
   "bounded_native_observations": [
     {
+      "case_id": "lox-t5t3.9-sdk9f707-v1",
+      "artifact": "tests/ux/light-controller2/color-widget-observation-20261111.json",
+      "sha256": "dfa76d9a67feabc5d4e788674bce0edec7066c4f275e412f7f9ff8fec332d10c",
+      "result": "Independently admitted repaired-SDK VM122 selected prescribed SID1 and actually opened its Q1 Color Picker, consistent with immutable CLI stored tag6/CapAI0=7 input classification. Initial special ID99 widget was not substituted for the requested mood.",
+      "persistence": "Bounded widget observation only: picker Cancel acknowledged, no color edit accepted, no native saved output or normal-exit/fresh-reopen verified in this sealed phase. Current host/worker admission reclosed before further effects.",
+      "semantic_limit": "No claim that native graph preparation preserved initial type/capability or that the stored classifier predicts all loaded/physical state. In-memory incidental deltas are not asserted absent or ignored.",
+      "capability_policy": "No case completion, old-run credit, aggregate gui_roundtrip_verified/runtime_parity/full_family/whole-file promotion. Later phase evidence remains separate."
+    },
+    {
       "case_id": "lighting-accepted-numeric-37-20261111",
       "artifact": "tests/ux/light-controller2/numeric-edit-save-reopen-20261111.json",
       "sha256": "05ba6aec088d8860cc952e6afdd03c8ed85c3c3400c982f724ab14e31b0dd4cf",

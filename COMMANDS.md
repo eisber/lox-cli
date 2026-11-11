@@ -558,6 +558,13 @@ identities remain untouched. Diagnostics appear in JSON or on stderr for
 table/CSV even with `--quiet` / `--no-header`. No duplicates does **not** mean
 valid native import or editability. See `identity-ambiguity-source.json`.
 
+An independent repaired-SDK VM122 run actually opened the prescribed SID1/Q1
+Color Picker for the tag6/CapAI0=7 input variant. This agrees with stored CLI
+classification but is **not** saved/reopened or complete-case evidence:
+capacity closed before persistence, and native pre-modal state was not
+assumed unchanged. See `color-widget-observation-20261111.json` under
+`tests/ux/light-controller2`; aggregate parity flags remain false.
+
 One bounded Config 17.2.10.21 observation completed CLI mood creation, Q2 edit,
 native Save As to a new file, normal exit and fresh reopen. The new SID 1 /
 CID 12, 18-output fields, Q type nibbles and all unrelated bytes survived
