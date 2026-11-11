@@ -302,12 +302,6 @@ fn lighting_metadata_cli_invalid_name_role_and_state_flags_never_write_destinati
             vec!["--mix"],
             1,
         ),
-        (
-            XML.replace("MixMod=\"false\"", ""),
-            "set-mood-mix",
-            vec!["--mix"],
-            1,
-        ),
         (XML.to_string(), "set-mood-mix", vec![], 2),
         (
             XML.to_string(),
@@ -329,9 +323,49 @@ fn lighting_metadata_cli_invalid_name_role_and_state_flags_never_write_destinati
             if save_as {
                 cmd.arg("--save-as").arg(&output);
             }
+
             cmd.assert().code(expected_code);
             assert_eq!(fs::read(&input).unwrap(), before);
             assert_eq!(fs::read(&output).unwrap(), b"existing output");
         }
     }
+}
+
+#[test]
+fn lighting_metadata_cli_mix_missing_default_noop_and_enable_preserve_raw_omission() {
+    let dir = tempfile::tempdir().unwrap();
+    let input = dir.path().join("input.Loxone");
+    let output = dir.path().join("output.Loxone");
+    let xml = XML.replace(" MixMod=\"false\"", "");
+    let before = bytes(&xml);
+    fs::write(&input, &before).unwrap();
+    let result = command()
+        .args(["config", "lighting", "set-mood-mix"])
+        .arg(&input)
+        .args(["uuid:lighting", "--mood", "A", "--no-mix", "-o", "json"])
+        .assert()
+        .success()
+        .get_output()
+        .stdout
+        .clone();
+    let result: serde_json::Value = serde_json::from_slice(&result).unwrap();
+    assert_eq!(result["before"], serde_json::Value::Null);
+    assert_eq!(result["before_effective"], false);
+    assert_eq!(result["default"], false);
+    assert_eq!(result["after"], serde_json::Value::Null);
+    assert_eq!(result["changed"], false);
+    assert_eq!(fs::read(&input).unwrap(), before);
+    command()
+        .args(["config", "lighting", "set-mood-mix"])
+        .arg(&input)
+        .args(["uuid:lighting", "--mood", "A", "--mix", "--save-as"])
+        .arg(&output)
+        .args(["--quiet"])
+        .assert()
+        .success();
+    assert_eq!(fs::read(&input).unwrap(), before);
+    assert_eq!(
+        fs::read(&output).unwrap(),
+        bytes(&xml.replace("SName=\"alias\">", "SName=\"alias\" MixMod=\"true\">"))
+    );
 }

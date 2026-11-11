@@ -1,0 +1,50 @@
+{
+  "schema_version": 1,
+  "issue": "lox-w9xu.1",
+  "named_question": "Can the role-independent native MixMod checkbox start from an omitted attribute without inventing a default or inserting no-op storage?",
+  "frozen_target": {
+    "version": "17.2.10.21",
+    "pe_sha256": "7b55e3ef18401574ab967c5c6a0140cd5a66dc728521ebba04ad53093577d8b3",
+    "analysis_id": "6a0520329af17d7b9fdaafe69398c62c454d9da838fc9f9c8d0bdd8d17bb15ae",
+    "new_extractions": 0
+  },
+  "canonical_sources": [
+    {"address": "0x1405b3940", "sha256": "365a8a5e0bc05163fab3b2547924119c7731291b550d9e33fb2df9614ebe4155", "lines": [44, 53]},
+    {"address": "0x1405b7df0", "sha256": "9f0ff6bd3dcc724a599e3324483c9b584f1e1128c4a3d6bf9604ecc328bf9d58", "lines": [29, 41]},
+    {"address": "0x1404c52f0", "sha256": "057c5670bc1b4a95f3b6ae5720f34f057330ba62605c4d0211ac7565de681262", "lines": [73, 110]},
+    {"address": "0x14041eb10", "sha256": "fee9619bd6f3e7b27599dc164581bb02028e619477ce20cdcbf21edd3efd6655", "lines": [18, 27]}
+  ],
+  "static_byte_pins": [
+    {"address": "0x1405b39e1", "length": 62, "sha256": "0914d614d9ae415d4ede08d578cf2188b8d1c8f808bab7551b121ff3a9b4b98c", "purpose": "Constructor initializes zero across +0x94/+0x98, including MixMod; nearby independent flags and numeric identities are also zeroed."},
+    {"address": "0x1404c64a0", "length": 32, "sha256": "4f831ae195c0931fc975674a91a7468a27002036570a80c518152520a987182f", "purpose": "Boolean reader stores the result of equality with the TRUE literal."},
+    {"address": "0x140ff3bb4", "length": 5, "sha256": "5de7a893e93df4bcd4b5640bf2b35ac9518615ded6e37beaae19c338cd781d67", "purpose": "NUL-terminated TRUE literal; string comparison is case-insensitive."}
+  ],
+  "reused_contract": {
+    "artifact": "tests/ux/light-controller2/mood-mix-source.json",
+    "sha256": "bd64b3e3c7519b4ca1042b040f41f2d3ba0ec8a7aa99c4ad0db0c0aa94f90b70",
+    "retained": "Actual row-bound column5 toggle, SID1..31 checkbox eligibility, unique selected numeric SID and CID12..19 graph/role boundary remain unchanged. The earlier explicit-flag-only CLI subset remains historical; this artifact extends only omitted MixMod.",
+    "not_proof": "The static/CLI-authored CID0/MixMod=false native case input is not a native default observation."
+  },
+  "source_contract": {
+    "member": "The XML binder identifies MixMod as boolean type0 at selected record+0x98, with optional attribute binding and param7=0.",
+    "constructor": "The native constructor zeroes the eight bytes at+0x94, including MixMod at+0x98.",
+    "missing_read": "The common reader clears its temporary string, copies an attribute only if found and, with param7=0, still enters boolean conversion for missing input. Empty is not case-insensitively equal to TRUE, so omission reads false.",
+    "boundary": "This proves the stored model default, not role-forced displayed state or full native import/permissions. CID12..19 remains rejected even on false no-op."
+  },
+  "CLI_policy": {
+    "command": "lox config lighting set-mood-mix FILE BLOCK --mood SID_OR_NAME (--mix | --no-mix)",
+    "new_input": "Omitted MixMod is supported with effective/default false. Explicit input is still restricted to canonical true/false; numeric, opaque and other spellings are not silently defaulted or normalized.",
+    "no_op": "A false request on omitted MixMod preserves omission and exact in-place bytes. JSON before/after are null, before_effective/default false, enabled false and changed false.",
+    "change": "A true request on omitted MixMod writes only selected MixMod=true through the existing writer. Explicit before/after values and existing CSV column order are unchanged.",
+    "preservation": "Retain all other flags/records, identity spellings, counts/widths/order, Qn, SName, capabilities, LSConfig, HCL, sequences and unknown storage. No role/default/cohort inference beyond this recovered flag default.",
+    "shared_parser": "SkipNext and MixMod share the same conservative canonical-or-omitted default-false parser; SkipNext behavior is unchanged.",
+    "tests": "src/config_edit/lighting_metadata_tests.rs and tests/lighting_metadata_cli.rs: lighting_metadata_*mix*"
+  },
+  "validation_scope": {
+    "native_execution_performed_for_this_extension": false,
+    "gui_execution_performed_for_this_extension": false,
+    "runtime_parity": false,
+    "full_dialog_acceptance": false,
+    "vendor_function_text": "Not included."
+  }
+}

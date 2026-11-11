@@ -13,6 +13,7 @@ tests/ux/light-controller2/incidental-normalization-triggers-source.json text eo
 tests/ux/light-controller2/mood-cid-edit-source.json text eol=lf
 tests/ux/light-controller2/mood-name-source.json text eol=lf
 tests/ux/light-controller2/mood-mix-source.json text eol=lf
+tests/ux/light-controller2/mood-mix-default-source.json text eol=lf
 tests/ux/light-controller2/mood-skip-source.json text eol=lf
 tests/ux/light-controller2/mood-display-name-source.json text eol=lf
 tests/ux/light-controller2/identity-ambiguity-source.json text eol=lf

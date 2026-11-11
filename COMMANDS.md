@@ -462,12 +462,16 @@ unchanged. An in-place identical-name edit preserves original bytes.
 `lighting set-mood-mix` requests exactly one of `--mix` / `--no-mix` and changes
 only an eligible existing `MixMod` flag. This is not a raw boolean/cohort editor:
 it requires selected SID 1..31, explicit nonnegative CID **outside 12..19**,
-explicit stored `MixMod="true"`/`"false"` and a unique selected numeric SID among
+canonical `MixMod="true"`/`"false"` or omission (effective/default false), and a unique selected numeric SID among
 direct records. All direct sibling SIDs must be supported signed-32-bit
 decimals. CID 12..19 can force/disable the native checkbox through graph/role
 state, so those rows are rejected even on a requested no-op. Special/non-checkbox
-rows and missing/opaque identity or flag values are also rejected; no defaults
-or role-state guesses are applied.
+rows, missing/opaque identities and unsupported explicit flag values are also
+rejected. The omitted flag's false default is source-backed, not a role-state guess.
+A `--no-mix` no-op on omitted MixMod preserves omission and exact in-place bytes;
+JSON reports raw `before`/`after` null plus `before_effective=false` and
+`default=false`. Enabling it writes only selected `MixMod=true`.
+See `tests/ux/light-controller2/mood-mix-default-source.json`.
 
 Both metadata commands require exactly one direct collection and one
 unambiguous direct mood selected by exact stored SID or case-sensitive Name.

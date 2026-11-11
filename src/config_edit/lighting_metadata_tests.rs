@@ -177,7 +177,7 @@ fn lighting_metadata_mix_toggles_only_selected_record_without_normalizing_others
         .set_lighting_mood_mix("uuid:lighting", "First", false)
         .unwrap();
     assert_eq!(edit.before.as_deref(), Some("true"));
-    assert_eq!(edit.after, "false");
+    assert_eq!(edit.after.as_deref(), Some("false"));
     assert!(!edit.enabled);
     assert!(edit.changed);
     assert_eq!(edit.scope, "selected_record_role_independent");
@@ -209,7 +209,7 @@ fn lighting_metadata_mix_enables_existing_false_without_touching_other_true_reco
         .set_lighting_mood_mix("uuid:lighting", "3", true)
         .unwrap();
     assert_eq!(edit.before.as_deref(), Some("false"));
-    assert_eq!(edit.after, "true");
+    assert_eq!(edit.after.as_deref(), Some("true"));
     assert_eq!(edit.mood.uuid.as_deref(), Some("second"));
     assert!(edit.changed);
     assert_xml(&editor, &xml.replace("MixMod=\"false\"", "MixMod=\"true\""));
@@ -284,10 +284,6 @@ fn lighting_metadata_mix_rejects_opaque_missing_or_ambiguous_identity_and_flags_
             "unsupported_mood_identity",
         ),
         (
-            mix_xml().replacen("MixMod=\"true\"", "", 1),
-            "unsupported_mood_mix_value",
-        ),
-        (
             mix_xml().replacen("MixMod=\"true\"", "MixMod=\"1\"", 1),
             "unsupported_mood_mix_value",
         ),
@@ -315,6 +311,38 @@ fn lighting_metadata_mix_rejects_opaque_missing_or_ambiguous_identity_and_flags_
             .unwrap_err();
         assert_error_unchanged(&editor, &before, error, code);
     }
+}
+
+#[test]
+fn lighting_metadata_mix_missing_false_preserves_omission_then_edits_only_selected_flag() {
+    let xml = mix_xml().replacen(" MixMod=\"true\"", "", 1);
+    let mut editor = ConfigEditor::load(xml.as_bytes()).unwrap();
+    let before = editor.to_bytes().unwrap();
+    let edit = editor
+        .set_lighting_mood_mix("uuid:lighting", "First", false)
+        .unwrap();
+    assert_eq!(edit.before, None);
+    assert!(!edit.before_effective && !edit.default && !edit.changed);
+    assert_eq!(edit.after, None);
+    assert_eq!(editor.to_bytes().unwrap(), before);
+    let edit = editor
+        .set_lighting_mood_mix("uuid:lighting", "First", true)
+        .unwrap();
+    assert!(edit.changed && edit.enabled);
+    assert_eq!(edit.after.as_deref(), Some("true"));
+    let expected = xml.replacen(
+        "Future=\"opaque\">",
+        "Future=\"opaque\" MixMod=\"true\">",
+        1,
+    );
+    assert_xml(&editor, &expected);
+    let xml = xml.replacen("CID=\"+000\"", "CID=\"12\"", 1);
+    let mut editor = ConfigEditor::load(xml.as_bytes()).unwrap();
+    let before = editor.to_bytes().unwrap();
+    let error = editor
+        .set_lighting_mood_mix("uuid:lighting", "First", false)
+        .unwrap_err();
+    assert_error_unchanged(&editor, &before, error, "role_dependent_mood_mix");
 }
 const SKIP_XML: &str = r#"<ControlList><C Type="LightController2" U="lighting">
   <LightscenesC Num="2" Outputs="18" Future="keep">

@@ -45,7 +45,9 @@ pub struct LightingMoodMixEdit {
     pub mood: LightingMoodIdentity,
     pub scope: &'static str,
     pub before: Option<String>,
-    pub after: String,
+    pub before_effective: bool,
+    pub default: bool,
+    pub after: Option<String>,
     pub enabled: bool,
     pub changed: bool,
 }
@@ -123,25 +125,20 @@ impl ConfigEditor {
             selector,
             mood_ref,
         )?;
-        let stored = mood.attributes.get("SkipNext").cloned();
-        let previous = match stored.as_deref() {
-            None | Some("false") => false,
-            Some("true") => true,
-            _ => {
-                return Err(Diagnostic::new(
+        let before = Self::stored_mood_flag(mood, "SkipNext");
+        let previous = before.effective.ok_or_else(|| {
+                Diagnostic::new(
                     "unsupported_mood_skip_value",
                     &format!("{mood_ref}.SkipNext"),
                     "SkipNext must be canonical true/false or absent (recovered native default false). Unsupported explicit values are not defaulted or normalized.",
                 )
-                .into());
-            }
-        };
+        })?;
         let identity = LightingMoodIdentity::from_element(mood);
         let changed = previous != skip;
         let after = if changed {
             Some(skip.to_string())
         } else {
-            stored.clone()
+            before.stored.clone()
         };
         if let Some(after) = &after
             && changed
@@ -152,11 +149,7 @@ impl ConfigEditor {
         }
         Ok(LightingMoodSkipEdit {
             mood: identity,
-            before: StoredValue {
-                stored,
-                effective: Some(previous),
-                default: Some(false),
-            },
+            before,
             after,
             skip,
             checkbox_checked: !skip,
@@ -216,7 +209,7 @@ impl ConfigEditor {
     /// Set the requested state of the recovered per-mood MixMod checkbox.
     ///
     /// Only unique SID1..31 records with explicit nonnegative CID outside12..19
-    /// and stored true/false are supported. CID12..19 has a graph/role-dependent
+    /// and true/false or omitted (default false) are supported. CID12..19 has a graph/role-dependent
     /// forced checkbox state; special/non-checkbox rows are not raw flag edits.
     pub fn set_lighting_mood_mix(
         &mut self,
@@ -258,23 +251,24 @@ impl ConfigEditor {
             selector,
             mood_ref,
         )?;
-        let before = mood.attributes.get("MixMod").cloned();
-        let previous = match before.as_deref() {
-            Some("true") => true,
-            Some("false") => false,
-            _ => {
-                return Err(Diagnostic::new(
+        let before = Self::stored_mood_flag(mood, "MixMod");
+        let previous = before.effective.ok_or_else(|| {
+                Diagnostic::new(
                     "unsupported_mood_mix_value",
                     &format!("{mood_ref}.MixMod"),
-                    "The selected MixMod must explicitly store true or false. Missing, numeric or opaque flags are not defaulted or normalized by this transaction.",
+                    "MixMod must be canonical true/false or absent (recovered native default false). Unsupported explicit values are not defaulted or normalized.",
                 )
-                .into());
-            }
-        };
+        })?;
         let identity = LightingMoodIdentity::from_element(mood);
-        let after = enabled.to_string();
         let changed = previous != enabled;
-        if changed {
+        let after = if changed {
+            Some(enabled.to_string())
+        } else {
+            before.stored.clone()
+        };
+        if let Some(after) = &after
+            && changed
+        {
             self.get_element_mut(&path)
                 .attributes
                 .insert("MixMod".into(), after.clone());
@@ -282,11 +276,27 @@ impl ConfigEditor {
         Ok(LightingMoodMixEdit {
             mood: identity,
             scope: "selected_record_role_independent",
-            before,
+            before: before.stored,
+            before_effective: previous,
+            default: false,
             after,
             enabled,
             changed,
         })
+    }
+
+    fn stored_mood_flag(mood: &Element, key: &str) -> StoredValue<bool> {
+        let stored = mood.attributes.get(key).cloned();
+        let effective = match stored.as_deref() {
+            None | Some("false") => Some(false),
+            Some("true") => Some(true),
+            _ => None,
+        };
+        StoredValue {
+            stored,
+            effective,
+            default: Some(false),
+        }
     }
 
     pub(super) fn lighting_metadata_mood_path(

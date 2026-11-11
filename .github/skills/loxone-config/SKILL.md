@@ -243,9 +243,10 @@ lox config lighting set-mood-display-name FILE "uuid:<lightcontroller>" --mood <
   than trimming, converting or silently defaulting a name. Duplicate new names
   are native-compatible; later ambiguous Name selectors need an exact SID.
 - Mix requires exactly `--mix` or `--no-mix`, SID1..31, explicit nonnegative CID
-  outside12..19, canonical stored `MixMod=true/false` and unique selected numeric
-  SID. Role-dependent CID12..19 and missing/opaque values are unsupported, even
-  for no-op requests. Do not invent role/default/cohort state.
+  outside12..19, canonical `MixMod=true/false` or omission, and unique selected
+  numeric SID. Omitted MixMod has recovered default false and stays omitted
+  on no-op. Role-dependent CID12..19, missing/opaque identities and unsupported
+  explicit flags remain rejected. Do not invent role/cohort state.
 - Skip requires exactly `--skip` or `--no-skip` and changes only `SkipNext`.
   The native checkbox is inverted: checked means included (`false`).
   Omission means false and stays omitted on no-op; unsupported explicit values

@@ -454,7 +454,7 @@ pub(crate) fn run(ctx: &RunContext, action: LightingCmd) -> Result<()> {
                     csv(edit.mood.sid.as_deref().unwrap_or("")),
                     csv(edit.mood.cid.as_deref().unwrap_or("")),
                     csv(edit.before.as_deref().unwrap_or("")),
-                    csv(&edit.after),
+                    csv(edit.after.as_deref().unwrap_or("")),
                     edit.enabled,
                     edit.changed,
                     edit.scope
@@ -462,7 +462,7 @@ pub(crate) fn run(ctx: &RunContext, action: LightingCmd) -> Result<()> {
             } else if !ctx.quiet {
                 println!(
                     "✓  {selector}: mood '{mood}' MixMod={} (selected role-independent record only)",
-                    edit.after
+                    edit.after.as_deref().unwrap_or("<absent; effective false>")
                 );
             }
             return Ok(());
