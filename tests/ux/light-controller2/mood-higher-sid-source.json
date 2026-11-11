@@ -1,0 +1,46 @@
+{
+  "schema_version": 1,
+  "issue": "lox-w9xu.3",
+  "named_question": "When does an ordinary SID32..90 edit clear CID, and how can the CLI require explicit acceptance without changing occupied/no-op branches?",
+  "frozen_target": {
+    "version": "17.2.10.21",
+    "pe_sha256": "7b55e3ef18401574ab967c5c6a0140cd5a66dc728521ebba04ad53093577d8b3",
+    "analysis_id": "6a0520329af17d7b9fdaafe69398c62c454d9da838fc9f9c8d0bdd8d17bb15ae",
+    "new_extractions": 0
+  },
+  "canonical_sources": [
+    {"address": "0x1400ea790", "sha256": "e4a7229adfe6b18d853f18bdb656cbe10c8a33e91749a033bad7a90a7282cdc4", "lines": [119, 213]},
+    {"address": "0x1405c1920", "sha256": "538c51c5aedc1218d87ee26ec6baee986bc43985c7d29f4995117f4399bbc155", "lines": [13, 25]},
+    {"address": "0x1405b3940", "sha256": "365a8a5e0bc05163fab3b2547924119c7731291b550d9e33fb2df9614ebe4155", "lines": [44, 53]}
+  ],
+  "static_byte_pins": [
+    {"address": "0x1400eaabe", "length": 119, "sha256": "085a50d4aed65f34fd2a1230deef7884385d16b4ebc7caff1890798b9a148aae", "purpose": "Unoccupied requested1..90 branch checks selected CID>0 and requested>=32, asks Yes/No, skips transaction on No7 and otherwise stores CID0 before ordered SID transaction."},
+    {"address": "0x1405b39ff", "length": 7, "sha256": "f2351035cf048a1a8311903cd7339b5270c234ae93123c88712de7a760850f40", "purpose": "Constructor zero initialization at+0xa8 includes CID; omitted CID default0 is already bound by the reused reader contract."}
+  ],
+  "reused_contracts": [
+    {"artifact": "tests/ux/light-controller2/mood-sid-edit-source.json", "sha256": "542ce58df12e229a8b6409b69e955489c794cdf73eda928df1a3ba7d2ad1482f", "fact": "Reuse owner ordinary-ID mapping, exact row/identity selection, occupancy, explicit occupied-ID exchange and ordered temporary99 ScMv remaps. Its earlier1..31 CLI subset is historical."},
+    {"artifact": "tests/ux/light-controller2/mood-cid-edit-source.json", "sha256": "117c546935895b222d66df22140c3a9139befca625aa63eee280fbcdc242a647", "fact": "Omitted CID reads0; reuse existing selection_plan codec and independent CID identity result conventions."}
+  ],
+  "source_contract": {
+    "range": "The unoccupied branch explicitly accepts requested1..90. Owner mapping preserves ordinary values; special776/777/778 conversion remains outside CLI scope.",
+    "clear": "Only unoccupied requested>=32 with selected CID>0 asks the CID-clear confirmation. Accepting Yes clears selected CID to0 then enters the same SID/reference transaction. CLI does not simulate dialog errors or incidental refresh effects.",
+    "not_clear": "Requested<=31, numeric no-op and occupied exchange bypass this free-higher-ID clear branch. In particular occupied higher-ID exchange does not clear CID; it asks its separate swap confirmation.",
+    "atomicity": "Native clear precedes remapping, but CLI plans and validates every needed identity/reference before applying either change, so unsupported input never leaves a half-cleared CID."
+  },
+  "CLI_policy": {
+    "command": "lox config lighting set-mood-sid FILE BLOCK --mood SID_OR_NAME --sid 1..90 [--swap] [--allow-cid-clear]",
+    "eligibility": "Selected/requested ordinary1..90; retain exact direct selection, matching Num, all positive numerically unique signed32 direct SIDs and temporary99 occupied-swap collision guard.",
+    "confirmation": "Free requested32..90 with positive selected CID requires --allow-cid-clear. The flag is permission for that recovered branch, not an unconditional CID clear, and does not grant --swap.",
+    "needed_CID": "Only the free changed higher-ID branch parses selected CID. Support nonnegative signed32 or omission (effective0), reject unsupported explicit storage. Missing/+000 zero is retained without inserting/canonicalizing CID0. Other branches preserve even unneeded opaque CID spelling.",
+    "effects": "Change affected SIDs, accepted selected CID0 and needed ordered ScMv only. No CID clearing on occupied/no-op/lower branches, no other CID, IID, Qn, flags, names, count/width/order, HCL, capabilities, sequences, OpM/ScAc or unknown data changed.",
+    "result": "JSON adds cid_cleared for the actual effect; existing identity/selection CSV rows show before/after CID. Existing four-argument Rust entry remains a default-no-clear wrapper.",
+    "tests": "src/config_edit/lighting_sid.rs and tests/lighting_cid_source.rs: lighting_sid_*high*"
+  },
+  "validation_scope": {
+    "native_execution_performed_for_this_extension": false,
+    "gui_execution_performed_for_this_extension": false,
+    "runtime_parity": false,
+    "full_dialog_acceptance": false,
+    "vendor_function_text": "Not included."
+  }
+}

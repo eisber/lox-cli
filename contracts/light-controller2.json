@@ -80,17 +80,20 @@
     "limits": "Source-backed existing-record transaction and local persistence only; not full grid vocabulary, post-refresh/save, GUI or runtime parity."
   },
   "ordinary_mood_sid_edit": {
-    "command": "lox config lighting set-mood-sid FILE BLOCK --mood SID_OR_NAME --sid 1..31 [--swap] [--room ROOM] [--save-as PATH]",
+    "command": "lox config lighting set-mood-sid FILE BLOCK --mood SID_OR_NAME --sid 1..90 [--swap] [--allow-cid-clear] [--room ROOM] [--save-as PATH]",
     "source_artifact": "tests/ux/light-controller2/mood-sid-edit-source.json",
     "source_sha256": "542ce58df12e229a8b6409b69e955489c794cdf73eda928df1a3ba7d2ad1482f",
-    "caller": "Grid column2 commit0x1400ea790; owner helper0x1405c1920 returns ordinary IDs unchanged. SID1..31 avoids higher-ID CID-clearing confirmation and special display-ID conversion.",
-    "validation": "Exact direct-record metadata selection; Num matches direct scene count; all direct SIDs are explicit positive numerically unique signed32 decimals. Selected and requested SIDs must be1..31. An occupied different SID requires explicit --swap; an existing direct SID99 blocks occupied exchange atomically.",
+    "higher_sid_extension_artifact": "tests/ux/light-controller2/mood-higher-sid-source.json",
+    "higher_sid_extension_sha256": "ec7a75dc6d3a220b3b04131ff37c035e3bfa7b5d42794fe286003a45c1768273",
+    "caller": "Grid column2 commit0x1400ea790; owner helper0x1405c1920 returns ordinary IDs unchanged. Free requested1..90 is explicitly range-checked; positive CID with free requested>=32 enters a separate CID-clear confirmation.",
+    "validation": "Exact direct-record metadata selection; Num matches direct scene count; all direct SIDs are explicit positive numerically unique signed32 decimals. Selected/requested SIDs1..90. Occupied different SID requires --swap; direct SID99 blocks occupied exchange. Free changed SID32..90 parses needed CID as nonnegative signed32 or absent effective0, and positive CID requires --allow-cid-clear.",
+    "cid_clear": "Flag permits only the recovered free higher-ID clear branch. Lower, occupied and numeric no-op branches preserve CID, including unneeded opaque spelling. Missing/+000 zero remains omitted/original. All needed reference validation precedes SID/CID mutation, preventing a half-cleared transaction.",
     "ordered_effects": "Free ID: selectedOld->requested remap and SID write. Occupied exchange: requestedOld->99, selectedOld->requested,99->selectedOld, with affected record SID writes in native order. Pre-existing visited ScMv99 also participates in the final remap; this is not simultaneous substitution.",
     "references": "Reuse existing CID selection_plan and result types. Remap only the available ScMv prefix bounded by OpM length, preserving whitespace and unvisited tails. Missing/empty vectors cause no reference writes; needed opaque/ambiguous shapes fail before mutation.",
-    "preservation": "Write affected existing SID attributes and needed ScMv only. Keep CIDs including omission/opaque spelling, UUID, Name/SName, flags, Qn, count/width/order, OpM/ScAc, HCL, capabilities, sequences and unknown storage. Numeric no-op preserves raw identity spelling and all in-place bytes.",
-    "formats": "JSON includes actual swapped flag, affected identities, exact ordered remaps and optional ScMv before/after. Reuse existing identity/selection CSV/table conventions without changing CID behavior.",
+    "preservation": "Write affected existing SIDs, explicitly accepted selected CID0 and needed ScMv only. Keep all other CIDs/omissions/spellings, UUID, Name/SName, flags, Qn, count/width/order, OpM/ScAc, HCL, capabilities, sequences and unknown storage. Numeric no-op preserves all in-place bytes.",
+    "formats": "JSON includes actual swapped/cid_cleared flags, affected identities, ordered remaps and optional ScMv before/after. Reuse existing identity/selection CSV/table conventions.",
     "tests": "src/config_edit/lighting_sid.rs and tests/lighting_cid_source.rs: lighting_sid_*",
-    "limits": "Ordinary selected-record transaction only. No raw special/display-ID setter, SID32..90 CID clearing, role repair, import simulation, incidental refresh normalization, native accepted-dialog save/reopen or runtime parity."
+    "limits": "Ordinary selected-record transaction only. No raw special/display-ID setter, role repair, import simulation, incidental refresh normalization, native accepted-dialog save/reopen or runtime parity."
   },
   "existing_mood_rename": {
     "command": "lox config lighting rename-mood FILE BLOCK --mood SID_OR_NAME --name NAME [--room ROOM] [--save-as PATH]",

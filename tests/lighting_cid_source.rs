@@ -27,6 +27,59 @@ fn command() -> Command {
 }
 
 #[test]
+fn lighting_sid_cli_high_free_cid_clear_is_explicit_atomic_and_reported() {
+    let dir = tempfile::tempdir().unwrap();
+    let input = dir.path().join("input.Loxone");
+    let output = dir.path().join("output.Loxone");
+    let xml = XML.replace(
+        "OpM=\"opaque\" ScMv=\"future\"",
+        "OpM=\"0,1\" ScMv=\"1,2,opaque\"",
+    );
+    let before = bytes(&xml);
+    fs::write(&input, &before).unwrap();
+    fs::write(&output, b"existing output").unwrap();
+    command()
+        .args(["config", "lighting", "set-mood-sid"])
+        .arg(&input)
+        .args(["uuid:lighting", "--mood", "A", "--sid", "32", "--save-as"])
+        .arg(&output)
+        .assert()
+        .failure();
+    assert_eq!(fs::read(&input).unwrap(), before);
+    assert_eq!(fs::read(&output).unwrap(), b"existing output");
+    let result = command()
+        .args(["config", "lighting", "set-mood-sid"])
+        .arg(&input)
+        .args([
+            "uuid:lighting",
+            "--mood",
+            "A",
+            "--sid",
+            "32",
+            "--allow-cid-clear",
+            "--save-as",
+        ])
+        .arg(&output)
+        .args(["-o", "json", "--quiet"])
+        .assert()
+        .success()
+        .get_output()
+        .stdout
+        .clone();
+    let result: serde_json::Value = serde_json::from_slice(&result).unwrap();
+    assert_eq!(result["cid_cleared"], true);
+    assert_eq!(result["identities"][0]["after_cid"], "0");
+    assert_eq!(fs::read(&input).unwrap(), before);
+    assert_eq!(
+        fs::read(&output).unwrap(),
+        bytes(
+            &xml.replace("SID=\"1\" CID=\"12\"", "SID=\"32\" CID=\"0\"")
+                .replace("ScMv=\"1,2,opaque\"", "ScMv=\"32,2,opaque\"")
+        )
+    );
+}
+
+#[test]
 fn lighting_sid_cli_exchange_updates_ids_and_selection_only() {
     let dir = tempfile::tempdir().unwrap();
     let input = dir.path().join("input.Loxone");
@@ -92,7 +145,7 @@ fn lighting_sid_cli_unconfirmed_and_unsupported_edits_preserve_both_destinations
     let output = dir.path().join("output.Loxone");
     for (sid, flags, error) in [
         ("2", vec![], "mood_sid_occupied"),
-        ("32", vec![], "unsupported_mood_sid_scope"),
+        ("32", vec![], "mood_sid_cid_clear_required"),
         ("2147483648", vec![], "unsupported_mood_sid_scope"),
         ("2", vec!["--swap"], "unsupported_lighting_selection_value"),
     ] {

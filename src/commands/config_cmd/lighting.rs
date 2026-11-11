@@ -84,7 +84,7 @@ pub(crate) enum LightingCmd {
         #[arg(long, value_name = "PATH")]
         save_as: Option<String>,
     },
-    /// Reassign an ordinary SID1..31; explicitly accept occupied-ID exchange with --swap
+    /// Reassign an ordinary SID1..90 with explicit exchange/CID-clear acceptance
     SetMoodSid {
         #[command(flatten)]
         target: LightingTarget,
@@ -95,6 +95,9 @@ pub(crate) enum LightingCmd {
         /// Accept exchanging occupied ordinary SIDs and ordered selection references
         #[arg(long)]
         swap: bool,
+        /// Accept native CID clearing for a free SID32..90 when the selected CID is positive
+        #[arg(long)]
+        allow_cid_clear: bool,
         #[arg(long, value_name = "PATH")]
         save_as: Option<String>,
     },
@@ -419,11 +422,16 @@ pub(crate) fn run(ctx: &RunContext, action: LightingCmd) -> Result<()> {
             mood,
             sid,
             swap,
+            allow_cid_clear,
             save_as,
         } => {
             let selector = target.selector()?;
             let mut editor = ConfigEditor::load(&crate::load_config_xml(&target.file)?)?;
-            let edit = editor.set_lighting_mood_sid(&selector, &mood, sid, swap)?;
+            let edit = if allow_cid_clear {
+                editor.set_lighting_mood_sid_with_cid_clear(&selector, &mood, sid, swap, true)?
+            } else {
+                editor.set_lighting_mood_sid(&selector, &mood, sid, swap)?
+            };
             if edit.changed || save_as.is_some() {
                 super::save_edited_with_quiet(&mut editor, &target.file, save_as.as_deref(), true)?;
             }
@@ -436,8 +444,13 @@ pub(crate) fn run(ctx: &RunContext, action: LightingCmd) -> Result<()> {
             } else if ctx.csv {
                 print_identity_changes(ctx, &edit.identities, edit.selection_refs.as_ref());
             } else if !ctx.quiet {
+                let cid_status = if edit.cid_cleared {
+                    "selected CID cleared to0"
+                } else {
+                    "CIDs unchanged"
+                };
                 println!(
-                    "✓  {selector}: mood '{mood}' SID={} ({} identity records changed; {} ordered SID remaps; CIDs unchanged)",
+                    "✓  {selector}: mood '{mood}' SID={} ({} identity records changed; {} ordered SID remaps; {cid_status})",
                     edit.requested_sid,
                     edit.identities.len(),
                     edit.selection_remaps.len()
