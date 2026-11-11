@@ -289,7 +289,11 @@ impl ConfigEditor {
         })
     }
 
-    fn lighting_metadata_mood_path(&self, selector: &str, mood_ref: &str) -> Result<Vec<usize>> {
+    pub(super) fn lighting_metadata_mood_path(
+        &self,
+        selector: &str,
+        mood_ref: &str,
+    ) -> Result<Vec<usize>> {
         let mut path = self.require_one(selector)?;
         let block = self.get_element(&path);
         if block.attributes.get("Type").map(String::as_str) != Some("LightController2") {

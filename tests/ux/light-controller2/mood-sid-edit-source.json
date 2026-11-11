@@ -1,0 +1,54 @@
+{
+  "schema_version": 1,
+  "issue": "lox-g0vo.5",
+  "named_question": "How does native ordinary SID reassignment/exchange update selected records and ordered selection references without entering role/CID-clearing branches?",
+  "frozen_target": {
+    "version": "17.2.10.21",
+    "pe_sha256": "7b55e3ef18401574ab967c5c6a0140cd5a66dc728521ebba04ad53093577d8b3",
+    "analysis_id": "6a0520329af17d7b9fdaafe69398c62c454d9da838fc9f9c8d0bdd8d17bb15ae",
+    "new_extractions": 0
+  },
+  "canonical_sources": [
+    {"address": "0x1400ea790", "sha256": "e4a7229adfe6b18d853f18bdb656cbe10c8a33e91749a033bad7a90a7282cdc4", "lines": [119, 213]},
+    {"address": "0x1405c1920", "sha256": "538c51c5aedc1218d87ee26ec6baee986bc43985c7d29f4995117f4399bbc155", "lines": [13, 25]},
+    {"address": "0x1405b5c10", "sha256": "f8ed6042d7d1898d9cd863bc681767390fb0167bde0bec485ff1620210fc5a64", "lines": [21, 35]},
+    {"address": "0x1405b57b0", "sha256": "7eb7ba32c069738fc422f69fc0ba03c9ce4022e4e5ed2812dcba2d52858f28ab", "lines": [20, 32]},
+    {"address": "0x1405b6c00", "sha256": "b5fbbec343c8a988213793ceaa71494cc54d8e55627ceefa3cc5f64985ff7d03", "lines": [20, 36]},
+    {"address": "0x1405b7df0", "sha256": "9f0ff6bd3dcc724a599e3324483c9b584f1e1128c4a3d6bf9604ecc328bf9d58", "lines": [28, 41]}
+  ],
+  "static_byte_pins": [
+    {"address": "0x1400ea92a", "length": 86, "sha256": "3f921bfc6c3b81ff4d1774765886697210b97b7d9d3e20bb266b04aca49e9332", "purpose": "Parsed requested SID passes owner mapping and collection occupancy predicate, with first-match lookup on the occupied branch."},
+    {"address": "0x1400eaa39", "length": 120, "sha256": "2ebd3d8c6600546970ab90efd1f02327b5841a9aeff2a3b06a172be64a3c4948", "purpose": "Accepted transaction remaps otherOld->99, selectedOld->requested, then99->selectedOld and updates the corresponding record members in that order."},
+    {"address": "0x1405c1920", "length": 41, "sha256": "201aa4a91255f4473c1d34c9af9992b3d18d3898c541648bf951f56daae612dd", "purpose": "Owner mapping leaves ordinary IDs unchanged; only776/777/778 map to98/99/0."}
+  ],
+  "reused_contract": {
+    "artifact": "tests/ux/light-controller2/mood-cid-edit-source.json",
+    "sha256": "117c546935895b222d66df22140c3a9139befca625aa63eee280fbcdc242a647",
+    "fact": "Reuse the existing LSConfig OpM/ScMv binding and validated selection_plan codec. The native remapper visits only the available ScMv prefix bounded by OpM length. Do not duplicate or replace that codec."
+  },
+  "source_contract": {
+    "caller": "Grid column2 parses the requested integer. Native owner mapping preserves ordinary values. A free requested ID in1..90 reaches the transaction when its mapping is identical; requested>=32 with positive CID instead asks about clearing CID. Occupied IDs ask for exchange confirmation.",
+    "free": "For admitted ordinary free IDs below32, selectedOld->requested is remapped, the selected SID and dialog selection are updated, and CID is not cleared.",
+    "occupied": "After accepting exchange, the requested-ID record is remapped and temporarily assigned99, the selected record is remapped/assigned requested, and the temporary record is remapped99->selectedOld and assigned selectedOld. Sequential remaps are not a simultaneous substitution.",
+    "temporary_references": "Any pre-existing visited ScMv99 also participates in the final99->selectedOld step; preserve this known cascade in the plan/result. An unvisited opaque tail remains untouched.",
+    "no_change": "If requested equals the selected numeric SID, the transaction body does not change identities/references. GUI confirmation/refresh itself is not simulated."
+  },
+  "CLI_policy": {
+    "command": "lox config lighting set-mood-sid FILE BLOCK --mood SID_OR_NAME --sid 1..31 [--swap] [--room ROOM] [--save-as PATH]",
+    "selection": "Reuse exact direct-record metadata selection. Require one direct collection, Num equal to direct record count, and explicit numerically unique positive signed32 SIDs on all direct records. Selected and requested SIDs must both be1..31.",
+    "confirmation": "An occupied different requested SID requires explicit --swap; otherwise fail atomically. A free SID or numeric no-op needs no exchange permission.",
+    "temporary_collision": "For occupied exchange, reject an existing direct SID99 before any writes. Do not reuse the native temporary value in the presence of a real record with that identity.",
+    "references": "Reuse selection_plan with the exact ordered remaps. Needed ambiguous/opaque lists or containers fail before writes; missing/empty vectors cause no writes, and unvisited tails/whitespace are preserved.",
+    "preservation": "Write only the affected existing SID attributes and needed ScMv references. Preserve CID including omission/opaque spelling, UUID, Name/SName, other records/attributes, flags, Qn, count/width/order, OpM/ScAc, HCL, capabilities, sequences and unknown storage. Numeric no-op preserves original bytes in place.",
+    "result": "Affected identities with raw before/after, requested SID, actual swapped flag, ordered remaps and optional ScMv before/after. JSON/CSV/table use existing identity transaction conventions.",
+    "tests": "src/config_edit/lighting_sid.rs and tests/lighting_cid_source.rs: lighting_sid_*"
+  },
+  "validation_scope": {
+    "native_execution_performed": false,
+    "gui_execution_performed": false,
+    "runtime_parity": false,
+    "full_dialog_acceptance": false,
+    "assumptions": "Normal returns and valid objects. No special/display-ID conversion, SID32..90 CID-clearing confirmation, role repair, import simulation, incidental refresh normalization, native accepted-dialog save/reopen or physical/runtime parity.",
+    "vendor_function_text": "Not included."
+  }
+}

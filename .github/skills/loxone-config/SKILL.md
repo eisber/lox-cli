@@ -215,6 +215,20 @@ lox config lighting set-mood-cid FILE "uuid:<lightcontroller>" --mood <SID|Name>
   Existing `add-mood --sid/--cid` and raw packed-color operations are unchanged.
   Native save/reopen validation remains a separately queued admission dependency.
 
+### Reassign an ordinary existing mood SID
+
+```
+lox config lighting set-mood-sid FILE "uuid:<lightcontroller>" --mood <SID|Name> --sid 2 --swap
+```
+
+- Selected/requested SIDs are1..31; occupied IDs require explicit `--swap`.
+  Require matching Num and unique positive signed32 direct SIDs. Reject a real
+  SID99 during exchange; it is the native temporary identity.
+- Ordered ScMv remaps use the existing CID planner, not simultaneous rename.
+  Existing visited ScMv99 participates in the final remap; unvisited tails stay.
+  CIDs and unrelated storage are unchanged. No special-ID/CID-clear, import,
+  full dialog or runtime parity is inferred.
+
 ### Rename an existing mood or set mix/cycling options
 
 ```

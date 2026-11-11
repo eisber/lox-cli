@@ -296,7 +296,7 @@ fn normalize_role(
     Ok(())
 }
 
-fn selection_plan(
+pub(super) fn selection_plan(
     block: &Element,
     remaps: &[LightingSidRemap],
 ) -> Result<Option<(usize, LightingSelectionEdit)>> {

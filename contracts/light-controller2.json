@@ -12,6 +12,7 @@
     "author_native_style_mood_ids": true,
     "author_numeric_mood_levels": true,
     "edit_existing_mood_cid_transaction": true,
+    "edit_ordinary_mood_sid_transaction": true,
     "rename_existing_mood_ascii_subset": true,
     "set_role_independent_mood_mix": true,
     "set_mood_cycling_exclusion": true,
@@ -75,6 +76,19 @@
     "tests": "src/config_edit/lighting_cid.rs and tests/lighting_cid_source.rs: lighting_cid_*",
     "native_validation": "Case lox-t5t3.6 queued independently; blocked at the initial Notebook transport admission, not run or credited.",
     "limits": "Source-backed existing-record transaction and local persistence only; not full grid vocabulary, post-refresh/save, GUI or runtime parity."
+  },
+  "ordinary_mood_sid_edit": {
+    "command": "lox config lighting set-mood-sid FILE BLOCK --mood SID_OR_NAME --sid 1..31 [--swap] [--room ROOM] [--save-as PATH]",
+    "source_artifact": "tests/ux/light-controller2/mood-sid-edit-source.json",
+    "source_sha256": "542ce58df12e229a8b6409b69e955489c794cdf73eda928df1a3ba7d2ad1482f",
+    "caller": "Grid column2 commit0x1400ea790; owner helper0x1405c1920 returns ordinary IDs unchanged. SID1..31 avoids higher-ID CID-clearing confirmation and special display-ID conversion.",
+    "validation": "Exact direct-record metadata selection; Num matches direct scene count; all direct SIDs are explicit positive numerically unique signed32 decimals. Selected and requested SIDs must be1..31. An occupied different SID requires explicit --swap; an existing direct SID99 blocks occupied exchange atomically.",
+    "ordered_effects": "Free ID: selectedOld->requested remap and SID write. Occupied exchange: requestedOld->99, selectedOld->requested,99->selectedOld, with affected record SID writes in native order. Pre-existing visited ScMv99 also participates in the final remap; this is not simultaneous substitution.",
+    "references": "Reuse existing CID selection_plan and result types. Remap only the available ScMv prefix bounded by OpM length, preserving whitespace and unvisited tails. Missing/empty vectors cause no reference writes; needed opaque/ambiguous shapes fail before mutation.",
+    "preservation": "Write affected existing SID attributes and needed ScMv only. Keep CIDs including omission/opaque spelling, UUID, Name/SName, flags, Qn, count/width/order, OpM/ScAc, HCL, capabilities, sequences and unknown storage. Numeric no-op preserves raw identity spelling and all in-place bytes.",
+    "formats": "JSON includes actual swapped flag, affected identities, exact ordered remaps and optional ScMv before/after. Reuse existing identity/selection CSV/table conventions without changing CID behavior.",
+    "tests": "src/config_edit/lighting_sid.rs and tests/lighting_cid_source.rs: lighting_sid_*",
+    "limits": "Ordinary selected-record transaction only. No raw special/display-ID setter, SID32..90 CID clearing, role repair, import simulation, incidental refresh normalization, native accepted-dialog save/reopen or runtime parity."
   },
   "existing_mood_rename": {
     "command": "lox config lighting rename-mood FILE BLOCK --mood SID_OR_NAME --name NAME [--room ROOM] [--save-as PATH]",

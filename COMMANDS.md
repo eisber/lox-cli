@@ -265,6 +265,7 @@ lox config lighting recount-moods file.Loxone "Lighting" --save-as edited.Loxone
 lox config lighting recount-moods file.Loxone "Lighting" --room "Study" --output json
 lox config lighting set-mood-level file.Loxone "Lighting" --mood "Evening" --output-index 2 --level 37 --save-as edited.Loxone
 lox config lighting set-mood-cid file.Loxone "Lighting" --mood "Evening" --cid 13 --save-as rebound.Loxone
+lox config lighting set-mood-sid file.Loxone "Lighting" --mood "Evening" --sid 2 --swap --save-as exchanged.Loxone
 lox config lighting rename-mood file.Loxone "Lighting" --mood "Evening" --name "Late Evening" --save-as renamed.Loxone
 lox config lighting set-mood-mix file.Loxone "Lighting" --mood "Unbound scene" --no-mix --save-as unmixed.Loxone
 lox config lighting set-mood-skip file.Loxone "Lighting" --mood "Evening" --skip --save-as skipped.Loxone
@@ -428,6 +429,26 @@ sequence data and unrelated references are not normalized. JSON includes
 CSV includes mood and consulted-selection rows. Native validation is separately
 queued and currently blocked on desktop admission, not claimed by local tests.
 See `tests/ux/light-controller2/mood-cid-edit-source.json`.
+
+`lighting set-mood-sid` reassigns an existing ordinary SID to **1..31**.
+Both selected and requested SID must be in that range; higher/special IDs and
+CID-clearing confirmation are not simulated. An occupied different SID
+requires explicit `--swap`, matching native exchange confirmation intent.
+All direct SIDs must be explicit, positive and numerically unique signed-32-bit
+decimals; `Num` must match their count. An existing SID99 blocks occupied
+exchange because native uses temporary99. No IDs are silently allocated.
+
+Free-ID edits remap selected-old to requested. Exchanges remap
+requested-old to99, selected-old to requested, then99 to selected-old **in
+order**, so an already visited ScMv99 also changes in the final step. The
+shared CID/SID planner visits only the available `ScMv` prefix bounded by
+`OpM` length, preserves whitespace/unvisited tails, and rejects needed opaque
+lists before writing. CIDs, UUIDs, names, flags, outputs, counts, HCL and
+unrelated storage stay unchanged. Numeric no-ops preserve original bytes.
+JSON includes ordered remaps and affected identities; CSV uses the existing
+identity/selection transaction rows. This is not a raw role-ID setter,
+import/refresh prediction or native/runtime parity.
+See `tests/ux/light-controller2/mood-sid-edit-source.json`.
 
 `lighting rename-mood` changes only an existing direct mood's `Name`. Supported
 new names contain ASCII letters/digits and ordinary internal spaces, with a

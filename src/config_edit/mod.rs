@@ -24,6 +24,7 @@ pub mod lighting_cid;
 pub mod lighting_metadata;
 #[cfg(test)]
 mod lighting_metadata_tests;
+pub mod lighting_sid;
 #[cfg(test)]
 mod lighting_tests;
 mod permissions;

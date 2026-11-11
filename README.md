@@ -109,6 +109,9 @@ requests preserve omission, and unsupported explicit values fail atomically.
 `lighting set-mood-display-name` edits only SName (uppercase ASCII or explicit
 clear), separately from Name. Inspection warns about numerically duplicated
 positive SIDs and nonzero CIDs without rewriting stored identities.
+`lighting set-mood-sid` supports ordinary SID1..31 reassignment and explicit
+occupied-ID exchange (`--swap`), including ordered selection-reference remaps.
+CIDs stay unchanged; ambiguous identities and temporary SID99 collisions fail.
 
 ---
 

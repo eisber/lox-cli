@@ -3,6 +3,7 @@ use clap::{Args, Subcommand};
 
 use crate::commands::RunContext;
 use crate::config_edit::ConfigEditor;
+use crate::config_edit::lighting_cid::{LightingIdentityChange, LightingSelectionEdit};
 use crate::config_edit::schema::Diagnostic;
 
 #[derive(Args)]
@@ -76,6 +77,20 @@ pub(crate) enum LightingCmd {
         #[arg(long, value_name = "PATH")]
         save_as: Option<String>,
     },
+    /// Reassign an ordinary SID1..31; explicitly accept occupied-ID exchange with --swap
+    SetMoodSid {
+        #[command(flatten)]
+        target: LightingTarget,
+        #[arg(long)]
+        mood: String,
+        #[arg(long)]
+        sid: u32,
+        /// Accept exchanging occupied ordinary SIDs and ordered selection references
+        #[arg(long)]
+        swap: bool,
+        #[arg(long, value_name = "PATH")]
+        save_as: Option<String>,
+    },
     /// Rename only an existing direct mood's Name; bounded ASCII input
     RenameMood {
         #[command(flatten)]
@@ -135,6 +150,57 @@ pub(crate) enum LightingCmd {
         #[arg(long, value_name = "PATH")]
         save_as: Option<String>,
     },
+}
+
+fn print_identity_changes(
+    ctx: &RunContext,
+    identities: &[LightingIdentityChange],
+    selection: Option<&LightingSelectionEdit>,
+) {
+    if ctx.csv {
+        if !ctx.no_header {
+            println!(
+                "RECORD,UUID,SID_BEFORE,SID_AFTER,CID_BEFORE,CID_AFTER,SCMV_BEFORE,SCMV_AFTER"
+            );
+        }
+        for change in identities {
+            println!(
+                "mood,{},{},{},{},{},,",
+                csv(change.uuid.as_deref().unwrap_or("")),
+                csv(&change.before_sid),
+                csv(&change.after_sid),
+                csv(change.before_cid.as_deref().unwrap_or("")),
+                csv(change.after_cid.as_deref().unwrap_or(""))
+            );
+        }
+        if let Some(selection) = selection {
+            println!(
+                "selection,,,,,,{},{}",
+                csv(&selection.before),
+                csv(&selection.after)
+            );
+        }
+    } else {
+        if !ctx.no_header && !identities.is_empty() {
+            println!("RECORD  UUID  SID BEFORE→AFTER  CID BEFORE→AFTER");
+        }
+        for change in identities {
+            println!(
+                "{}  {}  {}→{}  {}→{}",
+                change.record,
+                change.uuid.as_deref().unwrap_or("<missing>"),
+                change.before_sid,
+                change.after_sid,
+                change.before_cid.as_deref().unwrap_or("<absent>"),
+                change.after_cid.as_deref().unwrap_or("<absent>")
+            );
+        }
+        if let Some(selection) = selection
+            && selection.changed
+        {
+            println!("LSConfig ScMv: {} → {}", selection.before, selection.after);
+        }
+    }
 }
 
 pub(crate) fn run(ctx: &RunContext, action: LightingCmd) -> Result<()> {
@@ -257,6 +323,38 @@ pub(crate) fn run(ctx: &RunContext, action: LightingCmd) -> Result<()> {
             }
             return Ok(());
         }
+        LightingCmd::SetMoodSid {
+            target,
+            mood,
+            sid,
+            swap,
+            save_as,
+        } => {
+            let selector = target.selector()?;
+            let mut editor = ConfigEditor::load(&crate::load_config_xml(&target.file)?)?;
+            let edit = editor.set_lighting_mood_sid(&selector, &mood, sid, swap)?;
+            if edit.changed || save_as.is_some() {
+                super::save_edited_with_quiet(&mut editor, &target.file, save_as.as_deref(), true)?;
+            }
+            if ctx.json {
+                let mut value = serde_json::to_value(&edit)?;
+                if let Some(trace_id) = &ctx.trace_id {
+                    value["trace_id"] = trace_id.clone().into();
+                }
+                println!("{}", serde_json::to_string_pretty(&value)?);
+            } else if ctx.csv {
+                print_identity_changes(ctx, &edit.identities, edit.selection_refs.as_ref());
+            } else if !ctx.quiet {
+                println!(
+                    "✓  {selector}: mood '{mood}' SID={} ({} identity records changed; {} ordered SID remaps; CIDs unchanged)",
+                    edit.requested_sid,
+                    edit.identities.len(),
+                    edit.selection_remaps.len()
+                );
+                print_identity_changes(ctx, &edit.identities, edit.selection_refs.as_ref());
+            }
+            return Ok(());
+        }
         LightingCmd::SetMoodCid {
             target,
             mood,
@@ -276,28 +374,7 @@ pub(crate) fn run(ctx: &RunContext, action: LightingCmd) -> Result<()> {
                 }
                 println!("{}", serde_json::to_string_pretty(&value)?);
             } else if ctx.csv {
-                if !ctx.no_header {
-                    println!(
-                        "RECORD,UUID,SID_BEFORE,SID_AFTER,CID_BEFORE,CID_AFTER,SCMV_BEFORE,SCMV_AFTER"
-                    );
-                }
-                for change in &edit.identities {
-                    println!(
-                        "mood,{},{},{},{},{},,",
-                        csv(change.uuid.as_deref().unwrap_or("")),
-                        csv(&change.before_sid),
-                        csv(&change.after_sid),
-                        csv(change.before_cid.as_deref().unwrap_or("")),
-                        csv(change.after_cid.as_deref().unwrap_or(""))
-                    );
-                }
-                if let Some(selection) = &edit.selection_refs {
-                    println!(
-                        "selection,,,,,,{},{}",
-                        csv(&selection.before),
-                        csv(&selection.after)
-                    );
-                }
+                print_identity_changes(ctx, &edit.identities, edit.selection_refs.as_ref());
             } else if !ctx.quiet {
                 println!(
                     "✓  {selector}: mood '{mood}' CID={} ({} identity records changed; {} ordered SID remaps)",
@@ -305,25 +382,7 @@ pub(crate) fn run(ctx: &RunContext, action: LightingCmd) -> Result<()> {
                     edit.identities.len(),
                     edit.selection_remaps.len()
                 );
-                if !ctx.no_header && !edit.identities.is_empty() {
-                    println!("RECORD  UUID  SID BEFORE→AFTER  CID BEFORE→AFTER");
-                }
-                for change in &edit.identities {
-                    println!(
-                        "{}  {}  {}→{}  {}→{}",
-                        change.record,
-                        change.uuid.as_deref().unwrap_or("<missing>"),
-                        change.before_sid,
-                        change.after_sid,
-                        change.before_cid.as_deref().unwrap_or("<absent>"),
-                        change.after_cid.as_deref().unwrap_or("<absent>")
-                    );
-                }
-                if let Some(selection) = &edit.selection_refs
-                    && selection.changed
-                {
-                    println!("LSConfig ScMv: {} → {}", selection.before, selection.after);
-                }
+                print_identity_changes(ctx, &edit.identities, edit.selection_refs.as_ref());
             }
             return Ok(());
         }
