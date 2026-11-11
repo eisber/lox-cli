@@ -268,10 +268,6 @@ fn lighting_metadata_mix_rejects_opaque_missing_or_ambiguous_identity_and_flags_
             "unsupported_mood_identity",
         ),
         (
-            mix_xml().replacen("CID=\"+000\"", "", 1),
-            "unsupported_mood_identity",
-        ),
-        (
             mix_xml().replacen("CID=\"+000\"", "CID=\"-1\"", 1),
             "unsupported_mood_identity",
         ),
@@ -311,6 +307,44 @@ fn lighting_metadata_mix_rejects_opaque_missing_or_ambiguous_identity_and_flags_
             .unwrap_err();
         assert_error_unchanged(&editor, &before, error, code);
     }
+}
+
+#[test]
+fn lighting_metadata_mix_omitted_cid_is_zero_without_identity_insertion() {
+    let xml = mix_xml().replacen(" CID=\"+000\"", "", 1);
+    let mut editor = ConfigEditor::load(xml.as_bytes()).unwrap();
+    let edit = editor
+        .set_lighting_mood_mix("uuid:lighting", "First", false)
+        .unwrap();
+    assert_eq!(edit.mood.cid, None);
+    assert_eq!(edit.cid_effective, 0);
+    assert_xml(
+        &editor,
+        &xml.replacen("MixMod=\"true\"", "MixMod=\"false\"", 1),
+    );
+    let before = editor.to_bytes().unwrap();
+    let edit = editor
+        .set_lighting_mood_mix("uuid:lighting", "First", false)
+        .unwrap();
+    assert!(!edit.changed);
+    assert_eq!(editor.to_bytes().unwrap(), before);
+    let xml = xml.replacen(" MixMod=\"true\"", "", 1);
+    let mut editor = ConfigEditor::load(xml.as_bytes()).unwrap();
+    let before = editor.to_bytes().unwrap();
+    let edit = editor
+        .set_lighting_mood_mix("uuid:lighting", "First", false)
+        .unwrap();
+    assert_eq!(edit.mood.cid, None);
+    assert_eq!(edit.before, None);
+    assert!(!edit.changed);
+    assert_eq!(editor.to_bytes().unwrap(), before);
+    let xml = xml.replacen("Name=\"First\"", "Name=\"First\" CID=\"future\"", 1);
+    let mut editor = ConfigEditor::load(xml.as_bytes()).unwrap();
+    let before = editor.to_bytes().unwrap();
+    let error = editor
+        .set_lighting_mood_mix("uuid:lighting", "First", true)
+        .unwrap_err();
+    assert_error_unchanged(&editor, &before, error, "unsupported_mood_identity");
 }
 
 #[test]

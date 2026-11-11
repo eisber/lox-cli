@@ -44,6 +44,7 @@ pub struct LightingMoodDisplayNameEdit {
 pub struct LightingMoodMixEdit {
     pub mood: LightingMoodIdentity,
     pub scope: &'static str,
+    pub cid_effective: i32,
     pub before: Option<String>,
     pub before_effective: bool,
     pub default: bool,
@@ -315,7 +316,7 @@ impl ConfigEditor {
 
     /// Set the requested state of the recovered per-mood MixMod checkbox.
     ///
-    /// Only unique SID1..31 records with explicit nonnegative CID outside12..19
+    /// Only unique SID1..31 records with nonnegative CID outside12..19 (omitted=0)
     /// and true/false or omitted (default false) are supported. CID12..19 has a graph/role-dependent
     /// forced checkbox state; special/non-checkbox rows are not raw flag edits.
     pub fn set_lighting_mood_mix(
@@ -327,7 +328,12 @@ impl ConfigEditor {
         let path = self.lighting_metadata_mood_path(selector, mood_ref)?;
         let mood = self.get_element(&path);
         let sid = mood_identity_integer(mood, "SID", mood_ref)?;
-        let cid = mood_identity_integer(mood, "CID", mood_ref)?;
+        let cid = Self::stored_mood_integer(mood, "CID").effective.ok_or_else(|| {
+            Diagnostic::new(
+                "unsupported_mood_identity", &format!("{mood_ref}.CID"),
+                "Mix option edits require a supported nonnegative signed32 CID or omission (recovered default0). Unsupported explicit data is not defaulted or truncated.",
+            )
+        })?;
         if !(1..=31).contains(&sid) {
             return Err(Diagnostic::new(
                 "unsupported_mood_mix_scope",
@@ -340,7 +346,7 @@ impl ConfigEditor {
             return Err(Diagnostic::new(
                 "unsupported_mood_identity",
                 &format!("{mood_ref}.CID"),
-                "Mix option edits require an explicit nonnegative signed-32-bit CID. No identity was defaulted or rewritten.",
+                "Mix option edits require nonnegative signed32 CID or omission (recovered default0). Negative identity was not rewritten.",
             )
             .into());
         }
@@ -383,6 +389,7 @@ impl ConfigEditor {
         Ok(LightingMoodMixEdit {
             mood: identity,
             scope: "selected_record_role_independent",
+            cid_effective: cid,
             before: before.stored,
             before_effective: previous,
             default: false,

@@ -403,6 +403,55 @@ fn lighting_metadata_cli_invalid_name_role_and_state_flags_never_write_destinati
 }
 
 #[test]
+fn lighting_metadata_cli_mix_omitted_cid_preserves_storage_and_rejects_bad_explicit_identity() {
+    let dir = tempfile::tempdir().unwrap();
+    let input = dir.path().join("input.Loxone");
+    let output = dir.path().join("output.Loxone");
+    let xml = XML.replacen(" CID=\"0\"", "", 1);
+    let before = bytes(&xml);
+    fs::write(&input, &before).unwrap();
+    let result = command()
+        .args(["config", "lighting", "set-mood-mix"])
+        .arg(&input)
+        .args(["uuid:lighting", "--mood", "A", "--no-mix", "-o", "json"])
+        .assert()
+        .success()
+        .get_output()
+        .stdout
+        .clone();
+    let result: serde_json::Value = serde_json::from_slice(&result).unwrap();
+    assert_eq!(result["mood"]["cid"], serde_json::Value::Null);
+    assert_eq!(result["cid_effective"], 0);
+    assert_eq!(result["changed"], false);
+    assert_eq!(fs::read(&input).unwrap(), before);
+    command()
+        .args(["config", "lighting", "set-mood-mix"])
+        .arg(&input)
+        .args(["uuid:lighting", "--mood", "A", "--mix", "--save-as"])
+        .arg(&output)
+        .args(["--quiet"])
+        .assert()
+        .success();
+    assert_eq!(fs::read(&input).unwrap(), before);
+    assert_eq!(
+        fs::read(&output).unwrap(),
+        bytes(&xml.replacen("MixMod=\"false\"", "MixMod=\"true\"", 1))
+    );
+    let bad = bytes(&xml.replacen("Name=\"A\"", "Name=\"A\" CID=\"future\"", 1));
+    fs::write(&input, &bad).unwrap();
+    let saved = fs::read(&output).unwrap();
+    command()
+        .args(["config", "lighting", "set-mood-mix"])
+        .arg(&input)
+        .args(["uuid:lighting", "--mood", "A", "--mix", "--save-as"])
+        .arg(&output)
+        .assert()
+        .failure();
+    assert_eq!(fs::read(&input).unwrap(), bad);
+    assert_eq!(fs::read(&output).unwrap(), saved);
+}
+
+#[test]
 fn lighting_metadata_cli_mix_missing_default_noop_and_enable_preserve_raw_omission() {
     let dir = tempfile::tempdir().unwrap();
     let input = dir.path().join("input.Loxone");

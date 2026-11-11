@@ -1,0 +1,46 @@
+{
+  "schema_version": 1,
+  "issue": "lox-w9xu.5",
+  "named_question": "Can omitted native CID0 safely select the role-independent mix branch without inserting an identity?",
+  "frozen_target": {
+    "version": "17.2.10.21",
+    "pe_sha256": "7b55e3ef18401574ab967c5c6a0140cd5a66dc728521ebba04ad53093577d8b3",
+    "analysis_id": "6a0520329af17d7b9fdaafe69398c62c454d9da838fc9f9c8d0bdd8d17bb15ae",
+    "new_extractions": 0
+  },
+  "canonical_sources": [
+    {"address": "0x1405b3940", "sha256": "365a8a5e0bc05163fab3b2547924119c7731291b550d9e33fb2df9614ebe4155", "lines": [44, 53]},
+    {"address": "0x1405b7df0", "sha256": "9f0ff6bd3dcc724a599e3324483c9b584f1e1128c4a3d6bf9604ecc328bf9d58", "lines": [37, 41]},
+    {"address": "0x1404c52f0", "sha256": "057c5670bc1b4a95f3b6ae5720f34f057330ba62605c4d0211ac7565de681262", "lines": [73, 139]},
+    {"address": "0x140422760", "sha256": "361f5c3173c2b395766f14baa7a142bc2c1f734f9c04c21be691eb3169ff591d", "lines": [21, 47]}
+  ],
+  "static_byte_pins": [
+    {"address": "0x1405b39ff", "length": 7, "sha256": "f2351035cf048a1a8311903cd7339b5270c234ae93123c88712de7a760850f40", "purpose": "Constructor initializes numeric CID+0xa8 to0."},
+    {"address": "0x1404c6500", "length": 29, "sha256": "0e77e005e3f7d91a40e3ca0a320cf3cbddcbb145c9db39790af47c112d11f36b", "purpose": "Common type5 integer conversion reads the cleared/current string, calls decimal parser and stores its signed32 result."}
+  ],
+  "reused_contract": {
+    "artifact": "tests/ux/light-controller2/mood-mix-source.json",
+    "sha256": "bd64b3e3c7519b4ca1042b040f41f2d3ba0ec8a7aa99c4ad0db0c0aa94f90b70",
+    "fact": "CID12..19 alone enters the recovered graph/role-forced mix path; supported CID0 on SID1..31 is role-independent. This extends only the previous explicit-CID CLI subset."
+  },
+  "source_contract": {
+    "missing": "CID binding uses numeric type5 and param7=0. Reader clears the temporary string before optional attribute lookup; empty decimal conversion returns its initialized0. Constructor also initializes CID0.",
+    "role_boundary": "Omission therefore enters the recovered CID0 branch, not an unknown role mask. The source does not justify defaulting unsupported explicit input or extending CID12..19.",
+    "storage": "The CLI leaves absent CID absent. It changes only selected MixMod when requested; no CID identity is inserted or rewritten."
+  },
+  "CLI_policy": {
+    "command": "lox config lighting set-mood-mix FILE BLOCK --mood SID_OR_NAME (--mix | --no-mix)",
+    "new_input": "Omitted CID is admitted as effective0. Keep selected unique SID1..31, supported direct sibling SIDs, canonical-or-omitted MixMod and CID12..19 role exclusion.",
+    "unsupported": "Present malformed, negative or overflowing CID is rejected before mutation, including requested no-op. No truncation or success-shaped fallback.",
+    "result": "Identity retains raw mood.cid null and JSON adds cid_effective0. Existing explicit CID output, CSV column order and scope are unchanged.",
+    "preservation": "No CID insertion on change/no-op, no MixMod insertion when both CID/MixMod omitted and false requested, and no unrelated attributes/records/IDs/Qn/flags/counts/references/HCL/sequence/default normalization.",
+    "tests": "src/config_edit/lighting_metadata_tests.rs and tests/lighting_metadata_cli.rs: lighting_metadata_*mix*omitted_cid*"
+  },
+  "validation_scope": {
+    "native_execution_performed_for_this_extension": false,
+    "gui_execution_performed_for_this_extension": false,
+    "runtime_parity": false,
+    "full_dialog_acceptance": false,
+    "vendor_function_text": "Not included."
+  }
+}
