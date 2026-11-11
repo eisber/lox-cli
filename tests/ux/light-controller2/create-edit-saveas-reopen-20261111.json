@@ -1,0 +1,66 @@
+{
+  "schema_version": 1,
+  "evidence_kind": "bounded-native-storage-observation",
+  "case_id": "lighting-create-edit-saveas-reopen-20261111-lox-ue95",
+  "issue": "lox-ue95",
+  "status": "completed-with-explicit-semantic-limits",
+  "scope": "One disposable Lighting slice, one CLI-created mood, one CLI Q2 edit, native Save As to a new path and a fresh-process reopen. Not a generic executor completion or whole-family qualification.",
+  "provenance": {
+    "native_version": "17.2.10.21",
+    "native_executable_sha256": "7b55e3ef18401574ab967c5c6a0140cd5a66dc728521ebba04ad53093577d8b3",
+    "cli_commit": "07acc4fbb64e84e9fe9298447059dd949dffb31b",
+    "cli_executable_sha256": "fa4955b0fa6c76d3fe72213535f6c69b539be8c8d786e3948e6d7578d9d5b78f",
+    "private_report_sha256": "dd077f7c8d0981621fa873c9cdc97c8f66f1f6e17e2a9845038347da599b6fd7",
+    "private_reopened_editor_capture_sha256": "23d4214d1588abd7c4533cba23bb1774660f2334c9473294f0e273d36df012c2",
+    "raw_evidence": "Private case retains CLI outputs, project snapshots, selected raw transport replies, reopened-editor capture, SSH restart/final-state receipts and exact comparisons. Direct SDK operation acknowledgements remain in the originating session transcript. No vendor project, screenshot, endpoint or credential is published."
+  },
+  "workflow": [
+    "Reuse a pinned disposable Lighting slice with four direct moods and collection Num=4, Outputs=18.",
+    "Run config add-mood with neither identity override, name Workflow 20261111 lox-ue95 and color hsv(300,100,30), saving to a new file.",
+    "Run config set-mood-color on that new mood with output-index 2 and hsv(120,100,10), saving to another new file.",
+    "Transfer exact CLI-saved bytes and open the owned file in the pinned native application.",
+    "After an explicitly requested MCP restart, reconcile the unchanged original Config process and file. Stop on USER_CONTROL, obtain explicit user handoff and resume under normal control gates.",
+    "Ctrl+S leaves original bytes identical. Use the normal Save As dialog, verify the new absolute filename and absent destination, then save to that new path.",
+    "Capture native-produced bytes, exit normally, verify Config count zero and reopen the exact new output in a fresh process.",
+    "Open the controller editor and select the new mood for observation only. Cancel, exit normally and verify all saved bytes unchanged and Config count zero."
+  ],
+  "file_hashes": {
+    "baseline_sha256": "2d563d1ffd30f08e976f45d2a7afb6fded2f85ad74833a67868ee7d7033e98d2",
+    "cli_created_sha256": "a0a0f94536a8020e5dbeac0f67f1740d1e76d251c70f0a21db187038e8569ca1",
+    "cli_edited_sha256": "1c834c0bf092f27fb50614b7b0ebc756ea68f6b1777b9cb0a25e4926e4fdae32",
+    "native_new_saveas_sha256": "1c834c0bf092f27fb50614b7b0ebc756ea68f6b1777b9cb0a25e4926e4fdae32",
+    "after_reopen_inspection_and_normal_exit_sha256": "1c834c0bf092f27fb50614b7b0ebc756ea68f6b1777b9cb0a25e4926e4fdae32",
+    "native_saved_bytes": 141287
+  },
+  "checks": {
+    "CLI_creation": "All baseline bytes are restored exactly by removing only the one new scene line, restoring collection Num=4 from 5 and reverting the two individually recorded Document Date/DateS attributes. No sorting, metadata-ignore list, XML sanitization or reference normalization.",
+    "CLI_edit": "Only the new mood Q2 changes from 1610612736 to 1610622736, plus individually recorded Document Date/DateS spellings. All other raw bytes are exact.",
+    "native_output": "The actual newly created Save As output equals the complete CLI-edited file byte-for-byte; the structured CLI Lighting inspections also agree exactly.",
+    "identities": {
+      "SID": "1",
+      "CID": "12",
+      "UUID": "59fc4d58-9165-35fc-ffff741afa8d2a84",
+      "existing_mood_identities_and_order": "unchanged"
+    },
+    "outputs": {
+      "collection_Outputs": "18",
+      "new_mood_Outputs": "18",
+      "Q1": "1640612766",
+      "Q2": "1610622736",
+      "Q10": "1610612736",
+      "Q3_to_Q9_and_Q11_to_Q18": "0",
+      "high_type_nibbles": "0x60000000 for Q1/Q2/Q10; zero for other new outputs. Preserved exactly, without interpreting a nibble as a physical channel role."
+    },
+    "reopened_editor": "The new mood name is visible and selectable with displayed ID 1 and input T5/1. This is native model recognition, not just unchanged bytes after launch.",
+    "unrelated_data": "All existing moods, controller attributes, channels, IDs, references, nested/sequence data, unknown attributes, ordering, BOM, line endings and remaining file bytes equal the CLI-saved input.",
+    "cleanup": "Both Config instances exited normally; final Config count zero. Existing offline firewall fence remained enabled. The requested restarted manual MCP task remains running."
+  },
+  "limits": [
+    "The fixture's numeric dimmer controls display 100 for both RGB-packed Q1 and Q2 values. This observation does not validate color rendering or interpret arbitrary packed color values as dimmer brightness.",
+    "Ctrl+S and the new Save As output were byte-identical to input. No claim that every serializer branch ran, a dirty native model was serialized, or accepted native edits preserve these values.",
+    "Editor inspection was cancelled after the save/reopen comparison. Opening it is not assumed pure; no save followed, and unchanged disk bytes do not prove whole-model cancellation rollback.",
+    "One nonempty, 18-output fixture and one automatic identity allocation do not establish gap/exhaustion/collision, sparse-output, import-reconciliation, CID-edit, sequence-edit, runtime, hardware or full-family parity.",
+    "MCP restart, management and SDK readiness are not platform qualification. No VM admission, new extraction, infrastructure policy change or generic automation rewrite.",
+    "Times are retained per source; no shared-clock or elapsed-time inference."
+  ]
+}

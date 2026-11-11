@@ -24,6 +24,16 @@
     "canonical_written_bodies": 53088,
     "raw_vendor_artifacts": "private-and-ignored"
   },
+  "bounded_native_observations": [
+    {
+      "case_id": "lighting-create-edit-saveas-reopen-20261111-lox-ue95",
+      "artifact": "tests/ux/light-controller2/create-edit-saveas-reopen-20261111.json",
+      "sha256": "c4d1d119d0ac0385159bdf349f486b34764b49b0d3153589296171fc0b58c49a",
+      "result": "One CLI create/Q2-edit/save, native Save As to a new file, normal exit and fresh reopen completed. Native output and post-inspection/normal-exit file bytes equal the complete CLI-saved input. SID1/CID12, scene Outputs18, all Q type nibbles and unrelated bytes survived; the reopened editor recognized the new mood.",
+      "semantic_limit": "The fixture's numeric dimmer controls display both RGB-packed Q1/Q2 values as100. Storage preservation does not establish color/dimmer semantics or accepted dirty-native-edit serialization.",
+      "capability_policy": "Scoped observation only. Aggregate gui_roundtrip_verified, runtime_parity and full_family_contract remain false; historical source-only cases and failed native attempts keep their own unchanged status."
+    }
+  ],
   "static_bindings": [
     {
       "purpose": "exact XML type registration",
@@ -75,7 +85,7 @@
     "document_versions": "raw-serialized-metadata-not-authentication",
     "unknown_xml": "read-only-structured-element-and-attribute-inventory",
     "file_writes": "explicit lighting recount-moods changes only collection Num; existing writer may update Document Date/DateS when content changes; inspection remains read-only",
-    "existing_mood_commands": "not-newly-GUI-verified;set_mood_color-positive-index-behavior-unchanged;add_mood-recounts-and-uses-source-backed-18-output-type-defaults;CLI-ID-policy-unchanged"
+    "existing_mood_commands": "One bounded CLI-create/Q2-edit/native-SaveAs/reopen storage observation is recorded above, not generic GUI-edit or color/runtime parity. Positive-index set_mood_color behavior is unchanged; add_mood recounts direct scenes and uses source-backed 18-output defaults and the separately approved automatic-ID policy; explicit-ID overrides remain legacy behavior."
   },
   "mood_count_repair": {
     "command": "lox config lighting recount-moods FILE BLOCK [--room ROOM] [--save-as PATH]",

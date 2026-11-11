@@ -336,6 +336,15 @@ an error; duplicate explicit CID remains accepted, not swapped. An overflowing
 partner successor is an atomic `mood_identity_exhausted` error. Existing scene
 IDs are never reassigned by `add-mood`.
 
+One bounded Config 17.2.10.21 observation completed CLI mood creation, Q2 edit,
+native Save As to a new file, normal exit and fresh reopen. The new SID 1 /
+CID 12, 18-output fields, Q type nibbles and all unrelated bytes survived
+exactly; the reopened editor recognized the new mood. This is storage evidence,
+not color semantics: this fixture's dimmer controls displayed both RGB-packed
+values as 100. Neither dirty native-edit serialization nor family/runtime parity
+is established. See
+`tests/ux/light-controller2/create-edit-saveas-reopen-20261111.json`.
+
 Count repair can expose previously under-counted records on native import.
 Neither command reproduces default-scene injection, sequence normalization,
 whole-document save/cancel or runtime behavior. See

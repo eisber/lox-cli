@@ -6,3 +6,4 @@ contracts/light-controller2.json text eol=lf
 tests/ux/energy-manager2/load-inheritance-binding-source.json text eol=lf
 tests/ux/light-controller2/mood-identity-source.json text eol=lf
 tests/ux/light-controller2/pre-modal-source.json text eol=lf
+tests/ux/light-controller2/create-edit-saveas-reopen-20261111.json text eol=lf
