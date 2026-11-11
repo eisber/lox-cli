@@ -215,6 +215,25 @@ lox config lighting set-mood-cid FILE "uuid:<lightcontroller>" --mood <SID|Name>
   Existing `add-mood --sid/--cid` and raw packed-color operations are unchanged.
   Native save/reopen validation remains a separately queued admission dependency.
 
+### Rename an existing mood or set its ordinary mix option
+
+```
+lox config lighting rename-mood FILE "uuid:<lightcontroller>" --mood <SID|Name> --name "Late Evening"
+lox config lighting set-mood-mix FILE "uuid:<lightcontroller>" --mood <SID|Name> --no-mix
+```
+
+- Rename supports ASCII letters/digits with ordinary internal spaces and a
+  letter/digit at each end. It rejects unmodeled normalization/Unicode rather
+  than trimming, converting or silently defaulting a name. Duplicate new names
+  are native-compatible; later ambiguous Name selectors need an exact SID.
+- Mix requires exactly `--mix` or `--no-mix`, SID1..31, explicit nonnegative CID
+  outside12..19, canonical stored `MixMod=true/false` and unique selected numeric
+  SID. Role-dependent CID12..19 and missing/opaque values are unsupported, even
+  for no-op requests. Do not invent role/default/cohort state.
+- Only the selected Name or MixMod changes. No Q1/HCL, ID, output, sequence or
+  role normalization; raw packed-color editing stays a separate operation.
+  `--room`/`--save-as` and JSON/CSV are supported.
+
 ### Add a Virtual Input (HTTP/jdev push target)
 
 ```

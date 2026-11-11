@@ -1,0 +1,52 @@
+{
+  "schema_version": 1,
+  "issue": "lox-yqzp",
+  "batch": "lox-t5t3",
+  "status": "bounded-lookup-contract-recovered-instance-prediction-blocked",
+  "named_question": "Which connector and first reference does pre-modal Lighting preparation actually select, and which remaining bindings prevent XML-specific predictions?",
+  "frozen_target": {
+    "version": "17.2.10.21",
+    "pe_sha256": "7b55e3ef18401574ab967c5c6a0140cd5a66dc728521ebba04ad53093577d8b3",
+    "analysis_id": "6a0520329af17d7b9fdaafe69398c62c454d9da838fc9f9c8d0bdd8d17bb15ae",
+    "new_extractions": 0
+  },
+  "canonical_sources": [
+    {"address": "0x1404ca730", "sha256": "00c3d55427a49177cb16bd73b0730bcc066f5b877e84d7a14551de882e051697", "lines": [45, 112]},
+    {"address": "0x140453870", "sha256": "39c268b7c24bf7c24555010bf5c6e4ab785b8b88a476accc55ad94f4f5e9d530", "lines": [1, 28]},
+    {"address": "0x1404493a0", "sha256": "db5ad3b2c95cf378f22744c7992d4b24c032ab8d781e0fe0aeb964e9b9ed4252", "lines": [1, 36]},
+    {"address": "0x1404ff730", "sha256": "26f7dc6423b2f144553249208753fcbf615d7f30b8aee197860117e4e281d506", "lines": [1, 71]},
+    {"address": "0x1404b8640", "sha256": "8803beff3fc923b212095dbf3eb17241cdd9f478f1e33233e774da626e530415", "lines": [1, 21]},
+    {"address": "0x140454650", "sha256": "9707059047a1be0f822f47f67b54f57ca7acfc53bb353e9431de537ce01737b8", "lines": [1, 33]},
+    {"address": "0x140452560", "sha256": "d1584b299e05a494254aa37a639bd42f6172cb7719a6fc827710fd5eae78836b", "lines": [1, 18]}
+  ],
+  "static_byte_pins": [
+    {"address": "0x140453870", "length": 100, "sha256": "730f8e8ab1f0e0374dc35a51fcc1031bd8dc4e0f74de8a79e457bee46356a85e", "purpose": "Metadata-offset connector indexing and signed/unsigned vector bounds."},
+    {"address": "0x1404ff730", "length": 263, "sha256": "0b67a59fdff6c675dc5de0751140703ef0ad0a5669e8b0ef2da271c4499f2be1", "purpose": "Original context argument forwarded unchanged to traversal-root accessor; complete first-reference search."},
+    {"address": "0x1404b8640", "length": 14, "sha256": "6031565d2df7b814d2fb99ba29b8dce11b0964f582d2043918c740d35b41c394", "purpose": "Context+0x10 pointer dereference, not an arbitrary global or XML-root lookup."}
+  ],
+  "reused_preparation_arguments": "Reuse pre-modal-source.json's frozen callsite pins for the null third argument/mode-1 original-model path and omitted second argument to0x1404ff730. Existing conditional preparation writes and cancel limits are not retraced or relabeled native-tested.",
+  "connector_lookup": {
+    "metadata": "0x1404493a0 selects metadata using the native object's type at+0x88 and discriminator string+0x70. Ordinary types index a registered metadata table; special type0x210 uses the discriminator lookup.",
+    "index": "0x140453870 obtains the metadata record and adds its two counts at+0xc0/+0xc4 to the supplied channel index before selecting object+0x1f8's pointer vector, bounded by object+0x200.",
+    "consequence": "Do not replace this with a literal AQn suffix-to-pointer-array join. Concrete metadata counts, vector population and actual connector class must be bound first.",
+    "gate": "Preparation tests that returned connector's 32-bit word+0x128. Neither its constructor/loader write nor equivalence to an XML Def/FLG omission is established by this bounded trace."
+  },
+  "reference_lookup": {
+    "root": "0x1404ff730 forwards the original context to0x1404b8640, which reads context+0x10 and dereferences it when nonnull.",
+    "order": "0x140454650(node,1) prefers link+0xb8, then+0xb0, otherwise walks+0xa0 until a+0xb0 link exists. This native hierarchy/order is not assumed to equal serialized XML order or CLI traversal order.",
+    "connector_scan": "For each native object,0x140452560 supplies the connector-vector length at+0x200. The search calls virtual+0x4b0 by index, but stops that object's connector scan at the first missing descriptor+0x20 or descriptor flag mask0x07000000 being nonzero.",
+    "match": "Within each scanned connector, iterate its+0x30 reference vector bounded by+0x38. A nonnull reference matches the supplied connector when both 64-bit identity members at+8/+0x10 compare equal. Return the first matching native object immediately.",
+    "consequence": "The CLI's inventory of all stored In references is not proof of this first eligible native object. Identity-member XML binding, loader linkage, native order and descriptor classes remain instance dependencies."
+  },
+  "precise_remaining_dependencies": [
+    "Bind the exact metadata-selected connector instance to its constructor/loader and the field write governing its+0x128 word; no similarly shaped XML record or missing Def/FLG is a zero-value proof.",
+    "Bind serialized connector/reference identities and native hierarchy links to the object set actually searched, including the first-descriptor break rule and first-match behavior.",
+    "Resolve the returned reference's+0xc8 parent/owner alias and the concrete virtual+0x7a8/+0xc68 results before predicting CapAI or Q tags for a stored document.",
+    "For the separate type0x163 branch, retain the already documented concrete virtual+0x4b0 connection-identity dependency; do not merge it with metadata-offset getter indexing."
+  ],
+  "delivery_decision": {
+    "CLI": "No document-specific preparation predictor, cancel-purity claim, normalization or success-shaped fallback. Existing raw target inventories and stored editor classification remain read-only and explicitly scoped.",
+    "queue": "Mark instance prediction blocked at these named bindings; publish the recovered lookup contract and continue the other ready capabilities.",
+    "native": "No new native execution, private ABI/process-memory operation, machine readiness retry or infrastructure work."
+  }
+}

@@ -21,6 +21,9 @@ pub mod icons;
 mod layout;
 pub mod lighting;
 pub mod lighting_cid;
+pub mod lighting_metadata;
+#[cfg(test)]
+mod lighting_metadata_tests;
 #[cfg(test)]
 mod lighting_tests;
 mod permissions;

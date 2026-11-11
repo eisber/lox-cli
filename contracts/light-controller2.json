@@ -12,6 +12,9 @@
     "author_native_style_mood_ids": true,
     "author_numeric_mood_levels": true,
     "edit_existing_mood_cid_transaction": true,
+    "rename_existing_mood_ascii_subset": true,
+    "set_role_independent_mood_mix": true,
+    "set_role_dependent_mood_mix": false,
     "repair_stored_mood_count": true,
     "new_nested_edits": true,
     "gui_roundtrip_verified": false,
@@ -69,6 +72,41 @@
     "tests": "src/config_edit/lighting_cid.rs and tests/lighting_cid_source.rs: lighting_cid_*",
     "native_validation": "Case lox-t5t3.6 queued independently; blocked at the initial Notebook transport admission, not run or credited.",
     "limits": "Source-backed existing-record transaction and local persistence only; not full grid vocabulary, post-refresh/save, GUI or runtime parity."
+  },
+  "existing_mood_rename": {
+    "command": "lox config lighting rename-mood FILE BLOCK --mood SID_OR_NAME --name NAME [--room ROOM] [--save-as PATH]",
+    "source_artifact": "tests/ux/light-controller2/mood-name-source.json",
+    "source_sha256": "91b169f9a82e5e00482d0a323d4a4febce0eb5e4e568d55631a583acf8b58365",
+    "native_selected_field": "Grid column0 commit0x1400ea790 writes only selected record+0x18, bound to Name. Actual row-data pointer and setter/getter vtable edges are verified.",
+    "validation": "Exactly LightController2, one direct collection and one unambiguous direct mood matching exact stored SID spelling or case-sensitive Name. Nested decoys and numeric Name/SID collisions do not select a record silently.",
+    "new_name": "Nonempty ASCII letters/digits and ordinary internal spaces, with a letter/digit at each end. Reject empty, edge-space, punctuation/control and Unicode inputs rather than approximate native normalization or character conversion.",
+    "compatibility": "Duplicate new names are allowed, matching the native row-bound setter. A later ambiguous Name selector must use an exact unambiguous SID. Missing Name can be populated without generating IDs. Native empty normalized input is ignored; the CLI explicitly rejects empty input.",
+    "preservation": "Only selected Name changes. Keep SName, identities/spellings, Qn, flags, counts/widths/order, LSConfig, HCL, capabilities, sequences and unknown data. No-op in-place preserves bytes; normal existing writer formatting/stamps remain separate.",
+    "tests": "src/config_edit/lighting_metadata_tests.rs and tests/lighting_metadata_cli.rs: lighting_metadata_*",
+    "limits": "Selected model-field transaction only, not full Unicode normalization, GUI permissions, graph refresh, accepted-dialog copyback/save normalization or runtime parity. Native validation remains separately admission-blocked."
+  },
+  "per_mood_mix_edit": {
+    "command": "lox config lighting set-mood-mix FILE BLOCK --mood SID_OR_NAME (--mix | --no-mix) [--room ROOM] [--save-as PATH]",
+    "source_artifact": "tests/ux/light-controller2/mood-mix-source.json",
+    "source_sha256": "bd64b3e3c7519b4ca1042b040f41f2d3ba0ec8a7aa99c4ad0db0c0aa94f90b70",
+    "native_selected_field": "Grid click0x1400ea4d0 column5 toggles selected record+0x98, bound to MixMod. The separate column6 role-mask transaction is not this API.",
+    "validation": "One direct collection and exact unambiguous direct mood; selected explicit SID1..31, nonnegative explicit CID outside12..19 and canonical stored MixMod=true/false. All direct sibling SIDs must be signed-32-bit decimals and the selected numeric SID unique, including equivalent spellings.",
+    "scope": "selected_record_role_independent",
+    "role_boundary": "Always reject CID12..19, even on requested no-op: native checkbox forcing/disablement depends on concrete owner/role state. No defaults, raw-flag escape hatch or cohort inference.",
+    "desired_state": "Idempotent requested-state wrapper around zero or one native column5 toggles. No mutual exclusion, sibling flag clearing, role-mask edits or ID swaps. Missing/numeric/opaque flags are rejected instead of defaulted.",
+    "preservation": "Only selected MixMod changes. Keep all other records/flags, Qn, identities/spellings, count/width/order, SName, LSConfig, HCL, capabilities, sequences and unknown data; no incidental normalization.",
+    "tests": "src/config_edit/lighting_metadata_tests.rs and tests/lighting_metadata_cli.rs: lighting_metadata_*",
+    "extension_dependency": "Before CID12..19 support, recover concrete owner virtual+0x4b0 result, resolved record+0x20/+0x14 role index, active dialog+0x3a0 mask and accepted transport; column6 is a separate transaction.",
+    "limits": "Not a general raw boolean/cohort editor, complete GUI permission model, graph refresh, native accepted-dialog or physical/runtime mixing semantics."
+  },
+  "pre_modal_graph_lookup": {
+    "issue": "lox-yqzp",
+    "artifact": "tests/ux/light-controller2/pre-modal-graph-lookup-source.json",
+    "sha256": "543952d3d49491c17f8f338128c5966c78e11deef98c9f982d2267af7b18a859",
+    "recovered": "Connector lookup uses registered type metadata counts plus channel index, not a literal AQn array join. Reference lookup follows native hierarchy links and stops an object's scan at the first missing/flag-excluded descriptor; it returns the first matching paired identity values.",
+    "blocked": "The exact connector constructor/loader and word+0x128 write, serialized-to-native hierarchy/identity binding, returned reference parent alias and concrete+0x7a8/+0xc68 results remain instance dependencies.",
+    "decision": "No document-specific preparation predictor, cancel-purity claim, normalization or success-shaped fallback. Publish the lookup contract, park prediction at these exact dependencies and continue independent capabilities.",
+    "native_validation": "No new native execution or readiness retry; old source and native case outcomes remain unchanged."
   },
   "stored_mood_editor_inspection": {
     "command": "lox config lighting inspect FILE BLOCK",
@@ -140,7 +178,7 @@
     "channel_roles": "unknown-no-AQn-to-Qn-or-NameAI-index-join",
     "document_versions": "raw-serialized-metadata-not-authentication",
     "unknown_xml": "read-only-structured-element-and-attribute-inventory",
-    "file_writes": "Explicit lighting recount-moods changes only collection Num; set-mood-level changes only selected numeric Qn payload and preserves its tag. Existing writer formatting and Document Date/DateS updates retain normal behavior; inspection remains read-only.",
+    "file_writes": "Recount changes only Num; level editing changes selected numeric Qn payload/tag-preservingly; CID editing applies the explicit guarded identity/reference transaction; rename/mix change only their selected field. Existing writer formatting and Document Date/DateS updates retain normal behavior; inspection remains read-only.",
     "existing_mood_commands": "One bounded CLI-create/Q2-edit/native-SaveAs/reopen storage observation is recorded above, not generic GUI-edit or color/runtime parity. Positive-index set_mood_color behavior is unchanged; add_mood recounts direct scenes and uses source-backed 18-output defaults and the separately approved automatic-ID policy; explicit-ID overrides remain legacy behavior."
   },
   "mood_count_repair": {

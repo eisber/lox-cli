@@ -265,6 +265,8 @@ lox config lighting recount-moods file.Loxone "Lighting" --save-as edited.Loxone
 lox config lighting recount-moods file.Loxone "Lighting" --room "Study" --output json
 lox config lighting set-mood-level file.Loxone "Lighting" --mood "Evening" --output-index 2 --level 37 --save-as edited.Loxone
 lox config lighting set-mood-cid file.Loxone "Lighting" --mood "Evening" --cid 13 --save-as rebound.Loxone
+lox config lighting rename-mood file.Loxone "Lighting" --mood "Evening" --name "Late Evening" --save-as renamed.Loxone
+lox config lighting set-mood-mix file.Loxone "Lighting" --mood "Unbound scene" --no-mix --save-as unmixed.Loxone
 ```
 
 Targets are local files and exactly one **LightController2**, selected by title,
@@ -423,6 +425,38 @@ sequence data and unrelated references are not normalized. JSON includes
 CSV includes mood and consulted-selection rows. Native validation is separately
 queued and currently blocked on desktop admission, not claimed by local tests.
 See `tests/ux/light-controller2/mood-cid-edit-source.json`.
+
+`lighting rename-mood` changes only an existing direct mood's `Name`. Supported
+new names contain ASCII letters/digits and ordinary internal spaces, with a
+letter/digit at each end. Empty, edge-space, punctuation/control and Unicode
+inputs are rejected rather than approximating native normalization. Duplicate
+new names are allowed, matching the native row-bound setter; if that makes a
+later Name selector ambiguous, use its exact stored SID spelling. Missing `Name`
+can be populated without generating IDs. `SName` is a different field and stays
+unchanged. An in-place identical-name edit preserves original bytes.
+
+`lighting set-mood-mix` requests exactly one of `--mix` / `--no-mix` and changes
+only an eligible existing `MixMod` flag. This is not a raw boolean/cohort editor:
+it requires selected SID 1..31, explicit nonnegative CID **outside 12..19**,
+explicit stored `MixMod="true"`/`"false"` and a unique selected numeric SID among
+direct records. All direct sibling SIDs must be supported signed-32-bit
+decimals. CID 12..19 can force/disable the native checkbox through graph/role
+state, so those rows are rejected even on a requested no-op. Special/non-checkbox
+rows and missing/opaque identity or flag values are also rejected; no defaults
+or role-state guesses are applied.
+
+Both metadata commands require exactly one direct collection and one
+unambiguous direct mood selected by exact stored SID or case-sensitive Name.
+They preserve all unselected fields/records, IDs, Qn, flags, widths/counts,
+selection/sequence data, HCL, capabilities and unknown storage. Errors precede
+original/save-as writes; no-op originals are not rewritten. Existing writer
+formatting/stamps still apply to actual saves. JSON reports exact stored
+identities and `before`/`after`/`changed`; mix also reports `enabled` and
+`scope="selected_record_role_independent"`. These are selected-field
+transactions, not full dialog permissions, Unicode normalization, graph refresh
+or accepted-dialog/runtime parity. `set-mood-color` remains raw packed storage.
+See `mood-name-source.json` and `mood-mix-source.json` under
+`tests/ux/light-controller2`.
 
 One bounded Config 17.2.10.21 observation completed CLI mood creation, Q2 edit,
 native Save As to a new file, normal exit and fresh reopen. The new SID 1 /

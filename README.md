@@ -100,6 +100,9 @@ not the native dialog's unrelated output/HCL normalization. See
 `lighting set-mood-cid` separately supports existing-record CID swaps and
 source-backed ordered SID/selection-reference updates, with atomic ambiguity
 and exhaustion errors; it does not change `add-mood` override behavior.
+Bounded `rename-mood` and `set-mood-mix` operations edit one existing Name or
+eligible role-independent MixMod flag. Unsupported name normalization and
+role-forced checkbox states are rejected, not silently approximated.
 
 ---
 

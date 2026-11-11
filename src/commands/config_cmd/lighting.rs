@@ -76,6 +76,34 @@ pub(crate) enum LightingCmd {
         #[arg(long, value_name = "PATH")]
         save_as: Option<String>,
     },
+    /// Rename only an existing direct mood's Name; bounded ASCII input
+    RenameMood {
+        #[command(flatten)]
+        target: LightingTarget,
+        /// Exact stored SID or case-sensitive Name; ambiguous matches are rejected
+        #[arg(long)]
+        mood: String,
+        /// ASCII letters/digits and internal spaces, with a letter/digit at each end
+        #[arg(long)]
+        name: String,
+        #[arg(long, value_name = "PATH")]
+        save_as: Option<String>,
+    },
+    /// Set MixMod for role-independent SID1..31 moods; CID12..19 is unsupported
+    SetMoodMix {
+        #[command(flatten)]
+        target: LightingTarget,
+        #[arg(long)]
+        mood: String,
+        /// Enable the existing per-mood option; not role/cohort membership
+        #[arg(long, required_unless_present = "no_mix", conflicts_with = "no_mix")]
+        mix: bool,
+        /// Disable the existing per-mood option; not role/cohort membership
+        #[arg(long, required_unless_present = "mix", conflicts_with = "mix")]
+        no_mix: bool,
+        #[arg(long, value_name = "PATH")]
+        save_as: Option<String>,
+    },
 }
 
 pub(crate) fn run(ctx: &RunContext, action: LightingCmd) -> Result<()> {
@@ -221,6 +249,87 @@ pub(crate) fn run(ctx: &RunContext, action: LightingCmd) -> Result<()> {
                 {
                     println!("LSConfig ScMv: {} → {}", selection.before, selection.after);
                 }
+            }
+            return Ok(());
+        }
+        LightingCmd::RenameMood {
+            target,
+            mood,
+            name,
+            save_as,
+        } => {
+            let selector = target.selector()?;
+            let mut editor = ConfigEditor::load(&crate::load_config_xml(&target.file)?)?;
+            let edit = editor.rename_lighting_mood(&selector, &mood, &name)?;
+            if edit.changed || save_as.is_some() {
+                super::save_edited_with_quiet(&mut editor, &target.file, save_as.as_deref(), true)?;
+            }
+            if ctx.json {
+                let mut value = serde_json::to_value(&edit)?;
+                if let Some(trace_id) = &ctx.trace_id {
+                    value["trace_id"] = trace_id.clone().into();
+                }
+                println!("{}", serde_json::to_string_pretty(&value)?);
+            } else if ctx.csv {
+                if !ctx.no_header {
+                    println!("MOOD_UUID,SID,CID,BEFORE,AFTER,CHANGED");
+                }
+                println!(
+                    "{},{},{},{},{},{}",
+                    csv(edit.mood.uuid.as_deref().unwrap_or("")),
+                    csv(edit.mood.sid.as_deref().unwrap_or("")),
+                    csv(edit.mood.cid.as_deref().unwrap_or("")),
+                    csv(edit.before.as_deref().unwrap_or("")),
+                    csv(&edit.after),
+                    edit.changed
+                );
+            } else if !ctx.quiet {
+                println!(
+                    "✓  {selector}: mood '{mood}' Name={} (selected Name only; bounded ASCII editor)",
+                    edit.after
+                );
+            }
+            return Ok(());
+        }
+        LightingCmd::SetMoodMix {
+            target,
+            mood,
+            mix,
+            no_mix: _,
+            save_as,
+        } => {
+            let selector = target.selector()?;
+            let mut editor = ConfigEditor::load(&crate::load_config_xml(&target.file)?)?;
+            let edit = editor.set_lighting_mood_mix(&selector, &mood, mix)?;
+            if edit.changed || save_as.is_some() {
+                super::save_edited_with_quiet(&mut editor, &target.file, save_as.as_deref(), true)?;
+            }
+            if ctx.json {
+                let mut value = serde_json::to_value(&edit)?;
+                if let Some(trace_id) = &ctx.trace_id {
+                    value["trace_id"] = trace_id.clone().into();
+                }
+                println!("{}", serde_json::to_string_pretty(&value)?);
+            } else if ctx.csv {
+                if !ctx.no_header {
+                    println!("MOOD_UUID,SID,CID,BEFORE,AFTER,ENABLED,CHANGED,SCOPE");
+                }
+                println!(
+                    "{},{},{},{},{},{},{},{}",
+                    csv(edit.mood.uuid.as_deref().unwrap_or("")),
+                    csv(edit.mood.sid.as_deref().unwrap_or("")),
+                    csv(edit.mood.cid.as_deref().unwrap_or("")),
+                    csv(edit.before.as_deref().unwrap_or("")),
+                    csv(&edit.after),
+                    edit.enabled,
+                    edit.changed,
+                    edit.scope
+                );
+            } else if !ctx.quiet {
+                println!(
+                    "✓  {selector}: mood '{mood}' MixMod={} (selected role-independent record only)",
+                    edit.after
+                );
             }
             return Ok(());
         }

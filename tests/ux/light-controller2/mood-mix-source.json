@@ -1,0 +1,191 @@
+{
+  "schema_version": 1,
+  "artifact_kind": "independently-authored-source-semantics",
+  "issue": "lox-t5t3.2",
+  "question": "Which record does the native MixMod checkbox change, and when is its state coupled to role/cohort state?",
+  "outcome": "Supported selected-record role-independent transaction. Reject graph/role-dependent CID12..19 and non-checkbox/special rows rather than expose a raw boolean setter.",
+  "provenance": {
+    "version": "17.2.10.21",
+    "architecture": "AMD64",
+    "target_sha256": "7b55e3ef18401574ab967c5c6a0140cd5a66dc728521ebba04ad53093577d8b3",
+    "analysis_id": "6a0520329af17d7b9fdaafe69398c62c454d9da838fc9f9c8d0bdd8d17bb15ae",
+    "method": "Frozen canonical decompilation, read-only existing index and selected on-disk PE bytes. No new extraction.",
+    "vendor_function_text": "Not included."
+  },
+  "validation_scope": {
+    "native_execution_performed": false,
+    "gui_execution_performed": false,
+    "gui_validation": "unrun",
+    "runtime_parity": false,
+    "full_dialog_acceptance": false,
+    "assumptions": "Normal returns, successful allocation and ordinary non-null scene/grid objects. Not a heap-purity or all-callers proof."
+  },
+  "source_bindings": [
+    {
+      "role": "actual per-mood checkbox click caller",
+      "address": "0x1400ea4d0",
+      "sha256": "7889492ba869cfaf42c99f85fa67ec0310fb45610db3a54660a5ec4f60de8c0e",
+      "lines": [
+        39,
+        121
+      ],
+      "fact": "Uses the event row's column0 cell data to obtain the exact mood pointer, records its SID for subsequent refresh, and on column5 toggles only mood+0x98 between zero and one. Column4 toggles SkipNext; distinct column6 changes the dialog role bitmask. Column5 then rebuilds the grid and refreshes the selected mood editor."
+    },
+    {
+      "role": "MixMod checkbox, role-forced state and row eligibility",
+      "address": "0x1400eace0",
+      "sha256": "469512dbafb34fa2eeda5e8d338d956cf636728fcfada076c4c775836303669a",
+      "lines": [
+        768,
+        915
+      ],
+      "fact": "Creates CGridCellCheck at column5 and initializes its checked state from the record's +0x98. For CID12..19, owner virtual+0x4b0, the resolved object's +0x20/+0x14 mapping and dialog+0x3a0 can force the displayed mix state true and disable its checkbox. Those assignments target the UI cell, not mood+0x98. SID above31 (including778) replaces the mix checkbox with a non-checkbox cell. This is not a universal freely editable flag."
+    },
+    {
+      "role": "exact direct mood pointer bound into column0 cell",
+      "address": "0x1400eace0",
+      "sha256": "469512dbafb34fa2eeda5e8d338d956cf636728fcfada076c4c775836303669a",
+      "lines": [
+        204,
+        420
+      ],
+      "fact": "Enumerates the dialog collection and stores each actual mood pointer in its own column0 cell through virtual+0x38. The click handler reads that same cell data through virtual+0xa0."
+    },
+    {
+      "role": "MixMod and identity XML binding",
+      "address": "0x1405b7df0",
+      "sha256": "9f0ff6bd3dcc724a599e3324483c9b584f1e1128c4a3d6bf9604ecc328bf9d58",
+      "lines": [
+        28,
+        41
+      ],
+      "fact": "Binds MixMod as a boolean at record+0x98; SID/CID at +0xa4/+0xa8 are independent numeric members. The operation must not confuse MixMod with SkipNext, Sequencing, ReadOnly or the separate role mask."
+    },
+    {
+      "role": "post-click selected-mood lookup",
+      "address": "0x1400e4d60",
+      "sha256": "b36a97c9b7f6526fff278d633605272c1b3f670db30d00248e4b4f6e5f9ca331",
+      "lines": [
+        185,
+        215
+      ],
+      "fact": "Refresh reselects from the collection using the selected numeric SID. Frozen PE restores the second lookup argument omitted by the decompiler. Therefore the CLI additionally requires the selected numeric SID to be unique among direct records."
+    },
+    {
+      "role": "first matching numeric SID lookup",
+      "address": "0x1405b57b0",
+      "sha256": "7eb7ba32c069738fc422f69fc0ba03c9ce4022e4e5ed2812dcba2d52858f28ab",
+      "lines": [
+        20,
+        32
+      ],
+      "fact": "Returns the first record whose +0xa4 equals the supplied SID. The CLI rejects ambiguous numeric identity instead of silently adopting this first-match behavior."
+    },
+    {
+      "role": "pre-toggle grid geometry helper",
+      "address": "0x1403aadb0",
+      "sha256": "10bf9336acb82a1bdf218f6525d71fb36ebee40034fc60c1fbe1265417a5556b",
+      "lines": [
+        23,
+        51
+      ],
+      "fact": "Obtains cell geometry and writes only the supplied rectangle output. The subsequent checkbox virtual+0x108 is independently pinned as a flag getter, not a second model/cohort mutation."
+    },
+    {
+      "role": "accepted dialog scene field copy",
+      "address": "0x1405b4bc0",
+      "sha256": "0474ef4d60b41e52680e9178c50e2defb4ce3e351ed432116c0f7413fb37218a",
+      "lines": [
+        35,
+        45
+      ],
+      "fact": "Copies stored MixMod alongside other individual scene fields. This does not turn the checkbox operation into Qn, ID, sequence, role-mask or HCL normalization."
+    }
+  ],
+  "static_byte_pins": [
+    {
+      "address": "0x1400ea545",
+      "length": 48,
+      "sha256": "c654f3bb51a51e5f3fdf0b567c42ad5087825810b608b2ebefb09ce355a262da",
+      "interpretation": "Column0 cell virtual+0xa0 returns the selected record, whose SID is stored at dialog+0x3a8."
+    },
+    {
+      "address": "0x1400ea6f9",
+      "length": 57,
+      "sha256": "d93ecf86657b580608fc6500a31f7b5018104da540a0951fff84dd1ab0e4f137",
+      "interpretation": "Distinct column4/5/6 dispatch: column5 tests selected mood+0x98 and stores its logical negation there; column6 instead XORs dialog+0x3a0."
+    },
+    {
+      "address": "0x1400ea745",
+      "length": 16,
+      "sha256": "b74a7ad83182e4998d30883cd4eebb31572c3f8c8d16c64012b47eb5173f8ac7",
+      "interpretation": "After the selected flag write, calls the grid rebuild then selected-editor refresh."
+    },
+    {
+      "address": "0x1400e502f",
+      "length": 23,
+      "sha256": "54076ba92448361373d343e3255bcf7663e94a6200db4839c602af655d320595",
+      "interpretation": "Post-click refresh supplies dialog+0x3a8 as the SID argument to0x1405b57b0."
+    },
+    {
+      "address": "0x1403bc565",
+      "length": 10,
+      "sha256": "12ef7213805bf825e0eb8828305a118a316d4bd3b336637c154eb2f919fdba4b",
+      "interpretation": "Checkbox factory installs the actual CGridCellCheck table at0x1416646b8."
+    },
+    {
+      "address": "0x1416647c0",
+      "length": 8,
+      "sha256": "eef7e98ba328c1a61e1ab6b19efd3317ce8c49f1ddda6c8deb852df8bb4ff44a",
+      "interpretation": "Actual checkbox vtable+0x108 points to0x140015910."
+    },
+    {
+      "address": "0x140015910",
+      "length": 4,
+      "sha256": "1a293db1c37aca6b2bac74db71ba984dcb4c91aae1d31deb62e41557b557ccc9",
+      "interpretation": "Pre-toggle virtual method only reads cell+0x3c; it has no model or cohort write."
+    },
+    {
+      "address": "0x1416622f0",
+      "length": 8,
+      "sha256": "5386a963ca710e7e39ce3ae36452bc660986676f06cb2375ffd6e66c39945279",
+      "interpretation": "Column0 base-cell vtable+0x38 is the data setter0x140015830."
+    },
+    {
+      "address": "0x141662358",
+      "length": 8,
+      "sha256": "8717e7516f5c82a4eaaa0c44cd807f193d6fc254cc3cf6632cbecc44e225e692",
+      "interpretation": "Column0 base-cell vtable+0xa0 is the matching data getter0x1400158d0."
+    },
+    {
+      "address": "0x140015830",
+      "length": 5,
+      "sha256": "25365e736a811b71ea81d8408fcb21b14ee852485420d2a78cfb0b328c342601",
+      "interpretation": "Cell data setter stores its second argument at cell+0x18."
+    },
+    {
+      "address": "0x1400158d0",
+      "length": 5,
+      "sha256": "0c6b8858e139e1a255688dfc8b1fca61c89ccea689e8da8bcd4276a9918f1dbe",
+      "interpretation": "Cell data getter returns cell+0x18."
+    }
+  ],
+  "cli_subset": {
+    "api": "ConfigEditor::set_lighting_mood_mix(&mut self, selector: &str, mood_ref: &str, enabled: bool) -> Result<LightingMoodMixEdit>",
+    "selection": "Exactly LightController2, exactly one direct LightscenesC and exactly one direct LightsceneC matching exact stored SID or case-sensitive Name. A numeric Name colliding with another record's SID is ambiguous. Nested decoys never participate.",
+    "eligibility": "Selected explicit signed-32-bit SID1..31, selected explicit nonnegative signed-32-bit CID outside12..19, and explicit canonical MixMod=true/false. Every direct sibling SID must be an explicit signed-32-bit decimal to validate that the selected numeric SID occurs exactly once. Equivalent decimal spellings count as the same numeric SID. Nested records do not participate.",
+    "role_boundary": "Always reject CID12..19, even a requested no-op: independent CLI storage inspection cannot establish whether the native checkbox is role-forced/disabled. No role-state default, raw-flag escape hatch or cohort inference.",
+    "desired_state": "Idempotent requested-state wrapper around zero or one native column5 toggles. Existing canonical spelling is retained on no-op. Missing/numeric/opaque flags are rejected rather than defaulted, even though a newly constructed native record initially zeroes this member.",
+    "cohort": "For admitted role-independent rows, column5 changes only the selected record's MixMod. It does not impose mutual exclusion, clear sibling MixMod, change the role mask, or exchange IDs. The separate column6 role transaction is not this API.",
+    "preservation": "Write only the chosen MixMod attribute. Retain all other flags/records, identity spelling/order/count/width, every Qn, SName, capabilities, LSConfig, HCL, sequences and unknown storage. No incidental Q1/HCL or full-dialog normalization.",
+    "result_scope": "selected_record_role_independent",
+    "limitations": "Not a general raw boolean editor, role-dependent/cohort membership editor, full GUI permission model, graph refresh, accepted-dialog parity or physical/runtime mixing semantics.",
+    "tests": "src/config_edit/lighting_metadata_tests.rs: lighting_metadata_mix_*"
+  },
+  "extension_dependency": {
+    "status": "not-implemented-and-not-required-for-this-subset",
+    "boundary": "CID12..19 graph/role-dependent displayed/disabled state",
+    "precise_input": "Owner virtual+0x4b0 result, resolved record+0x20 then +0x14 role index, active dialog+0x3a0 mask and its accepted-dialog transport. The column6 bitmask operation is separate.",
+    "policy": "Recover those coupled inputs/transaction before extending the CID12..19 surface. Do not silently turn the selected-model flag into an enabled checkbox claim."
+  }
+}

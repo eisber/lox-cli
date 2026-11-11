@@ -1,0 +1,173 @@
+{
+  "schema_version": 1,
+  "artifact_kind": "independently-authored-source-semantics",
+  "issue": "lox-t5t3.1",
+  "question": "Which selected native mood does the name edit modify, with which validation and preservation boundary?",
+  "outcome": "Supported selected-record Name transaction with an explicit no-normalization ASCII input subset.",
+  "provenance": {
+    "version": "17.2.10.21",
+    "architecture": "AMD64",
+    "target_sha256": "7b55e3ef18401574ab967c5c6a0140cd5a66dc728521ebba04ad53093577d8b3",
+    "analysis_id": "6a0520329af17d7b9fdaafe69398c62c454d9da838fc9f9c8d0bdd8d17bb15ae",
+    "method": "Frozen canonical decompilation, read-only existing index and selected on-disk PE bytes. No new extraction.",
+    "vendor_function_text": "Not included."
+  },
+  "validation_scope": {
+    "native_execution_performed": false,
+    "gui_execution_performed": false,
+    "gui_validation": "unrun",
+    "runtime_parity": false,
+    "full_dialog_acceptance": false,
+    "assumptions": "Normal returns, successful allocation and ordinary non-null scene/grid objects. Not a heap-purity or all-callers proof."
+  },
+  "source_bindings": [
+    {
+      "role": "selected grid Name edit commit",
+      "address": "0x1400ea790",
+      "sha256": "e4a7229adfe6b18d853f18bdb656cbe10c8a33e91749a033bad7a90a7282cdc4",
+      "lines": [
+        49,
+        89
+      ],
+      "fact": "Uses the event row/column to obtain a cell, reads its stored record pointer via virtual +0xa0, obtains edited text, normalizes it, and on column0 copies a nonempty result to record+0x18. Empty normalized text leaves the stored name intact and the displayed name is restored. The name branch does not scan for duplicate names."
+    },
+    {
+      "role": "direct collection record to grid cell binding",
+      "address": "0x1400eace0",
+      "sha256": "469512dbafb34fa2eeda5e8d338d956cf636728fcfada076c4c775836303669a",
+      "lines": [
+        204,
+        420
+      ],
+      "fact": "Enumerates the dialog collection at +0x130 and obtains each actual record pointer; column0 displays record+0x18 and receives that same record pointer through virtual +0x38."
+    },
+    {
+      "role": "selected name XML binding",
+      "address": "0x1405b7df0",
+      "sha256": "9f0ff6bd3dcc724a599e3324483c9b584f1e1128c4a3d6bf9604ecc328bf9d58",
+      "lines": [
+        28,
+        41
+      ],
+      "fact": "Binds LightsceneC Name at record+0x18, SName separately at +0x30, and IDs/flags separately. The frozen Name label bytes independently identify the anonymous data reference."
+    },
+    {
+      "role": "name field string copy",
+      "address": "0x14041d880",
+      "sha256": "70ff0a876bd3b5b2070eeb178fe7e920e4a9e3c71b97f3ff651564ba9fcc17f6",
+      "lines": [
+        23,
+        45
+      ],
+      "fact": "Copies the input string into the specified destination member, without traversing other mood records or updating IDs, outputs, flags, HCL or sequences."
+    },
+    {
+      "role": "generic text normalization before the name branch",
+      "address": "0x1404d2710",
+      "sha256": "4a8a7b5589ef7371526f4a52a4bdcea4abf2097ae00b59e837a69efbe19ef2af",
+      "lines": [
+        30,
+        123
+      ],
+      "fact": "The actual caller supplies arguments (text,1,1,0,0,0,0,1), verified from PE including omitted stack arguments. It can replace control/special characters and edge spaces. Plain ASCII letters/digits with ordinary internal spaces avoid the replacement paths; other normalization is not implemented by the CLI."
+    },
+    {
+      "role": "leading whitespace normalization",
+      "address": "0x1404222f0",
+      "sha256": "a5ffa4797db18e27cbe7187c5115a154ac0595a399f1b39b77b119b7caae309c",
+      "lines": [
+        21,
+        36
+      ],
+      "fact": "Replaces leading ordinary spaces/tabs with the supplied replacement byte, stopping at the first other byte. Thus a leading ASCII letter/digit avoids it."
+    },
+    {
+      "role": "trailing whitespace normalization",
+      "address": "0x1404223e0",
+      "sha256": "0fe101a12cbee9b04ad856a10398bc18bba394619be7a803ecf191ee79b51ae4",
+      "lines": [
+        21,
+        38
+      ],
+      "fact": "Replaces trailing ordinary spaces/tabs with the supplied replacement byte, stopping at the first other byte. Thus a trailing ASCII letter/digit avoids it."
+    }
+  ],
+  "static_byte_pins": [
+    {
+      "address": "0x14160f190",
+      "length": 5,
+      "sha256": "5458f37977e6129640e9a702b17242e615bf4672eff3161fe49121846d47a085",
+      "interpretation": "NUL-terminated Name label."
+    },
+    {
+      "address": "0x1400ea7c4",
+      "length": 97,
+      "sha256": "437cc843a0c01bb316b163c6b194f2789e4e562ec5ae83c0bf5eccb645d4604b",
+      "interpretation": "Event row/column feed the grid lookup; virtual +0xa0 provides the selected record pointer retained in R15."
+    },
+    {
+      "address": "0x1400ea867",
+      "length": 43,
+      "sha256": "1df06f2262504f69c1cbe389444626b400e90b896912782896723abbee4ffa46",
+      "interpretation": "Full normalizer arguments, including four stack arguments omitted from the decompiled call: 0,0,0,1; register arguments are text,1,1,0."
+    },
+    {
+      "address": "0x1400eac25",
+      "length": 26,
+      "sha256": "c306b2c151c6f55c14cca5fed1c99468cbca3ea8e52a58d04c4812c359197818",
+      "interpretation": "Column0 checks nonempty normalized text and copies only to selected record+0x18."
+    },
+    {
+      "address": "0x14039fa37",
+      "length": 10,
+      "sha256": "fa0bc63d9cb06f716376d2a02b57e781ed639e9043d3f53c9cdd74912d26b401",
+      "interpretation": "CGridCell constructor installs the table at0x1416622b8."
+    },
+    {
+      "address": "0x1416622f0",
+      "length": 8,
+      "sha256": "5386a963ca710e7e39ce3ae36452bc660986676f06cb2375ffd6e66c39945279",
+      "interpretation": "Actual CGridCell vtable+0x38 points to0x140015830."
+    },
+    {
+      "address": "0x141662358",
+      "length": 8,
+      "sha256": "8717e7516f5c82a4eaaa0c44cd807f193d6fc254cc3cf6632cbecc44e225e692",
+      "interpretation": "Actual CGridCell vtable+0xa0 points to0x1400158d0."
+    },
+    {
+      "address": "0x140015830",
+      "length": 5,
+      "sha256": "25365e736a811b71ea81d8408fcb21b14ee852485420d2a78cfb0b328c342601",
+      "interpretation": "Cell data setter stores its second argument at cell+0x18."
+    },
+    {
+      "address": "0x1400158d0",
+      "length": 5,
+      "sha256": "0c6b8858e139e1a255688dfc8b1fca61c89ccea689e8da8bcd4276a9918f1dbe",
+      "interpretation": "Cell data getter returns cell+0x18, completing the same-record selection edge."
+    },
+    {
+      "address": "0x140ff48b8",
+      "length": 4,
+      "sha256": "888f70a9eac49e56629cabca402baec7d542bc8bfd08a8bb2c8cf0e98c9571f0",
+      "interpretation": "Normalizer's special prefix token; excluded by the CLI name alphabet."
+    },
+    {
+      "address": "0x140ff48c0",
+      "length": 34,
+      "sha256": "709eea49212c0ffae0e8000d3d442debc122fd617f3b00a0e06697d6efc6437c",
+      "interpretation": "Normalizer replacement-character table; excluded by the CLI name alphabet."
+    }
+  ],
+  "cli_subset": {
+    "api": "ConfigEditor::rename_lighting_mood(&mut self, selector: &str, mood_ref: &str, name: &str) -> Result<LightingMoodRenameEdit>",
+    "selection": "Exactly LightController2, exactly one direct LightscenesC and exactly one direct LightsceneC matching exact stored SID or case-sensitive Name. A numeric Name colliding with another record's SID is ambiguous. Nested decoys never participate.",
+    "new_name": "Nonempty ASCII letters/digits and ordinary internal spaces, starting/ending with a letter/digit. Reject rather than approximate native control/special-character normalization, edge-space replacement or Unicode conversion. No trimming, invented name/default or silent truncation.",
+    "duplicates": "Duplicate new names are allowed, matching this native row-bound setter's lack of a uniqueness check. A later ambiguous Name selector is rejected; use an unambiguous stored SID. Missing Name can be populated without synthesizing identity fields.",
+    "native_empty_difference": "The native column0 commit ignores empty normalized text. The strict CLI rejects empty input instead of reporting a successful rename.",
+    "preservation": "Write only the chosen Name attribute. Preserve SName, UUID/SID/CID/IID spelling, count/order/width, every Qn, flags including MixMod/ReadOnly, sequences, LSConfig, HCL, capabilities and unknown data. No-op does not mutate the DOM; normal existing file-writer formatting/stamps remain separate.",
+    "limitations": "Selected model-field transaction only, not complete GUI permissions/editability, full accepted-dialog copy-back/save normalization, graph-label refresh, runtime behavior or Unicode/native-normalization parity.",
+    "tests": "src/config_edit/lighting_metadata_tests.rs: lighting_metadata_rename_*"
+  }
+}
