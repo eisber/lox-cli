@@ -5,7 +5,7 @@ use serde::Serialize;
 use xmltree::Element;
 
 use super::ConfigEditor;
-use super::schema::Diagnostic;
+use super::schema::{Diagnostic, StoredValue};
 
 #[derive(Debug, Serialize)]
 pub struct LightingMoodIdentity {
@@ -42,7 +42,82 @@ pub struct LightingMoodMixEdit {
     pub changed: bool,
 }
 
+#[derive(Debug, Serialize)]
+pub struct LightingMoodSkipEdit {
+    pub mood: LightingMoodIdentity,
+    pub before: StoredValue<bool>,
+    pub after: Option<String>,
+    pub skip: bool,
+    pub checkbox_checked: bool,
+    pub changed: bool,
+}
+
 impl ConfigEditor {
+    /// Set only SkipNext; the native cycling checkbox displays its inverse.
+    pub fn set_lighting_mood_skip(
+        &mut self,
+        selector: &str,
+        mood_ref: &str,
+        skip: bool,
+    ) -> Result<LightingMoodSkipEdit> {
+        let path = self.lighting_metadata_mood_path(selector, mood_ref)?;
+        let mood = self.get_element(&path);
+        let sid = mood_identity_integer(mood, "SID", mood_ref)?;
+        if sid <= 0 {
+            return Err(Diagnostic::new(
+                "unsupported_mood_skip_scope",
+                mood_ref,
+                "Cycling flag edits require an explicit positive signed-32-bit SID. Native import's zero-SID reconciliation is not simulated.",
+            )
+            .into());
+        }
+        require_unique_metadata_sid(
+            self.get_element(&path[..path.len() - 1]),
+            sid,
+            selector,
+            mood_ref,
+        )?;
+        let stored = mood.attributes.get("SkipNext").cloned();
+        let previous = match stored.as_deref() {
+            None | Some("false") => false,
+            Some("true") => true,
+            _ => {
+                return Err(Diagnostic::new(
+                    "unsupported_mood_skip_value",
+                    &format!("{mood_ref}.SkipNext"),
+                    "SkipNext must be canonical true/false or absent (recovered native default false). Unsupported explicit values are not defaulted or normalized.",
+                )
+                .into());
+            }
+        };
+        let identity = LightingMoodIdentity::from_element(mood);
+        let changed = previous != skip;
+        let after = if changed {
+            Some(skip.to_string())
+        } else {
+            stored.clone()
+        };
+        if let Some(after) = &after
+            && changed
+        {
+            self.get_element_mut(&path)
+                .attributes
+                .insert("SkipNext".into(), after.clone());
+        }
+        Ok(LightingMoodSkipEdit {
+            mood: identity,
+            before: StoredValue {
+                stored,
+                effective: Some(previous),
+                default: Some(false),
+            },
+            after,
+            skip,
+            checkbox_checked: !skip,
+            changed,
+        })
+    }
+
     /// Rename one direct mood using a no-normalization subset of the native name editor.
     ///
     /// New names contain only ASCII letters, digits and internal ordinary spaces,
@@ -131,29 +206,12 @@ impl ConfigEditor {
             )
             .into());
         }
-        let collection = self.get_element(&path[..path.len() - 1]);
-        let mut matching_sids = 0;
-        for (index, node) in collection.children.iter().enumerate() {
-            let Some(sibling) = node.as_element().filter(|e| e.name == "LightsceneC") else {
-                continue;
-            };
-            let sibling_sid = mood_identity_integer(
-                sibling,
-                "SID",
-                &format!("{selector}.LightscenesC.LightsceneC[{index}]"),
-            )?;
-            if sibling_sid == sid {
-                matching_sids += 1;
-            }
-        }
-        if matching_sids != 1 {
-            return Err(Diagnostic::new(
-                "ambiguous_mood_sid",
-                mood_ref,
-                "The native checkbox refresh reselects by numeric SID. The selected SID must be unique among direct moods, including equivalent decimal spellings; no cohort was changed.",
-            )
-            .into());
-        }
+        require_unique_metadata_sid(
+            self.get_element(&path[..path.len() - 1]),
+            sid,
+            selector,
+            mood_ref,
+        )?;
         let before = mood.attributes.get("MixMod").cloned();
         let previous = match before.as_deref() {
             Some("true") => true,
@@ -253,8 +311,39 @@ fn mood_identity_integer(mood: &Element, key: &str, path: &str) -> Result<i32> {
             Diagnostic::new(
                 "unsupported_mood_identity",
                 &format!("{path}.{key}"),
-                "Mix option edits require an explicit signed-32-bit decimal identity. Inspect the stored moods; missing, malformed or overflowing values are not defaulted or truncated.",
+                "Checkbox option edits require an explicit signed-32-bit decimal identity. Inspect the stored moods; missing, malformed or overflowing values are not defaulted or truncated.",
             )
             .into()
         })
+}
+
+fn require_unique_metadata_sid(
+    collection: &Element,
+    sid: i32,
+    selector: &str,
+    mood_ref: &str,
+) -> Result<()> {
+    let mut matching_sids = 0;
+    for (index, node) in collection.children.iter().enumerate() {
+        let Some(sibling) = node.as_element().filter(|e| e.name == "LightsceneC") else {
+            continue;
+        };
+        let sibling_sid = mood_identity_integer(
+            sibling,
+            "SID",
+            &format!("{selector}.LightscenesC.LightsceneC[{index}]"),
+        )?;
+        if sibling_sid == sid {
+            matching_sids += 1;
+        }
+    }
+    if matching_sids != 1 {
+        return Err(Diagnostic::new(
+            "ambiguous_mood_sid",
+            mood_ref,
+            "The native checkbox refresh reselects by numeric SID. The selected SID must be unique among direct moods, including equivalent decimal spellings; no cohort was changed.",
+        )
+        .into());
+    }
+    Ok(())
 }

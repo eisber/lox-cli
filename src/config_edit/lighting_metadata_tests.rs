@@ -316,3 +316,73 @@ fn lighting_metadata_mix_rejects_opaque_missing_or_ambiguous_identity_and_flags_
         assert_error_unchanged(&editor, &before, error, code);
     }
 }
+const SKIP_XML: &str = r#"<ControlList><C Type="LightController2" U="lighting">
+  <LightscenesC Num="2" Outputs="18" Future="keep">
+    <LightsceneC Name="A" UUID="a" SID="777" CID="opaque" MixMod="true" Q1="future"><SeqConf Future="keep"/></LightsceneC>
+    <LightsceneC Name="B" SID="+0002" SkipNext="true" Q2="-1"/>
+  </LightscenesC><LSConfig ScMv="opaque"/><HCL T="2" FROM="0"/>
+</C></ControlList>"#;
+
+#[test]
+fn lighting_metadata_skip_uses_stored_default_and_inverse_checkbox_without_other_writes() {
+    let mut editor = super::ConfigEditor::load(SKIP_XML.as_bytes()).unwrap();
+    let before = editor.to_bytes().unwrap();
+    let edit = editor
+        .set_lighting_mood_skip("uuid:lighting", "A", false)
+        .unwrap();
+    assert_eq!(edit.before.stored, None);
+    assert_eq!(edit.before.effective, Some(false));
+    assert_eq!(edit.after, None);
+    assert!(edit.checkbox_checked);
+    assert!(!edit.changed);
+    assert_eq!(editor.to_bytes().unwrap(), before);
+    let edit = editor
+        .set_lighting_mood_skip("uuid:lighting", "A", true)
+        .unwrap();
+    assert_eq!(edit.after.as_deref(), Some("true"));
+    assert!(!edit.checkbox_checked);
+    let expected = SKIP_XML.replace("Q1=\"future\">", "Q1=\"future\" SkipNext=\"true\">");
+    assert_eq!(
+        editor.to_bytes().unwrap(),
+        super::ConfigEditor::load(expected.as_bytes())
+            .unwrap()
+            .to_bytes()
+            .unwrap()
+    );
+    editor
+        .set_lighting_mood_skip("uuid:lighting", "B", false)
+        .unwrap();
+    let expected = expected.replace(
+        "SID=\"+0002\" SkipNext=\"true\"",
+        "SID=\"+0002\" SkipNext=\"false\"",
+    );
+    assert_eq!(
+        editor.to_bytes().unwrap(),
+        super::ConfigEditor::load(expected.as_bytes())
+            .unwrap()
+            .to_bytes()
+            .unwrap()
+    );
+}
+
+#[test]
+fn lighting_metadata_skip_rejects_unmodeled_flags_and_ambiguous_identity_atomically() {
+    for xml in [
+        SKIP_XML.replace("Name=\"A\"", "Name=\"A\" SkipNext=\"0\""),
+        SKIP_XML.replace("Name=\"A\"", "Name=\"A\" SkipNext=\"opaque\""),
+        SKIP_XML.replace("SID=\"777\"", "SID=\"0\""),
+        SKIP_XML.replace("SID=\"+0002\"", "SID=\"+00777\""),
+        SKIP_XML.replace("SID=\"+0002\"", "SID=\"future\""),
+        SKIP_XML.replace("Name=\"B\"", "Name=\"A\""),
+        SKIP_XML.replace("</C>", "<LightscenesC/></C>"),
+    ] {
+        let mut editor = super::ConfigEditor::load(xml.as_bytes()).unwrap();
+        let before = editor.to_bytes().unwrap();
+        assert!(
+            editor
+                .set_lighting_mood_skip("uuid:lighting", "A", true)
+                .is_err()
+        );
+        assert_eq!(editor.to_bytes().unwrap(), before);
+    }
+}

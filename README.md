@@ -103,6 +103,9 @@ and exhaustion errors; it does not change `add-mood` override behavior.
 Bounded `rename-mood` and `set-mood-mix` operations edit one existing Name or
 eligible role-independent MixMod flag. Unsupported name normalization and
 role-forced checkbox states are rejected, not silently approximated.
+`lighting set-mood-skip` changes only the cycling exclusion flag and reports
+the native checkbox's inverse state. Omitted `SkipNext` means false; no-op
+requests preserve omission, and unsupported explicit values fail atomically.
 
 ---
 

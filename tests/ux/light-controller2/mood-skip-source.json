@@ -1,0 +1,54 @@
+{
+  "schema_version": 1,
+  "issue": "lox-g0vo.2",
+  "named_question": "What does the native cycling checkbox write, how is its displayed state inverted, and what does an omitted SkipNext mean?",
+  "frozen_target": {
+    "version": "17.2.10.21",
+    "pe_sha256": "7b55e3ef18401574ab967c5c6a0140cd5a66dc728521ebba04ad53093577d8b3",
+    "analysis_id": "6a0520329af17d7b9fdaafe69398c62c454d9da838fc9f9c8d0bdd8d17bb15ae",
+    "new_extractions": 0
+  },
+  "canonical_sources": [
+    {"address": "0x1400ea4d0", "sha256": "7889492ba869cfaf42c99f85fa67ec0310fb45610db3a54660a5ec4f60de8c0e", "lines": [39, 119]},
+    {"address": "0x1400eace0", "sha256": "469512dbafb34fa2eeda5e8d338d956cf636728fcfada076c4c775836303669a", "lines": [768, 915]},
+    {"address": "0x1405b7df0", "sha256": "9f0ff6bd3dcc724a599e3324483c9b584f1e1128c4a3d6bf9604ecc328bf9d58", "lines": [28, 41]},
+    {"address": "0x1405b3940", "sha256": "365a8a5e0bc05163fab3b2547924119c7731291b550d9e33fb2df9614ebe4155", "lines": [27, 53]},
+    {"address": "0x1404c52f0", "sha256": "057c5670bc1b4a95f3b6ae5720f34f057330ba62605c4d0211ac7565de681262", "lines": [73, 110]},
+    {"address": "0x14041eb10", "sha256": "fee9619bd6f3e7b27599dc164581bb02028e619477ce20cdcbf21edd3efd6655", "lines": [18, 27]},
+    {"address": "0x1400e4d60", "sha256": "b36a97c9b7f6526fff278d633605272c1b3f670db30d00248e4b4f6e5f9ca331", "lines": [185, 215]},
+    {"address": "0x1405b57b0", "sha256": "7eb7ba32c069738fc422f69fc0ba03c9ce4022e4e5ed2812dcba2d52858f28ab", "lines": [20, 32]}
+  ],
+  "static_byte_pins": [
+    {"address": "0x1400ea734", "length": 17, "sha256": "04a9d1fbdefa079ffec9c68d84b6ed25f121065914baafe7a9453b772a8dacd0", "purpose": "Column4 writes the logical negation of the selected record's SkipNext at +0x8c."},
+    {"address": "0x1400ec7c2", "length": 25, "sha256": "4c1da3d136e0cc0f8d6707d34b361f2a6dea755254a6f1399d1ec889c5cdde42", "purpose": "Renderer stores SkipNext==0 into the column4 checkbox's checked member at cell+0x50."},
+    {"address": "0x1405b39e1", "length": 9, "sha256": "6e1219fb5af38d8c73a3efd67b5ba4f7deddd9abd389fa59ae48c220a42f14f4", "purpose": "Scene constructor zeroes the eight bytes containing SkipNext and Sequencing."},
+    {"address": "0x1404c64a0", "length": 32, "sha256": "4f831ae195c0931fc975674a91a7468a27002036570a80c518152520a987182f", "purpose": "Common boolean reader compares its cleared/read temporary string against the TRUE literal and stores equality."},
+    {"address": "0x140ff3bb4", "length": 5, "sha256": "5de7a893e93df4bcd4b5640bf2b35ac9518615ded6e37beaae19c338cd781d67", "purpose": "NUL-terminated TRUE comparison literal; comparison is case-insensitive."},
+    {"address": "0x1400ea545", "length": 48, "sha256": "c654f3bb51a51e5f3fdf0b567c42ad5087825810b608b2ebefb09ce355a262da", "purpose": "Row column0 data supplies the exact record and its selected SID."},
+    {"address": "0x1400e502f", "length": 23, "sha256": "54076ba92448361373d343e3255bcf7663e94a6200db4839c602af655d320595", "purpose": "Post-click editor refresh supplies the selected SID to the first-match collection lookup."}
+  ],
+  "source_contract": {
+    "selected_field": "Grid click column4 toggles only the row-bound mood's +0x8c, bound as boolean SkipNext. Column5 MixMod and column6 role membership are different operations.",
+    "display": "The cycling checkbox displays the inverse: checked means SkipNext=false. Report both the requested stored skip value and checkbox_checked=!skip.",
+    "missing": "The constructor initializes SkipNext=false. The binding uses common boolean type0 with param7=0; the reader clears its temporary string, reads an attribute if present and compares case-insensitively with TRUE. Missing input therefore stores false, not an unknown or inherited value.",
+    "eligibility": "Column4 is still a checkbox for special/non-MixMod rows. SID>31 and CID12..19 restrictions at this source site apply to other cells, not SkipNext. No unsupported graph/role predicate is imported from MixMod.",
+    "refresh": "The click stores the selected SID then refreshes the grid/editor. Since the refresh lookup takes the first equal numeric SID, reject ambiguous selected numeric identity rather than claim equivalent reselection.",
+    "incidental_effects": "Do not reproduce refresh-triggered Q1/HCL or complete accepted-dialog normalization."
+  },
+  "CLI_policy": {
+    "command": "lox config lighting set-mood-skip FILE BLOCK --mood SID_OR_NAME (--skip | --no-skip) [--room ROOM] [--save-as PATH]",
+    "selection": "Exactly LightController2, one direct collection and one unambiguous direct mood matching exact stored SID spelling or case-sensitive Name. Selected SID must be positive signed32; all direct sibling SIDs must be supported signed32 decimals and the selected numeric SID unique. Nested decoys do not participate.",
+    "values": "Absent SkipNext has effective/default false. Explicit input is conservatively limited to canonical true/false; numeric, opaque and other spellings are rejected without defaulting or normalization.",
+    "desired_state": "Idempotent requested-state wrapper around zero or one native toggles. A false request on absent SkipNext preserves its omission. Other no-ops preserve original bytes.",
+    "preservation": "Write only the chosen SkipNext when its effective value changes. Retain all other flags/records, identity spellings/order/count/width, every Qn, SName, capabilities, LSConfig, HCL, sequences and unknown storage. Unneeded CID/flags are not parsed. Existing writer formatting and Document stamps retain normal behavior.",
+    "tests": "src/config_edit/lighting_metadata_tests.rs and tests/lighting_metadata_cli.rs: lighting_metadata_*skip*"
+  },
+  "validation_scope": {
+    "native_execution_performed": false,
+    "gui_execution_performed": false,
+    "runtime_parity": false,
+    "full_dialog_acceptance": false,
+    "assumptions": "Normal returns, successful allocations and valid non-null scene/grid objects. This is a selected-field transaction, not complete GUI permissions, import reconciliation, physical cycling behavior or a heap-purity proof.",
+    "vendor_function_text": "Not included."
+  }
+}

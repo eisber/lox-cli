@@ -267,6 +267,7 @@ lox config lighting set-mood-level file.Loxone "Lighting" --mood "Evening" --out
 lox config lighting set-mood-cid file.Loxone "Lighting" --mood "Evening" --cid 13 --save-as rebound.Loxone
 lox config lighting rename-mood file.Loxone "Lighting" --mood "Evening" --name "Late Evening" --save-as renamed.Loxone
 lox config lighting set-mood-mix file.Loxone "Lighting" --mood "Unbound scene" --no-mix --save-as unmixed.Loxone
+lox config lighting set-mood-skip file.Loxone "Lighting" --mood "Evening" --skip --save-as skipped.Loxone
 ```
 
 Targets are local files and exactly one **LightController2**, selected by title,
@@ -457,6 +458,19 @@ transactions, not full dialog permissions, Unicode normalization, graph refresh
 or accepted-dialog/runtime parity. `set-mood-color` remains raw packed storage.
 See `mood-name-source.json` and `mood-mix-source.json` under
 `tests/ux/light-controller2`.
+
+`lighting set-mood-skip` requires exactly `--skip` / `--no-skip` and changes
+only the selected `SkipNext`. The native cycling checkbox is **inverted**:
+checked means included (`SkipNext=false`). JSON/CSV report stored/effective
+before values, the resulting skip value and `checkbox_checked`. Missing
+`SkipNext` has recovered effective/default false; a `--no-skip` no-op keeps
+it absent. Explicit values must be canonical `true`/`false`; malformed or
+numeric flags are rejected, not treated as false. The selected positive
+signed-32-bit SID must be numerically unique among supported direct sibling
+SIDs. Unlike MixMod, this checkbox is not restricted to SID1..31 or by
+CID12..19. No other flags, IDs, outputs, references or HCL are normalized.
+This is a source-backed selected-field edit, not native/runtime cycling
+parity. See `tests/ux/light-controller2/mood-skip-source.json`.
 
 One bounded Config 17.2.10.21 observation completed CLI mood creation, Q2 edit,
 native Save As to a new file, normal exit and fresh reopen. The new SID 1 /

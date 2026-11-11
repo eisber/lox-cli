@@ -14,6 +14,7 @@
     "edit_existing_mood_cid_transaction": true,
     "rename_existing_mood_ascii_subset": true,
     "set_role_independent_mood_mix": true,
+    "set_mood_cycling_exclusion": true,
     "set_role_dependent_mood_mix": false,
     "repair_stored_mood_count": true,
     "new_nested_edits": true,
@@ -98,6 +99,19 @@
     "tests": "src/config_edit/lighting_metadata_tests.rs and tests/lighting_metadata_cli.rs: lighting_metadata_*",
     "extension_dependency": "Before CID12..19 support, recover concrete owner virtual+0x4b0 result, resolved record+0x20/+0x14 role index, active dialog+0x3a0 mask and accepted transport; column6 is a separate transaction.",
     "limits": "Not a general raw boolean/cohort editor, complete GUI permission model, graph refresh, native accepted-dialog or physical/runtime mixing semantics."
+  },
+  "per_mood_cycling_exclusion_edit": {
+    "command": "lox config lighting set-mood-skip FILE BLOCK --mood SID_OR_NAME (--skip | --no-skip) [--room ROOM] [--save-as PATH]",
+    "source_artifact": "tests/ux/light-controller2/mood-skip-source.json",
+    "source_sha256": "cdc9e17b3ec0d02778181bdc7bb6ce04311ba5bf91df3c08a8e23016f90ea70a",
+    "native_selected_field": "Grid click0x1400ea4d0 column4 toggles selected record+0x8c, bound as boolean SkipNext. The checkbox displays the inverse: checked means SkipNext=false.",
+    "missing": "Constructor initializes false; the common attribute reader clears its temporary string and compares against TRUE with param7=0. Omitted SkipNext therefore has effective/default false, while its raw storage remains absent.",
+    "validation": "One direct collection and one unambiguous exact stored SID/Name match. Selected explicit positive signed32 SID must be numerically unique among supported direct sibling SIDs. Explicit SkipNext must be canonical true/false; missing is supported, other explicit values are not defaulted.",
+    "desired_state": "Idempotent requested-state wrapper around zero or one native toggles. A false request on absent SkipNext preserves omission. Result reports raw/effective/default before, resulting storage, skip and inverse checkbox_checked.",
+    "role_boundary": "This column4 checkbox has no recovered MixMod SID1..31/CID12..19 restriction. Do not copy column5 role forcing or column6 role-mask semantics into this operation; unneeded CID is preserved without interpretation.",
+    "preservation": "Only selected SkipNext changes. Keep all other records/flags, Qn, identities/spellings, count/width/order, SName, LSConfig, HCL, capabilities, sequences and unknown data. No incidental Q1/HCL or full-dialog normalization.",
+    "tests": "src/config_edit/lighting_metadata_tests.rs and tests/lighting_metadata_cli.rs: lighting_metadata_*skip*",
+    "limits": "Source-backed selected-field transaction, not full GUI permissions, import reconciliation, accepted native save/reopen, physical cycling behavior or runtime parity."
   },
   "pre_modal_graph_lookup": {
     "issue": "lox-yqzp",

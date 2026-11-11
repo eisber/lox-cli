@@ -104,6 +104,21 @@ pub(crate) enum LightingCmd {
         #[arg(long, value_name = "PATH")]
         save_as: Option<String>,
     },
+    /// Set SkipNext only; the native cycling checkbox displays its inverse
+    SetMoodSkip {
+        #[command(flatten)]
+        target: LightingTarget,
+        #[arg(long)]
+        mood: String,
+        /// Exclude this mood when cycling (SkipNext=true)
+        #[arg(long, required_unless_present = "no_skip", conflicts_with = "no_skip")]
+        skip: bool,
+        /// Include this mood when cycling (SkipNext=false)
+        #[arg(long, required_unless_present = "skip", conflicts_with = "skip")]
+        no_skip: bool,
+        #[arg(long, value_name = "PATH")]
+        save_as: Option<String>,
+    },
 }
 
 pub(crate) fn run(ctx: &RunContext, action: LightingCmd) -> Result<()> {
@@ -329,6 +344,49 @@ pub(crate) fn run(ctx: &RunContext, action: LightingCmd) -> Result<()> {
                 println!(
                     "✓  {selector}: mood '{mood}' MixMod={} (selected role-independent record only)",
                     edit.after
+                );
+            }
+            return Ok(());
+        }
+        LightingCmd::SetMoodSkip {
+            target,
+            mood,
+            skip,
+            no_skip: _,
+            save_as,
+        } => {
+            let selector = target.selector()?;
+            let mut editor = ConfigEditor::load(&crate::load_config_xml(&target.file)?)?;
+            let edit = editor.set_lighting_mood_skip(&selector, &mood, skip)?;
+            if edit.changed || save_as.is_some() {
+                super::save_edited_with_quiet(&mut editor, &target.file, save_as.as_deref(), true)?;
+            }
+            if ctx.json {
+                let mut value = serde_json::to_value(&edit)?;
+                if let Some(trace_id) = &ctx.trace_id {
+                    value["trace_id"] = trace_id.clone().into();
+                }
+                println!("{}", serde_json::to_string_pretty(&value)?);
+            } else if ctx.csv {
+                if !ctx.no_header {
+                    println!(
+                        "MOOD_UUID,BEFORE_STORED,BEFORE_EFFECTIVE,AFTER_STORED,SKIP,CHECKBOX_CHECKED,CHANGED"
+                    );
+                }
+                println!(
+                    "{},{},{},{},{},{},{}",
+                    csv(edit.mood.uuid.as_deref().unwrap_or("")),
+                    csv(edit.before.stored.as_deref().unwrap_or("")),
+                    edit.before.effective.unwrap(),
+                    csv(edit.after.as_deref().unwrap_or("")),
+                    edit.skip,
+                    edit.checkbox_checked,
+                    edit.changed
+                );
+            } else if !ctx.quiet {
+                println!(
+                    "✓  {selector}: mood '{mood}' SkipNext={} (native cycling checkbox checked={})",
+                    edit.skip, edit.checkbox_checked
                 );
             }
             return Ok(());

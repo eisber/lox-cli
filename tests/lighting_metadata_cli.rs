@@ -29,6 +29,79 @@ fn command() -> Command {
 }
 
 #[test]
+fn lighting_metadata_cli_skip_preserves_absence_then_changes_only_selected_flag() {
+    let dir = tempfile::tempdir().unwrap();
+    let input = dir.path().join("input.Loxone");
+    let output = dir.path().join("output.Loxone");
+    let before = bytes(XML);
+    fs::write(&input, &before).unwrap();
+    let result = command()
+        .args(["config", "lighting", "set-mood-skip"])
+        .arg(&input)
+        .args(["uuid:lighting", "--mood", "A", "--no-skip", "-o", "json"])
+        .assert()
+        .success()
+        .get_output()
+        .stdout
+        .clone();
+    let result: serde_json::Value = serde_json::from_slice(&result).unwrap();
+    assert_eq!(result["before"]["stored"], serde_json::Value::Null);
+    assert_eq!(result["before"]["effective"], false);
+    assert_eq!(result["after"], serde_json::Value::Null);
+    assert_eq!(result["checkbox_checked"], true);
+    assert_eq!(result["changed"], false);
+    assert_eq!(fs::read(&input).unwrap(), before);
+    let result = command()
+        .args(["config", "lighting", "set-mood-skip"])
+        .arg(&input)
+        .args(["uuid:lighting", "--mood", "A", "--skip", "--save-as"])
+        .arg(&output)
+        .args(["-o", "json", "--quiet"])
+        .assert()
+        .success()
+        .get_output()
+        .stdout
+        .clone();
+    let result: serde_json::Value = serde_json::from_slice(&result).unwrap();
+    assert_eq!(result["skip"], true);
+    assert_eq!(result["checkbox_checked"], false);
+    assert_eq!(fs::read(&input).unwrap(), before);
+    let expected = XML.replace("SName=\"alias\"", "SName=\"alias\" SkipNext=\"true\"");
+    assert_eq!(fs::read(&output).unwrap(), bytes(&expected));
+}
+
+#[test]
+fn lighting_metadata_cli_skip_requires_exact_state_and_never_defaults_explicit_bad_values() {
+    let dir = tempfile::tempdir().unwrap();
+    let input = dir.path().join("input.Loxone");
+    let output = dir.path().join("output.Loxone");
+    for (xml, flags, code) in [
+        (XML.to_string(), vec![], 2),
+        (XML.to_string(), vec!["--skip", "--no-skip"], 2),
+        (
+            XML.replace("SName=\"alias\"", "SName=\"alias\" SkipNext=\"future\""),
+            vec!["--skip"],
+            1,
+        ),
+    ] {
+        let before = bytes(&xml);
+        fs::write(&input, &before).unwrap();
+        fs::write(&output, b"existing output").unwrap();
+        command()
+            .args(["config", "lighting", "set-mood-skip"])
+            .arg(&input)
+            .args(["uuid:lighting", "--mood", "A"])
+            .args(flags)
+            .arg("--save-as")
+            .arg(&output)
+            .assert()
+            .code(code);
+        assert_eq!(fs::read(&input).unwrap(), before);
+        assert_eq!(fs::read(&output).unwrap(), b"existing output");
+    }
+}
+
+#[test]
 fn lighting_metadata_cli_rename_preserves_other_bytes_and_guards_ambiguous_names() {
     let dir = tempfile::tempdir().unwrap();
     let input = dir.path().join("input.Loxone");

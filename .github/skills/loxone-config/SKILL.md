@@ -215,11 +215,12 @@ lox config lighting set-mood-cid FILE "uuid:<lightcontroller>" --mood <SID|Name>
   Existing `add-mood --sid/--cid` and raw packed-color operations are unchanged.
   Native save/reopen validation remains a separately queued admission dependency.
 
-### Rename an existing mood or set its ordinary mix option
+### Rename an existing mood or set mix/cycling options
 
 ```
 lox config lighting rename-mood FILE "uuid:<lightcontroller>" --mood <SID|Name> --name "Late Evening"
 lox config lighting set-mood-mix FILE "uuid:<lightcontroller>" --mood <SID|Name> --no-mix
+lox config lighting set-mood-skip FILE "uuid:<lightcontroller>" --mood <SID|Name> --skip
 ```
 
 - Rename supports ASCII letters/digits with ordinary internal spaces and a
@@ -230,7 +231,12 @@ lox config lighting set-mood-mix FILE "uuid:<lightcontroller>" --mood <SID|Name>
   outside12..19, canonical stored `MixMod=true/false` and unique selected numeric
   SID. Role-dependent CID12..19 and missing/opaque values are unsupported, even
   for no-op requests. Do not invent role/default/cohort state.
-- Only the selected Name or MixMod changes. No Q1/HCL, ID, output, sequence or
+- Skip requires exactly `--skip` or `--no-skip` and changes only `SkipNext`.
+  The native checkbox is inverted: checked means included (`false`).
+  Omission means false and stays omitted on no-op; unsupported explicit values
+  fail instead of defaulting. Requires a unique positive numeric selected SID;
+  MixMod's SID1..31/CID12..19 restrictions do not apply to this checkbox.
+- Only the selected Name, MixMod or SkipNext changes. No Q1/HCL, ID, output, sequence or
   role normalization; raw packed-color editing stays a separate operation.
   `--room`/`--save-as` and JSON/CSV are supported.
 
