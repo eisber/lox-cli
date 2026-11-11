@@ -1,0 +1,49 @@
+{
+  "schema_version": 1,
+  "issue": "lox-w9xu.2",
+  "named_question": "Which selected stored mood options have recovered defaults and checkbox projections without inferring native permissions or graph state?",
+  "frozen_target": {
+    "version": "17.2.10.21",
+    "pe_sha256": "7b55e3ef18401574ab967c5c6a0140cd5a66dc728521ebba04ad53093577d8b3",
+    "analysis_id": "6a0520329af17d7b9fdaafe69398c62c454d9da838fc9f9c8d0bdd8d17bb15ae",
+    "new_extractions": 0
+  },
+  "canonical_sources": [
+    {"address": "0x1405b3940", "sha256": "365a8a5e0bc05163fab3b2547924119c7731291b550d9e33fb2df9614ebe4155", "lines": [27, 53]},
+    {"address": "0x1405b7df0", "sha256": "9f0ff6bd3dcc724a599e3324483c9b584f1e1128c4a3d6bf9604ecc328bf9d58", "lines": [29, 41]},
+    {"address": "0x1404c52f0", "sha256": "057c5670bc1b4a95f3b6ae5720f34f057330ba62605c4d0211ac7565de681262", "lines": [73, 110]},
+    {"address": "0x1404c52f0", "sha256": "057c5670bc1b4a95f3b6ae5720f34f057330ba62605c4d0211ac7565de681262", "lines": [169, 174]},
+    {"address": "0x1400eace0", "sha256": "469512dbafb34fa2eeda5e8d338d956cf636728fcfada076c4c775836303669a", "lines": [768, 915]}
+  ],
+  "static_byte_pins": [
+    {"address": "0x140fed530", "length": 5, "sha256": "d043e1bcbf133b4820da7af3203c58cbbe275ea952663afc7874ce535f9cc11b", "purpose": "Anonymous binder label is NUL-terminated Move."},
+    {"address": "0x1405b39e1", "length": 62, "sha256": "0914d614d9ae415d4ede08d578cf2188b8d1c8f808bab7551b121ff3a9b4b98c", "purpose": "Default zero initialization covers Move+0x88, SkipNext+0x8c, Sequencing+0x90, ReadOnly+0x94, MixMod+0x98 and CID+0xa8."},
+    {"address": "0x1400ec7c2", "length": 25, "sha256": "4c1da3d136e0cc0f8d6707d34b361f2a6dea755254a6f1399d1ec889c5cdde42", "purpose": "SkipNext column4 checkbox receives SkipNext==0, not the raw flag."},
+    {"address": "0x1404c64a0", "length": 32, "sha256": "4f831ae195c0931fc975674a91a7468a27002036570a80c518152520a987182f", "purpose": "Shared boolean conversion compares cleared/read string with TRUE."}
+  ],
+  "reused_contracts": [
+    {"artifact": "tests/ux/light-controller2/mood-mix-source.json", "sha256": "bd64b3e3c7519b4ca1042b040f41f2d3ba0ec8a7aa99c4ad0db0c0aa94f90b70", "fact": "Column5 is not a checkbox above SID31 and CID12..19 displayed/disabled state depends on current owner/role state."},
+    {"artifact": "tests/ux/light-controller2/mood-cid-edit-source.json", "sha256": "117c546935895b222d66df22140c3a9139befca625aa63eee280fbcdc242a647", "fact": "Omitted CID has reader default0; unsupported explicit identity is not defaulted by the CLI."},
+    {"artifact": "tests/ux/light-controller2/mood-display-name-source.json", "sha256": "4ea43e1b3df825dcfb1c16417c18f6998dc0846194977c7a3fe0358f019ed9ae", "fact": "SName is a separate optional string; absent/empty reads as empty, not inherited text. Editing normalization is not applied on inspection."}
+  ],
+  "CLI_policy": {
+    "command": "lox config lighting inspect-mood-options FILE BLOCK --mood SID_OR_NAME [--room ROOM]",
+    "selection": "Reuse exact direct metadata selection: LightController2, one direct collection and one unambiguous exact stored SID spelling or case-sensitive Name. Nested decoys and numeric Name/SID collisions do not silently select a record.",
+    "flags": "SkipNext, MixMod, ReadOnly, Sequencing and Move report raw stored spelling, effective value and recovered default false. Explicit interpretation is conservatively limited to canonical true/false; other spellings remain raw/unresolved with diagnostics. Missing remains raw null, not inserted false.",
+    "cycling": "For a resolved stored SkipNext, report inverse checkbox projection. It is not a prediction that a stored row is imported, displayed or editable.",
+    "mix": "For SID1..31 and supported nonnegative CID outside12..19, report direct model-boolean projection. Omitted CID uses recovered0. CID12..19 remains role_dependent with checked null, not the stored flag or a guessed role mask. SID>31 is not_checkbox_row. Unsupported needed SID/CID is unresolved_identity. Unsupported explicit MixMod is unresolved_value where a direct projection would otherwise apply.",
+    "stored_only": "Move, ReadOnly and Sequencing have no new UI-action, order, sequence or permission interpretation. Never turn ReadOnly into a complete GUI access model.",
+    "display_name": "Report SName stored/effective/default independently of Name. Preserve arbitrary stored text without uppercase conversion or sanitization; omission has effective/default empty string.",
+    "formats": "Complete JSON with diagnostics; table and CSV include all five flags plus SName. CSV explicitly includes STORED_PRESENT to distinguish missing from explicit empty text. Projection/operation limitations remain visible on stderr with quiet/no-header.",
+    "preservation": "Read-only; no file save, stamp change, default insertion, normalization, ID/output/reference/sequence/HCL edits.",
+    "limits": "Stored model projections only. Not current graph state, Num-limited import, row visibility, uniqueness/write admission, GUI permissions, accepted-dialog or runtime parity. Every edit operation still independently validates its target.",
+    "tests": "src/config_edit/lighting_metadata_tests.rs and tests/lighting_metadata_cli.rs: lighting_metadata_*option*"
+  },
+  "validation_scope": {
+    "native_execution_performed_for_this_surface": false,
+    "gui_execution_performed_for_this_surface": false,
+    "runtime_parity": false,
+    "full_dialog_acceptance": false,
+    "vendor_function_text": "Not included."
+  }
+}

@@ -62,7 +62,104 @@ pub struct LightingMoodSkipEdit {
     pub changed: bool,
 }
 
+#[derive(Debug, Serialize)]
+pub struct LightingMoodFlag {
+    pub key: &'static str,
+    pub value: StoredValue<bool>,
+    pub checkbox_checked: Option<bool>,
+    pub projection: &'static str,
+}
+
+#[derive(Debug, Serialize)]
+pub struct LightingMoodOptions {
+    pub mood: LightingMoodIdentity,
+    pub read_only: bool,
+    pub flags: Vec<LightingMoodFlag>,
+    pub display_name: StoredValue<String>,
+    pub diagnostics: Vec<Diagnostic>,
+}
+
 impl ConfigEditor {
+    pub fn inspect_lighting_mood_options(
+        &self,
+        selector: &str,
+        mood_ref: &str,
+    ) -> Result<LightingMoodOptions> {
+        let path = self.lighting_metadata_mood_path(selector, mood_ref)?;
+        let mood = self.get_element(&path);
+        let mut diagnostics = vec![Diagnostic::new(
+            "stored_mood_options_only",
+            mood_ref,
+            "Stored values and recovered checkbox projections only, not loaded-row/import, current graph/role state or GUI permissions. Each edit operation independently validates its target.",
+        )];
+        let mut flags = Vec::new();
+        for key in ["SkipNext", "MixMod", "ReadOnly", "Sequencing", "Move"] {
+            let value = Self::stored_mood_flag(mood, key);
+            if value.effective.is_none() {
+                diagnostics.push(Diagnostic::new(
+                    "unsupported_mood_option_value", &format!("{mood_ref}.{key}"),
+                    "Only canonical true/false or omission is interpreted here. Unsupported explicit storage is retained and unresolved, not defaulted.",
+                ));
+            }
+            let (mut projection, checkbox_checked) = match key {
+                "SkipNext" => ("inverse", value.effective.map(|skip| !skip)),
+                "MixMod" => {
+                    let sid = mood
+                        .attributes
+                        .get("SID")
+                        .and_then(|raw| raw.parse::<i32>().ok());
+                    let cid = match mood.attributes.get("CID") {
+                        None => Some(0),
+                        Some(raw) => raw.parse::<i32>().ok().filter(|cid| *cid >= 0),
+                    };
+                    match (sid, cid) {
+                        (Some(sid), _) if sid > 31 => ("not_checkbox_row", None),
+                        (Some(sid), Some(cid)) if sid > 0 => {
+                            if (12..=19).contains(&cid) {
+                                diagnostics.push(Diagnostic::new(
+                                    "role_dependent_mood_mix", &format!("{mood_ref}.MixMod"),
+                                    "CID12..19 can force and disable the displayed mix checkbox through current graph/role state. Stored MixMod is not its displayed state.",
+                                ));
+                                ("role_dependent", None)
+                            } else {
+                                ("direct", value.effective)
+                            }
+                        }
+                        _ => {
+                            diagnostics.push(Diagnostic::new(
+                                "unresolved_mood_option_identity", &format!("{mood_ref}.MixMod"),
+                                "Mix projection needs a supported positive signed32 SID and nonnegative signed32 CID (omitted CID has reader default0). No identity was defaulted from unsupported explicit storage.",
+                            ));
+                            ("unresolved_identity", None)
+                        }
+                    }
+                }
+                _ => ("stored_only", None),
+            };
+            if value.effective.is_none() && matches!(projection, "inverse" | "direct") {
+                projection = "unresolved_value";
+            }
+            flags.push(LightingMoodFlag {
+                key,
+                value,
+                checkbox_checked,
+                projection,
+            });
+        }
+        let stored = mood.attributes.get("SName").cloned();
+        Ok(LightingMoodOptions {
+            mood: LightingMoodIdentity::from_element(mood),
+            read_only: true,
+            flags,
+            display_name: StoredValue {
+                effective: Some(stored.clone().unwrap_or_default()),
+                stored,
+                default: Some(String::new()),
+            },
+            diagnostics,
+        })
+    }
+
     /// Set SName using a no-normalization uppercase ASCII subset; empty clears it.
     pub fn set_lighting_mood_display_name(
         &mut self,
@@ -310,7 +407,7 @@ impl ConfigEditor {
             return Err(Diagnostic::new(
                 "wrong_block_type",
                 selector,
-                "Mood metadata edits require LightController2. Inspect the selected block before editing.",
+                "Mood metadata operations require LightController2. Inspect the selected block.",
             )
             .into());
         }
@@ -328,7 +425,7 @@ impl ConfigEditor {
             return Err(Diagnostic::new(
                 "unsupported_mood_container_shape",
                 selector,
-                "Mood metadata edits require exactly one direct LightscenesC container. Inspect the XML before editing.",
+                "Mood metadata operations require exactly one direct LightscenesC container. Inspect the XML before proceeding.",
             )
             .into());
         };

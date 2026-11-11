@@ -105,6 +105,8 @@ eligible role-independent MixMod flag. Unsupported name normalization and
 role-forced checkbox states are rejected, not silently approximated.
 Omitted MixMod has the recovered default false and stays omitted on no-op;
 unsupported explicit flag values are never silently defaulted.
+`lighting inspect-mood-options` reads raw/effective/default flags and display
+text, with bounded cycling/mix projections rather than GUI-permission guesses.
 `lighting set-mood-skip` changes only the cycling exclusion flag and reports
 the native checkbox's inverse state. Omitted `SkipNext` means false; no-op
 requests preserve omission, and unsupported explicit values fail atomically.

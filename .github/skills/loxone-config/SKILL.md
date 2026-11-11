@@ -233,6 +233,7 @@ lox config lighting set-mood-sid FILE "uuid:<lightcontroller>" --mood <SID|Name>
 
 ```
 lox config lighting rename-mood FILE "uuid:<lightcontroller>" --mood <SID|Name> --name "Late Evening"
+lox config lighting inspect-mood-options FILE "uuid:<lightcontroller>" --mood <SID|Name> --output json
 lox config lighting set-mood-mix FILE "uuid:<lightcontroller>" --mood <SID|Name> --no-mix
 lox config lighting set-mood-skip FILE "uuid:<lightcontroller>" --mood <SID|Name> --skip
 lox config lighting set-mood-display-name FILE "uuid:<lightcontroller>" --mood <SID|Name> --name "LATE EVENING"
@@ -259,6 +260,10 @@ lox config lighting set-mood-display-name FILE "uuid:<lightcontroller>" --mood <
   letters/digits with internal spaces and alphanumeric edges, or `--clear`.
   Never silently uppercase/transliterate unsupported input. Clear is explicit
   empty storage, not inherited-label or hardware-display parity.
+- Option inspection is read-only: raw/effective/default flag/text values,
+  inverse cycling and bounded mix projection. Role-dependent checked state
+  stays unknown. ReadOnly is stored metadata, not full GUI permission.
+  Unsupported explicit flags stay unresolved; no default insertion occurs.
 - Inspection reports numeric duplicate positive SIDs/nonzero CIDs in one
   direct collection; repeated CID0 is allowed. No normalization/repair or
   complete import/editability admission follows from these diagnostics.

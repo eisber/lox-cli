@@ -352,6 +352,76 @@ const SKIP_XML: &str = r#"<ControlList><C Type="LightController2" U="lighting">
 </C></ControlList>"#;
 
 #[test]
+fn lighting_metadata_option_inspection_preserves_raw_defaults_and_special_row_projection() {
+    let editor = ConfigEditor::load(SKIP_XML.as_bytes()).unwrap();
+    let before = editor.to_bytes().unwrap();
+    let options = editor
+        .inspect_lighting_mood_options("uuid:lighting", "A")
+        .unwrap();
+    assert!(options.read_only);
+    let skip = options.flags.iter().find(|f| f.key == "SkipNext").unwrap();
+    assert_eq!(skip.value.stored, None);
+    assert_eq!(skip.value.effective, Some(false));
+    assert_eq!(skip.checkbox_checked, Some(true));
+    let mix = options.flags.iter().find(|f| f.key == "MixMod").unwrap();
+    assert_eq!(mix.value.stored.as_deref(), Some("true"));
+    assert_eq!(mix.projection, "not_checkbox_row");
+    assert_eq!(mix.checkbox_checked, None);
+    assert_eq!(options.display_name.stored, None);
+    assert_eq!(options.display_name.effective.as_deref(), Some(""));
+    assert_eq!(editor.to_bytes().unwrap(), before);
+}
+
+#[test]
+fn lighting_metadata_option_inspection_keeps_role_and_unsupported_value_unresolved() {
+    let xml = METADATA_XML.replace("SkipNext=\"false\"", "SkipNext=\"future\"");
+    let editor = ConfigEditor::load(xml.as_bytes()).unwrap();
+    let before = editor.to_bytes().unwrap();
+    let options = editor
+        .inspect_lighting_mood_options("uuid:lighting", "First")
+        .unwrap();
+    let mix = options.flags.iter().find(|f| f.key == "MixMod").unwrap();
+    assert_eq!(mix.projection, "role_dependent");
+    assert_eq!(mix.checkbox_checked, None);
+    let skip = options.flags.iter().find(|f| f.key == "SkipNext").unwrap();
+    assert_eq!(skip.value.stored.as_deref(), Some("future"));
+    assert_eq!(skip.value.effective, None);
+    assert_eq!(skip.value.default, Some(false));
+    assert_eq!(skip.checkbox_checked, None);
+    assert_eq!(skip.projection, "unresolved_value");
+    assert!(
+        options
+            .diagnostics
+            .iter()
+            .any(|d| d.code == "unsupported_mood_option_value")
+    );
+    assert_eq!(editor.to_bytes().unwrap(), before);
+}
+
+#[test]
+fn lighting_metadata_option_mix_projection_distinguishes_omitted_and_unsupported_identity() {
+    for (extra, projection, checked) in [
+        ("", "direct", Some(false)),
+        ("CID=\"future\"", "unresolved_identity", None),
+        ("CID=\"-1\"", "unresolved_identity", None),
+        ("CID=\"12\"", "role_dependent", None),
+    ] {
+        let xml = SKIP_XML.replace("SID=\"+0002\"", &format!("SID=\"+0002\" {extra}"));
+        let editor = ConfigEditor::load(xml.as_bytes()).unwrap();
+        let before = editor.to_bytes().unwrap();
+        let result = editor
+            .inspect_lighting_mood_options("uuid:lighting", "B")
+            .unwrap();
+        let mix = result.flags.iter().find(|f| f.key == "MixMod").unwrap();
+        assert_eq!(mix.projection, projection);
+        assert_eq!(mix.checkbox_checked, checked);
+        assert_eq!(mix.value.stored, None);
+        assert_eq!(mix.value.effective, Some(false));
+        assert_eq!(editor.to_bytes().unwrap(), before);
+    }
+}
+
+#[test]
 fn lighting_metadata_skip_uses_stored_default_and_inverse_checkbox_without_other_writes() {
     let mut editor = super::ConfigEditor::load(SKIP_XML.as_bytes()).unwrap();
     let before = editor.to_bytes().unwrap();

@@ -29,6 +29,70 @@ fn command() -> Command {
 }
 
 #[test]
+fn lighting_metadata_cli_options_are_readonly_and_expose_projection_limits_in_all_formats() {
+    let dir = tempfile::tempdir().unwrap();
+    let input = dir.path().join("input.Loxone");
+    let before = bytes(XML);
+    fs::write(&input, &before).unwrap();
+    for format in ["json", "table", "csv"] {
+        let output = command()
+            .env("LOX_CONFIG", dir.path().join("absent.yaml"))
+            .args(["config", "lighting", "inspect-mood-options"])
+            .arg(&input)
+            .args([
+                "uuid:lighting",
+                "--mood",
+                "A",
+                "-o",
+                format,
+                "--quiet",
+                "--no-header",
+            ])
+            .assert()
+            .success()
+            .get_output()
+            .clone();
+        if format == "json" {
+            let value: serde_json::Value = serde_json::from_slice(&output.stdout).unwrap();
+            let skip = value["flags"]
+                .as_array()
+                .unwrap()
+                .iter()
+                .find(|f| f["key"] == "SkipNext")
+                .unwrap();
+            assert_eq!(skip["value"]["stored"], serde_json::Value::Null);
+            assert_eq!(skip["value"]["effective"], false);
+            assert_eq!(skip["checkbox_checked"], true);
+            assert_eq!(value["display_name"]["stored"], "alias");
+            assert_eq!(value["read_only"], true);
+        } else {
+            let stdout = String::from_utf8(output.stdout).unwrap();
+            assert!(
+                stdout.contains("SkipNext")
+                    && stdout.contains("inverse")
+                    && stdout.contains("alias")
+            );
+            assert!(!stdout.contains("OPTION,") && !stdout.contains("OPTION  "));
+            if format == "csv" {
+                assert!(stdout.lines().all(|line| line.split(',').count() == 7));
+                assert!(
+                    stdout.contains(
+                        "\"SkipNext\",false,\"\",\"false\",\"false\",\"true\",\"inverse\""
+                    )
+                );
+                assert!(stdout.contains("\"SName\",true,\"alias\""));
+            }
+            assert!(
+                String::from_utf8(output.stderr)
+                    .unwrap()
+                    .contains("not loaded-row/import")
+            );
+        }
+        assert_eq!(fs::read(&input).unwrap(), before);
+    }
+}
+
+#[test]
 fn lighting_metadata_cli_display_name_is_separate_and_clear_is_explicit() {
     let dir = tempfile::tempdir().unwrap();
     let input = dir.path().join("input.Loxone");

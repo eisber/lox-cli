@@ -261,6 +261,7 @@ GUI or a server and does not update the original contract or GUI records.
 
 ```bash
 lox config lighting inspect file.Loxone "Lighting" --output json
+lox config lighting inspect-mood-options file.Loxone "Lighting" --mood "Evening" --output json
 lox config lighting recount-moods file.Loxone "Lighting" --save-as edited.Loxone
 lox config lighting recount-moods file.Loxone "Lighting" --room "Study" --output json
 lox config lighting set-mood-level file.Loxone "Lighting" --mood "Evening" --output-index 2 --level 37 --save-as edited.Loxone
@@ -472,6 +473,19 @@ A `--no-mix` no-op on omitted MixMod preserves omission and exact in-place bytes
 JSON reports raw `before`/`after` null plus `before_effective=false` and
 `default=false`. Enabling it writes only selected `MixMod=true`.
 See `tests/ux/light-controller2/mood-mix-default-source.json`.
+
+`lighting inspect-mood-options` reads one exact direct mood without saving.
+It reports raw/effective/default values for SkipNext, MixMod, ReadOnly,
+Sequencing, Move and the separate SName display text. Omitted flags remain
+stored null with recovered false; omitted SName reads empty, not inherited.
+Unsupported explicit flags remain unresolved, not false. Cycling projects
+the inverse of SkipNext. Mix projection is direct only in its recovered
+ordinary branch: SID>31 has no checkbox, CID12..19 needs current graph/role
+state, and unsupported identities remain unresolved. These are stored
+projections, **not** GUI permissions, import/row visibility or write admission.
+JSON includes diagnostics; table/CSV retain limitation diagnostics even with
+quiet/no-header. CSV includes `STORED_PRESENT` to distinguish absent from empty
+text. See `tests/ux/light-controller2/mood-option-inspection-source.json`.
 
 Both metadata commands require exactly one direct collection and one
 unambiguous direct mood selected by exact stored SID or case-sensitive Name.

@@ -19,6 +19,7 @@
     "set_mood_cycling_exclusion": true,
     "edit_mood_display_name_ascii_subset": true,
     "inspect_numeric_mood_identity_duplicates": true,
+    "inspect_selected_stored_mood_options": true,
     "set_role_dependent_mood_mix": false,
     "repair_stored_mood_count": true,
     "new_nested_edits": true,
@@ -154,6 +155,19 @@
     "preservation": "Read-only; preserve all raw values and file bytes without renumbering, default insertion, normalization or repair.",
     "tests": "src/config_edit/lighting_tests.rs and tests/lighting_source_capability.rs: lighting_identity_inspection_*",
     "limits": "Absence of duplicate diagnostics is not full uniqueness/import/editability or runtime admission."
+  },
+  "selected_mood_option_inspection": {
+    "command": "lox config lighting inspect-mood-options FILE BLOCK --mood SID_OR_NAME [--room ROOM]",
+    "source_artifact": "tests/ux/light-controller2/mood-option-inspection-source.json",
+    "source_sha256": "25557a68de5896c6fb06b4e0d0eb98a73b92f2b657d1ec893420d48e9daa2b49",
+    "selection": "Reuse exact direct-record metadata selection; no fuzzy/nested/ambiguous match or identity insertion.",
+    "flags": "SkipNext, MixMod, ReadOnly, Sequencing and Move report stored/effective/default. Omission stays raw null with effective/default false; unsupported explicit flags remain unresolved with diagnostics.",
+    "projection": "Cycling is inverse SkipNext. Mix is direct for supported ordinary SID1..31/nonnegative CID outside12..19 (omitted CID effective0), role-dependent checked null for CID12..19, not-checkbox above SID31 and unresolved on unsupported needed identity/value. Projections are not promises of GUI state, visibility or write eligibility.",
+    "display_name": "Separate SName stored text; omission has effective/default empty string, not inheritance. No normalization is applied.",
+    "formats": "Complete JSON with diagnostics; table and seven-column CSV include all five flags plus SName. CSV STORED_PRESENT distinguishes omission from explicit empty text. Limitations remain visible with quiet/no-header.",
+    "preservation": "Read-only; no file save, stamp change, default insertion, normalization, ID/output/reference/sequence/HCL changes.",
+    "tests": "src/config_edit/lighting_metadata_tests.rs and tests/lighting_metadata_cli.rs: lighting_metadata_*option*",
+    "limits": "Stored model projection only, not current graph/role state, import, uniqueness/write admission, GUI permissions, accepted-dialog or runtime parity. Every edit still independently validates its target."
   },
   "pre_modal_graph_lookup": {
     "issue": "lox-yqzp",

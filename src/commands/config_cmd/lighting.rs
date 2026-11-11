@@ -41,6 +41,13 @@ pub(crate) enum LightingCmd {
         #[command(flatten)]
         target: LightingTarget,
     },
+    /// Inspect one stored mood's flags/defaults and bounded checkbox projections
+    InspectMoodOptions {
+        #[command(flatten)]
+        target: LightingTarget,
+        #[arg(long)]
+        mood: String,
+    },
     /// Repair only Num from direct mood records; preserve Outputs and sparse Qn
     RecountMoods {
         #[command(flatten)]
@@ -206,6 +213,90 @@ fn print_identity_changes(
 pub(crate) fn run(ctx: &RunContext, action: LightingCmd) -> Result<()> {
     let target = match action {
         LightingCmd::Inspect { target } => target,
+        LightingCmd::InspectMoodOptions { target, mood } => {
+            let selector = target.selector()?;
+            let editor = ConfigEditor::load(&crate::load_config_xml(&target.file)?)?;
+            let inspection = editor.inspect_lighting_mood_options(&selector, &mood)?;
+            if ctx.json {
+                let mut value = serde_json::to_value(&inspection)?;
+                if let Some(trace_id) = &ctx.trace_id {
+                    value["trace_id"] = trace_id.clone().into();
+                }
+                println!("{}", serde_json::to_string_pretty(&value)?);
+            } else {
+                let bool_text =
+                    |value: Option<bool>| value.map(|v| v.to_string()).unwrap_or_default();
+                if !ctx.no_header {
+                    println!(
+                        "{}",
+                        if ctx.csv {
+                            "OPTION,STORED_PRESENT,STORED,EFFECTIVE,DEFAULT,CHECKBOX_CHECKED,PROJECTION"
+                        } else {
+                            "OPTION  STORED  EFFECTIVE  DEFAULT  CHECKBOX  PROJECTION"
+                        }
+                    );
+                }
+                for flag in &inspection.flags {
+                    let stored = flag.value.stored.as_deref();
+                    let effective = bool_text(flag.value.effective);
+                    let default = bool_text(flag.value.default);
+                    let checked = bool_text(flag.checkbox_checked);
+                    if ctx.csv {
+                        println!(
+                            "{},{},{},{},{},{},{}",
+                            csv(flag.key),
+                            stored.is_some(),
+                            csv(stored.unwrap_or("")),
+                            csv(&effective),
+                            csv(&default),
+                            csv(&checked),
+                            csv(flag.projection)
+                        );
+                    } else {
+                        println!(
+                            "{}  {}  {}  {}  {}  {}",
+                            flag.key,
+                            stored.unwrap_or("<absent>"),
+                            if effective.is_empty() {
+                                "<unresolved>"
+                            } else {
+                                &effective
+                            },
+                            default,
+                            if checked.is_empty() {
+                                "<unknown>"
+                            } else {
+                                &checked
+                            },
+                            flag.projection
+                        );
+                    }
+                }
+                let name = &inspection.display_name;
+                if ctx.csv {
+                    println!(
+                        "\"SName\",{},{},{},{},,\"stored_text\"",
+                        name.stored.is_some(),
+                        csv(name.stored.as_deref().unwrap_or("")),
+                        csv(name.effective.as_deref().unwrap_or("")),
+                        csv(name.default.as_deref().unwrap_or(""))
+                    );
+                } else {
+                    println!(
+                        "SName  {}  {}  \"\"  <unknown>  stored_text",
+                        name.stored.as_deref().unwrap_or("<absent>"),
+                        name.effective.as_deref().unwrap_or("")
+                    );
+                }
+                if !ctx.csv && !ctx.quiet {
+                    println!("\n{} options", inspection.flags.len() + 1);
+                }
+                for d in &inspection.diagnostics {
+                    eprintln!("{} at {}: {}", d.code, d.path, d.message);
+                }
+            }
+            return Ok(());
+        }
         LightingCmd::SetMoodDisplayName {
             target,
             mood,
