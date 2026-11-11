@@ -1,4 +1,4 @@
-//! Stored lighting data and explicit mood-count repair; no inferred output defaults or roles.
+//! Stored lighting data and bounded editor kinds; no inferred physical output roles.
 
 use std::collections::BTreeMap;
 
@@ -24,6 +24,35 @@ pub struct LightingMoodOutput {
     pub index: usize,
     pub stored: String,
     pub unit: Option<String>,
+    pub editor: LightingMoodEditor,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize)]
+#[serde(rename_all = "snake_case")]
+pub enum LightingEditorKind {
+    Numeric,
+    Color,
+    Other,
+    Unresolved,
+}
+
+impl LightingEditorKind {
+    pub fn as_str(self) -> &'static str {
+        match self {
+            Self::Numeric => "numeric",
+            Self::Color => "color",
+            Self::Other => "other",
+            Self::Unresolved => "unresolved",
+        }
+    }
+}
+
+#[derive(Debug, Serialize)]
+pub struct LightingMoodEditor {
+    pub kind: LightingEditorKind,
+    pub type_tag: Option<i32>,
+    pub capability: Option<StoredValue<u16>>,
+    pub issue: Option<Diagnostic>,
 }
 
 #[derive(Debug, Serialize)]
@@ -171,21 +200,7 @@ impl ConfigEditor {
             )
             .into());
         };
-        let width = match mood.attributes.get("Outputs") {
-            None => 12,
-            Some(raw) => match raw.parse::<i32>() {
-                Ok(0) => 12,
-                Ok(width) if width > 0 => width,
-                _ => {
-                    return Err(Diagnostic::new(
-                        "unsupported_mood_output_width",
-                        mood_ref,
-                        "Outputs must be a nonnegative signed-32-bit decimal or absent. No width was inferred from Qn fields.",
-                    )
-                    .into());
-                }
-            },
-        };
+        let width = mood_output_width(mood, mood_ref)?;
         let key = format!("Q{output}");
         let before = mood.attributes.get(&key).cloned().ok_or_else(|| {
             Diagnostic::new(
@@ -313,29 +328,12 @@ impl ConfigEditor {
         output: usize,
         type_tag: i32,
     ) -> Result<Option<StoredValue<u16>>> {
-        if matches!(type_tag, 1..=3 | 7) {
-            return Ok(None);
+        let editor = classify_mood_editor(block, output, type_tag);
+        if let Some(issue) = editor.issue {
+            return Err(issue.into());
         }
-        if type_tag == 6 {
-            let key = format!("CapAI{}", output - 1);
-            let stored = block.attributes.get(&key).cloned();
-            let effective = match stored.as_deref() {
-                None => 0,
-                Some(raw) => raw.parse::<u16>().map_err(|_| {
-                    Diagnostic::new(
-                        "unsupported_mood_capability",
-                        &key,
-                        "Numeric tag-6 edits require a supported nonnegative 16-bit capability mask. Malformed or out-of-range values are not truncated.",
-                    )
-                })?,
-            };
-            if effective & 0x40 == 0 && effective & 7 != 7 {
-                return Ok(Some(StoredValue {
-                    stored,
-                    effective: Some(effective),
-                    default: Some(0),
-                }));
-            }
+        if editor.kind == LightingEditorKind::Numeric {
+            return Ok(editor.capability);
         }
         Err(Diagnostic::new(
             "incompatible_mood_output_kind",
@@ -367,9 +365,20 @@ impl ConfigEditor {
             Diagnostic::new(
                 "unknown_channel_roles",
                 selector,
-                "AQn and Qn suffixes are storage indices only. NameAI/CapAI/PresM metadata, FC, HCL, PSD, LSConfig and mood value units/encodings are not interpreted or joined to actuator roles.",
+                "AQn and Qn suffixes are storage indices only. Stored per-mood editor classification uses Q type tags and needed CapAI, not physical channel roles, units or graph-dependent pre-modal refresh. Other metadata remains uninterpreted.",
+            ),
+            Diagnostic::new(
+                "lighting_edit_operation_boundary",
+                selector,
+                "Use `config lighting set-mood-level` for supported numeric editor kinds; it validates the target before writing. `config set-mood-color` remains a raw packed-value edit, not a mode-aware equivalent, even for a color-classified output.",
             ),
         ];
+        let collections: Vec<_> = block
+            .children
+            .iter()
+            .filter_map(XMLNode::as_element)
+            .filter(|element| element.name == "LightscenesC")
+            .collect();
         let summaries = self.list_moods(selector)?;
         let mood_elements: Vec<_> = Self::iter_elements(block)
             .into_iter()
@@ -391,15 +400,31 @@ impl ConfigEditor {
                     ));
                 }
             }
+            let direct = matches!(collections.as_slice(), [collection] if collection.children
+                .iter()
+                .filter_map(XMLNode::as_element)
+                .any(|child| std::ptr::eq(child, element)));
             let mut outputs: Vec<_> = element
                 .attributes
                 .iter()
                 .filter_map(|(key, stored)| {
-                    storage_index(key, "Q").map(|index| LightingMoodOutput {
-                        key: key.clone(),
-                        index,
-                        stored: stored.clone(),
-                        unit: None,
+                    storage_index(key, "Q").map(|index| {
+                        let editor = inspect_mood_editor(block, element, index, stored, direct);
+                        if let Some(issue) = &editor.issue {
+                            let mut issue = issue.clone();
+                            issue.path = format!(
+                                "mood '{}' ({}) / {}",
+                                summary.name, summary.uuid, issue.path
+                            );
+                            diagnostics.push(issue);
+                        }
+                        LightingMoodOutput {
+                            key: key.clone(),
+                            index,
+                            stored: stored.clone(),
+                            unit: None,
+                            editor,
+                        }
                     })
                 })
                 .collect();
@@ -551,6 +576,109 @@ impl ConfigEditor {
                 .collect(),
             diagnostics,
         })
+    }
+}
+
+fn mood_output_width(mood: &Element, path: &str) -> Result<i32, Diagnostic> {
+    match mood.attributes.get("Outputs") {
+        None => Ok(12),
+        Some(raw) => match raw.parse::<i32>() {
+            Ok(0) => Ok(12),
+            Ok(width) if width > 0 => Ok(width),
+            _ => Err(Diagnostic::new(
+                "unsupported_mood_output_width",
+                path,
+                "Outputs must be a nonnegative signed-32-bit decimal or absent. No width was inferred from Qn fields.",
+            )),
+        },
+    }
+}
+
+fn classify_mood_editor(block: &Element, output: usize, type_tag: i32) -> LightingMoodEditor {
+    let mut editor = LightingMoodEditor {
+        kind: match type_tag {
+            1..=3 | 7 => LightingEditorKind::Numeric,
+            4 | 5 | 9 => LightingEditorKind::Color,
+            _ => LightingEditorKind::Other,
+        },
+        type_tag: Some(type_tag),
+        capability: None,
+        issue: None,
+    };
+    if type_tag == 6 {
+        let key = format!("CapAI{}", output - 1);
+        let stored = block.attributes.get(&key).cloned();
+        let effective = match stored.as_deref() {
+            None => Some(0),
+            Some(raw) => raw.parse::<u16>().ok(),
+        };
+        editor.capability = Some(StoredValue {
+            stored,
+            effective,
+            default: Some(0),
+        });
+        editor.kind = match effective {
+            Some(mask) if mask & 0x40 != 0 || mask & 7 == 7 => LightingEditorKind::Color,
+            Some(_) => LightingEditorKind::Numeric,
+            None => {
+                editor.issue = Some(Diagnostic::new(
+                    "unsupported_mood_capability",
+                    &key,
+                    "Tag-6 classification requires a supported nonnegative 16-bit capability mask. Malformed or out-of-range values are not truncated or defaulted.",
+                ));
+                LightingEditorKind::Unresolved
+            }
+        };
+    }
+    editor
+}
+
+fn inspect_mood_editor(
+    block: &Element,
+    mood: &Element,
+    output: usize,
+    raw: &str,
+    direct: bool,
+) -> LightingMoodEditor {
+    let type_tag = raw.parse::<i32>().ok().map(|value| (value >> 28) & 15);
+    let key = format!("Q{output}");
+    let issue = if !direct {
+        Some(Diagnostic::new(
+            "unsupported_mood_container_shape",
+            &key,
+            "Editor classification requires a direct mood in exactly one direct LightscenesC. Nested lookalikes remain raw data.",
+        ))
+    } else if !(1..=18).contains(&output) {
+        Some(Diagnostic::new(
+            "unsupported_mood_output_index",
+            &key,
+            "This recovered editor path covers Q1..Q18; higher stored fields remain uninterpreted.",
+        ))
+    } else if type_tag.is_none() {
+        Some(Diagnostic::new(
+            "unsupported_mood_output_value",
+            &key,
+            "Editor classification requires a stored signed-32-bit decimal; opaque data is retained.",
+        ))
+    } else {
+        match mood_output_width(mood, &key) {
+            Err(issue) => Some(issue),
+            Ok(width) if output > usize::try_from(width).unwrap() => Some(Diagnostic::new(
+                "unsupported_mood_output_width",
+                &key,
+                "Stored Qn lies outside the native reader width; no loaded editor kind is inferred.",
+            )),
+            Ok(_) => None,
+        }
+    };
+    match issue {
+        Some(issue) => LightingMoodEditor {
+            kind: LightingEditorKind::Unresolved,
+            type_tag,
+            capability: None,
+            issue: Some(issue),
+        },
+        None => classify_mood_editor(block, output, type_tag.unwrap()),
     }
 }
 

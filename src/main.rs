@@ -847,7 +847,7 @@ pub(crate) enum ConfigCmd {
         /// LightController2 selector (title or "uuid:...")
         selector: String,
     },
-    /// Set the color/brightness of a LightController2 mood (rewrites Qn)
+    /// Write raw packed mood Qn storage; not a mode-aware color/dimmer edit
     #[command(name = "set-mood-color")]
     SetMoodColor {
         /// Path to a .Loxone XML file

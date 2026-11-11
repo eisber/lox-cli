@@ -4,6 +4,7 @@
   "scope": "stored-inspection-and-source-backed-mood-edits",
   "capabilities": {
     "inspect_stored_mood_outputs": true,
+    "inspect_stored_mood_editor_kinds": true,
     "inspect_output_connector_references": true,
     "inspect_unknown_nested_attributes": true,
     "inspect_native_mood_reconciliation_risks": true,
@@ -55,6 +56,26 @@
     "tests": "src/config_edit/lighting_tests.rs and tests/lighting_source_capability.rs: lighting_numeric_level_*",
     "limits": "Not graph-dependent pre-modal refresh prediction, complete dialog editability/permissions, Num-limited import, special-scene normalization, color/dynamic-white/sequence edits, physical channel mapping or runtime/family parity."
   },
+  "stored_mood_editor_inspection": {
+    "command": "lox config lighting inspect FILE BLOCK",
+    "source": "Reuse numeric_mood_level_edit.source_artifact; classification and the numeric edit share one type/capability classifier.",
+    "JSON": "Each stored output has editor.kind (numeric/color/other/unresolved), type_tag, needed capability stored/effective/default and an issue when unresolved. unit and physical role remain unknown.",
+    "kinds": "Numeric and color follow the selected-mood renderer, not the first-scene effective/runtime helper. Other is outside the recovered numeric/color branches and is not an actuator classification. Unresolved covers unsupported raw values, needed capabilities, reader widths, indices and container/direct-mood shapes. Noncanonical Q0/Q01 remain in raw attributes, not classified output records.",
+    "capability": "Read only needed tag6 capability. Raw omission remains null with effective/default0; unsupported explicit masks remain raw with effective null and an issue, never a success-shaped default. Unneeded capability is null.",
+    "output_formats": "Table adds EDITOR. CSV retains the first five columns and appends EDITOR,TYPE_TAG,CAPABILITY_STORED,CAPABILITY_EFFECTIVE,ISSUE. Reasons and operation limitations remain visible with quiet/no-header.",
+    "operation_boundary": "Supported numeric kinds can use guarded set-mood-level, which still validates the target. set-mood-color remains a raw packed-value edit, not a mode-aware equivalent even when inspection reports color.",
+    "preservation": "Read-only; do not normalize values, Q tags, HCL, widths/counts, IDs, references, sequences or unknown data. No graph-refresh prediction, hardware role, full editability, accepted-dialog or runtime parity.",
+    "tests": "src/config_edit/lighting_tests.rs and tests/lighting_source_capability.rs: lighting_editor_inspection_*"
+  },
+  "incidental_normalization_triggers": {
+    "issue": "lox-n19e",
+    "artifact": "tests/ux/light-controller2/incidental-normalization-triggers-source.json",
+    "sha256": "702dcc2ee6caef199e4e777137a921176b2e12050a9c50dcb04e8136ab6172d0",
+    "numeric_output": "A programmatic numeric-control refresh can synchronously send the registered NEN_CHANGED notification into the same selected-scene clamp/write handler as a user edit, under its change/notification guards. Renderer, control-setter and handler guards are distinct.",
+    "HCL": "Dialog initialization calls HCL UI setup; setup invokes original-owner HCL type/temperature refresh and conditional time fill before the modal result. These are persisted-model writes, not immediate disk persistence.",
+    "remaining_dependencies": "Unique callback attribution for the historical native case was not traced. Exact per-instance temperature inputs and time adjustment/cache results, including0x1400e0340, remain unmodeled.",
+    "decision": "Trigger identification complete at this bound. No further normalization work is a delivery prerequisite; no incidental normalization is implemented or predicted by inspection. Historical source/native evidence stays unchanged; no new native run or extraction."
+  },
   "static_bindings": [
     {
       "purpose": "exact XML type registration",
@@ -72,7 +93,7 @@
       "purpose": "channel metadata XML binder",
       "address": "0x1405c9740",
       "sha256": "4fca9e47230208412c4b3091206385beb40d7a68da0571ce59eac9146949fd50",
-      "observation": "Primary vtable offset 0x1180 binds NameAI%d, CapAI%d, PresM%d indices 0..17; nested calls use object offsets 0x1c78/+0x30 and 0x2218/+0x28. Names, capability masks and presence masks are not interpreted."
+      "observation": "Primary vtable offset 0x1180 binds NameAI%d, CapAI%d, PresM%d indices 0..17; nested calls use object offsets 0x1c78/+0x30 and 0x2218/+0x28. Names/presence remain raw; only the separately recovered selected-mood editor classification interprets needed CapAI bits, not physical channel roles."
     },
     {
       "purpose": "mood collection XML binder",

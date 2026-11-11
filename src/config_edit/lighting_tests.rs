@@ -1,4 +1,5 @@
 use super::ConfigEditor;
+use super::lighting::LightingEditorKind;
 
 const FIXTURE: &[u8] = include_bytes!("../../tests/ux/light-controller2/synthetic.Loxone");
 
@@ -11,6 +12,168 @@ const LEVEL_XML: &str = r#"<ControlList><C Type="LightController2" U="lighting" 
   </LightscenesC>
   <HCL T="2" TMIN="2000" FROM="0" TO="0"/>
 </C></ControlList>"#;
+
+#[test]
+fn lighting_editor_inspection_distinguishes_selected_tags_capabilities_and_numeric_edit() {
+    for (stored, capability, kind) in [
+        ("1610622736", None, LightingEditorKind::Numeric),
+        ("1610622736", Some("7"), LightingEditorKind::Color),
+        ("1610622736", Some("64"), LightingEditorKind::Color),
+        ("1610622736", Some("32"), LightingEditorKind::Numeric),
+        (
+            "268435465",
+            Some("opaque-unused"),
+            LightingEditorKind::Numeric,
+        ),
+        (
+            "1879048201",
+            Some("opaque-unused"),
+            LightingEditorKind::Numeric,
+        ),
+        (
+            "1073741824",
+            Some("opaque-unused"),
+            LightingEditorKind::Color,
+        ),
+        ("1342177280", None, LightingEditorKind::Color),
+        ("-1879048192", None, LightingEditorKind::Color),
+        ("0", None, LightingEditorKind::Other),
+        ("-1", None, LightingEditorKind::Other),
+    ] {
+        let xml = LEVEL_XML
+            .replace(
+                "CapAI0=\"7\"",
+                &format!(
+                    "CapAI0=\"7\" {}",
+                    capability
+                        .map(|raw| format!("CapAI1=\"{raw}\""))
+                        .unwrap_or_default()
+                ),
+            )
+            .replace("Q2=\"1610622736\"", &format!("Q2=\"{stored}\""));
+        let mut editor = ConfigEditor::load(xml.as_bytes()).unwrap();
+        let before = editor.to_bytes().unwrap();
+        let inspection = editor.inspect_lighting("uuid:lighting").unwrap();
+        let output = inspection.moods[0]
+            .outputs
+            .iter()
+            .find(|q| q.index == 2)
+            .unwrap();
+        assert_eq!(output.editor.kind, kind, "{stored}/{capability:?}");
+        assert_eq!(output.stored, stored);
+        assert!(output.unit.is_none());
+        assert_eq!(editor.to_bytes().unwrap(), before);
+        if kind == LightingEditorKind::Numeric {
+            editor
+                .set_lighting_mood_level("uuid:lighting", "First", 2, 37)
+                .unwrap();
+        } else {
+            assert!(
+                editor
+                    .set_lighting_mood_level("uuid:lighting", "First", 2, 37)
+                    .is_err()
+            );
+            assert_eq!(editor.to_bytes().unwrap(), before);
+        }
+    }
+}
+
+#[test]
+fn lighting_editor_inspection_retains_missing_and_unsupported_capability_distinctions() {
+    for capability in [None, Some("opaque"), Some("-1"), Some("65536")] {
+        let xml = LEVEL_XML.replace(
+            "CapAI0=\"7\"",
+            &format!(
+                "CapAI0=\"7\" {}",
+                capability
+                    .map(|v| format!("CapAI1=\"{v}\""))
+                    .unwrap_or_default()
+            ),
+        );
+        let editor = ConfigEditor::load(xml.as_bytes()).unwrap();
+        let before = editor.to_bytes().unwrap();
+        let inspection = editor.inspect_lighting("uuid:lighting").unwrap();
+        let output = inspection.moods[0]
+            .outputs
+            .iter()
+            .find(|q| q.index == 2)
+            .unwrap();
+        let cap = output.editor.capability.as_ref().unwrap();
+        assert_eq!(cap.stored.as_deref(), capability);
+        assert_eq!(cap.effective, capability.is_none().then_some(0));
+        if capability.is_some() {
+            assert_eq!(output.editor.kind, LightingEditorKind::Unresolved);
+            assert_eq!(
+                output.editor.issue.as_ref().unwrap().code,
+                "unsupported_mood_capability"
+            );
+            assert!(
+                inspection
+                    .diagnostics
+                    .iter()
+                    .any(|d| d.code == "unsupported_mood_capability")
+            );
+        } else {
+            assert_eq!(output.editor.kind, LightingEditorKind::Numeric);
+            assert!(output.editor.issue.is_none());
+        }
+        assert_eq!(editor.to_bytes().unwrap(), before);
+    }
+}
+
+#[test]
+fn lighting_editor_inspection_does_not_infer_loaded_kinds_from_opaque_or_unloaded_storage() {
+    for (xml, issue) in [
+        (
+            LEVEL_XML.replace("Q2=\"1610622736\"", "Q2=\"opaque\""),
+            "unsupported_mood_output_value",
+        ),
+        (
+            LEVEL_XML.replace("Outputs=\"18\"", "Outputs=\"1\""),
+            "unsupported_mood_output_width",
+        ),
+        (
+            LEVEL_XML.replace("Outputs=\"18\"", "Outputs=\"bad\""),
+            "unsupported_mood_output_width",
+        ),
+        (
+            LEVEL_XML
+                .replace(
+                    "<LightsceneC Name=\"First\"",
+                    "<Unknown><LightsceneC Name=\"First\"",
+                )
+                .replace("</LightsceneC>", "</LightsceneC></Unknown>"),
+            "unsupported_mood_container_shape",
+        ),
+        (
+            LEVEL_XML.replace("</C>", "<LightscenesC/></C>"),
+            "unsupported_mood_container_shape",
+        ),
+        (
+            LEVEL_XML.replace("Q2=\"1610622736\"", "Q19=\"1610622736\""),
+            "unsupported_mood_output_index",
+        ),
+    ] {
+        let editor = ConfigEditor::load(xml.as_bytes()).unwrap();
+        let before = editor.to_bytes().unwrap();
+        let inspection = editor.inspect_lighting("uuid:lighting").unwrap();
+        let output = inspection.moods[0]
+            .outputs
+            .iter()
+            .find(|q| {
+                q.index
+                    == if issue == "unsupported_mood_output_index" {
+                        19
+                    } else {
+                        2
+                    }
+            })
+            .unwrap();
+        assert_eq!(output.editor.kind, LightingEditorKind::Unresolved);
+        assert_eq!(output.editor.issue.as_ref().unwrap().code, issue);
+        assert_eq!(editor.to_bytes().unwrap(), before);
+    }
+}
 
 #[test]
 fn lighting_numeric_level_matches_native_encoding_without_incidental_normalization() {

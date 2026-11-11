@@ -35,7 +35,7 @@ impl LightingTarget {
 
 #[derive(Subcommand)]
 pub(crate) enum LightingCmd {
-    /// Inspect all stored mood Qn, AQn connectors, references and unknown nested data
+    /// Inspect stored Qn editor kinds, AQn references and unknown nested data
     Inspect {
         #[command(flatten)]
         target: LightingTarget,
@@ -154,36 +154,69 @@ pub(crate) fn run(ctx: &RunContext, action: LightingCmd) -> Result<()> {
     } else {
         if ctx.csv {
             if !ctx.no_header {
-                println!("RECORD,NAME,UUID,OUTPUT,STORED");
+                println!(
+                    "RECORD,NAME,UUID,OUTPUT,STORED,EDITOR,TYPE_TAG,CAPABILITY_STORED,CAPABILITY_EFFECTIVE,ISSUE"
+                );
             }
             for mood in &inspection.moods {
                 for output in &mood.outputs {
                     println!(
-                        "mood,{},{},{},{}",
+                        "mood,{},{},{},{},{},{},{},{},{}",
                         csv(&mood.summary.name),
                         csv(&mood.summary.uuid),
                         output.key,
-                        csv(&output.stored)
+                        csv(&output.stored),
+                        output.editor.kind.as_str(),
+                        output
+                            .editor
+                            .type_tag
+                            .map(|tag| tag.to_string())
+                            .unwrap_or_default(),
+                        csv(output
+                            .editor
+                            .capability
+                            .as_ref()
+                            .and_then(|cap| cap.stored.as_deref())
+                            .unwrap_or("")),
+                        output
+                            .editor
+                            .capability
+                            .as_ref()
+                            .and_then(|cap| cap.effective)
+                            .map(|cap| cap.to_string())
+                            .unwrap_or_default(),
+                        output
+                            .editor
+                            .issue
+                            .as_ref()
+                            .map(|issue| issue.code.as_str())
+                            .unwrap_or("")
                     );
                 }
             }
             for channel in &inspection.channels {
                 println!(
-                    "channel,,{},{},",
+                    "channel,,{},{},,,,,,",
                     csv(channel.uuid.as_deref().unwrap_or("")),
                     channel.key
                 );
             }
         } else {
             if !ctx.no_header {
-                println!("{:<24} {:<10} STORED (UNIT UNKNOWN)", "MOOD", "OUTPUT");
-                println!("{}", "─".repeat(60));
+                println!(
+                    "{:<24} {:<10} {:<24} EDITOR",
+                    "MOOD", "OUTPUT", "STORED (UNIT UNKNOWN)"
+                );
+                println!("{}", "─".repeat(76));
             }
             for mood in &inspection.moods {
                 for output in &mood.outputs {
                     println!(
-                        "{:<24} {:<10} {}",
-                        mood.summary.name, output.key, output.stored
+                        "{:<24} {:<10} {:<24} {}",
+                        mood.summary.name,
+                        output.key,
+                        output.stored,
+                        output.editor.kind.as_str()
                     );
                 }
             }

@@ -83,8 +83,10 @@ twelve existing load slots, including explicit customized-name clearing with
 `--dry-run`/`--save-as`, and does **not** claim complete GUI or runtime parity.
 See [EnergyManager2 commands](COMMANDS.md#energymanager2-verified-storage-pilot).
 
-`lox config lighting` inspects stored **LightController2** moods and output
-references. Its source-backed `recount-moods` repairs only the stored scene count,
+`lox config lighting` inspects stored **LightController2** moods, per-output
+numeric/color editor kinds and output references. Opaque values and unsupported
+storage shapes remain unresolved; `set-mood-color` is still raw packed storage, not a
+mode-aware equivalent. Its source-backed `recount-moods` repairs only the stored scene count,
 preserving output widths, sparse values and unknown data; existing `add-mood`
 also recounts and uses the recovered 18-output/type-preserving initialization
 and native-style automatic SID/CID selection, with atomic exhaustion errors.

@@ -276,6 +276,28 @@ output references without inferred channel roles, and reports
 `inconsistent_mood_count` when `LightscenesC/@Num` differs from the direct
 `LightsceneC` record count.
 
+Each stored output also has an `editor` object in JSON: `kind` is `numeric`,
+`color`, `other` or `unresolved`, with the stored `type_tag`, needed
+`capability` (`stored`/`effective`/`default`) and any `issue`. Table output adds
+an `EDITOR` column; CSV appends editor, type-tag, capability and issue columns
+after its existing five fields. This is the recovered **selected-mood editor**
+classification, not a physical channel role, unit or graph-refresh prediction.
+Unneeded capability is null; missing needed `CapAI` reports raw omission and
+effective default 0. Unsupported explicit capability is unresolved, never
+defaulted to 0.
+
+Choose `config lighting set-mood-level` for a supported numeric kind; the edit
+still validates its target and storage. `color` identifies the native color
+control branch, **not** a mode-aware CLI color editor: existing
+`config set-mood-color` remains a raw packed-value write. It does not validate
+the selected mode or reproduce native color, dynamic-white or sequence handling.
+`other` is outside the supported numeric/color branches. Opaque/out-of-range
+Qn, unsupported widths/indices, nested lookalikes and ambiguous containers remain
+visible as `unresolved` with reasons. Inspection changes no bytes, values,
+flags, widths, IDs or HCL fields.
+Noncanonical keys such as `Q0`/`Q01` remain in raw mood attributes, not classified
+output records.
+
 Inspection also reports version-bound native reconciliation risks:
 `native_empty_mood_collection_reinitialized` for an explicitly empty `Num=0`
 collection, and `native_zero_mood_sid_reconciled` for a supported loaded scene
@@ -320,6 +342,10 @@ One accepted native numeric edit of Q2 to 37 saved `1610612773`
 selected encoding. The native workflow also changed Q1 to a numeric 100 payload
 and normalized HCL fields. Those differences are retained in
 `tests/ux/light-controller2/numeric-edit-save-reopen-20261111.json`, not ignored.
+The bounded trigger trace identifies a programmatic numeric-refresh notification
+path and HCL setup writes during dialog initialization; it does not uniquely
+attribute every historical callback or reproduce those side effects. See
+`tests/ux/light-controller2/incidental-normalization-triggers-source.json`.
 The CLI intentionally changes only the requested Qn: it does not normalize other
 outputs, HCL, IDs, widths, counts, sequences or unknown data. An equivalent
 existing value retains its spelling and an in-place no-op retains original bytes.

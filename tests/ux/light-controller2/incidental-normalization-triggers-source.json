@@ -1,0 +1,52 @@
+{
+  "schema_version": 1,
+  "issue": "lox-n19e",
+  "scope": "Bounded trigger/caller identification only; no incidental normalization implementation or new native run.",
+  "frozen_target": {
+    "version": "17.2.10.21",
+    "pe_sha256": "7b55e3ef18401574ab967c5c6a0140cd5a66dc728521ebba04ad53093577d8b3",
+    "analysis_id": "6a0520329af17d7b9fdaafe69398c62c454d9da838fc9f9c8d0bdd8d17bb15ae",
+    "new_extractions": 0
+  },
+  "canonical_sources": [
+    {"address": "0x1400039c0", "sha256": "e9f61e6cc93f9f3483cd3f31c274dbb780194a15b4ffddd874653e7b9d10d7d1", "lines": [1, 21]},
+    {"address": "0x1400051f0", "sha256": "b89f0110db67b126f7b2c98b1c88cf7cc558eae5a02d6469aa0d4f268daaab40", "lines": [1, 19]},
+    {"address": "0x1400e6460", "sha256": "e3bbb93c4599b98a3d7a5986dcf68dd17facb3a53f319f2bc296af1c8c7eea7d", "lines": [1, 64]},
+    {"address": "0x1402cb0a0", "sha256": "047dbace03896a277e2a5ac1b26de6e5ad8aeee2e2e247eb2beea59faa3be816", "lines": [1, 66]},
+    {"address": "0x1400e4d60", "sha256": "b36a97c9b7f6526fff278d633605272c1b3f670db30d00248e4b4f6e5f9ca331", "lines": [330, 385]},
+    {"address": "0x1400e1da0", "sha256": "64dd5afbf81358674e7644275ba637057bdebffae105b365ba482de6c0e12c62", "lines": [958, 970]},
+    {"address": "0x1400ed2b0", "sha256": "87d93aa4d806f0ca54e1c862d76844cc05f80721a97bae9f1d225bf81e4981c6", "lines": [40, 90]},
+    {"address": "0x1405c49b0", "sha256": "7d959fcdf69a69b1b5ba2a901fbb389e1d44e47b54cb133b6d4a5b3b44853bca", "lines": [1, 55]},
+    {"address": "0x1405c48f0", "sha256": "c4e207b3d83e3b31154b28979747ec727f402a6e66900037c064f855ea961856", "lines": [1, 48]},
+    {"address": "0x1405d1580", "sha256": "16512152985127a4f4455e3002399b715a8a9743455ee61c3fa27a954fbde0e6", "lines": [108, 139]}
+  ],
+  "static_byte_pins": [
+    {"address": "0x141625630", "length": 32, "sha256": "f6813618976ac16f3c62066c5c1e37003dfee45f08c6ae670cdba85160514c87", "purpose": "Registered-message map entry couples message variable0x141982fc0 to numeric handler0x1400e6460."},
+    {"address": "0x14101b5f0", "length": 25, "sha256": "378a5db9312eb42e1e668e4caa97633f3c8f1da2574a17db5090f9d3211c2933", "purpose": "HCL, TMIN, TMAX and FROM labels"},
+    {"address": "0x141662200", "length": 2, "sha256": "766caa663e1025b9accd7ededd24fbc8193180e028eedae2f41d6bb0b1d36468", "purpose": "T label"},
+    {"address": "0x14160f648", "length": 2, "sha256": "fcfcd4ecebe43ba403cb968bafa849a96f301ace87357a2e235ceb06dc226947", "purpose": "M label"},
+    {"address": "0x141633880", "length": 3, "sha256": "948f83fac445817cb1d409152ec364a65d3182bad2de5d0d0e2fc05e6e077fd5", "purpose": "TO label"}
+  ],
+  "numeric_output_trigger": {
+    "event": "Registered NEN_CHANGED notification, not only an explicit user edit or accepted-dialog copy-back.",
+    "message_identity": "0x1400039c0 and0x1400051f0 register the identical complete NEN_CHANGED name into different module globals. Under normal Windows registered-message semantics these represent the same message ID. The frozen message-map entry binds it to0x1400e6460.",
+    "programmatic_sender": "0x1402cb0a0 updates a numeric control when the requested value differs from control+0xf0. Under its drag/style notification condition it sends the registered message synchronously to its parent, with control ID and bounded scalar. Its recursion guard0x1419ac820 is distinct from renderer guard0x1419ac494 and handler guard0x1419ac498.",
+    "renderer_caller": "For a selected tag6 mood with numeric capability projection,0x1400e4d60 caps the displayed payload at100 and calls0x1402cb0a0 for numeric controls. A programmatic refresh can therefore reach the same numeric write handler when notification and selected-scene guards permit.",
+    "write": "0x1400e6460 maps controlID minus0x2ea4 to the output, requires a selected existing scene/in-range vector slot, and replaces that slot's low payload with a0..100 scalar while retaining the high nibble.",
+    "boundary": "This identifies a sufficient source-backed refresh/notification trigger for an unedited numeric output. No callback trace was retained for the historical case, so its unique originating event is not asserted."
+  },
+  "HCL_trigger": {
+    "entry": "Lighting dialog initialization0x1400e1da0 calls HCL UI setup0x1400ed2b0 before the modal result, not only on OK.",
+    "original_model_alias": "Setup reads owner+0x22e0, the HCL record pointer, and calls0x1405c49b0 on the owner. It does not first copy that HCL record into the temporary mood collection.",
+    "type_temperature_refresh": "With an existing HCL record,0x1405c49b0 obtains current/default values from owner virtual+0x4b0 indices0x30 and0x2f, bounds them to2000..13000 and calls0x1405c48f0 with type4 and the existing mode. That setter writes type, mode and temperature members, applies its time-default rules, then calls0x1400e0340.",
+    "time_fill": "After that refresh, setup has another conditional write: if FROM is still0 and mode is not1, it fills FROM/TO from cached values refreshed through0x1406a33b0, choosing one of two pairs by mode.",
+    "XML_binding": "0x1405d1580 binds that same owner+0x22e0 record to HCL: offsets0/4/8/12/16/20 are T/M/TMIN/TMAX/FROM/TO respectively. These are original persisted-model changes, not immediate disk writes.",
+    "boundary": "The setup/caller/conditions are identified. Exact per-instance temperature provenance and the time adjustment/cache results, including the contribution of0x1400e0340, are not simulated or used to predict the historical numeric values."
+  },
+  "delivery_decision": {
+    "investigation": "Stop at these triggers and precise remaining dependencies. No new extraction, live callback instrumentation, generic automation or additional native batch.",
+    "CLI": "Do not reproduce any output clamp, HCL refresh or time defaulting. Neither inspection nor selected numeric editing normalizes unrelated values.",
+    "inspection_feature": "Independent delivery: expose the previously recovered per-mood numeric/color editor classification. Keep set-mood-color a raw packed-value operation, not a mode-aware equivalent.",
+    "historical_evidence": "numeric-edit-save-reopen-20261111.json remains unchanged. Its eight observed attribute deltas are not retroactively upgraded to uniquely traced callbacks."
+  }
+}

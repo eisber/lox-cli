@@ -42,6 +42,76 @@ const LEVEL_XML: &str = r#"<?xml version="1.0" encoding="utf-8"?>
 "#;
 
 #[test]
+fn lighting_editor_inspection_cli_is_read_only_and_exposes_operation_boundary() {
+    let dir = tempfile::tempdir().unwrap();
+    let input = dir.path().join("input.Loxone");
+    let before = fixture_bytes(LEVEL_XML);
+    fs::write(&input, &before).unwrap();
+    let result = lox()
+        .env("LOX_CONFIG", dir.path().join("absent.yaml"))
+        .args(["config", "lighting", "inspect"])
+        .arg(&input)
+        .args(["uuid:lighting", "-o", "json", "--quiet"])
+        .assert()
+        .success()
+        .get_output()
+        .stdout
+        .clone();
+    let result: serde_json::Value = serde_json::from_slice(&result).unwrap();
+    let outputs = result["moods"][0]["outputs"].as_array().unwrap();
+    let q1 = outputs.iter().find(|q| q["key"] == "Q1").unwrap();
+    let q2 = outputs.iter().find(|q| q["key"] == "Q2").unwrap();
+    assert_eq!(q1["editor"]["kind"], "color");
+    assert_eq!(q2["editor"]["kind"], "numeric");
+    assert_eq!(
+        q2["editor"]["capability"]["stored"],
+        serde_json::Value::Null
+    );
+    assert_eq!(q2["editor"]["capability"]["effective"], 0);
+    assert!(result["diagnostics"].as_array().unwrap().iter().any(|d| {
+        d["code"] == "lighting_edit_operation_boundary"
+            && d["message"]
+                .as_str()
+                .unwrap()
+                .contains("not a mode-aware equivalent")
+    }));
+    assert_eq!(fs::read(&input).unwrap(), before);
+}
+
+#[test]
+fn lighting_editor_inspection_cli_table_csv_and_quiet_keep_kinds_and_raw_edit_limit() {
+    let dir = tempfile::tempdir().unwrap();
+    let input = dir.path().join("input.Loxone");
+    let xml = LEVEL_XML.replace("</C>", "<Co K=\"AQ2\" U=\"output-2\"/></C>");
+    let before = fixture_bytes(&xml);
+    fs::write(&input, &before).unwrap();
+    for format in ["table", "csv"] {
+        let result = lox()
+            .env("LOX_CONFIG", dir.path().join("absent.yaml"))
+            .args(["config", "lighting", "inspect"])
+            .arg(&input)
+            .args(["uuid:lighting", "-o", format, "--no-header", "--quiet"])
+            .assert()
+            .success()
+            .get_output()
+            .clone();
+        let stdout = String::from_utf8(result.stdout).unwrap();
+        let stderr = String::from_utf8(result.stderr).unwrap();
+        assert!(stdout.contains("numeric") && stdout.contains("color"));
+        assert!(!stdout.contains("EDITOR"));
+        assert!(
+            stderr.contains("raw packed-value edit")
+                && stderr.contains("not a mode-aware equivalent")
+        );
+        if format == "csv" {
+            assert!(stdout.lines().all(|line| line.split(',').count() == 10));
+            assert!(stdout.contains(",Q2,\"1610622736\",numeric,6,\"\",0,"));
+        }
+        assert_eq!(fs::read(&input).unwrap(), before);
+    }
+}
+
+#[test]
 fn lighting_numeric_level_cli_matches_native_selected_value_and_preserves_every_other_byte() {
     let dir = tempfile::tempdir().unwrap();
     let input = dir.path().join("input.Loxone");

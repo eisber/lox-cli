@@ -125,6 +125,18 @@ lox config moods FILE "uuid:<lightcontroller>"
 ### Change an existing mood's packed colour
 
 ```
+lox config lighting inspect FILE "uuid:<lightcontroller>" --output json
+```
+
+- Inspect `moods[].outputs[].editor.kind` first: `numeric` uses the guarded
+  `lighting set-mood-level` operation below; `color` identifies a native color
+  control branch, not a mode-aware CLI color operation. `other` is outside those
+  supported branches; `unresolved` includes an explicit issue and preserves raw data.
+- Needed capabilities distinguish raw omission from effective default 0 and
+  unsupported explicit values. Classification is stored per-mood editor state,
+  not hardware roles or a prediction of graph-dependent refresh.
+
+```
 lox config set-mood-color FILE "uuid:<lightcontroller>" --mood <SID|Name> --color "hsv(120,100,10)"
 ```
 
