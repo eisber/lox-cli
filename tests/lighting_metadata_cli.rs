@@ -29,6 +29,138 @@ fn command() -> Command {
 }
 
 #[test]
+fn lighting_metadata_cli_references_preserve_exact_bytes_and_formats_with_quiet_noheader() {
+    let dir = tempfile::tempdir().unwrap();
+    let input = dir.path().join("input.Loxone");
+    let xml = XML.replace(
+        "OpM=\"opaque\" ScMv=\"future\"",
+        "OpM=\" +00 ,1,-02\" ScMv=\" +002 , -1,+2,opaque,,tail\"",
+    );
+    let before = bytes(&xml);
+    fs::write(&input, &before).unwrap();
+    for format in ["json", "table", "csv"] {
+        for quiet_noheader in [false, true] {
+            let mut cmd = command();
+            cmd.env("LOX_CONFIG", dir.path().join("absent.yaml"))
+                .args(["config", "lighting", "inspect-mood-references"])
+                .arg(&input)
+                .args(["uuid:lighting", "--mood", "A", "-o", format]);
+            if quiet_noheader {
+                cmd.args(["--quiet", "--no-header"]);
+            }
+            let output = cmd.assert().success().get_output().clone();
+            if format == "json" {
+                let value: serde_json::Value = serde_json::from_slice(&output.stdout).unwrap();
+                assert_eq!(value["read_only"], true);
+                assert_eq!(value["mood"]["sid"], "+0002");
+                assert_eq!(value["selected_sid"], 2);
+                assert_eq!(value["stored_num"], "2");
+                assert_eq!(value["status"], "resolved");
+                assert_eq!(value["opm"], " +00 ,1,-02");
+                assert_eq!(value["scmv"], " +002 , -1,+2,opaque,,tail");
+                assert_eq!(value["opm_count"], 3);
+                assert_eq!(value["visited"][0]["raw"], " +002 ");
+                assert_eq!(value["visited"][0]["value"], 2);
+                assert_eq!(value["visited"][0]["matches_selected_sid"], true);
+                assert_eq!(value["visited"][1]["matches_selected_sid"], false);
+                assert_eq!(value["visited"][2]["matches_selected_sid"], true);
+                assert_eq!(value["unvisited_tail"]["start_index"], 3);
+                assert_eq!(value["unvisited_tail"]["raw"], "opaque,,tail");
+                assert_eq!(
+                    value["diagnostics"][0]["code"],
+                    "stored_mood_references_only"
+                );
+            } else {
+                let stdout = String::from_utf8(output.stdout).unwrap();
+                assert!(stdout.contains("selected_sid") && stdout.contains("+0002"));
+                assert!(stdout.contains("opaque,,tail") && stdout.contains("unvisited_tail"));
+                assert_eq!(stdout.contains("MATCHES_SELECTED_SID"), !quiet_noheader);
+                if format == "csv" {
+                    assert!(stdout.contains("\"visited\",0,true,\" +002 \",\"2\",true"));
+                    assert!(stdout.contains("\"visited\",1,true,\" -1\",\"-1\",false"));
+                    assert!(stdout.contains("\"unvisited_tail\",3,true,\"opaque,,tail\",\"3\","));
+                } else {
+                    assert_eq!(stdout.contains("\n3 visited references"), !quiet_noheader);
+                }
+                let stderr = String::from_utf8(output.stderr).unwrap();
+                assert!(stderr.contains("stored_mood_references_only"));
+                assert!(stderr.contains("Not Num-limited import"));
+            }
+            assert_eq!(fs::read(&input).unwrap(), before);
+        }
+    }
+}
+
+#[test]
+fn lighting_metadata_cli_references_unresolved_diagnostics_are_visible_not_success_empty() {
+    let dir = tempfile::tempdir().unwrap();
+    let input = dir.path().join("input.Loxone");
+    let before = bytes(XML);
+    fs::write(&input, &before).unwrap();
+    for format in ["json", "table", "csv"] {
+        let output = command()
+            .args(["config", "lighting", "inspect-mood-references"])
+            .arg(&input)
+            .args([
+                "uuid:lighting",
+                "--mood",
+                "A",
+                "-o",
+                format,
+                "-q",
+                "--no-header",
+            ])
+            .assert()
+            .success()
+            .get_output()
+            .clone();
+        if format == "json" {
+            let value: serde_json::Value = serde_json::from_slice(&output.stdout).unwrap();
+            assert_eq!(value["status"], "unresolved");
+            assert!(value["visited"].is_null());
+            assert_eq!(value["opm"], "opaque");
+            assert_eq!(value["scmv"], "future");
+            assert!(
+                value["diagnostics"]
+                    .as_array()
+                    .unwrap()
+                    .iter()
+                    .any(|d| { d["code"] == "unsupported_lighting_selection_value" })
+            );
+        } else {
+            assert!(
+                String::from_utf8(output.stdout)
+                    .unwrap()
+                    .contains("unresolved")
+            );
+            assert!(
+                String::from_utf8(output.stderr)
+                    .unwrap()
+                    .contains("unsupported_lighting_selection_value")
+            );
+        }
+        assert_eq!(fs::read(&input).unwrap(), before);
+    }
+    let before = bytes(&XML.replace("OpM=\"opaque\" ScMv=\"future\"", "ScMv=\"opaque,,tail\""));
+    fs::write(&input, &before).unwrap();
+    let output = command()
+        .args(["config", "lighting", "inspect-mood-references"])
+        .arg(&input)
+        .args(["uuid:lighting", "--mood", "A", "-o", "json"])
+        .assert()
+        .success()
+        .get_output()
+        .stdout
+        .clone();
+    let value: serde_json::Value = serde_json::from_slice(&output).unwrap();
+    assert_eq!(value["status"], "no_visited_references");
+    assert!(value["visited"].as_array().unwrap().is_empty());
+    assert!(value["opm"].is_null());
+    assert_eq!(value["scmv"], "opaque,,tail");
+    assert_eq!(fs::read(&input).unwrap(), before);
+}
+
+#[test]
 fn lighting_metadata_cli_boolean_case_retains_noop_bytes_and_does_not_coerce_bad_flags() {
     let dir = tempfile::tempdir().unwrap();
     let input = dir.path().join("input.Loxone");

@@ -270,6 +270,7 @@ no GUI-case count, inheritance reset or whole-file/runtime parity is promoted.
 ```bash
 lox config lighting inspect file.Loxone "Lighting" --output json
 lox config lighting inspect-mood-options file.Loxone "Lighting" --mood "Evening" --output json
+lox config lighting inspect-mood-references file.Loxone "Lighting" --mood "Evening" --output json
 lox config lighting recount-moods file.Loxone "Lighting" --save-as edited.Loxone
 lox config lighting recount-moods file.Loxone "Lighting" --room "Study" --output json
 lox config lighting set-mood-level file.Loxone "Lighting" --mood "Evening" --output-index 2 --level 37 --save-as edited.Loxone
@@ -515,7 +516,36 @@ unsupported explicit IDs are retained, not defaulted. The integer is not a
 built-in icon GUID. No icon assignment/clear or input mutation is implied.
 See `tests/ux/light-controller2/mood-icon-id-source.json`.
 
-Both metadata commands require exactly one direct collection and one
+`lighting inspect-mood-references FILE BLOCK --mood SID_OR_NAME [--room ROOM]`
+is read-only local XML inspection. It selects one exact stored SID spelling or
+case-sensitive Name in one direct LightscenesC; all direct SIDs must be explicit
+positive signed32 decimals, and the selected numeric SID must be unique.
+Ambiguous mood/LSConfig containers or identity are explicit errors, not native
+first-match guesses. CID is not interpreted.
+
+The shared CID/SID reference codec visits only available ScMv entries below the
+supported OpM vector count. Needed comma-separated signed32 tokens allow
+surrounding ASCII whitespace and plus/zero spelling. JSON reports raw
+`mood.sid`, numeric `selected_sid`, raw `opm`/`scmv`, `opm_count`, and zero-based
+`visited` entries with `index`, `raw`, numeric `value` and
+`matches_selected_sid`. A supported `unvisited_tail` reports `start_index`,
+lexical `token_count` and raw suffix; opaque/empty tail tokens are not parsed.
+Absent LSConfig or missing/empty vectors yield `status=no_visited_references`
+and `visited=[]`, without parsing unneeded opposite values or inventing a count
+or tail boundary. Unsupported needed values yield `status=unresolved`,
+`visited=null` and an explicit diagnostic, never an empty resolved result.
+
+Raw `stored_num` and actual `direct_moods` are reported separately; missing,
+unsupported or mismatched Num warns without hiding records or repairing it.
+JSON includes all diagnostics. Table/CSV retain status, raw vectors and
+identity, visited matches and supported tail boundary; CSV `RAW_PRESENT`
+distinguishes absence from empty. `--no-header` suppresses headers, and `--quiet`
+suppresses only the table count, never data or stderr diagnostics. No saves,
+stamps, normalization, Num-limited import, whole-transaction admission, native
+visibility/writeability or GUI/runtime parity is inferred.
+See `tests/ux/light-controller2/mood-reference-inspection-source.json`.
+
+The rename/mix transactions require exactly one direct collection and one
 unambiguous direct mood selected by exact stored SID or case-sensitive Name.
 They preserve all unselected fields/records, IDs, Qn, flags, widths/counts,
 selection/sequence data, HCL, capabilities and unknown storage. Errors precede

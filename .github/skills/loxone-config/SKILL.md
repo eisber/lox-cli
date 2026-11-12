@@ -237,11 +237,21 @@ lox config lighting set-mood-sid FILE "uuid:<lightcontroller>" --mood <SID|Name>
 ```
 lox config lighting rename-mood FILE "uuid:<lightcontroller>" --mood <SID|Name> --name "Late Evening"
 lox config lighting inspect-mood-options FILE "uuid:<lightcontroller>" --mood <SID|Name> --output json
+lox config lighting inspect-mood-references FILE "uuid:<lightcontroller>" --mood <SID|Name> --output json
 lox config lighting set-mood-mix FILE "uuid:<lightcontroller>" --mood <SID|Name> --no-mix
 lox config lighting set-mood-skip FILE "uuid:<lightcontroller>" --mood <SID|Name> --skip
 lox config lighting set-mood-display-name FILE "uuid:<lightcontroller>" --mood <SID|Name> --name "LATE EVENING"
 ```
 
+- Reference inspection is read-only: actual stored SID, raw OpM/ScMv and
+  zero-based visited numeric matches in the available ScMv prefix bounded by
+  supported OpM count. Preserve raw spellings and opaque unvisited tails.
+  Missing/empty vectors mean no visited references; unsupported needed values
+  remain explicitly unresolved, not empty/defaulted. Exact direct selection,
+  supported positive sibling SIDs and unique selected numeric SID are required;
+  ambiguous containers/identity fail. Num is reported, not reconciled/imported.
+  Quiet/no-header retain data and limitation diagnostics. No save/stamps,
+  writeability, native import, full edit admission or GUI/runtime inference.
 - Rename supports ASCII letters/digits with ordinary internal spaces and a
   letter/digit at each end. It rejects unmodeled normalization/Unicode rather
   than trimming, converting or silently defaulting a name. Duplicate new names

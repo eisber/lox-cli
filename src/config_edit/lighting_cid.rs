@@ -303,6 +303,42 @@ pub(super) fn selection_plan(
     if remaps.is_empty() {
         return Ok(None);
     }
+    let Some((index, config)) = selection_config(block)? else {
+        return Ok(None);
+    };
+    let Some(prefix) = selection_prefix(config)? else {
+        return Ok(None);
+    };
+    let mut values = prefix.values;
+    let mut tokens = prefix.tokens;
+    for remap in remaps {
+        for (index, value) in values.iter_mut().enumerate() {
+            if *value == remap.before {
+                *value = remap.after;
+                let token = &tokens[index];
+                let prefix = &token[..token.len()
+                    - token
+                        .trim_start_matches(|c: char| c.is_ascii_whitespace())
+                        .len()];
+                let suffix = &token[token
+                    .trim_end_matches(|c: char| c.is_ascii_whitespace())
+                    .len()..];
+                tokens[index] = format!("{prefix}{}{suffix}", remap.after);
+            }
+        }
+    }
+    let after = tokens.join(",");
+    Ok(Some((
+        index,
+        LightingSelectionEdit {
+            before: prefix.before.into(),
+            changed: after != prefix.before,
+            after,
+        },
+    )))
+}
+
+pub(super) fn selection_config(block: &Element) -> Result<Option<(usize, &Element)>> {
     let configs: Vec<_> = block
         .children
         .iter()
@@ -324,6 +360,17 @@ pub(super) fn selection_plan(
         )
         .into());
     };
+    Ok(Some((*index, config)))
+}
+
+pub(super) struct SelectionPrefix<'a> {
+    pub before: &'a str,
+    pub count: usize,
+    pub values: Vec<i32>,
+    pub tokens: Vec<String>,
+}
+
+pub(super) fn selection_prefix(config: &Element) -> Result<Option<SelectionPrefix<'_>>> {
     let Some(operations) = config.attributes.get("OpM").filter(|raw| !raw.is_empty()) else {
         return Ok(None);
     };
@@ -346,33 +393,12 @@ pub(super) fn selection_plan(
             .collect()
     };
     let count = parse_list(operations, "OpM", usize::MAX)?.len();
-    let mut values = parse_list(before, "ScMv", count)?;
-    let mut tokens: Vec<_> = before.split(',').map(String::from).collect();
-    for remap in remaps {
-        for (index, value) in values.iter_mut().take(count).enumerate() {
-            if *value == remap.before {
-                *value = remap.after;
-                let token = &tokens[index];
-                let prefix = &token[..token.len()
-                    - token
-                        .trim_start_matches(|c: char| c.is_ascii_whitespace())
-                        .len()];
-                let suffix = &token[token
-                    .trim_end_matches(|c: char| c.is_ascii_whitespace())
-                    .len()..];
-                tokens[index] = format!("{prefix}{}{suffix}", remap.after);
-            }
-        }
-    }
-    let after = tokens.join(",");
-    Ok(Some((
-        *index,
-        LightingSelectionEdit {
-            before: before.clone(),
-            changed: after != *before,
-            after,
-        },
-    )))
+    Ok(Some(SelectionPrefix {
+        before,
+        count,
+        values: parse_list(before, "ScMv", count)?,
+        tokens: before.split(',').map(String::from).collect(),
+    }))
 }
 
 #[cfg(test)]

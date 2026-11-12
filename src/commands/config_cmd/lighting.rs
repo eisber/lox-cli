@@ -48,6 +48,14 @@ pub(crate) enum LightingCmd {
         #[arg(long)]
         mood: String,
     },
+    /// Inspect selected stored SID references in the OpM-bounded ScMv prefix; never save
+    InspectMoodReferences {
+        #[command(flatten)]
+        target: LightingTarget,
+        /// Exact stored SID spelling or case-sensitive Name of one direct mood
+        #[arg(long)]
+        mood: String,
+    },
     /// Repair only Num from direct mood records; preserve Outputs and sparse Qn
     RecountMoods {
         #[command(flatten)]
@@ -219,6 +227,115 @@ fn print_identity_changes(
 pub(crate) fn run(ctx: &RunContext, action: LightingCmd) -> Result<()> {
     let target = match action {
         LightingCmd::Inspect { target } => target,
+        LightingCmd::InspectMoodReferences { target, mood } => {
+            let selector = target.selector()?;
+            let editor = ConfigEditor::load(&crate::load_config_xml(&target.file)?)?;
+            let inspection = editor.inspect_lighting_mood_references(&selector, &mood)?;
+            if ctx.json {
+                let mut value = serde_json::to_value(&inspection)?;
+                if let Some(trace_id) = &ctx.trace_id {
+                    value["trace_id"] = trace_id.clone().into();
+                }
+                println!("{}", serde_json::to_string_pretty(&value)?);
+            } else {
+                if !ctx.no_header {
+                    println!(
+                        "{}",
+                        if ctx.csv {
+                            "RECORD,INDEX,RAW_PRESENT,RAW,VALUE,MATCHES_SELECTED_SID"
+                        } else {
+                            "RECORD  INDEX  RAW  VALUE  MATCHES_SELECTED_SID"
+                        }
+                    );
+                }
+                let row = |record: &str,
+                           index: Option<usize>,
+                           raw: Option<&str>,
+                           value: Option<String>,
+                           matches: Option<bool>| {
+                    let index = index.map(|i| i.to_string()).unwrap_or_default();
+                    let value = value.unwrap_or_default();
+                    let matches = matches.map(|v| v.to_string()).unwrap_or_default();
+                    if ctx.csv {
+                        println!(
+                            "{},{},{},{},{},{}",
+                            csv(record),
+                            index,
+                            raw.is_some(),
+                            csv(raw.unwrap_or("")),
+                            csv(&value),
+                            matches
+                        );
+                    } else {
+                        println!(
+                            "{record}  {index}  {}  {value}  {matches}",
+                            raw.unwrap_or("<absent>")
+                        );
+                    }
+                };
+                row("status", None, None, Some(inspection.status.into()), None);
+                row(
+                    "selected_sid",
+                    None,
+                    inspection.mood.sid.as_deref(),
+                    Some(inspection.selected_sid.to_string()),
+                    None,
+                );
+                row("Num", None, inspection.stored_num.as_deref(), None, None);
+                row(
+                    "direct_moods",
+                    None,
+                    None,
+                    Some(inspection.direct_moods.to_string()),
+                    None,
+                );
+                row(
+                    "lsconfig_present",
+                    None,
+                    None,
+                    Some(inspection.lsconfig_present.to_string()),
+                    None,
+                );
+                row(
+                    "OpM",
+                    None,
+                    inspection.opm.as_deref(),
+                    inspection.opm_count.map(|n| n.to_string()),
+                    None,
+                );
+                row("ScMv", None, inspection.scmv.as_deref(), None, None);
+                if let Some(visited) = &inspection.visited {
+                    for reference in visited {
+                        row(
+                            "visited",
+                            Some(reference.index),
+                            Some(&reference.raw),
+                            Some(reference.value.to_string()),
+                            Some(reference.matches_selected_sid),
+                        );
+                    }
+                }
+                if let Some(tail) = &inspection.unvisited_tail {
+                    row(
+                        "unvisited_tail",
+                        Some(tail.start_index),
+                        Some(&tail.raw),
+                        Some(tail.token_count.to_string()),
+                        None,
+                    );
+                }
+                if !ctx.csv && !ctx.quiet {
+                    match &inspection.visited {
+                        Some(visited) => println!("\n{} visited references", visited.len()),
+                        None => println!("\nvisited references unresolved"),
+                    }
+                }
+                for d in &inspection.diagnostics {
+                    eprintln!("{} at {}: {}", d.code, d.path, d.message);
+                }
+            }
+            return Ok(());
+        }
         LightingCmd::InspectMoodOptions { target, mood } => {
             let selector = target.selector()?;
             let editor = ConfigEditor::load(&crate::load_config_xml(&target.file)?)?;

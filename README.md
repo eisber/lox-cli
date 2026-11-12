@@ -111,6 +111,11 @@ Omitted CID likewise uses recovered0 for mix eligibility without inserting an ID
 text, with bounded cycling/mix projections rather than GUI-permission guesses.
 IID is exposed as a numeric icon reference with unresolved catalog mapping,
 not an input binding or a raw icon-assignment surface.
+`lighting inspect-mood-references FILE BLOCK --mood SID_OR_NAME` reads the
+selected stored SID's numeric matches in the available ScMv prefix bounded by
+OpM count. It retains raw spellings and opaque unvisited tails, distinguishes
+missing vectors from unsupported needed values, and rejects ambiguous identity.
+This never saves or predicts Num-limited import, edit admission, GUI or runtime state.
 `lighting set-mood-skip` changes only the cycling exclusion flag and reports
 the native checkbox's inverse state. Omitted `SkipNext` means false; no-op
 requests preserve omission, and unsupported explicit values fail atomically.

@@ -24,6 +24,181 @@ fn assert_xml(editor: &ConfigEditor, expected: &str) {
 }
 
 #[test]
+fn lighting_metadata_references_visit_exact_prefix_and_leave_opaque_tail_uninterpreted() {
+    let xml = METADATA_XML
+        .replace("SID=\"2\" CID=\"+012\"", "SID=\"+0002\" CID=\"opaque\"")
+        .replace(
+            "OpM=\"future\"",
+            "OpM=\" +00 ,1,-02\" ScMv=\" &#9;+02 , -1 ,+2,opaque,,future\"",
+        );
+    let editor = ConfigEditor::load(xml.as_bytes()).unwrap();
+    let before = editor.to_bytes().unwrap();
+    let result = editor
+        .inspect_lighting_mood_references("uuid:lighting", "First")
+        .unwrap();
+    assert_eq!(result.mood.sid.as_deref(), Some("+0002"));
+    assert_eq!(result.mood.cid.as_deref(), Some("opaque"));
+    assert_eq!(result.selected_sid, 2);
+    assert_eq!(result.stored_num.as_deref(), Some("009"));
+    assert_eq!(result.direct_moods, 2);
+    assert_eq!(result.opm.as_deref(), Some(" +00 ,1,-02"));
+    assert_eq!(result.opm_count, Some(3));
+    assert_eq!(result.status, "resolved");
+    let visited = result.visited.unwrap();
+    assert_eq!(
+        visited
+            .iter()
+            .map(|r| (r.index, r.raw.as_str(), r.value, r.matches_selected_sid))
+            .collect::<Vec<_>>(),
+        [
+            (0, " \t+02 ", 2, true),
+            (1, " -1 ", -1, false),
+            (2, "+2", 2, true)
+        ]
+    );
+    let tail = result.unvisited_tail.unwrap();
+    assert_eq!(tail.start_index, 3);
+    assert_eq!(tail.token_count, 3);
+    assert_eq!(tail.raw, "opaque,,future");
+    assert!(
+        result
+            .diagnostics
+            .iter()
+            .any(|d| d.code == "stored_mood_count_not_reconciled")
+    );
+    assert_eq!(editor.to_bytes().unwrap(), before);
+}
+
+#[test]
+fn lighting_metadata_references_missing_vectors_do_not_parse_unneeded_opaque_values() {
+    for (attributes, opm, scmv) in [
+        ("", None, None),
+        ("OpM=\"\"", Some(""), None),
+        ("OpM=\"future\"", Some("future"), None),
+        ("OpM=\"future\" ScMv=\"\"", Some("future"), Some("")),
+        ("ScMv=\"opaque,,tail\"", None, Some("opaque,,tail")),
+        ("OpM=\"\" ScMv=\"opaque\"", Some(""), Some("opaque")),
+    ] {
+        let xml = METADATA_XML.replace("OpM=\"future\"", attributes);
+        let editor = ConfigEditor::load(xml.as_bytes()).unwrap();
+        let before = editor.to_bytes().unwrap();
+        let result = editor
+            .inspect_lighting_mood_references("uuid:lighting", "First")
+            .unwrap();
+        assert_eq!(result.status, "no_visited_references");
+        assert!(result.visited.unwrap().is_empty());
+        assert!(result.opm_count.is_none());
+        assert!(result.unvisited_tail.is_none());
+        assert_eq!(result.opm.as_deref(), opm);
+        assert_eq!(result.scmv.as_deref(), scmv);
+        assert_eq!(editor.to_bytes().unwrap(), before);
+    }
+    let xml = METADATA_XML.replace(
+        "<LSConfig OpM=\"future\"><Unknown SID=\"2\" Name=\"First\"/></LSConfig>",
+        "",
+    );
+    let result = ConfigEditor::load(xml.as_bytes())
+        .unwrap()
+        .inspect_lighting_mood_references("uuid:lighting", "First")
+        .unwrap();
+    assert!(!result.lsconfig_present);
+    assert_eq!(result.status, "no_visited_references");
+}
+
+#[test]
+fn lighting_metadata_references_needed_unsupported_lists_are_unresolved_not_empty() {
+    for (attributes, path) in [
+        ("OpM=\"future\" ScMv=\"2\"", "LSConfig/@OpM"),
+        ("OpM=\"0,future\" ScMv=\"2\"", "LSConfig/@OpM"),
+        ("OpM=\"2147483648\" ScMv=\"2\"", "LSConfig/@OpM"),
+        ("OpM=\" \" ScMv=\"2\"", "LSConfig/@OpM"),
+        ("OpM=\"0,1\" ScMv=\"2,\"", "LSConfig/@ScMv"),
+        ("OpM=\"0\" ScMv=\"future,2\"", "LSConfig/@ScMv"),
+        ("OpM=\"0\" ScMv=\"2147483648\"", "LSConfig/@ScMv"),
+    ] {
+        let xml = METADATA_XML.replace("OpM=\"future\"", attributes);
+        let editor = ConfigEditor::load(xml.as_bytes()).unwrap();
+        let before = editor.to_bytes().unwrap();
+        let result = editor
+            .inspect_lighting_mood_references("uuid:lighting", "First")
+            .unwrap();
+        assert_eq!(result.status, "unresolved", "{attributes}");
+        assert!(result.visited.is_none());
+        assert!(result.opm_count.is_none());
+        assert!(result.unvisited_tail.is_none());
+        assert!(
+            result
+                .diagnostics
+                .iter()
+                .any(|d| { d.code == "unsupported_lighting_selection_value" && d.path == path })
+        );
+        assert_eq!(editor.to_bytes().unwrap(), before);
+    }
+    let xml = METADATA_XML.replace("OpM=\"future\"", "OpM=\"0,1,2\" ScMv=\"+02\"");
+    let result = ConfigEditor::load(xml.as_bytes())
+        .unwrap()
+        .inspect_lighting_mood_references("uuid:lighting", "First")
+        .unwrap();
+    assert_eq!(result.opm_count, Some(3));
+    assert_eq!(result.visited.unwrap().len(), 1);
+    assert!(result.unvisited_tail.is_none());
+}
+
+#[test]
+fn lighting_metadata_references_reject_ambiguous_containers_selection_and_numeric_identity() {
+    for (xml, mood_ref, code) in [
+        (
+            METADATA_XML.replace("</C>", "<LSConfig/></C>"),
+            "First",
+            "unsupported_lighting_selection_shape",
+        ),
+        (
+            METADATA_XML.replace("</C>", "<LightscenesC/></C>"),
+            "First",
+            "unsupported_mood_container_shape",
+        ),
+        (
+            METADATA_XML.replace("Name=\"Second\"", "Name=\"First\""),
+            "First",
+            "ambiguous_or_missing_mood",
+        ),
+        (
+            METADATA_XML.replace("Name=\"Second\"", "Name=\"2\""),
+            "2",
+            "ambiguous_or_missing_mood",
+        ),
+        (
+            METADATA_XML.replace("SID=\"3\"", "SID=\"+02\""),
+            "First",
+            "ambiguous_mood_sid",
+        ),
+        (
+            METADATA_XML.replace("SID=\"2\" CID", "CID"),
+            "First",
+            "unsupported_mood_identity",
+        ),
+        (
+            METADATA_XML.replace("SID=\"2\" CID", "SID=\"0\" CID"),
+            "First",
+            "unsupported_mood_identity",
+        ),
+        (
+            METADATA_XML.replace("SID=\"3\"", "SID=\"opaque\""),
+            "First",
+            "unsupported_mood_identity",
+        ),
+    ] {
+        let editor = ConfigEditor::load(xml.as_bytes()).unwrap();
+        let before = editor.to_bytes().unwrap();
+        let error = editor
+            .inspect_lighting_mood_references("uuid:lighting", mood_ref)
+            .unwrap_err();
+        assert_eq!(error.downcast_ref::<Diagnostic>().unwrap().code, code);
+        assert_eq!(editor.to_bytes().unwrap(), before);
+    }
+}
+
+#[test]
 fn lighting_metadata_boolean_case_preserves_native_spelling_on_noop_and_inspection() {
     for (raw, effective) in [
         ("TRUE", true),

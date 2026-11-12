@@ -23,6 +23,7 @@
     "normalize_mood_display_name_ascii_opt_in": true,
     "inspect_numeric_mood_identity_duplicates": true,
     "inspect_selected_stored_mood_options": true,
+    "inspect_selected_stored_mood_references": true,
     "inspect_numeric_mood_icon_reference": true,
     "set_role_dependent_mood_mix": false,
     "repair_stored_mood_count": true,
@@ -100,6 +101,19 @@
     "tests": "src/config_edit/lighting_cid.rs and tests/lighting_cid_source.rs: lighting_cid_*",
     "native_validation": "Case lox-t5t3.6 queued independently; blocked at the initial Notebook transport admission, not run or credited.",
     "limits": "Source-backed existing-record transaction and local persistence only; not full grid vocabulary, post-refresh/save, GUI or runtime parity."
+  },
+  "selected_mood_reference_inspection": {
+    "command": "lox config lighting inspect-mood-references FILE BLOCK --mood SID_OR_NAME [--room ROOM]",
+    "source_artifact": "tests/ux/light-controller2/mood-reference-inspection-source.json",
+    "source_sha256": "ca6f31e4d4127563d5cd6e621fd531dbe9dead84279818fc4aca40982b038056",
+    "selection": "Reuse exact direct metadata selection. Require explicit positive signed32 direct mood SIDs and unique selected numeric SID; ambiguous mood/LSConfig containers, missing/unsupported identity and selected numeric duplicates are errors, never native first-match guesses. CID is not interpreted.",
+    "references": "Share existing CID/SID selection_config/selection_prefix codec. Report actual stored and numeric selected SID, raw OpM/ScMv, supported OpM count, zero-based visited raw/value/matches and supported unvisited raw tail boundary. Needed signed32 decimals allow surrounding ASCII whitespace and plus/zero spelling; opaque unvisited tails are not interpreted.",
+    "unresolved": "Missing LSConfig or missing/empty vectors means no_visited_references with visited[], without parsing unneeded opposite data or inventing counts/boundaries. Unsupported needed lists yield unresolved with visited/count/tail null and diagnostics, not success-shaped empty data. Raw null/empty spelling is preserved.",
+    "count": "Report raw stored_num separately from direct_moods; warn on absent/unsupported/mismatched Num without recounting or claiming imported-row membership.",
+    "formats": "Complete JSON with diagnostics; table/CSV retain status, selected SID, raw vectors, visited matches and supported tail boundary. CSV RAW_PRESENT separates absent/empty. Quiet/no-header do not hide data or stderr diagnostics.",
+    "preservation": "Read-only local XML; no save, normalization, default insertion, stamps or connections. Existing set-mood-sid/cid behavior and historical evidence are unchanged.",
+    "tests": "src/config_edit/lighting_metadata_tests.rs: lighting_metadata_references_*; tests/lighting_metadata_cli.rs: lighting_metadata_cli_references_*; existing CID/SID regressions.",
+    "limits": "Stored reference candidates only; not Num-limited import, current graph state, GUI visibility/permissions/writeability, complete transaction admission, accepted-dialog serialization or runtime/family parity. No native execution for this surface."
   },
   "ordinary_mood_sid_edit": {
     "command": "lox config lighting set-mood-sid FILE BLOCK --mood SID_OR_NAME --sid 1..90 [--swap] [--allow-cid-clear] [--room ROOM] [--save-as PATH]",

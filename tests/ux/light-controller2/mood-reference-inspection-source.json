@@ -1,0 +1,53 @@
+{
+  "schema_version": 1,
+  "issue": "lox-khg6.1",
+  "named_question": "Which stored ScMv entries would the recovered SID remapper visit and match for one selected mood, without performing a transaction or native import?",
+  "frozen_target": {
+    "version": "17.2.10.21",
+    "architecture": "AMD64",
+    "pe_sha256": "7b55e3ef18401574ab967c5c6a0140cd5a66dc728521ebba04ad53093577d8b3",
+    "analysis_id": "6a0520329af17d7b9fdaafe69398c62c454d9da838fc9f9c8d0bdd8d17bb15ae",
+    "new_extractions": 0
+  },
+  "canonical_sources": [
+    {"address": "0x1405b6c00", "sha256": "b5fbbec343c8a988213793ceaa71494cc54d8e55627ceefa3cc5f64985ff7d03", "lines": [20, 36]},
+    {"address": "0x1405b8240", "sha256": "b9825e3f7b336aeccbf4a2f5d739cc98e7e9c1b6a2b3826e21b402702aa8c280", "lines": [20, 30]},
+    {"address": "0x1404c52f0", "sha256": "057c5670bc1b4a95f3b6ae5720f34f057330ba62605c4d0211ac7565de681262", "lines": [479, 493]},
+    {"address": "0x1405b57b0", "sha256": "7eb7ba32c069738fc422f69fc0ba03c9ce4022e4e5ed2812dcba2d52858f28ab", "lines": [20, 32]}
+  ],
+  "static_byte_pins": [
+    {"address": "0x1405b6c00", "length": 92, "sha256": "fa4a4c40245bec24e4811de5ec108ca25c82c87d9e5b0a9d986736afbf00a0f9", "purpose": "Complete remapper: OpM count bounds iteration; ScMv count guards each load and store; equality is numeric signed32 SID identity."},
+    {"address": "0x1410196b4", "length": 17, "sha256": "cc1deb68440fcc4f33ec060f33491ee4a76d56bc429fdc08732fd59b525559f5", "purpose": "OpM, ScMv and ScAc attribute binding labels."},
+    {"address": "0x14160f184", "length": 2, "sha256": "d8fa32dd40b181d8250a4ecde2f2f17bd7bfdf2793278d06ea5afc647f3d5762", "purpose": "Comma delimiter used by the shared type18 vector reader."}
+  ],
+  "reused_contracts": [
+    {"artifact": "tests/ux/light-controller2/mood-cid-edit-source.json", "sha256": "117c546935895b222d66df22140c3a9139befca625aa63eee280fbcdc242a647", "fact": "Reuse selection_plan's supported vector parsing and ASCII-whitespace handling. Missing/empty vectors mean no visited references; only the available OpM-bounded ScMv prefix needs supported numeric values."},
+    {"artifact": "tests/ux/light-controller2/mood-sid-edit-source.json", "sha256": "542ce58df12e229a8b6409b69e955489c794cdf73eda928df1a3ba7d2ad1482f", "fact": "Reference remaps are ordered transactions. This read-only surface reports current values only; it does not simulate swaps, CID clearing or native refresh."}
+  ],
+  "source_contract": {
+    "binding": "LSConfig binds OpM as a type18 vector at base+8 and ScMv at base+0x28. Their count members are base+0x18 and base+0x38.",
+    "visit": "For each zero-based index below OpM count, the remapper loads ScMv only if the index is below ScMv count. Only an available equal numeric SID entry can be replaced. No absent ScMv slot is a stored reference, even though the helper uses a temporary zero for out-of-range comparison.",
+    "identity": "Native SID lookup returns the first matching numeric SID record. Inspection deliberately rejects a duplicated selected numeric SID, rather than attributing references to an arbitrary record.",
+    "separation": "Vector binding/import has additional behavior, including ScAc resizing/clamping. None of that import behavior is executed or inferred here."
+  },
+  "CLI_policy": {
+    "command": "lox config lighting inspect-mood-references FILE BLOCK --mood SID_OR_NAME [--room ROOM]",
+    "selection": "Reuse direct metadata selection: LightController2, exactly one direct LightscenesC and one unambiguous exact stored SID spelling or case-sensitive Name. All direct mood SIDs must be explicit positive signed32 decimals so selected numeric uniqueness is established. Missing or unsupported identity, ambiguous selection/containers and duplicate selected numeric SID are explicit errors. CID is unneeded and remains opaque.",
+    "codec": "Extract and share existing selection_config/selection_prefix from CID selection_plan, not a second codec. Supported needed tokens are signed32 comma-separated decimals with surrounding ASCII whitespace and no empty token. Parse all needed OpM tokens to establish its count and only the available ScMv prefix. Keep CID/SID mutation ordering, early returns, errors and whitespace/tail preservation unchanged.",
+    "missing_vectors": "Absent LSConfig, or missing/explicit-empty OpM or ScMv, yields status no_visited_references and visited []. Do not parse the unneeded opposite vector, invent a default vector/count, or infer a tail boundary. Raw attribute null and empty string remain distinct.",
+    "supported": "Status resolved includes actual stored selected SID plus numeric selected_sid, raw OpM/ScMv, opm_count and visited index/raw/value/matches_selected_sid. Any unvisited tail reports its zero-based start, lexical token count and exact raw suffix; opaque or empty tail tokens are not numerically interpreted.",
+    "unsupported_needed_vectors": "Status unresolved includes raw vectors, visited null, opm_count null, unvisited_tail null and unsupported_lighting_selection_value diagnostic. Never emit a success-shaped empty visited list or silently default unsupported needed storage.",
+    "count": "Report raw stored_num and actual direct_moods. Missing/unsupported/mismatched Num adds a diagnostic but does not hide stored direct records, recount, or assert imported-row membership.",
+    "formats": "Complete JSON with diagnostics; table/CSV retain selected identity, raw vectors, status, visited records and supported tail boundary. CSV RAW_PRESENT distinguishes absent from empty raw text. Table/CSV diagnostics stay visible on stderr with quiet/no-header.",
+    "preservation": "Read-only local XML inspection with no save-as surface, writer, stamps, normalization, default insertion, native/SDK/VM/host probes or runtime connections. Existing set-mood-sid/cid behavior is unchanged.",
+    "tests": "src/config_edit/lighting_metadata_tests.rs: lighting_metadata_references_*; tests/lighting_metadata_cli.rs: lighting_metadata_cli_references_*; existing CID/SID suites guard shared-codec compatibility."
+  },
+  "validation_scope": {
+    "native_execution_performed_for_this_surface": false,
+    "gui_execution_performed_for_this_surface": false,
+    "runtime_parity": false,
+    "full_dialog_acceptance": false,
+    "limits": "Stored reference candidates only, not Num-limited import, current graph state, GUI visibility/permissions/writeability, whole transaction admission, accepted-dialog serialization, physical binding or runtime/family parity.",
+    "vendor_function_text": "Not included."
+  }
+}

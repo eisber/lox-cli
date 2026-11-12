@@ -5,6 +5,7 @@ use serde::Serialize;
 use xmltree::Element;
 
 use super::ConfigEditor;
+use super::lighting_cid::{selection_config, selection_prefix};
 use super::schema::{Diagnostic, StoredValue};
 
 #[derive(Debug, Serialize)]
@@ -83,7 +84,163 @@ pub struct LightingMoodOptions {
     pub diagnostics: Vec<Diagnostic>,
 }
 
+#[derive(Debug, Serialize)]
+pub struct LightingMoodReference {
+    pub index: usize,
+    pub raw: String,
+    pub value: i32,
+    pub matches_selected_sid: bool,
+}
+
+#[derive(Debug, Serialize)]
+pub struct LightingUnvisitedTail {
+    pub start_index: usize,
+    pub token_count: usize,
+    pub raw: String,
+}
+
+#[derive(Debug, Serialize)]
+pub struct LightingMoodReferences {
+    pub mood: LightingMoodIdentity,
+    pub selected_sid: i32,
+    pub read_only: bool,
+    pub stored_num: Option<String>,
+    pub direct_moods: usize,
+    pub lsconfig_present: bool,
+    pub opm: Option<String>,
+    pub scmv: Option<String>,
+    pub status: &'static str,
+    pub opm_count: Option<usize>,
+    pub visited: Option<Vec<LightingMoodReference>>,
+    pub unvisited_tail: Option<LightingUnvisitedTail>,
+    pub diagnostics: Vec<Diagnostic>,
+}
+
 impl ConfigEditor {
+    pub fn inspect_lighting_mood_references(
+        &self,
+        selector: &str,
+        mood_ref: &str,
+    ) -> Result<LightingMoodReferences> {
+        let path = self.lighting_metadata_mood_path(selector, mood_ref)?;
+        let mood = self.get_element(&path);
+        let collection = self.get_element(&path[..path.len() - 1]);
+        let block = self.get_element(&path[..path.len() - 2]);
+        let identity = LightingMoodIdentity::from_element(mood);
+        let selected_sid = identity
+            .sid
+            .as_deref()
+            .and_then(|raw| raw.parse::<i32>().ok())
+            .filter(|sid| *sid > 0)
+            .ok_or_else(|| {
+                Diagnostic::new(
+                    "unsupported_mood_identity",
+                    mood_ref,
+                    "Reference inspection needs an explicit positive signed32 selected SID. Missing, zero or unsupported identities are not guessed.",
+                )
+            })?;
+        let mut direct_moods = 0;
+        let mut matching_sids = 0;
+        for scene in collection
+            .children
+            .iter()
+            .filter_map(|node| node.as_element().filter(|e| e.name == "LightsceneC"))
+        {
+            direct_moods += 1;
+            let sid = scene
+                .attributes
+                .get("SID")
+                .and_then(|raw| raw.parse::<i32>().ok())
+                .filter(|sid| *sid > 0)
+                .ok_or_else(|| {
+                    Diagnostic::new(
+                        "unsupported_mood_identity",
+                        mood_ref,
+                        "All direct mood SIDs must be explicit positive signed32 decimals to establish selected numeric identity uniqueness. No native import defaults or first-match resolution are applied.",
+                    )
+                })?;
+            matching_sids += usize::from(sid == selected_sid);
+        }
+        if matching_sids != 1 {
+            return Err(Diagnostic::new(
+                "ambiguous_mood_sid",
+                mood_ref,
+                "The selected numeric SID occurs on multiple direct moods, including equivalent decimal spellings. Reference inspection does not choose the native first match.",
+            )
+            .into());
+        }
+        let mut diagnostics = vec![Diagnostic::new(
+            "stored_mood_references_only",
+            mood_ref,
+            "Stored direct LSConfig ScMv prefix only; zero-based indices, bounded by supported OpM count and available ScMv tokens. Not Num-limited import, GUI visibility/writeability, graph state, complete edit admission or runtime parity. No save, normalization or stamps.",
+        )];
+        let stored_num = collection.attributes.get("Num").cloned();
+        if stored_num
+            .as_deref()
+            .and_then(|raw| raw.parse::<i32>().ok())
+            .and_then(|count| usize::try_from(count).ok())
+            != Some(direct_moods)
+        {
+            diagnostics.push(Diagnostic::new(
+                "stored_mood_count_not_reconciled",
+                "LightscenesC/@Num",
+                "Stored Num is missing, unsupported or differs from direct mood count. Selection inspects stored direct records, not native imported rows; Num was not repaired.",
+            ));
+        }
+        let config = selection_config(block)?.map(|(_, config)| config);
+        let mut inspection = LightingMoodReferences {
+            mood: identity,
+            selected_sid,
+            read_only: true,
+            stored_num,
+            direct_moods,
+            lsconfig_present: config.is_some(),
+            opm: config.and_then(|c| c.attributes.get("OpM").cloned()),
+            scmv: config.and_then(|c| c.attributes.get("ScMv").cloned()),
+            status: "no_visited_references",
+            opm_count: None,
+            visited: Some(Vec::new()),
+            unvisited_tail: None,
+            diagnostics,
+        };
+        if let Some(config) = config {
+            match selection_prefix(config) {
+                Ok(Some(prefix)) => {
+                    let visited_count = prefix.values.len();
+                    inspection.opm_count = Some(prefix.count);
+                    inspection.visited = Some(
+                        prefix
+                            .values
+                            .iter()
+                            .enumerate()
+                            .map(|(index, value)| LightingMoodReference {
+                                index,
+                                raw: prefix.tokens[index].clone(),
+                                value: *value,
+                                matches_selected_sid: *value == selected_sid,
+                            })
+                            .collect(),
+                    );
+                    if prefix.tokens.len() > visited_count {
+                        inspection.unvisited_tail = Some(LightingUnvisitedTail {
+                            start_index: visited_count,
+                            token_count: prefix.tokens.len() - visited_count,
+                            raw: prefix.tokens[visited_count..].join(","),
+                        });
+                    }
+                    inspection.status = "resolved";
+                }
+                Ok(None) => {}
+                Err(error) => {
+                    inspection.status = "unresolved";
+                    inspection.visited = None;
+                    inspection.diagnostics.push(error.downcast::<Diagnostic>()?);
+                }
+            }
+        }
+        Ok(inspection)
+    }
+
     pub fn inspect_lighting_mood_options(
         &self,
         selector: &str,
