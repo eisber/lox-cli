@@ -138,6 +138,37 @@ lox config set-param file.Loxone "Night Timer" Duration 300
 
 Arguments: `<FILE> <SELECTOR> <PARAM> <VALUE>`. Selector is a block title or `"uuid:..."`.
 
+### Load Manager priority
+
+```bash
+lox config load-manager inspect file.Loxone "Load Manager" -o json
+lox config load-manager move file.Loxone "Load Manager" 4 up --save-as edited.Loxone -o json
+lox config load-manager move file.Loxone "uuid:..." 4 down
+```
+
+`move <FILE> <SELECTOR> <IO_INDEX> <up|down>` moves an existing **LoadShed**
+load one position in priority, matching the native Configure loads arrow action.
+`IO_INDEX` is the stored zero-based `Load/@ioIdx` (0..11), **not** its displayed
+1-based priority. The complete record moves with its connector association,
+name, power, timing, unknown attributes and children. Connectors, UUIDs, other
+siblings and block settings are untouched; no priority attribute is invented.
+The usual save helper updates the Document save stamp on a successful change
+and preserves BOM/line-ending convention. Without `--save-as`, the input is edited.
+
+Both commands require exactly twelve direct `Load` records with explicit,
+unique `ioIdx` values 0..11. Missing identities, sparse/extended lists, wrong
+block types, ambiguous selectors and moves past either boundary fail without
+writing. No omitted identity/default is inferred. `--room`/`-r` disambiguates
+the block; do not combine it with a bracket room qualifier. JSON includes every
+stored load attribute; table/CSV shows priority, io-index and name.
+
+This is a Config 17.2.10.21 source-recovered operation, not EnergyManager2's
+separate load model. It does not add/delete loads, edit their scalar settings,
+or claim native runtime/save-reopen qualification. `--dry-run` remains
+unsupported and fails closed before dispatch.
+Source chain and a fresh native verification recipe:
+`tests/ux/load-manager/move-source.json`.
+
 ### EnergyManager2 verified storage pilot
 
 ```bash

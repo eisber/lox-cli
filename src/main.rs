@@ -439,6 +439,11 @@ pub(crate) enum SetupCmd {
 
 #[derive(Subcommand)]
 pub(crate) enum ConfigCmd {
+    /// Inspect/reorder the twelve existing Load Manager loads (local files only)
+    LoadManager {
+        #[command(subcommand)]
+        action: commands::config_cmd::load_manager::LoadManagerCmd,
+    },
     /// Inspect LightController2 storage and make bounded validated mood edits
     Lighting {
         #[command(subcommand)]
