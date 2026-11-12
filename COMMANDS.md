@@ -8,7 +8,8 @@ Global flags: `--json` (shorthand for `--output json`), `-o`/`--output json|csv|
 or reboots, even with `--force`, `--write`, or `--save-as`. Existing safe planners
 are available for `config energy` edits, supported `config lighting` mood edits
 (including `set-mood-level`), the existing raw `config set-mood-color` edit,
-existing `config add-mood` creation, `config splice-actor` reference replacement, and
+existing `config add-mood` creation, `config splice-actor` reference replacement,
+`config room rename` Title edits, and
 `stats download`; audited read-only
 commands retain their normal output and may make read-only network requests.
 Other commands fail before dispatch with “dry-run not supported” (exit 1;
@@ -992,10 +993,49 @@ to add a direct permission entry; inherited denies still apply.
 ### Room, control, and MQTT management
 
 ```bash
-lox config room <SUBCOMMAND> ...           # manage rooms (add/rename/move)
+lox config room <SUBCOMMAND> ...           # manage rooms (add/rename)
 lox config control <SUBCOMMAND> ...        # manage controls
 lox config mqtt <SUBCOMMAND> ...           # manage MQTT plugin configuration
 ```
+
+#### Preview an existing room rename
+
+```bash
+lox config room rename file.Loxone "uuid:room" "Küche" --dry-run --json
+lox config room rename file.Loxone "Old name" "New name" --dry-run -o csv --save-as output.Loxone
+```
+
+Only the already supported `room rename` operation gains global dry-run admission;
+room creation and control moves remain unsupported under `--dry-run`.
+One immutable plan is shared with the writer. It preserves the existing general
+element selector, not a new room-only policy: fuzzy titles, `uuid:`, `gid:`,
+`Type:`, bracket-room filtering, UUID mirror de-duplication, ambiguity and the
+subsequent UUID lookup all retain their existing behavior. In particular, after
+the initial selector is admitted, the legacy writer takes the UUID from the
+**first unfiltered match**, then resolves that UUID again. A bracket qualifier or
+mirror can therefore produce a different final target. Preview exposes
+`selected`, `uuid_source` and actual `target`, each with parsed child-index `path`
+and raw stored attributes; it does not silently correct that behavior.
+
+`before_title` preserves absence (`null`), empty values and stored spelling;
+`after_title` is the exact requested name. Empty, whitespace, duplicate and
+Unicode names remain admitted as before; no ASCII restriction, trimming or new
+type/name guard is added. `changed` compares attribute presence/value only and
+does not suppress the normal writer's save. Only the final target's `Title` is
+edited; references, UUIDs, other attributes, mirrors and `IoData` are not renamed.
+
+JSON includes `dry_run: true` and optional `trace_id`. Table/CSV use JSON-valued
+cells so raw spelling and missing-versus-empty titles remain visible.
+`--no-header` suppresses table/CSV headings; `--quiet` suppresses only the table
+summary. Preview returns before mutation, serialization, defaults, Document stamp,
+save or destination probing, including no-ops, failures and missing-parent
+`--save-as` paths. Cache, network and telemetry writes are skipped. Normal writer
+reporting remains its existing text even with `--json`, CSV or `--quiet`, followed
+by its unchanged overwrite/save and content-change-dependent stamp behavior.
+
+This is a raw existing-CLI source preview, not native UI, room-family, whole-file,
+SPS or physical-effect evidence. Source basis:
+`tests/ux/room-rename-preview-source.json`.
 
 ### User management
 

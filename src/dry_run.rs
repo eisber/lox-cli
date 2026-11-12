@@ -9,7 +9,7 @@ use crate::commands::live_cmd::LiveCmd;
 use crate::commands::sim_cmd::SimCmd;
 use crate::commands::stats_cmd::StatsCmd;
 use crate::{
-    BlocksCmd, CacheCmd, Cli, Cmd, ConfigCmd, ControlCmd, CtxCmd, MqttConfigCmd, SetupCmd,
+    BlocksCmd, CacheCmd, Cli, Cmd, ConfigCmd, ControlCmd, CtxCmd, MqttConfigCmd, RoomCmd, SetupCmd,
     TelemetryCmd, TokenCmd,
 };
 
@@ -74,6 +74,7 @@ fn has_non_mutating_path(cmd: &Cmd) -> bool {
                 | ConfigCmd::SetMoodColor { .. }
                 | ConfigCmd::AddMood { .. }
                 | ConfigCmd::SpliceActor { .. }
+                | ConfigCmd::Room(RoomCmd::Rename { .. })
                 | ConfigCmd::GetParams { .. }
                 | ConfigCmd::Connectors { .. }
                 | ConfigCmd::GetProgram { .. }
@@ -218,6 +219,16 @@ mod tests {
                 "uuid:source",
             ],
             &["config", "room", "add", "input.Loxone", "new"],
+            &[
+                "config",
+                "control",
+                "move",
+                "input.Loxone",
+                "--to-room",
+                "new",
+                "--title",
+                "Lamp",
+            ],
             &["config", "user-remove", "input.Loxone", "user"],
             &[
                 "config",
@@ -248,6 +259,7 @@ mod tests {
     #[test]
     fn dry_run_preserves_existing_planners_and_read_only_dispatch() {
         for args in [
+            vec!["config", "room", "rename", "input.Loxone", "old", "new"],
             vec![
                 "config",
                 "splice-actor",

@@ -12,8 +12,8 @@ use crate::client::{LOXONE_EPOCH_SECS, LoxClient, USER_AGENT};
 use crate::commands::RunContext;
 use crate::config::Config;
 use crate::config_edit::{
-    ConfigEditor, PermissionChange, PermissionEdit, PrincipalKind, SpliceActorPreview,
-    VirtualInOpts,
+    ConfigEditor, PermissionChange, PermissionEdit, PrincipalKind, RoomRenamePreview,
+    SpliceActorPreview, VirtualInOpts,
 };
 use crate::custom_overlay;
 use crate::token;
@@ -3765,7 +3765,55 @@ fn save_edited_with_quiet(
     Ok(())
 }
 
-fn cmd_room(_ctx: &RunContext, action: RoomCmd) -> Result<()> {
+fn print_room_rename_preview(ctx: &RunContext, preview: &RoomRenamePreview) -> Result<()> {
+    let fields = [
+        ("SELECTOR", serde_json::to_string(&preview.selector)?),
+        ("SELECTED", serde_json::to_string(&preview.selected)?),
+        ("UUID_SOURCE", serde_json::to_string(&preview.uuid_source)?),
+        ("TARGET", serde_json::to_string(&preview.target)?),
+        (
+            "BEFORE_TITLE",
+            serde_json::to_string(&preview.before_title)?,
+        ),
+        ("AFTER_TITLE", serde_json::to_string(&preview.after_title)?),
+        ("CHANGED", preview.changed.to_string()),
+        ("REPORT", serde_json::to_string(&preview.report)?),
+        ("SCOPE", preview.scope.to_owned()),
+    ];
+    if ctx.csv {
+        if !ctx.no_header {
+            println!(
+                "{}",
+                fields
+                    .iter()
+                    .map(|(key, _)| *key)
+                    .collect::<Vec<_>>()
+                    .join(",")
+            );
+        }
+        println!(
+            "{}",
+            fields
+                .iter()
+                .map(|(_, value)| format!("\"{}\"", value.replace('"', "\"\"")))
+                .collect::<Vec<_>>()
+                .join(",")
+        );
+    } else {
+        if !ctx.no_header {
+            println!("ROOM RENAME PREVIEW  FIELD  STORED/PLANNED VALUE");
+        }
+        for (key, value) in fields {
+            println!("{key}  {value}");
+        }
+        if !ctx.quiet {
+            println!("\nTitle attribute only; dry-run wrote no files");
+        }
+    }
+    Ok(())
+}
+
+fn cmd_room(ctx: &RunContext, action: RoomCmd) -> Result<()> {
     match action {
         RoomCmd::Add {
             file,
@@ -3786,25 +3834,18 @@ fn cmd_room(_ctx: &RunContext, action: RoomCmd) -> Result<()> {
         } => {
             let data = fs::read(&file).with_context(|| format!("Cannot read {}", file))?;
             let mut editor = ConfigEditor::load(&data)?;
-            // Find the room by title and rename
-            let _path = editor.require_one(&old_name)?;
-            let msg = editor.set_attribute(
-                &format!("uuid:{}", {
-                    let elem = editor.find_elements(&old_name);
-                    if elem.is_empty() {
-                        bail!("Room '{}' not found", old_name);
-                    }
-                    // Get UUID from the element
-                    let p = &elem[0];
-                    let mut current = &editor.root;
-                    for &idx in p {
-                        current = current.children[idx].as_element().unwrap();
-                    }
-                    current.attributes.get("U").cloned().unwrap_or_default()
-                }),
-                "Title",
-                &new_name,
-            )?;
+            if ctx.dry_run {
+                let preview = editor.preview_room_rename(&old_name, &new_name)?;
+                if ctx.json {
+                    let mut value = serde_json::to_value(&preview)?;
+                    value["dry_run"] = true.into();
+                    emit_json(ctx, value);
+                } else {
+                    print_room_rename_preview(ctx, &preview)?;
+                }
+                return Ok(());
+            }
+            let msg = editor.rename_room(&old_name, &new_name)?;
             println!("✓ {}", msg);
             save_edited(&mut editor, &file, save_as.as_deref())?;
         }

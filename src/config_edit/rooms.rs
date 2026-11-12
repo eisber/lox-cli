@@ -1,8 +1,93 @@
 use super::ConfigEditor;
 use anyhow::{Result, bail};
+use std::collections::BTreeMap;
 use xmltree::Element;
 
+#[derive(Debug, serde::Serialize)]
+pub struct RoomRenameSelection {
+    pub path: Vec<usize>,
+    pub attributes: BTreeMap<String, String>,
+}
+
+#[derive(Debug, serde::Serialize)]
+pub struct RoomRenamePreview {
+    pub selector: String,
+    pub selected: RoomRenameSelection,
+    pub uuid_source: RoomRenameSelection,
+    pub target: RoomRenameSelection,
+    pub before_title: Option<String>,
+    pub after_title: String,
+    pub changed: bool,
+    pub report: String,
+    pub scope: &'static str,
+}
+
+struct RoomRenamePlan {
+    preview: RoomRenamePreview,
+}
+
 impl ConfigEditor {
+    pub fn preview_room_rename(&self, selector: &str, name: &str) -> Result<RoomRenamePreview> {
+        Ok(self.plan_room_rename(selector, name)?.preview)
+    }
+
+    pub fn rename_room(&mut self, selector: &str, name: &str) -> Result<String> {
+        let plan = self.plan_room_rename(selector, name)?;
+        self.get_element_mut(&plan.preview.target.path)
+            .attributes
+            .insert("Title".to_string(), plan.preview.after_title);
+        Ok(plan.preview.report)
+    }
+
+    fn plan_room_rename(&self, selector: &str, name: &str) -> Result<RoomRenamePlan> {
+        let selected_path = self.require_one(selector)?;
+        // Keep the legacy unfiltered first match, then its separate UUID lookup.
+        // In particular, bracket-room filtering does not choose the UUID source.
+        let matches = self.find_elements(selector);
+        if matches.is_empty() {
+            bail!("Room '{}' not found", selector);
+        }
+        let uuid_source_path = &matches[0];
+        let uuid = self
+            .get_element(uuid_source_path)
+            .attributes
+            .get("U")
+            .cloned()
+            .unwrap_or_default();
+        let target_path = self.require_one(&format!("uuid:{uuid}"))?;
+        let target = self.get_element(&target_path);
+        let before_title = target.attributes.get("Title").cloned();
+        let title = before_title.as_deref().unwrap_or_default();
+        let report = format!(
+            "Set {}.Title: {} → '{}'",
+            title,
+            before_title.as_deref().unwrap_or("(none)"),
+            name
+        );
+        let selection = |path: Vec<usize>| RoomRenameSelection {
+            attributes: self
+                .get_element(&path)
+                .attributes
+                .iter()
+                .map(|(key, value)| (key.clone(), value.clone()))
+                .collect(),
+            path,
+        };
+        Ok(RoomRenamePlan {
+            preview: RoomRenamePreview {
+                selector: selector.to_owned(),
+                selected: selection(selected_path),
+                uuid_source: selection(uuid_source_path.clone()),
+                target: selection(target_path),
+                changed: before_title.as_deref() != Some(name),
+                before_title,
+                after_title: name.to_owned(),
+                report,
+                scope: "Existing CLI Title attribute edit only; no native UI or physical-effect claim",
+            },
+        })
+    }
+
     /// Move all elements matching a type filter to a different room.
     /// Returns the number of elements moved.
     pub fn move_to_room(
@@ -443,5 +528,213 @@ impl ConfigEditor {
             }
         }
         None
+    }
+}
+
+#[cfg(test)]
+mod room_rename_tests {
+    use super::*;
+
+    fn legacy_rename(editor: &mut ConfigEditor, selector: &str, name: &str) -> Result<String> {
+        let _path = editor.require_one(selector)?;
+        editor.set_attribute(
+            &format!("uuid:{}", {
+                let elements = editor.find_elements(selector);
+                if elements.is_empty() {
+                    bail!("Room '{}' not found", selector);
+                }
+                editor
+                    .get_element(&elements[0])
+                    .attributes
+                    .get("U")
+                    .cloned()
+                    .unwrap_or_default()
+            }),
+            "Title",
+            name,
+        )
+    }
+
+    #[test]
+    fn room_rename_plan_preserves_legacy_admission_raw_titles_and_entire_dom() {
+        let xml = r#"<ControlList Future="retain">
+          <C Type="Document" U="doc" Date="2020-01-01 00:00:00" DateS="347068800"/>
+          <C Type="Place" U="room" Title="  Küche,&quot;室&quot;  " gid="RoomGid" Future="opaque">
+            <IoData Pr="other" Cr="cat" Future="01"/><SET><Unknown v="+003"/></SET>
+          </C>
+          <C Type="Place" U="other" Title="Duplicate"/>
+          <C Type="Page" U="page"><C Type="FutureBlock" U="block" Title="NonRoom">
+            <IoData Pr="room" Cr="cat" Future="002"/><IoData Pr="other"/>
+            <Co K="AQ" U="out" Def="+000"><In Input="ref" FLG="01"/></Co>
+            <Unknown Ref="room" Title="retain"/>
+          </C></C>
+          <C Type="AutomaticDesigner"><C Type="Place" U="room" Title="mirror"><IoData Pr="room"/></C></C>
+          <Unknown Pr="room" U="future" Title="retain"/>
+        </ControlList>"#;
+        let data = format!("\u{feff}{}\r\n", xml.replace('\n', "\r\n"));
+        for selector in [
+            "KÜCHE",
+            "uuid:room",
+            "gid:roomgid",
+            "NonRoom",
+            "Type:FutureBlock",
+        ] {
+            for name in [
+                "",
+                "  ",
+                "Duplicate",
+                "Grüße 室 🏠",
+                "  Küche,\"室\"  ",
+                "x,\n\"y\"",
+            ] {
+                let mut editor = ConfigEditor::load(data.as_bytes()).unwrap();
+                let before = format!("{:?}", editor.root);
+                let preview = editor.preview_room_rename(selector, name).unwrap();
+                assert_eq!(format!("{:?}", editor.root), before);
+                assert_eq!(preview.after_title, name);
+                assert_eq!(
+                    preview.before_title.as_deref(),
+                    preview.target.attributes.get("Title").map(String::as_str)
+                );
+                assert_eq!(
+                    preview.changed,
+                    preview.before_title.as_deref() != Some(name)
+                );
+                let mut legacy = ConfigEditor::load(data.as_bytes()).unwrap();
+                let expected_report = legacy_rename(&mut legacy, selector, name).unwrap();
+                assert_eq!(preview.report, expected_report);
+                assert_eq!(editor.rename_room(selector, name).unwrap(), expected_report);
+                assert_eq!(format!("{:?}", editor.root), format!("{:?}", legacy.root));
+                assert_eq!(editor.to_bytes().unwrap(), legacy.to_bytes().unwrap());
+                let output = editor.to_bytes().unwrap();
+                assert!(output.starts_with(&[0xef, 0xbb, 0xbf]));
+                assert!(output.windows(2).any(|bytes| bytes == b"\r\n"));
+            }
+        }
+    }
+
+    #[test]
+    fn room_rename_plan_keeps_bracket_first_match_uuid_relookup_and_missing_title() {
+        for (xml, selector, selected, target, before) in [
+            (
+                r#"<ControlList><C Type="Place" U="a" Title="Alpha"/><C Type="Place" U="b" Title="Beta"/><C Type="Future" U="first" Title="Lamp"><IoData Pr="a"/></C><C Type="Future" U="second" Title="Lamp"><IoData Pr="b"/></C></ControlList>"#,
+                "Lamp [Beta]",
+                "second",
+                "first",
+                Some("Lamp"),
+            ),
+            (
+                r#"<ControlList><C Type="Future" U="same" Title="First"/><C Type="Place" U="same" Title="Second"/></ControlList>"#,
+                "Second",
+                "same",
+                "same",
+                Some("First"),
+            ),
+            (
+                r#"<ControlList><C Type="Future" U="x"/></ControlList>"#,
+                "uuid:x",
+                "x",
+                "x",
+                None,
+            ),
+            (
+                r#"<ControlList><C Type="place" U="x" Title="" title="opaque" Future="001"/></ControlList>"#,
+                "uuid:x",
+                "x",
+                "x",
+                Some(""),
+            ),
+            (
+                r#"<ControlList><C U="x" Title="Only"/></ControlList>"#,
+                "",
+                "x",
+                "x",
+                Some("Only"),
+            ),
+            (
+                r#"<ControlList><C Type="Future" U="" Title="Empty"/></ControlList>"#,
+                "Empty",
+                "",
+                "",
+                Some("Empty"),
+            ),
+            (
+                r#"<ControlList><C Type="Future" Title="NoUuid"/><C U="" Title="Fallback"/></ControlList>"#,
+                "NoUuid",
+                "",
+                "",
+                Some("Fallback"),
+            ),
+        ] {
+            let mut editor = ConfigEditor::load(xml.as_bytes()).unwrap();
+            let preview = editor.preview_room_rename(selector, "").unwrap();
+            assert_eq!(
+                preview
+                    .selected
+                    .attributes
+                    .get("U")
+                    .map(String::as_str)
+                    .unwrap_or_default(),
+                selected
+            );
+            assert_eq!(preview.target.attributes["U"], target);
+            assert_eq!(preview.before_title.as_deref(), before);
+            assert_eq!(preview.changed, before != Some(""));
+            let mut legacy = ConfigEditor::load(xml.as_bytes()).unwrap();
+            assert_eq!(
+                editor.rename_room(selector, "").unwrap(),
+                legacy_rename(&mut legacy, selector, "").unwrap()
+            );
+            assert_eq!(editor.to_bytes().unwrap(), legacy.to_bytes().unwrap());
+        }
+    }
+
+    #[test]
+    fn room_rename_plan_keeps_ordered_errors_without_mutation() {
+        for (xml, selector, error) in [
+            (
+                r#"<ControlList><C U="a" Title="Kitchen"/><C U="b" Title="Kitchen"/></ControlList>"#,
+                "Kitchen",
+                "Selector 'Kitchen' matches 2 elements",
+            ),
+            (
+                r#"<ControlList><C Title="NoUuid"/></ControlList>"#,
+                "NoUuid",
+                "'uuid:' not found",
+            ),
+            (
+                r#"<ControlList><C Title="NoUuid"/><C U=""/><C U=""/></ControlList>"#,
+                "NoUuid",
+                "Selector 'uuid:' matches 2 elements",
+            ),
+            (
+                r#"<ControlList><C U="a" Title="Kitchen"/><C U="b" Title="Kitchen extension"/></ControlList>"#,
+                "Kitchen",
+                "Selector 'Kitchen' matches 2 elements",
+            ),
+            (
+                r#"<ControlList><C Type="Place" U="a" Title="Kitchen"/></ControlList>"#,
+                "missing",
+                "'missing' not found",
+            ),
+        ] {
+            let mut editor = ConfigEditor::load(xml.as_bytes()).unwrap();
+            let before = format!("{:?}", editor.root);
+            let preview_error = editor
+                .preview_room_rename(selector, "")
+                .unwrap_err()
+                .to_string();
+            assert!(preview_error.contains(error), "{preview_error}");
+            let mut legacy = ConfigEditor::load(xml.as_bytes()).unwrap();
+            let legacy_error = legacy_rename(&mut legacy, selector, "")
+                .unwrap_err()
+                .to_string();
+            assert_eq!(preview_error, legacy_error);
+            assert_eq!(
+                editor.rename_room(selector, "").unwrap_err().to_string(),
+                legacy_error
+            );
+            assert_eq!(format!("{:?}", editor.root), before);
+        }
     }
 }

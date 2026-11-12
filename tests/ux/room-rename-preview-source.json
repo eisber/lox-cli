@@ -1,0 +1,98 @@
+{
+  "schema_version": 1,
+  "issue": "lox-c9th",
+  "artifact_kind": "source-only-existing-room-rename-preview",
+  "baseline": "cc3a91031ce5785bfaac774afe95de6466a0d1a9",
+  "claim": "Preview only the already supported raw CLI room rename Title edit. No new room type, native UI, physical effect, family, whole-file or SPS claim.",
+  "existing_source_basis": [
+    {
+      "path": "src/main.rs",
+      "blob_oid": "0f730618dbdda46c288b8dc9ea5b10f718f229a3",
+      "sha256": "f731aee98e838a171830ca7d14514703b93c0fda45b29bfc48d339e2317073c4",
+      "symbols": ["RoomCmd"],
+      "relationship": "Unmodified already supported room rename positional arguments and save-as option; no RoomMove variant is invented."
+    },
+    {
+      "path": "src/commands/config_cmd.rs",
+      "blob_oid": "702c116ba74ada9f53d9c86cd7e871a91187f3cc",
+      "sha256": "c05760a91faefd80355daef5154c060141bbc307d66053f9a652835e51147d73",
+      "symbols": ["cmd_room", "RoomCmd::Rename", "save_edited", "content_changed"],
+      "relationship": "Authoritative existing rename: initial require_one, first unfiltered find_elements match, U defaulting to empty, uuid: lookup through set_attribute, unconditional text report before save, overwrite and conditional Document stamp."
+    },
+    {
+      "path": "src/config_edit/selector.rs",
+      "blob_oid": "5f5b3bc07668211001330e0408a320c4405c1951",
+      "sha256": "cb4d9a0c394d712c8c5c28eccfc2a9be93535846dfd9bfcf089ee003d357cb03",
+      "symbols": ["find_elements", "require_one"],
+      "relationship": "Unmodified general selector admission, bracket post-filtering, UUID mirror de-duplication, traversal and ordered missing/ambiguity errors. No room-only type restriction or exact-title preference is introduced."
+    },
+    {
+      "path": "src/config_edit/mod.rs",
+      "blob_oid": "a02c4d9ee9a539c87c9334b6a102738467370e7c",
+      "sha256": "fb3943cadd147b5fb3c569814c3bb4552776ed6bd09f171b553861e078e35cb3",
+      "symbols": ["ConfigEditor::load", "matches_selector"],
+      "relationship": "Existing input parsing, raw attribute values and exact UUID/general title/gid/type/bracket selector matching are reused without new policy."
+    },
+    {
+      "path": "src/config_edit/properties.rs",
+      "blob_oid": "ea510e994cc57508e6b450bff726fba5c39d213a",
+      "sha256": "38fec4a9e4370515f59b3d4d90eacccbf099a7276b3b7de6acbd3d775619aff0",
+      "symbols": ["set_attribute"],
+      "relationship": "Original final UUID resolution, single Title insertion and report spelling, including absent versus empty Title. No new name guard, normalization or no-op shortcut."
+    },
+    {
+      "path": "src/config_edit/rooms.rs",
+      "blob_oid": "69417144d9dcb386aef05746b0ccc69e85828e15",
+      "sha256": "5394fe4a9cd3c0c77adf17ffcbf53bc50637228862d1b4f3a560b76643aff246",
+      "relationship": "Existing room helpers are not the rename selector. find_room_uuid and add_room policies are deliberately not borrowed. Add/move operations are unchanged."
+    },
+    {
+      "path": "src/config_edit/write.rs",
+      "blob_oid": "72d207e27834a50bf622496da82a610ae20e4576",
+      "sha256": "94bb36c651f5a73700d3a1f3037693b7cbb493f7a030c6a091517db475f21fe5",
+      "symbols": ["to_bytes", "stamp_document"],
+      "relationship": "Unchanged normal serialization/default/BOM/CRLF and Document stamp behavior, never called by the preview branch."
+    },
+    {
+      "path": "src/dry_run.rs",
+      "blob_oid": "edd5077c47d05947a4175b1242d7a8df38e102fe",
+      "sha256": "9a12246ed318fb228c0594243d57df58f562e8a02118cd923243509d6012da22",
+      "relationship": "Fail-closed global dispatch currently rejects room rename. Only ConfigCmd::Room(RoomCmd::Rename) is newly admitted."
+    },
+    {
+      "path": "tests/ux/splice-actor-preview-source.json",
+      "blob_oid": "f226077c4ef438ccf07e65b76327f149c1ae305c",
+      "sha256": "12aaa430fd14200000e00963e5bdf8178f856111c570a11c2b602aaa5e8892b9",
+      "relationship": "Prior immutable-plan, raw-attribute, output-format and early-return conventions only; no splice or native semantics are imported."
+    }
+  ],
+  "hash_basis": "SHA256 and Git blob OIDs above describe exact committed baseline LF blobs, not CRLF working-tree bytes.",
+  "contract_refs": [],
+  "provenance_boundary": "The existing repository CLI implementation is the sole behavior source. No native caller, family, whole-file, SPS or physical-effect promotion; no new native execution, corpus extraction, lab or SDK evidence.",
+  "shared_plan": {
+    "type": "private RoomRenamePlan",
+    "preview_api": "ConfigEditor::preview_room_rename(&self, selector, name) -> Result<RoomRenamePreview>",
+    "writer_api": "ConfigEditor::rename_room(&mut self, selector, name) -> Result<String>",
+    "existing_api": "CLI grammar and normal output unchanged; ConfigEditor::set_attribute unchanged.",
+    "application": "One immutable plan resolves initial admitted selection, first unfiltered UUID source, actual final UUID target, raw before/after Title, attribute-only changed status and exact legacy report. Writer inserts Title directly at that planned path, without re-resolution. Preview never applies the plan or clones a DOM.",
+    "no_new_support": "No room-only type guard, new room/name policy, trimming, ASCII restriction, normalization, duplicate-name rejection, selector correction, mirror propagation, reference rewrite or generic mutation framework."
+  },
+  "preserved_semantics": [
+    "Initial require_one(selector) errors precede all later lookups. find_room_uuid is not used. Exact titles do not override substring ambiguity.",
+    "The first unfiltered find_elements(selector) match supplies U, defaulting to empty, even when bracket filtering admitted a different element. The existing unreachable Room-not-found check is retained.",
+    "require_one(uuid:U) then chooses the final target with its existing case-sensitive UUID comparison and mirror de-duplication. Missing U can fail uuid: or resolve an existing empty-U element; no new guard is added.",
+    "The operation can target non-Place and unknown types, as before. Empty, whitespace, duplicate and Unicode names are accepted verbatim. Missing Title differs from present empty Title.",
+    "Only final target Title is inserted/replaced, including attribute order. All IoData, room references, UUIDs, other attributes, nested metadata and later mirrors remain unchanged by the edit.",
+    "Raw before/after values and all three identities/paths are visible; changed compares only Title presence/value and is not a promise of byte-level or native equivalence.",
+    "Writer text report remains unconditional and identical with table, JSON, CSV, quiet, no-header and trace flags. It is emitted before save/destination errors.",
+    "Normal save remains unconditional, overwrites existing destinations, preserves BOM/CRLF and stamps only when normalized content_changed says so. A true Title no-op saves without bumping the stamp."
+  ],
+  "preview_boundary": "Read/parse/plan and diagnostic output only. Return precedes DOM mutation, serialization, default insertion, Document stamp, save, destination probing or directory/cache/network/telemetry writes, including input/existing/new/missing-parent save-as, no-op and failure paths. JSON adds dry_run and optional trace_id; table/CSV use JSON-valued cells. Quiet suppresses only table summary; no-header affects table/CSV headings.",
+  "tests": [
+    "src/config_edit/rooms.rs::room_rename_tests: differential comparison against the exact former handler plus unchanged set_attribute; admitted selector/name variants, raw spelling, absence/empty/no-op, non-room/unknown types, mirrors, bracket first-match behavior, second UUID lookup, ordered errors, complete DOM equivalence and BOM/CRLF.",
+    "tests/dry_run.rs::room_rename_preview_reports_raw_titles_identity_and_all_formats_without_writes: actual selection/path/raw attributes, JSON/trace/quiet/no-header and table/CSV output with raw Unicode/quotes/commas.",
+    "tests/dry_run.rs::room_rename_preview_preserves_all_destinations_and_ordered_failures: full sandbox contents/mtime/permissions snapshots with telemetry locally enabled and local network observer; input/existing/new/missing-parent destinations, no-op/admitted/non-room/missing/ambiguous/malformed inputs and unchanged fail-closed add/move.",
+    "tests/dry_run.rs::room_rename_normal_writer_preserves_report_save_overwrite_noop_and_stamp: unchanged text output even with JSON/CSV/quiet, overwrite/report-before-error, source preservation, BOM/CRLF, references/IDs/metadata, unconditional no-op save and conditional stamp.",
+    "Existing dry-run and config integration suites, followed by four exact frozen-source workspace gates recorded in delivery metadata."
+  ]
+}

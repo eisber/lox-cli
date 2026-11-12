@@ -15,6 +15,346 @@ use tempfile::TempDir;
 const ENERGY_XML: &str = include_str!("ux/energy-manager2/cli-synthetic.xml");
 const STAT_FILE: &str = "91000000-0000-0000-0000000000000001.202610.xml";
 
+const ROOM_RENAME_XML: &str = r#"<ControlList Future="opaque">
+  <C Type="Document" U="doc" Date="2020-01-01 00:00:00" DateS="347068800"/>
+  <C Type="Place" U="room" Title="  Küche,&quot;室&quot;  " gid="RoomGid" Future="+003"/>
+  <C Type="Place" U="other" Title="Duplicate"/>
+  <C Type="Page" U="page"><C Type="FutureBlock" U="block" Title="NonRoom">
+    <IoData Pr="room" Cr="category" Future="01"/><IoData Pr="other"/>
+    <Co K="AQ" U="out" Def="+000"><In Input="ref" FLG="01"/></Co>
+    <Unknown Ref="room" Title="retain"/>
+  </C></C>
+  <C Type="AutomaticDesigner"><C Type="Place" U="room" Title="mirror"><IoData Pr="room"/></C></C>
+  <Unknown Pr="room" U="future" Title="retain"/>
+</ControlList>"#;
+
+#[test]
+fn room_rename_preview_reports_raw_titles_identity_and_all_formats_without_writes() {
+    let sandbox = Sandbox::new();
+    let root = sandbox.dir.path();
+    fs::write(
+        root.join("input.Loxone"),
+        format!("\u{feff}{}\r\n", ROOM_RENAME_XML.replace('\n', "\r\n")),
+    )
+    .unwrap();
+    let backend = sandbox.server.mock(|when, then| {
+        when.any_request();
+        then.status(500);
+    });
+    for selector in ["KÜCHE", "uuid:room", "gid:roomgid"] {
+        for name in ["", "  ", "Duplicate", "Grüße 室 🏠", "  Küche,\"室\"  "] {
+            let before = snapshot(root);
+            let assertion = sandbox
+                .command(&[
+                    "config",
+                    "room",
+                    "rename",
+                    "input.Loxone",
+                    selector,
+                    name,
+                    "--dry-run",
+                    "--json",
+                    "--quiet",
+                    "--no-header",
+                    "--trace-id",
+                    "room-test",
+                ])
+                .assert()
+                .success()
+                .stderr("");
+            let value: Value = serde_json::from_slice(&assertion.get_output().stdout).unwrap();
+            assert_eq!(value["dry_run"], true);
+            assert_eq!(value["trace_id"], "room-test");
+            assert_eq!(value["selector"], selector);
+            assert_eq!(value["selected"]["attributes"]["U"], "room");
+            assert_eq!(value["uuid_source"], value["selected"]);
+            assert_eq!(value["target"], value["selected"]);
+            assert_eq!(value["target"]["path"], serde_json::json!([1]));
+            assert_eq!(value["target"]["attributes"]["Type"], "Place");
+            assert_eq!(value["target"]["attributes"]["Future"], "+003");
+            assert_eq!(value["before_title"], "  Küche,\"室\"  ");
+            assert_eq!(value["after_title"], name);
+            assert_eq!(value["changed"], name != "  Küche,\"室\"  ");
+            assert_eq!(snapshot(root), before);
+        }
+    }
+    for format in ["table", "csv"] {
+        for no_header in [false, true] {
+            for quiet in [false, true] {
+                let before = snapshot(root);
+                let mut command = sandbox.command(&[
+                    "--dry-run",
+                    "-o",
+                    format,
+                    "config",
+                    "room",
+                    "rename",
+                    "input.Loxone",
+                    "uuid:room",
+                    "Grüße,\"室\"",
+                ]);
+                if no_header {
+                    command.arg("--no-header");
+                }
+                if quiet {
+                    command.arg("--quiet");
+                }
+                let assertion = command.assert().success().stderr("");
+                let output = String::from_utf8_lossy(&assertion.get_output().stdout);
+                assert_eq!(
+                    output
+                        .lines()
+                        .next()
+                        .unwrap()
+                        .starts_with(if format == "csv" {
+                            "SELECTOR,"
+                        } else {
+                            "ROOM RENAME PREVIEW"
+                        }),
+                    !no_header
+                );
+                assert!(output.contains("Küche"));
+                assert!(output.contains("Grüße"));
+                assert!(output.contains("+003"));
+                assert!(output.contains("room"));
+                assert_eq!(
+                    output.contains("dry-run wrote no files"),
+                    format == "table" && !quiet
+                );
+                assert_eq!(snapshot(root), before);
+            }
+        }
+    }
+    backend.assert_hits(0);
+}
+
+#[test]
+fn room_rename_preview_preserves_all_destinations_and_ordered_failures() {
+    let sandbox = Sandbox::new();
+    let root = sandbox.dir.path();
+    let input = root.join("input.Loxone");
+    let backend = sandbox.server.mock(|when, then| {
+        when.any_request();
+        then.status(500);
+    });
+    for (xml, selector, name, error) in [
+        (ROOM_RENAME_XML, "uuid:room", "Duplicate", None),
+        (ROOM_RENAME_XML, "uuid:room", "  Küche,\"室\"  ", None),
+        (ROOM_RENAME_XML, "NonRoom", "Grüße 室", None),
+        (
+            r#"<ControlList><C Type="Future" U="x"/></ControlList>"#,
+            "uuid:x",
+            "",
+            None,
+        ),
+        (
+            r#"<ControlList><C U="" Title="Empty"/></ControlList>"#,
+            "Empty",
+            "",
+            None,
+        ),
+        (
+            r#"<ControlList><C U="a" Title="Room"/><C U="b" Title="Room extension"/></ControlList>"#,
+            "Room",
+            "",
+            Some("Selector 'Room' matches 2 elements"),
+        ),
+        (
+            r#"<ControlList><C Title="NoUuid"/></ControlList>"#,
+            "NoUuid",
+            "",
+            Some("'uuid:' not found"),
+        ),
+        (
+            r#"<ControlList><C Title="NoUuid"/><C U=""/><C U=""/></ControlList>"#,
+            "NoUuid",
+            "",
+            Some("Selector 'uuid:' matches 2 elements"),
+        ),
+        (
+            ROOM_RENAME_XML,
+            "not-found",
+            "",
+            Some("'not-found' not found"),
+        ),
+        (
+            "<ControlList><C",
+            "uuid:x",
+            "",
+            Some("Failed to parse Loxone XML"),
+        ),
+    ] {
+        fs::write(&input, format!("\u{feff}{}\r\n", xml.replace('\n', "\r\n"))).unwrap();
+        for destination in [
+            None,
+            Some(input.clone()),
+            Some(root.join("output.Loxone")),
+            Some(root.join("new.Loxone")),
+            Some(root.join("missing").join("new.Loxone")),
+        ] {
+            for format in ["json", "table", "csv"] {
+                let before = snapshot(root);
+                let mut command = sandbox.command(&[
+                    "--dry-run",
+                    "-o",
+                    format,
+                    "config",
+                    "room",
+                    "rename",
+                    "input.Loxone",
+                    selector,
+                    name,
+                ]);
+                if let Some(ref path) = destination {
+                    command.arg("--save-as").arg(path);
+                }
+                let assertion = if let Some(error) = error {
+                    let assertion = command.assert().failure();
+                    let output = assertion.get_output();
+                    let message = if format == "json" {
+                        let value: Value = serde_json::from_slice(&output.stdout).unwrap();
+                        assert_eq!(value["ok"], false);
+                        assert!(output.stderr.is_empty());
+                        value["message"].as_str().unwrap().to_owned()
+                    } else {
+                        String::from_utf8_lossy(&output.stderr).into_owned()
+                    };
+                    assert!(message.contains(error), "{message}");
+                    assertion
+                } else {
+                    command.assert().success().stderr("")
+                };
+                assert!(
+                    !String::from_utf8_lossy(&assertion.get_output().stdout).contains("Saved to")
+                );
+                let after = snapshot(root);
+                assert!(after == before, "{}", snapshot_difference(&before, &after));
+            }
+        }
+    }
+    let before = snapshot(root);
+    sandbox
+        .command(&[
+            "--dry-run",
+            "--json",
+            "config",
+            "room",
+            "rename",
+            "absent.Loxone",
+            "x",
+            "",
+            "--save-as",
+            "missing\\new.Loxone",
+        ])
+        .assert()
+        .failure()
+        .stdout(predicate::str::contains("Cannot read absent.Loxone"));
+    assert_eq!(snapshot(root), before);
+    sandbox.assert_unsupported(&["config", "room", "add", "input.Loxone", "new"]);
+    sandbox.assert_unsupported(&[
+        "config",
+        "control",
+        "move",
+        "input.Loxone",
+        "--to-room",
+        "new",
+        "--title",
+        "Lamp",
+    ]);
+    backend.assert_hits(0);
+}
+
+#[test]
+fn room_rename_normal_writer_preserves_report_save_overwrite_noop_and_stamp() {
+    let sandbox = Sandbox::new();
+    let root = sandbox.dir.path();
+    let input = root.join("input.Loxone");
+    let source = format!("\u{feff}{}\r\n", ROOM_RENAME_XML.replace('\n', "\r\n"));
+    fs::write(&input, &source).unwrap();
+    let name = "Grüße,\"室\"";
+    let expected_report = format!("✓ Set   Küche,\"室\"  .Title:   Küche,\"室\"   → '{name}'\n");
+    let assertion = sandbox
+        .command(&[
+            "--json",
+            "--quiet",
+            "--no-header",
+            "--trace-id",
+            "unchanged-normal",
+            "config",
+            "room",
+            "rename",
+            "input.Loxone",
+            "uuid:room",
+            name,
+            "--save-as",
+            "output.Loxone",
+        ])
+        .env("LOX_TELEMETRY", "0")
+        .assert()
+        .success()
+        .stdout(expected_report.clone())
+        .stderr(predicate::str::contains("Saved to output.Loxone"));
+    assert!(!assertion.get_output().stdout.starts_with(b"{"));
+    assert_eq!(fs::read(&input).unwrap(), source.as_bytes());
+    let written = fs::read(root.join("output.Loxone")).unwrap();
+    assert!(written.starts_with(&[0xef, 0xbb, 0xbf]));
+    let text = String::from_utf8(written).unwrap();
+    assert!(text.contains("\r\n"));
+    assert!(!text.contains("2020-01-01 00:00:00"));
+    for unchanged in [
+        r#"U="room""#,
+        r#"Pr="room""#,
+        r#"Pr="other""#,
+        r#"Future="+003""#,
+        r#"Future="01""#,
+        r#"Input="ref" FLG="01""#,
+        r#"Title="mirror""#,
+        r#"Ref="room" Title="retain""#,
+        r#"Def="+000""#,
+    ] {
+        assert!(text.contains(unchanged), "{unchanged}: {text}");
+    }
+    for args in [vec![], vec!["-o", "csv"], vec!["--json", "--quiet"]] {
+        fs::write(&input, &source).unwrap();
+        let mut command = sandbox.command(&args);
+        command
+            .env("LOX_TELEMETRY", "0")
+            .args([
+                "config",
+                "room",
+                "rename",
+                "input.Loxone",
+                "uuid:room",
+                "  Küche,\"室\"  ",
+            ])
+            .assert()
+            .success()
+            .stdout("✓ Set   Küche,\"室\"  .Title:   Küche,\"室\"   → '  Küche,\"室\"  '\n");
+        let saved = fs::read_to_string(&input).unwrap();
+        assert!(saved.contains("2020-01-01 00:00:00"));
+        assert_ne!(saved, source, "a no-op still saves the normalized input");
+    }
+    fs::write(&input, &source).unwrap();
+    sandbox
+        .command(&[
+            "--json",
+            "config",
+            "room",
+            "rename",
+            "input.Loxone",
+            "uuid:room",
+            name,
+            "--save-as",
+        ])
+        .arg(root.join("missing").join("new.Loxone"))
+        .env("LOX_TELEMETRY", "0")
+        .assert()
+        .failure()
+        .stdout(predicate::str::starts_with(expected_report));
+    assert_eq!(fs::read(&input).unwrap(), source.as_bytes());
+    assert!(!root.join("missing").exists());
+}
+
 const SPLICE_XML: &str = r#"<ControlList Version="267">
   <C Type="Document" U="doc" Date="2020-01-01 00:00:00" DateS="347068800"/>
   <C Type="Page" U="p1">
