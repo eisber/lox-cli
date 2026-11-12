@@ -29,6 +29,104 @@ const ROOM_RENAME_XML: &str = r#"<ControlList Future="opaque">
 </ControlList>"#;
 
 #[test]
+fn room_rename_qualified_preview_and_writer_use_admitted_object_in_either_dom_order() {
+    let sandbox = Sandbox::new();
+    let root = sandbox.dir.path();
+    let backend = sandbox.server.mock(|when, then| {
+        when.any_request();
+        then.status(500);
+    });
+    let alpha = r#"<C Type="Future" U="alpha" Title="Lamp" Future="+003"><IoData Pr="a" Cr="cat" Future="01"/><Co U="alpha-out"/><Unknown Ref="beta" Value="keep"/></C>"#;
+    let beta = r#"<C Type="Future" U="beta" Title="Lamp" Future="+004"><IoData Pr="b" Cr="cat" Future="02"/><Co U="beta-out"/><Unknown Ref="alpha" Value="retain"/></C>"#;
+    for objects in [format!("{alpha}{beta}"), format!("{beta}{alpha}")] {
+        let xml = format!(
+            r#"<ControlList Future="opaque"><C Type="Place" U="a" Title="Alpha"/><C Type="Place" U="b" Title="Beta"/>{objects}</ControlList>"#
+        );
+        fs::write(root.join("input.Loxone"), &xml).unwrap();
+        let before = snapshot(root);
+        let assertion = sandbox
+            .command(&[
+                "--dry-run",
+                "--json",
+                "config",
+                "room",
+                "rename",
+                "input.Loxone",
+                "Lamp [Beta]",
+                "Grüße 室",
+                "--save-as",
+                "missing\\new.Loxone",
+            ])
+            .assert()
+            .success()
+            .stderr("");
+        let value: Value = serde_json::from_slice(&assertion.get_output().stdout).unwrap();
+        assert_eq!(value["selected"]["attributes"]["U"], "beta");
+        assert_eq!(value["uuid_source"], value["selected"]);
+        assert_eq!(value["target"], value["selected"]);
+        assert_eq!(value["before_title"], "Lamp");
+        assert_eq!(value["after_title"], "Grüße 室");
+        assert_eq!(snapshot(root), before);
+
+        sandbox
+            .command(&[
+                "config",
+                "room",
+                "rename",
+                "input.Loxone",
+                "Lamp [Beta]",
+                "Grüße 室",
+                "--save-as",
+                "output.Loxone",
+            ])
+            .env("LOX_TELEMETRY", "0")
+            .assert()
+            .success()
+            .stdout("✓ Set Lamp.Title: Lamp → 'Grüße 室'\n");
+        assert_eq!(fs::read(root.join("input.Loxone")).unwrap(), xml.as_bytes());
+        let mut expected = xmltree::Element::parse(xml.as_bytes()).unwrap();
+        expected
+            .children
+            .iter_mut()
+            .filter_map(xmltree::XMLNode::as_mut_element)
+            .find(|element| element.attributes.get("U").map(String::as_str) == Some("beta"))
+            .unwrap()
+            .attributes
+            .insert("Title".to_owned(), "Grüße 室".to_owned());
+        let written = fs::read(root.join("output.Loxone")).unwrap();
+        let actual = xmltree::Element::parse(written.as_slice()).unwrap();
+        assert_eq!(format!("{actual:?}"), format!("{expected:?}"));
+    }
+
+    let xml = r#"<ControlList><C Type="Place" U="a" Title="Alpha"/><C Type="Place" U="b" Title="Beta"/><C Type="Future" U="alpha" Title="Lamp"><IoData Pr="a"/></C><C Type="Future" Title="Lamp"><IoData Pr="b"/></C></ControlList>"#;
+    fs::write(root.join("input.Loxone"), xml).unwrap();
+    for dry_run in [true, false] {
+        let before = snapshot(root);
+        let mut command = sandbox.command(&[
+            "config",
+            "room",
+            "rename",
+            "input.Loxone",
+            "Lamp [Beta]",
+            "New",
+            "--save-as",
+            "output.Loxone",
+        ]);
+        if dry_run {
+            command.arg("--dry-run");
+        } else {
+            command.env("LOX_TELEMETRY", "0");
+        }
+        command
+            .assert()
+            .failure()
+            .stderr(predicate::str::contains("'uuid:' not found"));
+        assert_eq!(snapshot(root), before);
+    }
+    backend.assert_hits(0);
+}
+
+#[test]
 fn room_rename_preview_reports_raw_titles_identity_and_all_formats_without_writes() {
     let sandbox = Sandbox::new();
     let root = sandbox.dir.path();

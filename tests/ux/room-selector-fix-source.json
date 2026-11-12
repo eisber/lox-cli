@@ -1,0 +1,45 @@
+{
+  "schema_version": 1,
+  "issue": "lox-xsjk",
+  "artifact_kind": "source-only-qualified-room-rename-correction",
+  "baseline": "b0d6c3c7972f385ed3f56b1cddda58b403da854a",
+  "source_basis": [
+    {
+      "path": "src/config_edit/rooms.rs",
+      "blob_oid": "53b5469a12832a3db38016855bf98c98063f0d5b",
+      "sha256": "896ca6722e31de86e2964a4ed5a8a33f20b2498ee9db5fe9748740ba7763e6d4",
+      "relationship": "The shared plan admits require_one(selector), but formerly read U from the first unfiltered find_elements match. Both preview and writer inherited that pre-existing bug."
+    },
+    {
+      "path": "src/config_edit/selector.rs",
+      "blob_oid": "5f5b3bc07668211001330e0408a320c4405c1951",
+      "sha256": "cb4d9a0c394d712c8c5c28eccfc2a9be93535846dfd9bfcf089ee003d357cb03",
+      "relationship": "Unchanged admission, bracket-room filtering, errors, empty-U handling and canonical UUID mirror resolution."
+    },
+    {
+      "path": "src/commands/config_cmd.rs",
+      "blob_oid": "4de1e3edec1ec96bda98cde873554e8035490715",
+      "sha256": "615292225b3db3be1466c0db1dcaae795f1341f5d0eff396d19b3bba5a55aec8",
+      "relationship": "Unchanged CLI preview dispatch, output, report-before-save, overwrite, serialization and conditional Document stamp."
+    }
+  ],
+  "hash_basis": "Exact committed baseline LF Git blobs, not CRLF working-tree bytes.",
+  "historical_artifact": {
+    "path": "tests/ux/room-rename-preview-source.json",
+    "blob_oid": "c1588083ee719cd8571871e46550b77b47d1c65c",
+    "sha256": "a9dfe783b2bc60d6f42ff6ae644a0ae870bc43f5c401864b9477f43e71a48c57",
+    "status": "Byte-identical historical evidence, including its description of the former wrong qualified target; not rewritten."
+  },
+  "semantic_delta": "Read U from the admitted selected path, defaulting to empty as before, then retain require_one(uuid:U). uuid_source now equals selected; target may still be an earlier canonical UUID mirror. Remove the unreachable unfiltered Room-not-found branch only.",
+  "preserved": [
+    "General and non-Place selectors, title/type/name admission, ambiguity, duplicate/empty/Unicode names, missing versus empty Title, no-op behavior and initial error ordering.",
+    "Final UUID lookup, mirror de-duplication, missing/empty-U resolution and its existing missing/ambiguity errors; no direct selected-path mutation bypass.",
+    "Preview fields and read-only boundary; writer/report/save/stamp/overwrite APIs and semantics. Only final target Title changes; all UUIDs, IoData, unknowns, other objects and mirrors remain intact."
+  ],
+  "regressions": [
+    "rooms.rs qualified tests: both DOM orders, complete DOM preservation, read-only preview identities, final canonical UUID mirror, selected missing/empty U and fallback/ambiguity.",
+    "dry_run.rs qualified CLI test: preview identities and complete filesystem snapshots, writer target and complete parsed DOM, selected missing-U failure without writes.",
+    "Existing unqualified legacy differential, room rename, dry-run and config integration tests remain in place."
+  ],
+  "limits": "Existing raw CLI source provenance only. No native UI, room-family, whole-file, SPS or physical-effect claim; no extraction, new selector policy, normalization or generic framework."
+}

@@ -1010,12 +1010,14 @@ room creation and control moves remain unsupported under `--dry-run`.
 One immutable plan is shared with the writer. It preserves the existing general
 element selector, not a new room-only policy: fuzzy titles, `uuid:`, `gid:`,
 `Type:`, bracket-room filtering, UUID mirror de-duplication, ambiguity and the
-subsequent UUID lookup all retain their existing behavior. In particular, after
-the initial selector is admitted, the legacy writer takes the UUID from the
-**first unfiltered match**, then resolves that UUID again. A bracket qualifier or
-mirror can therefore produce a different final target. Preview exposes
+subsequent UUID lookup all retain their existing behavior. After the initial
+selector is admitted, its selected element supplies the UUID, including when a
+bracket-room qualifier disambiguates same-title elements. That UUID is still
+resolved again, so an earlier canonical UUID mirror can remain the final target.
+Preview exposes
 `selected`, `uuid_source` and actual `target`, each with parsed child-index `path`
-and raw stored attributes; it does not silently correct that behavior.
+and raw stored attributes. `uuid_source` agrees with `selected`; `target` can
+differ because of the final UUID lookup.
 
 `before_title` preserves absence (`null`), empty values and stored spelling;
 `after_title` is the exact requested name. Empty, whitespace, duplicate and
@@ -1034,8 +1036,10 @@ reporting remains its existing text even with `--json`, CSV or `--quiet`, follow
 by its unchanged overwrite/save and content-change-dependent stamp behavior.
 
 This is a raw existing-CLI source preview, not native UI, room-family, whole-file,
-SPS or physical-effect evidence. Source basis:
-`tests/ux/room-rename-preview-source.json`.
+SPS or physical-effect evidence. Historical preview source basis:
+`tests/ux/room-rename-preview-source.json` (unchanged, including its record of the
+former unfiltered UUID-source bug). Source-only qualified-selector correction:
+`tests/ux/room-selector-fix-source.json`.
 
 ### User management
 

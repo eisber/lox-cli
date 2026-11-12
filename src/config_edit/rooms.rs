@@ -41,19 +41,13 @@ impl ConfigEditor {
 
     fn plan_room_rename(&self, selector: &str, name: &str) -> Result<RoomRenamePlan> {
         let selected_path = self.require_one(selector)?;
-        // Keep the legacy unfiltered first match, then its separate UUID lookup.
-        // In particular, bracket-room filtering does not choose the UUID source.
-        let matches = self.find_elements(selector);
-        if matches.is_empty() {
-            bail!("Room '{}' not found", selector);
-        }
-        let uuid_source_path = &matches[0];
         let uuid = self
-            .get_element(uuid_source_path)
+            .get_element(&selected_path)
             .attributes
             .get("U")
             .cloned()
             .unwrap_or_default();
+        // Preserve the final UUID lookup's canonical mirror selection.
         let target_path = self.require_one(&format!("uuid:{uuid}"))?;
         let target = self.get_element(&target_path);
         let before_title = target.attributes.get("Title").cloned();
@@ -76,8 +70,8 @@ impl ConfigEditor {
         Ok(RoomRenamePlan {
             preview: RoomRenamePreview {
                 selector: selector.to_owned(),
-                selected: selection(selected_path),
-                uuid_source: selection(uuid_source_path.clone()),
+                selected: selection(selected_path.clone()),
+                uuid_source: selection(selected_path),
                 target: selection(target_path),
                 changed: before_title.as_deref() != Some(name),
                 before_title,
@@ -614,15 +608,8 @@ mod room_rename_tests {
     }
 
     #[test]
-    fn room_rename_plan_keeps_bracket_first_match_uuid_relookup_and_missing_title() {
+    fn room_rename_plan_keeps_uuid_relookup_and_missing_title() {
         for (xml, selector, selected, target, before) in [
-            (
-                r#"<ControlList><C Type="Place" U="a" Title="Alpha"/><C Type="Place" U="b" Title="Beta"/><C Type="Future" U="first" Title="Lamp"><IoData Pr="a"/></C><C Type="Future" U="second" Title="Lamp"><IoData Pr="b"/></C></ControlList>"#,
-                "Lamp [Beta]",
-                "second",
-                "first",
-                Some("Lamp"),
-            ),
             (
                 r#"<ControlList><C Type="Future" U="same" Title="First"/><C Type="Place" U="same" Title="Second"/></ControlList>"#,
                 "Second",
@@ -686,6 +673,112 @@ mod room_rename_tests {
                 legacy_rename(&mut legacy, selector, "").unwrap()
             );
             assert_eq!(editor.to_bytes().unwrap(), legacy.to_bytes().unwrap());
+        }
+    }
+
+    #[test]
+    fn room_rename_qualified_selection_is_uuid_source_in_either_dom_order() {
+        let alpha = r#"<C Type="Future" U="alpha" Title="Lamp" Future="+003"><IoData Pr="a" Cr="cat" Future="01"/><Co U="alpha-out"/><Unknown Ref="beta" Value="keep"/></C>"#;
+        let beta = r#"<C Type="Future" U="beta" Title="Lamp" Future="+004"><IoData Pr="b" Cr="cat" Future="02"/><Co U="beta-out"/><Unknown Ref="alpha" Value="retain"/></C>"#;
+        for objects in [format!("{alpha}{beta}"), format!("{beta}{alpha}")] {
+            let xml = format!(
+                r#"<ControlList Future="opaque"><C Type="Place" U="a" Title="Alpha"/><C Type="Place" U="b" Title="Beta"/>{objects}</ControlList>"#
+            );
+            let mut editor = ConfigEditor::load(xml.as_bytes()).unwrap();
+            let before = format!("{:?}", editor.root);
+            let preview = editor
+                .preview_room_rename("Lamp [Beta]", "Grüße 室")
+                .unwrap();
+            assert_eq!(format!("{:?}", editor.root), before);
+            assert_eq!(preview.selected.attributes["U"], "beta");
+            assert_eq!(preview.uuid_source.path, preview.selected.path);
+            assert_eq!(preview.uuid_source.attributes, preview.selected.attributes);
+            assert_eq!(preview.target.path, preview.selected.path);
+            assert_eq!(preview.before_title.as_deref(), Some("Lamp"));
+            let mut expected = ConfigEditor::load(xml.as_bytes()).unwrap();
+            let path = expected.require_one("uuid:beta").unwrap();
+            expected
+                .get_element_mut(&path)
+                .attributes
+                .insert("Title".to_owned(), "Grüße 室".to_owned());
+            assert_eq!(
+                editor.rename_room("Lamp [Beta]", "Grüße 室").unwrap(),
+                preview.report
+            );
+            assert_eq!(format!("{:?}", editor.root), format!("{:?}", expected.root));
+        }
+    }
+
+    #[test]
+    fn room_rename_qualified_selection_still_relooks_up_canonical_uuid_mirror() {
+        let xml = r#"<ControlList><C Type="Place" U="a" Title="Alpha"/><C Type="Place" U="b" Title="Beta"/><C Type="Future" U="beta" Title="Canonical"><IoData Pr="a" Future="keep"/></C><C Type="Future" U="alpha" Title="Lamp"><IoData Pr="a"/></C><C Type="Future" U="beta" Title="Lamp"><IoData Pr="b"/><Unknown U="metadata" Ref="beta"/></C></ControlList>"#;
+        let mut editor = ConfigEditor::load(xml.as_bytes()).unwrap();
+        let before = format!("{:?}", editor.root);
+        let preview = editor.preview_room_rename("Lamp [Beta]", "New").unwrap();
+        assert_eq!(format!("{:?}", editor.root), before);
+        assert_eq!(preview.selected.path, vec![4]);
+        assert_eq!(preview.uuid_source.path, preview.selected.path);
+        assert_eq!(preview.uuid_source.attributes, preview.selected.attributes);
+        assert_eq!(preview.target.path, vec![2]);
+        assert_eq!(preview.target.attributes["U"], "beta");
+        assert_eq!(preview.before_title.as_deref(), Some("Canonical"));
+        let mut expected = ConfigEditor::load(xml.as_bytes()).unwrap();
+        let report = expected.set_attribute("uuid:beta", "Title", "New").unwrap();
+        assert_eq!(preview.report, report);
+        assert_eq!(editor.rename_room("Lamp [Beta]", "New").unwrap(), report);
+        assert_eq!(format!("{:?}", editor.root), format!("{:?}", expected.root));
+    }
+
+    #[test]
+    fn room_rename_qualified_missing_uuid_uses_existing_empty_uuid_resolution() {
+        for (uuid_attr, fallback, error) in [
+            ("", "", Some("'uuid:' not found")),
+            (r#" U="""#, "", None),
+            ("", r#"<C U="" Title="Fallback"/>"#, None),
+            (
+                "",
+                r#"<C U="" Title="Fallback"/><C U="" Title="Another"/>"#,
+                Some("Selector 'uuid:' matches 2 elements"),
+            ),
+        ] {
+            let xml = format!(
+                r#"<ControlList><C Type="Place" U="a" Title="Alpha"/><C Type="Place" U="b" Title="Beta"/><C Type="Future" U="alpha" Title="Lamp"><IoData Pr="a"/></C><C Type="Future"{uuid_attr} Title="Lamp"><IoData Pr="b"/><Unknown Value="retain"/></C>{fallback}</ControlList>"#
+            );
+            let mut editor = ConfigEditor::load(xml.as_bytes()).unwrap();
+            let before = format!("{:?}", editor.root);
+            if let Some(error) = error {
+                let preview_error = editor
+                    .preview_room_rename("Lamp [Beta]", "New")
+                    .unwrap_err()
+                    .to_string();
+                assert!(preview_error.contains(error), "{preview_error}");
+                assert_eq!(
+                    editor
+                        .rename_room("Lamp [Beta]", "New")
+                        .unwrap_err()
+                        .to_string(),
+                    preview_error
+                );
+                assert_eq!(format!("{:?}", editor.root), before);
+            } else {
+                let preview = editor.preview_room_rename("Lamp [Beta]", "New").unwrap();
+                assert_eq!(format!("{:?}", editor.root), before);
+                assert_eq!(preview.uuid_source.path, preview.selected.path);
+                assert_eq!(preview.uuid_source.attributes, preview.selected.attributes);
+                assert_eq!(
+                    preview.target.path,
+                    if uuid_attr.is_empty() {
+                        vec![4]
+                    } else {
+                        vec![3]
+                    }
+                );
+                let mut expected = ConfigEditor::load(xml.as_bytes()).unwrap();
+                let report = expected.set_attribute("uuid:", "Title", "New").unwrap();
+                assert_eq!(preview.report, report);
+                assert_eq!(editor.rename_room("Lamp [Beta]", "New").unwrap(), report);
+                assert_eq!(format!("{:?}", editor.root), format!("{:?}", expected.root));
+            }
         }
     }
 
