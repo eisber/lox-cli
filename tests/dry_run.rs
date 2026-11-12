@@ -157,6 +157,106 @@ fn lighting_mix_preview_has_no_filesystem_or_network_side_effects() {
 }
 
 #[test]
+fn lighting_recount_preview_has_no_filesystem_or_network_side_effects() {
+    let sandbox = Sandbox::new();
+    let root = sandbox.dir.path();
+    let input = root.join("input.Loxone");
+    let backend = sandbox.server.mock(|when, then| {
+        when.any_request();
+        then.status(500);
+    });
+    for (collections, success) in [
+        (
+            "<LightscenesC Outputs=\"future\"><LightsceneC SID=\"opaque\" Q3=\"unknown\"/><Unknown><LightsceneC/></Unknown></LightscenesC>",
+            true,
+        ),
+        ("<LightscenesC Num=\"invalid\"/>", true),
+        ("<LightscenesC Num=\"-1\"/>", true),
+        ("<LightscenesC Num=\"99\"/>", true),
+        ("<LightscenesC Num=\"+000\"/>", true),
+        ("<LightscenesC Num=\"0000\"/>", true),
+        ("<LightscenesC/><LightscenesC/>", false),
+        ("<Unknown><LightscenesC/></Unknown>", false),
+    ] {
+        fs::write(&input, format!(
+            "\u{feff}<ControlList>\r\n<C Type=\"Document\" U=\"doc\" Date=\"2025-01-01 00:00:00\" DateS=\"504921600\"/>\r\n<C Type=\"LightController2\" U=\"lighting\">{collections}<LSConfig OpM=\"opaque\" ScMv=\"opaque\"/><HCL T=\"2\"/></C>\r\n</ControlList>\r\n"
+        )).unwrap();
+        for destination in [
+            None,
+            Some(input.clone()),
+            Some(root.join("output.Loxone")),
+            Some(root.join("missing").join("new.Loxone")),
+        ] {
+            for format in ["json", "csv", "table"] {
+                let before = snapshot(root);
+                let mut command =
+                    sandbox.command(&["--dry-run", "-o", format, "--quiet", "--no-header"]);
+                command
+                    .args(["config", "lighting", "recount-moods"])
+                    .arg(&input)
+                    .args(["uuid:lighting", "--trace-id", "recount-snapshot"]);
+                if let Some(destination) = &destination {
+                    command.arg("--save-as").arg(destination);
+                }
+                let assertion = command.assert();
+                let assertion = if success {
+                    assertion.success().stderr("")
+                } else {
+                    assertion.failure()
+                };
+                if format == "json" {
+                    let result: Value =
+                        serde_json::from_slice(&assertion.get_output().stdout).unwrap();
+                    assert_eq!(result[if success { "dry_run" } else { "ok" }], success);
+                }
+                let after = snapshot(root);
+                assert!(
+                    after == before,
+                    "Recount preview wrote local data: {}",
+                    snapshot_difference(&before, &after)
+                );
+            }
+        }
+    }
+    fs::write(
+        root.join("wrong.Loxone"),
+        "<ControlList><C Type=\"And\" U=\"lighting\"/></ControlList>",
+    )
+    .unwrap();
+    fs::write(
+        root.join("ambiguous.Loxone"),
+        "<ControlList><C Title=\"Lamp\"/><C Title=\"Lamp\"/></ControlList>",
+    )
+    .unwrap();
+    for (file, selector, room) in [
+        ("absent.Loxone", "uuid:lighting", None),
+        ("malformed.Loxone", "uuid:lighting", None),
+        ("wrong.Loxone", "uuid:lighting", None),
+        ("ambiguous.Loxone", "Lamp", None),
+        ("input.Loxone", "absent", None),
+        ("input.Loxone", "Lamp [Study]", Some("Study")),
+    ] {
+        let before = snapshot(root);
+        let mut command = sandbox.command(&["--dry-run", "--json"]);
+        command
+            .args(["config", "lighting", "recount-moods", file, selector])
+            .arg("--save-as")
+            .arg(root.join("missing").join("new.Loxone"));
+        if let Some(room) = room {
+            command.args(["--room", room]);
+        }
+        command.assert().failure();
+        let after = snapshot(root);
+        assert!(
+            after == before,
+            "Recount error wrote local data: {}",
+            snapshot_difference(&before, &after)
+        );
+    }
+    backend.assert_hits(0);
+}
+
+#[test]
 fn lighting_creation_preview_has_no_filesystem_or_network_side_effects() {
     let sandbox = Sandbox::new();
     let root = sandbox.dir.path();

@@ -49,6 +49,7 @@ fn has_non_mutating_path(cmd: &Cmd) -> bool {
                 }
             } | ConfigCmd::Lighting {
                 action: LightingCmd::Inspect { .. }
+                    | LightingCmd::RecountMoods { .. }
                     | LightingCmd::SetMoodCid { .. }
                     | LightingCmd::SetMoodSid { .. }
                     | LightingCmd::SetMoodMix { .. }
@@ -209,13 +210,6 @@ mod tests {
             &["config", "set-param", "input.Loxone", "block", "I1", "1"],
             &[
                 "config",
-                "lighting",
-                "recount-moods",
-                "input.Loxone",
-                "Lamp",
-            ],
-            &[
-                "config",
                 "splice-actor",
                 "input.Loxone",
                 "Lamp",
@@ -350,6 +344,13 @@ mod tests {
                 "--sid",
                 "32",
                 "--allow-cid-clear",
+            ],
+            vec![
+                "config",
+                "lighting",
+                "recount-moods",
+                "input.Loxone",
+                "Lamp",
             ],
             vec!["config", "report", "input.Loxone"],
             vec![

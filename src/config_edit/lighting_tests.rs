@@ -1132,6 +1132,63 @@ fn lighting_native_append_rejects_unsupported_source_values_and_shapes_atomicall
 }
 
 #[test]
+fn lighting_recount_preview_matches_writer_and_preserves_raw_storage() {
+    for (attribute, effective, after, changed) in [
+        ("", None, "2", true),
+        ("Num=\"\"", None, "2", true),
+        ("Num=\"future\"", None, "2", true),
+        ("Num=\"2147483648\"", None, "2", true),
+        ("Num=\"-1\"", Some(-1), "2", true),
+        ("Num=\"99\"", Some(99), "2", true),
+        ("Num=\"0002\"", Some(2), "0002", false),
+        ("Num=\"+2\"", Some(2), "+2", false),
+    ] {
+        let xml = RECOUNT_XML.replace("Num=\"99\"", attribute);
+        let mut editor = ConfigEditor::load(xml.as_bytes()).unwrap();
+        let before = editor.to_bytes().unwrap();
+        let preview = editor.preview_lighting_mood_count("uuid:lighting").unwrap();
+        assert_eq!(editor.to_bytes().unwrap(), before);
+        assert_eq!(preview.before_effective, effective);
+        assert_eq!(preview.after_effective, 2);
+        assert_eq!(preview.controller_uuid.as_deref(), Some("lighting"));
+        assert_eq!(preview.controller_title.as_deref(), Some("Lamp"));
+        let block = editor.get_element(&editor.require_one("uuid:lighting").unwrap());
+        assert_eq!(
+            block.children[preview.collection_path[0]]
+                .as_element()
+                .unwrap()
+                .name,
+            "LightscenesC"
+        );
+        let edit = editor.recount_lighting_moods("uuid:lighting").unwrap();
+        assert_eq!(
+            serde_json::to_value(&edit).unwrap(),
+            serde_json::to_value(&preview.edit).unwrap()
+        );
+        assert_eq!(edit.after, after);
+        assert_eq!(edit.scenes, 2);
+        assert_eq!(edit.changed, changed);
+        let expected = if attribute.is_empty() {
+            RECOUNT_XML.replace("Num=\"99\" ", "").replace(
+                "FC=\"opaque\" Future=\"retain\"",
+                "FC=\"opaque\" Future=\"retain\" Num=\"2\"",
+            )
+        } else if changed {
+            RECOUNT_XML.replace("Num=\"99\"", "Num=\"2\"")
+        } else {
+            xml
+        };
+        assert_eq!(
+            editor.to_bytes().unwrap(),
+            ConfigEditor::load(expected.as_bytes())
+                .unwrap()
+                .to_bytes()
+                .unwrap()
+        );
+    }
+}
+
+#[test]
 fn lighting_recount_repairs_only_num_and_counts_direct_moods_not_outputs_or_nested_records() {
     let mut editor = ConfigEditor::load(RECOUNT_XML.as_bytes()).unwrap();
     assert!(
@@ -1212,7 +1269,11 @@ fn lighting_recount_rejects_ambiguous_or_missing_direct_collection_before_mutati
     ] {
         let mut editor = ConfigEditor::load(xml.as_bytes()).unwrap();
         let before = editor.to_bytes().unwrap();
-        assert!(editor.recount_lighting_moods("uuid:lighting").is_err());
+        let preview_error = editor
+            .preview_lighting_mood_count("uuid:lighting")
+            .unwrap_err();
+        let writer_error = editor.recount_lighting_moods("uuid:lighting").unwrap_err();
+        assert_eq!(preview_error.to_string(), writer_error.to_string());
         assert_eq!(editor.to_bytes().unwrap(), before);
     }
 }

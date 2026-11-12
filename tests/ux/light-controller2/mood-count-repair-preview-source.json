@@ -1,0 +1,87 @@
+{
+  "schema_version": 1,
+  "issue": "lox-sayy",
+  "artifact_kind": "source-only-existing-count-repair-preview",
+  "named_question": "Can the already supported recount-moods repair expose its exact Num transition without writing, while preserving the existing writer and ordered admission?",
+  "frozen_target": {
+    "version": "17.2.10.21",
+    "architecture": "AMD64",
+    "pe_sha256": "7b55e3ef18401574ab967c5c6a0140cd5a66dc728521ebba04ad53093577d8b3",
+    "installation_sha256": "a3003005776b327f5e666a072a64f5c569182b86174c0f578d5be3267ce28f85",
+    "analysis_id": "6a0520329af17d7b9fdaafe69398c62c454d9da838fc9f9c8d0bdd8d17bb15ae",
+    "decompile_index_sha256": "129c5d4e8683dd3c9c4a44622681f8d8bb76fe58c72d0b834a2c7bb76415cf40",
+    "new_extractions": 0
+  },
+  "existing_source_basis": [
+    {
+      "contract_section": "contracts/light-controller2.json#mood_count_repair",
+      "relationship": "Existing CLI count-only repair, direct-container selection, signed32 comparison and raw no-op preservation remain unchanged."
+    },
+    {
+      "contract_section": "contracts/light-controller2.json#recovered_count_and_output_contract",
+      "relationship": "Existing collection Num-limited reader, separate Outputs fields and vector-size count assignments; not a new native UI operation."
+    },
+    {
+      "artifact": "tests/ux/light-controller2/mood-creation-preview-source.json",
+      "sha256": "5ac1fa186c8e07665947fb247ea6ce521e3c715d9c30ceb75d536a84abb43812",
+      "relationship": "Immutable prerequisite preview and output/early-return conventions only. No creation defaults or allocation enter this count-only operation."
+    },
+    {
+      "artifact": "tests/ux/light-controller2/raw-mood-color-preview-source.json",
+      "sha256": "b56c70c749d08399d73dcb101919de6b4519e0feed919d4f8084e2ffc755bbd4",
+      "relationship": "Immutable earlier presence/spelling and read-only dispatch conventions. Historical rejected-command lists describe their own delivery, not this new audited path."
+    }
+  ],
+  "canonical_sources": [
+    {
+      "address": "0x1405b8390",
+      "sha256": "050b32685453a02e4e52db3a69e0752e54399287bfa9c21c9a121ec8fd89a750",
+      "relationship": "Existing collection reader/emitter binds Num separately from Outputs and iterates Num; no new native malformed-count interpretation."
+    },
+    {
+      "address": "0x1405b48e0",
+      "sha256": "09d4870c352d9621c32403f1fe1651967205f7b78c3bdc74866370f7714b14db",
+      "relationship": "Existing append assigns Num from actual scene-vector size. Other append work is not reproduced by this repair."
+    },
+    {
+      "address": "0x1405c6770",
+      "sha256": "0efeb2b4cecbacfd6fe9b5c9ff3bba036871f853d94f737bd8cd212595d5af15",
+      "relationship": "Existing reconciliation assigns Num from vector size; identity reconciliation and empty-scene defaults remain outside this CLI operation."
+    },
+    {
+      "address": "0x1404b3b40",
+      "sha256": "f344e348a36af28aba2f72e242388dd348e977112af59e201601bca47825f0c2",
+      "relationship": "Existing vector insertion used by the collection reader grows logical size through its existing helper."
+    },
+    {
+      "address": "0x1405b4e50",
+      "sha256": "66970d9b503110b317d922ffa6d3f3b957f70e17252de67287df9e663afd7f32",
+      "relationship": "Existing collection copy assigns Num from source vector size independently of copied Outputs. No full native copy/save transaction claim."
+    }
+  ],
+  "source_verification": "Frozen latest.json identities, existing canonical code/functions/0xADDRESS.c bodies and decompile-index hash verified locally; prior artifacts and all contract artifact references verified from committed Git LF blobs, not working-tree CRLF. No new extraction, vendor text or private project data.",
+  "CLI_policy": {
+    "operation": "lox config lighting recount-moods FILE BLOCK --dry-run [--room ROOM] [--save-as PATH]",
+    "shared_plan": "One immutable private LightingMoodCountPlan supplies preview_lighting_mood_count and existing recount_lighting_moods. It contains the collection path and typed preview/report. The writer applies only its planned Num when changed and returns the original LightingMoodCountEdit shape. No cloned DOM, writer-then-discard, public reapply API or generic framework.",
+    "ordered_admission": "Existing conflicting-room guard precedes file/archive load and XML parsing. Existing require_one resolution, room filtering and ambiguity handling precede exact LightController2 type, exactly-one-direct-LightscenesC shape, direct LightsceneC counting and checked usize-to-i32 overflow. Existing signed32 Num parse determines changed; no new guard, normalization or parser.",
+    "count": "Count all direct LightsceneC records, even duplicate identities; ignore nested lookalike records and collections. Repair absent, empty, invalid, out-of-range, negative or stale Num to the decimal direct count. Equivalent signed32 spelling such as 0002 or +2 is retained exactly with changed=false. Empty direct collections count as zero without creating defaults.",
+    "output": "JSON flattens the unchanged before/after/scenes/changed report and adds dry_run, optional trace_id, scope stored_mood_count_repair, actual stored controller_uuid/controller_title, controller-relative collection_path XML child-node indices, before_effective and after_effective. before_effective is the existing signed32 parse, null when absent/invalid/out-of-range and negative when stored negative; it is not a native loaded-row count, default, clamp or width. after is actual planned storage, including original no-op spelling. Table quotes raw strings; CSV has presence columns distinguishing absent/empty/invalid and quoted escaping. Quiet suppresses only table summary; no-header only headers. Normal writer output is unchanged.",
+    "preservation": "Preview returns before mutation, saving, serialization, defaults, document stamping or any destination handling on success, failure and no-op. No input/existing/new destination, missing parent, directory, cache or telemetry writes, and no network requests. Actual execution retains existing in-place no-op byte/mtime preservation and explicit save-as behavior. Both Outputs fields, absent/sparse Qn, identities/SID/CID/UUID, record/attribute order, references, Name/SName, HCL, LSConfig, sequences, unknown storage and all existing writer defaults/save semantics are unchanged.",
+    "dispatch": "Only existing LightingCmd::RecountMoods newly enters the global dry-run allowlist. Unrelated unplanned local/live/deployment mutations remain rejected before dispatch and startup side effects.",
+    "destination_limit": "Preview ignores destination handling entirely; it does not promise writability, directory creation, serialization success, final-save/native-import behavior or eventual write success."
+  },
+  "regressions": {
+    "core": "src/config_edit/lighting_tests.rs: lighting_recount_preview_matches_writer_and_preserves_raw_storage and existing lighting_recount_*; absent/empty/invalid/out-of-range/negative/stale/equivalent signed32 spelling, exact report/writer parity, nested lookalikes, unknown/sparse storage and atomic identical errors.",
+    "CLI": "tests/lighting_source_capability.rs: lighting_recount_cli_dry_run_*; BOM/CRLF preservation, JSON/table/CSV presence/spelling/escaping, actual room-selected identity/path, trace/quiet/no-header, unchanged writer report and input/save-as/no-op behavior, ordered file/XML/block/type/room/container errors.",
+    "side_effects": "tests/dry_run.rs: lighting_recount_preview_has_no_filesystem_or_network_side_effects; existing telemetry-enabled Sandbox full recursive byte/metadata snapshot and zero-request mock backend, successful repairs/no-ops and failures with input/existing/missing-parent destinations.",
+    "dispatch": "src/dry_run.rs existing audited-path admission and unrelated fail-closed dispatch tests; tests/dry_run.rs startup/network/filesystem rejection suite."
+  },
+  "native_validation": {
+    "status": "not-run-source-only",
+    "new_native_cases": 0,
+    "gui_roundtrip_verified": false,
+    "runtime_parity": false,
+    "full_family_contract": false,
+    "limits": "Read-only preview of an existing CLI repair only, not native UX button parity. No new native observation/approval, family/whole-file/SPS/runtime credit, GUI Cancel/dialog refresh, graph-dependent preparation, role/color/identity/default/import normalization or final-save/write-success prediction. Original native expectations and qualification contracts remain unchanged."
+  }
+}

@@ -352,6 +352,17 @@ update the document save stamp after a content change. JSON returns `before`,
 `after`, `scenes` and `changed`. Invalid target/container shapes fail before
 either file is written.
 
+With global `--dry-run`, the same count-repair plan is returned without mutation,
+serialization, save stamps or destination handling, including `--save-as`.
+JSON retains `before`, `after`, `scenes`, `changed` and adds `dry_run`, actual
+controller UUID/title, controller-relative collection path, scope and
+`before_effective`/`after_effective` signed-32 counts. Missing or invalid stored
+counts have null `before_effective`; negative counts remain negative, not clamped.
+Raw absence/spelling and the actual planned spelling (including no-op `+2`/`0002`)
+remain visible in JSON, table and CSV; CSV includes presence columns.
+This previews an existing CLI repair only, not a native UI operation or a
+prediction that saving to the requested destination will succeed.
+
 `set-mood-level` is a numeric edit, **not RGB packing**. It preserves the
 selected Qn's high type nibble and replaces its low payload with an integer
 in `0..100`; values outside that range are rejected, never clamped.
