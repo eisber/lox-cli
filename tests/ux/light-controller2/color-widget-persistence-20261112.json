@@ -1,0 +1,61 @@
+{
+  "schema_version": 1,
+  "issue": "lox-w9xu.10",
+  "original_case": "lox-t5t3.9",
+  "derived_run": "lox-t5t3.9-sdk9f707-v1",
+  "observation_kind": "actual_native_selected_widget_and_persistence_with_qualification_limits",
+  "frozen_target": {
+    "version": "17.2.10.21",
+    "architecture": "AMD64",
+    "pe_sha256": "7b55e3ef18401574ab967c5c6a0140cd5a66dc728521ebba04ad53093577d8b3",
+    "SDK_service_sha256": "9f70717b37abdb138ac49743df11b5fe274f3cedc2c342e70609a51e332ecf06"
+  },
+  "pins": {
+    "original_definition_sha256": "b171f48f88095ad600ec5c10c64dc9958a334001e18cab63db2b28c450590e3b",
+    "original_input_sha256": "468bfa348dca6d6259e1c7d79991047f784b1c9cb22adfc8f3a6d4d097a72d2f",
+    "immutable_CLI_sha256": "4274d421ff722bb344d70fa265be4b2a7f903ed92219cfbd1e6aa4c7486d83de",
+    "native_saved_sha256": "a77c35130ba82b1ff03688a06d3d076d72252abfc0bee057443601ce44b1faa1",
+    "private_persistence_result_sha256": "26e32531993713025684908a6f65220d3670261a7b767bc2f1126059dda2e2d8",
+    "private_persistence_manifest_sha256": "da01984484a1320e62fa97b1c6714d803dc1453f26c562f5f3c7b3f55d454688",
+    "prior_widget_observation_artifact_sha256": "dfa76d9a67feabc5d4e788674bce0edec7066c4f275e412f7f9ff8fec332d10c"
+  },
+  "actual_observation": {
+    "machine": "VM122, independently admitted from Notebook and VM121",
+    "selected_mood": "SID1/CID12, prescribed row rather than initial special ID99",
+    "selected_output": "Q1 / Lc1",
+    "prior_observed_widget": "Actual Color Picker opened and standard Cancel acknowledged; no color edit accepted.",
+    "persistence": "In a separately recorded same-run phase, ordinary mood cancellation, one Ctrl+S, normal exit to zero, fresh process reopen, prescribed mood selection and actual Q1 color-dropdown readback, then normal final exit to zero.",
+    "saved_post_exit_final_bytes_identical": true,
+    "selected_saved_storage": {"CapAI0": "7", "Q1": "1640612766", "Q2": "1610622736", "SID": "1", "CID": "12"},
+    "CLI_comparison": "Immutable CLI inspection of the actual native saved file reports selected Q1 color/tag6/needed capability7, consistent with the earlier actual Color Picker and reopened dropdown.",
+    "accepted_storage_edits": 0,
+    "limitations": "No accepted color-value mutation, physical RGB role, raw-setter mode-awareness or universal prediction of native pre-modal graph state."
+  },
+  "all_native_deltas": {
+    "ordered_changed_nodes": 98,
+    "attribute_delta_count": 100,
+    "ignore_lists": [],
+    "whole_file_equal_to_input_or_CLI": false,
+    "retained_changes": "Title/WF fields and HCL T/TMIN/FROM/TO are retained in complete private raw/ordered ledgers; no incidental normalization is implemented or filtered out.",
+    "HCL": {"T": ["2", "4"], "TMIN": ["2000", "2700"], "FROM": ["0", "24109"], "TO": ["0", "67563"]},
+    "Document_stamps": "Individually retained; actual values did not change in this native output, not an ignore rule.",
+    "selected_storage": "CapAI0 and selected Qn/SID/CID unchanged is a saved-file observation for this run, not an in-memory invariant or general guarantee."
+  },
+  "qualification_limits": {
+    "full_guarded_qualification": false,
+    "reason": "Earlier navigation lacks a retained explicit phase deadline, and two later read-only SDK observations occurred after a capacity-closed receipt. No retroactive deadline or zero-read claim is fabricated.",
+    "persistence_phase_dispatch_audit": "Local audit found all23 persistence-phase GUI effects dispatched before actual finite resource expiry, with target age and phase deadlines satisfied. This does not repair earlier missing evidence or grant full-run qualification.",
+    "post_closure_readonly_deviation": "Two numeric-stage observations after capacity closed are disclosed; no numeric edit or other input was dispatched by those reads.",
+    "future_runs": "Any independently admitted future run uses its own exact source/target/deadline/dispatch receipts; this historical observation is never rebound or replayed."
+  },
+  "capability_policy": {
+    "native_lifecycle_observed": true,
+    "qualified_native_case_pass": false,
+    "old_run_credit": false,
+    "aggregate_gui_roundtrip_verified": false,
+    "runtime_parity": false,
+    "full_family_contract": false,
+    "whole_file_parity": false
+  },
+  "private_evidence_policy": "No projects, screenshots, endpoints, credentials or proprietary function text included."
+}

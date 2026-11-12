@@ -572,6 +572,13 @@ classification but is **not** saved/reopened or complete-case evidence:
 capacity closed before persistence, and native pre-modal state was not
 assumed unchanged. See `color-widget-observation-20261111.json` under
 `tests/ux/light-controller2`; aggregate parity flags remain false.
+A later, separately recorded phase saved this inspection, exited and reopened
+in a fresh process with selected color-dropdown readback. Native bytes stayed
+identical across exit/reopen, while all 98 changed nodes/100 attribute deltas
+against input remain retained. **Full guarded qualification is withheld**:
+earlier deadline evidence is missing and two post-closure read-only calls are
+disclosed. See `color-widget-persistence-20261112.json` in the same directory.
+Neither phase establishes an accepted color-value edit or whole-file parity.
 
 One bounded Config 17.2.10.21 observation completed CLI mood creation, Q2 edit,
 native Save As to a new file, normal exit and fresh reopen. The new SID 1 /
