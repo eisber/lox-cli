@@ -40,7 +40,7 @@ pub(crate) enum LoadManagerCmd {
         #[command(flatten)]
         target: LoadManagerTarget,
     },
-    /// Move one load by one priority; preserve ioIdx and all its settings
+    /// Move one load one place in Configure loads/XML order; preserve ioIdx/settings
     Move {
         #[command(flatten)]
         target: LoadManagerTarget,

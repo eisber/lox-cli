@@ -6,7 +6,8 @@ fn fixture() -> String {
     let loads: String = (0..12)
         .map(|index| {
             format!(
-                "<Load ioIdx=\"{index}\" nm=\"Consumer {index}\" pwr=\"2.5\" maxOff=\"123\" minOn=\"45\" Unknown=\"keep-{index}\"/>"
+                "<Load{} nm=\"Consumer {index}\" pwr=\"2.5\" maxOff=\"123\" minOn=\"45\" Unknown=\"keep-{index}\"/>",
+                if index == 0 { String::new() } else { format!(" ioIdx=\"{index}\"") }
             )
         })
         .collect();
@@ -26,7 +27,7 @@ fn load_manager_cli_saves_priority_with_identity_and_reloads() {
         .env("LOX_TELEMETRY", "0")
         .args(["config", "load-manager", "move"])
         .arg(&input)
-        .args(["Load Manager", "4", "up", "--room", "Office", "--save-as"])
+        .args(["Load Manager", "0", "down", "--room", "Office", "--save-as"])
         .arg(&output)
         .args(["-o", "json"])
         .assert()
@@ -35,10 +36,15 @@ fn load_manager_cli_saves_priority_with_identity_and_reloads() {
         .stdout
         .clone();
     let result: Value = serde_json::from_slice(&result).unwrap();
-    assert_eq!(result["load_manager"]["loads"][3]["io_index"], 4);
+    assert_eq!(result["load_manager"]["loads"][1]["io_index"], 0);
     assert_eq!(
-        result["load_manager"]["loads"][3]["attributes"]["Unknown"],
-        "keep-4"
+        result["load_manager"]["loads"][1]["attributes"]["Unknown"],
+        "keep-0"
+    );
+    assert!(
+        result["load_manager"]["loads"][1]["attributes"]
+            .get("ioIdx")
+            .is_none()
     );
     assert_eq!(fs::read(&input).unwrap(), original);
     let saved = fs::read(&output).unwrap();
@@ -65,7 +71,7 @@ fn load_manager_cli_saves_priority_with_identity_and_reloads() {
         .env("LOX_TELEMETRY", "0")
         .args(["config", "load-manager", "move"])
         .arg(&output)
-        .args(["uuid:manager", "4", "down", "-o", "json"])
+        .args(["uuid:manager", "0", "up", "-o", "json"])
         .assert()
         .success();
     let inspection = assert_cmd::cargo::cargo_bin_cmd!("lox")
@@ -79,7 +85,12 @@ fn load_manager_cli_saves_priority_with_identity_and_reloads() {
         .stdout
         .clone();
     let inspection: Value = serde_json::from_slice(&inspection).unwrap();
-    assert_eq!(inspection["load_manager"]["loads"][4]["io_index"], 4);
+    assert_eq!(inspection["load_manager"]["loads"][0]["io_index"], 0);
+    assert!(
+        inspection["load_manager"]["loads"][0]["attributes"]
+            .get("ioIdx")
+            .is_none()
+    );
 }
 
 #[test]

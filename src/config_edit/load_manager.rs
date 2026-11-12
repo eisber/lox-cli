@@ -53,7 +53,7 @@ impl ConfigEditor {
                     let load = block.children[*position].as_element().unwrap();
                     LoadManagerLoad {
                         priority: index + 1,
-                        io_index: load.attributes["ioIdx"].parse().unwrap(),
+                        io_index: resolve_io_index(load).unwrap(),
                         attributes: load
                             .attributes
                             .iter()
@@ -65,7 +65,7 @@ impl ConfigEditor {
         })
     }
 
-    /// Move the complete record, not its connector identity or a fabricated priority attribute.
+    /// Move the complete record in Configure loads/XML order, keeping its connector identity.
     pub fn move_load_manager_load(
         &mut self,
         selector: &str,
@@ -81,9 +81,7 @@ impl ConfigEditor {
         let index = positions
             .iter()
             .position(|position| {
-                block.children[*position].as_element().unwrap().attributes["ioIdx"]
-                    .parse::<u8>()
-                    .unwrap()
+                resolve_io_index(block.children[*position].as_element().unwrap()).unwrap()
                     == io_index
             })
             .unwrap();
@@ -124,16 +122,7 @@ fn load_positions(block: &Element) -> Result<Vec<usize>> {
     let mut seen = [false; 12];
     for position in &positions {
         let load = block.children[*position].as_element().unwrap();
-        let io_index = load
-            .attributes
-            .get("ioIdx")
-            .and_then(|value| value.parse::<usize>().ok())
-            .filter(|index| *index < seen.len())
-            .ok_or_else(|| {
-                anyhow::anyhow!(
-                    "Unsupported Load Manager shape: every Load needs an explicit ioIdx in 0..11; omitted identities are not inferred."
-                )
-            })?;
+        let io_index = usize::from(resolve_io_index(load)?);
         if seen[io_index] {
             bail!(
                 "Unsupported Load Manager shape: duplicate ioIdx {io_index}; identities must be unique."
@@ -142,6 +131,22 @@ fn load_positions(block: &Element) -> Result<Vec<usize>> {
         seen[io_index] = true;
     }
     Ok(positions)
+}
+
+fn resolve_io_index(load: &Element) -> Result<u8> {
+    // The native serializer omits zero; an absent attribute reads back as zero.
+    let Some(raw) = load.attributes.get("ioIdx") else {
+        return Ok(0);
+    };
+    if !raw.is_empty()
+        && raw.bytes().all(|byte| byte.is_ascii_digit())
+        && let Ok(index @ 0..=11) = raw.parse::<u8>()
+    {
+        return Ok(index);
+    }
+    bail!(
+        "Unsupported Load Manager shape: ioIdx must be absent (native zero) or decimal digits in 0..11. Explicit empty, signed, whitespace and nonnumeric identities are not supported."
+    )
 }
 
 #[cfg(test)]
@@ -192,6 +197,96 @@ mod tests {
         assert_eq!(editor.to_bytes().unwrap(), original);
     }
 
+    fn native_fixture() -> ConfigEditor {
+        let xml = String::from_utf8(fixture().to_bytes().unwrap())
+            .unwrap()
+            .replacen(" ioIdx=\"0\"", "", 1);
+        ConfigEditor::load(xml.as_bytes()).unwrap()
+    }
+
+    #[test]
+    fn load_manager_native_omitted_zero_moves_without_filling_attributes() {
+        let mut down = native_fixture();
+        let original = down.to_bytes().unwrap();
+        let inspection = down.inspect_load_manager("Loads").unwrap();
+        assert_eq!(inspection.loads[0].io_index, 0);
+        assert!(!inspection.loads[0].attributes.contains_key("ioIdx"));
+        let path = down.require_one("Loads").unwrap();
+        let mut expected = down.get_element(&path).clone();
+        expected.children.swap(2, 3);
+        down.move_load_manager_load("Loads", 0, LoadMoveDirection::Down)
+            .unwrap();
+        assert_eq!(*down.get_element(&path), expected);
+        let loads = down.inspect_load_manager("Loads").unwrap().loads;
+        assert_eq!(loads[1].io_index, 0);
+        assert!(!loads[1].attributes.contains_key("ioIdx"));
+        assert_eq!(loads[1].attributes["Unknown"], "keep-0");
+        let mut up = native_fixture();
+        up.move_load_manager_load("Loads", 1, LoadMoveDirection::Up)
+            .unwrap();
+        assert_eq!(up.to_bytes().unwrap(), down.to_bytes().unwrap());
+        down.move_load_manager_load("Loads", 0, LoadMoveDirection::Up)
+            .unwrap();
+        assert_eq!(down.to_bytes().unwrap(), original);
+    }
+
+    #[test]
+    fn load_manager_reads_native_golden_omitted_zero_without_mutation() {
+        let file = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+            .join("tests")
+            .join("eval")
+            .join("golden")
+            .join("configs")
+            .join("Hotwater_Heating_Rod.Loxone");
+        let bytes = std::fs::read(file).unwrap();
+        let editor = ConfigEditor::load(&bytes).unwrap();
+        let before = editor.to_bytes().unwrap();
+        let blocks = editor.find_elements("Type:LoadShed");
+        assert!(!blocks.is_empty());
+        for path in blocks {
+            let selector = format!("uuid:{}", editor.get_element(&path).attributes["U"]);
+            let inspection = editor.inspect_load_manager(&selector).unwrap();
+            assert_eq!(inspection.loads[0].io_index, 0);
+            assert!(!inspection.loads[0].attributes.contains_key("ioIdx"));
+        }
+        assert_eq!(editor.to_bytes().unwrap(), before);
+    }
+
+    #[test]
+    fn load_manager_duplicate_resolved_zero_and_malformed_identity_fail_atomically() {
+        for identity in [
+            None,
+            Some("0"),
+            Some(""),
+            Some("future"),
+            Some(" "),
+            Some("-1"),
+            Some("+1"),
+        ] {
+            let mut editor = native_fixture();
+            let path = editor.require_one("Loads").unwrap();
+            let load = editor.get_element_mut(&path).children[3]
+                .as_mut_element()
+                .unwrap();
+            match identity {
+                Some(value) => {
+                    load.attributes.insert("ioIdx".into(), value.into());
+                }
+                None => {
+                    load.attributes.shift_remove("ioIdx");
+                }
+            }
+            let before = editor.to_bytes().unwrap();
+            let error = editor
+                .move_load_manager_load("Loads", 0, LoadMoveDirection::Down)
+                .unwrap_err();
+            if identity.is_none() || identity == Some("0") {
+                assert!(error.to_string().contains("duplicate ioIdx 0"));
+            }
+            assert_eq!(editor.to_bytes().unwrap(), before);
+        }
+    }
+
     #[test]
     fn load_manager_move_rejects_boundaries_and_malformed_shapes_atomically() {
         for (io_index, direction) in [
@@ -208,7 +303,13 @@ mod tests {
             );
             assert_eq!(editor.to_bytes().unwrap(), before);
         }
-        for mutation in ["duplicate", "missing", "extra", "sparse", "out-of-range"] {
+        for mutation in [
+            "duplicate",
+            "omitted-with-explicit-zero",
+            "extra",
+            "sparse",
+            "out-of-range",
+        ] {
             let mut editor = fixture();
             let path = editor.require_one("Loads").unwrap();
             let block = editor.get_element_mut(&path);
@@ -220,7 +321,7 @@ mod tests {
                         .attributes
                         .insert("ioIdx".into(), "0".into());
                 }
-                "missing" => {
+                "omitted-with-explicit-zero" => {
                     block.children[3]
                         .as_mut_element()
                         .unwrap()
