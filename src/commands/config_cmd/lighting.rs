@@ -16,6 +16,17 @@ use crate::config_edit::lighting_metadata::{
 };
 use crate::config_edit::schema::Diagnostic;
 
+fn parse_rgb_bytes(spec: &str) -> std::result::Result<[u32; 3], String> {
+    let channels = spec
+        .split(',')
+        .map(str::parse::<u32>)
+        .collect::<std::result::Result<Vec<_>, _>>()
+        .map_err(|_| "Expected three comma-separated integer RGB bytes in 0..255.".to_owned())?;
+    channels
+        .try_into()
+        .map_err(|_| "Expected exactly three comma-separated RGB bytes: R,G,B.".to_owned())
+}
+
 #[derive(Args)]
 pub(crate) struct LightingTarget {
     /// Local .Loxone XML file; never connects to a Miniserver
@@ -86,6 +97,22 @@ pub(crate) enum LightingCmd {
         /// Integer level in 0..100; never clamped or packed as RGB
         #[arg(long)]
         level: u32,
+        #[arg(long, value_name = "PATH")]
+        save_as: Option<String>,
+    },
+    /// Set ordinary RGB only: stored tag 6, explicit capability 7, no sequence or white default
+    SetMoodRgb {
+        #[command(flatten)]
+        target: LightingTarget,
+        /// Exact stored SID or Name of one loaded ordinary mood
+        #[arg(long)]
+        mood: String,
+        /// 1-based Q index in the recovered 18-output editor path
+        #[arg(long, default_value_t = 1)]
+        output_index: usize,
+        /// Three integer bytes 0..255; native nearest-percent rounding; nonzero result required
+        #[arg(long, value_parser = parse_rgb_bytes, value_name = "R,G,B")]
+        rgb: [u32; 3],
         #[arg(long, value_name = "PATH")]
         save_as: Option<String>,
     },
@@ -1120,6 +1147,48 @@ pub(crate) fn run(ctx: &RunContext, action: LightingCmd) -> Result<()> {
                 println!(
                     "✓  {selector}: Num={} ({} direct moods; Outputs and Qn unchanged)",
                     edit.after, edit.scenes
+                );
+            }
+            return Ok(());
+        }
+        LightingCmd::SetMoodRgb {
+            target,
+            mood,
+            output_index,
+            rgb,
+            save_as,
+        } => {
+            let selector = target.selector()?;
+            let mut editor = ConfigEditor::load(&crate::load_config_xml(&target.file)?)?;
+            let edit = editor.set_lighting_mood_rgb(&selector, &mood, output_index, rgb)?;
+            if edit.changed || save_as.is_some() {
+                super::save_edited_with_quiet(&mut editor, &target.file, save_as.as_deref(), true)?;
+            }
+            if ctx.json {
+                let mut value = serde_json::to_value(&edit)?;
+                if let Some(trace_id) = &ctx.trace_id {
+                    value["trace_id"] = trace_id.clone().into();
+                }
+                println!("{}", serde_json::to_string_pretty(&value)?);
+            } else if ctx.csv {
+                if !ctx.no_header {
+                    println!("MOOD,OUTPUT,BEFORE,AFTER,RED,GREEN,BLUE,CHANGED");
+                }
+                println!(
+                    "{},{},{},{},{},{},{},{}",
+                    csv(&edit.mood),
+                    edit.output,
+                    csv(&edit.before),
+                    csv(&edit.after),
+                    edit.rgb[0],
+                    edit.rgb[1],
+                    edit.rgb[2],
+                    edit.changed
+                );
+            } else if !ctx.quiet {
+                println!(
+                    "✓  {selector}: mood '{}' {}={} (ordinary RGB; tag 6 preserved)",
+                    edit.mood, edit.output, edit.after
                 );
             }
             return Ok(());

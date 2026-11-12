@@ -11,6 +11,7 @@
     "author_native_style_mood_output_defaults": true,
     "author_native_style_mood_ids": true,
     "author_numeric_mood_levels": true,
+    "edit_existing_ordinary_tag6_rgb_capability7": true,
     "preview_existing_numeric_mood_level": true,
     "preview_existing_raw_packed_mood_color": true,
     "preview_existing_mood_creation": true,
@@ -86,6 +87,20 @@
       "capability_policy": "Scoped observation only. Aggregate gui_roundtrip_verified, runtime_parity and full_family_contract remain false; historical source-only cases and failed native attempts keep their own unchanged status."
     }
   ],
+  "ordinary_rgb_mood_edit": {
+    "command": "lox config lighting set-mood-rgb FILE BLOCK --mood SID_OR_NAME --output-index N --rgb R,G,B [--room ROOM] [--save-as PATH]",
+    "source_artifact": "tests/ux/light-controller2/ordinary-rgb-source.json",
+    "source_sha256": "1b5dd03196870f07db786e80678c810b0dd76ba55b874761ec086715a57c5b16",
+    "new_semantics": "Connect selected-row SID callback and color-control index/ID, accepted picker COLORREF/mode fields and ordinary-versus-white/sequence state to the known color handler and reused accepted-copy/XML-emitter chain. Existing 13 numeric-source pins, capability classifier, color encoder and serializer evidence are reused, not new recovery.",
+    "supported_branch": "Only existing stored tag6, explicit CapAI<n-1>=7, positive valid ordinary RGB percent payload, no selected SeqConf and Locked/ReadOnly/Sequencing absent or false. Reject all other tags/capabilities, even color-classified cases; do not infer physical RGB hardware or graph-refresh state.",
+    "selection_and_storage": "One direct collection and one exact stored SID-spelling or case-sensitive Name match; explicit Num equals direct count, parsed sibling SIDs, unique selected ordinary SID1..90. Existing signed32 Qn, index1..18 within scene reader width (absent/zero Outputs=12). Identity, shape, width and mode failures precede mutation.",
+    "encoding": "Final RGB bytes0..255 -> lround(byte/2.55) percentages -> R+G*1000+B*1000000, OR old high nibble. No HSV/raw parsing, clamp or silent mode conversion. Reject all-zero rounded payload because tag6 zero reopens in the dynamic-white default. Example64,128,255 ->25,50,100 ->1710662761.",
+    "preservation": "Only selected Qn attribute changes; retain IDs/order, widths/Num/flags, LSConfig, HCL, capabilities, all other Qn and unknown data. Preserve equivalent spelling/no-op bytes, BOM/EOL and ordinary DOM writer/save-stamp behavior. Existing raw set-mood-color parser/domain/writer unchanged.",
+    "formats": "JSON includes selected raw identity, output/index, before/after, RGB bytes, rounded percent, type_tag, stored capability and changed; table/CSV, quiet/no-header, room/save-as. No new dry-run support: existing fail-closed policy remains.",
+    "native_validation": "Fixture recommendation in source artifact; VM122 case9 mask7/tag6 widget is a lead only. No accepted RGB GUI run or aggregate native/runtime/family promotion. Native validation proceeds independently.",
+    "tests": "src/config_edit/lighting_tests.rs: lighting_rgb_*; tests/lighting_rgb_cli.rs; existing raw contract regressions remain unmodified.",
+    "limits": "Final COLORREF-to-selected-Qn source branch, not arbitrary native text/HSV/brightness gesture equivalence, graph-dependent pre-modal refresh, complete dialog editability, dynamic-white/sequence editing, full color-tag support or whole-dialog normalization. WM_COMMAND sender/control-ID/index correlation is source-visible; the static MFC message-map entry is not present in the canonical C bodies and is not guessed."
+  },
   "numeric_mood_level_edit": {
     "command": "lox config lighting set-mood-level FILE BLOCK --mood SID_OR_NAME --output-index N --level 0..100 [--room ROOM] [--save-as PATH]",
     "source_artifact": "tests/ux/light-controller2/numeric-mood-level-source.json",

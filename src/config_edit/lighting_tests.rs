@@ -1,6 +1,261 @@
 use super::ConfigEditor;
 use super::lighting::LightingEditorKind;
 
+const RGB_XML: &str = r#"<?xml version="1.0" encoding="utf-8"?>
+<ControlList>
+  <C Type="LightController2" U="lighting" Title="Lamp" CapAI0="0" CapAI1="7" Future="keep">
+    <LightscenesC Num="2" Outputs="00018" Future="opaque">
+      <LightsceneC Name="First" UUID="first" SID="2" CID="9" Outputs="18" Q1="1879048233" Q2="37"><SeqConf Future="keep"/></LightsceneC>
+      <Unknown Num="81"/>
+      <LightsceneC Name="Second" UUID="second" SID="+0003" CID="10" Outputs="18" Q1="opaque" Q2="1610622736" Q10="-1" MixMod="true" SkipNext="true" Future="retain"/>
+    </LightscenesC>
+    <LSConfig OpM="opaque" ScMv="future"/><HCL T="2" FROM="0"/><Unknown Future="retain"/>
+  </C>
+</ControlList>
+"#;
+
+#[test]
+fn lighting_rgb_selected_nonfirst_mood_rounds_bytes_and_preserves_every_other_dom_field() {
+    for (rgb, percent, after) in [
+        ([255, 0, 0], [100, 0, 0], "1610612836"),
+        ([0, 255, 0], [0, 100, 0], "1610712736"),
+        ([0, 0, 255], [0, 0, 100], "1710612736"),
+        ([1, 127, 254], [0, 50, 100], "1710662736"),
+        ([2, 128, 253], [1, 50, 99], "1709662737"),
+        ([255, 255, 255], [100, 100, 100], "1710712836"),
+    ] {
+        let xml = format!("\u{feff}{}", RGB_XML.replace('\n', "\r\n"));
+        let mut editor = ConfigEditor::load(xml.as_bytes()).unwrap();
+        let edit = editor
+            .set_lighting_mood_rgb("uuid:lighting", "Second", 2, rgb)
+            .unwrap();
+        assert_eq!(edit.after, after);
+        assert_eq!(edit.percent, percent);
+        assert_eq!(edit.selected_mood.sid.as_deref(), Some("+0003"));
+        assert_eq!(edit.selected_mood.uuid.as_deref(), Some("second"));
+        assert_eq!(edit.capability.effective, Some(7));
+        let expected = xml.replace("Q2=\"1610622736\"", &format!("Q2=\"{after}\""));
+        assert_eq!(
+            editor.to_bytes().unwrap(),
+            ConfigEditor::load(expected.as_bytes())
+                .unwrap()
+                .to_bytes()
+                .unwrap()
+        );
+    }
+}
+
+#[test]
+fn lighting_rgb_quantized_zero_is_distinct_from_existing_stored_mode_and_raw_admission() {
+    for rgb in [[0, 0, 0], [1, 0, 0], [0, 1, 0], [0, 0, 1], [1, 1, 1]] {
+        let mut editor = ConfigEditor::load(RGB_XML.as_bytes()).unwrap();
+        let before = editor.to_bytes().unwrap();
+        let error = editor
+            .set_lighting_mood_rgb("uuid:lighting", "Second", 2, rgb)
+            .unwrap_err();
+        assert_eq!(
+            error
+                .downcast_ref::<super::schema::Diagnostic>()
+                .unwrap()
+                .code,
+            "unsupported_zero_rgb"
+        );
+        assert_eq!(editor.to_bytes().unwrap(), before);
+    }
+    for (rgb, after) in [
+        ([2, 0, 0], "1610612737"),
+        ([0, 2, 0], "1610613736"),
+        ([0, 0, 2], "1611612736"),
+        ([1, 1, 2], "1611612736"),
+    ] {
+        let mut editor = ConfigEditor::load(RGB_XML.as_bytes()).unwrap();
+        let edit = editor
+            .set_lighting_mood_rgb("uuid:lighting", "Second", 2, rgb)
+            .unwrap();
+        assert_eq!(edit.after, after);
+    }
+    let xml = RGB_XML.replace("Q2=\"1610622736\"", "Q2=\"1610612736\"");
+    let mut editor = ConfigEditor::load(xml.as_bytes()).unwrap();
+    let before = editor.to_bytes().unwrap();
+    let error = editor
+        .set_lighting_mood_rgb("uuid:lighting", "Second", 2, [255, 0, 0])
+        .unwrap_err();
+    assert_eq!(
+        error
+            .downcast_ref::<super::schema::Diagnostic>()
+            .unwrap()
+            .code,
+        "unsupported_rgb_mood_payload"
+    );
+    assert_eq!(editor.to_bytes().unwrap(), before);
+    editor
+        .set_mood_color("uuid:lighting", "Second", 2, 0)
+        .unwrap();
+    assert_eq!(
+        editor.to_bytes().unwrap(),
+        ConfigEditor::load(xml.replace("Q2=\"1610612736\"", "Q2=\"0\"").as_bytes())
+            .unwrap()
+            .to_bytes()
+            .unwrap()
+    );
+}
+
+#[test]
+fn lighting_rgb_rejects_other_modes_identity_shape_width_and_range_atomically() {
+    let mut cases = vec![
+        (RGB_XML.into(), 0, [255, 0, 0]),
+        (RGB_XML.into(), 19, [255, 0, 0]),
+        (RGB_XML.into(), 2, [256, 0, 0]),
+        (RGB_XML.into(), 2, [0, u32::MAX, 0]),
+        (RGB_XML.into(), 2, [0, 0, 0]),
+        (RGB_XML.into(), 2, [1, 1, 1]),
+        (
+            RGB_XML.replace("Outputs=\"18\"", "Outputs=\"1\""),
+            2,
+            [255, 0, 0],
+        ),
+        (
+            RGB_XML.replace("Outputs=\"18\"", "Outputs=\"bad\""),
+            2,
+            [255, 0, 0],
+        ),
+        (RGB_XML.replace("Num=\"2\"", "Num=\"1\""), 2, [255, 0, 0]),
+        (RGB_XML.replace("Num=\"2\"", "Num=\"3\""), 2, [255, 0, 0]),
+        (RGB_XML.replace(" Num=\"2\"", ""), 2, [255, 0, 0]),
+        (
+            RGB_XML.replace("SID=\"+0003\"", "SID=\"778\""),
+            2,
+            [255, 0, 0],
+        ),
+        (RGB_XML.replace("SID=\"2\"", "SID=\"03\""), 2, [255, 0, 0]),
+        (
+            RGB_XML.replace("SID=\"2\"", "SID=\"opaque\""),
+            2,
+            [255, 0, 0],
+        ),
+        (RGB_XML.replace(" SID=\"+0003\"", ""), 2, [255, 0, 0]),
+        (
+            RGB_XML.replace("Name=\"First\"", "Name=\"Second\""),
+            2,
+            [255, 0, 0],
+        ),
+        (
+            RGB_XML.replace("</C>", "<LightscenesC/></C>"),
+            2,
+            [255, 0, 0],
+        ),
+        (
+            RGB_XML
+                .replace("<LightscenesC ", "<Wrapper><LightscenesC ")
+                .replace("</LightscenesC>", "</LightscenesC></Wrapper>"),
+            2,
+            [255, 0, 0],
+        ),
+    ];
+    for capability in [
+        "", "0", "6", "32", "39", "64", "71", "65536", "-1", "opaque",
+    ] {
+        let attribute = if capability.is_empty() {
+            String::new()
+        } else {
+            format!("CapAI1=\"{capability}\"")
+        };
+        cases.push((RGB_XML.replace("CapAI1=\"7\"", &attribute), 2, [255, 0, 0]));
+    }
+    for value in [
+        "0",
+        "268435465",
+        "1879048233",
+        "1073751824",
+        "1342187280",
+        "-1879038192",
+        "1610612736",
+        "1810615436",
+        "1610612837",
+        "1610713736",
+        "1711612736",
+        "2147483648",
+        "opaque",
+    ] {
+        cases.push((
+            RGB_XML.replace("Q2=\"1610622736\"", &format!("Q2=\"{value}\"")),
+            2,
+            [255, 0, 0],
+        ));
+    }
+    for attribute in [
+        "Locked=\"true\"",
+        "ReadOnly=\"true\"",
+        "Sequencing=\"true\"",
+        "ReadOnly=\"opaque\"",
+    ] {
+        cases.push((
+            RGB_XML.replace("UUID=\"second\"", &format!("UUID=\"second\" {attribute}")),
+            2,
+            [255, 0, 0],
+        ));
+    }
+    cases.push((
+        RGB_XML.replace(
+            "SkipNext=\"true\" Future=\"retain\"/>",
+            "SkipNext=\"true\" Future=\"retain\"><SeqConf/></LightsceneC>",
+        ),
+        2,
+        [255, 0, 0],
+    ));
+    cases.push((RGB_XML.replace(" Q2=\"1610622736\"", ""), 2, [255, 0, 0]));
+    for (xml, output, rgb) in cases {
+        let mut editor = ConfigEditor::load(xml.as_bytes()).unwrap();
+        let before = editor.to_bytes().unwrap();
+        assert!(
+            editor
+                .set_lighting_mood_rgb("uuid:lighting", "Second", output, rgb)
+                .is_err(),
+            "{xml} / {output} / {rgb:?}"
+        );
+        assert_eq!(editor.to_bytes().unwrap(), before);
+    }
+}
+
+#[test]
+fn lighting_rgb_noop_retains_numeric_spelling_and_native_default_width_is_not_inferred_from_qn() {
+    let xml = RGB_XML
+        .replace("CapAI1=\"7\"", "CapAI1=\"+0007\"")
+        .replace("Outputs=\"18\"", "Outputs=\"0\"")
+        .replace("Q2=\"1610622736\"", "Q2=\"+01610622736\"");
+    let mut editor = ConfigEditor::load(xml.as_bytes()).unwrap();
+    let before = editor.to_bytes().unwrap();
+    let edit = editor
+        .set_lighting_mood_rgb("uuid:lighting", "+0003", 2, [0, 26, 0])
+        .unwrap();
+    assert!(!edit.changed);
+    assert_eq!(edit.after, "+01610622736");
+    assert_eq!(editor.to_bytes().unwrap(), before);
+    let xml = xml
+        .replace("CapAI1=\"+0007\"", "CapAI17=\"7\"")
+        .replace("Q2=\"+01610622736\"", "Q18=\"1610622736\"");
+    let mut editor = ConfigEditor::load(xml.as_bytes()).unwrap();
+    let before = editor.to_bytes().unwrap();
+    assert!(
+        editor
+            .set_lighting_mood_rgb("uuid:lighting", "Second", 18, [255, 0, 0])
+            .is_err()
+    );
+    assert_eq!(editor.to_bytes().unwrap(), before);
+    for width in ["Outputs=\"18\"", "Outputs=\"0\"", ""] {
+        let output = if width == "Outputs=\"18\"" { 18 } else { 12 };
+        let xml = RGB_XML
+            .replace("Outputs=\"18\"", width)
+            .replace("CapAI1=\"7\"", &format!("CapAI{}=\"7\"", output - 1))
+            .replace("Q2=\"1610622736\"", &format!("Q{output}=\"1610622736\""));
+        let mut editor = ConfigEditor::load(xml.as_bytes()).unwrap();
+        let edit = editor
+            .set_lighting_mood_rgb("uuid:lighting", "Second", output, [255, 0, 0])
+            .unwrap();
+        assert_eq!(edit.after, "1610612836");
+    }
+}
+
 const FIXTURE: &[u8] = include_bytes!("../../tests/ux/light-controller2/synthetic.Loxone");
 
 const LEVEL_XML: &str = r#"<ControlList><C Type="LightController2" U="lighting" Title="Lamp" CapAI0="7">
