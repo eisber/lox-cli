@@ -95,6 +95,14 @@
     "scalar_encoding": "Native0x1400e6460 stores (oldQ & 0xf0000000) | clamp(level,0,100). CLI accepts only integers0..100 and never clamps. Existing packed-color storage editing is separate and unchanged.",
     "validation": "Require exact LightController2, one direct collection and one unambiguous direct mood, supported existing signed-32-bit Qn within its stored reader width, output index1..18 for this path, and a supported numeric branch. Needed explicit CapAI must be a nonnegative16-bit decimal; no truncation/defaulting of unsupported stored values. All validation precedes mutation/file writes.",
     "preservation": "Change only requested Qn; retain its tag, every other output, IDs/order, widths/counts, HCL, capabilities, sequences, references and unknown data. Preserve equivalent spelling/no-op bytes. Existing writer formatting and Document stamps retain normal behavior.",
+    "qualified_native_observation": {
+      "case_id": "lox-t5t3.10",
+      "artifact": "tests/ux/light-controller2/numeric-level37-qualified-20261112.json",
+      "sha256": "1a8b2262ad245f5157d24165842380e39adaa0821f074f3e0db3335393d11805",
+      "result": "Exactly original VM122 tag6 numeric-capability Q2, controller2f7e37d4-18cb-0ba8-ffff741afa8d2a84/mood59fc4d58-9165-35fc-ffff741afa8d2a84/SID1/CID12: actual native37+blur+OK, official CtrlS, acknowledged normal exit with retained-handle exit0, fresh-process actual37 readback, inspection Cancel without edit/resave and final normal exit0. Raw1610622736 became1610612773=1610612736+37; saved/reopened/final141186 bytes identical. All17 qualifying input gates independently verified.",
+      "collateral_boundary": "Selected-operation acceptance/persistence, NOT selected-only native mutation. Full raw collateral retained: original-to-native99 start tags/104 attributes, CLI-expected-to-native103 attributes; Q1 1640612766->1610612836, HCL T2->4/TMIN2000->2700/FROM0->24115/TO0->67570,94Title/2WF and Date/DateS changes. All1318 ordered node IDs/child order stable; noNumchange. No ignore lists, normalization or whole-file equality.",
+      "capability_policy": "No aggregate GUI/family/SPS/runtime, physical actuation, general-channel, numeric0, color-edit, historical normalization or other-case/Notebook credit. Physical delivery timing uninstrumented; no unconditional8real-host-seconds claim. Failed old source/phases/capacity overruns remain uncredited; historical artifacts and frozen CLI unchanged."
+    },
     "tests": "src/config_edit/lighting_tests.rs and tests/lighting_source_capability.rs: lighting_numeric_level_*",
     "limits": "Not graph-dependent pre-modal refresh prediction, complete dialog editability/permissions, Num-limited import, special-scene normalization, color/dynamic-white/sequence edits, physical channel mapping or runtime/family parity."
   },
