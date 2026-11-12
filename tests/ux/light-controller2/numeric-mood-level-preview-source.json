@@ -1,0 +1,58 @@
+{
+  "schema_version": 1,
+  "issue": "lox-5zob",
+  "named_question": "Can the already supported selected numeric set-mood-level edit be previewed with identical ordered guards and encoding, without mutation or save?",
+  "frozen_target": {
+    "version": "17.2.10.21",
+    "architecture": "AMD64",
+    "pe_sha256": "7b55e3ef18401574ab967c5c6a0140cd5a66dc728521ebba04ad53093577d8b3",
+    "installation_sha256": "a3003005776b327f5e666a072a64f5c569182b86174c0f578d5be3267ce28f85",
+    "analysis_id": "6a0520329af17d7b9fdaafe69398c62c454d9da838fc9f9c8d0bdd8d17bb15ae",
+    "new_extractions": 0
+  },
+  "existing_source_basis": [
+    {"artifact": "tests/ux/light-controller2/numeric-mood-level-source.json", "sha256": "6626d2876679e4615ccf0242feb055f840ca4dd76828eea176b07e5fe4b89c1b", "relationship": "The existing numeric writer, selected stored editor-kind classification, width, scalar encoding and no-op rules define the unchanged transaction. Historical native observations are not new preview approval or a substituted test oracle."},
+    {"artifact": "tests/ux/light-controller2/mood-display-name-preview-source.json", "sha256": "50a0638e3b0ba96e293de514b1058705106750a9617247d90c1747d4e78623b5", "relationship": "Reuse immutable-plan, early-return, presence-aware output and fail-closed dispatch conventions only. No SName normalization, metadata guards or identity transactions are imported."}
+  ],
+  "canonical_sources": [
+    {"address": "0x1400e4d60", "sha256": "b36a97c9b7f6526fff278d633605272c1b3f670db30d00248e4b4f6e5f9ca331", "relationship": "Selected-mood tag and needed capability choose the per-mood editor. The preview does not predict native displayed/clamped values."},
+    {"address": "0x1400e6460", "sha256": "e3bbb93c4599b98a3d7a5986dcf68dd17facb3a53f319f2bc296af1c8c7eea7d", "relationship": "Existing numeric handler preserves the high nibble and replaces the low payload. CLI admission remains integers0..100 without clamping."},
+    {"address": "0x1405c03d0", "sha256": "7b96e6ec3756fefde00071f298efe24c159236f8e77e3a4de464be33e2b96dc7", "relationship": "Selected channel capability is the existing zero-based CapAI binding."},
+    {"address": "0x1405c9740", "sha256": "4fca9e47230208412c4b3091206385beb40d7a68da0571ce59eac9146949fd50", "relationship": "Existing capability storage binding and reader default are unchanged."},
+    {"address": "0x1404c52f0", "sha256": "057c5670bc1b4a95f3b6ae5720f34f057330ba62605c4d0211ac7565de681262", "relationship": "Existing omission/default source basis, not new default insertion."},
+    {"address": "0x140422760", "sha256": "361f5c3173c2b395766f14baa7a142bc2c1f734f9c04c21be691eb3169ff591d", "relationship": "Inherited integer conversion basis; no new lexical admission or encoding interpretation."},
+    {"address": "0x1405b55b0", "sha256": "bea66fdd9dc31bc810ff6e4cd3785fa7cd598688506ef81204e28659397d82c0", "relationship": "Inherited selected output tag access."},
+    {"address": "0x1405b5620", "sha256": "8331855d1ec484700e52062dac29307147b69bef574f90a2785cbeb3aa7981c1", "relationship": "Inherited selected low scalar payload access."},
+    {"address": "0x1405c1870", "sha256": "4a093bb689229a9a7abfd8bb2664dbd9a55238b680b3103724ab0a4d5c776420", "relationship": "Separate first-scene/global helper is not substituted for selected-mood dispatch."},
+    {"address": "0x1405b55e0", "sha256": "980bb9f2bb6712c1ca44e9c172e7a22b2d4957031450fe0f2bf1fec24fb93494", "relationship": "Inherited distinction between first-scene and selected-scene tags."},
+    {"address": "0x1400e6590", "sha256": "4d8065c701c812258c0b8a1fb407c731bb25490c686fb22b031a8de9a6c84ff0", "relationship": "Separate color handler remains outside this numeric operation and preview."},
+    {"address": "0x14043ab40", "sha256": "6177348a839e915bd33a19ade1245b133c9611367dc45398a6963358080206b6", "relationship": "Inherited packed-color distinction only; no color decoding or new mode-aware color editing."},
+    {"address": "0x14043ae60", "sha256": "e391ad0f8b5f95dad9ba7089269d74dff08a8d7b5c942c6531a690622f308487", "relationship": "Inherited color distinction only, not a scalar interpretation rule."}
+  ],
+  "source_verification": "All13 existing numeric canonical hashes, both reused public artifact hashes and frozen decompile-index hash129c5d4e8683dd3c9c4a44622681f8d8bb76fe58c72d0b834a2c7bb76415cf40 verified locally. Relevant existing bodies read without new extraction. Static-byte pins remain inherited, not newly extracted or promoted. No vendor text or private project data is included.",
+  "CLI_policy": {
+    "command": "lox config lighting set-mood-level FILE BLOCK --mood SID_OR_NAME --output-index N --level 0..100 --dry-run [--room ROOM] [--save-as PATH]",
+    "architecture": "One private immutable LightingMoodLevelPlan holds the selected path and LightingMoodLevelPreview wrapping the unchanged LightingMoodLevelEdit. ConfigEditor::preview_lighting_mood_level(&self, selector, mood_ref, output, level) and existing set_lighting_mood_level(&mut self, selector, mood_ref, output, level) share it. No cloned XML, writer-then-discard, diff simulation or generic framework.",
+    "ordered_admission": "Existing CLI flag/room guards remain. Planner checks level0..100, output1..18, existing block resolution, exact LightController2, exactly one direct LightscenesC and one direct mood matching exact stored SID spelling or case-sensitive Name; then existing scene reader width, stored selected Qn, signed32 decimal parsing, selected output within width, and unchanged numeric_mood_capability guards. Needed tag6 CapAI is parsed as existing u16; missing uses existing effective0 without writing. Tags1/2/3/7 do not consult capability. Unsupported tags/color/modes, widths, stored values, capabilities and ambiguous/missing selection keep identical errors and order.",
+    "no_new_admission": "No clamping, RGB reinterpretation, new channel modes/cohorts/ranges, identity parsing/uniqueness/positivity, Num/boolean/role/permission guard, repair, output synthesis, width resizing or defaults. Opaque/unneeded metadata, missing/raw identities and numerically equivalent siblings retain the writer's existing selection admission. set-mood-color stays raw packed editing and remains unsupported under global dry-run; classifiers and inspection are unchanged.",
+    "encoding_and_noop": "Keep (stored signed32 Qn & high-nibble mask) | requested level. Stored type tag and existing signed/plus/zero-padded decimal rules are unchanged. Compare encoded integer to stored integer; a no-op preserves exact original lexical representation. A change retains the existing encoded decimal result.",
+    "report": "JSON preserves every writer field and adds selected_mood raw UUID/SID/CID, output_index, editor_kind numeric, before_effective and after_effective scalar payloads, dry_run=true and optional trace_id. Effective values mean low28 stored scalar payload only, not native displayed/clamped level, RGB decoding, physical brightness or loaded graph state. Existing payloads above100 are shown unchanged, never clamped. Dedicated table/CSV show raw/effective before-after and actual classification/tag/capability even on no-op. CSV carries identity/capability presence and consulted flags; unneeded capability is not interpreted. Quiet hides only table summary, no-header only headers; writer output/CSV order are unchanged.",
+    "read_only": "Only this command is newly admitted to global dry-run. Return before editor mutation/save on success, no-op or failure and input/existing/new missing-directory save-as. No source/destination/default/stamp/directory/cache/telemetry writes, writability checks or serialization/write-success predictions.",
+    "preservation": "Existing writer signature, report, save/stamp and no-op semantics remain unchanged. Actual changes still write only selected Qn. Every other Qn, raw identity/flag/name lexeme, Outputs/Num/order, capabilities, sequences, LSConfig, HCL, references and unknown data retain existing admission/preservation. BOM/CRLF and source/destination bytes are preserved by preview.",
+    "failure": "Identical existing explicit diagnostics, never empty success. All unrelated unsupported mutations remain fail-closed."
+  },
+  "regressions": {
+    "unit": "lighting_numeric_level_preview_is_immutable_and_matches_boundary_noop_and_selected_only_writes plus extended existing ordered rejection test: numeric tags, endpoints, Q1/Q18, needed/unneeded/omitted capability, high prior payload, raw no-op, uninterpreted identity/flags, immutable BOM/CRLF and writer/report/selected-only XML parity.",
+    "CLI": "Three lighting_numeric_level_cli_dry_run tests: all source/destination forms, exact BOM/CRLF byte preservation, unchanged writer/report parity, boundary/no-op encoding, JSON/table/CSV, quiet/no-header/trace-id and identical ordered failures including ambiguity/room conflicts.",
+    "side_effects": "tests/dry_run.rs telemetry-enabled local mock snapshot compares bytes and metadata for input/output/config/cache/token/home/directory across success/no-op/failure and all destination forms, with zero backend hits.",
+    "dispatch": "Exact allowlist newly admits SetMoodLevel only. Existing previews, metadata/classifier/numeric/color regressions remain covered, including fail-closed raw set-mood-color and recount-moods."
+  },
+  "native_validation": {
+    "status": "not-run-source-only",
+    "new_native_cases": 0,
+    "gui_roundtrip_verified": false,
+    "runtime_parity": false,
+    "full_family_contract": false,
+    "limits": "Read-only source-backed preview of one already supported stored selected-Qn operation only. No native approval, GUI Cancel/dialog refresh, graph-dependent pre-modal capability/tag rewrite, full-dialog serialization/final-save/write-success prediction, live role/permission/physical channel claim, SPS/runtime/family or whole-file parity. Original independent Notebook/VM122 numeric cases, frozen CLI and historical evidence are untouched."
+  }
+}

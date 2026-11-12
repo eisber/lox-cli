@@ -6,7 +6,8 @@ Global flags: `--json` (shorthand for `--output json`), `-o`/`--output json|csv|
 
 `--dry-run` never writes local files or live state, uploads configurations, reloads,
 or reboots, even with `--force`, `--write`, or `--save-as`. Existing safe planners
-are available for `config energy` edits, `config lighting set-mood-cid`, and
+are available for `config energy` edits, supported `config lighting` mood edits
+(including `set-mood-level`), and
 `stats download`; audited read-only
 commands retain their normal output and may make read-only network requests.
 Other commands fail before dispatch with “dry-run not supported” (exit 1;
@@ -282,6 +283,7 @@ lox config lighting inspect-mood-references file.Loxone "Lighting" --mood "Eveni
 lox config lighting recount-moods file.Loxone "Lighting" --save-as edited.Loxone
 lox config lighting recount-moods file.Loxone "Lighting" --room "Study" --output json
 lox config lighting set-mood-level file.Loxone "Lighting" --mood "Evening" --output-index 2 --level 37 --save-as edited.Loxone
+lox config lighting set-mood-level file.Loxone "Lighting" --mood "Evening" --output-index 2 --level 37 --dry-run --output json
 lox config lighting set-mood-cid file.Loxone "Lighting" --mood "Evening" --cid 13 --save-as rebound.Loxone
 lox config lighting set-mood-cid file.Loxone "Lighting" --mood "Evening" --cid 22 --dry-run --output json
 lox config lighting set-mood-sid file.Loxone "Lighting" --mood "Evening" --sid 2 --swap --save-as exchanged.Loxone
@@ -367,6 +369,33 @@ must be nonnegative 16-bit decimals; unsupported values are not truncated.
 Color, switch and unresolved modes are rejected by this command.
 These are stored editor-kind checks, not inferred actuator roles or a simulation
 of graph-dependent pre-modal capability/type refresh.
+
+Global `--dry-run` previews **only this already supported numeric edit** with
+the same ordered validation and one immutable plan shared with the existing
+writer. JSON retains the normal writer fields (`mood`, `output`, raw `before`/
+`after`, `level`, `type_tag`, needed `capability`, `changed`) and adds
+`selected_mood` (actual raw UUID/SID/CID), `output_index`, `editor_kind`,
+`before_effective`, `after_effective`, `dry_run: true` and optional `trace_id`.
+The effective values are the selected stored **low-28-bit scalar payloads**,
+not native displayed/clamped levels, RGB decoding or physical brightness.
+Even an existing payload above 100 is reported without clamping; only the
+requested replacement must be in `0..100`. Equivalent no-op decimal spellings
+remain visible and unchanged.
+
+Dedicated table/CSV show the selected raw identity, Qn/index, numeric
+classification, raw and effective before/after, preserved tag and consulted
+capability. CSV includes presence/consulted fields to distinguish omission from
+unneeded capability. Quiet suppresses only the table summary; no-header
+suppresses only headers. Normal writer output is unchanged.
+
+Preview returns before mutation or save, including no-op, failures, and
+`--save-as` pointing to the input, an existing output or a new missing directory.
+It performs no source/destination/default/stamp/directory/cache/telemetry writes,
+destination-writability checks or serialization/write-success predictions.
+It adds no numeric/tag/capability/width/identity admission, repair or defaults.
+`set-mood-color` stays a separate raw packed edit and remains unsupported under
+global dry-run; other unplanned commands still fail closed. This source-only
+preview adds no native, SPS/runtime, family or whole-file parity credit.
 
 One accepted native numeric edit of Q2 to 37 saved `1610612773`
 (`0x60000000 | 37`) and reopened as 37; the new CLI command produces that same

@@ -6,6 +6,7 @@ use anyhow::Result;
 use serde::Serialize;
 use xmltree::{Element, XMLNode};
 
+use super::lighting_metadata::LightingMoodIdentity;
 use super::schema::{Diagnostic, StoredValue};
 use super::{ConfigEditor, MoodInfo};
 
@@ -83,6 +84,22 @@ pub struct LightingMoodLevelEdit {
 }
 
 #[derive(Debug, Serialize)]
+pub struct LightingMoodLevelPreview {
+    #[serde(flatten)]
+    pub edit: LightingMoodLevelEdit,
+    pub selected_mood: LightingMoodIdentity,
+    pub output_index: usize,
+    pub editor_kind: LightingEditorKind,
+    pub before_effective: i32,
+    pub after_effective: u8,
+}
+
+struct LightingMoodLevelPlan {
+    path: Vec<usize>,
+    preview: LightingMoodLevelPreview,
+}
+
+#[derive(Debug, Serialize)]
 pub struct LightingWireTarget {
     pub block_uuid: Option<String>,
     pub block_type: Option<String>,
@@ -128,6 +145,36 @@ impl ConfigEditor {
         output: usize,
         level: u32,
     ) -> Result<LightingMoodLevelEdit> {
+        let plan = self.plan_lighting_mood_level(selector, mood_ref, output, level)?;
+        let edit = plan.preview.edit;
+        if edit.changed {
+            self.get_element_mut(&plan.path)
+                .attributes
+                .insert(edit.output.clone(), edit.after.clone());
+        }
+        Ok(edit)
+    }
+
+    /// Preview only the existing numeric edit; effective values are scalar payloads, not UI projections.
+    pub fn preview_lighting_mood_level(
+        &self,
+        selector: &str,
+        mood_ref: &str,
+        output: usize,
+        level: u32,
+    ) -> Result<LightingMoodLevelPreview> {
+        Ok(self
+            .plan_lighting_mood_level(selector, mood_ref, output, level)?
+            .preview)
+    }
+
+    fn plan_lighting_mood_level(
+        &self,
+        selector: &str,
+        mood_ref: &str,
+        output: usize,
+        level: u32,
+    ) -> Result<LightingMoodLevelPlan> {
         let level = u8::try_from(level)
             .ok()
             .filter(|level| *level <= 100)
@@ -234,26 +281,32 @@ impl ConfigEditor {
         } else {
             before.clone()
         };
-        let collection_index = *collection_index;
-        let mood_index = *mood_index;
-        if changed {
-            let mood = self.get_element_mut(&path).children[collection_index]
-                .as_mut_element()
-                .unwrap()
-                .children[mood_index]
-                .as_mut_element()
-                .unwrap();
-            mood.attributes.insert(key.clone(), after.clone());
-        }
-        Ok(LightingMoodLevelEdit {
-            mood: mood_ref.into(),
-            output: key,
-            before,
-            after,
-            level,
-            type_tag,
-            capability,
-            changed,
+        let selected_mood = LightingMoodIdentity {
+            uuid: mood.attributes.get("UUID").cloned(),
+            sid: mood.attributes.get("SID").cloned(),
+            cid: mood.attributes.get("CID").cloned(),
+        };
+        let mut path = path;
+        path.extend([*collection_index, *mood_index]);
+        Ok(LightingMoodLevelPlan {
+            path,
+            preview: LightingMoodLevelPreview {
+                edit: LightingMoodLevelEdit {
+                    mood: mood_ref.into(),
+                    output: key,
+                    before,
+                    after,
+                    level,
+                    type_tag,
+                    capability,
+                    changed,
+                },
+                selected_mood,
+                output_index: output,
+                editor_kind: LightingEditorKind::Numeric,
+                before_effective: stored & 0x0fff_ffff,
+                after_effective: level,
+            },
         })
     }
 

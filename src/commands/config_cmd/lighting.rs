@@ -3,6 +3,7 @@ use clap::{Args, Subcommand};
 
 use crate::commands::RunContext;
 use crate::config_edit::ConfigEditor;
+use crate::config_edit::lighting::LightingMoodLevelPreview;
 use crate::config_edit::lighting_cid::{
     LightingIdentityChange, LightingSelectionEdit, LightingSidRemap,
 };
@@ -69,7 +70,7 @@ pub(crate) enum LightingCmd {
         #[arg(long, value_name = "PATH")]
         save_as: Option<String>,
     },
-    /// Set a numeric mood level, preserving its type tag; reject other editor kinds
+    /// Set a numeric mood level, preserving its type tag; --dry-run previews without saving
     SetMoodLevel {
         #[command(flatten)]
         target: LightingTarget,
@@ -427,6 +428,81 @@ fn print_display_name_preview(ctx: &RunContext, preview: &LightingMoodDisplayNam
         );
         if !ctx.quiet {
             println!("\n1 mood; selected SName only; dry-run wrote no files");
+        }
+    }
+}
+
+fn print_level_preview(ctx: &RunContext, preview: &LightingMoodLevelPreview) {
+    let edit = &preview.edit;
+    let capability = edit.capability.as_ref();
+    let raw = capability.and_then(|value| value.stored.as_deref());
+    let effective = capability.and_then(|value| value.effective);
+    if ctx.csv {
+        if !ctx.no_header {
+            println!(
+                "MOOD,MOOD_UUID_PRESENT,MOOD_UUID,SID_PRESENT,SID,CID_PRESENT,CID,OUTPUT,OUTPUT_INDEX,EDITOR_KIND,BEFORE,AFTER,BEFORE_EFFECTIVE,AFTER_EFFECTIVE,LEVEL,TYPE_TAG,CAPABILITY_CONSULTED,CAPABILITY_PRESENT,CAPABILITY,CAPABILITY_EFFECTIVE,CHANGED"
+            );
+        }
+        println!(
+            "{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{}",
+            csv(&edit.mood),
+            preview.selected_mood.uuid.is_some(),
+            csv(preview.selected_mood.uuid.as_deref().unwrap_or("")),
+            preview.selected_mood.sid.is_some(),
+            csv(preview.selected_mood.sid.as_deref().unwrap_or("")),
+            preview.selected_mood.cid.is_some(),
+            csv(preview.selected_mood.cid.as_deref().unwrap_or("")),
+            edit.output,
+            preview.output_index,
+            preview.editor_kind.as_str(),
+            csv(&edit.before),
+            csv(&edit.after),
+            preview.before_effective,
+            preview.after_effective,
+            edit.level,
+            edit.type_tag,
+            capability.is_some(),
+            raw.is_some(),
+            csv(raw.unwrap_or("")),
+            effective.map(|value| value.to_string()).unwrap_or_default(),
+            edit.changed
+        );
+    } else {
+        if !ctx.no_header {
+            println!(
+                "MOOD_UUID  SID  CID (RAW)  OUTPUT/INDEX  EDITOR_KIND  STORED BEFORE→AFTER  SCALAR BEFORE→AFTER  TYPE_TAG  CAPABILITY RAW/EFFECTIVE  CHANGED"
+            );
+        }
+        let stored = |value: Option<&str>| {
+            value.map_or_else(|| "<absent>".to_owned(), |value| format!("{value:?}"))
+        };
+        let capability_text = if capability.is_some() {
+            format!(
+                "{}/{}",
+                stored(raw),
+                effective.map(|value| value.to_string()).unwrap_or_default()
+            )
+        } else {
+            "<not consulted>".to_owned()
+        };
+        println!(
+            "{}  {}  {}  {}/{}  {}  {:?}→{:?}  {}→{}  {}  {}  {}",
+            stored(preview.selected_mood.uuid.as_deref()),
+            stored(preview.selected_mood.sid.as_deref()),
+            stored(preview.selected_mood.cid.as_deref()),
+            edit.output,
+            preview.output_index,
+            preview.editor_kind.as_str(),
+            edit.before,
+            edit.after,
+            preview.before_effective,
+            preview.after_effective,
+            edit.type_tag,
+            capability_text,
+            edit.changed
+        );
+        if !ctx.quiet {
+            println!("\n1 mood; selected numeric Qn only; dry-run wrote no files");
         }
     }
 }
@@ -850,6 +926,21 @@ pub(crate) fn run(ctx: &RunContext, action: LightingCmd) -> Result<()> {
         } => {
             let selector = target.selector()?;
             let mut editor = ConfigEditor::load(&crate::load_config_xml(&target.file)?)?;
+            if ctx.dry_run {
+                let preview =
+                    editor.preview_lighting_mood_level(&selector, &mood, output_index, level)?;
+                if ctx.json {
+                    let mut value = serde_json::to_value(&preview)?;
+                    value["dry_run"] = true.into();
+                    if let Some(trace_id) = &ctx.trace_id {
+                        value["trace_id"] = trace_id.clone().into();
+                    }
+                    println!("{}", serde_json::to_string_pretty(&value)?);
+                } else {
+                    print_level_preview(ctx, &preview);
+                }
+                return Ok(());
+            }
             let edit = editor.set_lighting_mood_level(&selector, &mood, output_index, level)?;
             if edit.changed || save_as.is_some() {
                 super::save_edited_with_quiet(&mut editor, &target.file, save_as.as_deref(), true)?;

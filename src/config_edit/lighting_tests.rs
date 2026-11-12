@@ -279,6 +279,141 @@ fn lighting_numeric_level_uses_selected_tag_and_zero_based_capability_not_color_
 }
 
 #[test]
+fn lighting_numeric_level_preview_is_immutable_and_matches_boundary_noop_and_selected_only_writes()
+{
+    for (output, raw, capability, level, after, changed) in [
+        (1, "+00268435465", "opaque-unused", 0, "268435456", true),
+        (2, "536870921", "opaque-unused", 100, "536871012", true),
+        (2, "805306377", "opaque-unused", 37, "805306405", true),
+        (18, "1879048201", "opaque-unused", 100, "1879048292", true),
+        (2, "1610622736", "32", 0, "1610612736", true),
+        (2, "+01610612773", "+0006", 37, "+01610612773", false),
+        (2, "1610612736", "", 0, "1610612736", false),
+    ] {
+        let key = format!("Q{output}");
+        let xml = LEVEL_XML
+            .replace(
+                "CapAI0=\"7\"",
+                &format!(
+                    "{} {}",
+                    if output == 1 { "" } else { "CapAI0=\"7\"" },
+                    if capability.is_empty() {
+                        String::new()
+                    } else {
+                        format!("CapAI{}=\"{capability}\"", output - 1)
+                    }
+                ),
+            )
+            .replace(
+                "Name=\"First\" SID=\"2\" UUID=\"first\"",
+                "Name=\"First\" SID=\"+003\" UUID=\"first\" CID=\"future\" MixMod=\"opaque\" SkipNext=\"opaque\"",
+            );
+        let prior = match output {
+            1 => "Q1=\"1640612766\"",
+            18 => "Future=\"opaque\"",
+            _ => "Q2=\"1610622736\"",
+        };
+        let attr = if output == 18 {
+            format!("Future=\"opaque\" {key}=\"{raw}\"")
+        } else {
+            format!("{key}=\"{raw}\"")
+        };
+        let xml = format!(
+            "\u{feff}{}",
+            xml.replace(prior, &attr).replace('\n', "\r\n")
+        );
+        let editor = ConfigEditor::load(xml.as_bytes()).unwrap();
+        let before = editor.to_bytes().unwrap();
+        let preview = editor
+            .preview_lighting_mood_level("uuid:lighting", "First", output, level)
+            .unwrap();
+        assert_eq!(editor.to_bytes().unwrap(), before);
+        assert!(before.starts_with(&[0xef, 0xbb, 0xbf]));
+        assert!(
+            !String::from_utf8_lossy(&before)
+                .replace("\r\n", "")
+                .contains('\n')
+        );
+        assert_eq!(preview.selected_mood.sid.as_deref(), Some("+003"));
+        assert_eq!(preview.selected_mood.cid.as_deref(), Some("future"));
+        assert_eq!(preview.selected_mood.uuid.as_deref(), Some("first"));
+        assert_eq!(preview.output_index, output);
+        assert_eq!(preview.editor_kind, LightingEditorKind::Numeric);
+        assert_eq!(
+            preview.before_effective,
+            raw.parse::<i32>().unwrap() & 0x0fff_ffff
+        );
+        assert_eq!(u32::from(preview.after_effective), level);
+        assert_eq!(preview.edit.after, after);
+        assert_eq!(preview.edit.changed, changed);
+        let mut writer = ConfigEditor::load(xml.as_bytes()).unwrap();
+        let edit = writer
+            .set_lighting_mood_level("uuid:lighting", "First", output, level)
+            .unwrap();
+        assert_eq!(
+            serde_json::to_value(&preview.edit).unwrap(),
+            serde_json::to_value(&edit).unwrap()
+        );
+        let expected = xml.replacen(
+            &format!("{key}=\"{raw}\""),
+            &format!("{key}=\"{after}\""),
+            1,
+        );
+        assert_eq!(
+            writer.to_bytes().unwrap(),
+            ConfigEditor::load(expected.as_bytes())
+                .unwrap()
+                .to_bytes()
+                .unwrap()
+        );
+    }
+    for width in ["", "Outputs=\"+000\""] {
+        let xml = LEVEL_XML
+            .replace("Outputs=\"18\"", width)
+            .replace("SID=\"2\" UUID=\"first\"", "")
+            .replace(
+                "Q10=\"1610612736\"",
+                "Q10=\"1610612736\" Q12=\"1610612736\" Q13=\"1610612736\"",
+            );
+        let mut editor = ConfigEditor::load(xml.as_bytes()).unwrap();
+        let before = editor.to_bytes().unwrap();
+        let preview = editor
+            .preview_lighting_mood_level("uuid:lighting", "First", 12, 100)
+            .unwrap();
+        assert!(preview.selected_mood.uuid.is_none());
+        assert!(preview.selected_mood.sid.is_none());
+        assert!(preview.selected_mood.cid.is_none());
+        assert_eq!(preview.edit.after, "1610612836");
+        let error = editor
+            .preview_lighting_mood_level("uuid:lighting", "First", 13, 100)
+            .unwrap_err();
+        assert_eq!(
+            error
+                .downcast_ref::<super::schema::Diagnostic>()
+                .unwrap()
+                .code,
+            "unsupported_mood_output_width"
+        );
+        assert_eq!(editor.to_bytes().unwrap(), before);
+        let edit = editor
+            .set_lighting_mood_level("uuid:lighting", "First", 12, 100)
+            .unwrap();
+        assert_eq!(
+            serde_json::to_value(&preview.edit).unwrap(),
+            serde_json::to_value(&edit).unwrap()
+        );
+        let expected = xml.replace("Q12=\"1610612736\"", "Q12=\"1610612836\"");
+        assert_eq!(
+            editor.to_bytes().unwrap(),
+            ConfigEditor::load(expected.as_bytes())
+                .unwrap()
+                .to_bytes()
+                .unwrap()
+        );
+    }
+}
+
+#[test]
 fn lighting_numeric_level_rejects_unsupported_inputs_before_any_mutation() {
     let mut cases: Vec<(String, usize, u32)> = [
         ("CapAI1=\"7\"", "1610622736"),
@@ -323,17 +458,61 @@ fn lighting_numeric_level_rejects_unsupported_inputs_before_any_mutation() {
             37,
         ),
         (LEVEL_XML.replace("</C>", "<LightscenesC/></C>"), 2, 37),
+        (LEVEL_XML.replace("LightController2", "Switch"), 2, 37),
+        (LEVEL_XML.replace("Outputs=\"18\"", "Outputs=\"-1\""), 2, 37),
+        (
+            LEVEL_XML.replace("Outputs=\"18\"", "Outputs=\"2147483648\""),
+            2,
+            37,
+        ),
+        (LEVEL_XML.replace("Outputs=\"18\"", ""), 13, 37),
+        (
+            LEVEL_XML.replace("Name=\"First\"", "Name=\"Missing\""),
+            2,
+            37,
+        ),
+        (
+            LEVEL_XML.replace("Name=\"Second\" SID=\"3\"", "Name=\"First\" SID=\"2\""),
+            2,
+            37,
+        ),
     ]);
     for (xml, output, level) in cases {
         let mut editor = ConfigEditor::load(xml.as_bytes()).unwrap();
         let before = editor.to_bytes().unwrap();
-        assert!(
-            editor
-                .set_lighting_mood_level("uuid:lighting", "First", output, level)
-                .is_err(),
+        let preview_error = editor
+            .preview_lighting_mood_level("uuid:lighting", "First", output, level)
+            .unwrap_err();
+        assert_eq!(editor.to_bytes().unwrap(), before);
+        let writer_error = editor
+            .set_lighting_mood_level("uuid:lighting", "First", output, level)
+            .unwrap_err();
+        assert_eq!(
+            preview_error.to_string(),
+            writer_error.to_string(),
             "{xml}/{output}/{level}"
         );
+        assert_eq!(
+            preview_error.downcast_ref::<super::schema::Diagnostic>(),
+            writer_error.downcast_ref::<super::schema::Diagnostic>()
+        );
         assert_eq!(editor.to_bytes().unwrap(), before);
+    }
+    let editor = ConfigEditor::load(LEVEL_XML.as_bytes()).unwrap();
+    for (selector, output, level, code) in [
+        ("missing", 0, 101, "mood_level_out_of_range"),
+        ("missing", 0, 37, "unsupported_mood_output_index"),
+    ] {
+        let error = editor
+            .preview_lighting_mood_level(selector, "missing", output, level)
+            .unwrap_err();
+        assert_eq!(
+            error
+                .downcast_ref::<super::schema::Diagnostic>()
+                .unwrap()
+                .code,
+            code
+        );
     }
 }
 

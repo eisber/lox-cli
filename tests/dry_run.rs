@@ -157,6 +157,74 @@ fn lighting_mix_preview_has_no_filesystem_or_network_side_effects() {
 }
 
 #[test]
+fn lighting_numeric_level_preview_has_no_filesystem_or_network_side_effects() {
+    let sandbox = Sandbox::new();
+    let root = sandbox.dir.path();
+    let input = root.join("input.Loxone");
+    let backend = sandbox.server.mock(|when, then| {
+        when.any_request();
+        then.status(500);
+    });
+    for (raw, capability, level, success) in [
+        ("1610622736", "", "0", true),
+        ("1610622736", " CapAI1=\"+0032\"", "100", true),
+        ("+01610612773", " CapAI1=\"+0006\"", "37", true),
+        ("268435465", " CapAI1=\"opaque-unused\"", "37", true),
+        ("1610622736", " CapAI1=\"7\"", "37", false),
+        ("1610622736", " CapAI1=\"opaque\"", "37", false),
+        ("1610622736", "", "101", false),
+        ("future", "", "37", false),
+    ] {
+        fs::write(
+            &input,
+            format!("\u{feff}<ControlList>\r\n<C Type=\"Document\" U=\"doc\" Date=\"2025-01-01 00:00:00\" DateS=\"504921600\"/>\r\n<C Type=\"LightController2\" U=\"lighting\"{capability}><LightscenesC Num=\"opaque\"><LightsceneC Name=\"A\" SID=\"opaque\" CID=\"future\" MixMod=\"opaque\" SkipNext=\"opaque\" Outputs=\"18\" Q1=\"future\" Q2=\"{raw}\"/><LightsceneC Name=\"B\" Q2=\"-1\"/></LightscenesC><LSConfig OpM=\"opaque\" ScMv=\"opaque\"/><HCL T=\"2\"/></C>\r\n</ControlList>\r\n"),
+        ).unwrap();
+        for destination in [
+            None,
+            Some(input.clone()),
+            Some(root.join("output.Loxone")),
+            Some(root.join("missing").join("new.Loxone")),
+        ] {
+            let before = snapshot(root);
+            let mut cmd = sandbox.command(&["--dry-run", "--json"]);
+            cmd.args(["config", "lighting", "set-mood-level"])
+                .arg(&input)
+                .args([
+                    "uuid:lighting",
+                    "--mood",
+                    "A",
+                    "--output-index",
+                    "2",
+                    "--level",
+                    level,
+                ]);
+            if let Some(destination) = destination {
+                cmd.arg("--save-as").arg(destination);
+            }
+            let assertion = cmd.assert();
+            let assertion = if success {
+                assertion.success()
+            } else {
+                assertion.failure()
+            };
+            let result: Value = serde_json::from_slice(&assertion.get_output().stdout).unwrap();
+            if success {
+                assert_eq!(result["dry_run"], true);
+            } else {
+                assert_eq!(result["ok"], false);
+            }
+            let after = snapshot(root);
+            assert!(
+                after == before,
+                "Numeric level preview wrote local data: {}",
+                snapshot_difference(&before, &after)
+            );
+        }
+    }
+    backend.assert_hits(0);
+}
+
+#[test]
 fn lighting_display_name_preview_has_no_filesystem_or_network_side_effects() {
     let sandbox = Sandbox::new();
     let root = sandbox.dir.path();

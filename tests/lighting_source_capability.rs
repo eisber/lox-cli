@@ -147,6 +147,408 @@ fn lighting_editor_inspection_cli_table_csv_and_quiet_keep_kinds_and_raw_edit_li
 }
 
 #[test]
+fn lighting_numeric_level_cli_dry_run_matches_writer_and_preserves_every_destination() {
+    let dir = tempfile::Builder::new()
+        .prefix("level-preview-")
+        .tempdir_in(".")
+        .unwrap();
+    let input = dir.path().join("input.Loxone");
+    let output = dir.path().join("output.Loxone");
+    let missing = dir.path().join("missing").join("new.Loxone");
+    for (raw, capability, level, after, changed) in [
+        ("1610622736", "", "0", "1610612736", true),
+        ("1610622736", "+0032", "100", "1610612836", true),
+        ("+01610612773", "+0006", "37", "+01610612773", false),
+        ("536870921", "opaque-unused", "37", "536870949", true),
+    ] {
+        let xml = LEVEL_XML
+            .replace("Q2=\"1610622736\"", &format!("Q2=\"{raw}\""))
+            .replace(
+                "CapAI0=\"7\"",
+                &if capability.is_empty() {
+                    "CapAI0=\"7\"".to_owned()
+                } else {
+                    format!("CapAI0=\"7\" CapAI1=\"{capability}\"")
+                },
+            )
+            .replace(
+                "SID=\"1\" CID=\"12\"",
+                "SID=\"+0001\" CID=\"opaque\" MixMod=\"opaque\" SkipNext=\"future\" SName=\"alias\"",
+            );
+        let before = fixture_bytes(&xml);
+        fs::write(&input, &before).unwrap();
+        fs::write(&output, b"existing output").unwrap();
+        let mut preview = serde_json::Value::Null;
+        for destination in [None, Some(&input), Some(&output), Some(&missing)] {
+            let mut cmd = lox();
+            cmd.env("LOX_CONFIG", dir.path().join("absent.yaml"))
+                .args(["--dry-run", "config", "lighting", "set-mood-level"])
+                .arg(&input)
+                .args([
+                    "uuid:lighting",
+                    "--mood",
+                    "Evening",
+                    "--output-index",
+                    "2",
+                    "--level",
+                    level,
+                    "--json",
+                    "--quiet",
+                    "--trace-id",
+                    "level-preview",
+                ]);
+            if let Some(destination) = destination {
+                cmd.arg("--save-as").arg(destination);
+            }
+            let result = cmd
+                .assert()
+                .success()
+                .stderr("")
+                .get_output()
+                .stdout
+                .clone();
+            preview = serde_json::from_slice(&result).unwrap();
+            assert_eq!(preview["dry_run"], true);
+            assert_eq!(preview["trace_id"], "level-preview");
+            assert_eq!(preview["selected_mood"]["uuid"], "mood");
+            assert_eq!(preview["selected_mood"]["sid"], "+0001");
+            assert_eq!(preview["selected_mood"]["cid"], "opaque");
+            assert_eq!(preview["output"], "Q2");
+            assert_eq!(preview["output_index"], 2);
+            assert_eq!(preview["editor_kind"], "numeric");
+            assert_eq!(preview["before"], raw);
+            assert_eq!(preview["after"], after);
+            assert_eq!(
+                preview["before_effective"],
+                raw.parse::<i32>().unwrap() & 0x0fff_ffff
+            );
+            assert_eq!(preview["after_effective"], level.parse::<u8>().unwrap());
+            assert_eq!(preview["changed"], changed);
+            assert_eq!(fs::read(&input).unwrap(), before);
+            assert_eq!(fs::read(&output).unwrap(), b"existing output");
+            assert!(!missing.parent().unwrap().exists());
+            assert!(!dir.path().join("absent.yaml").exists());
+        }
+        let result = lox()
+            .args(["config", "lighting", "set-mood-level"])
+            .arg(&input)
+            .args([
+                "uuid:lighting",
+                "--mood",
+                "Evening",
+                "--output-index",
+                "2",
+                "--level",
+                level,
+                "--json",
+                "--quiet",
+                "--save-as",
+            ])
+            .arg(&output)
+            .assert()
+            .success()
+            .get_output()
+            .stdout
+            .clone();
+        for key in [
+            "dry_run",
+            "trace_id",
+            "selected_mood",
+            "output_index",
+            "editor_kind",
+            "before_effective",
+            "after_effective",
+        ] {
+            preview.as_object_mut().unwrap().remove(key);
+        }
+        assert_eq!(
+            preview,
+            serde_json::from_slice::<serde_json::Value>(&result).unwrap()
+        );
+        assert_eq!(
+            fs::read(&output).unwrap(),
+            fixture_bytes(&xml.replace(&format!("Q2=\"{raw}\""), &format!("Q2=\"{after}\"")))
+        );
+        assert_eq!(fs::read(&input).unwrap(), before);
+    }
+}
+
+#[test]
+fn lighting_numeric_level_cli_dry_run_noop_exposes_raw_scalar_and_classification_in_all_formats() {
+    let dir = tempfile::Builder::new()
+        .prefix("level-formats-")
+        .tempdir_in(".")
+        .unwrap();
+    let input = dir.path().join("input.Loxone");
+    let before = fixture_bytes(
+        &LEVEL_XML
+            .replace("Q2=\"1610622736\"", "Q2=\"+01610612773\"")
+            .replace("CapAI0=\"7\">", "CapAI0=\"7\" CapAI1=\"+0006\"><IoData Pr=\"room\"/>")
+            .replace("<ControlList>", "<ControlList><C Type=\"Place\" U=\"room\" Title=\"Kitchen\"/><C Type=\"And\" U=\"other\" Title=\"Lamp\"/>"),
+    );
+    fs::write(&input, &before).unwrap();
+    for format in ["table", "csv", "json"] {
+        for quiet in [false, true] {
+            for no_header in [false, true] {
+                let mut cmd = lox();
+                let selector = if quiet { "Lamp" } else { "Lamp [Kitchen]" };
+                cmd.args(["config", "lighting", "set-mood-level"])
+                    .arg(&input)
+                    .args([
+                        selector,
+                        "--mood",
+                        "1",
+                        "--output-index",
+                        "2",
+                        "--level",
+                        "37",
+                        "--dry-run",
+                        "-o",
+                        format,
+                        "--trace-id",
+                        "level-formats",
+                    ]);
+                if quiet {
+                    cmd.args(["--quiet", "--room", "Kitchen"]);
+                }
+                if no_header {
+                    cmd.arg("--no-header");
+                }
+                let result = cmd
+                    .assert()
+                    .success()
+                    .stderr("")
+                    .get_output()
+                    .stdout
+                    .clone();
+                let text = String::from_utf8(result).unwrap();
+                match format {
+                    "json" => {
+                        let value: serde_json::Value = serde_json::from_str(&text).unwrap();
+                        assert_eq!(value["trace_id"], "level-formats");
+                        assert_eq!(value["before"], "+01610612773");
+                        assert_eq!(value["after"], "+01610612773");
+                        assert_eq!(value["before_effective"], 37);
+                        assert_eq!(value["after_effective"], 37);
+                        assert_eq!(value["capability"]["stored"], "+0006");
+                        assert_eq!(value["capability"]["effective"], 6);
+                        assert_eq!(value["changed"], false);
+                    }
+                    "csv" => {
+                        assert_eq!(text.starts_with("MOOD,"), !no_header);
+                        assert_eq!(
+                            text.lines().last().unwrap(),
+                            "\"1\",true,\"mood\",true,\"1\",true,\"12\",Q2,2,numeric,\"+01610612773\",\"+01610612773\",37,37,37,6,true,true,\"+0006\",6,false"
+                        );
+                        assert!(!text.contains("dry-run wrote") && !text.contains("level-formats"));
+                    }
+                    _ => {
+                        assert_eq!(text.starts_with("MOOD_UUID"), !no_header);
+                        assert!(text.contains("Q2/2  numeric"));
+                        assert!(text.contains("\"+01610612773\"→\"+01610612773\""));
+                        assert!(text.contains("37→37  6  \"+0006\"/6  false"));
+                        assert_eq!(text.contains("dry-run wrote no files"), !quiet);
+                        assert!(!text.contains("level-formats"));
+                    }
+                }
+                assert_eq!(fs::read(&input).unwrap(), before);
+            }
+        }
+    }
+}
+
+#[test]
+fn lighting_numeric_level_cli_dry_run_and_writer_share_ordered_errors_without_writes() {
+    let dir = tempfile::Builder::new()
+        .prefix("level-errors-")
+        .tempdir_in(".")
+        .unwrap();
+    let input = dir.path().join("input.Loxone");
+    let output = dir.path().join("output.Loxone");
+    let missing = dir.path().join("missing").join("new.Loxone");
+    for (xml, selector, mood, index, level, code) in [
+        (
+            LEVEL_XML.to_owned(),
+            "missing",
+            "missing",
+            "0",
+            "101",
+            "mood_level_out_of_range",
+        ),
+        (
+            LEVEL_XML.to_owned(),
+            "missing",
+            "missing",
+            "0",
+            "37",
+            "unsupported_mood_output_index",
+        ),
+        (
+            LEVEL_XML.replace("LightController2", "Switch"),
+            "uuid:lighting",
+            "Evening",
+            "2",
+            "37",
+            "wrong_block_type",
+        ),
+        (
+            LEVEL_XML.replace("</C>", "<LightscenesC/></C>"),
+            "uuid:lighting",
+            "Evening",
+            "2",
+            "37",
+            "unsupported_mood_container_shape",
+        ),
+        (
+            LEVEL_XML.to_owned(),
+            "uuid:lighting",
+            "missing",
+            "2",
+            "37",
+            "ambiguous_or_missing_mood",
+        ),
+        (
+            LEVEL_XML.replace("Name=\"Evening\"", "Name=\"missing\""),
+            "uuid:lighting",
+            "Evening",
+            "2",
+            "37",
+            "ambiguous_or_missing_mood",
+        ),
+        (
+            LEVEL_XML.replace(
+                "</LightscenesC>",
+                "<LightsceneC Name=\"1\" SID=\"2\"/></LightscenesC>",
+            ),
+            "uuid:lighting",
+            "1",
+            "2",
+            "37",
+            "ambiguous_or_missing_mood",
+        ),
+        (
+            LEVEL_XML.replace("Outputs=\"18\"", "Outputs=\"bad\""),
+            "uuid:lighting",
+            "Evening",
+            "2",
+            "37",
+            "unsupported_mood_output_width",
+        ),
+        (
+            LEVEL_XML.replace("Q2=\"1610622736\"", ""),
+            "uuid:lighting",
+            "Evening",
+            "2",
+            "37",
+            "unsupported_mood_output_value",
+        ),
+        (
+            LEVEL_XML.replace("Q2=\"1610622736\"", "Q2=\"2147483648\""),
+            "uuid:lighting",
+            "Evening",
+            "2",
+            "37",
+            "unsupported_mood_output_value",
+        ),
+        (
+            LEVEL_XML.replace("Outputs=\"18\"", "Outputs=\"1\""),
+            "uuid:lighting",
+            "Evening",
+            "2",
+            "37",
+            "unsupported_mood_output_width",
+        ),
+        (
+            LEVEL_XML.replace("CapAI0=\"7\"", "CapAI0=\"7\" CapAI1=\"65536\""),
+            "uuid:lighting",
+            "Evening",
+            "2",
+            "37",
+            "unsupported_mood_capability",
+        ),
+        (
+            LEVEL_XML.to_owned(),
+            "uuid:lighting",
+            "Evening",
+            "1",
+            "37",
+            "incompatible_mood_output_kind",
+        ),
+        (
+            LEVEL_XML.replace("Q2=\"1610622736\"", "Q2=\"-1\""),
+            "uuid:lighting",
+            "Evening",
+            "2",
+            "37",
+            "incompatible_mood_output_kind",
+        ),
+    ] {
+        let before = fixture_bytes(&xml);
+        fs::write(&input, &before).unwrap();
+        fs::write(&output, b"existing output").unwrap();
+        let mut expected = None;
+        for dry_run in [false, true] {
+            for destination in [None, Some(&input), Some(&output), Some(&missing)] {
+                let mut cmd = lox();
+                cmd.args(["config", "lighting", "set-mood-level"])
+                    .arg(&input)
+                    .args([
+                        selector,
+                        "--mood",
+                        mood,
+                        "--output-index",
+                        index,
+                        "--level",
+                        level,
+                        "--json",
+                        "--quiet",
+                        "--trace-id",
+                        "level-error",
+                    ]);
+                if dry_run {
+                    cmd.arg("--dry-run");
+                }
+                if let Some(destination) = destination {
+                    cmd.arg("--save-as").arg(destination);
+                }
+                let result = cmd.assert().failure().get_output().stdout.clone();
+                let error: serde_json::Value = serde_json::from_slice(&result).unwrap();
+                assert_eq!(error["error"], code);
+                if let Some(expected) = &expected {
+                    assert_eq!(&error, expected);
+                } else {
+                    expected = Some(error);
+                }
+                assert_eq!(fs::read(&input).unwrap(), before);
+                assert_eq!(fs::read(&output).unwrap(), b"existing output");
+                assert!(!missing.parent().unwrap().exists());
+            }
+        }
+    }
+    for dry_run in [false, true] {
+        let mut cmd = lox();
+        cmd.args(["config", "lighting", "set-mood-level"])
+            .arg(&input)
+            .args([
+                "Lamp [Room]",
+                "--room",
+                "Room",
+                "--mood",
+                "1",
+                "--level",
+                "37",
+                "--json",
+            ]);
+        if dry_run {
+            cmd.arg("--dry-run");
+        }
+        let result = cmd.assert().failure().get_output().stdout.clone();
+        let error: serde_json::Value = serde_json::from_slice(&result).unwrap();
+        assert_eq!(error["error"], "conflicting_room_selector");
+    }
+}
+
+#[test]
 fn lighting_numeric_level_cli_matches_native_selected_value_and_preserves_every_other_byte() {
     let dir = tempfile::tempdir().unwrap();
     let input = dir.path().join("input.Loxone");
