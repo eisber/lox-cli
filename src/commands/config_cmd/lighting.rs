@@ -4,7 +4,7 @@ use clap::{Args, Subcommand};
 use crate::commands::RunContext;
 use crate::config_edit::ConfigEditor;
 use crate::config_edit::lighting_cid::{
-    LightingIdentityChange, LightingMoodCidPreview, LightingSelectionEdit,
+    LightingIdentityChange, LightingSelectionEdit, LightingSidRemap,
 };
 use crate::config_edit::schema::Diagnostic;
 
@@ -94,7 +94,7 @@ pub(crate) enum LightingCmd {
         #[arg(long, value_name = "PATH")]
         save_as: Option<String>,
     },
-    /// Reassign an ordinary SID1..90 with explicit exchange/CID-clear acceptance
+    /// Reassign an ordinary SID1..90 with explicit exchange/CID-clear acceptance; --dry-run plans without saving
     SetMoodSid {
         #[command(flatten)]
         target: LightingTarget,
@@ -226,7 +226,15 @@ fn print_identity_changes(
     }
 }
 
-fn print_cid_preview(ctx: &RunContext, preview: &LightingMoodCidPreview) {
+fn print_identity_preview(
+    ctx: &RunContext,
+    selected: &LightingIdentityChange,
+    changes: &[LightingIdentityChange],
+    remaps: &[LightingSidRemap],
+    selection: Option<&LightingSelectionEdit>,
+    effective: (&str, i32, i32),
+    changed: bool,
+) {
     if !ctx.no_header {
         println!(
             "{}",
@@ -265,13 +273,8 @@ fn print_cid_preview(ctx: &RunContext, preview: &LightingMoodCidPreview) {
             );
         }
     };
-    let identities = std::iter::once(("selected", &preview.selected)).chain(
-        preview
-            .edit
-            .identities
-            .iter()
-            .map(|identity| ("edit", identity)),
-    );
+    let identities = std::iter::once(("selected", selected))
+        .chain(changes.iter().map(|identity| ("edit", identity)));
     for (record, identity) in identities {
         for (field, before, after) in [
             (
@@ -295,15 +298,16 @@ fn print_cid_preview(ctx: &RunContext, preview: &LightingMoodCidPreview) {
             );
         }
     }
+    let (field, current, proposed) = effective;
     row(
         "selected_effective",
-        Some(preview.selected.record),
-        preview.selected.uuid.as_deref(),
-        "CID",
-        Some(&preview.current_cid.to_string()),
-        Some(&preview.edit.requested_cid.to_string()),
+        Some(selected.record),
+        selected.uuid.as_deref(),
+        field,
+        Some(&current.to_string()),
+        Some(&proposed.to_string()),
     );
-    for (index, remap) in preview.edit.selection_remaps.iter().enumerate() {
+    for (index, remap) in remaps.iter().enumerate() {
         row(
             "ordered_remap",
             Some(index + 1),
@@ -313,7 +317,7 @@ fn print_cid_preview(ctx: &RunContext, preview: &LightingMoodCidPreview) {
             Some(&remap.after.to_string()),
         );
     }
-    if let Some(selection) = &preview.edit.selection_refs {
+    if let Some(selection) = selection {
         row(
             "selection",
             None,
@@ -325,11 +329,8 @@ fn print_cid_preview(ctx: &RunContext, preview: &LightingMoodCidPreview) {
     }
     if !ctx.csv && !ctx.quiet {
         println!(
-            "\n{} identity edits; selected effective CID {}→{}; changed={}; dry-run wrote no files",
-            preview.edit.identities.len(),
-            preview.current_cid,
-            preview.edit.requested_cid,
-            preview.edit.changed
+            "\n{} identity edits; selected effective {field} {current}→{proposed}; changed={changed}; dry-run wrote no files",
+            changes.len(),
         );
     }
 }
@@ -679,6 +680,34 @@ pub(crate) fn run(ctx: &RunContext, action: LightingCmd) -> Result<()> {
         } => {
             let selector = target.selector()?;
             let mut editor = ConfigEditor::load(&crate::load_config_xml(&target.file)?)?;
+            if ctx.dry_run {
+                let preview = editor.preview_lighting_mood_sid(
+                    &selector,
+                    &mood,
+                    sid,
+                    swap,
+                    allow_cid_clear,
+                )?;
+                if ctx.json {
+                    let mut value = serde_json::to_value(&preview)?;
+                    value["dry_run"] = true.into();
+                    if let Some(trace_id) = &ctx.trace_id {
+                        value["trace_id"] = trace_id.clone().into();
+                    }
+                    println!("{}", serde_json::to_string_pretty(&value)?);
+                } else {
+                    print_identity_preview(
+                        ctx,
+                        &preview.selected,
+                        &preview.edit.identities,
+                        &preview.edit.selection_remaps,
+                        preview.edit.selection_refs.as_ref(),
+                        ("SID", preview.current_sid, preview.edit.requested_sid),
+                        preview.edit.changed,
+                    );
+                }
+                return Ok(());
+            }
             let edit = if allow_cid_clear {
                 editor.set_lighting_mood_sid_with_cid_clear(&selector, &mood, sid, swap, true)?
             } else {
@@ -729,7 +758,15 @@ pub(crate) fn run(ctx: &RunContext, action: LightingCmd) -> Result<()> {
                     }
                     println!("{}", serde_json::to_string_pretty(&value)?);
                 } else {
-                    print_cid_preview(ctx, &preview);
+                    print_identity_preview(
+                        ctx,
+                        &preview.selected,
+                        &preview.edit.identities,
+                        &preview.edit.selection_remaps,
+                        preview.edit.selection_refs.as_ref(),
+                        ("CID", preview.current_cid, preview.edit.requested_cid),
+                        preview.edit.changed,
+                    );
                 }
                 return Ok(());
             }

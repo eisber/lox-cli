@@ -22,6 +22,22 @@ pub struct LightingMoodSidEdit {
     pub changed: bool,
 }
 
+#[derive(Debug, Serialize)]
+pub struct LightingMoodSidPreview {
+    pub selected: LightingIdentityChange,
+    pub current_sid: i32,
+    #[serde(flatten)]
+    pub edit: LightingMoodSidEdit,
+}
+
+struct LightingMoodSidPlan {
+    path: Vec<usize>,
+    collection_index: usize,
+    scene_indices: Vec<usize>,
+    selection_index: Option<usize>,
+    preview: LightingMoodSidPreview,
+}
+
 impl ConfigEditor {
     pub fn set_lighting_mood_sid(
         &mut self,
@@ -41,6 +57,60 @@ impl ConfigEditor {
         swap: bool,
         allow_cid_clear: bool,
     ) -> Result<LightingMoodSidEdit> {
+        let plan = self.plan_lighting_mood_sid(selector, mood_ref, sid, swap, allow_cid_clear)?;
+        let edit = plan.preview.edit;
+        if edit.changed {
+            let block = self.get_element_mut(&plan.path);
+            let collection = block.children[plan.collection_index]
+                .as_mut_element()
+                .unwrap();
+            for change in &edit.identities {
+                let record = collection.children[plan.scene_indices[change.record - 1]]
+                    .as_mut_element()
+                    .unwrap();
+                record
+                    .attributes
+                    .insert("SID".into(), change.after_sid.clone());
+                if change.before_cid != change.after_cid
+                    && let Some(cid) = &change.after_cid
+                {
+                    record.attributes.insert("CID".into(), cid.clone());
+                }
+            }
+            if let Some(selection) = &edit.selection_refs
+                && selection.changed
+            {
+                block.children[plan.selection_index.unwrap()]
+                    .as_mut_element()
+                    .unwrap()
+                    .attributes
+                    .insert("ScMv".into(), selection.after.clone());
+            }
+        }
+        Ok(edit)
+    }
+
+    pub fn preview_lighting_mood_sid(
+        &self,
+        selector: &str,
+        mood_ref: &str,
+        sid: u32,
+        swap: bool,
+        allow_cid_clear: bool,
+    ) -> Result<LightingMoodSidPreview> {
+        Ok(self
+            .plan_lighting_mood_sid(selector, mood_ref, sid, swap, allow_cid_clear)?
+            .preview)
+    }
+
+    fn plan_lighting_mood_sid(
+        &self,
+        selector: &str,
+        mood_ref: &str,
+        sid: u32,
+        swap: bool,
+        allow_cid_clear: bool,
+    ) -> Result<LightingMoodSidPlan> {
         let sid = i32::try_from(sid).ok().filter(|sid| (1..=90).contains(sid))
             .ok_or_else(|| Diagnostic::new(
                 "unsupported_mood_sid_scope", "sid",
@@ -140,8 +210,8 @@ impl ConfigEditor {
             }
         }
         let selection = selection_plan(self.get_element(block_path), &remaps)?;
-        let mut identities = Vec::new();
-        for (position, (_, record)) in records.iter().enumerate() {
+        let identity = |position: usize| {
+            let record = records[position].1;
             let after = if position == selected {
                 sid
             } else if Some(position) == other {
@@ -149,69 +219,54 @@ impl ConfigEditor {
             } else {
                 sids[position]
             };
-            if after == sids[position] {
-                continue;
-            }
+            let before_sid = record.attributes["SID"].clone();
             let cid = record.attributes.get("CID").cloned();
-            identities.push(LightingIdentityChange {
+            LightingIdentityChange {
                 record: position + 1,
                 uuid: record.attributes.get("UUID").cloned(),
-                before_sid: record.attributes["SID"].clone(),
-                after_sid: after.to_string(),
+                after_sid: if after == sids[position] {
+                    before_sid.clone()
+                } else {
+                    after.to_string()
+                },
+                before_sid,
                 before_cid: cid.clone(),
                 after_cid: if position == selected && cid_cleared {
                     Some("0".into())
                 } else {
                     cid
                 },
-            });
-        }
+            }
+        };
+        let selected_identity = identity(selected);
+        let identities: Vec<_> = (0..records.len())
+            .filter(|position| {
+                old_sid != sid && (*position == selected || Some(*position) == other)
+            })
+            .map(identity)
+            .collect();
         let changed =
             !identities.is_empty() || selection.as_ref().is_some_and(|(_, edit)| edit.changed);
         let collection_index = mood_path[mood_path.len() - 2];
-        let changed_records: Vec<_> = identities
-            .iter()
-            .map(|change| {
-                (
-                    records[change.record - 1].0,
-                    change.after_sid.clone(),
-                    if change.before_cid != change.after_cid {
-                        change.after_cid.clone()
-                    } else {
-                        None
-                    },
-                )
-            })
-            .collect();
-        if changed {
-            let block = self.get_element_mut(block_path);
-            let collection = block.children[collection_index].as_mut_element().unwrap();
-            for (index, after, cid) in changed_records {
-                let record = collection.children[index].as_mut_element().unwrap();
-                record.attributes.insert("SID".into(), after);
-                if let Some(cid) = cid {
-                    record.attributes.insert("CID".into(), cid);
-                }
-            }
-            if let Some((index, edit)) = &selection
-                && edit.changed
-            {
-                block.children[*index]
-                    .as_mut_element()
-                    .unwrap()
-                    .attributes
-                    .insert("ScMv".into(), edit.after.clone());
-            }
-        }
-        Ok(LightingMoodSidEdit {
-            mood: mood_ref.into(),
-            requested_sid: sid,
-            swapped: other.is_some(),
-            cid_cleared,
-            identities,
-            selection_remaps: remaps,
-            selection_refs: selection.map(|(_, edit)| edit),
-            changed,
+        Ok(LightingMoodSidPlan {
+            path: block_path.into(),
+            collection_index,
+            scene_indices: records.iter().map(|(index, _)| *index).collect(),
+            selection_index: selection.as_ref().map(|(index, _)| *index),
+            preview: LightingMoodSidPreview {
+                selected: selected_identity,
+                current_sid: old_sid,
+                edit: LightingMoodSidEdit {
+                    mood: mood_ref.into(),
+                    requested_sid: sid,
+                    swapped: other.is_some(),
+                    cid_cleared,
+                    identities,
+                    selection_remaps: remaps,
+                    selection_refs: selection.map(|(_, edit)| edit),
+                    changed,
+                },
+            },
         })
     }
 }
@@ -233,6 +288,48 @@ mod tests {
                 .to_bytes()
                 .unwrap()
         );
+    }
+
+    #[test]
+    fn lighting_sid_preview_is_immutable_and_matches_the_writer_plan() {
+        for (xml, sid, swap, allow_cid_clear) in [
+            (XML.to_string(), 2, true, false),
+            (
+                XML.replace("CID=\"opaque\"", "CID=\"+012\""),
+                32,
+                false,
+                true,
+            ),
+            (
+                XML.replace("SID=\"+0001\" CID=\"opaque\"", "SID=\"+0032\"")
+                    .replace("OpM=\"0,1,2\"", "OpM=\"opaque\""),
+                32,
+                true,
+                true,
+            ),
+        ] {
+            let mut editor = ConfigEditor::load(xml.as_bytes()).unwrap();
+            let before = editor.to_bytes().unwrap();
+            let preview = editor
+                .preview_lighting_mood_sid("uuid:lighting", "A", sid, swap, allow_cid_clear)
+                .unwrap();
+            assert_eq!(editor.to_bytes().unwrap(), before);
+            assert_eq!(
+                serde_json::to_value(preview.edit).unwrap(),
+                serde_json::to_value(
+                    editor
+                        .set_lighting_mood_sid_with_cid_clear(
+                            "uuid:lighting",
+                            "A",
+                            sid,
+                            swap,
+                            allow_cid_clear,
+                        )
+                        .unwrap()
+                )
+                .unwrap()
+            );
+        }
     }
 
     #[test]
@@ -376,6 +473,11 @@ mod tests {
         for (xml, sid, swap) in [
             (XML.into(), 2, false),
             (XML.into(), 32, true),
+            (XML.replace("CID=\"opaque\"", "CID=\"12\""), 32, false),
+            (XML.into(), 0, false),
+            (XML.into(), 91, false),
+            (XML.into(), 777, false),
+            (XML.into(), u32::MAX, false),
             (XML.replace("SID=\"+0001\"", "SID=\"777\""), 3, false),
             (XML.replace("SID=\"2\"", "SID=\"+01\""), 3, true),
             (XML.replace("SID=\"2\"", "SID=\"future\""), 3, true),
@@ -398,10 +500,16 @@ mod tests {
         ] {
             let mut editor = ConfigEditor::load(xml.as_bytes()).unwrap();
             let before = editor.to_bytes().unwrap();
-            assert!(
+            let error = editor
+                .preview_lighting_mood_sid("uuid:lighting", "A", sid, swap, false)
+                .unwrap_err();
+            assert_eq!(editor.to_bytes().unwrap(), before);
+            assert_eq!(
+                error.to_string(),
                 editor
                     .set_lighting_mood_sid("uuid:lighting", "A", sid, swap)
-                    .is_err()
+                    .unwrap_err()
+                    .to_string()
             );
             assert_eq!(editor.to_bytes().unwrap(), before);
         }

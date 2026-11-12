@@ -14,6 +14,7 @@
     "edit_existing_mood_cid_transaction": true,
     "preview_existing_mood_cid_transaction": true,
     "edit_ordinary_mood_sid_transaction": true,
+    "preview_ordinary_mood_sid_transaction": true,
     "rename_existing_mood_ascii_subset": true,
     "set_role_independent_mood_mix": true,
     "set_omitted_mood_mix_default": true,
@@ -141,6 +142,17 @@
     "formats": "JSON includes actual swapped/cid_cleared flags, affected identities, ordered remaps and optional ScMv before/after. Reuse existing identity/selection CSV/table conventions.",
     "tests": "src/config_edit/lighting_sid.rs and tests/lighting_cid_source.rs: lighting_sid_*",
     "limits": "Ordinary selected-record transaction only. No raw special/display-ID setter, role repair, import simulation, incidental refresh normalization, native accepted-dialog save/reopen or runtime parity."
+  },
+  "ordinary_mood_sid_preview": {
+    "command": "lox config lighting set-mood-sid FILE BLOCK --mood SID_OR_NAME --sid 1..90 [--swap] [--allow-cid-clear] --dry-run [--room ROOM] [--save-as PATH]",
+    "source_artifact": "tests/ux/light-controller2/mood-sid-preview-source.json",
+    "source_sha256": "38bb44bb19a4b671e7db741e04b2125d09b2eeb537fc34b18e159b7e078a5927",
+    "shared_plan": "Immutable preview_lighting_mood_sid and both existing writer entry points use one private typed transaction plan with all existing flag, exact selection, identity, role/range, collision, Num and needed-reference guards unchanged. No identity allocation, cloned XML, diff simulation or duplicate algorithm.",
+    "confirmation": "Preview still requires --swap for occupied exchange and --allow-cid-clear for changed free SID32..90 with positive CID. Missing flags retain the existing errors. Lower, occupied and numeric no-op branches preserve CID, including unneeded opaque data; omission/equivalent zero spelling is not filled or normalized.",
+    "formats": "JSON adds dry_run=true, selected raw before/after SID/CID and effective current_sid to the unchanged edit report; requested_sid is proposed effective SID. swapped/cid_cleared remain actual effects. Shared CID/SID table/CSV retain selected raw/effective identity on no-op, affected identities, exact ordered remaps and consulted ScMv, with CSV presence columns for absent versus empty.",
+    "preservation": "No editor mutation or save path even with save-as input/existing/new destination. No XML/default/stamp/directory/cache/telemetry writes. Destination writability and writer serialization are not simulated. Needed unsupported/ambiguous data remains an error; unneeded opaque lists and unvisited tails preserve the existing writer rules. Existing writer API/results/save/stamp behavior and all CID semantics are unchanged.",
+    "tests": "src/config_edit/lighting_sid.rs and tests/lighting_cid_source.rs: lighting_sid_*; tests/dry_run.rs side-effect snapshots; src/dry_run.rs fail-closed dispatch",
+    "limits": "Read-only source-only plan of the already supported stored ordinary transaction. No new native case, GUI Cancel/dialog refresh, native final-save/file-write-success prediction, special-ID setter, current graph state, incidental normalization, SPS/runtime/family or whole-file promotion."
   },
   "existing_mood_rename": {
     "command": "lox config lighting rename-mood FILE BLOCK --mood SID_OR_NAME --name NAME [--room ROOM] [--save-as PATH]",

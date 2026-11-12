@@ -47,6 +47,60 @@ fn report_preview_has_no_filesystem_or_network_side_effects() {
     backend.assert_hits(0);
 }
 
+#[test]
+fn lighting_sid_preview_has_no_filesystem_or_network_side_effects() {
+    let sandbox = Sandbox::new();
+    let root = sandbox.dir.path();
+    let input = root.join("input.Loxone");
+    fs::write(
+        &input,
+        "\u{feff}<ControlList>\r\n<C Type=\"LightController2\" U=\"lighting\"><LightscenesC Num=\"1\"><LightsceneC Name=\"A\" SID=\"+0001\" CID=\"12\"/></LightscenesC><LSConfig OpM=\"0\" ScMv=\"1,opaque\"/></C>\r\n</ControlList>\r\n",
+    )
+    .unwrap();
+    let backend = sandbox.server.mock(|when, then| {
+        when.any_request();
+        then.status(500);
+    });
+    for sid in ["1", "32"] {
+        for destination in [
+            input.clone(),
+            root.join("output.Loxone"),
+            root.join("missing").join("new.Loxone"),
+        ] {
+            let before = snapshot(root);
+            let result = sandbox
+                .command(&["--dry-run", "--json"])
+                .args(["config", "lighting", "set-mood-sid"])
+                .arg(&input)
+                .args([
+                    "uuid:lighting",
+                    "--mood",
+                    "A",
+                    "--sid",
+                    sid,
+                    "--allow-cid-clear",
+                    "--save-as",
+                ])
+                .arg(&destination)
+                .assert()
+                .success()
+                .stderr("")
+                .get_output()
+                .stdout
+                .clone();
+            let result: Value = serde_json::from_slice(&result).unwrap();
+            assert_eq!(result["dry_run"], true);
+            let after = snapshot(root);
+            assert!(
+                after == before,
+                "SID preview wrote local data: {}",
+                snapshot_difference(&before, &after)
+            );
+        }
+    }
+    backend.assert_hits(0);
+}
+
 struct Sandbox {
     dir: TempDir,
     server: MockServer,

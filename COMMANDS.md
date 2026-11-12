@@ -286,6 +286,7 @@ lox config lighting set-mood-cid file.Loxone "Lighting" --mood "Evening" --cid 1
 lox config lighting set-mood-cid file.Loxone "Lighting" --mood "Evening" --cid 22 --dry-run --output json
 lox config lighting set-mood-sid file.Loxone "Lighting" --mood "Evening" --sid 2 --swap --save-as exchanged.Loxone
 lox config lighting set-mood-sid file.Loxone "Lighting" --mood "Evening" --sid 32 --allow-cid-clear
+lox config lighting set-mood-sid file.Loxone "Lighting" --mood "Evening" --sid 32 --allow-cid-clear --dry-run -o json
 lox config lighting rename-mood file.Loxone "Lighting" --mood "Evening" --name "Late Evening" --save-as renamed.Loxone
 lox config lighting set-mood-mix file.Loxone "Lighting" --mood "Unbound scene" --no-mix --save-as unmixed.Loxone
 lox config lighting set-mood-skip file.Loxone "Lighting" --mood "Evening" --skip --save-as skipped.Loxone
@@ -498,6 +499,29 @@ identity/selection transaction rows. This is not a raw role-ID setter,
 import/refresh prediction or native/runtime parity.
 See `tests/ux/light-controller2/mood-sid-edit-source.json`.
 Its supported-domain extension is `mood-higher-sid-source.json` in the same directory.
+
+Add `--dry-run` to preview **only the existing ordinary SID transaction** with
+the writer's identical guards and explicit `--swap`/`--allow-cid-clear`
+acceptance. Missing confirmation flags still produce the existing error, not
+a successful empty plan. No special/reserved-ID conversion or allocation is added.
+One immutable plan serves both preview and writer. Preview returns before
+mutation or any save, even with `--save-as` pointing to the input, an existing
+file or a nonexistent directory; no defaults, stamps, directories or telemetry
+files are written. Destination writability and writer serialization are not tested.
+
+Preview JSON adds `dry_run: true`, `selected` with raw SID/CID before/after,
+and effective `current_sid`; `requested_sid` is the proposed effective SID.
+The existing `swapped`, `cid_cleared`, affected `identities`, ordered
+`selection_remaps`, optional `selection_refs` and `changed` are the writer's
+exact plan. Numeric no-ops show original SID spelling and CID omission/opaque
+storage without normalizing either or parsing unneeded `OpM`/`ScMv`.
+Table/CSV share CID preview rows for selected raw/effective identity,
+affected identities, ordered remaps and consulted `ScMv`; CSV presence columns
+distinguish absent from empty. `--quiet` hides only the table summary;
+`--no-header` hides headers, not plan data. JSON retains `--trace-id`.
+This is source-only stored transaction planning, not GUI Cancel/dialog refresh,
+native final-save/file-write-success prediction, SPS/runtime/family or whole-file
+parity. See `tests/ux/light-controller2/mood-sid-preview-source.json`.
 
 `lighting rename-mood` changes only an existing direct mood's `Name`. Supported
 new names contain ASCII letters/digits and ordinary internal spaces, with a

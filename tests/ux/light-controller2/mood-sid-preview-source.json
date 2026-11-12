@@ -1,0 +1,53 @@
+{
+  "schema_version": 1,
+  "issue": "lox-n547",
+  "parent": "lox-khg6",
+  "named_question": "Can the already supported ordinary SID transaction, including explicit exchange and CID-clear acceptance, be previewed with the writer's exact guards and edits without mutating XML or saving files?",
+  "frozen_target": {
+    "version": "17.2.10.21",
+    "pe_sha256": "7b55e3ef18401574ab967c5c6a0140cd5a66dc728521ebba04ad53093577d8b3",
+    "installation_sha256": "a3003005776b327f5e666a072a64f5c569182b86174c0f578d5be3267ce28f85",
+    "analysis_id": "6a0520329af17d7b9fdaafe69398c62c454d9da838fc9f9c8d0bdd8d17bb15ae",
+    "new_extractions": 0
+  },
+  "existing_source_basis": [
+    {"artifact": "tests/ux/light-controller2/mood-sid-edit-source.json", "sha256": "542ce58df12e229a8b6409b69e955489c794cdf73eda928df1a3ba7d2ad1482f", "relationship": "Reuse existing exact selection, ordinary-ID transaction and ordered temporary99 reference remaps. Its historical1..31 subset is extended only by the already published higher-SID contract below."},
+    {"artifact": "tests/ux/light-controller2/mood-higher-sid-source.json", "sha256": "ec7a75dc6d3a220b3b04131ff37c035e3bfa7b5d42794fe286003a45c1768273", "relationship": "Reuse existing1..90 range and conditional CID-clear confirmation; no new range or write behavior."},
+    {"artifact": "tests/ux/light-controller2/mood-cid-edit-source.json", "sha256": "117c546935895b222d66df22140c3a9139befca625aa63eee280fbcdc242a647", "relationship": "Reuse the established selection_plan/selection_config/selection_prefix codec and absent-CID reader default0 only where the SID writer already needs it."},
+    {"artifact": "tests/ux/light-controller2/mood-cid-preview-source.json", "sha256": "c53c1fd12ac84dcb370f2f1097e336159a810e0fe5d9710646eaf63b54ac44c5", "relationship": "Reuse immutable-plan and preview-output conventions without changing any CID transaction semantics."}
+  ],
+  "canonical_sources": [
+    {"address": "0x1400ea790", "sha256": "e4a7229adfe6b18d853f18bdb656cbe10c8a33e91749a033bad7a90a7282cdc4", "relationship": "Column2 ordinary SID transaction, occupied exchange confirmation and unoccupied higher-SID CID-clear confirmation; no incidental refresh prediction."},
+    {"address": "0x1405c1920", "sha256": "538c51c5aedc1218d87ee26ec6baee986bc43985c7d29f4995117f4399bbc155", "relationship": "Owner mapping preserves ordinary IDs; special/display-ID conversion remains unsupported."},
+    {"address": "0x1405b5c10", "sha256": "f8ed6042d7d1898d9cd863bc681767390fb0167bde0bec485ff1620210fc5a64", "relationship": "Existing collection SID occupancy predicate."},
+    {"address": "0x1405b57b0", "sha256": "7eb7ba32c069738fc422f69fc0ba03c9ce4022e4e5ed2812dcba2d52858f28ab", "relationship": "Existing SID lookup; CLI retains its stronger numeric-uniqueness guard rather than guessing first-match ambiguity."},
+    {"address": "0x1405b6c00", "sha256": "b5fbbec343c8a988213793ceaa71494cc54d8e55627ceefa3cc5f64985ff7d03", "relationship": "Remap only available ScMv prefix bounded by OpM count, sequentially, including visited99 cascade."},
+    {"address": "0x1405b7df0", "sha256": "9f0ff6bd3dcc724a599e3324483c9b584f1e1128c4a3d6bf9604ecc328bf9d58", "relationship": "Existing selection-list field binding reused through the shared codec."},
+    {"address": "0x1405b3940", "sha256": "365a8a5e0bc05163fab3b2547924119c7731291b550d9e33fb2df9614ebe4155", "relationship": "Existing omitted-CID reader default0 used only in the free changed higher-SID branch."}
+  ],
+  "source_verification": "All seven canonical function hashes and all four reused artifact hashes were verified against the frozen local corpus and current source checkout for this delivery. No new extraction or vendor function text is included.",
+  "CLI_policy": {
+    "command": "lox config lighting set-mood-sid FILE BLOCK --mood SID_OR_NAME --sid 1..90 [--swap] [--allow-cid-clear] --dry-run [--room ROOM] [--save-as PATH]",
+    "architecture": "One private immutable plan_lighting_mood_sid owns all existing transaction guards and ordered planning. preview_lighting_mood_sid takes &self and returns selected raw/effective SID plus the existing edit report. Both existing writer entry points consume that same typed plan; their signatures, result fields and normal save/stamp behavior are unchanged. No cloned XML, diff simulation or duplicate algorithm.",
+    "admission": "Require LightController2, one direct LightscenesC and exactly one exact stored SID/Name match. Num must match direct scene count; every direct SID must be explicit, positive and numerically unique signed32. Selected and requested SIDs must both be1..90. Occupied different SID requires --swap; an existing direct SID99 blocks exchange. The SID transaction does not allocate identities.",
+    "CID_clear": "Only a changed free SID32..90 parses selected CID, requiring nonnegative signed32 or omission (effective0). Positive CID requires --allow-cid-clear, even in preview, otherwise retain mood_sid_cid_clear_required. Accepted clearing sets only selected CID0. Lower, occupied and numeric no-op branches preserve unneeded opaque CID; omitted/+000 zero is never inserted/canonicalized. This flag does not grant --swap.",
+    "references": "Reuse the existing codec and exact ordered free/exchange remaps. Needed ambiguous LSConfig or opaque OpM/visited ScMv fail before any successful plan. Missing/empty vectors mean no reference writes. Unneeded opaque lists, whitespace and unvisited tails preserve existing admission and spelling.",
+    "read_only": "Only this existing SID mutation is newly admitted to global --dry-run. Return before any mutation or save, regardless of save-as input/existing/new destination. No XML/default/stamp/directory/cache/telemetry writes. Destination writability and writer serialization are not simulated.",
+    "formats": "JSON adds dry_run=true, selected raw before/after SID/CID and effective current_sid to the unchanged edit report; requested_sid is proposed effective SID. swapped and cid_cleared remain actual planned effects. Shared CID/SID table/CSV rows include selected stored/effective identity on no-op, affected identities, exact ordered remaps and consulted ScMv. Presence columns distinguish absent from empty; quiet/no-header never hide plan rows.",
+    "failure": "Preview and writer use identical existing diagnostic codes/context for flag, selection, identity, role/range, collision, count and needed-reference failures. No successful empty-plan fallback or special-ID capability."
+  },
+  "regressions": {
+    "unit": "src/config_edit/lighting_sid.rs: immutable preview leaves editor serialization unchanged and matches writer report for exchange, confirmed CID clear and raw-spelling/omission no-op; rejection matrix asserts identical errors and atomicity.",
+    "CLI": "tests/lighting_cid_source.rs: lighting_sid_*dry_run* cover BOM/CRLF input and input/existing/missing-directory destinations, exact exchange99 cascade and CID-clear plan/writer equality, expected narrow persisted edits, no-op raw SID/CID omission/spelling/opaque storage in JSON/table/CSV, and identical preview/writer failures.",
+    "side_effects": "tests/dry_run.rs: lighting_sid_preview_has_no_filesystem_or_network_side_effects snapshots input/output/config/cache/token/home/directory contents and metadata with telemetry enabled and a local mock backend.",
+    "dispatch": "src/dry_run.rs intentionally admits the SID planner while retaining fail-closed handling for unrelated lighting mutations. Existing CID and metadata regressions remain unchanged."
+  },
+  "native_validation": {
+    "status": "not-run-source-only",
+    "new_native_cases": 0,
+    "gui_roundtrip_verified": false,
+    "runtime_parity": false,
+    "full_family_contract": false,
+    "limits": "Read-only source-backed CLI preview of the already supported stored transaction only. Not GUI Cancel/dialog refresh, import/model membership, native accepted-dialog serialization/final save or file-write-success prediction, graph-dependent normalization, physical mapping, SPS/runtime/family or whole-file parity. Historical artifacts and separate native work are unchanged."
+  }
+}
