@@ -17,6 +17,7 @@
     "preview_ordinary_mood_sid_transaction": true,
     "rename_existing_mood_ascii_subset": true,
     "set_role_independent_mood_mix": true,
+    "preview_role_independent_mood_mix": true,
     "set_omitted_mood_mix_default": true,
     "set_mood_mix_with_omitted_cid": true,
     "accept_native_mood_boolean_case_variants": true,
@@ -184,6 +185,17 @@
     "tests": "src/config_edit/lighting_metadata_tests.rs and tests/lighting_metadata_cli.rs: lighting_metadata_*",
     "extension_dependency": "Before CID12..19 support, recover concrete owner virtual+0x4b0 result, resolved record+0x20/+0x14 role index, active dialog+0x3a0 mask and accepted transport; column6 is a separate transaction.",
     "limits": "Not a general raw boolean/cohort editor, complete GUI permission model, graph refresh, native accepted-dialog or physical/runtime mixing semantics."
+  },
+  "per_mood_mix_preview": {
+    "command": "lox config lighting set-mood-mix FILE BLOCK --mood SID_OR_NAME (--mix | --no-mix) --dry-run [--room ROOM] [--save-as PATH]",
+    "source_artifact": "tests/ux/light-controller2/mood-mix-preview-source.json",
+    "source_sha256": "0e6df98a7b33251a6e884f39a6bf1c1b511aacf11fb073440fd1d251c2a565dc",
+    "shared_plan": "Immutable preview_lighting_mood_mix and existing set_lighting_mood_mix use one private LightingMoodMixPlan with unchanged path selection, ordered validation, guards and LightingMoodMixEdit report. No XML cloning, writer-then-discard, diff simulation or generic mutation framework.",
+    "admission": "Exactly LightController2, one direct collection and one exact unambiguous stored SID/Name match. Selected explicit signed32 SID1..31, nonnegative signed32 CID outside12..19 or omitted effective0, ASCII true/false case variants or omitted effective/default false. Every direct sibling SID remains explicit signed32 and selected numeric SID unique. Existing unsupported/ambiguous errors remain identical even on no-op; no role-state or visibility inference.",
+    "formats": "JSON adds dry_run=true and optional trace_id to the existing writer report: raw mood UUID/SID/CID with cid_effective, raw MixMod before/after, before_effective and proposed effective enabled, default and changed. Boolean-specific table/CSV retain selected raw/effective values even on no-op; CSV presence columns distinguish absent from empty. Quiet hides only the table summary, no-header only headers. Normal writer output/CSV column order are unchanged.",
+    "preservation": "No editor mutation or save with input/existing/new save-as, no-op or failure. No source/destination/default/stamp/directory/cache/telemetry writes; no destination-writability or serialization prediction. Omitted MixMod/CID and original numeric/ASCII case spellings stay visible and are never normalized on effective no-op. Actual writes still change only selected MixMod through the existing writer with unchanged API/results/save/stamp behavior.",
+    "tests": "src/config_edit/lighting_metadata_tests.rs and tests/lighting_metadata_cli.rs: lighting_metadata_*mix*; tests/dry_run.rs telemetry-enabled preservation snapshot; src/dry_run.rs fail-closed dispatch",
+    "limits": "Source-only read-only planning of one already supported stored selected-field edit. No new mutation behavior, native case, GUI Cancel/dialog refresh, native accepted-dialog/final-save/write-success prediction, live graph/role/visibility/permission claims, SPS/runtime/family or whole-file parity."
   },
   "per_mood_cycling_exclusion_edit": {
     "command": "lox config lighting set-mood-skip FILE BLOCK --mood SID_OR_NAME (--skip | --no-skip) [--room ROOM] [--save-as PATH]",

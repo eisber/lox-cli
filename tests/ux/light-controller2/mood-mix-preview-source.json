@@ -1,0 +1,57 @@
+{
+  "schema_version": 1,
+  "issue": "lox-b4fj",
+  "named_question": "Can the already supported role-independent MixMod requested-state edit be previewed with exactly the writer's guards, raw storage and effective values without changing XML or saving files?",
+  "frozen_target": {
+    "version": "17.2.10.21",
+    "architecture": "AMD64",
+    "pe_sha256": "7b55e3ef18401574ab967c5c6a0140cd5a66dc728521ebba04ad53093577d8b3",
+    "installation_sha256": "a3003005776b327f5e666a072a64f5c569182b86174c0f578d5be3267ce28f85",
+    "analysis_id": "6a0520329af17d7b9fdaafe69398c62c454d9da838fc9f9c8d0bdd8d17bb15ae",
+    "new_extractions": 0
+  },
+  "existing_source_basis": [
+    {"artifact": "tests/ux/light-controller2/mood-mix-source.json", "sha256": "bd64b3e3c7519b4ca1042b040f41f2d3ba0ec8a7aa99c4ad0db0c0aa94f90b70", "relationship": "Reuse existing exact direct selection, selected numeric SID uniqueness, SID1..31 checkbox scope and CID12..19 role exclusion. This historical explicit-identity/flag subset is extended only by the already published defaults/case contracts below."},
+    {"artifact": "tests/ux/light-controller2/mood-mix-default-source.json", "sha256": "f1a547c5eb82cb3acd734e7e853ffd924c58b70c0c5db35b73a51608e3adc478", "relationship": "Omitted MixMod already reads false and stays omitted on false no-op. No new default insertion or unsupported explicit-value coercion."},
+    {"artifact": "tests/ux/light-controller2/mood-boolean-case-source.json", "sha256": "3307020080cae72026c1b3571273587e69b70643bdc2a33e6467286cf24604f8", "relationship": "Existing ASCII true/false case variants retain exact spelling on effective no-op; actual changes use the existing lowercase writer."},
+    {"artifact": "tests/ux/light-controller2/mood-mix-cid-default-source.json", "sha256": "a026f171c7bfc96a11a0e4fa71c39a930ecd03559fdb4c35d5bb42cc3b222aff", "relationship": "Omitted CID already reads0 for this guard but is never inserted or rewritten. Present malformed, negative and overflowing CID remains rejected."},
+    {"artifact": "tests/ux/light-controller2/mood-cid-preview-source.json", "sha256": "c53c1fd12ac84dcb370f2f1097e336159a810e0fe5d9710646eaf63b54ac44c5", "relationship": "Reuse immutable-plan, early-return and no-write conventions, not CID mutation semantics or identity-transaction output rows."},
+    {"artifact": "tests/ux/light-controller2/mood-sid-preview-source.json", "sha256": "38bb44bb19a4b671e7db741e04b2125d09b2eeb537fc34b18e159b7e078a5927", "relationship": "Reuse source-only read-only preview conventions without changing SID behavior, ranges or admission."}
+  ],
+  "canonical_sources": [
+    {"address": "0x1400ea4d0", "sha256": "7889492ba869cfaf42c99f85fa67ec0310fb45610db3a54660a5ec4f60de8c0e", "relationship": "Existing selected row column5 toggles only MixMod; distinct column6 role-mask transaction is not this API."},
+    {"address": "0x1400eace0", "sha256": "469512dbafb34fa2eeda5e8d338d956cf636728fcfada076c4c775836303669a", "relationship": "Existing SID1..31 checkbox and CID12..19 role-forced/disabled boundary; no graph state or displayed checkbox prediction."},
+    {"address": "0x1405b7df0", "sha256": "9f0ff6bd3dcc724a599e3324483c9b584f1e1128c4a3d6bf9604ecc328bf9d58", "relationship": "Existing MixMod boolean binding and independent SID/CID numeric bindings."},
+    {"address": "0x1400e4d60", "sha256": "b36a97c9b7f6526fff278d633605272c1b3f670db30d00248e4b4f6e5f9ca331", "relationship": "Existing post-click numeric SID reselection basis; the CLI retains its stronger uniqueness guard."},
+    {"address": "0x1405b57b0", "sha256": "7eb7ba32c069738fc422f69fc0ba03c9ce4022e4e5ed2812dcba2d52858f28ab", "relationship": "Existing numeric SID first-match lookup does not justify silently accepting ambiguous direct identity."},
+    {"address": "0x1405b3940", "sha256": "365a8a5e0bc05163fab3b2547924119c7731291b550d9e33fb2df9614ebe4155", "relationship": "Previously recovered MixMod=false and CID0 model defaults only."},
+    {"address": "0x1404c52f0", "sha256": "057c5670bc1b4a95f3b6ae5720f34f057330ba62605c4d0211ac7565de681262", "relationship": "Existing optional attribute reader used by the already supported omission contracts."},
+    {"address": "0x14041eb10", "sha256": "fee9619bd6f3e7b27599dc164581bb02028e619477ce20cdcbf21edd3efd6655", "relationship": "Existing case-insensitive boolean read; no new arbitrary-false coercion or spelling rewrite."},
+    {"address": "0x140422760", "sha256": "361f5c3173c2b395766f14baa7a142bc2c1f734f9c04c21be691eb3169ff591d", "relationship": "Existing missing numeric input0 basis; CLI retains explicit signed32/nonnegative CID guards rather than adopting truncation or arbitrary coercion."}
+  ],
+  "source_verification": "All nine relevant canonical function hashes and all six reused artifact hashes were verified against the frozen local corpus and current checkout. No extraction, new native probe or vendor source text is included.",
+  "CLI_policy": {
+    "command": "lox config lighting set-mood-mix FILE BLOCK --mood SID_OR_NAME (--mix | --no-mix) --dry-run [--room ROOM] [--save-as PATH]",
+    "architecture": "One private immutable LightingMoodMixPlan owns the existing path selection, ordered validation and LightingMoodMixEdit report. ConfigEditor::preview_lighting_mood_mix(&self, selector, mood_ref, enabled) and the existing writer use the same plan. No XML clone, writer-then-discard, diff simulation or generic mutation framework.",
+    "admission": "Exactly LightController2, exactly one direct LightscenesC and one direct mood matching exact stored SID or case-sensitive Name. Selected explicit signed32 SID1..31; CID must be nonnegative signed32 outside12..19 or omitted effective0. Every direct sibling SID must be explicit signed32, and selected numeric SID must be unique including equivalent spellings. MixMod must be ASCII true/false case variants or omitted effective/default false. Every existing guard and error stays unchanged, even on requested no-op.",
+    "report": "JSON adds dry_run=true and optional trace_id to the unchanged writer edit report. mood preserves raw UUID/SID/CID, cid_effective stays separate, before/after preserve actual raw MixMod storage, before_effective is the current boolean and enabled is proposed effective boolean. Missing MixMod remains null on false no-op; case variants and numeric identity spellings are not normalized. Changed requests still plan the existing lowercase true/false write only.",
+    "formats": "Boolean-specific table/CSV retain selected raw identity, raw/effective CID, raw before/after flags, effective before/after booleans, default and changed. CSV presence fields distinguish omission from empty. Quiet suppresses only the table summary; no-header suppresses headers, never preview rows. Normal writer output and its CSV column order are unchanged.",
+    "read_only": "Only this existing mutation is newly admitted to global --dry-run. CLI returns before mutation or save with no source/destination/default/stamp/directory/cache/telemetry writes, including input/existing/new save-as destinations, no-op and failures. Destination writability and writer serialization are not predicted.",
+    "preservation": "Existing writer signature, report, selection order, admission, lowercase-on-change/no-op preservation, save-as and stamp behavior are unchanged. No CID/MixMod default repair, sibling/cohort change, role/visibility inference, graph/reference edit, ID/range extension or unrelated Name/SName/SkipNext/icon/Qn/color/metadata normalization.",
+    "failure": "Unsupported or ambiguous needed identity, flag and selection data returns the identical writer diagnostic, never empty success. Unneeded opaque Num/LSConfig/output storage keeps existing admission. Other unplanned mutations still fail closed."
+  },
+  "regressions": {
+    "unit": "src/config_edit/lighting_metadata_tests.rs: immutable preview matches writer report and exact expected XML for canonical/case-variant/omitted flags, both requested states and raw numeric identities; unsupported identity/CID/flag/selection cases assert equal errors and atomicity.",
+    "CLI": "tests/lighting_metadata_cli.rs: BOM/CRLF input and input/existing/missing-directory destinations remain byte-preserved; true/false/omitted-start plans match unchanged writer reports and persisted edits; numeric/case/omission no-ops remain visible in JSON/table/CSV with UUID/room/bracket selection and quiet/no-header; failures retain equal diagnostics without writes.",
+    "side_effects": "tests/dry_run.rs: lighting_mix_preview_has_no_filesystem_or_network_side_effects snapshots input/output/config/cache/token/home/directory bytes and metadata with telemetry enabled and a local mock backend, including no-op, changed and rejected plans.",
+    "dispatch": "src/dry_run.rs admits only the existing MixMod planner in addition to prior supported paths and checks unrelated cycling mutation remains fail-closed. Existing CID/SID previews and metadata edits remain regression-covered."
+  },
+  "native_validation": {
+    "status": "not-run-source-only",
+    "new_native_cases": 0,
+    "gui_roundtrip_verified": false,
+    "runtime_parity": false,
+    "full_family_contract": false,
+    "limits": "Read-only source-backed CLI preview of the already supported stored selected-field edit only. Not GUI Cancel/dialog refresh, native accepted-dialog serialization/final-save or write-success prediction, live graph/role/visibility/permission state, physical effects, SPS/runtime/family or whole-file parity. Historical artifacts and separate native work are unchanged."
+  }
+}

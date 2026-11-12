@@ -55,6 +55,11 @@ pub struct LightingMoodMixEdit {
     pub changed: bool,
 }
 
+struct LightingMoodMixPlan {
+    path: Vec<usize>,
+    edit: LightingMoodMixEdit,
+}
+
 #[derive(Debug, Serialize)]
 pub struct LightingMoodSkipEdit {
     pub mood: LightingMoodIdentity,
@@ -496,6 +501,36 @@ impl ConfigEditor {
         mood_ref: &str,
         enabled: bool,
     ) -> Result<LightingMoodMixEdit> {
+        let plan = self.plan_lighting_mood_mix(selector, mood_ref, enabled)?;
+        let edit = plan.edit;
+        if let Some(after) = &edit.after
+            && edit.changed
+        {
+            self.get_element_mut(&plan.path)
+                .attributes
+                .insert("MixMod".into(), after.clone());
+        }
+        Ok(edit)
+    }
+
+    /// Preview only the existing guarded MixMod edit, without changing the document.
+    pub fn preview_lighting_mood_mix(
+        &self,
+        selector: &str,
+        mood_ref: &str,
+        enabled: bool,
+    ) -> Result<LightingMoodMixEdit> {
+        Ok(self
+            .plan_lighting_mood_mix(selector, mood_ref, enabled)?
+            .edit)
+    }
+
+    fn plan_lighting_mood_mix(
+        &self,
+        selector: &str,
+        mood_ref: &str,
+        enabled: bool,
+    ) -> Result<LightingMoodMixPlan> {
         let path = self.lighting_metadata_mood_path(selector, mood_ref)?;
         let mood = self.get_element(&path);
         let sid = mood_identity_integer(mood, "SID", mood_ref)?;
@@ -550,23 +585,19 @@ impl ConfigEditor {
         } else {
             before.stored.clone()
         };
-        if let Some(after) = &after
-            && changed
-        {
-            self.get_element_mut(&path)
-                .attributes
-                .insert("MixMod".into(), after.clone());
-        }
-        Ok(LightingMoodMixEdit {
-            mood: identity,
-            scope: "selected_record_role_independent",
-            cid_effective: cid,
-            before: before.stored,
-            before_effective: previous,
-            default: false,
-            after,
-            enabled,
-            changed,
+        Ok(LightingMoodMixPlan {
+            path,
+            edit: LightingMoodMixEdit {
+                mood: identity,
+                scope: "selected_record_role_independent",
+                cid_effective: cid,
+                before: before.stored,
+                before_effective: previous,
+                default: false,
+                after,
+                enabled,
+                changed,
+            },
         })
     }
 

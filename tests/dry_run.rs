@@ -101,6 +101,61 @@ fn lighting_sid_preview_has_no_filesystem_or_network_side_effects() {
     backend.assert_hits(0);
 }
 
+#[test]
+fn lighting_mix_preview_has_no_filesystem_or_network_side_effects() {
+    let sandbox = Sandbox::new();
+    let root = sandbox.dir.path();
+    let input = root.join("input.Loxone");
+    let backend = sandbox.server.mock(|when, then| {
+        when.any_request();
+        then.status(500);
+    });
+    for (attributes, flag, success) in [
+        ("", "--no-mix", true),
+        ("", "--mix", true),
+        (" MixMod=\"tRuE\" CID=\"+000\"", "--no-mix", true),
+        (" CID=\"12\"", "--no-mix", false),
+        (" MixMod=\"0\"", "--mix", false),
+    ] {
+        fs::write(
+            &input,
+            format!("\u{feff}<ControlList>\r\n<C Type=\"Document\" U=\"doc\" Date=\"2025-01-01 00:00:00\" DateS=\"504921600\"/>\r\n<C Type=\"LightController2\" U=\"lighting\"><LightscenesC Num=\"opaque\"><LightsceneC Name=\"A\" SID=\"+0001\"{attributes}/></LightscenesC><LSConfig OpM=\"opaque\" ScMv=\"opaque\"/></C>\r\n</ControlList>\r\n"),
+        ).unwrap();
+        for destination in [
+            input.clone(),
+            root.join("output.Loxone"),
+            root.join("missing").join("new.Loxone"),
+        ] {
+            let before = snapshot(root);
+            let assertion = sandbox
+                .command(&["--dry-run", "--json"])
+                .args(["config", "lighting", "set-mood-mix"])
+                .arg(&input)
+                .args(["uuid:lighting", "--mood", "A", flag, "--save-as"])
+                .arg(&destination)
+                .assert();
+            let assertion = if success {
+                assertion.success()
+            } else {
+                assertion.failure()
+            };
+            let result: Value = serde_json::from_slice(&assertion.get_output().stdout).unwrap();
+            if success {
+                assert_eq!(result["dry_run"], true);
+            } else {
+                assert_eq!(result["ok"], false);
+            }
+            let after = snapshot(root);
+            assert!(
+                after == before,
+                "MixMod preview wrote local data: {}",
+                snapshot_difference(&before, &after)
+            );
+        }
+    }
+    backend.assert_hits(0);
+}
+
 struct Sandbox {
     dir: TempDir,
     server: MockServer,

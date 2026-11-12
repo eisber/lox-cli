@@ -29,6 +29,320 @@ fn command() -> Command {
 }
 
 #[test]
+fn lighting_metadata_cli_mix_dry_run_matches_writer_and_preserves_every_destination() {
+    let dir = tempfile::Builder::new()
+        .prefix("mix-preview-")
+        .tempdir_in(".")
+        .unwrap();
+    let input = dir.path().join("input.Loxone");
+    let output = dir.path().join("output.Loxone");
+    let missing = dir.path().join("missing").join("new.Loxone");
+    for (xml, flag, expected) in [
+        (
+            XML.to_string(),
+            "--mix",
+            XML.replacen("MixMod=\"false\"", "MixMod=\"true\"", 1),
+        ),
+        (
+            XML.replacen("MixMod=\"false\"", "MixMod=\"tRuE\"", 1),
+            "--no-mix",
+            XML.to_string(),
+        ),
+        (
+            XML.replacen(" CID=\"0\" MixMod=\"false\"", "", 1),
+            "--mix",
+            XML.replacen(" CID=\"0\" MixMod=\"false\"", "", 1).replacen(
+                "SName=\"alias\">",
+                "SName=\"alias\" MixMod=\"true\">",
+                1,
+            ),
+        ),
+    ] {
+        let before = bytes(&xml);
+        fs::write(&input, &before).unwrap();
+        fs::write(&output, b"existing output").unwrap();
+        let mut preview = serde_json::Value::Null;
+        for destination in [None, Some(&input), Some(&output), Some(&missing)] {
+            let mut cmd = command();
+            cmd.env("LOX_CONFIG", dir.path().join("absent.yaml"))
+                .args(["--dry-run", "config", "lighting", "set-mood-mix"])
+                .arg(&input)
+                .args([
+                    "uuid:lighting",
+                    "--mood",
+                    "A",
+                    flag,
+                    "-o",
+                    "json",
+                    "--quiet",
+                    "--trace-id",
+                    "mix-preview",
+                ]);
+            if let Some(destination) = destination {
+                cmd.arg("--save-as").arg(destination);
+            }
+            let result = cmd
+                .assert()
+                .success()
+                .stderr("")
+                .get_output()
+                .stdout
+                .clone();
+            preview = serde_json::from_slice(&result).unwrap();
+            assert_eq!(preview["dry_run"], true);
+            assert_eq!(preview["trace_id"], "mix-preview");
+            assert_eq!(preview["mood"]["sid"], "+0002");
+            assert_eq!(preview["changed"], true);
+            assert_eq!(preview["enabled"], flag == "--mix");
+            assert_eq!(preview["before_effective"], flag == "--no-mix");
+            assert_eq!(fs::read(&input).unwrap(), before);
+            assert_eq!(fs::read(&output).unwrap(), b"existing output");
+            assert!(!missing.parent().unwrap().exists());
+            assert!(!dir.path().join("absent.yaml").exists());
+        }
+        let result = command()
+            .args(["config", "lighting", "set-mood-mix"])
+            .arg(&input)
+            .args([
+                "uuid:lighting",
+                "--mood",
+                "A",
+                flag,
+                "-o",
+                "json",
+                "--quiet",
+                "--save-as",
+            ])
+            .arg(&output)
+            .assert()
+            .success()
+            .get_output()
+            .stdout
+            .clone();
+        preview.as_object_mut().unwrap().remove("dry_run");
+        preview.as_object_mut().unwrap().remove("trace_id");
+        assert_eq!(
+            preview,
+            serde_json::from_slice::<serde_json::Value>(&result).unwrap()
+        );
+        assert_eq!(fs::read(&input).unwrap(), before);
+        assert_eq!(fs::read(&output).unwrap(), bytes(&expected));
+    }
+}
+
+#[test]
+fn lighting_metadata_cli_mix_dry_run_noop_exposes_raw_and_effective_values_in_all_formats() {
+    let dir = tempfile::Builder::new()
+        .prefix("mix-preview-formats-")
+        .tempdir_in(".")
+        .unwrap();
+    let input = dir.path().join("input.Loxone");
+    let output = dir.path().join("output.Loxone");
+    let missing = dir.path().join("missing").join("new.Loxone");
+    for (attributes, raw, cid) in [
+        ("", None, None),
+        (
+            " CID=\"+000\" MixMod=\"FaLsE\"",
+            Some("FaLsE"),
+            Some("+000"),
+        ),
+    ] {
+        let xml = XML.replacen(" CID=\"0\" MixMod=\"false\"", attributes, 1)
+            .replace("<ControlList>", "<ControlList><C Type=\"Place\" U=\"room\" Title=\"Kitchen\"/><C Type=\"And\" U=\"other\" Title=\"Lamp\"/>")
+            .replace("Title=\"Lamp\">", "Title=\"Lamp\"><IoData Pr=\"room\"/>");
+        let before = bytes(&xml);
+        fs::write(&input, &before).unwrap();
+        fs::write(&output, b"existing output").unwrap();
+        for (block, room) in [
+            ("uuid:lighting", None),
+            ("Lamp", Some("Kitchen")),
+            ("Lamp [Kitchen]", None),
+        ] {
+            for format in ["json", "table", "csv"] {
+                for quiet_noheader in [false, true] {
+                    let mut cmd = command();
+                    cmd.env("LOX_CONFIG", dir.path().join("absent.yaml"))
+                        .args(["--dry-run", "config", "lighting", "set-mood-mix"])
+                        .arg(&input)
+                        .args([
+                            block,
+                            "--mood",
+                            "+0002",
+                            "--no-mix",
+                            "-o",
+                            format,
+                            "--save-as",
+                        ])
+                        .arg(&missing);
+                    if let Some(room) = room {
+                        cmd.args(["--room", room]);
+                    }
+                    if quiet_noheader {
+                        cmd.args(["--quiet", "--no-header"]);
+                    }
+                    let result = cmd
+                        .assert()
+                        .success()
+                        .stderr("")
+                        .get_output()
+                        .stdout
+                        .clone();
+                    if format == "json" {
+                        let value: serde_json::Value = serde_json::from_slice(&result).unwrap();
+                        assert_eq!(value["dry_run"], true);
+                        assert_eq!(value["mood"]["sid"], "+0002");
+                        assert_eq!(value["mood"]["cid"], serde_json::json!(cid));
+                        assert_eq!(value["cid_effective"], 0);
+                        assert_eq!(value["before"], serde_json::json!(raw));
+                        assert_eq!(value["after"], serde_json::json!(raw));
+                        assert_eq!(value["before_effective"], false);
+                        assert_eq!(value["enabled"], false);
+                        assert_eq!(value["default"], false);
+                        assert_eq!(value["changed"], false);
+                    } else {
+                        let stdout = String::from_utf8(result).unwrap();
+                        assert_eq!(stdout.contains("MOOD_UUID"), !quiet_noheader);
+                        if format == "csv" {
+                            let expected = if raw.is_none() {
+                                "\"a\",\"+0002\",false,\"\",0,false,\"\",false,\"\",false,false,false,false,selected_record_role_independent\n"
+                            } else {
+                                "\"a\",\"+0002\",true,\"+000\",0,true,\"FaLsE\",true,\"FaLsE\",false,false,false,false,selected_record_role_independent\n"
+                            };
+                            assert!(stdout.ends_with(expected), "{stdout}");
+                        } else {
+                            let stored = raw.unwrap_or("<absent>");
+                            assert!(stdout.contains(&format!("{stored}→{stored}")), "{stdout}");
+                            assert!(stdout.contains("false→false"), "{stdout}");
+                            assert!(
+                                stdout.contains(&format!("{}/0", cid.unwrap_or("<absent>"))),
+                                "{stdout}"
+                            );
+                            assert_eq!(stdout.contains("\n1 mood;"), !quiet_noheader);
+                        }
+                    }
+                    assert_eq!(fs::read(&input).unwrap(), before);
+                    assert_eq!(fs::read(&output).unwrap(), b"existing output");
+                    assert!(!missing.parent().unwrap().exists());
+                    assert!(!dir.path().join("absent.yaml").exists());
+                }
+            }
+        }
+    }
+}
+
+#[test]
+fn lighting_metadata_cli_mix_dry_run_and_writer_reject_identical_unsupported_data() {
+    let dir = tempfile::Builder::new()
+        .prefix("mix-preview-errors-")
+        .tempdir_in(".")
+        .unwrap();
+    let input = dir.path().join("input.Loxone");
+    let output = dir.path().join("output.Loxone");
+    let missing = dir.path().join("missing").join("new.Loxone");
+    for (xml, block, room, error) in [
+        (
+            XML.replace("CID=\"0\"", "CID=\"12\""),
+            "uuid:lighting",
+            None,
+            "role_dependent_mood_mix",
+        ),
+        (
+            XML.replace("CID=\"0\"", "CID=\"opaque\""),
+            "uuid:lighting",
+            None,
+            "unsupported_mood_identity",
+        ),
+        (
+            XML.replace("MixMod=\"false\"", "MixMod=\"0\""),
+            "uuid:lighting",
+            None,
+            "unsupported_mood_mix_value",
+        ),
+        (
+            XML.replace("SID=\"+0002\"", "SID=\"32\""),
+            "uuid:lighting",
+            None,
+            "unsupported_mood_mix_scope",
+        ),
+        (
+            XML.replace("SID=\"3\"", "SID=\"0002\""),
+            "uuid:lighting",
+            None,
+            "ambiguous_mood_sid",
+        ),
+        (
+            XML.replace("Name=\"B\"", "Name=\"A\""),
+            "uuid:lighting",
+            None,
+            "ambiguous_or_missing_mood",
+        ),
+        (
+            XML.replace("Name=\"A\"", "Name=\"missing\""),
+            "uuid:lighting",
+            None,
+            "ambiguous_or_missing_mood",
+        ),
+        (
+            XML.replace("</LightscenesC>", "</LightscenesC><LightscenesC/>"),
+            "uuid:lighting",
+            None,
+            "unsupported_mood_container_shape",
+        ),
+        (
+            XML.replace("Type=\"LightController2\"", "Type=\"And\""),
+            "uuid:lighting",
+            None,
+            "wrong_block_type",
+        ),
+        (
+            XML.to_string(),
+            "Lamp [Kitchen]",
+            Some("Kitchen"),
+            "conflicting_room_selector",
+        ),
+    ] {
+        let before = bytes(&xml);
+        fs::write(&input, &before).unwrap();
+        fs::write(&output, b"existing output").unwrap();
+        for destination in [&input, &output, &missing] {
+            let mut errors = Vec::new();
+            for dry_run in [true, false] {
+                let mut cmd = command();
+                cmd.env("LOX_CONFIG", dir.path().join("absent.yaml"))
+                    .args(["config", "lighting", "set-mood-mix"])
+                    .arg(&input)
+                    .args([
+                        block,
+                        "--mood",
+                        "A",
+                        "--no-mix",
+                        "-o",
+                        "json",
+                        "--quiet",
+                        "--save-as",
+                    ])
+                    .arg(destination);
+                if dry_run {
+                    cmd.arg("--dry-run");
+                }
+                if let Some(room) = room {
+                    cmd.args(["--room", room]);
+                }
+                let result = cmd.assert().failure().get_output().stdout.clone();
+                let result: serde_json::Value = serde_json::from_slice(&result).unwrap();
+                assert_eq!(result["error"], error);
+                errors.push(result);
+                assert_eq!(fs::read(&input).unwrap(), before);
+                assert_eq!(fs::read(&output).unwrap(), b"existing output");
+                assert!(!missing.parent().unwrap().exists());
+                assert!(!dir.path().join("absent.yaml").exists());
+            }
+            assert_eq!(errors[0], errors[1]);
+        }
+    }
+}
+
+#[test]
 fn lighting_metadata_cli_references_preserve_exact_bytes_and_formats_with_quiet_noheader() {
     let dir = tempfile::tempdir().unwrap();
     let input = dir.path().join("input.Loxone");

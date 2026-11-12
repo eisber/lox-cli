@@ -466,6 +466,129 @@ fn mix_xml() -> String {
 }
 
 #[test]
+fn lighting_metadata_mix_preview_is_immutable_and_matches_writer_without_normalization() {
+    for (raw, effective) in [
+        (None, false),
+        (Some("false"), false),
+        (Some("FaLsE"), false),
+        (Some("true"), true),
+        (Some("tRuE"), true),
+    ] {
+        let attribute = raw
+            .map(|raw| format!("MixMod=\"{raw}\""))
+            .unwrap_or_default();
+        let mut xml = mix_xml().replacen("MixMod=\"true\"", &attribute, 1);
+        if raw.is_none() {
+            xml = xml.replacen(" CID=\"+000\"", "", 1);
+        }
+        for enabled in [false, true] {
+            let mut editor = ConfigEditor::load(xml.as_bytes()).unwrap();
+            let before = editor.to_bytes().unwrap();
+            let preview = editor
+                .preview_lighting_mood_mix("uuid:lighting", "First", enabled)
+                .unwrap();
+            assert_eq!(editor.to_bytes().unwrap(), before);
+            assert_eq!(preview.before.as_deref(), raw);
+            assert_eq!(preview.before_effective, effective);
+            assert_eq!(preview.mood.sid.as_deref(), Some("+002"));
+            assert_eq!(preview.mood.cid.as_deref(), raw.map(|_| "+000"));
+            assert_eq!(preview.cid_effective, 0);
+            let after = if enabled != effective {
+                Some(enabled.to_string())
+            } else {
+                raw.map(str::to_string)
+            };
+            assert_eq!(preview.after, after);
+            assert_eq!(preview.changed, enabled != effective);
+            let written = editor
+                .set_lighting_mood_mix("uuid:lighting", "First", enabled)
+                .unwrap();
+            assert_eq!(
+                serde_json::to_value(preview).unwrap(),
+                serde_json::to_value(written).unwrap()
+            );
+            let expected = if enabled == effective {
+                xml.clone()
+            } else if raw.is_none() {
+                xml.replacen(
+                    "Future=\"opaque\">",
+                    "Future=\"opaque\" MixMod=\"true\">",
+                    1,
+                )
+            } else {
+                xml.replacen(&attribute, &format!("MixMod=\"{enabled}\""), 1)
+            };
+            assert_xml(&editor, &expected);
+        }
+    }
+}
+
+#[test]
+fn lighting_metadata_mix_preview_and_writer_share_exact_failures_and_are_atomic() {
+    let mut cases = vec![
+        (mix_xml(), "missing".to_string()),
+        (
+            mix_xml().replace("Name=\"Second\"", "Name=\"First\""),
+            "First".into(),
+        ),
+        (
+            mix_xml().replace("Type=\"LightController2\"", "Type=\"And\""),
+            "First".into(),
+        ),
+        (
+            mix_xml().replace("</LightscenesC>", "</LightscenesC><LightscenesC/>"),
+            "First".into(),
+        ),
+        (
+            mix_xml().replace("SID=\"3\"", "SID=\"0002\""),
+            "First".into(),
+        ),
+        (
+            mix_xml().replace("SID=\"3\"", "SID=\"opaque\""),
+            "First".into(),
+        ),
+    ];
+    for sid in ["", "opaque", "2147483648", "-1", "0", "32", "778"] {
+        let replacement = if sid.is_empty() {
+            String::new()
+        } else {
+            format!("SID=\"{sid}\"")
+        };
+        cases.push((
+            mix_xml().replacen("SID=\"+002\"", &replacement, 1),
+            "First".into(),
+        ));
+    }
+    for cid in ["opaque", "-1", "2147483648", "+012", "19"] {
+        cases.push((
+            mix_xml().replacen("CID=\"+000\"", &format!("CID=\"{cid}\""), 1),
+            "First".into(),
+        ));
+    }
+    for flag in ["1", "0", "", " true ", "future", "ＴＲＵＥ"] {
+        cases.push((
+            mix_xml().replacen("MixMod=\"true\"", &format!("MixMod=\"{flag}\""), 1),
+            "First".into(),
+        ));
+    }
+    for (xml, mood) in cases {
+        for enabled in [false, true] {
+            let mut editor = ConfigEditor::load(xml.as_bytes()).unwrap();
+            let before = editor.to_bytes().unwrap();
+            let preview = editor
+                .preview_lighting_mood_mix("uuid:lighting", &mood, enabled)
+                .unwrap_err();
+            assert_eq!(editor.to_bytes().unwrap(), before);
+            let writer = editor
+                .set_lighting_mood_mix("uuid:lighting", &mood, enabled)
+                .unwrap_err();
+            assert_eq!(preview.to_string(), writer.to_string(), "{xml}/{enabled}");
+            assert_eq!(editor.to_bytes().unwrap(), before);
+        }
+    }
+}
+
+#[test]
 fn lighting_metadata_mix_toggles_only_selected_record_without_normalizing_others() {
     let xml = mix_xml();
     let mut editor = ConfigEditor::load(xml.as_bytes()).unwrap();

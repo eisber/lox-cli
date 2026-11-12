@@ -551,6 +551,29 @@ edit or no-op; JSON retains raw `mood.cid=null` with `cid_effective=0`.
 Present malformed/negative/overflowing CID is still rejected, even on no-op.
 See `tests/ux/light-controller2/mood-mix-cid-default-source.json`.
 
+Add `--dry-run` to preview **only this existing guarded MixMod edit**. One
+private immutable plan serves preview and writer; the exact selection, SID,
+CID/role and stored-boolean guards are unchanged, including on no-op.
+Preview returns before mutation or saving, even with `--save-as` pointing to
+the input, an existing file or a missing directory. No defaults, stamps,
+directories, cache or telemetry files are written; destination writability
+and serialization are not predicted.
+
+Preview JSON adds `dry_run: true` to the unchanged edit report (and retains
+`--trace-id`). `mood` preserves raw UUID/SID/CID; `cid_effective` remains
+separate. Raw `before`/`after` distinguish omitted MixMod (`null`) and original
+ASCII case spelling from `before_effective` and proposed effective `enabled`.
+A no-op never inserts missing CID/MixMod or normalizes identity/flag spelling.
+Table/CSV expose the same selected raw/effective values even on no-op;
+CSV has presence columns for CID and before/after flags. `--quiet` hides only
+the table summary; `--no-header` hides headers, not preview rows.
+Unsupported/ambiguous data still produces the writer's existing error.
+Other unplanned lighting mutations remain fail-closed under `--dry-run`.
+This is source-only stored-field planning, not a new role/visibility editor,
+GUI Cancel/dialog refresh, native final-save/write-success prediction,
+graph inference, SPS/runtime/family or whole-file parity.
+See `tests/ux/light-controller2/mood-mix-preview-source.json`.
+
 `lighting inspect-mood-options` reads one exact direct mood without saving.
 It reports raw/effective/default values for SkipNext, MixMod, ReadOnly,
 Sequencing, Move and the separate SName display text. Omitted flags remain

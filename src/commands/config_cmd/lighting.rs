@@ -6,6 +6,7 @@ use crate::config_edit::ConfigEditor;
 use crate::config_edit::lighting_cid::{
     LightingIdentityChange, LightingSelectionEdit, LightingSidRemap,
 };
+use crate::config_edit::lighting_metadata::LightingMoodMixEdit;
 use crate::config_edit::schema::Diagnostic;
 
 #[derive(Args)]
@@ -332,6 +333,55 @@ fn print_identity_preview(
             "\n{} identity edits; selected effective {field} {current}→{proposed}; changed={changed}; dry-run wrote no files",
             changes.len(),
         );
+    }
+}
+
+fn print_mix_preview(ctx: &RunContext, edit: &LightingMoodMixEdit) {
+    if ctx.csv {
+        if !ctx.no_header {
+            println!(
+                "MOOD_UUID,SID,CID_PRESENT,CID,CID_EFFECTIVE,BEFORE_PRESENT,BEFORE,AFTER_PRESENT,AFTER,BEFORE_EFFECTIVE,AFTER_EFFECTIVE,DEFAULT,CHANGED,SCOPE"
+            );
+        }
+        println!(
+            "{},{},{},{},{},{},{},{},{},{},{},{},{},{}",
+            csv(edit.mood.uuid.as_deref().unwrap_or("")),
+            csv(edit.mood.sid.as_deref().unwrap_or("")),
+            edit.mood.cid.is_some(),
+            csv(edit.mood.cid.as_deref().unwrap_or("")),
+            edit.cid_effective,
+            edit.before.is_some(),
+            csv(edit.before.as_deref().unwrap_or("")),
+            edit.after.is_some(),
+            csv(edit.after.as_deref().unwrap_or("")),
+            edit.before_effective,
+            edit.enabled,
+            edit.default,
+            edit.changed,
+            edit.scope
+        );
+    } else {
+        if !ctx.no_header {
+            println!(
+                "MOOD_UUID  SID  CID (RAW/EFFECTIVE)  MIXMOD BEFORE→AFTER  EFFECTIVE BEFORE→AFTER  DEFAULT  CHANGED"
+            );
+        }
+        println!(
+            "{}  {}  {}/{}  {}→{}  {}→{}  {}  {}",
+            edit.mood.uuid.as_deref().unwrap_or("<absent>"),
+            edit.mood.sid.as_deref().unwrap_or("<absent>"),
+            edit.mood.cid.as_deref().unwrap_or("<absent>"),
+            edit.cid_effective,
+            edit.before.as_deref().unwrap_or("<absent>"),
+            edit.after.as_deref().unwrap_or("<absent>"),
+            edit.before_effective,
+            edit.enabled,
+            edit.default,
+            edit.changed
+        );
+        if !ctx.quiet {
+            println!("\n1 mood; scope={}; dry-run wrote no files", edit.scope);
+        }
     }
 }
 
@@ -841,6 +891,20 @@ pub(crate) fn run(ctx: &RunContext, action: LightingCmd) -> Result<()> {
         } => {
             let selector = target.selector()?;
             let mut editor = ConfigEditor::load(&crate::load_config_xml(&target.file)?)?;
+            if ctx.dry_run {
+                let preview = editor.preview_lighting_mood_mix(&selector, &mood, mix)?;
+                if ctx.json {
+                    let mut value = serde_json::to_value(&preview)?;
+                    value["dry_run"] = true.into();
+                    if let Some(trace_id) = &ctx.trace_id {
+                        value["trace_id"] = trace_id.clone().into();
+                    }
+                    println!("{}", serde_json::to_string_pretty(&value)?);
+                } else {
+                    print_mix_preview(ctx, &preview);
+                }
+                return Ok(());
+            }
             let edit = editor.set_lighting_mood_mix(&selector, &mood, mix)?;
             if edit.changed || save_as.is_some() {
                 super::save_edited_with_quiet(&mut editor, &target.file, save_as.as_deref(), true)?;
