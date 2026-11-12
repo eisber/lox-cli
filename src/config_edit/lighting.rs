@@ -100,6 +100,29 @@ struct LightingMoodLevelPlan {
 }
 
 #[derive(Debug, Serialize)]
+pub struct LightingMoodColorPreview {
+    pub scope: &'static str,
+    pub controller_uuid: Option<String>,
+    pub controller_title: Option<String>,
+    pub mood: String,
+    pub selected_mood: LightingMoodIdentity,
+    pub selected_mood_name: Option<String>,
+    /// XML child-node indices relative to the selected controller, including non-element nodes.
+    pub selected_mood_path: Vec<usize>,
+    pub output: String,
+    pub output_index: usize,
+    pub before: Option<String>,
+    pub after: String,
+    pub value: i64,
+    pub changed: bool,
+}
+
+struct LightingMoodColorPlan {
+    path: Vec<usize>,
+    preview: LightingMoodColorPreview,
+}
+
+#[derive(Debug, Serialize)]
 pub struct LightingWireTarget {
     pub block_uuid: Option<String>,
     pub block_type: Option<String>,
@@ -137,6 +160,118 @@ pub struct LightingInspection {
 }
 
 impl ConfigEditor {
+    /// Rewrite raw Qn storage; no tag, capability, width or mode classification.
+    /// Retains the existing first recursive SID-or-Name match and decimal write.
+    pub fn set_mood_color(
+        &mut self,
+        selector: &str,
+        mood_ref: &str,
+        output: usize,
+        value: i64,
+    ) -> Result<String> {
+        let plan = self.plan_mood_color(selector, mood_ref, output, value)?;
+        let preview = plan.preview;
+        // Even equivalent numeric spellings are replaced, as in the original raw writer.
+        self.get_element_mut(&plan.path)
+            .attributes
+            .insert(preview.output.clone(), preview.after);
+        Ok(format!(
+            "Set {}={value} on mood '{mood_ref}' of LightController2 '{}'",
+            preview.output,
+            preview.controller_title.as_deref().unwrap_or("")
+        ))
+    }
+
+    /// Preview the existing raw packed edit only, never a native color-picker operation.
+    pub fn preview_mood_color(
+        &self,
+        selector: &str,
+        mood_ref: &str,
+        output: usize,
+        value: i64,
+    ) -> Result<LightingMoodColorPreview> {
+        Ok(self
+            .plan_mood_color(selector, mood_ref, output, value)?
+            .preview)
+    }
+
+    fn plan_mood_color(
+        &self,
+        selector: &str,
+        mood_ref: &str,
+        output: usize,
+        value: i64,
+    ) -> Result<LightingMoodColorPlan> {
+        let mut path = self.require_one(selector)?;
+        let elem = self.get_element(&path);
+        let block_type = elem.attributes.get("Type").cloned().unwrap_or_default();
+        if block_type != "LightController2" {
+            anyhow::bail!(
+                "'{selector}' is a {block_type}, not a LightController2 — moods only exist on light controllers"
+            );
+        }
+        if output == 0 {
+            anyhow::bail!(
+                "Q0 is not a LightController2 mood output: indices are 1-based. Use --output-index 1 or higher."
+            );
+        }
+        fn first_match<'a>(
+            elem: &'a Element,
+            mood_ref: &str,
+            path: &mut Vec<usize>,
+        ) -> Option<&'a Element> {
+            if elem.name == "LightsceneC"
+                && ["SID", "Name"].iter().any(|key| {
+                    elem.attributes.get(*key).map(String::as_str).unwrap_or("") == mood_ref
+                })
+            {
+                return Some(elem);
+            }
+            for (index, node) in elem.children.iter().enumerate() {
+                if let Some(child) = node.as_element() {
+                    path.push(index);
+                    if let Some(mood) = first_match(child, mood_ref, path) {
+                        return Some(mood);
+                    }
+                    path.pop();
+                }
+            }
+            None
+        }
+        let mut selected_mood_path = Vec::new();
+        let controller_title = elem.attributes.get("Title").cloned();
+        let mood = first_match(elem, mood_ref, &mut selected_mood_path).ok_or_else(|| {
+            anyhow::anyhow!(
+                "mood '{mood_ref}' not found on LightController2 '{}' (match by SID or Name)",
+                controller_title.as_deref().unwrap_or("")
+            )
+        })?;
+        let output_key = format!("Q{output}");
+        let before = mood.attributes.get(&output_key).cloned();
+        let after = value.to_string();
+        let preview = LightingMoodColorPreview {
+            scope: "raw_packed_edit",
+            controller_uuid: elem.attributes.get("U").cloned(),
+            controller_title,
+            mood: mood_ref.into(),
+            selected_mood: LightingMoodIdentity {
+                uuid: mood.attributes.get("UUID").cloned(),
+                sid: mood.attributes.get("SID").cloned(),
+                cid: mood.attributes.get("CID").cloned(),
+            },
+            selected_mood_name: mood.attributes.get("Name").cloned(),
+            selected_mood_path,
+            output: output_key,
+            output_index: output,
+            changed: before.as_deref() != Some(after.as_str()),
+            before,
+            after,
+            value,
+        };
+        path.extend(&preview.selected_mood_path);
+        Ok(LightingMoodColorPlan { path, preview })
+    }
+
     /// Encode a numeric mood level without copying the native dialog's other edits.
     pub fn set_lighting_mood_level(
         &mut self,

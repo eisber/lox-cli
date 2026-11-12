@@ -7,7 +7,7 @@ Global flags: `--json` (shorthand for `--output json`), `-o`/`--output json|csv|
 `--dry-run` never writes local files or live state, uploads configurations, reloads,
 or reboots, even with `--force`, `--write`, or `--save-as`. Existing safe planners
 are available for `config energy` edits, supported `config lighting` mood edits
-(including `set-mood-level`), and
+(including `set-mood-level`), the existing raw `config set-mood-color` edit, and
 `stats download`; audited read-only
 commands retain their normal output and may make read-only network requests.
 Other commands fail before dispatch with “dry-run not supported” (exit 1;
@@ -393,8 +393,8 @@ Preview returns before mutation or save, including no-op, failures, and
 It performs no source/destination/default/stamp/directory/cache/telemetry writes,
 destination-writability checks or serialization/write-success predictions.
 It adds no numeric/tag/capability/width/identity admission, repair or defaults.
-`set-mood-color` stays a separate raw packed edit and remains unsupported under
-global dry-run; other unplanned commands still fail closed. This source-only
+`set-mood-color` stays a separate raw packed edit with its own preview below;
+other unplanned commands still fail closed. This source-only
 preview adds no native, SPS/runtime, family or whole-file parity credit.
 
 One accepted native numeric edit of Q2 to 37 saved `1610612773`
@@ -413,6 +413,52 @@ Otherwise the existing writer's formatting and Document stamps still apply.
 JSON includes `before`, `after`, `level`, `type_tag`, needed `capability` and
 `changed`. Existing `set-mood-color` remains a packed/raw storage operation;
 do not use `hsv(...)` as numeric dimmer brightness.
+
+### Raw packed mood-color preview
+
+```bash
+lox config set-mood-color file.Loxone "Lighting" --mood "Evening" --output-index 2 --color "hsv(120,100,10)" --dry-run --output json
+```
+
+This previews **only the already supported RAW packed Qn edit**, not a
+mode-aware/native color-picker operation or a channel-appropriate color claim.
+It uses the unchanged `hsv(...)`/`rgb(...)`/integer helper: actor composites
+are converted to percent-channel mood packing, while accepted packed integers
+pass through. Existing parsing, rounding and range checks are unchanged; no
+new signed-32/u32 bound, normalization or correction is applied.
+
+The shared immutable plan retains the raw writer's ordering: read/load XML,
+parse color, resolve one controller, require `LightController2`, reject index
+zero, then take the **first recursive** exact stored SID-or-Name match.
+Unlike the numeric/metadata commands, duplicate mood matches are not rejected,
+missing SID/Name still match an empty mood reference, and direct-container,
+stored Outputs/Num, Qn type/tag, capability and identity validity are not
+classified or newly enforced. Missing nonzero Qn can still be inserted, and
+there is no new Q18 limit. Inspect the selected identity/path before execution.
+
+JSON exposes `scope: "raw_packed_edit"`, actual raw `controller_uuid`/
+`controller_title`, requested `mood`, `selected_mood` UUID/SID/CID,
+`selected_mood_name`, `selected_mood_path` (zero-based XML child-node indices
+relative to the controller, including non-element nodes), `output`,
+`output_index`, raw `before` (null if absent), decimal `after`, parsed `value`,
+`changed`, `dry_run: true` and optional `trace_id`. No decoded/effective/native
+color or editor-kind fields are invented. `changed` compares stored strings:
+equivalent plus/zero-padded decimal spellings are replaced by the existing
+writer's decimal spelling, while an exact raw match reports false.
+
+Dedicated table/CSV retain identities, selected path/Qn and raw before/after;
+CSV has presence fields and quoted strings. Quiet hides only the table summary;
+no-header hides only headers. Normal writer output, unconditional attribute
+insertion/save, overwrite behavior, serialization and Document stamp rules
+are unchanged, including exact no-op execution.
+
+Preview returns before mutation/save/default/stamp/destination/directory/
+cache/telemetry writes, even for no-op, failures, existing output, input
+`--save-as` or a missing output directory. It does not check destination
+writability or predict successful saving. Only this existing raw operation is
+newly admitted under global dry-run; unrelated mutations remain fail-closed.
+Source-only evidence: `tests/ux/light-controller2/raw-mood-color-preview-source.json`.
+No new native, family, whole-file or SPS/runtime parity is claimed.
 
 Existing `config add-mood` also sets `Num` from the resulting direct scene count,
 instead of incrementing a possibly stale stored count. Its default output

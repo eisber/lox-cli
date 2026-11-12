@@ -28,6 +28,506 @@ fn fixture_bytes(xml: &str) -> Vec<u8> {
     bytes
 }
 
+#[test]
+fn lighting_raw_color_cli_dry_run_matches_existing_parser_writer_and_destinations() {
+    let dir = tempfile::Builder::new()
+        .prefix("raw-color-preview-")
+        .tempdir_in(".")
+        .unwrap();
+    let input = dir.path().join("input.Loxone");
+    let output = dir.path().join("output.Loxone");
+    let missing = dir.path().join("missing").join("new.Loxone");
+    for (attribute, color, index, value, changed) in [
+        (
+            "Q2=\"future\"",
+            "hsv(120,100,10)",
+            "2",
+            1_610_622_736_i64,
+            true,
+        ),
+        (
+            "Q2=\"1610622736\"",
+            " +001610622736 ",
+            "2",
+            1_610_622_736,
+            false,
+        ),
+        (
+            "Q2=\"+01610622736\"",
+            " HSV(120,100,10) ",
+            "2",
+            1_610_622_736,
+            true,
+        ),
+        (
+            "Q2=\"-2147483648\"",
+            "rgb(0,255,0)",
+            "2",
+            1_610_712_736,
+            true,
+        ),
+        ("", "40100", "99", 1_610_628_775, true),
+        ("Q2=\"opaque\"", "2610612736", "2", 2_610_612_736, true),
+        ("Q2=\"opaque\"", "5610612736", "2", 5_610_612_736, true),
+        ("Q2=\"opaque\"", "-1000000000", "2", 1_610_612_736, true),
+    ] {
+        let xml = format!(
+            "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<ControlList>\n\t<C Type=\"LightController2\" U=\"lighting\" Title=\"Lamp\" CapAI1=\"opaque\">\n\t\t<Unknown><LightsceneC UUID=\"first\" Name=\"A\" SID=\"future\" CID=\"opaque\" Outputs=\"bad\" {attribute}><SeqConf Future=\"keep\"/></LightsceneC></Unknown>\n\t\t<LightscenesC Num=\"bad\"><LightsceneC UUID=\"later\" Name=\"future\" SID=\"A\" Q2=\"other\"/></LightscenesC>\n\t\t<LightscenesC/><LSConfig OpM=\"opaque\" ScMv=\"opaque\"/><HCL T=\"2\"/>\n\t</C>\n</ControlList>\n"
+        );
+        let before = fixture_bytes(&xml);
+        fs::write(&input, &before).unwrap();
+        fs::write(&output, b"existing output").unwrap();
+        let mut preview = serde_json::Value::Null;
+        for destination in [None, Some(&input), Some(&output), Some(&missing)] {
+            let mut cmd = lox();
+            cmd.env("LOX_CONFIG", dir.path().join("absent.yaml"))
+                .args(["--dry-run", "config", "set-mood-color"])
+                .arg(&input)
+                .args(["uuid:lighting", "--mood", "A", "--output-index", index])
+                .arg(format!("--color={color}"))
+                .args(["--json", "--quiet", "--trace-id", "raw-color-preview"]);
+            if let Some(destination) = destination {
+                cmd.arg("--save-as").arg(destination);
+            }
+            let result = cmd
+                .assert()
+                .success()
+                .stderr("")
+                .get_output()
+                .stdout
+                .clone();
+            preview = serde_json::from_slice(&result).unwrap();
+            assert_eq!(preview["dry_run"], true);
+            assert_eq!(preview["trace_id"], "raw-color-preview");
+            assert_eq!(preview["scope"], "raw_packed_edit");
+            assert_eq!(preview["controller_uuid"], "lighting");
+            assert_eq!(preview["controller_title"], "Lamp");
+            assert_eq!(preview["selected_mood"]["uuid"], "first");
+            assert_eq!(preview["selected_mood"]["sid"], "future");
+            assert_eq!(preview["selected_mood"]["cid"], "opaque");
+            assert_eq!(preview["selected_mood_name"], "A");
+            assert_eq!(preview["selected_mood_path"], serde_json::json!([0, 0]));
+            assert_eq!(preview["output"], format!("Q{index}"));
+            assert_eq!(preview["output_index"], index.parse::<usize>().unwrap());
+            assert_eq!(preview["value"], value);
+            assert_eq!(preview["after"], value.to_string());
+            assert_eq!(preview["changed"], changed);
+            for key in [
+                "editor_kind",
+                "capability",
+                "before_effective",
+                "after_effective",
+            ] {
+                assert!(preview.get(key).is_none());
+            }
+            assert_eq!(fs::read(&input).unwrap(), before);
+            assert_eq!(fs::read(&output).unwrap(), b"existing output");
+            assert!(!missing.parent().unwrap().exists());
+            assert!(!dir.path().join("absent.yaml").exists());
+        }
+        let report = lox()
+            .args(["config", "set-mood-color"])
+            .arg(&input)
+            .args(["uuid:lighting", "--mood", "A", "--output-index", index])
+            .arg(format!("--color={color}"))
+            .args(["--json", "--quiet", "--save-as"])
+            .arg(&output)
+            .assert()
+            .success()
+            .get_output()
+            .stdout
+            .clone();
+        assert_eq!(
+            serde_json::from_slice::<serde_json::Value>(&report).unwrap(),
+            serde_json::json!({"ok": true, "mood": "A", "output": index.parse::<usize>().unwrap(), "value": value})
+        );
+        let mut expected =
+            xmltree::Element::parse(before.strip_prefix(&[0xef, 0xbb, 0xbf]).unwrap()).unwrap();
+        expected
+            .get_mut_child("C")
+            .unwrap()
+            .get_mut_child("Unknown")
+            .unwrap()
+            .get_mut_child("LightsceneC")
+            .unwrap()
+            .attributes
+            .insert(
+                format!("Q{index}"),
+                preview["after"].as_str().unwrap().to_owned(),
+            );
+        let written = fs::read(&output).unwrap();
+        assert!(written.starts_with(&[0xef, 0xbb, 0xbf]));
+        assert!(
+            !std::str::from_utf8(&written[3..])
+                .unwrap()
+                .replace("\r\n", "")
+                .contains('\n')
+        );
+        assert_eq!(xmltree::Element::parse(&written[3..]).unwrap(), expected);
+        assert_eq!(fs::read(&input).unwrap(), before);
+    }
+}
+
+#[test]
+fn lighting_raw_color_cli_dry_run_presence_escaping_and_noop_formats() {
+    let dir = tempfile::Builder::new()
+        .prefix("raw-color-formats-")
+        .tempdir_in(".")
+        .unwrap();
+    let input = dir.path().join("input.Loxone");
+    for attribute in ["Q2=\"1610622736\"", ""] {
+        let before = fixture_bytes(&format!(
+            "<ControlList><C Type=\"Place\" U=\"room\" Title=\"Kitchen\"/><C Type=\"And\" U=\"other\" Title=\"Lamp\"/><C Type=\"LightController2\" U=\"lighting\" Title=\"Lamp\"><IoData Pr=\"room\"/><Unknown><LightsceneC UUID=\"a,&quot;b\" Name=\"A,&quot;B\" SID=\"+0002\" {attribute}/></Unknown></C></ControlList>\n"
+        ));
+        fs::write(&input, &before).unwrap();
+        for format in ["table", "csv", "json"] {
+            for quiet in [false, true] {
+                for no_header in [false, true] {
+                    let mut cmd = lox();
+                    cmd.args(["config", "set-mood-color"]).arg(&input).args([
+                        "Lamp [Kitchen]",
+                        "--mood",
+                        "A,\"B",
+                        "--output-index",
+                        "2",
+                        "--color",
+                        "1610622736",
+                        "--dry-run",
+                        "-o",
+                        format,
+                        "--trace-id",
+                        "raw-formats",
+                    ]);
+                    if quiet {
+                        cmd.arg("--quiet");
+                    }
+                    if no_header {
+                        cmd.arg("--no-header");
+                    }
+                    let text = String::from_utf8(
+                        cmd.assert()
+                            .success()
+                            .stderr("")
+                            .get_output()
+                            .stdout
+                            .clone(),
+                    )
+                    .unwrap();
+                    match format {
+                        "json" => {
+                            let value: serde_json::Value = serde_json::from_str(&text).unwrap();
+                            assert_eq!(value["trace_id"], "raw-formats");
+                            assert_eq!(value["selected_mood"]["uuid"], "a,\"b");
+                            assert_eq!(value["selected_mood_name"], "A,\"B");
+                            assert!(value["selected_mood"]["cid"].is_null());
+                            assert_eq!(
+                                value["before"],
+                                if attribute.is_empty() {
+                                    serde_json::Value::Null
+                                } else {
+                                    "1610622736".into()
+                                }
+                            );
+                            assert_eq!(value["changed"], attribute.is_empty());
+                        }
+                        "csv" => {
+                            assert_eq!(text.starts_with("CONTROLLER_UUID_PRESENT,"), !no_header);
+                            assert!(text.contains("\"a,\"\"b\"") && text.contains("\"A,\"\"B\""));
+                            assert!(text.contains("false,\"\",true,\"A,"));
+                            assert!(text.ends_with(&format!(
+                                ",2,1610622736,{},raw_packed_edit\n",
+                                attribute.is_empty()
+                            )));
+                            assert!(
+                                !text.contains("dry-run wrote") && !text.contains("raw-formats")
+                            );
+                        }
+                        _ => {
+                            assert_eq!(text.starts_with("RAW PACKED EDIT"), !no_header);
+                            assert!(text.contains("CID  <absent>"));
+                            assert!(text.contains("OUTPUT  \"Q2\""));
+                            assert!(text.contains("SCOPE  raw_packed_edit"));
+                            assert_eq!(text.contains("dry-run wrote no files"), !quiet);
+                            assert!(!text.contains("raw-formats"));
+                        }
+                    }
+                    assert_eq!(fs::read(&input).unwrap(), before);
+                }
+            }
+        }
+    }
+}
+
+#[test]
+fn lighting_raw_color_cli_dry_run_does_not_skip_existing_noop_save_or_stamp_rules() {
+    let dir = tempfile::Builder::new()
+        .prefix("raw-color-save-")
+        .tempdir_in(".")
+        .unwrap();
+    let input = dir.path().join("input.Loxone");
+    let output = dir.path().join("output.Loxone");
+    let missing = dir.path().join("missing").join("new.Loxone");
+    let before = fixture_bytes(
+        "<ControlList><C Type=\"Document\" U=\"doc\" Date=\"2020-01-01 00:00:00\" DateS=\"347068800\"><C Type=\"LightController2\" U=\"lighting\"><LightsceneC Name=\"A\" Q1=\"1610622736\"/></C></C></ControlList>\n",
+    );
+    fs::write(&input, &before).unwrap();
+    lox()
+        .args(["config", "set-mood-color"])
+        .arg(&input)
+        .args([
+            "uuid:lighting",
+            "--mood",
+            "A",
+            "--color",
+            "1610622736",
+            "--dry-run",
+            "--json",
+        ])
+        .assert()
+        .success()
+        .stdout(predicates::str::contains("\"changed\":false"));
+    assert_eq!(fs::read(&input).unwrap(), before);
+    lox()
+        .args(["config", "set-mood-color"])
+        .arg(&input)
+        .args([
+            "uuid:lighting",
+            "--mood",
+            "A",
+            "--color",
+            "1610622736",
+            "--quiet",
+            "--save-as",
+        ])
+        .arg(&output)
+        .assert()
+        .success();
+    let written = fs::read(&output).unwrap();
+    let actual = xmltree::Element::parse(&written[3..]).unwrap();
+    let document = actual.get_child("C").unwrap();
+    assert_eq!(document.attributes["Date"], "2020-01-01 00:00:00");
+    assert_eq!(document.attributes["DateS"], "347068800");
+    let expected = xmltree::Element::parse(&before[3..]).unwrap();
+    assert_eq!(actual, expected);
+    for dry_run in [true, false] {
+        let mut cmd = lox();
+        cmd.args(["config", "set-mood-color"])
+            .arg(&output)
+            .args([
+                "uuid:lighting",
+                "--mood",
+                "A",
+                "--color",
+                "1610622736",
+                "--quiet",
+                "--save-as",
+            ])
+            .arg(&missing);
+        if dry_run {
+            cmd.args(["--dry-run", "--json"])
+                .assert()
+                .success()
+                .stderr("")
+                .stdout(predicates::str::contains("\"changed\":false"));
+        } else {
+            cmd.assert()
+                .failure()
+                .stdout("")
+                .stderr(predicates::str::contains("Cannot resolve output directory"));
+        }
+        assert_eq!(fs::read(&input).unwrap(), before);
+        assert_eq!(fs::read(&output).unwrap(), written);
+        assert!(!missing.parent().unwrap().exists());
+    }
+    let changed = std::str::from_utf8(&before[3..])
+        .unwrap()
+        .replace("Q1=\"1610622736\"", "Q1=\"+01610622736\"");
+    let changed = [&[0xef, 0xbb, 0xbf][..], changed.as_bytes()].concat();
+    fs::write(&input, &changed).unwrap();
+    lox()
+        .args(["config", "set-mood-color"])
+        .arg(&input)
+        .args([
+            "uuid:lighting",
+            "--mood",
+            "A",
+            "--color",
+            "1610622736",
+            "--dry-run",
+            "--json",
+        ])
+        .assert()
+        .success()
+        .stderr("")
+        .stdout(predicates::str::contains("\"changed\":true"));
+    assert_eq!(fs::read(&input).unwrap(), changed);
+    lox()
+        .args(["config", "set-mood-color"])
+        .arg(&input)
+        .args([
+            "uuid:lighting",
+            "--mood",
+            "A",
+            "--color",
+            "1610622736",
+            "--quiet",
+            "--save-as",
+        ])
+        .arg(&output)
+        .assert()
+        .success();
+    let written = fs::read(&output).unwrap();
+    let actual = xmltree::Element::parse(&written[3..]).unwrap();
+    let document = actual.get_child("C").unwrap();
+    assert_ne!(document.attributes["Date"], "2020-01-01 00:00:00");
+    assert!(document.attributes["DateS"].parse::<i64>().unwrap() > 347068800);
+    let mut expected = expected;
+    for key in ["Date", "DateS"] {
+        expected
+            .get_mut_child("C")
+            .unwrap()
+            .attributes
+            .insert(key.into(), document.attributes[key].clone());
+    }
+    assert_eq!(actual, expected);
+    assert_eq!(fs::read(&input).unwrap(), changed);
+}
+
+#[test]
+fn lighting_raw_color_cli_dry_run_and_writer_preserve_existing_ordered_failures() {
+    let dir = tempfile::Builder::new()
+        .prefix("raw-color-errors-")
+        .tempdir_in(".")
+        .unwrap();
+    let input = dir.path().join("input.Loxone");
+    let output = dir.path().join("output.Loxone");
+    let missing = dir.path().join("missing").join("new.Loxone");
+    for (xml, selector, mood, index, color, message) in [
+        (
+            "<ControlList><C".to_owned(),
+            "missing",
+            "missing",
+            "0",
+            "bad",
+            "XML",
+        ),
+        (XML.to_owned(), "missing", "missing", "0", "bad", "not hsv"),
+        (
+            XML.to_owned(),
+            "missing",
+            "missing",
+            "0",
+            "4294967295",
+            "outside 0..100",
+        ),
+        (
+            XML.to_owned(),
+            "missing",
+            "missing",
+            "0",
+            "-1",
+            "outside 0..255",
+        ),
+        (
+            XML.to_owned(),
+            "missing",
+            "missing",
+            "0",
+            "9223372036854775808",
+            "not hsv",
+        ),
+        (
+            XML.to_owned(),
+            "uuid:missing",
+            "missing",
+            "0",
+            "0",
+            "uuid:missing",
+        ),
+        (
+            XML.replace(
+                "</ControlList>",
+                "<C Type=\"LightController2\" U=\"other\" Title=\"Lamp\"/></ControlList>",
+            ),
+            "Lamp",
+            "missing",
+            "0",
+            "0",
+            "matches 2 elements",
+        ),
+        (
+            XML.replace("LightController2", "Switch"),
+            "uuid:lighting",
+            "missing",
+            "0",
+            "0",
+            "not a LightController2",
+        ),
+        (XML.to_owned(), "uuid:lighting", "missing", "0", "0", "Q0"),
+        (
+            XML.to_owned(),
+            "uuid:lighting",
+            "missing",
+            "99",
+            "0",
+            "mood 'missing' not found",
+        ),
+    ] {
+        let before = fixture_bytes(&xml);
+        fs::write(&input, &before).unwrap();
+        fs::write(&output, b"existing output").unwrap();
+        let mut errors = Vec::new();
+        for dry_run in [false, true] {
+            for destination in [&input, &output, &missing] {
+                let mut cmd = lox();
+                cmd.args(["config", "set-mood-color"])
+                    .arg(&input)
+                    .args([selector, "--mood", mood, "--output-index", index])
+                    .arg(format!("--color={color}"))
+                    .args(["--json", "--save-as"])
+                    .arg(destination);
+                if dry_run {
+                    cmd.arg("--dry-run");
+                }
+                let result = cmd.assert().failure().get_output().stdout.clone();
+                let result: serde_json::Value = serde_json::from_slice(&result).unwrap();
+                assert_eq!(result["ok"], false);
+                assert!(
+                    result["message"].as_str().unwrap().contains(message),
+                    "{result}"
+                );
+                errors.push(result);
+                assert_eq!(fs::read(&input).unwrap(), before);
+                assert_eq!(fs::read(&output).unwrap(), b"existing output");
+                assert!(!missing.parent().unwrap().exists());
+            }
+        }
+        assert!(errors.iter().all(|error| error == &errors[0]));
+    }
+    fs::remove_file(&input).unwrap();
+    for dry_run in [true, false] {
+        let mut cmd = lox();
+        cmd.args(["config", "set-mood-color"]).arg(&input).args([
+            "missing",
+            "--mood",
+            "missing",
+            "--color",
+            "bad",
+            "--output-index",
+            "0",
+            "--json",
+        ]);
+        if dry_run {
+            cmd.arg("--dry-run");
+        }
+        let result = cmd.assert().failure().get_output().stdout.clone();
+        let result: serde_json::Value = serde_json::from_slice(&result).unwrap();
+        assert!(result["message"].as_str().unwrap().contains("Cannot read"));
+        assert!(!input.exists());
+        assert_eq!(fs::read(&output).unwrap(), b"existing output");
+    }
+}
+
 const LEVEL_XML: &str = r#"<?xml version="1.0" encoding="utf-8"?>
 <ControlList>
 	<C Type="LightController2" U="lighting" Title="Lamp" CapAI0="7">

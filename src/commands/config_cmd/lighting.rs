@@ -3,7 +3,7 @@ use clap::{Args, Subcommand};
 
 use crate::commands::RunContext;
 use crate::config_edit::ConfigEditor;
-use crate::config_edit::lighting::LightingMoodLevelPreview;
+use crate::config_edit::lighting::{LightingMoodColorPreview, LightingMoodLevelPreview};
 use crate::config_edit::lighting_cid::{
     LightingIdentityChange, LightingSelectionEdit, LightingSidRemap,
 };
@@ -428,6 +428,71 @@ fn print_display_name_preview(ctx: &RunContext, preview: &LightingMoodDisplayNam
         );
         if !ctx.quiet {
             println!("\n1 mood; selected SName only; dry-run wrote no files");
+        }
+    }
+}
+
+pub(super) fn print_color_preview(ctx: &RunContext, preview: &LightingMoodColorPreview) {
+    let path = preview
+        .selected_mood_path
+        .iter()
+        .map(usize::to_string)
+        .collect::<Vec<_>>()
+        .join(".");
+    let fields = [
+        ("CONTROLLER_UUID", preview.controller_uuid.as_deref()),
+        ("CONTROLLER_TITLE", preview.controller_title.as_deref()),
+        ("MOOD", Some(preview.mood.as_str())),
+        ("MOOD_UUID", preview.selected_mood.uuid.as_deref()),
+        ("SID", preview.selected_mood.sid.as_deref()),
+        ("CID", preview.selected_mood.cid.as_deref()),
+        ("NAME", preview.selected_mood_name.as_deref()),
+        ("MOOD_PATH", Some(path.as_str())),
+        ("OUTPUT", Some(preview.output.as_str())),
+        ("BEFORE", preview.before.as_deref()),
+        ("AFTER", Some(preview.after.as_str())),
+    ];
+    if ctx.csv {
+        if !ctx.no_header {
+            println!(
+                "{},OUTPUT_INDEX,VALUE,CHANGED,SCOPE",
+                fields
+                    .iter()
+                    .map(|(key, _)| format!("{key}_PRESENT,{key}"))
+                    .collect::<Vec<_>>()
+                    .join(",")
+            );
+        }
+        println!(
+            "{},{},{},{},{}",
+            fields
+                .iter()
+                .map(|(_, value)| format!("{},{}", value.is_some(), csv(value.unwrap_or(""))))
+                .collect::<Vec<_>>()
+                .join(","),
+            preview.output_index,
+            preview.value,
+            preview.changed,
+            preview.scope
+        );
+    } else {
+        if !ctx.no_header {
+            println!("RAW PACKED EDIT  FIELD  STORED VALUE");
+        }
+        for (key, value) in fields {
+            println!(
+                "{key}  {}",
+                value.map_or_else(|| "<absent>".to_owned(), |value| format!("{value:?}"))
+            );
+        }
+        println!(
+            "OUTPUT_INDEX  {}\nVALUE  {}\nCHANGED  {}\nSCOPE  {}",
+            preview.output_index, preview.value, preview.changed, preview.scope
+        );
+        if !ctx.quiet {
+            println!(
+                "\n1 mood; raw packed edit only, not a mode-aware color-picker operation; dry-run wrote no files"
+            );
         }
     }
 }

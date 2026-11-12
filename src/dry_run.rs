@@ -70,6 +70,7 @@ fn has_non_mutating_path(cmd: &Cmd) -> bool {
                 | ConfigCmd::AutopilotList { .. }
                 | ConfigCmd::ModeList { .. }
                 | ConfigCmd::Moods { .. }
+                | ConfigCmd::SetMoodColor { .. }
                 | ConfigCmd::GetParams { .. }
                 | ConfigCmd::Connectors { .. }
                 | ConfigCmd::GetProgram { .. }
@@ -214,13 +215,13 @@ mod tests {
             ],
             &[
                 "config",
-                "set-mood-color",
+                "add-mood",
                 "input.Loxone",
                 "Lamp",
-                "--mood",
+                "--name",
                 "A",
                 "--color",
-                "#FF0000",
+                "hsv(0,100,100)",
             ],
             &["config", "room", "add", "input.Loxone", "new"],
             &["config", "user-remove", "input.Loxone", "user"],
@@ -264,6 +265,16 @@ mod tests {
             ],
             vec!["stats", "download", "--dir", "stats", "--force"],
             vec!["config", "validate", "input.Loxone"],
+            vec![
+                "config",
+                "set-mood-color",
+                "input.Loxone",
+                "Lamp",
+                "--mood",
+                "A",
+                "--color",
+                "hsv(120,100,10)",
+            ],
             vec![
                 "config",
                 "lighting",

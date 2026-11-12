@@ -2419,6 +2419,17 @@ pub fn cmd_config(ctx: &RunContext, action: ConfigCmd) -> Result<()> {
             let data = fs::read(&file).with_context(|| format!("Cannot read {}", file))?;
             let mut editor = ConfigEditor::load(&data)?;
             let value = crate::commands::color_cmd::parse_color_to_mood(&color)?;
+            if ctx.dry_run {
+                let preview = editor.preview_mood_color(&selector, &mood, output_index, value)?;
+                if ctx.json {
+                    let mut result = serde_json::to_value(&preview)?;
+                    result["dry_run"] = true.into();
+                    emit_json(ctx, result);
+                } else {
+                    lighting::print_color_preview(ctx, &preview);
+                }
+                return Ok(());
+            }
             let msg = editor.set_mood_color(&selector, &mood, output_index, value)?;
             if ctx.json {
                 emit_json(

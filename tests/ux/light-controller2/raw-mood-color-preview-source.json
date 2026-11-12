@@ -1,0 +1,67 @@
+{
+  "schema_version": 1,
+  "issue": "lox-r1es",
+  "named_question": "Can the already supported raw packed set-mood-color operation be previewed without changing its parser, first recursive selection, raw decimal write or save behavior?",
+  "frozen_target": {
+    "version": "17.2.10.21",
+    "architecture": "AMD64",
+    "pe_sha256": "7b55e3ef18401574ab967c5c6a0140cd5a66dc728521ebba04ad53093577d8b3",
+    "installation_sha256": "a3003005776b327f5e666a072a64f5c569182b86174c0f578d5be3267ce28f85",
+    "analysis_id": "6a0520329af17d7b9fdaafe69398c62c454d9da838fc9f9c8d0bdd8d17bb15ae",
+    "new_extractions": 0
+  },
+  "existing_source_basis": [
+    {
+      "artifact": "tests/ux/light-controller2/numeric-mood-level-source.json",
+      "sha256": "6626d2876679e4615ccf0242feb055f840ca4dd76828eea176b07e5fe4b89c1b",
+      "relationship": "Existing selected tag/capability dispatch and separate numeric/color handlers establish the boundary, not new admission for this raw writer. No numeric guards or native color-dialog behavior are imported."
+    },
+    {
+      "artifact": "tests/ux/light-controller2/numeric-mood-level-preview-source.json",
+      "sha256": "f3b2837a48fbfc218981f425b2b7e9e0aad948c1bee31049a668af93fc1ac47b",
+      "relationship": "Reuse immutable-plan, read-only early-return, presence-aware output and fail-closed dispatch conventions only. Its historical statement that raw-color dry-run is unsupported describes that prior delivery, not this new operation."
+    }
+  ],
+  "canonical_sources": [
+    {
+      "address": "0x1400e6590",
+      "sha256": "4d8065c701c812258c0b8a1fb407c731bb25490c686fb22b031a8de9a6c84ff0",
+      "relationship": "Native color handler preserves the selected tag and may touch sequence metadata. Existing CLI raw replacement is deliberately not this mode-aware operation or full native transaction."
+    },
+    {
+      "address": "0x14043ab40",
+      "sha256": "6177348a839e915bd33a19ade1245b133c9611367dc45398a6963358080206b6",
+      "relationship": "Existing color-payload packing distinguishes rounded percent RGB from the separate temperature branch. The preview reuses the CLI's existing RGB/HSV helper, not a new native color picker or temperature encoding."
+    },
+    {
+      "address": "0x14043ae60",
+      "sha256": "e391ad0f8b5f95dad9ba7089269d74dff08a8d7b5c942c6531a690622f308487",
+      "relationship": "Separate payload decoding reinforces that raw storage is not a displayed/native or universally channel-appropriate color. Preview deliberately reports raw strings and parsed integer only."
+    }
+  ],
+  "source_verification": "All13 inherited numeric canonical hashes, both reused committed Git-blob artifact hashes and frozen decompile-index SHA256129c5d4e8683dd3c9c4a44622681f8d8bb76fe58c72d0b834a2c7bb76415cf40 verified locally. These three existing canonical color bodies were read, with no extraction or source pin changes. No vendor text or private project data is included.",
+  "CLI_policy": {
+    "operation": "lox config set-mood-color FILE SELECTOR --mood SID_OR_NAME --color SPEC --output-index N --dry-run [--save-as PATH]",
+    "shared_plan": "preview_mood_color and unchanged set_mood_color API share one private immutable LightingMoodColorPlan; no cloned DOM, write-then-discard, serialization prediction or generic mutation framework.",
+    "ordered_admission": "Existing file read and XML load precede unchanged parse_color_to_mood; controller resolution precedes exact LightController2, then Q0 rejection, then first recursive exact SID-or-Name match. Empty missing SID/Name fallback and first-match duplicates remain accepted. No new direct-container, mood identity, output-width/count, tag/capability/mode, stored-number or boolean validation.",
+    "parsing": "Existing trimmed/case-insensitive HSV/RGB calls and integer helper are reused unchanged. Actor base1000 components0..255 convert to rounded percent mood packing; accepted already-packed integers pass through under existing percent-component checks. No new i32/u32 bound, high-component truncation, range correction or silently repaired spelling. Direct editor i64 values retain their pre-existing raw semantics.",
+    "raw_write": "Selected Qn becomes value.to_string(), including missing nonzero attributes or indices beyond18. Raw string comparison defines preview changed: equivalent plus/zero-padded spellings normalize only on normal execution; exact matches are unchanged strings but normal writer still unconditionally inserts and follows the original save/stamp/report path.",
+    "output": "scope raw_packed_edit; actual stored controller U/Title, requested mood, actual selected UUID/SID/CID/Name and controller-relative XML child-node path; Qn/index, raw optional before, decimal after, parsed i64 value and changed. JSON adds dry_run and optional trace_id. Table/CSV preserve absence, escaping and raw values; quiet suppresses table summary only, no-header headers only. No invented decoded/effective/native/editor-kind or physical channel fields.",
+    "preservation": "Success, exact no-op, spelling rewrite, missing Qn and errors return without mutation or save. No source/destination/default/stamp/directory/cache/telemetry writes, destination guards or write-success prediction. Input/existing/new missing-parent save-as paths are untouched. Normal mutation/report/save/stamp/overwrite semantics remain unchanged.",
+    "dispatch": "Only existing ConfigCmd::SetMoodColor gains its audited global dry-run path. AddMood and other unplanned mutations still fail closed before dispatch."
+  },
+  "regressions": {
+    "core": "src/config_edit/lighting_tests.rs: lighting_raw_color_preview_* and existing lighting_mood_edit_*; immutable plan and whole-DOM writer parity, nested first match, duplicate/absent/raw malformed identity, unsupported-looking capability/width/tag data, sparse and high indices, raw signed/u32/i64 values, raw spelling/no-op and ordered error parity.",
+    "CLI": "tests/lighting_source_capability.rs: lighting_raw_color_cli_dry_run_*; exact unchanged helper and writer JSON, HSV/RGB/composite/packed values including existing beyond-i32/u32 and signed helper cases, output formats/presence/escaping/trace/quiet/no-header, every destination and ordered parse/load/selection failures. Existing integration Q0 guard remains covered.",
+    "side_effects": "tests/dry_run.rs: lighting_raw_color_preview_has_no_filesystem_or_network_side_effects; telemetry-enabled recursive byte/metadata snapshot and zero-request mock backend for successes/no-op/failures and all save-as shapes.",
+    "dispatch": "src/dry_run.rs: exact allowlist with SetMoodColor admitted and AddMood plus unrelated local/live/deployment mutations still rejected."
+  },
+  "native_validation": {
+    "status": "not-run-source-only",
+    "new_native_cases": 0,
+    "gui_roundtrip_verified": false,
+    "runtime_parity": false,
+    "full_family_contract": false,
+    "limits": "Read-only preview of an existing RAW packed storage operation only. No new native observation/approval, color-picker/channel-appropriate equivalence, graph-dependent pre-modal changes, sequence edits, GUI Cancel/dialog refresh, full-dialog/final-save/write-success prediction, live role/permission/physical channel, SPS/runtime/family or whole-file parity. Original independent native cases, frozen CLI and prior artifact bytes remain untouched."
+  }
+}

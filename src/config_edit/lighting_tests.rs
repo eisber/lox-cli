@@ -629,6 +629,134 @@ fn lighting_inspection_rejects_wrong_type_and_reports_missing_storage() {
 }
 
 #[test]
+fn lighting_raw_color_preview_preserves_first_recursive_match_without_new_classification() {
+    let xml = r#"<ControlList><C Type="LightController2" U="lighting" Title="Lamp" CapAI0="opaque">
+      <Unknown><!--retain--><LightsceneC UUID="nested" Name="A" SID="future" CID="opaque" Outputs="bad" Q99="future-value"><SeqConf Future="keep"/></LightsceneC></Unknown>
+      <LightscenesC Num="bad"><LightsceneC UUID="later" Name="future" SID="A" Q99="-1"/></LightscenesC>
+      <LightscenesC/><LSConfig OpM="opaque" ScMv="opaque"/><HCL T="2"/>
+    </C></ControlList>"#;
+    for (output, value) in [(99, -1), (99, i64::MIN), (99, i64::MAX), (usize::MAX, 42)] {
+        let mut editor = ConfigEditor::load(xml.as_bytes()).unwrap();
+        let before = editor.to_bytes().unwrap();
+        let preview = editor
+            .preview_mood_color("uuid:lighting", "A", output, value)
+            .unwrap();
+        assert_eq!(editor.to_bytes().unwrap(), before);
+        assert_eq!(preview.scope, "raw_packed_edit");
+        assert_eq!(preview.controller_uuid.as_deref(), Some("lighting"));
+        assert_eq!(preview.controller_title.as_deref(), Some("Lamp"));
+        assert_eq!(preview.selected_mood.uuid.as_deref(), Some("nested"));
+        assert_eq!(preview.selected_mood.sid.as_deref(), Some("future"));
+        assert_eq!(preview.selected_mood.cid.as_deref(), Some("opaque"));
+        assert_eq!(preview.selected_mood_name.as_deref(), Some("A"));
+        assert_eq!(preview.selected_mood_path, vec![0, 1]);
+        assert_eq!(preview.output, format!("Q{output}"));
+        assert_eq!(
+            preview.before.as_deref(),
+            (output == 99).then_some("future-value")
+        );
+        assert_eq!(preview.after, value.to_string());
+        assert!(preview.changed);
+        assert_eq!(
+            editor
+                .set_mood_color("uuid:lighting", "A", output, value)
+                .unwrap(),
+            format!("Set Q{output}={value} on mood 'A' of LightController2 'Lamp'")
+        );
+        let expected = if output == 99 {
+            xml.replace("Q99=\"future-value\"", &format!("Q99=\"{value}\""))
+        } else {
+            xml.replace(
+                "Q99=\"future-value\"",
+                &format!("Q99=\"future-value\" Q{output}=\"{value}\""),
+            )
+        };
+        assert_eq!(
+            editor.to_bytes().unwrap(),
+            ConfigEditor::load(expected.as_bytes())
+                .unwrap()
+                .to_bytes()
+                .unwrap()
+        );
+    }
+}
+
+#[test]
+fn lighting_raw_color_preview_matches_raw_spelling_noop_and_missing_identity_rules() {
+    for (attribute, value, changed) in [
+        ("Q1=\"1610622736\"", 1_610_622_736, false),
+        ("Q1=\"+01610622736\"", 1_610_622_736, true),
+        ("Q1=\"4294967295\"", 4_294_967_295, false),
+        ("Q1=\"-2147483648\"", -2_147_483_648, false),
+        ("", 0, true),
+    ] {
+        let xml = format!(
+            "<ControlList><C Type=\"LightController2\" U=\"lighting\"><Unknown><LightsceneC {attribute}/></Unknown><LightsceneC Name=\"\" SID=\"\" Q1=\"other\"/></C></ControlList>"
+        );
+        let mut editor = ConfigEditor::load(xml.as_bytes()).unwrap();
+        let before = editor.to_bytes().unwrap();
+        let preview = editor
+            .preview_mood_color("uuid:lighting", "", 1, value)
+            .unwrap();
+        assert_eq!(preview.changed, changed);
+        assert!(preview.selected_mood.uuid.is_none());
+        assert!(preview.selected_mood.sid.is_none());
+        assert!(preview.selected_mood_name.is_none());
+        assert_eq!(preview.selected_mood_path, vec![0, 0]);
+        assert_eq!(editor.to_bytes().unwrap(), before);
+        editor
+            .set_mood_color("uuid:lighting", "", 1, value)
+            .unwrap();
+        let expected = xml.replacen(
+            &format!("<LightsceneC {attribute}/>"),
+            &format!("<LightsceneC Q1=\"{value}\"/>"),
+            1,
+        );
+        assert_eq!(
+            editor.to_bytes().unwrap(),
+            ConfigEditor::load(expected.as_bytes())
+                .unwrap()
+                .to_bytes()
+                .unwrap()
+        );
+    }
+}
+
+#[test]
+fn lighting_raw_color_preview_and_writer_share_existing_ordered_errors() {
+    for (xml, selector, output, message) in [
+        (LEVEL_XML.to_owned(), "uuid:missing", 0, "uuid:missing"),
+        (
+            LEVEL_XML.replace("LightController2", "Switch"),
+            "uuid:lighting",
+            0,
+            "not a LightController2",
+        ),
+        (LEVEL_XML.to_owned(), "uuid:lighting", 0, "Q0"),
+        (
+            LEVEL_XML.to_owned(),
+            "uuid:lighting",
+            1,
+            "mood 'missing' not found",
+        ),
+    ] {
+        let mut editor = ConfigEditor::load(xml.as_bytes()).unwrap();
+        let before = editor.to_bytes().unwrap();
+        let preview_error = editor
+            .preview_mood_color(selector, "missing", output, 42)
+            .unwrap_err()
+            .to_string();
+        let writer_error = editor
+            .set_mood_color(selector, "missing", output, 42)
+            .unwrap_err()
+            .to_string();
+        assert_eq!(preview_error, writer_error);
+        assert!(preview_error.contains(message), "{preview_error}");
+        assert_eq!(editor.to_bytes().unwrap(), before);
+    }
+}
+
+#[test]
 fn lighting_mood_edit_preserves_nonzero_edits_of_sparse_moods() {
     let fixture = std::str::from_utf8(FIXTURE).unwrap();
     for (mood_ref, output, marker) in [

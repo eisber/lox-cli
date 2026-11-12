@@ -157,6 +157,70 @@ fn lighting_mix_preview_has_no_filesystem_or_network_side_effects() {
 }
 
 #[test]
+fn lighting_raw_color_preview_has_no_filesystem_or_network_side_effects() {
+    let sandbox = Sandbox::new();
+    let root = sandbox.dir.path();
+    let input = root.join("input.Loxone");
+    let output = root.join("output.Loxone");
+    fs::write(&output, b"existing output").unwrap();
+    let backend = sandbox.server.mock(|when, then| {
+        when.any_request();
+        then.status(500);
+    });
+    for (attribute, color, index, success) in [
+        ("Q2=\"future\"", "hsv(120,100,10)", "2", true),
+        ("Q2=\"1610622736\"", "1610622736", "2", true),
+        ("Q2=\"+01610622736\"", "rgb(0,255,0)", "2", true),
+        ("", "40100", "99", true),
+        ("Q2=\"-2147483648\"", "-1000000000", "2", true),
+        ("", "4294967295", "2", false),
+        ("", "hsv(120,100,10)", "0", false),
+        ("", "opaque", "0", false),
+    ] {
+        fs::write(
+            &input,
+            format!("\u{feff}<ControlList>\r\n<C Type=\"Document\" U=\"doc\" Date=\"2025-01-01 00:00:00\" DateS=\"504921600\"/>\r\n<C Type=\"LightController2\" U=\"lighting\" CapAI1=\"opaque\"><Unknown><LightsceneC Name=\"A\" SID=\"future\" CID=\"opaque\" Outputs=\"bad\" {attribute}/></Unknown><LightscenesC Num=\"bad\"><LightsceneC Name=\"A\" Q2=\"other\"/></LightscenesC><LSConfig OpM=\"opaque\" ScMv=\"opaque\"/><HCL T=\"2\"/></C>\r\n</ControlList>\r\n"),
+        ).unwrap();
+        for destination in [
+            None,
+            Some(input.clone()),
+            Some(output.clone()),
+            Some(root.join("missing").join("new.Loxone")),
+        ] {
+            let before = snapshot(root);
+            let mut cmd = sandbox.command(&["--dry-run", "--json"]);
+            cmd.args(["config", "set-mood-color"])
+                .arg(&input)
+                .args(["uuid:lighting", "--mood", "A", "--output-index", index])
+                .arg(format!("--color={color}"));
+            if let Some(destination) = destination {
+                cmd.arg("--save-as").arg(destination);
+            }
+            let assertion = cmd.assert();
+            let assertion = if success {
+                assertion.success().stderr("")
+            } else {
+                assertion.failure()
+            };
+            let result: Value = serde_json::from_slice(&assertion.get_output().stdout).unwrap();
+            if success {
+                assert_eq!(result["dry_run"], true);
+                assert_eq!(result["scope"], "raw_packed_edit");
+            } else {
+                assert_eq!(result["ok"], false);
+            }
+            let after = snapshot(root);
+            assert!(
+                after == before,
+                "Raw color preview wrote local data: {}",
+                snapshot_difference(&before, &after)
+            );
+        }
+    }
+    backend.assert_hits(0);
+}
+
+#[test]
 fn lighting_numeric_level_preview_has_no_filesystem_or_network_side_effects() {
     let sandbox = Sandbox::new();
     let root = sandbox.dir.path();
