@@ -17,6 +17,9 @@
     "native_saved_sha256": "a77c35130ba82b1ff03688a06d3d076d72252abfc0bee057443601ce44b1faa1",
     "private_persistence_result_sha256": "26e32531993713025684908a6f65220d3670261a7b767bc2f1126059dda2e2d8",
     "private_persistence_manifest_sha256": "da01984484a1320e62fa97b1c6714d803dc1453f26c562f5f3c7b3f55d454688",
+    "private_local_timing_audit_sha256": "c740a74e8a2f06e569cfdc02daafe7ce46f78c90783d6a037582e8fbc24d9384",
+    "private_final_assessment_sha256": "050e31d46b9c6050f3e0a74afc268cb3e712a403c2ec2b852acff6221619f6ba",
+    "private_final_assessment_manifest_sha256": "49a816592743b56464214d342d04e54998b5cf2737128e161e573a9ea07ef22f",
     "prior_widget_observation_artifact_sha256": "dfa76d9a67feabc5d4e788674bce0edec7066c4f275e412f7f9ff8fec332d10c"
   },
   "actual_observation": {
@@ -44,7 +47,7 @@
   "qualification_limits": {
     "full_guarded_qualification": false,
     "reason": "Earlier navigation lacks a retained explicit phase deadline, and two later read-only SDK observations occurred after a capacity-closed receipt. No retroactive deadline or zero-read claim is fabricated.",
-    "persistence_phase_dispatch_audit": "Local audit found all23 persistence-phase GUI effects dispatched before actual finite resource expiry, with target age and phase deadlines satisfied. This does not repair earlier missing evidence or grant full-run qualification.",
+    "persistence_phase_dispatch_audit": "Local audit found all23 retained persistence-phase GUI input intents within finite resource/target/phase limits; local post-acknowledgement reply-file times were also inside the resource windows. No separately instrumented guest delivery/pending timestamps are exposed. These recorded bounds do not repair earlier missing evidence or grant full-run qualification.",
     "post_closure_readonly_deviation": "Two numeric-stage observations after capacity closed are disclosed; no numeric edit or other input was dispatched by those reads.",
     "future_runs": "Any independently admitted future run uses its own exact source/target/deadline/dispatch receipts; this historical observation is never rebound or replayed."
   },

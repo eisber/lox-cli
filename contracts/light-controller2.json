@@ -43,10 +43,10 @@
     {
       "case_id": "lox-t5t3.9-sdk9f707-v1-persistence-phase",
       "artifact": "tests/ux/light-controller2/color-widget-persistence-20261112.json",
-      "sha256": "b22b1283fabb2dcb62298fd1c55dc1c3f869ac38691844244463c338f8fab130",
+      "sha256": "99f869ea110af675b3c52d5c76edcfee33d445f7aaedccb8d611d199d349dc81",
       "result": "Following the separately recorded Color Picker observation, VM122 saved/canceled inspection, exited to zero, reopened in a fresh process, selected prescribed SID1 and read back Q1 color dropdown, then exited normally. Saved/postexit/final bytes identical; actual native saved CapAI0=7/Q1 tag6 is classified color by the immutable CLI.",
       "all_deltas": "98 changed nodes/100 attribute deltas retained, including Title/WF and HCL T/TMIN/FROM/TO. Selected Qn/SID/CID/CapAI0 unchanged in saved XML; not a universal graph-state guarantee. No whole-file equality or incidental normalization.",
-      "qualification": "No full guarded qualification: earlier navigation lacks retained explicit phase deadline and two later post-capacity-close read-only calls are disclosed. Local audit found all23 persistence-phase GUI dispatches within actual lease/target/phase bounds, but does not repair earlier missing evidence.",
+      "qualification": "No full guarded qualification: earlier navigation lacks retained explicit phase deadline and two later post-capacity-close read-only calls are disclosed. Local audit found all23 retained persistence-phase GUI intents and local post-acknowledgement reply-file times within finite windows, with target/phase limits satisfied. Separate guest delivery/pending timestamps are not exposed; no earlier missing evidence is repaired.",
       "capability_policy": "Observed lifecycle/selected-widget agreement only; no accepted color edit, qualified case/old-run credit or aggregate GUI/runtime/family/whole-file promotion. Earlier incomplete-phase artifact remains immutable."
     },
     {
