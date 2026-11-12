@@ -368,8 +368,9 @@ defaulted to 0.
 
 Choose `config lighting set-mood-level` for a supported numeric kind; the edit
 still validates its target and storage. `color` identifies the native color
-control branch, **not** a mode-aware CLI color editor: existing
-`config set-mood-color` remains a raw packed-value write. It does not validate
+control branch, **not** universal RGB support. The bounded `set-mood-rgb`
+operation below validates one ordinary RGB branch; existing
+`config set-mood-color` remains a raw packed-value write. The raw operation does not validate
 the selected mode or reproduce native color, dynamic-white or sequence handling.
 `other` is outside the supported numeric/color branches. Opaque/out-of-range
 Qn, unsupported widths/indices, nested lookalikes and ambiguous containers remain
@@ -429,6 +430,48 @@ All 17 qualifying input gates were independently verified; physical delivery
 timing was not instrumented. See
 `tests/ux/light-controller2/numeric-level37-qualified-20261112.json`.
 Historical observations, failed phases and other cases receive no new credit.
+
+`set-mood-rgb` supports **only an existing ordinary tag-6 RGB branch with
+explicit `CapAI<n-1>=7`**, not every output classified `color`:
+
+```bash
+lox config lighting set-mood-rgb file.Loxone "Lighting" --mood "Evening" --output-index 2 --rgb 64,128,255 --save-as edited.Loxone
+```
+
+Inputs are three integer **bytes 0..255**, not percentages, HSV or raw packed
+values. Each becomes `round(byte / 2.55)` percent, then the selected Qn is
+`old_type_tag | (Rpercent + Gpercent*1000 + Bpercent*1000000)`.
+For `64,128,255`, percentages are `25,50,100` and stored tag-6 Qn is
+`1710662761`. No channel is clamped. An all-zero rounded result is rejected:
+tag-6 zero reopens as a dynamic-white default, not an ordinary RGB-mode proof.
+
+The selected existing Qn must already have a nonzero, valid ordinary RGB
+percent payload, not a dynamic-white payload (`>=200000000` below the tag).
+Require one direct collection/mood, explicit `Num` equal to the direct mood
+count, parsed sibling SIDs and a unique selected ordinary SID in `1..90`.
+Selection uses exact stored SID spelling or case-sensitive Name; no first-row
+mode assumption. Indices are `1..18`, within the scene's native reader width
+(absent/zero `Outputs` means 12). Selected `Locked`, `ReadOnly`, `Sequencing`
+must be absent/false, with no `SeqConf`. Numeric, other tags/capabilities,
+white/default/sequence state, malformed storage and ambiguous identities fail
+before any save. These are conservative supported-subset guards, not universal
+native restrictions or physical actuator roles.
+
+Only the selected Qn changes: all other Qn, IDs/order, widths/Num, flags,
+LSConfig, HCL and unknown data are retained. Equivalent numeric spelling is
+preserved on no-op; BOM/EOL and ordinary DOM writer/save-stamp behavior remain.
+JSON includes actual selected identity, raw before/after, input bytes,
+rounded percentages, capability and `changed`; table/CSV, `--quiet`,
+`--no-header`, `--room` and `--save-as` are supported.
+`--dry-run` remains explicitly unsupported and fails closed.
+This is a source-backed final-color encoding operation, not arbitrary native
+picker text/HSV/brightness-gesture equivalence, a new native roundtrip result
+or graph-dependent capability refresh. The existing raw `config set-mood-color`
+parser, accepted inputs and writer are unchanged.
+Native validation uses canonical decimal identities and capabilities; native
+loading of plus-prefixed or zero-padded numeric spellings remains unverified.
+Evidence and a bounded native fixture recipe:
+`tests/ux/light-controller2/ordinary-rgb-source.json`.
 
 The Config 17.2.10.21 per-mood renderer uses tags 1/2/3/7 directly as numeric.
 Tag 6 is capability-dependent: for Qn it reads `CapAI<n-1>`. With bit `0x40`

@@ -118,6 +118,22 @@ struct LightingMoodLevelPlan {
 }
 
 #[derive(Debug, Serialize)]
+pub struct LightingMoodRgbEdit {
+    pub scope: &'static str,
+    pub selected_mood: LightingMoodIdentity,
+    pub mood: String,
+    pub output: String,
+    pub output_index: usize,
+    pub before: String,
+    pub after: String,
+    pub rgb: [u8; 3],
+    pub percent: [u8; 3],
+    pub type_tag: i32,
+    pub capability: StoredValue<u16>,
+    pub changed: bool,
+}
+
+#[derive(Debug, Serialize)]
 pub struct LightingMoodColorPreview {
     pub scope: &'static str,
     pub controller_uuid: Option<String>,
@@ -191,6 +207,189 @@ pub struct LightingInspection {
 }
 
 impl ConfigEditor {
+    /// Only the ordinary, nonzero tag-6 RGB branch with explicit capability 7.
+    pub fn set_lighting_mood_rgb(
+        &mut self,
+        selector: &str,
+        mood_ref: &str,
+        output: usize,
+        rgb: [u32; 3],
+    ) -> Result<LightingMoodRgbEdit> {
+        let mut bytes = [0; 3];
+        for (byte, channel) in bytes.iter_mut().zip(rgb) {
+            *byte = u8::try_from(channel).map_err(|_| {
+                Diagnostic::new(
+                    "mood_rgb_out_of_range",
+                    "rgb",
+                    "RGB channels must be integers in 0..255. No channel was clamped or written.",
+                )
+            })?;
+        }
+        // Native 0x14043ab40 consumes COLORREF bytes, not the raw color parser's domain.
+        let percent = bytes.map(|channel| (f64::from(channel) / 2.55).round() as u8);
+        let payload = i32::from(percent[0])
+            + i32::from(percent[1]) * 1000
+            + i32::from(percent[2]) * 1_000_000;
+        if payload == 0 {
+            return Err(Diagnostic::new(
+                "unsupported_zero_rgb",
+                "rgb",
+                "These channels round to an all-zero payload, which reopens as the tag-6 dynamic-white default. Choose a nonzero RGB result; no mode was changed.",
+            )
+            .into());
+        }
+        if !(1..=18).contains(&output) {
+            return Err(Diagnostic::new(
+                "unsupported_mood_output_index",
+                "output-index",
+                "This RGB branch supports Q1..Q18. Use a 1-based --output-index within that bound.",
+            )
+            .into());
+        }
+        if mood_ref.is_empty() {
+            return Err(Diagnostic::new(
+                "ambiguous_or_missing_mood",
+                "mood",
+                "Choose a nonempty exact stored SID or Name.",
+            )
+            .into());
+        }
+        let path = self.lighting_metadata_mood_path(selector, mood_ref)?;
+        let block = self.get_element(&path[..path.len() - 2]);
+        let collection = self.get_element(&path[..path.len() - 1]);
+        let mood = self.get_element(&path);
+        let scenes: Vec<_> = collection
+            .children
+            .iter()
+            .filter_map(XMLNode::as_element)
+            .filter(|element| element.name == "LightsceneC")
+            .collect();
+        if collection
+            .attributes
+            .get("Num")
+            .and_then(|raw| raw.parse::<usize>().ok())
+            != Some(scenes.len())
+        {
+            return Err(Diagnostic::new(
+                "unsupported_rgb_mood_count",
+                "LightscenesC.Num",
+                "RGB editing requires explicit Num equal to the direct mood count, so the selected record is loaded. No count was repaired.",
+            )
+            .into());
+        }
+        let sids: Option<Vec<_>> = scenes
+            .iter()
+            .map(|scene| scene.attributes.get("SID")?.parse::<i32>().ok())
+            .collect();
+        let sid = mood
+            .attributes
+            .get("SID")
+            .and_then(|raw| raw.parse::<i32>().ok());
+        if !matches!((sid, sids.as_ref()), (Some(sid), Some(sids))
+            if (1..=90).contains(&sid) && sids.iter().filter(|other| **other == sid).count() == 1)
+        {
+            return Err(Diagnostic::new(
+                "unsupported_rgb_mood_identity",
+                mood_ref,
+                "RGB editing requires an explicit unique ordinary SID in 1..90 and parsed sibling SIDs. Equivalent decimal spellings must not alias the selected SID.",
+            )
+            .into());
+        }
+        if ["Locked", "ReadOnly", "Sequencing"].iter().any(|key| {
+            mood.attributes
+                .get(*key)
+                .is_some_and(|raw| !raw.eq_ignore_ascii_case("false"))
+        }) || mood
+            .children
+            .iter()
+            .filter_map(XMLNode::as_element)
+            .any(|element| element.name == "SeqConf")
+        {
+            return Err(Diagnostic::new(
+                "unsupported_rgb_mood_state",
+                mood_ref,
+                "RGB editing requires an unlocked, writable, nonsequencing mood with no SeqConf. Unknown flag values are not defaulted.",
+            )
+            .into());
+        }
+        let key = format!("Q{output}");
+        if i32::try_from(output)? > mood_output_width(mood, &key)? {
+            return Err(Diagnostic::new(
+                "unsupported_mood_output_width",
+                &key,
+                "Selected Qn lies outside the stored native reader width. No output vector was resized.",
+            )
+            .into());
+        }
+        let before = mood.attributes.get(&key).cloned().ok_or_else(|| {
+            Diagnostic::new(
+                "unsupported_mood_output_value",
+                &key,
+                "The selected Qn must already contain a signed-32-bit decimal; missing storage is not synthesized.",
+            )
+        })?;
+        let stored = before.parse::<i32>().map_err(|_| {
+            Diagnostic::new(
+                "unsupported_mood_output_value",
+                &key,
+                "Expected a stored signed-32-bit decimal. Opaque or overflowing values are not interpreted.",
+            )
+        })?;
+        let type_tag = (stored >> 28) & 15;
+        let editor = classify_mood_editor(block, output, type_tag);
+        if type_tag != 6
+            || editor.kind != LightingEditorKind::Color
+            || editor.capability.as_ref().and_then(|mask| mask.effective) != Some(7)
+        {
+            return Err(Diagnostic::new(
+                "unsupported_rgb_mood_branch",
+                &key,
+                "This RGB edit requires stored tag 6 and explicit CapAI<n-1>=7. Numeric, dynamic-white-capable and other color branches are unsupported; inspect the stored output.",
+            )
+            .into());
+        }
+        let old_payload = stored & 0x0fff_ffff;
+        if old_payload == 0
+            || old_payload >= 200_000_000
+            || old_payload % 1000 > 100
+            || (old_payload / 1000) % 1000 > 100
+            || old_payload / 1_000_000 > 100
+        {
+            return Err(Diagnostic::new(
+                "unsupported_rgb_mood_payload",
+                &key,
+                "Expected an existing nonzero ordinary RGB percent payload. Zero/default, dynamic-white and malformed packed channels are not reinterpreted.",
+            )
+            .into());
+        }
+        let encoded = (stored & -0x1000_0000) | payload;
+        let changed = encoded != stored;
+        let edit = LightingMoodRgbEdit {
+            scope: "stored_tag6_rgb",
+            selected_mood: LightingMoodIdentity {
+                uuid: mood.attributes.get("UUID").cloned(),
+                sid: mood.attributes.get("SID").cloned(),
+                cid: mood.attributes.get("CID").cloned(),
+            },
+            mood: mood_ref.into(),
+            output: key,
+            output_index: output,
+            before: before.clone(),
+            after: if changed { encoded.to_string() } else { before },
+            rgb: bytes,
+            percent,
+            type_tag,
+            capability: editor.capability.unwrap(),
+            changed,
+        };
+        if edit.changed {
+            self.get_element_mut(&path)
+                .attributes
+                .insert(edit.output.clone(), edit.after.clone());
+        }
+        Ok(edit)
+    }
+
     /// Rewrite raw Qn storage; no tag, capability, width or mode classification.
     /// Retains the existing first recursive SID-or-Name match and decimal write.
     pub fn set_mood_color(

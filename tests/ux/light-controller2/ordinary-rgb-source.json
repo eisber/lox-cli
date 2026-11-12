@@ -1,0 +1,165 @@
+{
+  "schema_version": 1,
+  "issue": "lox-7823",
+  "question": "How does the known color handler apply RGB to exactly the selected mood/output after stored type and configured capability dispatch, and how does model commit/serialization persist it?",
+  "unknowns_at_start": [
+    "Selected row/SID and output/control-index binding.",
+    "Ordinary RGB versus numeric, dynamic-white/default and sequence branch state.",
+    "Accepted color input representation, validation and rounding.",
+    "Selected primary-vector write through accepted copy-back and XML emission."
+  ],
+  "started_utc": "2026-11-12T22:21:43Z",
+  "uncertain_caller_cutoff_utc": "2026-11-12T22:56:43Z",
+  "total_uncertainty_cutoff_utc": "2026-11-12T23:06:43Z",
+  "bounded_branch_resolved_utc": "2026-11-12T22:27:25Z",
+  "frozen_target": {
+    "version": "17.2.10.21",
+    "pe_sha256": "7b55e3ef18401574ab967c5c6a0140cd5a66dc728521ebba04ad53093577d8b3",
+    "installation_sha256": "a3003005776b327f5e666a072a64f5c569182b86174c0f578d5be3267ce28f85",
+    "analysis_id": "6a0520329af17d7b9fdaafe69398c62c454d9da838fc9f9c8d0bdd8d17bb15ae",
+    "corpus": ".reverse-engineering/latest.json -> LoxoneConfig.exe/code/functions/0xADDRESS.c",
+    "new_extractions": 0
+  },
+  "reused_not_new_recovery": [
+    {
+      "artifact": "tests/ux/light-controller2/numeric-mood-level-source.json",
+      "sha256": "6626d2876679e4615ccf0242feb055f840ca4dd76828eea176b07e5fe4b89c1b",
+      "role": "All 13 existing pins remain reused: renderer0x1400e4d60, numeric handler0x1400e6460, capability binding/default/dispatch, known color handler0x1400e6590, encoder0x14043ab40 and decoder0x14043ae60. No credit for re-pinning these."
+    },
+    {
+      "artifact": "tests/ux/light-controller2/mood-name-source.json",
+      "role": "Existing0x1400eace0 grid cell bindings pass each scene pointer through cell virtual+0x38. Selected row virtual+0xa0 is the reciprocal grid-data convention; no new generic grid/factory recovery claimed."
+    },
+    {
+      "artifact": "tests/ux/light-controller2/identity-ambiguity-source.json",
+      "role": "Existing0x1405b57b0 selects the first scene by numeric SID at scene+0xa4, not the XML row ordinal or CID. Newly connected to the row callback and color handler, not a newly recovered getter."
+    },
+    {
+      "artifact": "tests/ux/light-controller2/incidental-normalization-triggers-source.json",
+      "role": "Existing0x1400e1da0 initialization is reused, not a new function pin. Its color-button flags are now related to the RGB arm: button+c28=4, c2c=4 or5 from the output flag, c28 gains1 only when (CapAI&0x47)==0x40. Admitted CapAI7 cannot take that white-only flag assignment. No physical capability inferred."
+    },
+    {
+      "artifact": "contracts/light-controller2.json",
+      "sections": [
+        "recovered_count_and_output_contract",
+        "recovered_edit_save_transaction"
+      ],
+      "role": "Existing accepted dialog0x14019de60 -> collection copier0x1405b4e50 -> scene copier0x1405b4bc0; common serializer0x14047e260 ->0x1405d1580 ->0x1405c9740 -> collection/scene binders. Reused scene binder0x1405b7df0 emits actual primary-vector Qn through existing type5 attribute writer0x1404c52f0. No fresh save/family proof."
+    },
+    {
+      "artifact": "tests/ux/light-controller2/raw-mood-color-preview-source.json",
+      "role": "Existing raw parser/writer contract only. Its accepted domain, clamping and recursive first-match semantics remain unchanged and are not native RGB equivalents."
+    },
+    {
+      "artifact": "tests/ux/light-controller2/color-widget-persistence-20261112.json",
+      "role": "VM122 case9 explicit CapAI0=7/tag6 Color Picker is a fixture lead only, not an accepted RGB edit or universal color semantics proof. Notebook.4 numeric validation remains separate."
+    }
+  ],
+  "newly_resolved_dependencies": [
+    {
+      "address": "0x1400e0510",
+      "sha256": "4695b651021e680108595141303dc74553c2a2bd476cccd25e6e0c6302e4a383",
+      "role": "Dialog constructor creates exactly18 color buttons at+10500, stridec30, through0x1402c23f0, binding that button layout/default to the known handler and DDX control array."
+    },
+    {
+      "address": "0x1405b3b20",
+      "sha256": "841d42e9d3e223c42747dec74fcc8543614570f94d35d48ecf7f1b94ae26e72b",
+      "role": "Embedded color sequencer constructor sets entry+24=0, not2, with no payload. Together with absent selected SeqConf and a fresh ordinary picker this discharges the known color handler's separate button+bf4==2 extended-arm predicate. Arbitrary prior UI gesture/control history is not reconstructed."
+    },
+    {
+      "address": "0x1400ecdc0",
+      "sha256": "b3427c938869db60e88d39d32bdb09807d26fcf5796862e8f61806153bab89c5",
+      "role": "Selected-grid-row callback obtains column0 cell via0x140015970; virtual+0xa0 yields scene data. It copies scene+0xa4 into dialog+0x3a8 then calls the existing renderer. No first-scene mode substituted for explicit selection."
+    },
+    {
+      "address": "0x1400e0fc0",
+      "sha256": "f65ddd4bd46668001fa2db0d78080812108ee9bbeefd985cc757427df5e405ca",
+      "role": "DDX loop binds 18 color buttons at dialog+0x10500+n*0xc30 to control IDs12000+0xe6+n=0x2fc6+n. This is the same origin/index subtraction and stride consumed by the known handler."
+    },
+    {
+      "address": "0x1402c23f0",
+      "sha256": "cbcc4da78b2ab806b683576070a3047ca3806c536da04495fa03ff442df35a77",
+      "role": "Color button constructor initializes mode+0xbc8=0 and separate dynamic-white value+0xbcc=0x01640fbe; the ordinary COLORREF is not the latter value."
+    },
+    {
+      "address": "0x1402c2520",
+      "sha256": "1e3c8746a3c415be166537356bc162843b0896126950cfa7447e68d2c20c73bd",
+      "role": "Launches picker with button+0xb28 COLORREF and sequence entry. Accepted modified result copies picker mode to button+0xbc8, ordinary color to SetColor, and mode1 white value to+0xbcc. Sends parent WM_COMMAND0x111 with actual GetDlgCtrlID and button HWND. The canonical C functions do not expose the MFC static message-map entry; its registration is not guessed or claimed independently proven."
+    },
+    {
+      "address": "0x1402bbd60",
+      "sha256": "2add24434772201aa9645f0a9b3f824134d48a06c7e9e9bdcd69972ff3b6d6d0",
+      "role": "Picker constructor stores incoming COLORREF in+a720/+a724, separate white value in+a728/+a750, and separate sequence/mode fields. Supports the noninterchangeable representations in the accept callback."
+    },
+    {
+      "address": "0x1402bff30",
+      "sha256": "8c67a78f74e5020b09996034eb8d83697ef65788d293c28572770dcb1f9b03b7",
+      "role": "Ordinary RGB tab path assigns the supplied COLORREF directly to picker+a720 and updates HLS controls. Not a raw decimal/base1000 text parser."
+    },
+    {
+      "address": "0x1402bcfc0",
+      "sha256": "876237dc990af31cffccc237debeac4ac38c50ffd2529bb636cf5e62646a0381",
+      "role": "OnOK applies brightness and Kelvin validation, obtains selected tab/mode, then commits picker sequence state and invokes CDialog::OnOK. Ordinary tab0 remains mode0; white tab/forced white selects1 unless extended mode is enabled."
+    },
+    {
+      "address": "0x1402c09f0",
+      "sha256": "bbe3410643386703fcfe46467fcca0afd75c02e123f37f606e3cfc6e9451e7d2",
+      "role": "Brightness input is atoi/clamped0..100; only a changed brightness calls0x1402bdd90 to rescale the picker color. This is not an RGB-byte validator. The CLI supplies the final byte color to the recovered encoder, not arbitrary native text/HSV navigation."
+    },
+    {
+      "address": "0x1402c0510",
+      "sha256": "799005932d73433f645dca96909f4966fc7d64a399cafcd8e30c53601b8bb08a",
+      "role": "Kelvin input validation runs only in the nonextended white branch; clamps2200..6500 and maps into a normalized slider. It does not reinterpret ordinary RGB bytes."
+    },
+    {
+      "address": "0x1402bd030",
+      "sha256": "45c13c08dc33b2d268f64341545c67da3d696fde4a9a194190272dcd867ad778",
+      "role": "Ordinary mode clears picker-local sequence payloads; modes2/4/10 construct sequence payloads using the existing encoder. This justifies excluding existing SeqConf and not copying sequence normalization."
+    },
+    {
+      "address": "0x1402bd950",
+      "sha256": "f3cf84845bf865d8508e07b0f6e5832acafc3350f2c044184fea36ab0d928d16",
+      "role": "RGB tab stores HSVtoRGB COLORREF separately; white path constructs flagged0x01BBKKKK, keeps brightness byte, Kelvin word and white representation separate. Neither is the native mood's percent base1000 storage."
+    }
+  ],
+  "new_semantic_chain": {
+    "selection_and_index": "Row callback -> selected numeric SID at dialog+3a8 -> reused SID getter(dialog+130,SID). Qn uses n-1, matched to DDX color-control ID2fc6+(n-1) and handler stridec30. CLI requires exact one direct mood and numeric selected-SID uniqueness, rather than assuming a first XML row.",
+    "dispatch": "Reused renderer starts from SELECTED Qn high nibble. Numeric tags1/2/3/7 use scalar controls. Tag6 with CapAI bit40 selects color9; otherwise low3=7 selects color6; otherwise numeric7. This command admits only explicit 16-bit mask7/tag6, rejecting every other capability combination even if inspection labels it color. It does not use first-scene helper0x1405c1870 or infer physical RGB hardware.",
+    "mode": "Within selected color6, ordinary positive payload below200000000 and no sequence entry goes through SetColor(decoder(payload)), then explicitly resets mode+bc8 to0. Fresh button embedded sequence+24 defaults0 (not2). CapAI7 does not trigger the reused initialization's white-only flag. Zero with tag>=6 and no sequence, or payload>=200000000, takes white initialization and mode1. Thus tag6/color classification alone is not an RGB-mode proof; arbitrary shared-control UI history is not inferred from XML.",
+    "handler": "Known0x1400e6590 mode0/no extended sequence consumes dialog+11028+(n-1)*c30 = button+b28. Mode1 consumes separate button+bcc instead. Extended/sequence state copies a sequence entry and is excluded. The actual existing selected primary-vector slot receives encode(COLORREF) | (old_tag<<28), with an explicit vector bound; no count/width/other-output write occurs on the ordinary branch.",
+    "ordinary_encoding": "COLORREF low byte is R, next G, next B. Reused0x14043ab40 computes P[channel]=lround(byte/2.55), then Rpercent+Gpercent*1000+Bpercent*1000000. All supported bytes are nonnegative, so Rust round matches native lround, and no byte/2.55 is an exact half. This is not raw parser input equivalence or truncating byte*100/255.",
+    "white_encoding_not_exposed": "If COLORREF high byte equals1, that same existing encoder instead returns200000000+KelvinWord+brightnessByte*10000 (integer conversion shown in canonical body). Handler still retains the old high type nibble. White input validation/clamping is a different branch and not implemented.",
+    "commit_emission": "Reused accepted-only dialog copy-back copies both scene vectors through0x1405b4bc0. Scene binder0x1405b7df0 iterates actual primary vector size, passing each full32-bit Qn to type5 XML binding. Existing contract resolves copy/serializer dispatch. No fresh GUI Save entry-point, MFC map data, generic file commit or whole-dialog normalization proof is claimed."
+  },
+  "CLI_policy": {
+    "command": "lox config lighting set-mood-rgb FILE BLOCK --mood SID_OR_NAME --output-index N --rgb R,G,B [--room ROOM] [--save-as PATH]",
+    "domain": "Three integer bytes0..255, each explicitly rounded by the recovered nearest-percent rule. No HSV/raw/base1000 input, clamp or reinterpretation. Reject an all-zero rounded payload so this operation does not silently enter the tag6 white-default state on reopen.",
+    "selection": "One LightController2, exactly one direct LightscenesC and one direct exact stored SID-spelling or case-sensitive Name match. Explicit Num equals the direct scene count; all direct sibling SIDs parse as signed32, selected SID is unique numerically and in1..90. CID/UUID/name/order are not reassigned.",
+    "branch": "Existing selected signed32 Qn, index1..18 within per-scene reader width (absent/zero Outputs=12), stored tag6 and explicit CapAI<n-1> effective7. Selected existing payload must be positive ordinary percent RGB with each packed channel0..100. No SeqConf; Locked/ReadOnly/Sequencing absent or false case-insensitively. These are conservative CLI guards, not universal native restrictions.",
+    "rejection": "Numeric branches, tag4/5/9 color branches, other/absent/malformed capability, white/default payload, malformed RGB payload, sequences, special/ambiguous/missing identities, unsupported shape/width/index and byte range all fail before mutation/save. Existing raw set-mood-color remains unchanged, including its broader accepted domain.",
+    "preservation": "Only selected Qn attribute changes. Preserve all IDs, order, per-scene/container widths, Num, flags, LSConfig, HCL, capabilities, sequences on other moods, unknown fields and unrelated Qn. Numerically equivalent no-op retains exact stored spelling/file bytes. Existing DOM writer preserves BOM/EOL and retains ordinary Document-stamp behavior on actual saves.",
+    "dry_run": "Existing fail-closed unsupported-command policy, with no new preview or allowlist entry.",
+    "tests": [
+      "src/config_edit/lighting_tests.rs: lighting_rgb_*",
+      "tests/lighting_rgb_cli.rs",
+      "Existing tests/lighting_source_capability.rs raw parser/writer compatibility tests remain unmodified."
+    ]
+  },
+  "native_fixture_recipe": {
+    "status": "recommendation-only; no new native execution or qualification claimed",
+    "lead": "VM122 prepared case9 explicit CapAI0=7/tag6 is reusable only after checking actual fresh selected state; do not substitute the numeric Notebook.4 result.",
+    "steps": [
+      "On an owned copy, select a unique ordinary SID mood with explicit correct Num, scene Outputs18, no SeqConf and Q1 ordinary positive RGB (e.g.1610622736); controller CapAI0=7. Record full input identity/hash, actual selected SID, Q1 tag/payload and capability after native preparation.",
+      "Keep a contrasting first mood/numeric Qn and unrelated HCL/LSConfig as preservation witnesses. Select the prescribed mood/output rather than an initial special/default row.",
+      "Use ordinary RGB picker, not white/sequence mode, choose a documented final COLORREF byte triplet, accept, record resulting mode/RGB readback and save to a new file. CLI witness --rgb64,128,255 encodes percent25,50,100 and Q1=1710662761.",
+      "Normal exit then fresh-process reopen of that exact saved hash; reselect actual SID/Q1 and verify ordinary picker plus selected decimal Qn. Retain all incidental native deltas without copying them into the CLI.",
+      "Discriminators: mask0 numeric, mask64 color9, and tag6 payload0 or>=200000000 must be separate rejected CLI cases, not proof for this branch. Non-first mood/output-index case tests row/channel selection."
+    ]
+  },
+  "remaining_limits": [
+    "No new MFC message-map data extraction: WM_COMMAND sender/control-ID/index correlation is source-visible; static registration itself is not in the canonical C bodies and is explicitly unproven.",
+    "Source-backed final COLORREF-to-selected-Qn branch, not arbitrary native RGB text/HSV/brightness gesture equivalence, full UI permission/editability, graph-dependent pre-modal retagging/capability refresh, hardware role, full sequence or dynamic-white support.",
+    "No GUI approval prerequisite, accepted RGB native observation, family/runtime credit, all-color-tag equivalence, whole-document normalization or disk-commit parity.",
+    "Normal-return source dataflow assumes valid distinct objects, ordinary grid-data/standard-library behavior, successful helper calls and no aliasing/reentrancy."
+  ]
+}
