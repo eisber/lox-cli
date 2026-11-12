@@ -15,6 +15,442 @@ use tempfile::TempDir;
 const ENERGY_XML: &str = include_str!("ux/energy-manager2/cli-synthetic.xml");
 const STAT_FILE: &str = "91000000-0000-0000-0000000000000001.202610.xml";
 
+const SPLICE_XML: &str = r#"<ControlList Version="267">
+  <C Type="Document" U="doc" Date="2020-01-01 00:00:00" DateS="347068800"/>
+  <C Type="Page" U="p1">
+    <C Type="OutputRef" U="oref" Title="Bridge" gid="bridge" Nio="+003">
+      <Co K="AI" U="ai" Nc="+0002" Def="opaque">
+        <In Input=" old " FLG="01" Future="discard"/>
+        <Keep Value="retain"/>
+        <In FLG=""/>
+      </Co>
+      <Co K="AI" U="duplicate"><In Input="untouched"/></Co>
+      <Co K="AQ" U="oref-aq"/>
+    </C>
+    <C Type="FutureActor" U="actor" Title="Lamp"><Co K="I"><In Input="oref-aq"/></Co></C>
+    <C Type="Constant" U="source-block"><Co K="AQ" U="source"/><Co K="Input" U="input"/></C>
+  </C>
+  <C Type="Page" U="p2"><C Type="Constant" U="remote-block"><Co K="AQ" U="remote"/></C></C>
+</ControlList>"#;
+
+#[test]
+fn splice_preview_reports_actual_resolution_raw_references_and_output_formats() {
+    let sandbox = Sandbox::new();
+    fs::write(sandbox.dir.path().join("input.Loxone"), SPLICE_XML).unwrap();
+    let backend = sandbox.server.mock(|when, then| {
+        when.any_request();
+        then.status(500);
+    });
+    for (selector, actor) in [
+        ("uuid:actor", true),
+        ("gid:BRIDGE", false),
+        ("Type:OutputRef", false),
+    ] {
+        for (source, stored, flag, warning) in [
+            ("uuid: source ", "source", None, ""),
+            ("remote", "remote", Some("2"), ""),
+            ("input", "input", None, "is an INPUT connector"),
+            (
+                "uuid:missing",
+                "missing",
+                Some("2"),
+                "is not a known connector",
+            ),
+            (
+                " uuid:source ",
+                "uuid:source",
+                Some("2"),
+                "is not a known connector",
+            ),
+        ] {
+            let before = snapshot(sandbox.dir.path());
+            let assertion = sandbox
+                .command(&[
+                    "config",
+                    "splice-actor",
+                    "input.Loxone",
+                    selector,
+                    "--source",
+                    source,
+                    "--dry-run",
+                    "--json",
+                    "--quiet",
+                    "--no-header",
+                    "--trace-id",
+                    "splice-test",
+                ])
+                .assert()
+                .success();
+            let result: Value = serde_json::from_slice(&assertion.get_output().stdout).unwrap();
+            assert_eq!(result["dry_run"], true);
+            assert_eq!(result["trace_id"], "splice-test");
+            assert_eq!(result["actor"].is_object(), actor);
+            assert_eq!(
+                result["selected"]["attributes"]["U"],
+                if actor { "actor" } else { "oref" }
+            );
+            assert_eq!(result["outputref"]["attributes"]["U"], "oref");
+            assert_eq!(result["source_requested"], source);
+            assert_eq!(result["source_stored"], stored);
+            assert_eq!(result["before_connector"]["Nc"], "+0002");
+            assert_eq!(result["after_connector"]["Nc"], "1");
+            assert_eq!(
+                result["before_references"][0]["attributes"]["Input"],
+                " old "
+            );
+            assert_eq!(result["before_references"][0]["attributes"]["FLG"], "01");
+            assert_eq!(result["before_references"][1]["attributes"]["FLG"], "");
+            assert!(
+                result["before_references"][1]["attributes"]
+                    .get("Input")
+                    .is_none()
+            );
+            assert_eq!(result["after_references"][0]["attributes"]["Input"], stored);
+            assert_eq!(
+                result["after_references"][0]["attributes"]
+                    .get("FLG")
+                    .and_then(Value::as_str),
+                flag
+            );
+            assert_eq!(result["before_nio"], result["after_nio"]);
+            let stderr = String::from_utf8_lossy(&assertion.get_output().stderr);
+            if warning.is_empty() {
+                assert!(stderr.is_empty(), "{stderr}");
+            } else {
+                assert!(stderr.contains(warning), "{stderr}");
+            }
+            assert_eq!(snapshot(sandbox.dir.path()), before);
+        }
+    }
+    for format in ["table", "csv"] {
+        for no_header in [false, true] {
+            let before = snapshot(sandbox.dir.path());
+            let mut command = sandbox.command(&["--dry-run", "-o", format, "--quiet"]);
+            command.args([
+                "config",
+                "splice-actor",
+                "input.Loxone",
+                "uuid:actor",
+                "--source",
+                "source",
+            ]);
+            if no_header {
+                command.arg("--no-header");
+            }
+            let assertion = command.assert().success().stderr("");
+            let output = String::from_utf8_lossy(&assertion.get_output().stdout);
+            let first_line = output.lines().next().unwrap();
+            assert_eq!(
+                first_line.starts_with(if format == "csv" {
+                    "SELECTED,"
+                } else {
+                    "SPLICE PREVIEW"
+                }),
+                !no_header
+            );
+            assert!(output.contains("BEFORE_REFERENCES") || (format == "csv" && no_header));
+            assert!(output.contains("old"));
+            assert!(output.contains("source"));
+            assert!(output.contains("01"));
+            assert!(!output.contains("dry-run wrote no files"));
+            assert_eq!(snapshot(sandbox.dir.path()), before);
+        }
+    }
+    backend.assert_hits(0);
+}
+
+#[test]
+fn splice_preview_all_destinations_and_failures_preserve_files_network_and_telemetry() {
+    let sandbox = Sandbox::new();
+    let root = sandbox.dir.path();
+    let input = root.join("input.Loxone");
+    let backend = sandbox.server.mock(|when, then| {
+        when.any_request();
+        then.status(500);
+    });
+    for (xml, selector, success) in [
+        (SPLICE_XML, "uuid:actor", true),
+        (
+            r#"<ControlList><C Type="OutputRef" U="o"/></ControlList>"#,
+            "uuid:o",
+            true,
+        ),
+        (
+            r#"<ControlList><C Type="StateV" U="o"><Co K="AQ" U="aq"/><Co K="AI" Nc="opaque"/></C><C U="a"><Co K="AI"><In Input="aq"/></Co></C></ControlList>"#,
+            "uuid:a",
+            true,
+        ),
+        (
+            r#"<ControlList><C Type="StateV" U="o"><Co K="AQ" U="aq"/></C><C U="a"><Co K="AI"><In Input="aq"/></Co></C></ControlList>"#,
+            "uuid:a",
+            false,
+        ),
+        (
+            r#"<ControlList><C Type="OutputRef" U="o"><Co K="AI" Nc="1"><In Input="missing" FLG="2"/></Co></C></ControlList>"#,
+            "uuid:o",
+            true,
+        ),
+        (
+            r#"<ControlList><C Type="OutputRef" Title="NoUuid"/></ControlList>"#,
+            "NoUuid",
+            false,
+        ),
+        (
+            r#"<ControlList><C U="a"><Co K="I"><In/></Co></C></ControlList>"#,
+            "uuid:a",
+            false,
+        ),
+        (
+            r#"<ControlList><C U="a"><Co K="I"><In Input="missing"/></Co></C></ControlList>"#,
+            "uuid:a",
+            false,
+        ),
+        (
+            r#"<ControlList><C U="o"><Co K="AQ" U="aq"/></C><C U="a"><Co K="I"><In Input="aq"/></Co></C></ControlList>"#,
+            "uuid:a",
+            false,
+        ),
+        (
+            r#"<ControlList><C Type="OutputRef" U="a" Title="Lamp"/><C Type="OutputRef" U="b" Title="Lamp"/></ControlList>"#,
+            "Lamp",
+            false,
+        ),
+        (SPLICE_XML, "uuid:not-found", false),
+        ("<ControlList><C", "uuid:o", false),
+    ] {
+        fs::write(&input, format!("\u{feff}{}\r\n", xml.replace('\n', "\r\n"))).unwrap();
+        for destination in [
+            None,
+            Some(input.clone()),
+            Some(root.join("output.Loxone")),
+            Some(root.join("missing").join("new.Loxone")),
+        ] {
+            for format in ["json", "table", "csv"] {
+                let before = snapshot(root);
+                let mut command =
+                    sandbox.command(&["--dry-run", "-o", format, "--quiet", "--no-header"]);
+                command.args(["config", "splice-actor"]).arg(&input).args([
+                    selector,
+                    "--source",
+                    "uuid:missing",
+                ]);
+                if let Some(destination) = &destination {
+                    command.arg("--save-as").arg(destination);
+                }
+                let assertion = command.assert();
+                let assertion = if success {
+                    assertion.success()
+                } else {
+                    assertion.failure()
+                };
+                if format == "json" {
+                    let result: Value =
+                        serde_json::from_slice(&assertion.get_output().stdout).unwrap();
+                    assert_eq!(result[if success { "dry_run" } else { "ok" }], success);
+                    if success && result["connector_created"] == true {
+                        assert_eq!(result["before_connector"], Value::Null);
+                        assert_eq!(result["connector_uuid_ephemeral"], true);
+                        assert!(
+                            result["after_connector"]["U"]
+                                .as_str()
+                                .is_some_and(|s| !s.is_empty())
+                        );
+                    }
+                }
+                let after = snapshot(root);
+                assert!(
+                    after == before,
+                    "splice preview wrote local data: {}",
+                    snapshot_difference(&before, &after)
+                );
+            }
+        }
+    }
+    for args in [
+        vec![
+            "config",
+            "splice-actor",
+            "not-found.Loxone",
+            "uuid:o",
+            "--source",
+            "x",
+        ],
+        vec!["config", "splice-actor", "input.Loxone", "uuid:o"],
+    ] {
+        let before = snapshot(root);
+        sandbox
+            .command(&["--dry-run", "--json"])
+            .args(args)
+            .assert()
+            .failure();
+        assert_eq!(snapshot(root), before);
+    }
+    for operation in ["wire", "wire-connector"] {
+        sandbox.assert_unsupported(&[
+            "config",
+            operation,
+            "input.Loxone",
+            "uuid:oref.AI",
+            "source",
+        ]);
+    }
+    backend.assert_hits(0);
+}
+
+#[test]
+fn splice_preview_errors_keep_legacy_validation_and_warning_order() {
+    let sandbox = Sandbox::new();
+    let root = sandbox.dir.path();
+    let backend = sandbox.server.mock(|when, then| {
+        when.any_request();
+        then.status(500);
+    });
+    for (xml, selector, error, warned) in [
+        (SPLICE_XML, "not-found", "not found", false),
+        (
+            r#"<ControlList><C Type="OutputRef" Title="NoUuid"/></ControlList>"#,
+            "NoUuid",
+            "has no UUID",
+            false,
+        ),
+        (
+            r#"<ControlList><C Type="Future" U="a"/></ControlList>"#,
+            "uuid:a",
+            "has no wired I/AI input",
+            false,
+        ),
+        (
+            r#"<ControlList><C U="a"><Co K="I"><In Input="unknown"/><In Input="aq"/></Co></C><C Type="OutputRef" U="o"><Co K="AQ" U="aq"/></C></ControlList>"#,
+            "uuid:a",
+            "could not find an OutputRef whose AQ (unknown)",
+            false,
+        ),
+        (
+            r#"<ControlList><C Type="OutputRef" U="" Title="Empty"/><C U=""/></ControlList>"#,
+            "Empty",
+            "Selector 'uuid:' matches 2 elements",
+            true,
+        ),
+        (
+            r#"<ControlList><C U="o"><Co K="AQ" U="aq"/></C><C U="a"><Co K="I"><In Input="aq"/></Co></C></ControlList>"#,
+            "uuid:a",
+            "Connector 'AI' not found on 'uuid:o'. Available connectors: AQ",
+            true,
+        ),
+    ] {
+        fs::write(root.join("input.Loxone"), xml).unwrap();
+        let before = snapshot(root);
+        let assertion = sandbox
+            .command(&["--dry-run", "--json"])
+            .args([
+                "config",
+                "splice-actor",
+                "input.Loxone",
+                selector,
+                "--source",
+                "unknown",
+            ])
+            .assert()
+            .failure();
+        let result: Value = serde_json::from_slice(&assertion.get_output().stdout).unwrap();
+        assert_eq!(result["ok"], false);
+        assert!(
+            result["message"].as_str().unwrap().contains(error),
+            "{result}"
+        );
+        let stderr = String::from_utf8_lossy(&assertion.get_output().stderr);
+        assert_eq!(stderr.contains("not a known connector"), warned, "{stderr}");
+        assert_eq!(snapshot(root), before);
+    }
+    backend.assert_hits(0);
+}
+
+#[test]
+fn splice_normal_writer_keeps_raw_report_overwrite_noop_save_and_conditional_stamp() {
+    let sandbox = Sandbox::new();
+    let root = sandbox.dir.path();
+    let input = root.join("input.Loxone");
+    fs::write(
+        &input,
+        format!("\u{feff}{}\r\n", SPLICE_XML.replace('\n', "\r\n")),
+    )
+    .unwrap();
+    let original = fs::read(&input).unwrap();
+    let assertion = sandbox
+        .command(&["--json"])
+        .env("LOX_TELEMETRY", "0")
+        .args([
+            "config",
+            "splice-actor",
+            "input.Loxone",
+            "uuid:actor",
+            "--source",
+            "uuid: source ",
+            "--save-as",
+            "output.Loxone",
+        ])
+        .assert()
+        .success()
+        .stderr(predicate::str::contains("Saved to output.Loxone"));
+    let result: Value = serde_json::from_slice(&assertion.get_output().stdout).unwrap();
+    assert_eq!(
+        result,
+        serde_json::json!({"ok":true,"outputref":"oref","source":" source "})
+    );
+    assert_eq!(fs::read(&input).unwrap(), original);
+    let written = fs::read(root.join("output.Loxone")).unwrap();
+    assert!(written.starts_with(&[0xef, 0xbb, 0xbf]));
+    let written = String::from_utf8(written).unwrap();
+    assert!(written.contains("\r\n"));
+    assert!(written.contains(r#"Input="source""#));
+    assert!(written.contains(r#"Input="untouched""#));
+    assert!(written.contains(r#"Value="retain""#));
+    assert!(!written.contains(r#"FLG="01""#));
+    assert!(!written.contains(r#"Date="2020-01-01 00:00:00""#));
+    let noop = r#"<ControlList><C Type="Document" Date="2020-01-01 00:00:00" DateS="347068800"/><C Type="OutputRef" U="o"><Co K="AI" Nc="1"><In Input="missing" FLG="2"/></Co></C></ControlList>"#;
+    fs::write(&input, noop).unwrap();
+    sandbox
+        .command(&["--quiet"])
+        .env("LOX_TELEMETRY", "0")
+        .args([
+            "config",
+            "splice-actor",
+            "input.Loxone",
+            "uuid:o",
+            "--source",
+            "missing",
+        ])
+        .assert()
+        .success()
+        .stdout("");
+    let written = fs::read_to_string(&input).unwrap();
+    assert!(written.contains(r#"Date="2020-01-01 00:00:00""#));
+    assert_ne!(
+        written, noop,
+        "a reference no-op still saves the normalized file"
+    );
+    assert!(written.contains(r#"Input="missing" FLG="2""#));
+    fs::write(&input, noop).unwrap();
+    sandbox
+        .command(&["--json"])
+        .env("LOX_TELEMETRY", "0")
+        .args([
+            "config",
+            "splice-actor",
+            "input.Loxone",
+            "uuid:o",
+            "--source",
+            "missing",
+            "--save-as",
+        ])
+        .arg(root.join("absent").join("output.Loxone"))
+        .assert()
+        .failure()
+        .stdout(predicate::str::contains(r#""outputref":"o""#));
+    assert_eq!(fs::read_to_string(&input).unwrap(), noop);
+    assert!(!root.join("absent").exists());
+}
+
 #[test]
 fn report_preview_has_no_filesystem_or_network_side_effects() {
     let sandbox = Sandbox::new();

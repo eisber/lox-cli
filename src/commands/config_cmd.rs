@@ -12,7 +12,8 @@ use crate::client::{LOXONE_EPOCH_SECS, LoxClient, USER_AGENT};
 use crate::commands::RunContext;
 use crate::config::Config;
 use crate::config_edit::{
-    ConfigEditor, PermissionChange, PermissionEdit, PrincipalKind, VirtualInOpts,
+    ConfigEditor, PermissionChange, PermissionEdit, PrincipalKind, SpliceActorPreview,
+    VirtualInOpts,
 };
 use crate::custom_overlay;
 use crate::token;
@@ -28,6 +29,86 @@ fn emit_json(ctx: &RunContext, mut obj: serde_json::Value) {
         obj["trace_id"] = serde_json::Value::String(tid.clone());
     }
     println!("{}", obj);
+}
+
+fn print_splice_preview(ctx: &RunContext, preview: &SpliceActorPreview) -> Result<()> {
+    let fields = [
+        ("SELECTED", serde_json::to_string(&preview.selected)?),
+        ("ACTOR", serde_json::to_string(&preview.actor)?),
+        ("OUTPUTREF", serde_json::to_string(&preview.outputref)?),
+        (
+            "SOURCE_REQUESTED",
+            serde_json::to_string(&preview.source_requested)?,
+        ),
+        (
+            "SOURCE_STORED",
+            serde_json::to_string(&preview.source_stored)?,
+        ),
+        (
+            "SOURCE_IS_OUTPUT",
+            serde_json::to_string(&preview.source_is_output)?,
+        ),
+        ("SOURCE_PAGE", serde_json::to_string(&preview.source_page)?),
+        (
+            "CONNECTOR_PATH",
+            serde_json::to_string(&preview.connector_path)?,
+        ),
+        (
+            "BEFORE_CONNECTOR",
+            serde_json::to_string(&preview.before_connector)?,
+        ),
+        (
+            "AFTER_CONNECTOR",
+            serde_json::to_string(&preview.after_connector)?,
+        ),
+        (
+            "BEFORE_REFERENCES",
+            serde_json::to_string(&preview.before_references)?,
+        ),
+        (
+            "AFTER_REFERENCES",
+            serde_json::to_string(&preview.after_references)?,
+        ),
+        ("BEFORE_NIO", serde_json::to_string(&preview.before_nio)?),
+        ("AFTER_NIO", serde_json::to_string(&preview.after_nio)?),
+        ("CONNECTOR_CREATED", preview.connector_created.to_string()),
+        (
+            "CONNECTOR_UUID_EPHEMERAL",
+            preview.connector_uuid_ephemeral.to_string(),
+        ),
+        ("SCOPE", preview.scope.to_owned()),
+    ];
+    if ctx.csv {
+        if !ctx.no_header {
+            println!(
+                "{}",
+                fields
+                    .iter()
+                    .map(|(key, _)| *key)
+                    .collect::<Vec<_>>()
+                    .join(",")
+            );
+        }
+        println!(
+            "{}",
+            fields
+                .iter()
+                .map(|(_, value)| format!("\"{}\"", value.replace('"', "\"\"")))
+                .collect::<Vec<_>>()
+                .join(",")
+        );
+    } else {
+        if !ctx.no_header {
+            println!("SPLICE PREVIEW  FIELD  STORED/PLANNED VALUE");
+        }
+        for (key, value) in fields {
+            println!("{key}  {value}");
+        }
+        if !ctx.quiet {
+            println!("\nAI references replaced, not appended; dry-run wrote no files");
+        }
+    }
+    Ok(())
 }
 
 pub fn cmd_setup(ctx: &RunContext, action: SetupCmd) -> Result<()> {
@@ -2498,6 +2579,17 @@ pub fn cmd_config(ctx: &RunContext, action: ConfigCmd) -> Result<()> {
         } => {
             let data = fs::read(&file).with_context(|| format!("Cannot read {}", file))?;
             let mut editor = ConfigEditor::load(&data)?;
+            if ctx.dry_run {
+                let preview = editor.preview_splice_actor(&selector, &source)?;
+                if ctx.json {
+                    let mut value = serde_json::to_value(&preview)?;
+                    value["dry_run"] = true.into();
+                    emit_json(ctx, value);
+                } else {
+                    print_splice_preview(ctx, &preview)?;
+                }
+                return Ok(());
+            }
             let outputref = editor.splice_actor(&selector, &source)?;
             if ctx.json {
                 emit_json(

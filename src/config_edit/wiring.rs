@@ -2,7 +2,52 @@ use super::lighting::LightingMoodCreationPreview;
 use super::schema::Diagnostic;
 use super::{ConfigEditor, MoodInfo, MqttTopic, WireInfo};
 use anyhow::Result;
+use serde::Serialize;
+use std::collections::BTreeMap;
 use xmltree::Element;
+
+#[derive(Debug, Serialize)]
+pub struct SpliceSelection {
+    pub path: Vec<usize>,
+    pub attributes: BTreeMap<String, String>,
+}
+
+#[derive(Debug, Serialize)]
+pub struct SpliceReference {
+    pub child_index: usize,
+    pub attributes: BTreeMap<String, String>,
+    pub discarded_children: usize,
+}
+
+#[derive(Debug, Serialize)]
+pub struct SpliceActorPreview {
+    pub selected: SpliceSelection,
+    pub actor: Option<SpliceSelection>,
+    pub outputref: SpliceSelection,
+    pub source_requested: String,
+    pub source_stored: String,
+    pub source_is_output: Option<bool>,
+    pub source_page: Option<String>,
+    pub connector_path: Vec<usize>,
+    pub connector_created: bool,
+    pub connector_uuid_ephemeral: bool,
+    pub before_connector: Option<BTreeMap<String, String>>,
+    pub after_connector: BTreeMap<String, String>,
+    pub before_references: Vec<SpliceReference>,
+    pub after_references: Vec<SpliceReference>,
+    pub before_nio: Option<String>,
+    pub after_nio: Option<String>,
+    pub scope: &'static str,
+}
+
+struct SpliceActorPlan {
+    preview: SpliceActorPreview,
+    outputref_uuid: String,
+}
+
+fn wire_source(source: &str) -> &str {
+    source.strip_prefix("uuid:").unwrap_or(source).trim()
+}
 
 fn native_mood_identities(collection: &Element) -> Result<(i64, i64)> {
     let scenes: Vec<_> = collection
@@ -849,54 +894,15 @@ impl ConfigEditor {
         source_uuid: &str,
         append: bool,
     ) -> Result<()> {
-        // Accept (and strip) a `uuid:` prefix on the source — the wire stores a
-        // bare connector UUID, never the selector form.
-        let source_uuid = source_uuid
-            .strip_prefix("uuid:")
-            .unwrap_or(source_uuid)
-            .trim();
-
-        // Validate the source is a real output connector (warn, don't fail —
-        // cross-file references and synthesized sources are legitimate).
-        match self.connector_dir_by_uuid(source_uuid) {
-            Some(true) => {}
-            Some(false) => eprintln!(
-                "⚠ Warning: source '{}' is an INPUT connector — wires flow FROM outputs TO inputs",
-                source_uuid
-            ),
-            None => eprintln!(
-                "⚠ Warning: source '{}' is not a known connector in this file (dangling reference?)",
-                source_uuid
-            ),
-        }
-
-        // Use standard selector matching (supports uuid:, gid:, Type:, and title)
-        let path = self.require_one(block_selector)?;
-
-        // Detect cross-page wiring: check if source is on a different Page than target
-        let target_page = self.find_page_for_path(&path);
-        let source_page = self.find_page_for_connector(source_uuid);
-        let cross_page = match (&target_page, &source_page) {
-            (Some(tp), Some(sp)) => tp != sp,
-            (_, None) => true, // source not on any page = cross-page
-            _ => false,
-        };
-
-        // Validate: target connector should be Input or Parameter, not Output
-        let elem = self.get_element(&path);
-        let block_type = elem.attributes.get("Type").cloned().unwrap_or_default();
-        if let Some(io_type) = Self::connector_io_type(&block_type, conn_key)
-            && io_type == "O"
-        {
-            eprintln!(
-                "⚠ Warning: wiring TO output connector '{}.{}' — normally you wire TO inputs, FROM outputs",
-                block_selector, conn_key
-            );
-        }
-
-        // Pre-fetch serial before mutable borrow (needed for auto-creating connectors)
-        let serial = self.find_miniserver_serial().unwrap_or_default();
-
+        let source_uuid = wire_source(source_uuid);
+        let (path, cross_page, serial) =
+            self.wire_connector_target(block_selector, conn_key, source_uuid)?;
+        let block_type = self
+            .get_element(&path)
+            .attributes
+            .get("Type")
+            .cloned()
+            .unwrap_or_default();
         let elem = self.get_element_mut(&path);
 
         // Collect available connectors for error message
@@ -1017,6 +1023,57 @@ impl ConfigEditor {
         Ok(())
     }
 
+    // Shared read-only prelude preserves source warnings and target resolution order.
+    fn wire_connector_target(
+        &self,
+        block_selector: &str,
+        conn_key: &str,
+        source_uuid: &str,
+    ) -> Result<(Vec<usize>, bool, String)> {
+        // Validate the source is a real output connector (warn, don't fail —
+        // cross-file references and synthesized sources are legitimate).
+        match self.connector_dir_by_uuid(source_uuid) {
+            Some(true) => {}
+            Some(false) => eprintln!(
+                "⚠ Warning: source '{}' is an INPUT connector — wires flow FROM outputs TO inputs",
+                source_uuid
+            ),
+            None => eprintln!(
+                "⚠ Warning: source '{}' is not a known connector in this file (dangling reference?)",
+                source_uuid
+            ),
+        }
+
+        // Use standard selector matching (supports uuid:, gid:, Type:, and title)
+        let path = self.require_one(block_selector)?;
+
+        // Detect cross-page wiring: check if source is on a different Page than target
+        let target_page = self.find_page_for_path(&path);
+        let source_page = self.find_page_for_connector(source_uuid);
+        let cross_page = match (&target_page, &source_page) {
+            (Some(tp), Some(sp)) => tp != sp,
+            (_, None) => true, // source not on any page = cross-page
+            _ => false,
+        };
+
+        // Validate: target connector should be Input or Parameter, not Output
+        let elem = self.get_element(&path);
+        let block_type = elem.attributes.get("Type").cloned().unwrap_or_default();
+        if let Some(io_type) = Self::connector_io_type(&block_type, conn_key)
+            && io_type == "O"
+        {
+            eprintln!(
+                "⚠ Warning: wiring TO output connector '{}.{}' — normally you wire TO inputs, FROM outputs",
+                block_selector, conn_key
+            );
+        }
+
+        // Pre-fetch serial before mutable borrow (needed for auto-creating connectors)
+        let serial = self.find_miniserver_serial().unwrap_or_default();
+
+        Ok((path, cross_page, serial))
+    }
+
     /// Find which Page UUID a path belongs to (walks up the path to find a Page ancestor).
     fn find_page_for_path(&self, path: &[usize]) -> Option<String> {
         // Walk path from root, check if any ancestor is a Page
@@ -1050,9 +1107,29 @@ impl ConfigEditor {
     /// OutputRef's `AQ` — in which case the driving OutputRef is found
     /// automatically. The OutputRef's `AI` source is replaced with `source_uuid`.
     pub fn splice_actor(&mut self, selector: &str, source_uuid: &str) -> Result<String> {
+        let plan = self.plan_splice_actor(selector, source_uuid)?;
+        self.apply_splice_actor(&plan);
+        Ok(plan.outputref_uuid)
+    }
+
+    pub fn preview_splice_actor(
+        &self,
+        selector: &str,
+        source_uuid: &str,
+    ) -> Result<SpliceActorPreview> {
+        Ok(self.plan_splice_actor(selector, source_uuid)?.preview)
+    }
+
+    fn plan_splice_actor(&self, selector: &str, source_uuid: &str) -> Result<SpliceActorPlan> {
         let path = self.require_one(selector)?;
         let elem = self.get_element(&path);
         let block_type = elem.attributes.get("Type").cloned().unwrap_or_default();
+        let selection = || SpliceSelection {
+            path: path.clone(),
+            attributes: elem.attributes.clone().into_iter().collect(),
+        };
+        let selected = selection();
+        let actor = (block_type != "OutputRef").then(selection);
 
         let outputref_uuid = if block_type == "OutputRef" {
             elem.attributes
@@ -1099,8 +1176,153 @@ impl ConfigEditor {
         };
 
         let sel = format!("uuid:{outputref_uuid}");
-        self.wire_connector(&sel, "AI", source_uuid, false)?;
-        Ok(outputref_uuid)
+        let source = wire_source(source_uuid);
+        let (target_path, cross_page, serial) = self.wire_connector_target(&sel, "AI", source)?;
+        let target = self.get_element(&target_path);
+        let available: Vec<_> = target
+            .children
+            .iter()
+            .filter_map(|c| c.as_element())
+            .filter(|e| e.name == "Co")
+            .filter_map(|e| e.attributes.get("K").cloned())
+            .collect();
+        let existing = target.children.iter().enumerate().find_map(|(index, c)| {
+            c.as_element()
+                .filter(|e| {
+                    e.name == "Co" && e.attributes.get("K").map(String::as_str) == Some("AI")
+                })
+                .map(|co| (index, co))
+        });
+        // AI cannot enter wire_connector's variadic I3..I20 branch.
+        let create_connector = if existing.is_none() {
+            let map = Self::connector_map();
+            let target_type = target
+                .attributes
+                .get("Type")
+                .map(String::as_str)
+                .unwrap_or("");
+            let default = map
+                .get(target_type)
+                .filter(|_| !target_type.is_empty())
+                .filter(|(connectors, _, _)| connectors.iter().any(|key| key == "AI"))
+                .map(|(_, defaults, _)| defaults.get("AI").cloned())
+                .ok_or_else(|| {
+                    anyhow::anyhow!(
+                        "Connector 'AI' not found on '{}'. Available connectors: {}",
+                        sel,
+                        available.join(", ")
+                    )
+                })?;
+            Some((Self::loxone_uuid(&serial), default))
+        } else {
+            None
+        };
+        let before_connector = existing.map(|(_, co)| co.attributes.clone().into_iter().collect());
+        let before_references: Vec<_> = existing
+            .into_iter()
+            .flat_map(|(_, co)| co.children.iter().enumerate())
+            .filter_map(|(child_index, node)| {
+                node.as_element()
+                    .filter(|e| e.name == "In")
+                    .map(|e| SpliceReference {
+                        child_index,
+                        attributes: e.attributes.clone().into_iter().collect(),
+                        discarded_children: e.children.len(),
+                    })
+            })
+            .collect();
+        let mut after_connector: BTreeMap<String, String> =
+            before_connector.clone().unwrap_or_default();
+        if let Some((uuid, default)) = &create_connector {
+            after_connector.insert("K".into(), "AI".into());
+            after_connector.insert("U".into(), uuid.clone());
+            if let Some(default) = default {
+                after_connector.insert("Def".into(), default.clone());
+            }
+        }
+        after_connector.insert("Nc".into(), "1".into());
+        let mut reference = BTreeMap::from([("Input".into(), source.to_owned())]);
+        if cross_page {
+            reference.insert("FLG".into(), "2".into());
+        }
+        let mut connector_path = target_path.clone();
+        connector_path.push(existing.map_or(target.children.len(), |(index, _)| index));
+        let before_nio = target.attributes.get("Nio").cloned();
+        let after_nio = if create_connector.is_some() {
+            Some(
+                (target
+                    .children
+                    .iter()
+                    .filter(|c| c.as_element().is_some_and(|e| e.name == "Co"))
+                    .count()
+                    + 1)
+                .to_string(),
+            )
+        } else {
+            before_nio.clone()
+        };
+        Ok(SpliceActorPlan {
+            preview: SpliceActorPreview {
+                selected,
+                actor,
+                outputref: SpliceSelection {
+                    path: target_path,
+                    attributes: target.attributes.clone().into_iter().collect(),
+                },
+                source_requested: source_uuid.into(),
+                source_stored: source.into(),
+                source_is_output: self.connector_dir_by_uuid(source),
+                source_page: self.find_page_for_connector(source),
+                connector_path,
+                connector_created: create_connector.is_some(),
+                connector_uuid_ephemeral: create_connector.is_some(),
+                before_connector,
+                after_connector,
+                after_references: vec![SpliceReference {
+                    child_index: existing
+                        .map_or(0, |(_, co)| co.children.len() - before_references.len()),
+                    attributes: reference,
+                    discarded_children: 0,
+                }],
+                before_references,
+                before_nio,
+                after_nio,
+                scope: "existing CLI splice-actor AI reference replacement only; no native UI or physical-effect claim",
+            },
+            outputref_uuid,
+        })
+    }
+
+    fn apply_splice_actor(&mut self, plan: &SpliceActorPlan) {
+        if plan.preview.connector_created {
+            let mut co = Element::new("Co");
+            co.attributes
+                .insert("K".into(), plan.preview.after_connector["K"].clone());
+            co.attributes
+                .insert("U".into(), plan.preview.after_connector["U"].clone());
+            if let Some(default) = plan.preview.after_connector.get("Def") {
+                co.attributes.insert("Def".into(), default.clone());
+            }
+            let target = self.get_element_mut(&plan.preview.outputref.path);
+            target.children.push(xmltree::XMLNode::Element(co));
+            target
+                .attributes
+                .insert("Nio".into(), plan.preview.after_nio.clone().unwrap());
+        }
+        let co = self.get_element_mut(&plan.preview.connector_path);
+        co.children
+            .retain(|c| c.as_element().is_none_or(|e| e.name != "In"));
+        let attributes = &plan.preview.after_references[0].attributes;
+        let mut reference = Element::new("In");
+        reference
+            .attributes
+            .insert("Input".into(), attributes["Input"].clone());
+        if let Some(flag) = attributes.get("FLG") {
+            reference.attributes.insert("FLG".into(), flag.clone());
+        }
+        co.children.push(xmltree::XMLNode::Element(reference));
+        co.attributes
+            .insert("Nc".into(), plan.preview.after_connector["Nc"].clone());
     }
 
     /// Find the UUID of the block (`C`) that owns a connector with the given
@@ -1425,6 +1647,206 @@ impl ConfigEditor {
             None
         }
         search(&self.root, uuid)
+    }
+}
+
+#[cfg(test)]
+mod splice_actor_tests {
+    use super::*;
+
+    const XML: &str = r#"<ControlList>
+      <C Type="Document" U="doc" Date="old" DateS="opaque"/>
+      <C Type="Place" U="room" Title="Kitchen"/>
+      <C Type="Page" U="p1">
+        <C Type="OutputRef" U="oref" Title="Bridge" gid="bridge" Nio="+003">
+          <Co K="AI" U="ai" Def="opaque" Nc="+0002" Future="keep">
+            <In Input=" old " FLG="01" Future="discard"><Unknown/></In>
+            <Keep Value="retain"/>
+            <In FLG=""/>
+          </Co>
+          <Co K="AI" U="duplicate-ai"><In Input="untouched"/></Co>
+          <Co K="AQ" U="oref-aq"/>
+        </C>
+        <C Type="FutureActor" U="actor" Title="Lamp">
+          <Co K="I"><In/><In Input="oref-aq"/><In Input="ignored"/></Co>
+          <Co K="AI"><In Input="also-ignored"/></Co>
+          <IoData Pr="room"/>
+        </C>
+        <C Type="Constant" U="same"><Co K="AQ" U="source"/><Co K="Input" U="input"/></C>
+      </C>
+      <C Type="Page" U="p2"><C Type="Constant" U="other"><Co K="AQ" U="remote"/></C></C>
+      <C Type="OutputRef" U="oref" Title="Bridge mirror"><Co K="AI"><In Input="mirror-untouched"/></Co></C>
+    </ControlList>"#;
+
+    #[test]
+    fn splice_preview_preserves_resolution_order_raw_references_and_low_level_writer() {
+        for selector in [
+            "uuid:oref",
+            "gid:BRIDGE",
+            "Type:OutputRef",
+            "brid",
+            "uuid:actor",
+            "lamp [Kitchen]",
+        ] {
+            for (source, stored, flag) in [
+                ("uuid: source ", "source", None),
+                ("remote", "remote", Some("2")),
+                ("input", "input", None),
+                ("unknown", "unknown", Some("2")),
+                ("", "", Some("2")),
+                (" uuid:source ", "uuid:source", Some("2")),
+            ] {
+                let mut editor = ConfigEditor::load(XML.as_bytes()).unwrap();
+                let before = format!("{:?}", editor.root);
+                let preview = editor.preview_splice_actor(selector, source).unwrap();
+                assert_eq!(format!("{:?}", editor.root), before);
+                assert_eq!(preview.outputref.attributes["U"], "oref");
+                assert_eq!(preview.source_requested, source);
+                assert_eq!(preview.source_stored, stored);
+                assert_eq!(preview.before_references.len(), 2);
+                assert_eq!(preview.before_references[0].attributes["Input"], " old ");
+                assert_eq!(preview.before_references[0].attributes["FLG"], "01");
+                assert_eq!(preview.before_references[0].discarded_children, 1);
+                assert!(
+                    !preview.before_references[1]
+                        .attributes
+                        .contains_key("Input")
+                );
+                assert_eq!(preview.before_references[1].attributes["FLG"], "");
+                assert_eq!(preview.before_connector.as_ref().unwrap()["Nc"], "+0002");
+                assert_eq!(preview.after_connector["Nc"], "1");
+                assert_eq!(preview.before_nio, preview.after_nio);
+                assert_eq!(preview.after_references[0].attributes["Input"], stored);
+                assert_eq!(
+                    preview.after_references[0]
+                        .attributes
+                        .get("FLG")
+                        .map(String::as_str),
+                    flag
+                );
+                assert_eq!(preview.after_references[0].child_index, 1);
+                let mut low_level = ConfigEditor::load(XML.as_bytes()).unwrap();
+                low_level
+                    .wire_connector("uuid:oref", "AI", source, false)
+                    .unwrap();
+                assert_eq!(editor.splice_actor(selector, source).unwrap(), "oref");
+                assert_eq!(editor.to_bytes().unwrap(), low_level.to_bytes().unwrap());
+            }
+        }
+    }
+
+    #[test]
+    fn splice_plan_keeps_sparse_creation_and_non_outputref_owner_admission() {
+        for owner_type in ["OutputRef", "InputRef", "StateV", "Future"] {
+            let xml = format!(
+                r#"<ControlList>
+                <C Type="{owner_type}" U="owner" Nio="opaque"><Co K="AQ" U="aq"/></C>
+                <C U="actor"><Co K="AI"><In Input="aq"/></Co></C>
+            </ControlList>"#
+            );
+            let mut editor = ConfigEditor::load(xml.as_bytes()).unwrap();
+            let before = format!("{:?}", editor.root);
+            let plan = editor.plan_splice_actor("uuid:actor", "unknown");
+            assert_eq!(format!("{:?}", editor.root), before);
+            if matches!(owner_type, "StateV" | "Future") {
+                let error = plan.err().unwrap().to_string();
+                assert_eq!(
+                    error,
+                    "Connector 'AI' not found on 'uuid:owner'. Available connectors: AQ"
+                );
+                assert_eq!(
+                    editor
+                        .splice_actor("uuid:actor", "unknown")
+                        .unwrap_err()
+                        .to_string(),
+                    error
+                );
+                continue;
+            }
+            let plan = plan.unwrap();
+            assert_eq!(plan.preview.outputref.attributes["Type"], owner_type);
+            assert!(plan.preview.connector_created);
+            assert!(plan.preview.connector_uuid_ephemeral);
+            assert!(plan.preview.before_connector.is_none());
+            assert!(plan.preview.before_references.is_empty());
+            assert_eq!(plan.preview.before_nio.as_deref(), Some("opaque"));
+            assert_eq!(plan.preview.after_nio.as_deref(), Some("2"));
+            editor.apply_splice_actor(&plan);
+            let co = editor.get_element(&plan.preview.connector_path);
+            assert_eq!(
+                co.attributes
+                    .iter()
+                    .map(|(k, v)| (k.clone(), v.clone()))
+                    .collect::<BTreeMap<_, _>>(),
+                plan.preview.after_connector
+            );
+            let mut low_level = ConfigEditor::load(xml.as_bytes()).unwrap();
+            low_level
+                .wire_connector("uuid:owner", "AI", "unknown", false)
+                .unwrap();
+            low_level
+                .get_element_mut(&plan.preview.connector_path)
+                .attributes
+                .insert("U".into(), co.attributes["U"].clone());
+            assert_eq!(editor.to_bytes().unwrap(), low_level.to_bytes().unwrap());
+        }
+    }
+
+    #[test]
+    fn splice_preview_preserves_ordered_failures_first_actor_source_and_noop_replacement() {
+        for (xml, selector, expected) in [
+            (
+                r#"<ControlList><C Type="OutputRef" Title="Bridge"/></ControlList>"#,
+                "Bridge",
+                "OutputRef 'Bridge' has no UUID",
+            ),
+            (
+                r#"<ControlList><C Type="Future" U="a"/></ControlList>"#,
+                "uuid:a",
+                "'uuid:a' (type Future) has no wired I/AI input",
+            ),
+            (
+                r#"<ControlList><C U="a"><Co K="I"><In Input="missing"/><In Input="known"/></Co></C><C Type="OutputRef" U="o"><Co K="AQ" U="known"/></C></ControlList>"#,
+                "uuid:a",
+                "could not find an OutputRef whose AQ (missing) drives 'uuid:a'",
+            ),
+            (
+                r#"<ControlList><C Type="OutputRef" U="a" Title="Bridge"/><C Type="OutputRef" U="b" Title="Bridge"/></ControlList>"#,
+                "Bridge",
+                "Selector 'Bridge' matches 2 elements",
+            ),
+        ] {
+            let mut editor = ConfigEditor::load(xml.as_bytes()).unwrap();
+            let before = format!("{:?}", editor.root);
+            let preview = editor
+                .preview_splice_actor(selector, "unknown")
+                .unwrap_err()
+                .to_string();
+            let writer = editor
+                .splice_actor(selector, "unknown")
+                .unwrap_err()
+                .to_string();
+            assert_eq!(preview, writer);
+            assert!(preview.contains(expected), "{preview}");
+            assert_eq!(format!("{:?}", editor.root), before);
+        }
+        let xml = r#"<ControlList><C Type="OutputRef" U="o"><Co K="AI" Nc="0001"><In Input="source" FLG="02"/></Co></C></ControlList>"#;
+        let mut editor = ConfigEditor::load(xml.as_bytes()).unwrap();
+        let preview = editor
+            .preview_splice_actor("uuid:o", "uuid:source")
+            .unwrap();
+        assert_eq!(preview.before_references[0].attributes["FLG"], "02");
+        assert_eq!(preview.after_references[0].attributes["FLG"], "2");
+        editor.splice_actor("uuid:o", "uuid:source").unwrap();
+        let repeated = editor.preview_splice_actor("uuid:o", "source").unwrap();
+        assert_eq!(
+            repeated.before_connector.as_ref().unwrap(),
+            &repeated.after_connector
+        );
+        assert_eq!(
+            repeated.before_references[0].attributes,
+            repeated.after_references[0].attributes
+        );
     }
 }
 

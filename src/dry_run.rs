@@ -73,6 +73,7 @@ fn has_non_mutating_path(cmd: &Cmd) -> bool {
                 | ConfigCmd::Moods { .. }
                 | ConfigCmd::SetMoodColor { .. }
                 | ConfigCmd::AddMood { .. }
+                | ConfigCmd::SpliceActor { .. }
                 | ConfigCmd::GetParams { .. }
                 | ConfigCmd::Connectors { .. }
                 | ConfigCmd::GetProgram { .. }
@@ -208,12 +209,12 @@ mod tests {
             &["config", "init", "repo"],
             &["config", "pull"],
             &["config", "set-param", "input.Loxone", "block", "I1", "1"],
+            &["config", "wire", "input.Loxone", "Lamp.AI", "uuid:source"],
             &[
                 "config",
-                "splice-actor",
+                "wire-connector",
                 "input.Loxone",
-                "Lamp",
-                "--source",
+                "Lamp.AI",
                 "uuid:source",
             ],
             &["config", "room", "add", "input.Loxone", "new"],
@@ -247,6 +248,14 @@ mod tests {
     #[test]
     fn dry_run_preserves_existing_planners_and_read_only_dispatch() {
         for args in [
+            vec![
+                "config",
+                "splice-actor",
+                "input.Loxone",
+                "Lamp",
+                "--source",
+                "uuid:source",
+            ],
             vec![
                 "config",
                 "energy",

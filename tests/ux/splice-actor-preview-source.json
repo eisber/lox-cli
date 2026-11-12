@@ -1,0 +1,73 @@
+{
+  "schema_version": 1,
+  "issue": "lox-zhop",
+  "artifact_kind": "source-only-existing-splice-actor-preview",
+  "baseline": "33a033842228e3fef5df95ed819f1c786019c7d7",
+  "claim": "Preview the existing raw CLI splice-actor reference replacement; no new native caller, actor class, device family, physical effect, whole-file or SPS claim.",
+  "existing_source_basis": [
+    {
+      "path": "src/config_edit/wiring.rs",
+      "blob_oid": "442b82c31f948a34f220bd86a73cfe6d35ced4bd",
+      "sha256": "1d9fb8f8d073ee4d9e34aa49fcdfa0d7cb7e47fc85a32a2f60e1c4ab8c068af6",
+      "symbols": ["splice_actor", "wire_connector", "find_block_owning_connector", "find_page_for_path", "find_page_for_connector", "connector_dir_by_uuid"],
+      "relationship": "Authoritative already supported CLI behavior, including permissive type handling, first-match traversal, warning-only source admission, sparse connector creation, Nc and page flags."
+    },
+    {
+      "path": "src/config_edit/selector.rs",
+      "blob_oid": "5f5b3bc07668211001330e0408a320c4405c1951",
+      "sha256": "cb4d9a0c394d712c8c5c28eccfc2a9be93535846dfd9bfcf089ee003d357cb03",
+      "symbols": ["require_one"],
+      "relationship": "Unmodified selector, bracket-room filtering, UUID mirror de-duplication, ambiguity and error behavior."
+    },
+    {
+      "path": "src/commands/config_cmd.rs",
+      "blob_oid": "006c42a3c9210cc129fdb0485cedb04d302f3ced",
+      "sha256": "787582b90e793b5e84c75aa9f70e4225053ef912366e1ceebac410cd03bdf5e9",
+      "symbols": ["ConfigCmd::SpliceActor", "save_edited", "content_changed"],
+      "relationship": "Unchanged normal JSON/table reporting, report-before-save ordering, overwrite, unconditional save and content-change-dependent stamp behavior."
+    },
+    {
+      "path": "src/dry_run.rs",
+      "blob_oid": "83a32e0ca01f85204a5f00d77b15465e2e8cef55",
+      "sha256": "4d96292bd3fa1b6203295e8d1080413b2fe033a660911db3e30be9cbd7ffac63",
+      "relationship": "Existing fail-closed dispatch contract. Only ConfigCmd::SpliceActor is newly admitted."
+    },
+    {
+      "path": "tests/ux/light-controller2/mood-count-repair-preview-source.json",
+      "blob_oid": "c4debe3adf8e041cf482611a62d2cdde94db2cfa",
+      "sha256": "5323fb6920cb65e98e5382eb56a32e5864cbbf8f5b1d19f7390b7db77c0afa82",
+      "relationship": "Existing private immutable plan, raw presence/spelling, format and early-return conventions only; no mood or native count semantics enter splice-actor."
+    }
+  ],
+  "hash_basis": "SHA256 and Git blob OIDs above describe committed baseline LF blobs, not CRLF working-tree bytes.",
+  "contract_refs": [],
+  "provenance_boundary": "No native splice caller is claimed. Existing repository implementation is the proof for this CLI-only preview. Native connected-binding contracts describe different operations and are not repurposed as splice or physical-effect evidence. No corpus extraction or new native execution was performed.",
+  "shared_plan": {
+    "type": "private SpliceActorPlan",
+    "preview_api": "ConfigEditor::preview_splice_actor(&self, selector, source) -> Result<SpliceActorPreview>",
+    "writer_api": "ConfigEditor::splice_actor(&mut self, selector, source) -> Result<String> (unchanged)",
+    "application": "One immutable plan resolves selected and actual target paths, source spelling, AI attributes, ordered reference attributes, Nc and optional sparse creation/Nio. Writer applies it directly, without a second resolution. Preview never applies it or clones a DOM.",
+    "reuse": "The original source warning, target resolution, page/flag and target warning prelude is extracted as wire_connector_target and shared with wire_connector. Existing selector, connector direction, page, connector map, UUID and owner helpers are reused. The variadic I3..I20 branch cannot apply to the fixed AI key; it remains unchanged for wire_connector.",
+    "no_new_support": "No new source selector, alias, actor/device/type guard, connector normalization, reference resolution or wiring framework."
+  },
+  "preserved_semantics": [
+    "require_one(selector) precedes any source warning or target lookup. Exact Type=OutputRef selects itself; otherwise first direct Co K=I or AI containing an In with Input is followed. Missing Input is skipped, empty Input is not.",
+    "Owner lookup is the first C owning a direct Co K=AQ with the exact stored actor Input UUID. Its type is not checked. Then uuid:owner is resolved again with the existing selector helper, including mirror de-duplication and errors.",
+    "Source is not resolved as a title or block. Strip one literal leading uuid: before trim. Input and unknown connectors warn but remain admitted, including empty and cross-file UUIDs.",
+    "First direct Co K=AI only. All its direct In children are removed, including malformed ones and their payload. Non-In children and later duplicate AI connectors remain. New In is appended, Nc becomes 1, append is false.",
+    "Before reference attributes retain all raw Input/FLG and extra attribute spellings and missing-versus-empty distinctions. child_index records direct child order; discarded_children counts removed nested payload, not a complete XML diff.",
+    "FLG=2 iff both known pages differ or source page is unknown, using the existing helpers exactly. Otherwise the new In has no FLG.",
+    "Missing AI uses the same embedded connector map, default and generated UUID as the old writer. Preview marks the proposed connector UUID ephemeral; it is not a promise of identity across invocations. Nio is counted only in this existing creation branch.",
+    "No-op source spellings do not suppress replacement or normal save. Document stamping still uses the normalized content_changed comparison, so a true reference no-op keeps its stamp. Normal reports strip uuid: but do not trim, while the stored reference is trimmed, as before.",
+    "All existing save-as overwrite, destination-error and report-before-save behavior remains after the early-return branch."
+  ],
+  "preview_boundary": "Returns before DOM mutation, XML serialization, default insertion, Document stamp, save, destination probing or directory/cache/network/telemetry writes. Only local source input read/parse/resolution and diagnostic output occur. JSON has dry_run and optional trace_id; table/CSV use JSON-valued cells for lossless presence and spelling. Quiet suppresses only summary; no-header affects table/CSV headers.",
+  "tests": [
+    "src/config_edit/wiring.rs::splice_actor_tests: read-only planning, selector and first-source resolution, raw/duplicate/malformed references, same/cross/unknown pages, sparse creation, permissive non-OutputRef owner, ordered failures, low-level writer equivalence and no-op transitions.",
+    "tests/dry_run.rs::splice_preview_reports_actual_resolution_raw_references_and_output_formats: selected actor/target/source, warnings, trace and table/CSV/JSON/quiet/no-header behavior.",
+    "tests/dry_run.rs::splice_preview_all_destinations_and_failures_preserve_files_network_and_telemetry: complete sandbox contents/mtime/permissions snapshots with telemetry locally enabled and all network traffic directed to a local observer; missing/input/existing/missing-parent destinations and malformed/missing/ambiguous inputs; wire aliases remain fail-closed.",
+    "tests/dry_run.rs::splice_preview_errors_keep_legacy_validation_and_warning_order: selector, missing UUID, unwired actor and first-source failures precede source warnings; eventual target ambiguity or missing AI follows the existing warning.",
+    "tests/dry_run.rs::splice_normal_writer_keeps_raw_report_overwrite_noop_save_and_conditional_stamp: unchanged writer report shape/raw spelling, existing destination overwrite, BOM/CRLF, unconditional no-op save with unchanged stamp, changed-content stamp and save-failure order.",
+    "Existing config integration, wiring unit and dry-run suites, followed by the four workspace gates recorded in the delivery artifact."
+  ]
+}

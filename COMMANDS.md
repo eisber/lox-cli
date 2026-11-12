@@ -8,7 +8,7 @@ Global flags: `--json` (shorthand for `--output json`), `-o`/`--output json|csv|
 or reboots, even with `--force`, `--write`, or `--save-as`. Existing safe planners
 are available for `config energy` edits, supported `config lighting` mood edits
 (including `set-mood-level`), the existing raw `config set-mood-color` edit,
-existing `config add-mood` creation, and
+existing `config add-mood` creation, `config splice-actor` reference replacement, and
 `stats download`; audited read-only
 commands retain their normal output and may make read-only network requests.
 Other commands fail before dispatch with “dry-run not supported” (exit 1;
@@ -20,6 +20,51 @@ including its local first-run/session files. Remove `--dry-run` only to execute
 an unsupported operation.
 
 ---
+
+### Preview an existing actor splice
+
+```text
+lox config splice-actor file.Loxone "uuid:actor-or-outputref" --source "uuid:new-source" --dry-run --json
+```
+
+Only this already supported splice operation gains dry-run admission; `config wire`
+and `config wire-connector` remain unsupported under global `--dry-run`.
+The shared immutable plan reports the actual selected block, actor (when selected),
+resolved target (historically called OutputRef), normalized stored source UUID,
+ordered direct `In` reference attributes before/after, connector attributes
+(including raw `Nc`), and any existing sparse-connector creation/`Nio` change.
+Absent attributes and empty strings remain distinct; table/CSV retain the same
+data as JSON using JSON-valued cells. `--quiet` suppresses the summary, not the
+preview; `--no-header` suppresses table/CSV headers. JSON supports `--trace-id`.
+
+The existing selector rules are unchanged. A non-OutputRef selector follows the
+first stored source on its direct `I`/`AI` connectors and then the first `C`
+owning that exact `AQ` UUID. Despite the historical name, the implementation
+does not enforce an actor class or OutputRef owner type; this preview neither
+adds nor narrows those checks. `--source` is a connector UUID, not a block/title
+selector: one leading `uuid:` is stripped **before** trimming whitespace.
+Input and unknown sources retain the existing warnings, not new rejections.
+
+The first direct target `Co K="AI"` has all direct `In` children replaced, not
+appended, by one reference. Raw old `Input`/`FLG` spellings, missing attributes,
+extra attributes, and reference child positions are exposed; `discarded_children`
+counts any nested payload removed with an old `In` (not a full XML diff).
+Non-`In` siblings and later duplicate AI connectors remain untouched.
+Cross-page flags use the existing page helpers: the new reference gets `FLG="2"`
+when the source page is unknown or both known pages differ, otherwise no FLG.
+`Nc` becomes `"1"`. Existing schema-driven AI creation remains supported,
+including defaults and a generated connector UUID marked ephemeral across calls.
+
+Preview returns before any DOM mutation, XML serialization, default insertion,
+Document stamp, save, destination check, or filesystem/network/telemetry write,
+even for in-place, existing, or missing-parent `--save-as` destinations.
+Normal execution still replaces references, reports the original untrimmed
+source spelling after prefix removal, and saves even when reference values
+already match. Document stamping still depends on the existing normalized
+content-change comparison. Its original overwrite and save-failure behavior is
+unchanged. This is source-only CLI planning, not native UI, device-role,
+physical-effect, whole-file, or SPS validation.
+Source basis: `tests/ux/splice-actor-preview-source.json`.
 
 ## Setup
 
