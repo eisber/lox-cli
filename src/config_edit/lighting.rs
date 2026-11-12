@@ -72,6 +72,24 @@ pub struct LightingMoodCountEdit {
 }
 
 #[derive(Debug, Serialize)]
+pub struct LightingMoodCountPreview {
+    #[serde(flatten)]
+    pub edit: LightingMoodCountEdit,
+    pub scope: &'static str,
+    pub controller_uuid: Option<String>,
+    pub controller_title: Option<String>,
+    /// XML child-node indices relative to the selected controller.
+    pub collection_path: Vec<usize>,
+    pub before_effective: Option<i32>,
+    pub after_effective: i32,
+}
+
+struct LightingMoodCountPlan {
+    path: Vec<usize>,
+    preview: LightingMoodCountPreview,
+}
+
+#[derive(Debug, Serialize)]
 pub struct LightingMoodLevelEdit {
     pub mood: String,
     pub output: String,
@@ -463,6 +481,20 @@ impl ConfigEditor {
     /// Native append (0x1405b48e0) and reconciliation (0x1405c6770) assign
     /// Num from the scene-vector size, independently of either Outputs field.
     pub fn recount_lighting_moods(&mut self, selector: &str) -> Result<LightingMoodCountEdit> {
+        let plan = self.plan_lighting_mood_count(selector)?;
+        if plan.preview.edit.changed {
+            self.get_element_mut(&plan.path)
+                .attributes
+                .insert("Num".into(), plan.preview.edit.after.clone());
+        }
+        Ok(plan.preview.edit)
+    }
+
+    pub fn preview_lighting_mood_count(&self, selector: &str) -> Result<LightingMoodCountPreview> {
+        Ok(self.plan_lighting_mood_count(selector)?.preview)
+    }
+
+    fn plan_lighting_mood_count(&self, selector: &str) -> Result<LightingMoodCountPlan> {
         let path = self.require_one(selector)?;
         let block = self.get_element(&path);
         if block.attributes.get("Type").map(String::as_str) != Some("LightController2") {
@@ -503,25 +535,31 @@ impl ConfigEditor {
             )
         })?;
         let before = collection.attributes.get("Num").cloned();
-        let changed = before.as_ref().and_then(|raw| raw.parse::<i32>().ok()) != Some(count);
+        let before_effective = before.as_ref().and_then(|raw| raw.parse::<i32>().ok());
+        let changed = before_effective != Some(count);
         let after = if changed {
             count.to_string()
         } else {
             before.as_ref().unwrap().clone()
         };
         let container_index = *container_index;
-        if changed {
-            let collection = self.get_element_mut(&path).children[container_index]
-                .as_mut_element()
-                .unwrap();
-            collection.attributes.insert("Num".into(), after.clone());
-        }
-        Ok(LightingMoodCountEdit {
-            before,
-            after,
-            scenes,
-            changed,
-        })
+        let preview = LightingMoodCountPreview {
+            edit: LightingMoodCountEdit {
+                before,
+                after,
+                scenes,
+                changed,
+            },
+            scope: "stored_mood_count_repair",
+            controller_uuid: block.attributes.get("U").cloned(),
+            controller_title: block.attributes.get("Title").cloned(),
+            collection_path: vec![container_index],
+            before_effective,
+            after_effective: count,
+        };
+        let mut path = path;
+        path.push(container_index);
+        Ok(LightingMoodCountPlan { path, preview })
     }
 
     fn numeric_mood_capability(

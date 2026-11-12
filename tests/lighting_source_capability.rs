@@ -1168,6 +1168,297 @@ fn lighting_numeric_level_cli_failures_preserve_input_and_existing_save_as() {
 }
 
 #[test]
+fn lighting_recount_cli_dry_run_matches_writer_and_preserves_destinations() {
+    let dir = tempfile::Builder::new()
+        .prefix(".recount-preview-")
+        .tempdir_in(env!("CARGO_MANIFEST_DIR"))
+        .unwrap();
+    let input = dir.path().join("input.Loxone");
+    let output = dir.path().join("output.Loxone");
+    let missing = dir.path().join("missing").join("new.Loxone");
+    for (attribute, effective, after, changed) in [
+        ("", None, "2", true),
+        ("Num=\"\"", None, "2", true),
+        ("Num=\"future\"", None, "2", true),
+        ("Num=\"2147483648\"", None, "2", true),
+        ("Num=\"-1\"", Some(-1), "2", true),
+        ("Num=\"99\"", Some(99), "2", true),
+        ("Num=\"0002\"", Some(2), "0002", false),
+        ("Num=\"+2\"", Some(2), "+2", false),
+    ] {
+        let xml = XML.replace("Num=\"99\"", attribute).replace(
+            "<Unknown Num=\"81\"/>",
+            "<Unknown Num=\"81\"><LightsceneC Num=\"90\"/><LightscenesC Num=\"91\"/></Unknown>",
+        );
+        let before = fixture_bytes(&xml);
+        fs::write(&input, &before).unwrap();
+        fs::write(&output, b"existing output").unwrap();
+        let modified = fs::metadata(&input).unwrap().modified().unwrap();
+        let mut preview = serde_json::Value::Null;
+        for destination in [None, Some(&input), Some(&output), Some(&missing)] {
+            let mut command = lox();
+            command
+                .env("LOX_CONFIG", dir.path().join("absent.yaml"))
+                .args(["--dry-run", "config", "lighting", "recount-moods"])
+                .arg(&input)
+                .args([
+                    "uuid:lighting",
+                    "--json",
+                    "--quiet",
+                    "--trace-id",
+                    "recount-preview",
+                ]);
+            if let Some(destination) = destination {
+                command.arg("--save-as").arg(destination);
+            }
+            let result = command
+                .assert()
+                .success()
+                .stderr("")
+                .get_output()
+                .stdout
+                .clone();
+            preview = serde_json::from_slice(&result).unwrap();
+            assert_eq!(preview["dry_run"], true);
+            assert_eq!(preview["trace_id"], "recount-preview");
+            assert_eq!(preview["controller_uuid"], "lighting");
+            assert_eq!(preview["controller_title"], "Lamp");
+            assert_eq!(preview["before_effective"], serde_json::json!(effective));
+            assert_eq!(preview["after_effective"], 2);
+            assert_eq!(preview["after"], after);
+            assert_eq!(preview["changed"], changed);
+            assert_eq!(preview["scenes"], 2);
+            let root = xmltree::Element::parse(xml.as_bytes()).unwrap();
+            let controller = root.get_child("C").unwrap();
+            let index = preview["collection_path"][0].as_u64().unwrap() as usize;
+            assert_eq!(
+                controller.children[index].as_element().unwrap().name,
+                "LightscenesC"
+            );
+            assert_eq!(fs::read(&input).unwrap(), before);
+            assert_eq!(fs::metadata(&input).unwrap().modified().unwrap(), modified);
+            assert_eq!(fs::read(&output).unwrap(), b"existing output");
+            assert!(!missing.parent().unwrap().exists());
+        }
+        for save_as in [false, true] {
+            fs::write(&input, &before).unwrap();
+            let modified = fs::metadata(&input).unwrap().modified().unwrap();
+            let mut command = lox();
+            command
+                .env("LOX_CONFIG", dir.path().join("absent.yaml"))
+                .args(["config", "lighting", "recount-moods"])
+                .arg(&input)
+                .args(["uuid:lighting", "--json", "--quiet"]);
+            if save_as {
+                command.arg("--save-as").arg(&output);
+            }
+            let result = command
+                .assert()
+                .success()
+                .stderr("")
+                .get_output()
+                .stdout
+                .clone();
+            let result: serde_json::Value = serde_json::from_slice(&result).unwrap();
+            let expected_report = serde_json::json!({
+                "before": preview["before"],
+                "after": preview["after"],
+                "scenes": preview["scenes"],
+                "changed": preview["changed"],
+            });
+            assert_eq!(result, expected_report);
+            let written = fs::read(if save_as { &output } else { &input }).unwrap();
+            assert!(written.starts_with(&[0xef, 0xbb, 0xbf]));
+            assert!(
+                !std::str::from_utf8(&written[3..])
+                    .unwrap()
+                    .replace("\r\n", "")
+                    .contains('\n')
+            );
+            let expected = if changed {
+                if attribute.is_empty() {
+                    xml.replacen("<LightscenesC ", "<LightscenesC Num=\"2\" ", 1)
+                } else {
+                    xml.replace(attribute, "Num=\"2\"")
+                }
+            } else {
+                xml.clone()
+            };
+            assert_eq!(
+                xmltree::Element::parse(&written[3..]).unwrap(),
+                xmltree::Element::parse(expected.as_bytes()).unwrap()
+            );
+            if save_as || !changed {
+                assert_eq!(fs::read(&input).unwrap(), before);
+                assert_eq!(fs::metadata(&input).unwrap().modified().unwrap(), modified);
+            }
+        }
+    }
+}
+
+#[test]
+fn lighting_recount_cli_dry_run_formats_preserve_presence_spelling_and_room_identity() {
+    let dir = tempfile::Builder::new()
+        .prefix(".recount-formats-")
+        .tempdir_in(env!("CARGO_MANIFEST_DIR"))
+        .unwrap();
+    let input = dir.path().join("input.Loxone");
+    for (attribute, prior, effective, after) in [
+        ("", None, None, "0"),
+        (" Num=\"\"", Some(""), None, "0"),
+        (" Num=\"µ,&quot;bad&quot;\"", Some("µ,\"bad\""), None, "0"),
+        (" Num=\"-1\"", Some("-1"), Some(-1), "0"),
+        (" Num=\"+000\"", Some("+000"), Some(0), "+000"),
+    ] {
+        let xml = format!(
+            "<ControlList><C Type=\"Place\" U=\"room\" Title=\"Study\"/><C Type=\"LightController2\" U=\"actual\" Title=\"Lamp, &quot;µ&quot;\"><IoData Pr=\"room\"/><LightscenesC{attribute}/></C><C Type=\"LightController2\" U=\"other\" Title=\"Lamp\"><LightscenesC/></C></ControlList>"
+        );
+        let before = fixture_bytes(&xml);
+        fs::write(&input, &before).unwrap();
+        for (format, flags) in [
+            (
+                "json",
+                vec!["--quiet", "--no-header", "--trace-id", "format-preview"],
+            ),
+            ("csv", vec![]),
+            ("csv", vec!["--quiet", "--no-header"]),
+            ("table", vec![]),
+            ("table", vec!["--quiet", "--no-header"]),
+        ] {
+            let result = lox()
+                .env("LOX_CONFIG", dir.path().join("absent.yaml"))
+                .args(["--dry-run", "config", "lighting", "recount-moods"])
+                .arg(&input)
+                .args(["Lamp", "--room", "Study", "-o", format])
+                .args(&flags)
+                .assert()
+                .success()
+                .stderr("")
+                .get_output()
+                .stdout
+                .clone();
+            let text = String::from_utf8(result).unwrap();
+            if format == "json" {
+                let result: serde_json::Value = serde_json::from_str(&text).unwrap();
+                assert_eq!(result["before"], serde_json::json!(prior));
+                assert_eq!(result["before_effective"], serde_json::json!(effective));
+                assert_eq!(result["after"], after);
+                assert_eq!(result["controller_uuid"], "actual");
+                assert_eq!(result["controller_title"], "Lamp, \"µ\"");
+                assert_eq!(result["trace_id"], "format-preview");
+            } else if format == "csv" {
+                assert_eq!(
+                    text.starts_with("CONTROLLER_UUID_PRESENT,"),
+                    flags.is_empty()
+                );
+                let data = text.lines().last().unwrap();
+                let quote = |value: &str| format!("\"{}\"", value.replace('"', "\"\""));
+                assert!(data.contains(&format!(
+                    ",{},{},true,{},",
+                    prior.is_some(),
+                    quote(prior.unwrap_or("")),
+                    quote(after)
+                )));
+                assert!(data.contains("\"Lamp, \"\"µ\"\"\""));
+                assert!(data.ends_with(&format!(
+                    ",0,0,{},stored_mood_count_repair",
+                    effective != Some(0)
+                )));
+                assert_eq!(text.lines().count(), if flags.is_empty() { 2 } else { 1 });
+            } else {
+                assert_eq!(text.starts_with("COUNT REPAIR PREVIEW"), flags.is_empty());
+                assert!(text.contains(&format!(
+                    "BEFORE  {}\nAFTER  {after:?}",
+                    prior.map_or_else(|| "<absent>".to_owned(), |value| format!("{value:?}"))
+                )));
+                assert!(text.contains("CONTROLLER_UUID  \"actual\""));
+                assert_eq!(text.contains("dry-run wrote no files"), flags.is_empty());
+            }
+            assert_eq!(fs::read(&input).unwrap(), before);
+        }
+    }
+}
+
+#[test]
+fn lighting_recount_cli_dry_run_and_writer_share_ordered_atomic_errors() {
+    let dir = tempfile::Builder::new()
+        .prefix(".recount-errors-")
+        .tempdir_in(env!("CARGO_MANIFEST_DIR"))
+        .unwrap();
+    let input = dir.path().join("input.Loxone");
+    let output = dir.path().join("missing").join("output.Loxone");
+    for (xml, selector, room, expected) in [
+        (
+            None,
+            "Lamp [Study]",
+            Some("Study"),
+            "conflicting_room_selector",
+        ),
+        (None, "Lamp", None, "Cannot read"),
+        (Some("<ControlList><C"), "Lamp", None, "XML"),
+        (Some("<ControlList/>"), "Lamp", None, "not found"),
+        (
+            Some("<ControlList><C Title=\"Lamp\"/><C Title=\"Lamp\"/></ControlList>"),
+            "Lamp",
+            None,
+            "matches 2",
+        ),
+        (
+            Some("<ControlList><C Type=\"And\" Title=\"Lamp\"/></ControlList>"),
+            "Lamp",
+            None,
+            "wrong_block_type",
+        ),
+        (
+            Some(
+                "<ControlList><C Type=\"LightController2\" Title=\"Lamp\"><Unknown><LightscenesC/></Unknown></C></ControlList>",
+            ),
+            "Lamp",
+            None,
+            "unsupported_mood_container_shape",
+        ),
+        (
+            Some(
+                "<ControlList><C Type=\"LightController2\" Title=\"Lamp\"><LightscenesC/><LightscenesC/></C></ControlList>",
+            ),
+            "Lamp",
+            None,
+            "unsupported_mood_container_shape",
+        ),
+    ] {
+        if let Some(xml) = xml {
+            fs::write(&input, fixture_bytes(xml)).unwrap();
+        }
+        let before = fs::read(&input).ok();
+        let mut results = Vec::new();
+        for dry_run in [true, false] {
+            let mut command = lox();
+            command.env("LOX_CONFIG", dir.path().join("absent.yaml"));
+            if dry_run {
+                command.arg("--dry-run");
+            }
+            command
+                .args(["config", "lighting", "recount-moods"])
+                .arg(&input)
+                .arg(selector)
+                .args(["--save-as"])
+                .arg(&output)
+                .arg("--json");
+            if let Some(room) = room {
+                command.args(["--room", room]);
+            }
+            let result = command.assert().failure().get_output().stdout.clone();
+            let result: serde_json::Value = serde_json::from_slice(&result).unwrap();
+            assert!(result.to_string().contains(expected), "{result}");
+            results.push(result);
+            assert_eq!(fs::read(&input).ok(), before);
+            assert!(!output.parent().unwrap().exists());
+        }
+        assert_eq!(results[0], results[1]);
+    }
+}
+
+#[test]
 fn lighting_recount_cli_repairs_num_in_place_or_save_as_without_filling_sparse_values() {
     let dir = tempfile::Builder::new()
         .prefix(".lighting-recount-")

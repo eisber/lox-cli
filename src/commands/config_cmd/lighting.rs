@@ -4,7 +4,8 @@ use clap::{Args, Subcommand};
 use crate::commands::RunContext;
 use crate::config_edit::ConfigEditor;
 use crate::config_edit::lighting::{
-    LightingMoodColorPreview, LightingMoodCreationPreview, LightingMoodLevelPreview,
+    LightingMoodColorPreview, LightingMoodCountPreview, LightingMoodCreationPreview,
+    LightingMoodLevelPreview,
 };
 use crate::config_edit::lighting_cid::{
     LightingIdentityChange, LightingSelectionEdit, LightingSidRemap,
@@ -430,6 +431,65 @@ fn print_display_name_preview(ctx: &RunContext, preview: &LightingMoodDisplayNam
         );
         if !ctx.quiet {
             println!("\n1 mood; selected SName only; dry-run wrote no files");
+        }
+    }
+}
+
+fn print_count_preview(ctx: &RunContext, preview: &LightingMoodCountPreview) {
+    let path = preview
+        .collection_path
+        .iter()
+        .map(usize::to_string)
+        .collect::<Vec<_>>()
+        .join(".");
+    let before_effective = preview.before_effective.map(|value| value.to_string());
+    let fields = [
+        ("CONTROLLER_UUID", preview.controller_uuid.as_deref()),
+        ("CONTROLLER_TITLE", preview.controller_title.as_deref()),
+        ("COLLECTION_PATH", Some(path.as_str())),
+        ("BEFORE", preview.edit.before.as_deref()),
+        ("AFTER", Some(preview.edit.after.as_str())),
+        ("BEFORE_EFFECTIVE", before_effective.as_deref()),
+    ];
+    if ctx.csv {
+        if !ctx.no_header {
+            println!(
+                "{},AFTER_EFFECTIVE,SCENES,CHANGED,SCOPE",
+                fields
+                    .iter()
+                    .map(|(key, _)| format!("{key}_PRESENT,{key}"))
+                    .collect::<Vec<_>>()
+                    .join(",")
+            );
+        }
+        println!(
+            "{},{},{},{},{}",
+            fields
+                .iter()
+                .map(|(_, value)| format!("{},{}", value.is_some(), csv(value.unwrap_or(""))))
+                .collect::<Vec<_>>()
+                .join(","),
+            preview.after_effective,
+            preview.edit.scenes,
+            preview.edit.changed,
+            preview.scope
+        );
+    } else {
+        if !ctx.no_header {
+            println!("COUNT REPAIR PREVIEW  FIELD  STORED/PLANNED VALUE");
+        }
+        for (key, value) in fields {
+            println!(
+                "{key}  {}",
+                value.map_or_else(|| "<absent>".to_owned(), |value| format!("{value:?}"))
+            );
+        }
+        println!(
+            "AFTER_EFFECTIVE  {}\nSCENES  {}\nCHANGED  {}\nSCOPE  {}",
+            preview.after_effective, preview.edit.scenes, preview.edit.changed, preview.scope
+        );
+        if !ctx.quiet {
+            println!("\nNum only; Outputs and Qn unchanged; dry-run wrote no files");
         }
     }
 }
@@ -1024,6 +1084,17 @@ pub(crate) fn run(ctx: &RunContext, action: LightingCmd) -> Result<()> {
         LightingCmd::RecountMoods { target, save_as } => {
             let selector = target.selector()?;
             let mut editor = ConfigEditor::load(&crate::load_config_xml(&target.file)?)?;
+            if ctx.dry_run {
+                let preview = editor.preview_lighting_mood_count(&selector)?;
+                if ctx.json {
+                    let mut value = serde_json::to_value(&preview)?;
+                    value["dry_run"] = true.into();
+                    super::emit_json(ctx, value);
+                } else {
+                    print_count_preview(ctx, &preview);
+                }
+                return Ok(());
+            }
             let edit = editor.recount_lighting_moods(&selector)?;
             if edit.changed || save_as.is_some() {
                 super::save_edited_with_quiet(&mut editor, &target.file, save_as.as_deref(), true)?;
