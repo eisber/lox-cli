@@ -1,0 +1,61 @@
+{
+  "schema_version": 1,
+  "issue": "lox-w9xu.9",
+  "original_case": "lox-t5t3.7",
+  "derived_run": "lox-t5t3.7-VM121-sdk9f707-20261111T2239Z",
+  "observation_kind": "actual_native_persistence_with_invalid_case_qualification",
+  "application_version": "17.2.10.21",
+  "pins": {
+    "application_sha256": "7b55e3ef18401574ab967c5c6a0140cd5a66dc728521ebba04ad53093577d8b3",
+    "SDK_service_sha256": "9f70717b37abdb138ac49743df11b5fe274f3cedc2c342e70609a51e332ecf06",
+    "original_definition_sha256": "77ba2514df413e5d50003de8581496c80f758be04b3b3b517328991853b49d44",
+    "original_input_sha256": "9223731832af666a565a3e23687285c595fdbcf6608d5da620a583bbd802b4b9",
+    "immutable_CLI_expected_sha256": "cb8648ae0baeadfe7ca4863add9a1d159ac025335d06882b48097e4aff9b5c41",
+    "native_saved_sha256": "c181f4aab6a413c2b533d1f303b02d9bd66991102bb9fe516e42fcd7e8953f14",
+    "private_report_sha256": "2fe90d221a1d1aa688f83b8defe8ce11eea88ff8a26c5b1a6e06f4e2d543a2f7",
+    "private_manifest_sha256": "949ff590847b093a9e2c3af580eb82aa0ecc615fca1c7c4b91395bdc1464903e",
+    "private_comparison_sha256": "5bdf58289553d22b1ed30c510d89db217e6a78d58ba196e7107a533a1edb1a86",
+    "private_case_outcome_sha256": "d24deca0714afd49ae4dd5eb9cf66f2529f646ff9828471d3f6b2b0bf62e0fd1",
+    "private_complete_remaining_data_sha256": "61f0593c3ca81b7e9eb2d9f7e3af78d5b4d8a7ac0c03f61800ec52aecc8d485c"
+  },
+  "actual_facts": {
+    "machine": "VM121, independent of Notebook canvas binding",
+    "stimulus": "Existing connected customized load name cleared, committed and accepted in memory. After resource reopening, saved that same accepted edit without replaying it.",
+    "selected_storage": {"Na": "", "Ncu": "true", "Anc": "true"},
+    "already_customized": "Both markers were already true in the original fixture; this is not false-to-true marker-transition proof or inherited reset.",
+    "comparison": "Selected complete ordered attributes and all12 Energy Load records match the immutable CLI expected output.",
+    "persistence": "Actual normal exits to zero, fresh process reopen and final normal cleanup observed. Native saved, reopened and final raw bytes are identical.",
+    "qualification": "INVALID: two actual reopened-readback navigation dispatches occurred after their finite resource admission expired. Factual saved-file comparisons remain retained, but this run is not an admitted case pass."
+  },
+  "all_data_findings": {
+    "ignore_list": [],
+    "baseline_to_CLI": {"byte_delta_blocks": 2, "XML_node_deltas": 2},
+    "baseline_to_native": {"byte_delta_blocks": 99, "XML_node_deltas": 138},
+    "native_to_reopened": {"byte_delta_blocks": 0, "XML_node_deltas": 0},
+    "reopened_to_final": {"byte_delta_blocks": 0, "XML_node_deltas": 0},
+    "CLI_to_native_final": {"byte_delta_blocks": 98, "XML_node_deltas": 137},
+    "whole_file_equal_to_CLI": false,
+    "normalization": "None implemented. Complete private delta ledgers retain Document stamps, language/title changes, object counts/identities and all other actual differences; none are filtered away."
+  },
+  "admission_defect": {
+    "affected_stage": "Fresh reopened readback navigation, not original accepted edit or native save",
+    "dispatches": [
+      {"receipt": "42-reopened-project-result", "tool": "Shortcut", "intent_after_resource_expiry_seconds": 2.2180113792419434, "pending_after_resource_expiry_seconds": 2.2402727603912354},
+      {"receipt": "47-reopened-general-collapse", "tool": "Click", "intent_after_resource_expiry_seconds": 0.7916920185089111, "pending_after_resource_expiry_seconds": 0.8177731037139893}
+    ],
+    "classification": "Actual expired dispatches, not merely acknowledgements received after expiry.",
+    "owned_caller_cause": "Capacity was checked before serial target validation and actual valid_until was not rechecked at SDK dispatch.",
+    "handling": "No pass/qualification credit. Historical intents/replies/timestamps preserved; no deadline extension or policy change to make them valid. Caller repair/tests and any future independently admitted run are separate records."
+  },
+  "capability_policy": {
+    "native_case_pass": false,
+    "gui_oracle_qualification_valid": false,
+    "existing_gui_case_count_increased": false,
+    "gui_roundtrip_capability_promoted": false,
+    "runtime_parity": false,
+    "full_family_contract": false,
+    "whole_file_parity": false,
+    "restore_inheritance_support": false
+  },
+  "private_evidence_policy": "No projects, screenshots, endpoints, credentials or proprietary function text included."
+}

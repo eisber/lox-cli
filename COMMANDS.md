@@ -257,6 +257,14 @@ ignored `.reverse-engineering/ux/energy-manager2/cli/<run>/` directory containin
 stdout, commands, digests and a CLI-only runner record. It never executes Config
 GUI or a server and does not update the original contract or GUI records.
 
+An Energy empty-name VM121 run saved/reopened `Na=""` with existing
+`Ncu=true`/`Anc=true`; all twelve load records match its immutable CLI result,
+but the full file differs. **It is not a qualified pass:** two reopened
+navigation inputs were dispatched after finite resource admission expired.
+The complete findings and invalidation are retained in
+`tests/ux/energy-manager2/empty-name-persistence-invalid-20261112.json`;
+no GUI-case count, inheritance reset or whole-file/runtime parity is promoted.
+
 ### Lighting stored inspection and mood-count repair
 
 ```bash
