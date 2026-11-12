@@ -9,7 +9,7 @@ or reboots, even with `--force`, `--write`, or `--save-as`. Existing safe planne
 are available for `config energy` edits, supported `config lighting` mood edits
 (including `set-mood-level`), the existing raw `config set-mood-color` edit,
 existing `config add-mood` creation, `config splice-actor` reference replacement,
-`config room rename` Title edits, and
+`config room rename` Title edits, `config control move` room-reference edits, and
 `stats download`; audited read-only
 commands retain their normal output and may make read-only network requests.
 Other commands fail before dispatch with “dry-run not supported” (exit 1;
@@ -1005,8 +1005,8 @@ lox config room rename file.Loxone "uuid:room" "Küche" --dry-run --json
 lox config room rename file.Loxone "Old name" "New name" --dry-run -o csv --save-as output.Loxone
 ```
 
-Only the already supported `room rename` operation gains global dry-run admission;
-room creation and control moves remain unsupported under `--dry-run`.
+The already supported `room rename` operation has global dry-run admission;
+room creation remains unsupported under `--dry-run`.
 One immutable plan is shared with the writer. It preserves the existing general
 element selector, not a new room-only policy: fuzzy titles, `uuid:`, `gid:`,
 `Type:`, bracket-room filtering, UUID mirror de-duplication, ambiguity and the
@@ -1040,6 +1040,56 @@ SPS or physical-effect evidence. Historical preview source basis:
 `tests/ux/room-rename-preview-source.json` (unchanged, including its record of the
 former unfiltered UUID-source bug). Source-only qualified-selector correction:
 `tests/ux/room-selector-fix-source.json`.
+
+#### Preview an existing control move
+
+```bash
+lox config control move file.Loxone --to-room "Beta" --title "Lamp [Alpha]" --dry-run --json
+lox config control move file.Loxone --to-room "Beta" --type WeatherData --exclude InputRef --dry-run -o csv --save-as output.Loxone
+```
+
+Only `config control move` gains this preview; `config xml move`, control rename,
+wire/unwire and room creation still fail closed under global `--dry-run`.
+The existing parser has `--type`, `--title`, `--exclude` and `--to-room`, not
+`--from-room`. There is no new room creation, normalization or selection policy.
+One immutable typed plan is shared by preview, the normal control-move writer,
+and the unchanged public `move_to_room` API.
+
+`--type` wins if both selectors are supplied. It resolves the room first, then
+selects case-insensitive exact types with direct `IoData` children, honoring
+case-insensitive type exclusions. All matches, including UUID mirrors, count in
+pre-order; zero matches and already-matching room references still report and save
+normally. `--title` instead admits one existing general element selector before
+resolving the target room; fuzzy titles, `uuid:`, `gid:`, `Type:`, bracket-room
+qualification and UUID mirror de-duplication keep their current behavior.
+Exclusions are ignored in that branch. A title-selected object without direct
+`IoData` still reports one selected object but changes nothing. No selector is the
+existing “Specify --type or --title” error, without resolving the room.
+
+Preview exposes the effective typed `selector`, supplied `exclude`, raw
+`target_room`, resolved `room_uuid`, `count`, `changed` and existing writer
+`report`. Each `selected` object contains its actual child-index `path`, raw
+attributes and direct `io_data` entries. Those entries include their own actual
+paths/attributes and `before_pr`/`after_pr`: absent `Pr` is `null`, distinct from
+`""`. `created` means only that this existing `IoData` gains a missing `Pr`
+attribute, never a new room or `IoData` element. An empty `io_data` list means no
+such child exists. Only these direct `IoData.Pr` attributes are edited, in the
+existing order; nested selections remain stable. UUIDs, category, wiring, flags,
+unknown metadata, unmatched objects and unrelated `IoData` remain untouched.
+
+JSON includes `dry_run: true` and optional `trace_id`. Table/CSV retain raw values
+in JSON-valued cells; `--no-header` suppresses headings and `--quiet` suppresses
+only the table summary. Preview returns before mutation, serialization, defaults,
+Document stamping, destination probing or saving, including missing-parent
+`--save-as`, zero matches, no-ops and errors. It writes no files, directories,
+cache or telemetry and makes no network requests. Normal writer text output,
+report-before-save, overwrite, BOM/line endings and content-change-dependent stamp
+remain unchanged, even with JSON/CSV/quiet flags or a no-op.
+
+Source-only raw CLI provenance: `tests/ux/control-move-preview-source.json`.
+This is not native UI, room-family, whole-file, SPS or physical-effect evidence.
+Historical room-rename artifacts and the qualified-selector correction above are
+unchanged.
 
 ### User management
 

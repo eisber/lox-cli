@@ -26,6 +26,47 @@ struct RoomRenamePlan {
     preview: RoomRenamePreview,
 }
 
+#[derive(Debug, serde::Serialize)]
+#[serde(tag = "kind", content = "value", rename_all = "snake_case")]
+pub enum ControlMoveSelector {
+    Type(String),
+    Title(String),
+}
+
+#[derive(Debug, serde::Serialize)]
+pub struct ControlMoveRoomReference {
+    pub path: Vec<usize>,
+    pub attributes: BTreeMap<String, String>,
+    pub before_pr: Option<String>,
+    pub after_pr: String,
+    pub created: bool,
+    pub changed: bool,
+}
+
+#[derive(Debug, serde::Serialize)]
+pub struct ControlMoveSelection {
+    pub path: Vec<usize>,
+    pub attributes: BTreeMap<String, String>,
+    pub io_data: Vec<ControlMoveRoomReference>,
+}
+
+#[derive(Debug, serde::Serialize)]
+pub struct ControlMovePreview {
+    pub selector: ControlMoveSelector,
+    pub exclude: Vec<String>,
+    pub target_room: String,
+    pub room_uuid: String,
+    pub selected: Vec<ControlMoveSelection>,
+    pub count: usize,
+    pub changed: bool,
+    pub report: String,
+    pub scope: &'static str,
+}
+
+struct ControlMovePlan {
+    preview: ControlMovePreview,
+}
+
 impl ConfigEditor {
     pub fn preview_room_rename(&self, selector: &str, name: &str) -> Result<RoomRenamePreview> {
         Ok(self.plan_room_rename(selector, name)?.preview)
@@ -90,35 +131,133 @@ impl ConfigEditor {
         target_room_name: &str,
         exclude_types: &[&str],
     ) -> Result<(usize, String)> {
-        // First, find the target room UUID
-        let room_uuid = self.find_room_uuid(target_room_name)?;
+        let plan =
+            self.plan_control_move(Some(type_filter), None, target_room_name, exclude_types)?;
+        self.apply_control_move(&plan);
+        Ok((plan.preview.count, plan.preview.room_uuid))
+    }
 
-        // Collect paths to matching elements
-        let mut paths = Vec::new();
-        Self::collect_typed_with_iodata(
-            &self.root,
-            type_filter,
-            exclude_types,
-            &mut Vec::new(),
-            &mut paths,
-        );
+    pub fn preview_control_move(
+        &self,
+        type_filter: Option<&str>,
+        title: Option<&str>,
+        target_room: &str,
+        exclude: &[&str],
+    ) -> Result<ControlMovePreview> {
+        Ok(self
+            .plan_control_move(type_filter, title, target_room, exclude)?
+            .preview)
+    }
 
-        let count = paths.len();
-        for path in &paths {
-            let elem = self.get_element_mut(path);
-            // Find IoData child and update Pr attribute
-            for child in &mut elem.children {
-                if let Some(iodata) = child.as_mut_element()
-                    && iodata.name == "IoData"
-                {
-                    iodata
-                        .attributes
-                        .insert("Pr".to_string(), room_uuid.clone());
+    pub fn move_control(
+        &mut self,
+        type_filter: Option<&str>,
+        title: Option<&str>,
+        target_room: &str,
+        exclude: &[&str],
+    ) -> Result<String> {
+        let plan = self.plan_control_move(type_filter, title, target_room, exclude)?;
+        self.apply_control_move(&plan);
+        Ok(plan.preview.report)
+    }
+
+    fn plan_control_move(
+        &self,
+        type_filter: Option<&str>,
+        title: Option<&str>,
+        target_room: &str,
+        exclude: &[&str],
+    ) -> Result<ControlMovePlan> {
+        let (selector, paths, room_uuid) = if let Some(tf) = type_filter {
+            let room_uuid = self.find_room_uuid(target_room)?;
+            let mut paths = Vec::new();
+            Self::collect_typed_with_iodata(&self.root, tf, exclude, &mut Vec::new(), &mut paths);
+            (ControlMoveSelector::Type(tf.to_owned()), paths, room_uuid)
+        } else if let Some(title) = title {
+            let path = self.require_one(title)?;
+            let room_uuid = self.find_room_uuid(target_room)?;
+            (
+                ControlMoveSelector::Title(title.to_owned()),
+                vec![path],
+                room_uuid,
+            )
+        } else {
+            bail!("Specify --type or --title to select controls to move");
+        };
+        let attributes = |elem: &Element| {
+            elem.attributes
+                .iter()
+                .map(|(key, value)| (key.clone(), value.clone()))
+                .collect()
+        };
+        let selected: Vec<_> = paths
+            .into_iter()
+            .map(|path| {
+                let elem = self.get_element(&path);
+                let io_data = elem
+                    .children
+                    .iter()
+                    .enumerate()
+                    .filter_map(|(index, child)| {
+                        let child = child.as_element()?;
+                        if child.name != "IoData" {
+                            return None;
+                        }
+                        let mut io_path = path.clone();
+                        io_path.push(index);
+                        let before_pr = child.attributes.get("Pr").cloned();
+                        Some(ControlMoveRoomReference {
+                            path: io_path,
+                            attributes: attributes(child),
+                            created: before_pr.is_none(),
+                            changed: before_pr.as_deref() != Some(&room_uuid),
+                            before_pr,
+                            after_pr: room_uuid.clone(),
+                        })
+                    })
+                    .collect();
+                ControlMoveSelection {
+                    attributes: attributes(elem),
+                    path,
+                    io_data,
                 }
+            })
+            .collect();
+        let count = selected.len();
+        let report = match &selector {
+            ControlMoveSelector::Type(tf) => {
+                format!("Moved {count} {tf} items to '{target_room}' ({room_uuid})")
+            }
+            ControlMoveSelector::Title(title) => {
+                format!("Moved '{title}' to '{target_room}' ({room_uuid})")
+            }
+        };
+        Ok(ControlMovePlan {
+            preview: ControlMovePreview {
+                changed: selected
+                    .iter()
+                    .any(|item| item.io_data.iter().any(|io| io.changed)),
+                selector,
+                exclude: exclude.iter().map(|value| (*value).to_owned()).collect(),
+                target_room: target_room.to_owned(),
+                room_uuid,
+                selected,
+                count,
+                report,
+                scope: "Existing CLI IoData.Pr attribute edit only; no native UI or physical-effect claim",
+            },
+        })
+    }
+
+    fn apply_control_move(&mut self, plan: &ControlMovePlan) {
+        // Attribute-only edits leave pre-order paths stable, even for nested selections.
+        for selected in &plan.preview.selected {
+            for io in &selected.io_data {
+                self.get_element_mut(&io.path)
+                    .attributes
+                    .insert("Pr".to_owned(), io.after_pr.clone());
             }
         }
-
-        Ok((count, room_uuid))
     }
 
     pub fn find_room_uuid(&self, room_name: &str) -> Result<String> {
@@ -522,6 +661,257 @@ impl ConfigEditor {
             }
         }
         None
+    }
+}
+
+#[cfg(test)]
+mod control_move_tests {
+    use super::*;
+
+    const XML: &str = r#"<ControlList Future="retain">
+      <C Type="Place" U="a" Title="Alpha"/><C Type="Place" U="b" Title="Beta"/>
+      <C Type="Place" U="long" Title="Beta Long"/>
+      <C Type="Page" U="page" Title="Page"><IoData Pr="a" Cr="category"/>
+        <C Type="Future" U="first" Title="Lamp" gid="LampGid" Future="+003">
+          <IoData Pr="a" Cr="category" Future="01"/><IoData Pr="b"/>
+          <Unknown><IoData Pr="retain"/></Unknown>
+          <Co K="AQ" U="out" Def="+000"><In Input="ref" FLG="01"/></Co>
+          <C Type="Future" U="nested" Title="Nested"><IoData Pr=""/><IoData Future="002"/></C>
+        </C>
+        <C Type="Future" U="second" Title="Lamp"><IoData Pr="b"/></C>
+        <C Type="Future" U="dry" Title="Dry"><Unknown><IoData Pr="retain"/></Unknown></C>
+        <C Type="Other" U="other" Title="Other"><IoData Pr="a"/></C>
+      </C>
+      <C Type="AutomaticDesigner"><C Type="Future" U="first" Title="Mirror"><IoData Pr="a"/></C></C>
+    </ControlList>"#;
+
+    fn legacy_move(
+        editor: &mut ConfigEditor,
+        type_filter: Option<&str>,
+        title: Option<&str>,
+        target: &str,
+        exclude: &[&str],
+    ) -> Result<String> {
+        let (paths, room_uuid, report) = if let Some(tf) = type_filter {
+            let room_uuid = editor.find_room_uuid(target)?;
+            let mut paths = Vec::new();
+            ConfigEditor::collect_typed_with_iodata(
+                &editor.root,
+                tf,
+                exclude,
+                &mut Vec::new(),
+                &mut paths,
+            );
+            let report = format!(
+                "Moved {} {} items to '{}' ({})",
+                paths.len(),
+                tf,
+                target,
+                room_uuid
+            );
+            (paths, room_uuid, report)
+        } else if let Some(title) = title {
+            let path = editor.require_one(title)?;
+            let room_uuid = editor.find_room_uuid(target)?;
+            let report = format!("Moved '{}' to '{}' ({})", title, target, room_uuid);
+            (vec![path], room_uuid, report)
+        } else {
+            bail!("Specify --type or --title to select controls to move");
+        };
+        for path in paths {
+            for child in &mut editor.get_element_mut(&path).children {
+                if let Some(io) = child.as_mut_element()
+                    && io.name == "IoData"
+                {
+                    io.attributes.insert("Pr".to_owned(), room_uuid.clone());
+                }
+            }
+        }
+        Ok(report)
+    }
+
+    #[test]
+    fn control_move_plan_matches_legacy_branches_and_entire_dom() {
+        for (tf, title, exclude) in [
+            (Some("fUtUrE"), Some("nonexistent"), vec![]),
+            (Some("Future"), None, vec!["FUTURE"]),
+            (Some("Missing"), None, vec![]),
+            (Some(""), None, vec![]),
+            (Some("Type:Future"), None, vec![]),
+            (None, Some("Lamp [Beta]"), vec![]),
+            (None, Some("gid:lampgid"), vec!["Future"]),
+            (None, Some("uuid:first"), vec![]),
+            (None, Some("Mirror"), vec![]),
+            (None, Some("Type:Page"), vec![]),
+            (None, Some("Dry"), vec![]),
+            (None, Some("Nested"), vec![]),
+        ] {
+            let mut editor = ConfigEditor::load(XML.as_bytes()).unwrap();
+            let before = format!("{:?}", editor.root);
+            let preview = editor
+                .preview_control_move(tf, title, "bEtA", &exclude)
+                .unwrap();
+            assert_eq!(format!("{:?}", editor.root), before);
+            assert_eq!(preview.room_uuid, "b");
+            assert_eq!(preview.target_room, "bEtA");
+            let mut planned = ConfigEditor::load(XML.as_bytes()).unwrap();
+            for selected in &preview.selected {
+                assert_eq!(
+                    selected.attributes,
+                    editor
+                        .get_element(&selected.path)
+                        .attributes
+                        .iter()
+                        .map(|(key, value)| (key.clone(), value.clone()))
+                        .collect()
+                );
+                for io in &selected.io_data {
+                    assert_eq!(
+                        io.before_pr,
+                        editor.get_element(&io.path).attributes.get("Pr").cloned()
+                    );
+                    assert_eq!(io.changed, io.before_pr.as_deref() != Some("b"));
+                    assert_eq!(io.created, io.before_pr.is_none());
+                    planned
+                        .get_element_mut(&io.path)
+                        .attributes
+                        .insert("Pr".to_owned(), io.after_pr.clone());
+                }
+            }
+            let mut legacy = ConfigEditor::load(XML.as_bytes()).unwrap();
+            let report = legacy_move(&mut legacy, tf, title, "bEtA", &exclude).unwrap();
+            assert_eq!(preview.report, report);
+            assert_eq!(
+                editor.move_control(tf, title, "bEtA", &exclude).unwrap(),
+                report
+            );
+            assert_eq!(format!("{:?}", editor.root), format!("{:?}", legacy.root));
+            assert_eq!(format!("{:?}", planned.root), format!("{:?}", legacy.root));
+            assert_eq!(editor.to_bytes().unwrap(), legacy.to_bytes().unwrap());
+            if let Some(tf) = tf {
+                let mut helper = ConfigEditor::load(XML.as_bytes()).unwrap();
+                assert_eq!(
+                    helper.move_to_room(tf, "bEtA", &exclude).unwrap(),
+                    (preview.count, "b".to_owned())
+                );
+                assert_eq!(format!("{:?}", helper.root), format!("{:?}", legacy.root));
+            }
+        }
+    }
+
+    #[test]
+    fn control_move_plan_exposes_preorder_duplicates_missing_empty_and_noop() {
+        let editor = ConfigEditor::load(XML.as_bytes()).unwrap();
+        let preview = editor
+            .preview_control_move(Some("Future"), None, "Beta", &[])
+            .unwrap();
+        let identities: Vec<_> = preview
+            .selected
+            .iter()
+            .map(|item| item.attributes["U"].as_str())
+            .collect();
+        assert_eq!(identities, ["first", "nested", "second", "first"]);
+        assert!(
+            preview.selected[1]
+                .path
+                .starts_with(&preview.selected[0].path)
+        );
+        assert_eq!(preview.selected[0].io_data.len(), 2);
+        assert_eq!(preview.selected[0].io_data[0].attributes["Future"], "01");
+        assert_eq!(
+            preview.selected[1].io_data[0].before_pr.as_deref(),
+            Some("")
+        );
+        assert!(!preview.selected[1].io_data[0].created);
+        assert_eq!(preview.selected[1].io_data[1].before_pr, None);
+        assert!(preview.selected[1].io_data[1].created);
+        assert!(!preview.selected[2].io_data[0].changed);
+        for (tf, title, count) in [
+            (Some("Missing"), None, 0),
+            (None, Some("Dry"), 1),
+            (None, Some("Lamp [Beta]"), 1),
+        ] {
+            let preview = editor.preview_control_move(tf, title, "Beta", &[]).unwrap();
+            assert_eq!(preview.count, count);
+            assert!(!preview.changed);
+        }
+        let empty = r#"<ControlList><C Type="Place" U="" Title=""/>
+          <C Type="Future" Title="Raw"><IoData/><IoData Pr=""/></C></ControlList>"#;
+        let mut editor = ConfigEditor::load(empty.as_bytes()).unwrap();
+        let preview = editor
+            .preview_control_move(None, Some("Raw"), "", &[])
+            .unwrap();
+        assert_eq!(preview.room_uuid, "");
+        assert!(preview.selected[0].io_data[0].changed);
+        assert!(!preview.selected[0].io_data[1].changed);
+        assert_eq!(
+            editor.move_control(None, Some("Raw"), "", &[]).unwrap(),
+            "Moved 'Raw' to '' ()"
+        );
+    }
+
+    #[test]
+    fn control_move_plan_preserves_error_order_and_failure_nonmutation() {
+        for (xml, tf, title, target, expected) in [
+            (XML, None, None, "missing", "Specify --type or --title"),
+            (
+                XML,
+                None,
+                Some("Missing"),
+                "missing",
+                "Element 'Missing' not found",
+            ),
+            (
+                XML,
+                None,
+                Some("Lamp"),
+                "missing",
+                "Selector 'Lamp' matches",
+            ),
+            (
+                XML,
+                Some("Missing"),
+                Some("Lamp"),
+                "missing",
+                "Room 'missing' not found",
+            ),
+            (
+                XML,
+                None,
+                Some("Dry"),
+                "missing",
+                "Room 'missing' not found",
+            ),
+            (XML, Some("Future"), None, "", "Multiple rooms match"),
+            (
+                r#"<ControlList><C Type="Place" U="a" Title="Same"/><C Type="Place" U="b" Title="Same"/></ControlList>"#,
+                Some("Future"),
+                None,
+                "Same",
+                "Multiple rooms match",
+            ),
+        ] {
+            let mut editor = ConfigEditor::load(xml.as_bytes()).unwrap();
+            let before = format!("{:?}", editor.root);
+            let preview_error = editor
+                .preview_control_move(tf, title, target, &[])
+                .unwrap_err()
+                .to_string();
+            let mut legacy = ConfigEditor::load(xml.as_bytes()).unwrap();
+            let legacy_error = legacy_move(&mut legacy, tf, title, target, &[])
+                .unwrap_err()
+                .to_string();
+            assert!(preview_error.contains(expected), "{preview_error}");
+            assert_eq!(preview_error, legacy_error);
+            assert_eq!(
+                editor
+                    .move_control(tf, title, target, &[])
+                    .unwrap_err()
+                    .to_string(),
+                legacy_error
+            );
+            assert_eq!(format!("{:?}", editor.root), before);
+        }
     }
 }
 

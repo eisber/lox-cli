@@ -1,0 +1,78 @@
+{
+  "schema_version": 1,
+  "issue": "lox-jtqv",
+  "artifact_kind": "source-only-existing-control-move-preview",
+  "baseline": "8d7a5c0f721df72ded32b472a4bc5ed8d4ee320e",
+  "source_basis": [
+    {
+      "path": "src/main.rs",
+      "blob_oid": "0f730618dbdda46c288b8dc9ea5b10f718f229a3",
+      "sha256": "f731aee98e838a171830ca7d14514703b93c0fda45b29bfc48d339e2317073c4",
+      "symbols": ["ControlCmd::Move"],
+      "relationship": "Unchanged actual grammar: FILE --to-room ROOM with optional --type, --title, repeatable --exclude and --save-as. There is no --from-room."
+    },
+    {
+      "path": "src/commands/config_cmd.rs",
+      "blob_oid": "4de1e3edec1ec96bda98cde873554e8035490715",
+      "sha256": "615292225b3db3be1466c0db1dcaae795f1341f5d0eff396d19b3bba5a55aec8",
+      "symbols": ["cmd_control", "save_edited", "cmd_xml"],
+      "relationship": "Existing type-before-title branch precedence, title admission before target resolution, direct IoData.Pr writes, exact text reports and report-before-save behavior. XmlEditCmd::Move keeps its normal helper behavior but remains dry-run unsupported."
+    },
+    {
+      "path": "src/config_edit/rooms.rs",
+      "blob_oid": "35eeaccc4934e38d1bd8a7e5461ccefe183a62bc",
+      "sha256": "16369f9e75d5a4b17844dad71926dbad6ae51b3941d4dd660aab8abf91eb7d97",
+      "symbols": ["move_to_room", "collect_typed_with_iodata", "find_room_uuid", "walk_rooms"],
+      "relationship": "Existing type helper resolves target first, selects case-insensitive exact C types with direct IoData, applies exclusions, keeps pre-order UUID duplicates and counts zero/already-matching items. Target room lookup keeps substring/exact preference, duplicates, empty UUID and errors. Qualified RoomRename behavior is not changed."
+    },
+    {
+      "path": "src/config_edit/selector.rs",
+      "blob_oid": "5f5b3bc07668211001330e0408a320c4405c1951",
+      "sha256": "cb4d9a0c394d712c8c5c28eccfc2a9be93535846dfd9bfcf089ee003d357cb03",
+      "symbols": ["require_one", "find_elements"],
+      "relationship": "Unchanged general title/UUID/gid/type selectors, bracket-room filtering, UUID mirror de-duplication, missing-UUID handling and ordered admission errors in the title branch."
+    },
+    {
+      "path": "src/config_edit/write.rs",
+      "blob_oid": "72d207e27834a50bf622496da82a610ae20e4576",
+      "sha256": "94bb36c651f5a73700d3a1f3037693b7cbb493f7a030c6a091517db475f21fe5",
+      "symbols": ["to_bytes", "stamp_document"],
+      "relationship": "Unchanged normal serialization/default/BOM/line-ending and content-change-dependent Document stamp; never reached by preview."
+    },
+    {
+      "path": "src/dry_run.rs",
+      "blob_oid": "23d71d41d0d192db368e92b7ac2df8550d7a7d9b",
+      "sha256": "e1724d63f99942e81f2784729467fe4a52b7e460975e4aeb48589f8b0ba8111f",
+      "relationship": "Fail-closed admission is extended only to ConfigCmd::Control(ControlCmd::Move); other unaudited mutations remain rejected before startup effects."
+    }
+  ],
+  "hash_basis": "Exact committed baseline LF Git blobs, not CRLF working-tree bytes.",
+  "historical_artifacts": [
+    {
+      "path": "tests/ux/room-rename-preview-source.json",
+      "blob_oid": "c1588083ee719cd8571871e46550b77b47d1c65c",
+      "sha256": "a9dfe783b2bc60d6f42ff6ae644a0ae870bc43f5c401864b9477f43e71a48c57",
+      "status": "Byte-identical historical evidence, including its former qualified-selector behavior; not rewritten."
+    },
+    {
+      "path": "tests/ux/room-selector-fix-source.json",
+      "blob_oid": "d26e73c5f81b829ffde3adb1adad3b001c654c0a",
+      "sha256": "7436b97a0783f0daeec2c315554e419bb1f47ab0c4a83d1c0270278724d76c08",
+      "status": "Byte-identical source-only qualified-room-rename correction; behavior remains unchanged."
+    }
+  ],
+  "plan": {
+    "sharing": "One private immutable ControlMovePlan feeds preview_control_move, move_control and the unchanged public move_to_room signature/tuple result. No DOM clone or mutate-then-discard path.",
+    "selection": "Effective typed selector plus supplied excludes, actual selected object attributes/paths and direct IoData attributes/paths. Type wins over title; exclusions only affect type. Missing direct IoData remains an empty list in the admitted title branch.",
+    "transitions": "Raw target and resolved UUID; before_pr null versus empty; after_pr exact UUID; created means missing Pr attribute only, not room or IoData creation. changed does not suppress normal saves. Type duplicates and ancestor/descendant pre-order paths remain stable under attribute-only writes.",
+    "boundary": "Preview returns before mutation, serialization/defaults, stamps, save, destination probing or directory creation; startup bypasses cache/network/telemetry writes. Includes zero matches, no-ops, failures and existing/missing-parent save-as paths.",
+    "output": "JSON dry_run and optional trace_id; JSON-valued table/CSV cells, quiet table summary and no-header conventions. Normal report/save output is unchanged even under JSON/CSV/quiet."
+  },
+  "regressions": [
+    "rooms.rs control_move_tests: baseline algorithm differential for title/type precedence/exclusion/general/qualified selectors, full DOM and serialization parity, unchanged public helper result, nested paths and UUID mirrors, duplicate IoData, missing/empty Pr and empty target UUID, zero/multiple/no-IoData/already-matching cases, exact error order and nonmutation.",
+    "tests/dry_run.rs control_move tests: actual identities and transitions, JSON/trace/table/CSV/quiet/no-header, complete bytes/mtime/permissions/directory/cache/token/telemetry snapshots and zero mock network requests; all save-as destinations, failures/no-ops and parser rejection of invented --from-room.",
+    "tests/dry_run.rs normal control writer: complete planned/written DOM parity, UUID/category/wiring/flags/unknowns/unmatched preservation, legacy text output/report-before-failed-save, overwrite, BOM/CRLF and conditional stamp on changed versus zero/no-op/no-IoData edits.",
+    "Existing room rename, qualified-selector, dry-run, move helper and config integration suites remain in place; control rename/wire/unwire, room add and config xml move stay fail-closed."
+  ],
+  "limits": "Raw existing CLI source provenance only. No native UI, room-family, whole-file, SPS or physical-effect claim; no lab/VM/Notebook/SDK/SSH/time/host actions, extraction, new framework or unrelated behavior changes."
+}

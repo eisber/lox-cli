@@ -12,8 +12,8 @@ use crate::client::{LOXONE_EPOCH_SECS, LoxClient, USER_AGENT};
 use crate::commands::RunContext;
 use crate::config::Config;
 use crate::config_edit::{
-    ConfigEditor, PermissionChange, PermissionEdit, PrincipalKind, RoomRenamePreview,
-    SpliceActorPreview, VirtualInOpts,
+    ConfigEditor, ControlMovePreview, PermissionChange, PermissionEdit, PrincipalKind,
+    RoomRenamePreview, SpliceActorPreview, VirtualInOpts,
 };
 use crate::custom_overlay;
 use crate::token;
@@ -3853,6 +3853,51 @@ fn cmd_room(ctx: &RunContext, action: RoomCmd) -> Result<()> {
     Ok(())
 }
 
+fn print_control_move_preview(ctx: &RunContext, preview: &ControlMovePreview) -> Result<()> {
+    let fields = [
+        ("SELECTOR", serde_json::to_string(&preview.selector)?),
+        ("EXCLUDE", serde_json::to_string(&preview.exclude)?),
+        ("TARGET_ROOM", serde_json::to_string(&preview.target_room)?),
+        ("ROOM_UUID", serde_json::to_string(&preview.room_uuid)?),
+        ("SELECTED", serde_json::to_string(&preview.selected)?),
+        ("COUNT", preview.count.to_string()),
+        ("CHANGED", preview.changed.to_string()),
+        ("REPORT", serde_json::to_string(&preview.report)?),
+        ("SCOPE", preview.scope.to_owned()),
+    ];
+    if ctx.csv {
+        if !ctx.no_header {
+            println!(
+                "{}",
+                fields
+                    .iter()
+                    .map(|(key, _)| *key)
+                    .collect::<Vec<_>>()
+                    .join(",")
+            );
+        }
+        println!(
+            "{}",
+            fields
+                .iter()
+                .map(|(_, value)| format!("\"{}\"", value.replace('"', "\"\"")))
+                .collect::<Vec<_>>()
+                .join(",")
+        );
+    } else {
+        if !ctx.no_header {
+            println!("CONTROL MOVE PREVIEW  FIELD  STORED/PLANNED VALUE");
+        }
+        for (key, value) in fields {
+            println!("{key}  {value}");
+        }
+        if !ctx.quiet {
+            println!("\nIoData.Pr attributes only; dry-run wrote no files");
+        }
+    }
+    Ok(())
+}
+
 fn cmd_control(ctx: &RunContext, action: ControlCmd) -> Result<()> {
     match action {
         ControlCmd::Move {
@@ -3868,30 +3913,29 @@ fn cmd_control(ctx: &RunContext, action: ControlCmd) -> Result<()> {
 
             let exclude_refs: Vec<&str> = exclude.iter().map(|s| s.as_str()).collect();
 
-            if let Some(ref tf) = type_filter {
-                let (count, room_uuid) = editor.move_to_room(tf, &to_room, &exclude_refs)?;
-                println!(
-                    "✓ Moved {} {} items to '{}' ({})",
-                    count, tf, to_room, room_uuid
-                );
-            } else if let Some(ref t) = title {
-                // Move single element by title
-                let path = editor.require_one(t)?;
-                let room_uuid = editor.find_room_uuid(&to_room)?;
-                let elem = editor.get_element_mut(&path);
-                for child in &mut elem.children {
-                    if let Some(iodata) = child.as_mut_element()
-                        && iodata.name == "IoData"
-                    {
-                        iodata
-                            .attributes
-                            .insert("Pr".to_string(), room_uuid.clone());
-                    }
+            if ctx.dry_run {
+                let preview = editor.preview_control_move(
+                    type_filter.as_deref(),
+                    title.as_deref(),
+                    &to_room,
+                    &exclude_refs,
+                )?;
+                if ctx.json {
+                    let mut value = serde_json::to_value(&preview)?;
+                    value["dry_run"] = true.into();
+                    emit_json(ctx, value);
+                } else {
+                    print_control_move_preview(ctx, &preview)?;
                 }
-                println!("✓ Moved '{}' to '{}' ({})", t, to_room, room_uuid);
-            } else {
-                bail!("Specify --type or --title to select controls to move");
+                return Ok(());
             }
+            let report = editor.move_control(
+                type_filter.as_deref(),
+                title.as_deref(),
+                &to_room,
+                &exclude_refs,
+            )?;
+            println!("✓ {}", report);
 
             save_edited(&mut editor, &file, save_as.as_deref())?;
         }

@@ -86,7 +86,11 @@ fn has_non_mutating_path(cmd: &Cmd) -> bool {
                     open_issue: false,
                     ..
                 }
-                | ConfigCmd::Control(ControlCmd::Describe { .. } | ControlCmd::Wires { .. })
+                | ConfigCmd::Control(
+                    ControlCmd::Move { .. }
+                        | ControlCmd::Describe { .. }
+                        | ControlCmd::Wires { .. }
+                )
                 | ConfigCmd::Mqtt(MqttConfigCmd::List { .. } | MqttConfigCmd::Topics { .. })
         ),
         _ => matches!(
@@ -219,16 +223,7 @@ mod tests {
                 "uuid:source",
             ],
             &["config", "room", "add", "input.Loxone", "new"],
-            &[
-                "config",
-                "control",
-                "move",
-                "input.Loxone",
-                "--to-room",
-                "new",
-                "--title",
-                "Lamp",
-            ],
+            &["config", "control", "rename", "input.Loxone", "Lamp", "new"],
             &["config", "user-remove", "input.Loxone", "user"],
             &[
                 "config",
@@ -259,6 +254,16 @@ mod tests {
     #[test]
     fn dry_run_preserves_existing_planners_and_read_only_dispatch() {
         for args in [
+            vec![
+                "config",
+                "control",
+                "move",
+                "input.Loxone",
+                "--to-room",
+                "new",
+                "--title",
+                "Lamp",
+            ],
             vec!["config", "room", "rename", "input.Loxone", "old", "new"],
             vec![
                 "config",
