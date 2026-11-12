@@ -1,0 +1,55 @@
+{
+  "schema_version": 1,
+  "issue": "lox-ws22",
+  "named_question": "Can the already supported selected-mood SkipNext requested-state edit be previewed with exactly the writer's ordered guards and raw/effective values without changing XML or saving files?",
+  "frozen_target": {
+    "version": "17.2.10.21",
+    "architecture": "AMD64",
+    "pe_sha256": "7b55e3ef18401574ab967c5c6a0140cd5a66dc728521ebba04ad53093577d8b3",
+    "installation_sha256": "a3003005776b327f5e666a072a64f5c569182b86174c0f578d5be3267ce28f85",
+    "analysis_id": "6a0520329af17d7b9fdaafe69398c62c454d9da838fc9f9c8d0bdd8d17bb15ae",
+    "new_extractions": 0
+  },
+  "existing_source_basis": [
+    {"artifact": "tests/ux/light-controller2/mood-skip-source.json", "sha256": "cdc9e17b3ec0d02778181bdc7bb6ce04311ba5bf91df3c08a8e23016f90ea70a", "relationship": "Reuse existing exact direct selection, positive signed32 selected SID, supported sibling SIDs, selected numeric SID uniqueness, omission default false and inverse cycling-checkbox projection. No MixMod SID/CID/role restrictions are imported."},
+    {"artifact": "tests/ux/light-controller2/mood-boolean-case-source.json", "sha256": "3307020080cae72026c1b3571273587e69b70643bdc2a33e6467286cf24604f8", "relationship": "Existing ASCII true/false case variants retain exact spelling on effective no-op; actual changes use the existing lowercase writer. Other explicit values are not coerced or defaulted."},
+    {"artifact": "tests/ux/light-controller2/mood-mix-preview-source.json", "sha256": "0e6df98a7b33251a6e884f39a6bf1c1b511aacf11fb073440fd1d251c2a565dc", "relationship": "Reuse private immutable typed-plan, early-return and no-write conventions only. MixMod eligibility and report fields do not define SkipNext admission."},
+    {"artifact": "tests/ux/light-controller2/mood-cid-preview-source.json", "sha256": "c53c1fd12ac84dcb370f2f1097e336159a810e0fe5d9710646eaf63b54ac44c5", "relationship": "Prior source-only read-only preview remains unchanged; no CID mutation, role/cohort behavior or identity output rows are reused."},
+    {"artifact": "tests/ux/light-controller2/mood-sid-preview-source.json", "sha256": "38bb44bb19a4b671e7db741e04b2125d09b2eeb537fc34b18e159b7e078a5927", "relationship": "Prior source-only read-only preview remains unchanged; no SID allocation, range change, remap or reference edit is introduced."}
+  ],
+  "canonical_sources": [
+    {"address": "0x1400ea4d0", "sha256": "7889492ba869cfaf42c99f85fa67ec0310fb45610db3a54660a5ec4f60de8c0e", "relationship": "Existing row-bound column4 toggles only SkipNext at +0x8c; column5 MixMod and column6 role-mask edits are separate."},
+    {"address": "0x1400eace0", "sha256": "469512dbafb34fa2eeda5e8d338d956cf636728fcfada076c4c775836303669a", "relationship": "Existing cycling checkbox displays the inverse. The MixMod SID1..31/CID12..19 restrictions do not restrict this column4 stored-field transaction."},
+    {"address": "0x1405b7df0", "sha256": "9f0ff6bd3dcc724a599e3324483c9b584f1e1128c4a3d6bf9604ecc328bf9d58", "relationship": "Existing boolean binding of SkipNext at +0x8c, independent of other flags and numeric identities."},
+    {"address": "0x1405b3940", "sha256": "365a8a5e0bc05163fab3b2547924119c7731291b550d9e33fb2df9614ebe4155", "relationship": "Existing constructor initializes SkipNext=false; this does not authorize default insertion or native import repair."},
+    {"address": "0x1404c52f0", "sha256": "057c5670bc1b4a95f3b6ae5720f34f057330ba62605c4d0211ac7565de681262", "relationship": "Existing optional attribute boolean reader clears the read string and compares against TRUE. Omission already has effective false."},
+    {"address": "0x14041eb10", "sha256": "fee9619bd6f3e7b27599dc164581bb02028e619477ce20cdcbf21edd3efd6655", "relationship": "Existing case-insensitive comparison supports the already published ASCII true/false subset, not arbitrary-false coercion or spelling normalization."},
+    {"address": "0x1400e4d60", "sha256": "b36a97c9b7f6526fff278d633605272c1b3f670db30d00248e4b4f6e5f9ca331", "relationship": "Existing post-click selected numeric SID refresh basis; incidental refresh effects are not reproduced."},
+    {"address": "0x1405b57b0", "sha256": "7eb7ba32c069738fc422f69fc0ba03c9ce4022e4e5ed2812dcba2d52858f28ab", "relationship": "Existing first-equal numeric SID lookup motivates the unchanged stronger CLI uniqueness guard; no first-match ambiguity is accepted."}
+  ],
+  "source_verification": "All eight relevant canonical function hashes and all five reused artifact hashes were verified against the existing frozen local corpus and current checkout. No extraction, new native probe or vendor source text is included.",
+  "CLI_policy": {
+    "command": "lox config lighting set-mood-skip FILE BLOCK --mood SID_OR_NAME (--skip | --no-skip) --dry-run [--room ROOM] [--save-as PATH]",
+    "architecture": "One private immutable LightingMoodSkipPlan owns the existing path selection, ordered validation and LightingMoodSkipEdit report. ConfigEditor::preview_lighting_mood_skip(&self, selector, mood_ref, skip) and the existing writer use the same plan. No XML clone, writer-then-discard, diff simulation or generic mutation framework.",
+    "ordered_admission": "Exactly LightController2, exactly one direct LightscenesC and one direct mood matching exact stored SID spelling or case-sensitive Name. Parse explicit signed32 selected SID, require positive, then require every direct sibling SID to parse as signed32 and selected numeric SID to be unique including equivalent spellings, then require SkipNext ASCII true/false case variants or omission. Existing ordered errors remain identical even on no-op. No role, visibility, Num, CID, sibling flag or graph predicate is added.",
+    "report": "JSON adds dry_run=true and optional trace_id to the unchanged writer report. mood preserves raw UUID/SID/CID. before.stored and after preserve actual SkipNext storage; before.effective is current boolean, before.default remains false, skip is proposed effective boolean and checkbox_checked=!skip is the existing inverse projection. Missing false no-op remains null; ASCII case and identity lexemes stay unchanged. Only effective changes plan the existing lowercase true/false write.",
+    "formats": "Dedicated table/CSV retain selected raw identity, raw before/after flags, effective before/after booleans, default, inverse checkbox projection and changed. CID is raw only and is never interpreted. CSV presence fields distinguish omission. Quiet suppresses only the table summary; no-header suppresses headers, never preview rows. Normal writer output and CSV column order are unchanged.",
+    "read_only": "Only this existing mutation is newly admitted to global --dry-run. CLI returns before mutation or save with no source/destination/default/stamp/directory/cache/telemetry writes, including input/existing/new save-as destinations, no-op and failures. Destination writability and writer serialization are not predicted.",
+    "preservation": "Existing writer signature, report, selection order, admission, lowercase-on-change/no-op preservation, save-as and stamp behavior are unchanged. No default repair, ID allocation/range change, role/cohort/graph/reference/visibility inference, or unrelated Name/SName/MixMod/icon/Qn/color/metadata normalization.",
+    "failure": "Unsupported or ambiguous needed identity, flag and selection data returns the identical writer diagnostic, never empty success. Unneeded CID/Num/LSConfig/output storage keeps existing admission. Other unsupported mutations still fail closed."
+  },
+  "regressions": {
+    "unit": "src/config_edit/lighting_metadata_tests.rs: immutable preview matches writer report and exact expected XML with BOM/CRLF for canonical/case-variant/omitted flags, both requested states, raw numeric identities, existing higher positive SID and irrelevant CID storage; unsupported identity/flag/selection cases assert equal ordered errors and atomicity.",
+    "CLI": "tests/lighting_metadata_cli.rs: BOM/CRLF input and input/existing/missing-directory destinations remain byte-preserved on success/no-op/failure; on/off plans match unchanged writer reports and persisted edits; raw case/omission no-ops stay visible in JSON/table/CSV with UUID/room/bracket selection and independent quiet/no-header; errors stay identical.",
+    "side_effects": "tests/dry_run.rs: lighting_skip_preview_has_no_filesystem_or_network_side_effects snapshots input/output/config/cache/token/home/directory bytes and metadata with telemetry enabled and a local mock backend, including no-op, changed and rejected plans.",
+    "dispatch": "src/dry_run.rs admits only the existing SkipNext planner in addition to prior supported paths. Unrelated mutations remain fail-closed; existing CID/SID/Mix previews and metadata edits remain regression-covered."
+  },
+  "native_validation": {
+    "status": "not-run-source-only",
+    "new_native_cases": 0,
+    "gui_roundtrip_verified": false,
+    "runtime_parity": false,
+    "full_family_contract": false,
+    "limits": "Read-only source-backed CLI preview of one already supported stored selected-field edit only. Not GUI Cancel/dialog refresh, native accepted-dialog serialization/final-save or write-success prediction, live graph/role/visibility/permission state, physical cycling, SPS/runtime/family or whole-file parity. Historical artifacts and separate native work are unchanged."
+  }
+}

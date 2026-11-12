@@ -897,6 +897,137 @@ fn lighting_metadata_option_mix_projection_distinguishes_omitted_and_unsupported
 }
 
 #[test]
+fn lighting_metadata_skip_preview_is_immutable_and_matches_writer_without_normalization() {
+    for (raw, effective, sid, cid) in [
+        (None, false, "+000777", None),
+        (Some("false"), false, "32", Some("12")),
+        (Some("FaLsE"), false, "+0002", Some("opaque")),
+        (Some("true"), true, "2147483647", Some("-1")),
+        (Some("tRuE"), true, "778", Some("19")),
+    ] {
+        let attribute = raw
+            .map(|raw| format!("SkipNext=\"{raw}\""))
+            .unwrap_or_default();
+        let cid_attribute = cid.map(|cid| format!(" CID=\"{cid}\"")).unwrap_or_default();
+        let xml = METADATA_XML
+            .replacen(
+                "Name=\"First\" SID=\"2\" CID=\"+012\"",
+                &format!("Name=\"First\" SID=\"{sid}\"{cid_attribute}"),
+                1,
+            )
+            .replacen("SkipNext=\"false\"", &attribute, 1);
+        for skip in [false, true] {
+            let source = format!("\u{feff}{}", xml.replace('\n', "\r\n"));
+            let mut editor = ConfigEditor::load(source.as_bytes()).unwrap();
+            let before = editor.to_bytes().unwrap();
+            let preview = editor
+                .preview_lighting_mood_skip("uuid:lighting", "First", skip)
+                .unwrap();
+            assert_eq!(editor.to_bytes().unwrap(), before);
+            assert_eq!(preview.mood.sid.as_deref(), Some(sid));
+            assert_eq!(preview.mood.cid.as_deref(), cid);
+            assert_eq!(preview.before.stored.as_deref(), raw);
+            assert_eq!(preview.before.effective, Some(effective));
+            assert_eq!(preview.checkbox_checked, !skip);
+            assert_eq!(preview.changed, skip != effective);
+            assert_eq!(
+                preview.after,
+                if skip != effective {
+                    Some(skip.to_string())
+                } else {
+                    raw.map(str::to_string)
+                }
+            );
+            let written = editor
+                .set_lighting_mood_skip("uuid:lighting", "First", skip)
+                .unwrap();
+            assert_eq!(
+                serde_json::to_value(preview).unwrap(),
+                serde_json::to_value(written).unwrap()
+            );
+            let expected = if skip == effective {
+                xml.clone()
+            } else if raw.is_none() {
+                xml.replacen(
+                    "Future=\"opaque\">",
+                    "Future=\"opaque\" SkipNext=\"true\">",
+                    1,
+                )
+            } else {
+                xml.replacen(&attribute, &format!("SkipNext=\"{skip}\""), 1)
+            };
+            assert_xml(
+                &editor,
+                &format!("\u{feff}{}", expected.replace('\n', "\r\n")),
+            );
+        }
+    }
+}
+
+#[test]
+fn lighting_metadata_skip_preview_and_writer_share_ordered_failures_and_are_atomic() {
+    let mut cases = vec![
+        (METADATA_XML.to_string(), "missing"),
+        (
+            METADATA_XML.replace("Name=\"Second\"", "Name=\"First\""),
+            "First",
+        ),
+        (
+            METADATA_XML.replace("Type=\"LightController2\"", "Type=\"And\""),
+            "First",
+        ),
+        (
+            METADATA_XML.replace("</LightscenesC>", "</LightscenesC><LightscenesC/>"),
+            "First",
+        ),
+        (METADATA_XML.replace("SID=\"3\"", "SID=\"0002\""), "First"),
+        (METADATA_XML.replace("SID=\"3\"", "SID=\"opaque\""), "First"),
+        // Earlier identity guards must still win over an unsupported flag.
+        (
+            METADATA_XML
+                .replace("SID=\"2\"", "SID=\"0\"")
+                .replace("SkipNext=\"false\"", "SkipNext=\"0\""),
+            "First",
+        ),
+        (
+            METADATA_XML
+                .replace("SID=\"3\"", "SID=\"0002\"")
+                .replace("SkipNext=\"false\"", "SkipNext=\"0\""),
+            "First",
+        ),
+    ];
+    for sid in ["", "opaque", "2147483648", "-1", "0"] {
+        let replacement = if sid.is_empty() {
+            String::new()
+        } else {
+            format!("SID=\"{sid}\"")
+        };
+        cases.push((METADATA_XML.replacen("SID=\"2\"", &replacement, 1), "First"));
+    }
+    for raw in ["1", "0", "", " true ", "future", "ＴＲＵＥ"] {
+        cases.push((
+            METADATA_XML.replacen("SkipNext=\"false\"", &format!("SkipNext=\"{raw}\""), 1),
+            "First",
+        ));
+    }
+    for (xml, mood) in cases {
+        for skip in [false, true] {
+            let mut editor = ConfigEditor::load(xml.as_bytes()).unwrap();
+            let before = editor.to_bytes().unwrap();
+            let preview = editor
+                .preview_lighting_mood_skip("uuid:lighting", mood, skip)
+                .unwrap_err();
+            assert_eq!(editor.to_bytes().unwrap(), before);
+            let writer = editor
+                .set_lighting_mood_skip("uuid:lighting", mood, skip)
+                .unwrap_err();
+            assert_eq!(preview.to_string(), writer.to_string(), "{xml}/{skip}");
+            assert_eq!(editor.to_bytes().unwrap(), before);
+        }
+    }
+}
+
+#[test]
 fn lighting_metadata_skip_uses_stored_default_and_inverse_checkbox_without_other_writes() {
     let mut editor = super::ConfigEditor::load(SKIP_XML.as_bytes()).unwrap();
     let before = editor.to_bytes().unwrap();

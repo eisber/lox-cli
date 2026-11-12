@@ -29,6 +29,326 @@ fn command() -> Command {
 }
 
 #[test]
+fn lighting_metadata_cli_skip_dry_run_matches_writer_and_preserves_every_destination() {
+    let dir = tempfile::Builder::new()
+        .prefix("skip-preview-")
+        .tempdir_in(".")
+        .unwrap();
+    let input = dir.path().join("input.Loxone");
+    let output = dir.path().join("output.Loxone");
+    let missing = dir.path().join("missing").join("new.Loxone");
+    for (raw, skip) in [
+        (None, false),
+        (None, true),
+        (Some("FaLsE"), true),
+        (Some("tRuE"), false),
+        (Some("tRuE"), true),
+    ] {
+        let attribute = raw
+            .map(|raw| format!(" SkipNext=\"{raw}\""))
+            .unwrap_or_default();
+        let xml = XML
+            .replacen(
+                "SID=\"+0002\" CID=\"0\"",
+                "SID=\"+000777\" CID=\"opaque\"",
+                1,
+            )
+            .replacen("SName=\"alias\"", &format!("SName=\"alias\"{attribute}"), 1);
+        let before = bytes(&xml);
+        fs::write(&input, &before).unwrap();
+        fs::write(&output, b"existing output").unwrap();
+        let flag = if skip { "--skip" } else { "--no-skip" };
+        let mut preview = serde_json::Value::Null;
+        for destination in [None, Some(&input), Some(&output), Some(&missing)] {
+            let mut cmd = command();
+            cmd.env("LOX_CONFIG", dir.path().join("absent.yaml"))
+                .args(["--dry-run", "config", "lighting", "set-mood-skip"])
+                .arg(&input)
+                .args([
+                    "uuid:lighting",
+                    "--mood",
+                    "A",
+                    flag,
+                    "-o",
+                    "json",
+                    "--quiet",
+                    "--trace-id",
+                    "skip-preview",
+                ]);
+            if let Some(destination) = destination {
+                cmd.arg("--save-as").arg(destination);
+            }
+            let result = cmd
+                .assert()
+                .success()
+                .stderr("")
+                .get_output()
+                .stdout
+                .clone();
+            preview = serde_json::from_slice(&result).unwrap();
+            assert_eq!(preview["dry_run"], true);
+            assert_eq!(preview["trace_id"], "skip-preview");
+            assert_eq!(preview["mood"]["sid"], "+000777");
+            assert_eq!(preview["mood"]["cid"], "opaque");
+            assert_eq!(preview["before"]["stored"], serde_json::json!(raw));
+            assert_eq!(preview["skip"], skip);
+            assert_eq!(preview["checkbox_checked"], !skip);
+            assert_eq!(fs::read(&input).unwrap(), before);
+            assert_eq!(fs::read(&output).unwrap(), b"existing output");
+            assert!(!missing.parent().unwrap().exists());
+            assert!(!dir.path().join("absent.yaml").exists());
+        }
+        let result = command()
+            .args(["config", "lighting", "set-mood-skip"])
+            .arg(&input)
+            .args([
+                "uuid:lighting",
+                "--mood",
+                "A",
+                flag,
+                "-o",
+                "json",
+                "--quiet",
+                "--save-as",
+            ])
+            .arg(&output)
+            .assert()
+            .success()
+            .get_output()
+            .stdout
+            .clone();
+        let effective = raw.is_some_and(|raw| raw.eq_ignore_ascii_case("true"));
+        let expected = if skip == effective {
+            xml
+        } else if raw.is_none() {
+            xml.replacen("SName=\"alias\"", "SName=\"alias\" SkipNext=\"true\"", 1)
+        } else {
+            xml.replacen(&attribute, &format!(" SkipNext=\"{skip}\""), 1)
+        };
+        preview.as_object_mut().unwrap().remove("dry_run");
+        preview.as_object_mut().unwrap().remove("trace_id");
+        assert_eq!(
+            preview,
+            serde_json::from_slice::<serde_json::Value>(&result).unwrap()
+        );
+        assert_eq!(fs::read(&input).unwrap(), before);
+        assert_eq!(fs::read(&output).unwrap(), bytes(&expected));
+    }
+}
+
+#[test]
+fn lighting_metadata_cli_skip_dry_run_noop_exposes_raw_and_effective_values_in_all_formats() {
+    let dir = tempfile::Builder::new()
+        .prefix("skip-preview-formats-")
+        .tempdir_in(".")
+        .unwrap();
+    let input = dir.path().join("input.Loxone");
+    let missing = dir.path().join("missing").join("new.Loxone");
+    for (raw, cid, skip) in [
+        (None, None, false),
+        (Some("FaLsE"), Some("opaque"), false),
+        (Some("tRuE"), Some("+012"), true),
+    ] {
+        let attribute = raw
+            .map(|raw| format!(" SkipNext=\"{raw}\""))
+            .unwrap_or_default();
+        let cid_attribute = cid.map(|cid| format!(" CID=\"{cid}\"")).unwrap_or_default();
+        let xml = XML.replacen("SID=\"+0002\" CID=\"0\"", &format!("SID=\"+000777\"{cid_attribute}{attribute}"), 1)
+            .replace("<ControlList>", "<ControlList><C Type=\"Place\" U=\"room\" Title=\"Kitchen\"/><C Type=\"And\" U=\"other\" Title=\"Lamp\"/>")
+            .replace("Title=\"Lamp\">", "Title=\"Lamp\"><IoData Pr=\"room\"/>");
+        let before = bytes(&xml);
+        fs::write(&input, &before).unwrap();
+        for (block, room) in [
+            ("uuid:lighting", None),
+            ("Lamp", Some("Kitchen")),
+            ("Lamp [Kitchen]", None),
+        ] {
+            for format in ["json", "table", "csv"] {
+                for (quiet, no_header) in
+                    [(false, false), (true, false), (false, true), (true, true)]
+                {
+                    let mut cmd = command();
+                    cmd.args(["--dry-run", "config", "lighting", "set-mood-skip"])
+                        .arg(&input)
+                        .args([
+                            block,
+                            "--mood",
+                            "+000777",
+                            if skip { "--skip" } else { "--no-skip" },
+                            "-o",
+                            format,
+                            "--save-as",
+                        ])
+                        .arg(&missing);
+                    if let Some(room) = room {
+                        cmd.args(["--room", room]);
+                    }
+                    if quiet {
+                        cmd.arg("--quiet");
+                    }
+                    if no_header {
+                        cmd.arg("--no-header");
+                    }
+                    let result = cmd
+                        .assert()
+                        .success()
+                        .stderr("")
+                        .get_output()
+                        .stdout
+                        .clone();
+                    if format == "json" {
+                        let value: serde_json::Value = serde_json::from_slice(&result).unwrap();
+                        assert_eq!(value["dry_run"], true);
+                        assert_eq!(value["mood"]["sid"], "+000777");
+                        assert_eq!(value["mood"]["cid"], serde_json::json!(cid));
+                        assert_eq!(value["before"]["stored"], serde_json::json!(raw));
+                        assert_eq!(value["before"]["effective"], skip);
+                        assert_eq!(value["before"]["default"], false);
+                        assert_eq!(value["after"], serde_json::json!(raw));
+                        assert_eq!(value["skip"], skip);
+                        assert_eq!(value["checkbox_checked"], !skip);
+                        assert_eq!(value["changed"], false);
+                    } else {
+                        let stdout = String::from_utf8(result).unwrap();
+                        assert_eq!(stdout.contains("MOOD_UUID"), !no_header);
+                        if format == "csv" {
+                            let expected = format!(
+                                "\"a\",\"+000777\",{},\"{}\",{},\"{}\",{},\"{}\",{skip},{skip},false,{},false\n",
+                                cid.is_some(),
+                                cid.unwrap_or(""),
+                                raw.is_some(),
+                                raw.unwrap_or(""),
+                                raw.is_some(),
+                                raw.unwrap_or(""),
+                                !skip
+                            );
+                            assert!(stdout.ends_with(&expected), "{stdout}");
+                        } else {
+                            let stored = raw.unwrap_or("<absent>");
+                            assert!(stdout.contains(&format!("{stored}→{stored}")), "{stdout}");
+                            assert!(stdout.contains(&format!("{skip}→{skip}")), "{stdout}");
+                            assert!(
+                                stdout
+                                    .contains(&format!("+000777  {}  ", cid.unwrap_or("<absent>"))),
+                                "{stdout}"
+                            );
+                            assert_eq!(stdout.contains("\n1 mood;"), !quiet);
+                        }
+                    }
+                    assert_eq!(fs::read(&input).unwrap(), before);
+                    assert!(!missing.parent().unwrap().exists());
+                }
+            }
+        }
+    }
+}
+
+#[test]
+fn lighting_metadata_cli_skip_dry_run_and_writer_reject_identical_unsupported_data() {
+    let dir = tempfile::Builder::new()
+        .prefix("skip-preview-errors-")
+        .tempdir_in(".")
+        .unwrap();
+    let input = dir.path().join("input.Loxone");
+    let output = dir.path().join("output.Loxone");
+    let missing = dir.path().join("missing").join("new.Loxone");
+    for (xml, block, room, error) in [
+        (
+            XML.replace("SID=\"+0002\"", "SID=\"0\""),
+            "uuid:lighting",
+            None,
+            "unsupported_mood_skip_scope",
+        ),
+        (
+            XML.replace("SID=\"+0002\"", "SID=\"2147483648\""),
+            "uuid:lighting",
+            None,
+            "unsupported_mood_identity",
+        ),
+        (
+            XML.replace("SID=\"3\"", "SID=\"opaque\""),
+            "uuid:lighting",
+            None,
+            "unsupported_mood_identity",
+        ),
+        (
+            XML.replace("SName=\"alias\"", "SName=\"alias\" SkipNext=\"0\""),
+            "uuid:lighting",
+            None,
+            "unsupported_mood_skip_value",
+        ),
+        (
+            XML.replace("SID=\"3\"", "SID=\"0002\""),
+            "uuid:lighting",
+            None,
+            "ambiguous_mood_sid",
+        ),
+        (
+            XML.replace("Name=\"B\"", "Name=\"A\""),
+            "uuid:lighting",
+            None,
+            "ambiguous_or_missing_mood",
+        ),
+        (
+            XML.replace("Name=\"A\"", "Name=\"missing\""),
+            "uuid:lighting",
+            None,
+            "ambiguous_or_missing_mood",
+        ),
+        (
+            XML.replace("</LightscenesC>", "</LightscenesC><LightscenesC/>"),
+            "uuid:lighting",
+            None,
+            "unsupported_mood_container_shape",
+        ),
+        (
+            XML.replace("Type=\"LightController2\"", "Type=\"And\""),
+            "uuid:lighting",
+            None,
+            "wrong_block_type",
+        ),
+        (
+            XML.to_string(),
+            "Lamp [Kitchen]",
+            Some("Kitchen"),
+            "conflicting_room_selector",
+        ),
+    ] {
+        let before = bytes(&xml);
+        fs::write(&input, &before).unwrap();
+        fs::write(&output, b"existing output").unwrap();
+        for destination in [None, Some(&input), Some(&output), Some(&missing)] {
+            let mut errors = Vec::new();
+            for dry_run in [true, false] {
+                let mut cmd = command();
+                cmd.env("LOX_CONFIG", dir.path().join("absent.yaml"))
+                    .args(["config", "lighting", "set-mood-skip"])
+                    .arg(&input)
+                    .args([block, "--mood", "A", "--no-skip", "-o", "json", "--quiet"]);
+                if let Some(destination) = destination {
+                    cmd.arg("--save-as").arg(destination);
+                }
+                if dry_run {
+                    cmd.arg("--dry-run");
+                }
+                if let Some(room) = room {
+                    cmd.args(["--room", room]);
+                }
+                let result = cmd.assert().failure().get_output().stdout.clone();
+                let result: serde_json::Value = serde_json::from_slice(&result).unwrap();
+                assert_eq!(result["error"], error);
+                errors.push(result);
+                assert_eq!(fs::read(&input).unwrap(), before);
+                assert_eq!(fs::read(&output).unwrap(), b"existing output");
+                assert!(!missing.parent().unwrap().exists());
+                assert!(!dir.path().join("absent.yaml").exists());
+            }
+            assert_eq!(errors[0], errors[1]);
+        }
+    }
+}
+
+#[test]
 fn lighting_metadata_cli_mix_dry_run_matches_writer_and_preserves_every_destination() {
     let dir = tempfile::Builder::new()
         .prefix("mix-preview-")

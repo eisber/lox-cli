@@ -156,6 +156,69 @@ fn lighting_mix_preview_has_no_filesystem_or_network_side_effects() {
     backend.assert_hits(0);
 }
 
+#[test]
+fn lighting_skip_preview_has_no_filesystem_or_network_side_effects() {
+    let sandbox = Sandbox::new();
+    let root = sandbox.dir.path();
+    let input = root.join("input.Loxone");
+    let backend = sandbox.server.mock(|when, then| {
+        when.any_request();
+        then.status(500);
+    });
+    for (sid, attributes, flag, success) in [
+        ("+000777", "", "--no-skip", true),
+        ("+000777", "", "--skip", true),
+        ("32", " SkipNext=\"tRuE\" CID=\"12\"", "--no-skip", true),
+        (
+            "+0001",
+            " SkipNext=\"FaLsE\" CID=\"opaque\"",
+            "--no-skip",
+            true,
+        ),
+        ("+0001", " SkipNext=\"0\"", "--skip", false),
+        ("0", "", "--no-skip", false),
+    ] {
+        fs::write(
+            &input,
+            format!("\u{feff}<ControlList>\r\n<C Type=\"Document\" U=\"doc\" Date=\"2025-01-01 00:00:00\" DateS=\"504921600\"/>\r\n<C Type=\"LightController2\" U=\"lighting\"><LightscenesC Num=\"opaque\"><LightsceneC Name=\"A\" SID=\"{sid}\"{attributes}/></LightscenesC><LSConfig OpM=\"opaque\" ScMv=\"opaque\"/></C>\r\n</ControlList>\r\n"),
+        ).unwrap();
+        for destination in [
+            None,
+            Some(input.clone()),
+            Some(root.join("output.Loxone")),
+            Some(root.join("missing").join("new.Loxone")),
+        ] {
+            let before = snapshot(root);
+            let mut cmd = sandbox.command(&["--dry-run", "--json"]);
+            cmd.args(["config", "lighting", "set-mood-skip"])
+                .arg(&input)
+                .args(["uuid:lighting", "--mood", "A", flag]);
+            if let Some(destination) = destination {
+                cmd.arg("--save-as").arg(destination);
+            }
+            let assertion = cmd.assert();
+            let assertion = if success {
+                assertion.success()
+            } else {
+                assertion.failure()
+            };
+            let result: Value = serde_json::from_slice(&assertion.get_output().stdout).unwrap();
+            if success {
+                assert_eq!(result["dry_run"], true);
+            } else {
+                assert_eq!(result["ok"], false);
+            }
+            let after = snapshot(root);
+            assert!(
+                after == before,
+                "SkipNext preview wrote local data: {}",
+                snapshot_difference(&before, &after)
+            );
+        }
+    }
+    backend.assert_hits(0);
+}
+
 struct Sandbox {
     dir: TempDir,
     server: MockServer,

@@ -290,6 +290,7 @@ lox config lighting set-mood-sid file.Loxone "Lighting" --mood "Evening" --sid 3
 lox config lighting rename-mood file.Loxone "Lighting" --mood "Evening" --name "Late Evening" --save-as renamed.Loxone
 lox config lighting set-mood-mix file.Loxone "Lighting" --mood "Unbound scene" --no-mix --save-as unmixed.Loxone
 lox config lighting set-mood-skip file.Loxone "Lighting" --mood "Evening" --skip --save-as skipped.Loxone
+lox config lighting set-mood-skip file.Loxone "Lighting" --mood "Evening" --skip --dry-run -o json
 lox config lighting set-mood-display-name file.Loxone "Lighting" --mood "Evening" --name "EVENING"
 lox config lighting set-mood-display-name file.Loxone "Lighting" --mood "Evening" --name "Late Evening" --normalize-ascii
 lox config lighting set-mood-display-name file.Loxone "Lighting" --mood "Evening" --clear
@@ -646,6 +647,28 @@ SIDs. Unlike MixMod, this checkbox is not restricted to SID1..31 or by
 CID12..19. No other flags, IDs, outputs, references or HCL are normalized.
 This is a source-backed selected-field edit, not native/runtime cycling
 parity. See `tests/ux/light-controller2/mood-skip-source.json`.
+
+Add global `--dry-run` to preview this same guarded SkipNext edit without
+changing XML or saving anything, including with `--save-as` pointing at the
+input, an existing file or a missing directory. The immutable plan is shared
+with the unchanged writer: exact selection, positive signed32 selected SID,
+supported sibling SIDs, numeric uniqueness and supported boolean guards/errors
+stay identical, even for no-op requests. CID is reported raw, not interpreted;
+MixMod's SID1..31/CID12..19 restrictions do not apply here.
+JSON adds `dry_run=true` and optional `trace_id` to the existing edit report;
+`before.stored`/`after` retain raw omission or ASCII case spelling,
+`before.effective`/`skip` show current/proposed booleans, and `checkbox_checked`
+is the proposed inverse. Table/CSV always retain those raw/effective values,
+raw UUID/SID/CID, default and changed, including no-op under `--quiet`.
+CSV presence columns distinguish omission; `--no-header` hides only headers,
+and quiet hides only the table summary. No source/destination/default/stamp,
+directory/cache/telemetry writes, destination-writability checks or serialization
+prediction occur. This is source-only planning of one already supported stored
+field, not native dialog/save/reopen, GUI permissions/visibility/graph state,
+physical cycling, SPS/runtime/family or whole-file qualification.
+Other unsupported mutations still fail closed under global `--dry-run`.
+See `tests/ux/light-controller2/mood-skip-preview-source.json`.
+
 Boolean inspection and the guarded mix/skip edits accept native ASCII case
 variants such as `TRUE`/`FaLsE`, retaining original spelling on no-op. A real
 change writes only the requested flag. Numeric, space-padded, opaque and

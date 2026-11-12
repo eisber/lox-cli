@@ -70,6 +70,11 @@ pub struct LightingMoodSkipEdit {
     pub changed: bool,
 }
 
+struct LightingMoodSkipPlan {
+    path: Vec<usize>,
+    edit: LightingMoodSkipEdit,
+}
+
 #[derive(Debug, Serialize)]
 pub struct LightingMoodFlag {
     pub key: &'static str,
@@ -392,6 +397,34 @@ impl ConfigEditor {
         mood_ref: &str,
         skip: bool,
     ) -> Result<LightingMoodSkipEdit> {
+        let plan = self.plan_lighting_mood_skip(selector, mood_ref, skip)?;
+        let edit = plan.edit;
+        if let Some(after) = &edit.after
+            && edit.changed
+        {
+            self.get_element_mut(&plan.path)
+                .attributes
+                .insert("SkipNext".into(), after.clone());
+        }
+        Ok(edit)
+    }
+
+    /// Preview only the existing guarded SkipNext edit, without changing the document.
+    pub fn preview_lighting_mood_skip(
+        &self,
+        selector: &str,
+        mood_ref: &str,
+        skip: bool,
+    ) -> Result<LightingMoodSkipEdit> {
+        Ok(self.plan_lighting_mood_skip(selector, mood_ref, skip)?.edit)
+    }
+
+    fn plan_lighting_mood_skip(
+        &self,
+        selector: &str,
+        mood_ref: &str,
+        skip: bool,
+    ) -> Result<LightingMoodSkipPlan> {
         let path = self.lighting_metadata_mood_path(selector, mood_ref)?;
         let mood = self.get_element(&path);
         let sid = mood_identity_integer(mood, "SID", mood_ref)?;
@@ -424,20 +457,16 @@ impl ConfigEditor {
         } else {
             before.stored.clone()
         };
-        if let Some(after) = &after
-            && changed
-        {
-            self.get_element_mut(&path)
-                .attributes
-                .insert("SkipNext".into(), after.clone());
-        }
-        Ok(LightingMoodSkipEdit {
-            mood: identity,
-            before,
-            after,
-            skip,
-            checkbox_checked: !skip,
-            changed,
+        Ok(LightingMoodSkipPlan {
+            path,
+            edit: LightingMoodSkipEdit {
+                mood: identity,
+                before,
+                after,
+                skip,
+                checkbox_checked: !skip,
+                changed,
+            },
         })
     }
 

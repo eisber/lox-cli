@@ -22,6 +22,7 @@
     "set_mood_mix_with_omitted_cid": true,
     "accept_native_mood_boolean_case_variants": true,
     "set_mood_cycling_exclusion": true,
+    "preview_mood_cycling_exclusion": true,
     "edit_mood_display_name_ascii_subset": true,
     "normalize_mood_display_name_ascii_opt_in": true,
     "inspect_numeric_mood_identity_duplicates": true,
@@ -209,6 +210,17 @@
     "preservation": "Only selected SkipNext changes. Keep all other records/flags, Qn, identities/spellings, count/width/order, SName, LSConfig, HCL, capabilities, sequences and unknown data. No incidental Q1/HCL or full-dialog normalization.",
     "tests": "src/config_edit/lighting_metadata_tests.rs and tests/lighting_metadata_cli.rs: lighting_metadata_*skip*",
     "limits": "Source-backed selected-field transaction, not full GUI permissions, import reconciliation, accepted native save/reopen, physical cycling behavior or runtime parity."
+  },
+  "per_mood_cycling_exclusion_preview": {
+    "command": "lox config lighting set-mood-skip FILE BLOCK --mood SID_OR_NAME (--skip | --no-skip) --dry-run [--room ROOM] [--save-as PATH]",
+    "source_artifact": "tests/ux/light-controller2/mood-skip-preview-source.json",
+    "source_sha256": "1c3c59a2c9bebe22b68183abd39808e06c50ca81b591bb53110bcd812ad96d44",
+    "shared_plan": "Immutable preview_lighting_mood_skip and existing set_lighting_mood_skip use one private LightingMoodSkipPlan with unchanged path selection, ordered validation, guards and LightingMoodSkipEdit report. No XML cloning, writer-then-discard, diff simulation or generic mutation framework.",
+    "ordered_admission": "Exactly LightController2, one direct collection and one exact unambiguous stored SID/Name match. Parse explicit signed32 selected SID, require positive, then require every direct sibling SID to parse as signed32 and selected numeric SID to be unique including equivalent spellings, then require SkipNext ASCII true/false case variants or omitted effective/default false. Existing unsupported/ambiguous errors remain identical even on no-op. No MixMod SID1..31/CID12..19/role guard, Num reconciliation or graph/visibility predicate is imported; CID stays uninterpreted.",
+    "formats": "JSON adds dry_run=true and optional trace_id to the existing writer report: raw mood UUID/SID/CID, before.stored/effective/default, raw after, proposed effective skip, inverse checkbox_checked=!skip and changed. Dedicated table/CSV retain selected raw/effective values even on no-op; CSV presence columns distinguish omission. Quiet hides only the table summary, no-header only headers. Normal writer output/CSV column order are unchanged.",
+    "preservation": "No editor mutation or save with input/existing/new save-as, no-op or failure. No source/destination/default/stamp/directory/cache/telemetry writes; no destination-writability or serialization prediction. Omitted SkipNext, raw ASCII case and identity lexemes stay visible and are never normalized on effective no-op. Actual writes still change only selected SkipNext through the existing writer with unchanged API/results/save/stamp behavior.",
+    "tests": "src/config_edit/lighting_metadata_tests.rs and tests/lighting_metadata_cli.rs: lighting_metadata_*skip*; tests/dry_run.rs telemetry-enabled preservation snapshot; src/dry_run.rs fail-closed dispatch",
+    "limits": "Source-only read-only planning of one already supported stored selected-field edit. No new mutation behavior, native case, GUI Cancel/dialog refresh, native accepted-dialog/final-save/write-success prediction, live graph/role/visibility/permission claims, physical cycling, SPS/runtime/family or whole-file parity."
   },
   "per_mood_display_name_edit": {
     "command": "lox config lighting set-mood-display-name FILE BLOCK --mood SID_OR_NAME (--name NAME [--normalize-ascii] | --clear) [--room ROOM] [--save-as PATH]",
