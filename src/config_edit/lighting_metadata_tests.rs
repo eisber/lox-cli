@@ -325,6 +325,189 @@ fn lighting_metadata_display_name_ascii_is_explicit_and_does_not_trim_or_transli
 }
 
 #[test]
+fn lighting_metadata_display_name_preview_is_immutable_and_matches_both_writers() {
+    for (attribute, before_name, name, normalize, after, changed) in [
+        ("", None, "", false, "", false),
+        (" SName=\"\"", Some(""), "", false, "", false),
+        (" SName=\"123\"", Some("123"), "123", false, "123", false),
+        (" SName=\"alias\"", Some("alias"), "", false, "", true),
+        ("", None, "NEW  NAME 2", false, "NEW  NAME 2", true),
+        (
+            " SName=\"Grün &amp; &quot;A,B&quot;\"",
+            Some("Grün & \"A,B\""),
+            "Late Evening 2",
+            true,
+            "LATE EVENING 2",
+            true,
+        ),
+        (
+            " SName=\"LATE EVENING 2\"",
+            Some("LATE EVENING 2"),
+            "late evening 2",
+            true,
+            "LATE EVENING 2",
+            false,
+        ),
+        (" SName=\"ABC\"", Some("ABC"), "ABC", true, "ABC", false),
+    ] {
+        for identity in [
+            "IID=\"7\"",
+            "SID=\"+03\" CID=\"opaque\" IID=\"7\" UUID=\"\"",
+        ] {
+            let xml = METADATA_XML
+                .replace(" SName=\"alias\"", attribute)
+                .replacen(
+                    "SID=\"2\" CID=\"+012\" IID=\"7\" UUID=\"first\"",
+                    identity,
+                    1,
+                );
+            let input = format!("\u{feff}{}", xml.replace('\n', "\r\n"));
+            let editor = ConfigEditor::load(input.as_bytes()).unwrap();
+            let before = editor.to_bytes().unwrap();
+            let preview = editor
+                .preview_lighting_mood_display_name("uuid:lighting", "First", name, normalize)
+                .unwrap();
+            assert_eq!(editor.to_bytes().unwrap(), before);
+            assert_eq!(preview.edit.before.as_deref(), before_name);
+            assert_eq!(preview.before_effective, before_name.unwrap_or(""));
+            assert_eq!(preview.edit.after, after);
+            assert_eq!(preview.edit.changed, changed);
+            assert_eq!(
+                preview.after_stored.as_deref(),
+                if changed { Some(after) } else { before_name }
+            );
+            assert_eq!(
+                preview.edit.normalized_from.as_deref(),
+                (normalize && name != after).then_some(name)
+            );
+            let mut writer = ConfigEditor::load(input.as_bytes()).unwrap();
+            let edit = if normalize {
+                writer.set_lighting_mood_display_name_ascii("uuid:lighting", "First", name)
+            } else {
+                writer.set_lighting_mood_display_name("uuid:lighting", "First", name)
+            }
+            .unwrap();
+            assert_eq!(
+                serde_json::to_value(&preview.edit).unwrap(),
+                serde_json::to_value(&edit).unwrap()
+            );
+            let mut expected = ConfigEditor::load(input.as_bytes()).unwrap();
+            if changed {
+                let path = expected
+                    .lighting_metadata_mood_path("uuid:lighting", "First")
+                    .unwrap();
+                expected
+                    .get_element_mut(&path)
+                    .attributes
+                    .insert("SName".into(), after.into());
+            }
+            assert_eq!(writer.to_bytes().unwrap(), expected.to_bytes().unwrap());
+            if !changed {
+                assert_eq!(writer.to_bytes().unwrap(), before);
+            }
+        }
+    }
+}
+
+#[test]
+fn lighting_metadata_display_name_preview_preserves_ordered_errors_and_unsupported_noops() {
+    for normalize in [false, true] {
+        for (xml, selector, reference, name, code) in [
+            (
+                METADATA_XML.to_owned(),
+                "missing",
+                "missing",
+                "Bad!",
+                "unsupported_mood_display_name",
+            ),
+            (
+                METADATA_XML.replace("SName=\"alias\"", "SName=\"Grün\""),
+                "uuid:lighting",
+                "First",
+                "Grün",
+                "unsupported_mood_display_name",
+            ),
+            (
+                METADATA_XML.replace("LightController2", "And"),
+                "uuid:lighting",
+                "missing",
+                "ABC",
+                "wrong_block_type",
+            ),
+            (
+                METADATA_XML.replace("</C>", "<LightscenesC/></C>"),
+                "uuid:lighting",
+                "First",
+                "",
+                "unsupported_mood_container_shape",
+            ),
+            (
+                METADATA_XML.replace("Name=\"Second\"", "Name=\"First\""),
+                "uuid:lighting",
+                "First",
+                "",
+                "ambiguous_or_missing_mood",
+            ),
+            (
+                METADATA_XML.replace("Name=\"Second\"", "Name=\"2\""),
+                "uuid:lighting",
+                "2",
+                "ABC",
+                "ambiguous_or_missing_mood",
+            ),
+            (
+                METADATA_XML.to_owned(),
+                "uuid:lighting",
+                "first",
+                "ABC",
+                "ambiguous_or_missing_mood",
+            ),
+        ] {
+            let mut editor = ConfigEditor::load(xml.as_bytes()).unwrap();
+            let before = editor.to_bytes().unwrap();
+            let preview = editor
+                .preview_lighting_mood_display_name(selector, reference, name, normalize)
+                .unwrap_err();
+            let writer = if normalize {
+                editor.set_lighting_mood_display_name_ascii(selector, reference, name)
+            } else {
+                editor.set_lighting_mood_display_name(selector, reference, name)
+            }
+            .unwrap_err();
+            assert_eq!(preview.to_string(), writer.to_string());
+            assert_eq!(preview.downcast_ref::<Diagnostic>().unwrap().code, code);
+            assert_eq!(editor.to_bytes().unwrap(), before);
+        }
+        for name in [" ABC", "ABC ", "A_B", "A\tB", "A\nB", "50%", "\0"] {
+            let mut editor = ConfigEditor::load(METADATA_XML.as_bytes()).unwrap();
+            let before = editor.to_bytes().unwrap();
+            let preview = editor
+                .preview_lighting_mood_display_name("missing", "missing", name, normalize)
+                .unwrap_err();
+            let writer = if normalize {
+                editor.set_lighting_mood_display_name_ascii("missing", "missing", name)
+            } else {
+                editor.set_lighting_mood_display_name("missing", "missing", name)
+            }
+            .unwrap_err();
+            assert_eq!(preview.to_string(), writer.to_string());
+            assert_eq!(
+                preview.downcast_ref::<Diagnostic>().unwrap().code,
+                "unsupported_mood_display_name"
+            );
+            assert_eq!(editor.to_bytes().unwrap(), before);
+        }
+    }
+    let xml = METADATA_XML.replace("SName=\"alias\"", "SName=\"lower\"");
+    let editor = ConfigEditor::load(xml.as_bytes()).unwrap();
+    assert!(
+        editor
+            .preview_lighting_mood_display_name("uuid:lighting", "First", "lower", false)
+            .is_err()
+    );
+}
+
+#[test]
 fn lighting_metadata_rename_preview_is_immutable_and_matches_writer_without_identity_guards() {
     for (attributes, reference, name) in [
         (

@@ -54,6 +54,7 @@ fn has_non_mutating_path(cmd: &Cmd) -> bool {
                     | LightingCmd::SetMoodMix { .. }
                     | LightingCmd::SetMoodSkip { .. }
                     | LightingCmd::RenameMood { .. }
+                    | LightingCmd::SetMoodDisplayName { .. }
             } | ConfigCmd::Ls
                 | ConfigCmd::Users { .. }
                 | ConfigCmd::Devices { .. }
@@ -206,13 +207,9 @@ mod tests {
             &[
                 "config",
                 "lighting",
-                "set-mood-display-name",
+                "recount-moods",
                 "input.Loxone",
                 "Lamp",
-                "--mood",
-                "A",
-                "--name",
-                "New",
             ],
             &["config", "room", "add", "input.Loxone", "new"],
             &["config", "user-remove", "input.Loxone", "user"],
@@ -266,6 +263,28 @@ mod tests {
                 "A",
                 "--name",
                 "New",
+            ],
+            vec![
+                "config",
+                "lighting",
+                "set-mood-display-name",
+                "input.Loxone",
+                "Lamp",
+                "--mood",
+                "A",
+                "--name",
+                "New",
+                "--normalize-ascii",
+            ],
+            vec![
+                "config",
+                "lighting",
+                "set-mood-display-name",
+                "input.Loxone",
+                "Lamp",
+                "--mood",
+                "A",
+                "--clear",
             ],
             vec![
                 "config",

@@ -1,0 +1,55 @@
+{
+  "schema_version": 1,
+  "issue": "lox-surl",
+  "named_question": "Can the already supported selected SName set, clear and explicit ASCII-normalization branches be previewed with identical ordered guards and actual planned storage, without mutation or save?",
+  "frozen_target": {
+    "version": "17.2.10.21",
+    "architecture": "AMD64",
+    "pe_sha256": "7b55e3ef18401574ab967c5c6a0140cd5a66dc728521ebba04ad53093577d8b3",
+    "installation_sha256": "a3003005776b327f5e666a072a64f5c569182b86174c0f578d5be3267ce28f85",
+    "analysis_id": "6a0520329af17d7b9fdaafe69398c62c454d9da838fc9f9c8d0bdd8d17bb15ae",
+    "new_extractions": 0
+  },
+  "existing_source_basis": [
+    {"artifact": "tests/ux/light-controller2/mood-display-name-source.json", "sha256": "4ea43e1b3df825dcfb1c16417c18f6998dc0846194977c7a3fe0358f019ed9ae", "relationship": "Existing selected SName writer, uppercase ASCII admission, explicit empty-string clear and omission-preserving no-op define the unchanged transaction. Name is a different field."},
+    {"artifact": "tests/ux/light-controller2/mood-display-name-ascii-source.json", "sha256": "a233e3139a247fde8527d5aa9b75cfc0e889940b7022da1d68f9c2b06d5e1351", "relationship": "Existing explicit opt-in converts ASCII lowercase before strict validation, reports normalized_from even on storage no-op and admits no other normalization."},
+    {"artifact": "tests/ux/light-controller2/mood-name-preview-source.json", "sha256": "9424db9cba214f01d0451b5018cfa8bf4a35b7a1f13b87c87f12d48ca28d660a", "relationship": "Reuse immutable-plan, early-return and output conventions only. No Name-specific nonempty restriction or other metadata operation's numeric, boolean or graph guard is imported."}
+  ],
+  "canonical_sources": [
+    {"address": "0x1400ea790", "sha256": "e4a7229adfe6b18d853f18bdb656cbe10c8a33e91749a033bad7a90a7282cdc4", "relationship": "Column7 commits normalized text to the actual selected record at +0x30 without the column0 nonempty guard."},
+    {"address": "0x1405b7df0", "sha256": "9f0ff6bd3dcc724a599e3324483c9b584f1e1128c4a3d6bf9604ecc328bf9d58", "relationship": "SName binds to +0x30 separately from Name, IDs, flags and output data."},
+    {"address": "0x14055d300", "sha256": "a303cbcf014d873ddd36e81d948430d0c457bccaecdcac9a7a280b9c9def5d95", "relationship": "SName normalization has additional non-ASCII and punctuation operations; the existing admitted subset deliberately avoids them."},
+    {"address": "0x140904a70", "sha256": "51b07b8e86c9f1a92ec41b449eb568daece5950fc2792de85d4b083548ee7ad3", "relationship": "Existing transliteration dependency is not newly implemented or approximated."},
+    {"address": "0x140420b50", "sha256": "7722a0901d1e63c6565e3353ed70a235ef97074d5cefae89f0c9230525806881", "relationship": "Existing conversion loop supplies the already supported explicit ASCII uppercase opt-in."},
+    {"address": "0x140422430", "sha256": "efcbe939abc3fb20e38de5c2eecaf149a696c8679217ee2b0907d5be6735fe51", "relationship": "ASCII a..z maps to A..Z; the opt-in still runs the unchanged strict validation afterward."},
+    {"address": "0x1404d2710", "sha256": "4a8a7b5589ef7371526f4a52a4bdcea4abf2097ae00b59e837a69efbe19ef2af", "relationship": "Common normalization remains outside the conservative no-change ASCII subset. No trimming or replacement is added."},
+    {"address": "0x14041d880", "sha256": "70ff0a876bd3b5b2070eeb178fe7e920e4a9e3c71b97f3ff651564ba9fcc17f6", "relationship": "Selected member string copy has no sibling deduplication or unrelated-field update."},
+    {"address": "0x1404c52f0", "sha256": "057c5670bc1b4a95f3b6ae5720f34f057330ba62605c4d0211ac7565de681262", "relationship": "Reader omission becomes empty text; native optional-string serialization can omit empty SName. The CLI's unchanged writer instead stores explicit empty only when clearing a nonempty value."}
+  ],
+  "source_verification": "All nine relevant canonical function hashes and all three reused public artifact hashes were verified against the existing frozen local corpus and current checkout. Static-byte evidence is inherited from the existing SName artifacts, not newly extracted or promoted. No vendor function text is included.",
+  "CLI_policy": {
+    "command": "lox config lighting set-mood-display-name FILE BLOCK --mood SID_OR_NAME (--name NAME [--normalize-ascii] | --clear) --dry-run [--room ROOM] [--save-as PATH]",
+    "architecture": "One private immutable LightingMoodDisplayNamePlan holds the existing selected path and unchanged LightingMoodDisplayNameEdit. Both existing writer entrypoints and public ConfigEditor::preview_lighting_mood_display_name(&self, selector, mood_ref, name, normalize_ascii) share it. The preview adds before_effective and after_stored without changing the writer report. No cloned XML, writer-then-discard, diff simulation or generic framework.",
+    "ordered_admission": "CLI flag and room-selector guards remain unchanged. The planner applies ASCII uppercasing only when explicitly requested, then validates the existing uppercase ASCII letters/digits/internal ordinary spaces and alphanumeric edges, allowing empty only through the existing API/explicit CLI clear. Next use existing block resolution, require exactly LightController2, one direct LightscenesC and one direct mood matching exact stored SID spelling or case-sensitive Name. Numeric Name/SID collisions and multiple matching records remain ambiguous. No numeric parsing, positive SID, sibling numeric uniqueness, role, visibility, Num, boolean, graph, permission, deduplication or maximum-length policy is added.",
+    "clear_and_noop": "Nonempty stored SName clears to explicit empty, never removal. Omitted/already-empty clear is unchanged and preserves its raw storage. Supported identical names and equivalent explicit ASCII normalization remain no-ops; normalized_from still shows changed supplied text. Unsupported strings remain errors even if identical to stored text. Prior arbitrary strings may be replaced or cleared without being revalidated.",
+    "report": "JSON retains the unchanged edit fields: actual selected raw UUID/SID/CID, before (null when omitted), effective planned after, changed and normalized_from. Preview additionally reports before_effective (omission reads empty), after_stored (null for retained omission, empty for explicit empty), dry_run=true and optional trace_id. These are stored-text semantics, not inherited or physical display labels.",
+    "formats": "Dedicated table/CSV retain selected identity, raw/effective before/after, normalization input and changed, including clear/no-op. Table quotes present strings to distinguish explicit empty and literal sentinel text from omission. CSV quotes strings and includes presence fields. Quiet suppresses only the table summary; no-header only headers. Normal writer output/CSV column order are unchanged.",
+    "read_only": "Only this command is newly admitted to global --dry-run. Return before mutation/save for input/existing/new missing-directory save-as, no-op or failure. No source/destination/default/stamp/directory/cache/telemetry writes, destination-writability checks or serialization/write-success predictions.",
+    "preservation": "Existing writer signatures/report/save/stamp/no-op behavior remain unchanged. Actual changes still write only selected SName. Preserve Name, raw identity/flag/output lexemes, count/width/order, sequences, LSConfig, HCL, capabilities, siblings and opaque storage. Missing/empty/opaque identities and numerically equivalent siblings retain the existing selection admission.",
+    "failure": "Identical existing diagnostics, never empty success. All unrelated unsupported mutations remain fail-closed."
+  },
+  "regressions": {
+    "unit": "Two lighting_metadata_display_name_preview tests compare immutable plans with both writers and selected-only XML including BOM/CRLF, omission/empty/numeric/raw prior text, no-op/clear/explicit normalization, uninterpreted IDs/flags, equivalent numeric siblings and ordered error parity.",
+    "CLI": "Three lighting_metadata_cli_display_name_dry_run tests cover exact source/destination preservation, writer/report/persisted-edit parity, explicit ASCII policy, flag/name/selection errors, room/bracket selection, JSON/table/CSV, quiet/no-header and trace conventions.",
+    "side_effects": "tests/dry_run.rs lighting_display_name_preview_has_no_filesystem_or_network_side_effects snapshots input/output/config/cache/token/home/directory bytes and metadata with telemetry enabled and a local mock backend, across set/clear/no-op/normalization/failure and all destination forms.",
+    "dispatch": "src/dry_run.rs admits only SetMoodDisplayName in addition to prior supported paths; unrelated recount-moods and other unsupported mutations remain fail-closed. Prior CID/SID/Mix/Skip/Name previews and metadata edits remain regression-covered."
+  },
+  "native_validation": {
+    "status": "not-run-source-only",
+    "new_native_cases": 0,
+    "gui_roundtrip_verified": false,
+    "runtime_parity": false,
+    "full_family_contract": false,
+    "limits": "Read-only source-backed CLI preview of one already supported stored selected-field operation only. No new Unicode admission/transliteration/trimming/normalization policy, native case, GUI Cancel/dialog refresh, native accepted-dialog serialization/final-save/write-success prediction, live graph/role/visibility/permission claims, physical display behavior, SPS/runtime/family or whole-file parity. Historical artifacts and separate native owners' work are unchanged."
+  }
+}

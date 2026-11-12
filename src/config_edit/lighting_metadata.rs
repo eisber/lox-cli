@@ -48,6 +48,19 @@ pub struct LightingMoodDisplayNameEdit {
 }
 
 #[derive(Debug, Serialize)]
+pub struct LightingMoodDisplayNamePreview {
+    #[serde(flatten)]
+    pub edit: LightingMoodDisplayNameEdit,
+    pub before_effective: String,
+    pub after_stored: Option<String>,
+}
+
+struct LightingMoodDisplayNamePlan {
+    path: Vec<usize>,
+    edit: LightingMoodDisplayNameEdit,
+}
+
+#[derive(Debug, Serialize)]
 pub struct LightingMoodMixEdit {
     pub mood: LightingMoodIdentity,
     pub scope: &'static str,
@@ -351,6 +364,68 @@ impl ConfigEditor {
         mood_ref: &str,
         name: &str,
     ) -> Result<LightingMoodDisplayNameEdit> {
+        let plan = self.plan_lighting_mood_display_name(selector, mood_ref, name, false)?;
+        Ok(self.apply_lighting_mood_display_name(plan))
+    }
+
+    pub fn set_lighting_mood_display_name_ascii(
+        &mut self,
+        selector: &str,
+        mood_ref: &str,
+        name: &str,
+    ) -> Result<LightingMoodDisplayNameEdit> {
+        let plan = self.plan_lighting_mood_display_name(selector, mood_ref, name, true)?;
+        Ok(self.apply_lighting_mood_display_name(plan))
+    }
+
+    /// Preview the existing SName edit, including only explicitly requested ASCII conversion.
+    pub fn preview_lighting_mood_display_name(
+        &self,
+        selector: &str,
+        mood_ref: &str,
+        name: &str,
+        normalize_ascii: bool,
+    ) -> Result<LightingMoodDisplayNamePreview> {
+        let edit = self
+            .plan_lighting_mood_display_name(selector, mood_ref, name, normalize_ascii)?
+            .edit;
+        Ok(LightingMoodDisplayNamePreview {
+            before_effective: edit.before.clone().unwrap_or_default(),
+            after_stored: if edit.changed {
+                Some(edit.after.clone())
+            } else {
+                edit.before.clone()
+            },
+            edit,
+        })
+    }
+
+    fn apply_lighting_mood_display_name(
+        &mut self,
+        plan: LightingMoodDisplayNamePlan,
+    ) -> LightingMoodDisplayNameEdit {
+        let edit = plan.edit;
+        if edit.changed {
+            self.get_element_mut(&plan.path)
+                .attributes
+                .insert("SName".into(), edit.after.clone());
+        }
+        edit
+    }
+
+    fn plan_lighting_mood_display_name(
+        &self,
+        selector: &str,
+        mood_ref: &str,
+        name: &str,
+        normalize_ascii: bool,
+    ) -> Result<LightingMoodDisplayNamePlan> {
+        let normalized = normalize_ascii.then(|| name.to_ascii_uppercase());
+        let normalized_from = normalized
+            .as_deref()
+            .filter(|normalized| *normalized != name)
+            .map(|_| name.to_string());
+        let name = normalized.as_deref().unwrap_or(name);
         let alphanumeric = |byte: &u8| byte.is_ascii_uppercase() || byte.is_ascii_digit();
         if !name.is_empty()
             && (!name.as_bytes().first().is_some_and(alphanumeric)
@@ -369,30 +444,16 @@ impl ConfigEditor {
         let identity = LightingMoodIdentity::from_element(mood);
         let before = mood.attributes.get("SName").cloned();
         let changed = before.as_deref().unwrap_or("") != name;
-        if changed {
-            self.get_element_mut(&path)
-                .attributes
-                .insert("SName".into(), name.into());
-        }
-        Ok(LightingMoodDisplayNameEdit {
-            mood: identity,
-            before,
-            after: name.into(),
-            changed,
-            normalized_from: None,
+        Ok(LightingMoodDisplayNamePlan {
+            path,
+            edit: LightingMoodDisplayNameEdit {
+                mood: identity,
+                before,
+                after: name.into(),
+                changed,
+                normalized_from,
+            },
         })
-    }
-
-    pub fn set_lighting_mood_display_name_ascii(
-        &mut self,
-        selector: &str,
-        mood_ref: &str,
-        name: &str,
-    ) -> Result<LightingMoodDisplayNameEdit> {
-        let normalized = name.to_ascii_uppercase();
-        let mut edit = self.set_lighting_mood_display_name(selector, mood_ref, &normalized)?;
-        edit.normalized_from = (normalized != name).then(|| name.to_string());
-        Ok(edit)
     }
 
     /// Set only SkipNext; the native cycling checkbox displays its inverse.

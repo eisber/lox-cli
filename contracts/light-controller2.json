@@ -26,6 +26,7 @@
     "preview_mood_cycling_exclusion": true,
     "edit_mood_display_name_ascii_subset": true,
     "normalize_mood_display_name_ascii_opt_in": true,
+    "preview_existing_mood_display_name": true,
     "inspect_numeric_mood_identity_duplicates": true,
     "inspect_selected_stored_mood_options": true,
     "inspect_selected_stored_mood_references": true,
@@ -247,6 +248,18 @@
     "preservation": "Only selected SName changes. Name, all other records/fields, IDs, flags, outputs, widths/counts/order, LSConfig, HCL, capabilities, sequences and unknown storage remain unchanged.",
     "tests": "tests/lighting_metadata_cli.rs: lighting_metadata_cli_display_name_*",
     "limits": "Selected model/storage edit only, not full Unicode normalization, dialog permissions, physical display behavior, native accepted-dialog save/reopen or runtime parity."
+  },
+  "existing_mood_display_name_preview": {
+    "command": "lox config lighting set-mood-display-name FILE BLOCK --mood SID_OR_NAME (--name NAME [--normalize-ascii] | --clear) --dry-run [--room ROOM] [--save-as PATH]",
+    "source_artifact": "tests/ux/light-controller2/mood-display-name-preview-source.json",
+    "source_sha256": "50a0638e3b0ba96e293de514b1058705106750a9617247d90c1747d4e78623b5",
+    "shared_plan": "Immutable preview_lighting_mood_display_name and both existing set_lighting_mood_display_name / set_lighting_mood_display_name_ascii writers share one private LightingMoodDisplayNamePlan with unchanged ordered validation, direct selection and LightingMoodDisplayNameEdit report. No XML cloning, writer-then-discard, diff simulation or generic framework.",
+    "ordered_admission": "Existing flag/room guards remain. Explicit normalization alone uppercases ASCII before the same uppercase letters/digits/internal ordinary spaces and alphanumeric-edge validation; empty remains the existing API/explicit CLI clear. Then existing block resolution requires exactly LightController2, one direct LightscenesC and one direct mood matching exact stored SID spelling or case-sensitive Name. Numeric Name/SID collisions and multiple matches remain ambiguous. No numeric parsing/positivity/uniqueness, role/visibility/graph/permission, Num/boolean guard, deduplication, trimming, transliteration, new Unicode admission or length policy is added. Unsupported requested text remains an error even on identical stored-text no-op.",
+    "clear_and_noop": "Nonempty stored SName clears to explicit empty, never removal. Omitted/already-empty clear retains exact raw storage. Supported identical names and equivalent explicit ASCII normalization preserve storage; normalized_from still records converted input on no-op. Prior arbitrary strings may be replaced/cleared without revalidation.",
+    "formats": "JSON preserves writer fields (selected raw UUID/SID/CID, before, effective after, changed, normalized_from) and adds before_effective, after_stored, dry_run=true and optional trace_id. Null versus empty before/after_stored distinguishes omission from explicit empty; omission reads effective empty, not inheritance. Dedicated table/CSV retain selected raw identity, raw/effective before/after and actual normalization result even on clear/no-op. Table quotes present strings; CSV quotes strings and includes presence fields. Quiet hides only the table summary, no-header only headers. Normal writer output/CSV column order are unchanged.",
+    "preservation": "No editor mutation/save on success, no-op or failure, with input/existing/new missing-directory save-as. No source/destination/default/stamp/directory/cache/telemetry writes, destination-writability checks or serialization predictions. Only selected SName changes on actual write; raw Name, identities/flags/outputs, count/width/order, sequences, LSConfig, HCL, capabilities, siblings and opaque storage retain existing admission/preservation. Writer signatures/report/save/stamp/no-op behavior are unchanged.",
+    "tests": "src/config_edit/lighting_metadata_tests.rs: lighting_metadata_display_name_preview_*; tests/lighting_metadata_cli.rs: lighting_metadata_cli_display_name_dry_run_*; tests/dry_run.rs telemetry-enabled preservation snapshot; src/dry_run.rs exact allowlist",
+    "limits": "Source-only read-only planning of one already supported stored selected-field operation. No new native case, GUI Cancel/dialog refresh, native accepted-dialog/final-save/write-success prediction, live graph/role/visibility/permission claims, physical display behavior, SPS/runtime/family or whole-file parity. Historical artifacts and separate native work are unchanged."
   },
   "numeric_identity_ambiguity_inspection": {
     "command": "lox config lighting inspect FILE BLOCK",

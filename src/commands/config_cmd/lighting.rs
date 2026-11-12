@@ -7,7 +7,8 @@ use crate::config_edit::lighting_cid::{
     LightingIdentityChange, LightingSelectionEdit, LightingSidRemap,
 };
 use crate::config_edit::lighting_metadata::{
-    LightingMoodMixEdit, LightingMoodRenameEdit, LightingMoodSkipEdit,
+    LightingMoodDisplayNamePreview, LightingMoodMixEdit, LightingMoodRenameEdit,
+    LightingMoodSkipEdit,
 };
 use crate::config_edit::schema::Diagnostic;
 
@@ -377,6 +378,59 @@ fn print_rename_preview(ctx: &RunContext, edit: &LightingMoodRenameEdit) {
     }
 }
 
+fn print_display_name_preview(ctx: &RunContext, preview: &LightingMoodDisplayNamePreview) {
+    let edit = &preview.edit;
+    if ctx.csv {
+        if !ctx.no_header {
+            println!(
+                "MOOD_UUID_PRESENT,MOOD_UUID,SID_PRESENT,SID,CID_PRESENT,CID,BEFORE_PRESENT,BEFORE,AFTER_PRESENT,AFTER_STORED,BEFORE_EFFECTIVE,AFTER_EFFECTIVE,NORMALIZED_FROM_PRESENT,NORMALIZED_FROM,CHANGED"
+            );
+        }
+        println!(
+            "{},{},{},{},{},{},{},{},{},{},{},{},{},{},{}",
+            edit.mood.uuid.is_some(),
+            csv(edit.mood.uuid.as_deref().unwrap_or("")),
+            edit.mood.sid.is_some(),
+            csv(edit.mood.sid.as_deref().unwrap_or("")),
+            edit.mood.cid.is_some(),
+            csv(edit.mood.cid.as_deref().unwrap_or("")),
+            edit.before.is_some(),
+            csv(edit.before.as_deref().unwrap_or("")),
+            preview.after_stored.is_some(),
+            csv(preview.after_stored.as_deref().unwrap_or("")),
+            csv(&preview.before_effective),
+            csv(&edit.after),
+            edit.normalized_from.is_some(),
+            csv(edit.normalized_from.as_deref().unwrap_or("")),
+            edit.changed
+        );
+    } else {
+        if !ctx.no_header {
+            println!(
+                "MOOD_UUID  SID  CID (RAW)  SNAME STORED BEFORE→AFTER  EFFECTIVE BEFORE→AFTER  NORMALIZED FROM  CHANGED"
+            );
+        }
+        let stored = |value: Option<&str>| {
+            value.map_or_else(|| "<absent>".to_owned(), |value| format!("{value:?}"))
+        };
+        println!(
+            "{}  {}  {}  {}→{}  {:?}→{:?}  {}  {}",
+            stored(edit.mood.uuid.as_deref()),
+            stored(edit.mood.sid.as_deref()),
+            stored(edit.mood.cid.as_deref()),
+            stored(edit.before.as_deref()),
+            stored(preview.after_stored.as_deref()),
+            preview.before_effective,
+            edit.after,
+            stored(edit.normalized_from.as_deref()),
+            edit.changed
+        );
+        if !ctx.quiet {
+            println!("\n1 mood; selected SName only; dry-run wrote no files");
+        }
+    }
+}
+
 fn print_mix_preview(ctx: &RunContext, edit: &LightingMoodMixEdit) {
     if ctx.csv {
         if !ctx.no_header {
@@ -701,6 +755,25 @@ pub(crate) fn run(ctx: &RunContext, action: LightingCmd) -> Result<()> {
             let selector = target.selector()?;
             let mut editor = ConfigEditor::load(&crate::load_config_xml(&target.file)?)?;
             let name = name.as_deref().unwrap_or("");
+            if ctx.dry_run {
+                let preview = editor.preview_lighting_mood_display_name(
+                    &selector,
+                    &mood,
+                    name,
+                    normalize_ascii,
+                )?;
+                if ctx.json {
+                    let mut value = serde_json::to_value(&preview)?;
+                    value["dry_run"] = true.into();
+                    if let Some(trace_id) = &ctx.trace_id {
+                        value["trace_id"] = trace_id.clone().into();
+                    }
+                    println!("{}", serde_json::to_string_pretty(&value)?);
+                } else {
+                    print_display_name_preview(ctx, &preview);
+                }
+                return Ok(());
+            }
             let edit = if normalize_ascii {
                 editor.set_lighting_mood_display_name_ascii(&selector, &mood, name)?
             } else {

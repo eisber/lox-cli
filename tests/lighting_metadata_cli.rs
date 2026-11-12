@@ -29,6 +29,377 @@ fn command() -> Command {
 }
 
 #[test]
+fn lighting_metadata_cli_display_name_dry_run_matches_writer_and_preserves_destinations() {
+    let dir = tempfile::Builder::new()
+        .prefix("sname-preview-")
+        .tempdir_in(".")
+        .unwrap();
+    let input = dir.path().join("input.Loxone");
+    let output = dir.path().join("output.Loxone");
+    let missing = dir.path().join("missing").join("new.Loxone");
+    for (attribute, flags, prior, after, changed) in [
+        ("", vec!["--clear"], None, "", false),
+        (" SName=\"\"", vec!["--clear"], Some(""), "", false),
+        (
+            " SName=\"123\"",
+            vec!["--name", "123"],
+            Some("123"),
+            "123",
+            false,
+        ),
+        (
+            " SName=\"Grün &amp; &quot;A,B&quot;\"",
+            vec!["--clear"],
+            Some("Grün & \"A,B\""),
+            "",
+            true,
+        ),
+        ("", vec!["--name", "NEW  NAME 2"], None, "NEW  NAME 2", true),
+        (
+            " SName=\"alias\"",
+            vec!["--name", "Late Evening 2", "--normalize-ascii"],
+            Some("alias"),
+            "LATE EVENING 2",
+            true,
+        ),
+        (
+            " SName=\"LATE EVENING 2\"",
+            vec!["--name", "late evening 2", "--normalize-ascii"],
+            Some("LATE EVENING 2"),
+            "LATE EVENING 2",
+            false,
+        ),
+    ] {
+        let xml = XML
+            .replace(" SName=\"alias\"", attribute)
+            .replace("SID=\"+0002\" CID=\"0\"", "SID=\"+03\" CID=\"opaque\"");
+        let before = bytes(&xml);
+        fs::write(&input, &before).unwrap();
+        fs::write(&output, b"existing output").unwrap();
+        let mut preview = serde_json::Value::Null;
+        for destination in [None, Some(&input), Some(&output), Some(&missing)] {
+            let mut cmd = command();
+            cmd.env("LOX_CONFIG", dir.path().join("absent.yaml"))
+                .args(["--dry-run", "config", "lighting", "set-mood-display-name"])
+                .arg(&input)
+                .args(["uuid:lighting", "--mood", "A"])
+                .args(&flags)
+                .args(["--json", "--quiet", "--trace-id", "sname-preview"]);
+            if let Some(destination) = destination {
+                cmd.arg("--save-as").arg(destination);
+            }
+            let result = cmd
+                .assert()
+                .success()
+                .stderr("")
+                .get_output()
+                .stdout
+                .clone();
+            preview = serde_json::from_slice(&result).unwrap();
+            assert_eq!(preview["dry_run"], true);
+            assert_eq!(preview["trace_id"], "sname-preview");
+            assert_eq!(preview["before"], serde_json::json!(prior));
+            assert_eq!(preview["before_effective"], prior.unwrap_or(""));
+            assert_eq!(preview["after"], after);
+            assert_eq!(preview["changed"], changed);
+            assert_eq!(
+                preview["after_stored"],
+                serde_json::json!(if changed { Some(after) } else { prior })
+            );
+            assert_eq!(fs::read(&input).unwrap(), before);
+            assert_eq!(fs::read(&output).unwrap(), b"existing output");
+            assert!(!missing.parent().unwrap().exists());
+            assert!(!dir.path().join("absent.yaml").exists());
+        }
+        let result = command()
+            .args(["config", "lighting", "set-mood-display-name"])
+            .arg(&input)
+            .args(["uuid:lighting", "--mood", "A"])
+            .args(&flags)
+            .args(["--json", "--quiet", "--save-as"])
+            .arg(&output)
+            .assert()
+            .success()
+            .get_output()
+            .stdout
+            .clone();
+        for key in ["dry_run", "trace_id", "before_effective", "after_stored"] {
+            preview.as_object_mut().unwrap().remove(key);
+        }
+        assert_eq!(
+            preview,
+            serde_json::from_slice::<serde_json::Value>(&result).unwrap()
+        );
+        let expected = if !changed {
+            xml
+        } else if attribute.is_empty() {
+            xml.replacen(
+                "Q1=\"future\"",
+                &format!("Q1=\"future\" SName=\"{after}\""),
+                1,
+            )
+        } else {
+            xml.replacen(attribute, &format!(" SName=\"{after}\""), 1)
+        };
+        assert_eq!(fs::read(&output).unwrap(), bytes(&expected));
+        assert_eq!(fs::read(&input).unwrap(), before);
+    }
+}
+
+#[test]
+fn lighting_metadata_cli_display_name_dry_run_exposes_storage_and_normalization_in_all_formats() {
+    let dir = tempfile::Builder::new()
+        .prefix("sname-preview-formats-")
+        .tempdir_in(".")
+        .unwrap();
+    let input = dir.path().join("input.Loxone");
+    for (attribute, flags, prior, after, normalized, changed) in [
+        ("", vec!["--clear"], None, "", None, false),
+        (" SName=\"\"", vec!["--clear"], Some(""), "", None, false),
+        (
+            " SName=\"Grün &amp; &quot;A,B&quot;\"",
+            vec!["--clear"],
+            Some("Grün & \"A,B\""),
+            "",
+            None,
+            true,
+        ),
+        (
+            " SName=\"LATE EVENING\"",
+            vec!["--name", "late evening", "--normalize-ascii"],
+            Some("LATE EVENING"),
+            "LATE EVENING",
+            Some("late evening"),
+            false,
+        ),
+    ] {
+        let xml = XML
+            .replace(" SName=\"alias\"", attribute)
+            .replace("<ControlList>", "<ControlList><C Type=\"Place\" U=\"room\" Title=\"Kitchen\"/><C Type=\"And\" U=\"other\" Title=\"Lamp\"/>")
+            .replace("Title=\"Lamp\">", "Title=\"Lamp\"><IoData Pr=\"room\"/>");
+        let before = bytes(&xml);
+        fs::write(&input, &before).unwrap();
+        for (block, room) in [("Lamp", Some("Kitchen")), ("Lamp [Kitchen]", None)] {
+            for format in ["json", "table", "csv"] {
+                for (quiet, no_header) in
+                    [(false, false), (true, false), (false, true), (true, true)]
+                {
+                    let mut cmd = command();
+                    cmd.args(["--dry-run", "config", "lighting", "set-mood-display-name"])
+                        .arg(&input)
+                        .args([block, "--mood", "+0002"])
+                        .args(&flags)
+                        .args(["-o", format, "--trace-id", "sname-formats"]);
+                    if let Some(room) = room {
+                        cmd.args(["--room", room]);
+                    }
+                    if quiet {
+                        cmd.arg("--quiet");
+                    }
+                    if no_header {
+                        cmd.arg("--no-header");
+                    }
+                    let result = cmd
+                        .assert()
+                        .success()
+                        .stderr("")
+                        .get_output()
+                        .stdout
+                        .clone();
+                    let raw_after = if changed { Some(after) } else { prior };
+                    if format == "json" {
+                        let value: serde_json::Value = serde_json::from_slice(&result).unwrap();
+                        assert_eq!(value["dry_run"], true);
+                        assert_eq!(value["trace_id"], "sname-formats");
+                        assert_eq!(value["before"], serde_json::json!(prior));
+                        assert_eq!(value["after_stored"], serde_json::json!(raw_after));
+                        assert_eq!(value["normalized_from"], serde_json::json!(normalized));
+                        assert_eq!(value["mood"]["sid"], "+0002");
+                    } else {
+                        let stdout = String::from_utf8(result).unwrap();
+                        assert_eq!(stdout.contains("MOOD_UUID"), !no_header);
+                        if format == "csv" {
+                            let quote = |value: &str| format!("\"{}\"", value.replace('"', "\"\""));
+                            assert!(stdout.ends_with(&format!(
+                                "true,\"a\",true,\"+0002\",true,\"0\",{},{},{},{},{},{},{},{},{}\n",
+                                prior.is_some(), quote(prior.unwrap_or("")),
+                                raw_after.is_some(), quote(raw_after.unwrap_or("")),
+                                quote(prior.unwrap_or("")), quote(after),
+                                normalized.is_some(), quote(normalized.unwrap_or("")), changed
+                            )), "{stdout}");
+                        } else {
+                            let stored = |value: Option<&str>| {
+                                value.map_or_else(
+                                    || "<absent>".to_owned(),
+                                    |value| format!("{value:?}"),
+                                )
+                            };
+                            assert!(
+                                stdout.contains(&format!(
+                                    "\"a\"  \"+0002\"  \"0\"  {}→{}  {:?}→{:?}  {}  {}",
+                                    stored(prior),
+                                    stored(raw_after),
+                                    prior.unwrap_or(""),
+                                    after,
+                                    stored(normalized),
+                                    changed
+                                )),
+                                "{stdout}"
+                            );
+                            assert_eq!(stdout.contains("\n1 mood;"), !quiet);
+                        }
+                    }
+                    assert_eq!(fs::read(&input).unwrap(), before);
+                }
+            }
+        }
+    }
+}
+
+#[test]
+fn lighting_metadata_cli_display_name_dry_run_and_writer_share_errors_and_flag_guards() {
+    let dir = tempfile::Builder::new()
+        .prefix("sname-preview-errors-")
+        .tempdir_in(".")
+        .unwrap();
+    let input = dir.path().join("input.Loxone");
+    let output = dir.path().join("output.Loxone");
+    let missing = dir.path().join("missing").join("new.Loxone");
+    for (xml, block, room, reference, flags, error) in [
+        (
+            XML.to_string(),
+            "missing",
+            None,
+            "missing",
+            vec!["--name", "Bad!"],
+            "unsupported_mood_display_name",
+        ),
+        (
+            XML.replace("SName=\"alias\"", "SName=\"lower\""),
+            "uuid:lighting",
+            None,
+            "A",
+            vec!["--name", "lower"],
+            "unsupported_mood_display_name",
+        ),
+        (
+            XML.replace("SName=\"alias\"", "SName=\"Grün\""),
+            "uuid:lighting",
+            None,
+            "A",
+            vec!["--name", "Grün", "--normalize-ascii"],
+            "unsupported_mood_display_name",
+        ),
+        (
+            XML.to_string(),
+            "uuid:lighting",
+            None,
+            "A",
+            vec!["--name", " abc", "--normalize-ascii"],
+            "unsupported_mood_display_name",
+        ),
+        (
+            XML.replace("Name=\"B\"", "Name=\"A\""),
+            "uuid:lighting",
+            None,
+            "A",
+            vec!["--clear"],
+            "ambiguous_or_missing_mood",
+        ),
+        (
+            XML.replace("Name=\"B\"", "Name=\"+0002\""),
+            "uuid:lighting",
+            None,
+            "+0002",
+            vec!["--name", "ABC"],
+            "ambiguous_or_missing_mood",
+        ),
+        (
+            XML.replace("</LightscenesC>", "</LightscenesC><LightscenesC/>"),
+            "uuid:lighting",
+            None,
+            "A",
+            vec!["--clear"],
+            "unsupported_mood_container_shape",
+        ),
+        (
+            XML.replace("LightController2", "And"),
+            "uuid:lighting",
+            None,
+            "A",
+            vec!["--clear"],
+            "wrong_block_type",
+        ),
+        (
+            XML.to_string(),
+            "Lamp [Kitchen]",
+            Some("Kitchen"),
+            "A",
+            vec!["--clear"],
+            "conflicting_room_selector",
+        ),
+    ] {
+        let before = bytes(&xml);
+        fs::write(&input, &before).unwrap();
+        fs::write(&output, b"existing output").unwrap();
+        for destination in [None, Some(&input), Some(&output), Some(&missing)] {
+            let mut errors = Vec::new();
+            for dry_run in [false, true] {
+                let mut cmd = command();
+                cmd.env("LOX_CONFIG", dir.path().join("absent.yaml"))
+                    .args(["config", "lighting", "set-mood-display-name"])
+                    .arg(&input)
+                    .args([block, "--mood", reference])
+                    .args(&flags)
+                    .args(["--json", "--quiet", "--trace-id", "sname-error"]);
+                if dry_run {
+                    cmd.arg("--dry-run");
+                }
+                if let Some(room) = room {
+                    cmd.args(["--room", room]);
+                }
+                if let Some(destination) = destination {
+                    cmd.arg("--save-as").arg(destination);
+                }
+                let result = cmd.assert().failure().get_output().stdout.clone();
+                let result: serde_json::Value = serde_json::from_slice(&result).unwrap();
+                assert_eq!(result["error"], error);
+                errors.push(result);
+                assert_eq!(fs::read(&input).unwrap(), before);
+                assert_eq!(fs::read(&output).unwrap(), b"existing output");
+                assert!(!missing.parent().unwrap().exists());
+                assert!(!dir.path().join("absent.yaml").exists());
+            }
+            assert_eq!(errors[0], errors[1]);
+        }
+    }
+    for flags in [
+        vec![],
+        vec!["--name", ""],
+        vec!["--name", "ABC", "--clear"],
+        vec!["--clear", "--normalize-ascii"],
+        vec!["--normalize-ascii"],
+    ] {
+        for dry_run in [false, true] {
+            let before = fs::read(&input).unwrap();
+            let mut cmd = command();
+            cmd.args(["config", "lighting", "set-mood-display-name"])
+                .arg(&input)
+                .args(["uuid:lighting", "--mood", "A"])
+                .args(&flags)
+                .arg("--save-as")
+                .arg(&output);
+            if dry_run {
+                cmd.arg("--dry-run");
+            }
+            cmd.assert().code(2);
+            assert_eq!(fs::read(&input).unwrap(), before);
+            assert_eq!(fs::read(&output).unwrap(), b"existing output");
+        }
+    }
+}
+
+#[test]
 fn lighting_metadata_cli_rename_dry_run_matches_writer_and_preserves_every_destination() {
     let dir = tempfile::Builder::new()
         .prefix("name-preview-")

@@ -294,6 +294,7 @@ lox config lighting set-mood-skip file.Loxone "Lighting" --mood "Evening" --skip
 lox config lighting set-mood-display-name file.Loxone "Lighting" --mood "Evening" --name "EVENING"
 lox config lighting set-mood-display-name file.Loxone "Lighting" --mood "Evening" --name "Late Evening" --normalize-ascii
 lox config lighting set-mood-display-name file.Loxone "Lighting" --mood "Evening" --clear
+lox config lighting set-mood-display-name file.Loxone "Lighting" --mood "Evening" --name "Late Evening" --normalize-ascii --dry-run
 ```
 
 Targets are local files and exactly one **LightController2**, selected by title,
@@ -710,6 +711,25 @@ Default validation stays strict. This does not trim, transliterate, replace
 punctuation or accept arbitrary Unicode, and cannot be combined with `--clear`.
 Equivalent normalized storage is a byte-preserving no-op.
 See `tests/ux/light-controller2/mood-display-name-ascii-source.json`.
+
+Global `--dry-run` previews only these already supported SName set/clear and
+explicit `--normalize-ascii` branches, with the same ordered guards as the
+writer. It never implicitly normalizes: unsupported input remains an error,
+even on a requested no-op. JSON adds `dry_run: true`, optional `trace_id`,
+`before_effective` and raw `after_stored` to the unchanged edit report.
+`before`/`after_stored` distinguish omission (`null`) from explicit empty
+(`""`); `after` is the actual planned effective text and `normalized_from`
+retains converted input even on a storage no-op. Clear stores explicit empty
+only when previously nonempty; an omitted clear stays omitted.
+Table/CSV retain selected raw identity, raw/effective before/after text and
+normalization input even with `--quiet`/`--no-header`. Quiet hides only the table
+summary. Preview returns before mutation/save, including no-op, error and
+input/existing/new missing-directory `--save-as`: no file, directory, default,
+stamp, cache or telemetry writes, destination-writability checks or serialization
+predictions. Normal writer API/output/save behavior is unchanged.
+This is source-only stored-text planning, not native dialog/save/write-success,
+physical display, live permissions/graph, SPS/runtime/family or whole-file parity.
+See `tests/ux/light-controller2/mood-display-name-preview-source.json`.
 
 Inspection emits `duplicate_mood_sid` / `duplicate_mood_cid` for numerically
 equivalent positive signed-32-bit SIDs / nonzero signed-32-bit CIDs in one
