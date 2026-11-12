@@ -1,0 +1,54 @@
+{
+  "schema_version": 1,
+  "issue": "lox-pk9x",
+  "named_question": "Can the already supported selected-mood ASCII Name edit be previewed with exactly the writer's ordered guards and actual before/after names without changing XML or saving files?",
+  "frozen_target": {
+    "version": "17.2.10.21",
+    "architecture": "AMD64",
+    "pe_sha256": "7b55e3ef18401574ab967c5c6a0140cd5a66dc728521ebba04ad53093577d8b3",
+    "installation_sha256": "a3003005776b327f5e666a072a64f5c569182b86174c0f578d5be3267ce28f85",
+    "analysis_id": "6a0520329af17d7b9fdaafe69398c62c454d9da838fc9f9c8d0bdd8d17bb15ae",
+    "new_extractions": 0
+  },
+  "existing_source_basis": [
+    {"artifact": "tests/ux/light-controller2/mood-name-source.json", "sha256": "91b169f9a82e5e00482d0a323d4a4febce0eb5e4e568d55631a583acf8b58365", "relationship": "The existing selected-record Name setter, exact direct selection, ASCII no-normalization subset and preservation boundary define all admission. Duplicate new names and missing prior Name remain supported; unsupported new text is rejected even on a requested no-op."},
+    {"artifact": "tests/ux/light-controller2/mood-cid-preview-source.json", "sha256": "c53c1fd12ac84dcb370f2f1097e336159a810e0fe5d9710646eaf63b54ac44c5", "relationship": "Prior source-only preview unchanged. Its numeric identity, allocation and remap guards do not define rename admission."},
+    {"artifact": "tests/ux/light-controller2/mood-sid-preview-source.json", "sha256": "38bb44bb19a4b671e7db741e04b2125d09b2eeb537fc34b18e159b7e078a5927", "relationship": "Prior source-only preview unchanged. No SID domain, numeric uniqueness or reference parsing is imported."},
+    {"artifact": "tests/ux/light-controller2/mood-mix-preview-source.json", "sha256": "0e6df98a7b33251a6e884f39a6bf1c1b511aacf11fb073440fd1d251c2a565dc", "relationship": "Reuse immutable typed-plan and early-return conventions only, not boolean, role or numeric-ID admission."},
+    {"artifact": "tests/ux/light-controller2/mood-skip-preview-source.json", "sha256": "1c3c59a2c9bebe22b68183abd39808e06c50ca81b591bb53110bcd812ad96d44", "relationship": "Reuse no-write and output conventions only. No positive SID, numeric sibling uniqueness or SkipNext parsing is required for Name."}
+  ],
+  "canonical_sources": [
+    {"address": "0x1400ea790", "sha256": "e4a7229adfe6b18d853f18bdb656cbe10c8a33e91749a033bad7a90a7282cdc4", "relationship": "Column0 commits a nonempty normalized name only to the actual selected record at +0x18. It does not deduplicate names; the strict CLI rejects empty input rather than reporting native ignored-input success."},
+    {"address": "0x1400eace0", "sha256": "469512dbafb34fa2eeda5e8d338d956cf636728fcfada076c4c775836303669a", "relationship": "Direct collection records supply the column0 text and row-data binding. This is not a numeric first-match checkbox refresh transaction."},
+    {"address": "0x1405b7df0", "sha256": "9f0ff6bd3dcc724a599e3324483c9b584f1e1128c4a3d6bf9604ecc328bf9d58", "relationship": "Name is bound to +0x18 separately from SName, IDs, flags and output data."},
+    {"address": "0x14041d880", "sha256": "70ff0a876bd3b5b2070eeb178fe7e920e4a9e3c71b97f3ff651564ba9fcc17f6", "relationship": "Existing member string copy does not traverse siblings or update other fields."},
+    {"address": "0x1404d2710", "sha256": "4a8a7b5589ef7371526f4a52a4bdcea4abf2097ae00b59e837a69efbe19ef2af", "relationship": "Existing normalizer motivates the unchanged conservative ASCII new-name subset. No new normalization or Unicode conversion is implemented."},
+    {"address": "0x1404222f0", "sha256": "a5ffa4797db18e27cbe7187c5115a154ac0595a399f1b39b77b119b7caae309c", "relationship": "Leading whitespace replacement is avoided by the existing required alphanumeric first byte."},
+    {"address": "0x1404223e0", "sha256": "0fe101a12cbee9b04ad856a10398bc18bba394619be7a803ecf191ee79b51ae4", "relationship": "Trailing whitespace replacement is avoided by the existing required alphanumeric final byte."}
+  ],
+  "source_verification": "All seven relevant canonical function hashes and all five reused artifact hashes were verified against the existing frozen local corpus and current checkout. Existing static-byte evidence is inherited from mood-name-source.json, not newly extracted or promoted. No vendor source text is included.",
+  "CLI_policy": {
+    "command": "lox config lighting rename-mood FILE BLOCK --mood SID_OR_NAME --name NAME --dry-run [--room ROOM] [--save-as PATH]",
+    "architecture": "One private immutable LightingMoodRenamePlan holds the existing path selection and LightingMoodRenameEdit report. ConfigEditor::preview_lighting_mood_rename(&self, selector, mood_ref, name) and the existing rename_lighting_mood writer share it. No cloned XML, writer-then-discard, diff simulation or generic framework.",
+    "ordered_admission": "First require nonempty new ASCII letters/digits and ordinary internal spaces with alphanumeric edges. Then use existing block resolution, require exactly LightController2, exactly one direct LightscenesC and exactly one direct LightsceneC matching exact stored SID spelling or case-sensitive Name. Numeric Name/SID collisions and multiple matching records remain ambiguous. No numeric parsing, positive SID, sibling numeric uniqueness, role, visibility, Num, boolean, graph or permission guard is imported.",
+    "report": "JSON adds dry_run=true and optional trace_id to the unchanged writer report: actual selected raw UUID/SID/CID, before Name (null when absent), proposed after Name and changed. Existing old strings, including Unicode, XML escapes and punctuation, remain admitted and are not normalized. Unsupported new names still fail even when identical to the stored name.",
+    "formats": "Dedicated table/CSV always retain selected raw identity and before/after names, including no-op. CSV quotes and escapes strings and has presence columns for all optional identities and prior Name. Quiet suppresses only the table summary; no-header suppresses headers, never preview rows. Normal writer output and CSV column order are unchanged.",
+    "read_only": "Only this existing mutation is newly admitted to global --dry-run. Return before mutation or save with input/existing/new missing-directory save-as, no-op or failure. No source/destination/default/stamp/directory/cache/telemetry writes and no destination-writability or writer-serialization prediction.",
+    "preservation": "Existing writer signature, report, ordered errors, save/stamp and no-op semantics remain unchanged. Actual changes still write only selected Name. Preserve prior stored names and every unrelated identity/lexeme, SName, flag, Qn/color, count/width/order, sequence, LSConfig, HCL, capability and opaque storage. Duplicate proposed names, absent identity fields and opaque/nonnumeric identities keep existing admission; no repair or defaults.",
+    "failure": "Unsupported new text or ambiguous/missing selection returns the identical writer diagnostic, never empty success. All unrelated unsupported mutations still fail closed."
+  },
+  "regressions": {
+    "unit": "src/config_edit/lighting_metadata_tests.rs: immutable preview matches writer report and expected selected-only XML with BOM/CRLF, opaque/missing/empty identity, missing prior Name, numeric-equivalent siblings, duplicate proposed names and no-op. Ordered errors and unsupported new text, including identical unsupported stored names, match the writer atomically.",
+    "CLI": "tests/lighting_metadata_cli.rs: BOM/CRLF input and input/existing/missing-directory destinations remain byte-preserved on success/no-op/failure; plans match unchanged writer reports and persisted edits; XML-escaped prior names and opaque data retained; selected identity and before/after names remain visible across JSON/table/CSV, quiet/no-header and UUID/room/bracket selection; exact error and trace-id parity.",
+    "side_effects": "tests/dry_run.rs: lighting_rename_preview_has_no_filesystem_or_network_side_effects snapshots input/output/config/cache/token/home/directory bytes and metadata with telemetry enabled and a local mock backend, including no-op, changed and rejected plans.",
+    "dispatch": "src/dry_run.rs admits only RenameMood in addition to prior supported paths; SName and unrelated mutations remain fail-closed. Prior CID/SID/Mix/Skip previews and metadata edits remain regression-covered."
+  },
+  "native_validation": {
+    "status": "not-run-source-only",
+    "new_native_cases": 0,
+    "gui_roundtrip_verified": false,
+    "runtime_parity": false,
+    "full_family_contract": false,
+    "limits": "Read-only source-backed CLI preview of one already supported stored selected-field edit only. Not new Unicode admission/normalization, GUI Cancel/dialog refresh, native accepted-dialog serialization/final-save or write-success prediction, live graph/role/visibility/permission state, SPS/runtime/family or whole-file parity. Historical artifacts and separate native work are unchanged."
+  }
+}

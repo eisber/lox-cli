@@ -29,6 +29,323 @@ fn command() -> Command {
 }
 
 #[test]
+fn lighting_metadata_cli_rename_dry_run_matches_writer_and_preserves_every_destination() {
+    let dir = tempfile::Builder::new()
+        .prefix("name-preview-")
+        .tempdir_in(".")
+        .unwrap();
+    let input = dir.path().join("input.Loxone");
+    let output = dir.path().join("output.Loxone");
+    let missing = dir.path().join("missing").join("new.Loxone");
+    for (attributes, reference, name, expected_attributes) in [
+        (
+            "Name=\"A\" UUID=\"a\" SID=\"+0002\" CID=\"0\"",
+            "A",
+            "A",
+            "Name=\"A\" UUID=\"a\" SID=\"+0002\" CID=\"0\"",
+        ),
+        (
+            "Name=\"Grün &amp; &quot;A,B&quot;\" UUID=\"a&amp;b\" SID=\"opaque\" CID=\"future\"",
+            "opaque",
+            "B",
+            "Name=\"B\" UUID=\"a&amp;b\" SID=\"opaque\" CID=\"future\"",
+        ),
+        ("SID=\"0\"", "0", "New  Name 2", "SID=\"0\""),
+        ("Name=\"A\"", "A", "New Name", "Name=\"New Name\""),
+        (
+            "Name=\"\" UUID=\"\" SID=\"+0002\" CID=\"\"",
+            "+0002",
+            "New Name",
+            "Name=\"New Name\" UUID=\"\" SID=\"+0002\" CID=\"\"",
+        ),
+    ] {
+        let xml = XML.replacen(
+            "Name=\"A\" UUID=\"a\" SID=\"+0002\" CID=\"0\"",
+            attributes,
+            1,
+        );
+        let before = bytes(&xml);
+        fs::write(&input, &before).unwrap();
+        fs::write(&output, b"existing output").unwrap();
+        let mut preview = serde_json::Value::Null;
+        for destination in [None, Some(&input), Some(&output), Some(&missing)] {
+            let mut cmd = command();
+            cmd.env("LOX_CONFIG", dir.path().join("absent.yaml"))
+                .args(["--dry-run", "config", "lighting", "rename-mood"])
+                .arg(&input)
+                .args([
+                    "uuid:lighting",
+                    "--mood",
+                    reference,
+                    "--name",
+                    name,
+                    "-o",
+                    "json",
+                    "--quiet",
+                    "--trace-id",
+                    "name-preview",
+                ]);
+            if let Some(destination) = destination {
+                cmd.arg("--save-as").arg(destination);
+            }
+            let result = cmd
+                .assert()
+                .success()
+                .stderr("")
+                .get_output()
+                .stdout
+                .clone();
+            preview = serde_json::from_slice(&result).unwrap();
+            assert_eq!(preview["dry_run"], true);
+            assert_eq!(preview["trace_id"], "name-preview");
+            assert_eq!(preview["after"], name);
+            assert_eq!(fs::read(&input).unwrap(), before);
+            assert_eq!(fs::read(&output).unwrap(), b"existing output");
+            assert!(!missing.parent().unwrap().exists());
+            assert!(!dir.path().join("absent.yaml").exists());
+        }
+        let result = command()
+            .args(["config", "lighting", "rename-mood"])
+            .arg(&input)
+            .args([
+                "uuid:lighting",
+                "--mood",
+                reference,
+                "--name",
+                name,
+                "-o",
+                "json",
+                "--quiet",
+                "--save-as",
+            ])
+            .arg(&output)
+            .assert()
+            .success()
+            .get_output()
+            .stdout
+            .clone();
+        preview.as_object_mut().unwrap().remove("dry_run");
+        preview.as_object_mut().unwrap().remove("trace_id");
+        assert_eq!(
+            preview,
+            serde_json::from_slice::<serde_json::Value>(&result).unwrap()
+        );
+        assert_eq!(fs::read(&input).unwrap(), before);
+        let expected = if preview["before"].is_null() {
+            xml.replacen(
+                "SName=\"alias\"",
+                &format!("SName=\"alias\" Name=\"{name}\""),
+                1,
+            )
+        } else {
+            xml.replacen(attributes, expected_attributes, 1)
+        };
+        assert_eq!(fs::read(&output).unwrap(), bytes(&expected));
+    }
+}
+
+#[test]
+fn lighting_metadata_cli_rename_dry_run_exposes_identity_and_names_in_all_formats() {
+    let dir = tempfile::Builder::new()
+        .prefix("name-preview-formats-")
+        .tempdir_in(".")
+        .unwrap();
+    let input = dir.path().join("input.Loxone");
+    let missing = dir.path().join("missing").join("new.Loxone");
+    for (stored, name, changed) in [
+        ("A", "A", false),
+        ("Grün &amp; &quot;A,B&quot;", "New Name", true),
+    ] {
+        let prior = if changed { "Grün & \"A,B\"" } else { "A" };
+        let xml = XML.replacen("Name=\"A\"", &format!("Name=\"{stored}\""), 1)
+            .replace("<ControlList>", "<ControlList><C Type=\"Place\" U=\"room\" Title=\"Kitchen\"/><C Type=\"And\" U=\"other\" Title=\"Lamp\"/>")
+            .replace("Title=\"Lamp\">", "Title=\"Lamp\"><IoData Pr=\"room\"/>");
+        let before = bytes(&xml);
+        fs::write(&input, &before).unwrap();
+        for (block, room) in [
+            ("uuid:lighting", None),
+            ("Lamp", Some("Kitchen")),
+            ("Lamp [Kitchen]", None),
+        ] {
+            for format in ["json", "table", "csv"] {
+                for (quiet, no_header) in
+                    [(false, false), (true, false), (false, true), (true, true)]
+                {
+                    let mut cmd = command();
+                    cmd.args(["--dry-run", "config", "lighting", "rename-mood"])
+                        .arg(&input)
+                        .args([
+                            block,
+                            "--mood",
+                            "+0002",
+                            "--name",
+                            name,
+                            "-o",
+                            format,
+                            "--save-as",
+                        ])
+                        .arg(&missing);
+                    if let Some(room) = room {
+                        cmd.args(["--room", room]);
+                    }
+                    if quiet {
+                        cmd.arg("--quiet");
+                    }
+                    if no_header {
+                        cmd.arg("--no-header");
+                    }
+                    let result = cmd
+                        .assert()
+                        .success()
+                        .stderr("")
+                        .get_output()
+                        .stdout
+                        .clone();
+                    if format == "json" {
+                        let value: serde_json::Value = serde_json::from_slice(&result).unwrap();
+                        assert_eq!(value["dry_run"], true);
+                        assert_eq!(
+                            value["mood"],
+                            serde_json::json!({"uuid":"a", "sid":"+0002", "cid":"0"})
+                        );
+                        assert_eq!(value["before"], prior);
+                        assert_eq!(value["after"], name);
+                        assert_eq!(value["changed"], changed);
+                    } else {
+                        let stdout = String::from_utf8(result).unwrap();
+                        assert_eq!(stdout.contains("MOOD_UUID"), !no_header);
+                        if format == "csv" {
+                            let escaped = prior.replace('"', "\"\"");
+                            assert!(stdout.ends_with(&format!("true,\"a\",true,\"+0002\",true,\"0\",true,\"{escaped}\",\"{name}\",{changed}\n")), "{stdout}");
+                        } else {
+                            assert!(
+                                stdout.contains(&format!("a  +0002  0  {prior}→{name}  {changed}")),
+                                "{stdout}"
+                            );
+                            assert_eq!(stdout.contains("\n1 mood;"), !quiet);
+                        }
+                    }
+                    assert_eq!(fs::read(&input).unwrap(), before);
+                    assert!(!missing.parent().unwrap().exists());
+                }
+            }
+        }
+    }
+}
+
+#[test]
+fn lighting_metadata_cli_rename_dry_run_and_writer_share_ordered_errors_without_writes() {
+    let dir = tempfile::Builder::new()
+        .prefix("name-preview-errors-")
+        .tempdir_in(".")
+        .unwrap();
+    let input = dir.path().join("input.Loxone");
+    let output = dir.path().join("output.Loxone");
+    let missing = dir.path().join("missing").join("new.Loxone");
+    for (xml, block, room, reference, name, error) in [
+        (
+            XML.to_string(),
+            "missing",
+            None,
+            "missing",
+            "Bad!",
+            "unsupported_mood_name",
+        ),
+        (
+            XML.replace("Name=\"A\"", "Name=\"Grün\""),
+            "uuid:lighting",
+            None,
+            "Grün",
+            "Grün",
+            "unsupported_mood_name",
+        ),
+        (
+            XML.replace("Name=\"B\"", "Name=\"A\""),
+            "uuid:lighting",
+            None,
+            "A",
+            "A",
+            "ambiguous_or_missing_mood",
+        ),
+        (
+            XML.replace("Name=\"B\"", "Name=\"+0002\""),
+            "uuid:lighting",
+            None,
+            "+0002",
+            "New",
+            "ambiguous_or_missing_mood",
+        ),
+        (
+            XML.replace("</LightscenesC>", "</LightscenesC><LightscenesC/>"),
+            "uuid:lighting",
+            None,
+            "A",
+            "A",
+            "unsupported_mood_container_shape",
+        ),
+        (
+            XML.replace("LightController2", "And"),
+            "uuid:lighting",
+            None,
+            "A",
+            "A",
+            "wrong_block_type",
+        ),
+        (
+            XML.to_string(),
+            "Lamp [Kitchen]",
+            Some("Kitchen"),
+            "A",
+            "A",
+            "conflicting_room_selector",
+        ),
+    ] {
+        let before = bytes(&xml);
+        fs::write(&input, &before).unwrap();
+        fs::write(&output, b"existing output").unwrap();
+        for destination in [None, Some(&input), Some(&output), Some(&missing)] {
+            let mut errors = Vec::new();
+            for dry_run in [true, false] {
+                let mut cmd = command();
+                cmd.env("LOX_CONFIG", dir.path().join("absent.yaml"))
+                    .args(["config", "lighting", "rename-mood"])
+                    .arg(&input)
+                    .args([
+                        block,
+                        "--mood",
+                        reference,
+                        "--name",
+                        name,
+                        "-o",
+                        "json",
+                        "--quiet",
+                        "--trace-id",
+                        "name-error",
+                    ]);
+                if let Some(destination) = destination {
+                    cmd.arg("--save-as").arg(destination);
+                }
+                if dry_run {
+                    cmd.arg("--dry-run");
+                }
+                if let Some(room) = room {
+                    cmd.args(["--room", room]);
+                }
+                let result = cmd.assert().failure().get_output().stdout.clone();
+                let result: serde_json::Value = serde_json::from_slice(&result).unwrap();
+                assert_eq!(result["error"], error);
+                errors.push(result);
+                assert_eq!(fs::read(&input).unwrap(), before);
+                assert_eq!(fs::read(&output).unwrap(), b"existing output");
+                assert!(!missing.parent().unwrap().exists());
+                assert!(!dir.path().join("absent.yaml").exists());
+            }
+            assert_eq!(errors[0], errors[1]);
+        }
+    }
+}
+
+#[test]
 fn lighting_metadata_cli_skip_dry_run_matches_writer_and_preserves_every_destination() {
     let dir = tempfile::Builder::new()
         .prefix("skip-preview-")

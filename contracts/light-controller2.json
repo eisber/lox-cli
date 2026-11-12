@@ -16,6 +16,7 @@
     "edit_ordinary_mood_sid_transaction": true,
     "preview_ordinary_mood_sid_transaction": true,
     "rename_existing_mood_ascii_subset": true,
+    "preview_existing_mood_ascii_rename": true,
     "set_role_independent_mood_mix": true,
     "preview_role_independent_mood_mix": true,
     "set_omitted_mood_mix_default": true,
@@ -167,6 +168,17 @@
     "preservation": "Only selected Name changes. Keep SName, identities/spellings, Qn, flags, counts/widths/order, LSConfig, HCL, capabilities, sequences and unknown data. No-op in-place preserves bytes; normal existing writer formatting/stamps remain separate.",
     "tests": "src/config_edit/lighting_metadata_tests.rs and tests/lighting_metadata_cli.rs: lighting_metadata_*",
     "limits": "Selected model-field transaction only, not full Unicode normalization, GUI permissions, graph refresh, accepted-dialog copyback/save normalization or runtime parity. Native validation remains separately admission-blocked."
+  },
+  "existing_mood_rename_preview": {
+    "command": "lox config lighting rename-mood FILE BLOCK --mood SID_OR_NAME --name NAME --dry-run [--room ROOM] [--save-as PATH]",
+    "source_artifact": "tests/ux/light-controller2/mood-name-preview-source.json",
+    "source_sha256": "9424db9cba214f01d0451b5018cfa8bf4a35b7a1f13b87c87f12d48ca28d660a",
+    "shared_plan": "Immutable preview_lighting_mood_rename and existing rename_lighting_mood use one private LightingMoodRenamePlan with unchanged ordered validation, direct selection and LightingMoodRenameEdit report. No XML cloning, writer-then-discard, diff simulation or generic framework.",
+    "ordered_admission": "First require the existing nonempty ASCII new-name subset with alphanumeric edges and internal ordinary spaces. Then use existing block resolution, require exactly LightController2, one direct LightscenesC and one direct mood matching exact stored SID spelling or case-sensitive Name. Numeric Name/SID collisions and multiple matches remain ambiguous. No numeric parsing, positive SID, numeric sibling uniqueness, flag/role/visibility/graph/permission guard, default repair or deduplication is imported from other operations. Unsupported new names remain errors even on identical stored-name no-op.",
+    "formats": "JSON adds dry_run=true and optional trace_id to the unchanged writer report: actual selected raw UUID/SID/CID, before Name (null when absent), proposed after Name and changed. Dedicated table/CSV retain selected identity and before/after names on no-op. CSV quotes strings and has presence columns for all optional identities and prior Name. Quiet hides only the table summary and no-header only headers; normal writer output/CSV column order are unchanged.",
+    "preservation": "No editor mutation or save with input/existing/new missing-directory save-as, no-op or failure. No source/destination/default/stamp/directory/cache/telemetry writes; no destination-writability or writer-serialization prediction. Existing old strings, opaque/missing/empty identity, duplicate proposed names and unrelated fields retain writer admission and raw storage. Actual writes still change only selected Name with unchanged API/results/save/stamp/no-op behavior.",
+    "tests": "src/config_edit/lighting_metadata_tests.rs and tests/lighting_metadata_cli.rs: lighting_metadata_*rename*; tests/dry_run.rs telemetry-enabled preservation snapshot; src/dry_run.rs fail-closed dispatch",
+    "limits": "Source-only read-only planning of one already supported stored selected-field ASCII edit. No new Unicode admission/normalization, native case, GUI Cancel/dialog refresh, native accepted-dialog/final-save/write-success prediction, live graph/role/visibility/permission claims, SPS/runtime/family or whole-file parity."
   },
   "per_mood_mix_edit": {
     "command": "lox config lighting set-mood-mix FILE BLOCK --mood SID_OR_NAME (--mix | --no-mix) [--room ROOM] [--save-as PATH]",

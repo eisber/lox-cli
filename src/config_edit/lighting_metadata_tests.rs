@@ -325,6 +325,167 @@ fn lighting_metadata_display_name_ascii_is_explicit_and_does_not_trim_or_transli
 }
 
 #[test]
+fn lighting_metadata_rename_preview_is_immutable_and_matches_writer_without_identity_guards() {
+    for (attributes, reference, name) in [
+        (
+            "Name=\"First\" SID=\"2\" CID=\"+012\" UUID=\"first\"",
+            "First",
+            "First",
+        ),
+        (
+            "Name=\"Grün &amp; &quot;A,B&quot;\" SID=\"opaque\" CID=\"future\" UUID=\"a&amp;b\"",
+            "opaque",
+            "Second",
+        ),
+        ("SID=\"0\"", "0", "New  Name 2"),
+        ("Name=\"First\"", "First", "New Name"),
+        ("Name=\"\" SID=\"2\" CID=\"\" UUID=\"\"", "2", "New Name"),
+        ("Name=\"First\" SID=\"+03\"", "First", "First"),
+    ] {
+        let xml = METADATA_XML.replacen(
+            "Name=\"First\" SID=\"2\" CID=\"+012\" IID=\"7\" UUID=\"first\"",
+            attributes,
+            1,
+        );
+        let input = format!("\u{feff}{}", xml.replace('\n', "\r\n"));
+        let editor = ConfigEditor::load(input.as_bytes()).unwrap();
+        let before = editor.to_bytes().unwrap();
+        let preview = editor
+            .preview_lighting_mood_rename("uuid:lighting", reference, name)
+            .unwrap();
+        assert_eq!(editor.to_bytes().unwrap(), before);
+        let mut writer = ConfigEditor::load(input.as_bytes()).unwrap();
+        let edit = writer
+            .rename_lighting_mood("uuid:lighting", reference, name)
+            .unwrap();
+        assert_eq!(
+            serde_json::to_value(&preview).unwrap(),
+            serde_json::to_value(&edit).unwrap()
+        );
+        let mut expected = ConfigEditor::load(input.as_bytes()).unwrap();
+        let path = expected
+            .lighting_metadata_mood_path("uuid:lighting", reference)
+            .unwrap();
+        expected
+            .get_element_mut(&path)
+            .attributes
+            .insert("Name".into(), name.into());
+        assert_eq!(writer.to_bytes().unwrap(), expected.to_bytes().unwrap());
+        if !preview.changed {
+            assert_eq!(writer.to_bytes().unwrap(), before);
+        }
+    }
+}
+
+#[test]
+fn lighting_metadata_rename_preview_and_writer_share_ordered_errors_including_noops() {
+    for (xml, selector, reference, name, code) in [
+        (
+            METADATA_XML.to_owned(),
+            "missing",
+            "missing",
+            "Bad!",
+            "unsupported_mood_name",
+        ),
+        (
+            METADATA_XML.replace("Name=\"First\"", "Name=\"Grün\""),
+            "uuid:lighting",
+            "Grün",
+            "Grün",
+            "unsupported_mood_name",
+        ),
+        (
+            METADATA_XML.replace("LightController2", "And"),
+            "uuid:lighting",
+            "missing",
+            "New",
+            "wrong_block_type",
+        ),
+        (
+            METADATA_XML.replace("</C>", "<LightscenesC/></C>"),
+            "uuid:lighting",
+            "First",
+            "First",
+            "unsupported_mood_container_shape",
+        ),
+        (
+            METADATA_XML.replace("LightscenesC", "UnknownContainer"),
+            "uuid:lighting",
+            "2",
+            "New",
+            "unsupported_mood_container_shape",
+        ),
+        (
+            METADATA_XML.replace("Name=\"Second\"", "Name=\"First\""),
+            "uuid:lighting",
+            "First",
+            "First",
+            "ambiguous_or_missing_mood",
+        ),
+        (
+            METADATA_XML.replace("Name=\"Second\"", "Name=\"2\""),
+            "uuid:lighting",
+            "2",
+            "New",
+            "ambiguous_or_missing_mood",
+        ),
+        (
+            METADATA_XML.to_owned(),
+            "uuid:lighting",
+            "first",
+            "First",
+            "ambiguous_or_missing_mood",
+        ),
+        (
+            METADATA_XML.to_owned(),
+            "uuid:lighting",
+            "Fir",
+            "New",
+            "ambiguous_or_missing_mood",
+        ),
+    ] {
+        let mut editor = ConfigEditor::load(xml.as_bytes()).unwrap();
+        let before = editor.to_bytes().unwrap();
+        let preview = editor
+            .preview_lighting_mood_rename(selector, reference, name)
+            .unwrap_err();
+        let writer = editor
+            .rename_lighting_mood(selector, reference, name)
+            .unwrap_err();
+        assert_eq!(preview.to_string(), writer.to_string());
+        assert_eq!(preview.downcast_ref::<Diagnostic>().unwrap().code, code);
+        assert_eq!(editor.to_bytes().unwrap(), before);
+    }
+    for name in [
+        "",
+        " ",
+        " First",
+        "First ",
+        "First\tSecond",
+        "A\nB",
+        "A/B",
+        "A_B",
+        "50%",
+        "\u{0}",
+    ] {
+        let mut editor = ConfigEditor::load(METADATA_XML.as_bytes()).unwrap();
+        let before = editor.to_bytes().unwrap();
+        let preview = editor
+            .preview_lighting_mood_rename("missing", "missing", name)
+            .unwrap_err();
+        let writer = editor
+            .rename_lighting_mood("missing", "missing", name)
+            .unwrap_err();
+        assert_eq!(preview.to_string(), writer.to_string());
+        assert_eq!(
+            preview.downcast_ref::<Diagnostic>().unwrap().code,
+            "unsupported_mood_name"
+        );
+        assert_eq!(editor.to_bytes().unwrap(), before);
+    }
+}
+
+#[test]
 fn lighting_metadata_rename_changes_only_selected_name_and_preserves_noop() {
     let mut editor = ConfigEditor::load(METADATA_XML.as_bytes()).unwrap();
     let edit = editor

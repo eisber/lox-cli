@@ -6,7 +6,9 @@ use crate::config_edit::ConfigEditor;
 use crate::config_edit::lighting_cid::{
     LightingIdentityChange, LightingSelectionEdit, LightingSidRemap,
 };
-use crate::config_edit::lighting_metadata::{LightingMoodMixEdit, LightingMoodSkipEdit};
+use crate::config_edit::lighting_metadata::{
+    LightingMoodMixEdit, LightingMoodRenameEdit, LightingMoodSkipEdit,
+};
 use crate::config_edit::schema::Diagnostic;
 
 #[derive(Args)]
@@ -112,7 +114,7 @@ pub(crate) enum LightingCmd {
         #[arg(long, value_name = "PATH")]
         save_as: Option<String>,
     },
-    /// Rename only an existing direct mood's Name; bounded ASCII input
+    /// Rename only an existing direct mood's Name; bounded ASCII input; --dry-run plans without saving
     RenameMood {
         #[command(flatten)]
         target: LightingTarget,
@@ -333,6 +335,45 @@ fn print_identity_preview(
             "\n{} identity edits; selected effective {field} {current}→{proposed}; changed={changed}; dry-run wrote no files",
             changes.len(),
         );
+    }
+}
+
+fn print_rename_preview(ctx: &RunContext, edit: &LightingMoodRenameEdit) {
+    if ctx.csv {
+        if !ctx.no_header {
+            println!(
+                "MOOD_UUID_PRESENT,MOOD_UUID,SID_PRESENT,SID,CID_PRESENT,CID,BEFORE_PRESENT,BEFORE,AFTER,CHANGED"
+            );
+        }
+        println!(
+            "{},{},{},{},{},{},{},{},{},{}",
+            edit.mood.uuid.is_some(),
+            csv(edit.mood.uuid.as_deref().unwrap_or("")),
+            edit.mood.sid.is_some(),
+            csv(edit.mood.sid.as_deref().unwrap_or("")),
+            edit.mood.cid.is_some(),
+            csv(edit.mood.cid.as_deref().unwrap_or("")),
+            edit.before.is_some(),
+            csv(edit.before.as_deref().unwrap_or("")),
+            csv(&edit.after),
+            edit.changed
+        );
+    } else {
+        if !ctx.no_header {
+            println!("MOOD_UUID  SID  CID (RAW)  NAME BEFORE→AFTER  CHANGED");
+        }
+        println!(
+            "{}  {}  {}  {}→{}  {}",
+            edit.mood.uuid.as_deref().unwrap_or("<absent>"),
+            edit.mood.sid.as_deref().unwrap_or("<absent>"),
+            edit.mood.cid.as_deref().unwrap_or("<absent>"),
+            edit.before.as_deref().unwrap_or("<absent>"),
+            edit.after,
+            edit.changed
+        );
+        if !ctx.quiet {
+            println!("\n1 mood; selected Name only; dry-run wrote no files");
+        }
     }
 }
 
@@ -899,6 +940,20 @@ pub(crate) fn run(ctx: &RunContext, action: LightingCmd) -> Result<()> {
         } => {
             let selector = target.selector()?;
             let mut editor = ConfigEditor::load(&crate::load_config_xml(&target.file)?)?;
+            if ctx.dry_run {
+                let preview = editor.preview_lighting_mood_rename(&selector, &mood, &name)?;
+                if ctx.json {
+                    let mut value = serde_json::to_value(&preview)?;
+                    value["dry_run"] = true.into();
+                    if let Some(trace_id) = &ctx.trace_id {
+                        value["trace_id"] = trace_id.clone().into();
+                    }
+                    println!("{}", serde_json::to_string_pretty(&value)?);
+                } else {
+                    print_rename_preview(ctx, &preview);
+                }
+                return Ok(());
+            }
             let edit = editor.rename_lighting_mood(&selector, &mood, &name)?;
             if edit.changed || save_as.is_some() {
                 super::save_edited_with_quiet(&mut editor, &target.file, save_as.as_deref(), true)?;

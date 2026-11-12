@@ -533,6 +533,25 @@ later Name selector ambiguous, use its exact stored SID spelling. Missing `Name`
 can be populated without generating IDs. `SName` is a different field and stays
 unchanged. An in-place identical-name edit preserves original bytes.
 
+Add `--dry-run` to preview **only this existing ASCII Name edit** without
+changing XML or saving, including with `--save-as` pointing to the input, an
+existing destination or a new file under a missing directory. The new-name
+validation runs before direct mood selection, exactly as in the writer, even
+on no-op. No Mix/Skip numeric identity or role restrictions are imported:
+unneeded opaque/missing IDs, flags and prior names retain existing admission.
+One immutable typed plan is shared with the writer; no clone/diff simulation
+or writer-then-discard is used. There are no source/destination/default/stamp/
+directory/cache/telemetry writes or destination-writability/serialization
+predictions. JSON adds `dry_run=true` and optional `trace_id` to the unchanged
+writer report. Dedicated table/CSV always show selected raw UUID/SID/CID and
+before/after names, including no-op; CSV presence columns distinguish absent
+from empty identities/prior names. `--quiet` hides only the table summary and
+`--no-header` only headers. Normal writer API/output/save/no-op semantics and
+all other unsupported dry-run commands remain unchanged. This source-only
+preview adds no Unicode normalization, native/GUI/permission/graph, SPS/runtime,
+family or whole-file qualification.
+See `tests/ux/light-controller2/mood-name-preview-source.json`.
+
 `lighting set-mood-mix` requests exactly one of `--mix` / `--no-mix` and changes
 only an eligible existing `MixMod` flag. This is not a raw boolean/cohort editor:
 it requires selected SID 1..31, nonnegative CID **outside 12..19** or omission

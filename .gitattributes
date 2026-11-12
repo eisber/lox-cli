@@ -34,3 +34,4 @@ tests/ux/light-controller2/mood-cid-preview-source.json text eol=lf
 tests/ux/light-controller2/mood-sid-preview-source.json text eol=lf
 tests/ux/light-controller2/mood-mix-preview-source.json text eol=lf
 tests/ux/light-controller2/mood-skip-preview-source.json text eol=lf
+tests/ux/light-controller2/mood-name-preview-source.json text eol=lf

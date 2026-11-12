@@ -33,6 +33,11 @@ pub struct LightingMoodRenameEdit {
     pub changed: bool,
 }
 
+struct LightingMoodRenamePlan {
+    path: Vec<usize>,
+    edit: LightingMoodRenameEdit,
+}
+
 #[derive(Debug, Serialize)]
 pub struct LightingMoodDisplayNameEdit {
     pub mood: LightingMoodIdentity,
@@ -482,6 +487,34 @@ impl ConfigEditor {
         mood_ref: &str,
         name: &str,
     ) -> Result<LightingMoodRenameEdit> {
+        let plan = self.plan_lighting_mood_rename(selector, mood_ref, name)?;
+        let edit = plan.edit;
+        if edit.changed {
+            self.get_element_mut(&plan.path)
+                .attributes
+                .insert("Name".into(), edit.after.clone());
+        }
+        Ok(edit)
+    }
+
+    /// Preview only the existing guarded Name edit, without changing the document.
+    pub fn preview_lighting_mood_rename(
+        &self,
+        selector: &str,
+        mood_ref: &str,
+        name: &str,
+    ) -> Result<LightingMoodRenameEdit> {
+        Ok(self
+            .plan_lighting_mood_rename(selector, mood_ref, name)?
+            .edit)
+    }
+
+    fn plan_lighting_mood_rename(
+        &self,
+        selector: &str,
+        mood_ref: &str,
+        name: &str,
+    ) -> Result<LightingMoodRenamePlan> {
         if !name
             .as_bytes()
             .first()
@@ -506,16 +539,14 @@ impl ConfigEditor {
         let identity = LightingMoodIdentity::from_element(mood);
         let before = mood.attributes.get("Name").cloned();
         let changed = before.as_deref() != Some(name);
-        if changed {
-            self.get_element_mut(&path)
-                .attributes
-                .insert("Name".into(), name.into());
-        }
-        Ok(LightingMoodRenameEdit {
-            mood: identity,
-            before,
-            after: name.into(),
-            changed,
+        Ok(LightingMoodRenamePlan {
+            path,
+            edit: LightingMoodRenameEdit {
+                mood: identity,
+                before,
+                after: name.into(),
+                changed,
+            },
         })
     }
 
