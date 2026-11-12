@@ -48,7 +48,7 @@ fn has_non_mutating_path(cmd: &Cmd) -> bool {
                     action: EnergyLoadCmd::Set { .. } | EnergyLoadCmd::Move { .. }
                 }
             } | ConfigCmd::Lighting {
-                action: LightingCmd::Inspect { .. }
+                action: LightingCmd::Inspect { .. } | LightingCmd::SetMoodCid { .. }
             } | ConfigCmd::Ls
                 | ConfigCmd::Users { .. }
                 | ConfigCmd::Devices { .. }
@@ -198,6 +198,17 @@ mod tests {
             &["config", "init", "repo"],
             &["config", "pull"],
             &["config", "set-param", "input.Loxone", "block", "I1", "1"],
+            &[
+                "config",
+                "lighting",
+                "set-mood-sid",
+                "input.Loxone",
+                "Lamp",
+                "--mood",
+                "A",
+                "--sid",
+                "2",
+            ],
             &["config", "room", "add", "input.Loxone", "new"],
             &["config", "user-remove", "input.Loxone", "user"],
             &[
@@ -240,6 +251,17 @@ mod tests {
             ],
             vec!["stats", "download", "--dir", "stats", "--force"],
             vec!["config", "validate", "input.Loxone"],
+            vec![
+                "config",
+                "lighting",
+                "set-mood-cid",
+                "input.Loxone",
+                "Lamp",
+                "--mood",
+                "A",
+                "--cid",
+                "22",
+            ],
             vec!["config", "report", "input.Loxone"],
             vec!["color", "encode", "--rgb", "1,2,3"],
             vec!["completions", "bash"],

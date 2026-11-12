@@ -40,6 +40,22 @@ pub struct LightingMoodCidEdit {
     pub changed: bool,
 }
 
+#[derive(Debug, Serialize)]
+pub struct LightingMoodCidPreview {
+    pub selected: LightingIdentityChange,
+    pub current_cid: i32,
+    #[serde(flatten)]
+    pub edit: LightingMoodCidEdit,
+}
+
+struct LightingMoodCidPlan {
+    path: Vec<usize>,
+    collection_index: usize,
+    scene_indices: Vec<usize>,
+    selection_index: Option<usize>,
+    preview: LightingMoodCidPreview,
+}
+
 #[derive(Clone)]
 struct SceneIdentity {
     index: usize,
@@ -54,6 +70,54 @@ impl ConfigEditor {
         mood_ref: &str,
         cid: u32,
     ) -> Result<LightingMoodCidEdit> {
+        let plan = self.plan_lighting_mood_cid(selector, mood_ref, cid)?;
+        let edit = plan.preview.edit;
+        if edit.changed {
+            let block = self.get_element_mut(&plan.path);
+            let collection = block.children[plan.collection_index]
+                .as_mut_element()
+                .unwrap();
+            for change in &edit.identities {
+                let scene = collection.children[plan.scene_indices[change.record - 1]]
+                    .as_mut_element()
+                    .unwrap();
+                scene
+                    .attributes
+                    .insert("SID".into(), change.after_sid.clone());
+                if let Some(cid) = &change.after_cid {
+                    scene.attributes.insert("CID".into(), cid.clone());
+                }
+            }
+            if let Some(selection) = &edit.selection_refs
+                && selection.changed
+            {
+                block.children[plan.selection_index.unwrap()]
+                    .as_mut_element()
+                    .unwrap()
+                    .attributes
+                    .insert("ScMv".into(), selection.after.clone());
+            }
+        }
+        Ok(edit)
+    }
+
+    pub fn preview_lighting_mood_cid(
+        &self,
+        selector: &str,
+        mood_ref: &str,
+        cid: u32,
+    ) -> Result<LightingMoodCidPreview> {
+        Ok(self
+            .plan_lighting_mood_cid(selector, mood_ref, cid)?
+            .preview)
+    }
+
+    fn plan_lighting_mood_cid(
+        &self,
+        selector: &str,
+        mood_ref: &str,
+        cid: u32,
+    ) -> Result<LightingMoodCidPlan> {
         let cid = i32::try_from(cid).map_err(|_| {
             Diagnostic::new(
                 "mood_cid_out_of_range",
@@ -177,15 +241,13 @@ impl ConfigEditor {
         }
         validate_unique_identities(&scenes)?;
         let selection = selection_plan(block, &remaps)?;
-        let mut identities = Vec::new();
-        for (position, (before, after)) in original.iter().zip(&scenes).enumerate() {
-            if before.sid == after.sid && before.cid == after.cid {
-                continue;
-            }
+        let identity = |position: usize| {
+            let before = &original[position];
+            let after = &scenes[position];
             let scene = records[position].1;
             let before_sid = scene.attributes["SID"].clone();
             let before_cid = scene.attributes.get("CID").cloned();
-            identities.push(LightingIdentityChange {
+            LightingIdentityChange {
                 record: position + 1,
                 uuid: scene.attributes.get("UUID").cloned(),
                 after_sid: if before.sid == after.sid {
@@ -200,42 +262,36 @@ impl ConfigEditor {
                 },
                 before_sid,
                 before_cid,
-            });
-        }
+            }
+        };
+        let selected_identity = identity(selected);
+        let identities: Vec<_> = original
+            .iter()
+            .zip(&scenes)
+            .enumerate()
+            .filter(|(_, (before, after))| before.sid != after.sid || before.cid != after.cid)
+            .map(|(position, _)| identity(position))
+            .collect();
         let changed =
             !identities.is_empty() || selection.as_ref().is_some_and(|(_, edit)| edit.changed);
         let collection_index = *collection_index;
-        if changed {
-            let block = self.get_element_mut(&path);
-            let collection = block.children[collection_index].as_mut_element().unwrap();
-            for change in &identities {
-                let scene = collection.children[scenes[change.record - 1].index]
-                    .as_mut_element()
-                    .unwrap();
-                scene
-                    .attributes
-                    .insert("SID".into(), change.after_sid.clone());
-                if let Some(cid) = &change.after_cid {
-                    scene.attributes.insert("CID".into(), cid.clone());
-                }
-            }
-            if let Some((index, edit)) = &selection
-                && edit.changed
-            {
-                block.children[*index]
-                    .as_mut_element()
-                    .unwrap()
-                    .attributes
-                    .insert("ScMv".into(), edit.after.clone());
-            }
-        }
-        Ok(LightingMoodCidEdit {
-            mood: mood_ref.into(),
-            requested_cid: cid,
-            identities,
-            selection_remaps: remaps,
-            selection_refs: selection.map(|(_, edit)| edit),
-            changed,
+        Ok(LightingMoodCidPlan {
+            path,
+            collection_index,
+            scene_indices: scenes.iter().map(|scene| scene.index).collect(),
+            selection_index: selection.as_ref().map(|(index, _)| *index),
+            preview: LightingMoodCidPreview {
+                selected: selected_identity,
+                current_cid: original[selected].cid,
+                edit: LightingMoodCidEdit {
+                    mood: mood_ref.into(),
+                    requested_cid: cid,
+                    identities,
+                    selection_remaps: remaps,
+                    selection_refs: selection.map(|(_, edit)| edit),
+                    changed,
+                },
+            },
         })
     }
 }
@@ -413,6 +469,45 @@ mod tests {
     }
 
     const ORDINARY: &str = r#"<LightsceneC Name="A" UUID="a" SID="1" CID="12" Q1="future"><SeqConf Future="keep"/></LightsceneC><LightsceneC Name="B" UUID="b" SID="2" CID="13" Q2="-1"/>"#;
+
+    #[test]
+    fn lighting_cid_preview_is_immutable_and_matches_the_writer_plan() {
+        for (xml, cid) in [
+            (
+                fixture(ORDINARY, r#"<LSConfig OpM="opaque" ScMv="future"/>"#),
+                13,
+            ),
+            (
+                fixture(
+                    r#"<LightsceneC Name="A" SID="2" CID="13"/><LightsceneC SID="777" CID="22"/><LightsceneC SID="1" CID="12"/>"#,
+                    r#"<LSConfig OpM="0,1,2" ScMv="2, 777 ,+03,opaque"/>"#,
+                ),
+                22,
+            ),
+            (
+                fixture(&ORDINARY.replace("CID=\"12\"", "CID=\"+00012\""), ""),
+                12,
+            ),
+            (fixture(&ORDINARY.replace(" CID=\"12\"", ""), ""), 0),
+        ] {
+            let mut editor = ConfigEditor::load(xml.as_bytes()).unwrap();
+            let before = editor.to_bytes().unwrap();
+            let preview = editor
+                .preview_lighting_mood_cid("uuid:lighting", "A", cid)
+                .unwrap();
+            assert_eq!(editor.to_bytes().unwrap(), before);
+            assert_eq!(preview.selected.record, 1);
+            assert_eq!(
+                serde_json::to_value(preview.edit).unwrap(),
+                serde_json::to_value(
+                    editor
+                        .set_lighting_mood_cid("uuid:lighting", "A", cid)
+                        .unwrap()
+                )
+                .unwrap()
+            );
+        }
+    }
 
     #[test]
     fn lighting_cid_swaps_only_existing_ids_and_preserves_opaque_unneeded_selection() {
@@ -600,10 +695,16 @@ mod tests {
         for (xml, cid) in cases {
             let mut editor = ConfigEditor::load(xml.as_bytes()).unwrap();
             let before = editor.to_bytes().unwrap();
-            assert!(
-                editor
-                    .set_lighting_mood_cid("uuid:lighting", "A", cid)
-                    .is_err(),
+            let preview_error = editor
+                .preview_lighting_mood_cid("uuid:lighting", "A", cid)
+                .unwrap_err();
+            assert_eq!(editor.to_bytes().unwrap(), before);
+            let write_error = editor
+                .set_lighting_mood_cid("uuid:lighting", "A", cid)
+                .unwrap_err();
+            assert_eq!(
+                preview_error.to_string(),
+                write_error.to_string(),
                 "{xml}/{cid}"
             );
             assert_eq!(editor.to_bytes().unwrap(), before);

@@ -6,7 +6,8 @@ Global flags: `--json` (shorthand for `--output json`), `-o`/`--output json|csv|
 
 `--dry-run` never writes local files or live state, uploads configurations, reloads,
 or reboots, even with `--force`, `--write`, or `--save-as`. Existing safe planners
-are available for `config energy` edits and `stats download`; audited read-only
+are available for `config energy` edits, `config lighting set-mood-cid`, and
+`stats download`; audited read-only
 commands retain their normal output and may make read-only network requests.
 Other commands fail before dispatch with “dry-run not supported” (exit 1;
 JSON: `{"ok":false,"error":"dry_run_not_supported","message":"..."}`), not a
@@ -282,6 +283,7 @@ lox config lighting recount-moods file.Loxone "Lighting" --save-as edited.Loxone
 lox config lighting recount-moods file.Loxone "Lighting" --room "Study" --output json
 lox config lighting set-mood-level file.Loxone "Lighting" --mood "Evening" --output-index 2 --level 37 --save-as edited.Loxone
 lox config lighting set-mood-cid file.Loxone "Lighting" --mood "Evening" --cid 13 --save-as rebound.Loxone
+lox config lighting set-mood-cid file.Loxone "Lighting" --mood "Evening" --cid 22 --dry-run --output json
 lox config lighting set-mood-sid file.Loxone "Lighting" --mood "Evening" --sid 2 --swap --save-as exchanged.Loxone
 lox config lighting set-mood-sid file.Loxone "Lighting" --mood "Evening" --sid 32 --allow-cid-clear
 lox config lighting rename-mood file.Loxone "Lighting" --mood "Evening" --name "Late Evening" --save-as renamed.Loxone
@@ -448,6 +450,26 @@ sequence data and unrelated references are not normalized. JSON includes
 CSV includes mood and consulted-selection rows. Native validation is separately
 queued and currently blocked on desktop admission, not claimed by local tests.
 See `tests/ux/light-controller2/mood-cid-edit-source.json`.
+
+Add `--dry-run` to preview **only this existing CID transaction** using the same
+planner and admission guards as the writer. It never mutates the editor or saves
+the input or `--save-as` destination, even for no-ops; no defaults, stamps or
+destination directories are created. `--save-as` is ignored for preview and
+destination writability is not tested. Unsupported/ambiguous inputs remain
+errors, not successful empty plans. Unneeded opaque selection data and unvisited
+opaque tails retain the writer's existing admission/preservation rules.
+
+Preview JSON adds `dry_run: true`, `selected` (record/UUID and raw SID/CID
+before/after, including null for absent CID), and effective `current_cid` to the
+normal edit report; `requested_cid` is the proposed effective CID.
+`identities`, ordered `selection_remaps`, optional `selection_refs` and `changed`
+are exactly the writer's plan. Table/CSV show selected stored/effective identity,
+affected identity records, ordered remaps and consulted `ScMv`; CSV presence
+columns distinguish omission from empty text. `--quiet` hides only the table
+summary, and `--no-header` hides headers without hiding preview data.
+This source-only local preview does not predict GUI Cancel, dialog refresh,
+final native save, file-write success, current graph state or runtime parity.
+See `tests/ux/light-controller2/mood-cid-preview-source.json`.
 
 `lighting set-mood-sid` reassigns an existing ordinary SID to **1..90**.
 Both selected and requested SID must be in that range; special/display IDs

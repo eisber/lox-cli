@@ -12,6 +12,7 @@
     "author_native_style_mood_ids": true,
     "author_numeric_mood_levels": true,
     "edit_existing_mood_cid_transaction": true,
+    "preview_existing_mood_cid_transaction": true,
     "edit_ordinary_mood_sid_transaction": true,
     "rename_existing_mood_ascii_subset": true,
     "set_role_independent_mood_mix": true,
@@ -101,6 +102,16 @@
     "tests": "src/config_edit/lighting_cid.rs and tests/lighting_cid_source.rs: lighting_cid_*",
     "native_validation": "Case lox-t5t3.6 queued independently; blocked at the initial Notebook transport admission, not run or credited.",
     "limits": "Source-backed existing-record transaction and local persistence only; not full grid vocabulary, post-refresh/save, GUI or runtime parity."
+  },
+  "existing_mood_cid_preview": {
+    "command": "lox config lighting set-mood-cid FILE BLOCK --mood SID_OR_NAME --cid N --dry-run [--room ROOM] [--save-as PATH]",
+    "source_artifact": "tests/ux/light-controller2/mood-cid-preview-source.json",
+    "source_sha256": "c53c1fd12ac84dcb370f2f1097e336159a810e0fe5d9710646eaf63b54ac44c5",
+    "shared_plan": "Immutable preview_lighting_mood_cid and existing writer set_lighting_mood_cid use the same private typed transaction plan. All existing CID identity/count/selection/collision/exhaustion guards and ordered effects are unchanged. No cloned-XML simulation, diff-based inference, normalization or separate mutation algorithm.",
+    "formats": "JSON adds dry_run=true, selected raw SID/CID before/after and effective current_cid to the existing edit report. requested_cid is proposed effective CID, including no-op. Table/CSV retain selected raw/effective identity, affected identity records, ordered remaps and consulted ScMv; CSV before/after presence columns distinguish absent from empty.",
+    "preservation": "No editor mutation or save path, including no-op/unsupported input and any save-as argument. No source/destination writes, directory/default/stamp creation or telemetry files. Destination writability is not validated. Errors stay errors with the writer's diagnostic codes; unneeded opaque data and unvisited tails keep existing admission rules.",
+    "tests": "src/config_edit/lighting_cid.rs and tests/lighting_cid_source.rs: lighting_cid_*; src/dry_run.rs dispatch scope",
+    "limits": "Read-only source-only CLI plan over the existing stored transaction. No GUI Cancel/dialog refresh, native final-save or file-write-success prediction; no new native case, current graph state, incidental normalization, runtime/family or whole-file parity."
   },
   "selected_mood_reference_inspection": {
     "command": "lox config lighting inspect-mood-references FILE BLOCK --mood SID_OR_NAME [--room ROOM]",

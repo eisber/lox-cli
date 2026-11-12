@@ -1,0 +1,45 @@
+{
+  "schema_version": 1,
+  "issue": "lox-a21v",
+  "parent": "lox-khg6",
+  "named_question": "Can the already supported existing-mood CID transaction be previewed with exactly the writer's validation and edits, without mutating XML or saving files?",
+  "frozen_target": {
+    "version": "17.2.10.21",
+    "pe_sha256": "7b55e3ef18401574ab967c5c6a0140cd5a66dc728521ebba04ad53093577d8b3",
+    "installation_sha256": "a3003005776b327f5e666a072a64f5c569182b86174c0f578d5be3267ce28f85",
+    "analysis_id": "6a0520329af17d7b9fdaafe69398c62c454d9da838fc9f9c8d0bdd8d17bb15ae",
+    "new_extractions": 0
+  },
+  "existing_source_basis": {
+    "artifact": "tests/ux/light-controller2/mood-cid-edit-source.json",
+    "sha256": "117c546935895b222d66df22140c3a9139befca625aa63eee280fbcdc242a647",
+    "relationship": "Reuse the established existing-record transaction, not append override allocation, GUI refresh or a new interpretation of the native code. All ten canonical source hashes in that artifact were verified against the frozen local corpus for this delivery."
+  },
+  "canonical_sources": [
+    {"address": "0x1400ea790", "sha256": "e4a7229adfe6b18d853f18bdb656cbe10c8a33e91749a033bad7a90a7282cdc4", "relationship": "Grid column1 commits the selected record SID and requested CID to the existing handler."},
+    {"address": "0x1400e6200", "sha256": "3f5eea80e65d5d7def68dc9730f413d2e8dbc1884ab71b4552f1ba3e887199ca", "relationship": "Existing transaction: nonzero CID collision swap; optional early selected free SID without remap; selected role normalization; then initial CID-lookup record normalization. Preserve that order and CID0 first-match behavior."},
+    {"address": "0x1405b6c00", "sha256": "b5fbbec343c8a988213793ceaa71494cc54d8e55627ceefa3cc5f64985ff7d03", "relationship": "Each later SID change remaps the available ScMv prefix bounded by OpM count. Ordered calls may cascade; this is not simultaneous substitution."}
+  ],
+  "CLI_policy": {
+    "command": "lox config lighting set-mood-cid FILE BLOCK --mood SID_OR_NAME --cid N --dry-run [--room ROOM] [--save-as PATH]",
+    "architecture": "A single private immutable plan_lighting_mood_cid owns the existing transaction validation and algorithms. preview_lighting_mood_cid takes &self and returns the selected raw/effective identity and existing edit report. set_lighting_mood_cid consumes the same typed plan and applies only its affected identity and selection fields; its API, output and save behavior are unchanged.",
+    "admission": "Require LightController2, one direct LightscenesC, signed32 Num equal to direct scene count, exactly one exact stored SID/Name match, distinct positive signed32 SIDs and unique nonzero CIDs, plus requested nonnegative signed32 CID. Omitted stored CID reads0 without filling omission. Validate all identities, final uniqueness and needed free SID1..99 before returning any successful plan, including numeric no-ops.",
+    "references": "Reuse selection_plan, selection_config and selection_prefix. Needed duplicate LSConfig, opaque OpM or opaque visited ScMv tokens fail. Unneeded lists are not parsed. Missing/empty vectors mean no reference writes. Opaque unvisited ScMv tails and unrelated spelling/order/data stay untouched.",
+    "read_only": "Dry-run is admitted only for this one new lighting mutation surface. It invokes only the immutable preview and returns before the writer/save path, ignoring any save-as destination. No XML mutation, source/destination writes, directory creation, default insertion, save stamps or telemetry markers. Destination writability and normal writer serialization are not simulated.",
+    "formats": "JSON adds dry_run=true, selected raw before/after SID/CID and effective current_cid to the existing transaction fields. requested_cid is the proposed effective CID. Table/CSV include selected raw/effective identity even on no-op, affected identities, ordered remaps and consulted ScMv. Presence columns preserve absent versus empty; quiet/no-header do not hide plan rows.",
+    "failure": "Errors retain existing diagnostic codes and context. There is no successful empty-plan fallback for unsupported, ambiguous, malformed, exhausted or colliding transactions."
+  },
+  "regressions": {
+    "unit": "src/config_edit/lighting_cid.rs: immutable preview leaves editor serialization unchanged, matches the writer report for ordinary swap, role/reference cascade and spelling/omission no-ops; existing full atomic rejection matrix now asserts identical preview/writer errors.",
+    "CLI": "tests/lighting_cid_source.rs: BOM/CRLF input unchanged across preview with input/existing/new-directory destinations; exact role-cascade plan equals existing writer and writer changes only expected stored attributes/tokens. No-op omission/spelling remains explicit in JSON/table/CSV. Unsupported needed data, ambiguous records/identities/selection, malformed identities/counts and CID range errors preserve input/destination and match writer diagnostics.",
+    "dispatch": "src/dry_run.rs: admit set-mood-cid planner, retain fail-closed handling for unrelated lighting mutations."
+  },
+  "native_validation": {
+    "status": "not-run-source-only",
+    "new_native_cases": 0,
+    "gui_roundtrip_verified": false,
+    "runtime_parity": false,
+    "full_family_contract": false,
+    "limits": "Read-only source-backed CLI preview of the already supported stored transaction only. Not GUI Cancel/dialog refresh, import/model membership, accepted native dialog serialization/final save, graph-dependent normalization, physical mapping, native/runtime/family or whole-file parity. Historical artifacts and separate native work are unchanged."
+  }
+}

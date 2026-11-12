@@ -30,3 +30,4 @@ tests/ux/light-controller2/mood-sid-edit-source.json text eol=lf
 tests/ux/light-controller2/mood-higher-sid-source.json text eol=lf
 tests/ux/light-controller2/pre-modal-graph-lookup-source.json text eol=lf
 tests/ux/light-controller2/mood-reference-inspection-source.json text eol=lf
+tests/ux/light-controller2/mood-cid-preview-source.json text eol=lf

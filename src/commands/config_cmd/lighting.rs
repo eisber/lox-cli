@@ -3,7 +3,9 @@ use clap::{Args, Subcommand};
 
 use crate::commands::RunContext;
 use crate::config_edit::ConfigEditor;
-use crate::config_edit::lighting_cid::{LightingIdentityChange, LightingSelectionEdit};
+use crate::config_edit::lighting_cid::{
+    LightingIdentityChange, LightingMoodCidPreview, LightingSelectionEdit,
+};
 use crate::config_edit::schema::Diagnostic;
 
 #[derive(Args)]
@@ -79,7 +81,7 @@ pub(crate) enum LightingCmd {
         #[arg(long, value_name = "PATH")]
         save_as: Option<String>,
     },
-    /// Edit an existing CID with collision swaps and source-backed SID/ref remapping
+    /// Edit an existing CID with collision swaps and SID/ref remapping; --dry-run plans without saving
     SetMoodCid {
         #[command(flatten)]
         target: LightingTarget,
@@ -221,6 +223,114 @@ fn print_identity_changes(
         {
             println!("LSConfig ScMv: {} → {}", selection.before, selection.after);
         }
+    }
+}
+
+fn print_cid_preview(ctx: &RunContext, preview: &LightingMoodCidPreview) {
+    if !ctx.no_header {
+        println!(
+            "{}",
+            if ctx.csv {
+                "RECORD,INDEX,UUID,FIELD,BEFORE_PRESENT,BEFORE,AFTER_PRESENT,AFTER"
+            } else {
+                "RECORD  INDEX  UUID  FIELD  BEFORE→AFTER"
+            }
+        );
+    }
+    let row = |record: &str,
+               index: Option<usize>,
+               uuid: Option<&str>,
+               field: &str,
+               before: Option<&str>,
+               after: Option<&str>| {
+        let index = index.map(|i| i.to_string()).unwrap_or_default();
+        if ctx.csv {
+            println!(
+                "{},{},{},{},{},{},{},{}",
+                csv(record),
+                index,
+                csv(uuid.unwrap_or("")),
+                csv(field),
+                before.is_some(),
+                csv(before.unwrap_or("")),
+                after.is_some(),
+                csv(after.unwrap_or(""))
+            );
+        } else {
+            println!(
+                "{record}  {index}  {}  {field}  {}→{}",
+                uuid.unwrap_or("<absent>"),
+                before.unwrap_or("<absent>"),
+                after.unwrap_or("<absent>")
+            );
+        }
+    };
+    let identities = std::iter::once(("selected", &preview.selected)).chain(
+        preview
+            .edit
+            .identities
+            .iter()
+            .map(|identity| ("edit", identity)),
+    );
+    for (record, identity) in identities {
+        for (field, before, after) in [
+            (
+                "SID",
+                Some(identity.before_sid.as_str()),
+                Some(identity.after_sid.as_str()),
+            ),
+            (
+                "CID",
+                identity.before_cid.as_deref(),
+                identity.after_cid.as_deref(),
+            ),
+        ] {
+            row(
+                record,
+                Some(identity.record),
+                identity.uuid.as_deref(),
+                field,
+                before,
+                after,
+            );
+        }
+    }
+    row(
+        "selected_effective",
+        Some(preview.selected.record),
+        preview.selected.uuid.as_deref(),
+        "CID",
+        Some(&preview.current_cid.to_string()),
+        Some(&preview.edit.requested_cid.to_string()),
+    );
+    for (index, remap) in preview.edit.selection_remaps.iter().enumerate() {
+        row(
+            "ordered_remap",
+            Some(index + 1),
+            None,
+            "ScMv SID",
+            Some(&remap.before.to_string()),
+            Some(&remap.after.to_string()),
+        );
+    }
+    if let Some(selection) = &preview.edit.selection_refs {
+        row(
+            "selection",
+            None,
+            None,
+            "ScMv",
+            Some(&selection.before),
+            Some(&selection.after),
+        );
+    }
+    if !ctx.csv && !ctx.quiet {
+        println!(
+            "\n{} identity edits; selected effective CID {}→{}; changed={}; dry-run wrote no files",
+            preview.edit.identities.len(),
+            preview.current_cid,
+            preview.edit.requested_cid,
+            preview.edit.changed
+        );
     }
 }
 
@@ -609,6 +719,20 @@ pub(crate) fn run(ctx: &RunContext, action: LightingCmd) -> Result<()> {
         } => {
             let selector = target.selector()?;
             let mut editor = ConfigEditor::load(&crate::load_config_xml(&target.file)?)?;
+            if ctx.dry_run {
+                let preview = editor.preview_lighting_mood_cid(&selector, &mood, cid)?;
+                if ctx.json {
+                    let mut value = serde_json::to_value(&preview)?;
+                    value["dry_run"] = true.into();
+                    if let Some(trace_id) = &ctx.trace_id {
+                        value["trace_id"] = trace_id.clone().into();
+                    }
+                    println!("{}", serde_json::to_string_pretty(&value)?);
+                } else {
+                    print_cid_preview(ctx, &preview);
+                }
+                return Ok(());
+            }
             let edit = editor.set_lighting_mood_cid(&selector, &mood, cid)?;
             if edit.changed || save_as.is_some() {
                 super::save_edited_with_quiet(&mut editor, &target.file, save_as.as_deref(), true)?;
