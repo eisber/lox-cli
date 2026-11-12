@@ -17,6 +17,7 @@ tests/ux/light-controller2/mood-cid-edit-source.json text eol=lf
 tests/ux/light-controller2/mood-name-source.json text eol=lf
 tests/ux/light-controller2/mood-mix-source.json text eol=lf
 tests/ux/light-controller2/mood-mix-default-source.json text eol=lf
+tests/ux/light-controller2/mood-boolean-case-source.json text eol=lf
 tests/ux/light-controller2/mood-mix-cid-default-source.json text eol=lf
 tests/ux/light-controller2/mood-option-inspection-source.json text eol=lf
 tests/ux/light-controller2/mood-icon-id-source.json text eol=lf

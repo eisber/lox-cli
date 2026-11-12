@@ -1,0 +1,41 @@
+{
+  "schema_version": 1,
+  "issue": "lox-bw2t.1",
+  "named_question": "Can mood boolean case variants accepted by the native reader be used without normalizing stored spelling or coercing unsupported explicit values?",
+  "frozen_target": {
+    "version": "17.2.10.21",
+    "pe_sha256": "7b55e3ef18401574ab967c5c6a0140cd5a66dc728521ebba04ad53093577d8b3",
+    "analysis_id": "6a0520329af17d7b9fdaafe69398c62c454d9da838fc9f9c8d0bdd8d17bb15ae",
+    "new_extractions": 0
+  },
+  "canonical_sources": [
+    {"address": "0x1405b7df0", "sha256": "9f0ff6bd3dcc724a599e3324483c9b584f1e1128c4a3d6bf9604ecc328bf9d58", "lines": [29, 41]},
+    {"address": "0x1404c52f0", "sha256": "057c5670bc1b4a95f3b6ae5720f34f057330ba62605c4d0211ac7565de681262", "lines": [73, 110]},
+    {"address": "0x14041eb10", "sha256": "fee9619bd6f3e7b27599dc164581bb02028e619477ce20cdcbf21edd3efd6655", "lines": [13, 28]}
+  ],
+  "static_byte_pins": [
+    {"address": "0x14041eb10", "length": 38, "sha256": "7c9b53ecfbde2f918b85fa92dcbf953afe6643f1f0cbdef53f6be912c8bf7921", "purpose": "String comparison uses the case-insensitive imported comparison after explicit null checks; no spelling rewrite."},
+    {"address": "0x1404c64a0", "length": 32, "sha256": "4f831ae195c0931fc975674a91a7468a27002036570a80c518152520a987182f", "purpose": "Boolean reader stores equality with TRUE using that comparator."},
+    {"address": "0x140ff3bb4", "length": 5, "sha256": "5de7a893e93df4bcd4b5640bf2b35ac9518615ded6e37beaae19c338cd781d67", "purpose": "Exact NUL-terminated TRUE literal."}
+  ],
+  "source_contract": {
+    "binding": "Move, ReadOnly, SkipNext, MixMod and Sequencing all use the common type0 reader.",
+    "case": "The reader compares case-insensitively with TRUE. ASCII true case variants therefore read true; ASCII false case variants read false.",
+    "deliberate_subset": "Native comparison also produces false for other unequal strings, but CLI does not adopt arbitrary-false coercion. Numeric, whitespace-padded, opaque and non-ASCII lookalike input remains unsupported.",
+    "preservation": "Reading a boolean is not a request to rewrite serialized spelling. A semantically unchanged requested-state edit retains raw spelling and all in-place bytes."
+  },
+  "CLI_policy": {
+    "operations": ["lighting set-mood-skip", "lighting set-mood-mix", "lighting inspect-mood-options"],
+    "accepted": "ASCII case variants of true/false plus already-recovered omission defaults. Shared parser covers all five read-only flags; only existing guarded SkipNext/MixMod setters are editable.",
+    "no_op": "TRUE/tRuE/FALSE/FaLsE are retained exactly when effective value already equals the requested value. Inspection returns raw spelling separately from effective boolean.",
+    "change": "A real boolean change writes only the selected requested flag using ordinary lowercase true/false; every unrelated flag's original spelling remains unchanged.",
+    "guards": "Keep exact direct selection, SID uniqueness, MixMod role/CID exclusions, missing defaults and all unsupported explicit-value errors. No new raw boolean, permissions or graph-state editor.",
+    "tests": "src/config_edit/lighting_metadata_tests.rs and tests/lighting_metadata_cli.rs: lighting_metadata_*boolean_case*"
+  },
+  "validation_scope": {
+    "native_execution_performed_for_this_extension": false,
+    "runtime_parity": false,
+    "full_dialog_acceptance": false,
+    "vendor_function_text": "Not included."
+  }
+}

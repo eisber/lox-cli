@@ -29,6 +29,53 @@ fn command() -> Command {
 }
 
 #[test]
+fn lighting_metadata_cli_boolean_case_retains_noop_bytes_and_does_not_coerce_bad_flags() {
+    let dir = tempfile::tempdir().unwrap();
+    let input = dir.path().join("input.Loxone");
+    let output = dir.path().join("output.Loxone");
+    let xml = XML.replacen("MixMod=\"false\"", "MixMod=\"FaLsE\" SkipNext=\"TRUE\"", 1);
+    let before = bytes(&xml);
+    fs::write(&input, &before).unwrap();
+    for (operation, flag) in [("set-mood-mix", "--no-mix"), ("set-mood-skip", "--skip")] {
+        let result = command()
+            .args(["config", "lighting", operation])
+            .arg(&input)
+            .args(["uuid:lighting", "--mood", "A", flag, "-o", "json"])
+            .assert()
+            .success()
+            .get_output()
+            .stdout
+            .clone();
+        assert_eq!(
+            serde_json::from_slice::<serde_json::Value>(&result).unwrap()["changed"],
+            false
+        );
+        assert_eq!(fs::read(&input).unwrap(), before);
+    }
+    command()
+        .args(["config", "lighting", "set-mood-mix"])
+        .arg(&input)
+        .args(["uuid:lighting", "--mood", "A", "--mix", "--save-as"])
+        .arg(&output)
+        .args(["--quiet"])
+        .assert()
+        .success();
+    let expected = bytes(&xml.replacen("MixMod=\"FaLsE\"", "MixMod=\"true\"", 1));
+    assert_eq!(fs::read(&output).unwrap(), expected);
+    let invalid = bytes(&xml.replacen("MixMod=\"FaLsE\"", "MixMod=\"0\"", 1));
+    fs::write(&input, &invalid).unwrap();
+    command()
+        .args(["config", "lighting", "set-mood-mix"])
+        .arg(&input)
+        .args(["uuid:lighting", "--mood", "A", "--no-mix", "--save-as"])
+        .arg(&output)
+        .assert()
+        .failure();
+    assert_eq!(fs::read(&input).unwrap(), invalid);
+    assert_eq!(fs::read(&output).unwrap(), expected);
+}
+
+#[test]
 fn lighting_metadata_cli_options_are_readonly_and_expose_projection_limits_in_all_formats() {
     let dir = tempfile::tempdir().unwrap();
     let input = dir.path().join("input.Loxone");

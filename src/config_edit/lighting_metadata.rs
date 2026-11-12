@@ -102,7 +102,7 @@ impl ConfigEditor {
             if value.effective.is_none() {
                 diagnostics.push(Diagnostic::new(
                     "unsupported_mood_option_value", &format!("{mood_ref}.{key}"),
-                    "Only canonical true/false or omission is interpreted here. Unsupported explicit storage is retained and unresolved, not defaulted.",
+                    "Only ASCII case variants of true/false or omission are interpreted here. Unsupported explicit storage is retained and unresolved, not defaulted.",
                 ));
             }
             let (mut projection, checkbox_checked) = match key {
@@ -252,7 +252,7 @@ impl ConfigEditor {
                 Diagnostic::new(
                     "unsupported_mood_skip_value",
                     &format!("{mood_ref}.SkipNext"),
-                    "SkipNext must be canonical true/false or absent (recovered native default false). Unsupported explicit values are not defaulted or normalized.",
+                    "SkipNext must be an ASCII case variant of true/false or absent (recovered native default false). Unsupported explicit values are not defaulted or normalized.",
                 )
         })?;
         let identity = LightingMoodIdentity::from_element(mood);
@@ -383,7 +383,7 @@ impl ConfigEditor {
                 Diagnostic::new(
                     "unsupported_mood_mix_value",
                     &format!("{mood_ref}.MixMod"),
-                    "MixMod must be canonical true/false or absent (recovered native default false). Unsupported explicit values are not defaulted or normalized.",
+                    "MixMod must be an ASCII case variant of true/false or absent (recovered native default false). Unsupported explicit values are not defaulted or normalized.",
                 )
         })?;
         let identity = LightingMoodIdentity::from_element(mood);
@@ -416,8 +416,9 @@ impl ConfigEditor {
     fn stored_mood_flag(mood: &Element, key: &str) -> StoredValue<bool> {
         let stored = mood.attributes.get(key).cloned();
         let effective = match stored.as_deref() {
-            None | Some("false") => Some(false),
-            Some("true") => Some(true),
+            None => Some(false),
+            Some(raw) if raw.eq_ignore_ascii_case("false") => Some(false),
+            Some(raw) if raw.eq_ignore_ascii_case("true") => Some(true),
             _ => None,
         };
         StoredValue {

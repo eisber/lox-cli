@@ -482,7 +482,7 @@ unchanged. An in-place identical-name edit preserves original bytes.
 only an eligible existing `MixMod` flag. This is not a raw boolean/cohort editor:
 it requires selected SID 1..31, nonnegative CID **outside 12..19** or omission
 (recovered effective0),
-canonical `MixMod="true"`/`"false"` or omission (effective/default false), and a unique selected numeric SID among
+ASCII case variants of `MixMod="true"`/`"false"` or omission (effective/default false), and a unique selected numeric SID among
 direct records. All direct sibling SIDs must be supported signed-32-bit
 decimals. CID 12..19 can force/disable the native checkbox through graph/role
 state, so those rows are rejected even on a requested no-op. Special/non-checkbox
@@ -533,13 +533,18 @@ only the selected `SkipNext`. The native cycling checkbox is **inverted**:
 checked means included (`SkipNext=false`). JSON/CSV report stored/effective
 before values, the resulting skip value and `checkbox_checked`. Missing
 `SkipNext` has recovered effective/default false; a `--no-skip` no-op keeps
-it absent. Explicit values must be canonical `true`/`false`; malformed or
+it absent. Explicit values must be ASCII case variants of `true`/`false`; malformed or
 numeric flags are rejected, not treated as false. The selected positive
 signed-32-bit SID must be numerically unique among supported direct sibling
 SIDs. Unlike MixMod, this checkbox is not restricted to SID1..31 or by
 CID12..19. No other flags, IDs, outputs, references or HCL are normalized.
 This is a source-backed selected-field edit, not native/runtime cycling
 parity. See `tests/ux/light-controller2/mood-skip-source.json`.
+Boolean inspection and the guarded mix/skip edits accept native ASCII case
+variants such as `TRUE`/`FaLsE`, retaining original spelling on no-op. A real
+change writes only the requested flag. Numeric, space-padded, opaque and
+non-ASCII lookalike values remain unresolved/rejected, not coerced to false.
+See `tests/ux/light-controller2/mood-boolean-case-source.json`.
 
 `lighting set-mood-display-name` edits **SName**, not `Name`, with exactly one
 of `--name NAME` / `--clear`. New names use uppercase ASCII letters/digits and

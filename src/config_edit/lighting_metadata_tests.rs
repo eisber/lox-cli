@@ -23,6 +23,91 @@ fn assert_xml(editor: &ConfigEditor, expected: &str) {
     );
 }
 
+#[test]
+fn lighting_metadata_boolean_case_preserves_native_spelling_on_noop_and_inspection() {
+    for (raw, effective) in [
+        ("TRUE", true),
+        ("tRuE", true),
+        ("FALSE", false),
+        ("FaLsE", false),
+    ] {
+        let xml = mix_xml()
+            .replacen("MixMod=\"true\"", &format!("MixMod=\"{raw}\""), 1)
+            .replacen("SkipNext=\"false\"", &format!("SkipNext=\"{raw}\""), 1)
+            .replacen("ReadOnly=\"true\"", &format!("ReadOnly=\"{raw}\""), 1)
+            .replacen("Sequencing=\"true\"", &format!("Sequencing=\"{raw}\""), 1)
+            .replacen("Move=\"false\"", &format!("Move=\"{raw}\""), 1);
+        let mut editor = ConfigEditor::load(xml.as_bytes()).unwrap();
+        let before = editor.to_bytes().unwrap();
+        let options = editor
+            .inspect_lighting_mood_options("uuid:lighting", "First")
+            .unwrap();
+        for flag in &options.flags {
+            assert_eq!(flag.value.stored.as_deref(), Some(raw));
+            assert_eq!(flag.value.effective, Some(effective));
+        }
+        let skip = editor
+            .set_lighting_mood_skip("uuid:lighting", "First", effective)
+            .unwrap();
+        assert!(!skip.changed);
+        assert_eq!(skip.after.as_deref(), Some(raw));
+        let mix = editor
+            .set_lighting_mood_mix("uuid:lighting", "First", effective)
+            .unwrap();
+        assert!(!mix.changed);
+        assert_eq!(mix.after.as_deref(), Some(raw));
+        assert_eq!(editor.to_bytes().unwrap(), before);
+        editor
+            .set_lighting_mood_mix("uuid:lighting", "First", !effective)
+            .unwrap();
+        assert_xml(
+            &editor,
+            &xml.replacen(
+                &format!("MixMod=\"{raw}\""),
+                &format!("MixMod=\"{}\"", !effective),
+                1,
+            ),
+        );
+    }
+}
+
+#[test]
+fn lighting_metadata_boolean_case_does_not_coerce_numeric_space_or_opaque_flags() {
+    for raw in ["1", "0", " true", "false ", "yes", "future", "Trüe"] {
+        let xml = mix_xml()
+            .replacen("MixMod=\"true\"", &format!("MixMod=\"{raw}\""), 1)
+            .replacen("SkipNext=\"false\"", &format!("SkipNext=\"{raw}\""), 1);
+        let mut editor = ConfigEditor::load(xml.as_bytes()).unwrap();
+        let before = editor.to_bytes().unwrap();
+        let options = editor
+            .inspect_lighting_mood_options("uuid:lighting", "First")
+            .unwrap();
+        for key in ["MixMod", "SkipNext"] {
+            assert_eq!(
+                options
+                    .flags
+                    .iter()
+                    .find(|f| f.key == key)
+                    .unwrap()
+                    .value
+                    .effective,
+                None
+            );
+        }
+        assert!(
+            editor
+                .set_lighting_mood_mix("uuid:lighting", "First", false)
+                .is_err()
+        );
+        assert!(
+            editor
+                .set_lighting_mood_skip("uuid:lighting", "First", false)
+                .is_err()
+        );
+        assert_eq!(editor.to_bytes().unwrap(), before);
+    }
+}
+
 fn assert_error_unchanged(editor: &ConfigEditor, before: &[u8], error: anyhow::Error, code: &str) {
     assert_eq!(error.downcast_ref::<Diagnostic>().unwrap().code, code);
     assert_eq!(editor.to_bytes().unwrap(), before);
@@ -317,10 +402,6 @@ fn lighting_metadata_mix_rejects_opaque_missing_or_ambiguous_identity_and_flags_
         ),
         (
             mix_xml().replacen("MixMod=\"true\"", "MixMod=\"1\"", 1),
-            "unsupported_mood_mix_value",
-        ),
-        (
-            mix_xml().replacen("MixMod=\"true\"", "MixMod=\"TRUE\"", 1),
             "unsupported_mood_mix_value",
         ),
         (
