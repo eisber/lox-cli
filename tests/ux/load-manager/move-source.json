@@ -1,0 +1,539 @@
+{
+  "schema_version": 1,
+  "application": {
+    "version": "17.2.10.21",
+    "sha256": "7b55e3ef18401574ab967c5c6a0140cd5a66dc728521ebba04ad53093577d8b3",
+    "installation_sha256": "a3003005776b327f5e666a072a64f5c569182b86174c0f578d5be3267ce28f85",
+    "analysis_id": "6a0520329af17d7b9fdaafe69398c62c454d9da838fc9f9c8d0bdd8d17bb15ae"
+  },
+  "operation": "LoadShed existing-load one-position Configure loads/XML-order move",
+  "status": "source-recovered-B1-remediated-native-unqualified",
+  "issue": "lox-aton",
+  "question": "Does a Load with no ioIdx have unknown identity, or is omission the native encoding of connector identity zero?",
+  "unknown_at_selection": [
+    "native owner/XML identity",
+    "accepted transaction semantics",
+    "serialized priority versus connector identity",
+    "fixed and special-row boundaries",
+    "B1: whether absent ioIdx was native zero encoding (initial explicit-only assumption was wrong)."
+  ],
+  "reused_evidence": [
+    {
+      "path": ".reverse-engineering\\latest.json",
+      "sha256": "3c8262863fbb0ca1074311ddf5f0f6b15039f62201bce7327bb569099603bd11"
+    },
+    {
+      "path": ".reverse-engineering\\element-atlas\\ux-mechanisms.json",
+      "sha256": "89460d04d5a7a815a32240b608be3c94e25fceab65077659e642ead5a5959a13"
+    },
+    {
+      "path": ".reverse-engineering\\element-atlas\\native-map.json",
+      "sha256": "44c73370477203133c4eb8a906ed455946dbfe745c2e4150db32251d4c761627"
+    },
+    {
+      "path": ".reverse-engineering\\element-atlas\\load-manager-dialog-dispatch-20261107T2118Z\\report.json",
+      "sha256": "81956355c2d3ee02cef24607e6c67d4d7174ea0fd1c2def203114cb91d1bcfa8"
+    }
+  ],
+  "reused_dispatch_functions": [
+    "0x140b4f110",
+    "0x140b4f190",
+    "0x140b4f210"
+  ],
+  "newly_resolved_semantics": [
+    "ArrowDown/ArrowUp clicked bindings and native CControlObjectLoadManager receiver at 0x140b4e840",
+    "temporary cloned load list at receiver+0x88, original at+0x90; accepted 0x140b4f070 copies by position through0x14085f090",
+    "0x140863660/0x140863750 remove/insert pointer, renumber +0x2c; 0x14085eec0/0x14085ef30 boundary enable predicates",
+    "0x140864140 writes ordered Load rows; ioIdx field+0x28 moves with nm/pwr/maxOff/minOn, ordinal+0x2c is NOT an XML attribute",
+    "factory case0x1cb ->0x14085e260 CControlObjectLoadManager, initial count12; initializer0x140860eb0 sets ioIdx0..11; registration0x140861090 names LoadShed",
+    "Native factory case459 constructs CControlObjectLoadManager; registration slot0xf18 names LoadShed; constructor sets12 load slots.",
+    "Configure loads ArrowUp/ArrowDown clicked bindings target0x140b4f190/0x140b4f110 on this receiver.",
+    "Owner primary vtable0x141143da8 slot0x40 ->0x140864140 serializes ordered Load records, and slot0xf10 ->0x140860eb0 initializes each row ioIdx.",
+    "Dialog table0x141559860 slot0x1a8 ->0x140b4f070; inherited accept0x140930dc0 calls virtual0x1a8 then QDialog::accept on success.",
+    "Reorder operates on cloned object+0x88. Accept position-wise copy preserves ioIdx/name/power/timing with row, while runtime ordinal is reset to array position by serialization and has no XML field.",
+    "For admitted complete12-row shape, down allowed exceptlast; up allowed exceptfirst. Extended dynamic lists are deliberately unsupported.",
+    "0x14085ffa0 resolves a Load connector using virtual slot0x4b0 with row field+0x28 plus0x13; 0x140863d40 writes load feedback via this same field-derived connector index. Thus ioIdx is a preserved connector association, not a guessed identity from letters.",
+    "B1 correction: ioIdx absence is native identity0, NOT unknown or an unsupported shape.",
+    "0x140864140 calls0x1404c52f0(\"ioIdx\",type5,row+0x28,1,1,0): param6=1 suppresses zero on write; param7=0 reads absent/empty via numeric parser0x140422760 yielding0.",
+    "CLI resolves only absence to0, preserves raw omission and validates uniqueness on resolved values. An omission+explicit0 or two omissions is duplicate0. Explicit malformed values remain conservatively unsupported."
+  ],
+  "canonical_functions": [
+    {
+      "address": "0x140b4e840",
+      "path": ".reverse-engineering\\versions\\a3003005776b327f5e666a072a64f5c569182b86174c0f578d5be3267ce28f85\\analysis\\6a0520329af17d7b9fdaafe69398c62c454d9da838fc9f9c8d0bdd8d17bb15ae\\LoxoneConfig.exe\\code\\functions\\0x140b4e840.c",
+      "sha256": "0f05af4500b09a3bad467155a5f72fbf1cb48d8f6be77e8b9b5d3a878d5e3968",
+      "role": "native user caller: Configure loads/ArrowUp/ArrowDown, cloned receiver ownership"
+    },
+    {
+      "address": "0x140b4f110",
+      "path": ".reverse-engineering\\versions\\a3003005776b327f5e666a072a64f5c569182b86174c0f578d5be3267ce28f85\\analysis\\6a0520329af17d7b9fdaafe69398c62c454d9da838fc9f9c8d0bdd8d17bb15ae\\LoxoneConfig.exe\\code\\functions\\0x140b4f110.c",
+      "sha256": "9283102ce4eb02ce863b6da0653000d037a0897f757482a98d362aae3ea3c7d9",
+      "role": "reused emitted target; NEW downstream move-down semantics"
+    },
+    {
+      "address": "0x140b4f190",
+      "path": ".reverse-engineering\\versions\\a3003005776b327f5e666a072a64f5c569182b86174c0f578d5be3267ce28f85\\analysis\\6a0520329af17d7b9fdaafe69398c62c454d9da838fc9f9c8d0bdd8d17bb15ae\\LoxoneConfig.exe\\code\\functions\\0x140b4f190.c",
+      "sha256": "0de0eface80b03385e947a45ec3c4a039e382b26dab9b6e68ee2637295eb2cc5",
+      "role": "reused emitted target; NEW downstream move-up semantics"
+    },
+    {
+      "address": "0x140b4f210",
+      "path": ".reverse-engineering\\versions\\a3003005776b327f5e666a072a64f5c569182b86174c0f578d5be3267ce28f85\\analysis\\6a0520329af17d7b9fdaafe69398c62c454d9da838fc9f9c8d0bdd8d17bb15ae\\LoxoneConfig.exe\\code\\functions\\0x140b4f210.c",
+      "sha256": "ffa3101e76104f8e396e4db46e2f09ce51cc19deb8fe31831f00734edacf694f",
+      "role": "reused emitted target; NEW boundary-validator composition"
+    },
+    {
+      "address": "0x140863660",
+      "path": ".reverse-engineering\\versions\\a3003005776b327f5e666a072a64f5c569182b86174c0f578d5be3267ce28f85\\analysis\\6a0520329af17d7b9fdaafe69398c62c454d9da838fc9f9c8d0bdd8d17bb15ae\\LoxoneConfig.exe\\code\\functions\\0x140863660.c",
+      "sha256": "2fd13fdfd40e6f345ba58a0047a43d7ab7fe80c39ed7f85007d07721a05a7b62",
+      "role": "newly followed remove/insert downward mutation and ordinal normalization"
+    },
+    {
+      "address": "0x140863750",
+      "path": ".reverse-engineering\\versions\\a3003005776b327f5e666a072a64f5c569182b86174c0f578d5be3267ce28f85\\analysis\\6a0520329af17d7b9fdaafe69398c62c454d9da838fc9f9c8d0bdd8d17bb15ae\\LoxoneConfig.exe\\code\\functions\\0x140863750.c",
+      "sha256": "9bb9c61a720e8980d97a3f5d1f37fb88ca0ee671aeef4140c8e903390696fd02",
+      "role": "newly followed remove/insert upward mutation and ordinal normalization"
+    },
+    {
+      "address": "0x14085eec0",
+      "path": ".reverse-engineering\\versions\\a3003005776b327f5e666a072a64f5c569182b86174c0f578d5be3267ce28f85\\analysis\\6a0520329af17d7b9fdaafe69398c62c454d9da838fc9f9c8d0bdd8d17bb15ae\\LoxoneConfig.exe\\code\\functions\\0x14085eec0.c",
+      "sha256": "376f785f8e1d0c27671e501d7712b07336376052e4774a21ca9572e91fe7c12f",
+      "role": "down button boundary validator"
+    },
+    {
+      "address": "0x14085ef30",
+      "path": ".reverse-engineering\\versions\\a3003005776b327f5e666a072a64f5c569182b86174c0f578d5be3267ce28f85\\analysis\\6a0520329af17d7b9fdaafe69398c62c454d9da838fc9f9c8d0bdd8d17bb15ae\\LoxoneConfig.exe\\code\\functions\\0x14085ef30.c",
+      "sha256": "fefd90ce07ac3df791bf461354a7679941bf0e6604aa91d558549b0d0c954776",
+      "role": "up button boundary validator"
+    },
+    {
+      "address": "0x140b4ee60",
+      "path": ".reverse-engineering\\versions\\a3003005776b327f5e666a072a64f5c569182b86174c0f578d5be3267ce28f85\\analysis\\6a0520329af17d7b9fdaafe69398c62c454d9da838fc9f9c8d0bdd8d17bb15ae\\LoxoneConfig.exe\\code\\functions\\0x140b4ee60.c",
+      "sha256": "92aa80c9b45cf427d81adda7bf35f2d27e8bb653d236f582d622cd575c750e8f",
+      "role": "native row population and post-mutation refresh"
+    },
+    {
+      "address": "0x140b4f070",
+      "path": ".reverse-engineering\\versions\\a3003005776b327f5e666a072a64f5c569182b86174c0f578d5be3267ce28f85\\analysis\\6a0520329af17d7b9fdaafe69398c62c454d9da838fc9f9c8d0bdd8d17bb15ae\\LoxoneConfig.exe\\code\\functions\\0x140b4f070.c",
+      "sha256": "37746a98b9eac326c31223e5cc09a9a07c56281e28a25925826501d709a4a59b",
+      "role": "accepted dialog hook copies temp rows position-wise to original"
+    },
+    {
+      "address": "0x14085f090",
+      "path": ".reverse-engineering\\versions\\a3003005776b327f5e666a072a64f5c569182b86174c0f578d5be3267ce28f85\\analysis\\6a0520329af17d7b9fdaafe69398c62c454d9da838fc9f9c8d0bdd8d17bb15ae\\LoxoneConfig.exe\\code\\functions\\0x14085f090.c",
+      "sha256": "f8c4acd17ed14cca089ecd9ae8650bca359eb2a0ac2bfcca1b4613ab68552ab0",
+      "role": "accepted row copy fields: ordinal, power, name, ioIdx, timings, owner"
+    },
+    {
+      "address": "0x14085e260",
+      "path": ".reverse-engineering\\versions\\a3003005776b327f5e666a072a64f5c569182b86174c0f578d5be3267ce28f85\\analysis\\6a0520329af17d7b9fdaafe69398c62c454d9da838fc9f9c8d0bdd8d17bb15ae\\LoxoneConfig.exe\\code\\functions\\0x14085e260.c",
+      "sha256": "8bb8faf2f2828b1264d803dcfb4096eb88d82168e1be1c2545ef0cd51702bd14",
+      "role": "owner constructor: RTTI class and twelve-slot limit"
+    },
+    {
+      "address": "0x14085ef80",
+      "path": ".reverse-engineering\\versions\\a3003005776b327f5e666a072a64f5c569182b86174c0f578d5be3267ce28f85\\analysis\\6a0520329af17d7b9fdaafe69398c62c454d9da838fc9f9c8d0bdd8d17bb15ae\\LoxoneConfig.exe\\code\\functions\\0x14085ef80.c",
+      "sha256": "b8426758df9f74502130c0f68045f052573f615f2dbf4ccff0694c5af20ae2c8",
+      "role": "temporary object copy retains per-row settings"
+    },
+    {
+      "address": "0x140860eb0",
+      "path": ".reverse-engineering\\versions\\a3003005776b327f5e666a072a64f5c569182b86174c0f578d5be3267ce28f85\\analysis\\6a0520329af17d7b9fdaafe69398c62c454d9da838fc9f9c8d0bdd8d17bb15ae\\LoxoneConfig.exe\\code\\functions\\0x140860eb0.c",
+      "sha256": "0e71266ff8d8b0c5641296c16b9a16300d73f6d6f5893748b758b341ea987506",
+      "role": "initializes fixed load rows and ioIdx0..11"
+    },
+    {
+      "address": "0x140864140",
+      "path": ".reverse-engineering\\versions\\a3003005776b327f5e666a072a64f5c569182b86174c0f578d5be3267ce28f85\\analysis\\6a0520329af17d7b9fdaafe69398c62c454d9da838fc9f9c8d0bdd8d17bb15ae\\LoxoneConfig.exe\\code\\functions\\0x140864140.c",
+      "sha256": "f74f3168e900e21e522daeba3becb7442f9424cc7f6cf72c66a36951aa0931a9",
+      "role": "ordered XML Load serializer, index not persisted as an attribute"
+    },
+    {
+      "address": "0x140861090",
+      "path": ".reverse-engineering\\versions\\a3003005776b327f5e666a072a64f5c569182b86174c0f578d5be3267ce28f85\\analysis\\6a0520329af17d7b9fdaafe69398c62c454d9da838fc9f9c8d0bdd8d17bb15ae\\LoxoneConfig.exe\\code\\functions\\0x140861090.c",
+      "sha256": "8aa1298152540a4751d932a3e5fa6ce316d47912307ed7b2c31428479921a44f",
+      "role": "native XML type registration LoadShed"
+    },
+    {
+      "address": "0x140432790",
+      "path": ".reverse-engineering\\versions\\a3003005776b327f5e666a072a64f5c569182b86174c0f578d5be3267ce28f85\\analysis\\6a0520329af17d7b9fdaafe69398c62c454d9da838fc9f9c8d0bdd8d17bb15ae\\LoxoneConfig.exe\\code\\functions\\0x140432790.c",
+      "sha256": "ff55a98ab896be192c361b63eb28f61b22853b55e4a74f32e13b30920dfe8f83",
+      "role": "factory case459 constructs exact owner"
+    },
+    {
+      "address": "0x1404b3960",
+      "path": ".reverse-engineering\\versions\\a3003005776b327f5e666a072a64f5c569182b86174c0f578d5be3267ce28f85\\analysis\\6a0520329af17d7b9fdaafe69398c62c454d9da838fc9f9c8d0bdd8d17bb15ae\\LoxoneConfig.exe\\code\\functions\\0x1404b3960.c",
+      "sha256": "3fce3d7cd1198ce9e01212f6f7b2530534a82c7c50495c984bed9c44d91a2162",
+      "role": "pointer-list remove helper, shifts remainder"
+    },
+    {
+      "address": "0x1404b3600",
+      "path": ".reverse-engineering\\versions\\a3003005776b327f5e666a072a64f5c569182b86174c0f578d5be3267ce28f85\\analysis\\6a0520329af17d7b9fdaafe69398c62c454d9da838fc9f9c8d0bdd8d17bb15ae\\LoxoneConfig.exe\\code\\functions\\0x1404b3600.c",
+      "sha256": "6417a1928400a1029209d55a31cdb7313679f3331331e7dfdab0697ae7ec20fa",
+      "role": "pointer-list insertion helper"
+    },
+    {
+      "address": "0x14085ff80",
+      "path": ".reverse-engineering\\versions\\a3003005776b327f5e666a072a64f5c569182b86174c0f578d5be3267ce28f85\\analysis\\6a0520329af17d7b9fdaafe69398c62c454d9da838fc9f9c8d0bdd8d17bb15ae\\LoxoneConfig.exe\\code\\functions\\0x14085ff80.c",
+      "sha256": "7fedf844d0533afd9d28b0731c2e1d310aca234c9a9a4ae819c42e0b4aa43ce2",
+      "role": "load lookup by array position"
+    },
+    {
+      "address": "0x140b667b0",
+      "path": ".reverse-engineering\\versions\\a3003005776b327f5e666a072a64f5c569182b86174c0f578d5be3267ce28f85\\analysis\\6a0520329af17d7b9fdaafe69398c62c454d9da838fc9f9c8d0bdd8d17bb15ae\\LoxoneConfig.exe\\code\\functions\\0x140b667b0.c",
+      "sha256": "0b53aed1aa61e4cc8336679f4599ac43efa835b69798f26ee085ade8b50a3211",
+      "role": "selected displayed row index used for post-move focus"
+    },
+    {
+      "address": "0x140b669b0",
+      "path": ".reverse-engineering\\versions\\a3003005776b327f5e666a072a64f5c569182b86174c0f578d5be3267ce28f85\\analysis\\6a0520329af17d7b9fdaafe69398c62c454d9da838fc9f9c8d0bdd8d17bb15ae\\LoxoneConfig.exe\\code\\functions\\0x140b669b0.c",
+      "sha256": "18ef5b63549a3bbee1c0b22182b6362fa8d9b63d32d92e58b1a3891aa51e35f0",
+      "role": "selected native record pointer extraction, sentinel/null checks"
+    },
+    {
+      "address": "0x140930dc0",
+      "path": ".reverse-engineering\\versions\\a3003005776b327f5e666a072a64f5c569182b86174c0f578d5be3267ce28f85\\analysis\\6a0520329af17d7b9fdaafe69398c62c454d9da838fc9f9c8d0bdd8d17bb15ae\\LoxoneConfig.exe\\code\\functions\\0x140930dc0.c",
+      "sha256": "c66cb5fa2e9ee4f489a2a0557db7f32fb79de83d471d0b009a29e1ad88afe482",
+      "role": "inherited accept virtual0x1a8 then QDialog::accept"
+    },
+    {
+      "address": "0x14085ffa0",
+      "path": ".reverse-engineering\\versions\\a3003005776b327f5e666a072a64f5c569182b86174c0f578d5be3267ce28f85\\analysis\\6a0520329af17d7b9fdaafe69398c62c454d9da838fc9f9c8d0bdd8d17bb15ae\\LoxoneConfig.exe\\code\\functions\\0x14085ffa0.c",
+      "sha256": "edb5add0a1f846cd55d15aafa848b5d36ba1e5366a50c6a33c531c3e4d64d6b6",
+      "role": "ioIdx+19 connector association lookup from native caller"
+    },
+    {
+      "address": "0x140863d40",
+      "path": ".reverse-engineering\\versions\\a3003005776b327f5e666a072a64f5c569182b86174c0f578d5be3267ce28f85\\analysis\\6a0520329af17d7b9fdaafe69398c62c454d9da838fc9f9c8d0bdd8d17bb15ae\\LoxoneConfig.exe\\code\\functions\\0x140863d40.c",
+      "sha256": "102dab1e1aa219ce0c00120ab7989016d66fea4ac3a91850249002cec64eed4a",
+      "role": "feedback consumer independently uses ioIdx+19 connector mapping"
+    },
+    {
+      "address": "0x1404b3e70",
+      "path": ".reverse-engineering\\versions\\a3003005776b327f5e666a072a64f5c569182b86174c0f578d5be3267ce28f85\\analysis\\6a0520329af17d7b9fdaafe69398c62c454d9da838fc9f9c8d0bdd8d17bb15ae\\LoxoneConfig.exe\\code\\functions\\0x1404b3e70.c",
+      "sha256": "75c914ce7110654b5600b4b500a967f94367a1ddda94551b0782e5aa14b09d6d",
+      "role": "insertion size/capacity helper restores pointer count; no record mutation"
+    },
+    {
+      "address": "0x1404c52f0",
+      "path": ".reverse-engineering\\versions\\a3003005776b327f5e666a072a64f5c569182b86174c0f578d5be3267ce28f85\\analysis\\6a0520329af17d7b9fdaafe69398c62c454d9da838fc9f9c8d0bdd8d17bb15ae\\LoxoneConfig.exe\\code\\functions\\0x1404c52f0.c",
+      "sha256": "057c5670bc1b4a95f3b6ae5720f34f057330ba62605c4d0211ac7565de681262",
+      "role": "B1 newly followed XML attribute helper: param5 attribute, param6 omit numeric zero on write, param7 absent/empty preservation guard disabled on read"
+    },
+    {
+      "address": "0x140422760",
+      "path": ".reverse-engineering\\versions\\a3003005776b327f5e666a072a64f5c569182b86174c0f578d5be3267ce28f85\\analysis\\6a0520329af17d7b9fdaafe69398c62c454d9da838fc9f9c8d0bdd8d17bb15ae\\LoxoneConfig.exe\\code\\functions\\0x140422760.c",
+      "sha256": "361f5c3173c2b395766f14baa7a142bc2c1f734f9c04c21be691eb3169ff591d",
+      "role": "B1 newly followed integer parser: null/empty input yields zero; native permissive explicit parsing is NOT adopted by conservative CLI"
+    }
+  ],
+  "actual_caller_chain": [
+    {
+      "caller": "0x140b4e840",
+      "intent": "Configure loads ArrowDown clicked",
+      "callee": "0x140b4f110",
+      "then": [
+        "0x140b669b0",
+        "0x140863660",
+        "0x1404b3960",
+        "0x1404b3600",
+        "0x1404b3e70",
+        "0x140b4ee60",
+        "0x140b4f210"
+      ]
+    },
+    {
+      "caller": "0x140b4e840",
+      "intent": "Configure loads ArrowUp clicked",
+      "callee": "0x140b4f190",
+      "then": [
+        "0x140b669b0",
+        "0x140863750",
+        "0x1404b3960",
+        "0x1404b3600",
+        "0x1404b3e70",
+        "0x140b4ee60",
+        "0x140b4f210"
+      ]
+    },
+    {
+      "caller": "0x140b4f210",
+      "intent": "Button boundary enable",
+      "then": [
+        "0x14085eec0",
+        "0x14085ef30"
+      ]
+    },
+    {
+      "caller": "0x140930dc0",
+      "intent": "Dialog accept virtual hook0x1a8",
+      "callee": "0x140b4f070",
+      "then": [
+        "0x14085ff80",
+        "0x14085f090",
+        "QDialog::accept"
+      ]
+    },
+    {
+      "caller": "CControlObjectLoadManager primary vtable slot0x40",
+      "callee": "0x140864140",
+      "intent": "Ordered Load serialization"
+    },
+    {
+      "caller": "0x140b4e840",
+      "callee": "0x14085ffa0",
+      "intent": "Resolve existing load connector to derive display name",
+      "field": "row+0x28 (ioIdx) +0x13 ->control connector virtualslot0x4b0",
+      "feedback_consumer": "0x140863d40 uses same mapping to set feedback"
+    },
+    {
+      "caller": "0x140864140",
+      "callee": "0x1404c52f0",
+      "arguments": [
+        "xml",
+        "ioIdx",
+        5,
+        "row+0x28",
+        1,
+        1,
+        0
+      ],
+      "then": [
+        "0x140422760"
+      ],
+      "intent": "Native zero omission on write and absent-zero resolution on read; no fabricated stored attribute"
+    }
+  ],
+  "PE_data_spans": [
+    {
+      "va": "0x140ff3424",
+      "file_offset": "0xff1c24",
+      "bytes_hex": "4c6f616400",
+      "sha256": "51dfb71c0e171fc6a6b8f40d3c557b95c13d49a1b1ace7d44405b857635327f1",
+      "meaning": "Load XML child name"
+    },
+    {
+      "va": "0x141079000",
+      "file_offset": "0x1077800",
+      "bytes_hex": "6e6d00",
+      "sha256": "9799bd5f9fdb69dfeba5529fb108c96b4c4a32946762c131452c4b1c4368c103",
+      "meaning": "nm name field"
+    },
+    {
+      "va": "0x14102f110",
+      "file_offset": "0x102d910",
+      "bytes_hex": "70777200",
+      "sha256": "604663611cf15663624cd7d3ddc83127e5c11d9b321c8b07ed605239f4ba52e4",
+      "meaning": "pwr power field"
+    },
+    {
+      "va": "0x141143de8",
+      "file_offset": "0x11425e8",
+      "bytes_hex": "4041864001000000",
+      "sha256": "5084b055d4090bef6cf1ff9ee14378191ce2e6ba4474f5103b343686f051557e",
+      "meaning": "owner serializer slot0x40 ->0x140864140"
+    },
+    {
+      "va": "0x141144cc0",
+      "file_offset": "0x11434c0",
+      "bytes_hex": "9010864001000000",
+      "sha256": "843ac3828021c9c95e7098e45a3a92f46e2bf467193647d553ac4e1bda64ade1",
+      "meaning": "owner init slot0xf18 ->0x140861090"
+    },
+    {
+      "va": "0x141144cb8",
+      "file_offset": "0x11434b8",
+      "bytes_hex": "b00e864001000000",
+      "sha256": "04ce3c0995a7995b56fbe771663d03ce3bf27e06d8c42d669424f6e0771154ab",
+      "meaning": "owner initialize slot0xf10 ->0x140860eb0"
+    },
+    {
+      "va": "0x141143fa0",
+      "file_offset": "0x11427a0",
+      "bytes_hex": "80ef854001000000",
+      "sha256": "a41402b6c5ecb2de85bdd5d801615c30bec282af974bb7c04bdc0c44ad492ca3",
+      "meaning": "owner clone slot0x1f8 ->0x14085ef80"
+    },
+    {
+      "va": "0x141559a08",
+      "file_offset": "0x1558208",
+      "bytes_hex": "70f0b44001000000",
+      "sha256": "65874dcb8a2d4043812d076c45c19c6704a3c1f5350f99948b755313e21798a1",
+      "meaning": "dialog accept hook slot0x1a8 ->0x140b4f070"
+    },
+    {
+      "va": "0x1415599e0",
+      "file_offset": "0x15581e0",
+      "bytes_hex": "c00d934001000000",
+      "sha256": "71a17312fd1eeee73be71ef145815e775ace3f029feafbafc5e47b109dd6e298",
+      "meaning": "dialog inherited accept slot0x180 ->0x140930dc0"
+    }
+  ],
+  "cli": "config load-manager move FILE SELECTOR IO_INDEX up|down [--room ROOM] [--save-as PATH]; inspect reports resolved io_index0 for native omission while raw attributes remain absent",
+  "limits": [
+    "Exactly12 direct Load records with resolved unique ioIdx0..11 required. Absent ioIdx resolves native0. Omitted0+explicit0 and two omitted identities are duplicate0; sparse/extended lists rejected without writes.",
+    "IO_INDEX identifies stable connector association, not ordinal, UUID, U or EnergyManager2 Id/OIdx.",
+    "Native ordered Load serialization has no priority attribute. Move complete XML records while keeping all non-Load sibling positions and unknown contents.",
+    "No name/power/timing default filling or stored-value normalization. Only absent ioIdx resolves source-proven0; explicit empty, signed, whitespace, nonnumeric or out-of-range identities are unsupported.",
+    "First Up and last Down are errors, never clamps or silent no-ops.",
+    "Existing local selector/room and atomic save helper retained; Document save stamp changes on successful writes.",
+    "No dry-run, native execution, runtime algorithm or family promotion supplied.",
+    "The priority output is the1-based Configure loads/XML list position, not proof of actual runtime shedding priority/effects."
+  ],
+  "remaining_unknowns": [
+    "Native fresh accept/save/normal exit/reopen is independently unqualified.",
+    "Actual runtime shedding priority/effects are unproven; configure-list/XML order only."
+  ],
+  "native_fixture_recipe": {
+    "status": "recommended-not-executed",
+    "fixture": "Fresh Config17.2.10.21 native-created Load Manager saved in its normal encoding: exactly12 Load rows, first row has nm/pwr but no ioIdx (native0), others ioIdx1..11. Do NOT insert ioIdx0 or fill name/power/timing defaults. Give0/1 distinct existing settings and wire the corresponding outputs. Record raw omissions, all IDs/order/flags/unknowns/BOM/EOL.",
+    "cli": "config load-manager move fresh.Loxone \"uuid:<manager>\" 0 down --save-as cli-down.Loxone -o json",
+    "native": "On a separately admitted fresh owned desktop, open baseline, Configure loads, select the native zero-associated first load, ArrowDown once, accept/save/normal exit/reopen. Compare list/XML order: ioIdx1 first, omitted-zero record second with omission and nm/pwr/maxOff/minOn unchanged, same connector associations/wires/UUIDs. Independently open CLI output, accept/save/normal exit/reopen and compare scoped fields/omission; audit all collateral whole-file rewrites separately. Alternate source mutation moving ioIdx1 Up from baseline should yield the same scoped list/XML order. No runtime shedding assertion.",
+    "boundaries": "Fresh baseline firstload Up and lastload Down are disabled; CLI rejects with byte-identical input/destination. No runtime/family parity claim from source or synthetic tests."
+  },
+  "newly_followed_functions": [
+    "0x140b4e840",
+    "0x140863660",
+    "0x140863750",
+    "0x14085eec0",
+    "0x14085ef30",
+    "0x140b4ee60",
+    "0x140b4f070",
+    "0x14085f090",
+    "0x14085e260",
+    "0x14085ef80",
+    "0x140860eb0",
+    "0x140864140",
+    "0x140861090",
+    "0x140432790",
+    "0x1404b3960",
+    "0x1404b3600",
+    "0x14085ff80",
+    "0x140b667b0",
+    "0x140b669b0",
+    "0x140930dc0",
+    "0x14085ffa0",
+    "0x140863d40",
+    "0x1404b3e70",
+    "0x1404c52f0",
+    "0x140422760"
+  ],
+  "not_claimed": [
+    "No new extraction/decompilation or external source. All function bodies reused from pinned canonical code/functions exports.",
+    "No Lighting edits, Energy inheritance-reset revival, atlas/family promotion, native workflow completion or published native credit.",
+    "No novel scalar setting/default/range beyond the twelve-row identity and adjacency guards."
+  ],
+  "repository_evidence": [
+    {
+      "path": "API_DESIGN_GUIDELINES.md",
+      "baseline": "a1163f7508cc1dd02a9e6d106572293eaec0e624",
+      "blob_oid": "1369533da73fe3d0dbdc6fb707bf6434a4d8a46e",
+      "sha256": "3be4a222a0dffac12f737e13ee2abed0b19b0f1138a1f2fc426f33078ceca86f",
+      "role": "command grammar, flag and output conventions"
+    },
+    {
+      "path": "src\\main.rs",
+      "baseline": "a1163f7508cc1dd02a9e6d106572293eaec0e624",
+      "blob_oid": "0f730618dbdda46c288b8dc9ea5b10f718f229a3",
+      "sha256": "f731aee98e838a171830ca7d14514703b93c0fda45b29bfc48d339e2317073c4",
+      "role": "baseline ConfigCmd has no typed Load Manager operation"
+    },
+    {
+      "path": "src\\commands\\config_cmd.rs",
+      "baseline": "a1163f7508cc1dd02a9e6d106572293eaec0e624",
+      "blob_oid": "399fdd4416e47be88704f2043e812a7110842014",
+      "sha256": "9262348d765f5fb560432656f79f48aba443a064b242ae0ad48f61134bf10a20",
+      "role": "baseline dispatch and existing local atomic save helper"
+    },
+    {
+      "path": "src\\config_edit\\selector.rs",
+      "baseline": "a1163f7508cc1dd02a9e6d106572293eaec0e624",
+      "blob_oid": "5f5b3bc07668211001330e0408a320c4405c1951",
+      "sha256": "cb4d9a0c394d712c8c5c28eccfc2a9be93535846dfd9bfcf089ee003d357cb03",
+      "role": "reused selectors and room resolution"
+    },
+    {
+      "path": "src\\config_edit\\write.rs",
+      "baseline": "a1163f7508cc1dd02a9e6d106572293eaec0e624",
+      "blob_oid": "72d207e27834a50bf622496da82a610ae20e4576",
+      "sha256": "94bb36c651f5a73700d3a1f3037693b7cbb493f7a030c6a091517db475f21fe5",
+      "role": "reused BOM/EOL serialization"
+    },
+    {
+      "path": "docs\\schemas\\loxone-config.xsd",
+      "baseline": "a1163f7508cc1dd02a9e6d106572293eaec0e624",
+      "blob_oid": "05886ce394cdfbb687874c1dfa34e99056060198",
+      "sha256": "e9da400ec7d67cd5e174c370f6495d261aae7053044dec306e0ce73ac9879097",
+      "role": "existing atlas/catalog pointer: LoadShed CT459 (not mutation-intent proof)"
+    }
+  ],
+  "unimplemented_at_baseline": {
+    "baseline": "a1163f7508cc1dd02a9e6d106572293eaec0e624",
+    "finding": "No config load-manager group or LoadShed-specific row edit exists in baseline ConfigCmd/dispatch/config_edit. Existing EnergyManager2 move is a different native owner and record model; generic raw XML edits and add --type LoadShed do not implement this user operation.",
+    "mutation_intent_proof": "Explicit native Configure loads arrow-click bindings, not catalog/constructor/serializer alone."
+  },
+  "prior_question": "How does the native Load Manager move one existing load one place in priority, keeping its ioIdx connector association and settings?",
+  "review_remediation": {
+    "id": "6905-B1",
+    "reviewer": "6905e9d3-1846-4f7d-984f-f9e2be175e6b",
+    "status": "source-remediated-focused-red-green-confirmed; independent delta review pending",
+    "behavioral_question": "Does a Load with no ioIdx have unknown identity, or is omission the native encoding of connector identity zero?",
+    "initial_incorrect_claim": "Commit1da required explicit ioIdx on all12 rows and rejected normal native zero-omitted files. This was an incorrect synthetic-only assumption, not validated native semantics.",
+    "prior_commit": "1da274ebce63dfd083d30020eb70fea6f2c9ac46",
+    "prior_metadata_sha256": "e8fab140e1180a7ea00f225fd4590ede68bed6c75fcbecd4bff0c3a032aeb543",
+    "prior_delivery_sha256": "d6bff2a830dde6517f12fe960c4edb87bd8726c734e2d4a8df7be5aede1e445a",
+    "history_directory": "history-1da274e",
+    "historical_initial_delivery_approval": "BLOCKED by B1; original artifacts retained, not rewritten or credited as accepted",
+    "newly_followed_functions": [
+      {
+        "address": "0x1404c52f0",
+        "path": ".reverse-engineering\\versions\\a3003005776b327f5e666a072a64f5c569182b86174c0f578d5be3267ce28f85\\analysis\\6a0520329af17d7b9fdaafe69398c62c454d9da838fc9f9c8d0bdd8d17bb15ae\\LoxoneConfig.exe\\code\\functions\\0x1404c52f0.c",
+        "sha256": "057c5670bc1b4a95f3b6ae5720f34f057330ba62605c4d0211ac7565de681262",
+        "role": "B1 newly followed XML attribute helper: param5 attribute, param6 omit numeric zero on write, param7 absent/empty preservation guard disabled on read"
+      },
+      {
+        "address": "0x140422760",
+        "path": ".reverse-engineering\\versions\\a3003005776b327f5e666a072a64f5c569182b86174c0f578d5be3267ce28f85\\analysis\\6a0520329af17d7b9fdaafe69398c62c454d9da838fc9f9c8d0bdd8d17bb15ae\\LoxoneConfig.exe\\code\\functions\\0x140422760.c",
+        "sha256": "361f5c3173c2b395766f14baa7a142bc2c1f734f9c04c21be691eb3169ff591d",
+        "role": "B1 newly followed integer parser: null/empty input yields zero; native permissive explicit parsing is NOT adopted by conservative CLI"
+      }
+    ],
+    "caller": "0x140864140 -> FUN_1404c52f0(param_2,\"ioIdx\",5,row+0x28,1,1,0) -> numeric parser0x140422760",
+    "argument_semantics": {
+      "param_3": {
+        "value": 5,
+        "meaning": "numeric identity field type used by owner serializer"
+      },
+      "param_5": {
+        "value": 1,
+        "meaning": "XML attribute path, not child text"
+      },
+      "param_6": {
+        "value": 1,
+        "meaning": "write returns without an attribute when numeric field is zero"
+      },
+      "param_7": {
+        "value": 0,
+        "meaning": "read does not return early for absent/empty text; numeric parser resolves zero"
+      }
+    },
+    "implementation": "One resolve_io_index helper shared by inspect, shape validation and selected move lookup. Absent=>0; no attribute insertion. Validate count12, range0..11 and uniqueness after resolution.",
+    "explicit_malformed_policy": "Only nonempty ASCII decimal digits resolving0..11 accepted when ioIdx is present. Empty, signed (including+), whitespace, nonnumeric or out-of-range explicit values rejected atomically. This is intentionally more conservative than native permissive parsing; no normalization.",
+    "claim_scope": "Configure loads list/XML order and connector association preservation only. Actual runtime shedding priority/effects remain unproven.",
+    "recorded_utc": "2026-11-12T23:22:20.990839+00:00",
+    "focused_red_green": {
+      "command": "cargo test --locked --offline --bin lox --test load_manager_cli --no-fail-fast load_manager",
+      "red_exit_code": 101,
+      "green_exit_code": 0,
+      "green_passed": 7,
+      "red_log_sha256": "97221e7d5e2077bdcf2f95adedba692171debdb5873a0f5b47c7e1d6deb282b8",
+      "green_log_sha256": "035d478d9e274e1a788bc317390a62bd695eea57dba1cadf164ac2b51dde1d4b",
+      "logs_location": "independent-recovery artifact directory, not repository source"
+    }
+  },
+  "existing_golden_fixture": {
+    "path": "tests\\eval\\golden\\configs\\Hotwater_Heating_Rod.Loxone",
+    "sha256": "01bdfd27e0d1cf526e1c5bd49784750df22f639f513ae809e8c5c6511b4bac94",
+    "purpose": "Read-only existing golden LoadShed omitted-zero acceptance regression; no raw real config copied/committed, no fresh native qualification"
+  }
+}

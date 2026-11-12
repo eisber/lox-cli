@@ -138,6 +138,47 @@ lox config set-param file.Loxone "Night Timer" Duration 300
 
 Arguments: `<FILE> <SELECTOR> <PARAM> <VALUE>`. Selector is a block title or `"uuid:..."`.
 
+### Load Manager configure-list order
+
+```bash
+lox config load-manager inspect file.Loxone "Load Manager" -o json
+lox config load-manager move file.Loxone "Load Manager" 4 up --save-as edited.Loxone -o json
+lox config load-manager move file.Loxone "uuid:..." 4 down
+```
+
+`move <FILE> <SELECTOR> <IO_INDEX> <up|down>` moves an existing **LoadShed**
+load one position in Configure loads/XML order, matching the native arrow action.
+`IO_INDEX` is the resolved zero-based `Load/@ioIdx` (0..11), **not** its displayed
+1-based list position (`priority` in JSON/table output). Native XML omits `ioIdx`
+for zero: an absent attribute resolves to **0**, while its absence remains visible
+in JSON's raw `attributes`. The complete record moves with its connector association,
+name, power, timing, unknown attributes and children. Connectors, UUIDs, other
+siblings and block settings are untouched; no priority attribute is invented.
+The usual save helper updates the Document save stamp on a successful change
+and preserves BOM/line-ending convention. Without `--save-as`, the input is edited.
+
+Both commands require exactly twelve direct `Load` records with **resolved**
+unique `ioIdx` values 0..11. Exactly one omitted zero is supported; an omitted
+attribute plus explicit zero, or two omissions, is a duplicate identity error.
+Omission is preserved when the record moves: no `ioIdx="0"` is inserted, and
+no name, power or timing defaults are filled. Explicit identities must contain
+only decimal digits resolving to 0..11. Explicit empty, signed, whitespace or
+nonnumeric values are conservatively rejected, even where the native parser
+would tolerate them; stored values are never silently normalized.
+Sparse/extended lists, wrong block types, ambiguous selectors and moves past
+either boundary fail without writing. `--room`/`-r` disambiguates
+the block; do not combine it with a bracket room qualifier. JSON includes every
+stored load attribute; table/CSV shows priority, io-index and name.
+
+This is a Config 17.2.10.21 source-recovered operation, not EnergyManager2's
+separate load model. It does not add/delete loads, edit their scalar settings,
+or claim native runtime/save-reopen qualification. Actual runtime shedding
+priority/effects remain unproven; the recovered scope is configure-list/XML
+order. `--dry-run` remains
+unsupported and fails closed before dispatch.
+Source chain and a fresh native verification recipe:
+`tests/ux/load-manager/move-source.json`.
+
 ### EnergyManager2 verified storage pilot
 
 ```bash

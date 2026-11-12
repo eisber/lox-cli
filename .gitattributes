@@ -41,3 +41,4 @@ tests/ux/light-controller2/raw-mood-color-preview-source.json text eol=lf
 tests/ux/light-controller2/mood-creation-preview-source.json text eol=lf
 tests/ux/light-controller2/mood-count-repair-preview-source.json text eol=lf
 tests/ux/light-controller2/numeric-level37-qualified-20261112.json text eol=lf
+tests/ux/load-manager/move-source.json text eol=lf

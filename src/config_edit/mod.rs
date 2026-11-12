@@ -27,6 +27,7 @@ mod lighting_metadata_tests;
 pub mod lighting_sid;
 #[cfg(test)]
 mod lighting_tests;
+pub mod load_manager;
 mod permissions;
 mod properties;
 mod rooms;
