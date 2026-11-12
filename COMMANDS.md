@@ -1005,8 +1005,7 @@ lox config room rename file.Loxone "uuid:room" "Küche" --dry-run --json
 lox config room rename file.Loxone "Old name" "New name" --dry-run -o csv --save-as output.Loxone
 ```
 
-The already supported `room rename` operation has global dry-run admission;
-room creation remains unsupported under `--dry-run`.
+The already supported `room rename` operation has global dry-run admission.
 One immutable plan is shared with the writer. It preserves the existing general
 element selector, not a new room-only policy: fuzzy titles, `uuid:`, `gid:`,
 `Type:`, bracket-room filtering, UUID mirror de-duplication, ambiguity and the
@@ -1048,8 +1047,8 @@ lox config control move file.Loxone --to-room "Beta" --title "Lamp [Alpha]" --dr
 lox config control move file.Loxone --to-room "Beta" --type WeatherData --exclude InputRef --dry-run -o csv --save-as output.Loxone
 ```
 
-Only `config control move` gains this preview; `config xml move`, control rename,
-wire/unwire and room creation still fail closed under global `--dry-run`.
+`config control move` has this preview; `config xml move`, control rename and
+wire/unwire still fail closed under global `--dry-run`.
 The existing parser has `--type`, `--title`, `--exclude` and `--to-room`, not
 `--from-room`. There is no new room creation, normalization or selection policy.
 One immutable typed plan is shared by preview, the normal control-move writer,
@@ -1090,6 +1089,54 @@ Source-only raw CLI provenance: `tests/ux/control-move-preview-source.json`.
 This is not native UI, room-family, whole-file, SPS or physical-effect evidence.
 Historical room-rename artifacts and the qualified-selector correction above are
 unchanged.
+
+#### Preview existing room creation
+
+```bash
+lox config room add file.Loxone "Grüße 室" --dry-run --json
+lox config room add file.Loxone "New room" --dry-run -o csv --save-as output.Loxone
+```
+
+Only the already supported `config room add` gains this admission. Its unchanged
+grammar is `FILE NAME [--save-as FILE]`, with no parent, type or UUID override.
+One private immutable creation plan feeds preview and the unchanged
+`add_room(name) -> Result<String>` writer API. No DOM clone, trial mutation,
+XML serialization or generic mutation framework is used to preview.
+
+`parent` describes the actual existing XML root, `insert_after` describes the
+last direct `C` child whose exact `Type` is `Place` or `PlaceCaption` (or `null`
+when appending without an anchor), and `room` describes the planned `C` element.
+Each includes its actual parsed child-index `path`, `element_name` and raw
+attributes; missing keys remain absent, distinct from empty strings. The room's
+path is its insertion position. A nested caption is not used as a parent or
+anchor; an unusual root is neither rejected nor repaired.
+
+The existing defaults and attribute order remain `Type="Place"`, `V="175"`,
+generated `U`, exact requested `Title`, `WF="16384"`, with no children. The legacy
+UUID format and random generator are unchanged. `uuid_ephemeral: true` and
+`scope` explicitly state that this UUID belongs only to this invocation; preview
+does not reserve it or promise reuse by a later execution. `report` contains the
+existing writer report for this plan.
+
+Duplicate detection remains the existing recursive, lowercased substring match
+of `C Type="Place"` records having both `U` and `Title` (including empty `U`).
+Missing metadata, case, Unicode, whitespace and empty names keep their prior
+admission behavior. There is no trimming, Unicode normalization, exact-only
+duplicate rule, new room policy or allocation change.
+
+JSON includes `dry_run: true` and optional `trace_id`. Table/CSV use JSON-valued
+cells; `--no-header` suppresses headings and `--quiet` suppresses only the table
+summary. Preview returns before mutation, serialization/defaults, Document stamp,
+destination inspection, save or directory/cache/network/telemetry writes, on
+success or failure and with existing, same-input or missing-parent `--save-as`.
+Parser, input-read, XML-parse and duplicate errors retain their existing order.
+Normal execution still prints its legacy text even with JSON/CSV/quiet, reports
+before saving, overwrites as before, and keeps BOM, line endings and stamp
+behavior. Unrelated unaudited commands remain fail-closed.
+
+Source-only raw existing CLI provenance: `tests/ux/room-add-preview-source.json`.
+No native UI, room-family, whole-file, SPS or physical-effect claim is made.
+Historical room-rename/selector/control-move artifacts and behavior are unchanged.
 
 ### User management
 

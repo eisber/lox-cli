@@ -15,6 +15,483 @@ use tempfile::TempDir;
 const ENERGY_XML: &str = include_str!("ux/energy-manager2/cli-synthetic.xml");
 const STAT_FILE: &str = "91000000-0000-0000-0000000000000001.202610.xml";
 
+const ROOM_ADD_XML: &str = r#"<ControlList U="" Future="+003">
+  <C Type="Document" U="doc" Date="2020-01-01 00:00:00" DateS="347068800"/>
+  <C Type="Place" U="a" Title="Alpha Long"/>
+  <C Type="Page" U="page"><C Type="Place" U="" Title="Nested"/>
+    <C Type="Future" U="block" Title="retain"><IoData Pr="a" Cr="category"/>
+      <Co K="AQ" U="out" Def="+000"><In Input="ref" FLG="01"/></Co>
+    </C>
+  </C>
+  <C Type="PlaceCaption" Title="" WF="+000" Future="opaque"/>
+  <Unknown Pr="a" Title="retain"/>
+  <C Type="place" U="lower" Title="Ignored"/>
+</ControlList>"#;
+
+#[test]
+fn room_add_preview_exposes_actual_insertion_raw_metadata_and_all_formats_without_writes() {
+    let sandbox = Sandbox::new();
+    let root = sandbox.dir.path();
+    fs::write(root.join("input.Loxone"), ROOM_ADD_XML).unwrap();
+    let backend = sandbox.server.mock(|when, then| {
+        when.any_request();
+        then.status(500);
+    });
+    let name = "  Grüße,\"室\"  ";
+    let before = snapshot(root);
+    let assertion = sandbox
+        .command(&[
+            "config",
+            "room",
+            "add",
+            "input.Loxone",
+            name,
+            "--dry-run",
+            "--json",
+            "--quiet",
+            "--no-header",
+            "--trace-id",
+            "room-add-test",
+        ])
+        .assert()
+        .success()
+        .stderr("");
+    let value: Value = serde_json::from_slice(&assertion.get_output().stdout).unwrap();
+    assert_eq!(value["dry_run"], true);
+    assert_eq!(value["trace_id"], "room-add-test");
+    assert_eq!(value["name"], name);
+    assert_eq!(value["parent"]["path"], serde_json::json!([]));
+    assert_eq!(value["parent"]["element_name"], "ControlList");
+    assert_eq!(value["parent"]["attributes"]["U"], "");
+    assert_eq!(value["parent"]["attributes"]["Future"], "+003");
+    assert!(value["parent"]["attributes"].get("Type").is_none());
+    assert_eq!(value["insert_after"]["path"], serde_json::json!([3]));
+    assert_eq!(value["insert_after"]["attributes"]["Title"], "");
+    assert_eq!(value["insert_after"]["attributes"]["WF"], "+000");
+    assert!(value["insert_after"]["attributes"].get("U").is_none());
+    assert_eq!(value["room"]["path"], serde_json::json!([4]));
+    assert_eq!(value["room"]["element_name"], "C");
+    assert_eq!(value["room"]["attributes"]["Title"], name);
+    assert_eq!(value["room"]["attributes"]["Type"], "Place");
+    assert_eq!(value["room"]["attributes"]["V"], "175");
+    assert_eq!(value["room"]["attributes"]["WF"], "16384");
+    assert_eq!(value["room"]["attributes"].as_object().unwrap().len(), 5);
+    let uuid = value["room"]["attributes"]["U"].as_str().unwrap();
+    assert_eq!(value["uuid_ephemeral"], true);
+    assert_eq!(
+        value["report"],
+        format!("Added room '{name}' (UUID: {uuid})")
+    );
+    assert!(
+        value["scope"]
+            .as_str()
+            .unwrap()
+            .contains("ephemeral across invocations")
+    );
+    assert_eq!(snapshot(root), before);
+    for (xml, path, parent, anchor) in [
+        (
+            "<FutureRoot U=\"\"><Unknown/></FutureRoot>",
+            vec![1],
+            "FutureRoot",
+            false,
+        ),
+        ("<ControlList/>", vec![0], "ControlList", false),
+        (
+            "<C Type=\"Place\" U=\"root\" Title=\"Root\"><Unknown/></C>",
+            vec![1],
+            "C",
+            false,
+        ),
+        (
+            "<ControlList><C Type=\"Page\"><C Type=\"PlaceCaption\"/></C></ControlList>",
+            vec![1],
+            "ControlList",
+            false,
+        ),
+    ] {
+        fs::write(root.join("other.Loxone"), xml).unwrap();
+        let before = snapshot(root);
+        let output = sandbox
+            .command(&[
+                "--dry-run",
+                "--json",
+                "config",
+                "room",
+                "add",
+                "other.Loxone",
+                "New",
+            ])
+            .assert()
+            .success()
+            .stderr("")
+            .get_output()
+            .stdout
+            .clone();
+        let value: Value = serde_json::from_slice(&output).unwrap();
+        assert_eq!(value["room"]["path"], serde_json::json!(path));
+        assert_eq!(value["parent"]["element_name"], parent);
+        assert_eq!(!value["insert_after"].is_null(), anchor);
+        assert_eq!(snapshot(root), before);
+    }
+    for format in ["table", "csv"] {
+        for no_header in [false, true] {
+            for quiet in [false, true] {
+                let before = snapshot(root);
+                let mut command = sandbox.command(&[
+                    "--dry-run",
+                    "-o",
+                    format,
+                    "config",
+                    "room",
+                    "add",
+                    "input.Loxone",
+                    name,
+                ]);
+                if no_header {
+                    command.arg("--no-header");
+                }
+                if quiet {
+                    command.arg("--quiet");
+                }
+                let assertion = command.assert().success().stderr("");
+                let output = String::from_utf8_lossy(&assertion.get_output().stdout);
+                assert_eq!(
+                    output
+                        .lines()
+                        .next()
+                        .unwrap()
+                        .starts_with(if format == "csv" {
+                            "NAME,"
+                        } else {
+                            "ROOM ADD PREVIEW"
+                        }),
+                    !no_header
+                );
+                for visible in [
+                    "Grüße",
+                    "室",
+                    "+003",
+                    "+000",
+                    "opaque",
+                    "PlaceCaption",
+                    "16384",
+                    "path",
+                    "ephemeral across invocations",
+                ] {
+                    assert!(output.contains(visible), "{visible}: {output}");
+                }
+                if format == "csv" {
+                    assert!(output.contains("\"\""));
+                }
+                assert_eq!(
+                    output.contains("dry-run wrote no files"),
+                    format == "table" && !quiet
+                );
+                assert_eq!(snapshot(root), before);
+            }
+        }
+    }
+    backend.assert_hits(0);
+}
+
+#[test]
+fn room_add_preview_preserves_all_destinations_and_parser_read_parse_duplicate_error_order() {
+    let sandbox = Sandbox::new();
+    let root = sandbox.dir.path();
+    fs::write(
+        root.join("input.Loxone"),
+        format!("\u{feff}{}\r\n", ROOM_ADD_XML.replace('\n', "\r\n")),
+    )
+    .unwrap();
+    fs::write(root.join("empty.Loxone"), "<ControlList/>").unwrap();
+    fs::write(root.join("output.Loxone.tmp"), "retain temporary sibling").unwrap();
+    fs::write(root.join("readonly.Loxone"), ROOM_ADD_XML).unwrap();
+    let mut permissions = fs::metadata(root.join("readonly.Loxone"))
+        .unwrap()
+        .permissions();
+    permissions.set_readonly(true);
+    fs::set_permissions(root.join("readonly.Loxone"), permissions).unwrap();
+    let backend = sandbox.server.mock(|when, then| {
+        when.any_request();
+        then.status(500);
+    });
+    for (file, name, error) in [
+        ("input.Loxone", "New", None),
+        ("input.Loxone", "Ignored", None),
+        ("empty.Loxone", "", None),
+        ("empty.Loxone", "  ", None),
+        ("readonly.Loxone", "Grüße 室", None),
+        ("input.Loxone", "aLpHa", Some("Room 'aLpHa' already exists")),
+        ("input.Loxone", "est", Some("Room 'est' already exists")),
+        ("input.Loxone", "", Some("Room '' already exists")),
+        (
+            "malformed.Loxone",
+            "aLpHa",
+            Some("Failed to parse Loxone XML"),
+        ),
+        ("absent.Loxone", "aLpHa", Some("Cannot read absent.Loxone")),
+    ] {
+        for destination in [
+            None,
+            Some(root.join(file)),
+            Some(root.join("output.Loxone")),
+            Some(root.join("new.Loxone")),
+            Some(root.join("missing").join("new.Loxone")),
+            Some(root.to_path_buf()),
+        ] {
+            for format in ["json", "table", "csv"] {
+                let before = snapshot(root);
+                let mut command = sandbox.command(&[
+                    "--dry-run",
+                    "-o",
+                    format,
+                    "config",
+                    "room",
+                    "add",
+                    file,
+                    name,
+                ]);
+                if let Some(ref path) = destination {
+                    command.arg("--save-as").arg(path);
+                }
+                let assertion = if let Some(error) = error {
+                    let assertion = command.assert().failure();
+                    let output = assertion.get_output();
+                    let message = if format == "json" {
+                        let value: Value = serde_json::from_slice(&output.stdout).unwrap();
+                        assert_eq!(value["ok"], false);
+                        assert!(output.stderr.is_empty());
+                        value["message"].as_str().unwrap().to_owned()
+                    } else {
+                        assert!(output.stdout.is_empty());
+                        String::from_utf8_lossy(&output.stderr).into_owned()
+                    };
+                    assert!(message.contains(error), "{message}");
+                    assert!(!message.contains("output directory"), "{message}");
+                    assertion
+                } else {
+                    command.assert().success().stderr("")
+                };
+                let output = String::from_utf8_lossy(&assertion.get_output().stdout);
+                assert!(!output.contains("Saved to"));
+                assert!(!output.contains("✓ Added room"));
+                let after = snapshot(root);
+                assert!(after == before, "{}", snapshot_difference(&before, &after));
+            }
+        }
+        if let Some(error) = error {
+            let before = snapshot(root);
+            sandbox
+                .command(&["--json", "config", "room", "add", file, name, "--save-as"])
+                .arg(root.join("missing").join("new.Loxone"))
+                .env("LOX_TELEMETRY", "0")
+                .assert()
+                .failure()
+                .stdout(predicate::str::contains(error));
+            assert_eq!(snapshot(root), before);
+        }
+    }
+    for extra in ["--parent", "--type", "--uuid"] {
+        let before = snapshot(root);
+        sandbox
+            .command(&[
+                "--dry-run",
+                "config",
+                "room",
+                "add",
+                "absent.Loxone",
+                "New",
+                extra,
+                "raw",
+            ])
+            .assert()
+            .failure()
+            .stderr(predicate::str::contains(format!(
+                "unexpected argument '{extra}'"
+            )));
+        assert_eq!(snapshot(root), before);
+    }
+    let before = snapshot(root);
+    sandbox
+        .command(&["--dry-run", "config", "room", "add", "absent.Loxone"])
+        .assert()
+        .failure()
+        .stderr(predicate::str::contains("required arguments"));
+    assert_eq!(snapshot(root), before);
+    for args in [
+        vec![
+            "config",
+            "control",
+            "rename",
+            "input.Loxone",
+            "retain",
+            "new",
+        ],
+        vec![
+            "config",
+            "xml",
+            "set-attr",
+            "input.Loxone",
+            "retain",
+            "Title",
+            "new",
+        ],
+        vec!["config", "set-param", "input.Loxone", "retain", "I1", "1"],
+    ] {
+        sandbox.assert_unsupported(&args);
+    }
+    backend.assert_hits(0);
+}
+
+#[test]
+fn room_add_normal_writer_keeps_plan_shape_legacy_output_overwrite_save_and_stamp() {
+    let sandbox = Sandbox::new();
+    let root = sandbox.dir.path();
+    let input = root.join("input.Loxone");
+    let source = format!("\u{feff}{}\r\n", ROOM_ADD_XML.replace('\n', "\r\n"));
+    let name = "  Grüße,\"室\"  ";
+    for (format, destination) in [("json", Some("output.Loxone")), ("csv", None)] {
+        fs::write(&input, &source).unwrap();
+        let before = snapshot(root);
+        let preview = sandbox
+            .command(&[
+                "--dry-run",
+                "--json",
+                "config",
+                "room",
+                "add",
+                "input.Loxone",
+                name,
+            ])
+            .assert()
+            .success()
+            .stderr("")
+            .get_output()
+            .stdout
+            .clone();
+        let preview: Value = serde_json::from_slice(&preview).unwrap();
+        assert_eq!(snapshot(root), before);
+        let mut command = sandbox.command(&[
+            "-o",
+            format,
+            "--quiet",
+            "--no-header",
+            "--trace-id",
+            "legacy-writer",
+            "config",
+            "room",
+            "add",
+            "input.Loxone",
+            name,
+        ]);
+        if let Some(destination) = destination {
+            command.arg("--save-as").arg(destination);
+        }
+        let assertion = command
+            .env("LOX_TELEMETRY", "0")
+            .assert()
+            .success()
+            .stderr(format!(
+                "✓ Saved to {}\n",
+                destination.unwrap_or("input.Loxone")
+            ));
+        let report = String::from_utf8(assertion.get_output().stdout.clone()).unwrap();
+        let prefix = format!("✓ Added room '{name}' (UUID: ");
+        let uuid = report
+            .strip_prefix(&prefix)
+            .unwrap()
+            .strip_suffix(")\n")
+            .unwrap();
+        let written = fs::read(root.join(destination.unwrap_or("input.Loxone"))).unwrap();
+        assert!(written.starts_with(&[0xef, 0xbb, 0xbf]));
+        assert!(written.windows(2).any(|bytes| bytes == b"\r\n"));
+        let actual = xmltree::Element::parse(written.as_slice()).unwrap();
+        let path: Vec<usize> = serde_json::from_value(preview["room"]["path"].clone()).unwrap();
+        assert_eq!(path, [4]);
+        let room = actual.children[path[0]].as_element().unwrap();
+        assert_eq!(room.attributes["U"], uuid);
+        assert_eq!(room.name, preview["room"]["element_name"].as_str().unwrap());
+        assert!(room.children.is_empty());
+        let mut planned: BTreeMap<String, String> =
+            serde_json::from_value(preview["room"]["attributes"].clone()).unwrap();
+        // Separate requests generate independent UUIDs; compare the shape, not RNG reuse.
+        planned.insert("U".into(), uuid.into());
+        assert_eq!(
+            room.attributes
+                .iter()
+                .map(|(k, v)| (k.clone(), v.clone()))
+                .collect::<BTreeMap<_, _>>(),
+            planned
+        );
+        let mut expected = xmltree::Element::parse(ROOM_ADD_XML.as_bytes()).unwrap();
+        let mut expected_room = xmltree::Element::new("C");
+        for key in ["Type", "V", "U", "Title", "WF"] {
+            expected_room
+                .attributes
+                .insert(key.into(), planned[key].clone());
+        }
+        expected
+            .children
+            .insert(path[0], xmltree::XMLNode::Element(expected_room));
+        let doc = actual.children[0].as_element().unwrap();
+        assert_ne!(doc.attributes["Date"], "2020-01-01 00:00:00");
+        assert_ne!(doc.attributes["DateS"], "347068800");
+        for key in ["Date", "DateS"] {
+            expected.children[0]
+                .as_mut_element()
+                .unwrap()
+                .attributes
+                .insert(key.into(), doc.attributes[key].clone());
+        }
+        assert_eq!(format!("{actual:?}"), format!("{expected:?}"));
+        if destination.is_some() {
+            assert_eq!(fs::read(&input).unwrap(), source.as_bytes());
+        }
+    }
+    for name in ["", "  ", "Ku\u{308}che", "uuid:raw [room]"] {
+        fs::write(&input, "<FutureRoot Future=\"retain\"/>").unwrap();
+        let assertion = sandbox
+            .command(&["--quiet", "config", "room", "add", "input.Loxone", name])
+            .env("LOX_TELEMETRY", "0")
+            .assert()
+            .success()
+            .stdout(predicate::str::starts_with(format!(
+                "✓ Added room '{name}' (UUID: "
+            )))
+            .stderr("✓ Saved to input.Loxone\n");
+        assert!(!assertion.get_output().stdout.is_empty());
+        let actual = xmltree::Element::parse(fs::read(&input).unwrap().as_slice()).unwrap();
+        assert_eq!(actual.name, "FutureRoot");
+        assert_eq!(actual.attributes["Future"], "retain");
+        assert_eq!(
+            actual.children[0].as_element().unwrap().attributes["Title"],
+            name
+        );
+    }
+    fs::write(&input, &source).unwrap();
+    sandbox
+        .command(&[
+            "--json",
+            "config",
+            "room",
+            "add",
+            "input.Loxone",
+            name,
+            "--save-as",
+        ])
+        .arg(root.join("missing").join("new.Loxone"))
+        .env("LOX_TELEMETRY", "0")
+        .assert()
+        .failure()
+        .stdout(predicate::str::starts_with(format!(
+            "✓ Added room '{name}' (UUID: "
+        )))
+        .stdout(predicate::str::contains("Cannot resolve output directory"));
+    assert_eq!(fs::read(&input).unwrap(), source.as_bytes());
+    assert!(!root.join("missing").exists());
+}
+
 const CONTROL_MOVE_XML: &str = r#"<ControlList Future="retain">
   <C Type="Document" U="doc" Date="2020-01-01 00:00:00" DateS="347068800"/>
   <C Type="Place" U="a" Title="Alpha"/><C Type="Place" U="b" Title="Beta"/>
@@ -320,7 +797,6 @@ fn control_move_preview_preserves_destinations_noops_and_ordered_failures() {
             "Other.I1",
         ],
         vec!["config", "control", "unwire", "input.Loxone", "Dry.AQ"],
-        vec!["config", "room", "add", "input.Loxone", "new"],
         vec![
             "config",
             "xml",
@@ -811,7 +1287,6 @@ fn room_rename_preview_preserves_all_destinations_and_ordered_failures() {
         .failure()
         .stdout(predicate::str::contains("Cannot read absent.Loxone"));
     assert_eq!(snapshot(root), before);
-    sandbox.assert_unsupported(&["config", "room", "add", "input.Loxone", "new"]);
     sandbox.assert_unsupported(&["config", "control", "rename", "input.Loxone", "Lamp", "new"]);
     backend.assert_hits(0);
 }

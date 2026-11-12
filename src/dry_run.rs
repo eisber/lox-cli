@@ -74,7 +74,7 @@ fn has_non_mutating_path(cmd: &Cmd) -> bool {
                 | ConfigCmd::SetMoodColor { .. }
                 | ConfigCmd::AddMood { .. }
                 | ConfigCmd::SpliceActor { .. }
-                | ConfigCmd::Room(RoomCmd::Rename { .. })
+                | ConfigCmd::Room(RoomCmd::Add { .. } | RoomCmd::Rename { .. })
                 | ConfigCmd::GetParams { .. }
                 | ConfigCmd::Connectors { .. }
                 | ConfigCmd::GetProgram { .. }
@@ -222,7 +222,6 @@ mod tests {
                 "Lamp.AI",
                 "uuid:source",
             ],
-            &["config", "room", "add", "input.Loxone", "new"],
             &["config", "control", "rename", "input.Loxone", "Lamp", "new"],
             &["config", "user-remove", "input.Loxone", "user"],
             &[
@@ -254,6 +253,7 @@ mod tests {
     #[test]
     fn dry_run_preserves_existing_planners_and_read_only_dispatch() {
         for args in [
+            vec!["config", "room", "add", "input.Loxone", "new"],
             vec![
                 "config",
                 "control",

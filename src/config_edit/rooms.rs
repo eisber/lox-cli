@@ -4,6 +4,29 @@ use std::collections::BTreeMap;
 use xmltree::Element;
 
 #[derive(Debug, serde::Serialize)]
+pub struct RoomAddElement {
+    pub path: Vec<usize>,
+    pub element_name: String,
+    pub attributes: BTreeMap<String, String>,
+}
+
+#[derive(Debug, serde::Serialize)]
+pub struct RoomAddPreview {
+    pub name: String,
+    pub parent: RoomAddElement,
+    pub insert_after: Option<RoomAddElement>,
+    pub room: RoomAddElement,
+    pub uuid_ephemeral: bool,
+    pub report: String,
+    pub scope: &'static str,
+}
+
+struct RoomAddPlan {
+    attributes: Vec<(String, String)>,
+    preview: RoomAddPreview,
+}
+
+#[derive(Debug, serde::Serialize)]
 pub struct RoomRenameSelection {
     pub path: Vec<usize>,
     pub attributes: BTreeMap<String, String>,
@@ -446,14 +469,22 @@ impl ConfigEditor {
 
     /// Add a new room (Place element).
     pub fn add_room(&mut self, name: &str) -> Result<String> {
-        // Check if room already exists
+        let plan = self.plan_room_add(name)?;
+        self.apply_room_add(&plan);
+        Ok(plan.preview.room.attributes["U"].clone())
+    }
+
+    pub fn preview_room_add(&self, name: &str) -> Result<RoomAddPreview> {
+        Ok(self.plan_room_add(name)?.preview)
+    }
+
+    fn plan_room_add(&self, name: &str) -> Result<RoomAddPlan> {
         let mut existing = Vec::new();
         Self::walk_rooms(&self.root, &name.to_lowercase(), &mut existing);
         if !existing.is_empty() {
             bail!("Room '{}' already exists", name);
         }
 
-        // Generate a UUID
         let uuid = format!(
             "{:08x}-{:04x}-{:04x}-ffff000000000000",
             rand::random::<u32>(),
@@ -461,7 +492,7 @@ impl ConfigEditor {
             rand::random::<u16>()
         );
 
-        // Find PlaceCaption or first Place and insert after
+        // The legacy writer uses the last matching direct child, not a nested caption.
         let mut insert_path = None;
         for (i, child) in self.root.children.iter().enumerate() {
             if let Some(elem) = child.as_element()
@@ -473,28 +504,48 @@ impl ConfigEditor {
             }
         }
 
-        let mut place = Element::new("C");
-        place
-            .attributes
-            .insert("Type".to_string(), "Place".to_string());
-        place.attributes.insert("V".to_string(), "175".to_string());
-        place.attributes.insert("U".to_string(), uuid.clone());
-        place
-            .attributes
-            .insert("Title".to_string(), name.to_string());
-        place
-            .attributes
-            .insert("WF".to_string(), "16384".to_string());
+        let attributes = vec![
+            ("Type".to_owned(), "Place".to_owned()),
+            ("V".to_owned(), "175".to_owned()),
+            ("U".to_owned(), uuid.clone()),
+            ("Title".to_owned(), name.to_owned()),
+            ("WF".to_owned(), "16384".to_owned()),
+        ];
+        let stored = |element: &Element, path| RoomAddElement {
+            path,
+            element_name: element.name.clone(),
+            attributes: element
+                .attributes
+                .iter()
+                .map(|(key, value)| (key.clone(), value.clone()))
+                .collect(),
+        };
+        Ok(RoomAddPlan {
+            preview: RoomAddPreview {
+                name: name.to_owned(),
+                parent: stored(&self.root, vec![]),
+                insert_after: insert_path.map(|index| {
+                    stored(self.root.children[index].as_element().unwrap(), vec![index])
+                }),
+                room: RoomAddElement {
+                    path: vec![insert_path.map_or(self.root.children.len(), |index| index + 1)],
+                    element_name: "C".to_owned(),
+                    attributes: attributes.iter().cloned().collect(),
+                },
+                uuid_ephemeral: true,
+                report: format!("Added room '{}' (UUID: {})", name, uuid),
+                scope: "Existing CLI Place insertion only; generated UUID is ephemeral across invocations, not reserved for execution; no native UI or physical-effect claim",
+            },
+            attributes,
+        })
+    }
 
-        if let Some(idx) = insert_path {
-            self.root
-                .children
-                .insert(idx + 1, xmltree::XMLNode::Element(place));
-        } else {
-            self.root.children.push(xmltree::XMLNode::Element(place));
-        }
-
-        Ok(uuid)
+    fn apply_room_add(&mut self, plan: &RoomAddPlan) {
+        let mut place = Element::new(&plan.preview.room.element_name);
+        place.attributes.extend(plan.attributes.iter().cloned());
+        self.root
+            .children
+            .insert(plan.preview.room.path[0], xmltree::XMLNode::Element(place));
     }
 
     /// Add a new category to the config.
@@ -661,6 +712,298 @@ impl ConfigEditor {
             }
         }
         None
+    }
+}
+
+#[cfg(test)]
+mod room_add_tests {
+    use super::*;
+
+    // Baseline add_room, with only its random UUID supplied by the test.
+    fn legacy_add(editor: &mut ConfigEditor, name: &str, uuid: &str) -> Result<String> {
+        let mut existing = Vec::new();
+        ConfigEditor::walk_rooms(&editor.root, &name.to_lowercase(), &mut existing);
+        if !existing.is_empty() {
+            bail!("Room '{}' already exists", name);
+        }
+        let mut insert_path = None;
+        for (i, child) in editor.root.children.iter().enumerate() {
+            if let Some(elem) = child.as_element()
+                && elem.name == "C"
+                && let Some(t) = elem.attributes.get("Type")
+                && (t == "Place" || t == "PlaceCaption")
+            {
+                insert_path = Some(i);
+            }
+        }
+        let mut place = Element::new("C");
+        place.attributes.insert("Type".into(), "Place".into());
+        place.attributes.insert("V".into(), "175".into());
+        place.attributes.insert("U".into(), uuid.into());
+        place.attributes.insert("Title".into(), name.into());
+        place.attributes.insert("WF".into(), "16384".into());
+        if let Some(index) = insert_path {
+            editor
+                .root
+                .children
+                .insert(index + 1, xmltree::XMLNode::Element(place));
+        } else {
+            editor.root.children.push(xmltree::XMLNode::Element(place));
+        }
+        Ok(uuid.into())
+    }
+
+    fn assert_legacy_uuid(uuid: &str) {
+        let parts: Vec<_> = uuid.split('-').collect();
+        assert_eq!(
+            parts.iter().map(|part| part.len()).collect::<Vec<_>>(),
+            [8, 4, 4, 16]
+        );
+        assert_eq!(parts[3], "ffff000000000000");
+        assert!(parts[..3].iter().all(|part| {
+            part.bytes()
+                .all(|byte| byte.is_ascii_digit() || (b'a'..=b'f').contains(&byte))
+        }));
+    }
+
+    #[test]
+    fn room_add_private_plan_applies_exact_identity_attributes_and_legacy_insertion() {
+        for (xml, insertion, anchor) in [
+            (
+                r#"<ControlList Future="+003" U=""><C Type="PlaceCaption" U="first"/><C Type="Place" U="a" Title="Alpha"/><Unknown Ref="a"/><C Type="PlaceCaption" Title="" WF="+000"/><Tail/></ControlList>"#,
+                4,
+                Some(3),
+            ),
+            (
+                r#"<ControlList><C Type="Place" Title="missing UUID"/><C Type="Place" U="" Title=""/><Tail/></ControlList>"#,
+                2,
+                Some(1),
+            ),
+            (
+                r#"<ControlList><C Type="Page"><C Type="PlaceCaption"/><C Type="Place" U="a" Title="Alpha"/><IoData Pr="a" Cr="c"/><Co U="out" Def="+003"><In Input="ref" FLG="01"/></Co></C><Unknown/></ControlList>"#,
+                2,
+                None,
+            ),
+            (
+                r#"<FutureRoot Title="" Future="opaque"><C Type="place"/><Other Type="Place"/><C/><C Type="Future"><Unknown/></C></FutureRoot>"#,
+                4,
+                None,
+            ),
+            (
+                r#"<C Type="Place" U="root" Title="Root"><Unknown/></C>"#,
+                1,
+                None,
+            ),
+            (r#"<ControlList/>"#, 0, None),
+        ] {
+            let bytes = format!("\u{feff}{xml}\r\n");
+            let name = "  Grüße,\"室\"  ";
+            let mut editor = ConfigEditor::load(bytes.as_bytes()).unwrap();
+            let before = format!("{:?}", editor.root);
+            let before_bytes = editor.to_bytes().unwrap();
+            let plan = editor.plan_room_add(name).unwrap();
+            let preview = &plan.preview;
+            assert_eq!(format!("{:?}", editor.root), before);
+            assert_eq!(editor.to_bytes().unwrap(), before_bytes);
+            assert_eq!(preview.parent.path, Vec::<usize>::new());
+            assert_eq!(preview.parent.element_name, editor.root.name);
+            assert_eq!(
+                preview.parent.attributes,
+                editor
+                    .root
+                    .attributes
+                    .iter()
+                    .map(|(k, v)| (k.clone(), v.clone()))
+                    .collect()
+            );
+            assert_eq!(preview.room.path, [insertion]);
+            assert_eq!(
+                preview.insert_after.as_ref().map(|elem| elem.path[0]),
+                anchor
+            );
+            if let Some(anchor) = &preview.insert_after {
+                let actual = editor.get_element(&anchor.path);
+                assert_eq!(anchor.element_name, actual.name);
+                assert_eq!(
+                    anchor.attributes,
+                    actual
+                        .attributes
+                        .iter()
+                        .map(|(k, v)| (k.clone(), v.clone()))
+                        .collect()
+                );
+            }
+            assert!(preview.uuid_ephemeral);
+            let uuid = &preview.room.attributes["U"];
+            assert_legacy_uuid(uuid);
+            assert_eq!(
+                preview.report,
+                format!("Added room '{name}' (UUID: {uuid})")
+            );
+            let mut legacy = ConfigEditor::load(bytes.as_bytes()).unwrap();
+            assert_eq!(legacy_add(&mut legacy, name, uuid).unwrap(), *uuid);
+            editor.apply_room_add(&plan);
+            let room = editor.get_element(&preview.room.path);
+            assert_eq!(room.name, preview.room.element_name);
+            assert!(room.children.is_empty());
+            assert_eq!(
+                room.attributes
+                    .iter()
+                    .map(|(k, v)| (k.clone(), v.clone()))
+                    .collect::<BTreeMap<_, _>>(),
+                preview.room.attributes
+            );
+            assert_eq!(
+                room.attributes
+                    .keys()
+                    .map(String::as_str)
+                    .collect::<Vec<_>>(),
+                ["Type", "V", "U", "Title", "WF"]
+            );
+            assert_eq!(format!("{:?}", editor.root), format!("{:?}", legacy.root));
+            assert_eq!(editor.to_bytes().unwrap(), legacy.to_bytes().unwrap());
+            editor.root.children.remove(insertion);
+            assert_eq!(
+                format!("{:?}", editor.root),
+                before,
+                "all other DOM content and order must stay exact"
+            );
+            assert_eq!(editor.to_bytes().unwrap(), before_bytes);
+
+            let public_preview = editor.preview_room_add(name).unwrap();
+            assert_eq!(public_preview.room.path, preview.room.path);
+            assert_eq!(format!("{:?}", editor.root), before);
+            let uuid = editor.add_room(name).unwrap();
+            assert_legacy_uuid(&uuid);
+            let mut legacy = ConfigEditor::load(bytes.as_bytes()).unwrap();
+            legacy_add(&mut legacy, name, &uuid).unwrap();
+            assert_eq!(format!("{:?}", editor.root), format!("{:?}", legacy.root));
+            assert_eq!(editor.to_bytes().unwrap(), legacy.to_bytes().unwrap());
+        }
+    }
+
+    #[test]
+    fn room_add_plan_preserves_substring_unicode_empty_and_legacy_duplicate_admission() {
+        for (xml, name, duplicate) in [
+            (
+                r#"<ControlList><C Type="Place" U="a" Title="Kitchen Long"/></ControlList>"#,
+                "kItChEn",
+                true,
+            ),
+            (
+                r#"<ControlList><C Type="Place" U="a" Title="Kitchen"/></ControlList>"#,
+                "Kitchen Long",
+                false,
+            ),
+            (
+                r#"<ControlList><C Type="Page"><C Type="Place" U="a" Title="Nested"/></C></ControlList>"#,
+                "est",
+                true,
+            ),
+            (r#"<C Type="Place" U="a" Title="Root"/>"#, "root", true),
+            (
+                r#"<ControlList><C Type="Place" U="" Title="Alpha"/></ControlList>"#,
+                "alpha",
+                true,
+            ),
+            (
+                r#"<ControlList><C Type="Place" Title="Alpha"/></ControlList>"#,
+                "alpha",
+                false,
+            ),
+            (
+                r#"<ControlList><C Type="Place" U="a"/></ControlList>"#,
+                "",
+                false,
+            ),
+            (
+                r#"<ControlList><C Type="Place" U="a" Title=""/></ControlList>"#,
+                "",
+                true,
+            ),
+            (
+                r#"<ControlList><C Type="Place" U="a" Title="Anything"/></ControlList>"#,
+                "",
+                true,
+            ),
+            (
+                r#"<ControlList><C Type="Place" U="a" Title="Küche"/></ControlList>"#,
+                "KÜCHE",
+                true,
+            ),
+            (
+                r#"<ControlList><C Type="Place" U="a" Title="Küche"/></ControlList>"#,
+                "Ku\u{308}che",
+                false,
+            ),
+            (
+                r#"<ControlList><C Type="Place" U="a" Title="Straße"/></ControlList>"#,
+                "STRASSE",
+                false,
+            ),
+            (
+                r#"<ControlList><C Type="place" U="a" Title="Alpha"/><Other Type="Place" U="b" Title="Alpha"/></ControlList>"#,
+                "Alpha",
+                false,
+            ),
+            (
+                r#"<ControlList><C Type="PlaceCaption" Title="Alpha"/><C Type="Future" U="a" Title="Alpha"/></ControlList>"#,
+                "Alpha",
+                false,
+            ),
+            (r#"<ControlList/>"#, "", false),
+            (r#"<ControlList/>"#, "  ", false),
+            (r#"<ControlList/>"#, "uuid:raw [room]", false),
+        ] {
+            let mut editor = ConfigEditor::load(xml.as_bytes()).unwrap();
+            let before = format!("{:?}", editor.root);
+            let mut legacy = ConfigEditor::load(xml.as_bytes()).unwrap();
+            let expected = legacy_add(&mut legacy, name, "test-only")
+                .err()
+                .map(|e| e.to_string());
+            let preview = editor.preview_room_add(name);
+            assert_eq!(preview.is_err(), duplicate, "{xml}: {name:?}");
+            assert_eq!(preview.as_ref().err().map(ToString::to_string), expected);
+            assert_eq!(format!("{:?}", editor.root), before);
+            if duplicate {
+                assert_eq!(
+                    editor.add_room(name).unwrap_err().to_string(),
+                    expected.unwrap()
+                );
+                assert_eq!(format!("{:?}", editor.root), before);
+            } else {
+                assert_eq!(preview.unwrap().room.attributes["Title"], name);
+                let uuid = editor.add_room(name).unwrap();
+                let mut legacy = ConfigEditor::load(xml.as_bytes()).unwrap();
+                legacy_add(&mut legacy, name, &uuid).unwrap();
+                assert_eq!(format!("{:?}", editor.root), format!("{:?}", legacy.root));
+            }
+        }
+    }
+
+    #[test]
+    fn room_add_preview_keeps_raw_metadata_and_all_editor_state_without_defaults_or_stamp() {
+        let bytes = b"\xef\xbb\xbf<FutureRoot U=\"\" Future=\"+003\" 1wire=\"raw\">\r\n<C Type=\"Document\" Date=\"old\" DateS=\"+000\"/>\r\n<C Type=\"PlaceCaption\" Title=\"\" WF=\"\"/>\r\n<C Type=\"Place\" U=\"a\" Title=\"Alpha\"/>\r\n</FutureRoot>\r\n";
+        let editor = ConfigEditor::load(bytes).unwrap();
+        let before = format!("{:?}", editor.root);
+        let serialized = editor.to_bytes().unwrap();
+        let renames = editor.digit_attr_renames.clone();
+        let preview = editor.preview_room_add("β").unwrap();
+        assert_eq!(
+            preview.parent.attributes.get("U").map(String::as_str),
+            Some("")
+        );
+        assert!(!preview.parent.attributes.contains_key("Type"));
+        assert_eq!(preview.parent.attributes["Future"], "+003");
+        let anchor = preview.insert_after.unwrap();
+        assert_eq!(anchor.attributes["U"], "a");
+        assert!(!anchor.attributes.contains_key("WF"));
+        let preview = editor.preview_room_add("ALPHA").unwrap_err();
+        assert_eq!(preview.to_string(), "Room 'ALPHA' already exists");
+        assert_eq!(format!("{:?}", editor.root), before);
+        assert_eq!(editor.to_bytes().unwrap(), serialized);
+        assert!(editor.had_bom && editor.had_crlf);
+        assert_eq!(editor.digit_attr_renames, renames);
     }
 }
 

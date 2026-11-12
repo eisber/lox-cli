@@ -39,7 +39,7 @@ mod write;
 
 pub use blocks::VirtualInOpts;
 pub use permissions::{PermissionChange, PermissionEdit, PrincipalKind};
-pub use rooms::{ControlMovePreview, RoomRenamePreview};
+pub use rooms::{ControlMovePreview, RoomAddPreview, RoomRenamePreview};
 pub use wiring::SpliceActorPreview;
 
 use anyhow::{Context, Result, bail};

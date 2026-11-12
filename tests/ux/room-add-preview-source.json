@@ -1,0 +1,87 @@
+{
+  "schema_version": 1,
+  "issue": "lox-cjy9",
+  "artifact_kind": "source-only-existing-room-add-preview",
+  "baseline": "eb6f0fc34f258ddbc1ef746cc196666ce8608c01",
+  "source_basis": [
+    {
+      "path": "src/main.rs",
+      "blob_oid": "0f730618dbdda46c288b8dc9ea5b10f718f229a3",
+      "sha256": "f731aee98e838a171830ca7d14514703b93c0fda45b29bfc48d339e2317073c4",
+      "symbols": ["RoomCmd::Add", "run_command"],
+      "relationship": "Unchanged existing FILE NAME [--save-as FILE] grammar; no parent, room type or UUID override. Existing dry-run startup bypasses telemetry initialization and command tracking."
+    },
+    {
+      "path": "src/commands/config_cmd.rs",
+      "blob_oid": "f198c048c05fc64b8ee1daea49a4cf4f14c512da",
+      "sha256": "df46501564f6d91740d80048ca34871bbb9e7898aa37cee6aadaa5e98b11a765",
+      "symbols": ["cmd_room", "save_edited", "save_edited_with_quiet"],
+      "relationship": "Existing input-read, XML-parse, add_room, unconditional text report, then save order. Normal execution keeps text even under JSON/CSV/quiet, overwrite/save-as and report-before-save-failure behavior."
+    },
+    {
+      "path": "src/config_edit/rooms.rs",
+      "blob_oid": "5df575db33b067c2568a3572609e29de338931eb",
+      "sha256": "7c8d8032d9dcbed986c284d7c1da45f35e661eb2cb686ac114d5954fa38ed796",
+      "symbols": ["add_room", "walk_rooms", "plan_room_rename", "plan_control_move"],
+      "relationship": "Existing recursive C/Place duplicate lookup requires both U and Title, lowercases and uses substring matching before random UUID generation. The unchanged legacy u32/u16/u16 generator and fixed suffix, five ordered attributes and last matching direct root child insertion are preserved. No root shape repair, normalization, uniqueness allocator or new room policy. Qualified room rename and control move are unchanged."
+    },
+    {
+      "path": "src/config_edit/mod.rs",
+      "blob_oid": "a45c5fd13a825a57a53919f88e74b5d76666d387",
+      "sha256": "d0ccac54cefd91572a6c60f7b9cb7f6f29eef6d85c6f1ffadbfa773ce92c3d76",
+      "symbols": ["ConfigEditor::load", "test_add_room", "test_add_room_duplicate_fails"],
+      "relationship": "Unchanged parser, BOM/line-ending and digit-attribute bookkeeping. Existing add_room signature and UUID result remain intact."
+    },
+    {
+      "path": "src/config_edit/write.rs",
+      "blob_oid": "72d207e27834a50bf622496da82a610ae20e4576",
+      "sha256": "94bb36c651f5a73700d3a1f3037693b7cbb493f7a030c6a091517db475f21fe5",
+      "symbols": ["to_bytes", "stamp_document"],
+      "relationship": "Unchanged normal serialization/default/BOM/line-ending and content-change-dependent Document stamp; never reached by preview."
+    },
+    {
+      "path": "src/dry_run.rs",
+      "blob_oid": "fbb6480ad7ccccececff7c3d3a55d735bcb12502",
+      "sha256": "73d7980054084f80e79985ce2f2ad572c6a50ba5fabfc7ace6ab1072218ec7d9",
+      "symbols": ["dispatch", "has_non_mutating_path"],
+      "relationship": "Fail-closed admission is extended only to RoomCmd::Add. Unrelated unaudited commands remain rejected before startup effects."
+    }
+  ],
+  "hash_basis": "Exact committed baseline LF Git blobs, not CRLF working-tree bytes.",
+  "historical_artifacts": [
+    {
+      "path": "tests/ux/room-rename-preview-source.json",
+      "blob_oid": "c1588083ee719cd8571871e46550b77b47d1c65c",
+      "sha256": "a9dfe783b2bc60d6f42ff6ae644a0ae870bc43f5c401864b9477f43e71a48c57",
+      "status": "Byte-identical historical evidence, including its former qualified-selector behavior; not rewritten."
+    },
+    {
+      "path": "tests/ux/room-selector-fix-source.json",
+      "blob_oid": "d26e73c5f81b829ffde3adb1adad3b001c654c0a",
+      "sha256": "7436b97a0783f0daeec2c315554e419bb1f47ab0c4a83d1c0270278724d76c08",
+      "status": "Byte-identical qualified-room-rename correction; behavior remains unchanged."
+    },
+    {
+      "path": "tests/ux/control-move-preview-source.json",
+      "blob_oid": "8e0eac17feecde09430f641b0a213d2fbca25f29",
+      "sha256": "80cdf7199a135afec265e417925d24a85d42fbe0290722313b2418d4fa826067",
+      "status": "Byte-identical source-only control-move evidence; behavior remains unchanged."
+    }
+  ],
+  "plan": {
+    "sharing": "One private immutable RoomAddPlan feeds preview_room_add and unchanged add_room(name) -> Result<String>. Private application consumes the ordered planned attributes and exact insertion path. No public UUID override/reapply API, production DOM clone, mutation-then-discard, XML serialization or generic mutation framework.",
+    "identity": "room includes the actual planned element name, child-index path and all five attributes. Generated U uses the existing legacy format. uuid_ephemeral and scope explicitly disclaim reservation or reuse across separate invocations. Same-private-plan application tests verify exact identity, attributes and insertion; separate-request tests do not demand RNG equality.",
+    "parent": "parent is the actual existing root with its name, empty path and raw attributes. insert_after is the last direct C child with exact Type Place or PlaceCaption, including its path/raw attributes, or null when appending without an anchor. Missing keys remain absent, empty values remain empty, and unknown metadata is neither inferred nor repaired.",
+    "semantics": "Duplicate-before-RNG behavior, recursive lowercased substring matching, both-U-and-Title admission including empty U, Unicode/empty/whitespace name choices, arbitrary existing root shapes, ordered Type/V/U/Title/WF defaults, last-direct-child insertion and no child creation beyond the new empty Place are preserved.",
+    "boundary": "Preview returns before mutation, serialization/defaults, stamp, save, destination probing or directory creation on success and failure, including read-only input, existing/same-input/new/directory/missing-parent save-as. Startup bypasses cache/network/telemetry writes.",
+    "output": "JSON dry_run and optional trace_id; JSON-valued table/CSV cells, quiet table summary and no-header conventions. Normal report/save output remains legacy text even under JSON/CSV/quiet."
+  },
+  "regressions": [
+    "rooms.rs room_add_tests: exact same-private-plan UUID/ordered-attribute/insertion parity against the baseline algorithm, public unchanged helper/result parity using each writer's own generated UUID, full DOM/serialization preservation and reversal of only the declared insertion.",
+    "rooms.rs room_add_tests: direct versus nested/last caption, absent anchor/empty root/arbitrary root/root Place, missing/empty/raw metadata, case-sensitive C/Place rules, recursive lowercased substring duplicates, missing/empty UUID/Title, Unicode composition/case choices, empty/whitespace/raw selector-like names and unchanged parser bookkeeping/defaults/stamp.",
+    "tests/dry_run.rs room_add tests: actual root/anchor/room identity and attributes; JSON/trace/table/CSV/quiet/no-header; complete bytes/mtime/permissions/directory/cache/token/telemetry snapshots and zero mock network requests across all destinations, read-only input, failures and parser/read/parse/duplicate order.",
+    "tests/dry_run.rs normal room writer: separate-invocation plan shape parity without RNG reuse, entire written DOM and existing unknown/category/wiring/reference preservation, legacy text under JSON/CSV/quiet, report-before-save failure, overwrite/save-as, BOM/CRLF, Document stamp and permissive root/name cases.",
+    "Existing room rename, qualified-selector, control move, helper and config integration tests remain, apart from removing obsolete room-add unsupported expectations. Unrelated unaudited commands continue failing closed."
+  ],
+  "limits": "Raw existing CLI source provenance only. No native UI, room-family, whole-file, SPS or physical-effect claim; no lab/VM/Notebook/SDK/SSH/time/host actions, extraction, new parity framework, agents or unrelated behavior changes."
+}

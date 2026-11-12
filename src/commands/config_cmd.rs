@@ -13,7 +13,7 @@ use crate::commands::RunContext;
 use crate::config::Config;
 use crate::config_edit::{
     ConfigEditor, ControlMovePreview, PermissionChange, PermissionEdit, PrincipalKind,
-    RoomRenamePreview, SpliceActorPreview, VirtualInOpts,
+    RoomAddPreview, RoomRenamePreview, SpliceActorPreview, VirtualInOpts,
 };
 use crate::custom_overlay;
 use crate::token;
@@ -3813,6 +3813,52 @@ fn print_room_rename_preview(ctx: &RunContext, preview: &RoomRenamePreview) -> R
     Ok(())
 }
 
+fn print_room_add_preview(ctx: &RunContext, preview: &RoomAddPreview) -> Result<()> {
+    let fields = [
+        ("NAME", serde_json::to_string(&preview.name)?),
+        ("PARENT", serde_json::to_string(&preview.parent)?),
+        (
+            "INSERT_AFTER",
+            serde_json::to_string(&preview.insert_after)?,
+        ),
+        ("ROOM", serde_json::to_string(&preview.room)?),
+        ("UUID_EPHEMERAL", preview.uuid_ephemeral.to_string()),
+        ("REPORT", serde_json::to_string(&preview.report)?),
+        ("SCOPE", preview.scope.to_owned()),
+    ];
+    if ctx.csv {
+        if !ctx.no_header {
+            println!(
+                "{}",
+                fields
+                    .iter()
+                    .map(|(key, _)| *key)
+                    .collect::<Vec<_>>()
+                    .join(",")
+            );
+        }
+        println!(
+            "{}",
+            fields
+                .iter()
+                .map(|(_, value)| format!("\"{}\"", value.replace('"', "\"\"")))
+                .collect::<Vec<_>>()
+                .join(",")
+        );
+    } else {
+        if !ctx.no_header {
+            println!("ROOM ADD PREVIEW  FIELD  STORED/PLANNED VALUE");
+        }
+        for (key, value) in fields {
+            println!("{key}  {value}");
+        }
+        if !ctx.quiet {
+            println!("\nPlace insertion only; dry-run wrote no files");
+        }
+    }
+    Ok(())
+}
+
 fn cmd_room(ctx: &RunContext, action: RoomCmd) -> Result<()> {
     match action {
         RoomCmd::Add {
@@ -3822,6 +3868,17 @@ fn cmd_room(ctx: &RunContext, action: RoomCmd) -> Result<()> {
         } => {
             let data = fs::read(&file).with_context(|| format!("Cannot read {}", file))?;
             let mut editor = ConfigEditor::load(&data)?;
+            if ctx.dry_run {
+                let preview = editor.preview_room_add(&name)?;
+                if ctx.json {
+                    let mut value = serde_json::to_value(&preview)?;
+                    value["dry_run"] = true.into();
+                    emit_json(ctx, value);
+                } else {
+                    print_room_add_preview(ctx, &preview)?;
+                }
+                return Ok(());
+            }
             let uuid = editor.add_room(&name)?;
             println!("✓ Added room '{}' (UUID: {})", name, uuid);
             save_edited(&mut editor, &file, save_as.as_deref())?;
