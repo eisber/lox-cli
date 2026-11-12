@@ -418,6 +418,18 @@ numeric editor kind. Missing/zero scene `Outputs` means 12 on that reader;
 the recovered editor path supports indices 1..18, not a universal maximum.
 Missing Qn, ambiguous matches and unsupported widths fail before writing.
 
+One independently verified Config 17.2.10.21 VM122 operation qualifies only the
+original tag6 numeric-capability **Q2=37**, mood SID1/CID12: native acceptance,
+official save, normal exit, fresh-process native readback and final exit retained
+identical saved/reopened/final bytes. **Native collateral remains; this is not
+selected-only mutation or whole-file, lighting-family, SPS/runtime parity.**
+The complete raw audit retains Q1, HCL, 94 Title, two WF and Date/DateS changes
+(99 start tags/104 attributes from input; 103 attributes from immutable CLI).
+All 17 qualifying input gates were independently verified; physical delivery
+timing was not instrumented. See
+`tests/ux/light-controller2/numeric-level37-qualified-20261112.json`.
+Historical observations, failed phases and other cases receive no new credit.
+
 The Config 17.2.10.21 per-mood renderer uses tags 1/2/3/7 directly as numeric.
 Tag 6 is capability-dependent: for Qn it reads `CapAI<n-1>`. With bit `0x40`
 clear and `(CapAI & 7) != 7`, it selects a numeric control; otherwise it selects
