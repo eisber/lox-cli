@@ -264,6 +264,13 @@ navigation inputs were dispatched after finite resource admission expired.
 The complete findings and invalidation are retained in
 `tests/ux/energy-manager2/empty-name-persistence-invalid-20261112.json`;
 no GUI-case count, inheritance reset or whole-file/runtime parity is promoted.
+A separate VM121 rated-power operation is qualified within its selected-field
+scope: **37 kW** persisted through save, normal exit and fresh-process native
+readback, with SwPwr2.6 and all twelve load records matching the immutable CLI
+expectation. All 27 input-admission audits passed. Whole-file parity remains
+false; every unrelated difference is retained. See
+`tests/ux/energy-manager2/rated-power-qualified-20261112.json`. This does not
+repair the earlier invalid name-clear run or qualify family/runtime behavior.
 
 ### Lighting stored inspection and mood-count repair
 

@@ -1,0 +1,71 @@
+{
+  "schema_version": 1,
+  "issue": "lox-khg6.4",
+  "original_case": "lox-t5t3.8",
+  "source_linked_run": "lox-t5t3.8-VM121-sdk9f707-20261111T2239Z",
+  "outcome": "qualified_selected_rated_power_operation_not_whole_file_parity",
+  "application": {
+    "version": "17.2.10.21",
+    "architecture": "AMD64",
+    "sha256": "7b55e3ef18401574ab967c5c6a0140cd5a66dc728521ebba04ad53093577d8b3"
+  },
+  "pins": {
+    "SDK_service_sha256": "9f70717b37abdb138ac49743df11b5fe274f3cedc2c342e70609a51e332ecf06",
+    "original_definition_sha256": "6244aa63e53bf44b0868590b33341276c80638a29522f8c9bca0470764ec0418",
+    "immutable_CLI_binary_sha256": "4274d421ff722bb344d70fa265be4b2a7f903ed92219cfbd1e6aa4c7486d83de",
+    "immutable_CLI_expected_sha256": "75d4f045f210d01cead8af791564790a0dea9e84586848188e6a5e1fb77dce90",
+    "native_saved_reopened_final_sha256": "9a834801450fd5e8be63a263b12755ab6e63abbdcfbe44ccb45d5908a47a5ff1",
+    "qualified_private_report_sha256": "4f5a3e260a632a1c48679c2456ffa5589a8b065656e67fea28329cab751ba749",
+    "private_750_member_manifest_sha256": "cbc3b946a6c36ba9acc9cf2e485b82a8558c36d6a603213e60109566fb39ec79",
+    "actual_input_audit_sha256": "b1be25c2a97e74591d7b2f5b312513cda82051fab7b32e751028d79dba7da0ac",
+    "guard_codec_sha256": "c16cc7dd02dbc4eafef7f0269bc63bdefe7520f1bc20f6c440ac6bb2c4e4a095",
+    "corrected_stamp_summary_sha256": "49ac3198fa440b8edbae6d0c552dd47e1757f80105aeabfdbeb9a2c38c16c613",
+    "stamp_ledger_retention_proof_sha256": "87bd1f6289c8e35130bb7e961c973183069d4776b6945f729772182448e77852",
+    "stamp_correction_seal_sha256": "2eb6933180d0674444491f4c667adf73cf1cb3b92373b9a2f0f11f44163915fa"
+  },
+  "qualified_scope": {
+    "machine": "VM121, independently admitted",
+    "operation": "Existing connected customized EnergyManager2 load, priority1/L1, accepts rated power37kW.",
+    "before": {"MaxPwr": "2.5", "SwPwr": "2.6"},
+    "requested_and_saved": {"MaxPwr": "37", "SwPwr": "2.6"},
+    "binding": "Actual12x11 grid, rated-power column10, kW header, current selected persistent load identity and QLxDoubleSpinBox.",
+    "accepted_readback": "Actual37.000 editor accepted and committed; displayed132-cell table changed only selected rated-power cell.",
+    "preservation": "Na/Ncu/Anc/U/OIdx/icon and all12 complete ordered load records, including nested data, match immutable CLI expectation.",
+    "lifecycle": "One official save, normal exit with zero processes, one fresh-process reopen, actual37kW/SwPwr2.6 readback, inspection cancellation, second normal exit with zero.",
+    "persistence": "Actual saved/reopened/final raw bytes identical. Native backup matches original fixture.",
+    "cleanup": "Owned archived case files removed only after verified normal quiescence. Config count0 and no pending/UNKNOWN input; SDK/relay/fence retained before later separately authorized VM maintenance."
+  },
+  "live_caller_verification": {
+    "actual_native_effects": 27,
+    "all_effects_admission_verified": true,
+    "checks": "Fresh instance/source/Default desktop/fence/owned target and hit facts, actual independent host/VM121 lease, explicit phase deadline and unchanged target-age bound checked at intent, pending and direct normal SDK RPC.",
+    "maximum_target_age_seconds": 3.1064913272857666,
+    "minimum_dispatch_lease_margin_seconds": 2.583268642425537,
+    "minimum_phase_deadline_margin_seconds": 709.7154488563538,
+    "timing_scope": "Actual instrumented controller caller boundaries and endpoint receipt; no separately instrumented physical guest delivery or wire timestamp is invented.",
+    "guard_transport": "A prior known-no-input WinError206 was retained. A compact GZip envelope verifies original guard bytes/hash before strict UTF8 decode and execution through the unchanged normal PowerShell tool. No guards truncated or weakened, no guest helper deployed.",
+    "tests": "21 local tests passed:15 final-gate/UNKNOWN tests,3 PowerShell5.1 codec tests,3 strict saved-file reopen tests.",
+    "refused_attempts": "Known no-dispatch local guard failures are retained separately; no accepted or uncertain input replay, clock grace, TTL extension or policy change.",
+    "older_invalid_run": "Case.7's two actual expired navigation dispatches remain invalid; this result grants no retroactive credit."
+  },
+  "remaining_data_finding": {
+    "whole_native_file_equal_to_CLI": false,
+    "raw_changed_blocks": 98,
+    "ordered_changed_node_records": 137,
+    "attribute_change_records": 200,
+    "changed_families": ["Analog", "Date", "DateS", "FLG", "Input", "LinkRefType", "NextObj", "Px", "Px2", "Py", "Py2", "Ref", "Text", "Title", "U", "WF"],
+    "ignore_lists": [],
+    "normalization": null,
+    "stamp_summary_correction": "An append-only correction includes C[@Type='Document'], which the earlier convenience tag-only summary missed. All changed stamps were already retained in full raw/ordered ledgers; original files/audits remain immutable.",
+    "broader_preservation_contract": "All remaining XML unchanged is NOT met and must not receive pass or parity credit. The selected-field qualification is distinct."
+  },
+  "capability_policy": {
+    "qualified_selected_operation": true,
+    "qualified_selected_operation_count": 1,
+    "whole_file_parity": false,
+    "general_family_runtime_SPS_or_platform_qualification": false,
+    "old_runner_or_case_count_rewritten": false,
+    "native_queue_expansion": false
+  },
+  "private_evidence_policy": "No raw projects, screenshots, endpoints, credentials or proprietary function text included."
+}

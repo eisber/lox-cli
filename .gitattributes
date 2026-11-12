@@ -12,6 +12,7 @@ tests/ux/light-controller2/numeric-edit-save-reopen-20261111.json text eol=lf
 tests/ux/light-controller2/color-widget-observation-20261111.json text eol=lf
 tests/ux/light-controller2/color-widget-persistence-20261112.json text eol=lf
 tests/ux/energy-manager2/empty-name-persistence-invalid-20261112.json text eol=lf
+tests/ux/energy-manager2/rated-power-qualified-20261112.json text eol=lf
 tests/ux/light-controller2/incidental-normalization-triggers-source.json text eol=lf
 tests/ux/light-controller2/mood-cid-edit-source.json text eol=lf
 tests/ux/light-controller2/mood-name-source.json text eol=lf
