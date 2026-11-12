@@ -3,7 +3,9 @@ use clap::{Args, Subcommand};
 
 use crate::commands::RunContext;
 use crate::config_edit::ConfigEditor;
-use crate::config_edit::lighting::{LightingMoodColorPreview, LightingMoodLevelPreview};
+use crate::config_edit::lighting::{
+    LightingMoodColorPreview, LightingMoodCreationPreview, LightingMoodLevelPreview,
+};
 use crate::config_edit::lighting_cid::{
     LightingIdentityChange, LightingSelectionEdit, LightingSidRemap,
 };
@@ -428,6 +430,75 @@ fn print_display_name_preview(ctx: &RunContext, preview: &LightingMoodDisplayNam
         );
         if !ctx.quiet {
             println!("\n1 mood; selected SName only; dry-run wrote no files");
+        }
+    }
+}
+
+pub(super) fn print_creation_preview(ctx: &RunContext, preview: &LightingMoodCreationPreview) {
+    let path = preview
+        .collection_path
+        .iter()
+        .map(usize::to_string)
+        .collect::<Vec<_>>()
+        .join(".");
+    let mut fields = vec![
+        (
+            "CONTROLLER_UUID".to_owned(),
+            preview.controller_uuid.as_deref(),
+        ),
+        (
+            "CONTROLLER_TITLE".to_owned(),
+            preview.controller_title.as_deref(),
+        ),
+        ("COLLECTION_PATH".to_owned(), Some(path.as_str())),
+        ("BEFORE_NUM".to_owned(), preview.before_num.as_deref()),
+        ("AFTER_NUM".to_owned(), Some(preview.after_num.as_str())),
+    ];
+    fields.extend(
+        preview
+            .proposed_mood
+            .iter()
+            .map(|(key, value)| (format!("PROPOSED_{key}"), Some(value.as_str()))),
+    );
+    if ctx.csv {
+        if !ctx.no_header {
+            println!(
+                "{},CONTAINER_CREATED,SCOPE",
+                fields
+                    .iter()
+                    .map(|(key, _)| format!("{key}_PRESENT,{key}"))
+                    .collect::<Vec<_>>()
+                    .join(",")
+            );
+        }
+        println!(
+            "{},{},{}",
+            fields
+                .iter()
+                .map(|(_, value)| format!("{},{}", value.is_some(), csv(value.unwrap_or(""))))
+                .collect::<Vec<_>>()
+                .join(","),
+            preview.container_created,
+            preview.scope
+        );
+    } else {
+        if !ctx.no_header {
+            println!("CREATION PREVIEW  FIELD  STORED/PROPOSED VALUE");
+        }
+        for (key, value) in fields {
+            println!(
+                "{key}  {}",
+                value.map_or_else(|| "<absent>".to_owned(), |value| format!("{value:?}"))
+            );
+        }
+        println!(
+            "CONTAINER_CREATED  {}\nSCOPE  {}",
+            preview.container_created, preview.scope
+        );
+        if !ctx.quiet {
+            println!(
+                "\n1 proposed LightsceneC; UUID is ephemeral across invocations; dry-run wrote no files"
+            );
         }
     }
 }

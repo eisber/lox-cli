@@ -866,7 +866,7 @@ pub(crate) enum ConfigCmd {
         #[arg(long)]
         save_as: Option<String>,
     },
-    /// Create a mood with native-style automatic IDs and 18-output initialization
+    /// Create a mood with native-style IDs and 18 outputs; --dry-run previews with an ephemeral UUID
     #[command(name = "add-mood")]
     AddMood {
         /// Path to a .Loxone XML file

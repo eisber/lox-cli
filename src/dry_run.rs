@@ -71,6 +71,7 @@ fn has_non_mutating_path(cmd: &Cmd) -> bool {
                 | ConfigCmd::ModeList { .. }
                 | ConfigCmd::Moods { .. }
                 | ConfigCmd::SetMoodColor { .. }
+                | ConfigCmd::AddMood { .. }
                 | ConfigCmd::GetParams { .. }
                 | ConfigCmd::Connectors { .. }
                 | ConfigCmd::GetProgram { .. }
@@ -215,13 +216,11 @@ mod tests {
             ],
             &[
                 "config",
-                "add-mood",
+                "splice-actor",
                 "input.Loxone",
                 "Lamp",
-                "--name",
-                "A",
-                "--color",
-                "hsv(0,100,100)",
+                "--source",
+                "uuid:source",
             ],
             &["config", "room", "add", "input.Loxone", "new"],
             &["config", "user-remove", "input.Loxone", "user"],
@@ -265,6 +264,16 @@ mod tests {
             ],
             vec!["stats", "download", "--dir", "stats", "--force"],
             vec!["config", "validate", "input.Loxone"],
+            vec![
+                "config",
+                "add-mood",
+                "input.Loxone",
+                "Lamp",
+                "--name",
+                "A",
+                "--color",
+                "hsv(0,100,100)",
+            ],
             vec![
                 "config",
                 "set-mood-color",

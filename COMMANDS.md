@@ -7,7 +7,8 @@ Global flags: `--json` (shorthand for `--output json`), `-o`/`--output json|csv|
 `--dry-run` never writes local files or live state, uploads configurations, reloads,
 or reboots, even with `--force`, `--write`, or `--save-as`. Existing safe planners
 are available for `config energy` edits, supported `config lighting` mood edits
-(including `set-mood-level`), the existing raw `config set-mood-color` edit, and
+(including `set-mood-level`), the existing raw `config set-mood-color` edit,
+existing `config add-mood` creation, and
 `stats download`; audited read-only
 commands retain their normal output and may make read-only network requests.
 Other commands fail before dispatch with “dry-run not supported” (exit 1;
@@ -500,6 +501,40 @@ SID 1/776/777/778 excluded from those maxima. Duplicate explicit SID remains
 an error; duplicate explicit CID remains accepted, not swapped. An overflowing
 partner successor is an atomic `mood_identity_exhausted` error. Existing scene
 IDs are never reassigned by `add-mood`.
+
+Preview the **already supported** creation operation without changing the file:
+
+```bash
+lox config add-mood file.Loxone "Lighting" --name "Evening" --color "hsv(30,80,20)" --dry-run --output json
+```
+
+Preview and execution share one immutable creation plan, retaining the exact
+existing ordered errors, automatic/explicit identity allocation, duplicate-name
+and SID rules, output initialization and direct-record recount. No new role,
+Unicode, tag, capability or mode admission is imposed. `--color` remains the
+existing raw packing parser, not a native color-picker operation.
+
+JSON reports `scope: "stored_mood_creation"`, stored controller UUID/title,
+`collection_path` (zero-based controller-relative XML child-node indices),
+`container_created`, raw optional `before_num`, decimal `after_num`, and
+`proposed_mood`: the actual proposed `LightsceneC` attributes, including Name,
+UUID, SID, CID, Outputs and every Qn. The existing path requires exactly one
+direct collection, so `container_created` is false; preview does not create one
+for unsupported input. No decoded, effective, UI or physical-channel values
+are invented. Table/CSV retain the same attributes; CSV has presence columns
+and escaped strings. `--quiet` hides only the table summary, `--no-header` only
+headers, and JSON supports `--trace-id`.
+
+The planned UUID is **ephemeral**. Separate preview/execution invocations may
+generate fresh UUIDs; execution does not reuse or accept a preview UUID.
+Preview returns before mutation, saving or stamping, including with existing,
+input or missing-parent `--save-as`. It writes no files, directories, defaults,
+cache or telemetry and does not check destination writability or predict
+successful saving. Normal execution keeps its existing API/report, overwrite,
+save and Document-stamp behavior. Only AddMood gains this additional dry-run
+path; unrelated unplanned mutations still fail closed.
+Source-only evidence: `tests/ux/light-controller2/mood-creation-preview-source.json`.
+No new native, family, whole-file or SPS/runtime credit is claimed.
 
 `lighting set-mood-cid` edits an **existing** mood binding, separately from
 append overrides. It follows the recovered handler's collision swap and SID

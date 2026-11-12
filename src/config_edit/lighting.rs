@@ -123,6 +123,19 @@ struct LightingMoodColorPlan {
 }
 
 #[derive(Debug, Serialize)]
+pub struct LightingMoodCreationPreview {
+    pub scope: &'static str,
+    pub controller_uuid: Option<String>,
+    pub controller_title: Option<String>,
+    /// XML child-node indices relative to the selected controller.
+    pub collection_path: Vec<usize>,
+    pub container_created: bool,
+    pub before_num: Option<String>,
+    pub after_num: String,
+    pub proposed_mood: Attributes,
+}
+
+#[derive(Debug, Serialize)]
 pub struct LightingWireTarget {
     pub block_uuid: Option<String>,
     pub block_type: Option<String>,

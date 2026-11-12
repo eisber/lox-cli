@@ -1,0 +1,84 @@
+{
+  "schema_version": 1,
+  "issue": "lox-weh1",
+  "artifact_kind": "source-only-existing-creation-preview",
+  "named_question": "Can the already supported add-mood creation operation expose its proposed record and count without mutation while preserving its existing allocation, defaults, admission and save behavior?",
+  "frozen_target": {
+    "version": "17.2.10.21",
+    "architecture": "AMD64",
+    "pe_sha256": "7b55e3ef18401574ab967c5c6a0140cd5a66dc728521ebba04ad53093577d8b3",
+    "installation_sha256": "a3003005776b327f5e666a072a64f5c569182b86174c0f578d5be3267ce28f85",
+    "analysis_id": "6a0520329af17d7b9fdaafe69398c62c454d9da838fc9f9c8d0bdd8d17bb15ae",
+    "decompile_index_sha256": "129c5d4e8683dd3c9c4a44622681f8d8bb76fe58c72d0b834a2c7bb76415cf40",
+    "new_extractions": 0
+  },
+  "existing_source_basis": [
+    {
+      "artifact": "tests/ux/light-controller2/mood-identity-source.json",
+      "sha256": "f87fd01748a506bffe068c761faaaa16d1928f214f06179a4786cb9f63cc101e",
+      "relationship": "Existing automatic identity source and bounded CLI policy, including separate legacy explicit overrides and atomic exhaustion. No new role or identity admission."
+    },
+    {
+      "contract_section": "contracts/light-controller2.json#native_style_mood_initialization",
+      "relationship": "Existing fixed18 construction, first-direct-scene reader bound and inherited type-nibble defaults, selected raw Q1 replacement and direct-record recount. No source rule changes."
+    },
+    {
+      "artifact": "tests/ux/light-controller2/raw-mood-color-preview-source.json",
+      "sha256": "b56c70c749d08399d73dcb101919de6b4519e0feed919d4f8084e2ffc755bbd4",
+      "relationship": "Reuse existing raw color parser unchanged and preview output/early-return/dispatch conventions only. Its historical AddMood rejection describes the earlier delivery; all prior artifact bytes remain immutable."
+    }
+  ],
+  "canonical_sources": [
+    {
+      "address": "0x1400e5b80",
+      "sha256": "235e57ad9bb7a35282a090efe287656301dae8ff1b70d4bbdc1709f564af64f3",
+      "relationship": "Existing selected dialog append caller passes the collection and automatic identity request."
+    },
+    {
+      "address": "0x1405b48e0",
+      "sha256": "09d4870c352d9621c32403f1fe1651967205f7b78c3bdc74866370f7714b14db",
+      "relationship": "Existing width18 append, first-scene high-nibble defaults, actual-vector recount and separate automatic SID/CID allocation."
+    },
+    {
+      "address": "0x1405b3940",
+      "sha256": "365a8a5e0bc05163fab3b2547924119c7731291b550d9e33fb2df9614ebe4155",
+      "relationship": "Existing constructor sets the requested output width and initializes identity members."
+    },
+    {
+      "address": "0x1405b7df0",
+      "sha256": "9f0ff6bd3dcc724a599e3324483c9b584f1e1128c4a3d6bf9604ecc328bf9d58",
+      "relationship": "Existing per-scene output reader bound and XML SID/CID binding, not a container-width or physical-channel inference."
+    },
+    {
+      "address": "0x1405d1580",
+      "sha256": "16512152985127a4f4455e3002399b715a8a9743455ee61c3fa27a954fbde0e6",
+      "relationship": "Existing later reader width normalization does not re-read skipped higher stored Qn."
+    }
+  ],
+  "source_verification": "All11 unique canonical hashes inherited from existing identity source_bindings and native_style_mood_initialization source_basis, frozen decompile-index hash and both prior committed Git-blob artifact hashes verified locally. Relevant existing canonical bindings reused without extraction or pin changes. No vendor text or private project data included.",
+  "CLI_policy": {
+    "operation": "lox config add-mood FILE SELECTOR --name NAME --color SPEC [--sid SID] [--cid CID] --dry-run [--save-as PATH]",
+    "shared_plan": "Immutable preview_mood_creation and existing add_mood API share one private typed LightingMoodCreationPlan containing the exact ordered attribute vector, typed SID/CID, collection path and count. The public proposed_mood map projects that vector; normal application uses that same vector/identity/count, retaining original attribute insertion order. No cloned DOM, writer-then-discard, generic framework or public UUID override/reapply API.",
+    "ordered_admission": "Existing read/XML load precede unchanged parse_color_to_mood. Existing list_moods resolution/type guard and recursive duplicate exact Name check precede repeated controller resolution and exactly-one-direct-collection check. Automatic/legacy ID allocation and existing explicit duplicate SID check precede native_mood_output_defaults and UUID generation. Same errors and ordering. No new Unicode/name/UUID/role/tag/capability/mode/count admission or repair.",
+    "identities": "Neither override: direct-record lowest-free SID1..99, single CID=SID+11 candidate for SID<=8 else0, preserving current needed signed32 checks and atomic exhaustion. Either override: existing recursive max-custom-plus-one/baseSID2/baseCID9 partner policy, reserved1/776/777/778 exclusions, checked i64 successor and duplicate SID behavior. Explicit duplicate CID and supported signed/role values remain accepted, not swapped/normalized. Existing duplicate UUIDs remain untouched; existing UUID generation is unchanged.",
+    "defaults": "Exactly one existing direct LightscenesC is required; container_created is false, not a promise to synthesize missing storage. Proposed attributes are precisely Name, generated UUID, Outputs18, SID, CID and Q1..Q18, with no IID/options/default insertion. Q1 remains parsed raw value; Q2..Q18 use the existing first-direct-scene signed32 high nibble within its reader bound. Missing/zero source Outputs means12; supported sparse/outside-bound values remain unneeded. Existing raw container Outputs is not used as scene width. Num becomes direct scene count plus1 regardless of prior Num spelling/value; nested scenes do not count.",
+    "output": "scope stored_mood_creation; stored controller_uuid/controller_title; controller-relative collection_path XML child-node indices; container_created; optional raw before_num and decimal after_num; proposed_mood contains every actual proposed LightsceneC attribute, including identity and outputs. No invented decoded/effective/UI/physical-channel field. JSON adds dry_run and optional trace_id; CSV carries presence fields and quoted strings; table quotes raw strings. Quiet hides only table summary, no-header only headers. Normal writer report/API remains unchanged.",
+    "RNG_limit": "Planning allocates an ephemeral UUID in memory. Separate preview and execution invocations may generate fresh UUIDs. Execution never promises to reuse a preview UUID. A same-private-plan/application unit proof checks exact UUID and every proposed attribute without requiring deterministic RNG across requests.",
+    "preservation": "Preview returns before editor mutation, save, serialization, Document stamping or destination handling on success and failure. No source/destination/default/directory/cache/telemetry writes; no destination writability or write-success prediction. Input/existing/new missing-parent save-as paths are untouched. Existing writer API tuple, JSON/table report, UUID generation, overwrite/save/stamp behavior and every unrelated record/attribute/order/width/count/sequence/reference/unknown field retain their current semantics.",
+    "dispatch": "Only existing ConfigCmd::AddMood is newly admitted to global dry-run. Other unplanned local/live/deployment mutations remain rejected before dispatch and startup side effects."
+  },
+  "regressions": {
+    "core": "src/config_edit/wiring.rs: lighting_creation_preview_*; same private plan/application exact attributes and UUID, automatic/explicit/reserved/signed legacy identity behavior, recursive duplicate checks, duplicate UUID preservation, fixed18 defaults/reader bounds, stale/missing counts, sparse/unknown/sequence data, BOM/CRLF and ordered atomic errors. Existing creation/identity/default tests remain unchanged.",
+    "CLI": "tests/lighting_native_append.rs: lighting_creation_cli_dry_run_*; JSON identity/default/count proposals and unchanged normal writer report/save/stamp, input/existing/missing-parent destinations, escaping/absence/empty/trace/quiet/no-header, and read/load/parser error order.",
+    "side_effects": "tests/dry_run.rs: lighting_creation_preview_has_no_filesystem_or_network_side_effects; existing telemetry-enabled Sandbox recursive byte/metadata snapshot and zero-request mock backend for successes/failures and every save-as shape.",
+    "dispatch": "src/dry_run.rs: audited AddMood admission and unchanged fail-closed unrelated operations, including splice-actor."
+  },
+  "native_validation": {
+    "status": "not-run-source-only",
+    "new_native_cases": 0,
+    "gui_roundtrip_verified": false,
+    "runtime_parity": false,
+    "full_family_contract": false,
+    "limits": "Read-only preview of an already supported creation operation only. No new native observation/approval, family/whole-file/SPS/runtime credit, GUI Cancel/dialog refresh, graph-dependent preparation, native role/default/import normalization, color-picker semantics or final-save/write-success prediction. Original native cases, frozen CLI and prior artifact bytes remain untouched."
+  }
+}

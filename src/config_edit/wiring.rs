@@ -1,3 +1,4 @@
+use super::lighting::LightingMoodCreationPreview;
 use super::schema::Diagnostic;
 use super::{ConfigEditor, MoodInfo, MqttTopic, WireInfo};
 use anyhow::Result;
@@ -91,6 +92,14 @@ fn native_mood_output_defaults(collection: &Element) -> Result<[i32; 18]> {
         }
     }
     Ok(defaults)
+}
+
+struct LightingMoodCreationPlan {
+    path: Vec<usize>,
+    sid: i64,
+    cid: i64,
+    attributes: Vec<(String, String)>,
+    preview: LightingMoodCreationPreview,
 }
 
 impl ConfigEditor {
@@ -1179,10 +1188,42 @@ impl ConfigEditor {
         sid: Option<i64>,
         cid: Option<i64>,
     ) -> Result<(String, String, i64, i64)> {
+        let plan = self.plan_mood_creation(selector, name, value, sid, cid)?;
+        self.apply_mood_creation(&plan);
+        let attributes = &plan.preview.proposed_mood;
+        Ok((
+            attributes["Name"].clone(),
+            attributes["UUID"].clone(),
+            plan.sid,
+            plan.cid,
+        ))
+    }
+
+    /// Preview the existing creation operation without mutating or saving.
+    /// The planned UUID is ephemeral; separate invocations may generate a fresh UUID.
+    pub fn preview_mood_creation(
+        &self,
+        selector: &str,
+        name: &str,
+        value: i64,
+        sid: Option<i64>,
+        cid: Option<i64>,
+    ) -> Result<LightingMoodCreationPreview> {
+        Ok(self
+            .plan_mood_creation(selector, name, value, sid, cid)?
+            .preview)
+    }
+
+    fn plan_mood_creation(
+        &self,
+        selector: &str,
+        name: &str,
+        value: i64,
+        sid: Option<i64>,
+        cid: Option<i64>,
+    ) -> Result<LightingMoodCreationPlan> {
         const RESERVED_SIDS: [i64; 4] = [1, 776, 777, 778];
 
-        // Validate the target is a LightController2 and gather existing moods
-        // (immutable borrow) before mutating.
         let existing = self.list_moods(selector)?;
         if existing.iter().any(|m| m.name == name) {
             anyhow::bail!(
@@ -1261,7 +1302,7 @@ impl ConfigEditor {
         let collection_index = *collection_index;
         let serial = self.find_miniserver_serial().unwrap_or_default();
         let uuid = Self::loxone_uuid(&serial);
-        let mut scene = Element::new("LightsceneC");
+        let mut attributes = Vec::new();
         for (key, value) in [
             ("Name", name.to_string()),
             ("UUID", uuid.clone()),
@@ -1269,25 +1310,47 @@ impl ConfigEditor {
             ("SID", new_sid.to_string()),
             ("CID", new_cid.to_string()),
         ] {
-            scene.attributes.insert(key.into(), value);
+            attributes.push((key.into(), value));
         }
         for (offset, default) in defaults.into_iter().enumerate() {
-            scene.attributes.insert(
+            attributes.push((
                 format!("Q{}", offset + 1),
                 if offset == 0 {
                     value.to_string()
                 } else {
                     default.to_string()
                 },
-            );
+            ));
         }
-        let collection = self.get_element_mut(&path).children[collection_index]
-            .as_mut_element()
-            .unwrap();
+        let preview = LightingMoodCreationPreview {
+            scope: "stored_mood_creation",
+            controller_uuid: block.attributes.get("U").cloned(),
+            controller_title: block.attributes.get("Title").cloned(),
+            collection_path: vec![collection_index],
+            container_created: false,
+            before_num: collection.attributes.get("Num").cloned(),
+            after_num: (super::lighting::direct_mood_count(collection) + 1).to_string(),
+            proposed_mood: attributes.iter().cloned().collect(),
+        };
+        let mut path = path;
+        path.push(collection_index);
+        Ok(LightingMoodCreationPlan {
+            path,
+            sid: new_sid,
+            cid: new_cid,
+            attributes,
+            preview,
+        })
+    }
+
+    fn apply_mood_creation(&mut self, plan: &LightingMoodCreationPlan) {
+        let mut scene = Element::new("LightsceneC");
+        scene.attributes.extend(plan.attributes.iter().cloned());
+        let collection = self.get_element_mut(&plan.path);
         collection.children.push(xmltree::XMLNode::Element(scene));
-        let num = super::lighting::direct_mood_count(collection);
-        collection.attributes.insert("Num".into(), num.to_string());
-        Ok((name.to_string(), uuid, new_sid, new_cid))
+        collection
+            .attributes
+            .insert("Num".into(), plan.preview.after_num.clone());
     }
 
     /// Find which Page contains a connector UUID.
@@ -1373,4 +1436,280 @@ struct InputRefPort {
     target: String,
     key: String,
     uuid: String,
+}
+
+#[cfg(test)]
+mod mood_creation_tests {
+    use super::*;
+
+    const XML: &str = r#"<ControlList>
+      <C Type="Document" U="doc" Date="old" DateS="opaque"/>
+      <C Type="LightController2" U="lighting" Title="Lamp" CapAI0="opaque">
+        <Unknown><LightsceneC UUID="duplicate" Name="Nested" SID="1" CID="12"/></Unknown>
+        <LightscenesC Num="bad" Outputs="future" Future="retain">
+          <Unknown><LightsceneC UUID="duplicate" Name="Nested2"/></Unknown>
+          <LightsceneC UUID="duplicate" Name="First" SID="2" CID="9" Outputs="3"
+            Q1="opaque" Q2="-1" Q3="1610612778" Q18="future"><SeqConf Future="keep"/></LightsceneC>
+          <LightsceneC UUID="duplicate" Name="Second" SID="3" CID="10"/>
+        </LightscenesC>
+        <LSConfig OpM="opaque" ScMv="opaque"/><HCL T="2"/>
+      </C>
+    </ControlList>"#;
+
+    #[test]
+    fn lighting_creation_preview_and_application_use_one_identity_and_exact_attribute_plan() {
+        for (sid, cid, expected_sid, expected_cid) in [
+            (None, None, 1, 12),
+            (Some(20), None, 20, 11),
+            (None, Some(99), 4, 99),
+            (Some(776), Some(9), 776, 9),
+            (Some(-1), Some(-8), -1, -8),
+        ] {
+            let bytes = format!("\u{feff}{}\r\n", XML.replace('\n', "\r\n"));
+            let mut editor = ConfigEditor::load(bytes.as_bytes()).unwrap();
+            let before = editor.to_bytes().unwrap();
+            let original = ConfigEditor::load(bytes.as_bytes()).unwrap();
+            let plan = editor
+                .plan_mood_creation("uuid:lighting", " µ,\"B ", i64::MIN, sid, cid)
+                .unwrap();
+            assert_eq!(editor.to_bytes().unwrap(), before);
+            assert_eq!(plan.preview.before_num.as_deref(), Some("bad"));
+            assert_eq!(plan.preview.after_num, "3");
+            assert!(!plan.preview.container_created);
+            let attributes = &plan.preview.proposed_mood;
+            assert_eq!(attributes["Name"], " µ,\"B ");
+            assert_eq!(attributes["SID"], expected_sid.to_string());
+            assert_eq!(attributes["CID"], expected_cid.to_string());
+            assert_eq!(attributes["Outputs"], "18");
+            assert_eq!(attributes["Q1"], i64::MIN.to_string());
+            assert_eq!(attributes["Q2"], "-268435456");
+            assert_eq!(attributes["Q3"], "1610612736");
+            assert_eq!(attributes["Q18"], "0");
+            assert_eq!(attributes.len(), 23);
+            let public_preview = editor
+                .preview_mood_creation("uuid:lighting", " µ,\"B ", i64::MIN, sid, cid)
+                .unwrap();
+            assert_eq!(public_preview.after_num, "3");
+            assert_eq!(editor.to_bytes().unwrap(), before);
+
+            editor.apply_mood_creation(&plan);
+            let collection = editor.get_element(&plan.path);
+            let old_collection = original.get_element(&plan.path);
+            let scene = collection.children.last().unwrap().as_element().unwrap();
+            assert_eq!(scene.name, "LightsceneC");
+            assert!(scene.children.is_empty());
+            assert_eq!(
+                scene
+                    .attributes
+                    .iter()
+                    .collect::<std::collections::BTreeMap<_, _>>(),
+                attributes.iter().collect()
+            );
+            assert_eq!(
+                scene.attributes.keys().collect::<Vec<_>>(),
+                plan.attributes
+                    .iter()
+                    .map(|(key, _)| key)
+                    .collect::<Vec<_>>()
+            );
+            assert_eq!(
+                &collection.children[..collection.children.len() - 1],
+                old_collection.children
+            );
+            let mut expected = old_collection.attributes.clone();
+            expected.insert("Num".into(), "3".into());
+            assert_eq!(collection.attributes, expected);
+            let controller = original.require_one("uuid:lighting").unwrap();
+            let mut collection_path = controller;
+            collection_path.extend(&plan.preview.collection_path);
+            assert_eq!(collection_path, plan.path);
+            // Undo only the declared effects to prove the rest of the DOM stayed exact.
+            let collection = editor.get_element_mut(&plan.path);
+            collection.children.pop();
+            collection.attributes.insert("Num".into(), "bad".into());
+            assert_eq!(editor.to_bytes().unwrap(), before);
+        }
+    }
+
+    #[test]
+    fn lighting_creation_preview_keeps_existing_empty_sparse_and_reader_width_defaults() {
+        for (source, q2, q13) in [
+            ("<Unknown/>", "0", "0"),
+            ("<LightsceneC Q2=\"-1\" Q13=\"future\"/>", "-268435456", "0"),
+            ("<LightsceneC Outputs=\"0\" Q2=\"-1\"/>", "-268435456", "0"),
+            ("<LightsceneC Outputs=\"1\" Q2=\"future\"/>", "0", "0"),
+            (
+                "<LightsceneC Outputs=\"20\" Q13=\"1610612778\" Q19=\"future\"/>",
+                "0",
+                "1610612736",
+            ),
+        ] {
+            let xml = format!(
+                "<ControlList><C Type=\"LightController2\" U=\"lighting\"><LightscenesC Outputs=\"opaque\">{source}</LightscenesC></C></ControlList>"
+            );
+            let editor = ConfigEditor::load(xml.as_bytes()).unwrap();
+            let before = editor.to_bytes().unwrap();
+            let preview = editor
+                .preview_mood_creation(
+                    "uuid:lighting",
+                    if source == "<Unknown/>" { "" } else { "New" },
+                    42,
+                    None,
+                    None,
+                )
+                .unwrap();
+            assert!(preview.before_num.is_none());
+            assert_eq!(
+                preview.after_num,
+                if source == "<Unknown/>" { "1" } else { "2" }
+            );
+            assert_eq!(preview.proposed_mood["Q2"], q2);
+            assert_eq!(preview.proposed_mood["Q13"], q13);
+            assert!(!preview.proposed_mood.contains_key("Q19"));
+            assert_eq!(editor.to_bytes().unwrap(), before);
+        }
+    }
+
+    #[test]
+    fn lighting_creation_preview_and_writer_share_existing_ordered_errors() {
+        let occupied = (1..=99)
+            .map(|sid| format!("<LightsceneC SID=\"{sid}\"/>"))
+            .collect::<String>();
+        let collection = |scenes: &str| {
+            format!(
+                "<ControlList><C Type=\"LightController2\" U=\"lighting\"><LightscenesC>{scenes}</LightscenesC></C></ControlList>"
+            )
+        };
+        for (xml, selector, name, sid, cid, message) in [
+            (
+                collection("<LightsceneC/>"),
+                "uuid:lighting",
+                "",
+                None,
+                None,
+                "already exists",
+            ),
+            (
+                XML.to_owned(),
+                "uuid:missing",
+                "First",
+                Some(2),
+                None,
+                "uuid:missing",
+            ),
+            (
+                XML.replace("LightController2", "Switch"),
+                "uuid:lighting",
+                "First",
+                Some(2),
+                None,
+                "not a LightController2",
+            ),
+            (
+                XML.replace(
+                    "</C>\n    </ControlList>",
+                    "</C><C Type=\"LightController2\" Title=\"Lamp\" U=\"other\"/></ControlList>",
+                ),
+                "Lamp",
+                "First",
+                None,
+                None,
+                "matches 2 elements",
+            ),
+            (
+                XML.replace("<LightscenesC Num=", "<LightscenesC/><LightscenesC Num="),
+                "uuid:lighting",
+                "Nested",
+                Some(2),
+                None,
+                "already exists",
+            ),
+            (
+                "<ControlList><C Type=\"LightController2\" U=\"lighting\"/></ControlList>".into(),
+                "uuid:lighting",
+                "New",
+                None,
+                None,
+                "unsupported_mood_container_shape",
+            ),
+            (
+                XML.replace("<LightscenesC Num=", "<LightscenesC/><LightscenesC Num="),
+                "uuid:lighting",
+                "New",
+                None,
+                None,
+                "unsupported_mood_container_shape",
+            ),
+            (
+                collection("<LightsceneC SID=\"future\" Outputs=\"bad\"/>"),
+                "uuid:lighting",
+                "New",
+                None,
+                None,
+                "unsupported_mood_identity_value",
+            ),
+            (
+                collection(&occupied),
+                "uuid:lighting",
+                "New",
+                None,
+                None,
+                "mood_identity_exhausted",
+            ),
+            (
+                XML.replace("Q2=\"-1\"", "Q2=\"future\""),
+                "uuid:lighting",
+                "New",
+                Some(2),
+                Some(9),
+                "SID 2 is already in use",
+            ),
+            (
+                collection("<LightsceneC SID=\"9223372036854775807\"/>"),
+                "uuid:lighting",
+                "New",
+                None,
+                Some(1),
+                "mood_identity_exhausted",
+            ),
+            (
+                collection("<LightsceneC SID=\"2\" CID=\"9223372036854775807\"/>"),
+                "uuid:lighting",
+                "New",
+                Some(2),
+                None,
+                "mood_identity_exhausted",
+            ),
+            (
+                XML.replace("Outputs=\"3\"", "Outputs=\"bad\""),
+                "uuid:lighting",
+                "New",
+                None,
+                None,
+                "unsupported_mood_output_width",
+            ),
+            (
+                XML.replace("Q2=\"-1\"", "Q2=\"2147483648\""),
+                "uuid:lighting",
+                "New",
+                None,
+                None,
+                "unsupported_mood_output_value",
+            ),
+        ] {
+            let mut editor = ConfigEditor::load(xml.as_bytes()).unwrap();
+            let before = editor.to_bytes().unwrap();
+            let preview = editor
+                .preview_mood_creation(selector, name, 42, sid, cid)
+                .unwrap_err()
+                .to_string();
+            let writer = editor
+                .add_mood(selector, name, 42, sid, cid)
+                .unwrap_err()
+                .to_string();
+            assert_eq!(preview, writer);
+            assert!(preview.contains(message), "{preview}");
+            assert_eq!(editor.to_bytes().unwrap(), before);
+        }
+    }
 }
