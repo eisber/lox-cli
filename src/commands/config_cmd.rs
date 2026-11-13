@@ -2398,12 +2398,15 @@ pub fn cmd_config(ctx: &RunContext, action: ConfigCmd) -> Result<()> {
                 );
             } else if ctx.csv {
                 if !ctx.no_header {
-                    println!("BLOCK_UUID,MODE_UUID,FROM_MINUTES,TO_MINUTES,REMAINING_ENTRIES");
+                    println!(
+                        "BLOCK_UUID,MODE_UUID,STORED_MODE_UUID,FROM_MINUTES,TO_MINUTES,REMAINING_ENTRIES"
+                    );
                 }
                 println!(
-                    "{},{},{},{},{}",
+                    "{},{},{},{},{},{}",
                     format_args!("\"{}\"", removed.block_uuid.replace('"', "\"\"")),
                     removed.entry.mode_uuid,
+                    removed.stored_mode_uuid,
                     removed.entry.from_minutes,
                     removed.entry.to_minutes,
                     removed.remaining_entries,

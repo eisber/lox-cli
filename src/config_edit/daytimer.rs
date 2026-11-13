@@ -2,7 +2,6 @@ use std::collections::BTreeMap;
 
 use anyhow::{Result, bail};
 use serde::Serialize;
-use uuid::Uuid;
 use xmltree::Element;
 
 use super::ConfigEditor;
@@ -16,11 +15,9 @@ pub struct DayTimerEntryIdentity {
 
 impl DayTimerEntryIdentity {
     pub fn parse(mode_uuid: &str, from: &str, to: &str) -> Result<Self> {
-        let mode_uuid = Uuid::parse_str(mode_uuid)
-            .map_err(|_| anyhow::anyhow!("--mode-uuid must be an operating mode UUID."))?;
-        if mode_uuid.is_nil() {
-            bail!("--mode-uuid must not be the nil UUID.");
-        }
+        mode_uuid_key(mode_uuid).ok_or_else(|| {
+            anyhow::anyhow!("--mode-uuid must be a non-nil native 8-4-4-16 or RFC 8-4-4-4-12 UUID, using exactly 32 ASCII hex digits.")
+        })?;
         let from_minutes = timer_time(from)?;
         let to_minutes = timer_time(to)?;
         if from_minutes >= to_minutes {
@@ -29,7 +26,7 @@ impl DayTimerEntryIdentity {
             );
         }
         Ok(Self {
-            mode_uuid: mode_uuid.to_string(),
+            mode_uuid: mode_uuid.to_owned(),
             from_minutes,
             to_minutes,
         })
@@ -40,6 +37,7 @@ impl DayTimerEntryIdentity {
 pub struct DayTimerEntryRemoval {
     pub block_uuid: String,
     pub entry: DayTimerEntryIdentity,
+    pub stored_mode_uuid: String,
     pub removed_attributes: BTreeMap<String, String>,
     pub remaining_entries: usize,
 }
@@ -80,10 +78,25 @@ fn integer(element: &Element, key: &str) -> Result<u32> {
     );
 }
 
-fn stored_uuid(raw: &str) -> Option<Uuid> {
-    (raw.len() == 36)
-        .then(|| Uuid::parse_str(raw).ok().filter(|uuid| !uuid.is_nil()))
-        .flatten()
+fn mode_uuid_key(raw: &str) -> Option<String> {
+    let dashes: &[usize] = match raw.len() {
+        35 => &[8, 13, 18],
+        36 => &[8, 13, 18, 23],
+        _ => return None,
+    };
+    let mut key = String::with_capacity(32);
+    for (index, byte) in raw.bytes().enumerate() {
+        if dashes.contains(&index) {
+            if byte != b'-' {
+                return None;
+            }
+        } else if byte.is_ascii_hexdigit() {
+            key.push(char::from(byte.to_ascii_lowercase()));
+        } else {
+            return None;
+        }
+    }
+    (!key.bytes().all(|byte| byte == b'0')).then_some(key)
 }
 
 impl ConfigEditor {
@@ -92,7 +105,8 @@ impl ConfigEditor {
         selector: &str,
         identity: DayTimerEntryIdentity,
     ) -> Result<DayTimerEntryRemoval> {
-        let mode_uuid = Uuid::parse_str(&identity.mode_uuid)?;
+        let mode_uuid = mode_uuid_key(&identity.mode_uuid)
+            .ok_or_else(|| anyhow::anyhow!("Invalid operating mode UUID; nothing was changed."))?;
         if identity.from_minutes >= identity.to_minutes || identity.to_minutes > 1440 {
             bail!("Entry times must satisfy 00:00 <= from < to <= 24:00; nothing was changed.");
         }
@@ -111,17 +125,20 @@ impl ConfigEditor {
             ),
             _ => bail!("Unsupported DayTimer Analog spelling; nothing was changed."),
         }
-        let modes = block
+        let stored_modes: Vec<_> = block
             .attributes
             .get("Modes")
             .ok_or_else(|| {
                 anyhow::anyhow!("DayTimer has no explicit Modes references; nothing was changed.")
             })?
             .split(',')
-            .map(stored_uuid)
+            .collect();
+        let modes = stored_modes
+            .iter()
+            .map(|raw| mode_uuid_key(raw))
             .collect::<Option<Vec<_>>>()
             .ok_or_else(|| {
-                anyhow::anyhow!("DayTimer Modes requires comma-separated hyphenated UUIDs without whitespace; nothing was changed.")
+                anyhow::anyhow!("DayTimer Modes requires comma-separated non-nil native 8-4-4-16 or RFC 8-4-4-4-12 UUIDs without whitespace; nothing was changed.")
             })?;
         for (index, mode) in modes.iter().enumerate() {
             if modes[..index].contains(mode) {
@@ -134,7 +151,7 @@ impl ConfigEditor {
                         && element
                             .attributes
                             .get("U")
-                            .and_then(|raw| stored_uuid(raw))
+                            .and_then(|raw| mode_uuid_key(raw))
                             .as_ref()
                             == Some(mode)
                 })
@@ -143,7 +160,8 @@ impl ConfigEditor {
                 || matches[0].attributes.get("Type").map(String::as_str) != Some("Mode")
             {
                 bail!(
-                    "DayTimer operating mode {mode} is missing, ambiguous or not a Mode; nothing was changed."
+                    "DayTimer operating mode '{}' is missing, ambiguous or not a Mode; nothing was changed.",
+                    stored_modes[index]
                 );
             }
         }
@@ -201,6 +219,7 @@ impl ConfigEditor {
         let removal = DayTimerEntryRemoval {
             block_uuid: block.attributes.get("U").cloned().unwrap_or_default(),
             entry: identity,
+            stored_mode_uuid: stored_modes[mode_index].to_owned(),
             removed_attributes: block.children[position]
                 .as_element()
                 .unwrap()

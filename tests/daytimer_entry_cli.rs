@@ -6,6 +6,9 @@ use xmltree::Element;
 
 const MODE_A: &str = "11111111-1111-1111-1111-111111111111";
 const MODE_B: &str = "22222222-2222-2222-2222-222222222222";
+const NATIVE_MODE_A: &str = "00000000-0000-0004-1500000000000000";
+const NATIVE_MODE_B: &str = "00000000-0000-0005-1500000000000000";
+const RFC_MODE_A: &str = "00000000-0000-0004-1500-000000000000";
 
 fn fixture() -> String {
     format!(
@@ -14,6 +17,15 @@ fn fixture() -> String {
 }
 
 fn command(input: &std::path::Path, from: &str, to: &str) -> assert_cmd::Command {
+    command_for_mode(input, MODE_A, from, to)
+}
+
+fn command_for_mode(
+    input: &std::path::Path,
+    mode: &str,
+    from: &str,
+    to: &str,
+) -> assert_cmd::Command {
     let mut command = assert_cmd::cargo::cargo_bin_cmd!("lox");
     command
         .env("LOX_TELEMETRY", "0")
@@ -22,7 +34,7 @@ fn command(input: &std::path::Path, from: &str, to: &str) -> assert_cmd::Command
         .args([
             "uuid:timer",
             "--mode-uuid",
-            MODE_A,
+            mode,
             "--from",
             from,
             "--to",
@@ -106,7 +118,7 @@ fn daytimer_delete_last_entry_omits_zero_count_and_keeps_default_and_mode_refere
         .args(["-o", "csv", "--no-header", "-q"])
         .assert()
         .success()
-        .stdout(format!("\"timer\",{MODE_A},120,180,0\n"));
+        .stdout(format!("\"timer\",{MODE_A},{MODE_A},120,180,0\n"));
     let saved = parse(&fs::read(&input).unwrap());
     let timer = saved.get_child("C").unwrap().get_child("C").unwrap();
     assert!(!timer.attributes.contains_key("N"));
@@ -116,6 +128,143 @@ fn daytimer_delete_last_entry_omits_zero_count_and_keeps_default_and_mode_refere
     let before = fs::read(&input).unwrap();
     command(&input, "02:00", "03:00").assert().failure();
     assert_eq!(fs::read(&input).unwrap(), before);
+}
+
+fn native_fixture(stored_mode: &str, object_mode: &str) -> String {
+    fixture()
+        .replace(
+            &format!("Modes=\"{MODE_A},{MODE_B}\""),
+            &format!("Modes=\"{stored_mode},{NATIVE_MODE_B}\""),
+        )
+        .replace(
+            &format!("Type=\"Mode\" U=\"{MODE_A}\""),
+            &format!("Type=\"Mode\" U=\"{object_mode}\""),
+        )
+        .replace(
+            &format!("Type=\"Mode\" U=\"{MODE_B}\""),
+            &format!("Type=\"Mode\" U=\"{NATIVE_MODE_B}\""),
+        )
+}
+
+#[test]
+fn daytimer_native_mode_ids_match_aliases_and_case_without_rewriting_spelling() {
+    let dir = tempfile::tempdir_in(env!("CARGO_MANIFEST_DIR")).unwrap();
+    let input = dir.path().join("input.Loxone");
+    let output = dir.path().join("output.Loxone");
+    for (stored, object, request) in [
+        (NATIVE_MODE_A, NATIVE_MODE_A, NATIVE_MODE_A),
+        (NATIVE_MODE_A, RFC_MODE_A, RFC_MODE_A),
+        (
+            "ABCDEF01-ABCD-0004-15000000ABCDEF00",
+            "abcdef01-abcd-0004-1500-0000abcdef00",
+            "aBcDeF01-AbCd-0004-15000000aBcDeF00",
+        ),
+    ] {
+        let source = native_fixture(stored, object);
+        fs::write(&input, &source).unwrap();
+        let result = command_for_mode(&input, request, "02:00", "03:00")
+            .arg("--save-as")
+            .arg(&output)
+            .args(["-o", "json"])
+            .assert()
+            .success()
+            .get_output()
+            .stdout
+            .clone();
+        let result: Value = serde_json::from_slice(&result).unwrap();
+        assert_eq!(result["removed"]["entry"]["mode_uuid"], request);
+        assert_eq!(result["removed"]["stored_mode_uuid"], stored);
+        assert_eq!(
+            result["removed"]["removed_attributes"]["Marker"],
+            "selected"
+        );
+        assert_eq!(result["removed"]["remaining_entries"], 2);
+        assert_eq!(fs::read(&input).unwrap(), source.as_bytes());
+        let mut expected = parse(source.as_bytes());
+        let timer = expected
+            .get_mut_child("C")
+            .unwrap()
+            .get_mut_child("C")
+            .unwrap();
+        timer.children.retain(|node| {
+            node.as_element().is_none_or(|element| {
+                element.attributes.get("Marker").map(String::as_str) != Some("selected")
+            })
+        });
+        timer.attributes.insert("N".into(), "2".into());
+        let mut actual = parse(&fs::read(&output).unwrap());
+        for root in [&mut actual, &mut expected] {
+            let document = root.get_mut_child("C").unwrap();
+            document.attributes.shift_remove("Date");
+            document.attributes.shift_remove("DateS");
+        }
+        assert_eq!(actual, expected);
+    }
+}
+
+#[test]
+fn daytimer_native_last_entry_and_mixed_alias_duplicates_keep_atomic_boundaries() {
+    let dir = tempfile::tempdir_in(env!("CARGO_MANIFEST_DIR")).unwrap();
+    let input = dir.path().join("input.Loxone");
+    let output = dir.path().join("existing.Loxone");
+    let source = native_fixture(NATIVE_MODE_A, NATIVE_MODE_A)
+        .replace("N=\"3\"", "N=\"1\"")
+        .replace("<Entry From=\"600\" To=\"660\" V=\"3\" Marker=\"late\"/>", "")
+        .replace("<Entry From=\"120\" To=\"180\" Ix=\"1\" V=\"4\" NeedActivate=\"true\" Marker=\"other-mode\"/>", "");
+    fs::write(&input, &source).unwrap();
+    command_for_mode(&input, RFC_MODE_A, "02:00", "03:00")
+        .args(["-o", "csv", "--no-header", "-q"])
+        .assert()
+        .success()
+        .stdout(format!(
+            "\"timer\",{RFC_MODE_A},{NATIVE_MODE_A},120,180,0\n"
+        ));
+    let saved = parse(&fs::read(&input).unwrap());
+    let timer = saved.get_child("C").unwrap().get_child("C").unwrap();
+    assert!(!timer.attributes.contains_key("N"));
+    assert!(timer.get_child("Entry").is_none());
+    assert_eq!(timer.attributes["DefValue"], "0");
+    assert_eq!(
+        timer.attributes["Modes"],
+        format!("{NATIVE_MODE_A},{NATIVE_MODE_B}")
+    );
+    for invalid in [
+        native_fixture(NATIVE_MODE_A, NATIVE_MODE_A).replace(
+            &format!("Modes=\"{NATIVE_MODE_A},{NATIVE_MODE_B}\""),
+            &format!("Modes=\"{NATIVE_MODE_A},{RFC_MODE_A}\""),
+        ),
+        native_fixture(NATIVE_MODE_A, NATIVE_MODE_A).replace(
+            &format!("<C Type=\"Mode\" U=\"{NATIVE_MODE_A}\" Title=\"Mode A\"/>"),
+            &format!("<C Type=\"Mode\" U=\"{NATIVE_MODE_A}\" Title=\"Mode A\"/><C Type=\"Mode\" U=\"{RFC_MODE_A}\"/>"),
+        ),
+        native_fixture(NATIVE_MODE_A, NATIVE_MODE_A)
+            .replace(NATIVE_MODE_B, "00000000-0000-0000-0000000000000000"),
+    ] {
+        fs::write(&input, &invalid).unwrap();
+        fs::write(&output, b"existing destination").unwrap();
+        command_for_mode(&input, NATIVE_MODE_A, "02:00", "03:00")
+            .arg("--save-as")
+            .arg(&output)
+            .assert()
+            .failure();
+        assert_eq!(fs::read(&input).unwrap(), invalid.as_bytes());
+        assert_eq!(fs::read(&output).unwrap(), b"existing destination");
+    }
+    let missing = dir.path().join("missing.Loxone");
+    for malformed in [
+        "00000000000000041500000000000000",
+        "urn:uuid:00000000-0000-0004-1500-000000000000",
+        "{00000000-0000-0004-1500-000000000000}",
+        "00000000-0000-0004-1500000000000000 ",
+        "0000000-00000-0004-1500000000000000",
+        "00000000-0000-0004-150000000000000g",
+        "00000000-0000-0000-0000000000000000",
+    ] {
+        command_for_mode(&missing, malformed, "02:00", "03:00")
+            .assert()
+            .failure()
+            .stderr(predicate::str::contains("Cannot read").not());
+    }
 }
 
 #[test]

@@ -40,6 +40,23 @@ There is no entry UUID in this record layout. Normalization sorts by `Ix`
 then `From` (`0x140082090`), so XML ordinal is not stable identity.
 The CLI resolves the mode UUID and exact interval, preserving XML order.
 
+Native identifiers use the 35-character `8-4-4-16` grouping, with dashes at
+zero-based positions 8, 13 and 18, for example
+`00000000-0000-0004-1500000000000000`. The RFC 36-character `8-4-4-4-12`
+alias adds a dash at position 23. Both contain exactly 32 ASCII hex digits.
+The comparison key removes only these validated dash positions and lowercases
+hex digits; the same key is used for request lookup, Modes membership and
+duplicate detection, and global Mode.U resolution. Nil and other layouts
+are rejected. This does not claim that the native writer emits RFC UUIDs.
+
+The original `ce986a8` implementation and synthetic tests incorrectly assumed
+RFC-only stored identifiers. The follow-up fixes that real lookup bug without
+changing the accepted deletion/count/default branch. Mixed native/RFC aliases
+for one value are ambiguous duplicates, not distinct modes. Stored Modes and
+Mode.U spellings remain untouched. Output separates verbatim request
+(`removed.entry.mode_uuid`, CSV `MODE_UUID`) from the actual matched Modes token
+(`removed.stored_mode_uuid`, CSV `STORED_MODE_UUID`).
+
 `0x1405385e0` derives `N` from serialized records, excluding default-valued
 records for ordinary `M=0`. Integer fields use type 5 and omit-zero;
 the generic reader `0x1404c52f0` clears the read string and converts it
