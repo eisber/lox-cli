@@ -798,6 +798,22 @@ pub(crate) enum ConfigCmd {
         #[arg(long)]
         save_as: Option<String>,
     },
+    /// Delete one ordinary digital DayTimer entry by operating mode UUID and exact interval
+    TimerEntryRemove {
+        file: String,
+        selector: String,
+        /// Referenced operating mode UUID, NOT an entry UUID, ordinal or weekday mask
+        #[arg(long)]
+        mode_uuid: String,
+        #[arg(long, value_name = "HH:MM")]
+        from: String,
+        #[arg(long, value_name = "HH:MM")]
+        to: String,
+        #[arg(short, long)]
+        room: Option<String>,
+        #[arg(long)]
+        save_as: Option<String>,
+    },
     /// List operating modes from a .Loxone config file
     ModeList { file: String },
     /// Create a VirtualIn element in a config file (returns connector UUID)

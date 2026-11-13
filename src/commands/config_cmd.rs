@@ -2360,6 +2360,61 @@ pub fn cmd_config(ctx: &RunContext, action: ConfigCmd) -> Result<()> {
             );
             save_edited(&mut editor, &file, save_as.as_deref())?;
         }
+        ConfigCmd::TimerEntryRemove {
+            file,
+            selector,
+            mode_uuid,
+            from,
+            to,
+            room,
+            save_as,
+        } => {
+            let identity =
+                crate::config_edit::daytimer::DayTimerEntryIdentity::parse(&mode_uuid, &from, &to)?;
+            let selector = match room {
+                Some(_) if selector.ends_with(']') && selector.contains('[') => {
+                    bail!("Use either a bracket room qualifier or --room, not both.")
+                }
+                Some(room) => format!("{selector} [{room}]"),
+                None => selector,
+            };
+            let data = fs::read(&file).with_context(|| format!("Cannot read {file}"))?;
+            let mut editor = ConfigEditor::load(&data)?;
+            let removed = editor.remove_daytimer_entry(&selector, identity)?;
+            save_edited_with_quiet(
+                &mut editor,
+                &file,
+                save_as.as_deref(),
+                ctx.quiet || ctx.json || ctx.csv,
+            )?;
+            if ctx.json {
+                emit_json(
+                    ctx,
+                    serde_json::json!({
+                        "ok": true,
+                        "saved_to": save_as.as_deref().unwrap_or(&file),
+                        "removed": removed,
+                    }),
+                );
+            } else if ctx.csv {
+                if !ctx.no_header {
+                    println!("BLOCK_UUID,MODE_UUID,FROM_MINUTES,TO_MINUTES,REMAINING_ENTRIES");
+                }
+                println!(
+                    "{},{},{},{},{}",
+                    format_args!("\"{}\"", removed.block_uuid.replace('"', "\"\"")),
+                    removed.entry.mode_uuid,
+                    removed.entry.from_minutes,
+                    removed.entry.to_minutes,
+                    removed.remaining_entries,
+                );
+            } else if !ctx.quiet {
+                println!(
+                    "✓ Removed DayTimer entry {from}-{to} for mode {mode_uuid}; {} entries remain",
+                    removed.remaining_entries
+                );
+            }
+        }
         ConfigCmd::ModeList { file } => {
             let data = fs::read(&file).with_context(|| format!("Cannot read {}", file))?;
             let controls = loxone_xml::parse_controls(&data, Some("Mode"), None)?;

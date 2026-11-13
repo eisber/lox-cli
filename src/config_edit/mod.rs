@@ -13,6 +13,7 @@
 //! ```
 
 mod blocks;
+pub mod daytimer;
 mod describe;
 pub mod energy;
 #[cfg(test)]

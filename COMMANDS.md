@@ -1203,6 +1203,39 @@ lox config timer-schedule file.Loxone "Night Timer" "06:00-08:00" --value 0.5
 
 Arguments: `<FILE> <SELECTOR> <RANGE>`. Range format: `HH:MM-HH:MM`. `--value` sets the output during active period (default: 1).
 
+Delete one existing native schedule entry without replacing its neighbors:
+
+```bash
+lox config timer-entry-remove file.Loxone "Night Timer" --mode-uuid 11111111-1111-1111-1111-111111111111 --from 20:00 --to 24:00 --save-as edited.Loxone -o json
+```
+
+Identity is the referenced **operating mode UUID plus exact From/To interval**,
+not XML order, an entry UUID, weekday mask, or operating mode number. `--room`
+disambiguates the timer. Times require exact `HH:MM`; split overnight intervals
+are separate records. The old `timer-schedule` replacement command is unchanged.
+
+This bounded operation requires ordinary digital `M=0` storage (`Analog` absent
+or `false`), consistent native `N`,
+valid unique `Modes` UUID references, in-range `Ix`, and non-touching,
+non-overlapping intervals within each mode. Analog schedules are not yet qualified
+and are rejected, not treated as unsupported by the native application.
+Stored Modes and referenced Mode UUIDs must use the non-nil 36-character hyphenated form;
+Modes is comma-separated without whitespace. Other UUID representations are
+rejected rather than assumed to have identical native parsing.
+Unsupported/ambiguous storage is rejected, not repaired. `From`/`Ix` omission
+means native zero; it does not mean all days. Legacy To-only replacement
+storage without native counts/references is not accepted.
+
+Only the selected Entry and its native `N` count change, plus the normal Document
+save stamp. The last entry may be deleted (`N=0` is omitted); the default value,
+Modes order/references, surviving entry order/attributes, unknown fields, and
+connector wires remain unchanged. The digital native default remains zero.
+No normalization, renumbering, default
+insertion, or mode deletion. Domain errors leave input and existing `--save-as`
+files untouched. JSON/CSV/quiet output are supported; `--dry-run` remains
+unsupported and fails before file I/O. See
+[native source notes](docs/knowledge/daytimer-entry-delete-native.md).
+
 ### Virtual inputs
 
 ```bash
