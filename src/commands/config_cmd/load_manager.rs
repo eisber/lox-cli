@@ -52,17 +52,35 @@ pub(crate) enum LoadManagerCmd {
         #[arg(long, value_name = "PATH")]
         save_as: Option<String>,
     },
+    /// Set one configured consumer's Name cell by stable ioIdx, not priority
+    SetName {
+        #[command(flatten)]
+        target: LoadManagerTarget,
+        /// Connector association ioIdx (0..11), NOT the 1-based priority
+        #[arg(value_parser = clap::value_parser!(u8).range(0..=11))]
+        io_index: u8,
+        /// Exact single-line Unicode name; empty clears it, spaces are preserved
+        name: String,
+        #[arg(long, value_name = "PATH")]
+        save_as: Option<String>,
+    },
 }
 
 pub(crate) fn run(ctx: &RunContext, action: LoadManagerCmd) -> Result<()> {
-    let (target, edit, save_as) = match action {
-        LoadManagerCmd::Inspect { target } => (target, None, None),
+    let (target, edit, set_name, save_as) = match action {
+        LoadManagerCmd::Inspect { target } => (target, None, None, None),
         LoadManagerCmd::Move {
             target,
             io_index,
             direction,
             save_as,
-        } => (target, Some((io_index, direction)), save_as),
+        } => (target, Some((io_index, direction)), None, save_as),
+        LoadManagerCmd::SetName {
+            target,
+            io_index,
+            name,
+            save_as,
+        } => (target, None, Some((io_index, name)), save_as),
     };
     let selector = target.selector()?;
     let mut editor = ConfigEditor::load(&std::fs::read(&target.file)?)?;
@@ -76,8 +94,15 @@ pub(crate) fn run(ctx: &RunContext, action: LoadManagerCmd) -> Result<()> {
             },
         )?;
     }
+    let name_changed = set_name
+        .as_ref()
+        .map(|(io_index, name)| editor.set_load_manager_load_name(&selector, *io_index, name))
+        .transpose()?;
     let inspection = editor.inspect_load_manager(&selector)?;
-    let saved_to = if edit.is_some() {
+    let saved_to = if edit.is_some()
+        || name_changed == Some(true)
+        || (name_changed.is_some() && save_as.is_some())
+    {
         super::save_edited_with_quiet(
             &mut editor,
             &target.file,
@@ -94,6 +119,9 @@ pub(crate) fn run(ctx: &RunContext, action: LoadManagerCmd) -> Result<()> {
             "saved_to": saved_to,
             "load_manager": inspection,
         });
+        if let Some(changed) = name_changed {
+            result["changed"] = serde_json::json!(changed);
+        }
         if let Some(trace_id) = &ctx.trace_id {
             result["trace_id"] = serde_json::json!(trace_id);
         }

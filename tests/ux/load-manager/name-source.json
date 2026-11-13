@@ -1,0 +1,444 @@
+{
+  "schema_version": 1,
+  "application": {
+    "version": "17.2.10.21",
+    "architecture": "AMD64",
+    "pe_sha256": "7b55e3ef18401574ab967c5c6a0140cd5a66dc728521ebba04ad53093577d8b3",
+    "installation_sha256": "a3003005776b327f5e666a072a64f5c569182b86174c0f578d5be3267ce28f85",
+    "analysis_id": "6a0520329af17d7b9fdaafe69398c62c454d9da838fc9f9c8d0bdd8d17bb15ae"
+  },
+  "operation": "LoadShed configured consumer Name cell by stable ioIdx",
+  "status": "source-recovered; not native/runtime qualified",
+  "issue": "lox-j5uq",
+  "baseline": {
+    "commit": "2e2e828806d7722de0389114f3e0c02cfc765dd2",
+    "tree": "75518527ac961f9a965a032495daf3cf7d9129d8"
+  },
+  "behavioral_question": "Is the configured consumer Name intentionally editable, which exact event/setter/validators accept it, and how is accepted state serialized without changing stable ioIdx or order?",
+  "unknowns_at_selection": [
+    "Name-cell editability and intentional event callback, not just writable nm XML.",
+    "Empty/Unicode/whitespace/length/duplication semantics and any pre-accept validator.",
+    "Whether generic parameters already provide the same stable nested-load operation."
+  ],
+  "trace_timebox": {
+    "started_utc": "2026-11-12T23:55:13Z",
+    "resolved_before_utc": "2026-11-13T00:06:40Z",
+    "limit_minutes": 20,
+    "result": "Initial setter chain <6min; final cancel-capable signal check completed <12min. No unresolved caller/validator remains; implementation/gates follow separately."
+  },
+  "unimplemented_at_baseline": {
+    "typed_namespace": "LoadManagerCmd has only Inspect/Move.",
+    "generic_parameters": "ConfigEditor.set_param only edits direct Co/@Def or its five attribute fallbacks MaxVal/MinVal/MinChange/MinTime/Step; neither nm nor Load.0.nm reaches this cell.",
+    "generic_xml": "Raw XML editing is not the intentional Name-cell operation and provides no stable ioIdx semantics; no duplication of such UX is claimed.",
+    "naming": "set-name follows typed setter naming; positional FILE SELECTOR IO_INDEX NAME, standard --room/--save-as/output flags."
+  },
+  "existing_evidence_reused": [
+    {
+      "path": "tests/ux/load-manager/move-source.json",
+      "committed_lf_sha256": "a1ee3c69b5945572632e14dbd90f4bbc0d6d55476592bc3561316c98c9e003c3",
+      "scope": "Fixed twelve rows, order distinct from stable ioIdx, central resolved-identity resolver including omitted zero, accepted-copy, writer, existing move behavior and guards unchanged."
+    },
+    {
+      "path": ".reverse-engineering/element-atlas/ux-mechanisms.json",
+      "sha256": "89460d04d5a7a815a32240b608be3c94e25fceab65077659e642ead5a5959a13",
+      "scope": "Class/member leads only; not treated as editability proof."
+    },
+    {
+      "path": ".reverse-engineering/element-atlas/native-map.json",
+      "sha256": "44c73370477203133c4eb8a906ed455946dbfe745c2e4150db32251d4c761627",
+      "scope": "Previously resolved Load Manager class locator only."
+    },
+    {
+      "path": ".reverse-engineering/element-atlas/load-manager-dialog-dispatch-20261107T2118Z/report.json",
+      "sha256": "81956355c2d3ee02cef24607e6c67d4d7174ea0fd1c2def203114cb91d1bcfa8",
+      "scope": "Existing dialog class/arrow dispatch, not re-counted as new semantics."
+    }
+  ],
+  "newly_resolved_functions": [
+    {
+      "address": "0x140d43310",
+      "role": "Table key event matches standard-key 10 and emits current-cell paste signal.",
+      "canonical_path": ".reverse-engineering\\versions\\a3003005776b327f5e666a072a64f5c569182b86174c0f578d5be3267ce28f85\\analysis\\6a0520329af17d7b9fdaafe69398c62c454d9da838fc9f9c8d0bdd8d17bb15ae\\LoxoneConfig.exe\\code\\functions\\0x140d43310.c",
+      "sha256": "c84d3717e2766a53304ede944e8494278e7729adfbe7f6b5e384c4b7fd5a53af",
+      "lf_sha256": "207a93e95ffef09da07d59e6325d8be0f1da43703441cf87d9b6707100f610ed"
+    },
+    {
+      "address": "0x140d3f4d0",
+      "role": "Two-index table paste signal emitted through Qt activation.",
+      "canonical_path": ".reverse-engineering\\versions\\a3003005776b327f5e666a072a64f5c569182b86174c0f578d5be3267ce28f85\\analysis\\6a0520329af17d7b9fdaafe69398c62c454d9da838fc9f9c8d0bdd8d17bb15ae\\LoxoneConfig.exe\\code\\functions\\0x140d3f4d0.c",
+      "sha256": "b3e762a1e858e9c7495e7d37f81344ee9d68c63a8efc5778304b81137498d963",
+      "lf_sha256": "9249c68ea136889756ea9921c567c2f6cd4618c69b8a983ee2f0bdd0ea3b2056"
+    },
+    {
+      "address": "0x140b66d90",
+      "role": "Installed Load Manager generic table connects paste signal to 0x140b6b170 and clear signal to 0x140b6a960.",
+      "canonical_path": ".reverse-engineering\\versions\\a3003005776b327f5e666a072a64f5c569182b86174c0f578d5be3267ce28f85\\analysis\\6a0520329af17d7b9fdaafe69398c62c454d9da838fc9f9c8d0bdd8d17bb15ae\\LoxoneConfig.exe\\code\\functions\\0x140b66d90.c",
+      "sha256": "283b6c0ed878f2eb84685ff4ff90c3ebfc4ea00a6fdd7ca49d903e6907f847f9",
+      "lf_sha256": "5311538300a3dc13ce89330a1cc54bab711a50b2e4aefee8a28bbe6403fc161b"
+    },
+    {
+      "address": "0x140b6b170",
+      "role": "Intentional single-cell paste caller: clipboard QString without tab/LF becomes QVariant unchanged and enters 0x140d39e10; tab/LF instead takes separate multi-cell path.",
+      "canonical_path": ".reverse-engineering\\versions\\a3003005776b327f5e666a072a64f5c569182b86174c0f578d5be3267ce28f85\\analysis\\6a0520329af17d7b9fdaafe69398c62c454d9da838fc9f9c8d0bdd8d17bb15ae\\LoxoneConfig.exe\\code\\functions\\0x140b6b170.c",
+      "sha256": "e3019323764f44ad2c1eaafbc509823debf5ec7c3c06d6f8f3e4c0a58a531c5c",
+      "lf_sha256": "db20c34782b0560ec23a8ec496aeb2dae0d512328e5b4fbad93923eaad6be774"
+    },
+    {
+      "address": "0x140b6a960",
+      "role": "Intentional clear caller: checks cell editability then commits empty QVariant through same model change function.",
+      "canonical_path": ".reverse-engineering\\versions\\a3003005776b327f5e666a072a64f5c569182b86174c0f578d5be3267ce28f85\\analysis\\6a0520329af17d7b9fdaafe69398c62c454d9da838fc9f9c8d0bdd8d17bb15ae\\LoxoneConfig.exe\\code\\functions\\0x140b6a960.c",
+      "sha256": "694ba88944a848360014172b9a1b35a3e307b9a9d02104da67ea7d1fc5f7b22a",
+      "lf_sha256": "bba23e3f145fef55c118ae48288cd8b329b6844539bf5c27af7b2ef237bd0ee4"
+    },
+    {
+      "address": "0x140d39060",
+      "role": "Native cell editability checks IData wrapper editable predicate, not XML writability.",
+      "canonical_path": ".reverse-engineering\\versions\\a3003005776b327f5e666a072a64f5c569182b86174c0f578d5be3267ce28f85\\analysis\\6a0520329af17d7b9fdaafe69398c62c454d9da838fc9f9c8d0bdd8d17bb15ae\\LoxoneConfig.exe\\code\\functions\\0x140d39060.c",
+      "sha256": "8f49732afe1dd1bf7d9a33750b0b74f37562f9c571f4a44c2c23e3fa02d14358",
+      "lf_sha256": "28be3a464418bb510b6190c16206461ffad8913ac1138d8ecbed6b43b7034143"
+    },
+    {
+      "address": "0x140025b90",
+      "role": "CDataWrapper editable predicate delegates to provider slot +0x50 with the stored column id.",
+      "canonical_path": ".reverse-engineering\\versions\\a3003005776b327f5e666a072a64f5c569182b86174c0f578d5be3267ce28f85\\analysis\\6a0520329af17d7b9fdaafe69398c62c454d9da838fc9f9c8d0bdd8d17bb15ae\\LoxoneConfig.exe\\code\\functions\\0x140025b90.c",
+      "sha256": "0b01aab6f9a8d6b0a401b13bb655d8b60d2a0d4ecd83230a27b92a33aefdfb92",
+      "lf_sha256": "45238f36ba92c5141f3309c65ca41ed13b46be2d71718dc4b478272899c560a8"
+    },
+    {
+      "address": "0x140862090",
+      "role": "CLoad editable-column predicate returns true for columns 3..6; Name is column 3.",
+      "canonical_path": ".reverse-engineering\\versions\\a3003005776b327f5e666a072a64f5c569182b86174c0f578d5be3267ce28f85\\analysis\\6a0520329af17d7b9fdaafe69398c62c454d9da838fc9f9c8d0bdd8d17bb15ae\\LoxoneConfig.exe\\code\\functions\\0x140862090.c",
+      "sha256": "26f887914ba4e4a63ecd9103ebd4b56aa26d8e6622d50433f47c23e58311de85",
+      "lf_sha256": "39cbbcad8a6eede16380a652e9a4a564d4fd615d752801b42e7bd21f16e55186"
+    },
+    {
+      "address": "0x140d3d540",
+      "role": "CGenericViewModel setData accepts edit/check roles and delegates to model commit function.",
+      "canonical_path": ".reverse-engineering\\versions\\a3003005776b327f5e666a072a64f5c569182b86174c0f578d5be3267ce28f85\\analysis\\6a0520329af17d7b9fdaafe69398c62c454d9da838fc9f9c8d0bdd8d17bb15ae\\LoxoneConfig.exe\\code\\functions\\0x140d3d540.c",
+      "sha256": "48fdee77e879f0262747c30a9d074c122a9ccbe6ad4b1297f4d96de39ef090bb",
+      "lf_sha256": "989a35b251d28a0e995e0cee06344521fdb70d3ea3fe9d1703aeb9adcfea20ee"
+    },
+    {
+      "address": "0x140d39e10",
+      "role": "Exact model commit: editable-interface dispatch; confirmation predicate +0xc8; setter +0xb0; changed signal. No name uniqueness, trim or nonempty validator in this path.",
+      "canonical_path": ".reverse-engineering\\versions\\a3003005776b327f5e666a072a64f5c569182b86174c0f578d5be3267ce28f85\\analysis\\6a0520329af17d7b9fdaafe69398c62c454d9da838fc9f9c8d0bdd8d17bb15ae\\LoxoneConfig.exe\\code\\functions\\0x140d39e10.c",
+      "sha256": "bcd7a5de5ba4cab5b0cc80d83324bb9c87eabcd72d9ddec0674c8df58b0eb1a1",
+      "lf_sha256": "36a8fadf50c37551872b4d54b744b8d42db1dd722f30cc18f07df86d3a65f6d4"
+    },
+    {
+      "address": "0x140025b40",
+      "role": "CDataWrapper slot +0xb0 delegates to provider slot +0x38 with column id and submitted QVariant.",
+      "canonical_path": ".reverse-engineering\\versions\\a3003005776b327f5e666a072a64f5c569182b86174c0f578d5be3267ce28f85\\analysis\\6a0520329af17d7b9fdaafe69398c62c454d9da838fc9f9c8d0bdd8d17bb15ae\\LoxoneConfig.exe\\code\\functions\\0x140025b40.c",
+      "sha256": "fd38a6011ebae7172e701a9f24f76077f2c651042ae9815e8913495d4c18f044",
+      "lf_sha256": "b601a6469ad8e8b46fe39e3dac1177732ef7277e130806a25c10496520fbc123"
+    },
+    {
+      "address": "0x140863480",
+      "role": "CLoad intentional cell setter: column 3 QVariant.toString -> row+0x30 UTF-8 conversion. Other columns are separate numeric branches and are NOT implemented.",
+      "canonical_path": ".reverse-engineering\\versions\\a3003005776b327f5e666a072a64f5c569182b86174c0f578d5be3267ce28f85\\analysis\\6a0520329af17d7b9fdaafe69398c62c454d9da838fc9f9c8d0bdd8d17bb15ae\\LoxoneConfig.exe\\code\\functions\\0x140863480.c",
+      "sha256": "b502f94044ae3bd7dbcd4805fb235210d35854e8ba45f67fb455329393c923fb",
+      "lf_sha256": "915a2029a7e1ff17d112a1cb90ff9e4c785e63c8bccca69cf2074d6f60922873"
+    },
+    {
+      "address": "0x14041db10",
+      "role": "QString.toUtf8 + strlen + allocation/copy: no trimming, normalization, fixed-capacity truncation or duplicate check; embedded NUL is excluded by CLI.",
+      "canonical_path": ".reverse-engineering\\versions\\a3003005776b327f5e666a072a64f5c569182b86174c0f578d5be3267ce28f85\\analysis\\6a0520329af17d7b9fdaafe69398c62c454d9da838fc9f9c8d0bdd8d17bb15ae\\LoxoneConfig.exe\\code\\functions\\0x14041db10.c",
+      "sha256": "9c9401eea49aacce0a946837e3043a8831a7f6e3b7df458cb682e7122e036b61",
+      "lf_sha256": "4e6679da882ef688c0456bec5a290fead446d1c60db031cf73846368eabb3929"
+    },
+    {
+      "address": "0x140025b80",
+      "role": "Wrapper post-change hook delegates to CLoad slot +0x48.",
+      "canonical_path": ".reverse-engineering\\versions\\a3003005776b327f5e666a072a64f5c569182b86174c0f578d5be3267ce28f85\\analysis\\6a0520329af17d7b9fdaafe69398c62c454d9da838fc9f9c8d0bdd8d17bb15ae\\LoxoneConfig.exe\\code\\functions\\0x140025b80.c",
+      "sha256": "9ae2e2cc943e5a50711e166336deb2d9d09303a28587e58f7a127b2c5e842716",
+      "lf_sha256": "f40a188480bd812388870371b916e71b44b09006b84c1d2f0786e18adc91cb23"
+    },
+    {
+      "address": "0x14000c610",
+      "role": "Returns zero: wrapper +0xc8 disables optional confirmation; CLoad +0x48 post-change hook returns zero. This is the recovered no-extra-validator result, not a guessed validator.",
+      "canonical_path": ".reverse-engineering\\versions\\a3003005776b327f5e666a072a64f5c569182b86174c0f578d5be3267ce28f85\\analysis\\6a0520329af17d7b9fdaafe69398c62c454d9da838fc9f9c8d0bdd8d17bb15ae\\LoxoneConfig.exe\\code\\functions\\0x14000c610.c",
+      "sha256": "3359edae75062edcabf5eb14c00d7dcfbbecf7bd7acf07f59eefbb8982fd1986",
+      "lf_sha256": "6d38f213bb295957d2e52b5f4434ba2f3b071f38e1c82b8fddfacc1c675bc42d"
+    },
+    {
+      "address": "0x140b6a7b0",
+      "role": "Single changed-item signal adapter to generic changed-item handler.",
+      "canonical_path": ".reverse-engineering\\versions\\a3003005776b327f5e666a072a64f5c569182b86174c0f578d5be3267ce28f85\\analysis\\6a0520329af17d7b9fdaafe69398c62c454d9da838fc9f9c8d0bdd8d17bb15ae\\LoxoneConfig.exe\\code\\functions\\0x140b6a7b0.c",
+      "sha256": "feb940d63719e3271fb8f51671597110fa754fd969fc3d9e8da4a4a768e96761",
+      "lf_sha256": "4b12f4312f9c0d7f2f832fd32ceaa6497ed561d54b07c1aa7eb6528603512303"
+    },
+    {
+      "address": "0x140b6a4f0",
+      "role": "Connected changed-item handler calls wrapper +0xc0 -> 0x140025b80 -> no-op row hook, then refreshes/signals.",
+      "canonical_path": ".reverse-engineering\\versions\\a3003005776b327f5e666a072a64f5c569182b86174c0f578d5be3267ce28f85\\analysis\\6a0520329af17d7b9fdaafe69398c62c454d9da838fc9f9c8d0bdd8d17bb15ae\\LoxoneConfig.exe\\code\\functions\\0x140b6a4f0.c",
+      "sha256": "44166dfb0fe4c0096ec2726656dfcc6cf74d5486c8fb72f4c3e6709c072ee1e3",
+      "lf_sha256": "fd9fb13ac130e193f1bbcf5bdbfdc192c17abdbc39404430a30cf58b95e06956"
+    },
+    {
+      "address": "0x140025dc0",
+      "role": "Creates column-specific CDataWrapper objects associated with CLoad provider.",
+      "canonical_path": ".reverse-engineering\\versions\\a3003005776b327f5e666a072a64f5c569182b86174c0f578d5be3267ce28f85\\analysis\\6a0520329af17d7b9fdaafe69398c62c454d9da838fc9f9c8d0bdd8d17bb15ae\\LoxoneConfig.exe\\code\\functions\\0x140025dc0.c",
+      "sha256": "9d5fcc7140cfb9ae415655c96b3ab85bb63175c72cb2792631c30ac96ac93fab",
+      "lf_sha256": "d7be42e2a2b2b25dcf75640dc4255d422f0b204855e548f195c9e9eb36050dce"
+    },
+    {
+      "address": "0x140b60630",
+      "role": "Installs each temporary CLoad provider into the Configure loads generic table row.",
+      "canonical_path": ".reverse-engineering\\versions\\a3003005776b327f5e666a072a64f5c569182b86174c0f578d5be3267ce28f85\\analysis\\6a0520329af17d7b9fdaafe69398c62c454d9da838fc9f9c8d0bdd8d17bb15ae\\LoxoneConfig.exe\\code\\functions\\0x140b60630.c",
+      "sha256": "38d98ba532d3243e1b86eb8580068e872d48392124a4590b991a59b4b55136d2",
+      "lf_sha256": "cad362ce57d1f2ef4e20a0b8763fb34694955e950127a08fd39c8385f419a2a5"
+    },
+    {
+      "address": "0x14085f4a0",
+      "role": "Column 3 display reads UTF-8 string at row+0x30; ioIdx labels remain row+0x28.",
+      "canonical_path": ".reverse-engineering\\versions\\a3003005776b327f5e666a072a64f5c569182b86174c0f578d5be3267ce28f85\\analysis\\6a0520329af17d7b9fdaafe69398c62c454d9da838fc9f9c8d0bdd8d17bb15ae\\LoxoneConfig.exe\\code\\functions\\0x14085f4a0.c",
+      "sha256": "31914d82fd99708fccf74f5294dbc248bb14bb1cd8358237e8e31ea6457b6f18",
+      "lf_sha256": "cb5aff4bb238eb34415e4a90d0a9902c5f1cfcad1f742cca00075e923b0b626f"
+    },
+    {
+      "address": "0x14085f650",
+      "role": "Name column 3 heading uses existing resource id 0x2c36.",
+      "canonical_path": ".reverse-engineering\\versions\\a3003005776b327f5e666a072a64f5c569182b86174c0f578d5be3267ce28f85\\analysis\\6a0520329af17d7b9fdaafe69398c62c454d9da838fc9f9c8d0bdd8d17bb15ae\\LoxoneConfig.exe\\code\\functions\\0x14085f650.c",
+      "sha256": "b47c3009d641607c1a43c2e3f0363a6dbe6c28c30333224ee3d58c2a25ba555e",
+      "lf_sha256": "05ea3b4ebb894beb52e52a1dd1cab43da3aceea8a99a117a505f9ec364ecda3f"
+    },
+    {
+      "address": "0x140d3afe0",
+      "role": "Installed native QAbstractTableModel gets CGenericViewModel vtable and generic data pointer.",
+      "canonical_path": ".reverse-engineering\\versions\\a3003005776b327f5e666a072a64f5c569182b86174c0f578d5be3267ce28f85\\analysis\\6a0520329af17d7b9fdaafe69398c62c454d9da838fc9f9c8d0bdd8d17bb15ae\\LoxoneConfig.exe\\code\\functions\\0x140d3afe0.c",
+      "sha256": "59291efc86efd899c140160797566c56d0a351861c4cfaf1f556f8489fd3d0de",
+      "lf_sha256": "283095c5606403d3e8bdf3278134672e786b686515243b5aac0eeb5ccf4c3328"
+    },
+    {
+      "address": "0x140b688c0",
+      "role": "Generic table mode constructs the native table view used by Configure loads.",
+      "canonical_path": ".reverse-engineering\\versions\\a3003005776b327f5e666a072a64f5c569182b86174c0f578d5be3267ce28f85\\analysis\\6a0520329af17d7b9fdaafe69398c62c454d9da838fc9f9c8d0bdd8d17bb15ae\\LoxoneConfig.exe\\code\\functions\\0x140b688c0.c",
+      "sha256": "361409e35a1c923289d015ad25157d2df44860d5ef51adf00139b7ccb5efd1c3",
+      "lf_sha256": "1ec7607b491e287e1b8328467b398d0634cc8442e549afa2148b656a59472b1d"
+    },
+    {
+      "address": "0x140d3fae0",
+      "role": "Native table constructor sets table vtables and common table implementation.",
+      "canonical_path": ".reverse-engineering\\versions\\a3003005776b327f5e666a072a64f5c569182b86174c0f578d5be3267ce28f85\\analysis\\6a0520329af17d7b9fdaafe69398c62c454d9da838fc9f9c8d0bdd8d17bb15ae\\LoxoneConfig.exe\\code\\functions\\0x140d3fae0.c",
+      "sha256": "6576de392057ae4f1a65df80216575c755f7ab3934156758520908dc67817d3c",
+      "lf_sha256": "ff946d013a8179f93b54cb8523d1aca934a6d30c1e6455b3a6e80306bef72592"
+    },
+    {
+      "address": "0x140d3fe10",
+      "role": "Common table constructor retains generic data pointer; no Name-specific editor validator installed here.",
+      "canonical_path": ".reverse-engineering\\versions\\a3003005776b327f5e666a072a64f5c569182b86174c0f578d5be3267ce28f85\\analysis\\6a0520329af17d7b9fdaafe69398c62c454d9da838fc9f9c8d0bdd8d17bb15ae\\LoxoneConfig.exe\\code\\functions\\0x140d3fe10.c",
+      "sha256": "6e96bfa59f25b35d927bfba0a94685de7efe19b93ce5e156f7d829eba4e6ff9f",
+      "lf_sha256": "bcc3e741ece5937869d83655ad41e03f7700cb1e9dd0ebdbbc02b92eb73c2153"
+    },
+    {
+      "address": "0x140b5f350",
+      "role": "Constructor used by Load Manager creates GenericView through 0x140b5f3d0.",
+      "canonical_path": ".reverse-engineering\\versions\\a3003005776b327f5e666a072a64f5c569182b86174c0f578d5be3267ce28f85\\analysis\\6a0520329af17d7b9fdaafe69398c62c454d9da838fc9f9c8d0bdd8d17bb15ae\\LoxoneConfig.exe\\code\\functions\\0x140b5f350.c",
+      "sha256": "ddaf2421c9eff2c3dce7b0459bd716ae17695d93d89a51b90325063553f02d72",
+      "lf_sha256": "2da96a0fccaa6a3eff6fb25dd87f02295ef5a1ac8373f7faa385d691f560beee"
+    },
+    {
+      "address": "0x140b5f3d0",
+      "role": "Initializes table-mode field zero and generic data, consumed by 0x140b66d90.",
+      "canonical_path": ".reverse-engineering\\versions\\a3003005776b327f5e666a072a64f5c569182b86174c0f578d5be3267ce28f85\\analysis\\6a0520329af17d7b9fdaafe69398c62c454d9da838fc9f9c8d0bdd8d17bb15ae\\LoxoneConfig.exe\\code\\functions\\0x140b5f3d0.c",
+      "sha256": "21456f14efcdd0ec8dafb4b67beb9cd85dd59bae93f1596006104061099d9db8",
+      "lf_sha256": "4d429bfdf04356c6578c894e8a4cbdcf86a8b470f8b09f929ac3a4a726f5dd34"
+    },
+    {
+      "address": "0x140cfb7b0",
+      "role": "Cancel-capable before-change signal emitted before setter; followed explicitly rather than assumed harmless.",
+      "canonical_path": ".reverse-engineering\\versions\\a3003005776b327f5e666a072a64f5c569182b86174c0f578d5be3267ce28f85\\analysis\\6a0520329af17d7b9fdaafe69398c62c454d9da838fc9f9c8d0bdd8d17bb15ae\\LoxoneConfig.exe\\code\\functions\\0x140cfb7b0.c",
+      "sha256": "aece3572b3c2688067732d4424f44734b4aed70e94fd167bdbac975eba1550b2",
+      "lf_sha256": "06172a85f798fb58e1cc0409b34bf36fc50053e8b7d44b8d34c39e61e16827b0"
+    },
+    {
+      "address": "0x140c08180",
+      "role": "Generic forwarded before-change signal; its bool pointer remains unchanged unless an owner installs a listener. The Load Manager constructor installs only selection/data-changed button listeners, no before-change validator.",
+      "canonical_path": ".reverse-engineering\\versions\\a3003005776b327f5e666a072a64f5c569182b86174c0f578d5be3267ce28f85\\analysis\\6a0520329af17d7b9fdaafe69398c62c454d9da838fc9f9c8d0bdd8d17bb15ae\\LoxoneConfig.exe\\code\\functions\\0x140c08180.c",
+      "sha256": "1f92a8c0222871d782318bc6ac7faeffb63067e8181bd2f1253e53cf823cae93",
+      "lf_sha256": "65cfc8b60d3a20aeb493cf0944f8a89d6902588a9ef4241ac8cd90b62bcb3c6d"
+    },
+    {
+      "address": "0x140b6b700",
+      "role": "Actual thunk bound by 0x140b66d90 forwards the same before-change signal without mutating its bool pointer.",
+      "canonical_path": ".reverse-engineering\\versions\\a3003005776b327f5e666a072a64f5c569182b86174c0f578d5be3267ce28f85\\analysis\\6a0520329af17d7b9fdaafe69398c62c454d9da838fc9f9c8d0bdd8d17bb15ae\\LoxoneConfig.exe\\code\\functions\\0x140b6b700.c",
+      "sha256": "d436af58177f9d40d83b3cf92d31487fbd13f595c254844ac028286ab9c87560",
+      "lf_sha256": "8884f4d48dc0abf868f502e844c10fbc1f92d5d14916acaf1aaba8b4f644d7a8"
+    },
+    {
+      "address": "0x140aa8350",
+      "role": "Qt slot adapter invokes the bound forwarding signal with unchanged submitted QVariant and bool pointer.",
+      "canonical_path": ".reverse-engineering\\versions\\a3003005776b327f5e666a072a64f5c569182b86174c0f578d5be3267ce28f85\\analysis\\6a0520329af17d7b9fdaafe69398c62c454d9da838fc9f9c8d0bdd8d17bb15ae\\LoxoneConfig.exe\\code\\functions\\0x140aa8350.c",
+      "sha256": "4d8d947f11be832cf263ca6350bf90efce2775dd2ec074c18c6765854833b6fc",
+      "lf_sha256": "6a97109a66a8ce69703af8e01673de71b036075a708af3c773f644cabe8aa962"
+    },
+    {
+      "address": "0x140d32dd0",
+      "role": "Generic data constructor only initializes state and stores parent; no hidden before-change listener installed.",
+      "canonical_path": ".reverse-engineering\\versions\\a3003005776b327f5e666a072a64f5c569182b86174c0f578d5be3267ce28f85\\analysis\\6a0520329af17d7b9fdaafe69398c62c454d9da838fc9f9c8d0bdd8d17bb15ae\\LoxoneConfig.exe\\code\\functions\\0x140d32dd0.c",
+      "sha256": "e3724fb7a913ffb2e32310dbe25a9cc650130d124ff1420f52fdd8f81ee30936",
+      "lf_sha256": "ab2c2863cf9c29be1f9e1438aeaf190baeef4ebb613a8f67991a69eeb511b1d2"
+    }
+  ],
+  "reused_functions_not_new_operations": [
+    {
+      "address": "0x140b4e840",
+      "role": "Previously established Configure loads caller: cloned temporary +0x88, original +0x90; initialization may copy connected sensor name into an empty row.",
+      "canonical_path": ".reverse-engineering\\versions\\a3003005776b327f5e666a072a64f5c569182b86174c0f578d5be3267ce28f85\\analysis\\6a0520329af17d7b9fdaafe69398c62c454d9da838fc9f9c8d0bdd8d17bb15ae\\LoxoneConfig.exe\\code\\functions\\0x140b4e840.c",
+      "sha256": "0f05af4500b09a3bad467155a5f72fbf1cb48d8f6be77e8b9b5d3a878d5e3968",
+      "lf_sha256": "3efef2d269445c26851d3988f6531f2c860dcbf3754e9b7f8c1570f4c0100bf5"
+    },
+    {
+      "address": "0x140b4ee60",
+      "role": "Previously established temporary row population.",
+      "canonical_path": ".reverse-engineering\\versions\\a3003005776b327f5e666a072a64f5c569182b86174c0f578d5be3267ce28f85\\analysis\\6a0520329af17d7b9fdaafe69398c62c454d9da838fc9f9c8d0bdd8d17bb15ae\\LoxoneConfig.exe\\code\\functions\\0x140b4ee60.c",
+      "sha256": "92aa80c9b45cf427d81adda7bf35f2d27e8bb653d236f582d622cd575c750e8f",
+      "lf_sha256": "4764d1198f6ec1c21bd5f3f5130e126a89f301f367e95b77dd7bb3875ba65dbb"
+    },
+    {
+      "address": "0x140930dc0",
+      "role": "Previously established accepted-dialog virtual +0x1a8 callback.",
+      "canonical_path": ".reverse-engineering\\versions\\a3003005776b327f5e666a072a64f5c569182b86174c0f578d5be3267ce28f85\\analysis\\6a0520329af17d7b9fdaafe69398c62c454d9da838fc9f9c8d0bdd8d17bb15ae\\LoxoneConfig.exe\\code\\functions\\0x140930dc0.c",
+      "sha256": "c66cb5fa2e9ee4f489a2a0557db7f32fb79de83d471d0b009a29e1ad88afe482",
+      "lf_sha256": "1a1882a5584d98762e23b3a355ce3cd0b468ec599cee81afb70282ce4ee7e049"
+    },
+    {
+      "address": "0x140b4f070",
+      "role": "Previously established accepted copy from temporary to original.",
+      "canonical_path": ".reverse-engineering\\versions\\a3003005776b327f5e666a072a64f5c569182b86174c0f578d5be3267ce28f85\\analysis\\6a0520329af17d7b9fdaafe69398c62c454d9da838fc9f9c8d0bdd8d17bb15ae\\LoxoneConfig.exe\\code\\functions\\0x140b4f070.c",
+      "sha256": "37746a98b9eac326c31223e5cc09a9a07c56281e28a25925826501d709a4a59b",
+      "lf_sha256": "4f767a9ca7dd7b2bcf65c530fa51c4cd8714e9bd3e4593a86cfad67a48ad2a49"
+    },
+    {
+      "address": "0x14085f090",
+      "role": "Previously established row-field copy includes row+0x30 name and row+0x28 ioIdx.",
+      "canonical_path": ".reverse-engineering\\versions\\a3003005776b327f5e666a072a64f5c569182b86174c0f578d5be3267ce28f85\\analysis\\6a0520329af17d7b9fdaafe69398c62c454d9da838fc9f9c8d0bdd8d17bb15ae\\LoxoneConfig.exe\\code\\functions\\0x14085f090.c",
+      "sha256": "f8c4acd17ed14cca089ecd9ae8650bca359eb2a0ac2bfcca1b4613ab68552ab0",
+      "lf_sha256": "e6d7c19f078a01fccb3b56683308ca902f4e9859ca8f8fe06d6641032c88ee22"
+    },
+    {
+      "address": "0x140864140",
+      "role": "Previously established ordered Load serializer: nm at row+0x30, type 0xf, omit-empty flag set.",
+      "canonical_path": ".reverse-engineering\\versions\\a3003005776b327f5e666a072a64f5c569182b86174c0f578d5be3267ce28f85\\analysis\\6a0520329af17d7b9fdaafe69398c62c454d9da838fc9f9c8d0bdd8d17bb15ae\\LoxoneConfig.exe\\code\\functions\\0x140864140.c",
+      "sha256": "f74f3168e900e21e522daeba3becb7442f9424cc7f6cf72c66a36951aa0931a9",
+      "lf_sha256": "7c6d9352719a70a5c9f8be4c040d81faf738a96f8444004e06911916b1c73141"
+    },
+    {
+      "address": "0x1404c52f0",
+      "role": "Reused helper, newly followed only string case 0xf: copies exact string; writing with omit-empty flag skips empty string.",
+      "canonical_path": ".reverse-engineering\\versions\\a3003005776b327f5e666a072a64f5c569182b86174c0f578d5be3267ce28f85\\analysis\\6a0520329af17d7b9fdaafe69398c62c454d9da838fc9f9c8d0bdd8d17bb15ae\\LoxoneConfig.exe\\code\\functions\\0x1404c52f0.c",
+      "sha256": "057c5670bc1b4a95f3b6ae5720f34f057330ba62605c4d0211ac7565de681262",
+      "lf_sha256": "853c02329be9004aa87afc2489dc0be91cce42e02c95c1656ed9e5611972340b"
+    },
+    {
+      "address": "0x140860eb0",
+      "role": "Previously established fixed row initialization; its existing CLoad vtable reference was used to resolve exact new virtual setter/gates.",
+      "canonical_path": ".reverse-engineering\\versions\\a3003005776b327f5e666a072a64f5c569182b86174c0f578d5be3267ce28f85\\analysis\\6a0520329af17d7b9fdaafe69398c62c454d9da838fc9f9c8d0bdd8d17bb15ae\\LoxoneConfig.exe\\code\\functions\\0x140860eb0.c",
+      "sha256": "0e71266ff8d8b0c5641296c16b9a16300d73f6d6f5893748b758b341ea987506",
+      "lf_sha256": "011d4a12f44e0fe656cf864e2a393b3570234d887a1f87a656196c80c64c5472"
+    }
+  ],
+  "newly_resolved_behavior": [
+    "A concrete table paste gesture dispatches to Name-cell model setter through a registered callback, not a raw nm mutation inferred from XML.",
+    "Native CLoad column 3 is editable. CDataWrapper confirmation predicate is false; the setter/post-change path has no nonempty or duplicate-name validator.",
+    "Before-change signal is forwarded by the generic view; its cancel pointer can be mutated by other dialog owners, but Load Manager installs no such listener. That signal was explicitly checked before final source freeze.",
+    "Single-cell paste is unchanged QString -> QVariant -> row string -> UTF-8; spaces, Unicode and duplicates are not silently normalized.",
+    "Clear callback intentionally submits empty QVariant; accepted-copy persists the empty name and string writer omits nm.",
+    "Dialog initialization can later derive an empty name from a connected sensor. CLI does not emulate that separate initialization."
+  ],
+  "pe_spans": [
+    {
+      "va": "0x141143cc8",
+      "length": 216,
+      "sha256": "f76a6d86b1c2e90e40c17eabed7141a0b2e55e094bd94a58e361a7300e7bbb20",
+      "role": "CLoad vtable: +0x38 setter 0x140863480; +0x48 post-change zero; +0x50 editable 0x140862090."
+    },
+    {
+      "va": "0x140ec3770",
+      "length": 232,
+      "sha256": "f06494f8c1d0987daf2ea0fb837aa0f304b23c720fdbbef2598a68c29c8884a2",
+      "role": "CDataWrapper vtable: +0xb0 setter adapter; +0xc0 post-change adapter; +0xc8 confirmation false."
+    },
+    {
+      "va": "0x141079000",
+      "length": 3,
+      "sha256": "9799bd5f9fdb69dfeba5529fb108c96b4c4a32946762c131452c4b1c4368c103",
+      "role": "NUL-terminated nm serializer key; not raw proprietary source."
+    },
+    {
+      "va": "0x1415d1428",
+      "length": 144,
+      "sha256": "24a9797ecffc7f171e22788584262acd0b418d9fea765f866adef266f4022cff",
+      "role": "Native table secondary vtable +8 installs model; model/gesture callers are newly resolved."
+    },
+    {
+      "va": "0x1415cf6a0",
+      "length": 8,
+      "sha256": "3b1fcb06afe8ce52cf3b1f096b22353fe995d38e04b2989c10430d71abe3969b",
+      "role": "Installed CGenericViewModel setData virtual slot points to 0x140d3d540."
+    },
+    {
+      "va": "0x1415d11c0",
+      "length": 8,
+      "sha256": "16c0317826a104be1aee3f1c1e6f76f850bfee4e4804e4e6abe273f0bfdd6746",
+      "role": "Installed native table key-event virtual slot points to 0x140d43310."
+    }
+  ],
+  "cli": {
+    "syntax": "lox config load-manager set-name FILE SELECTOR IO_INDEX NAME [--room ROOM] [--save-as PATH]",
+    "identity": "Reuse exact existing twelve-row/unique resolved ioIdx 0..11 resolver. Omitted ioIdx is zero. No identity normalization.",
+    "mutation": "Only matched Load/@nm; order/IDs/wires/flags/power/timing/unknown attributes and children stay unchanged.",
+    "strings": "Empty clears by omission, Unicode/spaces/whitespace-only/duplicates preserved exactly; no trim/default filling/truncation.",
+    "conservative_subset": "Reject control characters, U+2028/U+2029/U+FFFE/U+FFFF and more than 32767 UTF-16 code units. This bound is CLI policy, NOT recovered native maximum.",
+    "semantic_noop": "Absent and explicit-empty nm both resolve empty but retain their raw omission/spelling. In-place no-op writes nothing. Save-as uses ordinary writer without a new Document stamp.",
+    "save": "Ordinary DOM writer and Document stamp on actual changes; BOM/EOL preserved. Errors precede saving input/destination.",
+    "output": "Existing inspection output plus changed boolean in setter JSON; saved_to null for in-place no-op.",
+    "dry_run": "Unsupported; unchanged fail-closed admission before dispatch."
+  },
+  "remaining_unknowns": [
+    "No native execution, native save/reopen, runtime shedding or Miniserver qualification.",
+    "Exact native maximum length is not recovered and not claimed; longer names are conservatively rejected.",
+    "Multi-cell paste/tab/newline, numeric columns and dialog-derived empty-name initialization are outside this operation.",
+    "Manual typing editor lifecycle is not claimed equivalent; explicit native single-cell paste/clear is the intentional recovered route."
+  ],
+  "failed_attempts": [
+    {
+      "attempt": "Search CLoadManagerLoad in frozen FTS",
+      "result": "No match; actual class is CControlObjectLoadManager::CLoad and was resolved from its existing constructor vtable reference."
+    },
+    {
+      "attempt": "Search callers of 0x140863570",
+      "result": "Only dialog initialization; not the intentional Name edit setter. Retained as rejected lead."
+    },
+    {
+      "attempt": "Vtable LEA probe initially restricted target to >=0x141000000",
+      "result": "Missed CDataWrapper table at 0x140ec3770; corrected lower .rdata bound. No regenerated decompilation or type extraction."
+    },
+    {
+      "attempt": "Repository i18n directory",
+      "result": "Not present in pinned worktree; no extraction attempted. Header resource id is only a locator, not editability evidence."
+    },
+    {
+      "attempt": "Generic multi-cell paste 0x140b6cb50/0x140b6ce10",
+      "result": "Those paths trim cells. Explicitly excluded from supported single-cell behavior; no silent whitespace assumption."
+    },
+    {
+      "attempt": "Initial issue description identified confirmation delegation as 0x140025d00 -> row+0x98",
+      "result": "Corrected against exact wrapper vtable: +0xc8 points directly to 0x14000c610. Public proof uses precise direct false predicate. Historical erroneous private issue description retained in issue history."
+    },
+    {
+      "attempt": "Initial milestone described chain resolved before cancel-capable signal was explicitly checked",
+      "result": "Follow-up within same 20min bound checked 0x140cfb7b0 -> 0x140b6b700/0x140c08180. No Load Manager listener installs a cancellation/name validator; final resolution time corrected here, no gap hidden."
+    }
+  ],
+  "native_fixture_recipe": [
+    "Independent native owner only: create a fresh throwaway Config 17.2.10.21 project, one Load Manager with twelve default configured loads; save baseline.",
+    "Use deliberately distinct names for two rows. Identify a row by S/L association (stable ioIdx), not its displayed priority; optionally move it once to distinguish identity/order.",
+    "Select that row's Name cell and paste a single-line synthetic Unicode name with leading/trailing spaces; optionally use a name duplicated in another row. Accept Configure loads and save as a second native file.",
+    "Privately compare ordered Load records: only target nm changes plus ordinary native save metadata, ioIdx and numeric settings remain attached and all wiring remains intact. Do not copy real configs into evidence.",
+    "Reopen Name table and independently record whether spelling/Unicode/spaces and duplicates survive. Run matching CLI set-name against a synthetic baseline and compare only supported semantic scope.",
+    "Separate optional clear case: use Delete on an unwired row's Name cell, accept/save; check nm omission. Wired empty-name reinitialization is a different known dialog behavior, not a CLI-generated default.",
+    "Record application/binary/source hashes, operation and any divergences without claiming runtime shedding. Do not reuse/alter the pending priority-move fixture or its old source pins."
+  ],
+  "not_claimed": "No preview, generic automation/extraction/parity framework, EnergyManager inherited reset, native execution or runtime equivalence."
+}

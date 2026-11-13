@@ -138,12 +138,13 @@ lox config set-param file.Loxone "Night Timer" Duration 300
 
 Arguments: `<FILE> <SELECTOR> <PARAM> <VALUE>`. Selector is a block title or `"uuid:..."`.
 
-### Load Manager configure-list order
+### Load Manager configure-list order and consumer names
 
 ```bash
 lox config load-manager inspect file.Loxone "Load Manager" -o json
 lox config load-manager move file.Loxone "Load Manager" 4 up --save-as edited.Loxone -o json
 lox config load-manager move file.Loxone "uuid:..." 4 down
+lox config load-manager set-name file.Loxone "Load Manager" 4 "Heat pump" --save-as edited.Loxone -o json
 ```
 
 `move <FILE> <SELECTOR> <IO_INDEX> <up|down>` moves an existing **LoadShed**
@@ -157,7 +158,7 @@ siblings and block settings are untouched; no priority attribute is invented.
 The usual save helper updates the Document save stamp on a successful change
 and preserves BOM/line-ending convention. Without `--save-as`, the input is edited.
 
-Both commands require exactly twelve direct `Load` records with **resolved**
+All three commands require exactly twelve direct `Load` records with **resolved**
 unique `ioIdx` values 0..11. Exactly one omitted zero is supported; an omitted
 attribute plus explicit zero, or two omissions, is a duplicate identity error.
 Omission is preserved when the record moves: no `ioIdx="0"` is inserted, and
@@ -171,13 +172,38 @@ the block; do not combine it with a bracket room qualifier. JSON includes every
 stored load attribute; table/CSV shows priority, io-index and name.
 
 This is a Config 17.2.10.21 source-recovered operation, not EnergyManager2's
-separate load model. It does not add/delete loads, edit their scalar settings,
+separate load model. It does not add/delete loads, edit power/timing settings,
 or claim native runtime/save-reopen qualification. Actual runtime shedding
 priority/effects remain unproven; the recovered scope is configure-list/XML
-order. `--dry-run` remains
+order and configured-name storage. `--dry-run` remains
 unsupported and fails closed before dispatch.
 Source chain and a fresh native verification recipe:
 `tests/ux/load-manager/move-source.json`.
+
+`set-name <FILE> <SELECTOR> <IO_INDEX> <NAME>` edits just the configured consumer's
+Name cell (`Load/@nm`), retaining its priority, stable connector identity and all
+other fields. This is **new nested-load behavior**, not a block title rename or
+`set-param` (which cannot address this cell). It follows the native single-cell
+paste/clear callback, editable-column gate, string setter and accepted-copy path.
+Unicode, duplicate names, leading/trailing spaces and whitespace-only names are
+preserved exactly; there is no trimming, normalization or uniqueness requirement.
+An empty name clears `nm` using the native serializer's omission rule. A no-op
+preserves absent versus explicit-empty `nm` and existing spelling. In-place no-ops
+do not write or stamp the file; `--save-as` still produces a file without changing
+the Document stamp. JSON additionally reports `changed`.
+For a name beginning with `-`, put `--` before the name so it is not parsed as
+an option: `lox config load-manager set-name file.Loxone "Load Manager" 4 -- "-spare"`.
+
+The CLI conservatively rejects control characters (including tab/newline/NUL),
+U+2028/U+2029, U+FFFE/U+FFFF and names longer than **32767 UTF-16 code units**.
+That is a declared CLI subset, **not a recovered native maximum**. Tab/newline
+paste follows a different native multi-cell path, which this operation does not
+emulate. Rejections are atomic. Clearing a name does not emulate the dialog's
+subsequent initialization: on reopening, Config may populate an empty name from
+a connected sensor. No connector-derived defaults are fabricated by the CLI.
+Source proof, conservative limits and an independent fresh-native recipe:
+`tests/ux/load-manager/name-source.json`. No native/runtime qualification is claimed,
+and `--dry-run` remains unsupported for this new setter.
 
 ### EnergyManager2 verified storage pilot
 
