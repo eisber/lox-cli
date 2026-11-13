@@ -26,6 +26,16 @@ fn command(input: &Path, selector: &str, uuid: &str) -> assert_cmd::Command {
     command
 }
 
+fn active_command(input: &Path, selector: &str, uuid: &str) -> assert_cmd::Command {
+    let mut command = assert_cmd::cargo::cargo_bin_cmd!("lox");
+    command
+        .env("LOX_TELEMETRY", "0")
+        .args(["config", "alarm-entry-set-active"])
+        .arg(input)
+        .args([selector, "--entry-uuid", uuid]);
+    command
+}
+
 fn parse(bytes: &[u8]) -> Element {
     Element::parse(bytes.strip_prefix(&[0xef, 0xbb, 0xbf]).unwrap_or(bytes)).unwrap()
 }
@@ -224,4 +234,241 @@ fn alarm_delete_rejects_ambiguous_malformed_or_migrating_storage_before_either_w
         .assert()
         .failure();
     assert_eq!(fs::read(&input).unwrap(), fixture().as_bytes());
+}
+
+#[test]
+fn alarm_active_changes_only_selected_boolean_preserving_references_and_other_rows() {
+    let dir = tempfile::tempdir_in(env!("CARGO_MANIFEST_DIR")).unwrap();
+    let input = dir.path().join("input.Loxone");
+    let output = dir.path().join("output.Loxone");
+    let original = fixture();
+    for (uuid, stored_uuid, active) in [(RFC_LAST, LAST, true), (RFC_SELECTED, SELECTED, false)] {
+        fs::write(&input, &original).unwrap();
+        let result = active_command(&input, "Clock", uuid)
+            .args([
+                "--room",
+                "Bedroom",
+                if active { "--active" } else { "--no-active" },
+            ])
+            .arg("--save-as")
+            .arg(&output)
+            .args(["-o", "json"])
+            .assert()
+            .success()
+            .get_output()
+            .stdout
+            .clone();
+        let result: Value = serde_json::from_slice(&result).unwrap();
+        assert_eq!(result["activation"]["stored_entry_uuid"], stored_uuid);
+        assert_eq!(result["activation"]["previous_active"], !active);
+        assert_eq!(result["activation"]["active"], active);
+        assert_eq!(result["activation"]["changed"], true);
+        assert_eq!(fs::read(&input).unwrap(), original.as_bytes());
+        let saved = fs::read(&output).unwrap();
+        assert!(saved.starts_with(&[0xef, 0xbb, 0xbf]));
+        assert!(
+            saved.iter().enumerate().all(|(index, byte)| {
+                *byte != b'\n' || (index > 0 && saved[index - 1] == b'\r')
+            })
+        );
+        let mut expected = parse(original.as_bytes());
+        let target = clock(&mut expected)
+            .children
+            .iter_mut()
+            .filter_map(|node| node.as_mut_element())
+            .find(|entry| {
+                entry.name == "AlarmClock"
+                    && entry.attributes.get("U").map(String::as_str) == Some(stored_uuid)
+            })
+            .unwrap();
+        if active {
+            target.attributes.insert("Active".into(), "true".into());
+        } else {
+            target.attributes.shift_remove("Active");
+        }
+        let mut actual = parse(&saved);
+        assert_ne!(
+            actual.get_child("C").unwrap().attributes["Date"],
+            "2020-01-01 00:00:00"
+        );
+        for root in [&mut actual, &mut expected] {
+            let document = root.get_mut_child("C").unwrap();
+            document.attributes.shift_remove("Date");
+            document.attributes.shift_remove("DateS");
+        }
+        assert_eq!(actual, expected);
+    }
+}
+
+#[test]
+fn alarm_active_noops_preserve_exact_bytes_spelling_absence_and_stamp() {
+    let dir = tempfile::tempdir_in(env!("CARGO_MANIFEST_DIR")).unwrap();
+    let input = dir.path().join("input.Loxone");
+    let output = dir.path().join("output.Loxone");
+    let source = fixture();
+    for (source, uuid, flag, active) in [
+        (source.clone(), LAST, "--no-active", false),
+        (
+            source.replace("Id=\"12\"", "Id=\"12\" Active=\"FaLsE\""),
+            LAST,
+            "--no-active",
+            false,
+        ),
+        (
+            source.replace("Active=\"true\"", "Active=\"TrUe\""),
+            SELECTED,
+            "--active",
+            true,
+        ),
+    ] {
+        fs::write(&input, &source).unwrap();
+        for save_as in [false, true] {
+            let mut command = active_command(&input, "Clock [Bedroom]", uuid);
+            command.args([flag, "-o", "csv", "--no-header", "-q"]);
+            if save_as {
+                command.arg("--save-as").arg(&output);
+            }
+            command
+                .assert()
+                .success()
+                .stdout(format!("\"clock\",{uuid},{uuid},{active},{active},false\n"));
+            assert_eq!(fs::read(&input).unwrap(), source.as_bytes());
+            if save_as {
+                assert_eq!(fs::read(&output).unwrap(), source.as_bytes());
+            }
+        }
+    }
+    fs::write(&input, fixture()).unwrap();
+    active_command(&input, "uuid:clock", SELECTED)
+        .args(["--no-active", "-q"])
+        .assert()
+        .success()
+        .stdout("");
+    let mut saved = parse(&fs::read(&input).unwrap());
+    assert!(
+        !clock(&mut saved)
+            .children
+            .iter()
+            .filter_map(|node| node.as_element())
+            .find(|entry| entry.attributes.get("U").map(String::as_str) == Some(SELECTED))
+            .unwrap()
+            .attributes
+            .contains_key("Active")
+    );
+}
+
+#[test]
+fn alarm_active_refuses_unsupported_storage_or_arguments_atomically() {
+    let dir = tempfile::tempdir_in(env!("CARGO_MANIFEST_DIR")).unwrap();
+    let input = dir.path().join("input.Loxone");
+    let output = dir.path().join("output.Loxone");
+    let source = fixture();
+    let cases = [
+        (source.clone(), "Clock", SELECTED),
+        (source.clone(), "uuid:clock", STANDARD),
+        (source.clone(), "uuid:clock", "bad-uuid"),
+        (
+            source.replace(SELECTED, RFC_SELECTED),
+            "uuid:clock",
+            SELECTED,
+        ),
+        (source.replace(LAST, RFC_LAST), "uuid:clock", SELECTED),
+        (
+            source.replace(STANDARD, RFC_STANDARD),
+            "uuid:clock",
+            SELECTED,
+        ),
+        (source.replace(LAST, SELECTED), "uuid:clock", SELECTED),
+        (
+            source.replace("Id=\"12\"", "Id=\"7\""),
+            "uuid:clock",
+            SELECTED,
+        ),
+        (source.replace("N=\"3\"", "N=\"4\""), "uuid:clock", SELECTED),
+        (
+            source.replace("V=\"175\"", "V=\"154\""),
+            "uuid:clock",
+            SELECTED,
+        ),
+        (
+            source.replace("Int=\"true\"", "Int=\"false\""),
+            "uuid:clock",
+            SELECTED,
+        ),
+        (
+            source.replace("Time=\"28800\"", "Time=\"25200\""),
+            "uuid:clock",
+            SELECTED,
+        ),
+        (
+            source.replace("Id=\"12\"", "Id=\"12\" Year=\"2027\""),
+            "uuid:clock",
+            SELECTED,
+        ),
+        (
+            source.replace("Modes=\"248\"", "Modes=\"0\""),
+            "uuid:clock",
+            SELECTED,
+        ),
+        (
+            source.replace("Modes=\"1023\"", "Modes=\"0\""),
+            "uuid:clock",
+            SELECTED,
+        ),
+        (
+            source.replace("Active=\"true\"", "Active=\"1\""),
+            "uuid:clock",
+            SELECTED,
+        ),
+        (
+            source.replace("Sa=\"true\"", "Sa=\"1\""),
+            "uuid:clock",
+            SELECTED,
+        ),
+        (
+            source.replace("Type=\"AlarmClock\"", "Type=\"DayTimer\""),
+            "uuid:clock",
+            SELECTED,
+        ),
+    ];
+    for (source, selector, uuid) in cases {
+        fs::write(&input, &source).unwrap();
+        for active in ["--active", "--no-active"] {
+            for existing in [false, true] {
+                if existing {
+                    fs::write(&output, b"sentinel").unwrap();
+                }
+                active_command(&input, selector, uuid)
+                    .arg(active)
+                    .arg("--save-as")
+                    .arg(&output)
+                    .assert()
+                    .failure();
+                assert_eq!(fs::read(&input).unwrap(), source.as_bytes());
+                if existing {
+                    assert_eq!(fs::read(&output).unwrap(), b"sentinel");
+                    fs::remove_file(&output).unwrap();
+                } else {
+                    assert!(!output.exists());
+                }
+            }
+        }
+    }
+    fs::write(&input, fixture()).unwrap();
+    for flags in [
+        vec![],
+        vec!["--active", "--no-active"],
+        vec!["--active", "true"],
+        vec!["--active", "--room", "Bedroom"],
+        vec!["--active", "--dry-run"],
+    ] {
+        active_command(&input, "Clock [Bedroom]", SELECTED)
+            .args(flags)
+            .arg("--save-as")
+            .arg(&output)
+            .assert()
+            .failure();
+        assert_eq!(fs::read(&input).unwrap(), fixture().as_bytes());
+        assert!(!output.exists());
+    }
 }

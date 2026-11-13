@@ -1304,6 +1304,31 @@ ambiguity fail before writing, including `--save-as`. Supports JSON/CSV,
 quiet, no-header and room qualification. See
 [source qualification and limits](docs/knowledge/alarm-entry-delete-native.md).
 
+Enable or disable one existing ordinary Alarm Clock entry:
+
+```bash
+lox config alarm-entry-set-active file.Loxone "Bedroom Clock" --entry-uuid 00000000-0000-0004-1500000000000000 --active --room Bedroom -o json
+lox config alarm-entry-set-active file.Loxone "Bedroom Clock" --entry-uuid 00000000-0000-0004-1500000000000000 --no-active --save-as edited.Loxone
+```
+
+Exactly one of `--active` / `--no-active` is required. Identity and storage
+qualification are the same as `alarm-entry-remove` above; internal standard
+editing is deliberately not exposed. Only the selected child's `Active`
+changes: enabling writes `true`; disabling removes the attribute (native
+false default). Missing `Active` means false; explicit true/false spellings
+are accepted case-insensitively, while numeric, empty or padded values fail.
+Semantic no-ops preserve exact bytes, spelling/absence and save stamp,
+including `--save-as`. Actual edits preserve BOM/EOL style and update the
+Document stamp. `Modes=0` is rejected, not repaired: native enabling repairs
+it, but native loading first disables and normalizes it, so neither branch
+is silently applied. N, Id/U, other alarms, the standard alarm, unknown
+nodes, wiring and auxiliary `Ode`/`Le`/`Entry U` references remain unchanged.
+Their auxiliary file role and native GUI roundtrip remain unqualified.
+Supports JSON/CSV, quiet, no-header and room qualification. Global
+`--dry-run` rejects before file I/O, not a preview. No runtime deployment,
+native undo stack or GUI qualification is claimed. See
+[source qualification](docs/knowledge/alarm-entry-active-native.md).
+
 Delete one existing native schedule entry without replacing its neighbors:
 
 ```bash

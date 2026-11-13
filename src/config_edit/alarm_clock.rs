@@ -15,6 +15,16 @@ pub struct AlarmClockEntryRemoval {
     pub remaining_entries: usize,
 }
 
+#[derive(Debug, Serialize)]
+pub struct AlarmClockEntryActivation {
+    pub block_uuid: String,
+    pub entry_uuid: String,
+    pub stored_entry_uuid: String,
+    pub previous_active: bool,
+    pub active: bool,
+    pub changed: bool,
+}
+
 fn uuid_key(raw: &str) -> Result<String> {
     let dashes: &[usize] = match raw.len() {
         35 => &[8, 13, 18],
@@ -68,11 +78,11 @@ fn flag(element: &Element, key: &str) -> Result<bool> {
 }
 
 impl ConfigEditor {
-    pub fn remove_alarm_clock_entry(
-        &mut self,
+    fn ordinary_alarm_clock_entry(
+        &self,
         selector: &str,
         entry_uuid: &str,
-    ) -> Result<AlarmClockEntryRemoval> {
+    ) -> Result<(Vec<usize>, usize, usize)> {
         let requested = uuid_key(entry_uuid)?;
         let path = self.require_one(selector)?;
         let block = self.get_element(&path);
@@ -83,7 +93,7 @@ impl ConfigEditor {
         }
         if integer(block, "V")? != 175 {
             bail!(
-                "Alarm entry deletion supports V=175 storage only; legacy/default migration is not qualified. Nothing was changed."
+                "Alarm entry editing supports V=175 storage only; legacy/default migration is not qualified. Nothing was changed."
             );
         }
         let entries: Vec<_> = block
@@ -159,7 +169,7 @@ impl ConfigEditor {
             if key == requested {
                 if internal {
                     bail!(
-                        "The internal standard alarm (Int=true) cannot be deleted in the native dialog; nothing was changed."
+                        "This command supports ordinary alarms only, not the internal standard alarm (Int=true); nothing was changed."
                     );
                 }
                 selected = Some(*position);
@@ -175,6 +185,48 @@ impl ConfigEditor {
                 "No configured alarm entry matches UUID '{entry_uuid}'; nothing was changed."
             )
         })?;
+        let count = entries.len();
+        Ok((path, position, count))
+    }
+
+    pub fn set_alarm_clock_entry_active(
+        &mut self,
+        selector: &str,
+        entry_uuid: &str,
+        active: bool,
+    ) -> Result<AlarmClockEntryActivation> {
+        let (path, position, _) = self.ordinary_alarm_clock_entry(selector, entry_uuid)?;
+        let block = self.get_element(&path);
+        let entry = block.children[position].as_element().unwrap();
+        let previous_active = flag(entry, "Active")?;
+        let change = AlarmClockEntryActivation {
+            block_uuid: block.attributes.get("U").cloned().unwrap_or_default(),
+            entry_uuid: entry_uuid.to_owned(),
+            stored_entry_uuid: entry.attributes["U"].clone(),
+            previous_active,
+            active,
+            changed: previous_active != active,
+        };
+        if change.changed {
+            let entry = self.get_element_mut(&path).children[position]
+                .as_mut_element()
+                .unwrap();
+            if active {
+                entry.attributes.insert("Active".into(), "true".into());
+            } else {
+                entry.attributes.shift_remove("Active");
+            }
+        }
+        Ok(change)
+    }
+
+    pub fn remove_alarm_clock_entry(
+        &mut self,
+        selector: &str,
+        entry_uuid: &str,
+    ) -> Result<AlarmClockEntryRemoval> {
+        let (path, position, count) = self.ordinary_alarm_clock_entry(selector, entry_uuid)?;
+        let block = self.get_element(&path);
         let entry = block.children[position].as_element().unwrap();
         let removal = AlarmClockEntryRemoval {
             block_uuid: block.attributes.get("U").cloned().unwrap_or_default(),
@@ -185,7 +237,7 @@ impl ConfigEditor {
                 .iter()
                 .map(|(key, value)| (key.clone(), value.clone()))
                 .collect(),
-            remaining_entries: entries.len() - 1,
+            remaining_entries: count - 1,
         };
         let block = self.get_element_mut(&path);
         block.children.remove(position);

@@ -815,6 +815,28 @@ pub(crate) enum ConfigCmd {
         #[arg(long)]
         save_as: Option<String>,
     },
+    /// Set an existing ordinary Alarm Clock entry's Active checkbox
+    AlarmEntrySetActive {
+        file: String,
+        selector: String,
+        /// Existing AlarmClock child's U, not its Id, display row, name or time
+        #[arg(long)]
+        entry_uuid: String,
+        /// Enable the selected alarm entry
+        #[arg(
+            long,
+            required_unless_present = "no_active",
+            conflicts_with = "no_active"
+        )]
+        active: bool,
+        /// Disable the selected alarm entry
+        #[arg(long, required_unless_present = "active")]
+        no_active: bool,
+        #[arg(short, long)]
+        room: Option<String>,
+        #[arg(long)]
+        save_as: Option<String>,
+    },
     /// Delete one ordinary digital DayTimer entry by operating mode UUID and exact interval
     TimerEntryRemove {
         file: String,
