@@ -850,6 +850,21 @@ pub(crate) enum ConfigCmd {
         #[arg(long)]
         save_as: Option<String>,
     },
+    /// Rename one existing ordinary Alarm Clock entry, preserving its identity and time
+    AlarmEntrySetName {
+        file: String,
+        selector: String,
+        /// Existing AlarmClock child's U, not its Id, display row, name or time
+        #[arg(long)]
+        entry_uuid: String,
+        /// Nonempty, nonblank single-line Unicode name; duplicate names are allowed
+        #[arg(long)]
+        name: String,
+        #[arg(short, long)]
+        room: Option<String>,
+        #[arg(long)]
+        save_as: Option<String>,
+    },
     /// Set an existing ordinary Alarm Clock entry's Active checkbox
     AlarmEntrySetActive {
         file: String,

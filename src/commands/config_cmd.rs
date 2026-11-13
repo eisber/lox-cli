@@ -2531,6 +2531,65 @@ pub fn cmd_config(ctx: &RunContext, action: ConfigCmd) -> Result<()> {
                 );
             }
         }
+        ConfigCmd::AlarmEntrySetName {
+            file,
+            selector,
+            entry_uuid,
+            name,
+            room,
+            save_as,
+        } => {
+            let selector = match room {
+                Some(_) if selector.ends_with(']') && selector.contains('[') => {
+                    bail!("Use either a bracket room qualifier or --room, not both.")
+                }
+                Some(room) => format!("{selector} [{room}]"),
+                None => selector,
+            };
+            let data = fs::read(&file).with_context(|| format!("Cannot read {file}"))?;
+            let (output, change) =
+                ConfigEditor::edit_alarm_clock_entry_name(&data, &selector, &entry_uuid, &name)?;
+            let quiet = ctx.quiet || ctx.json || ctx.csv;
+            if change.changed || save_as.is_some() {
+                write_edited_bytes(&output, &file, save_as.as_deref(), quiet)?;
+            }
+            if ctx.json {
+                emit_json(
+                    ctx,
+                    serde_json::json!({
+                        "ok": true,
+                        "saved_to": save_as.as_deref().unwrap_or(&file),
+                        "name_change": change,
+                    }),
+                );
+            } else if ctx.csv {
+                if !ctx.no_header {
+                    println!("BLOCK_UUID,ENTRY_UUID,STORED_ENTRY_UUID,PREVIOUS_NAME,NAME,CHANGED");
+                }
+                println!(
+                    "\"{}\",{},{},\"{}\",\"{}\",{}",
+                    change.block_uuid.replace('"', "\"\""),
+                    change.entry_uuid,
+                    change.stored_entry_uuid,
+                    change
+                        .previous_name
+                        .as_deref()
+                        .unwrap_or("")
+                        .replace('"', "\"\""),
+                    change.name.replace('"', "\"\""),
+                    change.changed,
+                );
+            } else if !ctx.quiet {
+                println!(
+                    "✓ Alarm Clock entry {entry_uuid}: Name = '{name}' ({})",
+                    if change.changed {
+                        "changed"
+                    } else {
+                        "unchanged"
+                    }
+                );
+            }
+        }
         ConfigCmd::AlarmEntrySetActive {
             file,
             selector,

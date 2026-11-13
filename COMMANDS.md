@@ -1428,6 +1428,36 @@ Supports JSON/CSV, quiet, no-header and room qualification. This minimal
 typed edit does not emulate whole native-save normalization or undo/history.
 See [source qualification and ordering](docs/knowledge/alarm-entry-time-native.md).
 
+Rename one existing ordinary Alarm Clock entry:
+
+```bash
+lox config alarm-entry-set-name file.Loxone "Bedroom Clock" --entry-uuid 00000000-0000-0004-1500000000000000 --name "Early shift" --room Bedroom -o json
+lox config alarm-entry-set-name file.Loxone "Bedroom Clock [Bedroom]" --entry-uuid 00000000-0000-0004-1500-000000000000 --name "Frühdienst" --save-as edited.Loxone
+```
+
+Select by existing child `U` (native-35 or RFC-36 request alias), never its
+name, Id or display row. Duplicate names are allowed. Names are case-sensitive,
+with no trimming, case folding or Unicode normalization. Leading/trailing
+spaces and Unicode are retained. The CLI currently requires a nonempty,
+nonblank, single-line XML-safe name; clearing is not exposed. These are CLI
+limits, not a claimed native grammar or length cap.
+
+The other typed alarm commands' V=175, identity, standard-alarm, flag, mode
+and distinct-time storage guards apply unchanged. A missing or empty stored
+Name can be filled; no localized Add default is guessed. Selected Name
+storage containing numeric XML character references or literal tab/CR/LF,
+and DTD-dependent/non-UTF-8 input or namespaced target/stamp attributes,
+is refused as `target-name-storage` rather than
+approximating the native string reader. Ordinary named XML entities are
+decoded for exact equality. Equal decoded names preserve every original byte,
+stamp and spelling; `--save-as` copies the original bytes. Real edits change
+only that Name plus the normal Document save stamp, preserving Id/U,
+Time/Active/Modes, priority/order, N, standard alarm, unknown fields, wiring
+and auxiliary references. Existing distinct times mean Name cannot change
+the native physical sort order. JSON returns `name_change` (including nullable
+`previous_name`); CSV, `--no-header`, `--quiet`, `--room` and save-as are supported.
+See [native string behavior and limits](docs/knowledge/alarm-entry-name-native.md).
+
 Enable or disable one existing ordinary Alarm Clock entry:
 
 ```bash

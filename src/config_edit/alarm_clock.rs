@@ -50,6 +50,16 @@ pub struct AlarmClockEntryTimeChange {
 }
 
 #[derive(Debug, Serialize)]
+pub struct AlarmClockEntryNameChange {
+    pub block_uuid: String,
+    pub entry_uuid: String,
+    pub stored_entry_uuid: String,
+    pub previous_name: Option<String>,
+    pub name: String,
+    pub changed: bool,
+}
+
+#[derive(Debug, Serialize)]
 pub struct AlarmClockEntryAddition {
     pub block_uuid: String,
     pub entry_uuid: String,
@@ -129,7 +139,206 @@ fn time_seconds(time: &str) -> Result<u32> {
     Ok(parts[0] * 3600 + parts[1] * 60 + parts.get(2).copied().unwrap_or(0))
 }
 
+fn alarm_name_ordinal(element: &Element, target: &Element, ordinal: &mut usize) -> Option<usize> {
+    if element.name == "AlarmClock" {
+        if std::ptr::eq(element, target) {
+            return Some(*ordinal);
+        }
+        *ordinal += 1;
+    }
+    element
+        .children
+        .iter()
+        .filter_map(XMLNode::as_element)
+        .find_map(|child| alarm_name_ordinal(child, target, ordinal))
+}
+
+fn alarm_name_bytes(
+    data: &[u8],
+    target: usize,
+    name: Option<&str>,
+    stamp: Option<(&str, &str)>,
+) -> Result<Vec<u8>> {
+    use quick_xml::{Reader, events::Event};
+
+    std::str::from_utf8(data).map_err(|_| {
+        anyhow::anyhow!(
+            "Unsupported target-name-storage: UTF-8 XML is required; nothing was changed."
+        )
+    })?;
+    let offset = usize::from(data.starts_with(b"\xef\xbb\xbf")) * 3;
+    let mut reader = Reader::from_reader(&data[offset..]);
+    let mut patches = Vec::new();
+    let mut ordinal = 0;
+    let mut depth = 0usize;
+    let mut found = false;
+    let mut stamped = false;
+    loop {
+        match reader.read_event()? {
+            Event::Start(element) | Event::Empty(element) => {
+                let end = reader.buffer_position() as usize + offset;
+                let empty = data[end - 2] == b'/';
+                let selected = element.local_name().as_ref() == b"AlarmClock" && ordinal == target;
+                let attributes = element
+                    .attributes()
+                    .with_checks(false)
+                    .collect::<std::result::Result<Vec<_>, _>>()?;
+                let document = stamp.is_some()
+                    && !stamped
+                    && depth <= 1
+                    && element.local_name().as_ref() == b"C"
+                    && attributes.iter().any(|attribute| {
+                        attribute.key.local_name().as_ref() == b"Type"
+                            && attribute
+                                .unescape_value()
+                                .is_ok_and(|value| value == "Document")
+                    });
+                if (selected || document)
+                    && (element.name().as_ref().contains(&b':')
+                        || attributes
+                            .iter()
+                            .any(|attribute| attribute.key.as_ref().contains(&b':')))
+                {
+                    bail!(
+                        "Unsupported target-name-storage: namespaced target/stamp attributes are not qualified; nothing was changed."
+                    );
+                }
+                let mut replacements = Vec::new();
+                if selected {
+                    for attribute in &attributes {
+                        if attribute.key.as_ref() == b"Name"
+                            && (attribute.value.windows(2).any(|bytes| bytes == b"&#")
+                                || attribute
+                                    .value
+                                    .iter()
+                                    .any(|byte| matches!(byte, b'\t' | b'\r' | b'\n')))
+                        {
+                            bail!(
+                                "Unsupported target-name-storage: the selected Name contains numeric XML references or literal tab/newline storage. Native string decoding differs from standard XML normalization; nothing was changed."
+                            );
+                        }
+                    }
+                    found = true;
+                    if let Some(name) = name {
+                        replacements.push(("Name", name));
+                    }
+                }
+                if document && let Some((date, seconds)) = stamp {
+                    replacements.extend([("Date", date), ("DateS", seconds)]);
+                    stamped = true;
+                }
+                for (key, value) in replacements {
+                    let value = quick_xml::escape::escape(value);
+                    let mut matching = attributes
+                        .iter()
+                        .filter(|attribute| attribute.key.as_ref() == key.as_bytes())
+                        .peekable();
+                    if matching.peek().is_none() {
+                        let insertion = end - if empty { 2 } else { 1 };
+                        patches.push((insertion..insertion, format!(" {key}=\"{value}\"")));
+                    }
+                    for attribute in matching {
+                        // Slice-reader attributes borrow the original, still-escaped value.
+                        let start = (attribute.value.as_ptr() as usize)
+                            .checked_sub(data.as_ptr() as usize)
+                            .filter(|start| data.get(*start..*start + attribute.value.len()) == Some(attribute.value.as_ref()))
+                            .ok_or_else(|| anyhow::anyhow!("Cannot locate raw alarm Name/save stamp attribute; nothing was changed."))?;
+                        patches.push((start..start + attribute.value.len(), value.to_string()));
+                    }
+                }
+                if element.local_name().as_ref() == b"AlarmClock" {
+                    ordinal += 1;
+                }
+                if !empty {
+                    depth += 1;
+                }
+            }
+            Event::End(_) => depth = depth.saturating_sub(1),
+            Event::Decl(declaration) => {
+                if let Some(encoding) = declaration.encoding() {
+                    let encoding = encoding?;
+                    if !encoding.eq_ignore_ascii_case(b"utf-8")
+                        && !encoding.eq_ignore_ascii_case(b"utf8")
+                    {
+                        bail!(
+                            "Unsupported target-name-storage: a UTF-8 XML declaration is required; nothing was changed."
+                        );
+                    }
+                }
+            }
+            Event::DocType(_) => bail!(
+                "Unsupported target-name-storage: DTD-dependent Name decoding is not qualified; nothing was changed."
+            ),
+            Event::Eof => break,
+            _ => {}
+        }
+    }
+    if !found || (stamp.is_some() && !stamped) {
+        bail!(
+            "Cannot locate target-name-storage or Document stamp in the original XML; nothing was changed."
+        );
+    }
+    patches.sort_by_key(|(range, _)| std::cmp::Reverse(range.start));
+    let mut output = data.to_vec();
+    for (range, value) in patches {
+        output.splice(range, value.bytes());
+    }
+    Ok(output)
+}
+
 impl ConfigEditor {
+    /// Source bytes are needed to guard native Name decoding before XML normalization.
+    pub fn edit_alarm_clock_entry_name(
+        data: &[u8],
+        selector: &str,
+        entry_uuid: &str,
+        name: &str,
+    ) -> Result<(Vec<u8>, AlarmClockEntryNameChange)> {
+        if name.trim().is_empty()
+            || name.chars().any(|character| {
+                character.is_control()
+                    || matches!(character, '\u{2028}' | '\u{2029}' | '\u{fffe}' | '\u{ffff}')
+            })
+        {
+            bail!(
+                "Alarm entry name: this CLI supports nonempty, nonblank single-line XML text only; nothing was changed."
+            );
+        }
+        let mut editor = Self::load(data)?;
+        let (path, position, _) = editor.ordinary_alarm_clock_entry(selector, entry_uuid)?;
+        let block = editor.get_element(&path);
+        let entry = block.children[position].as_element().unwrap();
+        let ordinal = alarm_name_ordinal(&editor.root, entry, &mut 0).unwrap();
+        let previous_name = entry.attributes.get("Name").cloned();
+        let change = AlarmClockEntryNameChange {
+            block_uuid: block.attributes.get("U").cloned().unwrap_or_default(),
+            entry_uuid: entry_uuid.into(),
+            stored_entry_uuid: entry.attributes["U"].clone(),
+            changed: previous_name.as_deref().unwrap_or("") != name,
+            previous_name,
+            name: name.into(),
+        };
+        let stamp = if change.changed && editor.stamp_document(&chrono::Local::now().fixed_offset())
+        {
+            let is_document = |element: &&Element| {
+                element.name == "C"
+                    && element.attributes.get("Type").map(String::as_str) == Some("Document")
+            };
+            let document = std::iter::once(&editor.root)
+                .chain(editor.root.children.iter().filter_map(XMLNode::as_element))
+                .find(is_document)
+                .unwrap();
+            Some((
+                document.attributes["Date"].as_str(),
+                document.attributes["DateS"].as_str(),
+            ))
+        } else {
+            None
+        };
+        let output = alarm_name_bytes(data, ordinal, change.changed.then_some(name), stamp)?;
+        Ok((output, change))
+    }
+
     fn admitted_alarm_clock_entries(
         &self,
         selector: &str,

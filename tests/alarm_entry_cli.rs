@@ -66,6 +66,16 @@ fn time_command(input: &Path, selector: &str, uuid: &str, time: &str) -> assert_
     command
 }
 
+fn name_command(input: &Path, selector: &str, uuid: &str, name: &str) -> assert_cmd::Command {
+    let mut command = assert_cmd::cargo::cargo_bin_cmd!("lox");
+    command
+        .env("LOX_TELEMETRY", "0")
+        .args(["config", "alarm-entry-set-name"])
+        .arg(input)
+        .args([selector, "--entry-uuid", uuid, "--name", name]);
+    command
+}
+
 fn parse(bytes: &[u8]) -> Element {
     Element::parse(bytes.strip_prefix(&[0xef, 0xbb, 0xbf]).unwrap_or(bytes)).unwrap()
 }
@@ -78,6 +88,333 @@ fn clock(root: &mut Element) -> &mut Element {
         .filter_map(|node| node.as_mut_element())
         .find(|element| element.attributes.get("U").map(String::as_str) == Some("clock"))
         .unwrap()
+}
+
+#[test]
+fn alarm_name_edit_preserves_identity_order_and_all_other_data_and_allows_duplicate_unicode_names()
+{
+    let dir = tempfile::tempdir_in(env!("CARGO_MANIFEST_DIR")).unwrap();
+    let input = dir.path().join("input.Loxone");
+    let output = dir.path().join("output.Loxone");
+    for (old, name, crlf) in [
+        ("Different", "Same name", true),
+        ("Same name", " früh & \"Spät\" <🚀> ", false),
+        ("Same name", "same name", true),
+        ("Cafe\u{301}", "Café", false),
+    ] {
+        let mut source = fixture()
+            .replace("Time=\"25200\"", "Time=\"+00025200\"")
+            .replace("Active=\"true\"", "Active=\"FaLsE\"")
+            .replace(
+                "<Unknown Preserve=\"yes\"/>",
+                "<Unknown Preserve='yes' Numeric=\"&#65;\" Literal=\"line&#xA;break\" Duplicate=\"same\" Duplicate=\"same\"/>",
+            )
+            .replacen(
+                "Name=\"Same name\" Marker=\"selected\"",
+                &format!("Name=\"{old}\" Marker=\"selected\""),
+                1,
+            );
+        if !crlf {
+            source = source
+                .replace("\r\n", "\n")
+                .trim_start_matches('\u{feff}')
+                .into();
+        }
+        fs::write(&input, &source).unwrap();
+        let result = name_command(&input, "Clock", RFC_SELECTED, name)
+            .args(["--room", "Bedroom", "--save-as"])
+            .arg(&output)
+            .args(["-o", "json"])
+            .assert()
+            .success()
+            .get_output()
+            .stdout
+            .clone();
+        let result: Value = serde_json::from_slice(&result).unwrap();
+        assert_eq!(result["name_change"]["entry_uuid"], RFC_SELECTED);
+        assert_eq!(result["name_change"]["stored_entry_uuid"], SELECTED);
+        assert_eq!(result["name_change"]["previous_name"], old);
+        assert_eq!(result["name_change"]["name"], name);
+        assert_eq!(result["name_change"]["changed"], true);
+        assert_eq!(fs::read(&input).unwrap(), source.as_bytes());
+        let saved = fs::read(&output).unwrap();
+        assert_eq!(saved.starts_with(&[0xef, 0xbb, 0xbf]), crlf);
+        assert_eq!(saved.windows(2).any(|bytes| bytes == b"\r\n"), crlf);
+        let mut expected = parse(
+            source
+                .replace(
+                    " Duplicate=\"same\" Duplicate=\"same\"",
+                    " Duplicate=\"same\"",
+                )
+                .as_bytes(),
+        );
+        let actual = parse(
+            String::from_utf8_lossy(&saved)
+                .replace(
+                    " Duplicate=\"same\" Duplicate=\"same\"",
+                    " Duplicate=\"same\"",
+                )
+                .as_bytes(),
+        );
+        let expected_doc = expected.get_mut_child("C").unwrap();
+        let actual_doc = actual.get_child("C").unwrap();
+        assert_ne!(
+            expected_doc.attributes["DateS"],
+            actual_doc.attributes["DateS"]
+        );
+        for key in ["Date", "DateS"] {
+            expected_doc
+                .attributes
+                .insert(key.into(), actual_doc.attributes[key].clone());
+        }
+        let expected_bytes = source
+            .replacen(
+                &format!("Name=\"{old}\" Marker=\"selected\""),
+                &format!(
+                    "Name=\"{}\" Marker=\"selected\"",
+                    quick_xml::escape::escape(name)
+                ),
+                1,
+            )
+            .replace(
+                "Date=\"2020-01-01 00:00:00\"",
+                &format!("Date=\"{}\"", actual_doc.attributes["Date"]),
+            )
+            .replace(
+                "DateS=\"1\"",
+                &format!("DateS=\"{}\"", actual_doc.attributes["DateS"]),
+            );
+        assert_eq!(saved, expected_bytes.as_bytes());
+        clock(&mut expected)
+            .children
+            .iter_mut()
+            .filter_map(|node| node.as_mut_element())
+            .find(|entry| entry.attributes.get("U").map(String::as_str) == Some(SELECTED))
+            .unwrap()
+            .attributes
+            .insert("Name".into(), name.into());
+        assert_eq!(actual, expected);
+        name_command(&output, "uuid:clock", SELECTED, name)
+            .arg("-q")
+            .assert()
+            .success();
+        assert_eq!(fs::read(&output).unwrap(), saved);
+        time_command(&output, "uuid:clock", SELECTED, "07:15")
+            .arg("-q")
+            .assert()
+            .success();
+        active_command(&output, "uuid:clock", SELECTED)
+            .args(["--no-active", "-q"])
+            .assert()
+            .success();
+        mode_command(&output, "uuid:clock", SELECTED, "3")
+            .args(["--no-enabled", "-q"])
+            .assert()
+            .success();
+        add_command(&output, "uuid:clock", "Additional", "10:00")
+            .arg("-q")
+            .assert()
+            .success();
+        command(&output, "uuid:clock", SELECTED)
+            .arg("-q")
+            .assert()
+            .success();
+    }
+}
+
+#[test]
+fn alarm_name_named_entity_noops_copy_exact_bytes_and_missing_or_empty_names_have_no_add_default() {
+    let dir = tempfile::tempdir_in(env!("CARGO_MANIFEST_DIR")).unwrap();
+    let input = dir.path().join("input.Loxone");
+    let output = dir.path().join("output.Loxone");
+    let name = " Früh & \"Spät\", <🚀>' &#65; ";
+    let encoded = " Früh &amp; &quot;Spät&quot;, &lt;🚀&gt;&apos; &amp;#65; ";
+    let source = fixture().replacen(
+        "Name=\"Same name\" Marker=\"selected\"",
+        &format!("Name='{encoded}' Marker=\"selected\""),
+        1,
+    );
+    fs::write(&input, &source).unwrap();
+    let result = name_command(&input, "Clock [Bedroom]", SELECTED, name)
+        .arg("--save-as")
+        .arg(&output)
+        .args(["-o", "json"])
+        .assert()
+        .success()
+        .get_output()
+        .stdout
+        .clone();
+    let result: Value = serde_json::from_slice(&result).unwrap();
+    assert_eq!(result["name_change"]["changed"], false);
+    assert_eq!(fs::read(&input).unwrap(), source.as_bytes());
+    assert_eq!(fs::read(&output).unwrap(), source.as_bytes());
+    let csv = name_command(&input, "uuid:clock", SELECTED, name)
+        .args(["-o", "csv", "--no-header"])
+        .assert()
+        .success()
+        .get_output()
+        .stdout
+        .clone();
+    let csv = String::from_utf8(csv).unwrap();
+    assert!(!csv.contains("BLOCK_UUID"));
+    assert!(csv.contains("\"\"Spät\"\""));
+    assert!(csv.trim_end().ends_with(",false"));
+    name_command(&input, "uuid:clock", SELECTED, name)
+        .arg("-q")
+        .assert()
+        .success()
+        .stdout("");
+    name_command(&input, "uuid:clock", SELECTED, name)
+        .assert()
+        .success()
+        .stdout(predicates::str::contains("unchanged"));
+    assert_eq!(fs::read(&input).unwrap(), source.as_bytes());
+
+    for stored in [None, Some("")] {
+        let replacement = stored.map_or(String::new(), |value| format!("Name=\"{value}\" "));
+        let mut source = fixture().replacen(
+            "Name=\"Same name\" Marker=\"selected\"",
+            &format!("{replacement}Marker=\"selected\""),
+            1,
+        );
+        if stored.is_none() {
+            source = source.replace(" Date=\"2020-01-01 00:00:00\" DateS=\"1\"", "");
+        } else {
+            source = source
+                .replace("Type=\"Document\"", "Type=\"Docu&#109;ent\"")
+                .replace(
+                    "</Loxone>",
+                    "<C Type=\"Document\" U=\"decoy\" DateS=\"99\"/></Loxone>",
+                );
+        }
+        fs::write(&input, &source).unwrap();
+        let result = name_command(&input, "uuid:clock", SELECTED, "New name")
+            .args(["-o", "json"])
+            .assert()
+            .success()
+            .get_output()
+            .stdout
+            .clone();
+        let result: Value = serde_json::from_slice(&result).unwrap();
+        assert_eq!(
+            result["name_change"]["previous_name"],
+            serde_json::json!(stored)
+        );
+        assert_eq!(result["name_change"]["changed"], true);
+        let saved = fs::read(&input).unwrap();
+        let saved_text = String::from_utf8(saved.clone()).unwrap();
+        assert!(saved_text.contains("Name=\"New name\""));
+        assert_ne!(
+            parse(&saved).get_child("C").unwrap().attributes["DateS"],
+            "1"
+        );
+        if stored.is_some() {
+            assert!(saved_text.contains("Type=\"Docu&#109;ent\""));
+            assert!(saved_text.contains("<C Type=\"Document\" U=\"decoy\" DateS=\"99\"/>"));
+        }
+    }
+}
+
+#[test]
+fn alarm_name_guards_and_storage_ambiguities_are_atomic_including_save_as_and_noops() {
+    let dir = tempfile::tempdir_in(env!("CARGO_MANIFEST_DIR")).unwrap();
+    let input = dir.path().join("input.Loxone");
+    let output = dir.path().join("output.Loxone");
+    for (source, uuid, name, error) in [
+        (fixture(), SELECTED, "", "this CLI supports nonempty"),
+        (fixture(), SELECTED, " \t ", "this CLI supports nonempty"),
+        (fixture(), SELECTED, "A\nB", "single-line"),
+        (fixture(), SELECTED, "A\u{2028}B", "single-line"),
+        (fixture(), SELECTED, "A\u{ffff}B", "single-line"),
+        (fixture(), STANDARD, "Renamed", "ordinary alarms only"),
+        (fixture(), "7", "Renamed", "UUID"),
+        (
+            fixture().replace("V=\"175\"", "V=\"174\""),
+            SELECTED,
+            "Same name",
+            "V=175",
+        ),
+        (
+            fixture().replace("Time=\"25200\"", "Time=\"21600\""),
+            SELECTED,
+            "Same name",
+            "strictly increasing",
+        ),
+        (
+            fixture().replacen("Name=\"Same name\"", "Name=\"S&#97;me name\"", 1),
+            SELECTED,
+            "Same name",
+            "target-name-storage",
+        ),
+        (
+            fixture().replacen("Name=\"Same name\"", "Name=\"S&#x61;me name\"", 1),
+            SELECTED,
+            "Renamed",
+            "target-name-storage",
+        ),
+        (
+            fixture().replacen("Name=\"Same name\"", "Name=\"Same\tname\"", 1),
+            SELECTED,
+            "Same name",
+            "target-name-storage",
+        ),
+        (
+            fixture().replacen("Name=\"Same name\"", "Name=\"Same\r\nname\"", 1),
+            SELECTED,
+            "Same name",
+            "target-name-storage",
+        ),
+        (
+            fixture().replace("encoding=\"utf-8\"", "encoding=\"iso-8859-1\""),
+            SELECTED,
+            "Renamed",
+            "target-name-storage",
+        ),
+        (
+            fixture().replace("<Loxone>", "<!DOCTYPE Loxone><Loxone>"),
+            SELECTED,
+            "Renamed",
+            "target-name-storage",
+        ),
+        (
+            fixture().replace(
+                &format!("<AlarmClock U=\"{SELECTED}\""),
+                &format!("<x:AlarmClock xmlns:x=\"urn:alarm\" U=\"{SELECTED}\""),
+            ),
+            SELECTED,
+            "Renamed",
+            "target-name-storage",
+        ),
+    ] {
+        fs::write(&input, &source).unwrap();
+        fs::write(&output, b"existing destination").unwrap();
+        name_command(&input, "uuid:clock", uuid, name)
+            .arg("--save-as")
+            .arg(&output)
+            .assert()
+            .failure()
+            .stderr(predicates::str::contains(error));
+        assert_eq!(fs::read(&input).unwrap(), source.as_bytes());
+        assert_eq!(fs::read(&output).unwrap(), b"existing destination");
+    }
+    let source = fixture();
+    fs::write(&input, &source).unwrap();
+    for arguments in [vec!["--room", "Bedroom"], vec!["--dry-run"]] {
+        name_command(&input, "Clock [Bedroom]", SELECTED, "New")
+            .args(arguments)
+            .assert()
+            .failure();
+        assert_eq!(fs::read(&input).unwrap(), source.as_bytes());
+    }
+    // An unselected row's unusual Name must not be mistaken for the target.
+    let source = fixture().replacen("Name=\"Same name\"", "Name=\"Other&#65;\"", 1);
+    fs::write(&input, &source).unwrap();
+    name_command(&input, "uuid:clock", LAST, "Last renamed")
+        .arg("-q")
+        .assert()
+        .success();
+    let saved = String::from_utf8(fs::read(&input).unwrap()).unwrap();
+    assert!(saved.contains("Name=\"Other&#65;\""));
 }
 
 #[test]
