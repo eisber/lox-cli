@@ -1288,7 +1288,10 @@ lox config alarm-entry-add file.Loxone "Bedroom Clock" --name "Early shift" --ti
 This follows native Add, then the native name/time editor routes, then accept.
 Both `--name` and `--time` are required; the localized native name and 06:00
 initial time are not silently chosen. Time is strict `HH:MM` or `HH:MM:SS`
-(00:00–23:59:59); storage uses seconds. The new ordinary entry is active with
+(00:00–23:59:59); storage uses seconds. `HH:MM:SS` is a CLI extension over
+valid native QTime/storage semantics; native GUI seconds-field reachability
+depends on locale/display format and is not qualified.
+The new ordinary entry is active with
 Modes=1023, undated, non-internal, Sa=false. It receives the **smallest unused
 nonnegative Id** (Id=0 is already occupied by the required standard), not
 max+1, and a fresh non-nil native-35 U. JSON returns its persisted identity.

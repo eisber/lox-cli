@@ -87,6 +87,11 @@ editor, modes/day-mask constructor, internal/default migration or date editor
 is inferred. Names must be nonempty single-line XML text as a conservative
 CLI restriction, not a recovered native text-length policy. Explicit time
 syntax is locale-independent HH:MM[:SS]; no locale display string is parsed.
+HH:MM:SS is a CLI extension over valid native QTime/storage semantics, not
+a claim that the native GUI exposes a seconds field. Native time-editor
+creation `0x140dabf30` takes its display format from QLocale::timeFormat
+(the format-type argument is elided in the export); nonzero-seconds keyboard
+entry is locale/format-dependent and remains unqualified.
 
 ## Accepted copy and persistent serializer
 
