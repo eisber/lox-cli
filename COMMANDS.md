@@ -1279,6 +1279,31 @@ DOM output and update the Document stamp. Supports JSON, CSV, quiet and
 `--no-header`; global `--dry-run` rejects before file I/O, not a preview.
 See [source qualification](docs/knowledge/daytimer-entry-activation-native.md).
 
+Add one ordinary Alarm Clock entry, explicitly setting its name and time:
+
+```bash
+lox config alarm-entry-add file.Loxone "Bedroom Clock" --name "Early shift" --time 05:45 --room Bedroom --save-as edited.Loxone -o json
+```
+
+This follows native Add, then the native name/time editor routes, then accept.
+Both `--name` and `--time` are required; the localized native name and 06:00
+initial time are not silently chosen. Time is strict `HH:MM` or `HH:MM:SS`
+(00:00–23:59:59); storage uses seconds. The new ordinary entry is active with
+Modes=1023, undated, non-internal, Sa=false. It receives the **smallest unused
+nonnegative Id** (Id=0 is already occupied by the required standard), not
+max+1, and a fresh non-nil native-35 U. JSON returns its persisted identity.
+
+The existing deletion/Active storage guards below are reused unchanged.
+An equal existing time is rejected instead of guessing native name/locale
+tie sorting. The new row is inserted in strict time order and N increases
+by one. There is no inferred native fixed/unlimited capacity claim; checked
+count/Id representation and the strict distinct-time subset bound admission.
+Other entries, unknown nodes, wiring and auxiliary references are preserved.
+Single-line nonempty names are a conservative CLI restriction, not a native
+name policy. Supports JSON/CSV, quiet, no-header, room qualification and
+save-as. Errors and unsupported dry-run fail before writes.
+See [source qualification and limits](docs/knowledge/alarm-entry-add-native.md).
+
 Delete one configured Alarm Clock entry (not the protected standard alarm):
 
 ```bash

@@ -803,6 +803,21 @@ pub(crate) enum ConfigCmd {
         #[arg(long)]
         save_as: Option<String>,
     },
+    /// Add one ordinary Alarm Clock entry, then set its name and time
+    AlarmEntryAdd {
+        file: String,
+        selector: String,
+        /// Explicit name (the native localized default is not guessed)
+        #[arg(long)]
+        name: String,
+        /// Time of day, HH:MM or HH:MM:SS; equal existing times are not supported
+        #[arg(long)]
+        time: String,
+        #[arg(short, long)]
+        room: Option<String>,
+        #[arg(long)]
+        save_as: Option<String>,
+    },
     /// Delete one configured Alarm Clock entry by its UUID, preserving the internal standard alarm
     AlarmEntryRemove {
         file: String,

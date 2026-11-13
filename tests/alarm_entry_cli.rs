@@ -36,6 +36,16 @@ fn active_command(input: &Path, selector: &str, uuid: &str) -> assert_cmd::Comma
     command
 }
 
+fn add_command(input: &Path, selector: &str, name: &str, time: &str) -> assert_cmd::Command {
+    let mut command = assert_cmd::cargo::cargo_bin_cmd!("lox");
+    command
+        .env("LOX_TELEMETRY", "0")
+        .args(["config", "alarm-entry-add"])
+        .arg(input)
+        .args([selector, "--name", name, "--time", time]);
+    command
+}
+
 fn parse(bytes: &[u8]) -> Element {
     Element::parse(bytes.strip_prefix(&[0xef, 0xbb, 0xbf]).unwrap_or(bytes)).unwrap()
 }
@@ -48,6 +58,240 @@ fn clock(root: &mut Element) -> &mut Element {
         .filter_map(|node| node.as_mut_element())
         .find(|element| element.attributes.get("U").map(String::as_str) == Some("clock"))
         .unwrap()
+}
+
+#[test]
+fn alarm_add_allocates_first_hole_native_identity_and_sorted_row_preserving_other_nodes() {
+    let dir = tempfile::tempdir_in(env!("CARGO_MANIFEST_DIR")).unwrap();
+    let input = dir.path().join("input.Loxone");
+    let output = dir.path().join("output.Loxone");
+    let original = fixture();
+    fs::write(&input, &original).unwrap();
+    let result = add_command(&input, "Clock", "Früh & \"bereit\"", "07:30:01")
+        .args(["--room", "Bedroom", "--save-as"])
+        .arg(&output)
+        .args(["-o", "json"])
+        .assert()
+        .success()
+        .get_output()
+        .stdout
+        .clone();
+    let result: Value = serde_json::from_slice(&result).unwrap();
+    let uuid = result["added"]["entry_uuid"].as_str().unwrap();
+    assert_eq!(uuid.len(), 35);
+    assert_eq!(
+        uuid.split('-').map(str::len).collect::<Vec<_>>(),
+        [8, 4, 4, 16]
+    );
+    let identity = uuid::Uuid::parse_str(&uuid.replace('-', "")).unwrap();
+    assert!(!identity.is_nil());
+    assert_ne!(uuid, SELECTED);
+    assert_eq!(result["added"]["id"], 1);
+    assert_eq!(result["added"]["time_seconds"], 27001);
+    assert_eq!(result["added"]["total_entries"], 4);
+    assert_eq!(fs::read(&input).unwrap(), original.as_bytes());
+    let saved = fs::read(&output).unwrap();
+    assert!(saved.starts_with(&[0xef, 0xbb, 0xbf]));
+    assert!(
+        saved
+            .iter()
+            .enumerate()
+            .all(|(index, byte)| { *byte != b'\n' || (index > 0 && saved[index - 1] == b'\r') })
+    );
+    let mut expected = parse(original.as_bytes());
+    let target = clock(&mut expected);
+    let position = target
+        .children
+        .iter()
+        .position(|node| {
+            node.as_element()
+                .is_some_and(|entry| entry.attributes.get("U").map(String::as_str) == Some(LAST))
+        })
+        .unwrap();
+    let entry = Element::parse(
+        format!(
+            "<AlarmClock U=\"{uuid}\" Id=\"1\" Name=\"Früh &amp; &quot;bereit&quot;\" Time=\"27001\" Active=\"true\" Modes=\"1023\"/>"
+        )
+        .as_bytes(),
+    )
+    .unwrap();
+    target
+        .children
+        .insert(position, xmltree::XMLNode::Element(entry));
+    target.attributes.insert("N".into(), "4".into());
+    let mut actual = parse(&saved);
+    assert_ne!(
+        actual.get_child("C").unwrap().attributes["DateS"],
+        expected.get_child("C").unwrap().attributes["DateS"]
+    );
+    for root in [&mut actual, &mut expected] {
+        let document = root.get_mut_child("C").unwrap();
+        document.attributes.shift_remove("Date");
+        document.attributes.shift_remove("DateS");
+    }
+    assert_eq!(actual, expected);
+
+    active_command(&output, "uuid:clock", uuid)
+        .args(["--no-active", "-q"])
+        .assert()
+        .success();
+    command(&output, "uuid:clock", uuid)
+        .arg("-q")
+        .assert()
+        .success();
+    let mut after = parse(&fs::read(&output).unwrap());
+    assert_eq!(clock(&mut after).attributes["N"], "3");
+}
+
+#[test]
+fn alarm_add_repeated_names_reuse_id_holes_and_keep_persisted_uuid_on_next_add() {
+    let dir = tempfile::tempdir_in(env!("CARGO_MANIFEST_DIR")).unwrap();
+    let input = dir.path().join("input.Loxone");
+    fs::write(&input, fixture().replace("Id=\"12\"", "Id=\"1\"")).unwrap();
+    let mut uuids = Vec::new();
+    for (time, id) in [("00:00", 2), ("23:59:59", 3)] {
+        let result = add_command(&input, "Clock [Bedroom]", "Same name", time)
+            .args(["-o", "json", "-q"])
+            .assert()
+            .success()
+            .get_output()
+            .stdout
+            .clone();
+        let result: Value = serde_json::from_slice(&result).unwrap();
+        assert_eq!(result["added"]["id"], id);
+        uuids.push(result["added"]["entry_uuid"].as_str().unwrap().to_owned());
+    }
+    assert_ne!(uuids[0], uuids[1]);
+    let mut saved = parse(&fs::read(&input).unwrap());
+    let target = clock(&mut saved);
+    let entries: Vec<_> = target
+        .children
+        .iter()
+        .filter_map(|node| node.as_element().filter(|entry| entry.name == "AlarmClock"))
+        .collect();
+    assert_eq!(target.attributes["N"], "5");
+    assert_eq!(entries[0].attributes["U"], uuids[0]);
+    assert!(!entries[0].attributes.contains_key("Time"));
+    assert_eq!(entries[4].attributes["U"], uuids[1]);
+    assert_eq!(entries[4].attributes["Time"], "86399");
+}
+
+#[test]
+fn alarm_add_rejects_ties_invalid_input_and_unsupported_storage_before_any_write() {
+    let dir = tempfile::tempdir_in(env!("CARGO_MANIFEST_DIR")).unwrap();
+    let input = dir.path().join("input.Loxone");
+    let output = dir.path().join("output.Loxone");
+    let source = fixture();
+    let cases = [
+        (source.clone(), "Clock", "Wake", "07:30"),
+        (source.clone(), "uuid:clock", "Wake", "06:00"),
+        (source.clone(), "uuid:clock", "Wake", "07:00"),
+        (source.clone(), "uuid:clock", "Wake", "24:00"),
+        (source.clone(), "uuid:clock", "Wake", "07:60"),
+        (source.clone(), "uuid:clock", "Wake", "07:30:60"),
+        (source.clone(), "uuid:clock", "Wake", "7:30"),
+        (source.clone(), "uuid:clock", "Wake", "07:30:00.1"),
+        (source.clone(), "uuid:clock", " ", "07:30"),
+        (source.clone(), "uuid:clock", "Wake\nnow", "07:30"),
+        (
+            source.replace(LAST, RFC_LAST),
+            "uuid:clock",
+            "Wake",
+            "07:30",
+        ),
+        (
+            source.replace("N=\"3\"", "N=\"4\""),
+            "uuid:clock",
+            "Wake",
+            "07:30",
+        ),
+        (
+            source.replace("V=\"175\"", "V=\"154\""),
+            "uuid:clock",
+            "Wake",
+            "07:30",
+        ),
+        (
+            source.replace("Int=\"true\"", "Int=\"false\""),
+            "uuid:clock",
+            "Wake",
+            "07:30",
+        ),
+        (
+            source.replace("Id=\"12\"", "Id=\"7\""),
+            "uuid:clock",
+            "Wake",
+            "07:30",
+        ),
+        (
+            source.replace("Modes=\"248\"", "Modes=\"0\""),
+            "uuid:clock",
+            "Wake",
+            "07:30",
+        ),
+        (
+            source.replace("Sa=\"true\"", "Sa=\"1\""),
+            "uuid:clock",
+            "Wake",
+            "07:30",
+        ),
+        (
+            source.replace("Id=\"12\"", "Id=\"12\" Year=\"2027\""),
+            "uuid:clock",
+            "Wake",
+            "07:30",
+        ),
+    ];
+    for (source, selector, name, time) in cases {
+        fs::write(&input, &source).unwrap();
+        for existing_destination in [false, true] {
+            if existing_destination {
+                fs::write(&output, b"sentinel").unwrap();
+            }
+            add_command(&input, selector, name, time)
+                .arg("--save-as")
+                .arg(&output)
+                .assert()
+                .failure();
+            assert_eq!(fs::read(&input).unwrap(), source.as_bytes());
+            if existing_destination {
+                assert_eq!(fs::read(&output).unwrap(), b"sentinel");
+                fs::remove_file(&output).unwrap();
+            } else {
+                assert!(!output.exists());
+            }
+        }
+    }
+}
+
+#[test]
+fn alarm_add_standard_only_and_csv_quiet_and_dry_run_contract() {
+    let dir = tempfile::tempdir_in(env!("CARGO_MANIFEST_DIR")).unwrap();
+    let input = dir.path().join("input.Loxone");
+    fs::write(&input, fixture()).unwrap();
+    for uuid in [SELECTED, LAST] {
+        command(&input, "uuid:clock", uuid)
+            .arg("-q")
+            .assert()
+            .success();
+    }
+    add_command(&input, "uuid:clock", "CSV,\"name\"", "07:30")
+        .args(["-o", "csv", "--no-header", "-q"])
+        .assert()
+        .success()
+        .stdout(predicates::str::contains(
+            ",1,\"CSV,\"\"name\"\"\",27000,true,1023,2\n",
+        ));
+    let before = fs::read(&input).unwrap();
+    add_command(&input, "uuid:clock", "Dry", "08:30")
+        .arg("--dry-run")
+        .assert()
+        .failure();
+    add_command(&input, "Clock [Bedroom]", "Room", "08:30")
+        .args(["--room", "Bedroom"])
+        .assert()
+        .failure();
+    assert_eq!(fs::read(&input).unwrap(), before);
 }
 
 #[test]

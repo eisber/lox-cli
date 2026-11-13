@@ -2362,6 +2362,63 @@ pub fn cmd_config(ctx: &RunContext, action: ConfigCmd) -> Result<()> {
             );
             save_edited(&mut editor, &file, save_as.as_deref())?;
         }
+        ConfigCmd::AlarmEntryAdd {
+            file,
+            selector,
+            name,
+            time,
+            room,
+            save_as,
+        } => {
+            let selector = match room {
+                Some(_) if selector.ends_with(']') && selector.contains('[') => {
+                    bail!("Use either a bracket room qualifier or --room, not both.")
+                }
+                Some(room) => format!("{selector} [{room}]"),
+                None => selector,
+            };
+            let data = fs::read(&file).with_context(|| format!("Cannot read {file}"))?;
+            let mut editor = ConfigEditor::load(&data)?;
+            let added = editor.add_alarm_clock_entry(&selector, &name, &time)?;
+            save_edited_with_quiet(
+                &mut editor,
+                &file,
+                save_as.as_deref(),
+                ctx.quiet || ctx.json || ctx.csv,
+            )?;
+            if ctx.json {
+                emit_json(
+                    ctx,
+                    serde_json::json!({
+                        "ok": true,
+                        "saved_to": save_as.as_deref().unwrap_or(&file),
+                        "added": added,
+                    }),
+                );
+            } else if ctx.csv {
+                if !ctx.no_header {
+                    println!(
+                        "BLOCK_UUID,ENTRY_UUID,ID,NAME,TIME_SECONDS,ACTIVE,MODES,TOTAL_ENTRIES"
+                    );
+                }
+                println!(
+                    "\"{}\",{},{},\"{}\",{},{},{},{}",
+                    added.block_uuid.replace('"', "\"\""),
+                    added.entry_uuid,
+                    added.id,
+                    added.name.replace('"', "\"\""),
+                    added.time_seconds,
+                    added.active,
+                    added.modes,
+                    added.total_entries,
+                );
+            } else if !ctx.quiet {
+                println!(
+                    "✓ Added Alarm Clock entry '{}' at {time} (UUID: {})",
+                    name, added.entry_uuid
+                );
+            }
+        }
         ConfigCmd::AlarmEntryRemove {
             file,
             selector,

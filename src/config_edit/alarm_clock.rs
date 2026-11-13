@@ -2,7 +2,7 @@ use std::collections::{BTreeMap, HashSet};
 
 use anyhow::{Result, bail};
 use serde::Serialize;
-use xmltree::Element;
+use xmltree::{Element, XMLNode};
 
 use super::ConfigEditor;
 
@@ -23,6 +23,18 @@ pub struct AlarmClockEntryActivation {
     pub previous_active: bool,
     pub active: bool,
     pub changed: bool,
+}
+
+#[derive(Debug, Serialize)]
+pub struct AlarmClockEntryAddition {
+    pub block_uuid: String,
+    pub entry_uuid: String,
+    pub id: u32,
+    pub name: String,
+    pub time_seconds: u32,
+    pub active: bool,
+    pub modes: u32,
+    pub total_entries: usize,
 }
 
 fn uuid_key(raw: &str) -> Result<String> {
@@ -78,12 +90,12 @@ fn flag(element: &Element, key: &str) -> Result<bool> {
 }
 
 impl ConfigEditor {
-    fn ordinary_alarm_clock_entry(
+    fn admitted_alarm_clock_entries(
         &self,
         selector: &str,
-        entry_uuid: &str,
-    ) -> Result<(Vec<usize>, usize, usize)> {
-        let requested = uuid_key(entry_uuid)?;
+        entry_uuid: Option<&str>,
+    ) -> Result<(Vec<usize>, Option<usize>, usize)> {
+        let requested = entry_uuid.map(uuid_key).transpose()?;
         let path = self.require_one(selector)?;
         let block = self.get_element(&path);
         if block.name != "C"
@@ -166,7 +178,7 @@ impl ConfigEditor {
                     "Ordinary alarm Id=0 requires native default/reference migration; nothing was changed."
                 );
             }
-            if key == requested {
+            if requested.as_ref() == Some(&key) {
                 if internal {
                     bail!(
                         "This command supports ordinary alarms only, not the internal standard alarm (Int=true); nothing was changed."
@@ -180,13 +192,143 @@ impl ConfigEditor {
                 "This operation requires exactly one existing internal standard alarm; default creation/repair is not implemented. Nothing was changed."
             );
         }
-        let position = selected.ok_or_else(|| {
-            anyhow::anyhow!(
-                "No configured alarm entry matches UUID '{entry_uuid}'; nothing was changed."
-            )
-        })?;
+        if let Some(entry_uuid) = entry_uuid
+            && selected.is_none()
+        {
+            bail!("No configured alarm entry matches UUID '{entry_uuid}'; nothing was changed.");
+        }
         let count = entries.len();
-        Ok((path, position, count))
+        Ok((path, selected, count))
+    }
+
+    fn ordinary_alarm_clock_entry(
+        &self,
+        selector: &str,
+        entry_uuid: &str,
+    ) -> Result<(Vec<usize>, usize, usize)> {
+        let (path, position, count) =
+            self.admitted_alarm_clock_entries(selector, Some(entry_uuid))?;
+        Ok((path, position.unwrap(), count))
+    }
+
+    pub fn add_alarm_clock_entry(
+        &mut self,
+        selector: &str,
+        name: &str,
+        time: &str,
+    ) -> Result<AlarmClockEntryAddition> {
+        if name.trim().is_empty()
+            || name
+                .chars()
+                .any(|c| c.is_control() || matches!(c, '\u{fffe}' | '\u{ffff}'))
+            || name.len() > (i32::MAX as usize).saturating_sub(2)
+        {
+            bail!("Alarm entry name must be nonempty single-line XML text; nothing was changed.");
+        }
+        let parts: Vec<_> = time.split(':').collect();
+        if !(2..=3).contains(&parts.len())
+            || parts
+                .iter()
+                .any(|part| part.len() != 2 || !part.bytes().all(|byte| byte.is_ascii_digit()))
+        {
+            bail!("Alarm time must be HH:MM or HH:MM:SS within one day; nothing was changed.");
+        }
+        let parts: Vec<u32> = parts.iter().map(|part| part.parse().unwrap()).collect();
+        if parts[0] >= 24 || parts[1] >= 60 || parts.get(2).is_some_and(|second| *second >= 60) {
+            bail!("Alarm time must be HH:MM or HH:MM:SS within one day; nothing was changed.");
+        }
+        let seconds = parts[0] * 3600 + parts[1] * 60 + parts.get(2).copied().unwrap_or(0);
+        let (path, _, count) = self.admitted_alarm_clock_entries(selector, None)?;
+        let block = self.get_element(&path);
+        let mut ids = HashSet::new();
+        let mut insertion = None;
+        let mut after_last = 0;
+        for (position, node) in block.children.iter().enumerate() {
+            if let Some(entry) = node.as_element().filter(|entry| entry.name == "AlarmClock") {
+                ids.insert(integer(entry, "Id")?);
+                let existing_time = integer(entry, "Time")?;
+                if existing_time == seconds {
+                    bail!(
+                        "An alarm already uses {time}; equal-time native name/locale sorting is outside this command. Nothing was changed."
+                    );
+                }
+                if insertion.is_none() && existing_time > seconds {
+                    insertion = Some(position);
+                }
+                after_last = position + 1;
+            }
+        }
+        let total_entries = count
+            .checked_add(1)
+            .filter(|count| *count <= i32::MAX as usize)
+            .ok_or_else(|| {
+                anyhow::anyhow!("Alarm count cannot be represented; nothing was changed.")
+            })?;
+        // Native allocation restarts its scan at zero after every occupied Id.
+        let id = (0..=count as u32)
+            .find(|id| !ids.contains(id))
+            .ok_or_else(|| {
+                anyhow::anyhow!("No representable free alarm Id; nothing was changed.")
+            })?;
+        fn used(element: &Element, key: &str) -> bool {
+            element
+                .attributes
+                .get("U")
+                .and_then(|raw| uuid_key(raw).ok())
+                .is_some_and(|existing| existing == key)
+                || element
+                    .children
+                    .iter()
+                    .filter_map(XMLNode::as_element)
+                    .any(|child| used(child, key))
+        }
+        let entry_uuid = (0..16)
+            .find_map(|_| {
+                let hex = uuid::Uuid::new_v4().simple().to_string();
+                (!used(&self.root, &hex)).then(|| {
+                    format!(
+                        "{}-{}-{}-{}",
+                        &hex[..8],
+                        &hex[8..12],
+                        &hex[12..16],
+                        &hex[16..]
+                    )
+                })
+            })
+            .ok_or_else(|| {
+                anyhow::anyhow!("Cannot allocate an unused alarm UUID; nothing was changed.")
+            })?;
+        let addition = AlarmClockEntryAddition {
+            block_uuid: block.attributes.get("U").cloned().unwrap_or_default(),
+            entry_uuid: entry_uuid.clone(),
+            id,
+            name: name.to_owned(),
+            time_seconds: seconds,
+            active: true,
+            modes: 1023,
+            total_entries,
+        };
+        let mut entry = Element::new("AlarmClock");
+        for (key, value) in [
+            ("U", entry_uuid),
+            ("Id", id.to_string()),
+            ("Name", name.to_owned()),
+            ("Active", "true".into()),
+            ("Modes", "1023".into()),
+        ] {
+            entry.attributes.insert(key.into(), value);
+        }
+        if seconds != 0 {
+            entry.attributes.insert("Time".into(), seconds.to_string());
+        }
+        let block = self.get_element_mut(&path);
+        block
+            .children
+            .insert(insertion.unwrap_or(after_last), XMLNode::Element(entry));
+        block
+            .attributes
+            .insert("N".into(), total_entries.to_string());
+        Ok(addition)
     }
 
     pub fn set_alarm_clock_entry_active(
