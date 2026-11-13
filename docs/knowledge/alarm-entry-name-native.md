@@ -54,11 +54,24 @@ last, rather than applying a general numeric-reference decoder or XML
 attribute-whitespace normalization. The CLI consequently guards the
 selected raw Name before standard-XML normalization: numeric character
 references and literal tab/CR/LF storage are refused as
-`target-name-storage`. DTD-dependent/non-UTF-8 input and namespaced
+`target-name-storage`. The selected U, owner Type/U and chosen Document
+Type/DateS fields are also checked in their original storage: numeric
+references in those relied-on identity/stamp fields are refused before
+comparison or stamp calculation. A raw numeric-encoded Document Type is
+recognized only to refuse it, not to qualify it as native Document storage.
+DTD-dependent/non-UTF-8 input and namespaced
 target/stamp attributes are also refused rather than approximated. Escaped literal
 text such as `&amp;#65;` remains ordinary text, not a numeric reference.
-Raw target selection follows the existing nested entry's document ordinal,
+Raw target selection follows the existing nested entry's element ordinal,
+with raw selected/owner identity checked against the admitted identity,
 not a potentially duplicated name or a globally unique U assumption.
+The original raw Name, decoded with only the five named entities after its
+storage guards, supplies `previous_name` and exact equality, including absent
+versus explicitly empty storage. The editing DOM is used for existing
+admission/paths, never for Name comparison or reporting: its digit-prefixed
+attribute sanitizer must not alter legal text such as `Wake 7am=ok`,
+`Alarm 1=2` or `Shift 12h=on`. Global sanitization and older commands are
+unchanged.
 
 ## CLI subset and preservation
 

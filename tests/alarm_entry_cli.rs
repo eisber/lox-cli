@@ -279,13 +279,6 @@ fn alarm_name_named_entity_noops_copy_exact_bytes_and_missing_or_empty_names_hav
         );
         if stored.is_none() {
             source = source.replace(" Date=\"2020-01-01 00:00:00\" DateS=\"1\"", "");
-        } else {
-            source = source
-                .replace("Type=\"Document\"", "Type=\"Docu&#109;ent\"")
-                .replace(
-                    "</Loxone>",
-                    "<C Type=\"Document\" U=\"decoy\" DateS=\"99\"/></Loxone>",
-                );
         }
         fs::write(&input, &source).unwrap();
         let result = name_command(&input, "uuid:clock", SELECTED, "New name")
@@ -308,9 +301,111 @@ fn alarm_name_named_entity_noops_copy_exact_bytes_and_missing_or_empty_names_hav
             parse(&saved).get_child("C").unwrap().attributes["DateS"],
             "1"
         );
-        if stored.is_some() {
-            assert!(saved_text.contains("Type=\"Docu&#109;ent\""));
-            assert!(saved_text.contains("<C Type=\"Document\" U=\"decoy\" DateS=\"99\"/>"));
+    }
+}
+
+#[test]
+fn alarm_name_uses_original_attribute_for_digit_equals_names_and_exact_noops() {
+    let dir = tempfile::tempdir_in(env!("CARGO_MANIFEST_DIR")).unwrap();
+    let input = dir.path().join("input.Loxone");
+    let output = dir.path().join("output.Loxone");
+    for previous in ["Wake 7am=ok", "Alarm 1=2", "Shift 12h=on"] {
+        let changed_name = previous.replacen(' ', " _", 1);
+        for requested in [changed_name.as_str(), previous] {
+            let source = fixture().replacen(
+                "Name=\"Same name\" Marker=\"selected\"",
+                &format!("Name=\"{previous}\" Marker=\"selected\""),
+                1,
+            );
+            fs::write(&input, &source).unwrap();
+            let result = name_command(&input, "uuid:clock", SELECTED, requested)
+                .arg("--save-as")
+                .arg(&output)
+                .args(["-o", "json"])
+                .assert()
+                .success()
+                .get_output()
+                .stdout
+                .clone();
+            let result: Value = serde_json::from_slice(&result).unwrap();
+            let changed = requested != previous;
+            assert_eq!(result["name_change"]["previous_name"], previous);
+            assert_eq!(result["name_change"]["changed"], changed);
+            assert_eq!(result["name_change"]["name"], requested);
+            assert_eq!(fs::read(&input).unwrap(), source.as_bytes());
+            let saved = fs::read(&output).unwrap();
+            let mut actual = parse(&saved);
+            let document = actual.get_child("C").unwrap();
+            let date = document.attributes["Date"].clone();
+            let seconds = document.attributes["DateS"].clone();
+            let entry = clock(&mut actual)
+                .children
+                .iter()
+                .filter_map(|node| node.as_element())
+                .find(|entry| entry.attributes.get("U").map(String::as_str) == Some(SELECTED))
+                .unwrap();
+            assert_eq!(entry.attributes["Name"], requested);
+            if changed {
+                assert_ne!(seconds, "1");
+                assert_ne!(date, "2020-01-01 00:00:00");
+                let expected = source
+                    .replacen(
+                        &format!("Name=\"{previous}\" Marker=\"selected\""),
+                        &format!("Name=\"{requested}\" Marker=\"selected\""),
+                        1,
+                    )
+                    .replace("DateS=\"1\"", &format!("DateS=\"{seconds}\""))
+                    .replace("Date=\"2020-01-01 00:00:00\"", &format!("Date=\"{date}\""));
+                assert_eq!(saved, expected.as_bytes());
+            } else {
+                assert_eq!(seconds, "1");
+                assert_eq!(date, "2020-01-01 00:00:00");
+                assert_eq!(saved, source.as_bytes());
+            }
+        }
+    }
+}
+
+#[test]
+fn alarm_name_rejects_numeric_identity_and_stamp_metadata_without_touching_destinations() {
+    let dir = tempfile::tempdir_in(env!("CARGO_MANIFEST_DIR")).unwrap();
+    let input = dir.path().join("input.Loxone");
+    let output = dir.path().join("output.Loxone");
+    for source in [
+        fixture().replacen(
+            &format!("<AlarmClock U=\"{SELECTED}\""),
+            &format!("<AlarmClock U=\"{}\"", SELECTED.replacen('0', "&#48;", 1)),
+            1,
+        ),
+        fixture().replacen("U=\"clock\"", "U=\"clo&#99;k\"", 1),
+        fixture().replacen("Type=\"AlarmClock\"", "Type=\"AlarmClo&#99;k\"", 1),
+        fixture()
+            .replace("Type=\"Document\"", "Type=\"Docu&#109;ent\"")
+            .replace(
+                "</Loxone>",
+                "<C Type=\"Document\" U=\"decoy\" DateS=\"99\"/></Loxone>",
+            ),
+        fixture().replace("DateS=\"1\"", "DateS=\"&#49;\""),
+    ] {
+        fs::write(&input, &source).unwrap();
+        for existing_destination in [true, false] {
+            if existing_destination {
+                fs::write(&output, b"preserve destination").unwrap();
+            } else {
+                fs::remove_file(&output).unwrap();
+            }
+            name_command(&input, "uuid:clock", SELECTED, "Renamed")
+                .arg("--save-as")
+                .arg(&output)
+                .assert()
+                .failure()
+                .stderr(predicates::str::contains("target-name-storage"));
+            assert_eq!(fs::read(&input).unwrap(), source.as_bytes());
+            if existing_destination {
+                assert_eq!(fs::read(&output).unwrap(), b"preserve destination");
+            } else {
+                assert!(!output.exists());
+            }
         }
     }
 }

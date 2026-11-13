@@ -140,12 +140,10 @@ fn time_seconds(time: &str) -> Result<u32> {
 }
 
 fn alarm_name_ordinal(element: &Element, target: &Element, ordinal: &mut usize) -> Option<usize> {
-    if element.name == "AlarmClock" {
-        if std::ptr::eq(element, target) {
-            return Some(*ordinal);
-        }
-        *ordinal += 1;
+    if std::ptr::eq(element, target) {
+        return Some(*ordinal);
     }
+    *ordinal += 1;
     element
         .children
         .iter()
@@ -156,9 +154,11 @@ fn alarm_name_ordinal(element: &Element, target: &Element, ordinal: &mut usize) 
 fn alarm_name_bytes(
     data: &[u8],
     target: usize,
+    owner: usize,
+    identity: (&str, &str),
     name: Option<&str>,
     stamp: Option<(&str, &str)>,
-) -> Result<Vec<u8>> {
+) -> Result<(Vec<u8>, Option<String>)> {
     use quick_xml::{Reader, events::Event};
 
     std::str::from_utf8(data).map_err(|_| {
@@ -172,19 +172,20 @@ fn alarm_name_bytes(
     let mut ordinal = 0;
     let mut depth = 0usize;
     let mut found = false;
-    let mut stamped = false;
+    let mut document_seen = false;
+    let mut previous_name = None;
     loop {
         match reader.read_event()? {
             Event::Start(element) | Event::Empty(element) => {
                 let end = reader.buffer_position() as usize + offset;
                 let empty = data[end - 2] == b'/';
-                let selected = element.local_name().as_ref() == b"AlarmClock" && ordinal == target;
+                let selected = ordinal == target;
+                let selected_owner = ordinal == owner;
                 let attributes = element
                     .attributes()
                     .with_checks(false)
                     .collect::<std::result::Result<Vec<_>, _>>()?;
-                let document = stamp.is_some()
-                    && !stamped
+                let document = !document_seen
                     && depth <= 1
                     && element.local_name().as_ref() == b"C"
                     && attributes.iter().any(|attribute| {
@@ -193,6 +194,38 @@ fn alarm_name_bytes(
                                 .unescape_value()
                                 .is_ok_and(|value| value == "Document")
                     });
+                for attribute in &attributes {
+                    let key = attribute.key.as_ref();
+                    if ((selected && key == b"U")
+                        || (selected_owner && matches!(key, b"Type" | b"U"))
+                        || (document && matches!(key, b"Type" | b"DateS")))
+                        && attribute.value.windows(2).any(|bytes| bytes == b"&#")
+                    {
+                        bail!(
+                            "Unsupported target-name-storage: numeric XML references in selected/owner identity or Document stamp metadata are not qualified; nothing was changed."
+                        );
+                    }
+                }
+                if selected_owner {
+                    let raw_type = attributes
+                        .iter()
+                        .find(|attribute| attribute.key.as_ref() == b"Type")
+                        .map(|attribute| attribute.unescape_value())
+                        .transpose()?;
+                    let raw_uuid = attributes
+                        .iter()
+                        .find(|attribute| attribute.key.as_ref() == b"U")
+                        .map(|attribute| attribute.unescape_value())
+                        .transpose()?;
+                    if element.name().as_ref() != b"C"
+                        || raw_type.as_deref() != Some("AlarmClock")
+                        || raw_uuid.as_deref().unwrap_or("") != identity.1
+                    {
+                        bail!(
+                            "Unsupported target-name-storage: raw owner identity differs from admitted identity; nothing was changed."
+                        );
+                    }
+                }
                 if (selected || document)
                     && (element.name().as_ref().contains(&b':')
                         || attributes
@@ -205,6 +238,18 @@ fn alarm_name_bytes(
                 }
                 let mut replacements = Vec::new();
                 if selected {
+                    let raw_uuid = attributes
+                        .iter()
+                        .find(|attribute| attribute.key.as_ref() == b"U")
+                        .map(|attribute| attribute.unescape_value())
+                        .transpose()?;
+                    if element.name().as_ref() != b"AlarmClock"
+                        || raw_uuid.as_deref() != Some(identity.0)
+                    {
+                        bail!(
+                            "Unsupported target-name-storage: raw selected entry identity differs from admitted identity; nothing was changed."
+                        );
+                    }
                     for attribute in &attributes {
                         if attribute.key.as_ref() == b"Name"
                             && (attribute.value.windows(2).any(|bytes| bytes == b"&#")
@@ -217,15 +262,27 @@ fn alarm_name_bytes(
                                 "Unsupported target-name-storage: the selected Name contains numeric XML references or literal tab/newline storage. Native string decoding differs from standard XML normalization; nothing was changed."
                             );
                         }
+                        if attribute.key.as_ref() == b"Name" {
+                            previous_name = Some(
+                                std::str::from_utf8(attribute.value.as_ref())?
+                                    .replace("&lt;", "<")
+                                    .replace("&gt;", ">")
+                                    .replace("&quot;", "\"")
+                                    .replace("&apos;", "'")
+                                    .replace("&amp;", "&"),
+                            );
+                        }
                     }
                     found = true;
                     if let Some(name) = name {
                         replacements.push(("Name", name));
                     }
                 }
-                if document && let Some((date, seconds)) = stamp {
-                    replacements.extend([("Date", date), ("DateS", seconds)]);
-                    stamped = true;
+                if document {
+                    document_seen = true;
+                    if let Some((date, seconds)) = stamp {
+                        replacements.extend([("Date", date), ("DateS", seconds)]);
+                    }
                 }
                 for (key, value) in replacements {
                     let value = quick_xml::escape::escape(value);
@@ -246,9 +303,7 @@ fn alarm_name_bytes(
                         patches.push((start..start + attribute.value.len(), value.to_string()));
                     }
                 }
-                if element.local_name().as_ref() == b"AlarmClock" {
-                    ordinal += 1;
-                }
+                ordinal += 1;
                 if !empty {
                     depth += 1;
                 }
@@ -273,7 +328,7 @@ fn alarm_name_bytes(
             _ => {}
         }
     }
-    if !found || (stamp.is_some() && !stamped) {
+    if !found || (stamp.is_some() && !document_seen) {
         bail!(
             "Cannot locate target-name-storage or Document stamp in the original XML; nothing was changed."
         );
@@ -283,7 +338,7 @@ fn alarm_name_bytes(
     for (range, value) in patches {
         output.splice(range, value.bytes());
     }
-    Ok(output)
+    Ok((output, previous_name))
 }
 
 impl ConfigEditor {
@@ -309,7 +364,18 @@ impl ConfigEditor {
         let block = editor.get_element(&path);
         let entry = block.children[position].as_element().unwrap();
         let ordinal = alarm_name_ordinal(&editor.root, entry, &mut 0).unwrap();
-        let previous_name = entry.attributes.get("Name").cloned();
+        let owner = alarm_name_ordinal(&editor.root, block, &mut 0).unwrap();
+        let (_, previous_name) = alarm_name_bytes(
+            data,
+            ordinal,
+            owner,
+            (
+                &entry.attributes["U"],
+                block.attributes.get("U").map_or("", String::as_str),
+            ),
+            None,
+            None,
+        )?;
         let change = AlarmClockEntryNameChange {
             block_uuid: block.attributes.get("U").cloned().unwrap_or_default(),
             entry_uuid: entry_uuid.into(),
@@ -335,7 +401,14 @@ impl ConfigEditor {
         } else {
             None
         };
-        let output = alarm_name_bytes(data, ordinal, change.changed.then_some(name), stamp)?;
+        let (output, _) = alarm_name_bytes(
+            data,
+            ordinal,
+            owner,
+            (&change.stored_entry_uuid, &change.block_uuid),
+            change.changed.then_some(name),
+            stamp,
+        )?;
         Ok((output, change))
     }
 

@@ -1450,7 +1450,13 @@ and DTD-dependent/non-UTF-8 input or namespaced target/stamp attributes,
 is refused as `target-name-storage` rather than
 approximating the native string reader. Ordinary named XML entities are
 decoded for exact equality. Equal decoded names preserve every original byte,
-stamp and spelling; `--save-as` copies the original bytes. Real edits change
+stamp and spelling; `--save-as` copies the original bytes.
+Name equality and `previous_name` come from the original selected attribute,
+not the editing DOM: legal names such as `Wake 7am=ok` remain exact.
+Numeric XML references in selected U, owner Type/U, or the chosen Document's
+Type/DateS are refused atomically as `target-name-storage`; those identity
+and stamp fields are not promoted through general XML numeric decoding.
+Real edits change
 only that Name plus the normal Document save stamp, preserving Id/U,
 Time/Active/Modes, priority/order, N, standard alarm, unknown fields, wiring
 and auxiliary references. Existing distinct times mean Name cannot change
