@@ -61,8 +61,30 @@ ordinary Id=0 and updating its supplied reference. The configuration reader
 `0x140631150` invokes that migration only for versions below 155.
 Neither deletion nor accepted copying invokes it.
 
+Stored alarm `U` values must use native **35-character 8-4-4-16** grouping.
+The native UUID reader `0x1404c4ae0` requires length `0x23` and dashes at
+positions 8, 13 and 18. A stored RFC 36-character spelling fails that reader,
+leaving a newly loaded alarm's UUID zero; `0x140631470` then generates a
+replacement UUID. Accepting stored RFC spelling would therefore overclaim native identity
+preservation. The CLI rejects it in **any configured alarm row of the selected
+owner**, including a survivor or the internal standard, before mutation.
+Both native and RFC spellings remain accepted as `--entry-uuid` argument
+aliases only; the validated comparison key does not rewrite stored spelling.
+
+The same owner's auxiliary serializer slot `+0xf28` is `0x14062e670`,
+which also writes alarm-ID references `Ode` (`+0x1030`) and `Le` (`+0x10dc`),
+with constructor defaults of -1, and invokes `0x14062e4a0` for `Entry`
+children keyed by `U`. At runtime, `0x14062a3b0` assigns these owner
+references from the current alarm's Id, without renumbering that alarm.
+OnDelete and accepted-array copying do **not** touch these owner references
+or auxiliary `Entry` children. Where present in the edited XML, `Ode`,
+`Le`, and `Entry U` are preserved unchanged even if they reference the
+removed alarm. This is not dangling-reference repair or a promise of
+reference validity. Their auxiliary file role and native GUI roundtrip remain
+unqualified; no reference repair or additional refusal is invented.
+
 `alarm-entry-remove` deliberately supports V=175, an existing unique
-internal standard alarm with Id=0, unique non-nil entry UUIDs and Ids,
+internal standard alarm with Id=0, unique non-nil native-35 stored entry UUIDs and Ids,
 undated entries, valid second-of-day times already in strictly increasing
 order, nonzero 10-bit Modes, and explicit true/false or absent flags.
 This avoids legacy migration, missing-UUID generation, Modes=0
@@ -71,7 +93,7 @@ sorting. These are CLI qualification boundaries, not invented native
 minimum-count or deletion rules.
 
 The CLI identifies one existing record by `U`, accepting native
-8-4-4-16 and RFC 8-4-4-4-12 UUID aliases case-insensitively. It removes
+8-4-4-16 and RFC 8-4-4-4-12 **argument** aliases case-insensitively. It removes
 only that child and decrements N. Deleting the final ordinary alarm leaves
 the original internal standard alarm and N=1, **not a new default**.
 It refuses deleting Int=true, malformed/ambiguous storage, and a missing

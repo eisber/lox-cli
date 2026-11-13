@@ -1286,11 +1286,17 @@ lox config alarm-entry-remove file.Loxone "Bedroom Clock" --entry-uuid 00000000-
 ```
 
 Identity is the existing child alarm's **U**, not its Id, name, time or
-display/XML row. Native 8-4-4-16 and RFC 8-4-4-4-12 UUID aliases compare
-case-insensitively; stored spellings remain unchanged. The command removes
+display/XML row. `--entry-uuid` accepts native 8-4-4-16 and RFC 8-4-4-4-12
+argument aliases case-insensitively. Every stored alarm U in the selected
+owner must instead use native 35-character grouping; stored RFC UUIDs fail
+before writing because the native reader would regenerate their identity.
+Stored spellings remain unchanged. The command removes
 one child and decrements N, preserving the existing `Int=true` / Id=0
 standard alarm, all surviving IDs, flags, Modes, wiring and unknown nodes.
 Removing the last ordinary entry leaves N=1, without creating a default.
+Where present, auxiliary `Ode`, `Le`, and `Entry U` references remain
+unchanged even when they reference the removed alarm: no dangling-reference
+repair is claimed. Their auxiliary file role/native GUI roundtrip is unqualified.
 Supports V=175 with one existing standard alarm, unique UUIDs/Ids, undated
 entries already sorted by strictly increasing Time, nonzero 10-bit Modes,
 and true/false or absent flags. Other storage, protected/missing entries and

@@ -7,10 +7,12 @@ const STANDARD: &str = "00000000-0000-0001-1500000000000000";
 const SELECTED: &str = "00000000-0000-0004-1500000000000000";
 const RFC_SELECTED: &str = "00000000-0000-0004-1500-000000000000";
 const LAST: &str = "00000000-0000-0005-1500000000000000";
+const RFC_LAST: &str = "00000000-0000-0005-1500-000000000000";
+const RFC_STANDARD: &str = "00000000-0000-0001-1500-000000000000";
 
 fn fixture() -> String {
     format!(
-        "\u{feff}<?xml version=\"1.0\" encoding=\"utf-8\"?>\r\n<Loxone><C Type=\"Document\" Date=\"2020-01-01 00:00:00\" DateS=\"1\"><C Type=\"Place\" U=\"bed\" Title=\"Bedroom\"/><C Type=\"Place\" U=\"other-room\" Title=\"Other\"/><C Type=\"AlarmClock\" V=\"175\" U=\"clock\" Title=\"Clock\" N=\"3\" Dev=\"device\" Unknown=\"keep\"><IoData Pr=\"bed\"/><AlarmClock U=\"{STANDARD}\" Int=\"true\" Time=\"21600\" Modes=\"1023\" Name=\"Standard\"/><Co K=\"AQ\" U=\"wire\"><In Input=\"source\"/></Co><AlarmClock U=\"{SELECTED}\" Id=\"7\" Time=\"25200\" Modes=\"248\" Active=\"true\" Sa=\"true\" Name=\"Same name\" Marker=\"selected\"/><Unknown Preserve=\"yes\"/><AlarmClock U=\"{LAST}\" Id=\"12\" Time=\"28800\" Modes=\"1023\" Name=\"Same name\" Marker=\"survivor\"/></C><C Type=\"AlarmClock\" V=\"175\" U=\"other-clock\" Title=\"Clock\" N=\"1\"><IoData Pr=\"other-room\"/><AlarmClock U=\"other-standard\" Int=\"true\" Time=\"21600\" Modes=\"1023\"/></C></C></Loxone>\r\n"
+        "\u{feff}<?xml version=\"1.0\" encoding=\"utf-8\"?>\r\n<Loxone><C Type=\"Document\" Date=\"2020-01-01 00:00:00\" DateS=\"1\"><C Type=\"Place\" U=\"bed\" Title=\"Bedroom\"/><C Type=\"Place\" U=\"other-room\" Title=\"Other\"/><C Type=\"AlarmClock\" V=\"175\" U=\"clock\" Title=\"Clock\" N=\"3\" Dev=\"device\" Ode=\"7\" Le=\"7\" Unknown=\"keep\"><IoData Pr=\"bed\"/><AlarmClock U=\"{STANDARD}\" Int=\"true\" Time=\"21600\" Modes=\"1023\" Name=\"Standard\"/><Co K=\"AQ\" U=\"wire\"><In Input=\"source\"/></Co><AlarmClock U=\"{SELECTED}\" Id=\"7\" Time=\"25200\" Modes=\"248\" Active=\"true\" Sa=\"true\" Name=\"Same name\" Marker=\"selected\"/><Entry U=\"{SELECTED}\" Marker=\"auxiliary-reference\"/><Unknown Preserve=\"yes\"/><AlarmClock U=\"{LAST}\" Id=\"12\" Time=\"28800\" Modes=\"1023\" Name=\"Same name\" Marker=\"survivor\"/></C><C Type=\"AlarmClock\" V=\"175\" U=\"other-clock\" Title=\"Clock\" N=\"1\"><IoData Pr=\"other-room\"/><AlarmClock U=\"other-standard\" Int=\"true\" Time=\"21600\" Modes=\"1023\"/></C></C></Loxone>\r\n"
     )
 }
 
@@ -71,17 +73,59 @@ fn alarm_delete_uses_uuid_alias_and_room_preserving_every_other_node() {
     let mut expected = parse(original.as_bytes());
     let target = clock(&mut expected);
     target.children.retain(|node| {
-        node.as_element()
-            .is_none_or(|entry| entry.attributes.get("U").map(String::as_str) != Some(SELECTED))
+        node.as_element().is_none_or(|entry| {
+            entry.name != "AlarmClock"
+                || entry.attributes.get("U").map(String::as_str) != Some(SELECTED)
+        })
     });
     target.attributes.insert("N".into(), "2".into());
     let mut actual = parse(&saved);
+    let target = clock(&mut actual);
+    assert_eq!(target.attributes["Ode"], "7");
+    assert_eq!(target.attributes["Le"], "7");
+    assert_eq!(target.get_child("Entry").unwrap().attributes["U"], SELECTED);
     for root in [&mut actual, &mut expected] {
         let document = root.get_mut_child("C").unwrap();
         document.attributes.shift_remove("Date");
         document.attributes.shift_remove("DateS");
     }
     assert_eq!(actual, expected);
+}
+
+#[test]
+fn alarm_delete_refuses_stored_rfc_uuids_in_target_survivor_or_standard_atomically() {
+    let dir = tempfile::tempdir_in(env!("CARGO_MANIFEST_DIR")).unwrap();
+    let input = dir.path().join("input.Loxone");
+    let output = dir.path().join("output.Loxone");
+    let source = fixture();
+    for (source, request) in [
+        (source.replace(SELECTED, RFC_SELECTED), SELECTED),
+        (source.replace(SELECTED, RFC_SELECTED), RFC_SELECTED),
+        (source.replace(LAST, RFC_LAST), RFC_SELECTED),
+        (source.replace(STANDARD, RFC_STANDARD), SELECTED),
+    ] {
+        fs::write(&input, &source).unwrap();
+        for existing_destination in [false, true] {
+            if existing_destination {
+                fs::write(&output, b"sentinel").unwrap();
+            }
+            command(&input, "uuid:clock", request)
+                .arg("--save-as")
+                .arg(&output)
+                .assert()
+                .failure()
+                .stderr(predicates::str::contains(
+                    "Stored alarm entry U must use native 35-character",
+                ));
+            assert_eq!(fs::read(&input).unwrap(), source.as_bytes());
+            if existing_destination {
+                assert_eq!(fs::read(&output).unwrap(), b"sentinel");
+                fs::remove_file(&output).unwrap();
+            } else {
+                assert!(!output.exists());
+            }
+        }
+    }
 }
 
 #[test]
@@ -136,7 +180,7 @@ fn alarm_delete_rejects_ambiguous_malformed_or_migrating_storage_before_either_w
             "uuid:clock",
             SELECTED,
         ),
-        (source.replace(LAST, RFC_SELECTED), "uuid:clock", SELECTED),
+        (source.replace(LAST, SELECTED), "uuid:clock", SELECTED),
         (
             source.replace("Time=\"28800\"", "Time=\"25200\""),
             "uuid:clock",

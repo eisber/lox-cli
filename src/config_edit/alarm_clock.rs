@@ -109,6 +109,11 @@ impl ConfigEditor {
                 .attributes
                 .get("U")
                 .ok_or_else(|| anyhow::anyhow!("Alarm entry is missing U; nothing was changed."))?;
+            if stored_uuid.len() != 35 {
+                bail!(
+                    "Stored alarm entry U must use native 35-character 8-4-4-16 grouping; RFC UUID aliases are accepted only for --entry-uuid. Nothing was changed."
+                );
+            }
             let key = uuid_key(stored_uuid)?;
             let id = integer(entry, "Id")?;
             if !uuids.insert(key.clone()) || !ids.insert(id) {
