@@ -223,3 +223,135 @@ fn central_light_links_cli_mixed_visibility_refuses_selection_and_raw_boundaries
         }
     }
 }
+
+#[test]
+fn central_light_links_cli_removal_saves_marker_deltas_and_last_link_without_defaults() {
+    let dir = tempfile::tempdir_in(env!("CARGO_MANIFEST_DIR")).unwrap();
+    let input = dir.path().join("input.Loxone");
+    let output = dir.path().join("output.Loxone");
+    let original = fixture().replace("<C ", "<C V=\"178\" ");
+    fs::write(&input, &original).unwrap();
+    let result = assert_cmd::cargo::cargo_bin_cmd!("lox")
+        .env("LOX_TELEMETRY", "0")
+        .args(["config", "central-light", "remove-link"])
+        .arg(&input)
+        .args([
+            "Central",
+            &id(11).to_uppercase(),
+            "--room",
+            "Office",
+            "--save-as",
+        ])
+        .arg(&output)
+        .args(["-o", "json", "-q"])
+        .assert()
+        .success()
+        .stderr("")
+        .get_output()
+        .stdout
+        .clone();
+    let result: Value = serde_json::from_slice(&result).unwrap();
+    assert_eq!(result["changed"], true);
+    assert_eq!(result["removal"]["uuid"], id(11));
+    assert_eq!(result["removal"]["from_position"], 2);
+    assert_eq!(result["removal"]["remaining_links"], 1);
+    assert_eq!(result["removal"]["reference_marker_cleared"], true);
+    assert_eq!(fs::read(&input).unwrap(), original.as_bytes());
+    let saved = fs::read(&output).unwrap();
+    assert!(saved.starts_with(&[0xef, 0xbb, 0xbf]));
+    assert!(saved.windows(2).any(|bytes| bytes == b"\r\n"));
+    let saved = String::from_utf8(saved).unwrap();
+    for retained in [
+        format!("linkC=\"{}\"", id(10)),
+        format!("Input=\"{}\"", id(21)),
+        "Future=\"keep\"".into(),
+        "Rating=\"7\"".into(),
+        "WF=\"268451840\"".into(),
+        "iObjS=\"unrelated\"".into(),
+    ] {
+        assert!(saved.contains(&retained), "lost {retained}");
+    }
+    assert!(!saved.contains("WF=\"268435456\""));
+    assert!(!saved.contains("DateS=\"1\""));
+    assert!(saved.find("key=\"first\"").unwrap() < saved.find("key=\"last\"").unwrap());
+    assert_cmd::cargo::cargo_bin_cmd!("lox")
+        .env("LOX_TELEMETRY", "0")
+        .args(["config", "central-light", "remove-link"])
+        .arg(&output)
+        .args([
+            "Central [Office]",
+            &id(10),
+            "-o",
+            "csv",
+            "--no-header",
+            "-q",
+        ])
+        .assert()
+        .success()
+        .stdout("")
+        .stderr("");
+    let saved = fs::read_to_string(&output).unwrap();
+    assert!(!saved.contains("linkC="));
+    assert!(saved.contains("WF=\"16384\""));
+    assert!(!saved.contains("WF=\"0\""));
+    let before = fs::read(&output).unwrap();
+    assert_cmd::cargo::cargo_bin_cmd!("lox")
+        .env("LOX_TELEMETRY", "0")
+        .args(["config", "central-light", "remove-link"])
+        .arg(&output)
+        .args(["Central", &id(10)])
+        .assert()
+        .failure()
+        .stderr(predicate::str::contains("not an existing"));
+    assert_eq!(fs::read(&output).unwrap(), before);
+}
+
+#[test]
+fn central_light_links_cli_removal_refusals_do_not_write_source_or_destination() {
+    let dir = tempfile::tempdir_in(env!("CARGO_MANIFEST_DIR")).unwrap();
+    let input = dir.path().join("input.Loxone");
+    let output = dir.path().join("output.Loxone");
+    let xml = fixture().replace("<C ", "<C V=\"178\" ");
+    for (source, selection, message) in [
+        (fixture(), id(10), "V >= 90"),
+        (xml.replace("V=\"178\"", "V=\"89\""), id(10), "V >= 90"),
+        (xml.replace("268451840", "2415935488"), id(10), "signed32"),
+        (xml.replace("268451840", "16384"), id(10), "WF marker"),
+        (
+            xml.replace("Type=\"ModbusServer\"", "Type=\"Not\""),
+            id(10),
+            "native removal",
+        ),
+        (xml.clone(), "1".into(), "nonzero native UUID"),
+        (xml.clone(), id(99), "not an existing"),
+        (
+            xml.replace("DateS=\"1\">", "DateS=\"1\"><Template IfT=\"true\"/>"),
+            id(10),
+            "Document Template",
+        ),
+    ] {
+        for existing in [false, true] {
+            fs::write(&input, &source).unwrap();
+            if existing {
+                fs::write(&output, "existing output").unwrap();
+            } else if output.exists() {
+                fs::remove_file(&output).unwrap();
+            }
+            assert_cmd::cargo::cargo_bin_cmd!("lox")
+                .env("LOX_TELEMETRY", "0")
+                .args(["config", "central-light", "remove-link"])
+                .arg(&input)
+                .args(["Central", &selection, "--save-as"])
+                .arg(&output)
+                .assert()
+                .failure()
+                .stderr(predicate::str::contains(message));
+            assert_eq!(fs::read(&input).unwrap(), source.as_bytes());
+            if existing {
+                assert_eq!(fs::read_to_string(&output).unwrap(), "existing output");
+            } else {
+                assert!(!output.exists());
+            }
+        }
+    }
+}

@@ -51,17 +51,31 @@ pub(crate) enum CentralLightCmd {
         #[arg(long, value_name = "PATH")]
         save_as: Option<String>,
     },
+    /// Remove one existing UUID and update its document-wide linked-reference marker
+    RemoveLink {
+        #[command(flatten)]
+        target: CentralLightTarget,
+        /// Linked control U from inspect, NOT its position or display name
+        uuid: String,
+        #[arg(long, value_name = "PATH")]
+        save_as: Option<String>,
+    },
 }
 
 pub(crate) fn run(ctx: &RunContext, action: CentralLightCmd) -> Result<()> {
-    let (target, edit, save_as) = match action {
-        CentralLightCmd::Inspect { target } => (target, None, None),
+    let (target, edit, removal_uuid, save_as) = match action {
+        CentralLightCmd::Inspect { target } => (target, None, None, None),
         CentralLightCmd::MoveLink {
             target,
             uuid,
             direction,
             save_as,
-        } => (target, Some((uuid, direction)), save_as),
+        } => (target, Some((uuid, direction)), None, save_as),
+        CentralLightCmd::RemoveLink {
+            target,
+            uuid,
+            save_as,
+        } => (target, None, Some(uuid), save_as),
     };
     let selector = target.selector()?;
     let original = std::fs::read(&target.file)?;
@@ -78,13 +92,17 @@ pub(crate) fn run(ctx: &RunContext, action: CentralLightCmd) -> Result<()> {
             )
         })
         .transpose()?;
+    let removal = removal_uuid
+        .map(|uuid| editor.remove_central_light_link(&selector, &uuid))
+        .transpose()?;
     let inspection = editor.inspect_central_light_links(&selector)?;
     let quiet = ctx.quiet || ctx.json || ctx.csv;
-    let saved_to = if let Some(movement) = &movement {
-        if movement.changed {
-            super::save_edited_with_quiet(&mut editor, &target.file, save_as.as_deref(), quiet)?;
-            Some(save_as.as_deref().unwrap_or(&target.file))
-        } else if let Some(output) = save_as.as_deref() {
+    let changed = movement.as_ref().is_some_and(|movement| movement.changed) || removal.is_some();
+    let saved_to = if changed {
+        super::save_edited_with_quiet(&mut editor, &target.file, save_as.as_deref(), quiet)?;
+        Some(save_as.as_deref().unwrap_or(&target.file))
+    } else if movement.is_some() {
+        if let Some(output) = save_as.as_deref() {
             super::write_edited_bytes(&original, &target.file, Some(output), quiet)?;
             Some(output)
         } else {
@@ -98,9 +116,10 @@ pub(crate) fn run(ctx: &RunContext, action: CentralLightCmd) -> Result<()> {
             ctx,
             serde_json::json!({
                 "ok": true,
-                "changed": movement.as_ref().is_some_and(|movement| movement.changed),
+                "changed": changed,
                 "saved_to": saved_to,
                 "movement": movement,
+                "removal": removal,
                 "central_light": inspection,
             }),
         );

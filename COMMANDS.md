@@ -138,12 +138,13 @@ lox config set-param file.Loxone "Night Timer" Duration 300
 
 Arguments: `<FILE> <SELECTOR> <PARAM> <VALUE>`. Selector is a block title or `"uuid:..."`.
 
-### Lighting Central linked-function order
+### Lighting Central linked functions
 
 ```bash
 lox config central-light inspect file.Loxone "Lighting Central" -o json
 lox config central-light move-link file.Loxone "Lighting Central" abcdef01-0002-0003-0000000000000002 up --save-as edited.Loxone -o json
 lox config central-light move-link file.Loxone "uuid:..." abcdef01-0002-0003-0000000000000002 down
+lox config central-light remove-link file.Loxone "Lighting Central" abcdef01-0002-0003-0000000000000002 --save-as edited.Loxone -o json
 ```
 
 `move-link <FILE> <OWNER> <LINKED_UUID> <up|down>` moves one existing **linked
@@ -177,8 +178,25 @@ For admitted lists, first Up and last Down succeed without rewriting or changing
 `--save-as` on a no-op copies the original bytes exactly. Changed saves use the
 existing BOM/EOL/save-stamp helpers and leave the source untouched with
 `--save-as`. JSON, CSV, table, `--quiet`, and `--no-header` are supported.
+`remove-link <FILE> <OWNER> <LINKED_UUID>` removes exactly one existing UUID,
+retaining the remaining order. It uses the same owner, whole-graph consistency,
+and whole selected-list visibility guards as movement. It additionally requires
+an explicit decimal `V >= 90` on every control in the Document; missing/legacy
+versions are refused, not migrated. Any changed WF must fit nonnegative signed32
+decimal. The target's `WF & 0x10000000` marker is retained if **any other generic
+linkC** still references it, otherwise cleared while preserving all other bits.
+Only that membership delta is written; unrelated owners and controls are not
+repaired. A resulting zero WF and a resulting empty `linkC` are omitted, matching
+native save. Removing the last link is supported without inserting a default.
+The native remove callback has no extra confirmation or minimum-list check;
+the explicit CLI action persists the accepted edit without a new prompt.
+Repeating a removal fails because the UUID is no longer an existing member.
+All checks and marker deltas are computed before editing or saving. Room
+selectors, output formats, and `--save-as` use the conventions above; JSON includes
+the removed UUID/position, remaining count and whether its reference marker cleared.
+
 Template propagation, native fallback/parent-owner redirection, tablet ambient
-links, adding/removing links, and native repair are not implemented. This is
+links, adding links, and native repair are not implemented. This is
 source-backed persisted configuration editing, **not** a new native GUI/runtime
 qualification.
 Native UI-history/undo behavior is not qualified or emulated.

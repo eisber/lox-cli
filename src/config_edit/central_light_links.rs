@@ -37,6 +37,14 @@ pub struct CentralLightLinkMove {
     pub changed: bool,
 }
 
+#[derive(Debug, Serialize)]
+pub struct CentralLightLinkRemoval {
+    pub uuid: String,
+    pub from_position: usize,
+    pub remaining_links: usize,
+    pub reference_marker_cleared: bool,
+}
+
 impl ConfigEditor {
     pub fn inspect_central_light_links(&self, selector: &str) -> Result<CentralLightLinks> {
         let (_, inspection) = self.central_light_links(selector)?;
@@ -86,6 +94,98 @@ impl ConfigEditor {
             self.get_element_mut(&path)
                 .attributes
                 .insert("linkC".into(), links.join(","));
+        }
+        Ok(result)
+    }
+
+    pub fn remove_central_light_link(
+        &mut self,
+        selector: &str,
+        uuid: &str,
+    ) -> Result<CentralLightLinkRemoval> {
+        let selected = identity(uuid)?;
+        let (path, inspection) = self.central_light_links(selector)?;
+        for link in &inspection.links {
+            if link.control_type != "ModbusServer" || link.title.is_empty() {
+                bail!(
+                    "Cannot safely reproduce native removal for linked UUID '{}': every member of this owner's linkC must be a direct ModbusServer target with a nonempty Title. Other native-visible families and ancestor fallback are unproven here; nothing was changed.",
+                    link.uuid
+                );
+            }
+        }
+        let index = inspection
+            .links
+            .iter()
+            .position(|link| link.uuid.eq_ignore_ascii_case(&selected))
+            .ok_or_else(|| {
+                anyhow::anyhow!(
+                    "'{uuid}' is not an existing linked-function UUID on this CentralLight. Use `lox config central-light inspect FILE OWNER`; nothing was changed."
+                )
+            })?;
+        let owner = self.get_element(&path);
+        let documents = self.find_elements("Type:Document");
+        let mut controls = Vec::new();
+        collect_controls(self.get_element(&documents[0]), &mut controls);
+        let mut referenced = HashSet::new();
+        for control in &controls {
+            if !control
+                .attributes
+                .get("V")
+                .and_then(|raw| raw.parse::<i32>().ok())
+                .is_some_and(|version| version >= 90)
+            {
+                bail!(
+                    "CentralLight removal requires explicit decimal V >= 90 on every Document control so WF persistence is known. Missing/legacy versions are not migrated; nothing was changed."
+                );
+            }
+            for link in links(control)? {
+                let key = identity(link)?;
+                if !std::ptr::eq(*control, owner) || key != selected {
+                    referenced.insert(key);
+                }
+            }
+        }
+        let mut deltas = Vec::new();
+        for control in controls {
+            let before = flags(control)?;
+            let expected = control
+                .attributes
+                .get("U")
+                .and_then(|raw| identity(raw).ok())
+                .is_some_and(|key| referenced.contains(&key));
+            let after = (before & !LINKED) | if expected { LINKED } else { 0 };
+            if before != after {
+                if before > i32::MAX as u32 {
+                    bail!(
+                        "Affected WF '{before}' is outside the admitted nonnegative signed32 format; nothing was changed."
+                    );
+                }
+                let target = self.require_one(&format!("uuid:{}", control.attributes["U"]))?;
+                deltas.push((target, after));
+            }
+        }
+        let result = CentralLightLinkRemoval {
+            uuid: inspection.links[index].uuid.clone(),
+            from_position: index + 1,
+            remaining_links: inspection.links.len() - 1,
+            reference_marker_cleared: !deltas.is_empty(),
+        };
+        let mut remaining: Vec<_> = inspection.links.into_iter().map(|link| link.uuid).collect();
+        remaining.remove(index);
+        // Native save omits both an empty generic list and a zero WF word.
+        let attributes = &mut self.get_element_mut(&path).attributes;
+        if remaining.is_empty() {
+            attributes.shift_remove("linkC");
+        } else {
+            attributes.insert("linkC".into(), remaining.join(","));
+        }
+        for (target, after) in deltas {
+            let attributes = &mut self.get_element_mut(&target).attributes;
+            if after == 0 {
+                attributes.shift_remove("WF");
+            } else {
+                attributes.insert("WF".into(), after.to_string());
+            }
         }
         Ok(result)
     }
@@ -463,5 +563,97 @@ mod tests {
                 .unwrap()
                 .changed
         );
+    }
+
+    #[test]
+    fn central_light_link_removal_clears_only_last_incoming_reference_bit() {
+        let xml = fixture().replace("<C ", r#"<C V="178" "#);
+        for shared in [false, true] {
+            let source = if shared {
+                xml.replace(
+                    r#"iObjS="unrelated""#,
+                    &format!(r#"iObjS="unrelated" linkC="{}""#, id(10).to_uppercase()),
+                )
+            } else {
+                xml.clone()
+            };
+            let mut editor = ConfigEditor::load(source.as_bytes()).unwrap();
+            let mut expected = editor.root.clone();
+            let document = expected.children[0].as_mut_element().unwrap();
+            document.children[0]
+                .as_mut_element()
+                .unwrap()
+                .attributes
+                .insert("linkC".into(), format!("{},{}", id(11), id(12)));
+            if !shared {
+                document.children[1]
+                    .as_mut_element()
+                    .unwrap()
+                    .attributes
+                    .insert("WF".into(), "16384".into());
+            }
+            let result = editor
+                .remove_central_light_link("Central", &id(10).to_uppercase())
+                .unwrap();
+            assert_eq!(result.from_position, 1);
+            assert_eq!(result.remaining_links, 2);
+            assert_eq!(result.reference_marker_cleared, !shared);
+            assert_eq!(editor.root, expected);
+            editor.inspect_central_light_links("Central").unwrap();
+        }
+    }
+
+    #[test]
+    fn central_light_link_removal_allows_last_entry_and_omits_empty_defaults() {
+        let xml = fixture().replace("<C ", r#"<C V="178" "#);
+        let mut editor = ConfigEditor::load(xml.as_bytes()).unwrap();
+        for n in [10, 11, 12] {
+            editor.remove_central_light_link("Central", &id(n)).unwrap();
+        }
+        let owner = editor.require_one("Central").unwrap();
+        assert!(!editor.get_element(&owner).attributes.contains_key("linkC"));
+        for n in [11, 12] {
+            let path = editor.require_one(&format!("uuid:{}", id(n))).unwrap();
+            assert!(!editor.get_element(&path).attributes.contains_key("WF"));
+        }
+        let bytes = editor.to_bytes().unwrap();
+        let reloaded = ConfigEditor::load(&bytes).unwrap();
+        assert!(
+            reloaded
+                .inspect_central_light_links("Central")
+                .unwrap()
+                .links
+                .is_empty()
+        );
+        let before = editor.root.clone();
+        assert!(
+            editor
+                .remove_central_light_link("Central", &id(12))
+                .is_err()
+        );
+        assert_eq!(editor.root, before);
+    }
+
+    #[test]
+    fn central_light_link_removal_refuses_unproven_persistence_or_coupling_atomically() {
+        let xml = fixture().replace("<C ", r#"<C V="178" "#);
+        for invalid in [
+            fixture(),
+            xml.replacen(r#"V="178""#, r#"V="89""#, 1),
+            xml.replacen(r#"V="178""#, r#"V="future""#, 1),
+            xml.replace("268451840", &(LINKED | 0x8000_4000).to_string()),
+            xml.replace("268451840", "16384"),
+            xml.replacen(r#"Type="ModbusServer""#, r#"Type="Not""#, 1),
+            xml.replace(r#"Date="old">"#, r#"Date="old"><Template IfT="true"/>"#),
+        ] {
+            let mut editor = ConfigEditor::load(invalid.as_bytes()).unwrap();
+            let before = editor.root.clone();
+            assert!(
+                editor
+                    .remove_central_light_link("Central", &id(10))
+                    .is_err()
+            );
+            assert_eq!(editor.root, before);
+        }
     }
 }

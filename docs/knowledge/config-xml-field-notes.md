@@ -209,6 +209,22 @@ already shading.
 - **Linked functions** are stored as `linkC="uuid1,uuid2"` on the block, and each
   linked item needs `WF |= 0x10000000`; without that flag the app shows an empty
   *Linked Objects* list.
+  `config central-light remove-link` removes one existing member by native UUID.
+  Generated UI `0x1409803e0` creates `m_btnDelete` at dialog `+0x78`; constructor
+  `0x14097ede0` binds it to `0x14097ff10`. Enable `0x1409802b0` only requires a
+  selected object. The callback compares both UUID halves, removes exactly one
+  entry via `0x14051fa40(index, 1)`, refreshes and restores selection; it contains
+  no confirmation, minimum-count guard or replacement/default-link insertion.
+  Accepted generic copies still use `0x1401b4270` and always run `0x140519890`:
+  clear reference bit on every control, then mark every generic linked target.
+  Removal therefore clears the target marker only after its last incoming
+  generic reference disappears, unlike membership-preserving movement.
+  Native `0x14047e260` reads per-control `V`; its `V >= 90` branch loads WF from
+  a zero temporary and explicitly handles bit `0x10000000`. WF uses integer
+  type 5 (`%d`, omit zero); an empty generic list is not emitted at all.
+  The removal CLI conservatively requires explicit modern versions throughout
+  the Document and a nonnegative signed32 changed WF, computes every delta
+  before mutation, preserves unrelated bits and does not migrate legacy data.
   `config central-light move-link` edits this list for standalone CentralLight
   owners, **not** the central block's separate controlled-light list. The native
   `CControlLinkingSortingDlg` also serves tablet ambient lists through different
