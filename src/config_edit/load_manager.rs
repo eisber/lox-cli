@@ -27,6 +27,61 @@ pub struct LoadManagerInspection {
 }
 
 impl ConfigEditor {
+    /// Edit only Maximum off time [s], using an exact positive integer subset.
+    pub fn set_load_manager_load_max_off(
+        &mut self,
+        selector: &str,
+        io_index: u8,
+        max_off_seconds: &str,
+    ) -> Result<bool> {
+        if io_index > 11 {
+            bail!("Load Manager io-index must be 0..11, not a 1-based priority.");
+        }
+        let seconds = load_max_off_integer(max_off_seconds)
+            .filter(|seconds| *seconds >= 10)
+            .ok_or_else(|| {
+                anyhow::anyhow!(
+                    "Load Manager maximum off time must be whole seconds in 10..2147483647, using decimal digits only. Zero's UI meaning is unqualified; native values 1..9 clamp to 10, so this conservative CLI subset rejects them instead. No rounding, clamping or unit conversion; nothing was changed."
+                )
+            })?;
+        // Requests intentionally exclude even a leading plus; existing integer
+        // storage may retain it because the native integer reader accepts it.
+        if !max_off_seconds.bytes().all(|byte| byte.is_ascii_digit()) {
+            bail!(
+                "Load Manager maximum off time requires decimal digits only, in whole seconds; nothing was changed."
+            );
+        }
+        let path = self.load_manager_path(selector)?;
+        let block = self.get_element(&path);
+        let positions = load_positions(block)?;
+        let position = positions
+            .into_iter()
+            .find(|position| {
+                resolve_io_index(block.children[*position].as_element().unwrap()).unwrap()
+                    == io_index
+            })
+            .unwrap();
+        let load = block.children[position].as_element().unwrap();
+        let previous = match load.attributes.get("maxOff") {
+            // Native type-5 read with preserve-missing disabled parses absence as zero.
+            None => 0,
+            Some(raw) => load_max_off_integer(raw).ok_or_else(|| {
+                anyhow::anyhow!(
+                    "Unsupported Load Manager maxOff storage for io-index {io_index}: expected a nonnegative signed-32-bit integer in seconds (an optional leading plus is supported). Explicit empty, negative, fractional, exponent, whitespace and malformed storage are rejected; nothing was changed."
+                )
+            })?,
+        };
+        if previous == seconds {
+            return Ok(false);
+        }
+        self.get_element_mut(&path).children[position]
+            .as_mut_element()
+            .unwrap()
+            .attributes
+            .insert("maxOff".into(), seconds.to_string());
+        Ok(true)
+    }
+
     /// Edit the Configure loads Power [kW] cell without rounding the request.
     pub fn set_load_manager_load_power(
         &mut self,
@@ -192,6 +247,14 @@ impl ConfigEditor {
             .swap(positions[index], positions[next]);
         Ok(())
     }
+}
+
+fn load_max_off_integer(raw: &str) -> Option<i32> {
+    let digits = raw.strip_prefix('+').unwrap_or(raw);
+    if digits.is_empty() || !digits.bytes().all(|byte| byte.is_ascii_digit()) {
+        return None;
+    }
+    digits.parse().ok()
 }
 
 fn load_power_storage_spelling(raw: &str) -> bool {

@@ -18,6 +18,226 @@ fn fixture() -> String {
 }
 
 #[test]
+fn load_manager_cli_max_off_seconds_targets_identity_after_move_and_preserves_other_fields() {
+    let dir = tempfile::tempdir_in(env!("CARGO_MANIFEST_DIR")).unwrap();
+    let input = dir.path().join("input.Loxone");
+    let output = dir.path().join("output.Loxone");
+    let source = fixture()
+        .replacen(" maxOff=\"123\" minOn=\"45\"", "", 1)
+        .replacen(" maxOff=\"123\"", "", 1);
+    fs::write(&input, source).unwrap();
+    assert_cmd::cargo::cargo_bin_cmd!("lox")
+        .env("LOX_TELEMETRY", "0")
+        .args(["config", "load-manager", "move"])
+        .arg(&input)
+        .args(["uuid:manager", "0", "down", "-q"])
+        .assert()
+        .success();
+    let original = fs::read(&input).unwrap();
+    let before = assert_cmd::cargo::cargo_bin_cmd!("lox")
+        .env("LOX_TELEMETRY", "0")
+        .args(["config", "load-manager", "inspect"])
+        .arg(&input)
+        .args(["uuid:manager", "-o", "json"])
+        .assert()
+        .success()
+        .get_output()
+        .stdout
+        .clone();
+    let mut expected: Value = serde_json::from_slice(&before).unwrap();
+    expected["load_manager"]["loads"][1]["attributes"]["maxOff"] = Value::from("600");
+    let result = assert_cmd::cargo::cargo_bin_cmd!("lox")
+        .env("LOX_TELEMETRY", "0")
+        .args(["config", "load-manager", "set-max-off"])
+        .arg(&input)
+        .args([
+            "Load Manager",
+            "0",
+            "000600",
+            "--room",
+            "Office",
+            "--save-as",
+        ])
+        .arg(&output)
+        .args(["-o", "json"])
+        .assert()
+        .success()
+        .get_output()
+        .stdout
+        .clone();
+    let result: Value = serde_json::from_slice(&result).unwrap();
+    assert_eq!(result["changed"], true);
+    assert_eq!(result["load_manager"], expected["load_manager"]);
+    assert_eq!(fs::read(&input).unwrap(), original);
+    let saved = fs::read(&output).unwrap();
+    assert!(saved.starts_with(&[0xef, 0xbb, 0xbf]));
+    assert!(saved.windows(2).any(|window| window == b"\r\n"));
+    let xml = String::from_utf8(saved).unwrap();
+    assert!(xml.contains("U=\"connector\""));
+    assert!(xml.contains("WF=\"16384\""));
+    for seconds in ["10", "2147483647"] {
+        let result = assert_cmd::cargo::cargo_bin_cmd!("lox")
+            .env("LOX_TELEMETRY", "0")
+            .args(["config", "load-manager", "set-max-off"])
+            .arg(&output)
+            .args(["uuid:manager", "0", seconds, "-o", "json"])
+            .assert()
+            .success()
+            .get_output()
+            .stdout
+            .clone();
+        let result: Value = serde_json::from_slice(&result).unwrap();
+        expected["load_manager"]["loads"][1]["attributes"]["maxOff"] = Value::from(seconds);
+        assert_eq!(result["load_manager"], expected["load_manager"]);
+    }
+}
+
+#[test]
+fn load_manager_cli_max_off_noop_preserves_spelling_and_document_stamp() {
+    let dir = tempfile::tempdir_in(env!("CARGO_MANIFEST_DIR")).unwrap();
+    let input = dir.path().join("input.Loxone");
+    let output = dir.path().join("output.Loxone");
+    let original = fixture().replacen("maxOff=\"123\"", "maxOff=\"+000600\"", 1);
+    fs::write(&input, original.as_bytes()).unwrap();
+    let result = assert_cmd::cargo::cargo_bin_cmd!("lox")
+        .env("LOX_TELEMETRY", "0")
+        .args(["config", "load-manager", "set-max-off"])
+        .arg(&input)
+        .args(["uuid:manager", "0", "00600", "-o", "json"])
+        .assert()
+        .success()
+        .get_output()
+        .stdout
+        .clone();
+    let result: Value = serde_json::from_slice(&result).unwrap();
+    assert_eq!(result["changed"], false);
+    assert!(result["saved_to"].is_null());
+    assert_eq!(fs::read(&input).unwrap(), original.as_bytes());
+    assert_cmd::cargo::cargo_bin_cmd!("lox")
+        .env("LOX_TELEMETRY", "0")
+        .args(["config", "load-manager", "set-max-off"])
+        .arg(&input)
+        .args(["uuid:manager", "0", "600", "--save-as"])
+        .arg(&output)
+        .args(["-o", "csv", "-q", "--no-header"])
+        .assert()
+        .success()
+        .stdout(predicates::str::contains("1,0,\"Consumer 0\""));
+    let saved = fs::read_to_string(&output).unwrap();
+    assert!(saved.contains("maxOff=\"+000600\""));
+    assert!(saved.contains("DateS=\"1\""));
+    assert_eq!(fs::read(&input).unwrap(), original.as_bytes());
+    assert_cmd::cargo::cargo_bin_cmd!("lox")
+        .env("LOX_TELEMETRY", "0")
+        .args(["config", "load-manager", "set-max-off"])
+        .arg(&output)
+        .args(["uuid:manager", "0", "601", "-q"])
+        .assert()
+        .success();
+    assert!(!fs::read_to_string(&output).unwrap().contains("DateS=\"1\""));
+}
+
+#[test]
+fn load_manager_cli_max_off_rejections_are_atomic_and_not_generic_parameters() {
+    let dir = tempfile::tempdir_in(env!("CARGO_MANIFEST_DIR")).unwrap();
+    let input = dir.path().join("input.Loxone");
+    let output = dir.path().join("output.Loxone");
+    let original = fixture();
+    fs::write(&input, original.as_bytes()).unwrap();
+    fs::write(&output, b"existing destination").unwrap();
+    for value in [
+        "",
+        "0",
+        "1",
+        "9",
+        "10.0",
+        "1e2",
+        "+600",
+        "-600",
+        " 600",
+        "600s",
+        "2147483648",
+        "NaN",
+        "inf",
+    ] {
+        assert_cmd::cargo::cargo_bin_cmd!("lox")
+            .env("LOX_TELEMETRY", "0")
+            .args(["config", "load-manager", "set-max-off"])
+            .arg(&input)
+            .args(["uuid:manager", "0", value, "--save-as"])
+            .arg(&output)
+            .assert()
+            .failure();
+        assert_eq!(fs::read(&input).unwrap(), original.as_bytes());
+        assert_eq!(fs::read(&output).unwrap(), b"existing destination");
+    }
+    for raw in ["", "-1", "600.0", "6e2", "garbage", "2147483648", " 600"] {
+        let malformed = original.replacen("maxOff=\"123\"", &format!("maxOff=\"{raw}\""), 1);
+        fs::write(&input, malformed.as_bytes()).unwrap();
+        assert_cmd::cargo::cargo_bin_cmd!("lox")
+            .env("LOX_TELEMETRY", "0")
+            .args(["config", "load-manager", "set-max-off"])
+            .arg(&input)
+            .args(["uuid:manager", "0", "600", "--save-as"])
+            .arg(&output)
+            .assert()
+            .failure()
+            .stderr(predicates::str::contains("maxOff storage"));
+        assert_eq!(fs::read(&input).unwrap(), malformed.as_bytes());
+        assert_eq!(fs::read(&output).unwrap(), b"existing destination");
+    }
+    fs::write(&input, original.as_bytes()).unwrap();
+    for parameter in ["maxOff", "Load.0.maxOff"] {
+        assert_cmd::cargo::cargo_bin_cmd!("lox")
+            .env("LOX_TELEMETRY", "0")
+            .args(["config", "set-param"])
+            .arg(&input)
+            .args(["uuid:manager", parameter, "600", "--save-as"])
+            .arg(&output)
+            .assert()
+            .failure();
+        assert_eq!(fs::read(&input).unwrap(), original.as_bytes());
+        assert_eq!(fs::read(&output).unwrap(), b"existing destination");
+    }
+    for (selector, index) in [("uuid:manager", "12"), ("uuid:room", "0"), ("missing", "0")] {
+        assert_cmd::cargo::cargo_bin_cmd!("lox")
+            .env("LOX_TELEMETRY", "0")
+            .args(["config", "load-manager", "set-max-off"])
+            .arg(&input)
+            .args([selector, index, "600", "--save-as"])
+            .arg(&output)
+            .assert()
+            .failure();
+        assert_eq!(fs::read(&input).unwrap(), original.as_bytes());
+        assert_eq!(fs::read(&output).unwrap(), b"existing destination");
+    }
+    let malformed = original.replacen("ioIdx=\"1\"", "ioIdx=\"0\"", 1);
+    fs::write(&input, malformed.as_bytes()).unwrap();
+    assert_cmd::cargo::cargo_bin_cmd!("lox")
+        .env("LOX_TELEMETRY", "0")
+        .args(["config", "load-manager", "set-max-off"])
+        .arg(&input)
+        .args(["uuid:manager", "0", "600", "--save-as"])
+        .arg(&output)
+        .assert()
+        .failure()
+        .stderr(predicates::str::contains("duplicate ioIdx"));
+    assert_eq!(fs::read(&input).unwrap(), malformed.as_bytes());
+    assert_eq!(fs::read(&output).unwrap(), b"existing destination");
+    assert_cmd::cargo::cargo_bin_cmd!("lox")
+        .env("LOX_TELEMETRY", "0")
+        .args(["--dry-run", "config", "load-manager", "set-max-off"])
+        .arg(dir.path().join("does-not-exist.Loxone"))
+        .args(["uuid:manager", "0", "600", "--save-as"])
+        .arg(&output)
+        .assert()
+        .failure()
+        .stderr(predicates::str::contains("dry-run"))
+        .stderr(predicates::str::contains("os error").not());
+    assert_eq!(fs::read(&output).unwrap(), b"existing destination");
+}
+
+#[test]
 fn load_manager_cli_power_uses_kw_and_stable_identity_without_touching_other_settings() {
     let dir = tempfile::tempdir_in(env!("CARGO_MANIFEST_DIR")).unwrap();
     let input = dir.path().join("input.Loxone");
