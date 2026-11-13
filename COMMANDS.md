@@ -1400,6 +1400,34 @@ ambiguity fail before writing, including `--save-as`. Supports JSON/CSV,
 quiet, no-header and room qualification. See
 [source qualification and limits](docs/knowledge/alarm-entry-delete-native.md).
 
+Change the time of one existing ordinary Alarm Clock entry:
+
+```bash
+lox config alarm-entry-set-time file.Loxone "Bedroom Clock" --entry-uuid 00000000-0000-0004-1500000000000000 --time 07:30 --room Bedroom -o json
+lox config alarm-entry-set-time file.Loxone "Bedroom Clock" --entry-uuid 00000000-0000-0004-1500000000000000 --time 07:30:15 --save-as edited.Loxone
+```
+
+`--time` is required, with strict `HH:MM` or `HH:MM:SS` in 00:00:00–23:59:59.
+Seconds are a CLI extension over valid native QTime/storage semantics, **not**
+qualified native GUI seconds entry; the GUI uses a locale-dependent format.
+This changes only the selected ordinary entry's Time, then physically orders
+the existing alarm records by Time as the native serializer does for this
+undated, distinct-time subset. Id/U/name/Active/Modes/Int/Sa/date fields,
+the standard alarm, N, unknown data, wiring and auxiliary references are
+preserved. Non-entry XML children keep their existing slots and order.
+The identity/storage admission is unchanged from the other alarm-entry
+commands; saved output is immediately usable by them.
+
+A time equal to **another** entry's time is conservatively refused, including
+the standard alarm's time: native equal-time Name/locale tie policy is
+unqualified, not declared unsupported by native Config. Midnight Time=0
+is omitted on a real change. A semantic no-op preserves original bytes,
+including Time spelling/absence, BOM/EOL and stamp; `--save-as` copies them
+unchanged. Errors leave the source and any destination untouched.
+Supports JSON/CSV, quiet, no-header and room qualification. This minimal
+typed edit does not emulate whole native-save normalization or undo/history.
+See [source qualification and ordering](docs/knowledge/alarm-entry-time-native.md).
+
 Enable or disable one existing ordinary Alarm Clock entry:
 
 ```bash

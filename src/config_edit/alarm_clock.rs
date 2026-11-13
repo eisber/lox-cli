@@ -40,6 +40,16 @@ pub struct AlarmClockEntryModeChange {
 }
 
 #[derive(Debug, Serialize)]
+pub struct AlarmClockEntryTimeChange {
+    pub block_uuid: String,
+    pub entry_uuid: String,
+    pub stored_entry_uuid: String,
+    pub previous_time_seconds: u32,
+    pub time_seconds: u32,
+    pub changed: bool,
+}
+
+#[derive(Debug, Serialize)]
 pub struct AlarmClockEntryAddition {
     pub block_uuid: String,
     pub entry_uuid: String,
@@ -101,6 +111,22 @@ fn flag(element: &Element, key: &str) -> Result<bool> {
             "Unsupported AlarmClock {key}='{raw}': use true/false or absence; nothing was changed."
         ),
     }
+}
+
+fn time_seconds(time: &str) -> Result<u32> {
+    let parts: Vec<_> = time.split(':').collect();
+    if !(2..=3).contains(&parts.len())
+        || parts
+            .iter()
+            .any(|part| part.len() != 2 || !part.bytes().all(|byte| byte.is_ascii_digit()))
+    {
+        bail!("Alarm time must be HH:MM or HH:MM:SS within one day; nothing was changed.");
+    }
+    let parts: Vec<u32> = parts.iter().map(|part| part.parse().unwrap()).collect();
+    if parts[0] >= 24 || parts[1] >= 60 || parts.get(2).is_some_and(|second| *second >= 60) {
+        bail!("Alarm time must be HH:MM or HH:MM:SS within one day; nothing was changed.");
+    }
+    Ok(parts[0] * 3600 + parts[1] * 60 + parts.get(2).copied().unwrap_or(0))
 }
 
 impl ConfigEditor {
@@ -239,19 +265,7 @@ impl ConfigEditor {
         {
             bail!("Alarm entry name must be nonempty single-line XML text; nothing was changed.");
         }
-        let parts: Vec<_> = time.split(':').collect();
-        if !(2..=3).contains(&parts.len())
-            || parts
-                .iter()
-                .any(|part| part.len() != 2 || !part.bytes().all(|byte| byte.is_ascii_digit()))
-        {
-            bail!("Alarm time must be HH:MM or HH:MM:SS within one day; nothing was changed.");
-        }
-        let parts: Vec<u32> = parts.iter().map(|part| part.parse().unwrap()).collect();
-        if parts[0] >= 24 || parts[1] >= 60 || parts.get(2).is_some_and(|second| *second >= 60) {
-            bail!("Alarm time must be HH:MM or HH:MM:SS within one day; nothing was changed.");
-        }
-        let seconds = parts[0] * 3600 + parts[1] * 60 + parts.get(2).copied().unwrap_or(0);
+        let seconds = time_seconds(time)?;
         let (path, _, count) = self.admitted_alarm_clock_entries(selector, None)?;
         let block = self.get_element(&path);
         let mut ids = HashSet::new();
@@ -343,6 +357,66 @@ impl ConfigEditor {
             .attributes
             .insert("N".into(), total_entries.to_string());
         Ok(addition)
+    }
+
+    pub fn set_alarm_clock_entry_time(
+        &mut self,
+        selector: &str,
+        entry_uuid: &str,
+        time: &str,
+    ) -> Result<AlarmClockEntryTimeChange> {
+        let seconds = time_seconds(time)?;
+        let (path, position, _) = self.ordinary_alarm_clock_entry(selector, entry_uuid)?;
+        let block = self.get_element(&path);
+        let entry = block.children[position].as_element().unwrap();
+        let previous_time_seconds = integer(entry, "Time")?;
+        for (index, node) in block.children.iter().enumerate() {
+            if index != position
+                && let Some(other) = node.as_element().filter(|entry| entry.name == "AlarmClock")
+                && integer(other, "Time")? == seconds
+            {
+                bail!(
+                    "Another alarm already uses {time}; equal-time native name/locale sorting is outside this command. Nothing was changed."
+                );
+            }
+        }
+        let change = AlarmClockEntryTimeChange {
+            block_uuid: block.attributes.get("U").cloned().unwrap_or_default(),
+            entry_uuid: entry_uuid.to_owned(),
+            stored_entry_uuid: entry.attributes["U"].clone(),
+            previous_time_seconds,
+            time_seconds: seconds,
+            changed: previous_time_seconds != seconds,
+        };
+        if change.changed {
+            let block = self.get_element_mut(&path);
+            let entry = block.children[position].as_mut_element().unwrap();
+            if seconds == 0 {
+                entry.attributes.shift_remove("Time");
+            } else {
+                entry.attributes.insert("Time".into(), seconds.to_string());
+            }
+            // Native serialization physically sorts record pointers; keep non-entry XML slots intact.
+            let positions: Vec<_> = block
+                .children
+                .iter()
+                .enumerate()
+                .filter_map(|(index, node)| {
+                    node.as_element()
+                        .filter(|entry| entry.name == "AlarmClock")
+                        .map(|_| index)
+                })
+                .collect();
+            let mut entries: Vec<_> = positions
+                .iter()
+                .map(|index| block.children[*index].clone())
+                .collect();
+            entries.sort_by_key(|node| integer(node.as_element().unwrap(), "Time").unwrap());
+            for (index, node) in positions.into_iter().zip(entries) {
+                block.children[index] = node;
+            }
+        }
+        Ok(change)
     }
 
     pub fn set_alarm_clock_entry_active(
