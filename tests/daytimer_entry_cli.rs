@@ -345,3 +345,214 @@ fn daytimer_delete_uses_omitted_zero_identity_and_dry_run_fails_closed_before_io
             .stderr(predicate::str::contains("Cannot read").not());
     }
 }
+
+fn activation_command(input: &std::path::Path, mode: &str, from: &str) -> assert_cmd::Command {
+    let mut command = assert_cmd::cargo::cargo_bin_cmd!("lox");
+    command
+        .env("LOX_TELEMETRY", "0")
+        .args(["config", "timer-entry-set-activation"])
+        .arg(input)
+        .args([
+            "uuid:timer",
+            "--mode-uuid",
+            mode,
+            "--from",
+            from,
+            "--to",
+            "03:00",
+        ]);
+    command
+}
+
+#[test]
+fn daytimer_activation_changes_only_selected_flag_without_recounting_or_uuid_rewrite() {
+    let dir = tempfile::tempdir_in(env!("CARGO_MANIFEST_DIR")).unwrap();
+    let input = dir.path().join("input.Loxone");
+    let output = dir.path().join("output.Loxone");
+    for (attribute, flag, expected_required) in [
+        ("", "--required", true),
+        (" NeedActivate=\"FaLsE\"", "--required", true),
+        (" NeedActivate=\"TrUe\"", "--no-required", false),
+    ] {
+        let source = native_fixture(NATIVE_MODE_A, RFC_MODE_A)
+            .replace("N=\"3\"", "N=\"+03\"")
+            .replace(
+                "V=\"5\" Marker=\"selected\"",
+                &format!("V=\"5\"{attribute} Marker=\"selected\""),
+            );
+        fs::write(&input, &source).unwrap();
+        let result = activation_command(&input, RFC_MODE_A, "02:00")
+            .arg(flag)
+            .arg("--save-as")
+            .arg(&output)
+            .args(["-o", "json"])
+            .assert()
+            .success()
+            .get_output()
+            .stdout
+            .clone();
+        let result: Value = serde_json::from_slice(&result).unwrap();
+        assert_eq!(result["activation"]["changed"], true);
+        assert_eq!(
+            result["activation"]["activation_required"],
+            expected_required
+        );
+        assert_eq!(result["activation"]["entry"]["mode_uuid"], RFC_MODE_A);
+        assert_eq!(result["activation"]["stored_mode_uuid"], NATIVE_MODE_A);
+        assert_eq!(fs::read(&input).unwrap(), source.as_bytes());
+        let saved = fs::read(&output).unwrap();
+        assert!(saved.starts_with(&[0xef, 0xbb, 0xbf]));
+        assert!(
+            saved
+                .iter()
+                .enumerate()
+                .all(|(i, b)| *b != b'\n' || saved[i - 1] == b'\r')
+        );
+        let mut expected = parse(source.as_bytes());
+        let timer = expected
+            .get_mut_child("C")
+            .unwrap()
+            .get_mut_child("C")
+            .unwrap();
+        let entry = timer
+            .children
+            .iter_mut()
+            .filter_map(|n| n.as_mut_element())
+            .find(|e| e.attributes.get("Marker").map(String::as_str) == Some("selected"))
+            .unwrap();
+        if expected_required {
+            entry
+                .attributes
+                .insert("NeedActivate".into(), "true".into());
+        } else {
+            entry.attributes.shift_remove("NeedActivate");
+        }
+        let mut actual = parse(&saved);
+        for root in [&mut expected, &mut actual] {
+            let doc = root.get_mut_child("C").unwrap();
+            doc.attributes.shift_remove("Date");
+            doc.attributes.shift_remove("DateS");
+        }
+        assert_eq!(actual, expected);
+        assert!(!String::from_utf8(saved).unwrap().contains("DateS=\"1\""));
+    }
+}
+
+#[test]
+fn daytimer_activation_semantic_noops_preserve_exact_bytes_spelling_and_stamp() {
+    let dir = tempfile::tempdir_in(env!("CARGO_MANIFEST_DIR")).unwrap();
+    let input = dir.path().join("input.Loxone");
+    let output = dir.path().join("output.Loxone");
+    for (attribute, flag) in [
+        ("", "--no-required"),
+        (" NeedActivate=\"FALSE\"", "--no-required"),
+        (" NeedActivate=\"tRuE\"", "--required"),
+    ] {
+        let source = fixture()
+            .replace(" Analog=\"false\" DefValue=\"0\"", "")
+            .replace(
+                "From=\"120\" To=\"180\" V=\"5\"",
+                &format!("To=\"180\" V=\"5\"{attribute}"),
+            );
+        fs::write(&input, &source).unwrap();
+        activation_command(&input, MODE_A, "00:00")
+            .arg(flag)
+            .args(["-o", "csv", "--no-header", "-q"])
+            .assert()
+            .success()
+            .stdout(format!(
+                "\"timer\",{MODE_A},{MODE_A},0,180,{},{},false\n",
+                flag == "--required",
+                flag == "--required",
+            ));
+        assert_eq!(fs::read(&input).unwrap(), source.as_bytes());
+        fs::write(&output, b"old destination").unwrap();
+        activation_command(&input, MODE_A, "00:00")
+            .arg(flag)
+            .arg("--save-as")
+            .arg(&output)
+            .arg("-q")
+            .assert()
+            .success()
+            .stdout("");
+        assert_eq!(fs::read(&input).unwrap(), source.as_bytes());
+        assert_eq!(fs::read(&output).unwrap(), source.as_bytes());
+    }
+}
+
+#[test]
+fn daytimer_activation_rejects_malformed_boolean_and_shared_unsafe_domains_atomically() {
+    let dir = tempfile::tempdir_in(env!("CARGO_MANIFEST_DIR")).unwrap();
+    let input = dir.path().join("input.Loxone");
+    let output = dir.path().join("output.Loxone");
+    let source = native_fixture(NATIVE_MODE_A, NATIVE_MODE_A);
+    let mut invalid = ["", "1", " true", "false ", "junk"]
+        .map(|value| {
+            source.replace(
+                "V=\"5\" Marker=\"selected\"",
+                &format!("V=\"5\" NeedActivate=\"{value}\" Marker=\"selected\""),
+            )
+        })
+        .to_vec();
+    invalid.extend([
+        source.replace("N=\"3\"", "N=\"2\""),
+        source.replace("N=\"3\"", "M=\"4\" N=\"3\""),
+        source.replace("Analog=\"false\"", "Analog=\"true\""),
+        source.replace("From=\"120\" To=\"180\"", "From=\"660\" To=\"720\""),
+        source.replace(
+            "V=\"5\" Marker=\"selected\"",
+            "Ix=\"2\" V=\"5\" Marker=\"selected\"",
+        ),
+        source.replace(
+            &format!("Modes=\"{NATIVE_MODE_A},{NATIVE_MODE_B}\""),
+            &format!("Modes=\"{NATIVE_MODE_A},{RFC_MODE_A}\""),
+        ),
+        source.replace(
+            &format!("<C Type=\"Mode\" U=\"{NATIVE_MODE_A}\" Title=\"Mode A\"/>"),
+            &format!(
+                "<C Type=\"Mode\" U=\"{NATIVE_MODE_A}\"/><C Type=\"Mode\" U=\"{RFC_MODE_A}\"/>"
+            ),
+        ),
+        source.replace(
+            &format!("Type=\"Mode\" U=\"{NATIVE_MODE_B}\""),
+            &format!("Type=\"And\" U=\"{NATIVE_MODE_B}\""),
+        ),
+        source.replace(
+            "From=\"120\" To=\"180\" V=\"5\"",
+            "From=\"121\" To=\"180\" V=\"5\"",
+        ),
+    ]);
+    for source in invalid {
+        fs::write(&input, &source).unwrap();
+        fs::write(&output, b"existing destination").unwrap();
+        activation_command(&input, RFC_MODE_A, "02:00")
+            .arg("--required")
+            .arg("--save-as")
+            .arg(&output)
+            .assert()
+            .failure();
+        assert_eq!(fs::read(&input).unwrap(), source.as_bytes());
+        assert_eq!(fs::read(&output).unwrap(), b"existing destination");
+    }
+}
+
+#[test]
+fn daytimer_activation_requires_one_flag_and_dry_run_rejects_before_io() {
+    let dir = tempfile::tempdir_in(env!("CARGO_MANIFEST_DIR")).unwrap();
+    let missing = dir.path().join("missing.Loxone");
+    activation_command(&missing, MODE_A, "02:00")
+        .assert()
+        .failure()
+        .stderr(predicate::str::contains("Cannot read").not());
+    activation_command(&missing, MODE_A, "02:00")
+        .args(["--required", "--no-required"])
+        .assert()
+        .failure()
+        .stderr(predicate::str::contains("Cannot read").not());
+    activation_command(&missing, MODE_A, "02:00")
+        .args(["--required", "--dry-run"])
+        .assert()
+        .failure()
+        .stderr(predicate::str::contains("dry-run not supported"))
+        .stderr(predicate::str::contains("Cannot read").not());
+}

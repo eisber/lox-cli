@@ -1203,6 +1203,28 @@ lox config timer-schedule file.Loxone "Night Timer" "06:00-08:00" --value 0.5
 
 Arguments: `<FILE> <SELECTOR> <RANGE>`. Range format: `HH:MM-HH:MM`. `--value` sets the output during active period (default: 1).
 
+Change **Activation required** for one existing ordinary digital interval:
+
+```bash
+lox config timer-entry-set-activation file.Loxone "Night Timer" --mode-uuid 00000000-0000-0004-1500000000000000 --from 20:00 --to 24:00 --required --save-as edited.Loxone -o json
+lox config timer-entry-set-activation file.Loxone "Night Timer" --mode-uuid 00000000-0000-0004-1500000000000000 --from 20:00 --to 24:00 --no-required
+```
+
+Exactly one of `--required` / `--no-required` is mandatory. This sets the
+configured checkbox, **not** interval enablement or runtime activation, and
+never creates an entry. Identity, `--room`, UUID comparison, and conservative
+digital storage requirements are the same as `timer-entry-remove` below.
+Only the selected `NeedActivate` changes: true writes `true`; changing true
+to false removes the attribute. `N`, all intervals/values, Modes and unknown
+fields remain untouched. Existing true/false spellings are case-insensitive.
+Absence means false; other explicit spellings (including empty, numeric, or
+whitespace-padded values) are rejected rather than adopting native fallback.
+A semantic no-op preserves exact input bytes, attribute presence/spelling and
+save stamp, including with `--save-as`. Actual edits use normal BOM/EOL-aware
+DOM output and update the Document stamp. Supports JSON, CSV, quiet and
+`--no-header`; global `--dry-run` rejects before file I/O, not a preview.
+See [source qualification](docs/knowledge/daytimer-entry-activation-native.md).
+
 Delete one existing native schedule entry without replacing its neighbors:
 
 ```bash

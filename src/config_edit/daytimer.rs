@@ -42,6 +42,24 @@ pub struct DayTimerEntryRemoval {
     pub remaining_entries: usize,
 }
 
+#[derive(Debug, Serialize)]
+pub struct DayTimerEntryActivationChange {
+    pub block_uuid: String,
+    pub entry: DayTimerEntryIdentity,
+    pub stored_mode_uuid: String,
+    pub previous_attribute: Option<String>,
+    pub previous_required: bool,
+    pub activation_required: bool,
+    pub changed: bool,
+}
+
+struct SelectedEntry {
+    path: Vec<usize>,
+    position: usize,
+    stored_mode_uuid: String,
+    entry_count: usize,
+}
+
 fn timer_time(raw: &str) -> Result<u32> {
     let bytes = raw.as_bytes();
     if bytes.len() != 5
@@ -100,11 +118,11 @@ fn mode_uuid_key(raw: &str) -> Option<String> {
 }
 
 impl ConfigEditor {
-    pub fn remove_daytimer_entry(
-        &mut self,
+    fn select_daytimer_entry(
+        &self,
         selector: &str,
-        identity: DayTimerEntryIdentity,
-    ) -> Result<DayTimerEntryRemoval> {
+        identity: &DayTimerEntryIdentity,
+    ) -> Result<SelectedEntry> {
         let mode_uuid = mode_uuid_key(&identity.mode_uuid)
             .ok_or_else(|| anyhow::anyhow!("Invalid operating mode UUID; nothing was changed."))?;
         if identity.from_minutes >= identity.to_minutes || identity.to_minutes > 1440 {
@@ -121,7 +139,7 @@ impl ConfigEditor {
         match block.attributes.get("Analog").map(String::as_str) {
             None | Some("false") => {}
             Some("true") => bail!(
-                "Analog DayTimer entry deletion is not yet qualified; this operation supports digital schedules only. Nothing was changed."
+                "Analog DayTimer entry editing is not yet qualified; this operation supports digital schedules only. Nothing was changed."
             ),
             _ => bail!("Unsupported DayTimer Analog spelling; nothing was changed."),
         }
@@ -204,7 +222,7 @@ impl ConfigEditor {
                 index == other_index && from <= other_to && other_from <= to
             }) {
                 bail!(
-                    "Overlapping or touching entries in one mode may require native normalization; this bounded delete refuses them without changing anything."
+                    "Overlapping or touching entries in one mode may require native normalization; this bounded edit refuses them without changing anything."
                 );
             }
             records.push((index, from, to));
@@ -216,21 +234,36 @@ impl ConfigEditor {
             })
             .ok_or_else(|| anyhow::anyhow!("No existing entry matches that operating mode and exact interval; nothing was changed."))?;
         let position = positions[selected];
+        Ok(SelectedEntry {
+            stored_mode_uuid: stored_modes[mode_index].to_owned(),
+            entry_count: positions.len(),
+            path,
+            position,
+        })
+    }
+
+    pub fn remove_daytimer_entry(
+        &mut self,
+        selector: &str,
+        identity: DayTimerEntryIdentity,
+    ) -> Result<DayTimerEntryRemoval> {
+        let selected = self.select_daytimer_entry(selector, &identity)?;
+        let block = self.get_element(&selected.path);
         let removal = DayTimerEntryRemoval {
             block_uuid: block.attributes.get("U").cloned().unwrap_or_default(),
             entry: identity,
-            stored_mode_uuid: stored_modes[mode_index].to_owned(),
-            removed_attributes: block.children[position]
+            stored_mode_uuid: selected.stored_mode_uuid,
+            removed_attributes: block.children[selected.position]
                 .as_element()
                 .unwrap()
                 .attributes
                 .iter()
                 .map(|(key, value)| (key.clone(), value.clone()))
                 .collect(),
-            remaining_entries: positions.len() - 1,
+            remaining_entries: selected.entry_count - 1,
         };
-        let block = self.get_element_mut(&path);
-        block.children.remove(position);
+        let block = self.get_element_mut(&selected.path);
+        block.children.remove(selected.position);
         // Native N counts serialized non-default records and omits zero.
         if removal.remaining_entries == 0 {
             block.attributes.shift_remove("N");
@@ -240,5 +273,47 @@ impl ConfigEditor {
                 .insert("N".into(), removal.remaining_entries.to_string());
         }
         Ok(removal)
+    }
+
+    pub fn set_daytimer_entry_activation(
+        &mut self,
+        selector: &str,
+        identity: DayTimerEntryIdentity,
+        activation_required: bool,
+    ) -> Result<DayTimerEntryActivationChange> {
+        let selected = self.select_daytimer_entry(selector, &identity)?;
+        let block = self.get_element(&selected.path);
+        let entry = block.children[selected.position].as_element().unwrap();
+        let previous_attribute = entry.attributes.get("NeedActivate").cloned();
+        let previous_required = match previous_attribute.as_deref() {
+            None => false,
+            Some(raw) if raw.eq_ignore_ascii_case("true") => true,
+            Some(raw) if raw.eq_ignore_ascii_case("false") => false,
+            Some(raw) => bail!(
+                "Unsupported DayTimer NeedActivate='{raw}': use true/false (case-insensitive) or absence; nothing was changed."
+            ),
+        };
+        let change = DayTimerEntryActivationChange {
+            block_uuid: block.attributes.get("U").cloned().unwrap_or_default(),
+            entry: identity,
+            stored_mode_uuid: selected.stored_mode_uuid,
+            previous_attribute,
+            previous_required,
+            activation_required,
+            changed: previous_required != activation_required,
+        };
+        if change.changed {
+            let entry = self.get_element_mut(&selected.path).children[selected.position]
+                .as_mut_element()
+                .unwrap();
+            if activation_required {
+                entry
+                    .attributes
+                    .insert("NeedActivate".into(), "true".into());
+            } else {
+                entry.attributes.shift_remove("NeedActivate");
+            }
+        }
+        Ok(change)
     }
 }

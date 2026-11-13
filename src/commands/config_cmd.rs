@@ -2418,6 +2418,72 @@ pub fn cmd_config(ctx: &RunContext, action: ConfigCmd) -> Result<()> {
                 );
             }
         }
+        ConfigCmd::TimerEntrySetActivation {
+            file,
+            selector,
+            mode_uuid,
+            from,
+            to,
+            required,
+            no_required: _,
+            room,
+            save_as,
+        } => {
+            let identity =
+                crate::config_edit::daytimer::DayTimerEntryIdentity::parse(&mode_uuid, &from, &to)?;
+            let selector = match room {
+                Some(_) if selector.ends_with(']') && selector.contains('[') => {
+                    bail!("Use either a bracket room qualifier or --room, not both.")
+                }
+                Some(room) => format!("{selector} [{room}]"),
+                None => selector,
+            };
+            let data = fs::read(&file).with_context(|| format!("Cannot read {file}"))?;
+            let mut editor = ConfigEditor::load(&data)?;
+            let change = editor.set_daytimer_entry_activation(&selector, identity, required)?;
+            let quiet = ctx.quiet || ctx.json || ctx.csv;
+            if change.changed {
+                save_edited_with_quiet(&mut editor, &file, save_as.as_deref(), quiet)?;
+            } else if save_as.is_some() {
+                write_edited_bytes(&data, &file, save_as.as_deref(), quiet)?;
+            }
+            if ctx.json {
+                emit_json(
+                    ctx,
+                    serde_json::json!({
+                        "ok": true,
+                        "saved_to": save_as.as_deref().unwrap_or(&file),
+                        "activation": change,
+                    }),
+                );
+            } else if ctx.csv {
+                if !ctx.no_header {
+                    println!(
+                        "BLOCK_UUID,MODE_UUID,STORED_MODE_UUID,FROM_MINUTES,TO_MINUTES,PREVIOUS_REQUIRED,ACTIVATION_REQUIRED,CHANGED"
+                    );
+                }
+                println!(
+                    "\"{}\",{},{},{},{},{},{},{}",
+                    change.block_uuid.replace('"', "\"\""),
+                    change.entry.mode_uuid,
+                    change.stored_mode_uuid,
+                    change.entry.from_minutes,
+                    change.entry.to_minutes,
+                    change.previous_required,
+                    change.activation_required,
+                    change.changed,
+                );
+            } else if !ctx.quiet {
+                println!(
+                    "✓ DayTimer entry {from}-{to} for mode {mode_uuid}: Activation required = {required} ({})",
+                    if change.changed {
+                        "changed"
+                    } else {
+                        "unchanged"
+                    }
+                );
+            }
+        }
         ConfigCmd::ModeList { file } => {
             let data = fs::read(&file).with_context(|| format!("Cannot read {}", file))?;
             let controls = loxone_xml::parse_controls(&data, Some("Mode"), None)?;
@@ -3790,6 +3856,15 @@ fn save_edited_with_quiet(
     {
         output = editor.to_bytes()?;
     }
+    write_edited_bytes(&output, original_path, save_as, quiet)
+}
+
+fn write_edited_bytes(
+    output: &[u8],
+    original_path: &str,
+    save_as: Option<&str>,
+    quiet: bool,
+) -> Result<()> {
     let out_path = save_as.unwrap_or(original_path);
 
     // Resolve to canonical parent dir to prevent path traversal via ".." in out_path
@@ -3811,7 +3886,7 @@ fn save_edited_with_quiet(
     let tmp_path = canon_parent.join(&tmp_name);
     let final_path = canon_parent.join(file_name);
 
-    fs::write(&tmp_path, &output)?;
+    fs::write(&tmp_path, output)?;
     fs::rename(&tmp_path, &final_path).or_else(|_| {
         // rename can fail across filesystems — fall back to copy+delete
         fs::copy(&tmp_path, &final_path)?;

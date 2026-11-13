@@ -814,6 +814,32 @@ pub(crate) enum ConfigCmd {
         #[arg(long)]
         save_as: Option<String>,
     },
+    /// Set an existing ordinary digital DayTimer interval's Activation required checkbox
+    TimerEntrySetActivation {
+        file: String,
+        selector: String,
+        /// Referenced operating mode UUID, NOT an entry UUID, ordinal or weekday mask
+        #[arg(long)]
+        mode_uuid: String,
+        #[arg(long, value_name = "HH:MM")]
+        from: String,
+        #[arg(long, value_name = "HH:MM")]
+        to: String,
+        /// Require activation for the selected interval (not enable/disable)
+        #[arg(
+            long,
+            required_unless_present = "no_required",
+            conflicts_with = "no_required"
+        )]
+        required: bool,
+        /// Do not require activation for the selected interval
+        #[arg(long = "no-required", required_unless_present = "required")]
+        no_required: bool,
+        #[arg(short, long)]
+        room: Option<String>,
+        #[arg(long)]
+        save_as: Option<String>,
+    },
     /// List operating modes from a .Loxone config file
     ModeList { file: String },
     /// Create a VirtualIn element in a config file (returns connector UUID)
