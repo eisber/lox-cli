@@ -34,6 +34,7 @@ mod properties;
 mod rooms;
 pub mod schema;
 mod selector;
+pub mod status_monitor;
 mod template;
 mod validation;
 mod wiring;

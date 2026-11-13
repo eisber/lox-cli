@@ -83,6 +83,13 @@ twelve existing load slots, including explicit customized-name clearing with
 `--dry-run`/`--save-as`, and does **not** claim complete GUI or runtime parity.
 See [EnergyManager2 commands](COMMANDS.md#energymanager2-verified-storage-pilot).
 
+`lox config status-monitor` inspects existing **Status Monitor** state priorities
+and moves one configured row up/down by persistent State `Id`, retaining its
+output association and wiring. Rest stays last; inherited/grouped configurations
+and ambiguous storage are refused. This is source-backed local-file editing,
+not a native GUI/runtime qualification. See
+[Status Monitor priorities](COMMANDS.md#status-monitor-existing-state-priority).
+
 `lox config lighting` inspects stored **LightController2** moods, per-output
 numeric/color editor kinds and output references. Opaque values and unsupported
 storage shapes remain unresolved; `set-mood-color` is still raw packed storage, not a

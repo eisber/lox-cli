@@ -138,6 +138,60 @@ lox config set-param file.Loxone "Night Timer" Duration 300
 
 Arguments: `<FILE> <SELECTOR> <PARAM> <VALUE>`. Selector is a block title or `"uuid:..."`.
 
+### Status Monitor existing-state priority
+
+```bash
+lox config status-monitor inspect file.Loxone "Status Monitor" -o json
+lox config status-monitor move file.Loxone "Status Monitor" abcdef01-0002-0003-0000000000000002 up --save-as edited.Loxone -o json
+lox config status-monitor move file.Loxone "uuid:..." abcdef01-0002-0003-0000000000000002 down
+```
+
+`move <FILE> <SELECTOR> <STATE_ID> <up|down>` moves one existing configured
+state by one priority. Select the persistent **State `Id`** shown by `inspect`,
+not its name, output association `OIdx`, or current priority. Native UUID
+spelling is 8-4-4-16 hexadecimal digits; identity comparison is case-insensitive.
+Block selectors support titles, `uuid:...`, bracket room qualifiers and `--room`.
+Both commands support JSON/CSV, `--quiet` and `--no-header`.
+
+The eleven direct `<State>` records are read in native priority order.
+The first ten occupy priorities 1..10; the final **Rest** record (`OIdx=10`)
+is pinned at priority 11 and cannot move. `OIdx` identifies an existing output:
+it is **not** the priority. An adjacent move swaps complete records, retaining
+`Id`, `OIdx`, `Na`, `Val`, `Cl`, unknown attributes and nested children.
+Connector UUIDs, wires, unrelated nodes and other controls remain unchanged.
+An already-highest `up` or lowest-movable `down` succeeds with `changed=false`,
+without rewriting any bytes or save stamp. No-op `--save-as` copies the original
+bytes exactly. Real changes use the existing save helper and bump the Document
+stamp; `--save-as` leaves the input untouched.
+
+This conservative standalone subset requires:
+
+- Exactly eleven direct, unnamespaced `State` records, each with a unique
+  nonzero native `Id` and explicit unique decimal `OIdx` in 0..10.
+- `OIdx=10` last, with `Val` omitted. Other omitted `Val` fields remain unset;
+  they are not defaulted to zero. Explicit values must be finite decimals,
+  must not equal the native unset sentinel (maximum finite double), and must
+  not collide numerically, including `0`/`-0`.
+- The selected row has both an explicit supported `Val` and nonempty `Na`.
+  Unconfigured neighbors can move with the swap, without acquiring defaults.
+- No `iObjS` attribute anywhere in the file, including an explicit empty one.
+  Native inherited-owner redirection and dependent-monitor propagation are
+  deliberately refused, not approximated. Invalid or ambiguous storage fails
+  before either input or output is written.
+
+Source basis: `CStatusMonitorPriorityDialog`'s selected-source-row callbacks
+`0x140c060a0`/`0x140c06100`, full-record swap `0x1409391b0`, bounds
+`0x1409394a0`, priority rebuild `0x140939330`, and accepted-copy dispatcher
+`0x14019de60`. The model XML chain `0x140629870` → `0x1406299c0` writes
+the eleven `State` records and reads their ordinals through `0x1404c7600` /
+`0x1404c0d00`; bounded frozen-PE calling-register bytes resolve an omitted
+decompiler ordinal parameter. `0x140626150` preserves the record's `Id` and
+`OIdx`; output lookup `0x140626830` uses `OIdx`, not list position.
+Inheritance handling `0x1406281f0`/`0x1406282a0` motivates the refusal above.
+These are source-backed storage semantics, **not** a new native edit/save/reopen
+qualification. No StateTexts text/color/value editing, state creation/deletion,
+output rebinding or live Miniserver operation is provided.
+
 ### Load Manager configure-list order and consumer names
 
 ```bash

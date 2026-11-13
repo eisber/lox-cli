@@ -439,6 +439,11 @@ pub(crate) enum SetupCmd {
 
 #[derive(Subcommand)]
 pub(crate) enum ConfigCmd {
+    /// Inspect/reorder existing Status Monitor states (standalone local files only)
+    StatusMonitor {
+        #[command(subcommand)]
+        action: commands::config_cmd::status_monitor::StatusMonitorCmd,
+    },
     /// Inspect/reorder the twelve existing Load Manager loads (local files only)
     LoadManager {
         #[command(subcommand)]
