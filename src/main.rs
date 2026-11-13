@@ -852,6 +852,31 @@ pub(crate) enum ConfigCmd {
         #[arg(long)]
         save_as: Option<String>,
     },
+    /// Set one existing ordinary Alarm Clock entry's native per-mode checkbox
+    AlarmEntrySetMode {
+        file: String,
+        selector: String,
+        /// Existing AlarmClock child's U, not its Id, display row, name or time
+        #[arg(long)]
+        entry_uuid: String,
+        /// Zero-based Modes bit (0..9); native column = bit + 3, not a global mode Id
+        #[arg(long, value_parser = clap::value_parser!(u8).range(0..=9))]
+        mode_bit: u8,
+        /// Check the selected mode bit (does not reactivate a disabled alarm)
+        #[arg(
+            long,
+            required_unless_present = "no_enabled",
+            conflicts_with = "no_enabled"
+        )]
+        enabled: bool,
+        /// Uncheck the selected mode bit; clearing the final bit is refused
+        #[arg(long, required_unless_present = "enabled")]
+        no_enabled: bool,
+        #[arg(short, long)]
+        room: Option<String>,
+        #[arg(long)]
+        save_as: Option<String>,
+    },
     /// Delete one ordinary digital DayTimer entry by operating mode UUID and exact interval
     TimerEntryRemove {
         file: String,

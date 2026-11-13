@@ -36,6 +36,16 @@ fn active_command(input: &Path, selector: &str, uuid: &str) -> assert_cmd::Comma
     command
 }
 
+fn mode_command(input: &Path, selector: &str, uuid: &str, bit: &str) -> assert_cmd::Command {
+    let mut command = assert_cmd::cargo::cargo_bin_cmd!("lox");
+    command
+        .env("LOX_TELEMETRY", "0")
+        .args(["config", "alarm-entry-set-mode"])
+        .arg(input)
+        .args([selector, "--entry-uuid", uuid, "--mode-bit", bit]);
+    command
+}
+
 fn add_command(input: &Path, selector: &str, name: &str, time: &str) -> assert_cmd::Command {
     let mut command = assert_cmd::cargo::cargo_bin_cmd!("lox");
     command
@@ -58,6 +68,239 @@ fn clock(root: &mut Element) -> &mut Element {
         .filter_map(|node| node.as_mut_element())
         .find(|element| element.attributes.get("U").map(String::as_str) == Some("clock"))
         .unwrap()
+}
+
+#[test]
+fn alarm_mode_changes_one_native_bit_without_reactivating_or_rewriting_other_fields() {
+    let dir = tempfile::tempdir_in(env!("CARGO_MANIFEST_DIR")).unwrap();
+    let input = dir.path().join("input.Loxone");
+    let output = dir.path().join("output.Loxone");
+    for (source, bit, enabled, modes, active) in [
+        (fixture(), "0", true, 249, true),
+        (
+            fixture().replace("Active=\"true\"", "Active=\"FaLsE\""),
+            "9",
+            true,
+            760,
+            false,
+        ),
+        (
+            fixture().replace(" Active=\"true\"", ""),
+            "3",
+            false,
+            240,
+            false,
+        ),
+    ] {
+        fs::write(&input, &source).unwrap();
+        let result = mode_command(&input, "Clock", RFC_SELECTED, bit)
+            .args([
+                "--room",
+                "Bedroom",
+                if enabled { "--enabled" } else { "--no-enabled" },
+                "--save-as",
+            ])
+            .arg(&output)
+            .args(["-o", "json"])
+            .assert()
+            .success()
+            .get_output()
+            .stdout
+            .clone();
+        let result: Value = serde_json::from_slice(&result).unwrap();
+        let change = &result["mode_change"];
+        assert_eq!(change["entry_uuid"], RFC_SELECTED);
+        assert_eq!(change["stored_entry_uuid"], SELECTED);
+        assert_eq!(change["mode_bit"], bit.parse::<u8>().unwrap());
+        assert_eq!(change["previous_modes"], 248);
+        assert_eq!(change["modes"], modes);
+        assert_eq!(change["previous_enabled"], !enabled);
+        assert_eq!(change["enabled"], enabled);
+        assert_eq!(change["active"], active);
+        assert_eq!(change["changed"], true);
+        assert_eq!(fs::read(&input).unwrap(), source.as_bytes());
+        let saved = fs::read(&output).unwrap();
+        assert!(saved.starts_with(&[0xef, 0xbb, 0xbf]));
+        assert!(
+            saved.iter().enumerate().all(|(index, byte)| {
+                *byte != b'\n' || (index > 0 && saved[index - 1] == b'\r')
+            })
+        );
+        let mut expected = parse(source.as_bytes());
+        clock(&mut expected)
+            .children
+            .iter_mut()
+            .filter_map(|node| node.as_mut_element())
+            .find(|entry| {
+                entry.name == "AlarmClock"
+                    && entry.attributes.get("U").map(String::as_str) == Some(SELECTED)
+            })
+            .unwrap()
+            .attributes
+            .insert("Modes".into(), modes.to_string());
+        let mut actual = parse(&saved);
+        assert_ne!(
+            actual.get_child("C").unwrap().attributes["DateS"],
+            expected.get_child("C").unwrap().attributes["DateS"]
+        );
+        for root in [&mut actual, &mut expected] {
+            let document = root.get_mut_child("C").unwrap();
+            document.attributes.shift_remove("Date");
+            document.attributes.shift_remove("DateS");
+        }
+        assert_eq!(actual, expected);
+        active_command(&output, "uuid:clock", SELECTED)
+            .args(["--active", "-q"])
+            .assert()
+            .success();
+        command(&output, "uuid:clock", SELECTED)
+            .arg("-q")
+            .assert()
+            .success();
+    }
+}
+
+#[test]
+fn alarm_mode_noops_preserve_raw_mask_boolean_defaults_and_stamp_including_save_as() {
+    let dir = tempfile::tempdir_in(env!("CARGO_MANIFEST_DIR")).unwrap();
+    let input = dir.path().join("input.Loxone");
+    let output = dir.path().join("output.Loxone");
+    for (source, active) in [
+        (
+            fixture().replace("Active=\"true\"", "Active=\"TrUe\""),
+            true,
+        ),
+        (
+            fixture().replace("Active=\"true\"", "Active=\"FaLsE\""),
+            false,
+        ),
+        (fixture().replace(" Active=\"true\"", ""), false),
+    ] {
+        let source = source.replace("Modes=\"248\"", "Modes=\"+000248\"");
+        fs::write(&input, &source).unwrap();
+        for (bit, flag, enabled) in [("3", "--enabled", true), ("9", "--no-enabled", false)] {
+            for save_as in [false, true] {
+                let mut command = mode_command(&input, "Clock [Bedroom]", SELECTED, bit);
+                command.args([flag, "-o", "csv", "--no-header", "-q"]);
+                if save_as {
+                    command.arg("--save-as").arg(&output);
+                }
+                command.assert().success().stdout(format!(
+                    "\"clock\",{SELECTED},{SELECTED},{bit},{enabled},{enabled},248,248,{active},false\n"
+                ));
+                assert_eq!(fs::read(&input).unwrap(), source.as_bytes());
+                if save_as {
+                    assert_eq!(fs::read(&output).unwrap(), source.as_bytes());
+                }
+            }
+        }
+    }
+    mode_command(&input, "uuid:clock", SELECTED, "3")
+        .args(["--enabled", "-q"])
+        .assert()
+        .success()
+        .stdout("");
+}
+
+#[test]
+fn alarm_mode_final_bit_and_unsupported_storage_refuse_before_either_write() {
+    let dir = tempfile::tempdir_in(env!("CARGO_MANIFEST_DIR")).unwrap();
+    let input = dir.path().join("input.Loxone");
+    let output = dir.path().join("output.Loxone");
+    for (bit, modes) in [("0", "1"), ("9", "512")] {
+        for active in ["Active=\"true\"", "Active=\"false\"", ""] {
+            let source = fixture()
+                .replace("Modes=\"248\"", &format!("Modes=\"{modes}\""))
+                .replace("Active=\"true\"", active);
+            fs::write(&input, &source).unwrap();
+            for existing in [false, true] {
+                if existing {
+                    fs::write(&output, b"sentinel").unwrap();
+                }
+                mode_command(&input, "uuid:clock", SELECTED, bit)
+                    .args(["--no-enabled", "--save-as"])
+                    .arg(&output)
+                    .assert()
+                    .failure()
+                    .stderr(predicates::str::contains("final selected mode"));
+                assert_eq!(fs::read(&input).unwrap(), source.as_bytes());
+                if existing {
+                    assert_eq!(fs::read(&output).unwrap(), b"sentinel");
+                    fs::remove_file(&output).unwrap();
+                } else {
+                    assert!(!output.exists());
+                }
+            }
+        }
+    }
+    for (source, selector, uuid) in [
+        (fixture(), "Clock", SELECTED),
+        (fixture(), "uuid:clock", STANDARD),
+        (fixture(), "uuid:clock", "bad-uuid"),
+        (
+            fixture().replace(SELECTED, RFC_SELECTED),
+            "uuid:clock",
+            SELECTED,
+        ),
+        (
+            fixture().replace("Modes=\"248\"", "Modes=\"0\""),
+            "uuid:clock",
+            SELECTED,
+        ),
+        (
+            fixture().replace("Modes=\"248\"", "Modes=\"1024\""),
+            "uuid:clock",
+            SELECTED,
+        ),
+        (
+            fixture().replace("N=\"3\"", "N=\"4\""),
+            "uuid:clock",
+            SELECTED,
+        ),
+        (
+            fixture().replace("Active=\"true\"", "Active=\"1\""),
+            "uuid:clock",
+            SELECTED,
+        ),
+    ] {
+        fs::write(&input, &source).unwrap();
+        fs::write(&output, b"sentinel").unwrap();
+        mode_command(&input, selector, uuid, "0")
+            .args(["--enabled", "--save-as"])
+            .arg(&output)
+            .assert()
+            .failure();
+        assert_eq!(fs::read(&input).unwrap(), source.as_bytes());
+        assert_eq!(fs::read(&output).unwrap(), b"sentinel");
+    }
+}
+
+#[test]
+fn alarm_mode_requires_one_explicit_boolean_and_native_bit_not_labels_or_columns() {
+    let dir = tempfile::tempdir_in(env!("CARGO_MANIFEST_DIR")).unwrap();
+    let input = dir.path().join("input.Loxone");
+    let source = fixture();
+    fs::write(&input, &source).unwrap();
+    for flags in [
+        vec![],
+        vec!["--enabled", "--no-enabled"],
+        vec!["--enabled", "false"],
+        vec!["--no-enabled", "--room", "Bedroom"],
+        vec!["--enabled", "--dry-run"],
+    ] {
+        mode_command(&input, "Clock [Bedroom]", SELECTED, "3")
+            .args(flags)
+            .assert()
+            .failure();
+        assert_eq!(fs::read(&input).unwrap(), source.as_bytes());
+    }
+    for bit in ["10", "12", "-1", "256", "Monday", "0x200"] {
+        mode_command(&input, "uuid:clock", SELECTED, bit)
+            .arg("--enabled")
+            .assert()
+            .failure();
+        assert_eq!(fs::read(&input).unwrap(), source.as_bytes());
+    }
 }
 
 #[test]

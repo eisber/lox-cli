@@ -26,6 +26,20 @@ pub struct AlarmClockEntryActivation {
 }
 
 #[derive(Debug, Serialize)]
+pub struct AlarmClockEntryModeChange {
+    pub block_uuid: String,
+    pub entry_uuid: String,
+    pub stored_entry_uuid: String,
+    pub mode_bit: u8,
+    pub previous_enabled: bool,
+    pub enabled: bool,
+    pub previous_modes: u32,
+    pub modes: u32,
+    pub active: bool,
+    pub changed: bool,
+}
+
+#[derive(Debug, Serialize)]
 pub struct AlarmClockEntryAddition {
     pub block_uuid: String,
     pub entry_uuid: String,
@@ -358,6 +372,56 @@ impl ConfigEditor {
             } else {
                 entry.attributes.shift_remove("Active");
             }
+        }
+        Ok(change)
+    }
+
+    pub fn set_alarm_clock_entry_mode(
+        &mut self,
+        selector: &str,
+        entry_uuid: &str,
+        mode_bit: u8,
+        enabled: bool,
+    ) -> Result<AlarmClockEntryModeChange> {
+        if mode_bit >= 10 {
+            bail!(
+                "Alarm mode bit must be 0..9, not a column or global mode Id; nothing was changed."
+            );
+        }
+        let (path, position, _) = self.ordinary_alarm_clock_entry(selector, entry_uuid)?;
+        let block = self.get_element(&path);
+        let entry = block.children[position].as_element().unwrap();
+        let previous_modes = integer(entry, "Modes")?;
+        let mask = 1u32 << mode_bit;
+        let modes = if enabled {
+            previous_modes | mask
+        } else {
+            previous_modes & !mask
+        };
+        if modes == 0 {
+            bail!(
+                "Clearing mode bit {mode_bit} would remove the final selected mode. Native zero-Modes save/load normalization is outside this command; nothing was changed. Use alarm-entry-set-active --no-active to disable the alarm without clearing its modes."
+            );
+        }
+        let change = AlarmClockEntryModeChange {
+            block_uuid: block.attributes.get("U").cloned().unwrap_or_default(),
+            entry_uuid: entry_uuid.to_owned(),
+            stored_entry_uuid: entry.attributes["U"].clone(),
+            mode_bit,
+            previous_enabled: previous_modes & mask != 0,
+            enabled,
+            previous_modes,
+            modes,
+            active: flag(entry, "Active")?,
+            changed: modes != previous_modes,
+        };
+        // The native setter changes Active only across a zero-Modes boundary.
+        if change.changed {
+            self.get_element_mut(&path).children[position]
+                .as_mut_element()
+                .unwrap()
+                .attributes
+                .insert("Modes".into(), modes.to_string());
         }
         Ok(change)
     }

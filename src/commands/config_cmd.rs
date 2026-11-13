@@ -2529,6 +2529,74 @@ pub fn cmd_config(ctx: &RunContext, action: ConfigCmd) -> Result<()> {
                 );
             }
         }
+        ConfigCmd::AlarmEntrySetMode {
+            file,
+            selector,
+            entry_uuid,
+            mode_bit,
+            enabled,
+            no_enabled: _,
+            room,
+            save_as,
+        } => {
+            let selector = match room {
+                Some(_) if selector.ends_with(']') && selector.contains('[') => {
+                    bail!("Use either a bracket room qualifier or --room, not both.")
+                }
+                Some(room) => format!("{selector} [{room}]"),
+                None => selector,
+            };
+            let data = fs::read(&file).with_context(|| format!("Cannot read {file}"))?;
+            let mut editor = ConfigEditor::load(&data)?;
+            let change =
+                editor.set_alarm_clock_entry_mode(&selector, &entry_uuid, mode_bit, enabled)?;
+            let quiet = ctx.quiet || ctx.json || ctx.csv;
+            if change.changed {
+                save_edited_with_quiet(&mut editor, &file, save_as.as_deref(), quiet)?;
+            } else if save_as.is_some() {
+                write_edited_bytes(&data, &file, save_as.as_deref(), quiet)?;
+            }
+            if ctx.json {
+                emit_json(
+                    ctx,
+                    serde_json::json!({
+                        "ok": true,
+                        "saved_to": save_as.as_deref().unwrap_or(&file),
+                        "mode_change": change,
+                    }),
+                );
+            } else if ctx.csv {
+                if !ctx.no_header {
+                    println!(
+                        "BLOCK_UUID,ENTRY_UUID,STORED_ENTRY_UUID,MODE_BIT,PREVIOUS_ENABLED,ENABLED,PREVIOUS_MODES,MODES,ACTIVE,CHANGED"
+                    );
+                }
+                println!(
+                    "\"{}\",{},{},{},{},{},{},{},{},{}",
+                    change.block_uuid.replace('"', "\"\""),
+                    change.entry_uuid,
+                    change.stored_entry_uuid,
+                    change.mode_bit,
+                    change.previous_enabled,
+                    change.enabled,
+                    change.previous_modes,
+                    change.modes,
+                    change.active,
+                    change.changed,
+                );
+            } else if !ctx.quiet {
+                println!(
+                    "✓ Alarm Clock entry {entry_uuid}: mode bit {mode_bit} = {enabled}, Modes = {}, Active = {} ({})",
+                    change.modes,
+                    change.active,
+                    if change.changed {
+                        "changed"
+                    } else {
+                        "unchanged"
+                    }
+                );
+            }
+        }
         ConfigCmd::TimerEntryRemove {
             file,
             selector,

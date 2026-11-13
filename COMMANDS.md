@@ -1357,6 +1357,37 @@ Supports JSON/CSV, quiet, no-header and room qualification. Global
 native undo stack or GUI qualification is claimed. See
 [source qualification](docs/knowledge/alarm-entry-active-native.md).
 
+Set one existing ordinary Alarm Clock entry's per-mode checkbox:
+
+```bash
+lox config alarm-entry-set-mode file.Loxone "Bedroom Clock" --entry-uuid 00000000-0000-0004-1500000000000000 --mode-bit 0 --enabled --room Bedroom -o json
+lox config alarm-entry-set-mode file.Loxone "Bedroom Clock" --entry-uuid 00000000-0000-0004-1500000000000000 --mode-bit 9 --no-enabled --save-as edited.Loxone
+```
+
+Exactly one of `--enabled` / `--no-enabled` is required. `--mode-bit` is
+the **zero-based native `Modes` bit index 0–9**: its mask is `1 << bit`,
+and its native dialog column is `bit + 3`. It is **not** a raw column,
+weekday, global operating-mode Id or UUID. No guessed label aliases or
+bulk/global mode editing are provided.
+
+Identity and storage qualification match the other Alarm Clock entry
+commands above, without widening them. Only the selected child's one
+`Modes` bit changes; `Active` stays unchanged, including when checking
+a bit on a disabled alarm. Clearing the final selected bit is refused
+before mutation or destination writes: native zero-Modes setter and
+post-field serializer normalization are outside this command. To disable
+an alarm while preserving its modes, use `alarm-entry-set-active --no-active`.
+Existing zero masks are rejected, not normalized.
+
+Semantic no-ops preserve original bytes, integer/boolean spelling, omitted
+defaults and stamp, including save-as. Actual saves preserve BOM/EOL style
+and update the Document stamp. N, Id/U, name/time, standard and other alarms,
+unknown fields/nodes, wiring and auxiliary references remain unchanged.
+Supports room qualification, save-as, JSON/CSV, quiet and no-header.
+Global `--dry-run` rejects before file I/O. No deployment, native undo
+or new GUI/runtime qualification is claimed. See
+[source qualification and final-bit boundary](docs/knowledge/alarm-entry-mode-native.md).
+
 Delete one existing native schedule entry without replacing its neighbors:
 
 ```bash
