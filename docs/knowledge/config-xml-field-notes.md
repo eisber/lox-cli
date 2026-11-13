@@ -225,6 +225,12 @@ already shading.
   The removal CLI conservatively requires explicit modern versions throughout
   the Document and a nonnegative signed32 changed WF, computes every delta
   before mutation, preserves unrelated bits and does not migrate legacy data.
+  This is a minimal raw-preserving edit, not native full-resave normalization
+  or byte/whole-model equivalence: the native writer clears `0x03000000`
+  (bits 24/25) and may drop bits not loaded, while this CLI changes only the
+  reference marker and preserves all other raw WF bits. Its native zero-omission
+  comparison covers only WF made zero by marker removal, not whole-word/model
+  equivalence.
   `config central-light move-link` edits this list for standalone CentralLight
   owners, **not** the central block's separate controlled-light list. The native
   `CControlLinkingSortingDlg` also serves tablet ambient lists through different

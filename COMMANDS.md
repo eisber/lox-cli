@@ -186,8 +186,13 @@ versions are refused, not migrated. Any changed WF must fit nonnegative signed32
 decimal. The target's `WF & 0x10000000` marker is retained if **any other generic
 linkC** still references it, otherwise cleared while preserving all other bits.
 Only that membership delta is written; unrelated owners and controls are not
-repaired. A resulting zero WF and a resulting empty `linkC` are omitted, matching
-native save. Removing the last link is supported without inserting a default.
+repaired. A resulting empty `linkC` is omitted; a WF that becomes zero solely by
+clearing the marker is omitted using the native zero-omission rule.
+This is a minimal raw-preserving edit, not native full-resave normalization
+or byte/whole-model equivalence: the native writer clears `0x03000000`
+(bits 24/25) and may drop bits not loaded, whereas this CLI preserves all
+other raw WF bits. The zero-omission comparison covers only marker-derived zero.
+Removing the last link is supported without inserting a default.
 The native remove callback has no extra confirmation or minimum-list check;
 the explicit CLI action persists the accepted edit without a new prompt.
 Repeating a removal fails because the UUID is no longer an existing member.
