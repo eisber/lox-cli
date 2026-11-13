@@ -27,6 +27,50 @@ pub struct LoadManagerInspection {
 }
 
 impl ConfigEditor {
+    /// Edit the Configure loads Power [kW] cell without rounding the request.
+    pub fn set_load_manager_load_power(
+        &mut self,
+        selector: &str,
+        io_index: u8,
+        power_kw: &str,
+    ) -> Result<bool> {
+        if io_index > 11 {
+            bail!("Load Manager io-index must be 0..11, not a 1-based priority.");
+        }
+        let (power, stored) = load_power_request(power_kw)?;
+        let path = self.load_manager_path(selector)?;
+        let block = self.get_element(&path);
+        let positions = load_positions(block)?;
+        let position = positions
+            .into_iter()
+            .find(|position| {
+                resolve_io_index(block.children[*position].as_element().unwrap()).unwrap()
+                    == io_index
+            })
+            .unwrap();
+        let load = block.children[position].as_element().unwrap();
+        let previous = load
+            .attributes
+            .get("pwr")
+            .filter(|raw| load_power_storage_spelling(raw))
+            .and_then(|raw| raw.parse::<f64>().ok())
+            .filter(|value| value.is_finite() && *value >= 0.0);
+        let Some(previous) = previous else {
+            bail!(
+                "Unsupported Load Manager power storage for io-index {io_index}: expected an explicit finite nonnegative pwr decimal (only zero exponents are supported); missing or malformed storage is not defaulted. Nothing was changed."
+            );
+        };
+        if previous == power {
+            return Ok(false);
+        }
+        self.get_element_mut(&path).children[position]
+            .as_mut_element()
+            .unwrap()
+            .attributes
+            .insert("pwr".into(), stored);
+        Ok(true)
+    }
+
     fn load_manager_path(&self, selector: &str) -> Result<Vec<usize>> {
         let path = self.require_one(selector)?;
         let block = self.get_element(&path);
@@ -150,6 +194,68 @@ impl ConfigEditor {
     }
 }
 
+fn load_power_storage_spelling(raw: &str) -> bool {
+    let mantissa = if let Some((mantissa, exponent)) = raw.split_once(['e', 'E']) {
+        let exponent = exponent.strip_prefix(['+', '-']).unwrap_or(exponent);
+        if !mantissa.contains('.')
+            || exponent.is_empty()
+            || !exponent.bytes().all(|byte| byte == b'0')
+        {
+            return false;
+        }
+        mantissa
+    } else {
+        raw
+    };
+    let mantissa = mantissa.strip_prefix(['+', '-']).unwrap_or(mantissa);
+    let (whole, fraction) = mantissa.split_once('.').unwrap_or((mantissa, ""));
+    !whole.is_empty()
+        && whole.bytes().all(|byte| byte.is_ascii_digit())
+        && (!mantissa.contains('.') || !fraction.is_empty())
+        && fraction.bytes().all(|byte| byte.is_ascii_digit())
+}
+
+fn load_power_request(raw: &str) -> Result<(f64, String)> {
+    let (whole, fraction) = raw.split_once('.').unwrap_or((raw, ""));
+    if whole.is_empty()
+        || !whole.bytes().all(|byte| byte.is_ascii_digit())
+        || (raw.contains('.') && fraction.is_empty())
+        || fraction.len() > 3
+        || !fraction.bytes().all(|byte| byte.is_ascii_digit())
+    {
+        bail!(
+            "Load Manager power must be a nonnegative kW decimal with at most 3 fractional digits (for example 2.5 or 0.001), without signs, exponent, units or separators. This conservative CLI subset never clamps or rounds."
+        );
+    }
+    let power = raw
+        .parse::<f64>()
+        .ok()
+        .filter(|value| value.is_finite())
+        .ok_or_else(|| {
+            anyhow::anyhow!("Load Manager power must be finite; nothing was changed.")
+        })?;
+    let whole = whole.trim_start_matches('0');
+    let whole = if whole.is_empty() { "0" } else { whole };
+    let fraction = fraction.trim_end_matches('0');
+    let canonical = if fraction.is_empty() {
+        whole.to_owned()
+    } else {
+        format!("{whole}.{fraction}")
+    };
+    // Native editor precision and the type-0xb XML writer are both three decimals.
+    // Require decimal round-trip identity instead of silently losing f64 precision.
+    let fixed = format!("{power:.3}");
+    let stored = fixed.trim_end_matches('0').trim_end_matches('.');
+    // Exactly representable half-milli values are odd sixteenths. Exclude these
+    // precision-loss ties rather than assuming the native CRT's tie-breaking mode.
+    if stored != canonical || (power.fract() * 16.0) % 2.0 == 1.0 {
+        bail!(
+            "Load Manager power loses precision in native double/3-decimal storage; choose an exactly round-tripping value. Nothing was changed."
+        );
+    }
+    Ok((power, canonical))
+}
+
 fn load_positions(block: &Element) -> Result<Vec<usize>> {
     let positions: Vec<_> = block
         .children
@@ -250,6 +356,155 @@ mod tests {
             .unwrap()
             .replacen(" ioIdx=\"0\"", "", 1);
         ConfigEditor::load(xml.as_bytes()).unwrap()
+    }
+
+    #[test]
+    fn load_manager_power_preserves_identity_order_and_every_other_field() {
+        let mut editor = native_fixture();
+        editor
+            .move_load_manager_load("Loads", 0, LoadMoveDirection::Down)
+            .unwrap();
+        let path = editor.require_one("Loads").unwrap();
+        let mut expected = editor.get_element(&path).clone();
+        let position = load_positions(&expected).unwrap()[1];
+        expected.children[position]
+            .as_mut_element()
+            .unwrap()
+            .attributes
+            .insert("pwr".into(), "2.125".into());
+        assert!(
+            editor
+                .set_load_manager_load_power("Loads", 0, "0002.125")
+                .unwrap()
+        );
+        assert_eq!(*editor.get_element(&path), expected);
+        let bytes = editor.to_bytes().unwrap();
+        assert!(bytes.starts_with(&[0xef, 0xbb, 0xbf]));
+        assert!(bytes.windows(2).any(|window| window == b"\r\n"));
+        let reloaded = ConfigEditor::load(&bytes).unwrap();
+        let loads = reloaded.inspect_load_manager("Loads").unwrap().loads;
+        assert_eq!(loads[1].attributes["pwr"], "2.125");
+        assert!(!loads[1].attributes.contains_key("ioIdx"));
+        assert!(editor.set_param("Loads", "pwr", "4").is_err());
+        assert!(editor.set_param("Loads", "Load.0.pwr", "4").is_err());
+    }
+
+    #[test]
+    fn load_manager_power_decimal_boundaries_and_noop_raw_spellings() {
+        let mut editor = native_fixture();
+        let path = editor.require_one("Loads").unwrap();
+        let position = load_positions(editor.get_element(&path)).unwrap()[0];
+        editor.get_element_mut(&path).children[position]
+            .as_mut_element()
+            .unwrap()
+            .attributes
+            .insert("pwr".into(), "2.5000e0".into());
+        let bytes = editor.to_bytes().unwrap();
+        assert!(
+            !editor
+                .set_load_manager_load_power("Loads", 0, "2.500")
+                .unwrap()
+        );
+        assert_eq!(editor.to_bytes().unwrap(), bytes);
+        for value in ["0", "0.001", "0.999", "2.5", "9007199254740992"] {
+            assert!(
+                editor
+                    .set_load_manager_load_power("Loads", 0, value)
+                    .unwrap()
+            );
+            assert_eq!(
+                editor.inspect_load_manager("Loads").unwrap().loads[0].attributes["pwr"],
+                value
+            );
+        }
+        for value in [
+            "",
+            "-1",
+            "-0",
+            "+1",
+            "NaN",
+            "inf",
+            "1e3",
+            "2,5",
+            " 2",
+            "2 ",
+            ".5",
+            "2.",
+            "1.0001",
+            "0.0005",
+            "9007199254740993",
+            "9007199254740992.001",
+            "281474976710656.062",
+        ] {
+            let before = editor.to_bytes().unwrap();
+            assert!(
+                editor
+                    .set_load_manager_load_power("Loads", 0, value)
+                    .is_err(),
+                "{value}"
+            );
+            assert_eq!(editor.to_bytes().unwrap(), before);
+        }
+        assert!(
+            editor
+                .set_load_manager_load_power("Loads", 0, &format!("1{}", "0".repeat(309)))
+                .is_err()
+        );
+    }
+
+    #[test]
+    fn load_manager_power_rejects_malformed_target_storage_without_defaulting_others() {
+        for raw in [
+            None,
+            Some(""),
+            Some("junk"),
+            Some("-1"),
+            Some("NaN"),
+            Some("inf"),
+            Some("2e1"),
+            Some("2.5e1"),
+            Some(" 2.5"),
+        ] {
+            let mut editor = native_fixture();
+            let path = editor.require_one("Loads").unwrap();
+            let positions = load_positions(editor.get_element(&path)).unwrap();
+            for position in &positions {
+                editor.get_element_mut(&path).children[*position]
+                    .as_mut_element()
+                    .unwrap()
+                    .attributes
+                    .shift_remove("maxOff");
+            }
+            let load = editor.get_element_mut(&path).children[positions[0]]
+                .as_mut_element()
+                .unwrap();
+            if let Some(raw) = raw {
+                load.attributes.insert("pwr".into(), raw.into());
+            } else {
+                load.attributes.shift_remove("pwr");
+            }
+            let before = editor.to_bytes().unwrap();
+            assert!(
+                editor
+                    .set_load_manager_load_power("Loads", 0, "2.5")
+                    .is_err()
+            );
+            assert_eq!(editor.to_bytes().unwrap(), before);
+        }
+        let mut editor = native_fixture();
+        let path = editor.require_one("Loads").unwrap();
+        let positions = load_positions(editor.get_element(&path)).unwrap();
+        editor.get_element_mut(&path).children[positions[1]]
+            .as_mut_element()
+            .unwrap()
+            .attributes
+            .shift_remove("pwr");
+        assert!(editor.set_load_manager_load_power("Loads", 0, "0").unwrap());
+        assert!(
+            !editor.inspect_load_manager("Loads").unwrap().loads[1]
+                .attributes
+                .contains_key("pwr")
+        );
     }
 
     #[test]

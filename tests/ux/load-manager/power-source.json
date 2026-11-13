@@ -1,0 +1,366 @@
+{
+  "schema_version": 1,
+  "operation": "LoadShed configured consumer Power [kW] edit by stable ioIdx",
+  "status": "source-recovered; not native/runtime qualified",
+  "issue": "lox-wpve",
+  "application": {
+    "version": "17.2.10.21",
+    "pe_sha256": "7b55e3ef18401574ab967c5c6a0140cd5a66dc728521ebba04ad53093577d8b3",
+    "installation_sha256": "a3003005776b327f5e666a072a64f5c569182b86174c0f578d5be3267ce28f85",
+    "analysis_id": "6a0520329af17d7b9fdaafe69398c62c454d9da838fc9f9c8d0bdd8d17bb15ae"
+  },
+  "baseline": {
+    "commit": "cd2bd7ab1192a41417c4924469e921b8922edc2a",
+    "tree": "1081d7e84ca95d61041b2665ec5d8b44b273f5f1"
+  },
+  "unimplemented_at_baseline": {
+    "typed_namespace": "Only inspect, move and set-name exist; no power setter.",
+    "generic_parameter_path": "src\\config_edit\\properties.rs set_param edits direct Co/@Def or MaxVal/MinVal/MinChange/MinTime/Step only. Neither pwr nor Load.0.pwr addresses the nested cell."
+  },
+  "existing_evidence_reused": [
+    {
+      "path": "tests\\ux\\load-manager\\name-source.json",
+      "lf_sha256": "abb73093836e373dfd20edf1fe57a1f45b47908d6e1db7bee9d72de33b8a8cff",
+      "scope": "Intentional single-cell paste and editable/confirmation/before-change/model-setter dispatch, clone population, accepted-copy, fixed row layout, save path. None counted as new recovery."
+    },
+    {
+      "path": "tests\\ux\\load-manager\\move-source.json",
+      "lf_sha256": "a1ee3c69b5945572632e14dbd90f4bbc0d6d55476592bc3561316c98c9e003c3",
+      "scope": "Twelve rows; configured order distinct from resolved ioIdx; absent ioIdx resolves zero; unique resolved identities and selection guards."
+    }
+  ],
+  "newly_resolved_functions": [
+    {
+      "address": "0x14085f800",
+      "role": "CLoad provider +0x28 selects numeric delegate type 1 for columns 4..6.",
+      "classification": "new helper/caller resolution",
+      "canonical_path": ".reverse-engineering\\versions\\a3003005776b327f5e666a072a64f5c569182b86174c0f578d5be3267ce28f85\\analysis\\6a0520329af17d7b9fdaafe69398c62c454d9da838fc9f9c8d0bdd8d17bb15ae\\LoxoneConfig.exe\\code\\functions\\0x14085f800.c",
+      "sha256": "331f7e7276d799127204a4b3d3b7204aec99afb8010183f80dc3a96ccbdb5d97",
+      "lf_sha256": "7d2c4b23adaa87773322e87bd8d78dbe6c6e1be3fe9ff49fd410675f66271949"
+    },
+    {
+      "address": "0x140025af0",
+      "role": "Wrapper +0x40 forwards numeric editor type to provider +0x28 with column id.",
+      "classification": "new helper/caller resolution",
+      "canonical_path": ".reverse-engineering\\versions\\a3003005776b327f5e666a072a64f5c569182b86174c0f578d5be3267ce28f85\\analysis\\6a0520329af17d7b9fdaafe69398c62c454d9da838fc9f9c8d0bdd8d17bb15ae\\LoxoneConfig.exe\\code\\functions\\0x140025af0.c",
+      "sha256": "8f1e4082684cf0c177c2462473a279f8bf2b530bf58331eae4a0d59be905a73f",
+      "lf_sha256": "859b99452a5a73ece3e55c3a596479a756570c202222c5e32b7fa8e3a27f9657"
+    },
+    {
+      "address": "0x140d36410",
+      "role": "Creates column metadata from wrapper type, title, tooltip; passes type to column constructor.",
+      "classification": "new helper/caller resolution",
+      "canonical_path": ".reverse-engineering\\versions\\a3003005776b327f5e666a072a64f5c569182b86174c0f578d5be3267ce28f85\\analysis\\6a0520329af17d7b9fdaafe69398c62c454d9da838fc9f9c8d0bdd8d17bb15ae\\LoxoneConfig.exe\\code\\functions\\0x140d36410.c",
+      "sha256": "e959405efaf17555a09469688a826c1a0e5827f8056cfa6569d12cb34336712b",
+      "lf_sha256": "549d8727ad8d0cedc830621a4266cd67bfcd160ceed5a6974fc077dfea843743"
+    },
+    {
+      "address": "0x140d33a00",
+      "role": "Column constructor stores editor type at +0xb0.",
+      "classification": "new helper/caller resolution",
+      "canonical_path": ".reverse-engineering\\versions\\a3003005776b327f5e666a072a64f5c569182b86174c0f578d5be3267ce28f85\\analysis\\6a0520329af17d7b9fdaafe69398c62c454d9da838fc9f9c8d0bdd8d17bb15ae\\LoxoneConfig.exe\\code\\functions\\0x140d33a00.c",
+      "sha256": "e71a84bc9d033dff6b5c57ccd318c6a208b4b89019169aabb05753845adab510",
+      "lf_sha256": "883a18451a8bb7abab1f4789b2b0fe8b6f20ab2f183d3846fdbf2c0b35735bb7"
+    },
+    {
+      "address": "0x140d34800",
+      "role": "Reads stored column type and requests its delegate.",
+      "classification": "new helper/caller resolution",
+      "canonical_path": ".reverse-engineering\\versions\\a3003005776b327f5e666a072a64f5c569182b86174c0f578d5be3267ce28f85\\analysis\\6a0520329af17d7b9fdaafe69398c62c454d9da838fc9f9c8d0bdd8d17bb15ae\\LoxoneConfig.exe\\code\\functions\\0x140d34800.c",
+      "sha256": "8ba9feb747dc7a0acb2787e5285a99e73c042eb078381c2eda01bb3a4da88a64",
+      "lf_sha256": "218763e7d9fb104e1bfa96435909ca0a1a02e248b24bb00ffac912eeb4fe5cfd"
+    },
+    {
+      "address": "0x140d348d0",
+      "role": "Delegate factory case 1 invokes double numeric delegate constructor.",
+      "classification": "new helper/caller resolution",
+      "canonical_path": ".reverse-engineering\\versions\\a3003005776b327f5e666a072a64f5c569182b86174c0f578d5be3267ce28f85\\analysis\\6a0520329af17d7b9fdaafe69398c62c454d9da838fc9f9c8d0bdd8d17bb15ae\\LoxoneConfig.exe\\code\\functions\\0x140d348d0.c",
+      "sha256": "ec57befc8d5059d91668fb20ededd2b57d8cb4521fc53448084f1c39af9f1a02",
+      "lf_sha256": "a0b159ddf5159a16fb039531c442d39e910a86252ccb8fb76c8f2ca5211f3a30"
+    },
+    {
+      "address": "0x140dab8a0",
+      "role": "Constructs CDoubleNumericItemDelegate.",
+      "classification": "new helper/caller resolution",
+      "canonical_path": ".reverse-engineering\\versions\\a3003005776b327f5e666a072a64f5c569182b86174c0f578d5be3267ce28f85\\analysis\\6a0520329af17d7b9fdaafe69398c62c454d9da838fc9f9c8d0bdd8d17bb15ae\\LoxoneConfig.exe\\code\\functions\\0x140dab8a0.c",
+      "sha256": "1877a5af121d59028879319d4f0dec9e1a127b940b34a99bf905707ff4e9c74d",
+      "lf_sha256": "a7b93d3174d98fff1e207897a8794f00d95b233abfc2a0690174ee780c50438d"
+    },
+    {
+      "address": "0x140d42450",
+      "role": "Table refresh installs per-column delegates through 0x140d426a0.",
+      "classification": "new helper/caller resolution",
+      "canonical_path": ".reverse-engineering\\versions\\a3003005776b327f5e666a072a64f5c569182b86174c0f578d5be3267ce28f85\\analysis\\6a0520329af17d7b9fdaafe69398c62c454d9da838fc9f9c8d0bdd8d17bb15ae\\LoxoneConfig.exe\\code\\functions\\0x140d42450.c",
+      "sha256": "1b074096d7668ff4855492d1fb0b387229672ee5c65b0e54ef1e90321582cf7d",
+      "lf_sha256": "e535109ed7f4dbbbab1317266f46809a573d69383ca441734e1da64ba442b74a"
+    },
+    {
+      "address": "0x140d426a0",
+      "role": "Installs delegate returned for each column using setItemDelegateForColumn.",
+      "classification": "new helper/caller resolution",
+      "canonical_path": ".reverse-engineering\\versions\\a3003005776b327f5e666a072a64f5c569182b86174c0f578d5be3267ce28f85\\analysis\\6a0520329af17d7b9fdaafe69398c62c454d9da838fc9f9c8d0bdd8d17bb15ae\\LoxoneConfig.exe\\code\\functions\\0x140d426a0.c",
+      "sha256": "c70beb5aae1ac806a5d207ccfb9068c08538948f2c89a53c5efc3d417727c528",
+      "lf_sha256": "62be6821148f017534e93e908a035542ac116e1c2da50abf33c45f31c9d56b97"
+    },
+    {
+      "address": "0x140dab970",
+      "role": "Double numeric editor creation sets min/max/decimal count from roles 0x101/0x102/0x103, and connects explicit commit/close signal.",
+      "classification": "new helper/caller resolution",
+      "canonical_path": ".reverse-engineering\\versions\\a3003005776b327f5e666a072a64f5c569182b86174c0f578d5be3267ce28f85\\analysis\\6a0520329af17d7b9fdaafe69398c62c454d9da838fc9f9c8d0bdd8d17bb15ae\\LoxoneConfig.exe\\code\\functions\\0x140dab970.c",
+      "sha256": "ff4cfb1cf09467ee4dcec268f5e004e408118b49b7563cc487ae6f8c8e834055",
+      "lf_sha256": "18cf57509bf33384f80689d720b8171b3573012759dfb9dd1383662a891a61b8"
+    },
+    {
+      "address": "0x140d3b820",
+      "role": "Model data roles 0x101/0x102/0x103 route to min/max/decimal metadata helpers.",
+      "classification": "new helper/caller resolution",
+      "canonical_path": ".reverse-engineering\\versions\\a3003005776b327f5e666a072a64f5c569182b86174c0f578d5be3267ce28f85\\analysis\\6a0520329af17d7b9fdaafe69398c62c454d9da838fc9f9c8d0bdd8d17bb15ae\\LoxoneConfig.exe\\code\\functions\\0x140d3b820.c",
+      "sha256": "c58dfff3be859ed714c88d65608a4f5b9c2c869c6c50e31d7a769093ec0be1cc",
+      "lf_sha256": "0d2f2dede1e7c01d1b561e9aec06361d85e45a8eab1bc8abb97259e0330970ef"
+    },
+    {
+      "address": "0x140d37b20",
+      "role": "Minimum data role calls wrapper +0x70 and returns QVariant(double).",
+      "classification": "new helper/caller resolution",
+      "canonical_path": ".reverse-engineering\\versions\\a3003005776b327f5e666a072a64f5c569182b86174c0f578d5be3267ce28f85\\analysis\\6a0520329af17d7b9fdaafe69398c62c454d9da838fc9f9c8d0bdd8d17bb15ae\\LoxoneConfig.exe\\code\\functions\\0x140d37b20.c",
+      "sha256": "bf9e0ef3f99d8afdf21f2411b9bb08b5f8e69823e988535a4e456c4953fcb825",
+      "lf_sha256": "cba047ae9c3d54df443c4184406e09238ecef3882e1eee9c203bf258a03a2684"
+    },
+    {
+      "address": "0x140d37ac0",
+      "role": "Maximum data role calls wrapper +0x78 and returns QVariant(double).",
+      "classification": "new helper/caller resolution",
+      "canonical_path": ".reverse-engineering\\versions\\a3003005776b327f5e666a072a64f5c569182b86174c0f578d5be3267ce28f85\\analysis\\6a0520329af17d7b9fdaafe69398c62c454d9da838fc9f9c8d0bdd8d17bb15ae\\LoxoneConfig.exe\\code\\functions\\0x140d37ac0.c",
+      "sha256": "9f31e348d69ad6c296aa8accd4b9c5fc5ce168757ebf4c6ed24004b83a5f8e40",
+      "lf_sha256": "0e2033287787877ccda14e3cdb2ef26f1d8f60e5db7347060ec1ecb7700480ef"
+    },
+    {
+      "address": "0x140d37a60",
+      "role": "Decimals data role calls wrapper +0x80.",
+      "classification": "new helper/caller resolution",
+      "canonical_path": ".reverse-engineering\\versions\\a3003005776b327f5e666a072a64f5c569182b86174c0f578d5be3267ce28f85\\analysis\\6a0520329af17d7b9fdaafe69398c62c454d9da838fc9f9c8d0bdd8d17bb15ae\\LoxoneConfig.exe\\code\\functions\\0x140d37a60.c",
+      "sha256": "4035fe6011efdef26e2e47785e94b2799aa818e73b4152373f2d4e45456414ac",
+      "lf_sha256": "890b6ec4ef046fc39371252e00fed97c89808eed529cfad1a6924bdcb5431d5e"
+    },
+    {
+      "address": "0x140025c30",
+      "role": "Wrapper minimum forwards column id to provider +0x70.",
+      "classification": "new helper/caller resolution",
+      "canonical_path": ".reverse-engineering\\versions\\a3003005776b327f5e666a072a64f5c569182b86174c0f578d5be3267ce28f85\\analysis\\6a0520329af17d7b9fdaafe69398c62c454d9da838fc9f9c8d0bdd8d17bb15ae\\LoxoneConfig.exe\\code\\functions\\0x140025c30.c",
+      "sha256": "7dd1c997aef4bd5e52235962e29a3dc613d417f2c38587b29cce42876522bc56",
+      "lf_sha256": "5e35700abfb1e464222e515a2f2c6707c389c6e8d7822d6b07ea0feccef1423e"
+    },
+    {
+      "address": "0x140025c40",
+      "role": "Wrapper maximum forwards column id to provider +0x78.",
+      "classification": "new helper/caller resolution",
+      "canonical_path": ".reverse-engineering\\versions\\a3003005776b327f5e666a072a64f5c569182b86174c0f578d5be3267ce28f85\\analysis\\6a0520329af17d7b9fdaafe69398c62c454d9da838fc9f9c8d0bdd8d17bb15ae\\LoxoneConfig.exe\\code\\functions\\0x140025c40.c",
+      "sha256": "fa3f075f4339fe5862cb07d41bb54ea0efc5a302bb50582784920db28202fbb2",
+      "lf_sha256": "186c06ec6bbe78b3d4a7cf2e287e530d4a2b0eec6988ade691023147bbbd0a74"
+    },
+    {
+      "address": "0x140025c50",
+      "role": "Wrapper decimals forwards column id to provider +0x80.",
+      "classification": "new helper/caller resolution",
+      "canonical_path": ".reverse-engineering\\versions\\a3003005776b327f5e666a072a64f5c569182b86174c0f578d5be3267ce28f85\\analysis\\6a0520329af17d7b9fdaafe69398c62c454d9da838fc9f9c8d0bdd8d17bb15ae\\LoxoneConfig.exe\\code\\functions\\0x140025c50.c",
+      "sha256": "a5e2efa4c8842bac1ab8508a66fe9686c07aeffdb51ad926de7fb48be3e74259",
+      "lf_sha256": "45d8fbd889cd001535e0260683a87fed4de075b7e671fad148bd7300c71a9842"
+    },
+    {
+      "address": "0x140860090",
+      "role": "CLoad numeric columns 4..6 minimum is zero.",
+      "classification": "new helper/caller resolution",
+      "canonical_path": ".reverse-engineering\\versions\\a3003005776b327f5e666a072a64f5c569182b86174c0f578d5be3267ce28f85\\analysis\\6a0520329af17d7b9fdaafe69398c62c454d9da838fc9f9c8d0bdd8d17bb15ae\\LoxoneConfig.exe\\code\\functions\\0x140860090.c",
+      "sha256": "ae29c57b31239dbfaf0463224035adfe9e79d8d695850b851be0685a81ae638d",
+      "lf_sha256": "6527dbb90aaf629e8e1d22604280716042f333a6549b408eb456b8f3fa98a924"
+    },
+    {
+      "address": "0x1400258d0",
+      "role": "CLoad maximum is finite IEEE-754 double maximum, 0x7fefffffffffffff.",
+      "classification": "new helper/caller resolution",
+      "canonical_path": ".reverse-engineering\\versions\\a3003005776b327f5e666a072a64f5c569182b86174c0f578d5be3267ce28f85\\analysis\\6a0520329af17d7b9fdaafe69398c62c454d9da838fc9f9c8d0bdd8d17bb15ae\\LoxoneConfig.exe\\code\\functions\\0x1400258d0.c",
+      "sha256": "da393ceed0d32cd04c1307adbdd8bd0bbb23cb8878da56b1e2a81e36d1e4f67f",
+      "lf_sha256": "60c679e0c743b5fdd3f16828d15380ca96cc739541b3198d8b6bc9d6225e6101"
+    },
+    {
+      "address": "0x140860070",
+      "role": "CLoad column 4 decimals is three; separate timing columns have zero.",
+      "classification": "new helper/caller resolution",
+      "canonical_path": ".reverse-engineering\\versions\\a3003005776b327f5e666a072a64f5c569182b86174c0f578d5be3267ce28f85\\analysis\\6a0520329af17d7b9fdaafe69398c62c454d9da838fc9f9c8d0bdd8d17bb15ae\\LoxoneConfig.exe\\code\\functions\\0x140860070.c",
+      "sha256": "125248f82fb738985b76003625f706bf9575ed728b80b078af5940cb9a0a8142",
+      "lf_sha256": "4ca5fe114f2be8e30f52ae45bcf6f332699f959c5cc76966b3ea8d83fe2282f3"
+    },
+    {
+      "address": "0x140dabd60",
+      "role": "QLxDoubleSpinBox key-event path emits its explicit commit signal for navigation keys; other keys use QAbstractSpinBox.",
+      "classification": "new helper/caller resolution",
+      "canonical_path": ".reverse-engineering\\versions\\a3003005776b327f5e666a072a64f5c569182b86174c0f578d5be3267ce28f85\\analysis\\6a0520329af17d7b9fdaafe69398c62c454d9da838fc9f9c8d0bdd8d17bb15ae\\LoxoneConfig.exe\\code\\functions\\0x140dabd60.c",
+      "sha256": "842e2d2ec866cc26b7933dae95b082a00a75c2b0613f3702b98d686e71227fec",
+      "lf_sha256": "be396d3f50d9fa21632c13a12384cfb8fb5dd1bfa0d4445fc50b50faed681d61"
+    },
+    {
+      "address": "0x140db6ca0",
+      "role": "QLxDoubleSpinBox signal activation.",
+      "classification": "new helper/caller resolution",
+      "canonical_path": ".reverse-engineering\\versions\\a3003005776b327f5e666a072a64f5c569182b86174c0f578d5be3267ce28f85\\analysis\\6a0520329af17d7b9fdaafe69398c62c454d9da838fc9f9c8d0bdd8d17bb15ae\\LoxoneConfig.exe\\code\\functions\\0x140db6ca0.c",
+      "sha256": "94ce1671b65d2ba0d6e9f962deec4af842f5e0e2eee51c769c6e2f3e16e91467",
+      "lf_sha256": "8db98ad3b3285f820b39263c6d6cf3e6a366d0c89de37be7cd68367a3e80d6d0"
+    },
+    {
+      "address": "0x140dab910",
+      "role": "Bound double delegate slot requests commitData then closeEditor.",
+      "classification": "new helper/caller resolution",
+      "canonical_path": ".reverse-engineering\\versions\\a3003005776b327f5e666a072a64f5c569182b86174c0f578d5be3267ce28f85\\analysis\\6a0520329af17d7b9fdaafe69398c62c454d9da838fc9f9c8d0bdd8d17bb15ae\\LoxoneConfig.exe\\code\\functions\\0x140dab910.c",
+      "sha256": "b588c04622daa63c21501f5278940ff9f1b8a8f2999f0ca972be5fbc170fdd47",
+      "lf_sha256": "a79c4a954bc9f66ae4b9349eef2efe39f05dd81350714f222b1b5bff01daf8a5"
+    },
+    {
+      "address": "0x140dabda0",
+      "role": "Editor initialization reads display string through system QLocale and sets spin-box value; no unit scaling.",
+      "classification": "new helper/caller resolution",
+      "canonical_path": ".reverse-engineering\\versions\\a3003005776b327f5e666a072a64f5c569182b86174c0f578d5be3267ce28f85\\analysis\\6a0520329af17d7b9fdaafe69398c62c454d9da838fc9f9c8d0bdd8d17bb15ae\\LoxoneConfig.exe\\code\\functions\\0x140dabda0.c",
+      "sha256": "84b637a08230a47b61807bc2517dffafb199bf0dd239e739a69633e116da9b87",
+      "lf_sha256": "3e32c9302161dcbd479ee5d352830e6234df74141215b874f578ce6702d28272"
+    },
+    {
+      "address": "0x140dd1624",
+      "role": "Installed delegate setModelData slot is the QStyledItemDelegate import thunk, not an independently recovered Qt body.",
+      "classification": "new helper/caller resolution",
+      "canonical_path": ".reverse-engineering\\versions\\a3003005776b327f5e666a072a64f5c569182b86174c0f578d5be3267ce28f85\\analysis\\6a0520329af17d7b9fdaafe69398c62c454d9da838fc9f9c8d0bdd8d17bb15ae\\LoxoneConfig.exe\\code\\functions\\0x140dd1624.c",
+      "sha256": "6d5d70bf5a116f3f4e589b106fd301e93bf88ff42d70cc7af727cbf673f54282",
+      "lf_sha256": "0344d5368c7207ea4665d50621d4db6e6f8bb23f96ec287d8e1c97dd1d602f85"
+    },
+    {
+      "address": "0x140422510",
+      "role": "Permissive XML numeric-reader helper; decimal/exponent paths are not adopted as the CLI input domain. Existing nonzero or non-decimal exponent forms are conservatively rejected.",
+      "classification": "new helper/caller resolution",
+      "canonical_path": ".reverse-engineering\\versions\\a3003005776b327f5e666a072a64f5c569182b86174c0f578d5be3267ce28f85\\analysis\\6a0520329af17d7b9fdaafe69398c62c454d9da838fc9f9c8d0bdd8d17bb15ae\\LoxoneConfig.exe\\code\\functions\\0x140422510.c",
+      "sha256": "e1f5f0beaaf74546ad995345a48302de103156e68956e0c0501fc026d324b7f2",
+      "lf_sha256": "44923e83ad809c7a98886ea828cc94683e0da6167fb3d4728a4445ca60e3c12d"
+    }
+  ],
+  "reused_functions_with_new_numeric_branches_or_arguments": [
+    {
+      "address": "0x140863480",
+      "role": "Newly followed column-4 branch: QVariant.toDouble, row+0x48 double store, negative values clamp to zero; CLI rejects negatives.",
+      "classification": "existing function, newly resolved numeric branch",
+      "canonical_path": ".reverse-engineering\\versions\\a3003005776b327f5e666a072a64f5c569182b86174c0f578d5be3267ce28f85\\analysis\\6a0520329af17d7b9fdaafe69398c62c454d9da838fc9f9c8d0bdd8d17bb15ae\\LoxoneConfig.exe\\code\\functions\\0x140863480.c",
+      "sha256": "b502f94044ae3bd7dbcd4805fb235210d35854e8ba45f67fb455329393c923fb",
+      "lf_sha256": "915a2029a7e1ff17d112a1cb90ff9e4c785e63c8bccca69cf2074d6f60922873"
+    },
+    {
+      "address": "0x140864140",
+      "role": "Newly interpreted numeric serializer arguments: ordered pwr at row+0x48, type 0xb, omit-zero disabled.",
+      "classification": "existing serializer reused; numeric call arguments newly interpreted",
+      "canonical_path": ".reverse-engineering\\versions\\a3003005776b327f5e666a072a64f5c569182b86174c0f578d5be3267ce28f85\\analysis\\6a0520329af17d7b9fdaafe69398c62c454d9da838fc9f9c8d0bdd8d17bb15ae\\LoxoneConfig.exe\\code\\functions\\0x140864140.c",
+      "sha256": "f74f3168e900e21e522daeba3becb7442f9424cc7f6cf72c66a36951aa0931a9",
+      "lf_sha256": "7c6d9352719a70a5c9f8be4c040d81faf738a96f8444004e06911916b1c73141"
+    },
+    {
+      "address": "0x1404c52f0",
+      "role": "Newly followed type-0xb branch: %.3f, decimal separator handling, trim fractional zeroes; read branch calls permissive numeric parser.",
+      "classification": "existing function, newly resolved numeric branch",
+      "canonical_path": ".reverse-engineering\\versions\\a3003005776b327f5e666a072a64f5c569182b86174c0f578d5be3267ce28f85\\analysis\\6a0520329af17d7b9fdaafe69398c62c454d9da838fc9f9c8d0bdd8d17bb15ae\\LoxoneConfig.exe\\code\\functions\\0x1404c52f0.c",
+      "sha256": "057c5670bc1b4a95f3b6ae5720f34f057330ba62605c4d0211ac7565de681262",
+      "lf_sha256": "853c02329be9004aa87afc2489dc0be91cce42e02c95c1656ed9e5611972340b"
+    },
+    {
+      "address": "0x14085f650",
+      "role": "Existing heading provider: column 4 uses string resource 0x2f91, decoded as Power [kW].",
+      "classification": "existing heading provider reused; column-4 resource relation newly interpreted",
+      "canonical_path": ".reverse-engineering\\versions\\a3003005776b327f5e666a072a64f5c569182b86174c0f578d5be3267ce28f85\\analysis\\6a0520329af17d7b9fdaafe69398c62c454d9da838fc9f9c8d0bdd8d17bb15ae\\LoxoneConfig.exe\\code\\functions\\0x14085f650.c",
+      "sha256": "b47c3009d641607c1a43c2e3f0363a6dbe6c28c30333224ee3d58c2a25ba555e",
+      "lf_sha256": "05ea3b4ebb894beb52e52a1dd1cab43da3aceea8a99a117a505f9ec364ecda3f"
+    },
+    {
+      "address": "0x14085f2f0",
+      "role": "Column 4 tooltip uses resource 0x557a, Nominal power of the load.",
+      "classification": "new helper/caller resolution",
+      "canonical_path": ".reverse-engineering\\versions\\a3003005776b327f5e666a072a64f5c569182b86174c0f578d5be3267ce28f85\\analysis\\6a0520329af17d7b9fdaafe69398c62c454d9da838fc9f9c8d0bdd8d17bb15ae\\LoxoneConfig.exe\\code\\functions\\0x14085f2f0.c",
+      "sha256": "ca4a35d88bbdeae77e260bccdb8b407d0b3e3bb5b3be8f6432989041033da3bd",
+      "lf_sha256": "dbbf6aee3119a00e4a9602d7930aada27a6208d9fb5402639320d44c30523d27"
+    }
+  ],
+  "source_relations": [
+    "Existing intentional table single-cell paste -> 0x140b6b170 -> 0x140d39e10 -> wrapper 0x140025b40 -> CLoad 0x140863480 column 4; name operation supplies existing editable/confirmation/before-change gates and accept/copy chain.",
+    "Numeric editor type: CLoad +0x28 -> 0x14085f800 = 1 -> wrapper 0x140025af0 -> column metadata 0x140d36410/0x140d33a00 -> factory 0x140d34800/0x140d348d0 -> 0x140dab8a0 -> installed delegate.",
+    "Model roles 0x101/0x102/0x103 -> wrappers +0x70/+0x78/+0x80 -> CLoad minimum 0 / maximum finite double / decimals 3.",
+    "CLoad setter stores the toDouble result directly at +0x48, clamps negatives only; no unit conversion or cross-field update in this branch.",
+    "Accepted dialog copy and ordered serializer are reused from Name/move. pwr uses type 0xb, row+0x48, omit-zero flag false -> %.3f writer and trailing fractional zero trimming."
+  ],
+  "pe_spans": [
+    {
+      "va": "0x141143cc8",
+      "length": 216,
+      "sha256": "f76a6d86b1c2e90e40c17eabed7141a0b2e55e094bd94a58e361a7300e7bbb20",
+      "role": "Reused CLoad vtable; newly interpreted numeric type/min/max/decimal slots."
+    },
+    {
+      "va": "0x140ec3770",
+      "length": 232,
+      "sha256": "f06494f8c1d0987daf2ea0fb837aa0f304b23c720fdbbef2598a68c29c8884a2",
+      "role": "Reused wrapper vtable; numeric forwarding slots."
+    },
+    {
+      "va": "0x1415f05f0",
+      "length": 160,
+      "sha256": "0bed0945f44b96a6b972b48937b705ddc849c8ae4d9d1da4565acc6de480de6b",
+      "role": "Double numeric delegate: createEditor +0x68=0x140dab970, setEditorData +0x78=0x140dabda0, setModelData +0x80=Qt import 0x140dd1624."
+    },
+    {
+      "va": "0x1416119cc",
+      "length": 16,
+      "sha256": "ec255bd4f4ecb57d958c01ce56b62651a93984989e9b297a1e1ec9a76528f4ab",
+      "role": "Type-0xb format literal is %.3f."
+    },
+    {
+      "va": "0x14102f110",
+      "length": 8,
+      "sha256": "d10c4ce619b71deae2a366489f838aaa233de0fc9253657f26172fb90cc52c5a",
+      "role": "Numeric serializer key is pwr."
+    }
+  ],
+  "unit_resources": {
+    "source": "source\\LoxoneConfigres_ENG.dll",
+    "source_sha256": "42c775360009da4e3bb18ed35d4fbfcfe70cdbcc909a78fee9e1c45d0de2ad36",
+    "method": "Targeted in-memory read of two frozen static RT_STRING blocks; no resource export, regeneration, execution or new decompilation.",
+    "heading": {
+      "id": "0x2f91",
+      "text": "Power [kW]",
+      "block_rva": "0x222da8",
+      "block_length": 660,
+      "block_sha256": "9efe12dbf08ad66e2c3efb5fb7e187838ae0c79e270f866ffc25f4839ca2cc3f"
+    },
+    "tooltip": {
+      "id": "0x557a",
+      "text": "Nominal power of the load",
+      "block_rva": "0x1fe2b0",
+      "block_length": 1008,
+      "block_sha256": "f928dc5646150e60aec26f57be1d92db9044330e02a8ac03d3203f37e2dd8915"
+    }
+  },
+  "cli": {
+    "syntax": "lox config load-manager set-power FILE SELECTOR IO_INDEX POWER_KW [--room ROOM] [--save-as PATH]",
+    "units": "Explicit kW, no reinterpretation; 0.001 kW = 1 W.",
+    "accepted_subset": "Nonnegative finite digit-before-dot decimal with <=3 fractional digits and decimal identity after f64/three-decimal conversion. No signs, exponents, whitespace, grouping or units in requests.",
+    "rounding": "Reject precision loss, excess decimals and exact half-milli binary ties (odd sixteenths) rather than silently round or assume native CRT tie-breaking. Rust formatting is a rejection guard, NOT native saved-byte parity evidence.",
+    "storage_guard": "Target must have explicit finite nonnegative pwr decimal parseable as f64. Signed plain decimals and decimal mantissas with zero exponents are supported; nonzero or non-decimal exponent forms, missing, empty or malformed storage are rejected, not defaulted. The permissive native reader is not a CLI domain specification. Other rows/settings are preserved, not repaired or filled.",
+    "noop": "Numeric equality is CLI preservation policy, not a recovered native skip-save callback. Preserve raw exponent/trailing-zero spellings. In-place no-op writes nothing; save-as retains Document stamp via ordinary writer.",
+    "mutation": "Only selected Load/@pwr; zero is explicit. Reuse fixed12/range0..11/unique resolved ioIdx/selection guards including omitted-zero identity. Preserve order and every unrelated attribute/child/wire/ID/flag/BOM/EOL.",
+    "output": "Existing inspection plus changed boolean; standard save-as/room/json/csv/quiet/no-header behavior.",
+    "dry_run": "Existing global fail-closed admission, no new allowlist."
+  },
+  "remaining_unknowns": [
+    "No native execution, typed-editor operation, save/reopen, runtime shedding or Miniserver qualification.",
+    "Qt DLL internal setModelData body is not recovered; installed import identity is established. Supported intentional paste chain is independently resolved by reused Name evidence.",
+    "Native arbitrary-locale spelling and CRT rounding mode remain unqualified; CLI excludes rounding ties and excess precision and makes no exact native byte-parity claim.",
+    "No EnergyManager2 rated-power, inherited reset, RGB palette, timing-cell edits, load add/delete or runtime priority changes."
+  ],
+  "fresh_native_recipe": [
+    "Use a fresh independently admitted disposable native project with LoadShed and complete twelve records; do not use this command's output as the native input.",
+    "Select a known stable ioIdx with an ordinary explicit pwr; optionally use a previously independently established reorder so priority differs from ioIdx.",
+    "Native Configure loads: change only the Power [kW] cell via single-cell paste to 2.125; accept, save, exit normally, fresh-open and read back.",
+    "Independently run CLI set-power on the same untouched baseline. Privately compare every ordered Load record, ioIdx omission, name, timings, wires, IDs, flags and unknown fields. Only target pwr and ordinary save metadata may differ.",
+    "Exercise zero and 0.001 kW plus semantic no-op; separately characterize typed-editor lifecycle if desired. All native cases are unexecuted here; do not alter any existing case source or fixture pins."
+  ]
+}

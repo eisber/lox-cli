@@ -64,23 +64,41 @@ pub(crate) enum LoadManagerCmd {
         #[arg(long, value_name = "PATH")]
         save_as: Option<String>,
     },
+    /// Set one configured consumer's Power [kW] cell by stable ioIdx, not priority
+    SetPower {
+        #[command(flatten)]
+        target: LoadManagerTarget,
+        /// Connector association ioIdx (0..11), NOT the 1-based priority
+        #[arg(value_parser = clap::value_parser!(u8).range(0..=11))]
+        io_index: u8,
+        /// Nonnegative kW decimal, at most 3 fractional digits; never clamped or rounded
+        power_kw: String,
+        #[arg(long, value_name = "PATH")]
+        save_as: Option<String>,
+    },
 }
 
 pub(crate) fn run(ctx: &RunContext, action: LoadManagerCmd) -> Result<()> {
-    let (target, edit, set_name, save_as) = match action {
-        LoadManagerCmd::Inspect { target } => (target, None, None, None),
+    let (target, edit, set_name, set_power, save_as) = match action {
+        LoadManagerCmd::Inspect { target } => (target, None, None, None, None),
         LoadManagerCmd::Move {
             target,
             io_index,
             direction,
             save_as,
-        } => (target, Some((io_index, direction)), None, save_as),
+        } => (target, Some((io_index, direction)), None, None, save_as),
         LoadManagerCmd::SetName {
             target,
             io_index,
             name,
             save_as,
-        } => (target, None, Some((io_index, name)), save_as),
+        } => (target, None, Some((io_index, name)), None, save_as),
+        LoadManagerCmd::SetPower {
+            target,
+            io_index,
+            power_kw,
+            save_as,
+        } => (target, None, None, Some((io_index, power_kw)), save_as),
     };
     let selector = target.selector()?;
     let mut editor = ConfigEditor::load(&std::fs::read(&target.file)?)?;
@@ -98,28 +116,31 @@ pub(crate) fn run(ctx: &RunContext, action: LoadManagerCmd) -> Result<()> {
         .as_ref()
         .map(|(io_index, name)| editor.set_load_manager_load_name(&selector, *io_index, name))
         .transpose()?;
+    let power_changed = set_power
+        .as_ref()
+        .map(|(io_index, power)| editor.set_load_manager_load_power(&selector, *io_index, power))
+        .transpose()?;
+    let changed = name_changed.or(power_changed);
     let inspection = editor.inspect_load_manager(&selector)?;
-    let saved_to = if edit.is_some()
-        || name_changed == Some(true)
-        || (name_changed.is_some() && save_as.is_some())
-    {
-        super::save_edited_with_quiet(
-            &mut editor,
-            &target.file,
-            save_as.as_deref(),
-            ctx.quiet || ctx.json || ctx.csv,
-        )?;
-        Some(save_as.as_deref().unwrap_or(&target.file))
-    } else {
-        None
-    };
+    let saved_to =
+        if edit.is_some() || changed == Some(true) || (changed.is_some() && save_as.is_some()) {
+            super::save_edited_with_quiet(
+                &mut editor,
+                &target.file,
+                save_as.as_deref(),
+                ctx.quiet || ctx.json || ctx.csv,
+            )?;
+            Some(save_as.as_deref().unwrap_or(&target.file))
+        } else {
+            None
+        };
     if ctx.json {
         let mut result = serde_json::json!({
             "ok": true,
             "saved_to": saved_to,
             "load_manager": inspection,
         });
-        if let Some(changed) = name_changed {
+        if let Some(changed) = changed {
             result["changed"] = serde_json::json!(changed);
         }
         if let Some(trace_id) = &ctx.trace_id {
