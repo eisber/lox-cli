@@ -18,6 +18,155 @@ fn fixture() -> String {
 }
 
 #[test]
+fn load_manager_cli_power_uses_kw_and_stable_identity_without_touching_other_settings() {
+    let dir = tempfile::tempdir_in(env!("CARGO_MANIFEST_DIR")).unwrap();
+    let input = dir.path().join("input.Loxone");
+    let output = dir.path().join("output.Loxone");
+    fs::write(&input, fixture().replacen(" maxOff=\"123\"", "", 1)).unwrap();
+    assert_cmd::cargo::cargo_bin_cmd!("lox")
+        .env("LOX_TELEMETRY", "0")
+        .args(["config", "load-manager", "move"])
+        .arg(&input)
+        .args(["uuid:manager", "0", "down", "-q"])
+        .assert()
+        .success();
+    let original = fs::read(&input).unwrap();
+    let inspection = assert_cmd::cargo::cargo_bin_cmd!("lox")
+        .env("LOX_TELEMETRY", "0")
+        .args(["config", "load-manager", "inspect"])
+        .arg(&input)
+        .args(["uuid:manager", "-o", "json"])
+        .assert()
+        .success()
+        .get_output()
+        .stdout
+        .clone();
+    let mut expected: Value = serde_json::from_slice(&inspection).unwrap();
+    expected["load_manager"]["loads"][1]["attributes"]["pwr"] = Value::from("0.001");
+    let result = assert_cmd::cargo::cargo_bin_cmd!("lox")
+        .env("LOX_TELEMETRY", "0")
+        .args(["config", "load-manager", "set-power"])
+        .arg(&input)
+        .args([
+            "Load Manager",
+            "0",
+            "0.001",
+            "--room",
+            "Office",
+            "--save-as",
+        ])
+        .arg(&output)
+        .args(["-o", "json"])
+        .assert()
+        .success()
+        .get_output()
+        .stdout
+        .clone();
+    let result: Value = serde_json::from_slice(&result).unwrap();
+    assert_eq!(result["changed"], true);
+    assert_eq!(result["load_manager"], expected["load_manager"]);
+    assert_eq!(fs::read(&input).unwrap(), original);
+    let saved = fs::read(&output).unwrap();
+    assert!(saved.starts_with(&[0xef, 0xbb, 0xbf]));
+    assert!(saved.windows(2).any(|window| window == b"\r\n"));
+    let xml = String::from_utf8(saved).unwrap();
+    assert!(xml.contains("U=\"connector\""));
+    assert!(xml.contains("WF=\"16384\""));
+    assert!(!xml.contains("DateS=\"1\""));
+}
+
+#[test]
+fn load_manager_cli_power_noop_preserves_file_and_document_stamp_including_save_as() {
+    let dir = tempfile::tempdir_in(env!("CARGO_MANIFEST_DIR")).unwrap();
+    let input = dir.path().join("input.Loxone");
+    let output = dir.path().join("output.Loxone");
+    let original = fixture().replacen("pwr=\"2.5\"", "pwr=\"2.500e0\"", 1);
+    fs::write(&input, original.as_bytes()).unwrap();
+    let result = assert_cmd::cargo::cargo_bin_cmd!("lox")
+        .env("LOX_TELEMETRY", "0")
+        .args(["config", "load-manager", "set-power"])
+        .arg(&input)
+        .args(["uuid:manager", "0", "2.500", "-o", "json"])
+        .assert()
+        .success()
+        .get_output()
+        .stdout
+        .clone();
+    let result: Value = serde_json::from_slice(&result).unwrap();
+    assert_eq!(result["changed"], false);
+    assert!(result["saved_to"].is_null());
+    assert_eq!(fs::read(&input).unwrap(), original.as_bytes());
+    assert_cmd::cargo::cargo_bin_cmd!("lox")
+        .env("LOX_TELEMETRY", "0")
+        .args(["config", "load-manager", "set-power"])
+        .arg(&input)
+        .args(["uuid:manager", "0", "2.5", "--save-as"])
+        .arg(&output)
+        .args(["-o", "csv", "-q", "--no-header"])
+        .assert()
+        .success()
+        .stdout(predicates::str::contains("1,0,\"Consumer 0\""));
+    let saved = fs::read_to_string(&output).unwrap();
+    assert!(saved.contains("pwr=\"2.500e0\""));
+    assert!(saved.contains("DateS=\"1\""));
+}
+
+#[test]
+fn load_manager_cli_power_errors_and_global_dry_run_are_atomic() {
+    let dir = tempfile::tempdir_in(env!("CARGO_MANIFEST_DIR")).unwrap();
+    let input = dir.path().join("input.Loxone");
+    let output = dir.path().join("output.Loxone");
+    let original = fixture();
+    fs::write(&input, original.as_bytes()).unwrap();
+    fs::write(&output, b"existing destination").unwrap();
+    for (selector, index, value) in [
+        ("uuid:manager", "0", "NaN"),
+        ("uuid:manager", "0", "1.0001"),
+        ("uuid:manager", "0", "9007199254740993"),
+        ("uuid:manager", "12", "2.5"),
+        ("uuid:room", "0", "2.5"),
+        ("missing", "0", "2.5"),
+    ] {
+        assert_cmd::cargo::cargo_bin_cmd!("lox")
+            .env("LOX_TELEMETRY", "0")
+            .args(["config", "load-manager", "set-power"])
+            .arg(&input)
+            .args([selector, index, value, "--save-as"])
+            .arg(&output)
+            .assert()
+            .failure();
+        assert_eq!(fs::read(&input).unwrap(), original.as_bytes());
+        assert_eq!(fs::read(&output).unwrap(), b"existing destination");
+    }
+    assert_cmd::cargo::cargo_bin_cmd!("lox")
+        .env("LOX_TELEMETRY", "0")
+        .args(["--dry-run", "config", "load-manager", "set-power"])
+        .arg(&input)
+        .args(["uuid:manager", "0", "2.5", "--save-as"])
+        .arg(&output)
+        .assert()
+        .failure()
+        .stderr(predicates::str::contains("dry-run"));
+    for malformed in [
+        original.replacen("ioIdx=\"1\"", "ioIdx=\"0\"", 1),
+        original.replacen(" pwr=\"2.5\"", "", 1),
+        original.replacen("pwr=\"2.5\"", "pwr=\"garbage\"", 1),
+    ] {
+        fs::write(&input, malformed.as_bytes()).unwrap();
+        assert_cmd::cargo::cargo_bin_cmd!("lox")
+            .env("LOX_TELEMETRY", "0")
+            .args(["config", "load-manager", "set-power"])
+            .arg(&input)
+            .args(["uuid:manager", "0", "0", "--save-as"])
+            .arg(&output)
+            .assert()
+            .failure();
+        assert_eq!(fs::read(&input).unwrap(), malformed.as_bytes());
+        assert_eq!(fs::read(&output).unwrap(), b"existing destination");
+    }
+}
+
+#[test]
 fn load_manager_cli_saves_priority_with_identity_and_reloads() {
     let dir = tempfile::tempdir_in(env!("CARGO_MANIFEST_DIR")).unwrap();
     let input = dir.path().join("input.Loxone");

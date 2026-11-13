@@ -145,6 +145,7 @@ lox config load-manager inspect file.Loxone "Load Manager" -o json
 lox config load-manager move file.Loxone "Load Manager" 4 up --save-as edited.Loxone -o json
 lox config load-manager move file.Loxone "uuid:..." 4 down
 lox config load-manager set-name file.Loxone "Load Manager" 4 "Heat pump" --save-as edited.Loxone -o json
+lox config load-manager set-power file.Loxone "Load Manager" 4 2.125 --save-as edited.Loxone -o json
 ```
 
 `move <FILE> <SELECTOR> <IO_INDEX> <up|down>` moves an existing **LoadShed**
@@ -172,7 +173,7 @@ the block; do not combine it with a bracket room qualifier. JSON includes every
 stored load attribute; table/CSV shows priority, io-index and name.
 
 This is a Config 17.2.10.21 source-recovered operation, not EnergyManager2's
-separate load model. It does not add/delete loads, edit power/timing settings,
+separate load model. Moving does not add/delete loads or edit power/timing settings,
 or claim native runtime/save-reopen qualification. Actual runtime shedding
 priority/effects remain unproven; the recovered scope is configure-list/XML
 order and configured-name storage. `--dry-run` remains
@@ -204,6 +205,39 @@ a connected sensor. No connector-derived defaults are fabricated by the CLI.
 Source proof, conservative limits and an independent fresh-native recipe:
 `tests/ux/load-manager/name-source.json`. No native/runtime qualification is claimed,
 and `--dry-run` remains unsupported for this new setter.
+
+`set-power <FILE> <SELECTOR> <IO_INDEX> <POWER_KW>` edits only the configured
+consumer's **Power [kW]** cell (`Load/@pwr`), not EnergyManager2 rated power or a
+block connector parameter. It reuses the twelve-row identity/selection guards,
+including omitted `ioIdx` meaning zero. Order, name, timing settings, all other
+records, unknown fields, connectors, IDs and flags remain unchanged.
+
+The recovered native numeric editor uses a minimum of zero, maximum finite
+double and three decimal places; the setter stores a double and the XML writer
+formats three decimal places and trims trailing fractional zeroes. The CLI
+supports a conservative, locale-independent subset: nonnegative dot decimals
+with digits before the dot and **at most three fractional digits**, provided the
+requested decimal survives double/three-decimal conversion unchanged. For example,
+`2.125` means 2.125 kW and `0.001` means 1 W. Signs, exponent notation, unit
+suffixes, grouping, nonfinite values, extra precision and double precision loss
+(such as `9007199254740993`) are rejected, never clamped or silently rounded.
+Binary values exactly halfway between native three-decimal outputs are also
+rejected rather than assuming a native CRT tie-breaking mode.
+No exact native saved-byte/locale parity is claimed.
+Exact native CRT formatting of very large accepted integers is also unqualified.
+
+The selected record must already have an explicit, parseable, finite nonnegative
+`pwr` decimal; only zero exponents on decimal mantissas (such as `2.500e0`) are
+supported in existing storage. Other exponent forms, missing or malformed target
+storage are rejected rather than interpreted using the permissive native reader.
+No missing settings on other records are filled. A numerically equal request
+preserves the original `pwr` spelling (including exponent/trailing zeroes).
+In-place no-ops do not write or change the Document stamp; `--save-as` still writes
+with the unchanged stamp. Actual edits use ordinary save/stamp and BOM/EOL behavior.
+JSON reports `changed`; global `--dry-run` remains fail-closed and unsupported.
+Source chain, limits and a fresh independent native verification recipe:
+`tests/ux/load-manager/power-source.json`. This is source-only; typed editing,
+native save/reopen and runtime effects remain unqualified.
 
 ### EnergyManager2 verified storage pilot
 
