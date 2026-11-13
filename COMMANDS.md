@@ -146,6 +146,7 @@ lox config load-manager move file.Loxone "Load Manager" 4 up --save-as edited.Lo
 lox config load-manager move file.Loxone "uuid:..." 4 down
 lox config load-manager set-name file.Loxone "Load Manager" 4 "Heat pump" --save-as edited.Loxone -o json
 lox config load-manager set-power file.Loxone "Load Manager" 4 2.125 --save-as edited.Loxone -o json
+lox config load-manager set-max-off file.Loxone "Load Manager" 4 600 --save-as edited.Loxone -o json
 ```
 
 `move <FILE> <SELECTOR> <IO_INDEX> <up|down>` moves an existing **LoadShed**
@@ -159,7 +160,7 @@ siblings and block settings are untouched; no priority attribute is invented.
 The usual save helper updates the Document save stamp on a successful change
 and preserves BOM/line-ending convention. Without `--save-as`, the input is edited.
 
-All three commands require exactly twelve direct `Load` records with **resolved**
+All these commands require exactly twelve direct `Load` records with **resolved**
 unique `ioIdx` values 0..11. Exactly one omitted zero is supported; an omitted
 attribute plus explicit zero, or two omissions, is a duplicate identity error.
 Omission is preserved when the record moves: no `ioIdx="0"` is inserted, and
@@ -236,7 +237,41 @@ In-place no-ops do not write or change the Document stamp; `--save-as` still wri
 with the unchanged stamp. Actual edits use ordinary save/stamp and BOM/EOL behavior.
 JSON reports `changed`; global `--dry-run` remains fail-closed and unsupported.
 Source chain, limits and a fresh independent native verification recipe:
-`tests/ux/load-manager/power-source.json`. This is source-only; typed editing,
+`tests/ux/load-manager/power-source.json`.
+
+`set-max-off <FILE> <SELECTOR> <IO_INDEX> <MAX_OFF_SECONDS>` edits only the
+configured consumer's **Maximum off time [s]** cell (`Load/@maxOff`). For example,
+`600` means ten minutes: both the native heading and direct integer setter
+establish **seconds**, with no scaling. This is nested-load behavior, not
+`set-param`; `minOn` is never changed.
+
+The CLI deliberately supports only **whole seconds in 10..2147483647**, supplied
+as unsigned decimal digits (leading zeroes are allowed). Native column 5 uses the
+numeric delegate with zero decimal places, but its setter converts to a signed
+32-bit integer, clamps 1..9 to 10 and negatives to zero. The CLI rejects these
+clamping cases, fractions, signs, exponent notation, whitespace, units, nonfinite
+values and overflow rather than silently rounding or changing the request.
+**Zero is unsupported: its UI meaning remains unqualified.** This positive-only
+subset is not a claim about the full native input domain or runtime shedding.
+
+An absent `maxOff` reads as zero in the recovered native integer reader; setting
+a positive value is supported without filling any other omitted settings.
+Explicit target storage must be a nonnegative signed-32-bit decimal integer;
+an existing leading plus/zeroes is supported. Empty, negative, fractional,
+exponent, whitespace, overflowing or malformed storage is rejected atomically.
+Numeric no-ops preserve its exact old spelling, the file bytes and Document stamp
+in place; `--save-as` uses the ordinary writer with the unchanged stamp.
+Actual edits use normal Document stamping and BOM/EOL preservation.
+When `maxOff` was absent, the new attribute is appended; native attribute-position
+parity is unqualified. Existing attributes retain their relative order.
+
+The existing twelve-row/unique resolved `ioIdx` guards apply, including omitted
+`ioIdx` resolving to zero. Moving a row never changes which consumer is targeted.
+Order, other records, power, name, `minOn`, unknown fields, IDs, flags and wiring
+are preserved. JSON reports `changed`; global `--dry-run` still fails closed
+before file access. This operation is source-recovered, not native save/reopen
+or runtime qualified. Evidence and a fresh independent native recipe:
+`tests/ux/load-manager/max-off-source.json`. This is source-only; typed editing,
 native save/reopen and runtime effects remain unqualified.
 
 ### EnergyManager2 verified storage pilot

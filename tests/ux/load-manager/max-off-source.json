@@ -1,0 +1,170 @@
+{
+  "schema_version": 1,
+  "operation": "LoadShed configured consumer Maximum off time [s] edit by stable ioIdx",
+  "status": "source-recovered positive-only subset; not native/runtime qualified",
+  "issue": "lox-jyq7",
+  "operation_count": 1,
+  "application": {
+    "version": "17.2.10.21",
+    "pe_sha256": "7b55e3ef18401574ab967c5c6a0140cd5a66dc728521ebba04ad53093577d8b3",
+    "installation_sha256": "a3003005776b327f5e666a072a64f5c569182b86174c0f578d5be3267ce28f85",
+    "analysis_id": "6a0520329af17d7b9fdaafe69398c62c454d9da838fc9f9c8d0bdd8d17bb15ae"
+  },
+  "baseline": {
+    "commit": "280aba49353a66331b4bf5052f27746048053eb1",
+    "tree": "532d7cdab0e5bd9a670d5c3cb7db73a74e8a12ae"
+  },
+  "unimplemented_at_baseline": {
+    "typed_namespace": "Only inspect/move/set-name/set-power; no maxOff setter.",
+    "generic_parameter_path": "properties.rs set_param edits direct Co/@Def or its five allowed block attributes; neither maxOff nor Load.0.maxOff addresses this nested cell. Focused public CLI tests reject both."
+  },
+  "existing_evidence_reused": [
+    {
+      "path": "tests\\ux\\load-manager\\move-source.json",
+      "lf_sha256": "a1ee3c69b5945572632e14dbd90f4bbc0d6d55476592bc3561316c98c9e003c3",
+      "scope": "Twelve-row/0..11/unique resolved ioIdx guards; absent ioIdx=0; row order and complete-record move."
+    },
+    {
+      "path": "tests\\ux\\load-manager\\name-source.json",
+      "lf_sha256": "abb73093836e373dfd20edf1fe57a1f45b47908d6e1db7bee9d72de33b8a8cff",
+      "scope": "Intentional editable single-cell QString/QVariant paste, editability/confirmation/before-change gates, temporary rows and accepted copy; not newly credited."
+    },
+    {
+      "path": "tests\\ux\\load-manager\\power-source.json",
+      "lf_sha256": "d5f4af3f71c19730863fc7a237fa19385c74c622948d4556318ed08d16cf854a",
+      "scope": "Previously resolved numeric delegate installation/min/max/precision roles and commit/close hooks; 31 canonical numeric/helper relations reused, not re-audited or credited anew."
+    }
+  ],
+  "newly_resolved_functions": [],
+  "reused_functions_with_new_branches_or_arguments": [
+    {
+      "address": "0x140863480",
+      "canonical_path": ".reverse-engineering\\versions\\a3003005776b327f5e666a072a64f5c569182b86174c0f578d5be3267ce28f85\\analysis\\6a0520329af17d7b9fdaafe69398c62c454d9da838fc9f9c8d0bdd8d17bb15ae\\LoxoneConfig.exe\\code\\functions\\0x140863480.c",
+      "sha256": "b502f94044ae3bd7dbcd4805fb235210d35854e8ba45f67fb455329393c923fb",
+      "classification": "existing canonical function; new column-5 branch/arguments, no new-function credit",
+      "role": "Column 5 uses QVariant::toInt, stores signed int32 at row+0x50, maps 1..9 to 10 and negatives to zero. No scaling or sibling-field store in this branch."
+    },
+    {
+      "address": "0x14085f650",
+      "canonical_path": ".reverse-engineering\\versions\\a3003005776b327f5e666a072a64f5c569182b86174c0f578d5be3267ce28f85\\analysis\\6a0520329af17d7b9fdaafe69398c62c454d9da838fc9f9c8d0bdd8d17bb15ae\\LoxoneConfig.exe\\code\\functions\\0x14085f650.c",
+      "sha256": "b47c3009d641607c1a43c2e3f0363a6dbe6c28c30333224ee3d58c2a25ba555e",
+      "classification": "existing canonical function; new column-5 branch/arguments, no new-function credit",
+      "role": "Column 5 heading resource 0xe190 is Maximum off time [s]."
+    },
+    {
+      "address": "0x14085f2f0",
+      "canonical_path": ".reverse-engineering\\versions\\a3003005776b327f5e666a072a64f5c569182b86174c0f578d5be3267ce28f85\\analysis\\6a0520329af17d7b9fdaafe69398c62c454d9da838fc9f9c8d0bdd8d17bb15ae\\LoxoneConfig.exe\\code\\functions\\0x14085f2f0.c",
+      "sha256": "ca4a35d88bbdeae77e260bccdb8b407d0b3e3bb5b3be8f6432989041033da3bd",
+      "classification": "existing canonical function; new column-5 branch/arguments, no new-function credit",
+      "role": "Column 5 tooltip resource 0xe192 is Maximum time that the load can be locked; this does not establish zero's UI meaning."
+    },
+    {
+      "address": "0x14085f4a0",
+      "canonical_path": ".reverse-engineering\\versions\\a3003005776b327f5e666a072a64f5c569182b86174c0f578d5be3267ce28f85\\analysis\\6a0520329af17d7b9fdaafe69398c62c454d9da838fc9f9c8d0bdd8d17bb15ae\\LoxoneConfig.exe\\code\\functions\\0x14085f4a0.c",
+      "sha256": "31914d82fd99708fccf74f5294dbc248bb14bb1cd8358237e8e31ea6457b6f18",
+      "classification": "existing canonical function; new column-5 branch/arguments, no new-function credit",
+      "role": "Column 5 displays row+0x50 with the integer QString::number overload, without scaling."
+    },
+    {
+      "address": "0x140860070",
+      "canonical_path": ".reverse-engineering\\versions\\a3003005776b327f5e666a072a64f5c569182b86174c0f578d5be3267ce28f85\\analysis\\6a0520329af17d7b9fdaafe69398c62c454d9da838fc9f9c8d0bdd8d17bb15ae\\LoxoneConfig.exe\\code\\functions\\0x140860070.c",
+      "sha256": "125248f82fb738985b76003625f706bf9575ed728b80b078af5940cb9a0a8142",
+      "classification": "existing canonical function; new column-5 branch/arguments, no new-function credit",
+      "role": "Column 5 numeric precision is zero decimal places, unlike Power's three decimals."
+    },
+    {
+      "address": "0x140864140",
+      "canonical_path": ".reverse-engineering\\versions\\a3003005776b327f5e666a072a64f5c569182b86174c0f578d5be3267ce28f85\\analysis\\6a0520329af17d7b9fdaafe69398c62c454d9da838fc9f9c8d0bdd8d17bb15ae\\LoxoneConfig.exe\\code\\functions\\0x140864140.c",
+      "sha256": "f74f3168e900e21e522daeba3becb7442f9424cc7f6cf72c66a36951aa0931a9",
+      "classification": "existing canonical function; new column-5 branch/arguments, no new-function credit",
+      "role": "Ordered Load maxOff serializer uses type 5, row+0x50, attribute=1, omitZero=1, preserveMissing=0."
+    },
+    {
+      "address": "0x1404c52f0",
+      "canonical_path": ".reverse-engineering\\versions\\a3003005776b327f5e666a072a64f5c569182b86174c0f578d5be3267ce28f85\\analysis\\6a0520329af17d7b9fdaafe69398c62c454d9da838fc9f9c8d0bdd8d17bb15ae\\LoxoneConfig.exe\\code\\functions\\0x1404c52f0.c",
+      "sha256": "057c5670bc1b4a95f3b6ae5720f34f057330ba62605c4d0211ac7565de681262",
+      "classification": "previously recovered ioIdx integer helper reused; no new-function credit",
+      "role": "Reused type-5 signed integer serializer and missing-reader path, already known for ioIdx. Format %d; zero omitted; absence with preserveMissing=0 reaches empty integer parser. Pseudocode float artifacts are not interpreted as actual float storage."
+    },
+    {
+      "address": "0x140422760",
+      "canonical_path": ".reverse-engineering\\versions\\a3003005776b327f5e666a072a64f5c569182b86174c0f578d5be3267ce28f85\\analysis\\6a0520329af17d7b9fdaafe69398c62c454d9da838fc9f9c8d0bdd8d17bb15ae\\LoxoneConfig.exe\\code\\functions\\0x140422760.c",
+      "sha256": "361f5c3173c2b395766f14baa7a142bc2c1f734f9c04c21be691eb3169ff591d",
+      "classification": "previously recovered ioIdx integer helper reused; no new-function credit",
+      "role": "Reused integer parser: null/empty input yields zero. CLI uses strict full-string integer parsing rather than native permissive prefix parsing."
+    }
+  ],
+  "source_relations": [
+    "Existing intentional paste: d43310 -> d3f4d0; b66d90 connection -> b6b170 single-cell QString/QVariant -> d39e10 -> wrapper 025b40 provider+0x38 -> CLoad 863480, now column 5.",
+    "Existing editability: d39060 -> 025b90 provider+0x50 -> CLoad 862090 admits columns 3..6; GenericModel d3d540/d39e10 reuse confirmation and before-change gates.",
+    "Existing numeric editor type1/delegate installation and metadata chain is pinned by power-source.json. Column5 uses the same min0/maxDBL_MAX delegate, but its own decimals0 (860070), not Power's decimals3.",
+    "Existing explicit numeric editor commit signal -> delegate commitData/closeEditor is reused. Qt imported setModelData body remains unrecovered; intentional single-cell paste independently establishes a supported accepted callback.",
+    "Column5 setter QVariant::toInt -> row+0x50; 1..9 become10, negatives become0, no unit conversion. CLI accepts only decimal integer requests10..INT32_MAX, so it avoids conversion, clamping, rounding and overflow ambiguity.",
+    "Existing accepted chain 930dc0 virtual+0x1a8 -> b4f070 -> 85f090 copies temp+0x88 to original+0x90; row+0x50 travels with the record. Ordered serializer864140 persists maxOff type5 at that offset.",
+    "Type5 write uses %d and omitZero1; raw x86 at4c53a8 tests the integer register, not floating zero. Read branch calls422760 at4c6510 then stores eax to a four-byte field. Missing maxOff reaches empty parser because preserveMissing0, so its native storage default is0."
+  ],
+  "unit_resources": {
+    "source": "source\\LoxoneConfigres_ENG.dll",
+    "source_sha256": "42c775360009da4e3bb18ed35d4fbfcfe70cdbcc909a78fee9e1c45d0de2ad36",
+    "method": "Read only existing frozen PE bytes in memory; no extraction, execution or new analysis.",
+    "heading": {
+      "id": "0xe190",
+      "text": "Maximum off time [s]",
+      "language": 2048,
+      "block_rva": "0x1efea0",
+      "block_length": 932,
+      "block_sha256": "4d4e5fe3853718c1ab0a82d5f3315ead2342880bedbc644929aa8119a3d59e2e"
+    },
+    "tooltip": {
+      "id": "0xe192",
+      "text": "Maximum time that the load can be locked",
+      "language": 2048,
+      "block_rva": "0x1efea0",
+      "block_length": 932,
+      "block_sha256": "4d4e5fe3853718c1ab0a82d5f3315ead2342880bedbc644929aa8119a3d59e2e"
+    }
+  },
+  "pe_spans": [
+    {
+      "va": "0x141614800",
+      "length": 4,
+      "role": "Type-5 signed integer writer format",
+      "sha256": "876f0615b4ba02af6b66da0bd9dc12d705ee74346063cf6629255ad305b3e445"
+    },
+    {
+      "va": "0x1404c53a8",
+      "length": 35,
+      "role": "Type-5 zero omission and formatter call",
+      "sha256": "cd7bf2f32914fa8572f7eb391331f6d02884514be9d76ae0c5aaf0673067f060"
+    },
+    {
+      "va": "0x1404c6510",
+      "length": 8,
+      "role": "Integer-parser call and raw-width store; classify from trailing instructions",
+      "sha256": "029e75a7c3773893f8f39ade154e528ed6a918076ad543d85b3d8ae386f3b2ea"
+    }
+  ],
+  "cli": {
+    "syntax": "lox config load-manager set-max-off FILE SELECTOR IO_INDEX MAX_OFF_SECONDS [--room ROOM] [--save-as PATH]",
+    "accepted_subset": "Whole seconds10..2147483647 as unsigned ASCII decimal digits; leading zeroes accepted, stored as canonical signed-int32 decimal. 600 means10minutes. No native full-domain or exact typed-editor parity claim.",
+    "zero": "Request0 rejected. Its native UI meaning is not established by the recovered heading/tooltip/setter; no unlimited/disabled interpretation is invented.",
+    "rounding": "No fractional requests or signed/exponent/unit/grouped/whitespace/nonfinite/overflow forms; values1..9 rejected instead of emulating native clamp10.",
+    "existing_storage": "Absence reads0, source-proven from actual maxOff type5 flags and reused reader. Explicit target must be nonnegative int32 digits with optional leading plus; negative/empty/malformed/fractional/exponent/overflow/whitespace storage rejected without mutation. Other records are not repaired.",
+    "noop": "Numeric equality is CLI preservation policy, not recovered native skip-save behavior. Exact existing plus/leading-zero spelling retained. In-place no-op writes nothing and keeps Document stamp; save-as retains stamp through ordinary writer.",
+    "mutation": "Only selected Load/@maxOff, resolved by existing fixed12/0..11/unique ioIdx guards after any move. No minOn operation, no defaults on other fields, no order/identity/wire/ID/flag/unknown changes. Ordinary DOM/BOM/EOL/Document save behavior.",
+    "dry_run": "Existing global unsupported admission fails closed before file access; no new allowlist or preview framework."
+  },
+  "remaining_unknowns": [
+    "Zero's UI meaning; therefore zero requests are deliberately unsupported.",
+    "Typed QDoubleSpinBox -> imported Qt setModelData -> QVariant conversion edge cases/rounding/overflow beyond exact positive int32 subset are not qualified.",
+    "Native execution, dialog save/fresh-open and runtime shedding have not been performed or claimed.",
+    "No minOn second operation, add/delete, runtime scheduling, EnergyManager2 changes, default filling or raw XML setter."
+  ],
+  "fresh_native_recipe": [
+    "Unexecuted recipe only: use a fresh independently admitted disposable native project with LoadShed and complete twelve records. Do not modify existing pinned native cases or contact native owners.",
+    "Choose a known stable ioIdx whose order differs from priority after an independently established move. Keep its other settings, unknown fields, IDs and wiring as the untouched reference.",
+    "In native Configure loads, single-cell paste 600 into Maximum off time [s] only. Accept the dialog, save and exit normally; fresh-open and inspect. Independently run CLI set-max-off from the same untouched input, never from CLI-produced native input.",
+    "Privately compare ordered Load records: only target maxOff=600 and ordinary save metadata may change. Check absent ioIdx remains absent, missing minOn stays absent, and name/power/other rows/IDs/flags/wires remain unchanged.",
+    "Separately characterize native zero UI meaning and typed-editor overflow/conversion before expanding the positive-only CLI domain. No such input is requested of current native workers; runtime shedding is outside this operation."
+  ]
+}
