@@ -147,6 +147,7 @@ lox config load-manager move file.Loxone "uuid:..." 4 down
 lox config load-manager set-name file.Loxone "Load Manager" 4 "Heat pump" --save-as edited.Loxone -o json
 lox config load-manager set-power file.Loxone "Load Manager" 4 2.125 --save-as edited.Loxone -o json
 lox config load-manager set-max-off file.Loxone "Load Manager" 4 600 --save-as edited.Loxone -o json
+lox config load-manager set-min-on file.Loxone "Load Manager" 4 600 --save-as edited.Loxone -o json
 ```
 
 `move <FILE> <SELECTOR> <IO_INDEX> <up|down>` moves an existing **LoadShed**
@@ -273,6 +274,41 @@ before file access. This operation is source-recovered, not native save/reopen
 or runtime qualified. Evidence and a fresh independent native recipe:
 `tests/ux/load-manager/max-off-source.json`. This is source-only; typed editing,
 native save/reopen and runtime effects remain unqualified.
+
+`set-min-on <FILE> <SELECTOR> <IO_INDEX> <MIN_ON_SECONDS>` edits only the
+configured consumer's **Minimum on time [s]** cell (`Load/@minOn`), not a direct
+connector parameter. `600` means ten minutes: the column-6 heading, integer
+getter/setter and serializer establish seconds without scaling, independently
+of `maxOff`.
+
+Supported requests are unsigned decimal digits representing **0 or whole seconds
+in 10..2147483647** (leading zeroes allowed). The native column-6 setter accepts
+zero, clamps 1..9 to 10 and negatives to zero. Its numeric editor has minimum zero,
+zero decimal places and a double maximum, but conversion/storage uses signed
+32-bit integers. The CLI rejects 1..9, signs, fractions, exponents, whitespace,
+units, nonfinite values and overflow rather than rounding, clamping or guessing
+conversion behavior.
+
+**Zero is a supported storage edit, not a recovered SPS/runtime promise.** The
+native row initializer defaults `minOn` to zero, its integer reader maps absence
+to zero, and its writer omits zero. An actual positive-to-zero edit therefore
+removes only `minOn`; a numeric no-op preserves existing spelling or omission.
+Explicit target storage must be nonnegative signed-32-bit decimal digits, with
+an optional leading plus. Empty, negative, fractional, exponent, whitespace,
+overflowing or malformed storage is rejected atomically; the input and any
+existing destination remain untouched.
+
+The shared complete-twelve-load/unique resolved `ioIdx` guards apply. Omitted
+`ioIdx` remains native zero, and identity stays stable after a move. No other
+settings are filled or normalized: `maxOff`, power, name, order, other rows,
+unknown fields, IDs, flags and wiring are preserved. In-place no-ops preserve
+file bytes and Document stamp; `--save-as` uses the ordinary writer with the
+unchanged stamp. Actual edits use ordinary Document stamping and BOM/EOL
+preservation. Newly added attributes append; native attribute-position parity
+is unqualified. JSON reports `changed`; global `--dry-run` remains unsupported
+and fails before file access. Typed Qt conversion edge cases, native save/reopen
+and runtime shedding are unqualified. Source evidence and fresh native recipe:
+`tests/ux/load-manager/min-on-source.json`.
 
 ### EnergyManager2 verified storage pilot
 

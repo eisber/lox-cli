@@ -88,11 +88,23 @@ pub(crate) enum LoadManagerCmd {
         #[arg(long, value_name = "PATH")]
         save_as: Option<String>,
     },
+    /// Set only Minimum on time [s] by stable ioIdx, not priority
+    SetMinOn {
+        #[command(flatten)]
+        target: LoadManagerTarget,
+        /// Connector association ioIdx (0..11), NOT the 1-based priority
+        #[arg(value_parser = clap::value_parser!(u8).range(0..=11))]
+        io_index: u8,
+        /// Zero or whole seconds in 10..2147483647; never clamped or rounded
+        min_on_seconds: String,
+        #[arg(long, value_name = "PATH")]
+        save_as: Option<String>,
+    },
 }
 
 pub(crate) fn run(ctx: &RunContext, action: LoadManagerCmd) -> Result<()> {
-    let (target, edit, set_name, set_power, set_max_off, save_as) = match action {
-        LoadManagerCmd::Inspect { target } => (target, None, None, None, None, None),
+    let (target, edit, set_name, set_power, set_max_off, set_min_on, save_as) = match action {
+        LoadManagerCmd::Inspect { target } => (target, None, None, None, None, None, None),
         LoadManagerCmd::Move {
             target,
             io_index,
@@ -104,6 +116,7 @@ pub(crate) fn run(ctx: &RunContext, action: LoadManagerCmd) -> Result<()> {
             None,
             None,
             None,
+            None,
             save_as,
         ),
         LoadManagerCmd::SetName {
@@ -111,7 +124,15 @@ pub(crate) fn run(ctx: &RunContext, action: LoadManagerCmd) -> Result<()> {
             io_index,
             name,
             save_as,
-        } => (target, None, Some((io_index, name)), None, None, save_as),
+        } => (
+            target,
+            None,
+            Some((io_index, name)),
+            None,
+            None,
+            None,
+            save_as,
+        ),
         LoadManagerCmd::SetPower {
             target,
             io_index,
@@ -122,6 +143,7 @@ pub(crate) fn run(ctx: &RunContext, action: LoadManagerCmd) -> Result<()> {
             None,
             None,
             Some((io_index, power_kw)),
+            None,
             None,
             save_as,
         ),
@@ -136,6 +158,21 @@ pub(crate) fn run(ctx: &RunContext, action: LoadManagerCmd) -> Result<()> {
             None,
             None,
             Some((io_index, max_off_seconds)),
+            None,
+            save_as,
+        ),
+        LoadManagerCmd::SetMinOn {
+            target,
+            io_index,
+            min_on_seconds,
+            save_as,
+        } => (
+            target,
+            None,
+            None,
+            None,
+            None,
+            Some((io_index, min_on_seconds)),
             save_as,
         ),
     };
@@ -165,7 +202,16 @@ pub(crate) fn run(ctx: &RunContext, action: LoadManagerCmd) -> Result<()> {
             editor.set_load_manager_load_max_off(&selector, *io_index, seconds)
         })
         .transpose()?;
-    let changed = name_changed.or(power_changed).or(max_off_changed);
+    let min_on_changed = set_min_on
+        .as_ref()
+        .map(|(io_index, seconds)| {
+            editor.set_load_manager_load_min_on(&selector, *io_index, seconds)
+        })
+        .transpose()?;
+    let changed = name_changed
+        .or(power_changed)
+        .or(max_off_changed)
+        .or(min_on_changed);
     let inspection = editor.inspect_load_manager(&selector)?;
     let saved_to =
         if edit.is_some() || changed == Some(true) || (changed.is_some() && save_as.is_some()) {

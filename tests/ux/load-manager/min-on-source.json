@@ -1,0 +1,178 @@
+{
+  "schema_version": 1,
+  "operation": "LoadShed configured consumer Minimum on time [s] edit by stable ioIdx",
+  "status": "source-recovered storage operation; not native/runtime qualified",
+  "issue": "lox-u7mm",
+  "application": {
+    "version": "17.2.10.21",
+    "pe_sha256": "7b55e3ef18401574ab967c5c6a0140cd5a66dc728521ebba04ad53093577d8b3",
+    "installation_sha256": "a3003005776b327f5e666a072a64f5c569182b86174c0f578d5be3267ce28f85",
+    "analysis_id": "6a0520329af17d7b9fdaafe69398c62c454d9da838fc9f9c8d0bdd8d17bb15ae",
+    "canonical_function_directory": ".reverse-engineering\\versions\\a3003005776b327f5e666a072a64f5c569182b86174c0f578d5be3267ce28f85\\analysis\\6a0520329af17d7b9fdaafe69398c62c454d9da838fc9f9c8d0bdd8d17bb15ae\\LoxoneConfig.exe\\code\\functions",
+    "canonical_filename": "<address>.c; hashes below are raw canonical file SHA-256"
+  },
+  "baseline": {
+    "commit": "103e7deff63878fd3dbe027201024bd32c6d7ae6",
+    "tree": "61d79a0cf29679e8d21bf3f46a007834d471ecda"
+  },
+  "unimplemented_at_baseline": {
+    "typed_namespace": "Inspect/move/set-name/set-power/set-max-off only; no minimum-on-time setter.",
+    "generic_parameter_path": "src\\config_edit\\properties.rs set_param edits direct Co/@Def or MaxVal/MinVal/MinChange/MinTime/Step only. Neither minOn nor Load.0.minOn addresses the nested Load cell."
+  },
+  "existing_evidence_reused": [
+    {
+      "path": "tests\\ux\\load-manager\\move-source.json",
+      "lf_sha256": "a1ee3c69b5945572632e14dbd90f4bbc0d6d55476592bc3561316c98c9e003c3",
+      "scope": "Fixed twelve records, unique resolved ioIdx 0..11, omission resolves zero; ordinal differs from stable identity; accepted-copy and ordered Load persistence."
+    },
+    {
+      "path": "tests\\ux\\load-manager\\name-source.json",
+      "lf_sha256": "abb73093836e373dfd20edf1fe57a1f45b47908d6e1db7bee9d72de33b8a8cff",
+      "scope": "Intentional single-cell paste/clear, columns3..6 editable, confirmation and cancel-capable pre-change/model-setter dispatch, clone population and accepted-copy. Not new recovery."
+    },
+    {
+      "path": "tests\\ux\\load-manager\\power-source.json",
+      "lf_sha256": "d5f4af3f71c19730863fc7a237fa19385c74c622948d4556318ed08d16cf854a",
+      "scope": "Numeric delegate/wrapper/model role installation, min/max/precision and commit/close plumbing. Typed Qt conversion edge cases remain unqualified."
+    },
+    {
+      "path": "tests\\ux\\load-manager\\max-off-source.json",
+      "lf_sha256": "94f3b046062612f0d1faadd6101dc1d1a87beee00d9e287c617247af61f9fb8c",
+      "scope": "Type5 helper/raw-width PE checks only; maxOff positive-only policy and zero interpretation are NOT minOn evidence or policy."
+    }
+  ],
+  "new_function_credit": 0,
+  "new_semantics": "Independently followed column6 branches/arguments: seconds, row+0x54 signed integer setter/getter, clamping, zero acceptance, initialized/read default zero and omit-zero minOn persistence.",
+  "canonical_functions_with_min_on_facts": [
+    {
+      "address": "0x140863480",
+      "sha256": "b502f94044ae3bd7dbcd4805fb235210d35854e8ba45f67fb455329393c923fb",
+      "role": "Column6 QVariant.toInt -> row+0x54; 1..9 ->10, negative ->0, zero stays0. No scaling or sibling-field store."
+    },
+    {
+      "address": "0x14085f650",
+      "sha256": "b47c3009d641607c1a43c2e3f0363a6dbe6c28c30333224ee3d58c2a25ba555e",
+      "role": "Column6 heading resource0xe191 Minimum on time [s]."
+    },
+    {
+      "address": "0x14085f2f0",
+      "sha256": "ca4a35d88bbdeae77e260bccdb8b407d0b3e3bb5b3be8f6432989041033da3bd",
+      "role": "Column6 tooltip resource0xe193 Minimum time that the load must not be locked."
+    },
+    {
+      "address": "0x14085f4a0",
+      "sha256": "31914d82fd99708fccf74f5294dbc248bb14bb1cd8358237e8e31ea6457b6f18",
+      "role": "Column6 displays row+0x54 through integer QString.number without scaling."
+    },
+    {
+      "address": "0x140860070",
+      "sha256": "125248f82fb738985b76003625f706bf9575ed728b80b078af5940cb9a0a8142",
+      "role": "Column6 numeric editor precision0."
+    },
+    {
+      "address": "0x140860090",
+      "sha256": "ae29c57b31239dbfaf0463224035adfe9e79d8d695850b851be0685a81ae638d",
+      "role": "Column6 numeric minimum0."
+    },
+    {
+      "address": "0x1400258d0",
+      "sha256": "da393ceed0d32cd04c1307adbdd8bd0bbb23cb8878da56b1e2a81e36d1e4f67f",
+      "role": "Provider maximum is DBL_MAX, not a proof of integer conversion behavior beyond signed int32."
+    },
+    {
+      "address": "0x14085f800",
+      "sha256": "331f7e7276d799127204a4b3d3b7204aec99afb8010183f80dc3a96ccbdb5d97",
+      "role": "Column6 selects numeric delegate type1; prior power evidence resolves its installed role plumbing."
+    },
+    {
+      "address": "0x140860eb0",
+      "sha256": "0e71266ff8d8b0c5641296c16b9a16300d73f6d6f5893748b758b341ea987506",
+      "role": "Row initialization writes zero across offsets0x50..0x57, including minOn at0x54."
+    },
+    {
+      "address": "0x140864140",
+      "sha256": "f74f3168e900e21e522daeba3becb7442f9424cc7f6cf72c66a36951aa0931a9",
+      "role": "Ordered Load minOn serializer explicitly passes type5,row+0x54,attribute1,omitZero1,preserveMissing0."
+    },
+    {
+      "address": "0x1404c52f0",
+      "sha256": "057c5670bc1b4a95f3b6ae5720f34f057330ba62605c4d0211ac7565de681262",
+      "role": "Reused type5 signed integer serializer: percent-d, zero omission; missing with preserveMissing0 reads empty integer. Apparent pseudocode float types are known artifacts, not storage interpretation."
+    },
+    {
+      "address": "0x140422760",
+      "sha256": "361f5c3173c2b395766f14baa7a142bc2c1f734f9c04c21be691eb3169ff591d",
+      "role": "Reused null/empty integer reader returns0. Native permissive prefix parsing is not adopted as CLI policy."
+    }
+  ],
+  "intentional_caller_and_acceptance": [
+    "Reused name evidence:0x140b6b170 single-cell QString/QVariant paste ->0x140d39e10 editability/confirmation/pre-change ->0x140025b40 wrapper ->provider0x140863480 with column6.",
+    "Reused power evidence:0x140dab970 configures QDoubleSpinBox minimum/maximum/decimals from roles0x101/0x102/0x103; wrapper/provider resolves column6 min0,maxDBL_MAX,precision0. Imported Qt setModelData conversion edges are not inferred.",
+    "Reused accept:0x140930dc0 virtual1a8 ->0x140b4f070 ->0x14085f090 copies temp+0x88 to original+0x90 by position, including row+0x54.0x14085ef80 clone also carries row+0x54.",
+    "Neither constructor nor serializer alone establishes edit intent; the existing intentional cell caller reaches the independently inspected column6 setter."
+  ],
+  "resources": {
+    "source": "source\\LoxoneConfigres_ENG.dll",
+    "source_sha256": "42c775360009da4e3bb18ed35d4fbfcfe70cdbcc909a78fee9e1c45d0de2ad36",
+    "method": "Read only existing frozen PE bytes in memory; no extraction or execution.",
+    "language": 2048,
+    "block_rva": "0x1efea0",
+    "block_length": 932,
+    "block_sha256": "4d4e5fe3853718c1ab0a82d5f3315ead2342880bedbc644929aa8119a3d59e2e",
+    "heading": {"id": "0xe191", "text": "Minimum on time [s]"},
+    "tooltip": {"id": "0xe193", "text": "Minimum time that the load must not be locked"}
+  },
+  "pe_spans": [
+    {
+      "va": "0x140863480",
+      "length": 229,
+      "sha256": "03dc211209d922cd67bf1b989ec9871aba10698ad19c8a086b9cb77ee831bedf",
+      "role": "Cell setter canonical body span, including column6 branch."
+    },
+    {
+      "va": "0x140864140",
+      "length": 758,
+      "sha256": "8a2e994ddbad404db35f2c1c31de7808a6d877a0b47a8f6a0c5c6d16b203352d",
+      "role": "Ordered Load serializer body span including minOn flags."
+    },
+    {
+      "va": "0x141614800",
+      "length": 4,
+      "sha256": "876f0615b4ba02af6b66da0bd9dc12d705ee74346063cf6629255ad305b3e445",
+      "role": "Reused type5 signed integer writer format."
+    },
+    {
+      "va": "0x1404c53a8",
+      "length": 35,
+      "sha256": "cd7bf2f32914fa8572f7eb391331f6d02884514be9d76ae0c5aaf0673067f060",
+      "role": "Reused type5 zero omission and formatter call."
+    },
+    {
+      "va": "0x1404c6510",
+      "length": 8,
+      "sha256": "029e75a7c3773893f8f39ade154e528ed6a918076ad543d85b3d8ae386f3b2ea",
+      "role": "Reused parser call and integer-width store."
+    }
+  ],
+  "cli_policy": [
+    "Exactly0 or10..2147483647 unsigned decimal whole seconds; no silent clamping, rounding, truncation or unit conversion.",
+    "Zero is supported as ordinary native storage edit/default; no claim about SPS/runtime meaning.",
+    "Target minOn absence resolves0. Existing explicit nonnegative int32 digits with optional leading plus are supported, including1..9 as reader storage; malformed forms fail atomically.",
+    "Actual edit to0 removes only minOn. Semantic no-op preserves exact spelling or omission and Document stamp; in-place file remains byte-identical.",
+    "Shared complete12/unique resolved ioIdx guards; absent ioIdx0 stays absent and moves do not alter identity. No filling/normalization of other cells, order, IDs, flags, wiring or unknown data.",
+    "Ordinary DOM writer/BOM/EOL/Document stamping for actual changes; no custom XML serializer. Unsupported global dry-run fails before file access."
+  ],
+  "unqualified": [
+    "Native typed editor rounding/overflow and imported Qt conversion edge cases outside the exact integer subset.",
+    "SPS runtime/shedding behavior, zero runtime meaning, native execution or save/fresh-open.",
+    "Native attribute-position parity when adding a previously missing minOn."
+  ],
+  "fresh_native_recipe": [
+    "Unexecuted recipe only; fresh independently admitted disposable native project with LoadShed and complete twelve records. Do not modify existing pinned cases or request new prerequisites from native workers.",
+    "Use a stable ioIdx whose priority differs after a separately established move. Preserve all raw omissions, other settings, IDs, flags and wiring as the untouched reference.",
+    "Independently paste600 into Minimum on time [s] only; accept, save, exit normally and fresh-open. From the same untouched input separately run CLI set-min-on600.",
+    "Compare privately: only target minOn600 and ordinary save metadata should differ; missing ioIdx0/maxOff and all sibling cells remain unchanged.",
+    "From a separate positive-minOn reference, repeat with0 and verify only target minOn omission after native save/fresh-open. This characterizes storage, not runtime shedding.",
+    "Separately characterize typed Qt overflow/rounding and SPS zero behavior before expanding claims. No current native execution or approval is required for this source delivery."
+  ]
+}

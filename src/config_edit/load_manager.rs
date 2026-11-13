@@ -27,6 +27,67 @@ pub struct LoadManagerInspection {
 }
 
 impl ConfigEditor {
+    /// Edit only Minimum on time [s], including the native zero storage default.
+    pub fn set_load_manager_load_min_on(
+        &mut self,
+        selector: &str,
+        io_index: u8,
+        min_on_seconds: &str,
+    ) -> Result<bool> {
+        if io_index > 11 {
+            bail!("Load Manager io-index must be 0..11, not a 1-based priority.");
+        }
+        let seconds = (!min_on_seconds.is_empty()
+            && min_on_seconds.bytes().all(|byte| byte.is_ascii_digit()))
+        .then(|| min_on_seconds.parse::<i32>().ok())
+        .flatten()
+        .filter(|seconds| *seconds == 0 || *seconds >= 10)
+        .ok_or_else(|| {
+            anyhow::anyhow!(
+                "Load Manager minimum on time must be 0 or whole seconds in 10..2147483647, using decimal digits only. Native values 1..9 clamp to 10; this CLI rejects them instead. No rounding, clamping or unit conversion; nothing was changed."
+            )
+        })?;
+        let path = self.load_manager_path(selector)?;
+        let block = self.get_element(&path);
+        let positions = load_positions(block)?;
+        let position = positions
+            .into_iter()
+            .find(|position| {
+                resolve_io_index(block.children[*position].as_element().unwrap()).unwrap()
+                    == io_index
+            })
+            .unwrap();
+        let load = block.children[position].as_element().unwrap();
+        let previous = match load.attributes.get("minOn") {
+            None => 0,
+            Some(raw) => {
+                let digits = raw.strip_prefix('+').unwrap_or(raw);
+                (!digits.is_empty() && digits.bytes().all(|byte| byte.is_ascii_digit()))
+                    .then(|| digits.parse::<i32>().ok())
+                    .flatten()
+                    .ok_or_else(|| {
+                        anyhow::anyhow!(
+                            "Unsupported Load Manager minOn storage for io-index {io_index}: expected a nonnegative signed-32-bit integer in seconds (an optional leading plus is supported). Empty, negative, fractional, exponent, whitespace and malformed storage are rejected; nothing was changed."
+                        )
+                    })?
+            }
+        };
+        if previous == seconds {
+            return Ok(false);
+        }
+        let load = self.get_element_mut(&path).children[position]
+            .as_mut_element()
+            .unwrap();
+        // Native minOn uses type 5 with omit-zero enabled. A semantic no-op
+        // above preserves even explicitly spelled zero instead of normalizing it.
+        if seconds == 0 {
+            load.attributes.shift_remove("minOn");
+        } else {
+            load.attributes.insert("minOn".into(), seconds.to_string());
+        }
+        Ok(true)
+    }
+
     /// Edit only Maximum off time [s], using an exact positive integer subset.
     pub fn set_load_manager_load_max_off(
         &mut self,
