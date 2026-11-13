@@ -65,6 +65,54 @@ impl ConfigEditor {
         })
     }
 
+    /// Edit the Configure loads Name cell, addressed by its stable connector identity.
+    pub fn set_load_manager_load_name(
+        &mut self,
+        selector: &str,
+        io_index: u8,
+        name: &str,
+    ) -> Result<bool> {
+        if io_index > 11 {
+            bail!("Load Manager io-index must be 0..11, not a 1-based priority.");
+        }
+        // Single-cell native paste preserves spaces/UTF-8; tab/newline enter a
+        // different, multi-cell path. The length bound is a conservative CLI subset.
+        if name.encode_utf16().count() > 32767
+            || name.chars().any(|c| {
+                c.is_control() || matches!(c, '\u{2028}' | '\u{2029}' | '\u{fffe}' | '\u{ffff}')
+            })
+        {
+            bail!(
+                "Unsupported Load Manager name: use single-line Unicode without control characters, at most 32767 UTF-16 code units. This is a conservative CLI subset, not a recovered native maximum; nothing was changed."
+            );
+        }
+        let path = self.load_manager_path(selector)?;
+        let block = self.get_element(&path);
+        let positions = load_positions(block)?;
+        let position = positions
+            .into_iter()
+            .find(|position| {
+                resolve_io_index(block.children[*position].as_element().unwrap()).unwrap()
+                    == io_index
+            })
+            .unwrap();
+        let load = block.children[position].as_element().unwrap();
+        if load.attributes.get("nm").map_or("", String::as_str) == name {
+            return Ok(false);
+        }
+        let load = self.get_element_mut(&path).children[position]
+            .as_mut_element()
+            .unwrap();
+        // The native string serializer omits an empty nm. A semantic no-op above
+        // deliberately preserves an already absent or explicitly empty attribute.
+        if name.is_empty() {
+            load.attributes.shift_remove("nm");
+        } else {
+            load.attributes.insert("nm".into(), name.into());
+        }
+        Ok(true)
+    }
+
     /// Move the complete record in Configure loads/XML order, keeping its connector identity.
     pub fn move_load_manager_load(
         &mut self,
@@ -202,6 +250,107 @@ mod tests {
             .unwrap()
             .replacen(" ioIdx=\"0\"", "", 1);
         ConfigEditor::load(xml.as_bytes()).unwrap()
+    }
+
+    #[test]
+    fn load_manager_name_uses_stable_identity_and_preserves_every_other_field() {
+        let mut editor = native_fixture();
+        editor
+            .move_load_manager_load("Loads", 0, LoadMoveDirection::Down)
+            .unwrap();
+        let path = editor.require_one("Loads").unwrap();
+        let mut expected = editor.get_element(&path).clone();
+        let name = "  Wärmepumpe 東京 🔌 & \"Haus\"  ";
+        expected.children[3]
+            .as_mut_element()
+            .unwrap()
+            .attributes
+            .insert("nm".into(), name.into());
+        assert!(editor.set_load_manager_load_name("Loads", 0, name).unwrap());
+        assert_eq!(*editor.get_element(&path), expected);
+        let bytes = editor.to_bytes().unwrap();
+        assert!(bytes.starts_with(&[0xef, 0xbb, 0xbf]));
+        assert!(bytes.windows(2).any(|window| window == b"\r\n"));
+        let reloaded = ConfigEditor::load(&bytes).unwrap();
+        let loads = reloaded.inspect_load_manager("Loads").unwrap().loads;
+        assert_eq!(loads[1].attributes["nm"], name);
+        assert!(!loads[1].attributes.contains_key("ioIdx"));
+        assert!(!editor.set_load_manager_load_name("Loads", 0, name).unwrap());
+        assert_eq!(editor.to_bytes().unwrap(), bytes);
+        // Native validation does not require names to be unique.
+        assert!(editor.set_load_manager_load_name("Loads", 1, name).unwrap());
+        assert!(editor.set_load_manager_load_name("Loads", 1, "  ").unwrap());
+        assert_eq!(
+            editor.inspect_load_manager("Loads").unwrap().loads[0].attributes["nm"],
+            "  "
+        );
+    }
+
+    #[test]
+    fn load_manager_name_clear_omits_nm_but_noop_preserves_explicit_empty() {
+        let mut editor = native_fixture();
+        assert!(editor.set_load_manager_load_name("Loads", 0, "").unwrap());
+        assert!(
+            !editor.inspect_load_manager("Loads").unwrap().loads[0]
+                .attributes
+                .contains_key("nm")
+        );
+        let before = editor.to_bytes().unwrap();
+        assert!(!editor.set_load_manager_load_name("Loads", 0, "").unwrap());
+        assert_eq!(editor.to_bytes().unwrap(), before);
+        let path = editor.require_one("Loads").unwrap();
+        editor.get_element_mut(&path).children[2]
+            .as_mut_element()
+            .unwrap()
+            .attributes
+            .insert("nm".into(), "".into());
+        let before = editor.to_bytes().unwrap();
+        assert!(!editor.set_load_manager_load_name("Loads", 0, "").unwrap());
+        assert_eq!(editor.to_bytes().unwrap(), before);
+    }
+
+    #[test]
+    fn load_manager_name_invalid_input_or_shape_is_atomic_and_not_generic_param() {
+        let mut editor = native_fixture();
+        let before = editor.to_bytes().unwrap();
+        for name in [
+            "one\ttwo".to_string(),
+            "one\ntwo".to_string(),
+            "one\rtwo".to_string(),
+            "\0".to_string(),
+            "\u{ffff}".to_string(),
+            "🔌".repeat(16384),
+        ] {
+            assert!(
+                editor
+                    .set_load_manager_load_name("Loads", 0, &name)
+                    .is_err()
+            );
+            assert_eq!(editor.to_bytes().unwrap(), before);
+        }
+        assert!(
+            editor
+                .set_load_manager_load_name("Loads", 12, "New")
+                .is_err()
+        );
+        assert!(editor.set_param("Loads", "nm", "New").is_err());
+        assert!(editor.set_param("Loads", "Load.0.nm", "New").is_err());
+        assert_eq!(editor.to_bytes().unwrap(), before);
+        let path = editor.require_one("Loads").unwrap();
+        editor.get_element_mut(&path).children[3]
+            .as_mut_element()
+            .unwrap()
+            .attributes
+            .shift_remove("ioIdx");
+        let before = editor.to_bytes().unwrap();
+        assert!(
+            editor
+                .set_load_manager_load_name("Loads", 0, "New")
+                .unwrap_err()
+                .to_string()
+                .contains("duplicate ioIdx 0")
+        );
+        assert_eq!(editor.to_bytes().unwrap(), before);
     }
 
     #[test]
