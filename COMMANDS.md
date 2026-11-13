@@ -1279,6 +1279,25 @@ DOM output and update the Document stamp. Supports JSON, CSV, quiet and
 `--no-header`; global `--dry-run` rejects before file I/O, not a preview.
 See [source qualification](docs/knowledge/daytimer-entry-activation-native.md).
 
+Delete one configured Alarm Clock entry (not the protected standard alarm):
+
+```bash
+lox config alarm-entry-remove file.Loxone "Bedroom Clock" --entry-uuid 00000000-0000-0004-1500000000000000 --room Bedroom --save-as edited.Loxone -o json
+```
+
+Identity is the existing child alarm's **U**, not its Id, name, time or
+display/XML row. Native 8-4-4-16 and RFC 8-4-4-4-12 UUID aliases compare
+case-insensitively; stored spellings remain unchanged. The command removes
+one child and decrements N, preserving the existing `Int=true` / Id=0
+standard alarm, all surviving IDs, flags, Modes, wiring and unknown nodes.
+Removing the last ordinary entry leaves N=1, without creating a default.
+Supports V=175 with one existing standard alarm, unique UUIDs/Ids, undated
+entries already sorted by strictly increasing Time, nonzero 10-bit Modes,
+and true/false or absent flags. Other storage, protected/missing entries and
+ambiguity fail before writing, including `--save-as`. Supports JSON/CSV,
+quiet, no-header and room qualification. See
+[source qualification and limits](docs/knowledge/alarm-entry-delete-native.md).
+
 Delete one existing native schedule entry without replacing its neighbors:
 
 ```bash

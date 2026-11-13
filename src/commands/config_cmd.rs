@@ -2362,6 +2362,56 @@ pub fn cmd_config(ctx: &RunContext, action: ConfigCmd) -> Result<()> {
             );
             save_edited(&mut editor, &file, save_as.as_deref())?;
         }
+        ConfigCmd::AlarmEntryRemove {
+            file,
+            selector,
+            entry_uuid,
+            room,
+            save_as,
+        } => {
+            let selector = match room {
+                Some(_) if selector.ends_with(']') && selector.contains('[') => {
+                    bail!("Use either a bracket room qualifier or --room, not both.")
+                }
+                Some(room) => format!("{selector} [{room}]"),
+                None => selector,
+            };
+            let data = fs::read(&file).with_context(|| format!("Cannot read {file}"))?;
+            let mut editor = ConfigEditor::load(&data)?;
+            let removed = editor.remove_alarm_clock_entry(&selector, &entry_uuid)?;
+            save_edited_with_quiet(
+                &mut editor,
+                &file,
+                save_as.as_deref(),
+                ctx.quiet || ctx.json || ctx.csv,
+            )?;
+            if ctx.json {
+                emit_json(
+                    ctx,
+                    serde_json::json!({
+                        "ok": true,
+                        "saved_to": save_as.as_deref().unwrap_or(&file),
+                        "removed": removed,
+                    }),
+                );
+            } else if ctx.csv {
+                if !ctx.no_header {
+                    println!("BLOCK_UUID,ENTRY_UUID,STORED_ENTRY_UUID,REMAINING_ENTRIES");
+                }
+                println!(
+                    "\"{}\",{},{},{}",
+                    removed.block_uuid.replace('"', "\"\""),
+                    removed.entry_uuid,
+                    removed.stored_entry_uuid,
+                    removed.remaining_entries,
+                );
+            } else if !ctx.quiet {
+                println!(
+                    "✓ Removed Alarm Clock entry {entry_uuid}; {} entries remain (including the standard alarm)",
+                    removed.remaining_entries
+                );
+            }
+        }
         ConfigCmd::TimerEntryRemove {
             file,
             selector,

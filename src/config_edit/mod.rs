@@ -12,6 +12,7 @@
 //!   "gid:Mqtt"         — match by gid attribute
 //! ```
 
+pub mod alarm_clock;
 mod blocks;
 pub mod daytimer;
 mod describe;

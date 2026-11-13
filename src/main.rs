@@ -803,6 +803,18 @@ pub(crate) enum ConfigCmd {
         #[arg(long)]
         save_as: Option<String>,
     },
+    /// Delete one configured Alarm Clock entry by its UUID, preserving the internal standard alarm
+    AlarmEntryRemove {
+        file: String,
+        selector: String,
+        /// Existing AlarmClock child's U, not its Id, display row, name or time
+        #[arg(long)]
+        entry_uuid: String,
+        #[arg(short, long)]
+        room: Option<String>,
+        #[arg(long)]
+        save_as: Option<String>,
+    },
     /// Delete one ordinary digital DayTimer entry by operating mode UUID and exact interval
     TimerEntryRemove {
         file: String,
