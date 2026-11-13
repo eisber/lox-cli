@@ -5,6 +5,7 @@ use reqwest::blocking::Client;
 use std::fs;
 use std::time::Duration;
 
+pub(crate) mod central_light;
 pub(crate) mod energy;
 pub(crate) mod lighting;
 pub(crate) mod load_manager;
@@ -438,6 +439,7 @@ pub fn cmd_token(ctx: &RunContext, action: TokenCmd) -> Result<()> {
 
 pub fn cmd_config(ctx: &RunContext, action: ConfigCmd) -> Result<()> {
     match action {
+        ConfigCmd::CentralLight { action } => central_light::run(ctx, action)?,
         ConfigCmd::Energy { action } => energy::run(ctx, action)?,
         ConfigCmd::LoadManager { action } => load_manager::run(ctx, action)?,
         ConfigCmd::StatusMonitor { action } => status_monitor::run(ctx, action)?,

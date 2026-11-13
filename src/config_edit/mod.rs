@@ -14,6 +14,7 @@
 
 pub mod alarm_clock;
 mod blocks;
+pub mod central_light_links;
 pub mod daytimer;
 mod describe;
 pub mod energy;

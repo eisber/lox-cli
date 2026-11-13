@@ -138,6 +138,39 @@ lox config set-param file.Loxone "Night Timer" Duration 300
 
 Arguments: `<FILE> <SELECTOR> <PARAM> <VALUE>`. Selector is a block title or `"uuid:..."`.
 
+### Lighting Central linked-function order
+
+```bash
+lox config central-light inspect file.Loxone "Lighting Central" -o json
+lox config central-light move-link file.Loxone "Lighting Central" abcdef01-0002-0003-0000000000000002 up --save-as edited.Loxone -o json
+lox config central-light move-link file.Loxone "uuid:..." abcdef01-0002-0003-0000000000000002 down
+```
+
+`move-link <FILE> <OWNER> <LINKED_UUID> <up|down>` moves one existing **linked
+function** one place in the CentralLight's persisted `linkC` sequence. Select the
+linked control's native **U UUID** from `inspect`, not its name or displayed
+position. This does **not** reorder the lights controlled by the central block,
+app favourites, or `IoData Rating`. Owner selectors support `--room`/`-r` or a
+bracket room qualifier; do not combine them.
+
+The bounded source-backed operation requires one standalone Document (no direct
+`Template` child) and a CentralLight with one explicit `IoData Visu="true"`.
+All document `linkC` references must be nonzero native UUIDs, unique within each
+list, resolve unambiguously, and agree with each referenced control's existing
+`WF & 0x10000000` marker. Inconsistent references are refused rather than silently
+repaired. A move changes membership neither locally nor document-wide, so all WF
+markers, unknown fields, child order, and wires remain untouched. Unrelated
+`iObjS` attributes do not cause a blanket refusal.
+
+First Up and last Down succeed without rewriting or changing the save stamp;
+`--save-as` on a no-op copies the original bytes exactly. Changed saves use the
+existing BOM/EOL/save-stamp helpers and leave the source untouched with
+`--save-as`. JSON, CSV, table, `--quiet`, and `--no-header` are supported.
+Template propagation, native fallback/parent-owner redirection, tablet ambient
+links, adding/removing links, and native repair are not implemented. This is
+source-backed persisted configuration editing, **not** a new native GUI/runtime
+qualification.
+
 ### Status Monitor existing-state priority
 
 ```bash

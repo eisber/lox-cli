@@ -209,6 +209,20 @@ already shading.
 - **Linked functions** are stored as `linkC="uuid1,uuid2"` on the block, and each
   linked item needs `WF |= 0x10000000`; without that flag the app shows an empty
   *Linked Objects* list.
+  `config central-light move-link` edits this list for standalone CentralLight
+  owners, **not** the central block's separate controlled-light list. The native
+  `CControlLinkingSortingDlg` also serves tablet ambient lists through different
+  callers/setters, so its title does not identify a universal persisted family.
+  Generic caller `0x1401b4270` accepts into owner member `+0xdb8`;
+  `0x14097ffd0`/`0x140980140` identify members by the selected control's full UUID,
+  remove/reinsert one position, and leave the first/last boundary unchanged.
+  Serializer `0x14047e260` persists ordered `linkC` through UUID-list type `0x16`
+  in `0x1404c52f0`. Accepted changes invoke `0x140469a90` template propagation and
+  `0x140519890` document-wide linked-marker recomputation. The CLI refuses the
+  actual Document `Template` coupling and inconsistent reference graphs; it
+  neither silently prunes unresolved links like native refresh nor rejects every
+  unrelated `iObjS` field. Direct owner eligibility uses explicit `IoData Visu`,
+  not an assumed row count. No native edit/save/reopen qualification is claimed.
 - **App favourites:** `IoData UseInFav="true"`. `IoData Rating` is the user's own
   ordering in the app; leave it alone.
 

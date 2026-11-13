@@ -439,6 +439,11 @@ pub(crate) enum SetupCmd {
 
 #[derive(Subcommand)]
 pub(crate) enum ConfigCmd {
+    /// Inspect/reorder CentralLight linked functions, not its controlled lights
+    CentralLight {
+        #[command(subcommand)]
+        action: commands::config_cmd::central_light::CentralLightCmd,
+    },
     /// Inspect/reorder existing Status Monitor states (standalone local files only)
     StatusMonitor {
         #[command(subcommand)]
