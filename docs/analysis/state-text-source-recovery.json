@@ -1,0 +1,202 @@
+{
+  "question_unknowns": {
+    "source_item": "S2",
+    "issue": "lox-kmof",
+    "question": "Can the CLI edit one existing State block's native StateTexts label/template by its correct native record identity, preserving every other field and record?",
+    "scope": "State only, catalog index 285, native control type 323 (0x143). StateV ownership is not established and is excluded.",
+    "decision": "UNCERTAIN_BLOCKED_NO_OPERATION_SHIPPED",
+    "source_cutoff_utc": "2026-11-13T13:07:53.7685752Z",
+    "unknowns": [
+      "The actual CStateTextRowDataProvider virtual setter destination is not joined to the candidate body 0x140942bf0.",
+      "The CStateTexts virtual +8 destination in the intentional State editor caller is not joined to the candidate copy body 0x140715100.",
+      "The owning State XML serialization path into 0x140717510, and its row virtual +0x10 destination into 0x140717170, are not joined.",
+      "Native record selection is a row-pointer relationship in the inspected dialog code. A persisted unique identifier or a public ordinal/SID selector contract has not been recovered.",
+      "The serialized literal at DAT_141667b00 for member +0x158 is not independently decoded here; observed XML Text storage alone does not close that pairing.",
+      "Placeholder grammar, editor length limits, empty/missing storage policy, and acceptance cleanup reachability are not fully established."
+    ]
+  },
+  "reused_existing": {
+    "published_baseline": {
+      "commit": "3e250dd4f9e490af97f91eba705082978c443506",
+      "tree": "51ff835f04c7d82e420425ec281025e75db7f625"
+    },
+    "application": {
+      "version": "17.2.10.21",
+      "architecture": "AMD64",
+      "sha256": "7b55e3ef18401574ab967c5c6a0140cd5a66dc728521ebba04ad53093577d8b3"
+    },
+    "canonical_function_directory": ".reverse-engineering\\versions\\a3003005776b327f5e666a072a64f5c569182b86174c0f578d5be3267ce28f85\\analysis\\6a0520329af17d7b9fdaafe69398c62c454d9da838fc9f9c8d0bdd8d17bb15ae\\LoxoneConfig.exe\\code\\functions",
+    "canonical_index_sha256": "129c5d4e8683dd3c9c4a44622681f8d8bb76fe58c72d0b834a2c7bb76415cf40",
+    "metadata_pins": [
+      {
+        "path": ".reverse-engineering\\ux\\block-ux-coverage.json",
+        "sha256": "fc5d58e461fe4d617144e2c1de86e8e2a92d25c981bad5e6ef2d091363c5e29c",
+        "role": "Observed StateTexts storage and State catalog identity; not editor behavior."
+      },
+      {
+        "path": ".reverse-engineering\\ux\\qt-metadata.json",
+        "sha256": "1cc02bc7e79e22a597657b2b0b4fec647f1c40c6e0f3ce7577ef44a39841a35a",
+        "role": "CStateTextDlg and row-provider class leads; not virtual destination proof."
+      },
+      {
+        "path": ".reverse-engineering\\element-atlas\\native-map.json",
+        "sha256": "44c73370477203133c4eb8a906ed455946dbfe745c2e4150db32251d4c761627",
+        "role": "Existing CControlObjectState primary table 0x140f9cd98, slot +0x50 target 0x140714940; not the nested StateTexts table."
+      },
+      {
+        "path": ".reverse-engineering\\element-atlas\\dispatcher-target-bindings\\report.json",
+        "sha256": "0cf0a1608739d4e067fb4ab96ea2ab311f35f25629401a1c3d6cd777b7d1ee93",
+        "role": "Inspected existing virtual-destination report has no StateText binding; not proof that no other evidence exists."
+      }
+    ],
+    "published_cli_prior_art": [
+      "Searched src Rust files and COMMANDS.md for StateTexts, StateText, state-table, set-state and state text: no matches.",
+      "src/main.rs ConfigCmd::SetParam and src/commands/config_cmd.rs handler write Def on a direct Co child selected by K; they do not address StateTexts records.",
+      "src/config_edit/properties.rs set_param writes direct Co/Def, with a small element-attribute fallback; no nested StateText semantics.",
+      "XmlEditCmd::SetProperty / ConfigEditor::set_property write SET/property/@v and may create storage. This is not a native StateText edit.",
+      "XmlEditCmd::SetAttr / ConfigEditor::set_attribute write an attribute on a selected element. Raw XML writability does not implement native row selection, conversion, validation or accepted-copy semantics.",
+      "Reviewed AGENTS.md, API_DESIGN_GUIDELINES.md, current config command groups and setter implementations before considering an operation."
+    ],
+    "new_extractions": 0,
+    "native_executions": 0
+  },
+  "newly_resolved": {
+    "credit_scope": "Newly followed relationships among existing canonical bodies only. No newly extracted functions and no new credit for previously available generic helpers.",
+    "joined_facts": [
+      "Factory 0x140432790 case 0x143 installs CControlObjectState and constructs CStateTexts at object +0xde8.",
+      "Intentional edit caller 0x14019de60 tests control type 0x143, dynamically casts to CControlObjectState, constructs CStateTextDlg via 0x14093f320, and passes owner +0xde8 to 0x140942bc0.",
+      "Dialog constructor 0x14093f320 constructs its own CStateTexts at dialog +0x90. Initialization 0x140942bc0 invokes that local list's virtual +8 and builds row providers; this does not identify the virtual target.",
+      "Row-provider construction 0x140942880 stores each native row pointer at complete-provider +0x30 and exposes provider +0x10 to the model. Candidate accessor bodies use adjusted-provider +0x20, consistent with that row pointer, but actual virtual bindings are still required.",
+      "Candidate setter 0x140942bf0 column 14 converts QVariant to QString, calls 0x14041db10 into row +0x158, then unconditionally invokes 0x1407149c0 and 0x140714c80. Candidate getter 0x140940300 returns the same member for column 14.",
+      "Existing conversion helper 0x14041db10 uses QString::toUtf8 followed by strlen and byte copying. Embedded NUL is not a byte-preserving input. There is no trimming or explicit text-length limit in this helper, but this alone does not prove editor limits.",
+      "Validator 0x1407149c0 writes row +8; validator 0x140714c80 writes row +0xc. Therefore even a label edit can affect validity for both label and value/template; preserving all flags cannot be assumed.",
+      "On accepted dialog result 1, 0x14019de60 invokes virtual +8 on owner +0xde8 with the local dialog list, then performs document-change notifications. The accepted-copy target remains unresolved.",
+      "Candidate container copy 0x140715100 recreates the destination list and invokes row virtual +8. Candidate record copy 0x140714f40 copies text, value/template, flags, conditions and icon fields. Neither body's relevant table binding is established.",
+      "Container serializer 0x140717510 opens StateTexts, serializes a count at +8, and visits rows in stored order via row virtual +0x10. Candidate row serializer 0x140717170 opens StateText and serializes validity, strings, icon and conditions. Their ownership and virtual joins are still required.",
+      "Candidate dialog cleanup 0x140941a60 collapses trailing unconditional rows and updates the list count. Its acceptance callback binding is unresolved, so this is a preservation hazard, not established edit behavior."
+    ],
+    "canonical_function_pins": [
+      {
+        "address": "0x140432790",
+        "sha256": "ff55a98ab896be192c361b63eb28f61b22853b55e4a74f32e13b30920dfe8f83",
+        "role": "State factory case"
+      },
+      {
+        "address": "0x14019de60",
+        "sha256": "c10b26a56014eb1b4fac6378deef6935e3bb39ca27fda83c168860af2d627f0b",
+        "role": "Intentional edit caller and unresolved accepted-copy dispatch"
+      },
+      {
+        "address": "0x14093f320",
+        "sha256": "8c5e70d011dabb9544f5f90fa0e6a3f7e62d330208d93e4dbfc7fcae28fa5dc0",
+        "role": "Dialog constructor"
+      },
+      {
+        "address": "0x140942bc0",
+        "sha256": "f4f432f76a0cb672ed0e074ea2358f6cea09fdfecd2f8a3c309ae85e4604fa9f",
+        "role": "Local-list initialization with unresolved virtual dispatch"
+      },
+      {
+        "address": "0x140942880",
+        "sha256": "f4802f271256a6435f2ee4479cc6938ba51e130248548b5eda47b8709fbb2137",
+        "role": "Row-pointer ownership"
+      },
+      {
+        "address": "0x140940300",
+        "sha256": "bec1e45b4754fadb9288109175b637b1a61395b7d6e97fd79b83a06c351e7366",
+        "role": "Candidate getter, virtual binding unresolved"
+      },
+      {
+        "address": "0x140942bf0",
+        "sha256": "8df6148fb52701733d067e605c003d20d6e9973276b8186a0ee3ac85c839f725",
+        "role": "Candidate setter, virtual binding unresolved"
+      },
+      {
+        "address": "0x14041db10",
+        "sha256": "9c9401eea49aacce0a946837e3043a8831a7f6e3b7df458cb682e7122e036b61",
+        "role": "Reused UTF-8 conversion helper"
+      },
+      {
+        "address": "0x1407149c0",
+        "sha256": "6dad314527e02a0d3a96b6bff8a120b18bccbff2ced935bb3b52aae55e494ffe",
+        "role": "Label validity mutation"
+      },
+      {
+        "address": "0x140714c80",
+        "sha256": "406a18e06439749f4938e021cfdcd170e97d4d86e33b1b59e5a5d74704eaff82",
+        "role": "Value/template validity mutation"
+      },
+      {
+        "address": "0x140714580",
+        "sha256": "6fa2bbdbedda602fa1e5638c58e9c8e40093100e02009cdc3e20ca7c1979b458",
+        "role": "Record constructor"
+      },
+      {
+        "address": "0x140714660",
+        "sha256": "b2bb61d3d8268858834174445dc82d6fcb36a4ce9e180028f20994d9ef8e5a73",
+        "role": "Container constructor"
+      },
+      {
+        "address": "0x140714f40",
+        "sha256": "9440e59713a530f529798c26ab9babcb48626dc852a485d79768967b2bdffc59",
+        "role": "Candidate record copy"
+      },
+      {
+        "address": "0x140715100",
+        "sha256": "3dfdd22b6d04ce29f37b0a4204cd33cc1493b60440b1082407de7235f8e3ad00",
+        "role": "Candidate container copy"
+      },
+      {
+        "address": "0x140717510",
+        "sha256": "92b82edaf97d35935cb2482e59c6af4549d816c3be3398dab141e49516b113db",
+        "role": "Container serializer with unresolved owner and row dispatch"
+      },
+      {
+        "address": "0x140717170",
+        "sha256": "5617c5edfd6655ae21f0e018ea182cb8711d88e31ab85ba8b55cece3b9ddbb71",
+        "role": "Candidate row serializer"
+      },
+      {
+        "address": "0x140941a60",
+        "sha256": "9b5a3ca830e16f2ce0b4236e7e769f269a0e7bfa7dd15abd1cc686fb957f6bae",
+        "role": "Candidate acceptance cleanup"
+      },
+      {
+        "address": "0x140716d00",
+        "sha256": "4021252a4a2e4c6a94d6fd741af09b9e503b184a7a28713216270d634d7eb1b7",
+        "role": "Unconditional-row predicate, not a row identifier"
+      }
+    ]
+  },
+  "result": {
+    "cli_operation": null,
+    "reason": "Stopped at unresolved virtual destinations and serialization ownership rather than ship a raw XML edit or infer bindings from body proximity.",
+    "exact_next_dependency": [
+      "Bind the CStateTextRowDataProvider editor setter virtual slot to a canonical target, including the +0x10 receiver adjustment.",
+      "Bind CStateTexts virtual +8 at the accepted branch of 0x14019de60 to its actual destination; if it is 0x140715100, also bind row virtual +8 to the record copy.",
+      "Join the CControlObjectState owner serializer to StateTexts serialization 0x140717510 and bind its row virtual +0x10 to 0x140717170.",
+      "Resolve DAT_141667b00 and validator token literals before exposing Text/template semantics; recover record identity and acceptance cleanup, not an assumed index/SID."
+    ],
+    "failed_attempts": [
+      "The Qt metadata dispatcher lead 0x140c0b710 has no body at the canonical functions path. No replacement body was guessed or extracted.",
+      "Initial direct reads assumed legacy src/config_edit.rs; the published baseline uses src/config_edit/mod.rs and properties.rs. Repeated the setter inspection at the actual paths.",
+      "Initial unquoted PowerShell git revision expression failed; quoted HEAD^{tree} subsequently verified the exact required tree.",
+      "Inspected existing native-map primary table and existing dispatcher-target-bindings report; neither supplies the required nested StateTexts/provider virtual bindings.",
+      "The existing research.sqlite3 schema contains a function-body FTS table, not a separate virtual table destination inventory."
+    ],
+    "unsupported": "All new StateText edits remain unsupported by this recovery. No fallback command, row creation, default repair, normalization, or StateV operation was added.",
+    "preservation": "No configuration file was opened for mutation. Runtime sources, existing CLI behavior and serializer/stamp policies are unchanged.",
+    "claims_excluded": [
+      "Native UI execution, native SPS/runtime behavior, save/reopen acceptance, full-file parity, and StateV ownership.",
+      "A complete placeholder grammar, a maximum label length, or safe behavior for missing/duplicate/default records.",
+      "An ordinal/SID identity contract or unique identity from the icon UUID.",
+      "Byte-preserving Unicode/whitespace/empty-string handling through the complete native editor path."
+    ],
+    "fresh_native_recipe_not_executed": [
+      "Only after source dependencies are joined and with separate native-owner authorization, use a sanitized offline State fixture with two conditional rows and exactly one unconditional final row.",
+      "Change only the selected existing row label in the native editor; capture selected native row identity and before/after Text, TextV, Valid, ValidV, conditions, icon, count and order.",
+      "Exercise plain text, empty string, leading/trailing whitespace, Unicode, a valid placeholder and a malformed placeholder; distinguish editor rejection from persisted invalid flags.",
+      "Save and reopen a copy, compare all records and unknown fields, and test multiple trailing unconditional rows separately to resolve cleanup. No Miniserver/runtime parity claim follows from this."
+    ]
+  }
+}
