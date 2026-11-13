@@ -149,7 +149,9 @@ lox config central-light move-link file.Loxone "uuid:..." abcdef01-0002-0003-000
 `move-link <FILE> <OWNER> <LINKED_UUID> <up|down>` moves one existing **linked
 function** one place in the CentralLight's persisted `linkC` sequence. Select the
 linked control's native **U UUID** from `inspect`, not its name or displayed
-position. This does **not** reorder the lights controlled by the central block,
+position. `inspect` reports the **raw persisted sequence**, including resolved
+members that may not be displayed by the native dialog; it is not a native
+visible-row preview. This does **not** reorder the lights controlled by the central block,
 app favourites, or `IoData Rating`. Owner selectors support `--room`/`-r` or a
 bracket room qualifier; do not combine them.
 
@@ -162,7 +164,16 @@ repaired. A move changes membership neither locally nor document-wide, so all WF
 markers, unknown fields, child order, and wires remain untouched. Unrelated
 `iObjS` attributes do not cause a blanket refusal.
 
-First Up and last Down succeed without rewriting or changing the save stamp;
+Movement additionally requires **every member of the selected owner's list** to
+be a direct `ModbusServer` target with a nonempty `Title`. This deliberately narrow
+CLI admission is source-proven to make native visible order equal raw `linkC`
+order: native buttons use visible positions, whereas callbacks move raw indices.
+Other native-visible families and ancestor-based visibility remain unproven by
+this CLI, **not unsupported by Loxone Config**. A hidden or unproven member refuses
+the whole move, even at a raw first/last boundary. Unrelated owners' links need
+not meet this visibility rule; their existing reference consistency checks remain.
+
+For admitted lists, first Up and last Down succeed without rewriting or changing the save stamp;
 `--save-as` on a no-op copies the original bytes exactly. Changed saves use the
 existing BOM/EOL/save-stamp helpers and leave the source untouched with
 `--save-as`. JSON, CSV, table, `--quiet`, and `--no-header` are supported.
@@ -170,6 +181,7 @@ Template propagation, native fallback/parent-owner redirection, tablet ambient
 links, adding/removing links, and native repair are not implemented. This is
 source-backed persisted configuration editing, **not** a new native GUI/runtime
 qualification.
+Native UI-history/undo behavior is not qualified or emulated.
 
 ### Status Monitor existing-state priority
 

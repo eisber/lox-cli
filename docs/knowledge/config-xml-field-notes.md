@@ -223,6 +223,18 @@ already shading.
   neither silently prunes unresolved links like native refresh nor rejects every
   unrelated `iObjS` field. Direct owner eligibility uses explicit `IoData Visu`,
   not an assumed row count. No native edit/save/reopen qualification is claimed.
+  **Visibility is separate from raw membership:** refresh `0x14097f8d0` uses
+  `0x140441250` to find the target or a qualifying ancestor through virtual
+  `+0xb78`, then requires a nonempty display label. Resolved but hidden UUIDs
+  remain in raw `linkC`. Button eligibility uses visible position, while movement
+  callbacks use raw position. The CLI therefore admits movement only when all
+  selected-owner members are direct `ModbusServer` targets with nonempty Titles:
+  factory CT `0x30`, explicit XML registration `0x1407f37a0`, primary vtable
+  `0x140f62ba8`, `+0xb78 -> 0x140460b20` (CT `0x30` returns true), and
+  `+0x1a8 -> 0x140452310` (copies nonempty Title). Other native-visible families
+  and ancestor paths are unproven CLI branches, not native limitations.
+  Inspection still reports raw persisted order. Native UI-history/undo is not
+  qualified or emulated.
 - **App favourites:** `IoData UseInFav="true"`. `IoData Rating` is the user's own
   ordering in the app; leave it alone.
 

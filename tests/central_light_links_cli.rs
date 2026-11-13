@@ -9,7 +9,7 @@ fn id(n: u8) -> String {
 
 fn fixture() -> String {
     format!(
-        "\u{feff}<?xml version=\"1.0\" encoding=\"utf-8\"?>\r\n<ControlList><C Type=\"Document\" U=\"{}\" Date=\"2020-01-01 00:00:00\" DateS=\"1\"><C Type=\"CentralLight\" U=\"{}\" Title=\"Central\" WF=\"16384\" linkC=\"{},{}\" Future=\"keep\"><IoData Visu=\"true\" Pr=\"{}\" Rating=\"7\"/><Unknown key=\"first\"/><Co K=\"I\" U=\"{}\"><In Input=\"{}\"/></Co><Unknown key=\"last\"/></C><C Type=\"Not\" U=\"{}\" Title=\"A\" WF=\"268451840\"/><C Type=\"Not\" U=\"{}\" Title=\"B\" WF=\"268435456\"/><C Type=\"Place\" U=\"{}\" Title=\"Office\"/><C Type=\"HVACController\" U=\"{}\" iObjS=\"unrelated\"/></C></ControlList>\r\n",
+        "\u{feff}<?xml version=\"1.0\" encoding=\"utf-8\"?>\r\n<ControlList><C Type=\"Document\" U=\"{}\" Date=\"2020-01-01 00:00:00\" DateS=\"1\"><C Type=\"CentralLight\" U=\"{}\" Title=\"Central\" WF=\"16384\" linkC=\"{},{}\" Future=\"keep\"><IoData Visu=\"true\" Pr=\"{}\" Rating=\"7\"/><Unknown key=\"first\"/><Co K=\"I\" U=\"{}\"><In Input=\"{}\"/></Co><Unknown key=\"last\"/></C><C Type=\"ModbusServer\" U=\"{}\" Title=\"A\" WF=\"268451840\"/><C Type=\"ModbusServer\" U=\"{}\" Title=\"B\" WF=\"268435456\"/><C Type=\"Place\" U=\"{}\" Title=\"Office\"/><C Type=\"HVACController\" U=\"{}\" iObjS=\"unrelated\"/></C></ControlList>\r\n",
         id(1),
         id(2),
         id(10),
@@ -117,7 +117,7 @@ fn central_light_links_cli_boundaries_keep_original_bytes_and_support_csv() {
             .success()
             .stderr("")
             .stdout(
-                predicate::str::contains(format!("1,\"{}\",\"Not\",\"A\"", id(10)))
+                predicate::str::contains(format!("1,\"{}\",\"ModbusServer\",\"A\"", id(10)))
                     .and(predicate::str::contains("POSITION").not()),
             );
         assert_eq!(fs::read(&output).unwrap(), original.as_bytes());
@@ -159,5 +159,67 @@ fn central_light_links_cli_refusals_preserve_input_and_existing_destination() {
             .stderr(predicate::str::contains(message));
         assert_eq!(fs::read(&input).unwrap(), source.as_bytes());
         assert_eq!(fs::read_to_string(&output).unwrap(), "existing output");
+    }
+}
+
+#[test]
+fn central_light_links_cli_mixed_visibility_refuses_selection_and_raw_boundaries_atomically() {
+    let dir = tempfile::tempdir_in(env!("CARGO_MANIFEST_DIR")).unwrap();
+    let input = dir.path().join("input.Loxone");
+    let mixed = fixture()
+        .replace(
+            &format!("linkC=\"{},{}\"", id(10), id(11)),
+            &format!("linkC=\"{},{},{}\"", id(50), id(10), id(11)),
+        )
+        .replace(
+            "</C></ControlList>",
+            &format!(
+                "<C Type=\"Not\" U=\"{}\" Title=\"Hidden\" WF=\"268435456\"/></C></ControlList>",
+                id(50)
+            ),
+        );
+    fs::write(&input, &mixed).unwrap();
+    let inspected = assert_cmd::cargo::cargo_bin_cmd!("lox")
+        .env("LOX_TELEMETRY", "0")
+        .args(["config", "central-light", "inspect"])
+        .arg(&input)
+        .args(["Central", "-o", "json"])
+        .assert()
+        .success()
+        .get_output()
+        .stdout
+        .clone();
+    let inspected: Value = serde_json::from_slice(&inspected).unwrap();
+    assert_eq!(inspected["central_light"]["links"][0]["uuid"], id(50));
+    for (index, (uuid, direction)) in [
+        (id(50), "down"),
+        (id(10), "up"),
+        (id(11), "down"),
+        (id(50), "up"),
+    ]
+    .into_iter()
+    .enumerate()
+    {
+        for existing in [false, true] {
+            let output = dir.path().join(format!("output-{index}-{existing}.Loxone"));
+            if existing {
+                fs::write(&output, "existing output").unwrap();
+            }
+            assert_cmd::cargo::cargo_bin_cmd!("lox")
+                .env("LOX_TELEMETRY", "0")
+                .args(["config", "central-light", "move-link"])
+                .arg(&input)
+                .args(["Central", &uuid, direction, "--save-as"])
+                .arg(&output)
+                .assert()
+                .failure()
+                .stderr(predicate::str::contains("native Up/Down"));
+            assert_eq!(fs::read(&input).unwrap(), mixed.as_bytes());
+            if existing {
+                assert_eq!(fs::read_to_string(&output).unwrap(), "existing output");
+            } else {
+                assert!(!output.exists());
+            }
+        }
     }
 }

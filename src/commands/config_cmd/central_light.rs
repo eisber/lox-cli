@@ -35,12 +35,12 @@ pub(crate) enum DirectionArg {
 
 #[derive(Subcommand)]
 pub(crate) enum CentralLightCmd {
-    /// Show existing linked functions in persisted linkC order, not controlled lights
+    /// Show raw persisted linkC order, not native visible rows or controlled lights
     Inspect {
         #[command(flatten)]
         target: CentralLightTarget,
     },
-    /// Move an existing linked-function UUID one place up/down (standalone files only)
+    /// Move one UUID up/down; all owner links must be proven direct-visible ModbusServer targets
     MoveLink {
         #[command(flatten)]
         target: CentralLightTarget,

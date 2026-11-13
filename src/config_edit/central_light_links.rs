@@ -51,6 +51,16 @@ impl ConfigEditor {
     ) -> Result<CentralLightLinkMove> {
         let selected = identity(uuid)?;
         let (path, inspection) = self.central_light_links(selector)?;
+        // Native buttons use visible positions but callbacks move raw indices.
+        // A fully direct-visible list makes those orders and boundaries agree.
+        for link in &inspection.links {
+            if link.control_type != "ModbusServer" || link.title.is_empty() {
+                bail!(
+                    "Cannot safely reproduce native Up/Down for linked UUID '{}': this CLI admits only direct ModbusServer targets with a nonempty Title, and every member of this owner's linkC must qualify. Other native-visible families and ancestor fallback are unproven here; nothing was changed.",
+                    link.uuid
+                );
+            }
+        }
         let index = inspection
             .links
             .iter()
@@ -263,7 +273,7 @@ mod tests {
 
     fn fixture() -> String {
         format!(
-            r#"<ControlList><C Type="Document" U="{}" Date="old"><C Type="CentralLight" Title="Central" U="{}" linkC="{},{},{}" Mystery="keep"><IoData Visu="true"/><Unknown X="keep"/><Co K="I" U="{}"><W C="{}" Io="I" Foo="keep"/></Co></C><C Type="Not" Title="A" U="{}" WF="268451840"/><C Type="Not" Title="B" U="{}" WF="268435456"/><C Type="Not" Title="C" U="{}" WF="268435456"/><C Type="HVACController" U="{}" iObjS="unrelated" WF="16384"/></C></ControlList>"#,
+            r#"<ControlList><C Type="Document" U="{}" Date="old"><C Type="CentralLight" Title="Central" U="{}" linkC="{},{},{}" Mystery="keep"><IoData Visu="true"/><Unknown X="keep"/><Co K="I" U="{}"><W C="{}" Io="I" Foo="keep"/></Co></C><C Type="ModbusServer" Title="A" U="{}" WF="268451840"/><C Type="ModbusServer" Title="B" U="{}" WF="268435456"/><C Type="ModbusServer" Title="C" U="{}" WF="268435456"/><C Type="HVACController" U="{}" iObjS="unrelated" WF="16384"/></C></ControlList>"#,
             id(1),
             id(2),
             id(10),
@@ -402,5 +412,56 @@ mod tests {
             );
             assert_eq!(editor.root, before);
         }
+    }
+
+    #[test]
+    fn central_light_link_move_refuses_hidden_or_unproven_members_not_just_selection() {
+        let xml = fixture();
+        let hidden_first = xml.replacen(r#"Type="ModbusServer""#, r#"Type="Not""#, 1);
+        for (uuid, direction) in [
+            (id(10), CentralLightLinkDirection::Down),
+            (id(11), CentralLightLinkDirection::Up),
+            (id(12), CentralLightLinkDirection::Down),
+        ] {
+            let mut editor = ConfigEditor::load(hidden_first.as_bytes()).unwrap();
+            let before = editor.root.clone();
+            assert_eq!(
+                editor
+                    .inspect_central_light_links("Central")
+                    .unwrap()
+                    .links
+                    .len(),
+                3
+            );
+            assert!(
+                editor
+                    .move_central_light_link("Central", &uuid, direction)
+                    .unwrap_err()
+                    .to_string()
+                    .contains("native Up/Down")
+            );
+            assert_eq!(editor.root, before);
+        }
+        let empty_title = xml.replacen(r#"Title="A""#, r#"Title="""#, 1);
+        let mut editor = ConfigEditor::load(empty_title.as_bytes()).unwrap();
+        assert!(
+            editor
+                .move_central_light_link("Central", &id(11), CentralLightLinkDirection::Up)
+                .is_err()
+        );
+        let unrelated_hidden = xml.replace(
+            r#"iObjS="unrelated" WF="16384"/>"#,
+            &format!(
+                r#"iObjS="unrelated" WF="16384" linkC="{}"/><C Type="Not" U="{}" Title="Unrelated" WF="268435456"/>"#,
+                id(13), id(13)
+            ),
+        );
+        let mut editor = ConfigEditor::load(unrelated_hidden.as_bytes()).unwrap();
+        assert!(
+            editor
+                .move_central_light_link("Central", &id(11), CentralLightLinkDirection::Up)
+                .unwrap()
+                .changed
+        );
     }
 }
