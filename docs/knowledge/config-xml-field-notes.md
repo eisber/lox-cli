@@ -197,6 +197,56 @@ already shading.
 
 ## 6. Other blocks
 
+### Global operating mode creation (17.2.10.21 static recovery)
+
+`config add --type operating-mode` is a dedicated branch of the existing add
+command. Generic XML add is not equivalent: a real global mode has a numeric
+`Mode` ID in addition to its UUID and belongs under `ModeCaption`, not a Page.
+
+Frozen AMD64 executable SHA-256:
+`7b55e3ef18401574ab967c5c6a0140cd5a66dc728521ebba04ad53093577d8b3`.
+The concrete native chain is UI command `0x2997`
+(`0x140131b10:2058–2065`) → `0x1401456a0` → `0x140145520` →
+`0x1404eecc0` → `0x1404e8420`. Factory `0x140432790:155–160`
+allocates `CControlObjectMode` through `0x1406d4fc0`.
+Its primary vtable is `0x141063e08`; slot `+0xf18` points to
+`0x1406d53e0`, which registers XML `Mode` and ordered I/Q connectors.
+The base registration `0x14045ccb0:49–53` maps CT20 to `ModeCaption`.
+
+The CT21 creation-switch byte at `0x1404ee0a9` is `0x0e`. That branch
+(`0x1404e8420:870–910`) scans the collection's stored numeric IDs and chooses
+the first unused negative integer, starting at -1 and decrementing. The CLI
+requires the existing -1..-6 built-ins so this allocation actually produces a
+custom ID; it does not invent a separate custom-ID range or Alarm bit mask.
+`0x1406d5890` retains a fresh UUID for negative IDs; nonnegative IDs instead
+use a deterministic builtin identity. `0x14042a510` appends the object and sets
+WF `0x4000`, without changing existing sibling IDs/references.
+
+Serializer `0x1406d5c30` persists IoData, Display and the signed `Mode`
+attribute. It then resets accepted Display state to `StateOnly=1` and an empty
+unit. The CLI encodes that accepted normalized state, not a byte-for-byte
+first-native-save snapshot. Native creation's post-add default-values path was
+checked rather than assumed: CT21 maps to false case 2 in `0x140461500`
+(switch byte at `0x140461748` is `0x02`), so the registry default-values branch
+in `0x14011fcf0:164–181` is not reached for this type.
+
+`0x1405288f0:442–461` obtains `NumO` from `0x1404e6160`; one new ordinary
+Mode contributes one C object, not three objects for its two Co records.
+This operation increments the existing positive count by one, without
+reproducing unrelated whole-project native save normalization.
+Missing default IDs 0..9 or -1..-6 are refused rather than silently invoking
+the native builtin-repair path. Only the newly added C fragment is serialized;
+existing XML bytes remain intact except the Document count and save stamp.
+
+Scope is deliberately an existing single, plain Document/ModeCaption
+collection. Native accepted-add code `0x140145750:43–56` can set instance
+WF `0x20000000`; the Document loader's direct `Template` child updates fields
+`0x111c/0x1120` (`0x1405288f0:485–505`). Templates, IfT/uuidParent instance
+state, ambiguous identities, numeric XML references in identity/name metadata,
+and affected digit-like text (`lox-n37w`) are
+therefore refused before any destination write. No native experiment or
+qualification was performed for this recovery.
+
 - **Remanence:** an unconnected inverted input means "on":
   `<Co K="Remanence" Inv="true" .../>` = remanent (survives restarts and uploads).
 - **Combined window contact** (`JoinWindowSensor`): its `AQ` connector is the

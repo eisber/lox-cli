@@ -108,6 +108,7 @@ lox config get-params file.Loxone "Kitchen Light" # show all params (alias: lox 
 lox config stats file.Loxone                      # comprehensive config statistics
 lox config autopilot-list file.Loxone             # list automation/autopilot rules
 lox config mode-list file.Loxone                  # list operating modes
+lox config add --type operating-mode --title "Evening" file.Loxone
 ```
 
 ---
@@ -117,6 +118,24 @@ lox config mode-list file.Loxone                  # list operating modes
 Every editing command that changes the file also bumps the Document save stamp (`Date` / `DateS` on `<C Type="Document">`) to the current time, or one second past its previous value if that is later. This keeps rapid successive edits distinct even within one second or after a clock adjustment. Loxone Config compares this stamp, not the content, to decide whether the opened file is the program already on the Miniserver — without the bump it would treat the edited file as identical and load the Miniserver's old program instead. Commands that end up changing nothing leave the stamp as is.
 
 ### Add blocks
+
+`--type operating-mode` (also `Mode`) adds a custom **global** operating mode,
+not an Alarm mode bit or a DayTimer entry. It appends to the single existing
+`ModeCaption` in an ordinary `Document`, allocating the first free negative
+`Mode` ID after the existing negative built-ins (-1 through -6).
+Default IDs 0 through 9 must also already exist; the CLI does not repair a partial
+collection. IDs, UUIDs, Alarm mode bits and weekday masks are distinct.
+The new mode has fresh native35 UUIDs, I/Q connectors, empty IoData, and the
+accepted state-only Display defaults. `NumO` increases by one; existing modes,
+references and other fields are preserved. `--save-as`, JSON and quiet output
+are supported; other add options are refused.
+
+This branch rejects duplicate names/IDs/effective UUIDs, nil or RFC36 stored
+mode identities, numeric XML references in identity/name metadata,
+missing built-ins/count metadata, templates/instances and
+digit-like text affected by shared loader issue `lox-n37w`, before writing any
+destination. It neither repairs a partial mode collection nor changes protected
+built-ins. Use native Config for those cases.
 
 ```bash
 lox config add --type light --title "Kitchen Light" --room "Kitchen" file.Loxone

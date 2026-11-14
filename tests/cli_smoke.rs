@@ -73,6 +73,64 @@ fn config_add_help_describes_block_type_discovery() {
         .stdout(predicate::str::contains("lox-cli blocks list").not());
 }
 
+#[test]
+fn operating_mode_add_json_quiet_and_unsupported_options() {
+    let dir = tempfile::tempdir().unwrap();
+    let file = dir.path().join("modes.Loxone");
+    let destination = dir.path().join("destination.Loxone");
+    let mut modes: String = (1..=6).map(|id| format!("<C Type=\"Mode\" U=\"00000000-0000-{id:04x}-ffff112233445566\" Title=\"Builtin{id}\" Mode=\"-{id}\"/>")).collect();
+    for id in 0..=9 {
+        let identity = id + 1;
+        modes.push_str(&format!("<C Type=\"Mode\" U=\"00000000-0000-{identity:04x}-1500000000000000\" Title=\"Day{id}\" Mode=\"{id}\"/>"));
+    }
+    let input = format!(
+        "<ControlList><C Type=\"Document\" U=\"11111111-2222-3333-ffff112233445566\" NumO=\"18\"><C Type=\"ModeCaption\" U=\"22222222-2222-3333-ffff112233445566\">{modes}</C></C></ControlList>"
+    );
+    std::fs::write(&file, input).unwrap();
+    let result = lox()
+        .args([
+            "config",
+            "add",
+            "--type",
+            "operating-mode",
+            "--title",
+            "Evening",
+            "-o",
+            "json",
+        ])
+        .arg(&file)
+        .assert()
+        .success();
+    let json: serde_json::Value = serde_json::from_slice(&result.get_output().stdout).unwrap();
+    assert_eq!(json["added"]["mode"], -7);
+    lox()
+        .args(["-q", "config", "add", "--type", "Mode", "--title", "Night"])
+        .arg(&file)
+        .assert()
+        .success()
+        .stdout("");
+    let before = std::fs::read(&file).unwrap();
+    std::fs::write(&destination, b"untouched").unwrap();
+    lox()
+        .args([
+            "config",
+            "add",
+            "--type",
+            "Mode",
+            "--title",
+            "Other",
+            "--room",
+            "Room",
+            "--save-as",
+        ])
+        .arg(&destination)
+        .arg(&file)
+        .assert()
+        .failure();
+    assert_eq!(std::fs::read(&file).unwrap(), before);
+    assert_eq!(std::fs::read(&destination).unwrap(), b"untouched");
+}
+
 subcmd_help!(help_ctx, "ctx");
 subcmd_help!(help_ctx_add, "ctx", "add");
 subcmd_help!(help_ctx_use, "ctx", "use");

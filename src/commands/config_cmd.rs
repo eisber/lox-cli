@@ -1514,6 +1514,39 @@ pub fn cmd_config(ctx: &RunContext, action: ConfigCmd) -> Result<()> {
             grant,
             save_as,
         } => {
+            if matches!(control_type.as_str(), "operating-mode" | "Mode") {
+                if room.is_some()
+                    || category.is_some()
+                    || parent.is_some()
+                    || page.is_some()
+                    || device.is_some()
+                    || topic.is_some()
+                    || analog
+                    || min.is_some()
+                    || max.is_some()
+                    || unit.is_some()
+                    || grant.is_some()
+                {
+                    bail!(
+                        "Global operating modes support only --title and --save-as, not page/device/room/I/O options; nothing was changed."
+                    );
+                }
+                let data = fs::read(&file).with_context(|| format!("Cannot read {}", file))?;
+                let (output, added) = ConfigEditor::add_operating_mode(&data, &title)?;
+                write_edited_bytes(&output, &file, save_as.as_deref(), ctx.quiet || ctx.json)?;
+                if ctx.json {
+                    emit_json(
+                        ctx,
+                        serde_json::json!({"ok": true, "type": "Mode", "added": added}),
+                    );
+                } else if !ctx.quiet {
+                    println!(
+                        "✓ Added operating mode '{}' (Mode: {}, UUID: {})",
+                        title, added.mode, added.uuid
+                    );
+                }
+                return Ok(());
+            }
             let is_virtual_input =
                 matches!(control_type.as_str(), "virtual-input" | "virtual-in" | "vi");
             if grant.is_some() && !is_virtual_input {
@@ -6571,6 +6604,55 @@ sleep</Field>
         let (_dir, file) = fixture_file();
         let result = cmd_config(&ctx(), ConfigCmd::ModeList { file });
         assert!(result.is_ok());
+    }
+
+    #[test]
+    fn test_cmd_add_operating_mode_save_as_and_atomic_refusal() {
+        let dir = tempfile::tempdir().unwrap();
+        let file = dir.path().join("modes.Loxone");
+        let destination = dir.path().join("new.Loxone");
+        let mut modes: String = (1..=6).map(|id| format!("<C Type=\"Mode\" U=\"00000000-0000-{id:04x}-ffff112233445566\" Title=\"Builtin{id}\" Mode=\"-{id}\"/>")).collect();
+        for id in 0..=9 {
+            let identity = id + 1;
+            modes.push_str(&format!("<C Type=\"Mode\" U=\"00000000-0000-{identity:04x}-1500000000000000\" Title=\"Day{id}\" Mode=\"{id}\"/>"));
+        }
+        let input = format!(
+            "<ControlList><C Type=\"Document\" U=\"11111111-2222-3333-ffff112233445566\" NumO=\"18\"><C Type=\"ModeCaption\" U=\"22222222-2222-3333-ffff112233445566\">{modes}</C></C></ControlList>"
+        );
+        fs::write(&file, &input).unwrap();
+        let command = |source: &std::path::Path, output: &std::path::Path| ConfigCmd::Add {
+            file: source.to_string_lossy().into_owned(),
+            control_type: "operating-mode".into(),
+            title: "Evening".into(),
+            room: None,
+            category: None,
+            parent: None,
+            page: None,
+            device: None,
+            topic: None,
+            analog: false,
+            min: None,
+            max: None,
+            unit: None,
+            grant: None,
+            save_as: Some(output.to_string_lossy().into_owned()),
+        };
+        cmd_config(&ctx(), command(&file, &destination)).unwrap();
+        assert_eq!(fs::read_to_string(&file).unwrap(), input);
+        let saved = fs::read(&destination).unwrap();
+        let editor = ConfigEditor::load(&saved).unwrap();
+        let modes = editor.find_elements("Type:Mode");
+        assert_eq!(modes.len(), 17);
+        assert_eq!(
+            editor.get_element(modes.last().unwrap()).attributes["Mode"],
+            "-7"
+        );
+        let absent = dir.path().join("absent.Loxone");
+        assert!(cmd_config(&ctx(), command(&destination, &absent)).is_err());
+        assert!(!absent.exists());
+        assert!(cmd_config(&ctx(), command(&destination, &file)).is_err());
+        assert_eq!(fs::read_to_string(&file).unwrap(), input);
+        assert_eq!(fs::read(&destination).unwrap(), saved);
     }
 
     #[test]

@@ -32,6 +32,7 @@ pub mod lighting_sid;
 #[cfg(test)]
 mod lighting_tests;
 pub mod load_manager;
+pub mod operating_modes;
 mod permissions;
 mod properties;
 mod rooms;
