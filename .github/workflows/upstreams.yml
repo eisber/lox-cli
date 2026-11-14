@@ -1,0 +1,63 @@
+name: Upstream metadata
+
+on:
+  schedule:
+    - cron: "23 6 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  refs:
+    name: Observe reviewed upstream refs
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Check GitHub ref metadata only
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python3 scripts/check-upstreams.py > upstream-observations.json
+
+      - name: Publish job summary
+        if: always()
+        run: |
+          python3 - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+
+          path = Path("upstream-observations.json")
+          if not path.exists():
+              summary = "Upstream metadata check did not produce a report.\n"
+          else:
+              report = json.loads(path.read_text(encoding="utf-8"))
+              summary = f"## Upstream metadata: {report['status']}\n\n"
+              summary += "Observations only; reviewed pins are unchanged. Review relevant diffs before adoption.\n\n"
+              summary += "| Repository | Status | Reviewed | Latest observed | Compare |\n|---|---|---|---|---|\n"
+              for row in report.get("repositories", []):
+                  latest = row["latest_seen_sha"]
+                  compare = f"[diff]({row['compare_url']})" if row["compare_url"] else "unavailable"
+                  summary += f"| {row['id']} | {row['status']} | `{row['reviewed_sha']}` | `{latest or 'unknown'}` | {compare} |\n"
+              if report.get("error"):
+                  summary += f"\nError: {report['error']}\n"
+          with open(os.environ["GITHUB_STEP_SUMMARY"], "a", encoding="utf-8") as output:
+              output.write(summary)
+          PY
+
+      - name: Publish observations
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: upstream-observations
+          path: upstream-observations.json
+          if-no-files-found: warn
+          retention-days: 14
