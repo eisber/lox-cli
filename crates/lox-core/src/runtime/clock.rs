@@ -209,15 +209,32 @@ impl ClockClient {
                 status: status.as_u16(),
             });
         }
-        let body = response
-            .bytes()
-            .await
-            .map_err(|error| transport(error, endpoint))?;
-        self.emit(Diagnostic::Body {
-            endpoint,
-            bytes: body.len(),
-        });
-        let value = serde_json::from_slice(&body).map_err(|_| ClockError::Decode { endpoint })?;
+        let value = match &options.response_policy {
+            ClockResponsePolicy::StrictJson => {
+                let body = response
+                    .bytes()
+                    .await
+                    .map_err(|error| transport(error, endpoint))?;
+                self.emit(Diagnostic::Body {
+                    endpoint,
+                    bytes: body.len(),
+                });
+                serde_json::from_slice(&body)
+            }
+            ClockResponsePolicy::LegacyCliVerbose { body_observer } => {
+                let body = response
+                    .text()
+                    .await
+                    .map_err(|error| transport(error, endpoint))?;
+                self.emit(Diagnostic::Body {
+                    endpoint,
+                    bytes: body.len(),
+                });
+                body_observer(endpoint, &body);
+                serde_json::from_str(&body)
+            }
+        }
+        .map_err(|_| ClockError::Decode { endpoint })?;
         Ok(ClockField::decode(value))
     }
 }

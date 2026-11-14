@@ -131,6 +131,77 @@ async fn typed_observations_validate_and_preserve_explicit_legacy_policy() {
 }
 
 #[tokio::test(flavor = "current_thread")]
+async fn strict_json_default_and_explicit_legacy_verbose_policy_remain_distinct() {
+    for malformed in [false, true] {
+        let server = MockServer::start();
+        let body = if malformed {
+            b"{".as_slice()
+        } else {
+            b"{\"LL\":{\"value\":\"fixture-\xff\",\"Code\":200}}".as_slice()
+        };
+        let date = server.mock(|when, then| {
+            when.method(GET).path(ClockEndpoint::Date.path());
+            then.body(body);
+        });
+        let time = server.mock(|when, then| {
+            when.method(GET).path(ClockEndpoint::Time.path());
+            then.json_body(json!({"LL":{"value":"time","Code":200}}));
+        });
+        let mut strict_options = options(server.base_url());
+        strict_options.retry_delays.clear();
+        let strict = ClockClient::new(strict_options).unwrap();
+        assert_eq!(
+            strict.read_clock(&Cancellation::new()).await,
+            Err(ClockError::Decode {
+                endpoint: ClockEndpoint::Date
+            })
+        );
+        strict.close().await.unwrap();
+
+        let bodies = Arc::new(Mutex::new(Vec::new()));
+        let capture = bodies.clone();
+        let mut legacy_options = options(server.base_url());
+        legacy_options.retry_delays.clear();
+        legacy_options.response_policy = ClockResponsePolicy::LegacyCliVerbose {
+            body_observer: Arc::new(move |endpoint, body| {
+                capture.lock().unwrap().push((endpoint, body.to_owned()));
+            }),
+        };
+        let legacy = ClockClient::new(legacy_options).unwrap();
+        let result = legacy.read_clock(&Cancellation::new()).await;
+        if malformed {
+            assert_eq!(
+                result,
+                Err(ClockError::Decode {
+                    endpoint: ClockEndpoint::Date
+                })
+            );
+        } else {
+            let observation = result.unwrap();
+            assert_eq!(
+                observation.validate().unwrap(),
+                ClockText {
+                    date: "fixture-\u{fffd}".into(),
+                    time: "time".into()
+                }
+            );
+        }
+        legacy.close().await.unwrap();
+        let bodies = bodies.lock().unwrap();
+        assert_eq!(
+            bodies[0],
+            (
+                ClockEndpoint::Date,
+                String::from_utf8_lossy(body).into_owned()
+            )
+        );
+        assert_eq!(bodies.len(), if malformed { 1 } else { 2 });
+        date.assert_hits(2);
+        time.assert_hits(if malformed { 0 } else { 1 });
+    }
+}
+
+#[tokio::test(flavor = "current_thread")]
 async fn ordered_success_uses_basic_auth_and_allows_empty_credentials() {
     let server = MockServer::start();
     let events = Arc::new(Mutex::new(Vec::new()));

@@ -77,7 +77,7 @@ pub struct HttpStatusError {
 }
 
 /// Log a response body at -vv level, truncating large responses.
-fn log_body(body: &str) {
+pub(crate) fn log_body(body: &str) {
     if body.len() > 500 {
         // Find a UTF-8 safe truncation point at or before byte 500
         let truncated = &body[..body.floor_char_boundary(500)];

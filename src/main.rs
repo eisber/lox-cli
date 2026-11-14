@@ -1545,7 +1545,15 @@ fn categorize_error(e: &anyhow::Error) -> &'static str {
             404 => "not_found",
             _ => "http_error",
         }
-    } else if lower.contains("connection") || lower.contains("timeout") {
+    } else if matches!(
+        e.downcast_ref::<lox_core::runtime::ClockError>(),
+        Some(lox_core::runtime::ClockError::Transport {
+            kind: lox_core::runtime::TransportFailure::Body,
+            ..
+        })
+    ) || lower.contains("connection")
+        || lower.contains("timeout")
+    {
         "connection_error"
     } else {
         "error"
