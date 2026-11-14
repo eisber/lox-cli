@@ -97,6 +97,15 @@ attributes against the admitted DOM for selection, references, intervals
 and stamp metadata, then patches only selected To and Document Date/DateS.
 BOM, EOL, quotes, child order and all other bytes remain unchanged.
 
+Missing Document `Date` / `DateS` attributes are allowed and inserted on
+an actual change; a missing Document itself is refused. Before no-op
+detection, stamping or output, a present `DateS` must contain only ASCII
+decimal digits and represent a nonnegative signed-32-bit value strictly
+below `2147483647`. This leaves room for the stamp increment and preserves
+valid raw spellings on no-op. The operation-local guard reuses the known
+bound already enforced for input inversion; it does not change the global
+stamp helper or admission for any older operation.
+
 The shared loader sanitizer issue `lox-n37w` is not fixed here. Disagreement
 in guarded storage (including digit-like attribute text) is refused.
 Unrelated value-identical duplicate attributes are preserved rather than

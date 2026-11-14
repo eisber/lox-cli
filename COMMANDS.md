@@ -1396,8 +1396,13 @@ start and at most `24:00` (not `00:00`). `--room` and native/RFC mode UUID
 comparison follow `timer-entry-remove`. Both shortening and extending the
 end are supported; there is no new-start or atomic two-endpoint edit.
 Already sorted, separated ordinary digital storage is required. Touching,
-overlap, wrap/collapse, sorting/merging other rows, analog schedules,
-Template-owned storage, and unstamped/namespaced documents are refused.
+overlap, wrap/collapse, sorting/merging other rows, analog schedules, and
+missing, duplicate, nested-only, namespaced, non-owning or Template-owned
+Documents are refused. Missing `Date` / `DateS` attributes are allowed;
+real edits insert the normal stamps. If present, `DateS` must contain only
+ASCII decimal digits and represent `0` through `2147483646` inclusive,
+leaving room for one signed-32-bit increment. This operation-local check precedes no-ops
+and destination writes.
 The old replacement command is unchanged.
 
 Only selected To and the Document save stamp change; N, From, Modes,

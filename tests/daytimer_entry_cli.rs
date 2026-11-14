@@ -220,6 +220,80 @@ fn daytimer_end_admission_precedes_noop_for_unsorted_template_and_raw_conflicts(
 }
 
 #[test]
+fn daytimer_end_dates_guard_rejects_bad_stamps_before_noop_or_any_destination_write() {
+    let dir = tempfile::tempdir_in(env!("CARGO_MANIFEST_DIR")).unwrap();
+    let input = dir.path().join("input.Loxone");
+    let existing = dir.path().join("existing.Loxone");
+    let missing = dir.path().join("missing.Loxone");
+    for stamp in ["2147483647", "-1", "2147483648", "invalid"] {
+        let source = end_fixture().replace("DateS=\"1\"", &format!("DateS=\"{stamp}\""));
+        for end in ["03:01", "03:00"] {
+            for destination in [None, Some(&existing), Some(&missing)] {
+                fs::write(&input, &source).unwrap();
+                fs::write(&existing, b"existing destination").unwrap();
+                let mut command = end_command(&input, end);
+                if let Some(destination) = destination {
+                    command.arg("--save-as").arg(destination);
+                }
+                command
+                    .args(["-o", "json"])
+                    .assert()
+                    .failure()
+                    .stdout(predicate::str::contains(
+                        "incrementable nonnegative signed32 Document DateS",
+                    ));
+                assert_eq!(fs::read(&input).unwrap(), source.as_bytes());
+                assert_eq!(fs::read(&existing).unwrap(), b"existing destination");
+                assert!(!missing.exists());
+            }
+        }
+    }
+}
+
+#[test]
+fn daytimer_end_dates_guard_keeps_valid_raw_noops_and_allows_last_safe_increment() {
+    let dir = tempfile::tempdir_in(env!("CARGO_MANIFEST_DIR")).unwrap();
+    let input = dir.path().join("input.Loxone");
+    let output = dir.path().join("output.Loxone");
+    for stamp in ["0", "0000000001", "2147483646"] {
+        let source = end_fixture()
+            .replace("DateS=\"1\"", &format!("DateS=\"{stamp}\""))
+            .replace("To=\"180\" V=\"5\"", "To=\"+0180\" V=\"5\"");
+        fs::write(&input, &source).unwrap();
+        end_command(&input, "03:00")
+            .arg("--save-as")
+            .arg(&output)
+            .args(["-q", "-o", "json"])
+            .assert()
+            .success()
+            .stdout(predicate::str::contains("\"changed\":false"));
+        assert_eq!(fs::read(&input).unwrap(), source.as_bytes());
+        assert_eq!(fs::read(&output).unwrap(), source.as_bytes());
+        end_command(&input, "03:01")
+            .arg("--save-as")
+            .arg(&output)
+            .args(["-q"])
+            .assert()
+            .success()
+            .stdout("");
+        let saved = fs::read_to_string(&output).unwrap();
+        assert_eq!(fs::read(&input).unwrap(), source.as_bytes());
+        assert_eq!(
+            without_document_stamp(&saved),
+            without_document_stamp(&source.replace("To=\"+0180\"", "To=\"181\""))
+        );
+        let parsed = parse(saved.as_bytes());
+        let seconds = parsed.get_child("C").unwrap().attributes["DateS"]
+            .parse::<i32>()
+            .unwrap();
+        assert!(seconds >= 0);
+        if stamp == "2147483646" {
+            assert_eq!(seconds, i32::MAX);
+        }
+    }
+}
+
+#[test]
 fn daytimer_end_root_document_adds_missing_stamps_and_dry_run_never_reads_input() {
     let dir = tempfile::tempdir_in(env!("CARGO_MANIFEST_DIR")).unwrap();
     let input = dir.path().join("input.Loxone");

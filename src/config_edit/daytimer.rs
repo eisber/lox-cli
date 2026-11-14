@@ -379,6 +379,16 @@ impl ConfigEditor {
             );
         }
         let storage = end_storage(data, &editor, &selected, document_path)?;
+        ensure!(
+            document.attributes.get("DateS").is_none_or(|value| {
+                !value.is_empty()
+                    && value.bytes().all(|byte| byte.is_ascii_digit())
+                    && value
+                        .parse::<i32>()
+                        .is_ok_and(|seconds| (0..i32::MAX).contains(&seconds))
+            }),
+            "DayTimer end editing requires an absent or incrementable nonnegative signed32 Document DateS; nothing was changed."
+        );
         let change = DayTimerEntryEndChange {
             block_uuid,
             changed: identity.to_minutes != new_to_minutes,
