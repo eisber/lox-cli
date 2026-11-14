@@ -1841,6 +1841,44 @@ lox config autopilot-add file.Loxone ...   # add an autopilot rule
 lox config calendar-add file.Loxone ...    # add a calendar/schedule element
 ```
 
+Existing action structure (offline, no Miniserver request):
+
+```bash
+lox config autopilot-action-remove file.Loxone uuid:<stored-native35-U> --index 1
+lox config autopilot-action-move file.Loxone uuid:<stored-native35-U> --index 0 --to-index 2 --save-as edited.Loxone -o json
+```
+
+Indices are **zero-based action rows**, never condition rows, `id`, or `descID`.
+Repeated control IDs and identical actions are allowed. Move selects an existing
+target row's **original index**: moving 0 to 2 changes `[A,B,C]` to `[B,C,A]`;
+moving 2 to 0 changes it to `[C,A,B]`. There is no append sentinel.
+Pauses move/delete as actual actions; adjacent pauses, their stored command/values,
+absolute-time conditions, and all other event groups are left unchanged. This
+does **not** edit a pause duration or assume its units.
+
+This deliberately bounded native transaction supports an existing ordinary
+`AutopilotRule` with exact nonnil native35 UUID (`8-4-4-16`), matching APC `id`,
+explicit `V >= 90`, `STA="1"`, and APC `type=1`, `active=true`,
+`activeIfValid=true`. Every action/event must already have `descID >= 2`.
+Supported actions are control actions (`type 0/8`, unique existing native35
+reference in the same Document, nondeleted effective WF) and pauses (`type 5`,
+existing numeric ID). Commands and optional string-array `arrValues` are retained.
+Only existing numeric time conditions (`type 4/5`) whose native validity checks
+pass are admitted; **no conditions are edited**. Protected/invalid/default-flagged
+rules, other entry kinds, legacy value/descriptor migration, ambiguous identities,
+templates, `IfT`, and inherited `uuidParent` layouts are refused.
+
+Removing the last action is allowed: native serialization omits `actions`, then
+post-accept validity sets XML `STA="5"`. The already-serialized APC activation
+fields remain true; this is not a request to execute an empty rule. Subsequent
+edits require a valid nonempty rule again. A same-row move is byte-for-byte
+unchanged, but still runs **all admission checks before any save**, including
+`--save-as`. Changes patch only APC, the derived STA when needed, and the owning
+Document's save stamp; unrelated XML bytes/BOM/line endings are preserved.
+Unsupported XML encodings, duplicate attributes/JSON members, ambiguous native
+entity storage, and any shared-loader digit-name sanitization are refused rather
+than repaired.
+
 ### Auto-layout
 
 ```bash

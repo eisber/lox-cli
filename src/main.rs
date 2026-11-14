@@ -773,6 +773,31 @@ pub(crate) enum ConfigCmd {
     },
     /// List automation/autopilot rules from a .Loxone config file
     AutopilotList { file: String },
+    /// Remove one existing action from a supported active AutopilotRule
+    AutopilotActionRemove {
+        file: String,
+        /// uuid:<exact stored native35 U> (8-4-4-16)
+        selector: String,
+        /// Zero-based existing action row (not an id or condition row)
+        #[arg(long)]
+        index: usize,
+        #[arg(long)]
+        save_as: Option<String>,
+    },
+    /// Reorder existing actions using the native original-target-index behavior
+    AutopilotActionMove {
+        file: String,
+        /// uuid:<exact stored native35 U> (8-4-4-16)
+        selector: String,
+        /// Zero-based source action row
+        #[arg(long)]
+        index: usize,
+        /// Original index of an existing target action; no append sentinel
+        #[arg(long)]
+        to_index: usize,
+        #[arg(long)]
+        save_as: Option<String>,
+    },
     /// Add an autopilot rule to a .Loxone config file
     AutopilotAdd {
         file: String,
@@ -2256,6 +2281,27 @@ mod tests {
                 "bash completions should define _lox function"
             );
         });
+    }
+
+    #[test]
+    fn test_autopilot_action_structure_cli() {
+        for operation in ["autopilot-action-remove", "autopilot-action-move"] {
+            let mut args = vec![
+                "lox",
+                "config",
+                operation,
+                "input.Loxone",
+                "uuid:owner",
+                "--index",
+                "0",
+            ];
+            if operation == "autopilot-action-move" {
+                args.extend(["--to-index", "2"]);
+            }
+            if let Err(error) = Cli::try_parse_from(args) {
+                panic!("{operation}: {error}");
+            }
+        }
     }
 
     #[test]

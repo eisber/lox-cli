@@ -34,6 +34,55 @@ fn emit_json(ctx: &RunContext, mut obj: serde_json::Value) {
     println!("{}", obj);
 }
 
+fn edit_autopilot_action(
+    ctx: &RunContext,
+    file: &str,
+    selector: &str,
+    index: usize,
+    to_index: Option<usize>,
+    save_as: Option<&str>,
+) -> Result<()> {
+    let data = fs::read(file).with_context(|| format!("Cannot read {file}"))?;
+    let (output, change) = ConfigEditor::edit_autopilot_action(&data, selector, index, to_index)?;
+    if change.changed || save_as.is_some() {
+        write_edited_bytes(&output, file, save_as, ctx.quiet || ctx.json || ctx.csv)?;
+    }
+    if ctx.json {
+        emit_json(
+            ctx,
+            serde_json::json!({
+                "ok": true,
+                "saved_to": save_as.unwrap_or(file),
+                "action_change": change,
+            }),
+        );
+    } else if ctx.csv {
+        if !ctx.no_header {
+            println!("BLOCK_UUID,INDEX,TO_INDEX,REMAINING_ACTIONS,INVALID,CHANGED");
+        }
+        println!(
+            "{},{},{},{},{},{}",
+            change.block_uuid,
+            change.index,
+            change
+                .to_index
+                .map(|index| index.to_string())
+                .unwrap_or_default(),
+            change.remaining_actions,
+            change.invalid,
+            change.changed,
+        );
+    } else if !ctx.quiet {
+        println!(
+            "✓ Autopilot action {index}: {} ({} remaining{})",
+            to_index.map_or_else(|| "removed".into(), |target| format!("row {target}")),
+            change.remaining_actions,
+            if change.changed { "" } else { ", unchanged" },
+        );
+    }
+    Ok(())
+}
+
 fn print_splice_preview(ctx: &RunContext, preview: &SpliceActorPreview) -> Result<()> {
     let fields = [
         ("SELECTED", serde_json::to_string(&preview.selected)?),
@@ -2307,6 +2356,26 @@ pub fn cmd_config(ctx: &RunContext, action: ConfigCmd) -> Result<()> {
             println!("{}", msg);
             save_edited(&mut editor, &file, save_as.as_deref())?;
         }
+        ConfigCmd::AutopilotActionRemove {
+            file,
+            selector,
+            index,
+            save_as,
+        } => edit_autopilot_action(ctx, &file, &selector, index, None, save_as.as_deref())?,
+        ConfigCmd::AutopilotActionMove {
+            file,
+            selector,
+            index,
+            to_index,
+            save_as,
+        } => edit_autopilot_action(
+            ctx,
+            &file,
+            &selector,
+            index,
+            Some(to_index),
+            save_as.as_deref(),
+        )?,
         ConfigCmd::AutopilotList { file } => {
             let data = fs::read(&file).with_context(|| format!("Cannot read {}", file))?;
             let controls = loxone_xml::parse_controls(&data, Some("AutoPilot"), None)?;
@@ -5490,6 +5559,83 @@ mod tests {
             non_interactive: false,
             trace_id: None,
             telemetry: None,
+        }
+    }
+
+    fn autopilot_action_fixture() -> String {
+        let value = serde_json::json!({
+            "type": 1, "id": "11111111-2222-3333-4444555566667777",
+            "active": true, "activeIfValid": true,
+            "eventGroups": [{"events": [{"type": 5, "descID": 88, "id": 0, "value": 700}]}],
+            "actions": [
+                {"type": 5, "descID": 337705, "id": 0, "command": "400", "arrValues": ["400"]},
+                {"type": 5, "descID": 337705, "id": 0, "command": "900", "arrValues": ["900"]}
+            ]
+        })
+        .to_string();
+        format!(
+            "<ControlList><C Type=\"Document\"><C Type=\"AutopilotRule\" V=\"175\" U=\"11111111-2222-3333-4444555566667777\" STA=\"1\" APC=\"{}\"/></C></ControlList>",
+            quick_xml::escape::escape(&value),
+        )
+    }
+
+    #[test]
+    fn test_cmd_autopilot_actions_save_and_refuse_before_save_as() {
+        let directory = tempfile::tempdir().unwrap();
+        let file = directory.path().join("input.Loxone");
+        let destination = directory.path().join("edited.Loxone");
+        let selector = "uuid:11111111-2222-3333-4444555566667777";
+        let mut context = ctx();
+        context.quiet = true;
+        let input = autopilot_action_fixture();
+        fs::write(&file, &input).unwrap();
+        edit_autopilot_action(
+            &context,
+            file.to_str().unwrap(),
+            selector,
+            0,
+            Some(1),
+            Some(destination.to_str().unwrap()),
+        )
+        .unwrap();
+        assert_eq!(fs::read_to_string(&file).unwrap(), input);
+        let editor = ConfigEditor::load(&fs::read(&destination).unwrap()).unwrap();
+        let owner = editor.find_elements(selector).remove(0);
+        let apc: serde_json::Value =
+            serde_json::from_str(&editor.get_element(&owner).attributes["APC"]).unwrap();
+        assert_eq!(apc["actions"][0]["command"], "900");
+        assert_eq!(apc["actions"][1]["command"], "400");
+
+        let invalid = input.replace(
+            "<C Type=\"Document\">",
+            "<C Type=\"Document\"><Template IfT=\"false\"/>",
+        );
+        fs::write(&file, &invalid).unwrap();
+        for existing in [false, true] {
+            if existing {
+                fs::write(&destination, b"keep existing").unwrap();
+            } else {
+                fs::remove_file(&destination).unwrap();
+            }
+            for target in [None, Some(0)] {
+                assert!(
+                    edit_autopilot_action(
+                        &context,
+                        file.to_str().unwrap(),
+                        selector,
+                        0,
+                        target,
+                        Some(destination.to_str().unwrap()),
+                    )
+                    .is_err()
+                );
+                assert_eq!(fs::read_to_string(&file).unwrap(), invalid);
+                if existing {
+                    assert_eq!(fs::read(&destination).unwrap(), b"keep existing");
+                } else {
+                    assert!(!destination.exists());
+                }
+            }
         }
     }
 

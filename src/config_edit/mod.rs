@@ -13,6 +13,7 @@
 //! ```
 
 pub mod alarm_clock;
+pub mod autopilot_actions;
 mod blocks;
 pub mod central_light_links;
 pub mod daytimer;
