@@ -3,6 +3,7 @@ use clap::CommandFactory;
 use clap_complete::generate;
 use reqwest::blocking::Client;
 use std::fs;
+use std::io::Write;
 use std::time::Duration;
 
 pub(crate) mod central_light;
@@ -3021,6 +3022,17 @@ pub fn cmd_config(ctx: &RunContext, action: ConfigCmd) -> Result<()> {
             let data = fs::read(&file).with_context(|| format!("Cannot read {file}"))?;
             let (output, change) =
                 ConfigEditor::edit_daytimer_entry_start(&data, &selector, identity, &new_from)?;
+            if let Some(destination) = &save_as
+                && let (Ok(input), Ok(destination)) = (
+                    std::path::Path::new(&file).canonicalize(),
+                    std::path::Path::new(destination).canonicalize(),
+                )
+                && input == destination
+            {
+                bail!(
+                    "The save-as destination aliases the input; choose a different output path. Nothing was changed."
+                );
+            }
             let saved_to = if change.changed || save_as.is_some() {
                 write_edited_bytes(
                     &output,
@@ -4641,14 +4653,36 @@ fn write_edited_bytes(
     let tmp_path = canon_parent.join(&tmp_name);
     let final_path = canon_parent.join(file_name);
 
-    fs::write(&tmp_path, output)?;
-    fs::rename(&tmp_path, &final_path).or_else(|_| {
-        // rename can fail across filesystems — fall back to copy+delete
-        fs::copy(&tmp_path, &final_path)?;
-        fs::remove_file(&tmp_path)
-            .with_context(|| format!("Failed to clean up temp file: {}", tmp_path.display()))?;
-        Ok::<(), anyhow::Error>(())
-    })?;
+    let mut staging = fs::OpenOptions::new()
+        .write(true)
+        .create_new(true)
+        .open(&tmp_path)
+        .with_context(|| {
+            format!(
+                "Cannot exclusively create staging file {}; existing staging storage is never overwritten",
+                tmp_path.display()
+            )
+        })?;
+    let result = (|| {
+        staging
+            .write_all(output)
+            .with_context(|| format!("Cannot write staging file {}", tmp_path.display()))?;
+        staging
+            .sync_all()
+            .with_context(|| format!("Cannot sync staging file {}", tmp_path.display()))?;
+        drop(staging);
+        fs::rename(&tmp_path, &final_path)
+            .with_context(|| format!("Cannot atomically rename staging file to {}", out_path))
+    })();
+    if let Err(error) = result {
+        fs::remove_file(&tmp_path).with_context(|| {
+            format!(
+                "Cannot clean up owned staging file {} after save failed: {error:#}",
+                tmp_path.display()
+            )
+        })?;
+        return Err(error);
+    }
     if !quiet {
         eprintln!("✓ Saved to {}", out_path);
     }
@@ -7142,6 +7176,30 @@ sleep</Field>
         // Verify content is valid
         let data = fs::read(&path).unwrap();
         assert!(String::from_utf8_lossy(&data).contains("ControlList"));
+    }
+
+    #[test]
+    fn test_save_edited_atomic_cleans_owned_stage_after_failed_rename() {
+        let dir = tempfile::tempdir_in(env!("CARGO_MANIFEST_DIR")).unwrap();
+        let input = dir.path().join("input.Loxone");
+        let destination = dir.path().join("destination.Loxone");
+        let staging = dir.path().join("destination.Loxone.tmp");
+        fs::write(&input, FIXTURE_XML).unwrap();
+        fs::create_dir(&destination).unwrap();
+        let sentinel = destination.join("foreign");
+        fs::write(&sentinel, b"preserve directory contents").unwrap();
+        assert!(
+            write_edited_bytes(
+                b"edited bytes",
+                input.to_str().unwrap(),
+                Some(destination.to_str().unwrap()),
+                true,
+            )
+            .is_err()
+        );
+        assert_eq!(fs::read(&input).unwrap(), FIXTURE_XML.as_bytes());
+        assert_eq!(fs::read(&sentinel).unwrap(), b"preserve directory contents");
+        assert!(!staging.exists());
     }
 
     const STAMPED_XML: &str = r#"<?xml version="1.0" encoding="utf-8"?>

@@ -30,6 +30,122 @@ fn start_command(input: &std::path::Path, from: &str, start: &str) -> assert_cmd
     command
 }
 
+fn assert_start_staging_refusal(input: &std::path::Path, destination: &std::path::Path) {
+    let source = fs::read(input).unwrap();
+    let previous_destination = fs::read(destination).ok();
+    for start in ["02:01", "02:00"] {
+        start_command(input, "02:00", start)
+            .arg("--save-as")
+            .arg(destination)
+            .args(["-o", "json"])
+            .assert()
+            .failure()
+            .stdout(predicate::str::contains("staging"));
+        assert_eq!(fs::read(input).unwrap(), source);
+        assert_eq!(fs::read(destination).ok(), previous_destination);
+    }
+}
+
+#[test]
+fn daytimer_start_staging_input_collision_refuses_changed_and_noop_save_as() {
+    let dir = tempfile::tempdir_in(env!("CARGO_MANIFEST_DIR")).unwrap();
+    let input = dir.path().join("output.Loxone.tmp");
+    let destination = dir.path().join("output.Loxone");
+    fs::write(&input, end_fixture()).unwrap();
+    assert_start_staging_refusal(&input, &destination);
+    fs::write(&destination, b"preserve existing destination").unwrap();
+    assert_start_staging_refusal(&input, &destination);
+}
+
+#[test]
+fn daytimer_start_staging_foreign_file_and_hardlink_are_never_overwritten() {
+    let dir = tempfile::tempdir_in(env!("CARGO_MANIFEST_DIR")).unwrap();
+    let input = dir.path().join("input.Loxone");
+    let destination = dir.path().join("output.Loxone");
+    let staging = dir.path().join("output.Loxone.tmp");
+    let source = end_fixture();
+    fs::write(&input, &source).unwrap();
+    fs::write(&destination, b"preserve existing destination").unwrap();
+    fs::write(&staging, b"foreign staging sentinel").unwrap();
+    assert_start_staging_refusal(&input, &destination);
+    assert_eq!(fs::read(&staging).unwrap(), b"foreign staging sentinel");
+    fs::remove_file(&staging).unwrap();
+    fs::hard_link(&input, &staging).unwrap();
+    assert_start_staging_refusal(&input, &destination);
+    assert_eq!(fs::read(&staging).unwrap(), source.as_bytes());
+}
+
+#[test]
+fn daytimer_start_staging_relative_and_case_aliases_refuse_before_output() {
+    let dir = tempfile::tempdir_in(env!("CARGO_MANIFEST_DIR")).unwrap();
+    let subdirectory = dir.path().join("subdirectory");
+    fs::create_dir(&subdirectory).unwrap();
+    let input = dir.path().join("output.Loxone.tmp");
+    let destination = dir.path().join(".").join("output.Loxone");
+    fs::write(&input, end_fixture()).unwrap();
+    assert_start_staging_refusal(
+        &subdirectory.join("..").join("output.Loxone.tmp"),
+        &destination,
+    );
+    #[cfg(windows)]
+    assert_start_staging_refusal(&dir.path().join("OUTPUT.LOXONE.TMP"), &destination);
+}
+
+#[cfg(unix)]
+#[test]
+fn daytimer_start_staging_symlink_never_follows_or_removes_foreign_storage() {
+    use std::os::unix::fs::symlink;
+
+    let dir = tempfile::tempdir_in(env!("CARGO_MANIFEST_DIR")).unwrap();
+    let input = dir.path().join("input.Loxone");
+    let destination = dir.path().join("output.Loxone");
+    let staging = dir.path().join("output.Loxone.tmp");
+    fs::write(&input, end_fixture()).unwrap();
+    symlink(&input, &staging).unwrap();
+    assert_start_staging_refusal(&input, &destination);
+    assert_eq!(fs::read_link(&staging).unwrap(), input);
+    fs::remove_file(&staging).unwrap();
+    let missing = dir.path().join("foreign-missing");
+    symlink(&missing, &staging).unwrap();
+    assert_start_staging_refusal(&input, &destination);
+    assert_eq!(fs::read_link(&staging).unwrap(), missing);
+    assert!(!missing.exists());
+}
+
+#[test]
+fn daytimer_start_save_as_input_path_alias_refuses_but_hardlink_destination_is_safe() {
+    let dir = tempfile::tempdir_in(env!("CARGO_MANIFEST_DIR")).unwrap();
+    let input = dir.path().join("input.Loxone");
+    let source = end_fixture();
+    fs::write(&input, &source).unwrap();
+    for start in ["02:01", "02:00"] {
+        start_command(&input, "02:00", start)
+            .arg("--save-as")
+            .arg(dir.path().join(".").join("input.Loxone"))
+            .args(["-o", "json"])
+            .assert()
+            .failure();
+        assert_eq!(fs::read(&input).unwrap(), source.as_bytes());
+    }
+    let destination = dir.path().join("output.Loxone");
+    fs::hard_link(&input, &destination).unwrap();
+    start_command(&input, "02:00", "02:01")
+        .arg("--save-as")
+        .arg(&destination)
+        .args(["-q"])
+        .assert()
+        .success()
+        .stdout("");
+    assert_eq!(fs::read(&input).unwrap(), source.as_bytes());
+    assert_eq!(
+        without_document_stamp(&fs::read_to_string(&destination).unwrap()),
+        without_document_stamp(&source.replace(
+            "From=\"120\" To=\"180\" V=\"5\"",
+            "From=\"121\" To=\"180\" V=\"5\""
+        ))
+    );
+}
+
 #[test]
 fn daytimer_start_real_project_preserves_nonzero_wf_and_every_unselected_byte() {
     let dir = tempfile::tempdir_in(env!("CARGO_MANIFEST_DIR")).unwrap();

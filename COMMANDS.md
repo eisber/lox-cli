@@ -1441,6 +1441,15 @@ native/RFC mode UUID aliases are supported. `--dry-run` remains unsupported;
 this is an offline file edit, not deployment. See
 [independent From branch proof](docs/knowledge/daytimer-entry-start-native.md).
 
+Offline config byte writes exclusively create the destination's sibling
+`<filename>.tmp` before writing, then atomically rename it into place.
+If that staging path already exists (including an input-path alias, symlink
+or hardlink), the edit refuses without changing input, destination or the
+existing staging entry. For `timer-entry-set-start`, a save-as destination
+resolving to the input is also refused. Only newly created, owned staging
+files are cleaned up on failure; there is no non-atomic copy fallback. Normal in-place edits and
+save-as to a different destination remain supported.
+
 Change **Activation required** for one existing ordinary digital interval:
 
 ```bash
