@@ -1,0 +1,396 @@
+use anyhow::{Context, Result, ensure};
+use quick_xml::{Reader, events::Event};
+use serde::Serialize;
+use xmltree::{Element, XMLNode};
+
+use super::{ConfigEditor, alarm_clock::entry_name_ordinal, icons::native_identity};
+
+#[derive(Debug, Serialize)]
+pub struct InputInversionChange {
+    pub block_uuid: String,
+    pub connector_uuid: String,
+    pub connector: String,
+    pub previous_inverted: bool,
+    pub inverted: bool,
+    pub changed: bool,
+}
+
+fn stored_identity(raw: &str) -> Option<uuid::Uuid> {
+    (raw.len() == 35)
+        .then(|| native_identity(raw))
+        .flatten()
+        .filter(|identity| !identity.is_nil())
+}
+
+fn kind(element: &Element) -> &str {
+    element.attributes.get("Type").map_or("", String::as_str)
+}
+
+impl ConfigEditor {
+    /// Edit the recovered ordinary, unconnected And.I1/I2 branch, without a DOM resave.
+    pub fn edit_input_inversion(
+        data: &[u8],
+        selector: &str,
+        key: &str,
+        inverted: bool,
+    ) -> Result<(Vec<u8>, InputInversionChange)> {
+        let requested = selector.strip_prefix("uuid:").unwrap_or("");
+        ensure!(
+            stored_identity(requested).is_some(),
+            "Input inversion requires uuid:<exact nonnil native35 owner U> (8-4-4-16); nothing was changed."
+        );
+        ensure!(
+            matches!(key, "I1" | "I2"),
+            "Input inversion supports only existing unconnected And.I1 or And.I2, not aliases, outputs, analog inputs or parameters; nothing was changed."
+        );
+        ensure!(
+            Self::sanitize_digit_attrs(data).1.is_empty(),
+            "Input inversion refuses shared-loader digit-name rewrites (lox-n37w), including digit-like text; nothing was changed."
+        );
+        let mut editor = Self::load(data)?;
+        let all = Self::iter_elements(&editor.root);
+        ensure!(
+            all.iter().all(|element| {
+                element.namespace.is_none()
+                    && element.prefix.is_none()
+                    && !element.attributes.keys().any(|key| key.contains(':'))
+                    && element.name != "Template"
+                    && kind(element) != "DocumentTemplate"
+                    && !element.attributes.contains_key("IfT")
+                    && !element.attributes.contains_key("uuidParent")
+            }),
+            "Input inversion does not support namespaces, Template/IfT/DocumentTemplate or uuidParent instance state; nothing was changed."
+        );
+        let documents = editor.find_elements("Type:Document");
+        let owners = editor.find_elements(selector);
+        ensure!(
+            documents.len() == 1
+                && documents[0].len() <= 1
+                && owners.len() == 1
+                && owners[0].starts_with(&documents[0])
+                && owners[0].len() == documents[0].len() + 2,
+            "Input inversion requires one exact owner directly on a Page in one root/direct ordinary Document; duplicate/missing owners are refused. Nothing was changed."
+        );
+        let document = editor.get_element(&documents[0]);
+        let owner_path = &owners[0];
+        let page = editor.get_element(&owner_path[..owner_path.len() - 1]);
+        let owner = editor.get_element(owner_path);
+        ensure!(
+            kind(document) == "Document"
+                && kind(page) == "Page"
+                && kind(owner) == "And"
+                && owner.attributes.get("U").map(String::as_str) == Some(requested)
+                && owner.attributes.get("Nio").map(String::as_str) == Some("3")
+                && !owner.attributes.contains_key("Dev"),
+            "Input inversion requires an ordinary, non-device-bound And with explicit Nio=3 directly on a Page; nothing was changed."
+        );
+        let mut identities = Vec::new();
+        for element in [document, page, owner] {
+            ensure!(
+                element.name == "C"
+                    && !element.attributes.contains_key("Dev")
+                    && element
+                        .attributes
+                        .get("V")
+                        .and_then(|value| value.parse::<i32>().ok())
+                        .is_some_and(|version| version >= 90)
+                    && element
+                        .attributes
+                        .get("WF")
+                        .is_none_or(|value| value == "0"),
+                "Input inversion requires explicit modern V>=90 and absent/zero WF on Document, Page and owner; protected/default/legacy contexts are unsupported. Nothing was changed."
+            );
+            let raw = element.attributes.get("U").context(
+                "Input inversion requires native35 owner/ancestor identities; nothing was changed",
+            )?;
+            let identity = stored_identity(raw)
+                .context("Input inversion requires nonnil native35 owner/ancestor identities; nothing was changed")?;
+            ensure!(
+                all.iter()
+                    .filter(|candidate| matches!(candidate.name.as_str(), "C" | "Co"))
+                    .filter(|candidate| candidate
+                        .attributes
+                        .get("U")
+                        .and_then(|value| native_identity(value))
+                        == Some(identity))
+                    .count()
+                    == 1,
+                "Input inversion requires unique effective identities, including case/RFC-grouping aliases; nothing was changed."
+            );
+            identities.push((
+                entry_name_ordinal(&editor.root, element, &mut 0).unwrap(),
+                "C".to_string(),
+                kind(element).to_string(),
+                raw.clone(),
+            ));
+        }
+        ensure!(
+            document.attributes.get("DateS").is_none_or(|value| {
+                !value.is_empty()
+                    && value.bytes().all(|byte| byte.is_ascii_digit())
+                    && value
+                        .parse::<i32>()
+                        .is_ok_and(|seconds| (0..i32::MAX).contains(&seconds))
+            }),
+            "Input inversion requires an absent or incrementable nonnegative signed32 Document DateS; nothing was changed."
+        );
+        let connectors: Vec<_> = owner
+            .children
+            .iter()
+            .filter_map(XMLNode::as_element)
+            .filter(|child| child.name == "Co")
+            .collect();
+        ensure!(
+            connectors.len() == 3
+                && ["I1", "I2", "Q"].iter().all(|key| {
+                    connectors
+                        .iter()
+                        .filter(|co| co.attributes.get("K").map(String::as_str) == Some(*key))
+                        .count()
+                        == 1
+                }),
+            "Input inversion requires exactly one existing I1, I2 and Q; duplicate/alias/default connector layouts are unsupported. Nothing was changed."
+        );
+        for connector in &connectors {
+            let identity = connector
+                .attributes
+                .get("U")
+                .and_then(|raw| stored_identity(raw))
+                .context("Input inversion requires existing nonnil native35 identities for all three connectors; nothing was changed")?;
+            ensure!(
+                all.iter()
+                    .filter(|candidate| matches!(candidate.name.as_str(), "C" | "Co"))
+                    .filter(|candidate| candidate
+                        .attributes
+                        .get("U")
+                        .and_then(|value| native_identity(value))
+                        == Some(identity))
+                    .count()
+                    == 1,
+                "Input inversion requires unique effective identities for every owner connector, including case/RFC aliases; nothing was changed."
+            );
+            identities.push((
+                entry_name_ordinal(&editor.root, connector, &mut 0).unwrap(),
+                "Co".to_string(),
+                connector.attributes["K"].clone(),
+                connector.attributes["U"].clone(),
+            ));
+        }
+        let connector = connectors
+            .iter()
+            .find(|co| co.attributes.get("K").map(String::as_str) == Some(key))
+            .unwrap();
+        let connector_uuid = connector
+            .attributes
+            .get("U")
+            .context("Input inversion requires an existing connector UUID; nothing was changed")?;
+        let identity = stored_identity(connector_uuid).context(
+            "Input inversion requires a nonnil native35 connector U; nothing was changed",
+        )?;
+        ensure!(
+            connector
+                .children
+                .iter()
+                .all(|child| child.as_element().is_none())
+                && connector
+                    .attributes
+                    .get("Nc")
+                    .is_none_or(|value| value == "0")
+                && connector
+                    .attributes
+                    .get("Def")
+                    .is_none_or(|value| value == "0")
+                && !all.iter().any(|element| {
+                    element.name == "Ref"
+                        && element
+                            .attributes
+                            .get("U")
+                            .and_then(|value| native_identity(value))
+                            == Some(identity)
+                }),
+            "Input inversion supports only an unconnected input with absent/zero Nc and Def, no element children or references using it as a source; wired/default-value branches are unsupported. Nothing was changed."
+        );
+        let previous_inverted = match connector.attributes.get("Inv").map(String::as_str) {
+            None | Some("false") => false,
+            Some("true") => true,
+            _ => anyhow::bail!(
+                "Input inversion requires absent/true/false Inv storage; nothing was changed."
+            ),
+        };
+        let target = entry_name_ordinal(&editor.root, connector, &mut 0).unwrap();
+        let change = InputInversionChange {
+            block_uuid: requested.to_string(),
+            connector_uuid: connector_uuid.clone(),
+            connector: key.to_string(),
+            previous_inverted,
+            inverted,
+            changed: previous_inverted != inverted,
+        };
+        let document_ordinal = identities[0].0;
+        let admitted = inversion_bytes(data, &identities, target, document_ordinal, None, None)?;
+        let stamp = if change.changed {
+            ensure!(
+                editor.stamp_document(&chrono::Local::now().fixed_offset()),
+                "Cannot stamp the admitted input-inversion Document; nothing was changed."
+            );
+            let document = editor.get_element(&documents[0]);
+            Some((
+                document.attributes["Date"].clone(),
+                document.attributes["DateS"].clone(),
+            ))
+        } else {
+            None
+        };
+        let output = if change.changed {
+            inversion_bytes(
+                data,
+                &identities,
+                target,
+                document_ordinal,
+                Some(&change),
+                stamp.as_ref(),
+            )?
+        } else {
+            admitted
+        };
+        Ok((output, change))
+    }
+}
+
+fn raw_span(data: &[u8], value: &[u8]) -> Result<std::ops::Range<usize>> {
+    let start = (value.as_ptr() as usize)
+        .checked_sub(data.as_ptr() as usize)
+        .context("Cannot locate raw input-inversion storage; nothing was changed")?;
+    let end = start
+        .checked_add(value.len())
+        .context("Input-inversion storage range overflow; nothing was changed")?;
+    ensure!(
+        data.get(start..end) == Some(value),
+        "Input-inversion storage is not borrowed from the original XML; nothing was changed."
+    );
+    Ok(start..end)
+}
+
+fn inversion_bytes(
+    data: &[u8],
+    identities: &[(usize, String, String, String)],
+    target: usize,
+    document: usize,
+    change: Option<&InputInversionChange>,
+    stamp: Option<&(String, String)>,
+) -> Result<Vec<u8>> {
+    std::str::from_utf8(data)?;
+    let offset = usize::from(data.starts_with(b"\xef\xbb\xbf")) * 3;
+    let mut reader = Reader::from_reader(&data[offset..]);
+    let mut ordinal = 0;
+    let mut found = 0;
+    let mut patches = Vec::new();
+    loop {
+        match reader.read_event()? {
+            Event::Start(element) | Event::Empty(element) => {
+                let end = reader.buffer_position() as usize + offset;
+                let attributes = element
+                    .attributes()
+                    .collect::<std::result::Result<Vec<_>, _>>()?;
+                for attribute in &attributes {
+                    raw_span(data, attribute.key.as_ref())?;
+                    let value = raw_span(data, attribute.value.as_ref())?;
+                    ensure!(
+                        matches!(data.get(value.end), Some(b'\'' | b'"')),
+                        "Cannot locate a raw input-inversion attribute delimiter; nothing was changed."
+                    );
+                }
+                ensure!(
+                    !element.name().as_ref().contains(&b':')
+                        && attributes.iter().all(|attribute| {
+                            attribute.key.as_ref() != b"xmlns"
+                                && !attribute.key.as_ref().contains(&b':')
+                        }),
+                    "Input inversion does not support XML namespaces; nothing was changed."
+                );
+                if let Some((_, tag, key, uuid)) =
+                    identities.iter().find(|identity| identity.0 == ordinal)
+                {
+                    ensure!(
+                        element.name().as_ref() == tag.as_bytes()
+                            && attributes.iter().all(|attribute| !attribute
+                                .value
+                                .windows(2)
+                                .any(|bytes| bytes == b"&#")),
+                        "Input inversion refuses numeric-reference admission metadata or a raw/DOM identity mismatch; nothing was changed."
+                    );
+                    for (field, expected) in
+                        [(if tag == "Co" { "K" } else { "Type" }, key), ("U", uuid)]
+                    {
+                        ensure!(
+                            attributes
+                                .iter()
+                                .any(|attribute| attribute.key.as_ref() == field.as_bytes()
+                                    && attribute.value.as_ref() == expected.as_bytes()),
+                            "Input inversion raw identity differs from admitted identity; nothing was changed."
+                        );
+                    }
+                    found += 1;
+                }
+                let mut replacements = Vec::new();
+                if ordinal == target
+                    && let Some(change) = change
+                {
+                    if change.inverted {
+                        replacements.push(("Inv", "true"));
+                    } else if let Some(attribute) = attributes
+                        .iter()
+                        .find(|attribute| attribute.key.as_ref() == b"Inv")
+                    {
+                        let start = raw_span(data, attribute.key.as_ref())?.start;
+                        let end = raw_span(data, attribute.value.as_ref())?.end + 1;
+                        patches.push((start..end, String::new()));
+                    }
+                }
+                if ordinal == document
+                    && let Some((date, seconds)) = stamp
+                {
+                    replacements.extend([("Date", date.as_str()), ("DateS", seconds.as_str())]);
+                }
+                for (key, value) in replacements {
+                    if let Some(attribute) = attributes
+                        .iter()
+                        .find(|attribute| attribute.key.as_ref() == key.as_bytes())
+                    {
+                        patches
+                            .push((raw_span(data, attribute.value.as_ref())?, value.to_string()));
+                    } else {
+                        let insertion = end - if data[end - 2] == b'/' { 2 } else { 1 };
+                        patches.push((insertion..insertion, format!(" {key}=\"{value}\"")));
+                    }
+                }
+                ordinal += 1;
+            }
+            Event::Decl(declaration) => {
+                if let Some(encoding) = declaration.encoding() {
+                    let encoding = encoding?;
+                    ensure!(
+                        encoding.eq_ignore_ascii_case(b"utf-8")
+                            || encoding.eq_ignore_ascii_case(b"utf8"),
+                        "Input inversion supports UTF-8 XML only; nothing was changed."
+                    );
+                }
+            }
+            Event::DocType(_) => anyhow::bail!(
+                "Input inversion does not support DTD-dependent storage; nothing was changed."
+            ),
+            Event::Eof => break,
+            _ => {}
+        }
+    }
+    ensure!(
+        found == identities.len(),
+        "Cannot locate every admitted input-inversion identity in the original XML; nothing was changed."
+    );
+    patches.sort_by_key(|patch| std::cmp::Reverse(patch.0.start));
+    let mut output = data.to_vec();
+    for (range, value) in patches {
+        output.splice(range, value.bytes());
+    }
+    Ok(output)
+}

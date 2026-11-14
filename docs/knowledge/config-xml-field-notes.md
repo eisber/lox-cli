@@ -249,6 +249,42 @@ qualification was performed for this recovery.
 
 - **Remanence:** an unconnected inverted input means "on":
   `<Co K="Remanence" Inv="true" .../>` = remanent (survives restarts and uploads).
+  This is a storage observation, not proof that arbitrary inputs expose the
+  same editor or that Remanence can be enabled by a general inversion operation.
+- **Ordinary And input inversion (17.2.10.21, source-only):** the programming
+  view hit-test `0x14014a670:252–269` returns action 5 and a connector index only
+  after the owner's `+0xc20` capability and `+0x5d0` eligibility checks.
+  The click branch `0x1401e6630:719–735` retrieves that same connector, rechecks
+  eligibility, and toggles only bit `0x20` in connector state `+0x80`, then calls
+  `0x140469a90`. This is not an analog sign, output or rising-edge operation.
+  Type 331 is allocated as `CControlObjectLogic` by `0x140432790:2446–2459`;
+  its original PE vtable `0x140f5c790` resolves `+0x5a8` to false,
+  `+0x5d0` to `0x140468540`, `+0xc20` to `0x140463f70`, and descriptor factory
+  `+0xf18` to `0x1407e7280`. Factory lines 41–66 declare digital `I1`, `I2`
+  and output `Q`; those exact literals were read from the frozen original PE.
+  The `I1`/`I2` descriptors have neither capability exclusion `0x40000000`
+  nor special eligibility bit `0x400000`, so the native gate admits both
+  connected and unconnected ordinary inputs. `0x140467520:87–92` and
+  `0x140463f70` close the digital capability branch; zero constructor flags
+  alone are not used as an effective-load proof.
+  Modern connector loading `0x14047fb20:175–281` matches descriptor key, loads
+  UUID, Def, Inv and references; `0x14043d790` copies that accepted storage
+  into the existing connector. The writer at `0x14047fb20:84–148` emits
+  `Inv=true` iff bit `0x20` is set and omits it otherwise, leaving Def and
+  reference traversal independent. Initial unconnected digital state derives
+  from that bit in `0x1404416c0:37–50`; setting Def=1 is not inversion.
+  `0x140469a90` can set persisted WF `0x20000000` and propagate through
+  references in template-instance documents. `0x140525ac0:116` initializes
+  both template fields to zero, `0x1405288f0:485–505` loads Template/IfT,
+  and `0x14050be70` reads accepted `+0x1120`. Therefore this CLI branch
+  refuses every Template/IfT/uuidParent/DocumentTemplate occurrence rather
+  than assuming a plain owning Document excludes derived state.
+  `set-input-inversion` initially supports only unconnected existing I1/I2
+  with neutral stored Def, complete three-connector owners and exact unique
+  native35 identities. It refuses wired inputs instead of claiming reference
+  graph parity, as well as namespaces, protected/nonzero ancestor flags,
+  device bindings and shared-loader rewrites (lox-n37w), even on no-op.
+  No native UI execution, Miniserver work or new native qualification was used.
 - **Combined window contact** (`JoinWindowSensor`): its `AQ` connector is the
   docs' status output (S): 1 = closed, 2 = tilted, 3 = open, 4 = closed and not
   locked, 5 = closed and locked, 0 = a sensor is offline. Test for "open" with

@@ -22,6 +22,7 @@ pub mod energy;
 #[cfg(test)]
 mod energy_tests;
 pub mod icons;
+pub mod input_inversion;
 pub mod irrigation;
 mod layout;
 pub mod lighting;

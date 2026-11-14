@@ -1104,6 +1104,26 @@ pub(crate) enum ConfigCmd {
         #[arg(long)]
         save_as: Option<String>,
     },
+    /// Set native Inv on an existing unconnected ordinary And.I1 or And.I2
+    SetInputInversion {
+        file: String,
+        /// Exact uuid:<native35-U> of the existing And owner
+        selector: String,
+        /// Existing native connector key: I1 or I2
+        connector: String,
+        /// Invert the selected digital input
+        #[arg(
+            long,
+            required_unless_present = "no_inverted",
+            conflicts_with = "no_inverted"
+        )]
+        inverted: bool,
+        /// Clear inversion of the selected digital input
+        #[arg(long, required_unless_present = "inverted")]
+        no_inverted: bool,
+        #[arg(long)]
+        save_as: Option<String>,
+    },
     /// Set a parameter on a block (sets Def= on the connector)
     #[command(name = "set-param", visible_alias = "set")]
     SetParam {

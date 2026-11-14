@@ -157,6 +157,36 @@ lox config set-param file.Loxone "Night Timer" Duration 300
 
 Arguments: `<FILE> <SELECTOR> <PARAM> <VALUE>`. Selector is a block title or `"uuid:..."`.
 
+### Existing digital input inversion
+
+```bash
+lox config set-input-inversion file.Loxone uuid:11111111-2222-3333-4444555566667777 I1 --inverted
+lox config set-input-inversion file.Loxone uuid:11111111-2222-3333-4444555566667777 I1 --no-inverted --save-as edited.Loxone
+```
+
+Edits native connector `Inv`, not `Def`. The bounded supported branch is an
+**existing, unconnected `I1` or `I2` of an ordinary `And`**, directly on a Page
+in one ordinary Document, with explicit modern `V >= 90` and `Nio="3"`.
+The exact `uuid:` owner, its Document/Page ancestors and all three connectors
+must have unique nonnil native35 identities (8-4-4-16); aliases, duplicate
+keys/identities and incomplete connector sets are refused.
+The selected input must have absent/literal-zero `Nc`,
+no element children, and absent or literal-zero `Def`.
+
+Connected inputs are outside this first CLI branch, although the recovered
+native digital-input gate admits them. Outputs, analog inputs, parameters,
+Remanence, edge operations, templates/instances, device-bound owners, nonzero
+owner/ancestor WF and shared-loader digit-name rewrites are unsupported.
+Owner/ancestor WF must be absent or literal `0`; DateS, if present, must be
+an incrementable nonnegative signed32 integer (less than 2147483647).
+Numeric XML references in admission metadata and DTD-dependent storage are
+refused.
+All admission runs even for a same-value request and before any destination
+write. A no-op preserves every input byte; changes patch only the selected
+`Inv` and Document save stamp. Clearing removes `Inv`; other connector fields,
+references, counts, UUIDs and unrelated bytes are preserved. This is not a
+native whole-document resave or migration.
+
 ### Lighting Central linked functions
 
 ```bash

@@ -3250,6 +3250,59 @@ pub fn cmd_config(ctx: &RunContext, action: ConfigCmd) -> Result<()> {
             }
             save_edited(&mut editor, &file, save_as.as_deref())?;
         }
+        ConfigCmd::SetInputInversion {
+            file,
+            selector,
+            connector,
+            inverted,
+            no_inverted: _,
+            save_as,
+        } => {
+            let data = fs::read(&file).with_context(|| format!("Cannot read {file}"))?;
+            let (output, change) =
+                ConfigEditor::edit_input_inversion(&data, &selector, &connector, inverted)?;
+            if change.changed || save_as.is_some() {
+                write_edited_bytes(
+                    &output,
+                    &file,
+                    save_as.as_deref(),
+                    ctx.quiet || ctx.json || ctx.csv,
+                )?;
+            }
+            if ctx.json {
+                emit_json(
+                    ctx,
+                    serde_json::json!({
+                        "ok": true,
+                        "saved_to": save_as.as_deref().unwrap_or(&file),
+                        "input_inversion": change,
+                    }),
+                );
+            } else if ctx.csv {
+                if !ctx.no_header {
+                    println!(
+                        "BLOCK_UUID,CONNECTOR_UUID,CONNECTOR,PREVIOUS_INVERTED,INVERTED,CHANGED"
+                    );
+                }
+                println!(
+                    "{},{},{},{},{},{}",
+                    change.block_uuid,
+                    change.connector_uuid,
+                    change.connector,
+                    change.previous_inverted,
+                    change.inverted,
+                    change.changed,
+                );
+            } else if !ctx.quiet {
+                println!(
+                    "✓ {}.{} inversion: {}{}",
+                    change.block_uuid,
+                    change.connector,
+                    change.inverted,
+                    if change.changed { "" } else { " (unchanged)" },
+                );
+            }
+        }
         ConfigCmd::SetParam {
             file,
             selector,
