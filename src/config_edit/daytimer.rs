@@ -1,6 +1,8 @@
-use std::collections::BTreeMap;
+use std::collections::{BTreeMap, BTreeSet};
+use std::ops::Range;
 
-use anyhow::{Result, bail};
+use anyhow::{Context, Result, bail, ensure};
+use quick_xml::{Reader, events::Event};
 use serde::Serialize;
 use xmltree::Element;
 
@@ -50,6 +52,15 @@ pub struct DayTimerEntryActivationChange {
     pub previous_attribute: Option<String>,
     pub previous_required: bool,
     pub activation_required: bool,
+    pub changed: bool,
+}
+
+#[derive(Debug, Serialize)]
+pub struct DayTimerEntryEndChange {
+    pub block_uuid: String,
+    pub entry: DayTimerEntryIdentity,
+    pub stored_mode_uuid: String,
+    pub new_to_minutes: u32,
     pub changed: bool,
 }
 
@@ -117,7 +128,293 @@ fn mode_uuid_key(raw: &str) -> Option<String> {
     (!key.bytes().all(|byte| byte == b'0')).then_some(key)
 }
 
+struct EndStorage {
+    to: Range<usize>,
+    dates: BTreeMap<String, Range<usize>>,
+    document_insert: usize,
+}
+
+fn end_storage(
+    data: &[u8],
+    editor: &ConfigEditor,
+    selected: &SelectedEntry,
+    document_path: &[usize],
+) -> Result<EndStorage> {
+    std::str::from_utf8(data).context("DayTimer end editing requires UTF-8 XML")?;
+    let elements = ConfigEditor::iter_elements(&editor.root);
+    let block = editor.get_element(&selected.path);
+    let target = block.children[selected.position].as_element().unwrap();
+    let document = editor.get_element(document_path);
+    let mut ancestors = BTreeSet::new();
+    for depth in document_path.len()..=selected.path.len() {
+        let ancestor = editor.get_element(&selected.path[..depth]);
+        ancestors.insert(
+            elements
+                .iter()
+                .position(|element| std::ptr::eq(*element, ancestor))
+                .unwrap(),
+        );
+    }
+    let offset = usize::from(data.starts_with(b"\xef\xbb\xbf")) * 3;
+    let mut reader = Reader::from_reader(&data[offset..]);
+    let mut ordinal = 0;
+    let mut to = None;
+    let mut dates = BTreeMap::new();
+    let mut document_insert = None;
+    loop {
+        match reader.read_event()? {
+            Event::Start(raw) | Event::Empty(raw) => {
+                let element = elements
+                    .get(ordinal)
+                    .context("DayTimer raw/DOM shape differs")?;
+                let selected_entry = std::ptr::eq(*element, target);
+                let owner = std::ptr::eq(*element, block);
+                let stamp = std::ptr::eq(*element, document);
+                let entry = block
+                    .children
+                    .iter()
+                    .filter_map(|node| node.as_element())
+                    .any(|child| child.name == "Entry" && std::ptr::eq(child, *element));
+                ensure!(
+                    raw.name().as_ref() == element.name.as_bytes()
+                        && element.namespace.is_none()
+                        && element.prefix.is_none(),
+                    "Namespaced or differing DayTimer raw/DOM elements are unsupported; nothing was changed."
+                );
+                let mut seen = BTreeMap::new();
+                for attribute in raw.attributes().with_checks(false) {
+                    let attribute =
+                        attribute.context("Cannot inspect original DayTimer attributes")?;
+                    let key = std::str::from_utf8(attribute.key.as_ref())?;
+                    ensure!(
+                        !key.contains(':') && key != "xmlns",
+                        "Namespaced DayTimer XML is unsupported; nothing was changed."
+                    );
+                    let identity = element.name == "C" && matches!(key, "Type" | "U" | "Title");
+                    let guarded = owner
+                        || entry
+                        || identity
+                        || (stamp && matches!(key, "Date" | "DateS"))
+                        || (ancestors.contains(&ordinal) && matches!(key, "WF" | "uuidParent"))
+                        || (element.name == "IoData" && key == "Pr");
+                    if let Some(previous) = seen.insert(key.to_owned(), attribute.value.to_vec()) {
+                        let guarded_duplicate = owner
+                            || entry
+                            || (stamp && matches!(key, "Type" | "Date" | "DateS"))
+                            || (ancestors.contains(&ordinal) && matches!(key, "WF" | "uuidParent"));
+                        ensure!(
+                            !guarded_duplicate && previous == attribute.value.as_ref(),
+                            "Duplicate guarded or conflicting DayTimer attribute '{key}'; nothing was changed."
+                        );
+                        continue;
+                    }
+                    if guarded {
+                        let sanitized = format!("_{key}");
+                        let dom_key =
+                            if editor
+                                .digit_attr_renames
+                                .iter()
+                                .any(|(replacement, original)| {
+                                    original == key && replacement == &sanitized
+                                })
+                            {
+                                sanitized.as_str()
+                            } else {
+                                key
+                            };
+                        ensure!(
+                            !attribute.value.windows(2).any(|bytes| bytes == b"&#")
+                                && element.attributes.get(dom_key).map(String::as_str)
+                                    == Some(attribute.unescape_value()?.as_ref()),
+                            "Original DayTimer attribute '{key}' differs from admitted storage (including shared digit-name sanitizer effects); nothing was changed."
+                        );
+                    }
+                    if (selected_entry && key == "To") || (stamp && matches!(key, "Date" | "DateS"))
+                    {
+                        let start = (attribute.value.as_ptr() as usize)
+                            .checked_sub(data.as_ptr() as usize)
+                            .filter(|start| {
+                                data.get(*start..*start + attribute.value.len())
+                                    == Some(attribute.value.as_ref())
+                            })
+                            .context(
+                                "Cannot locate original DayTimer attribute; nothing was changed",
+                            )?;
+                        let range = start..start + attribute.value.len();
+                        if selected_entry {
+                            to = Some(range);
+                        } else {
+                            dates.insert(key.to_owned(), range);
+                        }
+                    }
+                }
+                if stamp {
+                    let end = reader.buffer_position() as usize + offset;
+                    document_insert = Some(end - if data[end - 2] == b'/' { 2 } else { 1 });
+                }
+                ordinal += 1;
+            }
+            Event::Decl(declaration) => {
+                if let Some(encoding) = declaration.encoding() {
+                    let encoding = encoding?;
+                    ensure!(
+                        encoding.eq_ignore_ascii_case(b"utf-8")
+                            || encoding.eq_ignore_ascii_case(b"utf8"),
+                        "DayTimer end editing requires UTF-8 XML; nothing was changed."
+                    );
+                }
+            }
+            Event::DocType(_) => {
+                bail!("DTD-dependent DayTimer XML is unsupported; nothing was changed.")
+            }
+            Event::Eof => break,
+            _ => {}
+        }
+    }
+    ensure!(
+        ordinal == elements.len(),
+        "DayTimer raw/DOM shape differs; nothing was changed."
+    );
+    Ok(EndStorage {
+        to: to.context("Missing original DayTimer To; nothing was changed")?,
+        dates,
+        document_insert: document_insert
+            .context("Missing original Document; nothing was changed")?,
+    })
+}
+
 impl ConfigEditor {
+    pub fn edit_daytimer_entry_end(
+        data: &[u8],
+        selector: &str,
+        identity: DayTimerEntryIdentity,
+        new_to: &str,
+    ) -> Result<(Vec<u8>, DayTimerEntryEndChange)> {
+        let new_to_minutes = timer_time(new_to)?;
+        ensure!(
+            identity.from_minutes < new_to_minutes,
+            "The new To must be after the unchanged From and at most 24:00; native clamp/wrap branches are not supported. Nothing was changed."
+        );
+        let mut editor = Self::load(data)?;
+        let selected = editor.select_daytimer_entry(selector, &identity)?;
+        let documents = editor.find_elements("Type:Document");
+        ensure!(
+            documents.len() == 1 && documents[0].len() <= 1,
+            "DayTimer end editing requires exactly one stampable root/direct-child Document; nothing was changed."
+        );
+        let document_path = &documents[0];
+        let document = editor.get_element(document_path);
+        ensure!(
+            document.name == "C"
+                && document.attributes.get("Type").map(String::as_str) == Some("Document")
+                && document.namespace.is_none()
+                && document.prefix.is_none()
+                && selected.path.starts_with(document_path),
+            "DayTimer end editing requires an exact plain owning Document; nothing was changed."
+        );
+        ensure!(
+            !document
+                .children
+                .iter()
+                .filter_map(|node| node.as_element())
+                .any(|child| child.name == "Template"),
+            "DayTimer end editing does not emulate direct Document Template locks or accepted propagation; nothing was changed."
+        );
+        for depth in document_path.len()..=selected.path.len() {
+            let ancestor = editor.get_element(&selected.path[..depth]);
+            ensure!(
+                ancestor.attributes.get("Type").map(String::as_str) != Some("DocumentTemplate")
+                    && !ancestor.attributes.contains_key("uuidParent")
+                    && integer(ancestor, "WF")? & 0x2000_0000 == 0,
+                "Template-owned DayTimer storage is unsupported; nothing was changed."
+            );
+        }
+        let block = editor.get_element(&selected.path);
+        let block_uuid = block
+            .attributes
+            .get("U")
+            .filter(|uuid| !uuid.is_empty())
+            .context("DayTimer owner requires a unique stored U; nothing was changed")?
+            .clone();
+        let owner_key = mode_uuid_key(&block_uuid);
+        let owners = Self::iter_elements(&editor.root)
+            .into_iter()
+            .filter(|element| {
+                element.name == "C"
+                    && element.attributes.get("U").is_some_and(|uuid| {
+                        if let Some(key) = &owner_key {
+                            mode_uuid_key(uuid).as_ref() == Some(key)
+                        } else {
+                            uuid == &block_uuid
+                        }
+                    })
+            })
+            .count();
+        ensure!(
+            owners == 1,
+            "Ambiguous DayTimer owner identity; nothing was changed."
+        );
+        let target = block.children[selected.position].as_element().unwrap();
+        let mode_index = integer(target, "Ix")?;
+        let mut previous_key = None;
+        for (position, child) in block.children.iter().enumerate() {
+            let Some(entry) = child.as_element().filter(|entry| entry.name == "Entry") else {
+                continue;
+            };
+            let index = integer(entry, "Ix")?;
+            let from = integer(entry, "From")?;
+            let to = integer(entry, "To")?;
+            let key = (index, from);
+            ensure!(
+                previous_key.is_none_or(|previous| previous < key),
+                "DayTimer entries are not already sorted by Ix/From; incidental native sorting is refused. Nothing was changed."
+            );
+            previous_key = Some(key);
+            ensure!(
+                position == selected.position
+                    || index != mode_index
+                    || new_to_minutes < from
+                    || to < identity.from_minutes,
+                "The new To would touch or overlap another entry; incidental native normalization is refused. Nothing was changed."
+            );
+        }
+        let storage = end_storage(data, &editor, &selected, document_path)?;
+        let change = DayTimerEntryEndChange {
+            block_uuid,
+            changed: identity.to_minutes != new_to_minutes,
+            entry: identity,
+            stored_mode_uuid: selected.stored_mode_uuid,
+            new_to_minutes,
+        };
+        if !change.changed {
+            return Ok((data.to_vec(), change));
+        }
+        ensure!(
+            editor.stamp_document(&chrono::Local::now().fixed_offset()),
+            "Cannot stamp the admitted DayTimer Document; nothing was changed."
+        );
+        let document = editor.get_element(document_path);
+        let mut patches = vec![(storage.to, new_to_minutes.to_string())];
+        let mut inserted = String::new();
+        for key in ["Date", "DateS"] {
+            let value = &document.attributes[key];
+            if let Some(range) = storage.dates.get(key) {
+                patches.push((range.clone(), value.clone()));
+            } else {
+                inserted.push_str(&format!(" {key}=\"{value}\""));
+            }
+        }
+        if !inserted.is_empty() {
+            patches.push((storage.document_insert..storage.document_insert, inserted));
+        }
+        patches.sort_by_key(|patch| std::cmp::Reverse(patch.0.start));
+        let mut output = data.to_vec();
+        for (range, value) in patches {
+            output.splice(range, value.bytes());
+        }
+        Ok((output, change))
+    }
+
     fn select_daytimer_entry(
         &self,
         selector: &str,

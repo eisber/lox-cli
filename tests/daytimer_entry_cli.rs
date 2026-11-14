@@ -10,6 +10,278 @@ const NATIVE_MODE_A: &str = "00000000-0000-0004-1500000000000000";
 const NATIVE_MODE_B: &str = "00000000-0000-0005-1500000000000000";
 const RFC_MODE_A: &str = "00000000-0000-0004-1500-000000000000";
 
+fn end_command(input: &std::path::Path, end: &str) -> assert_cmd::Command {
+    end_command_from(input, "02:00", end)
+}
+
+fn end_command_from(input: &std::path::Path, from: &str, end: &str) -> assert_cmd::Command {
+    let mut command = assert_cmd::cargo::cargo_bin_cmd!("lox");
+    command
+        .env("LOX_TELEMETRY", "0")
+        .args(["config", "timer-entry-set-end"])
+        .arg(input)
+        .args([
+            "uuid:timer",
+            "--mode-uuid",
+            RFC_MODE_A,
+            "--from",
+            from,
+            "--to",
+            "03:00",
+            "--new-to",
+            end,
+        ]);
+    command
+}
+
+fn end_fixture() -> String {
+    let source = native_fixture(NATIVE_MODE_A, NATIVE_MODE_A);
+    let rows = [
+        "<Entry From=\"600\" To=\"660\" V=\"3\" Marker=\"late\"/>",
+        "<Entry From=\"120\" To=\"180\" Ix=\"1\" V=\"4\" NeedActivate=\"true\" Marker=\"other-mode\"/>",
+        "<Entry From=\"120\" To=\"180\" V=\"5\" Marker=\"selected\"/>",
+    ];
+    let mut sorted = source;
+    for row in rows {
+        sorted = sorted.replace(row, "");
+    }
+    sorted.replace(
+        "<Unknown Preserve=\"yes\"/>",
+        &format!(
+            "{}{}{}<Unknown Preserve=\"yes\"/>",
+            rows[2], rows[0], rows[1]
+        ),
+    )
+}
+
+fn without_document_stamp(source: &str) -> String {
+    let document = source.find("Type=\"Document\"").unwrap();
+    let start = source[..document].rfind("<C").unwrap();
+    let end = document + source[document..].find('>').unwrap();
+    let mut tag = source[start..end].to_owned();
+    for key in ["Date", "DateS"] {
+        let prefix = format!(" {key}=\"");
+        if let Some(position) = tag.find(&prefix) {
+            let value = position + prefix.len();
+            let end = value + tag[value..].find('"').unwrap() + 1;
+            tag.replace_range(position..end, "");
+        }
+    }
+    format!("{}{tag}{}", &source[..start], &source[end..])
+}
+
+#[test]
+fn daytimer_end_real_native_fixture_keeps_wf_metadata_and_all_other_bytes() {
+    let dir = tempfile::tempdir_in(env!("CARGO_MANIFEST_DIR")).unwrap();
+    let input = dir.path().join("input.Loxone");
+    let source = include_str!("eval/golden/configs/Schedule-Based AC Control.Loxone");
+    fs::write(&input, source).unwrap();
+    let mut command = assert_cmd::cargo::cargo_bin_cmd!("lox");
+    let result = command
+        .env("LOX_TELEMETRY", "0")
+        .args(["config", "timer-entry-set-end"])
+        .arg(&input)
+        .args([
+            "uuid:1ecf58a7-03a3-70b0-ffff48a8846ceda9",
+            "--mode-uuid",
+            NATIVE_MODE_A,
+            "--from",
+            "06:00",
+            "--to",
+            "21:00",
+            "--new-to",
+            "20:59",
+            "-o",
+            "json",
+        ])
+        .assert()
+        .success()
+        .get_output()
+        .stdout
+        .clone();
+    let result: Value = serde_json::from_slice(&result).unwrap();
+    assert_eq!(result["time_change"]["new_to_minutes"], 1259);
+    assert_eq!(result["time_change"]["changed"], true);
+    let saved = fs::read_to_string(&input).unwrap();
+    assert_eq!(
+        without_document_stamp(&saved),
+        without_document_stamp(&source.replacen(
+            "<Entry From=\"360\" To=\"1260\" Ix=\"1\" V=\"1\"/>",
+            "<Entry From=\"360\" To=\"1259\" Ix=\"1\" V=\"1\"/>",
+            1,
+        ))
+    );
+    assert_ne!(saved, source);
+}
+
+#[test]
+fn daytimer_end_changes_only_to_and_stamp_and_keeps_raw_noop_and_duplicates() {
+    let dir = tempfile::tempdir_in(env!("CARGO_MANIFEST_DIR")).unwrap();
+    let input = dir.path().join("input.Loxone");
+    let output = dir.path().join("output.Loxone");
+    let source = end_fixture()
+        .replace("To=\"180\" V=\"5\"", "To=\"+0180\" V=\"5\"")
+        .replace(
+            "<Unknown Preserve=\"yes\"/>",
+            "<Unknown Preserve=\"yes\" Preserve=\"yes\" Text=\"Wake 7am=ok\"/>",
+        )
+        .replace("Title=\"Other\"", "Title=\"Other\" Title=\"Other\"");
+    fs::write(&input, &source).unwrap();
+    end_command(&input, "03:00")
+        .arg("--save-as")
+        .arg(&output)
+        .args(["-q", "-o", "json"])
+        .assert()
+        .success()
+        .stdout(predicate::str::contains("\"changed\":false"));
+    assert_eq!(fs::read(&input).unwrap(), source.as_bytes());
+    assert_eq!(fs::read(&output).unwrap(), source.as_bytes());
+    end_command(&input, "03:01")
+        .args(["-q", "-o", "csv", "--no-header"])
+        .assert()
+        .success()
+        .stdout(format!(
+            "\"timer\",{RFC_MODE_A},{NATIVE_MODE_A},120,180,181,true\n"
+        ));
+    let saved = fs::read_to_string(&input).unwrap();
+    assert_eq!(
+        without_document_stamp(&saved),
+        without_document_stamp(&source.replace("To=\"+0180\"", "To=\"181\""))
+    );
+    end_command(&output, "02:01")
+        .args(["-q"])
+        .assert()
+        .success()
+        .stdout("");
+}
+
+#[test]
+fn daytimer_end_refuses_invalid_or_collateral_ranges_without_any_output_write() {
+    let dir = tempfile::tempdir_in(env!("CARGO_MANIFEST_DIR")).unwrap();
+    let input = dir.path().join("input.Loxone");
+    let output = dir.path().join("existing.Loxone");
+    for end in [
+        "00:00", "02:00", "01:59", "24:01", "3:00", "03:00:00", "10:00", "10:30", "11:30",
+    ] {
+        let source = end_fixture();
+        fs::write(&input, &source).unwrap();
+        fs::write(&output, b"existing destination").unwrap();
+        end_command(&input, end)
+            .arg("--save-as")
+            .arg(&output)
+            .assert()
+            .failure();
+        assert_eq!(fs::read(&input).unwrap(), source.as_bytes());
+        assert_eq!(fs::read(&output).unwrap(), b"existing destination");
+        let missing = dir.path().join("missing.Loxone");
+        end_command(&input, end)
+            .arg("--save-as")
+            .arg(&missing)
+            .assert()
+            .failure();
+        assert!(!missing.exists());
+    }
+}
+
+#[test]
+fn daytimer_end_admission_precedes_noop_for_unsorted_template_and_raw_conflicts() {
+    let dir = tempfile::tempdir_in(env!("CARGO_MANIFEST_DIR")).unwrap();
+    let input = dir.path().join("input.Loxone");
+    let output = dir.path().join("existing.Loxone");
+    for source in [
+        native_fixture(NATIVE_MODE_A, NATIVE_MODE_A),
+        end_fixture().replace("Type=\"Document\"", "Type=\"document\""),
+        end_fixture()
+            .replace("<Loxone>", "<Loxone><Nested>")
+            .replace("</Loxone>", "</Nested></Loxone>"),
+        end_fixture().replace("DateS=\"1\">", "DateS=\"1\"><Template IfT=\"true\"/>"),
+        end_fixture().replace("DateS=\"1\">", "DateS=\"1\"><Template IfT=\"false\"/>"),
+        end_fixture().replace("WF=\"16384\"", "WF=\"536887296\""),
+        end_fixture().replace("WF=\"16384\"", "WF=\"16384\" uuidParent=\"parent\""),
+        end_fixture().replace("To=\"180\" V=\"5\"", "To=\"180\" To=\"180\" V=\"5\""),
+        end_fixture().replace("Marker=\"selected\"", "Marker=\"Wake 7am=ok\""),
+        end_fixture().replace("DateS=\"1\"", "DateS=\"1\" DateS=\"1\""),
+        end_fixture().replace(
+            "<Unknown Preserve=\"yes\"/>",
+            "<C Type=\"And\" U=\"timer\"/><Unknown Preserve=\"yes\"/>",
+        ),
+        end_fixture().replace("<Loxone>", "<Loxone xmlns=\"urn:test\">"),
+    ] {
+        fs::write(&input, &source).unwrap();
+        fs::write(&output, b"existing destination").unwrap();
+        end_command(&input, "03:00")
+            .arg("--save-as")
+            .arg(&output)
+            .assert()
+            .failure();
+        assert_eq!(fs::read(&input).unwrap(), source.as_bytes());
+        assert_eq!(fs::read(&output).unwrap(), b"existing destination");
+    }
+}
+
+#[test]
+fn daytimer_end_root_document_adds_missing_stamps_and_dry_run_never_reads_input() {
+    let dir = tempfile::tempdir_in(env!("CARGO_MANIFEST_DIR")).unwrap();
+    let input = dir.path().join("input.Loxone");
+    let source = end_fixture()
+        .replace("<Loxone>", "")
+        .replace("</Loxone>", "")
+        .replace(" Date=\"2020-01-01 00:00:00\" DateS=\"1\"", "");
+    fs::write(&input, &source).unwrap();
+    end_command(&input, "03:01")
+        .args(["-q"])
+        .assert()
+        .success()
+        .stdout("");
+    let saved = fs::read_to_string(&input).unwrap();
+    assert!(saved.contains(" DateS=\""));
+    assert_eq!(
+        without_document_stamp(&saved),
+        source.replace("To=\"180\" V=\"5\"", "To=\"181\" V=\"5\"")
+    );
+    end_command(&dir.path().join("missing.Loxone"), "03:01")
+        .args(["--dry-run", "-o", "json"])
+        .assert()
+        .failure()
+        .stdout(predicate::str::contains("dry_run_not_supported"))
+        .stdout(predicate::str::contains("Cannot read").not());
+}
+
+#[test]
+fn daytimer_end_supports_final_midnight_bound_without_recounting_or_new_start() {
+    let dir = tempfile::tempdir_in(env!("CARGO_MANIFEST_DIR")).unwrap();
+    let input = dir.path().join("input.Loxone");
+    let source = end_fixture().replace("N=\"3\"", "N=\"2\"").replace(
+        "<Entry From=\"600\" To=\"660\" V=\"3\" Marker=\"late\"/>",
+        "",
+    );
+    fs::write(&input, &source).unwrap();
+    end_command(&input, "24:00")
+        .args(["-o", "json"])
+        .assert()
+        .success();
+    assert_eq!(
+        without_document_stamp(&fs::read_to_string(&input).unwrap()),
+        without_document_stamp(&source.replace("To=\"180\" V=\"5\"", "To=\"1440\" V=\"5\""))
+    );
+    end_command(&input, "03:00")
+        .args(["--new-from", "01:00"])
+        .assert()
+        .failure()
+        .stderr(predicate::str::contains("--new-from"));
+    let zero = source.replace("From=\"120\" To=\"180\" V=\"5\"", "To=\"180\" V=\"5\"");
+    fs::write(&input, &zero).unwrap();
+    end_command_from(&input, "00:00", "00:01")
+        .args(["-q"])
+        .assert()
+        .success()
+        .stdout("");
+    assert_eq!(
+        without_document_stamp(&fs::read_to_string(&input).unwrap()),
+        without_document_stamp(&zero.replace("To=\"180\" V=\"5\"", "To=\"1\" V=\"5\""))
+    );
+}
+
 fn fixture() -> String {
     format!(
         "\u{feff}<?xml version=\"1.0\" encoding=\"utf-8\"?>\r\n<Loxone><C Type=\"Document\" Date=\"2020-01-01 00:00:00\" DateS=\"1\"><C Type=\"DayTimer\" U=\"timer\" Title=\"Schedule\" Analog=\"false\" DefValue=\"0\" N=\"3\" Modes=\"{MODE_A},{MODE_B}\" WF=\"16384\" Unknown=\"keep\"><Entry From=\"600\" To=\"660\" V=\"3\" Marker=\"late\"/><Co K=\"AQ\" U=\"output\"><In Input=\"wire\"/></Co><Entry From=\"120\" To=\"180\" Ix=\"1\" V=\"4\" NeedActivate=\"true\" Marker=\"other-mode\"/><Entry From=\"120\" To=\"180\" V=\"5\" Marker=\"selected\"/><Unknown Preserve=\"yes\"/></C><C Type=\"DayTimer\" U=\"other\" Title=\"Other\" N=\"1\"><Entry To=\"300\" V=\"9\"/></C><C Type=\"Mode\" U=\"{MODE_A}\" Title=\"Mode A\"/><C Type=\"Mode\" U=\"{MODE_B}\" Title=\"Mode B\"/></C></Loxone>\r\n"

@@ -2933,6 +2933,72 @@ pub fn cmd_config(ctx: &RunContext, action: ConfigCmd) -> Result<()> {
                 );
             }
         }
+        ConfigCmd::TimerEntrySetEnd {
+            file,
+            selector,
+            mode_uuid,
+            from,
+            to,
+            new_to,
+            room,
+            save_as,
+        } => {
+            let identity =
+                crate::config_edit::daytimer::DayTimerEntryIdentity::parse(&mode_uuid, &from, &to)?;
+            let selector = match room {
+                Some(_) if selector.ends_with(']') && selector.contains('[') => {
+                    bail!("Use either a bracket room qualifier or --room, not both.")
+                }
+                Some(room) => format!("{selector} [{room}]"),
+                None => selector,
+            };
+            let data = fs::read(&file).with_context(|| format!("Cannot read {file}"))?;
+            let (output, change) =
+                ConfigEditor::edit_daytimer_entry_end(&data, &selector, identity, &new_to)?;
+            if change.changed || save_as.is_some() {
+                write_edited_bytes(
+                    &output,
+                    &file,
+                    save_as.as_deref(),
+                    ctx.quiet || ctx.json || ctx.csv,
+                )?;
+            }
+            if ctx.json {
+                emit_json(
+                    ctx,
+                    serde_json::json!({
+                        "ok": true,
+                        "saved_to": save_as.as_deref().unwrap_or(&file),
+                        "time_change": change,
+                    }),
+                );
+            } else if ctx.csv {
+                if !ctx.no_header {
+                    println!(
+                        "BLOCK_UUID,MODE_UUID,STORED_MODE_UUID,FROM_MINUTES,PREVIOUS_TO_MINUTES,NEW_TO_MINUTES,CHANGED"
+                    );
+                }
+                println!(
+                    "\"{}\",{},{},{},{},{},{}",
+                    change.block_uuid.replace('"', "\"\""),
+                    change.entry.mode_uuid,
+                    change.stored_mode_uuid,
+                    change.entry.from_minutes,
+                    change.entry.to_minutes,
+                    change.new_to_minutes,
+                    change.changed,
+                );
+            } else if !ctx.quiet {
+                println!(
+                    "✓ DayTimer entry {from}-{to} for mode {mode_uuid}: To = {new_to} ({})",
+                    if change.changed {
+                        "changed"
+                    } else {
+                        "unchanged"
+                    }
+                );
+            }
+        }
         ConfigCmd::TimerEntrySetActivation {
             file,
             selector,

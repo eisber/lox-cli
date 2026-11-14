@@ -1384,6 +1384,31 @@ lox config timer-schedule file.Loxone "Night Timer" "06:00-08:00" --value 0.5
 
 Arguments: `<FILE> <SELECTOR> <RANGE>`. Range format: `HH:MM-HH:MM`. `--value` sets the output during active period (default: 1).
 
+Change only the **To boundary** of one existing ordinary digital interval:
+
+```bash
+lox config timer-entry-set-end file.Loxone "Night Timer" --mode-uuid 00000000-0000-0004-1500000000000000 --from 20:00 --to 23:00 --new-to 23:01 --save-as edited.Loxone -o json
+```
+
+`--from` / `--to` identify the existing interval; `--new-to` changes only
+its end, in exact `HH:MM` minute increments, strictly after the unchanged
+start and at most `24:00` (not `00:00`). `--room` and native/RFC mode UUID
+comparison follow `timer-entry-remove`. Both shortening and extending the
+end are supported; there is no new-start or atomic two-endpoint edit.
+Already sorted, separated ordinary digital storage is required. Touching,
+overlap, wrap/collapse, sorting/merging other rows, analog schedules,
+Template-owned storage, and unstamped/namespaced documents are refused.
+The old replacement command is unchanged.
+
+Only selected To and the Document save stamp change; N, From, Modes,
+NeedActivate, V spellings, wires and every unrelated byte are preserved.
+All admission checks run before no-op detection or writing a destination.
+Same-value requests retain original bytes, also with `--save-as`.
+JSON `time_change` reports the original identity, matched stored mode UUID,
+`new_to_minutes` and `changed`; CSV and quiet output are supported.
+`--dry-run` remains unsupported. See
+[native scope and limits](docs/knowledge/daytimer-entry-end-native.md).
+
 Change **Activation required** for one existing ordinary digital interval:
 
 ```bash

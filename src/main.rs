@@ -970,6 +970,27 @@ pub(crate) enum ConfigCmd {
         #[arg(long)]
         save_as: Option<String>,
     },
+    /// Change only the To boundary of one existing ordinary digital DayTimer interval
+    TimerEntrySetEnd {
+        file: String,
+        selector: String,
+        /// Referenced operating mode UUID, NOT an entry UUID or weekday mask
+        #[arg(long)]
+        mode_uuid: String,
+        /// Existing interval start (unchanged)
+        #[arg(long, value_name = "HH:MM")]
+        from: String,
+        /// Existing interval end, used for exact selection
+        #[arg(long, value_name = "HH:MM")]
+        to: String,
+        /// New end after the unchanged start, up to 24:00; touching/overlap refused
+        #[arg(long, value_name = "HH:MM")]
+        new_to: String,
+        #[arg(short, long)]
+        room: Option<String>,
+        #[arg(long)]
+        save_as: Option<String>,
+    },
     /// Set an existing ordinary digital DayTimer interval's Activation required checkbox
     TimerEntrySetActivation {
         file: String,
