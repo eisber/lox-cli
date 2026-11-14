@@ -1853,7 +1853,7 @@ Repeated control IDs and identical actions are allowed. Move selects an existing
 target row's **original index**: moving 0 to 2 changes `[A,B,C]` to `[B,C,A]`;
 moving 2 to 0 changes it to `[C,A,B]`. There is no append sentinel.
 Pauses move/delete as actual actions; adjacent pauses, their stored command/values,
-absolute-time conditions, and all other event groups are left unchanged. This
+absolute-time conditions, and other admitted event groups retain their semantics. This
 does **not** edit a pause duration or assume its units.
 
 This deliberately bounded native transaction supports an existing ordinary
@@ -1863,8 +1863,9 @@ explicit `V >= 90`, `STA="1"`, and APC `type=1`, `active=true`,
 Supported actions are control actions (`type 0/8`, unique existing native35
 reference in the same Document, nondeleted effective WF) and pauses (`type 5`,
 existing numeric ID). Commands and optional string-array `arrValues` are retained.
-Only existing numeric time conditions (`type 4/5`) whose native validity checks
-pass are admitted; **no conditions are edited**. Protected/invalid/default-flagged
+Only existing plain-integer time conditions (`type 4/5`) within the supported
+validity range are admitted (`type 4 > 0`, `type 5` in `0..1440`);
+**no conditions are edited**. Protected/invalid/default-flagged
 rules, other entry kinds, legacy value/descriptor migration, ambiguous identities,
 templates, `IfT`, and inherited `uuidParent` layouts are refused.
 
@@ -1874,10 +1875,28 @@ fields remain true; this is not a request to execute an empty rule. Subsequent
 edits require a valid nonempty rule again. A same-row move is byte-for-byte
 unchanged, but still runs **all admission checks before any save**, including
 `--save-as`. Changes patch only APC, the derived STA when needed, and the owning
-Document's save stamp; unrelated XML bytes/BOM/line endings are preserved.
-Unsupported XML encodings, duplicate attributes/JSON members, ambiguous native
-entity storage, and any shared-loader digit-name sanitization are refused rather
-than repaired.
+Document's save stamp; XML bytes outside those patches, including BOM and line
+endings, are preserved. The owning element must have exact `Type="Document"`,
+including for no-ops.
+
+APC is reserialized, **not byte-preserved**: property order and string escaping
+may normalize. Only known serialized rule, event-group, event and action members
+are admitted. Rule `visu`/`permissions` (native load-only data) and unknown members
+at any of those levels are refused, never silently dropped or preserved under a
+native-parity claim. Numeric tokens must be plain integers within the exact native
+double range (`-9007199254740991..9007199254740991`), with narrower native integer
+field/range checks where applicable. Decimal/exponent notation, oversized integers,
+and non-text names/descriptions are refused before mutation or no-op; there is no
+number-spelling byte-preservation promise.
+
+Value-identical duplicate attributes on unrelated nodes (for example API
+Connectors) retain their original bytes, matching the existing loader's exact
+raw-value deduplication. Conflicting duplicates, any duplicate on the Document,
+selected owner or referenced targets, and duplicate global `C` identities
+(`U`/`Type`) remain unsupported. Raw entity/newline checks apply to guarded
+identity/state/stamp attributes and global `C` identities, not unrelated APC
+payloads. Unsupported encodings/namespaces, duplicate JSON members, and any
+shared-loader digit-name sanitization are refused rather than repaired.
 
 ### Auto-layout
 

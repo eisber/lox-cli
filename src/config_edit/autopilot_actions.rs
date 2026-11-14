@@ -1,4 +1,8 @@
-use std::{collections::BTreeMap, fmt, ops::Range};
+use std::{
+    collections::{BTreeMap, BTreeSet},
+    fmt,
+    ops::Range,
+};
 
 use anyhow::{Context, Result, bail, ensure};
 use quick_xml::{Reader, events::Event};
@@ -24,6 +28,8 @@ pub struct AutopilotActionChange {
 
 // serde_json normally silently keeps the last duplicate object member.
 struct ActionJson(Value);
+
+const MAX_EXACT_APC_INTEGER: u64 = (1 << 53) - 1;
 
 impl<'de> Deserialize<'de> for ActionJson {
     fn deserialize<D: Deserializer<'de>>(deserializer: D) -> std::result::Result<Self, D::Error> {
@@ -69,19 +75,32 @@ impl<'de> Deserialize<'de> for ActionJson {
                 self,
                 value: i64,
             ) -> std::result::Result<Self::Value, E> {
+                if value.unsigned_abs() > MAX_EXACT_APC_INTEGER {
+                    return Err(E::custom(
+                        "APC integer exceeds the supported exact native double range",
+                    ));
+                }
                 Ok(ActionJson(value.into()))
             }
             fn visit_u64<E: serde::de::Error>(
                 self,
                 value: u64,
             ) -> std::result::Result<Self::Value, E> {
+                if value > MAX_EXACT_APC_INTEGER {
+                    return Err(E::custom(
+                        "APC integer exceeds the supported exact native double range",
+                    ));
+                }
                 Ok(ActionJson(value.into()))
             }
             fn visit_f64<E: serde::de::Error>(
                 self,
-                value: f64,
+                _value: f64,
             ) -> std::result::Result<Self::Value, E> {
-                Ok(ActionJson(value.into()))
+                // This also catches serde_json's lossy fallback for oversized integer tokens.
+                Err(E::custom(
+                    "APC decimal/exponent/oversized numbers are unsupported; use existing plain integer numeric storage",
+                ))
             }
             fn visit_str<E: serde::de::Error>(
                 self,
@@ -95,6 +114,31 @@ impl<'de> Deserialize<'de> for ActionJson {
         }
         deserializer.deserialize_any(JsonVisitor)
     }
+}
+
+fn serialized_members(value: &Value, allowed: &[&str], section: &str) -> Result<()> {
+    let members = value
+        .as_object()
+        .with_context(|| format!("Autopilot {section} must be an object; nothing was changed."))?;
+    for key in members.keys() {
+        ensure!(
+            allowed.contains(&key.as_str()),
+            "Unsupported Autopilot {section} member '{key}'; native accepted serialization is not qualified for it. Nothing was changed."
+        );
+    }
+    for key in ["name", "description"] {
+        ensure!(
+            value.get(key).is_none_or(Value::is_string),
+            "Autopilot {section} member '{key}' must be text; nothing was changed."
+        );
+    }
+    ensure!(
+        value
+            .get("operator")
+            .is_none_or(|value| value.as_u64().is_some_and(|value| value <= i32::MAX as u64)),
+        "Autopilot {section} operator must be a nonnegative signed32 integer; nothing was changed."
+    );
+    Ok(())
 }
 
 fn native_uuid(raw: &str) -> Option<uuid::Uuid> {
@@ -157,6 +201,7 @@ fn action_storage(
     data: &[u8],
     owner: usize,
     document: usize,
+    references: &BTreeSet<usize>,
     block: &Element,
 ) -> Result<ActionStorage> {
     std::str::from_utf8(data).context("Autopilot edits require UTF-8 XML; nothing was changed")?;
@@ -173,21 +218,37 @@ fn action_storage(
                 let end = reader.buffer_position() as usize + offset;
                 let selected = ordinal == owner;
                 let stamp = ordinal == document;
+                let guarded = selected || stamp || references.contains(&ordinal);
+                let control = element.name().as_ref() == b"C";
                 ensure!(
                     !element.name().as_ref().contains(&b':'),
                     "Namespaced Autopilot XML is unsupported; nothing was changed."
                 );
-                for attribute in element.attributes() {
-                    let attribute = attribute?;
+                let mut seen = BTreeMap::new();
+                for attribute in element.attributes().with_checks(false) {
+                    let attribute = attribute
+                        .context("Cannot inspect Autopilot raw attributes; nothing was changed")?;
                     let key = std::str::from_utf8(attribute.key.as_ref())?;
                     ensure!(
                         !key.contains(':') && key != "xmlns",
                         "Namespaced Autopilot XML is unsupported; nothing was changed."
                     );
-                    if matches!(
-                        key,
-                        "U" | "Type" | "V" | "WF" | "APC" | "STA" | "Date" | "DateS"
-                    ) {
+                    let global_identity = control && matches!(key, "U" | "Type");
+                    if let Some(previous) = seen.insert(key.to_owned(), attribute.value.to_vec()) {
+                        ensure!(
+                            !guarded && !global_identity && previous == attribute.value.as_ref(),
+                            "Autopilot edits refuse duplicate attribute '{key}' on guarded state/identities or conflicting raw values; nothing was changed."
+                        );
+                        // Match the shared loader's exact raw-value dedupe, without changing bytes.
+                        continue;
+                    }
+                    if global_identity
+                        || (guarded
+                            && matches!(
+                                key,
+                                "U" | "Type" | "V" | "WF" | "APC" | "STA" | "Date" | "DateS"
+                            ))
+                    {
                         ensure!(
                             !attribute.value.windows(2).any(|bytes| bytes == b"&#")
                                 && !attribute
@@ -267,7 +328,8 @@ impl ConfigEditor {
         let identity = native_uuid(requested).context(
             "Autopilot action edits require uuid:<exact nonnil native35 U> (8-4-4-16); nothing was changed.",
         )?;
-        let mut editor = Self::load(data)?;
+        let mut editor =
+            Self::load(data).context("Autopilot XML admission failed; nothing was changed")?;
         ensure!(
             editor.digit_attr_renames.is_empty(),
             "Autopilot edits refuse input changed by the shared digit-name sanitizer (including digit-like text); nothing was changed."
@@ -280,7 +342,10 @@ impl ConfigEditor {
         let document_path = &documents[0];
         let document = editor.get_element(document_path);
         ensure!(
-            document.name == "C" && document.namespace.is_none() && document.prefix.is_none(),
+            document.name == "C"
+                && document.attributes.get("Type").map(String::as_str) == Some("Document")
+                && document.namespace.is_none()
+                && document.prefix.is_none(),
             "Autopilot action edits require a plain Document; nothing was changed."
         );
         let elements = Self::iter_elements(&editor.root);
@@ -329,16 +394,30 @@ impl ConfigEditor {
             .context("Missing APC; nothing was changed")?;
         let ActionJson(mut rule) = serde_json::from_str::<ActionJson>(original_apc)
             .context("Unsupported APC JSON; nothing was changed")?;
+        serialized_members(
+            &rule,
+            &[
+                "type",
+                "id",
+                "active",
+                "activeIfValid",
+                "name",
+                "description",
+                "operator",
+                "invalid",
+                "ruleFlags",
+                "eventGroups",
+                "actions",
+            ],
+            "rule",
+        )?;
         ensure!(
             rule["type"] == 1
                 && rule["id"].as_str() == Some(requested)
                 && rule["active"] == true
                 && rule["activeIfValid"] == true
                 && rule.get("invalid").is_none_or(|value| value == false)
-                && rule.get("ruleFlags").is_none_or(|value| value == 0)
-                && rule.get("locked").is_none_or(|value| value == false)
-                && rule.get("isSecured").is_none_or(|value| value == false)
-                && rule.get("permissions").is_none(),
+                && rule.get("ruleFlags").is_none_or(|value| value == 0),
             "Only existing active, ordinary, unprotected type-1 APC rules with matching native35 id are supported; nothing was changed."
         );
         let groups = rule["eventGroups"]
@@ -346,6 +425,7 @@ impl ConfigEditor {
             .filter(|groups| !groups.is_empty())
             .context("Autopilot requires existing time eventGroups; nothing was changed")?;
         for group in groups {
+            serialized_members(group, &["operator", "events"], "event group")?;
             let events = group["events"]
                 .as_array()
                 .filter(|events| !events.is_empty())
@@ -353,7 +433,28 @@ impl ConfigEditor {
                     "Empty/legacy Autopilot event groups are unsupported; nothing was changed",
                 )?;
             for event in events {
+                serialized_members(
+                    event,
+                    &[
+                        "type",
+                        "descID",
+                        "id",
+                        "value",
+                        "operator",
+                        "name",
+                        "forceEdge",
+                        "invalid",
+                    ],
+                    "event",
+                )?;
                 current_descriptor(event)?;
+                ensure!(
+                    event.get("id").is_none_or(|value| value
+                        .as_u64()
+                        .is_some_and(|value| value <= i32::MAX as u64))
+                        && event.get("forceEdge").is_none_or(Value::is_boolean),
+                    "Autopilot time event id/forceEdge storage is unsupported; nothing was changed."
+                );
                 let value = event["value"].as_f64().filter(|value| value.is_finite())
                     .context("Autopilot time events require existing numeric values; nothing was changed")?;
                 ensure!(
@@ -372,7 +473,21 @@ impl ConfigEditor {
             .as_array()
             .filter(|actions| !actions.is_empty())
             .context("Autopilot requires existing actions; nothing was changed")?;
+        let mut reference_ordinals = BTreeSet::new();
         for action in actions {
+            serialized_members(
+                action,
+                &[
+                    "type",
+                    "descID",
+                    "id",
+                    "command",
+                    "arrValues",
+                    "name",
+                    "invalid",
+                ],
+                "action",
+            )?;
             current_descriptor(action)?;
             ensure!(
                 action["command"].is_string()
@@ -412,6 +527,8 @@ impl ConfigEditor {
                         "Action references must belong to the owning Document; nothing was changed."
                     );
                     native_flags(references[0])?;
+                    reference_ordinals
+                        .insert(entry_name_ordinal(&editor.root, references[0], &mut 0).unwrap());
                 }
                 Some(5) => ensure!(
                     action["id"]
@@ -432,7 +549,7 @@ impl ConfigEditor {
         let remaining_actions = actions.len() - usize::from(to_index.is_none());
         let owner = entry_name_ordinal(&editor.root, block, &mut 0).unwrap();
         let document_ordinal = entry_name_ordinal(&editor.root, document, &mut 0).unwrap();
-        let storage = action_storage(data, owner, document_ordinal, block)?;
+        let storage = action_storage(data, owner, document_ordinal, &reference_ordinals, block)?;
         let changed = to_index != Some(index);
         let change = AutopilotActionChange {
             block_uuid: requested.into(),
@@ -496,7 +613,7 @@ mod tests {
     fn rule() -> Value {
         json!({
             "type": 1, "id": OWNER, "active": true, "activeIfValid": true,
-            "invalid": false, "name": "Keep me", "extra": {"unchanged": ["A", 7]},
+            "invalid": false, "name": "Keep me", "description": "Unchanged rule description",
             "eventGroups": [{"operator": 1, "events": [
                 {"type": 5, "descID": 88, "id": 0, "value": 700, "name": "absolute"},
                 {"type": 4, "descID": 89, "id": 0, "value": 100000, "name": "date"}
@@ -695,6 +812,130 @@ mod tests {
             assert!(
                 ConfigEditor::edit_autopilot_action(input.as_bytes(), &selector, 0, None).is_err()
             );
+        }
+    }
+
+    #[test]
+    fn autopilot_actions_review_document_type_before_noop_and_edit() {
+        let input = String::from_utf8(fixture(&rule()))
+            .unwrap()
+            .replace("Type=\"Document\"", "Type=\"document\"");
+        for target in [None, Some(0), Some(2)] {
+            assert!(
+                ConfigEditor::edit_autopilot_action(
+                    input.as_bytes(),
+                    &format!("uuid:{OWNER}"),
+                    0,
+                    target,
+                )
+                .is_err(),
+                "noncanonical Document admitted for {target:?}",
+            );
+        }
+    }
+
+    #[test]
+    fn autopilot_actions_review_unrelated_duplicate_bytes_and_guarded_refusals() {
+        let input = String::from_utf8(fixture(&rule())).unwrap();
+        let unrelated = r#"<C Type="APIConnector" U="bbbbbbbb-2222-3333-4444555566667777" Title="x&amp;y" Title='x&amp;y' APC="{&quot;text&quot;:&quot;&#65;&quot;}"/>"#;
+        let with_unrelated = input.replace("<Keep ", &format!("{unrelated}<Keep "));
+        let (output, _) = ConfigEditor::edit_autopilot_action(
+            with_unrelated.as_bytes(),
+            &format!("uuid:{OWNER}"),
+            1,
+            None,
+        )
+        .unwrap();
+        assert!(String::from_utf8(output).unwrap().contains(unrelated));
+
+        for refused in [
+            input.replace("STA=\"1\"", "STA=\"1\" STA=\"1\""),
+            input.replace("Date=\"old\"", "Date=\"old\" Date=\"old\""),
+            input.replace("Title=\"target\"", "Title=\"target\" Title=\"target\""),
+            input.replace(
+                "<Keep ",
+                &format!(r#"<C Type="APIConnector" U="{OWNER}" U="{OWNER}"/><Keep "#),
+            ),
+            input.replace("<Keep ", r#"<APIConnector Title="x" Title="y"/><Keep "#),
+        ] {
+            let error = ConfigEditor::edit_autopilot_action(
+                refused.as_bytes(),
+                &format!("uuid:{OWNER}"),
+                0,
+                Some(0),
+            )
+            .unwrap_err();
+            let message = format!("{error:#}").to_ascii_lowercase();
+            assert!(
+                message.contains("autopilot") && message.contains("nothing was changed"),
+                "{message}"
+            );
+        }
+    }
+
+    #[test]
+    fn autopilot_actions_review_refuses_load_only_and_unknown_members() {
+        let mut cases = Vec::new();
+        for key in ["visu", "permissions", "future"] {
+            let mut value = rule();
+            value[key] = json!({});
+            cases.push((value, key));
+        }
+        for container in ["action", "group", "event"] {
+            let mut value = rule();
+            match container {
+                "action" => value["actions"][0]["future"] = json!(7),
+                "group" => value["eventGroups"][0]["future"] = json!(7),
+                _ => value["eventGroups"][0]["events"][0]["future"] = json!(7),
+            }
+            cases.push((value, "future"));
+        }
+        for (value, member) in cases {
+            for target in [None, Some(0), Some(2)] {
+                let error = ConfigEditor::edit_autopilot_action(
+                    &fixture(&value),
+                    &format!("uuid:{OWNER}"),
+                    0,
+                    target,
+                )
+                .unwrap_err();
+                assert!(format!("{error:#}").contains(member), "{error:#}");
+            }
+        }
+    }
+
+    #[test]
+    fn autopilot_actions_review_refuses_lossy_or_unsupported_numbers() {
+        let original = String::from_utf8(fixture(&rule())).unwrap();
+        for (before, after) in [
+            ("&quot;value&quot;:700", "&quot;value&quot;:7e2"),
+            (
+                "&quot;value&quot;:700",
+                "&quot;value&quot;:700.0000000000000000000000000000000001",
+            ),
+            (
+                "&quot;value&quot;:100000",
+                "&quot;value&quot;:123456789012345678901234567890",
+            ),
+            (
+                "&quot;value&quot;:100000",
+                "&quot;value&quot;:9007199254740993",
+            ),
+        ] {
+            let input = original.replace(before, after);
+            assert_ne!(input, original);
+            for target in [None, Some(0), Some(2)] {
+                assert!(
+                    ConfigEditor::edit_autopilot_action(
+                        input.as_bytes(),
+                        &format!("uuid:{OWNER}"),
+                        0,
+                        target,
+                    )
+                    .is_err(),
+                    "accepted {after} for {target:?}"
+                );
+            }
         }
     }
 

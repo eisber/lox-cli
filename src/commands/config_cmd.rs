@@ -5640,6 +5640,61 @@ mod tests {
     }
 
     #[test]
+    fn test_cmd_autopilot_actions_review_refusals_are_atomic() {
+        let directory = tempfile::tempdir().unwrap();
+        let file = directory.path().join("input.Loxone");
+        let destination = directory.path().join("edited.Loxone");
+        let original = autopilot_action_fixture();
+        let selector = "uuid:11111111-2222-3333-4444555566667777";
+        let mut context = ctx();
+        context.quiet = true;
+        for invalid in [
+            original.replace("Type=\"Document\"", "Type=\"document\""),
+            original.replace("APC=\"{", "APC=\"{&quot;visu&quot;:{},"),
+            original.replace("APC=\"{", "APC=\"{&quot;future&quot;:true,"),
+            original.replace("&quot;value&quot;:700", "&quot;value&quot;:7e2"),
+            original.replace(
+                "&quot;type&quot;:5,&quot;value&quot;:700",
+                "&quot;type&quot;:4,&quot;value&quot;:123456789012345678901234567890",
+            ),
+        ] {
+            assert_ne!(
+                invalid, original,
+                "review fixture replacement did not match"
+            );
+            for destination_kind in ["source", "new", "existing"] {
+                fs::write(&file, &invalid).unwrap();
+                if destination.exists() {
+                    fs::remove_file(&destination).unwrap();
+                }
+                if destination_kind == "existing" {
+                    fs::write(&destination, b"preserve destination").unwrap();
+                }
+                for target in [None, Some(0), Some(1)] {
+                    assert!(
+                        edit_autopilot_action(
+                            &context,
+                            file.to_str().unwrap(),
+                            selector,
+                            0,
+                            target,
+                            (destination_kind != "source").then(|| destination.to_str().unwrap()),
+                        )
+                        .is_err(),
+                        "{destination_kind}/{target:?}: {invalid}"
+                    );
+                    assert_eq!(fs::read_to_string(&file).unwrap(), invalid);
+                    if destination_kind == "existing" {
+                        assert_eq!(fs::read(&destination).unwrap(), b"preserve destination");
+                    } else {
+                        assert!(!destination.exists());
+                    }
+                }
+            }
+        }
+    }
+
+    #[test]
     fn test_cmd_rooms() {
         let (_dir, file) = fixture_file();
         let result = cmd_config(&ctx(), ConfigCmd::Rooms { file, limit: None });
