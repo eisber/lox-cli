@@ -1968,7 +1968,11 @@ name = "lox-core"
 version = "0.1.0"
 dependencies = [
  "crc32fast",
+ "httpmock",
  "lz4_flex",
+ "reqwest",
+ "serde_json",
+ "tokio",
  "zip",
 ]
 
