@@ -3408,7 +3408,8 @@ pub fn cmd_config(ctx: &RunContext, action: ConfigCmd) -> Result<()> {
             let data = fs::read(&file).with_context(|| format!("Cannot read {file}"))?;
             let (output, change) =
                 ConfigEditor::edit_input_inversion(&data, &selector, &connector, inverted)?;
-            if change.changed || save_as.is_some() {
+            let writes_output = change.changed || save_as.is_some();
+            if writes_output {
                 write_edited_bytes(
                     &output,
                     &file,
@@ -3421,7 +3422,7 @@ pub fn cmd_config(ctx: &RunContext, action: ConfigCmd) -> Result<()> {
                     ctx,
                     serde_json::json!({
                         "ok": true,
-                        "saved_to": save_as.as_deref().unwrap_or(&file),
+                        "saved_to": writes_output.then(|| save_as.as_deref().unwrap_or(&file)),
                         "input_inversion": change,
                     }),
                 );

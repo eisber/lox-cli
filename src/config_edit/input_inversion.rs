@@ -29,7 +29,7 @@ fn kind(element: &Element) -> &str {
 }
 
 impl ConfigEditor {
-    /// Edit the recovered ordinary, unconnected And.I1/I2 branch, without a DOM resave.
+    /// Edit recovered ordinary, unconnected And/Or I1/I2 branches without a DOM resave.
     pub fn edit_input_inversion(
         data: &[u8],
         selector: &str,
@@ -43,7 +43,7 @@ impl ConfigEditor {
         );
         ensure!(
             matches!(key, "I1" | "I2"),
-            "Input inversion supports only existing unconnected And.I1 or And.I2, not aliases, outputs, analog inputs or parameters; nothing was changed."
+            "Input inversion supports only existing unconnected And/Or I1 or I2, not aliases, outputs, analog inputs or parameters; nothing was changed."
         );
         ensure!(
             Self::sanitize_digit_attrs(data).1.is_empty(),
@@ -93,11 +93,11 @@ impl ConfigEditor {
         ensure!(
             kind(document) == "Document"
                 && kind(page) == "Page"
-                && kind(owner) == "And"
+                && matches!(kind(owner), "And" | "Or")
                 && owner.attributes.get("U").map(String::as_str) == Some(requested)
                 && owner.attributes.get("Nio").map(String::as_str) == Some("3")
                 && !owner.attributes.contains_key("Dev"),
-            "Input inversion requires an ordinary, non-device-bound And with explicit Nio=3 directly on a Page; nothing was changed."
+            "Input inversion requires an ordinary, non-device-bound And or Or with explicit Nio=3 directly on a Page; nothing was changed."
         );
         let mut identities = Vec::new();
         let mut guarded_owners = vec![document];
@@ -297,15 +297,28 @@ fn inversion_bytes(
     change: Option<&InputInversionChange>,
     stamp: Option<&(String, String)>,
 ) -> Result<Vec<u8>> {
+    const DOCUMENT_ERROR: &str = "Input inversion requires exactly one balanced XML root with no trailing elements or text; nothing was changed.";
     std::str::from_utf8(data)?;
     let offset = usize::from(data.starts_with(b"\xef\xbb\xbf")) * 3;
     let mut reader = Reader::from_reader(&data[offset..]);
     let mut ordinal = 0;
     let mut found = 0;
     let mut patches = Vec::new();
+    let mut root_seen = false;
+    let mut open_elements = Vec::new();
     loop {
-        match reader.read_event()? {
+        let event_start = reader.buffer_position();
+        let event = reader.read_event().context(DOCUMENT_ERROR)?;
+        let is_start = matches!(&event, Event::Start(_));
+        match event {
             Event::Start(element) | Event::Empty(element) => {
+                if open_elements.is_empty() {
+                    ensure!(!root_seen, DOCUMENT_ERROR);
+                    root_seen = true;
+                }
+                if is_start {
+                    open_elements.push(element.name().as_ref().to_vec());
+                }
                 let end = reader.buffer_position() as usize + offset;
                 let guarded = identities.iter().any(|identity| identity.0 == ordinal);
                 let control = element.name().as_ref() == b"C";
@@ -407,7 +420,23 @@ fn inversion_bytes(
                 }
                 ordinal += 1;
             }
+            Event::End(element) => {
+                ensure!(
+                    open_elements.pop().as_deref() == Some(element.name().as_ref()),
+                    DOCUMENT_ERROR
+                );
+            }
+            Event::Text(text) if open_elements.is_empty() => {
+                ensure!(
+                    text.as_ref()
+                        .iter()
+                        .all(|byte| matches!(byte, b' ' | b'\t' | b'\r' | b'\n')),
+                    DOCUMENT_ERROR
+                );
+            }
+            Event::CData(_) if open_elements.is_empty() => anyhow::bail!(DOCUMENT_ERROR),
             Event::Decl(declaration) => {
+                ensure!(event_start == 0 && !root_seen, DOCUMENT_ERROR);
                 if let Some(encoding) = declaration.encoding() {
                     let encoding = encoding?;
                     ensure!(
@@ -420,7 +449,10 @@ fn inversion_bytes(
             Event::DocType(_) => anyhow::bail!(
                 "Input inversion does not support DTD-dependent storage; nothing was changed."
             ),
-            Event::Eof => break,
+            Event::Eof => {
+                ensure!(root_seen && open_elements.is_empty(), DOCUMENT_ERROR);
+                break;
+            }
             _ => {}
         }
     }

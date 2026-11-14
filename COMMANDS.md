@@ -165,7 +165,7 @@ lox config set-input-inversion file.Loxone uuid:11111111-2222-3333-4444555566667
 ```
 
 Edits native connector `Inv`, not `Def`. The bounded supported branch is an
-**existing, unconnected `I1` or `I2` of an ordinary `And`**, directly on a Page
+**existing, unconnected `I1` or `I2` of an ordinary `And` or `Or`**, directly on a Page
 in one ordinary Document (optionally through one ordinary Program), with
 explicit modern `V >= 90` and `Nio="3"`.
 The exact `uuid:` owner, its Document/Program/Page ancestors and all three connectors
@@ -180,7 +180,7 @@ Remanence, edge operations, templates/instances, device-bound owners, unsupporte
 owner/ancestor WF and shared-loader digit-name rewrites are unsupported.
 Owner/ancestor WF must be absent, literal `0`, or literal `16384` (`0x4000`);
 that original storage is preserved, not cleared or normalized. This admits
-Config-saved Pages and CLI-added And blocks without editing their WF. Other
+Config-saved Pages and CLI-added And/Or blocks without editing their WF. Other
 bits/combinations and nested/other wrappers remain refused.
 DateS, if present, must be
 an incrementable nonnegative signed32 integer (less than 2147483647).
@@ -191,11 +191,15 @@ preserved verbatim, matching the existing loader. Conflicting duplicates,
 duplicates anywhere on admitted owners/connectors, and duplicate global
 control/connector/reference identity fields are refused with an input-inversion
 error, including on no-op.
+Exactly one balanced XML root is required; trailing elements, hidden identity
+aliases, non-whitespace text and CDATA outside that root are refused.
 All admission runs even for a same-value request and before any destination
 write. A no-op preserves every input byte; changes patch only the selected
 `Inv` and Document save stamp. Clearing removes `Inv`; other connector fields,
 references, counts, UUIDs and unrelated bytes are preserved. This is not a
 native whole-document resave or migration.
+JSON `saved_to` is null when no write occurs; an explicit `--save-as` writes
+even a byte-identical no-op and reports the destination path.
 
 ### Lighting Central linked functions
 

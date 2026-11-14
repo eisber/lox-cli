@@ -42,8 +42,17 @@ fn control<'a>(element: &'a xmltree::Element, uuid: &str) -> Option<&'a xmltree:
 
 #[test]
 fn input_inversion_review_admits_cli_added_and_on_unchanged_golden_page() {
+    assert_cli_added_logic_on_unchanged_golden_page("And");
+}
+
+#[test]
+fn input_inversion_admits_cli_added_or_on_unchanged_golden_page() {
+    assert_cli_added_logic_on_unchanged_golden_page("Or");
+}
+
+fn assert_cli_added_logic_on_unchanged_golden_page(block_type: &str) {
     let dir = tempfile::tempdir_in(env!("CARGO_MANIFEST_DIR")).unwrap();
-    let input = dir.path().join("golden-with-cli-and.Loxone");
+    let input = dir.path().join("golden-with-cli-logic.Loxone");
     let golden = Path::new(env!("CARGO_MANIFEST_DIR"))
         .join("tests")
         .join("eval")
@@ -59,7 +68,7 @@ fn input_inversion_review_admits_cli_added_and_on_unchanged_golden_page() {
         .arg(&input)
         .args([
             "--type",
-            "And",
+            block_type,
             "--title",
             "Input inversion admission regression",
             "--parent",
@@ -85,12 +94,17 @@ fn input_inversion_review_admits_cli_added_and_on_unchanged_golden_page() {
     for uuid in ancestors {
         assert_eq!(control(&original, uuid).unwrap().attributes["WF"], "16384");
     }
-    for flag in ["--inverted", "--no-inverted"] {
+    for (key, flag) in [
+        ("I1", "--inverted"),
+        ("I1", "--no-inverted"),
+        ("I2", "--inverted"),
+        ("I2", "--no-inverted"),
+    ] {
         let mut edit = assert_cmd::cargo::cargo_bin_cmd!("lox");
         edit.env("LOX_TELEMETRY", "0")
             .args(["config", "set-input-inversion"])
             .arg(&input)
-            .args([format!("uuid:{owner}").as_str(), "I1", flag, "-q"])
+            .args([format!("uuid:{owner}").as_str(), key, flag, "-q"])
             .assert()
             .success();
         let after = fs::read(&input).unwrap();
@@ -103,7 +117,7 @@ fn input_inversion_review_admits_cli_added_and_on_unchanged_golden_page() {
             .children
             .iter()
             .filter_map(xmltree::XMLNode::as_element)
-            .find(|co| co.attributes.get("K").map(String::as_str) == Some("I1"))
+            .find(|co| co.attributes.get("K").map(String::as_str) == Some(key))
             .unwrap();
         assert_eq!(
             selected.attributes.get("Inv").map(String::as_str),
@@ -180,12 +194,13 @@ fn input_inversion_review_refuses_conflicting_or_guarded_duplicates_atomically()
 fn input_inversion_changes_only_selected_inv_and_document_stamp() {
     let dir = tempfile::tempdir_in(env!("CARGO_MANIFEST_DIR")).unwrap();
     let input = dir.path().join("input.Loxone");
-    for key in ["I1", "I2"] {
+    for (block_type, key) in [("And", "I1"), ("And", "I2"), ("Or", "I1"), ("Or", "I2")] {
         let source = if key == "I2" {
             fixture().replace("V=\"121\"", "V=\"90\"")
         } else {
             fixture()
-        };
+        }
+        .replace("Type=\"And\"", &format!("Type=\"{block_type}\""));
         fs::write(&input, &source).unwrap();
         let output = command(&input, key, true)
             .args(["-o", "json"])
@@ -253,7 +268,7 @@ fn input_inversion_false_noop_and_save_as_preserve_original_bytes() {
 fn input_inversion_admission_precedes_noop_and_all_destination_writes() {
     let source = fixture();
     let mut cases = vec![
-        source.replace("Type=\"And\"", "Type=\"Or\""),
+        source.replace("Type=\"And\"", "Type=\"Xor\""),
         source.replace("Nio=\"3\"", "Nio=\"4\""),
         source.replace("V=\"121\"", "V=\"89\""),
         source.replace("Def=\"0\"", "Def=\"1\""),
@@ -330,7 +345,11 @@ fn input_inversion_admission_precedes_noop_and_all_destination_writes() {
     let input = dir.path().join("input.Loxone");
     let existing = dir.path().join("existing.Loxone");
     let new = dir.path().join("new.Loxone");
-    for xml in cases {
+    let or_cases: Vec<_> = cases
+        .iter()
+        .map(|xml| xml.replace("Type=\"And\"", "Type=\"Or\""))
+        .collect();
+    for xml in cases.into_iter().chain(or_cases) {
         for destination in [None, Some(&existing), Some(&new)] {
             fs::write(&input, &xml).unwrap();
             fs::write(&existing, b"preserve").unwrap();
@@ -342,6 +361,119 @@ fn input_inversion_admission_precedes_noop_and_all_destination_writes() {
             assert_eq!(fs::read(&input).unwrap(), xml.as_bytes());
             assert_eq!(fs::read(&existing).unwrap(), b"preserve");
             assert!(!new.exists());
+        }
+    }
+}
+
+#[test]
+fn or_input_inversion_noop_and_save_as_report_only_actual_writes() {
+    let dir = tempfile::tempdir_in(env!("CARGO_MANIFEST_DIR")).unwrap();
+    let input = dir.path().join("or.Loxone");
+    let existing = dir.path().join("existing.Loxone");
+    let new = dir.path().join("new.Loxone");
+    let source = fixture()
+        .replace("Type=\"And\"", "Type=\"Or\" WF=\"16384\"")
+        .replace(" DateS=\"1\"", "")
+        .replace("Def=\"0\"", "Def=\"0\" Inv='false'")
+        .replace(
+            "<Co K=\"I2\"",
+            "<Co Def='1' Inv='true' Note='keep &amp; preserve' K=\"I2\"",
+        )
+        .replace("<Loxone>", "<?audit before?>\r\n<!--before--><Loxone>")
+        + "<!--after--><?audit after?>\r\n";
+    fs::write(&input, &source).unwrap();
+    fs::write(&existing, b"preserve until success").unwrap();
+
+    for destination in [None, Some(&existing)] {
+        let mut edit = command(&input, "I1", false);
+        if let Some(destination) = destination {
+            edit.arg("--save-as").arg(destination);
+        }
+        let output = edit
+            .args(["-o", "json"])
+            .assert()
+            .success()
+            .get_output()
+            .stdout
+            .clone();
+        let result: serde_json::Value = serde_json::from_slice(&output).unwrap();
+        assert_eq!(result["input_inversion"]["changed"], false);
+        assert_eq!(
+            result["saved_to"],
+            serde_json::json!(destination.map(|path| path.to_str().unwrap()))
+        );
+        assert_eq!(fs::read(&input).unwrap(), source.as_bytes());
+    }
+    assert_eq!(fs::read(&existing).unwrap(), source.as_bytes());
+
+    command(&input, "I1", true)
+        .arg("--save-as")
+        .arg(&new)
+        .arg("-q")
+        .assert()
+        .success();
+    assert_eq!(fs::read(&input).unwrap(), source.as_bytes());
+    let saved = fs::read_to_string(&new).unwrap();
+    assert!(saved.starts_with("\u{feff}<?xml"));
+    assert!(saved.ends_with("<!--after--><?audit after?>\r\n"));
+    let page_start = source.find("<C Type=\"Page\"").unwrap();
+    assert_eq!(
+        &saved[saved.find("<C Type=\"Page\"").unwrap()..],
+        source[page_start..].replacen("Inv='false'", "Inv='true'", 1)
+    );
+    command(&input, "I1", true)
+        .arg("--save-as")
+        .arg(&existing)
+        .arg("-q")
+        .assert()
+        .success();
+    assert_eq!(fs::read(&input).unwrap(), source.as_bytes());
+    assert!(
+        fs::read_to_string(&existing)
+            .unwrap()
+            .contains("Inv='true'")
+    );
+}
+
+#[test]
+fn input_inversion_refuses_hidden_roots_and_unbalanced_storage_before_any_write() {
+    let dir = tempfile::tempdir_in(env!("CARGO_MANIFEST_DIR")).unwrap();
+    let input = dir.path().join("input.Loxone");
+    let existing = dir.path().join("existing.Loxone");
+    let new = dir.path().join("new.Loxone");
+    for block_type in ["And", "Or"] {
+        let source = fixture().replace("Type=\"And\"", &format!("Type=\"{block_type}\""));
+        let cases = [
+            format!("{source}<C Type=\"Document\"/>"),
+            format!("{source}<C Type=\"Or\" U=\"{OWNER}\"/>"),
+            format!("{source}<Co U=\"{}\"/>", INPUT.to_uppercase()),
+            format!("{source}<Co U=\"b1111111-2222-3333-4444-555566667777\"/>"),
+            format!("{source}trailing"),
+            format!("{source}&#32;"),
+            format!("{source}<![CDATA[ ]]>"),
+            format!("{source}<?xml version=\"1.0\"?>"),
+            format!("{source}</Loxone>"),
+            source.replace("</Loxone>", ""),
+            source.replace("<Loxone>", "<!DOCTYPE Loxone><Loxone>"),
+        ];
+        for xml in cases {
+            for inverted in [false, true] {
+                for destination in [None, Some(&existing), Some(&new)] {
+                    fs::write(&input, &xml).unwrap();
+                    fs::write(&existing, b"preserve").unwrap();
+                    let mut edit = command(&input, "I1", inverted);
+                    if let Some(destination) = destination {
+                        edit.arg("--save-as").arg(destination);
+                    }
+                    edit.assert().failure().stderr(
+                        predicates::str::contains("Input inversion")
+                            .and(predicates::str::contains("nothing was changed")),
+                    );
+                    assert_eq!(fs::read(&input).unwrap(), xml.as_bytes());
+                    assert_eq!(fs::read(&existing).unwrap(), b"preserve");
+                    assert!(!new.exists());
+                }
+            }
         }
     }
 }

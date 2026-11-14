@@ -307,6 +307,36 @@ qualification was performed for this recovery.
   are contextualized as input-inversion refusals. No shared-parser refactor
   or additional native tracing was needed for these review corrections.
   No native UI execution, Miniserver work or new native qualification was used.
+- **Ordinary Or input inversion (17.2.10.21, source-only owner extension):**
+  this is a separately bound owner branch of the existing operation, not
+  inferred And/Or symmetry. Registry construction `0x1404ba670:78–110` allocates
+  type 333 (`0x14d`), invokes its actual descriptor virtual `+0xf18`, and indexes
+  that descriptor by type and XML name. The actual factory
+  `0x140432790:2446–2459,4182–4185` assigns `CControlObjectLogic` and stores
+  type 333. Its registered primary vtable `0x140f5c790` has the same concrete
+  `+0x5a8=false`, `+0x5d0=0x140468540`, `+0xc20=0x140463f70` and
+  `+0xf18=0x1407e7280` bindings used by the closed ordinary-input transaction.
+  The **Or-specific** descriptor case `0x1407e7280:68–93` registers XML `Or`
+  and exactly digital `I1`, `I2`, `Q`, with input descriptor flags
+  `type & 0xfff` and `(type & 0xfff) | 0x1000`, output flags
+  `(type & 0xfff) | 0x4002000`, and neutral zero default values.
+  These literals and slots were checked against the frozen original PE.
+  XML loading `0x140487c90:54–130` resolves `C.Type` through that name registry,
+  instantiates its actual type, establishes parent/document ownership and
+  invokes its loader. The registered `+8=0x14047e260` serializer reads modern
+  `Nio` and matches the existing connectors by accepted descriptor key
+  (`415–475`); its writer traverses the actual connector count (`327–351`).
+  Thus explicit `Nio=3` and the complete unique I1/I2/Q layout bind the original
+  XML, rather than relying on constructor-zero flags. The already-closed modern
+  connector load/copy, eligibility, click and Inv writer above apply through
+  those actual bindings, preserve Def independently, and do not read ordinary
+  owner WF. The same guarded no-Template context prevents the persisted
+  `0x20000000` marker/propagation branch. Other owners, outputs, connected inputs
+  and special contexts remain unsupported.
+  Admission now also verifies the entire raw XML has one balanced root before
+  no-op/stamping/writing, refusing trailing hidden identities (lox-fd9l).
+  Valid BOM, EOL, comments, processing instructions and unrelated raw storage
+  remain byte-preserved. The shared-loader lox-n37w refusal remains local.
 - **Combined window contact** (`JoinWindowSensor`): its `AQ` connector is the
   docs' status output (S): 1 = closed, 2 = tilted, 3 = open, 4 = closed and not
   locked, 5 = closed and locked, 0 = a sensor is offline. Test for "open" with
