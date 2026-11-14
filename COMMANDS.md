@@ -1394,7 +1394,7 @@ lox config timer-entry-set-end file.Loxone "Night Timer" --mode-uuid 00000000-00
 its end, in exact `HH:MM` minute increments, strictly after the unchanged
 start and at most `24:00` (not `00:00`). `--room` and native/RFC mode UUID
 comparison follow `timer-entry-remove`. Both shortening and extending the
-end are supported; there is no new-start or atomic two-endpoint edit.
+end are supported; there is no atomic two-endpoint edit.
 Already sorted, separated ordinary digital storage is required. Touching,
 overlap, wrap/collapse, sorting/merging other rows, analog schedules, and
 missing, duplicate, nested-only, namespaced, non-owning or Template-owned
@@ -1413,6 +1413,33 @@ JSON `time_change` reports the original identity, matched stored mode UUID,
 `new_to_minutes` and `changed`; CSV and quiet output are supported.
 `--dry-run` remains unsupported. See
 [native scope and limits](docs/knowledge/daytimer-entry-end-native.md).
+
+Change only the **From boundary** of one existing ordinary digital interval:
+
+```bash
+lox config timer-entry-set-start file.Loxone "Night Timer" --mode-uuid 00000000-0000-0004-1500000000000000 --from 20:00 --to 23:00 --new-from 19:59 --save-as edited.Loxone -o json
+```
+
+`--from` / `--to` select the existing interval; `--new-from` is an exact
+`HH:MM` minute from `00:00` up to, but not including, the unchanged end.
+Unlike an end boundary, midnight From means **0**, not 1440. A changed
+midnight start omits the native zero-default `From` attribute; moving an
+omitted-zero start later inserts it. Same-value requests preserve its
+original spelling or omission byte-for-byte, also with `--save-as`.
+Both earlier and later starts are supported, but not coupled-To adjustments.
+The same digital M=0, unique mode identity, plain owning Document, Template,
+raw-storage and incrementable `DateS` guards apply before any no-op or write.
+Intervals must stay strictly separated and keep their original Ix/From order;
+touching, overlap, sorting, merging, analog and nonzero-M storage are refused.
+Only selected From and the save stamp change: To, counts, modes, IDs, wiring,
+unselected rows and all other bytes remain unchanged.
+
+JSON `time_change` includes the original interval, stored mode UUID,
+`new_from_minutes` and `changed`. `saved_to` is the actual written path,
+or null for a no-write no-op. CSV, `--no-header`, `--quiet`, `--room` and
+native/RFC mode UUID aliases are supported. `--dry-run` remains unsupported;
+this is an offline file edit, not deployment. See
+[independent From branch proof](docs/knowledge/daytimer-entry-start-native.md).
 
 Change **Activation required** for one existing ordinary digital interval:
 
