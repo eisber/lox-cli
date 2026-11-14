@@ -130,9 +130,17 @@ meaning. Other `live` operations retain their original binary-private decoder.
 - Diagnostics are opt-in typed metadata, never implicit printing. Observers
   execute synchronously outside state locks and must not block or panic. URLs,
   credentials, raw response bodies and backend error chains are excluded.
-  CLI `-v` retains request/status messages; clock `-vv` reports body length instead
-  of echoing potentially sensitive raw response text. Connection options and
-  text payload Debug are redacted; strings are not promised zeroized.
+  CLI `-v` retains request/status messages. Explicit CLI `-vv` separately selects
+  `ClockResponsePolicy::LegacyCliVerbose`: reqwest response-text replacement
+  decoding followed by the same shared JSON/field decoder, plus the CLI-owned
+  existing raw-body/truncation logger. This opt-in can reveal response contents;
+  it is not enabled for ordinary library/foreign callers. Default `StrictJson`
+  still validates raw JSON bytes strictly. The separate legacy body observer
+  receives borrowed decoded text synchronously outside state locks and must not
+  block or panic; ordinary metadata/errors remain payload-free. Body metadata
+  counts raw bytes in strict mode and decoded text bytes in legacy mode.
+  Connection options, policy/callback Debug and text payload Debug are redacted;
+  strings are not promised zeroized.
 - Subscriptions, event streams, callback delivery bridges, and subscription
   backpressure are **unsupported**, not simulated by this stateless operation.
 

@@ -1,8 +1,9 @@
 //! Ordered HTTP clock observations, with explicit validation and resource lifetime.
 //!
 //! Requires a Tokio executor with I/O and time enabled, or the explicitly created
-//! `ClockDriver` (`runtime-blocking`). There are no subscriptions or callbacks
-//! for clock values. Diagnostic callbacks are opt-in, synchronous, payload-free,
+//! `ClockDriver` (`runtime-blocking`). There are no subscriptions. Ordinary
+//! diagnostic callbacks are opt-in and payload-free. The explicit CLI legacy
+//! policy separately permits raw body observation. All observers are synchronous
 //! and must not block or panic.
 
 mod clock;
@@ -86,6 +87,31 @@ pub enum Diagnostic {
 
 pub type DiagnosticObserver = Arc<dyn Fn(Diagnostic) + Send + Sync>;
 
+/// Raw decoded text is available only through the explicitly selected legacy
+/// CLI verbose policy, not through ordinary diagnostics or errors. The observer
+/// runs synchronously outside state locks and must not block or panic.
+pub type LegacyBodyObserver = Arc<dyn Fn(ClockEndpoint, &str) + Send + Sync>;
+
+/// Response decoding is strict by default, independently of field validation.
+#[derive(Clone, Default)]
+pub enum ClockResponsePolicy {
+    #[default]
+    StrictJson,
+    /// Reproduce the CLI's explicit `-vv` response.text()/JSON behavior,
+    /// including replacement decoding and caller-owned raw-body diagnostics.
+    /// Never select this automatically for library or foreign callers.
+    LegacyCliVerbose { body_observer: LegacyBodyObserver },
+}
+
+impl fmt::Debug for ClockResponsePolicy {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.write_str(match self {
+            Self::StrictJson => "StrictJson",
+            Self::LegacyCliVerbose { .. } => "LegacyCliVerbose { body_observer: [redacted] }",
+        })
+    }
+}
+
 /// Explicit connection settings; nothing is loaded from a home directory/context.
 ///
 /// Defaults preserve the CLI's 10s per-attempt timeout, four attempts with
@@ -106,6 +132,7 @@ pub struct ClockOptions {
     pub shutdown_timeout: Duration,
     pub user_agent: String,
     pub diagnostics: Option<DiagnosticObserver>,
+    pub response_policy: ClockResponsePolicy,
 }
 
 impl ClockOptions {
@@ -125,6 +152,7 @@ impl ClockOptions {
             shutdown_timeout: Duration::from_secs(1),
             user_agent: concat!("lox-core/", env!("CARGO_PKG_VERSION")).into(),
             diagnostics: None,
+            response_policy: ClockResponsePolicy::StrictJson,
         }
     }
 }
@@ -139,6 +167,7 @@ impl fmt::Debug for ClockOptions {
             .field("retry_delays", &self.retry_delays)
             .field("shutdown_timeout", &self.shutdown_timeout)
             .field("diagnostics", &self.diagnostics.is_some())
+            .field("response_policy", &self.response_policy)
             .finish()
     }
 }

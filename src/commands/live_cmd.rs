@@ -13,7 +13,9 @@
 
 use anyhow::{Context, Result, bail};
 use clap::Subcommand;
-use lox_core::runtime::{Cancellation, ClockDriver, ClockError, ClockOptions, Diagnostic};
+use lox_core::runtime::{
+    Cancellation, ClockDriver, ClockError, ClockOptions, ClockResponsePolicy, Diagnostic,
+};
 use serde_json::{Value, json};
 use std::sync::Arc;
 
@@ -129,6 +131,11 @@ fn time(ctx: &RunContext, cfg: Config) -> Result<()> {
     options.verify_tls = cfg.verify_ssl.unwrap_or(false);
     options.user_agent = client::USER_AGENT.into();
     let verbosity = client::verbose();
+    if verbosity >= 2 {
+        options.response_policy = ClockResponsePolicy::LegacyCliVerbose {
+            body_observer: Arc::new(|_, body| client::log_body(body)),
+        };
+    }
     if verbosity >= 1 {
         if !options.verify_tls {
             eprintln!("warning: TLS certificate verification is disabled (verify_ssl not set)");
@@ -147,9 +154,6 @@ fn time(ctx: &RunContext, cfg: Config) -> Result<()> {
                     .and_then(|status| status.canonical_reason())
                     .unwrap_or("");
                 eprintln!("  → {status} {reason}");
-            }
-            Diagnostic::Body { bytes, .. } if verbosity >= 2 => {
-                eprintln!("  body: <{bytes} bytes>");
             }
             _ => {}
         }));
