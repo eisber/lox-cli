@@ -51,6 +51,8 @@ use std::io::{Cursor, Read, Write};
 
 mod sidecar_guard;
 
+use sidecar_guard::Sidecars;
+
 const LOXCC_MAGIC: u32 = 0xaabbccee;
 
 /// Decompress a `sps0.LoxCC` binary blob into XML bytes.
@@ -211,15 +213,18 @@ pub fn compress_loxcc(data: &[u8]) -> Vec<u8> {
 
 /// Repack a backup ZIP, replacing `sps0.LoxCC` with recompressed XML.
 ///
-/// Rejects edits that need native sidecar compilation. Unrelated native
-/// sidecars are copied without recompressing or rewriting their contents.
+/// Compiles `LoxAPP3.json`/`permissions.bin` for supported, template-verified
+/// edits and rejects other edits that need native sidecar compilation.
+/// Untouched native sidecars are copied without recompressing or rewriting them.
 pub fn repack_zip(src_zip: &[u8], xml: &[u8]) -> Result<Vec<u8>> {
-    validate_repack(src_zip, xml)?;
-    repack_snapshot_zip(src_zip, xml)
+    let sidecars = validate_repack(src_zip, xml)?;
+    repack_archive(src_zip, xml, sidecars.as_ref())
 }
 
 /// Check an XML replacement against the original, compiled backup.
-pub(crate) fn validate_repack(src_zip: &[u8], xml: &[u8]) -> Result<()> {
+///
+/// Returns the compiled sidecars when the edit changes them.
+pub(crate) fn validate_repack(src_zip: &[u8], xml: &[u8]) -> Result<Option<Sidecars>> {
     let mut archive = zip::ZipArchive::new(Cursor::new(src_zip)).context("Invalid source ZIP")?;
     let mut source_xml = None;
     let mut app = None;
@@ -275,14 +280,21 @@ pub(crate) fn validate_archive_deployment(
         Ok(result)
     }
 
-    validate_repack(source_zip, xml)?;
+    let compiled = validate_repack(source_zip, xml)?;
     validate_repack(candidate_zip, xml)?;
-    if sidecars(source_zip)? != sidecars(candidate_zip)? {
+    let mut expected = sidecars(source_zip)?;
+    if let Some(compiled) = compiled {
+        expected.insert("loxapp3.json".into(), compiled.app);
+        if let Some(permissions) = compiled.permissions {
+            expected.insert("permissions.bin".into(), permissions);
+        }
+    }
+    if expected != sidecars(candidate_zip)? {
         bail!(
             "Candidate ZIP replaces or omits native LoxAPP3.json, permissions.bin or TPDISP sidecars. \
              lox cannot verify replacement sidecars and will not upload an incomplete deployment. \
-             Use an unchanged complete native backup for sidecar-neutral edits, \
-             or save and deploy with Loxone Config."
+             Use an unchanged complete native backup, or exactly the sidecars lox compiles for \
+             supported edits, or save and deploy with Loxone Config."
         );
     }
     Ok(())
@@ -293,6 +305,11 @@ pub(crate) fn validate_archive_deployment(
 /// This deliberately does not compile sidecars and MUST NOT be used as a
 /// deployment artifact or as the compiled baseline for `validate_repack`.
 pub(crate) fn repack_snapshot_zip(src_zip: &[u8], xml: &[u8]) -> Result<Vec<u8>> {
+    repack_archive(src_zip, xml, None)
+}
+
+/// Replace `sps0.LoxCC` and any compiled sidecars, raw-copying every other member.
+fn repack_archive(src_zip: &[u8], xml: &[u8], sidecars: Option<&Sidecars>) -> Result<Vec<u8>> {
     let cursor = Cursor::new(src_zip);
     let mut archive = zip::ZipArchive::new(cursor).context("Invalid source ZIP")?;
     let sps_indices: Vec<_> = archive
@@ -307,7 +324,7 @@ pub(crate) fn repack_snapshot_zip(src_zip: &[u8], xml: &[u8]) -> Result<Vec<u8>>
     };
     let mut original = Vec::new();
     archive.by_index(index)?.read_to_end(&mut original)?;
-    if decompress_loxcc(&original)? == xml {
+    if decompress_loxcc(&original)? == xml && sidecars.is_none() {
         return Ok(src_zip.to_vec());
     }
     let new_loxcc = compress_loxcc(xml);
@@ -332,6 +349,19 @@ pub(crate) fn repack_snapshot_zip(src_zip: &[u8], xml: &[u8]) -> Result<Vec<u8>>
                 .unix_permissions(file.unix_mode().unwrap_or(0o644));
             writer.start_file(&name, options)?;
             writer.write_all(&new_loxcc)?;
+        } else if let Some(data) =
+            sidecars.and_then(|sidecars| match name.to_ascii_lowercase().as_str() {
+                "loxapp3.json" => Some(&sidecars.app),
+                "permissions.bin" => sidecars.permissions.as_ref(),
+                _ => None,
+            })
+        {
+            let options = zip::write::SimpleFileOptions::default()
+                .compression_method(file.compression())
+                .last_modified_time(file.last_modified().unwrap_or_default())
+                .unix_permissions(file.unix_mode().unwrap_or(0o644));
+            writer.start_file(&name, options)?;
+            writer.write_all(data)?;
         } else if file.is_dir() {
             let options = zip::write::SimpleFileOptions::default()
                 .last_modified_time(file.last_modified().unwrap_or_default())
@@ -347,6 +377,22 @@ pub(crate) fn repack_snapshot_zip(src_zip: &[u8], xml: &[u8]) -> Result<Vec<u8>>
 
     let out = writer.finish()?;
     Ok(out.into_inner())
+}
+
+/// Read a root archive member by case-insensitive name, if present.
+pub(crate) fn archive_member(zip_data: &[u8], name: &str) -> Result<Option<Vec<u8>>> {
+    let mut archive = zip::ZipArchive::new(Cursor::new(zip_data)).context("Invalid ZIP")?;
+    let index = (0..archive.len()).find(|index| {
+        archive
+            .name_for_index(*index)
+            .is_some_and(|member| member.eq_ignore_ascii_case(name))
+    });
+    let Some(index) = index else {
+        return Ok(None);
+    };
+    let mut data = Vec::new();
+    archive.by_index(index)?.read_to_end(&mut data)?;
+    Ok(Some(data))
 }
 
 pub(crate) fn require_deployable_archive(data: &[u8]) -> Result<()> {

@@ -636,3 +636,93 @@ fn help_mentions_loxone() {
         .success()
         .stdout(predicate::str::contains("Loxone"));
 }
+
+// ── config repack ──────────────────────────────────────────────────────────
+
+const REPACK_PROJECT: &str =
+    include_str!("../src/loxcc/sidecar_guard/compile/fixtures/project.xml");
+const REPACK_CATALOGUE: &str =
+    include_str!("../src/loxcc/sidecar_guard/compile/fixtures/catalogue.json");
+
+/// A native-shaped backup ZIP whose `sps0.LoxCC` comes from `lox config compress`.
+fn repack_backup(dir: &std::path::Path) -> std::path::PathBuf {
+    use std::io::Write;
+    let xml = dir.join("source.Loxone");
+    std::fs::write(&xml, REPACK_PROJECT).unwrap();
+    let loxcc = dir.join("source.LoxCC");
+    lox()
+        .args(["config", "compress"])
+        .arg(&xml)
+        .arg("--save-as")
+        .arg(&loxcc)
+        .assert()
+        .success();
+    let backup = dir.join("backup.zip");
+    let mut writer = zip::ZipWriter::new(std::fs::File::create(&backup).unwrap());
+    let options = zip::write::SimpleFileOptions::default();
+    for (name, data) in [
+        ("sps0.LoxCC", std::fs::read(&loxcc).unwrap()),
+        ("LoxAPP3.json", REPACK_CATALOGUE.as_bytes().to_vec()),
+        ("permissions.bin", vec![0xff; 16]),
+    ] {
+        writer.start_file(name, options).unwrap();
+        writer.write_all(&data).unwrap();
+    }
+    writer.finish().unwrap();
+    backup
+}
+
+#[test]
+fn config_repack_compiles_offline_and_never_overwrites() {
+    let dir = tempfile::tempdir().unwrap();
+    let backup = repack_backup(dir.path());
+    let edited = dir.path().join("edited.Loxone");
+    std::fs::write(
+        &edited,
+        REPACK_PROJECT.replace("Desc=\"I1*2\"", "Desc=\"I1*3\""),
+    )
+    .unwrap();
+    let output = dir.path().join("sps_new.zip");
+    lox()
+        .args(["--json", "config", "repack"])
+        .arg(&backup)
+        .arg(&edited)
+        .arg("--save-as")
+        .arg(&output)
+        .assert()
+        .success()
+        .stdout(predicate::str::contains("\"catalogue_changed\":false"));
+    assert!(output.exists());
+    lox()
+        .args(["config", "repack"])
+        .arg(&backup)
+        .arg(&edited)
+        .arg("--save-as")
+        .arg(&output)
+        .assert()
+        .failure()
+        .stderr(predicate::str::contains("Cannot create"));
+}
+
+#[test]
+fn config_repack_rejects_unsupported_sidecar_changes() {
+    let dir = tempfile::tempdir().unwrap();
+    let backup = repack_backup(dir.path());
+    let edited = dir.path().join("edited.Loxone");
+    std::fs::write(
+        &edited,
+        REPACK_PROJECT.replace("Title=\"Room\"", "Title=\"Renamed room\""),
+    )
+    .unwrap();
+    let output = dir.path().join("sps_new.zip");
+    lox()
+        .args(["config", "repack"])
+        .arg(&backup)
+        .arg(&edited)
+        .arg("--save-as")
+        .arg(&output)
+        .assert()
+        .failure()
+        .stderr(predicate::str::contains("Loxone Config"));
+    assert!(!output.exists());
+}
