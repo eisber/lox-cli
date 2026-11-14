@@ -2,7 +2,7 @@
   "schema_version": 1,
   "reviewed_date_utc": "2026-11-14",
   "qualification": "Static upstream implementation, documentation and test evidence only; not firmware/native qualification. Upstreams were not executed.",
-  "local_crosswalk_status": "unresolved; pending separate local Rust runtime/archive crosswalk",
+  "local_crosswalk_status": "Initial six-finding mapping at local commit 38945159049f34ade4e43bceceb7761a2bef74d1; see upstream-crosswalk.md. No discrepancy resolution or native qualification credited.",
   "refresh_interval_hours": 168,
   "refresh_policy": "Weekly GitHub branch metadata observations and review before adoption. Never advance reviewed_sha from ref metadata alone. Review relevant changed source/tests/docs, license and provenance before a separately approved pin change. No automatic imports.",
   "license_policy": "Original link index and summaries, not copied upstream implementations. Attribution and license observations do not approve reuse or relicensing; no identified license does not mean public domain.",
@@ -155,7 +155,7 @@
   "comparison_leads": [
     {
       "topic": "authentication",
-      "local_mapping": "unresolved",
+      "local_mapping": "primitives covered; token command/version discrepancy open at local crosswalk baseline",
       "finding": "rs-loxone chooses getjwt for firmware >=10.2; Kotlin marks token acquisition encrypted; discostu105/lox uses gettoken after key exchange.",
       "sources": [
         "https://github.com/JoDehli/rs-loxone/blob/2cdafc4f151f68f8814cd784c3a5b4a83cd31a6a/src/auth/commands.rs#L26-L70",
@@ -175,7 +175,7 @@
     },
     {
       "topic": "lifecycle",
-      "local_mapping": "unresolved",
+      "local_mapping": "missing public runtime/subscription/disposal capability at local crosswalk baseline",
       "finding": "rs-loxone supplies a reconnect supervisor and settings of 30 seconds for keepalive and 90 seconds for silence.",
       "sources": [
         "https://github.com/JoDehli/rs-loxone/blob/2cdafc4f151f68f8814cd784c3a5b4a83cd31a6a/src/transport/keepalive.rs#L1-L20",
@@ -184,7 +184,7 @@
     },
     {
       "topic": "archives",
-      "local_mapping": "unresolved",
+      "local_mapping": "CLI byte/CRC-output behavior covered at local crosswalk baseline; reader/deployment policies remain distinct",
       "finding": "discostu105/lox documents reader size/CRC fields without verifying them; smartmacherei validates before editing. Neither behavior overrides local characterization.",
       "sources": [
         "https://github.com/discostu105/lox/blob/7c6c952eab17d23f2906f62d5ccb374749dcee44/crates/loxone-config/src/archive.rs#L41-L52",

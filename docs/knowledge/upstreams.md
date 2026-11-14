@@ -3,9 +3,10 @@
 Reviewed **2026-11-14**. These are original summaries and links to seven upstreams,
 not vendored code. **Upstream implementation evidence is not firmware/native
 qualification.** Source, test and documentation inspection did not execute upstream
-integrations or contact devices. Local Rust capability mapping remains **unresolved**,
-pending the separate runtime/archive crosswalk; no discrepancy resolution or reusable
-core/FFI adoption is claimed here.
+integrations or contact devices. The [initial local crosswalk](upstream-crosswalk.md)
+classifies six findings against an explicit local commit; it does not claim that a
+discrepancy has been fixed or upstream code adopted. Later own-code archive extraction
+is documented in the [Rust core](../../crates/lox-core/README.md).
 
 The [registry](upstreams.json) is authoritative for full immutable `reviewed_sha`
 pins, separately recorded `latest_seen_sha`, branch refs, check timestamps, license
@@ -29,15 +30,17 @@ does not replace any upstream license, NOTICE or attribution obligation.
 
 ## Contract and ancestry leads
 
-These are comparison leads, **not local discrepancies established or fixed**.
 The registry's `comparison_leads` contains the exact pinned links for each row.
+The local classifications below refer to the crosswalk's pinned `3894515` baseline,
+not an automatically refreshed assertion about every later toolkit version.
+**No discrepancy is marked fixed.**
 
 | Topic | Upstream evidence | Local Rust mapping |
 |---|---|---|
-| Authentication | rs-loxone selects `getjwt` at firmware >=10.2; Kotlin marks token acquisition encrypted; discostu105/lox sends `gettoken` after key exchange. | Unresolved |
+| Authentication | rs-loxone selects `getjwt` at firmware >=10.2; Kotlin marks token acquisition encrypted; discostu105/lox sends `gettoken` after key exchange. | Primitives covered; token command/version discrepancy open |
 | Events | UUID + little-endian f64 value records; pyloxone-api has empty daytimer/weather handlers, while discostu105/lox includes parsers. | Unresolved |
-| Lifecycle | rs-loxone reconnect supervisor, 30-second keepalive and 90-second silence settings. | Unresolved |
-| Archives | discostu105/lox describes reader size/CRC without verification; smartmacherei validates before editing. Neither substitutes for local characterization. | Unresolved |
+| Lifecycle | rs-loxone reconnect supervisor, 30-second keepalive and 90-second silence settings. | Public runtime/subscription/disposal capability missing at the comparison baseline |
+| Archives | discostu105/lox describes reader size/CRC without verification; smartmacherei validates before editing. Neither substitutes for local characterization. | CLI byte/CRC-output behavior covered; reader/deployment policies remain distinct |
 | Statistics | Kotlin separates V1 XML/local 2009 epoch from V2 binary/Unix UTC. | Unresolved |
 
 | Relationship | Evidence and limits |
