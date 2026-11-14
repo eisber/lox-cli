@@ -486,6 +486,33 @@ qualification was performed for this recovery.
   raw/identity/date/no-op/atomic-output guards. These are three owner/input
   branches of `set-input-inversion`, zero new base APIs, not runtime/simulator
   support or a new native qualification.
+- **Ordinary Monoflop input inversion (17.2.10.21, source-only owner branch):**
+  actual factory `0x140432790:2840–2848` constructs native type 370, separately
+  bound by RTTI and primary PE table `0x140f666d0`. Its actual descriptor
+  `+0xf18=0x1407f42c0` registers XML `Monoflop` and all five connectors:
+  `InputTrigger` (digital input, neutral zero), `Reset` (special input),
+  `Remanence` (parameter, default zero), `Time` (parameter, default 2), and
+  `Q` (output). Modern complete `Nio="5"` is required, not a guessed timer
+  layout. Actual owner slots `+0x4b0=0x140446520`, `+0x5a8=0x14000c610`,
+  `+0x5d0=0x140468540`, `+0xc20=0x140463f70` join the selected
+  `InputTrigger` descriptor to the existing action-5/click/Co bit-0x20 path.
+  Its digital kind is independently bound through actual connector
+  `+0x78=0x140467520`; the type-370 default branch has neither analog flag.
+  Unconnected `Reset` has descriptor bit `0x400000` and fails `+0x5d0`;
+  it is not admitted merely because another input permits inversion.
+  Actual owner `+8=0x14047e260` loads all five by registered exact key and
+  accepts each through Co `+0x18=0x14043d790`. `Def` and `Inv` load/copy
+  independently; `0x1404416c0:37–50` derives the digital initial state.
+  For this concrete new owner, the post-click `0x140469a90` propagation
+  gate is owning-Document IfT via `0x14050be70`, not a guessed owner WF.
+  `0x140487c90:110–130` binds that Document; constructor
+  `0x140525ac0:116` and loader `0x1405288f0:485–505` close its ordinary
+  false branch under the existing Template/IfT/uuidParent exclusions.
+  Actual Co `+8=0x14047fb20:84–103` emits only `Inv="true"` or omits Inv;
+  Def, parameter values, unselected inversion, all UUIDs and wires stay
+  independent. Only selected unconnected `InputTrigger` with absent/literal
+  zero Def is supported, directly under the ordinary native owning hierarchy.
+  This is no runtime/timing-edge claim, no new base API and no native run.
 - **Combined window contact** (`JoinWindowSensor`): its `AQ` connector is the
   docs' status output (S): 1 = closed, 2 = tilted, 3 = open, 4 = closed and not
   locked, 5 = closed and locked, 0 = a sensor is offline. Test for "open" with

@@ -61,6 +61,236 @@ fn logic_fixture(owner_type: &str) -> String {
     source
 }
 
+fn monoflop_fixture() -> String {
+    let golden = Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("tests")
+        .join("eval")
+        .join("golden")
+        .join("configs")
+        .join("Guest Room Door.Loxone");
+    let mut source = format!(
+        "\u{feff}{}",
+        fs::read_to_string(golden)
+            .unwrap()
+            .trim_start_matches('\u{feff}')
+    );
+    source = source.replacen("?>", "?>\r\n<?audit native-input?>\r\n<!--keep-->", 1);
+    let page = source
+        .find("U=\"1fbf34a5-03b1-83a1-ffff9bb3c1479539\"")
+        .unwrap();
+    let insertion = page + source[page..].find('>').unwrap() + 1;
+    source.insert_str(
+        insertion,
+        &format!(
+            "\r\n<C Type=\"Monoflop\" V=\"174\" U=\"{OWNER}\" WF=\"16384\" Nio=\"5\" Title=\"Pulse\" Cx=\"440\" Cy=\"280\" Pr=\"keep-rights\" Unknown=\"été\">
+<Co K=\"InputTrigger\" U=\"{INPUT}\" Def=\"0\" Nc=\"0\" Unknown='keep-input'/>
+<Co K=\"Reset\" U=\"41111111-2222-3333-4444555566667777\" Inv=\"true\" Nc=\"1\"><Ref U=\"d1111111-2222-3333-4444555566667777\" Unknown=\"keep-reset-wire\"/></Co>
+<Co K=\"Remanence\" U=\"81111111-2222-3333-4444555566667777\" Def=\"1\" Unknown=\"keep-param\"/>
+<Co K=\"Time\" U=\"91111111-2222-3333-4444555566667777\" Def=\"2\"/>
+<Co K=\"Q\" U=\"51111111-2222-3333-4444555566667777\" Unknown=\"keep-output\"/>
+</C>
+<C Type=\"Not\" V=\"174\" U=\"c1111111-2222-3333-4444555566667777\" WF=\"16384\" Nio=\"2\"><Co K=\"I\" U=\"e1111111-2222-3333-4444555566667777\"/><Co K=\"Q\" U=\"d1111111-2222-3333-4444555566667777\"/></C>
+<C Type=\"And\" V=\"174\" U=\"61111111-2222-3333-4444555566667777\" WF=\"16384\" Nio=\"3\"><Co K=\"I1\" U=\"71111111-2222-3333-4444555566667777\" Nc=\"1\"><Ref U=\"51111111-2222-3333-4444555566667777\" Unknown=\"keep-output-wire\"/></Co><Co K=\"I2\" U=\"f1111111-2222-3333-4444555566667777\"/><Co K=\"Q\" U=\"a2222222-2222-3333-4444555566667777\"/></C>\r\n"
+        ),
+    );
+    source
+}
+
+fn monoflop_expected_stamp(source: &str, saved: &str) -> String {
+    let before = xmltree::Element::parse(source.trim_start_matches('\u{feff}').as_bytes()).unwrap();
+    let after = xmltree::Element::parse(saved.trim_start_matches('\u{feff}').as_bytes()).unwrap();
+    let document = "1fbf3415-030f-bc7d-ffff9bb3c1479539";
+    let before = control(&before, document).unwrap();
+    let after = control(&after, document).unwrap();
+    let mut expected = source.to_string();
+    for key in ["Date", "DateS"] {
+        expected = expected.replacen(
+            &format!("{key}=\"{}\"", before.attributes[key]),
+            &format!("{key}=\"{}\"", after.attributes[key]),
+            1,
+        );
+    }
+    expected
+}
+
+#[test]
+fn monoflop_input_trigger_preserves_full_project_defaults_wires_and_atomic_copies() {
+    let dir = tempfile::tempdir_in(env!("CARGO_MANIFEST_DIR")).unwrap();
+    let input = dir.path().join("input.Loxone");
+    let output = dir.path().join("copy.Loxone");
+    for time in ["2", "17.25"] {
+        let mut source = monoflop_fixture().replacen("Def=\"2\"", &format!("Def=\"{time}\""), 1);
+        if time != "2" {
+            source = source.replacen(" Def=\"0\" Nc=\"0\"", " Nc=\"0\"", 1);
+        }
+        fs::write(&input, &source).unwrap();
+        for existing in [false, true] {
+            if existing {
+                fs::write(&output, b"PRESERVE UNTIL ACCEPTED").unwrap();
+            } else if output.exists() {
+                fs::remove_file(&output).unwrap();
+            }
+            command(&input, "InputTrigger", false)
+                .arg("--save-as")
+                .arg(&output)
+                .arg("-q")
+                .assert()
+                .success();
+            assert_eq!(fs::read(&output).unwrap(), source.as_bytes());
+            if !existing {
+                fs::remove_file(&output).unwrap();
+            }
+            command(&input, "InputTrigger", true)
+                .arg("--save-as")
+                .arg(&output)
+                .arg("-q")
+                .assert()
+                .success();
+            assert_eq!(fs::read(&input).unwrap(), source.as_bytes());
+            let saved = fs::read_to_string(&output).unwrap();
+            let expected = monoflop_expected_stamp(&source, &saved).replacen(
+                "Unknown='keep-input'/>",
+                "Unknown='keep-input' Inv=\"true\"/>",
+                1,
+            );
+            assert_eq!(saved, expected);
+        }
+        let result = command(&input, "InputTrigger", true)
+            .args(["-o", "json"])
+            .assert()
+            .success()
+            .get_output()
+            .stdout
+            .clone();
+        let result: serde_json::Value = serde_json::from_slice(&result).unwrap();
+        assert_eq!(result["input_inversion"]["connector"], "InputTrigger");
+        assert_eq!(result["input_inversion"]["changed"], true);
+        let once = fs::read(&input).unwrap();
+        command(&input, "InputTrigger", true)
+            .arg("-q")
+            .assert()
+            .success();
+        assert_eq!(fs::read(&input).unwrap(), once);
+        command(&input, "InputTrigger", false)
+            .arg("-q")
+            .assert()
+            .success();
+        let cleared = fs::read_to_string(&input).unwrap();
+        assert_eq!(
+            cleared,
+            monoflop_expected_stamp(&source, &cleared).replacen(
+                "Unknown='keep-input'/>",
+                "Unknown='keep-input' />",
+                1,
+            )
+        );
+    }
+}
+
+#[test]
+fn monoflop_input_inversion_refuses_unqualified_ports_layout_and_context_atomically() {
+    let dir = tempfile::tempdir_in(env!("CARGO_MANIFEST_DIR")).unwrap();
+    let input = dir.path().join("input.Loxone");
+    let existing = dir.path().join("existing.Loxone");
+    let new = dir.path().join("new.Loxone");
+    let source = monoflop_fixture();
+    let mut cases: Vec<(String, &str)> = [
+        "Reset",
+        "Remanence",
+        "Time",
+        "Q",
+        "I1",
+        "Trigger",
+        "inputtrigger",
+    ]
+    .map(|key| (source.clone(), key))
+    .into();
+    for (from, to) in [
+        ("Nio=\"5\" Title=\"Pulse\"", "Nio=\"4\" Title=\"Pulse\""),
+        ("K=\"Time\"", "K=\"Duration\""),
+        ("K=\"Time\"", "K=\"Reset\""),
+        (
+            "Def=\"0\" Nc=\"0\" Unknown='keep-input'",
+            "Def=\"1\" Nc=\"0\"",
+        ),
+        (
+            "Def=\"0\" Nc=\"0\" Unknown='keep-input'",
+            "Def=\"0\" Nc=\"1\"",
+        ),
+        (
+            "Unknown='keep-input'/>",
+            "Unknown='keep-input'><Ref U=\"d1111111-2222-3333-4444555566667777\"/></Co>",
+        ),
+        ("Title=\"Pulse\"", "Title=\"Pulse\" IfT=\"false\""),
+        ("Title=\"Pulse\"", "Title=\"Pulse\" uuidParent=\"x\""),
+        ("WF=\"16384\" Nio=\"5\"", "WF=\"16385\" Nio=\"5\""),
+        ("Type=\"Program\"", "Type=\"Folder\""),
+        ("Type=\"Document\"", "Type=\"DocumentTemplate\""),
+        ("<ControlList ", "<Folder "),
+        ("</ControlList>", "</Folder>"),
+        (
+            "Type=\"Document\" V=",
+            "Type=\"Document\" Type=\"Document\" V=",
+        ),
+        (
+            "Unknown='keep-input'",
+            "Unknown='keep-input' Inv=\"false\" Inv=\"false\"",
+        ),
+        ("Unknown='keep-input'", "Unknown='Noon 12hTF=quoted'"),
+        ("<?audit native-input?>", "<?1bad?>"),
+        ("Title=\"Pulse\"", "xmlns=\"urn:wrong\" Title=\"Pulse\""),
+        ("DateS=\"532627050\"", "DateS=\"+1\""),
+        ("DateS=\"532627050\"", "DateS=\"2147483647\""),
+        (
+            "U=\"b1111111-2222-3333-4444555566667777\"",
+            "U=\"b1111111-2222-3333-4444-555566667777\"",
+        ),
+        (
+            "U=\"41111111-2222-3333-4444555566667777\"",
+            "U=\"B1111111-2222-3333-4444555566667777\"",
+        ),
+    ] {
+        assert!(source.contains(from), "missing refusal fixture {from}");
+        cases.push((source.replacen(from, to, 1), "InputTrigger"));
+    }
+    cases.push((
+        source
+            .replace("<ControlList ", "<C Type=\"Folder\" ")
+            .replace("</ControlList>", "</C>"),
+        "InputTrigger",
+    ));
+    cases.push((
+        source.replace(
+            "<Co K=\"Time\" U=\"91111111-2222-3333-4444555566667777\" Def=\"2\"/>",
+            "",
+        ),
+        "InputTrigger",
+    ));
+    cases.push((format!("{source}<C Type=\"Monoflop\"/>"), "InputTrigger"));
+    cases.push((format!("\u{feff}{source}"), "InputTrigger"));
+    for (case_index, (xml, key)) in cases.into_iter().enumerate() {
+        for invert in [false, true] {
+            for destination in [None, Some(&existing), Some(&new)] {
+                fs::write(&input, &xml).unwrap();
+                fs::write(&existing, b"PRESERVE").unwrap();
+                let mut edit = command(&input, key, invert);
+                if let Some(destination) = destination {
+                    edit.arg("--save-as").arg(destination);
+                }
+                let result = edit.output().unwrap();
+                assert!(
+                    !result.status.success(),
+                    "Monoflop refusal case {case_index}, key {key}, inverted {invert}, destination {destination:?}: {}",
+                    String::from_utf8_lossy(&result.stdout)
+                );
+                assert_eq!(fs::read(&input).unwrap(), xml.as_bytes());
+                assert_eq!(fs::read(&existing).unwrap(), b"PRESERVE");
+                assert!(!new.exists());
+            }
+        }
+    }
+}
+
 fn delay_fixture(owner_type: &str) -> String {
     let golden = include_str!("eval/golden/configs/Guest Room Door.Loxone");
     let page = golden.find("<C Type=\"Page\"").expect("golden native Page");
