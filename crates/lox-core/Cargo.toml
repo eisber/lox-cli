@@ -1,0 +1,15 @@
+[package]
+name = "lox-core"
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.91"
+authors = ["Markus Cozowicz <markus@cozowicz.com>"]
+description = "Headless Loxone toolkit — offline LoxCC and backup archive codecs"
+repository = "https://github.com/eisber/lox-cli"
+license = "AGPL-3.0-or-later AND LicenseRef-Commercial"
+readme = "README.md"
+
+[dependencies]
+crc32fast = "1.5.0"
+lz4_flex = "0.13.0"
+zip = "2"

@@ -1,5 +1,5 @@
 [workspace]
-members = [".", "lox-sim"]
+members = [".", "lox-sim", "crates/lox-core"]
 
 [package]
 name = "lox-cli"
@@ -72,8 +72,8 @@ zip = "2"
 quick-xml = "0.37"
 crc32fast = "1.5.0"
 xmltree = { version = "0.12.0", features = ["attribute-order"] }
-lz4_flex = "0.13.0"
 lox-sim = { path = "lox-sim", version = "0.1.0" }
+lox-core = { path = "crates/lox-core", version = "0.1.0" }
 
 [target.'cfg(not(windows))'.dependencies]
 openssl = "0.10"
@@ -82,6 +82,7 @@ openssl = "0.10"
 native-tls = "0.2"
 
 [dev-dependencies]
+lz4_flex = "0.13.0"
 assert_cmd = "2"
 predicates = "3"
 tempfile = "3"

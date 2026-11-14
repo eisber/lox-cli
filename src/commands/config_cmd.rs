@@ -556,7 +556,8 @@ pub fn cmd_config(ctx: &RunContext, action: ConfigCmd) -> Result<()> {
         ConfigCmd::Extract { file, save_as } => {
             let data = fs::read(&file).with_context(|| format!("Cannot read {}", file))?;
             eprintln!("Extracting config archive...");
-            let xml = loxcc::extract_and_decompress(&data)?;
+            let xml = lox_core::configuration::archive::extract_and_decompress(&data)
+                .map_err(loxcc::archive_error)?;
             let xml_path = save_as.unwrap_or_else(|| {
                 file.strip_suffix(".zip").unwrap_or(&file).to_string() + ".Loxone"
             });
@@ -982,7 +983,7 @@ pub fn cmd_config(ctx: &RunContext, action: ConfigCmd) -> Result<()> {
         }
         ConfigCmd::Compress { file, save_as } => {
             let xml = fs::read(&file).with_context(|| format!("Cannot read {}", file))?;
-            let loxcc_data = loxcc::compress_loxcc(&xml);
+            let loxcc_data = lox_core::configuration::archive::compress_loxcc(&xml);
             let out_path = save_as.unwrap_or_else(|| {
                 file.strip_suffix(".Loxone")
                     .or_else(|| file.strip_suffix(".loxone"))

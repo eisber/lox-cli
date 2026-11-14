@@ -22,7 +22,8 @@ Major additions in this fork:
 - Block library (`lox blocks`) — search and introspect 190+ block types
 - Eval harness (`tests/eval/`) — 285 behavioral test cases
 - AI agent skill references (`.github/skills/`)
-- LoxCC compression (`src/loxcc.rs`)
+- LoxCC compression (`crates/lox-core/src/configuration/archive.rs`, extracted
+  from `src/loxcc.rs`; binary-private deployment policy remains there)
 - GitOps versioning (`src/gitops.rs`)
 
 Files substantially derived from the original project:

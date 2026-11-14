@@ -48,6 +48,15 @@ cargo build --release    # Binary at target/release/lox (~14MB)
 
 **Requirements:** Loxone Miniserver Gen 1 or 2 (firmware 12.0+), local network access.
 
+### Shared Rust library
+
+[`lox-core`](crates/lox-core/README.md) exposes the offline LoxCC/LxRes/backup ZIP
+byte codec used by `lox config extract` and `lox config compress`. This first
+workspace library requires Rust 1.91 and no device connection. XML parsing/editing,
+runtime APIs, and Python/Java/Kotlin bindings are not yet exposed through it;
+other CLI capabilities remain binary-private. See its README for permissive
+decoding limits and path-dependency usage.
+
 ## Quick Start
 
 ```bash
