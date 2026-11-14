@@ -550,7 +550,7 @@ fn input_inversion_false_noop_and_save_as_preserve_original_bytes() {
 fn input_inversion_admission_precedes_noop_and_all_destination_writes() {
     let source = fixture();
     let mut cases = vec![
-        source.replace("Type=\"And\"", "Type=\"Xor\""),
+        source.replace("Type=\"And\"", "Type=\"UnsupportedLogic\""),
         source.replace("Nio=\"3\"", "Nio=\"4\""),
         source.replace("V=\"121\"", "V=\"89\""),
         source.replace("Def=\"0\"", "Def=\"1\""),
