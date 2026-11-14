@@ -20,3 +20,25 @@ limits and the deliberately read-only refresh policy.
 These are six mapped findings, not six resolved discrepancies. No code change
 or new native qualification is credited by this table. Revisit only relevant
 changed upstream evidence and actual remaining gaps.
+
+## Follow-up: global configuration path identity
+
+A metadata-only refresh found a relevant
+[upstream correction](https://github.com/discostu105/lox/commit/f131767cf8a187b84d96a45a9df5c7b03966d428):
+the working directory and home directory can name the same directory through
+different filesystem paths. Comparing those paths lexically can incorrectly
+select the global `.lox/config.yaml` as a project-local flat configuration,
+bypassing its multi-context interpretation.
+
+Local discovery excludes the global directory by resolved directory identity
+as well as its original lexical path. This comparison does not canonicalize the
+returned project path or change nearest-project precedence. When a global
+directory cannot be resolved, the existing lexical exclusion still applies.
+The directory-exclusion helper accepts explicit paths so temporary-directory
+regressions do not change the process home or write real user configuration.
+
+This is a focused comparison with the
+[pinned upstream source](https://github.com/discostu105/lox/blob/70f33122df14e46bafbde3e124b53d6b1902386b/src/config.rs#L474-L491),
+not wholesale code adoption, acceptance of every change at that head, or native
+firmware qualification. The catalog's reviewed repository pin is not advanced
+by observing this later commit.

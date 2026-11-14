@@ -401,13 +401,24 @@ pub fn find_local_lox_dir() -> Option<PathBuf> {
 /// Walk up from the given directory looking for a `.lox/config.yaml` file.
 /// Returns the `.lox/` directory path if found, or None.
 pub fn find_local_lox_dir_from(start: &Path) -> Option<PathBuf> {
-    let global_dir = Config::dir();
+    find_local_lox_dir_excluding(start, &Config::dir())
+}
+
+fn find_local_lox_dir_excluding(start: &Path, global_dir: &Path) -> Option<PathBuf> {
+    let resolved_global = global_dir.canonicalize().ok();
     let mut dir = start;
     loop {
         let candidate = dir.join(".lox");
-        // Don't match the global ~/.lox/ directory
-        if candidate != global_dir && candidate.join("config.yaml").is_file() {
-            return Some(candidate);
+        if candidate.join("config.yaml").is_file() {
+            let is_global = candidate == global_dir
+                || resolved_global.as_ref().is_some_and(|global| {
+                    candidate
+                        .canonicalize()
+                        .is_ok_and(|resolved| resolved == *global)
+                });
+            if !is_global {
+                return Some(candidate);
+            }
         }
         dir = dir.parent()?;
     }
@@ -598,6 +609,75 @@ mod tests {
         fs::create_dir_all(&nested).unwrap();
         let found = find_local_lox_dir_from(&nested);
         assert_eq!(found, Some(lox_dir));
+    }
+
+    #[test]
+    fn find_local_lox_dir_excludes_global_path_aliases() {
+        let dir = tempdir().unwrap();
+        let project = dir.path().join(".lox");
+        let home = dir.path().join("home");
+        let global = home.join(".lox");
+        fs::create_dir_all(&project).unwrap();
+        fs::create_dir_all(&global).unwrap();
+        fs::create_dir_all(home.join("child")).unwrap();
+        fs::write(project.join("config.yaml"), "host: project\n").unwrap();
+        fs::write(global.join("config.yaml"), "contexts: {}\n").unwrap();
+        let aliased_home = home.join("child").join("..");
+
+        for (start, excluded) in [
+            (aliased_home.clone(), global.clone()),
+            (home, aliased_home.join(".lox")),
+        ] {
+            assert_eq!(
+                find_local_lox_dir_excluding(&start, &excluded),
+                Some(project.clone()),
+                "start={start:?}, global={excluded:?}"
+            );
+        }
+    }
+
+    #[test]
+    fn find_local_lox_dir_keeps_nearest_project_path_form() {
+        let dir = tempdir().unwrap();
+        let home = dir.path().join("home");
+        let global = home.join(".lox");
+        let project = home.join("project").join(".lox");
+        fs::create_dir_all(&global).unwrap();
+        fs::create_dir_all(&project).unwrap();
+        fs::create_dir_all(home.join("child")).unwrap();
+        fs::create_dir_all(home.join("project").join("deep")).unwrap();
+        fs::write(global.join("config.yaml"), "contexts: {}\n").unwrap();
+        fs::write(project.join("config.yaml"), "host: project\n").unwrap();
+        let aliased_project = home.join("child").join("..").join("project");
+
+        assert_eq!(
+            find_local_lox_dir_excluding(&aliased_project.join("deep"), &global),
+            Some(aliased_project.join(".lox"))
+        );
+    }
+
+    #[cfg(unix)]
+    #[test]
+    fn find_local_lox_dir_excludes_symlinked_global_directory() {
+        let dir = tempdir().unwrap();
+        let project = dir.path().join(".lox");
+        let home = dir.path().join("home");
+        let global = home.join(".lox");
+        let alias = dir.path().join("home-alias");
+        fs::create_dir_all(&project).unwrap();
+        fs::create_dir_all(&global).unwrap();
+        fs::write(project.join("config.yaml"), "host: project\n").unwrap();
+        fs::write(global.join("config.yaml"), "contexts: {}\n").unwrap();
+        std::os::unix::fs::symlink(&home, &alias).unwrap();
+
+        assert_eq!(
+            find_local_lox_dir_excluding(&alias, &global),
+            Some(project.clone())
+        );
+        assert_eq!(
+            find_local_lox_dir_excluding(&home, &alias.join(".lox")),
+            Some(project)
+        );
     }
 
     #[test]
