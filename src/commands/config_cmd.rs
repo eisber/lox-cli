@@ -2431,6 +2431,58 @@ pub fn cmd_config(ctx: &RunContext, action: ConfigCmd) -> Result<()> {
             println!("✓ Added Calendar '{}' (UUID: {})", name, uuid);
             save_edited(&mut editor, &file, save_as.as_deref())?;
         }
+        ConfigCmd::SetOperatingTimeRange {
+            file,
+            selector,
+            from,
+            to,
+            save_as,
+        } => {
+            let data = fs::read(&file).with_context(|| format!("Cannot read {file}"))?;
+            let (output, change) =
+                ConfigEditor::edit_operating_time_range(&data, &selector, &from, &to)?;
+            if change.changed || save_as.is_some() {
+                write_edited_bytes(
+                    &output,
+                    &file,
+                    save_as.as_deref(),
+                    ctx.quiet || ctx.json || ctx.csv,
+                )?;
+            }
+            if ctx.json {
+                emit_json(
+                    ctx,
+                    serde_json::json!({
+                        "ok": true,
+                        "saved_to": save_as.as_deref().unwrap_or(&file),
+                        "operating_time_range": change,
+                    }),
+                );
+            } else if ctx.csv {
+                if !ctx.no_header {
+                    println!("UUID,MODE_UUID,CAL_TYPE,PREVIOUS_FROM,PREVIOUS_TO,FROM,TO,CHANGED");
+                }
+                println!(
+                    "{},{},{},{},{},{},{},{}",
+                    change.uuid,
+                    change.mode_uuid,
+                    change.cal_type,
+                    change.previous_from,
+                    change.previous_to,
+                    change.from,
+                    change.to,
+                    change.changed,
+                );
+            } else if !ctx.quiet {
+                println!(
+                    "✓ Operating Time {}: {} through {} (inclusive){}",
+                    change.uuid,
+                    change.from,
+                    change.to,
+                    if change.changed { "" } else { " (unchanged)" },
+                );
+            }
+        }
         ConfigCmd::TimerSchedule {
             file,
             selector,

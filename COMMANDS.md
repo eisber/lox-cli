@@ -1972,6 +1972,51 @@ lox config autopilot-add file.Loxone ...   # add an autopilot rule
 lox config calendar-add file.Loxone ...    # add a calendar/schedule element
 ```
 
+Edit an existing **global Operating Time's absolute date span** (offline):
+
+```bash
+lox config set-operating-time-range file.Loxone uuid:<stored-native35-U> --from 2028-02-28 --to 2028-03-01
+lox config set-operating-time-range file.Loxone uuid:<stored-native35-U> --from 2026-12-31 --to 2027-01-02 --save-as edited.Loxone -o json
+```
+
+The target is an existing `CalendarEntry` directly under the one global
+`CalendarCaption`, **not** the separate active-period `Calendar` indicator.
+The legacy `calendar-add` and generic XML editing commands are unchanged;
+this command does not create an Operating Time.
+
+Only absolute spans (`Mode="3"`) are supported. Both endpoints are included;
+equal endpoints select one day, and chronological spans may cross a year boundary.
+Inputs are valid **civil dates**, not datetimes, timestamps or DayTimer minutes:
+`YYYY-MM-DD`, from **2009-01-02 through 2100-12-31**. Native `From`/`To` storage
+is a whole-day offset from 2009-01-01. Zero is a special getter default that
+materializes the current date, so missing/zero endpoints are refused, including
+an explicit 2009-01-01. Reversed new or existing spans are unsupported.
+No timezone conversion is performed. Annual/month-day, Easter, one-date and
+weekday recurrence modes are not converted or edited.
+
+The existing numeric `CalType` association must resolve unambiguously to a
+global `Mode` in the direct `ModeCaption`. It is not a mode UUID, entry index or
+weekday mask. The association, recurrence, other period fields, mode collection,
+counts, identities, connectors, wiring and permissions remain unchanged.
+Only the selected entry's `From`, `To`, accepted `WF=16384`, and owning
+Document's `Date`/`DateS` save stamp may change. Missing Document stamps can be
+inserted on a change; an admitted no-op preserves every byte without stamping.
+
+Admission requires one namespace-free Document at the XML root or directly
+under it, modern `V>=90`, and ordinary absent/`0`/`16384` owner/ancestor/mode flags,
+with unique nonnil **native35** selected identities (8-4-4-16) and existing ordered
+I/Q connectors. Template/`IfT`/`uuidParent`, device-bound, forwarding/excluded
+flags, ambiguous identities/mode numbers, malformed/trailing XML, guarded or
+identity duplicate attributes, conflicting duplicates, unsafe stamp bounds,
+numeric-reference admission fields and text affected by shared-loader digit-name
+rewrites (`lox-n37w`) are refused **before any input or save-as destination is written**.
+Unrelated raw-value-identical duplicate attributes, unknown metadata, comments,
+ordinary native digit-named attributes such as `12hTF`, processing instructions,
+BOM and line endings are preserved. JSON, CSV,
+`--no-header`, `--quiet` and `--save-as` are supported; `--dry-run` is not.
+This is a bounded recovered file edit, not a whole-project native save,
+compiler or runtime validation.
+
 Existing action structure (offline, no Miniserver request):
 
 ```bash

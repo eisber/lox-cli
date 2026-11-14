@@ -35,6 +35,7 @@ pub mod lighting_sid;
 mod lighting_tests;
 pub mod load_manager;
 pub mod operating_modes;
+mod operating_time;
 mod permissions;
 mod properties;
 mod rooms;

@@ -818,6 +818,20 @@ pub(crate) enum ConfigCmd {
         #[arg(long)]
         save_as: Option<String>,
     },
+    /// Set an existing ordinary absolute Operating Time's inclusive civil-date span
+    SetOperatingTimeRange {
+        file: String,
+        /// uuid:<exact existing native35 CalendarEntry U>, not the Calendar indicator
+        selector: String,
+        /// First included date, YYYY-MM-DD (2009-01-02 through 2100-12-31)
+        #[arg(long)]
+        from: String,
+        /// Last included date, YYYY-MM-DD; must not precede --from
+        #[arg(long)]
+        to: String,
+        #[arg(long)]
+        save_as: Option<String>,
+    },
     /// Add a schedule entry to a DayTimer block (e.g. 20:00-24:00)
     #[command(name = "timer-schedule")]
     TimerSchedule {
