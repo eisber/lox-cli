@@ -549,6 +549,20 @@ pub(crate) enum ConfigCmd {
         #[arg(long)]
         force: bool,
     },
+    /// Compile a deployable backup ZIP offline from a native backup and edited XML
+    ///
+    /// Applies the same sidecar checks and compilation as `push`/`upload`,
+    /// without contacting the Miniserver. Review or verify the result, then
+    /// deploy it with `config upload`.
+    Repack {
+        /// Native backup ZIP the edit starts from (e.g. from `lox config download`)
+        backup: String,
+        /// Edited .Loxone XML file
+        file: String,
+        /// Output ZIP path; an existing file is not overwritten
+        #[arg(long, value_name = "PATH")]
+        save_as: String,
+    },
     /// Compress a .Loxone XML file into LoxCC format (with correct CRC32)
     Compress {
         /// Path to a .Loxone XML file
