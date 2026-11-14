@@ -154,9 +154,12 @@ impl ConfigEditor {
         }
         if matches!(kind(owner), "StairwayLS" | "PulseGen" | "OnPulseDelay") {
             ensure!(
-                documents[0].is_empty()
-                    || (editor.root.name == "ControlList" && documents[0].len() == 1),
-                "Pulse input inversion requires the owning Document at the root or directly in the native ControlList root; other wrappers are unsupported. Nothing was changed."
+                !data.starts_with(b"\xef\xbb\xbf\xef\xbb\xbf")
+                    && (documents[0].is_empty()
+                        || (editor.root.name == "ControlList"
+                            && !editor.root.attributes.contains_key("Type")
+                            && documents[0].len() == 1)),
+                "Pulse input inversion requires at most one UTF-8 BOM and the owning Document at the root or directly in an untyped native ControlList root; other wrappers are unsupported. Nothing was changed."
             );
         }
         let (input_keys, connector_keys, nio): (&[&str], &[&str], &str) = match kind(owner) {

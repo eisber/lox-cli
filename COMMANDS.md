@@ -221,7 +221,9 @@ BOM is admitted for this branch; repeated BOMs are refused before no-op or outpu
 `OnPulseDelay` requires `Nio="6"` and exactly
 `InputTrigger`/`Reset`/`Remanence`/`Delay`/`Time`/`Q`.
 These three pulse owners require the Document at the root or directly within
-the native `ControlList` root. Their other inputs (including `InputInvert`)
+the untyped native `ControlList` root, with at most one UTF-8 BOM.
+Typed containers and repeated BOMs are refused before no-op, stamping or any
+destination write. Their other inputs (including `InputInvert`)
 are not eligible in this unconnected branch. Parameter defaults may be nonzero
 and remain untouched; this command does not edit timing or runtime behavior.
 The exact `uuid:` owner, its Document/Program/Page ancestors and every owner connector

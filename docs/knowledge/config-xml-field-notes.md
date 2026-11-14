@@ -336,8 +336,10 @@ qualification was performed for this recovery.
   `+0x1120`. The existing global Template/IfT/DocumentTemplate/uuidParent
   exclusions keep it false. Ordinary absent/0/16384 WF is preserved, not
   guessed from a pulse override. The new owners also require a root Document
-  or a direct Document within the native `ControlList` root, then an exact
-  Page, optionally through one Program; Folder wrappers are refused.
+  or a direct Document within the untyped native `ControlList` root, then an
+  exact Page, optionally through one Program. Their local admission guard
+  refuses typed containers and repeated UTF-8 BOMs before no-op, stamping or
+  any destination write; this correction does not change older owner guards.
   Actual Co construction `0x140423420`, load `0x14047fb20:222–238`,
   accepted copy `0x14043d790:27–35` and serializer
   `0x14047fb20:84–103` bind the same separate Def/Inv storage.

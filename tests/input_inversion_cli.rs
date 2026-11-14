@@ -918,6 +918,100 @@ fn pulse_project(owner_type: &str, selected: &str) -> String {
 }
 
 #[test]
+fn pulse_inputs_refuse_typed_roots_and_repeated_boms_before_any_write() {
+    let dir = tempfile::tempdir_in(env!("CARGO_MANIFEST_DIR")).unwrap();
+    let input = dir.path().join("pulse.Loxone");
+    let existing = dir.path().join("existing.Loxone");
+    let new = dir.path().join("new.Loxone");
+    let stages = [
+        dir.path().join("pulse.Loxone.tmp"),
+        dir.path().join("existing.Loxone.tmp"),
+        dir.path().join("new.Loxone.tmp"),
+    ];
+    for (owner_type, key) in [
+        ("StairwayLS", "InputTrigger"),
+        ("PulseGen", "InputEnable"),
+        ("OnPulseDelay", "InputTrigger"),
+    ] {
+        let source = pulse_project(owner_type, key);
+        for invalid in [
+            source.replacen("<ControlList ", "<ControlList Type='Folder' ", 1),
+            format!("\u{feff}{source}"),
+        ] {
+            for inverted in [false, true] {
+                for destination in [None, Some(&new), Some(&existing)] {
+                    fs::write(&input, &invalid).unwrap();
+                    fs::write(&existing, b"preserve destination").unwrap();
+                    for stage in &stages {
+                        fs::write(stage, b"preserve foreign stage").unwrap();
+                    }
+                    let mut edit = command(&input, key, inverted);
+                    if let Some(destination) = destination {
+                        edit.arg("--save-as").arg(destination);
+                    }
+                    edit.arg("-q")
+                        .assert()
+                        .failure()
+                        .stderr(predicates::str::contains(
+                            "Pulse input inversion requires at most one UTF-8 BOM",
+                        ));
+                    assert_eq!(fs::read(&input).unwrap(), invalid.as_bytes());
+                    assert_eq!(fs::read(&existing).unwrap(), b"preserve destination");
+                    assert!(!new.exists());
+                    for stage in &stages {
+                        assert_eq!(fs::read(stage).unwrap(), b"preserve foreign stage");
+                    }
+                }
+            }
+        }
+    }
+}
+
+#[test]
+fn pulse_inputs_preserve_qualified_native_root_forms_with_one_bom_and_program() {
+    let dir = tempfile::tempdir_in(env!("CARGO_MANIFEST_DIR")).unwrap();
+    let input = dir.path().join("pulse.Loxone");
+    let output = dir.path().join("copy.Loxone");
+    for (owner_type, key) in [
+        ("StairwayLS", "InputTrigger"),
+        ("PulseGen", "InputEnable"),
+        ("OnPulseDelay", "InputTrigger"),
+    ] {
+        let container = pulse_project(owner_type, key);
+        let mut document = container.clone();
+        let start = document.find("<ControlList ").unwrap();
+        let end = start + document[start..].find('>').unwrap() + 1;
+        document.replace_range(start..end, "");
+        document = document.replace("</ControlList>", "");
+        for source in [container, document] {
+            fs::write(&input, &source).unwrap();
+            command(&input, key, false)
+                .arg("--save-as")
+                .arg(&output)
+                .arg("-q")
+                .assert()
+                .success();
+            assert_eq!(fs::read(&output).unwrap(), source.as_bytes());
+            command(&input, key, true)
+                .arg("--save-as")
+                .arg(&output)
+                .arg("-q")
+                .assert()
+                .success();
+            let selected = format!(
+                "<Co K=\"{key}\" U=\"{INPUT}\" Def=\"0\" Pos='11,22' Unknown=\"selected\">"
+            );
+            let expected = source.replace(&selected, &selected.replace('>', " Inv=\"true\">"));
+            assert_eq!(
+                without_document_stamp(&fs::read_to_string(&output).unwrap()),
+                without_document_stamp(&expected)
+            );
+            assert_eq!(fs::read(&input).unwrap(), source.as_bytes());
+        }
+    }
+}
+
+#[test]
 fn pulse_inputs_preserve_full_native_layout_defaults_wires_and_atomic_copies() {
     let dir = tempfile::tempdir_in(env!("CARGO_MANIFEST_DIR")).unwrap();
     let input = dir.path().join("pulse.Loxone");
