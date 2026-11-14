@@ -33,3 +33,12 @@ Files substantially derived from the original project:
 - `src/token.rs` — Token authentication
 - `src/ws.rs` — WebSocket client
 - `src/ftp.rs` — FTP operations
+
+## Generated native archive bindings
+
+`crates/lox-bindings` is this project's thin adapter, under the unchanged
+AGPL-3.0-or-later AND LicenseRef-Commercial project metadata.
+Generated Python glue uses Mozilla UniFFI 0.32.1 (MPL-2.0); generated Java
+glue uses IronCore Labs uniffi-bindgen-java 0.5.2 (MPL-2.0). Their template
+and helper-code rights are not replaced by this project's license.
+See `crates/lox-bindings/THIRD_PARTY_NOTICES` and its `licenses/MPL-2.0.txt`.

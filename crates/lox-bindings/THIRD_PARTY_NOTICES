@@ -1,0 +1,40 @@
+Native archive binding provenance
+=================================
+
+Project-authored facade, build scripts and tests retain this repository's
+AGPL-3.0-or-later AND LicenseRef-Commercial metadata. See root LICENSE,
+LICENSE-AGPL, LICENSE-COMMERCIAL and NOTICE. No upstream protocol stack or
+archive codec is copied into this adapter.
+
+Mozilla UniFFI / uniffi-rs, version 0.32.1
+  https://github.com/mozilla/uniffi-rs
+  https://crates.io/crates/uniffi/0.32.1
+  License: MPL-2.0. Copyright: Mozilla and UniFFI contributors.
+  Rust scaffolding/runtime and generated Python glue include upstream
+  templates/helpers. Python uses ctypes to load the native library.
+
+IronCore Labs uniffi-bindgen-java, version 0.5.2
+  https://github.com/IronCoreLabs/uniffi-bindgen-java
+  https://crates.io/crates/uniffi-bindgen-java/0.5.2
+  License: MPL-2.0. Copyright: IronCore Labs and contributors.
+  Generated Java includes this generator's FFM templates/helpers. Kotlin
+  consumes those same Java classes; no second Kotlin binding is generated.
+
+Generated Python and Java helper Source Code Form is subject to the Mozilla
+Public License, v. 2.0. A copy is provided in licenses/MPL-2.0.txt (and packaged
+with the wheel and JVM jar). Generated sources are shipped in the Python
+wheel and JVM sources jar; upstream generator sources for the exact versions
+above are available from the linked crates.io releases and repositories.
+No generated helper source is hand-edited. These MPL notices do not claim
+ownership of upstream code or relicense this repository's own source.
+
+maturin 1.16.0 is a build-only tool (MIT OR Apache-2.0), not a runtime Python
+dependency. JDK/Kotlin compilers are external tools, not bundled in the API
+jar. The Kotlin test jar includes its own standard library for testing only;
+it is not the distributed native API jar.
+
+Other transitive Rust libraries retain their own licenses. Cargo.lock pins
+their versions/checksums; maturin's wheel SBOM records the dependency graph.
+This focused notice is not a replacement for their source/license notices.
+Distributors must make matching Corresponding Source and required dependency
+notices available; a private local artifact proof is not a public release.

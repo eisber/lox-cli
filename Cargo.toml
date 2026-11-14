@@ -1,5 +1,5 @@
 [workspace]
-members = [".", "lox-sim", "crates/lox-core"]
+members = [".", "lox-sim", "crates/lox-core", "crates/lox-bindings"]
 
 [package]
 name = "lox-cli"
