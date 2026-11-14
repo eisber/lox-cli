@@ -1739,6 +1739,9 @@ Existing `StateOnly` must be absent or literal true/false.
 
 All admission, including stampability and original raw XML agreement, happens
 before a no-op or any `--save-as` write. Same-value edits preserve bytes exactly.
+Raw XML must have exactly one complete, balanced root; trailing elements, text
+or out-of-root CDATA are refused. XML whitespace, comments and processing
+instructions outside the root remain valid; in-root CDATA is preserved.
 Guarded/conflicting duplicate attributes are refused; unrelated raw-identical
 duplicates remain untouched. Files requiring shared digit-name sanitizer rewrites
 (including digit-like attribute text, open issue `lox-n37w`) are explicitly

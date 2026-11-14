@@ -89,6 +89,97 @@ fn virtual_input_format_cli_outputs_noop_and_atomic_refusals() {
 }
 
 #[test]
+fn virtual_input_format_single_root_refuses_hidden_roots_and_trailing_content() {
+    let dir = tempfile::tempdir_in(env!("CARGO_MANIFEST_DIR")).unwrap();
+    let input = dir.path().join("input.Loxone");
+    let existing = dir.path().join("existing.Loxone");
+    let new = dir.path().join("new.Loxone");
+    let source = fixture();
+    let cases = [
+        format!("{source}<C Type=\"Document\"/>"),
+        format!("{source}<C Type=\"VirtualIn\" U=\"{OWNER}\"/>"),
+        format!("{source}<C Type=\"VirtualIn\" U=\"10000000-0000-0000-0000-000000000004\"></C>"),
+        format!("{source}outside"),
+        format!("{source}&amp;"),
+        format!("{source}<![CDATA[outside]]>"),
+        format!("{source}<![CDATA[ \t\r\n]]>"),
+        format!("{source}<C>"),
+        source.replace("</LoxoneApp>", ""),
+        source.replace("</LoxoneApp>", "</Wrong>"),
+        format!("{source}</LoxoneApp>"),
+        format!("{source}<!--bad--comment-->"),
+        format!("{source}<!--truncated"),
+        format!("{source}<?truncated"),
+        format!("{source}<?xml version=\"1.0\"?>"),
+    ];
+    for (index, xml) in cases.iter().enumerate() {
+        fs::write(&input, xml).unwrap();
+        fs::write(&existing, b"preserve").unwrap();
+        for value in ["<v>", "<v.1>hPa"] {
+            for destination in [None, Some(&existing), Some(&new)] {
+                let mut edit = command(&input, OWNER, value);
+                if let Some(destination) = destination {
+                    edit.arg("--save-as").arg(destination);
+                }
+                let output = edit.output().unwrap();
+                assert!(!output.status.success(), "malformed XML case {index}");
+                assert!(
+                    output.stdout.is_empty(),
+                    "success-shaped output in case {index}"
+                );
+                assert_eq!(fs::read(&input).unwrap(), xml.as_bytes());
+                assert_eq!(fs::read(&existing).unwrap(), b"preserve");
+                assert!(!new.exists());
+            }
+        }
+    }
+}
+
+#[test]
+fn virtual_input_format_single_root_preserves_document_markup_and_safe_cdata() {
+    let dir = tempfile::tempdir_in(env!("CARGO_MANIFEST_DIR")).unwrap();
+    let input = dir.path().join("input.Loxone");
+    let wrapper = fixture();
+    let document = wrapper
+        .trim_start_matches('\u{feff}')
+        .replace("<LoxoneApp>\r\n", "")
+        .replace("</LoxoneApp>\r\n", "");
+    for body in [wrapper.trim_start_matches('\u{feff}').to_owned(), document] {
+        let body = body.replace(
+            "<IoData",
+            "<Evidence><![CDATA[<C Type='Document'/> & <fake/>]]>&amp;&#32;<Empty/></Evidence><IoData",
+        );
+        let xml = format!(
+            "\u{feff}<?xml version=\"1.0\" encoding=\"utf-8\"?>\r\n<!-- <C Type='Document'/> --><?before <fake/>?>\r\n{body}<?after <fake/>?><!-- trailing <C/> --> \t\r\n"
+        );
+        fs::write(&input, &xml).unwrap();
+        command(&input, OWNER, "<v.1>hPa")
+            .arg("-q")
+            .assert()
+            .success()
+            .stdout("");
+        let saved = fs::read_to_string(&input).unwrap();
+        let doc_tag = |text: &str| {
+            let start = text.find("<C Type=\"Document\"").unwrap();
+            let end = start + text[start..].find('>').unwrap() + 1;
+            text[start..end].to_owned()
+        };
+        let expected = xml.replacen(&doc_tag(&xml), &doc_tag(&saved), 1).replacen(
+            "Unit=\"&lt;v&gt;\"",
+            "Unit=\"&lt;v.1&gt;hPa\"",
+            1,
+        );
+        assert_eq!(saved, expected);
+        command(&input, OWNER, "<v.1>hPa")
+            .arg("-q")
+            .assert()
+            .success()
+            .stdout("");
+        assert_eq!(fs::read(&input).unwrap(), expected.as_bytes());
+    }
+}
+
+#[test]
 fn virtual_input_format_edits_existing_native_golden_inputs() {
     let dir = tempfile::tempdir_in(env!("CARGO_MANIFEST_DIR")).unwrap();
     let input = dir.path().join("golden.Loxone");
@@ -97,16 +188,33 @@ fn virtual_input_format_edits_existing_native_golden_inputs() {
         .join("eval")
         .join("golden")
         .join("configs");
+    let mut fixtures = 0;
+    let mut fixtures_with_inputs = 0;
     let mut admitted = 0;
-    let mut refused = 0;
+    let mut sanitizer_refused = 0;
+    let mut flags_refused = 0;
     for path in fs::read_dir(configs).unwrap() {
         let path = path.unwrap().path();
-        if path
+        if !path
             .extension()
-            .is_none_or(|extension| extension != "Loxone")
+            .and_then(|extension| extension.to_str())
+            .is_some_and(|extension| extension.eq_ignore_ascii_case("loxone"))
         {
             continue;
         }
+        fixtures += 1;
+        let filename = path.file_name().unwrap().to_str().unwrap();
+        let expected_refusal = match filename {
+            "UseCase-wallbox-charging-modes.loxone"
+            | "UseCase_espresso-machine-preheat-alarm.Loxone"
+            | "usecase-keyless-locker-management.Loxone" => {
+                Some("shared-loader digit-name rewrites (lox-n37w)")
+            }
+            "Netzgebu\u{0308}hr reduziert.Loxone" => {
+                Some("requires explicit modern V>=90 and ordinary absent/0/16384 WF")
+            }
+            _ => None,
+        };
         let original = fs::read(&path).unwrap();
         let mut reader = Reader::from_reader(original.as_slice());
         let mut owners = Vec::new();
@@ -136,13 +244,40 @@ fn virtual_input_format_edits_existing_native_golden_inputs() {
                 _ => {}
             }
         }
+        if !owners.is_empty() {
+            fixtures_with_inputs += 1;
+            eprintln!(
+                "Golden fixture {filename}: {} existing analog inputs; expected {}",
+                owners.len(),
+                expected_refusal.unwrap_or("admitted")
+            );
+        }
         for owner in owners {
             fs::write(&input, &original).unwrap();
             let result = command(&input, &owner, "<v.1>hPa")
                 .arg("-q")
                 .output()
                 .unwrap();
-            if result.status.success() {
+            if let Some(reason) = expected_refusal {
+                assert!(!result.status.success(), "expected refusal in {filename}");
+                assert!(
+                    String::from_utf8_lossy(&result.stderr).contains(reason),
+                    "wrong refusal reason in {filename}: {}",
+                    String::from_utf8_lossy(&result.stderr)
+                );
+                if reason.contains("lox-n37w") {
+                    sanitizer_refused += 1;
+                } else {
+                    flags_refused += 1;
+                }
+                assert!(result.stdout.is_empty());
+                assert_eq!(fs::read(&input).unwrap(), original);
+            } else {
+                assert!(
+                    result.status.success(),
+                    "unexpected refusal in {filename}: {}",
+                    String::from_utf8_lossy(&result.stderr)
+                );
                 admitted += 1;
                 let saved = fs::read(&input).unwrap();
                 assert_ne!(saved, original);
@@ -152,15 +287,12 @@ fn virtual_input_format_edits_existing_native_golden_inputs() {
                     .success()
                     .stdout("");
                 assert_eq!(fs::read(&input).unwrap(), saved);
-            } else {
-                refused += 1;
-                assert!(String::from_utf8_lossy(&result.stderr).contains("Virtual Input format"));
-                assert_eq!(fs::read(&input).unwrap(), original);
             }
         }
     }
     eprintln!(
-        "Existing native analog VirtualIn format edits: {admitted} admitted, {refused} refused"
+        "Offline golden format edits: {fixtures} fixtures scanned, {fixtures_with_inputs} with analog inputs, {} inputs; {admitted} admitted, {sanitizer_refused} sanitizer refusals, {flags_refused} WF refusals; not a native application pass",
+        admitted + sanitizer_refused + flags_refused,
     );
     assert!(
         admitted > 0,

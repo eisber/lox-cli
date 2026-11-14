@@ -72,3 +72,9 @@ contexts, noncanonical identities/layouts, other flag states, and shared
 digit-name sanitizer rewrites are refused before no-op or save-as. No visibility,
 rights/reference recomputation, hardware change, deployment compiler, or global
 formatter is implemented.
+
+Raw admission also independently requires exactly one balanced, complete XML
+root, rejecting hidden trailing controls/documents and out-of-root text/CDATA
+before a no-op or write. Outside-root XML whitespace/comments/processing
+instructions and inside-root CDATA remain supported. This check is local to
+the format operation; it does not change the shared loader.

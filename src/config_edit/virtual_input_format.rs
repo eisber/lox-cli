@@ -252,15 +252,29 @@ fn format_bytes(
     format: Option<&str>,
     stamp: Option<&(String, String)>,
 ) -> Result<Vec<u8>> {
+    const DOCUMENT_ERROR: &str = "Virtual Input format requires well-formed single-root XML without trailing content; nothing was changed.";
     std::str::from_utf8(data)?;
     let offset = usize::from(data.starts_with(b"\xef\xbb\xbf")) * 3;
     let mut reader = Reader::from_reader(&data[offset..]);
+    reader.config_mut().check_comments = true;
     let mut ordinal = 0;
     let mut found = 0;
     let mut patches = Vec::new();
+    let mut root_seen = false;
+    let mut open_elements = Vec::new();
     loop {
-        match reader.read_event()? {
+        let event_start = reader.buffer_position();
+        let event = reader.read_event().context(DOCUMENT_ERROR)?;
+        let is_start = matches!(&event, Event::Start(_));
+        match event {
             Event::Start(element) | Event::Empty(element) => {
+                if open_elements.is_empty() {
+                    ensure!(!root_seen, DOCUMENT_ERROR);
+                    root_seen = true;
+                }
+                if is_start {
+                    open_elements.push(element.name().as_ref().to_vec());
+                }
                 let end = reader.buffer_position() as usize + offset;
                 let guarded = guards.get(&ordinal);
                 let name = element.name();
@@ -336,7 +350,23 @@ fn format_bytes(
                 }
                 ordinal += 1;
             }
+            Event::End(element) => {
+                ensure!(
+                    open_elements.pop().as_deref() == Some(element.name().as_ref()),
+                    DOCUMENT_ERROR
+                );
+            }
+            Event::Text(text) if open_elements.is_empty() => {
+                ensure!(
+                    text.as_ref()
+                        .iter()
+                        .all(|byte| matches!(byte, b' ' | b'\t' | b'\r' | b'\n')),
+                    DOCUMENT_ERROR
+                );
+            }
+            Event::CData(_) if open_elements.is_empty() => anyhow::bail!(DOCUMENT_ERROR),
             Event::Decl(declaration) => {
+                ensure!(event_start == 0 && !root_seen, DOCUMENT_ERROR);
                 if let Some(encoding) = declaration.encoding() {
                     let encoding = encoding?;
                     ensure!(
@@ -349,7 +379,10 @@ fn format_bytes(
             Event::DocType(_) => anyhow::bail!(
                 "Virtual Input format does not support DTD-dependent storage; nothing was changed."
             ),
-            Event::Eof => break,
+            Event::Eof => {
+                ensure!(root_seen && open_elements.is_empty(), DOCUMENT_ERROR);
+                break;
+            }
             _ => {}
         }
     }
