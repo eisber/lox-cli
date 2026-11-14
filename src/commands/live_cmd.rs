@@ -13,9 +13,11 @@
 
 use anyhow::{Context, Result, bail};
 use clap::Subcommand;
+use lox_core::runtime::{Cancellation, ClockDriver, ClockError, ClockOptions, Diagnostic};
 use serde_json::{Value, json};
+use std::sync::Arc;
 
-use crate::client::LoxClient;
+use crate::client::{self, HttpStatusError, LoxClient};
 use crate::commands::RunContext;
 use crate::config::Config;
 
@@ -42,11 +44,12 @@ pub enum LiveCmd {
 
 pub fn cmd_live(ctx: &RunContext, action: LiveCmd) -> Result<()> {
     let cfg = Config::load()?;
-    let mut lox = LoxClient::new(cfg)?;
     match action {
-        LiveCmd::Get { uuid } => get(ctx, &mut lox, &uuid),
-        LiveCmd::Set { uuid, value, write } => set(ctx, &mut lox, &uuid, &value, write),
-        LiveCmd::Time => time(ctx, &lox),
+        LiveCmd::Get { uuid } => get(ctx, &mut LoxClient::new(cfg)?, &uuid),
+        LiveCmd::Set { uuid, value, write } => {
+            set(ctx, &mut LoxClient::new(cfg)?, &uuid, &value, write)
+        }
+        LiveCmd::Time => time(ctx, cfg),
     }
 }
 
@@ -121,13 +124,100 @@ fn set(
     Ok(())
 }
 
-fn time(ctx: &RunContext, lox: &LoxClient) -> Result<()> {
-    let date = parse_ll(&lox.get_json("/jdev/sys/date")?).0;
-    let time = parse_ll(&lox.get_json("/jdev/sys/time")?).0;
+fn time(ctx: &RunContext, cfg: Config) -> Result<()> {
+    let mut options = ClockOptions::new(&cfg.host, &cfg.user, &cfg.pass);
+    options.verify_tls = cfg.verify_ssl.unwrap_or(false);
+    options.user_agent = client::USER_AGENT.into();
+    let verbosity = client::verbose();
+    if verbosity >= 1 {
+        if !options.verify_tls {
+            eprintln!("warning: TLS certificate verification is disabled (verify_ssl not set)");
+        }
+        let mut host = reqwest::Url::parse(&cfg.host)?;
+        let _ = host.set_username("");
+        let _ = host.set_password(None);
+        let host = client::redact_url(host.as_str());
+        options.diagnostics = Some(Arc::new(move |event| match event {
+            Diagnostic::Request(endpoint) => {
+                eprintln!("GET {}{}", host.trim_end_matches('/'), endpoint.path());
+            }
+            Diagnostic::Response { status, .. } => {
+                let reason = reqwest::StatusCode::from_u16(status)
+                    .ok()
+                    .and_then(|status| status.canonical_reason())
+                    .unwrap_or("");
+                eprintln!("  → {status} {reason}");
+            }
+            Diagnostic::Body { bytes, .. } if verbosity >= 2 => {
+                eprintln!("  body: <{bytes} bytes>");
+            }
+            _ => {}
+        }));
+    }
+    let driver = ClockDriver::new(options)?;
+    let result = driver.read_clock(&Cancellation::new());
+    // Always close before rendering, including failure, without replacing the
+    // operation's original diagnostic with a secondary cleanup error.
+    let closed = driver.close();
+    let observation = result.map_err(clock_error)?;
+    closed?;
+    let clock = observation.legacy_text();
+    let (date, time) = (clock.date, clock.time);
     if ctx.json {
         println!("{}", json!({ "date": date, "time": time }));
     } else {
         println!("{date} {time}");
     }
     Ok(())
+}
+
+fn clock_error(error: ClockError) -> anyhow::Error {
+    match error {
+        ClockError::Http { endpoint, status } => anyhow::Error::new(HttpStatusError {
+            status,
+            path: endpoint.path().into(),
+        }),
+        error => error.into(),
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use httpmock::{Method::GET, MockServer};
+    use std::time::Duration;
+
+    #[test]
+    fn clock_timeout_category_matches_legacy_transport() {
+        let server = MockServer::start();
+        let date = server.mock(|when, then| {
+            when.method(GET).path("/jdev/sys/date");
+            then.delay(Duration::from_millis(200)).body("{}");
+        });
+        let mut legacy = LoxClient::new(Config {
+            host: server.base_url(),
+            user: "clock-test".into(),
+            pass: "synthetic-only".into(),
+            ..Config::default()
+        })
+        .unwrap();
+        legacy.client = reqwest::blocking::Client::builder()
+            .no_proxy()
+            .timeout(Duration::from_millis(20))
+            .build()
+            .unwrap();
+        let legacy_error = legacy.get_json("/jdev/sys/date").unwrap_err();
+        let mut options = ClockOptions::new(server.base_url(), "clock-test", "synthetic-only");
+        options.use_system_proxy = false;
+        options.timeout = Duration::from_millis(20);
+        options.retry_delays.clear();
+        let driver = ClockDriver::new(options).unwrap();
+        let error = clock_error(driver.read_clock(&Cancellation::new()).unwrap_err());
+        driver.close().unwrap();
+        assert_eq!(
+            crate::categorize_error(&error),
+            crate::categorize_error(&legacy_error)
+        );
+        date.assert_hits(5);
+    }
 }

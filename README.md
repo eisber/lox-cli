@@ -51,11 +51,13 @@ cargo build --release    # Binary at target/release/lox (~14MB)
 ### Shared Rust library
 
 [`lox-core`](crates/lox-core/README.md) exposes the offline LoxCC/LxRes/backup ZIP
-byte codec used by `lox config extract` and `lox config compress`. This first
-workspace library requires Rust 1.91 and no device connection. XML parsing/editing,
-runtime APIs, and Python/Java/Kotlin bindings are not yet exposed through it;
-other CLI capabilities remain binary-private. See its README for permissive
-decoding limits and path-dependency usage.
+byte codec used by `lox config extract` and `lox config compress`, plus an optional
+typed HTTP clock runtime used by `lox live time`. It requires Rust 1.91; offline
+archive consumers need no networking feature. The clock API distinguishes wire
+observations, explicit envelope validation, and legacy CLI formatting, with
+cancellation and an explicitly owned blocking driver. XML parsing/editing and
+Python/Java/Kotlin bindings are not yet exposed through this library; other CLI
+capabilities remain binary-private. See its README for capabilities and limits.
 
 ## Quick Start
 
