@@ -464,6 +464,60 @@ fn intercom_labels_and_links_refresh_without_losing_native_settings() {
     assert_eq!(member(&repacked, "permissions.bin"), source_permissions());
 }
 
+const INTERCOM_DEVICE: &str = r#"    <C Type="IntercomDevice" V="179" U="7b000000-0000-0001-ffff000000000000" Title="Camera" VideoUser="viewer" VideoPwd="old-password" IntVideoUrl="https://camera.example/picture.jpg">
+      <IoData Visu="true" Pr="1b000000-0000-0001-ffff000000000000" Cr="1c000000-0000-0001-ffff000000000000"/>
+    </C>
+"#;
+
+#[test]
+fn intercom_password_without_catalogue_entry_preserves_native_sidecars() {
+    let original = PROJECT.replace(PAGE_END, &format!("{INTERCOM_DEVICE}{PAGE_END}"));
+    let source = archive(&original, CATALOGUE, &source_permissions());
+    let edited = original.replace("old-password", "new-password");
+    let repacked = repack_zip(&source, edited.as_bytes()).unwrap();
+
+    assert_eq!(extract_and_decompress(&repacked).unwrap(), edited.as_bytes());
+    for name in ["LoxAPP3.json", "permissions.bin", "unrelated.bin"] {
+        assert_eq!(member(&repacked, name), member(&source, name), "{name}");
+    }
+    validate_archive_deployment(&source, &repacked, edited.as_bytes()).unwrap();
+    let tampered = archive(&edited, CATALOGUE, b"changed permissions");
+    assert!(validate_archive_deployment(&source, &tampered, edited.as_bytes()).is_err());
+}
+
+#[test]
+fn intercom_password_does_not_allow_other_hardware_changes() {
+    let original = PROJECT.replace(PAGE_END, &format!("{INTERCOM_DEVICE}{PAGE_END}"));
+    let source = archive(&original, CATALOGUE, &source_permissions());
+    let password_edit = INTERCOM_DEVICE.replace("old-password", "new-password");
+    for (from, to) in [
+        ("VideoUser=\"viewer\"", "VideoUser=\"admin\""),
+        (
+            "https://camera.example/picture.jpg",
+            "https://other.example/picture.jpg",
+        ),
+        ("Visu=\"true\"", "Visu=\"false\""),
+        (ROOM, CATEGORY),
+        ("Title=\"Camera\"", "Title=\"Camera\" RightGroup=\"other\""),
+        ("Type=\"IntercomDevice\"", "Type=\"FutureDevice\""),
+        (
+            "7b000000-0000-0001-ffff000000000000",
+            "7c000000-0000-0001-ffff000000000000",
+        ),
+    ] {
+        let edited = original.replace(INTERCOM_DEVICE, &password_edit.replace(from, to));
+        assert!(repack_zip(&source, edited.as_bytes()).is_err(), "{from}");
+    }
+    let moved = original.replace(INTERCOM_DEVICE, "").replace(
+        "Title=\"Other page\"/>",
+        &format!("Title=\"Other page\">{password_edit}</C>"),
+    );
+    assert!(repack_zip(&source, moved.as_bytes()).is_err());
+    assert!(repack_zip(&source, original.replace(INTERCOM_DEVICE, "").as_bytes()).is_err());
+    let without_device = archive(PROJECT, CATALOGUE, &source_permissions());
+    assert!(repack_zip(&without_device, original.as_bytes()).is_err());
+}
+
 #[test]
 fn new_runtime_only_logic_needs_no_sidecar_changes() {
     let xml = edited(

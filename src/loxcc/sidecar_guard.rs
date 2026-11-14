@@ -268,6 +268,19 @@ fn credentials_only(before: &Element, after: &Element) -> bool {
         && strip(before) == strip(after)
 }
 
+/// The intercom video password is a runtime secured detail, not catalogue data.
+/// Hardware can be visualized through a Doorcontroller without its own app entry.
+fn intercom_password_only(before: &Element, after: &Element) -> bool {
+    let strip = |element: &Element| {
+        let mut element = element.clone();
+        element.attributes.remove("VideoPwd");
+        shape(&element, true)
+    };
+    before.attributes.get("Type").map(String::as_str) == Some("IntercomDevice")
+        && after.attributes.get("Type").map(String::as_str) == Some("IntercomDevice")
+        && strip(before) == strip(after)
+}
+
 /// Identities that make a block part of the app through another control.
 fn references(root: &Element, result: &mut BTreeSet<String>) {
     for (key, value) in &root.attributes {
@@ -473,6 +486,11 @@ pub(super) fn validate(
             .map(|(parent, element)| (parent.as_str(), *element));
         let neutral = |element: &Element| app_neutral(element, &app_ids, &linked);
         match (before, after) {
+            (Some((old_parent, old)), Some((new_parent, new)))
+                if old_parent == new_parent && intercom_password_only(old, new) =>
+            {
+                continue;
+            }
             // Edits outside the app never reach its catalogue or permissions.
             (Some((_, old)), Some((_, new)))
                 if (neutral(old) && neutral(new)) || credentials_only(old, new) =>
