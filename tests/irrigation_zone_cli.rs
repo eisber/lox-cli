@@ -21,19 +21,109 @@ fn fixture() -> String {
 }
 
 fn command(input: &Path, index: &str, name: &str) -> assert_cmd::Command {
+    selected_command(input, &format!("uuid:{BLOCK}"), index, name)
+}
+
+fn selected_command(input: &Path, selector: &str, index: &str, name: &str) -> assert_cmd::Command {
     let mut command = assert_cmd::cargo::cargo_bin_cmd!("lox");
     command
         .env("LOX_TELEMETRY", "0")
         .args(["config", "irrigation-zone-set-name"])
         .arg(input)
-        .args([
-            &format!("uuid:{BLOCK}"),
-            "--io-index",
-            index,
-            "--name",
-            name,
-        ]);
+        .args([selector, "--io-index", index, "--name", name]);
     command
+}
+
+fn assert_admission_refusal(xml: &str, selector: &str) {
+    let dir = tempfile::tempdir_in(env!("CARGO_MANIFEST_DIR")).unwrap();
+    let input = dir.path().join("input.Loxone");
+    let existing = dir.path().join("existing.Loxone");
+    let new = dir.path().join("new.Loxone");
+    for name in ["New", "Wake 7am=ok & garden"] {
+        for destination in [None, Some(&existing), Some(&new)] {
+            fs::write(&input, xml).unwrap();
+            fs::write(&existing, b"existing destination").unwrap();
+            let mut command = selected_command(&input, selector, "3", name);
+            if let Some(destination) = destination {
+                command.arg("--save-as").arg(destination);
+            }
+            command.assert().failure();
+            assert_eq!(fs::read(&input).unwrap(), xml.as_bytes());
+            assert_eq!(fs::read(&existing).unwrap(), b"existing destination");
+            assert!(!new.exists());
+        }
+    }
+}
+
+#[test]
+fn irrigation_zone_name_admission_refuses_every_direct_document_template() {
+    for template in [
+        "<Template IfT=\"true\"/>",
+        "<Template/>",
+        "<Template IfT=\"false\"/>",
+    ] {
+        let xml = fixture().replacen(
+            "<C Type=\"Irrigation\"",
+            &format!("{template}<C Type=\"Irrigation\""),
+            1,
+        );
+        assert_admission_refusal(&xml, &format!("uuid:{BLOCK}"));
+    }
+}
+
+#[test]
+fn irrigation_zone_name_admission_requires_one_actual_stamp_document_owning_the_block() {
+    let source = fixture();
+    for xml in [
+        source.replace("Type=\"Document\"", "Type=\"Project\""),
+        source
+            .replace("<Loxone>", "<Loxone><Envelope>")
+            .replace("</Loxone>", "</Envelope></Loxone>"),
+        source.replace("</Loxone>", "<C Type=\"Document\"/></Loxone>"),
+        source
+            .replace("<C Type=\"Irrigation\"", "</C><C Type=\"Irrigation\"")
+            .replace("</SET></C></Loxone>", "</SET></Loxone>"),
+        source.replace(
+            "Type=\"Document\"",
+            "Type=\"Document\" xmlns=\"urn:not-native\"",
+        ),
+    ] {
+        assert_admission_refusal(&xml, &format!("uuid:{BLOCK}"));
+    }
+    let root_document = source.replace("<Loxone>", "").replace("</Loxone>", "");
+    let dir = tempfile::tempdir_in(env!("CARGO_MANIFEST_DIR")).unwrap();
+    let input = dir.path().join("root-document.Loxone");
+    fs::write(&input, &root_document).unwrap();
+    command(&input, "3", "Root garden")
+        .arg("-q")
+        .assert()
+        .success();
+    let saved = fs::read_to_string(&input).unwrap();
+    assert!(saved.contains("nm=\"Root garden\""));
+    assert!(!saved.contains("DateS=\"1\""));
+}
+
+#[test]
+fn irrigation_zone_name_admission_refuses_duplicate_effective_owner_uuid() {
+    for duplicate in [
+        BLOCK.to_string(),
+        BLOCK.to_uppercase(),
+        "0f8e1234-1234-5678-90ab-cdef01234567".into(),
+    ] {
+        let xml = fixture().replace(
+            "</Loxone>",
+            &format!("<C Type=\"And\" U=\"{duplicate}\"/></Loxone>"),
+        );
+        assert_admission_refusal(&xml, &format!("uuid:{BLOCK}"));
+    }
+}
+
+#[test]
+fn irrigation_zone_name_admission_refuses_rfc36_stored_owner_uuid() {
+    let rfc = "0f8e1234-1234-5678-90ab-cdef01234567";
+    let xml = fixture().replace(BLOCK, rfc);
+    assert_admission_refusal(&xml, &format!("uuid:{rfc}"));
+    assert_admission_refusal(&xml, &format!("uuid:{BLOCK}"));
 }
 
 #[test]

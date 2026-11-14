@@ -16,6 +16,13 @@ pub struct IrrigationZoneNameChange {
     pub changed: bool,
 }
 
+fn native_owner_uuid(raw: &str) -> Option<uuid::Uuid> {
+    if raw.len() != 35 {
+        return None;
+    }
+    super::icons::native_identity(raw).filter(|uuid| !uuid.is_nil())
+}
+
 impl ConfigEditor {
     /// Rename an already named zone without opening the dialog's empty-name autofill path.
     pub fn edit_irrigation_zone_name(
@@ -24,16 +31,12 @@ impl ConfigEditor {
         io_index: u8,
         name: &str,
     ) -> Result<(Vec<u8>, IrrigationZoneNameChange)> {
-        if selector
-            .strip_prefix("uuid:")
-            .and_then(super::icons::native_identity)
-            .filter(|uuid| !uuid.is_nil())
-            .is_none()
-        {
+        let requested_owner = selector.strip_prefix("uuid:").unwrap_or("");
+        let Some(requested_identity) = native_owner_uuid(requested_owner) else {
             bail!(
-                "Irrigation zone naming requires uuid:<nonnil-stored-block-U>; name/room selectors are not qualified against original XML. Nothing was changed."
+                "Irrigation zone naming requires uuid:<exact-stored-native35-U>, using nonnil 8-4-4-16 grouping; RFC/name/room selectors are not supported. Nothing was changed."
             );
-        }
+        };
         if io_index > 7 {
             bail!(
                 "Irrigation io-index must be 0..7, not a 1-based display row; nothing was changed."
@@ -50,6 +53,55 @@ impl ConfigEditor {
             );
         }
         let mut editor = Self::load(data)?;
+        let documents = editor.find_elements("Type:Document");
+        if documents.len() != 1 || documents[0].len() > 1 {
+            bail!(
+                "Irrigation zone naming requires exactly one stampable Document at the root or directly under it; nothing was changed."
+            );
+        }
+        let document_path = &documents[0];
+        let document = editor.get_element(document_path);
+        if document.name != "C"
+            || document.attributes.get("Type").map(String::as_str) != Some("Document")
+            || document.namespace.is_some()
+            || document.prefix.is_some()
+        {
+            bail!(
+                "Irrigation zone naming requires a plain stampable Document; nothing was changed."
+            );
+        }
+        if document
+            .children
+            .iter()
+            .filter_map(XMLNode::as_element)
+            .any(|child| child.name == "Template")
+        {
+            bail!(
+                "Irrigation zone naming does not support any direct Document Template child: native template locking and accepted-edit propagation are not implemented. Nothing was changed."
+            );
+        }
+        let matches = editor.find_elements(selector);
+        if matches.len() != 1 || !matches[0].starts_with(document_path) {
+            bail!(
+                "Irrigation zone naming requires exactly one selected C object inside the owning Document; duplicate or missing U identities are not supported. Nothing was changed."
+            );
+        }
+        let equivalent_owners = Self::iter_elements(&editor.root)
+            .into_iter()
+            .filter(|element| element.name == "C")
+            .filter(|element| {
+                element
+                    .attributes
+                    .get("U")
+                    .and_then(|raw| super::icons::native_identity(raw))
+                    == Some(requested_identity)
+            })
+            .count();
+        if equivalent_owners != 1 {
+            bail!(
+                "Irrigation zone naming requires a unique effective owner UUID across all C objects, including case/grouping aliases; nothing was changed."
+            );
+        }
         let path = editor.require_one(selector)?;
         let block = editor.get_element(&path);
         if block.name != "C"
@@ -57,6 +109,19 @@ impl ConfigEditor {
         {
             bail!("'{selector}' is not an Irrigation block; nothing was changed.");
         }
+        let block_uuid = block
+            .attributes
+            .get("U")
+            .filter(|stored| {
+                stored.as_str() == requested_owner
+                    && native_owner_uuid(stored) == Some(requested_identity)
+            })
+            .cloned()
+            .ok_or_else(|| {
+                anyhow::anyhow!(
+                    "Irrigation stored owner U must be nonnil native35 (8-4-4-16) and match the exact selector; nothing was changed."
+                )
+            })?;
         let zones: Vec<_> = block
             .children
             .iter()
@@ -69,7 +134,6 @@ impl ConfigEditor {
             );
         }
         let owner = entry_name_ordinal(&editor.root, block, &mut 0).unwrap();
-        let block_uuid = block.attributes["U"].clone();
         let mut selected = None;
         for (index, zone) in zones.iter().enumerate() {
             let identity = index.to_string();
@@ -108,15 +172,11 @@ impl ConfigEditor {
             previous_name,
             name: name.into(),
         };
-        let stamp = if change.changed && editor.stamp_document(&chrono::Local::now().fixed_offset())
-        {
-            let document = std::iter::once(&editor.root)
-                .chain(editor.root.children.iter().filter_map(XMLNode::as_element))
-                .find(|element| {
-                    element.name == "C"
-                        && element.attributes.get("Type").map(String::as_str) == Some("Document")
-                })
-                .unwrap();
+        let stamp = if change.changed {
+            if !editor.stamp_document(&chrono::Local::now().fixed_offset()) {
+                bail!("Cannot stamp the admitted Irrigation Document; nothing was changed.");
+            }
+            let document = editor.get_element(document_path);
             Some((
                 document.attributes["Date"].as_str(),
                 document.attributes["DateS"].as_str(),

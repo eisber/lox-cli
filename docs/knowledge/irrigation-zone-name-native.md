@@ -66,6 +66,35 @@ not an accepted-copy routine. For an accepted exec result,
 **`0x1401b20c0:42–44`** marks the document modified and calls
 `0x140469a90`, the common dirty/connected-control notification path.
 
+### Persisted Template state and admission
+
+The common command gate is **not merely opaque runtime host state**.
+Document reader **`0x1405288f0:486–505`** enters the direct `Template`
+child, sets owner **+0x111c = 1**, and reads **IfT** into **+0x1120**.
+The dispatcher gate is **`0x14019de60:256–260`**, through
+`0x14050e140`/`0x1405287e0`: +0x111c nonzero with +0x1120 zero is
+locked. Irrigation command **0x7d2** is not excluded by `0x140624d00`.
+These fields reflect persisted Document/Template configuration.
+
+The accepted path **`0x1401b20c0` → `0x140469a90` → `0x14050be70`
+→ `0x140525ab0`** also consults IfT and can set control bit
+**0x20000000** with recursive propagation. The common serializer
+**`0x14047e260:663–688`** persists bit 29 and **uuidParent**.
+Changing only nm in a Template document would therefore either bypass
+the native lock or omit accepted-edit derived changes.
+
+Following the existing CentralLight link admission precedent, this
+operation refuses **any direct Template child**, including IfT=true,
+IfT=false and absent IfT, before mutation, no-op detection or saving.
+It does not attempt template locking/propagation emulation.
+It also requires exactly **one plain owning Document**, either the root
+itself or a direct child of the root. A nested descendant is not a
+substitute: the admitted Document must be the same one selected by
+`stamp_document` and the established original-byte name/stamp guards.
+Missing, duplicate, namespaced or non-owning Documents are refused.
+This operation never performs an unstamped edit; old Alarm/shared
+stamp-helper policy is unchanged.
+
 Opening the dialog calls **`0x140708280`**. For an empty zone name, it may
 copy the name of the first connected output object through virtual +0x1a8.
 Therefore this CLI requires **all eight names already nonempty**, including
@@ -107,6 +136,13 @@ literal tab/CR/LF names, DTD/non-UTF-8 input and namespaced target/stamp
 storage are refused atomically.
 
 UUID-only owner selection avoids relying on DOM-normalized/sanitized Titles.
+Both requested and selected stored owner U must be nonnil **native35**
+(8-4-4-16), with an exact spelling match; RFC36 storage or request aliases
+are not accepted. Before `require_one`, the operation requires exactly one
+raw selector match and exactly one C object with that effective 128-bit
+identity across the whole file, also counting case/RFC-grouping aliases.
+It must lie inside the admitted Document. The global selector's UUID
+deduplication is not used as uniqueness proof and is not changed.
 Raw owner Type/U and each selected zone's raw ioIdx must match admission.
 The original raw nm supplies previous_name and exact case-sensitive
 equality. Thus the shared digit-attribute sanitizer cannot silently turn
@@ -118,10 +154,7 @@ Decoded-name no-ops, including save-as, preserve the original bytes/stamp.
 The requested nonblank single-line XML-safe Unicode limit is a conservative
 CLI policy, not a recovered native grammar or length cap.
 
-This is offline file editing, not a claim that the GUI command is available
-in every host state. The common action dispatcher has a host/action-context
-gate before its command branches (`0x14019de60:265–270`,
-`0x14050e140`, `0x140624d00`); `0x1405287e0` reads runtime owner fields
-+0x111c/+0x1120. This host-state policy is not recreated, nor promoted to
-an invented XML predicate. No live write, full native resave, undo/history,
-or immediate UI/proxy-notification equivalence is claimed.
+This is offline editing of the admitted non-Template file shape. No live
+write, full native resave, undo/history or immediate UI/proxy-notification
+equivalence is claimed. The persisted Template exclusion above is required
+even for offline files; it is not waived as a GUI-only host-context policy.

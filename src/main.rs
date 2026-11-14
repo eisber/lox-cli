@@ -853,7 +853,7 @@ pub(crate) enum ConfigCmd {
     /// Rename one already named Irrigation zone, preserving its physical output identity
     IrrigationZoneSetName {
         file: String,
-        /// uuid:<stored-block-U> only; display-name and room selectors are not qualified
+        /// uuid:<exact-stored-native35-U> only (8-4-4-16); no RFC/name/room aliases
         selector: String,
         /// Native zero-based ioIdx (0..7), not the 1-based display row
         #[arg(long)]

@@ -1471,8 +1471,17 @@ lox config irrigation-zone-set-name file.Loxone "uuid:0f8e1234-1234-5678-90abcde
 ```
 
 `--io-index` is native zero-based `zone/@ioIdx` (0..7), not the display row
-or a connector UUID. Only exact nonnil stored block UUID selectors are supported;
-name/room resolution is deliberately not exposed. Requires all eight existing
+or a connector UUID. Both the selected stored U and its exact selector must use
+nonnil native35 UUID grouping (8-4-4-16); RFC36 storage/request aliases and
+name/room resolution are not exposed. Duplicate effective owner UUIDs across
+C objects, including case/grouping aliases, are refused before selection.
+Requires exactly one plain owning Document at the root or directly under it,
+matching the normal save-stamp location. Missing, nested-only, duplicate or
+non-owning Documents are refused, including no-ops/save-as. Any direct
+Document `Template` child is refused regardless of IfT presence/value:
+native template locking and accepted-edit WF/uuidParent propagation are not
+implemented by this operation. These guards do not change other commands.
+Requires all eight existing
 `zone` records in canonical ioIdx order 0..7 (zero alone may be omitted),
 each with a nonempty `nm`.
 Missing/empty names can trigger native output-based autofill of other zones,
