@@ -342,6 +342,27 @@ qualification was performed for this recovery.
   characters before no-op/stamping/writing. Shared DOM acceptance is not used
   as strict PI proof; legitimate Unicode targets and unescaped PI data remain
   raw-identical. This is a local admission correction, not new native evidence.
+- **Ordinary Xor/Not input inversion (17.2.10.21, source-only):** these are
+  separately proven owner bindings of the existing input operation, not
+  assumed And/Or symmetry. Actual factory cases `0x14e` (334) and `0x14a`
+  (330) in `0x140432790:2446–2459` construct `CControlObjectLogic`; registration
+  `0x1404ba670:78–110` calls its actual descriptor slot `+0xf18`.
+  `0x1407e7280:95–121` registers exact XML `Xor`, digital inputs `I1`/`I2`
+  and output `Q`; lines 22–40 register exact XML `Not`, digital input `I`
+  and output `Q`. The literals were read from the frozen original PE.
+  Thus modern explicit `Nio="3"` is required for Xor, but `Nio="2"` for
+  Not: neither Not.I1 nor an inferred three-port Not layout is accepted.
+  Both actual input descriptor cases supply neutral default zero and have
+  neither analog/special/exclusion flags. Their registered vtable
+  `0x140f5c790` concretely binds the closed capability `0x140463f70`,
+  eligibility `0x140468540`, false `+0x5a8`, and loader `0x14047e260`.
+  The actual connector constructor `0x140423420` installs PE table
+  `0x140ec3a60`: `+0x78=0x140467520` returns digital for both actual types,
+  `+8=0x14047fb20` loads/writes Inv, and `+0x18=0x14043d790` accepts the
+  selected connector copy. This closes the same hit/action-5/click/bit-0x20
+  transaction above for each new owner. All ordinary-context, neutral Def,
+  raw preservation, no-op, identity and template exclusions remain unchanged.
+  This adds owner branches, not a new base API or native qualification.
 - **Combined window contact** (`JoinWindowSensor`): its `AQ` connector is the
   docs' status output (S): 1 = closed, 2 = tilted, 3 = open, 4 = closed and not
   locked, 5 = closed and locked, 0 = a sensor is offline. Test for "open" with

@@ -1146,12 +1146,12 @@ pub(crate) enum ConfigCmd {
         #[arg(long)]
         save_as: Option<String>,
     },
-    /// Set native Inv on an existing unconnected ordinary And/Or I1 or I2
+    /// Set native Inv on an existing unconnected ordinary And/Or/Xor.I1/I2 or Not.I
     SetInputInversion {
         file: String,
-        /// Exact uuid:<native35-U> of the existing And or Or owner
+        /// Exact uuid:<native35-U> of the existing And, Or, Xor or Not owner
         selector: String,
-        /// Existing native connector key: I1 or I2
+        /// Existing native connector key: I1/I2 for And/Or/Xor, I for Not
         connector: String,
         /// Invert the selected digital input
         #[arg(

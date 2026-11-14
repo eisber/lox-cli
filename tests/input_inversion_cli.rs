@@ -40,6 +40,288 @@ fn control<'a>(element: &'a xmltree::Element, uuid: &str) -> Option<&'a xmltree:
         .find_map(|child| control(child, uuid))
 }
 
+fn logic_fixture(owner_type: &str) -> String {
+    let mut source = fixture()
+        .replace("Type=\"And\"", &format!("Type=\"{owner_type}\""))
+        .replace("V=\"121\"", "V=\"121\" WF=\"16384\"")
+        .replace(
+            "<C Type=\"Page\"",
+            "<C Type=\"Program\" U=\"81111111-2222-3333-4444555566667777\" V=\"121\" WF=\"16384\"><C Type=\"Page\"",
+        )
+        .replace("</C></C><C Type=\"OutputRef\"", "</C></C></C><C Type=\"OutputRef\"");
+    if owner_type == "Not" {
+        source = source
+            .replace("Nio=\"3\"", "Nio=\"2\"")
+            .replace("K=\"I1\"", "K=\"I\"")
+            .replace(
+                "<Co K=\"I2\" U=\"41111111-2222-3333-4444555566667777\"/>",
+                "",
+            );
+    }
+    source
+}
+
+#[test]
+fn xor_not_inputs_preserve_raw_project_and_atomic_destinations() {
+    let dir = tempfile::tempdir_in(env!("CARGO_MANIFEST_DIR")).unwrap();
+    let input = dir.path().join("input.Loxone");
+    let output = dir.path().join("copy.Loxone");
+    for (owner_type, key) in [("Xor", "I1"), ("Xor", "I2"), ("Not", "I")] {
+        let source = logic_fixture(owner_type);
+        fs::write(&input, &source).unwrap();
+        for existing in [false, true] {
+            if existing {
+                fs::write(&output, b"preserve until accepted").unwrap();
+            } else if output.exists() {
+                fs::remove_file(&output).unwrap();
+            }
+            command(&input, key, false)
+                .arg("--save-as")
+                .arg(&output)
+                .arg("-q")
+                .assert()
+                .success();
+            assert_eq!(fs::read(&output).unwrap(), source.as_bytes());
+            assert_eq!(fs::read(&input).unwrap(), source.as_bytes());
+            if !existing {
+                fs::remove_file(&output).unwrap();
+            }
+            command(&input, key, true)
+                .arg("--save-as")
+                .arg(&output)
+                .arg("-q")
+                .assert()
+                .success();
+            assert_eq!(fs::read(&input).unwrap(), source.as_bytes());
+            let saved = fs::read_to_string(&output).unwrap();
+            let selected = if key == "I2" {
+                "<Co K=\"I2\" U=\"41111111-2222-3333-4444555566667777\"/>".into()
+            } else {
+                format!("<Co K=\"{key}\" U=\"{INPUT}\" Def=\"0\" Unknown=\"keep\"/>")
+            };
+            let expected = source.replace(&selected, &selected.replace("/>", " Inv=\"true\"/>"));
+            let start = source.find("<C Type=\"Program\"").unwrap();
+            assert_eq!(
+                &saved[saved.find("<C Type=\"Program\"").unwrap()..],
+                &expected[start..]
+            );
+        }
+        let result = command(&input, key, true)
+            .args(["-o", "json"])
+            .assert()
+            .success()
+            .get_output()
+            .stdout
+            .clone();
+        let result: serde_json::Value = serde_json::from_slice(&result).unwrap();
+        assert_eq!(result["input_inversion"]["connector"], key);
+        assert_eq!(result["input_inversion"]["changed"], true);
+        let once = fs::read(&input).unwrap();
+        command(&input, key, true).arg("-q").assert().success();
+        assert_eq!(fs::read(&input).unwrap(), once);
+        command(&input, key, false).arg("-q").assert().success();
+        let cleared = fs::read_to_string(&input).unwrap();
+        assert!(!cleared.contains("Inv="));
+        assert!(cleared.contains("Def=\"0\" Unknown=\"keep\""));
+        assert!(cleared.contains("Unknown=\"keep-wire\""));
+        assert!(cleared.contains("<Password t=\"15\" v=\"unchanged\"/>"));
+    }
+}
+
+#[test]
+fn xor_not_inputs_on_full_golden_project_preserve_nonzero_wf_and_wires() {
+    let dir = tempfile::tempdir_in(env!("CARGO_MANIFEST_DIR")).unwrap();
+    let input = dir.path().join("golden.Loxone");
+    let golden = Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("tests")
+        .join("eval")
+        .join("golden")
+        .join("configs")
+        .join("Guest Room Door.Loxone");
+    for (owner_type, keys) in [("Xor", &["I1", "I2"][..]), ("Not", &["I"][..])] {
+        fs::copy(&golden, &input).unwrap();
+        let mut add = assert_cmd::cargo::cargo_bin_cmd!("lox");
+        let output = add
+            .env("LOX_TELEMETRY", "0")
+            .args(["config", "add"])
+            .arg(&input)
+            .args([
+                "--type",
+                owner_type,
+                "--title",
+                "Registered input regression",
+                "--parent",
+                "uuid:1fbf34a5-03b1-83a1-ffff9bb3c1479539",
+                "-o",
+                "json",
+            ])
+            .assert()
+            .success()
+            .get_output()
+            .stdout
+            .clone();
+        let added: serde_json::Value = serde_json::from_slice(&output).unwrap();
+        let owner = added["uuid"].as_str().unwrap();
+        let project = fs::read(&input).unwrap();
+        let project = xmltree::Element::parse(project.as_slice()).unwrap();
+        let source = control(&project, owner)
+            .unwrap()
+            .children
+            .iter()
+            .filter_map(xmltree::XMLNode::as_element)
+            .find(|co| co.attributes.get("K").map(String::as_str) == Some("Q"))
+            .unwrap()
+            .attributes["U"]
+            .clone();
+        let mut add_sink = assert_cmd::cargo::cargo_bin_cmd!("lox");
+        let sink = add_sink
+            .env("LOX_TELEMETRY", "0")
+            .args(["config", "add"])
+            .arg(&input)
+            .args([
+                "--type",
+                "And",
+                "--title",
+                "Unselected connected sink",
+                "--parent",
+                "uuid:1fbf34a5-03b1-83a1-ffff9bb3c1479539",
+                "-o",
+                "json",
+            ])
+            .assert()
+            .success()
+            .get_output()
+            .stdout
+            .clone();
+        let sink: serde_json::Value = serde_json::from_slice(&sink).unwrap();
+        let mut wire = assert_cmd::cargo::cargo_bin_cmd!("lox");
+        wire.env("LOX_TELEMETRY", "0")
+            .args(["config", "wire-connector"])
+            .arg(&input)
+            .args([
+                format!("uuid:{}.I1", sink["uuid"].as_str().unwrap()).as_str(),
+                format!("uuid:{source}").as_str(),
+                "-q",
+            ])
+            .assert()
+            .success();
+        let before = fs::read_to_string(&input).unwrap();
+        let original = xmltree::Element::parse(before.as_bytes()).unwrap();
+        assert_eq!(control(&original, owner).unwrap().attributes["WF"], "16384");
+        assert!(before.contains("<In "));
+        for key in keys {
+            for flag in ["--inverted", "--no-inverted"] {
+                let mut edit = assert_cmd::cargo::cargo_bin_cmd!("lox");
+                edit.env("LOX_TELEMETRY", "0")
+                    .args(["config", "set-input-inversion"])
+                    .arg(&input)
+                    .args([format!("uuid:{owner}").as_str(), key, flag, "-q"])
+                    .assert()
+                    .success();
+            }
+        }
+        let after = fs::read_to_string(&input).unwrap();
+        let saved = xmltree::Element::parse(after.as_bytes()).unwrap();
+        for uuid in [
+            "1fbf3415-030f-bc7d-ffff9bb3c1479539",
+            "1fbf341a-00e9-c0af-ffff9bb3c1479539",
+            "1fbf34a5-03b1-83a1-ffff9bb3c1479539",
+            owner,
+        ] {
+            assert_eq!(control(&saved, uuid).unwrap().attributes["WF"], "16384");
+        }
+        let wires = |text: &str| {
+            text.lines()
+                .filter(|line| line.contains("<In ") || line.contains("<Ref "))
+                .map(str::to_owned)
+                .collect::<Vec<_>>()
+        };
+        assert_eq!(wires(&after), wires(&before));
+    }
+}
+
+#[test]
+fn xor_not_inputs_refuse_wrong_native_ports_layouts_and_context_before_noop() {
+    let dir = tempfile::tempdir_in(env!("CARGO_MANIFEST_DIR")).unwrap();
+    let input = dir.path().join("input.Loxone");
+    let existing = dir.path().join("existing.Loxone");
+    let new = dir.path().join("new.Loxone");
+    for (owner_type, key, wrong_key) in [("Xor", "I1", "I"), ("Not", "I", "I1")] {
+        let source = logic_fixture(owner_type);
+        let mut cases = vec![
+            (source.clone(), wrong_key),
+            (source.clone(), "Q"),
+            (
+                source
+                    .replace("Nio=\"2\"", "Nio=\"3\"")
+                    .replace("Nio=\"3\"", "Nio=\"4\""),
+                key,
+            ),
+            (source.replace(&format!("K=\"{key}\""), "K=\"Input1\""), key),
+            (source.replace("Def=\"0\"", "Def=\"1\""), key),
+            (source.replace("Def=\"0\"", "Def=\"0\" Nc=\"1\""), key),
+            (
+                source.replace(
+                    "Unknown=\"keep\"/>",
+                    "Unknown=\"keep\"><Ref U=\"51111111-2222-3333-4444555566667777\"/></Co>",
+                ),
+                key,
+            ),
+            (source.replace("DateS=\"1\"", "DateS=\"+1\""), key),
+            (source.replace("DateS=\"1\"", "DateS=\"١\""), key),
+            (source.replace("WF=\"16384\"", "WF=\"16385\""), key),
+            (source.replace("Type=\"Program\"", "Type=\"Folder\""), key),
+            (
+                source.replace("Title=\"Gate\"", "Title=\"Gate\" IfT=\"false\""),
+                key,
+            ),
+            (
+                source.replace("Title=\"Gate\"", "Title=\"Gate\" uuidParent=\"x\""),
+                key,
+            ),
+            (
+                source.replace("Title=\"Gate\"", "Title=\"Noon 12hTF=quoted\""),
+                key,
+            ),
+            (
+                source.replace(INPUT, "b1111111-2222-3333-4444-555566667777"),
+                key,
+            ),
+            (source.replace("Def=\"0\"", "Def=\"0\" Def=\"0\""), key),
+            (
+                source.replace(
+                    "</Loxone>",
+                    &format!(
+                        "<C Type=\"Other\" U=\"{}\"/></Loxone>",
+                        OWNER.to_uppercase()
+                    ),
+                ),
+                key,
+            ),
+        ];
+        if owner_type == "Not" {
+            cases.push((source.replace("Nio=\"2\"", "Nio=\"3\""), key));
+            cases.push((source.replace("K=\"Q\"", "K=\"I\""), key));
+        }
+        for (xml, requested) in cases {
+            for inverted in [false, true] {
+                for destination in [None, Some(&existing), Some(&new)] {
+                    fs::write(&input, &xml).unwrap();
+                    fs::write(&existing, b"preserve").unwrap();
+                    let mut edit = command(&input, requested, inverted);
+                    if let Some(destination) = destination {
+                        edit.arg("--save-as").arg(destination);
+                    }
+                    edit.assert().failure();
+                    assert_eq!(fs::read(&input).unwrap(), xml.as_bytes());
+                    assert_eq!(fs::read(&existing).unwrap(), b"preserve");
+                    assert!(!new.exists());
+                }
+            }
+        }
+    }
+}
+
 #[test]
 fn input_inversion_review_admits_cli_added_and_on_unchanged_golden_page() {
     assert_cli_added_logic_on_unchanged_golden_page("And");
