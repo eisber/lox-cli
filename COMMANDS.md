@@ -1464,6 +1464,34 @@ the native physical sort order. JSON returns `name_change` (including nullable
 `previous_name`); CSV, `--no-header`, `--quiet`, `--room` and save-as are supported.
 See [native string behavior and limits](docs/knowledge/alarm-entry-name-native.md).
 
+Rename one existing, already named Irrigation zone:
+
+```bash
+lox config irrigation-zone-set-name file.Loxone "uuid:0f8e1234-1234-5678-90abcdef01234567" --io-index 3 --name "South garden" --save-as edited.Loxone -o json
+```
+
+`--io-index` is native zero-based `zone/@ioIdx` (0..7), not the display row
+or a connector UUID. Only exact nonnil stored block UUID selectors are supported;
+name/room resolution is deliberately not exposed. Requires all eight existing
+`zone` records in canonical ioIdx order 0..7 (zero alone may be omitted),
+each with a nonempty `nm`.
+Missing/empty names can trigger native output-based autofill of other zones,
+so those layouts are refused, not repaired. Duplicate names are allowed.
+
+The requested name must be nonempty, nonblank, single-line XML-safe Unicode;
+no trimming, normalization or case folding is performed. Existing relied-on
+name/identity/stamp storage containing numeric XML references, literal
+tab/newline names, DTD-dependent/non-UTF-8 input or namespaced target/stamp
+attributes is refused rather than approximated. Names and equality are read
+from original bytes, not the editing DOM (including `Wake 7am=ok`).
+Only the selected `nm` and normal Document save stamp change. Physical outputs,
+ioIdx, durations, other names, wires, references, passwords and all other bytes
+remain intact. Native output captions derive from this name; no persisted
+output/reference titles are rewritten. A decoded-name no-op preserves every
+source byte and stamp, including `--save-as`. Errors do not write either file.
+JSON returns `name_change`; CSV, `--no-header` and `--quiet` are supported.
+See [native scope and evidence](docs/knowledge/irrigation-zone-name-native.md).
+
 Enable or disable one existing ordinary Alarm Clock entry:
 
 ```bash

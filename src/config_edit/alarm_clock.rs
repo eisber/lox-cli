@@ -139,7 +139,11 @@ fn time_seconds(time: &str) -> Result<u32> {
     Ok(parts[0] * 3600 + parts[1] * 60 + parts.get(2).copied().unwrap_or(0))
 }
 
-fn alarm_name_ordinal(element: &Element, target: &Element, ordinal: &mut usize) -> Option<usize> {
+pub(super) fn entry_name_ordinal(
+    element: &Element,
+    target: &Element,
+    ordinal: &mut usize,
+) -> Option<usize> {
     if std::ptr::eq(element, target) {
         return Some(*ordinal);
     }
@@ -148,19 +152,48 @@ fn alarm_name_ordinal(element: &Element, target: &Element, ordinal: &mut usize) 
         .children
         .iter()
         .filter_map(XMLNode::as_element)
-        .find_map(|child| alarm_name_ordinal(child, target, ordinal))
+        .find_map(|child| entry_name_ordinal(child, target, ordinal))
 }
 
-fn alarm_name_bytes(
+pub(super) enum EntryNameStorage<'a> {
+    Alarm {
+        entry_uuid: &'a str,
+        block_uuid: &'a str,
+    },
+    Irrigation {
+        io_index: Option<&'a str>,
+        block_uuid: &'a str,
+    },
+}
+
+pub(super) fn entry_name_bytes(
     data: &[u8],
     target: usize,
     owner: usize,
-    identity: (&str, &str),
+    identity: EntryNameStorage<'_>,
     name: Option<&str>,
     stamp: Option<(&str, &str)>,
 ) -> Result<(Vec<u8>, Option<String>)> {
     use quick_xml::{Reader, events::Event};
 
+    let (owner_type, entry_tag, identity_key, identity_value, name_key, owner_uuid) = match identity
+    {
+        EntryNameStorage::Alarm {
+            entry_uuid,
+            block_uuid,
+        } => (
+            "AlarmClock",
+            "AlarmClock",
+            "U",
+            Some(entry_uuid),
+            "Name",
+            block_uuid,
+        ),
+        EntryNameStorage::Irrigation {
+            io_index,
+            block_uuid,
+        } => ("Irrigation", "zone", "ioIdx", io_index, "nm", block_uuid),
+    };
     std::str::from_utf8(data).map_err(|_| {
         anyhow::anyhow!(
             "Unsupported target-name-storage: UTF-8 XML is required; nothing was changed."
@@ -196,7 +229,7 @@ fn alarm_name_bytes(
                     });
                 for attribute in &attributes {
                     let key = attribute.key.as_ref();
-                    if ((selected && key == b"U")
+                    if ((selected && key == identity_key.as_bytes())
                         || (selected_owner && matches!(key, b"Type" | b"U"))
                         || (document && matches!(key, b"Type" | b"DateS")))
                         && attribute.value.windows(2).any(|bytes| bytes == b"&#")
@@ -218,8 +251,8 @@ fn alarm_name_bytes(
                         .map(|attribute| attribute.unescape_value())
                         .transpose()?;
                     if element.name().as_ref() != b"C"
-                        || raw_type.as_deref() != Some("AlarmClock")
-                        || raw_uuid.as_deref().unwrap_or("") != identity.1
+                        || raw_type.as_deref() != Some(owner_type)
+                        || raw_uuid.as_deref().unwrap_or("") != owner_uuid
                     {
                         bail!(
                             "Unsupported target-name-storage: raw owner identity differs from admitted identity; nothing was changed."
@@ -238,20 +271,20 @@ fn alarm_name_bytes(
                 }
                 let mut replacements = Vec::new();
                 if selected {
-                    let raw_uuid = attributes
+                    let raw_identity = attributes
                         .iter()
-                        .find(|attribute| attribute.key.as_ref() == b"U")
+                        .find(|attribute| attribute.key.as_ref() == identity_key.as_bytes())
                         .map(|attribute| attribute.unescape_value())
                         .transpose()?;
-                    if element.name().as_ref() != b"AlarmClock"
-                        || raw_uuid.as_deref() != Some(identity.0)
+                    if element.name().as_ref() != entry_tag.as_bytes()
+                        || raw_identity.as_deref() != identity_value
                     {
                         bail!(
                             "Unsupported target-name-storage: raw selected entry identity differs from admitted identity; nothing was changed."
                         );
                     }
                     for attribute in &attributes {
-                        if attribute.key.as_ref() == b"Name"
+                        if attribute.key.as_ref() == name_key.as_bytes()
                             && (attribute.value.windows(2).any(|bytes| bytes == b"&#")
                                 || attribute
                                     .value
@@ -262,7 +295,7 @@ fn alarm_name_bytes(
                                 "Unsupported target-name-storage: the selected Name contains numeric XML references or literal tab/newline storage. Native string decoding differs from standard XML normalization; nothing was changed."
                             );
                         }
-                        if attribute.key.as_ref() == b"Name" {
+                        if attribute.key.as_ref() == name_key.as_bytes() {
                             previous_name = Some(
                                 std::str::from_utf8(attribute.value.as_ref())?
                                     .replace("&lt;", "<")
@@ -275,7 +308,7 @@ fn alarm_name_bytes(
                     }
                     found = true;
                     if let Some(name) = name {
-                        replacements.push(("Name", name));
+                        replacements.push((name_key, name));
                     }
                 }
                 if document {
@@ -363,16 +396,16 @@ impl ConfigEditor {
         let (path, position, _) = editor.ordinary_alarm_clock_entry(selector, entry_uuid)?;
         let block = editor.get_element(&path);
         let entry = block.children[position].as_element().unwrap();
-        let ordinal = alarm_name_ordinal(&editor.root, entry, &mut 0).unwrap();
-        let owner = alarm_name_ordinal(&editor.root, block, &mut 0).unwrap();
-        let (_, previous_name) = alarm_name_bytes(
+        let ordinal = entry_name_ordinal(&editor.root, entry, &mut 0).unwrap();
+        let owner = entry_name_ordinal(&editor.root, block, &mut 0).unwrap();
+        let (_, previous_name) = entry_name_bytes(
             data,
             ordinal,
             owner,
-            (
-                &entry.attributes["U"],
-                block.attributes.get("U").map_or("", String::as_str),
-            ),
+            EntryNameStorage::Alarm {
+                entry_uuid: &entry.attributes["U"],
+                block_uuid: block.attributes.get("U").map_or("", String::as_str),
+            },
             None,
             None,
         )?;
@@ -401,11 +434,14 @@ impl ConfigEditor {
         } else {
             None
         };
-        let (output, _) = alarm_name_bytes(
+        let (output, _) = entry_name_bytes(
             data,
             ordinal,
             owner,
-            (&change.stored_entry_uuid, &change.block_uuid),
+            EntryNameStorage::Alarm {
+                entry_uuid: &change.stored_entry_uuid,
+                block_uuid: &change.block_uuid,
+            },
             change.changed.then_some(name),
             stamp,
         )?;

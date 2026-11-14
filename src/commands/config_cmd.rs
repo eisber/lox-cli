@@ -2531,6 +2531,52 @@ pub fn cmd_config(ctx: &RunContext, action: ConfigCmd) -> Result<()> {
                 );
             }
         }
+        ConfigCmd::IrrigationZoneSetName {
+            file,
+            selector,
+            io_index,
+            name,
+            save_as,
+        } => {
+            let data = fs::read(&file).with_context(|| format!("Cannot read {file}"))?;
+            let (output, change) =
+                ConfigEditor::edit_irrigation_zone_name(&data, &selector, io_index, &name)?;
+            let quiet = ctx.quiet || ctx.json || ctx.csv;
+            if change.changed || save_as.is_some() {
+                write_edited_bytes(&output, &file, save_as.as_deref(), quiet)?;
+            }
+            if ctx.json {
+                emit_json(
+                    ctx,
+                    serde_json::json!({
+                        "ok": true,
+                        "saved_to": save_as.as_deref().unwrap_or(&file),
+                        "name_change": change,
+                    }),
+                );
+            } else if ctx.csv {
+                if !ctx.no_header {
+                    println!("BLOCK_UUID,IO_INDEX,PREVIOUS_NAME,NAME,CHANGED");
+                }
+                println!(
+                    "\"{}\",{},\"{}\",\"{}\",{}",
+                    change.block_uuid.replace('"', "\"\""),
+                    change.io_index,
+                    change.previous_name.replace('"', "\"\""),
+                    change.name.replace('"', "\"\""),
+                    change.changed,
+                );
+            } else if !ctx.quiet {
+                println!(
+                    "✓ Irrigation io-index {io_index}: name = '{name}' ({})",
+                    if change.changed {
+                        "changed"
+                    } else {
+                        "unchanged"
+                    }
+                );
+            }
+        }
         ConfigCmd::AlarmEntrySetName {
             file,
             selector,

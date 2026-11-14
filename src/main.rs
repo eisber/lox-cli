@@ -850,6 +850,20 @@ pub(crate) enum ConfigCmd {
         #[arg(long)]
         save_as: Option<String>,
     },
+    /// Rename one already named Irrigation zone, preserving its physical output identity
+    IrrigationZoneSetName {
+        file: String,
+        /// uuid:<stored-block-U> only; display-name and room selectors are not qualified
+        selector: String,
+        /// Native zero-based ioIdx (0..7), not the 1-based display row
+        #[arg(long)]
+        io_index: u8,
+        /// Nonempty, nonblank single-line Unicode name; duplicate names are allowed
+        #[arg(long)]
+        name: String,
+        #[arg(long)]
+        save_as: Option<String>,
+    },
     /// Rename one existing ordinary Alarm Clock entry, preserving its identity and time
     AlarmEntrySetName {
         file: String,
