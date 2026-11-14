@@ -26,7 +26,7 @@ pub fn set_verbose(level: u8) {
     VERBOSE.store(level, Ordering::Relaxed);
 }
 
-fn verbose() -> u8 {
+pub(crate) fn verbose() -> u8 {
     VERBOSE.load(Ordering::Relaxed)
 }
 
