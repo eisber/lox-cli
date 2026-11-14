@@ -43,6 +43,7 @@ mod selector;
 pub mod status_monitor;
 mod template;
 mod validation;
+mod virtual_input_format;
 mod wiring;
 mod write;
 

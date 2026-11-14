@@ -1710,6 +1710,44 @@ A user calling `/dev/sps/io/<input>/...` needs permission for that input, otherw
 Miniserver answers HTTP 403 (a wrong password gives 401). Use `--grant` or `lox config user-grant`
 to add a direct permission entry; inherited denies still apply.
 
+#### Edit an existing analog input's display format
+
+```bash
+lox config set-virtual-input-format file.Loxone uuid:11111111-2222-3333-4444555566667777 "<v.1>hPa"
+lox config set-virtual-input-format file.Loxone uuid:11111111-2222-3333-4444555566667777 "<v.2> %" --save-as edited.Loxone -o json
+```
+
+Edits only the existing direct `Display/@Unit`, plus the containing Document's
+save stamp. `StateOnly` is independent and is **never** enabled or cleared.
+This is not numeric unit conversion, scaling, a range edit, or an all-controls
+formatter. Creation-only `--unit` and generic C/SET/connector setters are unchanged.
+
+The supported no-transformation subset is `<v>`, `<v.0>` through `<v.3>`,
+optionally followed by ASCII letters/digits, spaces, `%`, `/`, `.`, `_` or `-`
+(maximum 128 bytes, a CLI limit). Suffixes are literal strings, not validated
+physical units. Unicode, other placeholders and empty/whitespace-only/default
+reset requests are refused rather than normalized. An existing empty/missing
+Unit is not interpreted as `<v>` or the constructor's `<v.1>` default.
+
+Admission requires an exact, unique nonnil native35 UUID, one modern ordinary
+`Document -> LoxLIVE -> VirtualInCaption -> VirtualIn`, explicit `Analog="true"`,
+existing `Q,Qm` order and `Nio="2"`, one existing direct Display, absent/zero
+`EnoceanSubType`, and no child controls/device/template/instance state.
+Only absent/0/16384 WF is admitted on these ancestors, also 16400 on
+LoxLIVE/VirtualIn (ordinary CLI-created inputs are not blanket-rejected).
+Existing `StateOnly` must be absent or literal true/false.
+
+All admission, including stampability and original raw XML agreement, happens
+before a no-op or any `--save-as` write. Same-value edits preserve bytes exactly.
+Guarded/conflicting duplicate attributes are refused; unrelated raw-identical
+duplicates remain untouched. Files requiring shared digit-name sanitizer rewrites
+(including digit-like attribute text, open issue `lox-n37w`) are explicitly
+unsupported. BOM, line endings, wires, references, permissions, IoData, other
+Display attributes and unrelated bytes are preserved. JSON/CSV/quiet output is
+supported; `--dry-run` fails before file I/O. Native deployment/sidecar guards
+remain in force; this offline edit is not native UI/runtime/rendering validation.
+See [native source contract](docs/knowledge/virtual-input-format-native.md).
+
 ### Room, control, and MQTT management
 
 ```bash

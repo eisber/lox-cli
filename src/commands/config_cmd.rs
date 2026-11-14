@@ -3369,6 +3369,53 @@ pub fn cmd_config(ctx: &RunContext, action: ConfigCmd) -> Result<()> {
                 );
             }
         }
+        ConfigCmd::SetVirtualInputFormat {
+            file,
+            selector,
+            format,
+            save_as,
+        } => {
+            let data = fs::read(&file).with_context(|| format!("Cannot read {file}"))?;
+            let (output, change) =
+                ConfigEditor::edit_virtual_input_format(&data, &selector, &format)?;
+            if change.changed || save_as.is_some() {
+                write_edited_bytes(
+                    &output,
+                    &file,
+                    save_as.as_deref(),
+                    ctx.quiet || ctx.json || ctx.csv,
+                )?;
+            }
+            if ctx.json {
+                emit_json(
+                    ctx,
+                    serde_json::json!({
+                        "ok": true,
+                        "saved_to": save_as.as_deref().unwrap_or(&file),
+                        "virtual_input_format": change,
+                    }),
+                );
+            } else if ctx.csv {
+                let field = |value: &str| format!("\"{}\"", value.replace('"', "\"\""));
+                if !ctx.no_header {
+                    println!("BLOCK_UUID,PREVIOUS_FORMAT,FORMAT,CHANGED");
+                }
+                println!(
+                    "{},{},{},{}",
+                    change.block_uuid,
+                    field(&change.previous_format),
+                    field(&change.format),
+                    change.changed,
+                );
+            } else if !ctx.quiet {
+                println!(
+                    "✓ {} display format: {}{}",
+                    change.block_uuid,
+                    change.format,
+                    if change.changed { "" } else { " (unchanged)" },
+                );
+            }
+        }
         ConfigCmd::SetParam {
             file,
             selector,

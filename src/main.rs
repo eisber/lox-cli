@@ -1145,6 +1145,16 @@ pub(crate) enum ConfigCmd {
         #[arg(long)]
         save_as: Option<String>,
     },
+    /// Edit an existing ordinary analog VirtualIn Display format; preserves StateOnly
+    SetVirtualInputFormat {
+        file: String,
+        /// Exact uuid:<native35-U> of the existing VirtualIn
+        selector: String,
+        /// <v> or <v.0> through <v.3>, optionally followed by an ASCII unit suffix
+        format: String,
+        #[arg(long)]
+        save_as: Option<String>,
+    },
     /// Set a parameter on a block (sets Def= on the connector)
     #[command(name = "set-param", visible_alias = "set")]
     SetParam {
