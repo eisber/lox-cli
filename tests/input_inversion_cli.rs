@@ -85,6 +85,10 @@ fn latch_fragment(owner_type: &str, selected: &str, remanence: u8) -> String {
 }
 
 fn latch_project(owner_type: &str, selected: &str, remanence: u8) -> String {
+    project_with_fragment(&latch_fragment(owner_type, selected, remanence))
+}
+
+fn project_with_fragment(fragment: &str) -> String {
     let golden = Path::new(env!("CARGO_MANIFEST_DIR"))
         .join("tests")
         .join("eval")
@@ -98,8 +102,248 @@ fn latch_project(owner_type: &str, selected: &str, remanence: u8) -> String {
     let start = source[..page_uuid].rfind("<C ").unwrap();
     let end = start + source[start..].find('>').unwrap() + 1;
     assert!(source[start..end].contains("Type=\"Page\""));
-    source.insert_str(end, &latch_fragment(owner_type, selected, remanence));
+    source.insert_str(end, fragment);
     source
+}
+
+fn button_project(owner_type: &str, selected: &str) -> String {
+    let (keys, inputs, defaults, outputs): (&[&str], &[&str], &[(&str, &str)], &[&str]) =
+        if owner_type == "PushButton" {
+            (
+                &[
+                    "InputTrigger",
+                    "On",
+                    "Reset",
+                    "InputDisable",
+                    "Remanence",
+                    "Q",
+                    "Qon",
+                    "Qoff",
+                ],
+                &["InputTrigger", "On", "Reset", "InputDisable"],
+                &[("Remanence", "1")],
+                &["Q", "Qon", "Qoff"],
+            )
+        } else {
+            (
+                &[
+                    "InputTrigger",
+                    "Reset",
+                    "Remanence",
+                    "Max",
+                    "Time",
+                    "V1",
+                    "V2",
+                    "V3",
+                    "V4",
+                    "Q1",
+                    "Q2",
+                    "Q3",
+                    "Q4",
+                    "AQ",
+                ],
+                &["InputTrigger", "Reset"],
+                &[
+                    ("Remanence", "1"),
+                    ("Max", "0.35"),
+                    ("Time", "0.1"),
+                    ("V1", "1"),
+                    ("V2", "2"),
+                    ("V3", "3"),
+                    ("V4", "4"),
+                ],
+                &["Q1", "Q2", "Q3", "Q4", "AQ"],
+            )
+        };
+    let mut fragment = format!(
+        "<C Type=\"And\" U=\"91111111-2222-3333-4444555566667777\" V=\"121\" WF=\"16384\" Nio=\"3\"><Co K=\"I1\" U=\"92111111-2222-3333-4444555566667777\"/><Co K=\"I2\" U=\"93111111-2222-3333-4444555566667777\"/><Co K=\"Q\" U=\"d1111111-2222-3333-4444555566667777\"/></C><C Type=\"{owner_type}\" U=\"{OWNER}\" V=\"121\" WF=\"16384\" Nio=\"{}\" Title=\"Button\" Px=\"400\" Py=\"500\" Rights=\"keep\" Unknown='raw'><IoData Visu=\"false\"/>",
+        keys.len()
+    );
+    for (index, key) in keys.iter().enumerate() {
+        let uuid = if *key == selected {
+            INPUT.to_string()
+        } else if *key == outputs[0] {
+            "51111111-2222-3333-4444555566667777".to_string()
+        } else {
+            format!("{:08x}-2222-3333-4444555566667777", 0xc1000000 + index)
+        };
+        let storage = if *key == selected {
+            if selected == "InputTrigger" {
+                " Def=\"0\"".to_string()
+            } else {
+                String::new()
+            }
+        } else if inputs.contains(key) {
+            " Def=\"1\" Inv=\"true\" Nc=\"1\"".to_string()
+        } else if let Some((_, value)) = defaults.iter().find(|(name, _)| name == key) {
+            format!(" Def=\"{value}\"")
+        } else {
+            " Inv=\"true\"".to_string()
+        };
+        fragment.push_str(&format!(
+            "<Co K=\"{key}\" U=\"{uuid}\"{storage} Pos='11,22' Unknown=\"keep\""
+        ));
+        if *key != selected && inputs.contains(key) {
+            fragment.push_str(
+                "><Ref U=\"d1111111-2222-3333-4444555566667777\" Unknown='input-wire'/></Co>",
+            );
+        } else {
+            fragment.push_str("/>");
+        }
+    }
+    fragment.push_str("</C><C Type=\"OutputRef\" U=\"61111111-2222-3333-4444555566667777\" V=\"121\" WF=\"16384\"><Co K=\"AI\" U=\"71111111-2222-3333-4444555566667777\" Nc=\"1\"><Ref U=\"51111111-2222-3333-4444555566667777\" Unknown='output-wire'/></Co></C>");
+    project_with_fragment(&fragment)
+}
+
+#[test]
+fn button_inputs_preserve_full_native_layout_defaults_wires_and_atomic_copies() {
+    let dir = tempfile::tempdir_in(env!("CARGO_MANIFEST_DIR")).unwrap();
+    let input = dir.path().join("button.Loxone");
+    let output = dir.path().join("copy.Loxone");
+    for (owner_type, key) in [
+        ("PushButton", "InputTrigger"),
+        ("PushButton", "On"),
+        ("PushButton", "Reset"),
+        ("MultiClick", "InputTrigger"),
+    ] {
+        let source = button_project(owner_type, key);
+        let selected = format!(
+            "<Co K=\"{key}\" U=\"{INPUT}\"{} Pos='11,22' Unknown=\"keep\"/>",
+            if key == "InputTrigger" {
+                " Def=\"0\""
+            } else {
+                ""
+            }
+        );
+        assert!(source.contains(&selected));
+        fs::write(&input, &source).unwrap();
+        for existing in [false, true] {
+            for inverted in [false, true] {
+                if existing {
+                    fs::write(&output, b"preserve until accepted").unwrap();
+                } else if output.exists() {
+                    fs::remove_file(&output).unwrap();
+                }
+                let result = command(&input, key, inverted)
+                    .arg("--save-as")
+                    .arg(&output)
+                    .args(["-o", "json"])
+                    .assert()
+                    .success()
+                    .get_output()
+                    .stdout
+                    .clone();
+                let result: serde_json::Value = serde_json::from_slice(&result).unwrap();
+                assert_eq!(result["input_inversion"]["connector"], key);
+                assert_eq!(result["input_inversion"]["connector_uuid"], INPUT);
+                assert_eq!(result["input_inversion"]["changed"], inverted);
+                assert_eq!(fs::read(&input).unwrap(), source.as_bytes());
+                let saved = fs::read_to_string(&output).unwrap();
+                if inverted {
+                    let expected =
+                        source.replace(&selected, &selected.replace("/>", " Inv=\"true\"/>"));
+                    assert_eq!(
+                        without_document_stamp(&saved),
+                        without_document_stamp(&expected)
+                    );
+                } else {
+                    assert_eq!(saved, source);
+                }
+            }
+        }
+        command(&input, key, true).arg("-q").assert().success();
+        let once = fs::read(&input).unwrap();
+        command(&input, key, true).arg("-q").assert().success();
+        assert_eq!(fs::read(&input).unwrap(), once);
+        command(&input, key, false).arg("-q").assert().success();
+        let expected = source.replace(&selected, &selected.replace("/>", " />"));
+        assert_eq!(
+            without_document_stamp(&fs::read_to_string(&input).unwrap()),
+            without_document_stamp(&expected)
+        );
+    }
+}
+
+#[test]
+fn button_inputs_refuse_native_ineligible_ports_layouts_and_context_before_noop() {
+    let dir = tempfile::tempdir_in(env!("CARGO_MANIFEST_DIR")).unwrap();
+    let input = dir.path().join("button.Loxone");
+    let existing = dir.path().join("existing.Loxone");
+    let new = dir.path().join("new.Loxone");
+    for owner_type in ["PushButton", "MultiClick"] {
+        let key = "InputTrigger";
+        let source = button_project(owner_type, key);
+        let unsupported = if owner_type == "PushButton" {
+            "InputDisable"
+        } else {
+            "Reset"
+        };
+        let mut cases = vec![(button_project(owner_type, unsupported), unsupported)];
+        for wrong in [
+            "I1",
+            "Trigger",
+            "InputEnable",
+            "Remanence",
+            "Time",
+            "Q",
+            "AQ",
+        ] {
+            cases.push((source.clone(), wrong));
+        }
+        let nio = if owner_type == "PushButton" { 8 } else { 14 };
+        for xml in [
+            source.replace(
+                &format!("Nio=\"{nio}\" Title=\"Button\""),
+                "Nio=\"3\" Title=\"Button\"",
+            ),
+            source.replace("K=\"Remanence\"", "K=\"AliasRemanence\""),
+            source.replace("K=\"Remanence\"", "K=\"InputTrigger\""),
+            source.replace("Def=\"0\" Pos='11,22'", "Def=\"1\" Pos='11,22'"),
+            source.replace("Def=\"0\" Pos='11,22'", "Nc=\"1\" Def=\"0\" Pos='11,22'"),
+            source.replace("Title=\"Button\"", "Title=\"Button\" IfT=\"false\""),
+            source.replace(
+                "Title=\"Button\"",
+                "Title=\"Button\" uuidParent=\"unknown\"",
+            ),
+            source.replace("Title=\"Button\"", "Title=\"Button\" Dev=\"unknown\""),
+            source.replace("Title=\"Button\"", "Title=\"Noon 12hTF=quoted\""),
+            source.replace("WF=\"16384\"", "WF=\"536870912\""),
+            source.replace("Type=\"Document\"", "Type=\"DocumentTemplate\""),
+            source.replace("Type=\"Page\"", "Type=\"Folder\""),
+            source
+                .replace("<ControlList ", "<C Type=\"Folder\" ")
+                .replace("</ControlList>", "</C>"),
+            source.replace("Type=\"PushButton\"", "Type=\"MultiFuncSW\""),
+            source.replace(INPUT, "b1111111-2222-3333-4444-555566667777"),
+            source.replace("c1000004-2222-3333-4444555566667777", &INPUT.to_uppercase()),
+            format!("{source}<C Type=\"Other\"/>"),
+            source.replace("<Loxone", "<Loxone xmlns=\"unexpected\""),
+        ] {
+            if xml != source {
+                cases.push((xml, key));
+            }
+        }
+        for (case, (xml, requested)) in cases.into_iter().enumerate() {
+            for inverted in [false, true] {
+                for destination in [None, Some(&existing), Some(&new)] {
+                    fs::write(&input, &xml).unwrap();
+                    fs::write(&existing, b"preserve").unwrap();
+                    let mut edit = command(&input, requested, inverted);
+                    if let Some(destination) = destination {
+                        edit.arg("--save-as").arg(destination);
+                    }
+                    let result = edit.output().unwrap();
+                    assert!(
+                        !result.status.success(),
+                        "{owner_type} case {case}: {requested}"
+                    );
+                    assert_eq!(fs::read(&input).unwrap(), xml.as_bytes());
+                    assert_eq!(fs::read(&existing).unwrap(), b"preserve");
+                    assert!(!new.exists());
+                }
+            }
+        }
+    }
 }
 
 fn without_document_stamp(source: &str) -> String {
