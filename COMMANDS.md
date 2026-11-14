@@ -193,6 +193,9 @@ control/connector/reference identity fields are refused with an input-inversion
 error, including on no-op.
 Exactly one balanced XML root is required; trailing elements, hidden identity
 aliases, non-whitespace text and CDATA outside that root are refused.
+Processing instructions require a valid XML 1.0 target (the case-insensitive
+name `xml` is reserved) and valid XML characters. Legitimate instructions and
+comments before, inside and after the root are preserved verbatim.
 All admission runs even for a same-value request and before any destination
 write. A no-op preserves every input byte; changes patch only the selected
 `Inv` and Document save stamp. Clearing removes `Inv`; other connector fields,

@@ -289,6 +289,43 @@ fn raw_span(data: &[u8], value: &[u8]) -> Result<std::ops::Range<usize>> {
     Ok(start..end)
 }
 
+fn valid_processing_instruction(raw: &[u8]) -> bool {
+    // XML 1.0 NameStartChar/NameChar, not a Unicode-letter approximation.
+    fn name_start(character: char) -> bool {
+        matches!(
+            character,
+            ':' | 'A'..='Z' | '_' | 'a'..='z'
+                | '\u{c0}'..='\u{d6}' | '\u{d8}'..='\u{f6}' | '\u{f8}'..='\u{2ff}'
+                | '\u{370}'..='\u{37d}' | '\u{37f}'..='\u{1fff}'
+                | '\u{200c}'..='\u{200d}' | '\u{2070}'..='\u{218f}'
+                | '\u{2c00}'..='\u{2fef}' | '\u{3001}'..='\u{d7ff}'
+                | '\u{f900}'..='\u{fdcf}' | '\u{fdf0}'..='\u{fffd}'
+                | '\u{10000}'..='\u{effff}'
+        )
+    }
+
+    let Ok(text) = std::str::from_utf8(raw) else {
+        return false;
+    };
+    let target = text.split([' ', '\t', '\r', '\n']).next().unwrap_or("");
+    let mut characters = target.chars();
+    !target.eq_ignore_ascii_case("xml")
+        && characters.next().is_some_and(name_start)
+        && characters.all(|character| {
+            name_start(character)
+                || matches!(
+                    character,
+                    '-' | '.' | '0'..='9' | '\u{b7}' | '\u{300}'..='\u{36f}' | '\u{203f}'..='\u{2040}'
+                )
+        })
+        && text.chars().all(|character| {
+            matches!(
+                character,
+                '\t' | '\r' | '\n' | ' '..='\u{d7ff}' | '\u{e000}'..='\u{fffd}' | '\u{10000}'..='\u{10ffff}'
+            )
+        })
+}
+
 fn inversion_bytes(
     data: &[u8],
     identities: &[(usize, String, String, String)],
@@ -435,6 +472,10 @@ fn inversion_bytes(
                 );
             }
             Event::CData(_) if open_elements.is_empty() => anyhow::bail!(DOCUMENT_ERROR),
+            Event::PI(instruction) => ensure!(
+                valid_processing_instruction(instruction.as_ref()),
+                "Input inversion requires valid XML processing-instruction targets and characters; nothing was changed."
+            ),
             Event::Decl(declaration) => {
                 ensure!(event_start == 0 && !root_seen, DOCUMENT_ERROR);
                 if let Some(encoding) = declaration.encoding() {

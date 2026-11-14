@@ -479,6 +479,106 @@ fn input_inversion_refuses_hidden_roots_and_unbalanced_storage_before_any_write(
 }
 
 #[test]
+fn input_inversion_pi_refuses_malformed_targets_before_noop_or_any_write() {
+    let dir = tempfile::tempdir_in(env!("CARGO_MANIFEST_DIR")).unwrap();
+    let input = dir.path().join("input.Loxone");
+    let existing = dir.path().join("existing.Loxone");
+    let new = dir.path().join("new.Loxone");
+    for (block_type, leading, pi) in [
+        ("Or", true, "<? ?>"),
+        ("Or", false, "<? ?>"),
+        ("And", true, "<?\t \r\n?>"),
+        ("And", false, "<?\t \r\n?>"),
+        ("Or", true, "<? audit?>"),
+        ("Or", false, "<?1audit?>"),
+        ("And", true, "<?bad?target?>"),
+        ("And", false, "<?XmL data?>"),
+    ] {
+        let source = fixture().replace("Type=\"And\"", &format!("Type=\"{block_type}\""));
+        let source = if leading {
+            source.replace("<Loxone>", &format!("{pi}<Loxone>"))
+        } else {
+            format!("{source}{pi}")
+        };
+        for inverted in [false, true] {
+            for destination in [None, Some(&existing), Some(&new)] {
+                fs::write(&input, &source).unwrap();
+                fs::write(&existing, b"PRESERVE").unwrap();
+                let mut edit = command(&input, "I1", inverted);
+                if let Some(destination) = destination {
+                    edit.arg("--save-as").arg(destination);
+                }
+                edit.assert().failure().stderr(
+                    predicates::str::contains("Input inversion")
+                        .and(predicates::str::contains("nothing was changed")),
+                );
+                assert_eq!(fs::read(&input).unwrap(), source.as_bytes());
+                assert_eq!(fs::read(&existing).unwrap(), b"PRESERVE");
+                assert!(!new.exists());
+            }
+        }
+    }
+}
+
+#[test]
+fn input_inversion_pi_preserves_valid_names_data_and_document_bytes() {
+    let dir = tempfile::tempdir_in(env!("CARGO_MANIFEST_DIR")).unwrap();
+    let input = dir.path().join("input.Loxone");
+    let existing = dir.path().join("existing.Loxone");
+    let new = dir.path().join("new.Loxone");
+    for block_type in ["And", "Or"] {
+        let source = fixture()
+            .replace("Type=\"And\"", &format!("Type=\"{block_type}\""))
+            .replace(
+                "<Loxone>",
+                "<?audit?>\r\n<!--before--><?xml-stylesheet type='text/xsl'?><?réglage mode='été & <ok>'?><Loxone>",
+            )
+            .replace(
+                "<C Type=\"Page\"",
+                "<!--inside--><?測定 値=\"23\"?><?測定?><C Type=\"Page\"",
+            )
+            + "<!--after--><?audit done?><?fin?>\r\n";
+        fs::write(&input, &source).unwrap();
+        fs::write(&existing, b"PRESERVE UNTIL SUCCESS").unwrap();
+        command(&input, "I1", false).arg("-q").assert().success();
+        assert_eq!(fs::read(&input).unwrap(), source.as_bytes());
+        command(&input, "I1", false)
+            .arg("--save-as")
+            .arg(&existing)
+            .arg("-q")
+            .assert()
+            .success();
+        assert_eq!(fs::read(&input).unwrap(), source.as_bytes());
+        assert_eq!(fs::read(&existing).unwrap(), source.as_bytes());
+        command(&input, "I1", true)
+            .arg("--save-as")
+            .arg(&new)
+            .arg("-q")
+            .assert()
+            .success();
+        assert_eq!(fs::read(&input).unwrap(), source.as_bytes());
+        let saved = fs::read_to_string(&new).unwrap();
+        let parsed = xmltree::Element::parse(saved.as_bytes()).unwrap();
+        let document = control(&parsed, "01111111-2222-3333-4444555566667777").unwrap();
+        let expected = source
+            .replacen(
+                "DateS=\"1\"",
+                &format!(
+                    "DateS=\"{}\" Date=\"{}\"",
+                    document.attributes["DateS"], document.attributes["Date"]
+                ),
+                1,
+            )
+            .replacen(
+                "Def=\"0\" Unknown=\"keep\"/>",
+                "Def=\"0\" Unknown=\"keep\" Inv=\"true\"/>",
+                1,
+            );
+        assert_eq!(saved, expected);
+    }
+}
+
+#[test]
 fn input_inversion_refuses_output_parameter_alias_and_missing_explicit_state() {
     let dir = tempfile::tempdir_in(env!("CARGO_MANIFEST_DIR")).unwrap();
     let input = dir.path().join("input.Loxone");

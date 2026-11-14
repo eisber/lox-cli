@@ -337,6 +337,11 @@ qualification was performed for this recovery.
   no-op/stamping/writing, refusing trailing hidden identities (lox-fd9l).
   Valid BOM, EOL, comments, processing instructions and unrelated raw storage
   remain byte-preserved. The shared-loader lox-n37w refusal remains local.
+  The local raw reader validates PI targets with XML 1.0 NameStartChar/NameChar,
+  refuses the case-insensitive reserved target `xml`, and checks PI XML
+  characters before no-op/stamping/writing. Shared DOM acceptance is not used
+  as strict PI proof; legitimate Unicode targets and unescaped PI data remain
+  raw-identical. This is a local admission correction, not new native evidence.
 - **Combined window contact** (`JoinWindowSensor`): its `AQ` connector is the
   docs' status output (S): 1 = closed, 2 = tilted, 3 = open, 4 = closed and not
   locked, 5 = closed and locked, 0 = a sensor is offline. Test for "open" with
