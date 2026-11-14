@@ -98,6 +98,10 @@ your own target cache. The script sets process-local `TEMP`/`TMP` and short
 Windows paths for its own target/temp (MSVC long-path avoidance), stack size,
 two build jobs and `LOX_TELEMETRY=0`. It changes no global PATH, service or VM.
 PowerShell 7+, Windows build tools and the listed compilers are prerequisites.
+The allocation regression also compiles a small **test-only** C helper using
+existing MSVC x64 tools (`vswhere`, or pass `-VcVars ...\vcvars64.bat`).
+On disk-constrained hosts put both output and the owned Cargo target on a
+roomy drive; the script never cleans or relocates another owner's files.
 
 The script runs focused Rust tests, builds the pinned helper generator,
 invokes maturin to build a native wheel, creates a private venv, and installs
@@ -133,6 +137,49 @@ fixtures contain no device data or credentials. `commands.json`, per-step
 logs and `ARTIFACTS.json` retain commands, versions, source index tree and
 SHA256s, including generated sources and the installed DLL/module. Build
 target/temp/cache trees are excluded from artifact inventories.
+
+### Required local Java generator correction
+
+**Unpatched uniffi-bindgen-java 0.5.2 output leaks native error buffers.**
+The generated error descriptor aliases thread-local reusable call status.
+`RustBuffer.free` makes a nested native call that zeroes that same status
+before native free reads the descriptor. Exception fields can look correct
+while the allocation remains live.
+
+The builder therefore applies **lox-archive-java-0.5.2-rustbuffer-free-1**:
+copy the descriptor into a confined arena **before** the nested call, then
+free the unchanged Rust allocation using that independent descriptor. No
+Rust/core code, FFI signature, ABI checksum or error representation changes.
+The patch is a maintained, explicit local correction, not an upstream fix.
+Its MPL-2.0 specification lives in `crates\lox-bindings\patches`. The patcher
+requires the exact generator version, complete `RustBuffer.java` and
+`UniffiHelpers.java` input SHA256s, one exact method match, and the complete
+corrected output SHA256. Unknown/changed/already-patched output fails closed;
+upgrades require a new review, never automatic hash updates or silent fallback.
+Guard regressions run before the actual correction. Both JVM jars include
+the specification/application receipt; the sources jar includes the
+corrected helper. Distributors must use this corrected build, not raw 0.5.2
+output. All other generated source remains untouched.
+
+`ArchiveAllocationSmoke.java` and `.kt` perform **64 actual public native
+domain-error calls per language**. A Windows process-heap instrument first
+finds one real 65,536-byte serialized error allocation and observes its
+release using an independent descriptor, calibrating its byte-prefix matcher.
+It then counts live matching allocations after the public calls: corrected
+output must retain **zero**. Frozen uncorrected output retains **64** for
+each language and fails the same regression. A separate aliased 1 MiB
+descriptor test must also release its allocation; the negative control frees
+its saved descriptor only if still live, avoiding a double free.
+
+The test-only C helper keeps `HeapLock`/`HeapWalk`/`HeapUnlock` entirely native
+(no JVM transitions while holding the process heap), checks enumeration
+errors and uses `HeapValidate` on exact pointers. Large ZIP member names force
+the measured error buffers outside the small-allocation heap path. This is
+allocation accounting on the verified Windows AMD64 host, **not an RSS
+threshold**, a mocked allocator or a portable-memory qualification. Probe
+classes/DLL and Kotlin support jars are test artifacts, not part of the API
+jar/native runtime pair. These checks prove this archive error-buffer release
+path only: **no runtime close/cancel/subscription/lifecycle credit** follows.
 
 Before any commit/publication, stage the intended source and run all four
 repository gates on that exact tree:

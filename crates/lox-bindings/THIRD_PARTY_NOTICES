@@ -25,7 +25,17 @@ Public License, v. 2.0. A copy is provided in licenses/MPL-2.0.txt (and packaged
 with the wheel and JVM jar). Generated sources are shipped in the Python
 wheel and JVM sources jar; upstream generator sources for the exact versions
 above are available from the linked crates.io releases and repositories.
-No generated helper source is hand-edited. These MPL notices do not claim
+Java generator 0.5.2 has a reproduced native error-buffer cleanup alias bug.
+This project applies the local MPL-2.0 correction
+lox-archive-java-0.5.2-rustbuffer-free-1, specified in
+patches/uniffi-bindgen-java-0.5.2-rustbuffer-free.json, after generation.
+It copies a RustBuffer descriptor before nested cleanup resets reusable
+call status. Generator version, complete input/companion/output source
+SHA256s and exactly one method match are mandatory; mismatches stop builds.
+The source jar contains the corrected helper, and both JVM jars carry the
+patch specification and application receipt in META-INF/lox-build.
+Do not substitute unpatched generator output. Native ABI checks remain on.
+No other generated helper source is changed. These MPL notices do not claim
 ownership of upstream code or relicense this repository's own source.
 
 maturin 1.16.0 is a build-only tool (MIT OR Apache-2.0), not a runtime Python

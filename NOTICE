@@ -42,3 +42,6 @@ Generated Python glue uses Mozilla UniFFI 0.32.1 (MPL-2.0); generated Java
 glue uses IronCore Labs uniffi-bindgen-java 0.5.2 (MPL-2.0). Their template
 and helper-code rights are not replaced by this project's license.
 See `crates/lox-bindings/THIRD_PARTY_NOTICES` and its `licenses/MPL-2.0.txt`.
+The generated Java RustBuffer helper receives an explicit local MPL-2.0
+descriptor-preservation correction for generator 0.5.2. Its guarded patch
+specification and receipt accompany both JVM jars; unpatched output is unsafe.

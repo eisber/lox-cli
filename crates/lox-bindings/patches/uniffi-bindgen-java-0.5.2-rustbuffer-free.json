@@ -1,0 +1,14 @@
+{
+  "patch_id": "lox-archive-java-0.5.2-rustbuffer-free-1",
+  "generator_version": "0.5.2",
+  "license": "MPL-2.0",
+  "notice": "This Source Code Form is subject to the Mozilla Public License, v. 2.0. See ../licenses/MPL-2.0.txt. Original helper: IronCore Labs uniffi-bindgen-java 0.5.2. Local descriptor-preservation correction: lox-cli contributors.",
+  "upstream": "https://crates.io/crates/uniffi-bindgen-java/0.5.2",
+  "target": "net/eisber/lox/archive/RustBuffer.java",
+  "original_sha256": "5f152a635ffb67a7b89fa7ec78715d7bdd8ead512ce83e5ae3b48aca47581141",
+  "corrected_sha256": "fe34ea1b05e7f429b88636e0ad282ec0909a6f2857a9ca51bd319c4c35d81e43",
+  "companion": "net/eisber/lox/archive/UniffiHelpers.java",
+  "companion_sha256": "b78cf9d93854f79419c9c1b26200901e0a58b732bd5e95adb7a6d8586df18c3e",
+  "old_method": "    public static void free(java.lang.foreign.MemorySegment buffer) {\n        UniffiHelpers.uniffiRustCall((_allocator, status) -> {\n            UniffiLib.ffi_lox_archive_rustbuffer_free(buffer, status);\n            return null;\n        });\n    }\n",
+  "new_method": "    public static void free(java.lang.foreign.MemorySegment buffer) {\n        // Local MPL-2.0 correction: preserve descriptors that alias reusable call status.\n        try (java.lang.foreign.Arena arena = java.lang.foreign.Arena.ofConfined()) {\n            java.lang.foreign.MemorySegment stable = arena.allocate(LAYOUT);\n            java.lang.foreign.MemorySegment.copy(buffer, 0, stable, 0, LAYOUT.byteSize());\n            UniffiHelpers.uniffiRustCall((_allocator, status) -> {\n                UniffiLib.ffi_lox_archive_rustbuffer_free(stable, status);\n                return null;\n            });\n        }\n    }\n"
+}
