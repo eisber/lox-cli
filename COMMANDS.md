@@ -167,20 +167,35 @@ lox config set-input-inversion file.Loxone uuid:11111111-2222-3333-4444555566667
 Edits native connector `Inv`, not `Def`. The bounded supported branch is an
 **existing, unconnected `I1` or `I2` of an ordinary `And`, `Or` or `Xor`, `I` of
 an ordinary `Not`, `InputS`/`InputR` of an ordinary `FlipFlop`,
-`RSFlipFlop` or `SRFlipFlop`, `Trigger` of `Counter`, or `InputEnable` of
-`HourCounter`**, directly on a Page
+`RSFlipFlop` or `SRFlipFlop`, `Trigger` of `Counter`, `InputEnable` of
+`HourCounter`, or `InputTrigger` of an ordinary `OnDelay`, `OffDelay` or
+`OnOffDelay`**, directly on a Page
 in one ordinary Document (optionally through one ordinary Program), with
 explicit modern `V >= 90`. `And`/`Or`/`Xor` require `Nio="3"` and exactly `I1`/`I2`/`Q`;
 `Not` requires `Nio="2"` and exactly `I`/`Q` (not `I1`).
 `FlipFlop` requires `Nio="4"` and exactly `InputS`/`InputR`/`Remanence`/`Q`;
 `RSFlipFlop` and `SRFlipFlop` require `Nio="5"` and exactly
 `InputS`/`InputTrigger`/`InputR`/`Remanence`/`Q`. Latch names are case-sensitive;
-`I1`/`I2` are not aliases. `InputTrigger` is not an admitted inversion input.
+`I1`/`I2` are not aliases. Latch `InputTrigger` is not an admitted inversion input.
 `Counter` requires `Nio="7"` and exactly `Trigger`/`Reset`/`Remanence`/`EndValue`/`Mode`/`Q`/`AQ`.
 `HourCounter` requires `Nio="10"` and exactly
 `InputEnable`/`Reset`/`InputResetAll`/`Unit`/`Maintenance`/`Q`/`AQ`/`AQl`/`AQr`/`AQs`.
 These counter branches edit only the named input's `Inv`; they do not change
 remanence, maintenance, parameter defaults, other input inversion or runtime edge behavior.
+`OnDelay` and `OffDelay` require `Nio="5"` and exactly
+`InputTrigger`/`Reset`/`Remanence`/`Time`/`Q`; `OnOffDelay` requires `Nio="6"` and
+exactly `InputTrigger`/`Reset`/`Remanence`/`TimeOn`/`TimeOff`/`Q`.
+The delay branch additionally requires the Document directly under the native
+`ControlList` root. For example:
+
+```bash
+lox config set-input-inversion file.Loxone uuid:11111111-2222-3333-4444555566667777 InputTrigger --inverted
+```
+
+Only the selected input must be unconnected and neutral: delay Reset wiring,
+output references, remanence and configured timing values are preserved.
+The native timing parameter defaults are one, not zero; they are not reset.
+Unconnected delay `Reset` does not offer native inversion and is not supported.
 The exact `uuid:` owner, its Document/Program/Page ancestors and every owner connector
 must have unique nonnil native35 identities (8-4-4-16); aliases, duplicate
 keys/identities and incomplete connector sets are refused.
@@ -197,7 +212,7 @@ owner/ancestor WF and shared-loader digit-name rewrites are unsupported.
 Owner/ancestor WF must be absent, literal `0`, or literal `16384` (`0x4000`);
 that original storage is preserved, not cleared or normalized. This admits
 Config-saved Pages, CLI-added supported logic blocks and complete existing native
-counters without editing their WF. Other
+counters/delays without editing their WF. Other
 bits/combinations and nested/other wrappers remain refused.
 DateS, if present, must be
 an incrementable nonnegative signed32 integer (less than 2147483647).

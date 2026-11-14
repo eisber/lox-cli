@@ -61,6 +61,192 @@ fn logic_fixture(owner_type: &str) -> String {
     source
 }
 
+fn delay_fixture(owner_type: &str) -> String {
+    let golden = include_str!("eval/golden/configs/Guest Room Door.Loxone");
+    let page = golden.find("<C Type=\"Page\"").expect("golden native Page");
+    let insertion = page + golden[page..].find('>').unwrap() + 1;
+    let (nio, parameters) = match owner_type {
+        "OnDelay" => (
+            5,
+            "<Co K=\"Time\" U=\"81111111-2222-3333-4444555566667777\" Def=\"1\"/>",
+        ),
+        "OffDelay" => (
+            5,
+            "<Co K=\"Time\" U=\"81111111-2222-3333-4444555566667777\" Def=\"7.5\"/>",
+        ),
+        "OnOffDelay" => (
+            6,
+            "<Co K=\"TimeOn\" U=\"81111111-2222-3333-4444555566667777\" Def=\"1\"/><Co K=\"TimeOff\" U=\"91111111-2222-3333-4444555566667777\" Def=\"9.25\"/>",
+        ),
+        _ => unreachable!(),
+    };
+    let blocks = format!(
+        r#"
+        <C Type="{owner_type}" V="174" U="{OWNER}" WF="16384" Nio="{nio}" Title="Recovered delay input" Pos="490,280" Pr="4" Unknown="keep &amp; preserve">
+          <Co K="InputTrigger" U="{INPUT}" Def="0" Inv='false' Unknown="selected"/>
+          <Co K="Reset" U="41111111-2222-3333-4444555566667777" Nc="1" Inv="true"><Ref U="71111111-2222-3333-4444555566667777" Unknown="keep reset wire"/></Co>
+          <Co K="Remanence" U="61111111-2222-3333-4444555566667777" Def="1"/>
+          {parameters}
+          <Co K="Q" U="51111111-2222-3333-4444555566667777" Unknown="keep output"/>
+        </C>
+        <C Type="Not" V="174" U="c1111111-2222-3333-4444555566667777" WF="16384" Nio="2" Pos="220,280"><Co K="I" U="d1111111-2222-3333-4444555566667777"/><Co K="Q" U="71111111-2222-3333-4444555566667777"/></C>
+        <C Type="OutputRef" V="174" U="e1111111-2222-3333-4444555566667777" WF="16384" Pos="730,280"><Co K="AI" U="f1111111-2222-3333-4444555566667777" Nc="1"><Ref U="51111111-2222-3333-4444555566667777" Unknown="keep output wire"/></Co></C>
+"#
+    );
+    let source = format!("{}{}{}", &golden[..insertion], blocks, &golden[insertion..]);
+    format!(
+        "\u{feff}{}<!--preserve--><?audit delay?>\r\n",
+        source
+            .trim_start_matches('\u{feff}')
+            .replace("\r\n", "\n")
+            .replace('\n', "\r\n")
+    )
+}
+
+fn with_saved_stamp(source: &str, saved: &str) -> String {
+    let original = xmltree::Element::parse(source.as_bytes()).unwrap();
+    let output = xmltree::Element::parse(saved.as_bytes()).unwrap();
+    let uuid = "1fbf3415-030f-bc7d-ffff9bb3c1479539";
+    let before = control(&original, uuid).unwrap();
+    let after = control(&output, uuid).unwrap();
+    let mut expected = source.to_string();
+    for field in ["Date", "DateS"] {
+        expected = expected.replacen(
+            &format!(" {field}=\"{}\"", before.attributes[field]),
+            &format!(" {field}=\"{}\"", after.attributes[field]),
+            1,
+        );
+    }
+    expected
+}
+
+#[test]
+fn delay_input_inversion_preserves_full_native_project_defaults_and_other_wires() {
+    let dir = tempfile::tempdir_in(env!("CARGO_MANIFEST_DIR")).unwrap();
+    let input = dir.path().join("delay.Loxone");
+    let output = dir.path().join("copy.Loxone");
+    for owner_type in ["OnDelay", "OffDelay", "OnOffDelay"] {
+        let source = delay_fixture(owner_type);
+        fs::write(&input, &source).unwrap();
+        let report = command(&input, "InputTrigger", false)
+            .args(["-o", "json"])
+            .assert()
+            .success()
+            .get_output()
+            .stdout
+            .clone();
+        let report: serde_json::Value = serde_json::from_slice(&report).unwrap();
+        assert_eq!(report["saved_to"], serde_json::Value::Null);
+        assert_eq!(report["input_inversion"]["changed"], false);
+        assert_eq!(fs::read(&input).unwrap(), source.as_bytes());
+        for existing in [false, true] {
+            if existing {
+                fs::write(&output, b"preserve until accepted").unwrap();
+            } else if output.exists() {
+                fs::remove_file(&output).unwrap();
+            }
+            command(&input, "InputTrigger", false)
+                .arg("--save-as")
+                .arg(&output)
+                .arg("-q")
+                .assert()
+                .success();
+            assert_eq!(fs::read(&output).unwrap(), source.as_bytes());
+            if !existing {
+                fs::remove_file(&output).unwrap();
+            }
+            command(&input, "InputTrigger", true)
+                .arg("--save-as")
+                .arg(&output)
+                .arg("-q")
+                .assert()
+                .success();
+            let saved = fs::read_to_string(&output).unwrap();
+            assert_eq!(fs::read(&input).unwrap(), source.as_bytes());
+            assert_eq!(
+                saved,
+                with_saved_stamp(&source, &saved).replacen("Inv='false'", "Inv='true'", 1)
+            );
+            command(&output, "InputTrigger", true)
+                .arg("-q")
+                .assert()
+                .success();
+            assert_eq!(fs::read_to_string(&output).unwrap(), saved);
+            command(&output, "InputTrigger", false)
+                .arg("-q")
+                .assert()
+                .success();
+            let cleared = fs::read_to_string(&output).unwrap();
+            assert_eq!(
+                cleared,
+                with_saved_stamp(&saved, &cleared).replacen("Inv='true'", "", 1)
+            );
+        }
+    }
+}
+
+#[test]
+fn delay_input_inversion_refuses_unqualified_ports_layout_and_context_before_any_write() {
+    let dir = tempfile::tempdir_in(env!("CARGO_MANIFEST_DIR")).unwrap();
+    let input = dir.path().join("delay.Loxone");
+    let existing = dir.path().join("existing.Loxone");
+    let new = dir.path().join("new.Loxone");
+    for owner_type in ["OnDelay", "OffDelay", "OnOffDelay"] {
+        let source = delay_fixture(owner_type);
+        let mut cases: Vec<(String, &str)> =
+            ["Reset", "Remanence", "Time", "TimeOn", "TimeOff", "Q", "I1"]
+                .into_iter()
+                .map(|key| (source.clone(), key))
+                .collect();
+        for xml in [
+            source.replace("K=\"InputTrigger\"", "K=\"Trigger\""),
+            source
+                .replace("Nio=\"5\"", "Nio=\"4\"")
+                .replace("Nio=\"6\"", "Nio=\"5\""),
+            source.replace("<Co K=\"Remanence\"", "<Co K=\"Unknown\""),
+            source.replace("Def=\"0\" Inv='false'", "Def=\"1\" Inv='false'"),
+            source.replace("Def=\"0\" Inv='false'", "Def=\"0\" Nc=\"1\" Inv='false'"),
+            source.replace("Type=\"Program\"", "Type=\"Folder\""),
+            source
+                .replace("<ControlList ", "<Folder ")
+                .replace("</ControlList>", "</Folder>"),
+            source.replace(
+                "Title=\"Recovered delay input\"",
+                "Title=\"Noon 12hTF=quoted\"",
+            ),
+            source.replace(INPUT, OWNER),
+            source.replace("Unknown=\"selected\"", "Unknown=\"selected\" IfT=\"false\""),
+            source.replace("DateS=\"532627050\"", "DateS=\"2147483647\""),
+            source.replace(
+                "K=\"InputTrigger\"",
+                "K=\"InputTrigger\" K=\"InputTrigger\"",
+            ),
+            source
+                .replace("Type=\"OnDelay\"", "Type=\"ondelay\"")
+                .replace("Type=\"OffDelay\"", "Type=\"offdelay\"")
+                .replace("Type=\"OnOffDelay\"", "Type=\"onoffdelay\""),
+        ] {
+            cases.push((xml, "InputTrigger"));
+        }
+        for (xml, key) in cases {
+            for inverted in [false, true] {
+                for destination in [None, Some(&existing), Some(&new)] {
+                    fs::write(&input, &xml).unwrap();
+                    fs::write(&existing, b"preserve").unwrap();
+                    let mut edit = command(&input, key, inverted);
+                    if let Some(destination) = destination {
+                        edit.arg("--save-as").arg(destination);
+                    }
+                    edit.assert().failure();
+                    assert_eq!(fs::read(&input).unwrap(), xml.as_bytes());
+                    assert_eq!(fs::read(&existing).unwrap(), b"preserve");
+                    assert!(!new.exists());
+                }
+            }
+        }
+    }
+}
+
 fn latch_fragment(owner_type: &str, selected: &str, remanence: u8) -> String {
     let nio = if owner_type == "FlipFlop" { 4 } else { 5 };
     let input = |key: &str, uuid: &str| {

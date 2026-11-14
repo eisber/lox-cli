@@ -44,9 +44,15 @@ impl ConfigEditor {
         ensure!(
             matches!(
                 key,
-                "I" | "I1" | "I2" | "InputS" | "InputR" | "Trigger" | "InputEnable"
+                "I" | "I1"
+                    | "I2"
+                    | "InputS"
+                    | "InputR"
+                    | "Trigger"
+                    | "InputEnable"
+                    | "InputTrigger"
             ),
-            "Input inversion supports only existing unconnected And/Or/Xor.I1/I2, Not.I, FlipFlop/RSFlipFlop/SRFlipFlop.InputS/InputR, Counter.Trigger or HourCounter.InputEnable, not aliases, latch trigger inputs, outputs, analog inputs or parameters; nothing was changed."
+            "Input inversion supports only existing unconnected And/Or/Xor.I1/I2, Not.I, FlipFlop/RSFlipFlop/SRFlipFlop.InputS/InputR, Counter.Trigger, HourCounter.InputEnable or OnDelay/OffDelay/OnOffDelay.InputTrigger, not aliases, latch trigger inputs, outputs, analog inputs or parameters; nothing was changed."
         );
         ensure!(
             Self::sanitize_digit_attrs(data).1.is_empty(),
@@ -107,11 +113,22 @@ impl ConfigEditor {
                         | "SRFlipFlop"
                         | "Counter"
                         | "HourCounter"
+                        | "OnDelay"
+                        | "OffDelay"
+                        | "OnOffDelay"
                 )
                 && owner.attributes.get("U").map(String::as_str) == Some(requested)
                 && !owner.attributes.contains_key("Dev"),
-            "Input inversion requires an ordinary, non-device-bound And, Or, Xor, Not, FlipFlop, RSFlipFlop, SRFlipFlop, Counter or HourCounter directly on a Page; nothing was changed."
+            "Input inversion requires an ordinary, non-device-bound And, Or, Xor, Not, FlipFlop, RSFlipFlop, SRFlipFlop, Counter, HourCounter, OnDelay, OffDelay or OnOffDelay directly on a Page; nothing was changed."
         );
+        if matches!(kind(owner), "OnDelay" | "OffDelay" | "OnOffDelay") {
+            ensure!(
+                editor.root.name == "ControlList"
+                    && !editor.root.attributes.contains_key("Type")
+                    && documents[0].len() == 1,
+                "Delay input inversion requires the ordinary Document directly in the native ControlList root; other owning contexts are unsupported. Nothing was changed."
+            );
+        }
         let (input_keys, connector_keys, nio): (&[&str], &[&str], &str) = match kind(owner) {
             "Not" => (&["I"], &["I", "Q"], "2"),
             "FlipFlop" => (
@@ -153,12 +170,29 @@ impl ConfigEditor {
                 ],
                 "10",
             ),
+            "OnDelay" | "OffDelay" => (
+                &["InputTrigger"],
+                &["InputTrigger", "Reset", "Remanence", "Time", "Q"],
+                "5",
+            ),
+            "OnOffDelay" => (
+                &["InputTrigger"],
+                &[
+                    "InputTrigger",
+                    "Reset",
+                    "Remanence",
+                    "TimeOn",
+                    "TimeOff",
+                    "Q",
+                ],
+                "6",
+            ),
             _ => (&["I1", "I2"], &["I1", "I2", "Q"], "3"),
         };
         ensure!(
             input_keys.contains(&key)
                 && owner.attributes.get("Nio").map(String::as_str) == Some(nio),
-            "Input inversion requires the owner's exact native input and explicit layout: And/Or/Xor I1/I2 with Nio=3, Not I with Nio=2, latch InputS/InputR with FlipFlop Nio=4 or RSFlipFlop/SRFlipFlop Nio=5, Counter Trigger with Nio=7, or HourCounter InputEnable with Nio=10; nothing was changed."
+            "Input inversion requires the owner's exact native input and explicit layout: And/Or/Xor I1/I2 with Nio=3, Not I with Nio=2, latch InputS/InputR with FlipFlop Nio=4 or RSFlipFlop/SRFlipFlop Nio=5, Counter Trigger with Nio=7, HourCounter InputEnable with Nio=10, or delay InputTrigger with OnDelay/OffDelay Nio=5 or OnOffDelay Nio=6; nothing was changed."
         );
         let mut identities = Vec::new();
         let mut guarded_owners = vec![document];
@@ -228,7 +262,7 @@ impl ConfigEditor {
                         .count()
                         == 1
                 }),
-            "Input inversion requires exactly the owner's complete existing native connector set, including latch Remanence and RSFlipFlop/SRFlipFlop InputTrigger; duplicate/alias/default connector layouts are unsupported. Nothing was changed."
+            "Input inversion requires exactly the owner's complete existing native connector set, including latch Remanence and RSFlipFlop/SRFlipFlop InputTrigger, counter parameters/outputs and delay parameters/output; duplicate/alias/default connector layouts are unsupported. Nothing was changed."
         );
         for connector in &connectors {
             let identity = connector

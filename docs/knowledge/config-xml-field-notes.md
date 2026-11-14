@@ -441,6 +441,51 @@ qualification was performed for this recovery.
   UUIDs, order and raw storage are preserved, not reset or normalized.
   Reset inputs, wired/default inversion, output inversion, runtime behavior,
   native execution and new qualification credit are not claimed.
+- **Ordinary delay input inversion (17.2.10.21, source-only owner branches):**
+  OnDelay (native 361), OffDelay (363) and OnOffDelay (364) are independently
+  bound by actual factory `0x140432790:2766–2797`, not atlas/class-name symmetry.
+  Their concrete primary tables `0x140f6f088`, `0x140f6dcd8`, `0x140f717d8`
+  bind descriptor `+0xf18` to `0x1407f6e30`, `0x1407f69e0`, `0x1407f78c0`,
+  respectively; registry `0x1404ba670:78–110` calls those actual methods.
+  Each registers exact digital input `InputTrigger` with flags `type & 0xfff`
+  and default zero. Each also registers Reset, Remanence and Q; the first two
+  have parameter Time, while OnOffDelay separately registers TimeOn and TimeOff.
+  Timing defaults are **one**. The complete native layouts therefore have
+  `Nio=5`, `5` and `6`, including parameters, not merely input/output counts.
+  Literal Time/Q and the concrete vtable slots were checked in the frozen PE.
+  For each actual owner, `+0x5a8=false`, `+0x5d0=0x140468540`,
+  `+0xc20=0x140463f70`, `+0x4b0=0x140446520`, and `+8=0x14047e260`.
+  The actual connector table `0x140ec3a60` binds digital-kind getter
+  `+0x78=0x140467520`: these three native types take its descriptor-based
+  default case. InputTrigger has neither analog bit 21/31, exclusion bit 30,
+  nor special eligibility bit 22. Thus the actual hit/action-5/click transaction
+  above is reachable for this input. **Unconnected Reset instead has bit 22
+  and fails eligibility with zero connections**; its name or digital kind is
+  not sufficient permission. No Reset/Remanence/output operation is exposed.
+  Actual modern loading `0x140487c90:110–130` establishes the owning Document
+  before invoking these owners' `+8`. Their accepted connector path is
+  `0x14047e260:415–475` -> actual Co `+8=0x14047fb20` ->
+  key-matched copy `+0x18=0x14043d790`. Def, UUID and flags remain independent.
+  The modern Co branch exits at `0x1404833f9`, without the legacy numeric-port
+  conversion switch. The newly bound initializers `0x14045bc00`/`0x14045bc20`
+  clear private timer memory only; that is not runtime timing-edge proof.
+  For **these concrete delay owners**, click propagation `0x140469a90`
+  still first requires accepted owning-Document IfT via
+  `0x14050be70` -> `0x1404b8640` -> `0x140525ab0`. The existing global
+  Template/IfT/uuidParent/DocumentTemplate exclusions and exact ordinary
+  ownership therefore keep persisted WF29/reference propagation inactive.
+  This is an operation-specific argument for preserved absent/0/16384 WF,
+  not an assumed zero-WF timer rule. Actual owner serialization traverses
+  all native connectors; actual Co serialization writes only bit-0x20 Inv
+  independently of Def/references. Unselected Reset wiring, Q references,
+  parameters (including nonzero configured values), identities, rights,
+  positions and unknown bytes need not be neutral and are preserved.
+  The CLI admits only selected unconnected, absent/literal-zero-Def
+  InputTrigger, in a unique ordinary C Document directly in ControlList,
+  optional one C Program, C Page and exact C owner. It reuses all existing
+  raw/identity/date/no-op/atomic-output guards. These are three owner/input
+  branches of `set-input-inversion`, zero new base APIs, not runtime/simulator
+  support or a new native qualification.
 - **Combined window contact** (`JoinWindowSensor`): its `AQ` connector is the
   docs' status output (S): 1 = closed, 2 = tilted, 3 = open, 4 = closed and not
   locked, 5 = closed and locked, 0 = a sensor is offline. Test for "open" with

@@ -1165,12 +1165,12 @@ pub(crate) enum ConfigCmd {
         #[arg(long)]
         save_as: Option<String>,
     },
-    /// Set native Inv on an existing unconnected ordinary logic/counter digital input
+    /// Set native Inv on a supported existing unconnected digital input
     SetInputInversion {
         file: String,
-        /// Exact uuid:<native35-U> of an And/Or/Xor/Not/FlipFlop/RSFlipFlop/SRFlipFlop/Counter/HourCounter
+        /// Exact uuid:<native35-U> of a supported logic, latch, counter or delay owner
         selector: String,
-        /// Unconnected key: And/Or/Xor I1/I2, Not I, latch InputS/InputR, Counter Trigger, HourCounter InputEnable
+        /// And/Or/Xor I1/I2, Not I, latch InputS/InputR, Counter Trigger, HourCounter InputEnable, delay InputTrigger
         connector: String,
         /// Invert the selected digital input
         #[arg(
