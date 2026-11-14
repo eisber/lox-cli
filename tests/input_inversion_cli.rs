@@ -189,6 +189,87 @@ fn latch_inputs_preserve_full_project_unselected_wires_defaults_and_atomic_copie
     }
 }
 
+fn counter_fixture(owner_type: &str) -> (&'static str, String) {
+    let (key, nio, extra) = if owner_type == "Counter" {
+        (
+            "Trigger",
+            "7",
+            "<Co K=\"Remanence\" U=\"91111111-2222-3333-4444555566667777\" Def=\"1\"/><Co K=\"EndValue\" U=\"a2111111-2222-3333-4444555566667777\" Def=\"1000\"/><Co K=\"Mode\" U=\"a3111111-2222-3333-4444555566667777\" Def=\"0\"/>",
+        )
+    } else {
+        (
+            "InputEnable",
+            "10",
+            "<Co K=\"InputResetAll\" U=\"91111111-2222-3333-4444555566667777\" Inv=\"true\"/><Co K=\"Unit\" U=\"a2111111-2222-3333-4444555566667777\" Def=\"2\"/><Co K=\"Maintenance\" U=\"a3111111-2222-3333-4444555566667777\" Def=\"720\"/><Co K=\"AQl\" U=\"a4111111-2222-3333-4444555566667777\"/><Co K=\"AQr\" U=\"a5111111-2222-3333-4444555566667777\"/><Co K=\"AQs\" U=\"a6111111-2222-3333-4444555566667777\"/>",
+        )
+    };
+    let source = logic_fixture(owner_type)
+        .replace("Nio=\"3\"", &format!("Nio=\"{nio}\""))
+        .replace("K=\"I1\"", &format!("K=\"{key}\""))
+        .replace(
+            "<Co K=\"I2\" U=\"41111111-2222-3333-4444555566667777\"/>",
+            &format!(
+                "<Co K=\"Reset\" U=\"41111111-2222-3333-4444555566667777\" Nc=\"1\" Inv=\"true\" Def=\"1\"><Ref U=\"51111111-2222-3333-4444555566667777\" Unknown=\"reset-wire\"/></Co>{extra}<Co K=\"AQ\" U=\"a7111111-2222-3333-4444555566667777\" Unknown=\"analog-output\"/>"
+            ),
+        );
+    (key, source)
+}
+
+#[test]
+fn counter_inputs_preserve_other_wires_defaults_and_atomic_destinations() {
+    let dir = tempfile::tempdir_in(env!("CARGO_MANIFEST_DIR")).unwrap();
+    let input = dir.path().join("input.Loxone");
+    let output = dir.path().join("copy.Loxone");
+    for owner_type in ["Counter", "HourCounter"] {
+        let (key, source) = counter_fixture(owner_type);
+        for existing in [false, true] {
+            for inverted in [false, true] {
+                fs::write(&input, &source).unwrap();
+                if existing {
+                    fs::write(&output, b"preserve until accepted").unwrap();
+                } else if output.exists() {
+                    fs::remove_file(&output).unwrap();
+                }
+                command(&input, key, inverted)
+                    .arg("--save-as")
+                    .arg(&output)
+                    .arg("-q")
+                    .assert()
+                    .success();
+                assert_eq!(fs::read(&input).unwrap(), source.as_bytes());
+                let saved = fs::read_to_string(&output).unwrap();
+                if inverted {
+                    let selected =
+                        format!("<Co K=\"{key}\" U=\"{INPUT}\" Def=\"0\" Unknown=\"keep\"/>");
+                    let expected =
+                        source.replace(&selected, &selected.replace("/>", " Inv=\"true\"/>"));
+                    assert_eq!(
+                        &saved[saved.find("<C Type=\"Program\"").unwrap()..],
+                        &expected[expected.find("<C Type=\"Program\"").unwrap()..]
+                    );
+                } else {
+                    assert_eq!(saved, source);
+                }
+            }
+        }
+        fs::write(&input, &source).unwrap();
+        command(&input, key, false).arg("-q").assert().success();
+        assert_eq!(fs::read(&input).unwrap(), source.as_bytes());
+        command(&input, key, true).arg("-q").assert().success();
+        let once = fs::read(&input).unwrap();
+        command(&input, key, true).arg("-q").assert().success();
+        assert_eq!(fs::read(&input).unwrap(), once);
+        command(&input, key, false).arg("-q").assert().success();
+        let cleared = fs::read_to_string(&input).unwrap();
+        let selected = format!("<Co K=\"{key}\" U=\"{INPUT}\" Def=\"0\" Unknown=\"keep\"/>");
+        let expected = source.replace(&selected, &selected.replace("/>", " />"));
+        assert_eq!(
+            &cleared[cleared.find("<C Type=\"Program\"").unwrap()..],
+            &expected[expected.find("<C Type=\"Program\"").unwrap()..]
+        );
+    }
+}
+
 #[test]
 fn latch_inputs_refuse_other_native_roles_layouts_and_guarded_context_atomically() {
     let dir = tempfile::tempdir_in(env!("CARGO_MANIFEST_DIR")).unwrap();
@@ -312,6 +393,78 @@ fn latch_inputs_refuse_other_native_roles_layouts_and_guarded_context_atomically
                     assert_eq!(fs::read(&existing).unwrap(), b"preserve");
                     assert!(!new.exists());
                 }
+            }
+        }
+    }
+}
+
+#[test]
+fn counter_inputs_refuse_other_native_ports_and_incomplete_layouts_atomically() {
+    let dir = tempfile::tempdir_in(env!("CARGO_MANIFEST_DIR")).unwrap();
+    let input = dir.path().join("input.Loxone");
+    let existing = dir.path().join("existing.Loxone");
+    let new = dir.path().join("new.Loxone");
+    for owner_type in ["Counter", "HourCounter"] {
+        let (key, source) = counter_fixture(owner_type);
+        let mut cases: Vec<_> = [
+            "I1",
+            "InputTrigger",
+            "Reset",
+            "InputResetAll",
+            "Remanence",
+            "EndValue",
+            "Unit",
+            "Maintenance",
+            "Q",
+            "AQ",
+            "OutputQ",
+            if key == "Trigger" {
+                "InputEnable"
+            } else {
+                "Trigger"
+            },
+        ]
+        .into_iter()
+        .map(|wrong| (source.clone(), wrong))
+        .collect();
+        for xml in [
+            source.replace(
+                if owner_type == "Counter" {
+                    "Nio=\"7\""
+                } else {
+                    "Nio=\"10\""
+                },
+                "Nio=\"3\"",
+            ),
+            source.replace(
+                "<Co K=\"AQ\" U=\"a7111111-2222-3333-4444555566667777\" Unknown=\"analog-output\"/>",
+                "",
+            ),
+            source.replace("K=\"Q\"", "K=\"OutputQ\""),
+            source.replace("Def=\"0\" Unknown=\"keep\"", "Def=\"1\" Unknown=\"keep\""),
+            source.replace("Def=\"0\" Unknown=\"keep\"", "Nc=\"1\" Def=\"0\" Unknown=\"keep\""),
+            source.replace("WF=\"16384\"", "WF=\"536870912\""),
+            source.replace("DateS=\"1\"", "DateS=\"-1\""),
+            source.replace("<Loxone>", "<Loxone><Template/>"),
+            source.replace(
+                "a7111111-2222-3333-4444555566667777",
+                "B1111111-2222-3333-4444555566667777",
+            ),
+        ] {
+            cases.push((xml, key));
+        }
+        for (xml, requested) in cases {
+            for destination in [None, Some(&existing), Some(&new)] {
+                fs::write(&input, &xml).unwrap();
+                fs::write(&existing, b"preserve").unwrap();
+                let mut edit = command(&input, requested, false);
+                if let Some(destination) = destination {
+                    edit.arg("--save-as").arg(destination);
+                }
+                edit.assert().failure();
+                assert_eq!(fs::read(&input).unwrap(), xml.as_bytes());
+                assert_eq!(fs::read(&existing).unwrap(), b"preserve");
+                assert!(!new.exists());
             }
         }
     }
@@ -478,6 +631,78 @@ fn xor_not_inputs_on_full_golden_project_preserve_nonzero_wf_and_wires() {
         }
         let after = fs::read_to_string(&input).unwrap();
         let saved = xmltree::Element::parse(after.as_bytes()).unwrap();
+        for uuid in [
+            "1fbf3415-030f-bc7d-ffff9bb3c1479539",
+            "1fbf341a-00e9-c0af-ffff9bb3c1479539",
+            "1fbf34a5-03b1-83a1-ffff9bb3c1479539",
+            owner,
+        ] {
+            assert_eq!(control(&saved, uuid).unwrap().attributes["WF"], "16384");
+        }
+        let wires = |text: &str| {
+            text.lines()
+                .filter(|line| line.contains("<In ") || line.contains("<Ref "))
+                .map(str::to_owned)
+                .collect::<Vec<_>>()
+        };
+        assert_eq!(wires(&after), wires(&before));
+    }
+}
+
+#[test]
+fn counter_inputs_on_full_golden_project_preserve_nonzero_wf_and_wires() {
+    fn append_owner(element: &mut xmltree::Element, owner: &xmltree::Element) -> bool {
+        if element.attributes.get("U").map(String::as_str)
+            == Some("1fbf34a5-03b1-83a1-ffff9bb3c1479539")
+        {
+            element
+                .children
+                .push(xmltree::XMLNode::Element(owner.clone()));
+            return true;
+        }
+        element
+            .children
+            .iter_mut()
+            .filter_map(xmltree::XMLNode::as_mut_element)
+            .any(|child| append_owner(child, owner))
+    }
+
+    let dir = tempfile::tempdir_in(env!("CARGO_MANIFEST_DIR")).unwrap();
+    let input = dir.path().join("golden.Loxone");
+    let golden = Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("tests")
+        .join("eval")
+        .join("golden")
+        .join("configs")
+        .join("Guest Room Door.Loxone");
+    for owner_type in ["Counter", "HourCounter"] {
+        let (key, source) = counter_fixture(owner_type);
+        let source = xmltree::Element::parse(source.as_bytes()).unwrap();
+        let mut project = xmltree::Element::parse(fs::read(&golden).unwrap().as_slice()).unwrap();
+        assert!(append_owner(&mut project, control(&source, OWNER).unwrap()));
+        project
+            .write_with_config(
+                fs::File::create(&input).unwrap(),
+                xmltree::EmitterConfig::new().perform_indent(true),
+            )
+            .unwrap();
+        let owner = OWNER;
+        let before = fs::read_to_string(&input).unwrap();
+        assert!(before.contains("<In "));
+        let original = xmltree::Element::parse(before.as_bytes()).unwrap();
+        let owner_before = control(&original, owner).unwrap().clone();
+        for flag in ["--inverted", "--no-inverted"] {
+            assert_cmd::cargo::cargo_bin_cmd!("lox")
+                .env("LOX_TELEMETRY", "0")
+                .args(["config", "set-input-inversion"])
+                .arg(&input)
+                .args([format!("uuid:{owner}").as_str(), key, flag, "-q"])
+                .assert()
+                .success();
+        }
+        let after = fs::read_to_string(&input).unwrap();
+        let saved = xmltree::Element::parse(after.as_bytes()).unwrap();
+        assert_eq!(control(&saved, owner).unwrap(), &owner_before);
         for uuid in [
             "1fbf3415-030f-bc7d-ffff9bb3c1479539",
             "1fbf341a-00e9-c0af-ffff9bb3c1479539",

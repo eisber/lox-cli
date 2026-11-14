@@ -397,6 +397,50 @@ qualification was performed for this recovery.
   references, defaults, rights, positions and unknown bytes remain untouched.
   No latch runtime/clock/state persistence, Trigger/wired-input inversion,
   output/parameter operation, new base API or native qualification is claimed.
+- **Ordinary Counter/HourCounter input inversion (17.2.10.21, source-only):**
+  these are two new owner/input branches of `set-input-inversion`, not new
+  APIs or inferred counter/timer symmetry. Factory `0x140432790:2921–2946`
+  binds type 382 to `CControlObjectCounter`, primary PE table `0x140efae60`,
+  and type 380 to `CControlObjectHourCounter`, table `0x140f42198`.
+  Registry `0x1404ba670:78–110` calls each actual `+0xf18`: respectively
+  `0x1407abf40` and `0x14073fcc0`. They register XML `Counter` with seven
+  connectors and exact input `Trigger`, and XML `HourCounter` with ten
+  connectors and exact input `InputEnable`. Each selected descriptor has
+  flags `type & 0xfff` and neutral default zero. Other native keys are
+  `Reset`/`Remanence`/`EndValue`/`Mode`/`Q`/`AQ` for Counter, and
+  `Reset`/`InputResetAll`/`Unit`/`Maintenance`/`Q`/`AQ`/`AQl`/`AQr`/`AQs`
+  for HourCounter. Parameter and output names are not alternative inputs.
+  HourCounter's `0x1404bea20(...,1)` changes descriptor metadata `+0x104`,
+  not the selected connector flags.
+  Both actual tables bind `+0x4b0=0x140446520`, false `+0x5a8`,
+  `+0x5d0=0x140468540`, `+0xc20=0x140463f70` and
+  `+8=0x14047e260`. The accepted connector constructor `0x140423420`
+  installs table `0x140ec3a60`; `+0x78=0x140467520:87–92` returns digital
+  for these actual types and selected flags (neither bit 21 nor bit 31).
+  There is no selected special/exclusion bit `0x400000`/`0x40000000`.
+  Thus the concrete capability and hit/action-5/click path above admits
+  these two ports; neither the word Trigger nor the analog AQ output is
+  used to infer eligibility.
+  Modern name-registry loading `0x140487c90:110–130` sets the actual
+  parent/document, then invokes each bound loader. `0x14047e260:415–475`
+  accepts the complete explicit `Nio=7`/`Nio=10` layout by descriptor key;
+  connector `+0x18=0x14043d790` copies UUID, Def and Inv independently.
+  Connector `+8=0x14047fb20:84–103,175–281` loads/writes owned Inv,
+  independently of unselected defaults and reference traversal;
+  `0x1404416c0:37–50` derives unconnected digital state from bit `0x20`.
+  For each new owner, the actual click calls `0x140469a90`, but its
+  persisted WF29/reference propagation gate requires the accepted owning
+  Document's IfT (`0x14050be70`, `0x140525ab0`). Reused constructor/loader
+  `0x140525ac0:116` and `0x1405288f0:485–505`, with the existing global
+  Template/IfT/uuidParent/DocumentTemplate refusal, keep that gate false.
+  The concrete capability/eligibility functions do not inspect ordinary
+  C.WF, so the existing absent/0/16384 ancestry restriction is also proved
+  for these two branches, without assuming counter flag symmetry.
+  Only the selected unconnected neutral-Def input is admitted; other wires,
+  inversion/defaults, remanence, maintenance, references, rights, positions,
+  UUIDs, order and raw storage are preserved, not reset or normalized.
+  Reset inputs, wired/default inversion, output inversion, runtime behavior,
+  native execution and new qualification credit are not claimed.
 - **Combined window contact** (`JoinWindowSensor`): its `AQ` connector is the
   docs' status output (S): 1 = closed, 2 = tilted, 3 = open, 4 = closed and not
   locked, 5 = closed and locked, 0 = a sensor is offline. Test for "open" with
